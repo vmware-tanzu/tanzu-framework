@@ -1,2 +1,2 @@
-# cli
-Tanzu CLI
+# Core
+Tanzu core components
