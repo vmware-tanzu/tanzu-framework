@@ -1,0 +1,24 @@
+# permissions for end users to edit contexts.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: context-editor-role
+rules:
+- apiGroups:
+  - auth.tanzu.cloud.vmware.com.tanzu.cloud.vmware.com
+  resources:
+  - contexts
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - auth.tanzu.cloud.vmware.com.tanzu.cloud.vmware.com
+  resources:
+  - contexts/status
+  verbs:
+  - get
