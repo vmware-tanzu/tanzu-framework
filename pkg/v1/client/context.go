@@ -11,42 +11,88 @@ import (
 )
 
 const (
-	// LocalDir is the default local directory in which contexts are stored.
-	LocalDir = "~/.tanzu"
+	// EnvContextKey is the environment variable that points to a tanzu context.
+	EnvContextKey = "TANZU_CONTEXT"
+
+	// LocalDirName is the name of the local directory in which tanzu state is stored.
+	LocalDirName = ".tanzu"
 
 	// ContextName is the name of the context
 	ContextName = "context.yaml"
 )
 
+// LocalDir returns the local directory in which tanzu state is stored.
+func LocalDir() (path string, err error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return path, err
+	}
+	path = filepath.Join(home, LocalDirName)
+	return
+}
+
+// ContextPath returns the tanzu context path, checking for enviornment overrides.
+func ContextPath() (path string, err error) {
+	localDir, err := LocalDir()
+	if err != nil {
+		return path, err
+	}
+	var ok bool
+	path, ok = os.LookupEnv(EnvContextKey)
+	if !ok {
+		path = filepath.Join(localDir, ContextName)
+		return
+	}
+	return
+}
+
 // GetContext retrieves the context from the local directory.
 func GetContext() (ctx *clientv1alpha1.Context, err error) {
-	b, err := ioutil.ReadFile(contextPath)
+	ctxPath, err := ContextPath()
 	if err != nil {
 		return nil, err
 	}
-	return yaml.Unmarshal(b, ctx)
+	b, err := ioutil.ReadFile(ctxPath)
+	if err != nil {
+		return nil, err
+	}
+	// TODO: this needs the k8s serializer.
+	err = yaml.Unmarshal(b, ctx)
+	return
 }
 
 // StoreContext stores the context in the local directory.
 func StoreContext(ctx *clientv1alpha1.Context) error {
-	f, err := os.Stat(contextPath())
+	ctxPath, err := ContextPath()
+	if err != nil {
+		return err
+	}
+	_, err = os.Stat(ctxPath)
 	if os.IsNotExist(err) {
-		err := os.MkdirAll(LocalDir, 0755)
+		localDir, err := LocalDir()
+		if err != nil {
+			return err
+		}
+		err = os.MkdirAll(localDir, 0755)
+		if err != nil {
+			return err
+		}
 	} else {
 		return err
 	}
+	// TODO: needs k8s serializer.
 	b, err := yaml.Marshal(ctx)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return ioutil.WriteFile(contextPath, b)
+	return ioutil.WriteFile(ctxPath, b, 0644)
 }
 
 // DeleteContext deletes the context from the local directory.
 func DeleteContext() error {
-	return os.Remove(contextPath())
-}
-
-func contextPath() string {
-	return filepath.Join(LocalDir, ContextName)
+	ctxPath, err := ContextPath()
+	if err != nil {
+		return err
+	}
+	return os.Remove(ctxPath)
 }
