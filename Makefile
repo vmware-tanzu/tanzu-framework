@@ -78,3 +78,50 @@ CONTROLLER_GEN=$(GOBIN)/controller-gen
 else
 CONTROLLER_GEN=$(shell which controller-gen)
 endif
+
+BUILD_VERSION ?= $$(cat BUILD_VERSION)
+BUILD_SHA ?= $$(git rev-parse --short HEAD)
+BUILD_DATE ?= $$(date -u +"%Y-%m-%d")
+
+build_OS := $(shell uname 2>/dev/null || echo Unknown)
+
+LD_FLAGS = -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildDate=$(BUILD_DATE)'
+LD_FLAGS +=	-X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildSHA=$(BUILD_SHA)'
+LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildVersion=$(BUILD_VERSION)'
+
+
+ARTIFACTS_DIR ?= "./artifacts"
+
+ifeq ($(build_OS), Linux)
+XDG_DATA_HOME := ${HOME}/.local/share
+endif
+ifeq ($(build_OS), Darwin)
+XDG_DATA_HOME := ${HOME}/Library/ApplicationSupport
+endif
+
+export XDG_DATA_HOME
+
+
+.PHONY: install-cli
+install-cli:
+	go install -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu
+
+.PHONY: build-cli
+build-cli:
+	go run ./cmd/cli/compiler/main.go --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)"
+
+.PHONY: test-cli
+test-cli:
+	go test ./...
+
+.PHONY: build-install-plugins
+build-install-plugins: delete-plugins build install-plugins
+
+.PHONY: install-plugins
+install-plugins:
+	go run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
+		plugin install all --local $(ARTIFACTS_DIR)
+
+.PHONY: clean-plugins
+clean-plugins:
+	- rm ${XDG_DATA_HOME}/tanzu-cli/*

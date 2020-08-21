@@ -56,7 +56,7 @@ func GetContext() (ctx *clientv1alpha1.Context, err error) {
 	if err != nil {
 		return nil, err
 	}
-	// TODO: this needs the k8s serializer.
+	// TODO (pbarker): this needs the k8s serializer.
 	err = yaml.Unmarshal(b, ctx)
 	return
 }
@@ -80,11 +80,13 @@ func StoreContext(ctx *clientv1alpha1.Context) error {
 	} else {
 		return err
 	}
-	// TODO: needs k8s serializer.
+	// TODO (pbarker): needs k8s serializer.
 	b, err := yaml.Marshal(ctx)
 	if err != nil {
 		return err
 	}
+
+	// TODO (pbarker): need to consider races.
 	return ioutil.WriteFile(ctxPath, b, 0644)
 }
 

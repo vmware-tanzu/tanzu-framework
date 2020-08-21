@@ -1,5 +1,4 @@
 domain: tanzu.cloud.vmware.com
-multigroup: true
 repo: github.com/vmware-tanzu-private/core
 resources:
 - group: client.tanzu.cloud.vmware.com
