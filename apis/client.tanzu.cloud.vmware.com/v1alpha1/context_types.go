@@ -27,15 +27,13 @@ import (
 type ContextSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+	Test bool `json:"test"`
 }
 
 // ContextStatus defines the observed state of Context
 type ContextStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-
-	// State set by individual clients.
-	State map[string]string `json:"state,omitempty"`
 }
 
 // +kubebuilder:object:root=true

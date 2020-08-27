@@ -27,13 +27,14 @@ const (
 )
 
 var (
-	version, path, ldflags string
+	version, path, artifactsDir, ldflags string
 )
 
 func init() {
 	flag.StringVar(&version, "version", "", "version of the root cli (required)")
 	flag.StringVar(&ldflags, "ldflags", "", "ldflags to set on build")
 	flag.StringVar(&path, "path", "./plugin", "path of the plugins directory")
+	flag.StringVar(&artifactsDir, "artifacts", cli.DefaultArtifactsDirectory, "path to output artifacts")
 }
 
 func main() {
@@ -42,7 +43,7 @@ func main() {
 	if version == "" {
 		log.Fatal("version flag must be set")
 	}
-	log.Infof("building local repository at ./%s", cli.ArtifactsDirectory)
+	log.Infof("building local repository at ./%s", artifactsDir)
 
 	manifest := cli.Manifest{
 		CreatedTime: time.Now(),
@@ -52,10 +53,10 @@ func main() {
 
 	log.Break()
 	log.Info("building core binary")
-	buildAllTargets("cmd/tanzu", filepath.Join(cli.ArtifactsDirectory, cli.CoreName, version), cli.CoreName)
+	buildAllTargets("cmd/cli/tanzu", filepath.Join(artifactsDir, cli.CoreName, version), cli.CoreName)
 
-	// TODO (pbarker): should probably copy.
-	buildAllTargets("cmd/tanzu", filepath.Join(cli.ArtifactsDirectory, cli.CoreName, cli.VersionLatest), cli.CoreName)
+	// TODO (pbarker): should copy.
+	buildAllTargets("cmd/cli/tanzu", filepath.Join(artifactsDir, cli.CoreName, cli.VersionLatest), cli.CoreName)
 
 	files, err := ioutil.ReadDir(path)
 	log.Check(err)
@@ -70,7 +71,7 @@ func main() {
 	b, err := yaml.Marshal(manifest)
 	log.Check(err)
 
-	manifestPath := filepath.Join(cli.ArtifactsDirectory, cli.ManifestFileName)
+	manifestPath := filepath.Join(artifactsDir, cli.ManifestFileName)
 	err = ioutil.WriteFile(manifestPath, b, 0644)
 	log.Check(err)
 
@@ -188,13 +189,13 @@ var archMap = map[cli.Arch]targetBuilder{
 }
 
 func (p *plugin) compile() {
-	outPath := filepath.Join(cli.ArtifactsDirectory, p.Name, p.Version)
+	outPath := filepath.Join(artifactsDir, p.Name, p.Version)
 
 	buildAllTargets(p.path, outPath, p.Name)
 	b, err := yaml.Marshal(p.PluginDescriptor)
 	log.Check(err)
 
-	configPath := filepath.Join(cli.ArtifactsDirectory, p.Name, cli.PluginFileName)
+	configPath := filepath.Join(artifactsDir, p.Name, cli.PluginFileName)
 	err = ioutil.WriteFile(configPath, b, 0644)
 	log.Check(err)
 }

@@ -12,6 +12,7 @@ import (
 
 	"golang.org/x/mod/semver"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	"github.com/aunum/log"
@@ -100,12 +101,12 @@ func (p PluginDescriptor) HasUpdate(repo Repository) (update bool, version strin
 func ParsePluginDescriptor(path string) (desc PluginDescriptor, err error) {
 	b, err := ioutil.ReadFile(path)
 	if err != nil {
-		return desc, err
+		return desc, errors.Wrap(err, "could not read plugin descriptor")
 	}
 
 	err = json.Unmarshal(b, &desc)
 	if err != nil {
-		return desc, err
+		return desc, errors.Wrap(err, "could not unmarshal plugin descriptor")
 	}
 
 	return
@@ -208,7 +209,7 @@ func (c *Catalog) Install(name, version string, repo Repository) error {
 
 	err = ioutil.WriteFile(pluginPath, b, 0755)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "could not write file")
 	}
 	return nil
 }
@@ -283,7 +284,7 @@ func (c *Catalog) ensureRoot() error {
 	_, err := os.Stat(c.pluginRoot)
 	if os.IsNotExist(err) {
 		err := os.MkdirAll(c.pluginRoot, 0755)
-		return err
+		return errors.Wrap(err, "could not make root plugin directory")
 	}
 	return err
 }

@@ -6,6 +6,8 @@
 *.so
 *.dylib
 bin
+artifacts
+test/cli/mock/artifacts*
 
 # Test binary, build with `go test -c`
 *.test

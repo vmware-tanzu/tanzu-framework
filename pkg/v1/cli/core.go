@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/pkg/errors"
 	"golang.org/x/mod/semver"
 )
 
@@ -52,33 +53,36 @@ func Update(repo Repository) error {
 
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
-		return err
+		return errors.Wrap(err, "could not locate filepath of running binary")
 	}
 
 	newCliFile := filepath.Join(dir, "tanzu_new")
 	outFile, err := os.OpenFile(newCliFile, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "could not create new binary file")
 	}
 	defer outFile.Close()
 
 	_, err = io.Copy(outFile, bytes.NewReader(b))
+	if err != nil {
+		return errors.Wrap(err, "could not copy new binary file")
+	}
 	outFile.Close()
 
 	if BuildArch().IsWindows() {
 		executable = outFile.Name() + ".exe"
 		err = os.Rename(outFile.Name(), executable)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "could not rename binary file")
 		}
 	} else {
 		executable, err = os.Executable()
 		if err != nil {
-			return err
+			return errors.Wrap(err, "could not locate current executable")
 		}
 		err = os.Rename(outFile.Name(), executable)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "could not rename binary file")
 		}
 	}
 	return nil

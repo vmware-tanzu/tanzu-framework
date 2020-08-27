@@ -13,6 +13,9 @@ import (
 	"github.com/logrusorgru/aurora"
 )
 
+// CmdMap is the map of command groups to plugins
+type CmdMap map[string][]*cobra.Command
+
 // MainUsage create the main usage display for tanzu cli.
 type MainUsage struct{}
 

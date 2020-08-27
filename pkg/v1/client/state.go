@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 )
 
@@ -25,9 +26,12 @@ func GetState() (state State, err error) {
 	}
 	b, err := ioutil.ReadFile(stateFilePath)
 	if err != nil {
-		return state, err
+		return state, errors.Wrap(err, "could not read local state file")
 	}
 	err = yaml.Unmarshal(b, &state)
+	if err != nil {
+		return state, errors.Wrap(err, "could not unmarshal state file")
+	}
 	return
 }
 
@@ -42,7 +46,7 @@ func SetState(vals map[string]interface{}) error {
 	for k, v := range vals {
 		state[k] = v
 	}
-	// TODO (pbarker): any situation in which this could race? may want conditional updates or locks.
+	// TODO (pbarker): handle potential races
 	return state.store()
 }
 
@@ -55,7 +59,6 @@ func DeleteState(keys ...string) error {
 	for _, key := range keys {
 		delete(state, key)
 	}
-
 	return state.store()
 }
 
@@ -74,9 +77,12 @@ func (s State) store() error {
 	}
 	b, err := yaml.Marshal(s)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "could not marshal state file")
 	}
-	return ioutil.WriteFile(stateFilePath, b, 0644)
+	if err = ioutil.WriteFile(stateFilePath, b, 0644); err != nil {
+		return errors.Wrap(err, "could dnot write state file")
+	}
+	return nil
 }
 
 func stateFilePath() (path string, err error) {
@@ -93,7 +99,7 @@ func ensurePath(path string) error {
 	if os.IsNotExist(err) {
 		err := os.MkdirAll(path, 0755)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "could not make local tanzu directory")
 		}
 		return nil
 	}

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/storage"
+	"github.com/pkg/errors"
 	"google.golang.org/api/option"
 	"gopkg.in/yaml.v2"
 )
@@ -77,8 +78,8 @@ const (
 	ManifestFileName = "manifest.yaml"
 	// PluginFileName is the file name for the plugin descriptor.
 	PluginFileName = "plugin.yaml"
-	// ArtifactsDirectory is the root artifacts directory
-	ArtifactsDirectory = "artifacts"
+	// DefaultArtifactsDirectory is the root artifacts directory
+	DefaultArtifactsDirectory = "artifacts"
 
 	// VersionLatest is the latest version.
 	VersionLatest = "latest"
@@ -95,7 +96,7 @@ type GCPBucketRepository struct {
 // DefaultGCPBucketRepository is the default GCP bucket repository.
 var DefaultGCPBucketRepository = &GCPBucketRepository{
 	bucketName: "tanzu-cli",
-	rootPath:   ArtifactsDirectory,
+	rootPath:   DefaultArtifactsDirectory,
 }
 
 // NewGCPBucketRepository returns a new GCP bucket repository.
@@ -114,7 +115,6 @@ func (g *GCPBucketRepository) List() (desc []PluginDescriptor, err error) {
 	if err != nil {
 		return desc, err
 	}
-
 	desc = manifest.Plugins
 	return
 }
@@ -131,10 +131,13 @@ func (g *GCPBucketRepository) Describe(name string) (desc PluginDescriptor, err 
 	pluginPath := filepath.Join(g.rootPath, name, PluginFileName)
 
 	obj := bkt.Object(pluginPath)
+	if obj == nil {
+		return desc, fmt.Errorf("artifact %q not found", name)
+	}
 
 	r, err := obj.NewReader(ctx)
 	if err != nil {
-		return desc, err
+		return desc, errors.Wrap(err, "could not fetch artifact from repository")
 	}
 	defer r.Close()
 
@@ -142,7 +145,7 @@ func (g *GCPBucketRepository) Describe(name string) (desc PluginDescriptor, err 
 
 	err = d.Decode(&desc)
 	if err != nil {
-		return desc, err
+		return desc, errors.Wrap(err, "could not decode plugin decriptor")
 	}
 	return
 }
@@ -166,16 +169,19 @@ func (g *GCPBucketRepository) Fetch(name, version string, arch Arch) ([]byte, er
 
 	artifactPath := filepath.Join(g.rootPath, name, version, MakeArtifactName(name, arch))
 	obj := bkt.Object(artifactPath)
+	if obj == nil {
+		return nil, fmt.Errorf("artifact %q not found", name)
+	}
 
 	r, err := obj.NewReader(ctx)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "could not read artifact")
 	}
 	defer r.Close()
 
 	b, err := ioutil.ReadAll(r)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "could not fetch artifact")
 	}
 	return b, nil
 }
@@ -192,10 +198,13 @@ func (g *GCPBucketRepository) Manifest() (manifest Manifest, err error) {
 	manifestPath := filepath.Join(g.rootPath, ManifestFileName)
 
 	obj := bkt.Object(manifestPath)
+	if obj == nil {
+		return manifest, fmt.Errorf("could not fetch manifest from repository")
+	}
 
 	r, err := obj.NewReader(ctx)
 	if err != nil {
-		return manifest, err
+		return manifest, errors.Wrap(err, "could not fetch manifest from repository")
 	}
 	defer r.Close()
 
@@ -203,7 +212,7 @@ func (g *GCPBucketRepository) Manifest() (manifest Manifest, err error) {
 
 	err = d.Decode(&manifest)
 	if err != nil {
-		return manifest, err
+		return manifest, errors.Wrap(err, "could not decode plugin decriptor")
 	}
 	return manifest, nil
 }
@@ -211,9 +220,12 @@ func (g *GCPBucketRepository) Manifest() (manifest Manifest, err error) {
 func (g *GCPBucketRepository) getBucket(ctx context.Context) (*storage.BucketHandle, error) {
 	client, err := storage.NewClient(ctx, option.WithoutAuthentication())
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "could not connect to repository")
 	}
 	bkt := client.Bucket(g.bucketName)
+	if bkt == nil {
+		return nil, fmt.Errorf("could not connect to repository")
+	}
 	return bkt, nil
 }
 
@@ -224,7 +236,7 @@ type LocalRepository struct {
 
 // DefaultLocalRepository is the default local repository.
 var DefaultLocalRepository = &LocalRepository{
-	path: fmt.Sprintf("./%s", ArtifactsDirectory),
+	path: fmt.Sprintf("./%s", DefaultArtifactsDirectory),
 }
 
 // NewLocalRepository returns a new local repository.
@@ -270,7 +282,7 @@ func (l *LocalRepository) Fetch(name, version string, arch Arch) ([]byte, error)
 	}
 	b, err := ioutil.ReadFile(filepath.Join(l.path, name, version, MakeArtifactName(name, arch)))
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "could not find artifact at given path")
 	}
 	return b, nil
 }

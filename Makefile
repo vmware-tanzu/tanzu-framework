@@ -110,18 +110,23 @@ install-cli:
 build-cli:
 	go run ./cmd/cli/compiler/main.go --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)"
 
+.PHONY: build-cli-mocks
+build-cli-mocks:
+	go run ./cmd/cli/compiler/main.go --version 0.0.1 --ldflags "$(LD_FLAGS)" --path ./test/cli/mock/plugin-old --artifacts ./test/cli/mock/artifacts-old
+	go run ./cmd/cli/compiler/main.go --version 0.0.2 --ldflags "$(LD_FLAGS)" --path ./test/cli/mock/plugin-new --artifacts ./test/cli/mock/artifacts-new
+
 .PHONY: test-cli
 test-cli:
 	go test ./...
 
-.PHONY: build-install-plugins
-build-install-plugins: delete-plugins build install-plugins
+.PHONY: build-install-cli-plugins
+build-install-cli-plugins: delete-plugins build install-plugins
 
-.PHONY: install-plugins
-install-plugins:
+.PHONY: install-cli-plugins
+install-cli-plugins:
 	go run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
 		plugin install all --local $(ARTIFACTS_DIR)
 
-.PHONY: clean-plugins
-clean-plugins:
+.PHONY: clean-cli-plugins
+clean-cli-plugins:
 	- rm ${XDG_DATA_HOME}/tanzu-cli/*

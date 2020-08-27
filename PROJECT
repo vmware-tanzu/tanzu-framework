@@ -1,10 +1,7 @@
-domain: tanzu.cloud.vmware.com
+domain: tanzu.vmware.com
 repo: github.com/vmware-tanzu-private/core
 resources:
 - group: client.tanzu.cloud.vmware.com
-  kind: Context
-  version: v1alpha1
-- group: test.tanzu.cloud.vmware.com
   kind: Context
   version: v1alpha1
 version: "2"
