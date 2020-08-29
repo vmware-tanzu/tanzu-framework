@@ -10,7 +10,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/runtime/serializer/json"
 
-	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client.tanzu.cloud.vmware.com/v1alpha1"
+	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
 )
 
 const (

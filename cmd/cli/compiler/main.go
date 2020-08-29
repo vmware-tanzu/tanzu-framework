@@ -33,7 +33,7 @@ var (
 func init() {
 	flag.StringVar(&version, "version", "", "version of the root cli (required)")
 	flag.StringVar(&ldflags, "ldflags", "", "ldflags to set on build")
-	flag.StringVar(&path, "path", "./plugin", "path of the plugins directory")
+	flag.StringVar(&path, "path", "./cmd/cli/plugin", "path of the plugins directory")
 	flag.StringVar(&artifactsDir, "artifacts", cli.DefaultArtifactsDirectory, "path to output artifacts")
 }
 

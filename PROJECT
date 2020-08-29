@@ -1,7 +1,8 @@
 domain: tanzu.vmware.com
+multigroup: true
 repo: github.com/vmware-tanzu-private/core
 resources:
-- group: client.tanzu.cloud.vmware.com
+- group: client
   kind: Context
   version: v1alpha1
 version: "2"

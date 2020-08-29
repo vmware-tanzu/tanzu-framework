@@ -1,4 +1,4 @@
-apiVersion: client.tanzu.cloud.vmware.com.tanzu.cloud.vmware.com/v1alpha1
+apiVersion: client.tanzu.vmware.com/v1alpha1
 kind: Context
 metadata:
   name: context-sample
