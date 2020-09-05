@@ -1,0 +1,20 @@
+# permissions for end users to view cspconfigs.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cspconfig-viewer-role
+rules:
+- apiGroups:
+  - auth.tanzu.vmware.com
+  resources:
+  - cspconfigs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - auth.tanzu.vmware.com
+  resources:
+  - cspconfigs/status
+  verbs:
+  - get

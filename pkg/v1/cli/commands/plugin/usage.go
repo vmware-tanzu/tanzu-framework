@@ -28,7 +28,7 @@ const CmdTemplate = `{{ bold "Usage:" }}{{if .Runnable}}
 {{ bold "Examples:" }}
   {{.Example}}{{end}}{{if .HasAvailableSubCommands}}
 
-{{ bold "Available Commands:" }}{{range .Commands}}{{if (or .IsAvailableCommand (eq .Name "help"))}}
+{{ bold "Available Commands:" }}{{range .Commands}}{{if .IsAvailableCommand }}
   {{rpad .Name .NamePadding }} {{.Short}}{{end}}{{end}}{{end}}{{if .HasAvailableLocalFlags}}
 
 {{ bold "Flags:" }}

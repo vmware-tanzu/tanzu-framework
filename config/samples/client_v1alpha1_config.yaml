@@ -1,0 +1,7 @@
+apiVersion: client.tanzu.vmware.com/v1alpha1
+kind: Config
+metadata:
+  name: config-sample
+spec:
+  # Add fields here
+  foo: bar

@@ -1,4 +1,4 @@
-package auth
+package csp
 
 /*
 Inspired from https://gitlab.eng.vmware.com/olympus/api/blob/master/pkg/common/auth/oidc.go
@@ -6,6 +6,7 @@ Inspired from https://gitlab.eng.vmware.com/olympus/api/blob/master/pkg/common/a
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -14,6 +15,7 @@ import (
 	"strings"
 	"time"
 
+	"gitlab.eng.vmware.com/olympus/api-machinery/pkg/logger"
 	"golang.org/x/oauth2"
 
 	"github.com/pkg/errors"
@@ -124,4 +126,63 @@ func GetIssuer(staging bool) string {
 		return StgIssuer
 	}
 	return ProdIssuer
+}
+
+// Claims are the jwt claims.
+// TODO (pbarker): make this proper.
+type Claims struct {
+	Username    string
+	Permissions []string
+	OrgID       string
+	Raw         map[string]interface{}
+}
+
+// ParseToken the JWT payload and return the decoded information.
+// TODO (pbarker): need to get this from another place
+func ParseToken(tkn *oauth2.Token) (*Claims, error) {
+	accessToken := strings.Split(tkn.AccessToken, ".")
+	if len(accessToken) < 3 {
+		panic("invalid accessToken")
+	}
+	jwtPayload := accessToken[1] // Get just the payload part of the JWT
+
+	if l := len(jwtPayload) % 4; l > 0 {
+		jwtPayload += strings.Repeat("=", 4-l)
+	}
+
+	payload, err := base64.URLEncoding.DecodeString(jwtPayload)
+	if err != nil {
+		return nil, err
+	}
+
+	c := make(map[string]interface{})
+	err = json.Unmarshal(payload, &c)
+	if err != nil {
+		return nil, err
+	}
+
+	perm := []string{}
+	p, ok := c["perms"].([]interface{})
+	if !ok {
+		logger.Warning("could not cast permissions")
+	}
+	for _, i := range p {
+		perm = append(perm, i.(string))
+	}
+	uname, ok := c["username"].(string)
+	if !ok {
+		return nil, fmt.Errorf("could not parse username from token")
+	}
+	orgID, ok := c["context_name"].(string)
+	if !ok {
+		return nil, fmt.Errorf("could not parse orgID from token")
+	}
+	claims := &Claims{
+		Username:    uname,
+		Permissions: perm,
+		OrgID:       orgID,
+		Raw:         c,
+	}
+
+	return claims, nil
 }

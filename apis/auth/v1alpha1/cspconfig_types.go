@@ -20,30 +20,11 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// ContextSpec defines the desired state of Context
-type ContextSpec struct {
-	// OrgID is the organization ID.
-	OrgID string `json:"orgId" yaml:"orgId"`
+// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
+// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-	// CSPEndpoint to issue global requests.
-	CSPAuth CSPAuthConfig `json:"cspAuth,omitempty" yaml:"cspAuth"`
-
-	// RegionalEndpoints are the paths to the regional kubeconfig files by name.
-	RegionalEndpoints map[string]string `json:"regionalEndpoints,omitempty" yaml:"regionalEndpoints"`
-}
-
-type Config struct {
-	Type string
-
-	// Path to the config
-	Path string `json:"path,omitempty" yaml:"path"`
-
-	// The context to use, defaults to current.
-	Context string `json:"context,omitempty" yaml:"context"`
-}
-
-// CSPAuthConfig configuration.
-type CSPAuthConfig struct {
+// CSPConfigSpec defines the desired state of CSPConfig
+type CSPConfigSpec struct {
 	// Endpoint to issue global requests.
 	Endpoint string `json:"endpoint" yaml:"endpoint"`
 
@@ -51,14 +32,8 @@ type CSPAuthConfig struct {
 	Issuer string `json:"issuer" yaml:"issuer"`
 }
 
-// ContextStatus defines the observed state of Context.
-type ContextStatus struct {
-	// CSPAuth status.
-	CSPAuth CSPAuthStatus `json:"cspAuth" yaml:"cspAuth"`
-}
-
-// CSPAuthStatus is the csp auth status.
-type CSPAuthStatus struct {
+// CSPConfigStatus defines the observed state of CSPConfig
+type CSPConfigStatus struct {
 	// UserName is the authorized user the token is assigned to.
 	UserName string `json:"userName" yaml:"userName"`
 
@@ -83,24 +58,24 @@ type CSPAuthStatus struct {
 
 // +kubebuilder:object:root=true
 
-// Context is the Schema for the contexts API
-type Context struct {
+// CSPConfig is the Schema for the cspconfigs API
+type CSPConfig struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   ContextSpec   `json:"spec,omitempty"`
-	Status ContextStatus `json:"status,omitempty"`
+	Spec   CSPConfigSpec   `json:"spec,omitempty"`
+	Status CSPConfigStatus `json:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true
 
-// ContextList contains a list of Context
-type ContextList struct {
+// CSPConfigList contains a list of CSPConfig
+type CSPConfigList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []Context `json:"items"`
+	Items           []CSPConfig `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&Context{}, &ContextList{})
+	SchemeBuilder.Register(&CSPConfig{}, &CSPConfigList{})
 }

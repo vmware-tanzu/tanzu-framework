@@ -1,0 +1,7 @@
+apiVersion: auth.tanzu.vmware.com/v1alpha1
+kind: CSPConfig
+metadata:
+  name: cspconfig-sample
+spec:
+  # Add fields here
+  foo: bar

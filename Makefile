@@ -120,7 +120,7 @@ test-cli:
 	go test ./...
 
 .PHONY: build-install-cli-plugins
-build-install-cli-plugins: delete-plugins build install-plugins
+build-install-cli-plugins: clean-cli-plugins build-cli install-cli-plugins install-cli
 
 .PHONY: install-cli-plugins
 install-cli-plugins:
