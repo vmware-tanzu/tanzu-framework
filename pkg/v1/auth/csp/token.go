@@ -15,10 +15,12 @@ import (
 	"strings"
 	"time"
 
-	"gitlab.eng.vmware.com/olympus/api-machinery/pkg/logger"
 	"golang.org/x/oauth2"
 
+	"github.com/aunum/log"
 	"github.com/pkg/errors"
+	authv1alpha1 "github.com/vmware-tanzu-private/core/apis/auth/v1alpha1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 const (
@@ -35,7 +37,7 @@ const (
 	ProdIssuer = "https://console.cloud.vmware.com/csp/gateway/am/api"
 
 	// APITokenKey is the env var for an API token override.
-	APITokenKey = "TMC_API_TOKEN"
+	APITokenKey = "CSP_API_TOKEN"
 
 	defaultLoginTimeout = 5 * time.Minute
 )
@@ -164,7 +166,7 @@ func ParseToken(tkn *oauth2.Token) (*Claims, error) {
 	perm := []string{}
 	p, ok := c["perms"].([]interface{})
 	if !ok {
-		logger.Warning("could not cast permissions")
+		log.Warning("could not cast permissions")
 	}
 	for _, i := range p {
 		perm = append(perm, i.(string))
@@ -185,4 +187,51 @@ func ParseToken(tkn *oauth2.Token) (*Claims, error) {
 	}
 
 	return claims, nil
+}
+
+// GetToken fetches a token for the current auth context.
+func GetToken(c *authv1alpha1.CSPConfig) (*oauth2.Token, error) {
+	if !IsExpired(c.Status.Expiration.Time) {
+		tok := &oauth2.Token{
+			AccessToken: c.Status.AccessToken,
+			Expiry:      c.Status.Expiration.Time,
+		}
+		return tok.WithExtra(map[string]interface{}{
+			"id_token": c.Status.IDToken,
+		}), nil
+	}
+	token, err := GetAccessTokenFromAPIToken(c.Status.RefreshToken, ProdIssuer)
+	if err != nil {
+		return nil, err
+	}
+
+	c.Status.Type = "api-token"
+	expiration := time.Now().Local().Add(time.Second * time.Duration(token.ExpiresIn))
+	c.Status.Expiration = metav1.NewTime(expiration)
+	c.Status.RefreshToken = token.RefreshToken
+	c.Status.AccessToken = token.AccessToken
+	c.Status.IDToken = token.IDToken
+	if err = StoreConfig(c); err != nil {
+		return nil, err
+	}
+
+	tok := &oauth2.Token{
+		AccessToken:  token.AccessToken,
+		RefreshToken: token.RefreshToken,
+		Expiry:       expiration,
+	}
+	return tok.WithExtra(map[string]interface{}{
+		"id_token": token.IDToken,
+	}), nil
+}
+
+// IsExpired checks for the token expiry and returns true if the token has expired else will return false
+func IsExpired(tokenExpiry time.Time) bool {
+	// refresh at half token life
+	now := time.Now().Unix()
+	halfDur := -time.Duration((tokenExpiry.Unix()-now)/2) * time.Second
+	if tokenExpiry.Add(halfDur).Unix() < now {
+		return true
+	}
+	return false
 }

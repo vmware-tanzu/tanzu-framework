@@ -1,4 +1,4 @@
-package client
+package csp
 
 import (
 	"bytes"
@@ -8,20 +8,19 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 	"k8s.io/apimachinery/pkg/runtime/serializer/json"
 
+	authv1alpha1 "github.com/vmware-tanzu-private/core/apis/auth/v1alpha1"
 	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
 )
 
 const (
-	// EnvContextKey is the environment variable that points to a tanzu context.
-	EnvContextKey = "TANZU_CONTEXT"
-
 	// LocalDirName is the name of the local directory in which tanzu state is stored.
-	LocalDirName = ".tanzu"
+	LocalDirName = "csp"
 
-	// ContextName is the name of the context
-	ContextName = "context.yaml"
+	// EnvConfigKey is the environment variable that points to a csp config.
+	EnvConfigKey = "CSP_CONFIG"
 )
 
 // LocalDir returns the local directory in which tanzu state is stored.
@@ -30,56 +29,56 @@ func LocalDir() (path string, err error) {
 	if err != nil {
 		return path, errors.Wrap(err, "could not locate local tanzu dir")
 	}
-	path = filepath.Join(home, LocalDirName)
+	path = filepath.Join(home, client.LocalDirName, LocalDirName)
 	return
 }
 
-// ContextPath returns the tanzu context path, checking for enviornment overrides.
-func ContextPath() (path string, err error) {
+// ConfigPath returns the tanzu config path, checking for enviornment overrides.
+func ConfigPath(name string) (path string, err error) {
 	localDir, err := LocalDir()
 	if err != nil {
 		return path, err
 	}
 	var ok bool
-	path, ok = os.LookupEnv(EnvContextKey)
+	path, ok = os.LookupEnv(EnvConfigKey)
 	if !ok {
-		path = filepath.Join(localDir, ContextName)
+		path = filepath.Join(localDir, name)
 		return
 	}
 	return
 }
 
-// GetContext retrieves the context from the local directory.
-func GetContext() (ctx *clientv1alpha1.Context, err error) {
-	ctxPath, err := ContextPath()
+// GetConfig retrieves the config from the local directory.
+func GetConfig(name string) (cfg *authv1alpha1.CSPConfig, err error) {
+	cfgPath, err := ConfigPath(name)
 	if err != nil {
 		return nil, err
 	}
-	b, err := ioutil.ReadFile(ctxPath)
+	b, err := ioutil.ReadFile(cfgPath)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to read context file")
+		return nil, errors.Wrap(err, "failed to read Config file")
 	}
 	scheme, err := clientv1alpha1.SchemeBuilder.Build()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create scheme")
 	}
 	s := json.NewYAMLSerializer(json.DefaultMetaFactory, scheme, scheme)
-	var c clientv1alpha1.Context
+	var c authv1alpha1.CSPConfig
 	_, _, err = s.Decode(b, nil, &c)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not decode context file")
+		return nil, errors.Wrap(err, "could not decode Config file")
 	}
 	return &c, nil
 }
 
-// StoreContext stores the context in the local directory.
-func StoreContext(ctx *clientv1alpha1.Context) error {
-	ctxPath, err := ContextPath()
+// StoreConfig stores the config in the local directory.
+func StoreConfig(cfg *authv1alpha1.CSPConfig) error {
+	cfgPath, err := ConfigPath(cfg.GetName())
 	if err != nil {
-		return errors.Wrap(err, "could not find context path")
+		return errors.Wrap(err, "could not find Config path")
 	}
 
-	_, err = os.Stat(ctxPath)
+	_, err = os.Stat(cfgPath)
 	if os.IsNotExist(err) {
 		localDir, err := LocalDir()
 		if err != nil {
@@ -90,7 +89,7 @@ func StoreContext(ctx *clientv1alpha1.Context) error {
 			return errors.Wrap(err, "could not make local tanzu directory")
 		}
 	} else if err != nil {
-		return errors.Wrap(err, "could not create context path")
+		return errors.Wrap(err, "could not create Config path")
 	}
 
 	scheme, err := clientv1alpha1.SchemeBuilder.Build()
@@ -100,25 +99,25 @@ func StoreContext(ctx *clientv1alpha1.Context) error {
 
 	s := json.NewYAMLSerializer(json.DefaultMetaFactory, scheme, scheme)
 	buf := new(bytes.Buffer)
-	if err := s.Encode(ctx, buf); err != nil {
-		return errors.Wrap(err, "failed to encode context file")
+	if err := s.Encode(cfg, buf); err != nil {
+		return errors.Wrap(err, "failed to encode Config file")
 	}
 	// TODO (pbarker): need to consider races.
-	if err = ioutil.WriteFile(ctxPath, buf.Bytes(), 0644); err != nil {
-		return errors.Wrap(err, "failed to write context file")
+	if err = ioutil.WriteFile(cfgPath, buf.Bytes(), 0644); err != nil {
+		return errors.Wrap(err, "failed to write Config file")
 	}
 	return nil
 }
 
-// DeleteContext deletes the context from the local directory.
-func DeleteContext() error {
-	ctxPath, err := ContextPath()
+// DeleteConfig deletes the config from the local directory.
+func DeleteConfig(name string) error {
+	cfgPath, err := ConfigPath(name)
 	if err != nil {
 		return err
 	}
-	err = os.Remove(ctxPath)
+	err = os.Remove(cfgPath)
 	if err != nil {
-		return errors.Wrap(err, "could not remove context")
+		return errors.Wrap(err, "could not remove Config")
 	}
 	return nil
 }

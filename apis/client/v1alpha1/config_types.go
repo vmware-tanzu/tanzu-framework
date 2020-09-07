@@ -23,7 +23,7 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-// ServerType is the type of server to connect to.
+// ServerType is the type of server.
 type ServerType string
 
 const (
@@ -37,27 +37,29 @@ const (
 // ConfigSpec defines the desired state of Config
 type ConfigSpec struct {
 	// Servers available.
-	Servers []Server `json:"server,omitempty" yaml:"server"`
+	Servers []Server `json:"servers,omitempty" yaml:"servers"`
 
 	// Current server.
-	Current Server `json:"server,omitempty" yaml"server"`
+	Current Server `json:"current,omitempty" yaml:"current"`
 }
 
 // Server connection.
 type Server struct {
+	// Name of the server.
+	Name string `json:"name,omitempty" yaml:"name"`
+
 	// Type of the endpoint.
 	Type ServerType `json:"type,omitempty" yaml:"type"`
 
 	// Path to the server config.
 	Path string `json:"path,omitempty" yaml:"path"`
 
-	// The context to use, defaults to current.
+	// The context to use (if required), defaults to current.
 	Context string `json:"context,omitempty" yaml:"context"`
 }
 
 // ConfigStatus defines the observed state of Config
-type ConfigStatus struct {
-}
+type ConfigStatus struct{}
 
 // +kubebuilder:object:root=true
 

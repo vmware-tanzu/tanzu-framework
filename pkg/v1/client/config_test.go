@@ -7,15 +7,15 @@ import (
 	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
 )
 
-func TestContext(t *testing.T) {
-	testCtx := &clientv1alpha1.Context{
-		Spec:   clientv1alpha1.ContextSpec{},
-		Status: clientv1alpha1.ContextStatus{},
+func TestConfig(t *testing.T) {
+	testCtx := &clientv1alpha1.Config{
+		Spec:   clientv1alpha1.ConfigSpec{},
+		Status: clientv1alpha1.ConfigStatus{},
 	}
-	err := StoreContext(testCtx)
+	err := StoreConfig(testCtx)
 	require.NoError(t, err)
 
-	ctx, err := GetContext()
+	ctx, err := GetConfig()
 	require.NoError(t, err)
 
 	require.Equal(t, testCtx, ctx)
