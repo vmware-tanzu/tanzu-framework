@@ -19,7 +19,7 @@ import (
 
 	"github.com/aunum/log"
 	"github.com/pkg/errors"
-	authv1alpha1 "github.com/vmware-tanzu-private/core/apis/auth/v1alpha1"
+	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -190,30 +190,29 @@ func ParseToken(tkn *oauth2.Token) (*Claims, error) {
 }
 
 // GetToken fetches a token for the current auth context.
-func GetToken(c *authv1alpha1.CSPConfig) (*oauth2.Token, error) {
-	if !IsExpired(c.Status.Expiration.Time) {
+func GetToken(g *clientv1alpha1.GlobalServerAuth) (*oauth2.Token, error) {
+	if !IsExpired(g.Expiration.Time) {
 		tok := &oauth2.Token{
-			AccessToken: c.Status.AccessToken,
-			Expiry:      c.Status.Expiration.Time,
+			AccessToken: g.AccessToken,
+			Expiry:      g.Expiration.Time,
 		}
 		return tok.WithExtra(map[string]interface{}{
-			"id_token": c.Status.IDToken,
+			"id_token": g.IDToken,
 		}), nil
 	}
-	token, err := GetAccessTokenFromAPIToken(c.Status.RefreshToken, ProdIssuer)
+
+	// TODO (pbarker): support more issuers.
+	token, err := GetAccessTokenFromAPIToken(g.RefreshToken, ProdIssuer)
 	if err != nil {
 		return nil, err
 	}
 
-	c.Status.Type = "api-token"
+	g.Type = "api-token"
 	expiration := time.Now().Local().Add(time.Second * time.Duration(token.ExpiresIn))
-	c.Status.Expiration = metav1.NewTime(expiration)
-	c.Status.RefreshToken = token.RefreshToken
-	c.Status.AccessToken = token.AccessToken
-	c.Status.IDToken = token.IDToken
-	if err = StoreConfig(c); err != nil {
-		return nil, err
-	}
+	g.Expiration = metav1.NewTime(expiration)
+	g.RefreshToken = token.RefreshToken
+	g.AccessToken = token.AccessToken
+	g.IDToken = token.IDToken
 
 	tok := &oauth2.Token{
 		AccessToken:  token.AccessToken,

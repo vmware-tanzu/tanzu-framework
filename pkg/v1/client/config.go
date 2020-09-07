@@ -2,6 +2,7 @@ package client
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -16,6 +17,12 @@ import (
 const (
 	// EnvConfigKey is the environment variable that points to a tanzu config.
 	EnvConfigKey = "TANZU_CONFIG"
+
+	// EnvEndpointKey is the environment variable that overrides the tanzu endpoint.
+	EnvEndpointKey = "TANZU_ENDPOINT"
+
+	// EnvAPITokenKey is the environment variable that overrides the tanzu API token for global auth.
+	EnvAPITokenKey = "TANZU_API_TOKEN"
 
 	// LocalDirName is the name of the local directory in which tanzu state is stored.
 	LocalDirName = ".tanzu"
@@ -49,6 +56,31 @@ func ConfigPath() (path string, err error) {
 	return
 }
 
+// NewConfig returns a new config.
+func NewConfig() (*clientv1alpha1.Config, error) {
+	c := &clientv1alpha1.Config{}
+	err := StoreConfig(c)
+	if err != nil {
+		return nil, err
+	}
+	return c, nil
+}
+
+// ConfigNotExistError is thown when a tanzu config cannot be found.
+type ConfigNotExistError struct {
+	s string
+}
+
+// Error is the error message.
+func (c *ConfigNotExistError) Error() string {
+	return c.s
+}
+
+// NewConfigNotExistError returns a new ConfigNotExistError.
+func NewConfigNotExistError(err error) *ConfigNotExistError {
+	return &ConfigNotExistError{errors.Wrap(err, "failed to read config file").Error()}
+}
+
 // GetConfig retrieves the config from the local directory.
 func GetConfig() (cfg *clientv1alpha1.Config, err error) {
 	cfgPath, err := ConfigPath()
@@ -57,7 +89,7 @@ func GetConfig() (cfg *clientv1alpha1.Config, err error) {
 	}
 	b, err := ioutil.ReadFile(cfgPath)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to read Config file")
+		return nil, NewConfigNotExistError(err)
 	}
 	scheme, err := clientv1alpha1.SchemeBuilder.Build()
 	if err != nil {
@@ -67,7 +99,7 @@ func GetConfig() (cfg *clientv1alpha1.Config, err error) {
 	var c clientv1alpha1.Config
 	_, _, err = s.Decode(b, nil, &c)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not decode Config file")
+		return nil, errors.Wrap(err, "could not decode config file")
 	}
 	return &c, nil
 }
@@ -76,7 +108,7 @@ func GetConfig() (cfg *clientv1alpha1.Config, err error) {
 func StoreConfig(cfg *clientv1alpha1.Config) error {
 	cfgPath, err := ConfigPath()
 	if err != nil {
-		return errors.Wrap(err, "could not find Config path")
+		return errors.Wrap(err, "could not find config path")
 	}
 
 	_, err = os.Stat(cfgPath)
@@ -90,7 +122,7 @@ func StoreConfig(cfg *clientv1alpha1.Config) error {
 			return errors.Wrap(err, "could not make local tanzu directory")
 		}
 	} else if err != nil {
-		return errors.Wrap(err, "could not create Config path")
+		return errors.Wrap(err, "could not create config path")
 	}
 
 	scheme, err := clientv1alpha1.SchemeBuilder.Build()
@@ -101,11 +133,11 @@ func StoreConfig(cfg *clientv1alpha1.Config) error {
 	s := json.NewYAMLSerializer(json.DefaultMetaFactory, scheme, scheme)
 	buf := new(bytes.Buffer)
 	if err := s.Encode(cfg, buf); err != nil {
-		return errors.Wrap(err, "failed to encode Config file")
+		return errors.Wrap(err, "failed to encode config file")
 	}
 	// TODO (pbarker): need to consider races.
 	if err = ioutil.WriteFile(cfgPath, buf.Bytes(), 0644); err != nil {
-		return errors.Wrap(err, "failed to write Config file")
+		return errors.Wrap(err, "failed to write config file")
 	}
 	return nil
 }
@@ -118,18 +150,117 @@ func DeleteConfig() error {
 	}
 	err = os.Remove(cfgPath)
 	if err != nil {
-		return errors.Wrap(err, "could not remove Config")
+		return errors.Wrap(err, "could not remove config")
+	}
+	return nil
+}
+
+// GetServer by name.
+func GetServer(name string) (s clientv1alpha1.Server, err error) {
+	cfg, err := GetConfig()
+	if err != nil {
+		return s, err
+	}
+	for _, server := range cfg.KnownServers {
+		if server.Name == name {
+			return server, nil
+		}
+	}
+	return s, fmt.Errorf("could not find server %q", name)
+}
+
+// ServerExists tells whether the server by the given name exists.
+func ServerExists(name string) (bool, error) {
+	cfg, err := GetConfig()
+	if err != nil {
+		return false, err
+	}
+	for _, server := range cfg.KnownServers {
+		if server.Name == name {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+// AddServer adds a server to the config.
+func AddServer(s clientv1alpha1.Server, setCurrent bool) error {
+	cfg, err := GetConfig()
+	if err != nil {
+		return err
+	}
+	for _, server := range cfg.KnownServers {
+		if server.Name == s.Name {
+			return fmt.Errorf("server %q already exists", s.Name)
+		}
+	}
+	cfg.KnownServers = append(cfg.KnownServers, s)
+	if setCurrent {
+		cfg.CurrentServer = s.Name
+	}
+	return StoreConfig(cfg)
+}
+
+// PutServer adds or updates the server.
+func PutServer(s clientv1alpha1.Server, setCurrent bool) error {
+	cfg, err := GetConfig()
+	if err != nil {
+		return err
+	}
+	newServers := []clientv1alpha1.Server{s}
+	for _, server := range cfg.KnownServers {
+		if server.Name == s.Name {
+			continue
+		}
+		newServers = append(newServers, server)
+	}
+	cfg.KnownServers = newServers
+	fmt.Printf("saving known servers: %#v\n", newServers)
+	if setCurrent {
+		cfg.CurrentServer = s.Name
+	}
+	return StoreConfig(cfg)
+}
+
+// RemoveServer adds a server to the config.
+func RemoveServer(name string) error {
+	cfg, err := GetConfig()
+	if err != nil {
+		return err
+	}
+	if cfg.CurrentServer == name {
+		return fmt.Errorf("cannot delete the current server")
+	}
+	newServers := []clientv1alpha1.Server{}
+	for _, server := range cfg.KnownServers {
+		if server.Name != name {
+			newServers = append(newServers, server)
+		}
+	}
+	cfg.KnownServers = newServers
+	err = StoreConfig(cfg)
+	if err != nil {
+		return err
 	}
 	return nil
 }
 
 // SetCurrentServer sets the current server.
-func SetCurrentServer(s clientv1alpha1.Server) error {
+func SetCurrentServer(name string) error {
 	cfg, err := GetConfig()
 	if err != nil {
 		return err
 	}
-	cfg.Spec.Current = s
+	var exists bool
+	for _, server := range cfg.KnownServers {
+		if server.Name == name {
+			exists = true
+		}
+	}
+	if !exists {
+		return fmt.Errorf("could not set current server; %q is not a known server", name)
+	}
+	cfg.CurrentServer = name
 	err = StoreConfig(cfg)
 	if err != nil {
 		return err
@@ -143,5 +274,23 @@ func GetCurrentServer() (s clientv1alpha1.Server, err error) {
 	if err != nil {
 		return s, err
 	}
-	return cfg.Spec.Current, nil
+	for _, server := range cfg.KnownServers {
+		if server.Name == cfg.CurrentServer {
+			return server, nil
+		}
+	}
+	return s, fmt.Errorf("current server %q not found in tanzu config", cfg.CurrentServer)
+}
+
+// EndpointFromServer returns the endpoint from server.
+func EndpointFromServer(s clientv1alpha1.Server) (endpoint string, err error) {
+	switch s.Type {
+	case clientv1alpha1.ManagementClusterServerType:
+		// TODO (pbarker): implement management cluster server
+		return endpoint, fmt.Errorf("type %q not yet implemented", s.Type)
+	case clientv1alpha1.GlobalServerType:
+		return s.GlobalOpts.Endpoint, nil
+	default:
+		return endpoint, fmt.Errorf("unknown server type %q", s.Type)
+	}
 }

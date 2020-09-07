@@ -8,6 +8,9 @@ import (
 	"text/template"
 	"unicode"
 
+	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
+	"github.com/vmware-tanzu-private/core/pkg/v1/client"
+
 	"github.com/spf13/cobra"
 
 	"github.com/logrusorgru/aurora"
@@ -47,16 +50,22 @@ func (u *MainUsage) GenerateDescriptor(c *cobra.Command, w io.Writer) error {
 		cmdMap[group] = g
 	}
 
+	s, err := client.GetCurrentServer()
+	if err != nil {
+		return err
+	}
 	d := struct {
 		*cobra.Command
 		CmdMap CmdMap
+		Server clientv1alpha1.Server
 	}{
 		c,
 		cmdMap,
+		s,
 	}
 
 	t := template.Must(template.New("usage").Funcs(TemplateFuncs).Parse(u.Template()))
-	err := t.Execute(w, d)
+	err = t.Execute(w, d)
 	if err != nil {
 		return err
 	}
@@ -78,9 +87,11 @@ func (u *MainUsage) Template() string {
 	{{end}}
 
 {{ bold "Flags:" }}
-{{.LocalFlags.FlagUsages}}
+{{.LocalFlags.FlagUsages  | trimTrailingWhitespaces }}
 
 Use "{{.CommandPath}} [command] --help" for more information about a command.
+
+Logged in to {{ underline .Server.Name }}
 `
 }
 
@@ -88,6 +99,7 @@ Use "{{.CommandPath}} [command] --help" for more information about a command.
 var TemplateFuncs = template.FuncMap{
 	"rpad":                    rpad,
 	"bold":                    bold,
+	"underline":               underline,
 	"trimTrailingWhitespaces": trimRightSpace,
 }
 
@@ -96,6 +108,10 @@ var TemplateFuncs = template.FuncMap{
 func rpad(s string, padding int) string {
 	template := fmt.Sprintf("%%-%ds", padding)
 	return fmt.Sprintf(template, s)
+}
+
+func underline(s string) string {
+	return aurora.Underline(s).String()
 }
 
 func bold(s string) string {

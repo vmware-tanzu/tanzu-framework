@@ -2,7 +2,6 @@ package csp
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -13,7 +12,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/serializer/json"
 
 	authv1alpha1 "github.com/vmware-tanzu-private/core/apis/auth/v1alpha1"
-	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
 )
 
 const (
@@ -126,21 +124,4 @@ func DeleteConfig(name string) error {
 		return errors.Wrap(err, "could not remove Config")
 	}
 	return nil
-}
-
-// EndpointFromServer returns the endpoint from server.
-func EndpointFromServer(s clientv1alpha1.Server) (endpoint string, err error) {
-	switch s.Type {
-	case clientv1alpha1.KubernetesServer:
-		// TODO (pbarker): implement kubernetes server
-		return endpoint, fmt.Errorf("type %q not yet implemented", s.Type)
-	case clientv1alpha1.TanzuServer:
-		cfg, err := GetConfigFromPath(s.Path)
-		if err != nil {
-			return endpoint, nil
-		}
-		return cfg.Spec.Endpoint, nil
-	default:
-		return endpoint, fmt.Errorf("unknown server type %q", s.Type)
-	}
 }

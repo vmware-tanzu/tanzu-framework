@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"sort"
 	"strings"
 	"time"
 
@@ -15,7 +16,7 @@ import (
 	"github.com/aunum/log"
 	"github.com/spf13/cobra"
 
-	authv1alpha1 "github.com/vmware-tanzu-private/core/apis/auth/v1alpha1"
+	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/auth/csp"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/commands/plugin"
@@ -30,7 +31,8 @@ var descriptor = cli.PluginDescriptor{
 }
 
 var (
-	stderrOnly bool
+	stderrOnly                       bool
+	endpoint, name, apiToken, server string
 )
 
 const (
@@ -38,8 +40,7 @@ const (
 )
 
 func init() {
-	// globalLoginCmd.Flags().BoolVar(&stderrOnly, "stderr-only", false, "send all output to stderr rather than stdout")
-	// globalLoginCmd.Flags().MarkHidden("stderr-only")
+
 }
 
 func main() {
@@ -48,6 +49,13 @@ func main() {
 		log.Fatal(err)
 	}
 	p.AddCommands()
+	p.Cmd.Flags().StringVar(&endpoint, "endpoint", "", "endpoint to login to")
+	p.Cmd.Flags().StringVar(&name, "name", "", "name of the server")
+	p.Cmd.Flags().StringVar(&apiToken, "apiToken", "", "API token for global login")
+	p.Cmd.Flags().StringVar(&server, "server", "", "login to the given server")
+	p.Cmd.Flags().BoolVar(&stderrOnly, "stderr-only", false, "send all output to stderr rather than stdout")
+	p.Cmd.Flags().MarkHidden("stderr-only")
+	p.Cmd.RunE = login
 	if err := p.Execute(); err != nil {
 		os.Exit(1)
 	}
@@ -56,119 +64,173 @@ func main() {
 // tanzu login
 func login(cmd *cobra.Command, args []string) (err error) {
 	cfg, err := client.GetConfig()
-	if err != nil {
-		return err
-	}
-	servers := []string{}
-	for _, server := range cfg.Spec.Servers {
-		endpoint, err := csp.EndpointFromServer(server)
+	if _, ok := err.(*client.ConfigNotExistError); ok {
+		cfg, err = client.NewConfig()
 		if err != nil {
 			return err
 		}
-		s := fmt.Sprintf("%s (%s)", server.Name, endpoint)
-		servers = append(servers, s)
+	} else if err != nil {
+		return err
 	}
 
-	tmcServerSelector := knownTMCHost
+	surveyOpts := getSurveyOpts()
+
 	newServerSelector := "+ new server"
-	servers = append(servers, tmcServerSelector, newServerSelector)
-	questions := []*survey.Question{
-		{
-			Name: "server",
-			Prompt: &survey.Select{
-				Message: "Select a server",
-				Options: []string{},
-			},
-			Validate: survey.Required,
-		},
-	}
-
-	answers := struct {
-		Server string `survey:"server"`
-	}{}
-
-	var surveyOpts []survey.AskOpt
-	if stderrOnly {
-		// This uses stderr because it needs to work inside the kubectl exec plugin flow where stdout is reserved.
-		surveyOpts = append(surveyOpts, survey.WithStdio(os.Stdin, os.Stderr, os.Stderr))
-	}
-
-	// format
-	fmt.Println()
-	err = survey.Ask(questions, &answers, surveyOpts...)
-	if err != nil {
-		return
-	}
-	if answers.Server == newServerSelector {
-		questions := []*survey.Question{
-			{
-				Name: "endpoint",
-				Prompt: &survey.Input{
-					Message: "Enter an endpoint",
-				},
-			},
-			{
-				Name: "name",
-				Prompt: &survey.Input{
-					Message: "Give the server a name",
-				},
-			},
-		}
-
-		answers := struct {
-			Endpoint string `survey:"endpoint"`
-			Name     string `survey:"name"`
-		}{}
-
-		var surveyOpts []survey.AskOpt
-		if stderrOnly {
-			// This uses stderr because it needs to work inside the kubectl exec plugin flow where stdout is reserved.
-			surveyOpts = append(surveyOpts, survey.WithStdio(os.Stdin, os.Stderr, os.Stderr))
-		}
-
-		// format
-		fmt.Println()
-		err = survey.Ask(questions, &answers, surveyOpts...)
-		if err != nil {
-			return
-		}
-
-		if isTanzuServer(answers.Endpoint) {
-			err = tanzuLogin(answers.Name, answers.Endpoint)
+	var serverTarget clientv1alpha1.Server
+	if server == "" {
+		servers := map[string]clientv1alpha1.Server{}
+		for _, server := range cfg.KnownServers {
+			endpoint, err := client.EndpointFromServer(server)
 			if err != nil {
 				return err
 			}
+
+			s := rpad(server.Name, 20)
+			s = fmt.Sprintf("%s(%s)", s, endpoint)
+			servers[s] = server
+		}
+		if endpoint == "" {
+			endpoint, _ = os.LookupEnv(client.EnvEndpointKey)
+		}
+		if len(servers) == 0 {
+			fmt.Println("creating server")
+			serverTarget, err = createNewServer()
+			if err != nil {
+				return err
+			}
+		} else {
+			serverKeys := getKeys(servers)
+			serverKeys = append(serverKeys, newServerSelector)
+			servers[newServerSelector] = clientv1alpha1.Server{}
+			err = survey.AskOne(
+				&survey.Select{
+					Message: "Select a server",
+					Options: serverKeys,
+				},
+				&server,
+				surveyOpts...,
+			)
+			if err != nil {
+				return
+			}
+			serverTarget = servers[server]
+		}
+
+	} else {
+		fmt.Println("getting server")
+		serverTarget, err = client.GetServer(server)
+		if err != nil {
+			return err
 		}
 	}
-	return nil
+
+	if server == newServerSelector {
+		fmt.Println("creating server")
+		serverTarget, err = createNewServer()
+		if err != nil {
+			return err
+		}
+	}
+
+	if serverTarget.Type == clientv1alpha1.GlobalServerType {
+		fmt.Println("logging into global server")
+		return globalLogin(serverTarget)
+	}
+
+	fmt.Println("logging into management cluster")
+	return managementClusterLogin(serverTarget, endpoint)
 }
 
-func isTanzuServer(endpoint string) bool {
+func getKeys(m map[string]clientv1alpha1.Server) []string {
+	keys := make([]string, 0, len(m))
+	for key := range m {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	return keys
+}
+
+func isGlobalServer(endpoint string) bool {
 	if strings.Contains(endpoint, knownTMCHost) {
 		return true
 	}
 	return false
 }
 
-// var globalLoginCmd = &cobra.Command{
-// 	Use:   "global",
-// 	Short: "login to the global control plane",
-// 	RunE: func(cmd *cobra.Command, args []string) (err error) {
+func rpad(s string, padding int) string {
+	template := fmt.Sprintf("%%-%ds", padding)
+	return fmt.Sprintf(template, s)
+}
 
-// 	},
-// }
+func getSurveyOpts() []survey.AskOpt {
+	var surveyOpts []survey.AskOpt
+	if stderrOnly {
+		// This uses stderr because it needs to work inside the kubectl exec plugin flow where stdout is reserved.
+		surveyOpts = append(surveyOpts, survey.WithStdio(os.Stdin, os.Stderr, os.Stderr))
+	}
+	return surveyOpts
+}
 
-func tanzuLogin(name, endpoint string) (err error) {
-	c := &authv1alpha1.CSPConfig{}
-	apiToken, apiTokenExists := os.LookupEnv(csp.APITokenKey)
-	endpoint, endpointExists := os.LookupEnv(csp.APITokenKey)
+func createNewServer() (server clientv1alpha1.Server, err error) {
+	surveyOpts := getSurveyOpts()
+	if endpoint == "" {
+		err = survey.AskOne(
+			&survey.Input{
+				Message: "Enter server endpoint",
+			},
+			&endpoint,
+			surveyOpts...,
+		)
+		if err != nil {
+			return
+		}
+	}
+	if name == "" {
+		err = survey.AskOne(
+			&survey.Input{
+				Message: "Give the server a name",
+			},
+			&name,
+			surveyOpts...,
+		)
+		if err != nil {
+			return
+		}
+	}
+	nameExists, err := client.ServerExists(name)
+	if err != nil {
+		return server, err
+	}
+	if nameExists {
+		err = fmt.Errorf("server %q already exists", name)
+		return
+	}
+
+	if isGlobalServer(endpoint) {
+		server = clientv1alpha1.Server{
+			Name:       name,
+			Type:       clientv1alpha1.GlobalServerType,
+			GlobalOpts: &clientv1alpha1.GlobalServer{Endpoint: endpoint},
+		}
+	} else {
+		server = clientv1alpha1.Server{
+			Name: name,
+			Type: clientv1alpha1.ManagementClusterServerType,
+		}
+	}
+	return
+}
+
+func globalLogin(s clientv1alpha1.Server) (err error) {
+	a := clientv1alpha1.GlobalServerAuth{}
+	apiToken, apiTokenExists := os.LookupEnv(client.EnvAPITokenKey)
 
 	// TODO (pbarker): configurable issuer
 	issuer := csp.ProdIssuer
-	if apiTokenExists && endpointExists {
-		log.Debug("API token and endpoint env vars are set")
+	if apiTokenExists {
+		log.Debug("API token env var is set")
 	} else {
-		apiToken, err = interactiveGlobalLogin(c)
+		apiToken, err = promptAPIToken()
 		if err != nil {
 			return err
 		}
@@ -181,22 +243,22 @@ func tanzuLogin(name, endpoint string) (err error) {
 	if err != nil {
 		return err
 	}
-	c.Spec = authv1alpha1.CSPConfigSpec{}
-	c.Spec.Endpoint = endpoint
-	c.Spec.Issuer = issuer
-	c.Status = authv1alpha1.CSPConfigStatus{}
 
-	c.Status.UserName = claims.Username
-	c.Status.Permissions = claims.Permissions
-	c.Status.AccessToken = token.AccessToken
-	c.Status.IDToken = token.IDToken
-	c.Status.RefreshToken = apiToken
-	c.Status.Type = "api-token"
+	a.Issuer = issuer
+
+	a.UserName = claims.Username
+	a.Permissions = claims.Permissions
+	a.AccessToken = token.AccessToken
+	a.IDToken = token.IDToken
+	a.RefreshToken = apiToken
+	a.Type = "api-token"
 
 	expiresAt := time.Now().Local().Add(time.Second * time.Duration(token.ExpiresIn))
-	c.Status.Expiration = metav1.NewTime(expiresAt)
+	a.Expiration = metav1.NewTime(expiresAt)
 
-	err = csp.StoreConfig(c)
+	s.GlobalOpts.Auth = a
+
+	err = client.PutServer(s, true)
 	if err != nil {
 		return err
 	}
@@ -207,16 +269,8 @@ func tanzuLogin(name, endpoint string) (err error) {
 	return nil
 }
 
-// var regionLoginCmd = &cobra.Command{
-// 	Use:   "region",
-// 	Short: "login to a regional control plane",
-// 	RunE: func(cmd *cobra.Command, args []string) error {
-// 		return nil
-// 	},
-// }
-
 // Interactive way to login to TMC. User will be prompted for token and context name.
-func interactiveGlobalLogin(c *authv1alpha1.CSPConfig) (apiToken string, err error) {
+func promptAPIToken() (apiToken string, err error) {
 	consoleURL := url.URL{
 		Scheme:   "https",
 		Host:     "console.cloud.vmware.com",
@@ -224,24 +278,12 @@ func interactiveGlobalLogin(c *authv1alpha1.CSPConfig) (apiToken string, err err
 		Fragment: "/user/tokens",
 	}
 
+	// format
+	fmt.Println()
 	log.Infof(
 		"If you don't have an API token, visit the VMware Cloud Services console, select your organization, and create an API token with the TMC service roles:\n  %s\n",
 		consoleURL.String(),
 	)
-
-	questions := []*survey.Question{
-		{
-			Name: "apiToken",
-			Prompt: &survey.Password{
-				Message: "API Token",
-			},
-			Validate: survey.Required,
-		},
-	}
-
-	answers := struct {
-		APIToken string `survey:"apiToken"`
-	}{}
 
 	var surveyOpts []survey.AskOpt
 	if stderrOnly {
@@ -251,10 +293,16 @@ func interactiveGlobalLogin(c *authv1alpha1.CSPConfig) (apiToken string, err err
 
 	// format
 	fmt.Println()
-	err = survey.Ask(questions, &answers, surveyOpts...)
-	if err != nil {
-		return
-	}
+	err = survey.AskOne(
+		&survey.Password{
+			Message: "API Token"},
+		&apiToken,
+		surveyOpts...,
+	)
+	return
+}
 
-	return answers.APIToken, nil
+// TODO (pbarker): need pinniped story more fleshed out
+func managementClusterLogin(s clientv1alpha1.Server, endpoint string) error {
+	return fmt.Errorf("not yet implemented")
 }

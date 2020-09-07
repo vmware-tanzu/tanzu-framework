@@ -27,21 +27,12 @@ import (
 type ServerType string
 
 const (
-	// KubernetesServer type.
-	KubernetesServer ServerType = "kubernetes"
+	// ManagementClusterServerType is a management cluster control plane server.
+	ManagementClusterServerType ServerType = "managementcluster"
 
-	// TanzuServer type.
-	TanzuServer ServerType = "tanzu"
+	// GlobalServerType is a global control plane server.
+	GlobalServerType ServerType = "global"
 )
-
-// ConfigSpec defines the desired state of Config
-type ConfigSpec struct {
-	// Servers available.
-	Servers []Server `json:"servers,omitempty" yaml:"servers"`
-
-	// Current server.
-	Current Server `json:"current,omitempty" yaml:"current"`
-}
 
 // Server connection.
 type Server struct {
@@ -51,15 +42,57 @@ type Server struct {
 	// Type of the endpoint.
 	Type ServerType `json:"type,omitempty" yaml:"type"`
 
-	// Path to the server config.
+	// GlobalOpts if the server is global.
+	GlobalOpts *GlobalServer `json:"globalOpts,omitempty" yaml:"globalOpts"`
+
+	// ManagementClusterOpts if the server is management cluster.
+	ManagementClusterOpts *ManagementClusterServer `json:"managementClusterOpts,omitempty" yaml:"managementClusterOpts"`
+}
+
+// ManagementClusterServer is the configruation for a management cluster control plane kubeconfig.
+type ManagementClusterServer struct {
+	// Path to the kubeconfig.
 	Path string `json:"path,omitempty" yaml:"path"`
 
 	// The context to use (if required), defaults to current.
 	Context string `json:"context,omitempty" yaml:"context"`
 }
 
-// ConfigStatus defines the observed state of Config
-type ConfigStatus struct{}
+// GlobalServer is the configuration for a global server.
+type GlobalServer struct {
+	// Endpoint for the server.
+	Endpoint string `json:"endpoint,omitempty" yaml:"endpoint"`
+
+	// Auth for the global server.
+	Auth GlobalServerAuth `json:"auth,omitempty" yaml:"auth"`
+}
+
+// GlobalServerAuth is authentication for a global server.
+type GlobalServerAuth struct {
+	// Issuer url for IDP, compliant with OIDC Metadata Discovery.
+	Issuer string `json:"issuer" yaml:"issuer"`
+
+	// UserName is the authorized user the token is assigned to.
+	UserName string `json:"userName" yaml:"userName"`
+
+	// Permissions are roles assigned to the user.
+	Permissions []string `json:"permissions" yaml:"permissions"`
+
+	// AccessToken is the current access token based on the context.
+	AccessToken string `json:"accessToken" yaml:"accessToken"`
+
+	// IDToken is the current id token based on the context scoped to the CLI.
+	IDToken string `json:"IDToken" yaml:"IDToken"`
+
+	// RefreshToken will be stored only in case of api-token login flow.
+	RefreshToken string `json:"refresh_token" yaml:"refresh_token"`
+
+	// Expiration times of the token.
+	Expiration metav1.Time `json:"expiration" yaml:"expiration"`
+
+	// Type of the token (user or client).
+	Type string `json:"type" yaml:"type"`
+}
 
 // +kubebuilder:object:root=true
 
@@ -68,8 +101,11 @@ type Config struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   ConfigSpec   `json:"spec,omitempty"`
-	Status ConfigStatus `json:"status,omitempty"`
+	// KnownServers available.
+	KnownServers []Server `json:"servers,omitempty" yaml:"servers"`
+
+	// CurrentServer in use.
+	CurrentServer string `json:"current,omitempty" yaml:"current"`
 }
 
 // +kubebuilder:object:root=true
