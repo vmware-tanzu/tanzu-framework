@@ -2,6 +2,7 @@ package csp
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -54,11 +55,16 @@ func GetConfig(name string) (cfg *authv1alpha1.CSPConfig, err error) {
 	if err != nil {
 		return nil, err
 	}
-	b, err := ioutil.ReadFile(cfgPath)
+	return GetConfigFromPath(cfgPath)
+}
+
+// GetConfigFromPath gets the config from path.
+func GetConfigFromPath(path string) (cfg *authv1alpha1.CSPConfig, err error) {
+	b, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read Config file")
 	}
-	scheme, err := clientv1alpha1.SchemeBuilder.Build()
+	scheme, err := authv1alpha1.SchemeBuilder.Build()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create scheme")
 	}
@@ -92,7 +98,7 @@ func StoreConfig(cfg *authv1alpha1.CSPConfig) error {
 		return errors.Wrap(err, "could not create Config path")
 	}
 
-	scheme, err := clientv1alpha1.SchemeBuilder.Build()
+	scheme, err := authv1alpha1.SchemeBuilder.Build()
 	if err != nil {
 		return errors.Wrap(err, "failed to create scheme")
 	}
@@ -120,4 +126,21 @@ func DeleteConfig(name string) error {
 		return errors.Wrap(err, "could not remove Config")
 	}
 	return nil
+}
+
+// EndpointFromServer returns the endpoint from server.
+func EndpointFromServer(s clientv1alpha1.Server) (endpoint string, err error) {
+	switch s.Type {
+	case clientv1alpha1.KubernetesServer:
+		// TODO (pbarker): implement kubernetes server
+		return endpoint, fmt.Errorf("type %q not yet implemented", s.Type)
+	case clientv1alpha1.TanzuServer:
+		cfg, err := GetConfigFromPath(s.Path)
+		if err != nil {
+			return endpoint, nil
+		}
+		return cfg.Spec.Endpoint, nil
+	default:
+		return endpoint, fmt.Errorf("unknown server type %q", s.Type)
+	}
 }

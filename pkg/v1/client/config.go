@@ -50,12 +50,12 @@ func ConfigPath() (path string, err error) {
 }
 
 // GetConfig retrieves the config from the local directory.
-func GetConfig() (ctx *clientv1alpha1.Config, err error) {
-	ctxPath, err := ConfigPath()
+func GetConfig() (cfg *clientv1alpha1.Config, err error) {
+	cfgPath, err := ConfigPath()
 	if err != nil {
 		return nil, err
 	}
-	b, err := ioutil.ReadFile(ctxPath)
+	b, err := ioutil.ReadFile(cfgPath)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read Config file")
 	}
@@ -73,13 +73,13 @@ func GetConfig() (ctx *clientv1alpha1.Config, err error) {
 }
 
 // StoreConfig stores the config in the local directory.
-func StoreConfig(ctx *clientv1alpha1.Config) error {
-	ctxPath, err := ConfigPath()
+func StoreConfig(cfg *clientv1alpha1.Config) error {
+	cfgPath, err := ConfigPath()
 	if err != nil {
 		return errors.Wrap(err, "could not find Config path")
 	}
 
-	_, err = os.Stat(ctxPath)
+	_, err = os.Stat(cfgPath)
 	if os.IsNotExist(err) {
 		localDir, err := LocalDir()
 		if err != nil {
@@ -100,11 +100,11 @@ func StoreConfig(ctx *clientv1alpha1.Config) error {
 
 	s := json.NewYAMLSerializer(json.DefaultMetaFactory, scheme, scheme)
 	buf := new(bytes.Buffer)
-	if err := s.Encode(ctx, buf); err != nil {
+	if err := s.Encode(cfg, buf); err != nil {
 		return errors.Wrap(err, "failed to encode Config file")
 	}
 	// TODO (pbarker): need to consider races.
-	if err = ioutil.WriteFile(ctxPath, buf.Bytes(), 0644); err != nil {
+	if err = ioutil.WriteFile(cfgPath, buf.Bytes(), 0644); err != nil {
 		return errors.Wrap(err, "failed to write Config file")
 	}
 	return nil
@@ -112,11 +112,11 @@ func StoreConfig(ctx *clientv1alpha1.Config) error {
 
 // DeleteConfig deletes the config from the local directory.
 func DeleteConfig() error {
-	ctxPath, err := ConfigPath()
+	cfgPath, err := ConfigPath()
 	if err != nil {
 		return err
 	}
-	err = os.Remove(ctxPath)
+	err = os.Remove(cfgPath)
 	if err != nil {
 		return errors.Wrap(err, "could not remove Config")
 	}
