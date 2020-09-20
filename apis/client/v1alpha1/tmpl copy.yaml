@@ -1,0 +1,96 @@
+apiVersion: app.tanzu.vmware.com/v1alpha1
+kind: Command
+metadata:
+  name: install
+spec:
+  inputs:
+  - name: name
+    schema: 
+      type: string
+    required: true
+    description: name of the installation
+  - name: cluster-name
+    schema: 
+      type: string
+    required: true
+    description: name of the cluster
+  - name: ingress-port
+    schema:
+      type: string
+    default: "8080"
+    description: port to host ingress
+  - name: mixer-enabled
+    schema:
+      type: bool
+    default: false
+    description: enable mixer
+  run:
+    image: dockerhub.com/my/image:1.1
+    template:
+      engine: GO_TEXT
+      data: |
+        my: {{ .ObjName }}
+        foo: {{ .Bar }}
+      source: github.com/foorg/bar
+---
+apiVersion: app.tanzu.vmware.com/v1alpha1
+kind: Command
+metadata:
+  name: update
+spec:
+  inputs:
+  - name: ingress-port
+    schema:
+      type: string
+    default: "8080"
+    description: port to host ingress
+  - name: mixer-enabled
+    schema:
+      type: bool
+    default: false
+    description: enable mixer
+  run:
+    image: dockerhub.com/my/image:1.1
+    template:
+      engine: GO_TEXT
+      data: 
+        string: |
+          my: {{ .ObjName }}
+          foo: {{ .Bar }}
+        source: 
+          gitURL: github.com/foorg/bar
+          revision: 2093jffj093r
+---
+apiVersion: app.tanzu.vmware.com/v1alpha1
+kind: Command
+metadata:
+  name: update
+spec:
+  inputs:
+  - name: ingress-port
+    schema:
+      type: string
+    default: "8080"
+    description: port to host ingress
+  - name: mixer-enabled
+    schema:
+      type: bool
+    default: false
+    description: enable mixer
+  run:
+    image: dockerhub.com/my/image:1.1
+    template:
+      engine: GO_TEXT
+      data:
+        source: 
+          gitURL: github.com/foorg/bar
+          revision: 2093jffj093r
+---
+apiVersion: app.tanzu.vmware.com/v1alpha1
+kind: Application
+metadata:
+  name: Istio
+spec:
+  commands:
+  - install
+  - update

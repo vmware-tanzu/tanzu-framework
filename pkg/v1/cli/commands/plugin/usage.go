@@ -19,8 +19,8 @@ var UsageFunc = func(c *cobra.Command) error {
 
 // CmdTemplate is the template for plugin commands.
 const CmdTemplate = `{{ bold "Usage:" }}{{if .Runnable}}
-{{.UseLine}}{{end}}{{if .HasAvailableSubCommands}}
-  {{.CommandPath}} [command]{{end}}{{if gt (len .Aliases) 0}}
+  tanzu {{.UseLine}}{{end}}{{if .HasAvailableSubCommands}}
+  tanzu {{.CommandPath}} [command]{{end}}{{if gt (len .Aliases) 0}}
 
 {{ bold "Aliases:" }}
   {{.NameAndAliases}}{{end}}{{if .HasExample}}
@@ -32,7 +32,7 @@ const CmdTemplate = `{{ bold "Usage:" }}{{if .Runnable}}
   {{rpad .Name .NamePadding }} {{.Short}}{{end}}{{end}}{{end}}{{if .HasAvailableLocalFlags}}
 
 {{ bold "Flags:" }}
-  {{.LocalFlags.FlagUsages | trimTrailingWhitespaces}}{{end}}{{if .HasAvailableInheritedFlags}}
+{{.LocalFlags.FlagUsages | trimTrailingWhitespaces}}{{end}}{{if .HasAvailableInheritedFlags}}
 
 {{ bold "Global Flags:" }}
   {{.InheritedFlags.FlagUsages | trimTrailingWhitespaces}}{{end}}{{if .HasHelpSubCommands}}

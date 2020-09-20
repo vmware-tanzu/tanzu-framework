@@ -39,10 +39,6 @@ const (
 	knownTMCHost = "tmc.cloud.vmware.com"
 )
 
-func init() {
-
-}
-
 func main() {
 	p, err := plugin.NewPlugin(descriptor)
 	if err != nil {
@@ -93,7 +89,6 @@ func login(cmd *cobra.Command, args []string) (err error) {
 			endpoint, _ = os.LookupEnv(client.EnvEndpointKey)
 		}
 		if len(servers) == 0 {
-			fmt.Println("creating server")
 			serverTarget, err = createNewServer()
 			if err != nil {
 				return err
@@ -117,7 +112,6 @@ func login(cmd *cobra.Command, args []string) (err error) {
 		}
 
 	} else {
-		fmt.Println("getting server")
 		serverTarget, err = client.GetServer(server)
 		if err != nil {
 			return err
@@ -125,7 +119,6 @@ func login(cmd *cobra.Command, args []string) (err error) {
 	}
 
 	if server == newServerSelector {
-		fmt.Println("creating server")
 		serverTarget, err = createNewServer()
 		if err != nil {
 			return err
@@ -133,11 +126,9 @@ func login(cmd *cobra.Command, args []string) (err error) {
 	}
 
 	if serverTarget.Type == clientv1alpha1.GlobalServerType {
-		fmt.Println("logging into global server")
 		return globalLogin(serverTarget)
 	}
 
-	fmt.Println("logging into management cluster")
 	return managementClusterLogin(serverTarget, endpoint)
 }
 

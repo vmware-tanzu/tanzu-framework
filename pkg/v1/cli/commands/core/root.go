@@ -19,6 +19,9 @@ func NewRootCmd() (*cobra.Command, error) {
 	u := cli.NewMainUsage()
 	root.SetUsageFunc(u.Func())
 
+	// TODO (pbarker): silencing usage for now as we are getting double usage from plugins on errors
+	root.SilenceUsage = true
+
 	root.AddCommand(
 		pluginCmd,
 		initCmd,

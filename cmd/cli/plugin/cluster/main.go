@@ -10,6 +10,7 @@ import (
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/commands/plugin"
+	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 )
 
 var descriptor = cli.PluginDescriptor{
@@ -32,9 +33,49 @@ func main() {
 	}
 }
 
+var getClusterCmd = &cobra.Command{
+	Use:   "get",
+	Short: "Get a cluster",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Println("in progress...")
+		return nil
+	},
+}
+
+var listClustersCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List clusters",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cfg, err := client.GetConfig()
+		if err != nil {
+			return err
+		}
+		fmt.Println("in progress...")
+		return nil
+	},
+}
+
 var createClusterCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create a cluster",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Println("in progress...")
+		return nil
+	},
+}
+
+var updateClusterCmd = &cobra.Command{
+	Use:   "update",
+	Short: "update a cluster",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Println("in progress...")
+		return nil
+	},
+}
+
+var deleteClusterCmd = &cobra.Command{
+	Use:   "delete",
+	Short: "delete a cluster",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Println("in progress...")
 		return nil

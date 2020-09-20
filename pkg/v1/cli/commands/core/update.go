@@ -9,13 +9,12 @@ import (
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
-	"github.com/vmware-tanzu-private/core/pkg/v1/cli/commands/plugin"
 )
 
 var yesUpdate bool
 
 func init() {
-	updateCmd.SetUsageFunc(plugin.UsageFunc)
+	updateCmd.SetUsageFunc(cli.SubCmdUsageFunc)
 	updateCmd.Flags().BoolVarP(&yesUpdate, "yes", "y", false, "force update; skip prompt")
 	updateCmd.Flags().StringVarP(&local, "local", "l", "", "path to local repository")
 }

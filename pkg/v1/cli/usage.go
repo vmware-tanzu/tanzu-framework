@@ -87,13 +87,48 @@ func (u *MainUsage) Template() string {
 	{{end}}
 
 {{ bold "Flags:" }}
-{{.LocalFlags.FlagUsages  | trimTrailingWhitespaces }}
+{{.LocalFlags.FlagUsages  | trimTrailingWhitespaces}}
 
 Use "{{.CommandPath}} [command] --help" for more information about a command.
 
 Logged in to {{ underline .Server.Name }}
 `
 }
+
+// SubCmdUsageFunc is the usage func for a plugin.
+var SubCmdUsageFunc = func(c *cobra.Command) error {
+	t, err := template.New("usage").Funcs(TemplateFuncs).Parse(SubCmdTemplate)
+	if err != nil {
+		return err
+	}
+	return t.Execute(os.Stdout, c)
+}
+
+// SubCmdTemplate is the template for plugin commands.
+const SubCmdTemplate = `{{ bold "Usage:" }}{{if .Runnable}}
+{{.UseLine}}{{end}}{{if .HasAvailableSubCommands}}
+  {{.CommandPath}} [command]{{end}}{{if gt (len .Aliases) 0}}
+
+{{ bold "Aliases:" }}
+  {{.NameAndAliases}}{{end}}{{if .HasExample}}
+
+{{ bold "Examples:" }}
+  {{.Example}}{{end}}{{if .HasAvailableSubCommands}}
+
+{{ bold "Available Commands:" }}{{range .Commands}}{{if .IsAvailableCommand }}
+  {{rpad .Name .NamePadding }} {{.Short}}{{end}}{{end}}{{end}}{{if .HasAvailableLocalFlags}}
+
+{{ bold "Flags:" }}
+{{.LocalFlags.FlagUsages | trimTrailingWhitespaces}}{{end}}{{if .HasAvailableInheritedFlags}}
+
+{{ bold "Global Flags:" }}
+  {{.InheritedFlags.FlagUsages | trimTrailingWhitespaces}}{{end}}{{if .HasHelpSubCommands}}
+
+{{ bold "Additional help topics:" }}{{range .Commands}}{{if .IsAdditionalHelpTopicCommand}}
+  {{rpad .CommandPath .CommandPathPadding}} {{.Short}}{{end}}{{end}}{{end}}{{if .HasAvailableSubCommands}}
+
+Use "{{.CommandPath}} [command] --help" for more information about a command.{{end}}
+`
 
 // TemplateFuncs are the template usage funcs.
 var TemplateFuncs = template.FuncMap{

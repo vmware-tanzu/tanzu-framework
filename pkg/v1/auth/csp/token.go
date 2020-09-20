@@ -43,12 +43,6 @@ const (
 )
 
 var (
-	// LoginSuccessPage is the html page displayed by the browser on successful login
-	LoginSuccessPage = strings.TrimSpace(`
-<p><strong>tmc login flow complete</strong></p>
-<p>You are authenticated and can close this page.</p>
-`)
-
 	// KnownIssuers are known OAuth2 endpoints in each CSP environment.
 	KnownIssuers = map[string]oauth2.Endpoint{
 		StgIssuer: {

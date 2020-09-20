@@ -215,7 +215,6 @@ func PutServer(s clientv1alpha1.Server, setCurrent bool) error {
 		newServers = append(newServers, server)
 	}
 	cfg.KnownServers = newServers
-	fmt.Printf("saving known servers: %#v\n", newServers)
 	if setCurrent {
 		cfg.CurrentServer = s.Name
 	}

@@ -2,10 +2,10 @@ domain: tanzu.vmware.com
 multigroup: true
 repo: github.com/vmware-tanzu-private/core
 resources:
-- group: auth
-  kind: CSPConfig
-  version: v1alpha1
 - group: client
   kind: Config
+  version: v1alpha1
+- group: client
+  kind: Template
   version: v1alpha1
 version: "2"

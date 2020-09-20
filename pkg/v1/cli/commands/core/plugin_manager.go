@@ -9,7 +9,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
-	"github.com/vmware-tanzu-private/core/pkg/v1/cli/commands/plugin"
 )
 
 var (
@@ -17,7 +16,7 @@ var (
 )
 
 func init() {
-	pluginCmd.SetUsageFunc(plugin.UsageFunc)
+	pluginCmd.SetUsageFunc(cli.SubCmdUsageFunc)
 	pluginCmd.AddCommand(
 		listPluginCmd,
 		installPluginCmd,

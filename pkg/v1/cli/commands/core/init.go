@@ -6,11 +6,10 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
-	"github.com/vmware-tanzu-private/core/pkg/v1/cli/commands/plugin"
 )
 
 func init() {
-	initCmd.SetUsageFunc(plugin.UsageFunc)
+	initCmd.SetUsageFunc(cli.SubCmdUsageFunc)
 }
 
 var initCmd = &cobra.Command{
