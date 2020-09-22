@@ -8,14 +8,15 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aunum/log"
 	"github.com/golang/protobuf/proto"
 	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"gopkg.in/yaml.v2"
 
-	"gitlab.eng.vmware.com/olympus/api-machinery/pkg/common/logger"
-	"gitlab.eng.vmware.com/olympus/api/pkg/cli/common"
+	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
+	"github.com/vmware-tanzu-private/core/pkg/v1/encoding/proto"
 )
 
 // Main holds state for multiple command tests.
@@ -103,21 +104,21 @@ func (r *Result) Success() {
 // PrintStart prints a main test start message.
 func (m *Main) PrintStart() {
 	fmt.Println("---")
-	logger.Infof("testing %s", m.Name)
+	log.Infof("testing %s", m.Name)
 	fmt.Println("")
 }
 
 // PrintSuccess prints a successfull main test message.
 func (m *Main) PrintSuccess() {
 	fmt.Println("")
-	logger.Successf("ok: successfully tested %s", m.Name)
+	log.Successf("ok: successfully tested %s", m.Name)
 	fmt.Println("")
 }
 
 // PrintFailure prints a main test failure message.
 func (m *Main) PrintFailure() {
 	fmt.Println("")
-	logger.Criticalf("FAIL: %s", m.Name)
+	log.Errorf("FAIL: %s", m.Name)
 	fmt.Println("")
 }
 
@@ -142,9 +143,9 @@ func (m *Main) ReportSuccess(cmd string) {
 func (m *Main) ReportTestResult(t *Test) {
 	m.Report.Results = append(m.Report.Results, t.Result)
 	if t.Result.Pass {
-		logger.Successf("PASS: %q", t.Name)
+		log.Successf("PASS: %q", t.Name)
 	} else {
-		logger.Criticalf("FAIL: %q", t.Name)
+		log.Errorf("FAIL: %q", t.Name)
 	}
 }
 
@@ -194,7 +195,7 @@ func (m *Main) Finish() {
 	m.BuildReport()
 	m.Report.TimeEnd = time.Now()
 	fmt.Println("")
-	logger.Info("cleaning up")
+	log.Info("cleaning up")
 	m.Cleanup()
 	if m.printReport {
 		m.PrintReport("yaml")
@@ -240,7 +241,7 @@ type Test struct {
 
 // NewTest returns a new command
 func NewTest(name, command string, run func(t *Test) error) *Test {
-	logger.Info(name)
+	log.Info(name)
 	return &Test{
 		Name:    name,
 		Command: command,
@@ -266,7 +267,7 @@ func (m *Main) RunTest(name, command string, run func(t *Test) error) error {
 
 // PrintSuccess will print a success message.
 func (t *Test) PrintSuccess() {
-	logger.Successf("ok: %s", t.Name)
+	log.Successf("ok: %s", t.Name)
 }
 
 // Run the 'run' function within the context of the test updating the result accordingly.
@@ -313,10 +314,10 @@ func (t *Test) StdErr() bytes.Buffer {
 // Exec the command, exit on error
 func Exec(command string) (stdOut bytes.Buffer, stdErr bytes.Buffer, err error) {
 	c := cleanCommand(command)
-	cmd := exec.Command(common.CLIName, c...)
+	cmd := exec.Command(cli.Name, c...)
 	cmd.Stdout = &stdOut
 	cmd.Stderr = &stdErr
-	fmt.Printf("%s %s \n", logger.IconShell, strings.Join(cmd.Args, " "))
+	fmt.Printf("$ %s \n", strings.Join(cmd.Args, " "))
 	err = cmd.Run()
 	if err != nil {
 		fmt.Println(stdOut.String())
@@ -328,7 +329,7 @@ func Exec(command string) (stdOut bytes.Buffer, stdErr bytes.Buffer, err error) 
 // cleanCommand will remove the CLIName from the command if exists as first argument.
 func cleanCommand(command string) []string {
 	c := strings.Split(command, " ")
-	if c[0] == common.CLIName {
+	if c[0] == cli.Name {
 		c = c[1:]
 	}
 	return c
@@ -357,7 +358,7 @@ func ExecUnmarshal(command string, outputMessage proto.Message, format string) e
 		return nil
 	}
 
-	err = common.BufferToProto(&stdOut, outputMessage, format)
+	err = proto.BufferToProto(&stdOut, outputMessage, format)
 	if err != nil {
 		return err
 	}

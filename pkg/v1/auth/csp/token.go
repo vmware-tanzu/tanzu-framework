@@ -124,6 +124,20 @@ func GetIssuer(staging bool) string {
 	return ProdIssuer
 }
 
+// DefaultTimeout timeout in seconds.
+var DefaultTimeout = 30
+
+// IsExpired checks for the token expiry and returns true if the token has expired else will return false
+func IsExpired(tokenExpiry time.Time) bool {
+	// refresh at half token life
+	now := time.Now().Unix()
+	halfDur := -time.Duration((tokenExpiry.Unix()-now)/2) * time.Second
+	if tokenExpiry.Add(halfDur).Unix() < now {
+		return true
+	}
+	return false
+}
+
 // Claims are the jwt claims.
 // TODO (pbarker): make this proper.
 type Claims struct {

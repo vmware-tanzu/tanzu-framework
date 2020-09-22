@@ -7,12 +7,11 @@ import (
 	"os"
 	"time"
 
+	"github.com/aunum/log"
+
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/client"
-	"gitlab.eng.vmware.com/olympus/api-machinery/pkg/logger"
-	"gitlab.eng.vmware.com/olympus/api/pkg/common/auth"
-	"gitlab.eng.vmware.com/olympus/api/pkg/common/system"
 	"golang.org/x/oauth2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -25,20 +24,6 @@ const (
 	authTokenPrefix  = "Bearer "
 	mdKeyAuthIDToken = "X-User-Id"
 )
-
-// DefaultTimeout timeout in seconds.
-var DefaultTimeout = 30
-
-// IsExpired checks for the token expiry and returns true if the token has expired else will return false
-func IsExpired(tokenExpiry time.Time) bool {
-	// refresh at half token life
-	now := time.Now().Unix()
-	halfDur := -time.Duration((tokenExpiry.Unix()-now)/2) * time.Second
-	if tokenExpiry.Add(halfDur).Unix() < now {
-		return true
-	}
-	return false
-}
 
 // WithCredentialDiscovery returns a grpc.CallOption that adds credentials into gRPC calls.
 // The credentials are loaded from the auth context found on the machine.
@@ -80,10 +65,10 @@ func (c *configSource) Token() (*oauth2.Token, error) {
 			Expiry:      g.GlobalOpts.Auth.Expiration.Time,
 		}
 		return tok.WithExtra(map[string]interface{}{
-			auth.ExtraIdToken: g.GlobalOpts.Auth.IDToken,
+			ExtraIDToken: g.GlobalOpts.Auth.IDToken,
 		}), nil
 	}
-	token, err := auth.GetCSPAccessTokenFromAPIToken(g.GlobalOpts.Auth.RefreshToken, ProdIssuer)
+	token, err := GetAccessTokenFromAPIToken(g.GlobalOpts.Auth.RefreshToken, ProdIssuer)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +90,7 @@ func (c *configSource) Token() (*oauth2.Token, error) {
 		Expiry:       expiration,
 	}
 	return tok.WithExtra(map[string]interface{}{
-		auth.ExtraIdToken: token.IDToken,
+		ExtraIDToken: token.IDToken,
 	}), nil
 }
 
@@ -123,7 +108,7 @@ func (ts TokenSource) GetRequestMetadata(ctx context.Context, uri ...string) (ma
 	}
 
 	headers := map[string]string{mdKeyAuthToken: authTokenPrefix + " " + token.AccessToken}
-	idTok := auth.GetIdTokenFromTokenSource(*token)
+	idTok := IDTokenFromTokenSource(*token)
 	if idTok != "" {
 		headers[mdKeyAuthIDToken] = idTok
 	}
@@ -150,7 +135,7 @@ func ConnectToEndpointOrExit() *grpc.ClientConn {
 func ConnectToEndpoint() (*grpc.ClientConn, error) {
 	cfg, err := client.GetConfig()
 	if err != nil {
-		logger.Criticalf("Could not get current auth context with error: %v", err)
+		log.Errorf("Could not get current auth context with error: %v", err)
 		return nil, err
 	}
 	s, err := cfg.GetCurrentServer()
@@ -178,7 +163,7 @@ func ConnectToEndpoint() (*grpc.ClientConn, error) {
 
 	conn, err := grpc.DialContext(ctx, endpoint, dialOpts...)
 	if err != nil {
-		logger.Criticalf("Could not reach backend: %+v with error: %+v\n", endpoint, err)
+		log.Errorf("Could not reach backend: %+v with error: %+v\n", endpoint, err)
 		return nil, err
 	}
 
@@ -214,9 +199,9 @@ func streamClientInterceptor() grpc.StreamClientInterceptor {
 func GetAuthOptsOrExit() grpc.CallOption {
 	var authOpts grpc.CallOption
 	var err error
-	authOpts, err = system.WithCredentialDiscovery()
+	authOpts, err = WithCredentialDiscovery()
 	if err != nil {
-		logger.Fatal("Not logged in. Please retry after logging in")
+		log.Fatal("Not logged in. Please retry after logging in")
 	}
 
 	return authOpts
