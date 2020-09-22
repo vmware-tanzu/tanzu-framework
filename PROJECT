@@ -5,7 +5,4 @@ resources:
 - group: client
   kind: Config
   version: v1alpha1
-- group: client
-  kind: Template
-  version: v1alpha1
 version: "2"
