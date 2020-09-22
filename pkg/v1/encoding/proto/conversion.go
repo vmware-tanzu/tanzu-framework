@@ -8,12 +8,11 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/aunum/log"
 	"github.com/ghodss/yaml"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
 	"github.com/pkg/errors"
-
-	"gitlab.eng.vmware.com/olympus/api-machinery/pkg/common/logger"
 )
 
 // InputFileToProto reads a json/yaml input file and converts it to protobuf format
@@ -26,7 +25,7 @@ func InputFileToProto(filePath string, outResource proto.Message) error {
 
 	buf := bytes.NewBuffer(nil)
 	io.Copy(buf, inputFile)
-	logger.Debugf("read object --> \n---\n%s\n---\n", string(buf.Bytes()))
+	log.Debugf("read object --> \n---\n%s\n---\n", string(buf.Bytes()))
 
 	err = BufferToProto(buf, outResource, strings.TrimPrefix(filepath.Ext(filePath), "."))
 	if err != nil {
