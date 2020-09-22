@@ -31,9 +31,13 @@ func (in *Config) DeepCopyInto(out *Config) {
 	in.ObjectMeta.DeepCopyInto(&out.ObjectMeta)
 	if in.KnownServers != nil {
 		in, out := &in.KnownServers, &out.KnownServers
-		*out = make([]Server, len(*in))
+		*out = make([]*Server, len(*in))
 		for i := range *in {
-			(*in)[i].DeepCopyInto(&(*out)[i])
+			if (*in)[i] != nil {
+				in, out := &(*in)[i], &(*out)[i]
+				*out = new(Server)
+				(*in).DeepCopyInto(*out)
+			}
 		}
 	}
 }

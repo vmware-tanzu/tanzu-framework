@@ -217,14 +217,3 @@ func GetToken(g *clientv1alpha1.GlobalServerAuth) (*oauth2.Token, error) {
 		"id_token": token.IDToken,
 	}), nil
 }
-
-// IsExpired checks for the token expiry and returns true if the token has expired else will return false
-func IsExpired(tokenExpiry time.Time) bool {
-	// refresh at half token life
-	now := time.Now().Unix()
-	halfDur := -time.Duration((tokenExpiry.Unix()-now)/2) * time.Second
-	if tokenExpiry.Add(halfDur).Unix() < now {
-		return true
-	}
-	return false
-}

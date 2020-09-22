@@ -102,7 +102,7 @@ type Config struct {
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	// KnownServers available.
-	KnownServers []Server `json:"servers,omitempty" yaml:"servers"`
+	KnownServers []*Server `json:"servers,omitempty" yaml:"servers"`
 
 	// CurrentServer in use.
 	CurrentServer string `json:"current,omitempty" yaml:"current"`

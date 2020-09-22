@@ -9,7 +9,7 @@ import (
 
 func TestConfig(t *testing.T) {
 	testCtx := &clientv1alpha1.Config{
-		KnownServers:  []clientv1alpha1.Server{},
+		KnownServers:  []*clientv1alpha1.Server{},
 		CurrentServer: "test",
 	}
 	err := StoreConfig(testCtx)

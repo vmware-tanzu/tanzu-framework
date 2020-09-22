@@ -546,6 +546,7 @@ github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 gitlab.eng.vmware.com/olympus/api v0.0.0-20200826184856-2a2587ac1169 h1:IVJZm1R8NXGE1pWoohi49DIQt1SNo7bBBZe+vAVQAs8=
 gitlab.eng.vmware.com/olympus/api v0.0.0-20200826184856-2a2587ac1169/go.mod h1:tuMhB8G6HkzoG9Y2UGTWDz/uqxksjbfPFEjkENFwp2Q=
+gitlab.eng.vmware.com/olympus/api v0.0.0-20200918215753-5f2f493e2fc3 h1:le4i/lCOn3PkgiW2Ty2iRmYIOtxCZpLaDrELv5jnPAI=
 gitlab.eng.vmware.com/olympus/api-machinery v0.0.0-20200811223306-665e65790d28 h1:ec9dK6zXJb+RyaDchHt0TJWD3gfamEELJbyPl0QtmBs=
 gitlab.eng.vmware.com/olympus/api-machinery v0.0.0-20200811223306-665e65790d28/go.mod h1:ygOZ6//qD8EAPiRpfQXa95eQWr9Ed4ljO+i+MOgG4KM=
 gitlab.eng.vmware.com/olympus/cli-design-system v0.0.0-20191119183629-82b2f8433f4b/go.mod h1:jWwcNOHt3pH0mrK3r6C3LFvkBa6Q+al7dzwtMOpoC8g=

@@ -156,7 +156,7 @@ func DeleteConfig() error {
 }
 
 // GetServer by name.
-func GetServer(name string) (s clientv1alpha1.Server, err error) {
+func GetServer(name string) (s *clientv1alpha1.Server, err error) {
 	cfg, err := GetConfig()
 	if err != nil {
 		return s, err
@@ -184,7 +184,7 @@ func ServerExists(name string) (bool, error) {
 }
 
 // AddServer adds a server to the config.
-func AddServer(s clientv1alpha1.Server, setCurrent bool) error {
+func AddServer(s *clientv1alpha1.Server, setCurrent bool) error {
 	cfg, err := GetConfig()
 	if err != nil {
 		return err
@@ -202,12 +202,12 @@ func AddServer(s clientv1alpha1.Server, setCurrent bool) error {
 }
 
 // PutServer adds or updates the server.
-func PutServer(s clientv1alpha1.Server, setCurrent bool) error {
+func PutServer(s *clientv1alpha1.Server, setCurrent bool) error {
 	cfg, err := GetConfig()
 	if err != nil {
 		return err
 	}
-	newServers := []clientv1alpha1.Server{s}
+	newServers := []*clientv1alpha1.Server{s}
 	for _, server := range cfg.KnownServers {
 		if server.Name == s.Name {
 			continue
@@ -230,7 +230,7 @@ func RemoveServer(name string) error {
 	if cfg.CurrentServer == name {
 		return fmt.Errorf("cannot delete the current server")
 	}
-	newServers := []clientv1alpha1.Server{}
+	newServers := []*clientv1alpha1.Server{}
 	for _, server := range cfg.KnownServers {
 		if server.Name != name {
 			newServers = append(newServers, server)
@@ -268,7 +268,7 @@ func SetCurrentServer(name string) error {
 }
 
 // GetCurrentServer sets the current server.
-func GetCurrentServer() (s clientv1alpha1.Server, err error) {
+func GetCurrentServer() (s *clientv1alpha1.Server, err error) {
 	cfg, err := GetConfig()
 	if err != nil {
 		return s, err
