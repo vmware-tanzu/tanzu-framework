@@ -12,6 +12,7 @@ require (
 	github.com/caarlos0/spin v1.1.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/golang/protobuf v1.3.2
+	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
 	github.com/logrusorgru/aurora v2.0.3+incompatible
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/pkg/errors v0.9.1

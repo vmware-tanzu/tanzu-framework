@@ -2,14 +2,20 @@ package csp
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
+	"os"
 	"time"
 
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/client"
+	"gitlab.eng.vmware.com/olympus/api-machinery/pkg/logger"
 	"gitlab.eng.vmware.com/olympus/api/pkg/common/auth"
+	"gitlab.eng.vmware.com/olympus/api/pkg/common/system"
 	"golang.org/x/oauth2"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	grpc_oauth "google.golang.org/grpc/credentials/oauth"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -19,6 +25,9 @@ const (
 	authTokenPrefix  = "Bearer "
 	mdKeyAuthIDToken = "X-User-Id"
 )
+
+// DefaultTimeout timeout in seconds.
+var DefaultTimeout = 30
 
 // IsExpired checks for the token expiry and returns true if the token has expired else will return false
 func IsExpired(tokenExpiry time.Time) bool {
@@ -125,4 +134,90 @@ func (ts TokenSource) GetRequestMetadata(ctx context.Context, uri ...string) (ma
 // RequireTransportSecurity indicates whether the credentials requires transport security.
 func (ts TokenSource) RequireTransportSecurity() bool {
 	return true
+}
+
+// ConnectToEndpointOrExit returns a client connection to the provided endpoint. If it encounters an error, it exits.
+func ConnectToEndpointOrExit() *grpc.ClientConn {
+	conn, err := ConnectToEndpoint()
+	if err != nil {
+		os.Exit(1)
+	}
+	return conn
+}
+
+// ConnectToEndpoint attempts to connect to the provided endpoint. If endpoint is empty, it picks up the endpoint
+// from the current auth ctx.
+func ConnectToEndpoint() (*grpc.ClientConn, error) {
+	cfg, err := client.GetConfig()
+	if err != nil {
+		logger.Criticalf("Could not get current auth context with error: %v", err)
+		return nil, err
+	}
+	s, err := cfg.GetCurrentServer()
+	if err != nil {
+		return nil, err
+	}
+	endpoint := s.GlobalOpts.Endpoint
+	unaryInterceptors := []grpc.UnaryClientInterceptor{
+		unaryClientInterceptor(),
+	}
+
+	streamInterceptors := []grpc.StreamClientInterceptor{
+		streamClientInterceptor(),
+	}
+
+	dialOpts := []grpc.DialOption{
+		grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{})),
+		grpc.WithUnaryInterceptor(grpc_middleware.ChainUnaryClient(unaryInterceptors...)),
+		grpc.WithStreamInterceptor(grpc_middleware.ChainStreamClient(streamInterceptors...)),
+		grpc.WithBlock(),
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(DefaultTimeout)*time.Second)
+	defer cancel()
+
+	conn, err := grpc.DialContext(ctx, endpoint, dialOpts...)
+	if err != nil {
+		logger.Criticalf("Could not reach backend: %+v with error: %+v\n", endpoint, err)
+		return nil, err
+	}
+
+	return conn, nil
+}
+
+// unaryClientInterceptor adds the client information metadata to the outgoing unary gRPC request context
+func unaryClientInterceptor() grpc.UnaryClientInterceptor {
+	return func(reqCtx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+		timeoutCtx, cancel := context.WithTimeout(reqCtx, time.Duration(DefaultTimeout)*time.Second)
+		defer cancel()
+
+		// TODO (pbarkerr): add client headers
+		// outCtx := AppendClientMetadata(timeoutCtx)
+		return invoker(timeoutCtx, method, req, reply, cc, opts...)
+	}
+}
+
+// streamClientInterceptor adds the client information metadata to the outgoing streaming gRPC request context
+func streamClientInterceptor() grpc.StreamClientInterceptor {
+	return func(reqCtx context.Context, desc *grpc.StreamDesc, cc *grpc.ClientConn, method string, streamer grpc.Streamer, opts ...grpc.CallOption) (grpc.ClientStream, error) {
+		timeoutCtx, cancel := context.WithTimeout(reqCtx, time.Duration(DefaultTimeout)*time.Second)
+		defer cancel()
+
+		// TODO (pbarkerr): add client headers
+		// outCtx := AppendClientMetadata(timeoutCtx)
+		return streamer(timeoutCtx, desc, cc, method, opts...)
+	}
+}
+
+// GetAuthOptsOrExit returns the grpc auth options. If accessToken is not empty it uses it, else it fetches the token
+// from the current auth context. If it encounters and error, it exits.
+func GetAuthOptsOrExit() grpc.CallOption {
+	var authOpts grpc.CallOption
+	var err error
+	authOpts, err = system.WithCredentialDiscovery()
+	if err != nil {
+		logger.Fatal("Not logged in. Please retry after logging in")
+	}
+
+	return authOpts
 }

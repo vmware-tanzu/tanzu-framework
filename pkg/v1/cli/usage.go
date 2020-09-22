@@ -57,7 +57,7 @@ func (u *MainUsage) GenerateDescriptor(c *cobra.Command, w io.Writer) error {
 	d := struct {
 		*cobra.Command
 		CmdMap CmdMap
-		Server clientv1alpha1.Server
+		Server *clientv1alpha1.Server
 	}{
 		c,
 		cmdMap,
