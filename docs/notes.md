@@ -1,16 +1,17 @@
 # ad hoc meeting notes
 
+```
 // add go get to main repository
 // add build/test directory
-// add more tests for everthing
+// add more tests for everything
 // Owners files subdirectories
 // Can we grab pieces of the kubernetes bots? pull-approve
 // Top level readme
-// Docs release team // gitbook mdbook // steuart clemet IX
+// Docs release team // gitbook mdbook // Stuart Clements
 // goreleaser for changelogs
 // weekly code walkthrough -- maybe here maybe other meeting
 // remove `.cloud` from api group -- will pursue .tanzu with joe
-// where to store the images -- dockerhub? we have org license -- habor? -- 
+// where to store the images -- dockerhub? we have org license -- harbor? --
 // commit messaging tool -- gh has recommendations and templating -- PR templates
     -- cloudprovider/vsphere has good tooling
     -- CAPI issue templates
@@ -26,7 +27,7 @@
     -- just path auth to the next cli
     -- do we proxy the commands to it
     -- do we reimplement all the commands
-
+```
 
 // TMC feedback
 
@@ -36,4 +37,4 @@
 * provide a detailed overview
 * update strategy
 * who does the docs
-* 
+*
