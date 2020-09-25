@@ -28,6 +28,7 @@ const (
 
 var (
 	version, path, artifactsDir, ldflags string
+	buildCore                            bool
 )
 
 func init() {
@@ -35,6 +36,7 @@ func init() {
 	flag.StringVar(&ldflags, "ldflags", "", "ldflags to set on build")
 	flag.StringVar(&path, "path", "./cmd/cli/plugin", "path of the plugins directory")
 	flag.StringVar(&artifactsDir, "artifacts", cli.DefaultArtifactsDirectory, "path to output artifacts")
+	flag.BoolVar(&buildCore, "core", false, "build core binary")
 }
 
 func main() {
@@ -52,11 +54,13 @@ func main() {
 	}
 
 	log.Break()
-	log.Info("building core binary")
-	buildAllTargets("cmd/cli/tanzu", filepath.Join(artifactsDir, cli.CoreName, version), cli.CoreName)
+	if buildCore {
+		log.Info("building core binary")
+		buildAllTargets("cmd/cli/tanzu", filepath.Join(artifactsDir, cli.CoreName, version), cli.CoreName)
 
-	// TODO (pbarker): should copy.
-	buildAllTargets("cmd/cli/tanzu", filepath.Join(artifactsDir, cli.CoreName, cli.VersionLatest), cli.CoreName)
+		// TODO (pbarker): should copy.
+		buildAllTargets("cmd/cli/tanzu", filepath.Join(artifactsDir, cli.CoreName, cli.VersionLatest), cli.CoreName)
+	}
 
 	files, err := ioutil.ReadDir(path)
 	log.Check(err)

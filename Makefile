@@ -108,7 +108,7 @@ install-cli:
 
 .PHONY: build-cli
 build-cli:
-	go run ./cmd/cli/compiler/main.go --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)"
+	go run ./cmd/cli/compiler/main.go --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --core
 
 .PHONY: build-cli-mocks
 build-cli-mocks:
