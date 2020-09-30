@@ -72,9 +72,9 @@ func login(cmd *cobra.Command, args []string) (err error) {
 	surveyOpts := getSurveyOpts()
 
 	newServerSelector := "+ new server"
-	var serverTarget clientv1alpha1.Server
+	var serverTarget *clientv1alpha1.Server
 	if server == "" {
-		servers := map[string]clientv1alpha1.Server{}
+		servers := map[string]*clientv1alpha1.Server{}
 		for _, server := range cfg.KnownServers {
 			endpoint, err := client.EndpointFromServer(server)
 			if err != nil {
@@ -96,7 +96,7 @@ func login(cmd *cobra.Command, args []string) (err error) {
 		} else {
 			serverKeys := getKeys(servers)
 			serverKeys = append(serverKeys, newServerSelector)
-			servers[newServerSelector] = clientv1alpha1.Server{}
+			servers[newServerSelector] = &clientv1alpha1.Server{}
 			err = survey.AskOne(
 				&survey.Select{
 					Message: "Select a server",
@@ -132,7 +132,7 @@ func login(cmd *cobra.Command, args []string) (err error) {
 	return managementClusterLogin(serverTarget, endpoint)
 }
 
-func getKeys(m map[string]clientv1alpha1.Server) []string {
+func getKeys(m map[string]*clientv1alpha1.Server) []string {
 	keys := make([]string, 0, len(m))
 	for key := range m {
 		keys = append(keys, key)
@@ -162,7 +162,7 @@ func getSurveyOpts() []survey.AskOpt {
 	return surveyOpts
 }
 
-func createNewServer() (server clientv1alpha1.Server, err error) {
+func createNewServer() (server *clientv1alpha1.Server, err error) {
 	surveyOpts := getSurveyOpts()
 	if endpoint == "" {
 		err = survey.AskOne(
@@ -198,13 +198,13 @@ func createNewServer() (server clientv1alpha1.Server, err error) {
 	}
 
 	if isGlobalServer(endpoint) {
-		server = clientv1alpha1.Server{
+		server = &clientv1alpha1.Server{
 			Name:       name,
 			Type:       clientv1alpha1.GlobalServerType,
 			GlobalOpts: &clientv1alpha1.GlobalServer{Endpoint: endpoint},
 		}
 	} else {
-		server = clientv1alpha1.Server{
+		server = &clientv1alpha1.Server{
 			Name: name,
 			Type: clientv1alpha1.ManagementClusterServerType,
 		}
@@ -212,7 +212,7 @@ func createNewServer() (server clientv1alpha1.Server, err error) {
 	return
 }
 
-func globalLogin(s clientv1alpha1.Server) (err error) {
+func globalLogin(s *clientv1alpha1.Server) (err error) {
 	a := clientv1alpha1.GlobalServerAuth{}
 	apiToken, apiTokenExists := os.LookupEnv(client.EnvAPITokenKey)
 
@@ -294,6 +294,6 @@ func promptAPIToken() (apiToken string, err error) {
 }
 
 // TODO (pbarker): need pinniped story more fleshed out
-func managementClusterLogin(s clientv1alpha1.Server, endpoint string) error {
+func managementClusterLogin(s *clientv1alpha1.Server, endpoint string) error {
 	return fmt.Errorf("not yet implemented")
 }

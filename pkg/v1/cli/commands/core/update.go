@@ -35,19 +35,28 @@ var updateCmd = &cobra.Command{
 			return err
 		}
 
-		repo := getRepository()
+		repos := getRepositories()
+		communityRepo, err := repos.GetRepository(cli.CommunityRepositoryName)
+		if err != nil {
+			return err
+		}
 
-		updateMap := map[cli.PluginDescriptor]string{}
+		type updateInfo struct {
+			version string
+			repo    cli.Repository
+		}
+
+		updateMap := map[cli.PluginDescriptor]updateInfo{}
 		for _, plugin := range plugins {
-			update, version, err := plugin.HasUpdate(repo)
+			update, repo, version, err := plugin.HasUpdateIn(repos)
 			if err != nil {
 				return err
 			}
 			if update {
-				updateMap[plugin] = version
+				updateMap[plugin] = updateInfo{version, repo}
 			}
 		}
-		coreUpdate, coreVersion, err := cli.HasUpdate(repo)
+		coreUpdate, coreVersion, err := cli.HasUpdate(communityRepo)
 		if err != nil {
 			return err
 		}
@@ -80,15 +89,15 @@ var updateCmd = &cobra.Command{
 				return nil
 			}
 		}
-		for plugin, version := range updateMap {
-			err := catalog.Install(plugin.Name, version, repo)
+		for plugin, info := range updateMap {
+			err := catalog.Install(plugin.Name, info.version, info.repo)
 			if err != nil {
 				return err
 			}
 		}
 
 		// update core
-		err = cli.Update(repo)
+		err = cli.Update(communityRepo)
 		if err != nil {
 			return err
 		}

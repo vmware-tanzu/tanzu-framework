@@ -7,7 +7,7 @@ import (
 )
 
 func TestGCPRepository(t *testing.T) {
-	gcpReg := DefaultGCPBucketRepository
+	gcpReg := CommunityGCPBucketRepository
 	list, err := gcpReg.List()
 	require.NoError(t, err)
 

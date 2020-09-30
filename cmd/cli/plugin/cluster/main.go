@@ -33,6 +33,8 @@ func main() {
 	}
 }
 
+// tanzu cluster create f
+
 var getClusterCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Get a cluster",
@@ -46,9 +48,13 @@ var listClustersCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List clusters",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cfg, err := client.GetConfig()
+		server, err := client.GetCurrentServer()
 		if err != nil {
 			return err
+		}
+
+		if server.IsGlobal() {
+
 		}
 		fmt.Println("in progress...")
 		return nil

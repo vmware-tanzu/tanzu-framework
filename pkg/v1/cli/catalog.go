@@ -76,6 +76,20 @@ func (p PluginDescriptor) Validate() (err error) {
 	return
 }
 
+// HasUpdateIn checks if the plugin has an update in any of the given repositories.
+func (p PluginDescriptor) HasUpdateIn(repos *MultiRepo) (update bool, repo Repository, version string, err error) {
+	for _, repo := range repos.repositories {
+		update, version, err = p.HasUpdate(repo)
+		if err != nil {
+			return false, nil, "", err
+		}
+		if update {
+			return update, repo, version, err
+		}
+	}
+	return false, nil, "", nil
+}
+
 // HasUpdate tells whether the plugin descriptor has an update available in the given repository.
 func (p PluginDescriptor) HasUpdate(repo Repository) (update bool, version string, err error) {
 	desc, err := repo.Describe(p.Name)

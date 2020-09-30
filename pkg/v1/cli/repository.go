@@ -25,6 +25,9 @@ type Repository interface {
 	// Fetch an artifact.
 	Fetch(name, version string, arch Arch) ([]byte, error)
 
+	// Name of the repository.
+	Name() string
+
 	// Manifest retrieves the manifest for the repo.
 	Manifest() (Manifest, error)
 }
@@ -91,12 +94,17 @@ const (
 type GCPBucketRepository struct {
 	bucketName string
 	rootPath   string
+	name       string
 }
 
-// DefaultGCPBucketRepository is the default GCP bucket repository.
-var DefaultGCPBucketRepository = &GCPBucketRepository{
+// CommunityRepositoryName is the community repository name.
+const CommunityRepositoryName = "community"
+
+// CommunityGCPBucketRepository is the default GCP bucket repository.
+var CommunityGCPBucketRepository = &GCPBucketRepository{
 	bucketName: "tanzu-cli",
 	rootPath:   DefaultArtifactsDirectory,
+	name:       CommunityRepositoryName,
 }
 
 // NewGCPBucketRepository returns a new GCP bucket repository.
@@ -184,6 +192,11 @@ func (g *GCPBucketRepository) Fetch(name, version string, arch Arch) ([]byte, er
 		return nil, errors.Wrap(err, "could not fetch artifact")
 	}
 	return b, nil
+}
+
+// Name of the repository.
+func (g *GCPBucketRepository) Name() string {
+	return g.name
 }
 
 // Manifest retrieves the manifest for a repository.
@@ -285,6 +298,11 @@ func (l *LocalRepository) Fetch(name, version string, arch Arch) ([]byte, error)
 		return nil, errors.Wrap(err, "could not find artifact at given path")
 	}
 	return b, nil
+}
+
+// Name of the repository.
+func (l *LocalRepository) Name() string {
+	return "local"
 }
 
 // Manifest returns the manifest for a local repository.

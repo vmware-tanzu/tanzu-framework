@@ -282,7 +282,7 @@ func GetCurrentServer() (s *clientv1alpha1.Server, err error) {
 }
 
 // EndpointFromServer returns the endpoint from server.
-func EndpointFromServer(s clientv1alpha1.Server) (endpoint string, err error) {
+func EndpointFromServer(s *clientv1alpha1.Server) (endpoint string, err error) {
 	switch s.Type {
 	case clientv1alpha1.ManagementClusterServerType:
 		// TODO (pbarker): implement management cluster server

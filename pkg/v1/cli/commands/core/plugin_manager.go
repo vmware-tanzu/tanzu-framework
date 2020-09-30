@@ -47,37 +47,39 @@ var listPluginCmd = &cobra.Command{
 			return err
 		}
 
-		repo := getRepository()
-		plugins, err := repo.List()
+		repo := getRepositories()
+		plugins, err := repo.ListPlugins()
 		if err != nil {
 			return err
 		}
 
 		data := make([][]string, len(plugins))
-		for i, plugin := range plugins {
-			status := "not installed"
-			for _, desc := range descriptors {
-				if plugin.Name != desc.Name {
-					continue
+		for repo, descs := range plugins {
+			for i, plugin := range descs {
+
+				status := "not installed"
+				for _, desc := range descriptors {
+					if plugin.Name != desc.Name {
+						continue
+					}
+					compared := semver.Compare(plugin.Version, desc.Version)
+					if compared == 1 {
+						status = "upgrade available"
+						continue
+					}
+					status = "installed"
 				}
-				compared := semver.Compare(plugin.Version, desc.Version)
-				if compared == 1 {
-					status = "upgrade available"
-					continue
-				}
-				status = "installed"
+				data[i] = []string{plugin.Name, plugin.Version, plugin.Description, status, repo}
 			}
-			data[i] = []string{plugin.Name, plugin.Version, plugin.Description, status}
 		}
 
-		table := cli.NewTableWriter("Name", "Version", "Description", "Status")
+		table := cli.NewTableWriter("Name", "Version", "Description", "Status", "Repo")
 
 		for _, v := range data {
 			table.Append(v)
 		}
 		table.Render()
 		return nil
-
 	},
 }
 
@@ -90,9 +92,13 @@ var installPluginCmd = &cobra.Command{
 		}
 		name := args[0]
 
-		repo := getRepository()
+		repos := getRepositories()
 
 		catalog, err := cli.NewCatalog()
+		if err != nil {
+			return err
+		}
+		repo, err := repos.Find(name)
 		if err != nil {
 			return err
 		}
@@ -118,7 +124,11 @@ var upgradePluginCmd = &cobra.Command{
 		}
 		name := args[0]
 
-		repo := getRepository()
+		repos := getRepositories()
+		repo, err := repos.Find(name)
+		if err != nil {
+			return err
+		}
 		catalog, err := cli.NewCatalog()
 		if err != nil {
 			return err
@@ -149,9 +159,9 @@ var deletePluginCmd = &cobra.Command{
 	},
 }
 
-func getRepository() cli.Repository {
+func getRepositories() *cli.MultiRepo {
 	if local != "" {
-		return cli.NewLocalRepository(local)
+		return cli.NewMultiRepo(cli.NewLocalRepository(local))
 	}
-	return cli.NewDefaultRepository()
+	return cli.DefaultMultiRepo
 }

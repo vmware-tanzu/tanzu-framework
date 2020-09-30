@@ -22,13 +22,9 @@ type plugin struct {
 	path string
 }
 
-const (
-	binName = "tanzu"
-)
-
 var (
 	version, path, artifactsDir, ldflags string
-	buildCore                            bool
+	corePath                             string
 )
 
 func init() {
@@ -36,7 +32,7 @@ func init() {
 	flag.StringVar(&ldflags, "ldflags", "", "ldflags to set on build")
 	flag.StringVar(&path, "path", "./cmd/cli/plugin", "path of the plugins directory")
 	flag.StringVar(&artifactsDir, "artifacts", cli.DefaultArtifactsDirectory, "path to output artifacts")
-	flag.BoolVar(&buildCore, "core", false, "build core binary")
+	flag.StringVar(&corePath, "corepath", "", "path for core binary")
 }
 
 func main() {
@@ -53,13 +49,13 @@ func main() {
 		Plugins:     []cli.PluginDescriptor{},
 	}
 
-	log.Break()
-	if buildCore {
+	if corePath != "" {
+		log.Break()
 		log.Info("building core binary")
-		buildAllTargets("cmd/cli/tanzu", filepath.Join(artifactsDir, cli.CoreName, version), cli.CoreName)
+		buildAllTargets(corePath, filepath.Join(artifactsDir, cli.CoreName, version), cli.CoreName)
 
 		// TODO (pbarker): should copy.
-		buildAllTargets("cmd/cli/tanzu", filepath.Join(artifactsDir, cli.CoreName, cli.VersionLatest), cli.CoreName)
+		buildAllTargets(corePath, filepath.Join(artifactsDir, cli.CoreName, cli.VersionLatest), cli.CoreName)
 	}
 
 	files, err := ioutil.ReadDir(path)
