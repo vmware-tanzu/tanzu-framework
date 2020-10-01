@@ -16,7 +16,7 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
-	"github.com/vmware-tanzu-private/core/pkg/v1/encoding/proto"
+	encproto "github.com/vmware-tanzu-private/core/pkg/v1/encoding/proto"
 )
 
 // Main holds state for multiple command tests.
@@ -358,7 +358,7 @@ func ExecUnmarshal(command string, outputMessage proto.Message, format string) e
 		return nil
 	}
 
-	err = proto.BufferToProto(&stdOut, outputMessage, format)
+	err = encproto.BufferToProto(&stdOut, outputMessage, format)
 	if err != nil {
 		return err
 	}
