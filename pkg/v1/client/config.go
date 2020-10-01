@@ -24,12 +24,12 @@ const (
 	// EnvAPITokenKey is the environment variable that overrides the tanzu API token for global auth.
 	EnvAPITokenKey = "TANZU_API_TOKEN"
 
-	// LocalDirName is the name of the local directory in which tanzu state is stored.
-	LocalDirName = ".tanzu"
-
 	// ConfigName is the name of the config
 	ConfigName = "config.yaml"
 )
+
+// LocalDirName is the name of the local directory in which tanzu state is stored.
+var LocalDirName = ".tanzu"
 
 // LocalDir returns the local directory in which tanzu state is stored.
 func LocalDir() (path string, err error) {

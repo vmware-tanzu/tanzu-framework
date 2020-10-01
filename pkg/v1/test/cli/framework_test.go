@@ -15,7 +15,7 @@ func TestCleanCommand(t *testing.T) {
 	}{
 		{
 			name:    "cli name exists",
-			command: "tmc cluster create",
+			command: "tanzu cluster create",
 			res:     []string{"cluster", "create"},
 		},
 		{

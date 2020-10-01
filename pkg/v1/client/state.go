@@ -26,7 +26,7 @@ func GetState() (state State, err error) {
 	}
 	b, err := ioutil.ReadFile(stateFilePath)
 	if err != nil {
-		return state, errors.Wrap(err, "could not read local state file")
+		return state, err
 	}
 	err = yaml.Unmarshal(b, &state)
 	if err != nil {

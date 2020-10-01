@@ -7,6 +7,7 @@ import (
 )
 
 func TestState(t *testing.T) {
+	LocalDirName = ".tanzu-test"
 	stateTest := State{
 		"test": true,
 		"foo":  "bar",

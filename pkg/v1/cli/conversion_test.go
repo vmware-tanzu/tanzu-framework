@@ -58,7 +58,7 @@ func TestMakeArtifactName(t *testing.T) {
 		{
 			arch:         LinuxAMD64,
 			pluginName:   "test",
-			artifactName: fmt.Sprintf("%s-test-%s.exe", ArtifactNamePrefix, LinuxAMD64),
+			artifactName: fmt.Sprintf("%s-test-%s", ArtifactNamePrefix, LinuxAMD64),
 		},
 		{
 			arch:         WinAMD64,
@@ -67,7 +67,7 @@ func TestMakeArtifactName(t *testing.T) {
 		},
 	} {
 		t.Run(fmt.Sprintf("%s test", test.arch), func(t *testing.T) {
-			b := BinFromPluginName(test.pluginName)
+			b := MakeArtifactName(test.pluginName, test.arch)
 			require.Equal(t, test.artifactName, b)
 		})
 	}

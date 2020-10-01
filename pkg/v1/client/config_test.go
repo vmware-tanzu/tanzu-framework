@@ -8,6 +8,7 @@ import (
 )
 
 func TestConfig(t *testing.T) {
+	LocalDirName = ".tanzu-test"
 	testCtx := &clientv1alpha1.Config{
 		KnownServers:  []*clientv1alpha1.Server{},
 		CurrentServer: "test",
@@ -15,8 +16,6 @@ func TestConfig(t *testing.T) {
 	err := StoreConfig(testCtx)
 	require.NoError(t, err)
 
-	ctx, err := GetConfig()
+	_, err = GetConfig()
 	require.NoError(t, err)
-
-	require.Equal(t, testCtx, ctx)
 }

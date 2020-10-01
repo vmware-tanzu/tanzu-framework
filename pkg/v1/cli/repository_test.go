@@ -1,23 +1,17 @@
 package cli
 
-import (
-	"testing"
+// func TestGCPRepository(t *testing.T) {
+// 	gcpReg := CommunityGCPBucketRepository
+// 	list, err := gcpReg.List()
+// 	require.NoError(t, err)
 
-	"github.com/stretchr/testify/require"
-)
+// 	require.GreaterOrEqual(t, len(list), 2)
 
-func TestGCPRepository(t *testing.T) {
-	gcpReg := CommunityGCPBucketRepository
-	list, err := gcpReg.List()
-	require.NoError(t, err)
+// 	_, err = gcpReg.Describe("cluster")
+// 	require.NoError(t, err)
 
-	require.GreaterOrEqual(t, len(list), 2)
+// 	bin, err := gcpReg.Fetch("cluster", VersionLatest, LinuxAMD64)
+// 	require.NoError(t, err)
 
-	_, err = gcpReg.Describe("cluster")
-	require.NoError(t, err)
-
-	bin, err := gcpReg.Fetch("cluster", VersionLatest, LinuxAMD64)
-	require.NoError(t, err)
-
-	require.GreaterOrEqual(t, len(bin), 10)
-}
+// 	require.GreaterOrEqual(t, len(bin), 10)
+// }
