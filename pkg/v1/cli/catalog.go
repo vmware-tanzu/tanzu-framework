@@ -243,6 +243,27 @@ func (c *Catalog) InstallAll(repo Repository) error {
 	return nil
 }
 
+// InstallAllMulti installs all the plugins at the latest version in all the given repositories.
+func (c *Catalog) InstallAllMulti(repos *MultiRepo) error {
+	pluginMap, err := repos.ListPlugins()
+	if err != nil {
+		return err
+	}
+	for repoName, descs := range pluginMap {
+		repo, err := repos.GetRepository(repoName)
+		if err != nil {
+			return err
+		}
+		for _, plugin := range descs {
+			err := c.Install(plugin.Name, plugin.Version, repo)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 // Delete a plugin.
 func (c *Catalog) Delete(name string) error {
 	return os.Remove(c.pluginPath(name))

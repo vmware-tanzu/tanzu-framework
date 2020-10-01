@@ -53,9 +53,9 @@ var listPluginCmd = &cobra.Command{
 			return err
 		}
 
-		data := make([][]string, len(plugins))
+		data := [][]string{}
 		for repo, descs := range plugins {
-			for i, plugin := range descs {
+			for _, plugin := range descs {
 
 				status := "not installed"
 				for _, desc := range descriptors {
@@ -69,11 +69,11 @@ var listPluginCmd = &cobra.Command{
 					}
 					status = "installed"
 				}
-				data[i] = []string{plugin.Name, plugin.Version, plugin.Description, status, repo}
+				data = append(data, []string{plugin.Name, plugin.Version, plugin.Description, repo, status})
 			}
 		}
 
-		table := cli.NewTableWriter("Name", "Version", "Description", "Status", "Repo")
+		table := cli.NewTableWriter("Name", "Version", "Description", "Repo", "Status")
 
 		for _, v := range data {
 			table.Append(v)
@@ -98,13 +98,13 @@ var installPluginCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+
+		if name == cli.AllPlugins {
+			return catalog.InstallAllMulti(repos)
+		}
 		repo, err := repos.Find(name)
 		if err != nil {
 			return err
-		}
-
-		if name == cli.AllPlugins {
-			return catalog.InstallAll(repo)
 		}
 		err = catalog.Install(name, cli.VersionLatest, repo)
 		if err != nil {

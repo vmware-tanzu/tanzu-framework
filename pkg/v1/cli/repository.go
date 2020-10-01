@@ -107,6 +107,13 @@ var CommunityGCPBucketRepository = &GCPBucketRepository{
 	name:       CommunityRepositoryName,
 }
 
+// TMCGCPBucketRepository is the default GCP bucket repository.
+var TMCGCPBucketRepository = &GCPBucketRepository{
+	bucketName: "tmc-cli-plugins",
+	rootPath:   DefaultArtifactsDirectory,
+	name:       "manage",
+}
+
 // NewGCPBucketRepository returns a new GCP bucket repository.
 func NewGCPBucketRepository(options ...Option) Repository {
 	opts := makeDefaultOptions(options...)

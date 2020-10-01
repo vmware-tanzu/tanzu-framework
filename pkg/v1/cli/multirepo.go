@@ -5,6 +5,7 @@ import "fmt"
 // KnownRepositories is a list of known repositories.
 var KnownRepositories = []Repository{
 	CommunityGCPBucketRepository,
+	TMCGCPBucketRepository,
 }
 
 // DefaultMultiRepo is the default multirepo with the known repositories.
@@ -50,6 +51,7 @@ func (m *MultiRepo) GetRepository(name string) (Repository, error) {
 
 // ListPlugins across the repositories.
 func (m *MultiRepo) ListPlugins() (mp map[string][]PluginDescriptor, err error) {
+	mp = map[string][]PluginDescriptor{}
 	for _, repo := range m.repositories {
 		descriptors, err := repo.List()
 		if err != nil {
