@@ -33,7 +33,7 @@ The Tanzu CLI was built to be extensible across teams and be presented across sk
 ### Plugins
 The CLI is made of plugins. Each plugin is currently located in the `./plugin` directory.   
 
-To add a plugin simply copy the format of an existing one, and utilize the plugin library in `./pkg/commands/plugin`.   
+To add a plugin simply copy the format of an existing one, and utilize the plugin library in `./pkg/cli/commands/plugin`.   
 
 Plugin designs should be approved by the CLI product manager @Morgan Fine, if you wish to expose a plugin in an alpha state please add it to 
 the alpha plugin in `./plugin/alpha`.   
