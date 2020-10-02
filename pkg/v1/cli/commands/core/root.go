@@ -44,7 +44,7 @@ func NewRootCmd() (*cobra.Command, error) {
 	if !catalog.Distro().IsSatisfied(plugins) {
 		s := spin.New("%s   initializing")
 		s.Start()
-		err := catalog.EnsureDistro(cli.NewDefaultRepository())
+		err := catalog.EnsureDistro(cli.DefaultMultiRepo)
 		if err != nil {
 			return nil, err
 		}

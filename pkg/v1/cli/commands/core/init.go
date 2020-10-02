@@ -25,9 +25,7 @@ var initCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		repo := cli.NewDefaultRepository()
-
-		err = catalog.EnsureDistro(repo)
+		err = catalog.EnsureDistro(cli.DefaultMultiRepo)
 		if err != nil {
 			return err
 		}

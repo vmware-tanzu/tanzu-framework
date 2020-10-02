@@ -270,7 +270,7 @@ func (c *Catalog) Delete(name string) error {
 }
 
 // EnsureDistro ensures that all the distro plugins are installed.
-func (c *Catalog) EnsureDistro(repo Repository) error {
+func (c *Catalog) EnsureDistro(repos *MultiRepo) error {
 	fatalErrors := make(chan error)
 	wgDone := make(chan bool)
 
@@ -279,7 +279,11 @@ func (c *Catalog) EnsureDistro(repo Repository) error {
 		log.Debugf("installing plugin %q at version %s", pluginName, VersionLatest)
 		wg.Add(1)
 		go func(pluginName string) {
-			err := c.Install(pluginName, VersionLatest, repo)
+			repo, err := repos.Find(pluginName)
+			if err != nil {
+				fatalErrors <- err
+			}
+			err = c.Install(pluginName, VersionLatest, repo)
 			if err != nil {
 				fatalErrors <- err
 			}
