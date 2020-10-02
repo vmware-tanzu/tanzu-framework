@@ -8,7 +8,6 @@ import (
 	"text/template"
 	"unicode"
 
-	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 
 	"github.com/spf13/cobra"
@@ -50,18 +49,21 @@ func (u *MainUsage) GenerateDescriptor(c *cobra.Command, w io.Writer) error {
 		cmdMap[group] = g
 	}
 
+	var serverString string
 	s, err := client.GetCurrentServer()
 	if err != nil {
-		return err
+		serverString = "Not logged in"
+	} else {
+		serverString = fmt.Sprintf("Logged in to %s", underline(s.Name))
 	}
 	d := struct {
 		*cobra.Command
-		CmdMap CmdMap
-		Server *clientv1alpha1.Server
+		CmdMap       CmdMap
+		ServerString string
 	}{
 		c,
 		cmdMap,
-		s,
+		serverString,
 	}
 
 	t := template.Must(template.New("usage").Funcs(TemplateFuncs).Parse(u.Template()))
@@ -91,7 +93,7 @@ func (u *MainUsage) Template() string {
 
 Use "{{.CommandPath}} [command] --help" for more information about a command.
 
-Logged in to {{ underline .Server.Name }}
+{{ .ServerString }}
 `
 }
 
