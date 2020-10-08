@@ -201,7 +201,7 @@ func createNewServer() (server *clientv1alpha1.Server, err error) {
 		server = &clientv1alpha1.Server{
 			Name:       name,
 			Type:       clientv1alpha1.GlobalServerType,
-			GlobalOpts: &clientv1alpha1.GlobalServer{Endpoint: endpoint},
+			GlobalOpts: &clientv1alpha1.GlobalServer{Endpoint: ensureGlobalSSLPort(endpoint)},
 		}
 	} else {
 		server = &clientv1alpha1.Server{
@@ -296,4 +296,12 @@ func promptAPIToken() (apiToken string, err error) {
 // TODO (pbarker): need pinniped story more fleshed out
 func managementClusterLogin(s *clientv1alpha1.Server, endpoint string) error {
 	return fmt.Errorf("not yet implemented")
+}
+
+// gRPC requires the endpoint to have the SSL port present.
+func ensureGlobalSSLPort(endpoint string) string {
+	if len(strings.Split(endpoint, ":")) == 1 {
+		return fmt.Sprintf("%s:443", endpoint)
+	}
+	return endpoint
 }
