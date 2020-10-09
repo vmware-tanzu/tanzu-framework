@@ -14,7 +14,7 @@ endif
 all: manager
 
 # Run tests
-test: generate fmt vet manifests
+test: generate fmt vet manifests build-cli-mocks
 	go test ./... -coverprofile cover.out
 
 # Build manager binary
