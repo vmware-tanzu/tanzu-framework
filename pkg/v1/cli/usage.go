@@ -8,8 +8,6 @@ import (
 	"text/template"
 	"unicode"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
-
 	"github.com/spf13/cobra"
 
 	"github.com/logrusorgru/aurora"
@@ -50,12 +48,15 @@ func (u *MainUsage) GenerateDescriptor(c *cobra.Command, w io.Writer) error {
 	}
 
 	var serverString string
-	s, err := client.GetCurrentServer()
-	if err != nil {
-		serverString = "Not logged in"
-	} else {
-		serverString = fmt.Sprintf("Logged in to %s", underline(s.Name))
-	}
+
+	// Commenting for now till we merge the client
+	//
+	// s, err := client.GetCurrentServer()
+	// if err != nil {
+	// 	serverString = "Not logged in"
+	// } else {
+	// 	serverString = fmt.Sprintf("Logged in to %s", underline(s.Name))
+	// }
 	d := struct {
 		*cobra.Command
 		CmdMap       CmdMap
@@ -67,7 +68,7 @@ func (u *MainUsage) GenerateDescriptor(c *cobra.Command, w io.Writer) error {
 	}
 
 	t := template.Must(template.New("usage").Funcs(TemplateFuncs).Parse(u.Template()))
-	err = t.Execute(w, d)
+	err := t.Execute(w, d)
 	if err != nil {
 		return err
 	}

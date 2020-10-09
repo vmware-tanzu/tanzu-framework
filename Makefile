@@ -112,8 +112,8 @@ build-cli:
 
 .PHONY: build-cli-mocks
 build-cli-mocks:
-	go run ./cmd/cli/compiler/main.go --version 0.0.1 --ldflags "$(LD_FLAGS)" --path ./test/cli/mock/plugin-old --artifacts ./test/cli/mock/artifacts-old --name mocks
-	go run ./cmd/cli/compiler/main.go --version 0.0.2 --ldflags "$(LD_FLAGS)" --path ./test/cli/mock/plugin-new --artifacts ./test/cli/mock/artifacts-new --name mocks
+	go run ./cmd/cli/compiler/main.go --version 0.0.1 --ldflags "$(LD_FLAGS)" --path ./test/cli/mock/plugin-old --artifacts ./test/cli/mock/artifacts-old 
+	go run ./cmd/cli/compiler/main.go --version 0.0.2 --ldflags "$(LD_FLAGS)" --path ./test/cli/mock/plugin-new --artifacts ./test/cli/mock/artifacts-new
 
 .PHONY: test-cli
 test-cli:

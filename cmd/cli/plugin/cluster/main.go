@@ -10,7 +10,6 @@ import (
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/commands/plugin"
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 )
 
 var descriptor = cli.PluginDescriptor{
@@ -48,14 +47,6 @@ var listClustersCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List clusters",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		server, err := client.GetCurrentServer()
-		if err != nil {
-			return err
-		}
-
-		if server.IsGlobal() {
-
-		}
 		fmt.Println("in progress...")
 		return nil
 	},
