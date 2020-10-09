@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"os"
 	"path/filepath"
 	"runtime"
 	"testing"
@@ -22,6 +23,8 @@ func newTestRepo(t *testing.T, name string) Repository {
 
 func newTestCatalog(t *testing.T) *Catalog {
 	pluginRoot := filepath.Join(xdg.DataHome, "tanzu-cli-test")
+	err := os.RemoveAll(pluginRoot)
+	require.NoError(t, err)
 	c, err := NewCatalog(WithPluginRoot(pluginRoot), WithDistro([]string{"foo", "bar", "baz"}))
 	require.NoError(t, err)
 	return c
