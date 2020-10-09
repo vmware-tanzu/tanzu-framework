@@ -38,7 +38,7 @@ To add a plugin simply copy the format of an existing one, and utilize the plugi
 Plugin designs should be approved by the CLI product manager @Morgan Fine, if you wish to expose a plugin in an alpha state please add it to 
 the alpha plugin in `./plugin/alpha`.   
 
-Plugins are pulled from a repository, on a merge to master all the plugins are built and pushed to a public repository. When developing its useful to use a local repo.
+Plugins are pulled from registered repositories, on a merge to master all the plugins in this repo are built and pushed to a public repository. When developing its useful to use a local repo.
 
 To build use:
 ```
@@ -55,6 +55,7 @@ The CLI can be updated to the latest version of all plugins using:
 ```
 tanzu update
 ```
+An example external plugin repo can be seen at https://gitlab.eng.vmware.com/olympus/cli-plugins
 
 ### Distributions
 
