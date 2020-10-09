@@ -252,6 +252,7 @@ func (g *GCPBucketRepository) getBucket(ctx context.Context) (*storage.BucketHan
 // LocalRepository is a artifact repository utilizing a local host os.
 type LocalRepository struct {
 	path string
+	name string
 }
 
 // DefaultLocalRepository is the default local repository.
@@ -260,9 +261,10 @@ var DefaultLocalRepository = &LocalRepository{
 }
 
 // NewLocalRepository returns a new local repository.
-func NewLocalRepository(path string) Repository {
+func NewLocalRepository(name, path string) Repository {
 	return &LocalRepository{
 		path: path,
+		name: name,
 	}
 }
 
@@ -309,7 +311,7 @@ func (l *LocalRepository) Fetch(name, version string, arch Arch) ([]byte, error)
 
 // Name of the repository.
 func (l *LocalRepository) Name() string {
-	return "local"
+	return l.name
 }
 
 // Manifest returns the manifest for a local repository.

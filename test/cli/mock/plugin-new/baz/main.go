@@ -10,8 +10,8 @@ import (
 )
 
 var descriptor = cli.PluginDescriptor{
-	Name:        "bar",
-	Description: "Bar commands",
+	Name:        "baz",
+	Description: "Baz commands",
 	Version:     "v0.0.4",
 	Group:       cli.ManageCmdGroup,
 }

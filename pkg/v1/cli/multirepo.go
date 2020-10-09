@@ -24,7 +24,7 @@ func NewMultiRepo(repositories ...Repository) *MultiRepo {
 }
 
 // AddRepository to known.
-func (m *MultiRepo) AddRepository(name string, repo Repository) {
+func (m *MultiRepo) AddRepository(repo Repository) {
 	m.repositories = append(m.repositories, repo)
 }
 

@@ -161,7 +161,7 @@ var deletePluginCmd = &cobra.Command{
 
 func getRepositories() *cli.MultiRepo {
 	if local != "" {
-		return cli.NewMultiRepo(cli.NewLocalRepository(local))
+		return cli.NewMultiRepo(cli.NewLocalRepository("local", local))
 	}
 	return cli.DefaultMultiRepo
 }
