@@ -49,7 +49,7 @@ type Server struct {
 	ManagementClusterOpts *ManagementClusterServer `json:"managementClusterOpts,omitempty" yaml:"managementClusterOpts"`
 }
 
-// ManagementClusterServer is the configruation for a management cluster kubeconfig.
+// ManagementClusterServer is the configuration for a management cluster kubeconfig.
 type ManagementClusterServer struct {
 	// Path to the kubeconfig.
 	Path string `json:"path,omitempty" yaml:"path"`
