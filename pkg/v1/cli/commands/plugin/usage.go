@@ -1,0 +1,44 @@
+package plugin
+
+import (
+	"os"
+	"text/template"
+
+	"github.com/spf13/cobra"
+	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
+)
+
+// UsageFunc is the usage func for a plugin.
+var UsageFunc = func(c *cobra.Command) error {
+	t, err := template.New("usage").Funcs(cli.TemplateFuncs).Parse(CmdTemplate)
+	if err != nil {
+		return err
+	}
+	return t.Execute(os.Stdout, c)
+}
+
+// CmdTemplate is the template for plugin commands.
+const CmdTemplate = `{{ bold "Usage:" }}{{if .Runnable}}
+  tanzu {{.UseLine}}{{end}}{{if .HasAvailableSubCommands}}
+  tanzu {{.CommandPath}} [command]{{end}}{{if gt (len .Aliases) 0}}
+
+{{ bold "Aliases:" }}
+  {{.NameAndAliases}}{{end}}{{if .HasExample}}
+
+{{ bold "Examples:" }}
+  {{.Example}}{{end}}{{if .HasAvailableSubCommands}}
+
+{{ bold "Available Commands:" }}{{range .Commands}}{{if .IsAvailableCommand }}
+  {{rpad .Name .NamePadding }} {{.Short}}{{end}}{{end}}{{end}}{{if .HasAvailableLocalFlags}}
+
+{{ bold "Flags:" }}
+{{.LocalFlags.FlagUsages | trimTrailingWhitespaces}}{{end}}{{if .HasAvailableInheritedFlags}}
+
+{{ bold "Global Flags:" }}
+  {{.InheritedFlags.FlagUsages | trimTrailingWhitespaces}}{{end}}{{if .HasHelpSubCommands}}
+
+{{ bold "Additional help topics:" }}{{range .Commands}}{{if .IsAdditionalHelpTopicCommand}}
+  {{rpad .CommandPath .CommandPathPadding}} {{.Short}}{{end}}{{end}}{{end}}{{if .HasAvailableSubCommands}}
+
+Use "{{.CommandPath}} [command] --help" for more information about a command.{{end}}
+`
