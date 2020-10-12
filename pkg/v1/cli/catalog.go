@@ -284,12 +284,14 @@ func (c *Catalog) EnsureDistro(repos *MultiRepo) error {
 			repo, err := repos.Find(pluginName)
 			if err != nil {
 				fatalErrors <- err
+			} else {
+				fmt.Printf("Installing %v\n", pluginName)
+				err = c.Install(pluginName, VersionLatest, repo)
+				if err != nil {
+					fatalErrors <- err
+				}
+				log.Debugf("done installing: %s", pluginName)
 			}
-			err = c.Install(pluginName, VersionLatest, repo)
-			if err != nil {
-				fatalErrors <- err
-			}
-			log.Debugf("done installing: %s", pluginName)
 			wg.Done()
 		}(pluginName)
 	}
@@ -304,7 +306,7 @@ func (c *Catalog) EnsureDistro(repos *MultiRepo) error {
 		break
 	case err := <-fatalErrors:
 		close(fatalErrors)
-		log.Fatal(err)
+		return err
 	}
 	return nil
 }
