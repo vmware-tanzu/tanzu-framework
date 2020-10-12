@@ -27,7 +27,7 @@ import (
 type ServerType string
 
 const (
-	// ManagementClusterServerType is a management cluster control plane server.
+	// ManagementClusterServerType is a management cluster server.
 	ManagementClusterServerType ServerType = "managementcluster"
 
 	// GlobalServerType is a global control plane server.
@@ -49,7 +49,7 @@ type Server struct {
 	ManagementClusterOpts *ManagementClusterServer `json:"managementClusterOpts,omitempty" yaml:"managementClusterOpts"`
 }
 
-// ManagementClusterServer is the configruation for a management cluster control plane kubeconfig.
+// ManagementClusterServer is the configruation for a management cluster kubeconfig.
 type ManagementClusterServer struct {
 	// Path to the kubeconfig.
 	Path string `json:"path,omitempty" yaml:"path"`
