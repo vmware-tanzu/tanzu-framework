@@ -73,7 +73,7 @@ var listPluginCmd = &cobra.Command{
 			}
 		}
 
-		table := cli.NewTableWriter("Name", "Version", "Description", "Repo", "Status")
+		table := cli.NewTableWriter("Name", "Version", "Description", "Repository", "Status")
 
 		for _, v := range data {
 			table.Append(v)

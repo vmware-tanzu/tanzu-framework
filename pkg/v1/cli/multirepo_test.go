@@ -34,4 +34,14 @@ func TestMultiRepo(t *testing.T) {
 	mp, err = m.ListPlugins()
 	require.NoError(t, err)
 	require.Len(t, mp, 1)
+
+	// test duplicates
+	repoOld := newTestRepo(t, "artifacts-old")
+	m.AddRepository(repoOld)
+
+	r, err = m.Find("foo")
+	require.Error(t, err)
+
+	r, err = m.Find("artifacts-new.foo")
+	require.NoError(t, err)
 }

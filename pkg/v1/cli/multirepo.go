@@ -63,8 +63,8 @@ func (m *MultiRepo) ListPlugins() (mp map[string][]PluginDescriptor, err error) 
 }
 
 // Find a repository for the given plugin name.
-// TODO: check for duplicates.
 func (m *MultiRepo) Find(name string) (r Repository, err error) {
+	matches := []Repository{}
 	for _, repo := range m.repositories {
 		descriptors, err := repo.List()
 		if err != nil {
@@ -72,9 +72,19 @@ func (m *MultiRepo) Find(name string) (r Repository, err error) {
 		}
 		for _, desc := range descriptors {
 			if desc.Name == name {
-				return repo, nil
+				matches = append(matches, repo)
+			} else if fmt.Sprintf("%s.%s", repo.Name(), desc.Name) == name {
+				matches = append(matches, repo)
 			}
 		}
 	}
-	return nil, fmt.Errorf("could not find plugin %q", name)
+
+	switch i := len(matches); i {
+	case 0:
+		return nil, fmt.Errorf("could not find plugin %q", name)
+	case 1:
+		return matches[0], nil
+	default:
+		return nil, fmt.Errorf("found plugin %q in %#v repositories, use the fully qualified <repository-name>.<plugin-name> to select", name, matches)
+	}
 }

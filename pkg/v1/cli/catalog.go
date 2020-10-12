@@ -99,10 +99,12 @@ func (p PluginDescriptor) HasUpdate(repo Repository) (update bool, version strin
 	valid := semver.IsValid(p.Version)
 	if !valid {
 		err = fmt.Errorf("local plugin version %q is not a valid semantic version", p.Version)
+		return
 	}
 	valid = semver.IsValid(desc.Version)
 	if !valid {
 		err = fmt.Errorf("remote plugin version %q is not a valid semantic version", desc.Version)
+		return
 	}
 	compared := semver.Compare(desc.Version, p.Version)
 	if compared == 1 {
