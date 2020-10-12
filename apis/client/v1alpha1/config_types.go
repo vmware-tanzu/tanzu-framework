@@ -45,7 +45,7 @@ type Server struct {
 	// GlobalOpts if the server is global.
 	GlobalOpts *GlobalServer `json:"globalOpts,omitempty" yaml:"globalOpts"`
 
-	// ManagementClusterOpts if the server is management cluster.
+	// ManagementClusterOpts if the server is a management cluster.
 	ManagementClusterOpts *ManagementClusterServer `json:"managementClusterOpts,omitempty" yaml:"managementClusterOpts"`
 }
 
