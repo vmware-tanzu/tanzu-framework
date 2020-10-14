@@ -9,6 +9,7 @@ require (
 	github.com/adrg/xdg v0.2.1
 	github.com/aunum/log v0.0.0-20200821225356-38d2e2c8b489
 	github.com/caarlos0/spin v1.1.0
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/ghodss/yaml v1.0.0
 	github.com/golang/protobuf v1.3.2
