@@ -19,7 +19,8 @@ import (
 
 type plugin struct {
 	cli.PluginDescriptor
-	path string
+	path     string
+	testPath string
 }
 
 var (
@@ -89,7 +90,12 @@ func buildPlugin(path string) plugin {
 	err = json.Unmarshal(b, &desc)
 	log.Check(err)
 
-	p := plugin{PluginDescriptor: desc, path: path}
+	testPath := filepath.Join(path, "test")
+	_, err = os.Stat(testPath)
+	if err != nil {
+		log.Fatalf("plugin %q must implement test", desc.Name)
+	}
+	p := plugin{PluginDescriptor: desc, path: path, testPath: testPath}
 
 	log.Debugy("plugin", p)
 
@@ -190,8 +196,11 @@ var archMap = map[cli.Arch]targetBuilder{
 
 func (p *plugin) compile() {
 	outPath := filepath.Join(artifactsDir, p.Name, p.Version)
-
 	buildAllTargets(p.path, outPath, p.Name)
+
+	testOutPath := filepath.Join(artifactsDir, p.Name, p.Version, "test")
+	buildAllTargets(p.testPath, testOutPath, fmt.Sprintf("%s-test", p.Name))
+
 	b, err := yaml.Marshal(p.PluginDescriptor)
 	log.Check(err)
 

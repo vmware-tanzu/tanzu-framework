@@ -117,7 +117,7 @@ build-cli-mocks:
 	go run ./cmd/cli/compiler/main.go --version 0.0.3 --ldflags "$(LD_FLAGS)" --path ./test/cli/mock/plugin-alt --artifacts ./test/cli/mock/artifacts-alt
 
 .PHONY: test-cli
-test-cli:
+test-cli: build-cli-mocks
 	go test ./...
 
 .PHONY: build-install-cli-plugins

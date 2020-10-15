@@ -25,6 +25,9 @@ type Repository interface {
 	// Fetch an artifact.
 	Fetch(name, version string, arch Arch) ([]byte, error)
 
+	// Fetch an artifact.
+	FetchTest(pluginName, version string, arch Arch) ([]byte, error)
+
 	// Name of the repository.
 	Name() string
 

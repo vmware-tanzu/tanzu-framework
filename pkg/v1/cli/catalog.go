@@ -309,6 +309,31 @@ func (c *Catalog) EnsureDistro(repos *MultiRepo) error {
 	return nil
 }
 
+// InstallTest installs the test for the given plugin name
+func (c *Catalog) InstallTest(pluginName, version string, repo Repository) error {
+	b, err := repo.Fetch(name, version, BuildArch())
+	if err != nil {
+		return err
+	}
+
+	pluginPath := c.pluginPath(name)
+
+	if BuildArch().IsWindows() {
+		pluginPath = pluginPath + ".exe"
+	}
+
+	err = ioutil.WriteFile(pluginPath, b, 0755)
+	if err != nil {
+		return errors.Wrap(err, "could not write file")
+	}
+	return nil
+}
+
+// EnsureTests ensures the plugin tests are installed.
+func (c *Catalog) EnsureTests() {
+
+}
+
 // Distro for the catalog.
 func (c *Catalog) Distro() Distro {
 	return c.distro

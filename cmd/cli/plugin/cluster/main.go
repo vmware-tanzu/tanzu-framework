@@ -32,8 +32,6 @@ func main() {
 	}
 }
 
-// tanzu cluster create f
-
 var getClusterCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Get a cluster",
