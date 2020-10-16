@@ -186,22 +186,8 @@ func (g *GCPBucketRepository) Fetch(name, version string, arch Arch) ([]byte, er
 	}
 
 	artifactPath := filepath.Join(g.rootPath, name, version, MakeArtifactName(name, arch))
-	obj := bkt.Object(artifactPath)
-	if obj == nil {
-		return nil, fmt.Errorf("artifact %q not found", name)
-	}
 
-	r, err := obj.NewReader(ctx)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not read artifact")
-	}
-	defer r.Close()
-
-	b, err := ioutil.ReadAll(r)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not fetch artifact")
-	}
-	return b, nil
+	return g.fetch(ctx, artifactPath, bkt)
 }
 
 // FetchTest fetches a test artifact.
@@ -222,14 +208,18 @@ func (g *GCPBucketRepository) FetchTest(name, version string, arch Arch) ([]byte
 	}
 
 	artifactPath := filepath.Join(g.rootPath, name, version, "test", MakeTestArtifactName(name, arch))
+	return g.fetch(ctx, artifactPath, bkt)
+}
+
+func (g *GCPBucketRepository) fetch(ctx context.Context, artifactPath string, bkt *storage.BucketHandle) ([]byte, error) {
 	obj := bkt.Object(artifactPath)
 	if obj == nil {
-		return nil, fmt.Errorf("artifact %q not found", name)
+		return nil, fmt.Errorf("artifact %q not found", artifactPath)
 	}
 
 	r, err := obj.NewReader(ctx)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not read artifact")
+		return nil, errors.Wrap(err, fmt.Sprintf("could not read artifact %q", artifactPath))
 	}
 	defer r.Close()
 

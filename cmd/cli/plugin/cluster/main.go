@@ -26,6 +26,7 @@ func main() {
 	}
 	p.AddCommands(
 		createClusterCmd,
+		getClusterCmd,
 	)
 	if err := p.Execute(); err != nil {
 		os.Exit(1)

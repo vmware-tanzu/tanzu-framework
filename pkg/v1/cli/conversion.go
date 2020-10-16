@@ -10,7 +10,7 @@ const (
 	BinNamePrefix = "tanzu-plugin-"
 
 	// TestBinNamePrefix is the prefix for tanzu plugin binary names.
-	TestBinNamePrefix = "tanzu-plugin-test"
+	TestBinNamePrefix = "tanzu-plugin-test-"
 
 	// ArtifactNamePrefix is the prefix for tanzu artifact names.
 	ArtifactNamePrefix = "tanzu"

@@ -360,7 +360,7 @@ func (c *Catalog) EnsureTests(repos *MultiRepo) error {
 		}
 		err = c.InstallTest(desc.Name, desc.Version, repo)
 		if err != nil {
-			return err
+			log.Debugf("could not install test for plugin %q", desc.Name)
 		}
 	}
 	return nil
@@ -392,7 +392,7 @@ func (c *Catalog) testPath() string {
 func (c *Catalog) ensureRoot() error {
 	_, err := os.Stat(c.testPath())
 	if os.IsNotExist(err) {
-		err := os.MkdirAll(c.pluginRoot, 0755)
+		err := os.MkdirAll(c.testPath(), 0755)
 		return errors.Wrap(err, "could not make root plugin directory")
 	}
 	return err
