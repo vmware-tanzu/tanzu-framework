@@ -25,6 +25,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	err = c.EnsureTests(cli.DefaultMultiRepo)
+	if err != nil {
+		log.Fatal(err)
+	}
 	descs, err := c.List()
 	if err != nil {
 		log.Fatal(err)
