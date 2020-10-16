@@ -25,7 +25,7 @@ type Repository interface {
 	// Fetch an artifact.
 	Fetch(name, version string, arch Arch) ([]byte, error)
 
-	// Fetch an artifact.
+	// Fetch an artifact test.
 	FetchTest(pluginName, version string, arch Arch) ([]byte, error)
 
 	// Name of the repository.
@@ -204,6 +204,42 @@ func (g *GCPBucketRepository) Fetch(name, version string, arch Arch) ([]byte, er
 	return b, nil
 }
 
+// FetchTest fetches a test artifact.
+func (g *GCPBucketRepository) FetchTest(name, version string, arch Arch) ([]byte, error) {
+	ctx := context.Background()
+
+	bkt, err := g.getBucket(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if version == VersionLatest {
+		desc, err := g.Describe(name)
+		if err != nil {
+			return nil, err
+		}
+		version = desc.Version
+	}
+
+	artifactPath := filepath.Join(g.rootPath, name, version, "test", MakeTestArtifactName(name, arch))
+	obj := bkt.Object(artifactPath)
+	if obj == nil {
+		return nil, fmt.Errorf("artifact %q not found", name)
+	}
+
+	r, err := obj.NewReader(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not read artifact")
+	}
+	defer r.Close()
+
+	b, err := ioutil.ReadAll(r)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not fetch artifact")
+	}
+	return b, nil
+}
+
 // Name of the repository.
 func (g *GCPBucketRepository) Name() string {
 	return g.name
@@ -306,6 +342,22 @@ func (l *LocalRepository) Fetch(name, version string, arch Arch) ([]byte, error)
 		version = desc.Version
 	}
 	b, err := ioutil.ReadFile(filepath.Join(l.path, name, version, MakeArtifactName(name, arch)))
+	if err != nil {
+		return nil, errors.Wrap(err, "could not find artifact at given path")
+	}
+	return b, nil
+}
+
+// FetchTest fetches an artifact test.
+func (l *LocalRepository) FetchTest(name, version string, arch Arch) ([]byte, error) {
+	if version == VersionLatest {
+		desc, err := l.Describe(name)
+		if err != nil {
+			return nil, err
+		}
+		version = desc.Version
+	}
+	b, err := ioutil.ReadFile(filepath.Join(l.path, name, version, "test", MakeTestArtifactName(name, arch)))
 	if err != nil {
 		return nil, errors.Wrap(err, "could not find artifact at given path")
 	}

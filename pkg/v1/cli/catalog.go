@@ -56,6 +56,24 @@ func (p PluginDescriptor) Cmd() *cobra.Command {
 	return cmd
 }
 
+// TestCmd returns a cobra command for the plugin.
+func (p PluginDescriptor) TestCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   p.Name,
+		Short: p.Description,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			runner := NewRunner(p.Name, args)
+			ctx := context.Background()
+			return runner.RunTest(ctx)
+		},
+		DisableFlagParsing: true,
+		Annotations: map[string]string{
+			"group": string(p.Group),
+		},
+	}
+	return cmd
+}
+
 // Validate the plugin descriptor.
 func (p PluginDescriptor) Validate() (err error) {
 	if p.Name == "" {
@@ -311,12 +329,12 @@ func (c *Catalog) EnsureDistro(repos *MultiRepo) error {
 
 // InstallTest installs the test for the given plugin name
 func (c *Catalog) InstallTest(pluginName, version string, repo Repository) error {
-	b, err := repo.Fetch(name, version, BuildArch())
+	b, err := repo.FetchTest(pluginName, version, BuildArch())
 	if err != nil {
 		return err
 	}
 
-	pluginPath := c.pluginPath(name)
+	pluginPath := c.testPluginPath(pluginName)
 
 	if BuildArch().IsWindows() {
 		pluginPath = pluginPath + ".exe"
@@ -330,8 +348,22 @@ func (c *Catalog) InstallTest(pluginName, version string, repo Repository) error
 }
 
 // EnsureTests ensures the plugin tests are installed.
-func (c *Catalog) EnsureTests() {
-
+func (c *Catalog) EnsureTests(repos *MultiRepo) error {
+	descs, err := c.List()
+	if err != nil {
+		return err
+	}
+	for _, desc := range descs {
+		repo, err := repos.Find(desc.Name)
+		if err != nil {
+			return err
+		}
+		err = c.InstallTest(desc.Name, desc.Version, repo)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // Distro for the catalog.
@@ -345,9 +377,20 @@ func (c *Catalog) pluginPath(name string) string {
 	return filepath.Join(c.pluginRoot, binName)
 }
 
+// Returns the local path for a plugin.
+func (c *Catalog) testPluginPath(name string) string {
+	binName := BinTestFromPluginName(name)
+	return filepath.Join(c.pluginRoot, "test", binName)
+}
+
+// Returns the test path relative to the plugin root
+func (c *Catalog) testPath() string {
+	return filepath.Join(c.pluginRoot, "test")
+}
+
 // Ensure the root directory exists.
 func (c *Catalog) ensureRoot() error {
-	_, err := os.Stat(c.pluginRoot)
+	_, err := os.Stat(c.testPath())
 	if os.IsNotExist(err) {
 		err := os.MkdirAll(c.pluginRoot, 0755)
 		return errors.Wrap(err, "could not make root plugin directory")

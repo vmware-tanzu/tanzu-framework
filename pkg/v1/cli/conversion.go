@@ -9,6 +9,9 @@ const (
 	// BinNamePrefix is the prefix for tanzu plugin binary names.
 	BinNamePrefix = "tanzu-plugin-"
 
+	// TestBinNamePrefix is the prefix for tanzu plugin binary names.
+	TestBinNamePrefix = "tanzu-plugin-test"
+
 	// ArtifactNamePrefix is the prefix for tanzu artifact names.
 	ArtifactNamePrefix = "tanzu"
 )
@@ -23,10 +26,28 @@ func BinFromPluginName(name string) string {
 	return BinNamePrefix + name
 }
 
+// PluginNameFromTestBin returns a plugin name from the test binary name.
+func PluginNameFromTestBin(binName string) string {
+	return strings.TrimPrefix(binName, TestBinNamePrefix)
+}
+
+// BinTestFromPluginName return a plugin binary name from its name.
+func BinTestFromPluginName(name string) string {
+	return TestBinNamePrefix + name
+}
+
 // MakeArtifactName returns an artifact name for a plugin name.
 func MakeArtifactName(pluginName string, arch Arch) string {
 	if arch.IsWindows() {
 		return fmt.Sprintf("%s-%s-%s.exe", ArtifactNamePrefix, pluginName, arch)
 	}
 	return fmt.Sprintf("%s-%s-%s", ArtifactNamePrefix, pluginName, arch)
+}
+
+// MakeTestArtifactName returns a test artifact name for a plugin name.
+func MakeTestArtifactName(pluginName string, arch Arch) string {
+	if arch.IsWindows() {
+		return fmt.Sprintf("%s-%s-test-%s.exe", ArtifactNamePrefix, pluginName, arch)
+	}
+	return fmt.Sprintf("%s-%s-test-%s", ArtifactNamePrefix, pluginName, arch)
 }

@@ -4,7 +4,6 @@ import (
 	"os"
 
 	"github.com/aunum/log"
-	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/commands/plugin"
@@ -12,7 +11,7 @@ import (
 
 var descriptor = cli.PluginDescriptor{
 	Name:        "test",
-	Description: "Test CLI",
+	Description: "Test the CLI",
 	Version:     "v0.0.1",
 	Group:       cli.AdminCmdGroup,
 }
@@ -22,29 +21,18 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	p.AddCommands(
-		testAllCmd,
-	)
+	c, err := cli.NewCatalog()
+	if err != nil {
+		log.Fatal(err)
+	}
+	descs, err := c.List()
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, desc := range descs {
+		p.AddCommands(desc.TestCmd())
+	}
 	if err := p.Execute(); err != nil {
 		os.Exit(1)
 	}
-}
-
-var testAllCmd = &cobra.Command{
-	Use:   "all",
-	Short: "Test all plugins",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		m := cli.DefaultMultiRepo
-		pm, err := m.ListPlugins()
-		if err != nil {
-			return err
-		}
-		for _, plugins := range pm {
-			for _, plugin := range plugins {
-
-			}
-		}
-
-		return nil
-	},
 }
