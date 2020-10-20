@@ -86,7 +86,6 @@ func buildPlugin(path string) plugin {
 
 	b, err := exec.Command("go", "run", fmt.Sprintf("./%s", path), "info").Output()
 	log.Check(err)
-	fmt.Println("!!!!!")
 	var desc cli.PluginDescriptor
 	err = json.Unmarshal(b, &desc)
 	log.Check(err)
