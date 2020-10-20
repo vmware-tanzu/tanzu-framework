@@ -94,6 +94,36 @@ type GlobalServerAuth struct {
 	Type string `json:"type" yaml:"type"`
 }
 
+// ClientOptions are the client specific options.
+type ClientOptions struct {
+	// CLIOptions are options specific to the CLI.
+	CLIOptions *CLIOptions `json:"cliOptions,omitempty" yaml:"cliOptions"`
+}
+
+// CLIOptions are options for the CLI.
+type CLIOptions struct {
+	// Repositories are the plugin repositories.
+	Repositories []PluginRepository `json:"repositories,omitempty" yaml:"repositories"`
+}
+
+// PluginRepository is a CLI plugin repository
+type PluginRepository struct {
+	// GCPPluginRepository is a plugin repository that utilizes GCP cloud storage.
+	GCPPluginRepository *GCPPluginRepository `json:"gcpPluginRepository,omitempty" yaml:"gcpPluginRepository"`
+}
+
+// GCPPluginRepository is a plugin repository that utilizes GCP cloud storage.
+type GCPPluginRepository struct {
+	// Name of the repository.
+	Name string `json:"name,omitempty" yaml:"name"`
+
+	// BucketName is the name of the bucket.
+	BucketName string `json:"bucketName,omitempty" yaml:"bucketName"`
+
+	// RootPath within the bucket.
+	RootPath string `json:"rootPath,omitempty" yaml:"rootPath"`
+}
+
 // +kubebuilder:object:root=true
 
 // Config is the Schema for the configs API
@@ -106,6 +136,9 @@ type Config struct {
 
 	// CurrentServer in use.
 	CurrentServer string `json:"current,omitempty" yaml:"current"`
+
+	// ClientOptions are client specific options.
+	ClientOptions *ClientOptions `json:"clientOptions,omitempty" yaml:"clientOptions"`
 }
 
 // +kubebuilder:object:root=true
