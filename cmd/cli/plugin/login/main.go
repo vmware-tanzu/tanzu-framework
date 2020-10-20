@@ -12,7 +12,7 @@ import (
 
 	"golang.org/x/oauth2"
 
-	"github.com/AlecAivazis/survey/v2"
+	survey "github.com/AlecAivazis/survey/v2"
 	"github.com/aunum/log"
 	"github.com/spf13/cobra"
 
@@ -31,8 +31,8 @@ var descriptor = cli.PluginDescriptor{
 }
 
 var (
-	stderrOnly                       bool
-	endpoint, name, apiToken, server string
+	stderrOnly                                                bool
+	endpoint, name, apiToken, server, kubeConfig, kubecontext string
 )
 
 const (
@@ -48,6 +48,8 @@ func main() {
 	p.Cmd.Flags().StringVar(&name, "name", "", "name of the server")
 	p.Cmd.Flags().StringVar(&apiToken, "apiToken", "", "API token for global login")
 	p.Cmd.Flags().StringVar(&server, "server", "", "login to the given server")
+	p.Cmd.Flags().StringVar(&kubeConfig, "kubeconfig", "", "path to kubeconfig management cluster")
+	p.Cmd.Flags().StringVar(&kubecontext, "context", "", "the context in the kubeconfig to use for management cluster ")
 	p.Cmd.Flags().BoolVar(&stderrOnly, "stderr-only", false, "send all output to stderr rather than stdout")
 	p.Cmd.Flags().MarkHidden("stderr-only")
 	p.Cmd.RunE = login
@@ -162,6 +164,33 @@ func getSurveyOpts() []survey.AskOpt {
 
 func createNewServer() (server *clientv1alpha1.Server, err error) {
 	surveyOpts := getSurveyOpts()
+
+	if kubeConfig == "" {
+		err = survey.AskOne(
+			&survey.Input{
+				Message: "Enter path to kubeconfig (if any)",
+			},
+			&kubeConfig,
+			surveyOpts...,
+		)
+		if err != nil {
+			return
+		}
+	}
+
+	if kubeConfig != "" {
+		err = survey.AskOne(
+			&survey.Input{
+				Message: "Enter kube context to use",
+			},
+			&kubecontext,
+			surveyOpts...,
+		)
+		if err != nil {
+			return
+		}
+	}
+
 	if endpoint == "" {
 		err = survey.AskOne(
 			&survey.Input{
@@ -205,6 +234,7 @@ func createNewServer() (server *clientv1alpha1.Server, err error) {
 		server = &clientv1alpha1.Server{
 			Name: name,
 			Type: clientv1alpha1.ManagementClusterServerType,
+			ManagementClusterOpts: &clientv1alpha1.ManagementClusterServer{Path: kubeConfig, Context: kubecontext},
 		}
 	}
 	return
@@ -293,6 +323,15 @@ func promptAPIToken() (apiToken string, err error) {
 
 // TODO (pbarker): need pinniped story more fleshed out
 func managementClusterLogin(s *clientv1alpha1.Server, endpoint string) error {
+	if s.ManagementClusterOpts.Path != "" && s.ManagementClusterOpts.Context != "" {
+		err := client.PutServer(s, true)
+		if err != nil {
+			return err
+		}
+		log.Successf("Using existing kubeconfig file for management cluster %s", s.Name)
+		return nil
+	}
+
 	return fmt.Errorf("not yet implemented")
 }
 
