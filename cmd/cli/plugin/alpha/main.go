@@ -17,7 +17,7 @@ var descriptor = cli.PluginDescriptor{
 }
 
 func main() {
-	p, err := plugin.NewPlugin(descriptor)
+	p, err := plugin.NewPlugin(&descriptor)
 	if err != nil {
 		log.Fatal(err)
 	}

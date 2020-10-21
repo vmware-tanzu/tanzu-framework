@@ -5,7 +5,7 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 )
 
-func newRootCmd(descriptor cli.PluginDescriptor) *cobra.Command {
+func newRootCmd(descriptor *cli.PluginDescriptor) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   descriptor.Name,
 		Short: descriptor.Description,

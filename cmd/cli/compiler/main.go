@@ -64,7 +64,6 @@ func main() {
 
 	for _, f := range files {
 		if f.IsDir() {
-			fmt.Println("building plugin")
 			p := buildPlugin(filepath.Join(path, f.Name()))
 			manifest.Plugins = append(manifest.Plugins, p.PluginDescriptor)
 		}
@@ -84,8 +83,12 @@ func buildPlugin(path string) plugin {
 	log.Break()
 	log.Infof("building plugin at path %q", path)
 
-	b, err := exec.Command("go", "run", fmt.Sprintf("./%s", path), "info").Output()
-	log.Check(err)
+	b, err := exec.Command("go", "run", fmt.Sprintf("./%s", path), "info").CombinedOutput()
+	if err != nil {
+		log.Errorf("error: %v", err)
+		log.Errorf("output: %v", string(b))
+		os.Exit(1)
+	}
 	var desc cli.PluginDescriptor
 	err = json.Unmarshal(b, &desc)
 	log.Check(err)

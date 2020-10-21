@@ -11,8 +11,9 @@ import (
 )
 
 var (
-	_, b, _, _ = runtime.Caller(0)
-	basepath   = filepath.Dir(b)
+	_, b, _, _     = runtime.Caller(0)
+	basepath       = filepath.Dir(b)
+	mockPluginList = []string{"foo", "bar", "baz"}
 )
 
 func newTestRepo(t *testing.T, name string) Repository {
@@ -21,21 +22,30 @@ func newTestRepo(t *testing.T, name string) Repository {
 	return NewLocalRepository(name, path)
 }
 
-func newTestCatalog(t *testing.T) *Catalog {
+func newTestCatalog(t *testing.T, pluginList []string) *Catalog {
 	pluginRoot := filepath.Join(xdg.DataHome, "tanzu-cli-test")
 	err := os.RemoveAll(pluginRoot)
 	require.NoError(t, err)
-	c, err := NewCatalog(WithPluginRoot(pluginRoot), WithDistro([]string{"foo", "bar", "baz"}))
+	c, err := NewCatalog(WithPluginRoot(pluginRoot), WithDistro(pluginList))
 	require.NoError(t, err)
 	return c
 }
 
 func TestCatalog(t *testing.T) {
-	catalog := newTestCatalog(t)
+	catalog := newTestCatalog(t, mockPluginList)
 	repo := newTestRepo(t, "artifacts-new")
 
 	err := catalog.InstallAll(repo)
 	require.NoError(t, err)
+
+	err = catalog.Install("foo", "v0.0.3", repo)
+	require.NoError(t, err)
+
+	err = catalog.Install("foo", "v0.0.0-missingversion", repo)
+	require.Error(t, err)
+
+	err = catalog.Install("notpresent", "v0.0.0", repo)
+	require.Error(t, err)
 
 	plugins, err := catalog.List()
 	require.NoError(t, err)
@@ -62,4 +72,15 @@ func TestCatalog(t *testing.T) {
 
 	err = catalog.InstallAllMulti(multi)
 	require.NoError(t, err)
+
+	err = catalog.EnsureTests(multi)
+	require.NoError(t, err)
+
+	err = catalog.EnsureDistro(multi)
+	require.NoError(t, err)
+
+	invalidPluginList := append(mockPluginList, "notpresent")
+	catalog = newTestCatalog(t, invalidPluginList)
+	err = catalog.EnsureDistro(multi)
+	require.Error(t, err)
 }

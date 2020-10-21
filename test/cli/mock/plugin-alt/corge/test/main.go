@@ -2,20 +2,23 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
+	"github.com/vmware-tanzu-private/core/pkg/v1/cli/commands/plugin"
 )
 
-// RootCmd represents the root test command
-var RootCmd = &cobra.Command{
-	Use:   "test",
-	Short: "Test the mock command",
-	RunE:  test,
-}
+var descriptor = cli.NewTestFor("corge")
 
 func main() {
-	if err := RootCmd.Execute(); err != nil {
+	p, err := plugin.NewPlugin(descriptor)
+	if err != nil {
 		log.Fatal(err)
+	}
+	p.Cmd.RunE = test
+	if err := p.Execute(); err != nil {
+		os.Exit(1)
 	}
 }
 

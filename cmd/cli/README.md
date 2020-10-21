@@ -67,4 +67,6 @@ The CLI comes with the notion of a distribution, which is a set of plugins that 
 
 This allows the CLI to be presented in accordance with different product offerings. When creating a new local catalog, you can specify the distro you wish the catalog to enforce for the CLI.
 
-On boot, the CLI will check that the distro is present within the given set of plugins or it will install them.
+On boot, the CLI will check that the distro is present within the given set of plugins or it will install them. 
+
+Initialization of the distributions can be prevented by setting the env var `TANZU_CLI_NO_INIT=true`

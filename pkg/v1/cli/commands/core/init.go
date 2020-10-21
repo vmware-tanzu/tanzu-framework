@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
+	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 )
 
 func init() {
@@ -25,7 +26,12 @@ var initCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		err = catalog.EnsureDistro(cli.DefaultMultiRepo)
+		cfg, err := client.GetConfig()
+		if err != nil {
+			return err
+		}
+		repos := cli.NewMultiRepo(cli.LoadRepositories(cfg)...)
+		err = catalog.EnsureDistro(repos)
 		if err != nil {
 			return err
 		}

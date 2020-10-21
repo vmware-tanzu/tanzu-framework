@@ -2,29 +2,25 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
+	"github.com/vmware-tanzu-private/core/pkg/v1/cli/commands/plugin"
 	clitest "github.com/vmware-tanzu-private/core/pkg/v1/test/cli"
 )
 
-// RootCmd represents the root test command
-var RootCmd = &cobra.Command{
-	Use:   "test",
-	Short: "Test the cluster command",
-	RunE:  test,
-}
-
-var (
-	testName string
-)
-
-func init() {
-	RootCmd.Flags().StringVarP(&testName, "name", "n", clitest.GenerateName(), "name to give for the test cluster")
-}
+var descriptor = cli.NewTestFor("cluster")
 
 func main() {
-	if err := RootCmd.Execute(); err != nil {
+	p, err := plugin.NewPlugin(descriptor)
+	if err != nil {
 		log.Fatal(err)
+	}
+
+	p.Cmd.RunE = test
+	if err := p.Execute(); err != nil {
+		os.Exit(1)
 	}
 }
 

@@ -10,6 +10,7 @@ import (
 
 	"cloud.google.com/go/storage"
 	"github.com/pkg/errors"
+	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
 	"google.golang.org/api/option"
 	"gopkg.in/yaml.v2"
 )
@@ -117,6 +118,29 @@ var TMCGCPBucketRepository = &GCPBucketRepository{
 	name:       "manage",
 }
 
+// LoadRepositories loads the repositories from the config file along with the known repositories.
+func LoadRepositories(c *clientv1alpha1.Config) []Repository {
+	r := KnownRepositories
+	if c.ClientOptions == nil {
+		return r
+	}
+	if c.ClientOptions.CLI == nil {
+		return r
+	}
+	for _, repo := range c.ClientOptions.CLI.Repositories {
+		if repo.GCPPluginRepository == nil {
+			continue
+		}
+		gcpRepo := NewGCPBucketRepository(
+			WithGCPBucket(repo.GCPPluginRepository.BucketName),
+			WithGCPRootPath(repo.GCPPluginRepository.RootPath),
+			WithName(repo.GCPPluginRepository.Name),
+		)
+		r = append(r, gcpRepo)
+	}
+	return r
+}
+
 // NewGCPBucketRepository returns a new GCP bucket repository.
 func NewGCPBucketRepository(options ...Option) Repository {
 	opts := makeDefaultOptions(options...)
@@ -124,6 +148,7 @@ func NewGCPBucketRepository(options ...Option) Repository {
 	return &GCPBucketRepository{
 		bucketName: opts.gcpBucket,
 		rootPath:   opts.gcpRootPath,
+		name:       opts.repoName,
 	}
 }
 
@@ -248,12 +273,12 @@ func (g *GCPBucketRepository) Manifest() (manifest Manifest, err error) {
 
 	obj := bkt.Object(manifestPath)
 	if obj == nil {
-		return manifest, fmt.Errorf("could not fetch manifest from repository")
+		return manifest, fmt.Errorf("could not fetch manifest from repository %q", g.Name())
 	}
 
 	r, err := obj.NewReader(ctx)
 	if err != nil {
-		return manifest, errors.Wrap(err, "could not fetch manifest from repository")
+		return manifest, errors.Wrap(err, fmt.Sprintf("could not fetch manifest from repository %q", g.Name()))
 	}
 	defer r.Close()
 

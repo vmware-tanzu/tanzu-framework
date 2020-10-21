@@ -31,6 +31,9 @@ type PluginDescriptor struct {
 	// Version of the plugin. Must be a valid semantic version https://semver.org/
 	Version string `json:"version" yaml:"version"`
 
+	// BuildSHA is the git commit hash the plugin was built with.
+	BuildSHA string `json:"buildSHA" yaml:"buildSHA"`
+
 	// Command group for the plugin.
 	Group cmdGroup `json:"group" yaml:"group"`
 
@@ -38,8 +41,19 @@ type PluginDescriptor struct {
 	DocURL string `json:"docURL,omitempty" yaml:"docURL,omitempty"`
 }
 
+// NewTestFor creates a plugin descriptor for a test plugin.
+func NewTestFor(pluginName string) *PluginDescriptor {
+	return &PluginDescriptor{
+		Name:        fmt.Sprintf("%s-test", pluginName),
+		Description: fmt.Sprintf("test for %s", pluginName),
+		Version:     "v0.0.1",
+		BuildSHA:    BuildSHA,
+		Group:       TestCmdGroup,
+	}
+}
+
 // Cmd returns a cobra command for the plugin.
-func (p PluginDescriptor) Cmd() *cobra.Command {
+func (p *PluginDescriptor) Cmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   p.Name,
 		Short: p.Description,
@@ -57,7 +71,7 @@ func (p PluginDescriptor) Cmd() *cobra.Command {
 }
 
 // TestCmd returns a cobra command for the plugin.
-func (p PluginDescriptor) TestCmd() *cobra.Command {
+func (p *PluginDescriptor) TestCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   p.Name,
 		Short: p.Description,
@@ -67,15 +81,17 @@ func (p PluginDescriptor) TestCmd() *cobra.Command {
 			return runner.RunTest(ctx)
 		},
 		DisableFlagParsing: true,
-		Annotations: map[string]string{
-			"group": string(p.Group),
-		},
 	}
 	return cmd
 }
 
+// Apply static configurations.
+func (p *PluginDescriptor) Apply() {
+	p.BuildSHA = BuildSHA
+}
+
 // Validate the plugin descriptor.
-func (p PluginDescriptor) Validate() (err error) {
+func (p *PluginDescriptor) Validate() (err error) {
 	if p.Name == "" {
 		err = multierr.Append(err, fmt.Errorf("plugin name cannot be empty"))
 	}
@@ -95,7 +111,7 @@ func (p PluginDescriptor) Validate() (err error) {
 }
 
 // HasUpdateIn checks if the plugin has an update in any of the given repositories.
-func (p PluginDescriptor) HasUpdateIn(repos *MultiRepo) (update bool, repo Repository, version string, err error) {
+func (p *PluginDescriptor) HasUpdateIn(repos *MultiRepo) (update bool, repo Repository, version string, err error) {
 	for _, repo := range repos.repositories {
 		update, version, err = p.HasUpdate(repo)
 		if err != nil {
@@ -109,7 +125,7 @@ func (p PluginDescriptor) HasUpdateIn(repos *MultiRepo) (update bool, repo Repos
 }
 
 // HasUpdate tells whether the plugin descriptor has an update available in the given repository.
-func (p PluginDescriptor) HasUpdate(repo Repository) (update bool, version string, err error) {
+func (p *PluginDescriptor) HasUpdate(repo Repository) (update bool, version string, err error) {
 	desc, err := repo.Describe(p.Name)
 	if err != nil {
 		return update, version, err
@@ -153,7 +169,7 @@ var DefaultDistro = []string{"login", "cluster", "clustergroup"}
 type Distro []string
 
 // IsSatisfied tells if a distribution is satified by the plugin list.
-func (d Distro) IsSatisfied(desc []PluginDescriptor) bool {
+func (d Distro) IsSatisfied(desc []*PluginDescriptor) bool {
 	for _, dist := range d {
 		var contains bool
 		for _, plugin := range desc {
@@ -190,7 +206,7 @@ func NewCatalog(options ...Option) (*Catalog, error) {
 }
 
 // List returns the available plugins.
-func (c *Catalog) List() (list []PluginDescriptor, err error) {
+func (c *Catalog) List(exclude ...string) (list []*PluginDescriptor, err error) {
 	infos, err := ioutil.ReadDir(c.pluginRoot)
 	if err != nil {
 		log.Debug("no plugins currently found")
@@ -199,6 +215,9 @@ func (c *Catalog) List() (list []PluginDescriptor, err error) {
 
 	for _, info := range infos {
 		if info.IsDir() {
+			continue
+		}
+		if inExclude(PluginNameFromBin(info.Name()), exclude) {
 			continue
 		}
 		descriptor, err := c.Describe(PluginNameFromBin(info.Name()))
@@ -211,8 +230,39 @@ func (c *Catalog) List() (list []PluginDescriptor, err error) {
 	return list, nil
 }
 
+func inExclude(name string, exclude []string) bool {
+	for _, e := range exclude {
+		if name == e {
+			return true
+		}
+	}
+	return false
+}
+
+// ListTests returns the available test plugins.
+func (c *Catalog) ListTests() (list []*PluginDescriptor, err error) {
+	infos, err := ioutil.ReadDir(c.testPath())
+	if err != nil {
+		log.Debug("no plugins currently found")
+		return list, nil
+	}
+
+	for _, info := range infos {
+		if info.IsDir() {
+			continue
+		}
+		descriptor, err := c.DescribeTest(PluginNameFromTestBin(info.Name()))
+		if err != nil {
+			return list, err
+		}
+		list = append(list, descriptor)
+	}
+
+	return list, nil
+}
+
 // Describe a plugin.
-func (c *Catalog) Describe(name string) (desc PluginDescriptor, err error) {
+func (c *Catalog) Describe(name string) (desc *PluginDescriptor, err error) {
 	pluginPath := c.pluginPath(name)
 
 	b, err := exec.Command(pluginPath, "info").Output()
@@ -221,11 +271,29 @@ func (c *Catalog) Describe(name string) (desc PluginDescriptor, err error) {
 		return
 	}
 
-	err = json.Unmarshal(b, &desc)
+	var descriptor PluginDescriptor
+	err = json.Unmarshal(b, &descriptor)
 	if err != nil {
 		err = fmt.Errorf("could not unmarshal plugin %q description", name)
 	}
-	return
+	return &descriptor, err
+}
+
+// DescribeTest describes a test plugin.
+func (c *Catalog) DescribeTest(pluginName string) (desc *PluginDescriptor, err error) {
+	pluginPath := c.testPluginPath(pluginName)
+	b, err := exec.Command(pluginPath, "info").Output()
+	if err != nil {
+		err = fmt.Errorf("could not describe test plugin %q", pluginName)
+		return
+	}
+
+	var descriptor PluginDescriptor
+	err = json.Unmarshal(b, &descriptor)
+	if err != nil {
+		err = fmt.Errorf("could not unmarshal plugin %q description", pluginName)
+	}
+	return &descriptor, err
 }
 
 // Install a plugin from the given repository.
@@ -289,6 +357,11 @@ func (c *Catalog) Delete(name string) error {
 	return os.Remove(c.pluginPath(name))
 }
 
+// Clean deletes all plugins and tests.
+func (c *Catalog) Clean() error {
+	return os.RemoveAll(c.pluginRoot)
+}
+
 // EnsureDistro ensures that all the distro plugins are installed.
 func (c *Catalog) EnsureDistro(repos *MultiRepo) error {
 	fatalErrors := make(chan error)
@@ -302,12 +375,13 @@ func (c *Catalog) EnsureDistro(repos *MultiRepo) error {
 			repo, err := repos.Find(pluginName)
 			if err != nil {
 				fatalErrors <- err
+			} else {
+				err = c.Install(pluginName, VersionLatest, repo)
+				if err != nil {
+					fatalErrors <- err
+				}
+				log.Debugf("done installing: %s", pluginName)
 			}
-			err = c.Install(pluginName, VersionLatest, repo)
-			if err != nil {
-				fatalErrors <- err
-			}
-			log.Debugf("done installing: %s", pluginName)
 			wg.Done()
 		}(pluginName)
 	}
@@ -322,7 +396,7 @@ func (c *Catalog) EnsureDistro(repos *MultiRepo) error {
 		break
 	case err := <-fatalErrors:
 		close(fatalErrors)
-		log.Fatal(err)
+		return err
 	}
 	return nil
 }
@@ -347,20 +421,36 @@ func (c *Catalog) InstallTest(pluginName, version string, repo Repository) error
 	return nil
 }
 
+// EnsureTest ensures the right version of the test is present for the plugin.
+func (c *Catalog) EnsureTest(plugin *PluginDescriptor, repos *MultiRepo) error {
+	testDesc, err := c.DescribeTest(plugin.Name)
+	if err == nil {
+		if testDesc.BuildSHA == plugin.BuildSHA {
+			return nil
+		}
+	}
+	repo, err := repos.Find(plugin.Name)
+	if err != nil {
+		return err
+	}
+	log.Infof("installing test for plugin %q", plugin.Name)
+	err = c.InstallTest(plugin.Name, plugin.Version, repo)
+	if err != nil {
+		log.Debugf("could not install test for plugin %q", plugin.Name)
+	}
+	return nil
+}
+
 // EnsureTests ensures the plugin tests are installed.
-func (c *Catalog) EnsureTests(repos *MultiRepo) error {
-	descs, err := c.List()
+func (c *Catalog) EnsureTests(repos *MultiRepo, exclude ...string) error {
+	descs, err := c.List(exclude...)
 	if err != nil {
 		return err
 	}
 	for _, desc := range descs {
-		repo, err := repos.Find(desc.Name)
+		err = c.EnsureTest(desc, repos)
 		if err != nil {
 			return err
-		}
-		err = c.InstallTest(desc.Name, desc.Version, repo)
-		if err != nil {
-			log.Debugf("could not install test for plugin %q", desc.Name)
 		}
 	}
 	return nil

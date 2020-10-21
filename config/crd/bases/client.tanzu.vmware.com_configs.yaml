@@ -1,0 +1,152 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.2.5
+  creationTimestamp: null
+  name: configs.client.tanzu.vmware.com
+spec:
+  group: client.tanzu.vmware.com
+  names:
+    kind: Config
+    listKind: ConfigList
+    plural: configs
+    singular: config
+  scope: Namespaced
+  validation:
+    openAPIV3Schema:
+      description: Config is the Schema for the configs API
+      properties:
+        apiVersion:
+          description: 'APIVersion defines the versioned schema of this representation
+            of an object. Servers should convert recognized schemas to the latest
+            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+          type: string
+        clientOptions:
+          description: ClientOptions are client specific options.
+          properties:
+            cli:
+              description: CLI options specific to the CLI.
+              properties:
+                repositories:
+                  description: Repositories are the plugin repositories.
+                  items:
+                    description: PluginRepository is a CLI plugin repository
+                    properties:
+                      gcpPluginRepository:
+                        description: GCPPluginRepository is a plugin repository that
+                          utilizes GCP cloud storage.
+                        properties:
+                          bucketName:
+                            description: BucketName is the name of the bucket.
+                            type: string
+                          name:
+                            description: Name of the repository.
+                            type: string
+                          rootPath:
+                            description: RootPath within the bucket.
+                            type: string
+                        type: object
+                    type: object
+                  type: array
+              type: object
+          type: object
+        current:
+          description: CurrentServer in use.
+          type: string
+        kind:
+          description: 'Kind is a string value representing the REST resource this
+            object represents. Servers may infer this from the endpoint the client
+            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          type: object
+        servers:
+          description: KnownServers available.
+          items:
+            description: Server connection.
+            properties:
+              globalOpts:
+                description: GlobalOpts if the server is global.
+                properties:
+                  auth:
+                    description: Auth for the global server.
+                    properties:
+                      IDToken:
+                        description: IDToken is the current id token based on the
+                          context scoped to the CLI.
+                        type: string
+                      accessToken:
+                        description: AccessToken is the current access token based
+                          on the context.
+                        type: string
+                      expiration:
+                        description: Expiration times of the token.
+                        format: date-time
+                        type: string
+                      issuer:
+                        description: Issuer url for IDP, compliant with OIDC Metadata
+                          Discovery.
+                        type: string
+                      permissions:
+                        description: Permissions are roles assigned to the user.
+                        items:
+                          type: string
+                        type: array
+                      refresh_token:
+                        description: RefreshToken will be stored only in case of api-token
+                          login flow.
+                        type: string
+                      type:
+                        description: Type of the token (user or client).
+                        type: string
+                      userName:
+                        description: UserName is the authorized user the token is
+                          assigned to.
+                        type: string
+                    required:
+                    - IDToken
+                    - accessToken
+                    - expiration
+                    - issuer
+                    - permissions
+                    - refresh_token
+                    - type
+                    - userName
+                    type: object
+                  endpoint:
+                    description: Endpoint for the server.
+                    type: string
+                type: object
+              managementClusterOpts:
+                description: ManagementClusterOpts if the server is a management cluster.
+                properties:
+                  context:
+                    description: The context to use (if required), defaults to current.
+                    type: string
+                  path:
+                    description: Path to the kubeconfig.
+                    type: string
+                type: object
+              name:
+                description: Name of the server.
+                type: string
+              type:
+                description: Type of the endpoint.
+                type: string
+            type: object
+          type: array
+      type: object
+  version: v1alpha1
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
