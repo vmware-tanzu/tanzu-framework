@@ -137,13 +137,14 @@ func IsExpired(tokenExpiry time.Time) bool {
 
 // ParseToken parses the token.
 func ParseToken(tkn *oauth2.Token) (*Claims, error) {
-	token, err := jwt.Parse(tkn.AccessToken, nil)
+	token, _, err := new(jwt.Parser).ParseUnverified(tkn.AccessToken, jwt.MapClaims{})
 	if err != nil {
-		return nil, errors.Wrap(err, "could not parse oath token")
+		return nil, err
 	}
+
 	c, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return nil, fmt.Errorf("could not parse token claims")
+		return nil, fmt.Errorf("could not parse claims")
 	}
 	perm := []string{}
 	p, ok := c["perms"].([]interface{})

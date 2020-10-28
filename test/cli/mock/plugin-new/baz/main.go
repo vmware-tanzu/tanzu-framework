@@ -17,11 +17,10 @@ var descriptor = cli.PluginDescriptor{
 }
 
 func main() {
-	p, err := plugin.NewPlugin(descriptor)
+	p, err := plugin.NewPlugin(&descriptor)
 	if err != nil {
 		log.Fatal(err)
 	}
-	p.AddCommands()
 	if err := p.Execute(); err != nil {
 		os.Exit(1)
 	}

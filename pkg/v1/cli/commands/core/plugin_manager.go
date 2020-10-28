@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
+	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 )
 
 var (
@@ -22,6 +23,8 @@ func init() {
 		installPluginCmd,
 		upgradePluginCmd,
 		deletePluginCmd,
+		repoCmd,
+		cleanPluginCmd,
 	)
 	pluginCmd.PersistentFlags().StringVarP(&local, "local", "l", "", "path to local repository")
 }
@@ -159,9 +162,25 @@ var deletePluginCmd = &cobra.Command{
 	},
 }
 
+var cleanPluginCmd = &cobra.Command{
+	Use:   "clean",
+	Short: "Clean the plugins",
+	RunE: func(cmd *cobra.Command, args []string) (err error) {
+		catalog, err := cli.NewCatalog()
+		if err != nil {
+			return err
+		}
+		return catalog.Clean()
+	},
+}
+
 func getRepositories() *cli.MultiRepo {
 	if local != "" {
 		return cli.NewMultiRepo(cli.NewLocalRepository("local", local))
 	}
-	return cli.DefaultMultiRepo
+	cfg, err := client.GetConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return cli.NewMultiRepo(cli.LoadRepositories(cfg)...)
 }

@@ -43,7 +43,33 @@ func (r *Runner) Run(ctx context.Context) error {
 	if info.IsDir() {
 		return fmt.Errorf("%q is a directory", pluginPath)
 	}
+	err = r.run(ctx, pluginPath)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
+// RunTest runs a plugin test.
+func (r *Runner) RunTest(ctx context.Context) error {
+	pluginPath := r.testPluginPath()
+	info, err := os.Stat(pluginPath)
+	if err != nil {
+		// TODO (pbarker): should check if the plugin exists in the repository using fuzzy search and display how to install.
+		return fmt.Errorf("plugin %q does not exist, try using `tanzu plugin install %s` to install or `tanzu plugin list` to find plugins", r.name, r.name)
+	}
+
+	if info.IsDir() {
+		return fmt.Errorf("%q is a directory", pluginPath)
+	}
+	err = r.run(ctx, pluginPath)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Runner) run(ctx context.Context, pluginPath string) error {
 	stateFile, err := ioutil.TempFile("", "tanzu-cli-state")
 	if err != nil {
 		return fmt.Errorf("create state file: %w", err)
@@ -85,4 +111,8 @@ func (r *Runner) pluginName() string {
 
 func (r *Runner) pluginPath() string {
 	return filepath.Join(r.pluginRoot, r.pluginName())
+}
+
+func (r *Runner) testPluginPath() string {
+	return filepath.Join(r.pluginRoot, "test", BinTestFromPluginName(r.name))
 }

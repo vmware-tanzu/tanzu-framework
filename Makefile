@@ -81,7 +81,7 @@ LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildSHA=$(BUILD
 LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildVersion=$(BUILD_VERSION)'
 
 
-ARTIFACTS_DIR ?= "./artifacts"
+ARTIFACTS_DIR ?= ./artifacts
 
 ifeq ($(build_OS), Linux)
 XDG_DATA_HOME := ${HOME}/.local/share
@@ -100,6 +100,7 @@ install-cli: ## Install Tanzu CLI
 .PHONY: build-cli
 build-cli: ## Build Tanzu CLI
 	go run ./cmd/cli/compiler/main.go --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu"
+	go run ./cmd/cli/compiler/main.go --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin
 
 .PHONY: build-cli-mocks
 build-cli-mocks: ## Build Tanzu CLI mocks
@@ -108,17 +109,25 @@ build-cli-mocks: ## Build Tanzu CLI mocks
 	go run ./cmd/cli/compiler/main.go --version 0.0.3 --ldflags "$(LD_FLAGS)" --path ./test/cli/mock/plugin-alt --artifacts ./test/cli/mock/artifacts-alt
 
 .PHONY: test-cli
-test-cli: ## Run tests
+test-cli: build-cli-mocks ## Run tests
 	go test ./...
 
-.PHONY: build-install-cli-plugins
-build-install-cli-plugins: clean-cli-plugins build-cli install-cli-plugins install-cli ## Build and install Tanzu CLI plugins
+.PHONY: build-install-cli-all
+build-install-cli-all: clean-cli-plugins build-cli install-cli-plugins install-cli ## Build and install Tanzu CLI plugins
+
+install-cli-plugins: TANZU_CLI_NO_INIT=true
 
 .PHONY: install-cli-plugins
-install-cli-plugins: ## Install Tanzu CLI plugins
+install-cli-plugins:  ## Install Tanzu CLI plugins 
 	go run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
 		plugin install all --local $(ARTIFACTS_DIR)
+	go run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
+		plugin install all --local $(ARTIFACTS_DIR)-admin
+	go run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
+		test fetch --local $(ARTIFACTS_DIR)
+	go run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
+		test fetch --local $(ARTIFACTS_DIR)-admin
 
 .PHONY: clean-cli-plugins
 clean-cli-plugins: ## Remove Tanzu CLI plugins
-	- rm ${XDG_DATA_HOME}/tanzu-cli/*
+	- rm -rf ${XDG_DATA_HOME}/tanzu-cli/*
