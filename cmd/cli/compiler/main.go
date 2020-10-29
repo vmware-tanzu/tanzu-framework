@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/gobwas/glob"
 	"gopkg.in/yaml.v2"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
@@ -21,16 +22,19 @@ type plugin struct {
 	cli.PluginDescriptor
 	path     string
 	testPath string
+	arch     cli.Arch
 }
 
 var (
 	version, path, artifactsDir, ldflags string
-	corePath                             string
+	corePath, match, targetArch          string
 )
 
 func init() {
 	flag.StringVar(&version, "version", "", "version of the root cli (required)")
 	flag.StringVar(&ldflags, "ldflags", "", "ldflags to set on build")
+	flag.StringVar(&match, "match", "*", "match a plugin name to build, supports globbing")
+	flag.StringVar(&targetArch, "target", "all", "only compile for a specific target, use 'local' to compile for host os")
 	flag.StringVar(&path, "path", "./cmd/cli/plugin", "path of the plugins directory")
 	flag.StringVar(&artifactsDir, "artifacts", cli.DefaultArtifactsDirectory, "path to output artifacts")
 	flag.StringVar(&corePath, "corepath", "", "path for core binary")
@@ -49,23 +53,30 @@ func main() {
 		Version:     version,
 		Plugins:     []cli.PluginDescriptor{},
 	}
+	arch := cli.Arch(targetArch)
+	if targetArch == "local" {
+		arch = cli.BuildArch()
+	}
 
 	if corePath != "" {
 		log.Break()
 		log.Info("building core binary")
-		buildAllTargets(corePath, filepath.Join(artifactsDir, cli.CoreName, version), cli.CoreName)
+		buildTargets(corePath, filepath.Join(artifactsDir, cli.CoreName, version), cli.CoreName, arch)
 
 		// TODO (pbarker): should copy.
-		buildAllTargets(corePath, filepath.Join(artifactsDir, cli.CoreName, cli.VersionLatest), cli.CoreName)
+		buildTargets(corePath, filepath.Join(artifactsDir, cli.CoreName, cli.VersionLatest), cli.CoreName, arch)
 	}
 
 	files, err := ioutil.ReadDir(path)
 	log.Check(err)
 
+	g := glob.MustCompile(match)
 	for _, f := range files {
 		if f.IsDir() {
-			p := buildPlugin(filepath.Join(path, f.Name()))
-			manifest.Plugins = append(manifest.Plugins, p.PluginDescriptor)
+			if g.Match(f.Name()) {
+				p := buildPlugin(filepath.Join(path, f.Name()), arch)
+				manifest.Plugins = append(manifest.Plugins, p.PluginDescriptor)
+			}
 		}
 	}
 
@@ -79,7 +90,7 @@ func main() {
 	log.Success("successfully built local repository")
 }
 
-func buildPlugin(path string) plugin {
+func buildPlugin(path string, arch cli.Arch) plugin {
 	log.Break()
 	log.Infof("building plugin at path %q", path)
 
@@ -98,7 +109,7 @@ func buildPlugin(path string) plugin {
 	if err != nil {
 		log.Fatalf("plugin %q must implement test", desc.Name)
 	}
-	p := plugin{PluginDescriptor: desc, path: path, testPath: testPath}
+	p := plugin{PluginDescriptor: desc, path: path, testPath: testPath, arch: arch}
 
 	log.Debugy("plugin", p)
 
@@ -134,6 +145,9 @@ func (t target) build(targetPath string) {
 		os.Exit(1)
 	}
 }
+
+// AllTargets are all the known targets.
+const AllTargets cli.Arch = "all"
 
 type targetBuilder func(pluginName, outPath string) target
 
@@ -199,10 +213,10 @@ var archMap = map[cli.Arch]targetBuilder{
 
 func (p *plugin) compile() {
 	outPath := filepath.Join(artifactsDir, p.Name, p.Version)
-	buildAllTargets(p.path, outPath, p.Name)
+	buildTargets(p.path, outPath, p.Name, p.arch)
 
 	testOutPath := filepath.Join(artifactsDir, p.Name, p.Version, "test")
-	buildAllTargets(p.testPath, testOutPath, fmt.Sprintf("%s-test", p.Name))
+	buildTargets(p.testPath, testOutPath, fmt.Sprintf("%s-test", p.Name), p.arch)
 
 	b, err := yaml.Marshal(p.PluginDescriptor)
 	log.Check(err)
@@ -212,9 +226,19 @@ func (p *plugin) compile() {
 	log.Check(err)
 }
 
-func buildAllTargets(targetPath, outPath, pluginName string) {
-	for _, targetBuilder := range archMap {
-		tgt := targetBuilder(pluginName, outPath)
-		tgt.build(targetPath)
+func buildTargets(targetPath, outPath, pluginName string, arch cli.Arch) {
+	if arch == AllTargets {
+		for _, targetBuilder := range archMap {
+			tgt := targetBuilder(pluginName, outPath)
+			tgt.build(targetPath)
+		}
+		return
 	}
+	tb, ok := archMap[arch]
+	if !ok {
+		log.Fatal("could not find target arch: ", arch)
+	}
+	tgt := tb(pluginName, outPath)
+	tgt.build(targetPath)
+	return
 }
