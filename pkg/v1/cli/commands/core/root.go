@@ -2,11 +2,14 @@ package core
 
 import (
 	"fmt"
+	"log"
+	"os"
 
 	"github.com/caarlos0/spin"
 	"github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
+	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 )
 
 var root = &cobra.Command{
@@ -14,10 +17,17 @@ var root = &cobra.Command{
 	Short: aurora.Bold(`Tanzu CLI`).String(),
 }
 
+var noInit bool
+
 // NewRootCmd creates a root command.
 func NewRootCmd() (*cobra.Command, error) {
 	u := cli.NewMainUsage()
 	root.SetUsageFunc(u.Func())
+
+	ni := os.Getenv("TANZU_CLI_NO_INIT")
+	if ni != "" {
+		noInit = true
+	}
 
 	// TODO (pbarker): silencing usage for now as we are getting double usage from plugins on errors
 	root.SilenceUsage = true
@@ -39,10 +49,15 @@ func NewRootCmd() (*cobra.Command, error) {
 	}
 
 	// check that all plugins in the core distro are installed or do so.
-	if !catalog.Distro().IsSatisfied(plugins) {
+	if !noInit && !catalog.Distro().IsSatisfied(plugins) {
 		s := spin.New("%s   initializing")
 		s.Start()
-		err := catalog.EnsureDistro(cli.DefaultMultiRepo)
+		cfg, err := client.GetConfig()
+		if err != nil {
+			log.Fatal(err)
+		}
+		repos := cli.NewMultiRepo(cli.LoadRepositories(cfg)...)
+		err = catalog.EnsureDistro(repos)
 		if err != nil {
 			return nil, err
 		}

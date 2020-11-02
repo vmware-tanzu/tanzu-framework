@@ -21,4 +21,10 @@ const (
 
 	// VersionCmdGroup are version commands.
 	VersionCmdGroup cmdGroup = "Version"
+
+	// AdminCmdGroup are admin commands.
+	AdminCmdGroup cmdGroup = "Admin"
+
+	// TestCmdGroup is the test command group.
+	TestCmdGroup cmdGroup = "Test"
 )

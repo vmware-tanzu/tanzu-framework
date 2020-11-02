@@ -46,7 +46,7 @@ var updateCmd = &cobra.Command{
 			repo    cli.Repository
 		}
 
-		updateMap := map[cli.PluginDescriptor]updateInfo{}
+		updateMap := map[*cli.PluginDescriptor]updateInfo{}
 		for _, plugin := range plugins {
 			update, repo, version, err := plugin.HasUpdateIn(repos)
 			if err != nil {

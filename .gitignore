@@ -7,6 +7,7 @@
 *.dylib
 bin
 artifacts
+artifacts-admin
 test/cli/mock/artifacts*
 
 # Test binary, build with `go test -c`

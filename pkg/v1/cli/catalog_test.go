@@ -73,6 +73,9 @@ func TestCatalog(t *testing.T) {
 	err = catalog.InstallAllMulti(multi)
 	require.NoError(t, err)
 
+	err = catalog.EnsureTests(multi)
+	require.NoError(t, err)
+
 	err = catalog.EnsureDistro(multi)
 	require.NoError(t, err)
 

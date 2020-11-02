@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newInfoCmd(desc cli.PluginDescriptor) *cobra.Command {
+func newInfoCmd(desc *cli.PluginDescriptor) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:    "info",
 		Short:  "Plugin info",

@@ -89,7 +89,11 @@ func GetConfig() (cfg *clientv1alpha1.Config, err error) {
 	}
 	b, err := ioutil.ReadFile(cfgPath)
 	if err != nil {
-		return nil, NewConfigNotExistError(err)
+		cfg, err = NewConfig()
+		if err != nil {
+			return nil, err
+		}
+		return cfg, nil
 	}
 	scheme, err := clientv1alpha1.SchemeBuilder.Build()
 	if err != nil {

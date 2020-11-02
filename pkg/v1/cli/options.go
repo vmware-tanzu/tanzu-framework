@@ -17,6 +17,9 @@ type optionsConfig struct {
 	// gcpRootPath is the root bucket path for the gcp artifact repository.
 	gcpRootPath string
 
+	// repoName is the repository name.
+	repoName string
+
 	// distro is the plugin distro to install with the CLI.
 	distro Distro
 }
@@ -71,5 +74,12 @@ func WithGCPRootPath(path string) Option {
 func WithDistro(distro Distro) Option {
 	return func(o *optionsConfig) {
 		o.distro = distro
+	}
+}
+
+// WithName sets the name
+func WithName(name string) Option {
+	return func(o *optionsConfig) {
+		o.repoName = name
 	}
 }
