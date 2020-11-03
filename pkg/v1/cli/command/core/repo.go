@@ -8,6 +8,7 @@ import (
 
 	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
+	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
 )
 
 var (
@@ -49,7 +50,7 @@ var listRepoCmd = &cobra.Command{
 			data[index] = []string{repos[index].Name()}
 		}
 
-		table := cli.NewTableWriter("Name")
+		table := component.NewTableWriter("Name")
 		table.AppendBulk(data)
 
 		table.Render()
