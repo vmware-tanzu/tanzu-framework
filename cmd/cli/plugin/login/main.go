@@ -19,7 +19,7 @@ import (
 	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/auth/csp"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
-	"github.com/vmware-tanzu-private/core/pkg/v1/cli/commands/plugin"
+	"github.com/vmware-tanzu-private/core/pkg/v1/cli/command/plugin"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -44,7 +44,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	p.AddCommands()
 	p.Cmd.Flags().StringVar(&endpoint, "endpoint", "", "endpoint to login to")
 	p.Cmd.Flags().StringVar(&name, "name", "", "name of the server")
 	p.Cmd.Flags().StringVar(&apiToken, "apiToken", "", "API token for global login")

@@ -7,7 +7,7 @@ import (
 	"github.com/aunum/log"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
-	"github.com/vmware-tanzu-private/core/pkg/v1/cli/commands/plugin"
+	"github.com/vmware-tanzu-private/core/pkg/v1/cli/command/plugin"
 )
 
 var descriptor = cli.PluginDescriptor{
