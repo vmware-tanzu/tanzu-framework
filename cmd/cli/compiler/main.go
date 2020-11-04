@@ -22,6 +22,7 @@ type plugin struct {
 	cli.PluginDescriptor
 	path     string
 	testPath string
+	docPath  string
 	arch     cli.Arch
 }
 
@@ -109,7 +110,12 @@ func buildPlugin(path string, arch cli.Arch) plugin {
 	if err != nil {
 		log.Fatalf("plugin %q must implement test", desc.Name)
 	}
-	p := plugin{PluginDescriptor: desc, path: path, testPath: testPath, arch: arch}
+	docPath := filepath.Join(path, "README.md")
+	_, err = os.Stat(docPath)
+	if err != nil {
+		log.Fatalf("plugin %q requires a README.md file", desc.Name)
+	}
+	p := plugin{PluginDescriptor: desc, path: path, testPath: testPath, arch: arch, docPath: docPath}
 
 	log.Debugy("plugin", p)
 
