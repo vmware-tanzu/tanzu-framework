@@ -24,7 +24,7 @@ func (p *PromptConfig) Run(response interface{}) error {
 	return Prompt(p, response)
 }
 
-// Prompt from input.
+// Prompt for input.
 func Prompt(p *PromptConfig, response interface{}) error {
 	prompt := translatePromptConfig(p)
 	return survey.AskOne(prompt, response)

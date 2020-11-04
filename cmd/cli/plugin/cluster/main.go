@@ -10,7 +10,6 @@ import (
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/command/plugin"
-	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
 )
 
 var descriptor = cli.PluginDescriptor{
@@ -57,17 +56,7 @@ var createClusterCmd = &cobra.Command{
 	Short: "Create a cluster",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Println("in progress...")
-		c := component.PromptConfig{
-			Message: "enter cluster name",
-			Help:    "give the cluster a name",
-			Default: "mycluster",
-		}
-		var name string
-		err := c.Run(&name)
-		if err != nil {
-			return err
-		}
-		fmt.Println("name: ", name)
+
 		return nil
 	},
 }
