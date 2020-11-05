@@ -57,6 +57,9 @@ tanzu update
 ```
 An example external plugin repo can be seen at https://gitlab.eng.vmware.com/olympus/cli-plugins
 
+#### Components
+Plugins should utilize the component library for common tasks like table printing, prompts, and selectors. See `pkg/v1/cli/component`
+
 #### Tests
 Every CLI plugin should have a nested test executable. The executable should utilize the test framework found in `pkg/v1/test/cli`. Tests should be written 
 to cover each command. Tests are compiled alongside the plugins. Tests can be ran by the admin `test` plugin.

@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
-	"github.com/vmware-tanzu-private/core/pkg/v1/cli/commands/plugin"
+	"github.com/vmware-tanzu-private/core/pkg/v1/cli/command/plugin"
 )
 
 var descriptor = cli.PluginDescriptor{
@@ -56,6 +56,7 @@ var createClusterCmd = &cobra.Command{
 	Short: "Create a cluster",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Println("in progress...")
+
 		return nil
 	},
 }

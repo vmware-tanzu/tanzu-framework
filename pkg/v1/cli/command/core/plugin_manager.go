@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
+	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
 	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 )
 
@@ -76,7 +77,7 @@ var listPluginCmd = &cobra.Command{
 			}
 		}
 
-		table := cli.NewTableWriter("Name", "Version", "Description", "Repository", "Status")
+		table := component.NewTableWriter("Name", "Version", "Description", "Repository", "Status")
 
 		for _, v := range data {
 			table.Append(v)
