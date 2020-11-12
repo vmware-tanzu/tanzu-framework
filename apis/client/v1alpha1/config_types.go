@@ -51,6 +51,9 @@ type Server struct {
 
 // ManagementClusterServer is the configuration for a management cluster kubeconfig.
 type ManagementClusterServer struct {
+	// Endpoint for the login.
+	Endpoint string `json:"endpoint,omitempty" yaml:"endpoint"`
+
 	// Path to the kubeconfig.
 	Path string `json:"path,omitempty" yaml:"path"`
 

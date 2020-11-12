@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 
+	tkgauth "github.com/vmware-tanzu-private/core/pkg/v1/auth/tkg"
+
 	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 
 	"golang.org/x/oauth2"
@@ -31,8 +33,8 @@ var descriptor = cli.PluginDescriptor{
 }
 
 var (
-	stderrOnly                                                bool
-	endpoint, name, apiToken, server, kubeConfig, kubecontext string
+	stderrOnly                                                                bool
+	endpoint, name, apiToken, server, kubeConfig, kubecontext, tkgClusterInfo string
 )
 
 const (
@@ -50,6 +52,7 @@ func main() {
 	p.Cmd.Flags().StringVar(&server, "server", "", "login to the given server")
 	p.Cmd.Flags().StringVar(&kubeConfig, "kubeconfig", "", "path to kubeconfig management cluster")
 	p.Cmd.Flags().StringVar(&kubecontext, "context", "", "the context in the kubeconfig to use for management cluster ")
+	p.Cmd.Flags().StringVar(&tkgClusterInfo, "clusterInfo", "", "path to the management cluster info")
 	p.Cmd.Flags().BoolVar(&stderrOnly, "stderr-only", false, "send all output to stderr rather than stdout")
 	p.Cmd.Flags().MarkHidden("stderr-only")
 	p.Cmd.RunE = login
@@ -165,6 +168,39 @@ func getSurveyOpts() []survey.AskOpt {
 func createNewServer() (server *clientv1alpha1.Server, err error) {
 	surveyOpts := getSurveyOpts()
 
+	if endpoint == "" {
+		err = survey.AskOne(
+			&survey.Input{
+				Message: "Enter server endpoint",
+			},
+			&endpoint,
+			surveyOpts...,
+		)
+		if err != nil {
+			return
+		}
+	}
+
+	if tkgClusterInfo == "" {
+		err = survey.AskOne(
+			&survey.Input{
+				Message: "Enter Path to the clusterInfo (if any)",
+			},
+			&tkgClusterInfo,
+			surveyOpts...,
+		)
+		if err != nil {
+			return
+		}
+	}
+
+	if tkgClusterInfo != "" {
+		kubeConfig, kubecontext, err = tkgauth.PrepareKubeconfigWithPinnipedPlugin(tkgClusterInfo, endpoint)
+		if err != nil {
+			log.Info("Error creating kubeconfig with pinniped cli plugin: err-%v", err)
+		}
+	}
+
 	if kubeConfig == "" {
 		err = survey.AskOne(
 			&survey.Input{
@@ -178,7 +214,7 @@ func createNewServer() (server *clientv1alpha1.Server, err error) {
 		}
 	}
 
-	if kubeConfig != "" {
+	if kubeConfig != "" && kubecontext == "" {
 		err = survey.AskOne(
 			&survey.Input{
 				Message: "Enter kube context to use",
@@ -191,18 +227,6 @@ func createNewServer() (server *clientv1alpha1.Server, err error) {
 		}
 	}
 
-	if endpoint == "" {
-		err = survey.AskOne(
-			&survey.Input{
-				Message: "Enter server endpoint",
-			},
-			&endpoint,
-			surveyOpts...,
-		)
-		if err != nil {
-			return
-		}
-	}
 	if name == "" {
 		err = survey.AskOne(
 			&survey.Input{
@@ -234,7 +258,10 @@ func createNewServer() (server *clientv1alpha1.Server, err error) {
 		server = &clientv1alpha1.Server{
 			Name: name,
 			Type: clientv1alpha1.ManagementClusterServerType,
-			ManagementClusterOpts: &clientv1alpha1.ManagementClusterServer{Path: kubeConfig, Context: kubecontext},
+			ManagementClusterOpts: &clientv1alpha1.ManagementClusterServer{
+				Path:     kubeConfig,
+				Context:  kubecontext,
+				Endpoint: endpoint},
 		}
 	}
 	return
@@ -323,8 +350,14 @@ func promptAPIToken() (apiToken string, err error) {
 
 // TODO (pbarker): need pinniped story more fleshed out
 func managementClusterLogin(s *clientv1alpha1.Server, endpoint string) error {
+
 	if s.ManagementClusterOpts.Path != "" && s.ManagementClusterOpts.Context != "" {
-		err := client.PutServer(s, true)
+		_, err := tkgauth.GetServerKubernetesVersion(s.ManagementClusterOpts.Path, s.ManagementClusterOpts.Context)
+		if err != nil {
+			log.Fatalf("failed to login to the management cluster %s, err-%v", s.Name, err)
+			return err
+		}
+		err = client.PutServer(s, true)
 		if err != nil {
 			return err
 		}
