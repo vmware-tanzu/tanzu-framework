@@ -11,6 +11,9 @@ else
 GOBIN=$(shell go env GOBIN)
 endif
 
+PRIVATE_REPOS="github.com/vmware-tanzu-private"
+GO := GOPRIVATE=${PRIVATE_REPOS} go
+
 .DEFAULT_GOAL:=help
 
 help: ## Display this help
@@ -19,13 +22,13 @@ help: ## Display this help
 all: manager
 
 test: generate fmt vet manifests build-cli-mocks ## Run tests
-	go test ./... -coverprofile cover.out
+	$(GO) test ./... -coverprofile cover.out
 
 manager: generate fmt vet ## Build manager binary
-	go build -o bin/manager main.go
+	$(GO) build -o bin/manager main.go
 
 run: generate fmt vet manifests ## Run against the configured Kubernetes cluster in ~/.kube/config
-	go run ./main.go
+	$(GO) run ./main.go
 
 install: manifests ## Install CRDs into a cluster
 	kustomize build config/crd | kubectl apply -f -
@@ -41,10 +44,10 @@ manifests: controller-gen ## Generate manifests e.g. CRD, RBAC etc.
 	$(CONTROLLER_GEN) $(CRD_OPTIONS) rbac:roleName=manager-role webhook paths="./..." output:crd:artifacts:config=config/crd/bases
 
 fmt: ## Run go fmt
-	go fmt ./...
+	$(GO) fmt ./...
 
 vet: ## Run go vet
-	go vet ./...
+	$(GO) vet ./...
 
 generate: controller-gen ## Generate code via controller-gen
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
@@ -61,8 +64,8 @@ ifeq (, $(shell which controller-gen))
 	set -e ;\
 	CONTROLLER_GEN_TMP_DIR=$$(mktemp -d) ;\
 	cd $$CONTROLLER_GEN_TMP_DIR ;\
-	go mod init tmp ;\
-	go get sigs.k8s.io/controller-tools/cmd/controller-gen@v0.2.5 ;\
+	$(GO) mod init tmp ;\
+	$(GO) get sigs.k8s.io/controller-tools/cmd/controller-gen@v0.2.5 ;\
 	rm -rf $$CONTROLLER_GEN_TMP_DIR ;\
 	}
 CONTROLLER_GEN=$(GOBIN)/controller-gen
@@ -95,27 +98,27 @@ export XDG_DATA_HOME
 
 .PHONY: install-cli
 install-cli: ## Install Tanzu CLI
-	go install -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu
+	$(GO) install -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu
 
 .PHONY: build-cli
 build-cli: ## Build Tanzu CLI
-	go run ./cmd/cli/compiler/main.go --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu"
-	go run ./cmd/cli/compiler/main.go --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin
+	$(GO) run ./cmd/cli/compiler/main.go --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu"
+	$(GO) run ./cmd/cli/compiler/main.go --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin
 
 .PHONY: build-cli-local
 build-cli-local: ## Build Tanzu CLI
-	go run ./cmd/cli/compiler/main.go --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --target local
-	go run ./cmd/cli/compiler/main.go --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin --target local
+	$(GO) run ./cmd/cli/compiler/main.go --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --target local
+	$(GO) run ./cmd/cli/compiler/main.go --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin --target local
 
 .PHONY: build-cli-mocks
 build-cli-mocks: ## Build Tanzu CLI mocks
-	go run ./cmd/cli/compiler/main.go --version 0.0.1 --ldflags "$(LD_FLAGS)" --path ./test/cli/mock/plugin-old --artifacts ./test/cli/mock/artifacts-old 
-	go run ./cmd/cli/compiler/main.go --version 0.0.2 --ldflags "$(LD_FLAGS)" --path ./test/cli/mock/plugin-new --artifacts ./test/cli/mock/artifacts-new
-	go run ./cmd/cli/compiler/main.go --version 0.0.3 --ldflags "$(LD_FLAGS)" --path ./test/cli/mock/plugin-alt --artifacts ./test/cli/mock/artifacts-alt
+	$(GO) run ./cmd/cli/compiler/main.go --version 0.0.1 --ldflags "$(LD_FLAGS)" --path ./test/cli/mock/plugin-old --artifacts ./test/cli/mock/artifacts-old
+	$(GO) run ./cmd/cli/compiler/main.go --version 0.0.2 --ldflags "$(LD_FLAGS)" --path ./test/cli/mock/plugin-new --artifacts ./test/cli/mock/artifacts-new
+	$(GO) run ./cmd/cli/compiler/main.go --version 0.0.3 --ldflags "$(LD_FLAGS)" --path ./test/cli/mock/plugin-alt --artifacts ./test/cli/mock/artifacts-alt
 
 .PHONY: test-cli
 test-cli: build-cli-mocks ## Run tests
-	go test ./...
+	$(GO) test ./...
 
 .PHONY: build-install-cli-all
 build-install-cli-all: clean-cli-plugins build-cli install-cli-plugins install-cli ## Build and install Tanzu CLI plugins
@@ -123,14 +126,14 @@ build-install-cli-all: clean-cli-plugins build-cli install-cli-plugins install-c
 install-cli-plugins: TANZU_CLI_NO_INIT=true
 
 .PHONY: install-cli-plugins
-install-cli-plugins:  ## Install Tanzu CLI plugins 
-	go run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
+install-cli-plugins:  ## Install Tanzu CLI plugins
+	$(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
 		plugin install all --local $(ARTIFACTS_DIR)
-	go run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
+	$(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
 		plugin install all --local $(ARTIFACTS_DIR)-admin
-	go run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
+	$(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
 		test fetch --local $(ARTIFACTS_DIR)
-	go run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
+	$(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
 		test fetch --local $(ARTIFACTS_DIR)-admin
 
 .PHONY: clean-cli-plugins

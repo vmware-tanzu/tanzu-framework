@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/aunum/log"
 
@@ -10,6 +11,7 @@ import (
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/command/plugin"
+	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 )
 
 var descriptor = cli.PluginDescriptor{
@@ -26,7 +28,7 @@ func main() {
 	}
 	p.AddCommands(
 		createClusterCmd,
-		getClusterCmd,
+		listClustersCmd,
 	)
 	if err := p.Execute(); err != nil {
 		os.Exit(1)
@@ -38,25 +40,6 @@ var getClusterCmd = &cobra.Command{
 	Short: "Get a cluster",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Println("in progress...")
-		return nil
-	},
-}
-
-var listClustersCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List clusters",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("in progress...")
-		return nil
-	},
-}
-
-var createClusterCmd = &cobra.Command{
-	Use:   "create",
-	Short: "Create a cluster",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("in progress...")
-
 		return nil
 	},
 }
@@ -77,4 +60,12 @@ var deleteClusterCmd = &cobra.Command{
 		fmt.Println("in progress...")
 		return nil
 	},
+}
+
+func getConfigDir() (string, error) {
+	tanzuConfigDir, err := client.LocalDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(tanzuConfigDir, "tkg"), nil
 }
