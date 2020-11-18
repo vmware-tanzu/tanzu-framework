@@ -10,11 +10,11 @@ import (
 
 	tkgauth "github.com/vmware-tanzu-private/core/pkg/v1/auth/tkg"
 
+	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
 	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 
 	"golang.org/x/oauth2"
 
-	survey "github.com/AlecAivazis/survey/v2"
 	"github.com/aunum/log"
 	"github.com/spf13/cobra"
 
@@ -50,12 +50,25 @@ func main() {
 	p.Cmd.Flags().StringVar(&name, "name", "", "name of the server")
 	p.Cmd.Flags().StringVar(&apiToken, "apiToken", "", "API token for global login")
 	p.Cmd.Flags().StringVar(&server, "server", "", "login to the given server")
-	p.Cmd.Flags().StringVar(&kubeConfig, "kubeconfig", "", "path to kubeconfig management cluster")
-	p.Cmd.Flags().StringVar(&kubecontext, "context", "", "the context in the kubeconfig to use for management cluster ")
+	p.Cmd.Flags().StringVar(&kubeConfig, "kubeconfig", "", "path to kubeconfig management cluster. Valid only if user doesn't choose 'endpoint' option.(See [*])")
+	p.Cmd.Flags().StringVar(&kubecontext, "context", "", "the context in the kubeconfig to use for management cluster. Valid only if user doesn't choose 'endpoint' option.(See [*]) ")
+	// TODO: This is a temporary placeholder and should be removed once we figure out a way to get the cluster info given the endpoint
 	p.Cmd.Flags().StringVar(&tkgClusterInfo, "clusterInfo", "", "path to the management cluster info")
 	p.Cmd.Flags().BoolVar(&stderrOnly, "stderr-only", false, "send all output to stderr rather than stdout")
 	p.Cmd.Flags().MarkHidden("stderr-only")
 	p.Cmd.RunE = login
+	p.Cmd.Example = `
+	# Login to TKG management cluster using endpoint, clusterInfo and name of the server
+	tanzu login --endpoint "https://login.example.com" --clusterInfo /path/to/management/clusterinfo --name mgmt-cluster
+
+	# Login to TKG management cluster by using kubeconfig path and context for the management cluster
+	tanzu login --kubeconfig path/to/kubeconfig --context path/to/context --name mgmt-cluster
+
+	
+	[*] : User has two options to login to TKG. User can choose the pinniped login endpoint option
+	by providing 'endpoint' and 'clusterInfo', or user can choose to use the kubeconfig for 
+	the management cluster by providing 'kubeconfig' and 'context'
+	`
 	if err := p.Execute(); err != nil {
 		os.Exit(1)
 	}
@@ -72,7 +85,7 @@ func login(cmd *cobra.Command, args []string) (err error) {
 		return err
 	}
 
-	surveyOpts := getSurveyOpts()
+	promptOpts := getPromptOpts()
 
 	newServerSelector := "+ new server"
 	var serverTarget *clientv1alpha1.Server
@@ -100,13 +113,13 @@ func login(cmd *cobra.Command, args []string) (err error) {
 			serverKeys := getKeys(servers)
 			serverKeys = append(serverKeys, newServerSelector)
 			servers[newServerSelector] = &clientv1alpha1.Server{}
-			err = survey.AskOne(
-				&survey.Select{
+			err = component.Prompt(
+				&component.PromptConfig{
 					Message: "Select a server",
 					Options: serverKeys,
 				},
 				&server,
-				surveyOpts...,
+				promptOpts...,
 			)
 			if err != nil {
 				return
@@ -156,25 +169,24 @@ func rpad(s string, padding int) string {
 	return fmt.Sprintf(template, s)
 }
 
-func getSurveyOpts() []survey.AskOpt {
-	var surveyOpts []survey.AskOpt
+func getPromptOpts() []component.PromptOpt {
+	var promptOpts []component.PromptOpt
 	if stderrOnly {
 		// This uses stderr because it needs to work inside the kubectl exec plugin flow where stdout is reserved.
-		surveyOpts = append(surveyOpts, survey.WithStdio(os.Stdin, os.Stderr, os.Stderr))
+		promptOpts = append(promptOpts, component.WithStdio(os.Stdin, os.Stderr, os.Stderr))
 	}
-	return surveyOpts
+	return promptOpts
 }
 
 func createNewServer() (server *clientv1alpha1.Server, err error) {
-	surveyOpts := getSurveyOpts()
-
+	promptOpts := getPromptOpts()
 	if endpoint == "" {
-		err = survey.AskOne(
-			&survey.Input{
+		err = component.Prompt(
+			&component.PromptConfig{
 				Message: "Enter server endpoint",
 			},
 			&endpoint,
-			surveyOpts...,
+			promptOpts...,
 		)
 		if err != nil {
 			return
@@ -182,12 +194,12 @@ func createNewServer() (server *clientv1alpha1.Server, err error) {
 	}
 
 	if tkgClusterInfo == "" {
-		err = survey.AskOne(
-			&survey.Input{
+		err = component.Prompt(
+			&component.PromptConfig{
 				Message: "Enter Path to the clusterInfo (if any)",
 			},
 			&tkgClusterInfo,
-			surveyOpts...,
+			promptOpts...,
 		)
 		if err != nil {
 			return
@@ -195,19 +207,19 @@ func createNewServer() (server *clientv1alpha1.Server, err error) {
 	}
 
 	if tkgClusterInfo != "" {
-		kubeConfig, kubecontext, err = tkgauth.PrepareKubeconfigWithPinnipedPlugin(tkgClusterInfo, endpoint)
+		kubeConfig, kubecontext, err = tkgauth.KubeconfigWithTanzuKubeConfigLoginPlugin(tkgClusterInfo, endpoint)
 		if err != nil {
-			log.Info("Error creating kubeconfig with pinniped cli plugin: err-%v", err)
+			log.Info("Error creating kubeconfig with tanzu kubeconfig-login plugin: err-%v", err)
 		}
 	}
 
 	if kubeConfig == "" {
-		err = survey.AskOne(
-			&survey.Input{
+		err = component.Prompt(
+			&component.PromptConfig{
 				Message: "Enter path to kubeconfig (if any)",
 			},
 			&kubeConfig,
-			surveyOpts...,
+			promptOpts...,
 		)
 		if err != nil {
 			return
@@ -215,12 +227,12 @@ func createNewServer() (server *clientv1alpha1.Server, err error) {
 	}
 
 	if kubeConfig != "" && kubecontext == "" {
-		err = survey.AskOne(
-			&survey.Input{
+		err = component.Prompt(
+			&component.PromptConfig{
 				Message: "Enter kube context to use",
 			},
 			&kubecontext,
-			surveyOpts...,
+			promptOpts...,
 		)
 		if err != nil {
 			return
@@ -228,12 +240,12 @@ func createNewServer() (server *clientv1alpha1.Server, err error) {
 	}
 
 	if name == "" {
-		err = survey.AskOne(
-			&survey.Input{
+		err = component.Prompt(
+			&component.PromptConfig{
 				Message: "Give the server a name",
 			},
 			&name,
-			surveyOpts...,
+			promptOpts...,
 		)
 		if err != nil {
 			return
@@ -331,24 +343,20 @@ func promptAPIToken() (apiToken string, err error) {
 		consoleURL.String(),
 	)
 
-	var surveyOpts []survey.AskOpt
-	if stderrOnly {
-		// This uses stderr because it needs to work inside the kubectl exec plugin flow where stdout is reserved.
-		surveyOpts = append(surveyOpts, survey.WithStdio(os.Stdin, os.Stderr, os.Stderr))
-	}
+	promptOpts := getPromptOpts()
 
 	// format
 	fmt.Println()
-	err = survey.AskOne(
-		&survey.Password{
-			Message: "API Token"},
+	err = component.Prompt(
+		&component.PromptConfig{
+			Message: "API Token",
+		},
 		&apiToken,
-		surveyOpts...,
+		promptOpts...,
 	)
 	return
 }
 
-// TODO (pbarker): need pinniped story more fleshed out
 func managementClusterLogin(s *clientv1alpha1.Server, endpoint string) error {
 
 	if s.ManagementClusterOpts.Path != "" && s.ManagementClusterOpts.Context != "" {

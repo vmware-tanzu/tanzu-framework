@@ -13,18 +13,18 @@ import (
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
-func PrepareKubeconfigWithPinnipedPlugin(clusterInfoPath string, endpoint string) (string, string, error) {
+// KubeconfigWithTanzuKubeConfigLoginPlugin prepares the kubeconfig with tanzu kubeconfig-login as client-go exec plugin
+func KubeconfigWithTanzuKubeConfigLoginPlugin(clusterInfoPath string, endpoint string) (string, string, error) {
 	config, err := clientcmd.LoadFromFile(clusterInfoPath)
 	if err != nil {
 		return "", "", errors.Wrapf(err, "Error loading from the clusterInfo file")
 	}
 
 	clustername := ""
-	//clusters := config.Clusters
 	for clustername = range config.Clusters {
 		break
 	}
-	username := "tanzu-cli-" + clustername
+	username := "tanzu-cli-user" + clustername
 	AuthInfos, err := getUserInfoWithPinnipedPlugin(endpoint, username)
 	if err != nil {
 		return "", "", errors.Wrapf(err, "failed to generate kubeconfig authInfo data with pinniped plugin ")
@@ -42,6 +42,7 @@ func PrepareKubeconfigWithPinnipedPlugin(clusterInfoPath string, endpoint string
 	config.Contexts = contexts
 	config.CurrentContext = contextName
 
+	// TODO should merge the generated kubeconfig to tanzu kubeconfig file( may be $HOME/.kube-tanzu/config??)
 	filename, err := CreateTempFile("", "tmp_kubeconfig")
 	if err != nil {
 		return "", "", errors.Wrap(err, "unable to save kubeconfig to temporary file")
@@ -61,8 +62,8 @@ func getUserInfoWithPinnipedPlugin(endpoint, username string) (map[string]*clien
 		"exec": {
 	  	 "apiVersion": "client.authentication.k8s.io/v1beta1",
 	  	 "args": [
+		 	 "pinniped-auth",
 		 	 "login",
-		 	 "oidc",
 		 	 "--issuer",
 		 	 "%s",
 		  	"--client-id",
@@ -70,7 +71,7 @@ func getUserInfoWithPinnipedPlugin(endpoint, username string) (map[string]*clien
 		  	"--listen-port",
 		  	"48095"
 	   	 ],
-	   	 "command": "/Users/pkalle/project/pinniped/pinniped",
+	   	 "command": "tanzu",
 	     "installHint": "The Pinniped CLI is required to authenticate to the current cluster.\nFor more information, please visit https://pinniped.dev"
 		}
 	 }`
@@ -116,7 +117,7 @@ func getTanzuLocalKubeDir() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(tanzuConfigDir, ".kube"), nil
+	return filepath.Join(tanzuConfigDir, ".kube-tanzu"), nil
 }
 
 // CreateTempFile creates temporary file

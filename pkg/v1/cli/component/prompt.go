@@ -13,6 +13,9 @@ type PromptConfig struct {
 	// Message to display to user.
 	Message string
 
+	// Options for user to choose from
+	Options []string
+
 	// Default option.
 	Default string
 
@@ -46,6 +49,14 @@ func translatePromptConfig(p *PromptConfig) survey.Prompt {
 	if p.Sensitive {
 		return &survey.Password{
 			Message: p.Message,
+			Help:    p.Help,
+		}
+	}
+	if len(p.Options) != 0 {
+		return &survey.Select{
+			Message: p.Message,
+			Options: p.Options,
+			Default: p.Default,
 			Help:    p.Help,
 		}
 	}

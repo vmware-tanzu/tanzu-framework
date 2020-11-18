@@ -4,6 +4,20 @@ IMG ?= controller:latest
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
 CRD_OPTIONS ?= "crd:trivialVersions=true"
 
+# Directories
+TOOLS_DIR := hack/tools
+TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
+
+GOOS ?= $(shell go env GOOS)
+GOARCH ?= $(shell go env GOARCH)
+
+GOBINDATA := $(TOOLS_BIN_DIR)/go-bindata-$(GOOS)-$(GOARCH)
+
+PINNIPED_GIT_REPOSITORY = https://github.com/vmware-tanzu/pinniped.git
+ifeq ($(strip $(PINNIPED_GIT_COMMIT)),)
+PINNIPED_GIT_COMMIT = main
+endif
+
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
 GOBIN=$(shell go env GOPATH)/bin
@@ -101,12 +115,12 @@ install-cli: ## Install Tanzu CLI
 	$(GO) install -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu
 
 .PHONY: build-cli
-build-cli: ## Build Tanzu CLI
+build-cli: generate-pinniped-bindata ## Build Tanzu CLI
 	$(GO) run ./cmd/cli/compiler/main.go --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu"
 	$(GO) run ./cmd/cli/compiler/main.go --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin
 
 .PHONY: build-cli-local
-build-cli-local: ## Build Tanzu CLI
+build-cli-local: generate-pinniped-bindata ## Build Tanzu CLI
 	$(GO) run ./cmd/cli/compiler/main.go --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --target local
 	$(GO) run ./cmd/cli/compiler/main.go --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin --target local
 
@@ -139,3 +153,17 @@ install-cli-plugins:  ## Install Tanzu CLI plugins
 .PHONY: clean-cli-plugins
 clean-cli-plugins: ## Remove Tanzu CLI plugins
 	- rm -rf ${XDG_DATA_HOME}/tanzu-cli/*
+
+.PHONY: generate-pinniped-bindata
+generate-pinniped-bindata: $(GOBINDATA)
+	@rm -rf pinniped
+	@mkdir -p pinniped
+	@GIT_TERMINAL_PROMPT=0 git clone ${PINNIPED_GIT_REPOSITORY} pinniped
+	cd pinniped && GIT_TERMINAL_PROMPT=0 git checkout -f $(PINNIPED_GIT_COMMIT) && go build -o pinniped ./cmd/pinniped
+	$(GOBINDATA) -mode=420 -modtime=1 -o=pkg/v1/auth/tkg/zz_generated.bindata.go -pkg=tkgauth pinniped/pinniped
+	@rm -rf pinniped
+
+
+$(GOBINDATA): $(TOOLS_DIR)/go.mod # Build go-bindata from tools folder
+	mkdir -p $(TOOLS_BIN_DIR)
+	cd $(TOOLS_DIR); go build -tags=tools -o ../../$(TOOLS_BIN_DIR) github.com/shuLhan/go-bindata/... ; mv ../../$(TOOLS_BIN_DIR)/go-bindata ../../$(GOBINDATA)
