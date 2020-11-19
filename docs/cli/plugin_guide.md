@@ -69,8 +69,8 @@ can expose it in the CLI via a top level `tanzu alpha` command.
 
 # CLI Behavior
 
-### Interactive commands
-TBD
+### Components
+CLI commands should utilize the plugin component library in `pkg/cli/component` for interactive features like prompts or table printing.
 
 ### Templates
 TBD 
