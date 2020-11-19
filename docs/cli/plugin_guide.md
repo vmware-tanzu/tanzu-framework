@@ -37,7 +37,7 @@ should be added to an existing group.
 * Commands should not have more than one sub-noun
 
 ### Flags:
-* A user should only be required to explicitly set 2 flags; most flags should be
+* A user should only be required to explicitly set a max of 2 flags; most flags should be
  sanely defaulted
 * Add as many flags as necessary configure the command
 * Consider using a config file if the number of flags exceeds 5
