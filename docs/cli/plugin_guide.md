@@ -46,6 +46,13 @@ should be added to an existing group.
 * Use the standard CRUD actions as much as possible
 * create, delete, get, list, update
 
+### Examples
+* Any complex command should have examples demostrating its functionality.
+```
+# my example foo command
+tanzu foo --bar
+```
+
 # Repositories
 
 The core framework exists in https://github.com/vmware-tanzu-private/core any
@@ -63,8 +70,10 @@ can expose it in the CLI via a top level `tanzu alpha` command.
 # CLI Behavior
 
 ### Interactive commands
+TBD
 
 ### Templates
+TBD 
 
 ### Asynchronous Requests
 Commands should be written in such a way as to return as quickly as possible.
