@@ -1,6 +1,6 @@
 # Mission statement
 The Tanzu CLI aims to provide a consistent experience for users of the Tanzu portfolio.
-This document is intended to provide direction for for designing Tanzu CLI plugins
+This document is intended to provide direction for designing Tanzu CLI plugins
 that adhere to the Tanzu CLI patterns.
 
 # Overall Principles
