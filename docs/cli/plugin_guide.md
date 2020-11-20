@@ -24,7 +24,7 @@ should be added to an existing group.
 * All commands and flags should have a description that adheres to the following:
   * Fits on an 80 character wide screen
   * Begins with a capital letter and does not end with a period
-* * Compound words should be `-` delimited: `management-cluster` over `managementcluster`
+* Compound words should be `-` delimited: `management-cluster` over `managementcluster`
 * Adding new commands and subcommands must be reviewed by the Tanzu SIG CLI group
 
 ### Top Level Noun:
@@ -39,8 +39,8 @@ should be added to an existing group.
 ### Flags:
 * A user should only be required to explicitly set a max of 2 flags; most flags should be
  sanely defaulted
-* Add as many flags as necessary configure the command
-* Consider using a config file if the number of flags exceeds 5
+* Add as many flags as necessary to configure the command
+* Consider additionally using a config file if the number of flags exceeds 5
 
 ### Verbs:
 * Use the standard CRUD actions as much as possible
