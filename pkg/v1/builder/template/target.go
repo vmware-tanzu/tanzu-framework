@@ -43,3 +43,13 @@ func (t Target) Run(data interface{}) error {
 	}
 	return nil
 }
+
+// DefaultInitTargets are the default initialization targets.
+var DefaultInitTargets = []Target{
+	GoMod,
+	BuildVersion,
+	GitIgnore,
+	Makefile,
+	Codeowners,
+	MainReadMe,
+}

@@ -129,7 +129,7 @@ LD_FLAGS +=	-X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildSHA=$(BUILD
 LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildVersion=$(BUILD_VERSION)'
 
 build:
-	go run github.com/vmware-tanzu-private/core/cmd/cli/compiler --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/plugin
+	tanzu builder cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/plugin
 	`,
 }
 
