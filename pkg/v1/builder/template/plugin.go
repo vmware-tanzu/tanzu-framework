@@ -2,16 +2,15 @@ package template
 
 // PluginReadMe target
 var PluginReadMe = Target{
-	Filepath: "cmd/plugin/{{.PluginName}}/README.md",
+	Filepath: "cmd/plugin/{{ .PluginName }}/README.md",
 	Template: `# {{ .PluginName}} `,
 }
 
 // PluginMain target
 // TODO (pbarker): proper logging
 var PluginMain = Target{
-	Filepath: "cmd/plugin/{{.PluginName | ToLowerr }}/main.go",
-	Template: `
-package main
+	Filepath: "cmd/plugin/{{ .PluginName | ToLower }}/main.go",
+	Template: `package main
 
 import (
 	"os"
@@ -46,7 +45,7 @@ func main() {
 
 // PluginTest target
 var PluginTest = Target{
-	Filepath: "cmd/plugin/{{.PluginName}}/test/main.go",
+	Filepath: "cmd/plugin/{{ .PluginName }}/test/main.go",
 	Template: `package main
 
 import (

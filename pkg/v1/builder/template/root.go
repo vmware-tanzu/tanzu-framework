@@ -1,14 +1,5 @@
 package template
 
-// Target to template files.
-type Target struct {
-	// Path of the file.
-	Filepath string
-
-	// Template to use
-	Template string
-}
-
 // GoMod target
 var GoMod = Target{
 	Filepath: "go.mod",
@@ -66,6 +57,66 @@ script:
 	`,
 }
 
+// GithubCI target
+var GithubCI = Target{
+	Filepath: ".github/workflows/release.yaml",
+	Template: `name: Release
+
+on:
+	push:
+	tags:        
+		- v* 
+	branches: [ master ]
+	
+jobs:
+
+	build:
+	name: Release
+	runs-on: ubuntu-latest
+	steps:
+
+	- name: Set up Go 1.x
+		uses: actions/setup-go@v2
+		with:
+		go-version: ^1.13
+		id: go
+
+	- name: Check out code into the Go module directory
+		uses: actions/checkout@v2
+
+	- name: Get dependencies
+		run: |
+		go get -v -t -d ./...
+		if [ -f Gopkg.toml ]; then
+			curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+			dep ensure
+		fi
+		
+	- name: Make
+		run: make
+
+	- name: Build
+		run: make build-cli
+
+	- name: Test
+		run: make test
+
+	- id: upload-cli-artifacts
+		uses: GoogleCloudPlatform/github-actions/upload-cloud-storage@master
+		with:
+		path: ./artifacts
+		destination: tanzu-cli
+		credentials: ${{ secrets.GCP_BUCKET_SA }}
+
+	- id: upload-cli-admin-artifacts
+		uses: GoogleCloudPlatform/github-actions/upload-cloud-storage@master
+		with:
+		path: ./artifacts-admin
+		destination: tanzu-cli-admin-plugins
+		credentials: ${{ secrets.GCP_BUCKET_SA }}	
+	`,
+}
+
 // Makefile target
 var Makefile = Target{
 	Filepath: "Makefile",
@@ -86,8 +137,7 @@ build:
 // TODO (pbarker): replace with the CLI reviewers group
 var Codeowners = Target{
 	Filepath: "CODEOWNERS",
-	Template: `
-*       @pbarker @vuil`,
+	Template: `*       @pbarker @vuil`,
 }
 
 // Tools target.
