@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 
+	"github.com/vmware-tanzu-private/core/pkg/v1/builder/template"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 
 	"github.com/aunum/log"
@@ -47,6 +48,33 @@ func init() {
 	CompileCmd.Flags().StringVar(&corePath, "corepath", "", "path for core binary")
 
 	CLICmd.AddCommand(CompileCmd)
+	CLICmd.AddCommand(AddPluginCmd)
+}
+
+// AddPluginCmd adds a cli plugin to the repository.
+var AddPluginCmd = &cobra.Command{
+	Use:   "add-plugin [name]",
+	Short: "Add a plugin to a repository",
+	RunE:  addPlugin,
+	Args:  cobra.ExactArgs(1),
+}
+
+// TODO (pbarker): check that we are in the root of the repo
+func addPlugin(cmd *cobra.Command, args []string) error {
+	name := args[0]
+	data := struct {
+		PluginName string
+	}{
+		PluginName: name,
+	}
+	targets := template.DefaultPluginTargets
+	for _, target := range targets {
+		err := target.Run("", data)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // CompileCmd compiles CLI plugins

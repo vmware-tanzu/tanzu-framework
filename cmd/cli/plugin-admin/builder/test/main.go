@@ -9,7 +9,7 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/command/plugin"
 )
 
-var descriptor = cli.NewTestFor("test")
+var descriptor = cli.NewTestFor("builder")
 
 func main() {
 	p, err := plugin.NewPlugin(descriptor)

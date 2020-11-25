@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 )
 
@@ -18,17 +19,21 @@ type Target struct {
 }
 
 // Run the target.
-func (t Target) Run(data interface{}) error {
-	tmplFp := template.Must(template.New("target-fp").Parse(t.Filepath))
+func (t Target) Run(rootDir string, data interface{}) error {
+	funcMap := template.FuncMap{
+		"ToUpper": strings.ToUpper,
+		"ToLower": strings.ToLower,
+	}
+	tmplFp := template.Must(template.New("target-fp").Funcs(funcMap).Parse(t.Filepath))
 	bufFp := &bytes.Buffer{}
 	err := tmplFp.Execute(bufFp, data)
 	if err != nil {
 		return err
 	}
-	fp := bufFp.String()
+	fp := filepath.Join(rootDir, bufFp.String())
 
 	buf := &bytes.Buffer{}
-	tmpl := template.Must(template.New("target").Parse(t.Template))
+	tmpl := template.Must(template.New("target").Funcs(funcMap).Parse(t.Template))
 	if err := tmpl.Execute(buf, data); err != nil {
 		return err
 	}
@@ -52,4 +57,11 @@ var DefaultInitTargets = []Target{
 	Makefile,
 	Codeowners,
 	MainReadMe,
+}
+
+// DefaultPluginTargets are the default plugin targets.
+var DefaultPluginTargets = []Target{
+	PluginReadMe,
+	PluginMain,
+	PluginTest,
 }

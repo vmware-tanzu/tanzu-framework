@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/aunum/log"
 	"golang.org/x/mod/semver"
@@ -14,7 +15,7 @@ import (
 )
 
 var (
-	local string
+	local []string
 )
 
 func init() {
@@ -27,7 +28,7 @@ func init() {
 		repoCmd,
 		cleanPluginCmd,
 	)
-	pluginCmd.PersistentFlags().StringVarP(&local, "local", "l", "", "path to local repository")
+	pluginCmd.PersistentFlags().StringSliceVarP(&local, "local", "l", []string{}, "path to local repository")
 }
 
 var pluginCmd = &cobra.Command{
@@ -176,8 +177,14 @@ var cleanPluginCmd = &cobra.Command{
 }
 
 func getRepositories() *cli.MultiRepo {
-	if local != "" {
-		return cli.NewMultiRepo(cli.NewLocalRepository("local", local))
+	if len(local) != 0 {
+		m := cli.NewMultiRepo()
+		for _, l := range local {
+			n := filepath.Base(l)
+			r := cli.NewLocalRepository(n, l)
+			m.AddRepository(r)
+		}
+		return m
 	}
 	cfg, err := client.GetConfig()
 	if err != nil {

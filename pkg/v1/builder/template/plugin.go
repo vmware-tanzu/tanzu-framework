@@ -34,7 +34,7 @@ func main() {
 		log.Fatal(err)
 	}
 	p.AddCommands(
-		// Add thy commands
+		// Add commands
 	)
 	if err := p.Execute(); err != nil {
 		os.Exit(1)

@@ -106,14 +106,14 @@ jobs:
 		with:
 		path: ./artifacts
 		destination: tanzu-cli
-		credentials: ${{ secrets.GCP_BUCKET_SA }}
+		credentials: {{"${{ secrets.GCP_BUCKET_SA }}"}}
 
 	- id: upload-cli-admin-artifacts
 		uses: GoogleCloudPlatform/github-actions/upload-cloud-storage@master
 		with:
 		path: ./artifacts-admin
 		destination: tanzu-cli-admin-plugins
-		credentials: ${{ secrets.GCP_BUCKET_SA }}	
+		credentials: {{"${{ secrets.GCP_BUCKET_SA }}"}}
 	`,
 }
 
@@ -154,6 +154,6 @@ import (
 // MainReadMe target
 var MainReadMe = Target{
 	Filepath: "README.md",
-	Template: `# {{ .RepoName }}
+	Template: `# {{ .RepositoryName }}
 	`,
 }
