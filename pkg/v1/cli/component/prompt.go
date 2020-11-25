@@ -1,7 +1,11 @@
 package component
 
 import (
+	"io"
+	"os"
+
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/AlecAivazis/survey/v2/terminal"
 )
 
 // PromptConfig is the configuration for a prompt.
@@ -20,14 +24,22 @@ type PromptConfig struct {
 }
 
 // Run the prompt.
-func (p *PromptConfig) Run(response interface{}) error {
-	return Prompt(p, response)
+func (p *PromptConfig) Run(response interface{}, opts ...PromptOpt) error {
+	return Prompt(p, response, opts...)
 }
 
 // Prompt for input.
-func Prompt(p *PromptConfig, response interface{}) error {
+func Prompt(p *PromptConfig, response interface{}, opts ...PromptOpt) error {
 	prompt := translatePromptConfig(p)
-	return survey.AskOne(prompt, response)
+	options := defaultPromptOptions()
+	for _, opt := range opts {
+		err := opt(options)
+		if err != nil {
+			return err
+		}
+	}
+	surveyOpts := translatePromptOpts(options)
+	return survey.AskOne(prompt, response, surveyOpts...)
 }
 
 func translatePromptConfig(p *PromptConfig) survey.Prompt {
@@ -41,5 +53,40 @@ func translatePromptConfig(p *PromptConfig) survey.Prompt {
 		Message: p.Message,
 		Default: p.Default,
 		Help:    p.Help,
+	}
+}
+
+func defaultPromptOptions() *PromptOptions {
+	return &PromptOptions{
+		Stdio: terminal.Stdio{
+			In:  os.Stdin,
+			Out: os.Stdout,
+			Err: os.Stderr,
+		},
+	}
+}
+
+// PromptOptions are options for prompting.
+type PromptOptions struct {
+	// Standard in/out/error
+	Stdio terminal.Stdio
+}
+
+// PromptOpt is an option for prompts
+type PromptOpt func(*PromptOptions) error
+
+func translatePromptOpts(options *PromptOptions) (surveyOpts []survey.AskOpt) {
+	surveyOpts = append(surveyOpts, survey.WithStdio(options.Stdio.In, options.Stdio.Out, options.Stdio.Err))
+	return
+}
+
+// WithStdio specifies the standard input, output and error. By default, these are os.Stdin,
+// os.Stdout, and os.Stderr.
+func WithStdio(in terminal.FileReader, out terminal.FileWriter, err io.Writer) PromptOpt {
+	return func(options *PromptOptions) error {
+		options.Stdio.In = in
+		options.Stdio.Out = out
+		options.Stdio.Err = err
+		return nil
 	}
 }
