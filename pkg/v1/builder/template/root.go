@@ -53,11 +53,12 @@ script:
 	- gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
 	- gcloud config set project $GCP_PROJECT_ID
 
-	- gsutil -m cp -R artifacts gs://tmc-cli-plugins
+	- gsutil -m cp -R artifacts gs://{{ .RepositoryName }}
 	`,
 }
 
 // GithubCI target
+// TODO (pbarker): should we push everything to a single repository, or at least make that possible?
 var GithubCI = Target{
 	Filepath: ".github/workflows/release.yaml",
 	Template: `name: Release
@@ -105,14 +106,7 @@ jobs:
 		uses: GoogleCloudPlatform/github-actions/upload-cloud-storage@master
 		with:
 		path: ./artifacts
-		destination: tanzu-cli
-		credentials: {{"${{ secrets.GCP_BUCKET_SA }}"}}
-
-	- id: upload-cli-admin-artifacts
-		uses: GoogleCloudPlatform/github-actions/upload-cloud-storage@master
-		with:
-		path: ./artifacts-admin
-		destination: tanzu-cli-admin-plugins
+		destination: {{ .RepositoryName }}
 		credentials: {{"${{ secrets.GCP_BUCKET_SA }}"}}
 	`,
 }
