@@ -98,5 +98,6 @@ func test(c *cobra.Command, _ []string) error {
 	// if err != nil {
 	// 	return err
 	// }
+}
 	`,
 }
