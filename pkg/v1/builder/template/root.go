@@ -59,6 +59,7 @@ script:
 
 // GithubCI target
 // TODO (pbarker): should we push everything to a single repository, or at least make that possible?
+// TODO (pbarker): should report stats
 var GithubCI = Target{
 	Filepath: ".github/workflows/release.yaml",
 	Template: `name: Release
@@ -79,8 +80,8 @@ jobs:
 	- name: Set up Go 1.x
 		uses: actions/setup-go@v2
 		with:
-		go-version: ^1.13
-		id: go
+			go-version: ^1.13
+			id: go
 
 	- name: Check out code into the Go module directory
 		uses: actions/checkout@v2
@@ -92,6 +93,10 @@ jobs:
 			curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 			dep ensure
 		fi
+		curl -o tanzu https://storage.googleapis.com/tanzu-cli/artifacts/core/latest/tanzu-core-linux_amd64 && \
+    		mv tanzu /usr/local/bin/tanzu && \
+			chmod +x /usr/local/bin/tanzu
+		tanzu plugin repo add -b tanzu-cli-admin-plugins -n admin
 		
 	- name: Make
 		run: make
@@ -105,9 +110,9 @@ jobs:
 	- id: upload-cli-artifacts
 		uses: GoogleCloudPlatform/github-actions/upload-cloud-storage@master
 		with:
-		path: ./artifacts
-		destination: {{ .RepositoryName }}
-		credentials: {{"${{ secrets.GCP_BUCKET_SA }}"}}
+			path: ./artifacts
+			destination: {{ .RepositoryName }}
+			credentials: {{"${{ secrets.GCP_BUCKET_SA }}"}}
 	`,
 }
 

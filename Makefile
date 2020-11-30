@@ -120,7 +120,7 @@ build-cli: ## Build Tanzu CLI
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin
 
 .PHONY: build-cli-local
-build-cli-local: ## Build Tanzu CLI
+build-cli-local: ## Build Tanzu CLI locally 
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --target local
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin --target local
 
@@ -130,11 +130,15 @@ build-cli-mocks: ## Build Tanzu CLI mocks
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version 0.0.2 --ldflags "$(LD_FLAGS)" --path ./test/cli/mock/plugin-new --artifacts ./test/cli/mock/artifacts-new
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version 0.0.3 --ldflags "$(LD_FLAGS)" --path ./test/cli/mock/plugin-alt --artifacts ./test/cli/mock/artifacts-alt
 
+.PHONY: build-cli-image
+build-cli-image: ## Build the CLI image
+	docker build -t projects.registry.vmware.com/tanzu/cli:latest -f Dockerfile.cli .
+
 .PHONY: test-cli
 test-cli: build-cli-mocks ## Run tests
 	$(GO) test ./...
 
-.PHONY: build-install-cli-all
+.PHONY: build-install-cli-all ## Build and install the CLI plugins
 build-install-cli-all: clean-cli-plugins build-cli install-cli-plugins install-cli ## Build and install Tanzu CLI plugins
 
 install-cli-plugins: TANZU_CLI_NO_INIT=true

@@ -31,14 +31,18 @@ Windows executable can be found at https://storage.googleapis.com/tanzu-cli/arti
 The Tanzu CLI was built to be extensible across teams and be presented across skus.
 
 ### Plugins
-The CLI is made of plugins. Each plugin is currently located in the `./plugin` directory.   
+The CLI is made of plugins. To bootstrap a plugin use the `builder` admin plugin.   
 
-To add a plugin simply copy the format of an existing one, and utilize the plugin library in `./pkg/cli/commands/plugin`.   
+`tanzu builer init <repo-name>` will create a new plugin repository.    
 
-Plugin designs should be approved by the CLI product manager @Morgan Fine, if you wish to expose a plugin in an alpha state please add it to 
+`tanzu builder cli add-plugin <plugin-name>` will add a new cli plugin. 
+
+The CI will publish the plugins to a GCP Bucket with repo name prefix. It expects the the repo secret `GCP_BUCKET_SA` to have a GCP service account token that has write access to that repo. If you need help provisioning this, please ping the #tanzu-cli-api slack. To add your repository to the default set make a PR to this repo and add it to the `KnownRepositories` list.
+
+Plugin designs should go through the plugin review process, if you wish to expose a plugin in an alpha state please add it to 
 the alpha plugin in `./plugin/alpha`.   
 
-Plugins are pulled from registered repositories, on a merge to master all the plugins in this repo are built and pushed to a public repository. When developing its useful to use a local repo.
+Plugins are pulled from registered repositories, on a merge to master all the plugins in this repo are built and pushed to a public repository. When developing it's useful to leverage a local repo.
 
 To build use:
 ```
@@ -57,12 +61,12 @@ tanzu update
 ```
 An example external plugin repo can be seen at https://gitlab.eng.vmware.com/olympus/cli-plugins
 
-#### Components
-Plugins should utilize the component library for common tasks like table printing, prompts, and selectors. See `pkg/v1/cli/component`
-
 #### Tests
 Every CLI plugin should have a nested test executable. The executable should utilize the test framework found in `pkg/v1/test/cli`. Tests should be written 
 to cover each command. Tests are compiled alongside the plugins. Tests can be ran by the admin `test` plugin.
+
+#### Docs
+Every plugin requires a guide that explains its usage. 
 
 ### Distributions
 

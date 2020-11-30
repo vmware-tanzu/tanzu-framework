@@ -9,6 +9,7 @@ bin
 artifacts
 artifacts-admin
 test/cli/mock/artifacts*
+tanzu
 
 # Test binary, build with `go test -c`
 *.test

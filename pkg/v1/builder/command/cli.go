@@ -30,6 +30,7 @@ type plugin struct {
 var (
 	version, path, artifactsDir, ldflags string
 	corePath, match, targetArch          string
+	dryRun                               bool
 )
 
 // CLICmd holds CLI builder commands.
@@ -46,6 +47,8 @@ func init() {
 	CompileCmd.Flags().StringVar(&path, "path", "./cmd/cli/plugin", "path of the plugins directory")
 	CompileCmd.Flags().StringVar(&artifactsDir, "artifacts", cli.DefaultArtifactsDirectory, "path to output artifacts")
 	CompileCmd.Flags().StringVar(&corePath, "corepath", "", "path for core binary")
+
+	AddPluginCmd.Flags().BoolVar(&dryRun, "dry-run", false, "print generated files to stdout")
 
 	CLICmd.AddCommand(CompileCmd)
 	CLICmd.AddCommand(AddPluginCmd)
@@ -69,7 +72,7 @@ func addPlugin(cmd *cobra.Command, args []string) error {
 	}
 	targets := template.DefaultPluginTargets
 	for _, target := range targets {
-		err := target.Run("", data)
+		err := target.Run("", data, dryRun)
 		if err != nil {
 			return err
 		}

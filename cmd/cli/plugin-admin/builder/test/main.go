@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/command/plugin"
+	clitest "github.com/vmware-tanzu-private/core/pkg/v1/test/cli"
 )
 
 var descriptor = cli.NewTestFor("builder")
@@ -23,6 +24,24 @@ func main() {
 }
 
 func test(c *cobra.Command, _ []string) error {
+	m := clitest.NewMain("cluster", c, Cleanup)
+	defer m.Finish()
+
+	// TODO (pbarker): use virtual filesystem
+	err := m.RunTest(
+		"create a repo",
+		"builder init myrepo --dry-run",
+		func(t *clitest.Test) error {
+			err := t.ExecContainsString("myrepo")
+			if err != nil {
+				return err
+			}
+			return nil
+		},
+	)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

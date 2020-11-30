@@ -37,7 +37,7 @@ jobs:
         fi
 
     - name: Make
-      run: make
+      run: make all
 
     - name: Build CLI
       run: make build-cli

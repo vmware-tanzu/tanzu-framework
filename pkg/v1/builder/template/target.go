@@ -2,6 +2,7 @@ package template
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -19,7 +20,7 @@ type Target struct {
 }
 
 // Run the target.
-func (t Target) Run(rootDir string, data interface{}) error {
+func (t Target) Run(rootDir string, data interface{}, dryRun bool) error {
 	funcMap := template.FuncMap{
 		"ToUpper": strings.ToUpper,
 		"ToLower": strings.ToLower,
@@ -37,7 +38,9 @@ func (t Target) Run(rootDir string, data interface{}) error {
 	if err := tmpl.Execute(buf, data); err != nil {
 		return err
 	}
-
+	if dryRun {
+		fmt.Printf("-- file: %s --\n\n%s", t.Filepath, buf.String())
+	}
 	dir := filepath.Dir(fp)
 	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
 		return err

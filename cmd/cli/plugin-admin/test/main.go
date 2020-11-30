@@ -22,7 +22,7 @@ var descriptor = cli.PluginDescriptor{
 var local []string
 
 func init() {
-	fetchCmd.PersistentFlags().StringSliceVarP(&local, "local", "l", []string{}, "path to local repository")
+	fetchCmd.PersistentFlags().StringSliceVarP(&local, "local", "l", []string{}, "paths to local repository")
 }
 
 func main() {
