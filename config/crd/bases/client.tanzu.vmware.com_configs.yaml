@@ -126,6 +126,9 @@ spec:
                   context:
                     description: The context to use (if required), defaults to current.
                     type: string
+                  endpoint:
+                    description: Endpoint for the login.
+                    type: string
                   path:
                     description: Path to the kubeconfig.
                     type: string
