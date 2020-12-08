@@ -289,8 +289,7 @@ func GetCurrentServer() (s *clientv1alpha1.Server, err error) {
 func EndpointFromServer(s *clientv1alpha1.Server) (endpoint string, err error) {
 	switch s.Type {
 	case clientv1alpha1.ManagementClusterServerType:
-		// TODO (pbarker): implement management cluster server
-		return endpoint, fmt.Errorf("type %q not yet implemented", s.Type)
+		return s.ManagementClusterOpts.Endpoint, nil
 	case clientv1alpha1.GlobalServerType:
 		return s.GlobalOpts.Endpoint, nil
 	default:
