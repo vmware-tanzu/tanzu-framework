@@ -29,10 +29,10 @@ func test(c *cobra.Command, _ []string) error {
 	defer m.Finish()
 
 	err := m.RunTest(
-		"get a cluster",
-		"cluster get",
+		"list clusters",
+		"cluster list -o json",
 		func(t *clitest.Test) error {
-			err := t.ExecContainsString("in progress...")
+			err := t.ExecContainsString("[]")
 			if err != nil {
 				return err
 			}

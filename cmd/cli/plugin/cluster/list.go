@@ -27,7 +27,7 @@ var listClustersCmd = &cobra.Command{
 }
 
 func init() {
-	listClustersCmd.Flags().StringVarP(&lc.namespace, "namespace", "n", "", "The namespace from which to get workload clusters. If not provided clusters from all namespaces will be returned")
+	listClustersCmd.Flags().StringVarP(&lc.namespace, "namespace", "n", "", "The namespace from which to list workload clusters. If not provided clusters from all namespaces will be returned")
 	listClustersCmd.Flags().BoolVarP(&lc.includeMC, "include-management-cluster", "", false, "Show active management cluster information as well")
 	listClustersCmd.Flags().StringVarP(&lc.outputFormat, "output", "o", "", "Output format. Supported formats: json|yaml")
 }
@@ -39,7 +39,7 @@ func list(cmd *cobra.Command, args []string) error {
 	}
 
 	if server.IsGlobal() {
-		return errors.New("creating cluster with global setting is not implemented yet")
+		return errors.New("listing cluster with global setting is not implemented yet")
 	}
 	return listClusters(server)
 }

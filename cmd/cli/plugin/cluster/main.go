@@ -29,33 +29,18 @@ func main() {
 	p.AddCommands(
 		createClusterCmd,
 		listClustersCmd,
+		deleteClusterCmd,
+		upgradeClusterCmd,
+		scaleClusterCmd,
 	)
 	if err := p.Execute(); err != nil {
 		os.Exit(1)
 	}
 }
 
-var getClusterCmd = &cobra.Command{
-	Use:   "get",
-	Short: "Get a cluster",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("in progress...")
-		return nil
-	},
-}
-
 var updateClusterCmd = &cobra.Command{
 	Use:   "update",
-	Short: "update a cluster",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("in progress...")
-		return nil
-	},
-}
-
-var deleteClusterCmd = &cobra.Command{
-	Use:   "delete",
-	Short: "delete a cluster",
+	Short: "Update a cluster",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Println("in progress...")
 		return nil
