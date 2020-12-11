@@ -8,6 +8,7 @@ import (
 	"github.com/vmware-tanzu-private/core/addons/util"
 	addonsv1alpha1 "github.com/vmware-tanzu-private/core/apis/addons/v1alpha1"
 	bomv1alpha1 "github.com/vmware-tanzu-private/core/apis/bom/v1alpha1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
@@ -130,7 +131,11 @@ func (r *AddonReconciler) reconcileAddonDataValuesSecretDelete(
 	}
 
 	if err := clusterClient.Delete(ctx, addonDataValuesSecret); err != nil {
-		log.Error(err, "Error deleting addon app")
+		if apierrors.IsNotFound(err) {
+			log.Info("Addon data values secret not found")
+			return nil
+		}
+		log.Error(err, "Error deleting addon data values secret")
 		return err
 	}
 
@@ -180,7 +185,11 @@ func (r *AddonReconciler) reconcileAddonAppDelete(
 	}
 
 	if err := clusterClient.Delete(ctx, app); err != nil {
-		log.Error(err, "Error deleting app")
+		if apierrors.IsNotFound(err) {
+			log.Info("Addon app not found")
+			return nil
+		}
+		log.Error(err, "Error deleting addon app")
 		return err
 	}
 

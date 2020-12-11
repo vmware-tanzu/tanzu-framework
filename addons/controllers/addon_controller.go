@@ -5,11 +5,12 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"github.com/vmware-tanzu-private/core/addons/constants"
+	addonpredicates "github.com/vmware-tanzu-private/core/addons/predicates"
 	"github.com/vmware-tanzu-private/core/addons/util"
 	addonsv1alpha1 "github.com/vmware-tanzu-private/core/apis/addons/v1alpha1"
 	runtanzuv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	addonpredicates "github.com/vmware-tanzu-private/core/addons/predicates"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -202,6 +203,9 @@ func (r *AddonReconciler) reconcileNormal(
 				continue
 			}
 
+			log.Info(fmt.Sprintf("%#v", addonSecret.Finalizers))
+			log.Info(fmt.Sprintf("%#v", addonSecret.OwnerReferences))
+
 			if err := r.reconcileAddonNormal(ctx, log, remoteClient, &addonSecret, addonConfig); err != nil {
 				log.Error(err, "Error reconciling addon", constants.ADDON_NAME_LOG_KEY, addonName)
 				errors = append(errors, err)
@@ -257,10 +261,20 @@ func (r *AddonReconciler) removeMetadataFromAddonSecret(
 
 	addonName := util.GetAddonNameFromAddonSecret(addonSecret)
 
-	controllerutil.RemoveFinalizer(addonSecret, addonsv1alpha1.AddonFinalizer)
+	addonSecretPatchObj := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      addonSecret.Name,
+			Namespace: addonSecret.Namespace,
+		},
+	}
 
-	if err := r.patchAddonSecret(ctx, log, cluster, addonSecret); err != nil {
-		log.Error(err, "Error patching addon secret with removing finalizer", constants.ADDON_NAME_LOG_KEY, addonName)
+	mutateFn := func() error {
+		controllerutil.RemoveFinalizer(addonSecretPatchObj, addonsv1alpha1.AddonFinalizer)
+		return nil
+	}
+
+	if _, err := controllerutil.CreateOrPatch(ctx, r.Client, addonSecretPatchObj, mutateFn); err != nil {
+		log.Error(err, "Error patching addon secret with finalizer and owner reference", constants.ADDON_NAME_LOG_KEY, addonName)
 		return err
 	}
 
@@ -276,43 +290,33 @@ func (r *AddonReconciler) addMetadataToAddonSecret(
 
 	addonName := util.GetAddonNameFromAddonSecret(addonSecret)
 
-	// Add finalizer first if not exist to avoid the race condition between init and delete
-	if !controllerutil.ContainsFinalizer(addonSecret, addonsv1alpha1.AddonFinalizer) {
-		log.Info("Adding finalizer to addon secret", constants.ADDON_NAME_LOG_KEY, addonName)
-		controllerutil.AddFinalizer(addonSecret, addonsv1alpha1.AddonFinalizer)
+	addonSecretPatchObj := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      addonSecret.Name,
+			Namespace: addonSecret.Namespace,
+		},
 	}
 
-	addonSecret.OwnerReferences = clusterapiutil.EnsureOwnerRef(addonSecret.OwnerReferences, metav1.OwnerReference{
-		APIVersion: clusterapiv1alpha3.GroupVersion.String(),
-		Kind:       "Cluster",
-		Name:       cluster.Name,
-		UID:        cluster.UID,
-	})
+	mutateFn := func() error {
 
-	if err := r.patchAddonSecret(ctx, log, cluster, addonSecret); err != nil {
+		// Add finalizer first if not exist to avoid the race condition between init and delete
+		if !controllerutil.ContainsFinalizer(addonSecretPatchObj, addonsv1alpha1.AddonFinalizer) {
+			log.Info("Adding finalizer to addon secret", constants.ADDON_NAME_LOG_KEY, addonName)
+			controllerutil.AddFinalizer(addonSecretPatchObj, addonsv1alpha1.AddonFinalizer)
+		}
+
+		addonSecretPatchObj.OwnerReferences = clusterapiutil.EnsureOwnerRef(addonSecretPatchObj.OwnerReferences, metav1.OwnerReference{
+			APIVersion: clusterapiv1alpha3.GroupVersion.String(),
+			Kind:       "Cluster",
+			Name:       cluster.Name,
+			UID:        cluster.UID,
+		})
+
+		return nil
+	}
+
+	if _, err := controllerutil.CreateOrPatch(ctx, r.Client, addonSecretPatchObj, mutateFn); err != nil {
 		log.Error(err, "Error patching addon secret with finalizer and owner reference", constants.ADDON_NAME_LOG_KEY, addonName)
-		return err
-	}
-
-	return nil
-}
-
-func (r *AddonReconciler) patchAddonSecret(
-	ctx context.Context,
-	log logr.Logger,
-	cluster *clusterapiv1alpha3.Cluster,
-	addonSecret *corev1.Secret) error {
-
-	// Initialize the patch helper
-	patchHelper, err := clusterapipatchutil.NewHelper(cluster, r.Client)
-	if err != nil {
-		log.Error(err, "Error creating a patch helper")
-		return err
-	}
-
-	// Patch the secret object
-	if err := patchHelper.Patch(ctx, addonSecret); err != nil {
-		log.Error(err, "failed to patch cluster")
 		return err
 	}
 
