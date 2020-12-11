@@ -16,4 +16,4 @@ require (
 	sigs.k8s.io/controller-runtime v0.7.0-alpha.8
 )
 
-replace github.com/vmware-tanzu-private/core => github.com/shyaamsn/core v0.0.0-20201211203540-715d86df6510
+replace github.com/vmware-tanzu-private/core => github.com/shyaamsn/core v0.0.0-20201211203828-141356cd906c
