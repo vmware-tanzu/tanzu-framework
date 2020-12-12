@@ -10,8 +10,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-// GetAddonSecretsOnCluster gets the addon secrets belonging to the cluster
-func GetAddonSecretsOnCluster(ctx context.Context, c client.Client, cluster *clusterapiv1alpha3.Cluster) (*corev1.SecretList, error) {
+// GetAddonSecretsForCluster gets the addon secrets belonging to the cluster
+func GetAddonSecretsForCluster(ctx context.Context, c client.Client, cluster *clusterapiv1alpha3.Cluster) (*corev1.SecretList, error) {
 	if cluster == nil {
 		return nil, nil
 	}

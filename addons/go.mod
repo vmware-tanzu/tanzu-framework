@@ -13,7 +13,7 @@ require (
 	k8s.io/apimachinery v0.19.2
 	k8s.io/client-go v0.19.2
 	sigs.k8s.io/cluster-api v0.3.11-0.20201204161359-8437691189ad
-	sigs.k8s.io/controller-runtime v0.7.0-alpha.8
+	sigs.k8s.io/controller-runtime v0.7.0
 )
 
-replace github.com/vmware-tanzu-private/core => github.com/shyaamsn/core v0.0.0-20201211203828-141356cd906c
+replace github.com/vmware-tanzu-private/core => ../

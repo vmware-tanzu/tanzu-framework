@@ -553,8 +553,6 @@ github.com/satori/go.uuid v1.2.0/go.mod h1:dA0hQrYB0VpLJoorglMZABFdXlWrHn1NEOzdh
 github.com/sean-/seed v0.0.0-20170313163322-e2103e2c3529/go.mod h1:DxrIzT+xaE7yg65j358z/aeFdxmN0P9QXhEzd20vsDc=
 github.com/sergi/go-diff v1.0.0/go.mod h1:0CfEIISq7TuYL3j771MWULgwwjU+GofnZX9QAmXWZgo=
 github.com/shurcooL/sanitized_anchor_name v1.0.0/go.mod h1:1NzhyTcUVG4SuEtjjoZeVRXNmyL/1OwPU0+IJeTBvfc=
-github.com/shyaamsn/core v0.0.0-20201211203828-141356cd906c h1:vsWgzil20wu2iZHRGSJOsrUBaCRHRejD5r5vYrhqsj4=
-github.com/shyaamsn/core v0.0.0-20201211203828-141356cd906c/go.mod h1:EtT2SdKPG+qM5BOEJQVCBWRrFC++YeweffMveviDbLQ=
 github.com/sirupsen/logrus v1.2.0/go.mod h1:LxeOpSwHxABJmUn/MG1IvRgCAasNZTLOkJPxbbu5VWo=
 github.com/sirupsen/logrus v1.4.1/go.mod h1:ni0Sbl8bgC9z8RoU9G6nDWqqs/fq4eDPysMBDgk/93Q=
 github.com/sirupsen/logrus v1.4.2/go.mod h1:tLMulIdttU9McNUspp0xgXVQah82FyeX6MwdIuYE2rE=
@@ -1065,6 +1063,8 @@ sigs.k8s.io/controller-runtime v0.5.11/go.mod h1:OTqxLuz7gVcrq+BHGUgedRu6b2VIKCE
 sigs.k8s.io/controller-runtime v0.6.4/go.mod h1:WlZNXcM0++oyaQt4B7C2lEE5JYRs8vJUzRP4N4JpdAY=
 sigs.k8s.io/controller-runtime v0.7.0-alpha.8 h1:l8I2KO3xLuNaT0yPP6mtWLw5NuMG3dY2YiaQXEGApXg=
 sigs.k8s.io/controller-runtime v0.7.0-alpha.8/go.mod h1:pJ3YBrJiAqMAZKi6UVGuE98ZrroV1p+pIhoHsMm9wdU=
+sigs.k8s.io/controller-runtime v0.7.0 h1:bU20IBBEPccWz5+zXpLnpVsgBYxqclaHu1pVDl/gEt8=
+sigs.k8s.io/controller-runtime v0.7.0/go.mod h1:pJ3YBrJiAqMAZKi6UVGuE98ZrroV1p+pIhoHsMm9wdU=
 sigs.k8s.io/kind v0.7.1-0.20200303021537-981bd80d3802/go.mod h1:HIZ3PWUezpklcjkqpFbnYOqaqsAE1JeCTEwkgvPLXjk=
 sigs.k8s.io/kind v0.9.0/go.mod h1:cxKQWwmbtRDzQ+RNKnR6gZG6fjbeTtItp5cGf+ww+1Y=
 sigs.k8s.io/kustomize v2.0.3+incompatible/go.mod h1:MkjgH3RdOWrievjo6c9T245dYlB5QeXV4WCbnt/PEpU=

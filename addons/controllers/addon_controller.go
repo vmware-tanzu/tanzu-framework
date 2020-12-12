@@ -6,6 +6,8 @@ package controllers
 import (
 	"context"
 	"fmt"
+
+	"github.com/go-logr/logr"
 	"github.com/vmware-tanzu-private/core/addons/constants"
 	addonpredicates "github.com/vmware-tanzu-private/core/addons/predicates"
 	"github.com/vmware-tanzu-private/core/addons/util"
@@ -14,23 +16,20 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
 	clusterapiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	capiremote "sigs.k8s.io/cluster-api/controllers/remote"
 	controlplanev1alpha3 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
-	clusterapipatchutil "sigs.k8s.io/cluster-api/util/patch"
 	clusterApiPredicates "sigs.k8s.io/cluster-api/util/predicates"
+	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/source"
-
-	"github.com/go-logr/logr"
-	"k8s.io/apimachinery/pkg/runtime"
-	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/controller"
 )
 
 type AddonReconciler struct {
@@ -38,6 +37,42 @@ type AddonReconciler struct {
 	Log     logr.Logger
 	Scheme  *runtime.Scheme
 	Tracker *capiremote.ClusterCacheTracker
+}
+
+func (r *AddonReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
+	return ctrl.NewControllerManagedBy(mgr).
+		For(&clusterapiv1alpha3.Cluster{}).
+		Watches(
+			&source.Kind{Type: &corev1.Secret{}},
+			handler.EnqueueRequestsFromMapFunc(r.AddonSecretToClusters),
+			builder.WithPredicates(
+				addonpredicates.AddonSecret(r.Log),
+			),
+		).
+		Watches(
+			&source.Kind{Type: &runtanzuv1alpha1.TanzuKubernetesRelease{}},
+			handler.EnqueueRequestsFromMapFunc(r.TKRToClusters),
+			builder.WithPredicates(
+				addonpredicates.TKR(r.Log),
+			),
+		).
+		Watches(
+			&source.Kind{Type: &corev1.ConfigMap{}},
+			handler.EnqueueRequestsFromMapFunc(r.BOMConfigMapToClusters),
+			builder.WithPredicates(
+				addonpredicates.BomConfigMap(r.Log),
+			),
+		).
+		Watches(
+			&source.Kind{Type: &controlplanev1alpha3.KubeadmControlPlane{}},
+			handler.EnqueueRequestsFromMapFunc(r.KubeadmControlPlaneToClusters),
+			builder.WithPredicates(
+				addonpredicates.KubeadmControlPlane(r.Log),
+			),
+		).
+		WithOptions(options).
+		WithEventFilter(clusterApiPredicates.ResourceNotPaused(r.Log)).
+		Complete(r)
 }
 
 func (r *AddonReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ctrl.Result, reterr error) {
@@ -55,22 +90,6 @@ func (r *AddonReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ct
 			return ctrl.Result{}, err
 		}
 	}
-
-	// Initialize the patch helper
-	patchHelper, err := clusterapipatchutil.NewHelper(cluster, r.Client)
-	if err != nil {
-		return ctrl.Result{}, err
-	}
-
-	// Always attempt to Patch the Cluster object and status after each reconciliation.
-	defer func() {
-		if err := patchHelper.Patch(ctx, cluster); err != nil {
-			log.Error(err, "failed to patch cluster")
-			if reterr == nil {
-				reterr = err
-			}
-		}
-	}()
 
 	if !cluster.GetDeletionTimestamp().IsZero() {
 		if err := r.reconcileDelete(ctx, log, cluster); err != nil {
@@ -92,11 +111,10 @@ func (r *AddonReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ct
 func (r *AddonReconciler) reconcileDelete(
 	ctx context.Context,
 	log logr.Logger,
-	cluster *clusterapiv1alpha3.Cluster,
-) error {
+	cluster *clusterapiv1alpha3.Cluster) error {
 
 	// Get addon secrets for the cluster
-	addonSecrets, err := util.GetAddonSecretsOnCluster(ctx, r.Client, cluster)
+	addonSecrets, err := util.GetAddonSecretsForCluster(ctx, r.Client, cluster)
 	if err != nil {
 		log.Error(err, "Error getting addon secrets for cluster")
 		return err
@@ -110,7 +128,7 @@ func (r *AddonReconciler) reconcileDelete(
 		if !addonSecret.GetDeletionTimestamp().IsZero() {
 			addonName := util.GetAddonNameFromAddonSecret(&addonSecret)
 
-			if err := r.removeMetadataFromAddonSecret(ctx, log, cluster, &addonSecret); err != nil {
+			if err := r.removeFinalizerFromAddonSecret(ctx, log, cluster, &addonSecret); err != nil {
 				log.Error(err, "Error removing metadata from addon secret", constants.ADDON_NAME_LOG_KEY, addonName)
 				errors = append(errors, err)
 				continue
@@ -129,11 +147,10 @@ func (r *AddonReconciler) reconcileDelete(
 func (r *AddonReconciler) reconcileNormal(
 	ctx context.Context,
 	log logr.Logger,
-	cluster *clusterapiv1alpha3.Cluster,
-) error {
+	cluster *clusterapiv1alpha3.Cluster) error {
 
 	// Get addon secrets for the cluster
-	addonSecrets, err := util.GetAddonSecretsOnCluster(ctx, r.Client, cluster)
+	addonSecrets, err := util.GetAddonSecretsForCluster(ctx, r.Client, cluster)
 	if err != nil {
 		log.Error(err, "Error getting addon secrets for cluster")
 		return err
@@ -190,7 +207,7 @@ func (r *AddonReconciler) reconcileNormal(
 
 			// Remove finalizer from addon secret
 			// TODO: Figure out how to wait until app is deleted in the remote cluster before we remove finalizer
-			if err := r.removeMetadataFromAddonSecret(ctx, log, cluster, &addonSecret); err != nil {
+			if err := r.removeFinalizerFromAddonSecret(ctx, log, cluster, &addonSecret); err != nil {
 				log.Error(err, "Error removing metadata from addon secret", constants.ADDON_NAME_LOG_KEY, addonName)
 				errors = append(errors, err)
 				continue
@@ -252,8 +269,8 @@ func (r *AddonReconciler) getAddonsToBeDeleted(
 	return addonsToBeDeleted, nil
 }
 
-// removeMetadataFromAddonSecret removes finalizer from addon secret
-func (r *AddonReconciler) removeMetadataFromAddonSecret(
+// removeFinalizerFromAddonSecret removes finalizer from addon secret
+func (r *AddonReconciler) removeFinalizerFromAddonSecret(
 	ctx context.Context,
 	log logr.Logger,
 	cluster *clusterapiv1alpha3.Cluster,
@@ -321,40 +338,4 @@ func (r *AddonReconciler) addMetadataToAddonSecret(
 	}
 
 	return nil
-}
-
-func (r *AddonReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&clusterapiv1alpha3.Cluster{}).
-		Watches(
-			&source.Kind{Type: &corev1.Secret{}},
-			handler.EnqueueRequestsFromMapFunc(r.AddonSecretToClusters),
-			builder.WithPredicates(
-				addonpredicates.AddonSecret(r.Log),
-			),
-		).
-		Watches(
-			&source.Kind{Type: &runtanzuv1alpha1.TanzuKubernetesRelease{}},
-			handler.EnqueueRequestsFromMapFunc(r.TKRToClusters),
-			builder.WithPredicates(
-				addonpredicates.TKR(r.Log),
-			),
-		).
-		Watches(
-			&source.Kind{Type: &corev1.ConfigMap{}},
-			handler.EnqueueRequestsFromMapFunc(r.BOMConfigMapToClusters),
-			builder.WithPredicates(
-				addonpredicates.BomConfigMap(r.Log),
-			),
-		).
-		Watches(
-			&source.Kind{Type: &controlplanev1alpha3.KubeadmControlPlane{}},
-			handler.EnqueueRequestsFromMapFunc(r.KubeadmControlPlaneToClusters),
-			builder.WithPredicates(
-				addonpredicates.KubeadmControlPlane(r.Log),
-			),
-		).
-		WithOptions(options).
-		WithEventFilter(clusterApiPredicates.ResourceNotPaused(r.Log)).
-		Complete(r)
 }

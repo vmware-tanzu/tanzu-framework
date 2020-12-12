@@ -3,17 +3,17 @@ package controllers
 import (
 	"context"
 	"fmt"
+
 	"github.com/go-logr/logr"
 	"github.com/vmware-tanzu-private/core/addons/constants"
 	"github.com/vmware-tanzu-private/core/addons/util"
 	addonsv1alpha1 "github.com/vmware-tanzu-private/core/apis/addons/v1alpha1"
 	bomv1alpha1 "github.com/vmware-tanzu-private/core/apis/bom/v1alpha1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
