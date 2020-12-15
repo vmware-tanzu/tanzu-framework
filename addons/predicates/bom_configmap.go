@@ -25,7 +25,7 @@ func processBomConfigMap(o client.Object, log logr.Logger) bool {
 		return true
 	}
 
-	if configmap.Namespace == constants.TKG_BOM_NAMESPACE && isABom(configmap) {
+	if configmap.Namespace == constants.TKGBomNamespace && isABom(configmap) {
 		return true
 	}
 

@@ -3,7 +3,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-
 	"github.com/go-logr/logr"
 	"github.com/vmware-tanzu-private/core/addons/constants"
 	"github.com/vmware-tanzu-private/core/addons/util"
@@ -14,6 +13,7 @@ import (
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	clusterapiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
@@ -25,14 +25,17 @@ func (r *AddonReconciler) reconcileAddonNamespace(
 
 	addonNamespace := &corev1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: constants.TKG_ADDONS_APP_NAMESPACE,
+			Name: constants.TKGAddonsAppNamespace,
 		},
 	}
 
-	if _, err := controllerutil.CreateOrPatch(ctx, clusterClient, addonNamespace, nil); err != nil {
+	result, err := controllerutil.CreateOrPatch(ctx, clusterClient, addonNamespace, nil)
+	if err != nil {
 		log.Error(err, "Error creating or patching addon namespace")
 		return err
 	}
+
+	r.logOperationResult(log, "addon namespace", result)
 
 	return nil
 }
@@ -44,15 +47,18 @@ func (r *AddonReconciler) reconcileAddonServiceAccount(
 
 	addonServiceAccount := &corev1.ServiceAccount{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      constants.TKG_ADDONS_APP_SERVICE_ACCOUNT,
-			Namespace: constants.TKG_ADDONS_APP_NAMESPACE,
+			Name:      constants.TKGAddonsAppServiceAccount,
+			Namespace: constants.TKGAddonsAppNamespace,
 		},
 	}
 
-	if _, err := controllerutil.CreateOrPatch(ctx, clusterClient, addonServiceAccount, nil); err != nil {
+	result, err := controllerutil.CreateOrPatch(ctx, clusterClient, addonServiceAccount, nil)
+	if err != nil {
 		log.Error(err, "Error creating or patching addon service account")
 		return err
 	}
+
+	r.logOperationResult(log, "addon service account", result)
 
 	return nil
 }
@@ -64,7 +70,7 @@ func (r *AddonReconciler) reconcileAddonRole(
 
 	addonRole := &rbacv1.ClusterRole{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: constants.TKG_ADDONS_APP_CLUSTER_ROLE,
+			Name: constants.TKGAddonsAppClusterRole,
 		},
 	}
 
@@ -80,14 +86,17 @@ func (r *AddonReconciler) reconcileAddonRole(
 		return nil
 	}
 
-	if _, err := controllerutil.CreateOrPatch(ctx, clusterClient, addonRole, addonRoleMutateFn); err != nil {
+	roleResult, err := controllerutil.CreateOrPatch(ctx, clusterClient, addonRole, addonRoleMutateFn)
+	if err != nil {
 		log.Error(err, "Error creating or patching addon role")
 		return err
 	}
 
+	r.logOperationResult(log, "addon role", roleResult)
+
 	addonRoleBinding := &rbacv1.ClusterRoleBinding{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: constants.TKG_ADDONS_APP_CLUSTER_ROLE_BINDING,
+			Name: constants.TKGAddonsAppClusterRoleBinding,
 		},
 	}
 
@@ -95,38 +104,52 @@ func (r *AddonReconciler) reconcileAddonRole(
 		addonRoleBinding.Subjects = []rbacv1.Subject{
 			{
 				Kind:      "ServiceAccount",
-				Name:      constants.TKG_ADDONS_APP_SERVICE_ACCOUNT,
-				Namespace: constants.TKG_ADDONS_APP_NAMESPACE,
+				Name:      constants.TKGAddonsAppServiceAccount,
+				Namespace: constants.TKGAddonsAppNamespace,
 			},
 		}
 
 		addonRoleBinding.RoleRef = rbacv1.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
 			Kind:     "ClusterRole",
-			Name:     constants.TKG_ADDONS_APP_CLUSTER_ROLE,
+			Name:     constants.TKGAddonsAppClusterRole,
 		}
 
 		return nil
 	}
 
-	if _, err := controllerutil.CreateOrPatch(ctx, clusterClient, addonRoleBinding, addonRoleBindingMutateFn); err != nil {
+	roleBindingResult, err := controllerutil.CreateOrPatch(ctx, clusterClient, addonRoleBinding, addonRoleBindingMutateFn)
+	if err != nil {
 		log.Error(err, "Error creating or patching addon role binding")
 		return err
 	}
 
+	r.logOperationResult(log, "addon role binding", roleBindingResult)
+
 	return nil
+}
+
+func (r *AddonReconciler) logOperationResult(log logr.Logger, resourceName string, result controllerutil.OperationResult) {
+	switch result {
+	case controllerutil.OperationResultCreated,
+		controllerutil.OperationResultUpdated,
+		controllerutil.OperationResultUpdatedStatus,
+		controllerutil.OperationResultUpdatedStatusOnly:
+		log.Info(fmt.Sprintf("Resource %s %s", resourceName, result))
+	default:
+	}
 }
 
 func (r *AddonReconciler) reconcileAddonDataValuesSecretDelete(
 	ctx context.Context,
 	log logr.Logger,
 	clusterClient client.Client,
-	addonName string) error {
+	addonSecret *corev1.Secret) error {
 
 	addonDataValuesSecret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      addonName,
-			Namespace: constants.TKG_ADDONS_APP_NAMESPACE,
+			Name:      util.GenerateAppSecretNameFromAddonSecret(addonSecret),
+			Namespace: util.GenerateAppNamespaceFromAddonSecret(addonSecret),
 		},
 	}
 
@@ -139,6 +162,8 @@ func (r *AddonReconciler) reconcileAddonDataValuesSecretDelete(
 		return err
 	}
 
+	log.Info("Deleted app data value secret")
+
 	return nil
 }
 
@@ -148,12 +173,10 @@ func (r *AddonReconciler) reconcileAddonDataValuesSecretNormal(
 	clusterClient client.Client,
 	addonSecret *corev1.Secret) error {
 
-	addonName := util.GetAddonNameFromAddonSecret(addonSecret)
-
 	addonDataValuesSecret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      addonName,
-			Namespace: constants.TKG_ADDONS_APP_NAMESPACE,
+			Name:      util.GenerateAppSecretNameFromAddonSecret(addonSecret),
+			Namespace: util.GenerateAppNamespaceFromAddonSecret(addonSecret),
 		},
 	}
 
@@ -163,10 +186,13 @@ func (r *AddonReconciler) reconcileAddonDataValuesSecretNormal(
 		return nil
 	}
 
-	if _, err := controllerutil.CreateOrPatch(ctx, clusterClient, addonDataValuesSecret, addonDataValuesSecretMutateFn); err != nil {
+	result, err := controllerutil.CreateOrPatch(ctx, clusterClient, addonDataValuesSecret, addonDataValuesSecretMutateFn)
+	if err != nil {
 		log.Error(err, "Error creating or patching addon data values secret")
 		return err
 	}
+
+	r.logOperationResult(log, "addon data values secret", result)
 
 	return nil
 }
@@ -175,12 +201,12 @@ func (r *AddonReconciler) reconcileAddonAppDelete(
 	ctx context.Context,
 	log logr.Logger,
 	clusterClient client.Client,
-	addonName string) error {
+	addonSecret *corev1.Secret) error {
 
 	app := &kappctrl.App{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      addonName,
-			Namespace: constants.TKG_ADDONS_APP_NAMESPACE,
+			Name:      util.GenerateAppNameFromAddonSecret(addonSecret),
+			Namespace: util.GenerateAppNamespaceFromAddonSecret(addonSecret),
 		},
 	}
 
@@ -193,12 +219,16 @@ func (r *AddonReconciler) reconcileAddonAppDelete(
 		return err
 	}
 
+	log.Info("Deleted app")
+
 	return nil
 }
 
 func (r *AddonReconciler) reconcileAddonAppNormal(
 	ctx context.Context,
 	log logr.Logger,
+	remoteApp bool,
+	remoteCluster *clusterapiv1alpha3.Cluster,
 	clusterClient client.Client,
 	addonSecret *corev1.Secret,
 	addonConfig *bomv1alpha1.BomAddon) error {
@@ -207,8 +237,8 @@ func (r *AddonReconciler) reconcileAddonAppNormal(
 
 	app := &kappctrl.App{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      addonName,
-			Namespace: constants.TKG_ADDONS_APP_NAMESPACE,
+			Name:      util.GenerateAppNameFromAddonSecret(addonSecret),
+			Namespace: util.GenerateAppNamespaceFromAddonSecret(addonSecret),
 		},
 	}
 
@@ -218,8 +248,26 @@ func (r *AddonReconciler) reconcileAddonAppNormal(
 		}
 
 		app.ObjectMeta.Annotations[addonsv1alpha1.AddonTypeAnnotation] = fmt.Sprintf("%s/%s", addonConfig.Category, addonName)
+		app.ObjectMeta.Annotations[addonsv1alpha1.AddonNameAnnotation] = addonSecret.Name
+		app.ObjectMeta.Annotations[addonsv1alpha1.AddonNamespaceAnnotation] = addonSecret.Namespace
 
-		app.Spec.ServiceAccountName = constants.TKG_ADDONS_APP_SERVICE_ACCOUNT
+		/*
+		 * remoteApp means App is not present on local workload cluster. It is present in the remote management cluster.
+		 * workload clusters kubeconfig details need to be added for remote App so that kapp-controller on management
+		 * cluster can reconcile and push the addon/app to the workload cluster
+		 */
+		if remoteApp {
+			clusterKubeconfigDetails := util.GetClusterKubeconfigSecretDetails(remoteCluster)
+
+			app.Spec.Cluster = &kappctrl.AppCluster{
+				KubeconfigSecretRef: &kappctrl.AppClusterKubeconfigSecretRef{
+					Name: clusterKubeconfigDetails.Name,
+					Key:  clusterKubeconfigDetails.Key,
+				},
+			}
+		} else {
+			app.Spec.ServiceAccountName = constants.TKGAddonsAppServiceAccount
+		}
 
 		app.Spec.Fetch = []kappctrl.AppFetch{
 			{
@@ -239,7 +287,7 @@ func (r *AddonReconciler) reconcileAddonAppNormal(
 							{
 								SecretRef: &kappctrl.AppFetchInlineSourceRef{
 									LocalObjectReference: corev1.LocalObjectReference{
-										Name: addonName,
+										Name: util.GenerateAppSecretNameFromAddonSecret(addonSecret),
 									},
 								},
 							},
@@ -258,10 +306,13 @@ func (r *AddonReconciler) reconcileAddonAppNormal(
 		return nil
 	}
 
-	if _, err := controllerutil.CreateOrPatch(ctx, clusterClient, app, appMutateFn); err != nil {
+	result, err := controllerutil.CreateOrPatch(ctx, clusterClient, app, appMutateFn)
+	if err != nil {
 		log.Error(err, "Error creating or patching addon")
 		return err
 	}
+
+	r.logOperationResult(log, "app", result)
 
 	return nil
 }
@@ -269,21 +320,23 @@ func (r *AddonReconciler) reconcileAddonAppNormal(
 func (r *AddonReconciler) reconcileAddonDelete(
 	ctx context.Context,
 	log logr.Logger,
-	clusterClient client.Client,
+	remoteClusterClient client.Client,
 	addonSecret *corev1.Secret) error {
 
 	addonName := util.GetAddonNameFromAddonSecret(addonSecret)
 
-	log = r.Log.WithValues(constants.ADDON_NAME_LOG_KEY, addonName)
+	log = r.Log.WithValues(constants.AddonNameLogKey, addonName)
 
 	log.Info("Reconciling addon delete")
 
-	if err := r.reconcileAddonAppDelete(ctx, log, clusterClient, addonName); err != nil {
-		log.Error(err, "Error reconcling addon app delete")
+	clusterClient := util.GetClientFromAddonSecret(addonSecret, r.Client, remoteClusterClient)
+
+	if err := r.reconcileAddonAppDelete(ctx, log, clusterClient, addonSecret); err != nil {
+		log.Error(err, "Error reconciling addon app delete")
 		return err
 	}
 
-	if err := r.reconcileAddonDataValuesSecretDelete(ctx, log, clusterClient, addonName); err != nil {
+	if err := r.reconcileAddonDataValuesSecretDelete(ctx, log, clusterClient, addonSecret); err != nil {
 		log.Error(err, "Error reconciling addon data values secret delete")
 		return err
 	}
@@ -294,29 +347,39 @@ func (r *AddonReconciler) reconcileAddonDelete(
 func (r *AddonReconciler) reconcileAddonNormal(
 	ctx context.Context,
 	log logr.Logger,
-	clusterClient client.Client,
+	remoteCluster *clusterapiv1alpha3.Cluster,
+	remoteClusterClient client.Client,
 	addonSecret *corev1.Secret,
 	addonConfig *bomv1alpha1.BomAddon) error {
 
 	addonName := util.GetAddonNameFromAddonSecret(addonSecret)
 
-	log = r.Log.WithValues(constants.ADDON_NAME_LOG_KEY, addonName)
+	log = r.Log.WithValues(constants.AddonNameLogKey, addonName)
 
 	log.Info("Reconciling addon")
 
-	if err := r.reconcileAddonNamespace(ctx, log, clusterClient); err != nil {
-		log.Error(err, "Error reconciling addon namespace")
-		return err
-	}
+	remoteApp := util.IsRemoteApp(addonSecret)
+	clusterClient := util.GetClientFromAddonSecret(addonSecret, r.Client, remoteClusterClient)
 
-	if err := r.reconcileAddonServiceAccount(ctx, log, clusterClient); err != nil {
-		log.Error(err, "Error reconciling addon service account")
-		return err
-	}
+	/* remoteApp means App is not present on local workload cluster. It is present in the remote management cluster.
+	 * Since App is not on workload cluster, namespace, serviceaccount, roles and rolebindings dont need to be created
+	 * on management cluster.
+	 */
+	if !remoteApp {
+		if err := r.reconcileAddonNamespace(ctx, log, clusterClient); err != nil {
+			log.Error(err, "Error reconciling addon namespace")
+			return err
+		}
 
-	if err := r.reconcileAddonRole(ctx, log, clusterClient); err != nil {
-		log.Error(err, "Error reconciling addon roles and role bindings")
-		return err
+		if err := r.reconcileAddonServiceAccount(ctx, log, clusterClient); err != nil {
+			log.Error(err, "Error reconciling addon service account")
+			return err
+		}
+
+		if err := r.reconcileAddonRole(ctx, log, clusterClient); err != nil {
+			log.Error(err, "Error reconciling addon roles and role bindings")
+			return err
+		}
 	}
 
 	if err := r.reconcileAddonDataValuesSecretNormal(ctx, log, clusterClient, addonSecret); err != nil {
@@ -324,7 +387,7 @@ func (r *AddonReconciler) reconcileAddonNormal(
 		return err
 	}
 
-	if err := r.reconcileAddonAppNormal(ctx, log, clusterClient, addonSecret, addonConfig); err != nil {
+	if err := r.reconcileAddonAppNormal(ctx, log, remoteApp, remoteCluster, clusterClient, addonSecret, addonConfig); err != nil {
 		log.Error(err, "Error reconciling addon app")
 		return err
 	}

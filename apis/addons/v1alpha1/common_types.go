@@ -15,4 +15,13 @@ const (
 
 	// AddonType anotation
 	AddonTypeAnnotation = "tkg.tanzu.vmware.com/addon-type"
+
+	// RemoteAddonApp annotation
+	AddonRemoteAppAnnotation = "tkg.tanzu.vmware.com/remote-app"
+
+	// AddonName annotation
+	AddonNameAnnotation = AddonNameLabel
+
+	// AddonNamespace Annotation
+	AddonNamespaceAnnotation = "tkg.tanzu.vmware.com/addon-namespace"
 )

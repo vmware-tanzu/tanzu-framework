@@ -45,7 +45,7 @@ func GetTKRByName(ctx context.Context, c client.Client, tkrName string) (*runtan
 		Name: tkrName,
 	}
 
-	if err := c.Get(context.Background(), tkrNamespaceName, tkr); err != nil {
+	if err := c.Get(context.TODO(), tkrNamespaceName, tkr); err != nil {
 		return nil, err
 	}
 

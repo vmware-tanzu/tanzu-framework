@@ -30,7 +30,7 @@ func processAddonSecret(o client.Object, log logr.Logger) bool {
 		return true
 	}
 
-	log.V(7).Info("Secret is not a addon", constants.NAMESPACE_LOG_KEY, secret.Namespace, constants.NAME_LOG_KEY, secret.Name)
+	log.V(7).Info("Secret is not a addon", constants.NamespaceLogKey, secret.Namespace, constants.NameLogKey, secret.Name)
 
 	return false
 }

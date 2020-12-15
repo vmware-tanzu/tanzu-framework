@@ -8,11 +8,10 @@ import (
 	runtanzuv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	clusterv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
-	"sigs.k8s.io/cluster-api/controllers/external"
 	controlplanev1alpha3 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
+	clusterapisecretutil "sigs.k8s.io/cluster-api/util/secret"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"strings"
 )
@@ -59,17 +58,16 @@ func GetKCPForCluster(ctx context.Context, c client.Client, cluster *clusterv1al
 		return nil, nil
 	}
 
-	obj, err := external.Get(ctx, c, cluster.Spec.ControlPlaneRef, cluster.Namespace)
-	if err != nil {
-		if apierrors.IsNotFound(errors.Cause(err)) {
+	kcp := &controlplanev1alpha3.KubeadmControlPlane{}
+	kcpObjectKey := client.ObjectKey{
+		Namespace: cluster.Spec.ControlPlaneRef.Namespace,
+		Name:      cluster.Spec.ControlPlaneRef.Name,
+	}
+	if err := c.Get(ctx, kcpObjectKey, kcp); err != nil {
+		if apierrors.IsNotFound(err) {
 			return nil, nil
 		}
 		return nil, err
-	}
-
-	kcp := &controlplanev1alpha3.KubeadmControlPlane{}
-	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(obj.Object, kcp); err != nil {
-		return nil, errors.Wrapf(err, "cannot convert %s to kcp", obj.GetKind())
 	}
 
 	return kcp, nil
@@ -87,7 +85,7 @@ func getKCPByK8sVersion(ctx context.Context, c client.Client, k8sVersion string)
 	}
 
 	kcpList := &controlplanev1alpha3.KubeadmControlPlaneList{}
-	if err := c.List(context.Background(), kcpList); err != nil {
+	if err := c.List(context.TODO(), kcpList); err != nil {
 		return nil, err
 	}
 
@@ -115,7 +113,7 @@ func GetClustersByTKR(ctx context.Context, c client.Client, tkr *runtanzuv1alpha
 	}
 
 	for _, kcp := range kcps {
-		cluster, err := GetOwnerCluster(context.Background(), c, kcp.ObjectMeta)
+		cluster, err := GetOwnerCluster(context.TODO(), c, kcp.ObjectMeta)
 		if err != nil {
 			return nil, err
 		}
@@ -172,4 +170,20 @@ func GetBOMForCluster(ctx context.Context, c client.Client, cluster *clusterv1al
 	}
 
 	return bomConfig, nil
+}
+
+type ClusterKubeconfigSecretDetails struct {
+	Name      string
+	Namespace string
+	Key       string
+}
+
+// GetClusterKubeconfigSecretDetails returns the name, namespace and key of the cluster's kubeconfig secret
+func GetClusterKubeconfigSecretDetails(cluster *clusterv1alpha3.Cluster) *ClusterKubeconfigSecretDetails {
+
+	return &ClusterKubeconfigSecretDetails{
+		Name:      clusterapisecretutil.Name(cluster.Name, clusterapisecretutil.Kubeconfig),
+		Namespace: cluster.Namespace,
+		Key:       clusterapisecretutil.KubeconfigDataName,
+	}
 }

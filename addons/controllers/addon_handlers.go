@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 
 	"github.com/go-logr/logr"
 	"github.com/vmware-tanzu-private/core/addons/constants"
@@ -21,7 +22,7 @@ import (
 func (r *AddonReconciler) TKRToClusters(o client.Object) []ctrl.Request {
 	var tkr *runtanzuv1alpha1.TanzuKubernetesRelease
 
-	r.Log.Info("TKR to clusters handlers")
+	r.Log.Info("TKR to clusters handler")
 
 	switch obj := o.(type) {
 	case *runtanzuv1alpha1.TanzuKubernetesRelease:
@@ -33,11 +34,11 @@ func (r *AddonReconciler) TKRToClusters(o client.Object) []ctrl.Request {
 		return nil
 	}
 
-	log := r.Log.WithValues(constants.TKR_NAME_LOG_KEY, tkr.Name)
+	log := r.Log.WithValues(constants.TKRNameLogKey, tkr.Name)
 
 	log.Info("Mapping TKR to cluster")
 
-	clusters, err := util.GetClustersByTKR(context.Background(), r.Client, tkr)
+	clusters, err := util.GetClustersByTKR(context.TODO(), r.Client, tkr)
 	if err != nil {
 		log.Error(err, "Error getting clusters using TKR")
 		return nil
@@ -50,14 +51,8 @@ func (r *AddonReconciler) clustersToRequests(clusters []*clusterv1alpha3.Cluster
 	var requests []ctrl.Request
 
 	for _, cluster := range clusters {
-		if !cluster.GetDeletionTimestamp().IsZero() {
-			log.Info("Cluster is getting deleted, so skipping request for cluster",
-				constants.CLUSTER_NAMESPACE_LOG_KEY, cluster.Namespace, constants.CLUSTER_NAME_LOG_KEY, cluster.Name)
-			continue
-		}
-
-		log.Info("Adding cluster for reconcilation",
-			constants.CLUSTER_NAMESPACE_LOG_KEY, cluster.Namespace, constants.CLUSTER_NAME_LOG_KEY, cluster.Name)
+		log.Info("Adding cluster for reconciliation",
+			constants.ClusterNamespaceLogKey, cluster.Namespace, constants.ClusterNameLogKey, cluster.Name)
 
 		requests = append(requests, ctrl.Request{
 			NamespacedName: clusterapiutil.ObjectKey(cluster),
@@ -71,7 +66,7 @@ func (r *AddonReconciler) clustersToRequests(clusters []*clusterv1alpha3.Cluster
 func (r *AddonReconciler) AddonSecretToClusters(o client.Object) []ctrl.Request {
 	var secret *corev1.Secret
 
-	r.Log.Info("Addon secret to clusters handlers")
+	r.Log.Info("Addon secret to clusters handler")
 
 	switch obj := o.(type) {
 	case *corev1.Secret:
@@ -83,7 +78,7 @@ func (r *AddonReconciler) AddonSecretToClusters(o client.Object) []ctrl.Request 
 		return nil
 	}
 
-	log := r.Log.WithValues(constants.ADDON_SECRET_NAMESPACE_LOG_KEY, secret.Namespace, constants.ADDON_SECRET_NAME_LOG_KEY, secret.Name)
+	log := r.Log.WithValues(constants.AddonSecretNamespaceLogKey, secret.Namespace, constants.AddonSecretNameLogKey, secret.Name)
 
 	log.Info("Mapping Addon Secret to cluster")
 
@@ -92,21 +87,21 @@ func (r *AddonReconciler) AddonSecretToClusters(o client.Object) []ctrl.Request 
 		log.Info("Cluster name label not found on secret")
 	}
 
-	cluster, err := util.GetClusterByName(context.Background(), r.Client, secret.Namespace, clusterName)
+	cluster, err := util.GetClusterByName(context.TODO(), r.Client, secret.Namespace, clusterName)
 	if err != nil || cluster == nil {
 		log.Error(err, "Error getting cluster object",
-			constants.CLUSTER_NAMESPACE_LOG_KEY, secret.Namespace, constants.CLUSTER_NAME_LOG_KEY, clusterName)
+			constants.ClusterNamespaceLogKey, secret.Namespace, constants.ClusterNameLogKey, clusterName)
 		return nil
 	}
 
 	if !cluster.GetDeletionTimestamp().IsZero() {
 		log.Info("Cluster is getting deleted, so skipping request for cluster",
-			constants.CLUSTER_NAMESPACE_LOG_KEY, secret.Namespace, constants.CLUSTER_NAME_LOG_KEY, clusterName)
+			constants.ClusterNamespaceLogKey, secret.Namespace, constants.ClusterNameLogKey, clusterName)
 		return nil
 	}
 
-	log.Info("Adding cluster for reconcilation",
-		constants.CLUSTER_NAMESPACE_LOG_KEY, cluster.Namespace, constants.CLUSTER_NAME_LOG_KEY, cluster.Name)
+	log.Info("Adding cluster for reconciliation",
+		constants.ClusterNamespaceLogKey, cluster.Namespace, constants.ClusterNameLogKey, cluster.Name)
 
 	return []ctrl.Request{{
 		NamespacedName: clusterapiutil.ObjectKey(cluster),
@@ -117,7 +112,7 @@ func (r *AddonReconciler) AddonSecretToClusters(o client.Object) []ctrl.Request 
 func (r *AddonReconciler) BOMConfigMapToClusters(o client.Object) []ctrl.Request {
 	var configmap *corev1.ConfigMap
 
-	r.Log.Info("BOM configmap to clusters handlers")
+	r.Log.Info("BOM configmap to clusters handler")
 
 	switch obj := o.(type) {
 	case *corev1.ConfigMap:
@@ -129,7 +124,7 @@ func (r *AddonReconciler) BOMConfigMapToClusters(o client.Object) []ctrl.Request
 		return nil
 	}
 
-	log := r.Log.WithValues(constants.BOM_NAMESPACE_LOG_KEY, configmap.Namespace, constants.BOM_NAME_LOG_KEY, configmap.Name)
+	log := r.Log.WithValues(constants.BOMNamespaceLogKey, configmap.Namespace, constants.BOMNameLogKey, configmap.Name)
 	log.Info("Mapping BOM configmap to cluster")
 
 	tkrName := util.GetTKRNameFromBOMConfigMap(configmap)
@@ -138,15 +133,15 @@ func (r *AddonReconciler) BOMConfigMapToClusters(o client.Object) []ctrl.Request
 		return nil
 	}
 
-	tkr, err := util.GetTKRByName(context.Background(), r.Client, tkrName)
+	tkr, err := util.GetTKRByName(context.TODO(), r.Client, tkrName)
 	if err != nil || tkr == nil {
-		log.Error(err, "Error getting TKR", constants.TKR_NAME_LOG_KEY, tkrName)
+		log.Error(err, "Error getting TKR", constants.TKRNameLogKey, tkrName)
 		return nil
 	}
 
-	clusters, err := util.GetClustersByTKR(context.Background(), r.Client, tkr)
+	clusters, err := util.GetClustersByTKR(context.TODO(), r.Client, tkr)
 	if err != nil {
-		log.Error(err, "Error getting clusters using TKR", constants.TKR_NAME_LOG_KEY, tkr.Name)
+		log.Error(err, "Error getting clusters using TKR", constants.TKRNameLogKey, tkr.Name)
 		return nil
 	}
 
@@ -157,7 +152,7 @@ func (r *AddonReconciler) BOMConfigMapToClusters(o client.Object) []ctrl.Request
 func (r *AddonReconciler) KubeadmControlPlaneToClusters(o client.Object) []ctrl.Request {
 	var kcp *controlplanev1alpha3.KubeadmControlPlane
 
-	r.Log.Info("Kubeadm control plane to clusters handlers")
+	r.Log.Info("Kubeadm control plane to clusters handler")
 
 	switch obj := o.(type) {
 	case *controlplanev1alpha3.KubeadmControlPlane:
@@ -169,23 +164,79 @@ func (r *AddonReconciler) KubeadmControlPlaneToClusters(o client.Object) []ctrl.
 		return nil
 	}
 
-	log := r.Log.WithValues(constants.KCP_NAMESPACE_LOG_KEY, kcp.Namespace, constants.KCP_NAME_LOG_KEY, kcp.Name)
+	log := r.Log.WithValues(constants.KCPNamespaceLogKey, kcp.Namespace, constants.KCPNameLogKey, kcp.Name)
 
 	log.Info("Mapping kubeadm control plane to cluster")
 
-	cluster, err := util.GetOwnerCluster(context.Background(), r.Client, kcp.ObjectMeta)
+	cluster, err := util.GetOwnerCluster(context.TODO(), r.Client, kcp.ObjectMeta)
 	if err != nil {
 		log.Error(err, "Failed to get cluster owning kcp")
 		return nil
 	}
 
-	if !cluster.GetDeletionTimestamp().IsZero() {
-		log.Info("Cluster is getting deleted, so skipping request for cluster",
-			constants.CLUSTER_NAMESPACE_LOG_KEY, cluster.Namespace, constants.CLUSTER_NAME_LOG_KEY, cluster.Name)
+	log.Info("Adding cluster for reconciliation",
+		constants.ClusterNamespaceLogKey, cluster.Namespace, constants.ClusterNameLogKey, cluster.Name)
+
+	return []ctrl.Request{{
+		NamespacedName: clusterapiutil.ObjectKey(cluster),
+	}}
+}
+
+func (r *AddonReconciler) AppToClusters(o client.Object) []ctrl.Request {
+	var app *kappctrl.App
+
+	r.Log.Info("App to clusters handler")
+
+	switch obj := o.(type) {
+	case *kappctrl.App:
+		app = obj
+	default:
+		r.Log.Error(errors.New("invalid type"),
+			"Expected to receive app resource",
+			"actualType", fmt.Sprintf("%T", o))
 		return nil
 	}
 
-	log.Info("Adding cluster for reconcilation")
+	addonName := app.Name
+	addonSecretName := util.GetAddonNameFromApp(app)
+	addonSecretNamespace := util.GetAddonNamespaceFromApp(app)
+
+	if addonSecretName == "" || addonSecretNamespace == "" {
+		r.Log.Info("Unable to find addon name or namespace from App")
+		return nil
+	}
+
+	log := r.Log.WithValues(constants.AddonNamespaceLogKey, addonSecretNamespace, constants.AddonNameLogKey, addonName)
+
+	addonSecret := &corev1.Secret{}
+	if err := r.Client.Get(context.TODO(), client.ObjectKey{Namespace: addonSecretNamespace, Name: addonSecretName}, addonSecret); err != nil {
+		r.Log.Info("Unable to get addon secret")
+		return nil
+	}
+
+	clusterName := util.GetClusterNameFromAddonSecret(addonSecret)
+	if clusterName == "" {
+		r.Log.Info("Unable to get cluster name from addon secret")
+		return nil
+	}
+	clusterNamespace := addonSecretNamespace
+
+	log = log.WithValues(constants.ClusterNamespaceLogKey, clusterNamespace, constants.ClusterNameLogKey, clusterName)
+
+	log.Info("Mapping App to cluster")
+
+	cluster, err := util.GetClusterByName(context.TODO(), r.Client, clusterNamespace, clusterName)
+	if err != nil {
+		log.Error(err, "Error getting cluster object")
+		return nil
+	}
+
+	if cluster == nil {
+		log.Info("cluster object is nil")
+		return nil
+	}
+
+	log.Info("Adding cluster for reconciliation")
 
 	return []ctrl.Request{{
 		NamespacedName: clusterapiutil.ObjectKey(cluster),

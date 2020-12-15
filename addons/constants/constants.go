@@ -1,43 +1,43 @@
 package constants
 
 const (
-	TKG_ADDONS_APP_NAMESPACE = "tkg-addons"
+	TKGAddonsAppNamespace = "tkg-addons"
 
-	TKG_ADDONS_APP_SERVICE_ACCOUNT = "tkg-addons-app-sa"
+	TKGAddonsAppServiceAccount = "tkg-addons-app-sa"
 
-	TKG_ADDONS_APP_CLUSTER_ROLE = "tkg-addons-app-cluster-role"
+	TKGAddonsAppClusterRole = "tkg-addons-app-cluster-role"
 
-	TKG_ADDONS_APP_CLUSTER_ROLE_BINDING = "tkg-addons-app-cluster-role-binding"
+	TKGAddonsAppClusterRoleBinding = "tkg-addons-app-cluster-role-binding"
 
-	TKG_BOM_NAMESPACE = "tkg-system-public"
+	TKGBomNamespace = "tkg-system-public"
 
-	TKR_LABEL = "tanzuKubernetesRelease"
+	TKRLabel = "tanzuKubernetesRelease"
 
 	/* log key sections */
 
-	NAME_LOG_KEY = "name"
+	NameLogKey = "name"
 
-	NAMESPACE_LOG_KEY = "namespace"
+	NamespaceLogKey = "namespace"
 
-	ADDON_SECRET_NAME_LOG_KEY = "addon-secret-name"
+	AddonSecretNameLogKey = "addon-secret-name"
 
-	ADDON_SECRET_NAMESPACE_LOG_KEY = "addon-secret-ns"
+	AddonSecretNamespaceLogKey = "addon-secret-ns"
 
-	ADDON_NAME_LOG_KEY = "addon-name"
+	AddonNameLogKey = "addon-name"
 
-	ADDON_NAMESPACE_LOG_KEY = "addon-ns"
+	AddonNamespaceLogKey = "addon-ns"
 
-	KCP_NAME_LOG_KEY = "kcp-name"
+	KCPNameLogKey = "kcp-name"
 
-	KCP_NAMESPACE_LOG_KEY = "kcp-ns"
+	KCPNamespaceLogKey = "kcp-ns"
 
-	TKR_NAME_LOG_KEY = "tkr-name"
+	TKRNameLogKey = "tkr-name"
 
-	CLUSTER_NAME_LOG_KEY = "cluster-name"
+	ClusterNameLogKey = "cluster-name"
 
-	CLUSTER_NAMESPACE_LOG_KEY = "cluster-ns"
+	ClusterNamespaceLogKey = "cluster-ns"
 
-	BOM_NAME_LOG_KEY = "bom-name"
+	BOMNameLogKey = "bom-name"
 
-	BOM_NAMESPACE_LOG_KEY = "bom-ns"
+	BOMNamespaceLogKey = "bom-ns"
 )

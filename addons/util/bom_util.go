@@ -13,7 +13,7 @@ import (
 func GetBOMByTKRName(ctx context.Context, c client.Client, tkrName string) (*bomv1alpha1.BomConfig, error) {
 	configMapList := &corev1.ConfigMapList{}
 	var bomConfigMap *corev1.ConfigMap
-	if err := c.List(ctx, configMapList, client.InNamespace(constants.TKG_BOM_NAMESPACE), client.MatchingLabels{constants.TKR_LABEL: tkrName}); err != nil {
+	if err := c.List(ctx, configMapList, client.InNamespace(constants.TKGBomNamespace), client.MatchingLabels{constants.TKRLabel: tkrName}); err != nil {
 		return nil, err
 	}
 
@@ -37,7 +37,7 @@ func GetBOMByTKRName(ctx context.Context, c client.Client, tkrName string) (*bom
 
 // GetTKRNameFromBOMConfigMap returns tkr name given a bom configmap
 func GetTKRNameFromBOMConfigMap(bomConfigMap *corev1.ConfigMap) string {
-	return bomConfigMap.Labels[constants.TKR_LABEL]
+	return bomConfigMap.Labels[constants.TKRLabel]
 }
 
 // GetAddonConfigFromBom gets addon config from BOM matching addon name
