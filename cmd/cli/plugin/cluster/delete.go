@@ -35,7 +35,7 @@ func delete(cmd *cobra.Command, args []string) error {
 	}
 
 	if server.IsGlobal() {
-		return errors.New("deleting cluster with global setting is not implemented yet")
+		return errors.New("deleting cluster with a global server is not implemented yet")
 	}
 	return deleteCluster(server, args[0])
 }

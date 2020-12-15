@@ -39,7 +39,7 @@ func list(cmd *cobra.Command, args []string) error {
 	}
 
 	if server.IsGlobal() {
-		return errors.New("listing cluster with global setting is not implemented yet")
+		return errors.New("listing cluster with a global server is not implemented yet")
 	}
 	return listClusters(server)
 }

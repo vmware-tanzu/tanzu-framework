@@ -25,8 +25,8 @@ var scaleClusterCmd = &cobra.Command{
 }
 
 func init() {
-	scaleClusterCmd.Flags().Int32VarP(&sc.workerCount, "worker-machine-count", "w", 0, "The number of worker nodes to scale to")
-	scaleClusterCmd.Flags().Int32VarP(&sc.controlPlaneCount, "controlplane-machine-count", "c", 0, "The number of control plane nodes to scale to")
+	scaleClusterCmd.Flags().Int32VarP(&sc.workerCount, "worker-machine-count", "w", 0, "The number of worker nodes to scale to. Assumes unchanged if not specified")
+	scaleClusterCmd.Flags().Int32VarP(&sc.controlPlaneCount, "controlplane-machine-count", "c", 0, "The number of control plane nodes to scale to. Assumes unchanged if not specified")
 	scaleClusterCmd.Flags().StringVarP(&sc.namespace, "namespace", "n", "", "The namespace where the workload cluster was created. Assumes 'default' if not specified.")
 }
 
@@ -37,7 +37,7 @@ func scale(cmd *cobra.Command, args []string) error {
 	}
 
 	if server.IsGlobal() {
-		return errors.New("scaling cluster with global setting is not implemented yet")
+		return errors.New("scaling cluster with a global server is not implemented yet")
 	}
 	return scaleCluster(server, args[0])
 }

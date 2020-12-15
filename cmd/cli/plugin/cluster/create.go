@@ -89,7 +89,7 @@ func create(cmd *cobra.Command, args []string) error {
 	}
 
 	if server.IsGlobal() {
-		return errors.New("creating cluster with global setting is not implemented yet")
+		return errors.New("creating cluster with a global server is not implemented yet")
 	}
 	return createCluster(clusterName, server)
 }

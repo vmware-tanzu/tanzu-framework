@@ -49,10 +49,10 @@ Usage:
   tanzu cluster scale CLUSTER_NAME [flags]
 
 Flags:
-  -c, --controlplane-machine-count int32   The number of control plane nodes to scale to
+  -c, --controlplane-machine-count int32   The number of control plane nodes to scale to. Assumes unchanged if not specified
   -h, --help                               help for scale
   -n, --namespace string                   The namespace where the workload cluster was created. Assumes 'default' if not specified.
-  -w, --worker-machine-count int32         The number of worker nodes to scale to
+  -w, --worker-machine-count int32         The number of worker nodes to scale to. Assumes unchanged if not specified
 ```
 ```
 >>> tanzu cluster upgrade --help
