@@ -46,7 +46,7 @@ func init() {
 	createClusterCmd.Flags().StringVarP(&cc.clusterConfigFile, "file", "f", "", "Cluster configuration file from which to create a Cluster")
 
 	createClusterCmd.Flags().StringVarP(&cc.plan, "plan", "p", "", "The plan to be used for creating the workload cluster")
-	createClusterCmd.Flags().StringVarP(&cc.kubernetesVersion, "kubernetes-version", "k", "", fmt.Sprintf("The Kubernetes version to use for the workload cluster"))
+	createClusterCmd.Flags().StringVarP(&cc.kubernetesVersion, "kubernetes-version", "k", "", fmt.Sprintf("The kubernetes version to use for the workload cluster"))
 	createClusterCmd.Flags().IntVarP(&cc.controlPlaneMachineCount, "controlplane-machine-count", "c", 0, "The number of control plane machines to be added to the workload cluster (default 1 or 3 depending on dev or prod plan)")
 	createClusterCmd.Flags().IntVarP(&cc.workerMachineCount, "worker-machine-count", "w", 0, "The number of worker machines to be added to the workload cluster (default 1 or 3 depending on dev or prod plan)")
 	createClusterCmd.Flags().BoolVarP(&cc.generateOnly, "dry-run", "d", false, "Does not create cluster but show the deployment YAML instead")
@@ -89,7 +89,7 @@ func create(cmd *cobra.Command, args []string) error {
 	}
 
 	if server.IsGlobal() {
-		return errors.New("creating cluster with global setting is not implemented yet")
+		return errors.New("creating cluster with a global server is not implemented yet")
 	}
 	return createCluster(clusterName, server)
 }
