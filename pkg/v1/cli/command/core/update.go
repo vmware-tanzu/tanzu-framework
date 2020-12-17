@@ -16,7 +16,7 @@ var yesUpdate bool
 func init() {
 	updateCmd.SetUsageFunc(cli.SubCmdUsageFunc)
 	updateCmd.Flags().BoolVarP(&yesUpdate, "yes", "y", false, "force update; skip prompt")
-	updateCmd.Flags().StringVarP(&local, "local", "l", "", "path to local repository")
+	updateCmd.Flags().StringSliceVarP(&local, "local", "l", []string{}, "path to local repository")
 }
 
 var updateCmd = &cobra.Command{

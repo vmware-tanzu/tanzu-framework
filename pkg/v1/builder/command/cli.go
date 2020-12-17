@@ -1,8 +1,7 @@
-package main
+package command
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -11,8 +10,10 @@ import (
 	"time"
 
 	"github.com/gobwas/glob"
+	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 
+	"github.com/vmware-tanzu-private/core/pkg/v1/builder/template"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 
 	"github.com/aunum/log"
@@ -29,21 +30,64 @@ type plugin struct {
 var (
 	version, path, artifactsDir, ldflags string
 	corePath, match, targetArch          string
+	dryRun                               bool
 )
 
-func init() {
-	flag.StringVar(&version, "version", "", "version of the root cli (required)")
-	flag.StringVar(&ldflags, "ldflags", "", "ldflags to set on build")
-	flag.StringVar(&match, "match", "*", "match a plugin name to build, supports globbing")
-	flag.StringVar(&targetArch, "target", "all", "only compile for a specific target, use 'local' to compile for host os")
-	flag.StringVar(&path, "path", "./cmd/cli/plugin", "path of the plugins directory")
-	flag.StringVar(&artifactsDir, "artifacts", cli.DefaultArtifactsDirectory, "path to output artifacts")
-	flag.StringVar(&corePath, "corepath", "", "path for core binary")
+// CLICmd holds CLI builder commands.
+var CLICmd = &cobra.Command{
+	Use:   "cli",
+	Short: "Build CLIs",
 }
 
-func main() {
-	flag.Parse()
+func init() {
+	CompileCmd.Flags().StringVar(&version, "version", "", "version of the root cli (required)")
+	CompileCmd.Flags().StringVar(&ldflags, "ldflags", "", "ldflags to set on build")
+	CompileCmd.Flags().StringVar(&match, "match", "*", "match a plugin name to build, supports globbing")
+	CompileCmd.Flags().StringVar(&targetArch, "target", "all", "only compile for a specific target, use 'local' to compile for host os")
+	CompileCmd.Flags().StringVar(&path, "path", "./cmd/cli/plugin", "path of the plugins directory")
+	CompileCmd.Flags().StringVar(&artifactsDir, "artifacts", cli.DefaultArtifactsDirectory, "path to output artifacts")
+	CompileCmd.Flags().StringVar(&corePath, "corepath", "", "path for core binary")
 
+	AddPluginCmd.Flags().BoolVar(&dryRun, "dry-run", false, "print generated files to stdout")
+
+	CLICmd.AddCommand(CompileCmd)
+	CLICmd.AddCommand(AddPluginCmd)
+}
+
+// AddPluginCmd adds a cli plugin to the repository.
+var AddPluginCmd = &cobra.Command{
+	Use:   "add-plugin [name]",
+	Short: "Add a plugin to a repository",
+	RunE:  addPlugin,
+	Args:  cobra.ExactArgs(1),
+}
+
+// TODO (pbarker): check that we are in the root of the repo
+func addPlugin(cmd *cobra.Command, args []string) error {
+	name := args[0]
+	data := struct {
+		PluginName string
+	}{
+		PluginName: name,
+	}
+	targets := template.DefaultPluginTargets
+	for _, target := range targets {
+		err := target.Run("", data, dryRun)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// CompileCmd compiles CLI plugins
+var CompileCmd = &cobra.Command{
+	Use:   "compile",
+	Short: "Compile a repository",
+	RunE:  compile,
+}
+
+func compile(cmd *cobra.Command, args []string) error {
 	if version == "" {
 		log.Fatal("version flag must be set")
 	}
@@ -69,7 +113,9 @@ func main() {
 	}
 
 	files, err := ioutil.ReadDir(path)
-	log.Check(err)
+	if err != nil {
+		return err
+	}
 
 	g := glob.MustCompile(match)
 	for _, f := range files {
@@ -82,13 +128,18 @@ func main() {
 	}
 
 	b, err := yaml.Marshal(manifest)
-	log.Check(err)
+	if err != nil {
+		return err
+	}
 
 	manifestPath := filepath.Join(artifactsDir, cli.ManifestFileName)
 	err = ioutil.WriteFile(manifestPath, b, 0644)
-	log.Check(err)
+	if err != nil {
+		return err
+	}
 
 	log.Success("successfully built local repository")
+	return nil
 }
 
 func buildPlugin(path string, arch cli.Arch) plugin {

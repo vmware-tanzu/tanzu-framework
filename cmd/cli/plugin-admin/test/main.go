@@ -1,6 +1,8 @@
 package main
 
 import (
+	"path/filepath"
+
 	"github.com/spf13/cobra"
 	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 
@@ -17,10 +19,10 @@ var descriptor = cli.PluginDescriptor{
 	Group:       cli.AdminCmdGroup,
 }
 
-var local string
+var local []string
 
 func init() {
-	fetchCmd.PersistentFlags().StringVarP(&local, "local", "l", "", "path to local repository")
+	fetchCmd.PersistentFlags().StringSliceVarP(&local, "local", "l", []string{}, "paths to local repository")
 }
 
 func main() {
@@ -73,8 +75,14 @@ var pluginsCmd = &cobra.Command{
 }
 
 func getRepositories() *cli.MultiRepo {
-	if local != "" {
-		return cli.NewMultiRepo(cli.NewLocalRepository("local", local))
+	if len(local) != 0 {
+		m := cli.NewMultiRepo()
+		for _, l := range local {
+			n := filepath.Base(l)
+			r := cli.NewLocalRepository(n, l)
+			m.AddRepository(r)
+		}
+		return m
 	}
 	cfg, err := client.GetConfig()
 	if err != nil {
