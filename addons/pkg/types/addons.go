@@ -1,4 +1,4 @@
-package v1alpha1
+package types
 
 const (
 	// Secrets of type Addon

@@ -2,18 +2,15 @@ package util
 
 import (
 	"context"
-	"fmt"
 	"github.com/pkg/errors"
-	bomv1alpha1 "github.com/vmware-tanzu-private/core/apis/bom/v1alpha1"
+	"github.com/vmware-tanzu-private/core/addons/pkg/constants"
 	runtanzuv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	bomtypes "github.com/vmware-tanzu-private/core/tkr/pkg/types"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	clusterv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
-	controlplanev1alpha3 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
 	clusterapisecretutil "sigs.k8s.io/cluster-api/util/secret"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"strings"
 )
 
 // GetOwnerCluster returns the Cluster object owning the current resource.
@@ -48,57 +45,6 @@ func GetClusterByName(ctx context.Context, c client.Client, namespace, name stri
 	return cluster, nil
 }
 
-// GetKCPForCluster returns control plane for the cluster
-func GetKCPForCluster(ctx context.Context, c client.Client, cluster *clusterv1alpha3.Cluster) (*controlplanev1alpha3.KubeadmControlPlane, error) {
-	if c == nil || cluster == nil {
-		return nil, nil
-	}
-
-	if cluster.Spec.ControlPlaneRef == nil {
-		return nil, nil
-	}
-
-	kcp := &controlplanev1alpha3.KubeadmControlPlane{}
-	kcpObjectKey := client.ObjectKey{
-		Namespace: cluster.Spec.ControlPlaneRef.Namespace,
-		Name:      cluster.Spec.ControlPlaneRef.Name,
-	}
-	if err := c.Get(ctx, kcpObjectKey, kcp); err != nil {
-		if apierrors.IsNotFound(err) {
-			return nil, nil
-		}
-		return nil, err
-	}
-
-	return kcp, nil
-}
-
-func getKCPByK8sVersion(ctx context.Context, c client.Client, k8sVersion string) ([]*controlplanev1alpha3.KubeadmControlPlane, error) {
-	var kcps []*controlplanev1alpha3.KubeadmControlPlane
-
-	if k8sVersion == "" {
-		return nil, nil
-	}
-
-	if !strings.HasPrefix(k8sVersion, "v") {
-		k8sVersion = fmt.Sprintf("v%s", k8sVersion)
-	}
-
-	kcpList := &controlplanev1alpha3.KubeadmControlPlaneList{}
-	if err := c.List(context.TODO(), kcpList); err != nil {
-		return nil, err
-	}
-
-	for _, kcp := range kcpList.Items {
-		if kcp.Spec.Version != k8sVersion {
-			continue
-		}
-		kcps = append(kcps, &kcp)
-	}
-
-	return kcps, nil
-}
-
 // GetClustersByTKR gets the clusters using this TKR
 func GetClustersByTKR(ctx context.Context, c client.Client, tkr *runtanzuv1alpha1.TanzuKubernetesRelease) ([]*clusterv1alpha3.Cluster, error) {
 	var clusters []*clusterv1alpha3.Cluster
@@ -107,24 +53,17 @@ func GetClustersByTKR(ctx context.Context, c client.Client, tkr *runtanzuv1alpha
 		return nil, nil
 	}
 
-	kcps, err := getKCPByK8sVersion(ctx, c, tkr.Spec.KubernetesVersion)
-	if err != nil {
+	clustersList := &clusterv1alpha3.ClusterList{}
+
+	if err := c.List(ctx, clustersList, client.MatchingLabels{constants.TKRLabel: tkr.Name}); err != nil {
 		return nil, err
 	}
 
-	for _, kcp := range kcps {
-		cluster, err := GetOwnerCluster(context.TODO(), c, kcp.ObjectMeta)
-		if err != nil {
-			return nil, err
-		}
-
-		if cluster != nil {
-			clusters = append(clusters, cluster)
-		}
+	for _, cluster := range clustersList.Items {
+		clusters = append(clusters, &cluster)
 	}
 
 	return clusters, nil
-
 }
 
 // GetTKRForCluster gets the TKR for cluster
@@ -133,43 +72,41 @@ func GetTKRForCluster(ctx context.Context, c client.Client, cluster *clusterv1al
 		return nil, nil
 	}
 
-	kcp, err := GetKCPForCluster(ctx, c, cluster)
-	if err != nil {
-		return nil, err
-	}
-
-	if kcp == nil {
+	tkrName := GetTKRNameForCluster(ctx, c, cluster)
+	if tkrName == "" {
 		return nil, nil
 	}
 
-	k8sVersion := kcp.Spec.Version
-
-	clusterTkr, err := GetTKRByK8sVersion(ctx, c, k8sVersion)
+	tkr, err := GetTKRByName(ctx, c, tkrName)
 	if err != nil {
 		return nil, err
 	}
 
-	return clusterTkr, nil
+	return tkr, nil
+}
+
+func GetTKRNameForCluster(ctx context.Context, c client.Client, cluster *clusterv1alpha3.Cluster) string {
+	if c == nil || cluster == nil {
+		return ""
+	}
+
+	return cluster.Labels[constants.TKRLabel]
 }
 
 // GetBOMForCluster gets the bom associated with the cluster
-func GetBOMForCluster(ctx context.Context, c client.Client, cluster *clusterv1alpha3.Cluster) (*bomv1alpha1.BomConfig, error) {
+func GetBOMForCluster(ctx context.Context, c client.Client, cluster *clusterv1alpha3.Cluster) (*bomtypes.Bom, error) {
 
-	tkr, err := GetTKRForCluster(ctx, c, cluster)
-	if err != nil {
-		return nil, err
-	}
-
-	if tkr == nil {
+	tkrName := GetTKRNameForCluster(ctx, c, cluster)
+	if tkrName == "" {
 		return nil, nil
 	}
 
-	bomConfig, err := GetBOMByTKRName(ctx, c, tkr.Name)
+	bom, err := GetBOMByTKRName(ctx, c, tkrName)
 	if err != nil {
 		return nil, err
 	}
 
-	return bomConfig, nil
+	return bom, nil
 }
 
 type ClusterKubeconfigSecretDetails struct {

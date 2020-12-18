@@ -4,11 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
-
 	"github.com/go-logr/logr"
 	"github.com/vmware-tanzu-private/core/addons/constants"
-	"github.com/vmware-tanzu-private/core/addons/util"
+	"github.com/vmware-tanzu-private/core/addons/pkg/util"
 	runtanzuv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	clusterv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
@@ -176,67 +174,6 @@ func (r *AddonReconciler) KubeadmControlPlaneToClusters(o client.Object) []ctrl.
 
 	log.Info("Adding cluster for reconciliation",
 		constants.ClusterNamespaceLogKey, cluster.Namespace, constants.ClusterNameLogKey, cluster.Name)
-
-	return []ctrl.Request{{
-		NamespacedName: clusterapiutil.ObjectKey(cluster),
-	}}
-}
-
-func (r *AddonReconciler) AppToClusters(o client.Object) []ctrl.Request {
-	var app *kappctrl.App
-
-	r.Log.Info("App to clusters handler")
-
-	switch obj := o.(type) {
-	case *kappctrl.App:
-		app = obj
-	default:
-		r.Log.Error(errors.New("invalid type"),
-			"Expected to receive app resource",
-			"actualType", fmt.Sprintf("%T", o))
-		return nil
-	}
-
-	addonName := app.Name
-	addonSecretName := util.GetAddonNameFromApp(app)
-	addonSecretNamespace := util.GetAddonNamespaceFromApp(app)
-
-	if addonSecretName == "" || addonSecretNamespace == "" {
-		r.Log.Info("Unable to find addon name or namespace from App")
-		return nil
-	}
-
-	log := r.Log.WithValues(constants.AddonNamespaceLogKey, addonSecretNamespace, constants.AddonNameLogKey, addonName)
-
-	addonSecret := &corev1.Secret{}
-	if err := r.Client.Get(context.TODO(), client.ObjectKey{Namespace: addonSecretNamespace, Name: addonSecretName}, addonSecret); err != nil {
-		r.Log.Info("Unable to get addon secret")
-		return nil
-	}
-
-	clusterName := util.GetClusterNameFromAddonSecret(addonSecret)
-	if clusterName == "" {
-		r.Log.Info("Unable to get cluster name from addon secret")
-		return nil
-	}
-	clusterNamespace := addonSecretNamespace
-
-	log = log.WithValues(constants.ClusterNamespaceLogKey, clusterNamespace, constants.ClusterNameLogKey, clusterName)
-
-	log.Info("Mapping App to cluster")
-
-	cluster, err := util.GetClusterByName(context.TODO(), r.Client, clusterNamespace, clusterName)
-	if err != nil {
-		log.Error(err, "Error getting cluster object")
-		return nil
-	}
-
-	if cluster == nil {
-		log.Info("cluster object is nil")
-		return nil
-	}
-
-	log.Info("Adding cluster for reconciliation")
 
 	return []ctrl.Request{{
 		NamespacedName: clusterapiutil.ObjectKey(cluster),

@@ -3,8 +3,8 @@ package util
 import (
 	"context"
 	"fmt"
-	"github.com/vmware-tanzu-private/core/addons/constants"
-	addonsv1alpha1 "github.com/vmware-tanzu-private/core/apis/addons/v1alpha1"
+	"github.com/vmware-tanzu-private/core/addons/pkg/constants"
+	addontypes "github.com/vmware-tanzu-private/core/addons/pkg/types"
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -21,7 +21,7 @@ func GetAddonSecretsForCluster(ctx context.Context, c client.Client, cluster *cl
 
 	addonSecrets := &corev1.SecretList{}
 	if err := c.List(ctx, addonSecrets, client.InNamespace(cluster.Namespace),
-		client.MatchingLabels{addonsv1alpha1.ClusterNameLabel: cluster.Name}); err != nil {
+		client.MatchingLabels{addontypes.ClusterNameLabel: cluster.Name}); err != nil {
 		return nil, err
 	}
 
@@ -30,12 +30,12 @@ func GetAddonSecretsForCluster(ctx context.Context, c client.Client, cluster *cl
 
 // GetAddonNameFromAddonSecret gets the addon name from addon secret
 func GetAddonNameFromAddonSecret(addonSecret *corev1.Secret) string {
-	return addonSecret.Labels[addonsv1alpha1.AddonNameLabel]
+	return addonSecret.Labels[addontypes.AddonNameLabel]
 }
 
 // GetClusterNameFromAddonSecret gets the cluster name from addon secret
 func GetClusterNameFromAddonSecret(addonSecret *corev1.Secret) string {
-	return addonSecret.Labels[addonsv1alpha1.ClusterNameLabel]
+	return addonSecret.Labels[addontypes.ClusterNameLabel]
 }
 
 // GenerateAppNameFromAddonSecret generates app name given an addon secret
@@ -128,41 +128,12 @@ func IsAppPresent(ctx context.Context,
 	return true, nil
 }
 
-// GetAddonsInCluster returns
-func GetAddonsInCluster(ctx context.Context, c client.Client) ([]string, error) {
-	var addons []string
-
-	apps := &kappctrl.AppList{}
-	if err := c.List(ctx, apps, client.InNamespace(constants.TKGAddonsAppNamespace)); err != nil {
-		return nil, err
-	}
-
-	for _, app := range apps.Items {
-		// Filter only those annotations that have addon type annotation. This is to ensure it is a tkg created addon.
-		if addonType := app.Annotations[addonsv1alpha1.AddonTypeAnnotation]; addonType != "" {
-			addons = append(addons, app.Name)
-		}
-	}
-
-	return addons, nil
-}
-
 // IsRemoteApp returns true if App needs to be remote instead of App being on local cluster
 func IsRemoteApp(addonSecret *corev1.Secret) bool {
-	remoteApp := addonSecret.Annotations[addonsv1alpha1.AddonRemoteAppAnnotation]
+	remoteApp := addonSecret.Annotations[addontypes.AddonRemoteAppAnnotation]
 	if remoteApp == "" {
 		return false
 	}
 	isRemoteApp, _ := strconv.ParseBool(remoteApp)
 	return isRemoteApp
-}
-
-// GetAddonNameFromApp gets the addon name from app
-func GetAddonNameFromApp(app *kappctrl.App) string {
-	return app.Annotations[addonsv1alpha1.AddonNameAnnotation]
-}
-
-// GetAddonNamespaceFromApp gets the addon secret namespace from app
-func GetAddonNamespaceFromApp(app *kappctrl.App) string {
-	return app.Annotations[addonsv1alpha1.AddonNamespaceAnnotation]
 }

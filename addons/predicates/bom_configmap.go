@@ -3,8 +3,8 @@ package predicates
 import (
 	"fmt"
 	"github.com/go-logr/logr"
-	"github.com/vmware-tanzu-private/core/addons/constants"
-	"github.com/vmware-tanzu-private/core/addons/util"
+	addonconstants "github.com/vmware-tanzu-private/core/addons/pkg/constants"
+	"github.com/vmware-tanzu-private/core/addons/pkg/util"
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
@@ -25,7 +25,7 @@ func processBomConfigMap(o client.Object, log logr.Logger) bool {
 		return true
 	}
 
-	if configmap.Namespace == constants.TKGBomNamespace && isABom(configmap) {
+	if configmap.Namespace == addonconstants.TKGBomNamespace && isABom(configmap) {
 		return true
 	}
 

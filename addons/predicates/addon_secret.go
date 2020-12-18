@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/go-logr/logr"
 	"github.com/vmware-tanzu-private/core/addons/constants"
-	"github.com/vmware-tanzu-private/core/addons/util"
-	addonsv1alpha1 "github.com/vmware-tanzu-private/core/apis/addons/v1alpha1"
+	addontypes "github.com/vmware-tanzu-private/core/addons/pkg/types"
+	"github.com/vmware-tanzu-private/core/addons/pkg/util"
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
@@ -37,7 +37,7 @@ func processAddonSecret(o client.Object, log logr.Logger) bool {
 
 // isAddonType returns true if secret is of addon type
 func isAddonType(secret *corev1.Secret) bool {
-	return secret.Type == addonsv1alpha1.AddonSecretType
+	return secret.Type == addontypes.AddonSecretType
 }
 
 // hasAddonLabels returns true if secret has addon-name and cluster-name labels with non-empty values

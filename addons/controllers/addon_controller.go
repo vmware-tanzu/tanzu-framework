@@ -7,12 +7,11 @@ import (
 	"context"
 	"github.com/go-logr/logr"
 	"github.com/vmware-tanzu-private/core/addons/constants"
+	addontypes "github.com/vmware-tanzu-private/core/addons/pkg/types"
+	"github.com/vmware-tanzu-private/core/addons/pkg/util"
 	addonpredicates "github.com/vmware-tanzu-private/core/addons/predicates"
-	"github.com/vmware-tanzu-private/core/addons/util"
-	addonsv1alpha1 "github.com/vmware-tanzu-private/core/apis/addons/v1alpha1"
-	bomv1alpha1 "github.com/vmware-tanzu-private/core/apis/bom/v1alpha1"
 	runtanzuv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
+	bomtypes "github.com/vmware-tanzu-private/core/tkr/pkg/types"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -31,8 +30,12 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
-	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/source"
+	"time"
+)
+
+const (
+	deleteRequeueAfter = 10 * time.Second
 )
 
 type AddonReconciler struct {
@@ -106,44 +109,46 @@ func (r *AddonReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ct
 
 	// if deletion timestamp is set, handle cluster deletion
 	if !cluster.GetDeletionTimestamp().IsZero() {
-		if err := r.reconcileDelete(ctx, log, cluster); err != nil {
+		result, err := r.reconcileDelete(ctx, log, cluster)
+		if err != nil {
 			log.Error(err, "failed to reconcile cluster")
 			return ctrl.Result{}, err
 		}
-		return ctrl.Result{}, nil
+		return result, nil
 	}
 
 	// reconcile addons in cluster
-	if err := r.reconcileNormal(ctx, log, cluster); err != nil {
+	result, err := r.reconcileNormal(ctx, log, cluster)
+	if err != nil {
 		log.Error(err, "failed to reconcile cluster")
 		return ctrl.Result{}, err
 	}
 
-	return ctrl.Result{}, reterr
+	return result, nil
 }
 
 // reconcileDelete deletes the addon secrets that belong to the cluster
 func (r *AddonReconciler) reconcileDelete(
 	ctx context.Context,
 	log logr.Logger,
-	cluster *clusterapiv1alpha3.Cluster) error {
+	cluster *clusterapiv1alpha3.Cluster) (ctrl.Result, error) {
 
 	// Get addon secrets for the cluster
 	addonSecrets, err := util.GetAddonSecretsForCluster(ctx, r.Client, cluster)
 	if err != nil {
 		log.Error(err, "Error getting addon secrets for cluster")
-		return err
+		return ctrl.Result{}, err
 	}
 
 	var errors []error
 
 	// When cluster is deleted, we need to delete all the secrets.
-	// Deletion of secret is handled by owner reference. So, we just remove finalizer from secret here.
+	// Deletion of secret is handled by owner reference. So, we just force remove finalizer from secret here.
 	for _, addonSecret := range addonSecrets.Items {
 		if !addonSecret.GetDeletionTimestamp().IsZero() {
 			addonName := util.GetAddonNameFromAddonSecret(&addonSecret)
 
-			if _, err := r.removeFinalizerFromAddonSecret(ctx, log, false, nil, &addonSecret); err != nil {
+			if _, _, err := r.removeFinalizerFromAddonSecret(ctx, log, false, nil, &addonSecret); err != nil {
 				log.Error(err, "Error removing metadata from addon secret", constants.AddonNameLogKey, addonName)
 				errors = append(errors, err)
 				continue
@@ -152,35 +157,35 @@ func (r *AddonReconciler) reconcileDelete(
 	}
 
 	if len(errors) > 0 {
-		return kerrors.NewAggregate(errors)
+		return ctrl.Result{}, kerrors.NewAggregate(errors)
 	}
 
-	return nil
+	return ctrl.Result{}, nil
 }
 
 // reconcileNormal reconciles the addons belonging to the cluster
 func (r *AddonReconciler) reconcileNormal(
 	ctx context.Context,
 	log logr.Logger,
-	cluster *clusterapiv1alpha3.Cluster) error {
+	cluster *clusterapiv1alpha3.Cluster) (ctrl.Result, error) {
 
 	// Get addon secrets for the cluster
 	addonSecrets, err := util.GetAddonSecretsForCluster(ctx, r.Client, cluster)
 	if err != nil {
 		log.Error(err, "Error getting addon secrets for cluster")
-		return err
+		return ctrl.Result{}, err
 	}
 
 	// Get bom for cluster
-	bomConfig, err := util.GetBOMForCluster(ctx, r.Client, cluster)
-	if err != nil || bomConfig == nil {
+	bom, err := util.GetBOMForCluster(ctx, r.Client, cluster)
+	if err != nil {
 		log.Error(err, "Error getting BOM")
-		return err
+		return ctrl.Result{}, err
 	}
 
-	if bomConfig.Addons == nil {
-		log.Error(err, "Error getting BOM addons")
-		return err
+	if bom == nil {
+		log.Info("Bom not found")
+		return ctrl.Result{}, nil
 	}
 
 	// Get remote cluster live client.
@@ -188,25 +193,31 @@ func (r *AddonReconciler) reconcileNormal(
 	remoteClient, err := r.Tracker.GetLiveClient(ctx, clusterapiutil.ObjectKey(cluster))
 	if err != nil {
 		log.Error(err, "Error getting remote cluster client")
-		return err
+		return ctrl.Result{}, err
 	}
 
 	// reconcile each addon secret
-	var errors []error
+	var (
+		errors []error
+		result ctrl.Result
+	)
+
 	for _, addonSecret := range addonSecrets.Items {
 		log := log.WithValues(constants.AddonSecretNamespaceLogKey, addonSecret.Namespace, constants.AddonSecretNameLogKey, addonSecret.Name)
 
-		if err := r.reconcileAddonSecret(ctx, log, cluster, remoteClient, &addonSecret, bomConfig); err != nil {
+		result, err = r.reconcileAddonSecret(ctx, log, cluster, remoteClient, &addonSecret, bom)
+		if err != nil {
 			log.Error(err, "Error reconciling addon secret")
 			errors = append(errors, err)
+			continue
 		}
 	}
 
 	if len(errors) > 0 {
-		return kerrors.NewAggregate(errors)
+		return ctrl.Result{}, kerrors.NewAggregate(errors)
 	}
 
-	return nil
+	return result, nil
 }
 
 // reconcileNormal reconciles the addons belonging to the cluster
@@ -216,10 +227,9 @@ func (r *AddonReconciler) reconcileAddonSecret(
 	cluster *clusterapiv1alpha3.Cluster,
 	clusterClient client.Client,
 	addonSecret *corev1.Secret,
-	bomConfig *bomv1alpha1.BomConfig) error {
+	bom *bomtypes.Bom) (_ ctrl.Result, retErr error) {
 
 	var (
-		retErr           error
 		patchAddonSecret bool
 	)
 
@@ -228,22 +238,15 @@ func (r *AddonReconciler) reconcileAddonSecret(
 	addonName := util.GetAddonNameFromAddonSecret(addonSecret)
 	if addonName == "" {
 		log.Info("Addon name not found from addon secret")
-		return nil
+		return ctrl.Result{}, nil
 	}
 
 	log.Info("Reconciling addon", constants.AddonNameLogKey, addonName)
 
-	// get addon config from BOM
-	addonConfig := util.GetAddonConfigFromBom(addonName, bomConfig)
-	if addonConfig == nil {
-		log.Info("Addon config not found from BOM for addon", constants.AddonNameLogKey, addonName)
-		return nil
-	}
-
 	// Create a patch helper for addon secret
 	patchHelper, err := clusterapipatchutil.NewHelper(addonSecret, r.Client)
 	if err != nil {
-		return err
+		return ctrl.Result{}, err
 	}
 
 	// Patch addon secret before returning the function
@@ -261,18 +264,20 @@ func (r *AddonReconciler) reconcileAddonSecret(
 
 	// If addon secret is marked for deletion then delete the addon, else create/patch it
 	if !addonSecret.GetDeletionTimestamp().IsZero() {
-		if err := r.reconcileAddonSecretDelete(ctx, log, addonName, clusterClient, addonSecret, &patchAddonSecret); err != nil {
+		result, err := r.reconcileAddonSecretDelete(ctx, log, addonName, clusterClient, addonSecret, &patchAddonSecret)
+		if err != nil {
 			log.Error(err, "Error reconciling addon secret delete", constants.AddonNameLogKey, addonName)
-			return err
+			return ctrl.Result{}, err
 		}
+		return result, nil
 	} else {
-		if err := r.reconcileAddonSecretNormal(ctx, log, addonName, cluster, clusterClient, addonSecret, &patchAddonSecret, bomConfig); err != nil {
+		result, err := r.reconcileAddonSecretNormal(ctx, log, addonName, cluster, clusterClient, addonSecret, &patchAddonSecret, bom)
+		if err != nil {
 			log.Error(err, "Error reconciling addon secret", constants.AddonNameLogKey, addonName)
-			return err
+			return ctrl.Result{}, err
 		}
+		return result, nil
 	}
-
-	return retErr
 }
 
 // reconcileAddonSecretDelete reconciles a deletion of addon secret
@@ -282,24 +287,28 @@ func (r *AddonReconciler) reconcileAddonSecretDelete(
 	addonName string,
 	clusterClient client.Client,
 	addonSecret *corev1.Secret,
-	patchAddonSecret *bool) error {
+	patchAddonSecret *bool) (ctrl.Result, error) {
 
 	// delete remote app and data values secret
 	if err := r.reconcileAddonDelete(ctx, log, clusterClient, addonSecret); err != nil {
 		log.Error(err, "Error reconciling addon delete", constants.AddonNameLogKey, addonName)
-		return err
+		return ctrl.Result{}, err
 	}
 
 	// Remove finalizer from addon secret
-	finalizerRemoved, err := r.removeFinalizerFromAddonSecret(ctx, log, true, clusterClient, addonSecret)
+	finalizerRemoved, requeue, err := r.removeFinalizerFromAddonSecret(ctx, log, true, clusterClient, addonSecret)
 	if err != nil {
 		log.Error(err, "Error removing metadata from addon secret", constants.AddonNameLogKey, addonName)
-		return err
+		return ctrl.Result{}, err
 	}
 
 	*patchAddonSecret = finalizerRemoved
 
-	return nil
+	if requeue {
+		return ctrl.Result{RequeueAfter: deleteRequeueAfter}, nil
+	}
+
+	return ctrl.Result{}, nil
 }
 
 // reconcileAddonSecretNormal reconciles a addon secret
@@ -311,68 +320,37 @@ func (r *AddonReconciler) reconcileAddonSecretNormal(
 	clusterClient client.Client,
 	addonSecret *corev1.Secret,
 	patchAddonSecret *bool,
-	bomConfig *bomv1alpha1.BomConfig) error {
+	bom *bomtypes.Bom) (ctrl.Result, error) {
 
 	// get addon config from BOM
-	addonConfig := util.GetAddonConfigFromBom(addonName, bomConfig)
-	if addonConfig == nil {
+	addonConfig, err := bom.GetAddon(addonName)
+	if err != nil {
 		log.Info("Addon config not found from BOM for addon", constants.AddonNameLogKey, addonName)
-		return nil
+		return ctrl.Result{}, err
+	}
+
+	imageRepository, err := bom.GetImageRepository()
+	if err != nil || imageRepository == "" {
+		log.Info("Addon image repository not found for addon", constants.AddonNameLogKey, addonName)
+		return ctrl.Result{}, err
 	}
 
 	// Add finalizer and owner reference to addon secret
 	metadataAdded, err := r.addMetadataToAddonSecret(ctx, log, cluster, addonSecret)
 	if err != nil {
 		log.Error(err, "Error adding metadata to addon secret", constants.AddonNameLogKey, addonName)
-		return err
+		return ctrl.Result{}, err
 	}
 
 	*patchAddonSecret = metadataAdded
 
 	// create/patch remote app and data values secret
-	if err := r.reconcileAddonNormal(ctx, log, cluster, clusterClient, addonSecret, addonConfig); err != nil {
+	if err := r.reconcileAddonNormal(ctx, log, cluster, clusterClient, addonSecret, &addonConfig, imageRepository); err != nil {
 		log.Error(err, "Error reconciling addon", constants.AddonNameLogKey, addonName)
-		return err
+		return ctrl.Result{}, err
 	}
 
-	// setup app watches
-	if err := r.setupAppWatches(ctx, log, cluster, addonSecret); err != nil {
-		log.Error(err, "Error setting up app watcher", constants.AddonNameLogKey, addonName)
-		return err
-	}
-
-	return nil
-}
-
-// getAddonsToBeDeleted returns the addons to be deleted in the cluster
-func (r *AddonReconciler) getAddonsToBeDeleted(
-	ctx context.Context,
-	log logr.Logger,
-	clusterClient client.Client,
-	addonSecrets *corev1.SecretList) ([]string, error) {
-
-	var addonsToBeDeleted []string
-
-	clusterAddons, err := util.GetAddonsInCluster(ctx, clusterClient)
-	if err != nil {
-		log.Error(err, "Error getting addons in cluster")
-		return nil, err
-	}
-
-	// Make a map of addon secrets present for easier lookup
-	addonSecretMap := make(map[string]bool)
-	for _, addonSecret := range addonSecrets.Items {
-		addonSecretMap[addonSecret.Name] = true
-	}
-
-	// For each cluster addon check if a corresponding secret is present. If not add for deletion.
-	for _, clusterAddon := range clusterAddons {
-		if _, ok := addonSecretMap[clusterAddon]; !ok {
-			addonsToBeDeleted = append(addonsToBeDeleted, clusterAddon)
-		}
-	}
-
-	return addonsToBeDeleted, nil
+	return ctrl.Result{}, nil
 }
 
 // removeFinalizerFromAddonSecret removes finalizer from addon secret if it is present and returns true if it is removed
@@ -381,7 +359,7 @@ func (r *AddonReconciler) removeFinalizerFromAddonSecret(
 	log logr.Logger,
 	checkAppBeforeRemoval bool,
 	clusterClient client.Client,
-	addonSecret *corev1.Secret) (bool, error) {
+	addonSecret *corev1.Secret) (finalizerRemoved bool, requeue bool, err error) {
 
 	addonName := util.GetAddonNameFromAddonSecret(addonSecret)
 
@@ -389,23 +367,23 @@ func (r *AddonReconciler) removeFinalizerFromAddonSecret(
 		appPresent, err := util.IsAppPresent(ctx, r.Client, clusterClient, addonSecret)
 		if err != nil {
 			log.Error(err, "Error checking if app is present", constants.AddonNameLogKey, addonName)
-			return false, err
+			return false, false, err
 		}
 		// If app is present, return without removing finalizer
 		if appPresent {
 			log.V(4).Info("App still present. Not removing finalizer", constants.AddonNameLogKey, addonName)
-			return false, nil
+			return false, true, nil
 		}
 	}
 
 	// remove finalizer from addon secret
-	if controllerutil.ContainsFinalizer(addonSecret, addonsv1alpha1.AddonFinalizer) {
+	if controllerutil.ContainsFinalizer(addonSecret, addontypes.AddonFinalizer) {
 		log.Info("Removing finalizer to addon secret", constants.AddonNameLogKey, addonName)
-		controllerutil.RemoveFinalizer(addonSecret, addonsv1alpha1.AddonFinalizer)
-		return true, nil
+		controllerutil.RemoveFinalizer(addonSecret, addontypes.AddonFinalizer)
+		return true, false, nil
 	}
 
-	return false, nil
+	return false, false, nil
 }
 
 // addMetadataToAddonSecret adds finalizer and owner reference to the addon secret if not present and
@@ -421,9 +399,9 @@ func (r *AddonReconciler) addMetadataToAddonSecret(
 	addonName := util.GetAddonNameFromAddonSecret(addonSecret)
 
 	// add finalizer to addon secret
-	if !controllerutil.ContainsFinalizer(addonSecret, addonsv1alpha1.AddonFinalizer) {
+	if !controllerutil.ContainsFinalizer(addonSecret, addontypes.AddonFinalizer) {
 		log.Info("Adding finalizer to addon secret", constants.AddonNameLogKey, addonName)
-		controllerutil.AddFinalizer(addonSecret, addonsv1alpha1.AddonFinalizer)
+		controllerutil.AddFinalizer(addonSecret, addontypes.AddonFinalizer)
 		patchAddonSecret = true
 	}
 
@@ -444,41 +422,4 @@ func (r *AddonReconciler) addMetadataToAddonSecret(
 	}
 
 	return patchAddonSecret, nil
-}
-
-// setupAppWatches watches the App objects on a cluster
-func (r *AddonReconciler) setupAppWatches(
-	ctx context.Context,
-	log logr.Logger,
-	cluster *clusterapiv1alpha3.Cluster,
-	addonSecret *corev1.Secret) error {
-
-	addonName := util.GetAddonNameFromAddonSecret(addonSecret)
-
-	log.Info("Setting up watch for app")
-
-	remoteApp := util.IsRemoteApp(addonSecret)
-	if remoteApp {
-		// if remote app i.e.App lives on management cluster, then setup a local watch
-		if err := r.controller.Watch(&source.Kind{Type: &kappctrl.App{}},
-			handler.EnqueueRequestsFromMapFunc(r.AppToClusters),
-			addonpredicates.App(log)); err != nil {
-			r.Log.Error(err, "Error setting up app watch on local cluster")
-			return err
-		}
-	} else {
-		if err := r.Tracker.Watch(ctx, capiremote.WatchInput{
-			Name:         addonName,
-			Cluster:      clusterapiutil.ObjectKey(cluster),
-			Watcher:      r.controller,
-			Kind:         &kappctrl.App{},
-			EventHandler: handler.EnqueueRequestsFromMapFunc(r.AppToClusters),
-			Predicates:   []predicate.Predicate{addonpredicates.App(log)},
-		}); err != nil {
-			r.Log.Error(err, "Error setting up app watch on remote cluster")
-			return err
-		}
-	}
-
-	return nil
 }

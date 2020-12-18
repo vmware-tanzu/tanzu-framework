@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"github.com/go-logr/logr"
 	"github.com/vmware-tanzu-private/core/addons/constants"
-	"github.com/vmware-tanzu-private/core/addons/util"
-	addonsv1alpha1 "github.com/vmware-tanzu-private/core/apis/addons/v1alpha1"
-	bomv1alpha1 "github.com/vmware-tanzu-private/core/apis/bom/v1alpha1"
+	addonconstants "github.com/vmware-tanzu-private/core/addons/pkg/constants"
+	addontypes "github.com/vmware-tanzu-private/core/addons/pkg/types"
+	"github.com/vmware-tanzu-private/core/addons/pkg/util"
+	bomtypes "github.com/vmware-tanzu-private/core/tkr/pkg/types"
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -25,7 +26,7 @@ func (r *AddonReconciler) reconcileAddonNamespace(
 
 	addonNamespace := &corev1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: constants.TKGAddonsAppNamespace,
+			Name: addonconstants.TKGAddonsAppNamespace,
 		},
 	}
 
@@ -47,8 +48,8 @@ func (r *AddonReconciler) reconcileAddonServiceAccount(
 
 	addonServiceAccount := &corev1.ServiceAccount{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      constants.TKGAddonsAppServiceAccount,
-			Namespace: constants.TKGAddonsAppNamespace,
+			Name:      addonconstants.TKGAddonsAppServiceAccount,
+			Namespace: addonconstants.TKGAddonsAppNamespace,
 		},
 	}
 
@@ -70,7 +71,7 @@ func (r *AddonReconciler) reconcileAddonRole(
 
 	addonRole := &rbacv1.ClusterRole{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: constants.TKGAddonsAppClusterRole,
+			Name: addonconstants.TKGAddonsAppClusterRole,
 		},
 	}
 
@@ -96,7 +97,7 @@ func (r *AddonReconciler) reconcileAddonRole(
 
 	addonRoleBinding := &rbacv1.ClusterRoleBinding{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: constants.TKGAddonsAppClusterRoleBinding,
+			Name: addonconstants.TKGAddonsAppClusterRoleBinding,
 		},
 	}
 
@@ -104,15 +105,15 @@ func (r *AddonReconciler) reconcileAddonRole(
 		addonRoleBinding.Subjects = []rbacv1.Subject{
 			{
 				Kind:      "ServiceAccount",
-				Name:      constants.TKGAddonsAppServiceAccount,
-				Namespace: constants.TKGAddonsAppNamespace,
+				Name:      addonconstants.TKGAddonsAppServiceAccount,
+				Namespace: addonconstants.TKGAddonsAppNamespace,
 			},
 		}
 
 		addonRoleBinding.RoleRef = rbacv1.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
 			Kind:     "ClusterRole",
-			Name:     constants.TKGAddonsAppClusterRole,
+			Name:     addonconstants.TKGAddonsAppClusterRole,
 		}
 
 		return nil
@@ -231,7 +232,8 @@ func (r *AddonReconciler) reconcileAddonAppNormal(
 	remoteCluster *clusterapiv1alpha3.Cluster,
 	clusterClient client.Client,
 	addonSecret *corev1.Secret,
-	addonConfig *bomv1alpha1.BomAddon) error {
+	addonConfig *bomtypes.BomAddon,
+	imageRepository string) error {
 
 	addonName := util.GetAddonNameFromAddonSecret(addonSecret)
 
@@ -247,9 +249,9 @@ func (r *AddonReconciler) reconcileAddonAppNormal(
 			app.ObjectMeta.Annotations = make(map[string]string)
 		}
 
-		app.ObjectMeta.Annotations[addonsv1alpha1.AddonTypeAnnotation] = fmt.Sprintf("%s/%s", addonConfig.Category, addonName)
-		app.ObjectMeta.Annotations[addonsv1alpha1.AddonNameAnnotation] = addonSecret.Name
-		app.ObjectMeta.Annotations[addonsv1alpha1.AddonNamespaceAnnotation] = addonSecret.Namespace
+		app.ObjectMeta.Annotations[addontypes.AddonTypeAnnotation] = fmt.Sprintf("%s/%s", addonConfig.Category, addonName)
+		app.ObjectMeta.Annotations[addontypes.AddonNameAnnotation] = addonSecret.Name
+		app.ObjectMeta.Annotations[addontypes.AddonNamespaceAnnotation] = addonSecret.Namespace
 
 		/*
 		 * remoteApp means App is not present on local workload cluster. It is present in the remote management cluster.
@@ -266,13 +268,13 @@ func (r *AddonReconciler) reconcileAddonAppNormal(
 				},
 			}
 		} else {
-			app.Spec.ServiceAccountName = constants.TKGAddonsAppServiceAccount
+			app.Spec.ServiceAccountName = addonconstants.TKGAddonsAppServiceAccount
 		}
 
 		app.Spec.Fetch = []kappctrl.AppFetch{
 			{
 				Image: &kappctrl.AppFetchImage{
-					URL: addonConfig.Image,
+					URL: fmt.Sprintf("%s/%s", imageRepository, addonConfig.Image),
 				},
 			},
 		}
@@ -350,7 +352,8 @@ func (r *AddonReconciler) reconcileAddonNormal(
 	remoteCluster *clusterapiv1alpha3.Cluster,
 	remoteClusterClient client.Client,
 	addonSecret *corev1.Secret,
-	addonConfig *bomv1alpha1.BomAddon) error {
+	addonConfig *bomtypes.BomAddon,
+	imageRepository string) error {
 
 	addonName := util.GetAddonNameFromAddonSecret(addonSecret)
 
@@ -387,7 +390,7 @@ func (r *AddonReconciler) reconcileAddonNormal(
 		return err
 	}
 
-	if err := r.reconcileAddonAppNormal(ctx, log, remoteApp, remoteCluster, clusterClient, addonSecret, addonConfig); err != nil {
+	if err := r.reconcileAddonAppNormal(ctx, log, remoteApp, remoteCluster, clusterClient, addonSecret, addonConfig, imageRepository); err != nil {
 		log.Error(err, "Error reconciling addon app")
 		return err
 	}
