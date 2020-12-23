@@ -101,16 +101,16 @@ func createCluster(clusterName string, server *v1alpha1.Server) error {
 	}
 
 	tkgctlClient, err := tkgctl.New(tkgctl.Options{
-		ConfigDir:         configDir,
-		ClusterConfigFile: cc.clusterConfigFile,
-		KubeConfig:        server.ManagementClusterOpts.Path,
-		KubeContext:       server.ManagementClusterOpts.Context,
+		ConfigDir:   configDir,
+		KubeConfig:  server.ManagementClusterOpts.Path,
+		KubeContext: server.ManagementClusterOpts.Context,
 	})
 	if err != nil {
 		return err
 	}
 
 	ccOptions := tkgctl.CreateClusterOptions{
+		ClusterConfigFile:           cc.clusterConfigFile,
 		ClusterName:                 clusterName,
 		Namespace:                   cc.namespace,
 		Plan:                        cc.plan,
