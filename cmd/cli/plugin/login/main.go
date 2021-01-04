@@ -89,7 +89,12 @@ func login(cmd *cobra.Command, args []string) (err error) {
 
 	newServerSelector := "+ new server"
 	var serverTarget *clientv1alpha1.Server
-	if server == "" {
+	if name != "" {
+		serverTarget, err = createNewServer()
+		if err != nil {
+			return err
+		}
+	} else if server == "" {
 		servers := map[string]*clientv1alpha1.Server{}
 		for _, server := range cfg.KnownServers {
 			endpoint, err := client.EndpointFromServer(server)
@@ -180,36 +185,39 @@ func getPromptOpts() []component.PromptOpt {
 
 func createNewServer() (server *clientv1alpha1.Server, err error) {
 	promptOpts := getPromptOpts()
-	if endpoint == "" {
-		err = component.Prompt(
-			&component.PromptConfig{
-				Message: "Enter server endpoint",
-			},
-			&endpoint,
-			promptOpts...,
-		)
-		if err != nil {
-			return
-		}
-	}
 
-	if tkgClusterInfo == "" {
-		err = component.Prompt(
-			&component.PromptConfig{
-				Message: "Enter Path to the clusterInfo (if any)",
-			},
-			&tkgClusterInfo,
-			promptOpts...,
-		)
-		if err != nil {
-			return
+	if kubeConfig == "" && kubecontext == "" {
+		if endpoint == "" {
+			err = component.Prompt(
+				&component.PromptConfig{
+					Message: "Enter server endpoint",
+				},
+				&endpoint,
+				promptOpts...,
+			)
+			if err != nil {
+				return
+			}
 		}
-	}
 
-	if tkgClusterInfo != "" {
-		kubeConfig, kubecontext, err = tkgauth.KubeconfigWithTanzuKubeConfigLoginPlugin(tkgClusterInfo, endpoint)
-		if err != nil {
-			log.Info("Error creating kubeconfig with tanzu kubeconfig-login plugin: err-%v", err)
+		if tkgClusterInfo == "" {
+			err = component.Prompt(
+				&component.PromptConfig{
+					Message: "Enter Path to the clusterInfo (if any)",
+				},
+				&tkgClusterInfo,
+				promptOpts...,
+			)
+			if err != nil {
+				return
+			}
+		}
+
+		if tkgClusterInfo != "" {
+			kubeConfig, kubecontext, err = tkgauth.KubeconfigWithTanzuKubeConfigLoginPlugin(tkgClusterInfo, endpoint)
+			if err != nil {
+				log.Info("Error creating kubeconfig with tanzu kubeconfig-login plugin: err-%v", err)
+			}
 		}
 	}
 
