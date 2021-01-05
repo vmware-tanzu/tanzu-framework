@@ -49,7 +49,6 @@ var PluginTest = Target{
 	Template: `package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -57,7 +56,6 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/command/plugin"
 	clitest "github.com/vmware-tanzu-private/core/pkg/v1/test/cli"
-	"github.com/vmware-tanzu-private/core/pkg/v1/test/cmp"
 )
 
 var pluginName = "{{ .PluginName | ToLower }}"
@@ -82,7 +80,6 @@ func test(c *cobra.Command, _ []string) error {
 	// example test
 
 	// testName := clitest.GenerateName()
-	// defCmp := &cmp.DefinedComparer{}
 	//
 	// err := m.RunTest(
 	// 	"create a {{ .PluginName | ToLower }}",
@@ -98,6 +95,12 @@ func test(c *cobra.Command, _ []string) error {
 	// if err != nil {
 	// 	return err
 	// }
+	return nil
+}
+
+// Cleanup the test.
+func Cleanup() error {
+	return nil
 }
 	`,
 }

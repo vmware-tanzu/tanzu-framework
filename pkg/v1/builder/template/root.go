@@ -35,26 +35,26 @@ var GitlabCI = Target{
 	Filepath: ".gitlab-ci.yaml",
 	Template: `
 buildpush:
- only:
-   - master
+  only:
+    - master
 stage: deploy
 image: golang:1.15.2
 script:
-	# Note: this is all one step because the artifacts were too large to copy over.
-	- make
+  # Note: this is all one step because the artifacts were too large to copy over.
+  - make
 
-	# Download and install Google Cloud SDK
-	- wget https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz
-	- tar zxvf google-cloud-sdk.tar.gz && ./google-cloud-sdk/install.sh --usage-reporting=false --path-update=true
-	- PATH="google-cloud-sdk/bin:${PATH}"
-	- gcloud --quiet components update
+  # Download and install Google Cloud SDK
+  - wget https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz
+  - tar zxvf google-cloud-sdk.tar.gz && ./google-cloud-sdk/install.sh --usage-reporting=false --path-update=true
+  - PATH="google-cloud-sdk/bin:${PATH}"
+  - gcloud --quiet components update
 
-	- echo $GCP_BUCKET_SA > ${HOME}/gcloud-service-key.json
-	- gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
-	- gcloud config set project $GCP_PROJECT_ID
+  - echo $GCP_BUCKET_SA > ${HOME}/gcloud-service-key.json
+  - gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
+  - gcloud config set project $GCP_PROJECT_ID
 
-	- gsutil -m cp -R artifacts gs://{{ .RepositoryName }}
-	`,
+  - gsutil -m cp -R artifacts gs://{{ .RepositoryName }}
+`,
 }
 
 // GithubCI target
@@ -65,55 +65,55 @@ var GithubCI = Target{
 	Template: `name: Release
 
 on:
-	push:
-	tags:        
-		- v* 
-	branches: [ master ]
-	
+  push:
+  tags:
+    - v*
+  branches: [ master ]
+
 jobs:
 
-	build:
-	name: Release
-	runs-on: ubuntu-latest
-	steps:
+  build:
+  name: Release
+  runs-on: ubuntu-latest
+  steps:
 
-	- name: Set up Go 1.x
-		uses: actions/setup-go@v2
-		with:
-			go-version: ^1.13
-			id: go
+  - name: Set up Go 1.x
+    uses: actions/setup-go@v2
+    with:
+      go-version: ^1.13
+      id: go
 
-	- name: Check out code into the Go module directory
-		uses: actions/checkout@v2
+  - name: Check out code into the Go module directory
+    uses: actions/checkout@v2
 
-	- name: Get dependencies
-		run: |
-		go get -v -t -d ./...
-		if [ -f Gopkg.toml ]; then
-			curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-			dep ensure
-		fi
-		curl -o tanzu https://storage.googleapis.com/tanzu-cli/artifacts/core/latest/tanzu-core-linux_amd64 && \
-    		mv tanzu /usr/local/bin/tanzu && \
-			chmod +x /usr/local/bin/tanzu
-		tanzu plugin repo add -b tanzu-cli-admin-plugins -n admin
-		
-	- name: Make
-		run: make
+  - name: Get dependencies
+    run: |
+    go get -v -t -d ./...
+    if [ -f Gopkg.toml ]; then
+      curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+      dep ensure
+    fi
+    curl -o tanzu https://storage.googleapis.com/tanzu-cli/artifacts/core/latest/tanzu-core-linux_amd64 && \
+        mv tanzu /usr/local/bin/tanzu && \
+      chmod +x /usr/local/bin/tanzu
+    tanzu plugin repo add -b tanzu-cli-admin-plugins -n admin
 
-	- name: Build
-		run: make build-cli
+  - name: Make
+    run: make
 
-	- name: Test
-		run: make test
+  - name: Build
+    run: make build-cli
 
-	- id: upload-cli-artifacts
-		uses: GoogleCloudPlatform/github-actions/upload-cloud-storage@master
-		with:
-			path: ./artifacts
-			destination: {{ .RepositoryName }}
-			credentials: {{"${{ secrets.GCP_BUCKET_SA }}"}}
-	`,
+  - name: Test
+    run: make test
+
+  - id: upload-cli-artifacts
+    uses: GoogleCloudPlatform/github-actions/upload-cloud-storage@master
+    with:
+      path: ./artifacts
+      destination: {{ .RepositoryName }}
+      credentials: {{"${{ secrets.GCP_BUCKET_SA }}"}}
+`,
 }
 
 // Makefile target
@@ -124,7 +124,7 @@ BUILD_SHA ?= $$(git rev-parse --short HEAD)
 BUILD_DATE ?= $$(date -u +"%Y-%m-%d")
 
 LD_FLAGS = -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildDate=$(BUILD_DATE)'
-LD_FLAGS +=	-X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildSHA=$(BUILD_SHA)'
+LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildSHA=$(BUILD_SHA)'
 LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildVersion=$(BUILD_VERSION)'
 
 build:
