@@ -1,4 +1,5 @@
-*       @bryanl @timothysc @frapposelli @pbarker @vuil
-/cmd/cli @Anuj2512
-/pkg/v1/cli @Anuj2512
-/addons @vijaykatam @shyaamsn @danniel1205
+*     @vmware-tanzu-private/tanzu-core-reviewers
+/cmd/cli @vmware-tanzu-private/tanzu-core-reviewers @Anuj2512
+/pkg/v1/cli @vmware-tanzu-private/tanzu-core-reviewers @Anuj2512
+/tkr @vmware-tanzu-private/tanzu-core-reviewers @Rwang721
+/addons @vmware-tanzu-private/tanzu-core-reviewers @shyaamsn @danniel1205
