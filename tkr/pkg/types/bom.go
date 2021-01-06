@@ -1,8 +1,8 @@
 package types
 
 import (
-"github.com/pkg/errors"
-"gopkg.in/yaml.v2"
+	"github.com/pkg/errors"
+	"gopkg.in/yaml.v2"
 )
 
 // Release contains the release name.
@@ -21,23 +21,25 @@ type Image struct {
 	Tag       string `yaml:"tag"`
 }
 
-// bomContent contains the content of a BOM file
-type bomContent struct {
-	TanzuRelease Release            `yaml:"release"`
-	Components   map[string]Release `yaml:"components"`
-	ImageConfig  ImageConfig        `yaml:"imageConfig"`
-	Images       map[string]Image   `yaml:"images"`
-	Addons       BomAddons          `yaml:"addons,omitempty"`
-}
+// Addons represents map of Addons
+type Addons map[string]Addon
 
-type BomAddons map[string]BomAddon
-
-type BomAddon struct {
+// Addon contains addon info
+type Addon struct {
 	Category      string   `yaml:"category,omitempty"`
 	ClusterTypes  []string `yaml:"clusterTypes,omitempty"`
 	Version       string   `yaml:"version,omitempty"`
 	Image         string   `yaml:"image,omitempty"`
 	ComponentName string   `yaml:"componentName,omitempty"`
+}
+
+// bomContent contains the content of a BOM file
+type bomContent struct {
+	TanzuRelease Release             `yaml:"release"`
+	Components   map[string]Release  `yaml:"components"`
+	ImageConfig  ImageConfig         `yaml:"imageConfig"`
+	Images       map[string]Image    `yaml:"images"`
+	Addons       Addons              `yaml:"addons,omitempty"`
 }
 
 // Bom represents a BOM file
@@ -52,6 +54,22 @@ func NewBom(content []byte) (Bom, error) {
 	err := yaml.Unmarshal(content, &bc)
 	if err != nil {
 		return Bom{}, errors.Wrap(err, "error parsing the BOM file content")
+	}
+
+	if bc.TanzuRelease.Version == "" {
+		return Bom{}, errors.New("Bom does not contain proper release information")
+	}
+
+	if len(bc.Images) == 0 {
+		return Bom{}, errors.New("Bom does not contain image information")
+	}
+
+	if len(bc.Components) == 0 {
+		return Bom{}, errors.New("Bom does not contain release component information")
+	}
+
+	if bc.ImageConfig.ImageRepository == "" {
+		return Bom{}, errors.New("Bom does not contain image repository information")
 	}
 
 	return Bom{
@@ -124,21 +142,23 @@ func (b *Bom) GetImageRepository() (string, error) {
 	return b.bom.ImageConfig.ImageRepository, nil
 }
 
-func (b *Bom) Addons() (BomAddons, error) {
+// Addons gets all the addons in the BOM
+func (b *Bom) Addons() (Addons, error) {
 	if !b.initialzed {
 		return nil, errors.New("the BOM is not initialized")
 	}
 	return b.bom.Addons, nil
 }
 
-func (b *Bom) GetAddon(name string) (BomAddon, error) {
+// Addon gets an addon info from BOM
+func (b *Bom) GetAddon(name string) (Addon, error) {
 	if !b.initialzed {
-		return BomAddon{}, errors.New("the BOM is not initialized")
+		return Addon{}, errors.New("the BOM is not initialized")
 	}
 
 	if addon, ok := b.bom.Addons[name]; ok {
 		return addon, nil
 	}
 
-	return BomAddon{}, errors.Errorf("unable to find the Addon %s", name)
+	return Addon{}, errors.Errorf("unable to find the Addon %s", name)
 }

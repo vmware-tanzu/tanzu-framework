@@ -232,7 +232,7 @@ func (r *AddonReconciler) reconcileAddonAppNormal(
 	remoteCluster *clusterapiv1alpha3.Cluster,
 	clusterClient client.Client,
 	addonSecret *corev1.Secret,
-	addonConfig *bomtypes.BomAddon,
+	addonConfig *bomtypes.Addon,
 	imageRepository string) error {
 
 	addonName := util.GetAddonNameFromAddonSecret(addonSecret)
@@ -352,7 +352,7 @@ func (r *AddonReconciler) reconcileAddonNormal(
 	remoteCluster *clusterapiv1alpha3.Cluster,
 	remoteClusterClient client.Client,
 	addonSecret *corev1.Secret,
-	addonConfig *bomtypes.BomAddon,
+	addonConfig *bomtypes.Addon,
 	imageRepository string) error {
 
 	addonName := util.GetAddonNameFromAddonSecret(addonSecret)
