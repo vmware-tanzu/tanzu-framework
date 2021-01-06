@@ -28,21 +28,6 @@ func test(c *cobra.Command, _ []string) error {
 	m := clitest.NewMain("cluster", c, Cleanup)
 	defer m.Finish()
 
-	err := m.RunTest(
-		"list clusters",
-		"cluster list -o json",
-		func(t *clitest.Test) error {
-			err := t.ExecContainsString("[]")
-			if err != nil {
-				return err
-			}
-			return nil
-		},
-	)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 

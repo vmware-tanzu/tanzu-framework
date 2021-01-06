@@ -68,3 +68,55 @@ Flags:
   -t, --timeout duration            Time duration to wait for an operation before timeout. Timeout duration in hours(h)/minutes(m)/seconds(s) units or as some combination of them (e.g. 2h, 30m, 2h30m10s) (default 30m0s)
   -y, --yes                         Upgrade workload cluster without asking for confirmation
 ```
+```
+>>> tanzu cluster machinehealthcheck --help
+Get,set, or delete a MachineHealthCheck object for a Tanzu Kubernetes cluster
+
+Usage:
+  tanzu cluster machinehealthcheck [command]
+
+Available Commands:
+  delete      Delete machinehealthcheck of a cluster
+  get         Get MachineHealthCheck object
+  set         Create or update a MachineHealthCheck for a cluster
+```
+```
+>>> tanzu cluster machinehealthcheck get --help
+Get a MachineHealthCheck object for the given cluster
+
+Usage:
+  tanzu cluster machinehealthcheck get CLUSTER_NAME [flags]
+
+Flags:
+  -h, --help               help for get
+  -m, --mhc-name string    Name of the MachineHealthCheck object
+  -n, --namespace string   The namespace where the MachineHealthCheck object was created.
+```
+```
+>>> tanzu cluster machinehealthcheck set --help
+Create or update a MachineHealthCheck object for a cluster
+
+Usage:
+  tanzu cluster machinehealthcheck set CLUSTER_NAME [flags]
+
+Flags:
+  -h, --help                      help for set
+  --match-labels string           Label selector to match machines whose health will be exercised
+  -m, --mhc-name string               Name of the MachineHealthCheck object
+  -n, --namespace string              Namespace of the cluster
+  --node-startup-timeout string   Any machine being created that takes longer than this duration to join the cluster is considered to have failed and will be remediated
+  --unhealthy-conditions string   A list of the conditions that determine whether a node is considered unhealthy. Available condition types: [Ready, MemoryPressure,DiskPressure,PIDPressure, NetworkUnavailable], Available condition status: [True, False, Unknown]heck object was created.
+```
+```
+>>> tanzu cluster machinehealthcheck delete --help
+Delete a MachineHealthCheck object for the given cluster
+
+Usage:
+  tanzu cluster machinehealthcheck delete CLUSTER_NAME [flags]
+
+Flags:
+  -h, --help               help for delete
+  -m, --mhc-name string        Name of the MachineHealthCheck object
+  -n, --namespace string   The namespace where the MachineHealthCheck object was created, default to the cluster's namespace
+  -y, --yes                Delete the MachineHealthCheck object without asking for confirmation
+```

@@ -32,6 +32,7 @@ func main() {
 		deleteClusterCmd,
 		upgradeClusterCmd,
 		scaleClusterCmd,
+		machineHealthCheckCmd,
 	)
 	if err := p.Execute(); err != nil {
 		os.Exit(1)
