@@ -46,14 +46,14 @@ jobs:
       run: make test
 
     - id: upload-cli-artifacts
-      uses: GoogleCloudPlatform/github-actions/upload-cloud-storage@master
+      uses: google-github-actions/upload-cloud-storage@master
       with:
         path: ./artifacts
         destination: tanzu-cli
         credentials: ${{ secrets.GCP_BUCKET_SA }}
 
     - id: upload-cli-admin-artifacts
-      uses: GoogleCloudPlatform/github-actions/upload-cloud-storage@master
+      uses: google-github-actions/upload-cloud-storage@master
       with:
         path: ./artifacts-admin
         destination: tanzu-cli-admin-plugins
