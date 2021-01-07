@@ -2,9 +2,7 @@ name: Release
 
 on:
   push:
-    # tags:
-    #   - v*
-    branches: [ master, release-fix-1 ]
+    branches: [ master ]
 
 jobs:
 
@@ -36,11 +34,8 @@ jobs:
             dep ensure
         fi
 
-    - name: Make
-      run: make
-
     - name: Build
-      run: make build-cli
+      run: make all
 
     - name: Test
       run: make test

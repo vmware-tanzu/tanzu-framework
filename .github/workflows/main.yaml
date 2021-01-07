@@ -36,11 +36,8 @@ jobs:
             dep ensure
         fi
 
-    - name: Make
+    - name: Build
       run: make all
-
-    - name: Build CLI
-      run: make build-cli
 
     - name: Test
       run: make test
