@@ -37,6 +37,7 @@ func main() {
 		scaleClusterCmd,
 		machineHealthCheckCmd,
 		credentialsCmd,
+		kubeconfigClusterCmd,
 	)
 	if err := p.Execute(); err != nil {
 		os.Exit(1)

@@ -17,7 +17,7 @@ GOBINDATA := $(TOOLS_BIN_DIR)/go-bindata-$(GOOS)-$(GOARCH)
 
 PINNIPED_GIT_REPOSITORY = https://github.com/vmware-tanzu/pinniped.git
 ifeq ($(strip $(PINNIPED_GIT_COMMIT)),)
-PINNIPED_GIT_COMMIT = main
+PINNIPED_GIT_COMMIT = v0.3.0
 endif
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
@@ -120,12 +120,12 @@ install-cli: ## Install Tanzu CLI
 	$(GO) install -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu
 
 .PHONY: build-cli
-build-cli: ## Build Tanzu CLI
+build-cli: generate-pinniped-bindata ## Build Tanzu CLI
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu"
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin
 
 .PHONY: build-cli-local
-build-cli-local: ## Build Tanzu CLI locally 
+build-cli-local: generate-pinniped-bindata ## Build Tanzu CLI locally 
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --target local
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin --target local
 

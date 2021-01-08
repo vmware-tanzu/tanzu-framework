@@ -4,91 +4,96 @@
 package tkgauth
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 
 	"github.com/pkg/errors"
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
+	tkgclient "github.com/vmware-tanzu-private/tkg-cli/pkg/client"
+	tkgutils "github.com/vmware-tanzu-private/tkg-cli/pkg/utils"
 	"k8s.io/client-go/discovery"
+	clientauthenticationv1beta1 "k8s.io/client-go/pkg/apis/clientauthentication/v1beta1"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
-// KubeconfigWithTanzuKubeConfigLoginPlugin prepares the kubeconfig with tanzu kubeconfig-login as client-go exec plugin
-func KubeconfigWithTanzuKubeConfigLoginPlugin(clusterInfoPath string, endpoint string) (string, string, error) {
-	config, err := clientcmd.LoadFromFile(clusterInfoPath)
-	if err != nil {
-		return "", "", errors.Wrapf(err, "Error loading from the clusterInfo file")
-	}
+const (
+	// ConciergeNamespace is the namespace where pinniped concierge is deployed
+	ConciergeNamespace = "pinniped-concierge"
 
-	clustername := ""
-	for clustername = range config.Clusters {
-		break
-	}
-	username := "tanzu-cli-user" + clustername
-	AuthInfos, err := getUserInfoWithPinnipedPlugin(endpoint, username)
-	if err != nil {
-		return "", "", errors.Wrapf(err, "failed to generate kubeconfig authInfo data with pinniped plugin ")
-	}
+	// ConciergeAuthenticatorType is the pinniped concierge authenticator type
+	ConciergeAuthenticatorType = "jwt"
 
-	contextName := fmt.Sprintf("%s@%s", username, clustername)
-	contexts := map[string]*clientcmdapi.Context{
-		contextName: &clientcmdapi.Context{
-			Cluster:  clustername,
-			AuthInfo: username,
-		},
-	}
+	// ConciergeAuthenticatorName is the pinniped concierge authenticator object name
+	ConciergeAuthenticatorName = "tkg-jwt-authenticator"
 
-	config.AuthInfos = AuthInfos
-	config.Contexts = contexts
-	config.CurrentContext = contextName
+	// PinnipedOIDCScopes are the scopes of pinniped oidc
+	PinnipedOIDCScopes = "offline_access,openid,pinniped:request-audience"
 
-	// TODO should merge the generated kubeconfig to tanzu kubeconfig file( may be $HOME/.kube-tanzu/config??)
-	filename, err := CreateTempFile("", "tmp_kubeconfig")
-	if err != nil {
-		return "", "", errors.Wrap(err, "unable to save kubeconfig to temporary file")
-	}
-	err = clientcmd.WriteToFile(*config, filename)
-	if err != nil {
-		return "", "", errors.Wrap(err, "unable to write kubeconfig to temporary file")
-	}
+	TanzuLocalKubeDir = ".kube-tanzu"
 
-	return filename, contextName, nil
+	TanzuKubeconfigFile = "config"
+)
+
+type PinnipedConfigMapInfo struct {
+	Kind    string `yaml:"kind"`
+	Version string `yaml:"apiVersion"`
+	Data    struct {
+		ClusterName    string `yaml:"cluster_name"`
+		Issuer         string `yaml:"issuer"`
+		IssuerCABundle string `yaml:"issuer_ca_bundle_data"`
+	}
 }
 
-func getUserInfoWithPinnipedPlugin(endpoint, username string) (map[string]*clientcmdapi.AuthInfo, error) {
-
-	var pinnipedUserInfo string = `
-	{
-		"exec": {
-	  	 "apiVersion": "client.authentication.k8s.io/v1beta1",
-	  	 "args": [
-		 	 "pinniped-auth",
-		 	 "login",
-		 	 "--issuer",
-		 	 "%s",
-		  	"--client-id",
-		  	"pinniped-cli",
-		  	"--listen-port",
-		  	"48095"
-	   	 ],
-	   	 "command": "tanzu",
-	     "installHint": "The Pinniped CLI is required to authenticate to the current cluster.\nFor more information, please visit https://pinniped.dev"
-		}
-	 }`
-
-	user := fmt.Sprintf(pinnipedUserInfo, endpoint)
-	authInfo := &clientcmdapi.AuthInfo{}
-
-	if err := json.Unmarshal([]byte(user), authInfo); err != nil {
-		return nil, errors.Wrap(err, "unable to unmarshal Users data to AuthInfos map")
+type clusterInfoYamlConfig struct {
+	Version string `yaml:"apiVersion"`
+	Data    struct {
+		Kubeconfig string `yaml:"kubeconfig"`
 	}
-	authInfos := map[string]*clientcmdapi.AuthInfo{}
-	authInfos[username] = authInfo
-	return authInfos, nil
+	Kind string `yaml:"kind"`
+}
 
+type KubeConfigOptions struct {
+	MergeFilePath string
+}
+
+// KubeconfigWithPinnipedAuthLoginPlugin prepares the kubeconfig with tanzu pinniped-auth login as client-go exec plugin
+func KubeconfigWithPinnipedAuthLoginPlugin(endpoint string, options *KubeConfigOptions) (string, string, error) {
+	clusterInfo, err := tkgutils.GetClusterInfoFromCluster(endpoint)
+	if err != nil {
+		return "", "", errors.Wrap(err, "failed to get cluster-info")
+	}
+
+	pinnipedInfo, err := tkgutils.GetPinnipedInfoFromCluster(clusterInfo)
+	if err != nil {
+		return "", "", errors.Wrap(err, "failed to get pinniped-info")
+	}
+
+	config, err := GetPinnipedKubeconfig(clusterInfo, pinnipedInfo, pinnipedInfo.Data.ClusterName, pinnipedInfo.Data.Issuer)
+
+	kubeconfigBytes, err := json.Marshal(config)
+	if err != nil {
+		return "", "", errors.Wrap(err, "unable to marshall the kubeconfig")
+	}
+
+	mergeFilePath := ""
+	if options != nil && options.MergeFilePath != "" {
+		mergeFilePath = options.MergeFilePath
+	} else {
+		mergeFilePath, err = TanzuLocalKubeConfigPath()
+		if err != nil {
+			return "", "", errors.Wrap(err, "unable to get the Tanzu local kubeconfig path")
+		}
+	}
+
+	err = tkgclient.MergeKubeConfigWithoutSwitchContext(kubeconfigBytes, mergeFilePath)
+	if err != nil {
+		return "", "", errors.Wrap(err, "unable to merge cluster kubeconfig to the Tanzu local kubeconfig path")
+	}
+
+	return mergeFilePath, config.CurrentContext, nil
 }
 
 // GetServerKubernetesVersion uses the kubeconfig to get the server k8s version.
@@ -115,22 +120,6 @@ func GetServerKubernetesVersion(kubeconfigPath, context string) (string, error) 
 
 	return "", nil
 }
-func getTanzuLocalKubeDir() (string, error) {
-	tanzuConfigDir, err := client.LocalDir()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(tanzuConfigDir, ".kube-tanzu"), nil
-}
-
-// CreateTempFile creates temporary file
-func CreateTempFile(dir, prefix string) (string, error) {
-	f, err := ioutil.TempFile(dir, prefix)
-	if err != nil {
-		return "", err
-	}
-	return f.Name(), nil
-}
 
 func loadKubeconfigAndEnsureContext(kubeConfigPath, context string) ([]byte, error) {
 	config, err := clientcmd.LoadFromFile(kubeConfigPath)
@@ -143,4 +132,72 @@ func loadKubeconfigAndEnsureContext(kubeConfigPath, context string) ([]byte, err
 	}
 
 	return clientcmd.Write(*config)
+}
+
+// GetPinnipedKubeconfig generate kubeconfig given cluster-info and pinniped-info and the requested audience
+func GetPinnipedKubeconfig(cluster *clientcmdapi.Cluster, pinnipedInfo *tkgutils.PinnipedConfigMapInfo, clustername, audience string) (*clientcmdapi.Config, error) {
+	execConfig := clientcmdapi.ExecConfig{
+		APIVersion: clientauthenticationv1beta1.SchemeGroupVersion.String(),
+		Args:       []string{},
+		Env:        []clientcmdapi.ExecEnvVar{},
+	}
+
+	execConfig.Command = "tanzu"
+	execConfig.Args = append([]string{"pinniped-auth", "login"}, execConfig.Args...)
+
+	// configure concierge
+	execConfig.Args = append(execConfig.Args,
+		"--enable-concierge",
+		"--concierge-namespace="+ConciergeNamespace,
+		"--concierge-authenticator-name="+ConciergeAuthenticatorName,
+		"--concierge-authenticator-type="+ConciergeAuthenticatorType,
+		"--concierge-endpoint="+cluster.Server,
+		"--concierge-ca-bundle-data="+base64.StdEncoding.EncodeToString(cluster.CertificateAuthorityData),
+	)
+
+	// configure OIDC
+	execConfig.Args = append(execConfig.Args,
+		"--issuer="+pinnipedInfo.Data.Issuer,
+		"--scopes="+PinnipedOIDCScopes,
+		"--ca-bundle-data="+pinnipedInfo.Data.IssuerCABundle,
+		"--request-audience="+audience,
+	)
+
+	if os.Getenv("TANZU_CLI_OIDC_LOGIN_SKIP_BROWSER") != "" {
+		execConfig.Args = append(execConfig.Args, "--skip-browser")
+	}
+
+	username := "tanzu-cli-" + clustername
+	contextName := fmt.Sprintf("%s@%s", username, clustername)
+
+	return &clientcmdapi.Config{
+		Kind:           "Config",
+		APIVersion:     clientcmdapi.SchemeGroupVersion.Version,
+		Clusters:       map[string]*clientcmdapi.Cluster{clustername: cluster},
+		AuthInfos:      map[string]*clientcmdapi.AuthInfo{username: {Exec: &execConfig}},
+		Contexts:       map[string]*clientcmdapi.Context{contextName: {Cluster: clustername, AuthInfo: username}},
+		CurrentContext: contextName,
+	}, nil
+}
+
+// TanzuLocalKubeConfigPath returns the local tanzu kubeconfig path
+func TanzuLocalKubeConfigPath() (path string, err error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return path, errors.Wrap(err, "could not locate local tanzu dir")
+	}
+	path = filepath.Join(home, TanzuLocalKubeDir)
+	// create tanzu kubeconfig directory
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		err = os.MkdirAll(path, 0755)
+		if err != nil {
+			return "", err
+		}
+	} else if err != nil {
+		return "", err
+	}
+
+	configFilePath := filepath.Join(path, TanzuKubeconfigFile)
+
+	return configFilePath, nil
 }

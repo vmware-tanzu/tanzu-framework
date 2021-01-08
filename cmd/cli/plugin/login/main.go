@@ -36,8 +36,8 @@ var descriptor = cli.PluginDescriptor{
 }
 
 var (
-	stderrOnly                                                                bool
-	endpoint, name, apiToken, server, kubeConfig, kubecontext, tkgClusterInfo string
+	stderrOnly                                                bool
+	endpoint, name, apiToken, server, kubeConfig, kubecontext string
 )
 
 const (
@@ -55,22 +55,22 @@ func main() {
 	p.Cmd.Flags().StringVar(&server, "server", "", "login to the given server")
 	p.Cmd.Flags().StringVar(&kubeConfig, "kubeconfig", "", "path to kubeconfig management cluster. Valid only if user doesn't choose 'endpoint' option.(See [*])")
 	p.Cmd.Flags().StringVar(&kubecontext, "context", "", "the context in the kubeconfig to use for management cluster. Valid only if user doesn't choose 'endpoint' option.(See [*]) ")
-	// TODO: This is a temporary placeholder and should be removed once we figure out a way to get the cluster info given the endpoint
-	p.Cmd.Flags().StringVar(&tkgClusterInfo, "clusterInfo", "", "path to the management cluster info")
 	p.Cmd.Flags().BoolVar(&stderrOnly, "stderr-only", false, "send all output to stderr rather than stdout")
 	p.Cmd.Flags().MarkHidden("stderr-only")
 	p.Cmd.RunE = login
 	p.Cmd.Example = `
-	# Login to TKG management cluster using endpoint, clusterInfo and name of the server
-	tanzu login --endpoint "https://login.example.com" --clusterInfo /path/to/management/clusterinfo --name mgmt-cluster
+	# Login to TKG management cluster using endpoint
+	tanzu login --endpoint "https://login.example.com"  --name mgmt-cluster
 
 	# Login to TKG management cluster by using kubeconfig path and context for the management cluster
 	tanzu login --kubeconfig path/to/kubeconfig --context path/to/context --name mgmt-cluster
 
+	# Login to an existing server 
+	tanzu login --server mgmt-cluster
 	
-	[*] : User has two options to login to TKG. User can choose the pinniped login endpoint option
-	by providing 'endpoint' and 'clusterInfo', or user can choose to use the kubeconfig for 
-	the management cluster by providing 'kubeconfig' and 'context'
+	[*] : User has two options to login to TKG. User can choose the login endpoint option
+	by providing 'endpoint', or user can choose to use the kubeconfig for the management cluster by 
+	providing 'kubeconfig' and 'context'
 	`
 	if err := p.Execute(); err != nil {
 		os.Exit(1)
@@ -100,18 +100,19 @@ func login(cmd *cobra.Command, args []string) (err error) {
 	} else if server == "" {
 		servers := map[string]*clientv1alpha1.Server{}
 		for _, server := range cfg.KnownServers {
-			endpoint, err := client.EndpointFromServer(server)
+			ep, err := client.EndpointFromServer(server)
 			if err != nil {
 				return err
 			}
 
 			s := rpad(server.Name, 20)
-			s = fmt.Sprintf("%s(%s)", s, endpoint)
+			s = fmt.Sprintf("%s(%s)", s, ep)
 			servers[s] = server
 		}
 		if endpoint == "" {
 			endpoint, _ = os.LookupEnv(client.EnvEndpointKey)
 		}
+		// If there are no existing servers
 		if len(servers) == 0 {
 			serverTarget, err = createNewServer()
 			if err != nil {
@@ -125,6 +126,7 @@ func login(cmd *cobra.Command, args []string) (err error) {
 				&component.PromptConfig{
 					Message: "Select a server",
 					Options: serverKeys,
+					Default: serverKeys[0],
 				},
 				&server,
 				promptOpts...,
@@ -187,43 +189,40 @@ func getPromptOpts() []component.PromptOpt {
 }
 
 func createNewServer() (server *clientv1alpha1.Server, err error) {
+	// user provided command line options to create a server using kubeconfig and context
+	if kubeConfig != "" && kubecontext != "" {
+		return createNewServerWithKubeconfig()
+	}
+	// user provided command line options to create a server using endpoint
+	if endpoint != "" {
+		return createNewServerWithEndpoint()
+	}
 	promptOpts := getPromptOpts()
 
-	if kubeConfig == "" && kubecontext == "" {
-		if endpoint == "" {
-			err = component.Prompt(
-				&component.PromptConfig{
-					Message: "Enter server endpoint",
-				},
-				&endpoint,
-				promptOpts...,
-			)
-			if err != nil {
-				return
-			}
-		}
+	addServerWithKubeconfig := "No"
 
-		if tkgClusterInfo == "" {
-			err = component.Prompt(
-				&component.PromptConfig{
-					Message: "Enter Path to the clusterInfo (if any)",
-				},
-				&tkgClusterInfo,
-				promptOpts...,
-			)
-			if err != nil {
-				return
-			}
-		}
-
-		if tkgClusterInfo != "" {
-			kubeConfig, kubecontext, err = tkgauth.KubeconfigWithTanzuKubeConfigLoginPlugin(tkgClusterInfo, endpoint)
-			if err != nil {
-				log.Info("Error creating kubeconfig with tanzu kubeconfig-login plugin: err-%v", err)
-			}
-		}
+	err = component.Prompt(
+		&component.PromptConfig{
+			Message: "Do you want to add server by providing the kubeconfig?",
+			Options: []string{"Yes", "No"},
+			Default: "No",
+		},
+		&addServerWithKubeconfig,
+		promptOpts...,
+	)
+	if err != nil {
+		return
+	}
+	if addServerWithKubeconfig == "Yes" {
+		return createNewServerWithKubeconfig()
 	}
 
+	return createNewServerWithEndpoint()
+
+}
+
+func createNewServerWithKubeconfig() (server *clientv1alpha1.Server, err error) {
+	promptOpts := getPromptOpts()
 	if kubeConfig == "" {
 		err = component.Prompt(
 			&component.PromptConfig{
@@ -249,7 +248,6 @@ func createNewServer() (server *clientv1alpha1.Server, err error) {
 			return
 		}
 	}
-
 	if name == "" {
 		err = component.Prompt(
 			&component.PromptConfig{
@@ -270,7 +268,51 @@ func createNewServer() (server *clientv1alpha1.Server, err error) {
 		err = fmt.Errorf("server %q already exists", name)
 		return
 	}
+	server = &clientv1alpha1.Server{
+		Name: name,
+		Type: clientv1alpha1.ManagementClusterServerType,
+		ManagementClusterOpts: &clientv1alpha1.ManagementClusterServer{
+			Path:     kubeConfig,
+			Context:  kubecontext,
+			Endpoint: endpoint},
+	}
+	return
+}
 
+func createNewServerWithEndpoint() (server *clientv1alpha1.Server, err error) {
+	promptOpts := getPromptOpts()
+	if endpoint == "" {
+		err = component.Prompt(
+			&component.PromptConfig{
+				Message: "Enter server endpoint",
+			},
+			&endpoint,
+			promptOpts...,
+		)
+		if err != nil {
+			return
+		}
+	}
+	if name == "" {
+		err = component.Prompt(
+			&component.PromptConfig{
+				Message: "Give the server a name",
+			},
+			&name,
+			promptOpts...,
+		)
+		if err != nil {
+			return
+		}
+	}
+	nameExists, err := client.ServerExists(name)
+	if err != nil {
+		return server, err
+	}
+	if nameExists {
+		err = fmt.Errorf("server %q already exists", name)
+		return
+	}
 	if isGlobalServer(endpoint) {
 		server = &clientv1alpha1.Server{
 			Name:       name,
@@ -278,6 +320,11 @@ func createNewServer() (server *clientv1alpha1.Server, err error) {
 			GlobalOpts: &clientv1alpha1.GlobalServer{Endpoint: sanitizeEndpoint(endpoint)},
 		}
 	} else {
+		kubeConfig, kubecontext, err = tkgauth.KubeconfigWithPinnipedAuthLoginPlugin(endpoint, nil)
+		if err != nil {
+			log.Fatalf("Error creating kubeconfig with tanzu pinniped-auth login plugin: err-%v", err)
+			return nil, err
+		}
 		server = &clientv1alpha1.Server{
 			Name: name,
 			Type: clientv1alpha1.ManagementClusterServerType,
@@ -380,7 +427,7 @@ func managementClusterLogin(s *clientv1alpha1.Server, endpoint string) error {
 		if err != nil {
 			return err
 		}
-		log.Successf("Using existing kubeconfig file for management cluster %s", s.Name)
+		log.Successf("successfully logged in to management cluster using the kubeconfig %s", s.Name)
 		return nil
 	}
 
