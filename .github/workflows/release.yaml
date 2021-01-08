@@ -2,8 +2,6 @@ name: Release
 
 on:
   push:
-    tags:
-      - v*
     branches: [ master ]
 
 jobs:
@@ -36,24 +34,21 @@ jobs:
             dep ensure
         fi
 
-    - name: Make
-      run: make
-
     - name: Build
-      run: make build-cli
+      run: make all
 
     - name: Test
       run: make test
 
     - id: upload-cli-artifacts
-      uses: google-github-actions/upload-cloud-storage@master
+      uses: google-github-actions/upload-cloud-storage@main
       with:
         path: ./artifacts
         destination: tanzu-cli
         credentials: ${{ secrets.GCP_BUCKET_SA }}
 
     - id: upload-cli-admin-artifacts
-      uses: google-github-actions/upload-cloud-storage@master
+      uses: google-github-actions/upload-cloud-storage@main
       with:
         path: ./artifacts-admin
         destination: tanzu-cli-admin-plugins
