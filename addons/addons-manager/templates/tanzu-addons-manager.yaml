@@ -1,10 +1,20 @@
+#@ load("@ytt:data", "data")
+
+#@ if data.values.tanzuAddonsManager.createNamespace:
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: #@ data.values.tanzuAddonsManager.namespace
+#@ end
+---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   labels:
     app: tanzu-addons-manager
   name: tanzu-addons-manager-sa
-  namespace: tkg-system
+  namespace: #@ data.values.tanzuAddonsManager.namespace
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -82,7 +92,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: tanzu-addons-manager-sa
-  namespace: tkg-system
+  namespace: #@ data.values.tanzuAddonsManager.namespace
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -90,7 +100,7 @@ metadata:
   labels:
     app: tanzu-addons-manager
   name: tanzu-addons-controller-manager
-  namespace: tkg-system
+  namespace: #@ data.values.tanzuAddonsManager.namespace
 spec:
   replicas: 1
   selector:
@@ -105,9 +115,9 @@ spec:
       - args:
         - --metrics-addr=0
         - --enable-leader-election=false
-        image: projects-stg.registry.vmware.com/tkg/addons/manager/addons-controller:v0.0.1_vmware.1
-        imagePullPolicy: IfNotPresent
-        name: manager
+        image:  #@ "{}/{}:{}".format(data.values.tanzuAddonsManager.image.repository, data.values.tanzuAddonsManager.image.path, data.values.tanzuAddonsManager.image.tag)
+        imagePullPolicy: #@ data.values.tanzuAddonsManager.image.pullPolicy
+        name: tanzu-addons-controller
         resources:
           limits:
             cpu: 100m
@@ -117,6 +127,10 @@ spec:
             memory: 20Mi
       serviceAccount: tanzu-addons-manager-sa
       terminationGracePeriodSeconds: 10
-      tolerations:
-      - effect: NoSchedule
-        key: node-role.kubernetes.io/master
+      #@ if/end data.values.tanzuAddonsManager.deployment.hostNetwork:
+      hostNetwork: true
+      #@ if/end data.values.tanzuAddonsManager.deployment.priorityClassName:
+      priorityClassName: #@ data.values.tanzuAddonsManager.deployment.priorityClassName
+      #@ if hasattr(data.values.tanzuAddonsManager.deployment, 'tolerations') and data.values.tanzuAddonsManager.deployment.tolerations:
+      tolerations: #@ data.values.tanzuAddonsManager.deployment.tolerations
+      #@ end
