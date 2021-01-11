@@ -31,7 +31,11 @@ Windows executable can be found at https://storage.googleapis.com/tanzu-cli/arti
 The Tanzu CLI was built to be extensible across teams and be presented across skus.
 
 ### Plugins
-The CLI is made of plugins. To bootstrap a plugin use the `builder` admin plugin.   
+The CLI is made of plugins. To bootstrap a plugin use the `builder` admin plugin.  
+
+To add the admin repository use `tanzu plugin repo add -n admin -b tanzu-cli-admin-plugins -r artifacts-admin`   
+
+To add the builder plugin use `tanzu plugin install builder`   
 
 `tanzu builer init <repo-name>` will create a new plugin repository.    
 
