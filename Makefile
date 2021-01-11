@@ -164,11 +164,12 @@ generate-pinniped-bindata: $(GOBINDATA)
 	@rm -rf pinniped
 	@mkdir -p pinniped
 	@GIT_TERMINAL_PROMPT=0 git clone ${PINNIPED_GIT_REPOSITORY} pinniped
-	cd pinniped && GIT_TERMINAL_PROMPT=0 git checkout -f $(PINNIPED_GIT_COMMIT) && go build -o pinniped ./cmd/pinniped
+	cd pinniped && GIT_TERMINAL_PROMPT=0 git checkout -f $(PINNIPED_GIT_COMMIT) && $(GO) build -o pinniped ./cmd/pinniped
 	$(GOBINDATA) -mode=420 -modtime=1 -o=pkg/v1/auth/tkg/zz_generated.bindata.go -pkg=tkgauth pinniped/pinniped
+	git update-index --assume-unchanged pkg/v1/auth/tkg/zz_generated.bindata.go
 	@rm -rf pinniped
 
 
 $(GOBINDATA): $(TOOLS_DIR)/go.mod # Build go-bindata from tools folder
 	mkdir -p $(TOOLS_BIN_DIR)
-	cd $(TOOLS_DIR); go build -tags=tools -o ../../$(TOOLS_BIN_DIR) github.com/shuLhan/go-bindata/... ; mv ../../$(TOOLS_BIN_DIR)/go-bindata ../../$(GOBINDATA)
+	cd $(TOOLS_DIR); $(GO) build -tags=tools -o ../../$(TOOLS_BIN_DIR) github.com/shuLhan/go-bindata/... ; mv ../../$(TOOLS_BIN_DIR)/go-bindata ../../$(GOBINDATA)

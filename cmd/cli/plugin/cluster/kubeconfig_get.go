@@ -14,15 +14,20 @@ import (
 	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
 )
 
-type getClusterKubeconfigsOptions struct {
+type getClusterKubeconfigOptions struct {
 	workloadClusterName string
 	namespace           string
 	exportFile          string
 }
 
-var gkc = &getClusterKubeconfigsOptions{}
+const (
+	TKGSystemNamespace = "tkg-system"
+	DefaultNamespace   = "default"
+)
 
-var getKubeconfigClusterCmd = &cobra.Command{
+var getKCOptions = &getClusterKubeconfigOptions{}
+
+var getClusterKubeconfigCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Get Kubeconfig of a cluster",
 	Long:  `Get Kubeconfig of a cluster and merge the context into the default kubeconfig file`,
@@ -36,11 +41,11 @@ var getKubeconfigClusterCmd = &cobra.Command{
 }
 
 func init() {
-	getKubeconfigClusterCmd.Flags().StringVarP(&gkc.workloadClusterName, "workload-clustername", "w", "", "The name of the workload cluster. Assumes management cluster if not specified.")
-	getKubeconfigClusterCmd.Flags().StringVarP(&gkc.namespace, "namespace", "n", "", "The namespace where the workload cluster was created. Assumes 'default' if not specified.")
-	getKubeconfigClusterCmd.Flags().StringVarP(&gkc.exportFile, "export-file", "", "", "File path to export a standalone kubeconfig for workload cluster")
+	getClusterKubeconfigCmd.Flags().StringVarP(&getKCOptions.workloadClusterName, "workload-clustername", "w", "", "The name of the workload cluster. Assumes management cluster if not specified.")
+	getClusterKubeconfigCmd.Flags().StringVarP(&getKCOptions.namespace, "namespace", "n", "", "The namespace where the workload cluster was created. Assumes 'default' if not specified.")
+	getClusterKubeconfigCmd.Flags().StringVarP(&getKCOptions.exportFile, "export-file", "", "", "File path to export a standalone kubeconfig for workload cluster")
 
-	kubeconfigClusterCmd.AddCommand(getKubeconfigClusterCmd)
+	clusterKubeconfigCmd.AddCommand(getClusterKubeconfigCmd)
 }
 
 func getKubeconfig(cmd *cobra.Command, args []string) error {
@@ -70,17 +75,17 @@ func getClusterKubeconfig(server *v1alpha1.Server) error {
 		return err
 	}
 	isManagementCluster := false
-	if gkc.workloadClusterName == "" {
+	if getKCOptions.workloadClusterName == "" {
 		isManagementCluster = true
 	}
 
-	if !isManagementCluster && gkc.namespace == "" {
-		gkc.namespace = "default"
+	if !isManagementCluster && getKCOptions.namespace == "" {
+		getKCOptions.namespace = DefaultNamespace
 	}
 
 	getClusterPinnipedInfoOptions := tkgctl.GetClusterPinnipedInfoOptions{
-		ClusterName:         gkc.workloadClusterName,
-		Namespace:           gkc.namespace,
+		ClusterName:         getKCOptions.workloadClusterName,
+		Namespace:           getKCOptions.namespace,
 		IsManagementCluster: isManagementCluster,
 	}
 
@@ -88,6 +93,8 @@ func getClusterKubeconfig(server *v1alpha1.Server) error {
 	if err != nil {
 		return err
 	}
+
+	// for workload cluster the audience would be set to the clustername and for management cluster the audience would be set to IssuerURL
 	audience := clusterPinnipedInfo.ClusterName
 	if isManagementCluster {
 		audience = clusterPinnipedInfo.PinnipedInfo.Data.Issuer
@@ -102,13 +109,13 @@ func getClusterKubeconfig(server *v1alpha1.Server) error {
 	if err != nil {
 		return errors.Wrap(err, "unable to marshall the kubeconfig")
 	}
-	err = tkgclient.MergeKubeConfigWithoutSwitchContext(kubeconfigbytes, gkc.exportFile)
+	err = tkgclient.MergeKubeConfigWithoutSwitchContext(kubeconfigbytes, getKCOptions.exportFile)
 	if err != nil {
 		return errors.Wrap(err, "unable to merge cluster kubeconfig into the current kubeconfig path")
 	}
 
-	if gkc.exportFile != "" {
-		log.Infof("You can now access the cluster by running 'kubectl config use-context %s' under path '%s' \n", kubeconfig.CurrentContext, gkc.exportFile)
+	if getKCOptions.exportFile != "" {
+		log.Infof("You can now access the cluster by running 'kubectl config use-context %s' under path '%s' \n", kubeconfig.CurrentContext, getKCOptions.exportFile)
 	} else {
 		log.Infof("You can now access the cluster by running 'kubectl config use-context %s'\n", kubeconfig.CurrentContext)
 	}

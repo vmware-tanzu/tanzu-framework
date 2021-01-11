@@ -22,17 +22,16 @@ require (
 	github.com/imdario/mergo v0.3.9
 	github.com/jeremywohl/flatten v1.0.1
 	github.com/logrusorgru/aurora v2.0.3+incompatible
-	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/onsi/ginkgo v1.14.1
-	github.com/onsi/gomega v1.10.2
+	github.com/onsi/gomega v1.10.3
 	github.com/pkg/errors v0.9.1
 	github.com/satori/go.uuid v1.2.0
 	github.com/spf13/cobra v1.1.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.6.1
-	github.com/vmware-tanzu-private/tkg-cli v1.3.0-pre-alpha-1.0.20210107193359-2fd8eee07305
-	github.com/vmware-tanzu-private/tkg-providers v1.3.0-pre-alpha.0.20210104195459-b1494a35f858 // indirect
+	github.com/vmware-tanzu-private/tkg-cli v1.3.0-pre-alpha-1.0.20210114003033-285a8c9131d4
+	github.com/vmware-tanzu-private/tkg-providers v1.3.0-pre-alpha-1.0.20210113202657-eb07b4e0558d
 	go.opencensus.io v0.22.2 // indirect
 	go.uber.org/multierr v1.1.0
 	golang.org/x/mod v0.3.0

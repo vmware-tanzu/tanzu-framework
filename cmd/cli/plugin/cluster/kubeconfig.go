@@ -4,7 +4,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var kubeconfigClusterCmd = &cobra.Command{
+var clusterKubeconfigCmd = &cobra.Command{
 	Use:   "kubeconfig",
 	Short: "Kubeconfig of cluster",
 }
