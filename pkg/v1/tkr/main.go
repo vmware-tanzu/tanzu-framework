@@ -22,9 +22,9 @@ import (
 	"os"
 
 	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	tkrlabelctr "github.com/vmware-tanzu-private/core/tkr/controllers/label"
-	tkrsourcectr "github.com/vmware-tanzu-private/core/tkr/controllers/source"
-	mgrcontext "github.com/vmware-tanzu-private/core/tkr/pkg/context"
+	tkrlabelctr "github.com/vmware-tanzu-private/core/pkg/v1/tkr/controllers/label"
+	tkrsourcectr "github.com/vmware-tanzu-private/core/pkg/v1/tkr/controllers/source"
+	mgrcontext "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/context"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
