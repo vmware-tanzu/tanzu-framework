@@ -26,6 +26,7 @@ func main() {
 
 func test(c *cobra.Command, _ []string) error {
 	m := clitest.NewMain("kubernetes-release", c, Cleanup)
+	// TODO: Add tests for the kubernetes-release plugin
 	defer m.Finish()
 
 	return nil
