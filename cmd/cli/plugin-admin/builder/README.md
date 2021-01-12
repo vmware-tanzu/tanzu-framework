@@ -8,5 +8,5 @@ Build Tanzu plugin repositories
 
 `tanzu builder cli add-plugin` will add a CLI plugin scaffolding   
 
-`tanzu builcer cli compile` will compile the CLI plugins   
+`tanzu builder cli compile` will compile the CLI plugins   
 
