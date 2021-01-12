@@ -8,6 +8,11 @@ export GO111MODULE := on
 # Image URL to use all building/pushing image targets
 IMG ?= addons-controller:latest
 
+# Tag for template images
+TEMPLATES_IMG_TAG ?= $(shell git describe --always --dirty --tags)
+ADDONS_MANAGER_TEMPLATES_IMG_NAME ?= tanzu-addons-manager-templates
+KAPP_CONTROLLER_TEMPLATES_IMG_NAME ?= kapp-controller-templates
+
 # Directories
 BIN_DIR       := bin
 export PATH := $(abspath $(BIN_DIR)):$(PATH)
@@ -104,3 +109,10 @@ git-config: ## Configure gitlab access
 .PHONY: clean
 clean: docker-remove ## Remove all generated files
 	rm -rf bin
+
+## --------------------------------------
+## Addon templates
+## --------------------------------------
+addon-templates:
+	IMG_NAME=$(ADDONS_MANAGER_TEMPLATES_IMG_NAME) IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C addons-manager
+	IMG_NAME=$(KAPP_CONTROLLER_TEMPLATES_IMG_NAME) IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C kapp-controller

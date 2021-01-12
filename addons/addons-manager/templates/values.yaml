@@ -1,0 +1,15 @@
+#@data/values
+#@overlay/match-child-defaults missing_ok=True
+
+---
+tanzuAddonsManager:
+  namespace: tanzu-system
+  createNamespace: true
+  image:
+    repository: registry.tkg.vmware.run/tkg
+    path: tanzu-addons-management/tanzu-addons-controller
+    tag: v0.0.1_vmware.1
+    pullPolicy: IfNotPresent
+  deployment:
+    hostNetwork: false
+    priorityClassName: null

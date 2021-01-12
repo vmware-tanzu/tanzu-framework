@@ -167,7 +167,7 @@ func (r *AddonReconciler) KubeadmControlPlaneToClusters(o client.Object) []ctrl.
 	log.Info("Mapping kubeadm control plane to cluster")
 
 	cluster, err := util.GetOwnerCluster(context.TODO(), r.Client, kcp.ObjectMeta)
-	if err != nil {
+	if err != nil || cluster == nil {
 		log.Error(err, "Failed to get cluster owning kcp")
 		return nil
 	}
