@@ -120,3 +120,33 @@ Flags:
   -n, --namespace string   The namespace where the MachineHealthCheck object was created, default to the cluster's namespace
   -y, --yes                Delete the MachineHealthCheck object without asking for confirmation
 ```
+
+```
+>>> tanzu cluster credentials        
+Update Credentials for Cluster
+
+Usage:
+  tanzu cluster credentials [command]
+
+Available Commands:
+  update      Update credentials for cluster
+
+Flags:
+  -h, --help   help for credentials
+
+Use "cluster credentials [command] --help" for more information about a command.
+```
+
+```
+>>> tanzu cluster credentials update --help
+Update credentials for cluster
+
+Usage:
+  tanzu cluster credentials update CLUSTER_NAME [flags]
+
+Flags:
+  -h, --help                      help for update
+  -n, --namespace string          The namespace of cluster whose credentials have to be updated
+      --vsphere-password string   Password for vSphere provider
+      --vsphere-user string       Username for vSphere provider
+```
