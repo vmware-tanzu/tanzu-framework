@@ -13,13 +13,17 @@ require (
 	github.com/aunum/log v0.0.0-20200821225356-38d2e2c8b489
 	github.com/caarlos0/spin v1.1.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/fabriziopandini/capi-conditions v0.0.0-20201102133039-7eb142d1b6d6
+	github.com/fatih/color v1.10.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-logr/logr v0.1.0
 	github.com/gobwas/glob v0.2.3
 	github.com/golang/protobuf v1.4.2
+	github.com/gosuri/uitable v0.0.4
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
 	github.com/hinshun/vt10x v0.0.0-20180809195222-d55458df857c // indirect
 	github.com/imdario/mergo v0.3.9
+	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/jeremywohl/flatten v1.0.1
 	github.com/logrusorgru/aurora v2.0.3+incompatible
 	github.com/olekukonko/tablewriter v0.0.4
