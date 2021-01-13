@@ -12,7 +12,7 @@ import (
 	addonconstants "github.com/vmware-tanzu-private/core/addons/pkg/constants"
 	addontypes "github.com/vmware-tanzu-private/core/addons/pkg/types"
 	"github.com/vmware-tanzu-private/core/addons/pkg/util"
-	bomtypes "github.com/vmware-tanzu-private/core/tkr/pkg/types"
+	bomtypes "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/types"
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -206,7 +206,8 @@ func (r *AddonReconciler) reconcileAddonAppDelete(
 	ctx context.Context,
 	log logr.Logger,
 	clusterClient client.Client,
-	addonSecret *corev1.Secret) error {
+	addonSecret *corev1.Secret,
+	force bool) error {
 
 	app := &kappctrl.App{
 		ObjectMeta: metav1.ObjectMeta{
@@ -222,6 +223,29 @@ func (r *AddonReconciler) reconcileAddonAppDelete(
 		}
 		log.Error(err, "Error deleting addon app")
 		return err
+	}
+
+	// If force deletion is set, remove all finalizers from app
+	if force {
+		app := &kappctrl.App{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      util.GenerateAppNameFromAddonSecret(addonSecret),
+				Namespace: util.GenerateAppNamespaceFromAddonSecret(addonSecret),
+			},
+		}
+
+		appMutateFn := func() error {
+			app.ObjectMeta.Finalizers = []string{}
+			return nil
+		}
+
+		result, err := controllerutil.CreateOrPatch(ctx, clusterClient, app, appMutateFn)
+		if err != nil {
+			log.Error(err, "Error creating or patching addon data values secret")
+			return err
+		}
+
+		r.logOperationResult(log, "app", result)
 	}
 
 	log.Info("Deleted app")
@@ -327,7 +351,8 @@ func (r *AddonReconciler) reconcileAddonDelete(
 	ctx context.Context,
 	log logr.Logger,
 	remoteClusterClient client.Client,
-	addonSecret *corev1.Secret) error {
+	addonSecret *corev1.Secret,
+	force bool) error {
 
 	addonName := util.GetAddonNameFromAddonSecret(addonSecret)
 
@@ -337,7 +362,7 @@ func (r *AddonReconciler) reconcileAddonDelete(
 
 	clusterClient := util.GetClientFromAddonSecret(addonSecret, r.Client, remoteClusterClient)
 
-	if err := r.reconcileAddonAppDelete(ctx, log, clusterClient, addonSecret); err != nil {
+	if err := r.reconcileAddonAppDelete(ctx, log, clusterClient, addonSecret, force); err != nil {
 		log.Error(err, "Error reconciling addon app delete")
 		return err
 	}

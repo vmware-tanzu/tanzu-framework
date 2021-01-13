@@ -13,7 +13,7 @@ import (
 	"github.com/vmware-tanzu-private/core/addons/pkg/util"
 	addonpredicates "github.com/vmware-tanzu-private/core/addons/predicates"
 	runtanzuv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	bomtypes "github.com/vmware-tanzu-private/core/tkr/pkg/types"
+	bomtypes "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/types"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -37,6 +37,7 @@ import (
 
 const (
 	deleteRequeueAfter = 10 * time.Second
+	createRequeueAfter = 20 * time.Second
 )
 
 type AddonReconciler struct {
@@ -134,6 +135,8 @@ func (r *AddonReconciler) reconcileDelete(
 	log logr.Logger,
 	cluster *clusterapiv1alpha3.Cluster) (ctrl.Result, error) {
 
+	log.Info("Reconciling cluster deletion")
+
 	// Get addon secrets for the cluster
 	addonSecrets, err := util.GetAddonSecretsForCluster(ctx, r.Client, cluster)
 	if err != nil {
@@ -146,11 +149,41 @@ func (r *AddonReconciler) reconcileDelete(
 	// When cluster is deleted, we need to delete all the secrets.
 	// Deletion of secret is handled by owner reference. So, we just force remove finalizer from secret here.
 	for _, addonSecret := range addonSecrets.Items {
-		if !addonSecret.GetDeletionTimestamp().IsZero() {
-			addonName := util.GetAddonNameFromAddonSecret(&addonSecret)
+		addonName := util.GetAddonNameFromAddonSecret(&addonSecret)
 
-			if _, _, err := r.removeFinalizerFromAddonSecret(ctx, log, false, nil, &addonSecret); err != nil {
-				log.Error(err, "Error removing metadata from addon secret", constants.AddonNameLogKey, addonName)
+		// Create a patch helper for addon secret
+		patchHelper, err := clusterapipatchutil.NewHelper(&addonSecret, r.Client)
+		if err != nil {
+			errors = append(errors, err)
+			continue
+		}
+
+		// If App is remote i.e. App resides in the management cluster, delete the app and its secret
+		// from management cluster when the workload cluster is deleted.
+		// For Apps residing in workload cluster, it is not necessary to delete the app and its secret since the
+		// cluster itself is deleted.
+		if util.IsRemoteApp(&addonSecret) {
+			if err := r.reconcileAddonDelete(ctx, log, nil, &addonSecret, true); err != nil {
+				log.Error(err, "Error deleting remote app for addon", constants.AddonNameLogKey, addonName)
+				errors = append(errors, err)
+				continue
+			}
+		}
+
+		// Remove finalizer from addon secret
+		finalizerRemoved, _, err := r.removeFinalizerFromAddonSecret(ctx, log, false, nil, &addonSecret)
+		if err != nil {
+			log.Error(err, "Error removing metadata from addon secret", constants.AddonNameLogKey, addonName)
+			errors = append(errors, err)
+			continue
+		}
+
+		// Patch addon secret
+		if finalizerRemoved {
+			// Patch addon secret before returning the function
+			log.Info("Patching addon secret to remove finalizer", constants.AddonNameLogKey, addonName)
+			if err := patchHelper.Patch(ctx, addonSecret.DeepCopy()); err != nil {
+				log.Error(err, "Error patching addon secret to remove finalizer", constants.AddonNameLogKey, addonName)
 				errors = append(errors, err)
 				continue
 			}
@@ -291,7 +324,7 @@ func (r *AddonReconciler) reconcileAddonSecretDelete(
 	patchAddonSecret *bool) (ctrl.Result, error) {
 
 	// delete remote app and data values secret
-	if err := r.reconcileAddonDelete(ctx, log, clusterClient, addonSecret); err != nil {
+	if err := r.reconcileAddonDelete(ctx, log, clusterClient, addonSecret, false); err != nil {
 		log.Error(err, "Error reconciling addon delete", constants.AddonNameLogKey, addonName)
 		return ctrl.Result{}, err
 	}
