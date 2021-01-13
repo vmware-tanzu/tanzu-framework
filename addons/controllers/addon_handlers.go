@@ -1,9 +1,13 @@
+// Copyright 2021 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package controllers
 
 import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/go-logr/logr"
 	"github.com/vmware-tanzu-private/core/addons/constants"
 	"github.com/vmware-tanzu-private/core/addons/pkg/util"

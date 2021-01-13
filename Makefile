@@ -1,3 +1,5 @@
+# Copyright 2021 VMware, Inc. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 # Image URL to use all building/pushing image targets
 IMG ?= controller:latest
@@ -67,7 +69,7 @@ vet: ## Run go vet
 	$(GO) vet ./...
 
 generate: controller-gen ## Generate code via controller-gen
-	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
+	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt",year=$(shell date +%Y) paths="./..."
 
 docker-build: test ## Build the docker image
 	docker build . -t ${IMG}

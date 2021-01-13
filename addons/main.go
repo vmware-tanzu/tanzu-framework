@@ -1,7 +1,7 @@
-package main
-
-// Copyright (c) 2020 VMware, Inc. All Rights Reserved.
+// Copyright 2020 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+
+package main
 
 import (
 	"flag"
@@ -14,6 +14,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+
 	// +kubebuilder:scaffold:imports
 
 	"github.com/vmware-tanzu-private/core/addons/controllers"

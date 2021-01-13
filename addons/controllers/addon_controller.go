@@ -1,10 +1,12 @@
-// Copyright (c) 2020 VMware, Inc. All Rights Reserved.
+// Copyright 2020 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 package controllers
 
 import (
 	"context"
+	"time"
+
 	"github.com/go-logr/logr"
 	"github.com/vmware-tanzu-private/core/addons/constants"
 	addontypes "github.com/vmware-tanzu-private/core/addons/pkg/types"
@@ -31,7 +33,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/source"
-	"time"
 )
 
 const (

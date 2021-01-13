@@ -1,7 +1,11 @@
+// Copyright 2021 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package util
 
 import (
 	"context"
+
 	runtanzuv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
