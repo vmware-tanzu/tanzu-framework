@@ -6,6 +6,7 @@ import "fmt"
 var KnownRepositories = []Repository{
 	CommunityGCPBucketRepository,
 	TMCGCPBucketRepository,
+	TKGGCPBucketRepository,
 }
 
 // DefaultMultiRepo is the default multirepo with the known repositories.

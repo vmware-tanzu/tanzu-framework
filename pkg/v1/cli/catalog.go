@@ -163,7 +163,7 @@ func ParsePluginDescriptor(path string) (desc PluginDescriptor, err error) {
 }
 
 // DefaultDistro is the core set of plugins that should be included with the CLI.
-var DefaultDistro = []string{"login", "cluster", "clustergroup"}
+var DefaultDistro = []string{"login", "pinniped-auth", "cluster", "clustergroup", "management-cluster"}
 
 // Distro is a group of plugins that should be installed with the CLI on boot.
 type Distro []string
