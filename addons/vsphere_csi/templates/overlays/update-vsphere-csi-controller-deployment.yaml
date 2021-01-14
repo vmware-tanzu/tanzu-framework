@@ -1,0 +1,29 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.subset({"kind": "Deployment", "metadata": {"name": "vsphere-csi-controller"}})
+---
+spec:
+  template:
+    spec:
+      containers:
+        #@overlay/match by=overlay.subset({"name": "csi-attacher"})
+        - image: #@ "{}/{}:{}".format(data.values.vsphereCSI.CSIAttacherImage.repository, data.values.vsphereCSI.CSIAttacherImage.path, data.values.vsphereCSI.CSIAttacherImage.tag)
+          #@overlay/match missing_ok=True
+          imagePullPolicy: #@ data.values.vsphereCSI.CSIAttacherImage.pullPolicy
+        #@overlay/match by=overlay.subset({"name": "vsphere-csi-controller"})
+        - image: #@ "{}/{}:{}".format(data.values.vsphereCSI.vsphereCSIControllerImage.repository, data.values.vsphereCSI.vsphereCSIControllerImage.path, data.values.vsphereCSI.vsphereCSIControllerImage.tag)
+          #@overlay/match missing_ok=True
+          imagePullPolicy: #@ data.values.vsphereCSI.vsphereCSIControllerImage.pullPolicy
+        #@overlay/match by=overlay.subset({"name": "liveness-probe"})
+        - image: #@ "{}/{}:{}".format(data.values.vsphereCSI.livenessProbeImage.repository, data.values.vsphereCSI.livenessProbeImage.path, data.values.vsphereCSI.livenessProbeImage.tag)
+          #@overlay/match missing_ok=True
+          imagePullPolicy: #@ data.values.vsphereCSI.livenessProbeImage.pullPolicy
+        #@overlay/match by=overlay.subset({"name": "vsphere-syncer"})
+        - image: #@ "{}/{}:{}".format(data.values.vsphereCSI.vsphereSyncerImage.repository, data.values.vsphereCSI.vsphereSyncerImage.path, data.values.vsphereCSI.vsphereSyncerImage.tag)
+          #@overlay/match missing_ok=True
+          imagePullPolicy: #@ data.values.vsphereCSI.vsphereSyncerImage.pullPolicy
+        #@overlay/match by=overlay.subset({"name": "csi-provisioner"})
+        - image: #@ "{}/{}:{}".format(data.values.vsphereCSI.CSIProvisionerImage.repository, data.values.vsphereCSI.CSIProvisionerImage.path, data.values.vsphereCSI.CSIProvisionerImage.tag)
+          #@overlay/match missing_ok=True
+          imagePullPolicy: #@ data.values.vsphereCSI.CSIProvisionerImage.pullPolicy
