@@ -1,0 +1,19 @@
+#@data/values
+#@overlay/match-child-defaults missing_ok=True
+
+---
+vsphereCPI:
+  tlsThumbprint: ""
+  server: null
+  datacenter: null
+  publicNetwork: null
+  folder: ""
+  defaultDatastore: ""
+  resourcepoolPath: ""
+  username: null
+  password: null
+  image:
+    repository: "projects-stg.registry.vmware.com/tkg"
+    path: "cloud-provider-vsphere/cpi/release/manager"
+    tag: v1.2.1
+    pullPolicy: "IfNotPresent"
