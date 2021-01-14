@@ -1,8 +1,13 @@
+// Copyright 2021 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package util
 
 import (
 	"context"
 	"fmt"
+	"strconv"
+
 	"github.com/vmware-tanzu-private/core/addons/pkg/constants"
 	addontypes "github.com/vmware-tanzu-private/core/addons/pkg/types"
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
@@ -10,7 +15,6 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	clusterapiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"strconv"
 )
 
 // GetAddonSecretsForCluster gets the addon secrets belonging to the cluster

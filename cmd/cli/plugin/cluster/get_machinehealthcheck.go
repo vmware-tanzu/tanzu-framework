@@ -1,12 +1,16 @@
+// Copyright 2021 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package main
 
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
+	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
 )
 
@@ -18,11 +22,11 @@ type getMachineHealthCheckOptions struct {
 var getMHC = &getMachineHealthCheckOptions{}
 
 var getMachineHealthCheckCmd = &cobra.Command{
-	Use:     "get CLUSTER_NAME",
-	Short:   "Get MachineHealthCheck object",
-	Long:    "Get a MachineHealthCheck object for the given cluster",
-	Args:    cobra.ExactArgs(1),
-	RunE: getMachineHealthCheck,
+	Use:   "get CLUSTER_NAME",
+	Short: "Get MachineHealthCheck object",
+	Long:  "Get a MachineHealthCheck object for the given cluster",
+	Args:  cobra.ExactArgs(1),
+	RunE:  getMachineHealthCheck,
 }
 
 func init() {

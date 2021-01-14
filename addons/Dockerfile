@@ -1,3 +1,6 @@
+# Copyright 2021 VMware, Inc. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 # Build the manager binary
 FROM mirror.gcr.io/library/golang:1.14 as builder
 

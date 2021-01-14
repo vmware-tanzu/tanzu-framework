@@ -1,7 +1,11 @@
+// Copyright 2021 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package predicates
 
 import (
 	"fmt"
+
 	"github.com/go-logr/logr"
 	"github.com/vmware-tanzu-private/core/addons/constants"
 	addontypes "github.com/vmware-tanzu-private/core/addons/pkg/types"

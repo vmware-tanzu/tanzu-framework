@@ -1,9 +1,13 @@
+// Copyright 2021 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package util
 
 import (
 	"context"
+
 	"github.com/vmware-tanzu-private/core/addons/pkg/constants"
-	bomtypes "github.com/vmware-tanzu-private/core/tkr/pkg/types"
+	bomtypes "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/types"
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )

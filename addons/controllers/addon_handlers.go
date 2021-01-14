@@ -1,9 +1,13 @@
+// Copyright 2021 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package controllers
 
 import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/go-logr/logr"
 	"github.com/vmware-tanzu-private/core/addons/constants"
 	"github.com/vmware-tanzu-private/core/addons/pkg/util"
@@ -86,9 +90,14 @@ func (r *AddonReconciler) AddonSecretToClusters(o client.Object) []ctrl.Request 
 	}
 
 	cluster, err := util.GetClusterByName(context.TODO(), r.Client, secret.Namespace, clusterName)
-	if err != nil || cluster == nil {
+	if err != nil {
 		log.Error(err, "Error getting cluster object",
 			constants.ClusterNamespaceLogKey, secret.Namespace, constants.ClusterNameLogKey, clusterName)
+		return nil
+	}
+
+	if cluster == nil {
+		log.Info("Cluster not found for addon secret")
 		return nil
 	}
 
@@ -169,6 +178,11 @@ func (r *AddonReconciler) KubeadmControlPlaneToClusters(o client.Object) []ctrl.
 	cluster, err := util.GetOwnerCluster(context.TODO(), r.Client, kcp.ObjectMeta)
 	if err != nil || cluster == nil {
 		log.Error(err, "Failed to get cluster owning kcp")
+		return nil
+	}
+
+	if cluster == nil {
+		log.Info("Cluster not found for kcp")
 		return nil
 	}
 

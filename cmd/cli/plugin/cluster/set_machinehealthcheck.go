@@ -1,7 +1,11 @@
+// Copyright 2021 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package main
 
 import (
 	"errors"
+
 	"github.com/spf13/cobra"
 	"github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/client"
@@ -19,11 +23,11 @@ type setMachineHealthCheckOptions struct {
 var setMHC = &setMachineHealthCheckOptions{}
 
 var setMachineHealthCheckCmd = &cobra.Command{
-	Use:     "set CLUSTER_NAME",
-	Short:   "Create or update a MachineHealthCheck for a cluster",
-	Long:    "Create or update a MachineHealthCheck for a cluster",
-	Args:    cobra.ExactArgs(1),
-	RunE:    setMachineHealthCheck,
+	Use:   "set CLUSTER_NAME",
+	Short: "Create or update a MachineHealthCheck for a cluster",
+	Long:  "Create or update a MachineHealthCheck for a cluster",
+	Args:  cobra.ExactArgs(1),
+	RunE:  setMachineHealthCheck,
 }
 
 func init() {

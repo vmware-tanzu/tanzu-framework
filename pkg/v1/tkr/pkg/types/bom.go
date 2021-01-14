@@ -1,6 +1,11 @@
+// Copyright 2021 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package types
 
 import (
+	"fmt"
+
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 )
@@ -33,6 +38,10 @@ type OSInfo struct {
 	Name    string `yaml:"name"`
 	Version string `yaml:"version"`
 	Arch    string `yaml:"arch"`
+}
+
+func (os OSInfo) String() string {
+	return fmt.Sprintf("%s-%s-%s", os.Name, os.Version, os.Arch)
 }
 
 type OVAInfo struct {

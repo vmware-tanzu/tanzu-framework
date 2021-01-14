@@ -1,0 +1,10 @@
+
+(@ def vsphere_conf(values): -@)
+[Global]
+secret-name = "cloud-provider-vsphere-credentials"
+secret-namespace = "kube-system"
+thumbprint = "(@=values.vsphereCPI.tlsThumbprint @)"
+[VirtualCenter "(@=values.vsphereCPI.server @)"]
+datacenters = "(@=values.vsphereCPI.datacenter @)"
+thumbprint = "(@=values.vsphereCPI.tlsThumbprint @)"
+(@- end @)

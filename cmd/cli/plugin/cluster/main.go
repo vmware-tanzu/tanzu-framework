@@ -1,3 +1,6 @@
+// Copyright 2021 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package main
 
 import (
@@ -33,6 +36,7 @@ func main() {
 		upgradeClusterCmd,
 		scaleClusterCmd,
 		machineHealthCheckCmd,
+		credentialsCmd,
 	)
 	if err := p.Execute(); err != nil {
 		os.Exit(1)

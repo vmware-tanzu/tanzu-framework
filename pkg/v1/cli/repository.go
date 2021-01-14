@@ -1,3 +1,6 @@
+// Copyright 2021 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package cli
 
 import (
@@ -111,11 +114,18 @@ var CommunityGCPBucketRepository = &GCPBucketRepository{
 	name:       CommunityRepositoryName,
 }
 
-// TMCGCPBucketRepository is the default GCP bucket repository.
+// TMCGCPBucketRepository is the GCP bucket repository for TMC plugins.
 var TMCGCPBucketRepository = &GCPBucketRepository{
 	bucketName: "tmc-cli-plugins",
 	rootPath:   DefaultArtifactsDirectory,
 	name:       "manage",
+}
+
+// TKGGCPBucketRepository is the GCP bucket repository for TKG plugins.
+var TKGGCPBucketRepository = &GCPBucketRepository{
+	bucketName: "tanzu-cli-tkg-plugins",
+	rootPath:   DefaultArtifactsDirectory,
+	name:       "run",
 }
 
 // LoadRepositories loads the repositories from the config file along with the known repositories.

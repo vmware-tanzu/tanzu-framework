@@ -1,3 +1,6 @@
+# Copyright 2021 VMware, Inc. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 IMG ?= controller:latest
 GOOS ?= $(shell go env GOOS)
 GOARCH ?= $(shell go env GOARCH)

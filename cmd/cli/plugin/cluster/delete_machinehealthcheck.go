@@ -1,3 +1,6 @@
+// Copyright 2021 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package main
 
 import (
@@ -20,8 +23,8 @@ var deleteMachineHealthCheckCmd = &cobra.Command{
 	Use:   "delete CLUSTER_NAME",
 	Short: "Delete a MachineHealthCheck object of a cluster",
 	Long:  "Delete a MachineHealthCheck object of a cluster",
-	Args:    cobra.ExactArgs(1),
-	RunE: deleteMachineHealthCheck,
+	Args:  cobra.ExactArgs(1),
+	RunE:  deleteMachineHealthCheck,
 }
 
 func init() {

@@ -1,3 +1,6 @@
+// Copyright 2021 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package cli
 
 import "fmt"
@@ -6,6 +9,7 @@ import "fmt"
 var KnownRepositories = []Repository{
 	CommunityGCPBucketRepository,
 	TMCGCPBucketRepository,
+	TKGGCPBucketRepository,
 }
 
 // DefaultMultiRepo is the default multirepo with the known repositories.
