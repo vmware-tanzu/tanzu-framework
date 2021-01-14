@@ -20,11 +20,13 @@ require (
 	github.com/gobwas/glob v0.2.3
 	github.com/golang/protobuf v1.4.2
 	github.com/gosuri/uitable v0.0.4
+	github.com/google/go-containerregistry v0.0.0-20190412005658-1d38b9cfdb9d
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
 	github.com/hinshun/vt10x v0.0.0-20180809195222-d55458df857c // indirect
 	github.com/imdario/mergo v0.3.9
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/jeremywohl/flatten v1.0.1
+	github.com/k14s/imgpkg v0.2.0
 	github.com/logrusorgru/aurora v2.0.3+incompatible
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/onsi/ginkgo v1.14.1

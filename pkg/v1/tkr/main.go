@@ -81,14 +81,9 @@ func main() {
 	}
 
 	if err := tkrsourcectr.AddToManager(mgrContext, mgr); err != nil {
-		setupLog.Error(err, "error initialzing the tkr-source-controller")
+		setupLog.Error(err, "error initializing the tkr-source-controller")
 		os.Exit(1)
 	}
-
-	/*if err := tkrlabelctr.AddToManager(mgrContext, mgr); err != nil {
-		setupLog.Error(err, "error initialzing the tkr-labeling-controller")
-		os.Exit(1)
-	}*/
 
 	// +kubebuilder:scaffold:builder
 
