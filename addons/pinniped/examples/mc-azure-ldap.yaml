@@ -1,0 +1,26 @@
+#@data/values
+#@overlay/match-child-defaults missing_ok=True
+---
+infrastructure_provider: "azure"
+tkg_cluster_role: "management"
+pinniped:
+  cert_duration: "2160h"
+  cert_renew_before: "360h"
+dex:
+  config:
+    connector: ldap
+    ldap:
+      host: ldaps.eng.vmware.com:636
+      userSearch:
+        baseDN: 'ou=people,dc=vmware,dc=com'
+        filter: '(objectClass=posixAccount)'
+        username: uid
+        idAttr: uid
+        emailAttr: uid
+        nameAttr: uid
+      groupSearch:
+        baseDN: 'dc=vmware,dc=com'
+        filter: '(objectClass=posixGroup)'
+        userAttr: uid
+        groupAttr: memberUid
+        nameAttr: cn

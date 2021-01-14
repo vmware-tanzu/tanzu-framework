@@ -1,0 +1,45 @@
+#@ load("/values.star", "values")
+#@ load("@ytt:overlay", "overlay")
+#@ load("/globals.star", "get_image_location", "globals")
+
+#@ if values.tkg_cluster_role != "workload":
+
+#@overlay/match by=overlay.subset({"kind": "Deployment", "metadata": {"name": "dex"}})
+---
+spec:
+  replicas: #@ values.dex.deployment.replicas
+  template:
+    spec:
+      containers:
+      #@overlay/match by=overlay.subset({"name": "dex"})
+      - name: dex
+        #@ if values.dex.config.connector == "oidc":
+        #@overlay/match missing_ok=True
+        env:
+        - name: OIDC_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              key: clientId
+              name: oidc
+        - name: OIDC_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: clientSecret
+              name: oidc
+        #@ end
+        image: #@ get_image_location(values.dex.image.repository, values.dex.image.name, values.dex.image.tag)
+        imagePullPolicy: #@ values.dex.image.pullPolicy
+      volumes:
+      #@ if values.dex.config.connector == "oidc":
+      #@overlay/append
+      - name: oidc
+        secret:
+          defaultMode: 420
+          secretName: oidc
+      #@ end
+      #@overlay/match by=overlay.subset({"name": "tls"})
+      - name: tls
+        secret:
+          secretName: #@ values.dex.app + "-cert-tls"
+
+#@ end

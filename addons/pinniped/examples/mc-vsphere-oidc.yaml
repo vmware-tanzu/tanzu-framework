@@ -1,0 +1,15 @@
+#@data/values
+#@overlay/match-child-defaults missing_ok=True
+---
+infrastructure_provider: "vsphere"
+tkg_cluster_role: "management"
+pinniped:
+  cert_duration: "2160h"
+  cert_renew_before: "360h"
+dex:
+  config:
+    connector: oidc
+    oidc:
+      CLIENT_ID: 0oaxxxxxxxxxxxxxHy5d6
+      CLIENT_SECRET: _7Paxxxxxxxxxxxxza1v
+      issuer: https://xxxxxxxxxxx.okta.com

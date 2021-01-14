@@ -1,0 +1,29 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+#@ load("/globals.star", "get_image_location", "globals")
+
+#@ pinniped_image = data.values.pinniped.image
+
+#@ if data.values.tkg_cluster_role == "management":
+#@overlay/match by=overlay.subset({"kind": "Deployment", "metadata": {"name": "pinniped-supervisor"}})
+---
+spec:
+  template:
+    spec:
+      containers:
+        #@overlay/match by=overlay.subset({"name": "pinniped-supervisor"})
+        - name: pinniped-supervisor
+          image: #@ get_image_location(pinniped_image.repository, pinniped_image.name, pinniped_image.tag)
+          imagePullPolicy: #@ pinniped_image.pull_policy
+#@ end
+
+#@overlay/match by=overlay.subset({"kind": "Deployment", "metadata": {"name": "pinniped-concierge"}})
+---
+spec:
+  template:
+    spec:
+      containers:
+        #@overlay/match by=overlay.subset({"name": "pinniped-concierge"})
+        - name: pinniped-concierge
+          image: #@ get_image_location(pinniped_image.repository, pinniped_image.name, pinniped_image.tag)
+          imagePullPolicy: #@ pinniped_image.pull_policy

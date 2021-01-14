@@ -1,0 +1,134 @@
+#@ load("/values.star", "values")
+#@ load("/globals.star", "globals", "get_kapp_annotations")
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:yaml", "yaml")
+
+#@ if values.tkg_cluster_role != "workload":
+
+#@ dex_metadata = overlay.subset({"metadata": {"name": "dex"}})
+
+#@ def dex_configmap_yaml():
+
+#@ if globals.infrastructure_provider == "aws":
+issuer: #@ "https://" + values.dns.aws.DEX_SVC_LB_HOSTNAME
+#@ elif globals.infrastructure_provider == "azure":
+issuer: #@ "https://" + values.dns.azure.DEX_SVC_LB_HOSTNAME
+#@ elif globals.infrastructure_provider == "vsphere":
+issuer: #@ "https://" + values.dns.vsphere.ipAddresses[0] + ":" + values.dex.config.issuerPort
+#@ end
+frontend: #@ values.dex.config.frontend
+web: #@ values.dex.config.web
+expiry:
+  #@ if/end values.dex.config.expiry.signingKeys:
+  signingKeys: #@ values.dex.config.expiry.signingKeys
+  #@ if/end values.dex.config.expiry.idTokens:
+  idTokens:  #@ values.dex.config.expiry.idTokens
+
+logger: #@ values.dex.config.logger
+
+staticClients: #@ values.dex.config.staticClients
+#@ if values.dex.config.connector == "oidc":
+connectors:
+- type: oidc
+  id: oidc
+  name: oidc
+  config:
+    issuer: #@ values.dex.config.oidc.issuer
+    clientID: #@ values.dex.config.oidc.clientID
+    clientSecret: #@ values.dex.config.oidc.clientSecret
+#@ if globals.infrastructure_provider == "aws":   
+    redirectURI: #@ "https://" + values.dns.aws.DEX_SVC_LB_HOSTNAME + "/callback"
+#@ elif globals.infrastructure_provider == "azure":
+    redirectURI: #@ "https://" + values.dns.azure.DEX_SVC_LB_HOSTNAME + "/callback"
+#@ elif globals.infrastructure_provider == "vsphere":
+    redirectURI: #@ "https://" + values.dns.vsphere.ipAddresses[0] + ":" + values.dex.config.issuerPort + "/callback"
+#@ end
+    #@ if/end values.dex.config.oidc.basicAuthUnsupported:
+    basicAuthUnsupported:  #@ values.dex.config.oidc.basicAuthUnsupported
+    #@ if/end values.dex.config.oidc.hostedDomains:
+    hostedDomains: #@ values.dex.config.oidc.hostedDomains
+    #@ if/end values.dex.config.oidc.scopes:
+    scopes: #@  values.dex.config.oidc.scopes
+    #@ if/end values.dex.config.oidc.insecureSkipEmailVerified:
+    insecureSkipEmailVerified: #@ values.dex.config.oidc.insecureSkipEmailVerified
+    #@ if/end values.dex.config.oidc.insecureEnableGroups:
+    insecureEnableGroups: #@ values.dex.config.oidc.insecureEnableGroups
+    #@ if/end values.dex.config.oidc.getUserInfo:
+    getUserInfo: #@ values.dex.config.oidc.getUserInfo
+    #@ if/end values.dex.config.oidc.userIDKey:
+    userIDKey: #@ values.dex.config.oidc.userIDKey
+    #@ if/end values.dex.config.oidc.userNameKey:
+    userNameKey: #@ values.dex.config.oidc.userNameKey
+
+#@ elif values.dex.config.connector == "ldap":
+connectors:
+- type: ldap
+  id: ldap
+  name: LDAP
+  config:
+    #@ if/end values.dex.config.ldap.host:
+    host: #@ values.dex.config.ldap.host
+    insecureSkipVerify: #@ values.dex.config.ldap.insecureSkipVerify
+    #@ if/end values.dex.config.ldap.bindDN:
+    bindDN: #@ values.dex.config.ldap.bindDN
+    #@ if/end values.dex.config.ldap.bindPW:
+    bindPW: #@ values.dex.config.ldap.bindPW
+    #@ if/end values.dex.config.ldap.usernamePrompt:
+    usernamePrompt: #@ values.dex.config.ldap.usernamePrompt
+    #@ if/end values.dex.config.ldap.userSearch:
+    userSearch:
+      #@ if/end values.dex.config.ldap.userSearch.baseDN:
+      baseDN: #@ values.dex.config.ldap.userSearch.baseDN
+      #@ if/end values.dex.config.ldap.userSearch.filter:
+      filter: #@ values.dex.config.ldap.userSearch.filter
+      #@ if/end values.dex.config.ldap.userSearch.username:
+      username: #@ values.dex.config.ldap.userSearch.username
+      #@ if/end values.dex.config.ldap.userSearch.idAttr:
+      idAttr: #@ values.dex.config.ldap.userSearch.idAttr
+      #@ if/end values.dex.config.ldap.userSearch.emailAttr:
+      emailAttr: #@ values.dex.config.ldap.userSearch.emailAttr
+      #@ if/end values.dex.config.ldap.userSearch.nameAttr:
+      nameAttr: #@ values.dex.config.ldap.userSearch.nameAttr
+    #@ if/end values.dex.config.ldap.groupSearch:
+    groupSearch:
+      #@ if/end values.dex.config.ldap.groupSearch.baseDN:
+      baseDN: #@ values.dex.config.ldap.groupSearch.baseDN
+      #@ if/end values.dex.config.ldap.groupSearch.filter:
+      filter: #@ values.dex.config.ldap.groupSearch.filter  
+      #@ if/end values.dex.config.ldap.groupSearch.userAttr:
+      userAttr: #@ values.dex.config.ldap.groupSearch.userAttr
+      #@ if/end values.dex.config.ldap.groupSearch.groupAttr:
+      groupAttr: #@ values.dex.config.ldap.groupSearch.groupAttr
+      #@ if/end values.dex.config.ldap.groupSearch.nameAttr:
+      nameAttr: #@ values.dex.config.ldap.groupSearch.nameAttr
+    #@ if/end values.dex.config.ldap.insecureNoSSL:
+    insecureNoSSL: #@ values.dex.config.ldap.insecureNoSSL
+    #@ if/end values.dex.config.ldap.startTLS:
+    startTLS: #@ values.dex.config.ldap.startTLS
+    #@ if/end values.dex.config.ldap.rootCA:
+    rootCA: #@ values.dex.config.ldap.rootCA
+    #@ if/end values.dex.config.ldap.rootCAData:
+    rootCAData: #@ values.dex.config.ldap.rootCAData
+#@ end
+
+oauth2: #@ values.dex.config.oauth2
+
+storage: #@ values.dex.config.storage
+
+enablePasswordDB: #@ values.dex.config.enablePasswordDB
+
+#@ end
+
+
+#@overlay/match by=overlay.and_op(overlay.subset({"kind": "ConfigMap"}), dex_metadata)
+---
+metadata:
+  #@ annotations = get_kapp_annotations("ConfigMap")
+  #@ if annotations:
+  #@overlay/match missing_ok=True
+  annotations: #@ annotations
+  #@ end
+data:
+  config.yaml: #@ yaml.encode(dex_configmap_yaml())
+
+#@ end

@@ -1,0 +1,127 @@
+#@data/values
+#@overlay/match-child-defaults missing_ok=True
+---
+infrastructure_provider: null
+tkg_cluster_role: null
+
+pinniped:
+  cert_duration: "2160h"
+  cert_renew_before: "360h"
+  supervisor_svc_endpoint: "" #! required if on workload cluster
+  supervisor_ca_bundle_data: "" #! required if on workload cluster
+  upstream_oidc_provider_name: "dex"
+  upstream_oidc_client_id: "pinniped-client-id"
+  upstream_oidc_client_secret: "7e5b360003caaef8855f88bdb154387c"
+  upstream_oidc_issuer_url: "https://endpoint-points-to-dex"
+  image:
+    name: pinniped
+    tag: v0.3.0_vmware.1
+    repository: registry.tkg.vmware.run
+    pull_policy: IfNotPresent
+  post_deploy_job_image:
+    name: tkg-pinniped-post-deploy
+    tag: v0.3.0_vmware.1
+    repository: registry.tkg.vmware.run
+    pull_policy: Always
+
+dex:
+  app: dex
+  create_namespace: true
+  namespace: tanzu-system-auth
+  organization: vmware
+  commonname: tkg-dex
+  config:
+    frontend:
+      theme: tkg
+    web:
+      https: 0.0.0.0:5556
+      tlsCert: /etc/dex/tls/tls.crt
+      tlsKey: /etc/dex/tls/tls.key
+    expiry:
+      signingKeys: 10m
+      idTokens: 5m
+    logger:
+      level: debug
+      format: json
+    staticClients:
+    - id: pinniped-client-id
+      redirectURIs:
+      - 'https://0.0.0.0/callback' #! some random dummy value, updated by post deployment job
+      name: pinniped-client-id
+      secret: c2cc2efc997490fb44e3c2ea4a9a8e84 #! some random dummy value, updated by post deployment job
+    connector: null  #! dex config should be either oidc or ldap
+    issuerPort: "30167" #! requred only for MGMT_CLUSTER_VIP if provider is vsphere. Default is "30167"
+    oidc:
+      CLIENT_ID: null #! required if oidc enabled
+      CLIENT_SECRET: null #! required if oidc enabled
+      issuer: null #! <OIDC_IDP_URL> is required if oidc enabled
+      clientID: $OIDC_CLIENT_ID  #! do not change this
+      clientSecret: $OIDC_CLIENT_SECRET #! do not change this
+      basicAuthUnsupported: null
+      hostedDomains: []
+      scopes: []
+      insecureEnableGroups: null
+      insecureSkipEmailVerified: true
+      getUserInfo: null
+      userIDKey: null
+      userNameKey: null
+    ldap:
+      host: null #! <LDAP_HOST> is required if ldap enabed
+      insecureNoSSL: null
+      startTLS: null
+      rootCA: null #! <rootCA> or <rootCAData> if required when LDAP host is using self signed certificate. Path to the CA file
+      rootCAData: null #! <rootCA> or <rootCAData> if required when LDAP host is using self signed certificate. Actual CA bundle
+      bindDN: null #! <bindDN> is required when host doesn't support anonymous authentication
+      bindPW: null #! <bindPW> is required when host doesn't support anonymous authentication
+      usernamePrompt: LDAP Username
+      insecureSkipVerify: False
+      userSearch:
+        baseDN: null #! required if ldap userSearch enabled
+        filter: "(objectClass=posixAccount)"
+        username: uid
+        idAttr: uid
+        emailAttr: mail
+        nameAttr: givenName
+      groupSearch:
+        baseDN: null  #! required if ldap groupSearch enabled
+        filter: "(objectClass=posixGroup)"
+        userAttr: uid
+        groupAttr: memberUid
+        nameAttr: cn
+    oauth2:
+      skipApprovalScreen: true
+      responseTypes:
+      - "code"
+      - "token"
+      - "id_token"
+    storage:
+     type: kubernetes
+     config:
+       inCluster: true     
+    enablePasswordDB: false
+  service:
+    name: dexsvc
+    type: null
+  deployment:
+    replicas: 1
+  certificate: 
+    duration: 2160h
+    renewBefore: 360h
+  image:
+    name: dex
+    tag: v2.22.0_vmware.2
+    repository: registry.tkg.vmware.run
+    pullPolicy: IfNotPresent
+dns:
+  aws:
+    dnsNames: 
+    - tkg-dex.com
+    DEX_SVC_LB_HOSTNAME: example.com #! <DEX_SVC_LB_HOSTNAME> is required for AWS
+  vsphere:
+    dnsNames:
+    - tkg-dex
+    ipAddresses: [0.0.0.0] #! Dummy value. Will be updated by post-deployment job
+  azure:
+    dnsNames:
+    - tkg-dex.com
+    DEX_SVC_LB_HOSTNAME: dex.example.com #! <DEX_SVC_LB_HOSTNAME> is required for azure

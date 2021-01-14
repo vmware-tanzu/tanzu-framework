@@ -1,0 +1,58 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+#@ load("/libs/constants.lib.yaml", "pinniped_supervisor_namespace", "pinniped_concierge_namespace", "jwt_authenticator_name", "federation_domain_name", "pinniped_supervisor_svc_name", "pinniped_cert_name", "post_deploy_job_name")
+#@ load("/globals.star", "get_image_location", "globals")
+#@ load("/kinds.lib.yaml", "kind_overlays")
+
+#@ kind = kind_overlays
+#@ job_metadata = overlay.subset({"metadata": {"name" : post_deploy_job_name()}})
+#@ post_deploy_job_image = data.values.pinniped.post_deploy_job_image
+
+#@ if data.values.tkg_cluster_role == "management":
+
+#@ commands = [
+#@  "/tkg-pinniped-post-deploy",
+#@  "--supervisor-namespace={}".format(pinniped_supervisor_namespace()),
+#@  "--concierge-namespace={}".format(pinniped_concierge_namespace()),
+#@  "--supervisor-svc-name={}".format(pinniped_supervisor_svc_name()),
+#@  "--federationdomain-name={}".format(federation_domain_name()),
+#@  "--jwtauthenticator-name={}".format(jwt_authenticator_name()),
+#@  "--supervisor-cert-name={}".format(pinniped_cert_name()),
+#@  "--dex-namespace={}".format(data.values.dex.namespace),
+#@  "--dex-svc-name={}".format(data.values.dex.service.name),
+#@  "--dex-cert-name={}-cert".format(data.values.dex.app),
+#@  "--dex-configmap-name={}".format(data.values.dex.app)]
+
+
+#@overlay/match by=overlay.and_op(kind.job, job_metadata)
+---
+spec:
+  template:
+    spec:
+      #@overlay/match missing_ok=True
+      containers:
+        - name: pinniped-post-deploy
+          image:  #@ get_image_location(post_deploy_job_image.repository, post_deploy_job_image.name, post_deploy_job_image.tag)
+          imagePullPolicy: #@ post_deploy_job_image.pull_policy
+          command: #@ commands
+#@ else:
+
+#@ commands = [
+#@  "/tkg-pinniped-post-deploy",
+#@  "--jwtauthenticator-name={}".format(jwt_authenticator_name()),
+#@  "--concierge-namespace={}".format(pinniped_concierge_namespace()),
+#@  "--supervisor-svc-endpoint={}".format(data.values.pinniped.supervisor_svc_endpoint),
+#@  "--supervisor-ca-bundle-data={}".format(data.values.pinniped.supervisor_ca_bundle_data)]
+
+#@overlay/match by=overlay.and_op(kind.job, job_metadata)
+---
+spec:
+  template:
+    spec:
+      #@overlay/match missing_ok=True
+      containers:
+        - name: pinniped-post-deploy
+          image: #@ get_image_location(post_deploy_job_image.repository, post_deploy_job_image.name, post_deploy_job_image.tag)
+          imagePullPolicy: #@ post_deploy_job_image.pull_policy
+          command: #@ commands
+#@ end

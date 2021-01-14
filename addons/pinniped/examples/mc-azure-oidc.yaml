@@ -1,0 +1,15 @@
+#@data/values
+#@overlay/match-child-defaults missing_ok=True
+---
+infrastructure_provider: "azure"
+tkg_cluster_role: "management"
+pinniped:
+  cert_duration: "2160h"
+  cert_renew_before: "360h"
+dex:
+  config:
+    connector: oidc
+    oidc:
+      CLIENT_ID: 0oxxxxxxxxx5d6
+      CLIENT_SECRET: axxxxxxxxxxxxxxxxW6oAe
+      issuer: https://xxxxxxxxx.okta.com
