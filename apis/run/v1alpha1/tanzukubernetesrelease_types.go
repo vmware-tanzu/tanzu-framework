@@ -13,6 +13,11 @@ const (
 	ConditionUpgradeAvailable = "UpgradeAvailable"
 )
 
+const (
+	ConditionCompatible       = "Compatible"
+	ConditionUpgradeAvailable = "UpgradeAvailable"
+)
+
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
@@ -71,6 +76,16 @@ func (ci ContainerImage) String() string {
 		suffix = ":" + ci.Tag
 	}
 	return prefix + ci.Name + suffix
+}
+
+// GetConditions implements capi conditions Getter interface
+func (r *TanzuKubernetesRelease) GetConditions() clusterv1.Conditions {
+	return r.Status.Conditions
+}
+
+// SetConditions implements capi conditions Setter interface
+func (r *TanzuKubernetesRelease) SetConditions(conditions clusterv1.Conditions) {
+	r.Status.Conditions = conditions
 }
 
 // +kubebuilder:object:root=true

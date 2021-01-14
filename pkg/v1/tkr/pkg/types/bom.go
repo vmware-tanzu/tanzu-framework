@@ -28,7 +28,6 @@ type ComponentInfo struct {
 	Metadata map[string]string `yaml:"metadata,omitempty"`
 }
 
-// Image contains image info
 type ImageInfo struct {
 	ImagePath string `yaml:"imagePath"`
 	Tag       string `yaml:"tag"`
@@ -114,7 +113,6 @@ func NewBom(content []byte) (Bom, error) {
 	if bc.Release.Version == "" {
 		return Bom{}, errors.New("Bom does not contain proper release information")
 	}
-
 	if len(bc.Components) == 0 {
 		return Bom{}, errors.New("Bom does not contain release component information")
 	}
@@ -130,7 +128,7 @@ func NewBom(content []byte) (Bom, error) {
 }
 
 // GetTanzuReleaseVersion gets the Tanzu release version
-func (b *Bom) GetTanzuReleaseVersion() (string, error) {
+func (b *Bom) GetReleaseVersion() (string, error) {
 	if !b.initialzed {
 		return "", errors.New("the BOM is not initialized")
 	}
@@ -142,8 +140,8 @@ func (b *Bom) GetComponent(name string) ([]ComponentInfo, error) {
 	if !b.initialzed {
 		return []ComponentInfo{}, errors.New("the BOM is not initialized")
 	}
-	if release, ok := b.bom.Components[name]; ok {
-		return release, nil
+	if component, ok := b.bom.Components[name]; ok {
+		return component, nil
 	}
 	return []ComponentInfo{}, errors.Errorf("unable to find the component %s", name)
 }

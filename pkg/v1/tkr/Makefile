@@ -1,7 +1,7 @@
 # Copyright 2021 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-IMG ?= controller:latest
+IMG ?= tkr-controller-manager:latest
 GOOS ?= $(shell go env GOOS)
 GOARCH ?= $(shell go env GOARCH)
 CRD_OPTIONS ?= "crd:trivialVersions=true"
@@ -15,6 +15,9 @@ endif
 
 PRIVATE_REPOS="github.com/vmware-tanzu-private"
 GO := GOPRIVATE=${PRIVATE_REPOS} go
+
+# ssh private key file name
+SSH_PRIVATE_KEY ?= .private_ssh_key
 
 all: manager
 
@@ -63,3 +66,12 @@ CONTROLLER_GEN=$(GOBIN)/controller-gen
 else
 CONTROLLER_GEN=$(shell which controller-gen)
 endif
+
+.PHONY: fakes
+fakes: ## Generate fake files for go unit tests
+	go generate ./pkg/...
+
+
+.PHONY: docker-build
+docker-build:
+	cd ../../../ && docker build -t $(IMG) -f pkg/v1/tkr/Dockerfile --build-arg SSH_PRIVATE_KEY=$(SSH_PRIVATE_KEY) .
