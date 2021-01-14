@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go/storage v1.0.0
 	github.com/AlecAivazis/survey/v2 v2.1.1
 	github.com/Jeffail/gabs v1.4.0
+	github.com/MakeNowJust/heredoc v1.0.0
 	github.com/Netflix/go-expect v0.0.0-20190729225929-0e00d9168667 // indirect
 	github.com/adrg/xdg v0.2.1
 	github.com/amenzhinsky/go-memexec v0.3.0
@@ -18,19 +19,19 @@ require (
 	github.com/golang/protobuf v1.4.2
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
 	github.com/hinshun/vt10x v0.0.0-20180809195222-d55458df857c // indirect
+	github.com/imdario/mergo v0.3.9
 	github.com/jeremywohl/flatten v1.0.1
 	github.com/logrusorgru/aurora v2.0.3+incompatible
-	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/onsi/ginkgo v1.14.1
-	github.com/onsi/gomega v1.10.2
+	github.com/onsi/gomega v1.10.3
 	github.com/pkg/errors v0.9.1
 	github.com/satori/go.uuid v1.2.0
 	github.com/spf13/cobra v1.1.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.6.1
-	github.com/vmware-tanzu-private/tkg-cli v1.3.0-pre-alpha-1
-	github.com/vmware-tanzu-private/tkg-providers v1.3.0-pre-alpha-1 // indirect
+	github.com/vmware-tanzu-private/tkg-cli v1.3.0-pre-alpha-1.0.20210114003033-285a8c9131d4
+	github.com/vmware-tanzu-private/tkg-providers v1.3.0-pre-alpha-1.0.20210113202657-eb07b4e0558d
 	go.opencensus.io v0.22.2 // indirect
 	go.uber.org/multierr v1.1.0
 	golang.org/x/mod v0.3.0

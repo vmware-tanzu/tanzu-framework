@@ -17,7 +17,7 @@ GOBINDATA := $(TOOLS_BIN_DIR)/go-bindata-$(GOOS)-$(GOARCH)
 
 PINNIPED_GIT_REPOSITORY = https://github.com/vmware-tanzu/pinniped.git
 ifeq ($(strip $(PINNIPED_GIT_COMMIT)),)
-PINNIPED_GIT_COMMIT = main
+PINNIPED_GIT_COMMIT = v0.3.0
 endif
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
@@ -120,12 +120,12 @@ install-cli: ## Install Tanzu CLI
 	$(GO) install -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu
 
 .PHONY: build-cli
-build-cli: ## Build Tanzu CLI
+build-cli: generate-pinniped-bindata ## Build Tanzu CLI
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu"
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin
 
 .PHONY: build-cli-local
-build-cli-local: ## Build Tanzu CLI locally 
+build-cli-local: generate-pinniped-bindata ## Build Tanzu CLI locally 
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --target local
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin --target local
 
@@ -164,11 +164,12 @@ generate-pinniped-bindata: $(GOBINDATA)
 	@rm -rf pinniped
 	@mkdir -p pinniped
 	@GIT_TERMINAL_PROMPT=0 git clone ${PINNIPED_GIT_REPOSITORY} pinniped
-	cd pinniped && GIT_TERMINAL_PROMPT=0 git checkout -f $(PINNIPED_GIT_COMMIT) && go build -o pinniped ./cmd/pinniped
+	cd pinniped && GIT_TERMINAL_PROMPT=0 git checkout -f $(PINNIPED_GIT_COMMIT) && $(GO) build -o pinniped ./cmd/pinniped
 	$(GOBINDATA) -mode=420 -modtime=1 -o=pkg/v1/auth/tkg/zz_generated.bindata.go -pkg=tkgauth pinniped/pinniped
+	git update-index --assume-unchanged pkg/v1/auth/tkg/zz_generated.bindata.go
 	@rm -rf pinniped
 
 
 $(GOBINDATA): $(TOOLS_DIR)/go.mod # Build go-bindata from tools folder
 	mkdir -p $(TOOLS_BIN_DIR)
-	cd $(TOOLS_DIR); go build -tags=tools -o ../../$(TOOLS_BIN_DIR) github.com/shuLhan/go-bindata/... ; mv ../../$(TOOLS_BIN_DIR)/go-bindata ../../$(GOBINDATA)
+	cd $(TOOLS_DIR); $(GO) build -tags=tools -o ../../$(TOOLS_BIN_DIR) github.com/shuLhan/go-bindata/... ; mv ../../$(TOOLS_BIN_DIR)/go-bindata ../../$(GOBINDATA)
