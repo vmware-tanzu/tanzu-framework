@@ -302,7 +302,7 @@ func (r *AddonReconciler) reconcileAddonAppNormal(
 		app.Spec.Fetch = []kappctrl.AppFetch{
 			{
 				Image: &kappctrl.AppFetchImage{
-					URL: fmt.Sprintf("%s/%s", imageRepository, addonConfig.Image),
+					URL: fmt.Sprintf("%s/%s:%s", imageRepository, addonConfig.TemplatesImagePath, addonConfig.TemplatesImageTag),
 				},
 			},
 		}
