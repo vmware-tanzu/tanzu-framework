@@ -78,11 +78,12 @@ type Addons map[string]Addon
 
 // Addon contains addon info
 type Addon struct {
-	Category      string   `yaml:"category,omitempty"`
-	ClusterTypes  []string `yaml:"clusterTypes,omitempty"`
-	Version       string   `yaml:"version,omitempty"`
-	Image         string   `yaml:"image,omitempty"`
-	ComponentName string   `yaml:"componentName,omitempty"`
+	Category           string   `yaml:"category,omitempty"`
+	ClusterTypes       []string `yaml:"clusterTypes,omitempty"`
+	Version            string   `yaml:"version,omitempty"`
+	TemplatesImagePath string   `yaml:"templatesImagePath,omitempty"`
+	TemplatesImageTag  string   `yaml:"templatesImageTag,omitempty"`
+	ComponentName      string   `yaml:"componentName,omitempty"`
 }
 
 // bomContent contains the content of a BOM file
