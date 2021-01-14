@@ -1,0 +1,32 @@
+#@data/values
+#@overlay/match-child-defaults missing_ok=True
+
+---
+infraProvider: null
+calico:
+  config:
+    clusterCIDR: 192.168.0.0/16
+  image:
+    repository: docker.io
+    pullPolicy: IfNotPresent
+    tag: v3.16.6
+  cniImage:
+    repository: null
+    path: calico/cni
+    tag: null
+    pullPolicy: null
+  nodeImage:
+    repository: null
+    path: calico/node
+    tag: null
+    pullPolicy: null
+  podDaemonImage:
+    repository: null
+    path: calico/pod2daemon-flexvol
+    tag: null 
+    pullPolicy: null
+  kubeControllerImage:
+    repository: null
+    path: calico/kube-controllers
+    tag: null
+    pullPolicy: null
