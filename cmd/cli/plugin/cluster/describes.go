@@ -55,7 +55,7 @@ func details(cmd *cobra.Command, args []string) error {
 	}
 
 	if server.IsGlobal() {
-		return errors.New("scaling cluster with a global server is not implemented yet")
+		return errors.New("getting cluster details with a global server is not implemented yet")
 	}
 	return detailsCluster(server, args[0])
 }
