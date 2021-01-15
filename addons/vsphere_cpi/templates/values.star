@@ -18,13 +18,16 @@ def validate_nsxt_config():
      if data.values.vsphereCPI.nsxt.password == "":
        assert.fail("password is reqruied if username is provided")
      end
-   elif data.values.vsphereCPI.nsxt.clientAuthKeyFile != "":
-     if data.values.vsphereCPI.nsxt.clientAuthCertFile == "":
-       assert.fail("client cert file is required if client key file is provided")
+     if data.values.vsphereCPI.nsxt.secretName == "" or data.values.vsphereCPI.nsxt.secretNamespace == "":
+       assert.fail("secretName and secretNamespace should not be empty if username and password are provided")
      end
-   elif data.values.vsphereCPI.nsxt.clientAuthCertFile != "":
-     if data.values.vsphereCPI.nsxt.clientAuthKeyFile == "":
-       assert.fail("client key file is required if client cert file is provided")
+   elif data.values.vsphereCPI.nsxt.clientCertKeyData != "":
+     if data.values.vsphereCPI.nsxt.clientCertData == "":
+       assert.fail("client cert data is required if client cert key data is provided")
+     end
+   elif data.values.vsphereCPI.nsxt.clientCertData != "":
+     if data.values.vsphereCPI.nsxt.clientCertKeyData == "":
+       assert.fail("client cert key data is required if client cert data is provided")
      end
    elif data.values.vsphereCPI.nsxt.secretName != "":
      if data.values.vsphereCPI.nsxt.secretNamespace == "":
@@ -35,7 +38,7 @@ def validate_nsxt_config():
        assert.fail("secret name is required if secret namespace is provided")  
      end
    else:
-     assert.fail("user/password or vmc access token or client cert file must be set")  
+     assert.fail("user/password or vmc access token or client certificates must be set")  
    end
    data.values.vsphereCPI.nsxt.host or assert.fail("vsphereCPI nsxtHost should be provided")
 end
@@ -45,4 +48,6 @@ values = data.values
 
 # validate
 validate_vsphereCPI()
+if data.values.vsphereCPI.nsxt.enabled:
 validate_nsxt_config()
+end
