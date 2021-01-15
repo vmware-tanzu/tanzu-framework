@@ -1,0 +1,91 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("/values.star", "values")
+
+#@ def startswith(index, left, right):
+#@  return left.startswith(right)
+#@ end
+
+#@ def get_image_tag(image_object):
+#@   return image_object.tag or values.calico.image.tag
+#@ end
+
+#@ def get_image_pull_policy(image_object):
+#@   return image_object.pullPolicy or values.calico.image.pullPolicy
+#@ end
+
+#@ def get_image_repository(image_object):
+#@   return image_object.repository or values.calico.image.repository
+#@ end
+
+#@overlay/match by=overlay.subset({"kind":"DaemonSet"})
+---
+kind: DaemonSet
+spec:
+  template:
+    spec:
+      initContainers:
+        #@overlay/match by=overlay.subset({"name":"upgrade-ipam"})
+        - name: upgrade-ipam
+          image: #@ "{}/{}:{}".format(get_image_repository(values.calico.cniImage), values.calico.cniImage.path, get_image_tag(values.calico.cniImage))
+          #@overlay/match missing_ok=True
+          imagePullPolicy: #@ get_image_pull_policy(values.calico.cniImage)
+        #@overlay/match by=overlay.subset({"name":"install-cni"})
+        - name: install-cni
+          image: #@ "{}/{}:{}".format(get_image_repository(values.calico.cniImage), values.calico.cniImage.path, get_image_tag(values.calico.cniImage))
+          #@overlay/match missing_ok=True
+          imagePullPolicy: #@ get_image_pull_policy(values.calico.cniImage)
+        #@overlay/match by=overlay.subset({"name":"flexvol-driver"})
+        - name: flexvol-driver
+          image: #@ "{}/{}:{}".format(get_image_repository(values.calico.podDaemonImage), values.calico.podDaemonImage.path, get_image_tag(values.calico.podDaemonImage))
+          #@overlay/match missing_ok=True
+          imagePullPolicy: #@ get_image_pull_policy(values.calico.podDaemonImage)
+      containers:
+        #@overlay/match by=overlay.subset({"name":"calico-node"})
+        - name: calico-node
+          image: #@ "{}/{}:{}".format(get_image_repository(values.calico.nodeImage), values.calico.nodeImage.path, get_image_tag(values.calico.nodeImage))
+          #@overlay/match missing_ok=True
+          imagePullPolicy: #@ get_image_pull_policy(values.calico.nodeImage)
+          env:
+            #@overlay/match by=overlay.subset({"name":"CALICO_IPV4POOL_CIDR"})
+            - value: #@ values.calico.config.clusterCIDR
+#@ if values.infraProvider == "azure":
+            #@overlay/match by=overlay.subset({"name":"CALICO_IPV4POOL_IPIP"})
+            #@overlay/merge
+            - name: CALICO_IPV4POOL_VXLAN
+              value: Always
+            #@overlay/match by=overlay.subset({"name":"FELIX_IPINIPMTU"})
+            #@overlay/remove
+            - name: FELIX_IPINIPMTU
+          livenessProbe:
+            exec:
+              command:
+                #@overlay/remove
+                #@overlay/match by=startswith
+                - -bird-live
+          readinessProbe:
+            exec:
+              command:
+                #@overlay/remove
+                #@overlay/match by=startswith
+                - -bird-ready
+#@ end
+
+#@overlay/match by=overlay.subset({"kind":"Deployment"})
+---
+kind: Deployment
+spec:
+  template:
+    spec:
+      containers:
+        #@overlay/match by=overlay.subset({"name":"calico-kube-controllers"})
+        - image: #@ "{}/{}:{}".format(get_image_repository(values.calico.kubeControllerImage), values.calico.kubeControllerImage.path, get_image_tag(values.calico.kubeControllerImage))
+          #@overlay/match missing_ok=True
+          imagePullPolicy: #@ get_image_pull_policy(values.calico.kubeControllerImage)
+
+#@ if values.infraProvider == "azure":
+#@overlay/match by=overlay.subset({"kind":"ConfigMap"})
+---
+kind: ConfigMap
+data:
+  calico_backend: "vxlan"
+#@ end

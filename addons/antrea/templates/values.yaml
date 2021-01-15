@@ -1,0 +1,13 @@
+#@data/values
+#@overlay/match-child-defaults missing_ok=True
+
+---
+infraProvider: vsphere
+antrea:
+  config:
+    serviceCIDR: 10.96.0.0/12
+  image:
+    repository: docker.io
+    path: antrea/antrea-ubuntu 
+    tag: v0.11.1
+    pullPolicy: IfNotPresent
