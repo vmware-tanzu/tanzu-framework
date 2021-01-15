@@ -1,5 +1,6 @@
 #@ load("/values.star", "values")
 #@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:struct", "struct")
 
 #@overlay/match by=overlay.subset({"kind": "DaemonSet", "metadata": {"name": "vsphere-cloud-controller-manager"}})
 ---
@@ -11,3 +12,9 @@ spec:
       - image: #@ "{}/{}:{}".format(values.vsphereCPI.image.repository, values.vsphereCPI.image.path, values.vsphereCPI.image.tag)
         #@overlay/match missing_ok=True
         imagePullPolicy: #@ values.vsphereCPI.image.pullPolicy
+        args:
+          #@overlay/append
+          #@yaml/text-templated-strings
+          #@ for arg in struct.decode(values.vsphereCPI.cloudProviderExtraArgs):
+          - --(@=arg @)=(@=struct.decode(values.vsphereCPI.cloudProviderExtraArgs)[arg]@)
+          #@ end
