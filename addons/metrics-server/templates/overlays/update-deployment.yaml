@@ -1,6 +1,6 @@
 #@ load("/values.star", "values")
 #@ load("@ytt:overlay", "overlay")
-#@ load("/libs/metrics-server.lib.yaml", "add_metrics_server_args")
+#@ load("/libs/metrics-server.lib.yaml", "add_metrics_server_args", "generate_metrics_server_nodeseletor")
 #@ load("@ytt:template", "template")
 
 
@@ -25,3 +25,5 @@ spec:
         readinessProbe:
           failureThreshold: #@ values.metricsServer.config.probe.failureThreshold
           periodSeconds: #@ values.metricsServer.config.probe.periodSeconds
+      #@overlay/match missing_ok=True
+      nodeSelector: #@ generate_metrics_server_nodeseletor()

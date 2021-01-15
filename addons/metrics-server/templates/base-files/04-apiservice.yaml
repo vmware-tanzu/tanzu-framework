@@ -1,4 +1,3 @@
-#@ load("/values.star", "values")
 ---
 apiVersion: apiregistration.k8s.io/v1
 kind: APIService
@@ -9,7 +8,7 @@ metadata:
 spec:
   group: metrics.k8s.io
   groupPriorityMinimum: 100
-  insecureSkipTLSVerify: #@ values.metricsServer.config.apiServiceInsecureTLS
+  insecureSkipTLSVerify: true
   service:
     name: metrics-server
     namespace: kube-system
