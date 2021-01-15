@@ -56,8 +56,8 @@ spec:
             - name: X_CSI_SPEC_REQ_VALIDATION
               value: "false"
             # needed only for topology aware setups
-            #- name: VSPHERE_CSI_CONFIG
-            #  value: "/etc/cloud/csi-vsphere.conf" # here csi-vsphere.conf is the name of the file used for creating secret using "--from-file" flag
+            - name: VSPHERE_CSI_CONFIG
+              value: "/etc/cloud/csi-vsphere.conf" # here csi-vsphere.conf is the name of the file used for creating secret using "--from-file" flag
             - name: X_CSI_DEBUG
               value: "true"
             - name: LOGGER_LEVEL
@@ -69,9 +69,9 @@ spec:
             allowPrivilegeEscalation: true
           volumeMounts:
             # needed only for topology aware setups
-            #- name: vsphere-config-volume
-            #  mountPath: /etc/cloud
-            #  readOnly: true
+            - name: vsphere-config-volume
+              mountPath: /etc/cloud
+              readOnly: true
             - name: plugin-dir
               mountPath: /csi
             - name: pods-mount-dir
@@ -102,9 +102,9 @@ spec:
               mountPath: /csi
       volumes:
         # needed only for topology aware setups
-        #- name: vsphere-config-volume
-        #  secret:
-        #    secretName: vsphere-config-secret
+        - name: vsphere-config-volume
+          secret:
+            secretName: vsphere-config-secret
         - name: registration-dir
           hostPath:
             path: /var/lib/kubelet/plugins_registry

@@ -33,3 +33,10 @@ vsphereCSI:
     path: "csi-node-driver-registrar"
     tag: v2.0.1
     pullPolicy: "IfNotPresent"
+  namespace: null
+  clusterName: null
+  server: null
+  datacenter: null
+  publicNetwork: null
+  username: null
+  password: null
