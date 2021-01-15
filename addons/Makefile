@@ -15,6 +15,7 @@ IMG ?= addons-controller:latest
 TEMPLATES_IMG_TAG ?= $(shell git describe --always --dirty --tags)
 ADDONS_MANAGER_TEMPLATES_IMG_NAME ?= tanzu-addons-manager-templates
 KAPP_CONTROLLER_TEMPLATES_IMG_NAME ?= kapp-controller-templates
+METRICS_SERVER_TEMPLATES_IMG_NAME ?= metrics_server_templates
 VSPHERE_CPI_TEMPLATES_IMG_NAME ?= vsphere-cpi-templates
 PINNIPED_ADDON_TEMPLATES_IMG_NAME ?= pinniped-addon-templates
 VSPHERE_CSI_TEMPLATES_IMG_NAME ?= vsphere-csi-templates
@@ -124,6 +125,7 @@ clean: docker-remove ## Remove all generated files
 addon-templates:
 	IMG_NAME=$(ADDONS_MANAGER_TEMPLATES_IMG_NAME) IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C addons-manager
 	IMG_NAME=$(KAPP_CONTROLLER_TEMPLATES_IMG_NAME) IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C kapp-controller
+	IMG_NAME=$(METRICS_SERVER_TEMPLATES_IMG_NAME) IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C metrics-server
 	IMG_NAME=$(VSPHERE_CPI_TEMPLATES_IMG_NAME) IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C vsphere_cpi
 	IMG_NAME=$(PINNIPED_ADDON_TEMPLATES_IMG_NAME) IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C pinniped
 	IMG_NAME=$(VSPHERE_CSI_TEMPLATES_IMG_NAME) IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C vsphere_csi

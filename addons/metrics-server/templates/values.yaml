@@ -1,0 +1,20 @@
+#@data/values
+#@overlay/match-child-defaults missing_ok=True
+---
+metricsServer:
+  namespace: kube-system
+  config:
+    updateStrategy: RollingUpdate
+    args: [] #! Add any command args here
+    probe:
+      failureThreshold: 3
+      periodSeconds: 10
+    nodeSelector: #! user can add an additional nodeSeletor
+      key: ""
+      value: ""
+    apiServiceInsecureTLS: true
+  image:
+    name: metrics-server
+    tag: v0.4.0_vmware.1
+    repository: projects-stg.registry.vmware.com/tkg
+    pullPolicy: IfNotPresent
