@@ -150,3 +150,18 @@ Flags:
       --vsphere-password string   Password for vSphere provider
       --vsphere-user string       Username for vSphere provider
 ```
+
+```
+>>> tanzu cluster details --help
+Getting clusters details
+
+Usage:
+  tanzu cluster details CLUSTER_NAME [flags]
+
+Flags:
+  --disable-grouping             Disable grouping machines when ready condition has the same Status, Severity and Reason
+  --disable-no-echo              Disable hiding of a MachineInfrastructure and BootstrapConfig when ready condition is true or it has the Status, Severity and Reason of the machine's object
+-h, --help                         help for details
+-n, --namespace string             The namespace from which to get workload clusters. If not provided clusters from all namespaces will be returned
+  --show-all-conditions string    list of comma separated kind or kind/name for which we should show all the object's conditions (all to show conditions for all the objects)
+```
