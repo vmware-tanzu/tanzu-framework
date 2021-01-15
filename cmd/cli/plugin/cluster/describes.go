@@ -34,8 +34,8 @@ type detailsClustersOptions struct {
 var cd = &detailsClustersOptions{}
 
 var detailClustersCmd = &cobra.Command{
-	Use:   "details",
-	Short: "Details clusters",
+	Use:   "details CLUSTER_NAME",
+	Short: "Get details from cluster",
 	Args:  cobra.ExactArgs(1),
 	RunE:  details,
 }
