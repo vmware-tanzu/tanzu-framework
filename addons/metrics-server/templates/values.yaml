@@ -18,3 +18,4 @@ metricsServer:
     tag: v0.4.0_vmware.1
     repository: projects-stg.registry.vmware.com/tkg
     pullPolicy: IfNotPresent
+  
