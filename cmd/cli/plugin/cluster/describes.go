@@ -13,12 +13,11 @@ import (
 	"github.com/fabriziopandini/capi-conditions/cmd/kubectl-capi-tree/status"
 	"github.com/fatih/color"
 	"github.com/gosuri/uitable"
-	"github.com/jedib0t/go-pretty/table"
 	"github.com/spf13/cobra"
 	"github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
+	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
 	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
-	"github.com/vmware-tanzu-private/tkg-cli/pkg/utils"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/duration"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha3"
@@ -90,16 +89,15 @@ func detailsCluster(server *v1alpha1.Server, clusterName string) error {
 		return err
 	}
 
-	t := utils.CreateTableWriter()
-	t.SetOutputMirror(os.Stdout)
-	t.AppendHeader(table.Row{"NAME", "NAMESPACE", "STATUS", "CONTROLPLANE", "WORKERS", "KUBERNETES", "ROLES"})
+	t := component.NewTableWriter()
+	t.SetHeader([]string{"NAME", "NAMESPACE", "STATUS", "CONTROLPLANE", "WORKERS", "KUBERNETES", "ROLES"})
 
 	cl := results.ClusterInfo
 	clusterRoles := "<none>"
 	if len(cl.Roles) != 0 {
 		clusterRoles = strings.Join(cl.Roles, ",")
 	}
-	t.AppendRow(table.Row{cl.Name, cl.Namespace, cl.Status, cl.ControlPlaneCount, cl.WorkerCount, cl.K8sVersion, clusterRoles})
+	t.Append([]string{cl.Name, cl.Namespace, cl.Status, cl.ControlPlaneCount, cl.WorkerCount, cl.K8sVersion, clusterRoles})
 
 	t.Render()
 	log.Infof("\n\nDetails:\n\n")
@@ -108,11 +106,10 @@ func detailsCluster(server *v1alpha1.Server, clusterName string) error {
 	// If it is a Management Cluster, output the providers
 	if results.InstalledProviders != nil {
 		log.Infof("\n\nProviders:\n\n")
-		p := utils.CreateTableWriter()
-		p.SetOutputMirror(os.Stdout)
-		p.AppendHeader(table.Row{"NAMESPACE", "NAME", "TYPE", "PROVIDERNAME", "VERSION", "WATCHNAMESPACE"})
+		p := component.NewTableWriter()
+		p.SetHeader([]string{"NAMESPACE", "NAME", "TYPE", "PROVIDERNAME", "VERSION", "WATCHNAMESPACE"})
 		for _, installedProvider := range results.InstalledProviders.Items {
-			p.AppendRow(table.Row{installedProvider.Namespace, installedProvider.Name, installedProvider.Type, installedProvider.ProviderName, installedProvider.Version, installedProvider.WatchedNamespace})
+			p.Append([]string{installedProvider.Namespace, installedProvider.Name, installedProvider.Type, installedProvider.ProviderName, installedProvider.Version, installedProvider.WatchedNamespace})
 		}
 		p.Render()
 	}
