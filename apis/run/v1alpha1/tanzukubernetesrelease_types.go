@@ -73,6 +73,16 @@ func (ci ContainerImage) String() string {
 	return prefix + ci.Name + suffix
 }
 
+// GetConditions implements capi conditions Getter interface
+func (r *TanzuKubernetesRelease) GetConditions() clusterv1.Conditions {
+	return r.Status.Conditions
+}
+
+// SetConditions implements capi conditions Setter interface
+func (r *TanzuKubernetesRelease) SetConditions(conditions clusterv1.Conditions) {
+	r.Status.Conditions = conditions
+}
+
 // +kubebuilder:object:root=true
 
 // TanzuKubernetesRelease is the schema for the tanzukubernetesreleases API.

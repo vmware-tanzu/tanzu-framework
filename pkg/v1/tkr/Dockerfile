@@ -12,7 +12,7 @@ ENV GOPRIVATE=github.com/vmware-tanzu-private/*
 # Create the image's SSH directory.
 RUN mkdir -p /root/.ssh && chmod 0700 /root/.ssh
 
-COPY .private_ssh_key /root/.ssh/id_rsa
+COPY $SSH_PRIVATE_KEY  /root/.ssh/id_rsa
 RUN chmod 0400 /root/.ssh/id_rsa
 
 
