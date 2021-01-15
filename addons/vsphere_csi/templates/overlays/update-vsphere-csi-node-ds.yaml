@@ -1,0 +1,21 @@
+#@ load("/values.star", "values")
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.subset({"kind": "DaemonSet", "metadata": {"name": "vsphere-csi-node"}})
+---
+spec:
+  template:
+    spec:
+      containers:
+        #@overlay/match by=overlay.subset({"name": "node-driver-registrar"})
+        - image: #@ "{}/{}:{}".format(values.vsphereCSI.CSINodeDriverRegistrarImage.repository, values.vsphereCSI.CSINodeDriverRegistrarImage.path, values.vsphereCSI.CSINodeDriverRegistrarImage.tag)
+          #@overlay/match missing_ok=True
+          imagePullPolicy: #@ values.vsphereCSI.CSINodeDriverRegistrarImage.pullPolicy
+        #@overlay/match by=overlay.subset({"name": "vsphere-csi-node"})
+        - image: #@ "{}/{}:{}".format(values.vsphereCSI.vsphereCSIControllerImage.repository, values.vsphereCSI.vsphereCSIControllerImage.path, values.vsphereCSI.vsphereCSIControllerImage.tag)
+          #@overlay/match missing_ok=True
+          imagePullPolicy: #@ values.vsphereCSI.vsphereCSIControllerImage.pullPolicy
+        #@overlay/match by=overlay.subset({"name": "liveness-probe"})
+        - image: #@ "{}/{}:{}".format(values.vsphereCSI.livenessProbeImage.repository, values.vsphereCSI.livenessProbeImage.path, values.vsphereCSI.livenessProbeImage.tag)
+          #@overlay/match missing_ok=True
+          imagePullPolicy: #@ values.vsphereCSI.livenessProbeImage.pullPolicy

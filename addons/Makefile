@@ -17,6 +17,7 @@ ADDONS_MANAGER_TEMPLATES_IMG_NAME ?= tanzu-addons-manager-templates
 KAPP_CONTROLLER_TEMPLATES_IMG_NAME ?= kapp-controller-templates
 VSPHERE_CPI_TEMPLATES_IMG_NAME ?= vsphere-cpi-templates
 PINNIPED_ADDON_TEMPLATES_IMG_NAME ?= pinniped-addon-templates
+VSPHERE_CSI_TEMPLATES_IMG_NAME ?= vsphere-csi-templates
 
 # Directories
 BIN_DIR       := bin
@@ -123,3 +124,4 @@ addon-templates:
 	IMG_NAME=$(KAPP_CONTROLLER_TEMPLATES_IMG_NAME) IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C kapp-controller
 	IMG_NAME=$(VSPHERE_CPI_TEMPLATES_IMG_NAME) IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C vsphere_cpi
 	IMG_NAME=$(PINNIPED_ADDON_TEMPLATES_IMG_NAME) IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C pinniped
+	IMG_NAME=$(VSPHERE_CSI_TEMPLATES_IMG_NAME) IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C vsphere_csi

@@ -1,0 +1,14 @@
+
+(@ def vsphere_conf(values): -@)
+[Global]
+insecure-flag = true
+cluster-id = (@=values.vsphereCSI.namespace @)/(@=values.vsphereCSI.clusterName @)
+
+[VirtualCenter "(@=values.vsphereCSI.server @)"]
+user = "(@=values.vsphereCSI.username @)"
+password = "(@=values.vsphereCSI.password @)"
+datacenters = "(@=values.vsphereCSI.datacenter @)"
+
+[Network]
+public-network = "(@=values.vsphereCSI.publicNetwork @)"
+(@- end @)
