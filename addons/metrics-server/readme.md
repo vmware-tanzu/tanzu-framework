@@ -1,4 +1,4 @@
-# TKG Addons for Pinniped
+# TKG Addons for Metrics Server
 
 ## How to install and use the Metrics-Server addon using ytt
 
