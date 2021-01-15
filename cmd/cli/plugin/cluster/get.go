@@ -24,31 +24,31 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
-type detailsClustersOptions struct {
+type getClustersOptions struct {
 	namespace           string
 	showOtherConditions string
 	disableNoEcho       bool
 	disableGroupObjects bool
 }
 
-var cd = &detailsClustersOptions{}
+var cd = &getClustersOptions{}
 
-var detailClustersCmd = &cobra.Command{
-	Use:   "details CLUSTER_NAME",
+var getClustersCmd = &cobra.Command{
+	Use:   "get CLUSTER_NAME",
 	Short: "Get details from cluster",
 	Args:  cobra.ExactArgs(1),
-	RunE:  details,
+	RunE:  get,
 }
 
 func init() {
-	detailClustersCmd.Flags().StringVarP(&cd.namespace, "namespace", "n", "", "The namespace from which to get workload clusters. If not provided clusters from all namespaces will be returned")
+	getClustersCmd.Flags().StringVarP(&cd.namespace, "namespace", "n", "", "The namespace from which to get workload clusters. If not provided clusters from all namespaces will be returned")
 
-	detailClustersCmd.Flags().StringVar(&cd.showOtherConditions, "show-all-conditions", "", " list of comma separated kind or kind/name for which we should show all the object's conditions (all to show conditions for all the objects)")
-	detailClustersCmd.Flags().BoolVar(&cd.disableNoEcho, "disable-no-echo", false, "Disable hiding of a MachineInfrastructure and BootstrapConfig when ready condition is true or it has the Status, Severity and Reason of the machine's object")
-	detailClustersCmd.Flags().BoolVar(&cd.disableGroupObjects, "disable-grouping", false, "Disable grouping machines when ready condition has the same Status, Severity and Reason")
+	getClustersCmd.Flags().StringVar(&cd.showOtherConditions, "show-all-conditions", "", " list of comma separated kind or kind/name for which we should show all the object's conditions (all to show conditions for all the objects)")
+	getClustersCmd.Flags().BoolVar(&cd.disableNoEcho, "disable-no-echo", false, "Disable hiding of a MachineInfrastructure and BootstrapConfig when ready condition is true or it has the Status, Severity and Reason of the machine's object")
+	getClustersCmd.Flags().BoolVar(&cd.disableGroupObjects, "disable-grouping", false, "Disable grouping machines when ready condition has the same Status, Severity and Reason")
 }
 
-func details(cmd *cobra.Command, args []string) error {
+func get(cmd *cobra.Command, args []string) error {
 	server, err := client.GetCurrentServer()
 	if err != nil {
 		return err
@@ -57,10 +57,10 @@ func details(cmd *cobra.Command, args []string) error {
 	if server.IsGlobal() {
 		return errors.New("getting cluster details with a global server is not implemented yet")
 	}
-	return detailsCluster(server, args[0])
+	return getCluster(server, args[0])
 }
 
-func detailsCluster(server *v1alpha1.Server, clusterName string) error {
+func getCluster(server *v1alpha1.Server, clusterName string) error {
 	configDir, err := getConfigDir()
 	if err != nil {
 		return err
