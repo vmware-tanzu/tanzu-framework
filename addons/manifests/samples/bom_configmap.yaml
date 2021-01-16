@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: v1.19.3---vmware.1-tkg.3.60d2ffd
+  name: v1.19.3---vmware.1
   labels:
-    tanzuKubernetesRelease: v1.19.3---vmware.1-tkg.3.60d2ffd
+    tanzuKubernetesRelease: v1.19.3---vmware.1
   namespace: tkr-system 
 data:
   bomContent: |
     release:
-      version: v1.19.3+vmware.1-tkg.3-60d2ffd
+      version: v1.19.3+vmware.1
     components:
       coredns:
       - version: v1.7.0+vmware.5
@@ -27,30 +27,59 @@ data:
     imageConfig:
       imageRepository: projects-stg.registry.vmware.com/tkg
     addons:
-      antrea:
-        category: networking
+      tanzu-addons-manager:
+        category: addons-management
         clusterTypes:
         - management
         - workload
-        templatesImagePath: addons/antrea/antrea-templates
-        templatesImageTag: v0.0.1
-      calico:
-        category: networking
+        templatesImagePath: addons/tanzu-addons-manager-templates
+        templatesImageTag: 98adbf4
+      vsphere-cpi:
+        category: cpi
         clusterTypes:
         - management
         - workload
-        templatesImagePath: addons/calico/calico-templates
-        templatesImageTag: v0.0.1
-      dex:
+        templatesImagePath: addons/vsphere-cpi-templates
+        templatesImageTag: 98adbf4
+      kapp-controller:
+        category: addons-management
+        clusterTypes:
+        - management
+        - workload
+        templatesImagePath: addons/kapp-controller-templates
+        templatesImageTag: 98adbf4
+      pinniped-addon:
         category: authentication
         clusterTypes:
         - management
-        templatesImagePath: addons/dex/dex-templates
-        templatesImageTag: v0.0.1
-      simple-app:
-        category: test
+        - workload
+        templatesImagePath: addons/pinniped-addon-templates
+        templatesImageTag: 98adbf4
+      antrea:
+        category: cni
         clusterTypes:
         - management
         - workload
-        templatesImagePath: addons/simple-app/simple-app-templates
-        templatesImageTag: v0.0.1
+        templatesImagePath: addons/antrea-templates
+        templatesImageTag: 98adbf4
+      calico:
+        category: cni
+        clusterTypes:
+        - management
+        - workload
+        templatesImagePath: addons/calico-templates
+        templatesImageTag: 98adbf4
+      metrics-server-addon:
+        category: metrics
+        clusterTypes:
+        - management
+        - workload
+        templatesImagePath: addons/metrics-server-addon-templates
+        templatesImageTag: 98adbf4
+      vsphere-csi:
+        category: csi
+        clusterTypes:
+        - management
+        - workload
+        templatesImagePath: addons/vsphere-csi-templates
+        templatesImageTag: 98adbf4

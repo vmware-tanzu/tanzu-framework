@@ -1,7 +1,7 @@
 apiVersion: run.tanzu.vmware.com/v1alpha1
 kind: TanzuKubernetesRelease
 metadata:
-  name: v1.19.3---vmware.1-tkg.3.60d2ffd
+  name: v1.19.3---vmware.1
   namespace: tkr-system
   labels:
     v1: ""
@@ -9,11 +9,8 @@ metadata:
     v1.19.3: latest
     v1.19.3---vmware: latest
     v1.19.3---vmware.1: latest
-    v1.19.3---vmware.1-tkg: latest
-    v1.19.3---vmware.1-tkg.3: latest
-    v1.19.3---vmware.1-tkg.3.60d2ffd: latest
 spec:
-  version: 1.19.3+vmware.1-tkg.3.60d2ffd
+  version: 1.19.3+vmware.1
 
   kubernetesVersion: 1.19.3+vmware.1
 
@@ -29,7 +26,7 @@ spec:
   nodeImageRef:
     apiVersion: vmoperator.vmware.com/v1alpha1
     kind: VirtualMachineImage
-    name: photon-3-k8s-v1.19.3---vmware.1-tkg.3.60d2ffd
+    name: photon-3-k8s-v1.19.3---vmware.1
 
 status:
   conditions:
