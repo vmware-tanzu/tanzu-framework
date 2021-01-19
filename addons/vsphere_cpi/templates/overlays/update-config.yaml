@@ -7,4 +7,3 @@
 #@overlay/replace
 data:
   vsphere.conf: #@ vsphere_conf(values)
-

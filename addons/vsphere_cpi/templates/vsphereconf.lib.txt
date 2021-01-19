@@ -7,4 +7,25 @@ thumbprint = "(@=values.vsphereCPI.tlsThumbprint @)"
 [VirtualCenter "(@=values.vsphereCPI.server @)"]
 datacenters = "(@=values.vsphereCPI.datacenter @)"
 thumbprint = "(@=values.vsphereCPI.tlsThumbprint @)"
-(@- end @)
+(@ if values.vsphereCPI.nsxt.enabled : -@)
+[Route]
+router-path = "(@=values.vsphereCPI.nsxt.routes.routerPath @)"
+[NSXT]
+host = "(@=values.vsphereCPI.nsxt.host @)"
+insecure-flag = "(@=values.vsphereCPI.nsxt.insecureFlag @)"
+remote-auth = "(@=values.vsphereCPI.nsxt.remoteAuth @)"
+secret-name = "(@=values.vsphereCPI.nsxt.secretName @)"
+secret-namespace = "(@=values.vsphereCPI.nsxt.secretNamespace @)"
+(@ if values.vsphereCPI.nsxt.clientCertData != '' and values.vsphereCPI.nsxt.clientCertKeyData != '' : -@)
+client-cert-data = "(@=values.vsphereCPI.nsxt.clientCertData @)"
+client-cert-key-data = "(@=values.vsphereCPI.nsxt.clientCertKeyData @)"
+root-ca-data = "(@=values.vsphereCPI.nsxt.rootCAData @)"
+(@ elif values.vsphereCPI.nsxt.vmcAccessToken != '' and values.vsphereCPI.nsxt.vmcAuthHost != '' : -@)
+vmc-access-token = "(@=values.vsphereCPI.nsxt.vmcAccessToken @)"
+vmc-auth-host = "(@=values.vsphereCPI.nsxt.vmcAuthHost @)"
+(@ elif values.vsphereCPI.nsxt.username != '' and values.vsphereCPI.nsxt.password != '': -@)
+username = "(@=values.vsphereCPI.nsxt.username @)"
+password = "(@=values.vsphereCPI.nsxt.password @)"
+(@ end -@)
+(@ end -@)
+(@ end -@)

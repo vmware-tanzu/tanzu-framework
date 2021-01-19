@@ -18,3 +18,17 @@ spec:
           #@ for arg in struct.decode(values.vsphereCPI.cloudProviderExtraArgs):
           - --(@=arg @)=(@=struct.decode(values.vsphereCPI.cloudProviderExtraArgs)[arg]@)
           #@ end
+      #@ if values.vsphereCPI.nsxt.enabled and values.vsphereCPI.nsxt.rootCAData != "" and values.vsphereCPI.nsxt.clientCertData != "" and values.vsphereCPI.nsxt.clientCertKeyData != "" :
+      #@overlay/match by=overlay.subset({"name": "vsphere-cloud-controller-manager"})
+      - volumeMounts:  
+        #@overlay/append
+        - mountPath: /etc/cloud/nsxt
+          name: nsxt-certificates-volume
+          readOnly: true
+      volumes:  
+      #@overlay/match by=overlay.subset({"name": "vsphere-cloud-controller-manager"})
+        #@overlay/append
+        - secret:
+            secretName: nsxt-tls-certificates
+          name: nsxt-certificates-volume
+      #@ end
