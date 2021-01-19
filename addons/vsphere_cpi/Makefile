@@ -1,6 +1,9 @@
 .DEFAULT_GOAL := help
 
 ROOT_DIR	:= $(dir $(shell pwd))
+IMG_CATEGORY := cpi
+IMG_CLUSTER_TYPE := management workload
+ADDON_NAME := vsphere-cpi
 
 IMG_NAME ?= vsphere-cpi-templates
 IMG_TAG ?= latest

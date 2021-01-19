@@ -10,6 +10,7 @@ artifacts
 artifacts-admin
 test/cli/mock/artifacts*
 tanzu
+addons/artifacts
 
 # Test binary, build with `go test -c`
 *.test

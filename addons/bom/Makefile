@@ -4,11 +4,9 @@
 .DEFAULT_GOAL := help
 
 ROOT_DIR	:= $(dir $(shell pwd))
-IMG_CATEGORY := addons-management
-IMG_CLUSTER_TYPE := management workload
-ADDON_NAME := kapp-controller
 
-IMG_NAME ?= kapp-controller-templates
+OBJECTS ?= addons-manager vsphere_cpi kapp-controller pinniped antrea calico metrics-server vsphere_csi# add more add-ons here, folder name
+
 IMG_TAG ?= latest
 
 ## --------------------------------------
@@ -22,6 +20,16 @@ help: ## Display this help
 ## Build templates
 ## --------------------------------------
 
-.PHONY: template-image
-template-image: ## Build template image
-	docker build -t $(IMG_NAME):$(IMG_TAG) -f ../Dockerfile.templates .
+.PHONY: generate-addon-bom
+generate-addon-bom: init-boms $(OBJECTS) move-bom-to-artifacts## generate add-on BOM
+
+.PHONY: init-boms
+init-boms:
+	$(shell echo "addons:" > bom.yaml)
+
+$(OBJECTS): 
+	./generate_values.sh $@ $(ROOT_DIR) $(IMG_TAG)
+
+.PHONY: move-bom-to-artifacts
+move-bom-to-artifacts:
+	$(shell mv ./bom.yaml ../artifacts/bom.yaml)

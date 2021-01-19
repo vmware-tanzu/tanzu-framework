@@ -1,6 +1,9 @@
 .DEFAULT_GOAL := help
 
 ROOT_DIR	:= $(dir $(shell pwd))
+IMG_CATEGORY := cni
+IMG_CLUSTER_TYPE := management worload
+ADDON_NAME := antrea
 
 IMG_NAME ?= antrea-templates
 IMG_TAG ?= latest

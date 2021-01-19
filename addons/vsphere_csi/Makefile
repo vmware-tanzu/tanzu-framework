@@ -4,6 +4,9 @@
 .DEFAULT_GOAL := help
 
 ROOT_DIR	:= $(dir $(shell pwd))
+IMG_CATEGORY := csi
+IMG_CLUSTER_TYPE := management workload
+ADDON_NAME := vsphere-csi
 
 IMG_NAME ?= vsphere-csi-templates
 IMG_TAG ?= latest

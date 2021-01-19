@@ -10,8 +10,10 @@ export GO111MODULE := on
 
 # Image URL to use all building/pushing image targets
 IMG ?= addons-controller:latest
+IMAGE_REPO ?= vmware.io
 
 # Tag for template images
+IMAGES_OUTPUT_DIR ?= template-images
 TEMPLATES_IMG_TAG ?= $(shell git describe --always --dirty --tags)
 ADDONS_MANAGER_TEMPLATES_IMG_NAME ?= tanzu-addons-manager-templates
 KAPP_CONTROLLER_TEMPLATES_IMG_NAME ?= kapp-controller-templates
@@ -118,16 +120,35 @@ git-config: ## Configure gitlab access
 .PHONY: clean
 clean: docker-remove ## Remove all generated files
 	rm -rf bin
+	rm -rf artifacts
 
 ## --------------------------------------
 ## Addon templates
 ## --------------------------------------
-addon-templates:
-	IMG_NAME=$(ADDONS_MANAGER_TEMPLATES_IMG_NAME) IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C addons-manager
-	IMG_NAME=$(KAPP_CONTROLLER_TEMPLATES_IMG_NAME) IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C kapp-controller
-	IMG_NAME=$(METRICS_SERVER_TEMPLATES_IMG_NAME) IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C metrics-server
-	IMG_NAME=$(VSPHERE_CPI_TEMPLATES_IMG_NAME) IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C vsphere_cpi
-	IMG_NAME=$(PINNIPED_ADDON_TEMPLATES_IMG_NAME) IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C pinniped
-	IMG_NAME=$(VSPHERE_CSI_TEMPLATES_IMG_NAME) IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C vsphere_csi
-	IMG_NAME=$(ANTREA_TEMPLATES_IMG_NAME) IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C antrea
-	IMG_NAME=$(CALICO_TEMPLATES_IMG_NAME) IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C calico
+build-addon-template-images:
+	IMG_NAME="$(IMAGE_REPO)/$(ADDONS_MANAGER_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C addons-manager
+	IMG_NAME="$(IMAGE_REPO)/$(KAPP_CONTROLLER_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C kapp-controller
+	IMG_NAME="$(IMAGE_REPO)/$(VSPHERE_CPI_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C vsphere_cpi
+	IMG_NAME="$(IMAGE_REPO)/$(PINNIPED_ADDON_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C pinniped
+	IMG_NAME="$(IMAGE_REPO)/$(METRICS_SERVER_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C metrics-server
+	IMG_NAME="$(IMAGE_REPO)/$(VSPHERE_CSI_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C vsphere_csi
+	IMG_NAME="$(IMAGE_REPO)/$(ANTREA_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C antrea
+	IMG_NAME="$(IMAGE_REPO)/$(CALICO_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C calico
+  	
+save-addon-template-images:
+	mkdir -p "${ROOT_DIR}addons/artifacts"
+	docker save "$(IMAGE_REPO)/${ADDONS_MANAGER_TEMPLATES_IMG_NAME}:${TEMPLATES_IMG_TAG}" | gzip -c > "${ROOT_DIR}addons/artifacts/${ADDONS_MANAGER_TEMPLATES_IMG_NAME}-${TEMPLATES_IMG_TAG}.tar.gz"
+	docker save "$(IMAGE_REPO)/${KAPP_CONTROLLER_TEMPLATES_IMG_NAME}:${TEMPLATES_IMG_TAG}" | gzip -c > "${ROOT_DIR}addons/artifacts/${KAPP_CONTROLLER_TEMPLATES_IMG_NAME}-${TEMPLATES_IMG_TAG}.tar.gz"
+	docker save "$(IMAGE_REPO)/${VSPHERE_CPI_TEMPLATES_IMG_NAME}:${TEMPLATES_IMG_TAG}" | gzip -c > "${ROOT_DIR}addons/artifacts/${VSPHERE_CPI_TEMPLATES_IMG_NAME}-${TEMPLATES_IMG_TAG}.tar.gz"
+	docker save "$(IMAGE_REPO)/${PINNIPED_ADDON_TEMPLATES_IMG_NAME}:${TEMPLATES_IMG_TAG}" | gzip -c > "${ROOT_DIR}addons/artifacts/${PINNIPED_ADDON_TEMPLATES_IMG_NAME}-${TEMPLATES_IMG_TAG}.tar.gz"
+	docker save "$(IMAGE_REPO)/${METRICS_SERVER_TEMPLATES_IMG_NAME}:${TEMPLATES_IMG_TAG}" | gzip -c > "${ROOT_DIR}addons/artifacts/${METRICS_SERVER_TEMPLATES_IMG_NAME}-${TEMPLATES_IMG_TAG}.tar.gz"
+	docker save "$(IMAGE_REPO)/${VSPHERE_CSI_TEMPLATES_IMG_NAME}:${TEMPLATES_IMG_TAG}" | gzip -c > "${ROOT_DIR}addons/artifacts/${VSPHERE_CSI_TEMPLATES_IMG_NAME}-${TEMPLATES_IMG_TAG}.tar.gz"
+	docker save "$(IMAGE_REPO)/${ANTREA_TEMPLATES_IMG_NAME}:${TEMPLATES_IMG_TAG}" | gzip -c > "${ROOT_DIR}addons/artifacts/${ANTREA_TEMPLATES_IMG_NAME}-${TEMPLATES_IMG_TAG}.tar.gz"
+	docker save "$(IMAGE_REPO)/${CALICO_TEMPLATES_IMG_NAME}:${TEMPLATES_IMG_TAG}" | gzip -c > "${ROOT_DIR}addons/artifacts/${CALICO_TEMPLATES_IMG_NAME}-${TEMPLATES_IMG_TAG}.tar.gz"
+
+## --------------------------------------
+## BOM yaml that contains all add-ons
+## --------------------------------------
+bom-yaml:
+	mkdir -p "${ROOT_DIR}addons/artifacts"
+	IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) generate-addon-bom -C bom

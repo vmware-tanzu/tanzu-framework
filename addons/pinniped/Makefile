@@ -1,6 +1,9 @@
 .DEFAULT_GOAL := help
 
 ROOT_DIR	:= $(dir $(shell pwd))
+IMG_CATEGORY := authentication
+IMG_CLUSTER_TYPE := management workload
+ADDON_NAME := pinniped-addon
 
 IMG_NAME ?= pinniped-addon-templates
 IMG_TAG ?= latest

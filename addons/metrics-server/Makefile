@@ -4,6 +4,9 @@
 .DEFAULT_GOAL := help
 
 ROOT_DIR	:= $(dir $(shell pwd))
+IMG_CATEGORY := metrics
+IMG_CLUSTER_TYPE := management workload
+ADDON_NAME := metrics-server-addon
 
 IMG_NAME ?= metrics-server-templates
 IMG_TAG ?= latest
