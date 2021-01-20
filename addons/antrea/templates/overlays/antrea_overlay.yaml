@@ -5,26 +5,26 @@
 #@ def antrea_agent_conf():
 
 #! FeatureGates is a map of feature names to bools that enable or disable experimental features.
-#! featureGates:
+featureGates:
 #! Enable AntreaProxy which provides ServiceLB for in-cluster Services in antrea-agent.
 #! It should be enabled on Windows, otherwise NetworkPolicy will not take effect on
 #! Service traffic.
-#! AntreaProxy: false
+  AntreaProxy: #@ values.antrea.config.AntreaProxy
 
 #! Enable traceflow which provides packet tracing feature to diagnose network issue.
-#! Traceflow: false
+  Traceflow: #@ values.antrea.config.Traceflow
 
 #! Enable Antrea ClusterNetworkPolicy feature to complement K8s NetworkPolicy for cluster admins
 #! to define security policies which apply to the entire cluster, and Antrea NetworkPolicy
 #! feature that supports priorities, rule actions and externalEntities in the future.
-#! AntreaPolicy: true
+  AntreaPolicy: #@ values.antrea.config.AntreaPolicy
 
 #! Enable flowexporter which exports polled conntrack connections as IPFIX flow records from each
 #! agent to a configured collector.
-#!  FlowExporter: false
+  FlowExporter: #@ values.antrea.config.FlowExporter
 
 #! Enable collecting and exposing NetworkPolicy statistics.
-#!  NetworkPolicyStats: false
+  NetworkPolicyStats: #@ values.antrea.config.NetworkPolicyStats
 
 #! Name of the OpenVSwitch bridge antrea-agent will create and use.
 #! Make sure it doesn't conflict with your existing OpenVSwitch bridges.
@@ -53,14 +53,14 @@ ovsDatapathType: netdev
 #! networkPolicyOnly: Antrea enforces NetworkPolicy only, and utilizes CNI chaining and delegates Pod
 #!                    IPAM and connectivity to the primary CNI.
 #!
-#!trafficEncapMode: encap
+trafficEncapMode: #@ values.antrea.config.trafficEncapMode
 
 #! Whether or not to SNAT (using the Node IP) the egress traffic from a Pod to the external network.
 #! This option is for the noEncap traffic mode only, and the default value is false. In the noEncap
 #! mode, if the cluster's Pod CIDR is reachable from the external network, then the Pod traffic to
 #! the external network needs not be SNAT'd. In the networkPolicyOnly mode, antrea-agent never
 #! performs SNAT and this option will be ignored; for other modes it must be set to false.
-#! noSNAT: false
+noSNAT: #@ values.antrea.config.noSNAT
 
 #! Tunnel protocols used for encapsulating traffic across Nodes. Supported values:
 #! - geneve (default)
