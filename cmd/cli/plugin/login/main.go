@@ -36,12 +36,12 @@ var descriptor = cli.PluginDescriptor{
 }
 
 var (
-	stderrOnly                                                bool
+	stderrOnly, forceCSP                                      bool
 	endpoint, name, apiToken, server, kubeConfig, kubecontext string
 )
 
 const (
-	knownTMCHost = "tmc.cloud.vmware.com"
+	knownGlobalHost = "cloud.vmware.com"
 )
 
 func main() {
@@ -56,7 +56,9 @@ func main() {
 	p.Cmd.Flags().StringVar(&kubeConfig, "kubeconfig", "", "path to kubeconfig management cluster. Valid only if user doesn't choose 'endpoint' option.(See [*])")
 	p.Cmd.Flags().StringVar(&kubecontext, "context", "", "the context in the kubeconfig to use for management cluster. Valid only if user doesn't choose 'endpoint' option.(See [*]) ")
 	p.Cmd.Flags().BoolVar(&stderrOnly, "stderr-only", false, "send all output to stderr rather than stdout")
+	p.Cmd.Flags().BoolVar(&forceCSP, "force-csp", false, "force the endpoint to be logged in as a csp server")
 	p.Cmd.Flags().MarkHidden("stderr-only")
+	p.Cmd.Flags().MarkHidden("force-csp")
 	p.Cmd.RunE = login
 	p.Cmd.Example = `
 	# Login to TKG management cluster using endpoint
@@ -168,7 +170,10 @@ func getKeys(m map[string]*clientv1alpha1.Server) []string {
 }
 
 func isGlobalServer(endpoint string) bool {
-	if strings.Contains(endpoint, knownTMCHost) {
+	if strings.Contains(endpoint, knownGlobalHost) {
+		return true
+	}
+	if forceCSP {
 		return true
 	}
 	return false
@@ -191,37 +196,34 @@ func getPromptOpts() []component.PromptOpt {
 func createNewServer() (server *clientv1alpha1.Server, err error) {
 	// user provided command line options to create a server using kubeconfig and context
 	if kubeConfig != "" && kubecontext != "" {
-		return createNewServerWithKubeconfig()
+		return createServerWithKubeconfig()
 	}
 	// user provided command line options to create a server using endpoint
 	if endpoint != "" {
-		return createNewServerWithEndpoint()
+		return createServerWithEndpoint()
 	}
 	promptOpts := getPromptOpts()
 
-	addServerWithKubeconfig := "No"
+	var loginType string
 
 	err = component.Prompt(
 		&component.PromptConfig{
-			Message: "Do you want to add server by providing the kubeconfig?",
-			Options: []string{"Yes", "No"},
-			Default: "No",
+			Message: "Select login type",
+			Options: []string{"Endpoint", "Local kubeconfig"},
+			Default: "Endpoint",
 		},
-		&addServerWithKubeconfig,
+		&loginType,
 		promptOpts...,
 	)
-	if err != nil {
-		return
-	}
-	if addServerWithKubeconfig == "Yes" {
-		return createNewServerWithKubeconfig()
+
+	if loginType == "Endpoint" {
+		return createServerWithEndpoint()
 	}
 
-	return createNewServerWithEndpoint()
-
+	return createServerWithKubeconfig()
 }
 
-func createNewServerWithKubeconfig() (server *clientv1alpha1.Server, err error) {
+func createServerWithKubeconfig() (server *clientv1alpha1.Server, err error) {
 	promptOpts := getPromptOpts()
 	if kubeConfig == "" {
 		err = component.Prompt(
@@ -279,7 +281,7 @@ func createNewServerWithKubeconfig() (server *clientv1alpha1.Server, err error) 
 	return
 }
 
-func createNewServerWithEndpoint() (server *clientv1alpha1.Server, err error) {
+func createServerWithEndpoint() (server *clientv1alpha1.Server, err error) {
 	promptOpts := getPromptOpts()
 	if endpoint == "" {
 		err = component.Prompt(
