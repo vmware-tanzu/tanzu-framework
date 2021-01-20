@@ -6,7 +6,7 @@
 ROOT_DIR	:= $(dir $(shell pwd))
 IMG_CATEGORY := metrics
 IMG_CLUSTER_TYPE := management workload
-ADDON_NAME := metrics-server-addon
+ADDON_NAME := metrics-server
 
 IMG_NAME ?= metrics-server-templates
 IMG_TAG ?= latest

@@ -12,14 +12,14 @@ export GO111MODULE := on
 IMG ?= addons-controller:latest
 IMAGE_REPO ?= vmware.io
 
-# Tag for template images
+# Tag for template images, shoudld end with "-templates"
 IMAGES_OUTPUT_DIR ?= template-images
 TEMPLATES_IMG_TAG ?= $(shell git describe --always --dirty --tags)
 ADDONS_MANAGER_TEMPLATES_IMG_NAME ?= tanzu-addons-manager-templates
 KAPP_CONTROLLER_TEMPLATES_IMG_NAME ?= kapp-controller-templates
-METRICS_SERVER_TEMPLATES_IMG_NAME ?= metrics_server_templates
+METRICS_SERVER_TEMPLATES_IMG_NAME ?= metrics-server-templates
 VSPHERE_CPI_TEMPLATES_IMG_NAME ?= vsphere-cpi-templates
-PINNIPED_ADDON_TEMPLATES_IMG_NAME ?= pinniped-addon-templates
+PINNIPED_ADDON_TEMPLATES_IMG_NAME ?= pinniped-templates
 VSPHERE_CSI_TEMPLATES_IMG_NAME ?= vsphere-csi-templates
 ANTREA_TEMPLATES_IMG_NAME ?= antrea-templates
 CALICO_TEMPLATES_IMG_NAME ?= calico-templates
