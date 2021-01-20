@@ -1,4 +1,4 @@
-FROM golang:1.14.4 as builder
+FROM harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.14.4 as builder
 
 WORKDIR /workspace
 # Copy the Go Modules manifests
