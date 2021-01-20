@@ -25,7 +25,6 @@ type ControllerManagerContext struct {
 	Logger               logr.Logger
 	Scheme               *runtime.Scheme
 	VerifyRegistryCert   bool
-	RegistryCertPath     string
 	TKRDiscoveryOption   TanzuKubernetesReleaseDiscoverOptions
 }
 

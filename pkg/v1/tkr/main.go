@@ -40,17 +40,15 @@ func main() {
 	var enableLeaderElection bool
 	var bomImagePath string
 	var bomMetadataImagePath string
-	var caCertPath string
-	var verifyCerts bool
 	var initTKRDiscoveryFreq float64
 	var continuousTKRDiscoverFreq float64
+	var skipVerifyRegistryCerts bool
 	flag.StringVar(&bomImagePath, "bom-image-path", "", "The BOM image path.")
 	flag.StringVar(&bomMetadataImagePath, "bom-metadata-image-path", "", "The BOM compatibility metadata image path.")
 	flag.BoolVar(&enableLeaderElection, "enable-leader-election", false,
 		"Enable leader election for controller manager. "+
 			"Enabling this will ensure there is only one active controller manager.")
-	flag.BoolVar(&verifyCerts, "registry-verify-certs", true, "Set whether to verify server's certificate chain and host name")
-	flag.StringVar(&caCertPath, "registry-ca-cert-path", "", "Add CA certificates for registry API")
+	flag.BoolVar(&skipVerifyRegistryCerts, "skip-verify-registry-cert", false, "Set whether to verify server's certificate chain and host name")
 	flag.Float64Var(&initTKRDiscoveryFreq, "initial-discover-frequency", 60, "Initial TKR discovery frequency in seconds")
 	flag.Float64Var(&continuousTKRDiscoverFreq, "continuous-discover-frequency", 600, "Continuous TKR discovery frequency in seconds")
 	flag.Parse()
@@ -67,7 +65,6 @@ func main() {
 		setupLog.Error(err, "unable to start manager")
 		os.Exit(1)
 	}
-
 	mgrContext := &mgrcontext.ControllerManagerContext{
 		Client:               mgr.GetClient(),
 		Context:              context.Background(),
@@ -75,9 +72,8 @@ func main() {
 		BOMMetadataImagePath: bomMetadataImagePath,
 		Logger:               ctrllog.Log,
 		Scheme:               mgr.GetScheme(),
-		VerifyRegistryCert:   verifyCerts,
-		RegistryCertPath:     caCertPath,
 		TKRDiscoveryOption:   mgrcontext.NewTanzuKubernetesReleaseDiscoverOptions(initTKRDiscoveryFreq, continuousTKRDiscoverFreq),
+		VerifyRegistryCert:   !skipVerifyRegistryCerts,
 	}
 
 	if err := tkrsourcectr.AddToManager(mgrContext, mgr); err != nil {

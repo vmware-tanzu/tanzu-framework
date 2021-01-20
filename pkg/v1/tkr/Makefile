@@ -50,7 +50,7 @@ manifests: controller-gen ## Generate manifests e.g. CRD, RBAC etc.
 	$(CONTROLLER_GEN) \
 		$(CRD_OPTIONS) \
 		paths=../apis/... \
-		output:crd:artifacts:config=../config/crd/bases
+		output:crd:artifacts:config=../../../config/crd/bases
 
 controller-gen: ## Download controller-gen
 ifeq (, $(shell which controller-gen))
