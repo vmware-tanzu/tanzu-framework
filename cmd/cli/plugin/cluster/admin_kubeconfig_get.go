@@ -69,19 +69,11 @@ func getClusterAdminKubeconfigCmd(deps getClusterAdminKubeconfigCmdDeps) *cobra.
 }
 
 func getClusterAdminKubeconfig(server *v1alpha1.Server, deps getClusterAdminKubeconfigCmdDeps) error {
-	configDir, err := getConfigDir()
+	tkgctlClient, err := createTKGClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context)
 	if err != nil {
 		return err
 	}
 
-	tkgctlClient, err := tkgctl.New(tkgctl.Options{
-		ConfigDir:   configDir,
-		KubeConfig:  server.ManagementClusterOpts.Path,
-		KubeContext: server.ManagementClusterOpts.Context,
-	})
-	if err != nil {
-		return err
-	}
 	isManagementCluster := false
 	if gAKCOptions.workloadClusterName == "" {
 		isManagementCluster = true

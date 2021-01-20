@@ -50,16 +50,7 @@ func upgrade(cmd *cobra.Command, args []string) error {
 }
 
 func upgradeCluster(server *v1alpha1.Server, clusterName string) error {
-	configDir, err := getConfigDir()
-	if err != nil {
-		return err
-	}
-
-	tkgctlClient, err := tkgctl.New(tkgctl.Options{
-		ConfigDir:   configDir,
-		KubeConfig:  server.ManagementClusterOpts.Path,
-		KubeContext: server.ManagementClusterOpts.Context,
-	})
+	tkgctlClient, err := createTKGClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context)
 	if err != nil {
 		return err
 	}
