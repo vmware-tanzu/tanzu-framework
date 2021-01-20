@@ -14,6 +14,10 @@ spec:
         imagePullPolicy: #@ values.vsphereCPI.image.pullPolicy
         args:
           #@overlay/append
+          #@ if values.vsphereCPI.nsxt.enabled:
+          - --configure-cloud-routes=true
+          #@ end
+          #@overlay/append
           #@yaml/text-templated-strings
           #@ for arg in struct.decode(values.vsphereCPI.cloudProviderExtraArgs):
           - --(@=arg @)=(@=struct.decode(values.vsphereCPI.cloudProviderExtraArgs)[arg]@)
