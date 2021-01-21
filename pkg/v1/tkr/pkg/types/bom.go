@@ -82,7 +82,6 @@ type Addon struct {
 	Version            string   `yaml:"version,omitempty"`
 	TemplatesImagePath string   `yaml:"templatesImagePath,omitempty"`
 	TemplatesImageTag  string   `yaml:"templatesImageTag,omitempty"`
-	ComponentName      string   `yaml:"componentName,omitempty"`
 }
 
 // bomContent contains the content of a BOM file
