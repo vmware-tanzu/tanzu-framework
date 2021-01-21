@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/vmware-tanzu-private/core/addons/constants"
+	addonconfig "github.com/vmware-tanzu-private/core/addons/pkg/config"
 	addontypes "github.com/vmware-tanzu-private/core/addons/pkg/types"
 	"github.com/vmware-tanzu-private/core/addons/pkg/util"
 	addonpredicates "github.com/vmware-tanzu-private/core/addons/predicates"
@@ -46,6 +47,7 @@ type AddonReconciler struct {
 	Scheme     *runtime.Scheme
 	Tracker    *capiremote.ClusterCacheTracker
 	controller controller.Controller
+	Config     addonconfig.Config
 }
 
 func (r *AddonReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {

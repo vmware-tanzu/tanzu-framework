@@ -299,6 +299,8 @@ func (r *AddonReconciler) reconcileAddonAppNormal(
 			app.Spec.ServiceAccountName = addonconstants.TKGAddonsAppServiceAccount
 		}
 
+		app.Spec.SyncPeriod = &metav1.Duration{Duration: r.Config.AppSyncPeriod}
+
 		app.Spec.Fetch = []kappctrl.AppFetch{
 			{
 				Image: &kappctrl.AppFetchImage{
