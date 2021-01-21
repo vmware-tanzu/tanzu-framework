@@ -211,14 +211,14 @@ func createNewServer() (server *clientv1alpha1.Server, err error) {
 	err = component.Prompt(
 		&component.PromptConfig{
 			Message: "Select login type",
-			Options: []string{"Endpoint", "Local kubeconfig"},
-			Default: "Endpoint",
+			Options: []string{"Server endpoint", "Local kubeconfig"},
+			Default: "Server endpoint",
 		},
 		&loginType,
 		promptOpts...,
 	)
 
-	if loginType == "Endpoint" {
+	if loginType == "Server endpoint" {
 		return createServerWithEndpoint()
 	}
 
