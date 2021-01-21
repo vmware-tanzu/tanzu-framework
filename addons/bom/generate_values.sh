@@ -23,5 +23,5 @@ for type in $cluster_type
 do
     echo "      - $type" >> $target_file
 done
-echo "    templatesImagePath: addons/$img_name" >> $target_file
+echo "    templatesImagePath: tanzu_core/addons/$img_name" >> $target_file
 echo "    templatesImageTag: $img_tag" >> $target_file
