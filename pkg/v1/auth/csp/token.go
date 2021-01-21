@@ -102,7 +102,8 @@ func GetAccessTokenFromAPIToken(apiToken string, issuer string) (*Token, error) 
 		return nil, errors.WithMessage(err, "Failed to obtain access token. Please provide valid VMware Cloud Services API-token")
 	}
 	if resp.StatusCode != 200 {
-		return nil, errors.Errorf("Http status: %s", resp.Status)
+		body, _ := ioutil.ReadAll(resp.Body)
+		return nil, errors.Errorf("Failed to obtain access token. Please provide valid VMware Cloud Services API-token -- %s", string(body))
 	}
 
 	defer resp.Body.Close()
