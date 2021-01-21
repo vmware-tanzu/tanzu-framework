@@ -36,7 +36,7 @@ var descriptor = cli.PluginDescriptor{
 }
 
 var (
-	stderrOnly, forceCSP                                      bool
+	stderrOnly, forceCSP, staging                             bool
 	endpoint, name, apiToken, server, kubeConfig, kubecontext string
 )
 
@@ -57,8 +57,10 @@ func main() {
 	p.Cmd.Flags().StringVar(&kubecontext, "context", "", "the context in the kubeconfig to use for management cluster. Valid only if user doesn't choose 'endpoint' option.(See [*]) ")
 	p.Cmd.Flags().BoolVar(&stderrOnly, "stderr-only", false, "send all output to stderr rather than stdout")
 	p.Cmd.Flags().BoolVar(&forceCSP, "force-csp", false, "force the endpoint to be logged in as a csp server")
+	p.Cmd.Flags().BoolVar(&staging, "staging", false, "use CSP staging issuer")
 	p.Cmd.Flags().MarkHidden("stderr-only")
 	p.Cmd.Flags().MarkHidden("force-csp")
+	p.Cmd.Flags().MarkHidden("staging")
 	p.Cmd.RunE = login
 	p.Cmd.Example = `
 	# Login to TKG management cluster using endpoint
@@ -343,8 +345,10 @@ func globalLogin(s *clientv1alpha1.Server) (err error) {
 	a := clientv1alpha1.GlobalServerAuth{}
 	apiToken, apiTokenExists := os.LookupEnv(client.EnvAPITokenKey)
 
-	// TODO (pbarker): configurable issuer
 	issuer := csp.ProdIssuer
+	if staging {
+		issuer = csp.StgIssuer
+	}
 	if apiTokenExists {
 		log.Debug("API token env var is set")
 	} else {
