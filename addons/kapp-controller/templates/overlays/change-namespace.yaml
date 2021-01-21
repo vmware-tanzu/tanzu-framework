@@ -13,6 +13,11 @@ metadata:
 ---
 #@ end
 
+#@overlay/match by=overlay.subset({"kind":"ConfigMap","metadata":{"name": "kapp-controller-config"}})
+---
+metadata:
+  namespace: #@ data.values.kappController.namespace
+
 #@overlay/match by=overlay.subset({"kind": "ServiceAccount","metadata": {"name": "kapp-controller-sa"}}),expects="1+"
 ---
 metadata:

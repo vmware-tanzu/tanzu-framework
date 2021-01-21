@@ -3,13 +3,18 @@
 
 ---
 kappController:
-  namespace: kapp-controller
+  namespace: tkg-system
   createNamespace: true
   image:
     repository: registry.tkg.vmware.run/tkg
     path: kapp-controller
-    tag: v0.9.0_vmware.1
+    tag: v0.14.0_vmware.1
     pullPolicy: IfNotPresent
   deployment:
     hostNetwork: null
     priorityClassName: null
+  config:
+    caCerts: ""
+    httpProxy: ""
+    httpsProxy: ""
+    noProxy: ""

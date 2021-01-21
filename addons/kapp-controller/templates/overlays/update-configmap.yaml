@@ -1,0 +1,6 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+
+#@overlay/match by=overlay.subset({"kind":"ConfigMap","metadata":{"name": "kapp-controller-config"}})
+---
+data: #@ data.values.kappController.config

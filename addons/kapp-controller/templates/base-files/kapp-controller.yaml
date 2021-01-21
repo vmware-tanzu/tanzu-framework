@@ -1,7 +1,32 @@
+#! Source: https://github.com/vmware-tanzu/carvel-kapp-controller/releases/tag/v0.14.0
+
+---
 apiVersion: v1
 kind: Namespace
 metadata:
   name: kapp-controller
+---
+#! This optional ConfigMap must be created before the kapp-controller pod launches in order to read it.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  #! Name must be `kapp-controller-config` for kapp controller to pick it up
+  name: kapp-controller-config
+  #! Namespace must match the namespace kapp-controller is deployed to
+  namespace: kapp-controller
+data:
+  #! A cert chain of trusted ca certs in plain text. These will be added to the system-wide
+  #! cert pool of trusted ca's (optional)
+  caCerts:
+  #! The url/ip of a proxy for kapp controller to use when making network
+  #! requests (optional)
+  httpProxy: ""
+  #! The url/ip of a tls capable proxy for kapp controller to use when
+  #! making network requests (optional)
+  httpsProxy: ""
+  #! A comma delimited list of domain names which kapp controller should
+  #! bypass the proxy for when making requests (optional)
+  noProxy: ""
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -50,16 +75,6 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kbld.k14s.io/images: |
-      - Metas:
-        - Path: /Users/pivotal/workspace/ytt-go/src/github.com/k14s/kapp-controller
-          Type: local
-        - Dirty: false
-          RemoteURL: git@github.com:k14s/kapp-controller.git
-          SHA: b74045fb278e64cb621e0f8d15fd28ba95d6ff8d
-          Type: git
-        URL: index.docker.io/k14s/kapp-controller@sha256:f427e31cd6f9dc85fff69d67e6d89b0d4d49cf5e5730b8757dfd28a8cf162665
   name: kapp-controller
   namespace: kapp-controller
 spec:
@@ -75,12 +90,10 @@ spec:
     spec:
       containers:
         - args: []
-          command:
-            - /kapp-controller
           env:
             - name: KAPPCTRL_MEM_TMP_DIR
               value: /etc/kappctrl-mem-tmp
-          image: index.docker.io/k14s/kapp-controller@sha256:f427e31cd6f9dc85fff69d67e6d89b0d4d49cf5e5730b8757dfd28a8cf162665
+          image: index.docker.io/k14s/kapp-controller@sha256:53f133ee3e57a56c5221696102be26e4c940ab916f6c196ce8f037d50a529df2
           name: kapp-controller
           resources:
             requests:
