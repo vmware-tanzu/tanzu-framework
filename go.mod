@@ -19,12 +19,10 @@ require (
 	github.com/go-logr/logr v0.1.0
 	github.com/gobwas/glob v0.2.3
 	github.com/golang/protobuf v1.4.2
-	github.com/gosuri/uitable v0.0.4
 	github.com/google/go-containerregistry v0.0.0-20190412005658-1d38b9cfdb9d
+	github.com/gosuri/uitable v0.0.4
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
 	github.com/hinshun/vt10x v0.0.0-20180809195222-d55458df857c // indirect
-	github.com/imdario/mergo v0.3.9
-	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/jeremywohl/flatten v1.0.1
 	github.com/k14s/imgpkg v0.2.0
 	github.com/logrusorgru/aurora v2.0.3+incompatible
@@ -36,8 +34,8 @@ require (
 	github.com/spf13/cobra v1.1.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.6.1
-	github.com/vmware-tanzu-private/tkg-cli v1.3.0-pre-alpha-1.0.20210114003033-285a8c9131d4
-	github.com/vmware-tanzu-private/tkg-providers v1.3.0-pre-alpha-1.0.20210113202657-eb07b4e0558d
+	github.com/vmware-tanzu-private/tkg-cli v1.3.0-pre-alpha-1.0.20210121002356-c9e30b8ddb15
+	github.com/vmware-tanzu-private/tkg-providers v1.3.0-pre-alpha-1.0.20210120200315-c6a7c3dab4e1 // indirect
 	go.opencensus.io v0.22.2 // indirect
 	go.uber.org/multierr v1.1.0
 	golang.org/x/mod v0.3.0
