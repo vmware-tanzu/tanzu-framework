@@ -48,6 +48,6 @@ values = data.values
 
 # validate
 validate_vsphereCPI()
-if data.values.vsphereCPI.nsxt.enabled:
+if data.values.vsphereCPI.nsxt.podRoutingEnabled:
 validate_nsxt_config()
 end
