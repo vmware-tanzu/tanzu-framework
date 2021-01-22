@@ -4,13 +4,15 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+
 	"github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/client"
+	"github.com/vmware-tanzu-private/core/pkg/v1/clusterclient"
 	"github.com/vmware-tanzu-private/tkg-cli/pkg/constants"
 	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
 )
@@ -22,7 +24,6 @@ type createClusterOptions struct {
 	plan                        string
 	infrastructureProvider      string
 	namespace                   string
-	kubernetesVersion           string
 	controlPlaneMachineCount    int
 	workerMachineCount          int
 	timeout                     time.Duration
@@ -35,6 +36,7 @@ type createClusterOptions struct {
 	enableClusterOptions        string
 	vsphereControlPlaneEndpoint string
 	clusterConfigFile           string
+	tkrName                     string
 }
 
 var cc = &createClusterOptions{}
@@ -47,9 +49,9 @@ var createClusterCmd = &cobra.Command{
 
 func init() {
 	createClusterCmd.Flags().StringVarP(&cc.clusterConfigFile, "file", "f", "", "Cluster configuration file from which to create a Cluster")
+	createClusterCmd.Flags().StringVarP(&cc.tkrName, "tkr", "", "", "TanzuKubernetesRelease(TKR) to be used for creating the workload cluster")
 
 	createClusterCmd.Flags().StringVarP(&cc.plan, "plan", "p", "", "The plan to be used for creating the workload cluster")
-	createClusterCmd.Flags().StringVarP(&cc.kubernetesVersion, "kubernetes-version", "k", "", fmt.Sprintf("The kubernetes version to use for the workload cluster"))
 	createClusterCmd.Flags().IntVarP(&cc.controlPlaneMachineCount, "controlplane-machine-count", "c", 0, "The number of control plane machines to be added to the workload cluster (default 1 or 3 depending on dev or prod plan)")
 	createClusterCmd.Flags().IntVarP(&cc.workerMachineCount, "worker-machine-count", "w", 0, "The number of worker machines to be added to the workload cluster (default 1 or 3 depending on dev or prod plan)")
 	createClusterCmd.Flags().BoolVarP(&cc.generateOnly, "dry-run", "d", false, "Does not create cluster but show the deployment YAML instead")
@@ -66,7 +68,6 @@ func init() {
 
 	// Hide some of the variables not relevant to tanzu cli at the moment
 	createClusterCmd.Flags().MarkHidden("plan")                          //nolint
-	createClusterCmd.Flags().MarkHidden("kubernetes-version")            //nolint
 	createClusterCmd.Flags().MarkHidden("controlplane-machine-count")    //nolint
 	createClusterCmd.Flags().MarkHidden("worker-machine-count")          //nolint
 	createClusterCmd.Flags().MarkHidden("namespace")                     //nolint
@@ -103,13 +104,26 @@ func createCluster(clusterName string, server *v1alpha1.Server) error {
 		return err
 	}
 
+	clusterClient, err := clusterclient.NewClusterClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context)
+	if err != nil {
+		return err
+	}
+
+	k8sVersion := ""
+	if cc.tkrName != "" {
+		k8sVersion, err = getK8sVersionForMatchingTkr(clusterClient, cc.tkrName)
+		if err != nil {
+			return err
+		}
+	}
+
 	ccOptions := tkgctl.CreateClusterOptions{
 		ClusterConfigFile:           cc.clusterConfigFile,
+		KubernetesVersion:           k8sVersion,
 		ClusterName:                 clusterName,
 		Namespace:                   cc.namespace,
 		Plan:                        cc.plan,
 		InfrastructureProvider:      cc.infrastructureProvider,
-		KubernetesVersion:           cc.kubernetesVersion,
 		ControlPlaneMachineCount:    cc.controlPlaneMachineCount,
 		WorkerMachineCount:          cc.workerMachineCount,
 		GenerateOnly:                cc.generateOnly,
@@ -124,4 +138,31 @@ func createCluster(clusterName string, server *v1alpha1.Server) error {
 	}
 
 	return tkgctlClient.CreateCluster(ccOptions)
+}
+
+func getK8sVersionForMatchingTkr(clusterClient clusterclient.Client, tkrName string) (string, error) {
+	tkrs, err := clusterClient.GetTanzuKubernetesReleases(tkrName)
+	if err != nil {
+		return "", err
+	}
+
+	// TODO: Enhance this logic to identify the greatest matching TKR
+	// https://jira.eng.vmware.com/browse/TKG-3512
+	var k8sVersion string
+	for _, tkr := range tkrs {
+		if tkr.Name == tkrName {
+			if !isTkrCompatible(tkr) {
+				fmt.Printf("WARNING: TanzuKubernetesRelease %q is not compatible on the management cluster", tkr.Name)
+			}
+
+			k8sVersion = tkr.Spec.Version
+			break
+		}
+	}
+
+	if k8sVersion == "" {
+		return "", errors.Errorf("could not find a matching TanzuKubernetesRelease for name %q", tkrName)
+	}
+
+	return k8sVersion, nil
 }

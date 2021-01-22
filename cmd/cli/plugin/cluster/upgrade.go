@@ -4,21 +4,25 @@
 package main
 
 import (
-	"errors"
+	"fmt"
+	"strings"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
+	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/client"
+	"github.com/vmware-tanzu-private/core/pkg/v1/clusterclient"
 	"github.com/vmware-tanzu-private/tkg-cli/pkg/constants"
 	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
 )
 
 type upgradeClustersOptions struct {
-	namespace         string
-	kubernetesVersion string
-	timeout           time.Duration
-	unattended        bool
+	namespace  string
+	tkrName    string
+	timeout    time.Duration
+	unattended bool
 }
 
 var uc = &upgradeClustersOptions{}
@@ -31,7 +35,7 @@ var upgradeClusterCmd = &cobra.Command{
 }
 
 func init() {
-	upgradeClusterCmd.Flags().StringVarP(&uc.kubernetesVersion, "kubernetes-version", "k", "", "The kubernetes version to upgrade to")
+	upgradeClusterCmd.Flags().StringVarP(&uc.tkrName, "tkr", "", "", "TanzuKubernetesRelease(TKR) to upgrade to")
 	upgradeClusterCmd.Flags().StringVarP(&uc.namespace, "namespace", "n", "", "The namespace where the workload cluster was created. Assumes 'default' if not specified")
 	upgradeClusterCmd.Flags().DurationVarP(&uc.timeout, "timeout", "t", constants.DefaultLongRunningOperationTimeout, "Time duration to wait for an operation before timeout. Timeout duration in hours(h)/minutes(m)/seconds(s) units or as some combination of them (e.g. 2h, 30m, 2h30m10s)")
 	upgradeClusterCmd.Flags().BoolVarP(&uc.unattended, "yes", "y", false, "Upgrade workload cluster without asking for confirmation")
@@ -55,13 +59,110 @@ func upgradeCluster(server *v1alpha1.Server, clusterName string) error {
 		return err
 	}
 
+	clusterClient, err := clusterclient.NewClusterClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context)
+	if err != nil {
+		return err
+	}
+
+	k8sVersion := ""
+	if uc.tkrName != "" {
+		k8sVersion, err = getValidK8sVersionFromTkrForUpgrade(tkgctlClient, clusterClient, clusterName)
+		if err != nil {
+			return err
+		}
+	}
+
 	upgradeClusterOptions := tkgctl.UpgradeClusterOptions{
 		ClusterName:       clusterName,
 		Namespace:         uc.namespace,
-		KubernetesVersion: uc.kubernetesVersion,
+		KubernetesVersion: k8sVersion,
 		SkipPrompt:        uc.unattended,
 		Timeout:           uc.timeout,
 	}
 
 	return tkgctlClient.UpgradeCluster(upgradeClusterOptions)
+}
+
+func getValidK8sVersionFromTkrForUpgrade(tkgctlClient tkgctl.TKGClient, clusterClient clusterclient.Client, clusterName string) (string, error) {
+	result, err := tkgctlClient.DescribeCluster(tkgctl.DescribeTKGClustersOptions{
+		ClusterName: clusterName,
+		Namespace:   uc.namespace,
+	})
+	if err != nil {
+		return "", err
+	}
+
+	tkrs, err := clusterClient.GetTanzuKubernetesReleases("")
+	if err != nil {
+		return "", err
+	}
+
+	tkrForUpgrade, err := getMatchingTkrForTkrName(tkrs, uc.tkrName)
+	if err != nil {
+		return "", err
+	}
+	if !isTkrCompatible(tkrForUpgrade) {
+		fmt.Printf("WARNING: TanzuKubernetesRelease %q is not compatible on the management cluster", tkrForUpgrade.Name)
+	}
+
+	tkrName, ok := result.Cluster.Labels["tanzuKubernetesRelease"]
+	if !ok { // old clusters with no TKR label
+		return tkrForUpgrade.Spec.Version, nil
+	}
+
+	tkr, err := getMatchingTkrForTkrName(tkrs, tkrName)
+	if err != nil {
+		return "", err
+	}
+
+	tkrAvailableUpgrades, err := getAvailableUpgrades(clusterName, tkr)
+	if err != nil {
+		return "", err
+	}
+
+	for _, availableUpgrade := range tkrAvailableUpgrades {
+		if availableUpgrade == uc.tkrName {
+			return tkrForUpgrade.Spec.Version, nil
+		}
+	}
+
+	return "", errors.Errorf("cluster cannot be upgraded to %q, available upgrades %v", uc.tkrName, tkrAvailableUpgrades)
+}
+
+func getAvailableUpgrades(clusterName string, tkr runv1alpha1.TanzuKubernetesRelease) ([]string, error) {
+	upgradeMsg := ""
+	for _, condition := range tkr.Status.Conditions {
+		if condition.Type == runv1alpha1.ConditionUpgradeAvailable {
+			upgradeMsg = condition.Message
+			break
+		}
+	}
+
+	// Example upgradeMsg - "TKR(s) with later version is available: <tkr-name-1>,<tkr-name-2>"
+	if strs := strings.Split(upgradeMsg, ": "); len(strs) != 2 {
+		return []string{}, errors.Errorf("no available upgrades for cluster %q, namespace %q", clusterName, uc.namespace)
+	} else {
+		return strings.Split(strs[1], ","), nil
+	}
+}
+
+func getMatchingTkrForTkrName(tkrs []runv1alpha1.TanzuKubernetesRelease, tkrName string) (runv1alpha1.TanzuKubernetesRelease, error) {
+	for _, tkr := range tkrs {
+		if tkr.Name == tkrName {
+			return tkr, nil
+		}
+	}
+
+	return runv1alpha1.TanzuKubernetesRelease{}, errors.Errorf("could not find a matching TanzuKubernetesRelease for name %q", tkrName)
+}
+
+func isTkrCompatible(tkr runv1alpha1.TanzuKubernetesRelease) bool {
+	for _, condition := range tkr.Status.Conditions {
+		if condition.Type == runv1alpha1.ConditionCompatible {
+			compatible := string(condition.Status)
+			return compatible == "True" || compatible == "true"
+		}
+	}
+
+	return false
 }
