@@ -4,6 +4,11 @@
 
 #@overlay/match by=overlay.subset({"kind": "DaemonSet", "metadata": {"name": "vsphere-cloud-controller-manager"}})
 ---
+metadata:
+  #@overlay/match missing_ok=True
+  annotations:
+    kapp.k14s.io/disable-default-label-scoping-rules: ""
+
 spec:
   template:
     spec:
