@@ -25,11 +25,18 @@ var descriptor = cli.PluginDescriptor{
 	Group:       cli.RunCmdGroup,
 }
 
+var logLevel int32
+var logFile string
+
 func main() {
 	p, err := plugin.NewPlugin(&descriptor)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	p.Cmd.PersistentFlags().Int32VarP(&logLevel, "v", "v", 0, "Number for the log level verbosity(0-9)")
+	p.Cmd.PersistentFlags().StringVar(&logFile, "log_file", "", "Log file path")
+
 	p.AddCommands(
 		createClusterCmd,
 		listClustersCmd,
@@ -73,6 +80,6 @@ func createTKGClient(kubeconfig, kubecontext string) (tkgctl.TKGClient, error) {
 		ConfigDir:   configDir,
 		KubeConfig:  kubeconfig,
 		KubeContext: kubecontext,
-		LogOptions:  tkgctl.LoggingOptions{Verbosity: 6},
+		LogOptions:  tkgctl.LoggingOptions{Verbosity: logLevel, File: logFile},
 	})
 }
