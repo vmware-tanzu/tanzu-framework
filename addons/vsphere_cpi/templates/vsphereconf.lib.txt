@@ -7,7 +7,7 @@ thumbprint = "(@=values.vsphereCPI.tlsThumbprint @)"
 [VirtualCenter "(@=values.vsphereCPI.server @)"]
 datacenters = "(@=values.vsphereCPI.datacenter @)"
 thumbprint = "(@=values.vsphereCPI.tlsThumbprint @)"
-(@ if values.vsphereCPI.nsxt.enabled : -@)
+(@ if values.vsphereCPI.nsxt.podRoutingEnabled : -@)
 [Route]
 router-path = "(@=values.vsphereCPI.nsxt.routes.routerPath @)"
 [NSXT]

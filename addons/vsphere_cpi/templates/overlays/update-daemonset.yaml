@@ -14,7 +14,7 @@ spec:
         imagePullPolicy: #@ values.vsphereCPI.image.pullPolicy
         args:
           #@overlay/append
-          #@ if values.vsphereCPI.nsxt.enabled:
+          #@ if values.vsphereCPI.nsxt.podRoutingEnabled:
           - --configure-cloud-routes=true
           #@ end
           #@overlay/append
@@ -22,7 +22,7 @@ spec:
           #@ for arg in struct.decode(values.vsphereCPI.cloudProviderExtraArgs):
           - --(@=arg @)=(@=struct.decode(values.vsphereCPI.cloudProviderExtraArgs)[arg]@)
           #@ end
-      #@ if values.vsphereCPI.nsxt.enabled and values.vsphereCPI.nsxt.rootCAData != "" and values.vsphereCPI.nsxt.clientCertData != "" and values.vsphereCPI.nsxt.clientCertKeyData != "" :
+      #@ if values.vsphereCPI.nsxt.podRoutingEnabled and values.vsphereCPI.nsxt.rootCAData != "" and values.vsphereCPI.nsxt.clientCertData != "" and values.vsphereCPI.nsxt.clientCertKeyData != "" :
       #@overlay/match by=overlay.subset({"name": "vsphere-cloud-controller-manager"})
       - volumeMounts:  
         #@overlay/append
