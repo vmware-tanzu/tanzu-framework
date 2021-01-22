@@ -109,18 +109,18 @@ func createCluster(clusterName string, server *v1alpha1.Server) error {
 		return err
 	}
 
-	kubernetesVersion := ""
+	k8sVersion := ""
 	if cc.tkrName != "" {
-		kubernetesVersion, err = getK8sVersionForMatchingTkr(clusterClient, cc.tkrName)
+		k8sVersion, err = getK8sVersionForMatchingTkr(clusterClient, cc.tkrName)
 		if err != nil {
 			return err
 		}
-		fmt.Printf("creating cluster with kubernetes version %q \n", kubernetesVersion)
+		fmt.Printf("creating cluster with kubernetes version %q \n", k8sVersion)
 	}
 
 	ccOptions := tkgctl.CreateClusterOptions{
 		ClusterConfigFile:           cc.clusterConfigFile,
-		KubernetesVersion:           kubernetesVersion,
+		KubernetesVersion:           k8sVersion,
 		ClusterName:                 clusterName,
 		Namespace:                   cc.namespace,
 		Plan:                        cc.plan,
@@ -148,10 +148,12 @@ func getK8sVersionForMatchingTkr(clusterClient clusterclient.Client, tkrName str
 	}
 
 	// TODO: Enhance this logic to identify the greatest matching TKR
+	// https://jira.eng.vmware.com/browse/TKG-3512
 	var k8sVersion string
 	for _, tkr := range tkrs {
 		if tkr.Name == tkrName {
 			k8sVersion = tkr.Spec.Version
+			break
 		}
 	}
 

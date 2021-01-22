@@ -64,19 +64,19 @@ func upgradeCluster(server *v1alpha1.Server, clusterName string) error {
 		return err
 	}
 
-	kubernetesVersion := ""
+	k8sVersion := ""
 	if uc.tkrName != "" {
-		kubernetesVersion, err = getValidK8sVersionFromTkrForUpgrade(tkgctlClient, clusterClient, clusterName)
+		k8sVersion, err = getValidK8sVersionFromTkrForUpgrade(tkgctlClient, clusterClient, clusterName)
 		if err != nil {
 			return err
 		}
-		fmt.Printf("upgrading cluster to kubernetes version %q \n", kubernetesVersion)
+		fmt.Printf("upgrading cluster to kubernetes version %q \n", k8sVersion)
 	}
 
 	upgradeClusterOptions := tkgctl.UpgradeClusterOptions{
 		ClusterName:       clusterName,
 		Namespace:         uc.namespace,
-		KubernetesVersion: kubernetesVersion,
+		KubernetesVersion: k8sVersion,
 		SkipPrompt:        uc.unattended,
 		Timeout:           uc.timeout,
 	}
@@ -103,25 +103,16 @@ func getValidK8sVersionFromTkrForUpgrade(tkgctlClient tkgctl.TKGClient, clusterC
 		return "", err
 	}
 
-	upgradeMsg := ""
-	for _, condition := range tkr.Status.Conditions {
-		if condition.Type == runv1alpha1.ConditionUpgradeAvailable {
-			upgradeMsg = condition.Message
-		}
-	}
-
-	tkrAvailableUpgrades := make([]string, 0)
-	if strs := strings.Split(upgradeMsg, ": "); len(strs) != 2 {
-		return "", errors.Errorf("no available upgrades for cluster %q, namespace %q", clusterName, uc.namespace)
-	} else {
-		tkrAvailableUpgrades = strings.Split(strs[1], ",")
+	tkrAvailableUpgrades, err := getAvailableUpgrades(clusterName, tkr)
+	if err != nil {
+		return "", err
 	}
 
 	for _, availableUpgrade := range tkrAvailableUpgrades {
 		if availableUpgrade == uc.tkrName {
 			tkrForUpgrade, err := getMatchingTkrForTkrName(clusterClient, uc.tkrName)
 			if err != nil {
-				return "", nil
+				return "", err
 			}
 
 			return tkrForUpgrade.Spec.Version, nil
@@ -129,6 +120,22 @@ func getValidK8sVersionFromTkrForUpgrade(tkgctlClient tkgctl.TKGClient, clusterC
 	}
 
 	return "", errors.Errorf("cluster cannot be upgraded to %q, available upgrades %v", uc.tkrName, tkrAvailableUpgrades)
+}
+
+func getAvailableUpgrades(clusterName string, tkr *runv1alpha1.TanzuKubernetesRelease) ([]string, error) {
+	upgradeMsg := ""
+	for _, condition := range tkr.Status.Conditions {
+		if condition.Type == runv1alpha1.ConditionUpgradeAvailable {
+			upgradeMsg = condition.Message
+			break
+		}
+	}
+
+	if strs := strings.Split(upgradeMsg, ": "); len(strs) != 2 {
+		return []string{}, errors.Errorf("no available upgrades for cluster %q, namespace %q", clusterName, uc.namespace)
+	} else {
+		return strings.Split(strs[1], ","), nil
+	}
 }
 
 func getMatchingTkrForTkrName(clusterClient clusterclient.Client, tkrName string) (*runv1alpha1.TanzuKubernetesRelease, error) {
