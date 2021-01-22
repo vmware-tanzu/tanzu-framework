@@ -6,12 +6,9 @@ vsphereCPI:
   tlsThumbprint: ""
   server: null
   datacenter: null
-  publicNetwork: null
-  folder: ""
-  defaultDatastore: ""
-  resourcepoolPath: ""
   username: null
   password: null
+  insecureFlag: False
   image:
     repository: "projects-stg.registry.vmware.com/tkg"
     path: "cloud-provider-vsphere/cpi/release/manager"
@@ -20,7 +17,7 @@ vsphereCPI:
   cloudProviderExtraArgs:
     tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
   nsxt:
-    enabled: false
+    podRoutingEnabled: false
     routes:
       routerPath: ""
     username: ""
