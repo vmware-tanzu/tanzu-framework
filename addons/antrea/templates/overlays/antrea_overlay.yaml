@@ -165,6 +165,9 @@ data:
 kind: Deployment
 metadata:
   name: antrea-controller
+  #@overlay/match missing_ok=True
+  annotations:
+    kapp.k14s.io/disable-default-label-scoping-rules: ""
 spec:
   template:
     spec:
@@ -178,6 +181,10 @@ spec:
 #@overlay/match by=overlay.subset({"kind":"DaemonSet","metadata":{"name": "antrea-agent"}})
 ---
 kind: DaemonSet
+metadata:
+  #@overlay/match missing_ok=True
+  annotations:
+    kapp.k14s.io/disable-default-label-scoping-rules: ""
 spec:
   template:
     spec:
