@@ -325,6 +325,10 @@ func (r *AddonReconciler) reconcileAddonSecretDelete(
 	addonSecret *corev1.Secret,
 	patchAddonSecret *bool) (ctrl.Result, error) {
 
+	if r.shouldNotReconcile(log, addonSecret) {
+		return ctrl.Result{}, nil
+	}
+
 	// delete remote app and data values secret
 	if err := r.reconcileAddonDelete(ctx, log, clusterClient, addonSecret, false); err != nil {
 		log.Error(err, "Error reconciling addon delete", constants.AddonNameLogKey, addonName)
@@ -379,6 +383,10 @@ func (r *AddonReconciler) reconcileAddonSecretNormal(
 	}
 
 	*patchAddonSecret = metadataAdded
+
+	if r.shouldNotReconcile(log, addonSecret) {
+		return ctrl.Result{}, nil
+	}
 
 	// create/patch remote app and data values secret
 	if err := r.reconcileAddonNormal(ctx, log, cluster, clusterClient, addonSecret, &addonConfig, imageRepository); err != nil {
@@ -458,4 +466,16 @@ func (r *AddonReconciler) addMetadataToAddonSecret(
 	}
 
 	return patchAddonSecret, nil
+}
+
+func (r *AddonReconciler) shouldNotReconcile(
+	log logr.Logger,
+	addonSecret *corev1.Secret) bool {
+
+	if util.IsAddonPaused(addonSecret) {
+		log.Info("Addon paused")
+		return true
+	}
+
+	return false
 }

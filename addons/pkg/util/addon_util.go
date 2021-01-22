@@ -141,3 +141,13 @@ func IsRemoteApp(addonSecret *corev1.Secret) bool {
 	isRemoteApp, _ := strconv.ParseBool(remoteApp)
 	return isRemoteApp
 }
+
+// IsAddonPaused returns true if Addon is paused
+func IsAddonPaused(addonSecret *corev1.Secret) bool {
+	annotations := addonSecret.GetAnnotations()
+	if annotations == nil {
+		return false
+	}
+	_, ok := annotations[addontypes.AddonPausedAnnotation]
+	return ok
+}
