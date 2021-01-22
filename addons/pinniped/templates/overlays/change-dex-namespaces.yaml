@@ -1,7 +1,6 @@
 #@ load("/values.star", "values")
 #@ load("@ytt:overlay", "overlay")
 #@ load("/kinds.lib.yaml", "kind_overlays")
-#@ load("/globals.star", "get_kapp_annotations")
 
 #@ if values.tkg_cluster_role != "workload":
 

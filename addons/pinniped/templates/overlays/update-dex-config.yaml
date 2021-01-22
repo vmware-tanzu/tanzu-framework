@@ -1,5 +1,5 @@
 #@ load("/values.star", "values")
-#@ load("/globals.star", "globals", "get_kapp_annotations")
+#@ load("/globals.star", "globals")
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:yaml", "yaml")
 
@@ -122,12 +122,6 @@ enablePasswordDB: #@ values.dex.config.enablePasswordDB
 
 #@overlay/match by=overlay.and_op(overlay.subset({"kind": "ConfigMap"}), dex_metadata)
 ---
-metadata:
-  #@ annotations = get_kapp_annotations("ConfigMap")
-  #@ if annotations:
-  #@overlay/match missing_ok=True
-  annotations: #@ annotations
-  #@ end
 data:
   config.yaml: #@ yaml.encode(dex_configmap_yaml())
 

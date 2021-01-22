@@ -426,7 +426,7 @@ func updateCertSubjectAltNames(ctx context.Context, c Clients, certNamespace, ce
 		return nil, err
 	}
 	host := parsedURL.Hostname()
-	zap.S().Infof("Updating the Certificate %s/%s with host: %s", certNamespace, cert.Spec.SecretName, host)
+	zap.S().Infof("Updating the Certificate %s/%s with host: %s", certNamespace, certName, host)
 	var updatedCert *certmanagerv1beta1.Certificate
 	err = retry.RetryOnConflict(retry.DefaultRetry, func() error {
 		var fetchedCert *certmanagerv1beta1.Certificate
@@ -450,7 +450,7 @@ func updateCertSubjectAltNames(ctx context.Context, c Clients, certNamespace, ce
 		zap.S().Error(err)
 		return nil, err
 	}
-	zap.S().Infof("Updated the Certificate %s/%s with host: %s", certNamespace, cert.Spec.SecretName, host)
+	zap.S().Infof("Updated the Certificate %s/%s with host: %s", certNamespace, certName, host)
 
 	return updatedCert, nil
 }
