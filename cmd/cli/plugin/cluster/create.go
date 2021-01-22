@@ -49,7 +49,7 @@ var createClusterCmd = &cobra.Command{
 
 func init() {
 	createClusterCmd.Flags().StringVarP(&cc.clusterConfigFile, "file", "f", "", "Cluster configuration file from which to create a Cluster")
-	createClusterCmd.Flags().StringVarP(&cc.tkrName, "tkr", "", "", "TanzuKubernetesRelease(tkr) to be used for creating the workload cluster")
+	createClusterCmd.Flags().StringVarP(&cc.tkrName, "tkr", "", "", "TanzuKubernetesRelease(TKR) to be used for creating the workload cluster")
 
 	createClusterCmd.Flags().StringVarP(&cc.plan, "plan", "p", "", "The plan to be used for creating the workload cluster")
 	createClusterCmd.Flags().IntVarP(&cc.controlPlaneMachineCount, "controlplane-machine-count", "c", 0, "The number of control plane machines to be added to the workload cluster (default 1 or 3 depending on dev or prod plan)")
@@ -115,7 +115,6 @@ func createCluster(clusterName string, server *v1alpha1.Server) error {
 		if err != nil {
 			return err
 		}
-		fmt.Printf("creating cluster with kubernetes version %q \n", k8sVersion)
 	}
 
 	ccOptions := tkgctl.CreateClusterOptions{
@@ -152,6 +151,10 @@ func getK8sVersionForMatchingTkr(clusterClient clusterclient.Client, tkrName str
 	var k8sVersion string
 	for _, tkr := range tkrs {
 		if tkr.Name == tkrName {
+			if !isTkrCompatible(tkr) {
+				fmt.Printf("WARNING: TanzuKubernetesRelease %q is not compatible on the management cluster", tkr.Name)
+			}
+
 			k8sVersion = tkr.Spec.Version
 			break
 		}

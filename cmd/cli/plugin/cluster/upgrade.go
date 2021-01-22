@@ -35,7 +35,7 @@ var upgradeClusterCmd = &cobra.Command{
 }
 
 func init() {
-	upgradeClusterCmd.Flags().StringVarP(&uc.tkrName, "tkr", "", "", "TanzuKubernetesRelease(tkr) to upgrade to")
+	upgradeClusterCmd.Flags().StringVarP(&uc.tkrName, "tkr", "", "", "TanzuKubernetesRelease(TKR) to upgrade to")
 	upgradeClusterCmd.Flags().StringVarP(&uc.namespace, "namespace", "n", "", "The namespace where the workload cluster was created. Assumes 'default' if not specified")
 	upgradeClusterCmd.Flags().DurationVarP(&uc.timeout, "timeout", "t", constants.DefaultLongRunningOperationTimeout, "Time duration to wait for an operation before timeout. Timeout duration in hours(h)/minutes(m)/seconds(s) units or as some combination of them (e.g. 2h, 30m, 2h30m10s)")
 	upgradeClusterCmd.Flags().BoolVarP(&uc.unattended, "yes", "y", false, "Upgrade workload cluster without asking for confirmation")
@@ -70,7 +70,6 @@ func upgradeCluster(server *v1alpha1.Server, clusterName string) error {
 		if err != nil {
 			return err
 		}
-		fmt.Printf("upgrading cluster to kubernetes version %q \n", k8sVersion)
 	}
 
 	upgradeClusterOptions := tkgctl.UpgradeClusterOptions{
@@ -93,12 +92,25 @@ func getValidK8sVersionFromTkrForUpgrade(tkgctlClient tkgctl.TKGClient, clusterC
 		return "", err
 	}
 
-	tkrName, ok := result.Cluster.Labels["tanzuKubernetesRelease"]
-	if !ok {
-		return "", errors.Errorf("unable to obtain TanzuKubernetesRelease for cluster %q, namespace %q", clusterName, uc.namespace)
+	tkrs, err := clusterClient.GetTanzuKubernetesReleases("")
+	if err != nil {
+		return "", err
 	}
 
-	tkr, err := getMatchingTkrForTkrName(clusterClient, tkrName)
+	tkrForUpgrade, err := getMatchingTkrForTkrName(tkrs, uc.tkrName)
+	if err != nil {
+		return "", err
+	}
+	if !isTkrCompatible(tkrForUpgrade) {
+		fmt.Printf("WARNING: TanzuKubernetesRelease %q is not compatible on the management cluster", tkrForUpgrade.Name)
+	}
+
+	tkrName, ok := result.Cluster.Labels["tanzuKubernetesRelease"]
+	if !ok { // old clusters with no TKR label
+		return tkrForUpgrade.Spec.Version, nil
+	}
+
+	tkr, err := getMatchingTkrForTkrName(tkrs, tkrName)
 	if err != nil {
 		return "", err
 	}
@@ -110,11 +122,6 @@ func getValidK8sVersionFromTkrForUpgrade(tkgctlClient tkgctl.TKGClient, clusterC
 
 	for _, availableUpgrade := range tkrAvailableUpgrades {
 		if availableUpgrade == uc.tkrName {
-			tkrForUpgrade, err := getMatchingTkrForTkrName(clusterClient, uc.tkrName)
-			if err != nil {
-				return "", err
-			}
-
 			return tkrForUpgrade.Spec.Version, nil
 		}
 	}
@@ -122,7 +129,7 @@ func getValidK8sVersionFromTkrForUpgrade(tkgctlClient tkgctl.TKGClient, clusterC
 	return "", errors.Errorf("cluster cannot be upgraded to %q, available upgrades %v", uc.tkrName, tkrAvailableUpgrades)
 }
 
-func getAvailableUpgrades(clusterName string, tkr *runv1alpha1.TanzuKubernetesRelease) ([]string, error) {
+func getAvailableUpgrades(clusterName string, tkr runv1alpha1.TanzuKubernetesRelease) ([]string, error) {
 	upgradeMsg := ""
 	for _, condition := range tkr.Status.Conditions {
 		if condition.Type == runv1alpha1.ConditionUpgradeAvailable {
@@ -131,6 +138,7 @@ func getAvailableUpgrades(clusterName string, tkr *runv1alpha1.TanzuKubernetesRe
 		}
 	}
 
+	// Example upgradeMsg - "TKR(s) with later version is available: <tkr-name-1>,<tkr-name-2>"
 	if strs := strings.Split(upgradeMsg, ": "); len(strs) != 2 {
 		return []string{}, errors.Errorf("no available upgrades for cluster %q, namespace %q", clusterName, uc.namespace)
 	} else {
@@ -138,17 +146,23 @@ func getAvailableUpgrades(clusterName string, tkr *runv1alpha1.TanzuKubernetesRe
 	}
 }
 
-func getMatchingTkrForTkrName(clusterClient clusterclient.Client, tkrName string) (*runv1alpha1.TanzuKubernetesRelease, error) {
-	tkrs, err := clusterClient.GetTanzuKubernetesReleases(tkrName)
-	if err != nil {
-		return nil, err
-	}
-
+func getMatchingTkrForTkrName(tkrs []runv1alpha1.TanzuKubernetesRelease, tkrName string) (runv1alpha1.TanzuKubernetesRelease, error) {
 	for _, tkr := range tkrs {
 		if tkr.Name == tkrName {
-			return &tkr, err
+			return tkr, nil
 		}
 	}
 
-	return nil, errors.Errorf("could not find a matching TanzuKubernetesRelease for name %q", tkrName)
+	return runv1alpha1.TanzuKubernetesRelease{}, errors.Errorf("could not find a matching TanzuKubernetesRelease for name %q", tkrName)
+}
+
+func isTkrCompatible(tkr runv1alpha1.TanzuKubernetesRelease) bool {
+	for _, condition := range tkr.Status.Conditions {
+		if condition.Type == runv1alpha1.ConditionCompatible {
+			compatible := string(condition.Status)
+			return compatible == "True" || compatible == "true"
+		}
+	}
+
+	return false
 }
