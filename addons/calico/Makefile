@@ -22,3 +22,7 @@ help: ## Display this help
 .PHONY: template-image
 template-image: ## Build template image
 	docker build -t $(IMG_NAME):$(IMG_TAG) -f ../Dockerfile.templates .
+
+.PHONY: push-template-image
+push-template-image: ## Push template image
+	docker push $(IMG_NAME):$(IMG_TAG)
