@@ -5,6 +5,7 @@ package source
 import (
 	"context"
 	"fmt"
+	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -43,6 +44,7 @@ type reconciler struct {
 	bomImage                   string
 	compatibilityMetadataImage string
 	registry                   registry.Registry
+	registryOps                ctlimg.RegistryOpts
 }
 
 func (r *reconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
@@ -363,13 +365,23 @@ func (r *reconciler) checkInitialSync(ctx context.Context) error {
 func (r *reconciler) Start(stopChan <-chan struct{}) error {
 	r.log.Info("Starting TanzuKubernetesReleaase Reconciler")
 
+	r.log.Info("Performing configuration setup")
+	err := r.Configure()
+	if err != nil {
+		return errors.Wrap(err, "failed to configure the controller")
+	}
+	if _, err := os.Stat(systemCertsFile); err == nil {
+		r.registryOps.CACertPaths = []string{systemCertsFile}
+	}
+
+	r.registry = registry.New(r.registryOps)
+
 	r.log.Info("Performing an initial release discovery")
 	initSyncDone := make(chan bool)
 	done := make(chan bool)
 
 	ticker := time.NewTicker(r.options.InitialDiscoveryFrequency)
 
-	var err error
 	go func() {
 		for {
 			select {
@@ -419,12 +431,10 @@ func (r *reconciler) Start(stopChan <-chan struct{}) error {
 }
 
 func newReconciler(ctx *mgrcontext.ControllerManagerContext) reconcile.Reconciler {
+
 	regOpts := ctlimg.RegistryOpts{
-		Anon:        true, // set anonymous to true for pulling images
 		VerifyCerts: ctx.VerifyRegistryCert,
-	}
-	if ctx.RegistryCertPath != "" {
-		regOpts.CACertPaths = []string{ctx.RegistryCertPath}
+		Anon:        true,
 	}
 	return &reconciler{
 		ctx:                        ctx.Context,
@@ -432,7 +442,7 @@ func newReconciler(ctx *mgrcontext.ControllerManagerContext) reconcile.Reconcile
 		log:                        ctx.Logger,
 		scheme:                     ctx.Scheme,
 		options:                    ctx.TKRDiscoveryOption,
-		registry:                   registry.New(regOpts),
+		registryOps:                regOpts,
 		bomImage:                   ctx.BOMImagePath,
 		compatibilityMetadataImage: ctx.BOMMetadataImagePath,
 	}
