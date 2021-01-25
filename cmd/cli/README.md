@@ -1,6 +1,6 @@
 # Tanzu CLI
 
-The [Tanzu CLI](https://docs.google.com/document/d/1btWfZ9Z_Y7SmUmPis69hR_u4TunAPKT7ZDSZy5mvU6Y/edit?usp=sharing)
+The [Tanzu CLI](https://docs.google.com/document/d/1X34ZNkPG_kEMSySpFjAQsmX2Xn1dXTksbVxXUgUk-QM/edit?usp=sharing)
 
 ## Install
 ### MacOS
