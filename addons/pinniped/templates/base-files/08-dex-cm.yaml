@@ -82,6 +82,28 @@ data:
         # The set claim is used as user name.
         # Default: name
         # userNameKey: nickname
+
+        # For offline_access, the prompt parameter is set by default to "prompt=consent".
+        # However this is not supported by all OIDC providers, some of them support different
+        # value for prompt, like "prompt=login" or "prompt=none"
+        # promptType: consent
+
+        # Some providers return non-standard claims (eg. mail).
+        # Use claimMapping to map those claims to standard claims:
+        # https://openid.net/specs/openid-connect-core-1_0.html#Claims
+        # claimMapping can only map a non-standard claim to a standard one if it's not returned in the id_token.
+        claimMapping:
+          # The set claim is used as preferred username.
+          # Default: preferred_username
+          # preferred_username: other_user_name
+
+          # The set claim is used as email.
+          # Default: email
+          # email: mail
+
+          # The set claim is used as groups.
+          # Default: groups
+          # groups: "cognito:groups"
     oauth2:
       skipApprovalScreen: true
       responseTypes: ["code", "token", "id_token"]

@@ -23,8 +23,7 @@ def validate_dex():
                     validate_dex_image,
                     validate_dex_certificate,
                     validate_dex_deployment,
-                    validate_dex_service,
-                    validate_static_client]
+                    validate_dex_service]
   for validate_func in validate_funcs:
     validate_func()
   end
@@ -37,14 +36,14 @@ end
 def validate_dex_config():
   globals.infrastructure_provider in ("aws", "vsphere", "azure") or assert.fail("Dex supports provider aws, vsphere or azure")
   if globals.infrastructure_provider == "vsphere":
-    data.values.dns.vsphere.ipAddresses or assert.fail("Dex MGMT_CLUSTER_IP should be provided for vsphere provider")
+    data.values.dex.dns.vsphere.ipAddresses or assert.fail("Dex MGMT_CLUSTER_IP should be provided for vsphere provider")
     data.values.dex.config.issuerPort or assert.fail("Dex config issuerPort should be provided for vsphere provider")
   end
   if globals.infrastructure_provider == "aws":
-    data.values.dns.aws.DEX_SVC_LB_HOSTNAME or assert.fail("Dex oidc issuer DEX_SVC_LB_HOSTNAME should be provided for aws provider")
+    data.values.dex.dns.aws.DEX_SVC_LB_HOSTNAME or assert.fail("Dex oidc issuer DEX_SVC_LB_HOSTNAME should be provided for aws provider")
   end
   if globals.infrastructure_provider == "azure":
-    data.values.dns.azure.DEX_SVC_LB_HOSTNAME or assert.fail("Dex DEX_SVC_LB_HOSTNAME should be provided for azure provider")
+    data.values.dex.dns.azure.DEX_SVC_LB_HOSTNAME or assert.fail("Dex DEX_SVC_LB_HOSTNAME should be provided for azure provider")
   end
   data.values.dex.config.connector in ("oidc", "ldap") or assert.fail("Dex connector should be oidc or ldap")
   if data.values.dex.config.connector == "oidc":
@@ -97,13 +96,13 @@ def validate_dex_service():
     data.values.dex.service.type in ("LoadBalancer", "NodePort") or assert.fail("Dex service type should be LoadBalancer or NodePort")
   end
   if globals.infrastructure_provider == "aws":
-    data.values.dns.aws.DEX_SVC_LB_HOSTNAME or assert.fail("Dex aws dnsname DEX_SVC_LB_HOSTNAME should be provided")
+    data.values.dex.dns.aws.DEX_SVC_LB_HOSTNAME or assert.fail("Dex aws dnsname DEX_SVC_LB_HOSTNAME should be provided")
   end
   if globals.infrastructure_provider == "vsphere":
-    data.values.dns.vsphere.ipAddresses[0] or assert.fail("Dex vsphere dns at least one ipaddress should be provided")
+    data.values.dex.dns.vsphere.ipAddresses[0] or assert.fail("Dex vsphere dns at least one ipaddress should be provided")
   end
   if globals.infrastructure_provider == "azure":
-    data.values.dns.azure.DEX_SVC_LB_HOSTNAME or assert.fail("Dex azure dnsname DEX_SVC_LB_HOSTNAME should be provided")
+    data.values.dex.dns.azure.DEX_SVC_LB_HOSTNAME or assert.fail("Dex azure dnsname DEX_SVC_LB_HOSTNAME should be provided")
   end
 end
 

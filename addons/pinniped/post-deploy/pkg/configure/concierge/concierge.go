@@ -51,6 +51,10 @@ func (c Configurator) CreateOrUpdateJWTAuthenticator(context context.Context, na
 	zap.S().Infof("Updating existing JWTAuthenticator %s/%s", namespace, name)
 	copiedJwtAuthenticator := jwtAuthenticator.DeepCopy()
 	copiedJwtAuthenticator.Spec.Issuer = issuer
+	copiedJwtAuthenticator.Spec.Audience = audience
+	copiedJwtAuthenticator.Spec.TLS = &authv1alpha1.TLSSpec{
+		CertificateAuthorityData: caData,
+	}
 	if _, err = c.Clientset.AuthenticationV1alpha1().JWTAuthenticators(namespace).Update(context, copiedJwtAuthenticator, metav1.UpdateOptions{}); err != nil {
 		zap.S().Error(err)
 		return err

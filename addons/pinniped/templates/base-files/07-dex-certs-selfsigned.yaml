@@ -8,15 +8,15 @@
 
 #@ def dex_dns():
 #@   if globals.infrastructure_provider == "aws":
-#@     list = values.dns.aws.dnsNames
-#@     list.append(values.dns.aws.DEX_SVC_LB_HOSTNAME)
+#@     list = values.dex.dns.aws.dnsNames
+#@     list.append(values.dex.dns.aws.DEX_SVC_LB_HOSTNAME)
 #@     return list
 #@   elif globals.infrastructure_provider == "azure":
-#@     list = values.dns.azure.dnsNames
-#@     list.append(values.dns.azure.DEX_SVC_LB_HOSTNAME)
+#@     list = values.dex.dns.azure.dnsNames
+#@     list.append(values.dex.dns.azure.DEX_SVC_LB_HOSTNAME)
 #@     return list
 #@   else:
-#@     return values.dns.vsphere.dnsNames
+#@     return values.dex.dns.vsphere.dnsNames
 #@   end
 #@ end
 
@@ -24,7 +24,7 @@
 #@   if globals.infrastructure_provider == "aws":
 #@     return []
 #@   else:
-#@     return values.dns.vsphere.ipAddresses
+#@     return values.dex.dns.vsphere.ipAddresses
 #@   end
 #@ end
 

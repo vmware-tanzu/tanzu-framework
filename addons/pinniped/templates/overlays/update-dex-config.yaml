@@ -10,11 +10,11 @@
 #@ def dex_configmap_yaml():
 
 #@ if globals.infrastructure_provider == "aws":
-issuer: #@ "https://" + values.dns.aws.DEX_SVC_LB_HOSTNAME
+issuer: #@ "https://" + values.dex.dns.aws.DEX_SVC_LB_HOSTNAME
 #@ elif globals.infrastructure_provider == "azure":
-issuer: #@ "https://" + values.dns.azure.DEX_SVC_LB_HOSTNAME
+issuer: #@ "https://" + values.dex.dns.azure.DEX_SVC_LB_HOSTNAME
 #@ elif globals.infrastructure_provider == "vsphere":
-issuer: #@ "https://" + values.dns.vsphere.ipAddresses[0] + ":" + values.dex.config.issuerPort
+issuer: #@ "https://" + values.dex.dns.vsphere.ipAddresses[0] + ":" + values.dex.config.issuerPort
 #@ end
 frontend: #@ values.dex.config.frontend
 web: #@ values.dex.config.web
@@ -37,11 +37,11 @@ connectors:
     clientID: #@ values.dex.config.oidc.clientID
     clientSecret: #@ values.dex.config.oidc.clientSecret
 #@ if globals.infrastructure_provider == "aws":   
-    redirectURI: #@ "https://" + values.dns.aws.DEX_SVC_LB_HOSTNAME + "/callback"
+    redirectURI: #@ "https://" + values.dex.dns.aws.DEX_SVC_LB_HOSTNAME + "/callback"
 #@ elif globals.infrastructure_provider == "azure":
-    redirectURI: #@ "https://" + values.dns.azure.DEX_SVC_LB_HOSTNAME + "/callback"
+    redirectURI: #@ "https://" + values.dex.dns.azure.DEX_SVC_LB_HOSTNAME + "/callback"
 #@ elif globals.infrastructure_provider == "vsphere":
-    redirectURI: #@ "https://" + values.dns.vsphere.ipAddresses[0] + ":" + values.dex.config.issuerPort + "/callback"
+    redirectURI: #@ "https://" + values.dex.dns.vsphere.ipAddresses[0] + ":" + values.dex.config.issuerPort + "/callback"
 #@ end
     #@ if/end values.dex.config.oidc.basicAuthUnsupported:
     basicAuthUnsupported:  #@ values.dex.config.oidc.basicAuthUnsupported
@@ -59,6 +59,8 @@ connectors:
     userIDKey: #@ values.dex.config.oidc.userIDKey
     #@ if/end values.dex.config.oidc.userNameKey:
     userNameKey: #@ values.dex.config.oidc.userNameKey
+    #@ if/end values.dex.config.oidc.claimMapping:
+    claimMapping: #@ values.dex.config.oidc.claimMapping
 
 #@ elif values.dex.config.connector == "ldap":
 connectors:

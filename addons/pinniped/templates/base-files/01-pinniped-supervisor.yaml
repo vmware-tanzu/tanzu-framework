@@ -2,7 +2,7 @@
 #@ load("@ytt:template", "template")
 #@ load("@ytt:yaml", "yaml")
 #@ load("/certificates.lib.yaml", "generate_dns_names", "get_certificate_with_params", "generate_self_signed_issuer", "certificate_generate_args", "generate_ca_issuer", "generate_ca_certificate")
-#@ load("/libs/constants.lib.yaml", "pinniped_name", "pinniped_supervisor_namespace", "pinniped_cert_name", "pinniped_supervisor_svc_name")
+#@ load("/libs/constants.lib.yaml", "pinniped_name", "pinniped_supervisor_namespace", "pinniped_cert_name", "pinniped_supervisor_svc_name", "pinniped_tls_secret_name")
 
 #@ if data.values.tkg_cluster_role != "workload":
 ---
@@ -167,8 +167,6 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: #@ pinniped_supervisor_namespace()
-#!  labels:
-#!    app: pinniped-supervisor
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -186,9 +184,10 @@ metadata:
   labels:
     app: pinniped-supervisor
 data:
+  #@yaml/text-templated-strings
   pinniped.yaml: |
     names:
-      defaultTLSCertificateSecret: pinniped-supervisor-default-tls-certificate
+      defaultTLSCertificateSecret: (@= pinniped_tls_secret_name() @)
     labels: {"app":"pinniped-supervisor"}
 
 ---
@@ -526,98 +525,5 @@ roleRef:
   kind: Role
   name: pinniped-supervisor
   apiGroup: rbac.authorization.k8s.io
-
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: #@ "{}-client-credentials".format(data.values.pinniped.upstream_oidc_provider_name)
-  namespace: #@ pinniped_supervisor_namespace()
-type: secrets.pinniped.dev/oidc-client
-stringData:
-  clientID: #@ data.values.pinniped.upstream_oidc_client_id
-  clientSecret: #@ data.values.pinniped.upstream_oidc_client_secret
-
----
-apiVersion: idp.supervisor.pinniped.dev/v1alpha1
-kind: OIDCIdentityProvider
-metadata:
-  name: #@ "{}-oidc-identity-provider".format(data.values.pinniped.upstream_oidc_provider_name)
-  namespace: #@ pinniped_supervisor_namespace()
-spec:
-  issuer: #@ data.values.pinniped.upstream_oidc_issuer_url
-  authorizationConfig:
-    #! TODO parameterize this ?
-    additionalScopes:
-      - email
-  claims:
-    username: email
-  client:
-    secretName: #@ "{}-client-credentials".format(data.values.pinniped.upstream_oidc_provider_name)
-  #! TODO to have tls section here for Dex
-
-#@ if data.values.infrastructure_provider == "vsphere":
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: #@ pinniped_supervisor_svc_name()
-  namespace: #@ pinniped_supervisor_namespace()
-spec:
-  type: NodePort
-  selector:
-    app: pinniped-supervisor
-  ports:
-    - name: https
-      protocol: TCP
-      port: 443
-      targetPort: 8443
-      nodePort: 31234
-#@ else:
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: #@ pinniped_supervisor_svc_name()
-  namespace: #@ pinniped_supervisor_namespace()
-spec:
-  type: LoadBalancer
-  selector:
-    app: pinniped-supervisor
-  ports:
-    - name: https
-      protocol: TCP
-      port: 443
-      targetPort: 8443
-#@ end
-
-#@ def pinniped_dns():
-#@ return []
-#@ end
-
-#@ def pinniped_ips():
-#@   return []
-#@ end
-
-#@ pinniped_self_signed_ca_issuer = pinniped_name() + "-selfsigned-ca-issuer"
-#@ pinniped_ca = pinniped_name() + "-ca"
-#@ pinniped_ca_duration = "87600h"
-#@ pinniped_ca_renew_before = "360h"
-#@ pinniped_ca_key_pair = pinniped_name() + "-ca-key-pair"
-#@ pinniped_ca_issuer = pinniped_name() + "-ca-issuer"
-#@ pinniped_ca_common_name = "tkg-pinniped"
-#@ pinniped_ca_dns_name = pinniped_name() + "ca"
-#@ pinniped_organization = "vmware"
-#@ pinniped_secret_name = "pinniped-supervisor-default-tls-certificate"
-#@ pinniped_cert_duration = data.values.pinniped.cert_duration
-#@ pinniped_cert_renew_before = data.values.pinniped.cert_renew_before
-#@ pinniped_dns_list = pinniped_dns()
-#@ pinniped_ipaddress = pinniped_ips()
-#@ pinniped_isCA = False
-
---- #@ generate_self_signed_issuer(pinniped_self_signed_ca_issuer, pinniped_supervisor_namespace())
---- #@ generate_ca_certificate(pinniped_ca, pinniped_supervisor_namespace(), pinniped_ca_duration, pinniped_ca_renew_before, pinniped_ca_key_pair, [pinniped_organization], pinniped_ca_common_name, [pinniped_ca_dns_name], pinniped_self_signed_ca_issuer)
---- #@ generate_ca_issuer(pinniped_ca_issuer, pinniped_supervisor_namespace(), pinniped_ca_key_pair)
---- #@ certificate_generate_args(get_certificate_with_params, pinniped_cert_name(), pinniped_supervisor_namespace(), pinniped_cert_duration, pinniped_cert_renew_before, pinniped_secret_name, [pinniped_organization], pinniped_ca_common_name, pinniped_dns_list, pinniped_ca_issuer, (pinniped_isCA, pinniped_ipaddress))
 
 #@ end

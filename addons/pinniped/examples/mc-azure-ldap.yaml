@@ -1,16 +1,60 @@
 #@data/values
 #@overlay/match-child-defaults missing_ok=True
 ---
-infrastructure_provider: "azure"
-tkg_cluster_role: "management"
+infrastructure_provider: azure #! required
+tkg_cluster_role: management #! required
 pinniped:
-  cert_duration: "2160h"
-  cert_renew_before: "360h"
+  cert_duration: 2160h #! required
+  cert_renew_before: 360h #! required
+  supervisor_svc_endpoint: "https://0.0.0.0:31234" #! Do not change. Will be updated by post-deployment job. This is used to configure jwtAuthenticator
+  supervisor_ca_bundle_data: "ca_bundle_data_of_supervisor_svc" #! Do not change. Will be updated by post-deployment job. This is used to configure jwtAuthenticator to communicate with supervisor svc
+  supervisor_svc_external_ip: "0.0.0.0" #! provide if the node IP or LB IP of Pinniped supervisor service is known, otherwise leave it as is. e.g. 10.165.123.84
+  supervisor_svc_external_dns: null #! provide if the LB DNS of Pinniped supervisor service is known, otherwise leave it as is. e.g pinniped-svc.us-west-2a.com
+  upstream_oidc_provider_name: "dex" #! the name of upstream oidc provider. Default is dex, since Dex is deployed as the upstream of Pinniped
+  upstream_oidc_client_id: "" #! Do not change. Will be updated by post-deployment job. The client secret used to talk to Dex
+  upstream_oidc_client_secret: "" #! Do not change. Will be updated by post-deployment job. This is the client secret used to talk to Dex
+  upstream_oidc_issuer_url: "https://0.0.0.0:30167" #! Do not change. Will be updated by post-deployment job. This is the upstream oidc issuer url. It should be pointed to Dex service, since Dex is deployed as the upstream of Pinniped. e.g https://endpoint-points-to-dex:5443 !!!
+  upstream_oidc_tls_ca_data: "ca_bundle_data_of_dex_svc" #! Do not change. Will be updated by post-deployment job. This tls ca data is used to communicate with upstream_oidc_issuer_url
+  upstream_oidc_additional_scopes: #! required. If no additional scopes, put []
+    - email
+    - offline_access
+    - profile
+  upstream_oidc_claims: #! required. If no claims, put {}
+    username: email
+  image: #! required
+    name: pinniped
+    tag: v0.4.0_vmware.1
+    repository: projects-stg.registry.vmware.com/tkg
+    pull_policy: IfNotPresent
+  post_deploy_job_image: #! required
+    name: tkg-pinniped-post-deploy
+    tag: v0.4.0_vmware.1
+    repository: projects-stg.registry.vmware.com/tkg
+    pull_policy: IfNotPresent
 dex:
+  app: dex #! required
+  create_namespace: true #! required
+  namespace: tanzu-system-auth #! required
+  organization: vmware #! required
+  commonname: tkg-dex #! required
   config:
     connector: ldap
+    staticClients:
+      - id: "" #! Do not change. Will be updated by post-deployment job
+        redirectURIs:
+          - https://0.0.0.0/callback #! Do not change. Will be updated by post-deployment job
+        name: "" #! Do not change. Will be updated by post-deployment job
+        secret: "" #! Do not change. Will be updated by post-deployment job
     ldap:
       host: ldaps.eng.vmware.com:636
+      insecureNoSSL: null
+      startTLS: null
+      rootCA: null #! <rootCA> or <rootCAData> if required when LDAP host is using self signed certificate. Path to the CA file
+      rootCAData: null #! <rootCA> or <rootCAData> if required when LDAP host is using self signed certificate. Actual CA bundle
+      bindDN: null #! <bindDN> is required when host doesn't support anonymous authentication
+      bindPW: null #! <bindPW> is required when host doesn't support anonymous authentication
+      usernamePrompt: LDAP Username
+      insecureSkipVerify: False
       userSearch:
         baseDN: 'ou=people,dc=vmware,dc=com'
         filter: '(objectClass=posixAccount)'
@@ -24,3 +68,33 @@ dex:
         userAttr: uid
         groupAttr: memberUid
         nameAttr: cn
+    oauth2:
+      skipApprovalScreen: true
+      responseTypes:
+        - "code"
+        - "token"
+        - "id_token"
+    storage:
+      type: kubernetes
+      config:
+        inCluster: true
+    enablePasswordDB: false
+  service:
+    name: dexsvc
+    type: null #! Do not change. Will be updated by post-deployment job
+  deployment:
+    replicas: 1
+  certificate: #! required
+    duration: 2160h
+    renewBefore: 360h
+  image: #! required
+    name: dex
+    tag: v2.22.0_vmware.2
+    repository: registry.tkg.vmware.run
+    pullPolicy: IfNotPresent
+  dns: #! required
+    azure:
+      dnsNames:
+        - tkg-dex.com
+      DEX_SVC_LB_HOSTNAME: dex.example.com #! <DEX_SVC_LB_HOSTNAME> is required for azure
+

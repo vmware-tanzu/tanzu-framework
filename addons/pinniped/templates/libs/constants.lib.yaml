@@ -12,6 +12,10 @@
 #@   return "pinniped-supervisor"
 #@ end
 
+#@ def pinniped_tls_secret_name():
+#@   return "pinniped-supervisor-default-tls-certificate"
+#@ end
+
 #@ def pinniped_concierge_namespace():
 #@   return "pinniped-concierge"
 #@ end
