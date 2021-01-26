@@ -40,6 +40,7 @@ func NewRootCmd() (*cobra.Command, error) {
 		initCmd,
 		updateCmd,
 		versionCmd,
+		completionCmd,
 	)
 
 	catalog, err := cli.NewCatalog()
