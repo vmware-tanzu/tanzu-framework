@@ -9,6 +9,7 @@ CRD_OPTIONS ?= "crd:trivialVersions=true"
 # Directories
 TOOLS_DIR := hack/tools
 TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
+TAG_CMD := $(shell which git) describe --tags --abbrev=0
 
 GOOS ?= $(shell go env GOOS)
 GOARCH ?= $(shell go env GOARCH)
@@ -92,7 +93,11 @@ else
 CONTROLLER_GEN=$(shell which controller-gen)
 endif
 
-BUILD_VERSION ?= $$(cat BUILD_VERSION)
+BUILD_VERSION ?= $(shell ${TAG_CMD})
+ifeq ($(strip $(BUILD_VERSION)),)
+BUILD_VERSION = dev
+endif
+
 BUILD_SHA ?= $$(git rev-parse --short HEAD)
 BUILD_DATE ?= $$(date -u +"%Y-%m-%d")
 
