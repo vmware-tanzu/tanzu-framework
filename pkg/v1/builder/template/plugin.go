@@ -66,6 +66,7 @@ var pluginName = "{{ .PluginName | ToLower }}"
 var descriptor = cli.NewTestFor(pluginName)
 
 func main() {
+	defer Cleanup()
 	p, err := plugin.NewPlugin(descriptor)
 	if err != nil {
 		log.Fatal(err)
@@ -86,7 +87,7 @@ func test(c *cobra.Command, _ []string) error {
 	//
 	// err := m.RunTest(
 	// 	"create a {{ .PluginName | ToLower }}",
-	// 	fmt.Sprintf("{{ .PluginName | ToLower }} create -n %s", testName),
+	/ 	fmt.Sprintf("{{ .PluginName | ToLower }} create -n %s", testName),
 	// 	func(t *clitest.Test) error {
 	// 		err := t.ExecContainsString("created")
 	// 		if err != nil {
@@ -102,8 +103,6 @@ func test(c *cobra.Command, _ []string) error {
 }
 
 // Cleanup the test.
-func Cleanup() error {
-	return nil
-}
+func Cleanup() error {}
 	`,
 }

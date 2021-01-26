@@ -67,8 +67,7 @@ var _ = Describe("Unit tests for tkg auth", func() {
 		})
 		Context("When the configMap 'pinniped-info' is not present in kube-public namespace", func() {
 			BeforeEach(func() {
-				var clusterInfo string
-				clusterInfo = GetFakeClusterInfo(endpoint, servCert)
+				clusterInfo := GetFakeClusterInfo(endpoint, servCert)
 				tlsserver.AppendHandlers(
 					ghttp.CombineHandlers(
 						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/cluster-info"),

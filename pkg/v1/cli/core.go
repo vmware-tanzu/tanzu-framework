@@ -26,10 +26,12 @@ func HasUpdate(repo Repository) (update bool, version string, err error) {
 	valid := semver.IsValid(manifest.Version)
 	if !valid {
 		err = fmt.Errorf("core manifest version %q is not a valid semantic version", manifest.Version)
+		return false, version, err
 	}
 	valid = semver.IsValid(BuildVersion)
 	if !valid {
 		err = fmt.Errorf("core build version %q is not a valid semantic version", BuildVersion)
+		return false, version, err
 	}
 	compared := semver.Compare(manifest.Version, BuildVersion)
 	if compared == 1 {

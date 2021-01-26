@@ -21,7 +21,6 @@ import (
 
 const (
 	controllerName = "tkr-labeling-controller"
-	tkrFinalizer   = "tanzukubernetesrelease.run.tanzu.vmware.com"
 )
 
 // +kubebuilder:rbac:groups=run.tanzu.vmware.com,resources=tanzukubernetesreleases,verbs=get;list;watch;create;update;patch;delete

@@ -187,7 +187,7 @@ func (t target) build(targetPath string) {
 	cmd := exec.Command("go", "build")
 
 	var commonArgs = []string{
-		"-ldflags", fmt.Sprintf("%s", ldflags),
+		"-ldflags", ldflags,
 	}
 
 	cmd.Args = append(cmd.Args, t.args...)
@@ -300,5 +300,4 @@ func buildTargets(targetPath, outPath, pluginName string, arch cli.Arch) {
 	}
 	tgt := tb(pluginName, outPath)
 	tgt.build(targetPath)
-	return
 }

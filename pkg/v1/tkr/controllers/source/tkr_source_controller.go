@@ -29,10 +29,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
-const (
-	controllerName = "tkr-source-controller"
-)
-
 // TanzuKubernetesReleaseReconciler reconciles a TanzuKubernetesRelease object
 type reconciler struct {
 	ctx                        context.Context
@@ -262,6 +258,9 @@ func (r *reconciler) UpdateTKRCompatibleCondition(ctx context.Context, tkrs []ru
 	}
 	var metadata types.CompatibilityMetadata
 	err = yaml.Unmarshal(metadataContent, &metadata)
+	if err != nil {
+		return errors.Wrap(err, "failed to unmarshal metadata")
+	}
 
 	compatibileReleases := []string{}
 	for _, mgmtVersion := range metadata.ManagementClusterVersions {

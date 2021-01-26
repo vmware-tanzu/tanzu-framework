@@ -47,14 +47,6 @@ type PinnipedConfigMapInfo struct {
 	}
 }
 
-type clusterInfoYamlConfig struct {
-	Version string `yaml:"apiVersion"`
-	Data    struct {
-		Kubeconfig string `yaml:"kubeconfig"`
-	}
-	Kind string `yaml:"kind"`
-}
-
 type KubeConfigOptions struct {
 	MergeFilePath string
 }
@@ -72,6 +64,9 @@ func KubeconfigWithPinnipedAuthLoginPlugin(endpoint string, options *KubeConfigO
 	}
 
 	config, err := GetPinnipedKubeconfig(clusterInfo, pinnipedInfo, pinnipedInfo.Data.ClusterName, pinnipedInfo.Data.Issuer)
+	if err != nil {
+		return "", "", errors.Wrap(err, "unable to get the kubeconfig")
+	}
 
 	kubeconfigBytes, err := json.Marshal(config)
 	if err != nil {

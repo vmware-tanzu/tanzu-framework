@@ -58,9 +58,9 @@ func main() {
 	p.Cmd.Flags().BoolVar(&stderrOnly, "stderr-only", false, "send all output to stderr rather than stdout")
 	p.Cmd.Flags().BoolVar(&forceCSP, "force-csp", false, "force the endpoint to be logged in as a csp server")
 	p.Cmd.Flags().BoolVar(&staging, "staging", false, "use CSP staging issuer")
-	p.Cmd.Flags().MarkHidden("stderr-only")
-	p.Cmd.Flags().MarkHidden("force-csp")
-	p.Cmd.Flags().MarkHidden("staging")
+	p.Cmd.Flags().MarkHidden("stderr-only") //nolint
+	p.Cmd.Flags().MarkHidden("force-csp")   //nolint
+	p.Cmd.Flags().MarkHidden("staging")     //nolint
 	p.Cmd.RunE = login
 	p.Cmd.Example = `
 	# Login to TKG management cluster using endpoint
@@ -217,6 +217,9 @@ func createNewServer() (server *clientv1alpha1.Server, err error) {
 		&loginType,
 		promptOpts...,
 	)
+	if err != nil {
+		return server, err
+	}
 
 	if loginType == "Server endpoint" {
 		return createServerWithEndpoint()

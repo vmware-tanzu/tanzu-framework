@@ -4,13 +4,10 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/aunum/log"
-
-	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/command/plugin"
@@ -52,15 +49,6 @@ func main() {
 	if err := p.Execute(); err != nil {
 		os.Exit(1)
 	}
-}
-
-var updateClusterCmd = &cobra.Command{
-	Use:   "update",
-	Short: "Update a cluster",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("in progress...")
-		return nil
-	},
 }
 
 func getConfigDir() (string, error) {
