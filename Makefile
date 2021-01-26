@@ -134,7 +134,7 @@ install-cli: ## Install Tanzu CLI
 # target-specific pinniped binary for the pinniped-auth plugin. Collapse to
 # single invocation once that is no longer needed.
 .PHONY: build-cli
-build-cli: ensure-pinniped-repo ## Build Tanzu CLI
+build-cli: prep-build-cli ## Build Tanzu CLI
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin
 	./hack/generate-pinniped-bindata.sh go $(GOBINDATA) linux amd64
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --target linux_amd64
@@ -149,7 +149,7 @@ build-cli: ensure-pinniped-repo ## Build Tanzu CLI
 	@rm -rf pinniped
 
 .PHONY: build-cli-local
-build-cli-local: generate-pinniped-bindata ## Build Tanzu CLI locally 
+build-cli-local: prep-build-cli ## Build Tanzu CLI locally
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --target local
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin --target local
 
@@ -195,6 +195,10 @@ generate-pinniped-bindata: ensure-pinniped-repo
 	$(GOBINDATA) -mode=420 -modtime=1 -o=pkg/v1/auth/tkg/zz_generated.bindata.go -pkg=tkgauth pinniped/pinniped
 	git update-index --assume-unchanged pkg/v1/auth/tkg/zz_generated.bindata.go
 	@rm -rf pinniped
+
+.PHONY: prep-build-cli
+prep-build-cli: ensure-pinniped-repo
+	$(GO) mod download
 
 
 $(GOBINDATA): $(TOOLS_DIR)/go.mod # Build go-bindata from tools folder
