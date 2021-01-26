@@ -146,6 +146,16 @@ save-addon-template-images:
 	docker save "$(IMAGE_REPO)/${ANTREA_TEMPLATES_IMG_NAME}:${TEMPLATES_IMG_TAG}" | gzip -c > "${ROOT_DIR}addons/artifacts/${ANTREA_TEMPLATES_IMG_NAME}-${TEMPLATES_IMG_TAG}.tar.gz"
 	docker save "$(IMAGE_REPO)/${CALICO_TEMPLATES_IMG_NAME}:${TEMPLATES_IMG_TAG}" | gzip -c > "${ROOT_DIR}addons/artifacts/${CALICO_TEMPLATES_IMG_NAME}-${TEMPLATES_IMG_TAG}.tar.gz"
 
+push-addon-template-images: ## Push template images
+	IMG_NAME="$(IMAGE_REPO)/$(ADDONS_MANAGER_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) push-template-image -C addons-manager
+	IMG_NAME="$(IMAGE_REPO)/$(KAPP_CONTROLLER_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) push-template-image -C kapp-controller
+	IMG_NAME="$(IMAGE_REPO)/$(VSPHERE_CPI_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) push-template-image -C vsphere_cpi
+	IMG_NAME="$(IMAGE_REPO)/$(PINNIPED_ADDON_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) push-template-image -C pinniped
+	IMG_NAME="$(IMAGE_REPO)/$(METRICS_SERVER_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) push-template-image -C metrics-server
+	IMG_NAME="$(IMAGE_REPO)/$(VSPHERE_CSI_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) push-template-image -C vsphere_csi
+	IMG_NAME="$(IMAGE_REPO)/$(ANTREA_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) push-template-image -C antrea
+	IMG_NAME="$(IMAGE_REPO)/$(CALICO_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) push-template-image -C calico
+
 ## --------------------------------------
 ## BOM yaml that contains all add-ons
 ## --------------------------------------

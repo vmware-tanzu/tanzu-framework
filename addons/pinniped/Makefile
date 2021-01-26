@@ -26,3 +26,7 @@ template-image: ## Build template image
 	cp -R $(ROOT_DIR)/ytt-common-libs ./
 	docker build -t $(IMG_NAME):$(IMG_TAG) -f Dockerfile.templates .
 	rm -rf ./ytt-common-libs
+
+.PHONY: push-template-image
+push-template-image: ## Push template image
+	docker push $(IMG_NAME):$(IMG_TAG)
