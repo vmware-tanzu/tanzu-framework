@@ -2,7 +2,9 @@ package source
 
 import (
 	"context"
+	"io/ioutil"
 	"os"
+	"path"
 
 	"github.com/pkg/errors"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/constants"
@@ -12,9 +14,9 @@ import (
 )
 
 const (
-	configMapName   = "tkr-controller-config"
-	caCertsKey      = "caCerts"
-	systemCertsFile = "/etc/pki/tls/certs/ca-bundle.crt"
+	configMapName     = "tkr-controller-config"
+	caCertsKey        = "caCerts"
+	registryCertsFile = "registry_certs"
 )
 
 func (r *reconciler) Configure() error {
@@ -41,17 +43,17 @@ func addTrustedCerts(certChain string) (err error) {
 		return nil
 	}
 
-	var file *os.File
-	file, err = os.OpenFile(systemCertsFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+	filePath, err := getRegistryCertFile()
 	if err != nil {
-		return errors.Wrap(err, "failed to open certs file")
-	}
-
-	_, err = file.Write([]byte("\n" + certChain))
-	if err != nil {
-		_ = file.Close()
 		return err
 	}
 
-	return file.Close()
+	return ioutil.WriteFile(filePath, []byte(certChain), 0644)
+}
+func getRegistryCertFile() (string, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", errors.Wrap(err, "could not locate local tanzu dir")
+	}
+	return path.Join(home, registryCertsFile), nil
 }

@@ -370,8 +370,12 @@ func (r *reconciler) Start(stopChan <-chan struct{}) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to configure the controller")
 	}
-	if _, err := os.Stat(systemCertsFile); err == nil {
-		r.registryOps.CACertPaths = []string{systemCertsFile}
+
+	registryCertPath, err := getRegistryCertFile()
+	if err == nil {
+		if _, err = os.Stat(registryCertPath); err == nil {
+			r.registryOps.CACertPaths = []string{registryCertPath}
+		}
 	}
 
 	r.registry = registry.New(r.registryOps)
