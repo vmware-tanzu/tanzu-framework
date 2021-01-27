@@ -297,9 +297,7 @@ func (r *reconciler) ReconcileConditions(ctx context.Context, added, existing []
 		return errors.Wrap(err, "failed to update Compatible condition for TKRs")
 	}
 
-	if len(added) != 0 {
-		r.UpdateTKRUpgradeAvailableCondition(allTKRs)
-	}
+	r.UpdateTKRUpgradeAvailableCondition(allTKRs)
 
 	for _, tkr := range allTKRs {
 		if err = r.client.Status().Update(ctx, &tkr); err != nil {
