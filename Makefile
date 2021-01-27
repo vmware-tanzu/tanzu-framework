@@ -6,10 +6,18 @@ IMG ?= controller:latest
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
 CRD_OPTIONS ?= "crd:trivialVersions=true"
 
+ifeq ($(OS),Windows_NT)
+	build_OS := Windows
+	NUL = NUL
+else
+	build_OS := $(shell uname -s 2>/dev/null || echo Unknown)
+	NUL = /dev/null
+endif
+
 # Directories
 TOOLS_DIR := hack/tools
 TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
-TAG_CMD := $(shell which git) describe --tags --abbrev=0
+TAG_CMD := $($(shell which git) describe --tags --abbrev=0 2>$(NUL))
 
 GOOS ?= $(shell go env GOOS)
 GOARCH ?= $(shell go env GOARCH)
@@ -101,8 +109,6 @@ endif
 BUILD_SHA ?= $$(git rev-parse --short HEAD)
 BUILD_DATE ?= $$(date -u +"%Y-%m-%d")
 
-build_OS := $(shell uname 2>/dev/null || echo Unknown)
-
 LD_FLAGS = -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildDate=$(BUILD_DATE)'
 LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildSHA=$(BUILD_SHA)'
 LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildVersion=$(BUILD_VERSION)'
@@ -168,8 +174,8 @@ clean-cli-plugins: ## Remove Tanzu CLI plugins
 generate-pinniped-bindata: $(GOBINDATA)
 	@rm -rf pinniped
 	@mkdir -p pinniped
-	@GIT_TERMINAL_PROMPT=0 git clone ${PINNIPED_GIT_REPOSITORY} pinniped
-	cd pinniped && GIT_TERMINAL_PROMPT=0 git checkout -f $(PINNIPED_GIT_COMMIT) && $(GO) build -o pinniped ./cmd/pinniped
+	@GIT_TERMINAL_PROMPT=0 git clone -q ${PINNIPED_GIT_REPOSITORY} pinniped
+	cd pinniped && GIT_TERMINAL_PROMPT=0 git checkout -q -f $(PINNIPED_GIT_COMMIT) && $(GO) build -o pinniped ./cmd/pinniped
 	$(GOBINDATA) -mode=420 -modtime=1 -o=pkg/v1/auth/tkg/zz_generated.bindata.go -pkg=tkgauth pinniped/pinniped
 	git update-index --assume-unchanged pkg/v1/auth/tkg/zz_generated.bindata.go
 	@rm -rf pinniped
