@@ -696,12 +696,12 @@ github.com/ugorji/go/codec v0.0.0-20181204163529-d75b2dcb6bc8/go.mod h1:VFNgLljT
 github.com/urfave/cli v1.20.0/go.mod h1:70zkFmudgCuE/ngEzBv17Jvp/497gISqfk5gWijbERA=
 github.com/vektah/gqlparser v1.1.2/go.mod h1:1ycwN7Ij5njmMkPPAOaRFY4rET2Enx7IkVv3vaXspKw=
 github.com/vito/go-interact v0.0.0-20171111012221-fa338ed9e9ec/go.mod h1:wPlfmglZmRWMYv/qJy3P+fK/UnoQB5ISk4txfNd9tDo=
-github.com/vmware-tanzu-private/tkg-cli v1.3.0-pre-alpha-1.0.20210122002010-46472d7e9646 h1:bsoGMtJuOim1N0uNcmL+1sROaCruGQ/jWySqzWHYc2s=
-github.com/vmware-tanzu-private/tkg-cli v1.3.0-pre-alpha-1.0.20210122002010-46472d7e9646/go.mod h1:Wz1ZH1vUB0IM63Cm9LNUWs8dNf9C/Fvz5O4N0n1k408=
+github.com/vmware-tanzu-private/tkg-cli v1.3.0-pre-alpha-1.0.20210126205204-9efbe2f3c850 h1:l7PFDFvlLEGGXh3ruuBOD8z9mx0aII4lVjdCD7RoBEQ=
+github.com/vmware-tanzu-private/tkg-cli v1.3.0-pre-alpha-1.0.20210126205204-9efbe2f3c850/go.mod h1:Wz1ZH1vUB0IM63Cm9LNUWs8dNf9C/Fvz5O4N0n1k408=
 github.com/vmware-tanzu-private/tkg-providers v0.0.0-20201103211704-f2a26942c760 h1:/3YxmX3Yc6T1FzCV1E1+LmsFGb8cRRDNjPVYC+IZkc4=
 github.com/vmware-tanzu-private/tkg-providers v0.0.0-20201103211704-f2a26942c760/go.mod h1:njTZCd8EgOpYmLSOxyuQJGcP5oISTRK7/FwqF0g/qW0=
-github.com/vmware-tanzu-private/tkg-providers v1.3.0-pre-alpha-1.0.20210122001930-55c32b85aaec h1:tEGwYP/CyETT4u//CgmwXuEHeBveFSw0Lq6jrX0AFCw=
-github.com/vmware-tanzu-private/tkg-providers v1.3.0-pre-alpha-1.0.20210122001930-55c32b85aaec/go.mod h1:njTZCd8EgOpYmLSOxyuQJGcP5oISTRK7/FwqF0g/qW0=
+github.com/vmware-tanzu-private/tkg-providers v1.3.0-pre-alpha-1.0.20210126174322-e36795e6704e h1:sEgtcjqsrkYMpUnuLzoArbcO+ZIU1tDLx6vdGxyk1ec=
+github.com/vmware-tanzu-private/tkg-providers v1.3.0-pre-alpha-1.0.20210126174322-e36795e6704e/go.mod h1:njTZCd8EgOpYmLSOxyuQJGcP5oISTRK7/FwqF0g/qW0=
 github.com/vmware/govmomi v0.23.1 h1:vU09hxnNR/I7e+4zCJvW+5vHu5dO64Aoe2Lw7Yi/KRg=
 github.com/vmware/govmomi v0.23.1/go.mod h1:Y+Wq4lst78L85Ge/F8+ORXIWiKYqaro1vhAulACy9Lc=
 github.com/vmware/vmw-guestinfo v0.0.0-20170707015358-25eff159a728/go.mod h1:x9oS4Wk2s2u4tS29nEaDLdzvuHdB19CvSGJjPgkZJNk=
