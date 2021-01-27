@@ -17,12 +17,12 @@ pinniped:
   upstream_oidc_tls_ca_data: null #! this tls ca data is used to communicate with upstream_oidc_issuer_url
   image:
     name: pinniped
-    tag: v0.3.0_vmware.1
+    tag: v0.4.0_vmware.1
     repository: registry.tkg.vmware.run
     pull_policy: IfNotPresent
   post_deploy_job_image:
     name: tkg-pinniped-post-deploy
-    tag: v0.3.0_vmware.1
+    tag: v0.4.0_vmware.1
     repository: registry.tkg.vmware.run
     pull_policy: Always
 dex:
