@@ -67,7 +67,7 @@ func init() {
 	loCmd.Flags().StringVar(&lo.conciergeEndpoint, "concierge-endpoint", "", "API base for the Pinniped concierge endpoint")
 	loCmd.Flags().StringVar(&lo.conciergeCABundle, "concierge-ca-bundle-data", "", "CA bundle to use when connecting to the concierge")
 	loCmd.Flags().MarkHidden("debug-session-cache") //nolint
-	_ = loCmd.MarkFlagRequired("issuer")
+	loCmd.MarkFlagRequired("issuer")                //nolint
 }
 
 func loginoidcCmd(pinnipedloginCliExec func(args []string) ([]byte, error)) *cobra.Command {

@@ -87,7 +87,7 @@ func test(c *cobra.Command, _ []string) error {
 	//
 	// err := m.RunTest(
 	// 	"create a {{ .PluginName | ToLower }}",
-	/ 	fmt.Sprintf("{{ .PluginName | ToLower }} create -n %s", testName),
+	// 	fmt.Sprintf("{{ .PluginName | ToLower }} create -n %s", testName),
 	// 	func(t *clitest.Test) error {
 	// 		err := t.ExecContainsString("created")
 	// 		if err != nil {
