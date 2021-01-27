@@ -1,4 +1,4 @@
-#! Source: https://github.com/vmware-tanzu/carvel-kapp-controller/releases/tag/v0.14.0
+#! Source: https://github.com/vmware-tanzu/carvel-kapp-controller/releases/tag/v0.15.0
 
 ---
 apiVersion: v1
@@ -17,7 +17,7 @@ metadata:
 data:
   #! A cert chain of trusted ca certs in plain text. These will be added to the system-wide
   #! cert pool of trusted ca's (optional)
-  caCerts:
+  caCerts: ""
   #! The url/ip of a proxy for kapp controller to use when making network
   #! requests (optional)
   httpProxy: ""
@@ -93,7 +93,7 @@ spec:
           env:
             - name: KAPPCTRL_MEM_TMP_DIR
               value: /etc/kappctrl-mem-tmp
-          image: index.docker.io/k14s/kapp-controller@sha256:53f133ee3e57a56c5221696102be26e4c940ab916f6c196ce8f037d50a529df2
+          image: index.docker.io/k14s/kapp-controller@sha256:73614cc45be5dd1ff86b5f8789aa652f170aa624c963d70d967edc0dc0873764
           name: kapp-controller
           resources:
             requests:
