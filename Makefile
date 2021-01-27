@@ -106,7 +106,7 @@ ifeq ($(strip $(BUILD_VERSION)),)
 BUILD_VERSION = dev
 endif
 
-BUILD_SHA ?= $$(git rev-parse --short HEAD)
+BUILD_SHA ?= $$(git describe --match=$(git rev-parse --short HEAD) --always --dirty)
 BUILD_DATE ?= $$(date -u +"%Y-%m-%d")
 
 LD_FLAGS = -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildDate=$(BUILD_DATE)'
