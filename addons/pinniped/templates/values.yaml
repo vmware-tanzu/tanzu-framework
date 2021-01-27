@@ -92,6 +92,7 @@ dex:
   service:
     name: dexsvc
     type: null
+    annotations: {}
   deployment:
     replicas: 1
   certificate: 

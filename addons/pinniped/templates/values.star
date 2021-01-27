@@ -131,11 +131,14 @@ def is_service_NodePort():
 end
 
 def get_dex_service_annotations():
-  if globals.infrastructure_provider == "aws":
-    return {"service.beta.kubernetes.io/aws-load-balancer-backend-protocol": "ssl"}
-  else:
-    return {}
+  annotations = {}
+  if hasattr(data.values.dex, "service") and hasattr(data.values.dex.service, "annotations") and data.values.dex.service.annotations:
+     annotations = data.values.dex.service.annotations
   end
+  if globals.infrastructure_provider == "aws":
+    annotations["service.beta.kubernetes.io/aws-load-balancer-backend-protocol"] = "ssl"
+  end
+  return annotations
 end
 
 def validate_static_client() :
