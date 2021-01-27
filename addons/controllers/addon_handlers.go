@@ -24,7 +24,7 @@ import (
 func (r *AddonReconciler) TKRToClusters(o client.Object) []ctrl.Request {
 	var tkr *runtanzuv1alpha1.TanzuKubernetesRelease
 
-	r.Log.Info("TKR to clusters handler")
+	r.Log.V(4).Info("TKR to clusters handler")
 
 	switch obj := o.(type) {
 	case *runtanzuv1alpha1.TanzuKubernetesRelease:
@@ -38,7 +38,7 @@ func (r *AddonReconciler) TKRToClusters(o client.Object) []ctrl.Request {
 
 	log := r.Log.WithValues(constants.TKRNameLogKey, tkr.Name)
 
-	log.Info("Mapping TKR to cluster")
+	log.V(4).Info("Mapping TKR to cluster")
 
 	clusters, err := util.GetClustersByTKR(context.TODO(), r.Client, tkr)
 	if err != nil {
@@ -53,7 +53,7 @@ func (r *AddonReconciler) clustersToRequests(clusters []*clusterv1alpha3.Cluster
 	var requests []ctrl.Request
 
 	for _, cluster := range clusters {
-		log.Info("Adding cluster for reconciliation",
+		log.V(4).Info("Adding cluster for reconciliation",
 			constants.ClusterNamespaceLogKey, cluster.Namespace, constants.ClusterNameLogKey, cluster.Name)
 
 		requests = append(requests, ctrl.Request{
@@ -68,7 +68,7 @@ func (r *AddonReconciler) clustersToRequests(clusters []*clusterv1alpha3.Cluster
 func (r *AddonReconciler) AddonSecretToClusters(o client.Object) []ctrl.Request {
 	var secret *corev1.Secret
 
-	r.Log.Info("Addon secret to clusters handler")
+	r.Log.V(4).Info("Addon secret to clusters handler")
 
 	switch obj := o.(type) {
 	case *corev1.Secret:
@@ -82,7 +82,7 @@ func (r *AddonReconciler) AddonSecretToClusters(o client.Object) []ctrl.Request 
 
 	log := r.Log.WithValues(constants.AddonSecretNamespaceLogKey, secret.Namespace, constants.AddonSecretNameLogKey, secret.Name)
 
-	log.Info("Mapping Addon Secret to cluster")
+	log.V(4).Info("Mapping Addon Secret to cluster")
 
 	clusterName := util.GetClusterNameFromAddonSecret(secret)
 	if clusterName == "" {
@@ -107,7 +107,7 @@ func (r *AddonReconciler) AddonSecretToClusters(o client.Object) []ctrl.Request 
 		return nil
 	}
 
-	log.Info("Adding cluster for reconciliation",
+	log.V(4).Info("Adding cluster for reconciliation",
 		constants.ClusterNamespaceLogKey, cluster.Namespace, constants.ClusterNameLogKey, cluster.Name)
 
 	return []ctrl.Request{{
@@ -119,7 +119,7 @@ func (r *AddonReconciler) AddonSecretToClusters(o client.Object) []ctrl.Request 
 func (r *AddonReconciler) BOMConfigMapToClusters(o client.Object) []ctrl.Request {
 	var configmap *corev1.ConfigMap
 
-	r.Log.Info("BOM configmap to clusters handler")
+	r.Log.V(4).Info("BOM configmap to clusters handler")
 
 	switch obj := o.(type) {
 	case *corev1.ConfigMap:
@@ -132,7 +132,7 @@ func (r *AddonReconciler) BOMConfigMapToClusters(o client.Object) []ctrl.Request
 	}
 
 	log := r.Log.WithValues(constants.BOMNamespaceLogKey, configmap.Namespace, constants.BOMNameLogKey, configmap.Name)
-	log.Info("Mapping BOM configmap to cluster")
+	log.V(4).Info("Mapping BOM configmap to cluster")
 
 	tkrName := util.GetTKRNameFromBOMConfigMap(configmap)
 	if tkrName == "" {
@@ -159,7 +159,7 @@ func (r *AddonReconciler) BOMConfigMapToClusters(o client.Object) []ctrl.Request
 func (r *AddonReconciler) KubeadmControlPlaneToClusters(o client.Object) []ctrl.Request {
 	var kcp *controlplanev1alpha3.KubeadmControlPlane
 
-	r.Log.Info("Kubeadm control plane to clusters handler")
+	r.Log.V(4).Info("Kubeadm control plane to clusters handler")
 
 	switch obj := o.(type) {
 	case *controlplanev1alpha3.KubeadmControlPlane:
@@ -173,7 +173,7 @@ func (r *AddonReconciler) KubeadmControlPlaneToClusters(o client.Object) []ctrl.
 
 	log := r.Log.WithValues(constants.KCPNamespaceLogKey, kcp.Namespace, constants.KCPNameLogKey, kcp.Name)
 
-	log.Info("Mapping kubeadm control plane to cluster")
+	log.V(4).Info("Mapping kubeadm control plane to cluster")
 
 	cluster, err := util.GetOwnerCluster(context.TODO(), r.Client, kcp.ObjectMeta)
 	if err != nil || cluster == nil {
@@ -186,7 +186,7 @@ func (r *AddonReconciler) KubeadmControlPlaneToClusters(o client.Object) []ctrl.
 		return nil
 	}
 
-	log.Info("Adding cluster for reconciliation",
+	log.V(4).Info("Adding cluster for reconciliation",
 		constants.ClusterNamespaceLogKey, cluster.Namespace, constants.ClusterNameLogKey, cluster.Name)
 
 	return []ctrl.Request{{
