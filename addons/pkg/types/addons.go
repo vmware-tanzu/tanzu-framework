@@ -27,4 +27,7 @@ const (
 
 	// AddonNamespace Annotation
 	AddonNamespaceAnnotation = "tkg.tanzu.vmware.com/addon-namespace"
+
+	// AddonPaused Annotation
+	AddonPausedAnnotation = "tkg.tanzu.vmware.com/addon-paused"
 )
