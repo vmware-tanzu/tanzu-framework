@@ -26,7 +26,7 @@ GOBINDATA := $(TOOLS_BIN_DIR)/go-bindata-$(GOOS)-$(GOARCH)
 
 PINNIPED_GIT_REPOSITORY = https://github.com/vmware-tanzu/pinniped.git
 ifeq ($(strip $(PINNIPED_GIT_COMMIT)),)
-PINNIPED_GIT_COMMIT = v0.3.0
+PINNIPED_GIT_COMMIT = v0.4.0
 endif
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
