@@ -184,3 +184,13 @@ generate-pinniped-bindata: $(GOBINDATA)
 $(GOBINDATA): $(TOOLS_DIR)/go.mod # Build go-bindata from tools folder
 	mkdir -p $(TOOLS_BIN_DIR)
 	cd $(TOOLS_DIR); $(GO) build -tags=tools -o ../../$(TOOLS_BIN_DIR) github.com/shuLhan/go-bindata/... ; mv ../../$(TOOLS_BIN_DIR)/go-bindata ../../$(GOBINDATA)
+
+
+# TODO (pbarker): should work this logic into the builder plugin
+.PHONY: release
+release:
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --artifacts artifacts/linux/amd64/cli --target linux_amd64
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --artifacts artifacts/windows/amd64/cli --target windows_amd64
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --artifacts artifacts/darwin/amd64/cli --target darwin_amd64
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --artifacts artifacts/linux/386/cli --target linux_386
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --artifacts artifacts/windows/386/cli --target windows_386
