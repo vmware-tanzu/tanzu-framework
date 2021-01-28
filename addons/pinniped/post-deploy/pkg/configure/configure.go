@@ -414,8 +414,13 @@ func updateCertSubjectAltNames(ctx context.Context, c Clients, certNamespace, ce
 		},
 	)
 	if err != nil {
-		zap.S().Error(err)
-		return nil, err
+		if !errors.IsNotFound(err) {
+			zap.S().Error(err)
+			return nil, err
+		} else {
+			// If the secret is not found, just log as warning, without returning error back
+			zap.S().Warn(err)
+		}
 	}
 	zap.S().Infof("Deleted the Secret %s/%s", certNamespace, cert.Spec.SecretName)
 

@@ -57,11 +57,7 @@ type connector struct {
 		GetUserInfo               bool     `yaml:"getUserInfo,omitempty"`
 		UserIDKey                 string   `yaml:"userIDKey,omitempty"`
 		UserNameKey               string   `yaml:"userNameKey,omitempty"`
-		ClaimMapping              struct {
-			PreferredUsername string `yaml:"preferred_username,omitempty"`
-			email             string `yaml:"email,omitempty"`
-			groups            string `yaml:"groups,omitempty"`
-		} `yaml:"claimMapping,omitempty"`
+		ClaimMapping              map[string]string `yaml:"claimMapping,omitempty"`
 		Host               string `yaml:"host,omitempty"`
 		InsecureSkipVerify bool   `yaml:"insecureSkipVerify"`
 		BindDN             string `yaml:"bindDN,omitempty"`

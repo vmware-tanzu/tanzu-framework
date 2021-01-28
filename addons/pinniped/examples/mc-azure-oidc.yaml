@@ -15,12 +15,14 @@ pinniped:
   upstream_oidc_client_secret: "" #! Do not change. Will be updated by post-deployment job. This is the client secret used to talk to Dex
   upstream_oidc_issuer_url: "https://0.0.0.0:30167" #! Do not change. Will be updated by post-deployment job. This is the upstream oidc issuer url. It should be pointed to Dex service, since Dex is deployed as the upstream of Pinniped. e.g https://endpoint-points-to-dex:5443 !!!
   upstream_oidc_tls_ca_data: "ca_bundle_data_of_dex_svc" #! Do not change. Will be updated by post-deployment job. This tls ca data is used to communicate with upstream_oidc_issuer_url
-  upstream_oidc_additional_scopes: #! required. If no additional scopes, put []
+  upstream_oidc_additional_scopes: #! Do not change. This values are static for Pinniped + Dex use cases.
     - email
     - offline_access
     - profile
-  upstream_oidc_claims: #! required. If no claims, put {}
+    - groups
+  upstream_oidc_claims: #! Do not change. This values are static for Pinniped + Dex use cases.
     username: email
+    groups: groups
   image: #! required
     name: pinniped
     tag: v0.4.0_vmware.1
@@ -64,7 +66,7 @@ dex:
       issuer: https://xxxxxxxx.okta.com #! required if oidc enabled
       basicAuthUnsupported: null
       hostedDomains: []
-      scopes: #! required if additional scopes needed
+      scopes: #! required if additional scopes needed, otherwise leave it as []
         - email
         - offline_access
         - profile
@@ -73,7 +75,9 @@ dex:
       getUserInfo: true
       userIDKey: null
       userNameKey: null
-      claimMapping: {}
+      claimMapping: #! Required if non-standard claims are used, otherwise leave it as {}
+        email: email
+        groups: groups
     oauth2:
       skipApprovalScreen: true
       responseTypes:
