@@ -87,7 +87,7 @@ dex:
     enablePasswordDB: false
   service:
     name: dexsvc
-    type: null #! Do not change. Will be updated by post-deployment job
+    type: null
   deployment:
     replicas: 1
   certificate: #! required
