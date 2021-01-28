@@ -95,7 +95,7 @@ func (r *AddonReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Manager
 }
 
 func (r *AddonReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ctrl.Result, reterr error) {
-	log := r.Log.WithValues("cluster", req.NamespacedName)
+	log := r.Log.WithValues(constants.ClusterNamespaceLogKey, req.Namespace, constants.ClusterNameLogKey, req.Name)
 
 	log.Info("Reconciling cluster")
 
