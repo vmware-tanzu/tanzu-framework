@@ -133,10 +133,7 @@ func IsExpired(tokenExpiry time.Time) bool {
 	// refresh at half token life
 	now := time.Now().Unix()
 	halfDur := -time.Duration((tokenExpiry.Unix()-now)/2) * time.Second
-	if tokenExpiry.Add(halfDur).Unix() < now {
-		return true
-	}
-	return false
+	return tokenExpiry.Add(halfDur).Unix() < now
 }
 
 // ParseToken parses the token.

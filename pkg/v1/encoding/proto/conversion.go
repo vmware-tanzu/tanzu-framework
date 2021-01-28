@@ -13,8 +13,8 @@ import (
 
 	"github.com/aunum/log"
 	"github.com/ghodss/yaml"
-	"github.com/golang/protobuf/jsonpb"
-	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/jsonpb" //nolint
+	"github.com/golang/protobuf/proto"  //nolint
 	"github.com/pkg/errors"
 )
 
@@ -27,8 +27,12 @@ func InputFileToProto(filePath string, outResource proto.Message) error {
 	defer inputFile.Close()
 
 	buf := bytes.NewBuffer(nil)
-	io.Copy(buf, inputFile)
-	log.Debugf("read object --> \n---\n%s\n---\n", string(buf.Bytes()))
+	_, err = io.Copy(buf, inputFile)
+	if err != nil {
+		return errors.WithMessage(err, "Error copying buffer")
+	}
+
+	log.Debugf("read object --> \n---\n%s\n---\n", buf.String())
 
 	err = BufferToProto(buf, outResource, strings.TrimPrefix(filepath.Ext(filePath), "."))
 	if err != nil {

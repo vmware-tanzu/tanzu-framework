@@ -41,6 +41,10 @@ func NewClusterClient(kubeConfigPath string, context string) (Client, error) {
 		config.CurrentContext = context
 	}
 	rawConfig, err := clientcmd.Write(*config)
+	if err != nil {
+		return nil, errors.Wrap(err, "Unable to write config")
+	}
+
 	restConfig, err := clientcmd.RESTConfigFromKubeConfig(rawConfig)
 	if err != nil {
 		return nil, errors.Wrap(err, "Unable to set up rest config")
@@ -71,7 +75,7 @@ func (c *client) GetTanzuKubernetesReleases(tkrName string) ([]runv1alpha1.Tanzu
 	if tkrName == "" {
 		return tkrList.Items, nil
 	}
-	
+
 	result := []runv1alpha1.TanzuKubernetesRelease{}
 	for _, tkr := range tkrList.Items {
 		if strings.HasPrefix(tkr.Name, tkrName) {

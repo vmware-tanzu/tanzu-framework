@@ -9,8 +9,8 @@ import (
 	"reflect"
 
 	"github.com/Jeffail/gabs"
-	"github.com/golang/protobuf/proto"
 	"github.com/jeremywohl/flatten"
+	"google.golang.org/protobuf/proto"
 )
 
 // Comparer is used to compare two values. An error means the fields are either not equal or that

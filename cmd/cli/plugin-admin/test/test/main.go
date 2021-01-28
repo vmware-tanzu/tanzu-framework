@@ -15,6 +15,7 @@ import (
 var descriptor = cli.NewTestFor("test")
 
 func main() {
+	defer Cleanup()
 	p, err := plugin.NewPlugin(descriptor)
 	if err != nil {
 		log.Fatal(err)
@@ -30,6 +31,4 @@ func test(c *cobra.Command, _ []string) error {
 }
 
 // Cleanup the test.
-func Cleanup() error {
-	return nil
-}
+func Cleanup() {}

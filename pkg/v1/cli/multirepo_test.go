@@ -42,9 +42,9 @@ func TestMultiRepo(t *testing.T) {
 	repoOld := newTestRepo(t, "artifacts-old")
 	m.AddRepository(repoOld)
 
-	r, err = m.Find("foo")
+	_, err = m.Find("foo")
 	require.Error(t, err)
 
-	r, err = m.Find("artifacts-new.foo")
+	_, err = m.Find("artifacts-new.foo")
 	require.NoError(t, err)
 }

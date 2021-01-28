@@ -33,9 +33,9 @@ func init() {
 	addRepoCmd.Flags().StringVarP(&name, "name", "n", "", "name of repository")
 	addRepoCmd.Flags().StringVarP(&gcpBucketName, "gcp-bucket-name", "b", "", "name of gcp bucket")
 	addRepoCmd.Flags().StringVarP(&gcpRootPath, "gcp-root-path", "r", "", "root path in gcp bucket")
-	cobra.MarkFlagRequired(addRepoCmd.Flags(), "name")
-	cobra.MarkFlagRequired(addRepoCmd.Flags(), "gcp-bucket-name")
-	cobra.MarkFlagRequired(addRepoCmd.Flags(), "gcp-root-path")
+	cobra.MarkFlagRequired(addRepoCmd.Flags(), "name")            //nolint
+	cobra.MarkFlagRequired(addRepoCmd.Flags(), "gcp-bucket-name") //nolint
+	cobra.MarkFlagRequired(addRepoCmd.Flags(), "gcp-root-path")   //nolint
 }
 
 var listRepoCmd = &cobra.Command{

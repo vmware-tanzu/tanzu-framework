@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/aunum/log"
-	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/proto" //nolint
 	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -199,9 +199,14 @@ func (m *Main) Finish() {
 	m.Report.TimeEnd = time.Now()
 	fmt.Println("")
 	log.Info("cleaning up")
-	m.Cleanup()
+	if err := m.Cleanup(); err != nil {
+		log.Infof("error cleaning up %s", err)
+	}
+
 	if m.printReport {
-		m.PrintReport("yaml")
+		if err := m.PrintReport("yaml"); err != nil {
+			log.Infof("PrintReport failed %s", err)
+		}
 	}
 	if m.Report.Pass {
 		m.PrintSuccess()
@@ -430,7 +435,7 @@ func ExecContainsErrorString(command, contains string) error {
 
 // ContainsString checks that the given buffer contains the string.
 func ContainsString(stdOut bytes.Buffer, contains string) error {
-	so := string(stdOut.Bytes())
+	so := stdOut.String()
 	if !strings.Contains(so, contains) {
 		return fmt.Errorf("stdOut %q did not contain %q", so, contains)
 	}
@@ -440,7 +445,7 @@ func ContainsString(stdOut bytes.Buffer, contains string) error {
 // ContainsAnyString checks that the given buffer contains any of the given set of strings.
 func ContainsAnyString(stdOut bytes.Buffer, contains []string) error {
 	var containsAny bool
-	so := string(stdOut.Bytes())
+	so := stdOut.String()
 
 	for _, str := range contains {
 		containsAny = containsAny || strings.Contains(so, str)

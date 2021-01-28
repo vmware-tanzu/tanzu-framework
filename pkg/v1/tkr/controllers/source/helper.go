@@ -123,7 +123,7 @@ func upgradeQualified(fromTKR, toTKR *runv1.TanzuKubernetesRelease) bool {
 		return false
 	}
 
-	if to.Major != to.Major {
+	if from.Major != to.Major {
 		return false
 	}
 	// skipping minor version upgrade is not supported
