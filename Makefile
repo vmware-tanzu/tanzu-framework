@@ -174,8 +174,8 @@ clean-cli-plugins: ## Remove Tanzu CLI plugins
 generate-pinniped-bindata: $(GOBINDATA)
 	@rm -rf pinniped
 	@mkdir -p pinniped
-	@GIT_TERMINAL_PROMPT=0 git clone -q ${PINNIPED_GIT_REPOSITORY} pinniped
-	cd pinniped && GIT_TERMINAL_PROMPT=0 git checkout -q -f $(PINNIPED_GIT_COMMIT) && $(GO) build -o pinniped ./cmd/pinniped
+	@GIT_TERMINAL_PROMPT=0 git clone -q --depth 1 --branch $(PINNIPED_GIT_COMMIT) ${PINNIPED_GIT_REPOSITORY} pinniped
+	cd pinniped && $(GO) build -o pinniped ./cmd/pinniped
 	$(GOBINDATA) -mode=420 -modtime=1 -o=pkg/v1/auth/tkg/zz_generated.bindata.go -pkg=tkgauth pinniped/pinniped
 	git update-index --assume-unchanged pkg/v1/auth/tkg/zz_generated.bindata.go
 	@rm -rf pinniped
