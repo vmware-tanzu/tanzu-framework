@@ -9,22 +9,22 @@ featureGates:
 #! Enable AntreaProxy which provides ServiceLB for in-cluster Services in antrea-agent.
 #! It should be enabled on Windows, otherwise NetworkPolicy will not take effect on
 #! Service traffic.
-  AntreaProxy: #@ values.antrea.config.AntreaProxy
+  AntreaProxy: #@ values.antrea.config.featureGates.AntreaProxy
 
 #! Enable traceflow which provides packet tracing feature to diagnose network issue.
-  Traceflow: #@ values.antrea.config.Traceflow
+  Traceflow: #@ values.antrea.config.featureGates.AntreaTraceflow
 
 #! Enable Antrea ClusterNetworkPolicy feature to complement K8s NetworkPolicy for cluster admins
 #! to define security policies which apply to the entire cluster, and Antrea NetworkPolicy
 #! feature that supports priorities, rule actions and externalEntities in the future.
-  AntreaPolicy: #@ values.antrea.config.AntreaPolicy
+  AntreaPolicy: #@ values.antrea.config.featureGates.AntreaPolicy
 
 #! Enable flowexporter which exports polled conntrack connections as IPFIX flow records from each
 #! agent to a configured collector.
-  FlowExporter: #@ values.antrea.config.FlowExporter
+  FlowExporter: #@ values.antrea.config.featureGates.FlowExporter
 
 #! Enable collecting and exposing NetworkPolicy statistics.
-  NetworkPolicyStats: #@ values.antrea.config.NetworkPolicyStats
+  NetworkPolicyStats: #@ values.antrea.config.featureGates.NetworkPolicyStats
 
 #! Name of the OpenVSwitch bridge antrea-agent will create and use.
 #! Make sure it doesn't conflict with your existing OpenVSwitch bridges.

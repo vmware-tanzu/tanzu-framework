@@ -6,13 +6,14 @@ infraProvider: vsphere
 antrea:
   config:
     serviceCIDR: 10.96.0.0/12
-    noSNAT: false
-    AntreaProxy: false
     trafficEncapMode: encap
-    Traceflow: false
-    AntreaPolicy: true
-    FlowExporter: false
-    NetworkPolicyStats: false
+    noSNAT: false
+    featureGates:
+      AntreaProxy: false
+      AntreaPolicy: true
+      AntreaTraceflow: false
+      FlowExporter: false
+      NetworkPolicyStats: false
   image:
     repository: docker.io
     path: antrea/antrea-ubuntu 
