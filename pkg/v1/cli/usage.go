@@ -47,6 +47,9 @@ func (u *MainUsage) GenerateDescriptor(c *cobra.Command, w io.Writer) error {
 		if !ok {
 			g = []*cobra.Command{}
 		}
+		if cmd.Hidden {
+			continue
+		}
 		g = append(g, cmd)
 		cmdMap[group] = g
 	}

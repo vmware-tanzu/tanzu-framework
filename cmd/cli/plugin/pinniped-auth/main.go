@@ -17,6 +17,7 @@ var descriptor = cli.PluginDescriptor{
 	Description: "pinniped auth login operations",
 	Version:     "v0.0.1",
 	Group:       cli.RunCmdGroup,
+	Hidden:      true,
 }
 
 func main() {

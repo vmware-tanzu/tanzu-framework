@@ -42,6 +42,9 @@ type PluginDescriptor struct {
 
 	// DocURL for the plugin.
 	DocURL string `json:"docURL,omitempty" yaml:"docURL,omitempty"`
+
+	// Hidden tells whether the plugin should be hidden from the help command.
+	Hidden bool `json:"hidden,omitempty" yaml:"hidden,omitempty"`
 }
 
 // NewTestFor creates a plugin descriptor for a test plugin.
@@ -69,6 +72,7 @@ func (p *PluginDescriptor) Cmd() *cobra.Command {
 		Annotations: map[string]string{
 			"group": string(p.Group),
 		},
+		Hidden: p.Hidden,
 	}
 	return cmd
 }
