@@ -22,7 +22,6 @@ import (
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/utils/pointer"
 	clusterapiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
-	capiremote "sigs.k8s.io/cluster-api/controllers/remote"
 	controlplanev1alpha3 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
 	clusterapipatchutil "sigs.k8s.io/cluster-api/util/patch"
@@ -45,7 +44,6 @@ type AddonReconciler struct {
 	Client     client.Client
 	Log        logr.Logger
 	Scheme     *runtime.Scheme
-	Tracker    *capiremote.ClusterCacheTracker
 	controller controller.Controller
 	Config     addonconfig.Config
 }
@@ -225,8 +223,7 @@ func (r *AddonReconciler) reconcileNormal(
 	}
 
 	// Get remote cluster live client.
-	// Do not use cached client since it creates watches implicitly for all objects that we GET/LIST.
-	remoteClient, err := r.Tracker.GetLiveClient(ctx, clusterapiutil.ObjectKey(cluster))
+	remoteClient, err := util.GetClusterClient(ctx, r.Client, r.Scheme, clusterapiutil.ObjectKey(cluster))
 	if err != nil {
 		log.Error(err, "Error getting remote cluster client")
 		return ctrl.Result{}, err

@@ -5,6 +5,11 @@ package util
 
 import (
 	"context"
+	"time"
+
+	"k8s.io/apimachinery/pkg/runtime"
+	capiremote "sigs.k8s.io/cluster-api/controllers/remote"
+	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 
 	"github.com/pkg/errors"
 	"github.com/vmware-tanzu-private/core/addons/pkg/constants"
@@ -15,6 +20,10 @@ import (
 	clusterv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	clusterapisecretutil "sigs.k8s.io/cluster-api/util/secret"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+)
+
+const (
+	defaultClientTimeout = 10 * time.Second
 )
 
 // GetOwnerCluster returns the Cluster object owning the current resource.
@@ -68,6 +77,29 @@ func GetClustersByTKR(ctx context.Context, c client.Client, tkr *runtanzuv1alpha
 	}
 
 	return clusters, nil
+}
+
+// GetClusterClient gets cluster's client
+func GetClusterClient(ctx context.Context, currentClusterClient client.Client, scheme *runtime.Scheme, cluster client.ObjectKey) (client.Client, error) {
+	config, err := capiremote.RESTConfig(ctx, currentClusterClient, cluster)
+	if err != nil {
+		return nil, errors.Wrapf(err, "error fetching REST client config for remote cluster %q", cluster.String())
+	}
+	config.Timeout = defaultClientTimeout
+
+	// Create a mapper for it
+	mapper, err := apiutil.NewDynamicRESTMapper(config)
+	if err != nil {
+		return nil, errors.Wrapf(err, "error creating dynamic rest mapper for remote cluster %q", cluster.String())
+	}
+
+	// Create the client for the remote cluster
+	c, err := client.New(config, client.Options{Scheme: scheme, Mapper: mapper})
+	if err != nil {
+		return nil, errors.Wrapf(err, "error creating client for remote cluster %q", cluster.String())
+	}
+
+	return c, nil
 }
 
 // GetTKRForCluster gets the TKR for cluster
