@@ -1,4 +1,4 @@
-#! Source: https://github.com/vmware-tanzu/carvel-kapp-controller/releases/tag/v0.15.0
+#! Source: https://github.com/vmware-tanzu/carvel-kapp-controller/releases/tag/v0.16.0
 
 ---
 apiVersion: v1
@@ -93,7 +93,7 @@ spec:
           env:
             - name: KAPPCTRL_MEM_TMP_DIR
               value: /etc/kappctrl-mem-tmp
-          image: index.docker.io/k14s/kapp-controller@sha256:73614cc45be5dd1ff86b5f8789aa652f170aa624c963d70d967edc0dc0873764
+          image: index.docker.io/k14s/kapp-controller@sha256:8121296ee187b35c3109b11d747ce3eb2c01fb0386f162c89bab1d264189caf8
           name: kapp-controller
           resources:
             requests:
