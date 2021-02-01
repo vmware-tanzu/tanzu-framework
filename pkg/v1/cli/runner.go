@@ -37,6 +37,10 @@ func NewRunner(name string, args []string, options ...Option) *Runner {
 // Run runs a plugin.
 func (r *Runner) Run(ctx context.Context) error {
 	pluginPath := r.pluginPath()
+
+	if BuildArch().IsWindows() {
+		pluginPath = pluginPath + ".exe"
+	}
 	info, err := os.Stat(pluginPath)
 	if err != nil {
 		// TODO (pbarker): should check if the plugin exists in the repository using fuzzy search and display how to install.
