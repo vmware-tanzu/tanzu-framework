@@ -26,6 +26,9 @@ should be added to an existing group.
   * Begins with a capital letter and does not end with a period
 * Compound words should be `-` delimited: `management-cluster` over `managementcluster`
 * Adding new commands and subcommands must be reviewed by the Tanzu SIG CLI group
+* For commands that are scoped to a specific resource, such as cluster, cluster group, organization, or workspace, 
+  add a sub-noun command under your top level noun rather than under the resource itself.
+  * We prefer `tanzu events list --cluster-name MYCLUSTER` rather than `tanzu cluster events list MYCLUSTER`
 
 ### Top Level Noun:
 * Tread lightly when adding another top level noun
