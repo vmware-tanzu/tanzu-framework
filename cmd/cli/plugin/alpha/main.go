@@ -15,7 +15,7 @@ import (
 var descriptor = cli.PluginDescriptor{
 	Name:        "alpha",
 	Description: "Alpha CLI commands",
-	Version:     "v0.0.1",
+	Version:     cli.BuildVersion,
 	Group:       cli.VersionCmdGroup,
 }
 
