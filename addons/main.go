@@ -13,7 +13,6 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"k8s.io/klog"
 	"k8s.io/klog/klogr"
-	capiremote "sigs.k8s.io/cluster-api/controllers/remote"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
@@ -79,25 +78,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Set up a ClusterCacheTracker and ClusterCacheReconciler to provide to controllers
-	// requiring a connection to a remote cluster
-	tracker, err := capiremote.NewClusterCacheTracker(
-		ctrl.Log.WithName("remote").WithName("ClusterCacheTracker"),
-		mgr,
-	)
-	if err != nil {
-		setupLog.Error(err, "unable to create cluster cache tracker")
-		os.Exit(1)
-	}
-
 	ctx := ctrl.SetupSignalHandler()
 
 	if err = (&controllers.AddonReconciler{
-		Client:  mgr.GetClient(),
-		Log:     ctrl.Log.WithName("controllers").WithName("Addon"),
-		Scheme:  mgr.GetScheme(),
-		Tracker: tracker,
-		Config:  addonconfig.Config{AppSyncPeriod: appSyncPeriod},
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("Addon"),
+		Scheme: mgr.GetScheme(),
+		Config: addonconfig.Config{AppSyncPeriod: appSyncPeriod},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: clusterConcurrency}); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Addon")
 		os.Exit(1)
