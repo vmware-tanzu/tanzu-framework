@@ -166,3 +166,25 @@ Flags:
 -n, --namespace string             The namespace from which to get workload clusters. If not provided clusters from all namespaces will be returned
   --show-all-conditions string    list of comma separated kind or kind/name for which we should show all the object's conditions (all to show conditions for all the objects)
 ```
+
+```
+>>> tanzu cluster kubeconfig get --help
+Get kubeconfig of a cluster and merge the context into the default kubeconfig file
+
+Usage:
+  tanzu cluster kubeconfig get CLUSTER_NAME [flags]
+
+Examples:
+  
+        # Get workload cluster kubeconfig
+        tanzu cluster kubeconfig get CLUSTER_NAME
+
+        # Get workload cluster admin kubeconfig
+        tanzu cluster kubeconfig get CLUSTER_NAME --admin
+
+Flags:
+      --admin                Get admin kubeconfig of the workload cluster
+      --export-file string   File path to export a standalone kubeconfig for workload cluster
+  -h, --help                 help for get
+  -n, --namespace string     The namespace where the workload cluster was created. Assumes 'default' if not specified.
+```
