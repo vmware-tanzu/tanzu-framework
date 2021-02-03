@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"path"
 	"path/filepath"
 	"runtime"
 	"time"
@@ -181,7 +182,7 @@ func (g *GCPBucketRepository) Describe(name string) (desc PluginDescriptor, err 
 		return desc, err
 	}
 
-	pluginPath := filepath.Join(g.rootPath, name, PluginFileName)
+	pluginPath := path.Join(g.rootPath, name, PluginFileName)
 
 	obj := bkt.Object(pluginPath)
 	if obj == nil {
@@ -220,7 +221,7 @@ func (g *GCPBucketRepository) Fetch(name, version string, arch Arch) ([]byte, er
 		version = desc.Version
 	}
 
-	artifactPath := filepath.Join(g.rootPath, name, version, MakeArtifactName(name, arch))
+	artifactPath := path.Join(g.rootPath, name, version, MakeArtifactName(name, arch))
 
 	return g.fetch(ctx, artifactPath, bkt)
 }
@@ -242,7 +243,7 @@ func (g *GCPBucketRepository) FetchTest(name, version string, arch Arch) ([]byte
 		version = desc.Version
 	}
 
-	artifactPath := filepath.Join(g.rootPath, name, version, "test", MakeTestArtifactName(name, arch))
+	artifactPath := path.Join(g.rootPath, name, version, "test", MakeTestArtifactName(name, arch))
 	return g.fetch(ctx, artifactPath, bkt)
 }
 
@@ -279,7 +280,7 @@ func (g *GCPBucketRepository) Manifest() (manifest Manifest, err error) {
 		return manifest, err
 	}
 
-	manifestPath := filepath.Join(g.rootPath, ManifestFileName)
+	manifestPath := path.Join(g.rootPath, ManifestFileName)
 
 	obj := bkt.Object(manifestPath)
 	if obj == nil {
