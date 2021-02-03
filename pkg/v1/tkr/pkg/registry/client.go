@@ -16,6 +16,7 @@ type registry struct {
 	registry ctlimg.Registry
 }
 
+// New instantiates a new Registry
 func New(opts ctlimg.RegistryOpts) Registry {
 
 	reg := ctlimg.NewRegistry(opts)

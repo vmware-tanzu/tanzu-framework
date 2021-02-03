@@ -21,8 +21,11 @@ type getClusterKubeconfigOptions struct {
 }
 
 const (
+	// TKGSystemNamespace is the TKG system namespace.
 	TKGSystemNamespace = "tkg-system"
-	DefaultNamespace   = "default"
+
+	// DefaultNamespace is the default namespace.
+	DefaultNamespace = "default"
 )
 
 var getKCOptions = &getClusterKubeconfigOptions{}

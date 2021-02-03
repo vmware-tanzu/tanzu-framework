@@ -30,6 +30,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// Clients contains the various client interfaces used.
 type Clients struct {
 	K8SClientset         kubernetes.Interface
 	SupervisorClientset  supervisorclientset.Interface
@@ -37,6 +38,7 @@ type Clients struct {
 	CertmanagerClientset certmanagerclientset.Interface
 }
 
+// Parameters contains the settings used.
 type Parameters struct {
 	ClusterName              string
 	ClusterType              string
@@ -175,6 +177,7 @@ func ensureResources(ctx context.Context, c Clients, isMgmtCluster bool) (bool, 
 	return true, nil
 }
 
+// TKGAuthentication authenticates against Tanzu Kubernetes Grid
 func TKGAuthentication(c Clients) error {
 	var err error
 	ctx := context.Background()
@@ -232,6 +235,7 @@ func TKGAuthentication(c Clients) error {
 	return nil
 }
 
+// Pinniped initializes Pinniped
 func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p Parameters) error {
 	var err error
 
@@ -266,7 +270,7 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p Par
 
 		// create Pinniped concierge JWTAuthenticator
 		var secret *corev1.Secret
-		if secret, err = utils.GetSecreteFromCert(ctx, c.K8SClientset, updatedCert); err != nil {
+		if secret, err = utils.GetSecretFromCert(ctx, c.K8SClientset, updatedCert); err != nil {
 			zap.S().Error(err)
 			return err
 		}
@@ -297,6 +301,7 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p Par
 	return nil
 }
 
+// Dex initializes Dex.
 func Dex(ctx context.Context, c Clients, inspector inspect.Inspector, p Parameters) error {
 	var err error
 
@@ -417,10 +422,10 @@ func updateCertSubjectAltNames(ctx context.Context, c Clients, certNamespace, ce
 		if !errors.IsNotFound(err) {
 			zap.S().Error(err)
 			return nil, err
-		} else {
-			// If the secret is not found, just log as warning, without returning error back
-			zap.S().Warn(err)
 		}
+
+		// If the secret is not found, just log as warning, without returning error back
+		zap.S().Warn(err)
 	}
 	zap.S().Infof("Deleted the Secret %s/%s", certNamespace, cert.Spec.SecretName)
 

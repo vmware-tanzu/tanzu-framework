@@ -32,11 +32,14 @@ const (
 	// PinnipedOIDCScopes are the scopes of pinniped oidc
 	PinnipedOIDCScopes = "offline_access,openid,pinniped:request-audience"
 
+	// TanzuLocalKubeDir is the local config directory
 	TanzuLocalKubeDir = ".kube-tanzu"
 
+	// TanzuKubeconfigFile is the name the of the kubeconfig file
 	TanzuKubeconfigFile = "config"
 )
 
+// PinnipedConfigMapInfo contains the information from teh Pinniped ConfigMap
 type PinnipedConfigMapInfo struct {
 	Kind    string `yaml:"kind"`
 	Version string `yaml:"apiVersion"`
@@ -47,6 +50,7 @@ type PinnipedConfigMapInfo struct {
 	}
 }
 
+// KubeConfigOptions contains the kubeconfig options
 type KubeConfigOptions struct {
 	MergeFilePath string
 }

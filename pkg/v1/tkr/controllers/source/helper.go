@@ -18,9 +18,11 @@ import (
 )
 
 const (
+	// VMwareVersionSeparator is the separator to use
 	VMwareVersionSeparator = "+vmware."
 )
 
+// NewTkrFromBom gets a new TKR matching tkrName from the BOM information in bomContent
 func NewTkrFromBom(tkrName string, bomContent []byte) (runv1.TanzuKubernetesRelease, error) {
 
 	bom, err := types.NewBom(bomContent)
@@ -104,6 +106,7 @@ func NewTkrFromBom(tkrName string, bomContent []byte) (runv1.TanzuKubernetesRele
 
 }
 
+// TKRVersion contains the TKR version info
 type TKRVersion struct {
 	Major  uint
 	Minor  uint
@@ -181,6 +184,7 @@ func newTKRVersion(tkrVersion string) (TKRVersion, error) {
 	return v, nil
 }
 
+// GetManagementClusterVersion get the version of the management cluster
 func (r *reconciler) GetManagementClusterVersion(ctx context.Context) (string, error) {
 	clusterList := &clusterv1.ClusterList{}
 	err := r.client.List(ctx, clusterList)

@@ -16,11 +16,13 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
+// Configurator contains client information for Dex.
 type Configurator struct {
 	CertmanagerClientset certmanagerclientset.Interface
 	K8SClientset         kubernetes.Interface
 }
 
+// DexInfo contains configuration settings for Dex.
 type DexInfo struct {
 	DexSvcEndpoint        string
 	SupervisorSvcEndpoint string
@@ -29,6 +31,7 @@ type DexInfo struct {
 	ClientSecret          string
 }
 
+// CreateOrUpdateDexConfigMap creates a new ConfigMap for Dex, or updates an existing one.
 func (c Configurator) CreateOrUpdateDexConfigMap(ctx context.Context, dexInfo DexInfo) error {
 	var err error
 	zap.S().Info("Creating the ConfigMap of Dex")
@@ -53,7 +56,7 @@ func (c Configurator) CreateOrUpdateDexConfigMap(ctx context.Context, dexInfo De
 	// change dex config values
 	dexConf.Issuer = dexInfo.DexSvcEndpoint
 	dexConf.StaticClients[0] = &schemas.StaticClient{
-		Id:           constants.DexClientID,
+		ID:           constants.DexClientID,
 		Name:         constants.DexClientID,
 		RedirectURIs: []string{dexInfo.SupervisorSvcEndpoint + "/callback"},
 		Secret:       dexInfo.ClientSecret,

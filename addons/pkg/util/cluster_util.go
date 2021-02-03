@@ -121,6 +121,7 @@ func GetTKRForCluster(ctx context.Context, c client.Client, cluster *clusterv1al
 	return tkr, nil
 }
 
+// GetTKRNameForCluster get the TKR name for the cluster
 func GetTKRNameForCluster(ctx context.Context, c client.Client, cluster *clusterv1alpha3.Cluster) string {
 	if c == nil || cluster == nil {
 		return ""
@@ -145,6 +146,7 @@ func GetBOMForCluster(ctx context.Context, c client.Client, cluster *clusterv1al
 	return bom, nil
 }
 
+// ClusterKubeconfigSecretDetails contains the cluster kubeconfig secret details.
 type ClusterKubeconfigSecretDetails struct {
 	Name      string
 	Namespace string

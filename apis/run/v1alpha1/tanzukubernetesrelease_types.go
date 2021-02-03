@@ -10,7 +10,10 @@ import (
 )
 
 const (
-	ConditionCompatible       = "Compatible"
+	// ConditionCompatible indicates the condition is compatible.
+	ConditionCompatible = "Compatible"
+
+	// ConditionUpgradeAvailable indicates the condition is an upgrade is available.
 	ConditionUpgradeAvailable = "UpgradeAvailable"
 )
 

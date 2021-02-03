@@ -21,11 +21,13 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
+// Inspector contains the inspect settings.
 type Inspector struct {
 	K8sClientset kubernetes.Interface
 	Context      context.Context
 }
 
+// TKGMetadata contains Tanzu Kubernetes Grid metadata.
 type TKGMetadata struct {
 	/*
 		The configmap contains the metadata like the following, but we only care about type and provider
@@ -51,6 +53,7 @@ type TKGMetadata struct {
 	} `yaml:"cluster"`
 }
 
+// ClusterInfo contains information about the cluster.
 type ClusterInfo struct {
 	/*
 		kubeconfig: |
@@ -74,7 +77,7 @@ type ClusterInfo struct {
 	} `yaml:"clusters"`
 }
 
-// GetTKGMetadata read the data from tkg-metadata ConfigMap
+// GetTKGMetadata reads the data from tkg-metadata ConfigMap
 // Note: The tkg-metadata will not get updated as today if user has some day2 configurations against the cluster. That
 // means some mutable fields will have stale data. Use this function with caution when the data you want to read could
 // be updated by user

@@ -11,10 +11,12 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+// Configurator contains concierge client information.
 type Configurator struct {
 	Clientset conciergeclientset.Interface
 }
 
+// CreateOrUpdateJWTAuthenticator creates a new JWT or updates an existing one.
 func (c Configurator) CreateOrUpdateJWTAuthenticator(context context.Context, namespace, name, issuer, audience, caData string) error {
 	var err error
 	var jwtAuthenticator *authv1alpha1.JWTAuthenticator
@@ -38,10 +40,10 @@ func (c Configurator) CreateOrUpdateJWTAuthenticator(context context.Context, na
 			if _, err = c.Clientset.AuthenticationV1alpha1().JWTAuthenticators(namespace).Create(context, newFederationDomain, metav1.CreateOptions{}); err != nil {
 				zap.S().Error(err)
 				return err
-			} else {
-				zap.S().Infof("Created the JWTAuthenticator %s/%s", namespace, name)
-				return nil
 			}
+
+			zap.S().Infof("Created the JWTAuthenticator %s/%s", namespace, name)
+			return nil
 		}
 		zap.S().Error(err)
 		return err
@@ -58,8 +60,8 @@ func (c Configurator) CreateOrUpdateJWTAuthenticator(context context.Context, na
 	if _, err = c.Clientset.AuthenticationV1alpha1().JWTAuthenticators(namespace).Update(context, copiedJwtAuthenticator, metav1.UpdateOptions{}); err != nil {
 		zap.S().Error(err)
 		return err
-	} else {
-		zap.S().Infof("Updated the JWTAuthenticator %s/%s", namespace, name)
-		return nil
 	}
+
+	zap.S().Infof("Updated the JWTAuthenticator %s/%s", namespace, name)
+	return nil
 }

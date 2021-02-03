@@ -1,5 +1,6 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+
 package source
 
 import (
@@ -43,6 +44,7 @@ type reconciler struct {
 	registryOps                ctlimg.RegistryOpts
 }
 
+// Reconcile performs the reconciliation step
 func (r *reconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	_ = context.Background()
 	_ = r.log.WithValues("tanzukubernetesrelease", req.NamespacedName)
@@ -107,7 +109,7 @@ func (r *reconciler) diffRelease(ctx context.Context) (newReleases, existingRele
 	return newReleases, existingReleases, nil
 }
 
-func (r *reconciler) createBOMConfigMap(tag string, ctx context.Context) error {
+func (r *reconciler) createBOMConfigMap(ctx context.Context, tag string) error {
 	bomContent, err := r.registry.GetFile(r.bomImage, tag, "")
 	if err != nil {
 		return errors.Wrapf(err, "failed to get the BOM file from the image %s:%s", r.bomImage, tag)
@@ -174,7 +176,7 @@ func (r *reconciler) reconcileBOMConfigMap(ctx context.Context) (err error) {
 	}
 	for tag, exist := range tagMap {
 		if !exist {
-			err = r.createBOMConfigMap(tag, ctx)
+			err = r.createBOMConfigMap(ctx, tag)
 			if err != nil {
 				return errors.Wrapf(err, "failed to create BOM ConfigMap for image %s", fmt.Sprintf("%s:%s", r.bomImage, tag))
 			}

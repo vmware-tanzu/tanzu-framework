@@ -16,15 +16,21 @@ import (
 )
 
 const (
+	// InfrastructureRefVSphere is the vSphere infrastructure
 	InfrastructureRefVSphere = "VSphereCluster"
-	InfrastructureRefAWS     = "AWSCluster"
-	InfrastructureRefAzure   = "AzureCluster"
+
+	// InfrastructureRefAWS is the AWS infrastructure
+	InfrastructureRefAWS = "AWSCluster"
+
+	// InfrastructureRefAzure is the Azure infrastructure
+	InfrastructureRefAzure = "AzureCluster"
 )
 
 type client struct {
 	crtClient crtclient.Client
 }
 
+// NewClusterClient gets a new client for the cluster for the requested context
 func NewClusterClient(kubeConfigPath string, context string) (Client, error) {
 
 	var scheme = runtime.NewScheme()
@@ -65,6 +71,7 @@ func NewClusterClient(kubeConfigPath string, context string) (Client, error) {
 	}, nil
 }
 
+// GetTanzuKubernetesReleases get the available releases
 func (c *client) GetTanzuKubernetesReleases(tkrName string) ([]runv1alpha1.TanzuKubernetesRelease, error) {
 
 	tkrList := &runv1alpha1.TanzuKubernetesReleaseList{}
@@ -84,6 +91,8 @@ func (c *client) GetTanzuKubernetesReleases(tkrName string) ([]runv1alpha1.Tanzu
 	}
 	return result, nil
 }
+
+// GetBomConfigMap gets the BOM ConfigMap
 func (c *client) GetBomConfigMap(tkrNameLabel string) (corev1.ConfigMap, error) {
 
 	selectors := []crtclient.ListOption{
@@ -103,6 +112,7 @@ func (c *client) GetBomConfigMap(tkrNameLabel string) (corev1.ConfigMap, error) 
 	return cmList.Items[0], nil
 }
 
+// GetClusterInfrastructure gets the underlying infrastructure being used
 func (c *client) GetClusterInfrastructure() (string, error) {
 	clusters := &capi.ClusterList{}
 

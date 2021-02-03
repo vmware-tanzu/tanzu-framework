@@ -26,18 +26,21 @@ import (
 	supervisorclientset "go.pinniped.dev/generated/1.19/client/supervisor/clientset/versioned"
 )
 
+// Configurator contains client information.
 type Configurator struct {
 	Clientset            supervisorclientset.Interface
 	K8SClientset         kubernetes.Interface
 	CertmanagerClientset certmanagerclientset.Interface
 }
 
+// PinnipedInfo contains settings for the supervisor.
 type PinnipedInfo struct {
 	MgmtClusterName    string
 	Issuer             string
 	IssuerCABundleData string
 }
 
+// CreateOrUpdateFederationDomain creates a new federation domain or updates an existing one.
 func (c Configurator) CreateOrUpdateFederationDomain(ctx context.Context, namespace, name, issuer string) error {
 	var err error
 	var federationDomain *configv1alpha1.FederationDomain
@@ -57,10 +60,10 @@ func (c Configurator) CreateOrUpdateFederationDomain(ctx context.Context, namesp
 			if _, err = c.Clientset.ConfigV1alpha1().FederationDomains(namespace).Create(ctx, newFederationDomain, metav1.CreateOptions{}); err != nil {
 				zap.S().Error(err)
 				return err
-			} else {
-				zap.S().Infof("Created the FederationDomain %s/%s", namespace, name)
-				return nil
 			}
+
+			zap.S().Infof("Created the FederationDomain %s/%s", namespace, name)
+			return nil
 		}
 		zap.S().Error(err)
 		return err
@@ -73,10 +76,10 @@ func (c Configurator) CreateOrUpdateFederationDomain(ctx context.Context, namesp
 	if _, err = c.Clientset.ConfigV1alpha1().FederationDomains(namespace).Update(ctx, copiedFederationDomain, metav1.UpdateOptions{}); err != nil {
 		zap.S().Error(err)
 		return err
-	} else {
-		zap.S().Infof("Updated the FederationDomain %s/%s", namespace, name)
-		return nil
 	}
+
+	zap.S().Infof("Updated the FederationDomain %s/%s", namespace, name)
+	return nil
 }
 
 // RecreateIDPForDex recreates the IDP for Dex. The reason of recreation is because updating IDP could not trigger the reconciliation
@@ -98,7 +101,7 @@ func (c Configurator) RecreateIDPForDex(ctx context.Context, dexNamespace, dexSv
 		return nil, err
 	}
 	var dexTLSSecret *corev1.Secret
-	if dexTLSSecret, err = utils.GetSecreteFromCert(ctx, c.K8SClientset, dexCert); err != nil {
+	if dexTLSSecret, err = utils.GetSecretFromCert(ctx, c.K8SClientset, dexCert); err != nil {
 		zap.S().Error(err)
 		return nil, err
 	}
@@ -159,6 +162,7 @@ func (c Configurator) RecreateIDPForDex(ctx context.Context, dexNamespace, dexSv
 	return updatedIDP, nil
 }
 
+// CreateOrUpdatePinnipedInfo creates pinniped information or updates existing data.
 func (c Configurator) CreateOrUpdatePinnipedInfo(ctx context.Context, pinnipedInfo PinnipedInfo) error {
 	var err error
 	zap.S().Info("Creating the ConfigMap for Pinniped info")
@@ -182,10 +186,10 @@ func (c Configurator) CreateOrUpdatePinnipedInfo(ctx context.Context, pinnipedIn
 			if _, err = c.K8SClientset.CoreV1().ConfigMaps(constants.KubePublicNamespace).Create(ctx, pinnipedConfigMap, metav1.CreateOptions{}); err != nil {
 				zap.S().Error(err)
 				return err
-			} else {
-				zap.S().Infof("Created the ConfigMap %s/%s for Pinniped info", constants.KubePublicNamespace, constants.PinnipedInfoConfigMapName)
-				return nil
 			}
+
+			zap.S().Infof("Created the ConfigMap %s/%s for Pinniped info", constants.KubePublicNamespace, constants.PinnipedInfoConfigMapName)
+			return nil
 		}
 		// return err if could not get the configmap due to other errors
 		zap.S().Error(err)

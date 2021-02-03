@@ -1,5 +1,6 @@
 package schemas
 
+// DexConfig contains the Dex configuration settings.
 type DexConfig struct {
 	Issuer           string          `yaml:"issuer,omitempty"`
 	FrontEnd         *frontEnd       `yaml:"frontend,omitempty"`
@@ -19,13 +20,13 @@ type frontEnd struct {
 
 type web struct {
 	HTTPS   string `yaml:"https,omitempty"`
-	TlsCert string `yaml:"tlsCert,omitempty"`
-	TlsKey  string `yaml:"tlsKey,omitempty"`
+	TLSCert string `yaml:"tlsCert,omitempty"`
+	TLSKey  string `yaml:"tlsKey,omitempty"`
 }
 
 type expiry struct {
 	SigningKeys string `yaml:"signingKeys,omitempty"`
-	IdTokens    string `yaml:"idTokens,omitempty"`
+	IDTokens    string `yaml:"idTokens,omitempty"`
 }
 
 type logger struct {
@@ -33,8 +34,9 @@ type logger struct {
 	Format string `yaml:"format,omitempty"`
 }
 
+// StaticClient contains client information.
 type StaticClient struct {
-	Id           string   `yaml:"id,omitempty"`
+	ID           string   `yaml:"id,omitempty"`
 	Name         string   `yaml:"name,omitempty"`
 	RedirectURIs []string `yaml:"redirectURIs,omitempty"`
 	Secret       string   `yaml:"secret,omitempty"`
@@ -42,7 +44,7 @@ type StaticClient struct {
 
 type connector struct {
 	Type   string `yaml:"type,omitempty"`
-	Id     string `yaml:"id,omitempty"`
+	ID     string `yaml:"id,omitempty"`
 	Name   string `yaml:"name,omitempty"`
 	Config struct {
 		Issuer                    string            `yaml:"issuer,omitempty"`
@@ -71,7 +73,7 @@ type connector struct {
 			BaseDN    string `yaml:"baseDN,omitempty"`
 			Filter    string `yaml:"filter,omitempty"`
 			Username  string `yaml:"username,omitempty"`
-			IdAttr    string `yaml:"idAttr,omitempty"`
+			IDAttr    string `yaml:"idAttr,omitempty"`
 			EmailAttr string `yaml:"emailAttr,omitempty"`
 			NameAttr  string `yaml:"nameAttr,omitempty"`
 		} `yaml:"userSearch,omitempty"`

@@ -139,11 +139,11 @@ func getAvailableUpgrades(clusterName string, tkr runv1alpha1.TanzuKubernetesRel
 	}
 
 	// Example upgradeMsg - "TKR(s) with later version is available: <tkr-name-1>,<tkr-name-2>"
-	if strs := strings.Split(upgradeMsg, ": "); len(strs) != 2 {
+	strs := strings.Split(upgradeMsg, ": ")
+	if len(strs) != 2 {
 		return []string{}, errors.Errorf("no available upgrades for cluster %q, namespace %q", clusterName, uc.namespace)
-	} else {
-		return strings.Split(strs[1], ","), nil
 	}
+	return strings.Split(strs[1], ","), nil
 }
 
 func getMatchingTkrForTkrName(tkrs []runv1alpha1.TanzuKubernetesRelease, tkrName string) (runv1alpha1.TanzuKubernetesRelease, error) {

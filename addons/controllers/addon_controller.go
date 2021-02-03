@@ -40,6 +40,7 @@ const (
 	createRequeueAfter = 20 * time.Second
 )
 
+// AddonReconciler contains the reconciler information for add on controllers.
 type AddonReconciler struct {
 	Client     client.Client
 	Log        logr.Logger
@@ -48,6 +49,7 @@ type AddonReconciler struct {
 	Config     addonconfig.Config
 }
 
+// SetupWithManager performs the setup actions for an add on controller, using the passed in mgr.
 func (r *AddonReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	addonController, err := ctrl.NewControllerManagedBy(mgr).
 		For(&clusterapiv1alpha3.Cluster{}).
@@ -92,6 +94,7 @@ func (r *AddonReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Manager
 	return nil
 }
 
+// Reconcile performs the reconciliation action for the controller.
 func (r *AddonReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ctrl.Result, reterr error) {
 	log := r.Log.WithValues(constants.ClusterNamespaceLogKey, req.Namespace, constants.ClusterNameLogKey, req.Name)
 
@@ -103,10 +106,10 @@ func (r *AddonReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ct
 		if apierrors.IsNotFound(err) {
 			log.Info("Cluster not found")
 			return ctrl.Result{}, nil
-		} else {
-			log.Error(err, "unable to fetch cluster")
-			return ctrl.Result{}, err
 		}
+
+		log.Error(err, "unable to fetch cluster")
+		return ctrl.Result{}, err
 	}
 
 	// if deletion timestamp is set, handle cluster deletion
@@ -303,14 +306,14 @@ func (r *AddonReconciler) reconcileAddonSecret(
 			return ctrl.Result{}, err
 		}
 		return result, nil
-	} else {
-		result, err := r.reconcileAddonSecretNormal(ctx, log, addonName, cluster, clusterClient, addonSecret, &patchAddonSecret, bom)
-		if err != nil {
-			log.Error(err, "Error reconciling addon secret", constants.AddonNameLogKey, addonName)
-			return ctrl.Result{}, err
-		}
-		return result, nil
 	}
+
+	result, err := r.reconcileAddonSecretNormal(ctx, log, addonName, cluster, clusterClient, addonSecret, &patchAddonSecret, bom)
+	if err != nil {
+		log.Error(err, "Error reconciling addon secret", constants.AddonNameLogKey, addonName)
+		return ctrl.Result{}, err
+	}
+	return result, nil
 }
 
 // reconcileAddonSecretDelete reconciles a deletion of addon secret

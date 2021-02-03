@@ -20,19 +20,21 @@ import (
 	"k8s.io/client-go/util/retry"
 )
 
+// ToString returns a string value for the integer passed in i.
 func ToString(i int32) string {
 	return strconv.FormatInt(int64(i), 10)
 }
 
+// IsIP checks if a string contains a valid IP address.
 func IsIP(host string) bool {
 	addr := net.ParseIP(host)
 	if addr == nil {
 		return false
-	} else {
-		return true
 	}
+	return true
 }
 
+// RemoveDefaultTLSPort removes the port value from fullURL if it is the default 443.
 func RemoveDefaultTLSPort(fullURL string) string {
 	var err error
 	var parsedURL *url.URL
@@ -42,11 +44,11 @@ func RemoveDefaultTLSPort(fullURL string) string {
 	}
 	if parsedURL.Port() == "443" {
 		return fmt.Sprintf("%s://%s", parsedURL.Scheme, parsedURL.Hostname())
-	} else {
-		return fullURL
 	}
+	return fullURL
 }
 
+// RandomHex returns a random hexidecimal number of n length.
 func RandomHex(n int) (string, error) {
 	bytes := make([]byte, n)
 	if _, err := rand.Read(bytes); err != nil {
@@ -55,7 +57,8 @@ func RandomHex(n int) (string, error) {
 	return hex.EncodeToString(bytes), nil
 }
 
-func GetSecreteFromCert(ctx context.Context, client kubernetes.Interface, cert *certmanagerv1beta1.Certificate) (*corev1.Secret, error) {
+// GetSecretFromCert extracts the secret for the certificate.
+func GetSecretFromCert(ctx context.Context, client kubernetes.Interface, cert *certmanagerv1beta1.Certificate) (*corev1.Secret, error) {
 	var err error
 	// get secret from cert
 	var secret *corev1.Secret

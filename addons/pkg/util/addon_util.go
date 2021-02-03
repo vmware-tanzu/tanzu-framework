@@ -56,9 +56,8 @@ func GenerateAppNameFromAddonSecret(addonSecret *corev1.Secret) string {
 			return ""
 		}
 		return fmt.Sprintf("%s-%s", clusterName, addonName)
-	} else {
-		return addonName
 	}
+	return addonName
 }
 
 // GenerateAppSecretNameFromAddonSecret generates app secret name from addon secret
@@ -71,9 +70,8 @@ func GenerateAppNamespaceFromAddonSecret(addonSecret *corev1.Secret) string {
 	remoteApp := IsRemoteApp(addonSecret)
 	if remoteApp {
 		return addonSecret.Namespace
-	} else {
-		return constants.TKGAddonsAppNamespace
 	}
+	return constants.TKGAddonsAppNamespace
 }
 
 // GetClientFromAddonSecret gets appropriate cluster client given addon secret

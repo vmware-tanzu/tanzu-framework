@@ -20,6 +20,7 @@ type ImageConfig struct {
 	ImageRepository string `yaml:"imageRepository"`
 }
 
+// ComponentInfo contains component information
 type ComponentInfo struct {
 	Version string `yaml:"version"`
 	// Each component can optionally have container images associated with it
@@ -28,21 +29,25 @@ type ComponentInfo struct {
 	Metadata map[string]string `yaml:"metadata,omitempty"`
 }
 
+// ImageInfo contains the image information
 type ImageInfo struct {
 	ImagePath string `yaml:"imagePath"`
 	Tag       string `yaml:"tag"`
 }
 
+// OSInfo contains the OS information
 type OSInfo struct {
 	Name    string `yaml:"name"`
 	Version string `yaml:"version"`
 	Arch    string `yaml:"arch"`
 }
 
+// String gets a string representation of the BOM
 func (os OSInfo) String() string {
 	return fmt.Sprintf("%s-%s-%s", os.Name, os.Version, os.Arch)
 }
 
+// OVAInfo gets the Open Virtual Appliance (OVA) information
 type OVAInfo struct {
 	Name string `yaml:"name"`
 	OSInfo
@@ -68,8 +73,13 @@ type AzureInfo struct {
 	OSInfo
 }
 
+// AzureInfos is an array of AzureInfo
 type AzureInfos []AzureInfo
+
+// AMIInfos is a lookup of AMIInfo
 type AMIInfos map[string][]AMIInfo
+
+// OVAInfos is an array of OVAInfo
 type OVAInfos []OVAInfo
 
 // Addons represents map of Addons
@@ -84,7 +94,7 @@ type Addon struct {
 	TemplatesImageTag  string   `yaml:"templatesImageTag,omitempty"`
 }
 
-// bomContent contains the content of a BOM file
+// BomContent contains the content of a BOM file
 type BomContent struct {
 	Release     Release                    `yaml:"release"`
 	Components  map[string][]ComponentInfo `yaml:"components"`
@@ -126,7 +136,7 @@ func NewBom(content []byte) (Bom, error) {
 	}, nil
 }
 
-// GetTanzuReleaseVersion gets the Tanzu release version
+// GetReleaseVersion gets the Tanzu release version
 func (b *Bom) GetReleaseVersion() (string, error) {
 	if !b.initialzed {
 		return "", errors.New("the BOM is not initialized")
@@ -153,6 +163,7 @@ func (b *Bom) Components() (map[string][]ComponentInfo, error) {
 	return b.bom.Components, nil
 }
 
+// GetImageRepository gets the image repository
 func (b *Bom) GetImageRepository() (string, error) {
 	if !b.initialzed {
 		return "", errors.New("the BOM is not initialized")
@@ -168,7 +179,7 @@ func (b *Bom) Addons() (Addons, error) {
 	return b.bom.Addons, nil
 }
 
-// Addon gets an addon info from BOM
+// GetAddon gets an addon info from BOM
 func (b *Bom) GetAddon(name string) (Addon, error) {
 	if !b.initialzed {
 		return Addon{}, errors.New("the BOM is not initialized")

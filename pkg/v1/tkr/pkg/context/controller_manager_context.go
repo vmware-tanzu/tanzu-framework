@@ -12,11 +12,13 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
+// TanzuKubernetesReleaseDiscoverOptions contains the discovery options
 type TanzuKubernetesReleaseDiscoverOptions struct {
 	InitialDiscoveryFrequency    time.Duration
 	ContinuousDiscoveryFrequency time.Duration
 }
 
+// ControllerManagerContext contains the controller manager context
 type ControllerManagerContext struct {
 	BOMImagePath         string
 	BOMMetadataImagePath string
@@ -28,6 +30,7 @@ type ControllerManagerContext struct {
 	TKRDiscoveryOption   TanzuKubernetesReleaseDiscoverOptions
 }
 
+// NewTanzuKubernetesReleaseDiscoverOptions instantiates a new set of TanzuKubernetesReleaseDiscoverOptions
 func NewTanzuKubernetesReleaseDiscoverOptions(initFreq, continuousFreq float64) TanzuKubernetesReleaseDiscoverOptions {
 	return TanzuKubernetesReleaseDiscoverOptions{
 		InitialDiscoveryFrequency:    time.Duration(initFreq) * time.Second,

@@ -4,30 +4,30 @@
 package types
 
 const (
-	// Secrets of type Addon
+	// AddonSecretType is the add on Secret type
 	AddonSecretType = "tkg.tanzu.vmware.com/addon"
 
-	// Addon Name Label on Secret to indicate the name of addon to be installed
+	// AddonNameLabel is the label on the Secret to indicate the name of addon to be installed
 	AddonNameLabel = "tkg.tanzu.vmware.com/addon-name"
 
-	// Cluster Name label on Secret to indicate the cluster on which addon is to be installed
+	// ClusterNameLabel is the label on the Secret to indicate the cluster on which addon is to be installed
 	ClusterNameLabel = "tkg.tanzu.vmware.com/cluster-name"
 
-	// AddonFinalizer
+	// AddonFinalizer is the finalizer for the add on.
 	AddonFinalizer = "tkg.tanzu.vmware.com/addon"
 
-	// AddonType anotation
+	// AddonTypeAnnotation is the add on type annotation
 	AddonTypeAnnotation = "tkg.tanzu.vmware.com/addon-type"
 
-	// RemoteAddonApp annotation
+	// AddonRemoteAppAnnotation is the add on remote app annotation
 	AddonRemoteAppAnnotation = "tkg.tanzu.vmware.com/remote-app"
 
-	// AddonName annotation
+	// AddonNameAnnotation is the add on name annotation
 	AddonNameAnnotation = AddonNameLabel
 
-	// AddonNamespace Annotation
+	// AddonNamespaceAnnotation is the add on's namespace annotation
 	AddonNamespaceAnnotation = "tkg.tanzu.vmware.com/addon-namespace"
 
-	// AddonPaused Annotation
+	// AddonPausedAnnotation is the add on's "paused" annotation
 	AddonPausedAnnotation = "tkg.tanzu.vmware.com/addon-paused"
 )

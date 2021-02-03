@@ -115,7 +115,7 @@ func (r *AddonReconciler) AddonSecretToClusters(o client.Object) []ctrl.Request 
 	}}
 }
 
-// BomConfigMapToClusters returns the clusters using the BOM
+// BOMConfigMapToClusters returns the clusters using the BOM
 func (r *AddonReconciler) BOMConfigMapToClusters(o client.Object) []ctrl.Request {
 	var configmap *corev1.ConfigMap
 
