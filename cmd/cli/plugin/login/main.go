@@ -31,7 +31,7 @@ import (
 var descriptor = cli.PluginDescriptor{
 	Name:        "login",
 	Description: "Login to the platform",
-	Version:     "v0.0.1",
+	Version:     cli.BuildVersion,
 	Group:       cli.SystemCmdGroup,
 }
 
