@@ -1,3 +1,6 @@
+// Copyright 2021 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 // Package buildinfo holds build-time information.
 // This is a separate package so that other packages can import it without
 // worrying about introducing circular dependencies.

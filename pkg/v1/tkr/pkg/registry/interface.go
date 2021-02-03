@@ -1,3 +1,6 @@
+// Copyright 2021 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package registry
 
 //go:generate counterfeiter -o ../../fakes/registy.go --fake-name Registry . Registry
