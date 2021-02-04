@@ -10,6 +10,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/pkg/errors"
 	runv1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
 	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/fakes"
@@ -179,8 +180,9 @@ var _ = Describe("UpdateTKRCompatibleCondition", func() {
 	Context("When reconcile the compatible condition of the TKRs", func() {
 		BeforeEach(func() {
 			fakeRegistry = &fakes.Registry{}
-			fakeRegistry.ListImageTagsReturns([]string{"v0", "v1"}, nil)
-			fakeRegistry.GetFileReturns(metadataContent, nil)
+			fakeRegistry.ListImageTagsReturns([]string{"v0", "v1", "v2"}, nil)
+			fakeRegistry.GetFileReturnsOnCall(0, nil, errors.New("cannot retrieve file from the image"))
+			fakeRegistry.GetFileReturnsOnCall(1, metadataContent, nil)
 
 			tkr1, _ := NewTkrFromBom("v1.17.13---vmware.1", bomContent17)
 			tkr2, _ := NewTkrFromBom("v1.18.10---vmware.1", bomContent18)
@@ -193,6 +195,7 @@ var _ = Describe("UpdateTKRCompatibleCondition", func() {
 		})
 		It("should update the TKRs' compatible condition", func() {
 			Expect(err).ToNot(HaveOccurred())
+			Expect(fakeRegistry.GetFileCallCount()).To(Equal(2))
 			for _, tkr := range tkrs {
 				if tkr.Name == "v1.19.3---vmware.1" {
 					status, msg := getConditionStatusAndMessage(tkr.Status.Conditions, runv1.ConditionCompatible)
