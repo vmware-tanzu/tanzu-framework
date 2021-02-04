@@ -43,7 +43,6 @@ func main() {
 		machineHealthCheckCmd,
 		credentialsCmd,
 		clusterKubeconfigCmd,
-		clusterAdminKubeconfigCmd,
 		getClustersCmd,
 	)
 	if err := p.Execute(); err != nil {

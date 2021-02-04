@@ -18,36 +18,29 @@ import (
 )
 
 type getClusterKubeconfigOptions struct {
-	workloadClusterName string
-	namespace           string
-	exportFile          string
+	namespace       string
+	exportFile      string
+	adminKubeconfig bool
 }
-
-const (
-	// TKGSystemNamespace is the TKG system namespace.
-	TKGSystemNamespace = "tkg-system"
-
-	// DefaultNamespace is the default namespace.
-	DefaultNamespace = "default"
-)
 
 var getKCOptions = &getClusterKubeconfigOptions{}
 
 var getClusterKubeconfigCmd = &cobra.Command{
-	Use:   "get",
-	Short: "Get Kubeconfig of a cluster",
-	Long:  `Get Kubeconfig of a cluster and merge the context into the default kubeconfig file`,
+	Use:   "get CLUSTER_NAME",
+	Short: "Get kubeconfig of a cluster",
+	Long:  `Get kubeconfig of a cluster and merge the context into the default kubeconfig file`,
 	Example: `
-	# Get management cluster kubeconfig
-	tanzu cluster kubeconfig get
-	
 	# Get workload cluster kubeconfig
-	tanzu cluster kubeconfig get -w cluster1`,
+	tanzu cluster kubeconfig get CLUSTER_NAME
+	
+	# Get workload cluster admin kubeconfig
+	tanzu cluster kubeconfig get CLUSTER_NAME --admin`,
+	Args: cobra.ExactArgs(1),
 	RunE: getKubeconfig,
 }
 
 func init() {
-	getClusterKubeconfigCmd.Flags().StringVarP(&getKCOptions.workloadClusterName, "workload-clustername", "w", "", "The name of the workload cluster. Assumes management cluster if not specified.")
+	getClusterKubeconfigCmd.Flags().BoolVarP(&getKCOptions.adminKubeconfig, "admin", "", false, "Get admin kubeconfig of the workload cluster")
 	getClusterKubeconfigCmd.Flags().StringVarP(&getKCOptions.namespace, "namespace", "n", "", "The namespace where the workload cluster was created. Assumes 'default' if not specified.")
 	getClusterKubeconfigCmd.Flags().StringVarP(&getKCOptions.exportFile, "export-file", "", "", "File path to export a standalone kubeconfig for workload cluster")
 
@@ -55,6 +48,8 @@ func init() {
 }
 
 func getKubeconfig(cmd *cobra.Command, args []string) error {
+	workloadClusterName := args[0]
+
 	server, err := client.GetCurrentServer()
 	if err != nil {
 		return err
@@ -63,28 +58,35 @@ func getKubeconfig(cmd *cobra.Command, args []string) error {
 	if server.IsGlobal() {
 		return errors.New("get cluster kubeconfig with a global server is not implemented yet")
 	}
-	return getClusterKubeconfig(server)
+	return getClusterKubeconfig(server, workloadClusterName)
 }
 
-func getClusterKubeconfig(server *v1alpha1.Server) error {
+func getClusterKubeconfig(server *v1alpha1.Server, workloadClusterName string) error {
 	tkgctlClient, err := createTKGClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context)
 	if err != nil {
 		return err
 	}
 
-	isManagementCluster := false
-	if getKCOptions.workloadClusterName == "" {
-		isManagementCluster = true
+	if getKCOptions.adminKubeconfig {
+		return getAdminKubeconfig(tkgctlClient, server, workloadClusterName)
 	}
+	return getPinnipedKubeconfig(tkgctlClient, workloadClusterName)
+}
 
-	if !isManagementCluster && getKCOptions.namespace == "" {
-		getKCOptions.namespace = DefaultNamespace
+func getAdminKubeconfig(tkgctlClient tkgctl.TKGClient, server *v1alpha1.Server, workloadClusterName string) error {
+	getClusterCredentialsOptions := tkgctl.GetWorkloadClusterCredentialsOptions{
+		ClusterName: workloadClusterName,
+		Namespace:   getKCOptions.namespace,
+		ExportFile:  getKCOptions.exportFile,
 	}
+	return tkgctlClient.GetCredentials(getClusterCredentialsOptions)
+}
 
+func getPinnipedKubeconfig(tkgctlClient tkgctl.TKGClient, workloadClusterName string) error {
 	getClusterPinnipedInfoOptions := tkgctl.GetClusterPinnipedInfoOptions{
-		ClusterName:         getKCOptions.workloadClusterName,
+		ClusterName:         workloadClusterName,
 		Namespace:           getKCOptions.namespace,
-		IsManagementCluster: isManagementCluster,
+		IsManagementCluster: false,
 	}
 
 	clusterPinnipedInfo, err := tkgctlClient.GetClusterPinnipedInfo(getClusterPinnipedInfoOptions)
@@ -92,15 +94,14 @@ func getClusterKubeconfig(server *v1alpha1.Server) error {
 		return err
 	}
 
-	// for workload cluster the audience would be set to the clustername and for management cluster the audience would be set to IssuerURL
+	// for workload cluster the audience would be set to the clustername
 	audience := clusterPinnipedInfo.ClusterName
-	if isManagementCluster {
-		audience = clusterPinnipedInfo.PinnipedInfo.Data.Issuer
-	}
+
 	kubeconfig, err := tkgauth.GetPinnipedKubeconfig(clusterPinnipedInfo.ClusterInfo, clusterPinnipedInfo.PinnipedInfo,
 		clusterPinnipedInfo.ClusterName, audience)
+
 	if err != nil {
-		return err
+		return errors.Wrap(err, "unable to get kubeconfig")
 	}
 
 	kubeconfigbytes, err := json.Marshal(kubeconfig)
@@ -117,6 +118,5 @@ func getClusterKubeconfig(server *v1alpha1.Server) error {
 	} else {
 		log.Infof("You can now access the cluster by running 'kubectl config use-context %s'\n", kubeconfig.CurrentContext)
 	}
-
 	return nil
 }
