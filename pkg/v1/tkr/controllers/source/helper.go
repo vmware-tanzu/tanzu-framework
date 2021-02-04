@@ -23,6 +23,8 @@ import (
 const (
 	// VMwareVersionSeparator is the separator to use
 	VMwareVersionSeparator = "+vmware."
+	// InitialDiscoveryRetry is the number of retries for the initial TKR sync-up
+	InitialDiscoveryRetry = 10
 )
 
 // NewTkrFromBom gets a new TKR matching tkrName from the BOM information in bomContent
@@ -199,10 +201,9 @@ func (r *reconciler) GetManagementClusterVersion(ctx context.Context) (string, e
 		labels := cl.GetLabels()
 		if _, ok := labels[constants.ManagememtClusterRoleLabel]; ok {
 			tkgVersion, ok := cl.Annotations[constants.TKGVersionKey]
-			if !ok {
-				tkgVersion = "v1.0.0"
+			if ok {
+				return tkgVersion, nil
 			}
-			return tkgVersion, nil
 		}
 	}
 
