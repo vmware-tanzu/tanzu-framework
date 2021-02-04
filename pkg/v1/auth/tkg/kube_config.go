@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/pkg/errors"
 	tkgclient "github.com/vmware-tanzu-private/tkg-cli/pkg/client"
@@ -37,6 +38,9 @@ const (
 
 	// TanzuKubeconfigFile is the name the of the kubeconfig file
 	TanzuKubeconfigFile = "config"
+
+	// DefaultPinnipedLoginTimeout default login timeout
+	DefaultPinnipedLoginTimeout = time.Minute
 )
 
 // PinnipedConfigMapInfo contains the information from teh Pinniped ConfigMap
@@ -107,6 +111,8 @@ func GetServerKubernetesVersion(kubeconfigPath, context string) (string, error) 
 	if err != nil {
 		return "", errors.Errorf("Unable to set up rest config due to : %v", err)
 	}
+	// set the timeout to give user sufficient time to enter the login credentials
+	restConfig.Timeout = DefaultPinnipedLoginTimeout
 
 	discoveryClient, err = discovery.NewDiscoveryClientForConfig(restConfig)
 	if err != nil {
