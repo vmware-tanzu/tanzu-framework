@@ -2,10 +2,6 @@ name: Release
 
 on:
   push:
-    branches: [ main ]
-
-on:
-  push:
     branches:
       - "!not_activated_on_branches!*"
     tags:
