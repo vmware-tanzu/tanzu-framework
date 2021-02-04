@@ -11,5 +11,5 @@ type ManagementClusterVersion struct {
 
 // CompatibilityMetadata contains tanzu release support matrix
 type CompatibilityMetadata struct {
-	ManagementClusterVersions []ManagementClusterVersion `yaml:"ManagementClusterVersions"`
+	ManagementClusterVersions []ManagementClusterVersion `yaml:"managementClusterVersions"`
 }
