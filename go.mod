@@ -18,7 +18,6 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-logr/logr v0.1.0
 	github.com/gobwas/glob v0.2.3
-	github.com/golang/protobuf v1.4.2
 	github.com/google/go-containerregistry v0.0.0-20190412005658-1d38b9cfdb9d
 	github.com/gosuri/uitable v0.0.4
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
@@ -35,8 +34,8 @@ require (
 	github.com/spf13/cobra v1.1.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.6.1
-	github.com/vmware-tanzu-private/tkg-cli v1.3.0-pre-alpha-1.0.20210126205204-9efbe2f3c850
-	github.com/vmware-tanzu-private/tkg-providers v1.3.0-pre-alpha-1.0.20210126174322-e36795e6704e // indirect
+	github.com/vmware-tanzu-private/tkg-cli v1.3.0-pre-alpha-1.0.20210203230342-a0359d4618fb
+	github.com/vmware-tanzu-private/tkg-providers v1.3.0-pre-alpha-1.0.20210204011655-1432b736b855 // indirect
 	go.opencensus.io v0.22.2 // indirect
 	go.uber.org/multierr v1.1.0
 	golang.org/x/mod v0.3.0
