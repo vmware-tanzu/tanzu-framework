@@ -1,4 +1,4 @@
-ManagementClusterVersions:
+managementClusterVersions:
 - version: v1.0
   supportedKubernetesVersions:
   - v1.17.13+vmware.1

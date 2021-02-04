@@ -149,7 +149,7 @@ func buildPlugin(path string, arch cli.Arch) plugin {
 	log.Break()
 	log.Infof("building plugin at path %q", path)
 
-	b, err := exec.Command("go", "run", "-ldflags", fmt.Sprintf("%s", ldflags), fmt.Sprintf("./%s", path), "info").CombinedOutput()
+	b, err := exec.Command("go", "run", "-ldflags", ldflags, fmt.Sprintf("./%s", path), "info").CombinedOutput()
 
 	if err != nil {
 		log.Errorf("error: %v", err)
