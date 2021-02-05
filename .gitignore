@@ -12,6 +12,9 @@ test/cli/mock/artifacts*
 tanzu
 addons/artifacts
 
+# Build artifacts that may not be cleaned up properly
+pinniped
+
 # Test binary, build with `go test -c`
 *.test
 
