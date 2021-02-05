@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"sync"
 
 	"golang.org/x/mod/semver"
@@ -374,10 +375,19 @@ func (c *Catalog) EnsureDistro(repos *MultiRepo) error {
 	fatalErrors := make(chan error)
 	wgDone := make(chan bool)
 
+	// Limit the number of concurrent operations we perform so we don't
+	// overwhelm the system.
+	maxConcurrent := runtime.NumCPU() / 2
+	if maxConcurrent < 2 {
+		maxConcurrent = 2
+	}
+	guard := make(chan struct{}, maxConcurrent)
+
 	var wg sync.WaitGroup
 	for _, pluginName := range c.distro {
 		log.Debugf("installing plugin %q at version %s", pluginName, VersionLatest)
 		wg.Add(1)
+		guard <- struct{}{}
 		go func(pluginName string) {
 			repo, err := repos.Find(pluginName)
 			if err != nil {
@@ -390,6 +400,7 @@ func (c *Catalog) EnsureDistro(repos *MultiRepo) error {
 				log.Debugf("done installing: %s", pluginName)
 			}
 			wg.Done()
+			<-guard
 		}(pluginName)
 	}
 
