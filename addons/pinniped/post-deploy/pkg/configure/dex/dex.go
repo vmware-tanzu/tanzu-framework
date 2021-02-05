@@ -25,8 +25,8 @@ type Configurator struct {
 	K8SClientset         kubernetes.Interface
 }
 
-// DexInfo contains configuration settings for Dex.
-type DexInfo struct {
+// Info contains configuration settings for Dex.
+type Info struct {
 	DexSvcEndpoint        string
 	SupervisorSvcEndpoint string
 	DexNamespace          string
@@ -35,7 +35,7 @@ type DexInfo struct {
 }
 
 // CreateOrUpdateDexConfigMap creates a new ConfigMap for Dex, or updates an existing one.
-func (c Configurator) CreateOrUpdateDexConfigMap(ctx context.Context, dexInfo DexInfo) error {
+func (c Configurator) CreateOrUpdateDexConfigMap(ctx context.Context, dexInfo Info) error {
 	var err error
 	zap.S().Info("Creating the ConfigMap of Dex")
 

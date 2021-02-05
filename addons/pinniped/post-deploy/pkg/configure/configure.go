@@ -398,7 +398,7 @@ func Dex(ctx context.Context, c Clients, inspector inspect.Inspector, p Paramete
 			return err
 		}
 		dexConfigurator := dex.Configurator{CertmanagerClientset: c.CertmanagerClientset, K8SClientset: c.K8SClientset}
-		if err = dexConfigurator.CreateOrUpdateDexConfigMap(ctx, dex.DexInfo{
+		if err = dexConfigurator.CreateOrUpdateDexConfigMap(ctx, dex.Info{
 			DexSvcEndpoint:        dexSvcEndpoint,
 			SupervisorSvcEndpoint: supervisorSvcEndpoint,
 			DexNamespace:          p.DexNamespace,

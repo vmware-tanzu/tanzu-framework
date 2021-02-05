@@ -43,7 +43,7 @@ jobs:
       run: make test
 
   golangci-lint:
-    name: golangci linting
+    name: Lint
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -59,3 +59,11 @@ jobs:
       with:
         version: v1.29
         args: --timeout=5m
+
+    - name: Install golint
+      run: |
+        go get -u golang.org/x/lint/golint
+
+    - name: Run golint
+      run: |
+        golint -set_exit_status ./...

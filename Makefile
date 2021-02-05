@@ -77,12 +77,9 @@ vet: ## Run go vet
 	$(GO) vet ./...
 
 lint: ## Run linting checks
-# We don't currently enforce golint issues. We may want to add
-# -set_exit_status to actually error on issues if we do want to start
-#  enforcing it.
-	golint ./...
 # Make sure you have golangci-lint installed: https://golangci-lint.run/usage/install/
 	golangci-lint run ./...
+	golint -set_exit_status ./...
 
 generate: controller-gen ## Generate code via controller-gen
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt",year=$(shell date +%Y) paths="./..."
