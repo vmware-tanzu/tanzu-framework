@@ -150,9 +150,11 @@ func (r *AddonReconciler) reconcileDelete(
 	var errors []error
 
 	// When cluster is deleted, we need to delete all the secrets.
-	// Deletion of secret is handled by owner reference. So, we just force remove finalizer from secret here.
 	for _, addonSecret := range addonSecrets.Items {
 		addonName := util.GetAddonNameFromAddonSecret(&addonSecret)
+
+		log := log.WithValues(constants.AddonSecretNamespaceLogKey, addonSecret.Namespace,
+			constants.AddonSecretNameLogKey, addonSecret.Name, constants.AddonNameLogKey, addonName)
 
 		// Create a patch helper for addon secret
 		patchHelper, err := clusterapipatchutil.NewHelper(&addonSecret, r.Client)
@@ -167,7 +169,7 @@ func (r *AddonReconciler) reconcileDelete(
 		// cluster itself is deleted.
 		if util.IsRemoteApp(&addonSecret) {
 			if err := r.reconcileAddonDelete(ctx, log, nil, &addonSecret, true); err != nil {
-				log.Error(err, "Error deleting remote app for addon", constants.AddonNameLogKey, addonName)
+				log.Error(err, "Error deleting remote app for addon")
 				errors = append(errors, err)
 				continue
 			}
@@ -176,7 +178,7 @@ func (r *AddonReconciler) reconcileDelete(
 		// Remove finalizer from addon secret
 		finalizerRemoved, _, err := r.removeFinalizerFromAddonSecret(ctx, log, false, nil, &addonSecret)
 		if err != nil {
-			log.Error(err, "Error removing metadata from addon secret", constants.AddonNameLogKey, addonName)
+			log.Error(err, "Error removing metadata from addon secret")
 			errors = append(errors, err)
 			continue
 		}
@@ -184,12 +186,23 @@ func (r *AddonReconciler) reconcileDelete(
 		// Patch addon secret
 		if finalizerRemoved {
 			// Patch addon secret before returning the function
-			log.Info("Patching addon secret to remove finalizer", constants.AddonNameLogKey, addonName)
+			log.Info("Patching addon secret to remove finalizer")
 			if err := patchHelper.Patch(ctx, addonSecret.DeepCopy()); err != nil {
-				log.Error(err, "Error patching addon secret to remove finalizer", constants.AddonNameLogKey, addonName)
+				log.Error(err, "Error patching addon secret to remove finalizer")
 				errors = append(errors, err)
 				continue
 			}
+		}
+
+		// Delete addon secret
+		if err := r.Client.Delete(ctx, &addonSecret); err != nil {
+			if apierrors.IsNotFound(err) {
+				log.Info("Addon secret not found")
+				continue
+			}
+			log.Error(err, "Error deleting addon secret")
+			errors = append(errors, err)
+			continue
 		}
 	}
 
