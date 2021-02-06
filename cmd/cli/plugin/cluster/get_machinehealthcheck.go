@@ -23,7 +23,7 @@ var getMHC = &getMachineHealthCheckOptions{}
 
 var getMachineHealthCheckCmd = &cobra.Command{
 	Use:   "get CLUSTER_NAME",
-	Short: "Get MachineHealthCheck object",
+	Short: "Get a MachineHealthCheck object of a cluster",
 	Long:  "Get a MachineHealthCheck object for the given cluster",
 	Args:  cobra.ExactArgs(1),
 	RunE:  getMachineHealthCheck,

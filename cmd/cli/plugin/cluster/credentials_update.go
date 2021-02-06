@@ -24,13 +24,13 @@ var updateCredentialsOpts = updateCredentialsOptions{}
 
 var credentialsUpdateCmd = &cobra.Command{
 	Use:   "update CLUSTER_NAME",
-	Short: "Update credentials for cluster",
+	Short: "Update credentials for a cluster",
 	Args:  cobra.ExactArgs(1),
 	RunE:  updateCredentials,
 }
 
 func init() {
-	credentialsUpdateCmd.Flags().StringVarP(&updateCredentialsOpts.namespace, "namespace", "n", "", "The namespace of cluster whose credentials have to be updated")
+	credentialsUpdateCmd.Flags().StringVarP(&updateCredentialsOpts.namespace, "namespace", "n", "", "The namespace of the cluster to be updated")
 	credentialsUpdateCmd.Flags().StringVarP(&updateCredentialsOpts.vSphereUser, "vsphere-user", "", "", "Username for vSphere provider")
 	credentialsUpdateCmd.Flags().StringVarP(&updateCredentialsOpts.vSpherePassword, "vsphere-password", "", "", "Password for vSphere provider")
 

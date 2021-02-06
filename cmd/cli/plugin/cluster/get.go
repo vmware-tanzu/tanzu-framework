@@ -38,7 +38,7 @@ var cd = &getClustersOptions{}
 
 var getClustersCmd = &cobra.Command{
 	Use:   "get CLUSTER_NAME",
-	Short: "Get details from cluster",
+	Short: "Get details from a cluster",
 	Args:  cobra.ExactArgs(1),
 	RunE:  get,
 }
@@ -46,7 +46,7 @@ var getClustersCmd = &cobra.Command{
 func init() {
 	getClustersCmd.Flags().StringVarP(&cd.namespace, "namespace", "n", "", "The namespace from which to get workload clusters. If not provided clusters from all namespaces will be returned")
 
-	getClustersCmd.Flags().StringVar(&cd.showOtherConditions, "show-all-conditions", "", " list of comma separated kind or kind/name for which we should show all the object's conditions (all to show conditions for all the objects)")
+	getClustersCmd.Flags().StringVar(&cd.showOtherConditions, "show-all-conditions", "", "List of comma separated kind or kind/name for which we should show all the object's conditions (all to show conditions for all the objects)")
 	getClustersCmd.Flags().BoolVar(&cd.disableNoEcho, "disable-no-echo", false, "Disable hiding of a MachineInfrastructure and BootstrapConfig when ready condition is true or it has the Status, Severity and Reason of the machine's object")
 	getClustersCmd.Flags().BoolVar(&cd.disableGroupObjects, "disable-grouping", false, "Disable grouping machines when ready condition has the same Status, Severity and Reason")
 }

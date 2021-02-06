@@ -9,5 +9,5 @@ import (
 
 var clusterKubeconfigCmd = &cobra.Command{
 	Use:   "kubeconfig",
-	Short: "Kubeconfig of cluster",
+	Short: "Cluster kubeconfig operations",
 }
