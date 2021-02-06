@@ -86,5 +86,6 @@ func GetSecretFromCert(ctx context.Context, client kubernetes.Interface, cert *c
 		zap.S().Errorf("unable to get the Secret %s/%s referenced by Certificate %s/%s. Error: %v", secretNamespace, secretName, cert.Namespace, cert.Namespace, err)
 		return nil, err
 	}
+	zap.S().Infof("Got the Secret %s/%s referenced by Certificate %s/%s.", secretNamespace, secretName, cert.Namespace, cert.Namespace)
 	return secret, nil
 }

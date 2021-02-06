@@ -91,18 +91,20 @@ connectors:
       emailAttr: #@ values.dex.config.ldap.userSearch.emailAttr
       #@ if/end values.dex.config.ldap.userSearch.nameAttr:
       nameAttr: #@ values.dex.config.ldap.userSearch.nameAttr
+      #@ if/end values.dex.config.ldap.userSearch.scope:
+      scope: #@ values.dex.config.ldap.userSearch.scope
     #@ if/end values.dex.config.ldap.groupSearch:
     groupSearch:
       #@ if/end values.dex.config.ldap.groupSearch.baseDN:
       baseDN: #@ values.dex.config.ldap.groupSearch.baseDN
       #@ if/end values.dex.config.ldap.groupSearch.filter:
       filter: #@ values.dex.config.ldap.groupSearch.filter  
-      #@ if/end values.dex.config.ldap.groupSearch.userAttr:
-      userAttr: #@ values.dex.config.ldap.groupSearch.userAttr
-      #@ if/end values.dex.config.ldap.groupSearch.groupAttr:
-      groupAttr: #@ values.dex.config.ldap.groupSearch.groupAttr
+      #@ if/end values.dex.config.ldap.groupSearch.userMatchers:
+      userMatchers: #@ values.dex.config.ldap.groupSearch.userMatchers
       #@ if/end values.dex.config.ldap.groupSearch.nameAttr:
       nameAttr: #@ values.dex.config.ldap.groupSearch.nameAttr
+      #@ if/end values.dex.config.ldap.groupSearch.scope:
+      scope: #@ values.dex.config.ldap.groupSearch.scope
     #@ if/end values.dex.config.ldap.insecureNoSSL:
     insecureNoSSL: #@ values.dex.config.ldap.insecureNoSSL
     #@ if/end values.dex.config.ldap.startTLS:

@@ -84,6 +84,11 @@ func main() {
 	// required for workload cluster: no
 	flag.StringVar(&vars.DexConfigMapName, "dex-configmap-name", vars.DexConfigMapName, "The name of Dex config map")
 
+	// TODO: update the "custom-tls-secret" param name post Calgary, to make it more self explanatory
+	// required for management cluster: no
+	// required for workload cluster: no
+	flag.StringVar(&vars.CustomTLSSecretName, "custom-tls-secret", vars.CustomTLSSecretName, "The name of custom TLS secret for Pinniped and Dex, i.e. Pinniped federation domain and Dex exposed connection, this will override the default self-signed TLS certificate")
+
 	flag.Parse()
 
 	loggerMgr := initZapLog()

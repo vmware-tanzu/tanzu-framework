@@ -13,7 +13,11 @@
 #@ end
 
 #@ def pinniped_tls_secret_name():
-#@   return "pinniped-supervisor-default-tls-certificate"
+#@   if data.values.custom_tls_secret != "":
+#@      return data.values.custom_tls_secret
+#@   else:
+#@      return "pinniped-supervisor-default-tls-certificate"
+#@   end
 #@ end
 
 #@ def pinniped_concierge_namespace():
@@ -38,4 +42,12 @@
 
 #@ def federation_domain_name():
 #@   return "pinniped-federation-domain"
+#@ end
+
+#@ def dex_tls_secret_name():
+#@   if data.values.custom_tls_secret != "":
+#@      return data.values.custom_tls_secret
+#@   else:
+#@      return data.values.dex.app + "-cert-tls"
+#@   end
 #@ end

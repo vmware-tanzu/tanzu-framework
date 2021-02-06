@@ -8,11 +8,11 @@ pinniped:
   supervisor_ca_bundle_data: "LS0tLS1CRxxxxxxxxT0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=" #! requried for workload cluster. Should be a valid base64 encoded string
   image: #! required
     name: pinniped
-    tag: v0.4.0_vmware.1
+    tag: v0.4.1_vmware.1
     repository: projects-stg.registry.vmware.com/tkg
     pull_policy: IfNotPresent
   post_deploy_job_image: #! required
     name: tkg-pinniped-post-deploy
-    tag: v0.4.0_vmware.1
+    tag: v0.4.1_vmware.1
     repository: projects-stg.registry.vmware.com/tkg
     pull_policy: IfNotPresent

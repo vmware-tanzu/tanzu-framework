@@ -1,6 +1,7 @@
 #@ load("/values.star", "values")
 #@ load("@ytt:overlay", "overlay")
 #@ load("/globals.star", "get_image_location", "globals")
+#@ load("/libs/constants.lib.yaml", "dex_tls_secret_name")
 
 #@ if values.tkg_cluster_role != "workload":
 
@@ -40,6 +41,6 @@ spec:
       #@overlay/match by=overlay.subset({"name": "tls"})
       - name: tls
         secret:
-          secretName: #@ values.dex.app + "-cert-tls"
+          secretName: #@ dex_tls_secret_name()
 
 #@ end

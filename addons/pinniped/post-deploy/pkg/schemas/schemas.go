@@ -28,8 +28,10 @@ type web struct {
 }
 
 type expiry struct {
-	SigningKeys string `yaml:"signingKeys,omitempty"`
-	IDTokens    string `yaml:"idTokens,omitempty"`
+	SigningKeys    string `yaml:"signingKeys,omitempty"`
+	IDTokens       string `yaml:"idTokens,omitempty"`
+	AuthRequests   string `yaml:"authRequests,omitempty"`
+	DeviceRequests string `yaml:"deviceRequests,omitempty"`
 }
 
 type logger struct {
@@ -79,13 +81,17 @@ type connector struct {
 			IDAttr    string `yaml:"idAttr,omitempty"`
 			EmailAttr string `yaml:"emailAttr,omitempty"`
 			NameAttr  string `yaml:"nameAttr,omitempty"`
+			Scope     string `yaml:"scope,omitempty"`
 		} `yaml:"userSearch,omitempty"`
 		GroupSearch struct {
-			BaseDN    string `yaml:"baseDN,omitempty"`
-			Filter    string `yaml:"filter,omitempty"`
-			UserAttr  string `yaml:"userAttr,omitempty"`
-			GroupAttr string `yaml:"groupAttr,omitempty"`
-			NameAttr  string `yaml:"nameAttr,omitempty"`
+			BaseDN       string `yaml:"baseDN,omitempty"`
+			Filter       string `yaml:"filter,omitempty"`
+			NameAttr     string `yaml:"nameAttr,omitempty"`
+			Scope        string `yaml:"scope,omitempty"`
+			UserMatchers []struct {
+				UserAttr  string `yaml:"userAttr,omitempty"`
+				GroupAttr string `yaml:"groupAttr,omitempty"`
+			} `yaml:"userMatchers,omitempty"`
 		} `yaml:"groupSearch,omitempty"`
 	} `yaml:"config"`
 }

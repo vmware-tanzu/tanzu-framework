@@ -1,7 +1,7 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:overlay", "overlay")
 #@ load("/libs/constants.lib.yaml", "pinniped_supervisor_namespace", "pinniped_concierge_namespace", "jwt_authenticator_name", "federation_domain_name", "pinniped_supervisor_svc_name", "pinniped_cert_name", "post_deploy_job_name")
-#@ load("/globals.star", "get_image_location", "globals")
+#@ load("/globals.star", "get_image_location", "globals", "get_kapp_annotations")
 #@ load("/kinds.lib.yaml", "kind_overlays")
 
 #@ kind = kind_overlays
@@ -21,11 +21,18 @@
 #@  "--dex-namespace={}".format(data.values.dex.namespace),
 #@  "--dex-svc-name={}".format(data.values.dex.service.name),
 #@  "--dex-cert-name={}-cert".format(data.values.dex.app),
-#@  "--dex-configmap-name={}".format(data.values.dex.app)]
+#@  "--dex-configmap-name={}".format(data.values.dex.app),
+#@  "--custom-tls-secret={}".format(data.values.custom_tls_secret)]
 
 
 #@overlay/match by=overlay.and_op(kind.job, job_metadata)
 ---
+metadata:
+  #@overlay/match missing_ok=True
+  annotations:
+    kapp.k14s.io/versioned: ""
+    customTLSSecret: #@ data.values.custom_tls_secret
+    customClusterIssuer: #@ data.values.custom_cluster_issuer
 spec:
   template:
     spec:
@@ -46,6 +53,12 @@ spec:
 
 #@overlay/match by=overlay.and_op(kind.job, job_metadata)
 ---
+metadata:
+  #@overlay/match missing_ok=True
+  annotations:
+    kapp.k14s.io/versioned: ""
+    customTLSSecret: #@ data.values.custom_tls_secret
+    customClusterIssuer: #@ data.values.custom_cluster_issuer
 spec:
   template:
     spec:

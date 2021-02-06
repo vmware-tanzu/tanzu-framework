@@ -46,10 +46,20 @@
 #@ dex_dns_list = dex_dns()
 #@ dex_ipaddress = dex_ips()
 #@ dex_isCA = False
+#! Only ClusterIssuer is supported for custom configuration
+#@  if values.custom_cluster_issuer != "":
+#@      dex_issuer_type = "ClusterIssuer"
+#@      dex_ca_issuer_name = values.custom_cluster_issuer
+#@  else:
+#@      dex_issuer_type = "Issuer"
+#@      dex_ca_issuer_name = dex_self_signed_ca_issuer
+#@  end
 
+#@ if values.custom_tls_secret == "":
 --- #@ generate_self_signed_issuer(dex_self_signed_ca_issuer, dex_namespace)
---- #@ generate_ca_certificate(dex_ca, dex_namespace, dex_ca_duration, dex_ca_renew_before, dex_ca_key_pair, [dex_organization], dex_ca_common_name, [dex_ca_dns_name], dex_self_signed_ca_issuer)
+--- #@ generate_ca_certificate(dex_ca, dex_namespace, dex_ca_duration, dex_ca_renew_before, dex_ca_key_pair, [dex_organization], dex_ca_common_name, [dex_ca_dns_name], dex_ca_issuer_name, dex_issuer_type)
 --- #@ generate_ca_issuer(dex_ca_issuer, dex_namespace, dex_ca_key_pair)
---- #@ certificate_generate_args(get_certificate_with_params, dex_cert, dex_namespace, dex_cert_duration, dex_cert_renew_before, dex_secret_name, [dex_organization], dex_ca_common_name, dex_dns_list, dex_ca_issuer, (dex_isCA, dex_ipaddress))
+--- #@ certificate_generate_args(get_certificate_with_params, dex_cert, dex_namespace, dex_cert_duration, dex_cert_renew_before, dex_secret_name, [dex_organization], dex_ca_common_name, dex_dns_list, dex_ca_issuer, "Issuer", (dex_isCA, dex_ipaddress))
+#@ end
 
 #@ end

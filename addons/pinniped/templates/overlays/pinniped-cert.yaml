@@ -33,10 +33,20 @@
 #@ pinniped_cert_duration = data.values.pinniped.cert_duration
 #@ pinniped_cert_renew_before = data.values.pinniped.cert_renew_before
 #@ pinniped_isCA = False
+#! Only ClusterIssuer is supported for custom configuration
+#@  if data.values.custom_cluster_issuer != "":
+#@      pinniped_issuer_type = "ClusterIssuer"
+#@      pinniped_ca_issuer_name = data.values.custom_cluster_issuer
+#@  else:
+#@      pinniped_issuer_type = "Issuer"
+#@      pinniped_ca_issuer_name = pinniped_self_signed_ca_issuer
+#@  end
 
+#@ if data.values.custom_tls_secret == "":
 --- #@ generate_self_signed_issuer(pinniped_self_signed_ca_issuer, pinniped_supervisor_namespace())
---- #@ generate_ca_certificate(pinniped_ca, pinniped_supervisor_namespace(), pinniped_ca_duration, pinniped_ca_renew_before, pinniped_ca_key_pair, [pinniped_organization], pinniped_ca_common_name, [pinniped_ca_dns_name], pinniped_self_signed_ca_issuer)
+--- #@ generate_ca_certificate(pinniped_ca, pinniped_supervisor_namespace(), pinniped_ca_duration, pinniped_ca_renew_before, pinniped_ca_key_pair, [pinniped_organization], pinniped_ca_common_name, [pinniped_ca_dns_name], pinniped_ca_issuer_name, pinniped_issuer_type)
 --- #@ generate_ca_issuer(pinniped_ca_issuer, pinniped_supervisor_namespace(), pinniped_ca_key_pair)
---- #@ certificate_generate_args(get_certificate_with_params, pinniped_cert_name(), pinniped_supervisor_namespace(), pinniped_cert_duration, pinniped_cert_renew_before, pinniped_secret_name, [pinniped_organization], pinniped_ca_common_name, pinniped_dns_list(), pinniped_ca_issuer, (pinniped_isCA, pinniped_ip_address_list()))
+--- #@ certificate_generate_args(get_certificate_with_params, pinniped_cert_name(), pinniped_supervisor_namespace(), pinniped_cert_duration, pinniped_cert_renew_before, pinniped_secret_name, [pinniped_organization], pinniped_ca_common_name, pinniped_dns_list(), pinniped_ca_issuer, "Issuer", (pinniped_isCA, pinniped_ip_address_list()))
+#@ end
 
 #@ end

@@ -8,11 +8,9 @@ import (
 	"encoding/base64"
 	"time"
 
-	certmanagerv1beta1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1beta1"
 	certmanagerclientset "github.com/jetstack/cert-manager/pkg/client/clientset/versioned"
 	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/constants"
 	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/inspect"
-	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/utils"
 	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/vars"
 
 	corev1 "k8s.io/api/core/v1"
@@ -88,23 +86,12 @@ func (c Configurator) CreateOrUpdateFederationDomain(ctx context.Context, namesp
 // RecreateIDPForDex recreates the IDP for Dex. The reason of recreation is because updating IDP could not trigger the reconciliation
 // from Pinniped controller to update the IDP status, the upstream discovery would be stuck in failed status.
 // UI will show "Unprocessable Entity: No upstream providers are configured"
-func (c Configurator) RecreateIDPForDex(ctx context.Context, dexNamespace, dexSvcName, dexCertName string) (*idpv1alpha1.OIDCIdentityProvider, error) {
+func (c Configurator) RecreateIDPForDex(ctx context.Context, dexNamespace string, dexSvcName string, dexTLSSecret *corev1.Secret) (*idpv1alpha1.OIDCIdentityProvider, error) {
 	zap.S().Infof("Recreating OIDCIdentityProvider %s/%s to point to Dex %s/%s...", vars.SupervisorNamespace, vars.PinnipedOIDCProviderName, dexNamespace, dexSvcName)
 	inspector := inspect.Inspector{Context: ctx, K8sClientset: c.K8SClientset}
 	var err error
 	var dexSvcEndpoint string
 	if dexSvcEndpoint, err = inspector.GetServiceEndpoint(dexNamespace, dexSvcName); err != nil {
-		zap.S().Error(err)
-		return nil, err
-	}
-
-	var dexCert *certmanagerv1beta1.Certificate
-	if dexCert, err = c.CertmanagerClientset.CertmanagerV1beta1().Certificates(dexNamespace).Get(ctx, dexCertName, metav1.GetOptions{}); err != nil {
-		zap.S().Error(err)
-		return nil, err
-	}
-	var dexTLSSecret *corev1.Secret
-	if dexTLSSecret, err = utils.GetSecretFromCert(ctx, c.K8SClientset, dexCert); err != nil {
 		zap.S().Error(err)
 		return nil, err
 	}

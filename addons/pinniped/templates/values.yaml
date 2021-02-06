@@ -3,6 +3,8 @@
 ---
 infrastructure_provider: null
 tkg_cluster_role: null
+custom_cluster_issuer: "" #! provide if user wants to use a custom ClusterIssuer for both Pinniped and Dex certificates
+custom_tls_secret: "" #! provide if user wants to use a custom TLS secret for both Pinniped and Dex, will override the ClusterIssuer above if specified, user should create secret with the smae name in both "tanzu-system-auth" and "pinniped-supervisor" namespaces.
 pinniped:
   cert_duration: 2160h
   cert_renew_before: 360h
@@ -40,11 +42,13 @@ dex:
       https: 0.0.0.0:5556
       tlsCert: /etc/dex/tls/tls.crt
       tlsKey: /etc/dex/tls/tls.key
-    expiry:
-      signingKeys: 10m
+    expiry:  # these will need to be adjusted with future updated to Pinniped
+      signingKeys: 90m
       idTokens: 5m
+      authRequests: 90m
+      deviceRequests: 5m
     logger:
-      level: debug
+      level: info
       format: json
     #! staticClients is skipped in values.yaml but required to be provided in values overlay
     connector: null  #! dex config should be either oidc or ldap
@@ -58,8 +62,8 @@ dex:
       basicAuthUnsupported: null
       #! hostedDomains is skipped in values.yaml but required to be provided in values overlay
       #! scopes is skipped in values.yaml but required to be provided in values overlay
-      insecureEnableGroups: null
-      insecureSkipEmailVerified: true
+      insecureEnableGroups: true
+      insecureSkipEmailVerified: false
       getUserInfo: null
       userIDKey: null
       userNameKey: null
@@ -68,7 +72,7 @@ dex:
         email_verified: email_verified
     ldap:
       host: null #! <LDAP_HOST> is required if ldap enabed
-      insecureNoSSL: null
+      insecureNoSSL: false
       startTLS: null
       rootCA: null #! <rootCA> or <rootCAData> if required when LDAP host is using self signed certificate. Path to the CA file
       rootCAData: null #! <rootCA> or <rootCAData> if required when LDAP host is using self signed certificate. Actual CA bundle
@@ -83,12 +87,13 @@ dex:
         idAttr: uid
         emailAttr: mail
         nameAttr: givenName
+        scope: sub
       groupSearch:
         baseDN: null  #! required if ldap groupSearch enabled
         filter: "(objectClass=posixGroup)"
-        userAttr: uid
-        groupAttr: memberUid
         nameAttr: cn
+        scope: sub
+        #! userMatchers section is skipped in values.yaml but required to be provided in values overlay
     oauth2:
       skipApprovalScreen: true
     storage:
@@ -107,7 +112,7 @@ dex:
     renewBefore: 360h
   image:
     name: dex
-    tag: v2.22.0_vmware.2
+    tag: v2.27.0_vmware.1
     repository: registry.tkg.vmware.run
     pullPolicy: IfNotPresent
   #! dns section is skipped in values.yaml but required to be provided in values overlay

@@ -65,7 +65,7 @@ data:
       type: copy
       sources: [existing, new]
       resourceMatchers:
-      - kindNamespaceNameMatcher: {kind: Certificate, namespace: (@= values.dex.namespace @), name: (@= values.dex.app @)-cert-tls}
+      - kindNamespaceNameMatcher: {kind: Certificate, namespace: (@= values.dex.namespace @), name: (@= values.dex.app @)-cert}
     - path: [data]
       type: copy
       sources: [existing, new]

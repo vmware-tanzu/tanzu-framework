@@ -86,6 +86,24 @@ or kapp-controller to test out TKG Pinniped addon.
 - Run `./pinniped-cli get kubeconfig` to get the updated kubeconfig which could be distributed to authorized users. The 
   users with that kubeconfig will be redirected to configured authentication page.
   
+## Custom TLS Certificates
+Pinniped and Dex use self signed TLS certificates by default. Self-signed issuers are created with cert-manager to generate the TLS certificates for Pinniped and Dex. Users can override the default setting with the following two options.
+
+### Custom ClusterIssuer
+If the user has an existing ClusterIssuer that can be used to sign certificates, the self-signed Issuer can by overriden by specifying `custom_cluster_issuer` in values.yaml. User can put the name of the ClusterIssuer in this field, as a result, the certificates will be signed by this ClusterIssuer instead.
+
+### Custom TLS Secret
+Users can also specify their own TLS secrets directly. This can only be configured as day 2 operation after Pinniped and Dex are running successfully. 
+
+Users will need to create 2 separate `kubernetes.io/tls` secrets. Both secrets should have the same name. The first one should be signed against the IP or DNS of Pinniped service and put in `pinniped-supervisor` namespace. The second one should be signed against IP or DNS of Dex service and put in `tanzu-system-auth` namespace.
+
+After the secrets are ready, add the secret name to `custom_tls_secret` in values.yaml and redeploy.
+
+## Working with Addon manager
+If the cluster is running with addon manager enabled. There will be a secret corresponding to Pinniped located in `tkg-system` namespace. The secret name will be `<clustername>-pinniped-addon`.
+
+The opeartion of updating values.yaml will become updating this secret. To do so, update `data.values.yaml` field in this secret. This field is a base64 string. If you decode it, it will be the same format as values.yaml. Change it as you want, base64 encode it and put it back. After you re-apply the secret, the Pinniped will be reconciled again with the new configurations.
+
 ## Images
 
 ### Post deploy job images

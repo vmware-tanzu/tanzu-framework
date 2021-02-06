@@ -57,6 +57,8 @@ def get_kapp_annotations(kind):
         return get_kapp_namespace_annotations(deployer.kapp)
       elif kind == "Secret":
         return get_kapp_versioned_annotations(deployer.kapp)
+      elif kind == "Job":
+        return get_kapp_versioned_annotations(deployer.kapp)
       end
     end
   end

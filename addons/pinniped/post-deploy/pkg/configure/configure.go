@@ -8,6 +8,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/url"
+	"strings"
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
@@ -264,19 +265,28 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p Par
 			return err
 		}
 
-		// create Pinniped supervisor certificate
-		var updatedCert *certmanagerv1beta1.Certificate
-		if updatedCert, err = updateCertSubjectAltNames(ctx, c, p.SupervisorCertNamespace, p.SupervisorCertName, supervisorSvcEndpoint); err != nil {
-			// log has been done inside of UpdateCert()
-			return err
+		var secret *corev1.Secret
+		// If users specifies a custom TLS secret, use it directly
+		if vars.CustomTLSSecretName != "" {
+			zap.S().Infof("Override certificate with user provided secret %s", vars.CustomTLSSecretName)
+			if secret, err = c.K8SClientset.CoreV1().Secrets(p.SupervisorCertNamespace).Get(ctx, vars.CustomTLSSecretName, metav1.GetOptions{}); err != nil {
+				zap.S().Error(err)
+				return err
+			}
+		} else {
+			// Update Pinniped supervisor certificate
+			var updatedCert *certmanagerv1beta1.Certificate
+			if updatedCert, err = updateCertSubjectAltNames(ctx, c, p.SupervisorCertNamespace, p.SupervisorCertName, supervisorSvcEndpoint); err != nil {
+				// log has been done inside of UpdateCert()
+				return err
+			}
+			if secret, err = utils.GetSecretFromCert(ctx, c.K8SClientset, updatedCert); err != nil {
+				zap.S().Error(err)
+				return err
+			}
 		}
 
 		// create Pinniped concierge JWTAuthenticator
-		var secret *corev1.Secret
-		if secret, err = utils.GetSecretFromCert(ctx, c.K8SClientset, updatedCert); err != nil {
-			zap.S().Error(err)
-			return err
-		}
 		caData := base64.StdEncoding.EncodeToString(secret.Data["ca.crt"])
 		if err = conciergeConfigurator.CreateOrUpdateJWTAuthenticator(ctx, vars.ConciergeNamespace,
 			p.JWTAuthenticatorName, supervisorSvcEndpoint, supervisorSvcEndpoint, caData); err != nil {
@@ -298,6 +308,27 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p Par
 		if err = conciergeConfigurator.CreateOrUpdateJWTAuthenticator(ctx, vars.ConciergeNamespace, p.JWTAuthenticatorName, p.SupervisorSvcEndpoint, p.ClusterName, p.SupervisorCABundleData); err != nil {
 			zap.S().Error(err)
 			return err
+		}
+	}
+
+	zap.S().Infof("Restarting Pinniped supervisor pods to reload the configmap that contains custom TLS secret names...")
+	// restart the Pinniped pod to refresh the config
+	// Discussed in: https://vmware.slack.com/archives/G01HFK90QE8/p1611970411157300
+	// After the user specifies a custom Pinniped secret name, we need to update the default Pinniped TLS secret name stored in a config map.
+	// This info can't be refreshed unless the Pinniped supervisor pods are restarted.
+	var podList *corev1.PodList
+	podList, err = c.K8SClientset.CoreV1().Pods(p.SupervisorSvcNamespace).List(ctx, metav1.ListOptions{})
+	if err != nil {
+		zap.S().Error(err)
+		return err
+	}
+	for _, pod := range podList.Items {
+		if strings.Contains(pod.Name, "pinniped-supervisor") {
+			zap.S().Infof("Restarting Pinniped supervisor pod %s", pod.Name)
+			if err = c.K8SClientset.CoreV1().Pods(p.SupervisorSvcNamespace).Delete(ctx, pod.Name, metav1.DeleteOptions{}); err != nil {
+				zap.S().Error(err)
+				return err
+			}
 		}
 	}
 
@@ -330,15 +361,31 @@ func Dex(ctx context.Context, c Clients, inspector inspect.Inspector, p Paramete
 			return err
 		}
 
-		// update certificate
-		if _, err = updateCertSubjectAltNames(ctx, c, p.DexNamespace, p.DexCertName, dexSvcEndpoint); err != nil {
-			// log has been done inside of UpdateCert()
-			return err
+		var secret *corev1.Secret
+		// If users specifies a custom TLS secret, use it directly
+		if vars.CustomTLSSecretName != "" {
+			zap.S().Infof("Override certificate with user provided secret %s", vars.CustomTLSSecretName)
+			if secret, err = c.K8SClientset.CoreV1().Secrets(p.DexNamespace).Get(ctx, vars.CustomTLSSecretName, metav1.GetOptions{}); err != nil {
+				zap.S().Error(err)
+				return err
+			}
+		} else {
+			// update certificate
+			var updatedCert *certmanagerv1beta1.Certificate
+			if updatedCert, err = updateCertSubjectAltNames(ctx, c, p.DexNamespace, p.DexCertName, dexSvcEndpoint); err != nil {
+				// log has been done inside of UpdateCert()
+				return err
+			}
+
+			if secret, err = utils.GetSecretFromCert(ctx, c.K8SClientset, updatedCert); err != nil {
+				zap.S().Error(err)
+				return err
+			}
 		}
 
 		// recreate the OIDCIdentityProvider
 		supervisorConfigurator := supervisor.Configurator{Clientset: c.SupervisorClientset, K8SClientset: c.K8SClientset, CertmanagerClientset: c.CertmanagerClientset}
-		if _, err = supervisorConfigurator.RecreateIDPForDex(ctx, p.DexNamespace, p.DexSvcName, p.DexCertName); err != nil {
+		if _, err = supervisorConfigurator.RecreateIDPForDex(ctx, p.DexNamespace, p.DexSvcName, secret); err != nil {
 			zap.S().Error(err)
 			return err
 		}
