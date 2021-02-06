@@ -30,11 +30,11 @@ var getClusterKubeconfigCmd = &cobra.Command{
 	Short: "Get kubeconfig of a cluster",
 	Long:  `Get kubeconfig of a cluster and merge the context into the default kubeconfig file`,
 	Example: `
-	# Get workload cluster kubeconfig
-	tanzu cluster kubeconfig get CLUSTER_NAME
-	
-	# Get workload cluster admin kubeconfig
-	tanzu cluster kubeconfig get CLUSTER_NAME --admin`,
+    # Get workload cluster kubeconfig
+    tanzu cluster kubeconfig get CLUSTER_NAME
+
+    # Get workload cluster admin kubeconfig
+    tanzu cluster kubeconfig get CLUSTER_NAME --admin`,
 	Args: cobra.ExactArgs(1),
 	RunE: getKubeconfig,
 }

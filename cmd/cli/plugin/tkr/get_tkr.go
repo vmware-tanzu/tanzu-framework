@@ -15,8 +15,8 @@ import (
 
 var getTanzuKubernetesRleasesCmd = &cobra.Command{
 	Use:   "get TKR_NAME",
-	Short: "Get available TanzuKubernetesReleases",
-	Long:  "Get available TanzuKubernetesReleases",
+	Short: "Get available Tanzu Kubernetes Releases",
+	Long:  "Get available Tanzu Kubernetes Releases",
 	RunE:  getKubernetesReleases,
 }
 

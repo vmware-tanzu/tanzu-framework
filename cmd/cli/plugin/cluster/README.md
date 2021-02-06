@@ -124,13 +124,13 @@ Flags:
 
 ```
 >>> tanzu cluster credentials        
-Update Credentials for Cluster
+Update credentials for a cluster
 
 Usage:
   tanzu cluster credentials [command]
 
 Available Commands:
-  update      Update credentials for cluster
+  update      Update credentials for a cluster
 
 Flags:
   -h, --help   help for credentials
@@ -140,7 +140,7 @@ Use "cluster credentials [command] --help" for more information about a command.
 
 ```
 >>> tanzu cluster credentials update --help
-Update credentials for cluster
+Update credentials for a cluster
 
 Usage:
   tanzu cluster credentials update CLUSTER_NAME [flags]

@@ -17,8 +17,8 @@ import (
 
 var availbleUpgradesCmd = &cobra.Command{
 	Use:   "available-upgrades",
-	Short: "Get upgrading information for a Tanzu Kubernetes Release",
-	Long:  `Get upgrading information for a Tanzu Kubernetes Release`,
+	Short: "Get upgrade information for a Tanzu Kubernetes Release",
+	Long:  `Get upgrade information for a Tanzu Kubernetes Release`,
 }
 
 var getAvailableUpgradesCmd = &cobra.Command{

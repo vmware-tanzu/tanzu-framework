@@ -48,13 +48,13 @@ var createClusterCmd = &cobra.Command{
 }
 
 func init() {
-	createClusterCmd.Flags().StringVarP(&cc.clusterConfigFile, "file", "f", "", "Cluster configuration file from which to create a Cluster")
+	createClusterCmd.Flags().StringVarP(&cc.clusterConfigFile, "file", "f", "", "Configuration file from which to create a cluster")
 	createClusterCmd.Flags().StringVarP(&cc.tkrName, "tkr", "", "", "TanzuKubernetesRelease(TKR) to be used for creating the workload cluster")
 
 	createClusterCmd.Flags().StringVarP(&cc.plan, "plan", "p", "", "The plan to be used for creating the workload cluster")
 	createClusterCmd.Flags().IntVarP(&cc.controlPlaneMachineCount, "controlplane-machine-count", "c", 0, "The number of control plane machines to be added to the workload cluster (default 1 or 3 depending on dev or prod plan)")
 	createClusterCmd.Flags().IntVarP(&cc.workerMachineCount, "worker-machine-count", "w", 0, "The number of worker machines to be added to the workload cluster (default 1 or 3 depending on dev or prod plan)")
-	createClusterCmd.Flags().BoolVarP(&cc.generateOnly, "dry-run", "d", false, "Does not create cluster but show the deployment YAML instead")
+	createClusterCmd.Flags().BoolVarP(&cc.generateOnly, "dry-run", "d", false, "Does not create cluster, but show the deployment YAML instead")
 	createClusterCmd.Flags().StringVarP(&cc.namespace, "namespace", "n", "", "The namespace where the cluster should be deployed. Assumes 'default' if not specified")
 	createClusterCmd.Flags().StringVarP(&cc.vsphereControlPlaneEndpoint, "vsphere-controlplane-endpoint", "", "", "Virtual IP address or FQDN for the cluster's control plane nodes")
 	createClusterCmd.Flags().DurationVarP(&cc.timeout, "timeout", "t", constants.DefaultLongRunningOperationTimeout, "Time duration to wait for an operation before timeout. Timeout duration in hours(h)/minutes(m)/seconds(s) units or as some combination of them (e.g. 2h, 30m, 2h30m10s)")
@@ -118,11 +118,11 @@ func createCluster(clusterName string, server *v1alpha1.Server) error {
 	}
 
 	ccOptions := tkgctl.CreateClusterOptions{
-		ClusterConfigFile:           cc.clusterConfigFile,
-		KubernetesVersion:           k8sVersion,
-		ClusterName:                 clusterName,
-		Namespace:                   cc.namespace,
-		Plan:                        cc.plan,
+		ClusterConfigFile: cc.clusterConfigFile,
+		KubernetesVersion: k8sVersion,
+		ClusterName:       clusterName,
+		Namespace:         cc.namespace,
+		Plan:              cc.plan,
 		InfrastructureProvider:      cc.infrastructureProvider,
 		ControlPlaneMachineCount:    cc.controlPlaneMachineCount,
 		WorkerMachineCount:          cc.workerMachineCount,

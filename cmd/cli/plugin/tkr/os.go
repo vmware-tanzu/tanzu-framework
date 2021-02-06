@@ -15,8 +15,8 @@ import (
 
 var osCmd = &cobra.Command{
 	Use:   "os",
-	Short: "Get the OS information from a Tanzu Kubernetes Release",
-	Long:  `Get the OS information from a Tanzu Kubernetes Release`,
+	Short: "Get the OS information for a Tanzu Kubernetes Release",
+	Long:  `Get the OS information for a Tanzu Kubernetes Release`,
 }
 
 type getOSOptions struct {
@@ -27,8 +27,8 @@ var goo = &getOSOptions{}
 
 var getOSCmd = &cobra.Command{
 	Use:   "get TKR_NAME",
-	Short: "Get the OSs that are available in a specific Tanzu Kubernetes Release",
-	Long:  `Get the OSs that are availanle in a specific Tanzu Kubernetes Release`,
+	Short: "Get the OSes that are available for a Tanzu Kubernetes Release",
+	Long:  `Get the OSes that are available for a Tanzu Kubernetes Release`,
 	Args:  cobra.ExactArgs(1),
 	RunE:  getOS,
 }
