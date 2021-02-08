@@ -18,6 +18,11 @@ endif
 TOOLS_DIR := hack/tools
 TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
 
+# Add tooling binaries here and in hack/tools/Makefile
+GOLANGCI_LINT := $(TOOLS_BIN_DIR)/golangci-lint
+GOLINT := $(TOOLS_BIN_DIR)/golint
+TOOLING_BINARIES := $(GOLANGCI_LINT) $(GOLINT)
+
 GOOS ?= $(shell go env GOOS)
 GOARCH ?= $(shell go env GOARCH)
 
@@ -76,10 +81,9 @@ fmt: ## Run go fmt
 vet: ## Run go vet
 	$(GO) vet ./...
 
-lint: ## Run linting checks
-# Make sure you have golangci-lint installed: https://golangci-lint.run/usage/install/
-	golangci-lint run ./...
-	golint -set_exit_status ./...
+lint: tools ## Run linting checks
+	$(GOLANGCI_LINT) run -v
+	$(GOLINT) -set_exit_status ./...
 
 generate: controller-gen ## Generate code via controller-gen
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt",year=$(shell date +%Y) paths="./..."
@@ -105,6 +109,13 @@ else
 CONTROLLER_GEN=$(shell which controller-gen)
 endif
 
+## --------------------------------------
+## Tooling Binaries
+## --------------------------------------
+tools: $(TOOLING_BINARIES) ## Build tooling binaries
+.PHONY: $(TOOLING_BINARIES)
+$(TOOLING_BINARIES):
+	make -C $(TOOLS_DIR) $(@F)
 
 BUILD_SHA ?= $$(git describe --match=$(git rev-parse --short HEAD) --always --dirty)
 BUILD_DATE ?= $$(date -u +"%Y-%m-%d")
