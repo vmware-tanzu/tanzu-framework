@@ -24,7 +24,7 @@ import (
 	"go.uber.org/multierr"
 )
 
-// PluginDescriptor describes a plugin.
+// PluginDescriptor describes a plugin binary.
 type PluginDescriptor struct {
 	// Name is the name of the plugin.
 	Name string `json:"name" yaml:"name"`
@@ -96,24 +96,31 @@ func (p *PluginDescriptor) TestCmd() *cobra.Command {
 // Apply static configurations.
 func (p *PluginDescriptor) Apply() {
 	p.BuildSHA = BuildSHA
+	if p.Version == "" {
+		p.Version = BuildVersion
+	}
 }
 
 // Validate the plugin descriptor.
 func (p *PluginDescriptor) Validate() (err error) {
+	// skip builder plugin for bootstrapping
+	if p.Name == "builder" {
+		return nil
+	}
 	if p.Name == "" {
-		err = multierr.Append(err, fmt.Errorf("plugin name cannot be empty"))
+		err = multierr.Append(err, fmt.Errorf("plugin %q name cannot be empty", p.Name))
 	}
 	if p.Version == "" {
-		err = multierr.Append(err, fmt.Errorf("plugin version cannot be empty"))
+		err = multierr.Append(err, fmt.Errorf("plugin %q version cannot be empty", p.Name))
 	}
 	if !semver.IsValid(p.Version) && !(p.Version == "dev") {
-		err = multierr.Append(err, fmt.Errorf("version %q is not a valid semantic version", p.Version))
+		err = multierr.Append(err, fmt.Errorf("version %q %q is not a valid semantic version", p.Name, p.Version))
 	}
 	if p.Description == "" {
-		err = multierr.Append(err, fmt.Errorf("plugin description cannot be empty"))
+		err = multierr.Append(err, fmt.Errorf("plugin %q description cannot be empty", p.Name))
 	}
 	if p.Group == "" {
-		err = multierr.Append(err, fmt.Errorf("plugin group cannot be empty"))
+		err = multierr.Append(err, fmt.Errorf("plugin %q group cannot be empty", p.Name))
 	}
 	return
 }
@@ -123,7 +130,8 @@ func (p *PluginDescriptor) HasUpdateIn(repos *MultiRepo) (update bool, repo Repo
 	for _, repo := range repos.repositories {
 		update, version, err = p.HasUpdate(repo)
 		if err != nil {
-			return false, nil, "", err
+			log.Debugf("could not check for update for plugin %q in repo %q: %v", p.Name, repo.Name, err)
+			continue
 		}
 		if update {
 			return update, repo, version, err
@@ -134,7 +142,7 @@ func (p *PluginDescriptor) HasUpdateIn(repos *MultiRepo) (update bool, repo Repo
 
 // HasUpdate tells whether the plugin descriptor has an update available in the given repository.
 func (p *PluginDescriptor) HasUpdate(repo Repository) (update bool, version string, err error) {
-	desc, err := repo.Describe(p.Name)
+	plugin, err := repo.Describe(p.Name)
 	if err != nil {
 		return update, version, err
 	}
@@ -143,14 +151,15 @@ func (p *PluginDescriptor) HasUpdate(repo Repository) (update bool, version stri
 		err = fmt.Errorf("local plugin version %q is not a valid semantic version", p.Version)
 		return
 	}
-	valid = semver.IsValid(desc.Version)
+	latest := plugin.VersionLatest()
+	valid = semver.IsValid(latest)
 	if !valid {
-		err = fmt.Errorf("remote plugin version %q is not a valid semantic version", desc.Version)
+		err = fmt.Errorf("remote plugin version %q is not a valid semantic version", latest)
 		return
 	}
-	compared := semver.Compare(desc.Version, p.Version)
+	compared := semver.Compare(latest, p.Version)
 	if compared == 1 {
-		return true, desc.Version, nil
+		return true, latest, nil
 	}
 	return false, version, nil
 }
@@ -331,7 +340,7 @@ func (c *Catalog) InstallAll(repo Repository) error {
 		return err
 	}
 	for _, plugin := range plugins {
-		err := c.Install(plugin.Name, plugin.Version, repo)
+		err := c.Install(plugin.Name, plugin.VersionLatest(), repo)
 		if err != nil {
 			return err
 		}
@@ -351,7 +360,7 @@ func (c *Catalog) InstallAllMulti(repos *MultiRepo) error {
 			return err
 		}
 		for _, plugin := range descs {
-			err := c.Install(plugin.Name, plugin.Version, repo)
+			err := c.Install(plugin.Name, plugin.VersionLatest(), repo)
 			if err != nil {
 				return err
 			}
@@ -385,7 +394,6 @@ func (c *Catalog) EnsureDistro(repos *MultiRepo) error {
 
 	var wg sync.WaitGroup
 	for _, pluginName := range c.distro {
-		log.Debugf("installing plugin %q at version %s", pluginName, VersionLatest)
 		wg.Add(1)
 		guard <- struct{}{}
 		go func(pluginName string) {

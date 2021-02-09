@@ -15,7 +15,6 @@ import (
 var descriptor = cli.PluginDescriptor{
 	Name:        "kubernetes-release",
 	Description: "Kubernetes release operations",
-	Version:     cli.BuildVersion,
 	Group:       cli.RunCmdGroup,
 }
 

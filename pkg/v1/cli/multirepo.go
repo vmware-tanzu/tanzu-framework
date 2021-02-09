@@ -5,16 +5,6 @@ package cli
 
 import "fmt"
 
-// KnownRepositories is a list of known repositories.
-var KnownRepositories = []Repository{
-	CommunityGCPBucketRepository,
-	TMCGCPBucketRepository,
-	TKGGCPBucketRepository,
-}
-
-// DefaultMultiRepo is the default multirepo with the known repositories.
-var DefaultMultiRepo = NewMultiRepo(KnownRepositories...)
-
 // MultiRepo is a multiple
 type MultiRepo struct {
 	repositories []Repository
@@ -54,14 +44,14 @@ func (m *MultiRepo) GetRepository(name string) (Repository, error) {
 }
 
 // ListPlugins across the repositories.
-func (m *MultiRepo) ListPlugins() (mp map[string][]PluginDescriptor, err error) {
-	mp = map[string][]PluginDescriptor{}
+func (m *MultiRepo) ListPlugins() (mp map[string][]Plugin, err error) {
+	mp = map[string][]Plugin{}
 	for _, repo := range m.repositories {
-		descriptors, err := repo.List()
+		plugins, err := repo.List()
 		if err != nil {
 			return mp, err
 		}
-		mp[repo.Name()] = descriptors
+		mp[repo.Name()] = plugins
 	}
 	return
 }
@@ -70,14 +60,14 @@ func (m *MultiRepo) ListPlugins() (mp map[string][]PluginDescriptor, err error) 
 func (m *MultiRepo) Find(name string) (r Repository, err error) {
 	matches := []Repository{}
 	for _, repo := range m.repositories {
-		descriptors, err := repo.List()
+		plugins, err := repo.List()
 		if err != nil {
 			return r, err
 		}
-		for _, desc := range descriptors {
-			if desc.Name == name {
+		for _, p := range plugins {
+			if p.Name == name {
 				matches = append(matches, repo)
-			} else if fmt.Sprintf("%s.%s", repo.Name(), desc.Name) == name {
+			} else if fmt.Sprintf("%s.%s", repo.Name(), p.Name) == name {
 				matches = append(matches, repo)
 			}
 		}

@@ -98,8 +98,8 @@ func compile(cmd *cobra.Command, args []string) error {
 
 	manifest := cli.Manifest{
 		CreatedTime: time.Now(),
-		Version:     version,
-		Plugins:     []cli.PluginDescriptor{},
+		CoreVersion: version,
+		Plugins:     []cli.Plugin{},
 	}
 	arch := cli.Arch(targetArch)
 	if targetArch == "local" {
@@ -125,7 +125,11 @@ func compile(cmd *cobra.Command, args []string) error {
 		if f.IsDir() {
 			if g.Match(f.Name()) {
 				p := buildPlugin(filepath.Join(path, f.Name()), arch)
-				manifest.Plugins = append(manifest.Plugins, p.PluginDescriptor)
+				plugin := cli.Plugin{
+					Name:        p.Name,
+					Description: p.Description,
+				}
+				manifest.Plugins = append(manifest.Plugins, plugin)
 			}
 		}
 	}
