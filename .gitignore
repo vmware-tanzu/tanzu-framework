@@ -11,6 +11,7 @@ artifacts-admin
 test/cli/mock/artifacts*
 tanzu
 addons/artifacts
+pinniped/
 
 # Build artifacts that may not be cleaned up properly
 pinniped

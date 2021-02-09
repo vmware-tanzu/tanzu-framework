@@ -106,7 +106,7 @@ func (p *PluginDescriptor) Validate() (err error) {
 	if p.Version == "" {
 		err = multierr.Append(err, fmt.Errorf("plugin version cannot be empty"))
 	}
-	if !semver.IsValid(p.Version) {
+	if !semver.IsValid(p.Version) && !(p.Version == "dev") {
 		err = multierr.Append(err, fmt.Errorf("version %q is not a valid semantic version", p.Version))
 	}
 	if p.Description == "" {
