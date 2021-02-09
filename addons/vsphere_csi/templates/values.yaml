@@ -40,3 +40,5 @@ vsphereCSI:
   publicNetwork: null
   username: null
   password: null
+  provisionTimeout: 300s
+  attachTimeout: 300s

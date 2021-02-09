@@ -16,6 +16,9 @@ spec:
         - image: #@ "{}/{}:{}".format(values.vsphereCSI.CSIAttacherImage.repository, values.vsphereCSI.CSIAttacherImage.path, values.vsphereCSI.CSIAttacherImage.tag)
           #@overlay/match missing_ok=True
           imagePullPolicy: #@ values.vsphereCSI.CSIAttacherImage.pullPolicy
+          args:
+          #@overlay/match by=lambda index, left, right: "--timeout=" in left, expects=1
+          - #@ "--timeout=" + values.vsphereCSI.attachTimeout
         #@overlay/match by=overlay.subset({"name": "vsphere-csi-controller"})
         - image: #@ "{}/{}:{}".format(values.vsphereCSI.vsphereCSIControllerImage.repository, values.vsphereCSI.vsphereCSIControllerImage.path, values.vsphereCSI.vsphereCSIControllerImage.tag)
           #@overlay/match missing_ok=True
@@ -32,3 +35,6 @@ spec:
         - image: #@ "{}/{}:{}".format(values.vsphereCSI.CSIProvisionerImage.repository, values.vsphereCSI.CSIProvisionerImage.path, values.vsphereCSI.CSIProvisionerImage.tag)
           #@overlay/match missing_ok=True
           imagePullPolicy: #@ values.vsphereCSI.CSIProvisionerImage.pullPolicy
+          args:
+          #@overlay/match by=lambda index, left, right: "--timeout=" in left, expects=1
+          - #@ "--timeout=" + values.vsphereCSI.provisionTimeout
