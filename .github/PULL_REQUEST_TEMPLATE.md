@@ -6,6 +6,11 @@ Usage: `Fixes #<issue number>`, or `Fixes (paste link of issue)`.
 -->
 Fixes #
 
+**Describe testing done for PR**:
+<!--
+Example: Created vSphere workload cluster to verify change. 
+-->
+
 **Special notes for your reviewer**:
 
 **Does this PR introduce a user-facing change?**:
