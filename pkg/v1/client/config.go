@@ -61,7 +61,13 @@ func ConfigPath() (path string, err error) {
 
 // NewConfig returns a new config.
 func NewConfig() (*clientv1alpha1.Config, error) {
-	c := &clientv1alpha1.Config{}
+	c := &clientv1alpha1.Config{
+		ClientOptions: &clientv1alpha1.ClientOptions{
+			CLI: &clientv1alpha1.CLIOptions{
+				Repositories: DefaultRepositories,
+			},
+		},
+	}
 	err := StoreConfig(c)
 	if err != nil {
 		return nil, err

@@ -18,7 +18,6 @@ import (
 var descriptor = cli.PluginDescriptor{
 	Name:        "test",
 	Description: "Test the CLI",
-	Version:     "v0.0.1",
 	Group:       cli.AdminCmdGroup,
 }
 

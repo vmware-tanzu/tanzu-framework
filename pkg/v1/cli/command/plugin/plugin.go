@@ -15,11 +15,11 @@ type Plugin struct {
 
 // NewPlugin creates an instance of Plugin.
 func NewPlugin(descriptor *cli.PluginDescriptor) (*Plugin, error) {
+	descriptor.Apply()
 	err := descriptor.Validate()
 	if err != nil {
 		return nil, err
 	}
-	descriptor.Apply()
 	p := &Plugin{
 		Cmd: newRootCmd(descriptor),
 	}
