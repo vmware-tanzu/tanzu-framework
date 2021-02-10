@@ -24,4 +24,10 @@ const (
 
 	// TKGBomContent is the TKG BOM content.
 	TKGBomContent = "bomContent"
+
+	// TKRConfigmapName is the name of TKR config map
+	TKRConfigmapName = "tkr-controller-config"
+
+	// TKRRepoKey is the key for image repository in TKR config map data.
+	TKRRepoKey = "imageRepository"
 )

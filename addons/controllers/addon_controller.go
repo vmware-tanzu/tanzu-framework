@@ -382,7 +382,7 @@ func (r *AddonReconciler) reconcileAddonSecretNormal(
 		return ctrl.Result{}, err
 	}
 
-	imageRepository, err := bom.GetImageRepository()
+	imageRepository, err := util.GetAddonImageRepository(ctx, r.Client, bom)
 	if err != nil || imageRepository == "" {
 		log.Info("Addon image repository not found for addon", constants.AddonNameLogKey, addonName)
 		return ctrl.Result{}, err

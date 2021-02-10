@@ -9,6 +9,7 @@ import (
 	"github.com/vmware-tanzu-private/core/addons/pkg/constants"
 	bomtypes "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/types"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -45,4 +46,25 @@ func GetBOMByTKRName(ctx context.Context, c client.Client, tkrName string) (*bom
 // GetTKRNameFromBOMConfigMap returns tkr name given a bom configmap
 func GetTKRNameFromBOMConfigMap(bomConfigMap *corev1.ConfigMap) string {
 	return bomConfigMap.Labels[constants.TKRLabel]
+}
+
+// GetAddonImageRepository returns imageRepository from configMap `tkr-controller-config` in namespace `tkr-system` if exists else use BOM
+func GetAddonImageRepository(ctx context.Context, c client.Client, bom *bomtypes.Bom) (string, error) {
+	bomConfigMap := &corev1.ConfigMap{}
+	err := c.Get(ctx, client.ObjectKey{
+		Namespace: constants.TKGBomNamespace,
+		Name:      constants.TKRConfigmapName,
+	}, bomConfigMap)
+
+	// if the configmap exists, try get repository from the config map
+	if err == nil {
+		if imgRepo, ok := bomConfigMap.Data[constants.TKRRepoKey]; ok && imgRepo != "" {
+			return imgRepo, nil
+		}
+	} else if !errors.IsNotFound(err) {
+		// return the error to controller if err is not IsNotFound
+		return "", err
+	}
+	// if the configmap doesn't exist, or there is no `imageRepository` field, get repository from BOM
+	return bom.GetImageRepository()
 }
