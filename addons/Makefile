@@ -53,7 +53,11 @@ help: ## Display this help
 
 .PHONY: test
 test: fmt vet ## Run Tests
-	go test ./... -coverprofile cover.out
+	go test ./... -coverprofile cover.out -v 2
+
+.PHONY: test-verbose
+test-verbose: ## Verbose tests with streaming output for debugging
+	ginkgo -v ./...
 
 ## --------------------------------------
 ## Binaries

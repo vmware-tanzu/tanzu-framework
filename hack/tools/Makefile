@@ -22,9 +22,17 @@ export GO111MODULE := on
 BIN_DIR := bin
 SRCS := go.mod go.sum
 
+KUBEBUILDER_VERSION=2.3.1
+
+# Host information.
+HOST_OS=$(shell go env GOOS)
+HOST_ARCH=$(shell go env GOARCH)
+
+
 # Binaries.
 GOLANGCI_LINT := $(BIN_DIR)/golangci-lint
 GOLINT := $(BIN_DIR)/golint
+KUBEBUILDER        := $(BIN_DIR)/kubebuilder
 
 ## --------------------------------------
 ## Help
@@ -43,6 +51,11 @@ $(GOLANGCI_LINT): go.mod
 golint: $(GOLINT) $(SRC) ## Build golint
 $(GOLINT): go.mod
 	go build -tags=tools -o $@ golang.org/x/lint/golint
+
+kubebuilder: $(KUBEBUILDER) ## Install kubebuilder
+$(KUBEBUILDER):
+	curl -sL https://go.kubebuilder.io/dl/$(KUBEBUILDER_VERSION)/$(HOST_OS)/$(HOST_ARCH) | tar -xz -C /tmp/
+	mv /tmp/kubebuilder_$(KUBEBUILDER_VERSION)_$(HOST_OS)_$(HOST_ARCH) $(@)
 
 ## --------------------------------------
 ## Cleanup

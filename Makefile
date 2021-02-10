@@ -17,16 +17,17 @@ endif
 # Directories
 TOOLS_DIR := hack/tools
 TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
+ROOT_DIR := $(shell git rev-parse --show-toplevel)
+
+GOOS ?= $(shell go env GOOS)
+GOARCH ?= $(shell go env GOARCH)
 
 # Add tooling binaries here and in hack/tools/Makefile
 GOLANGCI_LINT := $(TOOLS_BIN_DIR)/golangci-lint
 GOLINT := $(TOOLS_BIN_DIR)/golint
 TOOLING_BINARIES := $(GOLANGCI_LINT) $(GOLINT)
-
-GOOS ?= $(shell go env GOOS)
-GOARCH ?= $(shell go env GOARCH)
-
 GOBINDATA := $(TOOLS_BIN_DIR)/go-bindata-$(GOOS)-$(GOARCH)
+KUBEBUILDER := $(TOOLS_BIN_DIR)/kubebuilder
 
 PINNIPED_GIT_REPOSITORY = https://github.com/vmware-tanzu/pinniped.git
 ifeq ($(strip $(PINNIPED_GIT_COMMIT)),)
@@ -50,8 +51,11 @@ help: ## Display this help
 
 all: manager build-cli
 
+.PHONY: test
 test: generate fmt vet manifests build-cli-mocks ## Run tests
 	$(GO) test ./... -coverprofile cover.out
+	$(MAKE) kubebuilder -C $(TOOLS_DIR)
+	KUBEBUILDER_ASSETS=$(ROOT_DIR)/$(KUBEBUILDER)/bin GOPRIVATE=$(PRIVATE_REPOS) $(MAKE) test -C addons
 
 manager: generate fmt vet ## Build manager binary
 	$(GO) build -o bin/manager main.go
