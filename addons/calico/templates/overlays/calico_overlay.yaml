@@ -90,10 +90,9 @@ spec:
           #@overlay/match missing_ok=True
           imagePullPolicy: #@ get_image_pull_policy(values.calico.kubeControllerImage)
 
-#@ if values.infraProvider == "azure":
 #@overlay/match by=overlay.subset({"kind":"ConfigMap"})
 ---
-kind: ConfigMap
 data:
+  #@ if/end values.infraProvider == "azure":
   calico_backend: "vxlan"
-#@ end
+  veth_mtu: #@ values.calico.config.vethMTU
