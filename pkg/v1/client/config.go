@@ -234,9 +234,7 @@ func RemoveServer(name string) error {
 	if err != nil {
 		return err
 	}
-	if cfg.CurrentServer == name {
-		return fmt.Errorf("cannot delete the current server")
-	}
+
 	newServers := []*clientv1alpha1.Server{}
 	for _, server := range cfg.KnownServers {
 		if server.Name != name {
