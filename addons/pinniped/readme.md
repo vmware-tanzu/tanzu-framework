@@ -86,23 +86,68 @@ or kapp-controller to test out TKG Pinniped addon.
 - Run `./pinniped-cli get kubeconfig` to get the updated kubeconfig which could be distributed to authorized users. The 
   users with that kubeconfig will be redirected to configured authentication page.
   
-## Custom TLS Certificates
-Pinniped and Dex use self signed TLS certificates by default. Self-signed issuers are created with cert-manager to generate the TLS certificates for Pinniped and Dex. Users can override the default setting with the following two options.
+## How to use custom TLS Certificates
 
-### Custom ClusterIssuer
-If the user has an existing ClusterIssuer that can be used to sign certificates, the self-signed Issuer can by overriden by specifying `custom_cluster_issuer` in values.yaml. User can put the name of the ClusterIssuer in this field, as a result, the certificates will be signed by this ClusterIssuer instead.
+Pinniped and Dex use self-signed `Issuer` by default to generate the signed TLS certificates. Users can override the default
+setting with the following two options.
 
-### Custom TLS Secret
-Users can also specify their own TLS secrets directly. This can only be configured as day 2 operation after Pinniped and Dex are running successfully. 
+### Using custom ClusterIssuer
 
-Users will need to create 2 separate `kubernetes.io/tls` secrets. Both secrets should have the same name. The first one should be signed against the IP or DNS of Pinniped service and put in `pinniped-supervisor` namespace. The second one should be signed against IP or DNS of Dex service and put in `tanzu-system-auth` namespace.
+If the user has an existing `ClusterIssuer` that can be used to sign certificates, the self-signed Issuer can be replaced
+by specifying `custom_cluster_issuer` in values.yaml. User can put the name of the `ClusterIssuer` for this field, then
+both Pinniped and Dex TLS certificates will be signed by this ClusterIssuer instead.
 
-After the secrets are ready, add the secret name to `custom_tls_secret` in values.yaml and redeploy.
+### Using custom TLS Secret
 
-## Working with Addon manager
-If the cluster is running with addon manager enabled. There will be a secret corresponding to Pinniped located in `tkg-system` namespace. The secret name will be `<clustername>-pinniped-addon`.
+Users can also specify their own TLS secrets directly. This can only be configured as day 2 operation after Pinniped and
+Dex are running successfully. 
 
-The opeartion of updating values.yaml will become updating this secret. To do so, update `data.values.yaml` field in this secret. This field is a base64 string. If you decode it, it will be the same format as values.yaml. Change it as you want, base64 encode it and put it back. After you re-apply the secret, the Pinniped will be reconciled again with the new configurations.
+Users will need to create 2 separate `kubernetes.io/tls` secrets. Both secrets should have the same name. The first one
+should be signed against the IP or DNS of Pinniped service and put in the namespace of Pinniped Supervisor. The second one
+should be signed against IP or DNS of Dex service and put in the namespace of Dex.
+
+Once the secrets are ready, add the secret name to `custom_tls_secret` in values.yaml and redeploy.
+
+## Day 2 operations in TKG Calgary release
+
+It is possible that you provided the incorrect configurations for your user authentication on Day 1 and you want to perform
+Day 2 operations to reconfigure it.
+
+The following settings are the configurable on Day 2:
+
+- **OIDC client ID**: The client ID of upstream OIDC provider. To make the changes, update `dex.config.oidc.CLIENT_ID` in
+  Pinniped addon `Secret` and restart Dex pods.
+- **OIDC client secret**: The client secret of upstream OIDC provider. To make the changes, update `dex.config.oidc.CLIENT_SECRET`
+  in Pinniped addon `Secret` and restart Dex pods.
+- **OIDC issuer**: The upstream OIDC issuer url. To make the changes, update `dex.config.oidc.issuer` in
+  Pinniped addon `Secret` and restart Dex pods.
+- **OIDC scopes**: List of additional scopes to request in token response. To make the changes, update `dex.config.oidc.scopes` in
+  Pinniped addon `Secret` and restart Dex pods.
+- **OIDC claimMapping**: Some providers return non-standard claims (eg. mail). Use claimMapping to map those
+  claims to standard claims. To make the changes, update `dex.config.oidc.scopes` in Pinniped addon `Secret` and restart
+  Dex pods.
+- **LDAP host**: Host and optional port of the LDAP server in the form "host:port". To make the changes, update
+  `dex.config.ldap.host` in Pinniped addon `Secret` and restart Dex pods.
+- **LDAP bindDN and bindPW**: The DN and password for an application service account. The connector uses these credentials
+  to search for users and groups. Not required if the LDAP server provides access for anonymous auth. To make the changes,
+  update `dex.config.ldap.bindDN` or `dex.config.ldap.bindPW` in Pinniped addon `Secret` and restart Dex pods.
+- **LDAP userSearch**: User search maps a username and password entered by a user to a LDAP entry. To make the changes,
+  update `dex.config.oidc.userSearch` in Pinniped addon `Secret` and restart Dex pods.
+- **LDAP groupSearch**: Group search queries for groups given a user entry. To make the changes, update
+  `dex.config.oidc.userSearch` in Pinniped addon `Secret` and restart Dex pods.
+
+```
+Above configurations are eventually loaded in Dex. More details on Dex configurations could be found here:
+- <https://dexidp.io/docs/connectors/ldap/>
+- <https://dexidp.io/docs/connectors/oidc/>
+```
+
+- **Custom cluster issuer**: The name of custom cluster issuer
+  - Update the `custom_cluster_issuer` in Pinniped addon secret called `<clustername>-pinniped-addon`
+  - Pinniped post deployment job will be triggered to perform the reconfiguration
+- **Custom tls secret**: The name of the custom TLS secret
+  - Update the `custom_tls_secret` in Pinniped addon secret called `<clustername>-pinniped-addon`
+  - Pinniped post deployment job will be triggered to perform the reconfiguration
 
 ## Images
 
@@ -116,9 +161,48 @@ The opeartion of updating values.yaml will become updating this secret. To do so
 
 ## Known issues and debug guidelines
 
-- The OIDC discovery failure from OIDCIdentityProvider
-  - Check the issuer to make sure it is pointing to the IDP configured
-  - Check if the TLS certificate is correct, the TLS certificate is the one used to talk to upstream IDP
-  - The OIDCIdentityProvider should be configured automatically by the post deployment job, if it is not configured properly
-    check the log of post deployment job to see there are any errors
+### Manually updated fields are reverted
+
+The kapp-controller under the hood will reconcile the `App` based on the configuration values from Pinniped addon `Secret`.
+Only few fields are configured to be ignored by kapp-controller:
+
+- `OIDCIdentityProvider.spec.authorizationConfig`
+- `OIDCIdentityProvider.spec.claims`
+- `OIDCIdentityProvider.spec.issuer`
+- `OIDCIdentityProvider.spec.tls`
+- `FederationDomain.spec.issuer`
+- `JWTAuthenticator.spec.audience`
+- `JWTAuthenticator.spec.claims`
+- `JWTAuthenticator.spec.issuer`
+- `JWTAuthenticator.spec.tls`
+- Dex `ConfigMap`
+- Dex TLS `Certificate`
+- Pinniped TLS `Certificate`
+- Pinniped client `Secret`
+
+So any changes in other fields will be reverted to be what were provided in the Pinniped addon `Secret` after the sync
+period. If you want to reconfigure anything other than above fields, please update the Pinnied addon `Secret` accordingly.
+
+### The OIDC discovery failure from `OIDCIdentityProvider` CR status
+
+- Check the `issuer` field to make sure it is configured properly, if not you could update the value directly in
+  `OIDCIdentityProvider`.
+- Check if the `tls` field has the correct certificate, the TLS certificate is the one used to talk to upstream IDP. In
+  TKG Calgary release, the upstream of Pinniped is Dex.
+- The `OIDCIdentityProvider` should be configured automatically by the post deployment job, if it is not configured properly
+  check the log of post deployment job to see there are any errors
+
+### Cannot authenticate from workload cluster
+
+- Make sure the Pinniped supervisor service is accessible from workload cluster.
+- Check the `JWTAuthenticator` CR to make sure the `issuer` field is configured properly. It should be configured to be
+  the Pinniped supervisor service external IP/DNS. If the value is incorrect, you could update `JWTAuthenticator` CR directly.
+- Check the `tls` field has the correct CA bundle data. The CA bundle is used for the communication between workload cluster
+  and Pinniped supervisor service in management cluster.
   
+### Post deployment job fails
+
+- With error message "the LoadBalancer ingress is not ready": We saw this issue several times with TKG on Azure. The root
+  cause of this issue is that either Pinniped supervisor service external IP or Dex service external IP is not ready when
+  using `LoadBalancer` as the `Service.Spec.Type`. Try to run `kubectl delete app pinniped -n tkg-system`, wait for a while
+  to let the addon-manager recreate the Pinniped addon, list the service to see if external IP address is assigned.
