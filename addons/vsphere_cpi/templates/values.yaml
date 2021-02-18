@@ -9,6 +9,8 @@ vsphereCPI:
   username: null
   password: null
   insecureFlag: False
+  vmInternalNetwork: null
+  vmExternalNetwork: null
   image:
     repository: "projects-stg.registry.vmware.com/tkg"
     path: "cloud-provider-vsphere/cpi/release/manager"
