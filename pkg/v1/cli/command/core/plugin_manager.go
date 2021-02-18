@@ -8,7 +8,9 @@ import (
 	"path/filepath"
 
 	"github.com/aunum/log"
+	"github.com/pkg/errors"
 	"golang.org/x/mod/semver"
+	"gopkg.in/yaml.v2"
 
 	"github.com/spf13/cobra"
 
@@ -18,7 +20,8 @@ import (
 )
 
 var (
-	local []string
+	local   []string
+	version string
 )
 
 func init() {
@@ -27,11 +30,13 @@ func init() {
 		listPluginCmd,
 		installPluginCmd,
 		upgradePluginCmd,
+		describePluginCmd,
 		deletePluginCmd,
 		repoCmd,
 		cleanPluginCmd,
 	)
 	pluginCmd.PersistentFlags().StringSliceVarP(&local, "local", "l", []string{}, "path to local repository")
+	installPluginCmd.Flags().StringVarP(&version, "version", "v", cli.VersionLatest, "version of the plugin")
 }
 
 var pluginCmd = &cobra.Command{
@@ -66,28 +71,60 @@ var listPluginCmd = &cobra.Command{
 			for _, plugin := range descs {
 
 				status := "not installed"
+				var currentVersion string
 				for _, desc := range descriptors {
 					if plugin.Name != desc.Name {
 						continue
 					}
-					compared := semver.Compare(plugin.Version, desc.Version)
+					compared := semver.Compare(plugin.VersionLatest(), desc.Version)
 					if compared == 1 {
 						status = "upgrade available"
 						continue
 					}
 					status = "installed"
+					currentVersion = desc.Version
 				}
-				data = append(data, []string{plugin.Name, plugin.Version, plugin.Description, repo, status})
+				data = append(data, []string{plugin.Name, plugin.VersionLatest(), plugin.Description, repo, currentVersion, status})
 			}
 		}
 
-		table := component.NewTableWriter("Name", "Version", "Description", "Repository", "Status")
+		table := component.NewTableWriter("Name", "Latest Version", "Description", "Repository", "Version", "Status")
 
 		for _, v := range data {
 			table.Append(v)
 		}
 		table.Render()
 		return nil
+	},
+}
+
+var describePluginCmd = &cobra.Command{
+	Use:   "describe [name]",
+	Short: "Describe a plugin",
+	RunE: func(cmd *cobra.Command, args []string) (err error) {
+		if len(args) != 1 {
+			return fmt.Errorf("must provide plugin name as positional argument")
+		}
+		name := args[0]
+
+		repos := getRepositories()
+
+		repo, err := repos.Find(name)
+		if err != nil {
+			return err
+		}
+
+		plugin, err := repo.Describe(name)
+		if err != nil {
+			return err
+		}
+
+		b, err := yaml.Marshal(plugin)
+		if err != nil {
+			return errors.Wrap(err, "could not marshal plugin")
+		}
+		fmt.Println(string(b))
+		return
 	},
 }
 
@@ -114,7 +151,7 @@ var installPluginCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		err = catalog.Install(name, cli.VersionLatest, repo)
+		err = catalog.Install(name, version, repo)
 		if err != nil {
 			return
 		}

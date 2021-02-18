@@ -12,6 +12,7 @@ import (
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
+	clientv1 "github.com/vmware-tanzu-private/core/pkg/v1/client"
 )
 
 var yesUpdate bool
@@ -39,7 +40,7 @@ var updateCmd = &cobra.Command{
 		}
 
 		repos := getRepositories()
-		communityRepo, err := repos.GetRepository(cli.CommunityRepositoryName)
+		communityRepo, err := repos.GetRepository(clientv1.CoreGCPBucketRepository.Name)
 		if err != nil {
 			return err
 		}
@@ -53,12 +54,14 @@ var updateCmd = &cobra.Command{
 		for _, plugin := range plugins {
 			update, repo, version, err := plugin.HasUpdateIn(repos)
 			if err != nil {
-				return err
+				log.Warningf("could not find local plugin %q in any remote repositories", plugin.Name)
+				continue
 			}
 			if update {
 				updateMap[plugin] = updateInfo{version, repo}
 			}
 		}
+
 		coreUpdate, coreVersion, err := cli.HasUpdate(communityRepo)
 		if err != nil {
 			return err

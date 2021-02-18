@@ -18,7 +18,6 @@ import (
 var descriptor = cli.PluginDescriptor{
 	Name:        "cluster",
 	Description: "Kubernetes cluster operations",
-	Version:     cli.BuildVersion,
 	Group:       cli.RunCmdGroup,
 }
 
