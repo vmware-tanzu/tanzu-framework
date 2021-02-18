@@ -12,6 +12,8 @@ metadata:
 spec:
   template:
     spec:
+      nodeSelector:
+        node-role.kubernetes.io/control-plane: ""
       containers:
       #@overlay/match by=overlay.subset({"name": "vsphere-cloud-controller-manager"})
       - image: #@ "{}/{}:{}".format(values.vsphereCPI.image.repository, values.vsphereCPI.image.path, values.vsphereCPI.image.tag)
