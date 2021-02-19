@@ -12,6 +12,7 @@ metadata:
 spec:
   template:
     spec:
+      #@overlay/match missing_ok=True
       nodeSelector:
         node-role.kubernetes.io/control-plane: ""
       containers:
