@@ -121,10 +121,10 @@ spec:
         resources:
           limits:
             cpu: 100m
-            memory: 30Mi
+            memory: 100Mi
           requests:
             cpu: 100m
-            memory: 20Mi
+            memory: 40Mi
       serviceAccount: tanzu-addons-manager-sa
       terminationGracePeriodSeconds: 10
       #@ if/end data.values.tanzuAddonsManager.deployment.hostNetwork:
