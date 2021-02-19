@@ -15,9 +15,15 @@ insecure-flag = "1"
 (@ else: -@)
 thumbprint = "(@=values.vsphereCPI.tlsThumbprint @)"
 (@ end -@)
+(@ if values.vsphereCPI.vmInternalNetwork or values.vsphereCPI.vmExternalNetwork: -@)
 [Nodes]
+(@ if values.vsphereCPI.vmInternalNetwork: -@)
 internal-vm-network-name = "(@=values.vsphereCPI.vmInternalNetwork @)"
+(@ end -@)
+(@ if values.vsphereCPI.vmExternalNetwork: -@)
 external-vm-network-name = "(@=values.vsphereCPI.vmExternalNetwork @)"
+(@ end -@)
+(@ end -@)
 (@ if values.vsphereCPI.nsxt.podRoutingEnabled : -@)
 [Route]
 router-path = "(@=values.vsphereCPI.nsxt.routes.routerPath @)"
