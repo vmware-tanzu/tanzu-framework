@@ -64,26 +64,26 @@ func upgradeCluster(server *v1alpha1.Server, clusterName string) error {
 		return err
 	}
 
-	k8sVersion := ""
+	tkrVersion := ""
 	if uc.tkrName != "" {
-		k8sVersion, err = getValidK8sVersionFromTkrForUpgrade(tkgctlClient, clusterClient, clusterName)
+		tkrVersion, err = getValidTkrVersionFromTkrForUpgrade(tkgctlClient, clusterClient, clusterName)
 		if err != nil {
 			return err
 		}
 	}
 
 	upgradeClusterOptions := tkgctl.UpgradeClusterOptions{
-		ClusterName:       clusterName,
-		Namespace:         uc.namespace,
-		KubernetesVersion: k8sVersion,
-		SkipPrompt:        uc.unattended,
-		Timeout:           uc.timeout,
+		ClusterName: clusterName,
+		Namespace:   uc.namespace,
+		TkrVersion:  tkrVersion,
+		SkipPrompt:  uc.unattended,
+		Timeout:     uc.timeout,
 	}
 
 	return tkgctlClient.UpgradeCluster(upgradeClusterOptions)
 }
 
-func getValidK8sVersionFromTkrForUpgrade(tkgctlClient tkgctl.TKGClient, clusterClient clusterclient.Client, clusterName string) (string, error) {
+func getValidTkrVersionFromTkrForUpgrade(tkgctlClient tkgctl.TKGClient, clusterClient clusterclient.Client, clusterName string) (string, error) {
 	result, err := tkgctlClient.DescribeCluster(tkgctl.DescribeTKGClustersOptions{
 		ClusterName: clusterName,
 		Namespace:   uc.namespace,
@@ -102,7 +102,7 @@ func getValidK8sVersionFromTkrForUpgrade(tkgctlClient tkgctl.TKGClient, clusterC
 		return "", err
 	}
 	if !isTkrCompatible(tkrForUpgrade) {
-		fmt.Printf("WARNING: TanzuKubernetesRelease %q is not compatible on the management cluster", tkrForUpgrade.Name)
+		fmt.Printf("WARNING: TanzuKubernetesRelease %q is not compatible on the management cluster\n", tkrForUpgrade.Name)
 	}
 
 	tkrName, ok := result.Cluster.Labels["tanzuKubernetesRelease"]

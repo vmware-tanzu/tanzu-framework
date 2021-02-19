@@ -109,20 +109,20 @@ func createCluster(clusterName string, server *v1alpha1.Server) error {
 		return err
 	}
 
-	k8sVersion := ""
+	tkrVersion := ""
 	if cc.tkrName != "" {
-		k8sVersion, err = getK8sVersionForMatchingTkr(clusterClient, cc.tkrName)
+		tkrVersion, err = getTkrVersionForMatchingTkr(clusterClient, cc.tkrName)
 		if err != nil {
 			return err
 		}
 	}
 
 	ccOptions := tkgctl.CreateClusterOptions{
-		ClusterConfigFile: cc.clusterConfigFile,
-		KubernetesVersion: k8sVersion,
-		ClusterName:       clusterName,
-		Namespace:         cc.namespace,
-		Plan:              cc.plan,
+		ClusterConfigFile:           cc.clusterConfigFile,
+		TkrVersion:                  tkrVersion,
+		ClusterName:                 clusterName,
+		Namespace:                   cc.namespace,
+		Plan:                        cc.plan,
 		InfrastructureProvider:      cc.infrastructureProvider,
 		ControlPlaneMachineCount:    cc.controlPlaneMachineCount,
 		WorkerMachineCount:          cc.workerMachineCount,
@@ -140,7 +140,7 @@ func createCluster(clusterName string, server *v1alpha1.Server) error {
 	return tkgctlClient.CreateCluster(ccOptions)
 }
 
-func getK8sVersionForMatchingTkr(clusterClient clusterclient.Client, tkrName string) (string, error) {
+func getTkrVersionForMatchingTkr(clusterClient clusterclient.Client, tkrName string) (string, error) {
 	tkrs, err := clusterClient.GetTanzuKubernetesReleases(tkrName)
 	if err != nil {
 		return "", err
@@ -148,21 +148,21 @@ func getK8sVersionForMatchingTkr(clusterClient clusterclient.Client, tkrName str
 
 	// TODO: Enhance this logic to identify the greatest matching TKR
 	// https://jira.eng.vmware.com/browse/TKG-3512
-	var k8sVersion string
+	var tkrVersion string
 	for _, tkr := range tkrs {
 		if tkr.Name == tkrName {
 			if !isTkrCompatible(tkr) {
-				fmt.Printf("WARNING: TanzuKubernetesRelease %q is not compatible on the management cluster", tkr.Name)
+				fmt.Printf("WARNING: TanzuKubernetesRelease %q is not compatible on the management cluster\n", tkr.Name)
 			}
 
-			k8sVersion = tkr.Spec.Version
+			tkrVersion = tkr.Spec.Version
 			break
 		}
 	}
 
-	if k8sVersion == "" {
+	if tkrVersion == "" {
 		return "", errors.Errorf("could not find a matching TanzuKubernetesRelease for name %q", tkrName)
 	}
 
-	return k8sVersion, nil
+	return tkrVersion, nil
 }
