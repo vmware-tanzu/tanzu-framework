@@ -20,6 +20,7 @@ vsphereCPI:
     podRoutingEnabled: false
     routes:
       routerPath: ""
+      clusterCidr: ""
     username: ""
     password: ""
     host: null
