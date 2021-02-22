@@ -16,7 +16,6 @@ import (
 	"cloud.google.com/go/storage"
 	"github.com/pkg/errors"
 	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
-	"golang.org/x/mod/semver"
 	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 	"gopkg.in/yaml.v2"
@@ -41,6 +40,9 @@ type Repository interface {
 
 	// Manifest retrieves the manifest for the repo.
 	Manifest() (Manifest, error)
+
+	// VersionSelector returns the version finder.
+	VersionSelector() VersionSelector
 }
 
 // NewDefaultRepository returns the default repository.
@@ -83,19 +85,12 @@ type Plugin struct {
 	Versions []string `json:"versions" yaml:"versions"`
 }
 
-// VersionLatest returns the latest stable version for the plugin.
-func (p *Plugin) VersionLatest() (v string) {
-	for _, version := range p.Versions {
-		if !semver.IsValid(version) {
-			continue
-		}
-		split := strings.Split(version, "-")
-		if len(split) > 1 {
-			continue
-		}
-		v = semver.Max(v, version)
+// FindVersion finds the version using the version selector.
+func (p *Plugin) FindVersion(selector VersionSelector) string {
+	if selector == nil {
+		selector = DefaultVersionSelector
 	}
-	return
+	return selector(p.Versions)
 }
 
 // Arch represents a system architecture.
@@ -133,17 +128,16 @@ const (
 	// DefaultArtifactsDirectory is the root artifacts directory
 	DefaultArtifactsDirectory = "artifacts"
 
-	// VersionLatest is the latest version.
-	VersionLatest = "latest"
 	// AllPlugins is the keyword for all plugins.
 	AllPlugins = "all"
 )
 
 // GCPBucketRepository is a artifact repository utilizing a GCP bucket.
 type GCPBucketRepository struct {
-	bucketName string
-	rootPath   string
-	name       string
+	bucketName      string
+	rootPath        string
+	name            string
+	versionSelector VersionSelector
 }
 
 // LoadRepositories loads the repositories from the config file along with the known repositories.
@@ -180,9 +174,10 @@ func NewGCPBucketRepository(options ...Option) Repository {
 	opts := makeDefaultOptions(options...)
 
 	return &GCPBucketRepository{
-		bucketName: opts.gcpBucket,
-		rootPath:   opts.gcpRootPath,
-		name:       opts.repoName,
+		bucketName:      opts.gcpBucket,
+		rootPath:        opts.gcpRootPath,
+		name:            opts.repoName,
+		versionSelector: opts.versionSelector,
 	}
 }
 
@@ -280,7 +275,10 @@ func (g *GCPBucketRepository) Fetch(name, version string, arch Arch) ([]byte, er
 		if err != nil {
 			return nil, err
 		}
-		version = plugin.VersionLatest()
+		version = plugin.FindVersion(g.versionSelector)
+		if version == "" {
+			return nil, fmt.Errorf("could not find a suitible version for plugin %q from versions %v", name, plugin.Versions)
+		}
 	}
 
 	artifactPath := path.Join(g.rootPath, name, version, MakeArtifactName(name, arch))
@@ -302,7 +300,10 @@ func (g *GCPBucketRepository) FetchTest(name, version string, arch Arch) ([]byte
 		if err != nil {
 			return nil, err
 		}
-		version = plugin.VersionLatest()
+		version = plugin.FindVersion(g.versionSelector)
+		if version == "" {
+			return nil, fmt.Errorf("could not find a suitible version for test plugin %q from versions %v", name, plugin.Versions)
+		}
 	}
 
 	artifactPath := path.Join(g.rootPath, name, version, "test", MakeTestArtifactName(name, arch))
@@ -376,10 +377,16 @@ func (g *GCPBucketRepository) getBucket(ctx context.Context) (*storage.BucketHan
 	return bkt, nil
 }
 
+// VersionSelector returns the current default version finder.
+func (g *GCPBucketRepository) VersionSelector() VersionSelector {
+	return g.versionSelector
+}
+
 // LocalRepository is a artifact repository utilizing a local host os.
 type LocalRepository struct {
-	path string
-	name string
+	path            string
+	name            string
+	versionSelector VersionSelector
 }
 
 // DefaultLocalRepository is the default local repository.
@@ -388,10 +395,12 @@ var DefaultLocalRepository = &LocalRepository{
 }
 
 // NewLocalRepository returns a new local repository.
-func NewLocalRepository(name, path string) Repository {
+func NewLocalRepository(name, path string, options ...Option) Repository {
+	opts := makeDefaultOptions(options...)
 	return &LocalRepository{
-		path: path,
-		name: name,
+		path:            path,
+		name:            name,
+		versionSelector: opts.versionSelector,
 	}
 }
 
@@ -440,12 +449,18 @@ func (l *LocalRepository) Describe(name string) (plugin Plugin, err error) {
 
 // Fetch an artifact.
 func (l *LocalRepository) Fetch(name, version string, arch Arch) ([]byte, error) {
+	if version == "" {
+		return nil, fmt.Errorf("version cannot be empty for plugin %q", name)
+	}
 	if version == VersionLatest {
 		plugin, err := l.Describe(name)
 		if err != nil {
 			return nil, err
 		}
-		version = plugin.VersionLatest()
+		version = plugin.FindVersion(l.versionSelector)
+		if version == "" {
+			return nil, fmt.Errorf("could not find a suitible version for plugin %q from versions %v", name, plugin.Versions)
+		}
 	}
 	b, err := ioutil.ReadFile(filepath.Join(l.path, name, version, MakeArtifactName(name, arch)))
 	if err != nil {
@@ -456,12 +471,18 @@ func (l *LocalRepository) Fetch(name, version string, arch Arch) ([]byte, error)
 
 // FetchTest fetches an artifact test.
 func (l *LocalRepository) FetchTest(name, version string, arch Arch) ([]byte, error) {
+	if version == "" {
+		return nil, fmt.Errorf("version cannot be empty for plugin %q", name)
+	}
 	if version == VersionLatest {
 		plugin, err := l.Describe(name)
 		if err != nil {
 			return nil, err
 		}
-		version = plugin.VersionLatest()
+		version = plugin.FindVersion(l.versionSelector)
+		if version == "" {
+			return nil, fmt.Errorf("could not find a suitible version for test plugin %q from versions %v", name, plugin.Versions)
+		}
 	}
 	b, err := ioutil.ReadFile(filepath.Join(l.path, name, version, "test", MakeTestArtifactName(name, arch)))
 	if err != nil {
@@ -488,4 +509,9 @@ func (l *LocalRepository) Manifest() (manifest Manifest, err error) {
 		err = fmt.Errorf("could not unmarshal manifest.yaml: %v", err)
 	}
 	return
+}
+
+// VersionSelector returns the current default version finder.
+func (l *LocalRepository) VersionSelector() VersionSelector {
+	return l.versionSelector
 }

@@ -27,36 +27,3 @@ func TestGCPRepository(t *testing.T) {
 
 	require.GreaterOrEqual(t, len(bin), 10)
 }
-
-func TestPlugin(t *testing.T) {
-	for _, test := range []struct {
-		name     string
-		versions []string
-		max      string
-	}{
-		{
-			name:     "basic patch",
-			versions: []string{"v0.0.1", "v0.0.2"},
-			max:      "v0.0.2",
-		},
-		{
-			name:     "release candidates",
-			versions: []string{"v0.0.1", "v1.3.0-rc.1", "v1.3.0-pre-alpha-1"},
-			max:      "v0.0.1",
-		},
-		{
-			name:     "release candidates same",
-			versions: []string{"v0.0.1", "v1.3.0", "v1.3.0-rc.1", "v1.3.0-pre-alpha-1"},
-			max:      "v1.3.0",
-		},
-	} {
-		t.Run(test.name, func(t *testing.T) {
-			p := Plugin{
-				Name:     "foo",
-				Versions: test.versions,
-			}
-			v := p.VersionLatest()
-			require.Equal(t, test.max, v)
-		})
-	}
-}

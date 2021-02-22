@@ -20,8 +20,9 @@ import (
 )
 
 var (
-	local   []string
-	version string
+	local           []string
+	version         string
+	includeUnstable bool
 )
 
 func init() {
@@ -37,6 +38,9 @@ func init() {
 	)
 	pluginCmd.PersistentFlags().StringSliceVarP(&local, "local", "l", []string{}, "path to local repository")
 	installPluginCmd.Flags().StringVarP(&version, "version", "v", cli.VersionLatest, "version of the plugin")
+	installPluginCmd.Flags().BoolVarP(&includeUnstable, "include-unstable", "u", false, "include unstable versions of the plugins")
+	upgradePluginCmd.Flags().BoolVarP(&includeUnstable, "include-unstable", "u", false, "include unstable versions of the plugins")
+	listPluginCmd.Flags().BoolVarP(&includeUnstable, "include-unstable", "u", false, "include unstable versions of the plugins")
 }
 
 var pluginCmd = &cobra.Command{
@@ -60,23 +64,36 @@ var listPluginCmd = &cobra.Command{
 			return err
 		}
 
-		repo := getRepositories()
-		plugins, err := repo.ListPlugins()
+		repos := getRepositories()
+		plugins, err := repos.ListPlugins()
 		if err != nil {
 			return err
 		}
 
 		data := [][]string{}
-		for repo, descs := range plugins {
+		for repoName, descs := range plugins {
 			for _, plugin := range descs {
+				if plugin.Name == cli.CoreName {
+					continue
+				}
 
 				status := "not installed"
 				var currentVersion string
+
+				repo, err := repos.GetRepository(repoName)
+				if err != nil {
+					return err
+				}
+				versionSelector := repo.VersionSelector()
+				if includeUnstable {
+					versionSelector = cli.SelectVersionAny
+				}
+				latestVersion := plugin.FindVersion(versionSelector)
 				for _, desc := range descriptors {
 					if plugin.Name != desc.Name {
 						continue
 					}
-					compared := semver.Compare(plugin.VersionLatest(), desc.Version)
+					compared := semver.Compare(latestVersion, desc.Version)
 					if compared == 1 {
 						status = "upgrade available"
 						continue
@@ -84,7 +101,21 @@ var listPluginCmd = &cobra.Command{
 					status = "installed"
 					currentVersion = desc.Version
 				}
-				data = append(data, []string{plugin.Name, plugin.VersionLatest(), plugin.Description, repo, currentVersion, status})
+				data = append(data, []string{plugin.Name, latestVersion, plugin.Description, repoName, currentVersion, status})
+			}
+		}
+
+		// show plugins installed locally but not found in repositories
+		for _, desc := range descriptors {
+			var exists bool
+			for _, d := range data {
+				if desc.Name == d[0] {
+					exists = true
+					break
+				}
+			}
+			if !exists {
+				data = append(data, []string{desc.Name, "", desc.Description, "", desc.Version, "installed"})
 			}
 		}
 
@@ -143,14 +174,23 @@ var installPluginCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-
+		versionSelector := cli.DefaultVersionSelector
+		if includeUnstable {
+			versionSelector = cli.SelectVersionAny
+		}
 		if name == cli.AllPlugins {
-			return catalog.InstallAllMulti(repos)
+			return catalog.InstallAllMulti(repos, versionSelector)
 		}
 		repo, err := repos.Find(name)
 		if err != nil {
 			return err
 		}
+
+		plugin, err := repo.Describe(name)
+		if err != nil {
+			return err
+		}
+		version = plugin.FindVersion(versionSelector)
 		err = catalog.Install(name, version, repo)
 		if err != nil {
 			return
@@ -179,7 +219,17 @@ var upgradePluginCmd = &cobra.Command{
 			return err
 		}
 
-		err = catalog.Install(name, cli.VersionLatest, repo)
+		plugin, err := repo.Describe(name)
+		if err != nil {
+			return err
+		}
+
+		versionSelector := cli.DefaultVersionSelector
+		if includeUnstable {
+			versionSelector = cli.SelectVersionAny
+		}
+
+		err = catalog.Install(name, plugin.FindVersion(versionSelector), repo)
 		return
 	},
 }

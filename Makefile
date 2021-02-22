@@ -199,7 +199,7 @@ install-cli-plugins: TANZU_CLI_NO_INIT=true
 .PHONY: install-cli-plugins
 install-cli-plugins:  ## Install Tanzu CLI plugins 
 	$(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
-		plugin install all --local $(ARTIFACTS_DIR) --local $(ARTIFACTS_DIR)-admin
+		plugin install all --local $(ARTIFACTS_DIR) --local $(ARTIFACTS_DIR)-admin -u
 	$(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
 		test fetch --local $(ARTIFACTS_DIR) --local $(ARTIFACTS_DIR)-admin
 

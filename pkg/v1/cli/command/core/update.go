@@ -12,7 +12,6 @@ import (
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
-	clientv1 "github.com/vmware-tanzu-private/core/pkg/v1/client"
 )
 
 var yesUpdate bool
@@ -21,6 +20,7 @@ func init() {
 	updateCmd.SetUsageFunc(cli.SubCmdUsageFunc)
 	updateCmd.Flags().BoolVarP(&yesUpdate, "yes", "y", false, "force update; skip prompt")
 	updateCmd.Flags().StringSliceVarP(&local, "local", "l", []string{}, "path to local repository")
+	updateCmd.Flags().BoolVarP(&includeUnstable, "include-unstable", "u", false, "include unstable versions of the plugins")
 }
 
 var updateCmd = &cobra.Command{
@@ -40,7 +40,7 @@ var updateCmd = &cobra.Command{
 		}
 
 		repos := getRepositories()
-		communityRepo, err := repos.GetRepository(clientv1.CoreGCPBucketRepository.Name)
+		coreRepo, err := repos.Find(cli.CoreName)
 		if err != nil {
 			return err
 		}
@@ -50,9 +50,17 @@ var updateCmd = &cobra.Command{
 			repo    cli.Repository
 		}
 
+		versionSelector := cli.DefaultVersionSelector
+		if includeUnstable {
+			versionSelector = cli.SelectVersionAny
+		}
+
 		updateMap := map[*cli.PluginDescriptor]updateInfo{}
 		for _, plugin := range plugins {
-			update, repo, version, err := plugin.HasUpdateIn(repos)
+			if plugin.Name == cli.CoreName {
+				continue
+			}
+			update, repo, version, err := plugin.HasUpdateIn(repos, versionSelector)
 			if err != nil {
 				log.Warningf("could not find local plugin %q in any remote repositories", plugin.Name)
 				continue
@@ -62,7 +70,7 @@ var updateCmd = &cobra.Command{
 			}
 		}
 
-		coreUpdate, coreVersion, err := cli.HasUpdate(communityRepo)
+		coreUpdate, coreVersion, err := cli.HasUpdate(coreRepo, versionSelector)
 		if err != nil {
 			return err
 		}
@@ -103,7 +111,7 @@ var updateCmd = &cobra.Command{
 		}
 
 		// update core
-		err = cli.Update(communityRepo)
+		err = cli.Update(coreRepo, versionSelector)
 		if err != nil {
 			return err
 		}

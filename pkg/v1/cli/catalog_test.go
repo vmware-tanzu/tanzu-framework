@@ -38,7 +38,7 @@ func TestCatalog(t *testing.T) {
 	catalog := newTestCatalog(t, mockPluginList)
 	repo := newTestRepo(t, "artifacts-new")
 
-	err := catalog.InstallAll(repo)
+	err := catalog.InstallAll(repo, nil)
 	require.NoError(t, err)
 
 	err = catalog.Install("foo", "v0.0.3", repo)
@@ -73,7 +73,7 @@ func TestCatalog(t *testing.T) {
 
 	multi := NewMultiRepo(repo, altRepo)
 
-	err = catalog.InstallAllMulti(multi)
+	err = catalog.InstallAllMulti(multi, nil)
 	require.NoError(t, err)
 
 	err = catalog.EnsureTests(multi)
