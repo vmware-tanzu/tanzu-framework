@@ -21,9 +21,13 @@ spec:
         #@overlay/match missing_ok=True
         imagePullPolicy: #@ values.vsphereCPI.image.pullPolicy
         args:
-          #@overlay/append
           #@ if values.vsphereCPI.nsxt.podRoutingEnabled:
+          #@overlay/append
           - --configure-cloud-routes=true
+          #@overlay/append
+          - --allocate-node-cidrs=true
+          #@overlay/append
+          - #@ "--cluster-cidr=" + values.vsphereCPI.nsxt.routes.clusterCidr
           #@ end
           #@overlay/append
           #@yaml/text-templated-strings

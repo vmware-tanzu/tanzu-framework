@@ -43,6 +43,7 @@ def validate_nsxt_config():
      assert.fail("user/password or vmc access token or client certificates must be set")  
    end
    data.values.vsphereCPI.nsxt.host or assert.fail("vsphereCPI nsxtHost should be provided")
+   data.values.vsphereCPI.nsxt.routes.clusterCidr or assert.fail("vsphereCPI nsxt routes clusterCidr should be provided")
 end
 
 # export
