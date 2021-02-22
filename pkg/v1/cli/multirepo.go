@@ -75,7 +75,7 @@ func (m *MultiRepo) Find(name string) (r Repository, err error) {
 
 	switch i := len(matches); i {
 	case 0:
-		return nil, fmt.Errorf("could not find plugin %q", name)
+		return nil, fmt.Errorf("could not find plugin %q in any known repositories", name)
 	case 1:
 		return matches[0], nil
 	default:

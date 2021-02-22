@@ -12,10 +12,10 @@ import (
 	"time"
 
 	"github.com/aunum/log"
+	"github.com/golang/protobuf/proto" //nolint
 	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"google.golang.org/protobuf/proto"
 	"gopkg.in/yaml.v2"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"

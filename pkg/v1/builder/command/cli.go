@@ -113,6 +113,14 @@ func compile(cmd *cobra.Command, args []string) error {
 
 		// TODO (pbarker): should copy.
 		buildTargets(corePath, filepath.Join(artifactsDir, cli.CoreName, cli.VersionLatest), cli.CoreName, arch)
+		b, err := yaml.Marshal(cli.CoreDescriptor)
+		log.Check(err)
+
+		configPath := filepath.Join(artifactsDir, cli.CoreDescriptor.Name, cli.PluginFileName)
+		err = ioutil.WriteFile(configPath, b, 0644)
+		log.Check(err)
+
+		manifest.Plugins = append(manifest.Plugins, cli.CorePlugin)
 	}
 
 	files, err := ioutil.ReadDir(path)

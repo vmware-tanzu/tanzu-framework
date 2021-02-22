@@ -54,7 +54,7 @@ make build
 ```
 This will build a local repository under `./artifacts`. Plugins can be installed from this repository using:
 ```
-tanzu plugin install <plugin-name> --local ./artifacts
+tanzu plugin install <plugin-name> --local ./artifacts -u
 ```
 
 Plugins are installed into `$XDG_DATA_HOME`, [read more](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html)
