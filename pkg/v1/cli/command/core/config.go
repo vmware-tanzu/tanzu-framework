@@ -11,6 +11,7 @@ import (
 
 	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
+	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
 	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 )
 
@@ -19,7 +20,9 @@ func init() {
 	configCmd.AddCommand(
 		showConfigCmd,
 		initConfigCmd,
+		serversCmd,
 	)
+	serversCmd.AddCommand(listServersCmd)
 }
 
 var configCmd = &cobra.Command{
@@ -82,6 +85,40 @@ var initConfigCmd = &cobra.Command{
 			return err
 		}
 
+		return nil
+	},
+}
+
+var serversCmd = &cobra.Command{
+	Use:   "server",
+	Short: "Configured servers",
+}
+
+var listServersCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List servers",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cfg, err := client.GetConfig()
+		if err != nil {
+			return err
+		}
+
+		data := [][]string{}
+		for _, server := range cfg.KnownServers {
+			var endpoint string
+			if server.IsGlobal() {
+				endpoint = server.GlobalOpts.Endpoint
+			} else {
+				endpoint = server.ManagementClusterOpts.Endpoint
+			}
+			data = append(data, []string{server.Name, string(server.Type), endpoint})
+		}
+		table := component.NewTableWriter("Name", "Type", "Endpoint")
+
+		for _, v := range data {
+			table.Append(v)
+		}
+		table.Render()
 		return nil
 	},
 }
