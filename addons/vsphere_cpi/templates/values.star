@@ -7,7 +7,10 @@ def validate_vsphereCPI():
    data.values.vsphereCPI.username or assert.fail("vsphereCPI username should be provided")
    data.values.vsphereCPI.password or assert.fail("vsphereCPI password should be provided")
    if not data.values.vsphereCPI.insecureFlag:
-      data.values.vsphereCPI.tlsThumbprint or assert.fail("vsphereCPI tlsThumbprint should be provided when insecureFlag is False")
+     data.values.vsphereCPI.tlsThumbprint or assert.fail("vsphereCPI tlsThumbprint should be provided when insecureFlag is False")
+   end
+   if data.values.vsphereCPI.ipFamily and (data.values.vsphereCPI.ipFamily not in ["ipv4", "ipv6"]):
+     assert.fail("vsphereCPI ipFamily should be either ipv4 or ipv6 if provided")
    end
 end
 
