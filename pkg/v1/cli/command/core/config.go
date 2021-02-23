@@ -105,15 +105,17 @@ var listServersCmd = &cobra.Command{
 
 		data := [][]string{}
 		for _, server := range cfg.KnownServers {
-			var endpoint string
+			var endpoint, path, context string
 			if server.IsGlobal() {
 				endpoint = server.GlobalOpts.Endpoint
 			} else {
 				endpoint = server.ManagementClusterOpts.Endpoint
+				path = server.ManagementClusterOpts.Path
+				context = server.ManagementClusterOpts.Context
 			}
-			data = append(data, []string{server.Name, string(server.Type), endpoint})
+			data = append(data, []string{server.Name, string(server.Type), endpoint, path, context})
 		}
-		table := component.NewTableWriter("Name", "Type", "Endpoint")
+		table := component.NewTableWriter("Name", "Type", "Endpoint", "Path", "Context")
 
 		for _, v := range data {
 			table.Append(v)
