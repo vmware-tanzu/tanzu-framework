@@ -9,6 +9,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 
 	"github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/client"
@@ -80,6 +81,16 @@ func init() {
 	createClusterCmd.Flags().MarkHidden("yes")                           //nolint
 	createClusterCmd.Flags().MarkHidden("enable-cluster-options")        //nolint
 	createClusterCmd.Flags().MarkHidden("infrastructure")                //nolint // Usually not needed as they are implied from configuration of the management cluster.
+
+	createClusterCmd.Flags().SetNormalizeFunc(aliasNormalizeFunc)
+}
+
+func aliasNormalizeFunc(f *pflag.FlagSet, name string) pflag.NormalizedName {
+	switch name {
+	case "vsphere-controlplane-endpoint-ip":
+		name = "vsphere-controlplane-endpoint"
+	}
+	return pflag.NormalizedName(name)
 }
 
 func create(cmd *cobra.Command, args []string) error {
