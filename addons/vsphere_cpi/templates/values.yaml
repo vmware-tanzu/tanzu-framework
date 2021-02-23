@@ -9,6 +9,7 @@ vsphereCPI:
   username: null
   password: null
   insecureFlag: False
+  ipFamily: null
   vmInternalNetwork: null
   vmExternalNetwork: null
   image:

@@ -10,6 +10,9 @@ thumbprint = "(@=values.vsphereCPI.tlsThumbprint @)"
 (@ end -@)
 [VirtualCenter "(@=values.vsphereCPI.server @)"]
 datacenters = "(@=values.vsphereCPI.datacenter @)"
+(@ if values.vsphereCPI.ipFamily: -@)
+ip-family = "(@=values.vsphereCPI.ipFamily @)"
+(@ end -@)
 (@ if values.vsphereCPI.insecureFlag: -@)
 insecure-flag = "1"
 (@ else: -@)
