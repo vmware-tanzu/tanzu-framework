@@ -13,6 +13,7 @@ kappController:
   deployment:
     hostNetwork: null
     priorityClassName: null
+    concurrency: 2
   config:
     caCerts: ""
     httpProxy: ""
