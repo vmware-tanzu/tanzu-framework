@@ -80,4 +80,5 @@ This allows the CLI to be presented in accordance with different product offerin
 
 On boot, the CLI will check that the distro is present within the given set of plugins or it will install them. 
 
-Initialization of the distributions can be prevented by setting the env var `TANZU_CLI_NO_INIT=true`
+Initialization of the distributions is disable by default on this branch. It
+can be reenabled by setting the env var `TANZU_CLI_ENABLE_INIT=true`
