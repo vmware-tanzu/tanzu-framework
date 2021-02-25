@@ -70,7 +70,7 @@ type connector struct {
 		BindDN                    string            `yaml:"bindDN,omitempty"`
 		BindPW                    string            `yaml:"bindPW,omitempty"`
 		UsernamePrompt            string            `yaml:"usernamePrompt,omitempty"`
-		InsecureNoSSL             string            `yaml:"insecureNoSSL,omitempty"`
+		InsecureNoSSL             bool              `yaml:"insecureNoSSL,omitempty"`
 		StartTLS                  bool              `yaml:"startTLS,omitempty"`
 		RootCA                    string            `yaml:"rootCA,omitempty"`
 		RootCAData                string            `yaml:"rootCAData,omitempty"`
