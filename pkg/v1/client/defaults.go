@@ -13,13 +13,13 @@ var CoreGCPBucketRepository = clientv1alpha1.GCPPluginRepository{
 	Name:       CoreRepositoryName,
 }
 
-// TMCRepositoryName is the TMC repository name.
-const TMCRepositoryName = "tmc"
+// AdvancedRepositoryName is the advanced repository name.
+const AdvancedRepositoryName = "advanced"
 
-// TMCGCPBucketRepository is the GCP bucket repository for TMC plugins.
-var TMCGCPBucketRepository = clientv1alpha1.GCPPluginRepository{
-	BucketName: "tmc-cli-plugins",
-	Name:       TMCRepositoryName,
+// AdvancedGCPBucketRepository is the GCP bucket repository for advanced plugins.
+var AdvancedGCPBucketRepository = clientv1alpha1.GCPPluginRepository{
+	BucketName: "tanzu-cli-advanced-plugins",
+	Name:       AdvancedRepositoryName,
 }
 
 // TKGRepositoryName is the TKG repository name.
@@ -37,7 +37,7 @@ var DefaultRepositories []clientv1alpha1.PluginRepository = []clientv1alpha1.Plu
 		GCPPluginRepository: &CoreGCPBucketRepository,
 	},
 	clientv1alpha1.PluginRepository{
-		GCPPluginRepository: &TMCGCPBucketRepository,
+		GCPPluginRepository: &AdvancedGCPBucketRepository,
 	},
 	clientv1alpha1.PluginRepository{
 		GCPPluginRepository: &TKGGCPBucketRepository,

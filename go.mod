@@ -18,6 +18,8 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-logr/logr v0.1.0
 	github.com/gobwas/glob v0.2.3
+	github.com/gogo/protobuf v1.3.1
+	github.com/golang/protobuf v1.4.2
 	github.com/google/go-containerregistry v0.0.0-20190412005658-1d38b9cfdb9d
 	github.com/gosuri/uitable v0.0.4
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
@@ -42,7 +44,6 @@ require (
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	google.golang.org/api v0.13.0
 	google.golang.org/grpc v1.26.0
-	google.golang.org/protobuf v1.23.0
 	gopkg.in/yaml.v2 v2.3.0
 	k8s.io/api v0.17.11
 	k8s.io/apimachinery v0.17.11

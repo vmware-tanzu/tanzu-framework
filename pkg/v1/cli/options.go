@@ -25,6 +25,9 @@ type optionsConfig struct {
 
 	// distro is the plugin distro to install with the CLI.
 	distro Distro
+
+	// VersionSelector is the means to find versions of plugins in a repository.
+	versionSelector VersionSelector
 }
 
 var (
@@ -36,9 +39,10 @@ var (
 func makeDefaultOptions(list ...Option) optionsConfig {
 	opts := optionsConfig{
 		// by default, the plugin root is at $XDG_DATA_HOME/tanzu-cli
-		pluginRoot:  DefaultPluginRoot,
-		gcpRootPath: DefaultArtifactsDirectory,
-		distro:      DefaultDistro,
+		pluginRoot:    DefaultPluginRoot,
+		gcpRootPath:   DefaultArtifactsDirectory,
+		distro:        DefaultDistro,
+		versionSelector: DefaultVersionSelector,
 	}
 
 	for _, o := range list {
@@ -83,5 +87,12 @@ func WithDistro(distro Distro) Option {
 func WithName(name string) Option {
 	return func(o *optionsConfig) {
 		o.repoName = name
+	}
+}
+
+// WithVersionSelector sets the version finder.
+func WithVersionSelector(finder VersionSelector) Option {
+	return func(o *optionsConfig) {
+		o.versionSelector = finder
 	}
 }
