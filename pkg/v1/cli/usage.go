@@ -144,6 +144,7 @@ var TemplateFuncs = template.FuncMap{
 	"bold":                    bold,
 	"underline":               underline,
 	"trimTrailingWhitespaces": trimRightSpace,
+	"beginsWith":              beginsWith,
 }
 
 // rpad adds padding to the right of a string.
@@ -163,4 +164,8 @@ func bold(s string) string {
 
 func trimRightSpace(s string) string {
 	return strings.TrimRightFunc(s, unicode.IsSpace)
+}
+
+func beginsWith(s string, prefix string) bool {
+	return strings.HasPrefix(s, prefix)
 }
