@@ -4,6 +4,8 @@
 package core
 
 import (
+	"os"
+
 	"github.com/aunum/log"
 	"github.com/caarlos0/spin"
 	"github.com/spf13/cobra"
@@ -23,6 +25,11 @@ var initCmd = &cobra.Command{
 		"group": string(cli.SystemCmdGroup),
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
+		enableInit := os.Getenv("TANZU_CLI_ENABLE_INIT")
+		if enableInit == "" {
+			log.Info("Initialization skipped in this version of the CLI.")
+			return nil
+		}
 		s := spin.New("%s   initializing")
 		s.Start()
 		catalog, err := cli.NewCatalog()
