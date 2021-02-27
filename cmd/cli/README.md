@@ -82,3 +82,5 @@ On boot, the CLI will check that the distro is present within the given set of p
 
 Initialization of the distributions is disable by default on this branch. It
 can be reenabled by setting the env var `TANZU_CLI_ENABLE_INIT=true`
+
+Likewise, ```tanzu init``` is surpressed and can be reenabled by the same flag.
