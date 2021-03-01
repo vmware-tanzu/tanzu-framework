@@ -32,8 +32,8 @@ external-vm-network-name = "(@=values.vsphereCPI.vmExternalNetwork @)"
 router-path = "(@=values.vsphereCPI.nsxt.routes.routerPath @)"
 [NSXT]
 host = "(@=values.vsphereCPI.nsxt.host @)"
-insecure-flag = "(@=values.vsphereCPI.nsxt.insecureFlag @)"
-remote-auth = "(@=values.vsphereCPI.nsxt.remoteAuth @)"
+insecure-flag = "(@=str(values.vsphereCPI.nsxt.insecureFlag).lower() @)"
+remote-auth = "(@=str(values.vsphereCPI.nsxt.remoteAuth).lower() @)"
 secret-name = "(@=values.vsphereCPI.nsxt.secretName @)"
 secret-namespace = "(@=values.vsphereCPI.nsxt.secretNamespace @)"
 (@ if values.vsphereCPI.nsxt.clientCertData != '' and values.vsphereCPI.nsxt.clientCertKeyData != '' : -@)
