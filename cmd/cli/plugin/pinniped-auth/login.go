@@ -5,6 +5,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -70,7 +71,7 @@ func init() {
 	loCmd.MarkFlagRequired("issuer")                //nolint
 }
 
-func loginoidcCmd(pinnipedloginCliExec func(args []string) ([]byte, error)) *cobra.Command {
+func loginoidcCmd(pinnipedloginCliExec func(args []string) error) *cobra.Command {
 
 	loCmd.RunE = func(cmd *cobra.Command, args []string) error {
 		oidcLoginArgs := []string{
@@ -93,30 +94,35 @@ func loginoidcCmd(pinnipedloginCliExec func(args []string) ([]byte, error)) *cob
 			fmt.Sprintf("--concierge-ca-bundle-data=%s", lo.conciergeCABundle),
 		}
 
-		out, err := pinnipedloginCliExec(oidcLoginArgs)
+		err := pinnipedloginCliExec(oidcLoginArgs)
 		if err != nil {
-			return errors.Wrapf(err, "pinniped-auth login, output: %s", string(out))
+			return errors.Wrapf(err, "pinniped-auth login failed")
 		}
-		fmt.Print(string(out))
 		return nil
 	}
 	return loCmd
 }
 
-func pinnipedLoginExec(oidcLoginArgs []string) ([]byte, error) {
+func pinnipedLoginExec(oidcLoginArgs []string) error {
 	pinnipedBinary, err := tkgauth.Asset("pinniped/pinniped")
 	if err != nil {
-		return nil, err
+		return err
 	}
 	// TODO: Improve latency by avoiding the binary bits copy by storing locally
 	exe, err := memexec.New(pinnipedBinary)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer exe.Close()
 
 	pinnipedCmd := exe.Command(oidcLoginArgs...)
-	return pinnipedCmd.Output()
+	pinnipedCmd.Stdout = os.Stdout
+	pinnipedCmd.Stderr = os.Stderr
+	err = pinnipedCmd.Start()
+	if err != nil {
+		return err
+	}
+	return pinnipedCmd.Wait()
 
 }
 
