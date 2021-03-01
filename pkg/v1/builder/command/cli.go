@@ -98,8 +98,8 @@ func compile(cmd *cobra.Command, args []string) error {
 
 	manifest := cli.Manifest{
 		CreatedTime: time.Now(),
-		Version:     version,
-		Plugins:     []cli.PluginDescriptor{},
+		CoreVersion: version,
+		Plugins:     []cli.Plugin{},
 	}
 	arch := cli.Arch(targetArch)
 	if targetArch == "local" {
@@ -113,6 +113,14 @@ func compile(cmd *cobra.Command, args []string) error {
 
 		// TODO (pbarker): should copy.
 		buildTargets(corePath, filepath.Join(artifactsDir, cli.CoreName, cli.VersionLatest), cli.CoreName, arch)
+		b, err := yaml.Marshal(cli.CoreDescriptor)
+		log.Check(err)
+
+		configPath := filepath.Join(artifactsDir, cli.CoreDescriptor.Name, cli.PluginFileName)
+		err = ioutil.WriteFile(configPath, b, 0644)
+		log.Check(err)
+
+		manifest.Plugins = append(manifest.Plugins, cli.CorePlugin)
 	}
 
 	files, err := ioutil.ReadDir(path)
@@ -125,7 +133,11 @@ func compile(cmd *cobra.Command, args []string) error {
 		if f.IsDir() {
 			if g.Match(f.Name()) {
 				p := buildPlugin(filepath.Join(path, f.Name()), arch)
-				manifest.Plugins = append(manifest.Plugins, p.PluginDescriptor)
+				plugin := cli.Plugin{
+					Name:        p.Name,
+					Description: p.Description,
+				}
+				manifest.Plugins = append(manifest.Plugins, plugin)
 			}
 		}
 	}

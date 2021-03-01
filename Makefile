@@ -123,7 +123,7 @@ $(TOOLING_BINARIES):
 
 BUILD_SHA ?= $$(git describe --match=$(git rev-parse --short HEAD) --always --dirty)
 BUILD_DATE ?= $$(date -u +"%Y-%m-%d")
-BUILD_VERSION := $(shell git describe --tags --abbrev=0 2>$(NUL))
+BUILD_VERSION ?= $(shell git describe --tags --abbrev=0 2>$(NUL))
 ifeq ($(strip $(BUILD_VERSION)),)
 BUILD_VERSION = dev
 endif
@@ -144,6 +144,10 @@ endif
 
 export XDG_DATA_HOME
 
+.PHONY: version
+version: ## Show version
+	@echo $(BUILD_VERSION)
+
 
 .PHONY: install-cli
 install-cli: ## Install Tanzu CLI
@@ -154,6 +158,7 @@ install-cli: ## Install Tanzu CLI
 # single invocation once that is no longer needed.
 .PHONY: build-cli
 build-cli: prep-build-cli ## Build Tanzu CLI
+	@echo build version: $(BUILD_VERSION)
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin
 	./hack/generate-pinniped-bindata.sh go $(GOBINDATA) linux amd64
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --target linux_amd64
@@ -194,7 +199,7 @@ install-cli-plugins: TANZU_CLI_NO_INIT=true
 .PHONY: install-cli-plugins
 install-cli-plugins:  ## Install Tanzu CLI plugins 
 	$(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
-		plugin install all --local $(ARTIFACTS_DIR) --local $(ARTIFACTS_DIR)-admin
+		plugin install all --local $(ARTIFACTS_DIR) --local $(ARTIFACTS_DIR)-admin -u
 	$(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
 		test fetch --local $(ARTIFACTS_DIR) --local $(ARTIFACTS_DIR)-admin
 

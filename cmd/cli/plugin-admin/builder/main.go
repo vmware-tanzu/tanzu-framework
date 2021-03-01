@@ -14,8 +14,8 @@ import (
 var descriptor = cli.PluginDescriptor{
 	Name:        "builder",
 	Description: "Build Tanzu components",
-	Version:     "v0.0.1",
 	Group:       cli.AdminCmdGroup,
+	Version:     cli.BuildVersion,
 }
 
 func main() {
@@ -23,6 +23,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	p.AddCommands(
 		command.CLICmd,
 		command.InitCmd,

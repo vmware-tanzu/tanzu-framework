@@ -28,14 +28,18 @@ func init() {
 	repoCmd.AddCommand(
 		listRepoCmd,
 		addRepoCmd,
+		updateRepoCmd,
 		deleteRepoCmd,
 	)
 	addRepoCmd.Flags().StringVarP(&name, "name", "n", "", "name of repository")
 	addRepoCmd.Flags().StringVarP(&gcpBucketName, "gcp-bucket-name", "b", "", "name of gcp bucket")
-	addRepoCmd.Flags().StringVarP(&gcpRootPath, "gcp-root-path", "r", "", "root path in gcp bucket")
+	addRepoCmd.Flags().StringVarP(&gcpRootPath, "gcp-root-path", "p", "", "root path in gcp bucket")
 	cobra.MarkFlagRequired(addRepoCmd.Flags(), "name")            //nolint
 	cobra.MarkFlagRequired(addRepoCmd.Flags(), "gcp-bucket-name") //nolint
 	cobra.MarkFlagRequired(addRepoCmd.Flags(), "gcp-root-path")   //nolint
+
+	updateRepoCmd.Flags().StringVarP(&gcpBucketName, "gcp-bucket-name", "b", "", "name of gcp bucket")
+	updateRepoCmd.Flags().StringVarP(&gcpRootPath, "gcp-root-path", "p", "", "root path in gcp bucket")
 }
 
 var listRepoCmd = &cobra.Command{
@@ -94,6 +98,49 @@ var addRepoCmd = &cobra.Command{
 		}
 		repos = append(repos, pluginRepo)
 		cfg.ClientOptions.CLI.Repositories = repos
+		err = client.StoreConfig(cfg)
+		if err != nil {
+			return err
+		}
+		return nil
+	},
+}
+
+var updateRepoCmd = &cobra.Command{
+	Use:   "update [name]",
+	Short: "Update a repository configuration",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		repoName := args[0]
+		cfg, err := client.GetConfig()
+		if err != nil {
+			return err
+		}
+
+		repoNoExistError := fmt.Errorf("repo %q does not exist", repoName)
+		if cfg.ClientOptions == nil {
+			return repoNoExistError
+		}
+		if cfg.ClientOptions.CLI == nil {
+			return repoNoExistError
+		}
+		repos := cfg.ClientOptions.CLI.Repositories
+
+		newRepos := []clientv1alpha1.PluginRepository{}
+		for _, repo := range repos {
+			if repo.GCPPluginRepository != nil {
+				if repo.GCPPluginRepository.Name == repoName {
+					if gcpBucketName != "" {
+						repo.GCPPluginRepository.BucketName = gcpBucketName
+					}
+					if gcpRootPath != "" {
+						repo.GCPPluginRepository.RootPath = gcpRootPath
+					}
+				}
+				newRepos = append(newRepos, repo)
+			}
+		}
+		cfg.ClientOptions.CLI.Repositories = newRepos
 		err = client.StoreConfig(cfg)
 		if err != nil {
 			return err

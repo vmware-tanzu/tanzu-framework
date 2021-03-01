@@ -24,7 +24,7 @@ import (
 	"go.uber.org/multierr"
 )
 
-// PluginDescriptor describes a plugin.
+// PluginDescriptor describes a plugin binary.
 type PluginDescriptor struct {
 	// Name is the name of the plugin.
 	Name string `json:"name" yaml:"name"`
@@ -96,34 +96,45 @@ func (p *PluginDescriptor) TestCmd() *cobra.Command {
 // Apply static configurations.
 func (p *PluginDescriptor) Apply() {
 	p.BuildSHA = BuildSHA
+	if p.Version == "" {
+		p.Version = BuildVersion
+	}
 }
 
 // Validate the plugin descriptor.
 func (p *PluginDescriptor) Validate() (err error) {
+	// skip builder plugin for bootstrapping
+	if p.Name == "builder" {
+		return nil
+	}
 	if p.Name == "" {
-		err = multierr.Append(err, fmt.Errorf("plugin name cannot be empty"))
+		err = multierr.Append(err, fmt.Errorf("plugin %q name cannot be empty", p.Name))
 	}
 	if p.Version == "" {
-		err = multierr.Append(err, fmt.Errorf("plugin version cannot be empty"))
+		err = multierr.Append(err, fmt.Errorf("plugin %q version cannot be empty", p.Name))
 	}
 	if !semver.IsValid(p.Version) && !(p.Version == "dev") {
-		err = multierr.Append(err, fmt.Errorf("version %q is not a valid semantic version", p.Version))
+		err = multierr.Append(err, fmt.Errorf("version %q %q is not a valid semantic version", p.Name, p.Version))
 	}
 	if p.Description == "" {
-		err = multierr.Append(err, fmt.Errorf("plugin description cannot be empty"))
+		err = multierr.Append(err, fmt.Errorf("plugin %q description cannot be empty", p.Name))
 	}
 	if p.Group == "" {
-		err = multierr.Append(err, fmt.Errorf("plugin group cannot be empty"))
+		err = multierr.Append(err, fmt.Errorf("plugin %q group cannot be empty", p.Name))
 	}
 	return
 }
 
 // HasUpdateIn checks if the plugin has an update in any of the given repositories.
-func (p *PluginDescriptor) HasUpdateIn(repos *MultiRepo) (update bool, repo Repository, version string, err error) {
+func (p *PluginDescriptor) HasUpdateIn(repos *MultiRepo, versionSelector VersionSelector) (update bool, repo Repository, version string, err error) {
+	if versionSelector == nil {
+		versionSelector = repo.VersionSelector()
+	}
 	for _, repo := range repos.repositories {
-		update, version, err = p.HasUpdate(repo)
+		update, version, err = p.HasUpdate(repo, versionSelector)
 		if err != nil {
-			return false, nil, "", err
+			log.Debugf("could not check for update for plugin %q in repo %q: %v", p.Name, repo.Name, err)
+			continue
 		}
 		if update {
 			return update, repo, version, err
@@ -133,8 +144,11 @@ func (p *PluginDescriptor) HasUpdateIn(repos *MultiRepo) (update bool, repo Repo
 }
 
 // HasUpdate tells whether the plugin descriptor has an update available in the given repository.
-func (p *PluginDescriptor) HasUpdate(repo Repository) (update bool, version string, err error) {
-	desc, err := repo.Describe(p.Name)
+func (p *PluginDescriptor) HasUpdate(repo Repository, versionSelector VersionSelector) (update bool, version string, err error) {
+	if versionSelector == nil {
+		versionSelector = repo.VersionSelector()
+	}
+	plugin, err := repo.Describe(p.Name)
 	if err != nil {
 		return update, version, err
 	}
@@ -143,14 +157,15 @@ func (p *PluginDescriptor) HasUpdate(repo Repository) (update bool, version stri
 		err = fmt.Errorf("local plugin version %q is not a valid semantic version", p.Version)
 		return
 	}
-	valid = semver.IsValid(desc.Version)
+	latest := plugin.FindVersion(versionSelector)
+	valid = semver.IsValid(latest)
 	if !valid {
-		err = fmt.Errorf("remote plugin version %q is not a valid semantic version", desc.Version)
+		err = fmt.Errorf("remote plugin version %q is not a valid semantic version", latest)
 		return
 	}
-	compared := semver.Compare(desc.Version, p.Version)
+	compared := semver.Compare(latest, p.Version)
 	if compared == 1 {
-		return true, desc.Version, nil
+		return true, latest, nil
 	}
 	return false, version, nil
 }
@@ -306,6 +321,9 @@ func (c *Catalog) DescribeTest(pluginName string) (desc *PluginDescriptor, err e
 
 // Install a plugin from the given repository.
 func (c *Catalog) Install(name, version string, repo Repository) error {
+	if name == CoreName {
+		return fmt.Errorf("cannot install core as a plugin")
+	}
 	b, err := repo.Fetch(name, version, BuildArch())
 	if err != nil {
 		return err
@@ -324,14 +342,21 @@ func (c *Catalog) Install(name, version string, repo Repository) error {
 	return nil
 }
 
-// InstallAll plugins at the latest version.
-func (c *Catalog) InstallAll(repo Repository) error {
+// InstallAll plugins with the given version finder.
+func (c *Catalog) InstallAll(repo Repository, versionSelector VersionSelector) error {
+	if versionSelector == nil {
+		versionSelector = repo.VersionSelector()
+	}
 	plugins, err := repo.List()
 	if err != nil {
 		return err
 	}
 	for _, plugin := range plugins {
-		err := c.Install(plugin.Name, plugin.Version, repo)
+		// TODO (pbarker): there is likely a better way of doing this
+		if plugin.Name == CoreName {
+			continue
+		}
+		err := c.Install(plugin.Name, plugin.FindVersion(versionSelector), repo)
 		if err != nil {
 			return err
 		}
@@ -340,7 +365,7 @@ func (c *Catalog) InstallAll(repo Repository) error {
 }
 
 // InstallAllMulti installs all the plugins at the latest version in all the given repositories.
-func (c *Catalog) InstallAllMulti(repos *MultiRepo) error {
+func (c *Catalog) InstallAllMulti(repos *MultiRepo, versionSelector VersionSelector) error {
 	pluginMap, err := repos.ListPlugins()
 	if err != nil {
 		return err
@@ -350,8 +375,14 @@ func (c *Catalog) InstallAllMulti(repos *MultiRepo) error {
 		if err != nil {
 			return err
 		}
+		if versionSelector == nil {
+			versionSelector = repo.VersionSelector()
+		}
 		for _, plugin := range descs {
-			err := c.Install(plugin.Name, plugin.Version, repo)
+			if plugin.Name == CoreName {
+				continue
+			}
+			err := c.Install(plugin.Name, plugin.FindVersion(versionSelector), repo)
 			if err != nil {
 				return err
 			}
@@ -385,7 +416,6 @@ func (c *Catalog) EnsureDistro(repos *MultiRepo) error {
 
 	var wg sync.WaitGroup
 	for _, pluginName := range c.distro {
-		log.Debugf("installing plugin %q at version %s", pluginName, VersionLatest)
 		wg.Add(1)
 		guard <- struct{}{}
 		go func(pluginName string) {

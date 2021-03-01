@@ -10,11 +10,13 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
 
 	"cloud.google.com/go/storage"
 	"github.com/pkg/errors"
 	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
+	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 	"gopkg.in/yaml.v2"
 )
@@ -22,10 +24,10 @@ import (
 // Repository is a remote repository containing plugin artifacts.
 type Repository interface {
 	// List available plugins.
-	List() ([]PluginDescriptor, error)
+	List() ([]Plugin, error)
 
 	// Describe a plugin.
-	Describe(name string) (PluginDescriptor, error)
+	Describe(name string) (Plugin, error)
 
 	// Fetch an artifact.
 	Fetch(name, version string, arch Arch) ([]byte, error)
@@ -38,6 +40,9 @@ type Repository interface {
 
 	// Manifest retrieves the manifest for the repo.
 	Manifest() (Manifest, error)
+
+	// VersionSelector returns the version finder.
+	VersionSelector() VersionSelector
 }
 
 // NewDefaultRepository returns the default repository.
@@ -51,10 +56,41 @@ type Manifest struct {
 	CreatedTime time.Time `json:"created" yaml:"created"`
 
 	// Plugins is a list of plugin artifacts available.
-	Plugins []PluginDescriptor `json:"plugins" yaml:"plugins"`
+	Plugins []Plugin `json:"plugins" yaml:"plugins"`
 
-	// Version of the root CLI.
+	// Deprecated: Version of the root CLI.
 	Version string `json:"version" yaml:"version"`
+
+	// CoreVersion of the root CLI.
+	CoreVersion string `json:"coreVersion" yaml:"coreVersion"`
+}
+
+// GetCoreVersion returns the core version in a backwards compatible manner.
+func (m *Manifest) GetCoreVersion() string {
+	if m.Version != "" {
+		return m.Version
+	}
+	return m.CoreVersion
+}
+
+// Plugin is an installable CLI plugin.
+type Plugin struct {
+	// Name is the name of the plugin.
+	Name string `json:"name" yaml:"name"`
+
+	// Description is the plugin's description.
+	Description string `json:"description" yaml:"description"`
+
+	// Versions available for plugin.
+	Versions []string `json:"versions" yaml:"versions"`
+}
+
+// FindVersion finds the version using the version selector.
+func (p *Plugin) FindVersion(selector VersionSelector) string {
+	if selector == nil {
+		selector = DefaultVersionSelector
+	}
+	return selector(p.Versions)
 }
 
 // Arch represents a system architecture.
@@ -92,64 +128,45 @@ const (
 	// DefaultArtifactsDirectory is the root artifacts directory
 	DefaultArtifactsDirectory = "artifacts"
 
-	// VersionLatest is the latest version.
-	VersionLatest = "latest"
 	// AllPlugins is the keyword for all plugins.
 	AllPlugins = "all"
 )
 
 // GCPBucketRepository is a artifact repository utilizing a GCP bucket.
 type GCPBucketRepository struct {
-	bucketName string
-	rootPath   string
-	name       string
-}
-
-// CommunityRepositoryName is the community repository name.
-const CommunityRepositoryName = "community"
-
-// CommunityGCPBucketRepository is the default GCP bucket repository.
-var CommunityGCPBucketRepository = &GCPBucketRepository{
-	bucketName: "tanzu-cli",
-	rootPath:   DefaultArtifactsDirectory,
-	name:       CommunityRepositoryName,
-}
-
-// TMCGCPBucketRepository is the GCP bucket repository for TMC plugins.
-var TMCGCPBucketRepository = &GCPBucketRepository{
-	bucketName: "tmc-cli-plugins",
-	rootPath:   DefaultArtifactsDirectory,
-	name:       "manage",
-}
-
-// TKGGCPBucketRepository is the GCP bucket repository for TKG plugins.
-var TKGGCPBucketRepository = &GCPBucketRepository{
-	bucketName: "tanzu-cli-tkg-plugins",
-	rootPath:   DefaultArtifactsDirectory,
-	name:       "run",
+	bucketName      string
+	rootPath        string
+	name            string
+	versionSelector VersionSelector
 }
 
 // LoadRepositories loads the repositories from the config file along with the known repositories.
 func LoadRepositories(c *clientv1alpha1.Config) []Repository {
-	r := KnownRepositories
+	repos := []Repository{}
 	if c.ClientOptions == nil {
-		return r
+		c.ClientOptions = &clientv1alpha1.ClientOptions{}
 	}
 	if c.ClientOptions.CLI == nil {
-		return r
+		c.ClientOptions.CLI = &clientv1alpha1.CLIOptions{}
 	}
 	for _, repo := range c.ClientOptions.CLI.Repositories {
 		if repo.GCPPluginRepository == nil {
 			continue
 		}
-		gcpRepo := NewGCPBucketRepository(
-			WithGCPBucket(repo.GCPPluginRepository.BucketName),
-			WithGCPRootPath(repo.GCPPluginRepository.RootPath),
-			WithName(repo.GCPPluginRepository.Name),
-		)
-		r = append(r, gcpRepo)
+		repos = append(repos, loadRepository(repo))
 	}
-	return r
+	return repos
+}
+
+func loadRepository(repo clientv1alpha1.PluginRepository) Repository {
+	opts := []Option{
+		WithGCPBucket(repo.GCPPluginRepository.BucketName),
+		WithName(repo.GCPPluginRepository.Name),
+	}
+	if repo.GCPPluginRepository.RootPath != "" {
+		opts = append(opts, WithGCPRootPath(repo.GCPPluginRepository.RootPath))
+	}
+	return NewGCPBucketRepository(opts...)
 }
 
 // NewGCPBucketRepository returns a new GCP bucket repository.
@@ -157,50 +174,90 @@ func NewGCPBucketRepository(options ...Option) Repository {
 	opts := makeDefaultOptions(options...)
 
 	return &GCPBucketRepository{
-		bucketName: opts.gcpBucket,
-		rootPath:   opts.gcpRootPath,
-		name:       opts.repoName,
+		bucketName:      opts.gcpBucket,
+		rootPath:        opts.gcpRootPath,
+		name:            opts.repoName,
+		versionSelector: opts.versionSelector,
 	}
 }
 
 // List available plugins.
-func (g *GCPBucketRepository) List() (desc []PluginDescriptor, err error) {
+func (g *GCPBucketRepository) List() (plugins []Plugin, err error) {
 	manifest, err := g.Manifest()
 	if err != nil {
-		return desc, err
+		return plugins, err
 	}
-	desc = manifest.Plugins
+	for _, plugin := range manifest.Plugins {
+		p, err := g.Describe(plugin.Name)
+		if err != nil {
+			return plugins, err
+		}
+		plugins = append(plugins, p)
+	}
 	return
 }
 
 // Describe a plugin.
-func (g *GCPBucketRepository) Describe(name string) (desc PluginDescriptor, err error) {
+func (g *GCPBucketRepository) Describe(name string) (plugin Plugin, err error) {
 	ctx := context.Background()
 
 	bkt, err := g.getBucket(ctx)
 	if err != nil {
-		return desc, err
+		return plugin, err
 	}
 
 	pluginPath := path.Join(g.rootPath, name, PluginFileName)
 
 	obj := bkt.Object(pluginPath)
 	if obj == nil {
-		return desc, fmt.Errorf("artifact %q not found", name)
+		return plugin, fmt.Errorf("artifact %q not found", name)
 	}
 
 	r, err := obj.NewReader(ctx)
 	if err != nil {
-		return desc, errors.Wrap(err, "could not fetch artifact from repository")
+		return plugin, errors.Wrap(err, fmt.Sprintf("could not fetch artifact %q from repository", name))
 	}
 	defer r.Close()
 
 	d := yaml.NewDecoder(r)
 
-	err = d.Decode(&desc)
+	err = d.Decode(&plugin)
 	if err != nil {
-		return desc, errors.Wrap(err, "could not decode plugin decriptor")
+		return plugin, errors.Wrap(err, fmt.Sprintf("could not decode plugin %q decriptor", name))
 	}
+
+	pluginPath = path.Join(g.rootPath, name)
+	query := &storage.Query{Prefix: pluginPath}
+
+	versionMap := map[string]string{}
+	it := bkt.Objects(ctx, query)
+	for {
+		attrs, err := it.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return plugin, errors.Wrap(err, fmt.Sprintf("could not list versions for plugin %q", name))
+		}
+
+		// As of today the gcloud Go sdk doesn't allow for an effiecient means of listing by available
+		// prefixes or "directories"
+		pre := strings.TrimPrefix(attrs.Name, pluginPath)
+		split := strings.Split(pre, "/")
+		if len(split) < 1 {
+			return plugin, fmt.Errorf("could not retrieve version from bucket")
+		}
+		version := split[1]
+
+		if version != PluginFileName {
+			versionMap[version] = ""
+		}
+	}
+	versions := []string{}
+	for version := range versionMap {
+		versions = append(versions, version)
+	}
+	plugin.Versions = versions
 	return
 }
 
@@ -214,11 +271,14 @@ func (g *GCPBucketRepository) Fetch(name, version string, arch Arch) ([]byte, er
 	}
 
 	if version == VersionLatest {
-		desc, err := g.Describe(name)
+		plugin, err := g.Describe(name)
 		if err != nil {
 			return nil, err
 		}
-		version = desc.Version
+		version = plugin.FindVersion(g.versionSelector)
+		if version == "" {
+			return nil, fmt.Errorf("could not find a suitible version for plugin %q from versions %v", name, plugin.Versions)
+		}
 	}
 
 	artifactPath := path.Join(g.rootPath, name, version, MakeArtifactName(name, arch))
@@ -236,11 +296,14 @@ func (g *GCPBucketRepository) FetchTest(name, version string, arch Arch) ([]byte
 	}
 
 	if version == VersionLatest {
-		desc, err := g.Describe(name)
+		plugin, err := g.Describe(name)
 		if err != nil {
 			return nil, err
 		}
-		version = desc.Version
+		version = plugin.FindVersion(g.versionSelector)
+		if version == "" {
+			return nil, fmt.Errorf("could not find a suitible version for test plugin %q from versions %v", name, plugin.Versions)
+		}
 	}
 
 	artifactPath := path.Join(g.rootPath, name, version, "test", MakeTestArtifactName(name, arch))
@@ -314,10 +377,16 @@ func (g *GCPBucketRepository) getBucket(ctx context.Context) (*storage.BucketHan
 	return bkt, nil
 }
 
+// VersionSelector returns the current default version finder.
+func (g *GCPBucketRepository) VersionSelector() VersionSelector {
+	return g.versionSelector
+}
+
 // LocalRepository is a artifact repository utilizing a local host os.
 type LocalRepository struct {
-	path string
-	name string
+	path            string
+	name            string
+	versionSelector VersionSelector
 }
 
 // DefaultLocalRepository is the default local repository.
@@ -326,46 +395,72 @@ var DefaultLocalRepository = &LocalRepository{
 }
 
 // NewLocalRepository returns a new local repository.
-func NewLocalRepository(name, path string) Repository {
+func NewLocalRepository(name, path string, options ...Option) Repository {
+	opts := makeDefaultOptions(options...)
 	return &LocalRepository{
-		path: path,
-		name: name,
+		path:            path,
+		name:            name,
+		versionSelector: opts.versionSelector,
 	}
 }
 
 // List available plugins.
-func (l *LocalRepository) List() (desc []PluginDescriptor, err error) {
+func (l *LocalRepository) List() (plugins []Plugin, err error) {
 	manifest, err := l.Manifest()
 	if err != nil {
-		return desc, err
+		return plugins, err
 	}
-	desc = manifest.Plugins
+	for _, plugin := range manifest.Plugins {
+		p, err := l.Describe(plugin.Name)
+		if err != nil {
+			return plugins, err
+		}
+		plugins = append(plugins, p)
+	}
 	return
 }
 
 // Describe a plugin.
-func (l *LocalRepository) Describe(name string) (desc PluginDescriptor, err error) {
+func (l *LocalRepository) Describe(name string) (plugin Plugin, err error) {
 	b, err := ioutil.ReadFile(filepath.Join(l.path, name, PluginFileName))
 	if err != nil {
 		err = fmt.Errorf("could not find plugin.yaml file for plugin %q: %v", name, err)
 		return
 	}
 
-	err = yaml.Unmarshal(b, &desc)
+	err = yaml.Unmarshal(b, &plugin)
 	if err != nil {
-		err = fmt.Errorf("could not unmarshal manifest.yaml: %v", err)
+		return plugin, fmt.Errorf("could not unmarshal manifest.yaml: %v", err)
 	}
+	infos, err := ioutil.ReadDir(filepath.Join(l.path, name))
+	if err != nil {
+		return plugin, err
+	}
+
+	versions := []string{}
+	for _, info := range infos {
+		if info.IsDir() {
+			versions = append(versions, info.Name())
+		}
+	}
+	plugin.Versions = versions
 	return
 }
 
 // Fetch an artifact.
 func (l *LocalRepository) Fetch(name, version string, arch Arch) ([]byte, error) {
+	if version == "" {
+		return nil, fmt.Errorf("version cannot be empty for plugin %q", name)
+	}
 	if version == VersionLatest {
-		desc, err := l.Describe(name)
+		plugin, err := l.Describe(name)
 		if err != nil {
 			return nil, err
 		}
-		version = desc.Version
+		version = plugin.FindVersion(l.versionSelector)
+		if version == "" {
+			return nil, fmt.Errorf("could not find a suitible version for plugin %q from versions %v", name, plugin.Versions)
+		}
 	}
 	b, err := ioutil.ReadFile(filepath.Join(l.path, name, version, MakeArtifactName(name, arch)))
 	if err != nil {
@@ -376,12 +471,18 @@ func (l *LocalRepository) Fetch(name, version string, arch Arch) ([]byte, error)
 
 // FetchTest fetches an artifact test.
 func (l *LocalRepository) FetchTest(name, version string, arch Arch) ([]byte, error) {
+	if version == "" {
+		return nil, fmt.Errorf("version cannot be empty for plugin %q", name)
+	}
 	if version == VersionLatest {
-		desc, err := l.Describe(name)
+		plugin, err := l.Describe(name)
 		if err != nil {
 			return nil, err
 		}
-		version = desc.Version
+		version = plugin.FindVersion(l.versionSelector)
+		if version == "" {
+			return nil, fmt.Errorf("could not find a suitible version for test plugin %q from versions %v", name, plugin.Versions)
+		}
 	}
 	b, err := ioutil.ReadFile(filepath.Join(l.path, name, version, "test", MakeTestArtifactName(name, arch)))
 	if err != nil {
@@ -408,4 +509,9 @@ func (l *LocalRepository) Manifest() (manifest Manifest, err error) {
 		err = fmt.Errorf("could not unmarshal manifest.yaml: %v", err)
 	}
 	return
+}
+
+// VersionSelector returns the current default version finder.
+func (l *LocalRepository) VersionSelector() VersionSelector {
+	return l.versionSelector
 }

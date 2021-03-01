@@ -13,9 +13,9 @@ import (
 
 	"github.com/aunum/log"
 	"github.com/ghodss/yaml"
-	"github.com/pkg/errors"
-	"google.golang.org/protobuf/encoding/protojson"
-	"google.golang.org/protobuf/proto"
+	"github.com/gogo/protobuf/jsonpb"
+	"github.com/golang/protobuf/proto" //nolint
+	"github.com/pkg/errors"            //nolint
 )
 
 // InputFileToProto reads a json/yaml input file and converts it to protobuf format
@@ -46,7 +46,7 @@ func InputFileToProto(filePath string, outResource proto.Message) error {
 func BufferToProto(buf *bytes.Buffer, message proto.Message, format string) error {
 	switch format {
 	case "json":
-		err := protojson.Unmarshal(buf.Bytes(), message)
+		err := jsonpb.Unmarshal(buf, message)
 		if err != nil {
 			return err
 		}
@@ -55,7 +55,7 @@ func BufferToProto(buf *bytes.Buffer, message proto.Message, format string) erro
 		if err != nil {
 			return err
 		}
-		err = protojson.Unmarshal(jsonBytes, message)
+		err = jsonpb.UnmarshalString(string(jsonBytes), message)
 		if err != nil {
 			return err
 		}

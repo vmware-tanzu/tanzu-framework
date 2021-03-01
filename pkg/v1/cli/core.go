@@ -5,7 +5,6 @@ package cli
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -17,34 +16,41 @@ import (
 // CoreName is the name of the core binary.
 const CoreName = "core"
 
+const coreDescription = "The core Tanzu CLI"
+
+// CoreDescriptor is the core descriptor.
+var CoreDescriptor = PluginDescriptor{
+	Name:        CoreName,
+	Description: coreDescription,
+	Version:     BuildVersion,
+	BuildSHA:    BuildSHA,
+}
+
+// CorePlugin is the core plugin.
+var CorePlugin = Plugin{
+	Name:        CoreName,
+	Description: coreDescription,
+}
+
 // HasUpdate tells whether the core plugin has an update.
-func HasUpdate(repo Repository) (update bool, version string, err error) {
-	manifest, err := repo.Manifest()
+func HasUpdate(repo Repository, versionSelector VersionSelector) (update bool, version string, err error) {
+	plugin, err := repo.Describe(CoreName)
 	if err != nil {
-		return update, version, err
-	}
-	valid := semver.IsValid(manifest.Version)
-	if !valid {
-		err = fmt.Errorf("core manifest version %q is not a valid semantic version", manifest.Version)
 		return false, version, err
 	}
-	valid = semver.IsValid(BuildVersion)
-	if !valid {
-		err = fmt.Errorf("core build version %q is not a valid semantic version", BuildVersion)
-		return false, version, err
-	}
-	compared := semver.Compare(manifest.Version, BuildVersion)
+	version = plugin.FindVersion(versionSelector)
+	compared := semver.Compare(version, BuildVersion)
 	if compared == 1 {
-		return true, manifest.Version, nil
+		return true, version, nil
 	}
 	return false, version, nil
 }
 
 // Update the core CLI.
-func Update(repo Repository) error {
+func Update(repo Repository, versionSelector VersionSelector) error {
 	var executable string
 
-	update, version, err := HasUpdate(repo)
+	update, version, err := HasUpdate(repo, versionSelector)
 	if err != nil {
 		return err
 	}
