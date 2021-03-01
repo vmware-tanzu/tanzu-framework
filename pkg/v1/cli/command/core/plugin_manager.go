@@ -190,7 +190,9 @@ var installPluginCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		version = plugin.FindVersion(versionSelector)
+		if version == cli.VersionLatest {
+			version = plugin.FindVersion(versionSelector)
+		}
 		err = catalog.Install(name, version, repo)
 		if err != nil {
 			return
