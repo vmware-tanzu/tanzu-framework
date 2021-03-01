@@ -168,7 +168,7 @@ func GetPinnipedKubeconfig(cluster *clientcmdapi.Cluster, pinnipedInfo *tkgutils
 		"--request-audience="+audience,
 	)
 
-	if os.Getenv("TANZU_CLI_OIDC_LOGIN_SKIP_BROWSER") != "" {
+	if os.Getenv("TANZU_CLI_PINNIPED_AUTH_LOGIN_SKIP_BROWSER") != "" {
 		execConfig.Args = append(execConfig.Args, "--skip-browser")
 	}
 

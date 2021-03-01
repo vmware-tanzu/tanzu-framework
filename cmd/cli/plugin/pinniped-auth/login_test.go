@@ -17,7 +17,6 @@ func Test_loginoidcCmd(t *testing.T) {
 	tests := []struct {
 		name            string
 		args            []string
-		execResult      []byte
 		execReturnError error
 		wantError       bool
 		wantStdout      string
@@ -44,7 +43,7 @@ func Test_loginoidcCmd(t *testing.T) {
 			execReturnError: errors.New("pinniped cli exec fake error"),
 			wantError:       true,
 			wantStderr: Doc(`
-			Error: pinniped-auth login, output: : pinniped cli exec fake error
+			Error: pinniped-auth login failed: pinniped cli exec fake error
 			`),
 		},
 		{
@@ -63,11 +62,11 @@ func Test_loginoidcCmd(t *testing.T) {
 				gotIssuer   string
 				gotClientID string
 			)
-			cmd := loginoidcCmd(func(execargs []string) ([]byte, error) {
+			cmd := loginoidcCmd(func(execargs []string) error {
 				gotIssuer = execargs[2]
 				gotClientID = execargs[3]
 
-				return tt.execResult, tt.execReturnError
+				return tt.execReturnError
 			})
 			require.NotNil(t, cmd)
 
