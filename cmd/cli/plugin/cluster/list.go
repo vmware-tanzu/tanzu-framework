@@ -68,13 +68,13 @@ func listClusters(server *v1alpha1.Server) error {
 		return utils.RenderOutput(clusters, lc.outputFormat)
 	}
 
-	t := component.NewTableWriter("NAME", "NAMESPACE", "STATUS", "CONTROLPLANE", "WORKERS", "KUBERNETES", "ROLES")
+	t := component.NewTableWriter("NAME", "NAMESPACE", "STATUS", "CONTROLPLANE", "WORKERS", "KUBERNETES", "ROLES", "PLAN")
 	for _, cl := range clusters {
 		clusterRoles := "<none>"
 		if len(cl.Roles) != 0 {
 			clusterRoles = strings.Join(cl.Roles, ",")
 		}
-		t.Append([]string{cl.Name, cl.Namespace, cl.Status, cl.ControlPlaneCount, cl.WorkerCount, cl.K8sVersion, clusterRoles})
+		t.Append([]string{cl.Name, cl.Namespace, cl.Status, cl.ControlPlaneCount, cl.WorkerCount, cl.K8sVersion, clusterRoles, cl.Plan})
 	}
 	t.Render()
 
