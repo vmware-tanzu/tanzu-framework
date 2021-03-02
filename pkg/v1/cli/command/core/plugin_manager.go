@@ -41,6 +41,7 @@ func init() {
 	installPluginCmd.Flags().BoolVarP(&includeUnstable, "include-unstable", "u", false, "include unstable versions of the plugins")
 	upgradePluginCmd.Flags().BoolVarP(&includeUnstable, "include-unstable", "u", false, "include unstable versions of the plugins")
 	listPluginCmd.Flags().BoolVarP(&includeUnstable, "include-unstable", "u", false, "include unstable versions of the plugins")
+	describePluginCmd.Flags().BoolVarP(&includeUnstable, "include-unstable", "u", false, "include unstable versions of the plugins")
 }
 
 var pluginCmd = &cobra.Command{
@@ -149,6 +150,8 @@ var describePluginCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+
+		plugin.Versions = cli.FilterVersions(plugin.Versions, includeUnstable)
 
 		b, err := yaml.Marshal(plugin)
 		if err != nil {
