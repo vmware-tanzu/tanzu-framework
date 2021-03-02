@@ -18,17 +18,26 @@ type VersionSelector func(versions []string) string
 // DefaultVersionSelector is the default version selector.
 var DefaultVersionSelector = SelectVersionStable
 
-// SelectVersionStable returns the latest stable version from a list of versions. If there are
-// no stable versions it will return an empty string.
-func SelectVersionStable(versions []string) (v string) {
+// FilterVersions returns the list of valid versions depending on whether
+// unstable versions are requested or not.
+func FilterVersions(versions []string, includeUnstable bool) (results []string) {
 	for _, version := range versions {
 		if !semver.IsValid(version) {
 			continue
 		}
 		split := strings.Split(version, "-")
-		if len(split) > 1 {
+		if len(split) > 1 && !includeUnstable {
 			continue
 		}
+		results = append(results, version)
+	}
+	return
+}
+
+// SelectVersionStable returns the latest stable version from a list of
+// versions. If there are no stable versions it will return an empty string.
+func SelectVersionStable(versions []string) (v string) {
+	for _, version := range FilterVersions(versions, false) {
 		c := semver.Compare(v, version)
 		if c == -1 {
 			v = version
@@ -39,10 +48,7 @@ func SelectVersionStable(versions []string) (v string) {
 
 // SelectVersionAny returns the latest version from a list of versions including prereleases.
 func SelectVersionAny(versions []string) (v string) {
-	for _, version := range versions {
-		if !semver.IsValid(version) {
-			continue
-		}
+	for _, version := range FilterVersions(versions, true) {
 		c := semver.Compare(v, version)
 		if c == -1 {
 			v = version
