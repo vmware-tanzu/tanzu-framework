@@ -74,3 +74,36 @@ func TestSelectVersionAny(t *testing.T) {
 		})
 	}
 }
+
+func TestFilterVersions(t *testing.T) {
+	for _, test := range []struct {
+		name            string
+		includeUnstable bool
+		versions        []string
+		results         []string
+	}{
+		{
+			name:            "ignore bad versions",
+			includeUnstable: false,
+			versions:        []string{"v0.0.1", "dev", "bad.version.not.semver", "v0.0.2"},
+			results:         []string{"v0.0.1", "v0.0.2"},
+		},
+		{
+			name:            "all versions including unstable",
+			includeUnstable: true,
+			versions:        []string{"v0.0.1", "v1.3.0-rc.1", "v1.3.0-pre-alpha-1"},
+			results:         []string{"v0.0.1", "v1.3.0-rc.1", "v1.3.0-pre-alpha-1"},
+		},
+		{
+			name:            "no unstable versions",
+			includeUnstable: false,
+			versions:        []string{"v0.0.1", "v1.3.0-rc.1", "v1.3.0"},
+			results:         []string{"v0.0.1", "v1.3.0"},
+		},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			v := FilterVersions(test.versions, test.includeUnstable)
+			require.Equal(t, test.results, v)
+		})
+	}
+}
