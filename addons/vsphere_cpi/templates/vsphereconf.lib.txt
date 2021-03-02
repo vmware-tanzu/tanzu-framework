@@ -43,9 +43,6 @@ root-ca-data = "(@=values.vsphereCPI.nsxt.rootCAData @)"
 (@ elif values.vsphereCPI.nsxt.vmcAccessToken != '' and values.vsphereCPI.nsxt.vmcAuthHost != '' : -@)
 vmc-access-token = "(@=values.vsphereCPI.nsxt.vmcAccessToken @)"
 vmc-auth-host = "(@=values.vsphereCPI.nsxt.vmcAuthHost @)"
-(@ elif values.vsphereCPI.nsxt.username != '' and values.vsphereCPI.nsxt.password != '': -@)
-username = "(@=values.vsphereCPI.nsxt.username @)"
-password = "(@=values.vsphereCPI.nsxt.password @)"
 (@ end -@)
 (@ end -@)
 (@ end -@)
