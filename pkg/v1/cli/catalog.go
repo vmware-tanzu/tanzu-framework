@@ -12,6 +12,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"sync"
 
 	"golang.org/x/mod/semver"
@@ -22,6 +23,21 @@ import (
 	"github.com/aunum/log"
 
 	"go.uber.org/multierr"
+)
+
+// PluginCompletionType is the mechanism used for determining command line completion options.
+type PluginCompletionType int
+
+const (
+	// NativePluginCompletion indicates command line completion is determined using the built in
+	// cobra.Command __complete mechanism.
+	NativePluginCompletion PluginCompletionType = iota
+	// StaticPluginCompletion indicates command line completion will be done by using a statically
+	// defined list of options.
+	StaticPluginCompletion
+	// DynamicPluginCompletion indicates command line completion will be retrieved from the plugin
+	// at runtime.
+	DynamicPluginCompletion
 )
 
 // PluginDescriptor describes a plugin binary.
@@ -46,6 +62,17 @@ type PluginDescriptor struct {
 
 	// Hidden tells whether the plugin should be hidden from the help command.
 	Hidden bool `json:"hidden,omitempty" yaml:"hidden,omitempty"`
+
+	// CompletionType determines how command line completion will be determined.
+	CompletionType PluginCompletionType `json:"completionType" yaml:"completionType"`
+
+	// CompletionArgs contains the valid command line completion values if `CompletionType`
+	// is set to `StaticPluginCompletion`.
+	CompletionArgs []string `json:"completionArgs,omitempty" yaml:"completionArgs,omitempty"`
+
+	// CompletionCommand is the command to call from the plugin to retrieve a list of
+	// valid completion nouns when `CompletionType` is set to `DynamicPluginCompletion`.
+	CompletionCommand string `json:"completionCmd,omitempty" yaml:"completionCmd,omitempty"`
 }
 
 // NewTestFor creates a plugin descriptor for a test plugin.
@@ -75,6 +102,49 @@ func (p *PluginDescriptor) Cmd() *cobra.Command {
 		},
 		Hidden: p.Hidden,
 	}
+
+	// Handle command line completion types.
+	if p.CompletionType == NativePluginCompletion {
+		cmd.ValidArgsFunction = func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+			// Parses the completion info provided by cobra.Command. This should be formatted similar to:
+			//   help	Help about any command
+			//   :4
+			//   Completion ended with directive: ShellCompDirectiveNoFileComp
+			runner := NewRunner(p.Name, []string{"__complete", ""})
+			ctx := context.Background()
+			output, _, err := runner.RunOutput(ctx)
+			if err != nil {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			}
+
+			lines := strings.Split(strings.Trim(output, "\n"), "\n")
+			var results []string
+			for _, line := range lines {
+				if line == ":4" {
+					// Special marker in output to indicate the end
+					break
+				}
+				results = append(results, line)
+			}
+			return results, cobra.ShellCompDirectiveNoFileComp
+		}
+	} else if p.CompletionType == StaticPluginCompletion {
+		cmd.ValidArgs = p.CompletionArgs
+	} else if p.CompletionType == DynamicPluginCompletion {
+		cmd.ValidArgsFunction = func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+			runner := NewRunner(p.Name, []string{p.CompletionCommand})
+			ctx := context.Background()
+			output, _, err := runner.RunOutput(ctx)
+			if err != nil {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			}
+
+			// Expectation is that plugins will return a list of nouns, one per line. Can be either just
+			// the noun, or "noun[tab]Description".
+			return strings.Split(strings.Trim(output, "\n"), "\n"), cobra.ShellCompDirectiveNoFileComp
+		}
+	}
+
 	cmd.SetHelpFunc(func(c *cobra.Command, args []string) {
 		// Plugin commands don't provide full details to the default "help" cmd.
 		// To get around this, we need to intercept and send the help request
