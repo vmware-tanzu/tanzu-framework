@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -36,50 +37,55 @@ func NewRunner(name string, args []string, options ...Option) *Runner {
 
 // Run runs a plugin.
 func (r *Runner) Run(ctx context.Context) error {
-	pluginPath := r.pluginPath()
-
-	if BuildArch().IsWindows() {
-		pluginPath = pluginPath + ".exe"
-	}
-	info, err := os.Stat(pluginPath)
-	if err != nil {
-		// TODO (pbarker): should check if the plugin exists in the repository using fuzzy search and display how to install.
-		return fmt.Errorf("plugin %q does not exist, try using `tanzu plugin install %s` to install or `tanzu plugin list` to find plugins", r.name, r.name)
-	}
-
-	if info.IsDir() {
-		return fmt.Errorf("%q is a directory", pluginPath)
-	}
-	err = r.run(ctx, pluginPath)
-	if err != nil {
-		return err
-	}
-	return nil
+	return r.runStdOutput(ctx, r.pluginPath())
 }
 
 // RunTest runs a plugin test.
 func (r *Runner) RunTest(ctx context.Context) error {
-	pluginPath := r.testPluginPath()
-	info, err := os.Stat(pluginPath)
-	if err != nil {
-		// TODO (pbarker): should check if the plugin exists in the repository using fuzzy search and display how to install.
-		return fmt.Errorf("plugin %q does not exist, try using `tanzu plugin install %s` to install or `tanzu plugin list` to find plugins", r.name, r.name)
+	return r.runStdOutput(ctx, r.testPluginPath())
+}
+
+// runStdOutput runs a plugin and writes any output to the standard os.Stdout and os.Stderr.
+func (r *Runner) runStdOutput(ctx context.Context, pluginPath string) error {
+	stdout, stderr, err := r.run(ctx, pluginPath)
+
+	// We want to write any available output, regardless of whether an error occurred.
+	if stdout != "" {
+		os.Stdout.WriteString(stdout)
+	}
+	if stderr != "" {
+		os.Stderr.WriteString(stderr)
 	}
 
-	if info.IsDir() {
-		return fmt.Errorf("%q is a directory", pluginPath)
-	}
-	err = r.run(ctx, pluginPath)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *Runner) run(ctx context.Context, pluginPath string) error {
+// RunOutput runs a plugin and returns the output.
+func (r *Runner) RunOutput(ctx context.Context) (string, string, error) {
+	return r.run(ctx, r.pluginPath())
+}
+
+func (r *Runner) run(ctx context.Context, pluginPath string) (string, string, error) {
+	if BuildArch().IsWindows() {
+		pluginPath = pluginPath + ".exe"
+	}
+
+	info, err := os.Stat(pluginPath)
+	if err != nil {
+		// TODO (pbarker): should check if the plugin exists in the repository using fuzzy search and display how to install.
+		return "", "", fmt.Errorf("plugin %q does not exist, try using `tanzu plugin install %s` to install or `tanzu plugin list` to find plugins", r.name, r.name)
+	}
+
+	if info.IsDir() {
+		return "", "", fmt.Errorf("%q is a directory", pluginPath)
+	}
+
 	stateFile, err := ioutil.TempFile("", "tanzu-cli-state")
 	if err != nil {
-		return fmt.Errorf("create state file: %w", err)
+		return "", "", fmt.Errorf("create state file: %w", err)
 	}
 
 	defer func() {
@@ -93,23 +99,27 @@ func (r *Runner) run(ctx context.Context, pluginPath string) error {
 	}
 
 	if err := json.NewEncoder(stateFile).Encode(state); err != nil {
-		return fmt.Errorf("encode state: %w", err)
+		return "", "", fmt.Errorf("encode state: %w", err)
 	}
 
 	if err := stateFile.Close(); err != nil {
-		return fmt.Errorf("close state file: %w", err)
+		return "", "", fmt.Errorf("close state file: %w", err)
 	}
 
 	env := append(os.Environ(), fmt.Sprintf("%s=%s", EnvPluginStateKey, stateFile.Name()))
 
 	log.Debugf("running command path %s args: %+v", pluginPath, r.args)
 	cmd := exec.CommandContext(ctx, pluginPath, r.args...)
+
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
 	cmd.Stdin = os.Stdin
-	cmd.Stderr = os.Stderr
-	cmd.Stdout = os.Stdout
+	cmd.Stderr = &stderr
+	cmd.Stdout = &stdout
 	cmd.Env = env
 
-	return cmd.Run()
+	err = cmd.Run()
+	return stdout.String(), stderr.String(), err
 }
 
 func (r *Runner) pluginName() string {
