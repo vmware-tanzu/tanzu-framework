@@ -37,9 +37,9 @@ remote-auth = "(@=str(values.vsphereCPI.nsxt.remoteAuth).lower() @)"
 secret-name = "(@=values.vsphereCPI.nsxt.secretName @)"
 secret-namespace = "(@=values.vsphereCPI.nsxt.secretNamespace @)"
 (@ if values.vsphereCPI.nsxt.clientCertData != '' and values.vsphereCPI.nsxt.clientCertKeyData != '' : -@)
-client-cert-data = "(@=values.vsphereCPI.nsxt.clientCertData @)"
-client-cert-key-data = "(@=values.vsphereCPI.nsxt.clientCertKeyData @)"
-root-ca-data = "(@=values.vsphereCPI.nsxt.rootCAData @)"
+client-auth-cert-file = "(@=values.vsphereCPI.nsxt.clientCertData @)"
+client-auth-key-file = "(@=values.vsphereCPI.nsxt.clientCertKeyData @)"
+ca-file = "(@=values.vsphereCPI.nsxt.rootCAData @)"
 (@ elif values.vsphereCPI.nsxt.vmcAccessToken != '' and values.vsphereCPI.nsxt.vmcAuthHost != '' : -@)
 vmc-access-token = "(@=values.vsphereCPI.nsxt.vmcAccessToken @)"
 vmc-auth-host = "(@=values.vsphereCPI.nsxt.vmcAuthHost @)"
