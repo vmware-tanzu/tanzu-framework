@@ -110,7 +110,11 @@ func (p *PluginDescriptor) Cmd() *cobra.Command {
 			//   help	Help about any command
 			//   :4
 			//   Completion ended with directive: ShellCompDirectiveNoFileComp
-			runner := NewRunner(p.Name, []string{"__complete", ""})
+			completion := []string{"__complete"}
+			completion = append(completion, args...)
+			completion = append(completion, toComplete)
+
+			runner := NewRunner(p.Name, completion)
 			ctx := context.Background()
 			output, _, err := runner.RunOutput(ctx)
 			if err != nil {
@@ -120,7 +124,7 @@ func (p *PluginDescriptor) Cmd() *cobra.Command {
 			lines := strings.Split(strings.Trim(output, "\n"), "\n")
 			var results []string
 			for _, line := range lines {
-				if line == ":4" {
+				if strings.HasPrefix(line, ":") {
 					// Special marker in output to indicate the end
 					break
 				}
