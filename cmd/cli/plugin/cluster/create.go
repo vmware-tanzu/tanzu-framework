@@ -25,19 +25,19 @@ type createClusterOptions struct {
 	plan                        string
 	infrastructureProvider      string
 	namespace                   string
-	controlPlaneMachineCount    int
-	workerMachineCount          int
-	timeout                     time.Duration
-	generateOnly                bool
 	size                        string
 	controlPlaneSize            string
 	workerSize                  string
-	unattended                  bool
 	cniType                     string
 	enableClusterOptions        string
 	vsphereControlPlaneEndpoint string
 	clusterConfigFile           string
 	tkrName                     string
+	controlPlaneMachineCount    int
+	workerMachineCount          int
+	timeout                     time.Duration
+	generateOnly                bool
+	unattended                  bool
 }
 
 var cc = &createClusterOptions{}

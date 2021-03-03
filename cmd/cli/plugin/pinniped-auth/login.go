@@ -18,22 +18,22 @@ import (
 )
 
 type loginOIDCOptions struct {
-	issuer                     string
-	clientID                   string
-	listenPort                 uint16
 	scopes                     []string
-	skipBrowser                bool
-	sessionCachePath           string
 	caBundlePaths              []string
 	caBundleData               []string
-	debugSessionCache          bool
+	issuer                     string
+	clientID                   string
+	sessionCachePath           string
 	requestAudience            string
-	conciergeEnabled           bool
 	conciergeNamespace         string
 	conciergeAuthenticatorType string
 	conciergeAuthenticatorName string
 	conciergeEndpoint          string
 	conciergeCABundle          string
+	listenPort                 uint16
+	skipBrowser                bool
+	debugSessionCache          bool
+	conciergeEnabled           bool
 }
 
 var lo = &loginOIDCOptions{}
