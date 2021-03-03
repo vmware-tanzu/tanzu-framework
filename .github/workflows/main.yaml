@@ -59,11 +59,3 @@ jobs:
       with:
         version: v1.29
         args: --timeout=5m
-
-    - name: Install golint
-      run: |
-        go get -u golang.org/x/lint/golint
-
-    - name: Run golint
-      run: |
-        golint -set_exit_status ./...
