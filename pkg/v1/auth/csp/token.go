@@ -17,13 +17,14 @@ import (
 	"net/url"
 	"time"
 
-	"golang.org/x/oauth2"
-
 	"github.com/aunum/log"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/pkg/errors"
-	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
+
+	"golang.org/x/oauth2"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
 )
 
 const (

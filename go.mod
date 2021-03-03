@@ -42,6 +42,7 @@ require (
 	go.uber.org/multierr v1.1.0
 	golang.org/x/mod v0.3.0
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
+	golang.org/x/tools v0.1.0 // indirect
 	google.golang.org/api v0.13.0
 	google.golang.org/grpc v1.26.0
 	gopkg.in/yaml.v2 v2.3.0

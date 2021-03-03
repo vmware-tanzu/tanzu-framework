@@ -15,14 +15,15 @@ import (
 	"github.com/fatih/color"
 	"github.com/gosuri/uitable"
 	"github.com/spf13/cobra"
-	"github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
-	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/duration"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+
+	"github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
+	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
+	"github.com/vmware-tanzu-private/core/pkg/v1/client"
+	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
 )
 
 const noneTag = "<none>"

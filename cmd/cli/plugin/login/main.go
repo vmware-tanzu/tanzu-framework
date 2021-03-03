@@ -11,21 +11,18 @@ import (
 	"strings"
 	"time"
 
-	tkgauth "github.com/vmware-tanzu-private/core/pkg/v1/auth/tkg"
-
-	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
-
-	"golang.org/x/oauth2"
-
 	"github.com/aunum/log"
 	"github.com/spf13/cobra"
+	"golang.org/x/oauth2"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/auth/csp"
+	tkgauth "github.com/vmware-tanzu-private/core/pkg/v1/auth/tkg"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/command/plugin"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
+	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 )
 
 var descriptor = cli.PluginDescriptor{

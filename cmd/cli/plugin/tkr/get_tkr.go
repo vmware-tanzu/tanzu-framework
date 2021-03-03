@@ -5,8 +5,8 @@ package main
 
 import (
 	"github.com/pkg/errors"
-
 	"github.com/spf13/cobra"
+
 	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
 	"github.com/vmware-tanzu-private/core/pkg/v1/client"

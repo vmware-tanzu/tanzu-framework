@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/image"
+
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/types"
 )
 

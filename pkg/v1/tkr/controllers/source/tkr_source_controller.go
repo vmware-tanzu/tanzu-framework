@@ -15,11 +15,6 @@ import (
 	"github.com/go-logr/logr"
 	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/image"
 	"github.com/pkg/errors"
-	runv1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/constants"
-	mgrcontext "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/context"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/registry"
-	types "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/types"
 	"gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -29,6 +24,12 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+
+	runv1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/constants"
+	mgrcontext "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/context"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/registry"
+	types "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/types"
 )
 
 // TanzuKubernetesReleaseReconciler reconciles a TanzuKubernetesRelease object

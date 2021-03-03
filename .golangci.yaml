@@ -23,7 +23,7 @@ linters-settings:
   gocyclo:
     min-complexity: 15
   goimports:
-    local-prefixes: github.com/vmware-tanzu-private/core
+    local-prefixes: github.com/vmware-tanzu-private
   golint:
     min-confidence: 0
   gomnd:
@@ -62,7 +62,6 @@ linters:
     - goconst
     - gocritic
     - gocyclo
-    - gofmt
     - goimports
     - golint
     - gomnd
@@ -111,6 +110,12 @@ issues:
     - 'unnamedResult: consider giving a name to these results'
 
   exclude-rules:
+    - path: pinniped/internal/mocks
+      linters:
+        - goimports
+    - path: apis/run/v1alpha1
+      linters:
+        - goimports
     - path: _test\.go
       linters:
         - gomnd

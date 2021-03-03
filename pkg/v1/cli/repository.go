@@ -15,10 +15,11 @@ import (
 
 	"cloud.google.com/go/storage"
 	"github.com/pkg/errors"
-	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
 	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 	"gopkg.in/yaml.v2"
+
+	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
 )
 
 // Repository is a remote repository containing plugin artifacts.

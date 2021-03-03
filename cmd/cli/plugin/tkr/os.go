@@ -6,6 +6,7 @@ package main
 import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
 	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 	"github.com/vmware-tanzu-private/core/pkg/v1/clusterclient"

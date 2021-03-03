@@ -11,10 +11,10 @@ import (
 	"text/template"
 	"unicode"
 
-	"github.com/spf13/cobra"
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
-
 	"github.com/logrusorgru/aurora"
+	"github.com/spf13/cobra"
+
+	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 )
 
 // CmdMap is the map of command groups to plugins

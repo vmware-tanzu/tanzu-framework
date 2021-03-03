@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/AlecAivazis/survey/v2"
 	"github.com/aunum/log"
 	"github.com/spf13/cobra"
 
-	"github.com/AlecAivazis/survey/v2"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 )
 

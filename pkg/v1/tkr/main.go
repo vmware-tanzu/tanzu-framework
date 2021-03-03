@@ -8,9 +8,6 @@ import (
 	"flag"
 	"os"
 
-	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	tkrsourcectr "github.com/vmware-tanzu-private/core/pkg/v1/tkr/controllers/source"
-	mgrcontext "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/context"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
@@ -19,7 +16,12 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	ctrllog "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+
 	// +kubebuilder:scaffold:imports
+
+	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
+	tkrsourcectr "github.com/vmware-tanzu-private/core/pkg/v1/tkr/controllers/source"
+	mgrcontext "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/context"
 )
 
 var (

@@ -6,8 +6,9 @@ package cli
 import (
 	"context"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 	"google.golang.org/grpc/metadata"
+
+	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 )
 
 const (

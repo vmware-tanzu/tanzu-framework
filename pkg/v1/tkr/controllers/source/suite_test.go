@@ -11,9 +11,6 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
-	runv1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/fakes"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/constants"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -22,7 +19,12 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 	ctrllog "sigs.k8s.io/controller-runtime/pkg/log"
+
 	// +kubebuilder:scaffold:imports
+
+	runv1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/fakes"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/constants"
 )
 
 const (

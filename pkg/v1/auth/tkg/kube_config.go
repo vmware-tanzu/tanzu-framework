@@ -12,12 +12,13 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	tkgclient "github.com/vmware-tanzu-private/tkg-cli/pkg/client"
-	tkgutils "github.com/vmware-tanzu-private/tkg-cli/pkg/utils"
 	"k8s.io/client-go/discovery"
 	clientauthenticationv1beta1 "k8s.io/client-go/pkg/apis/clientauthentication/v1beta1"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+
+	tkgclient "github.com/vmware-tanzu-private/tkg-cli/pkg/client"
+	tkgutils "github.com/vmware-tanzu-private/tkg-cli/pkg/utils"
 )
 
 const (

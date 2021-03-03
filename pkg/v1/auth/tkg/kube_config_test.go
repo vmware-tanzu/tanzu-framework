@@ -17,10 +17,11 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/ghttp"
-	tkgauth "github.com/vmware-tanzu-private/core/pkg/v1/auth/tkg"
 	clientauthenticationv1beta1 "k8s.io/client-go/pkg/apis/clientauthentication/v1beta1"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+
+	tkgauth "github.com/vmware-tanzu-private/core/pkg/v1/auth/tkg"
 )
 
 var testingDir string
