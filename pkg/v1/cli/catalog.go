@@ -136,7 +136,13 @@ func (p *PluginDescriptor) Cmd() *cobra.Command {
 		cmd.ValidArgs = p.CompletionArgs
 	} else if p.CompletionType == DynamicPluginCompletion {
 		cmd.ValidArgsFunction = func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-			runner := NewRunner(p.Name, []string{p.CompletionCommand})
+			// Pass along the full completion information. Trivial plugins may not support
+			// completion depth, but we can provide the information in case they do.
+			completion := []string{p.CompletionCommand}
+			completion = append(completion, args...)
+			completion = append(completion, toComplete)
+
+			runner := NewRunner(p.Name, completion)
 			ctx := context.Background()
 			output, _, err := runner.RunOutput(ctx)
 			if err != nil {
