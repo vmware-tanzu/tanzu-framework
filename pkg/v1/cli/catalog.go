@@ -122,15 +122,22 @@ func (p *PluginDescriptor) Cmd() *cobra.Command {
 			}
 
 			lines := strings.Split(strings.Trim(output, "\n"), "\n")
+			valid := false
 			var results []string
 			for _, line := range lines {
 				if strings.HasPrefix(line, ":") {
 					// Special marker in output to indicate the end
+					valid = true
 					break
 				}
 				results = append(results, line)
 			}
-			return results, cobra.ShellCompDirectiveNoFileComp
+
+			if valid {
+				return results, cobra.ShellCompDirectiveNoFileComp
+			}
+
+			return []string{}, cobra.ShellCompDirectiveError
 		}
 	} else if p.CompletionType == StaticPluginCompletion {
 		cmd.ValidArgs = p.CompletionArgs
@@ -144,9 +151,9 @@ func (p *PluginDescriptor) Cmd() *cobra.Command {
 
 			runner := NewRunner(p.Name, completion)
 			ctx := context.Background()
-			output, _, err := runner.RunOutput(ctx)
-			if err != nil {
-				return nil, cobra.ShellCompDirectiveNoFileComp
+			output, stderr, err := runner.RunOutput(ctx)
+			if err != nil || stderr != "" {
+				return nil, cobra.ShellCompDirectiveError
 			}
 
 			// Expectation is that plugins will return a list of nouns, one per line. Can be either just
