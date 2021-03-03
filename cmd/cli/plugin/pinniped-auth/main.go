@@ -14,7 +14,7 @@ import (
 
 var descriptor = cli.PluginDescriptor{
 	Name:        "pinniped-auth",
-	Description: "Pinniped auth login operations",
+	Description: "Pinniped authentication operations (usually not directly invoked)",
 	Group:       cli.RunCmdGroup,
 	Hidden:      true,
 }
