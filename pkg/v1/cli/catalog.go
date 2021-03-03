@@ -75,6 +75,17 @@ func (p *PluginDescriptor) Cmd() *cobra.Command {
 		},
 		Hidden: p.Hidden,
 	}
+	cmd.SetHelpFunc(func(c *cobra.Command, args []string) {
+		// Plugin commands don't provide full details to the default "help" cmd.
+		// To get around this, we need to intercept and send the help request
+		// out to the plugin.
+		runner := NewRunner(p.Name, []string{"-h"})
+		ctx := context.Background()
+		err := runner.Run(ctx)
+		if err != nil {
+			log.Error("Help output for '%s' is not available.", c.Name())
+		}
+	})
 	return cmd
 }
 
