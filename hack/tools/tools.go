@@ -1,3 +1,5 @@
+// +build tools
+
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -5,5 +7,7 @@
 package tools
 
 import (
+	_ "github.com/golangci/golangci-lint/cmd/golangci-lint"
 	_ "github.com/shuLhan/go-bindata" // Force load of go-bindata
+	_ "golang.org/x/lint/golint"
 )
