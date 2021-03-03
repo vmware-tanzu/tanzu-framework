@@ -45,7 +45,6 @@ func getMachineHealthCheck(cmd *cobra.Command, args []string) error {
 		return errors.New("getting machine healthcheck with a global server is not implemented yet")
 	}
 	return runGetMachineHealthCheck(server, args[0])
-
 }
 
 func runGetMachineHealthCheck(server *v1alpha1.Server, clusterName string) error {

@@ -258,7 +258,7 @@ func (g *GCPBucketRepository) Describe(name string) (plugin Plugin, err error) {
 		versions = append(versions, version)
 	}
 	plugin.Versions = versions
-	return
+	return plugin, err
 }
 
 // Fetch an artifact.
@@ -395,10 +395,10 @@ var DefaultLocalRepository = &LocalRepository{
 }
 
 // NewLocalRepository returns a new local repository.
-func NewLocalRepository(name, path string, options ...Option) Repository {
+func NewLocalRepository(name, localPath string, options ...Option) Repository {
 	opts := makeDefaultOptions(options...)
 	return &LocalRepository{
-		path:            path,
+		path:            localPath,
 		name:            name,
 		versionSelector: opts.versionSelector,
 	}

@@ -33,13 +33,13 @@ var TKGGCPBucketRepository = clientv1alpha1.GCPPluginRepository{
 
 // DefaultRepositories are the default repositories for the CLI.
 var DefaultRepositories []clientv1alpha1.PluginRepository = []clientv1alpha1.PluginRepository{
-	clientv1alpha1.PluginRepository{
+	{
 		GCPPluginRepository: &CoreGCPBucketRepository,
 	},
-	clientv1alpha1.PluginRepository{
+	{
 		GCPPluginRepository: &AdvancedGCPBucketRepository,
 	},
-	clientv1alpha1.PluginRepository{
+	{
 		GCPPluginRepository: &TKGGCPBucketRepository,
 	},
 }

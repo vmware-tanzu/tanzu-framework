@@ -77,7 +77,7 @@ func (dc *DefinedComparer) Eq(a, b interface{}) error {
 }
 
 // Contains checks if the given list contains the element using the comparer.
-func Contains(list interface{}, contains interface{}, comparer Comparer) (err error) {
+func Contains(list, contains interface{}, comparer Comparer) (err error) {
 	switch reflect.TypeOf(list).Kind() {
 	case reflect.Slice:
 		s := reflect.ValueOf(list)

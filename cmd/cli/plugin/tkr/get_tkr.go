@@ -20,6 +20,7 @@ var getTanzuKubernetesRleasesCmd = &cobra.Command{
 	RunE:  getKubernetesReleases,
 }
 
+//nolint
 func getKubernetesReleases(cmd *cobra.Command, args []string) error {
 	server, err := client.GetCurrentServer()
 	if err != nil {

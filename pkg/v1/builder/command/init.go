@@ -63,6 +63,6 @@ func initialize(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return fmt.Errorf("%s -- %s", err, string(b))
 	}
-	log.Success("succesfully created repository")
+	log.Success("successfully created repository")
 	return nil
 }

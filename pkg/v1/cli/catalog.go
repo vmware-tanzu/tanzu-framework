@@ -38,7 +38,11 @@ const (
 	// DynamicPluginCompletion indicates command line completion will be retrieved from the plugin
 	// at runtime.
 	DynamicPluginCompletion
+	// exe is an executable file extension
+	exe = ".exe"
 )
+
+var minConcurrent = 2
 
 // PluginDescriptor describes a plugin binary.
 type PluginDescriptor struct {
@@ -211,7 +215,7 @@ func (p *PluginDescriptor) Validate() (err error) {
 	if p.Version == "" {
 		err = multierr.Append(err, fmt.Errorf("plugin %q version cannot be empty", p.Name))
 	}
-	if !semver.IsValid(p.Version) && !(p.Version == "dev") {
+	if !semver.IsValid(p.Version) && p.Version != "dev" {
 		err = multierr.Append(err, fmt.Errorf("version %q %q is not a valid semantic version", p.Name, p.Version))
 	}
 	if p.Description == "" {
@@ -430,7 +434,7 @@ func (c *Catalog) Install(name, version string, repo Repository) error {
 	pluginPath := c.pluginPath(name)
 
 	if BuildArch().IsWindows() {
-		pluginPath = pluginPath + ".exe"
+		pluginPath += exe
 	}
 
 	err = ioutil.WriteFile(pluginPath, b, 0755)
@@ -507,7 +511,7 @@ func (c *Catalog) EnsureDistro(repos *MultiRepo) error {
 	// Limit the number of concurrent operations we perform so we don't
 	// overwhelm the system.
 	maxConcurrent := runtime.NumCPU() / 2
-	if maxConcurrent < 2 {
+	if maxConcurrent < minConcurrent {
 		maxConcurrent = 2
 	}
 	guard := make(chan struct{}, maxConcurrent)
@@ -557,7 +561,7 @@ func (c *Catalog) InstallTest(pluginName, version string, repo Repository) error
 	pluginPath := c.testPluginPath(pluginName)
 
 	if BuildArch().IsWindows() {
-		pluginPath = pluginPath + ".exe"
+		pluginPath += exe
 	}
 
 	err = ioutil.WriteFile(pluginPath, b, 0755)

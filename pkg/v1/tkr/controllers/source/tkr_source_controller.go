@@ -76,8 +76,8 @@ func (r *reconciler) diffRelease(ctx context.Context) (newReleases, existingRele
 	existingReleases = tkrList.Items
 
 	tkrMap := make(map[string]bool)
-	for _, tkr := range existingReleases {
-		tkrMap[tkr.ObjectMeta.Name] = true
+	for i := range existingReleases {
+		tkrMap[existingReleases[i].ObjectMeta.Name] = true
 	}
 
 	// get all Configmap under the tkr-system namespace
@@ -85,25 +85,27 @@ func (r *reconciler) diffRelease(ctx context.Context) (newReleases, existingRele
 	if err := r.client.List(ctx, cmList, &client.ListOptions{Namespace: constants.TKRNamespace}); err != nil {
 		return nil, nil, errors.Wrap(err, "failed to get BOM ConfigMaps")
 	}
-	for _, cm := range cmList.Items {
+	for i := range cmList.Items {
 		// process ConfigMap with the tkr label
-		if tkrName, ok := cm.ObjectMeta.Labels[constants.BomConfigMapTKRLabel]; ok {
-			if _, ok := tkrMap[tkrName]; ok {
-				continue
-			}
-
-			bomContent, ok := cm.BinaryData[constants.BomConfigMapContentKey]
-			if !ok {
-				return nil, nil, errors.New("failed to get the BOM file content from the BOM ConfigMap")
-			}
-
-			// generate a TKR if the BOM ConfigMap does not have a corresponding one
-			newTkr, err := NewTkrFromBom(tkrName, bomContent)
-			if err != nil {
-				return nil, nil, errors.Wrap(err, "failed to generate TKR from Bom configmap")
-			}
-			newReleases = append(newReleases, newTkr)
+		tkrName, labelOK := cmList.Items[i].ObjectMeta.Labels[constants.BomConfigMapTKRLabel]
+		if !labelOK {
+			continue
 		}
+		if _, ok := tkrMap[tkrName]; ok {
+			continue
+		}
+
+		bomContent, ok := cmList.Items[i].BinaryData[constants.BomConfigMapContentKey]
+		if !ok {
+			return nil, nil, errors.New("failed to get the BOM file content from the BOM ConfigMap")
+		}
+
+		// generate a TKR if the BOM ConfigMap does not have a corresponding one
+		newTkr, err := NewTkrFromBom(tkrName, bomContent)
+		if err != nil {
+			return nil, nil, errors.Wrap(err, "failed to generate TKR from Bom configmap")
+		}
+		newReleases = append(newReleases, newTkr)
 	}
 
 	return newReleases, existingReleases, nil
@@ -152,9 +154,9 @@ func (r *reconciler) createBOMConfigMap(ctx context.Context, tag string) error {
 	}
 
 	return r.client.Create(ctx, &cm)
-
 }
 
+//nolint
 func (r *reconciler) reconcileBOMConfigMap(ctx context.Context) (err error) {
 	imageTags, err := r.registry.ListImageTags(r.bomImage)
 	if err != nil {
@@ -189,6 +191,7 @@ func (r *reconciler) reconcileBOMConfigMap(ctx context.Context) (err error) {
 	return nil
 }
 
+//nolint
 func (r *reconciler) createTKR(ctx context.Context, tkrs []runv1.TanzuKubernetesRelease) (created []runv1.TanzuKubernetesRelease, err error) {
 	for _, tkr := range tkrs {
 
@@ -209,7 +212,6 @@ func (r *reconciler) createTKR(ctx context.Context, tkrs []runv1.TanzuKubernetes
 }
 
 func changeTKRCondition(tkr *runv1.TanzuKubernetesRelease, conditionType string, status corev1.ConditionStatus, message string) {
-
 	newCondition := &clusterv1.Condition{
 		Type:    clusterv1.ConditionType(conditionType),
 		Status:  status,
@@ -218,8 +220,8 @@ func changeTKRCondition(tkr *runv1.TanzuKubernetesRelease, conditionType string,
 	conditions.Set(tkr, newCondition)
 }
 
+//nolint
 func (r *reconciler) UpdateTKRUpgradeAvailableCondition(tkrs []runv1.TanzuKubernetesRelease) {
-
 	for i, from := range tkrs {
 		upgradeTo := []string{}
 		for _, to := range tkrs {
@@ -234,7 +236,6 @@ func (r *reconciler) UpdateTKRUpgradeAvailableCondition(tkrs []runv1.TanzuKubern
 			changeTKRCondition(&tkrs[i], runv1.ConditionUpgradeAvailable, corev1.ConditionFalse, "")
 		}
 	}
-
 }
 
 func (r *reconciler) UpdateTKRCompatibleCondition(ctx context.Context, tkrs []runv1.TanzuKubernetesRelease) error {
@@ -288,10 +289,10 @@ func (r *reconciler) UpdateTKRCompatibleCondition(ctx context.Context, tkrs []ru
 
 	compatibleSet := make(map[string]bool)
 	for _, r := range compatibileReleases {
-
 		compatibleSet[r] = true
 	}
 
+	//nolint
 	for i, tkr := range tkrs {
 		if _, ok := compatibleSet[tkr.Spec.Version]; ok {
 			changeTKRCondition(&tkrs[i], runv1.ConditionCompatible, corev1.ConditionTrue, "")
@@ -303,6 +304,7 @@ func (r *reconciler) UpdateTKRCompatibleCondition(ctx context.Context, tkrs []ru
 	return nil
 }
 
+//nolint
 func (r *reconciler) ReconcileConditions(ctx context.Context, added, existing []runv1.TanzuKubernetesRelease) error {
 	allTKRs := append(added, existing...)
 
@@ -322,9 +324,9 @@ func (r *reconciler) ReconcileConditions(ctx context.Context, added, existing []
 	return nil
 }
 
-func (r *reconciler) SyncRelease(ctx context.Context) (added []runv1.TanzuKubernetesRelease, existing []runv1.TanzuKubernetesRelease, err error) {
+func (r *reconciler) SyncRelease(ctx context.Context) (added, existing []runv1.TanzuKubernetesRelease, err error) {
 	// create BOM ConfigMaps for new images
-	if err := r.reconcileBOMConfigMap(ctx); err != nil {
+	if err = r.reconcileBOMConfigMap(ctx); err != nil {
 		return added, existing, errors.Wrap(err, "failed to reconcile the BOM ConfigMap")
 	}
 
@@ -342,7 +344,6 @@ func (r *reconciler) SyncRelease(ctx context.Context) (added []runv1.TanzuKubern
 }
 
 func (r *reconciler) ReconcileRelease(ctx context.Context) (err error) {
-
 	added, existing, err := r.SyncRelease(ctx)
 	if err != nil {
 		return errors.Wrap(err, "failed to sync up TKRs with the BOM repository")
@@ -369,11 +370,12 @@ func (r *reconciler) checkInitialSync(ctx context.Context) error {
 		return errors.Wrap(err, "failed to list BOM image tags")
 	}
 	if len(tags) != len(tkrList.Items) {
-		return errors.New("number of inital TKRs and BOM image tags do not match")
+		return errors.New("number of initial TKRs and BOM image tags do not match")
 	}
 	return nil
 }
 
+//nolint
 func (r *reconciler) Start(stopChan <-chan struct{}) error {
 	r.log.Info("Starting TanzuKubernetesReleaase Reconciler")
 
@@ -460,7 +462,6 @@ func (r *reconciler) Start(stopChan <-chan struct{}) error {
 }
 
 func newReconciler(ctx *mgrcontext.ControllerManagerContext) reconcile.Reconciler {
-
 	regOpts := ctlimg.RegistryOpts{
 		VerifyCerts: ctx.VerifyRegistryCert,
 		Anon:        true,

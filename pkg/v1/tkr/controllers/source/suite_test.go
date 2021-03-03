@@ -12,7 +12,6 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 	runv1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/fakes"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/constants"
 	corev1 "k8s.io/api/core/v1"
@@ -20,11 +19,17 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
-	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 	ctrllog "sigs.k8s.io/controller-runtime/pkg/log"
 	// +kubebuilder:scaffold:imports
+)
+
+const (
+	version11713 = "v1.17.13---vmware.1"
+	version11810 = "v1.18.10---vmware.1"
+	version1191  = "v1.19.1---vmware.1"
+	version1193  = "v1.19.3---vmware.1"
 )
 
 // These tests use Ginkgo (BDD-style Go testing framework). Refer to
@@ -46,7 +51,7 @@ func addToScheme(scheme *runtime.Scheme) {
 	_ = clientgoscheme.AddToScheme(scheme)
 	_ = capi.AddToScheme(scheme)
 	_ = corev1.AddToScheme(scheme)
-	_ = runv1alpha1.AddToScheme(scheme)
+	_ = runv1.AddToScheme(scheme)
 }
 
 var _ = BeforeSuite(func() {
@@ -66,8 +71,8 @@ var _ = Describe("SyncRelease", func() {
 		objects      []runtime.Object
 		r            reconciler
 		err          error
-		added        []runv1alpha1.TanzuKubernetesRelease
-		existing     []runv1alpha1.TanzuKubernetesRelease
+		added        []runv1.TanzuKubernetesRelease
+		existing     []runv1.TanzuKubernetesRelease
 	)
 
 	JustBeforeEach(func() {
@@ -114,11 +119,11 @@ var _ = Describe("SyncRelease", func() {
 			fakeRegistry.ListImageTagsReturns([]string{"bom-v1.17.13+vmware.1", "bom-v1.18.10+vmware.1", "bom-v1.19.3+vmware."}, nil)
 			fakeRegistry.GetFileReturnsOnCall(0, bomContent193, nil)
 
-			cm1 := newConfigMap("v1.17.13---vmware.1", map[string]string{constants.BomConfigMapTKRLabel: "v1.17.13---vmware.1"}, map[string]string{constants.BomConfigMapImageTagAnnotation: "bom-v1.17.13+vmware.1"}, bomContent17)
-			cm2 := newConfigMap("v1.18.10---vmware.1", map[string]string{constants.BomConfigMapTKRLabel: "v1.18.10---vmware.1"}, map[string]string{constants.BomConfigMapImageTagAnnotation: "bom-v1.18.10+vmware.1"}, bomContent18)
+			cm1 := newConfigMap(version11713, map[string]string{constants.BomConfigMapTKRLabel: version11713}, map[string]string{constants.BomConfigMapImageTagAnnotation: "bom-v1.17.13+vmware.1"}, bomContent17)
+			cm2 := newConfigMap(version11810, map[string]string{constants.BomConfigMapTKRLabel: version11810}, map[string]string{constants.BomConfigMapImageTagAnnotation: "bom-v1.18.10+vmware.1"}, bomContent18)
 
-			tkr1, _ := NewTkrFromBom("v1.17.13---vmware.1", bomContent17)
-			tkr2, _ := NewTkrFromBom("v1.18.10---vmware.1", bomContent18)
+			tkr1, _ := NewTkrFromBom(version11713, bomContent17)
+			tkr2, _ := NewTkrFromBom(version11810, bomContent18)
 			objects = []runtime.Object{cm1, cm2, &tkr1, &tkr2}
 		})
 
@@ -135,9 +140,9 @@ var _ = Describe("SyncRelease", func() {
 		BeforeEach(func() {
 			fakeRegistry = &fakes.Registry{}
 			fakeRegistry.ListImageTagsReturns([]string{"bom-v1.17.13+vmware.1", "bom-v1.18.10+vmware.1"}, nil)
-			cm1 := newConfigMap("v1.17.13---vmware.1", map[string]string{constants.BomConfigMapTKRLabel: "v1.17.13---vmware.1"}, map[string]string{constants.BomConfigMapImageTagAnnotation: "bom-v1.17.13+vmware.1"}, bomContent17)
-			cm2 := newConfigMap("v1.18.10---vmware.1", map[string]string{constants.BomConfigMapTKRLabel: "v1.18.10---vmware.1"}, map[string]string{constants.BomConfigMapImageTagAnnotation: "bom-v1.18.10+vmware.1"}, bomContent18)
-			tkr1, _ := NewTkrFromBom("v1.17.13---vmware.1", bomContent17)
+			cm1 := newConfigMap(version11713, map[string]string{constants.BomConfigMapTKRLabel: version11713}, map[string]string{constants.BomConfigMapImageTagAnnotation: "bom-v1.17.13+vmware.1"}, bomContent17)
+			cm2 := newConfigMap(version11810, map[string]string{constants.BomConfigMapTKRLabel: version11810}, map[string]string{constants.BomConfigMapImageTagAnnotation: "bom-v1.18.10+vmware.1"}, bomContent18)
+			tkr1, _ := NewTkrFromBom(version11713, bomContent17)
 			objects = []runtime.Object{cm1, cm2, &tkr1}
 		})
 
@@ -184,10 +189,10 @@ var _ = Describe("UpdateTKRCompatibleCondition", func() {
 			fakeRegistry.GetFileReturnsOnCall(0, nil, errors.New("cannot retrieve file from the image"))
 			fakeRegistry.GetFileReturnsOnCall(1, metadataContent, nil)
 
-			tkr1, _ := NewTkrFromBom("v1.17.13---vmware.1", bomContent17)
-			tkr2, _ := NewTkrFromBom("v1.18.10---vmware.1", bomContent18)
-			tkr3, _ := NewTkrFromBom("v1.19.3---vmware.1", bomContent193)
-			tkr4, _ := NewTkrFromBom("v1.19.1---vmware.1", bomContent191)
+			tkr1, _ := NewTkrFromBom(version11713, bomContent17)
+			tkr2, _ := NewTkrFromBom(version11810, bomContent18)
+			tkr3, _ := NewTkrFromBom(version1193, bomContent193)
+			tkr4, _ := NewTkrFromBom(version1191, bomContent191)
 			tkrs = []runv1.TanzuKubernetesRelease{tkr1, tkr4, tkr3, tkr2}
 
 			mgmtcluster := newManagemntCluster("mgmt-cluster", map[string]string{constants.ManagememtClusterRoleLabel: ""}, map[string]string{constants.TKGVersionKey: "v1.1"})
@@ -197,25 +202,25 @@ var _ = Describe("UpdateTKRCompatibleCondition", func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(fakeRegistry.GetFileCallCount()).To(Equal(2))
 			for _, tkr := range tkrs {
-				if tkr.Name == "v1.19.3---vmware.1" {
+				if tkr.Name == version1193 {
 					status, msg := getConditionStatusAndMessage(tkr.Status.Conditions, runv1.ConditionCompatible)
 					Expect(string(status)).To(Equal("False"))
 					Expect(msg).To(Equal(""))
 				}
 
-				if tkr.Name == "v1.18.10---vmware.1" {
+				if tkr.Name == version11810 {
 					status, msg := getConditionStatusAndMessage(tkr.Status.Conditions, runv1.ConditionCompatible)
 					Expect(string(status)).To(Equal("True"))
 					Expect(msg).To(Equal(""))
 				}
 
-				if tkr.Name == "v1.19.1---vmware.1" {
+				if tkr.Name == version1191 {
 					status, msg := getConditionStatusAndMessage(tkr.Status.Conditions, runv1.ConditionCompatible)
 					Expect(string(status)).To(Equal("False"))
 					Expect(msg).To(Equal(""))
 				}
 
-				if tkr.Name == "v1.17.13---vmware.1" {
+				if tkr.Name == version11713 {
 					status, msg := getConditionStatusAndMessage(tkr.Status.Conditions, runv1.ConditionCompatible)
 					Expect(string(status)).To(Equal("True"))
 					Expect(msg).To(Equal(""))
@@ -238,34 +243,34 @@ var _ = Describe("UpdateTKRUpgradeAvailableCondition", func() {
 
 	Context("When there are available upgrade for some of the TKRs", func() {
 		BeforeEach(func() {
-			tkr1, _ := NewTkrFromBom("v1.17.13---vmware.1", bomContent17)
-			tkr2, _ := NewTkrFromBom("v1.18.10---vmware.1", bomContent18)
-			tkr3, _ := NewTkrFromBom("v1.19.3---vmware.1", bomContent193)
-			tkr4, _ := NewTkrFromBom("v1.19.1---vmware.1", bomContent191)
+			tkr1, _ := NewTkrFromBom(version11713, bomContent17)
+			tkr2, _ := NewTkrFromBom(version11810, bomContent18)
+			tkr3, _ := NewTkrFromBom(version1193, bomContent193)
+			tkr4, _ := NewTkrFromBom(version1191, bomContent191)
 			tkrs = []runv1.TanzuKubernetesRelease{tkr1, tkr4, tkr3, tkr2}
 		})
 		It("should update the UpgradeAvailable Condition with proper message", func() {
 
 			for _, tkr := range tkrs {
-				if tkr.Name == "v1.19.3---vmware.1" {
+				if tkr.Name == version1193 {
 					status, msg := getConditionStatusAndMessage(tkr.Status.Conditions, runv1.ConditionUpgradeAvailable)
 					Expect(string(status)).To(Equal("False"))
 					Expect(msg).To(Equal(""))
 				}
 
-				if tkr.Name == "v1.18.10---vmware.1" {
+				if tkr.Name == version11810 {
 					status, msg := getConditionStatusAndMessage(tkr.Status.Conditions, runv1.ConditionUpgradeAvailable)
 					Expect(string(status)).To(Equal("True"))
 					Expect(msg).To(Equal("TKR(s) with later version is available: v1.19.1---vmware.1,v1.19.3---vmware.1"))
 				}
 
-				if tkr.Name == "v1.19.1---vmware.1" {
+				if tkr.Name == version1191 {
 					status, msg := getConditionStatusAndMessage(tkr.Status.Conditions, runv1.ConditionUpgradeAvailable)
 					Expect(string(status)).To(Equal("True"))
 					Expect(msg).To(Equal("TKR(s) with later version is available: v1.19.3---vmware.1"))
 				}
 
-				if tkr.Name == "v1.17.13---vmware.1" {
+				if tkr.Name == version11713 {
 					status, msg := getConditionStatusAndMessage(tkr.Status.Conditions, runv1.ConditionUpgradeAvailable)
 					Expect(string(status)).To(Equal("True"))
 					Expect(msg).To(Equal("TKR(s) with later version is available: v1.18.10---vmware.1"))
@@ -275,16 +280,19 @@ var _ = Describe("UpdateTKRUpgradeAvailableCondition", func() {
 	})
 })
 
-func getConditionStatusAndMessage(conditions []clusterv1.Condition, conditionType clusterv1.ConditionType) (corev1.ConditionStatus, string) {
+func getConditionStatusAndMessage(conditions []capi.Condition, conditionType capi.ConditionType) (status corev1.ConditionStatus, msg string) {
 	for _, condition := range conditions {
 		if condition.Type == conditionType {
-			return condition.Status, condition.Message
+			status = condition.Status
+			msg = condition.Message
+			return
 		}
 	}
-	return corev1.ConditionStatus(""), ""
+	status = corev1.ConditionStatus("")
+	return
 }
 
-func newConfigMap(name string, labels map[string]string, annotations map[string]string, content []byte) *corev1.ConfigMap {
+func newConfigMap(name string, labels, annotations map[string]string, content []byte) *corev1.ConfigMap {
 	return &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        name,
@@ -296,8 +304,8 @@ func newConfigMap(name string, labels map[string]string, annotations map[string]
 	}
 }
 
-func newManagemntCluster(name string, labels map[string]string, annotations map[string]string) *clusterv1.Cluster {
-	return &clusterv1.Cluster{
+func newManagemntCluster(name string, labels, annotations map[string]string) *capi.Cluster {
+	return &capi.Cluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        name,
 			Namespace:   constants.TKGNamespace,

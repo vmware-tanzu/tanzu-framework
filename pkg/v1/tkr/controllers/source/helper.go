@@ -29,7 +29,6 @@ const (
 
 // NewTkrFromBom gets a new TKR matching tkrName from the BOM information in bomContent
 func NewTkrFromBom(tkrName string, bomContent []byte) (runv1.TanzuKubernetesRelease, error) {
-
 	bom, err := types.NewBom(bomContent)
 	if err != nil {
 		return runv1.TanzuKubernetesRelease{}, errors.Wrap(err, "failed to parse the BOM file content")
@@ -108,7 +107,6 @@ func NewTkrFromBom(tkrName string, bomContent []byte) (runv1.TanzuKubernetesRele
 	}
 
 	return newTkr, nil
-
 }
 
 // TKRVersion contains the TKR version info
@@ -121,7 +119,6 @@ type TKRVersion struct {
 }
 
 func upgradeQualified(fromTKR, toTKR *runv1.TanzuKubernetesRelease) bool {
-
 	from, err := newTKRVersion(fromTKR.Spec.Version)
 	if err != nil {
 		return false
@@ -164,7 +161,6 @@ func newTKRVersion(tkrVersion string) (TKRVersion, error) {
 	tkgVersion := m.FindStringSubmatch(tkrVersion)
 
 	if tkgVersion != nil {
-
 		ver, err := strconv.Atoi(tkgVersion[1])
 		if err != nil {
 			return v, err
@@ -190,6 +186,7 @@ func newTKRVersion(tkrVersion string) (TKRVersion, error) {
 }
 
 // GetManagementClusterVersion get the version of the management cluster
+//nolint
 func (r *reconciler) GetManagementClusterVersion(ctx context.Context) (string, error) {
 	clusterList := &clusterv1.ClusterList{}
 	err := r.client.List(ctx, clusterList)

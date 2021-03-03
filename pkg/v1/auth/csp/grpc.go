@@ -26,6 +26,7 @@ const (
 	mdKeyAuthToken   = "Authorization"
 	authTokenPrefix  = "Bearer "
 	mdKeyAuthIDToken = "X-User-Id"
+	APIToken         = "api-token"
 )
 
 // WithCredentialDiscovery returns a grpc.CallOption that adds credentials into gRPC calls.
@@ -77,14 +78,14 @@ func (c *configSource) Token() (*oauth2.Token, error) {
 		return nil, err
 	}
 
-	g.GlobalOpts.Auth.Type = "api-token"
+	g.GlobalOpts.Auth.Type = APIToken
 	expiration := time.Now().Local().Add(time.Second * time.Duration(token.ExpiresIn))
 	g.GlobalOpts.Auth.Expiration = metav1.NewTime(expiration)
 	g.GlobalOpts.Auth.RefreshToken = token.RefreshToken
 	g.GlobalOpts.Auth.AccessToken = token.AccessToken
 	g.GlobalOpts.Auth.IDToken = token.IDToken
 
-	if err = client.StoreConfig(c.Config); err != nil {
+	if err := client.StoreConfig(c.Config); err != nil {
 		return nil, err
 	}
 
@@ -112,7 +113,7 @@ func (ts TokenSource) GetRequestMetadata(ctx context.Context, uri ...string) (ma
 	}
 
 	headers := map[string]string{mdKeyAuthToken: authTokenPrefix + " " + token.AccessToken}
-	idTok := IDTokenFromTokenSource(*token)
+	idTok := IDTokenFromTokenSource(token)
 	if idTok != "" {
 		headers[mdKeyAuthIDToken] = idTok
 	}

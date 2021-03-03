@@ -15,14 +15,21 @@ import (
 var descriptor = cli.NewTestFor("pinniped-auth")
 
 func main() {
+	retcode := 0
+
+	defer func() { os.Exit(retcode) }()
 	defer Cleanup()
+
 	p, err := plugin.NewPlugin(descriptor)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		retcode = 1
+		return
 	}
 	p.Cmd.RunE = test
 	if err := p.Execute(); err != nil {
-		os.Exit(1)
+		retcode = 1
+		return
 	}
 }
 

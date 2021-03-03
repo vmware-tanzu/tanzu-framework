@@ -39,9 +39,9 @@ var (
 func makeDefaultOptions(list ...Option) optionsConfig {
 	opts := optionsConfig{
 		// by default, the plugin root is at $XDG_DATA_HOME/tanzu-cli
-		pluginRoot:    DefaultPluginRoot,
-		gcpRootPath:   DefaultArtifactsDirectory,
-		distro:        DefaultDistro,
+		pluginRoot:      DefaultPluginRoot,
+		gcpRootPath:     DefaultArtifactsDirectory,
+		distro:          DefaultDistro,
 		versionSelector: DefaultVersionSelector,
 	}
 

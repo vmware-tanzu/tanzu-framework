@@ -86,8 +86,7 @@ func init() {
 }
 
 func aliasNormalizeFunc(f *pflag.FlagSet, name string) pflag.NormalizedName {
-	switch name {
-	case "vsphere-controlplane-endpoint-ip":
+	if name == "vsphere-controlplane-endpoint-ip" {
 		name = "vsphere-controlplane-endpoint"
 	}
 	return pflag.NormalizedName(name)
@@ -151,6 +150,7 @@ func createCluster(clusterName string, server *v1alpha1.Server) error {
 	return tkgctlClient.CreateCluster(ccOptions)
 }
 
+//nolint
 func getTkrVersionForMatchingTkr(clusterClient clusterclient.Client, tkrName string) (string, error) {
 	tkrs, err := clusterClient.GetTanzuKubernetesReleases(tkrName)
 	if err != nil {
@@ -162,7 +162,7 @@ func getTkrVersionForMatchingTkr(clusterClient clusterclient.Client, tkrName str
 	var tkrVersion string
 	for _, tkr := range tkrs {
 		if tkr.Name == tkrName {
-			if !isTkrCompatible(tkr) {
+			if !isTkrCompatible(&tkr) {
 				fmt.Printf("WARNING: TanzuKubernetesRelease %q is not compatible on the management cluster\n", tkr.Name)
 			}
 

@@ -38,6 +38,7 @@ func init() {
 	osCmd.AddCommand(getOSCmd)
 }
 
+//nolint
 func getOS(cmd *cobra.Command, args []string) error {
 
 	server, err := client.GetCurrentServer()

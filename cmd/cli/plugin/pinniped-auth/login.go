@@ -72,7 +72,6 @@ func init() {
 }
 
 func loginoidcCmd(pinnipedloginCliExec func(args []string) error) *cobra.Command {
-
 	loCmd.RunE = func(cmd *cobra.Command, args []string) error {
 		oidcLoginArgs := []string{
 			"login", "oidc",
@@ -123,7 +122,6 @@ func pinnipedLoginExec(oidcLoginArgs []string) error {
 		return err
 	}
 	return pinnipedCmd.Wait()
-
 }
 
 func mustGetConfigDir() string {

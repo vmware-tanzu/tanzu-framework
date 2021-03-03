@@ -149,8 +149,8 @@ var TemplateFuncs = template.FuncMap{
 // rpad adds padding to the right of a string.
 // from https://github.com/spf13/cobra/blob/993cc5372a05240dfd59e3ba952748b36b2cd117/cobra.go#L29
 func rpad(s string, padding int) string {
-	template := fmt.Sprintf("%%-%ds", padding)
-	return fmt.Sprintf(template, s)
+	tmpl := fmt.Sprintf("%%-%ds", padding)
+	return fmt.Sprintf(tmpl, s)
 }
 
 func underline(s string) string {

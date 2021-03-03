@@ -68,11 +68,11 @@ func main() {
 	# Login to TKG management cluster by using kubeconfig path and context for the management cluster
 	tanzu login --kubeconfig path/to/kubeconfig --context path/to/context --name mgmt-cluster
 
-	# Login to an existing server 
+	# Login to an existing server
 	tanzu login --server mgmt-cluster
-	
+
 	[*] : User has two options to login to TKG. User can choose the login endpoint option
-	by providing 'endpoint', or user can choose to use the kubeconfig for the management cluster by 
+	by providing 'endpoint', or user can choose to use the kubeconfig for the management cluster by
 	providing 'kubeconfig' and 'context'
 	`
 	if err := p.Execute(); err != nil {
@@ -91,8 +91,6 @@ func login(cmd *cobra.Command, args []string) (err error) {
 		return err
 	}
 
-	promptOpts := getPromptOpts()
-
 	newServerSelector := "+ new server"
 	var serverTarget *clientv1alpha1.Server
 	if name != "" {
@@ -101,45 +99,10 @@ func login(cmd *cobra.Command, args []string) (err error) {
 			return err
 		}
 	} else if server == "" {
-		servers := map[string]*clientv1alpha1.Server{}
-		for _, server := range cfg.KnownServers {
-			ep, err := client.EndpointFromServer(server)
-			if err != nil {
-				return err
-			}
-
-			s := rpad(server.Name, 20)
-			s = fmt.Sprintf("%s(%s)", s, ep)
-			servers[s] = server
+		serverTarget, err = getServerTarget(cfg, newServerSelector)
+		if err != nil {
+			return err
 		}
-		if endpoint == "" {
-			endpoint, _ = os.LookupEnv(client.EnvEndpointKey)
-		}
-		// If there are no existing servers
-		if len(servers) == 0 {
-			serverTarget, err = createNewServer()
-			if err != nil {
-				return err
-			}
-		} else {
-			serverKeys := getKeys(servers)
-			serverKeys = append(serverKeys, newServerSelector)
-			servers[newServerSelector] = &clientv1alpha1.Server{}
-			err = component.Prompt(
-				&component.PromptConfig{
-					Message: "Select a server",
-					Options: serverKeys,
-					Default: serverKeys[0],
-				},
-				&server,
-				promptOpts...,
-			)
-			if err != nil {
-				return
-			}
-			serverTarget = servers[server]
-		}
-
 	} else {
 		serverTarget, err = client.GetServer(server)
 		if err != nil {
@@ -158,7 +121,45 @@ func login(cmd *cobra.Command, args []string) (err error) {
 		return globalLogin(serverTarget)
 	}
 
-	return managementClusterLogin(serverTarget, endpoint)
+	return managementClusterLogin(serverTarget)
+}
+
+func getServerTarget(cfg *clientv1alpha1.Config, newServerSelector string) (*clientv1alpha1.Server, error) {
+	promptOpts := getPromptOpts()
+	servers := map[string]*clientv1alpha1.Server{}
+	for _, server := range cfg.KnownServers {
+		ep, err := client.EndpointFromServer(server)
+		if err != nil {
+			return nil, err
+		}
+
+		s := rpad(server.Name, 20)
+		s = fmt.Sprintf("%s(%s)", s, ep)
+		servers[s] = server
+	}
+	if endpoint == "" {
+		endpoint, _ = os.LookupEnv(client.EnvEndpointKey)
+	}
+	// If there are no existing servers
+	if len(servers) == 0 {
+		return createNewServer()
+	}
+	serverKeys := getKeys(servers)
+	serverKeys = append(serverKeys, newServerSelector)
+	servers[newServerSelector] = &clientv1alpha1.Server{}
+	err := component.Prompt(
+		&component.PromptConfig{
+			Message: "Select a server",
+			Options: serverKeys,
+			Default: serverKeys[0],
+		},
+		&server,
+		promptOpts...,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return servers[server], nil
 }
 
 func getKeys(m map[string]*clientv1alpha1.Server) []string {
@@ -282,7 +283,7 @@ func createServerWithKubeconfig() (server *clientv1alpha1.Server, err error) {
 			Context:  kubecontext,
 			Endpoint: endpoint},
 	}
-	return
+	return server, err
 }
 
 func createServerWithEndpoint() (server *clientv1alpha1.Server, err error) {
@@ -340,7 +341,7 @@ func createServerWithEndpoint() (server *clientv1alpha1.Server, err error) {
 				Endpoint: endpoint},
 		}
 	}
-	return
+	return server, err
 }
 
 func globalLogin(s *clientv1alpha1.Server) (err error) {
@@ -423,8 +424,7 @@ func promptAPIToken() (apiToken string, err error) {
 	return
 }
 
-func managementClusterLogin(s *clientv1alpha1.Server, endpoint string) error {
-
+func managementClusterLogin(s *clientv1alpha1.Server) error {
 	if s.ManagementClusterOpts.Path != "" && s.ManagementClusterOpts.Context != "" {
 		_, err := tkgauth.GetServerKubernetesVersion(s.ManagementClusterOpts.Path, s.ManagementClusterOpts.Context)
 		if err != nil {

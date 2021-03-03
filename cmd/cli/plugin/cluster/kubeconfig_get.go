@@ -68,12 +68,12 @@ func getClusterKubeconfig(server *v1alpha1.Server, workloadClusterName string) e
 	}
 
 	if getKCOptions.adminKubeconfig {
-		return getAdminKubeconfig(tkgctlClient, server, workloadClusterName)
+		return getAdminKubeconfig(tkgctlClient, workloadClusterName)
 	}
 	return getPinnipedKubeconfig(tkgctlClient, workloadClusterName)
 }
 
-func getAdminKubeconfig(tkgctlClient tkgctl.TKGClient, server *v1alpha1.Server, workloadClusterName string) error {
+func getAdminKubeconfig(tkgctlClient tkgctl.TKGClient, workloadClusterName string) error {
 	getClusterCredentialsOptions := tkgctl.GetWorkloadClusterCredentialsOptions{
 		ClusterName: workloadClusterName,
 		Namespace:   getKCOptions.namespace,

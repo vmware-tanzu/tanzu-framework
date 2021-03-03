@@ -43,7 +43,7 @@ const (
 	DefaultPinnipedLoginTimeout = time.Minute
 )
 
-// PinnipedConfigMapInfo contains the information from teh Pinniped ConfigMap
+// PinnipedConfigMapInfo contains the information from the Pinniped ConfigMap
 type PinnipedConfigMapInfo struct {
 	Kind    string `yaml:"kind"`
 	Version string `yaml:"apiVersion"`
@@ -60,43 +60,49 @@ type KubeConfigOptions struct {
 }
 
 // KubeconfigWithPinnipedAuthLoginPlugin prepares the kubeconfig with tanzu pinniped-auth login as client-go exec plugin
-func KubeconfigWithPinnipedAuthLoginPlugin(endpoint string, options *KubeConfigOptions) (string, string, error) {
+func KubeconfigWithPinnipedAuthLoginPlugin(endpoint string, options *KubeConfigOptions) (mergeFilePath, currentContext string, err error) {
 	clusterInfo, err := tkgutils.GetClusterInfoFromCluster(endpoint)
 	if err != nil {
-		return "", "", errors.Wrap(err, "failed to get cluster-info")
+		err = errors.Wrap(err, "failed to get cluster-info")
+		return
 	}
 
 	pinnipedInfo, err := tkgutils.GetPinnipedInfoFromCluster(clusterInfo)
 	if err != nil {
-		return "", "", errors.Wrap(err, "failed to get pinniped-info")
+		err = errors.Wrap(err, "failed to get pinniped-info")
+		return
 	}
 
 	config, err := GetPinnipedKubeconfig(clusterInfo, pinnipedInfo, pinnipedInfo.Data.ClusterName, pinnipedInfo.Data.Issuer)
 	if err != nil {
-		return "", "", errors.Wrap(err, "unable to get the kubeconfig")
+		err = errors.Wrap(err, "unable to get the kubeconfig")
+		return
 	}
 
 	kubeconfigBytes, err := json.Marshal(config)
 	if err != nil {
-		return "", "", errors.Wrap(err, "unable to marshall the kubeconfig")
+		err = errors.Wrap(err, "unable to marshall the kubeconfig")
+		return
 	}
 
-	mergeFilePath := ""
+	mergeFilePath = ""
 	if options != nil && options.MergeFilePath != "" {
 		mergeFilePath = options.MergeFilePath
 	} else {
 		mergeFilePath, err = TanzuLocalKubeConfigPath()
 		if err != nil {
-			return "", "", errors.Wrap(err, "unable to get the Tanzu local kubeconfig path")
+			err = errors.Wrap(err, "unable to get the Tanzu local kubeconfig path")
+			return
 		}
 	}
 
 	err = tkgclient.MergeKubeConfigWithoutSwitchContext(kubeconfigBytes, mergeFilePath)
 	if err != nil {
-		return "", "", errors.Wrap(err, "unable to merge cluster kubeconfig to the Tanzu local kubeconfig path")
+		err = errors.Wrap(err, "unable to merge cluster kubeconfig to the Tanzu local kubeconfig path")
+		return
 	}
-
-	return mergeFilePath, config.CurrentContext, nil
+	currentContext = config.CurrentContext
+	return //nolint
 }
 
 // GetServerKubernetesVersion uses the kubeconfig to get the server k8s version.
@@ -158,11 +164,7 @@ func GetPinnipedKubeconfig(cluster *clientcmdapi.Cluster, pinnipedInfo *tkgutils
 		"--concierge-authenticator-type="+ConciergeAuthenticatorType,
 		"--concierge-endpoint="+cluster.Server,
 		"--concierge-ca-bundle-data="+base64.StdEncoding.EncodeToString(cluster.CertificateAuthorityData),
-	)
-
-	// configure OIDC
-	execConfig.Args = append(execConfig.Args,
-		"--issuer="+pinnipedInfo.Data.Issuer,
+		"--issuer="+pinnipedInfo.Data.Issuer, // configure OIDC
 		"--scopes="+PinnipedOIDCScopes,
 		"--ca-bundle-data="+pinnipedInfo.Data.IssuerCABundle,
 		"--request-audience="+audience,

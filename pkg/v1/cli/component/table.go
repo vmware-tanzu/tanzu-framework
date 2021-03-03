@@ -9,6 +9,8 @@ import (
 	"github.com/olekukonko/tablewriter"
 )
 
+const colWidth = 300
+
 // NewTableWriter returns a tablewriter with the default options set.
 func NewTableWriter(headers ...string) *tablewriter.Table {
 	table := tablewriter.NewWriter(os.Stdout)
@@ -19,7 +21,7 @@ func NewTableWriter(headers ...string) *tablewriter.Table {
 	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
 	table.SetAlignment(tablewriter.ALIGN_LEFT)
 	table.SetHeaderLine(false)
-	table.SetColWidth(300)
+	table.SetColWidth(colWidth)
 	table.SetTablePadding("\t\t")
 	table.SetHeader(headers)
 	colors := []tablewriter.Colors{}

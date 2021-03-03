@@ -6,8 +6,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"io"
-	"os"
 	"sort"
 	"strings"
 	"time"
@@ -26,6 +24,8 @@ import (
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
+
+const noneTag = "<none>"
 
 type getClustersOptions struct {
 	namespace           string
@@ -63,6 +63,7 @@ func get(cmd *cobra.Command, args []string) error {
 	return getCluster(server, args[0])
 }
 
+//nolint
 func getCluster(server *v1alpha1.Server, clusterName string) error {
 	tkgctlClient, err := createTKGClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context)
 	if err != nil {
@@ -87,7 +88,7 @@ func getCluster(server *v1alpha1.Server, clusterName string) error {
 	t.SetHeader([]string{"NAME", "NAMESPACE", "STATUS", "CONTROLPLANE", "WORKERS", "KUBERNETES", "ROLES"})
 
 	cl := results.ClusterInfo
-	clusterRoles := "<none>"
+	clusterRoles := noneTag
 	if len(cl.Roles) != 0 {
 		clusterRoles = strings.Join(cl.Roles, ",")
 	}
@@ -95,7 +96,7 @@ func getCluster(server *v1alpha1.Server, clusterName string) error {
 
 	t.Render()
 	log.Infof("\n\nDetails:\n\n")
-	treeView(os.Stderr, results.Objs, results.Cluster)
+	treeView(results.Objs, results.Cluster)
 
 	// If it is a Management Cluster, output the providers
 	if results.InstalledProviders != nil {
@@ -116,6 +117,7 @@ const (
 	firstElemPrefix = `├─`
 	lastElemPrefix  = `└─`
 	pipe            = `│ `
+	doubleSpace     = "  "
 )
 
 var (
@@ -128,13 +130,12 @@ var (
 )
 
 // treeView prints object hierarchy to out stream.
-func treeView(out io.Writer, objs *status.ObjectTree, obj controllerutil.Object) {
+func treeView(objs *status.ObjectTree, obj controllerutil.Object) {
 	tbl := uitable.New()
 	tbl.Separator = "  "
 	tbl.AddRow("NAME", "READY", "SEVERITY", "REASON", "SINCE", "MESSAGE")
 	treeViewInner("", tbl, objs, obj)
 	fmt.Fprintln(color.Output, tbl)
-
 }
 
 type conditions struct {
@@ -147,6 +148,7 @@ type conditions struct {
 }
 
 func getCond(c *clusterv1.Condition) conditions {
+	maxMessage := 100
 	v := conditions{}
 	if c == nil {
 		return v
@@ -172,7 +174,7 @@ func getCond(c *clusterv1.Condition) conditions {
 	v.severity = string(c.Severity)
 	v.reason = c.Reason
 	v.message = c.Message
-	if len(v.message) > 100 {
+	if len(v.message) > maxMessage {
 		v.message = fmt.Sprintf("%s ...", v.message[:100])
 	}
 	v.age = duration.HumanDuration(time.Since(c.LastTransitionTime.Time))
@@ -183,6 +185,7 @@ func getCond(c *clusterv1.Condition) conditions {
 func treeViewInner(prefix string, tbl *uitable.Table, objs *status.ObjectTree, obj controllerutil.Object) {
 	v := conditions{}
 	v.readyColor = gray
+	minDelim := 2
 
 	ready := status.GetReadyCondition(obj)
 	name := getName(obj)
@@ -193,7 +196,7 @@ func treeViewInner(prefix string, tbl *uitable.Table, objs *status.ObjectTree, o
 	if status.IsGroupObject(obj) {
 		name = white.Add(color.Bold).Sprintf(name)
 		items := strings.Split(status.GetGroupItems(obj), status.GroupItemsSeparator)
-		if len(items) <= 2 {
+		if len(items) <= minDelim {
 			v.message = gray.Sprintf("See %s", strings.Join(items, status.GroupItemsSeparator))
 		} else {
 			v.message = gray.Sprintf("See %s, ...", strings.Join(items[:2], status.GroupItemsSeparator))
@@ -220,7 +223,7 @@ func treeViewInner(prefix string, tbl *uitable.Table, objs *status.ObjectTree, o
 
 			p := ""
 			filler := strings.Repeat(" ", 10)
-			siblingsPipe := "  "
+			siblingsPipe := doubleSpace
 			if len(chs) > 0 {
 				siblingsPipe = pipe
 			}
