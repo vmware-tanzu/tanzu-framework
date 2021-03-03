@@ -5,7 +5,7 @@ linters-settings:
     lines: 100
     statements: 50
   gci:
-    local-prefixes: github.com/golangci/golangci-lint
+    local-prefixes: github.com/vmware-tanzu-private/core
   goconst:
     min-len: 2
     min-occurrences: 2
@@ -37,10 +37,10 @@ linters-settings:
     settings:
       printf:
         funcs:
-          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Infof
-          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Warnf
-          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Errorf
-          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Fatalf
+          - (github.com/aunum/log").Infof
+          - (github.com/aunum/log").Warnf
+          - (github.com/aunum/log").Errorf
+          - (github.com/aunum/log").Fatalf
   maligned:
     suggest-new: true
   misspell:
@@ -110,6 +110,7 @@ linters:
 issues:
   exclude:
     - 'declaration of "(err|ctx)" shadows declaration at'
+    - 'unnamedResult: consider giving a name to these results'
 
   exclude-rules:
     - path: _test\.go

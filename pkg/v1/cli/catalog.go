@@ -38,6 +38,9 @@ const (
 	// DynamicPluginCompletion indicates command line completion will be retrieved from the plugin
 	// at runtime.
 	DynamicPluginCompletion
+)
+
+const (
 	// exe is an executable file extension
 	exe = ".exe"
 )

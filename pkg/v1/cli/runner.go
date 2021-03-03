@@ -70,7 +70,7 @@ func (r *Runner) RunOutput(ctx context.Context) (string, string, error) {
 
 func (r *Runner) run(ctx context.Context, pluginPath string) (string, string, error) {
 	if BuildArch().IsWindows() {
-		pluginPath = pluginPath + ".exe"
+		pluginPath += ".exe"
 	}
 
 	info, err := os.Stat(pluginPath)
