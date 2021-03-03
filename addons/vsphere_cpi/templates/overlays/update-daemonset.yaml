@@ -34,7 +34,7 @@ spec:
           #@ for arg in struct.decode(values.vsphereCPI.cloudProviderExtraArgs):
           - --(@=arg @)=(@=struct.decode(values.vsphereCPI.cloudProviderExtraArgs)[arg]@)
           #@ end
-      #@ if values.vsphereCPI.nsxt.podRoutingEnabled and values.vsphereCPI.nsxt.rootCAData != "" and values.vsphereCPI.nsxt.clientCertData != "" and values.vsphereCPI.nsxt.clientCertKeyData != "" :
+      #@ if values.vsphereCPI.nsxt.podRoutingEnabled and values.vsphereCPI.nsxt.clientCertData != "" and values.vsphereCPI.nsxt.clientCertKeyData != "" :
       #@overlay/match by=overlay.subset({"name": "vsphere-cloud-controller-manager"})
       - volumeMounts:  
         #@overlay/append

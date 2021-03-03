@@ -15,38 +15,39 @@ def validate_vsphereCPI():
 end
 
 def validate_nsxt_config():
-   if data.values.vsphereCPI.nsxt.vmcAccessToken != "":
-     if data.values.vsphereCPI.nsxt.vmcAuthHost == "":
-       assert.fail("vmc auth host must be provided if access token is provided")
-     end
-   elif data.values.vsphereCPI.nsxt.username != "":
-     if data.values.vsphereCPI.nsxt.password == "":
-       assert.fail("password is reqruied if username is provided")
-     end
-     if data.values.vsphereCPI.nsxt.secretName == "" or data.values.vsphereCPI.nsxt.secretNamespace == "":
-       assert.fail("secretName and secretNamespace should not be empty if username and password are provided")
-     end
-   elif data.values.vsphereCPI.nsxt.clientCertKeyData != "":
-     if data.values.vsphereCPI.nsxt.clientCertData == "":
-       assert.fail("client cert data is required if client cert key data is provided")
-     end
-   elif data.values.vsphereCPI.nsxt.clientCertData != "":
-     if data.values.vsphereCPI.nsxt.clientCertKeyData == "":
-       assert.fail("client cert key data is required if client cert data is provided")
-     end
-   elif data.values.vsphereCPI.nsxt.secretName != "":
-     if data.values.vsphereCPI.nsxt.secretNamespace == "":
-       assert.fail("secret namespace is required if secret name is provided")  
-     end
-   elif data.values.vsphereCPI.nsxt.secretNamespace != "":
-     if data.values.vsphereCPI.nsxt.secretName == "":
-       assert.fail("secret name is required if secret namespace is provided")  
-     end
-   else:
-     assert.fail("user/password or vmc access token or client certificates must be set")  
+   if validate_nsxt_username_password() == False and validate_nsxt_secret() == False and validate_nsxt_token() == False and validate_nsxt_cert() == False:
+     assert.fail("Invalid NSX-T credentials: username/password or vmc access token or client certificates must be set")
    end
    data.values.vsphereCPI.nsxt.host or assert.fail("vsphereCPI nsxtHost should be provided")
    data.values.vsphereCPI.nsxt.routes.clusterCidr or assert.fail("vsphereCPI nsxt routes clusterCidr should be provided")
+end
+
+def validate_nsxt_token():
+   if data.values.vsphereCPI.nsxt.vmcAccessToken == "" or data.values.vsphereCPI.nsxt.vmcAuthHost == "":
+     return False
+   end
+   return True
+end
+
+def validate_nsxt_cert():
+   if data.values.vsphereCPI.nsxt.clientCertKeyData == "" or data.values.vsphereCPI.nsxt.clientCertData == "":
+     return False
+   end
+   return True
+end
+
+def validate_nsxt_secret():
+   if data.values.vsphereCPI.nsxt.secretName == "" or data.values.vsphereCPI.nsxt.secretNamespace == "" or validate_nsxt_username_password() == False:
+     return False
+   end
+   return True
+end
+
+def validate_nsxt_username_password():
+   if data.values.vsphereCPI.nsxt.username == "" or data.values.vsphereCPI.nsxt.password == "":
+     return False
+   end
+   return True
 end
 
 # export
