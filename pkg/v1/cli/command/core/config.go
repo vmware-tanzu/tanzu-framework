@@ -7,6 +7,9 @@ import (
 	"fmt"
 	"io/ioutil"
 
+	"github.com/aunum/log"
+	"github.com/pkg/errors"
+
 	"github.com/spf13/cobra"
 
 	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
@@ -23,6 +26,14 @@ func init() {
 		serversCmd,
 	)
 	serversCmd.AddCommand(listServersCmd)
+	addDeleteServersCmd()
+}
+
+var unattended bool
+
+func addDeleteServersCmd() {
+	deleteServersCmd.Flags().BoolVarP(&unattended, "yes", "y", false, "Delete the server entry without confirmation")
+	serversCmd.AddCommand(deleteServersCmd)
 }
 
 var configCmd = &cobra.Command{
@@ -121,6 +132,42 @@ var listServersCmd = &cobra.Command{
 			table.Append(v)
 		}
 		table.Render()
+		return nil
+	},
+}
+
+var deleteServersCmd = &cobra.Command{
+	Use:   "delete SERVER_NAME",
+	Short: "delete a server from the config",
+
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if len(args) == 0 {
+			return errors.Errorf("Server name required. Usage: tanzu config server delete server_name")
+		}
+
+		var isAborted error
+		if !unattended {
+			isAborted = cli.AskForConfirmation("Deleting the sever entry from the config will remove it from the list of tracked servers. " +
+				"You will need to use tanzu login to track this server again. Are you sure you want to continue?")
+		}
+
+		if isAborted == nil {
+			log.Infof("Deleting entry for cluster %s", args[0])
+			serverExists, err := client.ServerExists(args[0])
+			if err != nil {
+				return err
+			}
+
+			if serverExists {
+				err := client.RemoveServer(args[0])
+				if err != nil {
+					return err
+				}
+			} else {
+				return errors.New(fmt.Sprintf("Server %s not found in list of known servers", args[0]))
+			}
+		}
+
 		return nil
 	},
 }
