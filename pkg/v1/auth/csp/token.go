@@ -133,8 +133,9 @@ var DefaultTimeout = 30
 // IsExpired checks for the token expiry and returns true if the token has expired else will return false
 func IsExpired(tokenExpiry time.Time) bool {
 	// refresh at half token life
+	two := int64(2)
 	now := time.Now().Unix()
-	halfDur := -time.Duration((tokenExpiry.Unix()-now)/2) * time.Second //nolint
+	halfDur := -time.Duration((tokenExpiry.Unix()-now)/two) * time.Second
 	return tokenExpiry.Add(halfDur).Unix() < now
 }
 

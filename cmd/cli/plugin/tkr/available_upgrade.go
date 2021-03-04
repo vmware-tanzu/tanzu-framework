@@ -36,7 +36,6 @@ func init() {
 	availbleUpgradesCmd.AddCommand(getAvailableUpgradesCmd)
 }
 
-//nolint
 func getAvailableUpgrades(cmd *cobra.Command, args []string) error {
 	server, err := client.GetCurrentServer()
 	if err != nil {
@@ -59,9 +58,9 @@ func getAvailableUpgrades(cmd *cobra.Command, args []string) error {
 
 	upgradeMsg := ""
 
-	for _, tkr := range tkrs {
-		if tkr.Name == args[0] {
-			for _, condition := range tkr.Status.Conditions {
+	for i := range tkrs {
+		if tkrs[i].Name == args[0] {
+			for _, condition := range tkrs[i].Status.Conditions {
 				if condition.Type == runv1alpha1.ConditionUpgradeAvailable {
 					upgradeMsg = condition.Message
 				}
@@ -80,12 +79,12 @@ func getAvailableUpgrades(cmd *cobra.Command, args []string) error {
 	}
 
 	t := component.NewTableWriter("NAME", "VERSION")
-	for _, tkr := range tkrs {
-		if _, ok := candidates[tkr.Name]; !ok {
+	for i := range tkrs {
+		if _, ok := candidates[tkrs[i].Name]; !ok {
 			continue
 		}
 
-		t.Append([]string{tkr.Name, tkr.Spec.Version})
+		t.Append([]string{tkrs[i].Name, tkrs[i].Spec.Version})
 	}
 	t.Render()
 

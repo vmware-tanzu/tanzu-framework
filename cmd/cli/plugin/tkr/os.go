@@ -39,9 +39,8 @@ func init() {
 	osCmd.AddCommand(getOSCmd)
 }
 
-//nolint
+//nolint:gocyclo
 func getOS(cmd *cobra.Command, args []string) error {
-
 	server, err := client.GetCurrentServer()
 	if err != nil {
 		return err
@@ -94,7 +93,7 @@ func getOS(cmd *cobra.Command, args []string) error {
 		}
 
 		if goo.region == "" {
-			return errors.New("You are currently on an AWS management cluster. Please specify a region")
+			return errors.New("you are currently on an AWS management cluster. Please specify a region")
 		}
 
 		amis, ok := amiMap[goo.region]
@@ -111,8 +110,8 @@ func getOS(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return errors.Wrap(err, "failed to get Azure image info from the BOM file")
 		}
-		for _, image := range azureImages {
-			osMap[image.OSInfo.String()] = image.OSInfo
+		for i := range azureImages {
+			osMap[azureImages[i].OSInfo.String()] = azureImages[i].OSInfo
 		}
 	}
 

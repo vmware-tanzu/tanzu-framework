@@ -157,7 +157,6 @@ func (r *reconciler) createBOMConfigMap(ctx context.Context, tag string) error {
 	return r.client.Create(ctx, &cm)
 }
 
-//nolint
 func (r *reconciler) reconcileBOMConfigMap(ctx context.Context) (err error) {
 	imageTags, err := r.registry.ListImageTags(r.bomImage)
 	if err != nil {
@@ -173,8 +172,8 @@ func (r *reconciler) reconcileBOMConfigMap(ctx context.Context) (err error) {
 		return errors.Wrap(err, "failed to get BOM ConfigMaps")
 	}
 
-	for _, cm := range cmList.Items {
-		if imageTag, ok := cm.ObjectMeta.Annotations[constants.BomConfigMapImageTagAnnotation]; ok {
+	for i := range cmList.Items {
+		if imageTag, ok := cmList.Items[i].ObjectMeta.Annotations[constants.BomConfigMapImageTagAnnotation]; ok {
 			if _, ok := tagMap[imageTag]; ok {
 				tagMap[imageTag] = true
 			}
@@ -192,21 +191,19 @@ func (r *reconciler) reconcileBOMConfigMap(ctx context.Context) (err error) {
 	return nil
 }
 
-//nolint
 func (r *reconciler) createTKR(ctx context.Context, tkrs []runv1.TanzuKubernetesRelease) (created []runv1.TanzuKubernetesRelease, err error) {
-	for _, tkr := range tkrs {
-
-		r.log.Info("Creating release", "name", tkr.Name)
-		err := r.client.Create(ctx, &tkr)
+	for i := range tkrs {
+		r.log.Info("Creating release", "name", tkrs[i].Name)
+		err := r.client.Create(ctx, &tkrs[i])
 		if err != nil {
-			return created, errors.Wrapf(err, "failed to create tkr %s", tkr.Name)
+			return created, errors.Wrapf(err, "failed to create tkr %s", tkrs[i].Name)
 		}
 
-		err = r.client.Status().Update(ctx, &tkr)
+		err = r.client.Status().Update(ctx, &tkrs[i])
 		if err != nil {
-			return created, errors.Wrapf(err, "failed to update status sub resource for TKR %s", tkr.Name)
+			return created, errors.Wrapf(err, "failed to update status sub resource for TKR %s", tkrs[i].Name)
 		}
-		created = append(created, tkr)
+		created = append(created, tkrs[i])
 	}
 
 	return created, nil
@@ -221,13 +218,12 @@ func changeTKRCondition(tkr *runv1.TanzuKubernetesRelease, conditionType string,
 	conditions.Set(tkr, newCondition)
 }
 
-//nolint
 func (r *reconciler) UpdateTKRUpgradeAvailableCondition(tkrs []runv1.TanzuKubernetesRelease) {
-	for i, from := range tkrs {
+	for i := range tkrs {
 		upgradeTo := []string{}
-		for _, to := range tkrs {
-			if upgradeQualified(&from, &to) {
-				upgradeTo = append(upgradeTo, to.ObjectMeta.Name)
+		for j := range tkrs {
+			if upgradeQualified(&tkrs[i], &tkrs[j]) {
+				upgradeTo = append(upgradeTo, tkrs[j].ObjectMeta.Name)
 			}
 		}
 		if len(upgradeTo) != 0 {
@@ -293,9 +289,8 @@ func (r *reconciler) UpdateTKRCompatibleCondition(ctx context.Context, tkrs []ru
 		compatibleSet[r] = true
 	}
 
-	//nolint
-	for i, tkr := range tkrs {
-		if _, ok := compatibleSet[tkr.Spec.Version]; ok {
+	for i := range tkrs {
+		if _, ok := compatibleSet[tkrs[i].Spec.Version]; ok {
 			changeTKRCondition(&tkrs[i], runv1.ConditionCompatible, corev1.ConditionTrue, "")
 		} else {
 			changeTKRCondition(&tkrs[i], runv1.ConditionCompatible, corev1.ConditionFalse, "")
@@ -305,7 +300,6 @@ func (r *reconciler) UpdateTKRCompatibleCondition(ctx context.Context, tkrs []ru
 	return nil
 }
 
-//nolint
 func (r *reconciler) ReconcileConditions(ctx context.Context, added, existing []runv1.TanzuKubernetesRelease) error {
 	allTKRs := append(added, existing...)
 
@@ -316,9 +310,9 @@ func (r *reconciler) ReconcileConditions(ctx context.Context, added, existing []
 
 	r.UpdateTKRUpgradeAvailableCondition(allTKRs)
 
-	for _, tkr := range allTKRs {
-		if err = r.client.Status().Update(ctx, &tkr); err != nil {
-			return errors.Wrapf(err, "failed to update status sub resrouce for TKR %s", tkr.ObjectMeta.Name)
+	for i := range allTKRs {
+		if err = r.client.Status().Update(ctx, &allTKRs[i]); err != nil {
+			return errors.Wrapf(err, "failed to update status sub resrouce for TKR %s", allTKRs[i].ObjectMeta.Name)
 		}
 	}
 
@@ -376,7 +370,6 @@ func (r *reconciler) checkInitialSync(ctx context.Context) error {
 	return nil
 }
 
-//nolint
 func (r *reconciler) Start(stopChan <-chan struct{}) error {
 	r.log.Info("Starting TanzuKubernetesReleaase Reconciler")
 
@@ -440,26 +433,27 @@ func (r *reconciler) Start(stopChan <-chan struct{}) error {
 	r.log.Info("Initial TKR discovery completed")
 
 	ticker = time.NewTicker(r.options.ContinuousDiscoveryFrequency)
-	go func() {
-		for {
-			select {
-			case <-stopChan:
-				r.log.Info("Stop performing TKR discovery")
-				ticker.Stop()
-				close(done)
-				return
-			case <-ticker.C:
-				err = r.ReconcileRelease(context.Background())
-				if err != nil {
-					r.log.Info("failed to reconcile TKRs, retrying", "error", err.Error())
-				}
-			}
-		}
-	}()
-
+	go r.tkrDiscovery(ticker, done, stopChan)
 	<-done
 	r.log.Info("Stopping TanzuKubernetesReleaase Reconciler")
 	return nil
+}
+
+func (r *reconciler) tkrDiscovery(ticker *time.Ticker, done chan bool, stopChan <-chan struct{}) {
+	for {
+		select {
+		case <-stopChan:
+			r.log.Info("Stop performing TKR discovery")
+			ticker.Stop()
+			close(done)
+			return
+		case <-ticker.C:
+			err := r.ReconcileRelease(context.Background())
+			if err != nil {
+				r.log.Info("failed to reconcile TKRs, retrying", "error", err.Error())
+			}
+		}
+	}
 }
 
 func newReconciler(ctx *mgrcontext.ControllerManagerContext) reconcile.Reconciler {

@@ -64,7 +64,7 @@ func get(cmd *cobra.Command, args []string) error {
 	return getCluster(server, args[0])
 }
 
-//nolint
+//nolint:whitespace,gocritic
 func getCluster(server *v1alpha1.Server, clusterName string) error {
 	tkgctlClient, err := createTKGClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context)
 	if err != nil {

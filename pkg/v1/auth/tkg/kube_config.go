@@ -103,7 +103,7 @@ func KubeconfigWithPinnipedAuthLoginPlugin(endpoint string, options *KubeConfigO
 		return
 	}
 	currentContext = config.CurrentContext
-	return //nolint
+	return mergeFilePath, currentContext, err
 }
 
 // GetServerKubernetesVersion uses the kubeconfig to get the server k8s version.

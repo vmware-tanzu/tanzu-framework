@@ -20,7 +20,6 @@ var getTanzuKubernetesRleasesCmd = &cobra.Command{
 	RunE:  getKubernetesReleases,
 }
 
-//nolint
 func getKubernetesReleases(cmd *cobra.Command, args []string) error {
 	server, err := client.GetCurrentServer()
 	if err != nil {
@@ -46,12 +45,11 @@ func getKubernetesReleases(cmd *cobra.Command, args []string) error {
 	}
 
 	t := component.NewTableWriter("NAME", "VERSION", "COMPATIBLE", "UPGRADEAVAILABLE")
-	for _, tkr := range tkrs {
-
+	for i := range tkrs {
 		compatible := ""
 		upgradeAvailable := ""
 
-		for _, condition := range tkr.Status.Conditions {
+		for _, condition := range tkrs[i].Status.Conditions {
 			if condition.Type == runv1alpha1.ConditionCompatible {
 				compatible = string(condition.Status)
 			}
@@ -60,7 +58,7 @@ func getKubernetesReleases(cmd *cobra.Command, args []string) error {
 			}
 		}
 
-		t.Append([]string{tkr.Name, tkr.Spec.Version, compatible, upgradeAvailable})
+		t.Append([]string{tkrs[i].Name, tkrs[i].Spec.Version, compatible, upgradeAvailable})
 	}
 	t.Render()
 	return nil

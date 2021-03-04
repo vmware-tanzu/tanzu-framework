@@ -48,7 +48,7 @@ func list(cmd *cobra.Command, args []string) error {
 	return listClusters(server)
 }
 
-//nolint
+//nolint:gocritic
 func listClusters(server *v1alpha1.Server) error {
 	tkgctlClient, err := createTKGClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context)
 	if err != nil {

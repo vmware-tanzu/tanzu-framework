@@ -187,7 +187,6 @@ func newTKRVersion(tkrVersion string) (TKRVersion, error) {
 }
 
 // GetManagementClusterVersion get the version of the management cluster
-//nolint
 func (r *reconciler) GetManagementClusterVersion(ctx context.Context) (string, error) {
 	clusterList := &clusterv1.ClusterList{}
 	err := r.client.List(ctx, clusterList)
@@ -195,10 +194,11 @@ func (r *reconciler) GetManagementClusterVersion(ctx context.Context) (string, e
 		return "", errors.Wrap(err, "failed to list clusters from control plane")
 	}
 
-	for _, cl := range clusterList.Items {
-		labels := cl.GetLabels()
+	items := clusterList.Items
+	for i := range items {
+		labels := items[i].GetLabels()
 		if _, ok := labels[constants.ManagememtClusterRoleLabel]; ok {
-			tkgVersion, ok := cl.Annotations[constants.TKGVersionKey]
+			tkgVersion, ok := items[i].Annotations[constants.TKGVersionKey]
 			if ok {
 				return tkgVersion, nil
 			}
