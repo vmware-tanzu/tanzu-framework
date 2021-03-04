@@ -23,6 +23,9 @@ type upgradeClustersOptions struct {
 	tkrName    string
 	timeout    time.Duration
 	unattended bool
+	osName     string
+	osVersion  string
+	osArch     string
 }
 
 var uc = &upgradeClustersOptions{}
@@ -31,7 +34,34 @@ var upgradeClusterCmd = &cobra.Command{
 	Use:   "upgrade CLUSTER_NAME",
 	Short: "Upgrade a cluster",
 	Args:  cobra.ExactArgs(1),
-	RunE:  upgrade,
+	Example: `
+  # Upgrade a workload cluster
+  tanzu cluster upgrade wc-1
+
+  # Upgrade a workload cluster with specific tkr v1.20.1---vmware.1-tkg.2
+  tanzu cluster upgrade wc-1 --tkr v1.20.1---vmware.1-tkg.2
+
+  # Upgrade a workload cluster using specific os name (vsphere)
+  tanzu cluster upgrade wc-1 --os-name photon
+
+  # Upgrade a workload cluster using specific os name and version
+  tanzu cluster upgrade wc-1 --os-name ubuntu --os-version 20.04
+
+  # Upgrade a workload cluster using specific os name, version and arch
+  tanzu cluster upgrade wc-1 --os-name ubuntu --os-version 20.04 --os-arch amd64
+
+  [+] : Options available for: os-name, os-version, os-arch are as follows:
+  vSphere:
+    --os-name ubuntu --os-version 20.04 --os-arch amd64
+    --os-name photon --os-version 3 --os-arch amd64
+  aws:
+    --os-name ubuntu --os-version 20.04 --os-arch amd64
+    --os-name amazon --os-version 2 --os-arch amd64
+  azure:
+    --os-name ubuntu --os-version 20.04 --os-arch amd64
+    --os-name ubuntu --os-version 18.04 --os-arch amd64
+`,
+	RunE: upgrade,
 }
 
 func init() {
@@ -39,6 +69,10 @@ func init() {
 	upgradeClusterCmd.Flags().StringVarP(&uc.namespace, "namespace", "n", "", "The namespace where the workload cluster was created. Assumes 'default' if not specified")
 	upgradeClusterCmd.Flags().DurationVarP(&uc.timeout, "timeout", "t", constants.DefaultLongRunningOperationTimeout, "Time duration to wait for an operation before timeout. Timeout duration in hours(h)/minutes(m)/seconds(s) units or as some combination of them (e.g. 2h, 30m, 2h30m10s)")
 	upgradeClusterCmd.Flags().BoolVarP(&uc.unattended, "yes", "y", false, "Upgrade workload cluster without asking for confirmation")
+
+	upgradeClusterCmd.Flags().StringVar(&uc.osName, "os-name", "", "OS name to use during cluster upgrade. Discovered automatically if not provided (See [+])")
+	upgradeClusterCmd.Flags().StringVar(&uc.osVersion, "os-version", "", "OS version to use during cluster upgrade. Discovered automatically if not provided (See [+])")
+	upgradeClusterCmd.Flags().StringVar(&uc.osArch, "os-arch", "", "OS arch to use during cluster upgrade. Discovered automatically if not provided (See [+])")
 }
 
 func upgrade(cmd *cobra.Command, args []string) error {
@@ -78,6 +112,9 @@ func upgradeCluster(server *v1alpha1.Server, clusterName string) error {
 		TkrVersion:  tkrVersion,
 		SkipPrompt:  uc.unattended,
 		Timeout:     uc.timeout,
+		OSName:      uc.osName,
+		OSVersion:   uc.osVersion,
+		OSArch:      uc.osArch,
 	}
 
 	return tkgctlClient.UpgradeCluster(upgradeClusterOptions)
