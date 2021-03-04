@@ -23,7 +23,7 @@ func TestRegistryPullBOM(t *testing.T) {
 
 	ro := ctlimg.RegistryOpts{}
 
-	reg := New(ro)
+	reg := New(&ro)
 
 	tags, err := reg.ListImageTags(bomRegistry)
 	if err != nil {

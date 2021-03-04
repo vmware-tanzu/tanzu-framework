@@ -386,7 +386,7 @@ func (r *reconciler) Start(stopChan <-chan struct{}) error {
 		}
 	}
 
-	r.registry = registry.New(r.registryOps)
+	r.registry = registry.New(&r.registryOps)
 
 	r.log.Info("Performing an initial release discovery")
 	initSyncDone := make(chan bool)

@@ -75,7 +75,6 @@ func NewClusterClient(kubeConfigPath, ctx string) (Client, error) {
 }
 
 // GetTanzuKubernetesReleases get the available releases
-//nolint
 func (c *client) GetTanzuKubernetesReleases(tkrName string) ([]runv1alpha1.TanzuKubernetesRelease, error) {
 	tkrList := &runv1alpha1.TanzuKubernetesReleaseList{}
 	err := c.crtClient.List(context.Background(), tkrList)
@@ -87,9 +86,9 @@ func (c *client) GetTanzuKubernetesReleases(tkrName string) ([]runv1alpha1.Tanzu
 	}
 
 	result := []runv1alpha1.TanzuKubernetesRelease{}
-	for _, tkr := range tkrList.Items {
-		if strings.HasPrefix(tkr.Name, tkrName) {
-			result = append(result, tkr)
+	for i := range tkrList.Items {
+		if strings.HasPrefix(tkrList.Items[i].Name, tkrName) {
+			result = append(result, tkrList.Items[i])
 		}
 	}
 	return result, nil

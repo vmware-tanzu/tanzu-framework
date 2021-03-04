@@ -20,10 +20,8 @@ type registry struct {
 }
 
 // New instantiates a new Registry
-//nolint
-func New(opts ctlimg.RegistryOpts) Registry {
-
-	reg := ctlimg.NewRegistry(opts)
+func New(opts *ctlimg.RegistryOpts) Registry {
+	reg := ctlimg.NewRegistry(*opts)
 
 	return &registry{
 		registry: reg,
