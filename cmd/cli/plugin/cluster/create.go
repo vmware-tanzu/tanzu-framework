@@ -150,7 +150,6 @@ func createCluster(clusterName string, server *v1alpha1.Server) error {
 	return tkgctlClient.CreateCluster(ccOptions)
 }
 
-//nolint
 func getTkrVersionForMatchingTkr(clusterClient clusterclient.Client, tkrName string) (string, error) {
 	tkrs, err := clusterClient.GetTanzuKubernetesReleases(tkrName)
 	if err != nil {
@@ -160,13 +159,13 @@ func getTkrVersionForMatchingTkr(clusterClient clusterclient.Client, tkrName str
 	// TODO: Enhance this logic to identify the greatest matching TKR
 	// https://jira.eng.vmware.com/browse/TKG-3512
 	var tkrVersion string
-	for _, tkr := range tkrs {
-		if tkr.Name == tkrName {
-			if !isTkrCompatible(&tkr) {
-				fmt.Printf("WARNING: TanzuKubernetesRelease %q is not compatible on the management cluster\n", tkr.Name)
+	for i := range tkrs {
+		if tkrs[i].Name == tkrName {
+			if !isTkrCompatible(&tkrs[i]) {
+				fmt.Printf("WARNING: TanzuKubernetesRelease %q is not compatible on the management cluster\n", tkrs[i].Name)
 			}
 
-			tkrVersion = tkr.Spec.Version
+			tkrVersion = tkrs[i].Spec.Version
 			break
 		}
 	}
