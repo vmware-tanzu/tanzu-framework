@@ -44,7 +44,7 @@ func LocalDir() (path string, err error) {
 	return
 }
 
-// ConfigPath returns the tanzu config path, checking for enviornment overrides.
+// ConfigPath returns the tanzu config path, checking for environment overrides.
 func ConfigPath() (path string, err error) {
 	localDir, err := LocalDir()
 	if err != nil {

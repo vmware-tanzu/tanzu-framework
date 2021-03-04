@@ -11,13 +11,14 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	runv1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/constants"
-	types "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/types"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/version"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha3"
+
+	runv1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/constants"
+	types "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/types"
 )
 
 const (
@@ -29,7 +30,6 @@ const (
 
 // NewTkrFromBom gets a new TKR matching tkrName from the BOM information in bomContent
 func NewTkrFromBom(tkrName string, bomContent []byte) (runv1.TanzuKubernetesRelease, error) {
-
 	bom, err := types.NewBom(bomContent)
 	if err != nil {
 		return runv1.TanzuKubernetesRelease{}, errors.Wrap(err, "failed to parse the BOM file content")
@@ -108,7 +108,6 @@ func NewTkrFromBom(tkrName string, bomContent []byte) (runv1.TanzuKubernetesRele
 	}
 
 	return newTkr, nil
-
 }
 
 // TKRVersion contains the TKR version info
@@ -121,7 +120,6 @@ type TKRVersion struct {
 }
 
 func upgradeQualified(fromTKR, toTKR *runv1.TanzuKubernetesRelease) bool {
-
 	from, err := newTKRVersion(fromTKR.Spec.Version)
 	if err != nil {
 		return false
@@ -164,7 +162,6 @@ func newTKRVersion(tkrVersion string) (TKRVersion, error) {
 	tkgVersion := m.FindStringSubmatch(tkrVersion)
 
 	if tkgVersion != nil {
-
 		ver, err := strconv.Atoi(tkgVersion[1])
 		if err != nil {
 			return v, err
@@ -197,10 +194,11 @@ func (r *reconciler) GetManagementClusterVersion(ctx context.Context) (string, e
 		return "", errors.Wrap(err, "failed to list clusters from control plane")
 	}
 
-	for _, cl := range clusterList.Items {
-		labels := cl.GetLabels()
+	items := clusterList.Items
+	for i := range items {
+		labels := items[i].GetLabels()
 		if _, ok := labels[constants.ManagememtClusterRoleLabel]; ok {
-			tkgVersion, ok := cl.Annotations[constants.TKGVersionKey]
+			tkgVersion, ok := items[i].Annotations[constants.TKGVersionKey]
 			if ok {
 				return tkgVersion, nil
 			}

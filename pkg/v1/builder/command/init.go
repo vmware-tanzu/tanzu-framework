@@ -9,6 +9,7 @@ import (
 
 	"github.com/aunum/log"
 	"github.com/spf13/cobra"
+
 	"github.com/vmware-tanzu-private/core/pkg/v1/builder/template"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
 )
@@ -63,6 +64,6 @@ func initialize(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return fmt.Errorf("%s -- %s", err, string(b))
 	}
-	log.Success("succesfully created repository")
+	log.Success("successfully created repository")
 	return nil
 }

@@ -111,7 +111,7 @@ func (m *Main) PrintStart() {
 	fmt.Println("")
 }
 
-// PrintSuccess prints a successfull main test message.
+// PrintSuccess prints a successful main test message.
 func (m *Main) PrintSuccess() {
 	fmt.Println("")
 	log.Successf("ok: successfully tested %s", m.Name)
@@ -320,7 +320,7 @@ func (t *Test) StdErr() bytes.Buffer {
 }
 
 // Exec the command, exit on error
-func Exec(command string) (stdOut bytes.Buffer, stdErr bytes.Buffer, err error) {
+func Exec(command string) (stdOut, stdErr bytes.Buffer, err error) {
 	c := cleanCommand(command)
 	cmd := exec.Command(cli.Name, c...)
 	cmd.Stdout = &stdOut

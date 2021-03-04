@@ -10,10 +10,11 @@ import (
 	"path"
 
 	"github.com/pkg/errors"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/constants"
 	corev1 "k8s.io/api/core/v1"
 	k8serr "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
+
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/constants"
 )
 
 const (

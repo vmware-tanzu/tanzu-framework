@@ -67,7 +67,7 @@ func (r *Runner) RunOutput(ctx context.Context) (string, string, error) {
 // is captured in the bytes.Buffer.
 func (r *Runner) run(ctx context.Context, pluginPath string, stdout, stderr *bytes.Buffer) error {
 	if BuildArch().IsWindows() {
-		pluginPath = pluginPath + ".exe"
+		pluginPath += ".exe"
 	}
 
 	info, err := os.Stat(pluginPath)

@@ -6,8 +6,9 @@ package cli
 import (
 	"context"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 	"google.golang.org/grpc/metadata"
+
+	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 )
 
 const (
@@ -36,7 +37,5 @@ func AppendClientMetadata(ctx context.Context) context.Context {
 
 // WithClientMetadata is an option to append CLI client metadata.
 func WithClientMetadata() func(ctx context.Context) context.Context {
-	return func(ctx context.Context) context.Context {
-		return AppendClientMetadata(ctx)
-	}
+	return AppendClientMetadata
 }

@@ -12,6 +12,7 @@ import (
 
 	"github.com/lithammer/dedent"
 	"github.com/spf13/cobra"
+
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 )
 
@@ -68,9 +69,9 @@ var completionCmd = &cobra.Command{
 
 func runCompletion(out io.Writer, cmd *cobra.Command, args []string) error {
 	if length := len(args); length == 0 {
-		return fmt.Errorf("Shell not specified, choose one of: %v", completionShells)
+		return fmt.Errorf("shell not specified, choose one of: %v", completionShells)
 	} else if length > 1 {
-		return errors.New("Too many arguments, expected only the shell type")
+		return errors.New("too many arguments, expected only the shell type")
 	}
 
 	switch strings.ToLower(args[0]) {
@@ -79,6 +80,6 @@ func runCompletion(out io.Writer, cmd *cobra.Command, args []string) error {
 	case "zsh":
 		return cmd.Root().GenZshCompletion(out)
 	default:
-		return errors.New("Unrecognized shell type specified")
+		return errors.New("unrecognized shell type specified")
 	}
 }

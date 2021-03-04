@@ -8,14 +8,15 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/constants"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/tools/clientcmd"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
+
+	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/constants"
 )
 
 const (
@@ -34,8 +35,7 @@ type client struct {
 }
 
 // NewClusterClient gets a new client for the cluster for the requested context
-func NewClusterClient(kubeConfigPath string, context string) (Client, error) {
-
+func NewClusterClient(kubeConfigPath, ctx string) (Client, error) {
 	var scheme = runtime.NewScheme()
 
 	_ = runv1alpha1.AddToScheme(scheme)
@@ -46,8 +46,8 @@ func NewClusterClient(kubeConfigPath string, context string) (Client, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to load kubeconfig from %s", kubeConfigPath)
 	}
-	if context != "" {
-		config.CurrentContext = context
+	if ctx != "" {
+		config.CurrentContext = ctx
 	}
 	rawConfig, err := clientcmd.Write(*config)
 	if err != nil {
@@ -76,7 +76,6 @@ func NewClusterClient(kubeConfigPath string, context string) (Client, error) {
 
 // GetTanzuKubernetesReleases get the available releases
 func (c *client) GetTanzuKubernetesReleases(tkrName string) ([]runv1alpha1.TanzuKubernetesRelease, error) {
-
 	tkrList := &runv1alpha1.TanzuKubernetesReleaseList{}
 	err := c.crtClient.List(context.Background(), tkrList)
 	if err != nil {
@@ -87,9 +86,9 @@ func (c *client) GetTanzuKubernetesReleases(tkrName string) ([]runv1alpha1.Tanzu
 	}
 
 	result := []runv1alpha1.TanzuKubernetesRelease{}
-	for _, tkr := range tkrList.Items {
-		if strings.HasPrefix(tkr.Name, tkrName) {
-			result = append(result, tkr)
+	for i := range tkrList.Items {
+		if strings.HasPrefix(tkrList.Items[i].Name, tkrName) {
+			result = append(result, tkrList.Items[i])
 		}
 	}
 	return result, nil
@@ -97,7 +96,6 @@ func (c *client) GetTanzuKubernetesReleases(tkrName string) ([]runv1alpha1.Tanzu
 
 // GetBomConfigMap gets the BOM ConfigMap
 func (c *client) GetBomConfigMap(tkrNameLabel string) (corev1.ConfigMap, error) {
-
 	selectors := []crtclient.ListOption{
 		crtclient.InNamespace(constants.TKRNamespace),
 		crtclient.MatchingLabels(map[string]string{constants.BomConfigMapTKRLabel: tkrNameLabel}),

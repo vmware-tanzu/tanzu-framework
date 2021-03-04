@@ -15,7 +15,7 @@ type Release struct {
 	Version string `yaml:"version"`
 }
 
-// ImageConfig contains the path of the image registy
+// ImageConfig contains the path of the image registry
 type ImageConfig struct {
 	ImageRepository string `yaml:"imageRepository"`
 }
@@ -120,14 +120,14 @@ func NewBom(content []byte) (Bom, error) {
 	}
 
 	if bc.Release.Version == "" {
-		return Bom{}, errors.New("Bom does not contain proper release information")
+		return Bom{}, errors.New("bom does not contain proper release information")
 	}
 	if len(bc.Components) == 0 {
-		return Bom{}, errors.New("Bom does not contain release component information")
+		return Bom{}, errors.New("bom does not contain release component information")
 	}
 
 	if bc.ImageConfig.ImageRepository == "" {
-		return Bom{}, errors.New("Bom does not contain image repository information")
+		return Bom{}, errors.New("bom does not contain image repository information")
 	}
 
 	return Bom{
@@ -195,7 +195,6 @@ func (b *Bom) GetAddon(name string) (Addon, error) {
 // GetAzureInfo gets azure os image info
 func (b *Bom) GetAzureInfo() ([]AzureInfo, error) {
 	if !b.initialzed {
-
 		return nil, errors.New("the BOM is not initialized")
 	}
 	return b.bom.Azure, nil

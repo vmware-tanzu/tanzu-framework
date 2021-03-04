@@ -9,6 +9,7 @@ Inspired from https://gitlab.eng.vmware.com/olympus/api/blob/master/pkg/common/a
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -16,13 +17,14 @@ import (
 	"net/url"
 	"time"
 
-	"golang.org/x/oauth2"
-
 	"github.com/aunum/log"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/pkg/errors"
-	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
+
+	"golang.org/x/oauth2"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
 )
 
 const (
@@ -59,7 +61,7 @@ var (
 )
 
 // IDTokenFromTokenSource parses out the id token from extra info in tokensource if available, or returns empty string.
-func IDTokenFromTokenSource(token oauth2.Token) (idTok string) {
+func IDTokenFromTokenSource(token *oauth2.Token) (idTok string) {
 	extraTok := token.Extra("id_token")
 	if extraTok != nil {
 		idTok = extraTok.(string)
@@ -89,11 +91,11 @@ type Token struct {
 }
 
 // GetAccessTokenFromAPIToken fetches CSP access token using the API-token.
-func GetAccessTokenFromAPIToken(apiToken string, issuer string) (*Token, error) {
+func GetAccessTokenFromAPIToken(apiToken, issuer string) (*Token, error) {
 	api := fmt.Sprintf("%s/auth/api-tokens/authorize", issuer)
 	data := url.Values{}
 	data.Set("refresh_token", apiToken)
-	req, _ := http.NewRequest("POST", api, bytes.NewBufferString(data.Encode()))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", api, bytes.NewBufferString(data.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	httpClient := &http.Client{}
@@ -101,7 +103,7 @@ func GetAccessTokenFromAPIToken(apiToken string, issuer string) (*Token, error) 
 	if err != nil {
 		return nil, errors.WithMessage(err, "Failed to obtain access token. Please provide valid VMware Cloud Services API-token")
 	}
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		body, _ := ioutil.ReadAll(resp.Body)
 		return nil, errors.Errorf("Failed to obtain access token. Please provide valid VMware Cloud Services API-token -- %s", string(body))
 	}
@@ -131,8 +133,9 @@ var DefaultTimeout = 30
 // IsExpired checks for the token expiry and returns true if the token has expired else will return false
 func IsExpired(tokenExpiry time.Time) bool {
 	// refresh at half token life
+	two := 2
 	now := time.Now().Unix()
-	halfDur := -time.Duration((tokenExpiry.Unix()-now)/2) * time.Second
+	halfDur := -time.Duration((tokenExpiry.Unix()-now)/int64(two)) * time.Second
 	return tokenExpiry.Add(halfDur).Unix() < now
 }
 

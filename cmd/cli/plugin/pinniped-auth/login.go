@@ -13,27 +13,28 @@ import (
 	"github.com/amenzhinsky/go-memexec"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+
 	tkgauth "github.com/vmware-tanzu-private/core/pkg/v1/auth/tkg"
 	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 )
 
 type loginOIDCOptions struct {
-	issuer                     string
-	clientID                   string
-	listenPort                 uint16
 	scopes                     []string
-	skipBrowser                bool
-	sessionCachePath           string
 	caBundlePaths              []string
 	caBundleData               []string
-	debugSessionCache          bool
+	issuer                     string
+	clientID                   string
+	sessionCachePath           string
 	requestAudience            string
-	conciergeEnabled           bool
 	conciergeNamespace         string
 	conciergeAuthenticatorType string
 	conciergeAuthenticatorName string
 	conciergeEndpoint          string
 	conciergeCABundle          string
+	listenPort                 uint16
+	skipBrowser                bool
+	debugSessionCache          bool
+	conciergeEnabled           bool
 }
 
 var lo = &loginOIDCOptions{}
@@ -72,7 +73,6 @@ func init() {
 }
 
 func loginoidcCmd(pinnipedloginCliExec func(args []string) error) *cobra.Command {
-
 	loCmd.RunE = func(cmd *cobra.Command, args []string) error {
 		oidcLoginArgs := []string{
 			"login", "oidc",
@@ -123,7 +123,6 @@ func pinnipedLoginExec(oidcLoginArgs []string) error {
 		return err
 	}
 	return pinnipedCmd.Wait()
-
 }
 
 func mustGetConfigDir() string {

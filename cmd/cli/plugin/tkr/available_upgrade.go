@@ -9,11 +9,14 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+
 	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
 	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 	"github.com/vmware-tanzu-private/core/pkg/v1/clusterclient"
 )
+
+const lenMsg = 2
 
 var availbleUpgradesCmd = &cobra.Command{
 	Use:   "available-upgrades",
@@ -55,9 +58,9 @@ func getAvailableUpgrades(cmd *cobra.Command, args []string) error {
 
 	upgradeMsg := ""
 
-	for _, tkr := range tkrs {
-		if tkr.Name == args[0] {
-			for _, condition := range tkr.Status.Conditions {
+	for i := range tkrs {
+		if tkrs[i].Name == args[0] {
+			for _, condition := range tkrs[i].Status.Conditions {
 				if condition.Type == runv1alpha1.ConditionUpgradeAvailable {
 					upgradeMsg = condition.Message
 				}
@@ -66,8 +69,8 @@ func getAvailableUpgrades(cmd *cobra.Command, args []string) error {
 	}
 
 	candidates := make(map[string]bool)
-	if strs := strings.Split(upgradeMsg, ": "); len(strs) != 2 {
-		fmt.Println("There are no availble upgrades for this TanzuKubernetesRelease")
+	if strs := strings.Split(upgradeMsg, ": "); len(strs) != lenMsg {
+		fmt.Println("There are no available upgrades for this TanzuKubernetesRelease")
 	} else {
 		names := strings.Split(strs[1], ",")
 		for _, name := range names {
@@ -76,12 +79,12 @@ func getAvailableUpgrades(cmd *cobra.Command, args []string) error {
 	}
 
 	t := component.NewTableWriter("NAME", "VERSION")
-	for _, tkr := range tkrs {
-		if _, ok := candidates[tkr.Name]; !ok {
+	for i := range tkrs {
+		if _, ok := candidates[tkrs[i].Name]; !ok {
 			continue
 		}
 
-		t.Append([]string{tkr.Name, tkr.Spec.Version})
+		t.Append([]string{tkrs[i].Name, tkrs[i].Spec.Version})
 	}
 	t.Render()
 

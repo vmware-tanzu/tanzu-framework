@@ -9,6 +9,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+
 	"github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
@@ -45,7 +46,6 @@ func getMachineHealthCheck(cmd *cobra.Command, args []string) error {
 		return errors.New("getting machine healthcheck with a global server is not implemented yet")
 	}
 	return runGetMachineHealthCheck(server, args[0])
-
 }
 
 func runGetMachineHealthCheck(server *v1alpha1.Server, clusterName string) error {

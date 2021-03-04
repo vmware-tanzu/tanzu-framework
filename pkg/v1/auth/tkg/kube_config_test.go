@@ -17,10 +17,11 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/ghttp"
-	tkgauth "github.com/vmware-tanzu-private/core/pkg/v1/auth/tkg"
 	clientauthenticationv1beta1 "k8s.io/client-go/pkg/apis/clientauthentication/v1beta1"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+
+	tkgauth "github.com/vmware-tanzu-private/core/pkg/v1/auth/tkg"
 )
 
 var testingDir string
@@ -148,7 +149,7 @@ var _ = Describe("Unit tests for tkg auth", func() {
 })
 
 func GetFakeClusterInfo(server string, cert *x509.Certificate) string {
-	clusterInfoJson := `
+	clusterInfoJSON := `
 	{
 		"kind": "ConfigMap",
 		"apiVersion": "v1",
@@ -161,13 +162,13 @@ func GetFakeClusterInfo(server string, cert *x509.Certificate) string {
 		}
 	}`
 	certBytes := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: cert.Raw})
-	clusterInfoJson = fmt.Sprintf(clusterInfoJson, base64.StdEncoding.EncodeToString(certBytes), server)
+	clusterInfoJSON = fmt.Sprintf(clusterInfoJSON, base64.StdEncoding.EncodeToString(certBytes), server)
 
-	return clusterInfoJson
+	return clusterInfoJSON
 }
 
 func GetFakePinnipedInfo(clustername, issuer, issuerCA string) string {
-	pinnipedInfoJson := `
+	pinnipedInfoJSON := `
 	{
 		"kind": "ConfigMap",
 		"apiVersion": "v1",
@@ -181,8 +182,8 @@ func GetFakePinnipedInfo(clustername, issuer, issuerCA string) string {
 		  "issuer_ca_bundle_data": "%s"
 		}
 	}`
-	pinnipedInfoJson = fmt.Sprintf(pinnipedInfoJson, clustername, issuer, issuerCA)
-	return pinnipedInfoJson
+	pinnipedInfoJSON = fmt.Sprintf(pinnipedInfoJSON, clustername, issuer, issuerCA)
+	return pinnipedInfoJSON
 }
 
 func getExpectedExecConfig(endpoint, issuer, issuerCA string, servCert *x509.Certificate) *clientcmdapi.ExecConfig {

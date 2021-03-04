@@ -20,9 +20,8 @@ type registry struct {
 }
 
 // New instantiates a new Registry
-func New(opts ctlimg.RegistryOpts) Registry {
-
-	reg := ctlimg.NewRegistry(opts)
+func New(opts *ctlimg.RegistryOpts) Registry {
+	reg := ctlimg.NewRegistry(*opts)
 
 	return &registry{
 		registry: reg,
@@ -41,7 +40,7 @@ func (r *registry) ListImageTags(imageName string) ([]string, error) {
 
 // GetFile gets the file content bundled in the given image:tag.
 // If filename is empty, it will get the first file.
-func (r *registry) GetFile(image string, tag string, filename string) ([]byte, error) {
+func (r *registry) GetFile(image, tag, filename string) ([]byte, error) {
 	ref, err := regname.ParseReference(fmt.Sprintf("%s:%s", image, tag), regname.WeakValidation)
 	if err != nil {
 		return nil, err
@@ -51,7 +50,7 @@ func (r *registry) GetFile(image string, tag string, filename string) ([]byte, e
 		return nil, errors.Wrap(err, "Collecting images: %s")
 	}
 	if len(imgs) == 0 {
-		return nil, errors.New("Expected to find at least one image, but found none")
+		return nil, errors.New("expected to find at least one image, but found none")
 	}
 
 	if len(imgs) > 1 {
@@ -90,8 +89,8 @@ func getFileContentFromImage(image regv1.Image, filename string) ([]byte, error)
 	return nil, errors.New("cannot find file from the image")
 }
 
-func getFileFromLayer(stream io.Reader) (files map[string][]byte, err error) {
-	files = make(map[string][]byte)
+func getFileFromLayer(stream io.Reader) (map[string][]byte, error) {
+	files := make(map[string][]byte)
 	tarReader := tar.NewReader(stream)
 
 	for {
@@ -110,7 +109,6 @@ func getFileFromLayer(stream io.Reader) (files map[string][]byte, err error) {
 			}
 			files[hdr.Name] = buf
 		}
-
 	}
-	return files, err
+	return files, nil
 }

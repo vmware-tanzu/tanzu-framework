@@ -15,11 +15,6 @@ import (
 	"github.com/go-logr/logr"
 	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/image"
 	"github.com/pkg/errors"
-	runv1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/constants"
-	mgrcontext "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/context"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/registry"
-	types "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/types"
 	"gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -29,6 +24,12 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+
+	runv1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/constants"
+	mgrcontext "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/context"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/registry"
+	types "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/types"
 )
 
 // TanzuKubernetesReleaseReconciler reconciles a TanzuKubernetesRelease object
@@ -76,8 +77,8 @@ func (r *reconciler) diffRelease(ctx context.Context) (newReleases, existingRele
 	existingReleases = tkrList.Items
 
 	tkrMap := make(map[string]bool)
-	for _, tkr := range existingReleases {
-		tkrMap[tkr.ObjectMeta.Name] = true
+	for i := range existingReleases {
+		tkrMap[existingReleases[i].ObjectMeta.Name] = true
 	}
 
 	// get all Configmap under the tkr-system namespace
@@ -85,25 +86,27 @@ func (r *reconciler) diffRelease(ctx context.Context) (newReleases, existingRele
 	if err := r.client.List(ctx, cmList, &client.ListOptions{Namespace: constants.TKRNamespace}); err != nil {
 		return nil, nil, errors.Wrap(err, "failed to get BOM ConfigMaps")
 	}
-	for _, cm := range cmList.Items {
+	for i := range cmList.Items {
 		// process ConfigMap with the tkr label
-		if tkrName, ok := cm.ObjectMeta.Labels[constants.BomConfigMapTKRLabel]; ok {
-			if _, ok := tkrMap[tkrName]; ok {
-				continue
-			}
-
-			bomContent, ok := cm.BinaryData[constants.BomConfigMapContentKey]
-			if !ok {
-				return nil, nil, errors.New("failed to get the BOM file content from the BOM ConfigMap")
-			}
-
-			// generate a TKR if the BOM ConfigMap does not have a corresponding one
-			newTkr, err := NewTkrFromBom(tkrName, bomContent)
-			if err != nil {
-				return nil, nil, errors.Wrap(err, "failed to generate TKR from Bom configmap")
-			}
-			newReleases = append(newReleases, newTkr)
+		tkrName, labelOK := cmList.Items[i].ObjectMeta.Labels[constants.BomConfigMapTKRLabel]
+		if !labelOK {
+			continue
 		}
+		if _, ok := tkrMap[tkrName]; ok {
+			continue
+		}
+
+		bomContent, ok := cmList.Items[i].BinaryData[constants.BomConfigMapContentKey]
+		if !ok {
+			return nil, nil, errors.New("failed to get the BOM file content from the BOM ConfigMap")
+		}
+
+		// generate a TKR if the BOM ConfigMap does not have a corresponding one
+		newTkr, err := NewTkrFromBom(tkrName, bomContent)
+		if err != nil {
+			return nil, nil, errors.Wrap(err, "failed to generate TKR from Bom configmap")
+		}
+		newReleases = append(newReleases, newTkr)
 	}
 
 	return newReleases, existingReleases, nil
@@ -152,7 +155,6 @@ func (r *reconciler) createBOMConfigMap(ctx context.Context, tag string) error {
 	}
 
 	return r.client.Create(ctx, &cm)
-
 }
 
 func (r *reconciler) reconcileBOMConfigMap(ctx context.Context) (err error) {
@@ -170,8 +172,8 @@ func (r *reconciler) reconcileBOMConfigMap(ctx context.Context) (err error) {
 		return errors.Wrap(err, "failed to get BOM ConfigMaps")
 	}
 
-	for _, cm := range cmList.Items {
-		if imageTag, ok := cm.ObjectMeta.Annotations[constants.BomConfigMapImageTagAnnotation]; ok {
+	for i := range cmList.Items {
+		if imageTag, ok := cmList.Items[i].ObjectMeta.Annotations[constants.BomConfigMapImageTagAnnotation]; ok {
 			if _, ok := tagMap[imageTag]; ok {
 				tagMap[imageTag] = true
 			}
@@ -190,26 +192,24 @@ func (r *reconciler) reconcileBOMConfigMap(ctx context.Context) (err error) {
 }
 
 func (r *reconciler) createTKR(ctx context.Context, tkrs []runv1.TanzuKubernetesRelease) (created []runv1.TanzuKubernetesRelease, err error) {
-	for _, tkr := range tkrs {
-
-		r.log.Info("Creating release", "name", tkr.Name)
-		err := r.client.Create(ctx, &tkr)
+	for i := range tkrs {
+		r.log.Info("Creating release", "name", tkrs[i].Name)
+		err := r.client.Create(ctx, &tkrs[i])
 		if err != nil {
-			return created, errors.Wrapf(err, "failed to create tkr %s", tkr.Name)
+			return created, errors.Wrapf(err, "failed to create tkr %s", tkrs[i].Name)
 		}
 
-		err = r.client.Status().Update(ctx, &tkr)
+		err = r.client.Status().Update(ctx, &tkrs[i])
 		if err != nil {
-			return created, errors.Wrapf(err, "failed to update status sub resource for TKR %s", tkr.Name)
+			return created, errors.Wrapf(err, "failed to update status sub resource for TKR %s", tkrs[i].Name)
 		}
-		created = append(created, tkr)
+		created = append(created, tkrs[i])
 	}
 
 	return created, nil
 }
 
 func changeTKRCondition(tkr *runv1.TanzuKubernetesRelease, conditionType string, status corev1.ConditionStatus, message string) {
-
 	newCondition := &clusterv1.Condition{
 		Type:    clusterv1.ConditionType(conditionType),
 		Status:  status,
@@ -219,12 +219,11 @@ func changeTKRCondition(tkr *runv1.TanzuKubernetesRelease, conditionType string,
 }
 
 func (r *reconciler) UpdateTKRUpgradeAvailableCondition(tkrs []runv1.TanzuKubernetesRelease) {
-
-	for i, from := range tkrs {
+	for i := range tkrs {
 		upgradeTo := []string{}
-		for _, to := range tkrs {
-			if upgradeQualified(&from, &to) {
-				upgradeTo = append(upgradeTo, to.ObjectMeta.Name)
+		for j := range tkrs {
+			if upgradeQualified(&tkrs[i], &tkrs[j]) {
+				upgradeTo = append(upgradeTo, tkrs[j].ObjectMeta.Name)
 			}
 		}
 		if len(upgradeTo) != 0 {
@@ -234,7 +233,6 @@ func (r *reconciler) UpdateTKRUpgradeAvailableCondition(tkrs []runv1.TanzuKubern
 			changeTKRCondition(&tkrs[i], runv1.ConditionUpgradeAvailable, corev1.ConditionFalse, "")
 		}
 	}
-
 }
 
 func (r *reconciler) UpdateTKRCompatibleCondition(ctx context.Context, tkrs []runv1.TanzuKubernetesRelease) error {
@@ -288,12 +286,11 @@ func (r *reconciler) UpdateTKRCompatibleCondition(ctx context.Context, tkrs []ru
 
 	compatibleSet := make(map[string]bool)
 	for _, r := range compatibileReleases {
-
 		compatibleSet[r] = true
 	}
 
-	for i, tkr := range tkrs {
-		if _, ok := compatibleSet[tkr.Spec.Version]; ok {
+	for i := range tkrs {
+		if _, ok := compatibleSet[tkrs[i].Spec.Version]; ok {
 			changeTKRCondition(&tkrs[i], runv1.ConditionCompatible, corev1.ConditionTrue, "")
 		} else {
 			changeTKRCondition(&tkrs[i], runv1.ConditionCompatible, corev1.ConditionFalse, "")
@@ -313,18 +310,18 @@ func (r *reconciler) ReconcileConditions(ctx context.Context, added, existing []
 
 	r.UpdateTKRUpgradeAvailableCondition(allTKRs)
 
-	for _, tkr := range allTKRs {
-		if err = r.client.Status().Update(ctx, &tkr); err != nil {
-			return errors.Wrapf(err, "failed to update status sub resrouce for TKR %s", tkr.ObjectMeta.Name)
+	for i := range allTKRs {
+		if err = r.client.Status().Update(ctx, &allTKRs[i]); err != nil {
+			return errors.Wrapf(err, "failed to update status sub resrouce for TKR %s", allTKRs[i].ObjectMeta.Name)
 		}
 	}
 
 	return nil
 }
 
-func (r *reconciler) SyncRelease(ctx context.Context) (added []runv1.TanzuKubernetesRelease, existing []runv1.TanzuKubernetesRelease, err error) {
+func (r *reconciler) SyncRelease(ctx context.Context) (added, existing []runv1.TanzuKubernetesRelease, err error) {
 	// create BOM ConfigMaps for new images
-	if err := r.reconcileBOMConfigMap(ctx); err != nil {
+	if err = r.reconcileBOMConfigMap(ctx); err != nil {
 		return added, existing, errors.Wrap(err, "failed to reconcile the BOM ConfigMap")
 	}
 
@@ -342,7 +339,6 @@ func (r *reconciler) SyncRelease(ctx context.Context) (added []runv1.TanzuKubern
 }
 
 func (r *reconciler) ReconcileRelease(ctx context.Context) (err error) {
-
 	added, existing, err := r.SyncRelease(ctx)
 	if err != nil {
 		return errors.Wrap(err, "failed to sync up TKRs with the BOM repository")
@@ -369,7 +365,7 @@ func (r *reconciler) checkInitialSync(ctx context.Context) error {
 		return errors.Wrap(err, "failed to list BOM image tags")
 	}
 	if len(tags) != len(tkrList.Items) {
-		return errors.New("number of inital TKRs and BOM image tags do not match")
+		return errors.New("number of initial TKRs and BOM image tags do not match")
 	}
 	return nil
 }
@@ -390,7 +386,7 @@ func (r *reconciler) Start(stopChan <-chan struct{}) error {
 		}
 	}
 
-	r.registry = registry.New(r.registryOps)
+	r.registry = registry.New(&r.registryOps)
 
 	r.log.Info("Performing an initial release discovery")
 	initSyncDone := make(chan bool)
@@ -437,30 +433,30 @@ func (r *reconciler) Start(stopChan <-chan struct{}) error {
 	r.log.Info("Initial TKR discovery completed")
 
 	ticker = time.NewTicker(r.options.ContinuousDiscoveryFrequency)
-	go func() {
-		for {
-			select {
-			case <-stopChan:
-				r.log.Info("Stop performing TKR discovery")
-				ticker.Stop()
-				close(done)
-				return
-			case <-ticker.C:
-				err = r.ReconcileRelease(context.Background())
-				if err != nil {
-					r.log.Info("failed to reconcile TKRs, retrying", "error", err.Error())
-				}
-			}
-		}
-	}()
-
+	go r.tkrDiscovery(ticker, done, stopChan)
 	<-done
 	r.log.Info("Stopping TanzuKubernetesReleaase Reconciler")
 	return nil
 }
 
-func newReconciler(ctx *mgrcontext.ControllerManagerContext) reconcile.Reconciler {
+func (r *reconciler) tkrDiscovery(ticker *time.Ticker, done chan bool, stopChan <-chan struct{}) {
+	for {
+		select {
+		case <-stopChan:
+			r.log.Info("Stop performing TKR discovery")
+			ticker.Stop()
+			close(done)
+			return
+		case <-ticker.C:
+			err := r.ReconcileRelease(context.Background())
+			if err != nil {
+				r.log.Info("failed to reconcile TKRs, retrying", "error", err.Error())
+			}
+		}
+	}
+}
 
+func newReconciler(ctx *mgrcontext.ControllerManagerContext) reconcile.Reconciler {
 	regOpts := ctlimg.RegistryOpts{
 		VerifyCerts: ctx.VerifyRegistryCert,
 		Anon:        true,

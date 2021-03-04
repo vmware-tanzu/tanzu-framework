@@ -6,13 +6,12 @@ package main
 import (
 	"path/filepath"
 
-	"github.com/spf13/cobra"
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
-
 	"github.com/aunum/log"
+	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/command/plugin"
+	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 )
 
 var descriptor = cli.PluginDescriptor{

@@ -13,19 +13,21 @@ import (
 	"github.com/aunum/log"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 	"golang.org/x/oauth2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	grpc_oauth "google.golang.org/grpc/credentials/oauth"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
+	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 )
 
 const (
 	mdKeyAuthToken   = "Authorization"
 	authTokenPrefix  = "Bearer "
 	mdKeyAuthIDToken = "X-User-Id"
+	apiToken         = "api-token"
 )
 
 // WithCredentialDiscovery returns a grpc.CallOption that adds credentials into gRPC calls.
@@ -77,14 +79,14 @@ func (c *configSource) Token() (*oauth2.Token, error) {
 		return nil, err
 	}
 
-	g.GlobalOpts.Auth.Type = "api-token"
+	g.GlobalOpts.Auth.Type = apiToken
 	expiration := time.Now().Local().Add(time.Second * time.Duration(token.ExpiresIn))
 	g.GlobalOpts.Auth.Expiration = metav1.NewTime(expiration)
 	g.GlobalOpts.Auth.RefreshToken = token.RefreshToken
 	g.GlobalOpts.Auth.AccessToken = token.AccessToken
 	g.GlobalOpts.Auth.IDToken = token.IDToken
 
-	if err = client.StoreConfig(c.Config); err != nil {
+	if err := client.StoreConfig(c.Config); err != nil {
 		return nil, err
 	}
 
@@ -112,7 +114,7 @@ func (ts TokenSource) GetRequestMetadata(ctx context.Context, uri ...string) (ma
 	}
 
 	headers := map[string]string{mdKeyAuthToken: authTokenPrefix + " " + token.AccessToken}
-	idTok := IDTokenFromTokenSource(*token)
+	idTok := IDTokenFromTokenSource(token)
 	if idTok != "" {
 		headers[mdKeyAuthIDToken] = idTok
 	}

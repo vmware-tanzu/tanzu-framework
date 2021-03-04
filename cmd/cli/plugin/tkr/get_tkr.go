@@ -5,8 +5,8 @@ package main
 
 import (
 	"github.com/pkg/errors"
-
 	"github.com/spf13/cobra"
+
 	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
 	"github.com/vmware-tanzu-private/core/pkg/v1/client"
@@ -45,12 +45,11 @@ func getKubernetesReleases(cmd *cobra.Command, args []string) error {
 	}
 
 	t := component.NewTableWriter("NAME", "VERSION", "COMPATIBLE", "UPGRADEAVAILABLE")
-	for _, tkr := range tkrs {
-
+	for i := range tkrs {
 		compatible := ""
 		upgradeAvailable := ""
 
-		for _, condition := range tkr.Status.Conditions {
+		for _, condition := range tkrs[i].Status.Conditions {
 			if condition.Type == runv1alpha1.ConditionCompatible {
 				compatible = string(condition.Status)
 			}
@@ -59,7 +58,7 @@ func getKubernetesReleases(cmd *cobra.Command, args []string) error {
 			}
 		}
 
-		t.Append([]string{tkr.Name, tkr.Spec.Version, compatible, upgradeAvailable})
+		t.Append([]string{tkrs[i].Name, tkrs[i].Spec.Version, compatible, upgradeAvailable})
 	}
 	t.Render()
 	return nil

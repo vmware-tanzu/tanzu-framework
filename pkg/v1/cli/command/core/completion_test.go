@@ -36,7 +36,7 @@ func Test_runCompletion_InvalidArg(t *testing.T) {
 		t.Error("Invalid shell argument should have resulted in an error")
 	}
 
-	if !strings.Contains(err.Error(), "Unrecognized") {
+	if !strings.Contains(err.Error(), "unrecognized") {
 		t.Errorf("Unexpected error returned for invalid shell argument: %s", err.Error())
 	}
 
@@ -54,7 +54,7 @@ func Test_runCompletion_WrongArgs(t *testing.T) {
 		t.Error("Invalid shell argument should have resulted in an error")
 	}
 
-	if !strings.Contains(err.Error(), "Too many arguments") {
+	if !strings.Contains(err.Error(), "too many arguments") {
 		t.Errorf("Unexpected error returned for invalid shell argument: %s", err.Error())
 	}
 

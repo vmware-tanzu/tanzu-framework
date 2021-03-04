@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/image"
+
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/types"
 )
 
@@ -22,7 +23,7 @@ func TestRegistryPullBOM(t *testing.T) {
 
 	ro := ctlimg.RegistryOpts{}
 
-	reg := New(ro)
+	reg := New(&ro)
 
 	tags, err := reg.ListImageTags(bomRegistry)
 	if err != nil {

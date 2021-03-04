@@ -25,19 +25,19 @@ type createClusterOptions struct {
 	plan                        string
 	infrastructureProvider      string
 	namespace                   string
-	controlPlaneMachineCount    int
-	workerMachineCount          int
-	timeout                     time.Duration
-	generateOnly                bool
 	size                        string
 	controlPlaneSize            string
 	workerSize                  string
-	unattended                  bool
 	cniType                     string
 	enableClusterOptions        string
 	vsphereControlPlaneEndpoint string
 	clusterConfigFile           string
 	tkrName                     string
+	controlPlaneMachineCount    int
+	workerMachineCount          int
+	timeout                     time.Duration
+	generateOnly                bool
+	unattended                  bool
 }
 
 var cc = &createClusterOptions{}
@@ -86,8 +86,7 @@ func init() {
 }
 
 func aliasNormalizeFunc(f *pflag.FlagSet, name string) pflag.NormalizedName {
-	switch name {
-	case "vsphere-controlplane-endpoint-ip":
+	if name == "vsphere-controlplane-endpoint-ip" {
 		name = "vsphere-controlplane-endpoint"
 	}
 	return pflag.NormalizedName(name)
@@ -160,13 +159,13 @@ func getTkrVersionForMatchingTkr(clusterClient clusterclient.Client, tkrName str
 	// TODO: Enhance this logic to identify the greatest matching TKR
 	// https://jira.eng.vmware.com/browse/TKG-3512
 	var tkrVersion string
-	for _, tkr := range tkrs {
-		if tkr.Name == tkrName {
-			if !isTkrCompatible(tkr) {
-				fmt.Printf("WARNING: TanzuKubernetesRelease %q is not compatible on the management cluster\n", tkr.Name)
+	for i := range tkrs {
+		if tkrs[i].Name == tkrName {
+			if !isTkrCompatible(&tkrs[i]) {
+				fmt.Printf("WARNING: TanzuKubernetesRelease %q is not compatible on the management cluster\n", tkrs[i].Name)
 			}
 
-			tkrVersion = tkr.Spec.Version
+			tkrVersion = tkrs[i].Spec.Version
 			break
 		}
 	}

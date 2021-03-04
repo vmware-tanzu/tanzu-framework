@@ -8,8 +8,6 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
-	runv1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	mgrcontext "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/context"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -17,6 +15,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
+
+	runv1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
+	mgrcontext "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/context"
 )
 
 const (

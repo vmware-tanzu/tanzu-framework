@@ -15,10 +15,11 @@ import (
 
 	"cloud.google.com/go/storage"
 	"github.com/pkg/errors"
-	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
 	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 	"gopkg.in/yaml.v2"
+
+	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
 )
 
 // Repository is a remote repository containing plugin artifacts.
@@ -258,7 +259,7 @@ func (g *GCPBucketRepository) Describe(name string) (plugin Plugin, err error) {
 		versions = append(versions, version)
 	}
 	plugin.Versions = versions
-	return
+	return plugin, err
 }
 
 // Fetch an artifact.
@@ -395,10 +396,10 @@ var DefaultLocalRepository = &LocalRepository{
 }
 
 // NewLocalRepository returns a new local repository.
-func NewLocalRepository(name, path string, options ...Option) Repository {
+func NewLocalRepository(name, localPath string, options ...Option) Repository {
 	opts := makeDefaultOptions(options...)
 	return &LocalRepository{
-		path:            path,
+		path:            localPath,
 		name:            name,
 		versionSelector: opts.versionSelector,
 	}

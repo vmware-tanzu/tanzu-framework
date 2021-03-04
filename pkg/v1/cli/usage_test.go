@@ -29,5 +29,4 @@ func TestGenerateDescriptor(t *testing.T) {
 func TestRPad(t *testing.T) {
 	s := rpad("my string", 15)
 	fmt.Println(s + "this")
-
 }
