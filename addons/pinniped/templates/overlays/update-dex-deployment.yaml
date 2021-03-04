@@ -14,9 +14,18 @@ spec:
       containers:
       #@overlay/match by=overlay.subset({"name": "dex"})
       - name: dex
-        #@ if values.dex.config.connector == "oidc":
         #@overlay/match missing_ok=True
         env:
+        #@ if/end values.http_proxy:
+        - name: HTTP_PROXY
+          value: #@ values.http_proxy
+        #@ if/end values.https_proxy:
+        - name: HTTPS_PROXY
+          value: #@ values.https_proxy
+        #@ if/end values.no_proxy:
+        - name: NO_PROXY
+          value: #@ values.no_proxy
+        #@ if values.dex.config.connector == "oidc":
         - name: OIDC_CLIENT_ID
           valueFrom:
             secretKeyRef:
