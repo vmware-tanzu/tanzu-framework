@@ -66,6 +66,7 @@ linters:
     - golint
     - gomnd
     - goprintffuncname
+    - gosec
     - gosimple
     - govet
     - ineffassign
@@ -94,7 +95,6 @@ linters:
   # - godot
   # - godox
   # - goerr113
-  # - gosec
   # - interfacer
   # - lll
   # - nestif
@@ -108,6 +108,7 @@ issues:
   exclude:
     - 'declaration of "(err|ctx)" shadows declaration at'
     - 'unnamedResult: consider giving a name to these results'
+    - 'G306: Expect WriteFile permissions to be 0600 or less'
 
   exclude-rules:
     - path: pinniped/internal/mocks
