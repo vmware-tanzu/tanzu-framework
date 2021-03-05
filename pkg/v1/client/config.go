@@ -248,6 +248,11 @@ func RemoveServer(name string) error {
 		}
 	}
 	cfg.KnownServers = newServers
+
+	if cfg.CurrentServer == name {
+		cfg.CurrentServer = ""
+	}
+
 	err = StoreConfig(cfg)
 	if err != nil {
 		return err

@@ -64,4 +64,12 @@ func TestConfig(t *testing.T) {
 	c, err = GetConfig()
 	require.NoError(t, err)
 	require.Len(t, c.KnownServers, 1)
+
+	err = RemoveServer("test1")
+	require.NoError(t, err)
+
+	c, err = GetConfig()
+	require.NoError(t, err)
+	require.Len(t, c.KnownServers, 0)
+	require.Equal(t, c.CurrentServer, "")
 }
