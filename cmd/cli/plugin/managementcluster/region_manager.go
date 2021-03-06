@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
+
 	v1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 	"github.com/vmware-tanzu-private/tkg-cli/pkg/region"
@@ -43,12 +44,12 @@ func (trm *tanzuRegionManager) ListRegionContexts() ([]region.RegionContext, err
 	return regionClusters, nil
 }
 
-func (trm *tanzuRegionManager) SaveRegionContext(region region.RegionContext) error {
-	return client.AddServer(convertRegionContextToServer(region), false)
+func (trm *tanzuRegionManager) SaveRegionContext(regionCtxt region.RegionContext) error {
+	return client.AddServer(convertRegionContextToServer(regionCtxt), false)
 }
 
-func (trm *tanzuRegionManager) UpsertRegionContext(region region.RegionContext) error {
-	return client.PutServer(convertRegionContextToServer(region), false)
+func (trm *tanzuRegionManager) UpsertRegionContext(regionCtxt region.RegionContext) error {
+	return client.PutServer(convertRegionContextToServer(regionCtxt), false)
 }
 
 func (trm *tanzuRegionManager) DeleteRegionContext(clusterName string) error {
@@ -58,17 +59,17 @@ func (trm *tanzuRegionManager) DeleteRegionContext(clusterName string) error {
 	}
 
 	if clusterName != "" && clusterName != currentServer.Name {
-		return fmt.Errorf("Cannot delete cluster %s. It is not the current cluster", clusterName)
+		return fmt.Errorf("cannot delete cluster %s, it is not the current cluster", clusterName)
 	}
 
-	if err = client.RemoveServer(currentServer.Name); err != nil {
+	if err := client.RemoveServer(currentServer.Name); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (trm *tanzuRegionManager) SetCurrentContext(clusterName string, contextName string) error {
+func (trm *tanzuRegionManager) SetCurrentContext(clusterName, contextName string) error {
 	return client.SetCurrentServer(clusterName)
 }
 

@@ -9,6 +9,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/spf13/cobra"
+
 	"github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
 	tkgauth "github.com/vmware-tanzu-private/core/pkg/v1/auth/tkg"
 	"github.com/vmware-tanzu-private/core/pkg/v1/client"
@@ -97,7 +98,7 @@ func getPinnipedKubeconfig(tkgctlClient tkgctl.TKGClient) error {
 	// for management cluster the audience would be set to IssuerURL
 	audience := clusterPinnipedInfo.PinnipedInfo.Data.Issuer
 
-	kubeconfig, err := tkgauth.GetPinnipedKubeconfig(clusterPinnipedInfo.ClusterInfo, clusterPinnipedInfo.PinnipedInfo,
+	kubeconfig, _ := tkgauth.GetPinnipedKubeconfig(clusterPinnipedInfo.ClusterInfo, clusterPinnipedInfo.PinnipedInfo,
 		clusterPinnipedInfo.ClusterName, audience)
 
 	kubeconfigbytes, err := json.Marshal(kubeconfig)

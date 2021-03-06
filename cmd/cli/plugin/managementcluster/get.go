@@ -5,8 +5,6 @@ package main
 
 import (
 	"fmt"
-	"io"
-	"os"
 	"sort"
 	"strings"
 	"time"
@@ -15,14 +13,15 @@ import (
 	"github.com/fatih/color"
 	"github.com/gosuri/uitable"
 	"github.com/spf13/cobra"
-	"github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
-	"github.com/vmware-tanzu-private/tkg-cli/pkg/log"
-	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/duration"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+
+	"github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
+	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
+	"github.com/vmware-tanzu-private/tkg-cli/pkg/log"
+	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
 )
 
 type getClusterOptions struct {
@@ -35,6 +34,10 @@ const (
 	// TKGSystemNamespace the name of the TKG system namespace
 	TKGSystemNamespace = "tkg-system"
 )
+
+var maxMsgLength = 100
+var maxItemLength = 2
+var separator = "  "
 
 var cd = &getClusterOptions{}
 
@@ -86,14 +89,15 @@ func getClusterDetails(currServ *v1alpha1.Server) error {
 
 	t.Render()
 	log.Infof("\n\nDetails:\n\n")
-	treeView(os.Stderr, results.Objs, results.Cluster)
+	treeView(results.Objs, results.Cluster)
 
 	// If it is a Management Cluster, output the providers
 	if results.InstalledProviders != nil {
 		log.Infof("\n\nProviders:\n\n")
 		p := component.NewTableWriter()
 		p.SetHeader([]string{"NAMESPACE", "NAME", "TYPE", "PROVIDERNAME", "VERSION", "WATCHNAMESPACE"})
-		for _, installedProvider := range results.InstalledProviders.Items {
+		for i := range results.InstalledProviders.Items {
+			installedProvider := results.InstalledProviders.Items[i]
 			p.Append([]string{installedProvider.Namespace, installedProvider.Name, installedProvider.Type, installedProvider.ProviderName, installedProvider.Version, installedProvider.WatchedNamespace})
 		}
 		p.Render()
@@ -118,13 +122,12 @@ var (
 )
 
 // treeView prints object hierarchy to out stream.
-func treeView(out io.Writer, objs *status.ObjectTree, obj controllerutil.Object) {
+func treeView(objs *status.ObjectTree, obj controllerutil.Object) {
 	tbl := uitable.New()
-	tbl.Separator = "  "
+	tbl.Separator = separator
 	tbl.AddRow("NAME", "READY", "SEVERITY", "REASON", "SINCE", "MESSAGE")
 	treeViewInner("", tbl, objs, obj)
 	fmt.Fprintln(color.Output, tbl)
-
 }
 
 type conditions struct {
@@ -162,8 +165,8 @@ func getCond(c *clusterv1.Condition) conditions {
 	v.severity = string(c.Severity)
 	v.reason = c.Reason
 	v.message = c.Message
-	if len(v.message) > 100 {
-		v.message = fmt.Sprintf("%s ...", v.message[:100])
+	if len(v.message) > maxMsgLength {
+		v.message = fmt.Sprintf("%s ...", v.message[:maxMsgLength])
 	}
 	v.age = duration.HumanDuration(time.Since(c.LastTransitionTime.Time))
 
@@ -183,7 +186,7 @@ func treeViewInner(prefix string, tbl *uitable.Table, objs *status.ObjectTree, o
 	if status.IsGroupObject(obj) {
 		name = white.Add(color.Bold).Sprintf(name)
 		items := strings.Split(status.GetGroupItems(obj), status.GroupItemsSeparator)
-		if len(items) <= 2 {
+		if len(items) <= maxItemLength {
 			v.message = gray.Sprintf("See %s", strings.Join(items, status.GroupItemsSeparator))
 		} else {
 			v.message = gray.Sprintf("See %s, ...", strings.Join(items[:2], status.GroupItemsSeparator))
@@ -210,7 +213,7 @@ func treeViewInner(prefix string, tbl *uitable.Table, objs *status.ObjectTree, o
 
 			p := ""
 			filler := strings.Repeat(" ", 10)
-			siblingsPipe := "  "
+			siblingsPipe := separator
 			if len(chs) > 0 {
 				siblingsPipe = pipe
 			}
