@@ -33,8 +33,8 @@ var GitIgnore = Target{
 	Template: `/artifacts`,
 }
 
-// GitlabCI target
-var GitlabCI = Target{
+// GitLabCI target
+var GitLabCI = Target{
 	Filepath: ".gitlab-ci.yaml",
 	Template: `
 buildpush:
@@ -60,10 +60,10 @@ script:
 `,
 }
 
-// GithubCI target
+// GitHubCI target
 // TODO (pbarker): should we push everything to a single repository, or at least make that possible?
 // TODO (pbarker): should report stats
-var GithubCI = Target{
+var GitHubCI = Target{
 	Filepath: ".github/workflows/release.yaml",
 	Template: `name: Release
 
