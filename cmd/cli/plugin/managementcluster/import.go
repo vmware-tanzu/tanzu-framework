@@ -10,10 +10,11 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"github.com/vmware-tanzu-private/tkg-cli/pkg/region"
-	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/cmd"
+
+	"github.com/vmware-tanzu-private/tkg-cli/pkg/region"
+	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
 )
 
 type importOptions struct {

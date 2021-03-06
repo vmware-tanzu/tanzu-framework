@@ -16,11 +16,14 @@ import (
 )
 
 type initRegionOptions struct {
+	ui                          bool
+	useExistingCluster          bool
+	enableTKGSOnVsphere7        bool
+	deployTKGonVsphere7         bool
+	unattended                  bool
 	clusterConfigFile           string
 	plan                        string
-	ui                          bool
 	clusterName                 string
-	useExistingCluster          bool
 	coreProvider                string
 	bootstrapProvider           string
 	infrastructureProvider      string
@@ -32,16 +35,12 @@ type initRegionOptions struct {
 	controlPlaneSize            string
 	workerSize                  string
 	tmcRegistrationURL          string
-	disableYTT                  bool
 	ceipOptIn                   string
 	cniType                     string
 	featureFlags                map[string]string
-	enableTKGSOnVsphere7        bool
-	deployTKGonVsphere7         bool
 	bind                        string
 	browser                     string
 	vsphereControlPlaneEndpoint string
-	unattended                  bool
 }
 
 var iro = &initRegionOptions{}
@@ -84,37 +83,37 @@ func init() {
 	createCmd.Flags().DurationVarP(&iro.timeout, "timeout", "t", constants.DefaultLongRunningOperationTimeout, "Time duration to wait for an operation before timeout. Timeout duration in hours(h)/minutes(m)/seconds(s) units or as some combination of them (e.g. 2h, 30m, 2h30m10s)")
 
 	createCmd.Flags().StringVarP(&iro.infrastructureProvider, "infrastructure", "i", "", "Infrastructure to deploy the management cluster on ['aws', 'vsphere', 'azure']")
-	createCmd.Flags().MarkHidden("infrastructure")
+	createCmd.Flags().MarkHidden("infrastructure") //nolint
 
 	createCmd.Flags().StringVarP(&iro.plan, "plan", "p", "", "Cluster plan to use to deploy the management cluster")
-	createCmd.Flags().MarkHidden("plan")
+	createCmd.Flags().MarkHidden("plan") //nolint
 
 	createCmd.Flags().StringVarP(&iro.clusterName, "name", "", "", "Name of the management cluster. One will be generated if not provided")
-	createCmd.Flags().MarkHidden("name")
+	createCmd.Flags().MarkHidden("name") //nolint
 
 	createCmd.Flags().StringVarP(&iro.size, "size", "", "", "Specify size for all nodes including control plane and worker nodes. It can be overridden by --controlplane-size and --worker-size options. (See [+])")
-	createCmd.Flags().MarkHidden("size")
+	createCmd.Flags().MarkHidden("size") //nolint
 
 	createCmd.Flags().StringVarP(&iro.controlPlaneSize, "controlplane-size", "", "", "Specify size for the control plane node. (See [+])")
-	createCmd.Flags().MarkHidden("controlplane-size")
+	createCmd.Flags().MarkHidden("controlplane-size") //nolint
 
 	createCmd.Flags().StringVarP(&iro.workerSize, "worker-size", "", "", "Specify size of the worker node. (See [+])")
-	createCmd.Flags().MarkHidden("worker-size")
+	createCmd.Flags().MarkHidden("worker-size") //nolint
 
 	createCmd.Flags().StringVarP(&iro.ceipOptIn, "ceip-participation", "", "", "Specify if this management cluster should participate in VMware CEIP. (See [*])")
-	createCmd.Flags().MarkHidden("ceip-participation")
+	createCmd.Flags().MarkHidden("ceip-participation") //nolint
 
 	createCmd.Flags().BoolVarP(&iro.deployTKGonVsphere7, "deploy-tkg-on-vSphere7", "", false, "Deploy TKG Management cluster on vSphere 7.0 without prompt")
-	createCmd.Flags().MarkHidden("deploy-tkg-on-vSphere7")
+	createCmd.Flags().MarkHidden("deploy-tkg-on-vSphere7") //nolint
 
 	createCmd.Flags().BoolVarP(&iro.enableTKGSOnVsphere7, "enable-tkgs-on-vSphere7", "", false, "Enable TKGS on vSphere 7.0 without prompt")
-	createCmd.Flags().MarkHidden("enable-tkgs-on-vSphere7")
+	createCmd.Flags().MarkHidden("enable-tkgs-on-vSphere7") //nolint
 
 	createCmd.Flags().StringVarP(&iro.vsphereControlPlaneEndpoint, "vsphere-controlplane-endpoint", "", "", "Virtual IP address or FQDN for the cluster's control plane nodes")
-	createCmd.Flags().MarkHidden("vsphere-controlplane-endpoint")
+	createCmd.Flags().MarkHidden("vsphere-controlplane-endpoint") //nolint
 
 	createCmd.Flags().StringVarP(&iro.tmcRegistrationURL, "tmc-registration-url", "", "", "URL to download the yml which has configuration related to resources to be deployed on the management cluster for it to register with Tanzu Mission Control")
-	createCmd.Flags().MarkHidden("tmc-registration-url")
+	createCmd.Flags().MarkHidden("tmc-registration-url") //nolint
 
 	// Hidden flags, mostly for development and testing
 
@@ -131,8 +130,7 @@ func init() {
 }
 
 func aliasNormalizeFunc(f *pflag.FlagSet, name string) pflag.NormalizedName {
-	switch name {
-	case "vsphere-controlplane-endpoint-ip":
+	if name == "vsphere-controlplane-endpoint-ip" {
 		name = "vsphere-controlplane-endpoint"
 	}
 	return pflag.NormalizedName(name)
