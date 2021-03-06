@@ -24,8 +24,7 @@ GOARCH ?= $(shell go env GOARCH)
 
 # Add tooling binaries here and in hack/tools/Makefile
 GOLANGCI_LINT := $(TOOLS_BIN_DIR)/golangci-lint
-GOLINT := $(TOOLS_BIN_DIR)/golint
-TOOLING_BINARIES := $(GOLANGCI_LINT) $(GOLINT)
+TOOLING_BINARIES := $(GOLANGCI_LINT)
 GOBINDATA := $(TOOLS_BIN_DIR)/go-bindata-$(GOOS)-$(GOARCH)
 KUBEBUILDER := $(TOOLS_BIN_DIR)/kubebuilder
 
@@ -87,7 +86,6 @@ vet: ## Run go vet
 
 lint: tools ## Run linting checks
 	$(GOLANGCI_LINT) run -v
-	$(GOLINT) -set_exit_status ./...
 
 generate: controller-gen ## Generate code via controller-gen
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt",year=$(shell date +%Y) paths="./..."

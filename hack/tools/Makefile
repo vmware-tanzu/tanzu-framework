@@ -28,10 +28,8 @@ KUBEBUILDER_VERSION=2.3.1
 HOST_OS=$(shell go env GOOS)
 HOST_ARCH=$(shell go env GOARCH)
 
-
 # Binaries.
 GOLANGCI_LINT := $(BIN_DIR)/golangci-lint
-GOLINT := $(BIN_DIR)/golint
 KUBEBUILDER        := $(BIN_DIR)/kubebuilder
 
 ## --------------------------------------
@@ -40,6 +38,7 @@ KUBEBUILDER        := $(BIN_DIR)/kubebuilder
 
 help: ## Display this help
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
+
 ## --------------------------------------
 ## Binaries
 ## --------------------------------------
@@ -47,10 +46,6 @@ help: ## Display this help
 golangci-lint: $(GOLANGCI_LINT) $(SRCS) ## Build golangci-lint
 $(GOLANGCI_LINT): go.mod
 	go build -tags=tools -o $@ github.com/golangci/golangci-lint/cmd/golangci-lint
-
-golint: $(GOLINT) $(SRC) ## Build golint
-$(GOLINT): go.mod
-	go build -tags=tools -o $@ golang.org/x/lint/golint
 
 kubebuilder: $(KUBEBUILDER) ## Install kubebuilder
 $(KUBEBUILDER):
