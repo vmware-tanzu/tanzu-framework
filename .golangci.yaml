@@ -137,6 +137,11 @@ issues:
     - linters:
         - gocritic
       text: "unnecessaryDefer:"
+
+    - path: pkg/v1/tkr/controllers/source/suite_test.go
+      linters:
+        - nolintlint
+      text: "is unused for linter staticcheck"
 run:
   skip-dirs:
     - test/
