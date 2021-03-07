@@ -508,8 +508,7 @@ func (c *Catalog) Clean() error {
 
 // EnsureDistro ensures that all the distro plugins are installed.
 func (c *Catalog) EnsureDistro(repos *MultiRepo) error {
-	fatalErrors := make(chan error)
-	wgDone := make(chan bool)
+	fatalErrors := make(chan error, len(c.distro))
 
 	// Limit the number of concurrent operations we perform so we don't
 	// overwhelm the system.
@@ -539,17 +538,14 @@ func (c *Catalog) EnsureDistro(repos *MultiRepo) error {
 		}(pluginName)
 	}
 
-	go func() {
-		wg.Wait()
-		close(wgDone)
-	}()
+	wg.Wait()
 
 	select {
-	case <-wgDone:
-		break
 	case err := <-fatalErrors:
 		close(fatalErrors)
 		return err
+	default:
+		break
 	}
 	return nil
 }
