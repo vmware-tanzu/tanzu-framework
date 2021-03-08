@@ -18,14 +18,13 @@ import (
 
 	// +kubebuilder:scaffold:imports
 
-	"github.com/vmware-tanzu-private/core/addons/controllers"
-
-	runtanzuv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	clusterapiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	controlplanev1alpha3 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
 
+	"github.com/vmware-tanzu-private/core/addons/controllers"
 	addonconfig "github.com/vmware-tanzu-private/core/addons/pkg/config"
+	runtanzuv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
 )
 
 var (

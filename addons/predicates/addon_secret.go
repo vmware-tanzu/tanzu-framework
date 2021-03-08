@@ -7,12 +7,13 @@ import (
 	"fmt"
 
 	"github.com/go-logr/logr"
-	"github.com/vmware-tanzu-private/core/addons/constants"
-	addontypes "github.com/vmware-tanzu-private/core/addons/pkg/types"
-	"github.com/vmware-tanzu-private/core/addons/pkg/util"
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
+
+	"github.com/vmware-tanzu-private/core/addons/constants"
+	addontypes "github.com/vmware-tanzu-private/core/addons/pkg/types"
+	"github.com/vmware-tanzu-private/core/addons/pkg/util"
 )
 
 // processAddonSecret returns true if secret should be processed.

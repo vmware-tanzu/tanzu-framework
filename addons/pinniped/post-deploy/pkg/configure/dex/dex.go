@@ -7,16 +7,15 @@ import (
 	"context"
 
 	certmanagerclientset "github.com/jetstack/cert-manager/pkg/client/clientset/versioned"
-	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/constants"
-	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/schemas"
-	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/vars"
-
 	"go.uber.org/zap"
 	"gopkg.in/yaml.v3"
-
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+
+	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/constants"
+	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/schemas"
+	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/vars"
 )
 
 // Configurator contains client information for Dex.

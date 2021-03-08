@@ -11,6 +11,11 @@ import (
 	"strings"
 	"time"
 
+	certmanagerv1beta1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1beta1"
+	certmanagerclientset "github.com/jetstack/cert-manager/pkg/client/clientset/versioned"
+	conciergeclientset "go.pinniped.dev/generated/1.19/client/concierge/clientset/versioned"
+	supervisorclientset "go.pinniped.dev/generated/1.19/client/supervisor/clientset/versioned"
+	"go.uber.org/zap"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -18,8 +23,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/util/retry"
 
-	certmanagerv1beta1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1beta1"
-	certmanagerclientset "github.com/jetstack/cert-manager/pkg/client/clientset/versioned"
 	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/configure/concierge"
 	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/configure/dex"
 	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/configure/supervisor"
@@ -27,11 +30,6 @@ import (
 	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/inspect"
 	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/utils"
 	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/vars"
-
-	conciergeclientset "go.pinniped.dev/generated/1.19/client/concierge/clientset/versioned"
-	supervisorclientset "go.pinniped.dev/generated/1.19/client/supervisor/clientset/versioned"
-
-	"go.uber.org/zap"
 )
 
 // Clients contains the various client interfaces used.

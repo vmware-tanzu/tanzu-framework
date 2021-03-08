@@ -7,12 +7,13 @@ import (
 	"fmt"
 
 	"github.com/go-logr/logr"
-	addonconstants "github.com/vmware-tanzu-private/core/addons/pkg/constants"
-	"github.com/vmware-tanzu-private/core/addons/pkg/util"
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
+
+	addonconstants "github.com/vmware-tanzu-private/core/addons/pkg/constants"
+	"github.com/vmware-tanzu-private/core/addons/pkg/util"
 )
 
 // processBomConfigMap returns true if configmap should be processed.
