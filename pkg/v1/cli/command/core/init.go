@@ -22,6 +22,7 @@ var initCmd = &cobra.Command{
 	Annotations: map[string]string{
 		"group": string(cli.SystemCmdGroup),
 	},
+	SilenceErrors: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		s := spin.New("%s   initializing")
 		s.Start()
