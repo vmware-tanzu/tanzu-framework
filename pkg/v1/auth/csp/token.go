@@ -40,6 +40,7 @@ const (
 	// ProdIssuer is the CSP issuer.
 	ProdIssuer = "https://console.cloud.vmware.com/csp/gateway/am/api"
 
+	//nolint:gosec // Avoid "hardcoded credentials" false positive.
 	// APITokenKey is the env var for an API token override.
 	APITokenKey = "CSP_API_TOKEN"
 )

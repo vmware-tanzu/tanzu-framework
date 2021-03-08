@@ -24,6 +24,7 @@ const (
 	// EnvEndpointKey is the environment variable that overrides the tanzu endpoint.
 	EnvEndpointKey = "TANZU_ENDPOINT"
 
+	//nolint:gosec // Avoid "hardcoded credentials" false positive.
 	// EnvAPITokenKey is the environment variable that overrides the tanzu API token for global auth.
 	EnvAPITokenKey = "TANZU_API_TOKEN"
 
