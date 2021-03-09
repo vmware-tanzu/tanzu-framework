@@ -4,6 +4,15 @@ linters-settings:
   funlen:
     lines: 100
     statements: 50
+  goheader:
+    values:
+      const:
+       - YEAR: 2021
+       - COMPANY: VMware, Inc.
+       - LICENSE: Apache-2.0
+    template: |-
+      Copyright {{ YEAR }} {{ COMPANY }} All Rights Reserved.
+      SPDX-License-Identifier: {{ LICENSE }}
   goconst:
     min-len: 2
     min-occurrences: 2
@@ -62,6 +71,7 @@ linters:
     - goconst
     - gocritic
     - gocyclo
+    - goheader
     - goimports
     - golint
     - gomnd
@@ -134,4 +144,4 @@ run:
 # golangci.com configuration
 # https://github.com/golangci/golangci/wiki/Configuration
 service:
-  golangci-lint-version: 1.29.x # use the fixed version to not introduce new linters unexpectedly
+  golangci-lint-version: 1.38.0 # use the fixed version to not introduce new linters unexpectedly
