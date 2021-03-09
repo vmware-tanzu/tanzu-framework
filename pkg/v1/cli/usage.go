@@ -166,6 +166,6 @@ func trimRightSpace(s string) string {
 	return strings.TrimRightFunc(s, unicode.IsSpace)
 }
 
-func beginsWith(s string, prefix string) bool {
+func beginsWith(s, prefix string) bool {
 	return strings.HasPrefix(s, prefix)
 }
