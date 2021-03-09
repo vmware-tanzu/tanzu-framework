@@ -13,11 +13,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/amenzhinsky/go-memexec"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	tkgauth "github.com/vmware-tanzu-private/core/pkg/v1/auth/tkg"
+	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 )
 
@@ -106,56 +106,25 @@ func loginoidcCmd(pinnipedloginCliExec func(args []string) error) *cobra.Command
 	return loCmd
 }
 
+// pinnipedLoginExec executes embedded pinniped cli binary
 func pinnipedLoginExec(oidcLoginArgs []string) error {
-	pinnipedBinary, err := tkgauth.Asset("pinniped/pinniped")
-	if err != nil {
-		return err
-	}
-	// TODO: Improve latency by avoiding the binary bits copy by storing locally
-	//  workaround for the windows issue in memexec package
+	buildSHA := strings.ReplaceAll(cli.BuildSHA, "-dirty", "")
+	pinnipedCLIBinFile := fmt.Sprintf("tanzu-pinniped-client-%s-%s", cli.BuildVersion, buildSHA)
 	if runtime.GOOS == "windows" {
-		return winExec(pinnipedBinary, oidcLoginArgs)
+		pinnipedCLIBinFile += ".exe"
 	}
-	exe, err := memexec.New(pinnipedBinary)
-	if err != nil {
-		return err
-	}
-	defer exe.Close()
 
-	pinnipedCmd := exe.Command(oidcLoginArgs...)
-	pinnipedCmd.Stdout = os.Stdout
-	pinnipedCmd.Stderr = os.Stderr
-	err = pinnipedCmd.Start()
-	if err != nil {
-		return err
-	}
-	return pinnipedCmd.Wait()
-}
-
-//  fix to workaround the windows issue in memexec package
-func winExec(bindata []byte, oidcLoginArgs []string) error {
-	f, err := ioutil.TempFile("", "go-tanzu-pinniped-client-*.exe")
-	if err != nil {
+	pinnipedGoClientRoot := filepath.Join(cli.DefaultPluginRoot, "tanzu-pinniped-go-client")
+	if err := ensurePinnipedGoClientRoot(pinnipedGoClientRoot); err != nil {
 		return err
 	}
 
-	// we need only read and execution privileges
-	// ioutil.TempFile creates files with 0600 perms
-	if err = os.Chmod(f.Name(), 0500); err != nil {
-		f.Close()
-		os.Remove(f.Name())
-		return err
-	}
-	if _, err := f.Write(bindata); err != nil {
-		f.Close()
-		os.Remove(f.Name())
-		return err
-	}
-	if err := f.Close(); err != nil {
+	pinnipedCLIBinFilePath := filepath.Join(pinnipedGoClientRoot, pinnipedCLIBinFile)
+	if err := ensurePinnipedCLIBinFile(pinnipedCLIBinFilePath); err != nil {
 		return err
 	}
 
-	cmd := exec.Command(f.Name(), oidcLoginArgs...) //nolint
+	cmd := exec.Command(pinnipedCLIBinFilePath, oidcLoginArgs...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Start(); err != nil {
@@ -164,11 +133,10 @@ func winExec(bindata []byte, oidcLoginArgs []string) error {
 	if err := cmd.Wait(); err != nil {
 		return err
 	}
-
-	os.Remove(f.Name())
 	return nil
 }
 
+// mustGetConfigDir returns the pinniped config directory
 func mustGetConfigDir() string {
 	const pinnipedConfigDir = "pinniped"
 
@@ -177,4 +145,30 @@ func mustGetConfigDir() string {
 		panic(err)
 	}
 	return filepath.Join(tanzuLocalDir, pinnipedConfigDir)
+}
+
+// Ensure the pinniped go client directory exists.
+func ensurePinnipedGoClientRoot(pinnipedGoClientRoot string) error {
+	_, err := os.Stat(pinnipedGoClientRoot)
+	if os.IsNotExist(err) {
+		err := os.MkdirAll(pinnipedGoClientRoot, 0755)
+		return errors.Wrap(err, "could not make pinniped go client directory")
+	}
+	return err
+}
+
+// Ensure the pinniped cli binary file exists.
+func ensurePinnipedCLIBinFile(pinnipedCLIBinFilePath string) error {
+	pinnipedBinary, err := tkgauth.Asset("pinniped/pinniped")
+	if err != nil {
+		return err
+	}
+	_, err = os.Stat(pinnipedCLIBinFilePath)
+	if os.IsNotExist(err) {
+		err = ioutil.WriteFile(pinnipedCLIBinFilePath, pinnipedBinary, 0755)
+		if err != nil {
+			return errors.Wrap(err, "could not write pinniped binary to file")
+		}
+	}
+	return nil
 }
