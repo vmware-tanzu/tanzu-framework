@@ -11,7 +11,6 @@ import (
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/cmd"
 
 	"github.com/vmware-tanzu-private/tkg-cli/pkg/constants"
-	"github.com/vmware-tanzu-private/tkg-cli/pkg/log"
 	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
 )
 
@@ -170,11 +169,5 @@ func runInit() error {
 		Timeout:                     iro.timeout,
 	}
 
-	err = tkgClient.Init(options)
-	if err == nil {
-		log.Info("\nYou can now create your first workload cluster by running the following:\n\n")
-		log.Info("  tanzu cluster create [name] -f [file]\n\n")
-	}
-
-	return err
+	return tkgClient.Init(options)
 }
