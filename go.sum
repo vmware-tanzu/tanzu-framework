@@ -827,12 +827,12 @@ github.com/vishvananda/netlink v1.1.0/go.mod h1:cTgwzPIzzgDAYoQrMm0EdrjRUBkTqKYp
 github.com/vishvananda/netns v0.0.0-20180720170159-13995c7128cc/go.mod h1:ZjcWmFBXmLKZu9Nxj3WKYEafiSqer2rnvPr0en9UNpI=
 github.com/vishvananda/netns v0.0.0-20191106174202-0a2b9b5464df/go.mod h1:JP3t17pCcGlemwknint6hfoeCVQrEMVwxRLRjXpq+BU=
 github.com/vito/go-interact v0.0.0-20171111012221-fa338ed9e9ec/go.mod h1:wPlfmglZmRWMYv/qJy3P+fK/UnoQB5ISk4txfNd9tDo=
-github.com/vmware-tanzu-private/tkg-cli v1.3.0-rc.2.0.20210305194649-6c908075a48a h1:yo1ooIl4gzmVx2V3gkLdpIkIeo2LJuRaXi+LM3NhGAo=
-github.com/vmware-tanzu-private/tkg-cli v1.3.0-rc.2.0.20210305194649-6c908075a48a/go.mod h1:k6V8mahR7mbesXtaKo71E5nLYpdDmuo1KdY1y2bt85w=
+github.com/vmware-tanzu-private/tkg-cli v1.3.0-rc.3 h1:IWig3PVVdNTg/Ob3kMfvxmqd4Th3GIIijp64PPNYsGM=
+github.com/vmware-tanzu-private/tkg-cli v1.3.0-rc.3/go.mod h1:k6V8mahR7mbesXtaKo71E5nLYpdDmuo1KdY1y2bt85w=
 github.com/vmware-tanzu-private/tkg-providers v0.0.0-20201103211704-f2a26942c760 h1:/3YxmX3Yc6T1FzCV1E1+LmsFGb8cRRDNjPVYC+IZkc4=
 github.com/vmware-tanzu-private/tkg-providers v0.0.0-20201103211704-f2a26942c760/go.mod h1:njTZCd8EgOpYmLSOxyuQJGcP5oISTRK7/FwqF0g/qW0=
-github.com/vmware-tanzu-private/tkg-providers v1.3.0-rc.2.0.20210304001418-de0851d0fbbd h1:Fk6fFjpaEesYBND8F0iQl5Pmv837cDOXnyfkSvpbqV8=
-github.com/vmware-tanzu-private/tkg-providers v1.3.0-rc.2.0.20210304001418-de0851d0fbbd/go.mod h1:njTZCd8EgOpYmLSOxyuQJGcP5oISTRK7/FwqF0g/qW0=
+github.com/vmware-tanzu-private/tkg-providers v1.3.0-rc.3 h1:PiS9sfnqLuhVrZWWm5GXVLYqCa000w604AegD4GjcCw=
+github.com/vmware-tanzu-private/tkg-providers v1.3.0-rc.3/go.mod h1:njTZCd8EgOpYmLSOxyuQJGcP5oISTRK7/FwqF0g/qW0=
 github.com/vmware/govmomi v0.23.1 h1:vU09hxnNR/I7e+4zCJvW+5vHu5dO64Aoe2Lw7Yi/KRg=
 github.com/vmware/govmomi v0.23.1/go.mod h1:Y+Wq4lst78L85Ge/F8+ORXIWiKYqaro1vhAulACy9Lc=
 github.com/vmware/vmw-guestinfo v0.0.0-20170707015358-25eff159a728/go.mod h1:x9oS4Wk2s2u4tS29nEaDLdzvuHdB19CvSGJjPgkZJNk=
