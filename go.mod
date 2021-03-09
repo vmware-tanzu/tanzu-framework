@@ -44,8 +44,8 @@ require (
 	google.golang.org/api v0.40.0
 	google.golang.org/grpc v1.34.0
 	gopkg.in/yaml.v2 v2.3.0
-	k8s.io/api v0.17.11
-	k8s.io/apimachinery v0.17.11
+	k8s.io/api v0.18.4
+	k8s.io/apimachinery v0.18.4
 	k8s.io/client-go v0.17.11
 	sigs.k8s.io/cluster-api v0.3.12
 	sigs.k8s.io/controller-runtime v0.5.14
