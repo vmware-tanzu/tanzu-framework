@@ -120,17 +120,17 @@ serviceCIDR: #@ values.antrea.config.serviceCIDR
 #@ def antrea_controller_conf():
 
 #! FeatureGates is a map of feature names to bools that enable or disable experimental features.
-#! featureGates:
+featureGates:
 #! Enable traceflow which provides packet tracing feature to diagnose network issue.
-#! Traceflow: false
+  Traceflow: #@ values.antrea.config.featureGates.AntreaTraceflow
 
 #! Enable Antrea ClusterNetworkPolicy feature to complement K8s NetworkPolicy for cluster admins
 #! to define security policies which apply to the entire cluster, and Antrea NetworkPolicy
 #! feature that supports priorities, rule actions and externalEntities in the future.
-#! AntreaPolicy: true
+  AntreaPolicy: #@ values.antrea.config.featureGates.AntreaPolicy
 
 #! Enable collecting and exposing NetworkPolicy statistics.
-#! NetworkPolicyStats: false
+  NetworkPolicyStats: #@ values.antrea.config.featureGates.NetworkPolicyStats
 
 #! The port for the antrea-controller APIServer to serve on.
 #! Note that if it's set to another value, the `containerPort` of the `api` port of the
