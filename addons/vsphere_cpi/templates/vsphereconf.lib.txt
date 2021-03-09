@@ -34,18 +34,26 @@ router-path = "(@=values.vsphereCPI.nsxt.routes.routerPath @)"
 host = "(@=values.vsphereCPI.nsxt.host @)"
 insecure-flag = "(@=str(values.vsphereCPI.nsxt.insecureFlag).lower() @)"
 remote-auth = "(@=str(values.vsphereCPI.nsxt.remoteAuth).lower() @)"
+(@ if values.vsphereCPI.nsxt.secretName and values.vsphereCPI.nsxt.secretNamespace and values.vsphereCPI.nsxt.username and values.vsphereCPI.nsxt.password  : -@)
 secret-name = "(@=values.vsphereCPI.nsxt.secretName @)"
 secret-namespace = "(@=values.vsphereCPI.nsxt.secretNamespace @)"
-(@ if values.vsphereCPI.nsxt.clientCertData != '' and values.vsphereCPI.nsxt.clientCertKeyData != '' : -@)
-client-cert-data = "(@=values.vsphereCPI.nsxt.clientCertData @)"
-client-cert-key-data = "(@=values.vsphereCPI.nsxt.clientCertKeyData @)"
-root-ca-data = "(@=values.vsphereCPI.nsxt.rootCAData @)"
-(@ elif values.vsphereCPI.nsxt.vmcAccessToken != '' and values.vsphereCPI.nsxt.vmcAuthHost != '' : -@)
+(@ end -@)
+(@ if values.vsphereCPI.nsxt.clientCertData and values.vsphereCPI.nsxt.clientCertKeyData : -@)
+client-auth-cert-file = "/etc/cloud/nsxt/tls.crt"
+client-auth-key-file = "/etc/cloud/nsxt/tls.key"
+(@ if values.vsphereCPI.nsxt.rootCAData : -@)
+ca-file = "/etc/cloud/nsxt/tls.ca"
+(@ end -@)
+(@ end -@)
+(@ if values.vsphereCPI.nsxt.vmcAccessToken and values.vsphereCPI.nsxt.vmcAuthHost : -@)
 vmc-access-token = "(@=values.vsphereCPI.nsxt.vmcAccessToken @)"
 vmc-auth-host = "(@=values.vsphereCPI.nsxt.vmcAuthHost @)"
-(@ elif values.vsphereCPI.nsxt.username != '' and values.vsphereCPI.nsxt.password != '': -@)
-username = "(@=values.vsphereCPI.nsxt.username @)"
+(@ end -@)
+(@ if values.vsphereCPI.nsxt.secretName == '' or values.vsphereCPI.nsxt.secretNamespace == '' : -@)
+(@ if values.vsphereCPI.nsxt.username and values.vsphereCPI.nsxt.password : -@)
+user = "(@=values.vsphereCPI.nsxt.username @)"
 password = "(@=values.vsphereCPI.nsxt.password @)"
+(@ end -@)
 (@ end -@)
 (@ end -@)
 (@ end -@)
