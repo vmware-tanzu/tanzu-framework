@@ -6,21 +6,20 @@ IMG ?= controller:latest
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
 CRD_OPTIONS ?= "crd:trivialVersions=true"
 
-ifeq ($(OS),Windows_NT)
-	build_OS := Windows
+GOOS ?= $(shell go env GOOS)
+GOARCH ?= $(shell go env GOARCH)
+GOHOSTOS ?= $(shell go env GOHOSTOS)
+GOHOSTARCH ?= $(shell go env GOHOSTARCH)
+
+NUL = /dev/null
+ifeq ($(GOHOSTOS),windows)
 	NUL = NUL
-else
-	build_OS := $(shell uname -s 2>/dev/null || echo Unknown)
-	NUL = /dev/null
 endif
 
 # Directories
 TOOLS_DIR := hack/tools
 TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
 ROOT_DIR := $(shell git rev-parse --show-toplevel)
-
-GOOS ?= $(shell go env GOOS)
-GOARCH ?= $(shell go env GOARCH)
 
 # Add tooling binaries here and in hack/tools/Makefile
 GOLANGCI_LINT := $(TOOLS_BIN_DIR)/golangci-lint
@@ -43,6 +42,9 @@ endif
 
 PRIVATE_REPOS="github.com/vmware-tanzu-private"
 GO := GOPRIVATE=${PRIVATE_REPOS} go
+
+# Add supported OS-ARCHITECTURE combinations here
+ENVS := linux-amd64 windows-amd64 darwin-amd64 linux-386 windows-386
 
 .DEFAULT_GOAL:=help
 
@@ -135,10 +137,10 @@ LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildVersion=$(B
 
 ARTIFACTS_DIR ?= ./artifacts
 
-ifeq ($(build_OS), Linux)
+ifeq ($(GOHOSTOS), linux)
 XDG_DATA_HOME := ${HOME}/.local/share
 endif
-ifeq ($(build_OS), Darwin)
+ifeq ($(GOHOSTOS), darwin)
 XDG_DATA_HOME := ${HOME}/Library/ApplicationSupport
 endif
 
@@ -153,28 +155,28 @@ version: ## Show version
 install-cli: ## Install Tanzu CLI
 	$(GO) install -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu
 
-# TODO (vuil) main artifacts build is split into individual targets for now to build/prepare
-# target-specific pinniped binary for the pinniped-auth plugin. Collapse to
-# single invocation once that is no longer needed.
+# Dynamically generate the OS-ARCH targets to allow for parallel execution
+CLI_JOBS := $(addprefix build-cli-,${ENVS})
+
 .PHONY: build-cli
-build-cli: prep-build-cli ## Build Tanzu CLI
-	@echo build version: $(BUILD_VERSION)
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin
-	./hack/generate-pinniped-bindata.sh go $(GOBINDATA) linux amd64
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --target linux_amd64
-	./hack/generate-pinniped-bindata.sh go $(GOBINDATA) windows amd64
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --target windows_amd64
-	./hack/generate-pinniped-bindata.sh go $(GOBINDATA) darwin amd64
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --target darwin_amd64
-	./hack/generate-pinniped-bindata.sh go $(GOBINDATA) linux 386
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --target linux_386
-	./hack/generate-pinniped-bindata.sh go $(GOBINDATA) windows 386
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --target windows_386
+build-cli: build-plugin-admin ${CLI_JOBS} ## Build Tanzu CLI
 	@rm -rf pinniped
 
+.PHONY: build-plugin-admin
+build-plugin-admin:
+	@echo build version: $(BUILD_VERSION)
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin
+
+.PHONY: build-cli-%
+build-cli-%: prep-build-cli
+	$(eval ARCH = $(word 2,$(subst -, ,$*)))
+	$(eval OS = $(word 1,$(subst -, ,$*)))
+
+	./hack/generate-pinniped-bindata.sh go $(GOBINDATA) ${OS} ${ARCH}
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --artifacts artifacts/${OS}/${ARCH}/cli --target  ${OS}_${ARCH}
+
 .PHONY: build-cli-local
-build-cli-local: prep-build-cli ## Build Tanzu CLI locally
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --target local
+build-cli-local: build-cli-${GOHOSTOS}-${GOHOSTARCH} ## Build Tanzu CLI locally
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin --target local
 
 .PHONY: build-cli-mocks
