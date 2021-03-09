@@ -1,0 +1,71 @@
+---
+ nouns:
+  - account
+  - admin-kubeconfig
+  - app
+  - aws
+  - ceip-participation
+  - cluster
+  - clustergroup
+  - component
+  - credentials
+  - data-protection
+  - insight
+  - kubeconfig
+  - kubernetes-release
+  - machinehealthcheck
+  - managment-cluster
+  - permissions
+  - plugin
+  - policy
+  - provisioner
+  - repo
+  - workspace
+ verbs:
+  - available-upgrades
+  - clean
+  - completion
+  - create
+  - delete 
+  - get
+  - import
+  - init
+  - install
+  - list
+  - login
+  - os
+  - scale
+  - show
+  - update
+  - upgrade
+  - version
+ global-flags:
+   - help 
+   - log_file
+   - v
+ command-flags:
+   - apiToken
+   - bind
+   - browser
+   - context
+   - disable-grouping
+   - disable-no-echo
+   - endpoint
+   - file
+   - force
+   - gcp-bucket-name
+   - gcp-root-path
+   - include-managment-cluster
+   - kubeconfig
+   - name
+   - namespace
+   - offset
+   - output
+   - server
+   - show-all-conditions
+   - timeout
+   - ui
+   - use-existing-bootstrap-cluster
+   - use-existing-cleanup-cluster
+   - yes
+
