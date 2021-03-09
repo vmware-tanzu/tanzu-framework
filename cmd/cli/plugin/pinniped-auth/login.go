@@ -5,8 +5,11 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 
@@ -109,6 +112,10 @@ func pinnipedLoginExec(oidcLoginArgs []string) error {
 		return err
 	}
 	// TODO: Improve latency by avoiding the binary bits copy by storing locally
+	//  workaround for the windows issue in memexec package
+	if runtime.GOOS == "windows" {
+		return winExec(pinnipedBinary, oidcLoginArgs)
+	}
 	exe, err := memexec.New(pinnipedBinary)
 	if err != nil {
 		return err
@@ -123,6 +130,43 @@ func pinnipedLoginExec(oidcLoginArgs []string) error {
 		return err
 	}
 	return pinnipedCmd.Wait()
+}
+
+//  fix to workaround the windows issue in memexec package
+func winExec(bindata []byte, oidcLoginArgs []string) error {
+	f, err := ioutil.TempFile("", "go-tanzu-pinniped-client-*.exe")
+	if err != nil {
+		return err
+	}
+
+	// we need only read and execution privileges
+	// ioutil.TempFile creates files with 0600 perms
+	if err = os.Chmod(f.Name(), 0500); err != nil {
+		f.Close()
+		os.Remove(f.Name())
+		return err
+	}
+	if _, err := f.Write(bindata); err != nil {
+		f.Close()
+		os.Remove(f.Name())
+		return err
+	}
+	if err := f.Close(); err != nil {
+		return err
+	}
+
+	cmd := exec.Command(f.Name(), oidcLoginArgs...) //nolint
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+	if err := cmd.Wait(); err != nil {
+		return err
+	}
+
+	os.Remove(f.Name())
+	return nil
 }
 
 func mustGetConfigDir() string {
