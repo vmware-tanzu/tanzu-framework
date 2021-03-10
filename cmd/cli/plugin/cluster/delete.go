@@ -24,7 +24,7 @@ var deleteClusterCmd = &cobra.Command{
 	Use:   "delete CLUSTER_NAME",
 	Short: "Delete a cluster",
 	Args:  cobra.ExactArgs(1),
-	RunE:  runDelete,
+	RunE:  deleteCmd,
 }
 
 func init() {
@@ -32,7 +32,7 @@ func init() {
 	deleteClusterCmd.Flags().BoolVarP(&dc.unattended, "yes", "y", false, "Delete workload cluster without asking for confirmation")
 }
 
-func runDelete(cmd *cobra.Command, args []string) error {
+func deleteCmd(cmd *cobra.Command, args []string) error {
 	server, err := client.GetCurrentServer()
 	if err != nil {
 		return err
