@@ -4,6 +4,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/aunum/log"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/command/core"
@@ -11,6 +13,7 @@ import (
 
 func main() {
 	if err := core.Execute(); err != nil {
+		fmt.Println("")
 		log.Fatal(err)
 	}
 }
