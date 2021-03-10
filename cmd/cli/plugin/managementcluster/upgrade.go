@@ -60,6 +60,8 @@ var ur = &upgradeRegionOptions{}
 
 func init() {
 	upgradeRegionCmd.Flags().StringVarP(&ur.vSphereTemplateName, "vsphere-vm-template-name", "", "", "The vSphere VM template to be used with upgraded kubernetes version. Discovered automatically if not provided")
+	upgradeRegionCmd.Flags().MarkHidden("vsphere-vm-template-name") //nolint
+
 	upgradeRegionCmd.Flags().DurationVarP(&ur.timeout, "timeout", "t", constants.DefaultLongRunningOperationTimeout, "Time duration to wait for an operation before timeout. Timeout duration in hours(h)/minutes(m)/seconds(s) units or as some combination of them (e.g. 2h, 30m, 2h30m10s)")
 	upgradeRegionCmd.Flags().BoolVarP(&ur.unattended, "yes", "y", false, "Upgrade management cluster without asking for confirmation")
 	upgradeRegionCmd.Flags().StringVar(&ur.osName, "os-name", "", "OS name to use during management cluster upgrade. Discovered automatically if not provided (See [+])")
