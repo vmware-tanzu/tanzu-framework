@@ -19,13 +19,14 @@ import (
 )
 
 type upgradeClustersOptions struct {
-	namespace  string
-	tkrName    string
-	timeout    time.Duration
-	unattended bool
-	osName     string
-	osVersion  string
-	osArch     string
+	namespace           string
+	tkrName             string
+	timeout             time.Duration
+	unattended          bool
+	osName              string
+	osVersion           string
+	osArch              string
+	vSphereTemplateName string
 }
 
 var uc = &upgradeClustersOptions{}
@@ -73,6 +74,9 @@ func init() {
 	upgradeClusterCmd.Flags().StringVar(&uc.osName, "os-name", "", "OS name to use during cluster upgrade. Discovered automatically if not provided (See [+])")
 	upgradeClusterCmd.Flags().StringVar(&uc.osVersion, "os-version", "", "OS version to use during cluster upgrade. Discovered automatically if not provided (See [+])")
 	upgradeClusterCmd.Flags().StringVar(&uc.osArch, "os-arch", "", "OS arch to use during cluster upgrade. Discovered automatically if not provided (See [+])")
+
+	upgradeClusterCmd.Flags().StringVarP(&uc.vSphereTemplateName, "vsphere-vm-template-name", "", "", "The vSphere VM template to be used with upgraded kubernetes version. Discovered automatically if not provided")
+	upgradeClusterCmd.Flags().MarkHidden("vsphere-vm-template-name") //nolint
 }
 
 func upgrade(cmd *cobra.Command, args []string) error {
@@ -107,14 +111,15 @@ func upgradeCluster(server *v1alpha1.Server, clusterName string) error {
 	}
 
 	upgradeClusterOptions := tkgctl.UpgradeClusterOptions{
-		ClusterName: clusterName,
-		Namespace:   uc.namespace,
-		TkrVersion:  tkrVersion,
-		SkipPrompt:  uc.unattended,
-		Timeout:     uc.timeout,
-		OSName:      uc.osName,
-		OSVersion:   uc.osVersion,
-		OSArch:      uc.osArch,
+		ClusterName:         clusterName,
+		Namespace:           uc.namespace,
+		TkrVersion:          tkrVersion,
+		SkipPrompt:          uc.unattended,
+		Timeout:             uc.timeout,
+		OSName:              uc.osName,
+		OSVersion:           uc.osVersion,
+		OSArch:              uc.osArch,
+		VSphereTemplateName: uc.vSphereTemplateName,
 	}
 
 	return tkgctlClient.UpgradeCluster(upgradeClusterOptions)
