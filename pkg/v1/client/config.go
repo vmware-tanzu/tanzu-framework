@@ -13,7 +13,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/runtime/serializer/json"
 
-	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
+	configv1alpha1 "github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
 )
 
 const (
@@ -60,10 +60,10 @@ func ConfigPath() (path string, err error) {
 }
 
 // NewConfig returns a new config.
-func NewConfig() (*clientv1alpha1.Config, error) {
-	c := &clientv1alpha1.Config{
-		ClientOptions: &clientv1alpha1.ClientOptions{
-			CLI: &clientv1alpha1.CLIOptions{
+func NewConfig() (*configv1alpha1.Config, error) {
+	c := &configv1alpha1.Config{
+		ClientOptions: &configv1alpha1.ClientOptions{
+			CLI: &configv1alpha1.CLIOptions{
 				Repositories: DefaultRepositories,
 			},
 		},
@@ -91,7 +91,7 @@ func NewConfigNotExistError(err error) *ConfigNotExistError {
 }
 
 // GetConfig retrieves the config from the local directory.
-func GetConfig() (cfg *clientv1alpha1.Config, err error) {
+func GetConfig() (cfg *configv1alpha1.Config, err error) {
 	cfgPath, err := ConfigPath()
 	if err != nil {
 		return nil, err
@@ -104,13 +104,13 @@ func GetConfig() (cfg *clientv1alpha1.Config, err error) {
 		}
 		return cfg, nil
 	}
-	scheme, err := clientv1alpha1.SchemeBuilder.Build()
+	scheme, err := configv1alpha1.SchemeBuilder.Build()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create scheme")
 	}
 	s := json.NewSerializerWithOptions(json.DefaultMetaFactory, scheme, scheme,
 		json.SerializerOptions{Yaml: true, Pretty: false, Strict: false})
-	var c clientv1alpha1.Config
+	var c configv1alpha1.Config
 	_, _, err = s.Decode(b, nil, &c)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not decode config file")
@@ -119,7 +119,7 @@ func GetConfig() (cfg *clientv1alpha1.Config, err error) {
 }
 
 // StoreConfig stores the config in the local directory.
-func StoreConfig(cfg *clientv1alpha1.Config) error {
+func StoreConfig(cfg *configv1alpha1.Config) error {
 	cfgPath, err := ConfigPath()
 	if err != nil {
 		return errors.Wrap(err, "could not find config path")
@@ -139,7 +139,7 @@ func StoreConfig(cfg *clientv1alpha1.Config) error {
 		return errors.Wrap(err, "could not create config path")
 	}
 
-	scheme, err := clientv1alpha1.SchemeBuilder.Build()
+	scheme, err := configv1alpha1.SchemeBuilder.Build()
 	if err != nil {
 		return errors.Wrap(err, "failed to create scheme")
 	}
@@ -171,7 +171,7 @@ func DeleteConfig() error {
 }
 
 // GetServer by name.
-func GetServer(name string) (s *clientv1alpha1.Server, err error) {
+func GetServer(name string) (s *configv1alpha1.Server, err error) {
 	cfg, err := GetConfig()
 	if err != nil {
 		return s, err
@@ -199,7 +199,7 @@ func ServerExists(name string) (bool, error) {
 }
 
 // AddServer adds a server to the config.
-func AddServer(s *clientv1alpha1.Server, setCurrent bool) error {
+func AddServer(s *configv1alpha1.Server, setCurrent bool) error {
 	cfg, err := GetConfig()
 	if err != nil {
 		return err
@@ -217,12 +217,12 @@ func AddServer(s *clientv1alpha1.Server, setCurrent bool) error {
 }
 
 // PutServer adds or updates the server.
-func PutServer(s *clientv1alpha1.Server, setCurrent bool) error {
+func PutServer(s *configv1alpha1.Server, setCurrent bool) error {
 	cfg, err := GetConfig()
 	if err != nil {
 		return err
 	}
-	newServers := []*clientv1alpha1.Server{s}
+	newServers := []*configv1alpha1.Server{s}
 	for _, server := range cfg.KnownServers {
 		if server.Name == s.Name {
 			continue
@@ -243,7 +243,7 @@ func RemoveServer(name string) error {
 		return err
 	}
 
-	newServers := []*clientv1alpha1.Server{}
+	newServers := []*configv1alpha1.Server{}
 	for _, server := range cfg.KnownServers {
 		if server.Name != name {
 			newServers = append(newServers, server)
@@ -286,7 +286,7 @@ func SetCurrentServer(name string) error {
 }
 
 // GetCurrentServer sets the current server.
-func GetCurrentServer() (s *clientv1alpha1.Server, err error) {
+func GetCurrentServer() (s *configv1alpha1.Server, err error) {
 	cfg, err := GetConfig()
 	if err != nil {
 		return s, err
@@ -300,11 +300,11 @@ func GetCurrentServer() (s *clientv1alpha1.Server, err error) {
 }
 
 // EndpointFromServer returns the endpoint from server.
-func EndpointFromServer(s *clientv1alpha1.Server) (endpoint string, err error) {
+func EndpointFromServer(s *configv1alpha1.Server) (endpoint string, err error) {
 	switch s.Type {
-	case clientv1alpha1.ManagementClusterServerType:
+	case configv1alpha1.ManagementClusterServerType:
 		return s.ManagementClusterOpts.Endpoint, nil
-	case clientv1alpha1.GlobalServerType:
+	case configv1alpha1.GlobalServerType:
 		return s.GlobalOpts.Endpoint, nil
 	default:
 		return endpoint, fmt.Errorf("unknown server type %q", s.Type)

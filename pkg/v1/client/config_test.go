@@ -8,20 +8,20 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
+	configv1alpha1 "github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
 )
 
 func TestConfig(t *testing.T) {
 	LocalDirName = ".tanzu-test"
-	server0 := &clientv1alpha1.Server{
+	server0 := &configv1alpha1.Server{
 		Name: "test",
-		Type: clientv1alpha1.ManagementClusterServerType,
-		ManagementClusterOpts: &clientv1alpha1.ManagementClusterServer{
+		Type: configv1alpha1.ManagementClusterServerType,
+		ManagementClusterOpts: &configv1alpha1.ManagementClusterServer{
 			Path: "test",
 		},
 	}
-	testCtx := &clientv1alpha1.Config{
-		KnownServers: []*clientv1alpha1.Server{
+	testCtx := &configv1alpha1.Config{
+		KnownServers: []*configv1alpha1.Server{
 			server0,
 		},
 		CurrentServer: "test",
@@ -42,10 +42,10 @@ func TestConfig(t *testing.T) {
 	require.NoError(t, err)
 	require.True(t, e)
 
-	server1 := &clientv1alpha1.Server{
+	server1 := &configv1alpha1.Server{
 		Name: "test1",
-		Type: clientv1alpha1.ManagementClusterServerType,
-		ManagementClusterOpts: &clientv1alpha1.ManagementClusterServer{
+		Type: configv1alpha1.ManagementClusterServerType,
+		ManagementClusterOpts: &configv1alpha1.ManagementClusterServer{
 			Path: "test1",
 		},
 	}

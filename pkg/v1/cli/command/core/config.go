@@ -12,7 +12,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
+	configv1alpha1 "github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
 	"github.com/vmware-tanzu-private/core/pkg/v1/client"
@@ -70,13 +70,13 @@ var initConfigCmd = &cobra.Command{
 			return err
 		}
 		if cfg.ClientOptions == nil {
-			cfg.ClientOptions = &clientv1alpha1.ClientOptions{}
+			cfg.ClientOptions = &configv1alpha1.ClientOptions{}
 		}
 		if cfg.ClientOptions.CLI == nil {
-			cfg.ClientOptions.CLI = &clientv1alpha1.CLIOptions{}
+			cfg.ClientOptions.CLI = &configv1alpha1.CLIOptions{}
 		}
 		repos := cfg.ClientOptions.CLI.Repositories
-		finalRepos := []clientv1alpha1.PluginRepository{}
+		finalRepos := []configv1alpha1.PluginRepository{}
 		for _, repo := range client.DefaultRepositories {
 			var exists bool
 			for _, r := range repos {

@@ -19,7 +19,7 @@ import (
 	grpc_oauth "google.golang.org/grpc/credentials/oauth"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
+	configv1alpha1 "github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 )
 
@@ -53,7 +53,7 @@ func WithStaticCreds(accessToken string) grpc.CallOption {
 }
 
 type configSource struct {
-	*clientv1alpha1.Config
+	*configv1alpha1.Config
 }
 
 // Token fetches the token.

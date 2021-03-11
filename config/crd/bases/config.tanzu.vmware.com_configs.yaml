@@ -6,9 +6,9 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.2.5
   creationTimestamp: null
-  name: configs.client.tanzu.vmware.com
+  name: configs.config.tanzu.vmware.com
 spec:
-  group: client.tanzu.vmware.com
+  group: config.tanzu.vmware.com
   names:
     kind: Config
     listKind: ConfigList

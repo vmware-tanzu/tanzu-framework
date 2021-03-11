@@ -18,7 +18,7 @@ import (
 	"golang.org/x/oauth2"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
+	configv1alpha1 "github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
 )
 
 var JWTHeader = `{"alg":"HS256","typ":"JWT"}`
@@ -195,7 +195,7 @@ func TestGetToken(t *testing.T) {
 	)
 	expireTime := time.Now().Add(time.Minute * 30)
 
-	serverAuth := clientv1alpha1.GlobalServerAuth{
+	serverAuth := configv1alpha1.GlobalServerAuth{
 		Issuer:       "https://oidc.example.com",
 		UserName:     "jdoe",
 		AccessToken:  accessToken,

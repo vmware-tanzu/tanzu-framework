@@ -8,10 +8,11 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
 	"github.com/vmware-tanzu-private/tkg-cli/pkg/types"
+
+	"github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
+	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 )
 
 func newTKGCtlClient() (tkgctl.TKGClient, error) {

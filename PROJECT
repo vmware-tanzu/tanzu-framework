@@ -2,7 +2,7 @@ domain: tanzu.vmware.com
 multigroup: true
 repo: github.com/vmware-tanzu-private/core
 resources:
-- group: client
+- group: config
   kind: Config
   version: v1alpha1
 - group: run

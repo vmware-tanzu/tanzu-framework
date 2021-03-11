@@ -8,9 +8,10 @@ import (
 
 	"github.com/pkg/errors"
 
-	v1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 	"github.com/vmware-tanzu-private/tkg-cli/pkg/region"
+
+	"github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
+	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 )
 
 type tanzuRegionManager struct {

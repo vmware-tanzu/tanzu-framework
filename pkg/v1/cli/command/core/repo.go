@@ -8,7 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
+	configv1alpha1 "github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
 	"github.com/vmware-tanzu-private/core/pkg/v1/client"
@@ -75,18 +75,18 @@ var addRepoCmd = &cobra.Command{
 			return err
 		}
 		if cfg.ClientOptions == nil {
-			cfg.ClientOptions = &clientv1alpha1.ClientOptions{}
+			cfg.ClientOptions = &configv1alpha1.ClientOptions{}
 		}
 		if cfg.ClientOptions.CLI == nil {
-			cfg.ClientOptions.CLI = &clientv1alpha1.CLIOptions{}
+			cfg.ClientOptions.CLI = &configv1alpha1.CLIOptions{}
 		}
 		repos := cfg.ClientOptions.CLI.Repositories
-		gcpRepo := &clientv1alpha1.GCPPluginRepository{
+		gcpRepo := &configv1alpha1.GCPPluginRepository{
 			Name:       name,
 			BucketName: gcpBucketName,
 			RootPath:   gcpRootPath,
 		}
-		pluginRepo := clientv1alpha1.PluginRepository{
+		pluginRepo := configv1alpha1.PluginRepository{
 			GCPPluginRepository: gcpRepo,
 		}
 		for _, repo := range repos {
@@ -126,7 +126,7 @@ var updateRepoCmd = &cobra.Command{
 		}
 		repos := cfg.ClientOptions.CLI.Repositories
 
-		newRepos := []clientv1alpha1.PluginRepository{}
+		newRepos := []configv1alpha1.PluginRepository{}
 		for _, repo := range repos {
 			if repo.GCPPluginRepository != nil {
 				if repo.GCPPluginRepository.Name == repoName {
@@ -164,7 +164,7 @@ var deleteRepoCmd = &cobra.Command{
 		}
 
 		r := cfg.ClientOptions.CLI.Repositories
-		newRepos := []clientv1alpha1.PluginRepository{}
+		newRepos := []configv1alpha1.PluginRepository{}
 		for _, repo := range r {
 			if repo.GCPPluginRepository == nil {
 				continue
