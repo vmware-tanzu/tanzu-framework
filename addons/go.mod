@@ -1,6 +1,6 @@
 module github.com/vmware-tanzu-private/core/addons
 
-go 1.14
+go 1.16
 
 replace (
 	github.com/vmware-tanzu-private/core => ../
