@@ -21,6 +21,8 @@ func init() {
 	updateCmd.Flags().BoolVarP(&yesUpdate, "yes", "y", false, "force update; skip prompt")
 	updateCmd.Flags().StringSliceVarP(&local, "local", "l", []string{}, "path to local repository")
 	updateCmd.Flags().BoolVarP(&includeUnstable, "include-unstable", "u", false, "include unstable versions of the plugins")
+
+	updateCmd.Flags().MarkHidden("include-unstable") //nolint
 }
 
 var updateCmd = &cobra.Command{

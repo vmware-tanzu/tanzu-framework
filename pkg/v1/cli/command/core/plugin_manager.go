@@ -42,6 +42,11 @@ func init() {
 	upgradePluginCmd.Flags().BoolVarP(&includeUnstable, "include-unstable", "u", false, "include unstable versions of the plugins")
 	listPluginCmd.Flags().BoolVarP(&includeUnstable, "include-unstable", "u", false, "include unstable versions of the plugins")
 	describePluginCmd.Flags().BoolVarP(&includeUnstable, "include-unstable", "u", false, "include unstable versions of the plugins")
+
+	installPluginCmd.Flags().MarkHidden("include-unstable")  //nolint
+	upgradePluginCmd.Flags().MarkHidden("include-unstable")  //nolint
+	listPluginCmd.Flags().MarkHidden("include-unstable")     //nolint
+	describePluginCmd.Flags().MarkHidden("include-unstable") //nolint
 }
 
 var pluginCmd = &cobra.Command{
