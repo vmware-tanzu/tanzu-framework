@@ -523,8 +523,18 @@ func (c *Catalog) EnsureDistro(repos *MultiRepo) error {
 	}
 	guard := make(chan struct{}, maxConcurrent)
 
+	// capture list of already installed plugins
+	installedPlugins, err := c.List()
+	if err != nil {
+		return err
+	}
+
 	var wg sync.WaitGroup
 	for _, pluginName := range c.distro {
+		// if plugin exists on user's system, do not (re)install
+		if isPluginInstalled(installedPlugins, pluginName) {
+			continue
+		}
 		wg.Add(1)
 		guard <- struct{}{}
 		go func(pluginName string) {
@@ -640,4 +650,16 @@ func (c *Catalog) ensureRoot() error {
 		return errors.Wrap(err, "could not make root plugin directory")
 	}
 	return err
+}
+
+// isPluginInstalled takes a list of PluginDescriptors representing installed plugins.
+// When the pluginName entered matches a plugin in the descriptor list, true is returned
+// A list of installed plugins can be captured by calling Catalog's List method.
+func isPluginInstalled(installedPlugin []*PluginDescriptor, pluginName string) bool {
+	for _, p := range installedPlugin {
+		if p.Name == pluginName {
+			return true
+		}
+	}
+	return false
 }
