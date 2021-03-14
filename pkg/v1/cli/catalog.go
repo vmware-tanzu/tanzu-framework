@@ -61,6 +61,12 @@ type PluginDescriptor struct {
 	// BuildSHA is the git commit hash the plugin was built with.
 	BuildSHA string `json:"buildSHA" yaml:"buildSHA"`
 
+	// Edition is the Tanzu Edition the plugin was built for. This enables plugins
+	// to implement edition-awareness for exposing features. This variable is set at
+	// build time using ldflags. Plugins that have no variance between editions need
+	// not set this variable.
+	Edition string `json:"edition" yaml:"edition"`
+
 	// Command group for the plugin.
 	Group cmdGroup `json:"group" yaml:"group"`
 
