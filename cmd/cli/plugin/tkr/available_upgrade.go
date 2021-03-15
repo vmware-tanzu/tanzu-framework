@@ -15,7 +15,7 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/clusterclient"
 )
 
-var availbleUpgradesCmd = &cobra.Command{
+var availableUpgradesCmd = &cobra.Command{
 	Use:   "available-upgrades",
 	Short: "Get upgrade information for a Tanzu Kubernetes Release",
 	Long:  `Get upgrade information for a Tanzu Kubernetes Release`,
@@ -30,7 +30,7 @@ var getAvailableUpgradesCmd = &cobra.Command{
 }
 
 func init() {
-	availbleUpgradesCmd.AddCommand(getAvailableUpgradesCmd)
+	availableUpgradesCmd.AddCommand(getAvailableUpgradesCmd)
 }
 
 func getAvailableUpgrades(cmd *cobra.Command, args []string) error {
@@ -67,7 +67,7 @@ func getAvailableUpgrades(cmd *cobra.Command, args []string) error {
 
 	candidates := make(map[string]bool)
 	if strs := strings.Split(upgradeMsg, ": "); len(strs) != 2 {
-		fmt.Println("There are no availble upgrades for this TanzuKubernetesRelease")
+		fmt.Println("There are no available upgrades for this TanzuKubernetesRelease")
 	} else {
 		names := strings.Split(strs[1], ",")
 		for _, name := range names {
