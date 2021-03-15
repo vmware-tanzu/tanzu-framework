@@ -9,7 +9,6 @@ require (
 	github.com/MakeNowJust/heredoc v1.0.0
 	github.com/Netflix/go-expect v0.0.0-20190729225929-0e00d9168667 // indirect
 	github.com/adrg/xdg v0.2.1
-	github.com/amenzhinsky/go-memexec v0.3.0
 	github.com/aunum/log v0.0.0-20200821225356-38d2e2c8b489
 	github.com/caarlos0/spin v1.1.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
