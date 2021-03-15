@@ -252,7 +252,7 @@ url:         http://myapplicationurl.com
 ### Color
 *  Colors can be disabled using an environment variable (NO_COLOR=TRUE)
 *  Colors are always disabled when the session is not a TTY session. This allows for the piping of CLI output into other commands (e.g. grep) or machine reading without including stray color characters (pending issue #369)
-*  Usage tips are always in plain text, even when reference text that might normally be colorized
+*  Usage tips are always in plain text, even when referencing text that might normally be colorized
 ```
 TODO Examples of:
 help text including command example 
@@ -357,7 +357,7 @@ https://github.com/tanzu/core/help/2323
 ```
 ```
 $ Tanzu namespace get EXAMPLE
-Namespace EXAMPLE not found. Try 'tanzu namespace list' to see available options
+Error: Namespace EXAMPLE not found. Try 'tanzu namespace list' to see available options
 ```
 
 Use context in error messages to ease recovery
@@ -386,7 +386,8 @@ To propose changes please create an issue, and add it to the CLI SIG agenda to d
 
 ### Precedent
 Olympus Design System   
-PKS Styleguide   
+PKS styleguide
+cf-cli styleguide
 
 
 ### Accessibility Guidelines
