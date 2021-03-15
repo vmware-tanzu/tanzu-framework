@@ -253,41 +253,36 @@ url:         http://myapplicationurl.com
 *  Colors can be disabled using an environment variable (NO_COLOR=TRUE)
 *  Colors are always disabled when the session is not a TTY session. This allows for the piping of CLI output into other commands (e.g. grep) or machine reading without including stray color characters (pending issue #369)
 *  Usage tips are always in plain text, even when referencing text that might normally be colorized
-```
-TODO Examples of:
-help text including command example 
-error text describing next steps/commands
-success message suggesting next steps
-```
+
+![Example of help output demonstrating the use of plain text](example-images/usage-tips.png)
+
 * Warning and error *messages* are in plain text
-```
-TODO - add screenshot
-```
+
+![Example showing the work error in red, and subsequent text is plain](example-images/error-warn.png)
+
 
 #### Don't add color to anything outside of the following conventions to convey contex:
 
 *  Red = warning, danger  
 Warnings and error messages are colorized and bold
-```
-TODO - Add screenshot
-```
+
+![Example of warning and error notice text colorized red](example-images/error-warn.png)
+
 
 *  Green = success, informational  
 Confirmation of completion when a command runs is colorized and bold.
-```
-TODO- add screenshot
-```
+
+![Example of success output with the word OK colorized green](example-images/success.png)
+
 
 *  Cyan = stability, calm, informational  
-In command feedback: resources, and user name is colorized and bold
+In command feedback: resources, and user name is colorized and bold  
 Interactive prompting: user input is colorized, as is the preceding question mark.
 
-```
-TODO- add screenshot
-```
-```
-TODO- add screenshot
-```
+![Example of command feedback confirming an action with the resources colorized cyan ](example-images/feedback.png)
+
+
+![Example of interactive prompting with the user entered text colorized cyan](example-images/prompting.png)
 
 
 ### Animation
