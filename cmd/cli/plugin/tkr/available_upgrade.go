@@ -18,7 +18,7 @@ import (
 
 const lenMsg = 2
 
-var availbleUpgradesCmd = &cobra.Command{
+var availableUpgradesCmd = &cobra.Command{
 	Use:   "available-upgrades",
 	Short: "Get upgrade information for a Tanzu Kubernetes Release",
 	Long:  `Get upgrade information for a Tanzu Kubernetes Release`,
@@ -33,7 +33,7 @@ var getAvailableUpgradesCmd = &cobra.Command{
 }
 
 func init() {
-	availbleUpgradesCmd.AddCommand(getAvailableUpgradesCmd)
+	availableUpgradesCmd.AddCommand(getAvailableUpgradesCmd)
 }
 
 func getAvailableUpgrades(cmd *cobra.Command, args []string) error {

@@ -26,7 +26,7 @@ func main() {
 	p.AddCommands(
 		getTanzuKubernetesRleasesCmd,
 		osCmd,
-		availbleUpgradesCmd,
+		availableUpgradesCmd,
 	)
 	if err := p.Execute(); err != nil {
 		os.Exit(1)
