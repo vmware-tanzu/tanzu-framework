@@ -256,15 +256,11 @@ url:         http://myapplicationurl.com
 
 ![Example of help output demonstrating the use of plain text](example-images/usage-tips.png)
 
-* Warning and error *messages* are in plain text
-
-![Example showing the work error in red, and subsequent text is plain](example-images/error-warn.png)
-
 
 #### Don't add color to anything outside of the following conventions to convey contex:
 
 *  Red = warning, danger  
-Warnings and error messages are colorized and bold
+The word 'Warning:' or 'Error:' is colorized and bold, the *message* is plain text
 
 ![Example of warning and error notice text colorized red](example-images/error-warn.png)
 
