@@ -250,9 +250,45 @@ url:         http://myapplicationurl.com
 ```
 
 ### Color
-* Disable color for non-interactive output, or if requested  
-  * The component library can check for the NO_COLOR and TERM=dumb environment variables
-    * Pending resolution of issue #369
+*  Colors can be disabled using an environment variable (NO_COLOR=TRUE)
+*  Colors are always disabled when the session is not a TTY session. This allows for the piping of CLI output into other commands (e.g. grep) or machine reading without including stray color characters (pending issue #369)
+*  Usage tips are always in plain text, even when reference text that might normally be colorized
+```
+TODO Examples of:
+help text including command example 
+error text describing next steps/commands
+success message suggesting next steps
+```
+* Warning and error *messages* are in plain text
+```
+TODO - add screenshot
+```
+
+#### Don't add color to anything outside of the following conventions to convey contex:
+
+*  Red = warning, danger  
+Warnings and error messages are colorized and bold
+```
+TODO - Add screenshot
+```
+
+*  Green = success, informational  
+Confirmation of completion when a command runs is colorized and bold.
+```
+TODO- add screenshot
+```
+
+*  Cyan = stability, calm, informational  
+In command feedback: resources, and user name is colorized and bold
+Interactive prompting: user input is colorized, as is the preceding question mark.
+
+```
+TODO- add screenshot
+```
+```
+TODO- add screenshot
+```
+
 
 ### Animation
 * Disable if stdout is not an interactive terminal
