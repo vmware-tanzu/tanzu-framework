@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 
 	"github.com/pkg/errors"
-
 	"k8s.io/apimachinery/pkg/runtime/serializer/json"
 
 	configv1alpha1 "github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
@@ -146,6 +145,8 @@ func StoreConfig(cfg *configv1alpha1.Config) error {
 
 	s := json.NewSerializerWithOptions(json.DefaultMetaFactory, scheme, scheme,
 		json.SerializerOptions{Yaml: true, Pretty: false, Strict: false})
+	// Set GVK explicitly as encoder does not do it.
+	cfg.GetObjectKind().SetGroupVersionKind(configv1alpha1.GroupVersionKind)
 	buf := new(bytes.Buffer)
 	if err := s.Encode(cfg, buf); err != nil {
 		return errors.Wrap(err, "failed to encode config file")
