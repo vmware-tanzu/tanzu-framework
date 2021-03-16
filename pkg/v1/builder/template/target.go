@@ -6,7 +6,6 @@ package template
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -48,7 +47,7 @@ func (t Target) Run(rootDir string, data interface{}, dryRun bool) error {
 	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(fp, buf.Bytes(), 0644)
+	err = os.WriteFile(fp, buf.Bytes(), 0644)
 	if err != nil {
 		return err
 	}

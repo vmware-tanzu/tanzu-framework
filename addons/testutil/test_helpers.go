@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"time"
 
@@ -32,7 +31,7 @@ import (
 // CreateResources using unstructured objects from a yaml/json file provided by decoder
 func CreateResources(f *os.File, cfg *rest.Config, dynamicClient dynamic.Interface) error {
 	var err error
-	data, err := ioutil.ReadFile(f.Name())
+	data, err := os.ReadFile(f.Name())
 	if err != nil {
 		return err
 	}
@@ -61,7 +60,7 @@ func CreateResources(f *os.File, cfg *rest.Config, dynamicClient dynamic.Interfa
 // DeleteResources using unstructured objects from a yaml/json file provided by decoder
 func DeleteResources(f *os.File, cfg *rest.Config, dynamicClient dynamic.Interface, waitForDeletion bool) error {
 	var err error
-	data, err := ioutil.ReadFile(f.Name())
+	data, err := os.ReadFile(f.Name())
 	if err != nil {
 		return err
 	}
@@ -90,7 +89,7 @@ func DeleteResources(f *os.File, cfg *rest.Config, dynamicClient dynamic.Interfa
 	}
 	if waitForDeletion {
 		// verify deleted
-		data, err = ioutil.ReadFile(f.Name())
+		data, err = os.ReadFile(f.Name())
 		if err != nil {
 			return err
 		}

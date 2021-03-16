@@ -5,7 +5,7 @@ package core
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 
 	"github.com/aunum/log"
 	"github.com/pkg/errors"
@@ -52,7 +52,7 @@ var showConfigCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		b, err := ioutil.ReadFile(cfgPath)
+		b, err := os.ReadFile(cfgPath)
 		if err != nil {
 			return err
 		}

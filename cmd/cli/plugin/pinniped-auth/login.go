@@ -5,7 +5,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -165,7 +164,7 @@ func ensurePinnipedCLIBinFile(pinnipedCLIBinFilePath string) error {
 	}
 	_, err = os.Stat(pinnipedCLIBinFilePath)
 	if os.IsNotExist(err) {
-		err = ioutil.WriteFile(pinnipedCLIBinFilePath, pinnipedBinary, 0755)
+		err = os.WriteFile(pinnipedCLIBinFilePath, pinnipedBinary, 0755)
 		if err != nil {
 			return errors.Wrap(err, "could not write pinniped binary to file")
 		}

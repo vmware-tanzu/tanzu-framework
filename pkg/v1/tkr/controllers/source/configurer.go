@@ -5,7 +5,6 @@ package source
 
 import (
 	"context"
-	"io/ioutil"
 	"os"
 	"path"
 
@@ -52,7 +51,7 @@ func addTrustedCerts(certChain string) (err error) {
 		return err
 	}
 
-	return ioutil.WriteFile(filePath, []byte(certChain), 0644)
+	return os.WriteFile(filePath, []byte(certChain), 0644)
 }
 func getRegistryCertFile() (string, error) {
 	home, err := os.UserHomeDir()

@@ -6,7 +6,6 @@ package command
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -117,13 +116,13 @@ func compile(cmd *cobra.Command, args []string) error {
 		log.Check(err)
 
 		configPath := filepath.Join(artifactsDir, cli.CoreDescriptor.Name, cli.PluginFileName)
-		err = ioutil.WriteFile(configPath, b, 0644)
+		err = os.WriteFile(configPath, b, 0644)
 		log.Check(err)
 
 		manifest.Plugins = append(manifest.Plugins, cli.CorePlugin)
 	}
 
-	files, err := ioutil.ReadDir(path)
+	files, err := os.ReadDir(path)
 	if err != nil {
 		return err
 	}
@@ -148,7 +147,7 @@ func compile(cmd *cobra.Command, args []string) error {
 	}
 
 	manifestPath := filepath.Join(artifactsDir, cli.ManifestFileName)
-	err = ioutil.WriteFile(manifestPath, b, 0644)
+	err = os.WriteFile(manifestPath, b, 0644)
 	if err != nil {
 		return err
 	}
@@ -295,7 +294,7 @@ func (p *plugin) compile() {
 	log.Check(err)
 
 	configPath := filepath.Join(artifactsDir, p.Name, cli.PluginFileName)
-	err = ioutil.WriteFile(configPath, b, 0644)
+	err = os.WriteFile(configPath, b, 0644)
 	log.Check(err)
 }
 

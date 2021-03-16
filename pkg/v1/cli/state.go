@@ -6,7 +6,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 )
 
 const (
@@ -22,7 +22,7 @@ type PluginState struct {
 
 // ReadPluginStateFromPath read states from a path on disk.
 func ReadPluginStateFromPath(p string) (*PluginState, error) {
-	b, err := ioutil.ReadFile(p)
+	b, err := os.ReadFile(p)
 	if err != nil {
 		return nil, fmt.Errorf("read state: %w", err)
 	}

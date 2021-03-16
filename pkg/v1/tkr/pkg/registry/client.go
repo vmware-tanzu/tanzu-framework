@@ -7,7 +7,6 @@ import (
 	"archive/tar"
 	"fmt"
 	"io"
-	"io/ioutil"
 
 	regname "github.com/google/go-containerregistry/pkg/name"
 	regv1 "github.com/google/go-containerregistry/pkg/v1"
@@ -103,7 +102,7 @@ func getFileFromLayer(stream io.Reader) (map[string][]byte, error) {
 		}
 
 		if hdr.Typeflag == tar.TypeReg || hdr.Typeflag == tar.TypeRegA {
-			buf, err := ioutil.ReadAll(tarReader)
+			buf, err := io.ReadAll(tarReader)
 			if err != nil {
 				return files, err
 			}

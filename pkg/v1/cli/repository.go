@@ -6,7 +6,8 @@ package cli
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
+	"os"
 	"path"
 	"path/filepath"
 	"runtime"
@@ -323,7 +324,7 @@ func (g *GCPBucketRepository) fetch(ctx context.Context, artifactPath string, bk
 	}
 	defer r.Close()
 
-	b, err := ioutil.ReadAll(r)
+	b, err := io.ReadAll(r)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not fetch artifact")
 	}
@@ -423,7 +424,7 @@ func (l *LocalRepository) List() (plugins []Plugin, err error) {
 
 // Describe a plugin.
 func (l *LocalRepository) Describe(name string) (plugin Plugin, err error) {
-	b, err := ioutil.ReadFile(filepath.Join(l.path, name, PluginFileName))
+	b, err := os.ReadFile(filepath.Join(l.path, name, PluginFileName))
 	if err != nil {
 		err = fmt.Errorf("could not find plugin.yaml file for plugin %q: %v", name, err)
 		return
@@ -433,7 +434,7 @@ func (l *LocalRepository) Describe(name string) (plugin Plugin, err error) {
 	if err != nil {
 		return plugin, fmt.Errorf("could not unmarshal manifest.yaml: %v", err)
 	}
-	infos, err := ioutil.ReadDir(filepath.Join(l.path, name))
+	infos, err := os.ReadDir(filepath.Join(l.path, name))
 	if err != nil {
 		return plugin, err
 	}
@@ -463,7 +464,7 @@ func (l *LocalRepository) Fetch(name, version string, arch Arch) ([]byte, error)
 			return nil, fmt.Errorf("could not find a suitible version for plugin %q from versions %v", name, plugin.Versions)
 		}
 	}
-	b, err := ioutil.ReadFile(filepath.Join(l.path, name, version, MakeArtifactName(name, arch)))
+	b, err := os.ReadFile(filepath.Join(l.path, name, version, MakeArtifactName(name, arch)))
 	if err != nil {
 		return nil, errors.Wrap(err, "could not find artifact at given path")
 	}
@@ -485,7 +486,7 @@ func (l *LocalRepository) FetchTest(name, version string, arch Arch) ([]byte, er
 			return nil, fmt.Errorf("could not find a suitible version for test plugin %q from versions %v", name, plugin.Versions)
 		}
 	}
-	b, err := ioutil.ReadFile(filepath.Join(l.path, name, version, "test", MakeTestArtifactName(name, arch)))
+	b, err := os.ReadFile(filepath.Join(l.path, name, version, "test", MakeTestArtifactName(name, arch)))
 	if err != nil {
 		return nil, errors.Wrap(err, "could not find artifact at given path")
 	}
@@ -499,7 +500,7 @@ func (l *LocalRepository) Name() string {
 
 // Manifest returns the manifest for a local repository.
 func (l *LocalRepository) Manifest() (manifest Manifest, err error) {
-	b, err := ioutil.ReadFile(filepath.Join(l.path, ManifestFileName))
+	b, err := os.ReadFile(filepath.Join(l.path, ManifestFileName))
 	if err != nil {
 		err = fmt.Errorf("could not find manifest.yaml file: %v", err)
 		return

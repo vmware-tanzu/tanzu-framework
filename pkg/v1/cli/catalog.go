@@ -7,7 +7,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -283,7 +282,7 @@ func (p *PluginDescriptor) HasUpdate(repo Repository, versionSelector VersionSel
 
 // ParsePluginDescriptor parses a plugin descriptor in yaml.
 func ParsePluginDescriptor(path string) (desc PluginDescriptor, err error) {
-	b, err := ioutil.ReadFile(path)
+	b, err := os.ReadFile(path)
 	if err != nil {
 		return desc, errors.Wrap(err, "could not read plugin descriptor")
 	}
@@ -341,7 +340,7 @@ func NewCatalog(options ...Option) (*Catalog, error) {
 
 // List returns the available plugins.
 func (c *Catalog) List(exclude ...string) (list []*PluginDescriptor, err error) {
-	infos, err := ioutil.ReadDir(c.pluginRoot)
+	infos, err := os.ReadDir(c.pluginRoot)
 	if err != nil {
 		log.Debug("no plugins currently found")
 		return list, nil
@@ -375,7 +374,7 @@ func inExclude(name string, exclude []string) bool {
 
 // ListTests returns the available test plugins.
 func (c *Catalog) ListTests() (list []*PluginDescriptor, err error) {
-	infos, err := ioutil.ReadDir(c.testPath())
+	infos, err := os.ReadDir(c.testPath())
 	if err != nil {
 		log.Debug("no plugins currently found")
 		return list, nil
@@ -446,7 +445,7 @@ func (c *Catalog) Install(name, version string, repo Repository) error {
 		pluginPath += exe
 	}
 
-	err = ioutil.WriteFile(pluginPath, b, 0755)
+	err = os.WriteFile(pluginPath, b, 0755)
 	if err != nil {
 		return errors.Wrap(err, "could not write file")
 	}
@@ -569,7 +568,7 @@ func (c *Catalog) InstallTest(pluginName, version string, repo Repository) error
 		pluginPath += exe
 	}
 
-	err = ioutil.WriteFile(pluginPath, b, 0755)
+	err = os.WriteFile(pluginPath, b, 0755)
 	if err != nil {
 		return errors.Wrap(err, "could not write file")
 	}

@@ -5,7 +5,7 @@ package source
 
 import (
 	"context"
-	"io/ioutil"
+	"os"
 	"testing"
 
 	. "github.com/onsi/ginkgo"
@@ -57,12 +57,12 @@ func addToScheme(scheme *runtime.Scheme) {
 }
 
 var _ = BeforeSuite(func() {
-	bomContent17, _ = ioutil.ReadFile("../../fakes/boms/bom-v1.17.13+vmware.1.yaml")
-	bomContent18, _ = ioutil.ReadFile("../../fakes/boms/bom-v1.18.10+vmware.1.yaml")
-	bomContent193, _ = ioutil.ReadFile("../../fakes/boms/bom-v1.19.3+vmware.1.yaml")
-	bomContent191, _ = ioutil.ReadFile("../../fakes/boms/bom-v1.19.1+vmware.1.yaml")
-	badBom, _ = ioutil.ReadFile("../../fakes/boms/bad-bom.yaml")
-	metadataContent, _ = ioutil.ReadFile("../../fakes/boms/metadata.yaml")
+	bomContent17, _ = os.ReadFile("../../fakes/boms/bom-v1.17.13+vmware.1.yaml")
+	bomContent18, _ = os.ReadFile("../../fakes/boms/bom-v1.18.10+vmware.1.yaml")
+	bomContent193, _ = os.ReadFile("../../fakes/boms/bom-v1.19.3+vmware.1.yaml")
+	bomContent191, _ = os.ReadFile("../../fakes/boms/bom-v1.19.1+vmware.1.yaml")
+	badBom, _ = os.ReadFile("../../fakes/boms/bad-bom.yaml")
+	metadataContent, _ = os.ReadFile("../../fakes/boms/metadata.yaml")
 })
 
 var _ = Describe("SyncRelease", func() {

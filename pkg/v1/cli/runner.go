@@ -8,7 +8,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -80,7 +79,7 @@ func (r *Runner) run(ctx context.Context, pluginPath string, stdout, stderr *byt
 		return fmt.Errorf("%q is a directory", pluginPath)
 	}
 
-	stateFile, err := ioutil.TempFile("", "tanzu-cli-state")
+	stateFile, err := os.CreateTemp("", "tanzu-cli-state")
 	if err != nil {
 		return fmt.Errorf("create state file: %w", err)
 	}

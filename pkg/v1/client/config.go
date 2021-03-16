@@ -6,7 +6,6 @@ package client
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -97,7 +96,7 @@ func GetConfig() (cfg *clientv1alpha1.Config, err error) {
 	if err != nil {
 		return nil, err
 	}
-	b, err := ioutil.ReadFile(cfgPath)
+	b, err := os.ReadFile(cfgPath)
 	if err != nil {
 		cfg, err = NewConfig()
 		if err != nil {
@@ -150,7 +149,7 @@ func StoreConfig(cfg *clientv1alpha1.Config) error {
 		return errors.Wrap(err, "failed to encode config file")
 	}
 	// TODO (pbarker): need to consider races.
-	if err = ioutil.WriteFile(cfgPath, buf.Bytes(), 0644); err != nil {
+	if err = os.WriteFile(cfgPath, buf.Bytes(), 0644); err != nil {
 		return errors.Wrap(err, "failed to write config file")
 	}
 	return nil

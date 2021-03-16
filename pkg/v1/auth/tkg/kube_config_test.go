@@ -8,7 +8,6 @@ import (
 	"encoding/base64"
 	"encoding/pem"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -212,7 +211,7 @@ func getExpectedExecConfig(endpoint, issuer, issuerCA string, servCert *x509.Cer
 
 func createTempDirectory(prefix string) error {
 	var err error
-	testingDir, err = ioutil.TempDir("", prefix)
+	testingDir, err = os.MkdirTemp("", prefix)
 	if err != nil {
 		fmt.Println("Error TempDir: ", err.Error())
 		return err

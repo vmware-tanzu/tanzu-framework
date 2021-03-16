@@ -12,7 +12,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"time"
@@ -105,12 +105,12 @@ func GetAccessTokenFromAPIToken(apiToken, issuer string) (*Token, error) {
 		return nil, errors.WithMessage(err, "Failed to obtain access token. Please provide valid VMware Cloud Services API-token")
 	}
 	if resp.StatusCode != http.StatusOK {
-		body, _ := ioutil.ReadAll(resp.Body)
+		body, _ := io.ReadAll(resp.Body)
 		return nil, errors.Errorf("Failed to obtain access token. Please provide valid VMware Cloud Services API-token -- %s", string(body))
 	}
 
 	defer resp.Body.Close()
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, _ := io.ReadAll(resp.Body)
 	token := Token{}
 
 	if err = json.Unmarshal(body, &token); err != nil {
