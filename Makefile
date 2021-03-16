@@ -175,7 +175,7 @@ build-cli-%: prep-build-cli
 
 .PHONY: build-cli-local
 build-cli-local: build-cli-${GOHOSTOS}-${GOHOSTARCH} ## Build Tanzu CLI locally
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin --target local
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin/${OS}/${ARCH}/cli --target local
 
 .PHONY: build-cli-mocks
 build-cli-mocks: ## Build Tanzu CLI mocks
@@ -197,11 +197,13 @@ build-install-cli-all: clean-cli-plugins build-cli install-cli-plugins install-c
 install-cli-plugins: TANZU_CLI_NO_INIT=true
 
 .PHONY: install-cli-plugins
-install-cli-plugins:  ## Install Tanzu CLI plugins 
+install-cli-plugins:  ## Install Tanzu CLI plugins
 	$(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
-		plugin install all --local $(ARTIFACTS_DIR) --local $(ARTIFACTS_DIR)-admin -u
+    		plugin install all --local $(ARTIFACTS_DIR)/$(GOHOSTOS)/$(GOHOSTARCH)/cli -u
 	$(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
-		test fetch --local $(ARTIFACTS_DIR) --local $(ARTIFACTS_DIR)-admin
+		plugin install all --local $(ARTIFACTS_DIR)-admin/$(GOHOSTOS)/$(GOHOSTARCH)/cli -u
+	$(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
+		test fetch --local $(ARTIFACTS_DIR)/$(GOHOSTOS)/$(GOHOSTARCH)/cli --local $(ARTIFACTS_DIR)-admin/$(GOHOSTOS)/$(GOHOSTARCH)/cli
 
 .PHONY: clean-cli-plugins
 clean-cli-plugins: ## Remove Tanzu CLI plugins
