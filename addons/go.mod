@@ -9,7 +9,6 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/vmware-tanzu-private/core v0.0.0-20201211200158-5838874f2c38
 	github.com/vmware-tanzu/carvel-kapp-controller v0.13.0
-	golang.org/x/tools v0.0.0-20200710042808-f1c4188a97a1 // indirect
 	k8s.io/api v0.19.2
 	k8s.io/apimachinery v0.19.2
 	k8s.io/client-go v0.19.2
