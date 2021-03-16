@@ -15,6 +15,8 @@ IMAGE_REPO ?= vmware.io
 # Tag for template images, shoudld end with "-templates"
 IMAGES_OUTPUT_DIR ?= template-images
 TEMPLATES_IMG_TAG ?= $(shell git describe --always --dirty --tags)
+
+# Template image names
 ADDONS_MANAGER_TEMPLATES_IMG_NAME ?= tanzu-addons-manager-templates
 KAPP_CONTROLLER_TEMPLATES_IMG_NAME ?= kapp-controller-templates
 METRICS_SERVER_TEMPLATES_IMG_NAME ?= metrics-server-templates
