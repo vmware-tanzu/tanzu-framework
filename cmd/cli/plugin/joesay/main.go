@@ -18,7 +18,7 @@ import (
 
 var descriptor = cli.PluginDescriptor{
 	Name:        "joesay",
-	Description: "What Joe says",
+	Description: "Stuff Joe says",
 	Group:       cli.ExtraCmdGroup,
 }
 
