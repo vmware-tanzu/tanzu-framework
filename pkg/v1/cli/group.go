@@ -30,4 +30,7 @@ const (
 
 	// TestCmdGroup is the test command group.
 	TestCmdGroup cmdGroup = "Test"
+
+	// ExtraCmdGroup is the extra command group.
+	ExtraCmdGroup cmdGroup = "Extra"
 )
