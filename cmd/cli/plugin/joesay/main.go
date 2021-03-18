@@ -5,7 +5,7 @@ package main
 
 import (
 	"fmt"
-	"math/rand" //nolint
+	"math/rand"
 	"os"
 	"time"
 
