@@ -8,13 +8,6 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
-	"github.com/vmware-tanzu-private/core/addons/constants"
-	addonconfig "github.com/vmware-tanzu-private/core/addons/pkg/config"
-	addontypes "github.com/vmware-tanzu-private/core/addons/pkg/types"
-	"github.com/vmware-tanzu-private/core/addons/pkg/util"
-	addonpredicates "github.com/vmware-tanzu-private/core/addons/predicates"
-	runtanzuv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	bomtypes "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/types"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -33,6 +26,14 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/source"
+
+	"github.com/vmware-tanzu-private/core/addons/constants"
+	addonconfig "github.com/vmware-tanzu-private/core/addons/pkg/config"
+	addontypes "github.com/vmware-tanzu-private/core/addons/pkg/types"
+	"github.com/vmware-tanzu-private/core/addons/pkg/util"
+	addonpredicates "github.com/vmware-tanzu-private/core/addons/predicates"
+	runtanzuv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
+	bomtypes "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/types"
 )
 
 const (

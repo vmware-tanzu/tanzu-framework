@@ -32,6 +32,7 @@ HOST_ARCH=$(shell go env GOARCH)
 
 # Binaries.
 GOLANGCI_LINT := $(BIN_DIR)/golangci-lint
+GOIMPORTS := $(BIN_DIR)/goimports
 KUBEBUILDER        := $(BIN_DIR)/kubebuilder
 YTT := $(BIN_DIR)/ytt
 KUBEVAL := $(BIN_DIR)/kubeval
@@ -50,6 +51,10 @@ help: ## Display this help
 golangci-lint: $(GOLANGCI_LINT) $(SRCS) ## Build golangci-lint
 $(GOLANGCI_LINT): go.mod
 	go build -tags=tools -o $@ github.com/golangci/golangci-lint/cmd/golangci-lint
+
+goimports: $(GOIMPORTS) $(SRCS) ## Build goimports
+$(GOIMPORTS): go.mod
+	go build -tags=tools -o $@ golang.org/x/tools/cmd/goimports
 
 kubebuilder: $(KUBEBUILDER) ## Install kubebuilder
 $(KUBEBUILDER):

@@ -23,11 +23,12 @@ ROOT_DIR := $(shell git rev-parse --show-toplevel)
 
 # Add tooling binaries here and in hack/tools/Makefile
 GOLANGCI_LINT := $(TOOLS_BIN_DIR)/golangci-lint
-TOOLING_BINARIES := $(GOLANGCI_LINT) $(YTT) $(KUBEVAL)
+GOIMPORTS := $(TOOLS_BIN_DIR)/goimports
 GOBINDATA := $(TOOLS_BIN_DIR)/go-bindata-$(GOOS)-$(GOARCH)
 KUBEBUILDER := $(TOOLS_BIN_DIR)/kubebuilder
 YTT := $(TOOLS_BIN_DIR)/ytt
 KUBEVAL := $(TOOLS_BIN_DIR)/kubeval
+TOOLING_BINARIES := $(GOLANGCI_LINT) $(YTT) $(KUBEVAL) $(GOIMPORTS)
 
 PINNIPED_GIT_REPOSITORY = https://github.com/vmware-tanzu/pinniped.git
 ifeq ($(strip $(PINNIPED_GIT_COMMIT)),)
@@ -82,8 +83,8 @@ manifests: controller-gen ## Generate manifests e.g. CRD, RBAC etc.
 		paths=./apis/... \
 		output:crd:artifacts:config=config/crd/bases
 
-fmt: ## Run go fmt
-	$(GO) fmt ./...
+fmt: tools ## Run goimports
+	$(GOIMPORTS) -w -local github.com/vmware-tanzu-private ./
 
 vet: ## Run go vet
 	$(GO) vet ./...

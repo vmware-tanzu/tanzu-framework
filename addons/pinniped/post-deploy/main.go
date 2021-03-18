@@ -8,16 +8,15 @@ import (
 	"os"
 
 	certmanagerclientset "github.com/jetstack/cert-manager/pkg/client/clientset/versioned"
-	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/configure"
-	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/vars"
 	conciergeclientset "go.pinniped.dev/generated/1.19/client/concierge/clientset/versioned"
 	supervisorclientset "go.pinniped.dev/generated/1.19/client/supervisor/clientset/versioned"
-
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"k8s.io/client-go/kubernetes"
 	k8sconfig "sigs.k8s.io/controller-runtime/pkg/client/config"
 
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
+	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/configure"
+	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/vars"
 )
 
 var (
