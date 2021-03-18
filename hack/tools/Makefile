@@ -23,6 +23,8 @@ BIN_DIR := bin
 SRCS := go.mod go.sum
 
 KUBEBUILDER_VERSION=2.3.1
+YTT_VERSION=v0.31.0
+KUBEVAL_VERSION=0.15.0
 
 # Host information.
 HOST_OS=$(shell go env GOOS)
@@ -31,6 +33,8 @@ HOST_ARCH=$(shell go env GOARCH)
 # Binaries.
 GOLANGCI_LINT := $(BIN_DIR)/golangci-lint
 KUBEBUILDER        := $(BIN_DIR)/kubebuilder
+YTT := $(BIN_DIR)/ytt
+KUBEVAL := $(BIN_DIR)/kubeval
 
 ## --------------------------------------
 ## Help
@@ -49,8 +53,23 @@ $(GOLANGCI_LINT): go.mod
 
 kubebuilder: $(KUBEBUILDER) ## Install kubebuilder
 $(KUBEBUILDER):
+	mkdir -p bin
 	curl -sL https://go.kubebuilder.io/dl/$(KUBEBUILDER_VERSION)/$(HOST_OS)/$(HOST_ARCH) | tar -xz -C /tmp/
 	mv /tmp/kubebuilder_$(KUBEBUILDER_VERSION)_$(HOST_OS)_$(HOST_ARCH) $(@)
+
+ytt: $(YTT) ## Install ytt
+$(YTT):
+	mkdir -p bin
+	curl -LO https://github.com/vmware-tanzu/carvel-ytt/releases/download/$(YTT_VERSION)/ytt-$(HOST_OS)-$(HOST_ARCH)
+	mv ytt-$(HOST_OS)-$(HOST_ARCH) $(@)
+	chmod a+x $(@)
+
+kubeval: $(KUBEVAL) ## Install kubeval
+$(KUBEVAL):
+	mkdir -p bin
+	curl -sL https://github.com/instrumenta/kubeval/releases/download/$(KUBEVAL_VERSION)/kubeval-$(HOST_OS)-$(HOST_ARCH).tar.gz  | tar -xz -C /tmp/
+	mv /tmp/kubeval $(@)
+	chmod a+x $(@)
 
 ## --------------------------------------
 ## Cleanup

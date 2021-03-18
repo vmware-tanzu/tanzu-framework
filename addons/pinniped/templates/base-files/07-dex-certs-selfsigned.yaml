@@ -21,7 +21,7 @@
 #@ end
 
 #@ def dex_ips():
-#@   if globals.infrastructure_provider == "aws":
+#@   if globals.infrastructure_provider == "aws" or globals.infrastructure_provider == "azure":
 #@     return []
 #@   else:
 #@     return values.dex.dns.vsphere.ipAddresses

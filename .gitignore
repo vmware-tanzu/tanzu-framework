@@ -31,3 +31,6 @@ pinniped
 *.swp
 *.swo
 *~
+
+# Mac OS files
+.DS_Store

@@ -23,9 +23,11 @@ ROOT_DIR := $(shell git rev-parse --show-toplevel)
 
 # Add tooling binaries here and in hack/tools/Makefile
 GOLANGCI_LINT := $(TOOLS_BIN_DIR)/golangci-lint
-TOOLING_BINARIES := $(GOLANGCI_LINT)
+TOOLING_BINARIES := $(GOLANGCI_LINT) $(YTT) $(KUBEVAL)
 GOBINDATA := $(TOOLS_BIN_DIR)/go-bindata-$(GOOS)-$(GOARCH)
 KUBEBUILDER := $(TOOLS_BIN_DIR)/kubebuilder
+YTT := $(TOOLS_BIN_DIR)/ytt
+KUBEVAL := $(TOOLS_BIN_DIR)/kubeval
 
 PINNIPED_GIT_REPOSITORY = https://github.com/vmware-tanzu/pinniped.git
 ifeq ($(strip $(PINNIPED_GIT_COMMIT)),)
