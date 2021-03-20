@@ -46,7 +46,7 @@ PRIVATE_REPOS="github.com/vmware-tanzu-private"
 GO := GOPRIVATE=${PRIVATE_REPOS} go
 
 # Add supported OS-ARCHITECTURE combinations here
-ENVS := linux-amd64 windows-amd64 darwin-amd64 linux-386 windows-386
+ENVS := linux-amd64 windows-amd64 darwin-amd64
 
 .DEFAULT_GOAL:=help
 
