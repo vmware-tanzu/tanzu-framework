@@ -41,7 +41,7 @@ require (
 	golang.org/x/mod v0.4.0
 	golang.org/x/oauth2 v0.0.0-20201208152858-08078c50e5b5
 	golang.org/x/tools v0.1.0 // indirect
-	google.golang.org/api v0.40.0
+	google.golang.org/api v0.30.0
 	google.golang.org/grpc v1.34.0
 	gopkg.in/yaml.v2 v2.3.0
 	k8s.io/api v0.17.11
