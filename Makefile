@@ -229,6 +229,7 @@ generate-pinniped-bindata: ensure-pinniped-repo
 .PHONY: prep-build-cli
 prep-build-cli: ensure-pinniped-repo
 	$(GO) mod download
+	$(GO) mod tidy
 
 
 $(GOBINDATA): $(TOOLS_DIR)/go.mod # Build go-bindata from tools folder
