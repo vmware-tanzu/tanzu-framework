@@ -41,8 +41,8 @@ jobs:
 
     - name: Test
       run: |
+        make test
         make verify
-        make test        
 
   golangci-lint:
     name: Lint

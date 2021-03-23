@@ -5,7 +5,9 @@
 set -o nounset
 
 if ! (git diff --quiet HEAD -- .); then
-git diff HEAD -- . \
-   echo "you haven’t committed files you’re supposed to commit"; exit 1; \
+   echo -e "\nThe following files are uncommitted. Please commit them or add them to .gitignore:";
+   git diff --name-only HEAD -- . | awk '{print "- " $0}'
+   echo -e "\nDiff:"
+   git diff HEAD -- . ; exit 1;
 fi
 

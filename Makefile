@@ -259,5 +259,5 @@ modules: ## Runs go mod to ensure modules are up to date.
 	cd $(TOOLS_DIR); $(GO) mod tidy
 
 .PHONY: verify
-verify: modules ## Run all verification scripts
+verify: ## Run all verification scripts
 	./hack/verify-dirty.sh
