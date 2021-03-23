@@ -31,8 +31,8 @@ func initialize(cmd *cobra.Command, args []string) error {
 	cfg := &component.SelectConfig{
 		Message: "choose a repository type",
 		Options: []string{
-			"Github",
-			"Gitlab",
+			"GitHub",
+			"GitLab",
 		},
 	}
 	var selection string
@@ -47,10 +47,10 @@ func initialize(cmd *cobra.Command, args []string) error {
 		RepositoryName: name,
 	}
 	targets := template.DefaultInitTargets
-	if selection == "Github" {
-		targets = append(targets, template.GithubCI)
+	if selection == "GitHub" {
+		targets = append(targets, template.GitHubCI)
 	} else {
-		targets = append(targets, template.GitlabCI)
+		targets = append(targets, template.GitLabCI)
 	}
 	for _, target := range targets {
 		err = target.Run(name, data, dryRun)
