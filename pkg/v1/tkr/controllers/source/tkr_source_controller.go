@@ -370,6 +370,29 @@ func (r *reconciler) checkInitialSync(ctx context.Context) error {
 	return nil
 }
 
+func (r *reconciler) waitForManagementClusterReady(stopChan <-chan struct{}, done chan bool) {
+	ticker := time.NewTicker(r.options.InitialDiscoveryFrequency)
+	for {
+		select {
+		case <-stopChan:
+			r.log.Info("Stopped waiting for management cluster to be ready")
+			ticker.Stop()
+			close(done)
+			return
+		case <-ticker.C:
+			r.log.Info("Checking management cluster ready")
+			_, err := r.GetManagementClusterVersion(context.Background())
+			if err != nil {
+				r.log.Info("management cluster is not ready, retrying", "error", err.Error())
+			} else {
+				ticker.Stop()
+				close(done)
+				return
+			}
+		}
+	}
+}
+
 func (r *reconciler) Start(stopChan <-chan struct{}) error {
 	r.log.Info("Starting TanzuKubernetesReleaase Reconciler")
 
@@ -389,8 +412,12 @@ func (r *reconciler) Start(stopChan <-chan struct{}) error {
 	r.registry = registry.New(&r.registryOps)
 
 	r.log.Info("Performing an initial release discovery")
+	waitForClusterReadyDone := make(chan bool)
 	initSyncDone := make(chan bool)
 	done := make(chan bool)
+
+	go r.waitForManagementClusterReady(stopChan, waitForClusterReadyDone)
+	<-waitForClusterReadyDone
 
 	ticker := time.NewTicker(r.options.InitialDiscoveryFrequency)
 	initialDiscoveryRetry := InitialDiscoveryRetry
@@ -398,7 +425,7 @@ func (r *reconciler) Start(stopChan <-chan struct{}) error {
 		for {
 			select {
 			case <-stopChan:
-				r.log.Info("Stopp performing initial TKR discovery")
+				r.log.Info("Stopped performing initial TKR discovery")
 				ticker.Stop()
 				close(initSyncDone)
 				return
