@@ -43,5 +43,5 @@ const CmdTemplate = `{{ bold "Usage:" }}{{if .Runnable}}
 {{ bold "Additional help topics:" }}{{range .Commands}}{{if .IsAdditionalHelpTopicCommand}}
   {{rpad .CommandPath .CommandPathPadding}} {{.Short}}{{end}}{{end}}{{end}}{{if .HasAvailableSubCommands}}
 
-Use "{{.CommandPath}} [command] --help" for more information about a command.{{end}}
+Use "{{if not (beginsWith .CommandPath "tanzu ")}}tanzu {{end}}{{.CommandPath}} [command] --help" for more information about a command.{{end}}
 `
