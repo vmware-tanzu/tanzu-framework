@@ -40,7 +40,9 @@ jobs:
       run: make all
 
     - name: Test
-      run: make test
+      run: |
+        make verify
+        make test        
 
   golangci-lint:
     name: Lint

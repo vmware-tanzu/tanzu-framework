@@ -255,3 +255,9 @@ release: ensure-pinniped-repo
 modules: ## Runs go mod to ensure modules are up to date.
 	$(GO) mod tidy
 	cd $(ADDONS_DIR); $(GO) mod tidy
+	cd $(ADDONS_DIR)/pinniped/post-deploy/; $(GO) mod tidy
+	cd $(TOOLS_DIR); $(GO) mod tidy
+
+.PHONY: verify
+verify: modules ## Run all verification scripts
+	./hack/verify-dirty.sh
