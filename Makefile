@@ -20,6 +20,7 @@ endif
 TOOLS_DIR := hack/tools
 TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
 ROOT_DIR := $(shell git rev-parse --show-toplevel)
+ADDONS_DIR := addons
 
 # Add tooling binaries here and in hack/tools/Makefile
 GOLANGCI_LINT := $(TOOLS_BIN_DIR)/golangci-lint
@@ -249,3 +250,8 @@ release: ensure-pinniped-repo
 	./hack/generate-pinniped-bindata.sh go $(GOBINDATA) windows 386
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --artifacts artifacts/windows/386/cli --target windows_386
 	@rm -rf pinniped
+
+.PHONY: modules
+modules: ## Runs go mod to ensure modules are up to date.
+	$(GO) mod tidy
+	cd $(ADDONS_DIR); $(GO) mod tidy
