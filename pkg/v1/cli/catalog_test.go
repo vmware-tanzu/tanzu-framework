@@ -82,6 +82,24 @@ func TestCatalog(t *testing.T) {
 	err = catalog.EnsureDistro(multi)
 	require.NoError(t, err)
 
+	plugins, err = catalog.List()
+	require.NoError(t, err)
+
+	repoOld := newTestRepo(t, "artifacts-old")
+	// downgrades from v0.0.4 to v0.0.3
+	err = catalog.Install("baz", "v0.0.3", repoOld)
+	require.NoError(t, err)
+	pluginsAfterDowngrade, err := catalog.List()
+	require.NoError(t, err)
+	require.NotEqual(t, plugins, pluginsAfterDowngrade)
+
+	err = catalog.EnsureDistro(multi)
+	require.NoError(t, err)
+	pluginsAfterReensure, err := catalog.List()
+	require.NoError(t, err)
+	// ensure restores the downgraded plugin to v0.0.4
+	require.Equal(t, plugins, pluginsAfterReensure)
+
 	invalidPluginList := append(mockPluginList, "notpresent")
 	catalog = newTestCatalog(t, invalidPluginList)
 	err = catalog.EnsureDistro(multi)
