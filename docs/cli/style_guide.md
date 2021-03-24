@@ -178,8 +178,8 @@ In the confirmation feedback, include a notice for experimental or beta commands
 
 Example
 ```
-“This is a EXPERIMENTAL command and may change without notice.”
-“This is a BETA command and may change without notice.”
+“Warning: This is a EXPERIMENTAL command and may change without notice.”
+“Warning: This is a BETA command and may change without notice.”
 ```
 ------------------------------
 
