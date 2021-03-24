@@ -2,7 +2,7 @@
 # Copyright 2021 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-set -o nounset
+set -euo pipefail
 
 if ! (git diff --quiet HEAD -- .); then
    echo -e "\nThe following files are uncommitted. Please commit them or add them to .gitignore:";
