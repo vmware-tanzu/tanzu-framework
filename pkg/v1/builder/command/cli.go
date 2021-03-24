@@ -166,6 +166,12 @@ func compileCore(corePath string, arch cli.Arch) cli.Plugin {
 	return cli.CorePlugin
 }
 
+type errInfo struct {
+	Err  error
+	Path string
+	ID   string
+}
+
 func compile(cmd *cobra.Command, args []string) error {
 	if version == "" {
 		log.Fatal("version flag must be set")
@@ -198,7 +204,7 @@ func compile(cmd *cobra.Command, args []string) error {
 	randSkew := rand.Intn(len(identifiers)) // nolint:gosec
 	var wg sync.WaitGroup
 	plugins := make(chan cli.Plugin, len(files))
-	fatalErrors := make(chan error, len(files))
+	fatalErrors := make(chan errInfo, len(files))
 	g := glob.MustCompile(match)
 	for i, f := range files {
 		if f.IsDir() {
@@ -209,7 +215,7 @@ func compile(cmd *cobra.Command, args []string) error {
 					defer wg.Done()
 					p, err := buildPlugin(fullPath, arch, id)
 					if err != nil {
-						fatalErrors <- err
+						fatalErrors <- errInfo{Err: err, Path: fullPath, ID: id}
 					} else {
 						plug := cli.Plugin{
 							Name:        p.Name,
@@ -225,15 +231,17 @@ func compile(cmd *cobra.Command, args []string) error {
 
 	wg.Wait()
 	close(plugins)
+	close(fatalErrors)
 
-	select {
-	case err := <-fatalErrors:
-		log.BreakHard()
-		log.Errorf("build completed with error: %v", err)
+	log.BreakHard()
+	hasFailed := false
+	for err := range fatalErrors {
+		hasFailed = true
+		log.Errorf("%s - building plugin %q failed - %v", err.ID, err.Path, err.Err)
+	}
+
+	if hasFailed {
 		os.Exit(1)
-	default:
-		log.Break()
-		break
 	}
 
 	for plug := range plugins {
