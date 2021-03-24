@@ -6,9 +6,12 @@ package command
 import (
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
+	"sync"
 	"time"
 
 	"github.com/gobwas/glob"
@@ -27,6 +30,7 @@ type plugin struct {
 	testPath string
 	docPath  string
 	arch     cli.Arch
+	buildID  string
 }
 
 var (
@@ -34,6 +38,22 @@ var (
 	corePath, match, targetArch          string
 	dryRun                               bool
 )
+
+var minConcurrent = 2
+var identifiers = []string{
+	string('\U0001F435'),
+	string('\U0001F43C'),
+	string('\U0001F436'),
+	string('\U0001F430'),
+	string('\U0001F98A'),
+	string('\U0001F431'),
+	string('\U0001F981'),
+	string('\U0001F42F'),
+	string('\U0001F42E'),
+	string('\U0001F437'),
+	string('\U0001F42D'),
+	string('\U0001F428'),
+}
 
 // CLICmd holds CLI builder commands.
 var CLICmd = &cobra.Command{
@@ -89,6 +109,69 @@ var CompileCmd = &cobra.Command{
 	RunE:  compile,
 }
 
+func getID(i int) string {
+	index := i
+	if i >= len(identifiers) {
+		// Well aren't you lucky
+		index = i % len(identifiers)
+	}
+	return identifiers[index]
+}
+
+func getBuildArch() cli.Arch {
+	if targetArch == "local" {
+		return cli.BuildArch()
+	}
+	return cli.Arch(targetArch)
+}
+
+func getMaxParallelism() int {
+	maxConcurrent := runtime.NumCPU() - 2
+	if maxConcurrent < minConcurrent {
+		maxConcurrent = minConcurrent
+	}
+	return maxConcurrent
+}
+
+// compileCore builds the core plugin for the plugin at the given corePath and arch.
+func compileCore(corePath string, arch cli.Arch) cli.Plugin {
+	log.Break()
+	log.Info("building core binary")
+	err := buildTargets(corePath, filepath.Join(artifactsDir, cli.CoreName, version), cli.CoreName, arch, "")
+	if err != nil {
+		log.Errorf("error: %v", err)
+		os.Exit(1)
+	}
+
+	// TODO (pbarker): should copy.
+	err = buildTargets(corePath, filepath.Join(artifactsDir, cli.CoreName, cli.VersionLatest), cli.CoreName, arch, "")
+	if err != nil {
+		log.Errorf("error: %v", err)
+		os.Exit(1)
+	}
+
+	b, err := yaml.Marshal(cli.CoreDescriptor)
+	if err != nil {
+		log.Errorf("error: %v", err)
+		os.Exit(1)
+	}
+
+	configPath := filepath.Join(artifactsDir, cli.CoreDescriptor.Name, cli.PluginFileName)
+	err = os.WriteFile(configPath, b, 0644)
+	if err != nil {
+		log.Errorf("error: %v", err)
+		os.Exit(1)
+	}
+
+	return cli.CorePlugin
+}
+
+type errInfo struct {
+	Err  error
+	Path string
+	ID   string
+}
+
 func compile(cmd *cobra.Command, args []string) error {
 	if version == "" {
 		log.Fatal("version flag must be set")
@@ -100,26 +183,11 @@ func compile(cmd *cobra.Command, args []string) error {
 		CoreVersion: version,
 		Plugins:     []cli.Plugin{},
 	}
-	arch := cli.Arch(targetArch)
-	if targetArch == "local" {
-		arch = cli.BuildArch()
-	}
+	arch := getBuildArch()
 
 	if corePath != "" {
-		log.Break()
-		log.Info("building core binary")
-		buildTargets(corePath, filepath.Join(artifactsDir, cli.CoreName, version), cli.CoreName, arch)
-
-		// TODO (pbarker): should copy.
-		buildTargets(corePath, filepath.Join(artifactsDir, cli.CoreName, cli.VersionLatest), cli.CoreName, arch)
-		b, err := yaml.Marshal(cli.CoreDescriptor)
-		log.Check(err)
-
-		configPath := filepath.Join(artifactsDir, cli.CoreDescriptor.Name, cli.PluginFileName)
-		err = os.WriteFile(configPath, b, 0644)
-		log.Check(err)
-
-		manifest.Plugins = append(manifest.Plugins, cli.CorePlugin)
+		corePlugin := compileCore(corePath, arch)
+		manifest.Plugins = append(manifest.Plugins, corePlugin)
 	}
 
 	files, err := os.ReadDir(path)
@@ -127,18 +195,57 @@ func compile(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	// Limit the number of concurrent operations we perform so we don't
+	// overwhelm the system.
+	maxConcurrent := getMaxParallelism()
+	guard := make(chan struct{}, maxConcurrent)
+
+	// Mix up IDs so we don't always get the same set.
+	randSkew := rand.Intn(len(identifiers)) // nolint:gosec
+	var wg sync.WaitGroup
+	plugins := make(chan cli.Plugin, len(files))
+	fatalErrors := make(chan errInfo, len(files))
 	g := glob.MustCompile(match)
-	for _, f := range files {
+	for i, f := range files {
 		if f.IsDir() {
 			if g.Match(f.Name()) {
-				p := buildPlugin(filepath.Join(path, f.Name()), arch)
-				plugin := cli.Plugin{
-					Name:        p.Name,
-					Description: p.Description,
-				}
-				manifest.Plugins = append(manifest.Plugins, plugin)
+				wg.Add(1)
+				guard <- struct{}{}
+				go func(fullPath, id string) {
+					defer wg.Done()
+					p, err := buildPlugin(fullPath, arch, id)
+					if err != nil {
+						fatalErrors <- errInfo{Err: err, Path: fullPath, ID: id}
+					} else {
+						plug := cli.Plugin{
+							Name:        p.Name,
+							Description: p.Description,
+						}
+						plugins <- plug
+					}
+					<-guard
+				}(filepath.Join(path, f.Name()), getID(i+randSkew))
 			}
 		}
+	}
+
+	wg.Wait()
+	close(plugins)
+	close(fatalErrors)
+
+	log.BreakHard()
+	hasFailed := false
+	for err := range fatalErrors {
+		hasFailed = true
+		log.Errorf("%s - building plugin %q failed - %v", err.ID, err.Path, err.Err)
+	}
+
+	if hasFailed {
+		os.Exit(1)
+	}
+
+	for plug := range plugins {
+		manifest.Plugins = append(manifest.Plugins, plug)
 	}
 
 	b, err := yaml.Marshal(manifest)
@@ -156,38 +263,53 @@ func compile(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func buildPlugin(path string, arch cli.Arch) plugin {
-	log.Break()
-	log.Infof("building plugin at path %q", path)
+func buildPlugin(path string, arch cli.Arch, id string) (plugin, error) {
+	log.Infof("%s - building plugin at path %q", id, path)
 
 	b, err := exec.Command("go", "run", "-ldflags", ldflags, fmt.Sprintf("./%s", path), "info").CombinedOutput()
 
 	if err != nil {
-		log.Errorf("error: %v", err)
-		log.Errorf("output: %v", string(b))
-		os.Exit(1)
+		log.Errorf("%s - error: %v", id, err)
+		log.Errorf("%s - output: %v", id, string(b))
+		return plugin{}, err
 	}
 	var desc cli.PluginDescriptor
 	err = json.Unmarshal(b, &desc)
-	log.Check(err)
+	if err != nil {
+		log.Errorf("%s - error unmarshalling plugin descriptor: %v", id, err)
+		return plugin{}, err
+	}
 
 	testPath := filepath.Join(path, "test")
 	_, err = os.Stat(testPath)
 	if err != nil {
-		log.Fatalf("plugin %q must implement test", desc.Name)
+		log.Errorf("%s - plugin %q must implement test", id, desc.Name)
+		return plugin{}, err
 	}
 	docPath := filepath.Join(path, "README.md")
 	_, err = os.Stat(docPath)
 	if err != nil {
-		log.Fatalf("plugin %q requires a README.md file", desc.Name)
+		log.Errorf("%s - plugin %q requires a README.md file", id, desc.Name)
+		return plugin{}, err
 	}
-	p := plugin{PluginDescriptor: desc, path: path, testPath: testPath, arch: arch, docPath: docPath}
+	p := plugin{
+		PluginDescriptor: desc,
+		path:             path,
+		testPath:         testPath,
+		arch:             arch,
+		docPath:          docPath,
+		buildID:          id,
+	}
 
 	log.Debugy("plugin", p)
 
-	p.compile()
+	err = p.compile()
+	if err != nil {
+		log.Errorf("%s - error compiling plugin %s", id, desc.Name)
+		return plugin{}, err
+	}
 
-	return p
+	return p, nil
 }
 
 type target struct {
@@ -195,7 +317,7 @@ type target struct {
 	args []string
 }
 
-func (t target) build(targetPath string) {
+func (t target) build(targetPath, prefix string) error {
 	cmd := exec.Command("go", "build")
 
 	var commonArgs = []string{
@@ -209,13 +331,14 @@ func (t target) build(targetPath string) {
 	cmd.Env = append(cmd.Env, os.Environ()...)
 	cmd.Env = append(cmd.Env, t.env...)
 
-	log.Infof("$ %s", cmd.String())
+	log.Infof("%s$ %s", prefix, cmd.String())
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		log.Errorf("error: %v", err)
-		log.Errorf("output: %v", string(output))
-		os.Exit(1)
+		log.Errorf("%serror: %v", prefix, err)
+		log.Errorf("%soutput: %v", prefix, string(output))
+		return err
 	}
+	return nil
 }
 
 // AllTargets are all the known targets.
@@ -283,33 +406,54 @@ var archMap = map[cli.Arch]targetBuilder{
 	},
 }
 
-func (p *plugin) compile() {
+func (p *plugin) compile() error {
 	outPath := filepath.Join(artifactsDir, p.Name, p.Version)
-	buildTargets(p.path, outPath, p.Name, p.arch)
+	err := buildTargets(p.path, outPath, p.Name, p.arch, p.buildID)
+	if err != nil {
+		return err
+	}
 
 	testOutPath := filepath.Join(artifactsDir, p.Name, p.Version, "test")
-	buildTargets(p.testPath, testOutPath, fmt.Sprintf("%s-test", p.Name), p.arch)
+	err = buildTargets(p.testPath, testOutPath, fmt.Sprintf("%s-test", p.Name), p.arch, p.buildID)
+	if err != nil {
+		return err
+	}
 
 	b, err := yaml.Marshal(p.PluginDescriptor)
-	log.Check(err)
+	if err != nil {
+		return err
+	}
 
 	configPath := filepath.Join(artifactsDir, p.Name, cli.PluginFileName)
 	err = os.WriteFile(configPath, b, 0644)
-	log.Check(err)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func buildTargets(targetPath, outPath, pluginName string, arch cli.Arch) {
+func buildTargets(targetPath, outPath, pluginName string, arch cli.Arch, id string) error {
+	if id != "" {
+		id = fmt.Sprintf("%s - ", id)
+	}
 	if arch == AllTargets {
 		for _, targetBuilder := range archMap {
 			tgt := targetBuilder(pluginName, outPath)
-			tgt.build(targetPath)
+			err := tgt.build(targetPath, id)
+			if err != nil {
+				return err
+			}
 		}
-		return
+		return nil
 	}
 	tb, ok := archMap[arch]
 	if !ok {
-		log.Fatal("could not find target arch: ", arch)
+		log.Errorf("%scould not find target arch: ", id, arch)
 	}
 	tgt := tb(pluginName, outPath)
-	tgt.build(targetPath)
+	err := tgt.build(targetPath, id)
+	if err != nil {
+		return err
+	}
+	return nil
 }
