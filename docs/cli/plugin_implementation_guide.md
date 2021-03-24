@@ -8,15 +8,7 @@ The [Tanzu CLI Styleguide](/docs/cli/style_guide.md) describes the user interact
 ------------------------------
 
 ### Plugins
-The CLI is made of plugins. To bootstrap a plugin use the `builder` admin plugin.  
-
-To add the admin repository use `tanzu plugin repo add -n admin -b tanzu-cli-admin-plugins -r artifacts-admin`   
-
-To add the builder plugin use `tanzu plugin install builder`   
-
-`tanzu builder init <repo-name>` will create a new plugin repository.    
-
-`tanzu builder cli add-plugin <plugin-name>` will add a new cli plugin. 
+The CLI is made of plugins. To add a new plugin copy an existing one in `cmd/cli/plugin` and change the values for the new plugin name.
 
 Plugins are pulled from registered repositories, on a merge to master all the plugins in this repo are built and pushed to a public repository. When developing it's useful to leverage a local repo.
 
@@ -51,6 +43,15 @@ This allows the CLI to be presented in accordance with different product offerin
 On boot, the CLI will check that the distro is present within the given set of plugins or it will install them. 
 
 Initialization of the distributions can be prevented by setting the env var `TANZU_CLI_NO_INIT=true`
+
+### Release
+When a git tag is created on the repositories, it will version all the plugins in that repository to the current tag. The plugin binaries built for that 
+tag will be namespaced under the tag semver. 
+
+All merges to main will be under the `dev` namespace in the artifacts repository.
+
+When listing or installing plugins, a `version finder` is used to parse the available versions of the plugin. By defaultc the version finder will attempt to 
+find the latest stable semver, which excludes semvers with build suffixes e.g. `1.2.3-rc.1`. If you wish to include unstable builds you can use the `--include-unstable` flag which will look for the latest version regardless of build suffixes.
 
 ------------------------------
 
