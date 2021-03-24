@@ -57,7 +57,7 @@ tanzu management-cluster kubeconfig get --admin
 Global flags are maintained by the [Tanzu CLI SIG](https://github.com/vmware-tanzu-private/community/tree/main/sigs/api-cli) and adding to the current global set should be managed through the SIG
 
 ### Nouns 
-Any nouns being added must exist in the Shared [Taxonomy document](https://github.com/vmware-tanzu-private/core/blob/main/hack/linter/cli-wordlist.yml)
+Any nouns being added must exist in the [Shared Taxonomy document](/hack/linter/cli-wordlist.yml)
 * Introducing nouns to support the creation of new commands and/or subcommands should be reviewed by the [Tanzu CLI SIG](https://github.com/vmware-tanzu-private/community/tree/main/sigs/api-cli)
 
 Compound words should be - delimited
@@ -73,7 +73,7 @@ tanzu app get, not tanzu app-get
 ### Verbs
 Use the standard CRUD verbs whenever possible
 * Tanzu CLI uses create, delete, get, list, update
-If at all possible, use verbs from the [command reference list](link)
+If at all possible, use pre-existing verbs from the [Shared Taxonomy document](/hack/linter/cli-wordlist.yml)
 * New verbs must be reviewed by the Tanzu CLI SIG
 Opposing commands should take the form of antonyms 
 
