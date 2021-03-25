@@ -112,7 +112,7 @@ tanzu cluster create CLUSTER-NAME [flags]
 *  Commands should not prompt when TTY is not present
   * The component library can provide this check, pending resolution of issue #330
 
-### Command principals
+### Command principles
 * Support verbosity flags
 * Provide a way to disable interactive prompting (--quiet, --force, --yes)
 
