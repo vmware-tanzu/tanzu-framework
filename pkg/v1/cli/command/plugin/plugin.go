@@ -24,6 +24,7 @@ func NewPlugin(descriptor *cli.PluginDescriptor) (*Plugin, error) {
 	p := &Plugin{
 		Cmd: newRootCmd(descriptor),
 	}
+	p.Cmd.AddCommand(lintCmd)
 	return p, nil
 }
 

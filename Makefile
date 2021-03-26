@@ -231,6 +231,8 @@ prep-build-cli: ensure-pinniped-repo
 	$(GO) mod download
 	$(GO) mod tidy
 
+generate-terms-bindata:
+	$(GOBINDATA) -mode=420 -modtime=1 -o=pkg/v1/cli/command/plugin/lint/zz_generated_terms.bindata.go -pkg=lint hack/linter/cli-wordlist.yml
 
 $(GOBINDATA): $(TOOLS_DIR)/go.mod # Build go-bindata from tools folder
 	mkdir -p $(TOOLS_BIN_DIR)
