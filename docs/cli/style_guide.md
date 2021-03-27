@@ -99,7 +99,7 @@ tanzu cluster create CLUSTER-NAME [flags]
 ```
 
 ### Flags 
-* Use standard names for flags if there is one (flags used in the cli are documented here)
+* Use standard names for flags if there is one (flags used in the cli are documented [here](/hack/linter/cli-wordlist.yml))
 * Where possible, set reasonable defaults for flag-able options that align with expected workflows
 * A user should only be required to explicitly set a max of 2 flags 
 * Add as many flags as necessary to configure the command
