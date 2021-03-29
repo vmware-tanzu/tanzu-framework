@@ -418,6 +418,9 @@ func (r *reconciler) Start(stopChan <-chan struct{}) error {
 
 				if errReconcile != nil {
 					r.log.Info("Failed to complete initial TKR discovery", "error", errReconcile.Error())
+					if isManagementClusterNotReadyError(errReconcile) {
+						continue
+					}
 				} else if errCheck != nil {
 					r.log.Info("Failed to complete initial TKR discovery", "error", errCheck.Error())
 				}
