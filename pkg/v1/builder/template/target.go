@@ -62,6 +62,8 @@ var DefaultInitTargets = []Target{
 	Makefile,
 	Codeowners,
 	MainReadMe,
+	GolangCIConfig,
+	Tools,
 }
 
 // DefaultPluginTargets are the default plugin targets.

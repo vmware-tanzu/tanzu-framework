@@ -3,22 +3,12 @@
 
 package template
 
+import "github.com/vmware-tanzu-private/core/pkg/v1/builder/template/plugintemplates"
+
 // GoMod target
 var GoMod = Target{
 	Filepath: "go.mod",
-	Template: `module {{ .RepositoryName }}
-
-go 1.14
-
-require (
-	github.com/aunum/log v0.0.0-20200821225356-38d2e2c8b489
-	github.com/ghodss/yaml v1.0.0 // indirect
-	github.com/spf13/cobra v1.0.0
-	github.com/vmware-tanzu-private/core v0.0.0-20201105155058-3739a04e35ae
-	gopkg.in/yaml.v2 v2.3.0
-	sigs.k8s.io/yaml v1.2.0
-)
-`,
+	Template: plugintemplates.Gomod,
 }
 
 // BuildVersion target
@@ -41,7 +31,7 @@ buildpush:
   only:
     - master
 stage: deploy
-image: golang:1.15.2
+image: golang:1.16.0
 script:
   # Note: this is all one step because the artifacts were too large to copy over.
   - make
@@ -83,7 +73,7 @@ jobs:
   - name: Set up Go 1.x
     uses: actions/setup-go@v2
     with:
-      go-version: ^1.13
+      go-version: ^1.16
       id: go
 
   - name: Check out code into the Go module directory
@@ -92,23 +82,22 @@ jobs:
   - name: Get dependencies
     run: |
     go get -v -t -d ./...
-    if [ -f Gopkg.toml ]; then
-      curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-      dep ensure
-    fi
     curl -o tanzu https://storage.googleapis.com/tanzu-cli/artifacts/core/latest/tanzu-core-linux_amd64 && \
         mv tanzu /usr/local/bin/tanzu && \
       chmod +x /usr/local/bin/tanzu
     tanzu plugin repo add -b tanzu-cli-admin-plugins -n admin
 
-  - name: Make
-    run: make
+  - name: init
+    run: make init
 
   - name: Build
-    run: make build-cli
+    run: make build
 
   - name: Test
     run: make test
+
+  - name: Test
+    run: make lint
 
   - id: upload-cli-artifacts
     uses: GoogleCloudPlatform/github-actions/upload-cloud-storage@master
@@ -130,32 +119,56 @@ LD_FLAGS = -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildDate=$(BUILD
 LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildSHA=$(BUILD_SHA)'
 LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildVersion=$(BUILD_VERSION)'
 
+TOOLS_DIR := tools
+TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
+GOLANGCI_LINT := $(TOOLS_BIN_DIR)/golangci-lint
+
 build:
 	tanzu builder cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/plugin
-	`,
+
+lint: golangci-lint
+	$(GOLANGCI_LINT) run -v
+
+init:
+	go mod download
+	mkdir $(TOOLS_BIN_DIR)
+
+test:
+	go test ./...
+
+golangci-lint:
+	go build -tags=tools -o $(GOLANGCI_LINT) github.com/golangci/golangci-lint/cmd/golangci-lint
+`,
 }
 
 // Codeowners target
 // TODO (pbarker): replace with the CLI reviewers group
 var Codeowners = Target{
 	Filepath: "CODEOWNERS",
-	Template: `*       @pbarker @vuil`,
+	Template: `* @pbarker @vuil`,
 }
 
 // Tools target.
 var Tools = Target{
 	Filepath: "tools/tools.go",
-	Template: `package tools
+	Template: `// +build tools
+
+package tools
 
 import (
 	_ "github.com/vmware-tanzu-private/core/cmd/cli/compiler"
-)	
+	_ "github.com/golangci/golangci-lint/cmd/golangci-lint"
+)
 	`,
 }
 
 // MainReadMe target
 var MainReadMe = Target{
 	Filepath: "README.md",
-	Template: `# {{ .RepositoryName }}
-	`,
+	Template: plugintemplates.PluginReadme,
+}
+
+var GolangCIConfig = Target{
+	Filepath: ".golangci.yaml",
+	Template: plugintemplates.GolangCIConfig,
 }

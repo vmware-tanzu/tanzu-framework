@@ -52,7 +52,7 @@ import (
 
 var descriptor = cli.PluginDescriptor{
 	Name:        "{{ .PluginName | ToLower }}",
-	Description: "",  // provide a description
+	Description: "Provide a description for {{ .PluginName | ToLower }}",  // provide a description
 	Version:     "v0.0.1",
 	Group:       cli.ManageCmdGroup, // set group
 }
@@ -82,6 +82,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/command/plugin"
 	clitest "github.com/vmware-tanzu-private/core/pkg/v1/test/cli"
@@ -95,7 +96,7 @@ func main() {
 	retcode := 0
 
 	defer func() { os.Exit(retcode) }()
-	defer Cleanup()
+	defer func() { _ = Cleanup() }()
 
 	p, err := plugin.NewPlugin(descriptor)
 	if err != nil {
@@ -136,6 +137,8 @@ func test(c *cobra.Command, _ []string) error {
 }
 
 // Cleanup the test.
-func Cleanup() error {}
+func Cleanup() error {
+	return nil
+}
 	`,
 }

@@ -1,22 +1,53 @@
-# Tanzu CLI plugin implementation guide
+# Tanzu CLI Plugin Implementation Guide
 
 ## Developing
-The Tanzu CLI was built to be extensible across teams and be presented across skus.
+The Tanzu CLI was built to be extensible across teams and be cohesive across SKUs. To this end, the Tanzu CLI provides tools to make creating and compiling new plugins straightforward.
 
-The [Tanzu CLI Styleguide](/docs/cli/style_guide.md) describes the user interaction patterns to be followed, and general guidance, for CLI contribution. 
+The [Tanzu CLI Styleguide](/docs/cli/style_guide.md) describes the user interaction patterns to be followed, and general guidance, for CLI contribution.
 
 ------------------------------
 
 ### Plugins
-The CLI is made of plugins. To add a new plugin copy an existing one in `cmd/cli/plugin` and change the values for the new plugin name.
+The Tanzu CLI is a modular design that consists of plugins. To bootstrap a new plugin, you can use the `builder` admin plugin as described below.
 
-Plugins are pulled from registered repositories, on a merge to master all the plugins in this repo are built and pushed to a public repository. When developing it's useful to leverage a local repo.
+This architecture enables teams to build, own, and release their own piece of functionality as well as enable external partners to integrate with the system.
 
-To build use:
+Current implementations:
+- [Core plugins](https://github.com/vmware-tanzu-private/core/tree/main/cmd/cli/plugin)
+- [Admin plugins](https://github.com/vmware-tanzu-private/core/tree/main/cmd/cli/plugin-admin)
+- [Advanced plugins](https://gitlab.eng.vmware.com/tanzu/cli-plugins)
+
+### Repository
+A plugin repository represents a group of plugin artifacts that are installable by the Tanzu CLI. A repository is defined as an interface.
+
+Current interface implementations:
+- Local filesystem
+- GCP bucket
+
+Our production plugin artifacts currently come from GCP buckets. Developers of plugins will typically use the local filesystem repository in the creation and testing of their feature.
+
+#### Adding Admin Repository
+The admin repository contains the Builder plugin - a plugin which helps scaffold and compile plugins.
+
+To add the admin repository use `tanzu plugin repo add -n admin -b tanzu-cli-admin-plugins -p artifacts-admin`
+
+To add the builder plugin use `tanzu plugin install builder`
+
+#### Bootstrap A New CLI plugin
+`tanzu builder init <repo-name>` will create a new plugin repository.
+
+`tanzu builder cli add-plugin <plugin-name>` will add a new cli plugin.
+
+Plugins are pulled from registered repositories. On a merge to master, all the plugins in this repo are built and pushed to a public repository.
+It is useful to leverage a local repo when developing.
+
+#### Building a Plugin
+
+The Tanzu CLI itself is responsible for building plugins. You can build your new plugin with the provided make targets:
 ```
 make build
 ```
-This will build a local repository under `./artifacts`. Plugins can be installed from this repository using:
+This will build plugin artifacts under `./artifacts`. Plugins can be installed from this repository using:
 ```
 tanzu plugin install <plugin-name> --local ./artifacts -u
 ```
@@ -29,18 +60,20 @@ tanzu update
 ```
 
 #### Tests
-Every CLI plugin should have a nested test executable. The executable should utilize the test framework found in `pkg/v1/test/cli`. Tests should be written 
-to cover each command. Tests are compiled alongside the plugins. Tests can be ran by the admin `test` plugin.
+Every CLI plugin should have a nested test executable. The executable should utilize the test framework found in `pkg/v1/test/cli`.
+Tests are written to ensure the stability of the commands and are compiled alongside the plugins. Tests can be ran by the admin `test` plugin.
 
 #### Docs
-Every plugin requires a guide that explains its usage. 
+Every plugin requires a README document that explains its basic usage.
 
 ### Distributions
-The CLI comes with the notion of a distribution, which is a set of plugins that should always be installed on boot.
+A distribution is simply a set of plugins that may exist across multiple repositories. The CLI currently contains a default distribution
+which is the default set of plugins that should be installed on initialization.
 
-This allows the CLI to be presented in accordance with different product offerings. When creating a new local catalog, you can specify the distro you wish the catalog to enforce for the CLI.
+Distributions allow the CLI to be presented in accordance with different product offerings. When creating a new local catalog, you can specify
+the distro you wish the catalog to enforce for the CLI.
 
-On boot, the CLI will check that the distro is present within the given set of plugins or it will install them. 
+On boot, the CLI will check that the distro is present within the given set of plugins or it will install them.
 
 Initialization of the distributions can be prevented by setting the env var `TANZU_CLI_NO_INIT=true`
 
@@ -79,7 +112,7 @@ The completion notice should include an example of the `get` command the user wo
 TBD
 
 ### Templates
-TBD 
+TBD
 
 ### Config file
 ~/.tanzu/config.yaml
