@@ -15,6 +15,7 @@ pinniped/
 
 # Build artifacts that may not be cleaned up properly
 pinniped
+.rendered-output/
 
 # Test binary, build with `go test -c`
 *.test
