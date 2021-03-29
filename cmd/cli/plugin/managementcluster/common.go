@@ -12,7 +12,7 @@ import (
 	"github.com/vmware-tanzu-private/tkg-cli/pkg/types"
 
 	"github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
+	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 )
 
 func newTKGCtlClient() (tkgctl.TKGClient, error) {
@@ -31,7 +31,7 @@ func newTKGCtlClient() (tkgctl.TKGClient, error) {
 }
 
 func getTKGConfigDir() (string, error) {
-	tanzuConfigDir, err := client.LocalDir()
+	tanzuConfigDir, err := config.LocalDir()
 	if err != nil {
 		return "", errors.Wrap(err, "unable to get home directory")
 	}
@@ -39,7 +39,7 @@ func getTKGConfigDir() (string, error) {
 }
 
 func runForCurrentMC(fn func(currServ *v1alpha1.Server) error) error {
-	currServ, err := client.GetCurrentServer()
+	currServ, err := config.GetCurrentServer()
 	if err != nil {
 		return err
 	}

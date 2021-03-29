@@ -8,7 +8,7 @@ import (
 
 	"google.golang.org/grpc/metadata"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
+	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 )
 
 const (
@@ -24,14 +24,14 @@ func AppendClientMetadata(ctx context.Context) context.Context {
 	_, ok := metadata.FromOutgoingContext(ctx)
 	if !ok {
 		return metadata.NewOutgoingContext(ctx, map[string][]string{
-			client.NameHeader:    {ClientName},
-			client.VersionHeader: {BuildVersion},
+			config.NameHeader:    {ClientName},
+			config.VersionHeader: {BuildVersion},
 		})
 	}
 	// Append to outgoing metadata if context has existing metadata
 	return metadata.AppendToOutgoingContext(ctx,
-		client.NameHeader, ClientName,
-		client.VersionHeader, BuildVersion,
+		config.NameHeader, ClientName,
+		config.VersionHeader, BuildVersion,
 	)
 }
 

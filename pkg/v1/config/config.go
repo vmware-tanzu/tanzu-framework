@@ -1,7 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package client
+package config
 
 import (
 	"bytes"
@@ -74,7 +74,7 @@ func NewConfig() (*configv1alpha1.ClientConfig, error) {
 	return c, nil
 }
 
-// ConfigNotExistError is thown when a tanzu config cannot be found.
+// ConfigNotExistError is thrown when a tanzu config cannot be found.
 type ConfigNotExistError struct {
 	s string
 }

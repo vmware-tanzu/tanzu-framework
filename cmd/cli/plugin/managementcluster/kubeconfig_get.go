@@ -16,7 +16,7 @@ import (
 
 	"github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
 	tkgauth "github.com/vmware-tanzu-private/core/pkg/v1/auth/tkg"
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
+	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 )
 
 type getClusterKubeconfigOptions struct {
@@ -47,7 +47,7 @@ func init() {
 }
 
 func getKubeconfig(cmd *cobra.Command, args []string) error {
-	server, err := client.GetCurrentServer()
+	server, err := config.GetCurrentServer()
 	if err != nil {
 		return err
 	}

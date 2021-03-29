@@ -11,7 +11,7 @@ import (
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/command/plugin"
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
+	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 )
 
 var descriptor = cli.PluginDescriptor{
@@ -85,7 +85,7 @@ func getRepositories() *cli.MultiRepo {
 		}
 		return m
 	}
-	cfg, err := client.GetConfig()
+	cfg, err := config.GetConfig()
 	if err != nil {
 		log.Fatal(err)
 	}

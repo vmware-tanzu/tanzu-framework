@@ -12,8 +12,8 @@ import (
 
 	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 	"github.com/vmware-tanzu-private/core/pkg/v1/clusterclient"
+	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 )
 
 const lenMsg = 2
@@ -38,7 +38,7 @@ func init() {
 }
 
 func getAvailableUpgrades(cmd *cobra.Command, args []string) error {
-	server, err := client.GetCurrentServer()
+	server, err := config.GetCurrentServer()
 	if err != nil {
 		return err
 	}

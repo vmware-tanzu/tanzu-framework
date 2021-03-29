@@ -1,7 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package client
+package config
 
 import (
 	configv1alpha1 "github.com/vmware-tanzu-private/core/apis/config/v1alpha1"

@@ -9,11 +9,11 @@ import (
 	"github.com/stretchr/testify/require"
 
 	configv1alpha1 "github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
+	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 )
 
 func TestGCPRepository(t *testing.T) {
-	r := configv1alpha1.PluginRepository{GCPPluginRepository: &client.CoreGCPBucketRepository}
+	r := configv1alpha1.PluginRepository{GCPPluginRepository: &config.CoreGCPBucketRepository}
 	repo := loadRepository(r)
 	list, err := repo.List()
 	require.NoError(t, err)

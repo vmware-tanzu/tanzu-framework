@@ -13,8 +13,9 @@ import (
 
 	"github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
 	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 	"github.com/vmware-tanzu-private/core/pkg/v1/clusterclient"
+	"github.com/vmware-tanzu-private/core/pkg/v1/config"
+
 	"github.com/vmware-tanzu-private/tkg-cli/pkg/constants"
 	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
 )
@@ -81,7 +82,7 @@ func init() {
 }
 
 func upgrade(cmd *cobra.Command, args []string) error {
-	server, err := client.GetCurrentServer()
+	server, err := config.GetCurrentServer()
 	if err != nil {
 		return err
 	}

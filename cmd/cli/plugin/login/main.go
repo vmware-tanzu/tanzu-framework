@@ -22,7 +22,7 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/command/plugin"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
+	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 )
 
 var descriptor = cli.PluginDescriptor{
@@ -79,9 +79,9 @@ func main() {
 }
 
 func login(cmd *cobra.Command, args []string) (err error) {
-	cfg, err := client.GetConfig()
-	if _, ok := err.(*client.ConfigNotExistError); ok {
-		cfg, err = client.NewConfig()
+	cfg, err := config.GetConfig()
+	if _, ok := err.(*config.ConfigNotExistError); ok {
+		cfg, err = config.NewConfig()
 		if err != nil {
 			return err
 		}
@@ -102,7 +102,7 @@ func login(cmd *cobra.Command, args []string) (err error) {
 			return err
 		}
 	} else {
-		serverTarget, err = client.GetServer(server)
+		serverTarget, err = config.GetServer(server)
 		if err != nil {
 			return err
 		}
@@ -126,7 +126,7 @@ func getServerTarget(cfg *configv1alpha1.ClientConfig, newServerSelector string)
 	promptOpts := getPromptOpts()
 	servers := map[string]*configv1alpha1.Server{}
 	for _, server := range cfg.KnownServers {
-		ep, err := client.EndpointFromServer(server)
+		ep, err := config.EndpointFromServer(server)
 		if err != nil {
 			return nil, err
 		}
@@ -136,7 +136,7 @@ func getServerTarget(cfg *configv1alpha1.ClientConfig, newServerSelector string)
 		servers[s] = server
 	}
 	if endpoint == "" {
-		endpoint, _ = os.LookupEnv(client.EnvEndpointKey)
+		endpoint, _ = os.LookupEnv(config.EnvEndpointKey)
 	}
 	// If there are no existing servers
 	if len(servers) == 0 {
@@ -265,7 +265,7 @@ func createServerWithKubeconfig() (server *configv1alpha1.Server, err error) {
 			return
 		}
 	}
-	nameExists, err := client.ServerExists(name)
+	nameExists, err := config.ServerExists(name)
 	if err != nil {
 		return server, err
 	}
@@ -310,7 +310,7 @@ func createServerWithEndpoint() (server *configv1alpha1.Server, err error) {
 			return
 		}
 	}
-	nameExists, err := client.ServerExists(name)
+	nameExists, err := config.ServerExists(name)
 	if err != nil {
 		return server, err
 	}
@@ -344,7 +344,7 @@ func createServerWithEndpoint() (server *configv1alpha1.Server, err error) {
 
 func globalLogin(s *configv1alpha1.Server) (err error) {
 	a := configv1alpha1.GlobalServerAuth{}
-	apiToken, apiTokenExists := os.LookupEnv(client.EnvAPITokenKey)
+	apiToken, apiTokenExists := os.LookupEnv(config.EnvAPITokenKey)
 
 	issuer := csp.ProdIssuer
 	if staging {
@@ -381,7 +381,7 @@ func globalLogin(s *configv1alpha1.Server) (err error) {
 
 	s.GlobalOpts.Auth = a
 
-	err = client.PutServer(s, true)
+	err = config.PutServer(s, true)
 	if err != nil {
 		return err
 	}
@@ -429,7 +429,7 @@ func managementClusterLogin(s *configv1alpha1.Server) error {
 			log.Fatalf("failed to login to the management cluster %s, err-%v", s.Name, err)
 			return err
 		}
-		err = client.PutServer(s, true)
+		err = config.PutServer(s, true)
 		if err != nil {
 			return err
 		}

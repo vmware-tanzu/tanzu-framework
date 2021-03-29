@@ -12,8 +12,9 @@ import (
 	"github.com/spf13/pflag"
 
 	"github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 	"github.com/vmware-tanzu-private/core/pkg/v1/clusterclient"
+	"github.com/vmware-tanzu-private/core/pkg/v1/config"
+
 	"github.com/vmware-tanzu-private/tkg-cli/pkg/constants"
 	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
 )
@@ -93,7 +94,7 @@ func aliasNormalizeFunc(f *pflag.FlagSet, name string) pflag.NormalizedName {
 }
 
 func create(cmd *cobra.Command, args []string) error {
-	server, err := client.GetCurrentServer()
+	server, err := config.GetCurrentServer()
 	if err != nil {
 		// if current server does not exist and user is using generate only
 		// option then allow user to proceed by providing dummy management server
