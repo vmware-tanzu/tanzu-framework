@@ -30,7 +30,7 @@ var initCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		cfg, err := config.GetConfig()
+		cfg, err := config.GetClientConfig()
 		if err != nil {
 			return err
 		}

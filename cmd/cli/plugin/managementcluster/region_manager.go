@@ -27,7 +27,7 @@ func NewFactory() region.ManagerFactory {
 }
 
 func (trm *tanzuRegionManager) ListRegionContexts() ([]region.RegionContext, error) {
-	tanzuConfig, err := config.GetConfig()
+	tanzuConfig, err := config.GetClientConfig()
 	if err != nil {
 		return []region.RegionContext{}, err
 	}

@@ -46,7 +46,7 @@ var listRepoCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List available repositories",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cfg, err := config.GetConfig()
+		cfg, err := config.GetClientConfig()
 		if err != nil {
 			return err
 		}
@@ -70,7 +70,7 @@ var addRepoCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add a repository",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cfg, err := config.GetConfig()
+		cfg, err := config.GetClientConfig()
 		if err != nil {
 			return err
 		}
@@ -98,7 +98,7 @@ var addRepoCmd = &cobra.Command{
 		}
 		repos = append(repos, pluginRepo)
 		cfg.ClientOptions.CLI.Repositories = repos
-		err = config.StoreConfig(cfg)
+		err = config.StoreClientConfig(cfg)
 		if err != nil {
 			return err
 		}
@@ -112,7 +112,7 @@ var updateRepoCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		repoName := args[0]
-		cfg, err := config.GetConfig()
+		cfg, err := config.GetClientConfig()
 		if err != nil {
 			return err
 		}
@@ -141,7 +141,7 @@ var updateRepoCmd = &cobra.Command{
 			}
 		}
 		cfg.ClientOptions.CLI.Repositories = newRepos
-		err = config.StoreConfig(cfg)
+		err = config.StoreClientConfig(cfg)
 		if err != nil {
 			return err
 		}
@@ -155,7 +155,7 @@ var deleteRepoCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
 		repoName := args[0]
-		cfg, err := config.GetConfig()
+		cfg, err := config.GetClientConfig()
 		if err != nil {
 			return err
 		}
@@ -175,7 +175,7 @@ var deleteRepoCmd = &cobra.Command{
 			newRepos = append(newRepos, repo)
 		}
 		cfg.ClientOptions.CLI.Repositories = newRepos
-		err = config.StoreConfig(cfg)
+		err = config.StoreClientConfig(cfg)
 		if err != nil {
 			return err
 		}

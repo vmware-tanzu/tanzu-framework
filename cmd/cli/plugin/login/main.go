@@ -79,9 +79,9 @@ func main() {
 }
 
 func login(cmd *cobra.Command, args []string) (err error) {
-	cfg, err := config.GetConfig()
-	if _, ok := err.(*config.ConfigNotExistError); ok {
-		cfg, err = config.NewConfig()
+	cfg, err := config.GetClientConfig()
+	if _, ok := err.(*config.ClientConfigNotExistError); ok {
+		cfg, err = config.NewClientConfig()
 		if err != nil {
 			return err
 		}

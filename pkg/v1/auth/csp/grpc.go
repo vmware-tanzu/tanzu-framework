@@ -33,7 +33,7 @@ const (
 // WithCredentialDiscovery returns a grpc.CallOption that adds credentials into gRPC calls.
 // The credentials are loaded from the auth context found on the machine.
 func WithCredentialDiscovery() (grpc.CallOption, error) {
-	cfg, err := config.GetConfig()
+	cfg, err := config.GetClientConfig()
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +86,7 @@ func (c *configSource) Token() (*oauth2.Token, error) {
 	g.GlobalOpts.Auth.AccessToken = token.AccessToken
 	g.GlobalOpts.Auth.IDToken = token.IDToken
 
-	if err := config.StoreConfig(c.ClientConfig); err != nil {
+	if err := config.StoreClientConfig(c.ClientConfig); err != nil {
 		return nil, err
 	}
 
@@ -142,7 +142,7 @@ type ContextOpts func(context.Context) context.Context
 // ConnectToEndpoint attempts to connect to the provided endpoint. If endpoint is empty, it picks up the endpoint
 // from the current auth ctx.
 func ConnectToEndpoint(ctxopts ...ContextOpts) (*grpc.ClientConn, error) {
-	cfg, err := config.GetConfig()
+	cfg, err := config.GetClientConfig()
 	if err != nil {
 		log.Errorf("Could not get current auth context with error: %v", err)
 		return nil, err

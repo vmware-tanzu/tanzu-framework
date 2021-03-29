@@ -11,7 +11,7 @@ import (
 	configv1alpha1 "github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
 )
 
-func TestConfig(t *testing.T) {
+func TestClientConfig(t *testing.T) {
 	LocalDirName = ".tanzu-test"
 	server0 := &configv1alpha1.Server{
 		Name: "test",
@@ -27,10 +27,10 @@ func TestConfig(t *testing.T) {
 		CurrentServer: "test",
 	}
 
-	err := StoreConfig(testCtx)
+	err := StoreClientConfig(testCtx)
 	require.NoError(t, err)
 
-	_, err = GetConfig()
+	_, err = GetClientConfig()
 	require.NoError(t, err)
 
 	s, err := GetServer("test")
@@ -53,7 +53,7 @@ func TestConfig(t *testing.T) {
 	err = AddServer(server1, true)
 	require.NoError(t, err)
 
-	c, err := GetConfig()
+	c, err := GetClientConfig()
 	require.NoError(t, err)
 	require.Len(t, c.KnownServers, 2)
 	require.Equal(t, c.CurrentServer, "test1")
@@ -61,14 +61,14 @@ func TestConfig(t *testing.T) {
 	err = RemoveServer("test")
 	require.NoError(t, err)
 
-	c, err = GetConfig()
+	c, err = GetClientConfig()
 	require.NoError(t, err)
 	require.Len(t, c.KnownServers, 1)
 
 	err = RemoveServer("test1")
 	require.NoError(t, err)
 
-	c, err = GetConfig()
+	c, err = GetClientConfig()
 	require.NoError(t, err)
 	require.Len(t, c.KnownServers, 0)
 	require.Equal(t, c.CurrentServer, "")

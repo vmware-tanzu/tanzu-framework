@@ -48,7 +48,7 @@ var showConfigCmd = &cobra.Command{
 	Use:   "show",
 	Short: "Show the current configuration",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cfgPath, err := config.ConfigPath()
+		cfgPath, err := config.ClientConfigPath()
 		if err != nil {
 			return err
 		}
@@ -65,7 +65,7 @@ var initConfigCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initialize config with defaults",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cfg, err := config.GetConfig()
+		cfg, err := config.GetClientConfig()
 		if err != nil {
 			return err
 		}
@@ -91,7 +91,7 @@ var initConfigCmd = &cobra.Command{
 		}
 		cfg.ClientOptions.CLI.Repositories = finalRepos
 
-		err = config.StoreConfig(cfg)
+		err = config.StoreClientConfig(cfg)
 		if err != nil {
 			return err
 		}
@@ -109,7 +109,7 @@ var listServersCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List servers",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cfg, err := config.GetConfig()
+		cfg, err := config.GetClientConfig()
 		if err != nil {
 			return err
 		}

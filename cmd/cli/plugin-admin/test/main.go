@@ -85,7 +85,7 @@ func getRepositories() *cli.MultiRepo {
 		}
 		return m
 	}
-	cfg, err := config.GetConfig()
+	cfg, err := config.GetClientConfig()
 	if err != nil {
 		log.Fatal(err)
 	}

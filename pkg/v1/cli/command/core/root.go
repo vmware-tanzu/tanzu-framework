@@ -59,7 +59,7 @@ func NewRootCmd() (*cobra.Command, error) {
 	if !noInit && !catalog.Distro().IsSatisfied(plugins) {
 		s := spin.New("%s   initializing")
 		s.Start()
-		cfg, err := config.GetConfig()
+		cfg, err := config.GetClientConfig()
 		if err != nil {
 			log.Fatal(err)
 		}

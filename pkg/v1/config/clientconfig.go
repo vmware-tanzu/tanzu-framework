@@ -43,8 +43,8 @@ func LocalDir() (path string, err error) {
 	return
 }
 
-// ConfigPath returns the tanzu config path, checking for environment overrides.
-func ConfigPath() (path string, err error) {
+// ClientConfigPath returns the tanzu config path, checking for environment overrides.
+func ClientConfigPath() (path string, err error) {
 	localDir, err := LocalDir()
 	if err != nil {
 		return path, err
@@ -58,8 +58,8 @@ func ConfigPath() (path string, err error) {
 	return
 }
 
-// NewConfig returns a new config.
-func NewConfig() (*configv1alpha1.ClientConfig, error) {
+// NewClientConfig returns a new config.
+func NewClientConfig() (*configv1alpha1.ClientConfig, error) {
 	c := &configv1alpha1.ClientConfig{
 		ClientOptions: &configv1alpha1.ClientOptions{
 			CLI: &configv1alpha1.CLIOptions{
@@ -67,37 +67,37 @@ func NewConfig() (*configv1alpha1.ClientConfig, error) {
 			},
 		},
 	}
-	err := StoreConfig(c)
+	err := StoreClientConfig(c)
 	if err != nil {
 		return nil, err
 	}
 	return c, nil
 }
 
-// ConfigNotExistError is thrown when a tanzu config cannot be found.
-type ConfigNotExistError struct {
+// ClientConfigNotExistError is thrown when a tanzu config cannot be found.
+type ClientConfigNotExistError struct {
 	s string
 }
 
 // Error is the error message.
-func (c *ConfigNotExistError) Error() string {
+func (c *ClientConfigNotExistError) Error() string {
 	return c.s
 }
 
-// NewConfigNotExistError returns a new ConfigNotExistError.
-func NewConfigNotExistError(err error) *ConfigNotExistError {
-	return &ConfigNotExistError{errors.Wrap(err, "failed to read config file").Error()}
+// NewConfigNotExistError returns a new ClientConfigNotExistError.
+func NewConfigNotExistError(err error) *ClientConfigNotExistError {
+	return &ClientConfigNotExistError{errors.Wrap(err, "failed to read config file").Error()}
 }
 
-// GetConfig retrieves the config from the local directory.
-func GetConfig() (cfg *configv1alpha1.ClientConfig, err error) {
-	cfgPath, err := ConfigPath()
+// GetClientConfig retrieves the config from the local directory.
+func GetClientConfig() (cfg *configv1alpha1.ClientConfig, err error) {
+	cfgPath, err := ClientConfigPath()
 	if err != nil {
 		return nil, err
 	}
 	b, err := os.ReadFile(cfgPath)
 	if err != nil {
-		cfg, err = NewConfig()
+		cfg, err = NewClientConfig()
 		if err != nil {
 			return nil, err
 		}
@@ -117,9 +117,9 @@ func GetConfig() (cfg *configv1alpha1.ClientConfig, err error) {
 	return &c, nil
 }
 
-// StoreConfig stores the config in the local directory.
-func StoreConfig(cfg *configv1alpha1.ClientConfig) error {
-	cfgPath, err := ConfigPath()
+// StoreClientConfig stores the config in the local directory.
+func StoreClientConfig(cfg *configv1alpha1.ClientConfig) error {
+	cfgPath, err := ClientConfigPath()
 	if err != nil {
 		return errors.Wrap(err, "could not find config path")
 	}
@@ -158,9 +158,9 @@ func StoreConfig(cfg *configv1alpha1.ClientConfig) error {
 	return nil
 }
 
-// DeleteConfig deletes the config from the local directory.
-func DeleteConfig() error {
-	cfgPath, err := ConfigPath()
+// DeleteClientConfig deletes the config from the local directory.
+func DeleteClientConfig() error {
+	cfgPath, err := ClientConfigPath()
 	if err != nil {
 		return err
 	}
@@ -173,7 +173,7 @@ func DeleteConfig() error {
 
 // GetServer by name.
 func GetServer(name string) (s *configv1alpha1.Server, err error) {
-	cfg, err := GetConfig()
+	cfg, err := GetClientConfig()
 	if err != nil {
 		return s, err
 	}
@@ -187,7 +187,7 @@ func GetServer(name string) (s *configv1alpha1.Server, err error) {
 
 // ServerExists tells whether the server by the given name exists.
 func ServerExists(name string) (bool, error) {
-	cfg, err := GetConfig()
+	cfg, err := GetClientConfig()
 	if err != nil {
 		return false, err
 	}
@@ -201,7 +201,7 @@ func ServerExists(name string) (bool, error) {
 
 // AddServer adds a server to the config.
 func AddServer(s *configv1alpha1.Server, setCurrent bool) error {
-	cfg, err := GetConfig()
+	cfg, err := GetClientConfig()
 	if err != nil {
 		return err
 	}
@@ -214,12 +214,12 @@ func AddServer(s *configv1alpha1.Server, setCurrent bool) error {
 	if setCurrent {
 		cfg.CurrentServer = s.Name
 	}
-	return StoreConfig(cfg)
+	return StoreClientConfig(cfg)
 }
 
 // PutServer adds or updates the server.
 func PutServer(s *configv1alpha1.Server, setCurrent bool) error {
-	cfg, err := GetConfig()
+	cfg, err := GetClientConfig()
 	if err != nil {
 		return err
 	}
@@ -234,12 +234,12 @@ func PutServer(s *configv1alpha1.Server, setCurrent bool) error {
 	if setCurrent {
 		cfg.CurrentServer = s.Name
 	}
-	return StoreConfig(cfg)
+	return StoreClientConfig(cfg)
 }
 
 // RemoveServer adds a server to the config.
 func RemoveServer(name string) error {
-	cfg, err := GetConfig()
+	cfg, err := GetClientConfig()
 	if err != nil {
 		return err
 	}
@@ -256,7 +256,7 @@ func RemoveServer(name string) error {
 		cfg.CurrentServer = ""
 	}
 
-	err = StoreConfig(cfg)
+	err = StoreClientConfig(cfg)
 	if err != nil {
 		return err
 	}
@@ -265,7 +265,7 @@ func RemoveServer(name string) error {
 
 // SetCurrentServer sets the current server.
 func SetCurrentServer(name string) error {
-	cfg, err := GetConfig()
+	cfg, err := GetClientConfig()
 	if err != nil {
 		return err
 	}
@@ -279,7 +279,7 @@ func SetCurrentServer(name string) error {
 		return fmt.Errorf("could not set current server; %q is not a known server", name)
 	}
 	cfg.CurrentServer = name
-	err = StoreConfig(cfg)
+	err = StoreClientConfig(cfg)
 	if err != nil {
 		return err
 	}
@@ -288,7 +288,7 @@ func SetCurrentServer(name string) error {
 
 // GetCurrentServer sets the current server.
 func GetCurrentServer() (s *configv1alpha1.Server, err error) {
-	cfg, err := GetConfig()
+	cfg, err := GetClientConfig()
 	if err != nil {
 		return s, err
 	}
