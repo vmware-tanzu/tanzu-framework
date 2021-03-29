@@ -53,7 +53,7 @@ func WithStaticCreds(accessToken string) grpc.CallOption {
 }
 
 type configSource struct {
-	*configv1alpha1.Config
+	*configv1alpha1.ClientConfig
 }
 
 // Token fetches the token.
@@ -86,7 +86,7 @@ func (c *configSource) Token() (*oauth2.Token, error) {
 	g.GlobalOpts.Auth.AccessToken = token.AccessToken
 	g.GlobalOpts.Auth.IDToken = token.IDToken
 
-	if err := client.StoreConfig(c.Config); err != nil {
+	if err := client.StoreConfig(c.ClientConfig); err != nil {
 		return nil, err
 	}
 

@@ -20,7 +20,7 @@ func TestConfig(t *testing.T) {
 			Path: "test",
 		},
 	}
-	testCtx := &configv1alpha1.Config{
+	testCtx := &configv1alpha1.ClientConfig{
 		KnownServers: []*configv1alpha1.Server{
 			server0,
 		},

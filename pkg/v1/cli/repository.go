@@ -143,7 +143,7 @@ type GCPBucketRepository struct {
 }
 
 // LoadRepositories loads the repositories from the config file along with the known repositories.
-func LoadRepositories(c *configv1alpha1.Config) []Repository {
+func LoadRepositories(c *configv1alpha1.ClientConfig) []Repository {
 	repos := []Repository{}
 	if c.ClientOptions == nil {
 		c.ClientOptions = &configv1alpha1.ClientOptions{}

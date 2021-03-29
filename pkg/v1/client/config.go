@@ -59,8 +59,8 @@ func ConfigPath() (path string, err error) {
 }
 
 // NewConfig returns a new config.
-func NewConfig() (*configv1alpha1.Config, error) {
-	c := &configv1alpha1.Config{
+func NewConfig() (*configv1alpha1.ClientConfig, error) {
+	c := &configv1alpha1.ClientConfig{
 		ClientOptions: &configv1alpha1.ClientOptions{
 			CLI: &configv1alpha1.CLIOptions{
 				Repositories: DefaultRepositories,
@@ -90,7 +90,7 @@ func NewConfigNotExistError(err error) *ConfigNotExistError {
 }
 
 // GetConfig retrieves the config from the local directory.
-func GetConfig() (cfg *configv1alpha1.Config, err error) {
+func GetConfig() (cfg *configv1alpha1.ClientConfig, err error) {
 	cfgPath, err := ConfigPath()
 	if err != nil {
 		return nil, err
@@ -109,7 +109,7 @@ func GetConfig() (cfg *configv1alpha1.Config, err error) {
 	}
 	s := json.NewSerializerWithOptions(json.DefaultMetaFactory, scheme, scheme,
 		json.SerializerOptions{Yaml: true, Pretty: false, Strict: false})
-	var c configv1alpha1.Config
+	var c configv1alpha1.ClientConfig
 	_, _, err = s.Decode(b, nil, &c)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not decode config file")
@@ -118,7 +118,7 @@ func GetConfig() (cfg *configv1alpha1.Config, err error) {
 }
 
 // StoreConfig stores the config in the local directory.
-func StoreConfig(cfg *configv1alpha1.Config) error {
+func StoreConfig(cfg *configv1alpha1.ClientConfig) error {
 	cfgPath, err := ConfigPath()
 	if err != nil {
 		return errors.Wrap(err, "could not find config path")

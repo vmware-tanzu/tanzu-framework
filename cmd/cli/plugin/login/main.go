@@ -122,7 +122,7 @@ func login(cmd *cobra.Command, args []string) (err error) {
 	return managementClusterLogin(serverTarget)
 }
 
-func getServerTarget(cfg *configv1alpha1.Config, newServerSelector string) (*configv1alpha1.Server, error) {
+func getServerTarget(cfg *configv1alpha1.ClientConfig, newServerSelector string) (*configv1alpha1.Server, error) {
 	promptOpts := getPromptOpts()
 	servers := map[string]*configv1alpha1.Server{}
 	for _, server := range cfg.KnownServers {

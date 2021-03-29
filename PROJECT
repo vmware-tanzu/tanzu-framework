@@ -3,7 +3,7 @@ multigroup: true
 repo: github.com/vmware-tanzu-private/core
 resources:
 - group: config
-  kind: Config
+  kind: ClientConfig
   version: v1alpha1
 - group: run
   kind: TanzuKubernetesRelease

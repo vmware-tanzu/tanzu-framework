@@ -16,7 +16,7 @@ var (
 	GroupVersion = schema.GroupVersion{Group: "config.tanzu.vmware.com", Version: "v1alpha1"}
 
 	// GroupVersionKind has information about group, version and kind of this object.
-	GroupVersionKind = GroupVersion.WithKind("Config")
+	GroupVersionKind = GroupVersion.WithKind("ClientConfig")
 
 	// SchemeBuilder is used to add go types to the GroupVersionKind scheme
 	SchemeBuilder = &scheme.Builder{GroupVersion: GroupVersion}
