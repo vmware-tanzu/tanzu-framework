@@ -44,7 +44,7 @@ that they adhere to established patterns
 The Tanzu CLI uses the following pattern
 
 ```
-tanzu [global flags] noun [sub-noun] verb RESOURCE [flags]
+tanzu [global flags] noun [sub-noun] verb RESOURCE-NAME [flags]
 ```
 
 Example
@@ -84,10 +84,12 @@ Example
 
 ### Sub-Noun
 Plugin specific sub-nouns do not need to be reviewed by the governance group
-Please review the command reference list when using sub-nouns, to make sure your word is not already in use
+Please review the [Shared Taxonomy document](/hack/linter/cli-wordlist.yml) when using sub-nouns, and make sure you're using the noun consistently if it's already being used.
 
-### Resource 
-Commands should not nest more than one layer of resources
+#### Nesting
+Commands should not nest more than two layers of sub-nouns
+* _Yes_: `tanzu plugin-name noun sub-noun verb --flags`…
+* _No_: `tanzu plugin-name noun sub-noun sub-sub-noun verb --flags`…
 
 ### Positional Arguments 
 * There should no more than 1 positional argument
