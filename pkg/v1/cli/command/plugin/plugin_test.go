@@ -105,8 +105,8 @@ func TestAddCommands(t *testing.T) {
 	}
 	cmd.AddCommands(subCmd)
 
-	// Plugin gets three commands by default, ours should make four.
-	assert.Equal(4, len(cmd.Cmd.Commands()))
+	// Plugin gets four commands by default (describe, info, version, lint), ours should make five.
+	assert.Equal(5, len(cmd.Cmd.Commands()))
 }
 
 func TestExecute(t *testing.T) {
