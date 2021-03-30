@@ -1,6 +1,6 @@
 module github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy
 
-go 1.14
+go 1.16
 
 require (
 	github.com/google/go-cmp v0.5.3 // indirect
