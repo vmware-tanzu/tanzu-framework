@@ -160,6 +160,7 @@ install-cli: ## Install Tanzu CLI
 
 # Dynamically generate the OS-ARCH targets to allow for parallel execution
 CLI_JOBS := $(addprefix build-cli-,${ENVS})
+RELEASE_JOBS := $(addprefix release-,${ENVS})
 
 .PHONY: build-cli
 build-cli: build-plugin-admin ${CLI_JOBS} ## Build Tanzu CLI
@@ -218,7 +219,7 @@ clean-cli-plugins: ## Remove Tanzu CLI plugins
 ensure-pinniped-repo: $(GOBINDATA)
 	@rm -rf pinniped
 	@mkdir -p pinniped
-	@GIT_TERMINAL_PROMPT=0 git clone -q --depth 1 --branch $(PINNIPED_GIT_COMMIT) ${PINNIPED_GIT_REPOSITORY} pinniped
+	@GIT_TERMINAL_PROMPT=0 git clone -q --depth 1 --branch $(PINNIPED_GIT_COMMIT) ${PINNIPED_GIT_REPOSITORY} pinniped > ${NUL} 2>&1
 
 .PHONY: generate-pinniped-bindata
 generate-pinniped-bindata: ensure-pinniped-repo
@@ -242,18 +243,16 @@ $(GOBINDATA): $(TOOLS_DIR)/go.mod # Build go-bindata from tools folder
 
 # TODO (pbarker): should work this logic into the builder plugin
 .PHONY: release
-release: ensure-pinniped-repo
-	./hack/generate-pinniped-bindata.sh go $(GOBINDATA) linux amd64
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --artifacts artifacts/linux/amd64/cli --target linux_amd64
-	./hack/generate-pinniped-bindata.sh go $(GOBINDATA) windows amd64
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --artifacts artifacts/windows/amd64/cli --target windows_amd64
-	./hack/generate-pinniped-bindata.sh go $(GOBINDATA) darwin amd64
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --artifacts artifacts/darwin/amd64/cli --target darwin_amd64
-	./hack/generate-pinniped-bindata.sh go $(GOBINDATA) linux 386
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --artifacts artifacts/linux/386/cli --target linux_386
-	./hack/generate-pinniped-bindata.sh go $(GOBINDATA) windows 386
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --artifacts artifacts/windows/386/cli --target windows_386
+release: ensure-pinniped-repo ${RELEASE_JOBS}
 	@rm -rf pinniped
+
+.PHONY: release-%
+release-%:
+	$(eval ARCH = $(word 2,$(subst -, ,$*)))
+	$(eval OS = $(word 1,$(subst -, ,$*)))
+
+	./hack/generate-pinniped-bindata.sh go $(GOBINDATA) ${OS} ${ARCH}
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --artifacts artifacts/${OS}/${ARCH}/cli --target  ${OS}_${ARCH}
 
 .PHONY: modules
 modules: ## Runs go mod to ensure modules are up to date.
