@@ -5,7 +5,7 @@
 
 ROOT_DIR	:= $(dir $(shell pwd))
 IMG_CATEGORY := addons-management
-IMG_CLUSTER_TYPE := management worload
+IMG_CLUSTER_TYPE := management workload
 ADDON_NAME := tanzu-addons-manager
 
 IMG_NAME ?= tanzu-addons-manager-templates
