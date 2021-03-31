@@ -175,6 +175,11 @@ build-cli-%: prep-build-cli
 	$(eval ARCH = $(word 2,$(subst -, ,$*)))
 	$(eval OS = $(word 1,$(subst -, ,$*)))
 
+	@if [ "$(filter $(OS)-$(ARCH),$(ENVS))" = "" ]; then\
+	  	echo "$(OS)-$(ARCH) is not an officially supported platform!";\
+		echo "Make sure to perform a full build to make sure expected plugins are available";\
+	fi
+
 	./hack/generate-pinniped-bindata.sh go $(GOBINDATA) ${OS} ${ARCH}
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --artifacts artifacts/${OS}/${ARCH}/cli --target  ${OS}_${ARCH}
 
