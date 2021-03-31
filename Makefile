@@ -176,8 +176,10 @@ build-cli-%: prep-build-cli
 	$(eval OS = $(word 1,$(subst -, ,$*)))
 
 	@if [ "$(filter $(OS)-$(ARCH),$(ENVS))" = "" ]; then\
-	  	echo "$(OS)-$(ARCH) is not an officially supported platform!";\
-		echo "Make sure to perform a full build to make sure expected plugins are available";\
+		printf "\n\n======================================\n";\
+		printf "! $(OS)-$(ARCH) is not an officially supported platform!\n";\
+		printf "! Make sure to perform a full build to make sure expected plugins are available!\n";\
+		printf "======================================\n\n";\
 	fi
 
 	./hack/generate-pinniped-bindata.sh go $(GOBINDATA) ${OS} ${ARCH}
