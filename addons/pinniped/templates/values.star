@@ -1,12 +1,17 @@
 load("@ytt:data", "data")
 load("/globals.star", "globals", "validate_infrastructure_provider")
 load("@ytt:assert", "assert")
+load("/libs/constants.lib.yaml", "is_dex_required")
 
 SERVICE_TYPE_NODEPORT = "NodePort"
 SERVICE_TYPE_LOADBALANCER = "LoadBalancer"
 
 def validate_pinniped():
   data.values.tkg_cluster_role in ("management", "workload") or assert.fail("tkg_cluster_role must be provided to be either 'management' or 'workload'")
+  data.values.infrastructure_provider in ("vsphere", "azure", "aws") or assert.fail("infrastructure_provider must be provided to be either 'vsphere', 'azure' or 'aws'")
+  if data.values.identity_management_type:
+    data.values.identity_management_type in ("oidc", "ldap") or assert.fail("identity_management_type must be provided to be either 'oidc' or 'ldap'")
+  end
   if data.values.tkg_cluster_role == "workload":
     data.values.pinniped.supervisor_svc_endpoint or assert.fail("the pinniped.supervisor_svc_endpoint must be provided")
     data.values.pinniped.supervisor_ca_bundle_data or assert.fail("the pinniped.supervisor_ca_bundle_data must be provided")
@@ -45,23 +50,11 @@ def validate_dex_config():
   if globals.infrastructure_provider == "azure":
     data.values.dex.dns.azure.DEX_SVC_LB_HOSTNAME or assert.fail("Dex DEX_SVC_LB_HOSTNAME should be provided for azure provider")
   end
-  data.values.dex.config.connector in ("oidc", "ldap") or assert.fail("Dex connector should be oidc or ldap")
-  if data.values.dex.config.connector == "oidc":
-    validate_oidc_config()
-  end
-  if data.values.dex.config.connector == "ldap":
-    validate_ldap_config()
-  end
+
+  validate_ldap_config()
+
   data.values.dex.config.oauth2 or assert.fail("Dex oauth2 should be provided")
   data.values.dex.config.storage or assert.fail("Dex storage should be provided")
-end
-
-def validate_oidc_config():
-  data.values.dex.config.oidc.CLIENT_ID or assert.fail("Dex oidc CLIENT_ID should be provided")
-  data.values.dex.config.oidc.CLIENT_SECRET or assert.fail("Dex oidc CLIENT_SECRET should be provided")
-  data.values.dex.config.oidc.issuer or assert.fail("Dex oidc issuer should be provided")
-  data.values.dex.config.oidc.clientID == "$OIDC_CLIENT_ID" or assert.fail("Dex oidc clientID should be $OIDC_CLIENT_ID. Do not change it")
-  data.values.dex.config.oidc.clientSecret == "$OIDC_CLIENT_SECRET" or assert.fail("Dex oidc clientSecret should be $OIDC_CLIENT_SECRET. Do not change it")
 end
 
 def validate_ldap_config():
@@ -157,7 +150,9 @@ values = data.values
 
 
 # validate dex
-validate_dex()
+if is_dex_required():
+  validate_dex()
+end
 
 # validate pinniped
 validate_pinniped()

@@ -42,21 +42,20 @@ type Clients struct {
 
 // Parameters contains the settings used.
 type Parameters struct {
-	ClusterName              string
-	ClusterType              string
-	SupervisorSvcName        string
-	SupervisorSvcNamespace   string
-	SupervisorSvcEndpoint    string
-	FederationDomainName     string
-	JWTAuthenticatorName     string
-	JWTAuthenticatorAudience string
-	SupervisorCertName       string
-	SupervisorCertNamespace  string
-	SupervisorCABundleData   string
-	DexNamespace             string
-	DexSvcName               string
-	DexCertName              string
-	DexConfigMapName         string
+	ClusterName             string
+	ClusterType             string
+	SupervisorSvcName       string
+	SupervisorSvcNamespace  string
+	SupervisorSvcEndpoint   string
+	FederationDomainName    string
+	JWTAuthenticatorName    string
+	SupervisorCertName      string
+	SupervisorCertNamespace string
+	SupervisorCABundleData  string
+	DexNamespace            string
+	DexSvcName              string
+	DexCertName             string
+	DexConfigMapName        string
 }
 
 func ensureResources(ctx context.Context, c Clients, isMgmtCluster bool) (bool, error) {
@@ -151,31 +150,33 @@ func ensureResources(ctx context.Context, c Clients, isMgmtCluster bool) (bool, 
 	}
 	zap.S().Infof("The Pinniped OIDCIdentityProvider %s/%s is ready", vars.SupervisorNamespace, vars.PinnipedOIDCProviderName)
 
-	// ensure Dex is ready
-	err = retry.OnError(
-		backOff,
-		func(e error) bool {
-			return e != nil
-		},
-		func() error {
-			var e error
-			dexDeployment, e := c.K8SClientset.AppsV1().Deployments(vars.DexNamespace).Get(ctx, "dex", metav1.GetOptions{})
-			if e != nil {
-				return e
-			}
-			ready := dexDeployment.Status.ReadyReplicas
-			desired := *dexDeployment.Spec.Replicas
-			if int(ready) != int(desired) {
-				return errors.NewServiceUnavailable(fmt.Sprintf("Dex deployment does not have enough ready replicas. %v/%v are ready", ready, desired))
-			}
-			return nil
-		})
-	if err != nil {
-		zap.S().Errorf("the Dex deployment is not ready, error: %v", err)
-		return false, err
+	// only do readiness check for dex if it is required
+	if vars.IsDexRequired {
+		// ensure Dex is ready
+		err = retry.OnError(
+			backOff,
+			func(e error) bool {
+				return e != nil
+			},
+			func() error {
+				var e error
+				dexDeployment, e := c.K8SClientset.AppsV1().Deployments(vars.DexNamespace).Get(ctx, "dex", metav1.GetOptions{})
+				if e != nil {
+					return e
+				}
+				ready := dexDeployment.Status.ReadyReplicas
+				desired := *dexDeployment.Spec.Replicas
+				if int(ready) != int(desired) {
+					return errors.NewServiceUnavailable(fmt.Sprintf("Dex deployment does not have enough ready replicas. %v/%v are ready", ready, desired))
+				}
+				return nil
+			})
+		if err != nil {
+			zap.S().Errorf("the Dex deployment is not ready, error: %v", err)
+			return false, err
+		}
+		zap.S().Info("The Dex deployments are ready")
 	}
-	zap.S().Info("The Pinniped and Dex deployments are ready")
-
 	return true, nil
 }
 
@@ -215,25 +216,29 @@ func TKGAuthentication(c Clients) error {
 		// logging has been done inside the function
 		return err
 	}
-	if err = Dex(ctx, c, inspector, Parameters{
-		ClusterName:             tkgMetadata.Cluster.Name,
-		ClusterType:             tkgMetadata.Cluster.Type,
-		SupervisorSvcName:       vars.SupervisorSvcName,
-		SupervisorSvcNamespace:  vars.SupervisorNamespace,
-		SupervisorSvcEndpoint:   vars.SupervisorSvcEndpoint,
-		FederationDomainName:    vars.FederationDomainName,
-		JWTAuthenticatorName:    vars.JWTAuthenticatorName,
-		SupervisorCertName:      vars.SupervisorCertName,
-		SupervisorCertNamespace: vars.SupervisorNamespace,
-		SupervisorCABundleData:  vars.SupervisorCABundleData,
-		DexNamespace:            vars.DexNamespace,
-		DexSvcName:              vars.DexSvcName,
-		DexCertName:             vars.DexCertName,
-	}); err != nil {
-		// logging has been done inside the function
-		return err
+	zap.S().Info("Successfully configured the Pinniped")
+
+	if vars.IsDexRequired {
+		if err = Dex(ctx, c, inspector, Parameters{
+			ClusterName:             tkgMetadata.Cluster.Name,
+			ClusterType:             tkgMetadata.Cluster.Type,
+			SupervisorSvcName:       vars.SupervisorSvcName,
+			SupervisorSvcNamespace:  vars.SupervisorNamespace,
+			SupervisorSvcEndpoint:   vars.SupervisorSvcEndpoint,
+			FederationDomainName:    vars.FederationDomainName,
+			JWTAuthenticatorName:    vars.JWTAuthenticatorName,
+			SupervisorCertName:      vars.SupervisorCertName,
+			SupervisorCertNamespace: vars.SupervisorNamespace,
+			SupervisorCABundleData:  vars.SupervisorCABundleData,
+			DexNamespace:            vars.DexNamespace,
+			DexSvcName:              vars.DexSvcName,
+			DexCertName:             vars.DexCertName,
+		}); err != nil {
+			// logging has been done inside the function
+			return err
+		}
+		zap.S().Info("Successfully configured Dex")
 	}
-	zap.S().Info("Successfully configured the Pinniped and Dex")
 	return nil
 }
 

@@ -88,6 +88,10 @@ func main() {
 	// required for workload cluster: no
 	flag.StringVar(&vars.CustomTLSSecretName, "custom-tls-secret", vars.CustomTLSSecretName, "The name of custom TLS secret for Pinniped and Dex, i.e. Pinniped federation domain and Dex exposed connection, this will override the default self-signed TLS certificate")
 
+	// required for management cluster: yes
+	// required for workload cluster: no
+	flag.BoolVar(&vars.IsDexRequired, "is-dex-required", vars.IsDexRequired, "If configuring dex is required")
+
 	flag.Parse()
 
 	loggerMgr := initZapLog()

@@ -1,6 +1,7 @@
 #@ load("/values.star", "values")
+#@ load("/libs/constants.lib.yaml", "is_dex_required")
 
-#@ if values.tkg_cluster_role != "workload":
+#@ if values.tkg_cluster_role != "workload" and is_dex_required():
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRole

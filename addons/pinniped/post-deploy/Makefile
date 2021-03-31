@@ -34,4 +34,5 @@ run:
         --dex-namespace=tanzu-system-auth \
         --dex-svc-name=dexsvc \
         --dex-cert-name=dex-cert \
-        --dex-configmap-name=dex
+        --dex-configmap-name=dex \
+        --is-dex-required=false

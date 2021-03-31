@@ -1,8 +1,9 @@
 #@ load("/values.star", "values")
 #@ load("@ytt:overlay", "overlay")
 #@ load("/kinds.lib.yaml", "kind_overlays")
+#@ load("/libs/constants.lib.yaml", "is_dex_required")
 
-#@ if values.tkg_cluster_role != "workload":
+#@ if values.tkg_cluster_role != "workload" and is_dex_required():
 
 #@ kind = kind_overlays
 #@ project_dex_metadata = overlay.subset({"metadata": {"name" : "tanzu-system-auth"}})

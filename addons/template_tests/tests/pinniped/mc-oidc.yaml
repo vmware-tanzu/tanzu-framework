@@ -194,6 +194,7 @@ spec:
           timeoutSeconds: 3
           periodSeconds: 10
           failureThreshold: 3
+        env: []
       volumes:
       - name: config-volume
         configMap:
@@ -1331,9 +1332,8 @@ metadata:
   name: pinniped-post-deploy-job
   namespace: pinniped-supervisor
   annotations:
-    kapp.k14s.io/versioned: ""
-    customTLSSecret: ""
-    customClusterIssuer: ""
+    kapp.k14s.io/update-strategy: always-replace
+    pinniped-addon-template/hash: ad17f03fa7b214372c34fa9a0a1345c270d39a02bef98634a98f5e20fc968b96
 spec:
   template:
     spec:
@@ -1351,11 +1351,8 @@ spec:
         - --federationdomain-name=pinniped-federation-domain
         - --jwtauthenticator-name=tkg-jwt-authenticator
         - --supervisor-cert-name=pinniped-cert
-        - --dex-namespace=tanzu-system-auth
-        - --dex-svc-name=dexsvc
-        - --dex-cert-name=dex-cert
-        - --dex-configmap-name=dex
         - --custom-tls-secret=
+        - --is-dex-required=False
 ---
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
@@ -1420,280 +1417,71 @@ rules:
   - get
 ---
 apiVersion: v1
-kind: Namespace
-metadata:
-  name: tanzu-system-auth
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: dex
-  namespace: tanzu-system-auth
----
-apiVersion: cert-manager.io/v1alpha2
-kind: Issuer
-metadata:
-  name: dex-selfsigned-ca-issuer
-  namespace: tanzu-system-auth
-spec:
-  selfSigned: {}
----
-apiVersion: cert-manager.io/v1alpha2
-kind: Certificate
-metadata:
-  name: dex-ca
-  namespace: tanzu-system-auth
-spec:
-  secretName: dex-ca-key-pair
-  duration: 87600h
-  renewBefore: 360h
-  organization:
-  - vmware
-  commonName: tkg-dex
-  isCA: true
-  keySize: 2048
-  keyAlgorithm: rsa
-  keyEncoding: pkcs1
-  usages:
-  - server auth
-  - client auth
-  dnsNames:
-  - dexca
-  ipAddresses: []
-  issuerRef:
-    name: dex-selfsigned-ca-issuer
-    kind: Issuer
-    group: cert-manager.io
----
-apiVersion: cert-manager.io/v1alpha2
-kind: Issuer
-metadata:
-  name: dex-ca-issuer
-  namespace: tanzu-system-auth
-spec:
-  ca:
-    secretName: dex-ca-key-pair
----
-apiVersion: cert-manager.io/v1alpha2
-kind: Certificate
-metadata:
-  name: dex-cert
-  namespace: tanzu-system-auth
-spec:
-  secretName: dex-cert-tls
-  duration: 2160h
-  renewBefore: 360h
-  organization:
-  - vmware
-  commonName: tkg-dex
-  isCA: false
-  keySize: 2048
-  keyAlgorithm: rsa
-  keyEncoding: pkcs1
-  usages:
-  - server auth
-  - client auth
-  dnsNames:
-  - tkg-dex.com
-  - dex.example.com
-  ipAddresses: []
-  issuerRef:
-    name: dex-ca-issuer
-    kind: Issuer
-    group: cert-manager.io
----
-apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: dex
-  namespace: tanzu-system-auth
-data:
-  config.yaml: |
-    issuer: https://dex.example.com
-    frontend:
-      theme: tkg
-    web:
-      https: 0.0.0.0:5556
-      tlsCert: /etc/dex/tls/tls.crt
-      tlsKey: /etc/dex/tls/tls.key
-    expiry:
-      signingKeys: 90m
-      idTokens: 5m
-    logger:
-      level: info
-      format: json
-    staticClients:
-    - id: ""
-      redirectURIs:
-      - https://0.0.0.0/callback
-      name: ""
-      secret: ""
-    connectors:
-    - type: oidc
-      id: oidc
-      name: oidc
-      config:
-        issuer: https://xxxxxxxx.okta.com
-        clientID: $OIDC_CLIENT_ID
-        clientSecret: $OIDC_CLIENT_SECRET
-        redirectURI: https://dex.example.com/callback
-        scopes:
-        - email
-        - profile
-        insecureEnableGroups: true
-        getUserInfo: true
-        claimMapping:
-          email: email
-          email_verified: email_verified
-          groups: groups
-    oauth2:
-      skipApprovalScreen: true
-      responseTypes:
-      - code
-    storage:
-      type: kubernetes
-      config:
-        inCluster: true
-    enablePasswordDB: false
----
-apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: ClusterRole
-metadata:
-  name: dex
-  namespace: tanzu-system-auth
-rules:
-- apiGroups:
-  - dex.coreos.com
-  resources:
-  - '*'
-  verbs:
-  - '*'
-- apiGroups:
-  - apiextensions.k8s.io
-  resources:
-  - customresourcedefinitions
-  verbs:
-  - create
----
-apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: ClusterRoleBinding
-metadata:
-  name: dex
-  namespace: tanzu-system-auth
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: dex
-subjects:
-- kind: ServiceAccount
-  name: dex
-  namespace: tanzu-system-auth
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: oidc
-  namespace: tanzu-system-auth
-type: Opaque
-data:
-  clientId: MG94eHh4eHh4eHg1ZDY=
-  clientSecret: XzdQeHh4eHh4eHhwSmR6YTF2
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
+  name: pinniped-kapp-config
   labels:
-    app: dex
-  name: dex
-  namespace: tanzu-system-auth
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: dex
-  strategy:
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 1
-    type: RollingUpdate
-  template:
-    metadata:
-      labels:
-        app: dex
-        revision: "1"
-    spec:
-      containers:
-      - command:
-        - /usr/local/bin/dex
-        - serve
-        - /etc/dex/cfg/config.yaml
-        image: projects-stg.registry.vmware.com/tkg/dex:v2.27.0_vmware.1
-        imagePullPolicy: IfNotPresent
-        name: dex
-        ports:
-        - containerPort: 5556
-          name: https
-          protocol: TCP
-        resources: {}
-        terminationMessagePath: /dev/termination-log
-        terminationMessagePolicy: File
-        volumeMounts:
-        - mountPath: /etc/dex/cfg
-          name: config
-        - name: tls
-          mountPath: /etc/dex/tls
-        env:
-        - name: OIDC_CLIENT_ID
-          valueFrom:
-            secretKeyRef:
-              key: clientId
-              name: oidc
-        - name: OIDC_CLIENT_SECRET
-          valueFrom:
-            secretKeyRef:
-              key: clientSecret
-              name: oidc
-      dnsPolicy: ClusterFirst
-      serviceAccountName: dex
-      restartPolicy: Always
-      schedulerName: default-scheduler
-      securityContext: {}
-      terminationGracePeriodSeconds: 30
-      volumes:
-      - configMap:
-          defaultMode: 420
-          items:
-          - key: config.yaml
-            path: config.yaml
-          name: dex
-        name: config
-      - name: tls
-        secret:
-          secretName: dex-cert-tls
-      - name: theme
-        emptyDir: {}
-      - name: oidc
-        secret:
-          defaultMode: 420
-          secretName: oidc
----
-kind: Service
-apiVersion: v1
-metadata:
-  name: dexsvc
-  namespace: tanzu-system-auth
-  labels:
-    app: dex
-  annotations: {}
-spec:
-  type: LoadBalancer
-  ports:
-  - name: dex
-    protocol: TCP
-    port: 443
-    targetPort: https
-  selector:
-    app: dex
+    kapp.k14s.io/config: ""
+data:
+  config.yml: |
+    apiVersion: kapp.k14s.io/v1alpha1
+    kind: Config
+    rebaseRules:
+    - paths:
+      - [spec, authorizationConfig]
+      - [spec, claims]
+      - [spec, issuer]
+      - [spec, tls]
+      type: copy
+      sources: [existing, new]
+      resourceMatchers:
+      - andMatcher:
+          matchers:
+          - apiVersionKindMatcher: {apiVersion: idp.supervisor.pinniped.dev/v1alpha1, kind: OIDCIdentityProvider}
+          - hasNamespaceMatcher:
+              names: [pinniped-supervisor]
+    - path: [spec, issuer]
+      type: copy
+      sources: [existing, new]
+      resourceMatchers:
+      - andMatcher:
+          matchers:
+          - apiVersionKindMatcher: {apiVersion: config.supervisor.pinniped.dev/v1alpha1, kind: FederationDomain}
+          - hasNamespaceMatcher:
+              names: [pinniped-supervisor]
+    - paths:
+      - [spec, audience]
+      - [spec, claims]
+      - [spec, issuer]
+      - [spec, tls]
+      type: copy
+      sources: [existing, new]
+      resourceMatchers:
+      - andMatcher:
+          matchers:
+          - apiVersionKindMatcher: {apiVersion: authentication.concierge.pinniped.dev/v1alpha1, kind: JWTAuthenticator}
+          - hasNamespaceMatcher:
+              names: [pinniped-concierge]
+    - path: [data]
+      type: copy
+      sources: [existing, new]
+      resourceMatchers:
+      - kindNamespaceNameMatcher: {kind: ConfigMap, namespace: tanzu-system-auth, name: dex}
+    - path: [spec]
+      type: copy
+      sources: [existing, new]
+      resourceMatchers:
+      - kindNamespaceNameMatcher: {kind: Certificate, namespace: pinniped-supervisor, name: pinniped-cert}
+    - path: [spec]
+      type: copy
+      sources: [existing, new]
+      resourceMatchers:
+      - kindNamespaceNameMatcher: {kind: Certificate, namespace: tanzu-system-auth, name: dex-cert}
+    - path: [data]
+      type: copy
+      sources: [existing, new]
+      resourceMatchers:
+      - kindNamespaceNameMatcher: {kind: Secret, namespace: pinniped-supervisor, name: dex-client-credentials}
 ---
 apiVersion: cert-manager.io/v1alpha2
 kind: Issuer
@@ -1777,22 +1565,22 @@ spec:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: dex-client-credentials
+  name: upstream-idp-client-credentials
   namespace: pinniped-supervisor
 type: secrets.pinniped.dev/oidc-client
 stringData:
-  clientID: ""
-  clientSecret: ""
+  clientID: 0oxxxxxxd6
+  clientSecret: _7Pxxxxxxa1v
 ---
 apiVersion: idp.supervisor.pinniped.dev/v1alpha1
 kind: OIDCIdentityProvider
 metadata:
-  name: dex-oidc-identity-provider
+  name: upstream-oidc-identity-provider
   namespace: pinniped-supervisor
   annotations:
     kapp.k14s.io/update-strategy: always-replace
 spec:
-  issuer: https://0.0.0.0:30167
+  issuer: https://dev-xxxxxx.okta.com
   authorizationConfig:
     additionalScopes:
     - email
@@ -1802,9 +1590,7 @@ spec:
     username: name
     groups: groups
   client:
-    secretName: dex-client-credentials
-  tls:
-    certificateAuthorityData: ca_bundle_data_of_dex_svc
+    secretName: upstream-idp-client-credentials
 ---
 apiVersion: authentication.concierge.pinniped.dev/v1alpha1
 kind: JWTAuthenticator
@@ -1823,7 +1609,7 @@ metadata:
   name: pinniped-supervisor
   namespace: pinniped-supervisor
 spec:
-  type: LoadBalancer
+  type: NodePort
   selector:
     app: pinniped-supervisor
   ports:
@@ -1831,70 +1617,4 @@ spec:
     protocol: TCP
     port: 443
     targetPort: 8443
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: pinniped-kapp-config
-  labels:
-    kapp.k14s.io/config: ""
-data:
-  config.yml: |
-    apiVersion: kapp.k14s.io/v1alpha1
-    kind: Config
-    rebaseRules:
-    - paths:
-      - [spec, authorizationConfig]
-      - [spec, claims]
-      - [spec, issuer]
-      - [spec, tls]
-      type: copy
-      sources: [existing, new]
-      resourceMatchers:
-      - andMatcher:
-          matchers:
-          - apiVersionKindMatcher: {apiVersion: idp.supervisor.pinniped.dev/v1alpha1, kind: OIDCIdentityProvider}
-          - hasNamespaceMatcher:
-              names: [pinniped-supervisor]
-    - path: [spec, issuer]
-      type: copy
-      sources: [existing, new]
-      resourceMatchers:
-      - andMatcher:
-          matchers:
-          - apiVersionKindMatcher: {apiVersion: config.supervisor.pinniped.dev/v1alpha1, kind: FederationDomain}
-          - hasNamespaceMatcher:
-              names: [pinniped-supervisor]
-    - paths:
-      - [spec, audience]
-      - [spec, claims]
-      - [spec, issuer]
-      - [spec, tls]
-      type: copy
-      sources: [existing, new]
-      resourceMatchers:
-      - andMatcher:
-          matchers:
-          - apiVersionKindMatcher: {apiVersion: authentication.concierge.pinniped.dev/v1alpha1, kind: JWTAuthenticator}
-          - hasNamespaceMatcher:
-              names: [pinniped-concierge]
-    - path: [data]
-      type: copy
-      sources: [existing, new]
-      resourceMatchers:
-      - kindNamespaceNameMatcher: {kind: ConfigMap, namespace: tanzu-system-auth, name: dex}
-    - path: [spec]
-      type: copy
-      sources: [existing, new]
-      resourceMatchers:
-      - kindNamespaceNameMatcher: {kind: Certificate, namespace: pinniped-supervisor, name: pinniped-cert}
-    - path: [spec]
-      type: copy
-      sources: [existing, new]
-      resourceMatchers:
-      - kindNamespaceNameMatcher: {kind: Certificate, namespace: tanzu-system-auth, name: dex-cert}
-    - path: [data]
-      type: copy
-      sources: [existing, new]
-      resourceMatchers:
-      - kindNamespaceNameMatcher: {kind: Secret, namespace: pinniped-supervisor, name: dex-client-credentials}
+    nodePort: 31234

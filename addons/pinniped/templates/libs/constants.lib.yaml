@@ -20,6 +20,14 @@
 #@   end
 #@ end
 
+#@ def pinniped_upstream_idp_secret_name():
+#@   return "upstream-idp-client-credentials"
+#@ end
+
+#@ def pinniped_idp_name():
+#@   return "upstream-oidc-identity-provider"
+#@ end
+
 #@ def pinniped_concierge_namespace():
 #@   return "pinniped-concierge"
 #@ end
@@ -50,4 +58,18 @@
 #@   else:
 #@      return data.values.dex.app + "-cert-tls"
 #@   end
+#@ end
+
+#@ def is_dex_required():
+#@   #! if no identity_management_type is provided, the data values are from old version of addon secret. We load the
+#@   #! identity management type from dex configuration section. If it is ldap we still need to deploy dex.
+#@   if not data.values.identity_management_type:
+#@     if data.values.dex.config.connector == "ldap":
+#@       return True
+#@     else:
+#@       return False
+#@     end
+#@   end
+#@   #! if identity_management_type is provided, we only deploy dex in the case of LDAP
+#@   return data.values.identity_management_type == "ldap"
 #@ end
