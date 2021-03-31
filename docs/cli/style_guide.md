@@ -44,7 +44,7 @@ that they adhere to established patterns
 The Tanzu CLI uses the following pattern
 
 ```
-tanzu [global flags] noun [sub-noun] verb RESOURCE [flags]
+tanzu [global flags] noun [sub-noun] verb RESOURCE-NAME [flags]
 ```
 
 Example
@@ -57,7 +57,7 @@ tanzu management-cluster kubeconfig get --admin
 Global flags are maintained by the [Tanzu CLI SIG](https://github.com/vmware-tanzu-private/community/tree/main/sigs/api-cli) and adding to the current global set should be managed through the SIG
 
 ### Nouns 
-Any nouns being added must exist in the Shared [Taxonomy document](https://github.com/vmware-tanzu-private/core/blob/main/hack/linter/cli-wordlist.yml)
+Any nouns being added must exist in the [Shared Taxonomy document](/hack/linter/cli-wordlist.yml)
 * Introducing nouns to support the creation of new commands and/or subcommands should be reviewed by the [Tanzu CLI SIG](https://github.com/vmware-tanzu-private/community/tree/main/sigs/api-cli)
 
 Compound words should be - delimited
@@ -73,7 +73,7 @@ tanzu app get, not tanzu app-get
 ### Verbs
 Use the standard CRUD verbs whenever possible
 * Tanzu CLI uses create, delete, get, list, update
-If at all possible, use verbs from the [command reference list](link)
+If at all possible, use pre-existing verbs from the [Shared Taxonomy document](/hack/linter/cli-wordlist.yml)
 * New verbs must be reviewed by the Tanzu CLI SIG
 Opposing commands should take the form of antonyms 
 
@@ -84,10 +84,12 @@ Example
 
 ### Sub-Noun
 Plugin specific sub-nouns do not need to be reviewed by the governance group
-Please review the command reference list when using sub-nouns, to make sure your word is not already in use
+Please review the [Shared Taxonomy document](/hack/linter/cli-wordlist.yml) when using sub-nouns, and make sure you're using the noun consistently if it's already being used.
 
-### Resource 
-Commands should not nest more than one layer of resources
+#### Nesting
+Commands should not nest more than two layers of sub-nouns
+* _Yes_: `tanzu plugin-name noun sub-noun verb --flags`…
+* _No_: `tanzu plugin-name noun sub-noun sub-sub-noun verb --flags`…
 
 ### Positional Arguments 
 * There should no more than 1 positional argument
@@ -99,7 +101,7 @@ tanzu cluster create CLUSTER-NAME [flags]
 ```
 
 ### Flags 
-* Use standard names for flags if there is one (flags used in the cli are documented here)
+* Use standard names for flags if there is one (flags used in the cli are documented [here](/hack/linter/cli-wordlist.yml))
 * Where possible, set reasonable defaults for flag-able options that align with expected workflows
 * A user should only be required to explicitly set a max of 2 flags 
 * Add as many flags as necessary to configure the command
@@ -178,8 +180,8 @@ In the confirmation feedback, include a notice for experimental or beta commands
 
 Example
 ```
-“This is a EXPERIMENTAL command and may change without notice.”
-“This is a BETA command and may change without notice.”
+“Warning: This is a EXPERIMENTAL command and may change without notice.”
+“Warning: This is a BETA command and may change without notice.”
 ```
 ------------------------------
 
@@ -250,9 +252,36 @@ url:         http://myapplicationurl.com
 ```
 
 ### Color
-* Disable color for non-interactive output, or if requested  
-  * The component library can check for the NO_COLOR and TERM=dumb environment variables
-    * Pending resolution of issue #369
+*  Colors can be disabled using an environment variable (NO_COLOR=TRUE)
+*  Colors are always disabled when the session is not a TTY session. This allows for the piping of CLI output into other commands (e.g. grep) or machine reading without including stray color characters (pending issue #369)
+*  Usage tips are always in plain text, even when referencing text that might normally be colorized
+
+![Example of help output demonstrating the use of plain text](example-images/usage-tips.png)
+
+
+#### Don't add color to anything outside of the following conventions to convey contex:
+
+*  Red = warning, danger  
+The word 'Warning:' or 'Error:' is colorized and bold, the *message* is plain text
+
+![Example of warning and error notice text colorized red](example-images/error-warn.png)
+
+
+*  Green = success, informational  
+Confirmation of completion when a command runs is colorized and bold.
+
+![Example of success output with the word OK colorized green](example-images/success.png)
+
+
+*  Cyan = stability, calm, informational  
+In command feedback: resources, and user name is colorized and bold  
+Interactive prompting: user input is colorized, as is the preceding question mark.
+
+![Example of command feedback confirming an action with the resources colorized cyan ](example-images/feedback.png)
+
+
+![Example of interactive prompting with the user entered text colorized cyan](example-images/prompting.png)
+
 
 ### Animation
 * Disable if stdout is not an interactive terminal
@@ -321,7 +350,7 @@ https://github.com/tanzu/core/help/2323
 ```
 ```
 $ Tanzu namespace get EXAMPLE
-Namespace EXAMPLE not found. Try 'tanzu namespace list' to see available options
+Error: Namespace EXAMPLE not found. Try 'tanzu namespace list' to see available options
 ```
 
 Use context in error messages to ease recovery
@@ -350,7 +379,8 @@ To propose changes please create an issue, and add it to the CLI SIG agenda to d
 
 ### Precedent
 Olympus Design System   
-PKS Styleguide   
+PKS styleguide
+cf-cli styleguide
 
 
 ### Accessibility Guidelines
