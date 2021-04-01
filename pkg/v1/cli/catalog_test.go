@@ -97,8 +97,10 @@ func TestCatalog(t *testing.T) {
 	require.NoError(t, err)
 	pluginsAfterReensure, err := catalog.List()
 	require.NoError(t, err)
-	// ensure restores the downgraded plugin to v0.0.4
-	require.Equal(t, plugins, pluginsAfterReensure)
+	// ensure does not update/upgrade the plugin to v0.0.4
+	// thus the plugins installed in the catalog and the plugins
+	// on the user's file system do not match
+	require.NotEqual(t, plugins, pluginsAfterReensure)
 
 	invalidPluginList := append(mockPluginList, "notpresent")
 	catalog = newTestCatalog(t, invalidPluginList)
