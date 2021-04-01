@@ -26,6 +26,10 @@ CALICO_TEMPLATES_IMG_NAME ?= calico-templates
 
 # Directories
 BIN_DIR       := bin
+TOOLS_DIR := hack/tools
+TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
+KUBEBUILDER_BIN_DIR := $(TOOLS_BIN_DIR)/kubebuilder/bin
+
 export PATH := $(abspath $(BIN_DIR)):$(PATH)
 
 # Binaries
@@ -52,8 +56,9 @@ help: ## Display this help
 ## --------------------------------------
 
 .PHONY: test
-test: fmt vet ## Run Tests
-	go test ./... -coverprofile cover.out -v 2
+test: fmt vet verify-manifests lint-manifests ## Run Tests
+	$(MAKE) kubebuilder -C ${ROOT_DIR}$(TOOLS_DIR)
+	KUBEBUILDER_ASSETS=${ROOT_DIR}$(KUBEBUILDER_BIN_DIR) go test ./... -coverprofile cover.out -v 2
 
 .PHONY: test-verbose
 test-verbose: ## Verbose tests with streaming output for debugging
@@ -83,6 +88,10 @@ fmt: ## Fmt codebase
 vet: ## Vet codebase
 	go vet ./...
 
+.PHONY: lint-manifests
+    lint-manifests: tools ## Lint the addons' kubernetes manifests using kubeval
+	$(MAKE) clean-artifacts
+	./scripts/lint-manifests.sh
 
 ## --------------------------------------
 ## Development - local
@@ -121,10 +130,14 @@ git-config: ## Configure gitlab access
 ## Clean
 ## --------------------------------------
 
-.PHONY: clean
-clean: docker-remove ## Remove all generated files
+.PHONY: clean ## Remove all generated files
+clean: docker-remove clean-artifacts
 	rm -rf bin
+
+.PHONY: clean-artifacts  ## Remove all generated manifests
+clean-artifacts:
 	rm -rf artifacts
+	rm -rf template_tests/.rendered-output
 
 ## --------------------------------------
 ## Addon templates
@@ -138,7 +151,7 @@ build-addon-template-images:
 	IMG_NAME="$(IMAGE_REPO)/$(VSPHERE_CSI_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C vsphere_csi
 	IMG_NAME="$(IMAGE_REPO)/$(ANTREA_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C antrea
 	IMG_NAME="$(IMAGE_REPO)/$(CALICO_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C calico
-  	
+
 save-addon-template-images:
 	mkdir -p "${ROOT_DIR}addons/artifacts"
 	docker save "$(IMAGE_REPO)/${ADDONS_MANAGER_TEMPLATES_IMG_NAME}:${TEMPLATES_IMG_TAG}" | gzip -c > "${ROOT_DIR}addons/artifacts/${ADDONS_MANAGER_TEMPLATES_IMG_NAME}-${TEMPLATES_IMG_TAG}.tar.gz"
@@ -166,3 +179,19 @@ push-addon-template-images: ## Push template images
 bom-yaml:
 	mkdir -p "${ROOT_DIR}addons/artifacts"
 	IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) generate-addon-bom -C bom
+
+## --------------------------------------
+## verify manifests
+## --------------------------------------
+.PHONY: verify-manifests
+verify-manifests: tools ## Verify if rendered and actual manifests are the same
+	$(MAKE) clean-artifacts
+	./scripts/verify-manifests.sh
+
+## --------------------------------------
+## build tools
+## --------------------------------------
+.PHONY: tools
+tools: ## Prepare tooling binaries
+	$(MAKE) ytt -C ${ROOT_DIR}$(TOOLS_DIR)
+	$(MAKE) kubeval -C ${ROOT_DIR}$(TOOLS_DIR)
