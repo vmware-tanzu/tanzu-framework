@@ -13,6 +13,17 @@ spec:
       containers:
         #@overlay/match by=overlay.subset({"name": "pinniped-supervisor"})
         - name: pinniped-supervisor
+          #@overlay/match missing_ok=True
+          env:
+            #@ if/end data.values.http_proxy:
+            - name: HTTP_PROXY
+              value: #@ data.values.http_proxy
+            #@ if/end data.values.https_proxy:
+            - name: HTTPS_PROXY
+              value: #@ data.values.https_proxy
+            #@ if/end data.values.no_proxy:
+            - name: NO_PROXY
+              value: #@ data.values.no_proxy
           image: #@ get_image_location(pinniped_image.repository, pinniped_image.name, pinniped_image.tag)
           imagePullPolicy: #@ pinniped_image.pull_policy
 #@ end
@@ -25,5 +36,6 @@ spec:
       containers:
         #@overlay/match by=overlay.subset({"name": "pinniped-concierge"})
         - name: pinniped-concierge
+          #! No need to add HTTP Proxy for concierge pods, since only supervisor pods are communicating with external IDP
           image: #@ get_image_location(pinniped_image.repository, pinniped_image.name, pinniped_image.tag)
           imagePullPolicy: #@ pinniped_image.pull_policy

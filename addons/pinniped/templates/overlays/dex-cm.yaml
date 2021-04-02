@@ -1,6 +1,84 @@
 #@ load("/values.star", "values")
+#@ load("/globals.star", "globals")
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:yaml", "yaml")
+#@ load("/libs/constants.lib.yaml", "is_dex_required")
 
-#@ if values.tkg_cluster_role != "workload":
+#@ def dex_ldap_config_yaml():
+
+#@ if globals.infrastructure_provider == "aws":
+issuer: #@ "https://" + values.dex.dns.aws.DEX_SVC_LB_HOSTNAME
+#@ elif globals.infrastructure_provider == "azure":
+issuer: #@ "https://" + values.dex.dns.azure.DEX_SVC_LB_HOSTNAME
+#@ elif globals.infrastructure_provider == "vsphere":
+issuer: #@ "https://" + values.dex.dns.vsphere.ipAddresses[0] + ":" + values.dex.config.issuerPort
+#@ end
+frontend: #@ values.dex.config.frontend
+web: #@ values.dex.config.web
+expiry:
+  #@ if/end values.dex.config.expiry.signingKeys:
+  signingKeys: #@ values.dex.config.expiry.signingKeys
+  #@ if/end values.dex.config.expiry.idTokens:
+  idTokens:  #@ values.dex.config.expiry.idTokens
+logger: #@ values.dex.config.logger
+staticClients: #@ values.dex.config.staticClients
+connectors:
+  - type: ldap
+    id: ldap
+    name: LDAP
+    config:
+      #@ if/end values.dex.config.ldap.host:
+      host: #@ values.dex.config.ldap.host
+      insecureSkipVerify: #@ values.dex.config.ldap.insecureSkipVerify
+      #@ if/end values.dex.config.ldap.bindDN:
+      bindDN: #@ values.dex.config.ldap.bindDN
+      #@ if/end values.dex.config.ldap.bindPW:
+      bindPW: #@ values.dex.config.ldap.bindPW
+      #@ if/end values.dex.config.ldap.usernamePrompt:
+      usernamePrompt: #@ values.dex.config.ldap.usernamePrompt
+      #@ if/end values.dex.config.ldap.userSearch:
+      userSearch:
+        #@ if/end values.dex.config.ldap.userSearch.baseDN:
+        baseDN: #@ values.dex.config.ldap.userSearch.baseDN
+        #@ if/end values.dex.config.ldap.userSearch.filter:
+        filter: #@ values.dex.config.ldap.userSearch.filter
+        #@ if/end values.dex.config.ldap.userSearch.username:
+        username: #@ values.dex.config.ldap.userSearch.username
+        #@ if/end values.dex.config.ldap.userSearch.idAttr:
+        idAttr: #@ values.dex.config.ldap.userSearch.idAttr
+        #@ if/end values.dex.config.ldap.userSearch.emailAttr:
+        emailAttr: #@ values.dex.config.ldap.userSearch.emailAttr
+        #@ if/end values.dex.config.ldap.userSearch.nameAttr:
+        nameAttr: #@ values.dex.config.ldap.userSearch.nameAttr
+        #@ if/end values.dex.config.ldap.userSearch.scope:
+        scope: #@ values.dex.config.ldap.userSearch.scope
+      #@ if/end values.dex.config.ldap.groupSearch:
+      groupSearch:
+        #@ if/end values.dex.config.ldap.groupSearch.baseDN:
+        baseDN: #@ values.dex.config.ldap.groupSearch.baseDN
+        #@ if/end values.dex.config.ldap.groupSearch.filter:
+        filter: #@ values.dex.config.ldap.groupSearch.filter
+        #@ if/end values.dex.config.ldap.groupSearch.userMatchers:
+        userMatchers: #@ values.dex.config.ldap.groupSearch.userMatchers
+        #@ if/end values.dex.config.ldap.groupSearch.nameAttr:
+        nameAttr: #@ values.dex.config.ldap.groupSearch.nameAttr
+        #@ if/end values.dex.config.ldap.groupSearch.scope:
+        scope: #@ values.dex.config.ldap.groupSearch.scope
+      #@ if/end values.dex.config.ldap.insecureNoSSL:
+      insecureNoSSL: #@ values.dex.config.ldap.insecureNoSSL
+      #@ if/end values.dex.config.ldap.startTLS:
+      startTLS: #@ values.dex.config.ldap.startTLS
+      #@ if/end values.dex.config.ldap.rootCA:
+      rootCA: #@ values.dex.config.ldap.rootCA
+      #@ if/end values.dex.config.ldap.rootCAData:
+      rootCAData: #@ values.dex.config.ldap.rootCAData
+oauth2: #@ values.dex.config.oauth2
+storage: #@ values.dex.config.storage
+enablePasswordDB: #@ values.dex.config.enablePasswordDB
+
+#@ end
+
+#@ if values.tkg_cluster_role != "workload" and is_dex_required():
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -113,5 +191,11 @@ data:
         inCluster: true
 
     enablePasswordDB: false
+
+#@ dex_metadata = overlay.subset({"metadata": {"name": "dex"}})
+#@overlay/match by=overlay.and_op(overlay.subset({"kind": "ConfigMap"}), dex_metadata)
+---
+data:
+  config.yaml: #@ yaml.encode(dex_ldap_config_yaml())
 
 #@ end

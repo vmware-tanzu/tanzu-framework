@@ -1,3 +1,6 @@
+# Copyright 2021 VMware, Inc. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 FROM harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.14.4 as builder
 
 WORKDIR /workspace
@@ -14,9 +17,7 @@ COPY Makefile Makefile
 
 RUN make native
 
-FROM kscom-docker-local.artifactory.eng.vmware.com/debian-base-amd64:v2.1.3
-RUN apt-get update -y \
-    && DEBIAN_FRONTEND=noninteractive apt-get install ca-certificates -y
+FROM gcr.io/distroless/static:nonroot
 WORKDIR /
 COPY --from=builder /workspace/tkg-pinniped-post-deploy .
 CMD ["/tkg-pinniped-post-deploy"]

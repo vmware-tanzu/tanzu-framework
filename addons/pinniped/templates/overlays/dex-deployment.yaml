@@ -1,6 +1,9 @@
 #@ load("/values.star", "values")
+#@ load("@ytt:overlay", "overlay")
+#@ load("/globals.star", "get_image_location", "globals")
+#@ load("/libs/constants.lib.yaml", "is_dex_required", "dex_tls_secret_name")
 
-#@ if values.tkg_cluster_role != "workload":
+#@ if values.tkg_cluster_role != "workload" and is_dex_required():
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -64,5 +67,34 @@ spec:
           secretName: dex-cert-tls          
       - name: theme
         emptyDir: {}
+
+
+#@overlay/match by=overlay.subset({"kind": "Deployment", "metadata": {"name": "dex"}})
+---
+spec:
+  replicas: #@ values.dex.deployment.replicas
+  template:
+    spec:
+      containers:
+        #@overlay/match by=overlay.subset({"name": "dex"})
+        - name: dex
+          #@overlay/match missing_ok=True
+          env:
+            #@ if/end values.http_proxy:
+            - name: HTTP_PROXY
+              value: #@ values.http_proxy
+            #@ if/end values.https_proxy:
+            - name: HTTPS_PROXY
+              value: #@ values.https_proxy
+            #@ if/end values.no_proxy:
+            - name: NO_PROXY
+              value: #@ values.no_proxy
+          image: #@ get_image_location(values.dex.image.repository, values.dex.image.name, values.dex.image.tag)
+          imagePullPolicy: #@ values.dex.image.pullPolicy
+      volumes:
+        #@overlay/match by=overlay.subset({"name": "tls"})
+        - name: tls
+          secret:
+            secretName: #@ dex_tls_secret_name()
 
 #@ end

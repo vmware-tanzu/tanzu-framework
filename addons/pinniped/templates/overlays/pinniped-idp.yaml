@@ -1,7 +1,7 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:template", "template")
 #@ load("@ytt:overlay", "overlay")
-#@ load("/libs/constants.lib.yaml", "pinniped_supervisor_namespace")
+#@ load("/libs/constants.lib.yaml", "pinniped_supervisor_namespace", "pinniped_upstream_idp_secret_name", "pinniped_idp_name")
 
 #@ def additionalScopes():
 #@   if data.values.pinniped.upstream_oidc_additional_scopes != []:
@@ -24,7 +24,7 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: #@ "{}-client-credentials".format(data.values.pinniped.upstream_oidc_provider_name)
+  name: #@ pinniped_upstream_idp_secret_name()
   namespace: #@ pinniped_supervisor_namespace()
 type: secrets.pinniped.dev/oidc-client
 stringData:
@@ -34,7 +34,7 @@ stringData:
 apiVersion: idp.supervisor.pinniped.dev/v1alpha1
 kind: OIDCIdentityProvider
 metadata:
-  name: #@ "{}-oidc-identity-provider".format(data.values.pinniped.upstream_oidc_provider_name)
+  name: #@ pinniped_idp_name()
   namespace: #@ pinniped_supervisor_namespace()
   annotations:
     kapp.k14s.io/update-strategy: always-replace
@@ -44,7 +44,7 @@ spec:
     additionalScopes: #@ additionalScopes()
   claims: #@ claims()
   client:
-    secretName: #@ "{}-client-credentials".format(data.values.pinniped.upstream_oidc_provider_name)
+    secretName: #@ pinniped_upstream_idp_secret_name()
   #@ if/end data.values.pinniped.upstream_oidc_tls_ca_data:
   tls:
     certificateAuthorityData:  #@ data.values.pinniped.upstream_oidc_tls_ca_data
