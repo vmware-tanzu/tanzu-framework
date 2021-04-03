@@ -2,7 +2,7 @@
 
 ROOT_DIR	:= $(dir $(shell pwd))
 IMG_CATEGORY := cni
-IMG_CLUSTER_TYPE := management worload
+IMG_CLUSTER_TYPE := management workload
 ADDON_NAME := antrea
 
 IMG_NAME ?= antrea-templates
