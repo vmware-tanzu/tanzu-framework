@@ -448,7 +448,7 @@ func buildTargets(targetPath, outPath, pluginName string, arch cli.Arch, id stri
 	}
 	tb, ok := archMap[arch]
 	if !ok {
-		log.Errorf("%scould not find target arch: ", id, arch)
+		log.Errorf("%s could not find target arch: %s", id, arch)
 	}
 	tgt := tb(pluginName, outPath)
 	err := tgt.build(targetPath, id)
