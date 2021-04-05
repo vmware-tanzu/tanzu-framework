@@ -82,8 +82,8 @@ func selectCIProvider() (selection string, err error) {
 	cfg := &component.SelectConfig{
 		Message: "choose a repository type",
 		Options: []string{
-			"github",
-			"gitlab",
+			"GitHub",
+			"GitLab",
 		},
 	}
 	err = component.Select(cfg, &selection)
