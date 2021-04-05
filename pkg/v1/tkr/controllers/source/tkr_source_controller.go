@@ -374,6 +374,61 @@ func (r *reconciler) checkInitialSync(ctx context.Context) error {
 	return nil
 }
 
+func (r *reconciler) initialReconcile(ticker *time.Ticker, initSyncDone chan bool, stopChan <-chan struct{}, initialDiscoveryRetry int) {
+	for {
+		select {
+		case <-stopChan:
+			r.log.Info("Stop performing initial TKR discovery")
+			ticker.Stop()
+			close(initSyncDone)
+			return
+		case <-ticker.C:
+
+			var errReconcile error
+			var errCheck error
+
+			if errReconcile = r.ReconcileRelease(context.Background()); errReconcile == nil {
+				// The number of TKRs should be the same as the number of bom image tags for initial sync-up
+				errCheck = r.checkInitialSync(context.Background())
+			}
+
+			if errReconcile != nil {
+				r.log.Info("Failed to complete initial TKR discovery", "error", errReconcile.Error())
+				if isManagementClusterNotReadyError(errReconcile) {
+					continue
+				}
+			} else if errCheck != nil {
+				r.log.Info("Failed to complete initial TKR discovery", "error", errCheck.Error())
+			}
+
+			if (errReconcile == nil && errCheck == nil) || initialDiscoveryRetry == 0 {
+				ticker.Stop()
+				close(initSyncDone)
+				return
+			}
+			r.log.Info("Failed to complete initial TKR discovery, retrying")
+			initialDiscoveryRetry--
+		}
+	}
+}
+
+func (r *reconciler) tkrDiscovery(ticker *time.Ticker, done chan bool, stopChan <-chan struct{}) {
+	for {
+		select {
+		case <-stopChan:
+			r.log.Info("Stop performing TKR discovery")
+			ticker.Stop()
+			close(done)
+			return
+		case <-ticker.C:
+			err := r.ReconcileRelease(context.Background())
+			if err != nil {
+				r.log.Info("failed to reconcile TKRs, retrying", "error", err.Error())
+			}
+		}
+	}
+}
+
 func (r *reconciler) Start(stopChan <-chan struct{}) error {
 	r.log.Info("Starting TanzuKubernetesReleaase Reconciler")
 
@@ -398,64 +453,13 @@ func (r *reconciler) Start(stopChan <-chan struct{}) error {
 
 	ticker := time.NewTicker(r.options.InitialDiscoveryFrequency)
 	initialDiscoveryRetry := InitialDiscoveryRetry
-	go func() {
-		for {
-			select {
-			case <-stopChan:
-				r.log.Info("Stopp performing initial TKR discovery")
-				ticker.Stop()
-				close(initSyncDone)
-				return
-			case <-ticker.C:
-
-				var errReconcile error
-				var errCheck error
-
-				if errReconcile = r.ReconcileRelease(context.Background()); errReconcile == nil {
-					// The number of TKRs should be the same as the number of bom image tags for initial sync-up
-					errCheck = r.checkInitialSync(context.Background())
-				}
-
-				if errReconcile != nil {
-					r.log.Info("Failed to complete initial TKR discovery", "error", errReconcile.Error())
-					if isManagementClusterNotReadyError(errReconcile) {
-						continue
-					}
-				} else if errCheck != nil {
-					r.log.Info("Failed to complete initial TKR discovery", "error", errCheck.Error())
-				}
-
-				if (errReconcile == nil && errCheck == nil) || initialDiscoveryRetry == 0 {
-					ticker.Stop()
-					close(initSyncDone)
-					return
-				}
-				r.log.Info("Failed to complete initial TKR discovery, retrying")
-				initialDiscoveryRetry--
-			}
-		}
-	}()
+	go r.initialReconcile(ticker, initSyncDone, stopChan, initialDiscoveryRetry)
 
 	<-initSyncDone
 	r.log.Info("Initial TKR discovery completed")
 
 	ticker = time.NewTicker(r.options.ContinuousDiscoveryFrequency)
-	go func() {
-		for {
-			select {
-			case <-stopChan:
-				r.log.Info("Stop performing TKR discovery")
-				ticker.Stop()
-				close(done)
-				return
-			case <-ticker.C:
-				err = r.ReconcileRelease(context.Background())
-				if err != nil {
-					r.log.Info("failed to reconcile TKRs, retrying", "error", err.Error())
-				}
-			}
-		}
-	}()
+	go r.tkrDiscovery(ticker, done, stopChan)
 
 	<-done
 	r.log.Info("Stopping TanzuKubernetesReleaase Reconciler")
