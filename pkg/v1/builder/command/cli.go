@@ -20,6 +20,7 @@ import (
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/builder/template"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
+	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
 
 	"github.com/aunum/log"
 )
@@ -34,9 +35,9 @@ type plugin struct {
 }
 
 var (
-	version, path, artifactsDir, ldflags string
-	corePath, match, targetArch          string
-	dryRun                               bool
+	version, path, artifactsDir, ldflags     string
+	corePath, match, targetArch, description string
+	dryRun                                   bool
 )
 
 var minConcurrent = 2
@@ -70,27 +71,41 @@ func init() {
 	CompileCmd.Flags().StringVar(&artifactsDir, "artifacts", cli.DefaultArtifactsDirectory, "path to output artifacts")
 	CompileCmd.Flags().StringVar(&corePath, "corepath", "", "path for core binary")
 
-	AddPluginCmd.Flags().BoolVar(&dryRun, "dry-run", false, "print generated files to stdout")
-
 	CLICmd.AddCommand(CompileCmd)
-	CLICmd.AddCommand(AddPluginCmd)
+	CLICmd.AddCommand(NewAddPluginCmd())
 }
 
 // AddPluginCmd adds a cli plugin to the repository.
-var AddPluginCmd = &cobra.Command{
-	Use:   "add-plugin [name]",
-	Short: "Add a plugin to a repository",
-	RunE:  addPlugin,
-	Args:  cobra.ExactArgs(1),
+func NewAddPluginCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "add-plugin [name]",
+		Short: "Add a plugin to a repository",
+		RunE:  addPlugin,
+		Args:  cobra.ExactArgs(1),
+	}
+	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "print generated files to stdout")
+	cmd.Flags().StringVar(&description, "description", "", "required plugin description")
+
+	return cmd
 }
 
 // TODO (pbarker): check that we are in the root of the repo
 func addPlugin(cmd *cobra.Command, args []string) error {
+	var err error
 	name := args[0]
+	if description == "" {
+		description, err = askDescription()
+		if err != nil {
+			return err
+		}
+	}
+
 	data := struct {
-		PluginName string
+		PluginName  string
+		Description string
 	}{
-		PluginName: name,
+		PluginName:  name,
+		Description: description,
 	}
 	targets := template.DefaultPluginTargets
 	for _, target := range targets {
@@ -99,7 +114,20 @@ func addPlugin(cmd *cobra.Command, args []string) error {
 			return err
 		}
 	}
+	cmd.Print("successfully created plugin")
+
 	return nil
+}
+
+func askDescription() (answer string, err error) {
+	questioncfg := &component.QuestionConfig{
+		Message: "provide a description",
+	}
+	err = component.Ask(questioncfg, &answer)
+	if err != nil {
+		return
+	}
+	return
 }
 
 // CompileCmd compiles CLI plugins

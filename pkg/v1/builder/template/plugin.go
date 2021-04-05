@@ -52,7 +52,7 @@ import (
 
 var descriptor = cli.PluginDescriptor{
 	Name:        "{{ .PluginName | ToLower }}",
-	Description: "Provide a description for {{ .PluginName | ToLower }}",  // provide a description
+	Description: "{{ .Description | ToLower }}",
 	Version:     "v0.0.1",
 	Group:       cli.ManageCmdGroup, // set group
 }
@@ -111,6 +111,7 @@ func main() {
 	}
 }
 
+//nolint:gocritic
 func test(c *cobra.Command, _ []string) error {
 	m := clitest.NewMain(pluginName, c, Cleanup)
 	defer m.Finish()
