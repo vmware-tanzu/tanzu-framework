@@ -5,7 +5,6 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -14,11 +13,11 @@ import (
 
 	"github.com/aunum/log"
 	"github.com/spf13/afero"
+
 	"github.com/vmware-tanzu-private/tkg-cli/pkg/utils"
 )
 
 func Test_CreateClusterCommand(t *testing.T) {
-
 	for _, test := range []struct {
 		testcase    string
 		stringMatch []string
@@ -43,7 +42,7 @@ func Test_CreateClusterCommand(t *testing.T) {
 			},
 		},
 	} {
-		t.Run(fmt.Sprintf("%s", test.testcase), func(t *testing.T) {
+		t.Run(test.testcase, func(t *testing.T) {
 			defer configureHomeDirectory()()
 			out := captureStdoutStderr(runCreateClusterCmd)
 			for _, str := range test.stringMatch {
@@ -58,7 +57,7 @@ func Test_CreateClusterCommand(t *testing.T) {
 func runCreateClusterCmd() {
 	cmd := createClusterCmd
 	cmd.SetArgs([]string{"test-cluster", "-i", "docker:v0.3.10", "-p", "dev", "-d"})
-	cmd.Execute()
+	_ = cmd.Execute()
 }
 
 func captureStdoutStderr(f func()) string {
@@ -73,7 +72,7 @@ func captureStdoutStderr(f func()) string {
 	os.Stdout = old
 
 	var buf bytes.Buffer
-	io.Copy(&buf, r)
+	_, _ = io.Copy(&buf, r)
 	return buf.String()
 }
 
