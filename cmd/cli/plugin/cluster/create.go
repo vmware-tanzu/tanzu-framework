@@ -10,7 +10,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"k8s.io/client-go/tools/clientcmd"
 
 	"github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/client"
@@ -102,7 +101,10 @@ func create(cmd *cobra.Command, args []string) error {
 		// Note: This is only used for testing purpose when management cluster
 		// does not exist and we want to test cluster template generation
 		if cc.generateOnly {
-			server = getDummyServer()
+			server = &v1alpha1.Server{
+				Type:                  v1alpha1.ManagementClusterServerType,
+				ManagementClusterOpts: &v1alpha1.ManagementClusterServer{},
+			}
 		} else {
 			return err
 		}
@@ -124,13 +126,13 @@ func createCluster(clusterName string, server *v1alpha1.Server) error {
 		return err
 	}
 
-	clusterClient, err := clusterclient.NewClusterClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context)
-	if err != nil {
-		return err
-	}
-
 	tkrVersion := ""
 	if cc.tkrName != "" {
+		clusterClient, err := clusterclient.NewClusterClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context)
+		if err != nil {
+			return err
+		}
+
 		tkrVersion, err = getTkrVersionForMatchingTkr(clusterClient, cc.tkrName)
 		if err != nil {
 			return err
@@ -185,19 +187,4 @@ func getTkrVersionForMatchingTkr(clusterClient clusterclient.Client, tkrName str
 	}
 
 	return tkrVersion, nil
-}
-
-// getDummyServer returns dummy server object based on the user's
-// current default kubeconfig loading rules which points server to
-// default kubeconfig file '~/.kube/config' or file pointed by
-// `KUBECONFIG` environment variable
-func getDummyServer() *v1alpha1.Server {
-	rules := clientcmd.NewDefaultClientConfigLoadingRules()
-	return &v1alpha1.Server{
-		Type: v1alpha1.ManagementClusterServerType,
-		ManagementClusterOpts: &v1alpha1.ManagementClusterServer{
-			Path:    rules.GetDefaultFilename(),
-			Context: "",
-		},
-	}
 }
