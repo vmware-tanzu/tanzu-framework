@@ -7,15 +7,17 @@ import (
 	"github.com/AlecAivazis/survey/v2"
 )
 
+// QuestionConfig stores config for prompting a CLI question.
 type QuestionConfig struct {
 	Message string
 }
 
+// Run asks a question.
 func (q *QuestionConfig) Run(response interface{}) error {
 	return Ask(q, response)
 }
 
-// Select an option.
+// Ask asks a questions and lets the user select an option.
 func Ask(q *QuestionConfig, response interface{}) error {
 	return survey.AskOne(&survey.Input{Message: q.Message}, response)
 }

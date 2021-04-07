@@ -75,7 +75,7 @@ func init() {
 	CLICmd.AddCommand(NewAddPluginCmd())
 }
 
-// AddPluginCmd adds a cli plugin to the repository.
+// NewAddPluginCmd adds a cli plugin to the repository.
 func NewAddPluginCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add-plugin [name]",

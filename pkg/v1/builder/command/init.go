@@ -26,7 +26,7 @@ func init() {
 	NewInitCmd()
 }
 
-// InitCmd initializes a repository.
+// NewInitCmd initializes a repository.
 func NewInitCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "init [name]",

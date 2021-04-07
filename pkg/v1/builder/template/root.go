@@ -168,6 +168,7 @@ var MainReadMe = Target{
 	Template: plugintemplates.PluginReadme,
 }
 
+// GolangCIConfig target.
 var GolangCIConfig = Target{
 	Filepath: ".golangci.yaml",
 	Template: plugintemplates.GolangCIConfig,
