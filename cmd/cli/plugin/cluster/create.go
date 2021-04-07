@@ -96,11 +96,11 @@ func aliasNormalizeFunc(f *pflag.FlagSet, name string) pflag.NormalizedName {
 func create(cmd *cobra.Command, args []string) error {
 	server, err := client.GetCurrentServer()
 	if err != nil {
-		// if current server does not exists and user is using generate only
+		// if current server does not exist and user is using generate only
 		// option then allow user to proceed by providing dummy management server
 		// information.
 		// Note: This is only used for testing purpose when management cluster
-		// does not existing and we want to test cluster template generation
+		// does not exist and we want to test cluster template generation
 		if cc.generateOnly {
 			server = getDummyServer()
 		} else {
