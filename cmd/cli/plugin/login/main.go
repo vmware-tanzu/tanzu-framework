@@ -29,6 +29,7 @@ var descriptor = cli.PluginDescriptor{
 	Name:        "login",
 	Description: "Login to the platform",
 	Group:       cli.SystemCmdGroup,
+	Aliases:     []string{"lo", "logins"},
 }
 
 var (

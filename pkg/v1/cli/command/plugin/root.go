@@ -11,8 +11,9 @@ import (
 
 func newRootCmd(descriptor *cli.PluginDescriptor) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   descriptor.Name,
-		Short: descriptor.Description,
+		Use:     descriptor.Name,
+		Short:   descriptor.Description,
+		Aliases: descriptor.Aliases,
 	}
 	cobra.AddTemplateFuncs(cli.TemplateFuncs)
 	cmd.SetUsageTemplate(CmdTemplate)

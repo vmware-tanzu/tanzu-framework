@@ -19,9 +19,10 @@ import (
 const lenMsg = 2
 
 var availableUpgradesCmd = &cobra.Command{
-	Use:   "available-upgrades",
-	Short: "Get upgrade information for a Tanzu Kubernetes Release",
-	Long:  `Get upgrade information for a Tanzu Kubernetes Release`,
+	Use:     "available-upgrades",
+	Short:   "Get upgrade information for a Tanzu Kubernetes Release",
+	Long:    `Get upgrade information for a Tanzu Kubernetes Release`,
+	Aliases: []string{"avup"},
 }
 
 var getAvailableUpgradesCmd = &cobra.Command{

@@ -85,6 +85,9 @@ type PluginDescriptor struct {
 	// CompletionCommand is the command to call from the plugin to retrieve a list of
 	// valid completion nouns when `CompletionType` is set to `DynamicPluginCompletion`.
 	CompletionCommand string `json:"completionCmd,omitempty" yaml:"completionCmd,omitempty"`
+
+	// Aliases are other text strings used to call this command
+	Aliases []string `json:"aliases,omitempty" yaml:"aliases,omitempty"`
 }
 
 // NewTestFor creates a plugin descriptor for a test plugin.
@@ -95,6 +98,7 @@ func NewTestFor(pluginName string) *PluginDescriptor {
 		Version:     "v0.0.1",
 		BuildSHA:    BuildSHA,
 		Group:       TestCmdGroup,
+		Aliases:     []string{fmt.Sprintf("%s-alias", pluginName)},
 	}
 }
 
@@ -112,7 +116,8 @@ func (p *PluginDescriptor) Cmd() *cobra.Command {
 		Annotations: map[string]string{
 			"group": string(p.Group),
 		},
-		Hidden: p.Hidden,
+		Hidden:  p.Hidden,
+		Aliases: p.Aliases,
 	}
 
 	// Handle command line completion types.

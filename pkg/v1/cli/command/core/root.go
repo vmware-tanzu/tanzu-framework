@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/caarlos0/spin"
 	"github.com/logrusorgru/aurora"
@@ -77,10 +78,32 @@ func NewRootCmd() (*cobra.Command, error) {
 		root.AddCommand(plugin.Cmd())
 	}
 
+	duplicateAliasWarning()
+
 	// Flag parsing must be disabled because the root plugin won't know about all flags.
 	root.DisableFlagParsing = true
 
 	return root, nil
+}
+
+func duplicateAliasWarning() {
+	var aliasMap = make(map[string][]string)
+	for _, command := range root.Commands() {
+		for _, alias := range command.Aliases {
+			aliases, ok := aliasMap[alias]
+			if !ok {
+				aliasMap[alias] = []string{command.Name()}
+			} else {
+				aliasMap[alias] = append(aliases, command.Name())
+			}
+		}
+	}
+
+	for alias, plugins := range aliasMap {
+		if len(plugins) > 1 {
+			fmt.Fprintf(os.Stderr, "Warning, the alias %s is duplicated across plugins: %s\n\n", alias, strings.Join(plugins, ", "))
+		}
+	}
 }
 
 // Execute executes the CLI.

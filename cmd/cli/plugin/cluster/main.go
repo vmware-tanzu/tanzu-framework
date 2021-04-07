@@ -19,6 +19,7 @@ var descriptor = cli.PluginDescriptor{
 	Name:        "cluster",
 	Description: "Kubernetes cluster operations",
 	Group:       cli.RunCmdGroup,
+	Aliases:     []string{"cl", "clusters"},
 }
 
 var logLevel int32

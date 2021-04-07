@@ -18,6 +18,7 @@ var descriptor = cli.PluginDescriptor{
 	Version:     cli.BuildVersion,
 	BuildSHA:    "",
 	Group:       cli.RunCmdGroup,
+	Aliases:     []string{"mc", "management-clusters"},
 }
 
 var logLevel int32

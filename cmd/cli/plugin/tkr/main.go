@@ -16,6 +16,7 @@ var descriptor = cli.PluginDescriptor{
 	Name:        "kubernetes-release",
 	Description: "Kubernetes release operations",
 	Group:       cli.RunCmdGroup,
+	Aliases:     []string{"kr", "kubernetes-releases"},
 }
 
 func main() {

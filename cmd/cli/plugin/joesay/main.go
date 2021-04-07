@@ -20,6 +20,7 @@ var descriptor = cli.PluginDescriptor{
 	Name:        "joesay",
 	Description: "Stuff Joe says",
 	Group:       cli.ExtraCmdGroup,
+	Aliases:     []string{"js"},
 }
 
 var stuffJoeSays = []string{

@@ -17,6 +17,7 @@ var descriptor = cli.PluginDescriptor{
 	Description: "Pinniped authentication operations (usually not directly invoked)",
 	Group:       cli.RunCmdGroup,
 	Hidden:      true,
+	Aliases:     []string{"pa", "pinniped-auths"},
 }
 
 func main() {

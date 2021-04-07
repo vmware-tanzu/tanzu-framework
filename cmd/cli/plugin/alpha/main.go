@@ -16,6 +16,7 @@ var descriptor = cli.PluginDescriptor{
 	Name:        "alpha",
 	Description: "Alpha CLI commands",
 	Group:       cli.VersionCmdGroup,
+	Aliases:     []string{"a", "alphas"},
 }
 
 func main() {
