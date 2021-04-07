@@ -6,15 +6,16 @@ package main
 import (
 	"github.com/aunum/log"
 
+	cliv1alpha1 "github.com/vmware-tanzu-private/core/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/builder/command"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/command/plugin"
 )
 
-var descriptor = cli.PluginDescriptor{
+var descriptor = cliv1alpha1.PluginDescriptor{
 	Name:        "builder",
 	Description: "Build Tanzu components",
-	Group:       cli.AdminCmdGroup,
+	Group:       cliv1alpha1.AdminCmdGroup,
 	Version:     cli.BuildVersion,
 }
 

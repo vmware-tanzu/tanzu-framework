@@ -11,6 +11,7 @@ import (
 	"github.com/aunum/log"
 	"github.com/spf13/cobra"
 
+	cliv1alpha1 "github.com/vmware-tanzu-private/core/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 )
 
@@ -27,14 +28,14 @@ var updateCmd = &cobra.Command{
 	Use:   "update",
 	Short: "Update the CLI",
 	Annotations: map[string]string{
-		"group": string(cli.SystemCmdGroup),
+		"group": string(cliv1alpha1.SystemCmdGroup),
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		catalog, err := cli.NewCatalog()
-		if err != nil {
-			return err
+		// clean the catalog cache when updating the cli
+		if err := cli.CleanCatalogCache(); err != nil {
+			log.Debugf("Failed to clean the Plugin descriptors cache %v", err)
 		}
-		plugins, err := catalog.List()
+		plugins, err := cli.ListPlugins()
 		if err != nil {
 			return err
 		}
@@ -55,12 +56,12 @@ var updateCmd = &cobra.Command{
 			versionSelector = cli.SelectVersionAny
 		}
 
-		updateMap := map[*cli.PluginDescriptor]updateInfo{}
+		updateMap := map[*cliv1alpha1.PluginDescriptor]updateInfo{}
 		for _, plugin := range plugins {
 			if plugin.Name == cli.CoreName {
 				continue
 			}
-			update, repo, version, err := plugin.HasUpdateIn(repos, versionSelector)
+			update, repo, version, err := cli.HasPluginUpdateIn(repos, versionSelector, plugin)
 			if err != nil {
 				log.Warningf("could not find local plugin %q in any remote repositories", plugin.Name)
 				continue
@@ -104,7 +105,7 @@ var updateCmd = &cobra.Command{
 			}
 		}
 		for plugin, info := range updateMap {
-			err := catalog.Install(plugin.Name, info.version, info.repo)
+			err := cli.InstallPlugin(plugin.Name, info.version, info.repo)
 			if err != nil {
 				return err
 			}

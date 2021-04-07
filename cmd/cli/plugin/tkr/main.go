@@ -8,14 +8,14 @@ import (
 
 	"github.com/aunum/log"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
+	cliv1alpha1 "github.com/vmware-tanzu-private/core/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/command/plugin"
 )
 
-var descriptor = cli.PluginDescriptor{
+var descriptor = cliv1alpha1.PluginDescriptor{
 	Name:        "kubernetes-release",
 	Description: "Kubernetes release operations",
-	Group:       cli.RunCmdGroup,
+	Group:       cliv1alpha1.RunCmdGroup,
 	Aliases:     []string{"kr", "kubernetes-releases"},
 }
 

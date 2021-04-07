@@ -12,14 +12,14 @@ import (
 	"github.com/aunum/log"
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
+	cliv1alpha1 "github.com/vmware-tanzu-private/core/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/command/plugin"
 )
 
-var descriptor = cli.PluginDescriptor{
+var descriptor = cliv1alpha1.PluginDescriptor{
 	Name:        "joesay",
 	Description: "Stuff Joe says",
-	Group:       cli.ExtraCmdGroup,
+	Group:       cliv1alpha1.ExtraCmdGroup,
 	Aliases:     []string{"js"},
 }
 

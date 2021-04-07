@@ -14,19 +14,19 @@ import (
 	"sync"
 	"time"
 
+	"github.com/aunum/log"
 	"github.com/gobwas/glob"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 
+	cliv1alpha1 "github.com/vmware-tanzu-private/core/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/builder/template"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
-
-	"github.com/aunum/log"
 )
 
 type plugin struct {
-	cli.PluginDescriptor
+	cliv1alpha1.PluginDescriptor
 	path     string
 	testPath string
 	docPath  string
@@ -293,7 +293,6 @@ func compile(cmd *cobra.Command, args []string) error {
 
 func buildPlugin(path string, arch cli.Arch, id string) (plugin, error) {
 	log.Infof("%s - building plugin at path %q", id, path)
-
 	b, err := exec.Command("go", "run", "-ldflags", ldflags, fmt.Sprintf("./%s", path), "info").CombinedOutput()
 
 	if err != nil {
@@ -301,7 +300,7 @@ func buildPlugin(path string, arch cli.Arch, id string) (plugin, error) {
 		log.Errorf("%s - output: %v", id, string(b))
 		return plugin{}, err
 	}
-	var desc cli.PluginDescriptor
+	var desc cliv1alpha1.PluginDescriptor
 	err = json.Unmarshal(b, &desc)
 	if err != nil {
 		log.Errorf("%s - error unmarshalling plugin descriptor: %v", id, err)

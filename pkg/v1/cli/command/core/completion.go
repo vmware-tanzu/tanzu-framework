@@ -13,7 +13,7 @@ import (
 	"github.com/lithammer/dedent"
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
+	cliv1alpha1 "github.com/vmware-tanzu-private/core/apis/cli/v1alpha1"
 )
 
 var (
@@ -63,7 +63,7 @@ var completionCmd = &cobra.Command{
 		return runCompletion(os.Stdout, cmd, args)
 	},
 	Annotations: map[string]string{
-		"group": string(cli.SystemCmdGroup),
+		"group": string(cliv1alpha1.SystemCmdGroup),
 	},
 }
 

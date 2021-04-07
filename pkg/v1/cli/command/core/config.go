@@ -12,6 +12,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	cliv1alpha1 "github.com/vmware-tanzu-private/core/apis/cli/v1alpha1"
 	configv1alpha1 "github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
@@ -40,7 +41,7 @@ var configCmd = &cobra.Command{
 	Use:   "config",
 	Short: "Configuration for the CLI",
 	Annotations: map[string]string{
-		"group": string(cli.SystemCmdGroup),
+		"group": string(cliv1alpha1.SystemCmdGroup),
 	},
 }
 

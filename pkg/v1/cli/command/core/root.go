@@ -46,11 +46,7 @@ func NewRootCmd() (*cobra.Command, error) {
 		configCmd,
 	)
 
-	catalog, err := cli.NewCatalog()
-	if err != nil {
-		return nil, err
-	}
-	plugins, err := catalog.List()
+	plugins, err := cli.ListPlugins()
 	if err != nil {
 		return nil, fmt.Errorf("find available plugins: %w", err)
 	}
@@ -60,7 +56,7 @@ func NewRootCmd() (*cobra.Command, error) {
 	}
 
 	// check that all plugins in the core distro are installed or do so.
-	if !noInit && !catalog.Distro().IsSatisfied(plugins) {
+	if !noInit && !cli.IsDistributionSatisfied(plugins) {
 		s := spin.New("%s   initializing")
 		s.Start()
 		cfg, err := config.GetClientConfig()
@@ -68,18 +64,18 @@ func NewRootCmd() (*cobra.Command, error) {
 			log.Fatal(err)
 		}
 		repos := cli.NewMultiRepo(cli.LoadRepositories(cfg)...)
-		err = catalog.EnsureDistro(repos)
+		err = cli.EnsureDistro(repos)
 		if err != nil {
 			return nil, err
 		}
-		plugins, err = catalog.List()
+		plugins, err = cli.ListPlugins()
 		if err != nil {
 			return nil, fmt.Errorf("find available plugins: %w", err)
 		}
 		s.Stop()
 	}
 	for _, plugin := range plugins {
-		root.AddCommand(plugin.Cmd())
+		root.AddCommand(cli.GetCmd(plugin))
 	}
 
 	duplicateAliasWarning()

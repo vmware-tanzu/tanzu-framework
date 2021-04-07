@@ -8,6 +8,7 @@ import (
 	"github.com/caarlos0/spin"
 	"github.com/spf13/cobra"
 
+	cliv1alpha1 "github.com/vmware-tanzu-private/core/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 )
@@ -20,22 +21,19 @@ var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initialize the CLI",
 	Annotations: map[string]string{
-		"group": string(cli.SystemCmdGroup),
+		"group": string(cliv1alpha1.SystemCmdGroup),
 	},
 	SilenceErrors: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		s := spin.New("%s   initializing")
 		s.Start()
-		catalog, err := cli.NewCatalog()
-		if err != nil {
-			return err
-		}
+
 		cfg, err := config.GetClientConfig()
 		if err != nil {
 			return err
 		}
 		repos := cli.NewMultiRepo(cli.LoadRepositories(cfg)...)
-		err = catalog.EnsureDistro(repos)
+		err = cli.EnsureDistro(repos)
 		if err != nil {
 			return err
 		}

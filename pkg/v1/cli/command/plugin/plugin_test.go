@@ -12,13 +12,13 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
+	cliv1alpha1 "github.com/vmware-tanzu-private/core/apis/cli/v1alpha1"
 )
 
 func TestNewPlugin(t *testing.T) {
 	assert := assert.New(t)
 
-	descriptor := cli.PluginDescriptor{
+	descriptor := cliv1alpha1.PluginDescriptor{
 		Name:        "Test Plugin",
 		Description: "Description of the plugin",
 		Version:     "v1.2.3",
@@ -46,7 +46,7 @@ func TestNewPluginFromFile(t *testing.T) {
 	pluginFile := tmpFile.Name()
 	defer os.Remove(pluginFile)
 
-	descriptor := cli.PluginDescriptor{
+	descriptor := cliv1alpha1.PluginDescriptor{
 		Name:        "Test Plugin",
 		Description: "Description of the plugin",
 		Version:     "v1.2.3",
@@ -84,7 +84,7 @@ func TestNewPluginFromFile_Invalid(t *testing.T) {
 func TestAddCommands(t *testing.T) {
 	assert := assert.New(t)
 
-	descriptor := cli.PluginDescriptor{
+	descriptor := cliv1alpha1.PluginDescriptor{
 		Name:        "Test Plugin",
 		Description: "Description of the plugin",
 		Version:     "v1.2.3",
@@ -112,7 +112,7 @@ func TestAddCommands(t *testing.T) {
 func TestExecute(t *testing.T) {
 	assert := assert.New(t)
 
-	descriptor := cli.PluginDescriptor{
+	descriptor := cliv1alpha1.PluginDescriptor{
 		Name:        "Test Plugin",
 		Description: "Description of the plugin",
 		Version:     "v1.2.3",

@@ -1,0 +1,104 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.2.5
+  creationTimestamp: null
+  name: catalogs.cli.tanzu.vmware.com
+spec:
+  group: cli.tanzu.vmware.com
+  names:
+    kind: Catalog
+    listKind: CatalogList
+    plural: catalogs
+    singular: catalog
+  scope: Namespaced
+  validation:
+    openAPIV3Schema:
+      description: Catalog is the Schema for the catalogs API
+      properties:
+        apiVersion:
+          description: 'APIVersion defines the versioned schema of this representation
+            of an object. Servers should convert recognized schemas to the latest
+            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+          type: string
+        kind:
+          description: 'Kind is a string value representing the REST resource this
+            object represents. Servers may infer this from the endpoint the client
+            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          type: object
+        pluginDescriptors:
+          description: PluginDescriptors is a list of PluginDescriptor
+          items:
+            description: PluginDescriptor describes a plugin binary.
+            properties:
+              aliases:
+                description: Aliases are other text strings used to call this command
+                items:
+                  type: string
+                type: array
+              buildSHA:
+                description: BuildSHA is the git commit hash the plugin was built
+                  with.
+                type: string
+              completionArgs:
+                description: CompletionArgs contains the valid command line completion
+                  values if `CompletionType` is set to `StaticPluginCompletion`.
+                items:
+                  type: string
+                type: array
+              completionCmd:
+                description: CompletionCommand is the command to call from the plugin
+                  to retrieve a list of valid completion nouns when `CompletionType`
+                  is set to `DynamicPluginCompletion`.
+                type: string
+              completionType:
+                description: CompletionType determines how command line completion
+                  will be determined.
+                type: integer
+              description:
+                description: Description is the plugin's description.
+                type: string
+              docURL:
+                description: DocURL for the plugin.
+                type: string
+              group:
+                description: Command group for the plugin.
+                type: string
+              hidden:
+                description: Hidden tells whether the plugin should be hidden from
+                  the help command.
+                type: boolean
+              name:
+                description: Name is the name of the plugin.
+                type: string
+              version:
+                description: Version of the plugin. Must be a valid semantic version
+                  https://semver.org/
+                type: string
+            required:
+            - buildSHA
+            - completionType
+            - description
+            - docURL
+            - group
+            - name
+            - version
+            type: object
+          type: array
+      type: object
+  version: v1alpha1
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

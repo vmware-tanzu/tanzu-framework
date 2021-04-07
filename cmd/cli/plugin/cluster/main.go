@@ -9,17 +9,17 @@ import (
 
 	"github.com/aunum/log"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
+	cliv1alpha1 "github.com/vmware-tanzu-private/core/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/command/plugin"
 	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 
 	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
 )
 
-var descriptor = cli.PluginDescriptor{
+var descriptor = cliv1alpha1.PluginDescriptor{
 	Name:        "cluster",
 	Description: "Kubernetes cluster operations",
-	Group:       cli.RunCmdGroup,
+	Group:       cliv1alpha1.RunCmdGroup,
 	Aliases:     []string{"cl", "clusters"},
 }
 

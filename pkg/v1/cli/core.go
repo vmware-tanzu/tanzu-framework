@@ -11,6 +11,8 @@ import (
 
 	"github.com/pkg/errors"
 	"golang.org/x/mod/semver"
+
+	cliv1alpha1 "github.com/vmware-tanzu-private/core/apis/cli/v1alpha1"
 )
 
 // CoreName is the name of the core binary.
@@ -19,7 +21,7 @@ const CoreName = "core"
 const coreDescription = "The core Tanzu CLI"
 
 // CoreDescriptor is the core descriptor.
-var CoreDescriptor = PluginDescriptor{
+var CoreDescriptor = cliv1alpha1.PluginDescriptor{
 	Name:        CoreName,
 	Description: coreDescription,
 	Version:     BuildVersion,

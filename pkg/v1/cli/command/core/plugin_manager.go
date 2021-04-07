@@ -16,6 +16,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	cliv1alpha1 "github.com/vmware-tanzu-private/core/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
 	"github.com/vmware-tanzu-private/core/pkg/v1/config"
@@ -50,7 +51,7 @@ var pluginCmd = &cobra.Command{
 	Use:   "plugin",
 	Short: "Manage CLI plugins",
 	Annotations: map[string]string{
-		"group": string(cli.SystemCmdGroup),
+		"group": string(cliv1alpha1.SystemCmdGroup),
 	},
 }
 
@@ -58,11 +59,7 @@ var listPluginCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List available plugins",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		catalog, err := cli.NewCatalog()
-		if err != nil {
-			return err
-		}
-		descriptors, err := catalog.List()
+		descriptors, err := cli.ListPlugins()
 		if err != nil {
 			return err
 		}
@@ -192,16 +189,12 @@ var installPluginCmd = &cobra.Command{
 
 		repos := getRepositories()
 
-		catalog, err := cli.NewCatalog()
-		if err != nil {
-			return err
-		}
 		versionSelector := cli.DefaultVersionSelector
 		if includeUnstable {
 			versionSelector = cli.SelectVersionAny
 		}
 		if name == cli.AllPlugins {
-			return catalog.InstallAllMulti(repos, versionSelector)
+			return cli.InstallAllMulti(repos, versionSelector)
 		}
 		repo, err := repos.Find(name)
 		if err != nil {
@@ -215,7 +208,7 @@ var installPluginCmd = &cobra.Command{
 		if version == cli.VersionLatest {
 			version = plugin.FindVersion(versionSelector)
 		}
-		err = catalog.Install(name, version, repo)
+		err = cli.InstallPlugin(name, version, repo)
 		if err != nil {
 			return
 		}
@@ -238,10 +231,6 @@ var upgradePluginCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		catalog, err := cli.NewCatalog()
-		if err != nil {
-			return err
-		}
 
 		plugin, err := repo.Describe(name)
 		if err != nil {
@@ -253,7 +242,7 @@ var upgradePluginCmd = &cobra.Command{
 			versionSelector = cli.SelectVersionAny
 		}
 
-		err = catalog.Install(name, plugin.FindVersion(versionSelector), repo)
+		err = cli.UpgradePlugin(name, plugin.FindVersion(versionSelector), repo)
 		return
 	},
 }
@@ -267,12 +256,7 @@ var deletePluginCmd = &cobra.Command{
 		}
 		name := args[0]
 
-		catalog, err := cli.NewCatalog()
-		if err != nil {
-			return err
-		}
-
-		err = catalog.Delete(name)
+		err = cli.DeletePlugin(name)
 
 		return
 	},
@@ -282,11 +266,7 @@ var cleanPluginCmd = &cobra.Command{
 	Use:   "clean",
 	Short: "Clean the plugins",
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
-		catalog, err := cli.NewCatalog()
-		if err != nil {
-			return err
-		}
-		return catalog.Clean()
+		return cli.Clean()
 	},
 }
 
