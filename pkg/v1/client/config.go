@@ -108,7 +108,8 @@ func GetConfig() (cfg *clientv1alpha1.Config, err error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create scheme")
 	}
-	s := json.NewYAMLSerializer(json.DefaultMetaFactory, scheme, scheme)
+	s := json.NewSerializerWithOptions(json.DefaultMetaFactory, scheme, scheme,
+		json.SerializerOptions{Yaml: true, Pretty: false, Strict: false})
 	var c clientv1alpha1.Config
 	_, _, err = s.Decode(b, nil, &c)
 	if err != nil {
@@ -143,7 +144,8 @@ func StoreConfig(cfg *clientv1alpha1.Config) error {
 		return errors.Wrap(err, "failed to create scheme")
 	}
 
-	s := json.NewYAMLSerializer(json.DefaultMetaFactory, scheme, scheme)
+	s := json.NewSerializerWithOptions(json.DefaultMetaFactory, scheme, scheme,
+		json.SerializerOptions{Yaml: true, Pretty: false, Strict: false})
 	buf := new(bytes.Buffer)
 	if err := s.Encode(cfg, buf); err != nil {
 		return errors.Wrap(err, "failed to encode config file")
