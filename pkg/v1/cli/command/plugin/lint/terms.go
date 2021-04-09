@@ -79,8 +79,8 @@ type TKGFlags struct {
 
 func (l *TKGFlags) Init(c *cobraLintConfig) {
 	l.cmd = c.cmd.Parent()
-	l.cmdFlags = c.cliTerms.Nouns
-	l.globalFlags = c.cliTerms.Verbs
+	l.cmdFlags = c.cliTerms.CmdFlags
+	l.globalFlags = c.cliTerms.GlobalFlags
 	r := make(Results)
 	l.results = &r
 }

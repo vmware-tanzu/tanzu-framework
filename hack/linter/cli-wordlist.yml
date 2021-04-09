@@ -13,8 +13,9 @@
   - insight
   - kubeconfig
   - kubernetes-release
+  - login
   - machinehealthcheck
-  - managment-cluster
+  - management-cluster
   - permissions
   - plugin
   - policy
@@ -26,13 +27,15 @@
   - clean
   - completion
   - create
-  - delete 
+  - delete
+  - describe
   - get
+  - help
   - import
+  - info
   - init
   - install
   - list
-  - login
   - os
   - scale
   - show
@@ -40,8 +43,7 @@
   - upgrade
   - version
  global-flags:
-   - help 
-   - log_file
+   - log-file
    - v
  command-flags:
    - apiToken
@@ -53,6 +55,7 @@
    - endpoint
    - file
    - force
+   - force-csp
    - gcp-bucket-name
    - gcp-root-path
    - include-managment-cluster
@@ -63,6 +66,8 @@
    - output
    - server
    - show-all-conditions
+   - staging
+   - stderr-only
    - timeout
    - ui
    - use-existing-bootstrap-cluster
