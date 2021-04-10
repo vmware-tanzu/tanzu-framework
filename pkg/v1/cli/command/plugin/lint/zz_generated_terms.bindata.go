@@ -4,7 +4,6 @@
 
 package lint
 
-
 import (
 	"bytes"
 	"compress/gzip"
@@ -36,7 +35,6 @@ func bindataRead(data []byte, name string) ([]byte, error) {
 
 	return buf.Bytes(), nil
 }
-
 
 type asset struct {
 	bytes []byte
@@ -87,8 +85,6 @@ func bindataHackLinterCliwordlistYmlBytes() ([]byte, error) {
 	)
 }
 
-
-
 func bindataHackLinterCliwordlistYml() (*asset, error) {
 	bytes, err := bindataHackLinterCliwordlistYmlBytes()
 	if err != nil {
@@ -96,18 +92,17 @@ func bindataHackLinterCliwordlistYml() (*asset, error) {
 	}
 
 	info := bindataFileInfo{
-		name: "hack/linter/cli-wordlist.yml",
-		size: 1064,
+		name:        "hack/linter/cli-wordlist.yml",
+		size:        1064,
 		md5checksum: "",
-		mode: os.FileMode(420),
-		modTime: time.Unix(1, 0),
+		mode:        os.FileMode(420),
+		modTime:     time.Unix(1, 0),
 	}
 
 	a := &asset{bytes: bytes, info: info}
 
 	return a, nil
 }
-
 
 //
 // Asset loads and returns the asset for the given name.
@@ -199,18 +194,18 @@ func AssetDir(name string) ([]string, error) {
 			node = node.Children[p]
 			if node == nil {
 				return nil, &os.PathError{
-					Op: "open",
+					Op:   "open",
 					Path: name,
-					Err: os.ErrNotExist,
+					Err:  os.ErrNotExist,
 				}
 			}
 		}
 	}
 	if node.Func != nil {
 		return nil, &os.PathError{
-			Op: "open",
+			Op:   "open",
 			Path: name,
-			Err: os.ErrNotExist,
+			Err:  os.ErrNotExist,
 		}
 	}
 	rv := make([]string, 0, len(node.Children))
@@ -219,7 +214,6 @@ func AssetDir(name string) ([]string, error) {
 	}
 	return rv, nil
 }
-
 
 type bintree struct {
 	Func     func() (*asset, error)
