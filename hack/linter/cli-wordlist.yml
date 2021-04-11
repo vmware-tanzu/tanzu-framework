@@ -30,7 +30,6 @@
   - delete
   - describe
   - get
-  - help
   - import
   - info
   - init
@@ -43,6 +42,7 @@
   - upgrade
   - version
  global-flags:
+   - help
    - log-file
    - v
  command-flags:
