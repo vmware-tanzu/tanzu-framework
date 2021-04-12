@@ -97,13 +97,13 @@ func upgradeCluster(server *v1alpha1.Server, clusterName string) error {
 		return err
 	}
 
-	clusterClient, err := clusterclient.NewClusterClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context)
-	if err != nil {
-		return err
-	}
-
 	tkrVersion := ""
 	if uc.tkrName != "" {
+		clusterClient, err := clusterclient.NewClusterClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context)
+		if err != nil {
+			return err
+		}
+
 		tkrVersion, err = getValidTkrVersionFromTkrForUpgrade(tkgctlClient, clusterClient, clusterName)
 		if err != nil {
 			return err
