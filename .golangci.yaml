@@ -34,7 +34,7 @@ linters-settings:
   goimports:
     local-prefixes: github.com/vmware-tanzu-private
   golint:
-    min-confidence: 0
+    min-confidence: 0.3
   gomnd:
     settings:
       mnd:
@@ -118,7 +118,7 @@ issues:
   exclude:
     - 'declaration of "(err|ctx)" shadows declaration at'
     - 'unnamedResult: consider giving a name to these results'
-    - 'G306: Expect WriteFile permissions to be 0600 or less'
+    - '(Expect directory permissions to be 0750 or less|Expect (WriteFile|file) permissions to be 0600 or less)'
 
   exclude-rules:
     - path: pinniped/internal/mocks
@@ -142,6 +142,15 @@ issues:
       linters:
         - nolintlint
       text: "is unused for linter staticcheck"
+
+  include:
+    - EXC0002 # disable excluding of issues about missing comments on exported symbols from golint
+    - EXC0011 # disable excluding of issues about missing package comments from stylecheck
+
+  # Show all errors for all linters. Setting these to 0 disables limiting error reporting.
+  max-same-issues: 0
+  max-issues-per-linter: 0
+
 run:
   skip-dirs:
     - test/

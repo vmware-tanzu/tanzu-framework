@@ -16,6 +16,7 @@ var cobraLints = []cobraLint{
 	&TKGFlags{},
 }
 
+// NewCobraLinter returns an instance of CobraLintRunner.
 func NewCobraLinter(cmd *cobra.Command) (*CobraLintRunner, error) {
 	terms, err := loadPluginWords(cmd)
 	if err != nil {
@@ -34,6 +35,7 @@ func NewCobraLinter(cmd *cobra.Command) (*CobraLintRunner, error) {
 	}, nil
 }
 
+// Results is a map of commands and lint errors associated with them.
 type Results map[string][]string
 
 type cobraLint interface {
@@ -41,6 +43,7 @@ type cobraLint interface {
 	Execute() *Results
 }
 
+// CobraLintRunner lints cobra commands and reports results.
 type CobraLintRunner struct {
 	results *Results
 	config  *cobraLintConfig
@@ -51,6 +54,7 @@ type cobraLintConfig struct {
 	cmd      *cobra.Command
 }
 
+// Run runs the linter and reports success or failure.
 func (c *CobraLintRunner) Run() bool {
 	success := true
 	for _, l := range cobraLints {
@@ -65,6 +69,7 @@ func (c *CobraLintRunner) Run() bool {
 	return success
 }
 
+// Output writes the results of linting in a table form.
 func (c *CobraLintRunner) Output() {
 	t := component.NewTableWriter()
 	t.SetHeader([]string{"Command", "Lint"})

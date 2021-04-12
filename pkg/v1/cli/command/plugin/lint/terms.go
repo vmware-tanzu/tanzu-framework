@@ -24,19 +24,21 @@ type tanzuTerms struct {
 	CmdFlags    []string `yaml:"command-flags"`
 }
 
-// Analyze plugin command nouns and verbs
+// TKGTerms analyzes plugin command nouns and verbs
 type TKGTerms struct {
 	cmd   *cobra.Command
 	nouns []string
 	verbs []string
 }
 
+// Init initializes TKGTerms using a config.
 func (l *TKGTerms) Init(c *cobraLintConfig) {
 	l.cmd = c.cmd.Parent()
 	l.nouns = c.cliTerms.Nouns
 	l.verbs = c.cliTerms.Verbs
 }
 
+// Execute runs the analysis and reports results.
 func (l *TKGTerms) Execute() *Results {
 	results := make(Results)
 
@@ -69,7 +71,7 @@ func (l *TKGTerms) Execute() *Results {
 	return &results
 }
 
-// Analyze local and persistent commands
+// TKGFlags analyzes local and persistent commands.
 type TKGFlags struct {
 	cmd         *cobra.Command
 	cmdFlags    []string
@@ -77,6 +79,7 @@ type TKGFlags struct {
 	results     *Results
 }
 
+// Init initializes TKGFlags analyzer.
 func (l *TKGFlags) Init(c *cobraLintConfig) {
 	l.cmd = c.cmd.Parent()
 	l.cmdFlags = c.cliTerms.Nouns
@@ -85,6 +88,7 @@ func (l *TKGFlags) Init(c *cobraLintConfig) {
 	l.results = &r
 }
 
+// Execute runs the analysis and reports results.
 func (l *TKGFlags) Execute() *Results {
 	l.lint(l.cmd)
 
