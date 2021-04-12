@@ -15,6 +15,7 @@ import (
 const (
 	noLint   = "no-lint"
 	lintName = "lint"
+	help     = "help"
 )
 
 type tanzuTerms struct {
@@ -57,7 +58,7 @@ func (l *TKGTerms) Execute() *Results {
 	// Subcommands can be either a valid noun or verb, depending on the commands format
 	if l.cmd.HasSubCommands() {
 		for _, subCmd := range l.cmd.Commands() {
-			if subCmd.Use == lintName {
+			if subCmd.Use == lintName || subCmd.Use == help {
 				continue
 			}
 			if contains(l.nouns, rawUse(subCmd.Use)) || contains(l.verbs, rawUse(subCmd.Use)) {
@@ -82,8 +83,8 @@ type TKGFlags struct {
 // Init initializes TKGFlags analyzer.
 func (l *TKGFlags) Init(c *cobraLintConfig) {
 	l.cmd = c.cmd.Parent()
-	l.cmdFlags = c.cliTerms.Nouns
-	l.globalFlags = c.cliTerms.Verbs
+	l.cmdFlags = c.cliTerms.CmdFlags
+	l.globalFlags = c.cliTerms.GlobalFlags
 	r := make(Results)
 	l.results = &r
 }
