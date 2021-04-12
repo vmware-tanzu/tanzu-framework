@@ -169,7 +169,7 @@ func (r *AddonReconciler) reconcileDelete(
 		// For Apps residing in workload cluster, it is not necessary to delete the app and its secret since the
 		// cluster itself is deleted.
 		if util.IsRemoteApp(&addonSecret) {
-			if err := r.reconcileAddonDelete(ctx, log, nil, &addonSecret, true); err != nil {
+			if err := r.reconcileAddonDelete(ctx, log, nil, &addonSecret); err != nil {
 				log.Error(err, "Error deleting remote app for addon")
 				errors = append(errors, err)
 				continue
@@ -344,7 +344,7 @@ func (r *AddonReconciler) reconcileAddonSecretDelete(
 	}
 
 	// delete remote app and data values secret
-	if err := r.reconcileAddonDelete(ctx, log, clusterClient, addonSecret, false); err != nil {
+	if err := r.reconcileAddonDelete(ctx, log, clusterClient, addonSecret); err != nil {
 		log.Error(err, "Error reconciling addon delete", constants.AddonNameLogKey, addonName)
 		return ctrl.Result{}, err
 	}
