@@ -6,6 +6,7 @@ package source
 import (
 	"context"
 	"strconv"
+	"strings"
 
 	"regexp"
 	"time"
@@ -25,6 +26,8 @@ const (
 	VMwareVersionSeparator = "+vmware."
 	// InitialDiscoveryRetry is the number of retries for the initial TKR sync-up
 	InitialDiscoveryRetry = 10
+	// GetManagementClusterInfoFailedError is the error message for not getting management cluster info
+	GetManagementClusterInfoFailedError = "failed to get management cluster info"
 )
 
 // NewTkrFromBom gets a new TKR matching tkrName from the BOM information in bomContent
@@ -207,5 +210,9 @@ func (r *reconciler) GetManagementClusterVersion(ctx context.Context) (string, e
 		}
 	}
 
-	return "", errors.New("failed to get management cluster info")
+	return "", errors.New(GetManagementClusterInfoFailedError)
+}
+
+func isManagementClusterNotReadyError(err error) bool {
+	return strings.Contains(err.Error(), GetManagementClusterInfoFailedError)
 }
