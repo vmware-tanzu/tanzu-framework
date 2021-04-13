@@ -96,7 +96,19 @@ func aliasNormalizeFunc(f *pflag.FlagSet, name string) pflag.NormalizedName {
 func create(cmd *cobra.Command, args []string) error {
 	server, err := client.GetCurrentServer()
 	if err != nil {
-		return err
+		// if current server does not exist and user is using generate only
+		// option then allow user to proceed by providing dummy management server
+		// information.
+		// Note: This is only used for testing purpose when management cluster
+		// does not exist and we want to test cluster template generation
+		if cc.generateOnly {
+			server = &v1alpha1.Server{
+				Type:                  v1alpha1.ManagementClusterServerType,
+				ManagementClusterOpts: &v1alpha1.ManagementClusterServer{},
+			}
+		} else {
+			return err
+		}
 	}
 	clusterName := ""
 	if len(args) > 0 {
@@ -115,13 +127,13 @@ func createCluster(clusterName string, server *v1alpha1.Server) error {
 		return err
 	}
 
-	clusterClient, err := clusterclient.NewClusterClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context)
-	if err != nil {
-		return err
-	}
-
 	tkrVersion := ""
 	if cc.tkrName != "" {
+		clusterClient, err := clusterclient.NewClusterClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context)
+		if err != nil {
+			return err
+		}
+
 		tkrVersion, err = getTkrVersionForMatchingTkr(clusterClient, cc.tkrName)
 		if err != nil {
 			return err
