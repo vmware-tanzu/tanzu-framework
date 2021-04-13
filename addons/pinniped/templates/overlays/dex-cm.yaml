@@ -32,8 +32,13 @@ connectors:
       insecureSkipVerify: #@ values.dex.config.ldap.insecureSkipVerify
       #@ if/end values.dex.config.ldap.bindDN:
       bindDN: #@ values.dex.config.ldap.bindDN
-      #@ if/end values.dex.config.ldap.bindPW:
+      #! If BIND_PW_ENV_VAR is set, use it for bindPW
+      #@ if hasattr(values.dex.config.ldap, "BIND_PW_ENV_VAR") and values.dex.config.ldap.BIND_PW_ENV_VAR:
+      bindPW: $BIND_PW_ENV_VAR
+      #@ elif hasattr(values.dex.config.ldap, "bindPW") and values.dex.config.ldap.bindPW:
+      #! This is to handle the upgrade case. Older version of addon secret will still pass in bindPW instead of BIND_PW_ENV_VAR
       bindPW: #@ values.dex.config.ldap.bindPW
+      #@ end
       #@ if/end values.dex.config.ldap.usernamePrompt:
       usernamePrompt: #@ values.dex.config.ldap.usernamePrompt
       #@ if/end values.dex.config.ldap.userSearch:
