@@ -1,7 +1,7 @@
 #@ load("/values.star", "values")
 #@ load("@ytt:overlay", "overlay")
 #@ load("/globals.star", "get_image_location", "globals")
-#@ load("/libs/constants.lib.yaml", "is_dex_required", "dex_tls_secret_name")
+#@ load("/libs/constants.lib.yaml", "is_dex_required", "dex_tls_secret_name", "get_ldap_bindpw_secret_name")
 
 #@ if values.tkg_cluster_role != "workload" and is_dex_required():
 ---
@@ -89,6 +89,12 @@ spec:
             #@ if/end values.no_proxy:
             - name: NO_PROXY
               value: #@ values.no_proxy
+            #@ if/end values.dex.config.ldap.BIND_PW_ENV_VAR:
+            - name: BIND_PW_ENV_VAR
+              valueFrom:
+                secretKeyRef:
+                  key: bindPWEnvVar
+                  name: #@ get_ldap_bindpw_secret_name()
           image: #@ get_image_location(values.dex.image.repository, values.dex.image.name, values.dex.image.tag)
           imagePullPolicy: #@ values.dex.image.pullPolicy
       volumes:
@@ -96,5 +102,10 @@ spec:
         - name: tls
           secret:
             secretName: #@ dex_tls_secret_name()
+        #@ if/end values.dex.config.ldap.BIND_PW_ENV_VAR:
+        #@overlay/append
+        - name: #@ get_ldap_bindpw_secret_name()
+          secret:
+            secretName: #@ get_ldap_bindpw_secret_name()
 
 #@ end
