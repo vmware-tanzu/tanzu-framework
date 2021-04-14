@@ -8,7 +8,7 @@ kappController:
   image:
     repository: registry.tkg.vmware.run/tkg
     path: kapp-controller
-    tag: v0.16.0_vmware.1
+    tag: v0.18.0_vmware.1
     pullPolicy: IfNotPresent
   deployment:
     hostNetwork: null

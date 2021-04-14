@@ -1,4 +1,4 @@
-#! Source: https://github.com/vmware-tanzu/carvel-kapp-controller/releases/tag/v0.16.0
+#! Source: https://github.com/vmware-tanzu/carvel-kapp-controller/releases/tag/v0.18.0
 
 ---
 apiVersion: v1
@@ -24,9 +24,12 @@ data:
   #! The url/ip of a tls capable proxy for kapp controller to use when
   #! making network requests (optional)
   httpsProxy: ""
-  #! A comma delimited list of domain names which kapp controller should
-  #! bypass the proxy for when making requests (optional)
+  #! A comma delimited list of domain names for which kapp controller should
+  #! bypass the proxy when making requests (optional)
   noProxy: ""
+  #! A comma delimited list of hostnames for which kapp controller should
+  #! skip TLS verification (optional)
+  dangerousSkipTLSVerify: ""
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -40,24 +43,23 @@ metadata:
   name: apps.kappctrl.k14s.io
 spec:
   additionalPrinterColumns:
-    - JSONPath: .status.friendlyDescription
-      description: Friendly description
-      name: Description
-      type: string
-    - JSONPath: .status.deploy.startedAt
-      description: Last time app started being deployed. Does not mean anything was
-        changed.
-      name: Since-Deploy
-      type: date
-    - JSONPath: .metadata.creationTimestamp
-      description: |-
-        CreationTimestamp is a timestamp representing the server time when this object was created.
-        It is not guaranteed to be set in happens-before order across separate operations.
-        Clients may not set this value. It is represented in RFC3339 form and is in UTC.
-        Populated by the system. Read-only. Null for lists.
-        More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
-      name: Age
-      type: date
+  - JSONPath: .status.friendlyDescription
+    description: Friendly description
+    name: Description
+    type: string
+  - JSONPath: .status.deploy.startedAt
+    description: Last time app started being deployed. Does not mean anything was changed.
+    name: Since-Deploy
+    type: date
+  - JSONPath: .metadata.creationTimestamp
+    description: |-
+      CreationTimestamp is a timestamp representing the server time when this object was created.
+      It is not guaranteed to be set in happens-before order across separate operations.
+      Clients may not set this value. It is represented in RFC3339 form and is in UTC.
+      Populated by the system. Read-only. Null for lists.
+      More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+    name: Age
+    type: date
   group: kappctrl.k14s.io
   names:
     kind: App
@@ -68,9 +70,9 @@ spec:
   subresources:
     status: {}
   versions:
-    - name: v1alpha1
-      served: true
-      storage: true
+  - name: v1alpha1
+    served: true
+    storage: true
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -89,50 +91,57 @@ spec:
         app: kapp-controller
     spec:
       containers:
-        - args: []
-          env:
-            - name: KAPPCTRL_MEM_TMP_DIR
-              value: /etc/kappctrl-mem-tmp
-          image: index.docker.io/k14s/kapp-controller@sha256:8121296ee187b35c3109b11d747ce3eb2c01fb0386f162c89bab1d264189caf8
-          name: kapp-controller
-          resources:
-            requests:
-              cpu: 120m
-              memory: 100Mi
-          securityContext:
-            runAsGroup: 2000
-            runAsUser: 1000
-          volumeMounts:
-            - mountPath: /etc/kappctrl-mem-tmp
-              name: template-fs
+      - args: []
+        env:
+        - name: KAPPCTRL_MEM_TMP_DIR
+          value: /etc/kappctrl-mem-tmp
+        image: index.docker.io/k14s/kapp-controller@sha256:680d8dc167b2c8e13ff45236eec5ed2a832b8e608716c154d76bc3496f88dffd
+        name: kapp-controller
+        resources:
+          requests:
+            cpu: 120m
+            memory: 100Mi
+        securityContext:
+          runAsGroup: 2000
+          runAsUser: 1000
+        volumeMounts:
+        - mountPath: /etc/kappctrl-mem-tmp
+          name: template-fs
       securityContext:
         fsGroup: 3000
       serviceAccount: kapp-controller-sa
       volumes:
-        - emptyDir:
-            medium: Memory
-          name: template-fs
+      - emptyDir:
+          medium: Memory
+        name: template-fs
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: kapp-controller-cluster-role
 rules:
-  - apiGroups:
-      - ""
-    resources:
-      - serviceaccounts
-      - secrets
-      - configmaps
-    verbs:
-      - get
-  - apiGroups:
-      - kappctrl.k14s.io
-    resources:
-      - apps
-      - apps/status
-    verbs:
-      - '*'
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - serviceaccounts
+  verbs:
+  - get
+- apiGroups:
+  - kappctrl.k14s.io
+  resources:
+  - apps
+  - apps/status
+  verbs:
+  - '*'
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -143,6 +152,6 @@ roleRef:
   kind: ClusterRole
   name: kapp-controller-cluster-role
 subjects:
-  - kind: ServiceAccount
-    name: kapp-controller-sa
-    namespace: kapp-controller
+- kind: ServiceAccount
+  name: kapp-controller-sa
+  namespace: kapp-controller
