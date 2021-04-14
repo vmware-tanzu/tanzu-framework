@@ -6,9 +6,9 @@ kappController:
   namespace: tkg-system
   createNamespace: true
   image:
-    repository: registry.tkg.vmware.run/tkg
+    repository: projects-stg.registry.vmware.com/tkg
     path: kapp-controller
-    tag: v0.16.0_vmware.1
+    tag: v0.18.0_vmware.1
     pullPolicy: IfNotPresent
   deployment:
     hostNetwork: null
@@ -19,3 +19,4 @@ kappController:
     httpProxy: ""
     httpsProxy: ""
     noProxy: ""
+    dangerousSkipTLSVerify: ""
