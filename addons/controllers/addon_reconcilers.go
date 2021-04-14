@@ -207,8 +207,7 @@ func (r *AddonReconciler) reconcileAddonAppDelete(
 	ctx context.Context,
 	log logr.Logger,
 	clusterClient client.Client,
-	addonSecret *corev1.Secret,
-	force bool) error {
+	addonSecret *corev1.Secret) error {
 
 	app := &kappctrl.App{
 		ObjectMeta: metav1.ObjectMeta{
@@ -224,29 +223,6 @@ func (r *AddonReconciler) reconcileAddonAppDelete(
 		}
 		log.Error(err, "Error deleting addon app")
 		return err
-	}
-
-	// If force deletion is set, remove all finalizers from app
-	if force {
-		app := &kappctrl.App{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      util.GenerateAppNameFromAddonSecret(addonSecret),
-				Namespace: util.GenerateAppNamespaceFromAddonSecret(addonSecret),
-			},
-		}
-
-		appMutateFn := func() error {
-			app.ObjectMeta.Finalizers = []string{}
-			return nil
-		}
-
-		result, err := controllerutil.CreateOrPatch(ctx, clusterClient, app, appMutateFn)
-		if err != nil {
-			log.Error(err, "Error creating or patching addon data values secret")
-			return err
-		}
-
-		r.logOperationResult(log, "app", result)
 	}
 
 	log.Info("Deleted app")
@@ -336,6 +312,11 @@ func (r *AddonReconciler) reconcileAddonAppNormal(
 			},
 		}
 
+		// If its a remoteApp set delete to no-op since the app doesnt have to be deleted when cluster is deleted.
+		if remoteApp {
+			app.Spec.NoopDelete = true
+		}
+
 		return nil
 	}
 
@@ -354,8 +335,7 @@ func (r *AddonReconciler) reconcileAddonDelete(
 	ctx context.Context,
 	log logr.Logger,
 	remoteClusterClient client.Client,
-	addonSecret *corev1.Secret,
-	force bool) error {
+	addonSecret *corev1.Secret) error {
 
 	addonName := util.GetAddonNameFromAddonSecret(addonSecret)
 
@@ -365,7 +345,7 @@ func (r *AddonReconciler) reconcileAddonDelete(
 
 	clusterClient := util.GetClientFromAddonSecret(addonSecret, r.Client, remoteClusterClient)
 
-	if err := r.reconcileAddonAppDelete(ctx, log, clusterClient, addonSecret, force); err != nil {
+	if err := r.reconcileAddonAppDelete(ctx, log, clusterClient, addonSecret); err != nil {
 		log.Error(err, "Error reconciling addon app delete")
 		return err
 	}
