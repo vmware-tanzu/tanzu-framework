@@ -20,13 +20,16 @@ type registry struct {
 }
 
 // New instantiates a new Registry
-func New(opts ctlimg.RegistryOpts) Registry {
+func New(opts ctlimg.RegistryOpts) (Registry, error) {
 
-	reg := ctlimg.NewRegistry(opts)
+	reg, err := ctlimg.NewRegistry(opts)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to initialze registry client")
+	}
 
 	return &registry{
 		registry: reg,
-	}
+	}, nil
 }
 
 // ListImageTags lists all tags of the given image.
