@@ -430,10 +430,11 @@ func (r *reconciler) tkrDiscovery(ticker *time.Ticker, done chan bool, stopChan 
 }
 
 func (r *reconciler) Start(stopChan <-chan struct{}) error {
+	var err error
 	r.log.Info("Starting TanzuKubernetesReleaase Reconciler")
 
 	r.log.Info("Performing configuration setup")
-	err := r.Configure()
+	err = r.Configure()
 	if err != nil {
 		return errors.Wrap(err, "failed to configure the controller")
 	}
@@ -445,7 +446,10 @@ func (r *reconciler) Start(stopChan <-chan struct{}) error {
 		}
 	}
 
-	r.registry = registry.New(r.registryOps)
+	r.registry, err = registry.New(r.registryOps)
+	if err != nil {
+		return err
+	}
 
 	r.log.Info("Performing an initial release discovery")
 	initSyncDone := make(chan bool)
