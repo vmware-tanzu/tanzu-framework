@@ -20,6 +20,7 @@ type initRegionOptions struct {
 	enableTKGSOnVsphere7        bool
 	deployTKGonVsphere7         bool
 	unattended                  bool
+	dryRun                      bool
 	clusterConfigFile           string
 	plan                        string
 	clusterName                 string
@@ -114,6 +115,8 @@ func init() {
 	createCmd.Flags().StringVarP(&iro.tmcRegistrationURL, "tmc-registration-url", "", "", "URL to download the yml which has configuration related to resources to be deployed on the management cluster for it to register with Tanzu Mission Control")
 	createCmd.Flags().MarkHidden("tmc-registration-url") //nolint
 
+	createCmd.Flags().BoolVar(&iro.dryRun, "dry-run", false, "Generates the management cluster manifest and writes the output to stdout without applying it")
+
 	// Hidden flags, mostly for development and testing
 
 	createCmd.Flags().StringVarP(&iro.targetNamespace, "target-namespace", "", "", "The target namespace where the providers should be deployed. If not specified, each provider will be installed in a provider's default namespace")
@@ -167,6 +170,7 @@ func runInit() error {
 		VsphereControlPlaneEndpoint: iro.vsphereControlPlaneEndpoint,
 		SkipPrompt:                  iro.unattended,
 		Timeout:                     iro.timeout,
+		GenerateOnly:                iro.dryRun,
 	}
 
 	return tkgClient.Init(options)
