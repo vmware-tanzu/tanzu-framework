@@ -141,7 +141,7 @@ ifeq ($(build_OS), Linux)
 XDG_DATA_HOME := ${HOME}/.local/share
 endif
 ifeq ($(build_OS), Darwin)
-XDG_DATA_HOME := ${HOME}/Library/ApplicationSupport
+XDG_DATA_HOME := "$${HOME}/Library/Application Support"
 endif
 
 export XDG_DATA_HOME
