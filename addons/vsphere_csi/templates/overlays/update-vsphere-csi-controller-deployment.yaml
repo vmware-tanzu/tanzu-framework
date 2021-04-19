@@ -1,5 +1,6 @@
 #@ load("/values.star", "values")
 #@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
 
 #@overlay/match by=overlay.subset({"kind": "Deployment", "metadata": {"name": "vsphere-csi-controller"}})
 ---
@@ -38,3 +39,20 @@ spec:
           args:
           #@overlay/match by=lambda index, left, right: "--timeout=" in left, expects=1
           - #@ "--timeout=" + values.vsphereCSI.provisionTimeout
+        #@ if hasattr(values.vsphereCSI, 'vSphereVersion') and values.vsphereCSI.vSphereVersion.startswith('7'):
+        #@overlay/append
+        - name: csi-resizer
+          image: #@ "{}/{}:{}".format(values.vsphereCSI.CSIResizerImage.repository, values.vsphereCSI.CSIResizerImage.path, values.vsphereCSI.CSIResizerImage.tag)
+          args:
+            - --v=4
+            - #@ "--timeout=" + values.vsphereCSI.resizerTimeout
+            - #@ "--csi-address=" + '$(ADDRESS)'
+            - --leader-election
+          env:
+            - name: ADDRESS
+              value: /csi/csi.sock
+          volumeMounts:
+            - mountPath: /csi
+              name: socket-dir
+          imagePullPolicy: #@ values.vsphereCSI.CSIResizerImage.pullPolicy
+        #@ end
