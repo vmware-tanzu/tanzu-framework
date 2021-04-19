@@ -400,7 +400,7 @@ data:
     labels: {"app":"pinniped-concierge"}
     kubeCertAgent:
       namePrefix: pinniped-concierge-kube-cert-agent-
-      image: (@= data.values.pinniped.image.repository @)/(@= data.values.pinniped.image.name @):(@= data.values.pinniped.image.tag @)
+      image: (@= data.values.imageInfo.imageRepository @)/(@= data.values.imageInfo.images.pinnipedImage.imagePath @):(@= data.values.imageInfo.images.pinnipedImage.tag @)
 ---
 apiVersion: apps/v1
 kind: Deployment

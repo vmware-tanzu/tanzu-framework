@@ -8,6 +8,9 @@ import (
 	"fmt"
 	"strconv"
 
+	bomtypes "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/types"
+	"gopkg.in/yaml.v2"
+
 	"github.com/vmware-tanzu-private/core/addons/pkg/constants"
 	addontypes "github.com/vmware-tanzu-private/core/addons/pkg/types"
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
@@ -84,6 +87,32 @@ func GetClientFromAddonSecret(addonSecret *corev1.Secret, localClient client.Cli
 		clusterClient = remoteClient
 	}
 	return clusterClient
+}
+
+// GetImageInfo gets the image Info of an addon
+func GetImageInfo(addonConfig *bomtypes.Addon, imageRepository string, bom *bomtypes.Bom) ([]byte, error) {
+	componentRefs := addonConfig.AddonContainerImages
+
+	addonImageInfo := &addontypes.AddonImageInfo{Info: addontypes.ImageInfo{ImageRepository: imageRepository, ImagePullPolicy: constants.TKGAddonsImagePullPolicy, Images: map[string]addontypes.Image{}}}
+
+	// No Image will be added if componentRefs is empty
+	for _, componentRef := range componentRefs {
+		for _, imageRef := range componentRef.ImageRefs {
+			image, err := bom.GetImageInfo(componentRef.ComponentRef, "", imageRef)
+			if err != nil {
+				return nil, err
+			}
+			addonImageInfo.Info.Images[imageRef] = addontypes.Image{ImagePath: image.ImagePath, Tag: image.Tag}
+		}
+	}
+
+	ImageInfoBytes, err := yaml.Marshal(addonImageInfo)
+	if err != nil {
+		return nil, err
+	}
+
+	outputBytes := append([]byte(constants.TKGDataValueFormatString), ImageInfoBytes...)
+	return outputBytes, nil
 }
 
 // GetApp gets the kapp from cluster

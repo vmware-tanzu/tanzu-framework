@@ -12,14 +12,14 @@ spec:
     spec:
       containers:
         #@overlay/match by=overlay.subset({"name": "node-driver-registrar"})
-        - image: #@ "{}/{}:{}".format(values.vsphereCSI.CSINodeDriverRegistrarImage.repository, values.vsphereCSI.CSINodeDriverRegistrarImage.path, values.vsphereCSI.CSINodeDriverRegistrarImage.tag)
+        - image: #@ "{}/{}:{}".format(values.imageInfo.imageRepository, values.imageInfo.images.csiNodeDriverRegistrarImage.imagePath, values.imageInfo.images.csiNodeDriverRegistrarImage.tag)
           #@overlay/match missing_ok=True
-          imagePullPolicy: #@ values.vsphereCSI.CSINodeDriverRegistrarImage.pullPolicy
+          imagePullPolicy: #@ values.imageInfo.imagePullPolicy
         #@overlay/match by=overlay.subset({"name": "vsphere-csi-node"})
-        - image: #@ "{}/{}:{}".format(values.vsphereCSI.vsphereCSIControllerImage.repository, values.vsphereCSI.vsphereCSIControllerImage.path, values.vsphereCSI.vsphereCSIControllerImage.tag)
+        - image: #@ "{}/{}:{}".format(values.imageInfo.imageRepository, values.imageInfo.images.csiControllerImage.imagePath, values.imageInfo.images.csiControllerImage.tag)
           #@overlay/match missing_ok=True
-          imagePullPolicy: #@ values.vsphereCSI.vsphereCSIControllerImage.pullPolicy
+          imagePullPolicy: #@ values.imageInfo.imagePullPolicy
         #@overlay/match by=overlay.subset({"name": "liveness-probe"})
-        - image: #@ "{}/{}:{}".format(values.vsphereCSI.livenessProbeImage.repository, values.vsphereCSI.livenessProbeImage.path, values.vsphereCSI.livenessProbeImage.tag)
+        - image: #@ "{}/{}:{}".format(values.imageInfo.imageRepository, values.imageInfo.images.csiLivenessProbeImage.imagePath, values.imageInfo.images.csiLivenessProbeImage.tag)
           #@overlay/match missing_ok=True
-          imagePullPolicy: #@ values.vsphereCSI.livenessProbeImage.pullPolicy
+          imagePullPolicy: #@ values.imageInfo.imagePullPolicy

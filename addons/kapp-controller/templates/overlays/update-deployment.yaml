@@ -10,8 +10,8 @@ spec:
     spec:
       containers:
       #@overlay/match by=overlay.subset({"name":"kapp-controller"})
-      - image: #@ "{}/{}:{}".format(data.values.kappController.image.repository, data.values.kappController.image.path, data.values.kappController.image.tag)
-        imagePullPolicy: #@ data.values.kappController.image.pullPolicy
+      - image: #@ "{}/{}:{}".format(data.values.imageInfo.imageRepository, data.values.imageInfo.images.kappControllerImage.imagePath, data.values.imageInfo.images.kappControllerImage.tag)
+        imagePullPolicy: #@ data.values.imageInfo.imagePullPolicy
         args:
         #@overlay/append
         - #@ "-concurrency={}".format(data.values.kappController.deployment.concurrency)

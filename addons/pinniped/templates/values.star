@@ -25,7 +25,6 @@ def validate_dex():
   validate_funcs = [validate_infrastructure_provider,
                     validate_dex_namespace,
                     validate_dex_config,
-                    validate_dex_image,
                     validate_dex_certificate,
                     validate_dex_deployment,
                     validate_dex_service]
@@ -66,13 +65,6 @@ def validate_ldap_config():
   if data.values.dex.config.ldap.groupSearch :
     data.values.dex.config.ldap.groupSearch.baseDN or assert.fail("Dex ldap groupSearch enabled. baseDN should be provided")
   end
-end
-
-def validate_dex_image():
-  data.values.dex.image.name or assert.fail("Dex image name should be provided")
-  data.values.dex.image.tag or assert.fail("Dex image tag should be provided")
-  data.values.dex.image.repository or assert.fail("Dex image repository should be provided")
-  data.values.dex.image.pullPolicy or assert.fail("Dex image pullPolicy should be provided")
 end
 
 def validate_dex_certificate():

@@ -16,6 +16,9 @@ const (
 	// TKGAddonsAppClusterRoleBinding is the TKG add on app ClusterRoleBinding.
 	TKGAddonsAppClusterRoleBinding = "tkg-addons-app-cluster-role-binding"
 
+	// TKGAddonsImagePullPolicy is pull policy for TKG addon images.
+	TKGAddonsImagePullPolicy = "IfNotPresent"
+
 	// TKGBomNamespace is the TKG add on BOM namespace.
 	TKGBomNamespace = "tkr-system"
 
@@ -30,4 +33,7 @@ const (
 
 	// TKRRepoKey is the key for image repository in TKR config map data.
 	TKRRepoKey = "imageRepository"
+
+	// TKGDataValueFormatString is required annotations for YTT data value file
+	TKGDataValueFormatString = "#@data/values\n#@overlay/match-child-defaults missing_ok=True\n---\n"
 )

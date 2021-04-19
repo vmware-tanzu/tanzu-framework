@@ -21,6 +21,15 @@ const (
 	// AddonNameLogKey is the log key for "addon-name"
 	AddonNameLogKey = "addon-name"
 
+	// ImageNameLogKey is the log key for "image-name".
+	ImageNameLogKey = "image-name"
+
+	// ImageURLLogKey is the log key for "image-url".
+	ImageURLLogKey = "image-url"
+
+	// ComponentNameLogKey is the log key for "component-name".
+	ComponentNameLogKey = "component-name"
+
 	// KCPNameLogKey is the log key for "kcp-name"
 	KCPNameLogKey = "kcp-name"
 

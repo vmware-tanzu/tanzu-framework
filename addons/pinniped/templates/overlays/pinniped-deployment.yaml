@@ -2,8 +2,6 @@
 #@ load("@ytt:overlay", "overlay")
 #@ load("/globals.star", "get_image_location", "globals")
 
-#@ pinniped_image = data.values.pinniped.image
-
 #@ if data.values.tkg_cluster_role == "management":
 #@overlay/match by=overlay.subset({"kind": "Deployment", "metadata": {"name": "pinniped-supervisor"}})
 ---
@@ -24,8 +22,8 @@ spec:
             #@ if/end data.values.no_proxy:
             - name: NO_PROXY
               value: #@ data.values.no_proxy
-          image: #@ get_image_location(pinniped_image.repository, pinniped_image.name, pinniped_image.tag)
-          imagePullPolicy: #@ pinniped_image.pull_policy
+          image: #@ get_image_location(data.values.imageInfo.imageRepository, data.values.imageInfo.images.pinnipedImage.imagePath, data.values.imageInfo.images.pinnipedImage.tag)
+          imagePullPolicy: #@ data.values.imageInfo.imagePullPolicy
 #@ end
 
 #@overlay/match by=overlay.subset({"kind": "Deployment", "metadata": {"name": "pinniped-concierge"}})
@@ -37,5 +35,5 @@ spec:
         #@overlay/match by=overlay.subset({"name": "pinniped-concierge"})
         - name: pinniped-concierge
           #! No need to add HTTP Proxy for concierge pods, since only supervisor pods are communicating with external IDP
-          image: #@ get_image_location(pinniped_image.repository, pinniped_image.name, pinniped_image.tag)
-          imagePullPolicy: #@ pinniped_image.pull_policy
+          image: #@ get_image_location(data.values.imageInfo.imageRepository, data.values.imageInfo.images.pinnipedImage.imagePath, data.values.imageInfo.images.pinnipedImage.tag)
+          imagePullPolicy: #@ data.values.imageInfo.imagePullPolicy

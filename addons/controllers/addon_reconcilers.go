@@ -6,6 +6,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"github.com/pkg/errors"
 
 	"github.com/go-logr/logr"
 	"github.com/vmware-tanzu-private/core/addons/constants"
@@ -176,7 +177,10 @@ func (r *AddonReconciler) reconcileAddonDataValuesSecretNormal(
 	ctx context.Context,
 	log logr.Logger,
 	clusterClient client.Client,
-	addonSecret *corev1.Secret) error {
+	addonSecret *corev1.Secret,
+	addonConfig *bomtypes.Addon,
+	imageRepository string,
+	bom *bomtypes.Bom) error {
 
 	addonDataValuesSecret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
@@ -185,9 +189,16 @@ func (r *AddonReconciler) reconcileAddonDataValuesSecretNormal(
 		},
 	}
 
+	imageInfoBytes, err := util.GetImageInfo(addonConfig, imageRepository, bom)
+	if err != nil {
+		log.Error(err, "Error retrieving addon image info")
+		return err
+	}
+
 	addonDataValuesSecretMutateFn := func() error {
 		addonDataValuesSecret.Type = corev1.SecretTypeOpaque
 		addonDataValuesSecret.Data = addonSecret.Data
+		addonDataValuesSecret.Data["imageInfo.yaml"] = imageInfoBytes
 		return nil
 	}
 
@@ -237,7 +248,8 @@ func (r *AddonReconciler) reconcileAddonAppNormal(
 	clusterClient client.Client,
 	addonSecret *corev1.Secret,
 	addonConfig *bomtypes.Addon,
-	imageRepository string) error {
+	imageRepository string,
+	bom *bomtypes.Bom) error {
 
 	addonName := util.GetAddonNameFromAddonSecret(addonSecret)
 
@@ -258,7 +270,7 @@ func (r *AddonReconciler) reconcileAddonAppNormal(
 		app.ObjectMeta.Annotations[addontypes.AddonNamespaceAnnotation] = addonSecret.Namespace
 
 		/*
-		 * remoteApp means App is not present on local workload cluster. It is present in the remote management cluster.
+		 * remoteApp means App CR on the management cluster that kapp-controller uses to remotely manages set of objects deployed in a workload cluster.
 		 * workload clusters kubeconfig details need to be added for remote App so that kapp-controller on management
 		 * cluster can reconcile and push the addon/app to the workload cluster
 		 */
@@ -277,10 +289,56 @@ func (r *AddonReconciler) reconcileAddonAppNormal(
 
 		app.Spec.SyncPeriod = &metav1.Duration{Duration: r.Config.AppSyncPeriod}
 
+		/*example addon section in BOM:
+
+		  app-controller:
+		    category: addons-management
+		    clusterTypes:
+		    - management
+		    - workload
+		    templatesImagePath: tanzu_core/addons/kapp-controller-templates (legacy)
+		    templatesImageTag: v1.3.0 (legacy)
+		    addonTemplatesImage:
+		    - componentRef: tanzu_core_addons
+		      imageRefs:
+		      - kappControllerTemplatesImage
+		    addonContainerImages:
+		    - componentRef: kapp-controller
+		      imageRefs:
+		      - kappControllerImage
+		*/
+		var templateImagePath, templateImageTag string
+		if len(addonConfig.AddonTemplatesImage) < 1 || len(addonConfig.AddonTemplatesImage[0].ImageRefs) < 1 {
+			// if AddonTemplatesImage and AddonTemplatesImage are not present, use the older BOM format
+			templateImagePath = addonConfig.TemplatesImagePath
+			templateImageTag = addonConfig.TemplatesImageTag
+
+		} else {
+			templateImageComponentName := addonConfig.AddonTemplatesImage[0].ComponentRef
+			templateImageName := addonConfig.AddonTemplatesImage[0].ImageRefs[0]
+
+			templateImage, err := bom.GetImageInfo(templateImageComponentName, "", templateImageName)
+			if err != nil {
+				log.Error(err, "Error getting template image info from BOM", constants.ComponentNameLogKey, templateImageComponentName, constants.ImageNameLogKey, templateImageName)
+				return err
+			}
+			templateImagePath = templateImage.ImagePath
+			templateImageTag = templateImage.Tag
+		}
+
+		if templateImagePath == "" || templateImageTag == "" {
+			err := errors.New(fmt.Sprintf("unable to get template image for %s", addonName))
+			log.Error(err, "Error getting valid template image info from BOM")
+			return err
+		}
+
+		templateImageURL := fmt.Sprintf("%s/%s:%s", imageRepository, templateImagePath, templateImageTag)
+		log.Info("Addon template image found", constants.ImageURLLogKey, templateImageURL)
+
 		app.Spec.Fetch = []kappctrl.AppFetch{
 			{
 				Image: &kappctrl.AppFetchImage{
-					URL: fmt.Sprintf("%s/%s:%s", imageRepository, addonConfig.TemplatesImagePath, addonConfig.TemplatesImageTag),
+					URL: templateImageURL,
 				},
 			},
 		}
@@ -364,7 +422,8 @@ func (r *AddonReconciler) reconcileAddonNormal(
 	remoteClusterClient client.Client,
 	addonSecret *corev1.Secret,
 	addonConfig *bomtypes.Addon,
-	imageRepository string) error {
+	imageRepository string,
+	bom *bomtypes.Bom) error {
 
 	addonName := util.GetAddonNameFromAddonSecret(addonSecret)
 
@@ -375,8 +434,8 @@ func (r *AddonReconciler) reconcileAddonNormal(
 	remoteApp := util.IsRemoteApp(addonSecret)
 	clusterClient := util.GetClientFromAddonSecret(addonSecret, r.Client, remoteClusterClient)
 
-	/* remoteApp means App is not present on local workload cluster. It is present in the remote management cluster.
-	 * Since App is not on workload cluster, namespace, serviceaccount, roles and rolebindings dont need to be created
+	/* remoteApp means App that lives in management cluster. but deployed in workload cluster.
+	 * Since App doesn't deploy on workload cluster, namespace, serviceaccount, roles and rolebindings dont need to be created
 	 * on management cluster.
 	 */
 	if !remoteApp {
@@ -396,12 +455,12 @@ func (r *AddonReconciler) reconcileAddonNormal(
 		}
 	}
 
-	if err := r.reconcileAddonDataValuesSecretNormal(ctx, log, clusterClient, addonSecret); err != nil {
+	if err := r.reconcileAddonDataValuesSecretNormal(ctx, log, clusterClient, addonSecret, addonConfig, imageRepository, bom); err != nil {
 		log.Error(err, "Error reconciling addon data values secret")
 		return err
 	}
 
-	if err := r.reconcileAddonAppNormal(ctx, log, remoteApp, remoteCluster, clusterClient, addonSecret, addonConfig, imageRepository); err != nil {
+	if err := r.reconcileAddonAppNormal(ctx, log, remoteApp, remoteCluster, clusterClient, addonSecret, addonConfig, imageRepository, bom); err != nil {
 		log.Error(err, "Error reconciling addon app")
 		return err
 	}

@@ -31,3 +31,22 @@ const (
 	// AddonPausedAnnotation is the add on's "paused" annotation
 	AddonPausedAnnotation = "tkg.tanzu.vmware.com/addon-paused"
 )
+
+// AddonImageInfo contains addon image info
+type AddonImageInfo struct {
+	Info ImageInfo `yaml:"imageInfo"`
+}
+
+// ImageInfo contains addon image repository and URLs
+type ImageInfo struct {
+	ImageRepository string `yaml:"imageRepository"`
+	ImagePullPolicy string `yaml:"imagePullPolicy"`
+	// Each component can optionally have container images associated with it
+	Images map[string]Image `yaml:"images,omitempty"`
+}
+
+// Image contains the image information
+type Image struct {
+	ImagePath string `yaml:"imagePath"`
+	Tag       string `yaml:"tag"`
+}
