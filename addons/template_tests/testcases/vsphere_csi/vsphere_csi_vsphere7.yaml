@@ -33,19 +33,14 @@ vsphereCSI:
     path: "csi-node-driver-registrar"
     tag: v2.0.1
     pullPolicy: "IfNotPresent"
-  CSIResizerImage:
-    repository: "quay.io/k8scsi"
-    path: "csi-resizer"
-    tag: v1.0.0
-    pullPolicy: "IfNotPresent"
-  namespace: null
-  clusterName: null
-  server: null
-  datacenter: null
-  publicNetwork: null
-  username: null
-  password: null
+  namespace: tanzu-vsphere-csi
+  clusterName: cluster-test
+  server: 10.1.1.1
+  datacenter: ds-test
+  publicNetwork: test
+  username: test
+  password: test
   provisionTimeout: 300s
   attachTimeout: 300s
   resizerTimeout: 300s
-  vSphereVersion: 6.7.0
+  vSphereVersion: 7.0.0
