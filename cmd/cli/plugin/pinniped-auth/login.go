@@ -4,6 +4,7 @@
 package main
 
 import (
+	_ "embed"
 	"fmt"
 	"os"
 	"os/exec"
@@ -15,7 +16,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	tkgauth "github.com/vmware-tanzu-private/core/pkg/v1/auth/tkg"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 )
@@ -38,6 +38,9 @@ type loginOIDCOptions struct {
 	debugSessionCache          bool
 	conciergeEnabled           bool
 }
+
+//go:embed asset/pinniped
+var pinnipedBinary []byte
 
 var lo = &loginOIDCOptions{}
 
@@ -158,11 +161,7 @@ func ensurePinnipedGoClientRoot(pinnipedGoClientRoot string) error {
 
 // Ensure the pinniped cli binary file exists.
 func ensurePinnipedCLIBinFile(pinnipedCLIBinFilePath string) error {
-	pinnipedBinary, err := tkgauth.Asset("pinniped/pinniped")
-	if err != nil {
-		return err
-	}
-	_, err = os.Stat(pinnipedCLIBinFilePath)
+	_, err := os.Stat(pinnipedCLIBinFilePath)
 	if os.IsNotExist(err) {
 		err = os.WriteFile(pinnipedCLIBinFilePath, pinnipedBinary, 0755)
 		if err != nil {

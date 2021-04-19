@@ -14,10 +14,8 @@ set -o pipefail
 set -o xtrace
 
 GO=$1
-GOBINDATA=$2
-GOOS=$3
-GOARCH=$4
+GOOS=$2
+GOARCH=$3
 
-cd pinniped && GOARCH=${GOARCH} GOOS=${GOOS} ${GO} build -o pinniped ./cmd/pinniped && cd ..
-${GOBINDATA} -mode=420 -modtime=1 -o=pkg/v1/auth/tkg/zz_generated.bindata.go -pkg=tkgauth pinniped/pinniped
-git update-index --assume-unchanged pkg/v1/auth/tkg/zz_generated.bindata.go
+cd pinniped && GOARCH=${GOARCH} GOOS=${GOOS} ${GO} build -o ../cmd/cli/plugin/pinniped-auth/asset/pinniped ./cmd/pinniped && cd ..
+git update-index --assume-unchanged cmd/cli/plugin/pinniped-auth/asset/pinniped

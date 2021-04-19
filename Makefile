@@ -25,7 +25,6 @@ ADDONS_DIR := addons
 # Add tooling binaries here and in hack/tools/Makefile
 GOLANGCI_LINT := $(TOOLS_BIN_DIR)/golangci-lint
 GOIMPORTS := $(TOOLS_BIN_DIR)/goimports
-GOBINDATA := $(TOOLS_BIN_DIR)/go-bindata-$(GOOS)-$(GOARCH)
 KUBEBUILDER := $(TOOLS_BIN_DIR)/kubebuilder
 YTT := $(TOOLS_BIN_DIR)/ytt
 KUBEVAL := $(TOOLS_BIN_DIR)/kubeval
@@ -183,7 +182,7 @@ build-cli-%: prep-build-cli
 		printf "======================================\n\n";\
 	fi
 
-	./hack/generate-pinniped-bindata.sh go $(GOBINDATA) ${OS} ${ARCH}
+	./hack/embed-pinniped-binary.sh go ${OS} ${ARCH}
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --artifacts artifacts/${OS}/${ARCH}/cli --target  ${OS}_${ARCH}
 
 .PHONY: build-cli-local
@@ -223,30 +222,15 @@ clean-cli-plugins: ## Remove Tanzu CLI plugins
 	- rm -rf ${XDG_DATA_HOME}/tanzu-cli/*
 
 .PHONY: ensure-pinniped-repo
-ensure-pinniped-repo: $(GOBINDATA)
+ensure-pinniped-repo:
 	@rm -rf pinniped
 	@mkdir -p pinniped
 	@GIT_TERMINAL_PROMPT=0 git clone -q --depth 1 --branch $(PINNIPED_GIT_COMMIT) ${PINNIPED_GIT_REPOSITORY} pinniped > ${NUL} 2>&1
-
-.PHONY: generate-pinniped-bindata
-generate-pinniped-bindata: ensure-pinniped-repo
-	cd pinniped && $(GO) build -o pinniped ./cmd/pinniped
-	$(GOBINDATA) -mode=420 -modtime=1 -o=pkg/v1/auth/tkg/zz_generated.bindata.go -pkg=tkgauth pinniped/pinniped
-	git update-index --assume-unchanged pkg/v1/auth/tkg/zz_generated.bindata.go
-	@rm -rf pinniped
 
 .PHONY: prep-build-cli
 prep-build-cli: ensure-pinniped-repo
 	$(GO) mod download
 	$(GO) mod tidy
-
-generate-terms-bindata:
-	$(GOBINDATA) -mode=420 -modtime=1 -o=pkg/v1/cli/command/plugin/lint/zz_generated_terms.bindata.go -pkg=lint hack/linter/cli-wordlist.yml
-
-$(GOBINDATA): $(TOOLS_DIR)/go.mod # Build go-bindata from tools folder
-	mkdir -p $(TOOLS_BIN_DIR)
-	cd $(TOOLS_DIR); $(GO) build -tags=tools -o ../../$(TOOLS_BIN_DIR) github.com/shuLhan/go-bindata/... ; mv ../../$(TOOLS_BIN_DIR)/go-bindata ../../$(GOBINDATA)
-
 
 # TODO (pbarker): should work this logic into the builder plugin
 .PHONY: release
@@ -258,7 +242,7 @@ release-%:
 	$(eval ARCH = $(word 2,$(subst -, ,$*)))
 	$(eval OS = $(word 1,$(subst -, ,$*)))
 
-	./hack/generate-pinniped-bindata.sh go $(GOBINDATA) ${OS} ${ARCH}
+	./hack/embed-pinniped-binary.sh go ${OS} ${ARCH}
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --artifacts artifacts/${OS}/${ARCH}/cli --target  ${OS}_${ARCH}
 
 .PHONY: modules
