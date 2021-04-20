@@ -56,7 +56,7 @@ help: ## Display this help
 all: manager build-cli
 
 .PHONY: test
-test: generate fmt vet manifests build-cli-mocks ## Run tests
+test: fmt vet generate manifests build-cli-mocks ## Run tests
 	$(GO) test ./... -coverprofile cover.out
 	$(MAKE) kubebuilder -C $(TOOLS_DIR)
 	KUBEBUILDER_ASSETS=$(ROOT_DIR)/$(KUBEBUILDER)/bin GOPRIVATE=$(PRIVATE_REPOS) $(MAKE) test -C addons
