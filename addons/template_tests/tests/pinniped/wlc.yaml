@@ -1021,7 +1021,7 @@ data:
       type: copy
       sources: [existing, new]
       resourceMatchers:
-      - kindNamespaceNameMatcher: {kind: Secret, namespace: pinniped-supervisor, name: dex-client-credentials}
+      - kindNamespaceNameMatcher: {kind: Secret, namespace: pinniped-supervisor, name: upstream-idp-client-credentials}
 ---
 apiVersion: authentication.concierge.pinniped.dev/v1alpha1
 kind: JWTAuthenticator

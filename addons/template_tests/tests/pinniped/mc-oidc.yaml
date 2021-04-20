@@ -1481,7 +1481,7 @@ data:
       type: copy
       sources: [existing, new]
       resourceMatchers:
-      - kindNamespaceNameMatcher: {kind: Secret, namespace: pinniped-supervisor, name: dex-client-credentials}
+      - kindNamespaceNameMatcher: {kind: Secret, namespace: pinniped-supervisor, name: upstream-idp-client-credentials}
 ---
 apiVersion: cert-manager.io/v1alpha2
 kind: Issuer
