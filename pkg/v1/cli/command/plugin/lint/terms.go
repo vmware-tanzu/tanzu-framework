@@ -4,6 +4,7 @@
 package lint
 
 import (
+	_ "embed" // required to embed file
 	"fmt"
 	"strings"
 
@@ -17,6 +18,9 @@ const (
 	lintName = "lint"
 	help     = "help"
 )
+
+//go:embed cli-wordlist.yml
+var wordList []byte
 
 type tanzuTerms struct {
 	Nouns       []string `yaml:"nouns"`
@@ -139,17 +143,12 @@ func (l *TKGFlags) lint(cmd *cobra.Command) {
 }
 
 func loadPluginWords(cmd *cobra.Command) (*tanzuTerms, error) {
-	data, err := Asset("hack/linter/cli-wordlist.yml")
-	if err != nil {
-		return nil, err
-	}
-
 	t := new(tanzuTerms)
-	err = yaml.Unmarshal(data, t)
+	err := yaml.Unmarshal(wordList, t)
 	if err != nil {
 		cmd.Printf("Unmarshal: %v", err)
+		return nil, err
 	}
-
 	return t, nil
 }
 

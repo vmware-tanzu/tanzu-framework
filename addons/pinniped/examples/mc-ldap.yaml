@@ -57,7 +57,7 @@ dex:
       rootCA: null #! <rootCA> or <rootCAData> if required when LDAP host is using self signed certificate. Path to the CA file
       rootCAData: null #! <rootCA> or <rootCAData> if required when LDAP host is using self signed certificate. Actual CA bundle
       bindDN: null #! <bindDN> is required when host doesn't support anonymous authentication
-      bindPW: null #! <bindPW> is required when host doesn't support anonymous authentication
+      BIND_PW_ENV_VAR: null #! <BIND_PW_ENV_VAR> is required when host doesn't support anonymous authentication
       usernamePrompt: LDAP Username
       insecureSkipVerify: False
       userSearch:

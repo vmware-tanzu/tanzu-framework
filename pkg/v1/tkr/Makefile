@@ -5,7 +5,6 @@ IMG ?= tkr-controller-manager:latest
 GOOS ?= $(shell go env GOOS)
 GOARCH ?= $(shell go env GOARCH)
 CRD_OPTIONS ?= "crd:trivialVersions=true"
-GOBINDATA := $(TOOLS_BIN_DIR)/go-bindata-$(GOOS)-$(GOARCH)
 
 ifeq (,$(shell go env GOBIN))
 GOBIN=$(shell go env GOPATH)/bin

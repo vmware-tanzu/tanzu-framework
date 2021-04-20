@@ -73,3 +73,7 @@
 #@   #! if identity_management_type is provided, we only deploy dex in the case of LDAP
 #@   return data.values.identity_management_type == "ldap"
 #@ end
+
+#@ def get_ldap_bindpw_secret_name():
+#@   return "ldap-bindpw"
+#@ end
