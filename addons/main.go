@@ -51,6 +51,7 @@ func main() {
 	var clusterConcurrency int
 	var syncPeriod time.Duration
 	var appSyncPeriod time.Duration
+	var appWaitTimeout time.Duration
 
 	flag.StringVar(&metricsAddr, "metrics-addr", ":8080", "The address the metric endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "enable-leader-election", false,
@@ -61,6 +62,7 @@ func main() {
 	flag.DurationVar(&syncPeriod, "sync-period", 10*time.Minute,
 		"The minimum interval at which watched resources are reconciled (e.g. 10m)")
 	flag.DurationVar(&appSyncPeriod, "app-sync-period", 5*time.Minute, "Frequency of app reconciliation (e.g. 5m)")
+	flag.DurationVar(&appWaitTimeout, "app-wait-timeout", 30*time.Second, "Maximum time to wait for app to be ready (e.g. 30s)")
 	flag.Parse()
 
 	ctrl.SetLogger(klogr.New())
@@ -84,7 +86,10 @@ func main() {
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("Addon"),
 		Scheme: mgr.GetScheme(),
-		Config: addonconfig.Config{AppSyncPeriod: appSyncPeriod},
+		Config: addonconfig.Config{
+			AppSyncPeriod:  appSyncPeriod,
+			AppWaitTimeout: appWaitTimeout,
+		},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: clusterConcurrency}); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Addon")
 		os.Exit(1)

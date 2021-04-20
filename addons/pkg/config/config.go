@@ -9,5 +9,6 @@ import (
 
 // Config contains configuration information.
 type Config struct {
-	AppSyncPeriod time.Duration
+	AppSyncPeriod  time.Duration
+	AppWaitTimeout time.Duration
 }
