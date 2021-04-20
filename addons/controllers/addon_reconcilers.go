@@ -308,7 +308,12 @@ func (r *AddonReconciler) reconcileAddonAppNormal(
 
 		app.Spec.Deploy = []kappctrl.AppDeploy{
 			{
-				Kapp: &kappctrl.AppDeployKapp{},
+				Kapp: &kappctrl.AppDeployKapp{
+					// --wait-timeout flag specifies the maximum time to wait for App deployment. In some corner cases,
+					// current App could have the dependency on the deployment of another App, so current App could get
+					// stuck in wait phase.
+					RawOptions: []string{fmt.Sprintf("--wait-timeout=%s", r.Config.AppWaitTimeout)},
+				},
 			},
 		}
 
