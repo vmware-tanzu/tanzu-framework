@@ -6,6 +6,8 @@ package core
 import (
 	"fmt"
 	"path/filepath"
+	"sort"
+	"strings"
 
 	"github.com/aunum/log"
 	"github.com/pkg/errors"
@@ -124,7 +126,10 @@ var listPluginCmd = &cobra.Command{
 				data = append(data, []string{desc.Name, "", desc.Description, "", desc.Version, "installed"})
 			}
 		}
-
+		// sort plugins based on their names
+		sort.SliceStable(data, func(i, j int) bool {
+			return strings.ToLower(data[i][0]) < strings.ToLower(data[j][0])
+		})
 		table := component.NewTableWriter("Name", "Latest Version", "Description", "Repository", "Version", "Status")
 
 		for _, v := range data {
