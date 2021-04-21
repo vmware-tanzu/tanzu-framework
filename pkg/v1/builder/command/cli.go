@@ -35,10 +35,13 @@ type plugin struct {
 }
 
 var (
-	version, path, artifactsDir, ldflags     string
-	corePath, match, targetArch, description string
-	dryRun                                   bool
+	version, path, artifactsDir, ldflags string
+	corePath, match, description         string
+	dryRun                               bool
+	targetArch                           []string
 )
+
+const local = "local"
 
 var minConcurrent = 2
 var identifiers = []string{
@@ -66,7 +69,7 @@ func init() {
 	CompileCmd.Flags().StringVar(&version, "version", "", "version of the root cli (required)")
 	CompileCmd.Flags().StringVar(&ldflags, "ldflags", "", "ldflags to set on build")
 	CompileCmd.Flags().StringVar(&match, "match", "*", "match a plugin name to build, supports globbing")
-	CompileCmd.Flags().StringVar(&targetArch, "target", "all", "only compile for a specific target, use 'local' to compile for host os")
+	CompileCmd.Flags().StringArrayVar(&targetArch, "target", []string{"all"}, "only compile for specific target(s), use 'local' to compile for host os")
 	CompileCmd.Flags().StringVar(&path, "path", "./cmd/cli/plugin", "path of the plugins directory")
 	CompileCmd.Flags().StringVar(&artifactsDir, "artifacts", cli.DefaultArtifactsDirectory, "path to output artifacts")
 	CompileCmd.Flags().StringVar(&corePath, "corepath", "", "path for core binary")
@@ -147,10 +150,10 @@ func getID(i int) string {
 }
 
 func getBuildArch() cli.Arch {
-	if targetArch == "local" {
+	if targetArch[0] == local {
 		return cli.BuildArch()
 	}
-	return cli.Arch(targetArch)
+	return cli.Arch(targetArch[0])
 }
 
 func getMaxParallelism() int {
@@ -486,24 +489,29 @@ func buildTargets(targetPath, outPath, pluginName string, arch cli.Arch, id stri
 	if id != "" {
 		id = fmt.Sprintf("%s - ", id)
 	}
-	if arch == AllTargets {
-		for _, targetBuilder := range archMap {
-			tgt := targetBuilder(pluginName, outPath)
-			err := tgt.build(targetPath, id)
-			if err != nil {
-				return err
+
+	targets := map[cli.Arch]targetBuilder{}
+	for _, buildArch := range targetArch {
+		if buildArch == string(AllTargets) {
+			targets = archMap
+		} else if buildArch == local {
+			targets[arch] = archMap[arch]
+		} else {
+			bArch := cli.Arch(buildArch)
+			if val, ok := archMap[bArch]; !ok {
+				log.Errorf("%q build architecture is not supported", buildArch)
+			} else {
+				targets[cli.Arch(buildArch)] = val
 			}
 		}
-		return nil
 	}
-	tb, ok := archMap[arch]
-	if !ok {
-		log.Errorf("%s could not find target arch: %s", id, arch)
-	}
-	tgt := tb(pluginName, outPath)
-	err := tgt.build(targetPath, id)
-	if err != nil {
-		return err
+
+	for _, targetBuilder := range targets {
+		tgt := targetBuilder(pluginName, outPath)
+		err := tgt.build(targetPath, id)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
