@@ -181,6 +181,12 @@ could lose information about the new fields since v1 would not know about them. 
 to adjust the v2 -> v1 conversion functions to carry those fields as annotations on the v1 resource and set those fields
 in v2 objects using the annotations in the v1 -> v2 conversion functions.
 
+To make writing conversions easier, Kubernetes provides a handy tool
+called [`conversion-gen`](https://pkg.go.dev/k8s.io/code-generator/cmd/conversion-gen) for auto-generating conversion
+functions for structs and fields that have the same name across two versions of the resource. Cluster API provides a
+nice [example](https://github.com/kubernetes-sigs/cluster-api/blob/102c753ec14c3f6ebfbce7084e1176eb62e6d80d/Makefile#L261)
+of using conversion-gen to generate conversion functions.
+
 ### Storage Version Migration
 
 There is only one storage version for a resource in Kubernetes. In Kubebuilder, the storage version can be set using the
@@ -220,6 +226,8 @@ marker to not serve that version i.e. you will get an error if you try to GET or
   Are these two fields mutually exclusive?
 * For optional fields, sane defaults must be provided
   via [defaulting webhooks](https://kubebuilder.io/cronjob-tutorial/webhook-implementation.html) wherever applicable.
+* Note that validation and defaulting webhooks should only be defined for the “hub” version. This also means that if a
+  new version v2 is added, the webhooks should be moved to the v2 package and updated to work on the v2 type.
 
 ### Requeue and Rate Limiting
 
@@ -282,8 +290,8 @@ func (r *BarReconciler) SetupWithManager(mgr ctrl.Manager) error {
 
 ### OwnerReference
 
-* If you are creating sub-resources from within the controller and if you need the sub-resources to be deleted when the
-  main resource is deleted, you will need to set an owner reference using
+* If you are creating resources owned by the main resource from within the controller and if you need the owned resource
+  to be deleted when the main resource is deleted, you will need to set an owner reference using
   the [`ctrl.SetControllerReference`](https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.8.3/pkg/controller/controllerutil#SetControllerReference)
   function.
 
