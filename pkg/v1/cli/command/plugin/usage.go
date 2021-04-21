@@ -27,10 +27,10 @@ const CmdTemplate = `{{ bold "Usage:" }}{{if .Runnable}}
   tanzu {{.CommandPath}} [command]{{end}}{{if gt (len .Aliases) 0}}
 
 {{ bold "Aliases:" }}
-  {{.NameAndAliases}}{{end}}{{if gt (len .NameAndAliases) 0 }}
+  {{.NameAndAliases}}{{end}}{{if .HasExample}}
 
 {{ bold "Examples:" }}
-  {{.Example}}{{end}}{{if .HasExample}}
+  {{.Example}}{{end}}{{if .HasAvailableSubCommands}}
 
 {{ bold "Available Commands:" }}{{range .Commands}}{{if .IsAvailableCommand }}
   {{rpad .Name .NamePadding }} {{.Short}}{{end}}{{end}}{{end}}{{if .HasAvailableLocalFlags}}
