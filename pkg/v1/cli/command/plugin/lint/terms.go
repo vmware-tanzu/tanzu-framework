@@ -62,7 +62,7 @@ func (l *TKGTerms) Execute() *Results {
 	// Subcommands can be either a valid noun or verb, depending on the commands format
 	if l.cmd.HasSubCommands() {
 		for _, subCmd := range l.cmd.Commands() {
-			if subCmd.Use == lintName || subCmd.Use == help {
+			if rawUse(subCmd.Use) == lintName || rawUse(subCmd.Use) == help {
 				continue
 			}
 			if contains(l.nouns, rawUse(subCmd.Use)) || contains(l.verbs, rawUse(subCmd.Use)) {

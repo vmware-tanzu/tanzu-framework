@@ -36,6 +36,7 @@ verbs:
   - install
   - list
   - os
+  - register
   - scale
   - show
   - update
@@ -45,31 +46,49 @@ global-flags:
   - help
   - log-file
   - v
+  - verbose
 command-flags:
   - apiToken
   - bind
   - browser
+  - ceip-participation
+  - cni
   - context
+  - controlplane-size
+  - deploy-tkg-on-vSphere7
   - disable-grouping
   - disable-no-echo
+  - enable-tkgs-on-vSphere7
   - endpoint
+  - feature-flags
   - file
   - force
   - force-csp
   - gcp-bucket-name
   - gcp-root-path
   - include-managment-cluster
+  - infrastructure
   - kubeconfig
   - name
   - namespace
   - offset
+  - os-arch
+  - os-name
+  - os-version
   - output
+  - plan
   - server
   - show-all-conditions
+  - size
   - staging
   - stderr-only
+  - target-namespace
   - timeout
+  - tmc-registration-url
   - ui
   - use-existing-bootstrap-cluster
   - use-existing-cleanup-cluster
+  - vsphere-controlplane-endpoint
+  - vsphere-vm-template-name
+  - worker-size
   - yes
