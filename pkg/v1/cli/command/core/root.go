@@ -55,6 +55,10 @@ func NewRootCmd() (*cobra.Command, error) {
 		return nil, fmt.Errorf("find available plugins: %w", err)
 	}
 
+	if err = config.CopyLegacyConfigDir(); err != nil {
+		return nil, fmt.Errorf("failed to copy legacy configuration directory to new location: %w", err)
+	}
+
 	// check that all plugins in the core distro are installed or do so.
 	if !noInit && !catalog.Distro().IsSatisfied(plugins) {
 		s := spin.New("%s   initializing")

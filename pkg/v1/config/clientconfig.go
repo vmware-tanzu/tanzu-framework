@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/aunum/log"
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/runtime/serializer/json"
 
@@ -30,22 +31,47 @@ const (
 	ConfigName = "config.yaml"
 )
 
-// LocalDirName is the name of the local directory in which tanzu state is stored.
-var LocalDirName = ".tanzu"
+var (
+	// LocalDirName is the name of the local directory in which tanzu state is stored.
+	LocalDirName = ".config/tanzu"
+
+	// legacyLocalDirName is the name of the old local directory in which to look for tanzu state. This will be
+	// removed in the future in favor of LocalDirName.
+	legacyLocalDirName = ".tanzu"
+)
 
 // LocalDir returns the local directory in which tanzu state is stored.
 func LocalDir() (path string, err error) {
+	return localDirPath(LocalDirName)
+}
+
+func legacyLocalDir() (path string, err error) {
+	return localDirPath(legacyLocalDirName)
+}
+
+// localDirPath returns the full path of the directory name in which tanzu state is stored.
+func localDirPath(dirname string) (path string, err error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return path, errors.Wrap(err, "could not locate local tanzu dir")
 	}
-	path = filepath.Join(home, LocalDirName)
+	path = filepath.Join(home, dirname)
 	return
 }
 
 // ClientConfigPath returns the tanzu config path, checking for environment overrides.
 func ClientConfigPath() (path string, err error) {
-	localDir, err := LocalDir()
+	return configPath(LocalDir)
+}
+
+// legacyConfigPath returns the legacy tanzu config path, checking for environment overrides.
+func legacyConfigPath() (path string, err error) {
+	return configPath(legacyLocalDir)
+}
+
+// configPath constructs the full config path, checking for environment overrides.
+func configPath(localDirGetter func() (string, error)) (path string, err error) {
+	localDir, err := localDirGetter()
 	if err != nil {
 		return path, err
 	}
@@ -89,6 +115,35 @@ func NewConfigNotExistError(err error) *ClientConfigNotExistError {
 	return &ClientConfigNotExistError{errors.Wrap(err, "failed to read config file").Error()}
 }
 
+// CopyLegacyConfigDir copies configuration files from legacy config dir to the new location. This is a no-op if the legacy dir
+// does not exist or if the new config dir already exists.
+func CopyLegacyConfigDir() error {
+	legacyPath, err := legacyLocalDir()
+	if err != nil {
+		return err
+	}
+	legacyPathExists, err := fileExists(legacyPath)
+	if err != nil {
+		return err
+	}
+	newPath, err := LocalDir()
+	if err != nil {
+		return err
+	}
+	newPathExists, err := fileExists(newPath)
+	if err != nil {
+		return err
+	}
+	if legacyPathExists && !newPathExists {
+		if err := copyDir(legacyPath, newPath); err != nil {
+			return nil
+		}
+		log.Warningf("Configuration is now stored in %s. Legacy configuration directory %s is deprecated and will be removed in a future release.", newPath, legacyPath)
+		log.Warningf("To complete migration, please remove legacy configuration directory %s and adjust your script(s), if any, to point to the new location.", legacyPath)
+	}
+	return nil
+}
+
 // GetClientConfig retrieves the config from the local directory.
 func GetClientConfig() (cfg *configv1alpha1.ClientConfig, err error) {
 	cfgPath, err := ClientConfigPath()
@@ -117,25 +172,56 @@ func GetClientConfig() (cfg *configv1alpha1.ClientConfig, err error) {
 	return &c, nil
 }
 
+// storeConfigToLegacyDir stores configuration to legacy dir and logs warning in case of errors.
+func storeConfigToLegacyDir(data []byte) {
+	var (
+		err                      error
+		legacyDir, legacyCfgPath string
+		legacyDirExists          bool
+	)
+
+	defer func() {
+		if err != nil {
+			log.Warningf("Failed to write config to legacy location for backward compatibility: %v", err)
+			log.Warningf("To stop writing config to legacy location, please point your script(s), "+
+				"if any, to the new config directory and remove legacy config directory %s", legacyDir)
+		}
+	}()
+
+	legacyDir, err = legacyLocalDir()
+	if err != nil {
+		return
+	}
+	legacyDirExists, err = fileExists(legacyDir)
+	if err != nil || !legacyDirExists {
+		// Assume user has migrated and ignore writing to legacy location if that dir does not exist.
+		return
+	}
+	legacyCfgPath, err = legacyConfigPath()
+	if err != nil {
+		return
+	}
+	err = os.WriteFile(legacyCfgPath, data, 0644)
+}
+
 // StoreClientConfig stores the config in the local directory.
 func StoreClientConfig(cfg *configv1alpha1.ClientConfig) error {
 	cfgPath, err := ClientConfigPath()
 	if err != nil {
 		return errors.Wrap(err, "could not find config path")
 	}
-
-	_, err = os.Stat(cfgPath)
-	if os.IsNotExist(err) {
+	cfgPathExists, err := fileExists(cfgPath)
+	if err != nil {
+		return errors.Wrap(err, "failed to check config path existence")
+	}
+	if !cfgPathExists {
 		localDir, err := LocalDir()
 		if err != nil {
 			return errors.Wrap(err, "could not find local tanzu dir for OS")
 		}
-		err = os.MkdirAll(localDir, 0755)
-		if err != nil {
+		if err := os.MkdirAll(localDir, 0755); err != nil {
 			return errors.Wrap(err, "could not make local tanzu directory")
 		}
-	} else if err != nil {
-		return errors.Wrap(err, "could not create config path")
 	}
 
 	scheme, err := configv1alpha1.SchemeBuilder.Build()
@@ -155,6 +241,7 @@ func StoreClientConfig(cfg *configv1alpha1.ClientConfig) error {
 	if err = os.WriteFile(cfgPath, buf.Bytes(), 0644); err != nil {
 		return errors.Wrap(err, "failed to write config file")
 	}
+	storeConfigToLegacyDir(buf.Bytes())
 	return nil
 }
 
