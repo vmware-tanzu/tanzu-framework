@@ -54,6 +54,10 @@ dex:
       level: info
       format: json
     #! staticClients is skipped in values.yaml but required to be provided in values overlay
+    #! connector is not dex officially supported config variable, it was originally added to let ytt have some knowledge
+    #! about connector type in order to overlay the template properly. Have it assigned with null to make sure default
+    #! value could also be picked up by ytt if no data value overrides it.
+    connector: null
     issuerPort: "30167" #! requred only for MGMT_CLUSTER_VIP if provider is vsphere. Default is "30167"
     oidc:
       CLIENT_ID: null #! required if oidc enabled
