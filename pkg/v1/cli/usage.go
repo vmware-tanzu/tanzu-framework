@@ -14,7 +14,7 @@ import (
 	"github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
+	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 )
 
 // CmdMap is the map of command groups to plugins
@@ -56,7 +56,7 @@ func (u *MainUsage) GenerateDescriptor(c *cobra.Command, w io.Writer) error {
 
 	var serverString string
 
-	s, err := client.GetCurrentServer()
+	s, err := config.GetCurrentServer()
 	if err != nil {
 		serverString = "Not logged in"
 	} else {

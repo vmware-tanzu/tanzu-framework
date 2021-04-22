@@ -8,10 +8,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
+	configv1alpha1 "github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
+	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 )
 
 var (
@@ -46,7 +46,7 @@ var listRepoCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List available repositories",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cfg, err := client.GetConfig()
+		cfg, err := config.GetClientConfig()
 		if err != nil {
 			return err
 		}
@@ -70,23 +70,23 @@ var addRepoCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add a repository",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cfg, err := client.GetConfig()
+		cfg, err := config.GetClientConfig()
 		if err != nil {
 			return err
 		}
 		if cfg.ClientOptions == nil {
-			cfg.ClientOptions = &clientv1alpha1.ClientOptions{}
+			cfg.ClientOptions = &configv1alpha1.ClientOptions{}
 		}
 		if cfg.ClientOptions.CLI == nil {
-			cfg.ClientOptions.CLI = &clientv1alpha1.CLIOptions{}
+			cfg.ClientOptions.CLI = &configv1alpha1.CLIOptions{}
 		}
 		repos := cfg.ClientOptions.CLI.Repositories
-		gcpRepo := &clientv1alpha1.GCPPluginRepository{
+		gcpRepo := &configv1alpha1.GCPPluginRepository{
 			Name:       name,
 			BucketName: gcpBucketName,
 			RootPath:   gcpRootPath,
 		}
-		pluginRepo := clientv1alpha1.PluginRepository{
+		pluginRepo := configv1alpha1.PluginRepository{
 			GCPPluginRepository: gcpRepo,
 		}
 		for _, repo := range repos {
@@ -98,7 +98,7 @@ var addRepoCmd = &cobra.Command{
 		}
 		repos = append(repos, pluginRepo)
 		cfg.ClientOptions.CLI.Repositories = repos
-		err = client.StoreConfig(cfg)
+		err = config.StoreClientConfig(cfg)
 		if err != nil {
 			return err
 		}
@@ -112,7 +112,7 @@ var updateRepoCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		repoName := args[0]
-		cfg, err := client.GetConfig()
+		cfg, err := config.GetClientConfig()
 		if err != nil {
 			return err
 		}
@@ -126,7 +126,7 @@ var updateRepoCmd = &cobra.Command{
 		}
 		repos := cfg.ClientOptions.CLI.Repositories
 
-		newRepos := []clientv1alpha1.PluginRepository{}
+		newRepos := []configv1alpha1.PluginRepository{}
 		for _, repo := range repos {
 			if repo.GCPPluginRepository != nil {
 				if repo.GCPPluginRepository.Name == repoName {
@@ -141,7 +141,7 @@ var updateRepoCmd = &cobra.Command{
 			}
 		}
 		cfg.ClientOptions.CLI.Repositories = newRepos
-		err = client.StoreConfig(cfg)
+		err = config.StoreClientConfig(cfg)
 		if err != nil {
 			return err
 		}
@@ -155,7 +155,7 @@ var deleteRepoCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
 		repoName := args[0]
-		cfg, err := client.GetConfig()
+		cfg, err := config.GetClientConfig()
 		if err != nil {
 			return err
 		}
@@ -164,7 +164,7 @@ var deleteRepoCmd = &cobra.Command{
 		}
 
 		r := cfg.ClientOptions.CLI.Repositories
-		newRepos := []clientv1alpha1.PluginRepository{}
+		newRepos := []configv1alpha1.PluginRepository{}
 		for _, repo := range r {
 			if repo.GCPPluginRepository == nil {
 				continue
@@ -175,7 +175,7 @@ var deleteRepoCmd = &cobra.Command{
 			newRepos = append(newRepos, repo)
 		}
 		cfg.ClientOptions.CLI.Repositories = newRepos
-		err = client.StoreConfig(cfg)
+		err = config.StoreClientConfig(cfg)
 		if err != nil {
 			return err
 		}

@@ -24,7 +24,7 @@ import (
 	"golang.org/x/oauth2"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
+	configv1alpha1 "github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
 )
 
 const (
@@ -185,7 +185,7 @@ type Claims struct {
 }
 
 // GetToken fetches a token for the current auth context.
-func GetToken(g *clientv1alpha1.GlobalServerAuth) (*oauth2.Token, error) {
+func GetToken(g *configv1alpha1.GlobalServerAuth) (*oauth2.Token, error) {
 	if !IsExpired(g.Expiration.Time) {
 		tok := &oauth2.Token{
 			AccessToken: g.AccessToken,

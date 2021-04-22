@@ -8,9 +8,10 @@ import (
 
 	"github.com/pkg/errors"
 
-	v1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
 	"github.com/vmware-tanzu-private/tkg-cli/pkg/region"
+
+	"github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
+	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 )
 
 type tanzuRegionManager struct {
@@ -26,7 +27,7 @@ func NewFactory() region.ManagerFactory {
 }
 
 func (trm *tanzuRegionManager) ListRegionContexts() ([]region.RegionContext, error) {
-	tanzuConfig, err := client.GetConfig()
+	tanzuConfig, err := config.GetClientConfig()
 	if err != nil {
 		return []region.RegionContext{}, err
 	}
@@ -45,15 +46,15 @@ func (trm *tanzuRegionManager) ListRegionContexts() ([]region.RegionContext, err
 }
 
 func (trm *tanzuRegionManager) SaveRegionContext(regionCtxt region.RegionContext) error {
-	return client.AddServer(convertRegionContextToServer(regionCtxt), false)
+	return config.AddServer(convertRegionContextToServer(regionCtxt), false)
 }
 
 func (trm *tanzuRegionManager) UpsertRegionContext(regionCtxt region.RegionContext) error {
-	return client.PutServer(convertRegionContextToServer(regionCtxt), false)
+	return config.PutServer(convertRegionContextToServer(regionCtxt), false)
 }
 
 func (trm *tanzuRegionManager) DeleteRegionContext(clusterName string) error {
-	currentServer, err := client.GetCurrentServer()
+	currentServer, err := config.GetCurrentServer()
 	if err != nil {
 		return err
 	}
@@ -62,7 +63,7 @@ func (trm *tanzuRegionManager) DeleteRegionContext(clusterName string) error {
 		return fmt.Errorf("cannot delete cluster %s, it is not the current cluster", clusterName)
 	}
 
-	if err := client.RemoveServer(currentServer.Name); err != nil {
+	if err := config.RemoveServer(currentServer.Name); err != nil {
 		return err
 	}
 
@@ -70,11 +71,11 @@ func (trm *tanzuRegionManager) DeleteRegionContext(clusterName string) error {
 }
 
 func (trm *tanzuRegionManager) SetCurrentContext(clusterName, contextName string) error {
-	return client.SetCurrentServer(clusterName)
+	return config.SetCurrentServer(clusterName)
 }
 
 func (trm *tanzuRegionManager) GetCurrentContext() (region.RegionContext, error) {
-	currentServer, err := client.GetCurrentServer()
+	currentServer, err := config.GetCurrentServer()
 	if err != nil {
 		return region.RegionContext{}, err
 	}

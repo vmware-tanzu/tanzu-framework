@@ -16,13 +16,13 @@ import (
 	"golang.org/x/oauth2"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
+	configv1alpha1 "github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/auth/csp"
 	tkgauth "github.com/vmware-tanzu-private/core/pkg/v1/auth/tkg"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/command/plugin"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
+	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 )
 
 var descriptor = cli.PluginDescriptor{
@@ -79,9 +79,9 @@ func main() {
 }
 
 func login(cmd *cobra.Command, args []string) (err error) {
-	cfg, err := client.GetConfig()
-	if _, ok := err.(*client.ConfigNotExistError); ok {
-		cfg, err = client.NewConfig()
+	cfg, err := config.GetClientConfig()
+	if _, ok := err.(*config.ClientConfigNotExistError); ok {
+		cfg, err = config.NewClientConfig()
 		if err != nil {
 			return err
 		}
@@ -90,7 +90,7 @@ func login(cmd *cobra.Command, args []string) (err error) {
 	}
 
 	newServerSelector := "+ new server"
-	var serverTarget *clientv1alpha1.Server
+	var serverTarget *configv1alpha1.Server
 	if name != "" {
 		serverTarget, err = createNewServer()
 		if err != nil {
@@ -102,7 +102,7 @@ func login(cmd *cobra.Command, args []string) (err error) {
 			return err
 		}
 	} else {
-		serverTarget, err = client.GetServer(server)
+		serverTarget, err = config.GetServer(server)
 		if err != nil {
 			return err
 		}
@@ -115,18 +115,18 @@ func login(cmd *cobra.Command, args []string) (err error) {
 		}
 	}
 
-	if serverTarget.Type == clientv1alpha1.GlobalServerType {
+	if serverTarget.Type == configv1alpha1.GlobalServerType {
 		return globalLogin(serverTarget)
 	}
 
 	return managementClusterLogin(serverTarget)
 }
 
-func getServerTarget(cfg *clientv1alpha1.Config, newServerSelector string) (*clientv1alpha1.Server, error) {
+func getServerTarget(cfg *configv1alpha1.ClientConfig, newServerSelector string) (*configv1alpha1.Server, error) {
 	promptOpts := getPromptOpts()
-	servers := map[string]*clientv1alpha1.Server{}
+	servers := map[string]*configv1alpha1.Server{}
 	for _, server := range cfg.KnownServers {
-		ep, err := client.EndpointFromServer(server)
+		ep, err := config.EndpointFromServer(server)
 		if err != nil {
 			return nil, err
 		}
@@ -136,7 +136,7 @@ func getServerTarget(cfg *clientv1alpha1.Config, newServerSelector string) (*cli
 		servers[s] = server
 	}
 	if endpoint == "" {
-		endpoint, _ = os.LookupEnv(client.EnvEndpointKey)
+		endpoint, _ = os.LookupEnv(config.EnvEndpointKey)
 	}
 	// If there are no existing servers
 	if len(servers) == 0 {
@@ -144,7 +144,7 @@ func getServerTarget(cfg *clientv1alpha1.Config, newServerSelector string) (*cli
 	}
 	serverKeys := getKeys(servers)
 	serverKeys = append(serverKeys, newServerSelector)
-	servers[newServerSelector] = &clientv1alpha1.Server{}
+	servers[newServerSelector] = &configv1alpha1.Server{}
 	err := component.Prompt(
 		&component.PromptConfig{
 			Message: "Select a server",
@@ -160,7 +160,7 @@ func getServerTarget(cfg *clientv1alpha1.Config, newServerSelector string) (*cli
 	return servers[server], nil
 }
 
-func getKeys(m map[string]*clientv1alpha1.Server) []string {
+func getKeys(m map[string]*configv1alpha1.Server) []string {
 	keys := make([]string, 0, len(m))
 	for key := range m {
 		keys = append(keys, key)
@@ -193,7 +193,7 @@ func getPromptOpts() []component.PromptOpt {
 	return promptOpts
 }
 
-func createNewServer() (server *clientv1alpha1.Server, err error) {
+func createNewServer() (server *configv1alpha1.Server, err error) {
 	// user provided command line options to create a server using kubeconfig and context
 	if kubeConfig != "" && kubecontext != "" {
 		return createServerWithKubeconfig()
@@ -226,7 +226,7 @@ func createNewServer() (server *clientv1alpha1.Server, err error) {
 	return createServerWithKubeconfig()
 }
 
-func createServerWithKubeconfig() (server *clientv1alpha1.Server, err error) {
+func createServerWithKubeconfig() (server *configv1alpha1.Server, err error) {
 	promptOpts := getPromptOpts()
 	if kubeConfig == "" {
 		err = component.Prompt(
@@ -265,7 +265,7 @@ func createServerWithKubeconfig() (server *clientv1alpha1.Server, err error) {
 			return
 		}
 	}
-	nameExists, err := client.ServerExists(name)
+	nameExists, err := config.ServerExists(name)
 	if err != nil {
 		return server, err
 	}
@@ -273,10 +273,10 @@ func createServerWithKubeconfig() (server *clientv1alpha1.Server, err error) {
 		err = fmt.Errorf("server %q already exists", name)
 		return
 	}
-	server = &clientv1alpha1.Server{
+	server = &configv1alpha1.Server{
 		Name: name,
-		Type: clientv1alpha1.ManagementClusterServerType,
-		ManagementClusterOpts: &clientv1alpha1.ManagementClusterServer{
+		Type: configv1alpha1.ManagementClusterServerType,
+		ManagementClusterOpts: &configv1alpha1.ManagementClusterServer{
 			Path:     kubeConfig,
 			Context:  kubecontext,
 			Endpoint: endpoint},
@@ -284,7 +284,7 @@ func createServerWithKubeconfig() (server *clientv1alpha1.Server, err error) {
 	return server, err
 }
 
-func createServerWithEndpoint() (server *clientv1alpha1.Server, err error) {
+func createServerWithEndpoint() (server *configv1alpha1.Server, err error) {
 	promptOpts := getPromptOpts()
 	if endpoint == "" {
 		err = component.Prompt(
@@ -310,7 +310,7 @@ func createServerWithEndpoint() (server *clientv1alpha1.Server, err error) {
 			return
 		}
 	}
-	nameExists, err := client.ServerExists(name)
+	nameExists, err := config.ServerExists(name)
 	if err != nil {
 		return server, err
 	}
@@ -319,10 +319,10 @@ func createServerWithEndpoint() (server *clientv1alpha1.Server, err error) {
 		return
 	}
 	if isGlobalServer(endpoint) {
-		server = &clientv1alpha1.Server{
+		server = &configv1alpha1.Server{
 			Name:       name,
-			Type:       clientv1alpha1.GlobalServerType,
-			GlobalOpts: &clientv1alpha1.GlobalServer{Endpoint: sanitizeEndpoint(endpoint)},
+			Type:       configv1alpha1.GlobalServerType,
+			GlobalOpts: &configv1alpha1.GlobalServer{Endpoint: sanitizeEndpoint(endpoint)},
 		}
 	} else {
 		kubeConfig, kubecontext, err = tkgauth.KubeconfigWithPinnipedAuthLoginPlugin(endpoint, nil)
@@ -330,10 +330,10 @@ func createServerWithEndpoint() (server *clientv1alpha1.Server, err error) {
 			log.Fatalf("Error creating kubeconfig with tanzu pinniped-auth login plugin: err-%v", err)
 			return nil, err
 		}
-		server = &clientv1alpha1.Server{
+		server = &configv1alpha1.Server{
 			Name: name,
-			Type: clientv1alpha1.ManagementClusterServerType,
-			ManagementClusterOpts: &clientv1alpha1.ManagementClusterServer{
+			Type: configv1alpha1.ManagementClusterServerType,
+			ManagementClusterOpts: &configv1alpha1.ManagementClusterServer{
 				Path:     kubeConfig,
 				Context:  kubecontext,
 				Endpoint: endpoint},
@@ -342,9 +342,9 @@ func createServerWithEndpoint() (server *clientv1alpha1.Server, err error) {
 	return server, err
 }
 
-func globalLogin(s *clientv1alpha1.Server) (err error) {
-	a := clientv1alpha1.GlobalServerAuth{}
-	apiToken, apiTokenExists := os.LookupEnv(client.EnvAPITokenKey)
+func globalLogin(s *configv1alpha1.Server) (err error) {
+	a := configv1alpha1.GlobalServerAuth{}
+	apiToken, apiTokenExists := os.LookupEnv(config.EnvAPITokenKey)
 
 	issuer := csp.ProdIssuer
 	if staging {
@@ -381,7 +381,7 @@ func globalLogin(s *clientv1alpha1.Server) (err error) {
 
 	s.GlobalOpts.Auth = a
 
-	err = client.PutServer(s, true)
+	err = config.PutServer(s, true)
 	if err != nil {
 		return err
 	}
@@ -422,14 +422,14 @@ func promptAPIToken() (apiToken string, err error) {
 	return
 }
 
-func managementClusterLogin(s *clientv1alpha1.Server) error {
+func managementClusterLogin(s *configv1alpha1.Server) error {
 	if s.ManagementClusterOpts.Path != "" && s.ManagementClusterOpts.Context != "" {
 		_, err := tkgauth.GetServerKubernetesVersion(s.ManagementClusterOpts.Path, s.ManagementClusterOpts.Context)
 		if err != nil {
 			log.Fatalf("failed to login to the management cluster %s, err-%v", s.Name, err)
 			return err
 		}
-		err = client.PutServer(s, true)
+		err = config.PutServer(s, true)
 		if err != nil {
 			return err
 		}

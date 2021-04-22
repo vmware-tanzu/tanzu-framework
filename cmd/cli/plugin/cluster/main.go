@@ -11,7 +11,8 @@ import (
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/command/plugin"
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
+	"github.com/vmware-tanzu-private/core/pkg/v1/config"
+
 	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
 )
 
@@ -51,7 +52,7 @@ func main() {
 }
 
 func getConfigDir() (string, error) {
-	tanzuConfigDir, err := client.LocalDir()
+	tanzuConfigDir, err := config.LocalDir()
 	if err != nil {
 		return "", err
 	}

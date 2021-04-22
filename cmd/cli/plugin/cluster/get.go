@@ -20,9 +20,10 @@ import (
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
-	"github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
+	"github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
+	"github.com/vmware-tanzu-private/core/pkg/v1/config"
+
 	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
 )
 
@@ -53,7 +54,7 @@ func init() {
 }
 
 func get(cmd *cobra.Command, args []string) error {
-	server, err := client.GetCurrentServer()
+	server, err := config.GetCurrentServer()
 	if err != nil {
 		return err
 	}

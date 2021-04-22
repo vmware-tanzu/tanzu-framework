@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
+	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 )
 
 func init() {
@@ -30,7 +30,7 @@ var initCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		cfg, err := client.GetConfig()
+		cfg, err := config.GetClientConfig()
 		if err != nil {
 			return err
 		}

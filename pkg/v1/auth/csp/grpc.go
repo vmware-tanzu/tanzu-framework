@@ -19,8 +19,8 @@ import (
 	grpc_oauth "google.golang.org/grpc/credentials/oauth"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
+	configv1alpha1 "github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
+	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 )
 
 const (
@@ -33,7 +33,7 @@ const (
 // WithCredentialDiscovery returns a grpc.CallOption that adds credentials into gRPC calls.
 // The credentials are loaded from the auth context found on the machine.
 func WithCredentialDiscovery() (grpc.CallOption, error) {
-	cfg, err := client.GetConfig()
+	cfg, err := config.GetClientConfig()
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func WithStaticCreds(accessToken string) grpc.CallOption {
 }
 
 type configSource struct {
-	*clientv1alpha1.Config
+	*configv1alpha1.ClientConfig
 }
 
 // Token fetches the token.
@@ -86,7 +86,7 @@ func (c *configSource) Token() (*oauth2.Token, error) {
 	g.GlobalOpts.Auth.AccessToken = token.AccessToken
 	g.GlobalOpts.Auth.IDToken = token.IDToken
 
-	if err := client.StoreConfig(c.Config); err != nil {
+	if err := config.StoreClientConfig(c.ClientConfig); err != nil {
 		return nil, err
 	}
 
@@ -142,7 +142,7 @@ type ContextOpts func(context.Context) context.Context
 // ConnectToEndpoint attempts to connect to the provided endpoint. If endpoint is empty, it picks up the endpoint
 // from the current auth ctx.
 func ConnectToEndpoint(ctxopts ...ContextOpts) (*grpc.ClientConn, error) {
-	cfg, err := client.GetConfig()
+	cfg, err := config.GetClientConfig()
 	if err != nil {
 		log.Errorf("Could not get current auth context with error: %v", err)
 		return nil, err

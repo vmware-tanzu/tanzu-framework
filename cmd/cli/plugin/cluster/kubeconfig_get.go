@@ -10,9 +10,10 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
+	"github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
 	tkgauth "github.com/vmware-tanzu-private/core/pkg/v1/auth/tkg"
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
+	"github.com/vmware-tanzu-private/core/pkg/v1/config"
+
 	tkgclient "github.com/vmware-tanzu-private/tkg-cli/pkg/client"
 	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
 )
@@ -50,7 +51,7 @@ func init() {
 func getKubeconfig(cmd *cobra.Command, args []string) error {
 	workloadClusterName := args[0]
 
-	server, err := client.GetCurrentServer()
+	server, err := config.GetCurrentServer()
 	if err != nil {
 		return err
 	}

@@ -6,18 +6,18 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.2.5
   creationTimestamp: null
-  name: configs.client.tanzu.vmware.com
+  name: clientconfigs.config.tanzu.vmware.com
 spec:
-  group: client.tanzu.vmware.com
+  group: config.tanzu.vmware.com
   names:
-    kind: Config
-    listKind: ConfigList
-    plural: configs
-    singular: config
+    kind: ClientConfig
+    listKind: ClientConfigList
+    plural: clientconfigs
+    singular: clientconfig
   scope: Namespaced
   validation:
     openAPIV3Schema:
-      description: Config is the Schema for the configs API
+      description: ClientConfig is the Schema for the configs API
       properties:
         apiVersion:
           description: 'APIVersion defines the versioned schema of this representation

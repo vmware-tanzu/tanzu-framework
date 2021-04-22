@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
+	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 )
 
 var root = &cobra.Command{
@@ -59,7 +59,7 @@ func NewRootCmd() (*cobra.Command, error) {
 	if !noInit && !catalog.Distro().IsSatisfied(plugins) {
 		s := spin.New("%s   initializing")
 		s.Start()
-		cfg, err := client.GetConfig()
+		cfg, err := config.GetClientConfig()
 		if err != nil {
 			log.Fatal(err)
 		}

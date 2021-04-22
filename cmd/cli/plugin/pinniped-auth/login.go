@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
+	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 )
 
 type loginOIDCOptions struct {
@@ -142,7 +142,7 @@ func pinnipedLoginExec(oidcLoginArgs []string) error {
 func mustGetConfigDir() string {
 	const pinnipedConfigDir = "pinniped"
 
-	tanzuLocalDir, err := client.LocalDir()
+	tanzuLocalDir, err := config.LocalDir()
 	if err != nil {
 		panic(err)
 	}

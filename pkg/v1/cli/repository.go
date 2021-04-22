@@ -20,7 +20,7 @@ import (
 	"google.golang.org/api/option"
 	"gopkg.in/yaml.v2"
 
-	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
+	configv1alpha1 "github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
 )
 
 // Repository is a remote repository containing plugin artifacts.
@@ -143,13 +143,13 @@ type GCPBucketRepository struct {
 }
 
 // LoadRepositories loads the repositories from the config file along with the known repositories.
-func LoadRepositories(c *clientv1alpha1.Config) []Repository {
+func LoadRepositories(c *configv1alpha1.ClientConfig) []Repository {
 	repos := []Repository{}
 	if c.ClientOptions == nil {
-		c.ClientOptions = &clientv1alpha1.ClientOptions{}
+		c.ClientOptions = &configv1alpha1.ClientOptions{}
 	}
 	if c.ClientOptions.CLI == nil {
-		c.ClientOptions.CLI = &clientv1alpha1.CLIOptions{}
+		c.ClientOptions.CLI = &configv1alpha1.CLIOptions{}
 	}
 	for _, repo := range c.ClientOptions.CLI.Repositories {
 		if repo.GCPPluginRepository == nil {
@@ -160,7 +160,7 @@ func LoadRepositories(c *clientv1alpha1.Config) []Repository {
 	return repos
 }
 
-func loadRepository(repo clientv1alpha1.PluginRepository) Repository {
+func loadRepository(repo configv1alpha1.PluginRepository) Repository {
 	opts := []Option{
 		WithGCPBucket(repo.GCPPluginRepository.BucketName),
 		WithName(repo.GCPPluginRepository.Name),

@@ -12,7 +12,7 @@ import (
 // ClientTestSuite is the set of tests to run for the v1alpha1 Client.
 type ClientTestSuite struct {
 	suite.Suite
-	ClientConfig     Config
+	ClientConfig     ClientConfig
 	GlobalServer     Server
 	ManagementServer Server
 }
@@ -27,7 +27,7 @@ func (suite *ClientTestSuite) SetupTest() {
 		Name: "ManagementServer",
 		Type: ManagementClusterServerType,
 	}
-	suite.ClientConfig = Config{
+	suite.ClientConfig = ClientConfig{
 		KnownServers: []*Server{
 			&suite.GlobalServer,
 			&suite.ManagementServer,

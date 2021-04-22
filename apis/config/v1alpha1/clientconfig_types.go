@@ -116,8 +116,8 @@ type GCPPluginRepository struct {
 
 // +kubebuilder:object:root=true
 
-// Config is the Schema for the configs API
-type Config struct {
+// ClientConfig is the Schema for the configs API
+type ClientConfig struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
@@ -133,13 +133,13 @@ type Config struct {
 
 // +kubebuilder:object:root=true
 
-// ConfigList contains a list of Config
-type ConfigList struct {
+// ClientConfigList contains a list of ClientConfig
+type ClientConfigList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []Config `json:"items"`
+	Items           []ClientConfig `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&Config{}, &ConfigList{})
+	SchemeBuilder.Register(&ClientConfig{}, &ClientConfigList{})
 }

@@ -16,7 +16,7 @@ func (s *Server) IsManagementCluster() bool {
 }
 
 // GetCurrentServer returns the current server/
-func (c *Config) GetCurrentServer() (*Server, error) {
+func (c *ClientConfig) GetCurrentServer() (*Server, error) {
 	for _, server := range c.KnownServers {
 		if server.Name == c.CurrentServer {
 			return server, nil

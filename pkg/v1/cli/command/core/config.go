@@ -12,10 +12,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	clientv1alpha1 "github.com/vmware-tanzu-private/core/apis/client/v1alpha1"
+	configv1alpha1 "github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
+	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 )
 
 func init() {
@@ -48,7 +48,7 @@ var showConfigCmd = &cobra.Command{
 	Use:   "show",
 	Short: "Show the current configuration",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cfgPath, err := client.ConfigPath()
+		cfgPath, err := config.ClientConfigPath()
 		if err != nil {
 			return err
 		}
@@ -65,19 +65,19 @@ var initConfigCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initialize config with defaults",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cfg, err := client.GetConfig()
+		cfg, err := config.GetClientConfig()
 		if err != nil {
 			return err
 		}
 		if cfg.ClientOptions == nil {
-			cfg.ClientOptions = &clientv1alpha1.ClientOptions{}
+			cfg.ClientOptions = &configv1alpha1.ClientOptions{}
 		}
 		if cfg.ClientOptions.CLI == nil {
-			cfg.ClientOptions.CLI = &clientv1alpha1.CLIOptions{}
+			cfg.ClientOptions.CLI = &configv1alpha1.CLIOptions{}
 		}
 		repos := cfg.ClientOptions.CLI.Repositories
-		finalRepos := []clientv1alpha1.PluginRepository{}
-		for _, repo := range client.DefaultRepositories {
+		finalRepos := []configv1alpha1.PluginRepository{}
+		for _, repo := range config.DefaultRepositories {
 			var exists bool
 			for _, r := range repos {
 				if repo.GCPPluginRepository.Name == r.GCPPluginRepository.Name {
@@ -91,7 +91,7 @@ var initConfigCmd = &cobra.Command{
 		}
 		cfg.ClientOptions.CLI.Repositories = finalRepos
 
-		err = client.StoreConfig(cfg)
+		err = config.StoreClientConfig(cfg)
 		if err != nil {
 			return err
 		}
@@ -109,7 +109,7 @@ var listServersCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List servers",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cfg, err := client.GetConfig()
+		cfg, err := config.GetClientConfig()
 		if err != nil {
 			return err
 		}
@@ -153,13 +153,13 @@ var deleteServersCmd = &cobra.Command{
 
 		if isAborted == nil {
 			log.Infof("Deleting entry for cluster %s", args[0])
-			serverExists, err := client.ServerExists(args[0])
+			serverExists, err := config.ServerExists(args[0])
 			if err != nil {
 				return err
 			}
 
 			if serverExists {
-				err := client.RemoveServer(args[0])
+				err := config.RemoveServer(args[0])
 				if err != nil {
 					return err
 				}

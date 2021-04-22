@@ -7,7 +7,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
-	"github.com/vmware-tanzu-private/core/pkg/v1/client"
+	"github.com/vmware-tanzu-private/core/pkg/v1/config"
+
 	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
 )
 
@@ -45,7 +46,7 @@ func init() {
 
 func updateClusterCredentials(clusterName string) error {
 	if clusterName == "" {
-		server, err := client.GetCurrentServer()
+		server, err := config.GetCurrentServer()
 		if err != nil {
 			return err
 		}

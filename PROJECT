@@ -2,8 +2,8 @@ domain: tanzu.vmware.com
 multigroup: true
 repo: github.com/vmware-tanzu-private/core
 resources:
-- group: client
-  kind: Config
+- group: config
+  kind: ClientConfig
   version: v1alpha1
 - group: run
   kind: TanzuKubernetesRelease
