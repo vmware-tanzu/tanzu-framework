@@ -61,6 +61,10 @@
 #@ end
 
 #@ def is_dex_required():
+#@   #! we do not need to configure anything about Dex on workload cluster
+#@   if data.values.tkg_cluster_role == "workload":
+#@     return False
+#@   end
 #@   #! if no identity_management_type is provided, the data values are from old version of addon secret. We load the
 #@   #! identity management type from dex configuration section. If it is ldap we still need to deploy dex.
 #@   if not data.values.identity_management_type:
