@@ -580,6 +580,7 @@ github.com/jeremywohl/flatten v1.0.1/go.mod h1:4AmD/VxjWcI5SRB0n6szE2A6s2fsNHDLO
 github.com/jessevdk/go-flags v1.4.0/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
 github.com/jimstudt/http-authentication v0.0.0-20140401203705-3eca13d6893a/go.mod h1:wK6yTYYcgjHE1Z1QtXACPDjcFJyBskHEdagmnq3vsP8=
 github.com/jingyugao/rowserrcheck v0.0.0-20191204022205-72ab7603b68a/go.mod h1:xRskid8CManxVta/ALEhJha/pweKBaVG6fWgc0yH25s=
+github.com/jinzhu/copier v0.2.8/go.mod h1:24xnZezI2Yqac9J61UC6/dG/k76ttpq0DdJI3QmUvro=
 github.com/jirfag/go-printf-func-name v0.0.0-20191110105641-45db9963cdd3/go.mod h1:HEWGJkRDzjJY2sqdDwxccsGicWEf9BQOZsq2tV+xzM0=
 github.com/jirfag/go-printf-func-name v0.0.0-20200119135958-7558a9eaa5af/go.mod h1:HEWGJkRDzjJY2sqdDwxccsGicWEf9BQOZsq2tV+xzM0=
 github.com/jmespath/go-jmespath v0.0.0-20160202185014-0b12d6b521d8/go.mod h1:Nht3zPeWKUH0NzdCt2Blrr5ys8VGpn0CEB0cQHVjt7k=
@@ -927,15 +928,9 @@ github.com/vishvananda/netlink v1.1.0/go.mod h1:cTgwzPIzzgDAYoQrMm0EdrjRUBkTqKYp
 github.com/vishvananda/netns v0.0.0-20180720170159-13995c7128cc/go.mod h1:ZjcWmFBXmLKZu9Nxj3WKYEafiSqer2rnvPr0en9UNpI=
 github.com/vishvananda/netns v0.0.0-20191106174202-0a2b9b5464df/go.mod h1:JP3t17pCcGlemwknint6hfoeCVQrEMVwxRLRjXpq+BU=
 github.com/vito/go-interact v0.0.0-20171111012221-fa338ed9e9ec/go.mod h1:wPlfmglZmRWMYv/qJy3P+fK/UnoQB5ISk4txfNd9tDo=
-github.com/vmware-tanzu-private/tkg-cli v1.3.0-rc.1/go.mod h1:d6Ukp30uNDxmbuE7NcYII/CxvW60ZvTa8kAxTC38VvU=
-github.com/vmware-tanzu-private/tkg-cli v1.3.0-rc.2.0.20210305194649-6c908075a48a/go.mod h1:k6V8mahR7mbesXtaKo71E5nLYpdDmuo1KdY1y2bt85w=
-github.com/vmware-tanzu-private/tkg-cli v1.3.0/go.mod h1:EgBFZriqH9Ej6U4LtkCeF7f5kGkRvEZzSdudJ/2FzSM=
+github.com/vmware-tanzu-private/tkg-cli v1.3.1-rc.1/go.mod h1:vr0yogr7sDwgGjNdQhFvOcBL+kYrcVjMNHGOA42tqAY=
 github.com/vmware-tanzu-private/tkg-providers v0.0.0-20201103211704-f2a26942c760/go.mod h1:njTZCd8EgOpYmLSOxyuQJGcP5oISTRK7/FwqF0g/qW0=
-github.com/vmware-tanzu-private/tkg-providers v1.3.0-rc.1/go.mod h1:njTZCd8EgOpYmLSOxyuQJGcP5oISTRK7/FwqF0g/qW0=
-github.com/vmware-tanzu-private/tkg-providers v1.3.0-rc.2.0.20210304001418-de0851d0fbbd/go.mod h1:njTZCd8EgOpYmLSOxyuQJGcP5oISTRK7/FwqF0g/qW0=
-github.com/vmware-tanzu-private/tkg-providers v1.3.0/go.mod h1:njTZCd8EgOpYmLSOxyuQJGcP5oISTRK7/FwqF0g/qW0=
-github.com/vmware-tanzu/carvel-kapp-controller v0.13.0 h1:+0w4iH+zE7l/FCk8cce8j9TMEay6aomCy4KAcGzTeGY=
-github.com/vmware-tanzu/carvel-kapp-controller v0.13.0/go.mod h1:dIUnNsV5VgCMzA/B5Bi3nubSNtgHe/215STMBaACGqw=
+github.com/vmware-tanzu-private/tkg-providers v1.3.1-rc.1/go.mod h1:njTZCd8EgOpYmLSOxyuQJGcP5oISTRK7/FwqF0g/qW0=
 github.com/vmware-tanzu/carvel-kapp-controller v0.18.0 h1:EI4You67cJp3LvXOtByNw7kZeyXnu+e5wBaAsdWPWBY=
 github.com/vmware-tanzu/carvel-kapp-controller v0.18.0/go.mod h1:bSWq+gdyO07vht/8eGp5Rcc2rBWFHjVlSxsUdfKke8I=
 github.com/vmware-tanzu/carvel-vendir v0.18.0/go.mod h1:HF7iLB0NyEFHuCvM0EJ42fERk20l2ImpktJzhSEdqOU=
@@ -1130,6 +1125,7 @@ golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a/go.mod h1:RxMgew5VJxzue5/jJ
 golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 golang.org/x/sync v0.0.0-20201207232520-09787c993a3a/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
+golang.org/x/sync v0.0.0-20210220032951-036812b2e83c/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 golang.org/x/sys v0.0.0-20170830134202-bb24a47a89ea/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=
 golang.org/x/sys v0.0.0-20180823144017-11551d06cbcc/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=
 golang.org/x/sys v0.0.0-20180830151530-49385e6e1522/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=
@@ -1586,8 +1582,6 @@ sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.9/go.mod h1:dzAXnQb
 sigs.k8s.io/aws-iam-authenticator v0.5.1/go.mod h1:yPDLi58MDx1UtCrRMOykLm1IyKKPGHgcGCafcbn2s3E=
 sigs.k8s.io/cluster-api v0.3.11-0.20201204161359-8437691189ad h1:foFYy2xCPEFSBHTZ6lRVZZC+vRmUCrMFcuJYh8Oc/58=
 sigs.k8s.io/cluster-api v0.3.11-0.20201204161359-8437691189ad/go.mod h1:8Mq0081r8B0GBBKz7FnEdVnttJTi/Yt9iRi0IHvz2ys=
-sigs.k8s.io/cluster-api-provider-aws v0.5.5/go.mod h1:W/78e5VxkPFwD/Q9ABPcih362UNEFtJeJ1lgPU8a+1A=
-sigs.k8s.io/cluster-api-provider-aws v0.6.4/go.mod h1:oG+3T06saqjnG1Xdv1z7iQtovIpZNMSXoiYS7iL3Xww=
 sigs.k8s.io/cluster-api-provider-aws v0.6.5-0.20210309190705-ff3ed1b9f6f1/go.mod h1:hekliQu4ajGABYrB+vfc0idiXJ/cEY2r0kDxbOWAElg=
 sigs.k8s.io/cluster-api-provider-azure v0.4.9-0.20200910212016-5c680a6c2dd4/go.mod h1:T2RdvIhZoricawsj5QSN1uEf33uwaPzqDAZ9QALwUBY=
 sigs.k8s.io/cluster-api-provider-vsphere v0.7.1/go.mod h1:kEw5oUAuc2mxH1/6z+kQKnXde9JrWS4g933DoP0ra3w=
