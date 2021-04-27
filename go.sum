@@ -981,7 +981,7 @@ github.com/vishvananda/netns v0.0.0-20191106174202-0a2b9b5464df h1:OviZH7qLw/7Zo
 github.com/vishvananda/netns v0.0.0-20191106174202-0a2b9b5464df/go.mod h1:JP3t17pCcGlemwknint6hfoeCVQrEMVwxRLRjXpq+BU=
 github.com/vito/go-interact v0.0.0-20171111012221-fa338ed9e9ec h1:Klu98tQ9Z1t23gvC7p7sCmvxkZxLhBHLNyrUPsWsYFg=
 github.com/vito/go-interact v0.0.0-20171111012221-fa338ed9e9ec/go.mod h1:wPlfmglZmRWMYv/qJy3P+fK/UnoQB5ISk4txfNd9tDo=
-github.com/vmware-tanzu-private/tkg-cli v1.3.1-rc.1 h1:acMP9RN6p7HnAOSC+2nLg0sHHFlfS2ugagQNsIixSH8=
+github.com/vmware-tanzu-private/tkg-cli v1.3.1-rc.1 h1:6XadmqtK/wLOUXEvZ+iANP7Nj2vLnP6ZW8ACkeDJpsU=
 github.com/vmware-tanzu-private/tkg-cli v1.3.1-rc.1/go.mod h1:vr0yogr7sDwgGjNdQhFvOcBL+kYrcVjMNHGOA42tqAY=
 github.com/vmware-tanzu-private/tkg-providers v0.0.0-20201103211704-f2a26942c760/go.mod h1:njTZCd8EgOpYmLSOxyuQJGcP5oISTRK7/FwqF0g/qW0=
 github.com/vmware-tanzu-private/tkg-providers v1.3.1-rc.1 h1:OIG61/+zTc5XijOmoOu9QFet50R7hGUd7Unz3y6ngiE=
