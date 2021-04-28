@@ -448,7 +448,6 @@ func (r *reconciler) Start(stopChan <-chan struct{}) error {
 	}
 
 	r.log.Info("Performing an initial release discovery")
-	waitForClusterReadyDone := make(chan bool)
 	initSyncDone := make(chan bool)
 	done := make(chan bool)
 
@@ -465,23 +464,6 @@ func (r *reconciler) Start(stopChan <-chan struct{}) error {
 	<-done
 	r.log.Info("Stopping TanzuKubernetesReleaase Reconciler")
 	return nil
-}
-
-func (r *reconciler) tkrDiscovery(ticker *time.Ticker, done chan bool, stopChan <-chan struct{}) {
-	for {
-		select {
-		case <-stopChan:
-			r.log.Info("Stop performing TKR discovery")
-			ticker.Stop()
-			close(done)
-			return
-		case <-ticker.C:
-			err := r.ReconcileRelease(context.Background())
-			if err != nil {
-				r.log.Info("failed to reconcile TKRs, retrying", "error", err.Error())
-			}
-		}
-	}
 }
 
 func newReconciler(ctx *mgrcontext.ControllerManagerContext) reconcile.Reconciler {

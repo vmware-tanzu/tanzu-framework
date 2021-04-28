@@ -21,9 +21,13 @@ var (
 	createClusterTest    *clitest.Test
 )
 
+const (
+	devPlanName = "dev"
+)
+
 func init() {
 	clusterName = tconf.ClusterPrefix + clitest.GenerateName()
-	plan = "dev"
+	plan = devPlanName
 
 	configFile, err := os.CreateTemp("", clusterName)
 	if err != nil {

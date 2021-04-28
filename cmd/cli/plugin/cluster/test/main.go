@@ -54,7 +54,7 @@ var _ = func() error {
 
 	tconf.defaults()
 
-	return nil
+	return err
 }()
 
 func (c *testConfig) defaults() {
@@ -90,11 +90,11 @@ func init() {
 			return err
 		}
 
-		if err = os.WriteFile(mcConfigFile.Name(), out, 0644); err != nil {
+		if err := os.WriteFile(mcConfigFile.Name(), out, 0644); err != nil {
 			return err
 		}
 
-		if err = t.ExecContainsErrorString("Management cluster created!"); err != nil {
+		if err := t.ExecContainsErrorString("Management cluster created!"); err != nil {
 			return err
 		}
 

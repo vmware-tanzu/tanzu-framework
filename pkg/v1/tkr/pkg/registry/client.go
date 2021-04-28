@@ -20,7 +20,6 @@ type registry struct {
 
 // New instantiates a new Registry
 func New(opts *ctlimg.RegistryOpts) (Registry, error) {
-
 	reg, err := ctlimg.NewRegistry(*opts)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to initialze registry client")
