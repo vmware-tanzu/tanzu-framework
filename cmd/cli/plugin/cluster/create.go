@@ -103,7 +103,7 @@ func create(cmd *cobra.Command, args []string) error {
 		// does not exist and we want to test cluster template generation
 		if cc.generateOnly {
 			server = &v1alpha1.Server{
-				Type:                  v1alpha1.ManagementClusterServerType,
+				Type: v1alpha1.ManagementClusterServerType,
 				ManagementClusterOpts: &v1alpha1.ManagementClusterServer{},
 			}
 		} else {
@@ -141,11 +141,11 @@ func createCluster(clusterName string, server *v1alpha1.Server) error {
 	}
 
 	ccOptions := tkgctl.CreateClusterOptions{
-		ClusterConfigFile:           cc.clusterConfigFile,
-		TkrVersion:                  tkrVersion,
-		ClusterName:                 clusterName,
-		Namespace:                   cc.namespace,
-		Plan:                        cc.plan,
+		ClusterConfigFile: cc.clusterConfigFile,
+		TkrVersion:        tkrVersion,
+		ClusterName:       clusterName,
+		Namespace:         cc.namespace,
+		Plan:              cc.plan,
 		InfrastructureProvider:      cc.infrastructureProvider,
 		ControlPlaneMachineCount:    cc.controlPlaneMachineCount,
 		WorkerMachineCount:          cc.workerMachineCount,

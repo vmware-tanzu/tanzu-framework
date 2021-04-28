@@ -7,6 +7,7 @@ import (
 	"context"
 	"os"
 	"testing"
+	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -280,6 +281,111 @@ var _ = Describe("UpdateTKRUpgradeAvailableCondition", func() {
 					Expect(msg).To(Equal("TKR(s) with later version is available: v1.18.10---vmware.1"))
 				}
 			}
+		})
+	})
+})
+
+var _ = Describe("initialReconcile", func() {
+	var (
+		fakeClient   client.Client
+		fakeRegistry *fakes.Registry
+		scheme       *runtime.Scheme
+		objects      []runtime.Object
+		r            reconciler
+		stopChan     chan struct{}
+	)
+
+	JustBeforeEach(func() {
+		scheme = runtime.NewScheme()
+		addToScheme(scheme)
+		fakeClient = fake.NewFakeClientWithScheme(scheme, objects...)
+		r = reconciler{
+			client:                     fakeClient,
+			log:                        ctrllog.Log,
+			scheme:                     scheme,
+			registry:                   fakeRegistry,
+			bomImage:                   "my-registry.io/tkrs",
+			compatibilityMetadataImage: "",
+		}
+		initSyncDone := make(chan bool)
+		ticker := time.NewTicker(time.Second)
+		stopChan = make(chan struct{})
+		go r.initialReconcile(ticker, initSyncDone, stopChan, 3)
+		go func(stopChan chan struct{}) {
+			time.Sleep(time.Second * 5)
+			stopChan <- struct{}{}
+		}(stopChan)
+
+		<-initSyncDone
+	})
+
+	Context("When cluster is not ready,", func() {
+		BeforeEach(func() {
+			fakeRegistry = &fakes.Registry{}
+			fakeRegistry.ListImageTagsReturns([]string{"bom-v1.17.13+vmware.1", "bom-v1.18.10+vmware.1", "bom-v1.19.3+vmware.1"}, nil)
+
+			fakeRegistry.GetFileReturnsOnCall(0, bomContent17, nil)
+			fakeRegistry.GetFileReturnsOnCall(1, bomContent18, nil)
+			fakeRegistry.GetFileReturnsOnCall(2, bomContent193, nil)
+
+			for i := 3; i < 10; i++ {
+				fakeRegistry.GetFileReturnsOnCall(i, metadataContent, nil)
+			}
+
+			stopChan = make(chan struct{})
+
+		})
+		It("should keep the controller in intitial sync-up stage", func() {
+			Expect(fakeRegistry.ListImageTagsCallCount()).Should(BeNumerically(">", 3))
+		})
+	})
+
+	Context("When cluster is ready, but the bom content can not be retrieved", func() {
+		BeforeEach(func() {
+			fakeRegistry = &fakes.Registry{}
+			fakeRegistry.ListImageTagsReturns([]string{"bom-v1.17.13+vmware.1", "bom-v1.18.10+vmware.1", "bom-v1.19.3+vmware.1"}, nil)
+			for i := 0; i < 12; i += 3 {
+				fakeRegistry.ListImageTagsReturnsOnCall(i, []string{"bom-v1.17.13+vmware.1", "bom-v1.18.10+vmware.1", "bom-v1.19.3+vmware.1"}, nil)
+				fakeRegistry.ListImageTagsReturnsOnCall(i+1, []string{"v1"}, nil)
+				fakeRegistry.ListImageTagsReturnsOnCall(i+2, []string{"bom-v1.17.13+vmware.1", "bom-v1.18.10+vmware.1", "bom-v1.19.3+vmware.1"}, nil)
+			}
+			fakeRegistry.GetFileReturnsOnCall(0, bomContent17, nil)
+			fakeRegistry.GetFileReturnsOnCall(1, bomContent18, nil)
+			fakeRegistry.GetFileReturnsOnCall(2, nil, errors.New("fake-error"))
+			fakeRegistry.GetFileReturnsOnCall(3, metadataContent, nil)
+			for i := 4; i < 16; i += 4 {
+				fakeRegistry.GetFileReturnsOnCall(i+2, nil, errors.New("fake-error"))
+				fakeRegistry.GetFileReturnsOnCall(i+3, metadataContent, nil)
+			}
+			mgmtcluster := newManagemntCluster("mgmt-cluster", map[string]string{constants.ManagememtClusterRoleLabel: ""}, map[string]string{constants.TKGVersionKey: "v1.1"})
+			objects = []runtime.Object{mgmtcluster}
+		})
+
+		It("should exist from initial sync-up stage after 3 retries", func() {
+			// 6 --> 3*(list_bom_tag + list_metadata_tag + initial-sync-up-check)
+			Expect(fakeRegistry.ListImageTagsCallCount()).Should(BeNumerically("==", 9))
+		})
+	})
+
+	Context("When cluster is ready, and bom content can be retrieved", func() {
+		BeforeEach(func() {
+
+			fakeRegistry = &fakes.Registry{}
+
+			fakeRegistry.ListImageTagsReturnsOnCall(0, []string{"bom-v1.17.13+vmware.1", "bom-v1.18.10+vmware.1", "bom-v1.19.3+vmware.1"}, nil)
+			fakeRegistry.ListImageTagsReturnsOnCall(1, []string{"v1"}, nil)
+			fakeRegistry.ListImageTagsReturnsOnCall(2, []string{"bom-v1.17.13+vmware.1", "bom-v1.18.10+vmware.1", "bom-v1.19.3+vmware.1"}, nil)
+
+			fakeRegistry.GetFileReturnsOnCall(0, bomContent17, nil)
+			fakeRegistry.GetFileReturnsOnCall(1, bomContent18, nil)
+			fakeRegistry.GetFileReturnsOnCall(2, bomContent193, nil)
+			fakeRegistry.GetFileReturnsOnCall(3, metadataContent, nil)
+			mgmtcluster := newManagemntCluster("mgmt-cluster", map[string]string{constants.ManagememtClusterRoleLabel: ""}, map[string]string{constants.TKGVersionKey: "v1.1"})
+			objects = []runtime.Object{mgmtcluster}
+		})
+		It("should exist from initial sync-up stage after the first try", func() {
+			// 3 --> list_bom_tag + list_metadata_tag + initial-sync-up-check
+			Expect(fakeRegistry.ListImageTagsCallCount()).Should(BeNumerically("==", 3))
 		})
 	})
 })

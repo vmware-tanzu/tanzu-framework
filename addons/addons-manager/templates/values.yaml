@@ -2,14 +2,16 @@
 #@overlay/match-child-defaults missing_ok=True
 
 ---
+imageInfo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+  imagePullPolicy: IfNotPresent
+  images:
+    tanzuAddonsManagerImage:
+      imagePath: sandbox/tanzu_core_addons/tanzu-addons-manager
+      tag: v1.3.1_vmware.1
 tanzuAddonsManager:
   namespace: tanzu-system
   createNamespace: true
-  image:
-    repository: registry.tkg.vmware.run/tkg
-    path: tanzu-addons-management/tanzu-addons-controller
-    tag: v0.0.1_vmware.1
-    pullPolicy: IfNotPresent
   deployment:
     hostNetwork: false
     priorityClassName: null

@@ -115,8 +115,8 @@ spec:
       - args:
         - --metrics-addr=0
         - --enable-leader-election=false
-        image:  #@ "{}/{}:{}".format(data.values.tanzuAddonsManager.image.repository, data.values.tanzuAddonsManager.image.path, data.values.tanzuAddonsManager.image.tag)
-        imagePullPolicy: #@ data.values.tanzuAddonsManager.image.pullPolicy
+        image:  #@ "{}/{}:{}".format(data.values.imageInfo.imageRepository, data.values.imageInfo.images.tanzuAddonsManagerImage.imagePath, data.values.imageInfo.images.tanzuAddonsManagerImage.tag)
+        imagePullPolicy: #@ data.values.imageInfo.imagePullPolicy
         name: tanzu-addons-controller
         resources:
           limits:

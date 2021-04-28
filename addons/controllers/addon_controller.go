@@ -403,7 +403,7 @@ func (r *AddonReconciler) reconcileAddonSecretNormal(
 	}
 
 	// create/patch remote app and data values secret
-	if err := r.reconcileAddonNormal(ctx, log, cluster, clusterClient, addonSecret, &addonConfig, imageRepository); err != nil {
+	if err := r.reconcileAddonNormal(ctx, log, cluster, clusterClient, addonSecret, &addonConfig, imageRepository, bom); err != nil {
 		log.Error(err, "Error reconciling addon", constants.AddonNameLogKey, addonName)
 		return ctrl.Result{}, err
 	}

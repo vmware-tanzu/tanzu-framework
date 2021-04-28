@@ -110,7 +110,7 @@ spec:
       - args:
         - --metrics-addr=0
         - --enable-leader-election=false
-        image: registry.tkg.vmware.run/tkg/tanzu-addons-management/tanzu-addons-controller:v0.0.1_vmware.1
+        image: projects-stg.registry.vmware.com/tkg/sandbox/tanzu_core_addons/tanzu-addons-manager:v1.3.1_vmware.1
         imagePullPolicy: IfNotPresent
         name: tanzu-addons-controller
         resources:

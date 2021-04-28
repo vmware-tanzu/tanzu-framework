@@ -10,10 +10,11 @@ replace (
 require (
 	github.com/go-logr/logr v0.3.0
 	github.com/onsi/ginkgo v1.14.1
-	github.com/onsi/gomega v1.10.3
+	github.com/onsi/gomega v1.10.4
 	github.com/pkg/errors v0.9.1
 	github.com/vmware-tanzu-private/core v0.0.0-20201211200158-5838874f2c38
 	github.com/vmware-tanzu/carvel-kapp-controller v0.18.0
+	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.19.2
 	k8s.io/apimachinery v0.19.2
 	k8s.io/client-go v0.19.2

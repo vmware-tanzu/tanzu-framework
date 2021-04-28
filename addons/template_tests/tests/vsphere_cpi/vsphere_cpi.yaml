@@ -188,7 +188,7 @@ spec:
         - --cloud-provider=vsphere
         - --cloud-config=/etc/cloud/vsphere.conf
         - --tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
-        image: projects-stg.registry.vmware.com/tkg/cloud-provider-vsphere/cpi/release/manager:v1.2.1
+        image: projects-stg.registry.vmware.com/tkg/ccm/manager:v1.18.1_vmware.1
         name: vsphere-cloud-controller-manager
         resources:
           requests:

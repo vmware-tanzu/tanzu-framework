@@ -25,10 +25,12 @@ ADDONS_DIR := addons
 # Add tooling binaries here and in hack/tools/Makefile
 GOLANGCI_LINT := $(TOOLS_BIN_DIR)/golangci-lint
 GOIMPORTS := $(TOOLS_BIN_DIR)/goimports
+GOLINT := $(TOOLS_BIN_DIR)/golint
+TOOLING_BINARIES := $(GOLANGCI_LINT) $(GOLINT) $(YTT) $(KUBEVAL) $(GOIMPORTS)
+GOBINDATA := $(TOOLS_BIN_DIR)/go-bindata-$(GOOS)-$(GOARCH)
 KUBEBUILDER := $(TOOLS_BIN_DIR)/kubebuilder
 YTT := $(TOOLS_BIN_DIR)/ytt
 KUBEVAL := $(TOOLS_BIN_DIR)/kubeval
-TOOLING_BINARIES := $(GOLANGCI_LINT) $(YTT) $(KUBEVAL) $(GOIMPORTS)
 
 PINNIPED_GIT_REPOSITORY = https://github.com/vmware-tanzu/pinniped.git
 ifeq ($(strip $(PINNIPED_GIT_COMMIT)),)
@@ -40,6 +42,9 @@ ifeq (,$(shell go env GOBIN))
 GOBIN=$(shell go env GOPATH)/bin
 else
 GOBIN=$(shell go env GOBIN)
+endif
+ifndef IS_OFFICIAL_BUILD
+IS_OFFICIAL_BUILD = ""
 endif
 
 PRIVATE_REPOS="github.com/vmware-tanzu-private"
@@ -135,7 +140,7 @@ LD_FLAGS = -s -w
 LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildDate=$(BUILD_DATE)'
 LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildSHA=$(BUILD_SHA)'
 LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildVersion=$(BUILD_VERSION)'
-
+LD_FLAGS += -X 'github.com/vmware-tanzu-private/tkg-cli/pkg/buildinfo.IsOfficialBuild=$(IS_OFFICIAL_BUILD)'
 
 ARTIFACTS_DIR ?= ./artifacts
 
@@ -209,7 +214,6 @@ build-install-cli-all: clean-cli-plugins build-cli install-cli-plugins install-c
 install-cli-plugins: TANZU_CLI_NO_INIT=true
 
 .PHONY: install-cli-plugins
-install-cli-plugins:  ## Install Tanzu CLI plugins
 	$(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
     		plugin install all --local $(ARTIFACTS_DIR)/$(GOHOSTOS)/$(GOHOSTARCH)/cli -u
 	$(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
@@ -233,6 +237,8 @@ prep-build-cli: ensure-pinniped-repo
 	$(GO) mod tidy
 
 # TODO (pbarker): should work this logic into the builder plugin
+# the match glob is to skip the building of the alpha plugin as it introduces
+# zero user-facing functionality in this release
 .PHONY: release
 release: ensure-pinniped-repo ${RELEASE_JOBS}
 	@rm -rf pinniped

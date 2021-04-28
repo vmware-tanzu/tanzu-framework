@@ -1,17 +1,22 @@
-name: Main
+name: Plugin Tests
 
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main, release-1.3 ]
+    paths:
+    - 'cmd/cli/plugin/cluster/**'
+    - 'cmd/cli/plugin/managementcluster/**'
 
 jobs:
-
   build:
-    name: Build
+    name: Plugin Tests
     runs-on: ubuntu-latest
     steps:
+    - name: Free disk space on runner
+      run: sudo rm -rf /usr/share/dotnet
+
     - name: Set up Go 1.x
       uses: actions/setup-go@v2
       with:
@@ -36,27 +41,16 @@ jobs:
         fi
 
     - name: Build
-      run: make all
+      run: make build-cli-local
 
-    - name: Test
-      run: |
-        make test
-        make verify
+    - name: Install Tanzu CLI
+      run: make install-cli
 
-  golangci-lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
+    - name: Install CLI plugins
+      run: make install-cli-plugins
 
-    - name: Config credentials
-      env:
-        GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
-      run: |
-        git config --global url."https://git:$GH_ACCESS_TOKEN@github.com".insteadOf "https://github.com"
+    - name: Run cluster test plugin
+      run: tanzu test plugin cluster
 
-    - name: Run golangci-lint
-      uses: golangci/golangci-lint-action@v2
-      with:
-        version: v1.38.0
-        args: --timeout=5m -v
+
+

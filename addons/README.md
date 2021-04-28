@@ -24,6 +24,7 @@ Current addon templates:
 |   +-- overlays
 |   +-- values.star
 |   +-- values.yaml
+|   +-- imageInfo.yaml
 +-- Makefile
 ```
 ### examples (optional)
@@ -44,7 +45,28 @@ YTT overlays that customize the yaml manifests. For more details about TYY overl
 #### values.star and values.yaml
 Define the input validation funtion in `values.star`. Follow the `starlarks` language syntax in this file. Input validation is optional.
 
-Define all the configurable values in `values.yaml`. These values will be used by overlay to customize the yaml manifests.
+Define all the configurable values in `values.yaml`. These values will be used by overlay to customize the yaml manifests. Please don't include any image related information in values.yaml, those should follow a standardized format and be put into `imageInfo.yaml`.
+
+#### imageInfo.yaml
+Put all the information related to images used by the template in `imageInfo.yaml`. The structure of this file looks like 
+```
+#@data/values
+#@overlay/match-child-defaults missing_ok=True
+---
+imageInfo:
+  imageRepository: <your-image-repository>
+  imagePullPolicy: IfNotPresent
+  images:
+    <image-name-1>:
+      imagePath: <image-path-1>
+      tag: <image-tag-1>
+    <image-name-2>:
+      imagePath: <image-path-2>
+      tag: <image-tag-2>
+    ...
+```
+The `<image-name-x>` should be exactly the same as the image names for your addon in [BOM](https://gitlab.eng.vmware.com/TKG/bolt/bolt-release-yamls/-/blob/5960e2c98ea83610624982eaec970c9b52cdc9c5/component/tkr-bom/tkr-bom-v1.20.4+vmware.1-tkg.1.yaml#L70-75)
+
 
 ### Makefile
 The Makefile should follow the current examples. Change the following variables to match your addon.

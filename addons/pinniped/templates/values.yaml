@@ -1,6 +1,19 @@
 #@data/values
 #@overlay/match-child-defaults missing_ok=True
 ---
+imageInfo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+  imagePullPolicy: IfNotPresent
+  images:
+    tkgPinnipedPostDeployImage:
+      imagePath: tkg-pinniped-post-deploy
+      tag: v0.4.1_vmware.1
+    pinnipedImage:
+      imagePath: pinniped
+      tag: v0.4.1_vmware.1
+    dexImage:
+      imagePath: dex
+      tag: v2.27.0_vmware.1
 infrastructure_provider: null
 tkg_cluster_role: null
 custom_cluster_issuer: "" #! provide if user wants to use a custom ClusterIssuer for both Pinniped and Dex certificates
@@ -20,18 +33,6 @@ pinniped:
   upstream_oidc_client_secret: "" #! the client secret used to talk to Dex
   upstream_oidc_issuer_url: "https://0.0.0.0:30167" #! the upstream oidc issuer url. It should be pointed to Dex service, since Dex is deployed as the upstream of Pinniped. e.g https://endpoint-points-to-dex:5443
   upstream_oidc_tls_ca_data: "ca_bundle_data_of_dex_svc" #! this tls ca data is used to communicate with upstream_oidc_issuer_url
-  #! upstream_oidc_additional_scopes is skipped in values.yaml but required to be provided in values overlay
-  #! upstream_oidc_claims is skipped in values.yaml but required to be provided in values overlay
-  image:
-    name: pinniped
-    tag: v0.4.0_vmware.1
-    repository: registry.tkg.vmware.run
-    pull_policy: IfNotPresent
-  post_deploy_job_image:
-    name: tkg-pinniped-post-deploy
-    tag: v0.4.0_vmware.1
-    repository: registry.tkg.vmware.run
-    pull_policy: Always
 dex:
   app: dex
   create_namespace: true
@@ -116,9 +117,4 @@ dex:
   certificate: 
     duration: 2160h
     renewBefore: 360h
-  image:
-    name: dex
-    tag: v2.27.0_vmware.1
-    repository: registry.tkg.vmware.run
-    pullPolicy: IfNotPresent
   #! dns section is skipped in values.yaml but required to be provided in values overlay
