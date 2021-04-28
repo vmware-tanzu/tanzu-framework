@@ -279,7 +279,7 @@ func (g *GCPBucketRepository) Fetch(name, version string, arch Arch) ([]byte, er
 		}
 		version = plugin.FindVersion(g.versionSelector)
 		if version == "" {
-			return nil, fmt.Errorf("could not find a suitible version for plugin %q from versions %v", name, plugin.Versions)
+			return nil, fmt.Errorf("could not find a suitable version for plugin %q from versions %v", name, plugin.Versions)
 		}
 	}
 
@@ -304,7 +304,7 @@ func (g *GCPBucketRepository) FetchTest(name, version string, arch Arch) ([]byte
 		}
 		version = plugin.FindVersion(g.versionSelector)
 		if version == "" {
-			return nil, fmt.Errorf("could not find a suitible version for test plugin %q from versions %v", name, plugin.Versions)
+			return nil, fmt.Errorf("could not find a suitable version for test plugin %q from versions %v", name, plugin.Versions)
 		}
 	}
 
@@ -461,7 +461,7 @@ func (l *LocalRepository) Fetch(name, version string, arch Arch) ([]byte, error)
 		}
 		version = plugin.FindVersion(l.versionSelector)
 		if version == "" {
-			return nil, fmt.Errorf("could not find a suitible version for plugin %q from versions %v", name, plugin.Versions)
+			return nil, fmt.Errorf("could not find a suitable version for plugin %q from versions %v", name, plugin.Versions)
 		}
 	}
 	b, err := os.ReadFile(filepath.Join(l.path, name, version, MakeArtifactName(name, arch)))
@@ -483,7 +483,7 @@ func (l *LocalRepository) FetchTest(name, version string, arch Arch) ([]byte, er
 		}
 		version = plugin.FindVersion(l.versionSelector)
 		if version == "" {
-			return nil, fmt.Errorf("could not find a suitible version for test plugin %q from versions %v", name, plugin.Versions)
+			return nil, fmt.Errorf("could not find a suitable version for test plugin %q from versions %v", name, plugin.Versions)
 		}
 	}
 	b, err := os.ReadFile(filepath.Join(l.path, name, version, "test", MakeTestArtifactName(name, arch)))
