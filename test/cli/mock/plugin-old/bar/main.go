@@ -8,15 +8,15 @@ import (
 
 	"github.com/aunum/log"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
+	cliv1alpha1 "github.com/vmware-tanzu-private/core/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/command/plugin"
 )
 
-var descriptor = cli.PluginDescriptor{
+var descriptor = cliv1alpha1.PluginDescriptor{
 	Name:        "bar",
 	Description: "Bar commands",
 	Version:     "v0.0.2",
-	Group:       cli.BuildCmdGroup,
+	Group:       cliv1alpha1.BuildCmdGroup,
 }
 
 func main() {

@@ -8,16 +8,17 @@ import (
 
 	"github.com/aunum/log"
 
+	cliv1alpha1 "github.com/vmware-tanzu-private/core/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/command/plugin"
 )
 
-var descriptor = cli.PluginDescriptor{
+var descriptor = cliv1alpha1.PluginDescriptor{
 	Name:        "management-cluster",
 	Description: "Kubernetes management cluster operations",
 	Version:     cli.BuildVersion,
 	BuildSHA:    "",
-	Group:       cli.RunCmdGroup,
+	Group:       cliv1alpha1.RunCmdGroup,
 	Aliases:     []string{"mc", "management-clusters"},
 }
 

@@ -8,13 +8,13 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
+	cliv1alpha1 "github.com/vmware-tanzu-private/core/apis/cli/v1alpha1"
 )
 
 func Test_newRootCmd(t *testing.T) {
 	assert := assert.New(t)
 
-	descriptor := cli.PluginDescriptor{
+	descriptor := cliv1alpha1.PluginDescriptor{
 		Name:        "Test Plugin",
 		Description: "Description of the plugin",
 		Version:     "1.2.3",

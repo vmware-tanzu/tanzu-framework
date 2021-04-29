@@ -150,7 +150,11 @@ ifeq ($(GOHOSTOS), darwin)
 XDG_DATA_HOME := "$${HOME}/Library/Application Support"
 endif
 
+XDG_CACHE_HOME := ${HOME}/.cache
+
 export XDG_DATA_HOME
+export XDG_CACHE_HOME
+
 
 .PHONY: version
 version: ## Show version
@@ -208,7 +212,7 @@ test-cli: build-cli-mocks ## Run tests
 	$(GO) test ./...
 
 .PHONY: build-install-cli-all ## Build and install the CLI plugins
-build-install-cli-all: clean-cli-plugins build-cli install-cli-plugins install-cli ## Build and install Tanzu CLI plugins
+build-install-cli-all: clean-catalog-cache clean-cli-plugins build-cli install-cli-plugins install-cli ## Build and install Tanzu CLI plugins
 
 .PHONY: install-cli-plugins
 install-cli-plugins:  ## Install Tanzu CLI plugins
@@ -257,3 +261,7 @@ modules: ## Runs go mod to ensure modules are up to date.
 .PHONY: verify
 verify: ## Run all verification scripts
 	./hack/verify-dirty.sh
+
+.PHONY: clean-catalog-cache
+clean-catalog-cache: ## Cleans catalog cache
+	@rm -rf ${XDG_CACHE_HOME}/tanzu/*

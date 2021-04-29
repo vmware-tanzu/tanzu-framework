@@ -9,15 +9,16 @@ import (
 	"github.com/aunum/log"
 	"github.com/spf13/cobra"
 
+	cliv1alpha1 "github.com/vmware-tanzu-private/core/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/command/plugin"
 	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 )
 
-var descriptor = cli.PluginDescriptor{
+var descriptor = cliv1alpha1.PluginDescriptor{
 	Name:        "test",
 	Description: "Test the CLI",
-	Group:       cli.AdminCmdGroup,
+	Group:       cliv1alpha1.AdminCmdGroup,
 }
 
 var local []string
@@ -35,17 +36,13 @@ func main() {
 		fetchCmd,
 		pluginsCmd,
 	)
-	c, err := cli.NewCatalog()
-	if err != nil {
-		log.Fatal(err)
-	}
-	descs, err := c.List("test")
+	descs, err := cli.ListPlugins("test")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	for _, d := range descs {
-		pluginsCmd.AddCommand(d.TestCmd())
+		pluginsCmd.AddCommand(cli.TestCmd(d))
 	}
 
 	if err := p.Execute(); err != nil {
@@ -57,12 +54,8 @@ var fetchCmd = &cobra.Command{
 	Use:   "fetch",
 	Short: "Fetch the plugin tests",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		c, err := cli.NewCatalog()
-		if err != nil {
-			log.Fatal(err)
-		}
 		repos := getRepositories()
-		err = c.EnsureTests(repos, "test")
+		err := cli.EnsureTests(repos, "test")
 		if err != nil {
 			log.Fatal(err)
 		}

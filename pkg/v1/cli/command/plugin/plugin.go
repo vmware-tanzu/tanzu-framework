@@ -6,6 +6,7 @@ package plugin
 import (
 	"github.com/spf13/cobra"
 
+	cliv1alpha1 "github.com/vmware-tanzu-private/core/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 )
 
@@ -15,9 +16,9 @@ type Plugin struct {
 }
 
 // NewPlugin creates an instance of Plugin.
-func NewPlugin(descriptor *cli.PluginDescriptor) (*Plugin, error) {
-	descriptor.Apply()
-	err := descriptor.Validate()
+func NewPlugin(descriptor *cliv1alpha1.PluginDescriptor) (*Plugin, error) {
+	cli.ApplyDefaultConfig(descriptor)
+	err := cli.ValidatePlugin(descriptor)
 	if err != nil {
 		return nil, err
 	}

@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -14,96 +15,57 @@ import (
 	"strings"
 	"sync"
 
-	"golang.org/x/mod/semver"
-
+	"github.com/aunum/log"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-
-	"github.com/aunum/log"
-
 	"go.uber.org/multierr"
-)
+	"golang.org/x/mod/semver"
+	apimachineryjson "k8s.io/apimachinery/pkg/runtime/serializer/json"
 
-// PluginCompletionType is the mechanism used for determining command line completion options.
-type PluginCompletionType int
-
-const (
-	// NativePluginCompletion indicates command line completion is determined using the built in
-	// cobra.Command __complete mechanism.
-	NativePluginCompletion PluginCompletionType = iota
-	// StaticPluginCompletion indicates command line completion will be done by using a statically
-	// defined list of options.
-	StaticPluginCompletion
-	// DynamicPluginCompletion indicates command line completion will be retrieved from the plugin
-	// at runtime.
-	DynamicPluginCompletion
+	cliv1alpha1 "github.com/vmware-tanzu-private/core/apis/cli/v1alpha1"
 )
 
 const (
+	// catalogCacheDirName is the name of the local directory in which tanzu state is stored.
+	catalogCacheDirName = ".cache/tanzu"
+	// catalogCacheFileName is the name of the file which holds Catalog cache
+	catalogCacheFileName = "catalog.yaml"
 	// exe is an executable file extension
 	exe = ".exe"
 )
 
-var minConcurrent = 2
+var (
+	minConcurrent = 2
+	// PluginRoot is the plugin root where plugins are installed
+	pluginRoot = DefaultPluginRoot
+	// Distro is set of plugins that should be included with the CLI.
+	distro = DefaultDistro
+)
 
-// PluginDescriptor describes a plugin binary.
-type PluginDescriptor struct {
-	// Name is the name of the plugin.
-	Name string `json:"name" yaml:"name"`
-
-	// Description is the plugin's description.
-	Description string `json:"description" yaml:"description"`
-
-	// Version of the plugin. Must be a valid semantic version https://semver.org/
-	Version string `json:"version" yaml:"version"`
-
-	// BuildSHA is the git commit hash the plugin was built with.
-	BuildSHA string `json:"buildSHA" yaml:"buildSHA"`
-
-	// Edition is the Tanzu Edition the plugin was built for. This enables plugins
-	// to implement edition-awareness for exposing features. This variable is set at
-	// build time using ldflags. Plugins that have no variance between editions need
-	// not set this variable.
-	Edition string `json:"edition" yaml:"edition"`
-
-	// Command group for the plugin.
-	Group cmdGroup `json:"group" yaml:"group"`
-
-	// DocURL for the plugin.
-	DocURL string `json:"docURL,omitempty" yaml:"docURL,omitempty"`
-
-	// Hidden tells whether the plugin should be hidden from the help command.
-	Hidden bool `json:"hidden,omitempty" yaml:"hidden,omitempty"`
-
-	// CompletionType determines how command line completion will be determined.
-	CompletionType PluginCompletionType `json:"completionType" yaml:"completionType"`
-
-	// CompletionArgs contains the valid command line completion values if `CompletionType`
-	// is set to `StaticPluginCompletion`.
-	CompletionArgs []string `json:"completionArgs,omitempty" yaml:"completionArgs,omitempty"`
-
-	// CompletionCommand is the command to call from the plugin to retrieve a list of
-	// valid completion nouns when `CompletionType` is set to `DynamicPluginCompletion`.
-	CompletionCommand string `json:"completionCmd,omitempty" yaml:"completionCmd,omitempty"`
-
-	// Aliases are other text strings used to call this command
-	Aliases []string `json:"aliases,omitempty" yaml:"aliases,omitempty"`
+// getCatalogCacheDir returns the local directory in which tanzu state is stored.
+func getCatalogCacheDir() (path string, err error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return path, errors.Wrap(err, "could not locate user home directory")
+	}
+	path = filepath.Join(home, catalogCacheDirName)
+	return
 }
 
 // NewTestFor creates a plugin descriptor for a test plugin.
-func NewTestFor(pluginName string) *PluginDescriptor {
-	return &PluginDescriptor{
+func NewTestFor(pluginName string) *cliv1alpha1.PluginDescriptor {
+	return &cliv1alpha1.PluginDescriptor{
 		Name:        fmt.Sprintf("%s-test", pluginName),
 		Description: fmt.Sprintf("test for %s", pluginName),
 		Version:     "v0.0.1",
 		BuildSHA:    BuildSHA,
-		Group:       TestCmdGroup,
+		Group:       cliv1alpha1.TestCmdGroup,
 		Aliases:     []string{fmt.Sprintf("%s-alias", pluginName)},
 	}
 }
 
-// Cmd returns a cobra command for the plugin.
-func (p *PluginDescriptor) Cmd() *cobra.Command {
+// GetCmd returns a cobra command for the plugin.
+func GetCmd(p *cliv1alpha1.PluginDescriptor) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   p.Name,
 		Short: p.Description,
@@ -121,7 +83,7 @@ func (p *PluginDescriptor) Cmd() *cobra.Command {
 	}
 
 	// Handle command line completion types.
-	if p.CompletionType == NativePluginCompletion {
+	if p.CompletionType == cliv1alpha1.NativePluginCompletion {
 		cmd.ValidArgsFunction = func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 			// Parses the completion info provided by cobra.Command. This should be formatted similar to:
 			//   help	Help about any command
@@ -156,9 +118,9 @@ func (p *PluginDescriptor) Cmd() *cobra.Command {
 
 			return []string{}, cobra.ShellCompDirectiveError
 		}
-	} else if p.CompletionType == StaticPluginCompletion {
+	} else if p.CompletionType == cliv1alpha1.StaticPluginCompletion {
 		cmd.ValidArgs = p.CompletionArgs
-	} else if p.CompletionType == DynamicPluginCompletion {
+	} else if p.CompletionType == cliv1alpha1.DynamicPluginCompletion {
 		cmd.ValidArgsFunction = func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 			// Pass along the full completion information. Trivial plugins may not support
 			// completion depth, but we can provide the information in case they do.
@@ -194,7 +156,7 @@ func (p *PluginDescriptor) Cmd() *cobra.Command {
 }
 
 // TestCmd returns a cobra command for the plugin.
-func (p *PluginDescriptor) TestCmd() *cobra.Command {
+func TestCmd(p *cliv1alpha1.PluginDescriptor) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   p.Name,
 		Short: p.Description,
@@ -208,16 +170,16 @@ func (p *PluginDescriptor) TestCmd() *cobra.Command {
 	return cmd
 }
 
-// Apply static configurations.
-func (p *PluginDescriptor) Apply() {
+// ApplyDefaultConfig applies default configurations to plugin descriptor.
+func ApplyDefaultConfig(p *cliv1alpha1.PluginDescriptor) {
 	p.BuildSHA = BuildSHA
 	if p.Version == "" {
 		p.Version = BuildVersion
 	}
 }
 
-// Validate the plugin descriptor.
-func (p *PluginDescriptor) Validate() (err error) {
+// ValidatePlugin validates the plugin descriptor.
+func ValidatePlugin(p *cliv1alpha1.PluginDescriptor) (err error) {
 	// skip builder plugin for bootstrapping
 	if p.Name == "builder" {
 		return nil
@@ -240,13 +202,13 @@ func (p *PluginDescriptor) Validate() (err error) {
 	return
 }
 
-// HasUpdateIn checks if the plugin has an update in any of the given repositories.
-func (p *PluginDescriptor) HasUpdateIn(repos *MultiRepo, versionSelector VersionSelector) (update bool, repo Repository, version string, err error) {
+// HasPluginUpdateIn checks if the plugin has an update in any of the given repositories.
+func HasPluginUpdateIn(repos *MultiRepo, versionSelector VersionSelector, p *cliv1alpha1.PluginDescriptor) (update bool, repo Repository, version string, err error) {
 	if versionSelector == nil {
 		versionSelector = repo.VersionSelector()
 	}
 	for _, repo := range repos.repositories {
-		update, version, err = p.HasUpdate(repo, versionSelector)
+		update, version, err = HasPluginUpdate(repo, versionSelector, p)
 		if err != nil {
 			log.Debugf("could not check for update for plugin %q in repo %q: %v", p.Name, repo.Name, err)
 			continue
@@ -258,8 +220,8 @@ func (p *PluginDescriptor) HasUpdateIn(repos *MultiRepo, versionSelector Version
 	return false, nil, "", nil
 }
 
-// HasUpdate tells whether the plugin descriptor has an update available in the given repository.
-func (p *PluginDescriptor) HasUpdate(repo Repository, versionSelector VersionSelector) (update bool, version string, err error) {
+// HasPluginUpdate tells whether the plugin descriptor has an update available in the given repository.
+func HasPluginUpdate(repo Repository, versionSelector VersionSelector, p *cliv1alpha1.PluginDescriptor) (update bool, version string, err error) {
 	if versionSelector == nil {
 		versionSelector = repo.VersionSelector()
 	}
@@ -286,7 +248,7 @@ func (p *PluginDescriptor) HasUpdate(repo Repository, versionSelector VersionSel
 }
 
 // ParsePluginDescriptor parses a plugin descriptor in yaml.
-func ParsePluginDescriptor(path string) (desc PluginDescriptor, err error) {
+func ParsePluginDescriptor(path string) (desc cliv1alpha1.PluginDescriptor, err error) {
 	b, err := os.ReadFile(path)
 	if err != nil {
 		return desc, errors.Wrap(err, "could not read plugin descriptor")
@@ -300,15 +262,9 @@ func ParsePluginDescriptor(path string) (desc PluginDescriptor, err error) {
 	return
 }
 
-// DefaultDistro is the core set of plugins that should be included with the CLI.
-var DefaultDistro = []string{"login", "pinniped-auth", "cluster", "clustergroup", "management-cluster", "kubernetes-release"}
-
-// Distro is a group of plugins that should be installed with the CLI on boot.
-type Distro []string
-
-// IsSatisfied tells if a distribution is satified by the plugin list.
-func (d Distro) IsSatisfied(desc []*PluginDescriptor) bool {
-	for _, dist := range d {
+// IsDistributionSatisfied tells if a distribution is satisfied by the plugin list.
+func IsDistributionSatisfied(desc []*cliv1alpha1.PluginDescriptor) bool {
+	for _, dist := range distro {
 		var contains bool
 		for _, plugin := range desc {
 			if dist == plugin.Name {
@@ -322,30 +278,93 @@ func (d Distro) IsSatisfied(desc []*PluginDescriptor) bool {
 	return true
 }
 
-// Catalog is the catalog of plugins on a host os.
-type Catalog struct {
-	pluginRoot string
-	distro     Distro
-}
-
 // NewCatalog creates an instance of Catalog.
-func NewCatalog(options ...Option) (*Catalog, error) {
-	opts := makeDefaultOptions(options...)
+func NewCatalog() (*cliv1alpha1.Catalog, error) {
+	c := &cliv1alpha1.Catalog{}
 
-	c := &Catalog{
-		pluginRoot: opts.pluginRoot,
-		distro:     opts.distro,
-	}
-	err := c.ensureRoot()
+	err := ensureRoot()
 	if err != nil {
 		return nil, err
 	}
 	return c, nil
 }
 
-// List returns the available plugins.
-func (c *Catalog) List(exclude ...string) (list []*PluginDescriptor, err error) {
-	infos, err := os.ReadDir(c.pluginRoot)
+// getCatalogCache retrieves the catalog from from the local directory.
+func getCatalogCache() (catalog *cliv1alpha1.Catalog, err error) {
+	catalogCachePath, err := getCatalogCachePath()
+	if err != nil {
+		return nil, err
+	}
+	b, err := os.ReadFile(catalogCachePath)
+	if err != nil {
+		catalog, err = NewCatalog()
+		if err != nil {
+			return nil, err
+		}
+		return catalog, nil
+	}
+	scheme, err := cliv1alpha1.SchemeBuilder.Build()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create scheme")
+	}
+	s := apimachineryjson.NewSerializerWithOptions(apimachineryjson.DefaultMetaFactory, scheme, scheme,
+		apimachineryjson.SerializerOptions{Yaml: true, Pretty: false, Strict: false})
+	var c cliv1alpha1.Catalog
+	_, _, err = s.Decode(b, nil, &c)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not decode catalog file")
+	}
+	return &c, nil
+}
+
+// saveCatalogCache saves the catalog in the local directory.
+func saveCatalogCache(catalog *cliv1alpha1.Catalog) error {
+	catalogCachePath, err := getCatalogCachePath()
+	if err != nil {
+		return err
+	}
+	_, err = os.Stat(catalogCachePath)
+	if os.IsNotExist(err) {
+		catalogCacheDir, err := getCatalogCacheDir()
+		if err != nil {
+			return errors.Wrap(err, "could not find tanzu cache dir for OS")
+		}
+		err = os.MkdirAll(catalogCacheDir, 0755)
+		if err != nil {
+			return errors.Wrap(err, "could not make tanzu cache directory")
+		}
+	} else if err != nil {
+		return errors.Wrap(err, "could not create catalog cache path")
+	}
+
+	scheme, err := cliv1alpha1.SchemeBuilder.Build()
+	if err != nil {
+		return errors.Wrap(err, "failed to create scheme")
+	}
+
+	s := apimachineryjson.NewSerializerWithOptions(apimachineryjson.DefaultMetaFactory, scheme, scheme,
+		apimachineryjson.SerializerOptions{Yaml: true, Pretty: false, Strict: false})
+	catalog.GetObjectKind().SetGroupVersionKind(cliv1alpha1.GroupVersionKind)
+	buf := new(bytes.Buffer)
+	if err := s.Encode(catalog, buf); err != nil {
+		return errors.Wrap(err, "failed to encode catalog cache file")
+	}
+	if err = os.WriteFile(catalogCachePath, buf.Bytes(), 0644); err != nil {
+		return errors.Wrap(err, "failed to write catalog cache file")
+	}
+	return nil
+}
+
+// ListPlugins returns the available plugins.
+func ListPlugins(exclude ...string) (list []*cliv1alpha1.PluginDescriptor, err error) {
+	pluginDescriptors, err := getPluginsFromCatalogCache()
+	if err != nil {
+		log.Debugf("could not get plugin descriptors %v", err)
+	} else {
+		return pluginDescriptors, nil
+	}
+
+	infos, err := os.ReadDir(pluginRoot)
 	if err != nil {
 		log.Debug("no plugins currently found")
 		return list, nil
@@ -358,14 +377,109 @@ func (c *Catalog) List(exclude ...string) (list []*PluginDescriptor, err error) 
 		if inExclude(PluginNameFromBin(info.Name()), exclude) {
 			continue
 		}
-		descriptor, err := c.Describe(PluginNameFromBin(info.Name()))
+		descriptor, err := DescribePlugin(PluginNameFromBin(info.Name()))
 		if err != nil {
 			return list, err
 		}
 		list = append(list, descriptor)
 	}
 
+	if err := savePluginsToCatalogCache(list); err != nil {
+		log.Debugf("Plugin descriptors could not be saved to cache", err)
+	}
 	return list, nil
+}
+
+// savePluginsToCatalogCache saves plugins to catalog cache
+func savePluginsToCatalogCache(list []*cliv1alpha1.PluginDescriptor) error {
+	catalog, err := getCatalogCache()
+	if err != nil {
+		catalog, err = NewCatalog()
+		if err != nil {
+			return err
+		}
+	}
+	catalog.PluginDescriptors = list
+	if err := saveCatalogCache(catalog); err != nil {
+		return err
+	}
+	return nil
+}
+
+// getPluginsFromCatalogCache gets plugins from catalog cache
+func getPluginsFromCatalogCache() (list []*cliv1alpha1.PluginDescriptor, err error) {
+	catalog, err := getCatalogCache()
+	if err != nil {
+		return nil, err
+	}
+	if len(catalog.PluginDescriptors) == 0 {
+		return nil, errors.New("could not retrieve plugin descriptors from catalog cache")
+	}
+	return catalog.PluginDescriptors, nil
+}
+
+// insertOrUpdatePluginCacheEntry inserts or updates a plugin entry in catalog cache
+func insertOrUpdatePluginCacheEntry(name string) error {
+	list, err := getPluginsFromCatalogCache()
+	if err != nil {
+		return err
+	}
+	list = remove(list, name)
+	descriptor, err := DescribePlugin(PluginNameFromBin(name))
+	if err != nil {
+		return err
+	}
+	list = append(list, descriptor)
+	if err := savePluginsToCatalogCache(list); err != nil {
+		return err
+	}
+	return nil
+}
+
+// deletePluginCacheEntry deletes plugin entry in catalog cache
+func deletePluginCacheEntry(name string) error {
+	list, err := getPluginsFromCatalogCache()
+	if err != nil {
+		return err
+	}
+	list = remove(list, name)
+	if err := savePluginsToCatalogCache(list); err != nil {
+		return err
+	}
+	return nil
+}
+
+// CleanCatalogCache cleans the catalog cache
+func CleanCatalogCache() error {
+	catalogCachePath, err := getCatalogCachePath()
+	if err != nil {
+		return err
+	}
+	if err := os.Remove(catalogCachePath); err != nil {
+		return err
+	}
+	return nil
+}
+
+// getCatalogCachePath gets the catalog cache path
+func getCatalogCachePath() (string, error) {
+	catalogCacheDir, err := getCatalogCacheDir()
+	if err != nil {
+		return "", errors.Wrap(err, "could not locate catalog cache directory")
+	}
+	return filepath.Join(catalogCacheDir, catalogCacheFileName), nil
+}
+
+func remove(list []*cliv1alpha1.PluginDescriptor, name string) []*cliv1alpha1.PluginDescriptor {
+	i := 0
+	for _, v := range list {
+		if v != nil && v.Name != name {
+			list[i] = v
+			i++
+		}
+	}
+	list = list[:i]
+	return list
 }
 
 func inExclude(name string, exclude []string) bool {
@@ -377,9 +491,9 @@ func inExclude(name string, exclude []string) bool {
 	return false
 }
 
-// ListTests returns the available test plugins.
-func (c *Catalog) ListTests() (list []*PluginDescriptor, err error) {
-	infos, err := os.ReadDir(c.testPath())
+// ListTestPlugins returns the available test plugins.
+func ListTestPlugins() (list []*cliv1alpha1.PluginDescriptor, err error) {
+	infos, err := os.ReadDir(testPath())
 	if err != nil {
 		log.Debug("no plugins currently found")
 		return list, nil
@@ -389,7 +503,7 @@ func (c *Catalog) ListTests() (list []*PluginDescriptor, err error) {
 		if info.IsDir() {
 			continue
 		}
-		descriptor, err := c.DescribeTest(PluginNameFromTestBin(info.Name()))
+		descriptor, err := DescribeTestPlugin(PluginNameFromTestBin(info.Name()))
 		if err != nil {
 			return list, err
 		}
@@ -399,9 +513,9 @@ func (c *Catalog) ListTests() (list []*PluginDescriptor, err error) {
 	return list, nil
 }
 
-// Describe a plugin.
-func (c *Catalog) Describe(name string) (desc *PluginDescriptor, err error) {
-	pluginPath := c.pluginPath(name)
+// DescribePlugin describes a plugin.
+func DescribePlugin(name string) (desc *cliv1alpha1.PluginDescriptor, err error) {
+	pluginPath := pluginPath(name)
 
 	b, err := exec.Command(pluginPath, "info").Output()
 	if err != nil {
@@ -409,7 +523,7 @@ func (c *Catalog) Describe(name string) (desc *PluginDescriptor, err error) {
 		return
 	}
 
-	var descriptor PluginDescriptor
+	var descriptor cliv1alpha1.PluginDescriptor
 	err = json.Unmarshal(b, &descriptor)
 	if err != nil {
 		err = fmt.Errorf("could not unmarshal plugin %q description", name)
@@ -417,16 +531,16 @@ func (c *Catalog) Describe(name string) (desc *PluginDescriptor, err error) {
 	return &descriptor, err
 }
 
-// DescribeTest describes a test plugin.
-func (c *Catalog) DescribeTest(pluginName string) (desc *PluginDescriptor, err error) {
-	pluginPath := c.testPluginPath(pluginName)
+// DescribeTestPlugin describes a test plugin.
+func DescribeTestPlugin(pluginName string) (desc *cliv1alpha1.PluginDescriptor, err error) {
+	pluginPath := testPluginPath(pluginName)
 	b, err := exec.Command(pluginPath, "info").Output()
 	if err != nil {
 		err = fmt.Errorf("could not describe test plugin %q", pluginName)
 		return
 	}
 
-	var descriptor PluginDescriptor
+	var descriptor cliv1alpha1.PluginDescriptor
 	err = json.Unmarshal(b, &descriptor)
 	if err != nil {
 		err = fmt.Errorf("could not unmarshal plugin %q description", pluginName)
@@ -434,8 +548,8 @@ func (c *Catalog) DescribeTest(pluginName string) (desc *PluginDescriptor, err e
 	return &descriptor, err
 }
 
-// Install a plugin from the given repository.
-func (c *Catalog) Install(name, version string, repo Repository) error {
+// InstallPlugin installs a plugin from the given repository.
+func InstallPlugin(name, version string, repo Repository) error {
 	if name == CoreName {
 		return fmt.Errorf("cannot install core as a plugin")
 	}
@@ -444,7 +558,7 @@ func (c *Catalog) Install(name, version string, repo Repository) error {
 		return err
 	}
 
-	pluginPath := c.pluginPath(name)
+	pluginPath := pluginPath(name)
 
 	if BuildArch().IsWindows() {
 		pluginPath += exe
@@ -454,11 +568,42 @@ func (c *Catalog) Install(name, version string, repo Repository) error {
 	if err != nil {
 		return errors.Wrap(err, "could not write file")
 	}
+	err = insertOrUpdatePluginCacheEntry(name)
+	if err != nil {
+		log.Debug("Plugin descriptor could not be updated in cache")
+	}
 	return nil
 }
 
-// InstallAll plugins with the given version finder.
-func (c *Catalog) InstallAll(repo Repository, versionSelector VersionSelector) error {
+// UpgradePlugin upgrades a plugin from the given repository.
+func UpgradePlugin(name, version string, repo Repository) error {
+	if name == CoreName {
+		return fmt.Errorf("cannot install core as a plugin")
+	}
+	b, err := repo.Fetch(name, version, BuildArch())
+	if err != nil {
+		return err
+	}
+
+	pluginPath := pluginPath(name)
+
+	if BuildArch().IsWindows() {
+		pluginPath += exe
+	}
+
+	err = os.WriteFile(pluginPath, b, 0755)
+	if err != nil {
+		return errors.Wrap(err, "could not write file")
+	}
+	err = insertOrUpdatePluginCacheEntry(name)
+	if err != nil {
+		log.Debug("Plugin descriptor could not be updated in cache")
+	}
+	return nil
+}
+
+// InstallAllPlugins plugins with the given version finder.
+func InstallAllPlugins(repo Repository, versionSelector VersionSelector) error {
 	if versionSelector == nil {
 		versionSelector = repo.VersionSelector()
 	}
@@ -471,7 +616,7 @@ func (c *Catalog) InstallAll(repo Repository, versionSelector VersionSelector) e
 		if plugin.Name == CoreName {
 			continue
 		}
-		err := c.Install(plugin.Name, plugin.FindVersion(versionSelector), repo)
+		err := InstallPlugin(plugin.Name, plugin.FindVersion(versionSelector), repo)
 		if err != nil {
 			return err
 		}
@@ -480,7 +625,7 @@ func (c *Catalog) InstallAll(repo Repository, versionSelector VersionSelector) e
 }
 
 // InstallAllMulti installs all the plugins at the latest version in all the given repositories.
-func (c *Catalog) InstallAllMulti(repos *MultiRepo, versionSelector VersionSelector) error {
+func InstallAllMulti(repos *MultiRepo, versionSelector VersionSelector) error {
 	pluginMap, err := repos.ListPlugins()
 	if err != nil {
 		return err
@@ -497,7 +642,7 @@ func (c *Catalog) InstallAllMulti(repos *MultiRepo, versionSelector VersionSelec
 			if plugin.Name == CoreName {
 				continue
 			}
-			err := c.Install(plugin.Name, plugin.FindVersion(versionSelector), repo)
+			err := InstallPlugin(plugin.Name, plugin.FindVersion(versionSelector), repo)
 			if err != nil {
 				return err
 			}
@@ -506,19 +651,26 @@ func (c *Catalog) InstallAllMulti(repos *MultiRepo, versionSelector VersionSelec
 	return nil
 }
 
-// Delete a plugin.
-func (c *Catalog) Delete(name string) error {
-	return os.Remove(c.pluginPath(name))
+// DeletePlugin deletes a plugin.
+func DeletePlugin(name string) error {
+	err := deletePluginCacheEntry(name)
+	if err != nil {
+		log.Debugf("Plugin descriptor could not be deleted from cache %v", err)
+	}
+	return os.Remove(pluginPath(name))
 }
 
 // Clean deletes all plugins and tests.
-func (c *Catalog) Clean() error {
-	return os.RemoveAll(c.pluginRoot)
+func Clean() error {
+	if err := CleanCatalogCache(); err != nil {
+		log.Debugf("Failed to clean the catalog cache %v", err)
+	}
+	return os.RemoveAll(pluginRoot)
 }
 
 // EnsureDistro ensures that all the distro plugins are installed.
-func (c *Catalog) EnsureDistro(repos *MultiRepo) error {
-	fatalErrors := make(chan error, len(c.distro))
+func EnsureDistro(repos *MultiRepo) error {
+	fatalErrors := make(chan error, len(distro))
 
 	// Limit the number of concurrent operations we perform so we don't
 	// overwhelm the system.
@@ -529,13 +681,13 @@ func (c *Catalog) EnsureDistro(repos *MultiRepo) error {
 	guard := make(chan struct{}, maxConcurrent)
 
 	// capture list of already installed plugins
-	installedPlugins, err := c.List()
+	installedPlugins, err := ListPlugins()
 	if err != nil {
 		return err
 	}
 
 	var wg sync.WaitGroup
-	for _, pluginName := range c.distro {
+	for _, pluginName := range distro {
 		// if plugin exists on user's system, do not (re)install
 		if isPluginInstalled(installedPlugins, pluginName) {
 			continue
@@ -547,7 +699,7 @@ func (c *Catalog) EnsureDistro(repos *MultiRepo) error {
 			if err != nil {
 				fatalErrors <- err
 			} else {
-				err = c.Install(pluginName, VersionLatest, repo)
+				err = InstallPlugin(pluginName, VersionLatest, repo)
 				if err != nil {
 					fatalErrors <- err
 				}
@@ -571,13 +723,13 @@ func (c *Catalog) EnsureDistro(repos *MultiRepo) error {
 }
 
 // InstallTest installs the test for the given plugin name
-func (c *Catalog) InstallTest(pluginName, version string, repo Repository) error {
+func InstallTest(pluginName, version string, repo Repository) error {
 	b, err := repo.FetchTest(pluginName, version, BuildArch())
 	if err != nil {
 		return err
 	}
 
-	pluginPath := c.testPluginPath(pluginName)
+	pluginPath := testPluginPath(pluginName)
 
 	if BuildArch().IsWindows() {
 		pluginPath += exe
@@ -591,8 +743,8 @@ func (c *Catalog) InstallTest(pluginName, version string, repo Repository) error
 }
 
 // EnsureTest ensures the right version of the test is present for the plugin.
-func (c *Catalog) EnsureTest(plugin *PluginDescriptor, repos *MultiRepo) error {
-	testDesc, err := c.DescribeTest(plugin.Name)
+func EnsureTest(plugin *cliv1alpha1.PluginDescriptor, repos *MultiRepo) error {
+	testDesc, err := DescribeTestPlugin(plugin.Name)
 	if err == nil {
 		if testDesc.BuildSHA == plugin.BuildSHA {
 			return nil
@@ -603,7 +755,7 @@ func (c *Catalog) EnsureTest(plugin *PluginDescriptor, repos *MultiRepo) error {
 		return err
 	}
 	log.Infof("installing test for plugin %q", plugin.Name)
-	err = c.InstallTest(plugin.Name, plugin.Version, repo)
+	err = InstallTest(plugin.Name, plugin.Version, repo)
 	if err != nil {
 		log.Debugf("could not install test for plugin %q", plugin.Name)
 	}
@@ -611,13 +763,13 @@ func (c *Catalog) EnsureTest(plugin *PluginDescriptor, repos *MultiRepo) error {
 }
 
 // EnsureTests ensures the plugin tests are installed.
-func (c *Catalog) EnsureTests(repos *MultiRepo, exclude ...string) error {
-	descs, err := c.List(exclude...)
+func EnsureTests(repos *MultiRepo, exclude ...string) error {
+	descs, err := ListPlugins(exclude...)
 	if err != nil {
 		return err
 	}
 	for _, desc := range descs {
-		err = c.EnsureTest(desc, repos)
+		err = EnsureTest(desc, repos)
 		if err != nil {
 			return err
 		}
@@ -625,33 +777,28 @@ func (c *Catalog) EnsureTests(repos *MultiRepo, exclude ...string) error {
 	return nil
 }
 
-// Distro for the catalog.
-func (c *Catalog) Distro() Distro {
-	return c.distro
-}
-
 // Returns the local path for a plugin.
-func (c *Catalog) pluginPath(name string) string {
+func pluginPath(name string) string {
 	binName := BinFromPluginName(name)
-	return filepath.Join(c.pluginRoot, binName)
+	return filepath.Join(pluginRoot, binName)
 }
 
 // Returns the local path for a plugin.
-func (c *Catalog) testPluginPath(name string) string {
+func testPluginPath(name string) string {
 	binName := BinTestFromPluginName(name)
-	return filepath.Join(c.pluginRoot, "test", binName)
+	return filepath.Join(pluginRoot, "test", binName)
 }
 
 // Returns the test path relative to the plugin root
-func (c *Catalog) testPath() string {
-	return filepath.Join(c.pluginRoot, "test")
+func testPath() string {
+	return filepath.Join(pluginRoot, "test")
 }
 
 // Ensure the root directory exists.
-func (c *Catalog) ensureRoot() error {
-	_, err := os.Stat(c.testPath())
+func ensureRoot() error {
+	_, err := os.Stat(testPath())
 	if os.IsNotExist(err) {
-		err := os.MkdirAll(c.testPath(), 0755)
+		err := os.MkdirAll(testPath(), 0755)
 		return errors.Wrap(err, "could not make root plugin directory")
 	}
 	return err
@@ -660,7 +807,7 @@ func (c *Catalog) ensureRoot() error {
 // isPluginInstalled takes a list of PluginDescriptors representing installed plugins.
 // When the pluginName entered matches a plugin in the descriptor list, true is returned
 // A list of installed plugins can be captured by calling Catalog's List method.
-func isPluginInstalled(installedPlugin []*PluginDescriptor, pluginName string) bool {
+func isPluginInstalled(installedPlugin []*cliv1alpha1.PluginDescriptor, pluginName string) bool {
 	for _, p := range installedPlugin {
 		if p.Name == pluginName {
 			return true

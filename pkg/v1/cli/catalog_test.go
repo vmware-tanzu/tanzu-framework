@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/adrg/xdg"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 )
 
@@ -25,77 +26,130 @@ func newTestRepo(t *testing.T, name string) Repository {
 	return NewLocalRepository(name, path)
 }
 
-func newTestCatalog(t *testing.T, pluginList []string) *Catalog {
-	pluginRoot := filepath.Join(xdg.DataHome, "tanzu-cli-test")
-	err := os.RemoveAll(pluginRoot)
+func newTestCatalog(t *testing.T) {
+	distro = mockPluginList
+	pluginRoot = filepath.Join(xdg.DataHome, "tanzu-cli-test")
+	os.RemoveAll(pluginRoot)
+	_, err := NewCatalog()
 	require.NoError(t, err)
-	c, err := NewCatalog(WithPluginRoot(pluginRoot), WithDistro(pluginList))
+}
+
+func setupCatalogCache() error {
+	catalogCachePath, err := getCatalogCachePath()
+	if err != nil {
+		return errors.Wrap(err, "could not get plugin descriptor path")
+	}
+	_, err = os.Stat(catalogCachePath)
+	if os.IsNotExist(err) {
+		localDir, err := getCatalogCacheDir()
+		if err != nil {
+			return errors.Wrap(err, "could not find local tanzu dir for OS")
+		}
+		err = os.MkdirAll(localDir, 0755)
+		if err != nil {
+			return errors.Wrap(err, "could not make local tanzu directory")
+		}
+	} else if err != nil {
+		return errors.Wrap(err, "could not create plugin descriptors path")
+	} else {
+		if err := CleanCatalogCache(); err != nil {
+			return errors.Wrap(err, "could not clean plugin descriptors cache")
+		}
+	}
+	return nil
+}
+
+func testMultiRepo(t *testing.T, multi *MultiRepo) {
+	err := InstallAllMulti(multi, nil)
 	require.NoError(t, err)
-	return c
+
+	err = EnsureTests(multi)
+	require.NoError(t, err)
+
+	err = EnsureDistro(multi)
+	require.NoError(t, err)
+}
+
+func testByDownGrading(t *testing.T) {
+	plugins, err := ListPlugins()
+	require.NoError(t, err)
+
+	repoOld := newTestRepo(t, "artifacts-old")
+	// downgrades from v0.0.4 to v0.0.3
+	err = InstallPlugin("baz", "v0.0.3", repoOld)
+	require.NoError(t, err)
+	pluginsAfterDowngrade, err := ListPlugins()
+	require.NoError(t, err)
+	require.NotEqual(t, plugins, pluginsAfterDowngrade)
 }
 
 func TestCatalog(t *testing.T) {
-	catalog := newTestCatalog(t, mockPluginList)
+	newTestCatalog(t)
+
+	//setup cache
+	err := setupCatalogCache()
+	require.NoError(t, err)
+
+	// clean cache
+	defer func() {
+		err := CleanCatalogCache()
+		require.NoError(t, err)
+	}()
+
 	repo := newTestRepo(t, "artifacts-new")
 
-	err := catalog.InstallAll(repo, nil)
+	err = InstallAllPlugins(repo, nil)
 	require.NoError(t, err)
 
-	err = catalog.Install("foo", "v0.0.3", repo)
+	err = InstallPlugin("foo", "v0.0.3", repo)
 	require.NoError(t, err)
 
-	err = catalog.Install("foo", "v0.0.0-missingversion", repo)
+	err = InstallPlugin("foo", "v0.0.0-missingversion", repo)
 	require.Error(t, err)
 
-	err = catalog.Install("notpresent", "v0.0.0", repo)
+	err = UpgradePlugin("foo", "v0.0.4", repo)
 	require.Error(t, err)
 
-	plugins, err := catalog.List()
-	require.NoError(t, err)
-
+	plugins, _ := ListPlugins()
 	require.Len(t, plugins, 3)
 
-	err = catalog.Delete("foo")
+	err = InstallPlugin("notpresent", "v0.0.0", repo)
+	require.Error(t, err)
+
+	plugins, err = ListPlugins()
+	require.NoError(t, err)
+	require.Len(t, plugins, 3)
+
+	pluginsInCatalogCache, err := getPluginsFromCatalogCache()
+	require.NoError(t, err)
+	require.Len(t, pluginsInCatalogCache, 3)
+
+	err = DeletePlugin("foo")
 	require.NoError(t, err)
 
-	plugins, err = catalog.List()
+	plugins, err = ListPlugins()
 	require.NoError(t, err)
 
 	require.Len(t, plugins, 2)
 
-	_, err = catalog.Describe("bar")
+	pluginsInCatalogCache, err = getPluginsFromCatalogCache()
 	require.NoError(t, err)
+	require.Len(t, pluginsInCatalogCache, 2)
 
-	_, err = catalog.Describe("foo")
-	require.Error(t, err)
+	_, err = DescribePlugin("bar")
+	require.NoError(t, err)
 
 	altRepo := newTestRepo(t, "artifacts-alt")
 
 	multi := NewMultiRepo(repo, altRepo)
 
-	err = catalog.InstallAllMulti(multi, nil)
-	require.NoError(t, err)
+	testMultiRepo(t, multi)
 
-	err = catalog.EnsureTests(multi)
-	require.NoError(t, err)
+	testByDownGrading(t)
 
-	err = catalog.EnsureDistro(multi)
+	err = EnsureDistro(multi)
 	require.NoError(t, err)
-
-	plugins, err = catalog.List()
-	require.NoError(t, err)
-
-	repoOld := newTestRepo(t, "artifacts-old")
-	// downgrades from v0.0.4 to v0.0.3
-	err = catalog.Install("baz", "v0.0.3", repoOld)
-	require.NoError(t, err)
-	pluginsAfterDowngrade, err := catalog.List()
-	require.NoError(t, err)
-	require.NotEqual(t, plugins, pluginsAfterDowngrade)
-
-	err = catalog.EnsureDistro(multi)
-	require.NoError(t, err)
-	pluginsAfterReensure, err := catalog.List()
+	pluginsAfterReensure, err := ListPlugins()
 	require.NoError(t, err)
 	// ensure does not update/upgrade the plugin to v0.0.4
 	// thus the plugins installed in the catalog and the plugins
@@ -103,7 +157,11 @@ func TestCatalog(t *testing.T) {
 	require.NotEqual(t, plugins, pluginsAfterReensure)
 
 	invalidPluginList := append(mockPluginList, "notpresent")
-	catalog = newTestCatalog(t, invalidPluginList)
-	err = catalog.EnsureDistro(multi)
+	distro = invalidPluginList
+	err = EnsureDistro(multi)
 	require.Error(t, err)
+
+	// clean test plugin root
+	err = os.RemoveAll(pluginRoot)
+	require.NoError(t, err)
 }

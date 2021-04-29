@@ -16,19 +16,19 @@ import (
 	"golang.org/x/oauth2"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	cliv1alpha1 "github.com/vmware-tanzu-private/core/apis/cli/v1alpha1"
 	configv1alpha1 "github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/auth/csp"
 	tkgauth "github.com/vmware-tanzu-private/core/pkg/v1/auth/tkg"
-	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/command/plugin"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
 	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 )
 
-var descriptor = cli.PluginDescriptor{
+var descriptor = cliv1alpha1.PluginDescriptor{
 	Name:        "login",
 	Description: "Login to the platform",
-	Group:       cli.SystemCmdGroup,
+	Group:       cliv1alpha1.SystemCmdGroup,
 	Aliases:     []string{"lo", "logins"},
 }
 
