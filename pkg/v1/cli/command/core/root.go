@@ -29,10 +29,9 @@ func NewRootCmd() (*cobra.Command, error) {
 	u := cli.NewMainUsage()
 	root.SetUsageFunc(u.Func())
 
-	noInit = true
-	enableInit := os.Getenv("TANZU_CLI_ENABLE_INIT")
-	if enableInit != "" {
-		noInit = false
+	ni := os.Getenv("TANZU_CLI_NO_INIT")
+	if ni != "" {
+		noInit = true
 	}
 
 	// TODO (pbarker): silencing usage for now as we are getting double usage from plugins on errors
