@@ -1,6 +1,19 @@
 #@data/values
 #@overlay/match-child-defaults missing_ok=True
 ---
+imageInfo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+  imagePullPolicy: IfNotPresent
+  images:
+    tkgPinnipedPostDeployImage:
+      imagePath: tkg-pinniped-post-deploy
+      tag: v0.4.1_vmware.1
+    pinnipedImage:
+      imagePath: pinniped
+      tag: v0.4.1_vmware.1
+    dexImage:
+      imagePath: dex
+      tag: v2.27.0_vmware.1
 infrastructure_provider: vsphere #! required, valid values are [vsphere, aws, azure]
 tkg_cluster_role: management #! required
 custom_cluster_issuer: "" #! provide if user wants to use a custom ClusterIssuer for both Pinniped and Dex certificates
@@ -27,16 +40,6 @@ pinniped:
   upstream_oidc_claims: #! Do not change. This values are static for Pinniped + Dex use cases.
     username: name
     groups: groups
-  image: #! required
-    name: pinniped
-    tag: v0.4.1_vmware.1
-    repository: projects-stg.registry.vmware.com/tkg
-    pull_policy: IfNotPresent
-  post_deploy_job_image: #! required
-    name: tkg-pinniped-post-deploy
-    tag: v0.4.1_vmware.1
-    repository: projects-stg.registry.vmware.com/tkg
-    pull_policy: IfNotPresent
 dex:
   app: dex #! required
   create_namespace: true #! required
@@ -93,11 +96,6 @@ dex:
   certificate: #! required
     duration: 2160h
     renewBefore: 360h
-  image: #! required
-    name: dex
-    tag: v2.27.0_vmware.1
-    repository: projects-stg.registry.vmware.com/tkg
-    pullPolicy: IfNotPresent
   dns: #! required
     vsphere: #! For vsphere
       dnsNames:

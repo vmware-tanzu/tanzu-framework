@@ -25,6 +25,7 @@ ADDONS_DIR := addons
 # Add tooling binaries here and in hack/tools/Makefile
 GOLANGCI_LINT := $(TOOLS_BIN_DIR)/golangci-lint
 GOIMPORTS := $(TOOLS_BIN_DIR)/goimports
+GOBINDATA := $(TOOLS_BIN_DIR)/go-bindata-$(GOOS)-$(GOARCH)
 KUBEBUILDER := $(TOOLS_BIN_DIR)/kubebuilder
 YTT := $(TOOLS_BIN_DIR)/ytt
 KUBEVAL := $(TOOLS_BIN_DIR)/kubeval
@@ -40,6 +41,9 @@ ifeq (,$(shell go env GOBIN))
 GOBIN=$(shell go env GOPATH)/bin
 else
 GOBIN=$(shell go env GOBIN)
+endif
+ifndef IS_OFFICIAL_BUILD
+IS_OFFICIAL_BUILD = ""
 endif
 
 PRIVATE_REPOS="github.com/vmware-tanzu-private"
@@ -135,7 +139,7 @@ LD_FLAGS = -s -w
 LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildDate=$(BUILD_DATE)'
 LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildSHA=$(BUILD_SHA)'
 LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildVersion=$(BUILD_VERSION)'
-
+LD_FLAGS += -X 'github.com/vmware-tanzu-private/tkg-cli/pkg/buildinfo.IsOfficialBuild=$(IS_OFFICIAL_BUILD)'
 
 ARTIFACTS_DIR ?= ./artifacts
 

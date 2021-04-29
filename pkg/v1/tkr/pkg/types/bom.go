@@ -85,13 +85,21 @@ type OVAInfos []OVAInfo
 // Addons represents map of Addons
 type Addons map[string]Addon
 
+// ComponentReference references the images in a component
+type ComponentReference struct {
+	ComponentRef string   `yaml:"componentRef"`
+	ImageRefs    []string `yaml:"imageRefs"`
+}
+
 // Addon contains addon info
 type Addon struct {
-	Category           string   `yaml:"category,omitempty"`
-	ClusterTypes       []string `yaml:"clusterTypes,omitempty"`
-	Version            string   `yaml:"version,omitempty"`
-	TemplatesImagePath string   `yaml:"templatesImagePath,omitempty"`
-	TemplatesImageTag  string   `yaml:"templatesImageTag,omitempty"`
+	Category             string               `yaml:"category,omitempty"`
+	ClusterTypes         []string             `yaml:"clusterTypes,omitempty"`
+	Version              string               `yaml:"version,omitempty"`
+	TemplatesImagePath   string               `yaml:"templatesImagePath,omitempty"`
+	TemplatesImageTag    string               `yaml:"templatesImageTag,omitempty"`
+	AddonTemplatesImage  []ComponentReference `yaml:"addonTemplatesImage,omitempty"`
+	AddonContainerImages []ComponentReference `yaml:"addonContainerImages,omitempty"`
 }
 
 // BomContent contains the content of a BOM file
@@ -153,6 +161,35 @@ func (b *Bom) GetComponent(name string) ([]ComponentInfo, error) {
 		return component, nil
 	}
 	return []ComponentInfo{}, errors.Errorf("unable to find the component %s", name)
+}
+
+// GetImageInfo gets a image in a component of specific version.
+// If version is "" or not found, get the image of the first version in the component array
+func (b *Bom) GetImageInfo(componentName, componentVersion, imageName string) (ImageInfo, error) {
+	if !b.initialzed {
+		return ImageInfo{}, errors.New("the BOM is not initialized")
+	}
+	components, ok := b.bom.Components[componentName]
+	if !ok {
+		return ImageInfo{}, errors.Errorf("unable to find the component %s", componentName)
+	}
+	if len(components) < 1 {
+		return ImageInfo{}, errors.Errorf("Empty component list in BOM for %s", componentName)
+	}
+
+	versionIndex := 0
+	if componentVersion != "" {
+		for idx, component := range components {
+			if component.Version == componentVersion {
+				versionIndex = idx
+				break
+			}
+		}
+	}
+	if image, ok := components[versionIndex].Images[imageName]; ok {
+		return image, nil
+	}
+	return ImageInfo{}, errors.Errorf("unable to find image %s in component %s", imageName, componentName)
 }
 
 // Components gets all release components in the BOM file

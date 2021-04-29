@@ -11,12 +11,12 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
+	"github.com/vmware-tanzu-private/tkg-cli/pkg/constants"
+	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
+
 	"github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/clusterclient"
 	"github.com/vmware-tanzu-private/core/pkg/v1/config"
-
-	"github.com/vmware-tanzu-private/tkg-cli/pkg/constants"
-	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
 )
 
 // Note: We can remove all this additional options at the time when

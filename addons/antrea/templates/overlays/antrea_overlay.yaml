@@ -174,9 +174,9 @@ spec:
     spec:
       containers:
         #@overlay/match by=overlay.subset({"name":"antrea-controller"})
-        - image: #@ "{}/{}:{}".format(values.antrea.image.repository, values.antrea.image.path, values.antrea.image.tag)
+        - image: #@ "{}/{}:{}".format(values.imageInfo.imageRepository, values.imageInfo.images.antreaImage.imagePath, values.imageInfo.images.antreaImage.tag)
           #@overlay/match missing_ok=True
-          imagePullPolicy: #@ values.antrea.image.pullPolicy
+          imagePullPolicy: #@ values.imageInfo.imagePullPolicy
 
 
 #@overlay/match by=overlay.subset({"kind":"DaemonSet","metadata":{"name": "antrea-agent"}})
@@ -191,13 +191,13 @@ spec:
     spec:
       containers:
         #@overlay/match by=overlay.subset({"name":"antrea-agent"})
-        - image: #@ "{}/{}:{}".format(values.antrea.image.repository, values.antrea.image.path, values.antrea.image.tag)
+        - image: #@ "{}/{}:{}".format(values.imageInfo.imageRepository, values.imageInfo.images.antreaImage.imagePath, values.imageInfo.images.antreaImage.tag)
           #@overlay/match missing_ok=True
-          imagePullPolicy: #@ values.antrea.image.pullPolicy
+          imagePullPolicy: #@ values.imageInfo.imagePullPolicy
         #@overlay/match by=overlay.subset({"name":"antrea-ovs"})
-        - image: #@ "{}/{}:{}".format(values.antrea.image.repository, values.antrea.image.path, values.antrea.image.tag)
+        - image: #@ "{}/{}:{}".format(values.imageInfo.imageRepository, values.imageInfo.images.antreaImage.imagePath, values.imageInfo.images.antreaImage.tag)
           #@overlay/match missing_ok=True
-          imagePullPolicy: #@ values.antrea.image.pullPolicy
+          imagePullPolicy: #@ values.imageInfo.imagePullPolicy
 
         #@ if values.infraProvider == "docker":
         #@overlay/match by=overlay.subset({"name":"antrea-ovs"})
@@ -215,9 +215,9 @@ spec:
 
       initContainers:
         #@overlay/match by=overlay.subset({"name":"install-cni"})
-        - image: #@ "{}/{}:{}".format(values.antrea.image.repository, values.antrea.image.path, values.antrea.image.tag)
+        - image: #@ "{}/{}:{}".format(values.imageInfo.imageRepository, values.imageInfo.images.antreaImage.imagePath, values.imageInfo.images.antreaImage.tag)
           #@overlay/match missing_ok=True
-          imagePullPolicy: #@ values.antrea.image.pullPolicy
+          imagePullPolicy: #@ values.imageInfo.imagePullPolicy
 
         #@ if values.infraProvider == "docker":
         #@overlay/match by=overlay.subset({"name":"install-cni"})

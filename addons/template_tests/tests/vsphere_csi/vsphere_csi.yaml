@@ -122,7 +122,7 @@ spec:
       dnsPolicy: Default
       containers:
       - name: csi-attacher
-        image: quay.io/k8scsi/csi-attacher:v3.0.0
+        image: projects-stg.registry.vmware.com/tkg/csi/csi-attacher:v3.0.0_vmware.1
         args:
         - --v=4
         - --timeout=300s
@@ -136,7 +136,7 @@ spec:
           name: socket-dir
         imagePullPolicy: IfNotPresent
       - name: vsphere-csi-controller
-        image: gcr.io/cloud-provider-vsphere/csi/release/driver:v2.1.0
+        image: projects-stg.registry.vmware.com/tkg/csi/vsphere-block-csi-driver:v2.1.0_vmware.1
         imagePullPolicy: IfNotPresent
         env:
         - name: CSI_ENDPOINT
@@ -166,7 +166,7 @@ spec:
           periodSeconds: 5
           failureThreshold: 3
       - name: liveness-probe
-        image: quay.io/k8scsi/livenessprobe:v2.1.0
+        image: projects-stg.registry.vmware.com/tkg/csi/csi-livenessprobe:v2.1.0_vmware.1
         args:
         - --csi-address=$(ADDRESS)
         env:
@@ -177,7 +177,7 @@ spec:
           name: socket-dir
         imagePullPolicy: IfNotPresent
       - name: vsphere-syncer
-        image: gcr.io/cloud-provider-vsphere/csi/release/syncer:v2.1.0
+        image: projects-stg.registry.vmware.com/tkg/csi/volume-metadata-syncer:v2.1.0_vmware.1
         args:
         - --leader-election
         imagePullPolicy: IfNotPresent
@@ -193,7 +193,7 @@ spec:
           name: vsphere-config-volume
           readOnly: true
       - name: csi-provisioner
-        image: quay.io/k8scsi/csi-provisioner:v2.0.0
+        image: projects-stg.registry.vmware.com/tkg/csi/csi-provisioner:v2.0.0_vmware.1
         args:
         - --v=4
         - --timeout=300s
@@ -252,7 +252,7 @@ spec:
       dnsPolicy: Default
       containers:
       - name: node-driver-registrar
-        image: quay.io/k8scsi/csi-node-driver-registrar:v2.0.1
+        image: projects-stg.registry.vmware.com/tkg/csi/csi-node-driver-registrar:v2.0.1_vmware.1
         lifecycle:
           preStop:
             exec:
@@ -278,7 +278,7 @@ spec:
           mountPath: /registration
         imagePullPolicy: IfNotPresent
       - name: vsphere-csi-node
-        image: gcr.io/cloud-provider-vsphere/csi/release/driver:v2.1.0
+        image: projects-stg.registry.vmware.com/tkg/csi/vsphere-block-csi-driver:v2.1.0_vmware.1
         imagePullPolicy: IfNotPresent
         env:
         - name: NODE_NAME
@@ -327,7 +327,7 @@ spec:
           periodSeconds: 5
           failureThreshold: 3
       - name: liveness-probe
-        image: quay.io/k8scsi/livenessprobe:v2.1.0
+        image: projects-stg.registry.vmware.com/tkg/csi/csi-livenessprobe:v2.1.0_vmware.1
         args:
         - --csi-address=/csi/csi.sock
         volumeMounts:

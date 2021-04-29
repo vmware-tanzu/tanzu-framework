@@ -95,8 +95,8 @@ spec:
                 secretKeyRef:
                   key: bindPWEnvVar
                   name: #@ get_ldap_bindpw_secret_name()
-          image: #@ get_image_location(values.dex.image.repository, values.dex.image.name, values.dex.image.tag)
-          imagePullPolicy: #@ values.dex.image.pullPolicy
+          image: #@ get_image_location(values.imageInfo.imageRepository, values.imageInfo.images.dexImage.imagePath, values.imageInfo.images.dexImage.tag)
+          imagePullPolicy: #@ values.imageInfo.imagePullPolicy
       volumes:
         #@overlay/match by=overlay.subset({"name": "tls"})
         - name: tls

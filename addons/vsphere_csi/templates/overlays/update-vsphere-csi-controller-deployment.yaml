@@ -14,35 +14,35 @@ spec:
     spec:
       containers:
         #@overlay/match by=overlay.subset({"name": "csi-attacher"})
-        - image: #@ "{}/{}:{}".format(values.vsphereCSI.CSIAttacherImage.repository, values.vsphereCSI.CSIAttacherImage.path, values.vsphereCSI.CSIAttacherImage.tag)
+        - image: #@ "{}/{}:{}".format(values.imageInfo.imageRepository, values.imageInfo.images.csiAttacherImage.imagePath, values.imageInfo.images.csiAttacherImage.tag)
           #@overlay/match missing_ok=True
-          imagePullPolicy: #@ values.vsphereCSI.CSIAttacherImage.pullPolicy
+          imagePullPolicy: #@ values.imageInfo.imagePullPolicy
           args:
           #@overlay/match by=lambda index, left, right: "--timeout=" in left, expects=1
           - #@ "--timeout=" + values.vsphereCSI.attachTimeout
-          #@overlay/match by=overlay.subset({"name": "vsphere-csi-controller"})
-        - image: #@ "{}/{}:{}".format(values.vsphereCSI.vsphereCSIControllerImage.repository, values.vsphereCSI.vsphereCSIControllerImage.path, values.vsphereCSI.vsphereCSIControllerImage.tag)
+        #@overlay/match by=overlay.subset({"name": "vsphere-csi-controller"})
+        - image: #@ "{}/{}:{}".format(values.imageInfo.imageRepository, values.imageInfo.images.csiControllerImage.imagePath, values.imageInfo.images.csiControllerImage.tag)
           #@overlay/match missing_ok=True
-          imagePullPolicy: #@ values.vsphereCSI.vsphereCSIControllerImage.pullPolicy
+          imagePullPolicy: #@ values.imageInfo.imagePullPolicy
         #@overlay/match by=overlay.subset({"name": "liveness-probe"})
-        - image: #@ "{}/{}:{}".format(values.vsphereCSI.livenessProbeImage.repository, values.vsphereCSI.livenessProbeImage.path, values.vsphereCSI.livenessProbeImage.tag)
+        - image: #@ "{}/{}:{}".format(values.imageInfo.imageRepository, values.imageInfo.images.csiLivenessProbeImage.imagePath, values.imageInfo.images.csiLivenessProbeImage.tag)
           #@overlay/match missing_ok=True
-          imagePullPolicy: #@ values.vsphereCSI.livenessProbeImage.pullPolicy
+          imagePullPolicy: #@ values.imageInfo.imagePullPolicy
         #@overlay/match by=overlay.subset({"name": "vsphere-syncer"})
-        - image: #@ "{}/{}:{}".format(values.vsphereCSI.vsphereSyncerImage.repository, values.vsphereCSI.vsphereSyncerImage.path, values.vsphereCSI.vsphereSyncerImage.tag)
+        - image: #@ "{}/{}:{}".format(values.imageInfo.imageRepository, values.imageInfo.images.csiMetaDataSyncerImage.imagePath, values.imageInfo.images.csiMetaDataSyncerImage.tag)
           #@overlay/match missing_ok=True
-          imagePullPolicy: #@ values.vsphereCSI.vsphereSyncerImage.pullPolicy
+          imagePullPolicy: #@ values.imageInfo.imagePullPolicy
         #@overlay/match by=overlay.subset({"name": "csi-provisioner"})
-        - image: #@ "{}/{}:{}".format(values.vsphereCSI.CSIProvisionerImage.repository, values.vsphereCSI.CSIProvisionerImage.path, values.vsphereCSI.CSIProvisionerImage.tag)
+        - image: #@ "{}/{}:{}".format(values.imageInfo.imageRepository, values.imageInfo.images.csiProvisonerImage.imagePath, values.imageInfo.images.csiProvisonerImage.tag)
           #@overlay/match missing_ok=True
-          imagePullPolicy: #@ values.vsphereCSI.CSIProvisionerImage.pullPolicy
+          imagePullPolicy: #@ values.imageInfo.imagePullPolicy
           args:
           #@overlay/match by=lambda index, left, right: "--timeout=" in left, expects=1
           - #@ "--timeout=" + values.vsphereCSI.provisionTimeout
         #@ if hasattr(values.vsphereCSI, 'vSphereVersion') and values.vsphereCSI.vSphereVersion.startswith('7'):
         #@overlay/append
         - name: csi-resizer
-          image: #@ "{}/{}:{}".format(values.vsphereCSI.CSIResizerImage.repository, values.vsphereCSI.CSIResizerImage.path, values.vsphereCSI.CSIResizerImage.tag)
+          image: #@ "{}/{}:{}".format(values.imageInfo.imageRepository, values.imageInfo.images.csiExternalResizer.imagePath, values.imageInfo.images.csiExternalResizer.tag)
           args:
             - --v=4
             - #@ "--timeout=" + values.vsphereCSI.resizerTimeout
@@ -54,5 +54,5 @@ spec:
           volumeMounts:
             - mountPath: /csi
               name: socket-dir
-          imagePullPolicy: #@ values.vsphereCSI.CSIResizerImage.pullPolicy
+          imagePullPolicy: #@ values.imageInfo.imagePullPolicy
         #@ end

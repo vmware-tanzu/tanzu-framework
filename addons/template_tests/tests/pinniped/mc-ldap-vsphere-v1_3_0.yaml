@@ -1333,7 +1333,7 @@ metadata:
   namespace: pinniped-supervisor
   annotations:
     kapp.k14s.io/update-strategy: always-replace
-    pinniped-addon-template/hash: 80a92d0cd79222b4d6e9557b6c5375711ae014fa78de1600b7ab040d1f5a7ade
+    pinniped-addon-template/hash: 0722e6ccb461220f5a6c9cf5a241e8c1a1a6b6b7d269293aaa46b4b12a082e2e
 spec:
   template:
     spec:

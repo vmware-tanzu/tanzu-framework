@@ -8,7 +8,6 @@
 
 #@ kind = kind_overlays
 #@ job_metadata = overlay.subset({"metadata": {"name" : post_deploy_job_name()}})
-#@ post_deploy_job_image = data.values.pinniped.post_deploy_job_image
 
 #@ def get_id_mgmt_type():
 #@   if data.values.identity_management_type:
@@ -61,6 +60,6 @@ spec:
       #@overlay/match missing_ok=True
       containers:
         - name: pinniped-post-deploy
-          image: #@ get_image_location(post_deploy_job_image.repository, post_deploy_job_image.name, post_deploy_job_image.tag)
-          imagePullPolicy: #@ post_deploy_job_image.pull_policy
+          image: #@ get_image_location(data.values.imageInfo.imageRepository, data.values.imageInfo.images.tkgPinnipedPostDeployImage.imagePath, data.values.imageInfo.images.tkgPinnipedPostDeployImage.tag)
+          imagePullPolicy: #@ data.values.imageInfo.imagePullPolicy
           command: #@ commands

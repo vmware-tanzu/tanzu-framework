@@ -2,14 +2,16 @@
 #@overlay/match-child-defaults missing_ok=True
 
 ---
+imageInfo:
+  imageRepository: registry.tkg.vmware.run/tkg
+  imagePullPolicy: IfNotPresent
+  images:
+    kappControllerImage:
+      imagePath: kapp-controller
+      tag: v0.16.0_vmware.1
 kappController:
   namespace: mynamespace
   createNamespace: true
-  image:
-    repository: registry.mydomain.com/tkg
-    path: kapp-controller
-    tag: mytag
-    pullPolicy: IfNotPresent
   deployment:
     hostNetwork: true
     priorityClassName: abc
