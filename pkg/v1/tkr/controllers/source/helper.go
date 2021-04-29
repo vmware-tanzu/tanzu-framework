@@ -92,7 +92,7 @@ func NewTkrFromBom(tkrName string, bomContent []byte) (runv1.TanzuKubernetesRele
 			Conditions: []clusterv1.Condition{
 				{
 					Type:               runv1.ConditionCompatible,
-					Status:             corev1.ConditionTrue,
+					Status:             corev1.ConditionUnknown,
 					LastTransitionTime: metav1.Time{Time: time.Now()},
 					Severity:           "",
 					Reason:             "",
