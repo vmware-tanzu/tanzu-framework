@@ -25,15 +25,6 @@ var AdvancedGCPBucketRepository = configv1alpha1.GCPPluginRepository{
 	Name:       AdvancedRepositoryName,
 }
 
-// TKGRepositoryName is the TKG repository name.
-const TKGRepositoryName = "tkg"
-
-// TKGGCPBucketRepository is the GCP bucket repository for TKG plugins.
-var TKGGCPBucketRepository = configv1alpha1.GCPPluginRepository{
-	BucketName: "tanzu-cli-tkg-plugins",
-	Name:       TKGRepositoryName,
-}
-
 // DefaultRepositories are the default repositories for the CLI.
 var DefaultRepositories []configv1alpha1.PluginRepository = []configv1alpha1.PluginRepository{
 	{
@@ -41,8 +32,5 @@ var DefaultRepositories []configv1alpha1.PluginRepository = []configv1alpha1.Plu
 	},
 	{
 		GCPPluginRepository: &AdvancedGCPBucketRepository,
-	},
-	{
-		GCPPluginRepository: &TKGGCPBucketRepository,
 	},
 }

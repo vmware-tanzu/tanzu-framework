@@ -7,8 +7,5 @@ clientOptions:
     - gcpPluginRepository:
         bucketName: tanzu-cli-advanced-plugins
         name: advanced
-    - gcpPluginRepository:
-        bucketName: tanzu-cli-tkg-plugins
-        name: tkg
 metadata:
   creationTimestamp: null
