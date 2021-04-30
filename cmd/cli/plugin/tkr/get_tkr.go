@@ -44,7 +44,7 @@ func getKubernetesReleases(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	t := component.NewTableWriter("NAME", "VERSION", "COMPATIBLE", "UPGRADEAVAILABLE")
+	t := component.NewTableWriter("NAME", "VERSION", "COMPATIBLE", "UPDATES AVAILABLE")
 	for i := range tkrs {
 		compatible := ""
 		upgradeAvailable := ""
@@ -53,7 +53,7 @@ func getKubernetesReleases(cmd *cobra.Command, args []string) error {
 			if condition.Type == runv1alpha1.ConditionCompatible {
 				compatible = string(condition.Status)
 			}
-			if condition.Type == runv1alpha1.ConditionUpgradeAvailable {
+			if condition.Type == runv1alpha1.ConditionUpdatesAvailable {
 				upgradeAvailable = string(condition.Status)
 			}
 		}

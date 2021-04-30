@@ -218,7 +218,7 @@ func changeTKRCondition(tkr *runv1.TanzuKubernetesRelease, conditionType string,
 	conditions.Set(tkr, newCondition)
 }
 
-func (r *reconciler) UpdateTKRUpgradeAvailableCondition(tkrs []runv1.TanzuKubernetesRelease) {
+func (r *reconciler) UpdateTKRUpdatesAvailableCondition(tkrs []runv1.TanzuKubernetesRelease) {
 	for i := range tkrs {
 		upgradeTo := []string{}
 		for j := range tkrs {
@@ -228,9 +228,9 @@ func (r *reconciler) UpdateTKRUpgradeAvailableCondition(tkrs []runv1.TanzuKubern
 		}
 		if len(upgradeTo) != 0 {
 			msg := fmt.Sprintf("TKR(s) with later version is available: %s", strings.Join(upgradeTo, ","))
-			changeTKRCondition(&tkrs[i], runv1.ConditionUpgradeAvailable, corev1.ConditionTrue, msg)
+			changeTKRCondition(&tkrs[i], runv1.ConditionUpdatesAvailable, corev1.ConditionTrue, msg)
 		} else {
-			changeTKRCondition(&tkrs[i], runv1.ConditionUpgradeAvailable, corev1.ConditionFalse, "")
+			changeTKRCondition(&tkrs[i], runv1.ConditionUpdatesAvailable, corev1.ConditionFalse, "")
 		}
 	}
 }
@@ -308,7 +308,7 @@ func (r *reconciler) ReconcileConditions(ctx context.Context, added, existing []
 		return errors.Wrap(err, "failed to update Compatible condition for TKRs")
 	}
 
-	r.UpdateTKRUpgradeAvailableCondition(allTKRs)
+	r.UpdateTKRUpdatesAvailableCondition(allTKRs)
 
 	for i := range allTKRs {
 		if err = r.client.Status().Update(ctx, &allTKRs[i]); err != nil {

@@ -62,7 +62,7 @@ func getAvailableUpgrades(cmd *cobra.Command, args []string) error {
 	for i := range tkrs {
 		if tkrs[i].Name == args[0] {
 			for _, condition := range tkrs[i].Status.Conditions {
-				if condition.Type == runv1alpha1.ConditionUpgradeAvailable {
+				if condition.Type == runv1alpha1.ConditionUpdatesAvailable {
 					upgradeMsg = condition.Message
 				}
 			}

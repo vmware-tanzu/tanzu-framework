@@ -99,7 +99,7 @@ func NewTkrFromBom(tkrName string, bomContent []byte) (runv1.TanzuKubernetesRele
 					Message:            "",
 				},
 				{
-					Type:               runv1.ConditionUpgradeAvailable,
+					Type:               runv1.ConditionUpdatesAvailable,
 					Status:             corev1.ConditionFalse,
 					LastTransitionTime: metav1.Time{Time: time.Now()},
 					Severity:           "",

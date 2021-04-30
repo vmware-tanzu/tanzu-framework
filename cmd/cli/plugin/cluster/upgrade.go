@@ -177,7 +177,7 @@ func getAvailableUpgrades(clusterName string, tkr *runv1alpha1.TanzuKubernetesRe
 	upgradeMsg := ""
 	strLen := 2
 	for _, condition := range tkr.Status.Conditions {
-		if condition.Type == runv1alpha1.ConditionUpgradeAvailable {
+		if condition.Type == runv1alpha1.ConditionUpdatesAvailable {
 			upgradeMsg = condition.Message
 			break
 		}

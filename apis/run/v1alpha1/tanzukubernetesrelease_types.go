@@ -13,8 +13,8 @@ const (
 	// ConditionCompatible indicates the condition is compatible.
 	ConditionCompatible = "Compatible"
 
-	// ConditionUpgradeAvailable indicates the condition is an upgrade is available.
-	ConditionUpgradeAvailable = "UpgradeAvailable"
+	// ConditionUpdatesAvailable indicates the condition is an updates is available.
+	ConditionUpdatesAvailable = "UpdatesAvailable"
 )
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
