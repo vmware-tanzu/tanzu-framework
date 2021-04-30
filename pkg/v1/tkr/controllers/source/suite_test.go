@@ -337,6 +337,14 @@ var _ = Describe("initialReconcile", func() {
 		})
 		It("should keep the controller in intitial sync-up stage", func() {
 			Expect(fakeRegistry.ListImageTagsCallCount()).Should(BeNumerically(">", 3))
+			tkrList := &runv1.TanzuKubernetesReleaseList{}
+			err := fakeClient.List(context.Background(), tkrList)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(len(tkrList.Items)).To(Equal(3))
+			for _, tkr := range tkrList.Items {
+				status, _ := getConditionStatusAndMessage(tkr.Status.Conditions, runv1.ConditionCompatible)
+				Expect(status).To(Equal(corev1.ConditionUnknown))
+			}
 		})
 	})
 
@@ -364,6 +372,14 @@ var _ = Describe("initialReconcile", func() {
 		It("should exist from initial sync-up stage after 3 retries", func() {
 			// 6 --> 3*(list_bom_tag + list_metadata_tag + initial-sync-up-check)
 			Expect(fakeRegistry.ListImageTagsCallCount()).Should(BeNumerically("==", 9))
+			tkrList := &runv1.TanzuKubernetesReleaseList{}
+			err := fakeClient.List(context.Background(), tkrList)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(len(tkrList.Items)).To(Equal(2))
+			for _, tkr := range tkrList.Items {
+				status, _ := getConditionStatusAndMessage(tkr.Status.Conditions, runv1.ConditionCompatible)
+				Expect(status).To(Equal(corev1.ConditionTrue))
+			}
 		})
 	})
 
@@ -386,6 +402,19 @@ var _ = Describe("initialReconcile", func() {
 		It("should exist from initial sync-up stage after the first try", func() {
 			// 3 --> list_bom_tag + list_metadata_tag + initial-sync-up-check
 			Expect(fakeRegistry.ListImageTagsCallCount()).Should(BeNumerically("==", 3))
+			tkrList := &runv1.TanzuKubernetesReleaseList{}
+			err := fakeClient.List(context.Background(), tkrList)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(len(tkrList.Items)).To(Equal(3))
+			for _, tkr := range tkrList.Items {
+				if tkr.Name == "v1.19.3---vmware.1" {
+					status, _ := getConditionStatusAndMessage(tkr.Status.Conditions, runv1.ConditionCompatible)
+					Expect(status).To(Equal(corev1.ConditionFalse))
+					continue
+				}
+				status, _ := getConditionStatusAndMessage(tkr.Status.Conditions, runv1.ConditionCompatible)
+				Expect(status).To(Equal(corev1.ConditionTrue))
+			}
 		})
 	})
 })
