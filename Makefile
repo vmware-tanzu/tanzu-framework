@@ -134,11 +134,18 @@ BUILD_VERSION ?= $(shell git describe --tags --abbrev=0 2>$(NUL))
 ifeq ($(strip $(BUILD_VERSION)),)
 BUILD_VERSION = dev
 endif
+# BUILD_EDITION is the Tanzu Edition, the plugin should be built for.
+# Valid values for BUILD_EDITION are 'tce' and 'tkg'. Default value of BUILD_EDITION is 'tkg'.
+# TODO: Need a flexible version selector to not break plugin upgrade - https://github.com/vmware-tanzu-private/core/issues/603
+ifneq ($(BUILD_EDITION), tce)
+BUILD_EDITION = tkg
+endif
 
 LD_FLAGS = -s -w
 LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildDate=$(BUILD_DATE)'
 LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildSHA=$(BUILD_SHA)'
 LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildVersion=$(BUILD_VERSION)'
+LD_FLAGS += -X 'main.BuildEdition=$(BUILD_EDITION)'
 LD_FLAGS += -X 'github.com/vmware-tanzu-private/tkg-cli/pkg/buildinfo.IsOfficialBuild=$(IS_OFFICIAL_BUILD)'
 
 ARTIFACTS_DIR ?= ./artifacts

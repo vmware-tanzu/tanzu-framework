@@ -44,8 +44,8 @@ require (
 	github.com/spf13/cobra v1.1.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.7.0
-	github.com/vmware-tanzu-private/tkg-cli v1.3.1-rc.1
-	github.com/vmware-tanzu-private/tkg-providers v1.3.1-rc.1 // indirect
+	github.com/vmware-tanzu-private/tkg-cli v1.3.1-rc.1.0.20210511054704-abb2b0362ada
+	github.com/vmware-tanzu-private/tkg-providers v1.3.1-rc.1.0.20210507174302-4cc66882ac81 // indirect
 	go.uber.org/multierr v1.5.0
 	golang.org/x/mod v0.4.0
 	golang.org/x/oauth2 v0.0.0-20201208152858-08078c50e5b5

@@ -13,6 +13,11 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/command/plugin"
 )
 
+var (
+	// BuildEdition is the edition the CLI was built for.
+	BuildEdition string
+)
+
 var descriptor = cliv1alpha1.PluginDescriptor{
 	Name:        "management-cluster",
 	Description: "Kubernetes management cluster operations",
