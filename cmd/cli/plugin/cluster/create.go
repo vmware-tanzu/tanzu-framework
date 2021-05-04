@@ -5,17 +5,22 @@ package main
 
 import (
 	"fmt"
+	"reflect"
+	"sort"
 	"time"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
+	"github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
+	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
+	"github.com/vmware-tanzu-private/core/pkg/v1/clusterclient"
+	tkr "github.com/vmware-tanzu-private/core/pkg/v1/tkr/controllers/source"
 	"github.com/vmware-tanzu-private/tkg-cli/pkg/constants"
+	"github.com/vmware-tanzu-private/tkg-cli/pkg/log"
 	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
 
-	"github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/clusterclient"
 	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 )
 
@@ -51,7 +56,7 @@ var createClusterCmd = &cobra.Command{
 
 func init() {
 	createClusterCmd.Flags().StringVarP(&cc.clusterConfigFile, "file", "f", "", "Configuration file from which to create a cluster")
-	createClusterCmd.Flags().StringVarP(&cc.tkrName, "tkr", "", "", "TanzuKubernetesRelease(TKR) to be used for creating the workload cluster")
+	createClusterCmd.Flags().StringVarP(&cc.tkrName, "tkr", "", "", "TanzuKubernetesRelease(TKR) to be used for creating the workload cluster. If TKR name prefix is provided, the latest compatible TKR matching the TKR name prefix would be used")
 
 	createClusterCmd.Flags().StringVarP(&cc.plan, "plan", "p", "", "The plan to be used for creating the workload cluster")
 	createClusterCmd.Flags().IntVarP(&cc.controlPlaneMachineCount, "controlplane-machine-count", "c", 0, "The number of control plane machines to be added to the workload cluster (default 1 or 3 depending on dev or prod plan)")
@@ -164,28 +169,93 @@ func createCluster(clusterName string, server *v1alpha1.Server) error {
 }
 
 func getTkrVersionForMatchingTkr(clusterClient clusterclient.Client, tkrName string) (string, error) {
+	// get all the TKRs with tkrName prefix matching
 	tkrs, err := clusterClient.GetTanzuKubernetesReleases(tkrName)
 	if err != nil {
 		return "", err
 	}
 
-	// TODO: Enhance this logic to identify the greatest matching TKR
-	// https://jira.eng.vmware.com/browse/TKG-3512
-	var tkrVersion string
-	for i := range tkrs {
-		if tkrs[i].Name == tkrName {
-			if !isTkrCompatible(&tkrs[i]) {
-				fmt.Printf("WARNING: TanzuKubernetesRelease %q is not compatible on the management cluster\n", tkrs[i].Name)
-			}
-
-			tkrVersion = tkrs[i].Spec.Version
-			break
-		}
-	}
-
-	if tkrVersion == "" {
+	if len(tkrs) == 0 {
 		return "", errors.Errorf("could not find a matching TanzuKubernetesRelease for name %q", tkrName)
 	}
 
-	return tkrVersion, nil
+	tkrForCreate, err := getMatchingTkrForTkrName(tkrs, tkrName)
+	// If the complete TKR name is provided, use it
+	if err == nil {
+		if !isTkrCompatible(&tkrForCreate) {
+			fmt.Printf("WARNING: TanzuKubernetesRelease %q is not compatible on the management cluster\n", tkrForCreate.Name)
+		}
+		if tkrForCreate.Spec.Version == "" {
+			return "", errors.Errorf("could not find a matching TanzuKubernetesRelease for name %q", tkrName)
+		}
+		return tkrForCreate.Spec.Version, nil
+	}
+
+	return getLatestTKRVersionMatchingTKRPrefix(tkrName, tkrs)
+}
+
+// getLatestTKRVersionMatchingTKRPrefix returns the latest compatible TKR from the prefix name matched TKRs
+func getLatestTKRVersionMatchingTKRPrefix(tkrName string, tkrsWithPrefixMatch []runv1alpha1.TanzuKubernetesRelease) (string, error) {
+	compatibleTKRs := []runv1alpha1.TanzuKubernetesRelease{}
+	for idx := range tkrsWithPrefixMatch {
+		if !isTkrCompatible(&tkrsWithPrefixMatch[idx]) {
+			continue
+		}
+		compatibleTKRs = append(compatibleTKRs, tkrsWithPrefixMatch[idx])
+	}
+
+	if len(compatibleTKRs) == 0 {
+		return "", errors.Errorf("could not find a matching compatible TanzuKubernetesRelease for name %q", tkrName)
+	}
+
+	return getLatestTkrVersion(compatibleTKRs)
+}
+
+// getLatestTkrVersion returns the latest TKR version from the TKRs list
+func getLatestTkrVersion(tkrs []runv1alpha1.TanzuKubernetesRelease) (string, error) {
+	sort.SliceStable(tkrs, func(i, j int) bool {
+		tkri, err := tkr.NewTKRVersion(tkrs[i].Name)
+		if err != nil {
+			return true
+		}
+		tkrj, err := tkr.NewTKRVersion(tkrs[j].Name)
+		if err != nil {
+			return true
+		}
+		if tkri.Major != tkrj.Major {
+			return tkri.Major < tkrj.Major
+		}
+		if tkri.Minor != tkrj.Minor {
+			return tkri.Minor < tkrj.Minor
+		}
+		if tkri.Patch != tkrj.Patch {
+			return tkri.Patch < tkrj.Patch
+		}
+		if tkri.VMware != tkrj.VMware {
+			return tkri.VMware < tkrj.VMware
+		}
+		return tkri.TKG < tkrj.TKG
+	})
+
+	latestTKRs := []runv1alpha1.TanzuKubernetesRelease{}
+	latestTKRsNames := []string{}
+
+	latestTKRs = append(latestTKRs, tkrs[len(tkrs)-1])
+	latestTKRVersion, _ := tkr.NewTKRVersion(latestTKRs[0].Name)
+	latestTKRsNames = append(latestTKRsNames, latestTKRs[0].Name)
+
+	for i := len(tkrs) - 2; i >= 0; i-- {
+		currentTKRVerison, _ := tkr.NewTKRVersion(tkrs[i].Name)
+		if reflect.DeepEqual(latestTKRVersion, currentTKRVerison) {
+			latestTKRs = append(latestTKRs, tkrs[i])
+			latestTKRsNames = append(latestTKRsNames, tkrs[i].Name)
+		}
+	}
+
+	if len(latestTKRs) > 1 {
+		return "", errors.Errorf("found multiple TKRs %v matching the criteria, please specify the TKR name you want to use", latestTKRsNames)
+	}
+
+	log.V(4).Infof("Using the TKR version '%s' from TKR name '%s' ", latestTKRs[0].Spec.Version, latestTKRs[0].Name) //nolint
+	return latestTKRs[0].Spec.Version, nil
 }

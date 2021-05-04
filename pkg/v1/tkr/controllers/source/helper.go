@@ -131,11 +131,11 @@ type TKRVersion struct {
 }
 
 func upgradeQualified(fromTKR, toTKR *runv1.TanzuKubernetesRelease) bool {
-	from, err := newTKRVersion(fromTKR.Spec.Version)
+	from, err := NewTKRVersion(fromTKR.Spec.Version)
 	if err != nil {
 		return false
 	}
-	to, err := newTKRVersion(toTKR.Spec.Version)
+	to, err := NewTKRVersion(toTKR.Spec.Version)
 	if err != nil {
 		return false
 	}
@@ -158,7 +158,8 @@ func upgradeQualified(fromTKR, toTKR *runv1.TanzuKubernetesRelease) bool {
 	return from.TKG < to.TKG
 }
 
-func newTKRVersion(tkrVersion string) (TKRVersion, error) {
+// NewTKRVersion return the TKRVersion parsed from the TKR version string
+func NewTKRVersion(tkrVersion string) (TKRVersion, error) {
 	parsedVersion, err := version.ParseSemantic(tkrVersion)
 	if err != nil {
 		return TKRVersion{}, err
