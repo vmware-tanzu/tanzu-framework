@@ -398,6 +398,18 @@ var archMap = map[cli.Arch]targetBuilder{
 			},
 		}
 	},
+	cli.LinuxARM64: func(pluginName, outPath string) target {
+		return target{
+			env: []string{
+				"CGO_ENABLED=0",
+				"GOARCH=arm64",
+				"GOOS=linux",
+			},
+			args: []string{
+				"-o", filepath.Join(outPath, cli.MakeArtifactName(pluginName, cli.LinuxARM64)),
+			},
+		}
+	},
 	cli.DarwinAMD64: func(pluginName, outPath string) target {
 		return target{
 			env: []string{
@@ -406,6 +418,17 @@ var archMap = map[cli.Arch]targetBuilder{
 			},
 			args: []string{
 				"-o", filepath.Join(outPath, cli.MakeArtifactName(pluginName, cli.DarwinAMD64)),
+			},
+		}
+	},
+	cli.DarwinARM64: func(pluginName, outPath string) target {
+		return target{
+			env: []string{
+				"GOARCH=arm64",
+				"GOOS=darwin",
+			},
+			args: []string{
+				"-o", filepath.Join(outPath, cli.MakeArtifactName(pluginName, cli.DarwinARM64)),
 			},
 		}
 	},
