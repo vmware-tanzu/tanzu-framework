@@ -116,8 +116,12 @@ const (
 	Linux386 Arch = "linux_386"
 	// LinuxAMD64 arch.
 	LinuxAMD64 Arch = "linux_amd64"
+	// LinuxARM64 arch.
+	LinuxARM64 Arch = "linux_arm64"
 	// DarwinAMD64 arch.
 	DarwinAMD64 Arch = "darwin_amd64"
+	// DarwinARM64 arch.
+	DarwinARM64 Arch = "darwin_arm64"
 	// Win386 arch.
 	Win386 Arch = "windows_386"
 	// WinAMD64 arch.
