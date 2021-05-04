@@ -2,6 +2,7 @@
 nouns:
   - account
   - admin-kubeconfig
+  - alpha
   - app
   - aws
   - ceip-participation
@@ -17,6 +18,7 @@ nouns:
   - machinehealthcheck
   - management-cluster
   - permissions
+  - pinniped-auth
   - plugin
   - policy
   - provisioner
@@ -51,16 +53,26 @@ command-flags:
   - apiToken
   - bind
   - browser
+  - ca-bundle
+  - ca-bundle-data
   - ceip-participation
+  - client-id
   - cni
+  - concierge-authenticator-name
+  - concierge-authenticator-type
+  - concierge-ca-bundle-data
+  - concierge-endpoint
+  - concierge-namespace
   - context
   - controlplane-machine-count
   - controlplane-size
+  - debug-session-cache
   - deploy-tkg-on-vSphere7
   - disable-grouping
   - disable-no-echo
   - dry-run
   - enable-cluster-options
+  - enable-concierge
   - enable-tkgs-on-vSphere7
   - endpoint
   - feature-flags
@@ -71,7 +83,9 @@ command-flags:
   - gcp-root-path
   - include-management-cluster
   - infrastructure
+  - issuer
   - kubeconfig
+  - listen-port
   - name
   - namespace
   - offset
@@ -80,9 +94,13 @@ command-flags:
   - os-version
   - output
   - plan
+  - request-audience
+  - scopes
   - server
+  - session-cache
   - show-all-conditions
   - size
+  - skip-browser
   - staging
   - stderr-only
   - target-namespace
