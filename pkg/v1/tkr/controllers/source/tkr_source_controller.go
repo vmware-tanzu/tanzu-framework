@@ -227,7 +227,7 @@ func (r *reconciler) UpdateTKRUpdatesAvailableCondition(tkrs []runv1.TanzuKubern
 			}
 		}
 		if len(upgradeTo) != 0 {
-			msg := fmt.Sprintf("TKR(s) with later version is available: %s", strings.Join(upgradeTo, ","))
+			msg := fmt.Sprintf("[%s]", strings.Join(upgradeTo, " "))
 			changeTKRCondition(&tkrs[i], runv1.ConditionUpdatesAvailable, corev1.ConditionTrue, msg)
 		} else {
 			changeTKRCondition(&tkrs[i], runv1.ConditionUpdatesAvailable, corev1.ConditionFalse, "")
