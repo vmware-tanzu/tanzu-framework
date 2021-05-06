@@ -40,3 +40,6 @@ vsphereCPI:
     rootCAData: ""
     secretName: "cloud-provider-vsphere-nsxt-credentials"
     secretNamespace: "kube-system"
+  http_proxy: ""
+  https_proxy: ""
+  no_proxy: ""
