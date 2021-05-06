@@ -223,7 +223,7 @@ func (r *reconciler) UpdateTKRUpdatesAvailableCondition(tkrs []runv1.TanzuKubern
 		upgradeTo := []string{}
 		for j := range tkrs {
 			if upgradeQualified(&tkrs[i], &tkrs[j]) {
-				upgradeTo = append(upgradeTo, tkrs[j].ObjectMeta.Name)
+				upgradeTo = append(upgradeTo, tkrs[j].Spec.Version)
 			}
 		}
 		if len(upgradeTo) != 0 {

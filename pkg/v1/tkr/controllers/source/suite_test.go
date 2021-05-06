@@ -266,19 +266,19 @@ var _ = Describe("UpdateTKRUpgradeAvailableCondition", func() {
 				if tkr.Name == version11810 {
 					status, msg := getConditionStatusAndMessage(tkr.Status.Conditions, runv1.ConditionUpdatesAvailable)
 					Expect(string(status)).To(Equal("True"))
-					Expect(msg).To(Equal("[v1.19.1---vmware.1 v1.19.3---vmware.1]"))
+					Expect(msg).To(Equal("[v1.19.1+vmware.1 v1.19.3+vmware.1]"))
 				}
 
 				if tkr.Name == version1191 {
 					status, msg := getConditionStatusAndMessage(tkr.Status.Conditions, runv1.ConditionUpdatesAvailable)
 					Expect(string(status)).To(Equal("True"))
-					Expect(msg).To(Equal("[v1.19.3---vmware.1]"))
+					Expect(msg).To(Equal("[v1.19.3+vmware.1]"))
 				}
 
 				if tkr.Name == version11713 {
 					status, msg := getConditionStatusAndMessage(tkr.Status.Conditions, runv1.ConditionUpdatesAvailable)
 					Expect(string(status)).To(Equal("True"))
-					Expect(msg).To(Equal("[v1.18.10---vmware.1]"))
+					Expect(msg).To(Equal("[v1.18.10+vmware.1]"))
 				}
 			}
 		})
