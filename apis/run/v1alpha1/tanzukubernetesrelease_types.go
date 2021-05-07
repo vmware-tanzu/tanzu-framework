@@ -15,6 +15,9 @@ const (
 
 	// ConditionUpdatesAvailable indicates the condition is an updates is available.
 	ConditionUpdatesAvailable = "UpdatesAvailable"
+
+	// ConditionUpgradeAvailable (deprecated) indicates the condition is an updates is available.
+	ConditionUpgradeAvailable = "UpgradeAvailable"
 )
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!

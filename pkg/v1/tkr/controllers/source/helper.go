@@ -106,6 +106,14 @@ func NewTkrFromBom(tkrName string, bomContent []byte) (runv1.TanzuKubernetesRele
 					Reason:             "",
 					Message:            "",
 				},
+				{
+					Type:               runv1.ConditionUpgradeAvailable,
+					Status:             corev1.ConditionFalse,
+					LastTransitionTime: metav1.Time{Time: time.Now()},
+					Severity:           "",
+					Reason:             "",
+					Message:            "Deprecated",
+				},
 			},
 		},
 	}
@@ -213,4 +221,13 @@ func (r *reconciler) GetManagementClusterVersion(ctx context.Context) (string, e
 
 func isManagementClusterNotReadyError(err error) bool {
 	return strings.Contains(err.Error(), GetManagementClusterInfoFailedError)
+}
+
+func hasDeprecateUpgradeAvailableCondition(conditions []clusterv1.Condition) bool {
+	for _, c := range conditions {
+		if c.Type == runv1.ConditionUpgradeAvailable {
+			return true
+		}
+	}
+	return false
 }

@@ -232,6 +232,15 @@ func (r *reconciler) UpdateTKRUpdatesAvailableCondition(tkrs []runv1.TanzuKubern
 		} else {
 			changeTKRCondition(&tkrs[i], runv1.ConditionUpdatesAvailable, corev1.ConditionFalse, "")
 		}
+
+		if hasDeprecateUpgradeAvailableCondition(tkrs[i].Status.Conditions) {
+			if len(upgradeTo) != 0 {
+				msg := fmt.Sprintf("Deprecated, TKR(s) with later version is available: %s", strings.Join(upgradeTo, ","))
+				changeTKRCondition(&tkrs[i], runv1.ConditionUpgradeAvailable, corev1.ConditionTrue, msg)
+			} else {
+				changeTKRCondition(&tkrs[i], runv1.ConditionUpgradeAvailable, corev1.ConditionFalse, "Deprecated")
+			}
+		}
 	}
 }
 
