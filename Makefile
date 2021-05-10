@@ -176,7 +176,7 @@ build-cli: build-plugin-admin ${CLI_JOBS} ## Build Tanzu CLI
 .PHONY: build-plugin-admin
 build-plugin-admin:
 	@echo build version: $(BUILD_VERSION)
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin/${GOHOSTOS}/${GOHOSTARCH}/cli
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin/${GOHOSTOS}/${GOHOSTARCH}/cli
 
 .PHONY: build-cli-%
 build-cli-%: prep-build-cli
@@ -199,9 +199,9 @@ build-cli-local: build-cli-${GOHOSTOS}-${GOHOSTARCH} ## Build Tanzu CLI locally
 
 .PHONY: build-cli-mocks
 build-cli-mocks: ## Build Tanzu CLI mocks
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version 0.0.1 --ldflags "$(LD_FLAGS)" --path ./test/cli/mock/plugin-old --artifacts ./test/cli/mock/artifacts-old 
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version 0.0.2 --ldflags "$(LD_FLAGS)" --path ./test/cli/mock/plugin-new --artifacts ./test/cli/mock/artifacts-new
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version 0.0.3 --ldflags "$(LD_FLAGS)" --path ./test/cli/mock/plugin-alt --artifacts ./test/cli/mock/artifacts-alt
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version 0.0.1 --ldflags "$(LD_FLAGS)" --path ./test/cli/mock/plugin-old --artifacts ./test/cli/mock/artifacts-old
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version 0.0.2 --ldflags "$(LD_FLAGS)" --path ./test/cli/mock/plugin-new --artifacts ./test/cli/mock/artifacts-new
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version 0.0.3 --ldflags "$(LD_FLAGS)" --path ./test/cli/mock/plugin-alt --artifacts ./test/cli/mock/artifacts-alt
 
 .PHONY: build-cli-image
 build-cli-image: ## Build the CLI image
