@@ -402,7 +402,7 @@ metadata:
   name: vsphere-config-secret
   namespace: kube-system
 stringData:
-  csi-vsphere.conf: |-
+  csi-vsphere.conf: |
     [Global]
     insecure-flag = true
     cluster-id = tanzu-vsphere-csi/cluster-test
