@@ -13,7 +13,10 @@ const (
 	// ConditionCompatible indicates the condition is compatible.
 	ConditionCompatible = "Compatible"
 
-	// ConditionUpgradeAvailable indicates the condition is an upgrade is available.
+	// ConditionUpdatesAvailable indicates the condition is an updates is available.
+	ConditionUpdatesAvailable = "UpdatesAvailable"
+
+	// ConditionUpgradeAvailable (deprecated) indicates the condition is an updates is available.
 	ConditionUpgradeAvailable = "UpgradeAvailable"
 )
 

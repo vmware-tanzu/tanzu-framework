@@ -218,19 +218,28 @@ func changeTKRCondition(tkr *runv1.TanzuKubernetesRelease, conditionType string,
 	conditions.Set(tkr, newCondition)
 }
 
-func (r *reconciler) UpdateTKRUpgradeAvailableCondition(tkrs []runv1.TanzuKubernetesRelease) {
+func (r *reconciler) UpdateTKRUpdatesAvailableCondition(tkrs []runv1.TanzuKubernetesRelease) {
 	for i := range tkrs {
 		upgradeTo := []string{}
 		for j := range tkrs {
 			if upgradeQualified(&tkrs[i], &tkrs[j]) {
-				upgradeTo = append(upgradeTo, tkrs[j].ObjectMeta.Name)
+				upgradeTo = append(upgradeTo, tkrs[j].Spec.Version)
 			}
 		}
 		if len(upgradeTo) != 0 {
-			msg := fmt.Sprintf("TKR(s) with later version is available: %s", strings.Join(upgradeTo, ","))
-			changeTKRCondition(&tkrs[i], runv1.ConditionUpgradeAvailable, corev1.ConditionTrue, msg)
+			msg := fmt.Sprintf("[%s]", strings.Join(upgradeTo, " "))
+			changeTKRCondition(&tkrs[i], runv1.ConditionUpdatesAvailable, corev1.ConditionTrue, msg)
 		} else {
-			changeTKRCondition(&tkrs[i], runv1.ConditionUpgradeAvailable, corev1.ConditionFalse, "")
+			changeTKRCondition(&tkrs[i], runv1.ConditionUpdatesAvailable, corev1.ConditionFalse, "")
+		}
+
+		if hasDeprecateUpgradeAvailableCondition(tkrs[i].Status.Conditions) {
+			if len(upgradeTo) != 0 {
+				msg := fmt.Sprintf("Deprecated, TKR(s) with later version is available: %s", strings.Join(upgradeTo, ","))
+				changeTKRCondition(&tkrs[i], runv1.ConditionUpgradeAvailable, corev1.ConditionTrue, msg)
+			} else {
+				changeTKRCondition(&tkrs[i], runv1.ConditionUpgradeAvailable, corev1.ConditionFalse, "Deprecated")
+			}
 		}
 	}
 }
@@ -308,7 +317,7 @@ func (r *reconciler) ReconcileConditions(ctx context.Context, added, existing []
 		return errors.Wrap(err, "failed to update Compatible condition for TKRs")
 	}
 
-	r.UpdateTKRUpgradeAvailableCondition(allTKRs)
+	r.UpdateTKRUpdatesAvailableCondition(allTKRs)
 
 	for i := range allTKRs {
 		if err = r.client.Status().Update(ctx, &allTKRs[i]); err != nil {
