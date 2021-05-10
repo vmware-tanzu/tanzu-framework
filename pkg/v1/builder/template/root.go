@@ -130,7 +130,7 @@ lint: golangci-lint
 	$(GOLANGCI_LINT) run -v
 
 init:
-	go mod download
+	GOPRIVATE=github.com/vmware-tanzu-private go mod download
 	mkdir $(TOOLS_BIN_DIR)
 
 test:
