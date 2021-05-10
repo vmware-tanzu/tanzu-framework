@@ -26,6 +26,7 @@ func NewPlugin(descriptor *cliv1alpha1.PluginDescriptor) (*Plugin, error) {
 		Cmd: newRootCmd(descriptor),
 	}
 	p.Cmd.AddCommand(lintCmd)
+	p.Cmd.AddCommand(genDocsCmd)
 	return p, nil
 }
 

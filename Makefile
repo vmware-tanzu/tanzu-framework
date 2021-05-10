@@ -265,3 +265,8 @@ verify: ## Run all verification scripts
 .PHONY: clean-catalog-cache
 clean-catalog-cache: ## Cleans catalog cache
 	@rm -rf ${XDG_CACHE_HOME}/tanzu/*
+
+.PHONY: cobra-docs
+cobra-docs:
+	TANZU_CLI_NO_INIT=true TANZU_CLI_NO_COLOR=true $(GO) run ./cmd/cli/tanzu generate-all-docs
+	sed -i.bak -E 's/\/[A-Za-z]*\/([a-z]*)\/.config\/tanzu\/pinniped\/sessions.yaml/~\/.config\/tanzu\/pinniped\/sessions.yaml/g' docs/cli/commands/tanzu_pinniped-auth_login.md

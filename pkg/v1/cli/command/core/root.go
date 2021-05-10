@@ -17,33 +17,43 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 )
 
-var root = &cobra.Command{
-	Use:   "tanzu",
-	Short: aurora.Bold(`Tanzu CLI`).String(),
+// RootCmd is the core root Tanzu command
+var RootCmd = &cobra.Command{
+	Use: "tanzu",
 }
 
-var noInit bool
+var (
+	noInit bool
+	color  = true
+)
 
 // NewRootCmd creates a root command.
 func NewRootCmd() (*cobra.Command, error) {
 	u := cli.NewMainUsage()
-	root.SetUsageFunc(u.Func())
+	RootCmd.SetUsageFunc(u.Func())
 
 	ni := os.Getenv("TANZU_CLI_NO_INIT")
 	if ni != "" {
 		noInit = true
 	}
+	if os.Getenv("TANZU_CLI_NO_COLOR") != "" {
+		color = false
+	}
+
+	au := aurora.NewAurora(color)
+	RootCmd.Short = au.Bold(`Tanzu CLI`).String()
 
 	// TODO (pbarker): silencing usage for now as we are getting double usage from plugins on errors
-	root.SilenceUsage = true
+	RootCmd.SilenceUsage = true
 
-	root.AddCommand(
+	RootCmd.AddCommand(
 		pluginCmd,
 		initCmd,
 		updateCmd,
 		versionCmd,
 		completionCmd,
 		configCmd,
+		genAllDocsCmd,
 	)
 
 	plugins, err := cli.ListPlugins()
@@ -75,20 +85,20 @@ func NewRootCmd() (*cobra.Command, error) {
 		s.Stop()
 	}
 	for _, plugin := range plugins {
-		root.AddCommand(cli.GetCmd(plugin))
+		RootCmd.AddCommand(cli.GetCmd(plugin))
 	}
 
 	duplicateAliasWarning()
 
 	// Flag parsing must be disabled because the root plugin won't know about all flags.
-	root.DisableFlagParsing = true
+	RootCmd.DisableFlagParsing = true
 
-	return root, nil
+	return RootCmd, nil
 }
 
 func duplicateAliasWarning() {
 	var aliasMap = make(map[string][]string)
-	for _, command := range root.Commands() {
+	for _, command := range RootCmd.Commands() {
 		for _, alias := range command.Aliases {
 			aliases, ok := aliasMap[alias]
 			if !ok {

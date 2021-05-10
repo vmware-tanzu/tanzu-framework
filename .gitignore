@@ -5,6 +5,7 @@
 *.dll
 *.so
 *.dylib
+*.bak
 bin
 artifacts
 artifacts-admin
