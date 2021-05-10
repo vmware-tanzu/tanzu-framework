@@ -123,6 +123,8 @@ TOOLS_DIR := tools
 TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
 GOLANGCI_LINT := $(TOOLS_BIN_DIR)/golangci-lint
 
+PRIVATE_REPOS="github.com/vmware-tanzu-private"
+
 build:
 	tanzu builder cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/plugin
 
@@ -130,7 +132,7 @@ lint: golangci-lint
 	$(GOLANGCI_LINT) run -v
 
 init:
-	GOPRIVATE=github.com/vmware-tanzu-private go mod download
+	GOPRIVATE=${PRIVATE_REPOS} go mod download
 	mkdir $(TOOLS_BIN_DIR)
 
 test:
