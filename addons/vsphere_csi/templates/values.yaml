@@ -41,3 +41,6 @@ vsphereCSI:
   attachTimeout: 300s
   resizerTimeout: 300s
   vSphereVersion: 6.7.0
+  http_proxy: ""
+  https_proxy: ""
+  no_proxy: ""

@@ -41,9 +41,9 @@ spec:
         - name: "HTTP_PROXY"
           value: #@ values.vsphereCPI.http_proxy
         - name: "HTTPS_PROXY"
-          value: #@ data.values.vsphereCPI.https_proxy
+          value: #@ values.vsphereCPI.https_proxy
         - name: "NO_PROXY"
-          value: #@ data.values.vsphereCPI.no_proxy
+          value: #@ values.vsphereCPI.no_proxy
       #@ end
       #@ if values.vsphereCPI.nsxt.podRoutingEnabled and values.vsphereCPI.nsxt.clientCertData != "" and values.vsphereCPI.nsxt.clientCertKeyData != "" :
       #@overlay/match by=overlay.subset({"name": "vsphere-cloud-controller-manager"})
