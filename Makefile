@@ -21,6 +21,7 @@ TOOLS_DIR := hack/tools
 TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
 ROOT_DIR := $(shell git rev-parse --show-toplevel)
 ADDONS_DIR := addons
+UI_DIR := pkg/v1/tkg/web
 
 # Add tooling binaries here and in hack/tools/Makefile
 GOLANGCI_LINT := $(TOOLS_BIN_DIR)/golangci-lint
@@ -286,3 +287,15 @@ cobra-docs:
 .PHONY: go-generate
 go-generate: ## Generate fakes and swagger api files
 	$(GO) generate ./...
+
+DOCKER_DIR := /app
+SWAGGER=docker run --rm -v ${PWD}:${DOCKER_DIR} quay.io/goswagger/swagger:v0.21.0
+
+.PHONY: generate-ui-api
+generate-ui-api: ## Generate swagger files
+	rm -rf ${UI_DIR}/server/client  ${UI_DIR}/server/models ${UI_DIR}/server/restapi/operations
+	${SWAGGER} generate server -q -A kickstartUI -t $(DOCKER_DIR)/${UI_DIR}/server -f $(DOCKER_DIR)/${UI_DIR}/api/spec.yaml --exclude-main
+	${SWAGGER} generate client -q -A kickstartUI -t $(DOCKER_DIR)/${UI_DIR}/server -f $(DOCKER_DIR)/${UI_DIR}/api/spec.yaml
+	# reset the server.go file to avoid goswagger overwritting our custom changes.
+	git reset HEAD ${UI_DIR}/server/restapi/server.go
+	git checkout HEAD ${UI_DIR}/server/restapi/server.go
