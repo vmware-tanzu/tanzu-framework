@@ -1,0 +1,34 @@
+tkg:
+    regions:
+      - name: regional-cluster-1
+        context: user1@regional-cluster-1-context
+        file: path/to/kubeconfig
+      - name: regional-cluster-2
+        context: user1@regional-cluster-2-context
+        file: path/to/kubeconfig
+      - name: regional-cluster-2
+        context: user2@regional-cluster-2-context
+        file: path/to/kubeconfig
+    current-region-context: "user2@regional-cluster-2-context"
+# Values for environment variable substitution
+AWS_B64ENCODED_CREDENTIALS: XXXXXXXX
+KUBERNETES_VERSION: v1.16.0
+BAR: bar
+FOO: foo
+
+AWS_REGION: us-east-2
+AWS_NODE_AZ: us-west-2a
+VSPHERE_SSH_AUTHORIZED_KEY: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCs1kKExApUX5sQy6DKfO5bP79ynG2LtKqc8N9m/wC9jswSVAmEpSAna8NJaY0LIla/Lov7NRAvot1P9ITNnjbsVwSZe0w/aclLHctzsjpGtgYchW+PWQRreFW2as4zfRqQHAlsIB3+xgZTsgFa4v1/xWv6a2yGsa8Yf4bchGgqzrpuUI97peqoFQdNbdpnKAc4x+1AaBvvVE3wP5NbnLjVprQjgkCgidr9RUhQLxZMZOV3Y3b8CiPOXnbNn9BIER36ka3u83so+zC4dc194woTHgyM4ebAMFDvVfvTCNTsYGJ4kelC5E6QwX+Z3tNQw8HuR8GgfkdFvZAZrfFlcEV6QaT8NJ332yyJrplczalbaWPq3VQchCDx0KNCda4JCyopDzqzYAneCfYk2VCvDagZWO32ZQr4qcBYWb+iR52QxMBlm5QCdP2EaspDKBZCirEcBJNT/gJ3PhTSZ3RtchjLd9O6MQ7l0z65UKfzGddAJKwAWPFNHRp5oJyv/aJa6BCLwZGy0ct4ykwHfJ+CpewJwCHoaCToPBTmdSbDYJbalWv0NNc5gR7Q8cXriDKSaY+QXVao8kOuxhNj/cI9TAPid7Mp7sHFVKM+/7osdzL9Lwn53JGvaOWCm0pwh78GSfyEgePcQOpzqcYm5OUOTkQPGlg7k0NKtYsXKnIM2kVSpQ== test's comment here
+VSPHERE_RESOURCE_POOL: "*/Resources"
+VSPHERE_DATACENTER: dc-0
+VSPHERE_MEM_MIB: 2048
+images:
+    cert-manager:
+        repository: registry.tkg.vmware.run/cert-manager
+        tag: v0.11.0_vmware.1
+    dummy-image:
+        repository: registry.tkg.vmware.run/dummy
+        tag: v0.11.0_vmware.1
+azure-image:
+    v1.18.0+vmware.1:
+        id: /random/image/id
