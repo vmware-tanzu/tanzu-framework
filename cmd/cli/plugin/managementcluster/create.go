@@ -170,6 +170,7 @@ func runInit() error {
 		VsphereControlPlaneEndpoint: iro.vsphereControlPlaneEndpoint,
 		SkipPrompt:                  iro.unattended,
 		Timeout:                     iro.timeout,
+		Edition:                     BuildEdition,
 		GenerateOnly:                iro.dryRun,
 	}
 
