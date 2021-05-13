@@ -4,9 +4,6 @@ clientOptions:
     - gcpPluginRepository:
         bucketName: tanzu-cli
         name: core
-    - gcpPluginRepository:
-        bucketName: tanzu-cli-tkg-plugins
-        name: tkg
 current: vsphere-mc-1
 metadata:
   creationTimestamp: null
