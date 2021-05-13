@@ -4,9 +4,8 @@ package fakes
 import (
 	"sync"
 
-	"sigs.k8s.io/cluster-api/cmd/clusterctl/client"
-
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/providersupgradeclient"
+	"sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 )
 
 type ProvidersUpgradeClient struct {
