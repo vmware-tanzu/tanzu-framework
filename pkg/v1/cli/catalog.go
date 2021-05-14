@@ -145,7 +145,15 @@ func GetCmd(p *cliv1alpha1.PluginDescriptor) *cobra.Command {
 		// Plugin commands don't provide full details to the default "help" cmd.
 		// To get around this, we need to intercept and send the help request
 		// out to the plugin.
-		runner := NewRunner(p.Name, []string{"-h"})
+		// Cobra also doesn't pass along any additional args since it has parsed
+		// the command structure, and as far as it knows, there are no subcommands
+		// below the top level plugin command. To get around this to support help
+		// calls such as "tanzu help cluster list", we need to do some argument
+		// parsing ourselves and modify what gets passed along to the plugin.
+		helpArgs := getHelpArguments()
+
+		// Pass this new command in to our plugin to have it handle help output
+		runner := NewRunner(p.Name, helpArgs)
 		ctx := context.Background()
 		err := runner.Run(ctx)
 		if err != nil {
@@ -153,6 +161,28 @@ func GetCmd(p *cliv1alpha1.PluginDescriptor) *cobra.Command {
 		}
 	})
 	return cmd
+}
+
+// getHelpArguments extracts the command line to pass along to help calls.
+// The help function is only ever called for help commands in the format of
+// "tanzu help cmd", so we can assume anything two after "help" should get
+// passed along (this also accounts for aliases).
+func getHelpArguments() []string {
+	cliArgs := os.Args
+	helpArgs := []string{}
+	for i := range cliArgs {
+		if cliArgs[i] == "help" {
+			// Found the "help" argument, now capture anything after the plugin name/alias
+			argLen := len(cliArgs)
+			if (i + 1) < argLen {
+				helpArgs = cliArgs[i+2:]
+			}
+			break
+		}
+	}
+
+	// Then add the -h flag for whatever we found
+	return append(helpArgs, "-h")
 }
 
 // TestCmd returns a cobra command for the plugin.
