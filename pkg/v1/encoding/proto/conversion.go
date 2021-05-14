@@ -13,9 +13,9 @@ import (
 
 	"github.com/aunum/log"
 	"github.com/ghodss/yaml"
-	"github.com/gogo/protobuf/jsonpb"
-	"github.com/golang/protobuf/proto" //nolint
-	"github.com/pkg/errors"            //nolint
+	"github.com/golang/protobuf/jsonpb" //nolint
+	"github.com/golang/protobuf/proto"  //nolint
+	"github.com/pkg/errors"             //nolint
 )
 
 // InputFileToProto reads a json/yaml input file and converts it to protobuf format
@@ -55,6 +55,7 @@ func BufferToProto(buf *bytes.Buffer, message proto.Message, format string) erro
 		if err != nil {
 			return err
 		}
+
 		err = jsonpb.UnmarshalString(string(jsonBytes), message)
 		if err != nil {
 			return err
