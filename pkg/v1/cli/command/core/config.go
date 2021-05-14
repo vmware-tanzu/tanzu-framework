@@ -23,11 +23,13 @@ func init() {
 	configCmd.SetUsageFunc(cli.SubCmdUsageFunc)
 	configCmd.AddCommand(
 		showConfigCmd,
+		getConfigCmd,
 		initConfigCmd,
 		serversCmd,
 	)
 	serversCmd.AddCommand(listServersCmd)
 	addDeleteServersCmd()
+	cli.DeprecateCommand(showConfigCmd, "1.5.0", "get")
 }
 
 var unattended bool
@@ -48,6 +50,23 @@ var configCmd = &cobra.Command{
 var showConfigCmd = &cobra.Command{
 	Use:   "show",
 	Short: "Show the current configuration",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cfgPath, err := config.ClientConfigPath()
+		if err != nil {
+			return err
+		}
+		b, err := os.ReadFile(cfgPath)
+		if err != nil {
+			return err
+		}
+		fmt.Println(string(b))
+		return nil
+	},
+}
+
+var getConfigCmd = &cobra.Command{
+	Use:   "get",
+	Short: "Get the current configuration",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cfgPath, err := config.ClientConfigPath()
 		if err != nil {
