@@ -360,6 +360,7 @@ cobra-docs:
 .PHONY: go-generate
 go-generate: ## Generate fakes and swagger api files
 	$(GO) generate ./...
+	$(MAKE) fmt
 	# reset the server.go file to avoid goswagger overwritting our custom changes.
 	git reset HEAD $(UI_DIR)/server/restapi/server.go
 	git checkout HEAD $(UI_DIR)/server/restapi/server.go

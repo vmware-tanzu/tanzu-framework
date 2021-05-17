@@ -36,6 +36,7 @@ GOIMPORTS := $(BIN_DIR)/goimports
 KUBEBUILDER        := $(BIN_DIR)/kubebuilder
 YTT := $(BIN_DIR)/ytt
 KUBEVAL := $(BIN_DIR)/kubeval
+GOBINDATA := $(BIN_DIR)/gobindata
 
 ## --------------------------------------
 ## Help
@@ -58,23 +59,28 @@ $(GOIMPORTS): go.mod
 
 kubebuilder: $(KUBEBUILDER) ## Install kubebuilder
 $(KUBEBUILDER):
-	mkdir -p bin
+	mkdir -p $(BIN_DIR)
 	curl -sL https://go.kubebuilder.io/dl/$(KUBEBUILDER_VERSION)/$(HOST_OS)/$(HOST_ARCH) | tar -xz -C /tmp/
 	mv /tmp/kubebuilder_$(KUBEBUILDER_VERSION)_$(HOST_OS)_$(HOST_ARCH) $(@)
 
 ytt: $(YTT) ## Install ytt
 $(YTT):
-	mkdir -p bin
+	mkdir -p $(BIN_DIR)
 	curl -LO https://github.com/vmware-tanzu/carvel-ytt/releases/download/$(YTT_VERSION)/ytt-$(HOST_OS)-$(HOST_ARCH)
 	mv ytt-$(HOST_OS)-$(HOST_ARCH) $(@)
 	chmod a+x $(@)
 
 kubeval: $(KUBEVAL) ## Install kubeval
 $(KUBEVAL):
-	mkdir -p bin
+	mkdir -p $(BIN_DIR)
 	curl -sL https://github.com/instrumenta/kubeval/releases/download/$(KUBEVAL_VERSION)/kubeval-$(HOST_OS)-$(HOST_ARCH).tar.gz  | tar -xz -C /tmp/
 	mv /tmp/kubeval $(@)
 	chmod a+x $(@)
+
+gobindata: $(GOBINDATA)
+$(GOBINDATA): go.mod # Build go-bindata
+	mkdir -p $(BIN_DIR)
+	go build -tags=tools -o $(BIN_DIR) github.com/shuLhan/go-bindata/...; mv $(BIN_DIR)/go-bindata $(GOBINDATA)
 
 ## --------------------------------------
 ## Cleanup
