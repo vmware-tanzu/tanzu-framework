@@ -1,0 +1,36 @@
+tkg:
+    regions:
+      - name: regional-cluster-1
+        context: user1@regional-cluster-1-context
+        file: path/to/kubeconfig
+      - name: regional-cluster-2
+        context: user1@regional-cluster-2-context
+        file: path/to/kubeconfig
+      - name: regional-cluster-2
+        context: user2@regional-cluster-2-context
+        file: path/to/kubeconfig
+    current-region-context: user1@regional-cluster-1-context
+providers:
+  - # add a custom provider
+    name: "my-infra-provider"
+    url: "https://github.com/myorg/myrepo/releases/latest/infrastructure_components.yaml"
+    type: "InfrastructureProvider"
+  - name: "cluster-api" # override a pre-defined provider
+    url: "https://github.com/myorg/myforkofclusterapi/releases/latest/core_components.yaml"
+    type: "CoreProvider"
+# Values for environment variable substitution
+AWS_B64ENCODED_CREDENTIALS: XXXXXXXX
+KUBERNETES_VERSION: v1.16.0
+BAR: bar
+VSPHERE_MEM_MIB: 2048
+VSPHERE_CONTROL_PLANE_MEM_MIB: 1024
+VSPHERE_SSH_AUTHORIZED_KEY: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCs1kKExApUX5sQy6DKfO5bP79ynG2LtKqc8N9m/wC9jswSVAmEpSAna8NJaY0LIla/Lov7NRAvot1P9ITNnjbsVwSZe0w/aclLHctzsjpGtgYchW+PWQRreFW2as4zfRqQHAlsIB3+xgZTsgFa4v1/xWv6a2yGsa8Yf4bchGgqzrpuUI97peqoFQdNbdpnKAc4x+1AaBvvVE3wP5NbnLjVprQjgkCgidr9RUhQLxZMZOV3Y3b8CiPOXnbNn9BIER36ka3u83so+zC4dc194woTHgyM4ebAMFDvVfvTCNTsYGJ4kelC5E6QwX+Z3tNQw8HuR8GgfkdFvZAZrfFlcEV6QaT8NJ332yyJrplczalbaWPq3VQchCDx0KNCda4JCyopDzqzYAneCfYk2VCvDagZWO32ZQr4qcBYWb+iR52QxMBlm5QCdP2EaspDKBZCirEcBJNT/gJ3PhTSZ3RtchjLd9O6MQ7l0z65UKfzGddAJKwAWPFNHRp5oJyv/aJa6BCLwZGy0ct4ykwHfJ+CpewJwCHoaCToPBTmdSbDYJbalWv0NNc5gR7Q8cXriDKSaY+QXVao8kOuxhNj/cI9TAPid7Mp7sHFVKM+/7osdzL9Lwn53JGvaOWCm0pwh78GSfyEgePcQOpzqcYm5OUOTkQPGlg7k0NKtYsXKnIM2kVSpQ==
+VSPHERE_RESOURCE_POOL: "cluster0/Resources"
+VSPHERE_DATACENTER: dc-0
+azure-image:
+    v1.18.0+vmware.1:
+        publisher: vmware-inc
+        offer: tkg-capi
+        sku: k8s-1dot18dot8-ubuntu-1804
+        version: 2020.09.09
+        thirdPartyImage: true

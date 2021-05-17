@@ -1,0 +1,13 @@
+FOO: foo
+providers:
+  - name: cluster-api
+    url: providers/cluster-api/v0.3.2/core-components.yaml
+    type: CoreProvider
+  - name: aws
+    url: providers/infrastructure-aws/v0.5.1/infrastructure-components.yaml
+    type: InfrastructureProvider
+  - name: vsphere
+    url: providers/infrastructure-vsphere/v0.6.2/infrastructure-components.yaml
+    type: InfrastructureProvider
+
+  

@@ -1,0 +1,60 @@
+tkg:
+  regions:
+    - name: tkg-region-vsphere-20200312184000
+      context: tkg-region-vsphere-20200312184000-admin@tkg-region-vsphere-20200312184000
+      file: /Users/anujc/.kube/config
+    - name: tkg-region-aws-20200312192017
+      context: tkg-region-aws-20200312192017-admin@tkg-region-aws-20200312192017
+      file: /Users/anujc/.kube/config
+  current-region-context: tkg-region-aws-20200312192017-admin@tkg-region-aws-20200312192017
+providers:
+  - name: "my-infra-provider"
+    url: "https://github.com/myorg/myrepo/releases/latest/infrastructure_components.yaml"
+    type: "InfrastructureProvider"
+  - name: "cluster-api" # override a pre-defined provider
+    url: "https://github.com/myorg/myforkofclusterapi/releases/latest/core_components.yaml"
+    type: "CoreProvider"
+  - name: aws
+    url: /Users/dummy/.tkg/providers/infrastructure-aws/v0.5.1/infrastructure-components.yaml
+    type: InfrastructureProvider
+  - name: vsphere
+    url: /Users/dummy/.tkg/providers/infrastructure-vsphere/v0.6.2/infrastructure-components.yaml
+    type: InfrastructureProvider
+  - name: vsphere
+    url: /Users/dummy/.tkg/providers/infrastructure-vsphere/v0.7.0/infrastructure-components.yaml
+    type: InfrastructureProvider
+
+# Values for environment variable substitution
+AWS_B64ENCODED_CREDENTIALS: XXXXXXXX
+VSPHERE_PASSWORD: Admin!23
+KUBERNETES_VERSION: v1.16.0+vmware.1
+BAR: bar
+AWS_ACCESS_KEY_ID: <encoded:UVdSRVRZVUlPUExLSkhHRkRTQVo=>
+AWS_SECRET_ACCESS_KEY: uNncCatIvWu1e$rqwerkg35qU7dswfEa4rdXJk/E
+VSPHERE_DATACENTER: datacenter
+VSPHERE_TEMPLATE: photon-3-v1.16.0+vmware.1
+AWS_REGION: us-east-2
+AWS_NODE_AZ: us-east-2a
+AWS_AMI_ID: ami-xxxxx
+AWS_VPC_CIDR: "10.0.0.0/16"
+AWS_PRIVATE_NODE_CIDR: "10.0.0.0/24"
+AWS_PUBLIC_NODE_CIDR: "10.0.1.0/24"
+VSPHERE_CONTROL_PLANE_DISK_GIB: "20"
+VSPHERE_CONTROL_PLANE_NUM_CPUS: "2"
+VSPHERE_CONTROL_PLANE_MEM_MIB: "4096"
+VSPHERE_WORKER_DISK_GIB: "20"
+VSPHERE_WORKER_MEM_MIB: "4096"
+VSPHERE_WORKER_NUM_CPUS: "2"
+azure-image:
+  v1.18.0+vmware.1:
+    resourceGroup: capi-images
+    name: capi-ubuntu-1804
+    subscriptionID: d8d5fc65-407a-48c6-bf8b-cc072730cb2e
+    gallery: ClusterAPI
+    version: 0.18.1600991471
+  v1.19.0+vmware.1:
+    resourceGroup: capi-images
+    name: capi-ubuntu-1804
+    subscriptionID: d8d5fc65-407a-48c6-bf8b-cc072730cb2e
+    gallery: ClusterAPI
+    version: 0.19.1600991471

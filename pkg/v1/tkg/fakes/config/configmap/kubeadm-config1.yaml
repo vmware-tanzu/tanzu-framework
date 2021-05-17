@@ -1,0 +1,53 @@
+apiVersion: v1
+data:
+  ClusterConfiguration: |
+    apiServer:
+      extraArgs:
+        authorization-mode: Node,RBAC
+        cloud-provider: external
+        tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+      timeoutForControlPlane: 8m0s
+    apiVersion: kubeadm.k8s.io/v1beta2
+    certificatesDir: /etc/kubernetes/pki
+    clusterName: workload-cluster-12
+    controlPlaneEndpoint: 10.186.40.161:6443
+    controllerManager:
+      extraArgs:
+        cloud-provider: external
+        tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+    dns:
+      imageRepository: registry.tkg.vmware.run
+      imageTag: v1.6.5_vmware.4
+      type: CoreDNS
+    etcd:
+      local:
+        dataDir: /var/lib/etcd
+        extraArgs:
+          cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+        imageRepository: registry.tkg.vmware.run
+        imageTag: v3.4.3_vmware.4
+    imageRepository: registry.tkg.vmware.run
+    kind: ClusterConfiguration
+    kubernetesVersion: v1.17.3+vmware.2
+    networking:
+      dnsDomain: cluster.local
+      podSubnet: 100.96.0.0/11
+      serviceSubnet: 100.64.0.0/13
+    scheduler:
+      extraArgs:
+        tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+  ClusterStatus: |
+    apiEndpoints:
+      workload-cluster-12-control-plane-thl2l:
+        advertiseAddress: 10.186.47.25
+        bindPort: 6443
+    apiVersion: kubeadm.k8s.io/v1beta2
+    kind: ClusterStatus
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2020-05-29T04:20:25Z"
+  name: kubeadm-config
+  namespace: kube-system
+  resourceVersion: "152"
+  selfLink: /api/v1/namespaces/kube-system/configmaps/kubeadm-config
+  uid: a7d4bbd1-3654-4e87-9dc7-399b62031573

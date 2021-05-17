@@ -14,11 +14,14 @@ require (
 	github.com/AlecAivazis/survey/v2 v2.1.1
 	github.com/Jeffail/gabs v1.4.0
 	github.com/MakeNowJust/heredoc v1.0.0
+	github.com/Masterminds/semver v1.5.0
 	github.com/Netflix/go-expect v0.0.0-20190729225929-0e00d9168667 // indirect
 	github.com/adrg/xdg v0.2.1
+	github.com/apparentlymart/go-cidr v1.1.0
 	github.com/aunum/log v0.0.0-20200821225356-38d2e2c8b489
 	github.com/caarlos0/spin v1.1.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/docker/docker v1.4.2-0.20190924003213-a8608b5b67c7
 	github.com/fabriziopandini/capi-conditions v0.0.0-20201102133039-7eb142d1b6d6
 	github.com/fatih/color v1.10.0
 	github.com/ghodss/yaml v1.0.0
@@ -29,8 +32,11 @@ require (
 	github.com/google/go-containerregistry v0.4.1
 	github.com/gosuri/uitable v0.0.4
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
+	github.com/helloeave/json v1.15.3
 	github.com/hinshun/vt10x v0.0.0-20180809195222-d55458df857c // indirect
+	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/jeremywohl/flatten v1.0.1
+	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
 	github.com/k14s/imgpkg v0.6.0
 	github.com/lithammer/dedent v1.1.0
 	github.com/logrusorgru/aurora v2.0.3+incompatible
