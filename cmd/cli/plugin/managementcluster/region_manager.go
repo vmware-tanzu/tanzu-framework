@@ -8,7 +8,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/vmware-tanzu-private/tkg-cli/pkg/region"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/region"
 
 	"github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/config"

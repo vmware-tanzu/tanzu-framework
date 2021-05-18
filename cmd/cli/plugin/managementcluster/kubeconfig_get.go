@@ -9,10 +9,10 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	tkgclient "github.com/vmware-tanzu-private/tkg-cli/pkg/client"
-	"github.com/vmware-tanzu-private/tkg-cli/pkg/log"
-	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
-	tkgutils "github.com/vmware-tanzu-private/tkg-cli/pkg/utils"
+	tkgclient "github.com/vmware-tanzu-private/core/pkg/v1/tkg/client"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgctl"
+	tkgutils "github.com/vmware-tanzu-private/core/pkg/v1/tkg/utils"
 
 	"github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
 	tkgauth "github.com/vmware-tanzu-private/core/pkg/v1/auth/tkg"

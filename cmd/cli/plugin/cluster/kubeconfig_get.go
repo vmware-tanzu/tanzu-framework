@@ -14,8 +14,8 @@ import (
 	tkgauth "github.com/vmware-tanzu-private/core/pkg/v1/auth/tkg"
 	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 
-	tkgclient "github.com/vmware-tanzu-private/tkg-cli/pkg/client"
-	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
+	tkgclient "github.com/vmware-tanzu-private/core/pkg/v1/tkg/client"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgctl"
 )
 
 type getClusterKubeconfigOptions struct {

@@ -13,7 +13,7 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/command/plugin"
 	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 
-	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgctl"
 )
 
 var descriptor = cliv1alpha1.PluginDescriptor{

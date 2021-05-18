@@ -8,8 +8,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
-	"github.com/vmware-tanzu-private/tkg-cli/pkg/types"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgctl"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/types"
 
 	"github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/config"

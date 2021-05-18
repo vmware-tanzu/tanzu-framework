@@ -10,8 +10,8 @@ import (
 	"github.com/spf13/pflag"
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/cmd"
 
-	"github.com/vmware-tanzu-private/tkg-cli/pkg/constants"
-	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgctl"
 )
 
 type initRegionOptions struct {

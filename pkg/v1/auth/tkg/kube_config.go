@@ -17,8 +17,8 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 
-	tkgclient "github.com/vmware-tanzu-private/tkg-cli/pkg/client"
-	tkgutils "github.com/vmware-tanzu-private/tkg-cli/pkg/utils"
+	tkgclient "github.com/vmware-tanzu-private/core/pkg/v1/tkg/client"
+	tkgutils "github.com/vmware-tanzu-private/core/pkg/v1/tkg/utils"
 )
 
 const (

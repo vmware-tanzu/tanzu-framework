@@ -454,7 +454,6 @@ func (c *TkgClient) getUpgradeClusterConfig(options *UpgradeClusterOptions) (*cl
 	// `projects.registry.vmware.com/tkg` registry and as during dev cycle, we do not publish container images to this
 	// repository but rather we publish it to our staging registry, it is important for us to use staging registry for
 	// KCP patch during cluster upgrade workflow.
-	// For more details behind this change, please see https://github.com/vmware-tanzu-private/tkg-cli/pull/724#issue-488338743
 	upgradeInfo.UpgradeComponentInfo.ImageRepository = bomConfiguration.ImageConfig.ImageRepository
 	upgradeInfo.UpgradeComponentInfo.CoreDNSImageRepository = bomConfiguration.ImageConfig.ImageRepository
 	upgradeInfo.UpgradeComponentInfo.EtcdImageRepository = bomConfiguration.ImageConfig.ImageRepository
