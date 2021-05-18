@@ -19,6 +19,17 @@ spec:
         - image: #@ "{}/{}:{}".format(values.imageInfo.imageRepository, values.imageInfo.images.csiControllerImage.imagePath, values.imageInfo.images.csiControllerImage.tag)
           #@overlay/match missing_ok=True
           imagePullPolicy: #@ values.imageInfo.imagePullPolicy
+        #@ if values.vsphereCSI.http_proxy != "" :
+        #@overlay/match by=overlay.subset({"name": "vsphere-csi-node"})
+        - env:
+          #@overlay/append
+          - name: "HTTP_PROXY"
+            value: #@ values.vsphereCSI.http_proxy
+          - name: "HTTPS_PROXY"
+            value: #@ values.vsphereCSI.https_proxy
+          - name: "NO_PROXY"
+            value: #@ values.vsphereCSI.no_proxy
+        #@ end
         #@overlay/match by=overlay.subset({"name": "liveness-probe"})
         - image: #@ "{}/{}:{}".format(values.imageInfo.imageRepository, values.imageInfo.images.csiLivenessProbeImage.imagePath, values.imageInfo.images.csiLivenessProbeImage.tag)
           #@overlay/match missing_ok=True
