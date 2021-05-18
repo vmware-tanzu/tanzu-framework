@@ -27,6 +27,7 @@ require (
 	github.com/caarlos0/spin v1.1.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/docker/docker v1.4.2-0.20190924003213-a8608b5b67c7
+	github.com/elazarl/go-bindata-assetfs v1.0.1
 	github.com/fabriziopandini/capi-conditions v0.0.0-20201102133039-7eb142d1b6d6
 	github.com/fatih/color v1.10.0
 	github.com/ghodss/yaml v1.0.0
@@ -44,6 +45,7 @@ require (
 	github.com/google/go-cmp v0.5.4
 	github.com/google/go-containerregistry v0.4.1
 	github.com/googleapis/gnostic v0.4.1
+	github.com/gorilla/websocket v1.4.2
 	github.com/gosuri/uitable v0.0.4
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
 	github.com/helloeave/json v1.15.3
@@ -65,13 +67,14 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rs/xid v1.2.1
 	github.com/satori/go.uuid v1.2.0
+	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
 	github.com/spf13/afero v1.2.2
 	github.com/spf13/cobra v1.1.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.7.0
 	github.com/vmware-tanzu-private/tkg-cli v1.3.1-rc.1.0.20210513175634-5ec7720dadd6
-	github.com/vmware-tanzu-private/tkg-providers v1.3.1-rc.1.0.20210507174302-4cc66882ac81 // indirect
+	github.com/vmware-tanzu-private/tkg-providers v1.3.1-rc.1.0.20210507174302-4cc66882ac81
 	github.com/vmware/govmomi v0.23.1
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
 	go.uber.org/multierr v1.5.0
@@ -88,6 +91,7 @@ require (
 	k8s.io/apiextensions-apiserver v0.17.9
 	k8s.io/apimachinery v0.17.11
 	k8s.io/client-go v0.17.11
+	k8s.io/klog/v2 v2.4.0
 	k8s.io/kubectl v0.17.11
 	k8s.io/utils v0.0.0-20200912215256-4140de9c8800
 	sigs.k8s.io/cluster-api v0.3.14

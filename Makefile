@@ -289,6 +289,9 @@ go-generate: ## Generate fakes and swagger api files
 	$(GO) generate ./...
 	$(MAKE) fmt
 	$(MAKE) generate
+	# reset the server.go file to avoid goswagger overwritting our custom changes.
+	git reset HEAD ${UI_DIR}/server/restapi/server.go
+	git checkout HEAD ${UI_DIR}/server/restapi/server.go
 
 DOCKER_DIR := /app
 SWAGGER=docker run --rm -v ${PWD}:${DOCKER_DIR} quay.io/goswagger/swagger:v0.21.0
