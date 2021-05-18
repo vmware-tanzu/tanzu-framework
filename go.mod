@@ -12,6 +12,9 @@ replace (
 require (
 	cloud.google.com/go/storage v1.10.0
 	github.com/AlecAivazis/survey/v2 v2.1.1
+	github.com/Azure/azure-sdk-for-go v46.0.0+incompatible
+	github.com/Azure/go-autorest/autorest v0.11.4
+	github.com/Azure/go-autorest/autorest/azure/auth v0.5.1
 	github.com/Jeffail/gabs v1.4.0
 	github.com/MakeNowJust/heredoc v1.0.0
 	github.com/Masterminds/semver v1.5.0
@@ -19,6 +22,8 @@ require (
 	github.com/adrg/xdg v0.2.1
 	github.com/apparentlymart/go-cidr v1.1.0
 	github.com/aunum/log v0.0.0-20200821225356-38d2e2c8b489
+	github.com/avinetworks/sdk v0.0.0-20201123134013-c157ef55b6f7
+	github.com/aws/aws-sdk-go v1.36.26
 	github.com/caarlos0/spin v1.1.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/docker/docker v1.4.2-0.20190924003213-a8608b5b67c7
@@ -34,6 +39,8 @@ require (
 	github.com/go-openapi/swag v0.19.5
 	github.com/go-openapi/validate v0.19.5
 	github.com/gobwas/glob v0.2.3
+	github.com/gogo/protobuf v1.3.1
+	github.com/golang/mock v1.4.4
 	github.com/golang/protobuf v1.4.3
 	github.com/google/go-cmp v0.5.4
 	github.com/google/go-containerregistry v0.4.1
@@ -73,7 +80,9 @@ require (
 	k8s.io/api v0.17.11
 	k8s.io/apimachinery v0.17.11
 	k8s.io/client-go v0.17.11
+	k8s.io/utils v0.0.0-20200912215256-4140de9c8800
 	sigs.k8s.io/cluster-api v0.3.14
+	sigs.k8s.io/cluster-api-provider-aws v0.6.5-0.20210309190705-ff3ed1b9f6f1
 	sigs.k8s.io/controller-runtime v0.5.14
 	sigs.k8s.io/yaml v1.2.0
 )
