@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <script>
+            var global = global || window;
+            var Buffer = Buffer || [];
+            var process = process || {
+                env: { DEBUG: undefined },
+                version: []
+            };
+        </script>
+        <meta charset="utf-8">
+        <title>Tanzu Kubernetes Grid</title>
+        <base href="/">
+        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+        <meta http-equiv="Pragma" content="no-cache">
+        <meta http-equiv="Expires" content="0">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="icon" type="image/x-icon" href="favicon.ico">
+    </head>
+    <body>
+        <tkg-kickstart-ui-app></tkg-kickstart-ui-app>
+    </body>
+</html>

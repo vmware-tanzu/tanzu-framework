@@ -1,0 +1,559 @@
+<form [formGroup]="formGroup">
+    <div *ngIf="errorNotification" class="alert alert-danger" role="alert">
+        <div class="alert-items">
+            <div class="alert-item static">
+                <div class="alert-icon-wrapper">
+                    <clr-icon class="alert-icon" shape="exclamation-circle"></clr-icon>
+                </div>
+                <span class="alert-text">
+                    {{ errorNotification }}
+                </span>
+            </div>
+        </div>
+        <button (click)="errorNotification = null" type="button" class="close" aria-label="Close">
+            <clr-icon aria-hidden="true" shape="close"></clr-icon>
+        </button>
+    </div>
+
+    <h4 class="mt-40" aria-level="2">
+        Optionally Specify Identity Management with OIDC or LDAPS
+    </h4>
+
+    <div class="clr-row">
+        <div class="clr-col-12">
+            <clr-toggle-container [attr.data-step-metadata]="formName">
+                <clr-toggle-wrapper>
+                    <input type="checkbox" clrToggle name="idmSettings" formControlName="idmSettings" (change)="toggleIdmSetting()"/>
+                    <label>Enable Identity Management Settings</label>
+                </clr-toggle-wrapper>
+            </clr-toggle-container>
+        </div>
+    </div>
+    <div *ngIf="formGroup.value['idmSettings']">
+        <div class="clr-row">
+            <div class="clr-col-8">
+                <clr-radio-container
+                        clrInline
+                        [attr.data-step-metadata]="formName"
+                        data-name="identityType"
+                        data-label="identity provider type"
+                        [attr.data-value]="identityTypeValue">
+                    <clr-radio-wrapper>
+                        <input
+                            type="radio"
+                            name="identityType"
+                            clrRadio
+                            value="oidc"
+                            formControlName="identityType">
+                        <label>
+                            OIDC
+                        </label>
+                    </clr-radio-wrapper>
+                    <clr-radio-wrapper>
+                        <input
+                            type="radio"
+                            name="identityType"
+                            clrRadio
+                            value="ldap"
+                            formControlName="identityType">
+                        <label>
+                            LDAPS
+                        </label>
+                    </clr-radio-wrapper>
+                </clr-radio-container>
+            </div>
+        </div>
+        <ng-container *ngIf="identityTypeValue==='oidc'">
+            <!-- OIDC -->
+            <h5 i18n="identity oidc title" aria-level="3">
+                OIDC Identity Management Source
+            </h5>
+            <div class="clr-row oidc-form">
+                <div class="clr-col-8">
+                    <div class="clr-form-control" [attr.data-step-metadata]="formName">
+                        <clr-input-container>
+                            <label i18n="identity issuer url label" class="clr-control-label">
+                                ISSUER URL
+                                <clr-tooltip>
+                                    <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                    <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                    <span>
+                                        Specify an issuer URL with HTTPS protocol prefix.
+                                    </span>
+                                    </clr-tooltip-content>
+                                </clr-tooltip>
+                            </label>
+                            <input clrInput id="issuerURL" formControlName="issuerURL" size="50"/>
+                            <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                            <clr-control-helper></clr-control-helper>
+                            <clr-control-error *clrIfError="validatorEnum.REQUIRED">
+                                Issuer URL is required.
+                            </clr-control-error>
+                            <clr-control-error *clrIfError="validatorEnum.WHITESPACE">
+                                Issuer URL must not include whitespace on ends.
+                            </clr-control-error>
+                            <clr-control-error *clrIfError="validatorEnum.VALID_IP_OR_FQDN">
+                                Issuer URL must be a valid FQDN or IP with https protocol prefix.
+                            </clr-control-error>
+                            <clr-control-error *clrIfError="validatorEnum.INCLUDES_URL_FRAGMENT">
+                                Issuer URL must not contain URL fragments.
+                            </clr-control-error>
+                            <clr-control-error *clrIfError="validatorEnum.INCLUDES_QUERY_PARAMS">
+                                Issuer URL must not contain URL query parameters.
+                            </clr-control-error>
+                        </clr-input-container>
+                    </div>
+                </div>
+            </div>
+            <div class="clr-row oidc-form">
+                <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                    <div class="clr-form-control" [attr.data-step-metadata]="formName">
+                        <clr-input-container>
+                            <label i18n="identity client id label" class="clr-control-label">
+                                CLIENT ID
+                                <clr-tooltip>
+                                    <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                    <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                    <span>
+                                        Specify a client id
+                                    </span>
+                                    </clr-tooltip-content>
+                                </clr-tooltip>
+                            </label>
+                            <input clrInput id="clientId" formControlName="clientId" />
+                            <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                            <clr-control-helper></clr-control-helper>
+                            <clr-control-error>Client ID is required. It must not include whitespace on ends.</clr-control-error>
+                        </clr-input-container>
+                    </div>
+                </div>
+                <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                    <div class="clr-form-control" [attr.data-step-metadata]="formName">
+                        <clr-input-container>
+                            <label i18n="identity client secret label" class="clr-control-label">
+                                CLIENT SECRET
+                                <clr-tooltip>
+                                    <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                    <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                    <span>
+                                        Specify a client secret
+                                    </span>
+                                    </clr-tooltip-content>
+                                </clr-tooltip>
+                            </label>
+                            <input clrInput type="password" name="clientSecret" formControlName="clientSecret"/>
+                            <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                            <clr-control-helper></clr-control-helper>
+                            <clr-control-error>Client secret is required. It must not include whitespace on ends.</clr-control-error>
+                        </clr-input-container>
+                    </div>
+                </div>
+            </div>
+
+            <div class="clr-row oidc-form">
+                <div class="clr-col-4">
+                    <div class="clr-form-control" [attr.data-step-metadata]="formName">
+                        <clr-input-container>
+                            <label i18n="identity scopes label" class="clr-control-label">
+                                SCOPES
+                                <clr-tooltip>
+                                    <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                    <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                    <span>
+                                        Specify OIDC scopes (e.g. openId, profile, email, offline_access). **Note, only include
+                                        "groups" scope if your Upstream OIDC supports it.
+                                    </span>
+                                    </clr-tooltip-content>
+                                </clr-tooltip>
+                            </label>
+                            <input clrInput
+                                   name="scopes"
+                                   formControlName="scopes"
+                                   size="50"
+                                   placeholder="openId, profile, email, offline_access"/>
+                            <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                            <clr-control-helper></clr-control-helper>
+                            <clr-control-error *clrIfError="validatorEnum.REQUIRED">
+                                Scopes are required. It must not include whitespace on ends. It must be a comma separated list of scopes.
+                            </clr-control-error>
+                        </clr-input-container>
+                    </div>
+                </div>
+            </div>
+
+            <div class="clr-row oidc-form">
+                <!-- Email claim -->
+                <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                    <div class="clr-form-control" [attr.data-step-metadata]="formName">
+                        <clr-input-container>
+                            <label>
+                                USERNAME CLAIM
+                                <clr-tooltip>
+                                    <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                    <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                        <span>The claim in your OIDC provider ID token that represents the username attribute in
+                                            Kubernetes. This value must be a string.</span>
+                                    </clr-tooltip-content>
+                                </clr-tooltip>
+                            </label>
+                            <input clrInput
+                                   placeholder=""
+                                   formControlName="oidcUsernameClaim"
+                                   name="oidcUsernameClaim"/>
+                            <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                            <clr-control-helper></clr-control-helper>
+                            <clr-control-error>Username claim is required.</clr-control-error>
+                        </clr-input-container>
+                    </div>
+                </div>
+                <!-- Groups claim -->
+                <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                    <div class="clr-form-control" [attr.data-step-metadata]="formName">
+                        <clr-input-container>
+                            <label>
+                                GROUPS CLAIM
+                                <clr-tooltip>
+                                    <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                    <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                        <span>The claim in your OIDC provider ID token that represents the groups attribute in
+                                            Kubernetes. This value must be a JSON array of strings in the ID token.</span>
+                                    </clr-tooltip-content>
+                                </clr-tooltip>
+                            </label>
+                            <input clrInput
+                                   placeholder=""
+                                   formControlName="oidcGroupsClaim"
+                                   name="oidcGroupsClaim"/>
+                            <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                            <clr-control-helper></clr-control-helper>
+                            <clr-control-error>Groups claim is required.</clr-control-error>
+                        </clr-input-container>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+        <ng-container *ngIf="identityTypeValue==='ldap'">
+            <!-- LDAP -->
+            <h5 i18n="identity ldap title" aria-level="3">
+                LDAPS Identity Management Source
+            </h5>
+            <div class="clr-row">
+                <!-- LDAP endpoint -->
+                <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" [attr.data-step-metadata]="formName">
+                    <div class="clr-form-control ldap-endpoint">
+                        <div class="clr-control-container">
+                            <label class="ldap-endpoint-label">
+                                LDAPS Endpoint
+                                <clr-tooltip>
+                                    <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                    <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                        <span>Enter the IP address/FQDN and port of your secure LDAPS server.</span>
+                                    </clr-tooltip-content>
+                                </clr-tooltip>
+                            </label>
+                            <div
+                                class="clr-input-wrapper"
+                                [class.clr-error]="formGroup.get('endpointIp').invalid"
+                                [attr.data-step-metadata]="formName"
+                                data-name="endpointIp"
+                                data-label="ldap endpoint ip">
+                                <input clrInput
+                                       class="endpoint-ip-input"
+                                       formControlName="endpointIp"
+                                       placeholder="IP or FQDN"
+                                       aria-label="ldap endpoint ip or fqdn"
+                                       name="endpointIp"/>
+                            </div>
+                            <div class="clr-input-wrapper">
+                                <input clrInput
+                                       class="endpoint-colon"
+                                       disabled
+                                       name="endpointColon"
+                                       aria-label="ldap endpoint colon"
+                                       value=":"/>
+                            </div>
+                            <div
+                                class="clr-input-wrapper"
+                                [class.clr-error]="formGroup.get('endpointPort').invalid"
+                                [attr.data-step-metadata]="formName"
+                                data-name="endpointPort"
+                                data-label="ldap endpoint port">
+                                <input clrInput
+                                       class="endpoint-port-input"
+                                       formControlName="endpointPort"
+                                       placeholder="Port"
+                                       aria-label="ldap endpoint port"
+                                       name="endpointPort"/>
+                            </div>
+                            <clr-icon class="clr-validate-icon" shape="exclamation-circle" [class.clr-error]="!ldapEndpointInputValidity()"></clr-icon>
+                            <clr-control-error *ngIf="!ldapEndpointInputValidity()">Invalid LDAPS endpoint</clr-control-error>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bind DN -->
+                <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                    <clr-input-container [attr.data-step-metadata]="formName">
+                        <label>
+                            BIND DN (OPTIONAL)
+                            <clr-tooltip>
+                                <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                    <span>The DN for an application service account. The connector uses
+                                        these credentials to search for users and groups. Not required if the LDAP
+                                        server provides access for anonymous auth.</span>
+                                </clr-tooltip-content>
+                            </clr-tooltip>
+                        </label>
+                        <input clrInput
+                               placeholder=""
+                               formControlName="bindDN"
+                               name="bindDN"
+                               id="bindDN"/>
+                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <clr-control-helper></clr-control-helper>
+                    </clr-input-container>
+                </div>
+
+                <!-- Bind Password -->
+                <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                    <clr-input-container [attr.data-step-metadata]="formName">
+                        <label>
+                            BIND PASSWORD (OPTIONAL)
+                            <clr-tooltip>
+                                <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
+                                    <span> <span>The password for an application service account. The connector uses
+                                        these credentials to search for users and groups. Not required if the LDAP
+                                        server provides access for anonymous auth.</span></span>
+                                </clr-tooltip-content>
+                            </clr-tooltip>
+                        </label>
+                        <input clrInput
+                               type="password"
+                               placeholder=""
+                               formControlName="bindPW"
+                               name="bindPW"
+                               id="bindPW"/>
+                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <clr-control-helper></clr-control-helper>
+                    </clr-input-container>
+                </div>
+            </div>
+            <h5 i18n="ldap user search attributes title" aria-level="3">
+                 User Search Attributes
+            </h5>
+            <div class="clr-row">
+                <!-- User search base DN -->
+                <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                    <clr-input-container [attr.data-step-metadata]="formName">
+                        <label>
+                            BASE DN (OPTIONAL)
+                            <clr-tooltip>
+                                <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                    <span>Enter the location in the LDAP directory tree where user search begins.
+                                        The LDAP search base typically matches your domain name. For example: a domain named
+                                        cloud.example.com may use ou=Users,dc=example,dc=com as the user search base.</span>
+                                </clr-tooltip-content>
+                            </clr-tooltip>
+                        </label>
+                        <input clrInput
+                               placeholder="ou=Users,dc=example,dc=com"
+                               formControlName="userSearchBaseDN"
+                               name="userSearchBaseDN"/>
+                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <clr-control-helper></clr-control-helper>
+                    </clr-input-container>
+                </div>
+
+                <!-- User search filter -->
+                <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                    <clr-input-container [attr.data-step-metadata]="formName">
+                        <label>
+                            FILTER (OPTIONAL)
+                            <clr-tooltip>
+                                <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                    <span>Enter a string to use for user search criteria. The search criteria allows LDAP
+                                        to perform more effective and efficient searches. For example: the standard search
+                                        filter cn=Smith returns all objects with a common name equal to Smith. In the
+                                        search filter string that you use to configure TKG, use O instead of the username.
+                                        For example, use cn=O to return all LDAP objects with the same common name as the
+                                        username. In addition to cn, other common attributes are mail, uid and, in the case
+                                        of sAMAccountName.</span>
+                                </clr-tooltip-content>
+                            </clr-tooltip>
+                        </label>
+                        <input clrInput
+                               placeholder="(objectClass=person)"
+                               formControlName="userSearchFilter"
+                               name="userSearchFilter"/>
+                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <clr-control-helper></clr-control-helper>
+                    </clr-input-container>
+                </div>
+
+                <!-- User search username -->
+                <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                    <clr-input-container [attr.data-step-metadata]="formName">
+                        <label>
+                            USERNAME (OPTIONAL)
+                            <clr-tooltip>
+                                <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
+                                    <span>The LDAP attribute that contains the username used in Kubernetes. In AD environments
+                                        this is generally sAMAccountName.</span>
+                                </clr-tooltip-content>
+                            </clr-tooltip>
+                        </label>
+                        <input clrInput
+                               placeholder="uid"
+                               formControlName="userSearchUsername"
+                               name="userSearchUsername"/>
+                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <clr-control-helper></clr-control-helper>
+                    </clr-input-container>
+                </div>
+            </div>
+
+            <h5 i18n="group user search attributes title" aria-level="3">
+                Group Search Attributes
+            </h5>
+            <div class="clr-row">
+                <!-- Group search base DN -->
+                <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                    <clr-input-container [attr.data-step-metadata]="formName">
+                        <label>
+                            BASE DN (OPTIONAL)
+                            <clr-tooltip>
+                                <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                    <span>Enter the location in the LDAP directory tree where group search begins.
+                                        The LDAP search base typically matches your domain name. For example: a domain named
+                                        cloud.example.com may use ou=Groups,dc=example,dc=com as the group search base.</span>
+                                </clr-tooltip-content>
+                            </clr-tooltip>
+                        </label>
+                        <input clrInput
+                               placeholder="ou=Groups,dc=example,dc=com"
+                               formControlName="groupSearchBaseDN"
+                               name="groupSearchBaseDN"/>
+                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <clr-control-helper></clr-control-helper>
+                    </clr-input-container>
+                </div>
+
+                <!-- Group search filter -->
+                <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                    <clr-input-container [attr.data-step-metadata]="formName">
+                        <label>
+                            FILTER (OPTIONAL)
+                            <clr-tooltip>
+                                <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                    <span>Enter a string that defines LDAP group search criteria. The standard value is
+                                        (member=O).</span>
+                                </clr-tooltip-content>
+                            </clr-tooltip>
+                        </label>
+                        <input clrInput
+                               formControlName="groupSearchFilter"
+                               placeholder="(objectClass=groupOfNames)"
+                               name="groupSearchFilter"/>
+                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <clr-control-helper></clr-control-helper>
+                    </clr-input-container>
+                </div>
+
+                <!-- Group search name attribute -->
+                <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                    <clr-input-container [attr.data-step-metadata]="formName">
+                        <label>
+                            NAME ATTRIBUTE (OPTIONAL)
+                            <clr-tooltip>
+                                <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
+                                    <span>The LDAP attribute that Kubernetes will see as part of your groups (e.g., cn).</span>
+                                </clr-tooltip-content>
+                            </clr-tooltip>
+                        </label>
+                        <input clrInput
+                               placeholder="cn"
+                               formControlName="groupSearchNameAttr"
+                               name="groupSearchNameAttr"/>
+                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <clr-control-helper></clr-control-helper>
+                    </clr-input-container>
+                </div>
+            </div>
+            <div class="clr-row">
+                <!-- Group search user attribute -->
+                <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                    <clr-input-container [attr.data-step-metadata]="formName">
+                        <label>
+                            USER ATTRIBUTE (OPTIONAL)
+                            <clr-tooltip>
+                                <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                    <span>The attribute of the user record that is used as the value of the membership
+                                        attribute of the group record (e.g., distinguishedName, dn).</span>
+                                </clr-tooltip-content>
+                            </clr-tooltip>
+                        </label>
+                        <input clrInput
+                               placeholder="distinguishedName,dn"
+                               formControlName="groupSearchUserAttr"
+                               name="groupSearchUserAttr"/>
+                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <clr-control-helper></clr-control-helper>
+                    </clr-input-container>
+                </div>
+
+                <!-- Group search group attribute -->
+                <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                    <clr-input-container [attr.data-step-metadata]="formName">
+                        <label>
+                            GROUP ATTRIBUTE (OPTIONAL)
+                            <clr-tooltip>
+                                <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                    <span>The attribute of the group record that holds the user/member info (e.g., member).</span>
+                                </clr-tooltip-content>
+                            </clr-tooltip>
+                        </label>
+                        <input clrInput
+                               formControlName="groupSearchGroupAttr"
+                               placeholder="member"
+                               name="groupSearchGroupAttr"/>
+                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <clr-control-helper></clr-control-helper>
+                    </clr-input-container>
+                </div>
+            </div>
+            <div class="clr-row">
+                <!-- Root CA -->
+                <div class="clr-col-12 clr-col-lg-4">
+                    <div class="clr-form-control" [attr.data-step-metadata]="formName">
+                        <label for="ldapRootCAData" class="clr-control-label" >
+                            ROOT CA (OPTIONAL)
+                            <clr-tooltip>
+                                <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                    <span>
+                                        A PEM formated root CA.
+                                    </span>
+                                </clr-tooltip-content>
+                            </clr-tooltip>
+                        </label>
+                        <div class="clr-control-container clr-col-12 no-gutters">
+                            <div class="clr-textarea-wrapper">
+                                <textarea formControlName="ldapRootCAData" id="ldapRootCAData" placeholder="" class="clr-textarea"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+    </div>
+</form>

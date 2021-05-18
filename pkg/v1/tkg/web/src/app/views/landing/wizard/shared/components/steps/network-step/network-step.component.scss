@@ -1,0 +1,27 @@
+.sub-title {
+    padding-top: 35px;
+}
+.checkbox-wrapper {
+    padding-top: 20px;
+}
+
+.word-break {
+    word-break: break-all;
+    width: 265px;
+    input {
+        width: 100%;
+    }
+}
+.title {
+    font-size: 13px;
+    font-weight: bold;
+    padding: 5px 0;
+}
+button.reset {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+}

@@ -1,0 +1,31 @@
+.table th.left:last-child,
+.table td.left:last-child {
+    width: 110px;
+}
+
+.inner-th {
+    border-collapse: separate;
+    border-top-color: rgb(204, 204, 204);
+    border-top-style: solid;
+    border-top-width: 1px;
+}
+
+table.table {
+    table-layout: fixed;
+}
+
+table.table {
+    td,
+    th {
+        word-wrap: break-word;
+        text-align: left;
+    }
+}
+
+.code {
+    vertical-align: middle;
+    color: white;
+    background-color: black;
+    font-family: inline;
+    font-family: "Fira Code", Menlo, Monaco, "Courier New", monospace;
+}

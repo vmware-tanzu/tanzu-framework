@@ -1,0 +1,12 @@
+<clr-modal [(clrModalOpen)]="show" [clrModalClosable]="false">
+    <h3 class="modal-title">Verify SSL Thumbprint</h3>
+    <div class="modal-body">
+        <p>Certificate thumbprint for vCenter Server {{vcenterHost}}</p>
+        <p><b>{{thumbprint}}</b></p>
+        <p>Click Continue if the thumbprint is valid or Cancel if the thumbprint is not valid.</p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-primary continue-btn" (click)="continueBtnHandler()">Continue</button>
+        <button type="button" class="btn btn-outline" (click)="close()">Cancel</button>
+    </div>
+</clr-modal>

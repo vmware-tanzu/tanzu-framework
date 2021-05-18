@@ -1,0 +1,14 @@
+<div *ngFor="let node of data">
+    <ul>
+     <li class="node-container">
+        <clr-icon shape="angle" dir="{{node.isExpanded ? 'down' : 'right' }}" class="expand-btn" *ngIf="node.children.length > 0" (click)="toggleExpand(node)"></clr-icon>
+        <div class="{{node.disabled ? 'clr-form-control-disabled': ''}}">
+            <clr-checkbox-wrapper>
+                <input type="checkbox" class="clr-checkbox"  clrCheckbox name="options" [(ngModel)]="node.checked" (change)="handleClick(node)" [attr.disabled]="node.disabled"/>
+                <label>{{node.label}}</label>
+            </clr-checkbox-wrapper>
+        </div>
+        <app-tree-select [data]="node.children" *ngIf="node.children.length > 0 && node.isExpanded" [selectedHandler]="selectedHandler"></app-tree-select>
+     </li>
+    </ul>
+  </div>

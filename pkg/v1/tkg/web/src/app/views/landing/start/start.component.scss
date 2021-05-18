@@ -1,0 +1,19 @@
+@import '../landing.component.scss';
+
+.card {
+    &.provider {
+        .card-block,
+        .card-footer {
+            text-align: center;
+
+            .btn {
+                margin: 0;
+            }
+        }
+
+        .card-media-block {
+            justify-content: center;
+            align-items: center;
+        }
+    }
+}

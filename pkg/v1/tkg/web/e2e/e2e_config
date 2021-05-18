@@ -1,0 +1,53 @@
+export SERVER_URL=localhost:4200
+#export CHROME_OPTIONS=chrome
+export MC_NAME=mgmt-vsphere-e2e
+
+export VCIP=vsphere.local
+export DEFAULT_VC_USER=admin@vsphere.local
+export DEFAULT_VC_PASSWORD=VMware123!
+export DEFAULT_SSH_KEY=123457892342134
+export DEFAULT_VC_DATACENTER=/SDDC-Datacenter/dc-1
+export DEFAULT_VC_MC_TYPE=large
+export DEFAULT_VC_WC_TYPE=large
+export DEFAULT_RESOURCE_POOL=respool-1
+export DEFAULT_VC_FOLDER='Folder 3'
+export DEFAULT_VC_DATASTORE='Datastore 2'
+export DEFAULT_VC_NETWORK='Network 1'
+export VSPHERE_ENDPOINT_IP=10.10.10.10
+export DEFAULT_PROXY_HTTP_URL=http://proxy.vmware.com:3128
+export CONTROLLER_HOST=avi.local
+export DEFAULT_NSX_USER=administrator
+export DEFAULT_NSX_PASSWORD='VMware123!'
+export DEFAULT_NSX_CLOUD=Cloud-1-S
+export DEFAULT_NSX_SE=Group-1
+export DEFAULT_NSX_NETWORK_NAME=faraway-network
+export DEFAULT_NSX_NETWORK_CIDR=192.168.1.0/24
+export DEFAULT_NSX_CA=123456789
+
+export AWS_SECRET_ACCESS_KEY=My-AWS-Secret-Access-Key
+export AWS_REGION=US-WEST
+export AWS_ACCESS_KEY_ID=aws-access-key-id-12345
+export AWS_SSH_KEY_NAME=default
+export AWS_PROFILE=profile1
+export AWS_EXISTING_VPC_ID=vpc-1
+export AWS_MC_TYPE=t3.large
+export AWS_WC_TYPE=t3.large
+export AWS_AZ1=us-west-b
+
+export AZURE_SUBSCRIPTION_ID=USE_YOUR_OWN
+export AZURE_TENANT_ID=USE_YOUR_OWN
+export AZURE_CLIENT_ID=USE_YOUR_OWN
+export AZURE_CLIENT_SECRET=USE_YOUR_OWN
+export AZURE_CLOUD="PublicCloud"
+export AZURE_REGION="East US"
+export AZURE_ENVIRONMENT="AzurePublicCloud"
+export AZURE_SSH_PUBLIC_KEY_B64='23123'
+export AZURE_MC_TYPE=Standard_B1ls
+export AZURE_WC_TYPE=Standard_B1ls
+export AZURE_RESOURCE_GROUP=resource-group1
+export AZURE_VNET=vnet1
+export AZURE_MASTER_SUBNET=subnet1
+export AZURE_WORKER_SUBNET=subnet2
+
+export LDAP_IP=myldap.com
+export LDAP_PORT=31234

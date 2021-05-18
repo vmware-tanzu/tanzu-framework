@@ -1,0 +1,156 @@
+<form [formGroup]="formGroup">
+    <div *ngIf="errorNotification" class="alert alert-danger" role="alert">
+        <div class="alert-items">
+            <div class="alert-item static">
+                <div class="alert-icon-wrapper">
+                    <clr-icon class="alert-icon" shape="exclamation-circle"></clr-icon>
+                </div>
+                <span class="alert-text">
+                    {{ errorNotification }}
+                </span>
+            </div>
+        </div>
+        <button (click)="errorNotification = null" type="button" class="close" aria-label="Close">
+            <clr-icon aria-hidden="true" shape="close"></clr-icon>
+        </button>
+    </div>
+
+    <h4 i18n="metadata cluster settings" aria-level="2">
+        Optional Metadata
+    </h4>
+
+    <div class="clr-row">
+        <div class="clr-col-12">
+            <clr-input-container [attr.data-step-metadata]="formName">
+                <label i18n="management cluster location label" clr-control-label>
+                    LOCATION (OPTIONAL)
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                Optionally specify a location for the management cluster.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <input clrInput formControlName="clusterLocation" placeholder="optional" />
+                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+                <clr-control-error i18n="management cluster location valid msg" *clrIfError="validatorEnum.VALID_CLUSTER_NAME" class="err-label">
+                    Management Cluster Location must start and end with an alphanumeric character, and can contain only
+                    letters, numbers, hyphens, underscores, and dots.
+                </clr-control-error>
+                <clr-control-error i18n="management cluster location valid msg" *clrIfError="validatorEnum.WHITESPACE" class="err-label">
+                    Management Cluster Location must not include whitespace on ends.
+                </clr-control-error>
+                <clr-control-error i18n="management cluster location valid msg" *clrIfError="validatorEnum.MAX_LEN" class="err-label">
+                    Management Cluster Location max length is 63 characters.
+                </clr-control-error>
+            </clr-input-container>
+        </div>
+    </div>
+    <div class="clr-row">
+        <div class="clr-col-12 clr-col-md-12">
+            <div class="clr-form-control" [attr.data-step-metadata]="formName">
+                <label i18n="management cluster description label" class="clr-control-label">
+                    DESCRIPTION (OPTIONAL)
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                Optionally specify a description for the management cluster.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <div class="clr-control-container clr-col-12 no-gutters" [class.clr-error]="formGroup.get('clusterDescription').invalid">
+                    <div>
+                        <textarea id="clusterDescription" class="clr-textarea" formControlName="clusterDescription"
+                         placeholder="optional" aria-label="description" aria-describedby="cluster-description-error"></textarea>
+                        <div id="cluster-description-error" class="clr-subtext" *ngIf="formGroup.get('clusterDescription').invalid">
+                            Management Cluster Description must start and end with a letter, and can contain only
+                            lowercase letters, numbers, and hyphens. It must not include whitespace on ends. It has
+                            a max length of 63 characters.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clr-row">
+        <div class="clr-col-12">
+            <clr-input-container [attr.data-step-metadata]="formName" data-name="clusterLabels" data-label="labels" [attr.data-value]="clusterLabelsValue">
+                <label i18n="labels label" clr-control-label>
+                    LABELS (OPTIONAL)
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                Optionally specify labels for the management cluster.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+            </clr-input-container>
+        </div>
+    </div>
+    <div class="clr-row">
+        <div class="clr-col-12">
+            <div *ngIf="labels?.size; then hasLabels"></div>
+            <ng-template #hasLabels>
+                <div class="clr-row label-container" *ngFor="let label of labels | keyvalue">
+                    <clr-input-container class="label-input">
+                        <input clrInput [value]="label.key" [disabled]="true" aria-label="label key"/>
+                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <clr-control-helper></clr-control-helper>
+                    </clr-input-container>
+                    <span class="label-input">:</span>
+                    <clr-input-container class="label-input">
+                        <input clrInput [value]="label.value" [disabled]="true" aria-label="label value"/>
+                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <clr-control-helper></clr-control-helper>
+                    </clr-input-container>
+
+                    <button id="label-delete-{{label.key}}" class="btn btn-sm btn-label btn-delete" (click)="deleteLabel(label.key)" role="button" aria-label="delete label">
+                        <clr-icon shape="trash" size="18">
+                        </clr-icon>
+                    </button>
+                </div>
+            </ng-template>
+            <div class="clr-row label-container">
+                <clr-input-container class="label-input">
+                    <input clrInput #newLabelKey formControlName="newLabelKey" placeholder="key" aria-label="label key" />
+                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                    <clr-control-error i18n="management cluster label valid msg" *clrIfError="validatorEnum.VALID_CLUSTER_NAME" class="err-label">
+                        Management Cluster Label Keys must start and end with an alphanumeric character, and can contain only
+                        letters, numbers, hyphens, underscores, and dots.
+                    </clr-control-error>
+                    <clr-control-error i18n="management cluster label valid msg" *clrIfError="validatorEnum.WHITESPACE" class="err-label">
+                        Management Cluster Label Keys must not include whitespace on ends.
+                    </clr-control-error>
+                    <clr-control-error i18n="management cluster label valid msg" *clrIfError="validatorEnum.MAX_LEN" class="err-label">
+                        Management Cluster Label Keys max length is 63 characters.
+                    </clr-control-error>
+                </clr-input-container>
+                <span class="label-input">:</span>
+                <clr-input-container class="label-input">
+                    <input clrInput #newLabelValue formControlName="newLabelValue" placeholder="value" aria-label="label value" />
+                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                    <clr-control-error i18n="management cluster label valid msg" *clrIfError="validatorEnum.VALID_CLUSTER_NAME" class="err-label">
+                        Management Cluster Label Values must start and end with an alphanumeric character, and can contain only
+                        letters, numbers, hyphens, underscores, and dots.
+                    </clr-control-error>
+                    <clr-control-error i18n="management cluster label valid msg" *clrIfError="validatorEnum.WHITESPACE" class="err-label">
+                        Management Cluster Label Values must not include whitespace on ends.
+                    </clr-control-error>
+                    <clr-control-error i18n="management cluster label valid msg" *clrIfError="validatorEnum.MAX_LEN" class="err-label">
+                        Management Cluster Label Keys max length is 63 characters.
+                    </clr-control-error>
+                </clr-input-container>
+                <button class="btn btn-sm btn-label" (click)="addLabel(newLabelKey.value, newLabelValue.value)" [disabled]="getDisabled()" role="button" aria-label="add label">ADD</button>
+            </div>
+        </div>
+    </div>
+</form>

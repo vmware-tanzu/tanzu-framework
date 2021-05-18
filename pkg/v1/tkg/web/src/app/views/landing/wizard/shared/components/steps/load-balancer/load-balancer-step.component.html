@@ -1,0 +1,380 @@
+<form [formGroup]="formGroup">
+    <div *ngIf="errorNotification" class="alert alert-danger" role="alert">
+        <div class="alert-items">
+            <div class="alert-item static">
+                <div class="alert-icon-wrapper">
+                    <clr-icon class="alert-icon" shape="exclamation-circle"></clr-icon>
+                </div>
+                <span class="alert-text">
+                    {{ errorNotification }}
+                </span>
+            </div>
+        </div>
+        <button (click)="errorNotification = null" type="button" class="close" aria-label="Close">
+            <clr-icon aria-hidden="true" shape="close"></clr-icon>
+        </button>
+    </div>
+
+    <h4 i18n="load balancer settings">
+        {{ currentControlPlaneEndpoingProvider === "Manual" ? "Optional" : "" }} VMware NSX Advanced Load Balancer Settings
+    </h4>
+
+    <div class="clr-row">
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+            <clr-input-container [attr.data-step-metadata]="formName">
+                <label i18n="controller host label" clr-control-label>
+                    CONTROLLER HOST
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                Specify load balancer controller IP address or FQDN.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <input clrInput formControlName="controllerHost" placeholder="" />
+                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+                <clr-control-error i18n="controller host addr required msg" *clrIfError="validatorEnum.REQUIRED">
+                    Controller host address cannot be empty
+                </clr-control-error>
+                <clr-control-error i18n="controller host addr valid msg" *clrIfError="validatorEnum.VALID_IP_OR_FQDN">
+                    Enter a valid IP address or FQDN
+                </clr-control-error>
+            </clr-input-container>
+        </div>
+
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+            <clr-input-container [attr.data-step-metadata]="formName">
+                <label i18n="username label" clr-control-label>
+                    USERNAME
+                </label>
+                <input clrInput formControlName="username" placeholder="username" />
+                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+                <clr-control-error i18n="controller host addr required msg" *clrIfError="validatorEnum.REQUIRED">
+                    Username cannot be empty
+                </clr-control-error>
+            </clr-input-container>
+        </div>
+
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+            <clr-password-container [attr.data-step-metadata]="formName">
+                <label i18n="password label" clr-control-label>
+                    PASSWORD
+                </label>
+                <input clrPassword formControlName="password" placeholder="password" autocomplete="off"/>
+                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+                <clr-control-error i18n="controller host addr required msg" *clrIfError="validatorEnum.REQUIRED">
+                    Password cannot be empty
+                </clr-control-error>
+            </clr-password-container>
+        </div>
+    </div>
+
+    <div class="clr-row">
+        <div class="clr-col-6">
+            <div class="clr-form-control" [attr.data-step-metadata]="formName">
+                <label for="controllerCert" class="clr-control-label">
+                    CONTROLLER CERTIFICATE AUTHORITY (OPTIONAL)
+                    <clr-tooltip>
+                        <clr-icon clrTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                The Certificate Authority that signs the Controller Certificate.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <div class="clr-control-container" [class.clr-error]="formGroup.get('controllerCert').invalid">
+                    <div class="clr-textarea-wrapper">
+                        <textarea formControlName="controllerCert" id="controllerCert" placeholder=""
+                            class="clr-textarea"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="clr-row">
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+            <button [clrLoading]="loadingState" [disabled]="getDisabled() || connected" (click)="connectLB()" i18n="connect btn"
+                    class="btn btn-primary btn-connect">
+                {{ connected ? "VERIFIED" : "VERIFY CREDENTIALS" }}
+            </button>
+        </div>
+    </div>
+
+    <div class="clr-row">
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+            <clr-select-container [attr.data-step-metadata]="formName">
+                <label i18n="cloud name label" clr-control-label [class.label-disabled]="!connected">
+                    CLOUD NAME
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                Select a cloud name.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <select
+                    clrSelect
+                    name="cloudName"
+                    formControlName="cloudName">
+                    <option aria-label="blank"></option>
+                    <ng-container *ngFor="let cloud of clouds">
+                        <option [value]="cloud.name">
+                            {{ cloud.name }}
+                        </option>
+                    </ng-container>
+                </select>
+                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+                <clr-control-error>Selecting a cloud name is required</clr-control-error>
+            </clr-select-container>
+        </div>
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+            <clr-select-container [attr.data-step-metadata]="formName">
+                <label i18n="service engine group name label" clr-control-label [class.label-disabled]="!connected">
+                    SERVICE ENGINE GROUP NAME
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                Select a service engine group name.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <select
+                    clrSelect
+                    name="serviceEngineGroupName"
+                    formControlName="serviceEngineGroupName">
+                    <option aria-label="blank"></option>
+                    <ng-container *ngFor="let seg of serviceEngineGroupsFiltered">
+                        <option [value]="seg.name">
+                            {{ seg.name }}
+                        </option>
+                    </ng-container>
+                </select>
+                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+                <clr-control-error>Selecting a service engine group name is required</clr-control-error>
+            </clr-select-container>
+        </div>
+    </div>
+
+    <div class="clr-row">
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+            <clr-select-container [attr.data-step-metadata]="formName">
+                <label i18n="network name label" clr-control-label [class.label-disabled]="!connected">
+                    VIP NETWORK NAME
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                Choose a VIP network name.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <select
+                    clrSelect
+                    name="networkName"
+                    formControlName="networkName">
+                    <option aria-label="blank"></option>
+                    <ng-container *ngFor="let npc of vipNetworksPerCloud">
+                        <option [value]="npc.name">
+                            {{ npc.name }}
+                        </option>
+                    </ng-container>
+                </select>
+                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+                <clr-control-error>Selecting a network name is required</clr-control-error>
+            </clr-select-container>
+        </div>
+
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+            <clr-select-container [attr.data-step-metadata]="formName">
+                <label i18n="network CIDR label" clr-control-label [class.label-disabled]="!connected">
+                    VIP NETWORK CIDR
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                Select a VIP network CIDR.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <select
+                    clrSelect
+                    name="networkCIDR"
+                    formControlName="networkCIDR">
+                    <option aria-label="blank"></option>
+                    <ng-container *ngFor="let spn of subnetsPerNetwork">
+                        <option [value]="spn.subnet">
+                            {{ spn.subnet }}
+                        </option>
+                    </ng-container>
+                </select>
+                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+                <clr-control-error>Selecting a subnet is required</clr-control-error>
+            </clr-select-container>
+        </div>
+    </div>
+
+    <ng-container *ngIf="currentControlPlaneEndpoingProvider==='NSX Advanced Load Balancer'">
+
+        <div class="clr-row">
+            <div class="clr-col-4">
+                <clr-select-container [attr.data-step-metadata]="formName" [class.label-disabled]="!connected">
+                    <label i18n="Management Cluster Network Name label" clr-control-label>
+                        MANAGEMENT CLUSTER NETWORK NAME
+                        <clr-tooltip>
+                            <clr-icon clrTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                <span>
+                                    Choose a Management Cluster Network Name.
+                                </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                    <select clrSelect name="managementClusterNetworkName"
+                        formControlName="managementClusterNetworkName">
+                        <ng-container *ngFor="let mcnn of vipNetworksPerCloud">
+                            <option [value]="mcnn.name">
+                                {{ mcnn.name }}
+                            </option>
+                        </ng-container>
+                    </select>
+                    <clr-control-error>Selecting a Management Cluster Network Name is required</clr-control-error>
+                </clr-select-container>
+            </div>
+
+            <div class="clr-col-4">
+                <clr-select-container [attr.data-step-metadata]="formName">
+                    <label i18n="Management Cluster Network CIDR label" clr-control-label
+                        [class.label-disabled]="!connected">
+                        MANAGEMENT CLUSTER NETWORK CIDR
+                        <clr-tooltip>
+                            <clr-icon clrTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                <span>
+                                    Select a Management Cluster Network CIDR.
+                                </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                    <select clrSelect name="managementClusterNetworkCIDR"
+                        formControlName="managementClusterNetworkCIDR">
+                        <ng-container *ngFor="let mcnc of subnetsPerManagementNetwork">
+                            <option [value]="mcnc.subnet">
+                                {{ mcnc.subnet }}
+                            </option>
+                        </ng-container>
+                    </select>
+                    <clr-control-error>Selecting a Management Cluster Network CIDR is required</clr-control-error>
+                </clr-select-container>
+            </div>
+        </div>
+    </ng-container>
+
+    <div class="clr-row">
+        <div class="clr-col-12">
+            <clr-input-container [attr.data-step-metadata]="formName" data-name="clusterLabels" data-label="labels"
+                [attr.data-value]="clusterLabelsValue">
+                <label i18n="labels label" clr-control-label [class.label-disabled]="!connected">
+                    CLUSTER LABELS (OPTIONAL)
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                By default, all clusters will have NSX Advanced Load Balancer enabled. Here you may
+                                optionally specify cluster labels to identify a subset of clusters that should have
+                                NSX
+                                Advanced Load Balancer enabled. Note: Ensure that these labels are present on
+                                individual
+                                clusters that should be enabled with NSX Advanced Load Balancer.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+            </clr-input-container>
+            <span>
+                By default, all clusters will have NSX Advanced Load Balancer enabled. Here you may optionally
+                specify cluster labels to identify a subset of clusters that should have NSX Advanced Load Balancer
+                enabled.
+            </span>
+        </div>
+    </div>
+    <div class="clr-row mt-20">
+        <div class="clr-col-12">
+            <div *ngIf="labels?.size; then hasLabels"></div>
+            <ng-template #hasLabels>
+                <div class="clr-row label-container" *ngFor="let label of labels | keyvalue">
+                    <clr-input-container class="label-input">
+                        <input clrInput [value]="label.key" [disabled]="true" aria-label="label key"/>
+                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <clr-control-helper></clr-control-helper>
+                    </clr-input-container>
+                    <span class="label-input">:</span>
+                    <clr-input-container class="label-input">
+                        <input clrInput [value]="label.value" [disabled]="true" aria-label="label value"/>
+                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <clr-control-helper></clr-control-helper>
+                    </clr-input-container>
+
+                    <button id="label-delete-{{label.key}}" class="btn btn-sm btn-label btn-delete" aria-label="delete label" (click)="deleteLabel(label.key)">
+                        <clr-icon shape="trash" size="18">
+                        </clr-icon>
+                    </button>
+                </div>
+            </ng-template>
+            <div class="clr-row label-container">
+                <clr-input-container class="label-input">
+                    <input clrInput #newLabelKey formControlName="newLabelKey" placeholder="key" aria-label="label key" />
+                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                    <clr-control-error i18n="workload cluster label valid msg" *clrIfError="validatorEnum.VALID_CLUSTER_NAME" class="err-label">
+                        Workload Cluster Label Keys must start and end with an alphanumeric character, and can contain only
+                        letters, numbers, hyphens, underscores, and dots.
+                    </clr-control-error>
+                    <clr-control-error i18n="workload cluster label valid msg" *clrIfError="validatorEnum.WHITESPACE"
+                        class="err-label">
+                        Workload Cluster Label Keys must not include whitespace on ends.
+                    </clr-control-error>
+                    <clr-control-error i18n="workload cluster label valid msg" *clrIfError="validatorEnum.MAX_LEN"
+                        class="err-label">
+                        Workload Cluster Label Keys max length is 63 characters.
+                    </clr-control-error>
+                </clr-input-container>
+                <span class="label-input">:</span>
+                <clr-input-container class="label-input">
+                    <input clrInput #newLabelValue formControlName="newLabelValue" placeholder="value" aria-label="label value" />
+                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                    <clr-control-error i18n="workload cluster label valid msg" *clrIfError="validatorEnum.VALID_CLUSTER_NAME" class="err-label">
+                        Workload Cluster Label Values must start and end with an alphanumeric character, and can contain only
+                        letters, numbers, hyphens, underscores, and dots.
+                    </clr-control-error>
+                    <clr-control-error i18n="workload cluster label valid msg" *clrIfError="validatorEnum.WHITESPACE"
+                        class="err-label">
+                        Workload Cluster Label Values must not include whitespace on ends.
+                    </clr-control-error>
+                    <clr-control-error i18n="workload cluster label valid msg" *clrIfError="validatorEnum.MAX_LEN"
+                        class="err-label">
+                        Workload Cluster Label Keys max length is 63 characters.
+                    </clr-control-error>
+                </clr-input-container>
+                <button class="btn btn-sm btn-label" aria-label="add label" (click)="addLabel(newLabelKey.value, newLabelValue.value)" [disabled]="getLabelDisabled() || !connected">ADD</button>
+            </div>
+        </div>
+    </div>
+</form>

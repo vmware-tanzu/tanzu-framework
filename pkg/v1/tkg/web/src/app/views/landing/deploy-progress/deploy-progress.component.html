@@ -1,0 +1,61 @@
+<div
+        *ngIf="curStatus.status==='successful'"
+        class="alert alert-success"
+        role="alert">
+    <div class="alert-items">
+        <div class="alert-item static">
+            <div class="alert-icon-wrapper">
+                <clr-icon class="alert-icon" shape="check-circle"></clr-icon>
+            </div>
+            <span class="alert-text">
+                Installation complete, you can now close the browser....
+            </span>
+        </div>
+    </div>
+</div>
+
+<div
+    *ngIf="curStatus.status==='failed'"
+    class="alert alert-danger"
+    role="alert">
+    <div class="alert-items">
+        <div class="alert-item static">
+            <div class="alert-icon-wrapper">
+                <clr-icon class="alert-icon" shape="check-circle"></clr-icon>
+            </div>
+            <span class="alert-text">
+                Installation has failed. Please see the logs for more information.
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="clr-row">
+    <div class="clr-col-12">
+        <h2 i18n="deploy progress page welcome title" aria-level="1">Deploying Tanzu Kubernetes Grid on {{ providerType }}</h2>
+        <div>
+            {{ getStatusDescription() }}
+        </div>
+    </div>
+</div>
+
+<div class="clr-row mt-20">
+    <div class="clr-col-12 clr-col-xl-3">
+        <clr-timeline [clrLayout]="'vertical'">
+            <ng-container *ngFor="let phase of phases; let idx = index;">
+                <clr-timeline-step [clrState]="getStepCurrentState(idx)">
+                    <clr-timeline-step-title>{{ phase }}</clr-timeline-step-title>
+                </clr-timeline-step>
+            </ng-container>
+        </clr-timeline>
+    </div>
+    <div class="clr-col-12 clr-col-xl-9">
+        <h4 aria-level="2">Logs</h4>
+        <log-monitor
+            [logStream]="(msgs$ | async)"
+            theme="dark">
+        </log-monitor>
+    </div>
+</div>
+
+<app-preview-config></app-preview-config>

@@ -1,0 +1,65 @@
+<form [formGroup]="formGroup">
+    <h4 i18n="azure worker node settings" aria-level="2">
+        Worker Node Settings
+    </h4>
+
+    <div class="clr-row">
+        <div class="clr-col-4">
+            <clr-select-container [attr.data-step-metadata]>
+                <label i18n="azure worker node instance label">
+                    WORKER NODE INSTANCE TYPE
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                Select worker node instance type.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <select clrSelect name="workerNodeInstanceType" formControlName="workerNodeInstanceType">
+                    <option aria-label="blank"></option>
+                    <ng-container *ngFor="let wnit of workderNodeInstanceTypes">
+                        <option [value]="wnit">
+                            {{ wnit }}
+                        </option>
+                    </ng-container>
+                </select>
+                <clr-control-error>Selecting a worker node instance type is required</clr-control-error>
+            </clr-select-container>
+        </div>
+    </div>
+
+    <h4>&nbsp;</h4>
+    <h4>
+        Set availability zones <span class="current-region">Region: {{currentRegion}}</span>
+    </h4>
+
+    <div class="clr-row">
+        <div *ngFor="let azId of [1, 2, 3]" class="clr-col-4">
+            <clr-select-container [attr.data-step-metadata]>
+                <label i18n="azure set availability zones label">
+                    AVAILABILITY ZONE {{azId}}
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                Select the availability zone.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <select clrSelect [name]="'az'+azId" [formControlName]="'az'+azId">
+                    <option aria-label="blank"></option>
+                    <ng-container *ngFor="let az of azs">
+                        <option [value]="az">
+                            {{ az }}
+                        </option>
+                    </ng-container>
+                </select>
+                <clr-control-error>Selecting an availability zone is required</clr-control-error>
+            </clr-select-container>
+        </div>
+    </div>
+
+</form>

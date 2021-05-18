@@ -1,0 +1,36 @@
+<span [ngClass]="{'copy-button': !btnLabel?.length && !hasProjectedContent}">
+    <clr-tooltip>
+        <button type="button"
+                class="btn"
+                [ngClass]="btnClassesToApply"
+                [attr.aria-label]="ariaLabel"
+                [disabled]="disabled"
+                (click)="!disabled && doCopy()"
+                clrTooltipTrigger
+                [ngStyle]="!btnLabel?.length && !hasProjectedContent && {'line-height': bounds, 'min-width': bounds, 'height': bounds}">
+            <div class="anim-object"
+                    [ngClass]="animClasses"
+                    [ngStyle]="!btnLabel?.length && !hasProjectedContent && {'width': bounds, 'height': bounds}">
+                <div class="front face face-label">
+                    <clr-icon shape="copy-to-clipboard" [attr.size]="size"></clr-icon>
+                    <ng-content></ng-content>
+                    <span *ngIf="btnLabel?.length">
+                        {{btnLabel}}
+                    </span>
+                </div>
+                <div class="back face face-label">
+                    <clr-icon shape="check" [attr.size]="size"></clr-icon>
+                </div>
+            </div>
+        </button>
+
+        <clr-tooltip-content [clrPosition]="tooltipDirection"
+                clrSize="md"
+                *clrIfOpen
+                [ngClass]="{'hide-tooltip': !tooltip?.length}">
+            {{tooltip}}
+        </clr-tooltip-content>
+    </clr-tooltip>
+</span>
+
+<textarea #area *ngIf="isSafari" contenteditable="true" [hidden]="true"></textarea>

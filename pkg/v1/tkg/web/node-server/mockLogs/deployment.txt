@@ -1,0 +1,24 @@
+-- Logs begin at Wed 2019-10-09 20:55:22 UTC, end at Wed 2019-10-09 21:21:55 UTC. --
+Oct 09 20:55:59 gear2.pks.vmware.local systemd[1]: Starting PKS mgmt server...
+Oct 09 20:55:59 gear2.pks.vmware.local pks-mgmt-server[880]: d4e521deea758b05f30992e714ef2e15e6a12699828d14110b62e9eb87a2a90f
+Oct 09 20:55:59 gear2.pks.vmware.local systemd[1]: Started PKS mgmt server.
+Oct 09 20:56:00 gear2.pks.vmware.local pks-mgmt-server[934]: time="2019-10-09T20:56:00Z" level=info msg="Trying to read DNS info from /etc/resolv.conf.override"
+Oct 09 20:56:00 gear2.pks.vmware.local pks-mgmt-server[934]: time="2019-10-09T20:56:00Z" level=info msg="Update for environment, _APPLIANCE_SERVICE_UID : 10000"
+Oct 09 20:56:00 gear2.pks.vmware.local pks-mgmt-server[934]: time="2019-10-09T20:56:00Z" level=info msg="Update for environment, _FILESERVER_PORT : 443"
+Oct 09 20:56:00 gear2.pks.vmware.local pks-mgmt-server[934]: time="2019-10-09T20:56:00Z" level=info msg="Update for environment, _APPLIANCE_PERMIT_ROOT_LOGIN : True"
+Oct 09 20:56:00 gear2.pks.vmware.local pks-mgmt-server[934]: time="2019-10-09T20:56:00Z" level=info msg="Update for environment, _NETWORK_GATEWAY : 192.168.111.155"
+Oct 09 20:56:01 gear2.pks.vmware.local pks-mgmt-server[934]: time="2019-10-09T20:56:01Z" level=info msg="Update for environment, _NETWORK_DNS : 192.168.111.155"
+Oct 09 20:56:01 gear2.pks.vmware.local pks-mgmt-server[934]: time="2019-10-09T20:56:01Z" level=info msg="Update for environment, _LOGINSIGHT_ID : e6945782-db9d-4e7d-88fa-07a0792a7c68"
+Oct 09 20:56:01 gear2.pks.vmware.local pks-mgmt-server[934]: time="2019-10-09T20:56:01Z" level=info msg="Update for environment, _APPLIANCE_ID : fgZNyaF31clUCluyzw8gji7Jj0qRbTVvHOa9JKpLQbY="
+Oct 09 20:56:01 gear2.pks.vmware.local pks-mgmt-server[934]: time="2019-10-09T20:56:01Z" level=info msg="Update for environment, _APPLIANCE_TLS_CERT : "
+Oct 09 20:56:01 gear2.pks.vmware.local pks-mgmt-server[934]: time="2019-10-09T20:56:01Z" level=info msg="Update for environment, _APPLIANCE_TLS_PRIVATE_KEY : "
+Oct 09 20:56:01 gear2.pks.vmware.local pks-mgmt-server[934]: time="2019-10-09T20:56:01Z" level=info msg="Update for environment, _APPLIANCE_TLS_CA_CERT : "
+Oct 09 20:56:01 gear2.pks.vmware.local pks-mgmt-server[934]: time="2019-10-09T20:56:01Z" level=info msg="Update for environment, _NETWORK_FQDN : gear2.pks.vmware.local"
+Oct 09 20:56:01 gear2.pks.vmware.local pks-mgmt-server[934]: time="2019-10-09T20:56:01Z" level=info msg="Update for environment, _NETWORK_SEARCHPATH : pks.vmwre.local"
+Oct 09 20:56:01 gear2.pks.vmware.local pks-mgmt-server[934]: time="2019-10-09T20:56:01Z" level=info msg="Update for environment, _LOGINSIGHT_PORT : 9000"
+Oct 09 20:56:01 gear2.pks.vmware.local pks-mgmt-server[934]: time="2019-10-09T20:56:01Z" level=info msg="Update for environment, _HOSTNAME : gear2.pks.vmware.local"
+Oct 09 20:56:01 gear2.pks.vmware.local pks-mgmt-server[934]: time="2019-10-09T20:56:01Z" level=info msg="Update for environment, _IP_ADDRESS : 192.168.111.40"
+Oct 09 20:56:01 gear2.pks.vmware.local pks-mgmt-server[934]: time="2019-10-09T20:56:01Z" level=info msg="Update for environment, _NETWORK_IP0 : 192.168.111.40"
+Oct 09 20:56:01 gear2.pks.vmware.local pks-mgmt-server[934]: time="2019-10-09T20:56:01Z" level=info msg="Update for environment, _NETWORK_NETMASK0 : 255.255.255.0"
+Oct 09 20:56:01 gear2.pks.vmware.local pks-mgmt-server[934]: time="2019-10-09T20:56:01Z" level=info msg="Update for environment, _LOGINSIGHT_HOST : "
+Oct 09 20:56:01 gear2.pks.vmware.local pks-mgmt-server[934]: time="2019-10-09T20:56:01Z" level=info msg="Starting upgrade checker..."

@@ -1,0 +1,33 @@
+<div class="title"> Docker daemon <a (click)="connectToDocker()" *ngIf="!connected"> CONNECT TO DOCKER</a></div>
+
+<div class="alert alert-danger" role="alert" *ngIf="!connected && !connecting">
+    <div class="alert-items">
+        <div class="alert-item static">
+            <div class="alert-icon-wrapper">
+                <clr-icon class="alert-icon" shape="exclamation-circle"></clr-icon>
+            </div>
+            <span class="alert-text">Docker daemon not found. Make sure your Docker daemon is running to continue.</span>
+        </div>
+    </div>
+</div>
+
+<div class="alert alert-success" role="alert" *ngIf="connected && !connecting">
+    <div class="alert-items">
+        <div class="alert-item static">
+            <div class="alert-icon-wrapper">
+                <clr-icon class="alert-icon" shape="check-circle"></clr-icon>
+            </div>
+            <span class="alert-text">Running Docker daemon validated</span>
+        </div>
+    </div>
+</div>
+
+<div class="clr-row" *ngIf="connecting">
+    <div class="clr-col-12">
+        <div class="text-center mt-10">
+            <span class="spinner spinner-md">
+                connecting...
+            </span>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,57 @@
+<form [formGroup]="formGroup">
+    <h4 i18n="register tmc step title" aria-level="2">
+        Register with Tanzu Mission Control
+    </h4>
+    <app-step-form-notification [errorNotification]="errorNotification"></app-step-form-notification>
+    <p>
+        Provide the optional URL to enable Tanzu Mission Control registration.
+        After supplying the URL, you will be able to review the configuration YAML.
+    </p>
+    <div class="clr-row">
+        <div class="clr-col-12">
+            <div class="registration-container">
+                <div>
+                    <clr-input-container [attr.data-step-metadata]="formName">
+                        <label i18n="tmc registration url label" clr-control-label>
+                            REGISTRATION URL
+                            <clr-tooltip>
+                                <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                    <span>Optionally specify a url to register your management cluster with Tanzu Mission Control.</span>
+                                </clr-tooltip-content>
+                            </clr-tooltip>
+                        </label>
+                        <input clrInput class="tmc-reg-input" formControlName="tmcRegUrl" placeholder="" />
+                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <clr-control-helper></clr-control-helper>
+                    </clr-input-container>
+                </div>
+                <div class="get-yaml-btn">
+                    <button class="btn btn-sm" (click)="getRemoteConfig()" [disabled]="emptyUrl">GET YAML</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<div class="clr-row mt-20">
+    <div class="clr-col-12 yaml-content-container" tabindex="0">
+        <div class="mask"></div>
+        <ngx-codemirror
+            [(ngModel)]="configContent"
+            aria-label="yaml content"
+            [options]="{
+                theme: 'blackboard',
+                mode: 'application/ld+json',
+                lineNumbers: true,
+                lineWrapping: true,
+                foldGutter: true,
+                gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter', 'CodeMirror-lint-markers'],
+                autoCloseBrackets: true,
+                matchBrackets: true,
+                lint: true,
+                readOnly: true,
+                tabindex: -1
+            }">
+        </ngx-codemirror>
+    </div>
+</div>

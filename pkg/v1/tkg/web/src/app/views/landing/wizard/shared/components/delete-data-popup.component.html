@@ -1,0 +1,11 @@
+<clr-modal [(clrModalOpen)]="open" [clrModalClosable]="false">
+    <h3 class="modal-title">Restore Cached Data?</h3>
+    <div class="modal-body">
+        <p>Welcome back! We've saved the data from your last visit.</p>
+        Would you like to restore this data or start fresh?
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-outline" type="button" (click)="clearDataClick()">Start fresh</button>
+        <button class="btn btn-primary" type="button" (click)="useSavedDataClick()">Restore data</button>
+    </div>
+</clr-modal>
