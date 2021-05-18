@@ -256,6 +256,6 @@ func getLatestTkrVersion(tkrs []runv1alpha1.TanzuKubernetesRelease) (string, err
 		return "", errors.Errorf("found multiple TKRs %v matching the criteria, please specify the TKR name you want to use", latestTKRsNames)
 	}
 
-	log.V(4).Infof("Using the TKR version '%s' from TKR name '%s' ", latestTKRs[0].Spec.Version, latestTKRs[0].Name) //nolint
+	log.V(4).Infof("Using the TKR version '%s' from TKR name '%s' ", latestTKRs[0].Spec.Version, latestTKRs[0].Name)
 	return latestTKRs[0].Spec.Version, nil
 }
