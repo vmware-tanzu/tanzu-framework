@@ -1,3 +1,14 @@
+Table of Contents
+=================
+
+* [Contributing](#contributing)
+* [Communication](#communication)
+* [Propose a Change](#propose-a-change)
+  * [Pull Request Etiquette](#pull-request-etiquette)
+  * [Issues Lifecycle](#issues-lifecycle)
+  * [DCO Sign off](#dco-sign-off)
+  * [Commit Messages](#commit-messages)
+
 # Contributing
 
 We’d love to accept your patches and contributions to this project. Please
@@ -19,11 +30,27 @@ encourage including test coverage. If significant effort will be involved, we
 suggest beginning by submitting an issue so any high level feedback can be
 addressed early.
 
-Please submit feature requests and bug reports by using GitHub issues.
+Please submit feature requests and bug reports by using GitHub issues and filling
+the supplied template with as much detail as you can.
 
 Before submitting an issue, please search through open ones to ensure others
 have not submitted something similar. If a similar issue exists, please add any
 additional information as a comment.
+
+## Pull Request Etiquette
+
+* Before submitting a pull request, please make sure you verify the changes
+  locally. The `Makefile` in this repository provides useful targets such as
+  `lint` and `test` to make verification easier.
+* Prefer small commits and small pull requests over large changes.
+  Small changes are easier to digest and get reviewed faster. If you find
+  that your change is getting large, break up your PR into small, logical
+  commits. Consider breaking up large PRs into smaller PRs, if each of them
+  can be useful on its own.
+* Pull requests *must* include a `Fixes #NNNN` or `Updates #NNNN` comment. Remember
+  that `Fixes` will close the associated issue, and `Updates` will link the PR to it.
+* Have good commit messages. Please see [Commit Messages](#commit-messages)
+  section for guidelines.
 
 ## Issues Lifecycle
 
