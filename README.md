@@ -1,5 +1,7 @@
 # Core
 Tanzu core components
 
-## CLI
-The [Tanzu CLI](https://docs.google.com/document/d/1qCarTtSUxJzYJweiHsOQhObTc2L4f9smAXAlIheMFfI/edit?usp=sharing) can be found in [cmd/cli](./cmd/cli)
+## Getting Started
+The best way to get started with the Tanzu CLI is to see it in action.
+
+Link to the [getting started guide](docs/cli/getting-started.md)
