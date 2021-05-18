@@ -26,6 +26,13 @@ require (
 	github.com/fatih/color v1.10.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-logr/logr v0.2.0
+	github.com/go-openapi/errors v0.19.2
+	github.com/go-openapi/loads v0.19.4
+	github.com/go-openapi/runtime v0.19.4
+	github.com/go-openapi/spec v0.19.3
+	github.com/go-openapi/strfmt v0.19.3
+	github.com/go-openapi/swag v0.19.5
+	github.com/go-openapi/validate v0.19.5
 	github.com/gobwas/glob v0.2.3
 	github.com/golang/protobuf v1.4.3
 	github.com/google/go-cmp v0.5.4
@@ -36,6 +43,7 @@ require (
 	github.com/hinshun/vt10x v0.0.0-20180809195222-d55458df857c // indirect
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/jeremywohl/flatten v1.0.1
+	github.com/jessevdk/go-flags v1.4.0
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
 	github.com/k14s/imgpkg v0.6.0
 	github.com/lithammer/dedent v1.1.0
@@ -54,6 +62,7 @@ require (
 	github.com/vmware-tanzu-private/tkg-providers v1.3.1-rc.1.0.20210507174302-4cc66882ac81 // indirect
 	go.uber.org/multierr v1.5.0
 	golang.org/x/mod v0.4.0
+	golang.org/x/net v0.0.0-20201209123823-ac852fbbde11
 	golang.org/x/oauth2 v0.0.0-20201208152858-08078c50e5b5
 	golang.org/x/tools v0.1.0 // indirect
 	google.golang.org/api v0.40.0
