@@ -287,6 +287,8 @@ cobra-docs:
 .PHONY: go-generate
 go-generate: ## Generate fakes and swagger api files
 	$(GO) generate ./...
+	$(MAKE) fmt
+	$(MAKE) generate
 
 DOCKER_DIR := /app
 SWAGGER=docker run --rm -v ${PWD}:${DOCKER_DIR} quay.io/goswagger/swagger:v0.21.0

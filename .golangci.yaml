@@ -155,6 +155,7 @@ issues:
 run:
   skip-dirs:
     - test/
+    - fakes/
 
 # golangci.com configuration
 # https://github.com/golangci/golangci/wiki/Configuration
