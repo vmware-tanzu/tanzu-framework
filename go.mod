@@ -60,6 +60,7 @@ require (
 	github.com/onsi/gomega v1.10.4
 	github.com/otiai10/copy v1.4.2
 	github.com/pkg/errors v0.9.1
+	github.com/rs/xid v1.2.1
 	github.com/satori/go.uuid v1.2.0
 	github.com/spf13/afero v1.2.2
 	github.com/spf13/cobra v1.1.1
@@ -68,6 +69,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/vmware-tanzu-private/tkg-cli v1.3.1-rc.1.0.20210511054704-abb2b0362ada
 	github.com/vmware-tanzu-private/tkg-providers v1.3.1-rc.1.0.20210507174302-4cc66882ac81 // indirect
+	github.com/vmware/govmomi v0.23.1
 	go.uber.org/multierr v1.5.0
 	golang.org/x/mod v0.4.0
 	golang.org/x/net v0.0.0-20201209123823-ac852fbbde11
@@ -84,5 +86,6 @@ require (
 	sigs.k8s.io/cluster-api v0.3.14
 	sigs.k8s.io/cluster-api-provider-aws v0.6.5-0.20210309190705-ff3ed1b9f6f1
 	sigs.k8s.io/controller-runtime v0.5.14
+	sigs.k8s.io/kind v0.7.1-0.20200303021537-981bd80d3802
 	sigs.k8s.io/yaml v1.2.0
 )
