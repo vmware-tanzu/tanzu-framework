@@ -19,6 +19,7 @@ endif
 # Directories
 TOOLS_DIR := hack/tools
 TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
+BIN_DIR := bin
 ROOT_DIR := $(shell git rev-parse --show-toplevel)
 ADDONS_DIR := addons
 UI_DIR := pkg/v1/tkg/web
@@ -26,11 +27,11 @@ UI_DIR := pkg/v1/tkg/web
 # Add tooling binaries here and in hack/tools/Makefile
 GOLANGCI_LINT := $(TOOLS_BIN_DIR)/golangci-lint
 GOIMPORTS := $(TOOLS_BIN_DIR)/goimports
-GOBINDATA := $(TOOLS_BIN_DIR)/go-bindata-$(GOOS)-$(GOARCH)
+GOBINDATA := $(TOOLS_BIN_DIR)/gobindata
 KUBEBUILDER := $(TOOLS_BIN_DIR)/kubebuilder
 YTT := $(TOOLS_BIN_DIR)/ytt
 KUBEVAL := $(TOOLS_BIN_DIR)/kubeval
-TOOLING_BINARIES := $(GOLANGCI_LINT) $(YTT) $(KUBEVAL) $(GOIMPORTS)
+TOOLING_BINARIES := $(GOLANGCI_LINT) $(YTT) $(KUBEVAL) $(GOIMPORTS) $(GOBINDATA)
 
 PINNIPED_GIT_REPOSITORY = https://github.com/vmware-tanzu/pinniped.git
 ifeq ($(strip $(PINNIPED_GIT_COMMIT)),)
@@ -47,6 +48,20 @@ ifndef IS_OFFICIAL_BUILD
 IS_OFFICIAL_BUILD = ""
 endif
 
+# NPM registry to use for downloading node modules for UI build
+CUSTOM_NPM_REGISTRY ?= $(shell git config tkg.npmregistry)
+
+# BoM repo, path and tag related configuration
+ifndef TKG_DEFAULT_BOM_IMAGE_REPO
+TKG_DEFAULT_BOM_IMAGE_REPO = "projects-stg.registry.vmware.com/tkg"
+endif
+ifndef TKG_DEFAULT_BOM_IMAGE_PATH
+TKG_DEFAULT_BOM_IMAGE_PATH = "tkg-bom"
+endif
+ifndef TKG_DEFAULT_BOM_IMAGE_TAG
+TKG_DEFAULT_BOM_IMAGE_TAG = "v1.3.1-rc.1" # TODO: update the image tag to latest
+endif
+
 PRIVATE_REPOS="github.com/vmware-tanzu-private"
 GO := GOPRIVATE=${PRIVATE_REPOS} go
 
@@ -59,12 +74,6 @@ help: ## Display this help
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[0-9a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-25s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
 all: manager build-cli
-
-.PHONY: test
-test: fmt vet generate manifests build-cli-mocks ## Run tests
-	$(GO) test ./... -coverprofile cover.out
-	$(MAKE) kubebuilder -C $(TOOLS_DIR)
-	KUBEBUILDER_ASSETS=$(ROOT_DIR)/$(KUBEBUILDER)/bin GOPRIVATE=$(PRIVATE_REPOS) $(MAKE) test -C addons
 
 manager: generate fmt vet ## Build manager binary
 	$(GO) build -o bin/manager main.go
@@ -88,17 +97,9 @@ manifests: controller-gen ## Generate manifests e.g. CRD, RBAC etc.
 		paths=./apis/... \
 		output:crd:artifacts:config=config/crd/bases
 
-fmt: tools ## Run goimports
-	$(GOIMPORTS) -w -local github.com/vmware-tanzu-private ./
-
-vet: ## Run go vet
-	$(GO) vet ./...
-
-lint: tools ## Run linting checks
-	$(GOLANGCI_LINT) run -v
-
 generate: controller-gen ## Generate code via controller-gen
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt",year=$(shell date +%Y) paths="./..."
+	$(MAKE) fmt
 
 docker-build: test ## Build the docker image
 	docker build . -t ${IMG}
@@ -147,7 +148,7 @@ LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildDate=$(BUIL
 LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildSHA=$(BUILD_SHA)'
 LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildVersion=$(BUILD_VERSION)'
 LD_FLAGS += -X 'main.BuildEdition=$(BUILD_EDITION)'
-LD_FLAGS += -X 'github.com/vmware-tanzu-private/tkg-cli/pkg/buildinfo.IsOfficialBuild=$(IS_OFFICIAL_BUILD)'
+LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/tkg/buildinfo.IsOfficialBuild=$(IS_OFFICIAL_BUILD)'
 
 ARTIFACTS_DIR ?= ./artifacts
 
@@ -163,15 +164,32 @@ XDG_CACHE_HOME := ${HOME}/.cache
 export XDG_DATA_HOME
 export XDG_CACHE_HOME
 
+## --------------------------------------
+## Version
+## --------------------------------------
 
 .PHONY: version
 version: ## Show version
 	@echo $(BUILD_VERSION)
 
+## --------------------------------------
+## Build prerequisites
+## --------------------------------------
 
-.PHONY: install-cli
-install-cli: ## Install Tanzu CLI
-	$(GO) install -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu
+.PHONY: ensure-pinniped-repo
+ensure-pinniped-repo:
+	@rm -rf pinniped
+	@mkdir -p pinniped
+	@GIT_TERMINAL_PROMPT=0 git clone -q --depth 1 --branch $(PINNIPED_GIT_COMMIT) ${PINNIPED_GIT_REPOSITORY} pinniped > ${NUL} 2>&1
+
+.PHONY: prep-build-cli
+prep-build-cli: ensure-pinniped-repo
+	$(GO) mod download
+	$(GO) mod tidy
+
+## --------------------------------------
+## Build binaries and plugins
+## --------------------------------------
 
 # Dynamically generate the OS-ARCH targets to allow for parallel execution
 CLI_JOBS := $(addprefix build-cli-,${ENVS})
@@ -215,12 +233,25 @@ build-cli-mocks: ## Build Tanzu CLI mocks
 build-cli-image: ## Build the CLI image
 	docker build -t projects.registry.vmware.com/tanzu/cli:latest -f Dockerfile.cli .
 
-.PHONY: test-cli
-test-cli: build-cli-mocks ## Run tests
-	$(GO) test ./...
-
 .PHONY: build-install-cli-all ## Build and install the CLI plugins
 build-install-cli-all: clean-catalog-cache clean-cli-plugins build-cli install-cli-plugins install-cli ## Build and install Tanzu CLI plugins
+
+.PHONY: build-install-cli-local
+build-install-cli-local: clean-catalog-cache clean-cli-plugins build-cli-local install-cli-plugins install-cli ## Local build and install the CLI plugins
+
+# This target is added as some tests still relies on tkg cli.
+# TODO: Remove this target when all tests are migrated to use tanzu cli
+.PHONY: tkg-cli ## Builds tkg-cli binary
+tkg-cli: configure-bom prep-build-cli ## Build tkg CLI binary only, and without rebuilding ui bits
+	GO111MODULE=on $(GO) build -o $(BIN_DIR)/tkg-${GOHOSTOS}-${GOHOSTARCH} -ldflags "${LD_FLAGS}" cmd/cli/tkg/main.go
+
+## --------------------------------------
+## install binaries and plugins
+## --------------------------------------
+
+.PHONY: install-cli
+install-cli: ## Install Tanzu CLI
+	$(GO) install -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu
 
 .PHONY: install-cli-plugins
 install-cli-plugins:  ## Install Tanzu CLI plugins
@@ -231,20 +262,9 @@ install-cli-plugins:  ## Install Tanzu CLI plugins
 	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
 		test fetch --local $(ARTIFACTS_DIR)/$(GOHOSTOS)/$(GOHOSTARCH)/cli --local $(ARTIFACTS_DIR)-admin/$(GOHOSTOS)/$(GOHOSTARCH)/cli
 
-.PHONY: clean-cli-plugins
-clean-cli-plugins: ## Remove Tanzu CLI plugins
-	- rm -rf ${XDG_DATA_HOME}/tanzu-cli/*
-
-.PHONY: ensure-pinniped-repo
-ensure-pinniped-repo:
-	@rm -rf pinniped
-	@mkdir -p pinniped
-	@GIT_TERMINAL_PROMPT=0 git clone -q --depth 1 --branch $(PINNIPED_GIT_COMMIT) ${PINNIPED_GIT_REPOSITORY} pinniped > ${NUL} 2>&1
-
-.PHONY: prep-build-cli
-prep-build-cli: ensure-pinniped-repo
-	$(GO) mod download
-	$(GO) mod tidy
+## --------------------------------------
+## Release binaries
+## --------------------------------------
 
 # TODO (pbarker): should work this logic into the builder plugin
 .PHONY: release
@@ -258,6 +278,29 @@ release-%:
 
 	./hack/embed-pinniped-binary.sh go ${OS} ${ARCH}
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --artifacts artifacts/${OS}/${ARCH}/cli --target  ${OS}_${ARCH}
+
+## --------------------------------------
+## Testing, verification, formating and cleanup
+## --------------------------------------
+
+.PHONY: test
+test: generate fmt vet manifests build-cli-mocks ## Run tests
+	$(GO) test ./... -coverprofile cover.out
+	$(MAKE) kubebuilder -C $(TOOLS_DIR)
+	KUBEBUILDER_ASSETS=$(ROOT_DIR)/$(KUBEBUILDER)/bin GOPRIVATE=$(PRIVATE_REPOS) $(MAKE) test -C addons
+
+.PHONY: test-cli
+test-cli: build-cli-mocks ## Run tests
+	$(GO) test ./...
+
+fmt: tools ## Run goimports
+	$(GOIMPORTS) -w -local github.com/vmware-tanzu-private ./
+
+vet: ## Run go vet
+	$(GO) vet ./...
+
+lint: tools ## Run linting checks
+	$(GOLANGCI_LINT) run -v
 
 .PHONY: modules
 modules: ## Runs go mod to ensure modules are up to date.
@@ -274,33 +317,69 @@ verify: ## Run all verification scripts
 clean-catalog-cache: ## Cleans catalog cache
 	@rm -rf ${XDG_CACHE_HOME}/tanzu/*
 
-.PHONY: cobra-docs
-cobra-docs:
-	TANZU_CLI_NO_INIT=true TANZU_CLI_NO_COLOR=true $(GO) run ./cmd/cli/tanzu generate-all-docs
-	sed -i.bak -E 's/\/[A-Za-z]*\/([a-z]*)\/.config\/tanzu\/pinniped\/sessions.yaml/~\/.config\/tanzu\/pinniped\/sessions.yaml/g' docs/cli/commands/tanzu_pinniped-auth_login.md
+.PHONY: clean-cli-plugins
+clean-cli-plugins: ## Remove Tanzu CLI plugins
+	- rm -rf ${XDG_DATA_HOME}/tanzu-cli/*
 
+## --------------------------------------
+## UI Build & Test
+## --------------------------------------
+.PHONY: update-npm-registry
+update-npm-registry: ## set alternate npm registry
+ifneq ($(strip $(CUSTOM_NPM_REGISTRY)),)
+	npm config set registry $(CUSTOM_NPM_REGISTRY) web
+endif
+
+.PHONY: ui-dependencies
+ui-dependencies: update-npm-registry  ## install UI dependencies (node modules)
+	cd $(UI_DIR); NG_CLI_ANALYTICS=ci npm install; cd ../
+
+.PHONY: ui-build
+ui-build: ui-dependencies ## install dependencies, then compile client UI for production
+	cd $(UI_DIR); npm run build:prod; cd ../
+	$(MAKE) generate-ui-bindata
+
+.PHONY: ui-build-and-test
+ui-build-and-test: ui-dependencies ## compile client UI for production and run tests
+	cd $(UI_DIR); npm run build:ci; cd ../
+	$(MAKE) generate-ui-bindata
+
+.PHONY: verify-ui-bindata
+verify-ui-bindata: ## Run verification for ui bindata
+	git diff --exit-code pkg/v1/tkg/manifest/server/zz_generated.bindata.go
 
 ## --------------------------------------
 ## Generate files
 ## --------------------------------------
 
+.PHONY: cobra-docs
+cobra-docs:
+	TANZU_CLI_NO_INIT=true TANZU_CLI_NO_COLOR=true $(GO) run ./cmd/cli/tanzu generate-all-docs
+	sed -i.bak -E 's/\/[A-Za-z]*\/([a-z]*)\/.config\/tanzu\/pinniped\/sessions.yaml/~\/.config\/tanzu\/pinniped\/sessions.yaml/g' docs/cli/commands/tanzu_pinniped-auth_login.md
+	
 .PHONY: go-generate
 go-generate: ## Generate fakes and swagger api files
 	$(GO) generate ./...
 	$(MAKE) fmt
-	$(MAKE) generate
 	# reset the server.go file to avoid goswagger overwritting our custom changes.
-	git reset HEAD ${UI_DIR}/server/restapi/server.go
-	git checkout HEAD ${UI_DIR}/server/restapi/server.go
+	git reset HEAD $(UI_DIR)/server/restapi/server.go
+	git checkout HEAD $(UI_DIR)/server/restapi/server.go
 
-DOCKER_DIR := /app
-SWAGGER=docker run --rm -v ${PWD}:${DOCKER_DIR} quay.io/goswagger/swagger:v0.21.0
+.PHONY: generate-ui-bindata
+generate-ui-bindata: $(GOBINDATA) ## Generate go-bindata for ui files
+	$(GOBINDATA) -mode=420 -modtime=1 -o=pkg/v1/tkg/manifest/server/zz_generated.bindata.go -pkg=server $(UI_DIR)/dist/...
 
-.PHONY: generate-ui-api
-generate-ui-api: ## Generate swagger files
-	rm -rf ${UI_DIR}/server/client  ${UI_DIR}/server/models ${UI_DIR}/server/restapi/operations
-	${SWAGGER} generate server -q -A kickstartUI -t $(DOCKER_DIR)/${UI_DIR}/server -f $(DOCKER_DIR)/${UI_DIR}/api/spec.yaml --exclude-main
-	${SWAGGER} generate client -q -A kickstartUI -t $(DOCKER_DIR)/${UI_DIR}/server -f $(DOCKER_DIR)/${UI_DIR}/api/spec.yaml
-	# reset the server.go file to avoid goswagger overwritting our custom changes.
-	git reset HEAD ${UI_DIR}/server/restapi/server.go
-	git checkout HEAD ${UI_DIR}/server/restapi/server.go
+.PHONY: generate-telemetry-bindata
+generate-telemetry-bindata: $(GOBINDATA) ## Generate telemetry bindata
+	$(GOBINDATA) -mode=420 -modtime=1 -o=pkg/v1/tkg/manifest/telemetry/zz_generated.bindata.go -pkg=telemetry pkg/v1/tkg/manifest/telemetry/...
+
+ # TODO: Remove bindata dependency and use go embed
+.PHONY: generate-bindata ## Generate go-bindata files
+generate-bindata: generate-telemetry-bindata generate-ui-bindata
+
+.PHONY: configure-bom
+configure-bom:
+	# Update default BoM Filename variable in tkgconfig pkg
+	sed "s+TKG_DEFAULT_BOM_IMAGE_REPO+${TKG_DEFAULT_BOM_IMAGE_REPO}+g"  hack/update-bundled-bom-filename/update-bundled-default-bom-files-configdata.txt | \
+	sed "s+TKG_DEFAULT_BOM_IMAGE_PATH+${TKG_DEFAULT_BOM_IMAGE_PATH}+g" | \
+	sed "s/TKG_DEFAULT_BOM_IMAGE_TAG/${TKG_DEFAULT_BOM_IMAGE_TAG}/g"  > pkg/v1/tkg/tkgconfigpaths/zz_bundled_default_bom_files_configdata.go
