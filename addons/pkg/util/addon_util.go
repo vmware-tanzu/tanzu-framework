@@ -8,17 +8,18 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/vmware-tanzu-private/core/addons/pkg/vars"
+
+	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
+	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	"gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	clusterapiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
-
-	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
-	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
-	bomtypes "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
+	addontypes "github.com/vmware-tanzu-private/core/addons/pkg/types"
+	bomtypes "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/types"
 )
 
 // GetAddonSecretsForCluster gets the addon secrets belonging to the cluster
@@ -70,12 +71,12 @@ func GenerateAppSecretNameFromAddonSecret(addonSecret *corev1.Secret) string {
 }
 
 // GenerateAppNamespaceFromAddonSecret generates app namespace from addons secret
-func GenerateAppNamespaceFromAddonSecret(addonSecret *corev1.Secret) string {
+func GenerateAppNamespaceFromAddonSecret(addonSecret *corev1.Secret, defaultAddonNamespace string) string {
 	remoteApp := IsRemoteApp(addonSecret)
 	if remoteApp {
 		return addonSecret.Namespace
 	}
-	return constants.TKGAddonsAppNamespace
+	return defaultAddonNamespace
 }
 
 // GetClientFromAddonSecret gets appropriate cluster client given addon secret
@@ -91,10 +92,10 @@ func GetClientFromAddonSecret(addonSecret *corev1.Secret, localClient, remoteCli
 }
 
 // GetImageInfo gets the image Info of an addon
-func GetImageInfo(addonConfig *bomtypes.Addon, imageRepository string, bom *bomtypes.Bom) ([]byte, error) {
+func GetImageInfo(addonConfig *bomtypes.Addon, imageRepository string, imagePullPolicy string, bom *bomtypes.Bom) ([]byte, error) {
 	componentRefs := addonConfig.AddonContainerImages
 
-	addonImageInfo := &addontypes.AddonImageInfo{Info: addontypes.ImageInfo{ImageRepository: imageRepository, ImagePullPolicy: constants.TKGAddonsImagePullPolicy, Images: map[string]addontypes.Image{}}}
+	addonImageInfo := &addontypes.AddonImageInfo{Info: addontypes.ImageInfo{ImageRepository: imageRepository, ImagePullPolicy: imagePullPolicy, Images: map[string]addontypes.Image{}}}
 
 	// No Image will be added if componentRefs is empty
 	for _, componentRef := range componentRefs {
@@ -112,20 +113,20 @@ func GetImageInfo(addonConfig *bomtypes.Addon, imageRepository string, bom *bomt
 		return nil, err
 	}
 
-	outputBytes := append([]byte(constants.TKGDataValueFormatString), ImageInfoBytes...)
-	return outputBytes, nil
+	return ImageInfoBytes, nil
 }
 
-// GetApp gets the kapp from cluster
+// GetApp gets the app CR from cluster
 func GetApp(ctx context.Context,
 	localClient client.Client,
 	remoteClient client.Client,
-	addonSecret *corev1.Secret) (*kappctrl.App, error) {
+	addonSecret *corev1.Secret,
+	defaultAddonNamespace string) (*kappctrl.App, error) {
 
 	app := &kappctrl.App{}
 	appObjectKey := client.ObjectKey{
 		Name:      GenerateAppNameFromAddonSecret(addonSecret),
-		Namespace: GenerateAppNamespaceFromAddonSecret(addonSecret),
+		Namespace: GenerateAppNamespaceFromAddonSecret(addonSecret, defaultAddonNamespace),
 	}
 
 	var clusterClient client.Client
@@ -143,13 +144,33 @@ func GetApp(ctx context.Context,
 	return app, nil
 }
 
+// GetPackageInstallFromAddonSecret gets the PackageInstall CR from cluster
+func GetPackageInstallFromAddonSecret(ctx context.Context,
+	remoteClient client.Client,
+	addonSecret *corev1.Secret,
+	defaultAddonNamespace string) (*pkgiv1alpha1.PackageInstall, error) {
+
+	pkgi := &pkgiv1alpha1.PackageInstall{}
+	pkgiObjectKey := client.ObjectKey{
+		Name:      GenerateAppNameFromAddonSecret(addonSecret),
+		Namespace: GenerateAppNamespaceFromAddonSecret(addonSecret, defaultAddonNamespace),
+	}
+
+	if err := remoteClient.Get(ctx, pkgiObjectKey, pkgi); err != nil {
+		return nil, err
+	}
+
+	return pkgi, nil
+}
+
 // IsAppPresent returns true if app is present on the cluster
 func IsAppPresent(ctx context.Context,
 	localClient client.Client,
 	remoteClient client.Client,
-	addonSecret *corev1.Secret) (bool, error) {
+	addonSecret *corev1.Secret,
+	defaultAddonNamespace string) (bool, error) {
 
-	_, err := GetApp(ctx, localClient, remoteClient, addonSecret)
+	_, err := GetApp(ctx, localClient, remoteClient, addonSecret, defaultAddonNamespace)
 	if err != nil {
 		if !apierrors.IsNotFound(err) {
 			return false, err
@@ -178,4 +199,21 @@ func IsAddonPaused(addonSecret *corev1.Secret) bool {
 	}
 	_, ok := annotations[addontypes.AddonPausedAnnotation]
 	return ok
+}
+
+// IsPackageInstallPresent returns true if PackageInstall is present on the cluster
+func IsPackageInstallPresent(ctx context.Context,
+	localClient client.Client,
+	addonSecret *corev1.Secret,
+	defaultAddonNamespace string) (bool, error) {
+
+	_, err := GetPackageInstallFromAddonSecret(ctx, localClient, addonSecret, defaultAddonNamespace)
+	if err != nil {
+		if !apierrors.IsNotFound(err) {
+			return false, err
+		}
+		return false, nil
+	}
+
+	return true, nil
 }

@@ -5,21 +5,6 @@
 package constants
 
 const (
-	// TKGAddonsAppNamespace is the TKG add on app Namespace.
-	TKGAddonsAppNamespace = "tkg-system"
-
-	// TKGAddonsAppServiceAccount is the TKG add on ServiceAccount.
-	TKGAddonsAppServiceAccount = "tkg-addons-app-sa"
-
-	// TKGAddonsAppClusterRole is the TKG add on ClusterRole.
-	TKGAddonsAppClusterRole = "tkg-addons-app-cluster-role"
-
-	// TKGAddonsAppClusterRoleBinding is the TKG add on app ClusterRoleBinding.
-	TKGAddonsAppClusterRoleBinding = "tkg-addons-app-cluster-role-binding"
-
-	// TKGAddonsImagePullPolicy is pull policy for TKG addon images.
-	TKGAddonsImagePullPolicy = "IfNotPresent"
-
 	// TKGBomNamespace is the TKG add on BOM namespace.
 	TKGBomNamespace = "tkr-system"
 
@@ -35,6 +20,18 @@ const (
 	// TKRRepoKey is the key for image repository in TKR config map data.
 	TKRRepoKey = "imageRepository"
 
+	// TKGPackageReconcilerKey is the log key for "name".
+	TKGPackageReconcilerKey = "Package"
+
+	// TKGAppReconcilerKey is the log key for "name".
+	TKGAppReconcilerKey = "App"
+
 	// TKGDataValueFormatString is required annotations for YTT data value file
 	TKGDataValueFormatString = "#@data/values\n#@overlay/match-child-defaults missing_ok=True\n---\n"
+
+	// TKGCorePackageRepositoryComponentName is the name of component that includes the package and repository images
+	TKGCorePackageRepositoryComponentName = "tkg-core-packages"
+
+	// TKGCorePackageRepositoryImageName is the name of core package repository image
+	TKGCorePackageRepositoryImageName = "tanzuCorePackageRepositoryImage"
 )

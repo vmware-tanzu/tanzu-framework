@@ -179,6 +179,7 @@ github.com/blakesmith/ar v0.0.0-20190502131153-809d4375e1fb/go.mod h1:PkYb9DJNAw
 github.com/blang/semver v3.5.0+incompatible/go.mod h1:kRBLl5iJ+tD4TcOOxsy/0fnwebNt5EWlYSAyrTnjyyk=
 github.com/blang/semver v3.5.1+incompatible h1:cQNTCjp13qL8KC3Nbxr/y2Bqb63oX6wdnnjpJbkM4JQ=
 github.com/blang/semver v3.5.1+incompatible/go.mod h1:kRBLl5iJ+tD4TcOOxsy/0fnwebNt5EWlYSAyrTnjyyk=
+github.com/blang/semver/v4 v4.0.0 h1:1PFHFE6yCCTv8C1TeyNNarDzntLi7wMI5i/pzqYIsAM=
 github.com/blang/semver/v4 v4.0.0/go.mod h1:IbckMUScFkM3pff0VJDNKRiT6TG/YpiHIM2yvyW5YoQ=
 github.com/bmatcuk/doublestar v1.2.1/go.mod h1:wiQtGV+rzVYxB7WIlirSN++5HPtPlXEo9MEoZQC/PmE=
 github.com/bombsimon/wsl/v2 v2.0.0/go.mod h1:mf25kr/SqFEPhhcxW1+7pxzGlW+hIl/hYTKY95VwV8U=
@@ -966,6 +967,7 @@ github.com/vishvananda/netns v0.0.0-20191106174202-0a2b9b5464df/go.mod h1:JP3t17
 github.com/vito/go-interact v0.0.0-20171111012221-fa338ed9e9ec/go.mod h1:wPlfmglZmRWMYv/qJy3P+fK/UnoQB5ISk4txfNd9tDo=
 github.com/vmware-tanzu/carvel-kapp-controller v0.20.0-rc.1 h1:TAGOPqde+Qvnn+37sx+m8aYrGCxSjswd479Z9tDS6vw=
 github.com/vmware-tanzu/carvel-kapp-controller v0.20.0-rc.1/go.mod h1:QI4z6DehAOzrsupQO5geZA8i5FoLymZZMAX8Td9L+t0=
+github.com/vmware-tanzu/carvel-vendir v0.19.0 h1:4FTeDcxwEuZWdFlFqh+11NqnJciCkkOe/Pnd0CvBoj4=
 github.com/vmware-tanzu/carvel-vendir v0.19.0/go.mod h1:HF7iLB0NyEFHuCvM0EJ42fERk20l2ImpktJzhSEdqOU=
 github.com/vmware/govmomi v0.20.3/go.mod h1:URlwyTFZX72RmxtxuaFL2Uj3fD1JTvZdx59bHWk6aFU=
 github.com/vmware/govmomi v0.23.1/go.mod h1:Y+Wq4lst78L85Ge/F8+ORXIWiKYqaro1vhAulACy9Lc=

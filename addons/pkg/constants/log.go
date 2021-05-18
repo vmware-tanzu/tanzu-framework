@@ -5,7 +5,7 @@
 package constants
 
 const (
-	/* log key sections */
+	/* log key section */
 
 	// NameLogKey is the log key for "name".
 	NameLogKey = "name"
@@ -51,4 +51,7 @@ const (
 
 	// BOMNamespaceLogKey is the log key for "bom-ns"
 	BOMNamespaceLogKey = "bom-ns"
+
+	// PackageRepositoryLogKey is the log key for "core-package-repository"
+	PackageRepositoryLogKey = "core-package-repository"
 )
