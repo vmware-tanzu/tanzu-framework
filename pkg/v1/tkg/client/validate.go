@@ -50,6 +50,9 @@ var (
 	VsphereNodeCPUVarName          = []string{constants.ConfigVariableVsphereCPNumCpus, constants.ConfigVariableVsphereWorkerNumCpus}
 	VsphereNodeMemVarName          = []string{constants.ConfigVariableVsphereCPMemMib, constants.ConfigVariableVsphereWorkerMemMib}
 	VsphereNodeDiskVarName         = []string{constants.ConfigVariableVsphereCPDiskGib, constants.ConfigVariableVsphereWorkerDiskGib}
+
+	AWSPrivateSubnetIDConfigVariables = []string{constants.ConfigVariableAWSPrivateSubnetID, constants.ConfigVariableAWSPrivateSubnetID1, constants.ConfigVariableAWSPrivateSubnetID2}
+	AWSPublicSubnetIDConfigVariables  = []string{constants.ConfigVariableAWSPublicSubnetID, constants.ConfigVariableAWSPublicSubnetID1, constants.ConfigVariableAWSPublicSubnetID2}
 )
 
 var trueString = "true"
@@ -822,7 +825,10 @@ func (c *TkgClient) SetAndValidateDefaultAWSVPCConfiguration(isProdConfig bool, 
 
 	nonExistingSubnetIDs := []string{}
 
-	for _, varName := range AWSSubnetIDConfigVariables {
+	for i, varName := range AWSPrivateSubnetIDConfigVariables {
+		if !isProdConfig && i == 1 {
+			break
+		}
 		if val, err := c.TKGConfigReaderWriter().Get(varName); err != nil || val == "" {
 			missingConfigVar = append(missingConfigVar, varName)
 		} else if !skipValidation {
@@ -832,8 +838,12 @@ func (c *TkgClient) SetAndValidateDefaultAWSVPCConfiguration(isProdConfig bool, 
 		}
 	}
 
-	if isProdConfig {
-		for _, varName := range AWSProdSubnetIDConfigVariables {
+	if publicSubnetID, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAWSPublicSubnetID); err != nil || publicSubnetID != "" {
+		// validate public subnets when there the vpc is public facing
+		for i, varName := range AWSPublicSubnetIDConfigVariables {
+			if !isProdConfig && i == 1 {
+				break
+			}
 			if val, err := c.TKGConfigReaderWriter().Get(varName); err != nil || val == "" {
 				missingConfigVar = append(missingConfigVar, varName)
 			} else if !skipValidation {
@@ -841,6 +851,16 @@ func (c *TkgClient) SetAndValidateDefaultAWSVPCConfiguration(isProdConfig bool, 
 					nonExistingSubnetIDs = append(nonExistingSubnetIDs, val)
 				}
 			}
+		}
+	} else {
+		log.Warning("public subnet ID(s) not found")
+
+		if publicSubentID1, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAWSPublicSubnetID1); err == nil && publicSubentID1 != "" {
+			return useExistingVPC, errors.Errorf("%s cannot be used without %s", constants.ConfigVariableAWSPublicSubnetID1, constants.ConfigVariableAWSPublicSubnetID)
+		}
+
+		if publicSubentID2, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAWSPublicSubnetID2); err == nil && publicSubentID2 != "" {
+			return useExistingVPC, errors.Errorf("%s cannot be used without %s", constants.ConfigVariableAWSPublicSubnetID2, constants.ConfigVariableAWSPublicSubnetID)
 		}
 	}
 
