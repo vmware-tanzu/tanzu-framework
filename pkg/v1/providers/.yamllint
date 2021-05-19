@@ -1,0 +1,5 @@
+rules:
+  line-length: disable
+  indentation:
+    level: error
+    indent-sequences: consistent

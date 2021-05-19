@@ -386,3 +386,15 @@ configure-bom:
 	sed "s+TKG_DEFAULT_BOM_IMAGE_REPO+${TKG_DEFAULT_BOM_IMAGE_REPO}+g"  hack/update-bundled-bom-filename/update-bundled-default-bom-files-configdata.txt | \
 	sed "s+TKG_DEFAULT_BOM_IMAGE_PATH+${TKG_DEFAULT_BOM_IMAGE_PATH}+g" | \
 	sed "s/TKG_DEFAULT_BOM_IMAGE_TAG/${TKG_DEFAULT_BOM_IMAGE_TAG}/g"  > pkg/v1/tkg/tkgconfigpaths/zz_bundled_default_bom_files_configdata.go
+
+## --------------------------------------
+## Provider templates/overlays
+## --------------------------------------
+.PHONY: providers
+providers: $(GOBINDATA)
+	make -C pkg/v1/providers -f Makefile all
+	$(MAKE) fmt
+
+.PHONY: clustergen
+clustergen:
+	CLUSTERGEN_BASE=${CLUSTERGEN_BASE} make -C pkg/v1/providers -f Makefile cluster-generation-diffs
