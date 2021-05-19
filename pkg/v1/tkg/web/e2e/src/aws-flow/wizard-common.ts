@@ -50,8 +50,6 @@ export default abstract class WizardCommon {
 
                 it('"CONNECT" button should be enabled', () => {
                     this.setCredentials(provider);
-                    provider.getSshKeyName().clear();
-                    provider.getSshKeyName().sendKeys(PARAMS.AWS_SSH_KEY_NAME);
                     provider.selectOptionByText(provider.getRegion(), PARAMS.AWS_REGION);
                     expect(provider.getConectButton().isEnabled()).toBeTruthy();
                 })
@@ -91,6 +89,8 @@ export default abstract class WizardCommon {
                     nodeSettings.getMCName().clear();
                     nodeSettings.getMCName().sendKeys(PARAMS.MC_NAME);
                     nodeSettings.selectDatalistByText("workerNodeInstanceType", PARAMS.AWS_WC_TYPE);
+                    nodeSettings.getSshKeyName().clear();
+                    nodeSettings.getSshKeyName().sendKeys(PARAMS.AWS_SSH_KEY_NAME);
                     nodeSettings.selectOptionByText(nodeSettings.getAvailabilityZone(), PARAMS.AWS_AZ1);
                     this.selectSubnets(nodeSettings);
                     expect(true).toBeTruthy();

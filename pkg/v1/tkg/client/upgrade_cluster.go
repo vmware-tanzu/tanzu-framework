@@ -1016,7 +1016,6 @@ func (c *TkgClient) patchKubernetesVersionToKubeadmControlPlane(regionalClusterC
 			  },
 			  "etcd": {
 				"local": {
-				  "dataDir": "%s",
 				  "imageRepository": "%s",
 				  "imageTag": "%s"
 				}
@@ -1032,7 +1031,6 @@ func (c *TkgClient) patchKubernetesVersionToKubeadmControlPlane(regionalClusterC
 		clusterUpgradeConfig.UpgradeComponentInfo.ImageRepository,
 		clusterUpgradeConfig.UpgradeComponentInfo.CoreDNSImageRepository,
 		clusterUpgradeConfig.UpgradeComponentInfo.CoreDNSImageTag,
-		clusterUpgradeConfig.UpgradeComponentInfo.EtcdDataDir,
 		clusterUpgradeConfig.UpgradeComponentInfo.EtcdImageRepository,
 		clusterUpgradeConfig.UpgradeComponentInfo.EtcdImageTag)
 

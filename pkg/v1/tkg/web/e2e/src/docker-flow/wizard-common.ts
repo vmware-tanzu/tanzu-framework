@@ -19,7 +19,7 @@ export default abstract class WizardCommon {
 
             it('should display welcome message', () => {
                 page.navigateTo();
-                expect(page.getTitleText()).toEqual('Welcome to the VMware Tanzu Kubernetes Grid Installer');
+                expect(page.getTitleText()).toEqual('Welcome to the Tanzu Community Edition Installer');
             });
 
             it('should navigate to Docker flow', () => {

@@ -90,6 +90,7 @@ describe('DeployProgressComponent', () => {
         component.curStatus = {
             status: 'running'
         };
+        component.pageTitle = 'Tanzu Kubernetes Grid';
         component.providerType = 'vSphere';
         expect(component.getStatusDescription()).toBe(
             'Deployment of the Tanzu Kubernetes Grid management cluster to vSphere is in progress.');

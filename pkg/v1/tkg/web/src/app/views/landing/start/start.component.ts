@@ -35,7 +35,6 @@ export class StartComponent extends BasicSubscriber implements OnInit {
                 private messenger: Messenger) {
         super();
         this.provider = this.appDataService.getProviderType();
-        titleService.setTitle('Tanzu Kubernetes Grid')
     }
 
     ngOnInit() {
@@ -46,8 +45,10 @@ export class StartComponent extends BasicSubscriber implements OnInit {
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
                 const content: EditionData = data.payload;
+                const title = (data.payload.edition === 'tce') ? 'Tanzu Community Edition' : 'Tanzu Kubernetes Grid';
                 this.edition = data.payload.edition;
                 this.landingPageContent = content.branding.landingPage;
+                this.titleService.setTitle(title);
             });
     }
 

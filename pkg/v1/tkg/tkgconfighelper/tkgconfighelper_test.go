@@ -9,7 +9,11 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigbom"
 	. "github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfighelper"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/types"
 )
 
 const (
@@ -241,6 +245,438 @@ var _ = Describe("ValidateK8sVersionSupport", func() {
 			It("should not return error", func() {
 				Expect(err).NotTo(HaveOccurred())
 			})
+		})
+	})
+})
+
+var _ = Describe("GetDefaultOsOptions", func() {
+	var providerType string
+	var actual tkgconfigbom.OSInfo
+
+	JustBeforeEach(func() {
+		actual = GetDefaultOsOptions(providerType)
+	})
+	Context("When provider type is vsphere", func() {
+		BeforeEach(func() {
+			providerType = constants.InfrastructureProviderVSphere
+		})
+		It("should return the correct OSInfo", func() {
+			Expect(actual).To(Equal(tkgconfigbom.OSInfo{
+				Name:    "ubuntu",
+				Version: "20.04",
+				Arch:    "amd64",
+			}))
+		})
+	})
+	Context("When provider type is aws", func() {
+		BeforeEach(func() {
+			providerType = constants.InfrastructureProviderAWS
+		})
+		It("should return the correct OSInfo", func() {
+			Expect(actual).To(Equal(tkgconfigbom.OSInfo{
+				Name:    "ubuntu",
+				Version: "20.04",
+				Arch:    "amd64",
+			}))
+		})
+	})
+	Context("When provider type is azure", func() {
+		BeforeEach(func() {
+			providerType = constants.InfrastructureProviderAzure
+		})
+		It("should return the correct OSInfo", func() {
+			Expect(actual).To(Equal(tkgconfigbom.OSInfo{
+				Name:    "ubuntu",
+				Version: "20.04",
+				Arch:    "amd64",
+			}))
+		})
+	})
+	Context("When provider type is empty", func() {
+		BeforeEach(func() {
+			providerType = ""
+		})
+		It("should return empty OSInfo", func() {
+			Expect(actual).To(Equal(tkgconfigbom.OSInfo{
+				Name:    "",
+				Version: "",
+				Arch:    "",
+			}))
+		})
+	})
+})
+
+var _ = Describe("GetOSOptionsForProviders", func() {
+	var (
+		providerType          string
+		tkgConfigReaderWriter *fakes.TKGConfigReaderWriter
+		actual                tkgconfigbom.OSInfo
+	)
+	JustBeforeEach(func() {
+		actual = GetOSOptionsForProviders(providerType, tkgConfigReaderWriter)
+	})
+	Context("When providerType is empty", func() {
+		BeforeEach(func() {
+			providerType = ""
+			tkgConfigReaderWriter = &fakes.TKGConfigReaderWriter{}
+			tkgConfigReaderWriter.GetReturnsOnCall(0, "ubuntu", nil)
+			tkgConfigReaderWriter.GetReturnsOnCall(1, "20.04", nil)
+			tkgConfigReaderWriter.GetReturnsOnCall(2, "amd64", nil)
+		})
+		It("Should populate OSInfo from the TKG Config", func() {
+			Expect(actual).ToNot(BeNil())
+			Expect(actual.Arch).To(Equal("amd64"))
+			Expect(actual.Name).To(Equal("ubuntu"))
+			Expect(actual.Version).To(Equal("20.04"))
+		})
+	})
+})
+
+var _ = Describe("GetUserProvidedOsOptions", func() {
+	var (
+		tkgConfigReaderWriter *fakes.TKGConfigReaderWriter
+		actual                tkgconfigbom.OSInfo
+	)
+	JustBeforeEach(func() {
+		actual = GetUserProvidedOsOptions(tkgConfigReaderWriter)
+	})
+	Context("When tkgConfigReaderWriter is present", func() {
+		BeforeEach(func() {
+			tkgConfigReaderWriter = &fakes.TKGConfigReaderWriter{}
+			tkgConfigReaderWriter.GetReturnsOnCall(0, "ubuntu", nil)
+			tkgConfigReaderWriter.GetReturnsOnCall(1, "20.04", nil)
+			tkgConfigReaderWriter.GetReturnsOnCall(2, "amd64", nil)
+		})
+		It("Should populate the OSInfo from the config", func() {
+			Expect(actual).ToNot(BeNil())
+			Expect(actual.Arch).To(Equal("amd64"))
+			Expect(actual.Name).To(Equal("ubuntu"))
+			Expect(actual.Version).To(Equal("20.04"))
+		})
+	})
+})
+
+var _ = Describe("SelectTemplateForVsphereProviderBasedonOSOptions", func() {
+	var (
+		vms                   []*types.VSphereVirtualMachine
+		tkgConfigReaderWriter *fakes.TKGConfigReaderWriter
+		actual                *types.VSphereVirtualMachine
+	)
+	JustBeforeEach(func() {
+		actual = SelectTemplateForVsphereProviderBasedonOSOptions(vms, tkgConfigReaderWriter)
+	})
+	Context("When vms is empty", func() {
+		BeforeEach(func() {
+			vms = []*types.VSphereVirtualMachine{}
+		})
+		It("should return nil", func() {
+			Expect(actual).To(BeNil())
+		})
+	})
+	Context("When no user OS option is present and there is only one vm", func() {
+		BeforeEach(func() {
+			vms = []*types.VSphereVirtualMachine{
+				{
+					Name: "photon-3-kube-v1.20.5+vmware.1",
+				},
+			}
+			tkgConfigReaderWriter = &fakes.TKGConfigReaderWriter{}
+			tkgConfigReaderWriter.GetReturnsOnCall(0, "", nil)
+			tkgConfigReaderWriter.GetReturnsOnCall(1, "", nil)
+			tkgConfigReaderWriter.GetReturnsOnCall(2, "", nil)
+		})
+		It("should return just that VM", func() {
+			Expect(actual).ToNot(BeNil())
+			Expect(actual.Name).To(Equal("photon-3-kube-v1.20.5+vmware.1"))
+		})
+	})
+	Context("When user options present and there are many vms", func() {
+		BeforeEach(func() {
+			vms = []*types.VSphereVirtualMachine{
+				{
+					DistroName:    "ubuntu",
+					DistroVersion: "20.04",
+					DistroArch:    "amd64",
+				},
+				{
+					DistroName:    "photon",
+					DistroVersion: "3.0",
+					DistroArch:    "amd64",
+				},
+			}
+			tkgConfigReaderWriter = &fakes.TKGConfigReaderWriter{}
+			tkgConfigReaderWriter.GetReturnsOnCall(0, "ubuntu", nil)
+			tkgConfigReaderWriter.GetReturnsOnCall(1, "20.04", nil)
+			tkgConfigReaderWriter.GetReturnsOnCall(2, "amd64", nil)
+		})
+		It("Should return a single vm", func() {
+			Expect(actual).ToNot(BeNil())
+			Expect(actual.DistroArch).To(Equal("amd64"))
+			Expect(actual.DistroName).To(Equal("ubuntu"))
+			Expect(actual.DistroVersion).To(Equal("20.04"))
+		})
+	})
+	Context("When user options present and there are many vms with the same distro", func() {
+		BeforeEach(func() {
+			vms = []*types.VSphereVirtualMachine{
+				{
+					DistroName:    "ubuntu",
+					DistroVersion: "20.04",
+					DistroArch:    "amd64",
+				},
+				{
+					DistroName:    "ubuntu",
+					DistroVersion: "21.01",
+					DistroArch:    "arm7",
+				},
+			}
+			tkgConfigReaderWriter = &fakes.TKGConfigReaderWriter{}
+			tkgConfigReaderWriter.GetReturnsOnCall(0, "ubuntu", nil)
+			tkgConfigReaderWriter.GetReturnsOnCall(1, "", nil)
+			tkgConfigReaderWriter.GetReturnsOnCall(2, "", nil)
+		})
+		It("Should return the first one vm", func() {
+			Expect(actual).ToNot(BeNil())
+			Expect(actual.DistroArch).To(Equal("amd64"))
+			Expect(actual.DistroName).To(Equal("ubuntu"))
+			Expect(actual.DistroVersion).To(Equal("20.04"))
+		})
+	})
+})
+
+var _ = Describe("SelectAzureImageBasedonOSOptions", func() {
+	var (
+		azureImages           []tkgconfigbom.AzureInfo
+		tkgConfigReaderWriter *fakes.TKGConfigReaderWriter
+		actual                *tkgconfigbom.AzureInfo
+	)
+	JustBeforeEach(func() {
+		actual = SelectAzureImageBasedonOSOptions(azureImages, tkgConfigReaderWriter)
+	})
+	Context("When azureImages is empty", func() {
+		BeforeEach(func() {
+			azureImages = []tkgconfigbom.AzureInfo{}
+		})
+		It("should return nil", func() {
+			Expect(actual).To(BeNil())
+		})
+	})
+	Context("When no user OS option is present and there is only one vm", func() {
+		BeforeEach(func() {
+			azureImages = []tkgconfigbom.AzureInfo{
+				{
+					Name: "photon-3-kube-v1.20.5+vmware.1",
+				},
+			}
+			tkgConfigReaderWriter = &fakes.TKGConfigReaderWriter{}
+			tkgConfigReaderWriter.GetReturnsOnCall(0, "", nil)
+			tkgConfigReaderWriter.GetReturnsOnCall(1, "", nil)
+			tkgConfigReaderWriter.GetReturnsOnCall(2, "", nil)
+		})
+		It("should return just that VM", func() {
+			Expect(actual).ToNot(BeNil())
+			Expect(actual.Name).To(Equal("photon-3-kube-v1.20.5+vmware.1"))
+		})
+	})
+	Context("When user options present and there are many vms", func() {
+		BeforeEach(func() {
+			azureImages = []tkgconfigbom.AzureInfo{
+				{
+					OSInfo: tkgconfigbom.OSInfo{
+						Name:    "ubuntu",
+						Version: "20.04",
+						Arch:    "amd64",
+					},
+				},
+				{
+					OSInfo: tkgconfigbom.OSInfo{
+						Name:    "photon",
+						Version: "3.0",
+						Arch:    "amd64",
+					},
+				},
+			}
+			tkgConfigReaderWriter = &fakes.TKGConfigReaderWriter{}
+			tkgConfigReaderWriter.GetReturnsOnCall(0, "ubuntu", nil)
+			tkgConfigReaderWriter.GetReturnsOnCall(1, "20.04", nil)
+			tkgConfigReaderWriter.GetReturnsOnCall(2, "amd64", nil)
+		})
+		It("Should return a single vm", func() {
+			Expect(actual).ToNot(BeNil())
+			Expect(actual.OSInfo.Arch).To(Equal("amd64"))
+			Expect(actual.OSInfo.Name).To(Equal("ubuntu"))
+			Expect(actual.OSInfo.Version).To(Equal("20.04"))
+		})
+	})
+	Context("When user options present and there are many vms with the same distro", func() {
+		BeforeEach(func() {
+			azureImages = []tkgconfigbom.AzureInfo{
+				{
+					OSInfo: tkgconfigbom.OSInfo{
+						Name:    "ubuntu",
+						Version: "20.04",
+						Arch:    "amd64",
+					},
+				},
+				{
+					OSInfo: tkgconfigbom.OSInfo{
+						Name:    "ubuntu",
+						Version: "21.01",
+						Arch:    "arm7",
+					},
+				},
+			}
+			tkgConfigReaderWriter = &fakes.TKGConfigReaderWriter{}
+			tkgConfigReaderWriter.GetReturnsOnCall(0, "ubuntu", nil)
+			tkgConfigReaderWriter.GetReturnsOnCall(1, "", nil)
+			tkgConfigReaderWriter.GetReturnsOnCall(2, "", nil)
+		})
+		It("Should return the first one vm", func() {
+			Expect(actual).ToNot(BeNil())
+			Expect(actual.OSInfo.Arch).To(Equal("amd64"))
+			Expect(actual.OSInfo.Name).To(Equal("ubuntu"))
+			Expect(actual.OSInfo.Version).To(Equal("20.04"))
+		})
+	})
+})
+
+var _ = Describe("SelectAWSImageBasedonOSOptions", func() {
+	var (
+		amis                  []tkgconfigbom.AMIInfo
+		tkgConfigReaderWriter *fakes.TKGConfigReaderWriter
+		actual                *tkgconfigbom.AMIInfo
+	)
+	JustBeforeEach(func() {
+		actual = SelectAWSImageBasedonOSOptions(amis, tkgConfigReaderWriter)
+	})
+	Context("When amis is empty", func() {
+		BeforeEach(func() {
+			amis = []tkgconfigbom.AMIInfo{}
+		})
+		It("should return nil", func() {
+			Expect(actual).To(BeNil())
+		})
+	})
+	Context("When no user OS option is present and there is only one vm", func() {
+		BeforeEach(func() {
+			amis = []tkgconfigbom.AMIInfo{
+				{
+					OSInfo: tkgconfigbom.OSInfo{
+						Name: "photon-3-kube-v1.20.5+vmware.1",
+					},
+				},
+			}
+			tkgConfigReaderWriter = &fakes.TKGConfigReaderWriter{}
+			tkgConfigReaderWriter.GetReturnsOnCall(0, "", nil)
+			tkgConfigReaderWriter.GetReturnsOnCall(1, "", nil)
+			tkgConfigReaderWriter.GetReturnsOnCall(2, "", nil)
+		})
+		It("should return just that VM", func() {
+			Expect(actual).ToNot(BeNil())
+			Expect(actual.OSInfo.Name).To(Equal("photon-3-kube-v1.20.5+vmware.1"))
+		})
+	})
+	Context("When user options present and there are many vms", func() {
+		BeforeEach(func() {
+			amis = []tkgconfigbom.AMIInfo{
+				{
+					OSInfo: tkgconfigbom.OSInfo{
+						Name:    "ubuntu",
+						Version: "20.04",
+						Arch:    "amd64",
+					},
+				},
+				{
+					OSInfo: tkgconfigbom.OSInfo{
+						Name:    "photon",
+						Version: "3.0",
+						Arch:    "amd64",
+					},
+				},
+			}
+			tkgConfigReaderWriter = &fakes.TKGConfigReaderWriter{}
+			tkgConfigReaderWriter.GetReturnsOnCall(0, "ubuntu", nil)
+			tkgConfigReaderWriter.GetReturnsOnCall(1, "20.04", nil)
+			tkgConfigReaderWriter.GetReturnsOnCall(2, "amd64", nil)
+		})
+		It("Should return a single vm", func() {
+			Expect(actual).ToNot(BeNil())
+			Expect(actual.OSInfo.Arch).To(Equal("amd64"))
+			Expect(actual.OSInfo.Name).To(Equal("ubuntu"))
+			Expect(actual.OSInfo.Version).To(Equal("20.04"))
+		})
+	})
+	Context("When user options present and there are many vms with the same distro", func() {
+		BeforeEach(func() {
+			amis = []tkgconfigbom.AMIInfo{
+				{
+					OSInfo: tkgconfigbom.OSInfo{
+						Name:    "ubuntu",
+						Version: "20.04",
+						Arch:    "amd64",
+					},
+				},
+				{
+					OSInfo: tkgconfigbom.OSInfo{
+						Name:    "ubuntu",
+						Version: "21.01",
+						Arch:    "arm7",
+					},
+				},
+			}
+			tkgConfigReaderWriter = &fakes.TKGConfigReaderWriter{}
+			tkgConfigReaderWriter.GetReturnsOnCall(0, "ubuntu", nil)
+			tkgConfigReaderWriter.GetReturnsOnCall(1, "", nil)
+			tkgConfigReaderWriter.GetReturnsOnCall(2, "", nil)
+		})
+		It("Should return the first one vm", func() {
+			Expect(actual).ToNot(BeNil())
+			Expect(actual.OSInfo.Arch).To(Equal("amd64"))
+			Expect(actual.OSInfo.Name).To(Equal("ubuntu"))
+			Expect(actual.OSInfo.Version).To(Equal("20.04"))
+		})
+	})
+})
+
+var _ = Describe("GetDefaultOsOptionsForTKG12", func() {
+	var (
+		providerType string
+		actual       tkgconfigbom.OSInfo
+	)
+	JustBeforeEach(func() {
+		actual = GetDefaultOsOptionsForTKG12(providerType)
+	})
+	Context("When providerType is vpshere", func() {
+		BeforeEach(func() {
+			providerType = constants.InfrastructureProviderVSphere
+		})
+		It("should return the correct OSInfo", func() {
+			Expect(actual).ToNot(BeNil())
+			Expect(actual.Arch).To(Equal("amd64"))
+			Expect(actual.Name).To(Equal("photon"))
+			Expect(actual.Version).To(Equal("3"))
+		})
+	})
+	Context("When providerType is aws", func() {
+		BeforeEach(func() {
+			providerType = constants.InfrastructureProviderAWS
+		})
+		It("should return the correct OSInfo", func() {
+			Expect(actual).ToNot(BeNil())
+			Expect(actual.Arch).To(Equal("amd64"))
+			Expect(actual.Name).To(Equal("amazon"))
+			Expect(actual.Version).To(Equal("2"))
+		})
+	})
+	Context("When providerType is azure", func() {
+		BeforeEach(func() {
+			providerType = constants.InfrastructureProviderAzure
+		})
+		It("should return the correct OSInfo", func() {
+			Expect(actual).ToNot(BeNil())
+			Expect(actual.Arch).To(Equal("amd64"))
+			Expect(actual.Name).To(Equal("ubuntu"))
+			Expect(actual.Version).To(Equal("18.04"))
 		})
 	})
 })

@@ -10,6 +10,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	. "github.com/vmware-tanzu-private/core/pkg/v1/tkg/client"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/region"
 )
@@ -89,6 +90,32 @@ var _ = Describe("Unit tests for ceip", func() {
 			It("should error", func() {
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(ContainSubstring("cannot change CEIP settings for a supervisor cluster which is on vSphere with Tanzu. Please change your CEIP settings within vSphere"))
+			})
+		})
+
+		Context("When cluster is ipv6", func() {
+			JustBeforeEach(func() {
+				regionalClusterClient.IsPacificRegionalClusterReturns(false, nil)
+				tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableIPFamily, "ipv6")
+				tkgClient.TKGConfigReaderWriter().Set(constants.TKGHTTPProxy, "fe80::")
+				err = tkgClient.DoSetCEIPParticipation(regionalClusterClient, context, true, "true", "")
+			})
+			It("should add ::1 to noProxy", func() {
+				_, _, _, _, _, _, _, noProxy := regionalClusterClient.AddCEIPTelemetryJobArgsForCall(0)
+				Expect(noProxy).To(ContainSubstring("::1"))
+			})
+		})
+
+		Context("When cluster is ipv4", func() {
+			JustBeforeEach(func() {
+				regionalClusterClient.IsPacificRegionalClusterReturns(false, nil)
+				tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableIPFamily, "ipv4")
+				tkgClient.TKGConfigReaderWriter().Set(constants.TKGHTTPProxy, "1.2.3.4")
+				err = tkgClient.DoSetCEIPParticipation(regionalClusterClient, context, true, "true", "")
+			})
+			It("should not add ::1 to noProxy", func() {
+				_, _, _, _, _, _, _, noProxy := regionalClusterClient.AddCEIPTelemetryJobArgsForCall(0)
+				Expect(noProxy).NotTo(ContainSubstring("::1"))
 			})
 		})
 	})

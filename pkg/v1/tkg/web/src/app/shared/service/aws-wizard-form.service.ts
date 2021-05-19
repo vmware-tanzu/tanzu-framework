@@ -52,6 +52,6 @@ export class AwsWizardFormService extends WizardFormBase {
             return throwError({ message: `Unknown data source ${source}` });
         }
 
-        return this.apiClient[method]({region: this.region});
+        return this.apiClient[method]({region: this.region, ...payload});
     }
 }

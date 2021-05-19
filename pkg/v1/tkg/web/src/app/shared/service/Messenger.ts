@@ -28,6 +28,7 @@ export enum TkgEventType {
     AWS_GET_NODE_TYPES,
     AWS_GET_NO_PROXY_INFO,
     AWS_GET_OS_IMAGES,
+    AWS_AIRGAPPED_VPC_CHANGE,
 
     // AZURE events
     AZURE_REGION_CHANGED,

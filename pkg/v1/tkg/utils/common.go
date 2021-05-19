@@ -96,7 +96,7 @@ func CompareVMwareVersionStrings(v1, v2 string) (int, error) {
 	v1s := strings.Split(v1, "+vmware.")
 	v2s := strings.Split(v2, "+vmware.")
 
-	if len(v1s) == 0 || len(v2s) == 0 {
+	if len(v1s) <= 1 || len(v2s) <= 1 {
 		return 0, errors.New("invalid version string")
 	}
 

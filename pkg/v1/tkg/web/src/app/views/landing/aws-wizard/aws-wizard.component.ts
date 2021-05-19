@@ -1,4 +1,4 @@
-import { Messenger } from './../../../shared/service/Messenger';
+import { Messenger, TkgEvent, TkgEventType } from './../../../shared/service/Messenger';
 import { Observable } from 'rxjs';
 // Angular imports
 import { Component, OnInit, ElementRef } from '@angular/core';
@@ -14,6 +14,7 @@ import { AwsWizardFormService } from 'src/app/shared/service/aws-wizard-form.ser
 import { CliGenerator, CliFields } from '../wizard/shared/utils/cli-generator';
 import { BASTION_HOST_ENABLED } from './node-setting-step/node-setting-step.component';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
+import { takeUntil } from "rxjs/operators";
 
 @Component({
     selector: 'aws-wizard',
@@ -25,6 +26,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
     // The region user selected
     region: string;
     nodeAzList: Array<any>;
+    title: string;
 
     constructor(
         router: Router,
@@ -62,7 +64,12 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
 
     ngOnInit() {
         super.ngOnInit();
-        this.titleService.setTitle('Tanzu Kubernetes Grid AWS');
+        this.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe((data: TkgEvent) => {
+                this.title = (data.payload.edition === 'tce') ? 'Tanzu Community Edition' : 'Tanzu Kubernetes Grid';
+                this.titleService.setTitle(this.title + ' AWS');
+            });
         // To avoid re-open issue for AWS provider step.
         this.form.markAsDirty();
     }

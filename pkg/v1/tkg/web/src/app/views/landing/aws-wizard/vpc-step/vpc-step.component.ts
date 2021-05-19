@@ -9,9 +9,9 @@ import { Vpc } from '../../../../swagger/models/vpc.model';
 import { AwsWizardFormService } from '../../../../shared/service/aws-wizard-form.service';
 
 @Component({
-  selector: 'app-vpc-step',
-  templateUrl: './vpc-step.component.html',
-  styleUrls: ['./vpc-step.component.scss']
+    selector: 'app-vpc-step',
+    templateUrl: './vpc-step.component.html',
+    styleUrls: ['./vpc-step.component.scss']
 })
 export class VpcStepComponent extends StepFormDirective implements OnInit {
 
@@ -22,8 +22,8 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
     defaultVpcAddress: string = '10.0.0.0/16';
 
     constructor(private validationService: ValidationService,
-                private messenger: Messenger,
-                private awsWizardFormService: AwsWizardFormService) {
+        private messenger: Messenger,
+        private awsWizardFormService: AwsWizardFormService) {
         super();
     }
 
@@ -34,8 +34,8 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
             'vpcType',
             new FormControl(
                 'new', [
-                    Validators.required
-                ])
+                Validators.required
+            ])
         );
 
         this.formGroup.addControl(
@@ -51,6 +51,11 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
         this.formGroup.addControl(
             'existingVpcId',
             new FormControl('', [])
+        );
+
+        this.formGroup.addControl(
+            'nonInternetFacingVPC',
+            new FormControl(false, [])
         );
 
         this.formGroup.get('vpcType').valueChanges
@@ -130,6 +135,15 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
         this.messenger.publish({
             type: TkgEventType.AWS_VPC_TYPE_CHANGED,
             payload: { vpcType: 'new' }
+        });
+
+        this.registerOnValueChange('nonInternetFacingVPC', this.onNonInternetFacingVPCChange.bind(this));
+    }
+
+    onNonInternetFacingVPCChange(checked: boolean) {
+        this.messenger.publish({
+            type: TkgEventType.AWS_AIRGAPPED_VPC_CHANGE,
+            payload: checked === true
         });
     }
 

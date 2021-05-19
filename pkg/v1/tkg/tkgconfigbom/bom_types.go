@@ -3,7 +3,8 @@
 
 package tkgconfigbom
 
-type componentInfo struct {
+// ComponentInfo represents a BOM components information
+type ComponentInfo struct {
 	Version  string                 `yaml:"version"`
 	Images   map[string]*ImageInfo  `yaml:"images,omitempty"`
 	Metadata map[string]interface{} `yaml:"metadata,omitempty"`
@@ -100,7 +101,8 @@ type extensionInfo struct {
 	ManagedBy    string   `yaml:"managedBy"`
 }
 
-type releaseInfo struct {
+// ReleaseInfo represents the release version information
+type ReleaseInfo struct {
 	Version string `yaml:"version"`
 }
 
@@ -115,8 +117,8 @@ type tkrBOMInfo struct {
 // BOMConfiguration defines the struct to represent BOM information
 type BOMConfiguration struct {
 	Default               *defaultInfo                `yaml:"default"`
-	Release               *releaseInfo                `yaml:"release"`
-	Components            map[string][]*componentInfo `yaml:"components"`
+	Release               *ReleaseInfo                `yaml:"release"`
+	Components            map[string][]*ComponentInfo `yaml:"components"`
 	KindKubeadmConfigSpec []string                    `yaml:"kindKubeadmConfigSpec"`
 	KubeadmConfigSpec     *kubeadmConfig              `yaml:"kubeadmConfigSpec"`
 	OVA                   []*ovaInfo                  `yaml:"ova"`

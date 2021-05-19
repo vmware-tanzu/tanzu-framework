@@ -14,7 +14,7 @@ import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
 import { WebsocketService } from '../../../shared/service/websocket.service';
 import { AppDataService } from '../../../shared/service/app-data.service';
 import { FormMetaDataStore } from '../wizard/shared/FormMetaDataStore';
-import { Messenger, TkgEventType } from "../../../shared/service/Messenger";
+import { Messenger, TkgEvent, TkgEventType } from "../../../shared/service/Messenger";
 
 @Component({
     selector: 'tkg-kickstart-ui-deploy-progress',
@@ -24,7 +24,8 @@ import { Messenger, TkgEventType } from "../../../shared/service/Messenger";
 export class DeployProgressComponent extends BasicSubscriber implements OnInit {
 
     providerType: string = '';
-    cli: string = "";
+    cli: string = '';
+    pageTitle: string = '';
     messages: any[] = [];
     msgs$ = new BehaviorSubject<NgxLogMessage>(null);
     curStatus: any = {
@@ -53,24 +54,25 @@ export class DeployProgressComponent extends BasicSubscriber implements OnInit {
     ngOnInit(): void {
         this.initWebSocket();
 
+        this.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe((data: TkgEvent) => {
+                this.pageTitle = (data.payload.edition === 'tce') ? 'Tanzu Community Edition' : 'Tanzu Kubernetes Grid';
+            });
+
         this.appDataService.getProviderType()
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((provider) => {
-                switch (provider) {
-                    case 'vsphere':
-                        this.providerType = 'vSphere';
-                        break;
-                    case 'aws':
-                        this.providerType = 'AWS';
-                        break;
-                    case 'azure':
-                        this.providerType = 'Azure';
-                        break;
-                    default:
-                        break;
+                if (provider && provider.includes('vsphere')) {
+                    this.providerType = 'vSphere';
+                } else if (provider && provider.includes('aws')) {
+                    this.providerType = 'AWS';
+                } else if (provider && provider.includes('azure')) {
+                    this.providerType = 'Azure';
+                } else if (provider && provider.includes('docker')) {
+                    this.providerType = 'Docker';
                 }
-            }
-            );
+            });
     }
 
     initWebSocket() {
@@ -175,15 +177,16 @@ export class DeployProgressComponent extends BasicSubscriber implements OnInit {
 
     /**
      * @method getStatusDescription
+     * generates page description text depending on edition and status
      * @return {string}
      */
     getStatusDescription(): string {
         if (this.curStatus.status === 'running') {
-            return `Deployment of the Tanzu Kubernetes Grid management cluster to ${this.providerType} is in progress.`;
+            return `Deployment of the ${this.pageTitle} management cluster to ${this.providerType} is in progress.`;
         } else if (this.curStatus.status === 'successful') {
-            return `Deployment of the Tanzu Kubernetes Grid management cluster to ${this.providerType} is successful.`;
+            return `Deployment of the ${this.pageTitle} management cluster to ${this.providerType} is successful.`;
         } else if (this.curStatus.status === 'failed') {
-            return `Deployment of the Tanzu Kubernetes Grid management cluster to ${this.providerType} has failed.`;
+            return `Deployment of the ${this.pageTitle} management cluster to ${this.providerType} has failed.`;
         }
     }
 }

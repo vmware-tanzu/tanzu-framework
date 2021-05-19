@@ -27,6 +27,8 @@ func New(configDir string, tkgConfigReaderWriter tkgconfigreaderwriter.TKGConfig
 	return tkgconfigclient
 }
 
+//go:generate counterfeiter -o ../fakes/tkgconfigbomclient.go --fake-name TKGConfigBomClient . Client
+
 // Client implements TKG configuration updater functions
 type Client interface {
 	// GetBOMConfigurationFromTkrVersion gets BoM configuration based on TKR version

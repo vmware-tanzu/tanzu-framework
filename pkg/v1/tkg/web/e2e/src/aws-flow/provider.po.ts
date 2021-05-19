@@ -10,6 +10,14 @@ export class Provider extends Step {
         return element(by.css('clr-stepper-panel[formgroupname="awsProviderForm"] clr-step-description')).getText() as Promise<string>;
     }
 
+    getCredentialProfile() {
+        return element(by.cssContainingText("label", "Credential Profile"));
+    }
+
+    getStaticCredential() {
+        return element(by.cssContainingText("label", "Static Credentials"));
+    }
+
     getAccessKeyId() {
         return element(by.css('input[formcontrolname="accessKeyID"]'));
     }

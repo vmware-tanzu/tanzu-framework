@@ -129,6 +129,8 @@ const (
 	ConfigVariableClusterCIDR = "CLUSTER_CIDR"
 	ConfigVariableServiceCIDR = "SERVICE_CIDR"
 
+	ConfigVariableIPFamily = "TKG_IP_FAMILY"
+
 	// Below config variables are added based on init and create command flags
 
 	ConfigVariableClusterPlan             = "CLUSTER_PLAN"

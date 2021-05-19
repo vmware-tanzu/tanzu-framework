@@ -34,6 +34,8 @@ func New(configDir string, providerGetter providerinterface.ProviderInterface,
 	return tkgconfigupdaterclient
 }
 
+//go:generate counterfeiter -o ../fakes/tkgconfigupdaterclient.go --fake-name TKGConfigUpdaterClient . Client
+
 // Client implements TKG configuration updater functions
 type Client interface {
 	// EnsureConfigPrerequisite ensures configuration prerequisites like creating

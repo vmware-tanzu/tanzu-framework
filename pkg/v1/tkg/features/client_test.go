@@ -35,6 +35,24 @@ var _ = Describe("Feature flag client", func() {
 		featureOne                    = "feature1"
 		featureTwo                    = "feature2"
 	)
+	Describe("Constructor", func() {
+		Context("New is given a config folder, but not a config file", func() {
+			It("Should create a client with the default config file name", func() {
+				tempDir := os.TempDir()
+				client, err := New(tempDir, "")
+				Expect(err).ToNot(HaveOccurred())
+				Expect(client).ToNot(BeNil())
+			})
+		})
+		Context("New is not given a config folder", func() {
+			It("Should error creating a new client", func() {
+				client, err := New("", "")
+				Expect(err).To(HaveOccurred())
+				Expect(err).To(MatchError("featureFlagsConfigFolder connot be empty"))
+				Expect(client).To(BeNil())
+			})
+		})
+	})
 	Describe("GetFeatureFlags", func() {
 		JustBeforeEach(func() {
 			featureClient = &client{

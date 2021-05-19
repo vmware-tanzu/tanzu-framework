@@ -1,6 +1,6 @@
 import { Component, OnInit, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
-import { Messenger } from 'src/app/shared/service/Messenger';
+import { Messenger, TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
 import { FormBuilder } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { APIClient } from 'src/app/swagger';
@@ -11,6 +11,7 @@ import { CliGenerator, CliFields } from '../wizard/shared/utils/cli-generator';
 import { AzureRegionalClusterParams } from 'src/app/swagger/models';
 import { AzureAccountParamsKeys } from './provider-step/azure-provider-step.component';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
+import { takeUntil } from "rxjs/operators";
 
 @Component({
     selector: 'app-azure-wizard',
@@ -60,7 +61,13 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
 
     ngOnInit() {
         super.ngOnInit();
-        this.titleService.setTitle('Tanzu Kubernetes Grid Azure');
+        super.ngOnInit();
+        this.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe((data: TkgEvent) => {
+                const title = (data.payload.edition === 'tce') ? 'Tanzu Community Edition Azure' : 'Tanzu Kubernetes Grid Azure';
+                this.titleService.setTitle(title);
+            });
     }
 
     getStepDescription(stepName: string): string {

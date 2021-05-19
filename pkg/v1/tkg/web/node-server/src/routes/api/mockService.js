@@ -47,7 +47,7 @@ router.get(`${ENDPOINT}/providers`, (req, res) => {
     winston.info('Mock TKG UI GET PROVIDERS API');
     res.status(200);
     res.json({
-        "provider": "vsphere",
+        "provider": "docker-1.3.1",
         "tkrVersion": "v1.17"
     });
 });

@@ -28,6 +28,7 @@ var _ = Describe("Kubeconfig Tests", func() {
 		servCert    *x509.Certificate
 	)
 
+	const kubeconfig1Path = "../fakes/config/kubeconfig/config1.yaml"
 	Describe("Get cluster-info from the cluster", func() {
 		BeforeEach(func() {
 			tlsserver = ghttp.NewTLSServer()
@@ -82,6 +83,72 @@ var _ = Describe("Kubeconfig Tests", func() {
 			It("should return the cluster information", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(cluster.Server).Should(Equal(endpoint))
+			})
+		})
+	})
+	Describe("Get info from kubeconfig", func() {
+		var (
+			kubeconfigPath string
+			context        string
+			actual         string
+			err            error
+		)
+		Context("When getting cluster name from kubeconfig", func() {
+			JustBeforeEach(func() {
+				actual, err = utils.GetClusterNameFromKubeconfigAndContext(kubeconfigPath, context)
+			})
+			AfterEach(func() {
+				kubeconfigPath = ""
+				context = ""
+			})
+			Context("When kubeconfig path is invalid", func() {
+				BeforeEach(func() {
+					kubeconfigPath = "../invalid1/config.yaml"
+				})
+				It("Should fail to find the kubeconfig", func() {
+					Expect(err).To(HaveOccurred())
+				})
+			})
+			Context("When context is missing", func() {
+				BeforeEach(func() {
+					kubeconfigPath = kubeconfig1Path
+				})
+				It("Should get the current context ", func() {
+					Expect(err).NotTo(HaveOccurred())
+					Expect(actual).To(Equal("horse-cluster"))
+				})
+			})
+			Context("When context isn't found in kubeconfig", func() {
+				BeforeEach(func() {
+					kubeconfigPath = kubeconfig1Path
+					context = "wrong"
+				})
+				It("Should return an error", func() {
+					Expect(err).To(HaveOccurred())
+					Expect(err.Error()).To(Equal("unable to find cluster name from kubeconfig file: \"../fakes/config/kubeconfig/config1.yaml\""))
+				})
+			})
+		})
+		Context("When getting server from kubeconfig", func() {
+			JustBeforeEach(func() {
+				actual, err = utils.GetClusterServerFromKubeconfigAndContext(kubeconfigPath, context)
+			})
+			Context("When kubeconfig path is invalid", func() {
+				BeforeEach(func() {
+					kubeconfigPath = "../invalid/config.yaml"
+				})
+				It("Should fail to open the kubeconfig", func() {
+					Expect(err).To(HaveOccurred())
+				})
+			})
+			Context("When context is empty", func() {
+				BeforeEach(func() {
+					kubeconfigPath = kubeconfig1Path
+				})
+				It("Should use the currennt context", func() {
+					Expect(err).ToNot(HaveOccurred())
+					Expect(actual).To(Equal("https://horse.org:4443"))
+				})
 			})
 		})
 	})

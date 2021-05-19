@@ -4,7 +4,6 @@
 package client
 
 import (
-	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -14,7 +13,6 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/region"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigreaderwriter"
 )
 
 // ClusterCeipInfo is the cmd object for outputting the CEIP status of a clsuter
@@ -84,7 +82,10 @@ func (c *TkgClient) DoSetCEIPParticipation(clusterClient clusterclient.Client, c
 		httpProxy, httpsProxy, noProxy := "", "", ""
 		if httpProxy, err = c.TKGConfigReaderWriter().Get(constants.TKGHTTPProxy); err == nil && httpProxy != "" {
 			httpsProxy, _ = c.TKGConfigReaderWriter().Get(constants.TKGHTTPSProxy)
-			noProxy = getFullTKGNoProxy(providerName, c.TKGConfigReaderWriter())
+			noProxy, err = c.getFullTKGNoProxy(providerName)
+			if err != nil {
+				return err
+			}
 		}
 
 		err = clusterClient.AddCEIPTelemetryJob(clusterName, providerName, bomConfig, isProd, labels, httpProxy, httpsProxy, noProxy)
@@ -100,50 +101,6 @@ func (c *TkgClient) DoSetCEIPParticipation(clusterClient clusterclient.Client, c
 	}
 	log.Infof("Successfully changed CEIP settings of management cluster '%s' to: '%s'\n", clusterName, optStatus)
 	return nil
-}
-
-func getFullTKGNoProxy(providerName string, tkgConfigReaderWriter tkgconfigreaderwriter.TKGConfigReaderWriter) string {
-	noProxyMap := make(map[string]bool)
-
-	noProxyMap[constants.ServiceDNSClusterLocalSuffix] = true
-	noProxyMap[constants.ServiceDNSSuffix] = true
-	noProxyMap[constants.LocalHost] = true
-	noProxyMap[constants.LocalHostIP] = true
-
-	if serviceCIDR, _ := tkgConfigReaderWriter.Get(constants.ConfigVariableServiceCIDR); serviceCIDR != "" {
-		noProxyMap[serviceCIDR] = true
-	}
-	if clusterCIDR, _ := tkgConfigReaderWriter.Get(constants.ConfigVariableClusterCIDR); clusterCIDR != "" {
-		noProxyMap[clusterCIDR] = true
-	}
-
-	if noProxy, _ := tkgConfigReaderWriter.Get(constants.TKGNoProxy); noProxy != "" {
-		for _, np := range strings.Split(noProxy, ",") {
-			noProxyMap[np] = true
-		}
-	}
-	// below provider specific no proxies has not been checked into tkg-cli-providers yet
-	switch providerName {
-	case constants.InfrastructureProviderAWS:
-		if vpcCIDR, _ := tkgConfigReaderWriter.Get(constants.ConfigVariableAWSVPCCIDR); vpcCIDR != "" {
-			noProxyMap[vpcCIDR] = true
-		}
-		noProxyMap[constants.LinkLocalAddress] = true
-	case constants.InfrastructureProviderAzure:
-		if vnetCIDR, _ := tkgConfigReaderWriter.Get(constants.ConfigVariableAzureVnetCidr); vnetCIDR != "" {
-			noProxyMap[vnetCIDR] = true
-		}
-		noProxyMap[constants.LinkLocalAddress] = true
-		noProxyMap[constants.AzurePublicVIP] = true
-	}
-
-	noProxyList := []string{}
-
-	for np := range noProxyMap {
-		noProxyList = append(noProxyList, np)
-	}
-
-	return strings.Join(noProxyList, ",")
 }
 
 // GetCEIPParticipation get CEIP participation details

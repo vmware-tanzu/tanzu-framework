@@ -35,10 +35,12 @@ export interface FilteredAzs {
 }
 
 export const BASTION_HOST_ENABLED = 'yes';
+const swap = (arr, index1, index2) => { [arr[index1], arr[index2]] = [arr[index2], arr[index1]] }
 
-const vpcSubnets = ['vpcPublicSubnet1', 'vpcPrivateSubnet1', 'vpcPublicSubnet2',
-    'vpcPrivateSubnet2', 'vpcPublicSubnet3', 'vpcPrivateSubnet3'];
-const azs = ['awsNodeAz1', 'awsNodeAz2', 'awsNodeAz3'];
+const AZS = ['awsNodeAz1', 'awsNodeAz2', 'awsNodeAz3'];
+const PUBLIC_SUBNETS = ['vpcPublicSubnet1', 'vpcPublicSubnet2', 'vpcPublicSubnet3'];
+const PRIVATE_SUBNET = ['vpcPrivateSubnet1', 'vpcPrivateSubnet2', 'vpcPrivateSubnet3'];
+const VPC_SUBNETS = [...PUBLIC_SUBNETS, ...PRIVATE_SUBNET];
 @Component({
     selector: 'app-node-setting-step',
     templateUrl: './node-setting-step.component.html',
@@ -75,7 +77,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         search: true,
         height: 'auto',
         placeholder: 'Select',
-        customComparator: () => {},
+        customComparator: () => { },
         moreText: 'more',
         noResultsFound: 'No results found!',
         searchPlaceholder: 'Search',
@@ -84,38 +86,41 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         inputDirection: 'ltr'
     };
 
+    airgappedVPC = false;
+
+    commonFieldMap: { [key: string]: Array<any> } = {
+        controlPlaneSetting: [Validators.required],
+        devInstanceType: [Validators.required],
+        prodInstanceType: [Validators.required],
+        workerNodeInstanceType: [Validators.required],
+        bastionHostEnabled: [],
+        sshKeyName: [Validators.required],
+        createCloudFormation: [],
+        clusterName: [this.validationService.isValidClusterName()],
+        awsNodeAz1: [Validators.required],
+        awsNodeAz2: [Validators.required],
+        awsNodeAz3: [Validators.required],
+        vpcPublicSubnet1: [],
+        vpcPrivateSubnet1: [],
+        vpcPublicSubnet2: [],
+        vpcPrivateSubnet2: [],
+        vpcPublicSubnet3: [],
+        vpcPrivateSubnet3: [],
+    };
+
     constructor(private validationService: ValidationService,
-                public messenger: Messenger,
-                public awsWizardFormService: AwsWizardFormService) {
+        public messenger: Messenger,
+        public awsWizardFormService: AwsWizardFormService) {
         super();
     }
 
     buildForm() {
         // key is field name, value is validation rules
-        const commonFieldMap: {[key: string]: Array<any>} = {
-            controlPlaneSetting: [Validators.required],
-            devInstanceType: [Validators.required],
-            prodInstanceType: [Validators.required],
-            workerNodeInstanceType: [Validators.required],
-            bastionHostEnabled: [],
-            sshKeyName: [Validators.required],
-            createCloudFormation: [],
-            clusterName: [this.validationService.isValidClusterName()],
-            awsNodeAz1: [Validators.required],
-            awsNodeAz2: [Validators.required],
-            awsNodeAz3: [Validators.required],
-            vpcPublicSubnet1: [],
-            vpcPrivateSubnet1: [],
-            vpcPublicSubnet2: [],
-            vpcPrivateSubnet2: [],
-            vpcPublicSubnet3: [],
-            vpcPrivateSubnet3: [],
-        };
-        for (const key in commonFieldMap) {
+        for (const key in this.commonFieldMap) {
             if (key) {
                 this.formGroup.addControl(
                     key,
-                    new FormControl('', commonFieldMap[key])
+                    new FormControl('', this.commonFieldMap[key])
                 );
             }
         }
@@ -127,51 +132,23 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         );
     }
 
-    toggleValidations() {
-        const swap = (arr, index1, index2) => { [arr[index1], arr[index2]] = [arr[index2], arr[index1]]}
-        setTimeout(_ => {
-            this.displayForm = true;
-            this.formGroup.get('controlPlaneSetting').valueChanges.subscribe(data => {
-                if (data === 'dev') {
-                    this.nodeType = 'dev';
-                    const prodFields = ['awsNodeAz2', 'awsNodeAz3', 'vpcPublicSubnet2', 'vpcPrivateSubnet2',
-                        'vpcPublicSubnet3', 'vpcPrivateSubnet3', 'prodInstanceType'];
-                    prodFields.forEach(attr => this.disarmField(attr, true));
-
-                    this.resurrectField('devInstanceType',
-                        [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
-                        this.formGroup.get('devInstanceType').value);
-                    this.resurrectField('awsNodeAz1', [Validators.required]);
-                } else if (data === 'prod') {
-                    this.nodeType = 'prod';
-
-                    this.disarmField('devInstanceType', true);
-                    this.resurrectField('prodInstanceType',
-                        [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
-                        this.formGroup.get('prodInstanceType').value);
-                    const azNew = [...azs];
-                    for (let i = 0; i < azs.length; i++) {
-                        swap(azNew, i, 0);
-                        this.formGroup.get(azNew[0]).setValidators([
-                            Validators.required,
-                            this.validationService.isUniqueAz([
-                                this.formGroup.get(azNew[1]),
-                                this.formGroup.get(azNew[2])])
-                        ]);
-                    }
-                }
-                this.resurrectField('workerNodeInstanceType',
-                    [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
-                    this.formGroup.get('workerNodeInstanceType').value);
-            });
-        });
-    }
-
     ngOnInit() {
         super.ngOnInit();
         this.buildForm();
-        this.toggleValidations();
 
+        this.messenger.getSubject(TkgEventType.AWS_AIRGAPPED_VPC_CHANGE).subscribe(event => {
+            this.airgappedVPC = event.payload;
+            if (this.airgappedVPC) { // public subnet IDs shouldn't be provided
+                PUBLIC_SUBNETS.forEach(f => {
+                    this.formGroup.controls[f].setValue('');
+                    this.formGroup.controls[f].disable();
+                })
+            } else {        // public subnet IDs are required
+                PUBLIC_SUBNETS.forEach(f => {
+                    this.formGroup.controls[f].enable();
+                })
+            }
+        });
         /**
          * Whenever aws region selection changes, update AZ subregion
          */
@@ -192,19 +169,15 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         this.messenger.getSubject(TkgEventType.AWS_VPC_TYPE_CHANGED)
             .subscribe(event => {
                 this.vpcType = event.payload.vpcType;
-                if (this.vpcType === 'existing' &&
-                        this.formGroup.get('vpcPublicSubnet1') &&
-                        this.formGroup.get('vpcPrivateSubnet1')) {
-
-                    vpcSubnets.forEach(vpcSubnet => this.formGroup.get(vpcSubnet).setValidators([Validators.required]));
-                } else {
-                    vpcSubnets.forEach(vpcSubnet => this.formGroup.get(vpcSubnet).clearValidators());
+                if (this.vpcType !== 'existing') {
                     this.clearSubnets();
                 }
 
+                this.updateVpcSubnets();
+
                 // clear az selection
                 this.clearAzs();
-                [...azs, ...vpcSubnets].forEach(attr => this.formGroup.get(attr).updateValueAndValidity());
+                [...AZS, ...VPC_SUBNETS].forEach(attr => this.formGroup.get(attr).updateValueAndValidity());
             });
 
         this.messenger.getSubject(TkgEventType.AWS_VPC_CHANGED)
@@ -246,7 +219,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 this.privateSubnets = subnets.filter(obj => {
                     return obj.isPublic === false
                 });
-                azs.forEach(az => this.filterSubnets(az, this.formGroup.get(az).value));
+                AZS.forEach(az => this.filterSubnets(az, this.formGroup.get(az).value));
                 this.setSavedSubnets();
             });
 
@@ -256,7 +229,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 this.nodeTypes = nodeTypes.sort();
             });
 
-        azs.forEach(az => {
+        AZS.forEach(az => {
             this.formGroup.get(az).valueChanges
                 .pipe(
                     takeUntil(this.unsubscribe)
@@ -265,7 +238,44 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 });
         });
 
+        this.registerOnValueChange('controlPlaneSetting', data => {
+            if (data === 'dev') {
+                this.nodeType = 'dev';
+                const prodFields = ['awsNodeAz2', 'awsNodeAz3', 'prodInstanceType'];
+                prodFields.forEach(attr => this.disarmField(attr, true));
+
+                this.resurrectField('devInstanceType',
+                    [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
+                    this.formGroup.get('devInstanceType').value);
+                this.resurrectField('awsNodeAz1', [Validators.required]);
+            } else if (data === 'prod') {
+                this.nodeType = 'prod';
+
+                this.disarmField('devInstanceType', true);
+                this.resurrectField('prodInstanceType',
+                    [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
+                    this.formGroup.get('prodInstanceType').value);
+                const azNew = [...AZS];
+                for (let i = 0; i < AZS.length; i++) {
+                    swap(azNew, i, 0);
+                    this.formGroup.get(azNew[0]).setValidators([
+                        Validators.required,
+                        this.validationService.isUniqueAz([
+                            this.formGroup.get(azNew[1]),
+                            this.formGroup.get(azNew[2])])
+                    ]);
+                }
+            }
+            this.resurrectField('workerNodeInstanceType',
+                [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
+                this.formGroup.get('workerNodeInstanceType').value);
+
+            this.updateVpcSubnets();
+        });
+
         setTimeout(_ => {
+            this.displayForm = true;
+
             const existingVpcId = FormMetaDataStore.getMetaDataItem('vpcForm', 'existingVpcId');
             if (existingVpcId && existingVpcId.displayValue) {
                 this.messenger.publish({
@@ -323,7 +333,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
      * helper method used to clear selected AZs from UI controls
      */
     clearAzs() {
-        azs.forEach(az => this.formGroup.get(az).setValue(''));
+        AZS.forEach(az => this.formGroup.get(az).setValue(''));
     }
 
     /**
@@ -331,7 +341,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
      * helper method used to clear selected subnets from UI controls
      */
     clearSubnets() {
-        vpcSubnets.forEach(vpcSubnet => this.formGroup.get(vpcSubnet).setValue(''));
+        VPC_SUBNETS.forEach(vpcSubnet => this.formGroup.get(vpcSubnet).setValue(''));
     }
 
     /**
@@ -339,7 +349,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
      * FilteredAzs does not have iterator, so manually clear subnets
      */
     clearSubnetData() {
-        azs.forEach(az => {
+        AZS.forEach(az => {
             this.filteredAzs[az].publicSubnets = [];
             this.filteredAzs[az].privateSubnets = [];
         });
@@ -363,10 +373,41 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     setSavedSubnets(): void {
-        vpcSubnets.forEach(vpcSubnet => {
+        VPC_SUBNETS.forEach(vpcSubnet => {
             const typeOfSubnet = vpcSubnet.indexOf('public') > -1 ? 'publicSubnets' : 'privateSubnets';
             const subnet = this[typeOfSubnet].find(x => x.cidr === this.getSavedValue(vpcSubnet, ''));
             this.formGroup.get(vpcSubnet).setValue(subnet ? subnet.id : '');
         });
     }
+
+    updateVpcSubnets() {
+        if (this.vpcType !== "existing") {   // validations should be disabled for all public/private subnets
+            [1, 2, 3].forEach(i => {
+                this.disarmField('vpcPublicSubnet' + i, true);
+                this.disarmField('vpcPrivateSubnet' + i, true);
+            });
+            return;
+        }
+
+        // First enable validators on all fields
+        [1, 2, 3].forEach(i => {
+            this.resurrectField('vpcPublicSubnet' + i, [Validators.required]);
+            this.resurrectField('vpcPrivateSubnet' + i, [Validators.required]);
+        });
+
+        // both private and public fields will be shown
+        if (this.nodeType === "dev") {   // 2 & 3 should be disarmed
+            [2, 3].forEach(i => {
+                this.disarmField('vpcPublicSubnet' + i, true);
+                this.disarmField('vpcPrivateSubnet' + i, true);
+            });
+        }
+
+        if (this.airgappedVPC) {
+            [1, 2, 3].forEach(i => {
+                this.disarmField('vpcPublicSubnet' + i, true);
+            });
+        }
+    }
+
 }

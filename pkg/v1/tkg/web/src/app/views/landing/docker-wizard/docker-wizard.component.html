@@ -47,23 +47,23 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="identityForm">
-            <clr-step-title i18n="identity step title">
-                Identity Management
-            </clr-step-title>
-            <clr-step-description i18n="identity step description">
-                {{ getStepDescription('identity') }}
-            </clr-step-description>
-            <ng-container *ngIf="steps[2]">
-                <app-shared-identity-step
-                        [formGroup]="form.controls.identityForm"
-                        formName="identity">
-                </app-shared-identity-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
+<!--        <clr-stepper-panel formGroupName="identityForm">-->
+<!--            <clr-step-title i18n="identity step title">-->
+<!--                Identity Management-->
+<!--            </clr-step-title>-->
+<!--            <clr-step-description i18n="identity step description">-->
+<!--                {{ getStepDescription('identity') }}-->
+<!--            </clr-step-description>-->
+<!--            <ng-container *ngIf="steps[2]">-->
+<!--                <app-shared-identity-step-->
+<!--                        [formGroup]="form.controls.identityForm"-->
+<!--                        formName="identity">-->
+<!--                </app-shared-identity-step>-->
+<!--            </ng-container>-->
+<!--            <clr-step-content *clrIfExpanded>-->
+<!--                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>-->
+<!--            </clr-step-content>-->
+<!--        </clr-stepper-panel>-->
     </form>
     <button class="btn btn-primary mt-20" [disabled]="!getWizardValidity()" (click)="reviewConfiguration(true)"
             i18n="review management cluster configuration btn">

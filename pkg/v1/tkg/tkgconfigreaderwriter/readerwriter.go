@@ -17,6 +17,8 @@ type tkgConfigReaderWriter struct {
 	viperStore *viper.Viper
 }
 
+//go:generate counterfeiter -o ../fakes/readerwriter.go --fake-name TKGConfigReaderWriter . TKGConfigReaderWriter
+
 // TKGConfigReaderWriter defines methods of reader which is implemented using viper for reading from environment variables
 // and from a tkg config file. Also defines methods of writer to set/update the variables and config file
 type TKGConfigReaderWriter interface {

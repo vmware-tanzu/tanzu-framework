@@ -141,7 +141,7 @@
                 <app-os-image-step [formGroup]="form.controls.osImageForm"
                     formName="osimages" [wizardFormService]="wizardFormService" type="VSPHERE"
                     [tkrVersion]="(tkrVersion | async)"
-                    [noImageAlertMessage]="'Tanzu Kubernetes Grid management cluster will be deployed with TanzuKubernetesRelease ' + (tkrVersion | async) + '.
+                    [noImageAlertMessage]="'Your management cluster will be deployed with TanzuKubernetesRelease ' + (tkrVersion | async) + '.
                                     We are unable to detect a VM template that belongs to this TanzuKubernetesRelease. You must install
                                     a VM template that belongs to TanzuKubernetesRelease ' +  (tkrVersion | async) + ' to continue with deployment of
                                     the management cluster. You may click the refresh icon to reload the OS image list once the

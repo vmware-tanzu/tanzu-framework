@@ -10,6 +10,7 @@ import { Identity } from '../common/identity.po'
 export class NewVpcCommon extends WizardCommon {
 
     setCredentials(step: Provider) {
+        step.getCredentialProfile().click();
         step.getProfileName().click();
         step.selectOptionByText(step.getProfileName(), PARAMS.AWS_PROFILE);
     }

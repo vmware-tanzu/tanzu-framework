@@ -55,7 +55,7 @@
                                 <select clrSelect class="node-type-select" name="devInstanceType"
                                     formControlName="devInstanceType" role="listbox"
                                     aria-label="development instance type">
-                                    <option aria-label="blank"></option>
+                                    <option aria-label="blank" title="blank"></option>
                                     <ng-container *ngFor="let nodeType of nodeTypes">
                                         <option [value]="nodeType.id">
                                             {{nodeType.name}}
@@ -105,7 +105,7 @@
                                 <select clrSelect class="node-type-select" name="prodInstanceType"
                                     formControlName="prodInstanceType" role="listbox"
                                     aria-label="production instance type">
-                                    <option aria-label="blank"></option>
+                                    <option aria-label="blank" title="blank"></option>
                                     <ng-container *ngFor="let nodeType of nodeTypes">
                                         <option [value]="nodeType.id">
                                             {{nodeType.name}}
@@ -246,7 +246,7 @@
                 </label>
                 <select clrSelect class="node-type-select" name="workerNodeInstanceType"
                     formControlName="workerNodeInstanceType" role="listbox" aria-label="worker node instance type">
-                    <option aria-label="blank"></option>
+                    <option aria-label="blank" title="blank"></option>
                     <ng-container *ngFor="let nodeType of nodeTypes">
                         <option [value]="nodeType.id">
                             {{nodeType.name}}

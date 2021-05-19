@@ -114,14 +114,6 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 		log.Infof("Using custom image repository: %s", customImageRepo)
 	}
 
-	// Get the Pinniped information required for workload cluster from management cluster
-	// NOTE: Not blocking the workload cluster deployment if the pinniped information is not available on management cluster
-	pinnipedIssuerURL, pinnipedIssuerCAData, err := regionalClusterClient.GetPinnipedIssuerURLAndCA()
-	if err != nil {
-		log.Warningf("Warning: Pinniped configuration not found. Skipping pinniped configuration in workload cluster. Please refer to the documentation to check if you can configure pinniped on workload cluster manually")
-	} else {
-		c.SetPinnipedConfigForWorkloadCluster(pinnipedIssuerURL, pinnipedIssuerCAData)
-	}
 	if err := c.ConfigureAndValidateWorkloadClusterConfiguration(options, regionalClusterClient, false); err != nil {
 		return errors.Wrap(err, "workload cluster configuration validation failed")
 	}
@@ -512,15 +504,33 @@ func (c *TkgClient) ConfigureAndValidateWorkloadClusterConfiguration(options *Cr
 		return err
 	}
 
+	if err = c.ConfigureAndValidateHTTPProxyConfiguration(name); err != nil {
+		return NewValidationError(ValidationErrorCode, err.Error())
+	}
+
 	if options.ClusterType == "" {
 		options.ClusterType = WorkloadCluster
 	}
 	c.SetTKGClusterRole(options.ClusterType)
 	c.SetTKGVersion()
+	if !skipValidation {
+		// Get the Pinniped information required for workload cluster from management cluster
+		// NOTE: Not blocking the workload cluster deployment if the pinniped information is not available on management cluster
+		pinnipedIssuerURL, pinnipedIssuerCAData, err := clusterClient.GetPinnipedIssuerURLAndCA()
+		if err != nil {
+			log.Warningf("Warning: Pinniped configuration not found. Skipping pinniped configuration in workload cluster. Please refer to the documentation to check if you can configure pinniped on workload cluster manually")
+		} else {
+			c.SetPinnipedConfigForWorkloadCluster(pinnipedIssuerURL, pinnipedIssuerCAData)
+		}
+	}
 
 	err = c.ConfigureAndValidateCNIType(options.CniType)
 	if err != nil {
 		return NewValidationError(ValidationErrorCode, errors.Wrap(err, "unable to validate CNI type").Error())
+	}
+
+	if err = c.validateIPFamilyConfiguration(); err != nil {
+		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
 	if name == AWSProviderName {

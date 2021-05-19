@@ -6,7 +6,6 @@ package client
 import (
 	"fmt"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -165,9 +164,6 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		return errors.Wrap(err, "unable to build management cluster configuration")
 	}
 
-	// configure no proxy of boostrap cluster
-	configureBootstrapClusterNoProxy()
-
 	log.SendProgressUpdate(statusRunning, StepSetupBootstrapCluster, InitRegionSteps)
 	log.Info("Setting up bootstrapper...")
 	// Ensure bootstrap cluster and copy boostrap cluster kubeconfig to ~/kube-tkg directory
@@ -305,7 +301,10 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		httpProxy, httpsProxy, noProxy := "", "", ""
 		if httpProxy, err = c.TKGConfigReaderWriter().Get(constants.TKGHTTPProxy); err == nil && httpProxy != "" {
 			httpsProxy, _ = c.TKGConfigReaderWriter().Get(constants.TKGHTTPSProxy)
-			noProxy = getFullTKGNoProxy(providerName, c.TKGConfigReaderWriter())
+			noProxy, err = c.getFullTKGNoProxy(providerName)
+			if err != nil {
+				return err
+			}
 		}
 
 		if err = regionalClusterClient.AddCEIPTelemetryJob(options.ClusterName, providerName, bomConfig, "", "", httpProxy, httpsProxy, noProxy); err != nil {
@@ -499,8 +498,9 @@ func (c *TkgClient) BuildRegionalClusterConfiguration(options *InitRegionOptions
 		options.ClusterName = generateRegionalClusterName(options.InfrastructureProvider, "")
 	}
 
-	if options.Namespace == "" {
-		options.Namespace = defaultTkgNamespace
+	namespace := options.Namespace
+	if namespace == "" {
+		namespace = defaultTkgNamespace
 	}
 
 	controlPlaneMachineCount, workerMachineCount := c.getMachineCountForMC(options.Plan)
@@ -513,7 +513,7 @@ func (c *TkgClient) BuildRegionalClusterConfiguration(options *InitRegionOptions
 	clusterConfigOptions := ClusterConfigOptions{
 		Kubeconfig:               clusterctl.Kubeconfig{Path: options.Kubeconfig},
 		ProviderRepositorySource: providerRepositorySource,
-		TargetNamespace:          options.Namespace,
+		TargetNamespace:          namespace,
 		ClusterName:              options.ClusterName,
 		ControlPlaneMachineCount: swag.Int64(int64(controlPlaneMachineCount)),
 		WorkerMachineCount:       swag.Int64(int64(workerMachineCount)),
@@ -682,35 +682,4 @@ func (c *TkgClient) safelyAddFeatureFlag(featureFlags map[string]string, feature
 		featureFlags = map[string]string{feature: value}
 	}
 	return featureFlags
-}
-
-func configureBootstrapClusterNoProxy() {
-	if !isProxyEnabled() {
-		return
-	}
-
-	noProxies := []string{constants.ServiceDNSSuffix, constants.ServiceDNSClusterLocalSuffix}
-
-	if noProxy := os.Getenv(constants.HTTPNoProxy); noProxy != "" {
-		noProxies = append(noProxies, strings.Split(noProxy, ",")...)
-	} else if noProxy := os.Getenv(strings.ToLower(constants.HTTPNoProxy)); noProxy != "" {
-		noProxies = append(noProxies, strings.Split(noProxy, ",")...)
-	}
-
-	newNoProxy := strings.Join(noProxies, ",")
-
-	os.Setenv(constants.HTTPNoProxy, newNoProxy)
-	os.Setenv(strings.ToLower(constants.HTTPNoProxy), newNoProxy)
-}
-
-func isProxyEnabled() bool {
-	if proxy := os.Getenv(constants.HTTPProxy); proxy != "" {
-		return true
-	}
-
-	if proxy := os.Getenv(strings.ToLower(constants.HTTPProxy)); proxy != "" {
-		return true
-	}
-
-	return false
 }

@@ -106,6 +106,17 @@ var _ = Describe("Render Output Tests", func() {
 			Expect(output).To(Equal(`{}`))
 		})
 	})
+
+	Context("When calling CreateTableWriter", func() {
+		It("Should return default TableWriter options", func() {
+			tWriter := CreateTableWriter()
+			Expect(tWriter.Style().Options.DrawBorder).To(Equal(false))
+			Expect(tWriter.Style().Options.SeparateRows).To(Equal(false))
+			Expect(tWriter.Style().Options.SeparateColumns).To(Equal(false))
+			Expect(tWriter.Style().Options.SeparateFooter).To(Equal(false))
+			Expect(tWriter.Style().Options.SeparateHeader).To(Equal(false))
+		})
+	})
 })
 
 type testStruct struct {

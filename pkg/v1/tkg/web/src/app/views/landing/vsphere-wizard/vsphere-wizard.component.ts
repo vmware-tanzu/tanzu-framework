@@ -13,12 +13,13 @@ import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
 import { APIClient } from '../../../swagger/api-client.service';
 import { PROVIDERS, Providers } from '../../../shared/constants/app.constants';
 import { AppDataService } from '../../../shared/service/app-data.service';
-import { Messenger } from '../../../shared/service/Messenger';
+import { Messenger, TkgEvent, TkgEventType } from '../../../shared/service/Messenger';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
 import { VsphereRegionalClusterParams } from 'src/app/swagger/models/vsphere-regional-cluster-params.model';
+import { takeUntil } from "rxjs/operators";
 
 @Component({
     selector: 'app-wizard',
@@ -80,7 +81,13 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
 
     ngOnInit() {
         super.ngOnInit();
-        this.titleService.setTitle('Tanzu Kubernetes Grid vSphere');
+        this.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe((data: TkgEvent) => {
+                const title = (data.payload.edition === 'tce') ? 'Tanzu Community Edition vSphere' : 'Tanzu Kubernetes Grid vSphere';
+                this.titleService.setTitle(title);
+            });
+
         // delay showing first panel to avoid panel not defined console err
         setTimeout(_ => {
             this.show = true;

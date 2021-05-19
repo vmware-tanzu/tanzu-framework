@@ -4,12 +4,14 @@
 package client
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"net"
 	"net/url"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -551,9 +553,14 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
-	if err = c.ConfigureAndValidateHTTPProxyConfiguration(); err != nil {
+	if err = c.ConfigureAndValidateHTTPProxyConfiguration(name); err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
+
+	if err = c.validateIPFamilyConfiguration(); err != nil {
+		return NewValidationError(ValidationErrorCode, err.Error())
+	}
+
 	if name == AWSProviderName {
 		if err := c.ConfigureAndValidateAWSConfig(tkrVersion, options.NodeSizeOptions, skipValidation, options.Plan == constants.PlanProd, constants.DefaultWorkerMachineCountForManagementCluster, nil, true); err != nil {
 			return NewValidationError(ValidationErrorCode, err.Error())
@@ -1275,7 +1282,7 @@ func (c *TkgClient) EncodeAWSCredentialsAndGetClient(clusterClient clusterclient
 }
 
 // ConfigureAndValidateHTTPProxyConfiguration configures and validates http proxy configuration
-func (c *TkgClient) ConfigureAndValidateHTTPProxyConfiguration() error {
+func (c *TkgClient) ConfigureAndValidateHTTPProxyConfiguration(infrastructureName string) error {
 	proxyEnabled, err := c.TKGConfigReaderWriter().Get(constants.TKGHTTPProxyEnabled)
 	if err != nil || proxyEnabled != trueString {
 		return nil
@@ -1298,11 +1305,68 @@ func (c *TkgClient) ConfigureAndValidateHTTPProxyConfiguration() error {
 		return errors.Wrapf(err, "error validating %s", constants.TKGHTTPSProxy)
 	}
 
-	if _, err := c.TKGConfigReaderWriter().Get(constants.TKGNoProxy); err != nil {
-		c.TKGConfigReaderWriter().Set(constants.TKGNoProxy, "")
+	noProxy, err := c.getFullTKGNoProxy(infrastructureName)
+	if err != nil {
+		return err
 	}
 
+	c.TKGConfigReaderWriter().Set(constants.TKGNoProxy, noProxy)
+
 	return nil
+}
+
+func (c *TkgClient) getFullTKGNoProxy(providerName string) (string, error) {
+	noProxyMap := make(map[string]bool)
+
+	noProxyMap[constants.ServiceDNSClusterLocalSuffix] = true
+	noProxyMap[constants.ServiceDNSSuffix] = true
+	noProxyMap[constants.LocalHost] = true
+	noProxyMap[constants.LocalHostIP] = true
+
+	if serviceCIDR, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableServiceCIDR); serviceCIDR != "" {
+		noProxyMap[serviceCIDR] = true
+	}
+	if clusterCIDR, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterCIDR); clusterCIDR != "" {
+		noProxyMap[clusterCIDR] = true
+	}
+	if ipfamily, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableIPFamily); ipfamily == constants.IPv6Family {
+		noProxyMap[constants.LocalHostIPv6] = true
+	}
+
+	if noProxy, _ := c.TKGConfigReaderWriter().Get(constants.TKGNoProxy); noProxy != "" {
+		for _, np := range strings.Split(noProxy, ",") {
+			noProxyMap[np] = true
+		}
+	}
+	// below provider specific no proxies has not been checked into tkg-cli-providers yet
+	switch providerName {
+	case constants.InfrastructureProviderAWS:
+		if vpcCIDR, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAWSVPCCIDR); vpcCIDR != "" {
+			noProxyMap[vpcCIDR] = true
+		}
+		noProxyMap[constants.LinkLocalAddress] = true
+	case constants.InfrastructureProviderAzure:
+		if vnetCIDR, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAzureVnetCidr); vnetCIDR != "" {
+			noProxyMap[vnetCIDR] = true
+		}
+		noProxyMap[constants.LinkLocalAddress] = true
+		noProxyMap[constants.AzurePublicVIP] = true
+	case constants.InfrastructureProviderDocker:
+		var dockerBridgeCidr string
+		var err error
+		if dockerBridgeCidr, err = getDockerBridgeNetworkCidr(); err != nil {
+			return "", err
+		}
+		noProxyMap[dockerBridgeCidr] = true
+	}
+
+	noProxyList := []string{}
+
+	for np := range noProxyMap {
+		noProxyList = append(noProxyList, np)
+	}
+
+	return strings.Join(noProxyList, ","), nil
 }
 
 func (c *TkgClient) configureVsphereCredentialsFromCluster(clusterClient clusterclient.Client) error {
@@ -1324,4 +1388,88 @@ func checkClusterNameFormat(clusterName string) error {
 		return errors.New("cluster Name doesn't match regex ^[a-z][a-z0-9-]{0,44}[a-z0-9]$, can contain only lowercase alphanumeric characters and '-', must start/end with an alphanumeric character")
 	}
 	return nil
+}
+
+func (c *TkgClient) validateIPFamilyConfiguration() error {
+	// ignoring error because IPFamily is an optional configuration
+	// if not set Get will return an empty string
+	ipFamily, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableIPFamily)
+
+	if ipFamily == constants.IPv6Family {
+		if err := c.validateIPv6CIDR(constants.ConfigVariableServiceCIDR, ipFamily); err != nil {
+			return err
+		}
+		if err := c.validateIPv6CIDR(constants.ConfigVariableClusterCIDR, ipFamily); err != nil {
+			return err
+		}
+		if err := c.validateIPHostnameIsIPv6(constants.TKGHTTPProxy); err != nil {
+			return err
+		}
+		if err := c.validateIPHostnameIsIPv6(constants.TKGHTTPSProxy); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (c *TkgClient) validateIPHostnameIsIPv6(configKey string) error {
+	urlString, err := c.TKGConfigReaderWriter().Get(configKey)
+	if err != nil {
+		return nil
+	}
+
+	parsedURL, err := url.Parse(urlString)
+	if err != nil {
+		return nil
+	}
+
+	ip := net.ParseIP(parsedURL.Host)
+	if ip == nil {
+		return nil
+	}
+
+	if ip.To4() != nil {
+		return errors.Errorf("invalid %s \"%s\", expected to be an address of type \"ipv6\" (%s)",
+			configKey, urlString, constants.ConfigVariableIPFamily)
+	}
+
+	return nil
+}
+
+func (c *TkgClient) validateIPv6CIDR(configKey, ipFamily string) error {
+	cidr, err := c.TKGConfigReaderWriter().Get(configKey)
+	if err != nil {
+		return invalidCIDRError(configKey, cidr, ipFamily)
+	}
+	ip, _, err := net.ParseCIDR(cidr)
+	if err != nil {
+		return invalidCIDRError(configKey, cidr, ipFamily)
+	}
+	if ip.To4() != nil {
+		return invalidCIDRError(configKey, cidr, ipFamily)
+	}
+	return nil
+}
+
+func invalidCIDRError(configKey, cidr, ipFamily string) error {
+	return errors.Errorf("invalid %s \"%s\", expected to be a CIDR of type \"%s\" (%s)",
+		configKey, cidr, ipFamily, constants.ConfigVariableIPFamily)
+}
+
+func getDockerBridgeNetworkCidr() (string, error) {
+	var stdout bytes.Buffer
+	var networkCidr string
+
+	cmd := exec.Command("docker", "inspect", "-f", "'{{range .IPAM.Config}}{{.Subnet}}{{end}}'", "bridge")
+	cmd.Stdout = &stdout
+
+	if err := cmd.Run(); err != nil {
+		return "", errors.Wrap(err, "failed to fetch the Subnet CIDR for docker 'bridge' network")
+	}
+
+	networkCidr = stdout.String()
+	networkCidr = strings.TrimSpace(networkCidr)
+	networkCidr = strings.Trim(networkCidr, "'")
+
+	return networkCidr, nil
 }

@@ -22,6 +22,10 @@ export class NodeSettings extends Step {
         return element(by.css('select[name="workerNodeInstanceType"]'));
     }
 
+    getSshKeyName() {
+        return element(by.css('input[formcontrolname="sshKeyName"]'));
+    }
+
     getAvailabilityZone() {
         return element(by.css('select[name="awsNodeAz1"]'));
     }

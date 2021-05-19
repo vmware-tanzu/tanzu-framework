@@ -52,6 +52,7 @@ endif
 CUSTOM_NPM_REGISTRY ?= $(shell git config tkg.npmregistry)
 
 # BoM repo, path and tag related configuration
+# TODO: update the image tag to latest
 ifndef TKG_DEFAULT_BOM_IMAGE_REPO
 TKG_DEFAULT_BOM_IMAGE_REPO = "projects-stg.registry.vmware.com/tkg"
 endif
@@ -59,7 +60,7 @@ ifndef TKG_DEFAULT_BOM_IMAGE_PATH
 TKG_DEFAULT_BOM_IMAGE_PATH = "tkg-bom"
 endif
 ifndef TKG_DEFAULT_BOM_IMAGE_TAG
-TKG_DEFAULT_BOM_IMAGE_TAG = "v1.3.1-rc.1" # TODO: update the image tag to latest
+TKG_DEFAULT_BOM_IMAGE_TAG = "v1.3.1-rc.1"
 endif
 
 PRIVATE_REPOS="github.com/vmware-tanzu-private"
@@ -368,10 +369,12 @@ go-generate: ## Generate fakes and swagger api files
 .PHONY: generate-ui-bindata
 generate-ui-bindata: $(GOBINDATA) ## Generate go-bindata for ui files
 	$(GOBINDATA) -mode=420 -modtime=1 -o=pkg/v1/tkg/manifest/server/zz_generated.bindata.go -pkg=server $(UI_DIR)/dist/...
+	$(MAKE) fmt
 
 .PHONY: generate-telemetry-bindata
 generate-telemetry-bindata: $(GOBINDATA) ## Generate telemetry bindata
 	$(GOBINDATA) -mode=420 -modtime=1 -o=pkg/v1/tkg/manifest/telemetry/zz_generated.bindata.go -pkg=telemetry pkg/v1/tkg/manifest/telemetry/...
+	$(MAKE) fmt
 
  # TODO: Remove bindata dependency and use go embed
 .PHONY: generate-bindata ## Generate go-bindata files

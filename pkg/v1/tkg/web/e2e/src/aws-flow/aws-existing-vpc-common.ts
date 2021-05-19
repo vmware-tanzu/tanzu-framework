@@ -9,6 +9,7 @@ import { Identity } from '../common/identity.po'
 
 export class ExistingVpcCommon extends WizardCommon {
     setCredentials(step: Provider) {
+        step.getStaticCredential().click();
         step.getAccessKeyId().clear();
         step.getAccessKeyId().sendKeys(PARAMS.AWS_ACCESS_KEY_ID);
         step.getSecretAccessKey().clear();

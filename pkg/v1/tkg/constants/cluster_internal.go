@@ -47,12 +47,6 @@ const (
 
 	ServiceDNSSuffix             = ".svc"
 	ServiceDNSClusterLocalSuffix = ".svc.cluster.local"
-
-	LocalHost   = "localhost"
-	LocalHostIP = "127.0.0.1"
-
-	LinkLocalAddress = "169.254.0.0/16"
-	AzurePublicVIP   = "168.63.129.16"
 )
 
 // deployment plan constants
@@ -75,4 +69,16 @@ const (
 	AWSMachineTemplate     = "AWSMachineTemplate"
 	AzureMachineTemplate   = "AzureMachineTemplate"
 	DockerMachineTemplate  = "DockerMachineTemplate"
+)
+
+// networking constants
+const (
+	IPv6Family = "ipv6"
+
+	LocalHost     = "localhost"
+	LocalHostIP   = "127.0.0.1"
+	LocalHostIPv6 = "::1"
+
+	LinkLocalAddress = "169.254.0.0/16"
+	AzurePublicVIP   = "168.63.129.16"
 )
