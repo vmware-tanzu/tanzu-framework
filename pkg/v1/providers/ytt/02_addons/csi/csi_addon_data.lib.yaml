@@ -1,0 +1,59 @@
+#@ load("@ytt:data", "data")
+#@ load("/lib/helpers.star", "get_bom_data_for_tkr_name", "get_image_repo_for_component", "get_no_proxy")
+
+#@ def vsphere_csi_data_values():
+#@ bomData = get_bom_data_for_tkr_name()
+#@ csiAttacherImage = bomData.components.csi_attacher[0].images.csiAttacherImage
+#@ csiControllerImage = bomData.components.vsphere_csi_driver[0].images.csiControllerImage
+#@ csiLivenessProbeImage = bomData.components.csi_livenessprobe[0].images.csiLivenessProbeImage
+#@ csiSyncerImage = bomData.components.vsphere_csi_driver[0].images.csiMetaDataSyncerImage
+#@ csiProvisionerImage = bomData.components.csi_provisioner[0].images.csiProvisonerImage
+#@ csiDriverRegistrarImage = bomData.components.csi_node_driver_registrar[0].images.csiNodeDriverRegistrarImage
+---
+vsphereCSI:
+#@ if data.values.TKG_CLUSTER_ROLE == "workload": #! For backwards compatibility. i.e. C.1 mgmt cluster creates a C.0 wlc with older addon templates.
+  CSIAttacherImage:
+    repository: #@ get_image_repo_for_component(csiAttacherImage)
+    path: #@ csiAttacherImage.imagePath
+    tag: #@ csiAttacherImage.tag
+    pullPolicy: "IfNotPresent"
+  vsphereCSIControllerImage:
+    repository: #@ get_image_repo_for_component(csiControllerImage)
+    path: #@ csiControllerImage.imagePath
+    tag: #@ csiControllerImage.tag
+    pullPolicy: "IfNotPresent"
+  livenessProbeImage:
+    repository: #@ get_image_repo_for_component(csiLivenessProbeImage)
+    path: #@ csiLivenessProbeImage.imagePath
+    tag: #@ csiLivenessProbeImage.tag
+    pullPolicy: "IfNotPresent"
+  vsphereSyncerImage:
+    repository: #@ get_image_repo_for_component(csiSyncerImage)
+    path: #@ csiSyncerImage.imagePath
+    tag: #@ csiSyncerImage.tag
+    pullPolicy: "IfNotPresent"
+  CSIProvisionerImage:
+    repository: #@ get_image_repo_for_component(csiProvisionerImage)
+    path: #@ csiProvisionerImage.imagePath
+    tag: #@ csiProvisionerImage.tag
+    pullPolicy: "IfNotPresent"
+  CSINodeDriverRegistrarImage:
+    repository: #@ get_image_repo_for_component(csiDriverRegistrarImage)
+    path: #@ csiDriverRegistrarImage.imagePath
+    tag: #@ csiDriverRegistrarImage.tag
+    pullPolicy: "IfNotPresent"
+#@ end
+  namespace: kube-system
+  clusterName: #@ data.values.CLUSTER_NAME
+  server: #@ data.values.VSPHERE_SERVER
+  datacenter: #@ data.values.VSPHERE_DATACENTER
+  publicNetwork: #@ data.values.VSPHERE_NETWORK
+  username: #@ data.values.VSPHERE_USERNAME
+  password: #@ data.values.VSPHERE_PASSWORD
+  region: #@ data.values.VSPHERE_REGION
+  zone: #@ data.values.VSPHERE_ZONE
+  vSphereVersion: #@ data.values.VSPHERE_VERSION
+  http_proxy: #@ data.values.TKG_HTTP_PROXY
+  https_proxy: #@ data.values.TKG_HTTPS_PROXY
+  no_proxy: #@ get_no_proxy()
+#@ end

@@ -1,0 +1,47 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+#@ load("/lib/helpers.star", "tkg_image_repo_customized", "tkg_image_repo_skip_tls_verify", "tkg_image_repo", "tkg_image_repo_hostname")
+
+#@ if tkg_image_repo_customized():
+#@overlay/match by=overlay.subset({"kind":"KubeadmControlPlane"})
+---
+apiVersion: controlplane.cluster.x-k8s.io/v1alpha3
+kind: KubeadmControlPlane
+spec:
+  kubeadmConfigSpec:
+    #@overlay/match missing_ok=True
+    preKubeadmCommands:
+    #@overlay/append
+    - #@ "sed -i 's|\".*/pause|\"" + tkg_image_repo() + "/pause|' /etc/containerd/config.toml"
+    #@ if tkg_image_repo_skip_tls_verify():
+    #@overlay/append
+    - #@ "echo '[plugins.\"io.containerd.grpc.v1.cri\".registry.configs.\"" + tkg_image_repo_hostname() + "\".tls]' >> /etc/containerd/config.toml"
+    #@overlay/append
+    - echo '  insecure_skip_verify = true' >> /etc/containerd/config.toml
+    #@ end
+    #@overlay/append
+    - systemctl restart containerd
+
+#@ if data.values.INFRASTRUCTURE_PROVIDER != "windows-vsphere":
+#@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate"}),expects="1+"
+---
+apiVersion: bootstrap.cluster.x-k8s.io/v1alpha3
+kind: KubeadmConfigTemplate
+spec:
+  template:
+    spec:
+      #@overlay/match missing_ok=True
+      preKubeadmCommands:
+      #@overlay/append
+      - #@ "sed -i 's|\".*/pause|\"" + tkg_image_repo() + "/pause|' /etc/containerd/config.toml"
+      #@ if tkg_image_repo_skip_tls_verify():
+      #@overlay/append
+      - #@ "echo '[plugins.\"io.containerd.grpc.v1.cri\".registry.configs.\"" + tkg_image_repo_hostname() + "\".tls]' >> /etc/containerd/config.toml"
+      #@overlay/append
+      - echo '  insecure_skip_verify = true' >> /etc/containerd/config.toml
+      #@ end
+      #@overlay/append
+      - systemctl restart containerd
+#@ end
+#@ end
+

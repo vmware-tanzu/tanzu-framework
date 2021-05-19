@@ -1,0 +1,47 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+#@ load("/lib/helpers.star", "get_bom_data_for_tkr_name", "tkg_image_repo",  "get_image_repo_for_component")
+
+#@ if data.values.PROVIDER_TYPE != "tkg-service-vsphere":
+#@   antreaImage = get_bom_data_for_tkr_name().components["antrea"][0].images.antreaImage
+#@ end
+
+#@ def antreadatavalues():
+infraProvider: #@ data.values.PROVIDER_TYPE
+antrea:
+  config:
+    serviceCIDR: #@ data.values.SERVICE_CIDR
+    #@ if data.values.NSXT_POD_ROUTING_ENABLED:
+    trafficEncapMode: "noEncap"
+    noSNAT: true
+    #@ else:
+    trafficEncapMode: #@ data.values.ANTREA_TRAFFIC_ENCAP_MODE
+    noSNAT: #@ data.values.ANTREA_NO_SNAT
+    #@ end
+    featureGates:
+      #@ if data.values.NSXT_POD_ROUTING_ENABLED:
+      AntreaProxy: true
+      #@ else:
+      AntreaProxy: #@ data.values.ANTREA_PROXY
+      #@ end
+      AntreaPolicy: #@ data.values.ANTREA_POLICY
+      AntreaTraceflow: #@ data.values.ANTREA_TRACEFLOW
+#@ if data.values.TKG_CLUSTER_ROLE == "workload": #! For backwards compatibility. i.e. C.1 mgmt cluster creates a C.0 wlc with older addon templates.
+  image: 
+    repository: #@ get_image_repo_for_component(antreaImage)
+    path: #@ antreaImage.imagePath
+    tag: #@ antreaImage.tag
+    pullPolicy: IfNotPresent
+#@ end
+
+#@ end
+
+#@ def antreaImageInfo():
+imageInfo:
+  imageRepository: #@ tkg_image_repo()
+  imagePullPolicy: IfNotPresent
+  images:
+    antreaImage:
+      imagePath: #@ antreaImage.imagePath
+      tag: #@ antreaImage.tag
+#@ end

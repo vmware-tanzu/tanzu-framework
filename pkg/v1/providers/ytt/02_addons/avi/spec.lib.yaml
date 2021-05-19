@@ -1,0 +1,127 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:base64", "base64")
+#@ load("/lib/helpers.star", "get_default_tkg_bom_data", "tkg_image_repo")
+
+#@ akooRepo = get_default_tkg_bom_data().components["ako-operator"][0]
+#@ akoRepo = get_default_tkg_bom_data().components["load-balancer-and-ingress-service"][0]
+
+#@ def labels():
+app: tanzu-ako-operator
+#@ end
+
+#@ def dockerImage():
+#@   return "{}/{}:{}".format(tkg_image_repo(), akooRepo.images.akoOperatorImage.imagePath, akooRepo.images.akoOperatorImage.tag)
+#@ end
+
+#@ def ako_repo():
+#@  return "{}/{}".format(tkg_image_repo(), akoRepo.images.loadBalancerAndIngressServiceImage.imagePath)
+#@ end
+
+#@ def akoo_deployment():
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels: #@ labels()
+  name: ako-operator-controller-manager
+  namespace: #@ data.values.AVI_NAMESPACE
+spec:
+  replicas: 1
+  selector:
+    matchLabels: #@ labels()
+  template:
+    metadata:
+      labels: #@ labels()
+    spec:
+      containers:
+        - args:
+            - --secure-listen-address=0.0.0.0:8443
+            - --upstream=http://127.0.0.1:8080/
+            - --logtostderr=true
+            - --v=10
+          image: gcr.io/kubebuilder/kube-rbac-proxy:v0.4.1
+          name: kube-rbac-proxy
+          ports:
+            - containerPort: 8443
+              name: https
+        - args:
+            - --metrics-addr=127.0.0.1:8080
+          command:
+            - /manager
+          image: #@ dockerImage()
+          name: manager
+          env:
+            - name: bootstrap_cluster
+              value: "False"
+            - name: avi_control_plane_ha_provider
+              value: #@ "{}".format(data.values.AVI_CONTROL_PLANE_HA_PROVIDER)  
+            - name: tkg_management_cluster_name
+              value: #@ data.values.CLUSTER_NAME     
+          resources:
+            limits:
+              cpu: 100m
+              memory: 300Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
+      terminationGracePeriodSeconds: 10
+#@ end
+
+#@ def avi_configs_spec():
+#@ if data.values.AVI_LABELS != "":
+  clusterSelector:
+    matchLabels: #@ data.values.AVI_LABELS
+#@ end
+  cloudName: #@ data.values.AVI_CLOUD_NAME
+  serviceEngineGroup: #@ data.values.AVI_SERVICE_ENGINE_GROUP
+  controller: #@ data.values.AVI_CONTROLLER
+  adminCredentialRef:
+    name: #@ data.values.AVI_ADMIN_CREDENTIAL_NAME
+    namespace: #@ data.values.AVI_NAMESPACE
+  certificateAuthorityRef:
+    name: #@ data.values.AVI_CA_NAME
+    namespace: #@ data.values.AVI_NAMESPACE
+  dataNetwork:
+    name: #@ data.values.AVI_DATA_NETWORK
+    cidr: #@ data.values.AVI_DATA_NETWORK_CIDR
+  extraConfigs:
+    disableStaticRouteSync: #@ data.values.AVI_DISABLE_STATIC_ROUTE_SYNC
+    image:
+      repository: #@ ako_repo()
+      pullPolicy: #@ data.values.AVI_AKO_IMAGE_PULL_POLICY
+      version: #@ akoRepo.images.loadBalancerAndIngressServiceImage.tag
+    ingress:
+      disableIngressClass: #@ data.values.AVI_DISABLE_INGRESS_CLASS
+      defaultIngressController: #@ data.values.AVI_INGRESS_DEFAULT_INGRESS_CONTROLLER
+#@ if data.values.AVI_INGRESS_SHARD_VS_SIZE != "":
+      shardVSSize: #@ data.values.AVI_INGRESS_SHARD_VS_SIZE
+#@ end
+#@ if data.values.AVI_INGRESS_SERVICE_TYPE != "":
+      serviceType: #@ data.values.AVI_INGRESS_SERVICE_TYPE
+#@ end
+#@ if data.values.AVI_INGRESS_NODE_NETWORK_LIST != []:
+      nodeNetworkList: #@ data.values.AVI_INGRESS_NODE_NETWORK_LIST
+#@ end
+#@ end
+
+#@ def avi_credentials():
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ data.values.AVI_ADMIN_CREDENTIAL_NAME
+  namespace: #@ data.values.AVI_NAMESPACE
+type: Opaque
+data:
+  username: #@ base64.encode(data.values.AVI_USERNAME)
+  password: #@ base64.encode(data.values.AVI_PASSWORD)
+#@ end
+
+#@ def avi_certificate():
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ data.values.AVI_CA_NAME
+  namespace: #@ data.values.AVI_NAMESPACE
+type: Opaque
+data:
+  certificateAuthorityData: #@ data.values.AVI_CA_DATA_B64
+#@ end

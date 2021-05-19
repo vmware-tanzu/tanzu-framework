@@ -1,0 +1,95 @@
+#@ load("@ytt:assert", "assert")
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+#@ load("http_proxy.lib.txt", "http_proxy_unit_file")
+#@ load("/lib/helpers.star", "get_no_proxy")
+
+#! Validate proxy settings
+#@ if (data.values.TKG_HTTP_PROXY == "") != (data.values.TKG_HTTPS_PROXY == ""):
+#@ assert.fail("TKG_HTTP_PROXY and TKG_HTTPS_PROXY should both be set or left as empty")
+#@ end
+
+#! Populate service/pod CIDRs
+#@ if data.values.TKG_HTTP_PROXY != "":
+#@ POPULATED_NO_PROXY = get_no_proxy()
+#@ end
+
+#@ def exportEnvvar(key, val):
+#@ return "export {}={}".format(key, val)
+#@ end
+
+#@ if data.values.TKG_HTTP_PROXY != "":
+#@ if data.values.PROVIDER_TYPE in ["vsphere", "aws", "azure", "docker"]:
+#@overlay/match by=overlay.subset({"kind":"KubeadmControlPlane"})
+---
+spec:
+  #@overlay/match-child-defaults missing_ok=True
+  kubeadmConfigSpec:
+    files:
+      #@overlay/append
+      - content: #@ http_proxy_unit_file(data.values.TKG_HTTP_PROXY, data.values.TKG_HTTPS_PROXY, POPULATED_NO_PROXY)
+        owner: root:root
+        path: /etc/systemd/system/containerd.service.d/http-proxy.conf
+        permissions: "0640"
+      #@overlay/append
+      - content: #@ http_proxy_unit_file(data.values.TKG_HTTP_PROXY, data.values.TKG_HTTPS_PROXY, POPULATED_NO_PROXY)
+        owner: root:root
+        path: /usr/lib/systemd/system/kubelet.service.d/http-proxy.conf
+        permissions: "0640"
+    preKubeadmCommands:
+      #@overlay/append
+      - systemctl daemon-reload
+      #@overlay/append
+      - systemctl stop containerd
+      #@overlay/append
+      - systemctl start containerd
+      #@overlay/append
+      - #@ exportEnvvar("HTTP_PROXY", data.values.TKG_HTTP_PROXY)
+      #@overlay/append
+      - #@ exportEnvvar("HTTPS_PROXY", data.values.TKG_HTTPS_PROXY)
+      #@overlay/append
+      - #@ exportEnvvar("NO_PROXY", POPULATED_NO_PROXY)
+
+#@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate"}),expects="1+"
+---
+spec:
+  template:
+    #@overlay/match-child-defaults missing_ok=True
+    spec:
+      files:
+        #@overlay/append
+        - content: #@ http_proxy_unit_file(data.values.TKG_HTTP_PROXY, data.values.TKG_HTTPS_PROXY, POPULATED_NO_PROXY)
+          owner: root:root
+          path: /etc/systemd/system/containerd.service.d/http-proxy.conf
+          permissions: "0640"
+        #@overlay/append
+        - content: #@ http_proxy_unit_file(data.values.TKG_HTTP_PROXY, data.values.TKG_HTTPS_PROXY, POPULATED_NO_PROXY)
+          owner: root:root
+          path: /usr/lib/systemd/system/kubelet.service.d/http-proxy.conf
+          permissions: "0640"
+      preKubeadmCommands:
+        #@overlay/append
+        - systemctl daemon-reload
+        #@overlay/append
+        - systemctl restart containerd
+        #@overlay/append
+        - #@ exportEnvvar("HTTP_PROXY", data.values.TKG_HTTP_PROXY)
+        #@overlay/append
+        - #@ exportEnvvar("HTTPS_PROXY", data.values.TKG_HTTPS_PROXY)
+        #@overlay/append
+        - #@ exportEnvvar("NO_PROXY", POPULATED_NO_PROXY)
+#@ end
+
+#@ if data.values.PROVIDER_TYPE == "tkg-service-vsphere":
+#@overlay/match by=overlay.subset({"kind":"TanzuKubernetesCluster"})
+---
+spec:
+  settings:
+    #@overlay/match-child-defaults missing_ok=True
+    network:
+      proxy:
+        httpProxy: #@ data.values.TKG_HTTP_PROXY
+        httpsProxy: #@ data.values.TKG_HTTPS_PROXY
+        noProxy: #@ POPULATED_NO_PROXY.split(",")
+#@ end
+#@ end

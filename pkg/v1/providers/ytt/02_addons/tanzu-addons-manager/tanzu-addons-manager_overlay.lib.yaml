@@ -1,0 +1,13 @@
+#@ load("@ytt:overlay", "overlay")
+
+#@ def tanzuaddonsmanageroverlay():
+
+#@overlay/match by=overlay.all,expects="1+"
+---
+#@overlay/match missing_ok=True
+metadata:
+  #@overlay/match missing_ok=True
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "addons-management/tanzu-addons-manager"
+
+#@ end
