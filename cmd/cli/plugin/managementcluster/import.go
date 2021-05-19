@@ -13,8 +13,8 @@ import (
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/cmd"
 
-	"github.com/vmware-tanzu-private/tkg-cli/pkg/region"
-	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/region"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgctl"
 )
 
 type importOptions struct {

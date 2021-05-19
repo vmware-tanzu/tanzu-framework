@@ -4,7 +4,8 @@
 
 set -euo pipefail
 
-if ! (git diff --quiet HEAD -- .); then
+#TODO: Remove package-lock.json from this list once dirty file issue is resolved.
+if ! (git diff --quiet HEAD -- . ':(exclude)pkg/v1/tkg/web/package-lock.json'); then
    echo -e "\nThe following files are uncommitted. Please commit them or add them to .gitignore:";
    git diff --name-only HEAD -- . | awk '{print "- " $0}'
    echo -e "\nDiff:"

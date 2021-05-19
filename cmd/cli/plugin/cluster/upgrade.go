@@ -11,9 +11,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu-private/tkg-cli/pkg/constants"
-	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
-	"github.com/vmware-tanzu-private/tkg-cli/pkg/utils"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgctl"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/utils"
 
 	"github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
 	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"

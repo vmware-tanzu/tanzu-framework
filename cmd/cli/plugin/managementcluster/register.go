@@ -6,7 +6,7 @@ package main
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgctl"
 
 	"github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
 )

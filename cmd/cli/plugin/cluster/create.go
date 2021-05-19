@@ -16,10 +16,10 @@ import (
 	"github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
 	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/clusterclient"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgctl"
 	tkr "github.com/vmware-tanzu-private/core/pkg/v1/tkr/controllers/source"
-	"github.com/vmware-tanzu-private/tkg-cli/pkg/constants"
-	"github.com/vmware-tanzu-private/tkg-cli/pkg/log"
-	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 )

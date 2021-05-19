@@ -13,8 +13,8 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
 	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 
-	"github.com/vmware-tanzu-private/tkg-cli/pkg/tkgctl"
-	"github.com/vmware-tanzu-private/tkg-cli/pkg/utils"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgctl"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/utils"
 )
 
 type listClusterOptions struct {
