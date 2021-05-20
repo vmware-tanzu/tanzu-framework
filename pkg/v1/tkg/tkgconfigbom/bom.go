@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"k8s.io/apimachinery/pkg/util/version"
@@ -474,6 +475,13 @@ func (c *client) InitBOMRegistry() (registry.Registry, error) {
 		Anon:        true,
 	}
 
+	if runtime.GOOS == "windows" {
+		err := addRegistryTrustedRootCertsFileForWindows(registryOpts)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	customImageRepoCACertEnv, err := c.tkgConfigReaderWriter.Get(constants.ConfigVariableCustomImageRepositoryCaCertificate)
 	if err == nil && customImageRepoCACertEnv != "" {
 		filePath, err := tkgconfigpaths.GetRegistryCertFile()
@@ -488,7 +496,7 @@ func (c *client) InitBOMRegistry() (registry.Registry, error) {
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to write the custom image registry CA cert to file '%s'", filePath)
 		}
-		registryOpts.CACertPaths = []string{filePath}
+		registryOpts.CACertPaths = append(registryOpts.CACertPaths, filePath)
 	}
 
 	return registry.New(registryOpts)
@@ -518,5 +526,18 @@ func (c *client) saveEmbeddedBomToUserDefaultBOMDirectory(bomFileName string, bo
 			return errors.Wrap(err, "cannot create TKG BOM file")
 		}
 	}
+	return nil
+}
+
+func addRegistryTrustedRootCertsFileForWindows(registryOpts *ctlimg.RegistryOpts) error {
+	filePath, err := tkgconfigpaths.GetRegistryTrustedCACertFileForWindows()
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(filePath, projectsRegistryCA, constants.ConfigFilePermissions)
+	if err != nil {
+		return errors.Wrapf(err, "failed to write the registry trusted CA cert to file '%s'", filePath)
+	}
+	registryOpts.CACertPaths = append(registryOpts.CACertPaths, filePath)
 	return nil
 }

@@ -28,6 +28,7 @@ const (
 	TKGConfigFileName               = "config.yaml"
 	TKGDefaultClusterConfigFileName = "cluster-config.yaml"
 
-	TKGClusterConfigFileDirForUI = "clusterconfigs"
-	TKGRegistryCertFile          = "registry_certs"
+	TKGClusterConfigFileDirForUI           = "clusterconfigs"
+	TKGRegistryCertFile                    = "registry_certs"
+	TKGRegistryTrustedRootCAFileForWindows = ".registry_trusted_root_certs_win"
 )
