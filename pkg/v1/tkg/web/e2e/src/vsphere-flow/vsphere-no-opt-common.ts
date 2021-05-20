@@ -6,8 +6,14 @@ import WizardCommon from "./wizard-common";
 import { Identity } from '../common/identity.po'
 import { browser } from 'protractor';
 import { NetworkProxy } from '../common/networkproxy.po';
+import { NodeSettings } from './node-settings.po';
 
 export class DisableOptionsCommon extends WizardCommon {
+
+    selectEndpointProvider(nodeSettings: NodeSettings) {
+        // Do nothing as it is not enabled
+    }
+
     getFlowTestingDescription() {
         return "Vsphere flow (disable Options)"
     }

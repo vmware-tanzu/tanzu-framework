@@ -26,8 +26,16 @@ export class NodeSettings extends Step {
         return element(by.css('input[formcontrolname="sshKeyName"]'));
     }
 
-    getAvailabilityZone() {
+    getAvailabilityZone1() {
         return element(by.css('select[name="awsNodeAz1"]'));
+    }
+
+    getAvailabilityZone2() {
+        return element(by.css('select[name="awsNodeAz2"]'));
+    }
+
+    getAvailabilityZone3() {
+        return element(by.css('select[name="awsNodeAz3"]'));
     }
 
     getVpcPublicSubset() {

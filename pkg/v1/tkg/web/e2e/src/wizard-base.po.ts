@@ -1,3 +1,4 @@
+import { config } from 'process';
 import { by, element, browser, protractor } from 'protractor';
 import { Ceip } from './common/ceip.po';
 import { TmcRegister } from './common/tmc-settings.po';
@@ -30,6 +31,22 @@ export abstract class WizardBase {
 
     displayDeploymentPage() {
         return element(by.cssContainingText('h2', 'Deploying Tanzu Kubernetes Grid')).isPresent();
+    }
+ 
+    matchDepoymentPage(title) {
+        const EC = protractor.ExpectedConditions;
+        return EC.or(
+            EC.presenceOf(element(by.cssContainingText('h2', 'Deploying Tanzu Kubernetes Grid'))),
+            EC.presenceOf(element(by.cssContainingText('h2', title)))
+        );
+    }
+
+    matchConfirSettingsText() {
+        const EC = protractor.ExpectedConditions;
+        return EC.or(
+            EC.presenceOf(element(by.cssContainingText('h2', 'Tanzu Kubernetes Grid - Confirm Settings'))),
+            EC.presenceOf(element(by.cssContainingText('h2', 'Tanzu Community Edition - Confirm Settings')))
+        );
     }
 
     untilSucceedOrFail() {
@@ -82,7 +99,7 @@ export abstract class WizardBase {
         });
     }
 
-    executeDeployFlow() {
+    executeDeployFlow(title) {
         describe("Review Configuration", () => {
 
             it('"Review Configuration" button should be enabled', () => {
@@ -92,14 +109,13 @@ export abstract class WizardBase {
             it('should display "Tanzu Kubernetes Grid - Confirm Settings"', () => {
                 this.getReviewConfigurationButton().click();
                 browser.sleep(SLEEP_TIME_AFTER_NEXT);
-                expect(this.getConfirmSettingsText()).toEqual("Tanzu Kubernetes Grid - Confirm Settings");
-                expect(this.displayIaaSProvider()).toBeTruthy();
+                browser.wait(this.matchConfirSettingsText(), 5000);          
             })
-
+            
             it('should navigate to deployment status page', () => {
                 this.getDeployButton().click();
                 browser.sleep(SLEEP_TIME_AFTER_NEXT);
-                expect(this.displayDeploymentPage()).toBeTruthy();
+                expect(this.matchDepoymentPage(title)).toBeTruthy();
             })
 
             it('should finish deployment', async () => {

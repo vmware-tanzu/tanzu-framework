@@ -2,6 +2,7 @@ import { NodeSettings } from './node-settings.po';
 import { Provider } from './provider.po';
 import { browser, Key } from 'protractor';
 import { Wizard } from './wizard.po';
+import { NodeOpt } from '../common/node-setting-opt.po';
 import { Network } from './network.po';
 import { SLEEP_TIME_AFTER_NEXT, PARAMS } from '../wizard-base.po';
 import { AppPage } from '../app.po';
@@ -9,6 +10,8 @@ import { OsImage } from '../common/osimage.po';
 import { Metadata } from '../common/metadata.po'
 import { NetworkProxy } from '../common/networkproxy.po'
 import { Identity } from '../common/identity.po';
+
+const title = 'Deploying Tanzu Community Edition on Azure';
 
 export default abstract class WizardCommon {
 
@@ -24,7 +27,7 @@ export default abstract class WizardCommon {
 
             it('should display welcome message', () => {
                 page.navigateTo();
-                expect(page.getTitleText()).toEqual('Welcome to the VMware Tanzu Kubernetes Grid Installer');
+                expect(page.matchTitleText()).toBeTruthy();
             });
 
             it('should navigate to Azure flow', () => {
@@ -88,24 +91,42 @@ export default abstract class WizardCommon {
 
             describe("Control Plane Settings step", () => {
                 const nodeSettings = new NodeSettings();
+                const nodeOpt = new NodeOpt();
 
                 it('should have moved to this step', () => {
                     expect(nodeSettings.hasMovedToStep()).toBeTruthy();
                 })
 
-                it('should display "Control plane type: dev"', () => {
-                    const devSelect = nodeSettings.getDevSelect();
-                    nodeSettings.selectOptionByText(devSelect, PARAMS.AZURE_MC_TYPE);
-                    expect(nodeSettings.getTitleText()).toEqual('Control plane type: dev');
-                })
+                if (PARAMS.CONTROL_PLANE_TYPE === 'dev') {
+                    it('should display "Control plane type: dev"', () => {
+                        const devSelect = nodeSettings.getDevSelect();
+                        nodeSettings.selectOptionByText(devSelect, PARAMS.AZURE_MC_TYPE);
+                        expect(nodeSettings.getTitleText()).toEqual('Control plane type: dev');
+                    })
 
-                it('should be able to select instance type', () => {
-                    nodeSettings.getMCName().clear();
-                    nodeSettings.getMCName().sendKeys(PARAMS.MC_NAME);
-                    nodeSettings.selectOptionByText(nodeSettings.getWorkNodeInstanceType(), PARAMS.AZURE_WC_TYPE);
-                    expect(true).toBeTruthy();
-                })
+                    it('should be able to select instance type', () => {
+                        nodeSettings.getMCName().clear();
+                        nodeSettings.getMCName().sendKeys(PARAMS.MC_NAME);
+                        nodeSettings.selectOptionByText(nodeSettings.getWorkNodeInstanceType(), PARAMS.AZURE_WC_TYPE);
+                        nodeOpt.getEnableAudit().click();
+                        expect(true).toBeTruthy();
+                    })
+                }
+                else {
+                    it('should display "Control plane type: prod"', () => {
+                        const prodSelect = nodeSettings.getProdSelect();
+                        nodeSettings.selectOptionByText(prodSelect, PARAMS.AZURE_MC_TYPE);
+                        expect(nodeSettings.getTitleText()).toEqual('Control plane type: prod');
+                    })
 
+                    it('should be able to select instance type', () => {
+                        nodeSettings.getMCName().clear();
+                        nodeSettings.getMCName().sendKeys(PARAMS.MC_NAME);
+                        nodeSettings.selectOptionByText(nodeSettings.getWorkNodeInstanceType(), PARAMS.AZURE_WC_TYPE);
+                        nodeOpt.getEnableAudit().click();
+                        expect(true).toBeTruthy();
+                    })
+                }
                 afterAll(() => {
                     nodeSettings.getNextButton().click();
                     browser.sleep(SLEEP_TIME_AFTER_NEXT);
@@ -185,7 +206,7 @@ export default abstract class WizardCommon {
 
             flow.executeCommonFlow();
             if (isVtaas === false) {
-                flow.executeDeployFlow();
+                flow.executeDeployFlow(title);
             }
         });
     }

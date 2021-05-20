@@ -7,6 +7,8 @@ import { AppPage } from '../app.po';
 import { Identity } from '../common/identity.po'
 import { NetworkProxy } from '../common/networkproxy.po'
 
+const title = 'Deploying Tanzu Community Edition on Docker';
+
 export default abstract class WizardCommon {
 
     abstract setNetworkProxy(step: NetworkProxy);
@@ -19,7 +21,7 @@ export default abstract class WizardCommon {
 
             it('should display welcome message', () => {
                 page.navigateTo();
-                expect(page.getTitleText()).toEqual('Welcome to the Tanzu Community Edition Installer');
+                expect(page.matchTitleText()).toBeTruthy();
             });
 
             it('should navigate to Docker flow', () => {
@@ -71,10 +73,10 @@ export default abstract class WizardCommon {
                 })
             });
 
-            this.executeIdentityStep();
+            // this.executeIdentityStep();
 
             if (isVtaas === false) {
-                flow.executeDeployFlow();
+                flow.executeDeployFlow(title);
             }
         });
     }

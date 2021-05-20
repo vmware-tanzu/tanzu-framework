@@ -61,4 +61,12 @@ export class Vnet extends Step {
     getWorkerNodeSubnetCidrNewText() {
         return element(by.css('input[formControlName="workerNodeSubnetCidrNew"]')).getAttribute('value') as Promise<string>;
     }
+
+    getPrivateCluster() {
+        return element(by.cssContainingText("label", "PRIVATE AZURE CLUSTER"));
+    }
+
+    getPrivateIP() {
+        return element(by.css('input[formControlName="privateIP"]'))
+    }
 }
