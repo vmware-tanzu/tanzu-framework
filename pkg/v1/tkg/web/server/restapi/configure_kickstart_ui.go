@@ -22,8 +22,6 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/restapi/operations/vsphere"
 )
 
-//go:generate swagger generate server --target ../../server --name KickstartUI --spec ../../api/spec.yaml --exclude-main
-
 func configureFlags(api *operations.KickstartUIAPI) {
 	// api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{ ... }
 }
