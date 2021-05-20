@@ -63,6 +63,9 @@ ifndef TKG_DEFAULT_BOM_IMAGE_TAG
 TKG_DEFAULT_BOM_IMAGE_TAG = "v1.3.1-rc.1"
 endif
 
+DOCKER_DIR := /app
+SWAGGER=docker run --rm -v ${PWD}:${DOCKER_DIR} quay.io/goswagger/swagger:v0.21.0
+
 PRIVATE_REPOS="github.com/vmware-tanzu-private"
 GO := GOPRIVATE=${PRIVATE_REPOS} go
 
@@ -358,13 +361,10 @@ cobra-docs:
 	TANZU_CLI_NO_INIT=true TANZU_CLI_NO_COLOR=true $(GO) run ./cmd/cli/tanzu generate-all-docs
 	sed -i.bak -E 's/\/[A-Za-z]*\/([a-z]*)\/.config\/tanzu\/pinniped\/sessions.yaml/~\/.config\/tanzu\/pinniped\/sessions.yaml/g' docs/cli/commands/tanzu_pinniped-auth_login.md
 	
-.PHONY: go-generate
-go-generate: ## Generate fakes and swagger api files
+.PHONY: generate-fakes
+generate-fakes: ## Generate fakes for writing unit tests
 	$(GO) generate ./...
 	$(MAKE) fmt
-	# reset the server.go file to avoid goswagger overwritting our custom changes.
-	git reset HEAD $(UI_DIR)/server/restapi/server.go
-	git checkout HEAD $(UI_DIR)/server/restapi/server.go
 
 .PHONY: generate-ui-bindata
 generate-ui-bindata: $(GOBINDATA) ## Generate go-bindata for ui files
@@ -386,6 +386,16 @@ configure-bom:
 	sed "s+TKG_DEFAULT_BOM_IMAGE_REPO+${TKG_DEFAULT_BOM_IMAGE_REPO}+g"  hack/update-bundled-bom-filename/update-bundled-default-bom-files-configdata.txt | \
 	sed "s+TKG_DEFAULT_BOM_IMAGE_PATH+${TKG_DEFAULT_BOM_IMAGE_PATH}+g" | \
 	sed "s/TKG_DEFAULT_BOM_IMAGE_TAG/${TKG_DEFAULT_BOM_IMAGE_TAG}/g"  > pkg/v1/tkg/tkgconfigpaths/zz_bundled_default_bom_files_configdata.go
+
+.PHONY: generate-ui-swagger-api
+generate-ui-swagger-api: ## Generate swagger files for UI backend
+	rm -rf ${UI_DIR}/server/client  ${UI_DIR}/server/models ${UI_DIR}/server/restapi/operations
+	${SWAGGER} generate server -q -A kickstartUI -t $(DOCKER_DIR)/${UI_DIR}/server -f $(DOCKER_DIR)/${UI_DIR}/api/spec.yaml --exclude-main
+	${SWAGGER} generate client -q -A kickstartUI -t $(DOCKER_DIR)/${UI_DIR}/server -f $(DOCKER_DIR)/${UI_DIR}/api/spec.yaml
+	# reset the server.go file to avoid goswagger overwritting our custom changes.
+	git reset HEAD ${UI_DIR}/server/restapi/server.go
+	git checkout HEAD ${UI_DIR}/server/restapi/server.go
+	$(MAKE) fmt
 
 ## --------------------------------------
 ## Provider templates/overlays
