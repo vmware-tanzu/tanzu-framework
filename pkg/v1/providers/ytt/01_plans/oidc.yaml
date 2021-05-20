@@ -1,0 +1,38 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+#@ load("/lib/helpers.star", "validate")
+
+#@ if data.values.ENABLE_OIDC and validate():
+#@overlay/match by=overlay.subset({"kind":"KubeadmControlPlane"})
+---
+spec:
+  kubeadmConfigSpec:
+    clusterConfiguration:
+      apiServer:
+        extraArgs:
+          #@overlay/match missing_ok=True
+          oidc-client-id: #@ data.values.CLUSTER_NAME
+          #@overlay/match missing_ok=True
+          oidc-issuer-url: #@ data.values.OIDC_ISSUER_URL
+          #@overlay/match missing_ok=True
+          oidc-username-claim: #@ data.values.OIDC_USERNAME_CLAIM
+          #@overlay/match missing_ok=True
+          oidc-groups-claim: #@ data.values.OIDC_GROUPS_CLAIM
+          #@overlay/match missing_ok=True
+          oidc-ca-file: /etc/tkg/pki/dex-ca.crt
+        #@overlay/match missing_ok=True
+        extraVolumes:
+          #@overlay/append
+          - name: dex-ca
+            hostPath: /etc/tkg/pki
+            mountPath: /etc/tkg/pki
+            readOnly: true
+            pathType: DirectoryOrCreate
+    #@overlay/match missing_ok=True
+    files:
+      #@overlay/append
+      - path: /etc/tkg/pki/dex-ca.crt
+        encoding: "gzip+base64"
+        #! kubectl get secret dex-cert-tls -n tanzu-system-auth -o 'go-template={{ index .data "ca.crt" }}' | base64 -D | gzip | base64
+        content: #@ data.values.OIDC_DEX_CA
+#@ end

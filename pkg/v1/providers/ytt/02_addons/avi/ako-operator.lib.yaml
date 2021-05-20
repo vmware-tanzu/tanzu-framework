@@ -1,0 +1,11 @@
+#@ load("@ytt:data", "data")
+#@ load("spec.lib.yaml", "akoo_deployment")
+
+#@ def akooperatoryaml():
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: #@ data.values.AVI_NAMESPACE
+--- #@ akoo_deployment()
+#@ end

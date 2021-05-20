@@ -1,0 +1,447 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+#@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "get_default_tkg_bom_data", "kubeadm_image_repo", "tkg_image_repo", "get_vsphere_thumbprint")
+#@ load("lib/validate.star", "validate_configuration")
+#@ load("@ytt:yaml", "yaml")
+#@ validate_configuration("vsphere")
+
+#@ bomDataForK8sVersion = get_bom_data_for_tkr_name()
+#@ bomData = get_default_tkg_bom_data()
+
+
+#@ def kube_vip_pod():
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  name: kube-vip
+  namespace: kube-system
+spec:
+  containers:
+  - args:
+    - start
+    env:
+    - name: vip_arp
+      value: "true"
+    - name: vip_leaderelection
+      value: "true"
+    - name: address
+      value: #@ data.values.VSPHERE_CONTROL_PLANE_ENDPOINT
+    - name: vip_interface
+      value:  #@ data.values.VIP_NETWORK_INTERFACE
+    - name: vip_leaseduration
+      value: "15"
+    - name: vip_renewdeadline
+      value: "10"
+    - name: vip_retryperiod
+      value: "2"
+    image: #@ "{}/{}:{}".format(tkg_image_repo(), bomData.components["kube-vip"][0].images.kubeVipImage.imagePath, bomData.components["kube-vip"][0].images.kubeVipImage.tag)
+    imagePullPolicy: IfNotPresent
+    name: kube-vip
+    resources: {}
+    securityContext:
+      capabilities:
+        add:
+        - NET_ADMIN
+        - SYS_TIME
+    volumeMounts:
+    - mountPath: /etc/kubernetes/admin.conf
+      name: kubeconfig
+  hostNetwork: true
+  volumes:
+  - hostPath:
+      path: /etc/kubernetes/admin.conf
+      type: FileOrCreate
+    name: kubeconfig
+status: {}
+#@ end
+
+#@overlay/match by=overlay.subset({"kind":"Cluster"})
+---
+apiVersion: cluster.x-k8s.io/v1alpha3
+kind: Cluster
+metadata:
+  name: #@ data.values.CLUSTER_NAME
+  labels:
+    #@overlay/match missing_ok=True
+    #@yaml/text-templated-strings
+    #@ if data.values.TKG_CLUSTER_ROLE != "workload":
+    cluster-role.tkg.tanzu.vmware.com/(@= data.values.TKG_CLUSTER_ROLE @): ""
+    #@ end
+    tkg.tanzu.vmware.com/cluster-name: #@ data.values.CLUSTER_NAME
+    #@overlay/match missing_ok=True
+    tanzuKubernetesRelease: #@ data.values.KUBERNETES_RELEASE
+spec:
+  infrastructureRef:
+    name: #@ data.values.CLUSTER_NAME
+  controlPlaneRef:
+    name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+      #@overlay/match by=overlay.index(0)
+      - #@ data.values.CLUSTER_CIDR
+    services:
+      cidrBlocks:
+      #@overlay/match by=overlay.index(0)
+      - #@ data.values.SERVICE_CIDR
+
+#@overlay/match by=overlay.subset({"kind":"VSphereCluster"})
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+kind: VSphereCluster
+metadata:
+  name: #@ data.values.CLUSTER_NAME
+#@overlay/replace
+spec:
+  cloudProviderConfiguration:
+    global:
+      insecure: true
+      secretName: cloud-provider-vsphere-credentials
+      secretNamespace: kube-system
+    network:
+      name: #@ data.values.VSPHERE_NETWORK
+    providerConfig:
+      cloud:
+        controllerImage: gcr.io/cloud-provider-vsphere/cpi/release/manager:v1.2.1
+    virtualCenter:
+      #@yaml/text-templated-strings
+      (@= data.values.VSPHERE_SERVER @):
+        datacenters: #@ data.values.VSPHERE_DATACENTER
+    workspace:
+      datacenter: #@ data.values.VSPHERE_DATACENTER
+      datastore: #@ data.values.VSPHERE_DATASTORE
+      folder: #@ data.values.VSPHERE_FOLDER
+      server: #@ data.values.VSPHERE_SERVER
+  controlPlaneEndpoint:
+    host: #@ data.values.VSPHERE_CONTROL_PLANE_ENDPOINT
+    port: 6443
+  server: #@ data.values.VSPHERE_SERVER
+
+#@overlay/match by=overlay.subset({"kind": "VSphereMachineTemplate", "metadata":{"name": "${ CLUSTER_NAME }-control-plane"}})
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+kind: VSphereMachineTemplate
+metadata:
+  name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
+spec:
+  template:
+    spec:
+      cloneMode:  #@ data.values.VSPHERE_CLONE_MODE
+      datacenter: #@ data.values.VSPHERE_DATACENTER
+      datastore: #@ data.values.VSPHERE_DATASTORE
+      diskGiB: #@ data.values.VSPHERE_CONTROL_PLANE_DISK_GIB
+      folder: #@ data.values.VSPHERE_FOLDER
+      memoryMiB: #@ data.values.VSPHERE_CONTROL_PLANE_MEM_MIB
+      network:
+        devices:
+        #@overlay/match by=overlay.index(0)
+        #@overlay/replace
+        - dhcp4: true
+          networkName: #@ data.values.VSPHERE_NETWORK
+      numCPUs: #@ data.values.VSPHERE_CONTROL_PLANE_NUM_CPUS
+      resourcePool: #@ data.values.VSPHERE_RESOURCE_POOL
+      server: #@ data.values.VSPHERE_SERVER
+      template: #@ data.values.VSPHERE_TEMPLATE
+
+#@overlay/match by=overlay.subset({"kind": "VSphereMachineTemplate", "metadata":{"name": "${ CLUSTER_NAME }-windows-containerd"}})
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+kind: VSphereMachineTemplate
+metadata:
+  name: #@ "{}-windows-containerd".format(data.values.CLUSTER_NAME)
+spec:
+  template:
+    spec:
+      cloneMode:  #@ data.values.VSPHERE_CLONE_MODE
+      datacenter: #@ data.values.VSPHERE_DATACENTER
+      datastore: #@ data.values.VSPHERE_DATASTORE
+      diskGiB: 80
+      folder: #@ data.values.VSPHERE_FOLDER
+      memoryMiB: #@ data.values.VSPHERE_WORKER_MEM_MIB
+      network:
+        devices:
+        #@overlay/match by=overlay.index(0)
+        #@overlay/replace
+        - dhcp4: true
+          networkName: #@ data.values.VSPHERE_NETWORK
+      numCPUs: #@ data.values.VSPHERE_WORKER_NUM_CPUS
+      resourcePool: #@ data.values.VSPHERE_RESOURCE_POOL
+      server: #@ data.values.VSPHERE_SERVER
+      template: windows-2019-kube-v1.19.1-containerd
+
+#@overlay/match by=overlay.subset({"kind":"KubeadmControlPlane"})
+---
+apiVersion: controlplane.cluster.x-k8s.io/v1alpha3
+kind: KubeadmControlPlane
+metadata:
+  name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
+spec:
+  infrastructureTemplate:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+    kind: VSphereMachineTemplate
+    name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
+  kubeadmConfigSpec:
+    clusterConfiguration:
+      imageRepository: #@ kubeadm_image_repo(bomDataForK8sVersion.kubeadmConfigSpec.imageRepository)
+      etcd:
+        local:
+          imageRepository: #@ kubeadm_image_repo(bomDataForK8sVersion.kubeadmConfigSpec.etcd.local.imageRepository)
+          imageTag: #@ bomDataForK8sVersion.kubeadmConfigSpec.etcd.local.imageTag
+      dns:
+        imageRepository: #@ kubeadm_image_repo(bomDataForK8sVersion.kubeadmConfigSpec.dns.imageRepository)
+        imageTag: #@ bomDataForK8sVersion.kubeadmConfigSpec.dns.imageTag
+      apiServer:
+        extraArgs:
+          cloud-provider: external
+      controllerManager:
+        extraArgs:
+          cloud-provider: external
+    files:
+    #@overlay/match by=overlay.index(0)
+    - content: #@ yaml.encode(kube_vip_pod())
+      owner: root:root
+      path: /etc/kubernetes/manifests/kube-vip.yaml
+    initConfiguration:
+      nodeRegistration:
+        criSocket: /var/run/containerd/containerd.sock
+        kubeletExtraArgs:
+          cloud-provider: external
+        name: '{{ ds.meta_data.hostname }}'
+    joinConfiguration:
+      nodeRegistration:
+        criSocket: /var/run/containerd/containerd.sock
+        kubeletExtraArgs:
+          cloud-provider: external
+        name: '{{ ds.meta_data.hostname }}'
+    useExperimentalRetryJoin: true
+    users:
+    #@overlay/match by=overlay.index(0)
+    #@overlay/replace
+    - name: capv
+      sshAuthorizedKeys:
+      - #@ data.values.VSPHERE_SSH_AUTHORIZED_KEY
+      sudo: ALL=(ALL) NOPASSWD:ALL
+  replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
+  version: #@ data.values.KUBERNETES_VERSION
+
+#@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate"})
+---
+apiVersion: bootstrap.cluster.x-k8s.io/v1alpha3
+kind: KubeadmConfigTemplate
+metadata:
+  name: #@ "{}-md-0-windows-containerd".format(data.values.CLUSTER_NAME)
+#@overlay/replace
+spec:
+  template:
+    spec:
+      joinConfiguration:
+        nodeRegistration:
+          criSocket: npipe:////./pipe/containerd-containerd
+          kubeletExtraArgs:
+            cloud-provider: external
+            register-with-taints: os=windows:NoSchedule
+          name: '{{ ds.meta_data.hostname }}'
+      files:
+      - path: 'c:\k\antrea\antrea-startup.ps1'
+        content: |
+            $service = Get-Service -Name ovs-vswitchd -ErrorAction SilentlyContinue
+            Push-Location C:\k\antrea
+            if($service -eq $null) {
+              & ./Install-OVS.ps1 -ImportCertificate $false -LocalFile ./ovs-win64.zip
+              Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
+              & nssm install kube-proxy "c:/k/kube-proxy.exe" "--proxy-mode=userspace --kubeconfig=C:/etc/kubernetes/kubelet.conf --log-dir=c:/var/log/kube-proxy --logtostderr=false --alsologtostderr"
+              & nssm install antrea-agent "c:/k/antrea/bin/antrea-agent.exe" "--config=c:/k/antrea/etc/antrea-agent.conf --logtostderr=false --log_dir=c:/k/antrea/logs --alsologtostderr --log_file_max_size=100 --log_file_max_num=4"
+              & nssm set antrea-agent DependOnService kube-proxy ovs-vswitchd
+              & nssm set antrea-agent Start SERVICE_DELAYED_START
+              start-service kube-proxy
+              start-service antrea-agent
+            }
+      - path: 'C:\Temp\antrea.ps1'
+        content: |
+            $service = Get-Service -Name ovs-vswitchd -ErrorAction SilentlyContinue
+            if($service -ne $null) {
+              exit
+            }
+            invoke-expression "bcdedit /set TESTSIGNING ON"
+            New-Item -ItemType Directory -Force -Path C:\k\antrea
+            New-Item -ItemType Directory -Force -Path C:\k\antrea\logs
+            New-Item -ItemType Directory -Force -Path C:\k\antrea\bin
+            New-Item -ItemType Directory -Force -Path C:\var\log\kube-proxy
+            $officialAntreaBinary = "http://build-squid.eng.vmware.com/build/mts/release/bora-17940641/publish/antrea-windows-advanced-0.13.1.17940641.zip"
+            curl.exe -sLo C:\k\antrea\antrea-windows.zip $officialAntreaBinary
+            Expand-Archive -Force -Path C:\k\antrea\antrea-windows.zip -DestinationPath C:\k\antrea
+            New-Item -ItemType Directory -Force -Path C:\opt\cni\bin
+            New-Item -ItemType Directory -Force -Path C:\etc\cni\net.d
+            cp C:\k\antrea\bin\antrea-cni.exe C:\opt\cni\bin\antrea.exe -Force
+            [Environment]::SetEnvironmentVariable("NODE_NAME", (hostname).ToLower())
+            $trigger = New-JobTrigger -AtStartup
+            $options = New-ScheduledJobOption -RunElevated
+            Register-ScheduledJob -Name PrepareAntrea -Trigger $trigger -FilePath 'c:\k\antrea\antrea-startup.ps1' -ScheduledJobOption $options
+            $env:HostIP = (
+                Get-NetIPConfiguration |
+                Where-Object {
+                    $_.IPv4DefaultGateway -ne $null -and $_.NetAdapter.Status -ne "Disconnected"
+                }
+            ).IPv4Address.IPAddress
+            $file = 'C:\var\lib\kubelet\kubeadm-flags.env'
+            $newstr="--node-ip=" + $env:HostIP
+            $raw = Get-Content -Path $file -TotalCount 1
+            $raw = $raw -replace ".$"
+            $new = "$($raw) $($newstr)`""
+            Set-Content $file $new
+            $nssm = (Get-Command nssm).Source
+            $serviceName = 'Kubelet'
+            & $nssm set $serviceName start SERVICE_AUTO_START
+            $KubeConfigFile='C:\etc\kubernetes\kubelet.conf'
+            $AntreaToken=$null
+            $LoopCount=1000
+            do {
+                $LoopCount=$LoopCount-1
+                if ($LoopCount -eq 0) {
+                    break
+                }
+                sleep 2
+                $AntreaToken=$(kubectl --kubeconfig=$KubeConfigFile get secrets -n kube-system -o jsonpath="{.items[?(@.metadata.annotations['kubernetes\.io/service-account\.name']=='antrea-agent')].data.token}")
+            } while ($AntreaToken -eq $null)
+            cd c:\k\antrea
+            curl.exe -LO https://raw.githubusercontent.com/vmware-tanzu/antrea/master/hack/windows/Start.ps1
+            curl.exe -LO https://raw.githubusercontent.com/vmware-tanzu/antrea/master/hack/windows/Helper.psm1
+            curl.exe -LO http://w3-dbc302.eng.vmware.com/rcao/image/containerd/antrea-agent.exe
+            mv antrea-agent.exe c:\k\antrea\bin -Force
+            Import-Module ./helper.psm1
+            & Install-AntreaAgent -KubernetesVersion "v1.19.1" -KubernetesHome "c:/k" -KubeConfig "C:/etc/kubernetes/kubelet.conf" -AntreaVersion "v0.12.0" -AntreaHome "c:/k/antrea"
+            New-KubeProxyServiceInterface
+            Add-MpPreference -ExclusionProcess "ctr.exe"
+            Add-MpPreference -ExclusionProcess "containerd.exe"
+            Restart-Computer -Force
+      postKubeadmCommands:
+      - powershell C:/Temp/antrea.ps1 -ExecutionPolicy Bypass
+      users:
+      - name: capv
+        groups: Administrators
+        sshAuthorizedKeys:
+        - #@ data.values.VSPHERE_SSH_AUTHORIZED_KEY
+        sudo: ALL=(ALL) NOPASSWD:ALL
+
+#@overlay/match by=overlay.subset({"kind":"MachineDeployment"})
+---
+apiVersion: cluster.x-k8s.io/v1alpha3
+kind: MachineDeployment
+metadata:
+  labels:
+    cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
+  name: #@ "{}-md-0-windows-containerd".format(data.values.CLUSTER_NAME)
+spec:
+  clusterName: #@ data.values.CLUSTER_NAME
+  replicas: #@ data.values.WORKER_MACHINE_COUNT
+  selector:
+    matchLabels:
+      cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
+  template:
+    metadata:
+      labels:
+        cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
+        node-pool: #@ "{}-worker-pool".format(data.values.CLUSTER_NAME)
+    spec:
+      bootstrap:
+        configRef:
+          apiVersion: bootstrap.cluster.x-k8s.io/v1alpha3
+          kind: KubeadmConfigTemplate
+          name: #@ "{}-md-0-windows-containerd".format(data.values.CLUSTER_NAME)
+      clusterName: #@ data.values.CLUSTER_NAME
+      infrastructureRef:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+        kind: VSphereMachineTemplate
+        name: #@ "{}-windows-containerd".format(data.values.CLUSTER_NAME)
+      version: v1.19.1
+---
+apiVersion: addons.cluster.x-k8s.io/v1alpha3
+kind: ClusterResourceSet
+metadata:
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: metadata/tkg
+  labels:
+    cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
+  name: #@ "{}-tkg-antrea-cls-init".format(data.values.CLUSTER_NAME)
+  namespace: default
+spec:
+  strategy: "ApplyOnce"
+  clusterSelector:
+    matchLabels:
+      tkg.tanzu.vmware.com/cluster-name: #@ data.values.CLUSTER_NAME
+  resources:
+  - kind: ConfigMap
+    name: tkg-antrea-rc-init
+---
+apiVersion: v1
+data:
+  data: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: Role
+    metadata:
+      namespace: kube-system
+      name: node:antrea-read-secrets
+    rules:
+    - apiGroups: [""]
+      resources: ["serviceaccounts"]
+      resourceNames: ["antrea-agent"]
+      verbs: ["get"]
+    - apiGroups: [""]
+      resources: ["secrets"]
+      verbs: ["list","get"]
+    ---
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
+    metadata:
+      name: node:read-antrea-sa
+      namespace: kube-system
+    subjects:
+    - kind: Group
+      name: system:nodes
+      apiGroup: rbac.authorization.k8s.io
+    roleRef:
+      kind: Role
+      name: node:antrea-read-secrets
+      apiGroup: rbac.authorization.k8s.io
+    ---
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+    metadata:
+      name: node:kube-proxy
+    rules:
+    - apiGroups:
+      - ""
+      resources:
+      - endpoints
+      - services
+      verbs:
+      - get
+      - list
+      - watch
+    - apiGroups:
+      - discovery.k8s.io
+      resources:
+      - endpointslices
+      verbs:
+      - get
+      - list
+      - watch
+    ---
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    metadata:
+      name: node:kube-proxy
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: node:kube-proxy
+    subjects:
+    - kind: Group
+      name: system:nodes
+      apiGroup: rbac.authorization.k8s.io
+kind: ConfigMap
+metadata:
+  name: tkg-antrea-rc-init
+  namespace: default

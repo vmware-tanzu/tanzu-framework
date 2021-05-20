@@ -1,0 +1,54 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:json", "json")
+#@ load("@ytt:overlay", "overlay")
+#@ load("/02_addons/avi/spec.lib.yaml", "akoo_deployment","ako_repo","avi_credentials","avi_certificate")
+#@ load("/lib/helpers.star", "get_default_tkg_bom_data")
+
+#@ akoRepo = get_default_tkg_bom_data().components["load-balancer-and-ingress-service"][0]
+
+#@ if data.values.PROVIDER_TYPE == "vsphere" and data.values.TKG_CLUSTER_ROLE != "workload" and data.values.AVI_ENABLE and data.values.AVI_CONTROL_PLANE_HA_PROVIDER:
+#@ def update_akoo_env():
+spec:
+  template:
+    spec:
+      containers:
+        #@overlay/match by=overlay.index(1)
+        - env:
+            #@overlay/match by=overlay.subset({"name":"bootstrap_cluster"})
+            - value: "True"
+#@ end
+
+--- #@ overlay.apply(akoo_deployment(), update_akoo_env())
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bootstrap-avi-k8s-config
+data:
+  cloudName: #@ data.values.AVI_CLOUD_NAME
+  serviceEngineGroup: #@ data.values.AVI_SERVICE_ENGINE_GROUP
+  controller: #@ data.values.AVI_CONTROLLER
+  adminCredentialName: #@ data.values.AVI_ADMIN_CREDENTIAL_NAME
+  adminCredentialNameSpace: tkg-system  
+  certificateAuthorityName: #@ data.values.AVI_CA_NAME
+  certificateAuthorityNameSpace: tkg-system  
+  dataNetworkName: #@ data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME
+  dataNetworkCIDR: #@ data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR
+  akoImageRepo: #@ ako_repo()
+  akoImagePullPolicy: #@ data.values.AVI_AKO_IMAGE_PULL_POLICY
+  akoImageVersion: #@ akoRepo.images.loadBalancerAndIngressServiceImage.tag
+  disableIngressClass: #@ "{}".format(data.values.AVI_DISABLE_INGRESS_CLASS)
+  disableStaticRouteSync: #@ "{}".format(data.values.AVI_DISABLE_STATIC_ROUTE_SYNC)
+  defaultIngressController: #@ "{}".format(data.values.AVI_INGRESS_DEFAULT_INGRESS_CONTROLLER)
+#@ if data.values.AVI_INGRESS_SHARD_VS_SIZE != "":
+  shardVSSize: #@ data.values.AVI_INGRESS_SHARD_VS_SIZE
+#@ end
+#@ if data.values.AVI_INGRESS_SERVICE_TYPE != "":
+  serviceType: #@ data.values.AVI_INGRESS_SERVICE_TYPE
+#@ end
+#@ if data.values.AVI_INGRESS_NODE_NETWORK_LIST != []:
+  nodeNetworkList: #@ json.encode(data.values.AVI_INGRESS_NODE_NETWORK_LIST)
+#@ end
+--- #@ avi_credentials()
+--- #@ avi_certificate()
+#@ end

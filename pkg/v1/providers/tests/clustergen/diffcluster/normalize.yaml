@@ -1,0 +1,83 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:yaml", "yaml")
+
+#! Normalize the representation of stringified yaml by decoding and encoding it
+#! back. Works with stringified yaml docsets as well.
+#@ def normalize_yaml_string(left, right):
+#@   docs = left.split("---\n")
+#@   return "---\n".join([x for x in [yaml.encode(yaml.decode(d)) for d in docs] if x != ""])
+#@ end
+
+
+#@ remove_secret_data_matching_list = ["cert-manager"]
+
+#! secret_metadata_name_match: returns true if the "kind":"Secret"
+#! and resource name (metadata.name) contains anything from matching_list
+#! if matching_list is empty, then remove_secret_data_matching_list is used
+#!
+#@ def secret_metadata_name_match(x, l, r, matching_list=None):
+#@  if not ("kind" in l and l["kind"] == "Secret"):
+#@      return False
+#@  end
+#@
+#@  if not ("metadata" in l and "name" in l["metadata"]):
+#@    return False
+#@  end
+#@
+#@  if not matching_list:
+#@    matching_list = remove_secret_data_matching_list
+#@  end
+#@
+#@  for val in matching_list:
+#@    if not (l["metadata"]["name"].find(val) == -1):
+#@      return True
+#@    end
+#@  end
+#@
+#@  return False
+#@ end
+
+#@ def tkg_metadata_configmap_match(x, l, r):
+#@   return secret_metadata_name_match(x, l, r, ["tkg-metadata-configmap"])
+#@ end
+
+#! Replacing tkg version to fixed value because
+#! we dont want to update the expected output whenever tkg version changes
+#@ def replace_tkg_version(left, right):
+#@   metadataConfigMap = yaml.decode(left)
+#@   metadata = yaml.decode(metadataConfigMap["data"]["metadata.yaml"])
+#@   metadata["cluster"]["tkgVersion"] = right
+#@   metadataYaml = yaml.encode(metadata)
+#@   metadataConfigMap["data"]["metadata.yaml"] = metadataYaml
+#@   return yaml.encode(metadataConfigMap)
+#@ end
+
+#@ def tkg_metadata_bom_configmap_match(x, l, r):
+#@   return secret_metadata_name_match(x, l, r, ["tkg-metadata-bom-configmap"])
+#@ end
+
+#! Replacing tkg bom to fixed value because
+#! we dont want to change the expected output when bom changes
+#@ def replace_tkg_bom(left, right):
+#@   bomConfigMap = yaml.decode(left)
+#@   bomConfigMap["data"]["bom.yaml"] = yaml.encode(right)
+#@   return yaml.encode(bomConfigMap)
+#@ end
+
+#@overlay/match by=secret_metadata_name_match,expects="0+"
+---
+stringData:
+  #@overlay/replace
+  value:  (removed for brevity)
+
+#@overlay/match by=tkg_metadata_configmap_match,expects="0+"
+---
+stringData:
+  #@overlay/replace via=replace_tkg_version
+  value:  (removed for brevity)
+
+#@overlay/match by=tkg_metadata_bom_configmap_match,expects="0+"
+---
+stringData:
+  #@overlay/replace via=replace_tkg_bom
+  value:  (removed for brevity)

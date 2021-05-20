@@ -1,0 +1,3 @@
+#@ load("@ytt:library", "library")
+
+#@ vsphere_cpi_lib = library.get("addons/vsphere_cpi/templates")

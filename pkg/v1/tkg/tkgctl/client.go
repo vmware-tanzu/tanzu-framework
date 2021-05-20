@@ -9,6 +9,7 @@ import (
 
 	"github.com/pkg/errors"
 
+	providergetterclient "github.com/vmware-tanzu-private/core/pkg/v1/providers/client"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/client"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/clientcreator"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/clusterclient"
@@ -23,8 +24,6 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigupdater"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/types"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/utils"
-
-	providergetterclient "github.com/vmware-tanzu-private/tkg-providers/client"
 )
 
 type tkgctl struct {

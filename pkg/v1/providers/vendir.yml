@@ -1,0 +1,20 @@
+apiVersion: vendir.k14s.io/v1alpha1
+kind: Config
+directories:
+  - path: ytt/vendir/vsphere_cpi/_ytt_lib
+    contents:
+      - path: .
+        git:
+          url: git@github.com:vmware-tanzu-private/core.git
+          ref: origin/main
+        includePaths:
+          - addons/vsphere_cpi/templates/**/*
+  - path: ytt/vendir/cni/_ytt_lib
+    contents:
+    - path: .
+      git:
+        url: git@github.com:vmware-tanzu-private/core.git
+        ref: origin/main
+      includePaths:
+        - addons/antrea/templates/**/*
+        - addons/calico/templates/**/*

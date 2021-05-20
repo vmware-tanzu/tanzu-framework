@@ -1,0 +1,19 @@
+apiVersion: vendir.k14s.io/v1alpha1
+directories:
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #636 from vmware-tanzu-private/migrate-tkg-cli/14...'
+      sha: 7726721501ba0ee58a2b18cee2a3ae7a493578db
+      tags:
+      - v1.4.0-pre-alpha-1-96-g7726721
+    path: .
+  path: ytt/vendir/vsphere_cpi/_ytt_lib
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #636 from vmware-tanzu-private/migrate-tkg-cli/14...'
+      sha: 7726721501ba0ee58a2b18cee2a3ae7a493578db
+      tags:
+      - v1.4.0-pre-alpha-1-96-g7726721
+    path: .
+  path: ytt/vendir/cni/_ytt_lib
+kind: LockConfig

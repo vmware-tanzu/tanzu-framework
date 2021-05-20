@@ -1,0 +1,151 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+#@ load("lib/helpers.star", "get_bom_data_for_tkr_name",  "kubeadm_image_repo")
+#@ load("@ytt:yaml", "yaml")
+
+#@ bomDataForK8sVersion = get_bom_data_for_tkr_name()
+
+#@overlay/match by=overlay.subset({"kind":"Cluster"})
+---
+apiVersion: cluster.x-k8s.io/v1alpha3
+kind: Cluster
+metadata:
+  name: #@ data.values.CLUSTER_NAME
+  labels:
+    #@overlay/match missing_ok=True
+    #@yaml/text-templated-strings
+    #@ if data.values.TKG_CLUSTER_ROLE != "workload":
+    cluster-role.tkg.tanzu.vmware.com/(@= data.values.TKG_CLUSTER_ROLE @): ""
+    #@ end
+    tkg.tanzu.vmware.com/cluster-name: #@ data.values.CLUSTER_NAME
+    #@overlay/match missing_ok=True
+    tanzuKubernetesRelease: #@ data.values.KUBERNETES_RELEASE
+spec:
+  infrastructureRef:
+    name: #@ data.values.CLUSTER_NAME
+  controlPlaneRef:
+    name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+      #@overlay/match by=overlay.index(0)
+      - #@ data.values.CLUSTER_CIDR
+    services:
+      cidrBlocks:
+      #@overlay/match by=overlay.index(0)
+      - #@ data.values.SERVICE_CIDR
+    serviceDomain: #@ data.values.SERVICE_DOMAIN
+
+#@overlay/match by=overlay.subset({"kind":"DockerCluster"})
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+kind: DockerCluster
+metadata:
+  name: #@ data.values.CLUSTER_NAME
+
+#@overlay/match by=overlay.subset({"kind": "DockerMachineTemplate", "metadata":{"name": "${CLUSTER_NAME}-control-plane"}})
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+kind: DockerMachineTemplate
+metadata:
+  name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
+spec:
+  template:
+    spec:
+      customImage: #@ data.values.DOCKER_MACHINE_TEMPLATE_IMAGE
+
+#@overlay/match by=overlay.subset({"kind":"KubeadmControlPlane"})
+---
+apiVersion: controlplane.cluster.x-k8s.io/v1alpha3
+kind: KubeadmControlPlane
+metadata:
+  name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
+spec:
+  infrastructureTemplate:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+    kind: DockerMachineTemplate
+    name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
+  kubeadmConfigSpec:
+    clusterConfiguration:
+      imageRepository: #@ kubeadm_image_repo(bomDataForK8sVersion.kubeadmConfigSpec.imageRepository)
+      etcd:
+        local:
+          imageRepository: #@ kubeadm_image_repo(bomDataForK8sVersion.kubeadmConfigSpec.etcd.local.imageRepository)
+          imageTag: #@ bomDataForK8sVersion.kubeadmConfigSpec.etcd.local.imageTag
+      dns:
+        imageRepository: #@ kubeadm_image_repo(bomDataForK8sVersion.kubeadmConfigSpec.dns.imageRepository)
+        imageTag: #@ bomDataForK8sVersion.kubeadmConfigSpec.dns.imageTag
+    #@ if data.values.CNI == "antrea":
+    preKubeadmCommands:
+    #! disable TX hardware checksum offload for the veth interface of each Kind Node
+    #! https://github.com/vmware-tanzu/antrea/blob/master/docs/kind.md#why-is-the-yaml-manifest-different-when-using-kind
+    #@overlay/append
+    - curl https://get.docker.com/builds/Linux/x86_64/docker-1.12.0.tgz | tar zxOf - docker/docker > /usr/local/bin/docker;chmod +x /usr/local/bin/docker
+    #@overlay/append
+    - peerIdx=$(ip link | grep eth0 | awk -F[@:] '{ print $3 }' | cut -c 3-);peerName=$(docker run --rm --net=host antrea/ethtool:latest ip link | grep ^"$peerIdx":| awk -F[:@] '{ print $2 }' | cut -c 2-);docker run --net=host --privileged antrea/ethtool:latest ethtool -K "$peerName" tx off
+    #@overlay/append
+    - sysctl -w net.ipv4.tcp_retries2=4
+    #@ end
+  replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
+  version: #@ data.values.KUBERNETES_VERSION
+
+#@overlay/match by=overlay.subset({"kind": "DockerMachineTemplate", "metadata":{"name": "${CLUSTER_NAME}-md-0"}})
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+kind: DockerMachineTemplate
+metadata:
+  name: #@ "{}-md-0".format(data.values.CLUSTER_NAME)
+spec:
+  template:
+    spec:
+      customImage: #@ data.values.DOCKER_MACHINE_TEMPLATE_IMAGE
+
+#@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate", "metadata":{"name": "${CLUSTER_NAME}-md-0"}})
+---
+apiVersion: bootstrap.cluster.x-k8s.io/v1alpha3
+kind: KubeadmConfigTemplate
+metadata:
+  name: #@ "{}-md-0".format(data.values.CLUSTER_NAME)
+#@ if data.values.CNI == "antrea":
+spec:
+  template:
+    spec:
+      preKubeadmCommands:
+      #! disable TX hardware checksum offload for the veth interface of each Kind Node
+      #! https://github.com/vmware-tanzu/antrea/blob/master/docs/kind.md#why-is-the-yaml-manifest-different-when-using-kind
+      #@overlay/append
+      - curl https://get.docker.com/builds/Linux/x86_64/docker-1.12.0.tgz | tar zxOf - docker/docker > /usr/local/bin/docker;chmod +x /usr/local/bin/docker
+      #@overlay/append
+      - peerIdx=$(ip link | grep eth0 | awk -F[@:] '{ print $3 }' | cut -c 3-);peerName=$(docker run --rm --net=host antrea/ethtool:latest ip link | grep ^"$peerIdx":| awk -F[:@] '{ print $2 }' | cut -c 2-);docker run --net=host --privileged antrea/ethtool:latest ethtool -K "$peerName" tx off
+      #@overlay/append
+      - sysctl -w net.ipv4.tcp_retries2=4
+#@ end
+
+
+#@overlay/match by=overlay.subset({"kind":"MachineDeployment"})
+---
+apiVersion: cluster.x-k8s.io/v1alpha3
+kind: MachineDeployment
+metadata:
+  labels:
+    cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
+  name: #@ "{}-md-0".format(data.values.CLUSTER_NAME)
+spec:
+  clusterName: #@ data.values.CLUSTER_NAME
+  replicas: #@ data.values.WORKER_MACHINE_COUNT
+  selector:
+    matchLabels:
+      cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
+  template:
+    metadata:
+      labels:
+        cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
+        node-pool: #@ "{}-worker-pool".format(data.values.CLUSTER_NAME)
+    spec:
+      bootstrap:
+        configRef:
+          name: #@ "{}-md-0".format(data.values.CLUSTER_NAME)
+      clusterName: #@ data.values.CLUSTER_NAME
+      infrastructureRef:
+        name: #@ "{}-md-0".format(data.values.CLUSTER_NAME)
+      version: #@ data.values.KUBERNETES_VERSION

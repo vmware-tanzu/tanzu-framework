@@ -1,0 +1,61 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+
+#@ load("ako-operator.lib.yaml", "akooperatoryaml")
+#@ load("static.lib.yaml", "staticyaml")
+#@ load("akodeploymentconfig.lib.yaml", "akoconfigyaml")
+
+#@ if data.values.PROVIDER_TYPE == "vsphere" and data.values.TKG_CLUSTER_ROLE != "workload" and data.values.AVI_ENABLE:
+
+apiVersion: addons.cluster.x-k8s.io/v1alpha3
+kind: ClusterResourceSet
+metadata:
+  name: #@ "{}-ako-operator".format(data.values.CLUSTER_NAME)
+  labels:
+    cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "avi/ako-operator"
+spec:
+  strategy: "ApplyOnce"
+  clusterSelector:
+    matchLabels:
+      tkg.tanzu.vmware.com/cluster-name: #@ data.values.CLUSTER_NAME
+  resources:
+  - name: #@ "{}-ako-operator".format(data.values.CLUSTER_NAME)
+    kind: Secret
+  - name: #@ "{}-ako-operator-static".format(data.values.CLUSTER_NAME)
+    kind: Secret
+  - name: #@ "{}-ako".format(data.values.CLUSTER_NAME)
+    kind: Secret
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ "{}-ako-operator".format(data.values.CLUSTER_NAME)
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "avi/ako-operator"
+type: addons.cluster.x-k8s.io/resource-set
+stringData:
+  value: #@ yaml.encode(akooperatoryaml())
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ "{}-ako-operator-static".format(data.values.CLUSTER_NAME)
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "avi/ako-operator"
+type: addons.cluster.x-k8s.io/resource-set
+stringData:
+  value: #@ yaml.encode(staticyaml())
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ "{}-ako".format(data.values.CLUSTER_NAME)
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "avi/ako-operator"
+type: addons.cluster.x-k8s.io/resource-set
+stringData:
+  value: #@ yaml.encode(akoconfigyaml())
+
+#@ end

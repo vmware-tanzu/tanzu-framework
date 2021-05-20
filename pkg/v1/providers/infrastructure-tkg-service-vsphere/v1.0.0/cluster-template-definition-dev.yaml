@@ -1,0 +1,9 @@
+apiVersion: run.tanzu.vmware.com/v1alpha1
+kind: TemplateDefinition
+spec:
+  paths:
+    - path: providers/infrastructure-tkg-service-vsphere/v1.0.0/ytt
+    - path: providers/ytt
+    - path: bom
+      filemark: text-plain
+    - path: providers/config_default.yaml
