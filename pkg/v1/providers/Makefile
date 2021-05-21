@@ -28,6 +28,8 @@ verify-build:  ## verify-build verifies the changes with generated files
 
 all: lint checksum generate-bindata verify ## run all target
 
+ci: checksum generate-bindata verify ## run ci target
+
 ## --------------------------------------
 ## Linting
 ## --------------------------------------
@@ -68,7 +70,7 @@ checksum: ## Generate checksum of provider files
 	find . -type f | grep -v ${FILES_TO_IGNORE} | sort | xargs shasum -a 256 | shasum -a 256 | cut -d" " -f1 > providers.sha256sum
 
 .PHONY: verify
-verify: vendir-sync ## verify that checksum and generated bindata file match and call vendir sync
+verify: ## verify that checksum and generated bindata file match
 	git diff --exit-code providers.sha256sum client/manifest/zz_generated.bindata.go || (echo "Run make vendir-sync and ensure diff is added to your changeset")
 
 .PHONY: update-checksum-bindata ## update providers checksum and bindata file

@@ -3,7 +3,8 @@
 # Usage:
 # ci-validate-clustergen.sh branch_name target-branch-name
 
-BASE_DIR="$(dirname "$0")"
+
+SCRIPT_DIR="$(cd -P "$(dirname "$0")" && pwd)"
 
 GOOS=$(go env GOOS)
 GOARCH=$(go env GOARCH)
@@ -11,20 +12,25 @@ CLI_REPO=${CLI_REPO:-${PWD}/../..}
 GIT_BRANCH_PROVIDERS=$1
 GIT_BRANCH_PROVIDERS_BASE=$2
 
+cd pkg/v1/providers
+
 # TODO: As we are using providers as library, clustergen should not rely on building binary
 # each time with new providers, instead we should write some go testing tool  which runs
 # clustergen tests via the tkg cli library interface
 make generate-testcases
 
 git log --pretty=oneline -5
-CLI_REPO=${CLI_REPO} ${BASE_DIR}/rebuild-cli.sh ${PWD}
+make generate-bindata
+CLI_REPO=${CLI_REPO} ${SCRIPT_DIR}/rebuild-cli.sh
 CLUSTERGEN_OUTPUT_DIR=new make GOOS=${GOOS} GOARCH=${GOARCH} CLI_REPO=${CLI_REPO} cluster-generation-tests
 
 echo git checkout -B old origin/${GIT_BRANCH_PROVIDERS_BASE}
 git checkout -B old origin/${GIT_BRANCH_PROVIDERS_BASE}
 git log --pretty=oneline -5
-CLI_REPO=${CLI_REPO} ${BASE_DIR}/rebuild-cli.sh ${PWD}
+make generate-bindata
+CLI_REPO=${CLI_REPO} ${SCRIPT_DIR}/rebuild-cli.sh ${PWD}
 CLUSTERGEN_OUTPUT_DIR=old make GOOS=${GOOS} GOARCH=${GOARCH} CLI_REPO=${CLI_REPO} cluster-generation-tests
+git checkout .
 git checkout -
 
 pushd tests/clustergen/testdata
