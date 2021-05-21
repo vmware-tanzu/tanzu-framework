@@ -23,6 +23,7 @@ git log --pretty=oneline -5
 make generate-bindata
 CLI_REPO=${CLI_REPO} ${SCRIPT_DIR}/rebuild-cli.sh
 CLUSTERGEN_OUTPUT_DIR=new make GOOS=${GOOS} GOARCH=${GOARCH} CLI_REPO=${CLI_REPO} cluster-generation-tests
+git checkout .
 
 echo git checkout -B old origin/${GIT_BRANCH_PROVIDERS_BASE}
 git checkout -B old origin/${GIT_BRANCH_PROVIDERS_BASE}
