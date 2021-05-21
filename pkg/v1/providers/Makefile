@@ -28,6 +28,8 @@ verify-build:  ## verify-build verifies the changes with generated files
 
 all: lint checksum generate-bindata verify ## run all target
 
+ci: checksum generate-bindata verify ## run ci target
+
 ## --------------------------------------
 ## Linting
 ## --------------------------------------
