@@ -28,19 +28,20 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
-	addonconfig "github.com/vmware-tanzu-private/core/addons/pkg/config"
-	"github.com/vmware-tanzu-private/core/addons/pkg/constants"
-	addontypes "github.com/vmware-tanzu-private/core/addons/pkg/types"
-	"github.com/vmware-tanzu-private/core/addons/pkg/util"
-	addonpredicates "github.com/vmware-tanzu-private/core/addons/predicates"
-	runtanzuv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	bomtypes "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/types"
+	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
+	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
+	addonpredicates "github.com/vmware-tanzu/tanzu-framework/addons/predicates"
+	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	bomtypes "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
 )
 
 const (
 	deleteRequeueAfter = 10 * time.Second
 )
 
+// AddonKappResourceReconciler is the interface for Kapp related reconcilers
 type AddonKappResourceReconciler interface {
 	ReconcileAddonKappResourceNormal(
 		remoteApp bool,
@@ -272,7 +273,8 @@ func (r *AddonReconciler) reconcileNormal(
 		result ctrl.Result
 	)
 	// Reconcile core package repository in the cluster
-	err = PackageReconciler{ctx: ctx, log: log, clusterClient: remoteClient, Config: r.Config}.reconcileCorePackageRepository(imageRepository, bom)
+	pkgReconciler := &PackageReconciler{ctx: ctx, log: log, clusterClient: remoteClient, Config: r.Config}
+	err = pkgReconciler.reconcileCorePackageRepository(imageRepository, bom)
 	if err != nil {
 		log.Error(err, "Error reconciling core package repository")
 		errors = append(errors, err)
@@ -524,17 +526,18 @@ func logOperationResult(log logr.Logger, resourceName string, result controlleru
 	}
 }
 
+// GetAddonKappResourceReconciler gets the correct kapp resource reconciler
 func (r *AddonReconciler) GetAddonKappResourceReconciler(
 	ctx context.Context,
 	log logr.Logger,
 	clusterClient client.Client,
-	reconcilerType string) (error, AddonKappResourceReconciler) {
+	reconcilerType string) (AddonKappResourceReconciler, error) {
+
 	switch reconcilerType {
 	case constants.TKGAppReconcilerKey:
-		return nil, AppReconciler{ctx: ctx, log: log, clusterClient: clusterClient, Config: r.Config}
+		return &AppReconciler{ctx: ctx, log: log, clusterClient: clusterClient, Config: r.Config}, nil
 	case constants.TKGPackageReconcilerKey:
-		return nil, PackageReconciler{ctx: ctx, log: log, clusterClient: clusterClient, Config: r.Config}
+		return &PackageReconciler{ctx: ctx, log: log, clusterClient: clusterClient, Config: r.Config}, nil
 	}
-	return fmt.Errorf("invalid reconciler type: %s", reconcilerType), nil
-
+	return nil, fmt.Errorf("invalid reconciler type: %s", reconcilerType)
 }

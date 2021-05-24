@@ -8,19 +8,22 @@
 #@ def kappcontrollerdatavalues():
 #@ bomData = get_bom_data_for_tkr_name()
 #@ kappControllerImage = bomData.components["kapp-controller"][0].images.kappControllerImage
----
 kappController:
   namespace: tkg-system
-  globalNamespace: tkg-standard
   createNamespace: true
+  globalNamespace: tanzu-standard
+#@ if data.values.TKG_CLUSTER_ROLE == "workload": #! For backwards compatibility. i.e. C.1 mgmt cluster creates a C.0 wlc with older addon templates.
   image: #! For backwards compatibility. i.e. C.1 mgmt cluster creates a C.0 wlc with older addon templates.
     repository: #@ get_image_repo_for_component(kappControllerImage)
     path: #@ kappControllerImage.imagePath
     tag: #@ kappControllerImage.tag
     pullPolicy: IfNotPresent
+#@ end
   deployment:
+    concurrency: 4
     hostNetwork: true
     priorityClassName: system-cluster-critical
+#@ if data.values.TKG_CLUSTER_ROLE == "workload": #! For mgmt cluster tolerations needs to be added using overlay due to ytt's array handling behavior
     tolerations:
     - key: CriticalAddonsOnly
       operator: Exists
@@ -31,6 +34,7 @@ kappController:
     - effect: NoSchedule
       key: node.cloudprovider.kubernetes.io/uninitialized
       value: "true"
+#@ end
   config:
     #@ if tkg_image_repo_customized() and tkg_image_repo_ca_cert():
     caCerts: #@ base64.decode(tkg_image_repo_ca_cert())

@@ -38,13 +38,3 @@ antrea:
 #@ end
 
 #@ end
-
-#@ def antreaImageInfo():
-imageInfo:
-  imageRepository: #@ tkg_image_repo()
-  imagePullPolicy: IfNotPresent
-  images:
-    antreaImage:
-      imagePath: #@ antreaImage.imagePath
-      tag: #@ antreaImage.tag
-#@ end

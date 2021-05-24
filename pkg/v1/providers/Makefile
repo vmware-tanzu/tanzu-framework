@@ -127,12 +127,6 @@ $(VENDIR):
 ## --------------------------------------
 
 .PHONY: vendir-sync
-vendir-sync: ## Run "vendir sync"
-	rm -rf ./ytt/vendir/cni/_ytt_lib/addons/calico/templates/* && \
-	rm -rf ./ytt/vendir/cni/_ytt_lib/addons/antrea/templates/* && \
-	rm -rf ./ytt/vendir/vsphere_cpi/_ytt_lib/addons/vsphere_cpi/templates/* && \
-	cp -r ../../../addons/calico/templates ./ytt/vendir/cni/_ytt_lib/addons/calico/ && \
-	cp -r ../../../addons/antrea/templates ./ytt/vendir/cni/_ytt_lib/addons/antrea/ && \
-	cp -r ../../../addons/vsphere_cpi/templates ./ytt/vendir/vsphere_cpi/_ytt_lib/addons/vsphere_cpi/
-
+vendir-sync: vendir  ## Run vendir sync
+	${TOOLS_BIN_DIR}/vendir sync
 # end of Makefile

@@ -1,16 +1,11 @@
+// Copyright 2021 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package controllers
 
 import (
 	"context"
 	"fmt"
-
-	"github.com/go-logr/logr"
-	addonconfig "github.com/vmware-tanzu-private/core/addons/pkg/config"
-	"github.com/vmware-tanzu-private/core/addons/pkg/constants"
-	addontypes "github.com/vmware-tanzu-private/core/addons/pkg/types"
-	"github.com/vmware-tanzu-private/core/addons/pkg/util"
-	bomtypes "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/types"
-	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -18,8 +13,19 @@ import (
 	clusterapiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+
+	"github.com/go-logr/logr"
+
+	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
+	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
+	bomtypes "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
+
+	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 )
 
+// AppReconciler reconcile kapp App related CRs
 type AppReconciler struct {
 	log           logr.Logger
 	ctx           context.Context
@@ -27,8 +33,8 @@ type AppReconciler struct {
 	Config        addonconfig.Config
 }
 
-// nolint:funlen
-func (r AppReconciler) ReconcileAddonKappResourceNormal(
+// ReconcileAddonKappResourceNormal reconciles and creates App CR
+func (r *AppReconciler) ReconcileAddonKappResourceNormal( // nolint:funlen
 	remoteApp bool,
 	remoteCluster *clusterapiv1alpha3.Cluster,
 	addonSecret *corev1.Secret,
@@ -137,8 +143,8 @@ func (r AppReconciler) ReconcileAddonKappResourceNormal(
 	return nil
 }
 
-// nolint:dupl
-func (r AppReconciler) ReconcileAddonKappResourceDelete(
+// ReconcileAddonKappResourceDelete reconciles and deletes App CR
+func (r *AppReconciler) ReconcileAddonKappResourceDelete( // nolint:dupl
 	addonSecret *corev1.Secret) error {
 
 	app := &kappctrl.App{

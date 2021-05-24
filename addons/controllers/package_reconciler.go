@@ -1,27 +1,33 @@
+// Copyright 2021 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package controllers
 
 import (
 	"context"
 	"fmt"
 
-	addonconfig "github.com/vmware-tanzu-private/core/addons/pkg/config"
-	"github.com/vmware-tanzu-private/core/addons/pkg/constants"
-	addontypes "github.com/vmware-tanzu-private/core/addons/pkg/types"
-	bomtypes "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/types"
-	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
-	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
-	versions "github.com/vmware-tanzu/carvel-vendir/pkg/vendir/versions/v1alpha1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	clusterapiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 
 	"github.com/go-logr/logr"
-	"github.com/vmware-tanzu-private/core/addons/pkg/util"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+
+	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
+	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
+	bomtypes "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
+
+	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
+	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+	versions "github.com/vmware-tanzu/carvel-vendir/pkg/vendir/versions/v1alpha1"
 )
 
+// PackageReconciler reconcile kapp Package related CRs
 type PackageReconciler struct {
 	ctx           context.Context
 	log           logr.Logger
@@ -30,7 +36,7 @@ type PackageReconciler struct {
 }
 
 // reconcileCorePackageRepository reconciles the core package repository in the cluster
-func (r PackageReconciler) reconcileCorePackageRepository(
+func (r *PackageReconciler) reconcileCorePackageRepository(
 	imageRepository string,
 	bom *bomtypes.Bom) error {
 
@@ -71,7 +77,8 @@ func (r PackageReconciler) reconcileCorePackageRepository(
 	return nil
 }
 
-func (r PackageReconciler) ReconcileAddonKappResourceNormal(
+// ReconcileAddonKappResourceNormal reconciles and creates packageinstall CR
+func (r *PackageReconciler) ReconcileAddonKappResourceNormal( // nolint:funlen
 	remoteApp bool,
 	remoteCluster *clusterapiv1alpha3.Cluster,
 	addonSecret *corev1.Secret,
@@ -228,8 +235,8 @@ func (r PackageReconciler) ReconcileAddonKappResourceNormal(
 	return nil
 }
 
-// nolint:dupl
-func (r PackageReconciler) ReconcileAddonKappResourceDelete(
+// ReconcileAddonKappResourceDelete reconciles and deletes packageinstall CR
+func (r *PackageReconciler) ReconcileAddonKappResourceDelete( // nolint:dupl
 	addonSecret *corev1.Secret) error {
 
 	pkgi := &pkgiv1alpha1.PackageInstall{

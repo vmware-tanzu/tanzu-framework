@@ -24,7 +24,7 @@ const (
 	AddonRemoteAppAnnotation = "tkg.tanzu.vmware.com/remote-app"
 
 	// AddonExtYttPathsFromSecretNameAnnotation is the annotation that specifies a data secret has annotations
-	AddonExtYttPathsFromSecretNameAnnotation = "ext.packaging.carvel.dev/ytt-data-values-overlays"
+	AddonExtYttPathsFromSecretNameAnnotation = "ext.packaging.carvel.dev/ytt-data-values-overlays" //nolint:gosec
 
 	// AddonNameAnnotation is the add on name annotation
 	AddonNameAnnotation = AddonNameLabel

@@ -5,7 +5,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"os"
 	"time"
 
@@ -19,15 +18,16 @@ import (
 
 	// +kubebuilder:scaffold:imports
 
-	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
-	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
-	pkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	clusterapiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	controlplanev1alpha3 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
 
-	"github.com/vmware-tanzu-private/core/addons/controllers"
-	addonconfig "github.com/vmware-tanzu-private/core/addons/pkg/config"
-	runtanzuv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
+	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
+	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+	pkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
+
+	"github.com/vmware-tanzu/tanzu-framework/addons/controllers"
+	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
+	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 )
 
 var (

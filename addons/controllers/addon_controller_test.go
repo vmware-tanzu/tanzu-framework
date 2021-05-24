@@ -8,11 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/vmware-tanzu-private/core/addons/testutil"
-	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
-	rbacv1 "k8s.io/api/rbac/v1"
-	"sigs.k8s.io/cluster-api/util/secret"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	v1 "k8s.io/api/core/v1"
@@ -20,9 +15,10 @@ import (
 	"sigs.k8s.io/cluster-api/util/secret"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	addontypes "github.com/vmware-tanzu-private/core/addons/pkg/types"
-	"github.com/vmware-tanzu-private/core/addons/testutil"
+	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
+	"github.com/vmware-tanzu/tanzu-framework/addons/testutil"
 
+	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 )
 

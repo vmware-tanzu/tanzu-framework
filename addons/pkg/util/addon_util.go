@@ -8,18 +8,18 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/vmware-tanzu-private/core/addons/pkg/vars"
-
-	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
-	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	"gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	clusterapiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	addontypes "github.com/vmware-tanzu-private/core/addons/pkg/types"
-	bomtypes "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/types"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
+	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
+	bomtypes "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
+
+	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
+	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 )
 
 // GetAddonSecretsForCluster gets the addon secrets belonging to the cluster
@@ -92,7 +92,7 @@ func GetClientFromAddonSecret(addonSecret *corev1.Secret, localClient, remoteCli
 }
 
 // GetImageInfo gets the image Info of an addon
-func GetImageInfo(addonConfig *bomtypes.Addon, imageRepository string, imagePullPolicy string, bom *bomtypes.Bom) ([]byte, error) {
+func GetImageInfo(addonConfig *bomtypes.Addon, imageRepository, imagePullPolicy string, bom *bomtypes.Bom) ([]byte, error) {
 	componentRefs := addonConfig.AddonContainerImages
 
 	addonImageInfo := &addontypes.AddonImageInfo{Info: addontypes.ImageInfo{ImageRepository: imageRepository, ImagePullPolicy: imagePullPolicy, Images: map[string]addontypes.Image{}}}
@@ -113,7 +113,8 @@ func GetImageInfo(addonConfig *bomtypes.Addon, imageRepository string, imagePull
 		return nil, err
 	}
 
-	return ImageInfoBytes, nil
+	outputBytes := append([]byte(constants.TKGDataValueFormatString), ImageInfoBytes...)
+	return outputBytes, nil
 }
 
 // GetApp gets the app CR from cluster

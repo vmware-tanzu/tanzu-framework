@@ -15,9 +15,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
-	"github.com/vmware-tanzu-private/core/addons/pkg/constants"
-	"github.com/vmware-tanzu-private/core/addons/pkg/util"
-	bomtypes "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/types"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
+	bomtypes "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
 )
 
 func (r *AddonReconciler) reconcileAddonNamespace(
@@ -131,7 +131,6 @@ func (r *AddonReconciler) reconcileAddonRole(
 	return nil
 }
 
-// nolint:dupl
 func (r *AddonReconciler) reconcileAddonDataValuesSecretDelete(
 	ctx context.Context,
 	log logr.Logger,
@@ -159,7 +158,8 @@ func (r *AddonReconciler) reconcileAddonDataValuesSecretDelete(
 	return nil
 }
 
-func (r AddonReconciler) ReconcileAddonDataValuesSecretNormal(
+// ReconcileAddonDataValuesSecretNormal reconciles addons data values secrets
+func (r *AddonReconciler) ReconcileAddonDataValuesSecretNormal(
 	ctx context.Context,
 	log logr.Logger,
 	clusterClient client.Client,
@@ -221,14 +221,21 @@ func (r *AddonReconciler) reconcileAddonDelete(
 	clusterClient := util.GetClientFromAddonSecret(addonSecret, r.Client, remoteClusterClient)
 
 	var reconcilerKey string
-	if ok, _ := util.IsPackageInstallPresent(ctx, clusterClient, addonSecret, r.Config.AddonNamespace); ok {
+	// When deleting, check if the corresponding packageInstall is created.
+	// If so, delete packageInstall CR. Otherwise, delete App CR.
+	pkgiPresent, err := util.IsPackageInstallPresent(ctx, clusterClient, addonSecret, r.Config.AddonNamespace)
+	if err != nil {
+		log.Error(err, "Error checking if PackageInstall is present", constants.AddonNameLogKey, addonName)
+		return err
+	}
+	if pkgiPresent {
 		log.Info("Deleting PackageInstall")
 		reconcilerKey = constants.TKGPackageReconcilerKey
 	} else {
 		log.Info("Deleting App")
 		reconcilerKey = constants.TKGAppReconcilerKey
 	}
-	err, kappResourceReconciler := r.GetAddonKappResourceReconciler(ctx, logWithContext, clusterClient, reconcilerKey)
+	kappResourceReconciler, err := r.GetAddonKappResourceReconciler(ctx, logWithContext, clusterClient, reconcilerKey)
 	if err != nil {
 		log.Error(err, "Error finding kapp resource reconciler")
 		return err
@@ -299,7 +306,7 @@ func (r *AddonReconciler) reconcileAddonNormal(
 		log.Info("Reconciling App")
 		reconcilerKey = constants.TKGAppReconcilerKey
 	}
-	err, kappResourceReconciler := r.GetAddonKappResourceReconciler(ctx, logWithContext, clusterClient, reconcilerKey)
+	kappResourceReconciler, err := r.GetAddonKappResourceReconciler(ctx, logWithContext, clusterClient, reconcilerKey)
 	if err != nil {
 		log.Error(err, "Error finding kapp resource reconciler")
 		return err
