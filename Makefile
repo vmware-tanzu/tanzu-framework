@@ -336,7 +336,7 @@ endif
 
 .PHONY: ui-dependencies
 ui-dependencies: update-npm-registry  ## install UI dependencies (node modules)
-	cd $(UI_DIR); NG_CLI_ANALYTICS=ci npm install; cd ../
+	cd $(UI_DIR); NG_CLI_ANALYTICS=ci npm ci; cd ../
 
 .PHONY: ui-build
 ui-build: ui-dependencies ## install dependencies, then compile client UI for production
@@ -360,7 +360,7 @@ verify-ui-bindata: ## Run verification for ui bindata
 cobra-docs:
 	TANZU_CLI_NO_INIT=true TANZU_CLI_NO_COLOR=true $(GO) run ./cmd/cli/tanzu generate-all-docs
 	sed -i.bak -E 's/\/[A-Za-z]*\/([a-z]*)\/.config\/tanzu\/pinniped\/sessions.yaml/~\/.config\/tanzu\/pinniped\/sessions.yaml/g' docs/cli/commands/tanzu_pinniped-auth_login.md
-	
+
 .PHONY: generate-fakes
 generate-fakes: ## Generate fakes for writing unit tests
 	$(GO) generate ./...
