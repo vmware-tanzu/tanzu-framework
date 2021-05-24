@@ -1,9 +1,18 @@
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:data", "data")
-#@ load("lib/helpers.star", "get_bom_data_for_tkr_name",  "kubeadm_image_repo")
+#@ load("lib/helpers.star", "get_bom_data_for_tkr_name",  "kubeadm_image_repo", "get_image_repo_for_component")
 #@ load("@ytt:yaml", "yaml")
 
 #@ bomDataForK8sVersion = get_bom_data_for_tkr_name()
+
+#@ def get_kind_image():
+#@  kind = bomDataForK8sVersion.components["kubernetes-sigs_kind"][0]
+#@  return "{}/{}:{}".format(get_image_repo_for_component(kind.images.kindNodeImage), kind.images.kindNodeImage.imagePath, kind.images.kindNodeImage.tag)
+#@ end
+
+#@ def construct_pre_kubeadm_command():
+#@  return "peerIdx=$(ip link | grep eth0 | awk -F[@:] '{ print $3 }' | cut -c 3-);peerName=$(docker run --rm --net=host --entrypoint=/bin/ip " + get_kind_image() + """ link | grep ^"$peerIdx":| awk -F[:@] '{ print $2 }' | cut -c 2-);docker run --rm --net=host --privileged --entrypoint=/usr/sbin/ethtool """ + get_kind_image() + """ -K "$peerName" tx off"""
+#@ end
 
 #@overlay/match by=overlay.subset({"kind":"Cluster"})
 ---
@@ -82,7 +91,7 @@ spec:
     #@overlay/append
     - curl https://get.docker.com/builds/Linux/x86_64/docker-1.12.0.tgz | tar zxOf - docker/docker > /usr/local/bin/docker;chmod +x /usr/local/bin/docker
     #@overlay/append
-    - peerIdx=$(ip link | grep eth0 | awk -F[@:] '{ print $3 }' | cut -c 3-);peerName=$(docker run --rm --net=host antrea/ethtool:latest ip link | grep ^"$peerIdx":| awk -F[:@] '{ print $2 }' | cut -c 2-);docker run --net=host --privileged antrea/ethtool:latest ethtool -K "$peerName" tx off
+    - #@ construct_pre_kubeadm_command()
     #@overlay/append
     - sysctl -w net.ipv4.tcp_retries2=4
     #@ end
@@ -116,7 +125,7 @@ spec:
       #@overlay/append
       - curl https://get.docker.com/builds/Linux/x86_64/docker-1.12.0.tgz | tar zxOf - docker/docker > /usr/local/bin/docker;chmod +x /usr/local/bin/docker
       #@overlay/append
-      - peerIdx=$(ip link | grep eth0 | awk -F[@:] '{ print $3 }' | cut -c 3-);peerName=$(docker run --rm --net=host antrea/ethtool:latest ip link | grep ^"$peerIdx":| awk -F[:@] '{ print $2 }' | cut -c 2-);docker run --net=host --privileged antrea/ethtool:latest ethtool -K "$peerName" tx off
+      - #@ construct_pre_kubeadm_command()
       #@overlay/append
       - sysctl -w net.ipv4.tcp_retries2=4
 #@ end
