@@ -11,10 +11,10 @@ directories:
           - addons/vsphere_cpi/templates/**/*
   - path: ytt/vendir/cni/_ytt_lib
     contents:
-    - path: .
-      git:
-        url: git@github.com:vmware-tanzu-private/core.git
-        ref: origin/main
-      includePaths:
-        - addons/antrea/templates/**/*
-        - addons/calico/templates/**/*
+      - path: .
+        git:
+          url: git@github.com:vmware-tanzu-private/core.git
+          ref: origin/main
+        includePaths:
+          - addons/antrea/templates/**/*
+          - addons/calico/templates/**/*

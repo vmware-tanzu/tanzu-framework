@@ -169,7 +169,7 @@ spec:
       numCPUs: #@ data.values.VSPHERE_WORKER_NUM_CPUS
       resourcePool: #@ data.values.VSPHERE_RESOURCE_POOL
       server: #@ data.values.VSPHERE_SERVER
-      template: windows-2019-kube-v1.21.0-containerd
+      template: #@ data.values.VSPHERE_WINDOWS_TEMPLATE
 
 #@overlay/match by=overlay.subset({"kind":"KubeadmControlPlane"})
 ---

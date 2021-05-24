@@ -20,3 +20,4 @@ metricsServer:
       key: ""
       value: ""
     apiServiceInsecureTLS: true
+    tolerations: [] #! user can add tolerations

@@ -88,6 +88,10 @@ VSPHERE_NETWORK: VM Network
 #! necessary except to disambiguate among 2 or more applicable VM templates.
 VSPHERE_TEMPLATE:
 
+#! The name of the VM Windows template to be used to create a specific version of
+#! a Tanzu Kubernetes Cluster including WINDOWS node.
+VSPHERE_WINDOWS_TEMPLATE:
+
 VIP_NETWORK_INTERFACE: "eth0"
 
 #! The contents of the public key to be injected into the VM nodes created
