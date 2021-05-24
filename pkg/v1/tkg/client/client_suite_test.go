@@ -49,7 +49,7 @@ var (
 	testingDir                  string
 	ctrl                        *gomock.Controller
 	defaultTKGBoMFileForTesting = "../fakes/config/bom/tkg-bom-v1.3.1.yaml"
-	defaultTKRBoMFileForTesting = "../fakes/config/bom/tkr-bom-v1.18.0+vmware.1.yaml"
+	defaultTKRBoMFileForTesting = "../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml"
 	configFile                  = "../fakes/config/config.yaml"
 	configFile2                 = "../fakes/config/config2.yaml"
 	configFile3                 = "../fakes/config/config3.yaml"
@@ -622,7 +622,7 @@ var _ = Describe("ValidateAWSConfig", func() {
 
 			listBoMFiles := []string{
 				"../fakes/config/bom/tkg-bom-v1.3.0.yaml",
-				"../fakes/config/bom/tkr-bom-v1.19.3+vmware.1.yaml",
+				"../fakes/config/bom/tkr-bom-v1.19.3+vmware.1-tkg.1.yaml",
 			}
 			copyAllBoMFilesToTestingDir(listBoMFiles, testingDir)
 		})

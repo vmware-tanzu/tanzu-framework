@@ -46,7 +46,7 @@ var _ = Describe("Unit tests for addons upgrade", func() {
 
 	Describe("When upgrading addons", func() {
 		BeforeEach(func() {
-			setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1.yaml", testingDir)
+			setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
 			setupBomFile("../fakes/config/bom/tkg-bom-v1.3.1.yaml", testingDir)
 			regionalClusterClient.PatchResourceReturns(nil)
 			regionalClusterClient.GetKCPObjectForClusterReturns(getDummyKCP(constants.DockerMachineTemplate), nil)
