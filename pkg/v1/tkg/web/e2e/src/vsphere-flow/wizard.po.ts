@@ -1,4 +1,4 @@
-import { browser, by, element } from 'protractor';
+import { browser, by, element, protractor } from 'protractor';
 import { WizardBase } from '../wizard-base.po';
 
 export class Wizard extends WizardBase {

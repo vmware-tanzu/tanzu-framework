@@ -9,6 +9,9 @@ import { OsImage } from '../common/osimage.po';
 import { Metadata } from '../common/metadata.po'
 import { Identity } from '../common/identity.po'
 import { NetworkProxy } from '../common/networkproxy.po'
+import { NodeOpt } from '../common/node-setting-opt.po';
+
+const title = 'Deploying Tanzu Community Edition on AWS';
 
 export default abstract class WizardCommon {
 
@@ -25,7 +28,7 @@ export default abstract class WizardCommon {
 
             it('should display welcome message', () => {
                 page.navigateTo();
-                expect(page.getTitleText()).toEqual('Welcome to the VMware Tanzu Kubernetes Grid Installer');
+                expect(page.matchTitleText()).toBeTruthy();
             });
 
             it('should navigate to AWS flow', () => {
@@ -44,8 +47,8 @@ export default abstract class WizardCommon {
             describe("provider step", () => {
                 const provider = new Provider();
 
-                it('should display "Validate the AWS provider credentials for Tanzu Kubernetes Grid"', () => {
-                    expect(provider.getTitleText()).toEqual('Validate the AWS provider credentials for Tanzu Kubernetes Grid');
+                it('should navigate to provider step', () => {
+                    expect(provider.hasMovedToStep()).toBeTruthy();
                 })
 
                 it('"CONNECT" button should be enabled', () => {
@@ -75,26 +78,49 @@ export default abstract class WizardCommon {
 
             describe("Control Plane Settings step", () => {
                 const nodeSettings = new NodeSettings();
+                const nodeOpt = new NodeOpt();
 
                 it('should have moved to this step', () => {
                     expect(nodeSettings.hasMovedToStep()).toBeTruthy();
                 })
 
-                it('should display "Development cluster selected: 1 node control plane"', () => {
-                    nodeSettings.selectDatalistByText("devInstanceType", PARAMS.AWS_MC_TYPE);
-                    expect(nodeSettings.getTitleText()).toEqual('Development cluster selected: 1 node control plane');
-                })
+                if (PARAMS.CONTROL_PLANE_TYPE === 'dev') {
+                    it('should display "Development cluster selected: 1 node control plane"', () => {
+                        nodeSettings.selectDatalistByText("devInstanceType", PARAMS.AWS_MC_TYPE);
+                        expect(nodeSettings.getTitleText()).toEqual('Development cluster selected: 1 node control plane');
+                    })
 
-                it('should be able to select instance type and availability zone', () => {
-                    nodeSettings.getMCName().clear();
-                    nodeSettings.getMCName().sendKeys(PARAMS.MC_NAME);
-                    nodeSettings.selectDatalistByText("workerNodeInstanceType", PARAMS.AWS_WC_TYPE);
-                    nodeSettings.getSshKeyName().clear();
-                    nodeSettings.getSshKeyName().sendKeys(PARAMS.AWS_SSH_KEY_NAME);
-                    nodeSettings.selectOptionByText(nodeSettings.getAvailabilityZone(), PARAMS.AWS_AZ1);
-                    this.selectSubnets(nodeSettings);
-                    expect(true).toBeTruthy();
-                })
+                    it('should be able to select instance type and availability zone', () => {
+                        nodeSettings.getMCName().clear();
+                        nodeSettings.getMCName().sendKeys(PARAMS.MC_NAME);
+                        nodeSettings.selectDatalistByText("workerNodeInstanceType", PARAMS.AWS_WC_TYPE);
+                        nodeSettings.getSshKeyName().clear();
+                        nodeSettings.getSshKeyName().sendKeys(PARAMS.AWS_SSH_KEY_NAME);
+                        nodeSettings.selectOptionByText(nodeSettings.getAvailabilityZone1(), PARAMS.AWS_AZ1);
+                        this.selectSubnets(nodeSettings);
+                        expect(true).toBeTruthy();
+                    })
+                }
+                else {
+                    it('should display "Production cluster selected: 3 node control plane"', () => {
+                        nodeSettings.selectDatalistByText("prodInstanceType", PARAMS.AWS_MC_TYPE);
+                        expect(nodeSettings.getTitleText()).toEqual('Production cluster selected: 3 node control plane');
+                    })
+
+                    it('should be able to select instance type and availability zone', () => {
+                        nodeSettings.getMCName().clear();
+                        nodeSettings.getMCName().sendKeys(PARAMS.MC_NAME);
+                        nodeSettings.selectDatalistByText("workerNodeInstanceType", PARAMS.AWS_WC_TYPE);
+                        nodeSettings.getSshKeyName().clear();
+                        nodeSettings.getSshKeyName().sendKeys(PARAMS.AWS_SSH_KEY_NAME);
+                        nodeOpt.getEnableAudit().click();
+                        nodeSettings.selectOptionByText(nodeSettings.getAvailabilityZone1(), PARAMS.AWS_AZ1);
+                        nodeSettings.selectOptionByText(nodeSettings.getAvailabilityZone2(), PARAMS.AWS_AZ2);
+                        nodeSettings.selectOptionByText(nodeSettings.getAvailabilityZone3(), PARAMS.AWS_AZ3);
+                        this.selectSubnets(nodeSettings);
+                        expect(true).toBeTruthy();
+                    })
+                }
 
                 afterAll(() => {
                     nodeSettings.getNextButton().click();
@@ -175,7 +201,7 @@ export default abstract class WizardCommon {
 
             flow.executeCommonFlow();
             if (isVtaas === false) {
-                flow.executeDeployFlow();
+                flow.executeDeployFlow(title);
             }
         });
     }

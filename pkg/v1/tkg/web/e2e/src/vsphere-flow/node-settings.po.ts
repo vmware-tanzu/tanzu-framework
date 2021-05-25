@@ -15,6 +15,10 @@ export class NodeSettings extends Step {
         return element(by.css('select[name="devInstanceType"]'));
     }
 
+    getProdSelect() {
+        return element(by.css('select[name="prodInstanceType"]'));
+    }
+
     getMCName() {
         return element(by.css('input[formcontrolname="clusterName"]'));
     }
@@ -25,6 +29,10 @@ export class NodeSettings extends Step {
 
     getWorkerNodeType() {
         return element(by.css('select[name="workerNodeInstanceType"]'));
+    }
+
+    getEndpointProviderSelect() {
+        return element(by.css('select[name="controlPlaneEndpointProvider"]'));
     }
 
     getLoadBalancerInstanceType() {
