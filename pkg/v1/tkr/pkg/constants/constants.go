@@ -27,4 +27,7 @@ const (
 
 	// TKGNamespace is the TKG namespace
 	TKGNamespace = "tkg-system"
+
+	// TanzuKubernetesReleaseInactiveLabel is the TKR inactive label
+	TanzuKubernetesReleaseInactiveLabel = "inactive"
 )

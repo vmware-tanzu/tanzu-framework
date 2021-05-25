@@ -13,6 +13,7 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
 	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/clusterclient"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/constants"
 )
 
 var getTanzuKubernetesRleasesCmd = &cobra.Command{
@@ -47,7 +48,7 @@ func getKubernetesReleases(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	t := component.NewTableWriter("NAME", "VERSION", "COMPATIBLE", "UPDATES AVAILABLE")
+	t := component.NewTableWriter("NAME", "VERSION", "COMPATIBLE", "ACTIVE", "UPDATES AVAILABLE")
 	for i := range tkrs {
 		compatible := ""
 		upgradeAvailable := ""
@@ -60,8 +61,15 @@ func getKubernetesReleases(cmd *cobra.Command, args []string) error {
 				upgradeAvailable = string(condition.Status)
 			}
 		}
+		labels := tkrs[i].Labels
+		activeStatus := "True"
+		if labels != nil {
+			if _, exists := labels[constants.TanzuKubernetesReleaseInactiveLabel]; exists {
+				activeStatus = "False"
+			}
+		}
 
-		t.Append([]string{tkrs[i].Name, tkrs[i].Spec.Version, compatible, upgradeAvailable})
+		t.Append([]string{tkrs[i].Name, tkrs[i].Spec.Version, compatible, activeStatus, upgradeAvailable})
 	}
 	t.Render()
 	return nil

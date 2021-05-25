@@ -266,6 +266,10 @@ type Client interface {
 	GetBomConfigMap(tkrNameLabel string) (corev1.ConfigMap, error)
 	// GetClusterInfrastructure gets cluster infrastructure name like VSphereCluster, AWSCluster, AzureCluster
 	GetClusterInfrastructure() (string, error)
+	// ActivateTanzuKubernetesReleases activates TanzuKubernetesRelease
+	ActivateTanzuKubernetesReleases(tkrName string) error
+	// DeactivateTanzuKubernetesReleases deactivates TanzuKubernetesRelease
+	DeactivateTanzuKubernetesReleases(tkrName string) error
 }
 
 // PollOptions is options for polling
@@ -987,6 +991,52 @@ func (c *client) GetClusterInfrastructure() (string, error) {
 	}
 
 	return clusters.Items[0].Spec.InfrastructureRef.Kind, nil
+}
+
+// DeactivateTanzuKubernetesReleases deactivates the given TanzuKubernetesReleases
+// TKR is deactivated by adding label (inactive: "" ) to the TKR resource
+func (c *client) DeactivateTanzuKubernetesReleases(tkrName string) error {
+	var tkr runv1alpha1.TanzuKubernetesRelease
+	deactivateTKRTimeout := 2 * CheckResourceInterval
+	patchFormat := `
+	{
+		"metadata": {
+		    "labels": {
+			    %q: ""
+		    }
+	    }
+	}`
+	patchStr := fmt.Sprintf(patchFormat, tkrconstants.TanzuKubernetesReleaseInactiveLabel)
+	pollOptions := &PollOptions{Interval: CheckResourceInterval, Timeout: deactivateTKRTimeout}
+	err := c.PatchResource(&tkr, tkrName, "", patchStr, types.MergePatchType, pollOptions)
+	if err != nil {
+		return errors.Wrap(err, "unable to patch the TanzuKubernetesrelease object with inactive label")
+	}
+
+	return nil
+}
+
+// ActivateTanzuKubernetesReleases activates the given TanzuKubernetesReleases
+// TKR is activated by removing the inactive label (by patching labels with inactive: null) on TKR resource
+func (c *client) ActivateTanzuKubernetesReleases(tkrName string) error {
+	var tkr runv1alpha1.TanzuKubernetesRelease
+	activateTKRTimeout := 2 * CheckResourceInterval
+	patchFormat := `
+	{
+		"metadata": {
+		    "labels": {
+			    %q: null
+		    }
+	    }
+	}`
+	patchStr := fmt.Sprintf(patchFormat, tkrconstants.TanzuKubernetesReleaseInactiveLabel)
+	pollOptions := &PollOptions{Interval: CheckResourceInterval, Timeout: activateTKRTimeout}
+	err := c.PatchResource(&tkr, tkrName, "", patchStr, types.MergePatchType, pollOptions)
+	if err != nil {
+		return errors.Wrap(err, "unable to patch the TanzuKubernetesrelease object with inactive label")
+	}
+
+	return nil
 }
 
 // GetResource gets the kubernetes resource passed as reference either directly or with polling mechanism

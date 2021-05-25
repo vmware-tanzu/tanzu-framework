@@ -803,6 +803,68 @@ var _ = Describe("Cluster Client", func() {
 			})
 		})
 	})
+
+	Describe("DeactivateTanzuKubernetesReleases", func() {
+		BeforeEach(func() {
+			reInitialize()
+			kubeConfigPath := getConfigFilePath("config1.yaml")
+			clstClient, err = NewClient(kubeConfigPath, "", clusterClientOptions)
+			Expect(err).NotTo(HaveOccurred())
+		})
+		Context("When inactive label addition patch return error", func() {
+			JustBeforeEach(func() {
+				clientset.GetReturns(nil)
+				clientset.PatchReturns(errors.New("fake-error-while-patch"))
+				err = clstClient.DeactivateTanzuKubernetesReleases("fake-tkr-name")
+			})
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("error while applying patch for"))
+			})
+		})
+		Context("When inactive label addition patch is successful", func() {
+			JustBeforeEach(func() {
+				clientset.GetReturns(nil)
+				clientset.PatchReturns(nil)
+				err = clstClient.DeactivateTanzuKubernetesReleases("fake-tkr-name")
+			})
+			It("should not return error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+	})
+
+	Describe("ActivateTanzuKubernetesReleases", func() {
+		BeforeEach(func() {
+			reInitialize()
+			kubeConfigPath := getConfigFilePath("config1.yaml")
+			clstClient, err = NewClient(kubeConfigPath, "", clusterClientOptions)
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		Context("When inactive label removal patching return error", func() {
+			JustBeforeEach(func() {
+				clientset.GetReturns(nil)
+				clientset.PatchReturns(errors.New("fake-error-while-patch"))
+				err = clstClient.ActivateTanzuKubernetesReleases("fake-tkr-name")
+			})
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("error while applying patch for"))
+			})
+		})
+		Context("When inactive label removal patching is successful", func() {
+			JustBeforeEach(func() {
+				clientset.GetReturns(nil)
+				clientset.PatchReturns(nil)
+				err = clstClient.DeactivateTanzuKubernetesReleases("fake-tkr-name")
+			})
+			It("should not return error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+	})
+
 	Describe("Get current context", func() {
 		BeforeEach(func() {
 			reInitialize()

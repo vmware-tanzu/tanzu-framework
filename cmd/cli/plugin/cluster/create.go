@@ -183,6 +183,9 @@ func getTkrVersionForMatchingTkr(clusterClient clusterclient.Client, tkrName str
 	tkrForCreate, err := getMatchingTkrForTkrName(tkrs, tkrName)
 	// If the complete TKR name is provided, use it
 	if err == nil {
+		if !isTkrActive(&tkrForCreate) {
+			return "", errors.Errorf("the TanzuKubernetesRelease %q is deactivated and cannot be used", tkrName)
+		}
 		if !isTkrCompatible(&tkrForCreate) {
 			fmt.Printf("WARNING: TanzuKubernetesRelease %q is not compatible on the management cluster\n", tkrForCreate.Name)
 		}
@@ -199,7 +202,7 @@ func getTkrVersionForMatchingTkr(clusterClient clusterclient.Client, tkrName str
 func getLatestTKRVersionMatchingTKRPrefix(tkrName string, tkrsWithPrefixMatch []runv1alpha1.TanzuKubernetesRelease) (string, error) {
 	compatibleTKRs := []runv1alpha1.TanzuKubernetesRelease{}
 	for idx := range tkrsWithPrefixMatch {
-		if !isTkrCompatible(&tkrsWithPrefixMatch[idx]) {
+		if !isTkrCompatible(&tkrsWithPrefixMatch[idx]) || !isTkrActive(&tkrsWithPrefixMatch[idx]) {
 			continue
 		}
 		compatibleTKRs = append(compatibleTKRs, tkrsWithPrefixMatch[idx])
