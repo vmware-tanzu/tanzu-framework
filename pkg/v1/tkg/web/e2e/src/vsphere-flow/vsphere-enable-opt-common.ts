@@ -37,6 +37,7 @@ export class EnableOptionsCommon extends WizardCommon {
                 nsxSettings.getControllerHost().sendKeys(PARAMS.CONTROLLER_HOST);
                 nsxSettings.getNsxUserName().sendKeys(PARAMS.DEFAULT_NSX_USER);
                 nsxSettings.getNsxPassword().sendKeys(PARAMS.DEFAULT_NSX_PASSWORD + " ");
+                nsxSettings.getControllerCert().sendKeys(PARAMS.DEFAULT_NSX_CA);
                 expect(nsxSettings.getNsxVerifyButton().isEnabled()).toBeTruthy();
             })
 
@@ -50,7 +51,6 @@ export class EnableOptionsCommon extends WizardCommon {
             it('"VERIFY" button should display "VERIFIED"', () => {
                 nsxSettings.getNsxPassword().clear();
                 nsxSettings.getNsxPassword().sendKeys(PARAMS.DEFAULT_NSX_PASSWORD);
-                nsxSettings.getControllerCert().sendKeys(PARAMS.DEFAULT_NSX_CA);
                 nsxSettings.getNsxVerifyButton().click();
                 browser.waitForAngular();
                 expect(nsxSettings.getNsxVerifyButton().isEnabled()).toBeFalsy();
