@@ -9,6 +9,152 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
+    controller-gen.kubebuilder.io/version: v0.3.0
+  creationTimestamp: null
+  labels:
+    cluster.x-k8s.io/provider: infrastructure-azure
+    cluster.x-k8s.io/v1alpha3: v1alpha3
+  name: azureclusteridentities.infrastructure.cluster.x-k8s.io
+spec:
+  group: infrastructure.cluster.x-k8s.io
+  names:
+    categories:
+    - cluster-api
+    kind: AzureClusterIdentity
+    listKind: AzureClusterIdentityList
+    plural: azureclusteridentities
+    singular: azureclusteridentity
+  scope: Namespaced
+  versions:
+  - name: v1alpha3
+    schema:
+      openAPIV3Schema:
+        description: AzureClusterIdentity is the Schema for the azureclustersidentities
+          API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: AzureClusterIdentitySpec defines the parameters that are
+              used to create an AzureIdentity
+            properties:
+              allowedNamespaces:
+                description: "AllowedNamespaces is an array of namespaces that AzureClusters
+                  can use this Identity from. \n An empty list (default) indicates
+                  that AzureClusters can use this Identity from any namespace. This
+                  field is intentionally not a pointer because the nil behavior (no
+                  namespaces) is undesirable here."
+                items:
+                  type: string
+                type: array
+              clientID:
+                description: Both User Assigned MSI and SP can use this field.
+                type: string
+              clientSecret:
+                description: ClientSecret is a secret reference which should contain
+                  either a Service Principal password or certificate secret.
+                properties:
+                  name:
+                    description: Name is unique within a namespace to reference a
+                      secret resource.
+                    type: string
+                  namespace:
+                    description: Namespace defines the space within which the secret
+                      name must be unique.
+                    type: string
+                type: object
+              resourceID:
+                description: User assigned MSI resource id.
+                type: string
+              tenantID:
+                description: Service principal primary tenant id.
+                type: string
+              type:
+                description: UserAssignedMSI or Service Principal
+                enum:
+                - ServicePrincipal
+                - UserAssignedMSI
+                type: string
+            required:
+            - clientID
+            - tenantID
+            - type
+            type: object
+          status:
+            description: AzureClusterIdentityStatus defines the observed state of
+              AzureClusterIdentity
+            properties:
+              conditions:
+                description: Conditions defines current service state of the AzureClusterIdentity.
+                items:
+                  description: Condition defines an observation of a Cluster API resource
+                    operational state.
+                  properties:
+                    lastTransitionTime:
+                      description: Last time the condition transitioned from one status
+                        to another. This should be when the underlying condition changed.
+                        If that is not known, then using the time when the API field
+                        changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: A human readable message indicating details about
+                        the transition. This field may be empty.
+                      type: string
+                    reason:
+                      description: The reason for the condition's last transition
+                        in CamelCase. The specific API may choose whether or not this
+                        field is considered a guaranteed API. This field may not be
+                        empty.
+                      type: string
+                    severity:
+                      description: Severity provides an explicit classification of
+                        Reason code, so the users or machines can immediately understand
+                        the current situation and act accordingly. The Severity field
+                        MUST be set only when Status=False.
+                      type: string
+                    status:
+                      description: Status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: Type of condition in CamelCase or in foo.example.com/CamelCase.
+                        Many .condition.type values are consistent across resources
+                        like Available, but because arbitrary conditions can be useful
+                        (see .node.status.conditions), the ability to deconflict is
+                        important.
+                      type: string
+                  required:
+                  - status
+                  - type
+                  type: object
+                type: array
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
     cert-manager.io/inject-ca-from: capi-webhook-system/capz-serving-cert
     controller-gen.kubebuilder.io/version: v0.3.0
   creationTimestamp: null
@@ -17,6 +163,18 @@ metadata:
     cluster.x-k8s.io/v1alpha3: v1alpha3
   name: azureclusters.infrastructure.cluster.x-k8s.io
 spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        caBundle: Cg==
+        service:
+          name: capz-webhook-service
+          namespace: capi-webhook-system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+      - v1beta1
   group: infrastructure.cluster.x-k8s.io
   names:
     categories:
@@ -102,10 +260,10 @@ spec:
                                     type: string
                                   destination:
                                     description: Destination - The destination address
-                                                   prefix. CIDR or destination IP range. Asterix
-                                                   '*' can also be used to match all source IPs.
-                                                   Default tags such as 'VirtualNetwork', 'AzureLoadBalancer'
-                                                   and 'Internet' can also be used.
+                                      prefix. CIDR or destination IP range. Asterix
+                                      '*' can also be used to match all source IPs.
+                                      Default tags such as 'VirtualNetwork', 'AzureLoadBalancer'
+                                      and 'Internet' can also be used.
                                     type: string
                                   destinationPorts:
                                     description: DestinationPorts - The destination
@@ -119,11 +277,11 @@ spec:
                                     type: string
                                   source:
                                     description: Source - The CIDR or source IP range.
-                                                   Asterix '*' can also be used to match all source
-                                                   IPs. Default tags such as 'VirtualNetwork',
-                                                   'AzureLoadBalancer' and 'Internet' can also
-                                                   be used. If this is an ingress rule, specifies
-                                                   where network traffic originates from.
+                                      Asterix '*' can also be used to match all source
+                                      IPs. Default tags such as 'VirtualNetwork',
+                                      'AzureLoadBalancer' and 'Internet' can also
+                                      be used. If this is an ingress rule, specifies
+                                      where network traffic originates from.
                                     type: string
                                   sourcePorts:
                                     description: SourcePorts - The source port or
@@ -468,6 +626,43 @@ spec:
                 - host
                 - port
                 type: object
+              identityRef:
+                description: IdentityRef is a reference to a AzureIdentity to be used
+                  when reconciling this cluster
+                properties:
+                  apiVersion:
+                    description: API version of the referent.
+                    type: string
+                  fieldPath:
+                    description: 'If referring to a piece of an object instead of
+                      an entire object, this string should contain a valid JSON/Go
+                      field access statement, such as desiredState.manifest.containers[2].
+                      For example, if the object reference is to a container within
+                      a pod, this would take on a value like: "spec.containers{name}"
+                      (where "name" refers to the name of the container that triggered
+                      the event) or if no container name is specified "spec.containers[2]"
+                      (container with index 2 in this pod). This syntax is chosen
+                      only to have some well-defined way of referencing a part of
+                      an object. TODO: this design is not final and this field is
+                      subject to change in the future.'
+                    type: string
+                  kind:
+                    description: 'Kind of the referent. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+                    type: string
+                  name:
+                    description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names'
+                    type: string
+                  namespace:
+                    description: 'Namespace of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/'
+                    type: string
+                  resourceVersion:
+                    description: 'Specific resourceVersion to which this reference
+                      is made, if any. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency'
+                    type: string
+                  uid:
+                    description: 'UID of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids'
+                    type: string
+                type: object
               location:
                 type: string
               networkSpec:
@@ -573,10 +768,10 @@ spec:
                                     type: string
                                   destination:
                                     description: Destination - The destination address
-                                                   prefix. CIDR or destination IP range. Asterix
-                                                   '*' can also be used to match all source IPs.
-                                                   Default tags such as 'VirtualNetwork', 'AzureLoadBalancer'
-                                                   and 'Internet' can also be used.
+                                      prefix. CIDR or destination IP range. Asterix
+                                      '*' can also be used to match all source IPs.
+                                      Default tags such as 'VirtualNetwork', 'AzureLoadBalancer'
+                                      and 'Internet' can also be used.
                                     type: string
                                   destinationPorts:
                                     description: DestinationPorts - The destination
@@ -600,11 +795,11 @@ spec:
                                     type: string
                                   source:
                                     description: Source - The CIDR or source IP range.
-                                                   Asterix '*' can also be used to match all source
-                                                   IPs. Default tags such as 'VirtualNetwork',
-                                                   'AzureLoadBalancer' and 'Internet' can also
-                                                   be used. If this is an ingress rule, specifies
-                                                   where network traffic originates from.
+                                      Asterix '*' can also be used to match all source
+                                      IPs. Default tags such as 'VirtualNetwork',
+                                      'AzureLoadBalancer' and 'Internet' can also
+                                      be used. If this is an ingress rule, specifies
+                                      where network traffic originates from.
                                     type: string
                                   sourcePorts:
                                     description: SourcePorts - The source port or
@@ -773,6 +968,18 @@ metadata:
     cluster.x-k8s.io/v1alpha3: v1alpha3
   name: azuremachinepools.exp.infrastructure.cluster.x-k8s.io
 spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        caBundle: Cg==
+        service:
+          name: capz-webhook-service
+          namespace: system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+      - v1beta1
   group: exp.infrastructure.cluster.x-k8s.io
   names:
     categories:
@@ -959,12 +1166,12 @@ spec:
                             type: boolean
                           version:
                             description: Version specifies the version of an image
-                                           sku. The allowed formats are Major.Minor.Build or 'latest'.
-                                           Major, Minor, and Build are decimal numbers. Specify
-                                           'latest' to use the latest version of an image available
-                                           at deploy time. Even if you use 'latest', the VM image
-                                           will not automatically update after deploy time even
-                                           if a new version becomes available.
+                              sku. The allowed formats are Major.Minor.Build or 'latest'.
+                              Major, Minor, and Build are decimal numbers. Specify
+                              'latest' to use the latest version of an image available
+                              at deploy time. Even if you use 'latest', the VM image
+                              will not automatically update after deploy time even
+                              if a new version becomes available.
                             minLength: 1
                             type: string
                         required:
@@ -998,12 +1205,12 @@ spec:
                             type: string
                           version:
                             description: Version specifies the version of the marketplace
-                                           image. The allowed formats are Major.Minor.Build or
-                                           'latest'. Major, Minor, and Build are decimal numbers.
-                                           Specify 'latest' to use the latest version of an image
-                                           available at deploy time. Even if you use 'latest',
-                                           the VM image will not automatically update after deploy
-                                           time even if a new version becomes available.
+                              image. The allowed formats are Major.Minor.Build or
+                              'latest'. Major, Minor, and Build are decimal numbers.
+                              Specify 'latest' to use the latest version of an image
+                              available at deploy time. Even if you use 'latest',
+                              the VM image will not automatically update after deploy
+                              time even if a new version becomes available.
                             minLength: 1
                             type: string
                         required:
@@ -1071,6 +1278,19 @@ spec:
                           should be enabled or disabled for a virtual machine or virtual
                           machine scale set. Default is disabled.
                         type: boolean
+                    type: object
+                  spotVMOptions:
+                    description: SpotVMOptions allows the ability to specify the Machine
+                      should use a Spot VM
+                    properties:
+                      maxPrice:
+                        anyOf:
+                        - type: integer
+                        - type: string
+                        description: MaxPrice defines the maximum price the user is
+                          willing to pay for Spot VM instances
+                        pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                        x-kubernetes-int-or-string: true
                     type: object
                   sshPublicKey:
                     description: SSHPublicKey is the SSH public key string base64
@@ -1197,9 +1417,13 @@ spec:
                   description: AzureMachinePoolInstanceStatus provides status information
                     for each instance in the VMSS
                   properties:
-                    instanceName:
+                    instanceID:
                       description: InstanceID is the identification of the Machine
                         Instance within the VMSS
+                      type: string
+                    instanceName:
+                      description: InstanceName is the name of the Machine Instance
+                        within the VMSS
                       type: string
                     latestModelApplied:
                       description: LatestModelApplied indicates the instance is running
@@ -1225,6 +1449,29 @@ spec:
                   - latestModelApplied
                   type: object
                 type: array
+              longRunningOperationState:
+                description: LongRunningOperationState saves the state for an Azure
+                  long running operations so it can be continued on the next reconciliation
+                  loop.
+                properties:
+                  futureData:
+                    description: FutureData is the base64 url encoded json Azure AutoRest
+                      Future
+                    type: string
+                  name:
+                    description: Name is the name of the Azure resource
+                    type: string
+                  resourceGroup:
+                    description: ResourceGroup is the Azure resource group for the
+                      resource
+                    type: string
+                  type:
+                    description: Type describes the type of future, update, create,
+                      delete, etc
+                    type: string
+                required:
+                - type
+                type: object
               provisioningState:
                 description: ProvisioningState is the provisioning state of the Azure
                   virtual machine.
@@ -1265,6 +1512,18 @@ metadata:
     cluster.x-k8s.io/v1alpha3: v1alpha3
   name: azuremachines.infrastructure.cluster.x-k8s.io
 spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        caBundle: Cg==
+        service:
+          name: capz-webhook-service
+          namespace: capi-webhook-system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+      - v1beta1
   group: infrastructure.cluster.x-k8s.io
   names:
     categories:
@@ -1739,9 +1998,13 @@ spec:
                   should use a Spot VM
                 properties:
                   maxPrice:
+                    anyOf:
+                    - type: integer
+                    - type: string
                     description: MaxPrice defines the maximum price the user is willing
                       to pay for Spot VM instances
-                    type: number
+                    pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                    x-kubernetes-int-or-string: true
                 type: object
               sshPublicKey:
                 type: string
@@ -1896,6 +2159,18 @@ metadata:
     cluster.x-k8s.io/v1alpha3: v1alpha3
   name: azuremachinetemplates.infrastructure.cluster.x-k8s.io
 spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        caBundle: Cg==
+        service:
+          name: capz-webhook-service
+          namespace: capi-webhook-system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+      - v1beta1
   group: infrastructure.cluster.x-k8s.io
   names:
     categories:
@@ -2182,13 +2457,13 @@ spec:
                                 type: boolean
                               version:
                                 description: Version specifies the version of an image
-                                               sku. The allowed formats are Major.Minor.Build or
-                                               'latest'. Major, Minor, and Build are decimal numbers.
-                                               Specify 'latest' to use the latest version of an
-                                               image available at deploy time. Even if you use
-                                               'latest', the VM image will not automatically update
-                                               after deploy time even if a new version becomes
-                                               available.
+                                  sku. The allowed formats are Major.Minor.Build or
+                                  'latest'. Major, Minor, and Build are decimal numbers.
+                                  Specify 'latest' to use the latest version of an
+                                  image available at deploy time. Even if you use
+                                  'latest', the VM image will not automatically update
+                                  after deploy time even if a new version becomes
+                                  available.
                                 minLength: 1
                                 type: string
                             required:
@@ -2315,9 +2590,13 @@ spec:
                           Machine should use a Spot VM
                         properties:
                           maxPrice:
+                            anyOf:
+                            - type: integer
+                            - type: string
                             description: MaxPrice defines the maximum price the user
                               is willing to pay for Spot VM instances
-                            type: number
+                            pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                            x-kubernetes-int-or-string: true
                         type: object
                       sshPublicKey:
                         type: string
@@ -2723,6 +3002,50 @@ status:
   conditions: []
   storedVersions: []
 ---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  labels:
+    cluster.x-k8s.io/provider: infrastructure-azure
+  name: azureidentities.aadpodidentity.k8s.io
+spec:
+  group: aadpodidentity.k8s.io
+  names:
+    kind: AzureIdentity
+    plural: azureidentities
+    singular: azureidentity
+  scope: Namespaced
+  version: v1
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  labels:
+    cluster.x-k8s.io/provider: infrastructure-azure
+  name: azureidentitybindings.aadpodidentity.k8s.io
+spec:
+  group: aadpodidentity.k8s.io
+  names:
+    kind: AzureIdentityBinding
+    plural: azureidentitybindings
+  scope: Namespaced
+  version: v1
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  labels:
+    cluster.x-k8s.io/provider: infrastructure-azure
+  name: azurepodidentityexceptions.aadpodidentity.k8s.io
+spec:
+  group: aadpodidentity.k8s.io
+  names:
+    kind: AzurePodIdentityException
+    plural: azurepodidentityexceptions
+    singular: azurepodidentityexception
+  scope: Namespaced
+  version: v1
+---
 apiVersion: admissionregistration.k8s.io/v1beta1
 kind: MutatingWebhookConfiguration
 metadata:
@@ -2778,13 +3101,12 @@ webhooks:
     service:
       name: capz-webhook-service
       namespace: capi-webhook-system
-      path: /mutate-exp-cluster-x-k8s-io-x-k8s-io-v1alpha3-azuremachinepool
+      path: /mutate-exp-infrastructure-cluster-x-k8s-io-v1alpha3-azuremachinepool
   failurePolicy: Fail
-  matchPolicy: Equivalent
-  name: mazuremachinepool.kb.io
+  name: azuremachinepool.kb.io
   rules:
   - apiGroups:
-    - exp.cluster.x-k8s.io.x-k8s.io
+    - exp.infrastructure.cluster.x-k8s.io
     apiVersions:
     - v1alpha3
     operations:
@@ -2844,6 +3166,43 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
+  labels:
+    cluster.x-k8s.io/provider: infrastructure-azure
+  name: capz-aad-pod-id-nmi-role
+rules:
+- apiGroups:
+  - apiextensions.k8s.io
+  resources:
+  - customresourcedefinitions
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+- apiGroups:
+  - aadpodidentity.k8s.io
+  resources:
+  - azureidentitybindings
+  - azureidentities
+  - azurepodidentityexceptions
+  verbs:
+  - '*'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
   creationTimestamp: null
   labels:
     cluster.x-k8s.io/provider: infrastructure-azure
@@ -2873,6 +3232,24 @@ rules:
   - update
   - watch
 - apiGroups:
+  - aadpodidentity.k8s.io
+  resources:
+  - azureidentities
+  - azureidentities/status
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - aadpodidentity.k8s.io
+  resources:
+  - azureidentitybindings
+  - azureidentitybindings/status
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
   - cluster.x-k8s.io
   resources:
   - clusters
@@ -2887,6 +3264,14 @@ rules:
   resources:
   - machines
   - machines/status
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - nodes
   verbs:
   - get
   - list
@@ -2983,6 +3368,19 @@ rules:
 - apiGroups:
   - infrastructure.cluster.x-k8s.io
   resources:
+  - azureclusteridentities
+  - azureclusteridentities/status
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - infrastructure.cluster.x-k8s.io
+  resources:
   - azureclusters
   verbs:
   - create
@@ -3035,6 +3433,18 @@ kind: ClusterRole
 metadata:
   labels:
     cluster.x-k8s.io/provider: infrastructure-azure
+  name: capz-metrics-reader
+rules:
+- nonResourceURLs:
+  - /metrics
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    cluster.x-k8s.io/provider: infrastructure-azure
   name: capz-proxy-role
 rules:
 - apiGroups:
@@ -3061,6 +3471,22 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
   name: capz-leader-election-role
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: capz-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    cluster.x-k8s.io/provider: infrastructure-azure
+    k8s-app: capz-aad-pod-id-nmi-binding
+  name: capz-aad-pod-id-nmi-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: capz-aad-pod-id-nmi-role
 subjects:
 - kind: ServiceAccount
   name: default
@@ -3159,6 +3585,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
+    aadpodidbinding: capz-controller-aadpodidentity-selector
     cluster.x-k8s.io/provider: infrastructure-azure
     control-plane: capz-controller-manager
   name: capz-controller-manager
@@ -3171,7 +3598,10 @@ spec:
       control-plane: capz-controller-manager
   template:
     metadata:
+      annotations:
+        kubectl.kubernetes.io/default-logs-container: manager
       labels:
+        aadpodidbinding: capz-controller-aadpodidentity-selector
         cluster.x-k8s.io/provider: infrastructure-azure
         control-plane: capz-controller-manager
     spec:
@@ -3190,7 +3620,20 @@ spec:
         - --metrics-addr=127.0.0.1:8080
         - --webhook-port=9443
         - --feature-gates=MachinePool=${EXP_MACHINE_POOL:=false},AKS=${EXP_AKS:=false}
-        image: registry.tkg.vmware.run/cluster-api/cluster-api-azure-controller:v0.4.10_vmware.1
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        image: registry.tkg.vmware.run/cluster-api/cluster-api-azure-controller:v0.4.15_vmware.1
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:
@@ -3223,6 +3666,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
+    aadpodidbinding: capz-controller-aadpodidentity-selector
     cluster.x-k8s.io/provider: infrastructure-azure
     control-plane: capz-controller-manager
   name: capz-controller-manager
@@ -3235,7 +3679,10 @@ spec:
       control-plane: capz-controller-manager
   template:
     metadata:
+      annotations:
+        kubectl.kubernetes.io/default-logs-container: manager
       labels:
+        aadpodidbinding: capz-controller-aadpodidentity-selector
         cluster.x-k8s.io/provider: infrastructure-azure
         control-plane: capz-controller-manager
     spec:
@@ -3286,7 +3733,19 @@ spec:
             secretKeyRef:
               key: client-secret
               name: capz-manager-bootstrap-credentials
-        image: registry.tkg.vmware.run/cluster-api/cluster-api-azure-controller:v0.4.10_vmware.1
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        image: registry.tkg.vmware.run/cluster-api/cluster-api-azure-controller:v0.4.15_vmware.1
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:
@@ -3302,6 +3761,82 @@ spec:
             path: /readyz
             port: healthz
       terminationGracePeriodSeconds: 10
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    cluster.x-k8s.io/provider: infrastructure-azure
+    component: nmi
+    k8s-app: aad-pod-id
+    tier: node
+  name: capz-nmi
+  namespace: capz-system
+spec:
+  selector:
+    matchLabels:
+      cluster.x-k8s.io/provider: infrastructure-azure
+      component: nmi
+      tier: node
+  template:
+    metadata:
+      labels:
+        cluster.x-k8s.io/provider: infrastructure-azure
+        component: nmi
+        tier: node
+    spec:
+      containers:
+      - args:
+        - --node=$(NODE_NAME)
+        - --forceNamespaced
+        - --http-probe-port=8085
+        - --operation-mode=managed
+        env:
+        - name: FORCENAMESPACED
+          value: "true"
+        - name: HOST_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        image: projects-stg.registry.vmware.com/tkg/cluster-api/nmi:v1.6.3_vmware.1
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8085
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        name: nmi
+        resources:
+          limits:
+            cpu: 200m
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 256Mi
+        securityContext:
+          capabilities:
+            add:
+            - NET_ADMIN
+        volumeMounts:
+        - mountPath: /run/xtables.lock
+          name: iptableslock
+      dnsPolicy: ClusterFirstWithHostNet
+      hostNetwork: true
+      nodeSelector:
+        kubernetes.io/os: linux
+      serviceAccountName: default
+      volumes:
+      - hostPath:
+          path: /run/xtables.lock
+          type: FileOrCreate
+        name: iptableslock
+  updateStrategy:
+    type: RollingUpdate
 ---
 apiVersion: cert-manager.io/v1alpha2
 kind: Certificate
@@ -3384,13 +3919,12 @@ webhooks:
     service:
       name: capz-webhook-service
       namespace: capi-webhook-system
-      path: /validate-exp-cluster-x-k8s-io-x-k8s-io-v1alpha3-azuremachinepool
+      path: /validate-exp-infrastructure-cluster-x-k8s-io-v1alpha3-azuremachinepool
   failurePolicy: Fail
-  matchPolicy: Equivalent
-  name: vazuremachinepool.kb.io
+  name: azuremachinepool.kb.io
   rules:
   - apiGroups:
-    - exp.cluster.x-k8s.io.x-k8s.io
+    - exp.infrastructure.cluster.x-k8s.io
     apiVersions:
     - v1alpha3
     operations:
