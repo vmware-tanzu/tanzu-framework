@@ -5,8 +5,13 @@ import { SLEEP_TIME_AFTER_NEXT, PARAMS } from '../wizard-base.po';
 import WizardCommon from "./wizard-common";
 import { Identity } from '../common/identity.po'
 import { browser } from 'protractor';
+import { NodeSettings } from './node-settings.po';
 
 export class EnableOptionsCommon extends WizardCommon {
+
+    selectEndpointProvider(nodeSettings: NodeSettings) {
+        nodeSettings.selectOptionByText(nodeSettings.getEndpointProviderSelect(), 'NSX Advanced Load Balancer');
+    }
 
     getFlowTestingDescription() {
         return "Vsphere flow (enable Options)"

@@ -1,6 +1,7 @@
 export SERVER_URL=localhost:4200
 #export CHROME_OPTIONS=chrome
 export MC_NAME=mgmt-vsphere-e2e
+export CONTROL_PLANE_TYPE=dev
 
 export VCIP=vsphere.local
 export DEFAULT_VC_USER=admin@vsphere.local
@@ -33,6 +34,8 @@ export AWS_EXISTING_VPC_ID=vpc-1
 export AWS_MC_TYPE=t3.large
 export AWS_WC_TYPE=t3.large
 export AWS_AZ1=us-west-b
+export AWS_AZ2=us-west-a
+export AWS_AZ3=us-west-c
 
 export AZURE_SUBSCRIPTION_ID=USE_YOUR_OWN
 export AZURE_TENANT_ID=USE_YOUR_OWN
@@ -48,6 +51,7 @@ export AZURE_RESOURCE_GROUP=resource-group1
 export AZURE_VNET=vnet1
 export AZURE_MASTER_SUBNET=subnet1
 export AZURE_WORKER_SUBNET=subnet2
+export AZURE_PRIVATE_IP=10.0.0.100
 
 export LDAP_IP=myldap.com
 export LDAP_PORT=31234

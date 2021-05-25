@@ -20,13 +20,20 @@ export const KUBE_VIP = 'Kube-vip';
 export const NSX_ADVANCED_LOAD_BALANCER = "NSX Advanced Load Balancer";
 
 const SupervisedFields = ['controllerHost', 'username', 'password', 'controllerCert'];
+const HA_REQUIRED_FIELDS = [
+    'controllerHost',
+    'username',
+    'password',
+    'controllerCert',
+    'managementClusterNetworkName',
+    'managementClusterNetworkCIDR'
+]
 
 @Component({
     selector: 'app-load-balancer-step',
     templateUrl: './load-balancer-step.component.html',
     styleUrls: ['./load-balancer-step.component.scss']
 })
-
 export class SharedLoadBalancerStepComponent extends StepFormDirective implements OnInit {
 
     loadingState: ClrLoadingState = ClrLoadingState.DEFAULT;
@@ -145,11 +152,9 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
             .subscribe(({ payload }) => {
                 this.currentControlPlaneEndpoingProvider = payload;
                 if (this.currentControlPlaneEndpoingProvider === NSX_ADVANCED_LOAD_BALANCER) {
-                    ['controllerHost', 'username', 'password', "managementClusterNetworkName", "managementClusterNetworkCIDR"]
-                        .forEach(fieldName => this.resurrectField(fieldName, [Validators.required]));
+                    HA_REQUIRED_FIELDS.forEach(fieldName => this.resurrectField(fieldName, [Validators.required]));
                 } else {
-                    ['controllerHost', 'username', 'password', "managementClusterNetworkName", "managementClusterNetworkCIDR"]
-                        .forEach(fieldName => this.disarmField(fieldName, true));
+                    HA_REQUIRED_FIELDS.forEach(fieldName => this.disarmField(fieldName, true));
                 }
             });
 
@@ -351,14 +356,11 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
                 this.validationService.noWhitespaceOnEnds(),
                 this.validationService.isValidIpNetworkSegment()
             ], this.getSavedValue('networkCIDR', ''));
-            // this.resurrectField('controllerCert', [],
-            //     this.getSavedValue('controllerCert', ''));
         } else {
             this.disarmField('cloudName', true);
             this.disarmField('serviceEngineGroupName', true);
             this.disarmField('networkName', true);
             this.disarmField('networkCIDR', true);
-            // this.disarmField('controllerCert', true);
         }
     }
 
@@ -367,9 +369,10 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
      * helper method to get if connect btn should be disabled
      */
     getDisabled(): boolean {
-        return !(this.formGroup.get('controllerHost').valid &&
-            this.formGroup.get('username').valid &&
-            this.formGroup.get('password').valid);
+        return (
+            SupervisedFields.some(f => !this.formGroup.get(f).value) ||
+                SupervisedFields.some(f => !this.formGroup.get(f).valid)
+        )
     }
 
     /**

@@ -76,9 +76,9 @@
 
     <div class="clr-row">
         <div class="clr-col-6">
-            <div class="clr-form-control" [attr.data-step-metadata]="formName">
+            <clr-textarea-container> [attr.data-step-metadata]="formName">
                 <label for="controllerCert" class="clr-control-label">
-                    CONTROLLER CERTIFICATE AUTHORITY (OPTIONAL)
+                    CONTROLLER CERTIFICATE AUTHORITY
                     <clr-tooltip>
                         <clr-icon clrTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -88,13 +88,11 @@
                         </clr-tooltip-content>
                     </clr-tooltip>
                 </label>
-                <div class="clr-control-container" [class.clr-error]="formGroup.get('controllerCert').invalid">
-                    <div class="clr-textarea-wrapper">
-                        <textarea formControlName="controllerCert" id="controllerCert" placeholder=""
-                            class="clr-textarea"></textarea>
-                    </div>
-                </div>
-            </div>
+                <textarea clrTextarea formControlName="controllerCert" placeholder=""></textarea>
+                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+                <clr-control-error>Controller certificate authority is required</clr-control-error>
+            </clr-textarea-container>
         </div>
     </div>
 
@@ -236,12 +234,12 @@
             <div class="clr-col-4">
                 <clr-select-container [attr.data-step-metadata]="formName" [class.label-disabled]="!connected">
                     <label i18n="Management Cluster Network Name label" clr-control-label>
-                        MANAGEMENT CLUSTER NETWORK NAME
+                        MANAGEMENT CLUSTER VIP NETWORK NAME
                         <clr-tooltip>
                             <clr-icon clrTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                                 <span>
-                                    Choose a Management Cluster Network Name.
+                                    Choose a Management Cluster VIP Network Name.
                                 </span>
                             </clr-tooltip-content>
                         </clr-tooltip>
@@ -254,7 +252,7 @@
                             </option>
                         </ng-container>
                     </select>
-                    <clr-control-error>Selecting a Management Cluster Network Name is required</clr-control-error>
+                    <clr-control-error>Selecting a Management Cluster VIP Network Name is required</clr-control-error>
                 </clr-select-container>
             </div>
 
@@ -262,12 +260,12 @@
                 <clr-select-container [attr.data-step-metadata]="formName">
                     <label i18n="Management Cluster Network CIDR label" clr-control-label
                         [class.label-disabled]="!connected">
-                        MANAGEMENT CLUSTER NETWORK CIDR
+                        MANAGEMENT CLUSTER VIP NETWORK CIDR
                         <clr-tooltip>
                             <clr-icon clrTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                                 <span>
-                                    Select a Management Cluster Network CIDR.
+                                    Select a Management Cluster VIP Network CIDR.
                                 </span>
                             </clr-tooltip-content>
                         </clr-tooltip>
@@ -280,7 +278,7 @@
                             </option>
                         </ng-container>
                     </select>
-                    <clr-control-error>Selecting a Management Cluster Network CIDR is required</clr-control-error>
+                    <clr-control-error>Selecting a Management Cluster VIP Network CIDR is required</clr-control-error>
                 </clr-select-container>
             </div>
         </div>

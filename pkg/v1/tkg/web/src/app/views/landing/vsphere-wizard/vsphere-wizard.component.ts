@@ -132,7 +132,12 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
             if (this.getFieldValue('loadBalancerForm', 'controllerHost')) {
                 return 'Controller: ' + this.getFieldValue('loadBalancerForm', 'controllerHost');
             } else {
-                return 'Optionally specify VMware NSX Advance Load Balancer settings';
+                const endpointProvider = this.getFieldValue("vsphereNodeSettingForm", "controlPlaneEndpointProvider");
+                if (endpointProvider === KUBE_VIP) {
+                    return 'Optionally specify VMware NSX Advanced Load Balancer settings';
+                } else {
+                    return 'Specify VMware NSX Advanced Load Balancer settings';
+                }
             }
         } else if (stepName === 'osImage') {
             if (this.getFieldValue('osImageForm', 'osImage') && this.getFieldValue('osImageForm', 'osImage').name) {

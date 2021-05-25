@@ -49,6 +49,8 @@ export class NewVnetCommon extends WizardCommon {
                 expect(vnet.getWorkerNodeSubnetCidrNewText()).toEqual("10.0.1.0/24");
                 vnet.getWorkerNodeSubnetCidrNew().clear();
                 vnet.getWorkerNodeSubnetCidrNew().sendKeys("10.0.1.0/24");
+                vnet.getPrivateCluster().click();
+                vnet.getPrivateIP().sendKeys(PARAMS.AZURE_PRIVATE_IP);
                 expect(true).toBeTruthy();
             });
 

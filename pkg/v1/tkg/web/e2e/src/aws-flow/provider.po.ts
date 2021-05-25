@@ -3,7 +3,7 @@ import { Step } from '../step.po';
 
 export class Provider extends Step {
     hasMovedToStep() {
-        throw new Error("Method not implemented.");
+        return this.getCredentialProfile().isPresent();
     }
 
     getTitleText() {

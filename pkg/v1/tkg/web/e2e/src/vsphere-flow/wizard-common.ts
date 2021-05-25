@@ -10,11 +10,14 @@ import { AppPage } from '../app.po';
 import { Metadata } from '../common/metadata.po'
 import { NetworkProxy } from '../common/networkproxy.po'
 import { Identity } from '../common/identity.po'
+import { NodeOpt } from '../common/node-setting-opt.po';
 
 console.log(JSON.stringify(PARAMS, null, 4));
+const title = 'Deploying Tanzu Community Edition on vSphere';
 
 export default abstract class WizardCommon {
 
+    abstract selectEndpointProvider(nodeSettings);
     abstract executeNsxStep();
     abstract setNetworkProxy(step: NetworkProxy);
     abstract executeIdentityStep();
@@ -27,7 +30,7 @@ export default abstract class WizardCommon {
 
             it('should display welcome message', () => {
                 page.navigateTo();
-                expect(page.getTitleText()).toEqual('Welcome to the VMware Tanzu Kubernetes Grid Installer');
+                expect(page.matchTitleText()).toBeTruthy();
             });
 
             it('should navigate to vSphere flow', () => {
@@ -89,23 +92,44 @@ export default abstract class WizardCommon {
 
             describe("Management Cluster Settings step", () => {
                 const nodeSettings = new NodeSettings();
+                const nodeOpt = new NodeOpt();
 
                 it('should have moved to "Control Plane Settings" step', () => {
                     expect(nodeSettings.hasMovedToStep()).toBeTruthy();
                 })
 
-                it('should display "Development cluster selected: 1 node control plane"', () => {
-                    const devSelect = nodeSettings.getDevSelect();
-                    nodeSettings.selectOptionByText(devSelect, PARAMS.DEFAULT_VC_MC_TYPE);
-                    expect(nodeSettings.getTitleText()).toEqual('Development cluster selected: 1 node control plane');
-                })
+                if (PARAMS.CONTROL_PLANE_TYPE === 'dev') {
+                    it('should display "Development cluster selected: 1 node control plane"', () => {
+                        const devSelect = nodeSettings.getDevSelect();
+                        nodeSettings.selectOptionByText(devSelect, PARAMS.DEFAULT_VC_MC_TYPE);
+                        expect(nodeSettings.getTitleText()).toEqual('Development cluster selected: 1 node control plane');
+                    })
 
-                it('captures all user inputs', () => {
-                    nodeSettings.getMCName().sendKeys(PARAMS.MC_NAME);
-                    nodeSettings.getVirtualIpAddress().sendKeys(PARAMS.VSPHERE_ENDPOINT_IP);
-                    nodeSettings.selectOptionByText(nodeSettings.getWorkerNodeType(), PARAMS.DEFAULT_VC_WC_TYPE);
-                    expect(true).toBeTruthy();
-                });
+                    it('captures all user inputs', () => {
+                        nodeSettings.getMCName().sendKeys(PARAMS.MC_NAME);
+                        this.selectEndpointProvider(nodeSettings);
+                        nodeSettings.getVirtualIpAddress().sendKeys(PARAMS.VSPHERE_ENDPOINT_IP);
+                        nodeSettings.selectOptionByText(nodeSettings.getWorkerNodeType(), PARAMS.DEFAULT_VC_WC_TYPE);
+                        nodeOpt.getEnableAudit().click();
+                        expect(true).toBeTruthy();
+                    });
+                }
+                else {
+                    it('should display "Production cluster selected: 3 node control plane"', () => {
+                        const prodSelect = nodeSettings.getProdSelect();
+                        nodeSettings.selectOptionByText(prodSelect, PARAMS.DEFAULT_VC_MC_TYPE);
+                        expect(nodeSettings.getTitleText()).toEqual('Production cluster selected: 3 node control plane');
+                    })
+
+                    it('captures all user inputs', () => {
+                        nodeSettings.getMCName().sendKeys(PARAMS.MC_NAME);
+                        this.selectEndpointProvider(nodeSettings);
+                        nodeSettings.getVirtualIpAddress().sendKeys(PARAMS.VSPHERE_ENDPOINT_IP);
+                        nodeSettings.selectOptionByText(nodeSettings.getWorkerNodeType(), PARAMS.DEFAULT_VC_WC_TYPE);
+                        nodeOpt.getEnableAudit().click();
+                        expect(true).toBeTruthy();
+                    });
+                }
 
                 afterAll(() => {
                     nodeSettings.getNextButton().click();
@@ -215,7 +239,7 @@ export default abstract class WizardCommon {
 
             flow.executeCommonFlow();
             if (isVtaas === false) {
-                flow.executeDeployFlow();
+                flow.executeDeployFlow(title);
             }
         });
     }

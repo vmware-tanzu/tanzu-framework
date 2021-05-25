@@ -60,6 +60,7 @@ const (
 	ConfigVariableVsphereCPDiskGib            = "VSPHERE_CONTROL_PLANE_DISK_GIB"
 	ConfigVariableVsphereInsecure             = "VSPHERE_INSECURE" // VCInsecure decides if the vc connection will skip the ssl validation or not.
 	ConfigVariableVsphereVersion              = "VSPHERE_VERSION"
+	ConfigVariableVsphereHaProvider           = "AVI_CONTROL_PLANE_HA_PROVIDER"
 
 	ConfigVariableAzureLocation               = "AZURE_LOCATION"
 	ConfigVariableAzureImageID                = "AZURE_IMAGE_ID"
