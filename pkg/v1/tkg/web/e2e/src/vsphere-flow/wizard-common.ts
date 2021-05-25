@@ -113,8 +113,7 @@ export default abstract class WizardCommon {
                         nodeOpt.getEnableAudit().click();
                         expect(true).toBeTruthy();
                     });
-                }
-                else {
+                } else {
                     it('should display "Production cluster selected: 3 node control plane"', () => {
                         const prodSelect = nodeSettings.getProdSelect();
                         nodeSettings.selectOptionByText(prodSelect, PARAMS.DEFAULT_VC_MC_TYPE);

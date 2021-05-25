@@ -111,8 +111,7 @@ export default abstract class WizardCommon {
                         nodeOpt.getEnableAudit().click();
                         expect(true).toBeTruthy();
                     })
-                }
-                else {
+                } else {
                     it('should display "Control plane type: prod"', () => {
                         const prodSelect = nodeSettings.getProdSelect();
                         nodeSettings.selectOptionByText(prodSelect, PARAMS.AZURE_MC_TYPE);

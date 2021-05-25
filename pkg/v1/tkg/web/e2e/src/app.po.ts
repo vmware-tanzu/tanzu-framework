@@ -12,8 +12,10 @@ export class AppPage {
     matchTitleText() {
         const EC = protractor.ExpectedConditions;
         return EC.or(
-            EC.presenceOf(element(by.cssContainingText('tkg-kickstart-ui-start h2', 'Welcome to the VMware Tanzu Kubernetes Grid Installer'))),
-            EC.presenceOf(element(by.cssContainingText('tkg-kickstart-ui-start h2', 'Welcome to the Tanzu Community Edition Installer')))
+            EC.presenceOf(element(by.cssContainingText('tkg-kickstart-ui-start h2',
+             'Welcome to the VMware Tanzu Kubernetes Grid Installer'))),
+            EC.presenceOf(element(by.cssContainingText('tkg-kickstart-ui-start h2',
+             'Welcome to the Tanzu Community Edition Installer')))
         );
     }
 
