@@ -36,6 +36,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     controlPlaneEndpointProviders = [KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER];
     currentControlPlaneEndpoingProvider = KUBE_VIP;
+    controlPlaneEndpointOptional = "";
 
     constructor(private validationService: ValidationService,
         private wizardFormService: VSphereWizardFormService) {
@@ -161,6 +162,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         ] : [
             this.validationService.isValidIpOrFqdn()
         ], this.getSavedValue("controlPlaneEndpointIP", ""));
+
+        this.controlPlaneEndpointOptional = (provider === KUBE_VIP ? "" : "(OPTIONAL)"); 
     }
 
     cardClick(envType: string) {

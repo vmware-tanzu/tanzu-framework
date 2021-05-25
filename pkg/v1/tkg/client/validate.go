@@ -643,30 +643,33 @@ func (c *TkgClient) ConfigureAndValidateVsphereConfig(tkrVersion string, nodeSiz
 
 // configure and validate vip for vsphere cluster
 func (c *TkgClient) configureAndValidateVIPForVsphereCluster(vip string) error {
+	haProvider, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereHaProvider)
 	if vip != "" {
 		c.TKGConfigReaderWriter().Set(constants.ConfigVariableVsphereControlPlaneEndpoint, vip)
 	} else {
 		vip, _ = c.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereControlPlaneEndpoint)
 	}
-	if vip == "" {
+	if vip == "" && haProvider != trueString {
 		// for backward compatibility check _VSPHERE_CONTROL_PLANE_ENDPOINT variable as well
 		vip, _ = c.TKGConfigReaderWriter().Get("_VSPHERE_CONTROL_PLANE_ENDPOINT")
 		c.TKGConfigReaderWriter().Set(constants.ConfigVariableVsphereControlPlaneEndpoint, vip)
 	}
 
-	if vip == "" {
+	if vip == "" && haProvider != trueString {
 		return NewValidationError(ValidationErrorCode, errors.Errorf("'%s' config variable is required for infrastructure provider vsphere", constants.ConfigVariableVsphereControlPlaneEndpoint).Error())
 	}
 
-	vsphereServer, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereServer)
-	if vsphereServer == vip {
-		return NewValidationError(ValidationErrorCode, "The vSphere Control Plane Endpoint should not match the vSphere Server address")
-	}
+	if vip != "" {
+		vsphereServer, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereServer)
+		if vsphereServer == vip {
+			return NewValidationError(ValidationErrorCode, "The vSphere Control Plane Endpoint should not match the vSphere Server address")
+		}
 
-	vsphereIP := net.ParseIP(vsphereServer)
-	if vIP := net.ParseIP(vip); vsphereIP != nil && vIP != nil {
-		if vIP.Equal(vsphereIP) {
-			return NewValidationError(ValidationErrorCode, "vSphere Server IP should be different from the vSphere Control Plane Endpoint")
+		vsphereIP := net.ParseIP(vsphereServer)
+		if vIP := net.ParseIP(vip); vsphereIP != nil && vIP != nil {
+			if vIP.Equal(vsphereIP) {
+				return NewValidationError(ValidationErrorCode, "vSphere Server IP should be different from the vSphere Control Plane Endpoint")
+			}
 		}
 	}
 
