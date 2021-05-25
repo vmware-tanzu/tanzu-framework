@@ -37,6 +37,7 @@ git checkout -
 pushd tests/clustergen/testdata
 diff -r -U15 old new > clustergen.diff.txt
 cat clustergen.diff.txt
+echo "<html><body>no diff</body></html>" > clustergen.html
 docker run -i --rm -v $PWD:$PWD -w $PWD gcr.io/eminent-nation-87317/diff2html diff2html -i file -F clustergen.html -- clustergen.diff.txt
 popd
 
