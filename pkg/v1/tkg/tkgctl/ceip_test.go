@@ -7,13 +7,16 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"github.com/pkg/errors"
+
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/client"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes"
 )
 
-var _ = Describe("Unit tests for create cluster", func() {
+var _ = Describe("Unit tests for ceip", func() {
 	var tkgClient *fakes.Client
 
-	Context("Creating clusters for TKGs", func() {
+	Context("Set CEIP", func() {
 		It("Set CEIP participation for prod environment", func() {
 			kubeConfigPath := getConfigFilePath()
 
@@ -103,6 +106,33 @@ var _ = Describe("Unit tests for create cluster", func() {
 				err := tkgctlClient.SetCeip("true", "false", "entitlement-account-number=Foo123baR,env-type=production")
 				Expect(err).ToNot(HaveOccurred())
 			})
+		})
+	})
+
+	Context("get ceip", func() {
+		It("is able to get the ceip", func() {
+			kubeConfigPath := getConfigFilePath()
+			tkgClient = &fakes.Client{}
+
+			tkgctlClient := &tkgctl{
+				kubeconfig: kubeConfigPath,
+				tkgClient:  tkgClient,
+			}
+			tkgClient.GetCEIPParticipationReturns(client.ClusterCeipInfo{}, nil)
+			_, err := tkgctlClient.GetCEIP()
+			Expect(err).ToNot(HaveOccurred())
+		})
+		It("is not able to get the ceip", func() {
+			kubeConfigPath := getConfigFilePath()
+			tkgClient = &fakes.Client{}
+			tkgClient.GetCEIPParticipationReturns(client.ClusterCeipInfo{}, errors.New("failed to get ceip status"))
+			tkgctlClient := &tkgctl{
+				kubeconfig: kubeConfigPath,
+				tkgClient:  tkgClient,
+			}
+
+			_, err := tkgctlClient.GetCEIP()
+			Expect(err).To(HaveOccurred())
 		})
 	})
 })

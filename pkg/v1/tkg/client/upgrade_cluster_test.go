@@ -78,7 +78,7 @@ var _ = Describe("Unit tests for upgrade cluster", func() {
 			newK8sVersion = "v1.18.0+vmware.1"     // nolint:goconst
 			currentK8sVersion = "v1.17.3+vmware.2" // nolint:goconst
 			setupBomFile("../fakes/config/bom/tkg-bom-v1.3.1.yaml", testingDir)
-			setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1.yaml", testingDir)
+			setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
 			regionalClusterClient.GetKCPObjectForClusterReturns(getDummyKCP(constants.VSphereMachineTemplate), nil)
 			regionalClusterClient.GetResourceReturns(nil)
 			regionalClusterClient.PatchResourceReturns(nil)

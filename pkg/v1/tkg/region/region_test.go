@@ -280,6 +280,21 @@ var _ = Describe("Region manager", func() {
 			})
 		})
 
+		Context("When current-region-context key does not exist", func() {
+			BeforeEach(func() {
+				tkgConfigPath = "../fakes/config/config8.yaml"
+				clusterName = "regional-cluster-2"
+				contextName = "user1@regional-cluster-2-context"
+			})
+
+			It("should create node and set the context as current context", func() {
+				Expect(err).ToNot(HaveOccurred())
+				context, err := manager.GetCurrentContext()
+				Expect(err).ToNot(HaveOccurred())
+				Expect(context.ContextName).To(Equal(contextName))
+			})
+		})
+
 		Context("When context in tkg config file", func() {
 			BeforeEach(func() {
 				tkgConfigPath = fakeConfig2YAMLFilePath

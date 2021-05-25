@@ -54,3 +54,28 @@ var _ = Describe("ensurePrerequisite", func() {
 		})
 	})
 })
+
+var _ = Describe("Unit test for New", func() {
+	var (
+		err       error
+		options   Options
+		configDir string
+	)
+	JustBeforeEach(func() {
+		configDir, _ = ioutil.TempDir("", "cluster_client_test")
+		options = Options{
+			ConfigDir: configDir,
+		}
+		_, err = New(options)
+	})
+
+	Context("Create tkgctl client with all clients", func() {
+		It("should create the tkg client", func() {
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
+
+	AfterEach(func() {
+		os.Remove(configDir)
+	})
+})
