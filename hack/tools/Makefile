@@ -32,6 +32,7 @@ HOST_OS=$(shell go env GOOS)
 HOST_ARCH=$(shell go env GOARCH)
 
 # Binaries.
+GINKGO := $(BIN_DIR)/ginkgo
 GOLANGCI_LINT := $(BIN_DIR)/golangci-lint
 GOIMPORTS := $(BIN_DIR)/goimports
 KUBEBUILDER := $(BIN_DIR)/kubebuilder
@@ -50,6 +51,11 @@ help: ## Display this help
 ## --------------------------------------
 ## Binaries
 ## --------------------------------------
+
+ginkgo: $(GINKGO)
+$(GINKGO): go.mod
+	mkdir -p $(BIN_DIR)
+	go build -tags=tools -o $(BIN_DIR)/ginkgo github.com/onsi/ginkgo/ginkgo
 
 golangci-lint: $(GOLANGCI_LINT) $(SRCS) ## Build golangci-lint
 $(GOLANGCI_LINT): go.mod
