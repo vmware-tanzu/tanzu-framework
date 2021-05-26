@@ -95,7 +95,6 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         workerNodeInstanceType: [Validators.required],
         bastionHostEnabled: [],
         sshKeyName: [Validators.required],
-        createCloudFormation: [],
         clusterName: [this.validationService.isValidClusterName()],
         awsNodeAz1: [Validators.required],
         awsNodeAz2: [Validators.required],
@@ -129,6 +128,10 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         this.formGroup.addControl(
             'machineHealthChecksEnabled',
             new FormControl(true, [])
+        );
+        this.formGroup.addControl(
+            'createCloudFormation',
+            new FormControl(false, [])
         );
     }
 
