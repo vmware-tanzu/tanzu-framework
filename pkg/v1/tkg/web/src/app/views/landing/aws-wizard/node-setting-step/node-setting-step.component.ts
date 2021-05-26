@@ -227,6 +227,24 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((nodeTypes: Array<string>) => {
                 this.nodeTypes = nodeTypes.sort();
+
+                // The validation is based on the value of this.nodeTypes. Whenever we update this.nodeTypes,
+                // the corresponding validation should be updated as well. e.g. the users came to the node-settings
+                // step before the api responses. Then an empty array will be passed to the validation isValidNameInList.
+                // It will cause the selected option to be invalid all the time.
+
+                if (this.nodeType === 'dev') {
+                    this.resurrectField('devInstanceType',
+                        [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
+                        this.formGroup.get('devInstanceType').value);
+                } else {
+                    this.resurrectField('prodInstanceType',
+                        [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
+                        this.formGroup.get('prodInstanceType').value);
+                }
+                this.resurrectField('workerNodeInstanceType',
+                    [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
+                    this.formGroup.get('workerNodeInstanceType').value);
             });
 
         AZS.forEach(az => {

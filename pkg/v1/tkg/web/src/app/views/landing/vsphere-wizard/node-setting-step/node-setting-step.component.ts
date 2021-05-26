@@ -163,7 +163,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             this.validationService.isValidIpOrFqdn()
         ], this.getSavedValue("controlPlaneEndpointIP", ""));
 
-        this.controlPlaneEndpointOptional = (provider === KUBE_VIP ? "" : "(OPTIONAL)"); 
+        this.controlPlaneEndpointOptional = (provider === KUBE_VIP ? "" : "(OPTIONAL)");
     }
 
     cardClick(envType: string) {

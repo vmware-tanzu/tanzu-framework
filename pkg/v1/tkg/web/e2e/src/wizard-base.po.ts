@@ -32,7 +32,7 @@ export abstract class WizardBase {
     displayDeploymentPage() {
         return element(by.cssContainingText('h2', 'Deploying Tanzu Kubernetes Grid')).isPresent();
     }
- 
+
     matchDepoymentPage(title) {
         const EC = protractor.ExpectedConditions;
         return EC.or(
@@ -109,9 +109,9 @@ export abstract class WizardBase {
             it('should display "Tanzu Kubernetes Grid - Confirm Settings"', () => {
                 this.getReviewConfigurationButton().click();
                 browser.sleep(SLEEP_TIME_AFTER_NEXT);
-                browser.wait(this.matchConfirSettingsText(), 5000);          
+                browser.wait(this.matchConfirSettingsText(), 5000);
             })
-            
+
             it('should navigate to deployment status page', () => {
                 this.getDeployButton().click();
                 browser.sleep(SLEEP_TIME_AFTER_NEXT);

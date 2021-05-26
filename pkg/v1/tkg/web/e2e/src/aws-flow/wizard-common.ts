@@ -100,8 +100,7 @@ export default abstract class WizardCommon {
                         this.selectSubnets(nodeSettings);
                         expect(true).toBeTruthy();
                     })
-                }
-                else {
+                } else {
                     it('should display "Production cluster selected: 3 node control plane"', () => {
                         nodeSettings.selectDatalistByText("prodInstanceType", PARAMS.AWS_MC_TYPE);
                         expect(nodeSettings.getTitleText()).toEqual('Production cluster selected: 3 node control plane');

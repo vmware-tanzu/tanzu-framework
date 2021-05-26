@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/go-openapi/swag"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
@@ -29,6 +30,7 @@ const (
 	proxyURL           = "http://myproxy.com:3128"
 	tkgFlavorDev       = "dev"
 	tkgFlavorProd      = "prod"
+	fakeRegion         = "us-east-2"
 )
 
 var (
@@ -38,7 +40,7 @@ var (
 	defaultBoMFileName = "tkg-bom-v1.3.1.yaml"
 )
 
-func setupBomFile(defaultBomFile string, configDir string) {
+func setupBomFile(defaultBomFile string, configDir string) { // nolint
 	bomDir, err := tkgconfigpaths.New(configDir).GetTKGBoMDirectory()
 	Expect(err).ToNot(HaveOccurred())
 	if _, err := os.Stat(bomDir); os.IsNotExist(err) {
@@ -137,8 +139,18 @@ var _ = Describe("EnsureNewVPCAWSConfig", func() {
 				ClusterPodCIDR: "10.0.0.4/15",
 			},
 			KubernetesVersion: "v1.18.0+vmware.1",
+			IdentityManagement: &models.IdentityManagementConfig{
+				IdmType:            swag.String("oidc"),
+				OidcClaimMappings:  map[string]string{"groups": "group", "username": "usr"},
+				OidcClientID:       "client-id",
+				OidcClientSecret:   "clientsecret",
+				OidcProviderName:   "my-provider",
+				OidcProviderURL:    "http:0.0.0.0",
+				OidcScope:          "email",
+				OidcSkipVerifyCert: true,
+			},
 		}
-		setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1.yaml", testingDir)
+		setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
 
 		client = newForTesting("../fakes/config/config.yaml", testingDir, defaultBoMFilepath)
 		config, err = client.NewAWSConfig(params, "abc")
@@ -347,7 +359,7 @@ var _ = Describe("EnsureExistingVPCAWSConfig", func() {
 			KubernetesVersion: "v1.18.0+vmware.1",
 		}
 
-		setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1.yaml", testingDir)
+		setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
 		config, err = newForTesting("../fakes/config/config.yaml", testingDir, defaultBoMFilepath).NewAWSConfig(params, "abc")
 	})
 
@@ -517,6 +529,239 @@ var _ = Describe("CheckAndGetProxyURL", func() {
 		It("should return the proxy url with username and password and given port number", func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(proxy).To(Equal(url))
+		})
+	})
+})
+
+var _ = Describe("GetAWSAMIInfo", func() {
+	var (
+		err              error
+		bomConfiguration = &tkgconfigbom.BOMConfiguration{
+			Release: &tkgconfigbom.ReleaseInfo{
+				Version: "v1.18.0+vmware.1-tkg.2",
+			},
+			AMI: map[string][]tkgconfigbom.AMIInfo{
+				fakeRegion: {
+					{
+						ID: "ami-123456",
+						OSInfo: tkgconfigbom.OSInfo{
+							Name:    "amazon",
+							Version: "2",
+							Arch:    "amd64",
+						},
+					},
+				},
+			},
+		}
+		client  Client
+		amiInfo *tkgconfigbom.AMIInfo
+		region  string
+	)
+	JustBeforeEach(func() {
+		amiInfo, err = client.GetAWSAMIInfo(bomConfiguration, region)
+	})
+
+	Context("When ami not found for region", func() {
+		BeforeEach(func() {
+			setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
+			os.Setenv("OS_NAME", "ubuntu")
+			client = newForTesting("../fakes/config/config.yaml", testingDir, defaultBoMFilepath)
+			region = "us-middle-2"
+		})
+		It("should return an error", func() {
+			Expect(err).To(HaveOccurred())
+		})
+	})
+
+	Context("When ami not found for provided OS Options", func() {
+		BeforeEach(func() {
+			region = fakeRegion
+			setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
+			os.Setenv("OS_NAME", "ubuntu")
+			client = newForTesting("../fakes/config/config.yaml", testingDir, defaultBoMFilepath)
+		})
+		It("should return an error", func() {
+			Expect(err).To(HaveOccurred())
+		})
+	})
+
+	Context("When ami can be found", func() {
+		BeforeEach(func() {
+			region = fakeRegion
+			setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
+			os.Setenv("OS_NAME", "amazon")
+			client = newForTesting("../fakes/config/config.yaml", testingDir, defaultBoMFilepath)
+		})
+		It("should not return an error", func() {
+			Expect(err).ToNot(HaveOccurred())
+			Expect(amiInfo.OSInfo.Name).To(Equal("amazon"))
+		})
+	})
+})
+
+var _ = Describe("NewAzureConfig", func() {
+	var (
+		err    error
+		flavor = "dev"
+		client Client
+		params = &models.AzureRegionalClusterParams{
+			ClusterName:        "my-cluster",
+			TmcRegistrationURL: "http:0.0.0.0",
+			ControlPlaneFlavor: flavor,
+			Location:           "US WEST 2",
+			Networking: &models.TKGNetwork{
+				ClusterPodCIDR: "10.0.0.4/15",
+				HTTPProxyConfiguration: &models.HTTPProxyConfiguration{
+					HTTPProxyPassword:  "pw",
+					HTTPProxyURL:       "http://0.0.0.0",
+					HTTPProxyUsername:  "user",
+					HTTPSProxyPassword: "pw",
+					HTTPSProxyURL:      "http://0.0.0.0",
+					HTTPSProxyUsername: "user",
+					Enabled:            true,
+					NoProxy:            "127.0.0.1",
+				},
+			},
+			KubernetesVersion: "v1.18.0+vmware.1",
+			IdentityManagement: &models.IdentityManagementConfig{
+				IdmType:            swag.String("oidc"),
+				OidcClaimMappings:  map[string]string{"groups": "group", "username": "usr"},
+				OidcClientID:       "client-id",
+				OidcClientSecret:   "clientsecret",
+				OidcProviderName:   "my-provider",
+				OidcProviderURL:    "http:0.0.0.0",
+				OidcScope:          "email",
+				OidcSkipVerifyCert: true,
+			},
+			AzureAccountParams: &models.AzureAccountParams{},
+			Os: &models.AzureVirtualMachine{
+				Name: "ubuntu",
+			},
+			MachineHealthCheckEnabled: true,
+			IsPrivateCluster:          true,
+			VnetCidr:                  "10.0.0.0/16",
+		}
+	)
+
+	Context("When generating azure cluster config", func() {
+		It("should not return an error", func() {
+			setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
+
+			client = newForTesting("../fakes/config/config.yaml", testingDir, defaultBoMFilepath)
+			_, err = client.NewAzureConfig(params)
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
+})
+
+var _ = Describe("NewVsphereConfig", func() {
+	var (
+		err    error
+		flavor = "dev"
+		client Client
+		params = &models.VsphereRegionalClusterParams{
+			ClusterName:        "my-cluster",
+			TmcRegistrationURL: "http:0.0.0.0",
+			ControlPlaneFlavor: flavor,
+			Networking: &models.TKGNetwork{
+				ClusterPodCIDR: "10.0.0.4/15",
+				HTTPProxyConfiguration: &models.HTTPProxyConfiguration{
+					HTTPProxyPassword:  "pw",
+					HTTPProxyURL:       "http://0.0.0.0",
+					HTTPProxyUsername:  "user",
+					HTTPSProxyPassword: "pw",
+					HTTPSProxyURL:      "http://0.0.0.0",
+					HTTPSProxyUsername: "user",
+					Enabled:            true,
+					NoProxy:            "127.0.0.1",
+				},
+			},
+			KubernetesVersion: "v1.18.0+vmware.1",
+			IdentityManagement: &models.IdentityManagementConfig{
+				IdmType:            swag.String("oidc"),
+				OidcClaimMappings:  map[string]string{"groups": "group", "username": "usr"},
+				OidcClientID:       "client-id",
+				OidcClientSecret:   "clientsecret",
+				OidcProviderName:   "my-provider",
+				OidcProviderURL:    "http:0.0.0.0",
+				OidcScope:          "email",
+				OidcSkipVerifyCert: true,
+			},
+			Os: &models.VSphereVirtualMachine{
+				Name: "ubuntu",
+			},
+			EnableAuditLogging:        true,
+			VsphereCredentials:        &models.VSphereCredentials{},
+			WorkerNodeType:            "large",
+			ControlPlaneNodeType:      "medium",
+			MachineHealthCheckEnabled: true,
+			AviConfig: &models.AviConfig{
+				Cloud:                  "cloud-name",
+				ServiceEngine:          "service-engine",
+				ControlPlaneHaProvider: true,
+				Network: &models.AviNetworkParams{
+					Cidr: "10.0.0.0/16",
+					Name: "avi-network-name",
+				},
+			},
+		}
+	)
+
+	Context("When generating vsphere cluster config", func() {
+		It("should not return an error", func() {
+			setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
+
+			client = newForTesting("../fakes/config/config.yaml", testingDir, defaultBoMFilepath)
+			_, err = client.NewVSphereConfig(params)
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
+})
+
+var _ = Describe("NewDockerConfig", func() {
+	var (
+		err    error
+		flavor = "dev"
+		client Client
+		params = &models.DockerRegionalClusterParams{
+			ClusterName:        "my-cluster",
+			TmcRegistrationURL: "http:0.0.0.0",
+			ControlPlaneFlavor: flavor,
+			Networking: &models.TKGNetwork{
+				ClusterPodCIDR: "10.0.0.4/15",
+				HTTPProxyConfiguration: &models.HTTPProxyConfiguration{
+					HTTPProxyPassword:  "pw",
+					HTTPProxyURL:       "http://0.0.0.0",
+					HTTPProxyUsername:  "user",
+					HTTPSProxyPassword: "pw",
+					HTTPSProxyURL:      "http://0.0.0.0",
+					HTTPSProxyUsername: "user",
+					Enabled:            true,
+					NoProxy:            "127.0.0.1",
+				},
+			},
+			KubernetesVersion: "v1.18.0+vmware.1",
+			IdentityManagement: &models.IdentityManagementConfig{
+				IdmType:            swag.String("oidc"),
+				OidcClaimMappings:  map[string]string{"groups": "group", "username": "usr"},
+				OidcClientID:       "client-id",
+				OidcClientSecret:   "clientsecret",
+				OidcProviderName:   "my-provider",
+				OidcProviderURL:    "http:0.0.0.0",
+				OidcScope:          "email",
+				OidcSkipVerifyCert: true,
+			},
+			MachineHealthCheckEnabled: true,
+		}
+	)
+
+	Context("When generating docker cluster config", func() {
+		It("should not return an error", func() {
+			setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
+
+			client = newForTesting("../fakes/config/config.yaml", testingDir, defaultBoMFilepath)
+			_, err = client.NewDockerConfig(params)
+			Expect(err).ToNot(HaveOccurred())
 		})
 	})
 })
