@@ -1,6 +1,7 @@
-// Copyright 2020 VMware, Inc. All Rights Reserved.
+// Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// nolint:typecheck,nolintlint
 package aws
 
 import (

@@ -1,14 +1,13 @@
-// Copyright 2020 VMware, Inc. All Rights Reserved.
+// Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// nolint:typecheck,nolintlint
 package aws
 
 import (
 	"context"
 
 	. "github.com/onsi/ginkgo"
-
-	. "github.com/vmware-tanzu-private/core/pkg/v1/tkg/test/tkgctl/shared"
 
 	. "github.com/vmware-tanzu-private/core/pkg/v1/tkg/test/tkgctl/shared"
 )

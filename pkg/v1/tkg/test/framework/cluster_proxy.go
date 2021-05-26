@@ -1,12 +1,13 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package framework implements the test framework.
 package framework
 
 import (
 	"context"
 
-	. "github.com/onsi/gomega"
+	. "github.com/onsi/gomega" // nolint:golint,stylecheck
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -18,6 +19,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
+// ClusterProxy hold information to connect to a cluster
 type ClusterProxy struct {
 	name           string
 	kubeconfigPath string
@@ -25,7 +27,8 @@ type ClusterProxy struct {
 	scheme         *runtime.Scheme
 }
 
-func NewClusterProxy(name string, kubeconfigPath string, contextName string) *ClusterProxy {
+// NewClusterProxy returns clusterProxy
+func NewClusterProxy(name, kubeconfigPath, contextName string) *ClusterProxy {
 	if kubeconfigPath == "" {
 		kubeconfigPath = clientcmd.NewDefaultClientConfigLoadingRules().GetDefaultFilename()
 	}
@@ -40,6 +43,7 @@ func NewClusterProxy(name string, kubeconfigPath string, contextName string) *Cl
 	return proxy
 }
 
+// GetRestConfig returns the RestConfig of a cluster
 func (p *ClusterProxy) GetRestConfig() *rest.Config {
 	config, err := clientcmd.LoadFromFile(p.kubeconfigPath)
 	Expect(err).ToNot(HaveOccurred(), "Failed to load Kubeconfig file from %q", p.kubeconfigPath)
@@ -56,6 +60,7 @@ func (p *ClusterProxy) GetRestConfig() *rest.Config {
 	return restConfig
 }
 
+// GetClient gets the Client of a cluster
 func (p *ClusterProxy) GetClient() client.Client {
 	config := p.GetRestConfig()
 
@@ -65,6 +70,7 @@ func (p *ClusterProxy) GetClient() client.Client {
 	return c
 }
 
+// GetClientSet gets the ClientSet of a cluster
 func (p *ClusterProxy) GetClientSet() *kubernetes.Clientset {
 	restConfig := p.GetRestConfig()
 
@@ -74,10 +80,12 @@ func (p *ClusterProxy) GetClientSet() *kubernetes.Clientset {
 	return cs
 }
 
+// GetScheme returns scheme
 func (p *ClusterProxy) GetScheme() *runtime.Scheme {
 	return p.scheme
 }
 
+// GetClusterNodes gets the cluster Nodes
 func (p *ClusterProxy) GetClusterNodes() []corev1.Node {
 	clientSet := p.GetClientSet()
 	nodeList, err := clientSet.CoreV1().Nodes().List(metav1.ListOptions{})
@@ -85,6 +93,7 @@ func (p *ClusterProxy) GetClusterNodes() []corev1.Node {
 	return nodeList.Items
 }
 
+// GetKubernetesVersion gets the k8s version
 func (p *ClusterProxy) GetKubernetesVersion() string {
 	clientSet := p.GetClientSet()
 	version, err := clientSet.ServerVersion()
@@ -92,15 +101,16 @@ func (p *ClusterProxy) GetKubernetesVersion() string {
 	return version.String()
 }
 
+// GetProviderVersions gets the TKG provider versions
 func (p *ClusterProxy) GetProviderVersions(ctx context.Context) map[string]string {
-	client := p.GetClient()
+	c := p.GetClient()
 	var providers clusterctlv1.ProviderList
-	err := client.List(ctx, &providers)
+	err := c.List(ctx, &providers)
 	Expect(err).ToNot(HaveOccurred())
 
 	providersMap := map[string]string{}
-	for _, provider := range providers.Items {
-		providersMap[provider.ProviderName] = provider.Version
+	for i := range providers.Items {
+		providersMap[providers.Items[i].ProviderName] = providers.Items[i].Version
 	}
 
 	return providersMap

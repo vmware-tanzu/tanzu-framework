@@ -8,8 +8,8 @@
 package tools
 
 import (
-	_ "github.com/onsi/ginkgo/ginkgo"
 	_ "github.com/golangci/golangci-lint/cmd/golangci-lint"
+	_ "github.com/onsi/ginkgo/ginkgo"
 	_ "github.com/shuLhan/go-bindata"
 	_ "golang.org/x/tools/cmd/goimports"
 )

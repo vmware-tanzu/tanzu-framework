@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// nolint:typecheck,goconst,gocritic,golint,stylecheck,nolintlint
 package shared
 
 import (
@@ -43,7 +44,7 @@ func E2EAutoscalerSpec(context context.Context, inputGetter func() E2EAutoscaler
 		logsDir = filepath.Join(input.ArtifactsFolder, "logs")
 
 		rand.Seed(time.Now().UnixNano())
-		clusterName = input.E2EConfig.ClusterPrefix + "wc-" + util.RandomString(4)
+		clusterName = input.E2EConfig.ClusterPrefix + "wc-" + util.RandomString(4) // nolint:gomnd
 
 		tkgCtlClient, err = tkgctl.New(tkgctl.Options{
 			ConfigDir: input.E2EConfig.TkgConfigDir,
@@ -73,7 +74,7 @@ func E2EAutoscalerSpec(context context.Context, inputGetter func() E2EAutoscaler
 				options.VsphereControlPlaneEndpoint = clusterIP
 			}
 		}
-		clusterConfigFile, err := framework.GetTempClusterConfigFile(input.E2EConfig.TkgClusterConfigPath, options)
+		clusterConfigFile, err := framework.GetTempClusterConfigFile(input.E2EConfig.TkgClusterConfigPath, &options)
 		Expect(err).To(BeNil())
 
 		defer os.Remove(clusterConfigFile)
@@ -94,7 +95,7 @@ func E2EAutoscalerSpec(context context.Context, inputGetter func() E2EAutoscaler
 		By(fmt.Sprintf("Waiting for workload cluster %q nodes to be up and running", clusterName))
 		framework.WaitForNodes(clusterProxy, 2)
 
-		By(fmt.Sprintf("Deploying workload which should trigger a scale up"))
+		By("Deploying workload which should trigger a scale up")
 		kubectlCmd := exec.NewCommand(
 			exec.WithCommand("kubectl"),
 			exec.WithArgs("apply", "-f", "../../data/nginx_autoscaler.yaml", "--context", contextName),
@@ -102,10 +103,10 @@ func E2EAutoscalerSpec(context context.Context, inputGetter func() E2EAutoscaler
 		_, _, err = kubectlCmd.Run(context)
 		Expect(err).To(BeNil())
 
-		By(fmt.Sprintf("Scaling up workload cluster"))
+		By("Scaling up workload cluster")
 		framework.WaitForNodes(framework.NewClusterProxy(clusterName, "", contextName), 4)
 
-		By(fmt.Sprintf("Deleting workload which should trigger a scale down"))
+		By("Deleting workload which should trigger a scale down")
 		kubectlCmd = exec.NewCommand(
 			exec.WithCommand("kubectl"),
 			exec.WithArgs("delete", "-f", "../../data/nginx_autoscaler.yaml", "--context", contextName),
@@ -113,7 +114,7 @@ func E2EAutoscalerSpec(context context.Context, inputGetter func() E2EAutoscaler
 		_, _, err = kubectlCmd.Run(context)
 		Expect(err).To(BeNil())
 
-		By(fmt.Sprintf("Scaling down workload cluster"))
+		By("Scaling down workload cluster")
 		framework.WaitForNodes(framework.NewClusterProxy(clusterName, "", contextName), 2)
 	})
 

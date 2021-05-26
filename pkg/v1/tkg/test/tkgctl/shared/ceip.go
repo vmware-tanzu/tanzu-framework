@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// nolint:typecheck,goconst,gocritic,golint,stylecheck,nolintlint
 package shared
 
 import (

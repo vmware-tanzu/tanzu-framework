@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// nolint:typecheck,nolintlint
 package vsphere67
 
 import (
@@ -22,6 +23,8 @@ import (
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/test/framework"
 )
+
+const clusterName = "tkg-cli-wc"
 
 var (
 	// path to the e2e config file
@@ -109,7 +112,6 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	}
 
 	// Create initial workload cluster
-	clusterName := "tkg-cli-wc"
 	clusterEndPointIP, _ := os.LookupEnv("CLUSTER_ENDPOINT_1")
 	options := framework.CreateClusterOptions{
 		ClusterName:                 clusterName,
@@ -117,7 +119,7 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 		Plan:                        "dev",
 		VsphereControlPlaneEndpoint: clusterEndPointIP,
 	}
-	clusterConfigFile, err := framework.GetTempClusterConfigFile(e2eConfig.TkgClusterConfigPath, options)
+	clusterConfigFile, err := framework.GetTempClusterConfigFile(e2eConfig.TkgClusterConfigPath, &options)
 	Expect(err).To(BeNil())
 
 	defer os.Remove(clusterConfigFile)

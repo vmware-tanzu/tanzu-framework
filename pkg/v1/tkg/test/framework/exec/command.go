@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package exec implements command execution functionality.
 package exec
 
 import (
@@ -13,6 +14,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Command wraps exec.Command
 type Command struct {
 	Cmd    string
 	Args   []string
@@ -21,8 +23,10 @@ type Command struct {
 	Env    []string
 }
 
+// Option is a functional option type that modifies a Command.
 type Option func(*Command)
 
+// NewCommand returns a Command.
 func NewCommand(opts ...Option) *Command {
 	cmd := &Command{
 		Stdin: nil,
@@ -33,38 +37,44 @@ func NewCommand(opts ...Option) *Command {
 	return cmd
 }
 
+// WithCommand defines the command
 func WithCommand(command string) Option {
 	return func(cmd *Command) {
 		cmd.Cmd = command
 	}
 }
 
+// WithArgs sets the arguments for the command
 func WithArgs(args ...string) Option {
 	return func(cmd *Command) {
 		cmd.Args = args
 	}
 }
 
+// WithStdin sets up the command to read from this io.Reader.
 func WithStdin(stdin io.Reader) Option {
 	return func(cmd *Command) {
 		cmd.Stdin = stdin
 	}
 }
 
+// WithStdout sets up the command to write to io.Writer.
 func WithStdout(stdout io.Writer) Option {
 	return func(cmd *Command) {
 		cmd.Stdout = stdout
 	}
 }
 
+// WithEnv sets env variables
 func WithEnv(args ...string) Option {
 	return func(cmd *Command) {
 		cmd.Args = args
 	}
 }
 
+// Run executes the command and returns stdout, stderr and the error if there is any.
 func (c *Command) Run(ctx context.Context) ([]byte, []byte, error) {
-	cmd := exec.CommandContext(ctx, c.Cmd, c.Args...)
+	cmd := exec.CommandContext(ctx, c.Cmd, c.Args...) // nolint:gosec
 	if len(c.Env) != 0 {
 		cmd.Env = os.Environ()
 		cmd.Env = append(cmd.Env, c.Env...)
@@ -98,8 +108,9 @@ func (c *Command) Run(ctx context.Context) ([]byte, []byte, error) {
 	return output, errout, nil
 }
 
+// RunAndRedirectOutput executes command and redirects output
 func (c *Command) RunAndRedirectOutput(ctx context.Context) error {
-	cmd := exec.CommandContext(ctx, c.Cmd, c.Args...)
+	cmd := exec.CommandContext(ctx, c.Cmd, c.Args...) // nolint:gosec
 
 	if len(c.Env) != 0 {
 		cmd.Env = os.Environ()

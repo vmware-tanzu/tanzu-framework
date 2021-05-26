@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// nolint:typecheck,goconst,gocritic,golint,stylecheck,nolintlint
 package shared
 
 import (
@@ -17,7 +18,6 @@ import (
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/test/framework"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/test/framework/tkgcli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgctl"
 )
 
@@ -27,12 +27,11 @@ type E2EUpgradeSpecInput struct {
 	Cni             string
 }
 
-func E2EUpgradeSpec(context context.Context, inputGetter func() E2EUpgradeSpecInput) {
+func E2EUpgradeSpec(context context.Context, inputGetter func() E2EUpgradeSpecInput) { //nolint:funlen
 	var (
 		err                   error
 		input                 E2EUpgradeSpecInput
 		tkgCtlClient          tkgctl.TKGClient
-		tkgCliClientOld       *tkgcli.Client
 		logsDir               string
 		managementClusterName string
 		clusterName           string
@@ -47,7 +46,7 @@ func E2EUpgradeSpec(context context.Context, inputGetter func() E2EUpgradeSpecIn
 		timeout, err = time.ParseDuration(input.E2EConfig.DefaultTimeout)
 		Expect(err).To(BeNil())
 		rand.Seed(time.Now().UnixNano())
-		clusterName = input.E2EConfig.ClusterPrefix + "wc-" + util.RandomString(4)
+		clusterName = input.E2EConfig.ClusterPrefix + "wc-" + util.RandomString(4) // nolint: gomnd
 
 		tkgCtlClient, err = tkgctl.New(tkgctl.Options{
 			ConfigDir: input.E2EConfig.TkgConfigDir,
@@ -57,12 +56,6 @@ func E2EUpgradeSpec(context context.Context, inputGetter func() E2EUpgradeSpecIn
 			},
 		})
 		Expect(err).To(BeNil())
-
-		if input.E2EConfig.UpgradeManagementCluster {
-			Expect(input.E2EConfig.TkgCliPathOld).ToNot(BeEmpty(), "config variable 'tkg_cli_path_old' not set")
-			tkgCliClientOld = tkgcli.NewClient(input.E2EConfig.TkgCliPathOld, input.E2EConfig.TkgClusterConfigPath, logsDir, input.E2EConfig.TkgCliLogLevel)
-			managementClusterName = input.E2EConfig.ClusterPrefix + "mc-" + util.RandomString(4)
-		}
 	})
 
 	It("Should upgrade management cluster and workload cluster", func() {
@@ -72,19 +65,6 @@ func E2EUpgradeSpec(context context.Context, inputGetter func() E2EUpgradeSpecIn
 		if input.E2EConfig.UpgradeManagementCluster {
 			By(fmt.Sprintf("Creating management cluster %q", managementClusterName))
 
-			err := tkgCliClientOld.Init(context, tkgcli.InitOptions{
-				Infrastructure:              input.E2EConfig.InfrastructureName,
-				InfrastructureVersion:       input.E2EConfig.InfrastructureVersionOld,
-				Name:                        managementClusterName,
-				Plan:                        input.E2EConfig.ManagementClusterOptions.Plan,
-				Timeout:                     input.E2EConfig.DefaultTimeout,
-				DeployTKGonVsphere7:         input.E2EConfig.ManagementClusterOptions.DeployTKGonVsphere7,
-				EnableTKGSOnVsphere7:        input.E2EConfig.ManagementClusterOptions.EnableTKGSOnVsphere7,
-				VsphereControlPlaneEndpoint: input.E2EConfig.ManagementClusterOptions.Endpoint,
-			})
-
-			Expect(err).To(BeNil())
-
 			Expect(input.E2EConfig.KubernetesVersionOld).ToNot(BeEmpty(), "config variable 'kubernetes_version_old' not set")
 			validateKubernetesVersion(managementClusterName, input.E2EConfig.KubernetesVersionOld)
 
@@ -93,19 +73,6 @@ func E2EUpgradeSpec(context context.Context, inputGetter func() E2EUpgradeSpecIn
 			validateProviderVersions(context, managementClusterName, "infrastructure-"+input.E2EConfig.InfrastructureName, input.E2EConfig.ClusterAPIVersionOld, input.E2EConfig.InfrastructureVersionOld)
 
 			By(fmt.Sprintf("Creating a workload cluster %q with k8s version %q", clusterName, input.E2EConfig.KubernetesVersionOld))
-			// Creating workload cluster with old cli
-			err = tkgCliClientOld.CreateWorkloadCluster(context, tkgcli.CreateClusterOptions{
-				Name:              clusterName,
-				Namespace:         namespace,
-				Plan:              "dev",
-				Cni:               input.Cni,
-				KubernetesVersion: input.E2EConfig.KubernetesVersionOld,
-			})
-			Expect(err).To(BeNil())
-
-			err = tkgCliClientOld.GetClusterCredentials(context, clusterName, "")
-			Expect(err).To(BeNil())
-
 		} else {
 			By(fmt.Sprintf("Creating a workload cluster %q with k8s version %q", clusterName, input.E2EConfig.KubernetesVersionOld))
 			// Creating workload cluster with new cli
@@ -116,7 +83,7 @@ func E2EUpgradeSpec(context context.Context, inputGetter func() E2EUpgradeSpecIn
 				CniType:           input.Cni,
 				KubernetesVersion: input.E2EConfig.KubernetesVersionOld,
 			}
-			clusterConfigFile, err := framework.GetTempClusterConfigFile(input.E2EConfig.TkgClusterConfigPath, options)
+			clusterConfigFile, err := framework.GetTempClusterConfigFile(input.E2EConfig.TkgClusterConfigPath, &options)
 			Expect(err).To(BeNil())
 
 			defer os.Remove(clusterConfigFile)
@@ -207,7 +174,7 @@ func E2EUpgradeSpec(context context.Context, inputGetter func() E2EUpgradeSpecIn
 	})
 }
 
-func validateKubernetesVersion(clusterName string, expectedK8sVersion string) {
+func validateKubernetesVersion(clusterName string, expectedK8sVersion string) { // nolint:unused
 	By(fmt.Sprintf("Validating k8s version for cluster %q", clusterName))
 
 	kubeContext := clusterName + "-admin@" + clusterName
@@ -217,7 +184,7 @@ func validateKubernetesVersion(clusterName string, expectedK8sVersion string) {
 	Expect(actualK8sVersion).To(Equal(expectedK8sVersion), fmt.Sprintf("k8s version validation failed. Expected %q, found %q", expectedK8sVersion, actualK8sVersion))
 }
 
-func validateProviderVersions(ctx context.Context, clusterName string, infraProvider string, expectedCapiVersion string, expectedInfraVersion string) {
+func validateProviderVersions(ctx context.Context, clusterName string, infraProvider string, expectedCapiVersion string, expectedInfraVersion string) { // nolint:unused
 	By(fmt.Sprintf("Validating provider versions for cluster %q", clusterName))
 
 	kubeContext := clusterName + "-admin@" + clusterName

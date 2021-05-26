@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// nolint:typecheck,goconst,gocritic,golint,stylecheck,nolintlint
 package shared
 
 import (
@@ -26,7 +27,7 @@ type E2ECommonSpecInput struct {
 	Cni             string
 }
 
-func E2ECommonSpec(context context.Context, inputGetter func() E2ECommonSpecInput) {
+func E2ECommonSpec(context context.Context, inputGetter func() E2ECommonSpecInput) { //nolint:funlen
 	var (
 		err          error
 		input        E2ECommonSpecInput
@@ -36,13 +37,13 @@ func E2ECommonSpec(context context.Context, inputGetter func() E2ECommonSpecInpu
 		namespace    string
 	)
 
-	BeforeEach(func() {
+	BeforeEach(func() { //nolint:dupl
 		namespace = constants.DefaultNamespace
 		input = inputGetter()
 		logsDir = filepath.Join(input.ArtifactsFolder, "logs")
 
 		rand.Seed(time.Now().UnixNano())
-		clusterName = input.E2EConfig.ClusterPrefix + "wc-" + util.RandomString(4)
+		clusterName = input.E2EConfig.ClusterPrefix + "wc-" + util.RandomString(4) // nolint:gomnd
 
 		tkgCtlClient, err = tkgctl.New(tkgctl.Options{
 			ConfigDir: input.E2EConfig.TkgConfigDir,
@@ -75,7 +76,7 @@ func E2ECommonSpec(context context.Context, inputGetter func() E2ECommonSpecInpu
 				}
 			}
 		}
-		clusterConfigFile, err := framework.GetTempClusterConfigFile(input.E2EConfig.TkgClusterConfigPath, options)
+		clusterConfigFile, err := framework.GetTempClusterConfigFile(input.E2EConfig.TkgClusterConfigPath, &options)
 		Expect(err).To(BeNil())
 
 		defer os.Remove(clusterConfigFile)
@@ -105,7 +106,7 @@ func E2ECommonSpec(context context.Context, inputGetter func() E2ECommonSpecInpu
 			}
 		}
 
-		clusterConfigFile, err = framework.GetTempClusterConfigFile(input.E2EConfig.TkgClusterConfigPath, options)
+		clusterConfigFile, err = framework.GetTempClusterConfigFile(input.E2EConfig.TkgClusterConfigPath, &options)
 		Expect(err).To(BeNil())
 
 		defer os.Remove(clusterConfigFile)

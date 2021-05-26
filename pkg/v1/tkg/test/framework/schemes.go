@@ -18,6 +18,7 @@ import (
 	expv1 "sigs.k8s.io/cluster-api/exp/api/v1alpha3"
 )
 
+// AddDefaultSchemes adds the default schemes
 func AddDefaultSchemes(scheme *runtime.Scheme) {
 	// Add the core schemes.
 	_ = corev1.AddToScheme(scheme)

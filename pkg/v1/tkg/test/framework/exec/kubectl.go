@@ -7,9 +7,10 @@ import (
 	"bytes"
 	"context"
 
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo" // nolint:stylecheck,golint
 )
 
+// KubectlApplyWithArgs applies config with args
 func KubectlApplyWithArgs(ctx context.Context, kubeconfigPath string, resources []byte, args ...string) error {
 	aargs := append([]string{"apply", "--kubeconfig", kubeconfigPath, "-f", "-"}, args...)
 	rbytes := bytes.NewReader(resources)

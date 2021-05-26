@@ -10,7 +10,7 @@ import (
 	"os"
 	"path/filepath"
 
-	. "github.com/onsi/gomega"
+	. "github.com/onsi/gomega" // nolint:golint,stylecheck
 	"github.com/pkg/errors"
 	"sigs.k8s.io/yaml"
 
@@ -18,15 +18,22 @@ import (
 )
 
 const (
+	// TkgDefaultClusterPrefix is TKG cluster prefix
 	TkgDefaultClusterPrefix = "tkg-cli-"
-	TkgDefaultTimeout       = "30m"
-	TkgDefaultLogLevel      = 6
+
+	// TkgDefaultTimeout is the default timeout
+	TkgDefaultTimeout = "30m"
+
+	// TkgDefaultLogLevel is the default log level
+	TkgDefaultLogLevel = 6
 )
 
+// E2EConfigInput is the input to E2E test suite
 type E2EConfigInput struct {
 	ConfigPath string
 }
 
+// ManagementClusterOptions represents all options to create a management cluster
 type ManagementClusterOptions struct {
 	Endpoint             string `yaml:"endpoint,omitempty"`
 	Plan                 string `yaml:"plan,omitempty"`
@@ -35,8 +42,11 @@ type ManagementClusterOptions struct {
 	EnableTKGSOnVsphere7 bool   `yaml:"enable_tkgs_on_vSphere7,omitempty"`
 }
 
-// configuration for the e2e tests
+// E2EConfig represents the configuration for the e2e tests
 type E2EConfig struct {
+	UseExistingCluster       bool                     `json:"use_existing_cluster,omitempty"`
+	UpgradeManagementCluster bool                     `json:"upgrade_management_cluster,omitempty"`
+	TkgCliLogLevel           int32                    `json:"tkg_cli_log_level,omitempty"`
 	InfrastructureName       string                   `json:"infrastructure_name,omitempty"`
 	InfrastructureVersion    string                   `json:"infrastructure_version,omitempty"`
 	ClusterAPIVersion        string                   `json:"capi_version,omitempty"`
@@ -49,16 +59,13 @@ type E2EConfig struct {
 	DefaultTimeout           string                   `json:"default_timeout,omitempty"`
 	TkgConfigDir             string                   `json:"tkg_config_dir,omitempty"`
 	TkgClusterConfigPath     string                   `json:"tkg_config_path,omitempty"`
-	TkgConfigVariables       map[string]string        `json:"tkg_config_variables,omitempty"`
-	UseExistingCluster       bool                     `json:"use_existing_cluster,omitempty"`
 	ManagementClusterName    string                   `json:"management_cluster_name,omitempty"`
 	ClusterPrefix            string                   `json:"cluster_prefix,omitempty"`
+	TkgConfigVariables       map[string]string        `json:"tkg_config_variables,omitempty"`
 	ManagementClusterOptions ManagementClusterOptions `json:"management_cluster_options,omitempty"`
-	TkgCliLogLevel           int32                    `json:"tkg_cli_log_level,omitempty"`
-	UpgradeManagementCluster bool                     `json:"upgrade_management_cluster,omitempty"`
 }
 
-// loads the configuration for the e2e test environment
+// LoadE2EConfig loads the configuration for the e2e test environment
 func LoadE2EConfig(ctx context.Context, input E2EConfigInput) *E2EConfig {
 	e2eConfigData, err := ioutil.ReadFile(input.ConfigPath)
 	Expect(err).ToNot(HaveOccurred(), "Failed to read the e2e test config file")
@@ -118,7 +125,7 @@ func (c *E2EConfig) Defaults() {
 	}
 }
 
-// Validates the configuration in the e2e config file
+// Validate validates the configuration in the e2e config file
 func (c *E2EConfig) Validate() error {
 	if c.InfrastructureName == "" {
 		return errors.Errorf("config variable '%s' not set", "infrastructure_name")
@@ -127,7 +134,7 @@ func (c *E2EConfig) Validate() error {
 	return nil
 }
 
-// Saves the config variables from e2e config to the TKG config file
+// SaveTkgConfigVariables saves the config variables from e2e config to the TKG config file
 func (c *E2EConfig) SaveTkgConfigVariables() error {
 	_, err := os.Stat(c.TkgClusterConfigPath)
 	if os.IsNotExist(err) {

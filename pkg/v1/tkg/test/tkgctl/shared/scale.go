@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// nolint:typecheck,goconst,gocritic,golint,stylecheck,nolintlint
 package shared
 
 import (
@@ -36,13 +37,13 @@ func E2EScaleSpec(context context.Context, inputGetter func() E2EScaleSpecInput)
 		namespace    string
 	)
 
-	BeforeEach(func() {
+	BeforeEach(func() { //nolint:dupl
 		namespace = constants.DefaultNamespace
 		input = inputGetter()
 		logsDir = filepath.Join(input.ArtifactsFolder, "logs")
 
 		rand.Seed(time.Now().UnixNano())
-		clusterName = input.E2EConfig.ClusterPrefix + "wc-" + util.RandomString(4)
+		clusterName = input.E2EConfig.ClusterPrefix + "wc-" + util.RandomString(4) // nolint:gomnd
 
 		tkgCtlClient, err = tkgctl.New(tkgctl.Options{
 			ConfigDir: input.E2EConfig.TkgConfigDir,
@@ -70,7 +71,7 @@ func E2EScaleSpec(context context.Context, inputGetter func() E2EScaleSpecInput)
 			}
 		}
 
-		clusterConfigFile, err := framework.GetTempClusterConfigFile(input.E2EConfig.TkgClusterConfigPath, options)
+		clusterConfigFile, err := framework.GetTempClusterConfigFile(input.E2EConfig.TkgClusterConfigPath, &options)
 		Expect(err).To(BeNil())
 
 		defer os.Remove(clusterConfigFile)

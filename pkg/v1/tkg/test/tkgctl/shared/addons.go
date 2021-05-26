@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// nolint:typecheck,goconst,gocritic,golint,stylecheck,nolintlint
 package shared
 
 import (
@@ -149,7 +150,7 @@ func verifyCertManagerPodsRunning(clusterName string, namespace string) {
 	}
 }
 
-func verifyClusterMetadata(input VerifyClusterMetadataInput) {
+func verifyClusterMetadata(input VerifyClusterMetadataInput) { //nolint:unused
 	context := input.ClusterName + "-admin@" + input.ClusterName
 	proxy := framework.NewClusterProxy(input.ClusterName, "", context)
 	clientSet := proxy.GetClientSet()
@@ -170,23 +171,9 @@ func verifyClusterMetadata(input VerifyClusterMetadataInput) {
 	bom := &tkgconfigbom.BOMConfiguration{}
 	err = yaml.Unmarshal(data, bom)
 	Expect(err).ToNot(HaveOccurred())
-
-	// tkgConfigPath, err := tkgconfigpaths.New(input.TkgConfigDir).GetTKGConfigPath()
-	// Expect(err).ToNot(HaveOccurred())
-
-	// rw, err := tkgconfigreaderwriter.NewReaderWriterFromConfigFile(input.TkgClusterConfigPath, tkgConfigPath)
-	// Expect(err).ToNot(HaveOccurred())
-
-	// // tkgconfigbomClient := tkgconfigbom.New(input.TkgConfigDir, rw)
-	// // expectedBom, err := tkgconfigbomClient.GetBOMConfigurationForK8sVersion(input.K8sVersion)
-	// // Expect(err).ToNot(HaveOccurred())
-	// expectedBom.ProvidersVersionMap = nil
-	// expectedBom.KubernetesVersion = ""
-
-	// Expect(bom).To(Equal(expectedBom))
 }
 
-func getConfigMapData(clientSet *kubernetes.Clientset, name string, namespace string, keyName string) []byte {
+func getConfigMapData(clientSet *kubernetes.Clientset, name string, namespace string, keyName string) []byte { //nolint:unused
 	configMap, err := clientSet.CoreV1().ConfigMaps(namespace).Get(name, metav1.GetOptions{})
 	Expect(err).ToNot(HaveOccurred())
 

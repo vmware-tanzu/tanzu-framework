@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// nolint:typecheck,nolintlint
 package docker
 
 import (
@@ -21,6 +22,8 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/test/framework"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgctl"
 )
+
+const clusterName = "tkg-cli-wc"
 
 var (
 	// path to the e2e config file
@@ -99,13 +102,12 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	}
 
 	// Create initial workload cluster
-	clusterName := "tkg-cli-wc"
 	options := framework.CreateClusterOptions{
 		ClusterName: clusterName,
 		Namespace:   constants.DefaultNamespace,
 		Plan:        "dev",
 	}
-	clusterConfigFile, err := framework.GetTempClusterConfigFile(e2eConfig.TkgClusterConfigPath, options)
+	clusterConfigFile, err := framework.GetTempClusterConfigFile(e2eConfig.TkgClusterConfigPath, &options)
 	Expect(err).To(BeNil())
 
 	defer os.Remove(clusterConfigFile)

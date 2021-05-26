@@ -14,30 +14,32 @@ import (
 	"gopkg.in/yaml.v2"
 	"sigs.k8s.io/cluster-api/util"
 
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo" // nolint:golint,stylecheck
 )
 
+// CreateClusterOptions represent options to create a TKG cluster
 type CreateClusterOptions struct {
+	GenerateOnly                bool
+	SkipPrompt                  bool
+	ControlPlaneMachineCount    int
+	WorkerMachineCount          int
 	ClusterName                 string
 	Plan                        string
 	InfrastructureProvider      string
 	Namespace                   string
 	KubernetesVersion           string
-	ControlPlaneMachineCount    int
-	WorkerMachineCount          int
-	GenerateOnly                bool
 	Size                        string
 	ControlPlaneSize            string
 	WorkerSize                  string
 	CniType                     string
 	EnableClusterOptions        string
 	VsphereControlPlaneEndpoint string
-	SkipPrompt                  bool
 	Timeout                     time.Duration
 
 	OtherConfigs map[string]string
 }
 
+// WaitForNodes waits for desiredCount number of nodes to be ready
 func WaitForNodes(proxy *ClusterProxy, desiredCount int) {
 	const timeout = 10 * time.Minute
 
@@ -49,13 +51,14 @@ func WaitForNodes(proxy *ClusterProxy, desiredCount int) {
 			return
 		}
 
-		time.Sleep(30 * time.Second)
+		time.Sleep(30 * time.Second) // nolint:gomnd
 	}
 
 	Fail("Timed out waiting for nodes count to reach %q", desiredCount)
 }
 
-func GetTempClusterConfigFile(clusterConfigFile string, options CreateClusterOptions) (string, error) {
+// GetTempClusterConfigFile gets temporary config file
+func GetTempClusterConfigFile(clusterConfigFile string, options *CreateClusterOptions) (string, error) { // nolint:gocyclo
 	clusterOptions := map[string]string{}
 
 	_, err := os.Stat(clusterConfigFile)
@@ -134,7 +137,7 @@ func GetTempClusterConfigFile(clusterConfigFile string, options CreateClusterOpt
 		return "", err
 	}
 
-	f, err := ioutil.TempFile("", "temp_cluster_config_"+util.RandomString(4)+".yaml")
+	f, err := ioutil.TempFile("", "temp_cluster_config_"+util.RandomString(4)+".yaml") // nolint:gomnd
 	if err != nil {
 		return "", err
 	}

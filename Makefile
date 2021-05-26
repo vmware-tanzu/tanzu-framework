@@ -302,7 +302,7 @@ release-%:
 
 .PHONY: test
 test: generate fmt vet manifests build-cli-mocks ## Run tests
-	$(GO) test ./... -coverprofile cover.out
+	$(GO) test -coverprofile cover.out -v `go list ./... | grep -v github.com/vmware-tanzu-private/core/pkg/v1/tkg/test`
 	$(MAKE) kubebuilder -C $(TOOLS_DIR)
 	KUBEBUILDER_ASSETS=$(ROOT_DIR)/$(KUBEBUILDER)/bin GOPRIVATE=$(PRIVATE_REPOS) $(MAKE) test -C addons
 

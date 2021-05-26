@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// nolint:typecheck,goconst,gocritic,golint,stylecheck,nolintlint
 package shared
 
 import (
@@ -32,7 +33,7 @@ type E2EMhcSpecInput struct {
 	Cni             string
 }
 
-func E2EMhcSpec(context context.Context, inputGetter func() E2EMhcSpecInput) {
+func E2EMhcSpec(context context.Context, inputGetter func() E2EMhcSpecInput) { //nolint:funlen
 	var (
 		input        E2EMhcSpecInput
 		tkgCtlClient tkgctl.TKGClient
@@ -92,7 +93,7 @@ func E2EMhcSpec(context context.Context, inputGetter func() E2EMhcSpecInput) {
 		mhc := mhcList[0]
 		Expect(mhc.Spec.ClusterName).To(Equal(clusterName))
 		Expect(mhc.Name).To(Equal(clusterName))
-		Expect(len(mhc.Spec.UnhealthyConditions)).To(Equal(2))
+		Expect(len(mhc.Spec.UnhealthyConditions)).To(Equal(2)) // nolint:gomnd
 
 		// Delete MHC and verify if MHC is deleted
 		By(fmt.Sprintf("Deleting MHC for cluster %q", clusterName))
@@ -126,7 +127,7 @@ func E2EMhcSpec(context context.Context, inputGetter func() E2EMhcSpecInput) {
 		Expect(err).ToNot(HaveOccurred())
 
 		// Wait for Target in MHC status to get the machine name
-		waitForMhcTarget(context, tkgCtlClient, clusterName, namespace)
+		waitForMhcTarget(tkgCtlClient, clusterName, namespace)
 		mhcList, err = tkgCtlClient.GetMachineHealthCheck(tkgctl.GetMachineHealthCheckOptions{
 			ClusterName:            clusterName,
 			Namespace:              namespace,
@@ -147,7 +148,7 @@ func E2EMhcSpec(context context.Context, inputGetter func() E2EMhcSpecInput) {
 		_, _ = GinkgoWriter.Write([]byte(fmt.Sprintf("Context : %s \n", context)))
 		patchNodeUnhealthy(context, wcProxy, machine, "", mcProxy)
 
-		By(fmt.Sprintf("Waiting for the Node to be remediated"))
+		By("Waiting for the Node to be remediated")
 		WaitForNodeRemediation(context, clusterName, "", mcProxy, wcProxy)
 	})
 }
@@ -200,7 +201,7 @@ func getNode(ctx context.Context, machineName string, namespace string, p *frame
 	}
 
 	_, _ = GinkgoWriter.Write([]byte(fmt.Sprintf("Found machine with name %s\n", machineName)))
-	_, _ = GinkgoWriter.Write([]byte(fmt.Sprintf("Details: \n")))
+	_, _ = GinkgoWriter.Write([]byte("Details: \n"))
 
 	nodeName := machine.Status.NodeRef.Name
 	_, _ = GinkgoWriter.Write([]byte(fmt.Sprintf("Name of node : %s\n", nodeName)))
@@ -215,7 +216,7 @@ func getNode(ctx context.Context, machineName string, namespace string, p *frame
 	return node, err
 }
 
-func waitForMhcTarget(ctx context.Context, tkgctlClient tkgctl.TKGClient, clusterName string, namespace string) {
+func waitForMhcTarget(tkgctlClient tkgctl.TKGClient, clusterName string, namespace string) {
 	Eventually(func() bool {
 		_, _ = GinkgoWriter.Write([]byte("Waiting for target in MHC status\n"))
 		mhcList, err := tkgctlClient.GetMachineHealthCheck(tkgctl.GetMachineHealthCheckOptions{
