@@ -32,7 +32,7 @@ const RequiredFields = [
 
 const OptionalFields = ['privateAzureCluster', 'privateIP'];
 const CUSTOM = "CUSTOM";
-const EXISTING = "EXISTING";
+export const EXISTING = "EXISTING";
 @Component({
     selector: 'app-vnet-step',
     templateUrl: './vnet-step.component.html',

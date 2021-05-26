@@ -12,6 +12,7 @@ import { AzureRegionalClusterParams } from 'src/app/swagger/models';
 import { AzureAccountParamsKeys } from './provider-step/azure-provider-step.component';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { takeUntil } from "rxjs/operators";
+import { EXISTING } from './vnet-step/vnet-step.component';
 
 @Component({
     selector: 'app-azure-wizard',
@@ -169,7 +170,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
             ["workerNodeSubnetCidr", "vnetForm", "workerNodeSubnetCidrNew"],
         ];
 
-        if (vnetOption === "existing") {        // for existing vnet
+        if (vnetOption === EXISTING) {        // for existing vnet
             vnetAttrs = [
                 ["vnetName", "vnetForm", "vnetNameExisting"],
                 ["vnetCidr", "vnetForm", "vnetCidrBlock"],
