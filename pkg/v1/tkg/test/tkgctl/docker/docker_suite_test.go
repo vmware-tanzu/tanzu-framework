@@ -17,6 +17,7 @@ import (
 	"github.com/onsi/ginkgo/reporters"
 	. "github.com/onsi/gomega"
 
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/test/framework"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgctl"
 )
@@ -97,6 +98,40 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 		Expect(err).To(BeNil())
 	}
 
+	// Create initial workload cluster
+	clusterName := "tkg-cli-wc"
+	options := framework.CreateClusterOptions{
+		ClusterName: clusterName,
+		Namespace:   constants.DefaultNamespace,
+		Plan:        "dev",
+	}
+	clusterConfigFile, err := framework.GetTempClusterConfigFile(e2eConfig.TkgClusterConfigPath, options)
+	Expect(err).To(BeNil())
+
+	defer os.Remove(clusterConfigFile)
+
+	tkgCtlClient, err := tkgctl.New(tkgctl.Options{
+		ConfigDir: e2eConfig.TkgConfigDir,
+		LogOptions: tkgctl.LoggingOptions{
+			File:      filepath.Join(logsDir, clusterName+".log"),
+			Verbosity: e2eConfig.TkgCliLogLevel,
+		},
+	})
+	Expect(err).ToNot(HaveOccurred())
+
+	err = tkgCtlClient.ConfigCluster(tkgctl.CreateClusterOptions{
+		ClusterConfigFile: clusterConfigFile,
+	})
+	Expect(err).To(BeNil())
+
+	By(fmt.Sprintf("Creating initial workload cluster %q", clusterName))
+
+	defer os.Remove(clusterConfigFile)
+	err = tkgCtlClient.CreateCluster(tkgctl.CreateClusterOptions{
+		ClusterConfigFile: clusterConfigFile,
+	})
+	Expect(err).To(BeNil())
+
 	return []byte(
 		strings.Join([]string{
 			artifactsFolder,
@@ -119,25 +154,45 @@ var _ = SynchronizedAfterSuite(func() {
 }, func() {
 	// After all parallel nodes
 
-	//timeout, err := time.ParseDuration(e2eConfig.DefaultTimeout)
-	//Expect(err).To(BeNil())
-	//
-	//logLocation := filepath.Join(artifactsFolder, "logs")
-	//cli, err := tkgctl.New(tkgctl.Options{
-	//	ConfigDir: e2eConfig.TkgConfigDir,
-	//	LogOptions: tkgctl.LoggingOptions{
-	//		File:      filepath.Join(logLocation, "after_suite.log"),
-	//		Verbosity: e2eConfig.TkgCliLogLevel,
-	//	},
-	//})
-	//Expect(err).To(BeNil())
-	//
-	//err = cli.DeleteRegion(tkgctl.DeleteRegionOptions{
-	//	ClusterName: e2eConfig.ManagementClusterName,
-	//	Force:       true,
-	//	SkipPrompt:  true,
-	//	Timeout:     timeout,
-	//})
-	//
-	//Expect(err).To(BeNil())
+	timeout, err := time.ParseDuration(e2eConfig.DefaultTimeout)
+	Expect(err).To(BeNil())
+
+	clusterName := "tkg-cli-wc"
+	By(fmt.Sprintf("Deleting workload cluster %q", clusterName))
+
+	logsDir := filepath.Join(artifactsFolder, "logs")
+	tkgCtlClient, err := tkgctl.New(tkgctl.Options{
+		ConfigDir: e2eConfig.TkgConfigDir,
+		LogOptions: tkgctl.LoggingOptions{
+			File:      filepath.Join(logsDir, clusterName+".log"),
+			Verbosity: e2eConfig.TkgCliLogLevel,
+		},
+	})
+	Expect(err).ToNot(HaveOccurred())
+
+	err = tkgCtlClient.DeleteCluster(tkgctl.DeleteClustersOptions{
+		ClusterName: clusterName,
+		Namespace:   constants.DefaultNamespace,
+		SkipPrompt:  true,
+	})
+	Expect(err).To(BeNil())
+
+	logLocation := filepath.Join(artifactsFolder, "logs")
+	cli, err := tkgctl.New(tkgctl.Options{
+		ConfigDir: e2eConfig.TkgConfigDir,
+		LogOptions: tkgctl.LoggingOptions{
+			File:      filepath.Join(logLocation, "after_suite.log"),
+			Verbosity: e2eConfig.TkgCliLogLevel,
+		},
+	})
+	Expect(err).To(BeNil())
+
+	err = cli.DeleteRegion(tkgctl.DeleteRegionOptions{
+		ClusterName: e2eConfig.ManagementClusterName,
+		Force:       true,
+		SkipPrompt:  true,
+		Timeout:     timeout,
+	})
+
+	Expect(err).To(BeNil())
 })
