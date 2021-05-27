@@ -18,7 +18,7 @@
                     </clr-tooltip>
                 </label>
                 <select clrSelect name="workerNodeInstanceType" formControlName="workerNodeInstanceType">
-                    <option aria-label="blank"></option>
+                    <option aria-label="blank" title="blank"></option>
                     <ng-container *ngFor="let wnit of workderNodeInstanceTypes">
                         <option [value]="wnit">
                             {{ wnit }}
@@ -50,7 +50,7 @@
                     </clr-tooltip>
                 </label>
                 <select clrSelect [name]="'az'+azId" [formControlName]="'az'+azId">
-                    <option aria-label="blank"></option>
+                    <option aria-label="blank" title="blank"></option>
                     <ng-container *ngFor="let az of azs">
                         <option [value]="az">
                             {{ az }}

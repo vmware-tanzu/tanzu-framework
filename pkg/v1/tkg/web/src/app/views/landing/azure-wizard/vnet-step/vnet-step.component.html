@@ -38,7 +38,7 @@
                         </clr-tooltip>
                     </label>
                     <select clrSelect name="resourceGroup" formControlName="resourceGroup">
-                        <option aria-label="blank"></option>
+                        <option aria-label="blank" title="blank"></option>
                         <option *ngIf="customResourceGroup !== ''" [value]="customResourceGroup">{{customResourceGroup}}</option>
                         <option *ngFor="let rg of resourceGroups" [value]="rg.name">{{ rg.name }}
                         </option>
@@ -209,7 +209,7 @@
                     </clr-tooltip>
                 </label>
                 <select clrSelect name="resourceGroup" formControlName="resourceGroup">
-                    <option aria-label="blank"></option>
+                    <option aria-label="blank" title="blank"></option>
                     <option *ngFor="let rg of resourceGroups" [value]="rg.name">{{ rg.name }}
                     </option>
                 </select>
@@ -234,7 +234,7 @@
                     </clr-tooltip>
                 </label>
                 <select clrSelect name="vnetNameExisting" formControlName="vnetNameExisting">
-                    <option aria-label="blank"></option>
+                    <option aria-label="blank" title="blank"></option>
                     <option *ngFor="let vne of vnetNamesExisting" [value]="vne">{{ vne }}
                     </option>
                 </select>
@@ -262,7 +262,7 @@
                     </clr-tooltip>
                 </label>
                 <select clrSelect name="controlPlaneSubnet" formControlName="controlPlaneSubnet">
-                    <option aria-label="blank"></option>
+                    <option aria-label="blank" title="blank"></option>
                     <option *ngFor="let cps of controlPlaneSubnets" [value]="cps.name">{{ cps.name }}
                     </option>
                 </select>
@@ -287,7 +287,7 @@
                     </clr-tooltip>
                 </label>
                 <select clrSelect name="workerNodeSubnet" formControlName="workerNodeSubnet">
-                    <option aria-label="blank"></option>
+                    <option aria-label="blank" title="blank"></option>
                     <option *ngFor="let wns of workerNodeSubnets" [value]="wns.name">{{ wns.name }}
                     </option>
                 </select>

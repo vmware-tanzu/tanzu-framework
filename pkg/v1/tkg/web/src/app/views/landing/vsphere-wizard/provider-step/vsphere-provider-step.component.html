@@ -106,7 +106,7 @@
                     </clr-tooltip>
                 </label>
                 <select clrSelect name="datacenter" formControlName="datacenter">
-                    <option aria-label="blank"></option>
+                    <option aria-label="blank" title="blank"></option>
                     <ng-container *ngFor="let datacenter of datacenters">
                         <option [value]="datacenter.name">
                             {{datacenter.name}}

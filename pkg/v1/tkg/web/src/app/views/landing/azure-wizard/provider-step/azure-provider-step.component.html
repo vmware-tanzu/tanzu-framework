@@ -151,7 +151,7 @@
                     </clr-tooltip>
                 </label>
                 <select clrSelect name="region" formControlName="region">
-                    <option aria-label="blank"></option>
+                    <option aria-label="blank" title="blank"></option>
                     <option *ngFor="let region of regions" [value]="region.name">{{ region.displayName }}</option>
                 </select>
                 <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
@@ -232,7 +232,7 @@
                     </clr-tooltip>
                 </label>
                 <select clrSelect name="resourceGroupExisting" formControlName="resourceGroupExisting">
-                    <option aria-label="blank"></option>
+                    <option aria-label="blank" title="blank"></option>
                     <option *ngFor="let resourceGroup of resourceGroups" [value]="resourceGroup.name">
                         {{ resourceGroup.name }}
                     </option>
