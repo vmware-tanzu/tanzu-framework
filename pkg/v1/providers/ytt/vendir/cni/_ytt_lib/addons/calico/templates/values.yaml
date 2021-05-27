@@ -3,6 +3,8 @@
 
 ---
 infraProvider: null
+#! set to ipv6 for IPv6
+ipFamily: null
 imageInfo:
   imageRepository: docker.io
   imagePullPolicy: IfNotPresent
