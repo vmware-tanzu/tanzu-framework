@@ -123,7 +123,7 @@
                     clrSelect
                     name="cloudName"
                     formControlName="cloudName">
-                    <option aria-label="blank"></option>
+                    <option aria-label="blank" title="blank"></option>
                     <ng-container *ngFor="let cloud of clouds">
                         <option [value]="cloud.name">
                             {{ cloud.name }}
@@ -152,7 +152,7 @@
                     clrSelect
                     name="serviceEngineGroupName"
                     formControlName="serviceEngineGroupName">
-                    <option aria-label="blank"></option>
+                    <option aria-label="blank" title="blank"></option>
                     <ng-container *ngFor="let seg of serviceEngineGroupsFiltered">
                         <option [value]="seg.name">
                             {{ seg.name }}
@@ -184,7 +184,7 @@
                     clrSelect
                     name="networkName"
                     formControlName="networkName">
-                    <option aria-label="blank"></option>
+                    <option aria-label="blank" title="blank"></option>
                     <ng-container *ngFor="let npc of vipNetworksPerCloud">
                         <option [value]="npc.name">
                             {{ npc.name }}
@@ -214,7 +214,7 @@
                     clrSelect
                     name="networkCIDR"
                     formControlName="networkCIDR">
-                    <option aria-label="blank"></option>
+                    <option aria-label="blank" title="blank"></option>
                     <ng-container *ngFor="let spn of subnetsPerNetwork">
                         <option [value]="spn.subnet">
                             {{ spn.subnet }}

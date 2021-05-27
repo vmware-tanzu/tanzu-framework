@@ -128,7 +128,7 @@
                         </clr-tooltip>
                     </label>
                     <select clrSelect name="profileName" formControlName="profileName">
-                        <option aria-label="blank"></option>
+                        <option aria-label="blank" title="blank"></option>
                         <option *ngFor="let profile of profileNames" [value]="profile">{{profile}}</option>
                     </select>
                     <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
@@ -153,7 +153,7 @@
                         </clr-tooltip>
                     </label>
                     <select clrSelect name="region" formControlName="region">
-                        <option aria-label="blank"></option>
+                        <option aria-label="blank" title="blank"></option>
                         <option *ngFor="let region of regions" [value]="region">{{ region }}</option>
                     </select>
                     <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->

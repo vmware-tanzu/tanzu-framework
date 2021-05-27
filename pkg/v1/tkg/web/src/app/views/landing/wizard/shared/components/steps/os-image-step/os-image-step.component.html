@@ -56,7 +56,7 @@
             </clr-tooltip>
         </label>
         <select clrSelect name="osImage" formControlName="osImage" (change)="onOptionsSelected()">
-            <option aria-label="blank"></option>
+            <option aria-label="blank" title="blank"></option>
             <ng-container *ngFor="let osImage of osImages">
                 <option [ngValue]="osImage">
                     {{ osImage.name }}

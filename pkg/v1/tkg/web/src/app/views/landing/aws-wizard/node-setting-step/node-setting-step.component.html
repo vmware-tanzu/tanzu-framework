@@ -305,7 +305,7 @@
                         clrSelect
                         name="awsNodeAz1"
                         formControlName="awsNodeAz1">
-                    <option aria-label="blank"></option>
+                    <option aria-label="blank" title="blank"></option>
                     <ng-container *ngFor="let nodeAz of nodeAzs">
                         <option [value]="nodeAz.name">
                             {{ nodeAz.name }}
@@ -344,7 +344,7 @@
                         clrSelect
                         name="vpcPublicSubnet1"
                         formControlName="vpcPublicSubnet1">
-                    <option aria-label="blank"></option>
+                    <option aria-label="blank" title="blank"></option>
                     <ng-container *ngFor="let subnet of filteredAzs?.awsNodeAz1?.publicSubnets">
                         <option [value]="subnet.id">
                             {{ subnet.cidr }}
@@ -374,7 +374,7 @@
                         clrSelect
                         name="vpcPrivateSubnet1"
                         formControlName="vpcPrivateSubnet1">
-                    <option aria-label="blank"></option>
+                    <option aria-label="blank" title="blank"></option>
                     <ng-container *ngFor="let subnet of filteredAzs?.awsNodeAz1?.privateSubnets">
                         <option [value]="subnet.id">
                             {{ subnet.cidr }}
@@ -407,7 +407,7 @@
                         clrSelect
                         name="awsNodeAz2"
                         formControlName="awsNodeAz2">
-                    <option aria-label="blank"></option>
+                    <option aria-label="blank" title="blank"></option>
                     <ng-container *ngFor="let nodeAz of nodeAzs">
                         <option [value]="nodeAz.name">
                             {{ nodeAz.name }}
@@ -446,7 +446,7 @@
                         clrSelect
                         name="vpcPublicSubnet2"
                         formControlName="vpcPublicSubnet2">
-                    <option aria-label="blank"></option>
+                    <option aria-label="blank" title="blank"></option>
                     <ng-container *ngFor="let subnet of filteredAzs?.awsNodeAz2?.publicSubnets">
                         <option [value]="subnet.id">
                             {{ subnet.cidr }}
@@ -476,7 +476,7 @@
                         clrSelect
                         name="vpcPrivateSubnet2"
                         formControlName="vpcPrivateSubnet2">
-                    <option aria-label="blank"></option>
+                    <option aria-label="blank" title="blank"></option>
                     <ng-container *ngFor="let subnet of filteredAzs?.awsNodeAz2?.privateSubnets">
                         <option [value]="subnet.id">
                             {{ subnet.cidr }}
@@ -509,7 +509,7 @@
                         clrSelect
                         name="awsNodeAz3"
                         formControlName="awsNodeAz3">
-                    <option aria-label="blank"></option>
+                    <option aria-label="blank" title="blank"></option>
                     <ng-container *ngFor="let nodeAz of nodeAzs">
                         <option [value]="nodeAz.name">
                             {{ nodeAz.name }}
@@ -548,7 +548,7 @@
                         clrSelect
                         name="vpcPublicSubnet3"
                         formControlName="vpcPublicSubnet3">
-                    <option aria-label="blank"></option>
+                    <option aria-label="blank" title="blank"></option>
                     <ng-container *ngFor="let subnet of filteredAzs?.awsNodeAz3?.publicSubnets">
                         <option [value]="subnet.id">
                             {{ subnet.cidr }}
@@ -578,7 +578,7 @@
                         clrSelect
                         name="vpcPrivateSubnet3"
                         formControlName="vpcPrivateSubnet3">
-                    <option aria-label="blank"></option>
+                    <option aria-label="blank" title="blank"></option>
                     <ng-container *ngFor="let subnet of filteredAzs?.awsNodeAz3?.privateSubnets">
                         <option [value]="subnet.id">
                             {{ subnet.cidr }}

@@ -64,7 +64,7 @@
                 </label>
                 <select clrSelect name="existingVpcId" formControlName="existingVpcId"
                     (change)="existingVpcOnChange($event.target.value)">
-                    <option aria-label="blank"></option>
+                    <option aria-label="blank" title="blank"></option>
                     <ng-container *ngFor="let existingVpc of existingVpcs">
                         <option [value]="existingVpc.id">
                             {{ existingVpc.id }}
