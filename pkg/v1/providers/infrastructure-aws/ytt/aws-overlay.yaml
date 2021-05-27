@@ -25,13 +25,14 @@ spec:
       cidrBlock: #@ data.values.AWS_VPC_CIDR
       id: #@ data.values.AWS_VPC_ID
     subnets:
-    #@overlay/match by=overlay.index(0)
-    #@overlay/replace
+    #@ if data.values.AWS_VPC_ID == "" or data.values.AWS_PUBLIC_SUBNET_ID != "":
+    #@overlay/append
     - availabilityZone: #@ default_az_0
       cidrBlock: #@ data.values.AWS_PUBLIC_NODE_CIDR
       isPublic: true
       id: #@ data.values.AWS_PUBLIC_SUBNET_ID
-    #@overlay/match by=overlay.index(1)
+    #@ end
+    #@overlay/match by=overlay.index(0)
     #@overlay/replace
     - availabilityZone: #@ default_az_0
       cidrBlock: #@ data.values.AWS_PRIVATE_NODE_CIDR
@@ -45,20 +46,24 @@ kind: AWSCluster
 spec:
   networkSpec:
     subnets:
+    #@ if data.values.AWS_VPC_ID == "" or data.values.AWS_PUBLIC_SUBNET_ID_1 != "":
     #@overlay/append
     - availabilityZone: #@ default_az_1
       cidrBlock: #@ data.values.AWS_PUBLIC_NODE_CIDR_1
       isPublic: true
       id: #@ data.values.AWS_PUBLIC_SUBNET_ID_1
+    #@ end
     #@overlay/append
     - availabilityZone: #@ default_az_1
       cidrBlock: #@ data.values.AWS_PRIVATE_NODE_CIDR_1
       id: #@ data.values.AWS_PRIVATE_SUBNET_ID_1
+    #@ if data.values.AWS_VPC_ID == "" or data.values.AWS_PUBLIC_SUBNET_ID_2 != "":
     #@overlay/append
     - availabilityZone: #@ default_az_2
       cidrBlock: #@ data.values.AWS_PUBLIC_NODE_CIDR_2
       isPublic: true
       id: #@ data.values.AWS_PUBLIC_SUBNET_ID_2
+    #@ end
     #@overlay/append
     - availabilityZone: #@ default_az_2
       cidrBlock: #@ data.values.AWS_PRIVATE_NODE_CIDR_2

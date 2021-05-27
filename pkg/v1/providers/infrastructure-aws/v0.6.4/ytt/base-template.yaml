@@ -35,10 +35,6 @@ spec:
       id: '${AWS_VPC_ID}'
     subnets:
       - availabilityZone: '${AWS_NODE_AZ}'
-        cidrBlock: '${AWS_PUBLIC_NODE_CIDR}'
-        isPublic: true
-        id: '${AWS_PUBLIC_SUBNET_ID}'
-      - availabilityZone: '${AWS_NODE_AZ}'
         cidrBlock: '${AWS_PRIVATE_NODE_CIDR}'
         id: '${AWS_PRIVATE_SUBNET_ID}'
 ---
