@@ -1,5 +1,5 @@
 import { AzureVirtualNetwork } from './../../../../swagger/models/azure-virtual-network.model';
-import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
+import { TkgEventType } from 'src/app/shared/service/Messenger';
 import { ValidationService } from './../../wizard/shared/validation/validation.service';
 /**
  * Angular Modules
@@ -16,6 +16,7 @@ import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form
 import { AzureResourceGroup } from 'src/app/swagger/models';
 import { APIClient } from 'src/app/swagger';
 import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore'
+import Broker from 'src/app/shared/service/broker';
 
 const RequiredFields = [
     "vnetOption",
@@ -63,8 +64,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
 
     constructor(private apiClient: APIClient,
         private validationService: ValidationService,
-        private wizardFormService: AzureWizardFormService,
-        private messenger: Messenger) {
+        private wizardFormService: AzureWizardFormService) {
         super();
     }
 
@@ -131,7 +131,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
                 distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
                 takeUntil(this.unsubscribe)
             ).subscribe((cidr) => {
-                this.messenger.publish({
+                Broker.messenger.publish({
                     type: TkgEventType.AWS_GET_NO_PROXY_INFO,
                     payload: { info: (cidr ? cidr + ',' : '') + '169.254.0.0/16,168.63.129.16' }
                 });
@@ -155,13 +155,13 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
         /**
          * Whenever Azure region selection changes...
          */
-        this.messenger.getSubject(TkgEventType.AZURE_REGION_CHANGED)
+        Broker.messenger.getSubject(TkgEventType.AZURE_REGION_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                 this.onRegionChange(event.payload);
             });
 
-        this.messenger.getSubject(TkgEventType.AZURE_RESOURCEGROUP_CHANGED)
+        Broker.messenger.getSubject(TkgEventType.AZURE_RESOURCEGROUP_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                 this.customResourceGroup = event.payload;
@@ -272,7 +272,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
             existingFields.forEach(field => this.resurrectField(field, [Validators.required]));
             customFields.forEach(field => this.disarmField(field, clearSavedData));
             this.formGroup.get('vnetOption').setValue(EXISTING);
-            this.messenger.publish({
+            Broker.messenger.publish({
                 type: TkgEventType.AWS_GET_NO_PROXY_INFO,
                 payload: { info: '169.254.0.0/16,168.63.129.16' }
             });

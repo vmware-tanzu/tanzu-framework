@@ -14,7 +14,8 @@ import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
 import { WebsocketService } from '../../../shared/service/websocket.service';
 import { AppDataService } from '../../../shared/service/app-data.service';
 import { FormMetaDataStore } from '../wizard/shared/FormMetaDataStore';
-import { Messenger, TkgEvent, TkgEventType } from "../../../shared/service/Messenger";
+import { TkgEvent, TkgEventType } from "../../../shared/service/Messenger";
+import Broker from 'src/app/shared/service/broker';
 
 @Component({
     selector: 'tkg-kickstart-ui-deploy-progress',
@@ -41,10 +42,9 @@ export class DeployProgressComponent extends BasicSubscriber implements OnInit {
     currentPhaseIdx: number;
 
     constructor(private websocketService: WebsocketService,
-                private appDataService: AppDataService,
-                private messenger: Messenger) {
+                private appDataService: AppDataService) {
         super();
-        messenger.getSubject(TkgEventType.CLI_CHANGED)
+        Broker.messenger.getSubject(TkgEventType.CLI_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                 this.cli = event.payload;
@@ -54,7 +54,7 @@ export class DeployProgressComponent extends BasicSubscriber implements OnInit {
     ngOnInit(): void {
         this.initWebSocket();
 
-        this.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+        Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
                 this.pageTitle = (data.payload.edition === 'tce') ? 'Tanzu Community Edition' : 'Tanzu Kubernetes Grid';

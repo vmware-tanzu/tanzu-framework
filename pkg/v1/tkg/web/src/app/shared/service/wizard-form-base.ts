@@ -1,13 +1,14 @@
 import { Observable, ReplaySubject } from 'rxjs';
+import Broker from './broker';
 
-import { Messenger, TkgEventType } from './Messenger';
+import { TkgEventType } from './Messenger';
 
 export abstract class WizardFormBase {
 
     private dataState = {};
     private errorState = {};
 
-    constructor(private dataSources, private errorSpec, public messenger: Messenger) {
+    constructor(private dataSources, private errorSpec) {
         this.dataSources.forEach(source => {
             // Initialize all data states with an empty array
             this.dataState[source] = new ReplaySubject(1);
@@ -16,7 +17,7 @@ export abstract class WizardFormBase {
             this.errorState[source] = new ReplaySubject(1);
 
             // Reload data from backend upon notified
-            this.messenger.getSubject(source)
+            Broker.messenger.getSubject(source)
                 .subscribe((event) => this.retrieveData(source, event.payload));
         });
     }

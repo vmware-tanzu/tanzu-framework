@@ -16,8 +16,9 @@ import { ValidationService } from '../../wizard/shared/validation/validation.ser
 import { AWSNodeAz } from '../../../../swagger/models/aws-node-az.model';
 import { AWSSubnet } from '../../../../swagger/models/aws-subnet.model';
 import { AwsWizardFormService } from '../../../../shared/service/aws-wizard-form.service';
-import { Messenger, TkgEventType } from '../../../../shared/service/Messenger';
+import { TkgEventType } from '../../../../shared/service/Messenger';
 import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
+import Broker from 'src/app/shared/service/broker';
 
 export interface FilteredAzs {
     awsNodeAz1: {
@@ -108,7 +109,6 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     };
 
     constructor(private validationService: ValidationService,
-        public messenger: Messenger,
         public awsWizardFormService: AwsWizardFormService) {
         super();
     }
@@ -139,7 +139,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         super.ngOnInit();
         this.buildForm();
 
-        this.messenger.getSubject(TkgEventType.AWS_AIRGAPPED_VPC_CHANGE).subscribe(event => {
+        Broker.messenger.getSubject(TkgEventType.AWS_AIRGAPPED_VPC_CHANGE).subscribe(event => {
             this.airgappedVPC = event.payload;
             if (this.airgappedVPC) { // public subnet IDs shouldn't be provided
                 PUBLIC_SUBNETS.forEach(f => {
@@ -155,7 +155,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         /**
          * Whenever aws region selection changes, update AZ subregion
          */
-        this.messenger.getSubject(TkgEventType.AWS_REGION_CHANGED)
+        Broker.messenger.getSubject(TkgEventType.AWS_REGION_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                 if (this.formGroup.get('awsNodeAz1')) {
@@ -169,7 +169,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 }
             });
 
-        this.messenger.getSubject(TkgEventType.AWS_VPC_TYPE_CHANGED)
+        Broker.messenger.getSubject(TkgEventType.AWS_VPC_TYPE_CHANGED)
             .subscribe(event => {
                 this.vpcType = event.payload.vpcType;
                 if (this.vpcType !== 'existing') {
@@ -183,7 +183,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 [...AZS, ...VPC_SUBNETS].forEach(attr => this.formGroup.get(attr).updateValueAndValidity());
             });
 
-        this.messenger.getSubject(TkgEventType.AWS_VPC_CHANGED)
+        Broker.messenger.getSubject(TkgEventType.AWS_VPC_CHANGED)
             .subscribe(event => {
                 this.clearAzs();
                 this.clearSubnets();
@@ -299,7 +299,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
             const existingVpcId = FormMetaDataStore.getMetaDataItem('vpcForm', 'existingVpcId');
             if (existingVpcId && existingVpcId.displayValue) {
-                this.messenger.publish({
+                Broker.messenger.publish({
                     type: TkgEventType.AWS_GET_SUBNETS,
                     payload: { vpcId: existingVpcId.displayValue }
                 });

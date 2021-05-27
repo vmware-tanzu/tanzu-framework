@@ -7,6 +7,8 @@ import { AmiStepComponent } from './ami-step.component';
 
 import { APIClient } from '../../../../swagger/api-client.service';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
+import Broker from 'src/app/shared/service/broker';
+import { Messenger } from 'src/app/shared/service/Messenger';
 
 describe('AmiStepComponent', () => {
     let component: AmiStepComponent;
@@ -32,6 +34,7 @@ describe('AmiStepComponent', () => {
     }));
 
     beforeEach(() => {
+        Broker.messenger = new Messenger();
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(AmiStepComponent);
         component = fixture.componentInstance;
@@ -39,6 +42,10 @@ describe('AmiStepComponent', () => {
         });
 
         fixture.detectChanges();
+    });
+
+    afterEach(() => {
+        fixture.destroy();
     });
 
     it('should create', () => {

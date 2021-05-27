@@ -1,4 +1,3 @@
-import { Messenger } from '../../../shared/service/Messenger';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormControl } from '@angular/forms';
@@ -10,6 +9,8 @@ import { SharedModule } from '../../../shared/shared.module';
 import { FormMetaDataStore } from '../wizard/shared/FormMetaDataStore';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
 import { VSphereWizardFormServiceStub } from 'src/app/testing/vsphere-wizard-form.service.stub';
+import Broker from 'src/app/shared/service/broker';
+import { Messenger } from 'src/app/shared/service/Messenger';
 
 describe('VSphereWizardComponent', () => {
     let component: VSphereWizardComponent;
@@ -29,8 +30,7 @@ describe('VSphereWizardComponent', () => {
             providers: [
                 APIClient,
                 FormBuilder,
-                Messenger,
-                { provide: VSphereWizardFormService}
+                { provide: VSphereWizardFormService},
             ],
             schemas: [
                 CUSTOM_ELEMENTS_SCHEMA
@@ -43,6 +43,7 @@ describe('VSphereWizardComponent', () => {
     }));
 
     beforeEach(() => {
+        Broker.messenger = new Messenger();
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(VSphereWizardComponent);
         component = fixture.componentInstance;
@@ -71,6 +72,10 @@ describe('VSphereWizardComponent', () => {
             })
         });
         fixture.detectChanges();
+    });
+
+    afterEach(() => {
+        fixture.destroy();
     });
 
     it('should create', () => {

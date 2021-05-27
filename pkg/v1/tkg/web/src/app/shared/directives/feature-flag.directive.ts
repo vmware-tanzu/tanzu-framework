@@ -8,8 +8,6 @@ import { AppDataService } from '../service/app-data.service';
 /**
  * App imports
  */
-import { TkgEventType } from '../service/Messenger';
-
 @Directive({
     selector: '[featureToggle]'
 })

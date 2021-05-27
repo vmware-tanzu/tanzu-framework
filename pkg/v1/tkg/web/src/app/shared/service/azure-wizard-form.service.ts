@@ -3,7 +3,8 @@ import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 
 import { APIClient } from '../../swagger/api-client.service';
-import { Messenger, TkgEventType } from './Messenger';
+import Broker from './broker';
+import { TkgEventType } from './Messenger';
 import { WizardFormBase } from './wizard-form-base';
 
 const DataSources = [
@@ -30,15 +31,15 @@ export class AzureWizardFormService extends WizardFormBase {
     // Azure globals
     region: string;
 
-    constructor(private apiClient: APIClient, messenger: Messenger) {
-        super(DataSources, ErrorSpec, messenger);
+    constructor(private apiClient: APIClient) {
+        super(DataSources, ErrorSpec);
 
         // Messenger handler for Azure region change
-        this.messenger.getSubject(TkgEventType.AZURE_REGION_CHANGED)
+        Broker.messenger.getSubject(TkgEventType.AZURE_REGION_CHANGED)
             .subscribe(event => {
                 this.region = event.payload;
                 DataSources.forEach(source => {
-                    this.messenger.publish({
+                    Broker.messenger.publish({
                         type: source
                     });
                 });

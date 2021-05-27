@@ -16,10 +16,11 @@ import { ValidationService } from '../../../validation/validation.service';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { AppDataService } from 'src/app/shared/service/app-data.service';
 import { FormMetaDataStore, FormMetaData } from '../../../FormMetaDataStore';
-import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
+import { TkgEventType } from 'src/app/shared/service/Messenger';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { VSphereNetwork } from 'src/app/swagger/models/v-sphere-network.model';
+import Broker from 'src/app/shared/service/broker';
 
 declare var sortPaths: any;
 @Component({
@@ -39,7 +40,6 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
 
     constructor(private validationService: ValidationService,
         private wizardFormService: VSphereWizardFormService,
-        private messenger: Messenger,
         private appDataService: AppDataService) {
         super();
     }
@@ -137,7 +137,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
         /**
          * Whenever data center selection changes, reset the relevant fields
         */
-        this.messenger.getSubject(TkgEventType.DATACENTER_CHANGED)
+        Broker.messenger.getSubject(TkgEventType.DATACENTER_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                 this.resetFieldsUponDCChange();
@@ -154,7 +154,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
             });
         });
 
-        this.messenger.getSubject(TkgEventType.AWS_GET_NO_PROXY_INFO)
+        Broker.messenger.getSubject(TkgEventType.AWS_GET_NO_PROXY_INFO)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                this.additionalNoProxyInfo = event.payload.info;
@@ -239,14 +239,14 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
      */
     loadVSphereNetworks() {
         this.loadingNetworks = true;
-        this.messenger.publish({
+        Broker.messenger.publish({
             type: TkgEventType.GET_VM_NETWORKS
         });
     }
     // Reset the relevent fields upon data center change
     resetFieldsUponDCChange() {
         const fieldsToReset = ['networkName'];
-        fieldsToReset.forEach(f => this.formGroup.get(f).setValue(''));
+        fieldsToReset.forEach(f => this.formGroup.get(f) && this.formGroup.get(f).setValue(''));
     }
 
     setSavedDataAfterLoad() {

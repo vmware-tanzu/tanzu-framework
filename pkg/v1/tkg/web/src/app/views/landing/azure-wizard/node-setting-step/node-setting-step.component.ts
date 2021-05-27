@@ -14,7 +14,7 @@ import { takeUntil } from 'rxjs/operators';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { NodeType, awsNodeTypes } from '../../wizard/shared/constants/wizard.constants';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import { Messenger, TkgEventType } from '../../../../shared/service/Messenger';
+import { TkgEventType } from '../../../../shared/service/Messenger';
 import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import { AzureInstanceType } from 'src/app/swagger/models';
 
@@ -31,7 +31,6 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     displayForm = false;
 
     constructor(private validationService: ValidationService,
-                private messenger: Messenger,
                 private azureWizardFormService: AzureWizardFormService) {
         super();
         this.nodeTypes = [...awsNodeTypes];

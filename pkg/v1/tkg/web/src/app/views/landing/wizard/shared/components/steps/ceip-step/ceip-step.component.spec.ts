@@ -4,6 +4,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { FormBuilder } from '@angular/forms';
 
 import { SharedCeipStepComponent } from './ceip-step.component';
+import Broker from 'src/app/shared/service/broker';
+import { Messenger } from 'src/app/shared/service/Messenger';
 
 describe('SharedCeipStepComponent', () => {
     let component: SharedCeipStepComponent;
@@ -26,6 +28,7 @@ describe('SharedCeipStepComponent', () => {
     }));
 
     beforeEach(() => {
+        Broker.messenger = new Messenger();
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(SharedCeipStepComponent);
         component = fixture.componentInstance;

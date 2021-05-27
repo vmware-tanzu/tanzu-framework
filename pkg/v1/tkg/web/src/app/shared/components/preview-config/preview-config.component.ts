@@ -1,7 +1,8 @@
-import { Messenger, TkgEventType } from '../../service/Messenger';
+import { TkgEventType } from '../../service/Messenger';
 import { Component, OnInit } from '@angular/core';
 import { BasicSubscriber } from 'src/app/shared/abstracts/basic-subscriber';
 import { takeUntil } from 'rxjs/operators';
+import Broker from '../../service/broker';
 
 @Component({
     selector: 'app-preview-config',
@@ -12,9 +13,9 @@ export class PreviewConfigComponent extends BasicSubscriber implements OnInit {
 
     cli = "";
 
-    constructor(private messenger: Messenger) {
+    constructor() {
         super();
-        messenger.getSubject(TkgEventType.CLI_CHANGED)
+        Broker.messenger.getSubject(TkgEventType.CLI_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                 this.cli = event.payload;

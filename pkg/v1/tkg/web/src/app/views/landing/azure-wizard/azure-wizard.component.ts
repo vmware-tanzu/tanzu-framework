@@ -1,6 +1,6 @@
 import { Component, OnInit, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
-import { Messenger, TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
+import { TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
 import { FormBuilder } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { APIClient } from 'src/app/swagger';
@@ -13,6 +13,7 @@ import { AzureAccountParamsKeys } from './provider-step/azure-provider-step.comp
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { takeUntil } from "rxjs/operators";
 import { EXISTING } from './vnet-step/vnet-step.component';
+import Broker from 'src/app/shared/service/broker';
 
 @Component({
     selector: 'app-azure-wizard',
@@ -26,7 +27,6 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
 
     constructor(
         router: Router,
-        messenger: Messenger,
         public wizardFormService: AzureWizardFormService,
         private formBuilder: FormBuilder,
         private apiClient: APIClient,
@@ -34,7 +34,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         formMetaDataService: FormMetaDataService,
         el: ElementRef) {
 
-        super(router, messenger, el, formMetaDataService);
+        super(router, el, formMetaDataService);
 
         this.form = this.formBuilder.group({
             azureProviderForm: this.formBuilder.group({
@@ -63,7 +63,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
     ngOnInit() {
         super.ngOnInit();
         super.ngOnInit();
-        this.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+        Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
                 const title = (data.payload.edition === 'tce') ? 'Tanzu Community Edition Azure' : 'Tanzu Kubernetes Grid Azure';

@@ -7,6 +7,8 @@ import { SharedModule } from '../../../../../../../shared/shared.module';
 import { ValidationService } from '../../../validation/validation.service';
 import { APIClient } from '../../../../../../../swagger/api-client.service';
 import { MetadataStepComponent } from './metadata-step.component';
+import Broker from 'src/app/shared/service/broker';
+import { Messenger } from 'src/app/shared/service/Messenger';
 
 describe('MetadataStepComponent', () => {
     let component: MetadataStepComponent;
@@ -32,6 +34,7 @@ describe('MetadataStepComponent', () => {
     }));
 
     beforeEach(() => {
+        Broker.messenger = new Messenger();
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(MetadataStepComponent);
         component = fixture.componentInstance;

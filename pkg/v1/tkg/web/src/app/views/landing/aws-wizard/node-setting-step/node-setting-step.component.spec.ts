@@ -8,6 +8,7 @@ import { NodeSettingStepComponent } from './node-setting-step.component';
 import { APIClient } from '../../../../swagger/api-client.service';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
+import Broker from 'src/app/shared/service/broker';
 
 describe('NodeSettingStepComponent', () => {
     let component: NodeSettingStepComponent;
@@ -24,7 +25,6 @@ describe('NodeSettingStepComponent', () => {
             ],
             providers: [
                 ValidationService,
-                Messenger,
                 FormBuilder,
                 APIClient
             ],
@@ -37,6 +37,7 @@ describe('NodeSettingStepComponent', () => {
     }));
 
     beforeEach(() => {
+        Broker.messenger = new Messenger();
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(NodeSettingStepComponent);
         component = fixture.componentInstance;
@@ -48,6 +49,10 @@ describe('NodeSettingStepComponent', () => {
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    afterEach(() => {
+        fixture.destroy();
     });
 
     it('should be invalid when cluster name has leading/trailing spaces', () => {
@@ -224,7 +229,7 @@ describe('NodeSettingStepComponent', () => {
         component.formGroup.get('vpcPublicSubnet3').setValue('100.63.0.0/14');
         component.formGroup.get('vpcPrivateSubnet3').setValue('100.63.0.0/14');
 
-        component.messenger.publish({ type: TkgEventType.AWS_REGION_CHANGED});
+        Broker.messenger.publish({ type: TkgEventType.AWS_REGION_CHANGED});
         expect(component.publicSubnets).toEqual([]);
         expect(component.privateSubnets).toEqual([]);
         expect(component.filteredAzs).toEqual({
@@ -253,7 +258,7 @@ describe('NodeSettingStepComponent', () => {
         vpcSubnets.forEach(vpcSubnet => spySubnets.push(spyOn(component.formGroup.get(vpcSubnet), 'setValidators').and.callThrough()));
         const spyAzs = spyOn(component, 'clearAzs').and.callThrough();
 
-        component.messenger.publish({ type: TkgEventType.AWS_VPC_TYPE_CHANGED, payload: { vpcType: 'existing'}});
+        Broker.messenger.publish({ type: TkgEventType.AWS_VPC_TYPE_CHANGED, payload: { vpcType: 'existing'}});
 
         spySubnets.forEach(subnet => expect(subnet).toHaveBeenCalledTimes(1));
         expect(spyAzs).toHaveBeenCalled();
@@ -262,7 +267,7 @@ describe('NodeSettingStepComponent', () => {
     it('should handle aws vpc change', () => {
         const spyAzs = spyOn(component, 'clearAzs').and.callThrough();
         const spySubnets = spyOn(component, 'clearSubnets').and.callThrough();
-        component.messenger.publish({ type: TkgEventType.AWS_VPC_CHANGED});
+        Broker.messenger.publish({ type: TkgEventType.AWS_VPC_CHANGED});
         expect(spyAzs).toHaveBeenCalled();
         expect(spySubnets).toHaveBeenCalled();
     });

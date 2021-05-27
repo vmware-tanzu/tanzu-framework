@@ -5,13 +5,13 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ResourceStepComponent } from './resource-step.component';
 import { APIClient } from '../../../../swagger/api-client.service';
-import { Messenger } from '../../../../shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
+import Broker from 'src/app/shared/service/broker';
+import { Messenger } from 'src/app/shared/service/Messenger';
 
 describe('ResourceStepComponent', () => {
     let component: ResourceStepComponent;
     let fixture: ComponentFixture<ResourceStepComponent>;
-    const messenger = new Messenger();
 
     beforeEach(async(() => {
         TestBed.configureTestingModule({
@@ -23,7 +23,6 @@ describe('ResourceStepComponent', () => {
                 APIClient,
                 FormBuilder,
                 ValidationService,
-                {provide: Messenger, useValue: messenger}
             ],
             schemas: [
                 CUSTOM_ELEMENTS_SCHEMA
@@ -33,6 +32,7 @@ describe('ResourceStepComponent', () => {
     }));
 
     beforeEach(() => {
+        Broker.messenger = new Messenger();
         TestBed.inject(ValidationService);
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(ResourceStepComponent);
@@ -43,11 +43,15 @@ describe('ResourceStepComponent', () => {
         fixture.detectChanges();
     });
 
+    afterEach(() => {
+        fixture.destroy();
+    });
+
     it('should create', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should retrieve resources when load resoruce', () => {
+    it('should retrieve resources when load resoruce: case 1', () => {
         const retrieveRrcSpy = spyOn(component, 'retrieveResourcePools').and.callThrough();
         const retrieveDsSpy = spyOn(component, 'retrieveDatastores').and.callThrough();
         const retrieveVmSpy = spyOn(component, 'retrieveVMFolders').and.callThrough();
@@ -57,27 +61,27 @@ describe('ResourceStepComponent', () => {
         expect(retrieveVmSpy).toHaveBeenCalled();
     });
 
-    it('should retrieve resources when load resoruce', () => {
+    it('should retrieve resources when load resoruce: case 2', () => {
         component.resetFieldsUponDCChange();
         expect(component.formGroup.get('resourcePool').value).toBeFalsy();
         expect(component.formGroup.get('datastore').value).toBeFalsy();
         expect(component.formGroup.get('vmFolder').value).toBeFalsy();
     });
 
-    it('should retrieve resources when load resoruce', () => {
-        const msgSpy = spyOn(messenger, 'publish').and.callThrough();
+    it('should retrieve resources when load resoruce: case 3', () => {
+        const msgSpy = spyOn(Broker.messenger, 'publish').and.callThrough();
         component.retrieveResourcePools();
         expect(msgSpy).toHaveBeenCalled();
     });
 
-    it('should retrieve ds when load resoruce', () => {
-        const msgSpy = spyOn(messenger, 'publish').and.callThrough();
+    it('should retrieve ds when load resoruce', async () => {
+        const msgSpy = spyOn(Broker.messenger, 'publish').and.callThrough();
         component.retrieveDatastores();
         expect(msgSpy).toHaveBeenCalled();
     });
 
-    it('should retrieve vm folders when load resoruce', () => {
-        const msgSpy = spyOn(messenger, 'publish').and.callThrough();
+    it('should retrieve vm folders when load resoruce', async () => {
+        const msgSpy = spyOn(Broker.messenger, 'publish').and.callThrough();
         component.retrieveVMFolders();
         expect(msgSpy).toHaveBeenCalled();
     });

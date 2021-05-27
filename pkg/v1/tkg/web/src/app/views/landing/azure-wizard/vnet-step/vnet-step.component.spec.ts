@@ -7,6 +7,8 @@ import { SharedModule } from '../../../../shared/shared.module';
 import { VnetStepComponent } from './vnet-step.component';
 import { APIClient } from '../../../../swagger/api-client.service';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
+import Broker from 'src/app/shared/service/broker';
+import { Messenger } from 'src/app/shared/service/Messenger';
 
 describe('VnetStepComponent', () => {
     let component: VnetStepComponent;
@@ -32,6 +34,8 @@ describe('VnetStepComponent', () => {
     }));
 
     beforeEach(() => {
+        Broker.messenger = new Messenger();
+
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(VnetStepComponent);
         component = fixture.componentInstance;

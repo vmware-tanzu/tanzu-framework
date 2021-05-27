@@ -8,10 +8,11 @@ import { debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs/op
 
 import { APIClient } from '../../../../swagger/api-client.service';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-import { Messenger, TkgEventType } from '../../../../shared/service/Messenger';
+import { TkgEventType } from '../../../../shared/service/Messenger';
 import { AzureResourceGroup } from './../../../../swagger/models/azure-resource-group.model';
 import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
+import Broker from 'src/app/shared/service/broker';
 
 export const AzureAccountParamsKeys = ["tenantId", "clientId", "clientSecret", "subscriptionId"];
 const extraFields = ["region", "sshPublicKey", "resourceGroupOption", "resourceGroupExisting"];
@@ -48,7 +49,6 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     constructor(
         private apiClient: APIClient,
         private wizardFormService: AzureWizardFormService,
-        private messenger: Messenger,
         private validationService: ValidationService) {
         super();
     }
@@ -275,7 +275,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
      * Event handler when 'region' selection has changed
      */
     onRegionChange(val) {
-        this.messenger.publish({
+        Broker.messenger.publish({
             type: TkgEventType.AZURE_REGION_CHANGED,
             payload: val
         });
@@ -285,7 +285,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
      * Update the "create" button if name has been changed.
      */
     onResourceGroupNameChange() {
-        this.messenger.publish({
+        Broker.messenger.publish({
             type: TkgEventType.AZURE_RESOURCEGROUP_CHANGED,
             payload: this.formGroup.get('resourceGroupCustom').value
         });

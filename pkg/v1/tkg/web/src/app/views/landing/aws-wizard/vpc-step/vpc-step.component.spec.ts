@@ -6,6 +6,9 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { APIClient } from 'src/app/swagger';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { AwsWizardFormService } from 'src/app/shared/service/aws-wizard-form.service';
+import Broker from 'src/app/shared/service/broker';
+import { Messenger } from 'src/app/shared/service/Messenger';
 
 describe('VpcComponent', () => {
     let component: VpcStepComponent;
@@ -19,9 +22,10 @@ describe('VpcComponent', () => {
                 SharedModule
             ],
             providers: [
+                APIClient,
                 ValidationService,
                 FormBuilder,
-                APIClient
+                AwsWizardFormService,
             ],
             schemas: [
                 CUSTOM_ELEMENTS_SCHEMA
@@ -31,6 +35,7 @@ describe('VpcComponent', () => {
     }));
 
     beforeEach(() => {
+        Broker.messenger = new Messenger();
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(VpcStepComponent);
         component = fixture.componentInstance;
@@ -39,7 +44,11 @@ describe('VpcComponent', () => {
         fixture.detectChanges();
     });
 
-    it('should create', () => {
+    afterEach(() => {
+        fixture.destroy();
+    });
+
+    it('should create', async () => {
         expect(component).toBeTruthy();
     });
 

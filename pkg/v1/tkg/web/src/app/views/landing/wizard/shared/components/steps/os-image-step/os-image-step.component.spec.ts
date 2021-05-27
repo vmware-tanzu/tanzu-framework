@@ -6,15 +6,15 @@ import { FormBuilder } from '@angular/forms';
 import { SharedOsImageStepComponent } from './os-image-step.component';
 
 import { SharedModule } from 'src/app/shared/shared.module';
-import { Messenger } from 'src/app/shared/service/Messenger';
 import { ValidationService } from '../../../validation/validation.service';
 import { APIClient } from 'src/app/swagger/api-client.service';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
+import Broker from 'src/app/shared/service/broker';
+import { Messenger } from 'src/app/shared/service/Messenger';
 
 describe('OsImageStepComponent', () => {
     let component: SharedOsImageStepComponent;
     let fixture: ComponentFixture<SharedOsImageStepComponent>;
-    const messenger = new Messenger();
 
     beforeEach(async(() => {
         TestBed.configureTestingModule({
@@ -28,7 +28,6 @@ describe('OsImageStepComponent', () => {
                 VSphereWizardFormService,
                 FormBuilder,
                 APIClient,
-                {provide: Messenger, useValue: messenger}
             ],
             schemas: [
                 CUSTOM_ELEMENTS_SCHEMA
@@ -38,6 +37,7 @@ describe('OsImageStepComponent', () => {
     }));
 
     beforeEach(() => {
+        Broker.messenger = new Messenger();
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(SharedOsImageStepComponent);
         component = fixture.componentInstance;
@@ -60,7 +60,7 @@ describe('OsImageStepComponent', () => {
 
     it('should retrive os image when function invoked', () => {
         const resetDcSpy = spyOn(component, 'resetFieldsUponDCChange').and.callThrough();
-        const msgSpy = spyOn(messenger, 'publish').and.callThrough();
+        const msgSpy = spyOn(Broker.messenger, 'publish').and.callThrough();
         component.retrieveOsImages();
         expect(resetDcSpy).toHaveBeenCalled();
         expect(msgSpy).toHaveBeenCalled();

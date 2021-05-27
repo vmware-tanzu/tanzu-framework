@@ -3,9 +3,10 @@ import { Injectable } from '@angular/core';
 import { finalize } from 'rxjs/operators'
 
 // Application imports
-import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
+import { TkgEventType } from 'src/app/shared/service/Messenger';
 import { APIClient } from 'src/app/swagger';
 import { brandingDefault, brandingTce } from '../constants/branding.constants';
+import Broker from './broker';
 
 export interface BrandingObj {
     logoClass: string;
@@ -27,8 +28,7 @@ export interface EditionData {
 })
 export class BrandingService {
 
-    constructor(private apiClient: APIClient,
-                private messenger: Messenger) {
+    constructor(private apiClient: APIClient) {
     }
 
     /**
@@ -61,7 +61,7 @@ export class BrandingService {
             brandingPayload = brandingTce;
         }
 
-        this.messenger.publish({
+        Broker.messenger.publish({
             type: TkgEventType.BRANDING_CHANGED,
             payload: brandingPayload
         });

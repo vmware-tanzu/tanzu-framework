@@ -13,13 +13,14 @@ import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
 import { APIClient } from '../../../swagger/api-client.service';
 import { PROVIDERS, Providers } from '../../../shared/constants/app.constants';
 import { AppDataService } from '../../../shared/service/app-data.service';
-import { Messenger, TkgEvent, TkgEventType } from '../../../shared/service/Messenger';
+import { TkgEvent, TkgEventType } from '../../../shared/service/Messenger';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
 import { VsphereRegionalClusterParams } from 'src/app/swagger/models/vsphere-regional-cluster-params.model';
 import { takeUntil } from "rxjs/operators";
+import Broker from 'src/app/shared/service/broker';
 
 @Component({
     selector: 'app-wizard',
@@ -41,7 +42,6 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
     constructor(
         private apiClient: APIClient,
         router: Router,
-        messenger: Messenger,
         public wizardFormService: VSphereWizardFormService,
         private appDataService: AppDataService,
         private formBuilder: FormBuilder,
@@ -49,7 +49,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         private titleService: Title,
         el: ElementRef) {
 
-        super(router, messenger, el, formMetaDataService);
+        super(router, el, formMetaDataService);
 
         this.form = this.formBuilder.group({
             vsphereProviderForm: this.formBuilder.group({
@@ -81,7 +81,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
 
     ngOnInit() {
         super.ngOnInit();
-        this.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+        Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
                 const title = (data.payload.edition === 'tce') ? 'Tanzu Community Edition vSphere' : 'Tanzu Kubernetes Grid vSphere';

@@ -8,6 +8,8 @@ import { SharedModule } from '../../../../../../../shared/shared.module';
 import { ValidationService } from '../../../validation/validation.service';
 import { APIClient } from '../../../../../../../swagger/api-client.service';
 import { SharedLoadBalancerStepComponent } from './load-balancer-step.component';
+import Broker from 'src/app/shared/service/broker';
+import { Messenger } from 'src/app/shared/service/Messenger';
 
 describe('SharedLoadBalancerStepComponent', () => {
     let component: SharedLoadBalancerStepComponent;
@@ -34,6 +36,8 @@ describe('SharedLoadBalancerStepComponent', () => {
     }));
 
     beforeEach(() => {
+        Broker.messenger = new Messenger();
+
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(SharedLoadBalancerStepComponent);
         component = fixture.componentInstance;

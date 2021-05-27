@@ -6,9 +6,10 @@ import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-
 // App imports
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
 import { FormMetaDataStore, FormMetaData, StepMetaData } from './../wizard/shared/FormMetaDataStore';
-import { Messenger, TkgEvent, TkgEventType } from "../../../shared/service/Messenger";
+import { TkgEvent, TkgEventType } from "../../../shared/service/Messenger";
 import { takeUntil } from "rxjs/operators";
 import { BasicSubscriber } from "../../../shared/abstracts/basic-subscriber";
+import Broker from 'src/app/shared/service/broker';
 
 @Component({
     selector: 'tkg-kickstart-ui-confirm',
@@ -27,7 +28,6 @@ export class ConfirmComponent extends BasicSubscriber implements OnInit {
     formMetaDataList: any[];
 
     constructor(
-        private messenger: Messenger,
         private wizardFormService: VSphereWizardFormService,
         private router: Router) {
 
@@ -35,7 +35,7 @@ export class ConfirmComponent extends BasicSubscriber implements OnInit {
     }
 
     ngOnInit() {
-        this.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+        Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
                 this.pageTitle = (data.payload.edition === 'tce') ? 'Tanzu Community Edition' : 'Tanzu Kubernetes Grid';

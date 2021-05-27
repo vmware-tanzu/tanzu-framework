@@ -15,6 +15,7 @@ import { ClrLoadingState } from "@clr/angular";
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
 import { AviVipNetwork } from './../../../../../../../swagger/models/avi-vip-network.model';
 import { TkgEventType } from 'src/app/shared/service/Messenger';
+import Broker from 'src/app/shared/service/broker';
 
 export const KUBE_VIP = 'Kube-vip';
 export const NSX_ADVANCED_LOAD_BALANCER = "NSX Advanced Load Balancer";
@@ -148,7 +149,7 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
         this.registerOnValueChange("networkCIDR", this.onSelectVipCIDR.bind(this));
         this.registerOnValueChange("managementClusterNetworkName", this.onSelectManagementNetwork.bind(this));
 
-        this.wizardFormService.messenger.getSubject(TkgEventType.CONTROL_PLANE_ENDPOINT_PROVIDER_CHANGED)
+        Broker.messenger.getSubject(TkgEventType.CONTROL_PLANE_ENDPOINT_PROVIDER_CHANGED)
             .subscribe(({ payload }) => {
                 this.currentControlPlaneEndpoingProvider = payload;
                 if (this.currentControlPlaneEndpoingProvider === NSX_ADVANCED_LOAD_BALANCER) {

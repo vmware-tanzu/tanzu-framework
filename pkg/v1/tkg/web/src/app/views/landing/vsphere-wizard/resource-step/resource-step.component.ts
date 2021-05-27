@@ -15,10 +15,11 @@ import { combineLatest } from 'rxjs';
  */
 import { VSphereDatastore } from '../../../../swagger/models/v-sphere-datastore.model';
 import { VSphereFolder } from '../../../../swagger/models/v-sphere-folder.model';
-import { Messenger, TkgEventType } from '../../../../shared/service/Messenger';
+import { TkgEventType } from '../../../../shared/service/Messenger';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
+import Broker from 'src/app/shared/service/broker';
 
 declare var sortPaths: any;
 
@@ -67,7 +68,6 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
 
     constructor(
         private wizardFormService: VSphereWizardFormService,
-        private messenger: Messenger,
         private validationService: ValidationService) {
         super();
     }
@@ -128,7 +128,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
         /**
          * Whenever data center selection changes, reset the relevant fields
         */
-        this.messenger.getSubject(TkgEventType.DATACENTER_CHANGED)
+        Broker.messenger.getSubject(TkgEventType.DATACENTER_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                 this.resetFieldsUponDCChange();
@@ -171,7 +171,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
      * helper method to refresh list of resource pools
      */
     retrieveResourcePools() {
-        this.messenger.publish({
+        Broker.messenger.publish({
             type: TkgEventType.GET_RESOURCE_POOLS
         });
     }
@@ -181,7 +181,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
      * helper method to refresh list of compute resources
      */
     retrieveComputeResources() {
-        this.messenger.publish({
+        Broker.messenger.publish({
             type: TkgEventType.GET_COMPUTE_RESOURCE
         });
     }
@@ -191,7 +191,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
      * helper method to refresh list of datastores
      */
     retrieveDatastores() {
-        this.messenger.publish({
+        Broker.messenger.publish({
             type: TkgEventType.GET_DATA_STORES
         });
     }
@@ -201,7 +201,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
      * helper method to refresh list of vm folders
      */
     retrieveVMFolders() {
-        this.messenger.publish({
+        Broker.messenger.publish({
             type: TkgEventType.GET_VM_FOLDERS
         });
     }

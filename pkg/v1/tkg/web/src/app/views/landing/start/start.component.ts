@@ -10,10 +10,11 @@ import { takeUntil } from 'rxjs/operators';
 // App imports
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
 import { PROVIDERS, Providers } from '../../../shared/constants/app.constants';
-import { Messenger, TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
+import { TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
 import { AppDataService } from '../../../shared/service/app-data.service';
 import { BrandingObj, EditionData } from '../../../shared/service/branding.service';
 import { BasicSubscriber } from 'src/app/shared/abstracts/basic-subscriber';
+import Broker from 'src/app/shared/service/broker';
 
 @Component({
     selector: 'tkg-kickstart-ui-start',
@@ -31,8 +32,7 @@ export class StartComponent extends BasicSubscriber implements OnInit {
 
     constructor(private router: Router,
                 private appDataService: AppDataService,
-                private titleService: Title,
-                private messenger: Messenger) {
+                private titleService: Title) {
         super();
         this.provider = this.appDataService.getProviderType();
     }
@@ -41,7 +41,7 @@ export class StartComponent extends BasicSubscriber implements OnInit {
         /**
          * Whenever branding data changes, load content in landing page
          */
-        this.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+        Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
                 const content: EditionData = data.payload;

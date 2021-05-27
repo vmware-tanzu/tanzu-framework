@@ -1,5 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import Broker from 'src/app/shared/service/broker';
+import { Messenger } from 'src/app/shared/service/Messenger';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { APIClient } from 'src/app/swagger/api-client.service';
 import { ValidationService } from '../../../validation/validation.service';
@@ -27,6 +29,7 @@ describe('networkStepComponent', () => {
         }).compileComponents();
     }));
     beforeEach(() => {
+        Broker.messenger = new Messenger();
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(SharedNetworkStepComponent);
         component = fixture.componentInstance;

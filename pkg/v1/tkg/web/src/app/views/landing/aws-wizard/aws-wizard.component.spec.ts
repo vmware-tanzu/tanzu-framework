@@ -7,6 +7,8 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { APIClient } from '../../../swagger/api-client.service';
 import { AwsWizardComponent } from './aws-wizard.component';
 import { SharedModule } from '../../../shared/shared.module';
+import Broker from 'src/app/shared/service/broker';
+import { Messenger } from 'src/app/shared/service/Messenger';
 
 describe('AwsWizardComponent', () => {
     let component: AwsWizardComponent;
@@ -34,6 +36,7 @@ describe('AwsWizardComponent', () => {
     }));
 
     beforeEach(() => {
+        Broker.messenger = new Messenger();
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(AwsWizardComponent);
         component = fixture.componentInstance;
@@ -84,6 +87,10 @@ describe('AwsWizardComponent', () => {
             })
         });
         fixture.detectChanges();
+    });
+
+    afterEach(() => {
+        fixture.destroy();
     });
 
     it('should create', () => {

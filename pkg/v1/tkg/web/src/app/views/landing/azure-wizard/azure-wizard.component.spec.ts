@@ -7,6 +7,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { APIClient } from 'src/app/swagger';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
+import Broker from 'src/app/shared/service/broker';
+import { Messenger } from 'src/app/shared/service/Messenger';
 
 describe('AzureWizardComponent', () => {
     let component: AzureWizardComponent;
@@ -23,7 +26,8 @@ describe('AzureWizardComponent', () => {
             ],
             providers: [
                 APIClient,
-                FormBuilder
+                FormBuilder,
+                AzureWizardFormService
             ],
             schemas: [
                 CUSTOM_ELEMENTS_SCHEMA
@@ -35,6 +39,7 @@ describe('AzureWizardComponent', () => {
     }));
 
     beforeEach(() => {
+        Broker.messenger = new Messenger();
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(AzureWizardComponent);
         component = fixture.componentInstance;
@@ -74,11 +79,11 @@ describe('AzureWizardComponent', () => {
         fixture.detectChanges();
     });
 
-    it('should create', () => {
-        expect(component).toBeTruthy();
-    });
-
     describe('step description', () => {
+        it('should create', () => {
+            expect(component).toBeTruthy();
+        });
+
         it('azure provider form', () => {
             const formName = 'azureProviderForm';
             expect(component.getStepDescription(formName))

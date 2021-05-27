@@ -12,6 +12,8 @@ import { APIClient } from 'src/app/swagger/api-client.service';
 import { SSLThumbprintModalComponent } from '../../wizard/shared/components/modals/ssl-thumbprint-modal/ssl-thumbprint-modal.component';
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
+import Broker from 'src/app/shared/service/broker';
+import { Messenger } from 'src/app/shared/service/Messenger';
 
 describe('VSphereProviderStepComponent', () => {
     let component: VSphereProviderStepComponent;
@@ -44,6 +46,8 @@ describe('VSphereProviderStepComponent', () => {
     }));
 
     beforeEach(() => {
+        Broker.messenger = new Messenger();
+
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(VSphereProviderStepComponent);
         component = fixture.componentInstance;

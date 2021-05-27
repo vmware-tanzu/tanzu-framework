@@ -13,7 +13,8 @@ import { catchError } from 'rxjs/operators';
 
 import { APIClient } from '../../../../swagger/api-client.service';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-import { Messenger, TkgEventType } from '../../../../shared/service/Messenger';
+import { TkgEventType } from '../../../../shared/service/Messenger';
+import Broker from 'src/app/shared/service/broker';
 
 export const AWSAccountParamsKeys = ['profileName', 'sessionToken', 'region', 'accessKeyID', 'secretAccessKey'];
 
@@ -32,7 +33,7 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
     validCredentials: boolean = false;
     isProfileChoosen: boolean = false;
 
-    constructor(private apiClient: APIClient, private messenger: Messenger) {
+    constructor(private apiClient: APIClient) {
         super();
     }
 
@@ -65,15 +66,15 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
 
         // call to get existing VPCs of region
         if (valid === true) {
-            this.messenger.publish({
+            Broker.messenger.publish({
                 type: TkgEventType.AWS_GET_EXISTING_VPCS
             });
 
-            this.messenger.publish({
+            Broker.messenger.publish({
                 type: TkgEventType.AWS_GET_AVAILABILITY_ZONES
             });
 
-            this.messenger.publish({
+            Broker.messenger.publish({
                 type: TkgEventType.AWS_GET_NODE_TYPES
             });
         }
@@ -203,12 +204,12 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
                     this.errorNotification = '';
 
                     // Notify the universe that region has changed.
-                    this.messenger.publish({
+                    Broker.messenger.publish({
                         type: TkgEventType.AWS_REGION_CHANGED,
                         payload: this.formGroup.get('region').value
                     });
 
-                    this.messenger.publish({
+                    Broker.messenger.publish({
                         type: TkgEventType.AWS_GET_OS_IMAGES,
                         payload: {
                             region: this.formGroup.get('region').value

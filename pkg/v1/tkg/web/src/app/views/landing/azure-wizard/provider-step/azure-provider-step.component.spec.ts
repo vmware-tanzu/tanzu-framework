@@ -11,13 +11,13 @@ import { ValidationService } from '../../wizard/shared/validation/validation.ser
 import { of, throwError, Observable } from 'rxjs';
 import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
+import Broker from 'src/app/shared/service/broker';
 
 describe('AzureProviderStepComponent', () => {
     let component: AzureProviderStepComponent;
     let fixture: ComponentFixture<AzureProviderStepComponent>;
     let apiService: APIClient;
     let wizardFormService: AzureWizardFormService;
-    let messenger: Messenger;
 
     beforeEach(async(() => {
         TestBed.configureTestingModule({
@@ -41,8 +41,7 @@ describe('AzureProviderStepComponent', () => {
     }));
 
     beforeEach(() => {
-        messenger = TestBed.inject(Messenger);
-
+        Broker.messenger = new Messenger();
         wizardFormService = TestBed.inject(AzureWizardFormService);
         apiService = TestBed.inject(APIClient);
 
@@ -139,7 +138,7 @@ describe('AzureProviderStepComponent', () => {
     });
 
     it('should handle resource group name change', () => {
-        const messengerSpy = spyOn(messenger, 'publish').and.callThrough();
+        const messengerSpy = spyOn(Broker.messenger, 'publish').and.callThrough();
         component.onResourceGroupNameChange();
         expect(messengerSpy).toHaveBeenCalled();
         expect(messengerSpy).toHaveBeenCalledWith({

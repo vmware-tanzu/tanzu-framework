@@ -12,13 +12,13 @@ import { takeUntil } from 'rxjs/operators';
  * App imports
  */
 
-// import { Messenger, TkgEventType } from '../../../../../../../../service/Messenger';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
-import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
+import { TkgEventType } from 'src/app/shared/service/Messenger';
 import { VSphereVirtualMachine } from 'src/app/swagger/models/v-sphere-virtual-machine.model';
 import { AwsWizardFormService } from 'src/app/shared/service/aws-wizard-form.service';
 import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
+import Broker from 'src/app/shared/service/broker';
 
 @Component({
     selector: 'app-os-image-step',
@@ -37,7 +37,7 @@ export class SharedOsImageStepComponent extends StepFormDirective implements OnI
     loadingOsTemplate: boolean = false;
     nonTemplateAlert: boolean = false;
 
-    constructor(private messenger: Messenger) {
+    constructor() {
         super();
     }
 
@@ -66,7 +66,7 @@ export class SharedOsImageStepComponent extends StepFormDirective implements OnI
         /**
          * Whenever data center selection changes, reset the relevant fields
          */
-        this.messenger.getSubject(TkgEventType.DATACENTER_CHANGED)
+        Broker.messenger.getSubject(TkgEventType.DATACENTER_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                 this.resetFieldsUponDCChange();
@@ -90,7 +90,7 @@ export class SharedOsImageStepComponent extends StepFormDirective implements OnI
         this.loadingOsTemplate = true;
         this.nonTemplateAlert = false;
         this.resetFieldsUponDCChange();
-        this.messenger.publish({
+        Broker.messenger.publish({
             type: TkgEventType[`${this.type}_GET_OS_IMAGES`]
         });
     }

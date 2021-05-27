@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { takeUntil, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
-import { Messenger, TkgEventType } from '../../../../shared/service/Messenger';
+import { TkgEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from './../../wizard/shared/validation/validation.service';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { Vpc } from '../../../../swagger/models/vpc.model';
 import { AwsWizardFormService } from '../../../../shared/service/aws-wizard-form.service';
+import Broker from 'src/app/shared/service/broker';
 
 @Component({
     selector: 'app-vpc-step',
@@ -22,7 +23,6 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
     defaultVpcAddress: string = '10.0.0.0/16';
 
     constructor(private validationService: ValidationService,
-        private messenger: Messenger,
         private awsWizardFormService: AwsWizardFormService) {
         super();
     }
@@ -64,7 +64,7 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
                 takeUntil(this.unsubscribe)
             ).subscribe((val) => {
                 if (val === 'existing') {
-                    this.messenger.publish({
+                    Broker.messenger.publish({
                         type: TkgEventType.AWS_VPC_TYPE_CHANGED,
                         payload: { vpcType: 'existing' }
                     });
@@ -83,7 +83,7 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
                     this.clearFieldSavedData('existingVpcCidr');
                     this.clearFieldSavedData('existingVpcId');
                     this.setNewVpcValidators();
-                    this.messenger.publish({
+                    Broker.messenger.publish({
                         type: TkgEventType.AWS_VPC_TYPE_CHANGED,
                         payload: { vpcType: 'new' }
                     });
@@ -98,7 +98,7 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
                 distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
                 takeUntil(this.unsubscribe)
             ).subscribe((cidr) => {
-                this.messenger.publish({
+                Broker.messenger.publish({
                     type: TkgEventType.AWS_GET_NO_PROXY_INFO,
                     payload: { info: (cidr ? cidr + ',' : '') + '169.254.0.0/16' }
                 });
@@ -108,7 +108,7 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
         /**
          * Whenever aws region selection changes, update AZ subregion
          */
-        this.messenger.getSubject(TkgEventType.AWS_REGION_CHANGED)
+        Broker.messenger.getSubject(TkgEventType.AWS_REGION_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                 if (this.formGroup.get('existingVpcId')) {
@@ -132,7 +132,7 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
             });
 
         // init vpc type to new
-        this.messenger.publish({
+        Broker.messenger.publish({
             type: TkgEventType.AWS_VPC_TYPE_CHANGED,
             payload: { vpcType: 'new' }
         });
@@ -141,7 +141,7 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
     }
 
     onNonInternetFacingVPCChange(checked: boolean) {
-        this.messenger.publish({
+        Broker.messenger.publish({
             type: TkgEventType.AWS_AIRGAPPED_VPC_CHANGE,
             payload: checked === true
         });
@@ -191,12 +191,12 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
         });
         this.formGroup.get('existingVpcCidr').setValue(existingVpc[0].cidr);
 
-        this.messenger.publish({
+        Broker.messenger.publish({
             type: TkgEventType.AWS_GET_SUBNETS,
             payload: { vpcId: existingVpcId }
         });
 
-        this.messenger.publish(({
+        Broker.messenger.publish(({
             type: TkgEventType.AWS_VPC_CHANGED
         }));
     }

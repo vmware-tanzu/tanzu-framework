@@ -3,7 +3,8 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 
 import { APIClient } from '../../swagger/api-client.service';
-import { Messenger, TkgEventType } from './Messenger';
+import Broker from './broker';
+import { TkgEventType } from './Messenger';
 import { WizardFormBase } from './wizard-form-base';
 
 const DataSources = [
@@ -47,18 +48,18 @@ export class VSphereWizardFormService extends WizardFormBase {
 
     private vSphereDatacenterMoid = new BehaviorSubject<string | null>(null);
 
-    constructor(private apiClient: APIClient, messenger: Messenger) {
-        super(DataSources, ErrorSpec, messenger);
+    constructor(private apiClient: APIClient) {
+        super(DataSources, ErrorSpec);
         this.vSphereDatacenterMoid.subscribe((moid) => {
             this.datacenterMoid = moid;
         });
 
         // Messenger handlers
-        this.messenger.getSubject(TkgEventType.DATACENTER_CHANGED)
+        Broker.messenger.getSubject(TkgEventType.DATACENTER_CHANGED)
             .subscribe(event => {
                 this.datacenterMoid = event.payload;
                 DataSources.forEach(source => {
-                    this.messenger.publish({
+                    Broker.messenger.publish({
                         type: source
                     });
                 });

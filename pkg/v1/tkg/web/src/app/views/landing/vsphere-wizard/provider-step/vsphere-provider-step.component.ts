@@ -17,9 +17,10 @@ import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { VSphereDatacenter } from 'src/app/swagger/models/v-sphere-datacenter.model';
 import { ValidatorEnum } from '../../wizard/shared/constants/validation.constants';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
+import { TkgEventType } from 'src/app/shared/service/Messenger';
 import { SSLThumbprintModalComponent } from '../../wizard/shared/components/modals/ssl-thumbprint-modal/ssl-thumbprint-modal.component';
 import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
+import Broker from 'src/app/shared/service/broker';
 
 declare var sortPaths: any;
 
@@ -59,8 +60,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
 
     constructor(private validationService: ValidationService,
         private apiClient: APIClient,
-        private router: Router,
-        private messenger: Messenger) {
+        private router: Router) {
         super();
     }
 
@@ -259,7 +259,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 }
                 this.retrieveDatacenters();
 
-                this.messenger.publish({
+                Broker.messenger.publish({
                     type: TkgEventType.VC_AUTHENTICATED,
                     payload: this.formGroup.controls['vcenterAddress'].value
                 });
@@ -317,7 +317,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
     dcOnChange(datacenter: string) {
         const dcMoid = this.datacenters.find(dc => dc.name === datacenter)
             && this.datacenters.find(dc => dc.name === datacenter).moid || "";
-        this.messenger.publish({
+        Broker.messenger.publish({
             type: TkgEventType.DATACENTER_CHANGED,
             payload: dcMoid
         });

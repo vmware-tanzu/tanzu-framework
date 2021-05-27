@@ -3,7 +3,6 @@ import { FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
-import { Messenger } from 'src/app/shared/service/Messenger';
 import { APIClient } from 'src/app/swagger';
 import { ConfigFileInfo, DockerRegionalClusterParams } from 'src/app/swagger/models';
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
@@ -18,13 +17,12 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
 
     constructor(
         router: Router,
-        messenger: Messenger,
         el: ElementRef,
         formMetaDataService: FormMetaDataService,
         private formBuilder: FormBuilder,
         private apiClient: APIClient
     ) {
-        super(router, messenger, el, formMetaDataService);
+        super(router, el, formMetaDataService);
         this.buildForm();
     }
 

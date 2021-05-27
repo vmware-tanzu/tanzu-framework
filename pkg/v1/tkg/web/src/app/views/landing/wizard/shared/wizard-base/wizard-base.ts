@@ -10,10 +10,11 @@ import { APP_ROUTES, Routes } from 'src/app/shared/constants/routes.constants';
 import { Providers, PROVIDERS } from 'src/app/shared/constants/app.constants';
 import { FormMetaDataStore } from '../FormMetaDataStore';
 import { debounceTime, takeUntil } from 'rxjs/operators';
-import { Messenger, TkgEventType } from './../../../../../shared/service/Messenger';
+import { TkgEventType } from './../../../../../shared/service/Messenger';
 import { ClrStepper } from '@clr/angular';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { ConfigFileInfo } from '../../../../../swagger/models/config-file-info.model';
+import Broker from 'src/app/shared/service/broker';
 
 @Directive()
 export abstract class WizardBaseDirective extends BasicSubscriber implements AfterViewInit, OnInit {
@@ -36,7 +37,6 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
 
     constructor(
         protected router: Router,
-        protected messenger: Messenger,
         protected el: ElementRef,
         protected formMetaDataService: FormMetaDataService
     ) {
@@ -243,7 +243,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
      */
     updateCli(configPath: string) {
         const cli = this.getCli(configPath);
-        this.messenger.publish({
+        Broker.messenger.publish({
             type: TkgEventType.CLI_CHANGED,
             payload: cli
         });

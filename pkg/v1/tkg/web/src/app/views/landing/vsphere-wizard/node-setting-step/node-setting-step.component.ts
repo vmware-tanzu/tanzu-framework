@@ -7,7 +7,6 @@ import {
     Validators,
     FormControl
 } from '@angular/forms';
-import { takeUntil } from 'rxjs/operators';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
 
 /**
@@ -18,6 +17,7 @@ import { NodeType, vSphereNodeTypes } from '../../wizard/shared/constants/wizard
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER } from '../../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
+import Broker from 'src/app/shared/service/broker';
 
 @Component({
     selector: 'app-node-setting-step',
@@ -152,7 +152,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     onControlPlaneEndpoingProviderChange(provider: string): void {
         this.currentControlPlaneEndpoingProvider = provider;
-        this.wizardFormService.messenger.publish({
+        Broker.messenger.publish({
             type: TkgEventType.CONTROL_PLANE_ENDPOINT_PROVIDER_CHANGED,
             payload: provider
         });

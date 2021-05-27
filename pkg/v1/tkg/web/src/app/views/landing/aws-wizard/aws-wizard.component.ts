@@ -1,4 +1,4 @@
-import { Messenger, TkgEvent, TkgEventType } from './../../../shared/service/Messenger';
+import { TkgEvent, TkgEventType } from './../../../shared/service/Messenger';
 import { Observable } from 'rxjs';
 // Angular imports
 import { Component, OnInit, ElementRef } from '@angular/core';
@@ -15,6 +15,7 @@ import { CliGenerator, CliFields } from '../wizard/shared/utils/cli-generator';
 import { BASTION_HOST_ENABLED } from './node-setting-step/node-setting-step.component';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { takeUntil } from "rxjs/operators";
+import Broker from 'src/app/shared/service/broker';
 
 @Component({
     selector: 'aws-wizard',
@@ -30,7 +31,6 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
 
     constructor(
         router: Router,
-        messenger: Messenger,
         public wizardFormService: AwsWizardFormService,
         private formBuilder: FormBuilder,
         private apiClient: APIClient,
@@ -38,7 +38,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         private titleService: Title,
         el: ElementRef) {
 
-        super(router, messenger, el, formMetaDataService);
+        super(router, el, formMetaDataService);
 
         this.form = this.formBuilder.group({
             awsProviderForm: this.formBuilder.group({
@@ -64,7 +64,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
 
     ngOnInit() {
         super.ngOnInit();
-        this.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+        Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
                 this.title = (data.payload.edition === 'tce') ? 'Tanzu Community Edition' : 'Tanzu Kubernetes Grid';
