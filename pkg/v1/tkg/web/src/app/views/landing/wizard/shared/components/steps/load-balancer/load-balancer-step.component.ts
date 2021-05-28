@@ -321,17 +321,13 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
      */
     onSelectVipNetwork(networkName: string): void {
         this.selectedNetworkName = networkName;
-        if (this.currentControlPlaneEndpoingProvider === NSX_ADVANCED_LOAD_BALANCER) {
-            if (!this.formGroup.get("managementClusterNetworkName").value) { }
-            this.formGroup.get("managementClusterNetworkName").setValue(networkName)
-        };
+        if (!this.formGroup.get("managementClusterNetworkName").value) { }
+        this.formGroup.get("managementClusterNetworkName").setValue(networkName)
     }
 
     onSelectVipCIDR(cidr: string): void {
-        if (this.currentControlPlaneEndpoingProvider === NSX_ADVANCED_LOAD_BALANCER) {
-            if (!this.formGroup.get("managementClusterNetworkCIDR").value) {
+        if (!this.formGroup.get("managementClusterNetworkCIDR").value) {
                 this.formGroup.get("managementClusterNetworkCIDR").setValue(cidr);
-            }
         }
     }
 

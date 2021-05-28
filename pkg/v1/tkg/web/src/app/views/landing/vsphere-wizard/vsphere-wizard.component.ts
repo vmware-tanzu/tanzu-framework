@@ -198,12 +198,16 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         const endpointProvider = this.getFieldValue("vsphereNodeSettingForm", "controlPlaneEndpointProvider");
         if (endpointProvider === KUBE_VIP) {
             payload.aviConfig['controlPlaneHaProvider'] = false;
-            payload.aviConfig['managementClusterVipNetworkName'] = "";
-            payload.aviConfig['managementClusterVipNetworkCidr'] = "";
         } else {
             payload.aviConfig['controlPlaneHaProvider'] = true;
-            payload.aviConfig['managementClusterVipNetworkName'] = this.getFieldValue("loadBalancerForm", "managementClusterNetworkName");
-            payload.aviConfig['managementClusterVipNetworkCidr'] = this.getFieldValue("loadBalancerForm", "managementClusterNetworkCIDR");
+        }
+        payload.aviConfig['managementClusterVipNetworkName'] = this.getFieldValue("loadBalancerForm", "managementClusterNetworkName");
+        if (!payload.aviConfig['managementClusterVipNetworkName']) {
+            payload.aviConfig['managementClusterVipNetworkName'] = this.getFieldValue('loadBalancerForm', 'networkName');
+        }
+        payload.aviConfig['managementClusterVipNetworkCidr'] = this.getFieldValue("loadBalancerForm", "managementClusterNetworkCIDR");
+        if(!payload.aviConfig['managementClusterVipNetworkCidr']) {
+            payload.aviConfig['managementClusterVipNetworkCidr'] = this.getFieldValue('loadBalancerForm', 'networkCIDR')
         }
 
         return payload;
