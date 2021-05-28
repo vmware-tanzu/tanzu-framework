@@ -97,3 +97,12 @@ func GetRegistryCertFile() (string, error) {
 	}
 	return path.Join(home, constants.TKGRegistryCertFile), nil
 }
+
+// GetRegistryTrustedCACertFileForWindows returns the registry trusted root ca cert filepath for windows
+func GetRegistryTrustedCACertFileForWindows() (string, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", errors.Wrap(err, "could not locate user home dir")
+	}
+	return path.Join(home, constants.TKGRegistryTrustedRootCAFileForWindows), nil
+}
