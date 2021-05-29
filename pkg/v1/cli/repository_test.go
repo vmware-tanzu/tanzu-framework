@@ -13,8 +13,22 @@ import (
 )
 
 func TestGCPRepository(t *testing.T) {
+	modes := []configv1alpha1.VersionSelectorLevel{
+		configv1alpha1.AllUnstableVersions,
+		configv1alpha1.AlphaUnstableVersions,
+		configv1alpha1.ExperimentalUnstableVersions,
+		configv1alpha1.NoUnstableVersions}
+
+	for _, v := range modes {
+		testRepository(t, v)
+	}
+}
+
+func testRepository(t *testing.T, versionSelectorName configv1alpha1.VersionSelectorLevel) {
+	vs := LoadVersionSelector(versionSelectorName)
+
 	r := configv1alpha1.PluginRepository{GCPPluginRepository: &config.CoreGCPBucketRepository}
-	repo := loadRepository(r)
+	repo := loadRepository(r, vs)
 	list, err := repo.List()
 	require.NoError(t, err)
 

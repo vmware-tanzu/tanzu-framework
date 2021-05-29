@@ -60,7 +60,7 @@ func setupCatalogCache() error {
 }
 
 func testMultiRepo(t *testing.T, multi *MultiRepo) {
-	err := InstallAllMulti(multi, nil)
+	err := InstallAllMulti(multi)
 	require.NoError(t, err)
 
 	err = EnsureTests(multi)
@@ -98,7 +98,7 @@ func TestCatalog(t *testing.T) {
 
 	repo := newTestRepo(t, "artifacts-new")
 
-	err = InstallAllPlugins(repo, nil)
+	err = InstallAllPlugins(repo)
 	require.NoError(t, err)
 
 	err = InstallPlugin("foo", "v0.0.3", repo)

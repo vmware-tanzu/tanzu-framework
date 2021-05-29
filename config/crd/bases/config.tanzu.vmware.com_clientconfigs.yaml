@@ -51,6 +51,10 @@ spec:
                         type: object
                     type: object
                   type: array
+                unstableVersionSelector:
+                  description: UnstableVersionSelector determined which version tags
+                    are allowed
+                  type: string
               type: object
           type: object
         current:

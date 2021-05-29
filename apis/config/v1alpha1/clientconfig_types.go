@@ -94,6 +94,8 @@ type ClientOptions struct {
 type CLIOptions struct {
 	// Repositories are the plugin repositories.
 	Repositories []PluginRepository `json:"repositories,omitempty" yaml:"repositories"`
+	// UnstableVersionSelector determined which version tags are allowed
+	UnstableVersionSelector VersionSelectorLevel `json:"unstableVersionSelector,omitempty" yaml:"unstableVersionSelector"`
 }
 
 // PluginRepository is a CLI plugin repository

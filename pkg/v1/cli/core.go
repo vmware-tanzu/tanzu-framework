@@ -35,11 +35,13 @@ var CorePlugin = Plugin{
 }
 
 // HasUpdate tells whether the core plugin has an update.
-func HasUpdate(repo Repository, versionSelector VersionSelector) (update bool, version string, err error) {
+func HasUpdate(repo Repository) (update bool, version string, err error) {
 	plugin, err := repo.Describe(CoreName)
 	if err != nil {
 		return false, version, err
 	}
+	versionSelector := repo.VersionSelector()
+
 	version = plugin.FindVersion(versionSelector)
 	compared := semver.Compare(version, BuildVersion)
 	if compared == 1 {
@@ -49,10 +51,9 @@ func HasUpdate(repo Repository, versionSelector VersionSelector) (update bool, v
 }
 
 // Update the core CLI.
-func Update(repo Repository, versionSelector VersionSelector) error {
+func Update(repo Repository) error {
 	var executable string
-
-	update, version, err := HasUpdate(repo, versionSelector)
+	update, version, err := HasUpdate(repo)
 	if err != nil {
 		return err
 	}

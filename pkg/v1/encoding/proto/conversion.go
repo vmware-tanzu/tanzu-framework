@@ -15,7 +15,7 @@ import (
 	"github.com/ghodss/yaml"
 	"github.com/golang/protobuf/jsonpb" //nolint
 	"github.com/golang/protobuf/proto"  //nolint
-	"github.com/pkg/errors"             //nolint
+	"github.com/pkg/errors"
 )
 
 // InputFileToProto reads a json/yaml input file and converts it to protobuf format

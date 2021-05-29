@@ -23,9 +23,8 @@ import (
 )
 
 var (
-	local           []string
-	version         string
-	includeUnstable bool
+	local   []string
+	version string
 )
 
 func init() {
@@ -41,10 +40,6 @@ func init() {
 	)
 	pluginCmd.PersistentFlags().StringSliceVarP(&local, "local", "l", []string{}, "path to local repository")
 	installPluginCmd.Flags().StringVarP(&version, "version", "v", cli.VersionLatest, "version of the plugin")
-	installPluginCmd.Flags().BoolVarP(&includeUnstable, "include-unstable", "u", false, "include unstable versions of the plugins")
-	upgradePluginCmd.Flags().BoolVarP(&includeUnstable, "include-unstable", "u", false, "include unstable versions of the plugins")
-	listPluginCmd.Flags().BoolVarP(&includeUnstable, "include-unstable", "u", false, "include unstable versions of the plugins")
-	describePluginCmd.Flags().BoolVarP(&includeUnstable, "include-unstable", "u", false, "include unstable versions of the plugins")
 }
 
 var pluginCmd = &cobra.Command{
@@ -84,10 +79,8 @@ var listPluginCmd = &cobra.Command{
 				if err != nil {
 					return err
 				}
+
 				versionSelector := repo.VersionSelector()
-				if includeUnstable {
-					versionSelector = cli.SelectVersionAny
-				}
 				latestVersion := plugin.FindVersion(versionSelector)
 				for _, desc := range descriptors {
 					if plugin.Name != desc.Name {
@@ -167,8 +160,6 @@ var describePluginCmd = &cobra.Command{
 			return err
 		}
 
-		plugin.Versions = cli.FilterVersions(plugin.Versions, includeUnstable)
-
 		b, err := yaml.Marshal(plugin)
 		if err != nil {
 			return errors.Wrap(err, "could not marshal plugin")
@@ -189,12 +180,8 @@ var installPluginCmd = &cobra.Command{
 
 		repos := getRepositories()
 
-		versionSelector := cli.DefaultVersionSelector
-		if includeUnstable {
-			versionSelector = cli.SelectVersionAny
-		}
 		if name == cli.AllPlugins {
-			return cli.InstallAllMulti(repos, versionSelector)
+			return cli.InstallAllMulti(repos)
 		}
 		repo, err := repos.Find(name)
 		if err != nil {
@@ -206,7 +193,7 @@ var installPluginCmd = &cobra.Command{
 			return err
 		}
 		if version == cli.VersionLatest {
-			version = plugin.FindVersion(versionSelector)
+			version = plugin.FindVersion(repo.VersionSelector())
 		}
 		err = cli.InstallPlugin(name, version, repo)
 		if err != nil {
@@ -237,11 +224,7 @@ var upgradePluginCmd = &cobra.Command{
 			return err
 		}
 
-		versionSelector := cli.DefaultVersionSelector
-		if includeUnstable {
-			versionSelector = cli.SelectVersionAny
-		}
-
+		versionSelector := repo.VersionSelector()
 		err = cli.UpgradePlugin(name, plugin.FindVersion(versionSelector), repo)
 		return
 	},
@@ -271,18 +254,26 @@ var cleanPluginCmd = &cobra.Command{
 }
 
 func getRepositories() *cli.MultiRepo {
-	if len(local) != 0 {
-		m := cli.NewMultiRepo()
-		for _, l := range local {
-			n := filepath.Base(l)
-			r := cli.NewLocalRepository(n, l)
-			m.AddRepository(r)
-		}
-		return m
-	}
 	cfg, err := config.GetClientConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	if len(local) != 0 {
+		vs := cli.LoadVersionSelector(cfg.ClientOptions.CLI.UnstableVersionSelector)
+
+		opts := []cli.Option{
+			cli.WithVersionSelector(vs),
+		}
+
+		m := cli.NewMultiRepo()
+		for _, l := range local {
+			n := filepath.Base(l)
+			r := cli.NewLocalRepository(n, l, opts...)
+			m.AddRepository(r)
+		}
+		return m
+	}
+
 	return cli.NewMultiRepo(cli.LoadRepositories(cfg)...)
 }

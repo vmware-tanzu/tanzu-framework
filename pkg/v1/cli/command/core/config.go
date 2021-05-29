@@ -25,8 +25,10 @@ func init() {
 		showConfigCmd,
 		getConfigCmd,
 		initConfigCmd,
+		setConfigCmd,
 		serversCmd,
 	)
+	setConfigCmd.AddCommand(setUnstableVersionsOptionCmd)
 	serversCmd.AddCommand(listServersCmd)
 	addDeleteServersCmd()
 	cli.DeprecateCommand(showConfigCmd, "1.5.0", "get")
@@ -81,6 +83,42 @@ var getConfigCmd = &cobra.Command{
 	},
 }
 
+var setConfigCmd = &cobra.Command{
+	Use:   "set <key> <value>",
+	Short: "Set config option key values. Options: [unstableversions]",
+}
+
+var setUnstableVersionsOptionCmd = &cobra.Command{
+	Use:   "unstable-versions <value>",
+	Short: "Set unstable-versions. Valid settings: [all, none, alpha, experimental]",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if len(args) == 0 {
+			return errors.Errorf("value required [all, none, alpha, experimental]")
+		}
+		cfg, err := config.GetClientConfig()
+		if err != nil {
+			return err
+		}
+		optionKey := configv1alpha1.VersionSelectorLevel(args[0])
+
+		switch optionKey {
+		case configv1alpha1.AllUnstableVersions,
+			configv1alpha1.AlphaUnstableVersions,
+			configv1alpha1.ExperimentalUnstableVersions,
+			configv1alpha1.NoUnstableVersions:
+			cfg.SetUnstableVersionSelector(optionKey)
+		default:
+			return fmt.Errorf("unknown unstableversions setting: %s", optionKey)
+		}
+
+		err = config.StoreClientConfig(cfg)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	},
+}
 var initConfigCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initialize config with defaults",

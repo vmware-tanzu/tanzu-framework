@@ -21,7 +21,6 @@ func init() {
 	updateCmd.SetUsageFunc(cli.SubCmdUsageFunc)
 	updateCmd.Flags().BoolVarP(&yesUpdate, "yes", "y", false, "force update; skip prompt")
 	updateCmd.Flags().StringSliceVarP(&local, "local", "l", []string{}, "path to local repository")
-	updateCmd.Flags().BoolVarP(&includeUnstable, "include-unstable", "u", false, "include unstable versions of the plugins")
 }
 
 var updateCmd = &cobra.Command{
@@ -51,17 +50,12 @@ var updateCmd = &cobra.Command{
 			repo    cli.Repository
 		}
 
-		versionSelector := cli.DefaultVersionSelector
-		if includeUnstable {
-			versionSelector = cli.SelectVersionAny
-		}
-
 		updateMap := map[*cliv1alpha1.PluginDescriptor]updateInfo{}
 		for _, plugin := range plugins {
 			if plugin.Name == cli.CoreName {
 				continue
 			}
-			update, repo, version, err := cli.HasPluginUpdateIn(repos, versionSelector, plugin)
+			update, repo, version, err := cli.HasPluginUpdateIn(repos, plugin)
 			if err != nil {
 				log.Warningf("could not find local plugin %q in any remote repositories", plugin.Name)
 				continue
@@ -71,7 +65,7 @@ var updateCmd = &cobra.Command{
 			}
 		}
 
-		coreUpdate, coreVersion, err := cli.HasUpdate(coreRepo, versionSelector)
+		coreUpdate, coreVersion, err := cli.HasUpdate(coreRepo)
 		if err != nil {
 			return err
 		}
@@ -112,7 +106,7 @@ var updateCmd = &cobra.Command{
 		}
 
 		// update core
-		err = cli.Update(coreRepo, versionSelector)
+		err = cli.Update(coreRepo)
 		if err != nil {
 			return err
 		}

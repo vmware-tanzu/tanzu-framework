@@ -233,12 +233,10 @@ func ValidatePlugin(p *cliv1alpha1.PluginDescriptor) (err error) {
 }
 
 // HasPluginUpdateIn checks if the plugin has an update in any of the given repositories.
-func HasPluginUpdateIn(repos *MultiRepo, versionSelector VersionSelector, p *cliv1alpha1.PluginDescriptor) (update bool, repo Repository, version string, err error) {
-	if versionSelector == nil {
-		versionSelector = repo.VersionSelector()
-	}
+func HasPluginUpdateIn(repos *MultiRepo, p *cliv1alpha1.PluginDescriptor) (update bool, repo Repository, version string, err error) {
+	versionSelector := repo.VersionSelector()
 	for _, repo := range repos.repositories {
-		update, version, err = HasPluginUpdate(repo, versionSelector, p)
+		update, version, err := HasPluginUpdate(repo, versionSelector, p)
 		if err != nil {
 			log.Debugf("could not check for update for plugin %q in repo %q: %v", p.Name, repo.Name, err)
 			continue
@@ -633,10 +631,8 @@ func UpgradePlugin(name, version string, repo Repository) error {
 }
 
 // InstallAllPlugins plugins with the given version finder.
-func InstallAllPlugins(repo Repository, versionSelector VersionSelector) error {
-	if versionSelector == nil {
-		versionSelector = repo.VersionSelector()
-	}
+func InstallAllPlugins(repo Repository) error {
+	versionSelector := repo.VersionSelector()
 	plugins, err := repo.List()
 	if err != nil {
 		return err
@@ -655,7 +651,7 @@ func InstallAllPlugins(repo Repository, versionSelector VersionSelector) error {
 }
 
 // InstallAllMulti installs all the plugins at the latest version in all the given repositories.
-func InstallAllMulti(repos *MultiRepo, versionSelector VersionSelector) error {
+func InstallAllMulti(repos *MultiRepo) error {
 	pluginMap, err := repos.ListPlugins()
 	if err != nil {
 		return err
@@ -665,9 +661,7 @@ func InstallAllMulti(repos *MultiRepo, versionSelector VersionSelector) error {
 		if err != nil {
 			return err
 		}
-		if versionSelector == nil {
-			versionSelector = repo.VersionSelector()
-		}
+		versionSelector := repo.VersionSelector()
 		for _, plugin := range descs {
 			if plugin.Name == CoreName {
 				continue

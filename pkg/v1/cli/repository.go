@@ -155,24 +155,44 @@ func LoadRepositories(c *configv1alpha1.ClientConfig) []Repository {
 	if c.ClientOptions.CLI == nil {
 		c.ClientOptions.CLI = &configv1alpha1.CLIOptions{}
 	}
+
+	vs := LoadVersionSelector(c.ClientOptions.CLI.UnstableVersionSelector)
 	for _, repo := range c.ClientOptions.CLI.Repositories {
 		if repo.GCPPluginRepository == nil {
 			continue
 		}
-		repos = append(repos, loadRepository(repo))
+		repos = append(repos, loadRepository(repo, vs))
 	}
 	return repos
 }
 
-func loadRepository(repo configv1alpha1.PluginRepository) Repository {
+func loadRepository(repo configv1alpha1.PluginRepository, versionSelector VersionSelector) Repository {
 	opts := []Option{
 		WithGCPBucket(repo.GCPPluginRepository.BucketName),
 		WithName(repo.GCPPluginRepository.Name),
+		WithVersionSelector(versionSelector),
 	}
 	if repo.GCPPluginRepository.RootPath != "" {
 		opts = append(opts, WithGCPRootPath(repo.GCPPluginRepository.RootPath))
 	}
 	return NewGCPBucketRepository(opts...)
+}
+
+// LoadVersionSelector will return the correct VersionSelector for a VersionSelectorLevel
+func LoadVersionSelector(selectorType configv1alpha1.VersionSelectorLevel) (versionSelector VersionSelector) {
+	switch selectorType {
+	case configv1alpha1.AllUnstableVersions:
+		versionSelector = SelectVersionAny
+	case configv1alpha1.AlphaUnstableVersions:
+		versionSelector = SelectVersionAlpha
+	case configv1alpha1.ExperimentalUnstableVersions:
+		versionSelector = SelectVersionExperimental
+	case configv1alpha1.NoUnstableVersions:
+		versionSelector = DefaultVersionSelector
+	default:
+		versionSelector = DefaultVersionSelector
+	}
+	return
 }
 
 // NewGCPBucketRepository returns a new GCP bucket repository.

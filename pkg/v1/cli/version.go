@@ -20,13 +20,9 @@ var DefaultVersionSelector = SelectVersionStable
 
 // FilterVersions returns the list of valid versions depending on whether
 // unstable versions are requested or not.
-func FilterVersions(versions []string, includeUnstable bool) (results []string) {
+func FilterVersions(versions []string) (results []string) {
 	for _, version := range versions {
 		if !semver.IsValid(version) {
-			continue
-		}
-		split := strings.Split(version, "-")
-		if len(split) > 1 && !includeUnstable {
 			continue
 		}
 		results = append(results, version)
@@ -37,7 +33,18 @@ func FilterVersions(versions []string, includeUnstable bool) (results []string) 
 // SelectVersionStable returns the latest stable version from a list of
 // versions. If there are no stable versions it will return an empty string.
 func SelectVersionStable(versions []string) (v string) {
-	for _, version := range FilterVersions(versions, false) {
+	for _, version := range FilterVersions(versions) {
+		// Both build and pre should be blank for stable versions
+		build := semver.Build(version)
+		if build != "" {
+			continue
+		}
+
+		pre := semver.Prerelease(version)
+		if pre != "" {
+			continue
+		}
+
 		c := semver.Compare(v, version)
 		if c == -1 {
 			v = version
@@ -48,7 +55,7 @@ func SelectVersionStable(versions []string) (v string) {
 
 // SelectVersionAny returns the latest version from a list of versions including prereleases.
 func SelectVersionAny(versions []string) (v string) {
-	for _, version := range FilterVersions(versions, true) {
+	for _, version := range FilterVersions(versions) {
 		c := semver.Compare(v, version)
 		if c == -1 {
 			v = version
@@ -57,4 +64,40 @@ func SelectVersionAny(versions []string) (v string) {
 	return
 }
 
-// TODO: SelectVersionSaaS
+// SelectVersionAlpha specifically returns only -alpha tagged releases
+func SelectVersionAlpha(versions []string) (v string) {
+	for _, version := range FilterVersions(versions) {
+		build := semver.Build(version)
+		if build != "" {
+			continue
+		}
+
+		pre := semver.Prerelease(version)
+		if pre != "" && !strings.Contains(pre, "alpha") {
+			continue
+		}
+
+		c := semver.Compare(v, version)
+		if c == -1 {
+			v = version
+		}
+	}
+	return
+}
+
+// SelectVersionExperimental includes all prerelease tagged plugin versions, minus +build versions
+func SelectVersionExperimental(versions []string) (v string) {
+	for _, version := range FilterVersions(versions) {
+		// All build releases are excluded from experimental
+		build := semver.Build(version)
+		if build != "" {
+			continue
+		}
+
+		c := semver.Compare(v, version)
+		if c == -1 {
+			v = version
+		}
+	}
+	return
+}

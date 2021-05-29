@@ -89,7 +89,8 @@ func NewClientConfig() (*configv1alpha1.ClientConfig, error) {
 	c := &configv1alpha1.ClientConfig{
 		ClientOptions: &configv1alpha1.ClientOptions{
 			CLI: &configv1alpha1.CLIOptions{
-				Repositories: DefaultRepositories,
+				Repositories:            DefaultRepositories,
+				UnstableVersionSelector: DefaultVersionSelector,
 			},
 		},
 	}
