@@ -51,6 +51,68 @@ kind: CustomResourceDefinition
 metadata:
   labels:
     app: antrea
+  name: clustergroups.core.antrea.tanzu.vmware.com
+spec:
+  group: core.antrea.tanzu.vmware.com
+  names:
+    kind: ClusterGroup
+    plural: clustergroups
+    shortNames:
+    - cg
+    singular: group
+  scope: Cluster
+  versions:
+  - name: v1alpha2
+    schema:
+      openAPIV3Schema:
+        properties:
+          spec:
+            properties:
+              externalEntitySelector:
+                x-kubernetes-preserve-unknown-fields: true
+              ipBlock:
+                properties:
+                  cidr:
+                    format: cidr
+                    type: string
+                type: object
+              namespaceSelector:
+                x-kubernetes-preserve-unknown-fields: true
+              podSelector:
+                x-kubernetes-preserve-unknown-fields: true
+              serviceReference:
+                properties:
+                  name:
+                    type: string
+                  namespace:
+                    type: string
+                type: object
+            type: object
+          status:
+            properties:
+              conditions:
+                items:
+                  properties:
+                    lastTransitionTime:
+                      type: string
+                    status:
+                      type: string
+                    type:
+                      type: string
+                  type: object
+                type: array
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  labels:
+    app: antrea
   name: clusternetworkpolicies.security.antrea.tanzu.vmware.com
 spec:
   group: security.antrea.tanzu.vmware.com
@@ -95,6 +157,8 @@ spec:
               appliedTo:
                 items:
                   properties:
+                    group:
+                      type: string
                     namespaceSelector:
                       x-kubernetes-preserve-unknown-fields: true
                     podSelector:
@@ -109,6 +173,17 @@ spec:
                       - Allow
                       - Drop
                       type: string
+                    appliedTo:
+                      items:
+                        properties:
+                          group:
+                            type: string
+                          namespaceSelector:
+                            x-kubernetes-preserve-unknown-fields: true
+                          podSelector:
+                            x-kubernetes-preserve-unknown-fields: true
+                        type: object
+                      type: array
                     enableLogging:
                       type: boolean
                     name:
@@ -116,6 +191,8 @@ spec:
                     ports:
                       items:
                         properties:
+                          endPort:
+                            type: integer
                           port:
                             x-kubernetes-int-or-string: true
                           protocol:
@@ -125,6 +202,8 @@ spec:
                     to:
                       items:
                         properties:
+                          group:
+                            type: string
                           ipBlock:
                             properties:
                               cidr:
@@ -149,11 +228,24 @@ spec:
                       - Allow
                       - Drop
                       type: string
+                    appliedTo:
+                      items:
+                        properties:
+                          group:
+                            type: string
+                          namespaceSelector:
+                            x-kubernetes-preserve-unknown-fields: true
+                          podSelector:
+                            x-kubernetes-preserve-unknown-fields: true
+                        type: object
+                      type: array
                     enableLogging:
                       type: boolean
                     from:
                       items:
                         properties:
+                          group:
+                            type: string
                           ipBlock:
                             properties:
                               cidr:
@@ -171,6 +263,8 @@ spec:
                     ports:
                       items:
                         properties:
+                          endPort:
+                            type: integer
                           port:
                             x-kubernetes-int-or-string: true
                           protocol:
@@ -189,7 +283,6 @@ spec:
               tier:
                 type: string
             required:
-            - appliedTo
             - priority
             type: object
           status:
@@ -327,6 +420,14 @@ spec:
                       - Allow
                       - Drop
                       type: string
+                    appliedTo:
+                      items:
+                        properties:
+                          podSelector:
+                            type: object
+                            x-kubernetes-preserve-unknown-fields: true
+                        type: object
+                      type: array
                     enableLogging:
                       type: boolean
                     name:
@@ -334,6 +435,8 @@ spec:
                     ports:
                       items:
                         properties:
+                          endPort:
+                            type: integer
                           port:
                             x-kubernetes-int-or-string: true
                           protocol:
@@ -369,6 +472,14 @@ spec:
                       - Allow
                       - Drop
                       type: string
+                    appliedTo:
+                      items:
+                        properties:
+                          podSelector:
+                            type: object
+                            x-kubernetes-preserve-unknown-fields: true
+                        type: object
+                      type: array
                     enableLogging:
                       type: boolean
                     from:
@@ -393,6 +504,8 @@ spec:
                     ports:
                       items:
                         properties:
+                          endPort:
+                            type: integer
                           port:
                             x-kubernetes-int-or-string: true
                           protocol:
@@ -411,7 +524,6 @@ spec:
               tier:
                 type: string
             required:
-            - appliedTo
             - priority
             type: object
           status:
@@ -641,6 +753,16 @@ spec:
                       ttl:
                         type: integer
                     type: object
+                  ipv6Header:
+                    properties:
+                      hopLimit:
+                        type: integer
+                      nextHeader:
+                        type: integer
+                      srcIP:
+                        format: ipv6
+                        type: string
+                    type: object
                   transportHeader:
                     properties:
                       icmp:
@@ -758,6 +880,45 @@ metadata:
     app: antrea
   name: antrea-controller
   namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app: antrea
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+  name: aggregate-antrea-clustergroups-edit
+rules:
+- apiGroups:
+  - core.antrea.tanzu.vmware.com
+  resources:
+  - clustergroups
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app: antrea
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+  name: aggregate-antrea-clustergroups-view
+rules:
+- apiGroups:
+  - core.antrea.tanzu.vmware.com
+  resources:
+  - clustergroups
+  verbs:
+  - get
+  - list
+  - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -916,8 +1077,24 @@ rules:
   - ""
   resources:
   - pods
+  verbs:
+  - get
+  - watch
+  - list
+  - patch
+- apiGroups:
+  - ""
+  resources:
   - endpoints
   - services
+  verbs:
+  - get
+  - watch
+  - list
+- apiGroups:
+  - discovery.k8s.io
+  resources:
+  - endpointslices
   verbs:
   - get
   - watch
@@ -1006,6 +1183,22 @@ kind: ClusterRole
 metadata:
   labels:
     app: antrea
+  name: antrea-cluster-identity-reader
+rules:
+- apiGroups:
+  - ""
+  resourceNames:
+  - antrea-cluster-identity
+  resources:
+  - configmaps
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app: antrea
   name: antrea-controller
 rules:
 - apiGroups:
@@ -1014,6 +1207,7 @@ rules:
   - nodes
   - pods
   - namespaces
+  - services
   verbs:
   - get
   - watch
@@ -1068,11 +1262,20 @@ rules:
   - ""
   resourceNames:
   - antrea-ca
+  - antrea-cluster-identity
   resources:
   - configmaps
   verbs:
   - get
   - update
+- apiGroups:
+  - ""
+  resourceNames:
+  - antrea-config-ctb8mftc58
+  resources:
+  - configmaps
+  verbs:
+  - get
 - apiGroups:
   - apiregistration.k8s.io
   resourceNames:
@@ -1123,6 +1326,7 @@ rules:
   - watch
   - list
   - create
+  - update
 - apiGroups:
   - crd.antrea.tanzu.vmware.com
   resources:
@@ -1149,10 +1353,17 @@ rules:
   - core.antrea.tanzu.vmware.com
   resources:
   - externalentities
+  - clustergroups
   verbs:
   - get
   - watch
   - list
+- apiGroups:
+  - core.antrea.tanzu.vmware.com
+  resources:
+  - clustergroups/status
+  verbs:
+  - update
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -1209,17 +1420,28 @@ metadata:
   namespace: kube-system
 ---
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: antrea
+  name: antrea-cluster-identity
+  namespace: kube-system
+---
+apiVersion: v1
 data:
   antrea-agent.conf: |
     featureGates:
-      AntreaProxy: false
-      Traceflow: false
+      AntreaProxy: true
+      EndpointSlice: false
+      Traceflow: true
+      NodePortLocal: false
       AntreaPolicy: true
       FlowExporter: false
       NetworkPolicyStats: false
     trafficEncapMode: encap
     noSNAT: false
     serviceCIDR: 10.96.0.0/12
+    tlsCipherSuites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384
   antrea-cni.conflist: |
     {
         "cniVersion":"0.3.0",
@@ -1243,16 +1465,17 @@ data:
     }
   antrea-controller.conf: |
     featureGates:
-      Traceflow: false
+      Traceflow: true
       AntreaPolicy: true
       NetworkPolicyStats: false
     selfSignedCert: true
+    tlsCipherSuites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384
 kind: ConfigMap
 metadata:
   annotations: {}
   labels:
     app: antrea
-  name: antrea-config-b59fc7d2b4
+  name: antrea-config-ctb8mftc58
   namespace: kube-system
 ---
 apiVersion: v1
@@ -1320,8 +1543,23 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
-        image: docker.io/antrea/antrea-ubuntu:v0.11.1
+        - name: SERVICEACCOUNT_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.serviceAccountName
+        - name: ANTREA_CONFIG_MAP_NAME
+          value: antrea-config-ctb8mftc58
+        image: docker.io/antrea/antrea-ubuntu:v0.13.3
         imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 5
+          httpGet:
+            host: 127.0.0.1
+            path: /livez
+            port: api
+            scheme: HTTPS
+          periodSeconds: 10
+          timeoutSeconds: 5
         name: antrea-controller
         ports:
         - containerPort: 10349
@@ -1331,7 +1569,7 @@ spec:
           failureThreshold: 5
           httpGet:
             host: 127.0.0.1
-            path: /healthz
+            path: /readyz
             port: api
             scheme: HTTPS
           initialDelaySeconds: 5
@@ -1361,7 +1599,7 @@ spec:
         key: node-role.kubernetes.io/master
       volumes:
       - configMap:
-          name: antrea-config-b59fc7d2b4
+          name: antrea-config-ctb8mftc58
         name: antrea-config
       - name: antrea-controller-tls
         secret:
@@ -1494,7 +1732,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
-        image: docker.io/antrea/antrea-ubuntu:v0.11.1
+        image: docker.io/antrea/antrea-ubuntu:v0.13.3
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
@@ -1515,7 +1753,7 @@ spec:
           failureThreshold: 5
           httpGet:
             host: 127.0.0.1
-            path: /healthz
+            path: /readyz
             port: api
             scheme: HTTPS
           initialDelaySeconds: 5
@@ -1555,7 +1793,7 @@ spec:
         - --log_file_max_num=4
         command:
         - start_ovs
-        image: docker.io/antrea/antrea-ubuntu:v0.11.1
+        image: docker.io/antrea/antrea-ubuntu:v0.13.3
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
@@ -1585,11 +1823,12 @@ spec:
         - mountPath: /var/log/openvswitch
           name: host-var-log-antrea
           subPath: openvswitch
+      dnsPolicy: ClusterFirstWithHostNet
       hostNetwork: true
       initContainers:
       - command:
         - install_cni
-        image: docker.io/antrea/antrea-ubuntu:v0.11.1
+        image: docker.io/antrea/antrea-ubuntu:v0.13.3
         imagePullPolicy: IfNotPresent
         name: install-cni
         resources:
@@ -1611,9 +1850,8 @@ spec:
         - mountPath: /lib/modules
           name: host-lib-modules
           readOnly: true
-        - mountPath: /sbin/depmod
-          name: host-depmod
-          readOnly: true
+        - mountPath: /var/run/antrea
+          name: host-var-run-antrea
       nodeSelector:
         kubernetes.io/os: linux
       priorityClassName: system-node-critical
@@ -1627,7 +1865,7 @@ spec:
         operator: Exists
       volumes:
       - configMap:
-          name: antrea-config-b59fc7d2b4
+          name: antrea-config-ctb8mftc58
         name: antrea-config
       - hostPath:
           path: /etc/cni/net.d
@@ -1652,9 +1890,6 @@ spec:
       - hostPath:
           path: /lib/modules
         name: host-lib-modules
-      - hostPath:
-          path: /sbin/depmod
-        name: host-depmod
       - hostPath:
           path: /run/xtables.lock
           type: FileOrCreate
@@ -1788,6 +2023,29 @@ webhooks:
     resources:
     - networkpolicies
     scope: Namespaced
+  sideEffects: None
+  timeoutSeconds: 5
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: antrea
+      namespace: kube-system
+      path: /validate/clustergroup
+  name: clustergroupvalidator.antrea.tanzu.vmware.com
+  rules:
+  - apiGroups:
+    - core.antrea.tanzu.vmware.com
+    apiVersions:
+    - v1alpha2
+    operations:
+    - CREATE
+    - UPDATE
+    - DELETE
+    resources:
+    - clustergroups
+    scope: Cluster
   sideEffects: None
   timeoutSeconds: 5
 ---

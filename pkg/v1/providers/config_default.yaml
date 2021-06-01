@@ -489,9 +489,11 @@ AVI_CONTROL_PLANE_HA_PROVIDER: false
 #! ---------------------------------------------------------------------
 ANTREA_NO_SNAT: false
 ANTREA_TRAFFIC_ENCAP_MODE: "encap"
-ANTREA_PROXY: false
+ANTREA_PROXY: true
+ANTREA_ENDPOINTSLICE: false
 ANTREA_POLICY: true
-ANTREA_TRACEFLOW: false
+ANTREA_NODEPORTLOCAL: false
+ANTREA_TRACEFLOW: true
 
 
 

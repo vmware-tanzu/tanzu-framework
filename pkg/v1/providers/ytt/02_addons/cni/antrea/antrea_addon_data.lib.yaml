@@ -18,13 +18,16 @@ antrea:
     trafficEncapMode: #@ data.values.ANTREA_TRAFFIC_ENCAP_MODE
     noSNAT: #@ data.values.ANTREA_NO_SNAT
     #@ end
+    tlsCipherSuites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384
     featureGates:
       #@ if data.values.NSXT_POD_ROUTING_ENABLED:
       AntreaProxy: true
       #@ else:
       AntreaProxy: #@ data.values.ANTREA_PROXY
       #@ end
+      EndpointSlice: #@ data.values.ANTREA_ENDPOINTSLICE
       AntreaPolicy: #@ data.values.ANTREA_POLICY
+      NodePortLocal: #@ data.values.ANTREA_NODEPORTLOCAL
       AntreaTraceflow: #@ data.values.ANTREA_TRACEFLOW
 #@ if data.values.TKG_CLUSTER_ROLE == "workload": #! For backwards compatibility. i.e. C.1 mgmt cluster creates a C.0 wlc with older addon templates.
   image: 
