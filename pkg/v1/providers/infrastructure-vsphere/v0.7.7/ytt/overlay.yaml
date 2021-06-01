@@ -106,6 +106,9 @@ spec:
   #@ end  
   thumbprint: #@ get_vsphere_thumbprint()
   server: #@ data.values.VSPHERE_SERVER
+  identityRef:
+    kind: Secret
+    name: #@ data.values.CLUSTER_NAME
 
 #@overlay/match by=overlay.subset({"kind": "VSphereMachineTemplate", "metadata":{"name": "${ CLUSTER_NAME }-control-plane"}})
 ---

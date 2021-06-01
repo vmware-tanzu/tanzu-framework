@@ -32,6 +32,9 @@ spec:
   controlPlaneEndpoint:
     host: '${ VSPHERE_CONTROL_PLANE_ENDPOINT }'
     port: 6443
+  identityRef:
+    kind: Secret
+    name: '${ CLUSTER_NAME }'
   thumbprint: '${ VSPHERE_TLS_THUMBPRINT }'
   server: '${ VSPHERE_SERVER }'
 ---
@@ -255,3 +258,12 @@ spec:
         kind: VSphereMachineTemplate
         name: '${ CLUSTER_NAME }-worker'
       version: '${ KUBERNETES_VERSION }'
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: '${ CLUSTER_NAME }'
+  namespace: '${ NAMESPACE }'
+stringData:
+  username: '${ VSPHERE_USERNAME }'
+  password: '${ VSPHERE_PASSWORD }'
