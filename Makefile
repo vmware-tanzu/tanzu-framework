@@ -49,7 +49,7 @@ IS_OFFICIAL_BUILD = ""
 endif
 
 ifndef TANZU_PLUGIN_UNSTABLE_VERSIONS
-TANZU_PLUGIN_UNSTABLE_VERSIONS = "none"
+TANZU_PLUGIN_UNSTABLE_VERSIONS = "experimental"
 endif
 
 # NPM registry to use for downloading node modules for UI build
@@ -261,8 +261,11 @@ tkg-cli: configure-bom prep-build-cli ## Build tkg CLI binary only, and without 
 install-cli: ## Install Tanzu CLI
 	$(GO) install -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu
 
+# Note: Invoking this target will update the unstableVersionSelector config
+# file setting to 'experimental' by default. Use TANZU_PLUGIN_UNSTABLE_VERSIONS to
+# override if necessary.
 .PHONY: install-cli-plugins
-install-cli-plugins:  ## Install Tanzu CLI plugins
+install-cli-plugins: set-unstable-versions  ## Install Tanzu CLI plugins
 	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
     		plugin install all --local $(ARTIFACTS_DIR)/$(GOHOSTOS)/$(GOHOSTARCH)/cli
 	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \

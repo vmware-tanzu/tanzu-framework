@@ -43,9 +43,6 @@ jobs:
     - name: Build
       run: make build-cli-local
 
-    - name: Update Version Selector
-      run: make TANZU_PLUGIN_UNSTABLE_VERSIONS=experimental set-unstable-versions
-
     - name: Install Tanzu CLI
       run: make install-cli
 
