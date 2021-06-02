@@ -13,7 +13,7 @@ Example: Created vSphere workload cluster to verify change.
 
 **Special notes for your reviewer**:
 
-**Does this PR introduce a user-facing change?**:
+**Does this PR introduce a [user-facing](https://github.com/vmware-tanzu-private/core/blob/main/docs/release/release-notes.md#does-my-pull-request-need-a-release-note) change?**:
 <!--
 If no, just write "NONE" in the release-note block below.
 If yes, a release note is required:
