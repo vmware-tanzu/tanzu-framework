@@ -116,7 +116,7 @@ tanzu cluster create CLUSTER-NAME [flags]
 
 ### Command principles
 * Support verbosity flags
-* Provide a way to disable interactive prompting (--quiet, --force, --yes)
+* Provide a way to deactivate interactive prompting (--quiet, --force, --yes)
 
 ### Components - Command
 Available for plugins written in golang
@@ -156,7 +156,7 @@ Really delete the cluster MY_CLUSTER [y/N]
 MY_CLUSTER has not been deleted
 ```
 
-* To disable all interactive prompts when running cli commands (helpful for scripting purposes) the CLI should support a --yes or -y, option
+* To deactivate all interactive prompts when running cli commands (helpful for scripting purposes) the CLI should support a --yes or -y, option
 
 Example
 ```
@@ -252,8 +252,8 @@ url:         http://myapplicationurl.com
 ```
 
 ### Color
-*  Colors can be disabled using an environment variable (NO_COLOR=TRUE)
-*  Colors are always disabled when the session is not a TTY session. This allows for the piping of CLI output into other commands (e.g. grep) or machine reading without including stray color characters (pending issue #369)
+*  Colors can be deactivated using an environment variable (NO_COLOR=TRUE)
+*  Colors are always deactivated when the session is not a TTY session. This allows for the piping of CLI output into other commands (e.g. grep) or machine reading without including stray color characters (pending issue #369)
 *  Usage tips are always in plain text, even when referencing text that might normally be colorized
 
 ![Example of help output demonstrating the use of plain text](example-images/usage-tips.png)
@@ -284,13 +284,13 @@ Interactive prompting: user input is colorized, as is the preceding question mar
 
 
 ### Animation
-* Disable if stdout is not an interactive terminal
+* Deactivate if stdout is not an interactive terminal
   * The component library can provide this check pending resolution of issue #369
 
 ### Symbols / Emojis
 * Currently no standards or guidance
 * Recommendation is to discuss plans for emoji/symbol use with SIG
-* Disable if stdout is not an interactive terminal
+* Deactivate if stdout is not an interactive terminal
   * The component library can provide this check pending resolution of issue #369
 
 ### Components - Output
