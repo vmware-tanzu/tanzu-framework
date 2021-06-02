@@ -48,6 +48,10 @@ ifndef IS_OFFICIAL_BUILD
 IS_OFFICIAL_BUILD = ""
 endif
 
+ifndef TANZU_PLUGIN_UNSTABLE_VERSIONS
+TANZU_PLUGIN_UNSTABLE_VERSIONS = "none"
+endif
+
 # NPM registry to use for downloading node modules for UI build
 CUSTOM_NPM_REGISTRY ?= $(shell git config tkg.npmregistry)
 
@@ -265,6 +269,10 @@ install-cli-plugins:  ## Install Tanzu CLI plugins
 		plugin install all --local $(ARTIFACTS_DIR)-admin/$(GOHOSTOS)/$(GOHOSTARCH)/cli
 	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
 		test fetch --local $(ARTIFACTS_DIR)/$(GOHOSTOS)/$(GOHOSTARCH)/cli --local $(ARTIFACTS_DIR)-admin/$(GOHOSTOS)/$(GOHOSTARCH)/cli
+
+.PHONY: set-unstable-versions
+set-unstable-versions:  ## Configures the unstable versions
+	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go config set unstable-versions $(TANZU_PLUGIN_UNSTABLE_VERSIONS)
 
 ## --------------------------------------
 ## Release binaries
