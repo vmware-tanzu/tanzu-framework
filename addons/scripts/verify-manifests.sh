@@ -52,3 +52,4 @@ diff_manifests addons-manager
 diff_manifests vsphere_csi
 diff_manifests vsphere_cpi
 diff_manifests ako-operator
+diff_manifests load-balancer-and-ingress-service
