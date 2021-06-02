@@ -5,10 +5,12 @@
 package ws
 
 import (
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
 	"net/url"
+	"syscall"
 
 	"github.com/gorilla/websocket"
 
@@ -94,6 +96,8 @@ func sendPendingLogsOnConnection(ws *websocket.Conn) {
 			break
 		}
 	}
+
+	logs = [][]byte{}
 }
 
 func deleteWSConnection(conn *websocket.Conn) {
@@ -121,6 +125,12 @@ func SendLog(logMsg []byte) {
 	for _, ws := range wsConnections {
 		err = ws.WriteMessage(1, logMsg)
 		if err != nil {
+			// when client connection is closed
+			if errors.Is(err, syscall.EPIPE) || errors.Is(err, syscall.ECONNRESET) {
+				deleteWSConnection(ws)
+				continue
+			}
+
 			log.ForceWriteToStdErr([]byte("fail to write log message to web socket"))
 			break
 		}
