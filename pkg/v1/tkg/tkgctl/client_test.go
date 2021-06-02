@@ -11,6 +11,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/providerinterface"
 )
 
@@ -62,6 +63,7 @@ var _ = Describe("Unit test for New", func() {
 		configDir string
 	)
 	JustBeforeEach(func() {
+		os.Setenv(constants.ConfigVariableBomCustomImageTag, "")
 		configDir, _ = ioutil.TempDir("", "cluster_client_test")
 		options = Options{
 			ConfigDir: configDir,

@@ -3,9 +3,6 @@
 #@ load("@ytt:overlay", "overlay")
 #@ load("/02_addons/avi/spec.lib.yaml", "akoo_deployment","avi_configs_spec","avi_credentials","avi_certificate")
 #@ load("/02_addons/avi/static.lib.yaml", "crd","service")
-#@ load("/lib/helpers.star", "get_default_tkg_bom_data")
-
-#@ akoRepo = get_default_tkg_bom_data().components["load-balancer-and-ingress-service"][0]
 
 #@ if data.values.PROVIDER_TYPE == "vsphere" and data.values.TKG_CLUSTER_ROLE != "workload" and data.values.AVI_ENABLE and data.values.AVI_CONTROL_PLANE_HA_PROVIDER:
 #@ def update_akoo_env():

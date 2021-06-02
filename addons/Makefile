@@ -25,6 +25,7 @@ PINNIPED_ADDON_TEMPLATES_IMG_NAME ?= pinniped-templates
 VSPHERE_CSI_TEMPLATES_IMG_NAME ?= vsphere-csi-templates
 ANTREA_TEMPLATES_IMG_NAME ?= antrea-templates
 CALICO_TEMPLATES_IMG_NAME ?= calico-templates
+AKO_OPERATOR_TEMPLATES_IMG_NAME ?= ako-operator-templates
 
 # Directories
 BIN_DIR       := bin
@@ -153,7 +154,8 @@ build-addon-template-images:
 	IMG_NAME="$(IMAGE_REPO)/$(VSPHERE_CSI_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C vsphere_csi
 	IMG_NAME="$(IMAGE_REPO)/$(ANTREA_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C antrea
 	IMG_NAME="$(IMAGE_REPO)/$(CALICO_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C calico
-
+	IMG_NAME="$(IMAGE_REPO)/$(AKO_OPERATOR_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C ako-operator
+  	
 save-addon-template-images:
 	mkdir -p "${ROOT_DIR}addons/artifacts"
 	docker save "$(IMAGE_REPO)/${ADDONS_MANAGER_TEMPLATES_IMG_NAME}:${TEMPLATES_IMG_TAG}" | gzip -c > "${ROOT_DIR}addons/artifacts/${ADDONS_MANAGER_TEMPLATES_IMG_NAME}-${TEMPLATES_IMG_TAG}.tar.gz"
@@ -164,6 +166,7 @@ save-addon-template-images:
 	docker save "$(IMAGE_REPO)/${VSPHERE_CSI_TEMPLATES_IMG_NAME}:${TEMPLATES_IMG_TAG}" | gzip -c > "${ROOT_DIR}addons/artifacts/${VSPHERE_CSI_TEMPLATES_IMG_NAME}-${TEMPLATES_IMG_TAG}.tar.gz"
 	docker save "$(IMAGE_REPO)/${ANTREA_TEMPLATES_IMG_NAME}:${TEMPLATES_IMG_TAG}" | gzip -c > "${ROOT_DIR}addons/artifacts/${ANTREA_TEMPLATES_IMG_NAME}-${TEMPLATES_IMG_TAG}.tar.gz"
 	docker save "$(IMAGE_REPO)/${CALICO_TEMPLATES_IMG_NAME}:${TEMPLATES_IMG_TAG}" | gzip -c > "${ROOT_DIR}addons/artifacts/${CALICO_TEMPLATES_IMG_NAME}-${TEMPLATES_IMG_TAG}.tar.gz"
+	docker save "$(IMAGE_REPO)/${AKO_OPERATOR_TEMPLATES_IMG_NAME}:${TEMPLATES_IMG_TAG}" | gzip -c > "${ROOT_DIR}addons/artifacts/${AKO_OPERATOR_TEMPLATES_IMG_NAME}-${TEMPLATES_IMG_TAG}.tar.gz"
 
 push-addon-template-images: ## Push template images
 	IMG_NAME="$(IMAGE_REPO)/$(ADDONS_MANAGER_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) push-template-image -C addons-manager
@@ -174,6 +177,7 @@ push-addon-template-images: ## Push template images
 	IMG_NAME="$(IMAGE_REPO)/$(VSPHERE_CSI_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) push-template-image -C vsphere_csi
 	IMG_NAME="$(IMAGE_REPO)/$(ANTREA_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) push-template-image -C antrea
 	IMG_NAME="$(IMAGE_REPO)/$(CALICO_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) push-template-image -C calico
+	IMG_NAME="$(IMAGE_REPO)/$(AKO_OPERATOR_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) push-template-image -C ako-operator
 
 ## --------------------------------------
 ## BOM yaml that contains all add-ons

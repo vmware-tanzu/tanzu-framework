@@ -51,4 +51,4 @@ diff_manifests kapp-controller
 diff_manifests addons-manager
 diff_manifests vsphere_csi
 diff_manifests vsphere_cpi
-
+diff_manifests ako-operator
