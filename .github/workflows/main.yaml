@@ -65,3 +65,9 @@ jobs:
       with:
         version: v1.38.0
         args: --timeout=5m -v
+
+    - name: Run vale doc linter
+      env:
+        GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+      run: |
+        make doc-lint

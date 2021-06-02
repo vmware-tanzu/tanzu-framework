@@ -31,7 +31,8 @@ GOBINDATA := $(TOOLS_BIN_DIR)/gobindata
 KUBEBUILDER := $(TOOLS_BIN_DIR)/kubebuilder
 YTT := $(TOOLS_BIN_DIR)/ytt
 KUBEVAL := $(TOOLS_BIN_DIR)/kubeval
-TOOLING_BINARIES := $(GOLANGCI_LINT) $(YTT) $(KUBEVAL) $(GOIMPORTS) $(GOBINDATA)
+VALE := $(TOOLS_BIN_DIR)/vale
+TOOLING_BINARIES := $(GOLANGCI_LINT) $(YTT) $(KUBEVAL) $(GOIMPORTS) $(GOBINDATA) $(VALE)
 
 PINNIPED_GIT_REPOSITORY = https://github.com/vmware-tanzu/pinniped.git
 ifeq ($(strip $(PINNIPED_GIT_COMMIT)),)
@@ -314,8 +315,11 @@ fmt: tools ## Run goimports
 vet: ## Run go vet
 	$(GO) vet ./...
 
-lint: tools ## Run linting checks
+lint: tools doc-lint ## Run linting checks
 	$(GOLANGCI_LINT) run -v
+
+doc-lint: tools ## Run linting checks for docs
+	$(VALE) --config=.vale/config.ini --glob='*.md' ./
 
 .PHONY: modules
 modules: ## Runs go mod to ensure modules are up to date.

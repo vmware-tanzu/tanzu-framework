@@ -38,7 +38,7 @@ To add the builder plugin use `tanzu plugin install builder`
 
 `tanzu builder cli add-plugin <plugin-name>` will add a new cli plugin.
 
-Plugins are pulled from registered repositories. On a merge to master, all the plugins in this repo are built and pushed to a public repository.
+Plugins are pulled from registered repositories. On a merge to main, all the plugins in this repo are built and pushed to a public repository.
 It is useful to leverage a local repo when developing.
 
 #### Building a Plugin

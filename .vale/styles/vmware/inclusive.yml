@@ -1,0 +1,12 @@
+extends: substitution
+message: Use '%s' instead of '%s' for inclusivity
+level: error
+ignorecase: true
+swap:
+  blacklist: denylist
+  disable: deactivate
+  disabled: deactivated
+  disabling: deactivating
+  master: main/primary/leader/controller
+  slave: follower/replica/secondary
+  whitelist: allowlist
