@@ -1403,12 +1403,12 @@ func (c *TkgClient) configureVsphereCredentialsFromCluster(clusterClient cluster
 }
 
 func checkClusterNameFormat(clusterName string) error {
-	matched, err := regexp.MatchString("^[a-z][a-z0-9-]{0,44}[a-z0-9]$", clusterName)
+	matched, err := regexp.MatchString("^[a-z][a-z0-9-.]{0,44}[a-z0-9]$", clusterName)
 	if err != nil {
 		return errors.Wrap(err, "failed to validate cluster name")
 	}
 	if !matched {
-		return errors.New("cluster Name doesn't match regex ^[a-z][a-z0-9-]{0,44}[a-z0-9]$, can contain only lowercase alphanumeric characters and '-', must start/end with an alphanumeric character")
+		return errors.New("cluster name doesn't match regex ^[a-z][a-z0-9-.]{0,44}[a-z0-9]$, can contain only lowercase alphanumeric characters, '.' and '-', must start/end with an alphanumeric character")
 	}
 	return nil
 }
