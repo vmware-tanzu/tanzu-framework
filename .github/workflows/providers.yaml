@@ -92,6 +92,8 @@ jobs:
       with:
         issue-number: ${{ steps.extract_pr.outputs.prnum }}
         body: |
-          (WIP) Review test results:
+          Cluster Generation A/B Results:
           https://storage.googleapis.com/tkg-clustergen/${{ steps.extract_pr.outputs.prnum }}/${{ steps.time.outputs.time }}/clustergen.diff.txt
           https://storage.googleapis.com/tkg-clustergen/${{ steps.extract_pr.outputs.prnum }}/${{ steps.time.outputs.time }}/clustergen.html
+          Author and reviewers:
+          Please review at least one of the above to verify that the effects on the generated cluster configurations are exactly what the PR intended. (Consider giving a thumbs-up if so)
