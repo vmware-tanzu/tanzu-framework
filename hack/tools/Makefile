@@ -25,6 +25,7 @@ SRCS := go.mod go.sum
 KUBEBUILDER_VERSION=2.3.1
 YTT_VERSION=v0.31.0
 KUBEVAL_VERSION=0.15.0
+VALE_VERSION=2.10.3
 
 # Host information.
 HOST_OS=$(shell go env GOOS)
@@ -33,10 +34,11 @@ HOST_ARCH=$(shell go env GOARCH)
 # Binaries.
 GOLANGCI_LINT := $(BIN_DIR)/golangci-lint
 GOIMPORTS := $(BIN_DIR)/goimports
-KUBEBUILDER        := $(BIN_DIR)/kubebuilder
+KUBEBUILDER := $(BIN_DIR)/kubebuilder
 YTT := $(BIN_DIR)/ytt
 KUBEVAL := $(BIN_DIR)/kubeval
 GOBINDATA := $(BIN_DIR)/gobindata
+VALE := $(BIN_DIR)/vale
 
 ## --------------------------------------
 ## Help
@@ -81,6 +83,11 @@ gobindata: $(GOBINDATA)
 $(GOBINDATA): go.mod # Build go-bindata
 	mkdir -p $(BIN_DIR)
 	go build -tags=tools -o $(BIN_DIR) github.com/shuLhan/go-bindata/...; mv $(BIN_DIR)/go-bindata $(GOBINDATA)
+
+vale: $(VALE)
+$(VALE):
+	mkdir -p $(BIN_DIR)
+	curl -sfL https://install.goreleaser.com/github.com/ValeLint/vale.sh | sh -s v$(VALE_VERSION)
 
 ## --------------------------------------
 ## Cleanup
