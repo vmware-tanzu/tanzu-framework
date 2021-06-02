@@ -13,7 +13,7 @@ import (
 
 // VerifyImageIsAccessible verifies the docker image is accessible
 func VerifyImageIsAccessible(image string) error {
-	cli, err := client.NewClientWithOpts(client.FromEnv)
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return errors.Wrap(err, "unable to create docker client")
 	}
