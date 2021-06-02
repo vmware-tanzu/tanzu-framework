@@ -1,9 +1,9 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:base64", "base64")
-#@ load("/lib/helpers.star", "get_default_tkg_bom_data", "tkg_image_repo")
+#@ load("/lib/helpers.star", "get_default_tkr_bom_data", "tkg_image_repo")
 
-#@ akooRepo = get_default_tkg_bom_data().components["ako-operator"][0]
-#@ akoRepo = get_default_tkg_bom_data().components["load-balancer-and-ingress-service"][0]
+#@ akooRepo = get_default_tkr_bom_data().components["ako-operator"][0]
+#@ akoRepo = get_default_tkr_bom_data().components["load-balancer-and-ingress-service"][0]
 
 #@ def labels():
 app: tanzu-ako-operator

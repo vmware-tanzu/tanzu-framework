@@ -1,4 +1,4 @@
-#@ def crd():
+---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
@@ -300,9 +300,7 @@ status:
     plural: ""
   conditions: []
   storedVersions: []
-#@ end
-
-#@ def role():
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -337,9 +335,7 @@ rules:
   - events
   verbs:
   - create
-#@ end
-
-#@ def clusterrole_manager():
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -433,9 +429,7 @@ rules:
   - get
   - patch
   - update
-#@ end
-
-#@ def clusterrole_proxy():
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -455,9 +449,7 @@ rules:
   - subjectaccessreviews
   verbs:
   - create
-#@ end
-
-#@ def clusterrole_metrics_reader():
+---
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRole
 metadata:
@@ -469,9 +461,7 @@ rules:
   - /metrics
   verbs:
   - get
-#@ end
-
-#@ def rolebinding():
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
@@ -487,9 +477,7 @@ subjects:
 - kind: ServiceAccount
   name: default
   namespace: tkg-system-networking
-#@ end
-
-#@ def clusterrolebinding_manager():
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -504,9 +492,7 @@ subjects:
 - kind: ServiceAccount
   name: default
   namespace: tkg-system-networking
-#@ end
-
-#@ def clusterrolebinding_proxy():
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -521,9 +507,7 @@ subjects:
 - kind: ServiceAccount
   name: default
   namespace: tkg-system-networking
-#@ end
-
-#@ def service():
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -538,16 +522,3 @@ spec:
     targetPort: https
   selector:
     app: tanzu-ako-operator
-#@ end
-
-#@ def staticyaml():
---- #@ crd()
---- #@ role()
---- #@ clusterrole_manager()
---- #@ clusterrole_proxy()
---- #@ clusterrole_metrics_reader()
---- #@ rolebinding()
---- #@ clusterrolebinding_manager()
---- #@ clusterrolebinding_proxy()
---- #@ service()
-#@ end

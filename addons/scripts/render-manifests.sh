@@ -42,3 +42,4 @@ render_manifest kapp-controller
 render_manifest addons-manager
 render_manifest vsphere_csi
 render_manifest vsphere_cpi
+render_manifest ako-operator

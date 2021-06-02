@@ -2,6 +2,18 @@ apiVersion: run.tanzu.vmware.com/v1alpha1
 release:
   version: v1.20.5+vmware.1-tkg.1-zlatest
 components:
+  ako-operator:
+  - version: v1.3.1+vmware.1
+    images:
+      akoOperatorImage:
+        imagePath: ako-operator
+        tag: v1.3.1_vmware.1
+  load-balancer-and-ingress-service:
+  - version: v1.3.2+vmware.1
+    images:
+      loadBalancerAndIngressServiceImage:
+        imagePath: ako
+        tag: v1.3.2_vmware.1
   antrea:
   - version: v0.11.3+vmware.2
     images:

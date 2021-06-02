@@ -12,6 +12,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigpaths"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/utils"
@@ -121,7 +122,7 @@ func prepareConfiDir(configDir string) {
 		Expect(err).ToNot(HaveOccurred())
 	}
 
-	tkgconfigpaths.TKGDefaultBOMImageTag = utils.GetTKGBoMTagFromFileName(filepath.Base(defaultTKGBomFileForTesting))
+	os.Setenv(constants.ConfigVariableBomCustomImageTag, utils.GetTKGBoMTagFromFileName(filepath.Base(defaultTKGBomFileForTesting)))
 	err = utils.CopyFile(defaultTKGBomFileForTesting, filepath.Join(bomDir, filepath.Base(defaultTKGBomFileForTesting)))
 	Expect(err).ToNot(HaveOccurred())
 
