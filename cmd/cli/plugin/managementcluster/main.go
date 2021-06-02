@@ -19,12 +19,13 @@ var (
 )
 
 var descriptor = cliv1alpha1.PluginDescriptor{
-	Name:        "management-cluster",
-	Description: "Kubernetes management cluster operations",
-	Version:     cli.BuildVersion,
-	BuildSHA:    "",
-	Group:       cliv1alpha1.RunCmdGroup,
-	Aliases:     []string{"mc", "management-clusters"},
+	Name:            "management-cluster",
+	Description:     "Kubernetes management cluster operations",
+	Version:         cli.BuildVersion,
+	BuildSHA:        "",
+	Group:           cliv1alpha1.RunCmdGroup,
+	Aliases:         []string{"mc", "management-clusters"},
+	PostInstallHook: postInstallHook,
 }
 
 var logLevel int32

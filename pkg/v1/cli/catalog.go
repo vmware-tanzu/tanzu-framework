@@ -206,6 +206,11 @@ func ApplyDefaultConfig(p *cliv1alpha1.PluginDescriptor) {
 	if p.Version == "" {
 		p.Version = BuildVersion
 	}
+	if p.PostInstallHook == nil {
+		p.PostInstallHook = func() error {
+			return nil
+		}
+	}
 }
 
 // ValidatePlugin validates the plugin descriptor.
@@ -576,35 +581,33 @@ func DescribeTestPlugin(pluginName string) (desc *cliv1alpha1.PluginDescriptor, 
 	return &descriptor, err
 }
 
-// InstallPlugin installs a plugin from the given repository.
-func InstallPlugin(name, version string, repo Repository) error {
-	if name == CoreName {
-		return fmt.Errorf("cannot install core as a plugin")
-	}
-	b, err := repo.Fetch(name, version, BuildArch())
-	if err != nil {
-		return err
-	}
-
+// InitializePlugin initializes the plugin configuration
+func InitializePlugin(name string) error {
 	pluginPath := pluginPath(name)
 
-	if BuildArch().IsWindows() {
-		pluginPath += exe
+	b, err := exec.Command(pluginPath, "init").CombinedOutput()
+
+	// Note: If user is installing old version of plugin than it is possible that
+	// the plugin does not implement init command. Ignoring the
+	// errors if the command does not exist for a particular plugin.
+	if err != nil && !strings.Contains(err.Error(), "unknown command") {
+		log.Warningf("error while initializing plugin '%q'. Error: %v", name, string(b))
 	}
 
-	err = os.WriteFile(pluginPath, b, 0755)
-	if err != nil {
-		return errors.Wrap(err, "could not write file")
-	}
-	err = insertOrUpdatePluginCacheEntry(name)
-	if err != nil {
-		log.Debug("Plugin descriptor could not be updated in cache")
-	}
 	return nil
+}
+
+// InstallPlugin installs a plugin from the given repository.
+func InstallPlugin(name, version string, repo Repository) error {
+	return installOrUpgradePlugin(name, version, repo)
 }
 
 // UpgradePlugin upgrades a plugin from the given repository.
 func UpgradePlugin(name, version string, repo Repository) error {
+	return installOrUpgradePlugin(name, version, repo)
+}
+
+func installOrUpgradePlugin(name, version string, repo Repository) error {
 	if name == CoreName {
 		return fmt.Errorf("cannot install core as a plugin")
 	}
@@ -626,6 +629,10 @@ func UpgradePlugin(name, version string, repo Repository) error {
 	err = insertOrUpdatePluginCacheEntry(name)
 	if err != nil {
 		log.Debug("Plugin descriptor could not be updated in cache")
+	}
+	err = InitializePlugin(name)
+	if err != nil {
+		log.Infof("could not initialize plugin after installing: %v", err.Error())
 	}
 	return nil
 }
