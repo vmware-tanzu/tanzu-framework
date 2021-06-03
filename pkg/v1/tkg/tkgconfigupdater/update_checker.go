@@ -6,7 +6,6 @@ package tkgconfigupdater
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -66,7 +65,7 @@ func (c *client) CheckProvidersNeedUpdate() (bool, error) {
 		}
 	}()
 
-	currentChecksumBytes, err := ioutil.ReadFile(currentChecksumPath)
+	currentChecksumBytes, err := os.ReadFile(currentChecksumPath)
 	if err != nil {
 		return false, errors.Wrap(err, "cannot read the original providers config.yaml")
 	}

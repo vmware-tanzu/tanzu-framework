@@ -6,7 +6,6 @@ package tkgconfigupdater
 import (
 	"encoding/base64"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -169,7 +168,7 @@ func (c *client) EnsureTKGConfigFile() (string, error) {
 		// Setting this value because at least one value is required to be
 		// set in TKG config file to parse the config file with yaml.v1 Node
 		releaseData := constants.ReleaseKey + ": "
-		err = ioutil.WriteFile(tkgConfigPath, []byte(releaseData), constants.ConfigFilePermissions)
+		err = os.WriteFile(tkgConfigPath, []byte(releaseData), constants.ConfigFilePermissions)
 		if err != nil {
 			return "", errors.Wrap(err, "cannot initialize tkg config file")
 		}
@@ -276,12 +275,12 @@ func (c *client) EnsureConfigPrerequisite(needUpdate, tkgConfigNeedUpdate bool) 
 		return errors.Wrap(err, "unable to set default providers in tkg config file")
 	}
 
-	return ioutil.WriteFile(tkgConfigPath, out, constants.ConfigFilePermissions)
+	return os.WriteFile(tkgConfigPath, out, constants.ConfigFilePermissions)
 }
 
 func (c *client) getTkgConfigNode(tkgConfigPath string) (yaml.Node, error) {
 	tkgConfigNode := yaml.Node{}
-	fileData, err := ioutil.ReadFile(tkgConfigPath)
+	fileData, err := os.ReadFile(tkgConfigPath)
 	if err != nil {
 		return tkgConfigNode, errors.Wrapf(err, "unable to read tkg configuration from: %s", tkgConfigPath)
 	}
@@ -326,7 +325,7 @@ func (c *client) EnsureConfigImages() error {
 		return errors.Wrap(err, "unable to set default providers in tkg config file")
 	}
 
-	err = ioutil.WriteFile(tkgConfigPath, out, constants.ConfigFilePermissions)
+	err = os.WriteFile(tkgConfigPath, out, constants.ConfigFilePermissions)
 	if err != nil {
 		return errors.Wrap(err, "unable update tkg config file")
 	}

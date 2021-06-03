@@ -5,7 +5,7 @@ package features
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -63,7 +63,7 @@ func (c *client) GetFeatureFlags() (map[string]string, error) {
 		return nil, errors.Wrap(err, "failed to open feature flag file")
 	}
 	defer jsonFile.Close()
-	byteValue, err := ioutil.ReadAll(jsonFile)
+	byteValue, err := io.ReadAll(jsonFile)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read feature flag file")
 	}

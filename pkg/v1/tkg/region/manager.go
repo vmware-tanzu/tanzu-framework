@@ -5,7 +5,6 @@
 package region
 
 import (
-	"io/ioutil"
 	"os"
 
 	"github.com/pkg/errors"
@@ -111,7 +110,7 @@ func (m *manager) SaveRegionContext(region RegionContext) error {
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(m.tkgConfigPath, out, constants.ConfigFilePermissions)
+	err = os.WriteFile(m.tkgConfigPath, out, constants.ConfigFilePermissions)
 	if err != nil {
 		return err
 	}
@@ -174,7 +173,7 @@ func (m *manager) UpsertRegionContext(region RegionContext) error {
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(m.tkgConfigPath, out, constants.ConfigFilePermissions)
+	err = os.WriteFile(m.tkgConfigPath, out, constants.ConfigFilePermissions)
 	if err != nil {
 		return err
 	}
@@ -224,7 +223,7 @@ func (m *manager) DeleteRegionContext(clusterName string) error {
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(m.tkgConfigPath, out, constants.ConfigFilePermissions)
+	err = os.WriteFile(m.tkgConfigPath, out, constants.ConfigFilePermissions)
 	if err != nil {
 		return err
 	}
@@ -294,7 +293,7 @@ func (m *manager) SetCurrentContext(clusterName, contextName string) error {
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(m.tkgConfigPath, out, constants.ConfigFilePermissions)
+	err = os.WriteFile(m.tkgConfigPath, out, constants.ConfigFilePermissions)
 	if err != nil {
 		return err
 	}
@@ -342,7 +341,7 @@ func (m *manager) loadTkgConfig() (yaml.Node, error) {
 	// load the whole tkg config into yaml Node
 	tkgConfigNode := yaml.Node{}
 
-	fileData, err := ioutil.ReadFile(m.tkgConfigPath)
+	fileData, err := os.ReadFile(m.tkgConfigPath)
 	if err != nil {
 		return tkgConfigNode, errors.Errorf("unable to read tkg configuration from: %s", m.tkgConfigPath)
 	}

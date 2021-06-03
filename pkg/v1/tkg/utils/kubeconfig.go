@@ -6,7 +6,7 @@ package utils
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -108,7 +108,7 @@ func GetClusterInfoFromCluster(clusterAPIServerURL string) (*clientcmdapi.Cluste
 		return nil, errors.New("failed to get cluster-info from the end-point")
 	}
 
-	responseBody, err := ioutil.ReadAll(response.Body)
+	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read the response body")
 	}
@@ -165,7 +165,7 @@ func GetPinnipedInfoFromCluster(clusterInfo *clientcmdapi.Cluster) (*PinnipedCon
 		return nil, errors.New("failed to get pinniped-info from the cluster")
 	}
 
-	responseBody, err := ioutil.ReadAll(response.Body)
+	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read the response body")
 	}

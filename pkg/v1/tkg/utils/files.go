@@ -4,7 +4,6 @@
 package utils
 
 import (
-	"io/ioutil"
 	"os"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
@@ -12,7 +11,7 @@ import (
 
 // CreateTempFile creates temporary file
 func CreateTempFile(dir, prefix string) (string, error) {
-	f, err := ioutil.TempFile(dir, prefix)
+	f, err := os.CreateTemp(dir, prefix)
 	if err != nil {
 		return "", err
 	}
@@ -21,11 +20,11 @@ func CreateTempFile(dir, prefix string) (string, error) {
 
 // CopyFile copies source file to dest file
 func CopyFile(sourceFile, destFile string) error {
-	input, err := ioutil.ReadFile(sourceFile)
+	input, err := os.ReadFile(sourceFile)
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(destFile, input, constants.ConfigFilePermissions)
+	err = os.WriteFile(destFile, input, constants.ConfigFilePermissions)
 	return err
 }
 
@@ -45,7 +44,7 @@ func CopyToTempFile(sourceFile, tempFilePrefix string) (string, error) {
 
 // WriteToFile writes byte data to file
 func WriteToFile(sourceFile string, data []byte) error {
-	return ioutil.WriteFile(sourceFile, data, constants.ConfigFilePermissions)
+	return os.WriteFile(sourceFile, data, constants.ConfigFilePermissions)
 }
 
 // DeleteFile deletes the file from given location

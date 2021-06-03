@@ -6,10 +6,10 @@ package client_test
 import (
 	"crypto/x509"
 	"fmt"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"net/url"
+	"os"
 	"strconv"
 	"time"
 
@@ -242,7 +242,7 @@ func getFakeKubeConfigFilePathWithServer(testingDir, endpoint, clustername strin
 		Contexts:       map[string]*clientcmdapi.Context{"dummy-context": {Cluster: clustername}},
 		CurrentContext: "dummy-context",
 	}
-	f, err := ioutil.TempFile(testingDir, "kube")
+	f, err := os.CreateTemp(testingDir, "kube")
 	if err != nil {
 		fmt.Println("Error creating TempFile: ", err.Error())
 		return "", err

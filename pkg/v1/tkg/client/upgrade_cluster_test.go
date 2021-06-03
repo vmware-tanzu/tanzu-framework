@@ -4,7 +4,6 @@
 package client_test
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"time"
@@ -786,8 +785,8 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 })
 
 func copyFile(sourceFile, destFile string) {
-	input, _ := ioutil.ReadFile(sourceFile)
-	_ = ioutil.WriteFile(destFile, input, constants.ConfigFilePermissions)
+	input, _ := os.ReadFile(sourceFile)
+	_ = os.WriteFile(destFile, input, constants.ConfigFilePermissions)
 }
 
 func getDummyKCP(machineTemplateKind string) *capikubeadmv1alpha3.KubeadmControlPlane {

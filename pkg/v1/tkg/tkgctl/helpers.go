@@ -5,7 +5,6 @@ package tkgctl
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"github.com/pkg/errors"
@@ -84,7 +83,7 @@ func (t *tkgctl) ensureClusterConfigFile(clusterConfigFile string) (string, erro
 	// create empty clusterConfigFile if not present
 	if _, err = os.Stat(clusterConfigFile); os.IsNotExist(err) {
 		log.V(3).Infof("cluster config file does not exists. Creating new one at '%v'", clusterConfigFile)
-		err = ioutil.WriteFile(clusterConfigFile, []byte{}, constants.ConfigFilePermissions)
+		err = os.WriteFile(clusterConfigFile, []byte{}, constants.ConfigFilePermissions)
 		if err != nil {
 			return "", errors.Wrap(err, "cannot initialize cluster config file")
 		}

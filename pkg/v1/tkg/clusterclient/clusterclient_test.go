@@ -5,7 +5,6 @@ package clusterclient_test
 
 import (
 	"context"
-	"io/ioutil"
 	"net/http"
 	"os"
 	rt "runtime"
@@ -254,7 +253,7 @@ var _ = Describe("Cluster Client", func() {
 		})
 		Context("When kubeconfig bytes are correct and kubeconfig file is present", func() {
 			BeforeEach(func() {
-				kubeConfigData, _ := ioutil.ReadFile(getConfigFilePath("config5.yaml"))
+				kubeConfigData, _ := os.ReadFile(getConfigFilePath("config5.yaml"))
 				currentKubeCtx, prevKubeCtx, err = clstClient.MergeAndUseConfigForCluster(kubeConfigData, "overrideContext")
 			})
 			It("should not return error", func() {
@@ -1886,7 +1885,7 @@ var _ = Describe("Cluster Client", func() {
 })
 
 func createTempDirectory() {
-	testingDir, _ = ioutil.TempDir("", "cluster_client_test")
+	testingDir, _ = os.MkdirTemp("", "cluster_client_test")
 }
 
 func deleteTempDirectory() {
@@ -1895,14 +1894,14 @@ func deleteTempDirectory() {
 
 func getConfigFilePath(filename string) string {
 	filePath := "../fakes/config/kubeconfig/" + filename
-	f, _ := ioutil.TempFile(testingDir, "kube")
+	f, _ := os.CreateTemp(testingDir, "kube")
 	copyFile(filePath, f.Name())
 	return f.Name()
 }
 
 func copyFile(sourceFile, destFile string) {
-	input, _ := ioutil.ReadFile(sourceFile)
-	_ = ioutil.WriteFile(destFile, input, constants.ConfigFilePermissions)
+	input, _ := os.ReadFile(sourceFile)
+	_ = os.WriteFile(destFile, input, constants.ConfigFilePermissions)
 }
 
 func getDummyPacificManagedClusterObj(phaseobj interface{}) unstructured.Unstructured {

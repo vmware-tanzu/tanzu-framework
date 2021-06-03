@@ -5,7 +5,6 @@ package client_test
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"time"
@@ -89,10 +88,10 @@ var _ = Describe("Unit tests for get AWS credentials", func() {
 
 			Expect(err).ToNot(HaveOccurred())
 
-			input, err := ioutil.ReadFile("../fakes/config/aws_credentials")
+			input, err := os.ReadFile("../fakes/config/aws_credentials")
 			Expect(err).ToNot(HaveOccurred())
 			dest := filepath.Join(testingDir, ".aws", "credentials")
-			err = ioutil.WriteFile(dest, input, 0o644)
+			err = os.WriteFile(dest, input, 0o644)
 			Expect(err).ToNot(HaveOccurred())
 		})
 		It("should get the credentials without error ", func() {
@@ -111,7 +110,7 @@ var _ = Describe("Unit tests for get AWS credentials", func() {
 })
 
 func createTempDirectory(prefix string) {
-	testingDir, err = ioutil.TempDir("", prefix)
+	testingDir, err = os.MkdirTemp("", prefix)
 	if err != nil {
 		fmt.Println("Error TempDir: ", err.Error())
 	}

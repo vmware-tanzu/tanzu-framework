@@ -7,7 +7,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"testing"
@@ -53,7 +53,7 @@ var _ = Describe("Common Utils", func() {
 		Context("When there is a matching cluster in the kubeconfig", func() {
 			BeforeEach(func() {
 				kubeConfigPath := getConfigFilePath("config6.yaml")
-				kubeconfigBytes, _ := ioutil.ReadFile(kubeConfigPath)
+				kubeconfigBytes, _ := os.ReadFile(kubeConfigPath)
 				lbContainer := types.Container{
 					Names: []string{"/docker-mgmt-1-lb"},
 					Ports: []types.Port{
@@ -82,13 +82,13 @@ var _ = Describe("Common Utils", func() {
 
 func getConfigFilePath(filename string) string {
 	filePath := "../fakes/config/kubeconfig/" + filename
-	f, _ := ioutil.TempFile(testingDir, "kube")
+	f, _ := os.CreateTemp(testingDir, "kube")
 	copyFile(filePath, f.Name())
 	return f.Name()
 }
 
 func createTempDirectory() {
-	testingDir, _ = ioutil.TempDir("", "cluster_client_test")
+	testingDir, _ = os.MkdirTemp("", "cluster_client_test")
 }
 
 func deleteTempDirectory() {
@@ -96,8 +96,8 @@ func deleteTempDirectory() {
 }
 
 func copyFile(sourceFile, destFile string) {
-	input, _ := ioutil.ReadFile(sourceFile)
-	_ = ioutil.WriteFile(destFile, input, constants.ConfigFilePermissions)
+	input, _ := os.ReadFile(sourceFile)
+	_ = os.WriteFile(destFile, input, constants.ConfigFilePermissions)
 }
 
 // the following was brought from docker, this is how ListContainer is mocked
@@ -110,7 +110,7 @@ func newListContainerDoer(containers []types.Container) func(*http.Request) (*ht
 
 		return &http.Response{
 			StatusCode: http.StatusOK,
-			Body:       ioutil.NopCloser(bytes.NewReader(b)),
+			Body:       io.NopCloser(bytes.NewReader(b)),
 		}, nil
 	}
 }

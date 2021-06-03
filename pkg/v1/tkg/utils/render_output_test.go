@@ -4,7 +4,6 @@
 package utils
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -58,7 +57,7 @@ var _ = Describe("Render Output Tests", func() {
 		})
 		It("returns an error", func() {
 			Expect(err).NotTo(HaveOccurred())
-			bytes, err = ioutil.ReadFile(TempOutputFile)
+			bytes, err = os.ReadFile(TempOutputFile)
 			Expect(err).NotTo(HaveOccurred())
 			output := spaceReplacer.Replace(string(bytes))
 			Expect(output).To(Equal(`[{"name":"fake-cluster-name","namespace":"fake-namespace"}]`))
@@ -72,7 +71,7 @@ var _ = Describe("Render Output Tests", func() {
 		})
 		It("returns an error", func() {
 			Expect(err).NotTo(HaveOccurred())
-			bytes, err = ioutil.ReadFile(TempOutputFile)
+			bytes, err = os.ReadFile(TempOutputFile)
 			Expect(err).NotTo(HaveOccurred())
 			output := spaceReplacer.Replace(string(bytes))
 			Expect(output).To(Equal(`[]`))
@@ -86,7 +85,7 @@ var _ = Describe("Render Output Tests", func() {
 		})
 		It("returns an error", func() {
 			Expect(err).NotTo(HaveOccurred())
-			bytes, err = ioutil.ReadFile(TempOutputFile)
+			bytes, err = os.ReadFile(TempOutputFile)
 			Expect(err).NotTo(HaveOccurred())
 			output := spaceReplacer.Replace(string(bytes))
 			Expect(output).To(Equal(`{"name":"fake-cluster-name","namespace":"fake-namespace"}`))
@@ -100,7 +99,7 @@ var _ = Describe("Render Output Tests", func() {
 		})
 		It("returns an error", func() {
 			Expect(err).NotTo(HaveOccurred())
-			bytes, err = ioutil.ReadFile(TempOutputFile)
+			bytes, err = os.ReadFile(TempOutputFile)
 			Expect(err).NotTo(HaveOccurred())
 			output := spaceReplacer.Replace(string(bytes))
 			Expect(output).To(Equal(`{}`))

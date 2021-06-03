@@ -8,7 +8,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"reflect"
@@ -1053,12 +1052,12 @@ func (c *client) kubectlApplyFile(url string) error {
 }
 
 func (c *client) kubectlApply(yaml string) error {
-	f, err := ioutil.TempFile("", "kubeapply-")
+	f, err := os.CreateTemp("", "kubeapply-")
 	if err != nil {
 		return errors.Wrap(err, "unable to create temp file")
 	}
 	defer removeAppliedFile(f)
-	err = ioutil.WriteFile(f.Name(), []byte(yaml), constants.ConfigFilePermissions)
+	err = os.WriteFile(f.Name(), []byte(yaml), constants.ConfigFilePermissions)
 	if err != nil {
 		return errors.Wrap(err, "unable to write temp file")
 	}

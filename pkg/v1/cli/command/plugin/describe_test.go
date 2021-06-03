@@ -6,7 +6,6 @@ package plugin
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -14,7 +13,7 @@ import (
 )
 
 func readOutput(t *testing.T, r io.Reader, c chan<- []byte) {
-	data, err := ioutil.ReadAll(r)
+	data, err := io.ReadAll(r)
 	if err != nil {
 		t.Error(err)
 	}

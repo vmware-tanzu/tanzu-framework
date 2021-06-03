@@ -5,7 +5,6 @@ package plugin
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -39,7 +38,7 @@ func TestNewPlugin(t *testing.T) {
 func TestNewPluginFromFile(t *testing.T) {
 	assert := assert.New(t)
 
-	tmpFile, err := ioutil.TempFile("", "plugin-test-*.json")
+	tmpFile, err := os.CreateTemp("", "plugin-test-*.json")
 	if err != nil {
 		t.Error(err)
 	}
@@ -59,7 +58,7 @@ func TestNewPluginFromFile(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	err = ioutil.WriteFile(pluginFile, pluginJSON, 0644)
+	err = os.WriteFile(pluginFile, pluginJSON, 0644)
 	if err != nil {
 		t.Error(err)
 	}

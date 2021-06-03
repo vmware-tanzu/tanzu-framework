@@ -5,7 +5,6 @@ package tkgconfigproviders_test
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -767,7 +766,7 @@ var _ = Describe("NewDockerConfig", func() {
 })
 
 func createTempDirectory(prefix string) {
-	testingDir, err = ioutil.TempDir("", prefix)
+	testingDir, err = os.MkdirTemp("", prefix)
 	if err != nil {
 		fmt.Println("Error TempDir: ", err.Error())
 	}

@@ -6,7 +6,6 @@ package kind
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 	"time"
@@ -252,7 +251,7 @@ func (k *KindClusterProxy) createDockerRegistryCACertFile(customRepositoryCaCert
 	if err != nil {
 		return "", errors.Wrap(err, fmt.Sprintf("failed to create custom repository CA certificate file %s", tempCACertFilePath))
 	}
-	err = ioutil.WriteFile(tempCACertFilePath, customRepositoryCaCert, 0o644)
+	err = os.WriteFile(tempCACertFilePath, customRepositoryCaCert, 0o644)
 	if err != nil {
 		return "", errors.Wrap(err, fmt.Sprintf("failed to write custom repository CA certificate file %s", tempCACertFilePath))
 	}

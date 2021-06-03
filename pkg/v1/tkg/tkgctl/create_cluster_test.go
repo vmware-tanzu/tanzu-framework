@@ -4,7 +4,6 @@
 package tkgctl
 
 import (
-	"io/ioutil"
 	"os"
 
 	. "github.com/onsi/ginkgo"
@@ -204,18 +203,18 @@ var _ = Describe("Unit tests for getAndDownloadTkrIfNeeded", func() {
 func getConfigFilePath() string {
 	filename := "config1.yaml"
 	filePath := "../fakes/config/kubeconfig/" + filename
-	f, _ := ioutil.TempFile(testingDir, "kube")
+	f, _ := os.CreateTemp(testingDir, "kube")
 	copyFile(filePath, f.Name())
 	return f.Name()
 }
 
 func copyFile(sourceFile, destFile string) {
-	input, _ := ioutil.ReadFile(sourceFile)
-	_ = ioutil.WriteFile(destFile, input, constants.ConfigFilePermissions)
+	input, _ := os.ReadFile(sourceFile)
+	_ = os.WriteFile(destFile, input, constants.ConfigFilePermissions)
 }
 
 func createTempDirectory() {
-	testingDir, _ = ioutil.TempDir("", "cluster_client_test")
+	testingDir, _ = os.MkdirTemp("", "cluster_client_test")
 }
 
 func deleteTempDirectory() {

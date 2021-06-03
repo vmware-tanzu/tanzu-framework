@@ -4,7 +4,6 @@
 package yamlprocessor_test
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -37,11 +36,11 @@ var _ = Describe("YttProcessor", func() {
 
 	Context("GetVariables", func() {
 		It("returns the variables defined in the data yaml", func() {
-			dir, err := ioutil.TempDir("", "tkg-cli")
+			dir, err := os.MkdirTemp("", "tkg-cli")
 			Expect(err).NotTo(HaveOccurred())
 			defer os.RemoveAll(dir)
 			templateDataFile := filepath.Join(dir, "test-template-data.yaml")
-			Expect(ioutil.WriteFile(templateDataFile, []byte(templateDataYaml), 0o600)).To(Succeed())
+			Expect(os.WriteFile(templateDataFile, []byte(templateDataYaml), 0o600)).To(Succeed())
 
 			path := v1alpha1.PathInfo{Path: dir}
 			dp := &fakeDefinitionParser{
@@ -58,16 +57,16 @@ var _ = Describe("YttProcessor", func() {
 		It("returns the variables defined in all data yamls", func() {
 			// See https://get-ytt.io/#example:example-multiple-data-values
 			// for more information.
-			dir, err := ioutil.TempDir("", "tkg-cli")
+			dir, err := os.MkdirTemp("", "tkg-cli")
 			Expect(err).NotTo(HaveOccurred())
 			defer os.RemoveAll(dir)
 			templateFile := filepath.Join(dir, "test-template.yaml")
 			templateDataFile := filepath.Join(dir, "test-template-data.yaml")
 			templateDataFile2 := filepath.Join(dir, "test-template-data2.yaml")
 
-			Expect(ioutil.WriteFile(templateFile, []byte(templateYaml), 0o600)).To(Succeed())
-			Expect(ioutil.WriteFile(templateDataFile, []byte(templateDataYaml), 0o600)).To(Succeed())
-			Expect(ioutil.WriteFile(templateDataFile2, []byte(templateDataYaml2), 0o600)).To(Succeed())
+			Expect(os.WriteFile(templateFile, []byte(templateYaml), 0o600)).To(Succeed())
+			Expect(os.WriteFile(templateDataFile, []byte(templateDataYaml), 0o600)).To(Succeed())
+			Expect(os.WriteFile(templateDataFile2, []byte(templateDataYaml2), 0o600)).To(Succeed())
 
 			path := v1alpha1.PathInfo{Path: dir}
 			dp := &fakeDefinitionParser{
@@ -82,11 +81,11 @@ var _ = Describe("YttProcessor", func() {
 		})
 
 		It("doesn't return any variables since no external variables are defined", func() {
-			dir, err := ioutil.TempDir("", "tkg-cli")
+			dir, err := os.MkdirTemp("", "tkg-cli")
 			Expect(err).NotTo(HaveOccurred())
 			defer os.RemoveAll(dir)
 			templateFile := filepath.Join(dir, "test-template.yaml")
-			Expect(ioutil.WriteFile(templateFile, []byte(simpleYttYaml), 0o600)).To(Succeed())
+			Expect(os.WriteFile(templateFile, []byte(simpleYttYaml), 0o600)).To(Succeed())
 
 			path := v1alpha1.PathInfo{Path: dir}
 			dp := &fakeDefinitionParser{
@@ -128,7 +127,7 @@ var _ = Describe("YttProcessor", func() {
 		})
 
 		It("returns error if data values is malformed", func() {
-			dir, err := ioutil.TempDir("", "tkg-cli")
+			dir, err := os.MkdirTemp("", "tkg-cli")
 			Expect(err).NotTo(HaveOccurred())
 			defer os.RemoveAll(dir)
 			// missing document separator between ytt annotation and document
@@ -138,7 +137,7 @@ cluster_name: default
 count: 1`
 
 			templateDataFile := filepath.Join(dir, "test-template-data.yaml")
-			Expect(ioutil.WriteFile(templateDataFile, []byte(badDataFile), 0o600)).To(Succeed())
+			Expect(os.WriteFile(templateDataFile, []byte(badDataFile), 0o600)).To(Succeed())
 
 			path := v1alpha1.PathInfo{Path: dir}
 			dp := &fakeDefinitionParser{
@@ -162,16 +161,16 @@ region: us-west-1a
 		It("returns the final processed yaml with multiple data values files and override values", func() {
 			// See https://get-ytt.io/#example:example-multiple-data-values
 			// for more information.
-			dir, err := ioutil.TempDir("", "tkg-cli")
+			dir, err := os.MkdirTemp("", "tkg-cli")
 			Expect(err).NotTo(HaveOccurred())
 			defer os.RemoveAll(dir)
 			templateFile := filepath.Join(dir, "test-template.yaml")
 			templateDataFile := filepath.Join(dir, "test-template-data.yaml")
 			templateDataFile2 := filepath.Join(dir, "test-template-data2.yaml")
 
-			Expect(ioutil.WriteFile(templateFile, []byte(templateYaml), 0o600)).To(Succeed())
-			Expect(ioutil.WriteFile(templateDataFile, []byte(templateDataYaml), 0o600)).To(Succeed())
-			Expect(ioutil.WriteFile(templateDataFile2, []byte(templateDataYaml2), 0o600)).To(Succeed())
+			Expect(os.WriteFile(templateFile, []byte(templateYaml), 0o600)).To(Succeed())
+			Expect(os.WriteFile(templateDataFile, []byte(templateDataYaml), 0o600)).To(Succeed())
+			Expect(os.WriteFile(templateDataFile2, []byte(templateDataYaml2), 0o600)).To(Succeed())
 
 			configClient := NewFakeVariableClient().WithVar("cluster_name", "foo").WithVar("count", "22").WithVar("AWS_REGION", "us-east-1a")
 			path := v1alpha1.PathInfo{Path: dir}
@@ -191,16 +190,16 @@ region: us-east-1a
 		})
 
 		It("returns the final processed yaml with default values", func() {
-			dir, err := ioutil.TempDir("", "tkg-cli")
+			dir, err := os.MkdirTemp("", "tkg-cli")
 			Expect(err).NotTo(HaveOccurred())
 			defer os.RemoveAll(dir)
 			templateFile := filepath.Join(dir, "test-template.yaml")
 			templateDataFile := filepath.Join(dir, "test-template-data.yaml")
 			templateDataFile2 := filepath.Join(dir, "test-template-data2.yaml")
 
-			Expect(ioutil.WriteFile(templateFile, []byte(templateYaml), 0o600)).To(Succeed())
-			Expect(ioutil.WriteFile(templateDataFile, []byte(templateDataYaml), 0o600)).To(Succeed())
-			Expect(ioutil.WriteFile(templateDataFile2, []byte(templateDataYaml2), 0o600)).To(Succeed())
+			Expect(os.WriteFile(templateFile, []byte(templateYaml), 0o600)).To(Succeed())
+			Expect(os.WriteFile(templateDataFile, []byte(templateDataYaml), 0o600)).To(Succeed())
+			Expect(os.WriteFile(templateDataFile2, []byte(templateDataYaml2), 0o600)).To(Succeed())
 
 			configClient := NewFakeVariableClient()
 			path := v1alpha1.PathInfo{Path: dir}
@@ -217,7 +216,7 @@ region: us-east-1a
 		})
 
 		It("is able to processed ytt files that are nested in subdirectories", func() {
-			dir, err := ioutil.TempDir("", "tkg-cli")
+			dir, err := os.MkdirTemp("", "tkg-cli")
 			Expect(err).NotTo(HaveOccurred())
 			defer os.RemoveAll(dir)
 			// This nested dir starts with "z" because of ytt file ordering.
@@ -226,15 +225,15 @@ region: us-east-1a
 			// case the order of the files would be ./test-template-data.yaml
 			// and then ./znested-dir<random>/test-template-data2.yaml. If the
 			// "z" was omitted it would've been reversed.
-			nestedDir, err := ioutil.TempDir(dir, "znested-dir")
+			nestedDir, err := os.MkdirTemp(dir, "znested-dir")
 			Expect(err).NotTo(HaveOccurred())
 			// keep template file on top level dir
 			templateFile := filepath.Join(dir, "test-template.yaml")
 			templateDataFile := filepath.Join(dir, "test-template-data.yaml")
 			templateDataFile2 := filepath.Join(nestedDir, "test-template-data2.yaml")
-			Expect(ioutil.WriteFile(templateFile, []byte(templateYaml), 0o600)).To(Succeed())
-			Expect(ioutil.WriteFile(templateDataFile, []byte(templateDataYaml), 0o600)).To(Succeed())
-			Expect(ioutil.WriteFile(templateDataFile2, []byte(templateDataYaml2), 0o600)).To(Succeed())
+			Expect(os.WriteFile(templateFile, []byte(templateYaml), 0o600)).To(Succeed())
+			Expect(os.WriteFile(templateDataFile, []byte(templateDataYaml), 0o600)).To(Succeed())
+			Expect(os.WriteFile(templateDataFile2, []byte(templateDataYaml2), 0o600)).To(Succeed())
 
 			configClient := NewFakeVariableClient()
 			path := v1alpha1.PathInfo{Path: dir}
@@ -276,11 +275,11 @@ region: us-east-1a
 		})
 
 		It("returns an error since assertion failed", func() {
-			dir, err := ioutil.TempDir("", "tkg-cli")
+			dir, err := os.MkdirTemp("", "tkg-cli")
 			Expect(err).NotTo(HaveOccurred())
 			defer os.RemoveAll(dir)
 			templateFile := filepath.Join(dir, "test-template.yaml")
-			Expect(ioutil.WriteFile(templateFile, []byte(assertYttYaml), 0o600)).To(Succeed())
+			Expect(os.WriteFile(templateFile, []byte(assertYttYaml), 0o600)).To(Succeed())
 
 			configClient := NewFakeVariableClient()
 			path := v1alpha1.PathInfo{Path: dir}

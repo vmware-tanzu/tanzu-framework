@@ -4,7 +4,7 @@
 package client_test
 
 import (
-	"io/ioutil"
+	"os"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -22,7 +22,7 @@ var _ = Describe("Utils", func() {
 	)
 	Describe("DeleteContextFromKubeConfig tests", func() {
 		BeforeEach(func() {
-			f, err := ioutil.TempFile("", "yaml")
+			f, err := os.CreateTemp("", "yaml")
 			Expect(err).ToNot(HaveOccurred())
 			tempKubeConfigPath = f.Name()
 			copyFile("../fakes/config/kubeconfig/config1.yaml", tempKubeConfigPath)

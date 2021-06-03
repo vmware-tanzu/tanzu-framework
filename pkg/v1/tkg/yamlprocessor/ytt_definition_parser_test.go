@@ -5,7 +5,6 @@ package yamlprocessor_test
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -20,7 +19,7 @@ var _ = Describe("YttDefinitionParser", func() {
 	Context("ParsePath", func() {
 		It("returns error if any path cannot be parsed", func() {
 			// create a fake home dir
-			homeDir, err := ioutil.TempDir("", "tkg-cli")
+			homeDir, err := os.MkdirTemp("", "tkg-cli")
 			setHomeDirectoryEnvVariable(homeDir)
 			Expect(err).ToNot(HaveOccurred())
 			defer os.RemoveAll(homeDir)
@@ -45,7 +44,7 @@ spec:
 
 		It("returns the path specified in the template definition", func() {
 			// create a fake home dir
-			homeDir, err := ioutil.TempDir("", "tkg-cli")
+			homeDir, err := os.MkdirTemp("", "tkg-cli")
 			setHomeDirectoryEnvVariable(homeDir)
 			Expect(err).ToNot(HaveOccurred())
 			defer os.RemoveAll(homeDir)
@@ -80,7 +79,7 @@ spec:
 
 		It("returns an error if the path specified within the template definition is outside the config dir", func() {
 			// create a fake home dir
-			homeDir, err := ioutil.TempDir("", "tkg-cli")
+			homeDir, err := os.MkdirTemp("", "tkg-cli")
 			setHomeDirectoryEnvVariable(homeDir)
 			Expect(err).ToNot(HaveOccurred())
 			defer os.RemoveAll(homeDir)

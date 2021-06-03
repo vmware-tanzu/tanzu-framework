@@ -8,9 +8,9 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"io/ioutil"
 	"net"
 	"net/url"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
@@ -122,7 +122,7 @@ func (c *TkgClient) DownloadBomFile(tkrName string) error {
 		return err
 	}
 
-	if err := ioutil.WriteFile(filepath.Join(bomDir, "tkr-bom-"+tkrName+".yaml"), bomData, 0o600); err != nil {
+	if err := os.WriteFile(filepath.Join(bomDir, "tkr-bom-"+tkrName+".yaml"), bomData, 0o600); err != nil {
 		return err
 	}
 	return nil

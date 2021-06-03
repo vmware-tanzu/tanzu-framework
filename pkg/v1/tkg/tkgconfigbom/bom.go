@@ -6,7 +6,6 @@ package tkgconfigbom
 import (
 	"encoding/base64"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -163,7 +162,7 @@ func (c *client) GetDefaultTKRVersion() (string, error) {
 
 // loadBOMConfiguration returns bom configuration based on given bom file path
 func (c *client) loadBOMConfiguration(bomFilePath string) (*BOMConfiguration, error) {
-	data, err := ioutil.ReadFile(bomFilePath)
+	data, err := os.ReadFile(bomFilePath)
 	if err != nil {
 		return nil, errors.Wrapf(err, "unable to read BOM file %s", bomFilePath)
 	}
@@ -492,7 +491,7 @@ func (c *client) InitBOMRegistry() (registry.Registry, error) {
 		if err != nil {
 			return nil, errors.Wrap(err, "unable to decode the base64-encoded custom registry CA certificate string")
 		}
-		err = ioutil.WriteFile(filePath, decoded, 0o644)
+		err = os.WriteFile(filePath, decoded, 0o644)
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to write the custom image registry CA cert to file '%s'", filePath)
 		}
@@ -521,7 +520,7 @@ func (c *client) saveEmbeddedBomToUserDefaultBOMDirectory(bomFileName string, bo
 	// Write BOM file only if user's BOM file with same version does not exists.
 	// This will ensure that TKG CLI does not override user's customized BOM file.
 	if _, err := os.Stat(bomFilePath); os.IsNotExist(err) {
-		err = ioutil.WriteFile(bomFilePath, bomFileBytes, constants.ConfigFilePermissions)
+		err = os.WriteFile(bomFilePath, bomFileBytes, constants.ConfigFilePermissions)
 		if err != nil {
 			return errors.Wrap(err, "cannot create TKG BOM file")
 		}
@@ -534,7 +533,7 @@ func addRegistryTrustedRootCertsFileForWindows(registryOpts *ctlimg.RegistryOpts
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(filePath, projectsRegistryCA, constants.ConfigFilePermissions)
+	err = os.WriteFile(filePath, projectsRegistryCA, constants.ConfigFilePermissions)
 	if err != nil {
 		return errors.Wrapf(err, "failed to write the registry trusted CA cert to file '%s'", filePath)
 	}

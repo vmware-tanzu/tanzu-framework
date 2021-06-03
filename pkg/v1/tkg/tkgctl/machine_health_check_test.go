@@ -4,7 +4,6 @@
 package tkgctl
 
 import (
-	"io/ioutil"
 	"os"
 
 	. "github.com/onsi/ginkgo"
@@ -23,7 +22,7 @@ var _ = Describe("Unit tests for delete machine health check", func() {
 	)
 
 	JustBeforeEach(func() {
-		configDir, err = ioutil.TempDir("", "test")
+		configDir, err = os.MkdirTemp("", "test")
 		err = os.MkdirAll(testingDir, 0o700)
 		Expect(err).ToNot(HaveOccurred())
 		prepareConfiDir(configDir)

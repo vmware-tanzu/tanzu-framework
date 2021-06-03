@@ -4,7 +4,6 @@
 package tkgctl
 
 import (
-	"io/ioutil"
 	"os"
 	"time"
 
@@ -31,7 +30,7 @@ var _ = Describe("Unit tests for upgrade management cluster", func() {
 		}
 	)
 	JustBeforeEach(func() {
-		configDir, err = ioutil.TempDir("", "test")
+		configDir, err = os.MkdirTemp("", "test")
 		err = os.MkdirAll(configDir, 0o700)
 		Expect(err).ToNot(HaveOccurred())
 		prepareConfiDir(configDir)
@@ -111,7 +110,7 @@ var _ = Describe("Unit tests for upgrade cluster", func() {
 		ops       UpgradeClusterOptions
 	)
 	JustBeforeEach(func() {
-		configDir, err = ioutil.TempDir("", "test")
+		configDir, err = os.MkdirTemp("", "test")
 		err = os.MkdirAll(configDir, 0o700)
 		Expect(err).ToNot(HaveOccurred())
 		prepareConfiDir(configDir)
