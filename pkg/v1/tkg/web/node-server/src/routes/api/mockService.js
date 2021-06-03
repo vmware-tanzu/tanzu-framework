@@ -1034,4 +1034,32 @@ router.post(`${ENDPOINT}/providers/docker/tkgconfig`, (req, res) => {
     });
 });
 
+/**
+ * LDAP verification mock services
+ */
+router.post(`${ENDPOINT}/ldap/connect`, (req, res) => {
+    winston.info('Mock TKG UI VERIFY LDAP CONNECTION');
+    res.status(200);
+});
+
+router.post(`${ENDPOINT}/ldap/bind`, (req, res) => {
+    winston.info('Mock TKG UI VERIFY LDAP BIND');
+    res.status(200);
+});
+
+router.post(`${ENDPOINT}/ldap/users/search`, (req, res) => {
+    winston.info('Mock TKG UI VERIFY LDAP USER SEARCH');
+    res.status(200);
+});
+
+router.post(`${ENDPOINT}/ldap/groups/search`, (req, res) => {
+    winston.info('Mock TKG UI VERIFY LDAP GROUP SEARCH');
+    res.status(200);
+});
+
+router.post(`${ENDPOINT}/ldap/disconnect`, (req, res) => {
+    winston.info('Mock TKG UI VERIFY LDAP DISCONNECT');
+    res.status(200);
+});
+
 module.exports = router;

@@ -553,7 +553,118 @@
                         </div>
                     </div>
                 </div>
+                <div class="clr-col-12 clr-col-lg-8 container">
+                    <div class="clr-form-control">
+                        <label class="clr-control-label">
+                            <clr-tooltip>
+                                VERIFY LDAP CONFIGURATION (OPTIONAL)
+                                <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22">
+                                </clr-icon>
+                                <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                    <span>
+                                        Verify LDAP configuration by performing a best effort connectivity and
+                                        functionality
+                                        test from the host that Tanzu CLI is running on. The verification result is for
+                                        reference only.
+                                    </span>
+                                </clr-tooltip-content>
+                            </clr-tooltip>
+                        </label>
+                    </div>
+                        <div class="button-container">
+                            <button class="btn btn-info" (click)="verifyLdapConfig = !verifyLdapConfig">
+                                VERIFY LDAP CONFIGURATION...
+                            </button>
+                        </div>
+                </div>
             </div>
+                
+                <clr-modal [(clrModalOpen)]="verifyLdapConfig">
+                    <h3 class="modal-title">Verify LDAP Configuration</h3>
+                    <div class="modal-body">
+                        <div class="clr-row">
+                            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-6">
+                                <clr-input-container>
+                                    <label>
+                                        TEST USER NAME (OPTIONAL)
+                                        <clr-tooltip>
+                                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22">
+                                            </clr-icon>
+                                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                                <span>A user name used to test LDAP user search functionality.</span>
+                                            </clr-tooltip-content>
+                                        </clr-tooltip>
+                                    </label>
+                                    <input clrInput formControlName="testUserName" placeholder="userid" name="testUserName" />
+                                    <clr-control-helper></clr-control-helper>
+                                </clr-input-container>
+                            </div>
+                            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-6">
+                                <clr-input-container>
+                                    <label>
+                                        TEST GROUP NAME (OPTIONAL)
+                                        <clr-tooltip>
+                                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22">
+                                            </clr-icon>
+                                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                                <span>A group name used to test LDAP group search functionality</span>
+                                            </clr-tooltip-content>
+                                        </clr-tooltip>
+                                    </label>
+                                    <input clrInput formControlName="testGroupName" placeholder="people" name="testGroupName" />
+                                    <clr-control-helper></clr-control-helper>
+                                </clr-input-container>
+                            </div>π
+                        </div>
+                        <div>
+                            <clr-timeline clrLayout="vertical">
+                                <clr-timeline-step [clrState]="timelineState['CONNECT']">
+                                    <clr-timeline-step-header></clr-timeline-step-header>
+                                    <clr-timeline-step-title>Connect</clr-timeline-step-title>
+                                    <clr-timeline-step-description>Test LDAP server reachability.
+                                        <p>{{timelineError['CONNECT']}}</p>
+                                    </clr-timeline-step-description>
+                                </clr-timeline-step>
+                                <clr-timeline-step [clrState]="timelineState['BIND']">
+                                    <clr-timeline-step-header></clr-timeline-step-header>
+                                    <clr-timeline-step-title>Bind</clr-timeline-step-title>
+                                    <clr-timeline-step-description>
+                                        Test LDAP authentication.
+                                        <p>{{timelineError['BIND']}}</p>
+                                    </clr-timeline-step-description>
+                                </clr-timeline-step>
+                                <clr-timeline-step class="gemini-ignore" [clrState]="timelineState['USER_SEARCH']">
+                                    <clr-timeline-step-header></clr-timeline-step-header>
+                                    <clr-timeline-step-title>User Search</clr-timeline-step-title>
+                                    <clr-timeline-step-description>
+                                        Test LDAP user search functionality.
+                                        <p>{{timelineError['USER_SEARCH']}}</p>
+                                    </clr-timeline-step-description>
+                                </clr-timeline-step>
+                                <clr-timeline-step [clrState]="timelineState['GROUP_SEARCH']">
+                                    <clr-timeline-step-header></clr-timeline-step-header>
+                                    <clr-timeline-step-title>Group Search</clr-timeline-step-title>
+                                    <clr-timeline-step-description>
+                                        Test LDAP group search functionality.
+                                        <p>{{timelineError['GROUP_SEARCH']}}</p>
+                                    </clr-timeline-step-description>
+                                </clr-timeline-step>
+                                <clr-timeline-step [clrState]="timelineState['DISCONNECT']">
+                                    <clr-timeline-step-header></clr-timeline-step-header>
+                                    <clr-timeline-step-title>Disconnect</clr-timeline-step-title>
+                                    <clr-timeline-step-description>
+                                        Disconnect from LDAP server.
+                                        <p>{{timelineError['DISCONNECT']}}</p>
+                                    </clr-timeline-step-description>
+                                </clr-timeline-step>
+                            </clr-timeline>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" (click)="startVerifyLdapConfig()">Start</button>
+                    </div>
+                </clr-modal>
+                
         </ng-container>
     </div>
 </form>

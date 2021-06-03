@@ -94,6 +94,8 @@ func FileServerMiddleware(handler http.Handler) http.Handler {
 			handler.ServeHTTP(w, r)
 		} else if strings.HasPrefix(r.URL.Path, "/api/avi") {
 			handler.ServeHTTP(w, r)
+		} else if strings.HasPrefix(r.URL.Path, "/api/ldap") {
+			handler.ServeHTTP(w, r)
 		} else {
 			w.Header().Set("Cache-Control", "no-store")
 			w.Header().Set("Pragma", "no-cache")

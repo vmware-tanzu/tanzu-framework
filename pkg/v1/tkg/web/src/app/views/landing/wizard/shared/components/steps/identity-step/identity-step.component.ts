@@ -1,8 +1,28 @@
+import { LdapParams } from './../../../../../../../swagger/models/ldap-params.model';
 import { Component, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
-import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { distinctUntilChanged, takeUntil, tap } from 'rxjs/operators';
+import { APIClient } from 'src/app/swagger';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { ValidationService } from '../../../validation/validation.service';
+import { LdapTestResult } from 'src/app/swagger/models';
+
+const CONNECT = "CONNECT";
+const BIND = "BIND";
+const USER_SEARCH = "USER_SEARCH";
+const GROUP_SEARCH = "GROUP_SEARCH";
+const DISCONNECT = "DISCONNECT";
+
+const TEST_SUCCESS = 1;
+const TEST_SKIPPED = 2;
+
+const LDAP_TESTS = [CONNECT, BIND, USER_SEARCH, GROUP_SEARCH, DISCONNECT];
+
+const NOT_STARTED = "not-started";
+const CURRENT = "current";
+const SUCCESS = "success";
+const ERROR = "error";
+const PROCESSING = "processing";
 
 const oidcFields: Array<string> = [
     'issuerURL',
@@ -29,8 +49,27 @@ const ldapNonValidatedFields: Array<string> = [
     'groupSearchUserAttr',
     'groupSearchGroupAttr',
     'groupSearchNameAttr',
-    'ldapRootCAData'
+    'ldapRootCAData',
+    'testUserName',
+    'testGroupName'
 ];
+
+const LDAP_PARAMS = {
+    ldap_bind_dn: "bindDN",
+    ldap_bind_password: "bindPW",
+    ldap_group_search_base_dn: "groupSearchBaseDN",
+    ldap_group_search_filter: "groupSearchFilter",
+    ldap_group_search_group_attr: "groupSearchGroupAttr",
+    ldap_group_search_name_attr: "groupSearchNameAttr",
+    ldap_group_search_user_attr: "groupSearchUserAttr",
+    ldap_root_ca: "ldapRootCAData",
+    ldap_user_search_base_dn: "userSearchBaseDN",
+    ldap_user_search_filter: "userSearchFilter",
+    ldap_user_search_name_attr: "userSearchUsername",
+    ldap_user_search_username: "userSearchUsername",
+    ldap_test_group: "testGroupName",
+    ldap_test_user: "testUserName"
+}
 
 @Component({
     selector: 'app-shared-identity-step',
@@ -39,11 +78,16 @@ const ldapNonValidatedFields: Array<string> = [
 })
 export class SharedIdentityStepComponent extends StepFormDirective implements OnInit {
     identityTypeValue: string = 'oidc'
+    _verifyLdapConfig = false;
 
     fields: Array<string> = [...oidcFields, ...ldapValidatedFields, ...ldapNonValidatedFields];
 
-    constructor(private validationService: ValidationService) {
+    timelineState = {};
+    timelineError = {};
+
+    constructor(private apiClient: APIClient, private validationService: ValidationService) {
         super();
+        this.resetTimelineState();
     }
 
     ngOnInit(): void {
@@ -100,7 +144,7 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
         ], this.getSavedValue('scopes', ''));
 
         this.resurrectField('oidcUsernameClaim', [
-           Validators.required
+            Validators.required
         ], this.getSavedValue('oidcUsernameClaim', ''));
 
         this.resurrectField('oidcGroupsClaim', [
@@ -151,5 +195,100 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
     ldapEndpointInputValidity(): boolean {
         return this.formGroup.get('endpointIp').valid &&
             this.formGroup.get('endpointPort').valid;
+    }
+
+    resetTimelineState() {
+        LDAP_TESTS.forEach(t => {
+            this.timelineState[t] = NOT_STARTED;
+            this.timelineError[t] = null;
+        })
+    }
+
+    cropLdapConfig(): LdapParams {
+        const ldapParams: LdapParams = {};
+
+        Object.entries(LDAP_PARAMS).forEach(([k, v]) => {
+            if (this.formGroup.get(v)) {
+                ldapParams[k] = this.formGroup.get(v).value || "";
+            } else {
+                console.log("Unable to find field: " + v);
+            }
+        });
+        ldapParams.ldap_url = "ldaps://" + this.formGroup.get('endpointIp').value + ':' + this.formGroup.get('endpointPort').value;
+
+        return ldapParams;
+    }
+
+    formatError(err) {
+        if (err) {
+            return err?.error?.message || err?.message || JSON.stringify(err, null, 4);
+        }
+        return "";
+    }
+
+    async startVerifyLdapConfig() {
+        this.resetTimelineState();
+        const params = this.cropLdapConfig();
+
+        console.log(JSON.stringify(params, null, 8));
+        let result: LdapTestResult;
+        try {
+            this.timelineState[CONNECT] = PROCESSING;
+            result = await this.apiClient.verifyLdapConnect({ credentials: params }).toPromise();
+            this.timelineState[CONNECT] = result && (result.code === TEST_SUCCESS ? SUCCESS : NOT_STARTED);
+        } catch (err) {
+            console.log(JSON.stringify(err, null, 8));
+            this.timelineState[CONNECT] = ERROR;
+            this.timelineError[CONNECT] = this.formatError(err);
+        }
+
+        try {
+            this.timelineState[BIND] = PROCESSING;
+            result = await this.apiClient.verifyLdapBind().toPromise();
+            this.timelineState[BIND] = result && (result.code === TEST_SUCCESS ? SUCCESS : NOT_STARTED); ;
+        } catch (err) {
+            console.log(JSON.stringify(err, null, 8));
+            this.timelineState[BIND] = ERROR;
+            this.timelineError[BIND] = this.formatError(err);
+        }
+
+        try {
+            this.timelineState[USER_SEARCH] = PROCESSING;
+            result = await this.apiClient.verifyLdapUserSearch().toPromise();
+            this.timelineState[USER_SEARCH] = result && (result.code === TEST_SUCCESS ? SUCCESS : NOT_STARTED); ;
+        } catch (err) {
+            console.log(JSON.stringify(err, null, 8));
+            this.timelineState[USER_SEARCH] = ERROR;
+            this.timelineError[USER_SEARCH] = this.formatError(err);
+        }
+
+        try {
+            this.timelineState[GROUP_SEARCH] = PROCESSING;
+            result = await this.apiClient.verifyLdapGroupSearch().toPromise();
+            this.timelineState[GROUP_SEARCH] = result && (result.code === TEST_SUCCESS ? SUCCESS : NOT_STARTED); ;
+        } catch (err) {
+            console.log(JSON.stringify(err, null, 8));
+            this.timelineState[GROUP_SEARCH] = ERROR;
+            this.timelineError[GROUP_SEARCH] = this.formatError(err);
+        }
+
+        try {
+            this.timelineState[DISCONNECT] = PROCESSING;
+            await this.apiClient.verifyLdapCloseConnection().toPromise();
+            this.timelineState[DISCONNECT] = SUCCESS;
+        } catch (err) {
+            console.log(JSON.stringify(err, null, 8));
+            this.timelineState[DISCONNECT] = ERROR;
+            this.timelineError[DISCONNECT] = this.formatError(err);
+        }
+    }
+
+    get verifyLdapConfig(): boolean {
+        return this._verifyLdapConfig;
+    }
+
+    set verifyLdapConfig(vlc: boolean) {
+        this._verifyLdapConfig = vlc;
+        this.resetTimelineState();
     }
 }

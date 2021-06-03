@@ -25,6 +25,7 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/restapi/operations/azure"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/restapi/operations/docker"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/restapi/operations/features"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/restapi/operations/ldap"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/restapi/operations/provider"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/restapi/operations/tmc"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/restapi/operations/vsphere"
@@ -32,6 +33,7 @@ import (
 	aviClient "github.com/vmware-tanzu-private/core/pkg/v1/tkg/avi"
 	awsclient "github.com/vmware-tanzu-private/core/pkg/v1/tkg/aws"
 	azureclient "github.com/vmware-tanzu-private/core/pkg/v1/tkg/azure"
+	ldapClient "github.com/vmware-tanzu-private/core/pkg/v1/tkg/ldap"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/ws"
 )
@@ -45,6 +47,7 @@ type App struct {
 	awsClient             awsclient.Client
 	azureClient           azureclient.Client
 	aviClient             aviClient.Client
+	ldapClient            ldapClient.Client
 	TKGConfigReaderWriter tkgconfigreaderwriter.TKGConfigReaderWriter
 	clusterConfigFile     string
 }
@@ -115,6 +118,12 @@ func (app *App) ConfigureHandlers(api middleware.RoutableAPI) { // nolint:funlen
 	a.AviGetAviVipNetworksHandler = avi.GetAviVipNetworksHandlerFunc(app.GetAviVipNetworks)
 
 	a.TmcRetrieveTMCInstallYmlHandler = tmc.RetrieveTMCInstallYmlHandlerFunc(app.RetrieveTMCInstallYml)
+
+	a.LdapVerifyLdapConnectHandler = ldap.VerifyLdapConnectHandlerFunc(app.VerifyLdapConnect)
+	a.LdapVerifyLdapBindHandler = ldap.VerifyLdapBindHandlerFunc(app.VerifyLdapBind)
+	a.LdapVerifyLdapUserSearchHandler = ldap.VerifyLdapUserSearchHandlerFunc(app.VerifyUserSearch)
+	a.LdapVerifyLdapGroupSearchHandler = ldap.VerifyLdapGroupSearchHandlerFunc(app.VerifyGroupSearch)
+	a.LdapVerifyLdapCloseConnectionHandler = ldap.VerifyLdapCloseConnectionHandlerFunc(app.VerifyLdapCloseConnection)
 }
 
 // StartSendingLogsToUI creates logchannel passes it to tkg logger

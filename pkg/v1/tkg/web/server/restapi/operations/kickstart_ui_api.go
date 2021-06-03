@@ -25,6 +25,7 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/restapi/operations/docker"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/restapi/operations/edition"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/restapi/operations/features"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/restapi/operations/ldap"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/restapi/operations/provider"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/restapi/operations/tmc"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/restapi/operations/ui"
@@ -201,6 +202,21 @@ func NewKickstartUIAPI(spec *loads.Document) *KickstartUIAPI {
 		AviVerifyAccountHandler: avi.VerifyAccountHandlerFunc(func(params avi.VerifyAccountParams) middleware.Responder {
 			return middleware.NotImplemented("operation AviVerifyAccount has not yet been implemented")
 		}),
+		LdapVerifyLdapBindHandler: ldap.VerifyLdapBindHandlerFunc(func(params ldap.VerifyLdapBindParams) middleware.Responder {
+			return middleware.NotImplemented("operation LdapVerifyLdapBind has not yet been implemented")
+		}),
+		LdapVerifyLdapCloseConnectionHandler: ldap.VerifyLdapCloseConnectionHandlerFunc(func(params ldap.VerifyLdapCloseConnectionParams) middleware.Responder {
+			return middleware.NotImplemented("operation LdapVerifyLdapCloseConnection has not yet been implemented")
+		}),
+		LdapVerifyLdapConnectHandler: ldap.VerifyLdapConnectHandlerFunc(func(params ldap.VerifyLdapConnectParams) middleware.Responder {
+			return middleware.NotImplemented("operation LdapVerifyLdapConnect has not yet been implemented")
+		}),
+		LdapVerifyLdapGroupSearchHandler: ldap.VerifyLdapGroupSearchHandlerFunc(func(params ldap.VerifyLdapGroupSearchParams) middleware.Responder {
+			return middleware.NotImplemented("operation LdapVerifyLdapGroupSearch has not yet been implemented")
+		}),
+		LdapVerifyLdapUserSearchHandler: ldap.VerifyLdapUserSearchHandlerFunc(func(params ldap.VerifyLdapUserSearchParams) middleware.Responder {
+			return middleware.NotImplemented("operation LdapVerifyLdapUserSearch has not yet been implemented")
+		}),
 	}
 }
 
@@ -334,6 +350,16 @@ type KickstartUIAPI struct {
 	VsphereSetVSphereEndpointHandler vsphere.SetVSphereEndpointHandler
 	// AviVerifyAccountHandler sets the operation handler for the verify account operation
 	AviVerifyAccountHandler avi.VerifyAccountHandler
+	// LdapVerifyLdapBindHandler sets the operation handler for the verify ldap bind operation
+	LdapVerifyLdapBindHandler ldap.VerifyLdapBindHandler
+	// LdapVerifyLdapCloseConnectionHandler sets the operation handler for the verify ldap close connection operation
+	LdapVerifyLdapCloseConnectionHandler ldap.VerifyLdapCloseConnectionHandler
+	// LdapVerifyLdapConnectHandler sets the operation handler for the verify ldap connect operation
+	LdapVerifyLdapConnectHandler ldap.VerifyLdapConnectHandler
+	// LdapVerifyLdapGroupSearchHandler sets the operation handler for the verify ldap group search operation
+	LdapVerifyLdapGroupSearchHandler ldap.VerifyLdapGroupSearchHandler
+	// LdapVerifyLdapUserSearchHandler sets the operation handler for the verify ldap user search operation
+	LdapVerifyLdapUserSearchHandler ldap.VerifyLdapUserSearchHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -599,6 +625,26 @@ func (o *KickstartUIAPI) Validate() error {
 
 	if o.AviVerifyAccountHandler == nil {
 		unregistered = append(unregistered, "avi.VerifyAccountHandler")
+	}
+
+	if o.LdapVerifyLdapBindHandler == nil {
+		unregistered = append(unregistered, "ldap.VerifyLdapBindHandler")
+	}
+
+	if o.LdapVerifyLdapCloseConnectionHandler == nil {
+		unregistered = append(unregistered, "ldap.VerifyLdapCloseConnectionHandler")
+	}
+
+	if o.LdapVerifyLdapConnectHandler == nil {
+		unregistered = append(unregistered, "ldap.VerifyLdapConnectHandler")
+	}
+
+	if o.LdapVerifyLdapGroupSearchHandler == nil {
+		unregistered = append(unregistered, "ldap.VerifyLdapGroupSearchHandler")
+	}
+
+	if o.LdapVerifyLdapUserSearchHandler == nil {
+		unregistered = append(unregistered, "ldap.VerifyLdapUserSearchHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -953,6 +999,31 @@ func (o *KickstartUIAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/api/avi"] = avi.NewVerifyAccount(o.context, o.AviVerifyAccountHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/api/ldap/bind"] = ldap.NewVerifyLdapBind(o.context, o.LdapVerifyLdapBindHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/api/ldap/disconnect"] = ldap.NewVerifyLdapCloseConnection(o.context, o.LdapVerifyLdapCloseConnectionHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/api/ldap/connect"] = ldap.NewVerifyLdapConnect(o.context, o.LdapVerifyLdapConnectHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/api/ldap/groups/search"] = ldap.NewVerifyLdapGroupSearch(o.context, o.LdapVerifyLdapGroupSearchHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/api/ldap/users/search"] = ldap.NewVerifyLdapUserSearch(o.context, o.LdapVerifyLdapUserSearchHandler)
 
 }
 

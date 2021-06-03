@@ -338,6 +338,188 @@ func init() {
         }
       }
     },
+    "/api/ldap/bind": {
+      "post": {
+        "tags": [
+          "ldap"
+        ],
+        "summary": "Validate LDAP bind or authentication",
+        "operationId": "verifyLdapBind",
+        "responses": {
+          "200": {
+            "description": "Verified LDAP credentials successfully",
+            "schema": {
+              "$ref": "#/definitions/LdapTestResult"
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Incorrect credentials",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/ldap/connect": {
+      "post": {
+        "tags": [
+          "ldap"
+        ],
+        "summary": "Validate LDAP connection",
+        "operationId": "verifyLdapConnect",
+        "parameters": [
+          {
+            "description": "LDAP configuration",
+            "name": "credentials",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/LdapParams"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Verified LDAP credentials successfully",
+            "schema": {
+              "$ref": "#/definitions/LdapTestResult"
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Incorrect credentials",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/ldap/disconnect": {
+      "post": {
+        "tags": [
+          "ldap"
+        ],
+        "summary": "Validate if the LDAP connection can be closed",
+        "operationId": "verifyLdapCloseConnection",
+        "responses": {
+          "201": {
+            "description": "Verified LDAP credentials successfully"
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Incorrect credentials",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/ldap/groups/search": {
+      "post": {
+        "tags": [
+          "ldap"
+        ],
+        "summary": "Validate LDAP Group Search configuration",
+        "operationId": "verifyLdapGroupSearch",
+        "responses": {
+          "200": {
+            "description": "Verified LDAP credentials successfully",
+            "schema": {
+              "$ref": "#/definitions/LdapTestResult"
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Incorrect credentials",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/ldap/users/search": {
+      "post": {
+        "tags": [
+          "ldap"
+        ],
+        "summary": "Validate LDAP User Search configuration",
+        "operationId": "verifyLdapUserSearch",
+        "responses": {
+          "200": {
+            "description": "Verified LDAP credentials successfully",
+            "schema": {
+              "$ref": "#/definitions/LdapTestResult"
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Incorrect credentials",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/api/providers": {
       "get": {
         "tags": [
@@ -2915,6 +3097,80 @@ func init() {
         },
         "oidc_skip_verify_cert": {
           "type": "boolean"
+        }
+      }
+    },
+    "LdapParams": {
+      "type": "object",
+      "default": {
+        "ldap_group_search_name_attr": "cn",
+        "ldap_group_search_user_attr": "DN",
+        "ldap_user_search_email_attr": "userPrincipalName",
+        "ldap_user_search_id_attr": "DN",
+        "ldap_user_search_username": "userPrincipalName"
+      },
+      "properties": {
+        "ldap_bind_dn": {
+          "type": "string"
+        },
+        "ldap_bind_password": {
+          "type": "string"
+        },
+        "ldap_group_search_base_dn": {
+          "type": "string"
+        },
+        "ldap_group_search_filter": {
+          "type": "string"
+        },
+        "ldap_group_search_group_attr": {
+          "type": "string"
+        },
+        "ldap_group_search_name_attr": {
+          "type": "string"
+        },
+        "ldap_group_search_user_attr": {
+          "type": "string"
+        },
+        "ldap_root_ca": {
+          "type": "string"
+        },
+        "ldap_test_group": {
+          "type": "string"
+        },
+        "ldap_test_user": {
+          "type": "string"
+        },
+        "ldap_url": {
+          "type": "string"
+        },
+        "ldap_user_search_base_dn": {
+          "type": "string"
+        },
+        "ldap_user_search_email_attr": {
+          "type": "string"
+        },
+        "ldap_user_search_filter": {
+          "type": "string"
+        },
+        "ldap_user_search_id_attr": {
+          "type": "string"
+        },
+        "ldap_user_search_name_attr": {
+          "type": "string"
+        },
+        "ldap_user_search_username": {
+          "type": "string"
+        }
+      }
+    },
+    "LdapTestResult": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer"
+        },
+        "desc": {
+          "type": "string"
         }
       }
     },
@@ -3577,6 +3833,188 @@ func init() {
         }
       }
     },
+    "/api/ldap/bind": {
+      "post": {
+        "tags": [
+          "ldap"
+        ],
+        "summary": "Validate LDAP bind or authentication",
+        "operationId": "verifyLdapBind",
+        "responses": {
+          "200": {
+            "description": "Verified LDAP credentials successfully",
+            "schema": {
+              "$ref": "#/definitions/LdapTestResult"
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Incorrect credentials",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/ldap/connect": {
+      "post": {
+        "tags": [
+          "ldap"
+        ],
+        "summary": "Validate LDAP connection",
+        "operationId": "verifyLdapConnect",
+        "parameters": [
+          {
+            "description": "LDAP configuration",
+            "name": "credentials",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/LdapParams"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Verified LDAP credentials successfully",
+            "schema": {
+              "$ref": "#/definitions/LdapTestResult"
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Incorrect credentials",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/ldap/disconnect": {
+      "post": {
+        "tags": [
+          "ldap"
+        ],
+        "summary": "Validate if the LDAP connection can be closed",
+        "operationId": "verifyLdapCloseConnection",
+        "responses": {
+          "201": {
+            "description": "Verified LDAP credentials successfully"
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Incorrect credentials",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/ldap/groups/search": {
+      "post": {
+        "tags": [
+          "ldap"
+        ],
+        "summary": "Validate LDAP Group Search configuration",
+        "operationId": "verifyLdapGroupSearch",
+        "responses": {
+          "200": {
+            "description": "Verified LDAP credentials successfully",
+            "schema": {
+              "$ref": "#/definitions/LdapTestResult"
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Incorrect credentials",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/ldap/users/search": {
+      "post": {
+        "tags": [
+          "ldap"
+        ],
+        "summary": "Validate LDAP User Search configuration",
+        "operationId": "verifyLdapUserSearch",
+        "responses": {
+          "200": {
+            "description": "Verified LDAP credentials successfully",
+            "schema": {
+              "$ref": "#/definitions/LdapTestResult"
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Incorrect credentials",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/api/providers": {
       "get": {
         "tags": [
@@ -6154,6 +6592,80 @@ func init() {
         },
         "oidc_skip_verify_cert": {
           "type": "boolean"
+        }
+      }
+    },
+    "LdapParams": {
+      "type": "object",
+      "default": {
+        "ldap_group_search_name_attr": "cn",
+        "ldap_group_search_user_attr": "DN",
+        "ldap_user_search_email_attr": "userPrincipalName",
+        "ldap_user_search_id_attr": "DN",
+        "ldap_user_search_username": "userPrincipalName"
+      },
+      "properties": {
+        "ldap_bind_dn": {
+          "type": "string"
+        },
+        "ldap_bind_password": {
+          "type": "string"
+        },
+        "ldap_group_search_base_dn": {
+          "type": "string"
+        },
+        "ldap_group_search_filter": {
+          "type": "string"
+        },
+        "ldap_group_search_group_attr": {
+          "type": "string"
+        },
+        "ldap_group_search_name_attr": {
+          "type": "string"
+        },
+        "ldap_group_search_user_attr": {
+          "type": "string"
+        },
+        "ldap_root_ca": {
+          "type": "string"
+        },
+        "ldap_test_group": {
+          "type": "string"
+        },
+        "ldap_test_user": {
+          "type": "string"
+        },
+        "ldap_url": {
+          "type": "string"
+        },
+        "ldap_user_search_base_dn": {
+          "type": "string"
+        },
+        "ldap_user_search_email_attr": {
+          "type": "string"
+        },
+        "ldap_user_search_filter": {
+          "type": "string"
+        },
+        "ldap_user_search_id_attr": {
+          "type": "string"
+        },
+        "ldap_user_search_name_attr": {
+          "type": "string"
+        },
+        "ldap_user_search_username": {
+          "type": "string"
+        }
+      }
+    },
+    "LdapTestResult": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer"
+        },
+        "desc": {
+          "type": "string"
         }
       }
     },
