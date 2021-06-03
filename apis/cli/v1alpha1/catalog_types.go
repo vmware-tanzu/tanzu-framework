@@ -16,6 +16,16 @@ type CmdGroup string
 // PluginCompletionType is the mechanism used for determining command line completion options.
 type PluginCompletionType int
 
+// +kubebuilder:object:generate=false
+
+// Hook is the mechanism used to define function for plugin hooks
+type Hook func() error
+
+// DeepCopyInto is an deepcopy function implementation of Hook
+// currently there is nothing that we need to copy hence keeping this empty
+func (in *Hook) DeepCopyInto(out *Hook) {
+}
+
 const (
 	// NativePluginCompletion indicates command line completion is determined using the built in
 	// cobra.Command __complete mechanism.
@@ -91,6 +101,9 @@ type PluginDescriptor struct {
 
 	// Aliases are other text strings used to call this command
 	Aliases []string `json:"aliases,omitempty" yaml:"aliases,omitempty"`
+
+	// PostInstallHook is function to be run post install of a plugin.
+	PostInstallHook Hook `json:"-" yaml:"-"`
 }
 
 // +kubebuilder:object:root=true

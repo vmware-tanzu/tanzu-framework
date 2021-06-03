@@ -9,8 +9,8 @@ import (
 
 	"github.com/aunum/log"
 	"github.com/pkg/errors"
-
 	"github.com/spf13/cobra"
+	kerrors "k8s.io/apimachinery/pkg/util/errors"
 
 	cliv1alpha1 "github.com/vmware-tanzu-private/core/apis/cli/v1alpha1"
 	configv1alpha1 "github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
@@ -154,7 +154,18 @@ var initConfigCmd = &cobra.Command{
 			return err
 		}
 
-		return nil
+		descriptors, err := cli.ListPlugins()
+		if err != nil {
+			return err
+		}
+
+		errList := []error{}
+		for _, desc := range descriptors {
+			if err := cli.InitializePlugin(desc.Name); err != nil {
+				errList = append(errList, err)
+			}
+		}
+		return kerrors.NewAggregate(errList)
 	},
 }
 
