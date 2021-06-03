@@ -5,9 +5,9 @@
 package tkgconfigbom
 
 import (
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/registry"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigpaths"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigreaderwriter"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/registry"
 )
 
 type client struct {
