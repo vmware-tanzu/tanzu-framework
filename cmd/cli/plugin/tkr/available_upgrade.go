@@ -6,14 +6,15 @@ package main
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
-	"github.com/vmware-tanzu-private/core/pkg/v1/clusterclient"
 	"github.com/vmware-tanzu-private/core/pkg/v1/config"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/clusterclient"
 )
 
 const lenMsg = 2
@@ -47,7 +48,8 @@ func getAvailableUpgrades(cmd *cobra.Command, args []string) error {
 		return errors.New("getting TanzuKubernetesRelease with a global server is not implemented yet")
 	}
 
-	clusterClient, err := clusterclient.NewClusterClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context)
+	clusterClientOptions := clusterclient.Options{GetClientInterval: 2 * time.Second, GetClientTimeout: 5 * time.Second}
+	clusterClient, err := clusterclient.NewClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context, clusterClientOptions)
 	if err != nil {
 		return err
 	}

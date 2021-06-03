@@ -5,13 +5,14 @@ import (
 	"sync"
 	"time"
 
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 	v1alpha3a "sigs.k8s.io/cluster-api/api/v1alpha3"
 	v1alpha3b "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	"sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/api/run/v1alpha1"
+	"github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/azure"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigbom"
@@ -164,6 +165,19 @@ type ClusterClient struct {
 		result1 azure.Credentials
 		result2 error
 	}
+	GetBomConfigMapStub        func(string) (v1.ConfigMap, error)
+	getBomConfigMapMutex       sync.RWMutex
+	getBomConfigMapArgsForCall []struct {
+		arg1 string
+	}
+	getBomConfigMapReturns struct {
+		result1 v1.ConfigMap
+		result2 error
+	}
+	getBomConfigMapReturnsOnCall map[int]struct {
+		result1 v1.ConfigMap
+		result2 error
+	}
 	GetClientSetStub        func() clusterclient.CrtClient
 	getClientSetMutex       sync.RWMutex
 	getClientSetArgsForCall []struct {
@@ -173,6 +187,18 @@ type ClusterClient struct {
 	}
 	getClientSetReturnsOnCall map[int]struct {
 		result1 clusterclient.CrtClient
+	}
+	GetClusterInfrastructureStub        func() (string, error)
+	getClusterInfrastructureMutex       sync.RWMutex
+	getClusterInfrastructureArgsForCall []struct {
+	}
+	getClusterInfrastructureReturns struct {
+		result1 string
+		result2 error
+	}
+	getClusterInfrastructureReturnsOnCall map[int]struct {
+		result1 string
+		result2 error
 	}
 	GetCurrentClusterNameStub        func(string) (string, error)
 	getCurrentClusterNameMutex       sync.RWMutex
@@ -1651,6 +1677,69 @@ func (fake *ClusterClient) GetAzureCredentialsFromSecretReturnsOnCall(i int, res
 	}{result1, result2}
 }
 
+func (fake *ClusterClient) GetBomConfigMap(arg1 string) (v1.ConfigMap, error) {
+	fake.getBomConfigMapMutex.Lock()
+	ret, specificReturn := fake.getBomConfigMapReturnsOnCall[len(fake.getBomConfigMapArgsForCall)]
+	fake.getBomConfigMapArgsForCall = append(fake.getBomConfigMapArgsForCall, struct {
+		arg1 string
+	}{arg1})
+	fake.recordInvocation("GetBomConfigMap", []interface{}{arg1})
+	fake.getBomConfigMapMutex.Unlock()
+	if fake.GetBomConfigMapStub != nil {
+		return fake.GetBomConfigMapStub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.getBomConfigMapReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *ClusterClient) GetBomConfigMapCallCount() int {
+	fake.getBomConfigMapMutex.RLock()
+	defer fake.getBomConfigMapMutex.RUnlock()
+	return len(fake.getBomConfigMapArgsForCall)
+}
+
+func (fake *ClusterClient) GetBomConfigMapCalls(stub func(string) (v1.ConfigMap, error)) {
+	fake.getBomConfigMapMutex.Lock()
+	defer fake.getBomConfigMapMutex.Unlock()
+	fake.GetBomConfigMapStub = stub
+}
+
+func (fake *ClusterClient) GetBomConfigMapArgsForCall(i int) string {
+	fake.getBomConfigMapMutex.RLock()
+	defer fake.getBomConfigMapMutex.RUnlock()
+	argsForCall := fake.getBomConfigMapArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *ClusterClient) GetBomConfigMapReturns(result1 v1.ConfigMap, result2 error) {
+	fake.getBomConfigMapMutex.Lock()
+	defer fake.getBomConfigMapMutex.Unlock()
+	fake.GetBomConfigMapStub = nil
+	fake.getBomConfigMapReturns = struct {
+		result1 v1.ConfigMap
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *ClusterClient) GetBomConfigMapReturnsOnCall(i int, result1 v1.ConfigMap, result2 error) {
+	fake.getBomConfigMapMutex.Lock()
+	defer fake.getBomConfigMapMutex.Unlock()
+	fake.GetBomConfigMapStub = nil
+	if fake.getBomConfigMapReturnsOnCall == nil {
+		fake.getBomConfigMapReturnsOnCall = make(map[int]struct {
+			result1 v1.ConfigMap
+			result2 error
+		})
+	}
+	fake.getBomConfigMapReturnsOnCall[i] = struct {
+		result1 v1.ConfigMap
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *ClusterClient) GetClientSet() clusterclient.CrtClient {
 	fake.getClientSetMutex.Lock()
 	ret, specificReturn := fake.getClientSetReturnsOnCall[len(fake.getClientSetArgsForCall)]
@@ -1701,6 +1790,61 @@ func (fake *ClusterClient) GetClientSetReturnsOnCall(i int, result1 clusterclien
 	fake.getClientSetReturnsOnCall[i] = struct {
 		result1 clusterclient.CrtClient
 	}{result1}
+}
+
+func (fake *ClusterClient) GetClusterInfrastructure() (string, error) {
+	fake.getClusterInfrastructureMutex.Lock()
+	ret, specificReturn := fake.getClusterInfrastructureReturnsOnCall[len(fake.getClusterInfrastructureArgsForCall)]
+	fake.getClusterInfrastructureArgsForCall = append(fake.getClusterInfrastructureArgsForCall, struct {
+	}{})
+	fake.recordInvocation("GetClusterInfrastructure", []interface{}{})
+	fake.getClusterInfrastructureMutex.Unlock()
+	if fake.GetClusterInfrastructureStub != nil {
+		return fake.GetClusterInfrastructureStub()
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.getClusterInfrastructureReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *ClusterClient) GetClusterInfrastructureCallCount() int {
+	fake.getClusterInfrastructureMutex.RLock()
+	defer fake.getClusterInfrastructureMutex.RUnlock()
+	return len(fake.getClusterInfrastructureArgsForCall)
+}
+
+func (fake *ClusterClient) GetClusterInfrastructureCalls(stub func() (string, error)) {
+	fake.getClusterInfrastructureMutex.Lock()
+	defer fake.getClusterInfrastructureMutex.Unlock()
+	fake.GetClusterInfrastructureStub = stub
+}
+
+func (fake *ClusterClient) GetClusterInfrastructureReturns(result1 string, result2 error) {
+	fake.getClusterInfrastructureMutex.Lock()
+	defer fake.getClusterInfrastructureMutex.Unlock()
+	fake.GetClusterInfrastructureStub = nil
+	fake.getClusterInfrastructureReturns = struct {
+		result1 string
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *ClusterClient) GetClusterInfrastructureReturnsOnCall(i int, result1 string, result2 error) {
+	fake.getClusterInfrastructureMutex.Lock()
+	defer fake.getClusterInfrastructureMutex.Unlock()
+	fake.GetClusterInfrastructureStub = nil
+	if fake.getClusterInfrastructureReturnsOnCall == nil {
+		fake.getClusterInfrastructureReturnsOnCall = make(map[int]struct {
+			result1 string
+			result2 error
+		})
+	}
+	fake.getClusterInfrastructureReturnsOnCall[i] = struct {
+		result1 string
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *ClusterClient) GetCurrentClusterName(arg1 string) (string, error) {
@@ -5293,8 +5437,12 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.getAWSCredentialsFromSecretMutex.RUnlock()
 	fake.getAzureCredentialsFromSecretMutex.RLock()
 	defer fake.getAzureCredentialsFromSecretMutex.RUnlock()
+	fake.getBomConfigMapMutex.RLock()
+	defer fake.getBomConfigMapMutex.RUnlock()
 	fake.getClientSetMutex.RLock()
 	defer fake.getClientSetMutex.RUnlock()
+	fake.getClusterInfrastructureMutex.RLock()
+	defer fake.getClusterInfrastructureMutex.RUnlock()
 	fake.getCurrentClusterNameMutex.RLock()
 	defer fake.getCurrentClusterNameMutex.RUnlock()
 	fake.getCurrentKubeContextMutex.RLock()

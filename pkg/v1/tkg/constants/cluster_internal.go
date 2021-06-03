@@ -71,6 +71,15 @@ const (
 	DockerMachineTemplate  = "DockerMachineTemplate"
 )
 
+const (
+	// InfrastructureRefVSphere is the vSphere infrastructure
+	InfrastructureRefVSphere = "VSphereCluster"
+	// InfrastructureRefAWS is the AWS infrastructure
+	InfrastructureRefAWS = "AWSCluster"
+	// InfrastructureRefAzure is the Azure infrastructure
+	InfrastructureRefAzure = "AzureCluster"
+)
+
 // networking constants
 const (
 	IPv6Family = "ipv6"
