@@ -16,7 +16,7 @@ import (
 
 // IsCustomRepository is custom image repository
 func IsCustomRepository(imageRepo string) bool {
-	return !strings.HasSuffix(imageRepo, constants.TKGRegistrySuffix) && imageRepo != constants.TKGRegistry && imageRepo != constants.TKGDevRegistry
+	return !strings.Contains(imageRepo, constants.TKGRegistryContains)
 }
 
 // SkipImageReferenceUpdateOnUpgrade returns true if environment variable is set

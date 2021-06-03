@@ -302,7 +302,7 @@ func getAvailableUpgrades(clusterName string, tkr *runv1alpha1.TanzuKubernetesRe
 	}
 
 	var availableUpgradeList []string
-	//TODO: Message format was changed to follow TKGs(TKG-5111), keeping this old format check for backward compatibility.Can be cleaned up after couple minor version releases.
+	//TODO: Message format was changed to follow TKGs, keeping this old format check for backward compatibility.Can be cleaned up after couple minor version releases.
 	if strings.Contains(upgradeMsg, "TKR(s)") {
 		// Example for TKGm :upgradeMsg - "Deprecated, TKR(s) with later version is available: <tkr-name-1>,<tkr-name-2>"
 		strs := strings.Split(upgradeMsg, ": ")
