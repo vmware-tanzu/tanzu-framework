@@ -9,4 +9,5 @@ Documentation for the Tanzu CLI.
 * [Getting Started with Tanzu CLI](getting-started.md)
 * [Plugin Implementation Guide](plugin_implementation_guide.md)
 * [Style Guide](style_guide.md)
+* [TKG Library](tkgctl/README.md)
 * [Unstable Plugin Versions](unstable-versions.md)
