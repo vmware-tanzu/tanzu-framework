@@ -232,7 +232,6 @@ func FixKubeConfigForMacEnvironment(dockerContext context.Context, cli *client.C
 }
 
 // DivideVPCCidr divide VPC cidr as per extendedBits and number of subnets needed
-// source: https://gitlab.eng.vmware.com/olympus/cluster-lifecycle-manager/blob/master/internal/cluster/util.go
 func DivideVPCCidr(cidrStr string, extendedBits, numSubnets int) ([]string, error) {
 	results := make([]string, 0)
 	_, baseSubnet, err := net.ParseCIDR(cidrStr)

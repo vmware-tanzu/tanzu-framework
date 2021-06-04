@@ -4,13 +4,16 @@
 package main
 
 import (
+	"time"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
-	"github.com/vmware-tanzu-private/core/pkg/v1/clusterclient"
 	"github.com/vmware-tanzu-private/core/pkg/v1/config"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/constants"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/clusterclient"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
+	tkrconstants "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/constants"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/types"
 )
 
@@ -39,7 +42,7 @@ func init() {
 	osCmd.AddCommand(getOSCmd)
 }
 
-//nolint:gocyclo
+//nolint:gocyclo,funlen
 func getOS(cmd *cobra.Command, args []string) error {
 	server, err := config.GetCurrentServer()
 	if err != nil {
@@ -50,7 +53,8 @@ func getOS(cmd *cobra.Command, args []string) error {
 		return errors.New("getting TanzuKubernetesRelease with a global server is not implemented yet")
 	}
 
-	clusterClient, err := clusterclient.NewClusterClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context)
+	clusterClientOptions := clusterclient.Options{GetClientInterval: 2 * time.Second, GetClientTimeout: 5 * time.Second}
+	clusterClient, err := clusterclient.NewClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context, clusterClientOptions)
 	if err != nil {
 		return err
 	}
@@ -60,7 +64,7 @@ func getOS(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	bomByte, ok := bomConfigMap.BinaryData[constants.BomConfigMapContentKey]
+	bomByte, ok := bomConfigMap.BinaryData[tkrconstants.BomConfigMapContentKey]
 	if !ok {
 		return errors.Wrapf(err, "the ConfigMap %s does not contain BOM content", bomConfigMap.Name)
 	}
@@ -77,7 +81,7 @@ func getOS(cmd *cobra.Command, args []string) error {
 	osMap := make(map[string]types.OSInfo)
 
 	switch infra {
-	case clusterclient.InfrastructureRefVSphere:
+	case constants.InfrastructureRefVSphere:
 		ovas, err := bom.GetOVAInfo()
 		if err != nil {
 			return errors.Wrap(err, "failed to get vSphere OVA info from the BOM file")
@@ -86,7 +90,7 @@ func getOS(cmd *cobra.Command, args []string) error {
 			osMap[ova.OSInfo.String()] = ova.OSInfo
 		}
 
-	case clusterclient.InfrastructureRefAWS:
+	case constants.InfrastructureRefAWS:
 		amiMap, err := bom.GetAMIInfo()
 		if err != nil {
 			return errors.Wrap(err, "failed to get AWS AMI info from the BOM file")
@@ -105,7 +109,7 @@ func getOS(cmd *cobra.Command, args []string) error {
 			osMap[ami.OSInfo.String()] = ami.OSInfo
 		}
 
-	case clusterclient.InfrastructureRefAzure:
+	case constants.InfrastructureRefAzure:
 		azureImages, err := bom.GetAzureInfo()
 		if err != nil {
 			return errors.Wrap(err, "failed to get Azure image info from the BOM file")

@@ -15,7 +15,7 @@ import (
 
 	"github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
 	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/clusterclient"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgctl"
@@ -134,7 +134,8 @@ func createCluster(clusterName string, server *v1alpha1.Server) error {
 
 	tkrVersion := ""
 	if cc.tkrName != "" {
-		clusterClient, err := clusterclient.NewClusterClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context)
+		clusterClientOptions := clusterclient.Options{GetClientInterval: 2 * time.Second, GetClientTimeout: 5 * time.Second}
+		clusterClient, err := clusterclient.NewClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context, clusterClientOptions)
 		if err != nil {
 			return err
 		}

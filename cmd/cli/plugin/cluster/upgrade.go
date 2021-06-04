@@ -17,8 +17,8 @@ import (
 
 	"github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
 	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/clusterclient"
 	"github.com/vmware-tanzu-private/core/pkg/v1/config"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/clusterclient"
 
 	corev1 "k8s.io/api/core/v1"
 )
@@ -107,7 +107,8 @@ func upgradeCluster(server *v1alpha1.Server, clusterName string) error {
 
 	tkrVersion := ""
 	if uc.tkrName != "" {
-		clusterClient, err := clusterclient.NewClusterClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context)
+		clusterClientOptions := clusterclient.Options{GetClientInterval: 2 * time.Second, GetClientTimeout: 5 * time.Second}
+		clusterClient, err := clusterclient.NewClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context, clusterClientOptions)
 		if err != nil {
 			return err
 		}
@@ -302,7 +303,7 @@ func getAvailableUpgrades(clusterName string, tkr *runv1alpha1.TanzuKubernetesRe
 	}
 
 	var availableUpgradeList []string
-	//TODO: Message format was changed to follow TKGs(TKG-5111), keeping this old format check for backward compatibility.Can be cleaned up after couple minor version releases.
+	//TODO: Message format was changed to follow TKGs, keeping this old format check for backward compatibility.Can be cleaned up after couple minor version releases.
 	if strings.Contains(upgradeMsg, "TKR(s)") {
 		// Example for TKGm :upgradeMsg - "Deprecated, TKR(s) with later version is available: <tkr-name-1>,<tkr-name-2>"
 		strs := strings.Split(upgradeMsg, ": ")

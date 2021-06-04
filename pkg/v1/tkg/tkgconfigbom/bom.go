@@ -20,8 +20,8 @@ import (
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/registry"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigpaths"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/registry"
 )
 
 // BomNotPresent is an error type to return when BOM is not present locally

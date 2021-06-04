@@ -54,7 +54,7 @@ import (
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 
-	runv1alpha1 "github.com/vmware-tanzu-private/core/pkg/v1/tkg/api/run/v1alpha1"
+	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
 	tkcv1alpha1 "github.com/vmware-tanzu-private/core/pkg/v1/tkg/api/tkc/v1alpha1"
 	tmcv1alpha1 "github.com/vmware-tanzu-private/core/pkg/v1/tkg/api/tmc/v1alpha1"
 	azureclient "github.com/vmware-tanzu-private/core/pkg/v1/tkg/azure"
@@ -66,6 +66,7 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/utils"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/vc"
+	tkrconstants "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/constants"
 )
 
 const (
@@ -262,6 +263,10 @@ type Client interface {
 	GetPinnipedIssuerURLAndCA() (string, string, error)
 	// GetTanzuKubernetesReleases returns the TKRs with 'tkrName' prefix match. If tkrName is not provided it returns all the available TKRs
 	GetTanzuKubernetesReleases(tkrName string) ([]runv1alpha1.TanzuKubernetesRelease, error)
+	// GetBomConfigMap returns configmap associated w3ith the tkrNameLabel
+	GetBomConfigMap(tkrNameLabel string) (corev1.ConfigMap, error)
+	// GetClusterInfrastructure gets cluster infrastructure name like VSphereCluster, AWSCluster, AzureCluster
+	GetClusterInfrastructure() (string, error)
 }
 
 // PollOptions is options for polling
@@ -949,6 +954,40 @@ func (c *client) GetTanzuKubernetesReleases(tkrName string) ([]runv1alpha1.Tanzu
 		}
 	}
 	return result, nil
+}
+
+// GetBomConfigMap gets the BOM ConfigMap
+func (c *client) GetBomConfigMap(tkrNameLabel string) (corev1.ConfigMap, error) {
+	selectors := []crtclient.ListOption{
+		crtclient.InNamespace(tkrconstants.TKRNamespace),
+		crtclient.MatchingLabels(map[string]string{tkrconstants.BomConfigMapTKRLabel: tkrNameLabel}),
+	}
+
+	cmList := &corev1.ConfigMapList{}
+	err := c.clientSet.List(context.Background(), cmList, selectors...)
+	if err != nil {
+		return corev1.ConfigMap{}, errors.Wrap(err, "failed to list current TKRs")
+	}
+	if len(cmList.Items) != 1 {
+		return corev1.ConfigMap{}, errors.Wrapf(err, "failed to find the BOM ConfigMap matching the label %s: %v", tkrNameLabel, err)
+	}
+
+	return cmList.Items[0], nil
+}
+
+// GetClusterInfrastructure gets the underlying infrastructure being used
+func (c *client) GetClusterInfrastructure() (string, error) {
+	clusters := &capi.ClusterList{}
+
+	selectors := []crtclient.ListOption{
+		crtclient.MatchingLabels(map[string]string{tkrconstants.ManagememtClusterRoleLabel: ""}),
+	}
+	err := c.clientSet.List(context.Background(), clusters, selectors...)
+	if err != nil || len(clusters.Items) != 1 {
+		return "", errors.Wrap(err, "unable to get current management cluster")
+	}
+
+	return clusters.Items[0].Spec.InfrastructureRef.Kind, nil
 }
 
 // GetResource gets the kubernetes resource passed as reference either directly or with polling mechanism
@@ -2061,7 +2100,6 @@ func (c *client) updateK8sClients(ctx string) error {
 		return errors.Wrap(err, "unable to read kube config")
 	}
 
-	log.V(7).Info("Checking cluster reachability...")
 	clientSet, err := c.poller.PollImmediateWithGetter(c.getClientInterval, c.getClientTimeout, func() (interface{}, error) {
 		return getK8sClients(kubeConfigBytes, c.crtClientFactory, c.discoveryClientFactory)
 	})

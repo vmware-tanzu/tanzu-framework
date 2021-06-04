@@ -3,7 +3,7 @@
 
 package tkgctl
 
-import runv1alpha1 "github.com/vmware-tanzu-private/core/pkg/v1/tkg/api/run/v1alpha1"
+import runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
 
 // GetClusters returns list of cluster
 func (t *tkgctl) GetTanzuKubernetesReleases(tkrName string) ([]runv1alpha1.TanzuKubernetesRelease, error) {

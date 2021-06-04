@@ -235,7 +235,6 @@ func (c *client) NewAWSConfig(params *models.AWSRegionalClusterParams, encodedCr
 }
 
 // AppendSubnets append subnet information in providerConfig to paramsVpc
-// Source: https://gitlab.eng.vmware.com/olympus/cluster-lifecycle-manager/blob/master/internal/cluster/capi_aws_provider.go
 func appendSubnets(paramsVpc *models.AWSVpc, highAvailability bool) ([]*newSubnetPair, error) {
 	ProdSubnetCount := 6
 	ExtendedBits := 4

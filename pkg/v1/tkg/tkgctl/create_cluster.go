@@ -60,7 +60,7 @@ func (t *tkgctl) CreateCluster(cc CreateClusterOptions) error {
 		return err
 	}
 
-	// TKG-877 fixed to blocking create until upstream issue resolved
+	// Always do blocking cluster create
 	waitForCluster := true
 
 	// create cluster requires minimum 15 minutes timeout

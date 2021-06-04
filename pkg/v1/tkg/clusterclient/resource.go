@@ -29,7 +29,7 @@ import (
 	"sigs.k8s.io/cluster-api/util/conditions"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
-	runv1alpha1 "github.com/vmware-tanzu-private/core/pkg/v1/tkg/api/run/v1alpha1"
+	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/api/tmc/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
 )

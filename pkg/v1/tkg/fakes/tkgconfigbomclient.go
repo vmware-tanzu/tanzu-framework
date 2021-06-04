@@ -4,8 +4,8 @@ package fakes
 import (
 	"sync"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/registry"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigbom"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/registry"
 )
 
 type TKGConfigBomClient struct {

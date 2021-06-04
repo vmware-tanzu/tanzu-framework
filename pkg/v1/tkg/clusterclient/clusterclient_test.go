@@ -40,7 +40,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/fake" //nolint:staticcheck
 	"sigs.k8s.io/yaml"
 
-	runv1alpha1 "github.com/vmware-tanzu-private/core/pkg/v1/tkg/api/run/v1alpha1"
+	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
 	. "github.com/vmware-tanzu-private/core/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes"

@@ -9,7 +9,7 @@ import (
 	"sigs.k8s.io/cluster-api/api/v1alpha3"
 	v1alpha3a "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/api/run/v1alpha1"
+	"github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/client"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/region"
