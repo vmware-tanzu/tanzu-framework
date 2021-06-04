@@ -237,6 +237,8 @@ func (c *client) getRuntimeObject(o interface{}) (runtime.Object, error) { //nol
 		return obj, nil
 	case *runv1alpha1.TanzuKubernetesReleaseList:
 		return obj, nil
+	case *runv1alpha1.TanzuKubernetesRelease:
+		return obj, nil
 	default:
 		return nil, errors.New("invalid object type")
 	}

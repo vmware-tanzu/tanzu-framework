@@ -69,4 +69,8 @@ type TKGClient interface {
 	GetClusterPinnipedInfo(options GetClusterPinnipedInfoOptions) (*client.ClusterPinnipedInfo, error)
 	// GetTanzuKubernetesReleases returns the available TanzuKubernetesReleases
 	GetTanzuKubernetesReleases(tkrName string) ([]runv1alpha1.TanzuKubernetesRelease, error)
+	// ActivateTanzuKubernetesReleases activates TanzuKubernetesRelease
+	ActivateTanzuKubernetesReleases(tkrName string) error
+	// DeactivateTanzuKubernetesReleases deactivates TanzuKubernetesRelease
+	DeactivateTanzuKubernetesReleases(tkrName string) error
 }

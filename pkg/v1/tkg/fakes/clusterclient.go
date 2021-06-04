@@ -20,6 +20,17 @@ import (
 )
 
 type ClusterClient struct {
+	ActivateTanzuKubernetesReleasesStub        func(string) error
+	activateTanzuKubernetesReleasesMutex       sync.RWMutex
+	activateTanzuKubernetesReleasesArgsForCall []struct {
+		arg1 string
+	}
+	activateTanzuKubernetesReleasesReturns struct {
+		result1 error
+	}
+	activateTanzuKubernetesReleasesReturnsOnCall map[int]struct {
+		result1 error
+	}
 	AddCEIPTelemetryJobStub        func(string, string, *tkgconfigbom.BOMConfiguration, string, string, string, string, string) error
 	addCEIPTelemetryJobMutex       sync.RWMutex
 	addCEIPTelemetryJobArgsForCall []struct {
@@ -94,6 +105,17 @@ type ClusterClient struct {
 		result1 error
 	}
 	createResourceReturnsOnCall map[int]struct {
+		result1 error
+	}
+	DeactivateTanzuKubernetesReleasesStub        func(string) error
+	deactivateTanzuKubernetesReleasesMutex       sync.RWMutex
+	deactivateTanzuKubernetesReleasesArgsForCall []struct {
+		arg1 string
+	}
+	deactivateTanzuKubernetesReleasesReturns struct {
+		result1 error
+	}
+	deactivateTanzuKubernetesReleasesReturnsOnCall map[int]struct {
 		result1 error
 	}
 	DeleteClusterStub        func(string, string) error
@@ -969,6 +991,66 @@ type ClusterClient struct {
 	invocationsMutex sync.RWMutex
 }
 
+func (fake *ClusterClient) ActivateTanzuKubernetesReleases(arg1 string) error {
+	fake.activateTanzuKubernetesReleasesMutex.Lock()
+	ret, specificReturn := fake.activateTanzuKubernetesReleasesReturnsOnCall[len(fake.activateTanzuKubernetesReleasesArgsForCall)]
+	fake.activateTanzuKubernetesReleasesArgsForCall = append(fake.activateTanzuKubernetesReleasesArgsForCall, struct {
+		arg1 string
+	}{arg1})
+	fake.recordInvocation("ActivateTanzuKubernetesReleases", []interface{}{arg1})
+	fake.activateTanzuKubernetesReleasesMutex.Unlock()
+	if fake.ActivateTanzuKubernetesReleasesStub != nil {
+		return fake.ActivateTanzuKubernetesReleasesStub(arg1)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.activateTanzuKubernetesReleasesReturns
+	return fakeReturns.result1
+}
+
+func (fake *ClusterClient) ActivateTanzuKubernetesReleasesCallCount() int {
+	fake.activateTanzuKubernetesReleasesMutex.RLock()
+	defer fake.activateTanzuKubernetesReleasesMutex.RUnlock()
+	return len(fake.activateTanzuKubernetesReleasesArgsForCall)
+}
+
+func (fake *ClusterClient) ActivateTanzuKubernetesReleasesCalls(stub func(string) error) {
+	fake.activateTanzuKubernetesReleasesMutex.Lock()
+	defer fake.activateTanzuKubernetesReleasesMutex.Unlock()
+	fake.ActivateTanzuKubernetesReleasesStub = stub
+}
+
+func (fake *ClusterClient) ActivateTanzuKubernetesReleasesArgsForCall(i int) string {
+	fake.activateTanzuKubernetesReleasesMutex.RLock()
+	defer fake.activateTanzuKubernetesReleasesMutex.RUnlock()
+	argsForCall := fake.activateTanzuKubernetesReleasesArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *ClusterClient) ActivateTanzuKubernetesReleasesReturns(result1 error) {
+	fake.activateTanzuKubernetesReleasesMutex.Lock()
+	defer fake.activateTanzuKubernetesReleasesMutex.Unlock()
+	fake.ActivateTanzuKubernetesReleasesStub = nil
+	fake.activateTanzuKubernetesReleasesReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ClusterClient) ActivateTanzuKubernetesReleasesReturnsOnCall(i int, result1 error) {
+	fake.activateTanzuKubernetesReleasesMutex.Lock()
+	defer fake.activateTanzuKubernetesReleasesMutex.Unlock()
+	fake.ActivateTanzuKubernetesReleasesStub = nil
+	if fake.activateTanzuKubernetesReleasesReturnsOnCall == nil {
+		fake.activateTanzuKubernetesReleasesReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.activateTanzuKubernetesReleasesReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
 func (fake *ClusterClient) AddCEIPTelemetryJob(arg1 string, arg2 string, arg3 *tkgconfigbom.BOMConfiguration, arg4 string, arg5 string, arg6 string, arg7 string, arg8 string) error {
 	fake.addCEIPTelemetryJobMutex.Lock()
 	ret, specificReturn := fake.addCEIPTelemetryJobReturnsOnCall[len(fake.addCEIPTelemetryJobArgsForCall)]
@@ -1335,6 +1417,66 @@ func (fake *ClusterClient) CreateResourceReturnsOnCall(i int, result1 error) {
 		})
 	}
 	fake.createResourceReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ClusterClient) DeactivateTanzuKubernetesReleases(arg1 string) error {
+	fake.deactivateTanzuKubernetesReleasesMutex.Lock()
+	ret, specificReturn := fake.deactivateTanzuKubernetesReleasesReturnsOnCall[len(fake.deactivateTanzuKubernetesReleasesArgsForCall)]
+	fake.deactivateTanzuKubernetesReleasesArgsForCall = append(fake.deactivateTanzuKubernetesReleasesArgsForCall, struct {
+		arg1 string
+	}{arg1})
+	fake.recordInvocation("DeactivateTanzuKubernetesReleases", []interface{}{arg1})
+	fake.deactivateTanzuKubernetesReleasesMutex.Unlock()
+	if fake.DeactivateTanzuKubernetesReleasesStub != nil {
+		return fake.DeactivateTanzuKubernetesReleasesStub(arg1)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.deactivateTanzuKubernetesReleasesReturns
+	return fakeReturns.result1
+}
+
+func (fake *ClusterClient) DeactivateTanzuKubernetesReleasesCallCount() int {
+	fake.deactivateTanzuKubernetesReleasesMutex.RLock()
+	defer fake.deactivateTanzuKubernetesReleasesMutex.RUnlock()
+	return len(fake.deactivateTanzuKubernetesReleasesArgsForCall)
+}
+
+func (fake *ClusterClient) DeactivateTanzuKubernetesReleasesCalls(stub func(string) error) {
+	fake.deactivateTanzuKubernetesReleasesMutex.Lock()
+	defer fake.deactivateTanzuKubernetesReleasesMutex.Unlock()
+	fake.DeactivateTanzuKubernetesReleasesStub = stub
+}
+
+func (fake *ClusterClient) DeactivateTanzuKubernetesReleasesArgsForCall(i int) string {
+	fake.deactivateTanzuKubernetesReleasesMutex.RLock()
+	defer fake.deactivateTanzuKubernetesReleasesMutex.RUnlock()
+	argsForCall := fake.deactivateTanzuKubernetesReleasesArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *ClusterClient) DeactivateTanzuKubernetesReleasesReturns(result1 error) {
+	fake.deactivateTanzuKubernetesReleasesMutex.Lock()
+	defer fake.deactivateTanzuKubernetesReleasesMutex.Unlock()
+	fake.DeactivateTanzuKubernetesReleasesStub = nil
+	fake.deactivateTanzuKubernetesReleasesReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ClusterClient) DeactivateTanzuKubernetesReleasesReturnsOnCall(i int, result1 error) {
+	fake.deactivateTanzuKubernetesReleasesMutex.Lock()
+	defer fake.deactivateTanzuKubernetesReleasesMutex.Unlock()
+	fake.DeactivateTanzuKubernetesReleasesStub = nil
+	if fake.deactivateTanzuKubernetesReleasesReturnsOnCall == nil {
+		fake.deactivateTanzuKubernetesReleasesReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.deactivateTanzuKubernetesReleasesReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
 }
@@ -5413,6 +5555,8 @@ func (fake *ClusterClient) WaitK8sVersionUpdateForWorkerNodesReturnsOnCall(i int
 func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
+	fake.activateTanzuKubernetesReleasesMutex.RLock()
+	defer fake.activateTanzuKubernetesReleasesMutex.RUnlock()
 	fake.addCEIPTelemetryJobMutex.RLock()
 	defer fake.addCEIPTelemetryJobMutex.RUnlock()
 	fake.applyMutex.RLock()
@@ -5425,6 +5569,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.createNamespaceMutex.RUnlock()
 	fake.createResourceMutex.RLock()
 	defer fake.createResourceMutex.RUnlock()
+	fake.deactivateTanzuKubernetesReleasesMutex.RLock()
+	defer fake.deactivateTanzuKubernetesReleasesMutex.RUnlock()
 	fake.deleteClusterMutex.RLock()
 	defer fake.deleteClusterMutex.RUnlock()
 	fake.deleteExistingKappControllerMutex.RLock()
