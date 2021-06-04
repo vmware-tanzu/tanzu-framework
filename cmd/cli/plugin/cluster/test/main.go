@@ -110,6 +110,10 @@ func init() {
 
 		return nil
 	})
+	// Init the tests as per the dependency
+	initCreate()
+	initAvailableUpgrades()
+	initDelete()
 }
 
 func main() {
@@ -145,6 +149,12 @@ func test(c *cobra.Command, _ []string) error {
 	// list workload clusters
 	m.AddTest(listClusterTest)
 	if err := listClusterTest.Run(); err != nil {
+		return err
+	}
+
+	// get the available upgrades for cluster
+	m.AddTest(availableUpgradesTest)
+	if err := availableUpgradesTest.Run(); err != nil {
 		return err
 	}
 

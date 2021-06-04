@@ -20,8 +20,6 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/clusterclient"
 	tkrutils "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/utils"
-
-	corev1 "k8s.io/api/core/v1"
 )
 
 type upgradeClustersOptions struct {
@@ -154,7 +152,7 @@ func getValidTkrVersionFromTkrForUpgrade(tkgctlClient tkgctl.TKGClient, clusterC
 	if err == nil {
 		return getValidTKRVersionForUpgradeGivenFullTKRName(clusterName, uc.namespace, result.ClusterInfo.Labels, &tkrForUpgrade, tkrs)
 	}
-	return getValidTKRVersionForUpgradeGivenTKRNamePrefix(clusterName, uc.tkrName, result.ClusterInfo.K8sVersion, result.ClusterInfo.Labels, tkrs)
+	return getValidTKRVersionForUpgradeGivenTKRNamePrefix(clusterName, uc.namespace, uc.tkrName, result.ClusterInfo.K8sVersion, result.ClusterInfo.Labels, tkrs)
 }
 
 func getValidTKRVersionForUpgradeGivenFullTKRName(clusterName, namespace string, clusterLabels map[string]string,
@@ -169,7 +167,7 @@ func getValidTKRVersionForUpgradeGivenFullTKRName(clusterName, namespace string,
 		userWarningMsg = fmt.Sprintf("WARNING: Tanzu Kubernetes release %q is not compatible on the management cluster", tkrForUpgrade.Name)
 	}
 
-	tkrName, err := getClusterTKRVersion(clusterLabels)
+	tkrName, err := getClusterTKRNameFromClusterLabels(clusterLabels)
 	if err != nil { // old clusters with no TKR label
 		if userWarningMsg != "" {
 			fmt.Println(userWarningMsg)
@@ -183,7 +181,7 @@ func getValidTKRVersionForUpgradeGivenFullTKRName(clusterName, namespace string,
 		return "", err
 	}
 	// get available upgrades from the TKR associated with the cluster currently
-	tkrAvailableUpgrades, err := getAvailableUpgrades(clusterName, &tkr)
+	tkrAvailableUpgrades, err := tkrutils.GetAvailableUpgrades(clusterName, namespace, &tkr)
 	if err != nil {
 		return "", err
 	}
@@ -206,20 +204,20 @@ func getValidTKRVersionForUpgradeGivenFullTKRName(clusterName, namespace string,
 	return tkrForUpgrade.Spec.Version, nil
 }
 
-func getValidTKRVersionForUpgradeGivenTKRNamePrefix(clusterName string, tkrNamePrefix, clusterK8sVersion string,
+func getValidTKRVersionForUpgradeGivenTKRNamePrefix(clusterName, namespace, tkrNamePrefix, clusterK8sVersion string,
 	clusterLabels map[string]string, tkrs []runv1alpha1.TanzuKubernetesRelease) (string, error) {
 
 	var err error
 	var upgradeEligibleTKRs []runv1alpha1.TanzuKubernetesRelease
 
-	tkrName, err := getClusterTKRVersion(clusterLabels)
+	tkrName, err := getClusterTKRNameFromClusterLabels(clusterLabels)
 	if err != nil { // old clusters with no TKR label
 		upgradeEligibleTKRs, err = getUpgradableTKRsCompatibleWithClusterK8sVersion(clusterK8sVersion, tkrs)
 		if err != nil {
 			return "", errors.Wrap(err, "failed to get upgrade eligible TKrs")
 		}
 	} else {
-		upgradeEligibleTKRs, err = getUpgradableTKRsCompatibleWithClusterTKR(clusterName, tkrName, tkrs)
+		upgradeEligibleTKRs, err = getUpgradableTKRsCompatibleWithClusterTKR(clusterName, namespace, tkrName, tkrs)
 		if err != nil {
 			return "", errors.Wrap(err, "failed to get upgrade eligible TKrs")
 		}
@@ -265,14 +263,14 @@ func getUpgradableTKRsCompatibleWithClusterK8sVersion(clusterk8sVersion string, 
 	}
 	return upgradeEligibleTKRs, nil
 }
-func getUpgradableTKRsCompatibleWithClusterTKR(clusterName, clusterTKRName string,
+func getUpgradableTKRsCompatibleWithClusterTKR(clusterName, namespace, clusterTKRName string,
 	tkrs []runv1alpha1.TanzuKubernetesRelease) ([]runv1alpha1.TanzuKubernetesRelease, error) {
 
 	tkr, err := getMatchingTkrForTkrName(tkrs, clusterTKRName)
 	if err != nil {
 		return nil, err
 	}
-	tkrAvailableUpgrades, err := getAvailableUpgrades(clusterName, &tkr)
+	tkrAvailableUpgrades, err := tkrutils.GetAvailableUpgrades(clusterName, namespace, &tkr)
 	if err != nil {
 		return nil, err
 	}
@@ -289,54 +287,6 @@ func getUpgradableTKRsCompatibleWithClusterTKR(clusterName, clusterTKRName strin
 		}
 	}
 	return upgradeEligibleTKRs, nil
-}
-
-func getAvailableUpgrades(clusterName string, tkr *runv1alpha1.TanzuKubernetesRelease) ([]string, error) {
-	upgradeMsg := ""
-
-	for _, condition := range tkr.Status.Conditions {
-		if condition.Type == runv1alpha1.ConditionUpdatesAvailable && condition.Status == corev1.ConditionTrue {
-			upgradeMsg = condition.Message
-			break
-		}
-		// If the TKR's have deprecated UpgradeAvailable condition use it
-		if condition.Type == runv1alpha1.ConditionUpgradeAvailable && condition.Status == corev1.ConditionTrue {
-			upgradeMsg = condition.Message
-			break
-		}
-	}
-
-	if upgradeMsg == "" {
-		return []string{}, errors.Errorf("no available upgrades for cluster %q, namespace %q", clusterName, uc.namespace)
-	}
-
-	var availableUpgradeList []string
-	//TODO: Message format was changed to follow TKGs, keeping this old format check for backward compatibility.Can be cleaned up after couple minor version releases.
-	if strings.Contains(upgradeMsg, "TKR(s)") {
-		// Example for TKGm :upgradeMsg - "Deprecated, TKR(s) with later version is available: <tkr-name-1>,<tkr-name-2>"
-		strs := strings.Split(upgradeMsg, ": ")
-		if len(strs) != 2 {
-			return []string{}, errors.Errorf("no available upgrades for cluster %q, namespace %q", clusterName, uc.namespace)
-		}
-		availableUpgradeList = strings.Split(strs[1], ",")
-	} else {
-		// Example for TKGs :upgradeMsg - [<tkr-version-1> <tkr-version-2>]"
-		strs := strings.Split(strings.TrimRight(strings.TrimLeft(upgradeMsg, "["), "]"), " ")
-		if len(strs) == 0 {
-			return []string{}, errors.Errorf("no available upgrades for cluster %q, namespace %q", clusterName, uc.namespace)
-		}
-		availableUpgradeList = strs
-	}
-
-	// convert them to tkrName if the available upgrade list contains TKR versions
-	for idx := range availableUpgradeList {
-		if !strings.HasPrefix(availableUpgradeList[idx], "v") {
-			availableUpgradeList[idx] = "v" + availableUpgradeList[idx]
-		}
-		availableUpgradeList[idx] = utils.GetTkrNameFromTkrVersion(availableUpgradeList[idx])
-	}
-
-	return availableUpgradeList, nil
 }
 
 func getMatchingTkrForTkrName(tkrs []runv1alpha1.TanzuKubernetesRelease, tkrName string) (runv1alpha1.TanzuKubernetesRelease, error) {
@@ -357,7 +307,7 @@ func getTKRNamesFromTKRs(tkrs []runv1alpha1.TanzuKubernetesRelease) []string {
 	return tkrNames
 }
 
-func getClusterTKRVersion(clusterLabels map[string]string) (string, error) {
+func getClusterTKRNameFromClusterLabels(clusterLabels map[string]string) (string, error) {
 	tkrLabelExists := false
 	tkrName := ""
 	// TODO: Once the TKGs and TKGm label for TKR are same, update this
@@ -366,7 +316,7 @@ func getClusterTKRVersion(clusterLabels map[string]string) (string, error) {
 		tkrName, tkrLabelExists = clusterLabels["tanzuKubernetesRelease"] // TKGm
 	}
 	if !tkrLabelExists {
-		return "", errors.New("failed to get cluster TKr version from cluster labels")
+		return "", errors.New("failed to get cluster TKr name from cluster labels")
 	}
 	return tkrName, nil
 }

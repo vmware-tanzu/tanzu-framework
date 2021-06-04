@@ -21,6 +21,7 @@ var _ = Describe("getValidTKRVersionForUpgradeGivenTKRNamePrefix", func() {
 		clusterK8sVersion string
 		clusterLabels     map[string]string
 		tkrNamePrefix     string
+		namespace         string
 		latestTKRVersion  string
 		err               error
 	)
@@ -31,12 +32,14 @@ var _ = Describe("getValidTKRVersionForUpgradeGivenTKRNamePrefix", func() {
 	)
 
 	JustBeforeEach(func() {
-		latestTKRVersion, err = getValidTKRVersionForUpgradeGivenTKRNamePrefix(clusterName, tkrNamePrefix,
+		latestTKRVersion, err = getValidTKRVersionForUpgradeGivenTKRNamePrefix(clusterName, namespace, tkrNamePrefix,
 			clusterK8sVersion, clusterLabels, tkrs)
 	})
 
 	Context("When user provides TKR name prefix and cluster had TKR version label", func() {
 		BeforeEach(func() {
+			clusterName = "fake-cluster-name"
+			namespace = "fake-namespace"
 			clusterLabels = map[string]string{
 				"tanzuKubernetesRelease": "v1.17.18---vmware.1-tkg.2",
 			}
@@ -184,7 +187,7 @@ var _ = Describe("getValidTKRVersionForUpgradeGivenFullTKRName", func() {
 
 	Context("When cluster had TKR version label", func() {
 		BeforeEach(func() {
-			clusterNamespace = "fake-namespace"
+			clusterNamespace = "fake-namespace1"
 			clusterLabels = map[string]string{
 				"tanzuKubernetesRelease": "v1.17.18---vmware.1-tkg.2",
 			}
