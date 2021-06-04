@@ -19,7 +19,7 @@ import (
 	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/clusterclient"
-	tkrconstants "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/constants"
+	tkrutils "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/utils"
 
 	corev1 "k8s.io/api/core/v1"
 )
@@ -162,10 +162,10 @@ func getValidTKRVersionForUpgradeGivenFullTKRName(clusterName, namespace string,
 
 	var userWarningMsg string
 
-	if !isTkrActive(tkrForUpgrade) {
+	if !tkrutils.IsTkrActive(tkrForUpgrade) {
 		return "", errors.Errorf("TanzuKubernetesRelease %q is deactivated and cannot be used", tkrForUpgrade.Name)
 	}
-	if !isTkrCompatible(tkrForUpgrade) {
+	if !tkrutils.IsTkrCompatible(tkrForUpgrade) {
 		userWarningMsg = fmt.Sprintf("WARNING: TanzuKubernetesRelease %q is not compatible on the management cluster", tkrForUpgrade.Name)
 	}
 
@@ -246,7 +246,7 @@ func getValidTKRVersionForUpgradeGivenTKRNamePrefix(clusterName string, tkrNameP
 func getUpgradableTKRsCompatibleWithClusterK8sVersion(clusterk8sVersion string, tkrs []runv1alpha1.TanzuKubernetesRelease) ([]runv1alpha1.TanzuKubernetesRelease, error) {
 	upgradeEligibleTKRs := []runv1alpha1.TanzuKubernetesRelease{}
 	for idx := range tkrs {
-		if !isTkrCompatible(&tkrs[idx]) {
+		if !tkrutils.IsTkrCompatible(&tkrs[idx]) {
 			continue
 		}
 		compareResult, err := utils.CompareVMwareVersionStrings(clusterk8sVersion, tkrs[idx].Spec.KubernetesVersion)
@@ -280,7 +280,7 @@ func getUpgradableTKRsCompatibleWithClusterTKR(clusterName, clusterTKRName strin
 	upgradeEligibleTKRs := []runv1alpha1.TanzuKubernetesRelease{}
 	for _, tkrName := range tkrAvailableUpgrades {
 		for idx := range tkrs {
-			if !isTkrCompatible(&tkrs[idx]) || !isTkrActive(&tkrs[idx]) {
+			if !tkrutils.IsTkrCompatible(&tkrs[idx]) || !tkrutils.IsTkrActive(&tkrs[idx]) {
 				continue
 			}
 			if tkrName == tkrs[idx].Name {
@@ -347,27 +347,6 @@ func getMatchingTkrForTkrName(tkrs []runv1alpha1.TanzuKubernetesRelease, tkrName
 	}
 
 	return runv1alpha1.TanzuKubernetesRelease{}, errors.Errorf("could not find a matching TanzuKubernetesRelease for name %q", tkrName)
-}
-
-func isTkrCompatible(tkr *runv1alpha1.TanzuKubernetesRelease) bool {
-	for _, condition := range tkr.Status.Conditions {
-		if condition.Type == runv1alpha1.ConditionCompatible {
-			compatible := string(condition.Status)
-			return compatible == "True" || compatible == "true"
-		}
-	}
-
-	return false
-}
-
-func isTkrActive(tkr *runv1alpha1.TanzuKubernetesRelease) bool {
-	labels := tkr.Labels
-	if labels != nil {
-		if _, exists := labels[tkrconstants.TanzuKubernetesReleaseInactiveLabel]; exists {
-			return false
-		}
-	}
-	return true
 }
 
 func getTKRNamesFromTKRs(tkrs []runv1alpha1.TanzuKubernetesRelease) []string {

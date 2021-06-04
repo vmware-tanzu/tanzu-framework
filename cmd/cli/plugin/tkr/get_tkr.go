@@ -14,7 +14,14 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/constants"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/utils"
 )
+
+type getTKROptions struct {
+	listAll bool
+}
+
+var gtkr = &getTKROptions{}
 
 var getTanzuKubernetesRleasesCmd = &cobra.Command{
 	Use:   "get TKR_NAME",
@@ -23,6 +30,9 @@ var getTanzuKubernetesRleasesCmd = &cobra.Command{
 	RunE:  getKubernetesReleases,
 }
 
+func init() {
+	getTanzuKubernetesRleasesCmd.Flags().BoolVarP(&gtkr.listAll, "all", "a", false, "List all the available Tanzu Kubernetes releases including Incompatible and deactivated")
+}
 func getKubernetesReleases(cmd *cobra.Command, args []string) error {
 	server, err := config.GetCurrentServer()
 	if err != nil {
@@ -42,7 +52,10 @@ func getKubernetesReleases(cmd *cobra.Command, args []string) error {
 	if len(args) != 0 {
 		tkrName = args[0]
 	}
+	return runGetKubernetesReleases(clusterClient, tkrName)
+}
 
+func runGetKubernetesReleases(clusterClient clusterclient.Client, tkrName string) error {
 	tkrs, err := clusterClient.GetTanzuKubernetesReleases(tkrName)
 	if err != nil {
 		return err
@@ -52,12 +65,12 @@ func getKubernetesReleases(cmd *cobra.Command, args []string) error {
 	for i := range tkrs {
 		compatible := ""
 		upgradeAvailable := ""
-
 		for _, condition := range tkrs[i].Status.Conditions {
 			if condition.Type == runv1alpha1.ConditionCompatible {
 				compatible = string(condition.Status)
 			}
-			if condition.Type == runv1alpha1.ConditionUpdatesAvailable {
+			// ConditionUpgradeAvailable is deprecated, but check here for backward compatibility
+			if condition.Type == runv1alpha1.ConditionUpdatesAvailable || condition.Type == runv1alpha1.ConditionUpgradeAvailable {
 				upgradeAvailable = string(condition.Status)
 			}
 		}
@@ -69,6 +82,9 @@ func getKubernetesReleases(cmd *cobra.Command, args []string) error {
 			}
 		}
 
+		if !gtkr.listAll && (!utils.IsTkrCompatible(&tkrs[i]) || !utils.IsTkrActive(&tkrs[i])) {
+			continue
+		}
 		t.Append([]string{tkrs[i].Name, tkrs[i].Spec.Version, compatible, activeStatus, upgradeAvailable})
 	}
 	t.Render()

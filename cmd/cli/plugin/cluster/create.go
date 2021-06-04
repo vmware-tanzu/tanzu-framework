@@ -20,6 +20,7 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgctl"
 	tkr "github.com/vmware-tanzu-private/core/pkg/v1/tkr/controllers/source"
+	tkrutils "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/utils"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 )
@@ -183,10 +184,10 @@ func getTkrVersionForMatchingTkr(clusterClient clusterclient.Client, tkrName str
 	tkrForCreate, err := getMatchingTkrForTkrName(tkrs, tkrName)
 	// If the complete TKR name is provided, use it
 	if err == nil {
-		if !isTkrActive(&tkrForCreate) {
+		if !tkrutils.IsTkrActive(&tkrForCreate) {
 			return "", errors.Errorf("the TanzuKubernetesRelease %q is deactivated and cannot be used", tkrName)
 		}
-		if !isTkrCompatible(&tkrForCreate) {
+		if !tkrutils.IsTkrCompatible(&tkrForCreate) {
 			fmt.Printf("WARNING: TanzuKubernetesRelease %q is not compatible on the management cluster\n", tkrForCreate.Name)
 		}
 		if tkrForCreate.Spec.Version == "" {
@@ -202,7 +203,7 @@ func getTkrVersionForMatchingTkr(clusterClient clusterclient.Client, tkrName str
 func getLatestTKRVersionMatchingTKRPrefix(tkrName string, tkrsWithPrefixMatch []runv1alpha1.TanzuKubernetesRelease) (string, error) {
 	compatibleTKRs := []runv1alpha1.TanzuKubernetesRelease{}
 	for idx := range tkrsWithPrefixMatch {
-		if !isTkrCompatible(&tkrsWithPrefixMatch[idx]) || !isTkrActive(&tkrsWithPrefixMatch[idx]) {
+		if !tkrutils.IsTkrCompatible(&tkrsWithPrefixMatch[idx]) || !tkrutils.IsTkrActive(&tkrsWithPrefixMatch[idx]) {
 			continue
 		}
 		compatibleTKRs = append(compatibleTKRs, tkrsWithPrefixMatch[idx])
