@@ -4,9 +4,11 @@
 .DEFAULT_GOAL := help
 
 ROOT_DIR	:= $(dir $(shell pwd))
+IMG_CATEGORY := networking
+IMG_CLUSTER_TYPE := management workload
+ADDON_NAME := load-balancer-and-ingress-service
 
-OBJECTS ?= addons-manager vsphere_cpi kapp-controller pinniped antrea calico metrics-server vsphere_csi ako-operator load-balancer-and-ingress-service # add more add-ons here, folder name
-
+IMG_NAME ?= load-balancer-and-ingress-service-templates
 IMG_TAG ?= latest
 
 ## --------------------------------------
@@ -20,16 +22,10 @@ help: ## Display this help
 ## Build templates
 ## --------------------------------------
 
-.PHONY: generate-addon-bom
-generate-addon-bom: init-boms $(OBJECTS) move-bom-to-artifacts## generate add-on BOM
+.PHONY: template-image
+template-image: ## Build template image
+	docker build -t $(IMG_NAME):$(IMG_TAG) -f ../Dockerfile.templates .
 
-.PHONY: init-boms
-init-boms:
-	$(shell echo "addons:" > bom.yaml)
-
-$(OBJECTS): 
-	./generate_values.sh $@ $(ROOT_DIR) $(IMG_TAG)
-
-.PHONY: move-bom-to-artifacts
-move-bom-to-artifacts:
-	$(shell mv ./bom.yaml ../artifacts/bom.yaml)
+.PHONY: push-template-image
+push-template-image: ## Push template image
+	docker push $(IMG_NAME):$(IMG_TAG)

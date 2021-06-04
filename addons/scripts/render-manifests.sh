@@ -43,3 +43,4 @@ render_manifest addons-manager
 render_manifest vsphere_csi
 render_manifest vsphere_cpi
 render_manifest ako-operator
+render_manifest load-balancer-and-ingress-service
