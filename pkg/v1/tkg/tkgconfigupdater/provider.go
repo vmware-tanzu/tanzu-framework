@@ -4,7 +4,6 @@
 package tkgconfigupdater
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -32,7 +31,7 @@ func (c *client) defaultProviders() (providers, error) {
 		return providers{}, err
 	}
 
-	providerConfigBytes, err := ioutil.ReadFile(filepath.Join(providersDir, constants.LocalProvidersConfigFileName))
+	providerConfigBytes, err := os.ReadFile(filepath.Join(providersDir, constants.LocalProvidersConfigFileName))
 	if err != nil {
 		return providers{}, errors.Wrap(err, "cannot get provider config")
 	}
@@ -151,7 +150,7 @@ func (c *client) GetDefaultInfrastructureVersion(providerName string) (string, e
 		return "", err
 	}
 
-	fileData, err := ioutil.ReadFile(tkgConfigPath)
+	fileData, err := os.ReadFile(tkgConfigPath)
 	if err != nil {
 		return "", errors.Wrapf(err, "unable to read tkg configuration from: %s", tkgConfigPath)
 	}
@@ -224,7 +223,7 @@ func (c *client) CheckTkgConfigNeedUpdate() (bool, string, error) { //nolint:goc
 		return false, "", err
 	}
 
-	tkgConfigData, err := ioutil.ReadFile(tkgConfigPath)
+	tkgConfigData, err := os.ReadFile(tkgConfigPath)
 	if err != nil {
 		return false, "", errors.Wrapf(err, "unable to read tkg configuration from: %s", tkgConfigPath)
 	}

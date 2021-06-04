@@ -5,7 +5,6 @@ package helper
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
@@ -13,7 +12,7 @@ import (
 
 // GetFakeKubeConfigFilePath returns fake kubeconfig file path
 func GetFakeKubeConfigFilePath(testingDir, filePath string) string {
-	f, err := ioutil.TempFile(testingDir, "kube")
+	f, err := os.CreateTemp(testingDir, "kube")
 	if err != nil {
 		fmt.Println("Error creating TempFile: ", err.Error())
 	}
@@ -22,11 +21,11 @@ func GetFakeKubeConfigFilePath(testingDir, filePath string) string {
 }
 
 func copyFile(sourceFile, destFile string) {
-	input, err := ioutil.ReadFile(sourceFile)
+	input, err := os.ReadFile(sourceFile)
 	if err != nil {
 		fmt.Println("Error ReadFile TempFile: ", err.Error())
 	}
-	_ = ioutil.WriteFile(destFile, input, constants.ConfigFilePermissions)
+	_ = os.WriteFile(destFile, input, constants.ConfigFilePermissions)
 	if err != nil {
 		fmt.Println("Error WriteFile TempFile: ", err.Error())
 	}
@@ -34,7 +33,7 @@ func copyFile(sourceFile, destFile string) {
 
 // CreateTempTestingDirectory create temporary directory for testing
 func CreateTempTestingDirectory() string {
-	testingDir, _ := ioutil.TempDir("", "testing")
+	testingDir, _ := os.MkdirTemp("", "testing")
 	return testingDir
 }
 

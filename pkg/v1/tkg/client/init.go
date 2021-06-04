@@ -5,7 +5,7 @@ package client
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -382,12 +382,12 @@ func (c *TkgClient) ensureKindCluster(kubeconfig string, useExistingCluster bool
 			kubeconfig = getDefaultKubeConfigFile()
 		}
 
-		content, err := ioutil.ReadFile(kubeconfig)
+		content, err := os.ReadFile(kubeconfig)
 		if err != nil {
 			return "", err
 		}
 
-		err = ioutil.WriteFile(backupPath, content, constants.ConfigFilePermissions)
+		err = os.WriteFile(backupPath, content, constants.ConfigFilePermissions)
 		if err != nil {
 			return "", err
 		}

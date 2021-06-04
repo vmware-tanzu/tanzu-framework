@@ -4,7 +4,6 @@
 package tkgconfigreaderwriter
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -81,9 +80,9 @@ func Test_viperReader_Get(t *testing.T) {
 }
 
 func Test_viperReader_Set(t *testing.T) {
-	dir, err := ioutil.TempDir("", "tkg")
+	dir, err := os.MkdirTemp("", "tkg")
 	if err != nil {
-		t.Fatalf("ioutil.TempDir() error = %v", err)
+		t.Fatalf("os.MkdirTemp() error = %v", err)
 	}
 	defer os.RemoveAll(dir)
 
@@ -91,8 +90,8 @@ func Test_viperReader_Set(t *testing.T) {
 
 	tkgConfigFile := filepath.Join(dir, "config.yaml")
 
-	if err := ioutil.WriteFile(tkgConfigFile, []byte("bar: bar"), constants.ConfigFilePermissions); err != nil {
-		t.Fatalf("ioutil.WriteFile() error = %v", err)
+	if err := os.WriteFile(tkgConfigFile, []byte("bar: bar"), constants.ConfigFilePermissions); err != nil {
+		t.Fatalf("os.WriteFile() error = %v", err)
 	}
 
 	type args struct {

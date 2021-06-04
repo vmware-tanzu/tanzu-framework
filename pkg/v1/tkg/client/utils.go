@@ -5,7 +5,6 @@ package client
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -89,7 +88,7 @@ func MergeKubeConfigWithoutSwitchContext(kubeConfig []byte, mergeFile string) er
 
 // GetCurrentClusterKubeConfigFromFile gets current cluster kubeconfig from kubeconfig file
 func GetCurrentClusterKubeConfigFromFile(kubeConfigPath string) ([]byte, error) {
-	bytes, err := ioutil.ReadFile(kubeConfigPath)
+	bytes, err := os.ReadFile(kubeConfigPath)
 	if err != nil {
 		return nil, err
 	}

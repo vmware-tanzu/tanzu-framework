@@ -4,7 +4,6 @@
 package client_test
 
 import (
-	"io/ioutil"
 	"os"
 	"time"
 
@@ -75,7 +74,7 @@ var _ = Describe("Validate", func() {
 
 			configDir := os.TempDir()
 
-			configFile, err := ioutil.TempFile(configDir, "cluster-config-*.yaml")
+			configFile, err := os.CreateTemp(configDir, "cluster-config-*.yaml")
 			Expect(err).NotTo(HaveOccurred())
 			Expect(configFile.Sync()).To(Succeed())
 			Expect(configFile.Close()).To(Succeed())

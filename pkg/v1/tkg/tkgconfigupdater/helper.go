@@ -7,7 +7,6 @@ import (
 	"archive/zip"
 	"encoding/base64"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -34,7 +33,7 @@ func isDirectoryEmpty(directoryPath string) (bool, error) {
 		return false, err
 	}
 
-	items, err := ioutil.ReadDir(directoryPath)
+	items, err := os.ReadDir(directoryPath)
 	if err != nil {
 		return false, errors.Wrapf(err, "unable to read %s directory", directoryPath)
 	}
@@ -101,7 +100,7 @@ func getBundledProvidersChecksum(zipPath string) ([]byte, error) {
 				return nil, err
 			}
 			defer rc.Close()
-			return ioutil.ReadAll(rc)
+			return io.ReadAll(rc)
 		}
 	}
 	return nil, errors.New("providers.sha256sum is not bundled properly")
@@ -112,7 +111,7 @@ func (c *client) saveTemplatesZipFile(zipPath string) error {
 	if err != nil {
 		return errors.Wrap(err, "cannot find the provider bundle")
 	}
-	return ioutil.WriteFile(zipPath, providersZipBytes, 0o644)
+	return os.WriteFile(zipPath, providersZipBytes, 0o644)
 }
 
 // markDeprecatedConfigurationOptions adds comment on top of deprecated configuration variable in

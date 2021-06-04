@@ -4,7 +4,7 @@
 package clusterclient_test
 
 import (
-	"io/ioutil"
+	"os"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -48,7 +48,7 @@ var _ = Describe("Cluster Client Helper", func() {
 
 func getConfigMapFileData(filename string) []byte {
 	filePath := "../fakes/config/configmap/" + filename
-	input, _ := ioutil.ReadFile(filePath)
+	input, _ := os.ReadFile(filePath)
 	return input
 }
 

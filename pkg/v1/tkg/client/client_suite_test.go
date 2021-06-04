@@ -6,7 +6,6 @@ package client_test
 import (
 	"context"
 	"encoding/base64"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -1069,10 +1068,10 @@ var _ = Describe("OverrideAWSNodeSizeWithOptions", func() {
 	)
 
 	BeforeEach(func() {
-		tmpConfig, err := ioutil.TempFile("", "example")
+		tmpConfig, err := os.CreateTemp("", "example")
 		Expect(err).ToNot(HaveOccurred())
 		tkgConfigPath = tmpConfig.Name()
-		err = ioutil.WriteFile(tkgConfigPath, []byte("CONTROL_PLANE_MACHINE_TYPE: t3.small"), constants.ConfigFilePermissions)
+		err = os.WriteFile(tkgConfigPath, []byte("CONTROL_PLANE_MACHINE_TYPE: t3.small"), constants.ConfigFilePermissions)
 		Expect(err).ToNot(HaveOccurred())
 
 		awsClient = &fakes.AWSClient{}
@@ -1191,7 +1190,7 @@ var _ = Describe("OverrideVsphereNodeSizeWithOptions", func() {
 	)
 
 	BeforeEach(func() {
-		tmpConfig, err := ioutil.TempFile("", "example")
+		tmpConfig, err := os.CreateTemp("", "example")
 		Expect(err).ToNot(HaveOccurred())
 		tkgConfigPath = tmpConfig.Name()
 
@@ -1201,7 +1200,7 @@ var _ = Describe("OverrideVsphereNodeSizeWithOptions", func() {
 		SPHERE_CONTROL_PLANE_DISK_GIB: "20"
 		`
 
-		err = ioutil.WriteFile(tkgConfigPath, []byte(configContent), constants.ConfigFilePermissions)
+		err = os.WriteFile(tkgConfigPath, []byte(configContent), constants.ConfigFilePermissions)
 		Expect(err).ToNot(HaveOccurred())
 	})
 
@@ -1334,7 +1333,7 @@ var _ = Describe("ValidateCNIConfig", func() {
 	)
 
 	BeforeEach(func() {
-		tmpConfig, err := ioutil.TempFile("", "example")
+		tmpConfig, err := os.CreateTemp("", "example")
 		Expect(err).ToNot(HaveOccurred())
 		tkgConfigPath = tmpConfig.Name()
 	})
@@ -1398,7 +1397,7 @@ var _ = Describe("ValidateCNIConfig", func() {
 	Context("when --cni option is not specified but CNI is set in config", func() {
 		BeforeEach(func() {
 			cniType = ""
-			err = ioutil.WriteFile(tkgConfigPath, []byte("CNI: calico"), constants.ConfigFilePermissions)
+			err = os.WriteFile(tkgConfigPath, []byte("CNI: calico"), constants.ConfigFilePermissions)
 			Expect(err).ToNot(HaveOccurred())
 		})
 		It("should use calico as cni provider", func() {
@@ -1426,7 +1425,7 @@ var _ = Describe("DistributeMachineDeploymentWorkers", func() {
 	)
 
 	BeforeEach(func() {
-		tmpConfig, err := ioutil.TempFile("", "example")
+		tmpConfig, err := os.CreateTemp("", "example")
 		Expect(err).ToNot(HaveOccurred())
 		tmpTkgConfigPath = tmpConfig.Name()
 		tkgConfigPath = tmpTkgConfigPath

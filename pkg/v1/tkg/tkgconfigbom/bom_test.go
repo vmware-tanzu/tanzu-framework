@@ -5,7 +5,6 @@ package tkgconfigbom_test
 
 import (
 	"errors"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -76,7 +75,7 @@ var (
 			BeforeEach(func() {
 				createTempDirectory()
 				tkgConfigDir = testingDir
-				f, _ := ioutil.TempFile(testingDir, "config.yaml")
+				f, _ := os.CreateTemp(testingDir, "config.yaml")
 				err := copyFile("../fakes/config/config.yaml", f.Name())
 				Expect(err).ToNot(HaveOccurred())
 				err = copyFile("../fakes/config/config.yaml", filepath.Join(tkgConfigDir, "config.yaml"))
@@ -102,7 +101,7 @@ var (
 
 			Context("when downloading the TKG BOM file is success but fails to download TKR BOM file", func() {
 				BeforeEach(func() {
-					data, err := ioutil.ReadFile("../fakes/config/bom/tkg-bom-v1.3.1.yaml")
+					data, err := os.ReadFile("../fakes/config/bom/tkg-bom-v1.3.1.yaml")
 					Expect(err).ToNot(HaveOccurred())
 					fakeRegistry.GetFileReturnsOnCall(0, data, nil)
 					fakeRegistry.GetFileReturnsOnCall(1, nil, errors.New("fake GetFile error for TKR BOM file"))
@@ -116,9 +115,9 @@ var (
 			})
 			Context("when downloading the TKG BOM file and TKR BOM file is success ", func() {
 				BeforeEach(func() {
-					tkgdata, err := ioutil.ReadFile("../fakes/config/bom/tkg-bom-v1.3.1.yaml")
+					tkgdata, err := os.ReadFile("../fakes/config/bom/tkg-bom-v1.3.1.yaml")
 					Expect(err).ToNot(HaveOccurred())
-					tkrdata, err := ioutil.ReadFile("../fakes/config/bom/tkg-bom-v1.3.1.yaml")
+					tkrdata, err := os.ReadFile("../fakes/config/bom/tkg-bom-v1.3.1.yaml")
 					Expect(err).ToNot(HaveOccurred())
 					fakeRegistry.GetFileReturnsOnCall(0, tkgdata, nil)
 					fakeRegistry.GetFileReturnsOnCall(1, tkrdata, nil)
@@ -335,7 +334,7 @@ var (
 )
 
 func createTempDirectory() {
-	testingDir, _ = ioutil.TempDir("", "bom_test")
+	testingDir, _ = os.MkdirTemp("", "bom_test")
 }
 
 func deleteTempDirectory() {
@@ -343,11 +342,11 @@ func deleteTempDirectory() {
 }
 
 func copyFile(sourceFile, destFile string) error {
-	input, err := ioutil.ReadFile(sourceFile)
+	input, err := os.ReadFile(sourceFile)
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(destFile, input, constants.ConfigFilePermissions)
+	return os.WriteFile(destFile, input, constants.ConfigFilePermissions)
 }
 
 var _ = Describe("GetK8sVersionFromTkrBoM", func() {

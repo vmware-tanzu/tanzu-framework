@@ -4,7 +4,6 @@
 package tkgconfigupdater
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -63,7 +62,7 @@ func SetVariableInConfig(key, value, comment, clusterConfigPath string) error {
 	clusterConfigDir := filepath.Dir(clusterConfigPath)
 
 	// read tkg config file
-	fileData, err := ioutil.ReadFile(clusterConfigPath)
+	fileData, err := os.ReadFile(clusterConfigPath)
 	if err != nil && !os.IsNotExist(err) {
 		return errors.Errorf("unable to read tkg configuration from: %s", clusterConfigPath)
 	} else if _, err := os.Stat(clusterConfigDir); os.IsNotExist(err) {
@@ -86,7 +85,7 @@ func SetVariableInConfig(key, value, comment, clusterConfigPath string) error {
 	if err != nil {
 		return errors.Wrapf(err, "error marshaling while adding key: %v, value: %v", key, value)
 	}
-	err = ioutil.WriteFile(clusterConfigPath, out, constants.ConfigFilePermissions)
+	err = os.WriteFile(clusterConfigPath, out, constants.ConfigFilePermissions)
 	if err != nil {
 		return errors.Wrapf(err, "error writing file while adding key: %v, value: %v", key, value)
 	}

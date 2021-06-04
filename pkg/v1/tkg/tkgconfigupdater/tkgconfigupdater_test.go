@@ -7,7 +7,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -65,7 +64,7 @@ var _ = Describe("SaveConfig", func() {
 	)
 	JustBeforeEach(func() {
 		setupPrerequsiteForTesting(clusterConfigPath, testingDir, defaultBomFile)
-		originalFile, err = ioutil.ReadFile(clusterConfigPath)
+		originalFile, err = os.ReadFile(clusterConfigPath)
 		Expect(err).ToNot(HaveOccurred())
 		var tkgConfigReaderWriter tkgconfigreaderwriter.TKGConfigReaderWriter
 		tkgConfigReaderWriter, err = tkgconfigreaderwriter.NewReaderWriterFromConfigFile(clusterConfigPath, filepath.Join(testingDir, "config.yaml"))
@@ -141,7 +140,7 @@ var _ = Describe("SaveConfig", func() {
 	})
 
 	AfterEach(func() {
-		err = ioutil.WriteFile(clusterConfigPath, originalFile, constants.ConfigFilePermissions)
+		err = os.WriteFile(clusterConfigPath, originalFile, constants.ConfigFilePermissions)
 		Expect(err).ToNot(HaveOccurred())
 
 		_ = os.Unsetenv("FOO")
@@ -182,7 +181,7 @@ var _ = Describe("Credential Encoding/Decoding", func() {
 		})
 
 		It("should have encoded value in config file and clear text value in viper", func() {
-			configByte, err := ioutil.ReadFile(clusterConfigPath)
+			configByte, err := os.ReadFile(clusterConfigPath)
 			Expect(err).ToNot(HaveOccurred())
 
 			configMap := make(map[string]interface{})
@@ -204,7 +203,7 @@ var _ = Describe("Credential Encoding/Decoding", func() {
 		})
 
 		It("should have encoded value in config file and clear text value in viper", func() {
-			configByte, err := ioutil.ReadFile(clusterConfigPath)
+			configByte, err := os.ReadFile(clusterConfigPath)
 			Expect(err).ToNot(HaveOccurred())
 
 			configMap := make(map[string]interface{})
@@ -226,7 +225,7 @@ var _ = Describe("Credential Encoding/Decoding", func() {
 		})
 
 		It("should have encoded value in config file and clear text value in viper", func() {
-			configByte, err := ioutil.ReadFile(clusterConfigPath)
+			configByte, err := os.ReadFile(clusterConfigPath)
 			Expect(err).ToNot(HaveOccurred())
 
 			configMap := make(map[string]interface{})
@@ -255,7 +254,7 @@ var _ = Describe("Credential Encoding/Decoding", func() {
 		})
 
 		It("should have encoded value in config file and clear text value in viper", func() {
-			configByte, err := ioutil.ReadFile(clusterConfigPath)
+			configByte, err := os.ReadFile(clusterConfigPath)
 			Expect(err).ToNot(HaveOccurred())
 
 			configMap := make(map[string]interface{})
@@ -286,7 +285,7 @@ var _ = Describe("Credential Encoding/Decoding", func() {
 		})
 
 		It("should have saved the long string in a single line", func() {
-			configBytes, err := ioutil.ReadFile(clusterConfigPath)
+			configBytes, err := os.ReadFile(clusterConfigPath)
 			Expect(err).ToNot(HaveOccurred())
 
 			configMap := make(map[string]interface{})
@@ -372,7 +371,7 @@ var _ = Describe("EnsureTemplateFiles", func() {
 			err = client.SaveTemplateFiles(testingDir, false)
 			Expect(err).ToNot(HaveOccurred())
 			providerChecksumPath := filepath.Join(testingDir, constants.LocalProvidersFolderName, constants.LocalProvidersChecksumFileName)
-			err = ioutil.WriteFile(providerChecksumPath, []byte("mismatched-checksum"), constants.ConfigFilePermissions)
+			err = os.WriteFile(providerChecksumPath, []byte("mismatched-checksum"), constants.ConfigFilePermissions)
 			Expect(err).ToNot(HaveOccurred())
 			// make sure the providers is written properly
 			needUpdate, err := client.CheckProvidersNeedUpdate()
@@ -462,7 +461,7 @@ var _ = Describe("CheckProvidersNeedUpdate", func() {
 			err = client.SaveTemplateFiles(testingDir, false)
 			Expect(err).ToNot(HaveOccurred())
 			providerChecksumPath := filepath.Join(testingDir, constants.LocalProvidersFolderName, constants.LocalProvidersChecksumFileName)
-			err = ioutil.WriteFile(providerChecksumPath, []byte("mismatched-checksum"), constants.ConfigFilePermissions)
+			err = os.WriteFile(providerChecksumPath, []byte("mismatched-checksum"), constants.ConfigFilePermissions)
 			Expect(err).ToNot(HaveOccurred())
 		})
 
@@ -647,7 +646,7 @@ var _ = Describe("CheckTkgConfigNeedUpdate", func() {
 		tkgConfigReaderWriter, err = tkgconfigreaderwriter.NewReaderWriterFromConfigFile(clusterConfigPath, filepath.Join(testingDir, "config.yaml"))
 		Expect(err).NotTo(HaveOccurred())
 		client = New(testingDir, NewProviderTest(), tkgConfigReaderWriter)
-		err = ioutil.WriteFile(clusterConfigPath, out, 0o600)
+		err = os.WriteFile(clusterConfigPath, out, 0o600)
 		Expect(err).ToNot(HaveOccurred())
 		tkgConfigNeedUpdate, _, err = client.CheckTkgConfigNeedUpdate()
 	})
@@ -691,7 +690,7 @@ var _ = Describe("CheckTkgConfigNeedUpdate", func() {
 	Context("When the providers sections is missing from the tkg config", func() {
 		BeforeEach(func() {
 			clusterConfigPath = getConfigFilePath("config_missing_providers.yaml")
-			err = ioutil.WriteFile(clusterConfigPath, []byte("bar: bar-val"), 0o600)
+			err = os.WriteFile(clusterConfigPath, []byte("bar: bar-val"), 0o600)
 			Expect(err).ToNot(HaveOccurred())
 			tkgConfigNode = loadTKGNode(clusterConfigPath)
 		})
@@ -719,7 +718,7 @@ func getNodeIndex(node []*yaml.Node, key string) int {
 }
 
 func getValue(filepath, key string) (string, error) {
-	fileData, err := ioutil.ReadFile(filepath)
+	fileData, err := os.ReadFile(filepath)
 	if err != nil {
 		return "", err
 	}
@@ -739,7 +738,7 @@ func getValue(filepath, key string) (string, error) {
 }
 
 func createTempDirectory(prefix string) {
-	testingDir, err = ioutil.TempDir("", prefix)
+	testingDir, err = os.MkdirTemp("", prefix)
 	if err != nil {
 		fmt.Println("Error TempDir: ", err.Error())
 	}
@@ -759,7 +758,7 @@ func writeYaml(path string, tkgConfigNode *yaml.Node) {
 	if err != nil {
 		fmt.Println("Error marshaling tkg config to yaml", err.Error())
 	}
-	err = ioutil.WriteFile(path, out, constants.ConfigFilePermissions)
+	err = os.WriteFile(path, out, constants.ConfigFilePermissions)
 	if err != nil {
 		fmt.Println("Error WriteFile", err.Error())
 	}
@@ -767,7 +766,7 @@ func writeYaml(path string, tkgConfigNode *yaml.Node) {
 
 func loadTKGNode(path string) *yaml.Node {
 	tkgConfigNode := yaml.Node{}
-	fileData, err := ioutil.ReadFile(path)
+	fileData, err := os.ReadFile(path)
 	if err != nil {
 		fmt.Println("Error ReadFile")
 	}
@@ -792,7 +791,7 @@ type providers struct {
 func countProviders() (int, error) {
 	path := filepath.Join(testingDir)
 
-	providerConfigBytes, err := ioutil.ReadFile(filepath.Join(path, constants.LocalProvidersFolderName, constants.LocalProvidersConfigFileName))
+	providerConfigBytes, err := os.ReadFile(filepath.Join(path, constants.LocalProvidersFolderName, constants.LocalProvidersConfigFileName))
 	if err != nil {
 		return 0, err
 	}
@@ -834,5 +833,5 @@ func NewProviderTest() providerinterface.ProviderInterface {
 }
 
 func (p *providertest) GetProviderBundle() ([]byte, error) {
-	return ioutil.ReadFile("../fakes/providers/providers.zip")
+	return os.ReadFile("../fakes/providers/providers.zip")
 }

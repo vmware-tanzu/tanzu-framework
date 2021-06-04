@@ -4,7 +4,7 @@
 package region_test
 
 import (
-	"io/ioutil"
+	"os"
 	"testing"
 
 	. "github.com/onsi/ginkgo"
@@ -69,7 +69,7 @@ var _ = Describe("Region manager", func() {
 			originalFile []byte
 		)
 		JustBeforeEach(func() {
-			originalFile, err = ioutil.ReadFile(tkgConfigPath)
+			originalFile, err = os.ReadFile(tkgConfigPath)
 			Expect(err).ToNot(HaveOccurred())
 			manager, err = New(tkgConfigPath)
 			Expect(err).ToNot(HaveOccurred())
@@ -108,7 +108,7 @@ var _ = Describe("Region manager", func() {
 		})
 
 		AfterEach(func() {
-			err = ioutil.WriteFile(tkgConfigPath, originalFile, constants.ConfigFilePermissions)
+			err = os.WriteFile(tkgConfigPath, originalFile, constants.ConfigFilePermissions)
 			Expect(err).ToNot(HaveOccurred())
 		})
 	})
@@ -119,7 +119,7 @@ var _ = Describe("Region manager", func() {
 			originalFile []byte
 		)
 		JustBeforeEach(func() {
-			originalFile, err = ioutil.ReadFile(tkgConfigPath)
+			originalFile, err = os.ReadFile(tkgConfigPath)
 			Expect(err).ToNot(HaveOccurred())
 			manager, err = New(tkgConfigPath)
 			Expect(err).ToNot(HaveOccurred())
@@ -165,7 +165,7 @@ var _ = Describe("Region manager", func() {
 		})
 
 		AfterEach(func() {
-			err = ioutil.WriteFile(tkgConfigPath, originalFile, constants.ConfigFilePermissions)
+			err = os.WriteFile(tkgConfigPath, originalFile, constants.ConfigFilePermissions)
 			Expect(err).ToNot(HaveOccurred())
 		})
 	})
@@ -175,7 +175,7 @@ var _ = Describe("Region manager", func() {
 			originalFile []byte
 		)
 		JustBeforeEach(func() {
-			originalFile, err = ioutil.ReadFile(tkgConfigPath)
+			originalFile, err = os.ReadFile(tkgConfigPath)
 			Expect(err).ToNot(HaveOccurred())
 			manager, err = New(tkgConfigPath)
 			Expect(err).ToNot(HaveOccurred())
@@ -223,7 +223,7 @@ var _ = Describe("Region manager", func() {
 		})
 
 		AfterEach(func() {
-			err = ioutil.WriteFile(tkgConfigPath, originalFile, constants.ConfigFilePermissions)
+			err = os.WriteFile(tkgConfigPath, originalFile, constants.ConfigFilePermissions)
 			Expect(err).ToNot(HaveOccurred())
 		})
 	})
@@ -235,7 +235,7 @@ var _ = Describe("Region manager", func() {
 		)
 
 		JustBeforeEach(func() {
-			originalFile, err = ioutil.ReadFile(tkgConfigPath)
+			originalFile, err = os.ReadFile(tkgConfigPath)
 			Expect(err).ToNot(HaveOccurred())
 			manager, err = New(tkgConfigPath)
 			Expect(err).ToNot(HaveOccurred())
@@ -311,7 +311,7 @@ var _ = Describe("Region manager", func() {
 		})
 
 		AfterEach(func() {
-			err = ioutil.WriteFile(tkgConfigPath, originalFile, constants.ConfigFilePermissions)
+			err = os.WriteFile(tkgConfigPath, originalFile, constants.ConfigFilePermissions)
 			Expect(err).ToNot(HaveOccurred())
 		})
 	})
