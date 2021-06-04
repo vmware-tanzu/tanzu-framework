@@ -7,9 +7,9 @@ linters-settings:
   goheader:
     values:
       const:
-       - YEAR: 2021
-       - COMPANY: VMware, Inc.
-       - LICENSE: Apache-2.0
+       YEAR: "2021"
+       COMPANY: VMware, Inc.
+       LICENSE: Apache-2.0
     template: |-
       Copyright {{ YEAR }} {{ COMPANY }} All Rights Reserved.
       SPDX-License-Identifier: {{ LICENSE }}
@@ -38,7 +38,11 @@ linters-settings:
   gomnd:
     settings:
       mnd:
-        checks: argument,case,condition,return
+        checks:
+        - argument
+        - case
+        - condition
+        - return
         ignored-functions: log.*,utils.GenerateRandomID*
   govet:
     check-shadowing: true
@@ -156,6 +160,7 @@ run:
   skip-dirs:
     - test/
     - fakes/
+  timeout: 10m
 
 # golangci.com configuration
 # https://github.com/golangci/golangci/wiki/Configuration
