@@ -5,10 +5,11 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
-    # TODO: trigger on v1/{tkg,providers} as well
     paths:
-      - 'cmd/cli/plugin/cluster/**'
-      - 'cmd/cli/plugin/managementcluster/**'
+      - "cmd/cli/plugin/cluster/**"
+      - "cmd/cli/plugin/managementcluster/**"
+      - 'pkg/v1/tkg/**'
+      - 'pkg/v1/providers/**'
       - '.github/workflows/plugin_tests.yaml'
 
 jobs:

@@ -123,6 +123,9 @@ func waitForCertificateToBeReady(ctx context.Context, clusterName string, certNa
 			return false
 		}
 
+		if status["conditions"] == nil {
+			return false
+		}
 		conditions := status["conditions"].([]interface{})
 		for _, c := range conditions {
 			condition, ok := c.(map[string]interface{})

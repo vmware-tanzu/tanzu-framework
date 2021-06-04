@@ -10,6 +10,8 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
+	"runtime"
+	"strconv"
 	"time"
 
 	. "github.com/onsi/ginkgo"
@@ -103,8 +105,17 @@ func E2EAutoscalerSpec(context context.Context, inputGetter func() E2EAutoscaler
 		_, _, err = kubectlCmd.Run(context)
 		Expect(err).To(BeNil())
 
+		cpuCount := runtime.NumCPU()
+		By(fmt.Sprintf("Scaling the deployment to %v", cpuCount))
+		kubectlCmd = exec.NewCommand(
+			exec.WithCommand("kubectl"),
+			exec.WithArgs("scale", "--replicas="+strconv.Itoa(cpuCount), "deployment/nginx-deployment", "--context", contextName),
+		)
+		_, _, err = kubectlCmd.Run(context)
+		Expect(err).To(BeNil())
+
 		By("Scaling up workload cluster")
-		framework.WaitForNodes(framework.NewClusterProxy(clusterName, "", contextName), 4)
+		framework.WaitForNodes(framework.NewClusterProxy(clusterName, "", contextName), 3)
 
 		By("Deleting workload which should trigger a scale down")
 		kubectlCmd = exec.NewCommand(
