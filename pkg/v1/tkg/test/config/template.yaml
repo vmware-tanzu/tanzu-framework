@@ -1,0 +1,53 @@
+# infrastructure name [aws, azure, docker, vsphere]
+infrastructure_name: ""
+
+# infrastructure version
+infrastructure_version: ""
+
+# cluster api version
+capi_version: ""
+
+# kubernetes version
+kubernetes_version: ""
+
+# tkg cli path
+tkg_cli_path: ""
+
+# default timeout used in tkg cli commands
+default_timeout: ""
+
+# path to the tkg config file
+tkg_config_path:
+
+# config variables to be present in the tkg config file
+tkg_config_variables: {}
+
+# management cluster name
+management_cluster_name: ""
+
+# tkg cluster prefix used to cleanup resources
+cluster_prefix: ""
+
+# log level
+tkg_cli_log_level: ""
+
+# management cluster options
+management_cluster_options:
+  plan: dev
+
+# Upgrade
+# --------
+# infrastructure version
+infrastructure_version_old: ""
+
+# cluster api version
+capi_version_old: ""
+
+# kubernetes version
+kubernetes_version_old: ""
+
+# tkg cli path
+tkg_cli_path_old: ""
+
+# upgrade management cluster [true/false]
+upgrade_management_cluster: ""

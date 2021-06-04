@@ -31,8 +31,9 @@ GOBINDATA := $(TOOLS_BIN_DIR)/gobindata
 KUBEBUILDER := $(TOOLS_BIN_DIR)/kubebuilder
 YTT := $(TOOLS_BIN_DIR)/ytt
 KUBEVAL := $(TOOLS_BIN_DIR)/kubeval
+GINKGO := $(TOOLS_BIN_DIR)/ginkgo
 VALE := $(TOOLS_BIN_DIR)/vale
-TOOLING_BINARIES := $(GOLANGCI_LINT) $(YTT) $(KUBEVAL) $(GOIMPORTS) $(GOBINDATA) $(VALE)
+TOOLING_BINARIES := $(GOLANGCI_LINT) $(YTT) $(KUBEVAL) $(GOIMPORTS) $(GOBINDATA) $(GINKGO) $(VALE)
 
 PINNIPED_GIT_REPOSITORY = https://github.com/vmware-tanzu/pinniped.git
 ifeq ($(strip $(PINNIPED_GIT_COMMIT)),)
@@ -301,7 +302,8 @@ release-%:
 
 .PHONY: test
 test: generate fmt vet manifests build-cli-mocks ## Run tests
-	$(GO) test ./... -coverprofile cover.out
+	## Skip running TKG integration tests
+	$(GO) test -coverprofile cover.out -v `go list ./... | grep -v github.com/vmware-tanzu-private/core/pkg/v1/tkg/test`
 	$(MAKE) kubebuilder -C $(TOOLS_DIR)
 	KUBEBUILDER_ASSETS=$(ROOT_DIR)/$(KUBEBUILDER)/bin GOPRIVATE=$(PRIVATE_REPOS) $(MAKE) test -C addons
 
@@ -423,3 +425,25 @@ providers: $(GOBINDATA)
 .PHONY: clustergen
 clustergen:
 	CLUSTERGEN_BASE=${CLUSTERGEN_BASE} make -C pkg/v1/providers -f Makefile cluster-generation-diffs
+
+## --------------------------------------
+## TKG integration tests
+## --------------------------------------
+GINKGO_NODES  ?= 1
+GINKGO_NOCOLOR ?= false
+
+.PHONY: e2e-tkgctl-docker
+e2e-tkgctl-docker: $(GINKGO) ## Run ginkgo tkgctl E2E tests
+	$(GINKGO) -v -trace -nodes=$(GINKGO_NODES) --noColor=$(GINKGO_NOCOLOR) $(GINKGO_ARGS) pkg/v1/tkg/test/tkgctl/docker
+
+.PHONY: e2e-tkgctl-azure
+e2e-tkgctl-azure: $(GINKGO) ## Run ginkgo tkgctl E2E tests
+	$(GINKGO) -v -trace -nodes=$(GINKGO_NODES) --noColor=$(GINKGO_NOCOLOR) $(GINKGO_ARGS) pkg/v1/tkg/test/tkgctl/azure
+
+.PHONY: e2e-tkgctl-aws
+e2e-tkgctl-aws: $(GINKGO) ## Run ginkgo tkgctl E2E tests
+	$(GINKGO) -v -trace -nodes=$(GINKGO_NODES) --noColor=$(GINKGO_NOCOLOR) $(GINKGO_ARGS) pkg/v1/tkg/test/tkgctl/aws
+
+.PHONY: e2e-tkgctl-vc67
+e2e-tkgctl-vc67: $(GINKGO) ## Run ginkgo tkgctl E2E tests
+	$(GINKGO) -v -trace -nodes=$(GINKGO_NODES) --noColor=$(GINKGO_NOCOLOR) $(GINKGO_ARGS) pkg/v1/tkg/test/tkgctl/vsphere67

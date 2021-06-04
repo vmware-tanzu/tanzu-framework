@@ -1,0 +1,5 @@
+---
+infrastructure_name: docker
+management_cluster_name: tkg-mc
+management_cluster_options:
+  plan: dev
