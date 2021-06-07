@@ -28,7 +28,7 @@ import (
 	"sigs.k8s.io/cluster-api/bootstrap/kubeadm/types/v1beta1"
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
 
-	tkcv1alpha1 "github.com/vmware-tanzu-private/core/pkg/v1/tkg/api/tkc/v1alpha1"
+	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
 )
@@ -336,7 +336,7 @@ func GetAllPacificClusterObjects(options TestAllClusterComponentOptions) []runti
 
 // NewPacificCluster return new TanzuKubernetesCluster object
 func NewPacificCluster(options TestAllClusterComponentOptions) runtime.Object {
-	return &tkcv1alpha1.TanzuKubernetesCluster{
+	return &runv1alpha1.TanzuKubernetesCluster{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: constants.DefaultPacificClusterAPIVersion,
 			Kind:       constants.PacificClusterKind,

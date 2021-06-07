@@ -39,7 +39,7 @@ import (
 	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
 
-	tkcv1alpha1 "github.com/vmware-tanzu-private/core/pkg/v1/tkg/api/tkc/v1alpha1"
+	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes"
 	fakehelper "github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes/helper"
 )
@@ -70,7 +70,7 @@ func init() {
 	_ = corev1.AddToScheme(scheme)
 	_ = appsv1.AddToScheme(scheme)
 	_ = controlplanev1.AddToScheme(scheme)
-	_ = tkcv1alpha1.AddToScheme(scheme)
+	_ = runv1alpha1.AddToScheme(scheme)
 	_ = capav1alpha3.AddToScheme(scheme)
 	_ = capzv1alpha3.AddToScheme(scheme)
 	_ = capvv1alpha3.AddToScheme(scheme)
