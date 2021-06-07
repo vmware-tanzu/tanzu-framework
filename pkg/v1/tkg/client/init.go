@@ -104,6 +104,7 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		InitRegionSteps = append(InitRegionSteps, StepRegisterWithTMC)
 	}
 	log.SendProgressUpdate(statusRunning, StepValidateConfiguration, InitRegionSteps)
+
 	log.Info("Validating configuration...")
 	defer func() {
 		if regionContext != (region.RegionContext{}) {

@@ -1306,6 +1306,7 @@ func (c *TkgClient) EncodeAWSCredentialsAndGetClient(clusterClient clusterclient
 
 // ConfigureAndValidateHTTPProxyConfiguration configures and validates http proxy configuration
 func (c *TkgClient) ConfigureAndValidateHTTPProxyConfiguration(infrastructureName string) error {
+	c.SetDefaultProxySettings()
 	proxyEnabled, err := c.TKGConfigReaderWriter().Get(constants.TKGHTTPProxyEnabled)
 	if err != nil || proxyEnabled != trueString {
 		return nil
@@ -1336,6 +1337,21 @@ func (c *TkgClient) ConfigureAndValidateHTTPProxyConfiguration(infrastructureNam
 	c.TKGConfigReaderWriter().Set(constants.TKGNoProxy, noProxy)
 
 	return nil
+}
+
+// SetDefaultProxySettings is used to configure default proxy settings.
+// The TKG proxy variables are required for cloud-api component templates
+// rendering. Need to set them to "" if the proxy variables are not available.
+func (c *TkgClient) SetDefaultProxySettings() {
+	if _, err := c.TKGConfigReaderWriter().Get(constants.TKGHTTPProxy); err != nil {
+		c.TKGConfigReaderWriter().Set(constants.TKGHTTPProxy, "")
+	}
+	if _, err := c.TKGConfigReaderWriter().Get(constants.TKGHTTPSProxy); err != nil {
+		c.TKGConfigReaderWriter().Set(constants.TKGHTTPSProxy, "")
+	}
+	if _, err := c.TKGConfigReaderWriter().Get(constants.TKGNoProxy); err != nil {
+		c.TKGConfigReaderWriter().Set(constants.TKGNoProxy, "")
+	}
 }
 
 func (c *TkgClient) getFullTKGNoProxy(providerName string) (string, error) {
