@@ -17,7 +17,7 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/api/tkg/v1alpha1"
+	"github.com/vmware-tanzu-private/core/apis/providers/v1alpha1"
 )
 
 // DefinitionParser provides behavior to process template definition

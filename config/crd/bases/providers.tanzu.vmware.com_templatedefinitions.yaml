@@ -1,0 +1,64 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.2.5
+  creationTimestamp: null
+  name: templatedefinitions.providers.tanzu.vmware.com
+spec:
+  group: providers.tanzu.vmware.com
+  names:
+    kind: TemplateDefinition
+    listKind: TemplateDefinitionList
+    plural: templatedefinitions
+    singular: templatedefinition
+  scope: Namespaced
+  validation:
+    openAPIV3Schema:
+      description: TemplateDefinition is a schema for template definition file
+      properties:
+        apiVersion:
+          description: 'APIVersion defines the versioned schema of this representation
+            of an object. Servers should convert recognized schemas to the latest
+            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+          type: string
+        kind:
+          description: 'Kind is a string value representing the REST resource this
+            object represents. Servers may infer this from the endpoint the client
+            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          type: object
+        spec:
+          description: TemplateDefinitionSpec defines state of template definition
+            file and path information
+          properties:
+            paths:
+              items:
+                description: PathInfo contains path information
+                properties:
+                  filemark:
+                    type: string
+                  path:
+                    type: string
+                required:
+                - path
+                type: object
+              type: array
+          required:
+          - paths
+          type: object
+      type: object
+  version: v1alpha1
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

@@ -1,4 +1,4 @@
-apiVersion: run.tanzu.vmware.com/v1alpha1
+apiVersion: providers.tanzu.vmware.com/v1alpha1
 kind: TemplateDefinition
 spec:
   paths:
