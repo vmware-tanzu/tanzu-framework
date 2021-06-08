@@ -196,7 +196,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
             )
             .subscribe(
                 regions => {
-                    this.regions = regions;
+                    this.regions = regions.sort((regionA, regionB) => regionA.name.localeCompare(regionB.name));
                 },
                 () => {
                     this.errorNotification = 'Unable to retrieve Azure regions';

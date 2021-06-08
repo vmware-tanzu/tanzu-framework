@@ -153,7 +153,7 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(
                 (next) => {
-                    this.regions = next[0];
+                    this.regions = next[0].sort();
                     this.profileNames = next[1];
                 },
                 () => this.loading = false
