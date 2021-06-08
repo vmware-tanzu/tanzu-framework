@@ -206,7 +206,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
             payload.aviConfig['managementClusterVipNetworkName'] = this.getFieldValue('loadBalancerForm', 'networkName');
         }
         payload.aviConfig['managementClusterVipNetworkCidr'] = this.getFieldValue("loadBalancerForm", "managementClusterNetworkCIDR");
-        if(!payload.aviConfig['managementClusterVipNetworkCidr']) {
+        if (!payload.aviConfig['managementClusterVipNetworkCidr']) {
             payload.aviConfig['managementClusterVipNetworkCidr'] = this.getFieldValue('loadBalancerForm', 'networkCIDR')
         }
 
