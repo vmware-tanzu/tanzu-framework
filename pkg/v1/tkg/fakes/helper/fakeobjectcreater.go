@@ -346,21 +346,21 @@ func NewPacificCluster(options TestAllClusterComponentOptions) runtime.Object {
 			Namespace: options.Namespace,
 			Labels:    options.Labels,
 		},
-		Spec: map[string]interface{}{
-			"distribution": map[string]interface{}{
-				"version": options.CPOptions.K8sVersion,
+		Spec: runv1alpha1.TanzuKubernetesClusterSpec{
+			Distribution: runv1alpha1.Distribution{
+				VersionHint: options.CPOptions.K8sVersion,
 			},
-			"topology": map[string]interface{}{
-				"controlPlane": map[string]interface{}{
-					"count": strconv.Itoa(int(options.CPOptions.SpecReplicas)),
+			Topology: runv1alpha1.Topology{
+				ControlPlane: runv1alpha1.TopologySettings{
+					Count: options.CPOptions.SpecReplicas,
 				},
-				"workers": map[string]interface{}{
-					"count": strconv.Itoa(int(options.ListMDOptions[0].SpecReplicas)),
+				Workers: runv1alpha1.TopologySettings{
+					Count: options.ListMDOptions[0].SpecReplicas,
 				},
 			},
 		},
-		Status: map[string]interface{}{
-			"phase": options.ClusterOptions.Phase,
+		Status: runv1alpha1.TanzuKubernetesClusterStatus{
+			Phase: runv1alpha1.TanzuKubernetesClusterPhase(options.ClusterOptions.Phase),
 		},
 	}
 }
