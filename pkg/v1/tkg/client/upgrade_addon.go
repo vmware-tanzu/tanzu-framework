@@ -238,7 +238,13 @@ func (c *TkgClient) setConfigurationForUpgrade(regionalClusterClient clusterclie
 	return nil
 }
 
-func (c *TkgClient) setProxyConfiguration(regionalClusterClient clusterclient.Client) error {
+func (c *TkgClient) setProxyConfiguration(regionalClusterClient clusterclient.Client) (retErr error) {
+	// make sure proxy parameters are non-empty
+	defer func() {
+		if retErr == nil {
+			c.SetDefaultProxySettings()
+		}
+	}()
 	configmap := &corev1.ConfigMap{}
 	if err := regionalClusterClient.GetResource(configmap, constants.KappControllerConfigMapName, constants.KappControllerNamespace, nil, nil); err != nil {
 		if apierrors.IsNotFound(err) {
