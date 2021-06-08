@@ -27,6 +27,10 @@ this could mean:
 - Configuration schema change
 - Fix of a vulnerability (CVE)
 
+No release notes are required for changes to:
+* Tests
+* Build infrastructure
+
 ## Contents of a release note
 
 A release note needs a clear, concise description of the change in simple plain language.
@@ -52,8 +56,10 @@ Some examples of release notes:
 * Fixed a bug that prevents CLI from initializing.
 
 ## Applying a Release Note
-Any pull request with user visible changes, should include a release-note 
-section in the pull request description.
+Any pull request with user visible changes, should 
+* include a release-note block in the pull request description.
+* add an appropriate kind label to the pull request(ex: kind/bug, 
+  kind/api-change,kind/documentation, etc.)
 
 For pull requests with a release note:
 
