@@ -77,7 +77,7 @@ func init() {
 		log.Fatal(err)
 	}
 
-	createMcCommand := fmt.Sprintf("management-cluster create -f %s", mcConfigFile.Name())
+	createMcCommand := fmt.Sprintf("management-cluster create -v3 -f %s", mcConfigFile.Name())
 	createManagementClusterTest = clitest.NewTest("create management-cluster", createMcCommand, func(t *clitest.Test) error {
 		defer os.Remove(mcConfigFile.Name())
 
@@ -103,7 +103,7 @@ func init() {
 		return nil
 	})
 
-	deleteManagementCusterTest = clitest.NewTest("delete management-cluster", "management-cluster delete -y --force", func(t *clitest.Test) error {
+	deleteManagementCusterTest = clitest.NewTest("delete management-cluster", "management-cluster delete -v3 -y --force", func(t *clitest.Test) error {
 		if err := t.Exec(); err != nil {
 			return err
 		}
