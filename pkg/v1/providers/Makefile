@@ -18,17 +18,30 @@ VENDIR := $(TOOLS_BIN_DIR)/vendir
 VENDIR_VERSION = v0.17.0
 CLUSTERGEN_OUTPUT_DIR ?= expected
 CLUSTERGEN_BASE ?= origin/main
+PROVIDER_DIR_NAME = providers
 
-FILES_TO_IGNORE='.env\|.idea\|.git\|.github\|hack\|.yamllint\|.gitlab\|Makefile\|provider-bundle\|tests\|README.md\|client\|go.mod\|go.sum'
+FILES_TO_IGNORE='.env\|.idea\|.git\|.github\|hack\|.yamllint\|.gitlab\|Makefile\|provider-bundle\|tests\|README.md\|client\|go.mod\|go.sum\|providers.sha256sum|\Dockerfile.templates'
 
 help:  ## Display this help
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
 verify-build:  ## verify-build verifies the changes with generated files
 
-all: lint checksum generate-bindata verify ## run all target
+all: lint checksum verify ## run all target
 
-ci: checksum generate-bindata verify ## run ci target
+ci: checksum verify ## run ci target
+
+.PHONY: checksum
+checksum: ## Generate checksum of provider files
+	find . -type f | grep -v ${FILES_TO_IGNORE} | sort | xargs shasum -a 256 | shasum -a 256 | cut -d" " -f1 > providers.sha256sum
+
+.PHONY: verify
+verify: ## verify that checksum and generated bindata file match
+	git diff --exit-code providers.sha256sum client/manifest/zz_generated.bindata.go || (echo "Run make vendir-sync and ensure diff is added to your changeset")
+
+.PHONY: build-cli ## build tkg cli with existing provider changes
+build-cli:
+	CLI_REPO=${CLI_REPO} ${CLI_REPO}/hack/clustergen/rebuild-cli.sh ${PWD}
 
 ## --------------------------------------
 ## Linting
@@ -41,12 +54,15 @@ lint: ## Run YAML linter
 ## --------------------------------------
 ## Generate provider
 ## --------------------------------------
+## --------------------------------------
+## Generate provider
+## --------------------------------------
 
 .PHONY: clean-providers
 clean-providers: ## cleans provider-bundle
 	# cleanup old provider bundles
 	@rm -rf provider-bundle || true
-	@mkdir -p provider-bundle/tmp
+	@mkdir -p provider-bundle/${PROVIDER_DIR_NAME}
 
 .PHONY: generate-provider-bundle
 generate-provider-bundle: clean-providers ## generates provider zip bundle
@@ -54,35 +70,26 @@ generate-provider-bundle: clean-providers ## generates provider zip bundle
 	# updating the file modification time, file permissions and sorting files to get
 	# consistent zip file across all platform as this zip bytes are used to generate
 	# zz_generated.bindata.go file
-	find . -type f | grep -v ${FILES_TO_IGNORE} | xargs tar cf - -T - | tar -C provider-bundle/tmp -x
-	cd provider-bundle/tmp && for i in `find . -type f`; do touch -t 202006091513 $$i; chmod 644 $$i; done && find . -type f | sort | zip -qXo ../providers.zip -@ && cd .. && rm -rf tmp
+	find . -type f | grep -v ${FILES_TO_IGNORE} | xargs tar cf - -T - | tar -C provider-bundle/${PROVIDER_DIR_NAME} -x
+	cd provider-bundle/${PROVIDER_DIR_NAME} && for i in `find . -type f`; do touch -t 202006091513 $$i; chmod 644 $$i; done ## && find . -type f | sort | zip -qXo ../providers.zip -@ && cd .. # && rm -rf ${PROVIDER_DIR_NAME}
+	cd provider-bundle; docker build -t gcr.io/eminent-nation-87317/tkg/tkg-providers-test:v1.4.0-test.1 -f ../Dockerfile.templates .
+	docker save gcr.io/eminent-nation-87317/tkg/tkg-providers-test:v1.4.0-test.1 -o providers.tar
 
-rename-test-outputs: ## show commands to rename the expected output files to match up with testcases renamed by generate-testcases
-	# Assumes that the topmost commit contains the testcases rename
-	git show --summary | grep '^ rename' | perl -pe 's@rename (.*){(\d+.case) => (\d+.case).*@git mv $$1/expected/$$2.output $$1/expected/$$3.output@'
+.PHONY: publish-provider-bundle
+publish-provider-bundle: generate-provider-bundle ## generates provider zip bundle
+	docker push gcr.io/eminent-nation-87317/tkg/tkg-providers-test:v1.4.0-test.1
 
-.PHONY: generate-bindata
-generate-bindata: generate-provider-bundle ## Generate go-bindata files
-	$(GOBINDATA) -mode=420 -modtime=1 -nometadata -o=client/manifest/zz_generated.bindata.go -pkg=manifest provider-bundle/providers.zip
-
-.PHONY: checksum
-checksum: ## Generate checksum of provider files
-	find . -type f | grep -v ${FILES_TO_IGNORE} | sort | xargs shasum -a 256 | shasum -a 256 | cut -d" " -f1 > providers.sha256sum
-
-.PHONY: verify
-verify: ## verify that checksum and generated bindata file match
-	git diff --exit-code providers.sha256sum client/manifest/zz_generated.bindata.go || (echo "Run make vendir-sync and ensure diff is added to your changeset")
-
-.PHONY: update-checksum-bindata ## update providers checksum and bindata file
-update-checksum-bindata: checksum generate-bindata
-
-.PHONY: build-cli ## build tkg cli with existing provider changes
-build-cli:
-	CLI_REPO=${CLI_REPO} ${CLI_REPO}/hack/clustergen/rebuild-cli.sh ${PWD}
+.PHONY: pull-provider-bundle
+pull-provider-bundle:
+	imgpkg pull -i gcr.io/eminent-nation-87317/tkg/tkg-providers-test:v1.4.0-test.1 -o provider-bundle/test/
 
 ## --------------------------------------
 ## Cluster generation tests
 ## --------------------------------------
+
+rename-test-outputs: ## show commands to rename the expected output files to match up with testcases renamed by generate-testcases
+	# Assumes that the topmost commit contains the testcases rename
+	git show --summary | grep '^ rename' | perl -pe 's@rename (.*){(\d+.case) => (\d+.case).*@git mv $$1/expected/$$2.output $$1/expected/$$3.output@'
 
 .PHONY: generate-testcases
 generate-testcases: ## Regenerates test cases based on parameter model files. Requires PICT to be available.
