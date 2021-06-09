@@ -1,4 +1,3 @@
-tkg:
 providers:
   - # add a custom provider
     name: "my-infra-provider"
