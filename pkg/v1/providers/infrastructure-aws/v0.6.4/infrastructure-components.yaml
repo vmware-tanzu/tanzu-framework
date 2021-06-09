@@ -2938,9 +2938,6 @@ spec:
         - --metrics-addr=127.0.0.1:8080
         - --enable-leader-election
         - --feature-gates=EKS=${EXP_EKS:=false},MachinePool=${EXP_MACHINE_POOL:=false}
-        env:
-        - name: AWS_SHARED_CREDENTIALS_FILE
-          value: /home/.aws/credentials
         image: registry.tkg.vmware.run/cluster-api-aws/cluster-api-aws-controller:v0.6.4_vmware.1
         imagePullPolicy: IfNotPresent
         livenessProbe:
@@ -2949,6 +2946,8 @@ spec:
             port: healthz
         name: manager
         env:
+        - name: AWS_SHARED_CREDENTIALS_FILE
+          value: /home/.aws/credentials
         - name: HTTP_PROXY
           value: ${TKG_HTTP_PROXY}
         - name: HTTPS_PROXY
