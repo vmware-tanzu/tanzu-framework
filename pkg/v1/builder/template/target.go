@@ -64,6 +64,7 @@ var DefaultInitTargets = []Target{
 	MainReadMe,
 	GolangCIConfig,
 	Tools,
+	CommonMK,
 }
 
 // DefaultPluginTargets are the default plugin targets.
