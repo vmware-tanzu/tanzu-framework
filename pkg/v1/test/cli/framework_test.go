@@ -57,7 +57,7 @@ func TestContainsString(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			var b bytes.Buffer
 			b.Write(test.stdOut)
-			err := ContainsString(b, test.contains)
+			err := ContainsString(&b, test.contains)
 			if test.shouldErr {
 				require.NotNil(t, err, "error should not be nil")
 			} else {
