@@ -77,7 +77,7 @@ var _ = Describe("getValidTKRVersionForUpgradeGivenTKRNamePrefix", func() {
 			})
 			It("should return error", func() {
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("cluster cannot be upgraded, no compatible upgrades found matching the TKR prefix 'v1.18.20'"))
+				Expect(err.Error()).To(ContainSubstring("cluster cannot be upgraded, no compatible upgrades found matching the TKr prefix 'v1.18.20'"))
 			})
 		})
 		Context("when there no available upgrades supported by cluster's TKR version for upgrade", func() {
@@ -95,7 +95,7 @@ var _ = Describe("getValidTKRVersionForUpgradeGivenTKRNamePrefix", func() {
 			})
 			It("should return error", func() {
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("failed to get upgrade eligible TKRs"))
+				Expect(err.Error()).To(ContainSubstring("failed to get upgrade eligible TKrs"))
 			})
 		})
 	})
@@ -158,7 +158,7 @@ var _ = Describe("getValidTKRVersionForUpgradeGivenTKRNamePrefix", func() {
 			})
 			It("should return the latest TKR version matching the prefix and upgrade supported by cluster's kubernetes version", func() {
 				Expect(err).To(HaveOccurred())
-				errString := "found multiple TKRs [v1.17.16---vmware.1-tkg.1-rc.3 v1.17.16---vmware.1-tkg.1] matching the criteria"
+				errString := "found multiple TKrs [v1.17.16---vmware.1-tkg.1-rc.3 v1.17.16---vmware.1-tkg.1] matching the criteria"
 				Expect(err.Error()).To(ContainSubstring(errString))
 			})
 		})

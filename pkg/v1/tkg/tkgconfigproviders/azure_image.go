@@ -20,13 +20,13 @@ func (c *client) GetAzureVMImageInfo(tkrVersion string) (*tkgconfigbom.AzureInfo
 
 	bomConfiguration, err := c.tkgBomClient.GetBOMConfigurationFromTkrVersion(tkrVersion)
 	if err != nil {
-		return nil, errors.Wrapf(err, "unable to get bom configuration for TKR version %s", tkrVersion)
+		return nil, errors.Wrapf(err, "unable to get bom configuration for TKr version %s", tkrVersion)
 	}
 
 	imageInfo = tkgconfighelper.SelectAzureImageBasedonOSOptions(bomConfiguration.Azure, c.TKGConfigReaderWriter())
 	if imageInfo == nil {
 		osInfo := tkgconfighelper.GetUserProvidedOsOptions(c.TKGConfigReaderWriter())
-		return nil, errors.Errorf("unable to find azure-image for TKR version: %v, os options: %v in BoM files", tkrVersion, osInfo)
+		return nil, errors.Errorf("unable to find azure-image for TKr version: %v, os options: %v in BoM files", tkrVersion, osInfo)
 	}
 
 	return imageInfo, nil
@@ -43,7 +43,7 @@ func (c *client) getAzureVMImageInfoFromUserConfiguration(tkrVersion string) (*t
 	if exists && len(azureImages) != 0 {
 		userConfiguredAzureImageInfo := tkgconfighelper.SelectAzureImageBasedonOSOptions(azureImages, c.TKGConfigReaderWriter())
 		if userConfiguredAzureImageInfo != nil {
-			log.V(3).Infof("using Azure Image based on the user settings, TKR version: '%v', azureImageInfo: '%v'", tkrVersion, userConfiguredAzureImageInfo)
+			log.V(3).Infof("using Azure Image based on the user settings, TKr version: '%v', azureImageInfo: '%v'", tkrVersion, userConfiguredAzureImageInfo)
 			return userConfiguredAzureImageInfo, nil
 		}
 		return nil, errors.Errorf("unable to configure azure image information from user configuration file")

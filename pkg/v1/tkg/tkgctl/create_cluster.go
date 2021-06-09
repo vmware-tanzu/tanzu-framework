@@ -93,7 +93,7 @@ func (t *tkgctl) CreateCluster(cc CreateClusterOptions) error {
 	} else {
 		options.TKRVersion, options.KubernetesVersion, err = t.getAndDownloadTkrIfNeeded(cc.TkrVersion)
 		if err != nil {
-			return errors.Wrapf(err, "unable to determine the TKR version and kubernetes version based on '%v'", cc.TkrVersion)
+			return errors.Wrapf(err, "unable to determine the TKr version and kubernetes version based on '%v'", cc.TkrVersion)
 		}
 	}
 
@@ -289,7 +289,7 @@ func (t *tkgctl) getAndDownloadTkrIfNeeded(tkrVersion string) (string, string, e
 	if tkrVersion == "" {
 		tkrBoMConfig, err = t.tkgBomClient.GetDefaultTkrBOMConfiguration()
 		if err != nil {
-			return "", "", errors.Wrap(err, "unable to get default tkr BoM configuration")
+			return "", "", errors.Wrap(err, "unable to get default TKr BoM configuration")
 		}
 
 		tkrVersion = tkrBoMConfig.Release.Version
@@ -303,16 +303,16 @@ func (t *tkgctl) getAndDownloadTkrIfNeeded(tkrVersion string) (string, string, e
 	// BoM downloading should only be required if user are providing tkrVersion,
 	// otherwise we should use default config which is always present on user's machine
 
-	// download bom if not present locally for given TKR
+	// download bom if not present locally for given TKr
 	// Put a file lock here to prevent several processes from downloading BOM at the same time
 	lock, err := utils.GetFileLockWithTimeOut(filepath.Join(t.configDir, constants.LocalTanzuFileLock), utils.DefaultLockTimeout)
 	if err != nil {
-		return "", "", errors.Wrap(err, "cannot acquire lock for ensuring the TKR BOM file")
+		return "", "", errors.Wrap(err, "cannot acquire lock for ensuring the TKr BOM file")
 	}
 
 	defer func() {
 		if err := lock.Unlock(); err != nil {
-			log.Warningf("cannot release lock for ensuring TKR BOM file, reason: %v", err)
+			log.Warningf("cannot release lock for ensuring TKr BOM file, reason: %v", err)
 		}
 	}()
 

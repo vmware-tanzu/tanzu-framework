@@ -45,7 +45,7 @@ func (t *tkgctl) UpgradeRegion(options UpgradeRegionOptions) error {
 
 	tkrBomConfig, err := t.tkgBomClient.GetDefaultTkrBOMConfiguration()
 	if err != nil {
-		return errors.Wrap(err, "unable to get default TKR BoM")
+		return errors.Wrap(err, "unable to get default TKr BoM")
 	}
 	kubernetesVersion, err := tkgconfigbom.GetK8sVersionFromTkrBoM(tkrBomConfig)
 	if err != nil {

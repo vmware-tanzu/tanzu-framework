@@ -57,7 +57,7 @@ var createClusterCmd = &cobra.Command{
 
 func init() {
 	createClusterCmd.Flags().StringVarP(&cc.clusterConfigFile, "file", "f", "", "Configuration file from which to create a cluster")
-	createClusterCmd.Flags().StringVarP(&cc.tkrName, "tkr", "", "", "TanzuKubernetesRelease(TKR) to be used for creating the workload cluster. If TKR name prefix is provided, the latest compatible TKR matching the TKR name prefix would be used")
+	createClusterCmd.Flags().StringVarP(&cc.tkrName, "tkr", "", "", "TanzuKubernetesRelease(TKr) to be used for creating the workload cluster. If TKr name prefix is provided, the latest compatible TKr matching the TKr name prefix would be used")
 
 	createClusterCmd.Flags().StringVarP(&cc.plan, "plan", "p", "", "The plan to be used for creating the workload cluster")
 	createClusterCmd.Flags().IntVarP(&cc.controlPlaneMachineCount, "controlplane-machine-count", "c", 0, "The number of control plane machines to be added to the workload cluster (default 1 or 3 depending on dev or prod plan)")
@@ -178,20 +178,20 @@ func getTkrVersionForMatchingTkr(clusterClient clusterclient.Client, tkrName str
 	}
 
 	if len(tkrs) == 0 {
-		return "", errors.Errorf("could not find a matching TanzuKubernetesRelease for name %q", tkrName)
+		return "", errors.Errorf("could not find a matching Tanzu Kubernetes release for name %q", tkrName)
 	}
 
 	tkrForCreate, err := getMatchingTkrForTkrName(tkrs, tkrName)
 	// If the complete TKR name is provided, use it
 	if err == nil {
 		if !tkrutils.IsTkrActive(&tkrForCreate) {
-			return "", errors.Errorf("the TanzuKubernetesRelease %q is deactivated and cannot be used", tkrName)
+			return "", errors.Errorf("the Tanzu Kubernetes release %q is deactivated and cannot be used", tkrName)
 		}
 		if !tkrutils.IsTkrCompatible(&tkrForCreate) {
-			fmt.Printf("WARNING: TanzuKubernetesRelease %q is not compatible on the management cluster\n", tkrForCreate.Name)
+			fmt.Printf("WARNING: Tanzu Kubernetes release %q is not compatible on the management cluster\n", tkrForCreate.Name)
 		}
 		if tkrForCreate.Spec.Version == "" {
-			return "", errors.Errorf("could not find a matching TanzuKubernetesRelease for name %q", tkrName)
+			return "", errors.Errorf("could not find a matching Tanzu Kubernetes release for name %q", tkrName)
 		}
 		return tkrForCreate.Spec.Version, nil
 	}
@@ -210,7 +210,7 @@ func getLatestTKRVersionMatchingTKRPrefix(tkrName string, tkrsWithPrefixMatch []
 	}
 
 	if len(compatibleTKRs) == 0 {
-		return "", errors.Errorf("could not find a matching compatible TanzuKubernetesRelease for name %q", tkrName)
+		return "", errors.Errorf("could not find a matching compatible Tanzu Kubernetes release for name %q", tkrName)
 	}
 
 	return getLatestTkrVersion(compatibleTKRs)
@@ -258,9 +258,9 @@ func getLatestTkrVersion(tkrs []runv1alpha1.TanzuKubernetesRelease) (string, err
 	}
 
 	if len(latestTKRs) > 1 {
-		return "", errors.Errorf("found multiple TKRs %v matching the criteria, please specify the TKR name you want to use", latestTKRsNames)
+		return "", errors.Errorf("found multiple TKrs %v matching the criteria, please specify the TKr name you want to use", latestTKRsNames)
 	}
 
-	log.V(4).Infof("Using the TKR version '%s' from TKR name '%s' ", latestTKRs[0].Spec.Version, latestTKRs[0].Name)
+	log.V(4).Infof("Using the TKr version '%s' from TKr name '%s' ", latestTKRs[0].Spec.Version, latestTKRs[0].Name)
 	return latestTKRs[0].Spec.Version, nil
 }

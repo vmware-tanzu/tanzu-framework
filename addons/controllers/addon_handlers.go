@@ -25,25 +25,25 @@ import (
 func (r *AddonReconciler) TKRToClusters(o client.Object) []ctrl.Request {
 	var tkr *runtanzuv1alpha1.TanzuKubernetesRelease
 
-	r.Log.V(4).Info("TKR to clusters handler")
+	r.Log.V(4).Info("TKr to clusters handler")
 
 	switch obj := o.(type) {
 	case *runtanzuv1alpha1.TanzuKubernetesRelease:
 		tkr = obj
 	default:
 		r.Log.Error(errors.New("invalid type"),
-			"Expected to receive TKR resource",
+			"Expected to receive TKr resource",
 			"actualType", fmt.Sprintf("%T", o))
 		return nil
 	}
 
 	log := r.Log.WithValues(constants.TKRNameLogKey, tkr.Name)
 
-	log.V(4).Info("Mapping TKR to cluster")
+	log.V(4).Info("Mapping TKr to cluster")
 
 	clusters, err := util.GetClustersByTKR(context.TODO(), r.Client, tkr)
 	if err != nil {
-		log.Error(err, "Error getting clusters using TKR")
+		log.Error(err, "Error getting clusters using TKr")
 		return nil
 	}
 
@@ -137,19 +137,19 @@ func (r *AddonReconciler) BOMConfigMapToClusters(o client.Object) []ctrl.Request
 
 	tkrName := util.GetTKRNameFromBOMConfigMap(configmap)
 	if tkrName == "" {
-		log.Info("TKR label not found on BOM configmap")
+		log.Info("TKr label not found on BOM configmap")
 		return nil
 	}
 
 	tkr, err := util.GetTKRByName(context.TODO(), r.Client, tkrName)
 	if err != nil || tkr == nil {
-		log.Error(err, "Error getting TKR", constants.TKRNameLogKey, tkrName)
+		log.Error(err, "Error getting TKr", constants.TKRNameLogKey, tkrName)
 		return nil
 	}
 
 	clusters, err := util.GetClustersByTKR(context.TODO(), r.Client, tkr)
 	if err != nil {
-		log.Error(err, "Error getting clusters using TKR", constants.TKRNameLogKey, tkr.Name)
+		log.Error(err, "Error getting clusters using TKr", constants.TKRNameLogKey, tkr.Name)
 		return nil
 	}
 

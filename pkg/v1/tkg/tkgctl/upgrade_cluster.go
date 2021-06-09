@@ -56,7 +56,7 @@ func (t *tkgctl) UpgradeCluster(options UpgradeClusterOptions) error {
 	} else {
 		options.TkrVersion, k8sVersion, err = t.getAndDownloadTkrIfNeeded(options.TkrVersion)
 		if err != nil {
-			return errors.Wrapf(err, "unable to determine the TKR version and kubernetes version based on '%v'", options.TkrVersion)
+			return errors.Wrapf(err, "unable to determine the TKr version and kubernetes version based on '%v'", options.TkrVersion)
 		}
 	}
 

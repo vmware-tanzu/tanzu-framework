@@ -27,8 +27,8 @@ var gtkr = &getTKROptions{}
 
 var getTanzuKubernetesRleasesCmd = &cobra.Command{
 	Use:   "get TKR_NAME",
-	Short: "Get available Tanzu Kubernetes Releases",
-	Long:  "Get available Tanzu Kubernetes Releases",
+	Short: "Get available Tanzu Kubernetes releases",
+	Long:  "Get available Tanzu Kubernetes releases",
 	RunE:  getKubernetesReleases,
 }
 
@@ -44,7 +44,7 @@ func getKubernetesReleases(cmd *cobra.Command, args []string) error {
 	}
 
 	if server.IsGlobal() {
-		return errors.New("getting TanzuKubernetesRelease with a global server is not implemented yet")
+		return errors.New("getting Tanzu Kubernetes release with a global server is not implemented yet")
 	}
 
 	clusterClientOptions := clusterclient.Options{GetClientInterval: 2 * time.Second, GetClientTimeout: 5 * time.Second}

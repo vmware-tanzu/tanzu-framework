@@ -1010,7 +1010,7 @@ func (c *client) DeactivateTanzuKubernetesReleases(tkrName string) error {
 	pollOptions := &PollOptions{Interval: CheckResourceInterval, Timeout: deactivateTKRTimeout}
 	err := c.PatchResource(&tkr, tkrName, "", patchStr, types.MergePatchType, pollOptions)
 	if err != nil {
-		return errors.Wrap(err, "unable to patch the TanzuKubernetesrelease object with inactive label")
+		return errors.Wrap(err, "unable to patch the TKr object with inactive label")
 	}
 
 	return nil
@@ -1033,7 +1033,7 @@ func (c *client) ActivateTanzuKubernetesReleases(tkrName string) error {
 	pollOptions := &PollOptions{Interval: CheckResourceInterval, Timeout: activateTKRTimeout}
 	err := c.PatchResource(&tkr, tkrName, "", patchStr, types.MergePatchType, pollOptions)
 	if err != nil {
-		return errors.Wrap(err, "unable to patch the TanzuKubernetesrelease object with inactive label")
+		return errors.Wrap(err, "unable to patch the TKr object with inactive label")
 	}
 
 	return nil

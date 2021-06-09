@@ -12,7 +12,7 @@ tanzu cluster create CLUSTER_NAME [flags]
   -d, --dry-run       Does not create cluster, but show the deployment YAML instead
   -f, --file string   Configuration file from which to create a cluster
   -h, --help          help for create
-      --tkr string    TanzuKubernetesRelease(TKR) to be used for creating the workload cluster
+      --tkr string    TanzuKubernetesRelease(TKr) to be used for creating the workload cluster
 ```
 
 ### Options inherited from parent commands

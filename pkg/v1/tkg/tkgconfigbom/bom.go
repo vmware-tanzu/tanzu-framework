@@ -53,7 +53,7 @@ func (c *client) GetBOMConfigurationFromTkrVersion(tkrVersion string) (*BOMConfi
 		return bomConfig, nil
 	}
 
-	return nil, NewBomNotPresent(fmt.Sprintf("No BOM file found with TKR version %s", tkrVersion))
+	return nil, NewBomNotPresent(fmt.Sprintf("No BOM file found with TKr version %s", tkrVersion))
 }
 
 // GetDefaultBOMConfiguration reads BOM file from ~/.tkg/bom/${TKGDefaultBOMFileName} location
@@ -373,7 +373,7 @@ func GetK8sVersionFromTkrBoM(bomConfig *BOMConfiguration) (string, error) {
 		return k8sCompoments[0].Version, nil
 	}
 
-	return "", errors.New("no kubernetes component found in TKR BoM")
+	return "", errors.New("no kubernetes component found in TKr BOM")
 }
 
 // GetTKRBOMImageTagNameFromTKRVersion returns TKR BOM InageTag Name from TKR Version
@@ -443,11 +443,11 @@ func (c *client) DownloadDefaultBOMFilesFromRegistry(bomRegistry registry.Regist
 	}
 
 	if bomConfiguration.TKRBOM == nil || bomConfiguration.TKRBOM.ImagePath == "" {
-		return errors.New("failed to read TKR BOM ImagePath for from the BOM file downloaded from the registry")
+		return errors.New("failed to read TKr BOM ImagePath for from the BOM file downloaded from the registry")
 	}
 	defaultTKRImagePath := tkrBOMImageRepo + "/" + bomConfiguration.TKRBOM.ImagePath
 
-	log.V(4).Infof("Downloading the TKR BOM file from Image name '%s", fmt.Sprintf("%s:%s", defaultTKRImagePath, tkrBOMTagName))
+	log.V(4).Infof("Downloading the TKr BOM file from Image name '%s", fmt.Sprintf("%s:%s", defaultTKRImagePath, tkrBOMTagName))
 	tkrBOMContent, err := bomRegistry.GetFile(defaultTKRImagePath, tkrBOMTagName, "")
 	if err != nil {
 		return errors.Errorf(errorDownloadingDefaultBOMFiles, fmt.Sprintf("%s:%s", defaultTKRImagePath, tkrBOMTagName), err, tkgconfigpath)
@@ -456,7 +456,7 @@ func (c *client) DownloadDefaultBOMFilesFromRegistry(bomRegistry registry.Regist
 	tkrBOMFileName := fmt.Sprintf("tkr-bom-%s.yaml", bomConfiguration.Default.TKRVersion)
 	err = c.saveEmbeddedBomToUserDefaultBOMDirectory(tkrBOMFileName, tkrBOMContent)
 	if err != nil {
-		return errors.Wrap(err, "failed to save the TKR BOM file downloaded from image registry")
+		return errors.Wrap(err, "failed to save the TKr BOM file downloaded from image registry")
 	}
 
 	return nil

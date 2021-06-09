@@ -43,7 +43,7 @@ var createClusterCmd = &cobra.Command{
 		# Create a workload cluster with a particular plan
 		tkg create cluster my-cluster --plan=dev
 
-		# Create a workload cluster with a particular plan and TKR
+		# Create a workload cluster with a particular plan and TKr
 		tkg create cluster my-cluster --plan=dev --tkr=v1.17.3---vmware.2-tkr.1
 
 		# Generate a cluster manifest identical to that used in the previous example
@@ -73,7 +73,7 @@ func init() {
 	createClusterCmd.Flags().StringVarP(&cc.clusterConfigFile, "file", "", "", "The cluster configuration file (default \"$HOME/.tkg/cluster-config.yaml\")")
 
 	createClusterCmd.Flags().StringVarP(&cc.plan, "plan", "p", "", "The plan to be used for creating the workload cluster")
-	createClusterCmd.Flags().StringVarP(&cc.tkrName, "tkr", "", "", "TanzuKubernetesRelease(TKR) to be used for creating the workload cluster")
+	createClusterCmd.Flags().StringVarP(&cc.tkrName, "tkr", "", "", "TanzuKubernetesRelease(TKr) to be used for creating the workload cluster")
 	createClusterCmd.Flags().IntVarP(&cc.controlPlaneMachineCount, "controlplane-machine-count", "c", 0, "The number of control plane machines to be added to the workload cluster (default 1 or 3 depending on dev or prod plan)")
 	createClusterCmd.Flags().IntVarP(&cc.workerMachineCount, "worker-machine-count", "w", 0, "The number of worker machines to be added to the workload cluster (default 1 or 3 depending on dev or prod plan)")
 	createClusterCmd.Flags().BoolVarP(&cc.generateOnly, "dry-run", "d", false, "Does not create cluster but show the deployment YAML instead")
