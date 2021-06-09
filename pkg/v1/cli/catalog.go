@@ -585,10 +585,10 @@ func DescribeTestPlugin(pluginName string) (desc *cliv1alpha1.PluginDescriptor, 
 func InitializePlugin(name string) error {
 	pluginPath := pluginPath(name)
 
-	b, err := exec.Command(pluginPath, "init").CombinedOutput()
+	b, err := exec.Command(pluginPath, "post-install").CombinedOutput()
 
 	// Note: If user is installing old version of plugin than it is possible that
-	// the plugin does not implement init command. Ignoring the
+	// the plugin does not implement post-install command. Ignoring the
 	// errors if the command does not exist for a particular plugin.
 	if err != nil && !strings.Contains(err.Error(), "unknown command") {
 		log.Warningf("error while initializing plugin '%q'. Error: %v", name, string(b))

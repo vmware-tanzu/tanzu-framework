@@ -9,11 +9,11 @@ import (
 	cliv1alpha1 "github.com/vmware-tanzu-private/core/apis/cli/v1alpha1"
 )
 
-func newInitCmd(desc *cliv1alpha1.PluginDescriptor) *cobra.Command {
+func newPostInstallCmd(desc *cliv1alpha1.PluginDescriptor) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:          "init",
-		Short:        "Initialize a plugin",
-		Long:         "Initialize a plugin",
+		Use:          "post-install",
+		Short:        "Run post install configuration for a plugin",
+		Long:         "Run post install configuration for a plugin",
 		Hidden:       true,
 		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
