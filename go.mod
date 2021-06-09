@@ -11,6 +11,7 @@ replace (
 	k8s.io/klog/v2 => k8s.io/klog/v2 v2.0.0
 	k8s.io/kube-openapi => k8s.io/kube-openapi v0.0.0-20200410145947-bcb3869e6f29
 	sigs.k8s.io/controller-runtime => sigs.k8s.io/controller-runtime v0.5.14
+	sigs.k8s.io/kind => sigs.k8s.io/kind v0.11.1
 )
 
 require (
@@ -94,10 +95,10 @@ require (
 	google.golang.org/grpc v1.34.0
 	gopkg.in/ini.v1 v1.62.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0
-	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
+	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 	k8s.io/api v0.19.2
 	k8s.io/apiextensions-apiserver v0.18.2
-	k8s.io/apimachinery v0.19.2
+	k8s.io/apimachinery v0.20.2
 	k8s.io/client-go v0.19.2
 	k8s.io/klog/v2 v2.4.0
 	k8s.io/kubectl v0.17.11
@@ -108,6 +109,6 @@ require (
 	sigs.k8s.io/cluster-api-provider-vsphere v0.7.1
 	sigs.k8s.io/cluster-api/test/infrastructure/docker v0.0.0-20200707192359-e68354f948db
 	sigs.k8s.io/controller-runtime v0.7.0
-	sigs.k8s.io/kind v0.7.1-0.20200303021537-981bd80d3802
+	sigs.k8s.io/kind v0.11.1
 	sigs.k8s.io/yaml v1.2.0
 )
