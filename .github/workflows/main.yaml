@@ -51,6 +51,12 @@ jobs:
   golangci-lint:
     name: Lint
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        working-directory:
+          - ""
+          - addons
+          - addons/pinniped/post-deploy
     steps:
     - uses: actions/checkout@v2
 
@@ -65,6 +71,7 @@ jobs:
       with:
         version: v1.38.0
         args: --timeout=5m -v
+        working-directory: ${{matrix.working-directory}}
 
     - name: Run vale doc linter
       env:

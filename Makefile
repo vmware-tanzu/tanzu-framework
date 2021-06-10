@@ -318,7 +318,8 @@ vet: ## Run go vet
 	$(GO) vet ./...
 
 lint: tools doc-lint ## Run linting checks
-	# Linter runs per module, add each one here
+	# Linter runs per module, add each one here and make sure they match
+	# in .github/workflows/main.yaml for CI coverage
 	$(GOLANGCI_LINT) run -v
 	cd $(ADDONS_DIR); $(GOLANGCI_LINT) run -v
 	cd $(ADDONS_DIR)/pinniped/post-deploy/; $(GOLANGCI_LINT) run -v
