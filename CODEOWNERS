@@ -1,5 +1,7 @@
-*     @vmware-tanzu-private/tanzu-core-reviewers
-/cmd/cli @vmware-tanzu-private/tanzu-core-reviewers @Anuj2512
-/pkg/v1/cli @vmware-tanzu-private/tanzu-core-reviewers @Anuj2512
-/tkr @vmware-tanzu-private/tanzu-core-reviewers @Rwang721
+* @vmware-tanzu-private/tanzu-core-reviewers
 /addons @vmware-tanzu-private/tanzu-core-reviewers @shyaamsn @danniel1205
+/cmd/cli @vmware-tanzu-private/tanzu-core-reviewers @Anuj2512
+/cmd/cli/plugin/tkr @vmware-tanzu-private/tanzu-core-reviewers @prkalle
+/pkg/v1/cli @vmware-tanzu-private/tanzu-core-reviewers @miclettej @Anuj2512
+/pkg/v1/providers @vmware-tanzu-private/tanzu-core-reviewers @Anuj2512
+/pkg/v1/tkr @vmware-tanzu-private/tanzu-core-reviewers @prkalle
