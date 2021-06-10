@@ -7,3 +7,5 @@ writing or editing documents.
 
 * [API Machinery](api-machinery/README.md)
 * [CLI](cli/README.md)
+* [Contribution Ladder](contribution-ladder.md)
+* [Documentation Style Guide](style-guide.md)
