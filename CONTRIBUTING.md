@@ -72,6 +72,23 @@ will be posted in the issue's thread.
 - Bulleted points are fine.
 - Typically a hyphen or asterisk is used for the bullet, followed by a single space.
 
+## Merging Commits
+
+Maintainers should prefer to merge pull requests with the [Squash and merge](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-request-merges#squash-and-merge-your-pull-request-commits) option.
+This option is preferred for a number of reasons.
+First, it causes GitHub to insert the pull request number in the commit subject
+which makes it easier to track which PR changes landed in.
+Second, a one-to-one correspondence between pull requests and commits makes it
+easier to manage reverting changes.
+
+At a maintainer's discretion, pull requests with multiple commits can be merged
+with the [Create a merge commit](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-request-merges)
+option. Merging pull requests with multiple commits can make sense in cases 
+where a change involves code generation or mechanical changes that can be 
+cleanly separated from semantic changes. The maintainer should review commit
+messages for each commit and make sure that each commit builds and passes
+tests.
+
 ## Building From Source
 
 To build the project from source, please consider the docs on [local development](docs/dev/build.md).
