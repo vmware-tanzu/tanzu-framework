@@ -4,6 +4,7 @@
 package tkgctl
 
 import (
+	"io/ioutil"
 	"os"
 	"sync"
 
@@ -63,7 +64,7 @@ var _ = Describe("Unit test for New", func() {
 	)
 	JustBeforeEach(func() {
 		os.Setenv(constants.ConfigVariableBomCustomImageTag, "")
-		configDir, _ = os.MkdirTemp("", "cluster_client_test")
+		configDir, _ = ioutil.TempDir("", "cluster_client_test")
 		options = Options{
 			ConfigDir: configDir,
 		}

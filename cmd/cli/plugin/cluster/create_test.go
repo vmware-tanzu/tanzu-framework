@@ -127,7 +127,7 @@ func Test_CreateClusterCommand(t *testing.T) {
 
 func runCreateClusterCmd() {
 	cmd := createClusterCmd
-	cmd.SetArgs([]string{"test-cluster", "-i", "docker:v0.3.10", "-p", "dev", "-d"})
+	cmd.SetArgs([]string{"test-cluster", "-i", "docker:v0.3.16", "-p", "dev", "-d"})
 	_ = cmd.Execute()
 }
 

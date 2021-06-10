@@ -60,13 +60,13 @@ CUSTOM_NPM_REGISTRY ?= $(shell git config tkg.npmregistry)
 # BoM repo, path and tag related configuration
 # TODO: update the image tag to latest
 ifndef TKG_DEFAULT_BOM_IMAGE_REPO
-TKG_DEFAULT_BOM_IMAGE_REPO = "projects-stg.registry.vmware.com/tkg/sandbox/bom/356854158835344290"
+TKG_DEFAULT_BOM_IMAGE_REPO = "projects-stg.registry.vmware.com/tkg/sandbox/bom/358351291757367593"
 endif
 ifndef TKG_DEFAULT_BOM_IMAGE_PATH
 TKG_DEFAULT_BOM_IMAGE_PATH = "tkg-bom"
 endif
 ifndef TKG_DEFAULT_BOM_IMAGE_TAG
-TKG_DEFAULT_BOM_IMAGE_TAG = "v1.4.0-zshippable-akoo-debug"
+TKG_DEFAULT_BOM_IMAGE_TAG = "v1.4.0-zshippable"
 endif
 
 DOCKER_DIR := /app
