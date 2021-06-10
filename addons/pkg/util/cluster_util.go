@@ -28,7 +28,7 @@ const (
 )
 
 // GetOwnerCluster returns the Cluster object owning the current resource.
-func GetOwnerCluster(ctx context.Context, c client.Client, obj metav1.ObjectMeta) (*clusterv1alpha3.Cluster, error) {
+func GetOwnerCluster(ctx context.Context, c client.Client, obj *metav1.ObjectMeta) (*clusterv1alpha3.Cluster, error) {
 	for _, ref := range obj.OwnerReferences {
 		if ref.Kind != "Cluster" {
 			continue
@@ -73,8 +73,8 @@ func GetClustersByTKR(ctx context.Context, c client.Client, tkr *runtanzuv1alpha
 		return nil, err
 	}
 
-	for _, cluster := range clustersList.Items {
-		clusters = append(clusters, &cluster)
+	for i := range clustersList.Items {
+		clusters = append(clusters, &clustersList.Items[i])
 	}
 
 	return clusters, nil
@@ -133,7 +133,6 @@ func GetTKRNameForCluster(ctx context.Context, c client.Client, cluster *cluster
 
 // GetBOMForCluster gets the bom associated with the cluster
 func GetBOMForCluster(ctx context.Context, c client.Client, cluster *clusterv1alpha3.Cluster) (*bomtypes.Bom, error) {
-
 	tkrName := GetTKRNameForCluster(ctx, c, cluster)
 	if tkrName == "" {
 		return nil, nil
@@ -156,7 +155,6 @@ type ClusterKubeconfigSecretDetails struct {
 
 // GetClusterKubeconfigSecretDetails returns the name, namespace and key of the cluster's kubeconfig secret
 func GetClusterKubeconfigSecretDetails(cluster *clusterv1alpha3.Cluster) *ClusterKubeconfigSecretDetails {
-
 	return &ClusterKubeconfigSecretDetails{
 		Name:      clusterapisecretutil.Name(cluster.Name, clusterapisecretutil.Kubeconfig),
 		Namespace: cluster.Namespace,

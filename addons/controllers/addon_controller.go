@@ -38,7 +38,6 @@ import (
 
 const (
 	deleteRequeueAfter = 10 * time.Second
-	createRequeueAfter = 20 * time.Second
 )
 
 // AddonReconciler contains the reconciler information for add on controllers.
@@ -151,10 +150,11 @@ func (r *AddonReconciler) reconcileDelete(
 	var errors []error
 
 	// When cluster is deleted, we need to delete all the secrets.
-	for _, addonSecret := range addonSecrets.Items {
+	for i := range addonSecrets.Items {
+		addonSecret := addonSecrets.Items[i]
 		addonName := util.GetAddonNameFromAddonSecret(&addonSecret)
 
-		log := log.WithValues(constants.AddonSecretNamespaceLogKey, addonSecret.Namespace,
+		logWithContext := log.WithValues(constants.AddonSecretNamespaceLogKey, addonSecret.Namespace,
 			constants.AddonSecretNameLogKey, addonSecret.Name, constants.AddonNameLogKey, addonName)
 
 		// Create a patch helper for addon secret
@@ -169,17 +169,17 @@ func (r *AddonReconciler) reconcileDelete(
 		// For Apps residing in workload cluster, it is not necessary to delete the app and its secret since the
 		// cluster itself is deleted.
 		if util.IsRemoteApp(&addonSecret) {
-			if err := r.reconcileAddonDelete(ctx, log, nil, &addonSecret); err != nil {
-				log.Error(err, "Error deleting remote app for addon")
+			if err := r.reconcileAddonDelete(ctx, logWithContext, nil, &addonSecret); err != nil {
+				logWithContext.Error(err, "Error deleting remote app for addon")
 				errors = append(errors, err)
 				continue
 			}
 		}
 
 		// Remove finalizer from addon secret
-		finalizerRemoved, _, err := r.removeFinalizerFromAddonSecret(ctx, log, false, nil, &addonSecret)
+		finalizerRemoved, _, err := r.removeFinalizerFromAddonSecret(ctx, logWithContext, false, nil, &addonSecret)
 		if err != nil {
-			log.Error(err, "Error removing metadata from addon secret")
+			logWithContext.Error(err, "Error removing metadata from addon secret")
 			errors = append(errors, err)
 			continue
 		}
@@ -187,9 +187,9 @@ func (r *AddonReconciler) reconcileDelete(
 		// Patch addon secret
 		if finalizerRemoved {
 			// Patch addon secret before returning the function
-			log.Info("Patching addon secret to remove finalizer")
+			logWithContext.Info("Patching addon secret to remove finalizer")
 			if err := patchHelper.Patch(ctx, addonSecret.DeepCopy()); err != nil {
-				log.Error(err, "Error patching addon secret to remove finalizer")
+				logWithContext.Error(err, "Error patching addon secret to remove finalizer")
 				errors = append(errors, err)
 				continue
 			}
@@ -198,10 +198,10 @@ func (r *AddonReconciler) reconcileDelete(
 		// Delete addon secret
 		if err := r.Client.Delete(ctx, &addonSecret); err != nil {
 			if apierrors.IsNotFound(err) {
-				log.Info("Addon secret not found")
+				logWithContext.Info("Addon secret not found")
 				continue
 			}
-			log.Error(err, "Error deleting addon secret")
+			logWithContext.Error(err, "Error deleting addon secret")
 			errors = append(errors, err)
 			continue
 		}
@@ -252,12 +252,13 @@ func (r *AddonReconciler) reconcileNormal(
 		result ctrl.Result
 	)
 
-	for _, addonSecret := range addonSecrets.Items {
-		log := log.WithValues(constants.AddonSecretNamespaceLogKey, addonSecret.Namespace, constants.AddonSecretNameLogKey, addonSecret.Name)
+	for i := range addonSecrets.Items {
+		addonSecret := addonSecrets.Items[i]
+		logWithContext := log.WithValues(constants.AddonSecretNamespaceLogKey, addonSecret.Namespace, constants.AddonSecretNameLogKey, addonSecret.Name)
 
-		result, err = r.reconcileAddonSecret(ctx, log, cluster, remoteClient, &addonSecret, bom)
+		result, err = r.reconcileAddonSecret(ctx, logWithContext, cluster, remoteClient, &addonSecret, bom)
 		if err != nil {
-			log.Error(err, "Error reconciling addon secret")
+			logWithContext.Error(err, "Error reconciling addon secret")
 			errors = append(errors, err)
 			continue
 		}
@@ -390,11 +391,7 @@ func (r *AddonReconciler) reconcileAddonSecretNormal(
 	}
 
 	// Add finalizer and owner reference to addon secret
-	metadataAdded, err := r.addMetadataToAddonSecret(ctx, log, cluster, addonSecret)
-	if err != nil {
-		log.Error(err, "Error adding metadata to addon secret", constants.AddonNameLogKey, addonName)
-		return ctrl.Result{}, err
-	}
+	metadataAdded := r.addMetadataToAddonSecret(log, cluster, addonSecret)
 
 	*patchAddonSecret = metadataAdded
 
@@ -417,7 +414,7 @@ func (r *AddonReconciler) removeFinalizerFromAddonSecret(
 	log logr.Logger,
 	checkAppBeforeRemoval bool,
 	clusterClient client.Client,
-	addonSecret *corev1.Secret) (finalizerRemoved bool, requeue bool, err error) {
+	addonSecret *corev1.Secret) (finalizerRemoved, requeue bool, err error) {
 
 	addonName := util.GetAddonNameFromAddonSecret(addonSecret)
 
@@ -447,10 +444,9 @@ func (r *AddonReconciler) removeFinalizerFromAddonSecret(
 // addMetadataToAddonSecret adds finalizer and owner reference to the addon secret if not present and
 // returns true if finalizer or owner reference is added
 func (r *AddonReconciler) addMetadataToAddonSecret(
-	ctx context.Context,
 	log logr.Logger,
 	cluster *clusterapiv1alpha3.Cluster,
-	addonSecret *corev1.Secret) (bool, error) {
+	addonSecret *corev1.Secret) bool {
 
 	var patchAddonSecret bool
 
@@ -479,7 +475,7 @@ func (r *AddonReconciler) addMetadataToAddonSecret(
 		patchAddonSecret = true
 	}
 
-	return patchAddonSecret, nil
+	return patchAddonSecret
 }
 
 func (r *AddonReconciler) shouldNotReconcile(

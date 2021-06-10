@@ -1,11 +1,12 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package types defines type constants.
 package types
 
 const (
 	// AddonSecretType is the add on Secret type
-	AddonSecretType = "tkg.tanzu.vmware.com/addon"
+	AddonSecretType = "tkg.tanzu.vmware.com/addon" // nolint:gosec
 
 	// AddonNameLabel is the label on the Secret to indicate the name of addon to be installed
 	AddonNameLabel = "tkg.tanzu.vmware.com/addon-name"

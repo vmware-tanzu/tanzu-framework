@@ -7,9 +7,10 @@ linters-settings:
   goheader:
     values:
       const:
-       YEAR: "2021"
        COMPANY: VMware, Inc.
        LICENSE: Apache-2.0
+      regexp:
+       YEAR: 20\d*-*\d*
     template: |-
       Copyright {{ YEAR }} {{ COMPANY }} All Rights Reserved.
       SPDX-License-Identifier: {{ LICENSE }}
@@ -44,6 +45,7 @@ linters-settings:
         - condition
         - return
         ignored-functions: log.*,utils.GenerateRandomID*
+        ignored-files: addon_handlers.go
   govet:
     check-shadowing: true
     settings:
@@ -62,6 +64,8 @@ linters-settings:
     allow-unused: false # report any unused nolint directives
     require-explanation: false # don't require an explanation for nolint directives
     require-specific: false # don't require nolint directives to be specific about which linter is being skipped
+  whitespace:
+    multi-func: true
 
 linters:
   disable-all: true
