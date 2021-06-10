@@ -106,12 +106,30 @@ func getBundledProvidersChecksum(zipPath string) ([]byte, error) {
 	return nil, errors.New("providers.sha256sum is not bundled properly")
 }
 
-func (c *client) saveTemplatesZipFile(zipPath string) error {
+func (c *client) isProviderTemplatesEmbeded() bool {
+	providersZipBytes, err := c.providerGetter.GetProviderBundle()
+	if err != nil || len(providersZipBytes) == 0 {
+		return false
+	}
+	return true
+}
+
+func (c *client) saveEmbededProviderTemplates(providerPath string) error {
 	providersZipBytes, err := c.providerGetter.GetProviderBundle()
 	if err != nil {
 		return errors.Wrap(err, "cannot find the provider bundle")
 	}
-	return os.WriteFile(zipPath, providersZipBytes, 0o644)
+	providerZipPath := filepath.Join(providerPath, constants.LocalProvidersZipFileName)
+	if err := os.WriteFile(providerZipPath, providersZipBytes, 0o644); err != nil {
+		return errors.Wrap(err, "error while writing provider zip file")
+	}
+
+	defer os.Remove(providerZipPath)
+
+	if err := unzip(providerZipPath, providerPath); err != nil {
+		return errors.Wrap(err, "error while unzipping providers")
+	}
+	return nil
 }
 
 // markDeprecatedConfigurationOptions adds comment on top of deprecated configuration variable in

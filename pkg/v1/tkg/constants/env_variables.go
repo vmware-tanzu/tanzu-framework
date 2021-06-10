@@ -3,9 +3,13 @@
 
 package constants
 
-// environment variable name constants
+// environment variables for http proxy
 const (
-	SuppressUpdateEnvar = "SUPPRESS_UPDATE_TKGCONFIG"
-	HTTPNoProxy         = "NO_PROXY"
-	HTTPProxy           = "HTTP_PROXY"
+	HTTPNoProxy = "NO_PROXY"
+	HTTPProxy   = "HTTP_PROXY"
+)
+
+// environment variables for internal development use
+const (
+	SuppressProvidersUpdate = "SUPPRESS_PROVIDERS_UPDATE"
 )

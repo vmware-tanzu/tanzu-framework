@@ -114,3 +114,49 @@ func getFileFromLayer(stream io.Reader) (map[string][]byte, error) {
 	}
 	return files, nil
 }
+
+// GetFiles get all the files content bundled in the given image:tag.
+func (r *registry) GetFiles(image string, tag string) (map[string][]byte, error) {
+	ref, err := regname.ParseReference(fmt.Sprintf("%s:%s", image, tag), regname.WeakValidation)
+	if err != nil {
+		return nil, err
+	}
+	imgs, err := ctlimg.NewImages(ref, r.registry).Images()
+	if err != nil {
+		return nil, errors.Wrap(err, "Collecting images: %s")
+	}
+	if len(imgs) == 0 {
+		return nil, errors.New("Expected to find at least one image, but found none")
+	}
+
+	if len(imgs) > 1 {
+		fmt.Println("Found multiple images, extracting first")
+	}
+
+	return getAllFilesContentFromImage(imgs[0])
+}
+
+func getAllFilesContentFromImage(image regv1.Image) (map[string][]byte, error) {
+	layers, err := image.Layers()
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, imgLayer := range layers {
+		layerStream, err := imgLayer.Uncompressed()
+		if err != nil {
+			return nil, err
+		}
+
+		defer layerStream.Close()
+
+		files, err := getFileFromLayer(layerStream)
+		if err != nil {
+			return nil, err
+		}
+
+		return files, nil
+	}
+	return nil, errors.New("cannot find file from the image")
+}

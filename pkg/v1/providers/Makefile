@@ -81,8 +81,8 @@ generate-provider-bundle-tar-docker: clean-providers ## generates provider zip b
 	# zz_generated.bindata.go file
 	find . -type f | grep -v ${FILES_TO_IGNORE} | xargs tar cf - -T - | tar -C provider-bundle/${PROVIDER_DIR_NAME} -x
 	cd provider-bundle/${PROVIDER_DIR_NAME} && for i in `find . -type f`; do touch -t 202006091513 $$i; chmod 644 $$i; done ## && find . -type f | sort | zip -qXo ../providers.zip -@ && cd .. # && rm -rf ${PROVIDER_DIR_NAME}
-	cd provider-bundle; docker build -t gcr.io/eminent-nation-87317/tkg/tkg-providers-test:v1.4.0-test.1 -f ../Dockerfile.templates .
-	docker save gcr.io/eminent-nation-87317/tkg/tkg-providers-test:v1.4.0-test.1 -o providers.tar
+	cd provider-bundle/${PROVIDER_DIR_NAME}; docker build -t gcr.io/eminent-nation-87317/tkg/tkg-providers-test:v1.4.0-test.1 -f ../../hack/Dockerfile.templates .
+	docker save gcr.io/eminent-nation-87317/tkg/tkg-providers-test:v1.4.0-test.1 -o client/manifest/providers.tar
 
 .PHONY: publish-provider-bundle
 publish-provider-bundle: generate-provider-bundle-tar-docker ## generates provider zip bundle

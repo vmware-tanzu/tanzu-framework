@@ -4,7 +4,6 @@
 package tkgpackageclient
 
 import (
-	"io/ioutil"
 	"os"
 	"time"
 
@@ -260,7 +259,7 @@ var _ = Describe("Install Package", func() {
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
 			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
-			err = ioutil.WriteFile(testValuesFile, []byte("test"), 0644)
+			err = os.WriteFile(testValuesFile, []byte("test"), 0644)
 			Expect(err).ToNot(HaveOccurred())
 		})
 		It(testSuccessMsg, func() {

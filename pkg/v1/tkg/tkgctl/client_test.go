@@ -13,12 +13,15 @@ import (
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/providerinterface"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigreaderwriter"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigupdater"
 )
 
-var _ = Describe("ensurePrerequisite", func() {
+var _ = Describe("ensureBoMandProvidersPrerequisite", func() {
 	var (
-		err            error
-		providerGetter providerinterface.ProviderInterface
+		err                    error
+		providerGetter         providerinterface.ProviderInterface
+		tkgConfigUpdaterClient tkgconfigupdater.Client
 	)
 
 	BeforeEach(func() {
@@ -26,6 +29,9 @@ var _ = Describe("ensurePrerequisite", func() {
 		err = os.MkdirAll(testingDir, 0o700)
 		Expect(err).ToNot(HaveOccurred())
 		providerGetter = getDefaultProviderGetter()
+		tkgConfigReaderWriter, err1 := tkgconfigreaderwriter.NewReaderWriterFromConfigFile("../fakes/config/config.yaml", "../fakes/config/config.yaml")
+		Expect(err1).ToNot(HaveOccurred())
+		tkgConfigUpdaterClient = tkgconfigupdater.New(testingDir, providerGetter, tkgConfigReaderWriter)
 	})
 
 	Context("When two goroutines try to modify the file under configDir", func() {
@@ -36,13 +42,13 @@ var _ = Describe("ensurePrerequisite", func() {
 			wg.Add(2)
 			go func() {
 				defer wg.Done()
-				err := ensurePrerequisite(testingDir, providerGetter)
+				err := ensureBoMandProvidersPrerequisite(testingDir, tkgConfigUpdaterClient)
 				errs <- err
 			}()
 
 			go func() {
 				defer wg.Done()
-				err := ensurePrerequisite(testingDir, providerGetter)
+				err := ensureBoMandProvidersPrerequisite(testingDir, tkgConfigUpdaterClient)
 				errs <- err
 			}()
 			wg.Wait()

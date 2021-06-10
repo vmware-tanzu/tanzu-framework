@@ -35,31 +35,17 @@ type TKGConfigUpdaterClient struct {
 		result1 string
 		result2 error
 	}
-	CheckProvidersNeedUpdateStub        func() (bool, error)
-	checkProvidersNeedUpdateMutex       sync.RWMutex
-	checkProvidersNeedUpdateArgsForCall []struct {
+	CheckProviderTemplatesNeedUpdateStub        func() (bool, error)
+	checkProviderTemplatesNeedUpdateMutex       sync.RWMutex
+	checkProviderTemplatesNeedUpdateArgsForCall []struct {
 	}
-	checkProvidersNeedUpdateReturns struct {
+	checkProviderTemplatesNeedUpdateReturns struct {
 		result1 bool
 		result2 error
 	}
-	checkProvidersNeedUpdateReturnsOnCall map[int]struct {
+	checkProviderTemplatesNeedUpdateReturnsOnCall map[int]struct {
 		result1 bool
 		result2 error
-	}
-	CheckTkgConfigNeedUpdateStub        func() (bool, string, error)
-	checkTkgConfigNeedUpdateMutex       sync.RWMutex
-	checkTkgConfigNeedUpdateArgsForCall []struct {
-	}
-	checkTkgConfigNeedUpdateReturns struct {
-		result1 bool
-		result2 string
-		result3 error
-	}
-	checkTkgConfigNeedUpdateReturnsOnCall map[int]struct {
-		result1 bool
-		result2 string
-		result3 error
 	}
 	DecodeCredentialsInViperStub        func() error
 	decodeCredentialsInViperMutex       sync.RWMutex
@@ -91,18 +77,6 @@ type TKGConfigUpdaterClient struct {
 	ensureConfigImagesReturnsOnCall map[int]struct {
 		result1 error
 	}
-	EnsureConfigPrerequisiteStub        func(bool, bool) error
-	ensureConfigPrerequisiteMutex       sync.RWMutex
-	ensureConfigPrerequisiteArgsForCall []struct {
-		arg1 bool
-		arg2 bool
-	}
-	ensureConfigPrerequisiteReturns struct {
-		result1 error
-	}
-	ensureConfigPrerequisiteReturnsOnCall map[int]struct {
-		result1 error
-	}
 	EnsureCredEncodingStub        func(*yaml.Node)
 	ensureCredEncodingMutex       sync.RWMutex
 	ensureCredEncodingArgsForCall []struct {
@@ -120,28 +94,51 @@ type TKGConfigUpdaterClient struct {
 	ensureImagesReturnsOnCall map[int]struct {
 		result1 error
 	}
-	EnsureProvidersStub        func(bool, *yaml.Node) error
-	ensureProvidersMutex       sync.RWMutex
-	ensureProvidersArgsForCall []struct {
+	EnsureProviderTemplatesStub        func() error
+	ensureProviderTemplatesMutex       sync.RWMutex
+	ensureProviderTemplatesArgsForCall []struct {
+	}
+	ensureProviderTemplatesReturns struct {
+		result1 error
+	}
+	ensureProviderTemplatesReturnsOnCall map[int]struct {
+		result1 error
+	}
+	EnsureProvidersInConfigStub        func(bool, *yaml.Node) error
+	ensureProvidersInConfigMutex       sync.RWMutex
+	ensureProvidersInConfigArgsForCall []struct {
 		arg1 bool
 		arg2 *yaml.Node
 	}
-	ensureProvidersReturns struct {
+	ensureProvidersInConfigReturns struct {
 		result1 error
 	}
-	ensureProvidersReturnsOnCall map[int]struct {
+	ensureProvidersInConfigReturnsOnCall map[int]struct {
 		result1 error
 	}
-	EnsureTemplateFilesStub        func(bool) error
+	EnsureTKGConfigFileStub        func() (string, error)
+	ensureTKGConfigFileMutex       sync.RWMutex
+	ensureTKGConfigFileArgsForCall []struct {
+	}
+	ensureTKGConfigFileReturns struct {
+		result1 string
+		result2 error
+	}
+	ensureTKGConfigFileReturnsOnCall map[int]struct {
+		result1 string
+		result2 error
+	}
+	EnsureTemplateFilesStub        func() (bool, error)
 	ensureTemplateFilesMutex       sync.RWMutex
 	ensureTemplateFilesArgsForCall []struct {
-		arg1 bool
 	}
 	ensureTemplateFilesReturns struct {
-		result1 error
+		result1 bool
+		result2 error
 	}
 	ensureTemplateFilesReturnsOnCall map[int]struct {
-		result1 error
+		result1 bool
+		result2 error
 	}
 	GetDefaultInfrastructureVersionStub        func(string) (string, error)
 	getDefaultInfrastructureVersionMutex       sync.RWMutex
@@ -155,34 +152,6 @@ type TKGConfigUpdaterClient struct {
 	getDefaultInfrastructureVersionReturnsOnCall map[int]struct {
 		result1 string
 		result2 error
-	}
-	GetUpdateStatusStub        func() (bool, bool, bool, error)
-	getUpdateStatusMutex       sync.RWMutex
-	getUpdateStatusArgsForCall []struct {
-	}
-	getUpdateStatusReturns struct {
-		result1 bool
-		result2 bool
-		result3 bool
-		result4 error
-	}
-	getUpdateStatusReturnsOnCall map[int]struct {
-		result1 bool
-		result2 bool
-		result3 bool
-		result4 error
-	}
-	SaveTemplateFilesStub        func(string, bool) error
-	saveTemplateFilesMutex       sync.RWMutex
-	saveTemplateFilesArgsForCall []struct {
-		arg1 string
-		arg2 bool
-	}
-	saveTemplateFilesReturns struct {
-		result1 error
-	}
-	saveTemplateFilesReturnsOnCall map[int]struct {
-		result1 error
 	}
 	SetDefaultConfigurationStub        func()
 	setDefaultConfigurationMutex       sync.RWMutex
@@ -310,117 +279,59 @@ func (fake *TKGConfigUpdaterClient) CheckInfrastructureVersionReturnsOnCall(i in
 	}{result1, result2}
 }
 
-func (fake *TKGConfigUpdaterClient) CheckProvidersNeedUpdate() (bool, error) {
-	fake.checkProvidersNeedUpdateMutex.Lock()
-	ret, specificReturn := fake.checkProvidersNeedUpdateReturnsOnCall[len(fake.checkProvidersNeedUpdateArgsForCall)]
-	fake.checkProvidersNeedUpdateArgsForCall = append(fake.checkProvidersNeedUpdateArgsForCall, struct {
+func (fake *TKGConfigUpdaterClient) CheckProviderTemplatesNeedUpdate() (bool, error) {
+	fake.checkProviderTemplatesNeedUpdateMutex.Lock()
+	ret, specificReturn := fake.checkProviderTemplatesNeedUpdateReturnsOnCall[len(fake.checkProviderTemplatesNeedUpdateArgsForCall)]
+	fake.checkProviderTemplatesNeedUpdateArgsForCall = append(fake.checkProviderTemplatesNeedUpdateArgsForCall, struct {
 	}{})
-	fake.recordInvocation("CheckProvidersNeedUpdate", []interface{}{})
-	fake.checkProvidersNeedUpdateMutex.Unlock()
-	if fake.CheckProvidersNeedUpdateStub != nil {
-		return fake.CheckProvidersNeedUpdateStub()
+	fake.recordInvocation("CheckProviderTemplatesNeedUpdate", []interface{}{})
+	fake.checkProviderTemplatesNeedUpdateMutex.Unlock()
+	if fake.CheckProviderTemplatesNeedUpdateStub != nil {
+		return fake.CheckProviderTemplatesNeedUpdateStub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.checkProvidersNeedUpdateReturns
+	fakeReturns := fake.checkProviderTemplatesNeedUpdateReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
-func (fake *TKGConfigUpdaterClient) CheckProvidersNeedUpdateCallCount() int {
-	fake.checkProvidersNeedUpdateMutex.RLock()
-	defer fake.checkProvidersNeedUpdateMutex.RUnlock()
-	return len(fake.checkProvidersNeedUpdateArgsForCall)
+func (fake *TKGConfigUpdaterClient) CheckProviderTemplatesNeedUpdateCallCount() int {
+	fake.checkProviderTemplatesNeedUpdateMutex.RLock()
+	defer fake.checkProviderTemplatesNeedUpdateMutex.RUnlock()
+	return len(fake.checkProviderTemplatesNeedUpdateArgsForCall)
 }
 
-func (fake *TKGConfigUpdaterClient) CheckProvidersNeedUpdateCalls(stub func() (bool, error)) {
-	fake.checkProvidersNeedUpdateMutex.Lock()
-	defer fake.checkProvidersNeedUpdateMutex.Unlock()
-	fake.CheckProvidersNeedUpdateStub = stub
+func (fake *TKGConfigUpdaterClient) CheckProviderTemplatesNeedUpdateCalls(stub func() (bool, error)) {
+	fake.checkProviderTemplatesNeedUpdateMutex.Lock()
+	defer fake.checkProviderTemplatesNeedUpdateMutex.Unlock()
+	fake.CheckProviderTemplatesNeedUpdateStub = stub
 }
 
-func (fake *TKGConfigUpdaterClient) CheckProvidersNeedUpdateReturns(result1 bool, result2 error) {
-	fake.checkProvidersNeedUpdateMutex.Lock()
-	defer fake.checkProvidersNeedUpdateMutex.Unlock()
-	fake.CheckProvidersNeedUpdateStub = nil
-	fake.checkProvidersNeedUpdateReturns = struct {
+func (fake *TKGConfigUpdaterClient) CheckProviderTemplatesNeedUpdateReturns(result1 bool, result2 error) {
+	fake.checkProviderTemplatesNeedUpdateMutex.Lock()
+	defer fake.checkProviderTemplatesNeedUpdateMutex.Unlock()
+	fake.CheckProviderTemplatesNeedUpdateStub = nil
+	fake.checkProviderTemplatesNeedUpdateReturns = struct {
 		result1 bool
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *TKGConfigUpdaterClient) CheckProvidersNeedUpdateReturnsOnCall(i int, result1 bool, result2 error) {
-	fake.checkProvidersNeedUpdateMutex.Lock()
-	defer fake.checkProvidersNeedUpdateMutex.Unlock()
-	fake.CheckProvidersNeedUpdateStub = nil
-	if fake.checkProvidersNeedUpdateReturnsOnCall == nil {
-		fake.checkProvidersNeedUpdateReturnsOnCall = make(map[int]struct {
+func (fake *TKGConfigUpdaterClient) CheckProviderTemplatesNeedUpdateReturnsOnCall(i int, result1 bool, result2 error) {
+	fake.checkProviderTemplatesNeedUpdateMutex.Lock()
+	defer fake.checkProviderTemplatesNeedUpdateMutex.Unlock()
+	fake.CheckProviderTemplatesNeedUpdateStub = nil
+	if fake.checkProviderTemplatesNeedUpdateReturnsOnCall == nil {
+		fake.checkProviderTemplatesNeedUpdateReturnsOnCall = make(map[int]struct {
 			result1 bool
 			result2 error
 		})
 	}
-	fake.checkProvidersNeedUpdateReturnsOnCall[i] = struct {
+	fake.checkProviderTemplatesNeedUpdateReturnsOnCall[i] = struct {
 		result1 bool
 		result2 error
 	}{result1, result2}
-}
-
-func (fake *TKGConfigUpdaterClient) CheckTkgConfigNeedUpdate() (bool, string, error) {
-	fake.checkTkgConfigNeedUpdateMutex.Lock()
-	ret, specificReturn := fake.checkTkgConfigNeedUpdateReturnsOnCall[len(fake.checkTkgConfigNeedUpdateArgsForCall)]
-	fake.checkTkgConfigNeedUpdateArgsForCall = append(fake.checkTkgConfigNeedUpdateArgsForCall, struct {
-	}{})
-	fake.recordInvocation("CheckTkgConfigNeedUpdate", []interface{}{})
-	fake.checkTkgConfigNeedUpdateMutex.Unlock()
-	if fake.CheckTkgConfigNeedUpdateStub != nil {
-		return fake.CheckTkgConfigNeedUpdateStub()
-	}
-	if specificReturn {
-		return ret.result1, ret.result2, ret.result3
-	}
-	fakeReturns := fake.checkTkgConfigNeedUpdateReturns
-	return fakeReturns.result1, fakeReturns.result2, fakeReturns.result3
-}
-
-func (fake *TKGConfigUpdaterClient) CheckTkgConfigNeedUpdateCallCount() int {
-	fake.checkTkgConfigNeedUpdateMutex.RLock()
-	defer fake.checkTkgConfigNeedUpdateMutex.RUnlock()
-	return len(fake.checkTkgConfigNeedUpdateArgsForCall)
-}
-
-func (fake *TKGConfigUpdaterClient) CheckTkgConfigNeedUpdateCalls(stub func() (bool, string, error)) {
-	fake.checkTkgConfigNeedUpdateMutex.Lock()
-	defer fake.checkTkgConfigNeedUpdateMutex.Unlock()
-	fake.CheckTkgConfigNeedUpdateStub = stub
-}
-
-func (fake *TKGConfigUpdaterClient) CheckTkgConfigNeedUpdateReturns(result1 bool, result2 string, result3 error) {
-	fake.checkTkgConfigNeedUpdateMutex.Lock()
-	defer fake.checkTkgConfigNeedUpdateMutex.Unlock()
-	fake.CheckTkgConfigNeedUpdateStub = nil
-	fake.checkTkgConfigNeedUpdateReturns = struct {
-		result1 bool
-		result2 string
-		result3 error
-	}{result1, result2, result3}
-}
-
-func (fake *TKGConfigUpdaterClient) CheckTkgConfigNeedUpdateReturnsOnCall(i int, result1 bool, result2 string, result3 error) {
-	fake.checkTkgConfigNeedUpdateMutex.Lock()
-	defer fake.checkTkgConfigNeedUpdateMutex.Unlock()
-	fake.CheckTkgConfigNeedUpdateStub = nil
-	if fake.checkTkgConfigNeedUpdateReturnsOnCall == nil {
-		fake.checkTkgConfigNeedUpdateReturnsOnCall = make(map[int]struct {
-			result1 bool
-			result2 string
-			result3 error
-		})
-	}
-	fake.checkTkgConfigNeedUpdateReturnsOnCall[i] = struct {
-		result1 bool
-		result2 string
-		result3 error
-	}{result1, result2, result3}
 }
 
 func (fake *TKGConfigUpdaterClient) DecodeCredentialsInViper() error {
@@ -579,67 +490,6 @@ func (fake *TKGConfigUpdaterClient) EnsureConfigImagesReturnsOnCall(i int, resul
 	}{result1}
 }
 
-func (fake *TKGConfigUpdaterClient) EnsureConfigPrerequisite(arg1 bool, arg2 bool) error {
-	fake.ensureConfigPrerequisiteMutex.Lock()
-	ret, specificReturn := fake.ensureConfigPrerequisiteReturnsOnCall[len(fake.ensureConfigPrerequisiteArgsForCall)]
-	fake.ensureConfigPrerequisiteArgsForCall = append(fake.ensureConfigPrerequisiteArgsForCall, struct {
-		arg1 bool
-		arg2 bool
-	}{arg1, arg2})
-	fake.recordInvocation("EnsureConfigPrerequisite", []interface{}{arg1, arg2})
-	fake.ensureConfigPrerequisiteMutex.Unlock()
-	if fake.EnsureConfigPrerequisiteStub != nil {
-		return fake.EnsureConfigPrerequisiteStub(arg1, arg2)
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	fakeReturns := fake.ensureConfigPrerequisiteReturns
-	return fakeReturns.result1
-}
-
-func (fake *TKGConfigUpdaterClient) EnsureConfigPrerequisiteCallCount() int {
-	fake.ensureConfigPrerequisiteMutex.RLock()
-	defer fake.ensureConfigPrerequisiteMutex.RUnlock()
-	return len(fake.ensureConfigPrerequisiteArgsForCall)
-}
-
-func (fake *TKGConfigUpdaterClient) EnsureConfigPrerequisiteCalls(stub func(bool, bool) error) {
-	fake.ensureConfigPrerequisiteMutex.Lock()
-	defer fake.ensureConfigPrerequisiteMutex.Unlock()
-	fake.EnsureConfigPrerequisiteStub = stub
-}
-
-func (fake *TKGConfigUpdaterClient) EnsureConfigPrerequisiteArgsForCall(i int) (bool, bool) {
-	fake.ensureConfigPrerequisiteMutex.RLock()
-	defer fake.ensureConfigPrerequisiteMutex.RUnlock()
-	argsForCall := fake.ensureConfigPrerequisiteArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
-}
-
-func (fake *TKGConfigUpdaterClient) EnsureConfigPrerequisiteReturns(result1 error) {
-	fake.ensureConfigPrerequisiteMutex.Lock()
-	defer fake.ensureConfigPrerequisiteMutex.Unlock()
-	fake.EnsureConfigPrerequisiteStub = nil
-	fake.ensureConfigPrerequisiteReturns = struct {
-		result1 error
-	}{result1}
-}
-
-func (fake *TKGConfigUpdaterClient) EnsureConfigPrerequisiteReturnsOnCall(i int, result1 error) {
-	fake.ensureConfigPrerequisiteMutex.Lock()
-	defer fake.ensureConfigPrerequisiteMutex.Unlock()
-	fake.EnsureConfigPrerequisiteStub = nil
-	if fake.ensureConfigPrerequisiteReturnsOnCall == nil {
-		fake.ensureConfigPrerequisiteReturnsOnCall = make(map[int]struct {
-			result1 error
-		})
-	}
-	fake.ensureConfigPrerequisiteReturnsOnCall[i] = struct {
-		result1 error
-	}{result1}
-}
-
 func (fake *TKGConfigUpdaterClient) EnsureCredEncoding(arg1 *yaml.Node) {
 	fake.ensureCredEncodingMutex.Lock()
 	fake.ensureCredEncodingArgsForCall = append(fake.ensureCredEncodingArgsForCall, struct {
@@ -732,83 +582,189 @@ func (fake *TKGConfigUpdaterClient) EnsureImagesReturnsOnCall(i int, result1 err
 	}{result1}
 }
 
-func (fake *TKGConfigUpdaterClient) EnsureProviders(arg1 bool, arg2 *yaml.Node) error {
-	fake.ensureProvidersMutex.Lock()
-	ret, specificReturn := fake.ensureProvidersReturnsOnCall[len(fake.ensureProvidersArgsForCall)]
-	fake.ensureProvidersArgsForCall = append(fake.ensureProvidersArgsForCall, struct {
-		arg1 bool
-		arg2 *yaml.Node
-	}{arg1, arg2})
-	fake.recordInvocation("EnsureProviders", []interface{}{arg1, arg2})
-	fake.ensureProvidersMutex.Unlock()
-	if fake.EnsureProvidersStub != nil {
-		return fake.EnsureProvidersStub(arg1, arg2)
+func (fake *TKGConfigUpdaterClient) EnsureProviderTemplates() error {
+	fake.ensureProviderTemplatesMutex.Lock()
+	ret, specificReturn := fake.ensureProviderTemplatesReturnsOnCall[len(fake.ensureProviderTemplatesArgsForCall)]
+	fake.ensureProviderTemplatesArgsForCall = append(fake.ensureProviderTemplatesArgsForCall, struct {
+	}{})
+	fake.recordInvocation("EnsureProviderTemplates", []interface{}{})
+	fake.ensureProviderTemplatesMutex.Unlock()
+	if fake.EnsureProviderTemplatesStub != nil {
+		return fake.EnsureProviderTemplatesStub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.ensureProvidersReturns
+	fakeReturns := fake.ensureProviderTemplatesReturns
 	return fakeReturns.result1
 }
 
-func (fake *TKGConfigUpdaterClient) EnsureProvidersCallCount() int {
-	fake.ensureProvidersMutex.RLock()
-	defer fake.ensureProvidersMutex.RUnlock()
-	return len(fake.ensureProvidersArgsForCall)
+func (fake *TKGConfigUpdaterClient) EnsureProviderTemplatesCallCount() int {
+	fake.ensureProviderTemplatesMutex.RLock()
+	defer fake.ensureProviderTemplatesMutex.RUnlock()
+	return len(fake.ensureProviderTemplatesArgsForCall)
 }
 
-func (fake *TKGConfigUpdaterClient) EnsureProvidersCalls(stub func(bool, *yaml.Node) error) {
-	fake.ensureProvidersMutex.Lock()
-	defer fake.ensureProvidersMutex.Unlock()
-	fake.EnsureProvidersStub = stub
+func (fake *TKGConfigUpdaterClient) EnsureProviderTemplatesCalls(stub func() error) {
+	fake.ensureProviderTemplatesMutex.Lock()
+	defer fake.ensureProviderTemplatesMutex.Unlock()
+	fake.EnsureProviderTemplatesStub = stub
 }
 
-func (fake *TKGConfigUpdaterClient) EnsureProvidersArgsForCall(i int) (bool, *yaml.Node) {
-	fake.ensureProvidersMutex.RLock()
-	defer fake.ensureProvidersMutex.RUnlock()
-	argsForCall := fake.ensureProvidersArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
-}
-
-func (fake *TKGConfigUpdaterClient) EnsureProvidersReturns(result1 error) {
-	fake.ensureProvidersMutex.Lock()
-	defer fake.ensureProvidersMutex.Unlock()
-	fake.EnsureProvidersStub = nil
-	fake.ensureProvidersReturns = struct {
+func (fake *TKGConfigUpdaterClient) EnsureProviderTemplatesReturns(result1 error) {
+	fake.ensureProviderTemplatesMutex.Lock()
+	defer fake.ensureProviderTemplatesMutex.Unlock()
+	fake.EnsureProviderTemplatesStub = nil
+	fake.ensureProviderTemplatesReturns = struct {
 		result1 error
 	}{result1}
 }
 
-func (fake *TKGConfigUpdaterClient) EnsureProvidersReturnsOnCall(i int, result1 error) {
-	fake.ensureProvidersMutex.Lock()
-	defer fake.ensureProvidersMutex.Unlock()
-	fake.EnsureProvidersStub = nil
-	if fake.ensureProvidersReturnsOnCall == nil {
-		fake.ensureProvidersReturnsOnCall = make(map[int]struct {
+func (fake *TKGConfigUpdaterClient) EnsureProviderTemplatesReturnsOnCall(i int, result1 error) {
+	fake.ensureProviderTemplatesMutex.Lock()
+	defer fake.ensureProviderTemplatesMutex.Unlock()
+	fake.EnsureProviderTemplatesStub = nil
+	if fake.ensureProviderTemplatesReturnsOnCall == nil {
+		fake.ensureProviderTemplatesReturnsOnCall = make(map[int]struct {
 			result1 error
 		})
 	}
-	fake.ensureProvidersReturnsOnCall[i] = struct {
+	fake.ensureProviderTemplatesReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
 }
 
-func (fake *TKGConfigUpdaterClient) EnsureTemplateFiles(arg1 bool) error {
-	fake.ensureTemplateFilesMutex.Lock()
-	ret, specificReturn := fake.ensureTemplateFilesReturnsOnCall[len(fake.ensureTemplateFilesArgsForCall)]
-	fake.ensureTemplateFilesArgsForCall = append(fake.ensureTemplateFilesArgsForCall, struct {
+func (fake *TKGConfigUpdaterClient) EnsureProvidersInConfig(arg1 bool, arg2 *yaml.Node) error {
+	fake.ensureProvidersInConfigMutex.Lock()
+	ret, specificReturn := fake.ensureProvidersInConfigReturnsOnCall[len(fake.ensureProvidersInConfigArgsForCall)]
+	fake.ensureProvidersInConfigArgsForCall = append(fake.ensureProvidersInConfigArgsForCall, struct {
 		arg1 bool
-	}{arg1})
-	fake.recordInvocation("EnsureTemplateFiles", []interface{}{arg1})
-	fake.ensureTemplateFilesMutex.Unlock()
-	if fake.EnsureTemplateFilesStub != nil {
-		return fake.EnsureTemplateFilesStub(arg1)
+		arg2 *yaml.Node
+	}{arg1, arg2})
+	fake.recordInvocation("EnsureProvidersInConfig", []interface{}{arg1, arg2})
+	fake.ensureProvidersInConfigMutex.Unlock()
+	if fake.EnsureProvidersInConfigStub != nil {
+		return fake.EnsureProvidersInConfigStub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.ensureTemplateFilesReturns
+	fakeReturns := fake.ensureProvidersInConfigReturns
 	return fakeReturns.result1
+}
+
+func (fake *TKGConfigUpdaterClient) EnsureProvidersInConfigCallCount() int {
+	fake.ensureProvidersInConfigMutex.RLock()
+	defer fake.ensureProvidersInConfigMutex.RUnlock()
+	return len(fake.ensureProvidersInConfigArgsForCall)
+}
+
+func (fake *TKGConfigUpdaterClient) EnsureProvidersInConfigCalls(stub func(bool, *yaml.Node) error) {
+	fake.ensureProvidersInConfigMutex.Lock()
+	defer fake.ensureProvidersInConfigMutex.Unlock()
+	fake.EnsureProvidersInConfigStub = stub
+}
+
+func (fake *TKGConfigUpdaterClient) EnsureProvidersInConfigArgsForCall(i int) (bool, *yaml.Node) {
+	fake.ensureProvidersInConfigMutex.RLock()
+	defer fake.ensureProvidersInConfigMutex.RUnlock()
+	argsForCall := fake.ensureProvidersInConfigArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *TKGConfigUpdaterClient) EnsureProvidersInConfigReturns(result1 error) {
+	fake.ensureProvidersInConfigMutex.Lock()
+	defer fake.ensureProvidersInConfigMutex.Unlock()
+	fake.EnsureProvidersInConfigStub = nil
+	fake.ensureProvidersInConfigReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *TKGConfigUpdaterClient) EnsureProvidersInConfigReturnsOnCall(i int, result1 error) {
+	fake.ensureProvidersInConfigMutex.Lock()
+	defer fake.ensureProvidersInConfigMutex.Unlock()
+	fake.EnsureProvidersInConfigStub = nil
+	if fake.ensureProvidersInConfigReturnsOnCall == nil {
+		fake.ensureProvidersInConfigReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.ensureProvidersInConfigReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *TKGConfigUpdaterClient) EnsureTKGConfigFile() (string, error) {
+	fake.ensureTKGConfigFileMutex.Lock()
+	ret, specificReturn := fake.ensureTKGConfigFileReturnsOnCall[len(fake.ensureTKGConfigFileArgsForCall)]
+	fake.ensureTKGConfigFileArgsForCall = append(fake.ensureTKGConfigFileArgsForCall, struct {
+	}{})
+	fake.recordInvocation("EnsureTKGConfigFile", []interface{}{})
+	fake.ensureTKGConfigFileMutex.Unlock()
+	if fake.EnsureTKGConfigFileStub != nil {
+		return fake.EnsureTKGConfigFileStub()
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.ensureTKGConfigFileReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *TKGConfigUpdaterClient) EnsureTKGConfigFileCallCount() int {
+	fake.ensureTKGConfigFileMutex.RLock()
+	defer fake.ensureTKGConfigFileMutex.RUnlock()
+	return len(fake.ensureTKGConfigFileArgsForCall)
+}
+
+func (fake *TKGConfigUpdaterClient) EnsureTKGConfigFileCalls(stub func() (string, error)) {
+	fake.ensureTKGConfigFileMutex.Lock()
+	defer fake.ensureTKGConfigFileMutex.Unlock()
+	fake.EnsureTKGConfigFileStub = stub
+}
+
+func (fake *TKGConfigUpdaterClient) EnsureTKGConfigFileReturns(result1 string, result2 error) {
+	fake.ensureTKGConfigFileMutex.Lock()
+	defer fake.ensureTKGConfigFileMutex.Unlock()
+	fake.EnsureTKGConfigFileStub = nil
+	fake.ensureTKGConfigFileReturns = struct {
+		result1 string
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *TKGConfigUpdaterClient) EnsureTKGConfigFileReturnsOnCall(i int, result1 string, result2 error) {
+	fake.ensureTKGConfigFileMutex.Lock()
+	defer fake.ensureTKGConfigFileMutex.Unlock()
+	fake.EnsureTKGConfigFileStub = nil
+	if fake.ensureTKGConfigFileReturnsOnCall == nil {
+		fake.ensureTKGConfigFileReturnsOnCall = make(map[int]struct {
+			result1 string
+			result2 error
+		})
+	}
+	fake.ensureTKGConfigFileReturnsOnCall[i] = struct {
+		result1 string
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *TKGConfigUpdaterClient) EnsureTemplateFiles() (bool, error) {
+	fake.ensureTemplateFilesMutex.Lock()
+	ret, specificReturn := fake.ensureTemplateFilesReturnsOnCall[len(fake.ensureTemplateFilesArgsForCall)]
+	fake.ensureTemplateFilesArgsForCall = append(fake.ensureTemplateFilesArgsForCall, struct {
+	}{})
+	fake.recordInvocation("EnsureTemplateFiles", []interface{}{})
+	fake.ensureTemplateFilesMutex.Unlock()
+	if fake.EnsureTemplateFilesStub != nil {
+		return fake.EnsureTemplateFilesStub()
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.ensureTemplateFilesReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *TKGConfigUpdaterClient) EnsureTemplateFilesCallCount() int {
@@ -817,40 +773,36 @@ func (fake *TKGConfigUpdaterClient) EnsureTemplateFilesCallCount() int {
 	return len(fake.ensureTemplateFilesArgsForCall)
 }
 
-func (fake *TKGConfigUpdaterClient) EnsureTemplateFilesCalls(stub func(bool) error) {
+func (fake *TKGConfigUpdaterClient) EnsureTemplateFilesCalls(stub func() (bool, error)) {
 	fake.ensureTemplateFilesMutex.Lock()
 	defer fake.ensureTemplateFilesMutex.Unlock()
 	fake.EnsureTemplateFilesStub = stub
 }
 
-func (fake *TKGConfigUpdaterClient) EnsureTemplateFilesArgsForCall(i int) bool {
-	fake.ensureTemplateFilesMutex.RLock()
-	defer fake.ensureTemplateFilesMutex.RUnlock()
-	argsForCall := fake.ensureTemplateFilesArgsForCall[i]
-	return argsForCall.arg1
-}
-
-func (fake *TKGConfigUpdaterClient) EnsureTemplateFilesReturns(result1 error) {
+func (fake *TKGConfigUpdaterClient) EnsureTemplateFilesReturns(result1 bool, result2 error) {
 	fake.ensureTemplateFilesMutex.Lock()
 	defer fake.ensureTemplateFilesMutex.Unlock()
 	fake.EnsureTemplateFilesStub = nil
 	fake.ensureTemplateFilesReturns = struct {
-		result1 error
-	}{result1}
+		result1 bool
+		result2 error
+	}{result1, result2}
 }
 
-func (fake *TKGConfigUpdaterClient) EnsureTemplateFilesReturnsOnCall(i int, result1 error) {
+func (fake *TKGConfigUpdaterClient) EnsureTemplateFilesReturnsOnCall(i int, result1 bool, result2 error) {
 	fake.ensureTemplateFilesMutex.Lock()
 	defer fake.ensureTemplateFilesMutex.Unlock()
 	fake.EnsureTemplateFilesStub = nil
 	if fake.ensureTemplateFilesReturnsOnCall == nil {
 		fake.ensureTemplateFilesReturnsOnCall = make(map[int]struct {
-			result1 error
+			result1 bool
+			result2 error
 		})
 	}
 	fake.ensureTemplateFilesReturnsOnCall[i] = struct {
-		result1 error
-	}{result1}
+		result1 bool
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *TKGConfigUpdaterClient) GetDefaultInfrastructureVersion(arg1 string) (string, error) {
@@ -916,128 +868,6 @@ func (fake *TKGConfigUpdaterClient) GetDefaultInfrastructureVersionReturnsOnCall
 	}{result1, result2}
 }
 
-func (fake *TKGConfigUpdaterClient) GetUpdateStatus() (bool, bool, bool, error) {
-	fake.getUpdateStatusMutex.Lock()
-	ret, specificReturn := fake.getUpdateStatusReturnsOnCall[len(fake.getUpdateStatusArgsForCall)]
-	fake.getUpdateStatusArgsForCall = append(fake.getUpdateStatusArgsForCall, struct {
-	}{})
-	fake.recordInvocation("GetUpdateStatus", []interface{}{})
-	fake.getUpdateStatusMutex.Unlock()
-	if fake.GetUpdateStatusStub != nil {
-		return fake.GetUpdateStatusStub()
-	}
-	if specificReturn {
-		return ret.result1, ret.result2, ret.result3, ret.result4
-	}
-	fakeReturns := fake.getUpdateStatusReturns
-	return fakeReturns.result1, fakeReturns.result2, fakeReturns.result3, fakeReturns.result4
-}
-
-func (fake *TKGConfigUpdaterClient) GetUpdateStatusCallCount() int {
-	fake.getUpdateStatusMutex.RLock()
-	defer fake.getUpdateStatusMutex.RUnlock()
-	return len(fake.getUpdateStatusArgsForCall)
-}
-
-func (fake *TKGConfigUpdaterClient) GetUpdateStatusCalls(stub func() (bool, bool, bool, error)) {
-	fake.getUpdateStatusMutex.Lock()
-	defer fake.getUpdateStatusMutex.Unlock()
-	fake.GetUpdateStatusStub = stub
-}
-
-func (fake *TKGConfigUpdaterClient) GetUpdateStatusReturns(result1 bool, result2 bool, result3 bool, result4 error) {
-	fake.getUpdateStatusMutex.Lock()
-	defer fake.getUpdateStatusMutex.Unlock()
-	fake.GetUpdateStatusStub = nil
-	fake.getUpdateStatusReturns = struct {
-		result1 bool
-		result2 bool
-		result3 bool
-		result4 error
-	}{result1, result2, result3, result4}
-}
-
-func (fake *TKGConfigUpdaterClient) GetUpdateStatusReturnsOnCall(i int, result1 bool, result2 bool, result3 bool, result4 error) {
-	fake.getUpdateStatusMutex.Lock()
-	defer fake.getUpdateStatusMutex.Unlock()
-	fake.GetUpdateStatusStub = nil
-	if fake.getUpdateStatusReturnsOnCall == nil {
-		fake.getUpdateStatusReturnsOnCall = make(map[int]struct {
-			result1 bool
-			result2 bool
-			result3 bool
-			result4 error
-		})
-	}
-	fake.getUpdateStatusReturnsOnCall[i] = struct {
-		result1 bool
-		result2 bool
-		result3 bool
-		result4 error
-	}{result1, result2, result3, result4}
-}
-
-func (fake *TKGConfigUpdaterClient) SaveTemplateFiles(arg1 string, arg2 bool) error {
-	fake.saveTemplateFilesMutex.Lock()
-	ret, specificReturn := fake.saveTemplateFilesReturnsOnCall[len(fake.saveTemplateFilesArgsForCall)]
-	fake.saveTemplateFilesArgsForCall = append(fake.saveTemplateFilesArgsForCall, struct {
-		arg1 string
-		arg2 bool
-	}{arg1, arg2})
-	fake.recordInvocation("SaveTemplateFiles", []interface{}{arg1, arg2})
-	fake.saveTemplateFilesMutex.Unlock()
-	if fake.SaveTemplateFilesStub != nil {
-		return fake.SaveTemplateFilesStub(arg1, arg2)
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	fakeReturns := fake.saveTemplateFilesReturns
-	return fakeReturns.result1
-}
-
-func (fake *TKGConfigUpdaterClient) SaveTemplateFilesCallCount() int {
-	fake.saveTemplateFilesMutex.RLock()
-	defer fake.saveTemplateFilesMutex.RUnlock()
-	return len(fake.saveTemplateFilesArgsForCall)
-}
-
-func (fake *TKGConfigUpdaterClient) SaveTemplateFilesCalls(stub func(string, bool) error) {
-	fake.saveTemplateFilesMutex.Lock()
-	defer fake.saveTemplateFilesMutex.Unlock()
-	fake.SaveTemplateFilesStub = stub
-}
-
-func (fake *TKGConfigUpdaterClient) SaveTemplateFilesArgsForCall(i int) (string, bool) {
-	fake.saveTemplateFilesMutex.RLock()
-	defer fake.saveTemplateFilesMutex.RUnlock()
-	argsForCall := fake.saveTemplateFilesArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
-}
-
-func (fake *TKGConfigUpdaterClient) SaveTemplateFilesReturns(result1 error) {
-	fake.saveTemplateFilesMutex.Lock()
-	defer fake.saveTemplateFilesMutex.Unlock()
-	fake.SaveTemplateFilesStub = nil
-	fake.saveTemplateFilesReturns = struct {
-		result1 error
-	}{result1}
-}
-
-func (fake *TKGConfigUpdaterClient) SaveTemplateFilesReturnsOnCall(i int, result1 error) {
-	fake.saveTemplateFilesMutex.Lock()
-	defer fake.saveTemplateFilesMutex.Unlock()
-	fake.SaveTemplateFilesStub = nil
-	if fake.saveTemplateFilesReturnsOnCall == nil {
-		fake.saveTemplateFilesReturnsOnCall = make(map[int]struct {
-			result1 error
-		})
-	}
-	fake.saveTemplateFilesReturnsOnCall[i] = struct {
-		result1 error
-	}{result1}
-}
-
 func (fake *TKGConfigUpdaterClient) SetDefaultConfiguration() {
 	fake.setDefaultConfigurationMutex.Lock()
 	fake.setDefaultConfigurationArgsForCall = append(fake.setDefaultConfigurationArgsForCall, struct {
@@ -1068,32 +898,28 @@ func (fake *TKGConfigUpdaterClient) Invocations() map[string][][]interface{} {
 	defer fake.checkBOMsNeedUpdateMutex.RUnlock()
 	fake.checkInfrastructureVersionMutex.RLock()
 	defer fake.checkInfrastructureVersionMutex.RUnlock()
-	fake.checkProvidersNeedUpdateMutex.RLock()
-	defer fake.checkProvidersNeedUpdateMutex.RUnlock()
-	fake.checkTkgConfigNeedUpdateMutex.RLock()
-	defer fake.checkTkgConfigNeedUpdateMutex.RUnlock()
+	fake.checkProviderTemplatesNeedUpdateMutex.RLock()
+	defer fake.checkProviderTemplatesNeedUpdateMutex.RUnlock()
 	fake.decodeCredentialsInViperMutex.RLock()
 	defer fake.decodeCredentialsInViperMutex.RUnlock()
 	fake.ensureBOMFilesMutex.RLock()
 	defer fake.ensureBOMFilesMutex.RUnlock()
 	fake.ensureConfigImagesMutex.RLock()
 	defer fake.ensureConfigImagesMutex.RUnlock()
-	fake.ensureConfigPrerequisiteMutex.RLock()
-	defer fake.ensureConfigPrerequisiteMutex.RUnlock()
 	fake.ensureCredEncodingMutex.RLock()
 	defer fake.ensureCredEncodingMutex.RUnlock()
 	fake.ensureImagesMutex.RLock()
 	defer fake.ensureImagesMutex.RUnlock()
-	fake.ensureProvidersMutex.RLock()
-	defer fake.ensureProvidersMutex.RUnlock()
+	fake.ensureProviderTemplatesMutex.RLock()
+	defer fake.ensureProviderTemplatesMutex.RUnlock()
+	fake.ensureProvidersInConfigMutex.RLock()
+	defer fake.ensureProvidersInConfigMutex.RUnlock()
+	fake.ensureTKGConfigFileMutex.RLock()
+	defer fake.ensureTKGConfigFileMutex.RUnlock()
 	fake.ensureTemplateFilesMutex.RLock()
 	defer fake.ensureTemplateFilesMutex.RUnlock()
 	fake.getDefaultInfrastructureVersionMutex.RLock()
 	defer fake.getDefaultInfrastructureVersionMutex.RUnlock()
-	fake.getUpdateStatusMutex.RLock()
-	defer fake.getUpdateStatusMutex.RUnlock()
-	fake.saveTemplateFilesMutex.RLock()
-	defer fake.saveTemplateFilesMutex.RUnlock()
 	fake.setDefaultConfigurationMutex.RLock()
 	defer fake.setDefaultConfigurationMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}

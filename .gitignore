@@ -18,6 +18,7 @@ pinniped/
 provider-bundle
 testdata
 providers.zip
+providers.tar
 
 # Build artifacts that may not be cleaned up properly
 pinniped

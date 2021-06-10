@@ -4,78 +4,53 @@
 package tkgconfigupdater
 
 import (
-	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/pkg/errors"
-
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigbom"
 )
 
-func (c *client) GetUpdateStatus() (providersNeedsUpdate, bomsNeedUpdate, tkgConfigNeedsUpdate bool, err error) {
-	providersNeedsUpdate, err = c.CheckProvidersNeedUpdate()
-	if err != nil {
-		return
-	}
+// CheckProviderTemplatesNeedUpdate checks if .tkg/providers/config.yaml is up-to-date.
+func (c *client) CheckProviderTemplatesNeedUpdate() (bool, error) {
 
-	bomsNeedUpdate, err = c.CheckBOMsNeedUpdate()
-	if err != nil {
-		return
-	}
-
-	tkgConfigNeedsUpdate = false
-	if !providersNeedsUpdate && os.Getenv(constants.SuppressUpdateEnvar) == "" {
-		tkgConfigNeedsUpdate, _, err = c.CheckTkgConfigNeedUpdate()
-		if err != nil {
-			return
-		}
-	}
-	return
-}
-
-// CheckProvidersNeedUpdate checks if .tkg/providers/config.yaml is up-to-date.
-func (c *client) CheckProvidersNeedUpdate() (bool, error) {
-	tkgDir, err := c.tkgConfigPathsClient.GetTKGDirectory()
-	if err != nil {
-		return false, err
-	}
-
-	providerDir := filepath.Join(tkgDir, constants.LocalProvidersFolderName)
-	if _, err := os.Stat(providerDir); os.IsNotExist(err) {
+	// Do not update provider templates if `SUPPRESS_PROVIDERS_UPDATE` env variable is set
+	if isSuppressProviderUpdateEnvSet() {
 		return false, nil
 	}
 
-	currentChecksumPath := filepath.Join(tkgDir, constants.LocalProvidersFolderName, constants.LocalProvidersChecksumFileName)
-	if _, err := os.Stat(currentChecksumPath); os.IsNotExist(err) {
+	// If local develeopment and providers are embeded then always update providers based
+	if c.isProviderTemplatesEmbeded() {
 		return true, nil
 	}
 
-	zipPath := filepath.Join(tkgDir, constants.LocalProvidersZipFileName)
-	err = c.saveTemplatesZipFile(zipPath)
+	providerDir, err := c.tkgConfigPathsClient.GetTKGProvidersDirectory()
 	if err != nil {
-		return false, errors.Wrap(err, "failed to check providers template update")
+		return true, err
 	}
 
-	defer func() {
-		if err := os.Remove(zipPath); err != nil {
-			log.Infof("Unable to remove temporary providers.zip file %s, Error: %s", zipPath, err.Error())
-		}
-	}()
+	// check the version info with BoM file's tag
+	// if it matches no need to update anything
+	// if not providers need to be updated
 
-	currentChecksumBytes, err := os.ReadFile(currentChecksumPath)
+	tkgBomConfig, err := c.tkgBomClient.GetDefaultTkgBOMConfiguration()
 	if err != nil {
-		return false, errors.Wrap(err, "cannot read the original providers config.yaml")
+		return true, errors.Wrap(err, "error reading TKG BoM configuration")
 	}
 
-	newChecksumBytes, err := getBundledProvidersChecksum(zipPath)
+	providerTemplateImage, err := getProviderTemplateImageFromBoM(tkgBomConfig)
 	if err != nil {
-		return false, errors.Wrap(err, "cannot read the bundled providersconfig.yaml")
+		return true, err
 	}
 
-	return !bytes.Equal(currentChecksumBytes, newChecksumBytes), nil
+	imageTag := providerTemplateImage.Tag
+	if _, err := os.Stat(filepath.Join(providerDir, imageTag)); os.IsNotExist(err) {
+		return true, nil
+	}
+
+	return false, nil
 }
 
 // CheckBOMsNeedUpdate checks if bom files are up-to-date.
@@ -121,4 +96,20 @@ func (c *client) CheckBOMsNeedUpdate() (bool, error) {
 		return false, errors.Wrap(err, "failed to check BOMs need update")
 	}
 	return false, nil
+}
+
+func getProviderTemplateImageFromBoM(tkgBomConfig *tkgconfigbom.BOMConfiguration) (*tkgconfigbom.ImageInfo, error) {
+	if _, exists := tkgBomConfig.Components["tanzu_core"]; !exists {
+		return nil, errors.New("unable to find tanzu_core component in TKG BoM file")
+	}
+
+	if _, exists := tkgBomConfig.Components["tanzu_core"][0].Images["providerTemplateImage"]; !exists {
+		return nil, errors.New("unable to find providerTemplateImage in TKG BoM file")
+	}
+
+	return tkgBomConfig.Components["tanzu_core"][0].Images["providerTemplateImage"], nil
+}
+
+func isSuppressProviderUpdateEnvSet() bool {
+	return os.Getenv(constants.SuppressProvidersUpdate) != ""
 }

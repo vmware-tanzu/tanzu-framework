@@ -39,9 +39,8 @@ func New(configDir string, providerGetter providerinterface.ProviderInterface,
 
 // Client implements TKG configuration updater functions
 type Client interface {
-	// EnsureConfigPrerequisite ensures configuration prerequisites like creating
-	// settings file, updating providers and bom configurations
-	EnsureConfigPrerequisite(needUpdate, tkgConfigNeedUpdate bool) error
+	// EnsureTKGConfigFile ensures creating settings file
+	EnsureTKGConfigFile() (string, error)
 	// EnsureConfigImages ensures that `images:`` config exists and is up-to-date in tkg settings file
 	// images:
 	//   all:
@@ -50,15 +49,7 @@ type Client interface {
 	//      repository: projects-stg.registry.vmware.com/tkg
 	//      tag: v0.16.1_vmware.1
 	EnsureConfigImages() error
-	// CheckProvidersNeedUpdate checks if .tkg/providers/config.yaml is up-to-date.
-	CheckProvidersNeedUpdate() (bool, error)
-	// CheckBOMsNeedUpdate checks if bom files are up-to-date.
-	// returns true if $HOME/.tkg/bom directory exists, not empty and doesn't contain the defaultBoM file
-	CheckBOMsNeedUpdate() (bool, error)
-	// CheckTkgConfigNeedUpdate checks if the providers section in tkg configuration file is synchronized with $HOME/.tkg/providers/config.yaml
-	CheckTkgConfigNeedUpdate() (bool, string, error)
 
-	GetUpdateStatus() (providersNeedsUpdate bool, bomsNeedUpdate bool, tkgConfigNeedsUpdate bool, err error)
 	// DecodeCredentialsInViper decode the credentials stored in viper
 	DecodeCredentialsInViper() error
 
@@ -66,20 +57,25 @@ type Client interface {
 
 	GetDefaultInfrastructureVersion(providerName string) (string, error)
 
-	// EnsureCredEncoding ensures the credentials encoding
-	EnsureCredEncoding(tkgConfigNode *yaml.Node)
-	// EnsureTemplateFiles ensures that $HOME/.tkg/proivders exists and it is up-to-date
-	EnsureTemplateFiles(needUpdate bool) error
-
-	SaveTemplateFiles(tkgDir string, needUpdate bool) error
-	// EnsureProviders ensures the providers section in tkgconfig exisits and it is synchronized with the latest providers
-	EnsureProviders(needUpdate bool, tkgConfigNode *yaml.Node) error
-
-	EnsureImages(needUpdate bool, tkgConfigNode *yaml.Node) error
-
 	EnsureBOMFiles() error
 
+	EnsureProviderTemplates() error
+
 	SetDefaultConfiguration()
+
+	// CheckProviderTemplatesNeedUpdate checks if .tkg/providers is up-to-date.
+	CheckProviderTemplatesNeedUpdate() (bool, error)
+	// CheckBOMsNeedUpdate checks if bom files are up-to-date.
+	// returns true if $HOME/.tkg/bom directory exists, not empty and doesn't contain the defaultBoM file
+	CheckBOMsNeedUpdate() (bool, error)
+
+	// EnsureCredEncoding ensures the credentials encoding
+	EnsureCredEncoding(tkgConfigNode *yaml.Node)
+	EnsureImages(needUpdate bool, tkgConfigNode *yaml.Node) error
+	// EnsureProvidersInConfig ensures the providers section in tkgconfig exisits and it is synchronized with the latest providers
+	EnsureProvidersInConfig(needUpdate bool, tkgConfigNode *yaml.Node) error
+	// EnsureTemplateFiles ensures that $HOME/.tkg/providers exists and it is up-to-date
+	EnsureTemplateFiles() (bool, error)
 }
 
 func (c *client) TKGConfigReaderWriter() tkgconfigreaderwriter.TKGConfigReaderWriter {
