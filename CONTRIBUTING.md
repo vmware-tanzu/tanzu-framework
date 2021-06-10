@@ -59,6 +59,19 @@ investigating it. We keep `in-progress` issues open until they have been
 resolved and released. Once released, a comment containing release information
 will be posted in the issue's thread.
 
+## Commit Messages
+
+- Commit messages should include a short (72 chars or less) title summarizing the change.
+- They should also include a body with more detailed explanatory text, wrapped to 72 characters.
+  - The blank line separating the summary from the body is critical (unless you omit the body entirely).
+- Commit messages should be written in the imperative: "Implement feature" and not "Implemented feature".
+- Bulleted points are fine.
+- Typically a hyphen or asterisk is used for the bullet, followed by a single space.
+
+## Building From Source
+
+To build the project from source, please consider the docs on [local development](docs/dev/build.md).
+
 ## DCO Sign off
 
 All authors to the project retain copyright to their work. However, to ensure
@@ -114,12 +127,3 @@ By making a contribution to this project, I certify that:
     maintained indefinitely and may be redistributed consistent with
     this project or the open source license(s) involved.
 ```
-
-## Commit Messages
-
-- Commit messages should include a short (72 chars or less) title summarizing the change.
-- They should also include a body with more detailed explanatory text, wrapped to 72 characters.
-  - The blank line separating the summary from the body is critical (unless you omit the body entirely).
-- Commit messages should be written in the imperative: "Implement feature" and not "Implemented feature".
-- Bulleted points are fine.
-- Typically a hyphen or asterisk is used for the bullet, followed by a single space.

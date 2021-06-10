@@ -7,7 +7,7 @@ APIs, code, and documentation to be shared.
 
 This model provides a few primary benefits.
 
-* Enables re-use of existing work in Tanzu editions. 
+* Enables re-use of existing work in Tanzu editions.
 * Improvements to the "core" benefits all editions.
 * Fosters cross-team collaboration.
 * Allows extensions to Tanzu to be built following the same patterns as core
@@ -24,13 +24,16 @@ documentation, and CLI plugins used by all Tanzu editions.
 
 [comment]: <> (TODO &#40;hyayi&#41;: Add link to Josh's Contents of The Tanzu Core Repository doc after its merged)
 
-
 ## Getting Started
 The best way to get started with the Tanzu CLI is to see it in action.
 
 Get bootstrapped with the CLI getting started [guide](docs/cli/getting-started.md).
 
-
 ## How to contribute
-Check out the [contribution guidelines](CONTRIBUTING.md) to learn more about 
-how to contribute.
+Check out the [contribution guidelines](CONTRIBUTING.md) to learn more about how to contribute.
+
+## Troubleshooting
+Reference our [troubleshooting](docs/dev/troubleshooting.md) tips if you find yourself in need of more debug options.
+
+## Roadmap
+Check out the Core projects [Roadmap](ROADMAP.md), and consider contributing!
