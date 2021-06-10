@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package constants defines constants used within the codebase.
 package constants
 
 const (
@@ -16,7 +17,7 @@ const (
 	AddonSecretNameLogKey = "addon-secret-name"
 
 	// AddonSecretNamespaceLogKey is the log key for "addon-secret-ns"
-	AddonSecretNamespaceLogKey = "addon-secret-ns"
+	AddonSecretNamespaceLogKey = "addon-secret-ns" // nolint:gosec
 
 	// AddonNameLogKey is the log key for "addon-name"
 	AddonNameLogKey = "addon-name"

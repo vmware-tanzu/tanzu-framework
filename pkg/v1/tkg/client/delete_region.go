@@ -379,6 +379,7 @@ func (c *TkgClient) getInitOptionsFromExistingCluster(regionalClusterClient clus
 
 func (c *TkgClient) displayHelpTextOnDeleteRegionFailure(cleanupClusterKubeconfigPath string,
 	isCleanupClusterCreated bool, cleanupClusterName string, clusterName string) {
+
 	log.Warningf("\n\nFailure while deleting management cluster. Here are some steps to investigate the cause:\n")
 	log.Warningf("\nDebug:")
 	log.Warningf("    kubectl get po,deploy,cluster,kubeadmcontrolplane,machine,machinedeployment -A --kubeconfig %s", cleanupClusterKubeconfigPath)

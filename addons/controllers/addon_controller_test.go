@@ -1,4 +1,4 @@
-// Copyright (c) 2020 VMware, Inc. All Rights Reserved.
+// Copyright 2020 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 package controllers
@@ -80,10 +80,7 @@ var _ = Describe("Addon Reconciler", func() {
 				}
 				svc := &v1.ServiceAccount{}
 				err := k8sClient.Get(ctx, key, svc)
-				if err != nil {
-					return false
-				}
-				return true
+				return err == nil
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 
 			Eventually(func() bool {

@@ -148,6 +148,7 @@ func (r *AddonReconciler) logOperationResult(log logr.Logger, resourceName strin
 	}
 }
 
+// nolint:dupl
 func (r *AddonReconciler) reconcileAddonDataValuesSecretDelete(
 	ctx context.Context,
 	log logr.Logger,
@@ -215,6 +216,7 @@ func (r *AddonReconciler) reconcileAddonDataValuesSecretNormal(
 	return nil
 }
 
+// nolint:dupl
 func (r *AddonReconciler) reconcileAddonAppDelete(
 	ctx context.Context,
 	log logr.Logger,
@@ -242,6 +244,7 @@ func (r *AddonReconciler) reconcileAddonAppDelete(
 	return nil
 }
 
+// nolint:funlen
 func (r *AddonReconciler) reconcileAddonAppNormal(
 	ctx context.Context,
 	log logr.Logger,
@@ -314,7 +317,6 @@ func (r *AddonReconciler) reconcileAddonAppNormal(
 			// if AddonTemplatesImage and AddonTemplatesImage are not present, use the older BOM format
 			templateImagePath = addonConfig.TemplatesImagePath
 			templateImageTag = addonConfig.TemplatesImageTag
-
 		} else {
 			templateImageComponentName := addonConfig.AddonTemplatesImage[0].ComponentRef
 			templateImageName := addonConfig.AddonTemplatesImage[0].ImageRefs[0]
@@ -403,18 +405,17 @@ func (r *AddonReconciler) reconcileAddonDelete(
 
 	addonName := util.GetAddonNameFromAddonSecret(addonSecret)
 
-	log = r.Log.WithValues(constants.AddonNameLogKey, addonName)
-
-	log.Info("Reconciling addon delete")
+	logWithContext := r.Log.WithValues(constants.AddonNameLogKey, addonName)
+	logWithContext.Info("Reconciling addon delete")
 
 	clusterClient := util.GetClientFromAddonSecret(addonSecret, r.Client, remoteClusterClient)
 
-	if err := r.reconcileAddonAppDelete(ctx, log, clusterClient, addonSecret); err != nil {
+	if err := r.reconcileAddonAppDelete(ctx, logWithContext, clusterClient, addonSecret); err != nil {
 		log.Error(err, "Error reconciling addon app delete")
 		return err
 	}
 
-	if err := r.reconcileAddonDataValuesSecretDelete(ctx, log, clusterClient, addonSecret); err != nil {
+	if err := r.reconcileAddonDataValuesSecretDelete(ctx, logWithContext, clusterClient, addonSecret); err != nil {
 		log.Error(err, "Error reconciling addon data values secret delete")
 		return err
 	}
@@ -434,9 +435,8 @@ func (r *AddonReconciler) reconcileAddonNormal(
 
 	addonName := util.GetAddonNameFromAddonSecret(addonSecret)
 
-	log = r.Log.WithValues(constants.AddonNameLogKey, addonName)
-
-	log.Info("Reconciling addon")
+	logWithContext := r.Log.WithValues(constants.AddonNameLogKey, addonName)
+	logWithContext.Info("Reconciling addon")
 
 	remoteApp := util.IsRemoteApp(addonSecret)
 	clusterClient := util.GetClientFromAddonSecret(addonSecret, r.Client, remoteClusterClient)
@@ -446,28 +446,28 @@ func (r *AddonReconciler) reconcileAddonNormal(
 	 * on management cluster.
 	 */
 	if !remoteApp {
-		if err := r.reconcileAddonNamespace(ctx, log, clusterClient); err != nil {
+		if err := r.reconcileAddonNamespace(ctx, logWithContext, clusterClient); err != nil {
 			log.Error(err, "Error reconciling addon namespace")
 			return err
 		}
 
-		if err := r.reconcileAddonServiceAccount(ctx, log, clusterClient); err != nil {
+		if err := r.reconcileAddonServiceAccount(ctx, logWithContext, clusterClient); err != nil {
 			log.Error(err, "Error reconciling addon service account")
 			return err
 		}
 
-		if err := r.reconcileAddonRole(ctx, log, clusterClient); err != nil {
+		if err := r.reconcileAddonRole(ctx, logWithContext, clusterClient); err != nil {
 			log.Error(err, "Error reconciling addon roles and role bindings")
 			return err
 		}
 	}
 
-	if err := r.reconcileAddonDataValuesSecretNormal(ctx, log, clusterClient, addonSecret, addonConfig, imageRepository, bom); err != nil {
+	if err := r.reconcileAddonDataValuesSecretNormal(ctx, logWithContext, clusterClient, addonSecret, addonConfig, imageRepository, bom); err != nil {
 		log.Error(err, "Error reconciling addon data values secret")
 		return err
 	}
 
-	if err := r.reconcileAddonAppNormal(ctx, log, remoteApp, remoteCluster, clusterClient, addonSecret, addonConfig, imageRepository, bom); err != nil {
+	if err := r.reconcileAddonAppNormal(ctx, logWithContext, remoteApp, remoteCluster, clusterClient, addonSecret, addonConfig, imageRepository, bom); err != nil {
 		log.Error(err, "Error reconciling addon app")
 		return err
 	}

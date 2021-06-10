@@ -22,7 +22,7 @@ func GetBOMByTKRName(ctx context.Context, c client.Client, tkrName string) (*bom
 		return nil, err
 	}
 
-	if len(configMapList.Items) <= 0 {
+	if len(configMapList.Items) == 0 {
 		return nil, nil
 	}
 

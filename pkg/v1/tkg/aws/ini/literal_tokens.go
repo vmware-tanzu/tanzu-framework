@@ -169,7 +169,7 @@ func newValue(t ValueType, base int, raw []rune) (Value, error) {
 	case DecimalType:
 		v.decimal, err = strconv.ParseFloat(string(raw), 64)
 	case IntegerType:
-		if base != 10 { // nolint:gomnd
+		if base != 10 {
 			raw = raw[2:]
 		}
 

@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package dex implements Dex handling functionality.
 package dex
 
 import (
@@ -34,7 +35,7 @@ type Info struct {
 }
 
 // CreateOrUpdateDexConfigMap creates a new ConfigMap for Dex, or updates an existing one.
-func (c Configurator) CreateOrUpdateDexConfigMap(ctx context.Context, dexInfo Info) error {
+func (c Configurator) CreateOrUpdateDexConfigMap(ctx context.Context, dexInfo *Info) error {
 	var err error
 	zap.S().Info("Creating the ConfigMap of Dex")
 

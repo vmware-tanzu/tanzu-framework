@@ -642,6 +642,7 @@ func (c *TkgClient) waitForProvider(clusterClient clusterclient.Client, name, pr
 
 func (c *TkgClient) displayHelpTextOnFailure(options *InitRegionOptions,
 	isBootstrapClusterCreated bool, bootstrapClusterKubeconfigPath string) {
+
 	log.Warningf("\n\nFailure while deploying management cluster, Here are some steps to investigate the cause:\n")
 	log.Warningf("\nDebug:")
 	log.Warningf("    kubectl get po,deploy,cluster,kubeadmcontrolplane,machine,machinedeployment -A --kubeconfig %s", bootstrapClusterKubeconfigPath)

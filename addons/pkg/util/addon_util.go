@@ -78,7 +78,7 @@ func GenerateAppNamespaceFromAddonSecret(addonSecret *corev1.Secret) string {
 }
 
 // GetClientFromAddonSecret gets appropriate cluster client given addon secret
-func GetClientFromAddonSecret(addonSecret *corev1.Secret, localClient client.Client, remoteClient client.Client) client.Client {
+func GetClientFromAddonSecret(addonSecret *corev1.Secret, localClient, remoteClient client.Client) client.Client {
 	var clusterClient client.Client
 	remoteApp := IsRemoteApp(addonSecret)
 	if remoteApp {

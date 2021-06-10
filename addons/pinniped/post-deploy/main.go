@@ -96,7 +96,7 @@ func main() {
 
 	loggerMgr := initZapLog()
 	zap.ReplaceGlobals(loggerMgr)
-	defer loggerMgr.Sync() // nolint
+	defer loggerMgr.Sync() //nolint:errcheck
 	logger := loggerMgr.Sugar()
 
 	err := configure.TKGAuthentication(
@@ -108,7 +108,7 @@ func main() {
 	)
 	if err != nil {
 		logger.Error(err)
-		os.Exit(1)
+		os.Exit(1) // nolint:gocritic
 	}
 }
 

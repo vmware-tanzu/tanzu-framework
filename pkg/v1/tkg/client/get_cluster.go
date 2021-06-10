@@ -68,6 +68,7 @@ func (c *TkgClient) ListTKGClusters(options ListTKGClustersOptions) ([]ClusterIn
 // GetClusterObjects gets cluster objects
 func (c *TkgClient) GetClusterObjects(clusterClient clusterclient.Client, listOptions *crtclient.ListOptions,
 	managementClusterName string, includeMC bool) ([]ClusterInfo, error) {
+
 	clusterInfoMap, err := getClusterObjectsMap(clusterClient, listOptions)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to retrieve combined cluster info")

@@ -17,7 +17,7 @@ ifeq ($(GOHOSTOS),windows)
 endif
 
 # Directories
-TOOLS_DIR := hack/tools
+TOOLS_DIR := $(abspath hack/tools)
 TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
 BIN_DIR := bin
 ROOT_DIR := $(shell git rev-parse --show-toplevel)
@@ -318,7 +318,11 @@ vet: ## Run go vet
 	$(GO) vet ./...
 
 lint: tools doc-lint ## Run linting checks
+	# Linter runs per module, add each one here and make sure they match
+	# in .github/workflows/main.yaml for CI coverage
 	$(GOLANGCI_LINT) run -v
+	cd $(ADDONS_DIR); $(GOLANGCI_LINT) run -v
+	cd $(ADDONS_DIR)/pinniped/post-deploy/; $(GOLANGCI_LINT) run -v
 
 doc-lint: tools ## Run linting checks for docs
 	$(VALE) --config=.vale/config.ini --glob='*.md' ./

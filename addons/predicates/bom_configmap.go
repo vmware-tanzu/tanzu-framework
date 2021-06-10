@@ -42,10 +42,7 @@ func processBomConfigMap(o client.Object, log logr.Logger) bool {
 // isABom returns true if configmap holds a BOM
 func isABom(configMap *corev1.ConfigMap) bool {
 	tkrName := util.GetTKRNameFromBOMConfigMap(configMap)
-	if tkrName != "" {
-		return true
-	}
-	return false
+	return tkrName != ""
 }
 
 // BomConfigMap returns a predicate.Predicate that filters configmap

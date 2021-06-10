@@ -12,7 +12,7 @@ func isNewline(b []rune) bool {
 		return true
 	}
 
-	if len(b) < 2 { // nolint:gomnd
+	if len(b) < 2 {
 		return false
 	}
 

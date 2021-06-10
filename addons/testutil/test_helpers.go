@@ -1,3 +1,7 @@
+// Copyright 2020 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+// Package testutil implements helper utilities used in tests.
 package testutil
 
 import (
@@ -57,18 +61,30 @@ func CreateResources(f *os.File, cfg *rest.Config, dynamicClient dynamic.Interfa
 	return nil
 }
 
-// DeleteResources using unstructured objects from a yaml/json file provided by decoder
-func DeleteResources(f *os.File, cfg *rest.Config, dynamicClient dynamic.Interface, waitForDeletion bool) error {
-	var err error
+// parseObjects gets a decoder and mapper for reading unstructured objects from a yaml/json file.
+func parseObjects(f *os.File, cfg *rest.Config) (*yamlutil.YAMLOrJSONDecoder, meta.RESTMapper, error) {
 	data, err := os.ReadFile(f.Name())
 	if err != nil {
-		return err
+		return nil, nil, err
 	}
-	decoder := yamlutil.NewYAMLOrJSONDecoder(bytes.NewReader(data), 100)
+
+	dataReader := bytes.NewReader(data)
+	decoder := yamlutil.NewYAMLOrJSONDecoder(dataReader, 100)
 	mapper, err := apiutil.NewDiscoveryRESTMapper(cfg)
+
+	return decoder, mapper, err
+}
+
+// DeleteResources using unstructured objects from a yaml/json file provided by decoder.
+func DeleteResources(f *os.File, cfg *rest.Config, dynamicClient dynamic.Interface, waitForDeletion bool) error {
+	deletionPropagation := metav1.DeletePropagationForeground
+	gracePeriodSeconds := int64(0)
+
+	decoder, mapper, err := parseObjects(f, cfg)
 	if err != nil {
 		return err
 	}
+
 	for {
 		resource, unstructuredObj, err := getResource(decoder, mapper, dynamicClient)
 		if err != nil {
@@ -78,26 +94,21 @@ func DeleteResources(f *os.File, cfg *rest.Config, dynamicClient dynamic.Interfa
 				return err
 			}
 		}
-		deletionPropagation := metav1.DeletePropagationForeground
-		gracePeriodSeconds := int64(0)
+
 		if err := resource.Delete(context.Background(), unstructuredObj.GetName(),
 			metav1.DeleteOptions{GracePeriodSeconds: &gracePeriodSeconds,
 				PropagationPolicy: &deletionPropagation}); err != nil {
 			return err
 		}
-
 	}
+
 	if waitForDeletion {
 		// verify deleted
-		data, err = os.ReadFile(f.Name())
+		decoder, mapper, err := parseObjects(f, cfg)
 		if err != nil {
 			return err
 		}
-		decoder := yamlutil.NewYAMLOrJSONDecoder(bytes.NewReader(data), 100)
-		mapper, err = apiutil.NewDiscoveryRESTMapper(cfg)
-		if err != nil {
-			return err
-		}
+
 		for {
 			resource, unstructuredObj, err := getResource(decoder, mapper, dynamicClient)
 			if err != nil {
@@ -107,6 +118,7 @@ func DeleteResources(f *os.File, cfg *rest.Config, dynamicClient dynamic.Interfa
 					return err
 				}
 			}
+
 			fmt.Fprintln(ginkgo.GinkgoWriter, "wait for deletion", unstructuredObj.GetName())
 			if err := wait.Poll(time.Second*5, time.Second*10, func() (done bool, err error) {
 				obj, err := resource.Get(context.Background(), unstructuredObj.GetName(), metav1.GetOptions{})
@@ -124,7 +136,6 @@ func DeleteResources(f *os.File, cfg *rest.Config, dynamicClient dynamic.Interfa
 					return true, nil
 				}
 				return false, err
-
 			}); err != nil {
 				return err
 			}
@@ -134,8 +145,8 @@ func DeleteResources(f *os.File, cfg *rest.Config, dynamicClient dynamic.Interfa
 	return nil
 }
 
-//CreateKubeconfigSecret create a secret with kubeconfig token for the cluster provided by client
-func CreateKubeconfigSecret(cfg *rest.Config, clusterName string, namespace string, client client.Client) error {
+// CreateKubeconfigSecret create a secret with kubeconfig token for the cluster provided by client
+func CreateKubeconfigSecret(cfg *rest.Config, clusterName, namespace string, crClient client.Client) error {
 	clusters := make(map[string]*clientcmdapi.Cluster)
 	clusters[clusterName] = &clientcmdapi.Cluster{
 		Server:                   cfg.Host,
@@ -177,11 +188,11 @@ func CreateKubeconfigSecret(cfg *rest.Config, clusterName string, namespace stri
 		Type: clusterapiv1alpha3.ClusterSecretType,
 	}
 
-	return client.Create(context.Background(), kc)
+	return crClient.Create(context.Background(), kc)
 }
 
 func getResource(decoder *yamlutil.YAMLOrJSONDecoder, mapper meta.RESTMapper, dynamicClient dynamic.Interface) (
-	dynamic.ResourceInterface, *unstructured.Unstructured, error) {
+	dynamic.ResourceInterface, *unstructured.Unstructured, error) { // nolint:whitespace
 	var rawObj runtime.RawExtension
 	if err := decoder.Decode(&rawObj); err != nil {
 		return nil, nil, err

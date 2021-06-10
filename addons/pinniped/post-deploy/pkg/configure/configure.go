@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package configure implements configuration functionality.
 package configure
 
 import (
@@ -58,8 +59,41 @@ type Parameters struct {
 	DexConfigMapName        string
 }
 
+func ensureDeploymentReady(ctx context.Context, c Clients, namespace, deploymentTypeName string) error {
+	backOff := wait.Backoff{
+		Steps:    3,
+		Duration: 15 * time.Second,
+		Factor:   1.0,
+		Jitter:   0.1,
+	}
+
+	return retry.OnError(
+		backOff,
+		func(err error) bool {
+			return err != nil
+		},
+		func() error {
+			var listErr error
+			deployments, listErr := c.K8SClientset.AppsV1().Deployments(namespace).List(ctx, metav1.ListOptions{})
+			if listErr != nil {
+				return listErr
+			}
+			if len(deployments.Items) == 0 {
+				return errors.NewServiceUnavailable(fmt.Sprintf("no %s deployments found", deploymentTypeName))
+			}
+			for i := range deployments.Items {
+				deployment := deployments.Items[i]
+				ready := deployment.Status.ReadyReplicas
+				desired := *deployment.Spec.Replicas
+				if int(ready) != int(desired) {
+					return errors.NewServiceUnavailable(fmt.Sprintf("the %s deployment does not have enough ready replicas. %v/%v are ready", deploymentTypeName, ready, desired))
+				}
+			}
+			return nil
+		})
+}
+
 func ensureResources(ctx context.Context, c Clients, isMgmtCluster bool) (bool, error) {
-	var err error
 	zap.S().Info("Readiness check for required resources")
 
 	backOff := wait.Backoff{
@@ -70,29 +104,7 @@ func ensureResources(ctx context.Context, c Clients, isMgmtCluster bool) (bool, 
 	}
 
 	// ensure concierge is ready
-	err = retry.OnError(
-		backOff,
-		func(err error) bool {
-			return err != nil
-		},
-		func() error {
-			var listErr error
-			conciergeDeployments, listErr := c.K8SClientset.AppsV1().Deployments(vars.ConciergeNamespace).List(ctx, metav1.ListOptions{})
-			if listErr != nil {
-				return listErr
-			}
-			if len(conciergeDeployments.Items) == 0 {
-				return errors.NewServiceUnavailable("no concierge deployments found")
-			}
-			for _, conciergeDeployment := range conciergeDeployments.Items {
-				ready := conciergeDeployment.Status.ReadyReplicas
-				desired := *conciergeDeployment.Spec.Replicas
-				if int(ready) != int(desired) {
-					return errors.NewServiceUnavailable(fmt.Sprintf("the concierge deployment does not have enough ready replicas. %v/%v are ready", ready, desired))
-				}
-			}
-			return nil
-		})
+	err := ensureDeploymentReady(ctx, c, vars.ConciergeNamespace, "concierge")
 	if err != nil {
 		zap.S().Errorf("the Pinniped concierge deployment is not ready, error: %v", err)
 		return false, err
@@ -104,29 +116,7 @@ func ensureResources(ctx context.Context, c Clients, isMgmtCluster bool) (bool, 
 	}
 
 	// ensure supervisor is ready
-	err = retry.OnError(
-		backOff,
-		func(e error) bool {
-			return e != nil
-		},
-		func() error {
-			var listErr error
-			supervisorDeployments, listErr := c.K8SClientset.AppsV1().Deployments(vars.SupervisorNamespace).List(ctx, metav1.ListOptions{})
-			if listErr != nil {
-				return listErr
-			}
-			if len(supervisorDeployments.Items) == 0 {
-				return errors.NewServiceUnavailable("no supervisor deployments found")
-			}
-			for _, supervisorDeployment := range supervisorDeployments.Items {
-				ready := supervisorDeployment.Status.ReadyReplicas
-				desired := *supervisorDeployment.Spec.Replicas
-				if int(ready) != int(desired) {
-					return errors.NewServiceUnavailable(fmt.Sprintf("supervisor deployment does not have enough ready replicas. %v/%v are ready", ready, desired))
-				}
-			}
-			return nil
-		})
+	err = ensureDeploymentReady(ctx, c, vars.SupervisorNamespace, "supervisor")
 	if err != nil {
 		zap.S().Errorf("the Pinniped supervisor deployment is not ready, error: %v", err)
 		return false, err
@@ -137,7 +127,7 @@ func ensureResources(ctx context.Context, c Clients, isMgmtCluster bool) (bool, 
 	err = retry.OnError(
 		backOff,
 		// retry just in case the resource is not yet ready
-		func(e error) bool { return errors.IsNotFound(e) },
+		errors.IsNotFound,
 		func() error {
 			var e error
 			_, e = c.SupervisorClientset.IDPV1alpha1().OIDCIdentityProviders(vars.SupervisorNamespace).Get(ctx, vars.PinnipedOIDCProviderName, metav1.GetOptions{})
@@ -197,7 +187,7 @@ func TKGAuthentication(c Clients) error {
 		return err
 	}
 
-	if err = Pinniped(ctx, c, inspector, Parameters{
+	if err := Pinniped(ctx, c, inspector, &Parameters{
 		ClusterName:             tkgMetadata.Cluster.Name,
 		ClusterType:             tkgMetadata.Cluster.Type,
 		SupervisorSvcName:       vars.SupervisorSvcName,
@@ -219,7 +209,7 @@ func TKGAuthentication(c Clients) error {
 	zap.S().Info("Successfully configured the Pinniped")
 
 	if vars.IsDexRequired {
-		if err = Dex(ctx, c, inspector, Parameters{
+		if err := Dex(ctx, c, inspector, &Parameters{
 			ClusterName:             tkgMetadata.Cluster.Name,
 			ClusterType:             tkgMetadata.Cluster.Type,
 			SupervisorSvcName:       vars.SupervisorSvcName,
@@ -242,8 +232,36 @@ func TKGAuthentication(c Clients) error {
 	return nil
 }
 
+// configureTLSSecret will configure and return the secret used for TLS.
+func configureTLSSecret(ctx context.Context, c Clients, certNamespace, certName, endpoint string) (*corev1.Secret, error) {
+	var secret *corev1.Secret
+	var err error
+	// If users specifies a custom TLS secret, use it directly
+	if vars.CustomTLSSecretName != "" {
+		zap.S().Infof("Override certificate with user provided secret %s", vars.CustomTLSSecretName)
+		if secret, err = c.K8SClientset.CoreV1().Secrets(certNamespace).Get(ctx, vars.CustomTLSSecretName, metav1.GetOptions{}); err != nil {
+			zap.S().Error(err)
+			return secret, err
+		}
+	} else {
+		// Update Pinniped supervisor certificate
+		var updatedCert *certmanagerv1beta1.Certificate
+		if updatedCert, err = updateCertSubjectAltNames(ctx, c, certNamespace, certName, endpoint); err != nil {
+			// log has been done inside of UpdateCert()
+			return secret, err
+		}
+
+		if secret, err = utils.GetSecretFromCert(ctx, c.K8SClientset, updatedCert); err != nil {
+			zap.S().Error(err)
+			return secret, err
+		}
+	}
+
+	return secret, nil
+}
+
 // Pinniped initializes Pinniped
-func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p Parameters) error {
+func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p *Parameters) error {
 	var err error
 
 	zap.S().Info("Configure Pinniped...")
@@ -256,11 +274,9 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p Par
 			// If the endpoint is passed in, then use it for management cluster otherwise construct the correct one
 			// TODO: file a JIRA to track the issue being discussed under https://vmware.slack.com/archives/G01HFK90QE8/p1610051838070300?thread_ts=1610051580.069400&cid=G01HFK90QE8
 			supervisorSvcEndpoint = utils.RemoveDefaultTLSPort(p.SupervisorSvcEndpoint)
-		} else {
-			if supervisorSvcEndpoint, err = inspector.GetServiceEndpoint(p.SupervisorSvcNamespace, p.SupervisorSvcName); err != nil {
-				zap.S().Error(err)
-				return err
-			}
+		} else if supervisorSvcEndpoint, err = inspector.GetServiceEndpoint(p.SupervisorSvcNamespace, p.SupervisorSvcName); err != nil {
+			zap.S().Error(err)
+			return err
 		}
 		supervisorConfigurator := supervisor.Configurator{Clientset: c.SupervisorClientset, K8SClientset: c.K8SClientset, CertmanagerClientset: c.CertmanagerClientset}
 		if err = supervisorConfigurator.CreateOrUpdateFederationDomain(ctx, vars.SupervisorNamespace, p.FederationDomainName, supervisorSvcEndpoint); err != nil {
@@ -268,25 +284,9 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p Par
 			return err
 		}
 
-		var secret *corev1.Secret
-		// If users specifies a custom TLS secret, use it directly
-		if vars.CustomTLSSecretName != "" {
-			zap.S().Infof("Override certificate with user provided secret %s", vars.CustomTLSSecretName)
-			if secret, err = c.K8SClientset.CoreV1().Secrets(p.SupervisorCertNamespace).Get(ctx, vars.CustomTLSSecretName, metav1.GetOptions{}); err != nil {
-				zap.S().Error(err)
-				return err
-			}
-		} else {
-			// Update Pinniped supervisor certificate
-			var updatedCert *certmanagerv1beta1.Certificate
-			if updatedCert, err = updateCertSubjectAltNames(ctx, c, p.SupervisorCertNamespace, p.SupervisorCertName, supervisorSvcEndpoint); err != nil {
-				// log has been done inside of UpdateCert()
-				return err
-			}
-			if secret, err = utils.GetSecretFromCert(ctx, c.K8SClientset, updatedCert); err != nil {
-				zap.S().Error(err)
-				return err
-			}
+		secret, err := configureTLSSecret(ctx, c, p.SupervisorCertNamespace, p.SupervisorCertName, supervisorSvcEndpoint)
+		if err != nil {
+			return err
 		}
 
 		// create Pinniped concierge JWTAuthenticator
@@ -298,20 +298,18 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p Par
 		}
 
 		// create configmap for Pinniped info
-		if err = supervisorConfigurator.CreateOrUpdatePinnipedInfo(ctx, supervisor.PinnipedInfo{
+		if err := supervisorConfigurator.CreateOrUpdatePinnipedInfo(ctx, supervisor.PinnipedInfo{
 			MgmtClusterName:    p.ClusterName,
 			Issuer:             supervisorSvcEndpoint,
 			IssuerCABundleData: caData,
 		}); err != nil {
 			return err
 		}
-	} else {
+	} else if err = conciergeConfigurator.CreateOrUpdateJWTAuthenticator(ctx, vars.ConciergeNamespace, p.JWTAuthenticatorName, p.SupervisorSvcEndpoint, p.ClusterName, p.SupervisorCABundleData); err != nil {
 		// on workload cluster, we only create or update JWTAuthenticator
 		// SupervisorSvcEndpoint will be passed in on workload cluster
-		if err = conciergeConfigurator.CreateOrUpdateJWTAuthenticator(ctx, vars.ConciergeNamespace, p.JWTAuthenticatorName, p.SupervisorSvcEndpoint, p.ClusterName, p.SupervisorCABundleData); err != nil {
-			zap.S().Error(err)
-			return err
-		}
+		zap.S().Error(err)
+		return err
 	}
 
 	zap.S().Infof("Restarting Pinniped supervisor pods to reload the configmap that contains custom TLS secret names...")
@@ -325,7 +323,9 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p Par
 		zap.S().Error(err)
 		return err
 	}
-	for _, pod := range podList.Items {
+
+	for i := range podList.Items {
+		pod := &podList.Items[i]
 		if strings.Contains(pod.Name, "pinniped-supervisor") {
 			zap.S().Infof("Restarting Pinniped supervisor pod %s", pod.Name)
 			if err = c.K8SClientset.CoreV1().Pods(p.SupervisorSvcNamespace).Delete(ctx, pod.Name, metav1.DeleteOptions{}); err != nil {
@@ -339,7 +339,7 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p Par
 }
 
 // Dex initializes Dex.
-func Dex(ctx context.Context, c Clients, inspector inspect.Inspector, p Parameters) error {
+func Dex(ctx context.Context, c Clients, inspector inspect.Inspector, p *Parameters) error {
 	var err error
 
 	// Only deploy Dex on management cluster
@@ -351,11 +351,9 @@ func Dex(ctx context.Context, c Clients, inspector inspect.Inspector, p Paramete
 		if p.SupervisorSvcEndpoint != "" {
 			// If the endpoint is passed in, then use it for management cluster otherwise construct the correct one
 			supervisorSvcEndpoint = p.SupervisorSvcEndpoint
-		} else {
-			if supervisorSvcEndpoint, err = inspector.GetServiceEndpoint(p.SupervisorSvcNamespace, p.SupervisorSvcName); err != nil {
-				zap.S().Error(err)
-				return err
-			}
+		} else if supervisorSvcEndpoint, err = inspector.GetServiceEndpoint(p.SupervisorSvcNamespace, p.SupervisorSvcName); err != nil {
+			zap.S().Error(err)
+			return err
 		}
 
 		var dexSvcEndpoint string
@@ -364,26 +362,9 @@ func Dex(ctx context.Context, c Clients, inspector inspect.Inspector, p Paramete
 			return err
 		}
 
-		var secret *corev1.Secret
-		// If users specifies a custom TLS secret, use it directly
-		if vars.CustomTLSSecretName != "" {
-			zap.S().Infof("Override certificate with user provided secret %s", vars.CustomTLSSecretName)
-			if secret, err = c.K8SClientset.CoreV1().Secrets(p.DexNamespace).Get(ctx, vars.CustomTLSSecretName, metav1.GetOptions{}); err != nil {
-				zap.S().Error(err)
-				return err
-			}
-		} else {
-			// update certificate
-			var updatedCert *certmanagerv1beta1.Certificate
-			if updatedCert, err = updateCertSubjectAltNames(ctx, c, p.DexNamespace, p.DexCertName, dexSvcEndpoint); err != nil {
-				// log has been done inside of UpdateCert()
-				return err
-			}
-
-			if secret, err = utils.GetSecretFromCert(ctx, c.K8SClientset, updatedCert); err != nil {
-				zap.S().Error(err)
-				return err
-			}
+		secret, err := configureTLSSecret(ctx, c, p.DexNamespace, p.DexCertName, dexSvcEndpoint)
+		if err != nil {
+			return err
 		}
 
 		// recreate the OIDCIdentityProvider
@@ -401,7 +382,7 @@ func Dex(ctx context.Context, c Clients, inspector inspect.Inspector, p Paramete
 			return err
 		}
 		dexConfigurator := dex.Configurator{CertmanagerClientset: c.CertmanagerClientset, K8SClientset: c.K8SClientset}
-		if err = dexConfigurator.CreateOrUpdateDexConfigMap(ctx, dex.Info{
+		if err := dexConfigurator.CreateOrUpdateDexConfigMap(ctx, &dex.Info{
 			DexSvcEndpoint:        dexSvcEndpoint,
 			SupervisorSvcEndpoint: supervisorSvcEndpoint,
 			DexNamespace:          p.DexNamespace,
@@ -432,7 +413,8 @@ func Dex(ctx context.Context, c Clients, inspector inspect.Inspector, p Paramete
 			zap.S().Error(err)
 			return err
 		}
-		for _, pod := range podList.Items {
+		for i := range podList.Items {
+			pod := &podList.Items[i]
 			if err = c.K8SClientset.CoreV1().Pods(p.DexNamespace).Delete(ctx, pod.Name, metav1.DeleteOptions{}); err != nil {
 				zap.S().Error(err)
 				return err

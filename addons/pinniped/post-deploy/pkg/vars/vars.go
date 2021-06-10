@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package vars contains variables used throughout the codebase.
 package vars
 
 var (
@@ -29,7 +30,7 @@ var (
 	PinnipedOIDCProviderName = "upstream-oidc-identity-provider"
 
 	// PinnipedOIDCClientSecretName is the Dex client credentials.
-	PinnipedOIDCClientSecretName = "upstream-idp-client-credentials"
+	PinnipedOIDCClientSecretName = "upstream-idp-client-credentials" //nolint:gosec
 
 	// SupervisorSvcEndpoint is the supervisor service endpoint.
 	SupervisorSvcEndpoint = ""

@@ -88,7 +88,7 @@ func (c *TkgClient) ScaleCluster(options ScaleClusterOptions) error { // nolint:
 			if err != nil {
 				return err
 			}
-			workerCounts, err := c.DistributeMachineDeploymentWorkers(int64(options.WorkerCount), len(workerNodeMachineDeployments) == 3, false, infraProviderName) // nolint:gomnd
+			workerCounts, err := c.DistributeMachineDeploymentWorkers(int64(options.WorkerCount), len(workerNodeMachineDeployments) == 3, false, infraProviderName)
 			if err != nil {
 				return errors.Wrap(err, "failed to distribute cluster nodes to machine deployments.")
 			}

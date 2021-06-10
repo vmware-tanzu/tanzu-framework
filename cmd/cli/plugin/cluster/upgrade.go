@@ -159,6 +159,7 @@ func getValidTkrVersionFromTkrForUpgrade(tkgctlClient tkgctl.TKGClient, clusterC
 
 func getValidTKRVersionForUpgradeGivenFullTKRName(clusterName, namespace string, clusterLabels map[string]string,
 	tkrForUpgrade *runv1alpha1.TanzuKubernetesRelease, tkrs []runv1alpha1.TanzuKubernetesRelease) (string, error) {
+
 	var userWarningMsg string
 
 	if !isTkrActive(tkrForUpgrade) {
@@ -207,6 +208,7 @@ func getValidTKRVersionForUpgradeGivenFullTKRName(clusterName, namespace string,
 
 func getValidTKRVersionForUpgradeGivenTKRNamePrefix(clusterName string, tkrNamePrefix, clusterK8sVersion string,
 	clusterLabels map[string]string, tkrs []runv1alpha1.TanzuKubernetesRelease) (string, error) {
+
 	var err error
 	var upgradeEligibleTKRs []runv1alpha1.TanzuKubernetesRelease
 
@@ -265,6 +267,7 @@ func getUpgradableTKRsCompatibleWithClusterK8sVersion(clusterk8sVersion string, 
 }
 func getUpgradableTKRsCompatibleWithClusterTKR(clusterName, clusterTKRName string,
 	tkrs []runv1alpha1.TanzuKubernetesRelease) ([]runv1alpha1.TanzuKubernetesRelease, error) {
+
 	tkr, err := getMatchingTkrForTkrName(tkrs, clusterTKRName)
 	if err != nil {
 		return nil, err
@@ -312,7 +315,7 @@ func getAvailableUpgrades(clusterName string, tkr *runv1alpha1.TanzuKubernetesRe
 	if strings.Contains(upgradeMsg, "TKR(s)") {
 		// Example for TKGm :upgradeMsg - "Deprecated, TKR(s) with later version is available: <tkr-name-1>,<tkr-name-2>"
 		strs := strings.Split(upgradeMsg, ": ")
-		if len(strs) != 2 { //nolint
+		if len(strs) != 2 {
 			return []string{}, errors.Errorf("no available upgrades for cluster %q, namespace %q", clusterName, uc.namespace)
 		}
 		availableUpgradeList = strings.Split(strs[1], ",")
