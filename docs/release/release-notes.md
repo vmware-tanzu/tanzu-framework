@@ -58,8 +58,7 @@ Some examples of release notes:
 ## Applying a Release Note
 Any pull request with user visible changes, should 
 * include a release-note block in the pull request description.
-* add an appropriate kind label to the pull request(ex: kind/bug, 
-  kind/api-change,kind/documentation, etc.)
+* add an appropriate [kind label](kind-labels.md) to the pull request.
 
 For pull requests with a release note:
 
@@ -83,4 +82,3 @@ apply:
 * The release note is grammatically incorrect.
 * The release does not comply with the guidelines on the contents of the 
   release note.
-
