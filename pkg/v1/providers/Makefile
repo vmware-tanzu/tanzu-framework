@@ -64,8 +64,17 @@ clean-providers: ## cleans provider-bundle
 	@rm -rf provider-bundle || true
 	@mkdir -p provider-bundle/${PROVIDER_DIR_NAME}
 
-.PHONY: generate-provider-bundle
-generate-provider-bundle: clean-providers ## generates provider zip bundle
+.PHONY: generate-provider-bundle-zip-local
+generate-provider-bundle-zip-local: clean-providers ## generates provider zip bundle
+	# using temporary directory to extract all files which needs to bundle,
+	# updating the file modification time, file permissions and sorting files to get
+	# consistent zip file across all platform as this zip bytes are used to generate
+	# zz_generated.bindata.go file
+	find . -type f | grep -v ${FILES_TO_IGNORE} | xargs tar cf - -T - | tar -C provider-bundle/${PROVIDER_DIR_NAME} -xv
+	cd provider-bundle/${PROVIDER_DIR_NAME} && for i in `find . -type f`; do touch -t 202006091513 $$i; chmod 644 $$i; done && find . -type f | sort | zip -qXo ${PROJECT_ROOT}/client/manifest/providers.zip -@ && cd .. # && rm -rf ${PROVIDER_DIR_NAME}
+
+.PHONY: generate-provider-bundle-tar-docker
+generate-provider-bundle-tar-docker: clean-providers ## generates provider zip bundle
 	# using temporary directory to extract all files which needs to bundle,
 	# updating the file modification time, file permissions and sorting files to get
 	# consistent zip file across all platform as this zip bytes are used to generate
@@ -76,7 +85,7 @@ generate-provider-bundle: clean-providers ## generates provider zip bundle
 	docker save gcr.io/eminent-nation-87317/tkg/tkg-providers-test:v1.4.0-test.1 -o providers.tar
 
 .PHONY: publish-provider-bundle
-publish-provider-bundle: generate-provider-bundle ## generates provider zip bundle
+publish-provider-bundle: generate-provider-bundle-tar-docker ## generates provider zip bundle
 	docker push gcr.io/eminent-nation-87317/tkg/tkg-providers-test:v1.4.0-test.1
 
 .PHONY: pull-provider-bundle

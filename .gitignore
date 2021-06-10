@@ -17,6 +17,7 @@ pinniped/
 # providers/clustergen-related files
 provider-bundle
 testdata
+providers.zip
 
 # Build artifacts that may not be cleaned up properly
 pinniped
