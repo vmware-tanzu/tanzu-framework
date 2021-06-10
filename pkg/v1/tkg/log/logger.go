@@ -184,8 +184,8 @@ func flatten(entry logEntry) (string, error) { // nolint:gocyclo
 		return "", errors.New("log entry cannot have odd number off keyAndValues")
 	}
 
-	keys := make([]string, 0, len(entry.Values)/2)              //nolint:gomnd
-	values := make(map[string]interface{}, len(entry.Values)/2) //nolint:gomnd
+	keys := make([]string, 0, len(entry.Values)/2)
+	values := make(map[string]interface{}, len(entry.Values)/2)
 	for i := 0; i < len(entry.Values); i += 2 {
 		k, ok := entry.Values[i].(string)
 		if !ok {
@@ -247,7 +247,7 @@ func pretty(value interface{}) (string, error) {
 }
 
 func (l *logger) header(logType string, depth int) string {
-	_, file, line, ok := runtime.Caller(3 + depth) //nolint:gomnd
+	_, file, line, ok := runtime.Caller(3 + depth)
 	if !ok {
 		file = "???"
 		line = 1

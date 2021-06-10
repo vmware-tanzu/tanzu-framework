@@ -109,13 +109,13 @@ func (b numberHelper) CorrectByte(c rune) bool { //nolint
 func (b numberHelper) Base() int {
 	switch b.numberFormat {
 	case binary:
-		return 2 // nolint:gomnd
+		return 2
 	case octal:
-		return 8 // nolint:gomnd
+		return 8
 	case hex:
-		return 16 // nolint:gomnd
+		return 16
 	default:
-		return 10 // nolint:gomnd
+		return 10
 	}
 }
 

@@ -102,7 +102,7 @@ func write(message string, ch chan string, logLevel log.Level) {
 
 	// Also skip all not ascii characters from the logs
 	cleanMessage := []rune{}
-	lastchar := rune(32) //nolint:gomnd
+	lastchar := rune(32)
 	for _, c := range message {
 		if int(c) < 32 || int(c) > 126 || (lastchar == ' ' && c == lastchar) {
 			continue

@@ -140,7 +140,7 @@ func ParseASTBytes(b []byte) ([]AST, error) {
 
 func parse(tokens []Token) ([]AST, error) { //nolint:gocyclo,funlen
 	start := Start
-	stack := newParseStack(3, len(tokens)) // nolint:gomnd
+	stack := newParseStack(3, len(tokens))
 
 	stack.Push(&start)
 	s := newSkipper()

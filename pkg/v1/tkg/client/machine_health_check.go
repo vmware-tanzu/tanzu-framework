@@ -347,7 +347,7 @@ func (c *TkgClient) UpdateMachineHealthCheck(candidate *capi.MachineHealthCheck,
 
 func getUnhealthConditions(condition string) (capi.UnhealthyCondition, error) {
 	strs := strings.Split(condition, ":")
-	if len(strs) != 3 { // nolint:gomnd
+	if len(strs) != 3 {
 		return capi.UnhealthyCondition{}, errors.New("please specify the unhealthConditions using the following format:  NodeConditionType:ConditionStatus:Timeout")
 	}
 
@@ -377,7 +377,7 @@ func setMatchLabels(mhc *capi.MachineHealthCheck, labels []string) error {
 	}
 	for _, label := range labels {
 		strs := strings.Split(label, ":")
-		if len(strs) != 2 { // nolint:gomnd
+		if len(strs) != 2 {
 			return errors.New("please specify the matchLabels using the following format: label-key:label-value")
 		}
 		mhc.Spec.Selector.MatchLabels[strings.TrimSpace(strs[0])] = strings.TrimSpace(strs[1])

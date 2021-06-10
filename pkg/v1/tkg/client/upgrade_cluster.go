@@ -244,6 +244,7 @@ func (c *TkgClient) DoPacificClusterUpgrade(regionalClusterClient clusterclient.
 // DoClusterUpgrade upgrades cluster
 func (c *TkgClient) DoClusterUpgrade(regionalClusterClient clusterclient.Client,
 	currentClusterClient clusterclient.Client, options *UpgradeClusterOptions) error {
+
 	log.Info("Verifying kubernetes version...")
 	err := c.verifyK8sVersion(currentClusterClient, options.KubernetesVersion)
 	if err != nil {
@@ -304,6 +305,7 @@ func (c *TkgClient) addKubernetesReleaseLabel(regionalClusterClient clusterclien
 
 func (c *TkgClient) upgradeAddons(regionalClusterClient clusterclient.Client, currentClusterClient clusterclient.Client,
 	clusterName string, clusterNamespace string, isRegionalCluster bool) error {
+
 	addonsToBeUpgraded := []string{
 		"metadata/tkg",
 		"addons-management/kapp-controller",

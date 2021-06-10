@@ -24,6 +24,7 @@ type client struct {
 // New creates new tkgconfig updater client
 func New(configDir string, providerGetter providerinterface.ProviderInterface,
 	tkgConfigReaderWriter tkgconfigreaderwriter.TKGConfigReaderWriter) Client {
+
 	tkgconfigupdaterclient := &client{
 		configDir:             configDir,
 		tkgConfigPathsClient:  tkgconfigpaths.New(configDir),

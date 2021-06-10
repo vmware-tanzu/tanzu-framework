@@ -41,7 +41,7 @@ func getStringValue(b []rune) (int, error) {
 // an error will be returned if the boolean is not of a correct
 // value
 func getBoolValue(b []rune) (int, error) {
-	if len(b) < 4 { // nolint:gomnd
+	if len(b) < 4 {
 		return 0, NewParseError("invalid boolean value")
 	}
 

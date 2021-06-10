@@ -29,7 +29,7 @@ type kubectlVersion struct { //nolint
 // ParseProviderName defines a utility function that parses the abbreviated syntax for name[:version]
 func ParseProviderName(provider string) (name, providerVersion string, err error) {
 	t := strings.Split(strings.ToLower(provider), ":")
-	if len(t) > 2 { // nolint:gomnd
+	if len(t) > 2 {
 		return "", "", errors.Errorf("invalid provider name %q. Provider name should be in the form name[:version]", provider)
 	}
 

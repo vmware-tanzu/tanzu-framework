@@ -32,6 +32,7 @@ import (
 // nolint:gocritic
 func Serve(initOptions client.InitRegionOptions, appConfig types.AppConfig, tkgConfigReaderWriter tkgconfigreaderwriter.TKGConfigReaderWriter,
 	tkgTimeOut time.Duration, bind string, browser string) error {
+
 	swaggerSpec, err := loads.Analyzed(restapi.FlatSwaggerJSON, "2.0")
 	if err != nil {
 		log.Fatalln(err)

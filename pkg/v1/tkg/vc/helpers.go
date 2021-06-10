@@ -50,6 +50,7 @@ func (c *DefaultClient) GetAndValidateVirtualMachineTemplate(
 	templateName,
 	dc string,
 	tkgConfigReaderWriter tkgconfigreaderwriter.TKGConfigReaderWriter) (*tkgtypes.VSphereVirtualMachine, error) {
+
 	dcMOID, err := c.FindDataCenter(context.TODO(), dc)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get the datacenter MOID")
@@ -88,6 +89,7 @@ func FindMatchingVirtualMachineTemplate(
 	vms []*tkgtypes.VSphereVirtualMachine,
 	ovaVersions []string,
 ) (matchedTemplateVMs []*tkgtypes.VSphereVirtualMachine, nonTemplateVMs []string) {
+
 	for _, vm := range vms {
 		for _, ovaVersion := range ovaVersions {
 			if vm.OVAVersion == ovaVersion {

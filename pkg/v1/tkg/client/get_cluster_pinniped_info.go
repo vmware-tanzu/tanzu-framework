@@ -72,6 +72,7 @@ func (c *TkgClient) GetClusterPinnipedInfo(options GetClusterPinnipedInfoOptions
 // GetWCClusterPinnipedInfo gets pinniped information for workload cluster
 func (c *TkgClient) GetWCClusterPinnipedInfo(regionalClusterClient clusterclient.Client,
 	curRegion region.RegionContext, options GetClusterPinnipedInfoOptions) (*ClusterPinnipedInfo, error) {
+
 	clusterAPIServerURL, err := c.getClusterAPIServerURL(regionalClusterClient, options.ClusterName, options.Namespace)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get cluster apiserver url from cluster objects")

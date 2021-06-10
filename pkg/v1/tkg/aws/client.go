@@ -56,7 +56,7 @@ func NewFromEncodedCrendentials(creds string) (Client, error) {
 	for _, line := range credLines {
 		strs := strings.Split(line, " = ")
 
-		if len(strs) != 2 { //nolint
+		if len(strs) != 2 {
 			continue
 		}
 

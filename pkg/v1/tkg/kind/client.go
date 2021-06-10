@@ -32,6 +32,7 @@ nodes:
   extraMounts:
     - hostPath: /var/run/docker.sock
       containerPath: /var/run/docker.sock`
+
 	kindExtraMounts = `
 nodes:
 - role: control-plane
@@ -40,12 +41,14 @@ nodes:
       containerPath: /var/run/docker.sock
     - hostPath: %s
       containerPath: /etc/containerd/tkg-registry-ca.crt`
+
 	KindRegistryConfigSkipTLSVerify = `
 containerdConfigPatches:
 - |-
   [plugins."io.containerd.grpc.v1.cri".registry.configs."%s".tls]
     insecure_skip_verify = true
 `
+
 	KindRegistryConfigCaCert = `
 containerdConfigPatches:
 - |-
@@ -100,7 +103,7 @@ var _ Client = &KindClusterProxy{}
 func New(options *KindClusterOptions) Client {
 	// create provider is nil
 	if options.Provider == nil {
-		options.Provider = cluster.NewProvider(cluster.ProviderWithLogger(NewLogger(3))) //nolint:gomnd
+		options.Provider = cluster.NewProvider(cluster.ProviderWithLogger(NewLogger(3)))
 	}
 	return &KindClusterProxy{
 		options: options,
