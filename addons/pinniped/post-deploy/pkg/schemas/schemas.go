@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package schemas defines the YAML schemas for various objects.
 package schemas
 
 // DexConfig contains the Dex configuration settings.
@@ -14,7 +15,7 @@ type DexConfig struct {
 	Connectors       []*connector    `yaml:"connectors,omitempty"`
 	Oauth2           *oauth2         `yaml:"oauth2,omitempty"`
 	Storage          *storage        `yaml:"storage,omitempty"`
-	EnablePasswordDb bool            `yaml:"enablePasswordDB"`
+	EnablePasswordDB bool            `yaml:"enablePasswordDB"`
 }
 
 type frontEnd struct {
@@ -52,29 +53,7 @@ type connector struct {
 	ID     string `yaml:"id,omitempty"`
 	Name   string `yaml:"name,omitempty"`
 	Config struct {
-		Issuer                    string            `yaml:"issuer,omitempty"`
-		ClientID                  string            `yaml:"clientID,omitempty"`
-		ClientSecret              string            `yaml:"clientSecret,omitempty"`
-		RedirectURI               string            `yaml:"redirectURI,omitempty"`
-		BasicAuthUnsupported      string            `yaml:"basicAuthUnsupported,omitempty"`
-		HostedDomains             []string          `yaml:"hostedDomains,omitempty"`
-		Scopes                    []string          `yaml:"scopes,omitempty"`
-		InsecureSkipEmailVerified bool              `yaml:"insecureSkipEmailVerified,omitempty"`
-		InsecureEnableGroups      bool              `yaml:"insecureEnableGroups,omitempty"`
-		GetUserInfo               bool              `yaml:"getUserInfo,omitempty"`
-		UserIDKey                 string            `yaml:"userIDKey,omitempty"`
-		UserNameKey               string            `yaml:"userNameKey,omitempty"`
-		ClaimMapping              map[string]string `yaml:"claimMapping,omitempty"`
-		Host                      string            `yaml:"host,omitempty"`
-		InsecureSkipVerify        bool              `yaml:"insecureSkipVerify"`
-		BindDN                    string            `yaml:"bindDN,omitempty"`
-		BindPW                    string            `yaml:"bindPW,omitempty"`
-		UsernamePrompt            string            `yaml:"usernamePrompt,omitempty"`
-		InsecureNoSSL             bool              `yaml:"insecureNoSSL,omitempty"`
-		StartTLS                  bool              `yaml:"startTLS,omitempty"`
-		RootCA                    string            `yaml:"rootCA,omitempty"`
-		RootCAData                string            `yaml:"rootCAData,omitempty"`
-		UserSearch                struct {
+		UserSearch struct {
 			BaseDN    string `yaml:"baseDN,omitempty"`
 			Filter    string `yaml:"filter,omitempty"`
 			Username  string `yaml:"username,omitempty"`
@@ -93,6 +72,28 @@ type connector struct {
 				GroupAttr string `yaml:"groupAttr,omitempty"`
 			} `yaml:"userMatchers,omitempty"`
 		} `yaml:"groupSearch,omitempty"`
+		HostedDomains             []string          `yaml:"hostedDomains,omitempty"`
+		Scopes                    []string          `yaml:"scopes,omitempty"`
+		Issuer                    string            `yaml:"issuer,omitempty"`
+		ClientID                  string            `yaml:"clientID,omitempty"`
+		ClientSecret              string            `yaml:"clientSecret,omitempty"`
+		RedirectURI               string            `yaml:"redirectURI,omitempty"`
+		BasicAuthUnsupported      string            `yaml:"basicAuthUnsupported,omitempty"`
+		UserIDKey                 string            `yaml:"userIDKey,omitempty"`
+		UserNameKey               string            `yaml:"userNameKey,omitempty"`
+		Host                      string            `yaml:"host,omitempty"`
+		BindDN                    string            `yaml:"bindDN,omitempty"`
+		BindPW                    string            `yaml:"bindPW,omitempty"`
+		UsernamePrompt            string            `yaml:"usernamePrompt,omitempty"`
+		RootCA                    string            `yaml:"rootCA,omitempty"`
+		RootCAData                string            `yaml:"rootCAData,omitempty"`
+		ClaimMapping              map[string]string `yaml:"claimMapping,omitempty"`
+		InsecureSkipEmailVerified bool              `yaml:"insecureSkipEmailVerified,omitempty"`
+		InsecureEnableGroups      bool              `yaml:"insecureEnableGroups,omitempty"`
+		GetUserInfo               bool              `yaml:"getUserInfo,omitempty"`
+		InsecureSkipVerify        bool              `yaml:"insecureSkipVerify"`
+		InsecureNoSSL             bool              `yaml:"insecureNoSSL,omitempty"`
+		StartTLS                  bool              `yaml:"startTLS,omitempty"`
 	} `yaml:"config"`
 }
 

@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package inspect implements inspector functionality.
 package inspect
 
 import (
@@ -143,18 +144,15 @@ func (i *Inspector) GetControlPlaneHostname() (string, error) {
 // GetServiceEndpoint takes the service name and namespace to construct the correct service endpoint
 // Return external accessible service endpoint
 func (i *Inspector) GetServiceEndpoint(namespace, name string) (string, error) {
-	var err error
 	var service *corev1.Service
 	zap.S().Infof("Getting the external endpoint of Service %s/%s...", namespace, name)
-	err = retry.OnError(wait.Backoff{
+	err := retry.OnError(wait.Backoff{
 		Steps:    6,
 		Duration: 3 * time.Second,
 		Factor:   2.0,
 		Jitter:   0.1,
 	},
-		func(e error) bool {
-			return errors.IsServiceUnavailable(e)
-		},
+		errors.IsServiceUnavailable,
 		func() error {
 			var e error
 			service, e = i.K8sClientset.CoreV1().Services(namespace).Get(i.Context, name, metav1.GetOptions{})
@@ -182,8 +180,7 @@ func (i *Inspector) GetServiceEndpoint(namespace, name string) (string, error) {
 			zap.S().Error(err)
 			return "", err
 		}
-		serviceEndpoint = fmt.Sprintf("%s://%s:%s", "https", host, utils.ToString(service.Spec.Ports[0].NodePort))
-
+		serviceEndpoint = fmt.Sprintf("%s://%s:%d", "https", host, service.Spec.Ports[0].NodePort)
 	} else if service.Spec.Type == corev1.ServiceTypeLoadBalancer {
 		hostname := service.Status.LoadBalancer.Ingress[0].Hostname
 		ip := service.Status.LoadBalancer.Ingress[0].IP
@@ -194,7 +191,7 @@ func (i *Inspector) GetServiceEndpoint(namespace, name string) (string, error) {
 			// on gce or openstack it usually is set to be IP
 			host = ip
 		}
-		serviceEndpoint = fmt.Sprintf("%s://%s:%s", "https", host, utils.ToString(service.Spec.Ports[0].Port))
+		serviceEndpoint = fmt.Sprintf("%s://%s:%d", "https", host, service.Spec.Ports[0].Port)
 	}
 	// TODO: file a JIRA to track the issue being discussed under https://vmware.slack.com/archives/G01HFK90QE8/p1610051838070300?thread_ts=1610051580.069400&cid=G01HFK90QE8
 	serviceEndpoint = utils.RemoveDefaultTLSPort(serviceEndpoint)

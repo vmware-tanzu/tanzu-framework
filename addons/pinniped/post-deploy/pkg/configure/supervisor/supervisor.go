@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package supervisor implements the pinniped supervisor.
 package supervisor
 
 import (
@@ -84,7 +85,7 @@ func (c Configurator) CreateOrUpdateFederationDomain(ctx context.Context, namesp
 // RecreateIDPForDex recreates the IDP for Dex. The reason of recreation is because updating IDP could not trigger the reconciliation
 // from Pinniped controller to update the IDP status, the upstream discovery would be stuck in failed status.
 // UI will show "Unprocessable Entity: No upstream providers are configured"
-func (c Configurator) RecreateIDPForDex(ctx context.Context, dexNamespace string, dexSvcName string, dexTLSSecret *corev1.Secret) (*idpv1alpha1.OIDCIdentityProvider, error) {
+func (c Configurator) RecreateIDPForDex(ctx context.Context, dexNamespace, dexSvcName string, dexTLSSecret *corev1.Secret) (*idpv1alpha1.OIDCIdentityProvider, error) {
 	zap.S().Infof("Recreating OIDCIdentityProvider %s/%s to point to Dex %s/%s...", vars.SupervisorNamespace, vars.PinnipedOIDCProviderName, dexNamespace, dexSvcName)
 	inspector := inspect.Inspector{Context: ctx, K8sClientset: c.K8SClientset}
 	var err error
@@ -102,7 +103,7 @@ func (c Configurator) RecreateIDPForDex(ctx context.Context, dexNamespace string
 		Jitter:   0.1,
 	},
 		// retry just in case the resource is not yet ready
-		func(e error) bool { return errors.IsNotFound(e) },
+		errors.IsNotFound,
 		func() error {
 			var e error
 			fetchedIDP, e = c.Clientset.IDPV1alpha1().OIDCIdentityProviders(vars.SupervisorNamespace).Get(ctx, vars.PinnipedOIDCProviderName, metav1.GetOptions{})
@@ -134,7 +135,7 @@ func (c Configurator) RecreateIDPForDex(ctx context.Context, dexNamespace string
 		Jitter:   0.1,
 	},
 		// retry if the resource has not been completely deleted
-		func(e error) bool { return errors.IsAlreadyExists(e) },
+		errors.IsAlreadyExists,
 		func() error {
 			var e error
 			updatedIDP, e = c.Clientset.IDPV1alpha1().OIDCIdentityProviders(vars.SupervisorNamespace).Create(ctx, copiedIDP, metav1.CreateOptions{})

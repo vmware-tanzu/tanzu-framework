@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package concierge implements concierge functionality.
 package concierge
 
 import (
@@ -20,10 +21,10 @@ type Configurator struct {
 }
 
 // CreateOrUpdateJWTAuthenticator creates a new JWT or updates an existing one.
-func (c Configurator) CreateOrUpdateJWTAuthenticator(context context.Context, namespace, name, issuer, audience, caData string) error {
+func (c Configurator) CreateOrUpdateJWTAuthenticator(ctx context.Context, namespace, name, issuer, audience, caData string) error {
 	var err error
 	var jwtAuthenticator *authv1alpha1.JWTAuthenticator
-	if jwtAuthenticator, err = c.Clientset.AuthenticationV1alpha1().JWTAuthenticators(namespace).Get(context, name, metav1.GetOptions{}); err != nil {
+	if jwtAuthenticator, err = c.Clientset.AuthenticationV1alpha1().JWTAuthenticators(namespace).Get(ctx, name, metav1.GetOptions{}); err != nil {
 		if errors.IsNotFound(err) {
 			// create if not found
 			zap.S().Infof("Creating the JWTAuthenticator %s/%s", namespace, name)
@@ -40,7 +41,7 @@ func (c Configurator) CreateOrUpdateJWTAuthenticator(context context.Context, na
 					},
 				},
 			}
-			if _, err = c.Clientset.AuthenticationV1alpha1().JWTAuthenticators(namespace).Create(context, newFederationDomain, metav1.CreateOptions{}); err != nil {
+			if _, err = c.Clientset.AuthenticationV1alpha1().JWTAuthenticators(namespace).Create(ctx, newFederationDomain, metav1.CreateOptions{}); err != nil {
 				zap.S().Error(err)
 				return err
 			}
@@ -60,7 +61,7 @@ func (c Configurator) CreateOrUpdateJWTAuthenticator(context context.Context, na
 	copiedJwtAuthenticator.Spec.TLS = &authv1alpha1.TLSSpec{
 		CertificateAuthorityData: caData,
 	}
-	if _, err = c.Clientset.AuthenticationV1alpha1().JWTAuthenticators(namespace).Update(context, copiedJwtAuthenticator, metav1.UpdateOptions{}); err != nil {
+	if _, err = c.Clientset.AuthenticationV1alpha1().JWTAuthenticators(namespace).Update(ctx, copiedJwtAuthenticator, metav1.UpdateOptions{}); err != nil {
 		zap.S().Error(err)
 		return err
 	}

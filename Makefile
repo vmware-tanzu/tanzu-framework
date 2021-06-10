@@ -318,8 +318,10 @@ vet: ## Run go vet
 	$(GO) vet ./...
 
 lint: tools doc-lint ## Run linting checks
+	# Linter runs per module, add each one here
 	$(GOLANGCI_LINT) run -v
 	cd $(ADDONS_DIR); $(GOLANGCI_LINT) run -v
+	cd $(ADDONS_DIR)/pinniped/post-deploy/; $(GOLANGCI_LINT) run -v
 
 doc-lint: tools ## Run linting checks for docs
 	$(VALE) --config=.vale/config.ini --glob='*.md' ./
