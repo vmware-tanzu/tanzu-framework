@@ -5,8 +5,12 @@ go 1.16
 replace (
 	github.com/go-logr/logr => github.com/go-logr/logr v0.1.0
 	github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.3.1 // indirect
+	k8s.io/api => k8s.io/api v0.17.11
+	k8s.io/apimachinery => k8s.io/apimachinery v0.17.11
+	k8s.io/client-go => k8s.io/client-go v0.17.11
 	k8s.io/klog/v2 => k8s.io/klog/v2 v2.0.0
 	k8s.io/kube-openapi => k8s.io/kube-openapi v0.0.0-20200410145947-bcb3869e6f29
+	sigs.k8s.io/controller-runtime => sigs.k8s.io/controller-runtime v0.5.14
 )
 
 require (
@@ -32,7 +36,7 @@ require (
 	github.com/fatih/color v1.10.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-ldap/ldap/v3 v3.3.0
-	github.com/go-logr/logr v0.2.0
+	github.com/go-logr/logr v0.4.0
 	github.com/go-openapi/errors v0.19.2
 	github.com/go-openapi/loads v0.19.4
 	github.com/go-openapi/runtime v0.19.4
@@ -72,10 +76,12 @@ require (
 	github.com/sirupsen/logrus v1.7.0 // indirect
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
 	github.com/spf13/afero v1.2.2
-	github.com/spf13/cobra v1.1.1
+	github.com/spf13/cobra v1.1.3
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.7.0
+	github.com/vmware-tanzu/carvel-kapp-controller v0.19.1-0.20210520224100-5da6db716abe
+	github.com/vmware-tanzu/carvel-vendir v0.19.0
 	github.com/vmware/govmomi v0.23.1
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
 	go.uber.org/multierr v1.5.0
@@ -87,12 +93,12 @@ require (
 	google.golang.org/api v0.40.0
 	google.golang.org/grpc v1.34.0
 	gopkg.in/ini.v1 v1.62.0 // indirect
-	gopkg.in/yaml.v2 v2.3.0
+	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
-	k8s.io/api v0.17.11
-	k8s.io/apiextensions-apiserver v0.17.9
-	k8s.io/apimachinery v0.17.11
-	k8s.io/client-go v0.17.11
+	k8s.io/api v0.19.2
+	k8s.io/apiextensions-apiserver v0.18.2
+	k8s.io/apimachinery v0.19.2
+	k8s.io/client-go v0.19.2
 	k8s.io/klog/v2 v2.4.0
 	k8s.io/kubectl v0.17.11
 	k8s.io/utils v0.0.0-20200912215256-4140de9c8800
@@ -101,7 +107,7 @@ require (
 	sigs.k8s.io/cluster-api-provider-azure v0.4.9-0.20200910212016-5c680a6c2dd4
 	sigs.k8s.io/cluster-api-provider-vsphere v0.7.1
 	sigs.k8s.io/cluster-api/test/infrastructure/docker v0.0.0-20200707192359-e68354f948db
-	sigs.k8s.io/controller-runtime v0.5.14
+	sigs.k8s.io/controller-runtime v0.7.0
 	sigs.k8s.io/kind v0.7.1-0.20200303021537-981bd80d3802
 	sigs.k8s.io/yaml v1.2.0
 )
