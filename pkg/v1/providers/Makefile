@@ -54,7 +54,7 @@ generate-provider-bundle: clean-providers ## generates provider zip bundle
 	# updating the file modification time, file permissions and sorting files to get
 	# consistent zip file across all platform as this zip bytes are used to generate
 	# zz_generated.bindata.go file
-	find . -type f | grep -v ${FILES_TO_IGNORE} | xargs tar cf - -T - | tar -C provider-bundle/tmp -xv
+	find . -type f | grep -v ${FILES_TO_IGNORE} | xargs tar cf - -T - | tar -C provider-bundle/tmp -x
 	cd provider-bundle/tmp && for i in `find . -type f`; do touch -t 202006091513 $$i; chmod 644 $$i; done && find . -type f | sort | zip -qXo ../providers.zip -@ && cd .. && rm -rf tmp
 
 rename-test-outputs: ## show commands to rename the expected output files to match up with testcases renamed by generate-testcases

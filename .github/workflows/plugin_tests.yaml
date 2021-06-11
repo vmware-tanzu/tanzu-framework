@@ -5,9 +5,11 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+    # TODO: trigger on v1/{tkg,providers} as well
     paths:
-      - "cmd/cli/plugin/cluster/**"
-      - "cmd/cli/plugin/managementcluster/**"
+      - 'cmd/cli/plugin/cluster/**'
+      - 'cmd/cli/plugin/managementcluster/**'
+      - '.github/workflows/plugin_tests.yaml'
 
 jobs:
   build:
@@ -40,11 +42,44 @@ jobs:
               dep ensure
           fi
 
+      - name: Extract PR Info
+        shell: bash
+        run: |
+          echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+          echo "##[set-output name=basebranch;]$(echo ${GITHUB_BASE_REF#refs/heads/})"
+          echo "##[set-output name=prnum;]$(echo "$GITHUB_REF" | awk -F / '{print $3}')"
+        id: extract_pr
+
+      - name: Find Comment
+        uses: peter-evans/find-comment@v1
+        id: findcomment
+        with:
+          issue-number: ${{ steps.extract_pr.outputs.prnum }}
+          body-includes: //usebom
+          direction: last
+
+      - name: Extract Alternate BOM
+        shell: bash
+        run: |
+          export BOMCOMMENT=$(echo -e "${{ steps.findcomment.outputs.comment-body }}" | tr -d "[:space:]")
+          echo "##[set-output name=bompath;]$(echo "$BOMCOMMENT" | awk -F : '{print $2}')"
+          echo "##[set-output name=bomtag;]$(echo "$BOMCOMMENT" | awk -F : '{print $3}')"
+        id: extract_bom
+
       - name: Build
-        run: make build-cli-local
+        run: |
+          if [[ ! -z "${{ steps.extract_bom.outputs.bompath }}" ]]; then
+            export TKG_DEFAULT_BOM_IMAGE_PATH=${{ steps.extract_bom.outputs.bompath }}
+          fi
+          if [[ ! -z "${{ steps.extract_bom.outputs.bomtag }}" ]]; then
+            export TKG_DEFAULT_BOM_IMAGE_TAG=${{ steps.extract_bom.outputs.bomtag }}
+          fi
+          env | sort
+          make build-cli-local
 
       - name: Install Tanzu CLI
-        run: make install-cli
+        run: |
+          make install-cli
 
       - name: Install CLI plugins
         run: make install-cli-plugins
