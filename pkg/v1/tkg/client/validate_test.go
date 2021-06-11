@@ -105,7 +105,7 @@ var _ = Describe("Validate", func() {
 			}
 		})
 
-		FContext("IPFamily configuration and validation", func() {
+		Context("IPFamily configuration and validation", func() {
 			It("should allow empty IPFamily fields", func() {
 				validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
 				Expect(validationError).NotTo(HaveOccurred())
