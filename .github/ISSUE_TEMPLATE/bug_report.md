@@ -7,15 +7,15 @@ about: Report a bug to help us improve Core
 
 **Affected product area (please put an X in all that apply)**
 
-[ ] APIs
-[ ] Addons
-[ ] CLI
-[ ] Docs
-[ ] Installation
-[ ] Plugin
-[ ] Security
-[ ] Test and Release
-[ ] User Experience
+- [ ] APIs
+- [ ] Addons
+- [ ] CLI
+- [ ] Docs
+- [ ] Installation
+- [ ] Plugin
+- [ ] Security
+- [ ] Test and Release
+- [ ] User Experience
 
 **Expected behavior**
 
