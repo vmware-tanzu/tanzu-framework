@@ -20,6 +20,7 @@ import (
 
 // AviSessionTimeout is timeout for avi session
 const AviSessionTimeout = 60
+const pageSizeMax = "200"
 
 type client struct {
 	ControllerParams   *models.AviControllerParams
@@ -101,18 +102,26 @@ func (c *client) GetClouds() ([]*models.AviCloud, error) {
 		return nil, errors.Errorf("unable to make API calls before authentication")
 	}
 
-	all, err := c.Cloud.GetAll(session.SetParams(map[string]string{"fields": "name,uuid"}))
-	if err != nil {
-		return nil, errors.Wrap(err, "unable to get all clouds from avi controller due to error")
-	}
-
+	var page = 1
 	clouds := make([]*models.AviCloud, 0)
-	for _, c := range all {
-		clouds = append(clouds, &models.AviCloud{
-			UUID:     *c.UUID,
-			Name:     *c.Name,
-			Location: *c.URL,
-		})
+	for {
+		all, err := c.Cloud.GetAll(session.SetParams(map[string]string{"fields": "name,uuid", "page": strconv.Itoa(page), "page_size": pageSizeMax}))
+		if err != nil {
+			if page == 1 {
+				return nil, errors.Wrap(err, "unable to get all clouds from avi controller due to error")
+			}
+			break // end of result set reached
+		}
+
+		for _, c := range all {
+			clouds = append(clouds, &models.AviCloud{
+				UUID:     *c.UUID,
+				Name:     *c.Name,
+				Location: *c.URL,
+			})
+		}
+
+		page++
 	}
 
 	return clouds, nil
@@ -126,20 +135,28 @@ func (c *client) GetServiceEngineGroups() ([]*models.AviServiceEngineGroup, erro
 		return nil, errors.Errorf("unable to make API calls before authentication")
 	}
 
-	all, err := c.ServiceEngineGroup.GetAll(session.SetParams(map[string]string{"fields": "name,uuid,cloud_ref"}))
-	if err != nil {
-		return nil, errors.Wrap(err, "unable to get all Service Engine Groups from avi controller due to error")
-	}
-
+	var page = 1
 	serviceEngineGroups := make([]*models.AviServiceEngineGroup, 0)
-	for _, seg := range all {
-		serviceEngineGroups = append(serviceEngineGroups, &models.AviServiceEngineGroup{
-			UUID:     *seg.UUID,
-			Name:     *seg.Name,
-			Location: c.getCloudID(*seg.CloudRef),
-		})
-	}
 
+	for {
+		all, err := c.ServiceEngineGroup.GetAll(session.SetParams(map[string]string{"fields": "name,uuid,cloud_ref", "page": strconv.Itoa(page), "page_size": pageSizeMax}))
+		if err != nil {
+			if page == 1 {
+				return nil, errors.Wrap(err, "unable to get all Service Engine Groups from avi controller due to error")
+			}
+			break
+		}
+
+		for _, seg := range all {
+			serviceEngineGroups = append(serviceEngineGroups, &models.AviServiceEngineGroup{
+				UUID:     *seg.UUID,
+				Name:     *seg.Name,
+				Location: c.getCloudID(*seg.CloudRef),
+			})
+		}
+
+		page++
+	}
 	return serviceEngineGroups, nil
 }
 
@@ -151,31 +168,38 @@ func (c *client) GetVipNetworks() ([]*models.AviVipNetwork, error) {
 		return nil, errors.Errorf("unable to make API calls before authentication")
 	}
 
-	all, err := c.Network.GetAll(session.SetParams(map[string]string{"fields": "name,uuid,cloud_ref,configured_subnets"}))
-	if err != nil {
-		return nil, errors.Wrap(err, "unable to get all Networks from avi controller due to error")
-	}
-
+	var page = 1
 	networks := make([]*models.AviVipNetwork, 0)
-	for _, seg := range all {
-		subnets := make([]*models.AviSubnet, 0)
-		for _, temp := range seg.ConfiguredSubnets {
-			subnets = append(subnets, &models.AviSubnet{
-				Subnet: *temp.Prefix.IPAddr.Addr + "/" + strconv.Itoa(int(*temp.Prefix.Mask)),
-				Family: *temp.Prefix.IPAddr.Type,
-			})
+	for {
+		all, err := c.Network.GetAll(session.SetParams(map[string]string{"fields": "name,uuid,cloud_ref,configured_subnets", "page": strconv.Itoa(page), "page_size": pageSizeMax}))
+		if err != nil {
+			if page == 1 {
+				return nil, errors.Wrap(err, "unable to get all Networks from avi controller due to error")
+			}
+			break
 		}
 
-		network := &models.AviVipNetwork{
-			UUID:            *seg.UUID,
-			Name:            *seg.Name,
-			Cloud:           c.getCloudID(*seg.CloudRef),
-			ConfigedSubnets: subnets,
+		for _, seg := range all {
+			subnets := make([]*models.AviSubnet, 0)
+			for _, temp := range seg.ConfiguredSubnets {
+				subnets = append(subnets, &models.AviSubnet{
+					Subnet: *temp.Prefix.IPAddr.Addr + "/" + strconv.Itoa(int(*temp.Prefix.Mask)),
+					Family: *temp.Prefix.IPAddr.Type,
+				})
+			}
+
+			network := &models.AviVipNetwork{
+				UUID:            *seg.UUID,
+				Name:            *seg.Name,
+				Cloud:           c.getCloudID(*seg.CloudRef),
+				ConfigedSubnets: subnets,
+			}
+
+			networks = append(networks, network)
 		}
 
-		networks = append(networks, network)
+		page++
 	}
-
 	return networks, nil
 }
 

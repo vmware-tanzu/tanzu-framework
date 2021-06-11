@@ -106,9 +106,9 @@
     </div>
 
     <div class="clr-row">
-        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-select-container [attr.data-step-metadata]="formName">
-                <label i18n="cloud name label" clr-control-label [class.label-disabled]="!connected">
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-6">
+            <clr-datalist-container [attr.data-step-metadata]="formName">
+                <label i18n="cloud name label" class="clr-col-lg-12 clr-col-12" [class.label-disabled]="!connected">
                     CLOUD NAME
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
@@ -119,25 +119,18 @@
                         </clr-tooltip-content>
                     </clr-tooltip>
                 </label>
-                <select
-                    clrSelect
-                    name="cloudName"
-                    formControlName="cloudName">
-                    <option aria-label="blank" title="blank"></option>
-                    <ng-container *ngFor="let cloud of clouds">
-                        <option [value]="cloud.name">
-                            {{ cloud.name }}
-                        </option>
-                    </ng-container>
-                </select>
+                <input clrDatalistInput name="cloudName" formControlName="cloudName" list="cloudNameList" />
+                <datalist id="cloudNameList">
+                    <option *ngFor="let cloud of clouds" [value]="cloud.name">{{cloud.name}}</option>
+                </datalist>
                 <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error>Selecting a cloud name is required</clr-control-error>
-            </clr-select-container>
+            </clr-datalist-container>
         </div>
-        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-select-container [attr.data-step-metadata]="formName">
-                <label i18n="service engine group name label" clr-control-label [class.label-disabled]="!connected">
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-6">
+            <clr-datalist-container [attr.data-step-metadata]="formName">
+                <label i18n="service engine group name label" class="clr-col-lg-12 clr-col-12" [class.label-disabled]="!connected">
                     SERVICE ENGINE GROUP NAME
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
@@ -148,28 +141,21 @@
                         </clr-tooltip-content>
                     </clr-tooltip>
                 </label>
-                <select
-                    clrSelect
-                    name="serviceEngineGroupName"
-                    formControlName="serviceEngineGroupName">
-                    <option aria-label="blank" title="blank"></option>
-                    <ng-container *ngFor="let seg of serviceEngineGroupsFiltered">
-                        <option [value]="seg.name">
-                            {{ seg.name }}
-                        </option>
-                    </ng-container>
-                </select>
+                <input clrDatalistInput name="serviceEngineGroupName" formControlName="serviceEngineGroupName" list="serviceEngineGroupNameList" />
+                <datalist id="serviceEngineGroupNameList">
+                    <option *ngFor="let seg of serviceEngineGroupsFiltered" [value]="seg.name">{{seg.name}}</option>
+                </datalist>
                 <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error>Selecting a service engine group name is required</clr-control-error>
-            </clr-select-container>
+            </clr-datalist-container>
         </div>
     </div>
 
     <div class="clr-row">
-        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-select-container [attr.data-step-metadata]="formName">
-                <label i18n="network name label" clr-control-label [class.label-disabled]="!connected">
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-6">
+            <clr-datalist-container> [attr.data-step-metadata]="formName">
+                <label i18n="network name label" class="clr-col-lg-12 clr-col-12" [class.label-disabled]="!connected">
                     VIP NETWORK NAME
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
@@ -180,26 +166,19 @@
                         </clr-tooltip-content>
                     </clr-tooltip>
                 </label>
-                <select
-                    clrSelect
-                    name="networkName"
-                    formControlName="networkName">
-                    <option aria-label="blank" title="blank"></option>
-                    <ng-container *ngFor="let npc of vipNetworksPerCloud">
-                        <option [value]="npc.name">
-                            {{ npc.name }}
-                        </option>
-                    </ng-container>
-                </select>
+                <input clrDatalistInput name="networkName" formControlName="networkName" list="networkNameList" />
+                <datalist id="networkNameList">
+                    <option *ngFor="let npc of vipNetworksPerCloud" [value]="npc.name">{{npc.name}}</option>
+                </datalist>
                 <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error>Selecting a network name is required</clr-control-error>
-            </clr-select-container>
+            </clr-datalist-container>
         </div>
 
-        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-select-container [attr.data-step-metadata]="formName">
-                <label i18n="network CIDR label" clr-control-label [class.label-disabled]="!connected">
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-6">
+            <clr-datalist-container [attr.data-step-metadata]="formName">
+                <label i18n="network CIDR label" class="clr-col-lg-12 clr-col-12" [class.label-disabled]="!connected">
                     VIP NETWORK CIDR
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
@@ -210,28 +189,21 @@
                         </clr-tooltip-content>
                     </clr-tooltip>
                 </label>
-                <select
-                    clrSelect
-                    name="networkCIDR"
-                    formControlName="networkCIDR">
-                    <option aria-label="blank" title="blank"></option>
-                    <ng-container *ngFor="let spn of subnetsPerNetwork">
-                        <option [value]="spn.subnet">
-                            {{ spn.subnet }}
-                        </option>
-                    </ng-container>
-                </select>
+                <input clrDatalistInput name="networkCIDR" formControlName="networkCIDR" list="networkCIDRList" />
+                <datalist id="networkCIDRList">
+                    <option *ngFor="let spn of subnetsPerNetwork" [value]="spn.subnet">{{spn.subnet}}</option>
+                </datalist>
                 <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error>Selecting a subnet is required</clr-control-error>
-            </clr-select-container>
+            </clr-datalist-container>
         </div>
     </div>
 
         <div class="clr-row">
-            <div class="clr-col-4">
-                <clr-select-container [attr.data-step-metadata]="formName" [class.label-disabled]="!connected">
-                    <label i18n="Management Cluster Network Name label" clr-control-label>
+            <div class="clr-col-6">
+                <clr-datalist-container [attr.data-step-metadata]="formName" [class.label-disabled]="!connected">
+                    <label i18n="Management Cluster Network Name label" class="clr-col-lg-12 clr-col-12">
                         MANAGEMENT CLUSTER VIP NETWORK NAME
                         <clr-tooltip>
                             <clr-icon clrTooltipTrigger shape="info-circle" size="22"></clr-icon>
@@ -242,21 +214,17 @@
                             </clr-tooltip-content>
                         </clr-tooltip>
                     </label>
-                    <select clrSelect name="managementClusterNetworkName"
-                        formControlName="managementClusterNetworkName">
-                        <ng-container *ngFor="let mcnn of vipNetworksPerCloud">
-                            <option [value]="mcnn.name">
-                                {{ mcnn.name }}
-                            </option>
-                        </ng-container>
-                    </select>
-                    <clr-control-error>Selecting a Management Cluster VIP Network Name is required</clr-control-error>
-                </clr-select-container>
+                <input clrDatalistInput name="managementClusterNetworkName" formControlName="managementClusterNetworkName" list="managementClusterNetworkNameList" />
+                <datalist id="managementClusterNetworkNameList">
+                    <option *ngFor="let mcnn of vipNetworksPerCloud" [value]="mcnn.name">{{mcnn.name}}</option>
+                </datalist>
+                <clr-control-error>Selecting a Management Cluster VIP Network Name is required</clr-control-error>
+                </clr-datalist-container>
             </div>
 
-            <div class="clr-col-4">
-                <clr-select-container [attr.data-step-metadata]="formName">
-                    <label i18n="Management Cluster Network CIDR label" clr-control-label
+            <div class="clr-col-6">
+                <clr-datalist-container [attr.data-step-metadata]="formName">
+                    <label i18n="Management Cluster Network CIDR label" class="clr-col-lg-12 clr-col-12"
                         [class.label-disabled]="!connected">
                         MANAGEMENT CLUSTER VIP NETWORK CIDR
                         <clr-tooltip>
@@ -268,16 +236,14 @@
                             </clr-tooltip-content>
                         </clr-tooltip>
                     </label>
-                    <select clrSelect name="managementClusterNetworkCIDR"
-                        formControlName="managementClusterNetworkCIDR">
-                        <ng-container *ngFor="let mcnc of subnetsPerManagementNetwork">
-                            <option [value]="mcnc.subnet">
-                                {{ mcnc.subnet }}
-                            </option>
-                        </ng-container>
-                    </select>
+                <input clrDatalistInput name="managementClusterNetworkCIDR" formControlName="managementClusterNetworkCIDR"
+                    list="managementClusterNetworkCIDRList" />
+                <datalist id="managementClusterNetworkCIDRList">
+                    <option aria-label="blank" title="blank"></option>
+                    <option *ngFor="let mcnc of subnetsPerManagementNetwork" [value]="mcnc.subnet">{{mcnc.subnet}}</option>
+                </datalist>
                     <clr-control-error>Selecting a Management Cluster VIP Network CIDR is required</clr-control-error>
-                </clr-select-container>
+                </clr-datalist-container>
             </div>
         </div>
 
