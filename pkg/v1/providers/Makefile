@@ -19,6 +19,14 @@ VENDIR_VERSION = v0.17.0
 CLUSTERGEN_OUTPUT_DIR ?= expected
 CLUSTERGEN_BASE ?= origin/main
 PROVIDER_DIR_NAME = providers
+PROVIDER_BUNDLE_DIR = provider-bundle/${PROVIDER_DIR_NAME}
+PROVIDER_BUNDLE_ZIP = ${PROJECT_ROOT}/client/manifest/providers.zip
+
+# Image URL to use building/pushing provider image
+PROVIDER_TEMPLATE_IMG_NAME ?= provider-templates
+IMAGE_REPO ?= vmware.io
+PROVIDER_TEMPLATE_IMG_TAG ?= latest
+
 
 FILES_TO_IGNORE='.env\|.idea\|.git\|.github\|hack\|.yamllint\|.gitlab\|Makefile\|provider-bundle\|tests\|README.md\|client\|go.mod\|go.sum\|providers.sha256sum|\Dockerfile.templates'
 
@@ -52,45 +60,36 @@ lint: ## Run YAML linter
 	${CLI_REPO}/hack/yamllint.sh
 
 ## --------------------------------------
-## Generate provider
-## --------------------------------------
-## --------------------------------------
-## Generate provider
+## Generate provider templates
 ## --------------------------------------
 
 .PHONY: clean-providers
 clean-providers: ## cleans provider-bundle
 	# cleanup old provider bundles
 	@rm -rf provider-bundle || true
-	@mkdir -p provider-bundle/${PROVIDER_DIR_NAME}
+	@mkdir -p ${PROVIDER_BUNDLE_DIR}
 
-.PHONY: generate-provider-bundle-zip-local
-generate-provider-bundle-zip-local: clean-providers ## generates provider zip bundle
-	# using temporary directory to extract all files which needs to bundle,
-	# updating the file modification time, file permissions and sorting files to get
-	# consistent zip file across all platform as this zip bytes are used to generate
-	# zz_generated.bindata.go file
-	find . -type f | grep -v ${FILES_TO_IGNORE} | xargs tar cf - -T - | tar -C provider-bundle/${PROVIDER_DIR_NAME} -xv
-	cd provider-bundle/${PROVIDER_DIR_NAME} && for i in `find . -type f`; do touch -t 202006091513 $$i; chmod 644 $$i; done && find . -type f | sort | zip -qXo ${PROJECT_ROOT}/client/manifest/providers.zip -@ && cd .. # && rm -rf ${PROVIDER_DIR_NAME}
+setup-provider-for-generation: clean-providers
+	# using temporary directory to extract all files which needs to bundle
+	find . -type f | grep -v ${FILES_TO_IGNORE} | xargs tar cf - -T - | tar -C ${PROVIDER_BUNDLE_DIR} -x
 
-.PHONY: generate-provider-bundle-tar-docker
-generate-provider-bundle-tar-docker: clean-providers ## generates provider zip bundle
-	# using temporary directory to extract all files which needs to bundle,
-	# updating the file modification time, file permissions and sorting files to get
-	# consistent zip file across all platform as this zip bytes are used to generate
-	# zz_generated.bindata.go file
-	find . -type f | grep -v ${FILES_TO_IGNORE} | xargs tar cf - -T - | tar -C provider-bundle/${PROVIDER_DIR_NAME} -x
-	cd provider-bundle/${PROVIDER_DIR_NAME} && for i in `find . -type f`; do touch -t 202006091513 $$i; chmod 644 $$i; done ## && find . -type f | sort | zip -qXo ../providers.zip -@ && cd .. # && rm -rf ${PROVIDER_DIR_NAME}
-	cd provider-bundle/${PROVIDER_DIR_NAME}; docker build -t gcr.io/eminent-nation-87317/tkg/tkg-providers-test:v1.4.0-test.1 -f ../../hack/Dockerfile.templates .
-	docker save gcr.io/eminent-nation-87317/tkg/tkg-providers-test:v1.4.0-test.1 -o client/manifest/providers.tar
+.PHONY: generate-provider-bundle-zip
+generate-provider-bundle-zip: setup-provider-for-generation ## generates provider zip bundle
+	cd ${PROVIDER_BUNDLE_DIR} && zip -r ${PROVIDER_BUNDLE_ZIP} .
 
-.PHONY: publish-provider-bundle
-publish-provider-bundle: generate-provider-bundle-tar-docker ## generates provider zip bundle
-	docker push gcr.io/eminent-nation-87317/tkg/tkg-providers-test:v1.4.0-test.1
+## --------------------------------------
+## build save and push Provider templates
+## --------------------------------------
 
-.PHONY: pull-provider-bundle
-pull-provider-bundle:
-	imgpkg pull -i gcr.io/eminent-nation-87317/tkg/tkg-providers-test:v1.4.0-test.1 -o provider-bundle/test/
+build-provider-template-image: setup-provider-for-generation ## Build provider template image
+	cd ${PROVIDER_BUNDLE_DIR} && docker build -t $(IMAGE_REPO)/${PROVIDER_TEMPLATE_IMG_NAME}:${PROVIDER_TEMPLATE_IMG_TAG} -f ../../hack/Dockerfile.templates .
+
+save-provider-template-image: ## Save provider template image
+	mkdir -p "${PROJECT_ROOT}/artifacts"
+	docker save $(IMAGE_REPO)/${PROVIDER_TEMPLATE_IMG_NAME}:${PROVIDER_TEMPLATE_IMG_TAG} | gzip -c > "${PROJECT_ROOT}/artifacts/${PROVIDER_TEMPLATE_IMG_NAME}-${PROVIDER_TEMPLATE_IMG_TAG}.tar.gz"
+
+push-provider-template-image: ## Push provider template image
+	docker push $(IMAGE_REPO)/${PROVIDER_TEMPLATE_IMG_NAME}:${PROVIDER_TEMPLATE_IMG_TAG}
 
 ## --------------------------------------
 ## Cluster generation tests
