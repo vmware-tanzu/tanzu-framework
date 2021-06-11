@@ -69,6 +69,10 @@ func initialize(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	if dryRun {
+		return nil
+	}
+
 	c := exec.Command("git", "init", name)
 	b, err := c.CombinedOutput()
 	if err != nil {

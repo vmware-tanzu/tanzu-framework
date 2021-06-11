@@ -26,10 +26,21 @@ func Test_BuilderInitAndAddPlugin(t *testing.T) {
 
 	var stdout, stderr bytes.Buffer
 
-	// Assert repo creation
-	expected := "successfully created repository"
-	args := []string{"testrepo", "--repo-type", "github"}
+	// Assert dry-run does not create a repo
+	expected := "module testrepo"
+	args := []string{"testrepo", "--dry-run", "--repo-type", "github"}
 	cmd := NewInitCmd()
+	cmd.SetArgs(args)
+	cmd.SetOut(&stdout)
+	cmd.SetErr(&stderr)
+	err = cmd.Execute()
+	assert.Nil(err)
+	assert.Contains(expected, stdout.String())
+
+	// Assert repo creation
+	expected = "successfully created repository"
+	args = []string{"testrepo", "--repo-type", "github"}
+	cmd = NewInitCmd()
 	cmd.SetArgs(args)
 	cmd.SetOut(&stdout)
 	cmd.SetErr(&stderr)

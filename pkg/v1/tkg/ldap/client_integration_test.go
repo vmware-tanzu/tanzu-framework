@@ -104,7 +104,11 @@ func TestLdapClient(t *testing.T) {
 	RunSpecs(t, "LDAP Verification Suite")
 }
 
-var _ = XDescribe("LDAP verification", func() {
+var _ = Describe("LDAP verification", func() {
+
+	BeforeEach(func() {
+		Skip("Skip integration tests for LDAP client ")
+	})
 
 	Context("Verify LDAP credentials", func() {
 		It("should be able to connect over ldaps without a certificate", func() {

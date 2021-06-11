@@ -10,14 +10,14 @@ about: Suggest an idea to improve Core
 
 **Affected product area (please put an X in all that apply)**
 
-[ ] APIs
-[ ] Addons
-[ ] CLI
-[ ] Docs
-[ ] Installation
-[ ] Plugin
-[ ] Security
-[ ] Test and Release
-[ ] User Experience
+- [ ] APIs
+- [ ] Addons
+- [ ] CLI
+- [ ] Docs
+- [ ] Installation
+- [ ] Plugin
+- [ ] Security
+- [ ] Test and Release
+- [ ] User Experience
 
 **Additional context**

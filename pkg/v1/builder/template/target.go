@@ -42,6 +42,7 @@ func (t Target) Run(rootDir string, data interface{}, dryRun bool) error {
 	}
 	if dryRun {
 		fmt.Printf("-- file: %s --\n\n%s", t.Filepath, buf.String())
+		return nil
 	}
 	dir := filepath.Dir(fp)
 	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
