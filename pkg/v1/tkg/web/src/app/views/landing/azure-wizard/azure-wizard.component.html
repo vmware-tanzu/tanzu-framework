@@ -8,7 +8,7 @@
                 (click)="navigate(APP_ROUTES.LANDING)"></clr-icon>
             <h2 i18n="wizard title" id="azure-title" aria-level="1">
                 <div class="ms-azure-icon-30"></div>
-                Deploy Management Cluster on Azure
+                Deploy {{ clusterType | titlecase }} Cluster on Azure
             </h2>
         </div>
     </div>
@@ -48,7 +48,7 @@
 
         <clr-stepper-panel formGroupName="azureNodeSettingForm" removeAriaLabelledBy>
             <clr-step-title i18n="node setting step name">
-                Management Cluster Settings
+                {{ clusterType | titlecase }} Cluster Settings
             </clr-step-title>
             <clr-step-description i18n="node setting step description">
                 {{ getStepDescription('azureNodeSettingForm') }}
@@ -61,24 +61,6 @@
                 <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
             </clr-step-content>
         </clr-stepper-panel>
-
-        <!-- Not required for Beijing release, and save it here for future
-        <clr-stepper-panel formGroupName="workerNodeSettingForm" removeAriaLabelledBy>
-            <clr-step-title i18n="azure worker node setting step name">
-                Worker Node Settings
-            </clr-step-title>
-            <clr-step-description i18n="node setting step description">
-                {{ getStepDescription('workerNodeSetting') }}
-            </clr-step-description>
-            <ng-container *ngIf="steps[3]">
-                <app-worker-node-setting-step [formGroup]="form.controls.workerNodeSettingForm" formName="workerNodeSettingForm">
-                </app-worker-node-setting-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-        -->
 
         <clr-stepper-panel formGroupName="metadataForm" removeAriaLabelledBy>
             <clr-step-title i18n="Azure metadata step name">
@@ -183,8 +165,7 @@
         </clr-stepper-panel>
 
     </form>
-    <button class="btn btn-primary mt-20" [disabled]="!getWizardValidity()" (click)="reviewConfiguration(true)"
-        i18n="review management cluster configuration btn">
+    <button class="btn btn-primary mt-20" [disabled]="!getWizardValidity()" (click)="reviewConfiguration(true)">
         REVIEW CONFIGURATION
     </button>
 </div>
@@ -197,9 +178,8 @@
                 i18n="return to wizard for edit button">
                 Edit Configuration
             </button>
-            <button class="btn btn-primary deploy-btn" [disabled]="disableDeployButton" (click)="deploy()"
-                i18n="confirm deploy management cluster button">
-                Deploy Management Cluster
+            <button class="btn btn-primary deploy-btn" [disabled]="disableDeployButton" (click)="deploy()">
+                Deploy {{ clusterType | titlecase }} Cluster
             </button>
         </div>
     </div>

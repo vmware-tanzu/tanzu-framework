@@ -76,6 +76,7 @@ describe('AzureWizardComponent', () => {
             osImageForm: fb.group({
             })
         });
+        component.clusterType = 'management';
         fixture.detectChanges();
     });
 

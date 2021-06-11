@@ -69,12 +69,14 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             'machineHealthChecksEnabled',
             new FormControl(true, [])
         );
-        this.formGroup.addControl(
-            'workerNodeInstanceType',
-            new FormControl('', [
-                Validators.required
-            ])
-        );
+        if (this.clusterType !== 'standalone') {
+            this.formGroup.addControl(
+                'workerNodeInstanceType',
+                new FormControl('', [
+                    Validators.required
+                ])
+            );
+        }
         this.formGroup.addControl(
             'clusterName',
             new FormControl('', [
@@ -121,12 +123,16 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             });
 
             this.formGroup.get('devInstanceType').valueChanges.subscribe(data => {
-                this.formGroup.get('workerNodeInstanceType').setValue(data);
+                if (this.clusterType !== 'standalone') {
+                    this.formGroup.get('workerNodeInstanceType').setValue(data);
+                }
                 this.formGroup.controls['workerNodeInstanceType'].updateValueAndValidity();
             });
 
             this.formGroup.get('prodInstanceType').valueChanges.subscribe(data => {
-                this.formGroup.get('workerNodeInstanceType').setValue(data);
+                if (this.clusterType !== 'standalone') {
+                    this.formGroup.get('workerNodeInstanceType').setValue(data);
+                }
                 this.formGroup.controls['workerNodeInstanceType'].updateValueAndValidity();
             });
         });

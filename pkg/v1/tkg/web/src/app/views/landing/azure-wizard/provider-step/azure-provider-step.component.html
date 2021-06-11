@@ -108,7 +108,7 @@
                                 <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                 <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                                     <span>
-                                        Select an Azure Environment for your management cluster. Azure Environment is the name of the
+                                        Select an Azure Environment for your {{ clusterType }} cluster. Azure Environment is the name of the
                                         AzureCloud to be used
                                     </span>
                                 </clr-tooltip-content>
@@ -145,7 +145,7 @@
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                             <span>
-                                Select an Azure region for your management cluster.
+                                Select an Azure region for your {{ clusterType }} cluster.
                             </span>
                         </clr-tooltip-content>
                     </clr-tooltip>
@@ -226,7 +226,7 @@
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                             <span>
-                                Select the existing resource group for your management cluster.
+                                Select the existing resource group for your {{ clusterType }} cluster.
                             </span>
                         </clr-tooltip-content>
                     </clr-tooltip>

@@ -12,7 +12,7 @@
                 (click)="navigate(APP_ROUTES.LANDING)"></clr-icon>
             <h2 i18n="wizard title" aria-level="1">
                 <div class="aws-ec2-icon-30"></div>
-                Deploy Management Cluster on Amazon EC2
+                Deploy {{ clusterType | titlecase }} Cluster on Amazon EC2
             </h2>
         </div>
     </div>
@@ -52,7 +52,7 @@
 
         <clr-stepper-panel formGroupName="awsNodeSettingForm" removeAriaLabelledBy>
             <clr-step-title i18n="node setting step name">
-                Management Cluster Settings
+                {{ clusterType | titlecase }} Cluster Settings
             </clr-step-title>
             <clr-step-description i18n="node setting step description">
                 {{ getStepDescription('nodeSetting') }}
@@ -170,8 +170,7 @@
             </clr-step-content>
         </clr-stepper-panel>
     </form>
-    <button class="btn btn-primary mt-20" [disabled]="!getWizardValidity()" (click)="reviewConfiguration(true)"
-            i18n="review management cluster configuration btn">
+    <button class="btn btn-primary mt-20" [disabled]="!getWizardValidity()" (click)="reviewConfiguration(true)">
         REVIEW CONFIGURATION
     </button>
 </div>
@@ -184,8 +183,8 @@
                 i18n="return to wizard for edit button">
                 Edit Configuration
             </button>
-            <button class="btn btn-primary deploy-btn" [disabled]="disableDeployButton" (click)="deploy()" i18n="confirm deploy management cluster button">
-                Deploy Management Cluster
+            <button class="btn btn-primary deploy-btn" [disabled]="disableDeployButton" (click)="deploy()">
+                Deploy {{ clusterType | titlecase }} Cluster
             </button>
         </div>
     </div>

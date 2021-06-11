@@ -93,7 +93,6 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         controlPlaneSetting: [Validators.required],
         devInstanceType: [Validators.required],
         prodInstanceType: [Validators.required],
-        workerNodeInstanceType: [Validators.required],
         bastionHostEnabled: [],
         sshKeyName: [Validators.required],
         clusterName: [this.validationService.isValidClusterName()],
@@ -122,6 +121,13 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                     new FormControl('', this.commonFieldMap[key])
                 );
             }
+        }
+
+        if (this.clusterType !== 'standalone') {
+            this.formGroup.addControl(
+                'workerNodeInstanceType',
+                new FormControl('', [Validators.required])
+            );
         }
 
         this.formGroup.get("bastionHostEnabled").setValue(BASTION_HOST_ENABLED);
@@ -245,9 +251,12 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                         [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
                         this.formGroup.get('prodInstanceType').value);
                 }
-                this.resurrectField('workerNodeInstanceType',
-                    [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
-                    this.formGroup.get('workerNodeInstanceType').value);
+                if (this.clusterType !== 'standalone') {
+                    this.resurrectField('workerNodeInstanceType',
+                        [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
+                        this.formGroup.get('workerNodeInstanceType').value);
+                }
+
             });
 
         AZS.forEach(az => {
@@ -287,9 +296,11 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                     ]);
                 }
             }
-            this.resurrectField('workerNodeInstanceType',
-                [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
-                this.formGroup.get('workerNodeInstanceType').value);
+            if (this.clusterType !== 'standalone') {
+                this.resurrectField('workerNodeInstanceType',
+                    [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
+                    this.formGroup.get('workerNodeInstanceType').value);
+            }
 
             this.updateVpcSubnets();
         });
@@ -310,9 +321,13 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     setSavedDataAfterLoad() {
         const resetFields = [
             'devInstanceType',
-            'prodInstanceType',
-            'workerNodeInstanceType'
+            'prodInstanceType'
         ];
+
+        if (this.clusterType !== 'standalone') {
+            resetFields.push('workerNodeInstanceType');
+        }
+
         this.cardClick(this.getSavedValue('devInstanceType', '') === '' ? 'prod' : 'dev');
         super.setSavedDataAfterLoad();
         resetFields.forEach(field => this.formGroup.get(field).setValue(''));

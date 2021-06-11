@@ -1,7 +1,10 @@
 import { Component, ElementRef, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Title } from '@angular/platform-browser';
+
 import { Observable } from 'rxjs';
+
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { APIClient } from 'src/app/swagger';
 import { ConfigFileInfo, DockerRegionalClusterParams } from 'src/app/swagger/models';
@@ -20,6 +23,7 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         el: ElementRef,
         formMetaDataService: FormMetaDataService,
         private formBuilder: FormBuilder,
+        private titleService: Title,
         private apiClient: APIClient
     ) {
         super(router, el, formMetaDataService);
@@ -28,8 +32,11 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
 
     ngOnInit(): void {
         super.ngOnInit();
+
         // To avoid re-open issue for the first step.
         this.form.markAsDirty();
+
+        this.titleService.setTitle(this.title + ' Docker');
     }
 
     buildForm() {
@@ -168,6 +175,7 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         const cliG = new CliGenerator();
         const cliParams: CliFields = {
             configPath: configPath,
+            clusterType: this.clusterType
         };
         return cliG.getCli(cliParams);
     }

@@ -69,12 +69,14 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             ])
         );
 
-        this.formGroup.addControl(
-            'workerNodeInstanceType',
-            new FormControl('', [
-                Validators.required
-            ])
-        );
+        if (this.clusterType !== 'standalone') {
+            this.formGroup.addControl(
+                'workerNodeInstanceType',
+                new FormControl('', [
+                    Validators.required
+                ])
+            );
+        }
 
         this.formGroup.addControl(
             'machineHealthChecksEnabled',

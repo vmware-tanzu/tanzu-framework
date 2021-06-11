@@ -10,7 +10,7 @@ import { APP_ROUTES, Routes } from 'src/app/shared/constants/routes.constants';
 import { Providers, PROVIDERS } from 'src/app/shared/constants/app.constants';
 import { FormMetaDataStore } from '../FormMetaDataStore';
 import { debounceTime, takeUntil } from 'rxjs/operators';
-import { TkgEventType } from './../../../../../shared/service/Messenger';
+import { TkgEvent, TkgEventType } from './../../../../../shared/service/Messenger';
 import { ClrStepper } from '@clr/angular';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { ConfigFileInfo } from '../../../../../swagger/models/config-file-info.model';
@@ -32,6 +32,9 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
     deploymentPending: boolean = false;
     disableDeployButton = false;
 
+    title: string;
+    clusterType: string;
+
     steps = [true, false, false, false, false, false, false, false, false, false, false];
     review = false;
 
@@ -45,6 +48,14 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
     }
 
     ngOnInit() {
+        // set branding and cluster type on branding change for base wizard components
+        Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe((data: TkgEvent) => {
+                this.clusterType = data.payload.clusterType;
+                this.title = data.payload.branding.title;
+            });
+
         // work around an issue within StepperModel
         this.wizard['stepperService']['accordion']['openFirstPanel'] = function () {
             const firstPanel = this.getFirstPanel();
@@ -121,7 +132,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
 
     /**
      * Apply the settings captured via UI to backend TKG config without
-     * actually creating the management cluster.
+     * actually creating the management/standalone cluster.
      */
     abstract applyTkgConfig(): Observable<ConfigFileInfo>;
 

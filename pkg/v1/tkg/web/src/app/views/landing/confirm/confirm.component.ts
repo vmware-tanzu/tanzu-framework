@@ -38,7 +38,7 @@ export class ConfirmComponent extends BasicSubscriber implements OnInit {
         Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
-                this.pageTitle = (data.payload.edition === 'tce') ? 'Tanzu Community Edition' : 'Tanzu Kubernetes Grid';
+                this.pageTitle = data.payload.branding.title;
             });
 
         this.stepMetaDataList = FormMetaDataStore.getStepList();

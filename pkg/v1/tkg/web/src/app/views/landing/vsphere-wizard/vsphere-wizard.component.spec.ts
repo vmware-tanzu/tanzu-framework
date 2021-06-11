@@ -71,6 +71,7 @@ describe('VSphereWizardComponent', () => {
             ceipOptInForm: fb.group({
             })
         });
+        component.clusterType = 'management';
         fixture.detectChanges();
     });
 

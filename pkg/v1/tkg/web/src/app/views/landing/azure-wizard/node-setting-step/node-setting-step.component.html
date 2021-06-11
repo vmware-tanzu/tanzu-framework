@@ -1,6 +1,6 @@
 <form [formGroup]="formGroup" *ngIf="displayForm">
-    <h4 i18n="management cluster settings" aria-level="2">
-        Management Cluster Settings
+    <h4 i18n="cluster settings" aria-level="2">
+        {{ clusterType | titlecase }} Cluster Settings
     </h4>
 
     <div class="clr-row">
@@ -102,13 +102,13 @@
     <div class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-input-container [attr.data-step-metadata]="formName">
-                <label i18n="management cluster name label" clr-control-label>
-                    MANAGEMENT CLUSTER NAME (OPTIONAL)
+                <label i18n="cluster name label" clr-control-label>
+                    {{ clusterType | uppercase }} CLUSTER NAME (OPTIONAL)
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                             <span>
-                                Optionally specify a name for the management cluster. If left blank,
+                                Optionally specify a name for the {{ clusterType }} cluster. If left blank,
                                 the installer names the cluster automatically.
                             </span>
                         </clr-tooltip-content>
@@ -117,17 +117,17 @@
                 <input clrInput formControlName="managementClusterName" placeholder="optional" maxlength="42"/>
                 <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
                 <clr-control-helper></clr-control-helper>
-                <clr-control-error i18n="management cluster name valid msg"
+                <clr-control-error i18n="cluster name valid msg"
                     *clrIfError="validatorEnum.VALID_CLUSTER_NAME">
-                    Management Cluster Name must consist of lower case alphanumeric characters, '-' or '.', and must start
+                    {{ clusterType | titlecase }} Cluster Name must consist of lower case alphanumeric characters, '-' or '.', and must start
                     and end with an alphanumeric character.
                 </clr-control-error>
-                <clr-control-error i18n="management cluster name valid msg" *clrIfError="validatorEnum.WHITESPACE">
-                    Management Cluster Name must not include whitespace on ends.
+                <clr-control-error i18n="cluster name valid msg" *clrIfError="validatorEnum.WHITESPACE">
+                    {{ clusterType | titlecase }} Cluster Name must not include whitespace on ends.
                 </clr-control-error>
             </clr-input-container>
         </div>
-        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *ngIf="clusterType !== 'standalone'">
             <clr-select-container [attr.data-step-metadata]="formName">
                 <label i18n="azure worker node instance label">
                     WORKER NODE INSTANCE TYPE
@@ -153,7 +153,7 @@
         </div>
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-checkbox-container [attr.data-step-metadata]="formName">
-                <label i18n="management cluster enable machine health check" clr-control-label
+                <label i18n="cluster enable machine health check" clr-control-label
                     data-full="ENABLE MACHINE HEALTH CHECKS">
                     MACHINE HEALTH CHECKS
                     <clr-tooltip>
@@ -161,7 +161,7 @@
                         <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
                             <span>
                                 Enable Machine Health Checks to provide node health monitoring on the clusters that you
-                                deploy with this management cluster.
+                                deploy with this {{ clusterType }} cluster.
                             </span>
                         </clr-tooltip-content>
                     </clr-tooltip>

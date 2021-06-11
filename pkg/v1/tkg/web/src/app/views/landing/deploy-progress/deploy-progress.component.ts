@@ -27,6 +27,7 @@ export class DeployProgressComponent extends BasicSubscriber implements OnInit {
     providerType: string = '';
     cli: string = '';
     pageTitle: string = '';
+    clusterType: string;
     messages: any[] = [];
     msgs$ = new BehaviorSubject<NgxLogMessage>(null);
     curStatus: any = {
@@ -57,7 +58,8 @@ export class DeployProgressComponent extends BasicSubscriber implements OnInit {
         Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
-                this.pageTitle = (data.payload.edition === 'tce') ? 'Tanzu Community Edition' : 'Tanzu Kubernetes Grid';
+                this.pageTitle = data.payload.branding.title;
+                this.clusterType = data.payload.clusterType;
             });
 
         this.appDataService.getProviderType()
@@ -182,11 +184,11 @@ export class DeployProgressComponent extends BasicSubscriber implements OnInit {
      */
     getStatusDescription(): string {
         if (this.curStatus.status === 'running') {
-            return `Deployment of the ${this.pageTitle} management cluster to ${this.providerType} is in progress.`;
+            return `Deployment of the ${this.pageTitle} ${this.clusterType} cluster to ${this.providerType} is in progress.`;
         } else if (this.curStatus.status === 'successful') {
-            return `Deployment of the ${this.pageTitle} management cluster to ${this.providerType} is successful.`;
+            return `Deployment of the ${this.pageTitle} ${this.clusterType} cluster to ${this.providerType} is successful.`;
         } else if (this.curStatus.status === 'failed') {
-            return `Deployment of the ${this.pageTitle} management cluster to ${this.providerType} has failed.`;
+            return `Deployment of the ${this.pageTitle} ${this.clusterType} cluster to ${this.providerType} has failed.`;
         }
     }
 }

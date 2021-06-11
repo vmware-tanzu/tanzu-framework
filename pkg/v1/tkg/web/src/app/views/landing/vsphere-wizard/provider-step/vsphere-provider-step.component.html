@@ -100,7 +100,7 @@
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                             <span>
                                 Name of the datacenter in vCenter Server in which to place the
-                                management cluster.
+                                {{ clusterType }} cluster.
                             </span>
                         </clr-tooltip-content>
                     </clr-tooltip>
@@ -127,7 +127,7 @@
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                             <span>
                                 The contents of an 4096-bit SSH-2 RSA public key from a key pair
-                                that you have created for the management cluster to use.
+                                that you have created for the {{ clusterType }} cluster to use.
                             </span>
                         </clr-tooltip-content>
                     </clr-tooltip>
@@ -171,7 +171,7 @@
             <button
                     class="btn btn-primary btn-width-350"
                     (click)="vSphereWithK8ModalOpen = false">
-                Deploy TKG Management Cluster
+                Deploy TKG {{ clusterType | titlecase }} Cluster
             </button>
         </p>
         <p>

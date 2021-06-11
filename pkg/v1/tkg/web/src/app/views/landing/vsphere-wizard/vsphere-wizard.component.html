@@ -8,7 +8,7 @@
                 (click)="navigate(APP_ROUTES.LANDING)"></clr-icon>
             <h2 i18n="wizard title" aria-level="1">
                 <div class="vsphere-icon-30"></div>
-                Deploy Management Cluster on vSphere
+                Deploy {{ clusterType | titlecase }} Cluster on vSphere
             </h2>
         </div>
     </div>
@@ -32,7 +32,7 @@
 
         <clr-stepper-panel formGroupName="vsphereNodeSettingForm" removeAriaLabelledBy>
             <clr-step-title i18n="node setting step name">
-                Management Cluster Settings
+                {{ clusterType | titlecase }} Cluster Settings
             </clr-step-title>
             <clr-step-description i18n="node setting step description">
                 {{ getStepDescription('nodeSetting') }}
@@ -141,10 +141,10 @@
                 <app-os-image-step [formGroup]="form.controls.osImageForm"
                     formName="osimages" [wizardFormService]="wizardFormService" type="VSPHERE"
                     [tkrVersion]="(tkrVersion | async)"
-                    [noImageAlertMessage]="'Your management cluster will be deployed with TanzuKubernetesRelease ' + (tkrVersion | async) + '.
+                    [noImageAlertMessage]="'Your ' + clusterType + ' cluster will be deployed with TanzuKubernetesRelease ' + (tkrVersion | async) + '.
                                     We are unable to detect a VM template that belongs to this TanzuKubernetesRelease. You must install
                                     a VM template that belongs to TanzuKubernetesRelease ' +  (tkrVersion | async) + ' to continue with deployment of
-                                    the management cluster. You may click the refresh icon to reload the OS image list once the
+                                    the ' + clusterType + ' cluster. You may click the refresh icon to reload the OS image list once the
                                     appropriate VM template has been installed.'"
                     osImageTooltipContent="Select a VM template for a base OS image that you have already imported
                                     into vSphere. If no compatible template is present, import one into
@@ -196,7 +196,7 @@
     </form>
 
     <button class="btn btn-primary mt-20" [disabled]="!getWizardValidity()" (click)="reviewConfiguration(true)"
-        i18n="review management cluster configuration btn">
+        i18n="review cluster configuration btn">
         REVIEW CONFIGURATION
     </button>
 </div>
@@ -210,8 +210,8 @@
                 Edit Configuration
             </button>
             <button class="btn btn-primary deploy-btn" [disabled]="disableDeployButton" (click)="deploy()"
-                i18n="confirm deploy management cluster button">
-                Deploy Management Cluster
+                i18n="deploy cluster configuration btn">
+                Deploy {{ clusterType | titlecase }} Cluster
             </button>
         </div>
     </div>

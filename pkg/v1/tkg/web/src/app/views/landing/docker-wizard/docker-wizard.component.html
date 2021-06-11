@@ -9,7 +9,7 @@
                         class="is-info back-link"
                         (click)="navigate(APP_ROUTES.LANDING)"></clr-icon>
                 <div class="docker-icon-30"></div>
-                Deploy Management Cluster on Docker
+                Deploy {{ clusterType | titlecase }} Cluster on Docker
             </h2>
         </div>
     </div>
@@ -65,8 +65,7 @@
 <!--            </clr-step-content>-->
 <!--        </clr-stepper-panel>-->
     </form>
-    <button class="btn btn-primary mt-20" [disabled]="!getWizardValidity()" (click)="reviewConfiguration(true)"
-            i18n="review management cluster configuration btn">
+    <button class="btn btn-primary mt-20" [disabled]="!getWizardValidity()" (click)="reviewConfiguration(true)">
         REVIEW CONFIGURATION
     </button>
 </div>
@@ -74,8 +73,8 @@
     <tkg-kickstart-ui-confirm [errorNotification]="errorNotification"></tkg-kickstart-ui-confirm>
     <div class="clr-row mt-20">
         <div class="clr-col-12">
-            <button class="btn btn-primary" [disabled]="disableDeployButton" (click)="deploy()" i18n="confirm deploy management cluster button">
-                Deploy Management Cluster
+            <button class="btn btn-primary" [disabled]="disableDeployButton" (click)="deploy()">
+                Deploy {{ clusterType | titlecase }} Cluster
             </button>
             <button class="btn btn-outline" (click)="reviewConfiguration(false)"
                 i18n="return to wizard for edit button">

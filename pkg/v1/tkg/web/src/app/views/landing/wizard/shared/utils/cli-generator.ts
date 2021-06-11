@@ -1,11 +1,14 @@
 export interface CliFields {
     configPath: string;
+    clusterType: string;
 }
 export class CliGenerator {
     getCli({
         configPath,
+        clusterType
     }) {
-        let command = "tanzu management-cluster create";
+        const clusterPrefix = (clusterType) ? clusterType : 'management';
+        let command = `tanzu ${clusterPrefix}-cluster create`;
         const optionsMapping = [
             ['--file', configPath],
             ['-v', 6]

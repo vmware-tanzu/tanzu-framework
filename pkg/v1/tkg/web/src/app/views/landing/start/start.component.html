@@ -1,17 +1,17 @@
 <div class="clr-row">
     <div class="clr-col-12">
         <h2 aria-level="1"><div class="{{ landingPageContent?.logoClass }}"></div>{{ landingPageContent?.title }}</h2>
-        <p i18n="start page welcome content" [innerHtml]="landingPageContent?.intro">
+        <p [innerHtml]="landingPageContent?.intro">
         </p>
     </div>
 </div>
 <div class="clr-row">
     <div class="clr-col-lg-12 clr-col-sm-12 clr-col-12">
-        <h4 i18n="deploy management cluster title" aria-level="2">Deploy the management cluster</h4>
+        <h4 aria-level="2">Deploy the {{ clusterType }} cluster</h4>
     </div>
 </div>
 <div class="clr-row" *ngIf="!loading">
-    <div class="clr-col-lg-4 clr-col-sm-6 clr-col-12" *ngIf="edition === 'tce'">
+    <div class="clr-col-lg-4 clr-col-sm-6 clr-col-12" *ngIf="edition === 'tce' || edition === 'tce-standalone'">
         <div class="card provider">
             <div class="card-block">
                 <div class="card-title">
@@ -21,12 +21,11 @@
                     <div class="docker-icon-48"></div>
                 </div>
                 <p class="card-text">
-                    Deploy your management cluster on your local workstation
+                    Deploy your {{ clusterType }} cluster on your local workstation
                 </p>
             </div>
             <div class="card-footer">
-                <button class="btn btn-primary" id="btn-deploy-docker" (click)="navigateToWizard(PROVIDERS.DOCKER)"
-                        i18n="deploy management cluster on docker button">
+                <button class="btn btn-primary" id="btn-deploy-docker" (click)="navigateToWizard(PROVIDERS.DOCKER)">
                     Deploy
                 </button>
             </div>
@@ -42,12 +41,11 @@
                     <div class="vsphere-icon-48"></div>
                 </div>
                 <p class="card-text">
-                    Deploy your management cluster on VMware vSphere
+                    Deploy your {{ clusterType }} cluster on VMware vSphere
                 </p>
             </div>
             <div class="card-footer">
-                <button class="btn btn-primary" id="btn-deploy-vsphere" (click)="navigateToWizard(PROVIDERS.VSPHERE)"
-                    i18n="deploy management cluster on vsphere button">
+                <button class="btn btn-primary" id="btn-deploy-vsphere" (click)="navigateToWizard(PROVIDERS.VSPHERE)">
                     Deploy
                 </button>
             </div>
@@ -63,12 +61,11 @@
                     <div class="aws-ec2-icon-48"></div>
                 </div>
                 <p class="card-text">
-                    Deploy your management cluster on Amazon Elastic Compute Cloud
+                    Deploy your {{ clusterType }} cluster on Amazon Elastic Compute Cloud
                 </p>
             </div>
             <div class="card-footer">
-                <button class="btn btn-primary" id="btn-deploy-aws" (click)="navigateToWizard(PROVIDERS.AWS)"
-                    i18n="deploy management cluster on aws button">
+                <button class="btn btn-primary" id="btn-deploy-aws" (click)="navigateToWizard(PROVIDERS.AWS)">
                     Deploy
                 </button>
             </div>
@@ -84,12 +81,11 @@
                     <div class="ms-azure-icon-48"></div>
                 </div>
                 <p class="card-text">
-                    Deploy your management cluster on Microsoft Azure
+                    Deploy your {{ clusterType }} cluster on Microsoft Azure
                 </p>
             </div>
             <div class="card-footer">
-                <button class="btn btn-primary" id="btn-deploy-azure" (click)="navigateToWizard(PROVIDERS.AZURE)"
-                    i18n="deploy management cluster on aws button">
+                <button class="btn btn-primary" id="btn-deploy-azure" (click)="navigateToWizard(PROVIDERS.AZURE)">
                     Deploy
                 </button>
             </div>
