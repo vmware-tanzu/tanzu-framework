@@ -364,8 +364,9 @@ ENABLE_AUDIT_LOGGING: false
 #! Configures default storage class for workload cluster if enabled
 ENABLE_DEFAULT_STORAGE_CLASS: true
 
-CLUSTER_CIDR: 100.96.0.0/11
-SERVICE_CIDR: 100.64.0.0/13
+#! CIDR default values are set based on TKG_IP_FAMILY in the CLI
+CLUSTER_CIDR:
+SERVICE_CIDR:
 NODE_STARTUP_TIMEOUT: 20m
 
 CONTROL_PLANE_MACHINE_COUNT: 1

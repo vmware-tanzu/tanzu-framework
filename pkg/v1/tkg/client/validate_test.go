@@ -105,11 +105,35 @@ var _ = Describe("Validate", func() {
 			}
 		})
 
-		Context("IPFamily validation", func() {
+		FContext("IPFamily configuration and validation", func() {
 			It("should allow empty IPFamily fields", func() {
 				validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
 				Expect(validationError).NotTo(HaveOccurred())
 			})
+
+			Context("when IPFamily is empty or ipv4", func() {
+				BeforeEach(func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableIPFamily, "ipv4")
+				})
+
+				Context("when SERVICE_CIDR is undefined", func() {
+					It("should set the default CIDR", func() {
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).NotTo(HaveOccurred())
+						cidr, _ := tkgConfigReaderWriter.Get(constants.ConfigVariableServiceCIDR)
+						Expect(cidr).To(Equal("100.64.0.0/13"))
+					})
+				})
+				Context("when CLUSTER_CIDR is undefined", func() {
+					It("should set the default CIDR", func() {
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).NotTo(HaveOccurred())
+						cidr, _ := tkgConfigReaderWriter.Get(constants.ConfigVariableClusterCIDR)
+						Expect(cidr).To(Equal("100.96.0.0/11"))
+					})
+				})
+			})
+
 			Context("when IPFamily is ipv6", func() {
 				BeforeEach(func() {
 					tkgConfigReaderWriter.Set(constants.ConfigVariableIPFamily, "ipv6")
@@ -162,19 +186,20 @@ var _ = Describe("Validate", func() {
 					})
 				})
 				Context("when SERVICE_CIDR is undefined", func() {
-					It("should fail validation", func() {
+					It("should set the default CIDR", func() {
+						tkgConfigReaderWriter.Set(constants.ConfigVariableClusterCIDR, "::1/8")
 						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
-						Expect(validationError).To(HaveOccurred())
-						Expect(validationError.Error()).To(ContainSubstring("invalid SERVICE_CIDR \"\", expected to be a CIDR of type \"ipv6\" (TKG_IP_FAMILY)"))
+						Expect(validationError).NotTo(HaveOccurred())
+						cidr, _ := tkgConfigReaderWriter.Get(constants.ConfigVariableServiceCIDR)
+						Expect(cidr).To(Equal("fd00:100:96::/108"))
 					})
 				})
 				Context("when CLUSTER_CIDR is undefined", func() {
-					It("should fail validation", func() {
-						tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, "::1/8")
-
+					It("should set the default CIDR", func() {
 						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
-						Expect(validationError).To(HaveOccurred())
-						Expect(validationError.Error()).To(ContainSubstring("invalid CLUSTER_CIDR \"\", expected to be a CIDR of type \"ipv6\" (TKG_IP_FAMILY)"))
+						Expect(validationError).NotTo(HaveOccurred())
+						cidr, _ := tkgConfigReaderWriter.Get(constants.ConfigVariableClusterCIDR)
+						Expect(cidr).To(Equal("fd00:100:64::/48"))
 					})
 				})
 				Context("when SERVICE_CIDR is garbage", func() {
