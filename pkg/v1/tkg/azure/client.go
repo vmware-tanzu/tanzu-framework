@@ -25,8 +25,6 @@ import (
 )
 
 const (
-	// AvailabilityZoneThreshold defines Availability Zone Threshold
-	AvailabilityZoneThreshold = 3
 	// ResourceTypeVirtualMachine defines virtualMachines resource type
 	ResourceTypeVirtualMachine = "virtualMachines"
 )
@@ -237,7 +235,6 @@ func (c *client) CreateVirtualNetwork(ctx context.Context, resourceGroupName, vi
 	return err
 }
 
-// List all Azure locations with more than 3 available AZs
 func (c *client) GetAzureRegions(ctx context.Context) ([]*models.AzureLocation, error) {
 	regions := make(map[string]string)
 	result := make([]*models.AzureLocation, 0)
@@ -261,16 +258,13 @@ func (c *client) GetAzureRegions(ctx context.Context) ([]*models.AzureLocation, 
 		if *sku.Value().ResourceType == ResourceTypeVirtualMachine {
 			if _, ok := supportedVMFamilyTypes[*sku.Value().Family]; ok {
 				for _, locationInfo := range *sku.Value().LocationInfo {
-					// return the regions whose AZ count is more than the THRESHOLD
-					if len(*locationInfo.Zones) >= AvailabilityZoneThreshold {
-						location := strings.ToLower(*locationInfo.Location)
-						if displayName, ok := regions[location]; ok {
-							result = append(result, &models.AzureLocation{
-								Name:        location,
-								DisplayName: displayName,
-							})
-							delete(regions, location)
-						}
+					location := strings.ToLower(*locationInfo.Location)
+					if displayName, ok := regions[location]; ok {
+						result = append(result, &models.AzureLocation{
+							Name:        location,
+							DisplayName: displayName,
+						})
+						delete(regions, location)
 					}
 				}
 			}
@@ -298,18 +292,15 @@ func (c *client) GetAzureInstanceTypesForRegion(ctx context.Context, region stri
 		if *sku.Value().ResourceType == ResourceTypeVirtualMachine {
 			if _, ok := supportedVMFamilyTypes[*sku.Value().Family]; ok {
 				for _, locationInfo := range *sku.Value().LocationInfo {
-					// filter instanceTypes with at least 3 azs
-					if len(*locationInfo.Zones) >= AvailabilityZoneThreshold {
-						instanceType := &models.AzureInstanceType{
-							Family: *sku.Value().Family,
-							Name:   *sku.Value().Name,
-							Size:   *sku.Value().Size,
-							Tier:   *sku.Value().Tier,
-							Zones:  *locationInfo.Zones,
-						}
-
-						instanceTypes = append(instanceTypes, instanceType)
+					instanceType := &models.AzureInstanceType{
+						Family: *sku.Value().Family,
+						Name:   *sku.Value().Name,
+						Size:   *sku.Value().Size,
+						Tier:   *sku.Value().Tier,
+						Zones:  *locationInfo.Zones,
 					}
+
+					instanceTypes = append(instanceTypes, instanceType)
 				}
 			}
 		}
