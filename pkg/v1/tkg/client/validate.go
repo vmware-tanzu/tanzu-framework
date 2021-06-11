@@ -1448,12 +1448,12 @@ func (c *TkgClient) configureAndValidateIPFamilyConfiguration() error {
 	if ipFamily == constants.IPv6Family {
 		if serviceCIDR == "" {
 			c.TKGConfigReaderWriter().Set(constants.ConfigVariableServiceCIDR, ipv6ServiceCIDR)
-		} else if !c.validateIPv6CIDR(serviceCIDR, ipFamily) {
+		} else if !c.validateIPv6CIDR(serviceCIDR) {
 			return invalidCIDRError(constants.ConfigVariableServiceCIDR, serviceCIDR, ipFamily)
 		}
 		if clusterCIDR == "" {
 			c.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterCIDR, ipv6ClusterCIDR)
-		} else if !c.validateIPv6CIDR(clusterCIDR, ipFamily) {
+		} else if !c.validateIPv6CIDR(clusterCIDR) {
 			return invalidCIDRError(constants.ConfigVariableClusterCIDR, clusterCIDR, ipFamily)
 		}
 		if err := c.validateIPHostnameIsIPv6(constants.TKGHTTPProxy); err != nil {
@@ -1497,7 +1497,7 @@ func (c *TkgClient) validateIPHostnameIsIPv6(configKey string) error {
 	return nil
 }
 
-func (c *TkgClient) validateIPv6CIDR(cidr, ipFamily string) bool {
+func (c *TkgClient) validateIPv6CIDR(cidr string) bool {
 	ip, _, err := net.ParseCIDR(cidr)
 	if err != nil {
 		return false
