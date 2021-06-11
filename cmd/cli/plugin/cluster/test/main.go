@@ -85,6 +85,8 @@ func init() {
 		configVars[constants.ConfigVariableClusterName] = tconf.ManagementClusterName
 		configVars[constants.ConfigVariableClusterPlan] = "dev"
 		configVars[constants.ConfigVariableInfraProvider] = tconf.InfrastructureName
+		configVars[constants.ConfigVariableCNI] = "calico"
+
 		out, err := yaml.Marshal(configVars)
 		if err != nil {
 			return err

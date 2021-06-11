@@ -96,6 +96,7 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 			DeployTKGonVsphere7:         e2eConfig.ManagementClusterOptions.DeployTKGonVsphere7,
 			EnableTKGSOnVsphere7:        e2eConfig.ManagementClusterOptions.EnableTKGSOnVsphere7,
 			VsphereControlPlaneEndpoint: e2eConfig.ManagementClusterOptions.Endpoint,
+			CniType:                     "calico",
 		})
 
 		Expect(err).To(BeNil())
@@ -120,11 +121,6 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 		},
 	})
 	Expect(err).ToNot(HaveOccurred())
-
-	err = tkgCtlClient.ConfigCluster(tkgctl.CreateClusterOptions{
-		ClusterConfigFile: clusterConfigFile,
-	})
-	Expect(err).To(BeNil())
 
 	By(fmt.Sprintf("Creating initial workload cluster %q", clusterName))
 
