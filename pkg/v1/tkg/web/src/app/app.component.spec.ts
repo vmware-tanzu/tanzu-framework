@@ -6,6 +6,7 @@ import { HttpClientModule } from '@angular/common/http';
 
 // App imports
 import { AppComponent } from './app.component';
+import { ThemeToggleComponent } from './shared/components/theme-toggle/theme-toggle.component';
 import { APIClient } from './swagger/api-client.service';
 import { BrandingService } from './shared/service/branding.service';
 import { BrandingServiceStub } from './testing/branding.service.stub';
@@ -22,7 +23,8 @@ describe('AppComponent', () => {
                 { provide: BrandingService, useClass: BrandingServiceStub }
             ],
             declarations: [
-                AppComponent
+                AppComponent,
+                ThemeToggleComponent
             ],
             schemas: [
                 CUSTOM_ELEMENTS_SCHEMA

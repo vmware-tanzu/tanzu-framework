@@ -16,6 +16,7 @@ import { SharedModule } from './shared/shared.module';
 // Component imports
 import { AppComponent } from './app.component';
 import { HeaderBarModule } from './shared/components/header-bar/header-bar.module';
+import { ThemeToggleComponent } from './shared/components/theme-toggle/theme-toggle.component';
 
 // Service imports
 import { AppDataService } from './shared/service/app-data.service';
@@ -25,7 +26,8 @@ import { VSphereWizardFormService } from './shared/service/vsphere-wizard-form.s
 
 @NgModule({
     declarations: [
-        AppComponent
+        AppComponent,
+        ThemeToggleComponent
     ],
     imports: [
         BrowserModule,

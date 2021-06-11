@@ -329,12 +329,10 @@
                     <clr-tooltip>
                         <clr-icon clrTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                            <p>
-                                When using an api server load balancer of type Internal, the default private IP address associated with that load
-                                balancer will be 10.0.0.100. If also specifying a custom virtual network, make sure you provide a private IP address
-                                that is in the range of your control plane subnet and not in use.
-                            </p>
-                            <p *ngIf="cidrHolder[showOption]">Must be a valid IP within subnet {{cidrHolder[showOption]}}</p>
+                            When using an api server load balancer of type Internal, the default private IP address associated with that load
+                            balancer will be 10.0.0.100. If also specifying a custom virtual network, make sure you provide a private IP address
+                            that is in the range of your control plane subnet and not in use.
+                            <span *ngIf="cidrHolder[showOption]">Must be a valid IP within subnet {{cidrHolder[showOption]}}</span>
                         </clr-tooltip-content>
                     </clr-tooltip>
                 </label>
