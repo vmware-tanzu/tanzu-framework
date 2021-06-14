@@ -62,9 +62,9 @@ const (
 
 	// chosen to match our IPv4 defaults
 	// use /48 for cluster CIDR because each node gets a /64 by default in IPv6
-	defaultIPv6ClusterCIDR = "fd00:100:64::/48"
+	defaultIPv6ClusterCIDR = "fd00:100:96::/48"
 	// use /108 is the max allowed for IPv6
-	defaultIPv6ServiceCIDR = "fd00:100:96::/108"
+	defaultIPv6ServiceCIDR = "fd00:100:64::/108"
 )
 
 var trueString = "true"

@@ -191,7 +191,7 @@ var _ = Describe("Validate", func() {
 						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
 						Expect(validationError).NotTo(HaveOccurred())
 						cidr, _ := tkgConfigReaderWriter.Get(constants.ConfigVariableServiceCIDR)
-						Expect(cidr).To(Equal("fd00:100:96::/108"))
+						Expect(cidr).To(Equal("fd00:100:64::/108"))
 					})
 				})
 				Context("when CLUSTER_CIDR is undefined", func() {
@@ -199,7 +199,7 @@ var _ = Describe("Validate", func() {
 						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
 						Expect(validationError).NotTo(HaveOccurred())
 						cidr, _ := tkgConfigReaderWriter.Get(constants.ConfigVariableClusterCIDR)
-						Expect(cidr).To(Equal("fd00:100:64::/48"))
+						Expect(cidr).To(Equal("fd00:100:96::/48"))
 					})
 				})
 				Context("when SERVICE_CIDR is garbage", func() {
