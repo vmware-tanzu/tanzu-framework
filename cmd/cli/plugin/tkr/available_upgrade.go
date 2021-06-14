@@ -35,6 +35,7 @@ var getAvailableUpgradesCmd = &cobra.Command{
 }
 
 func init() {
+	availableUpgradesCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table)")
 	availableUpgradesCmd.AddCommand(getAvailableUpgradesCmd)
 }
 
@@ -81,13 +82,13 @@ func getAvailableUpgrades(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	t := component.NewTableWriter("NAME", "VERSION")
+	t := component.NewOutputWriter(availableUpgradesCmd.OutOrStdout(), outputFormat, "NAME", "VERSION")
 	for i := range tkrs {
 		if _, ok := candidates[tkrs[i].Name]; !ok {
 			continue
 		}
 
-		t.Append([]string{tkrs[i].Name, tkrs[i].Spec.Version})
+		t.AddRow(tkrs[i].Name, tkrs[i].Spec.Version)
 	}
 	t.Render()
 

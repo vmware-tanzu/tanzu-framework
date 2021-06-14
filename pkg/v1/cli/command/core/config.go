@@ -37,6 +37,7 @@ func init() {
 var unattended bool
 
 func addDeleteServersCmd() {
+	listServersCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table)")
 	deleteServersCmd.Flags().BoolVarP(&unattended, "yes", "y", false, "Delete the server entry without confirmation")
 	serversCmd.AddCommand(deleteServersCmd)
 }
@@ -183,7 +184,7 @@ var listServersCmd = &cobra.Command{
 			return err
 		}
 
-		data := [][]string{}
+		output := component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "Name", "Type", "Endpoint", "Path", "Context")
 		for _, server := range cfg.KnownServers {
 			var endpoint, path, context string
 			if server.IsGlobal() {
@@ -193,14 +194,9 @@ var listServersCmd = &cobra.Command{
 				path = server.ManagementClusterOpts.Path
 				context = server.ManagementClusterOpts.Context
 			}
-			data = append(data, []string{server.Name, string(server.Type), endpoint, path, context})
+			output.AddRow(server.Name, server.Type, endpoint, path, context)
 		}
-		table := component.NewTableWriter("Name", "Type", "Endpoint", "Path", "Context")
-
-		for _, v := range data {
-			table.Append(v)
-		}
-		table.Render()
+		output.Render()
 		return nil
 	},
 }

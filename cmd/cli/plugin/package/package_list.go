@@ -26,6 +26,7 @@ func init() {
 	packageListCmd.Flags().BoolVarP(&packageListOp.AllNamespaces, "all-namespaces", "A", false, "If present, list the installed package(s) across all namespaces.")
 	packageListCmd.Flags().StringVarP(&packageListOp.Namespace, "namespace", "n", "default", "The namespace from which to list installed packages")
 	packageListCmd.Flags().StringVarP(&packageListOp.KubeConfig, "kubeconfig", "", "", "The path to the kubeconfig file, optional")
+	packageListCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table)")
 }
 
 func packageList(cmd *cobra.Command, args []string) error { //nolint:gocyclo
@@ -53,30 +54,31 @@ func packageList(cmd *cobra.Command, args []string) error { //nolint:gocyclo
 		if err != nil {
 			return errors.Wrap(err, "failed to list installed packages")
 		}
+
+		t := component.NewOutputWriter(cmd.OutOrStdout(), outputFormat)
 		if packageListOp.Namespace != "" {
 			// List Installed packages in given namespace
-			t := component.NewTableWriter("NAME", "VERSION")
+			t.SetKeys("NAME", "VERSION")
 			for _, pkg := range installedPackageList.Items { //nolint:gocritic
-				t.Append([]string{pkg.Name, pkg.Status.Version})
+				t.AddRow(pkg.Name, pkg.Status.Version)
 			}
-			t.Render()
 		} else {
 			// List Installed packages across all namespaces
-			t := component.NewTableWriter("NAME", "VERSION", "NAMESPACE")
+			t.SetKeys("NAME", "VERSION", "NAMESPACE")
 			for _, pkg := range installedPackageList.Items { //nolint:gocritic
-				t.Append([]string{pkg.Name, pkg.Status.Version, pkg.GetNamespace()})
+				t.AddRow(pkg.Name, pkg.Status.Version, pkg.GetNamespace())
 			}
-			t.Render()
 		}
+		t.Render()
 	} else if packageListOp.Available && packageListOp.PackageName == "" {
 		packageList, err := pkgClient.ListPackages()
 		if err != nil {
 			return err
 		}
 		// List all available Package CRs
-		t := component.NewTableWriter("NAME", "DISPLAYNAME", "SHORTDESCRIPTION")
+		t := component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "NAME", "DISPLAYNAME", "SHORTDESCRIPTION")
 		for _, pkg := range packageList.Items { //nolint:gocritic
-			t.Append([]string{pkg.Name, pkg.Spec.DisplayName, pkg.Spec.ShortDescription})
+			t.AddRow(pkg.Name, pkg.Spec.DisplayName, pkg.Spec.ShortDescription)
 		}
 		t.Render()
 	} else if packageListOp.Available && packageListOp.PackageName != "" {
@@ -85,9 +87,9 @@ func packageList(cmd *cobra.Command, args []string) error { //nolint:gocyclo
 			return errors.Wrap(err, "failed to list package versions")
 		}
 		// List all available Package CRs
-		t := component.NewTableWriter("NAME", "VERSION")
+		t := component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "NAME", "VERSION")
 		for _, pkg := range packageVersionList.Items { //nolint:gocritic
-			t.Append([]string{packageListOp.PackageName, pkg.Spec.Version})
+			t.AddRow(packageListOp.PackageName, pkg.Spec.Version)
 		}
 		t.Render()
 	}

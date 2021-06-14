@@ -7,14 +7,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/utils"
 )
-
-type getCeipOptions struct {
-	outputFormat string
-}
-
-var gceip = &getCeipOptions{}
 
 var getCeipCmd = &cobra.Command{
 	Use:     "get",
@@ -22,17 +15,17 @@ var getCeipCmd = &cobra.Command{
 	Short:   "Get the current CEIP opt-in status of the current management cluster",
 	Long:    "Get the current CEIP opt-in status of the current management cluster",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return runGetCEIP()
+		return runGetCEIP(cmd)
 	},
 }
 
 func init() {
-	getCeipCmd.Flags().StringVarP(&gceip.outputFormat, "output", "o", "", "Output format. Supported formats: json|yaml")
+	getCeipCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table)")
 
 	ceipCmd.AddCommand(getCeipCmd)
 }
 
-func runGetCEIP() error {
+func runGetCEIP(cmd *cobra.Command) error {
 	tkgClient, err := newTKGCtlClient()
 	if err != nil {
 		return err
@@ -43,14 +36,8 @@ func runGetCEIP() error {
 		return err
 	}
 
-	// if output format is specified use that output format to render output
-	// if not table format will be used
-	if gceip.outputFormat != "" {
-		return utils.RenderOutput(ceipStatus, gceip.outputFormat)
-	}
-
-	t := component.NewTableWriter("Management-Cluster-Name", "CEIP-Status")
-	t.Append([]string{ceipStatus.ClusterName, ceipStatus.CeipStatus})
+	t := component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "Management-Cluster-Name", "CEIP-Status")
+	t.AddRow(ceipStatus.ClusterName, ceipStatus.CeipStatus)
 	t.Render()
 
 	return nil

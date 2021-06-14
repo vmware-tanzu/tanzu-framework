@@ -40,6 +40,8 @@ func init() {
 
 	updateRepoCmd.Flags().StringVarP(&gcpBucketName, "gcp-bucket-name", "b", "", "name of gcp bucket")
 	updateRepoCmd.Flags().StringVarP(&gcpRootPath, "gcp-root-path", "p", "", "root path in gcp bucket")
+
+	listRepoCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table)")
 }
 
 var listRepoCmd = &cobra.Command{
@@ -50,17 +52,13 @@ var listRepoCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+
 		repos := cli.LoadRepositories(cfg)
-		var rows = len(repos)
-		data := make([][]string, rows)
-		for index := 0; index < rows; index++ {
-			data[index] = []string{repos[index].Name()}
+		output := component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "name")
+		for index := range repos {
+			output.AddRow(repos[index].Name())
 		}
-
-		table := component.NewTableWriter("Name")
-		table.AppendBulk(data)
-
-		table.Render()
+		output.Render()
 
 		return nil
 	},

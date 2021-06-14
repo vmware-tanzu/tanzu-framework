@@ -39,6 +39,7 @@ var getOSCmd = &cobra.Command{
 
 func init() {
 	getOSCmd.Flags().StringVarP(&goo.region, "region", "", "", "The AWS region where AMIs are available")
+	getOSCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table)")
 	osCmd.AddCommand(getOSCmd)
 }
 
@@ -119,9 +120,9 @@ func getOS(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	t := component.NewTableWriter("NAME", "VERSION", "ARCH")
+	t := component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "NAME", "VERSION", "ARCH")
 	for _, os := range osMap {
-		t.Append([]string{os.Name, os.Version, os.Arch})
+		t.AddRow(os.Name, os.Version, os.Arch)
 	}
 	t.Render()
 

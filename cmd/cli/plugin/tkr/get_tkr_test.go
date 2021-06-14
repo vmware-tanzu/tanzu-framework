@@ -53,6 +53,7 @@ var _ = Describe("runGetKubernetesReleases", func() {
 		}()
 		os.Stdout = writer
 		os.Stderr = writer
+		gtkr.output = writer
 		out := make(chan string)
 		wg := new(sync.WaitGroup)
 		wg.Add(1)

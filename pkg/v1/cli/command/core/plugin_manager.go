@@ -38,6 +38,7 @@ func init() {
 		repoCmd,
 		cleanPluginCmd,
 	)
+	listPluginCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table)")
 	pluginCmd.PersistentFlags().StringSliceVarP(&local, "local", "l", []string{}, "path to local repository")
 	installPluginCmd.Flags().StringVarP(&version, "version", "v", cli.VersionLatest, "version of the plugin")
 }
@@ -112,29 +113,20 @@ var listPluginCmd = &cobra.Command{
 			}
 		}
 
-		// show plugins installed locally but not found in repositories
-		for _, desc := range descriptors {
-			var exists bool
-			for _, d := range data {
-				if desc.Name == d[0] {
-					exists = true
-					break
-				}
-			}
-			if !exists {
-				data = append(data, []string{desc.Name, "", desc.Description, "", desc.Version, "installed"})
-			}
-		}
 		// sort plugins based on their names
 		sort.SliceStable(data, func(i, j int) bool {
 			return strings.ToLower(data[i][0]) < strings.ToLower(data[j][0])
 		})
-		table := component.NewTableWriter("Name", "Latest Version", "Description", "Repository", "Version", "Status")
 
-		for _, v := range data {
-			table.Append(v)
+		output := component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "Name", "Latest Version", "Description", "Repository", "Version", "Status")
+		for _, row := range data {
+			vals := make([]interface{}, len(row))
+			for i, val := range row {
+				vals[i] = val
+			}
+			output.AddRow(vals...)
 		}
-		table.Render()
+		output.Render()
 		return nil
 	},
 }

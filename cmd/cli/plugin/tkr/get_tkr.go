@@ -4,6 +4,7 @@
 package main
 
 import (
+	"io"
 	"time"
 
 	"github.com/pkg/errors"
@@ -19,6 +20,7 @@ import (
 
 type getTKROptions struct {
 	listAll bool
+	output  io.Writer
 }
 
 var gtkr = &getTKROptions{}
@@ -32,7 +34,9 @@ var getTanzuKubernetesRleasesCmd = &cobra.Command{
 
 func init() {
 	getTanzuKubernetesRleasesCmd.Flags().BoolVarP(&gtkr.listAll, "all", "a", false, "List all the available Tanzu Kubernetes releases including Incompatible and deactivated")
+	getTanzuKubernetesRleasesCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table)")
 }
+
 func getKubernetesReleases(cmd *cobra.Command, args []string) error {
 	server, err := config.GetCurrentServer()
 	if err != nil {
@@ -52,6 +56,7 @@ func getKubernetesReleases(cmd *cobra.Command, args []string) error {
 	if len(args) != 0 {
 		tkrName = args[0]
 	}
+	gtkr.output = cmd.OutOrStdout()
 	return runGetKubernetesReleases(clusterClient, tkrName)
 }
 
@@ -61,7 +66,7 @@ func runGetKubernetesReleases(clusterClient clusterclient.Client, tkrName string
 		return err
 	}
 
-	t := component.NewTableWriter("NAME", "VERSION", "COMPATIBLE", "ACTIVE", "UPDATES AVAILABLE")
+	t := component.NewOutputWriter(gtkr.output, outputFormat, "NAME", "VERSION", "COMPATIBLE", "ACTIVE", "UPDATES AVAILABLE")
 	for i := range tkrs {
 		compatible := ""
 		upgradeAvailable := ""
@@ -85,7 +90,7 @@ func runGetKubernetesReleases(clusterClient clusterclient.Client, tkrName string
 		if !gtkr.listAll && (!utils.IsTkrCompatible(&tkrs[i]) || !utils.IsTkrActive(&tkrs[i])) {
 			continue
 		}
-		t.Append([]string{tkrs[i].Name, tkrs[i].Spec.Version, compatible, activeStatus, upgradeAvailable})
+		t.AddRow(tkrs[i].Name, tkrs[i].Spec.Version, compatible, activeStatus, upgradeAvailable)
 	}
 	t.Render()
 	return nil

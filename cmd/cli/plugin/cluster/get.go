@@ -6,6 +6,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io"
 	"sort"
 	"strings"
 	"time"
@@ -42,6 +43,7 @@ type getClustersOptions struct {
 }
 
 var cd = &getClustersOptions{}
+var cmdOutput io.Writer
 
 var getClustersCmd = &cobra.Command{
 	Use:   "get CLUSTER_NAME",
@@ -51,6 +53,8 @@ var getClustersCmd = &cobra.Command{
 }
 
 func init() {
+	cmdOutput = getClustersCmd.OutOrStdout()
+
 	getClustersCmd.Flags().StringVarP(&cd.namespace, "namespace", "n", "", "The namespace from which to get workload clusters. If not provided clusters from all namespaces will be returned")
 
 	getClustersCmd.Flags().StringVar(&cd.showOtherConditions, "show-all-conditions", "", "List of comma separated kind or kind/name for which we should show all the object's conditions (all to show conditions for all the objects)")
@@ -127,15 +131,14 @@ func getCluster(server *v1alpha1.Server, clusterName string) error {
 		return err
 	}
 
-	t := component.NewTableWriter()
-	t.SetHeader([]string{"NAME", "NAMESPACE", "STATUS", "CONTROLPLANE", "WORKERS", "KUBERNETES", "ROLES"})
+	t := component.NewOutputWriter(cmdOutput, "table", "NAME", "NAMESPACE", "STATUS", "CONTROLPLANE", "WORKERS", "KUBERNETES", "ROLES")
 
 	cl := results.ClusterInfo
 	clusterRoles := noneTag
 	if len(cl.Roles) != 0 {
 		clusterRoles = strings.Join(cl.Roles, ",")
 	}
-	t.Append([]string{cl.Name, cl.Namespace, cl.Status, cl.ControlPlaneCount, cl.WorkerCount, cl.K8sVersion, clusterRoles})
+	t.AddRow(cl.Name, cl.Namespace, cl.Status, cl.ControlPlaneCount, cl.WorkerCount, cl.K8sVersion, clusterRoles)
 
 	t.Render()
 	log.Infof("\n\nDetails:\n\n")
@@ -144,10 +147,9 @@ func getCluster(server *v1alpha1.Server, clusterName string) error {
 	// If it is a Management Cluster, output the providers
 	if results.InstalledProviders != nil {
 		log.Infof("\n\nProviders:\n\n")
-		p := component.NewTableWriter()
-		p.SetHeader([]string{"NAMESPACE", "NAME", "TYPE", "PROVIDERNAME", "VERSION", "WATCHNAMESPACE"})
+		p := component.NewOutputWriter(cmdOutput, "table", "NAMESPACE", "NAME", "TYPE", "PROVIDERNAME", "VERSION", "WATCHNAMESPACE")
 		for _, installedProvider := range results.InstalledProviders.Items {
-			p.Append([]string{installedProvider.Namespace, installedProvider.Name, installedProvider.Type, installedProvider.ProviderName, installedProvider.Version, installedProvider.WatchedNamespace})
+			p.AddRow(installedProvider.Namespace, installedProvider.Name, installedProvider.Type, installedProvider.ProviderName, installedProvider.Version, installedProvider.WatchedNamespace)
 		}
 		p.Render()
 	}

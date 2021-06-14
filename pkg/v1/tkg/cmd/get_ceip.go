@@ -4,19 +4,12 @@
 package cmd
 
 import (
-	"os"
-
-	"github.com/jedib0t/go-pretty/table"
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/utils"
+	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
 )
 
-type getCeipOptions struct {
-	outputFormat string
-}
-
-var gceip = &getCeipOptions{}
+var outputFormat string
 
 var getCeipCmd = &cobra.Command{
 	Use:     "ceip-participation",
@@ -24,17 +17,17 @@ var getCeipCmd = &cobra.Command{
 	Short:   "Get the current CEIP opt-in status of the current management cluster",
 	Long:    "Get the current CEIP opt-in status of the current management cluster",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return runGetCEIP()
+		return runGetCEIP(cmd)
 	},
 }
 
 func init() {
-	getCeipCmd.Flags().StringVarP(&gceip.outputFormat, "output", "o", "", "Output format. Supported formats: json|yaml")
+	getCeipCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format. Supported formats: json|yaml|table")
 
 	getCmd.AddCommand(getCeipCmd)
 }
 
-func runGetCEIP() error {
+func runGetCEIP(cmd *cobra.Command) error {
 	tkgClient, err := newTKGCtlClient()
 	if err != nil {
 		return err
@@ -44,17 +37,13 @@ func runGetCEIP() error {
 	if err != nil {
 		return err
 	}
-
-	// if output format is specified use that output format to render output
-	// if not table format will be used
-	if gceip.outputFormat != "" {
-		return utils.RenderOutput(ceipStatus, gceip.outputFormat)
+	var t component.OutputWriter
+	if outputFormat == string(component.JSONOutputType) || outputFormat == string(component.YAMLOutputType) {
+		t = component.NewObjectWriter(cmd.OutOrStdout(), outputFormat, ceipStatus)
+	} else {
+		t = component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "Management-Cluster-Name", "CEIP-Status")
+		t.AddRow(ceipStatus.ClusterName, ceipStatus.CeipStatus)
 	}
-
-	t := utils.CreateTableWriter()
-	t.SetOutputMirror(os.Stdout)
-	t.AppendHeader(table.Row{"Management-Cluster-Name", "CEIP-Status"})
-	t.AppendRow(table.Row{ceipStatus.ClusterName, ceipStatus.CeipStatus})
 	t.Render()
 
 	return nil

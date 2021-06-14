@@ -4,20 +4,12 @@
 package cmd
 
 import (
-	"os"
 	"sort"
 
-	"github.com/jedib0t/go-pretty/table"
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/utils"
+	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
 )
-
-type getKubernetesVersionsOptions struct {
-	outputFormat string
-}
-
-var gkv = &getKubernetesVersionsOptions{}
 
 var getkvCmd = &cobra.Command{
 	Use:     "kubernetesversions",
@@ -25,17 +17,16 @@ var getkvCmd = &cobra.Command{
 	Short:   "Get the list of supported kubernetes versions for workload clusters",
 	Long:    "Get the list of supported kubernetes versions for workload clusters",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return runGetTKR()
+		return runGetTKR(cmd)
 	},
 }
 
 func init() {
-	getkvCmd.Flags().StringVarP(&gkv.outputFormat, "output", "o", "", "Output format. Supported formats: json|yaml")
-
+	getkvCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format. Supported formats: json|yaml|table")
 	getCmd.AddCommand(getkvCmd)
 }
 
-func runGetTKR() error {
+func runGetTKR(cmd *cobra.Command) error {
 	tkgClient, err := newTKGCtlClient()
 	if err != nil {
 		return err
@@ -47,17 +38,14 @@ func runGetTKR() error {
 	}
 	sort.Strings(tkrInfo.Versions)
 
-	// if output format is specified use that output format to render output
-	// if not table format will be used
-	if gkv.outputFormat != "" {
-		return utils.RenderOutput(tkrInfo, gkv.outputFormat)
-	}
-
-	t := utils.CreateTableWriter()
-	t.SetOutputMirror(os.Stdout)
-	t.AppendHeader(table.Row{"Versions"})
-	for _, k8sVersion := range tkrInfo.Versions {
-		t.AppendRow(table.Row{k8sVersion})
+	var t component.OutputWriter
+	if outputFormat == string(component.JSONOutputType) || outputFormat == string(component.YAMLOutputType) {
+		t = component.NewObjectWriter(cmd.OutOrStdout(), outputFormat, tkrInfo)
+	} else {
+		t = component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "Versions")
+		for _, k8sVersion := range tkrInfo.Versions {
+			t.AddRow(k8sVersion)
+		}
 	}
 	t.Render()
 

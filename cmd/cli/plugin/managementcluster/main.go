@@ -28,8 +28,11 @@ var descriptor = cliv1alpha1.PluginDescriptor{
 	PostInstallHook: postInstallHook,
 }
 
-var logLevel int32
-var logFile string
+var (
+	logLevel     int32
+	logFile      string
+	outputFormat string
+)
 
 func main() {
 	p, err := plugin.NewPlugin(&descriptor)
