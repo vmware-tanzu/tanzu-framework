@@ -97,6 +97,9 @@ app.set('port', port);
 if (_.includes(process.argv, '--tce') || appConfig.serverErrorState) {
     winston.warn('Starting UI server in TCE mode');
     appConfig.edition = 'tce';
+} else if (_.includes(process.argv, '--tce-standalone') || appConfig.serverErrorState) {
+    winston.warn('Starting UI server in TCE Standalone Cluster mode');
+    appConfig.edition = 'tce-standalone';
 }
 
 // create HTTP server

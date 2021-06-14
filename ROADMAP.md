@@ -12,7 +12,7 @@ Please open an issue to track any initiative on the roadmap of Core. For smaller
 ## Current Roadmap
 The following table includes the current roadmap for Core.
 
-If youd like to contribute and don't know where to start, we are always looking for contributors that will help us reduce technical, automation, and documentation debt.
+If you would like to contribute and don't know where to start, we are always looking for contributors that will help us reduce technical, automation, and documentation debt.
 
 Please take the timelines & dates as proposals and goals. Priorities and requirements change based on community feedback, roadblocks encountered, etc.
 

@@ -26,6 +26,7 @@ export class StartComponent extends BasicSubscriber implements OnInit {
     PROVIDERS: Providers = PROVIDERS;
 
     edition: string;
+    clusterType: string;
     provider: Observable<string>;
     landingPageContent: BrandingObj;
     loading: boolean = false;
@@ -45,8 +46,9 @@ export class StartComponent extends BasicSubscriber implements OnInit {
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
                 const content: EditionData = data.payload;
-                const title = (data.payload.edition === 'tce') ? 'Tanzu Community Edition' : 'Tanzu Kubernetes Grid';
-                this.edition = data.payload.edition;
+                const title = content.branding.title;
+                this.edition = content.edition;
+                this.clusterType = content.clusterType;
                 this.landingPageContent = content.branding.landingPage;
                 this.titleService.setTitle(title);
             });

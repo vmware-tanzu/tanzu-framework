@@ -86,6 +86,7 @@ describe('AwsWizardComponent', () => {
             registerTmcForm: fb.group({
             })
         });
+        component.clusterType = 'management';
         fixture.detectChanges();
     });
 

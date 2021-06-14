@@ -142,7 +142,7 @@ func getExternalCRDPaths() ([]string, error) {
 	externalDeps := map[string][]string{
 		"sigs.k8s.io/cluster-api": {"config/crd/bases",
 			"controlplane/kubeadm/config/crd/bases"},
-		"github.com/vmware-tanzu/carvel-kapp-controller": {"config/crd.yml"},
+		"github.com/vmware-tanzu/carvel-kapp-controller": {"config/crds.yml"},
 	}
 
 	var crdPaths []string

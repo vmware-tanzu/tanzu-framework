@@ -1137,6 +1137,7 @@ func (c *client) kubectlApplyFile(url string) error {
 	if err != nil {
 		return errors.Wrapf(err, "kubectl apply failed, output: %s", string(out))
 	}
+
 	return nil
 }
 

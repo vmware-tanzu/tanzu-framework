@@ -18,9 +18,9 @@
         Specify the Resources
     </h4>
     <span aria-live="assertive">
-        <button class="btn-refresh reset" 
-                role="button" 
-                aria-label="refresh resources" 
+        <button class="btn-refresh reset"
+                role="button"
+                aria-label="refresh resources"
                 tabindex="0"
                 (click)="loadResourceOptions()">
                 <clr-icon
@@ -49,7 +49,7 @@
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                         <span>
-                            Select an existing VM folder in which to place the management
+                            Select an existing VM folder in which to place the {{ clusterType }}
                             cluster VMs.
                         </span>
                             </clr-tooltip-content>
@@ -81,7 +81,7 @@
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
                         <span>
-                            Select a vSphere datastore for the management cluster to use.
+                            Select a vSphere datastore for the {{ clusterType }} cluster to use.
                         </span>
                             </clr-tooltip-content>
                         </clr-tooltip>
@@ -108,7 +108,7 @@
                     <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                     <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                     <span>
-                        Select a cluster, host, or a resource pool for management and workload clusters.
+                        Select a cluster, host, or a resource pool for your {{ clusterType }} cluster.
                     </span>
                     </clr-tooltip-content>
                 </clr-tooltip>
@@ -117,7 +117,7 @@
     </div>
     <div class="clr-row">
         <div class="clr-col-12">
-            <app-tree-select [attr.data-step-metadata]="formName" data-name="resourcePool" 
+            <app-tree-select [attr.data-step-metadata]="formName" data-name="resourcePool"
                 data-label="resource pool" [attr.data-value]="resourcePoolValue" [data]="treeData"
                 [selectedHandler]="handleOnClick"></app-tree-select>
             <clr-control-error *ngIf="showFormError('resourcePool')" >Selecting a resource is required</clr-control-error>

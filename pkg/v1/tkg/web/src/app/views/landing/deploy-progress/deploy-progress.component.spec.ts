@@ -26,6 +26,7 @@ describe('DeployProgressComponent', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(DeployProgressComponent);
         component = fixture.componentInstance;
+        component.clusterType = 'management';
         fixture.detectChanges();
     });
 

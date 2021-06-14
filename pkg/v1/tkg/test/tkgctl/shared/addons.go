@@ -7,6 +7,8 @@ package shared
 import (
 	"context"
 
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/test/framework/exec"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"gopkg.in/yaml.v3"
@@ -20,7 +22,6 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigbom"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/test/framework"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/test/framework/exec"
 )
 
 type E2EAddonSpecInput struct {
@@ -67,7 +68,7 @@ func E2EAddonSpec(context context.Context, inputGetter func() E2EAddonSpecInput)
 		Expect(err).ToNot(HaveOccurred())
 
 		By("Waiting for the certificate to be ready")
-		waitForCertificateToBeReady(context, input.E2EConfig.ManagementClusterName, "selfsigned-cert", "cert-manager-test")
+		waitForCertificateToBeReady(context, input.E2EConfig.ManagementClusterName, "selfsigned-cert", "tkg-cert-manager-test")
 	})
 }
 
@@ -123,6 +124,9 @@ func waitForCertificateToBeReady(ctx context.Context, clusterName string, certNa
 			return false
 		}
 
+		if status["conditions"] == nil {
+			return false
+		}
 		conditions := status["conditions"].([]interface{})
 		for _, c := range conditions {
 			condition, ok := c.(map[string]interface{})

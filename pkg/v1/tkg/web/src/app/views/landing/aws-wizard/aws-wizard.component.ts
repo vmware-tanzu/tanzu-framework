@@ -1,10 +1,10 @@
-import { TkgEvent, TkgEventType } from './../../../shared/service/Messenger';
-import { Observable } from 'rxjs';
 // Angular imports
 import { Component, OnInit, ElementRef } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
+
+import { Observable } from 'rxjs';
 
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 import { AWSAccountParamsKeys } from './provider-step/aws-provider-step.component';
@@ -14,8 +14,6 @@ import { AwsWizardFormService } from 'src/app/shared/service/aws-wizard-form.ser
 import { CliGenerator, CliFields } from '../wizard/shared/utils/cli-generator';
 import { BASTION_HOST_ENABLED } from './node-setting-step/node-setting-step.component';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
-import { takeUntil } from "rxjs/operators";
-import Broker from 'src/app/shared/service/broker';
 
 @Component({
     selector: 'aws-wizard',
@@ -27,7 +25,6 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
     // The region user selected
     region: string;
     nodeAzList: Array<any>;
-    title: string;
 
     constructor(
         router: Router,
@@ -64,14 +61,11 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
 
     ngOnInit() {
         super.ngOnInit();
-        Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TkgEvent) => {
-                this.title = (data.payload.edition === 'tce') ? 'Tanzu Community Edition' : 'Tanzu Kubernetes Grid';
-                this.titleService.setTitle(this.title + ' AWS');
-            });
+
         // To avoid re-open issue for AWS provider step.
         this.form.markAsDirty();
+
+        this.titleService.setTitle(this.title + ' AWS');
     }
 
     getStepDescription(stepName: string): string {
@@ -97,7 +91,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
                 }
                 return mode;
             } else {
-                return 'Specify the resources backing the management cluster';
+                return `Specify the resources backing the ${this.clusterType} cluster`;
             }
         } else if (stepName === 'network') {
             if (this.getFieldValue('networkForm', 'clusterPodCidr')) {
@@ -110,7 +104,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
                 this.form.get('metadataForm').get('clusterLocation').value) {
                 return 'Location: ' + this.form.get('metadataForm').get('clusterLocation').value;
             } else {
-                return 'Specify metadata for the management cluster';
+                return `Specify metadata for the ${this.clusterType} cluster`;
             }
         } else if (stepName === 'identity') {
             if (this.getFieldValue('identityForm', 'identityType') === 'oidc' &&
@@ -145,7 +139,8 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         payload.clusterName = this.getFieldValue('awsNodeSettingForm', 'clusterName');
         payload.controlPlaneNodeType = this.getControlPlaneNodeType('aws');
         payload.controlPlaneFlavor = this.getControlPlaneFlavor('aws');
-        payload.workerNodeType = this.getFieldValue('awsNodeSettingForm', 'workerNodeInstanceType');
+        payload.workerNodeType = (this.clusterType !== 'standalone') ?
+            this.getFieldValue('awsNodeSettingForm', 'workerNodeInstanceType') : payload.controlPlaneNodeType;
         const bastionHostEnabled = this.getFieldValue('awsNodeSettingForm', 'bastionHostEnabled');
         payload.bastionHostEnabled = bastionHostEnabled === BASTION_HOST_ENABLED;
         const machineHealthChecksEnabled = this.getFieldValue('awsNodeSettingForm', 'machineHealthChecksEnabled');
@@ -217,19 +212,20 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
     }
 
     /**
-     * Return management cluster name
+     * Return management/standalone cluster name
      */
     getMCName() {
         return this.getFieldValue('awsNodeSettingForm', 'clusterName');
     }
 
     /**
-     * Get the CLI used to deploy the management cluster
+     * Get the CLI used to deploy the management/standalone cluster
      */
     getCli(configPath: string): string {
         const cliG = new CliGenerator();
         const cliParams: CliFields = {
             configPath: configPath,
+            clusterType: this.clusterType
         };
         return cliG.getCli(cliParams);
     }

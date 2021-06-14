@@ -1,6 +1,17 @@
 /* You can add global styles to this file, and also import other style files */
 @import './sass/mixins/logo-base.scss';
 
+// Dark theme overrides
+body.dark {
+    .header {
+        background-color: #485a6a;
+    }
+
+    button.clr-accordion-header-button {
+        color: #fff;
+    }
+}
+
 // Branding logos
 .tanzu-logo {
     @include logo-container('./assets/images/tanzu-logo.svg');

@@ -2,11 +2,11 @@
 This document defines the project governance for Tanzu Core, an open source project by VMware.
 
 ## Overview
-Tanzu Core repository is an open source repo that will serve multiple Tanzu products including TCE,
+Tanzu Core repository is an open source repo that will serve multiple Tanzu products including Tanzu Community Edition,
 the Tanzu Community Edition.
 
-TCE is an open source and free to use community-supported Kubernetes distribution.
-Please refer to the [TCE repository](https://github.com/vmware-tanzu/tce) for more information on TCE.
+Tanzu Community Edition is an open source and free to use community-supported Kubernetes distribution.
+Please refer to the [Tanzu Community Edition repository](https://github.com/vmware-tanzu/tce) for more information.
 
 ## Tanzu Core Repository
 The core repository is governed by VMware and maintained under the vmware-tanzu organization.

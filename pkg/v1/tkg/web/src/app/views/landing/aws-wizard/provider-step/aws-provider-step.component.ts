@@ -35,6 +35,8 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
 
     constructor(private apiClient: APIClient) {
         super();
+
+        console.log('cluster type from stepform directive: ' + this.clusterType);
     }
 
     /**

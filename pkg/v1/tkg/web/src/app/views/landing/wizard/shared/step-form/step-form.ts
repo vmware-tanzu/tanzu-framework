@@ -1,16 +1,19 @@
-import { Input, OnInit, Directive } from '@angular/core';
+import { Input, OnInit, Directive, Self, Optional } from '@angular/core';
 import { FormGroup, ValidatorFn } from '@angular/forms';
 
 import { ValidatorEnum } from './../constants/validation.constants';
 import { BasicSubscriber } from 'src/app/shared/abstracts/basic-subscriber';
 import { FormMetaDataStore, FormMetaData } from '../FormMetaDataStore';
+import { TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
+import Broker from 'src/app/shared/service/broker';
+
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
 const INIT_FIELD_DELAY = 50;            // ms
 /**
  * Abstract class that's available for stepper component to extend.
  * It captures the common logic that should happen to most if not all
- * stepper compoments.
+ * stepper components.
  */
 @Directive()
 export abstract class StepFormDirective extends BasicSubscriber implements OnInit {
@@ -21,6 +24,8 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
 
     validatorEnum = ValidatorEnum;
     errorNotification: string;
+    clusterType: string;
+
     private delayedFieldQueue = [];
 
     constructor() {
@@ -34,7 +39,14 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         // waits 10 milliseconds so that other setTimeout calls finish first
         setTimeout(_ => {
             this.setSavedDataAfterLoad();
-        }, 10)
+        }, 10);
+
+        // set branding and cluster type on branding change for base wizard components
+        Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe((data: TkgEvent) => {
+                this.clusterType = data.payload.clusterType;
+            });
     }
 
     /**

@@ -203,13 +203,13 @@
         <div class="clr-row">
             <div class="clr-col-6">
                 <clr-datalist-container [attr.data-step-metadata]="formName" [class.label-disabled]="!connected">
-                    <label i18n="Management Cluster Network Name label" class="clr-col-lg-12 clr-col-12">
-                        MANAGEMENT CLUSTER VIP NETWORK NAME
+                    <label i18n="Cluster Network Name label" class="clr-col-lg-12 clr-col-12">
+                        {{ clusterType | uppercase }} CLUSTER VIP NETWORK NAME
                         <clr-tooltip>
                             <clr-icon clrTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                                 <span>
-                                    Choose a Management Cluster VIP Network Name.
+                                    Choose a {{ clusterType | titlecase }} Cluster VIP Network Name.
                                 </span>
                             </clr-tooltip-content>
                         </clr-tooltip>
@@ -218,20 +218,20 @@
                 <datalist id="managementClusterNetworkNameList">
                     <option *ngFor="let mcnn of vipNetworksPerCloud" [value]="mcnn.name">{{mcnn.name}}</option>
                 </datalist>
-                <clr-control-error>Selecting a Management Cluster VIP Network Name is required</clr-control-error>
+                <clr-control-error>Selecting a {{ clusterType | titlecase }} Cluster VIP Network Name is required</clr-control-error>
                 </clr-datalist-container>
             </div>
 
             <div class="clr-col-6">
                 <clr-datalist-container [attr.data-step-metadata]="formName">
-                    <label i18n="Management Cluster Network CIDR label" class="clr-col-lg-12 clr-col-12"
+                    <label i18n="Cluster Network CIDR label" class="clr-col-lg-12 clr-col-12"
                         [class.label-disabled]="!connected">
-                        MANAGEMENT CLUSTER VIP NETWORK CIDR
+                        {{ clusterType | uppercase }} CLUSTER VIP NETWORK CIDR
                         <clr-tooltip>
                             <clr-icon clrTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                                 <span>
-                                    Select a Management Cluster VIP Network CIDR.
+                                    Select a {{ clusterType | titlecase }} Cluster VIP Network CIDR.
                                 </span>
                             </clr-tooltip-content>
                         </clr-tooltip>
@@ -242,7 +242,7 @@
                     <option aria-label="blank" title="blank"></option>
                     <option *ngFor="let mcnc of subnetsPerManagementNetwork" [value]="mcnc.subnet">{{mcnc.subnet}}</option>
                 </datalist>
-                    <clr-control-error>Selecting a Management Cluster VIP Network CIDR is required</clr-control-error>
+                    <clr-control-error>Selecting a {{ clusterType | titlecase }} Cluster VIP Network CIDR is required</clr-control-error>
                 </clr-datalist-container>
             </div>
         </div>

@@ -1,9 +1,9 @@
 import { Component, OnInit, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
-import { TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
 import { FormBuilder } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { APIClient } from 'src/app/swagger';
+
 import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 import { Observable, EMPTY, throwError, of } from 'rxjs';
@@ -11,9 +11,7 @@ import { CliGenerator, CliFields } from '../wizard/shared/utils/cli-generator';
 import { AzureRegionalClusterParams } from 'src/app/swagger/models';
 import { AzureAccountParamsKeys } from './provider-step/azure-provider-step.component';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
-import { takeUntil } from "rxjs/operators";
 import { EXISTING } from './vnet-step/vnet-step.component';
-import Broker from 'src/app/shared/service/broker';
 
 @Component({
     selector: 'app-azure-wizard',
@@ -62,13 +60,8 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
 
     ngOnInit() {
         super.ngOnInit();
-        super.ngOnInit();
-        Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TkgEvent) => {
-                const title = (data.payload.edition === 'tce') ? 'Tanzu Community Edition Azure' : 'Tanzu Kubernetes Grid Azure';
-                this.titleService.setTitle(title);
-            });
+
+        this.titleService.setTitle(this.title + ' Azure');
     }
 
     getStepDescription(stepName: string): string {
@@ -86,13 +79,13 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
             if (controlPlaneSetting) {
                 return `Control plane type: ${controlPlaneSetting}`;
             }
-            return "Specifying the resources backing the management cluster";
+            return `Specifying the resources backing the ${this.clusterType} cluster`;
         } else if (stepName === 'metadataForm') {
             const location = this.getFieldValue(stepName, "clusterLocation");
             if (location) {
                 return `Location: ${location}`;
             }
-            return "Specify metadata for the management cluster";
+            return `Specify metadata for the ${this.clusterType} cluster`;
         } else if (stepName === 'networkForm') {
             const serviceCidr = this.getFieldValue(stepName, "clusterServiceCidr");
             const podCidr = this.getFieldValue(stepName, "clusterPodCidr");
@@ -139,7 +132,6 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
 
         const mappings = [
             ["location", "azureProviderForm", "region"],
-            ["workerMachineType", "azureNodeSettingForm", "workerNodeInstanceType"],
             ["sshPublicKey", "azureProviderForm", "sshPublicKey"],
         ];
 
@@ -147,6 +139,8 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
 
         payload.controlPlaneMachineType = this.getControlPlaneNodeType("azure");
         payload.controlPlaneFlavor = this.getControlPlaneFlavor("azure");
+        payload.workerMachineType = (this.clusterType !== 'standalone') ?
+            this.getFieldValue('azureNodeSettingForm', 'workerNodeInstanceType') : payload.controlPlaneMachineType;
         payload.machineHealthCheckEnabled = this.getBooleanFieldValue("azureNodeSettingForm", "machineHealthChecksEnabled");
 
         const resourceGroupOption = this.getFieldValue("azureProviderForm", "resourceGroupOption");
@@ -203,19 +197,20 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
     }
 
     /**
-     * Return management cluster name
+     * Return management/standalone cluster name
      */
     getMCName() {
         return this.getFieldValue("azureNodeSettingForm", "managementClusterName");
     }
 
     /**
-     * Get the CLI used to deploy the management cluster
+     * Get the CLI used to deploy the management/standalone cluster
      */
     getCli(configPath: string): string {
         const cliG = new CliGenerator();
         const cliParams: CliFields = {
             configPath: configPath,
+            clusterType: this.clusterType
         };
         return cliG.getCli(cliParams);
     }
