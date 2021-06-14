@@ -55,12 +55,16 @@ var (
 	AWSPublicSubnetIDConfigVariables  = []string{constants.ConfigVariableAWSPublicSubnetID, constants.ConfigVariableAWSPublicSubnetID1, constants.ConfigVariableAWSPublicSubnetID2}
 )
 
-// TKG_IP_FAMILY constants
 const (
-	ipv4ClusterCIDR = "100.96.0.0/11"
-	ipv4ServiceCIDR = "100.64.0.0/13"
-	ipv6ClusterCIDR = "fd00:100:64::/48"
-	ipv6ServiceCIDR = "fd00:100:96::/108"
+	// de-facto defaults initially chosen by kops: https://github.com/kubernetes/kops
+	defaultIPv4ClusterCIDR = "100.96.0.0/11"
+	defaultIPv4ServiceCIDR = "100.64.0.0/13"
+
+	// chosen to match our IPv4 defaults
+	// use /48 for cluster CIDR because each node gets a /64 by default in IPv6
+	defaultIPv6ClusterCIDR = "fd00:100:64::/48"
+	// use /108 is the max allowed for IPv6
+	defaultIPv6ServiceCIDR = "fd00:100:96::/108"
 )
 
 var trueString = "true"
@@ -1447,12 +1451,12 @@ func (c *TkgClient) configureAndValidateIPFamilyConfiguration() error {
 
 	if ipFamily == constants.IPv6Family {
 		if serviceCIDR == "" {
-			c.TKGConfigReaderWriter().Set(constants.ConfigVariableServiceCIDR, ipv6ServiceCIDR)
+			c.TKGConfigReaderWriter().Set(constants.ConfigVariableServiceCIDR, defaultIPv6ServiceCIDR)
 		} else if !c.validateIPv6CIDR(serviceCIDR) {
 			return invalidCIDRError(constants.ConfigVariableServiceCIDR, serviceCIDR, ipFamily)
 		}
 		if clusterCIDR == "" {
-			c.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterCIDR, ipv6ClusterCIDR)
+			c.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterCIDR, defaultIPv6ClusterCIDR)
 		} else if !c.validateIPv6CIDR(clusterCIDR) {
 			return invalidCIDRError(constants.ConfigVariableClusterCIDR, clusterCIDR, ipFamily)
 		}
@@ -1464,10 +1468,10 @@ func (c *TkgClient) configureAndValidateIPFamilyConfiguration() error {
 		}
 	} else { // For cases when TKG_IP_FAMILY is empty or ipv4
 		if serviceCIDR == "" {
-			c.TKGConfigReaderWriter().Set(constants.ConfigVariableServiceCIDR, ipv4ServiceCIDR)
+			c.TKGConfigReaderWriter().Set(constants.ConfigVariableServiceCIDR, defaultIPv4ServiceCIDR)
 		}
 		if clusterCIDR == "" {
-			c.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterCIDR, ipv4ClusterCIDR)
+			c.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterCIDR, defaultIPv4ClusterCIDR)
 		}
 	}
 	return nil
