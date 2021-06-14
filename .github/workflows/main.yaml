@@ -40,19 +40,20 @@ jobs:
             dep ensure
         fi
 
-    - name: Extract PR Info
-      shell: bash
-      run: |
-        echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-        echo "##[set-output name=basebranch;]$(echo ${GITHUB_BASE_REF#refs/heads/})"
-        echo "##[set-output name=prnum;]$(echo "$GITHUB_REF" | awk -F / '{print $3}')"
-      id: extract_pr
+    - name: Extract PR Number
+      uses: Dovyski/payload-info-action@master
+      id: get_pr_num
+      with:
+        # when event is a pull request, obtaining the PR number is obvious
+        filter_pull_request: '.number'
+        # when event is a push (merge of PR), obtains original PR number from the merge commit message
+        filter_push: '.head_commit.message | capture("Merge pull request #(?<pr>[[:digit:]]+)").pr | tonumber'
 
     - name: Find Comment
       uses: peter-evans/find-comment@v1
       id: findcomment
       with:
-        issue-number: ${{ steps.extract_pr.outputs.prnum }}
+        issue-number: ${{ steps.get_pr_num.outputs.value }}
         body-includes: //usebom
         direction: last
 
