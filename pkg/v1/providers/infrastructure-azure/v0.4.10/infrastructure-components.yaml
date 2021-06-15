@@ -3255,6 +3255,12 @@ spec:
         - --enable-leader-election
         - --feature-gates=MachinePool=${EXP_MACHINE_POOL:=false},AKS=${EXP_AKS:=false}
         env:
+        - name: HTTP_PROXY
+          value: ${TKG_HTTP_PROXY}
+        - name: HTTPS_PROXY
+          value: ${TKG_HTTPS_PROXY}
+        - name: NO_PROXY
+          value: ${TKG_NO_PROXY}
         - name: AZURE_ENVIRONMENT
           valueFrom:
             configMapKeyRef:
@@ -3287,13 +3293,6 @@ spec:
             path: /healthz
             port: healthz
         name: manager
-        env:
-        - name: HTTP_PROXY
-          value: ${TKG_HTTP_PROXY}
-        - name: HTTPS_PROXY
-          value: ${TKG_HTTPS_PROXY}
-        - name: NO_PROXY
-          value: ${TKG_NO_PROXY}
         ports:
         - containerPort: 9440
           name: healthz
