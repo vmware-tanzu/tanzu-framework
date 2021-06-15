@@ -4,8 +4,6 @@ metadata:
   name: "${CLUSTER_NAME}"
   labels:
     tkg.tanzu.vmware.com/cluster-name: '${CLUSTER_NAME}'
-  annotations:
-    capd.cluster.x-k8s.io/network: "bridge"
 spec:
   clusterNetwork:
     services:
