@@ -55,6 +55,10 @@ containerdConfigPatches:
   [plugins."io.containerd.grpc.v1.cri".registry.configs."%s".tls]
     insecure_skip_verify = false
     ca_file = "/etc/containerd/tkg-registry-ca.crt"`
+
+	kindNetworking = `
+networking:
+  ipFamily: %s`
 )
 
 // Client is used to create/delete kubernetes-in-docker cluster
@@ -215,6 +219,9 @@ func (k *KindClusterProxy) GetKindNodeImageAndConfig() (string, []byte, error) {
 	}
 	kindConfig += kindRegistryConfig
 
+	kindNetworkingConfig := k.getKindNetworkingConfig()
+	kindConfig += kindNetworkingConfig
+
 	log.V(3).Infof("kindConfig: \n" + kindConfig)
 	return kindNodeImageString, []byte(kindConfig), nil
 }
@@ -282,4 +289,16 @@ func (k *KindClusterProxy) getKindExtraMounts() (string, error) {
 	}
 
 	return defaultKindExtraMounts, nil
+}
+
+// Return the networking field for kind Cluster object
+// if TKG_IP_FAMILY is set then set the networking field
+func (k *KindClusterProxy) getKindNetworkingConfig() string {
+	ipFamily, err := k.options.Readerwriter.Get(constants.ConfigVariableIPFamily)
+	if err != nil || ipFamily == "" {
+		// ignore this error as TKG_IP_FAMILY is optional
+		return ""
+	}
+
+	return fmt.Sprintf(kindNetworking, ipFamily)
 }
