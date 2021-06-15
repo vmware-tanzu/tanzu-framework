@@ -2,9 +2,6 @@
 #@overlay/match-child-defaults missing_ok=True
 
 ---
-infraProvider: null
-#! set to ipv6 for IPv6
-ipFamily: null
 imageInfo:
   imageRepository: docker.io
   imagePullPolicy: IfNotPresent
@@ -21,9 +18,11 @@ imageInfo:
     calicoPodDaemonImage:
       imagePath: calico/pod2daemon-flexvol
       tag: v3.16.6
+infraProvider: vsphere
+ipFamily: ipv6
 calico:
   config:
-    clusterCIDR: 192.168.0.0/16
+    clusterCIDR: "[fe80::1]/64"
     #! "1440" is default MTU that we set in TKG.
     #! https://docs.projectcalico.org/networking/mtu#determine-mtu-size
     #! Calico can autodetect MTU. Check if this can be set to null in the future.

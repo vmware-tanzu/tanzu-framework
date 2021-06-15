@@ -9,6 +9,7 @@
 #@ def calicodatavalues():
 ---
 infraProvider: #@ data.values.PROVIDER_TYPE
+ipFamily: #@ data.values.TKG_IP_FAMILY
 calico:
   config:
     clusterCIDR: #@ data.values.CLUSTER_CIDR
