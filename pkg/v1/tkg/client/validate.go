@@ -55,6 +55,18 @@ var (
 	AWSPublicSubnetIDConfigVariables  = []string{constants.ConfigVariableAWSPublicSubnetID, constants.ConfigVariableAWSPublicSubnetID1, constants.ConfigVariableAWSPublicSubnetID2}
 )
 
+const (
+	// de-facto defaults initially chosen by kops: https://github.com/kubernetes/kops
+	defaultIPv4ClusterCIDR = "100.96.0.0/11"
+	defaultIPv4ServiceCIDR = "100.64.0.0/13"
+
+	// chosen to match our IPv4 defaults
+	// use /48 for cluster CIDR because each node gets a /64 by default in IPv6
+	defaultIPv6ClusterCIDR = "fd00:100:96::/48"
+	// use /108 is the max allowed for IPv6
+	defaultIPv6ServiceCIDR = "fd00:100:64::/108"
+)
+
 var trueString = "true"
 
 // VsphereResourceType vsphere resource types
@@ -560,7 +572,7 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
-	if err = c.validateIPFamilyConfiguration(); err != nil {
+	if err = c.configureAndValidateIPFamilyConfiguration(); err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
@@ -1429,23 +1441,37 @@ func checkClusterNameFormat(clusterName string) error {
 	return nil
 }
 
-func (c *TkgClient) validateIPFamilyConfiguration() error {
+func (c *TkgClient) configureAndValidateIPFamilyConfiguration() error {
 	// ignoring error because IPFamily is an optional configuration
 	// if not set Get will return an empty string
 	ipFamily, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableIPFamily)
 
+	serviceCIDR, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableServiceCIDR)
+	clusterCIDR, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterCIDR)
+
 	if ipFamily == constants.IPv6Family {
-		if err := c.validateIPv6CIDR(constants.ConfigVariableServiceCIDR, ipFamily); err != nil {
-			return err
+		if serviceCIDR == "" {
+			c.TKGConfigReaderWriter().Set(constants.ConfigVariableServiceCIDR, defaultIPv6ServiceCIDR)
+		} else if !c.validateIPv6CIDR(serviceCIDR) {
+			return invalidCIDRError(constants.ConfigVariableServiceCIDR, serviceCIDR, ipFamily)
 		}
-		if err := c.validateIPv6CIDR(constants.ConfigVariableClusterCIDR, ipFamily); err != nil {
-			return err
+		if clusterCIDR == "" {
+			c.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterCIDR, defaultIPv6ClusterCIDR)
+		} else if !c.validateIPv6CIDR(clusterCIDR) {
+			return invalidCIDRError(constants.ConfigVariableClusterCIDR, clusterCIDR, ipFamily)
 		}
 		if err := c.validateIPHostnameIsIPv6(constants.TKGHTTPProxy); err != nil {
 			return err
 		}
 		if err := c.validateIPHostnameIsIPv6(constants.TKGHTTPSProxy); err != nil {
 			return err
+		}
+	} else { // For cases when TKG_IP_FAMILY is empty or ipv4
+		if serviceCIDR == "" {
+			c.TKGConfigReaderWriter().Set(constants.ConfigVariableServiceCIDR, defaultIPv4ServiceCIDR)
+		}
+		if clusterCIDR == "" {
+			c.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterCIDR, defaultIPv4ClusterCIDR)
 		}
 	}
 	return nil
@@ -1475,19 +1501,15 @@ func (c *TkgClient) validateIPHostnameIsIPv6(configKey string) error {
 	return nil
 }
 
-func (c *TkgClient) validateIPv6CIDR(configKey, ipFamily string) error {
-	cidr, err := c.TKGConfigReaderWriter().Get(configKey)
-	if err != nil {
-		return invalidCIDRError(configKey, cidr, ipFamily)
-	}
+func (c *TkgClient) validateIPv6CIDR(cidr string) bool {
 	ip, _, err := net.ParseCIDR(cidr)
 	if err != nil {
-		return invalidCIDRError(configKey, cidr, ipFamily)
+		return false
 	}
 	if ip.To4() != nil {
-		return invalidCIDRError(configKey, cidr, ipFamily)
+		return false
 	}
-	return nil
+	return true
 }
 
 func invalidCIDRError(configKey, cidr, ipFamily string) error {
