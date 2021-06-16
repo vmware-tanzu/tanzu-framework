@@ -90,7 +90,7 @@ func NewRootCmd() (*cobra.Command, error) {
 
 	duplicateAliasWarning()
 
-	// Flag parsing must be disabled because the root plugin won't know about all flags.
+	// Flag parsing must be deactivated because the root plugin won't know about all flags.
 	RootCmd.DisableFlagParsing = true
 
 	return RootCmd, nil

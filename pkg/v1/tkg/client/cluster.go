@@ -57,7 +57,7 @@ type waitForAddonsOptions struct {
 // TKGSupportedClusterOptions is the comma separated list of cluster options that could be enabled by user
 // !!!NOTE this is set during the build time.
 // Only the cluster options mentioned in "AllowedEnableOptions" could be enabled by user through command line option("enable-cluster-options"),
-// if TKGSupportedClusterOptions is set to ""(for development purpose) the check would be disabled
+// if TKGSupportedClusterOptions is set to ""(for development purpose) the check would be deactivated
 var TKGSupportedClusterOptions string
 
 // CreateCluster create workload cluster

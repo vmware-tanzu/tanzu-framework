@@ -156,7 +156,7 @@ func init() {
 	InitCmd.Flags().StringVarP(&iro.cniType, "cni", "", "", "Specify the CNI provider the management cluster should use ['antrea' (default), 'calico', 'none'].")
 	InitCmd.Flags().MarkHidden("cni") //nolint
 
-	InitCmd.Flags().StringToStringVarP(&iro.featureFlags, "feature-flags", "", nil, "Enable and disable hidden features in the form 'feature1=true,feature2=false'")
+	InitCmd.Flags().StringToStringVarP(&iro.featureFlags, "feature-flags", "", nil, "Activate and deactivate hidden features in the form 'feature1=true,feature2=false'")
 	InitCmd.Flags().MarkHidden("feature-flags") //nolint
 
 	InitCmd.Flags().SetNormalizeFunc(aliasNormalizeFunc)

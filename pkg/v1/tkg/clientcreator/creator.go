@@ -75,7 +75,7 @@ func CreateAllClients(appConfig types.AppConfig, tkgConfigReaderWriter tkgconfig
 	}
 
 	// create new features client, defaults config file path to ~/.tkg/features.yaml
-	// This client is used to enable/disable features based on this features.yaml file
+	// This client is used to activate/deactivate features based on this features.yaml file
 	featuresClient, err := features.New(appConfig.TKGConfigDir, "")
 	if err != nil {
 		return Clients{}, errors.Wrap(err, "failed to create features client")
