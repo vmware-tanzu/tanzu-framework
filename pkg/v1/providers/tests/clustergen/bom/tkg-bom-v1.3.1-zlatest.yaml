@@ -47,20 +47,20 @@ components:
           imagePath: cluster-api/cluster-api-azure-controller
           tag: v0.4.10_vmware.1
   cluster_api:
-    - version: v0.3.16+vmware.1
+    - version: v0.3.19+vmware.1
       images:
         cabpkControllerImage:
           imagePath: cluster-api/kubeadm-bootstrap-controller
-          tag: v0.3.16_vmware.1
+          tag: v0.3.19_vmware.1
         capdManagerImage:
           imagePath: cluster-api/capd-manager
-          tag: v0.3.16_vmware.1
+          tag: v0.3.19_vmware.1
         capiControllerImage:
           imagePath: cluster-api/cluster-api-controller
-          tag: v0.3.16_vmware.1
+          tag: v0.3.19_vmware.1
         kcpControllerImage:
           imagePath: cluster-api/kubeadm-control-plane-controller
-          tag: v0.3.16_vmware.1
+          tag: v0.3.19_vmware.1
   cluster_api_aws:
     - version: v0.6.4+vmware.1
       images:
@@ -211,10 +211,10 @@ components:
       images:
         kubeRbacProxyControllerImage:
           imagePath: kube-rbac-proxy
-          tag: v0.4.1_vmware.2
+          tag: v0.8.0_vmware.1
         kubeRbacProxyControllerImageCapi:
           imagePath: cluster-api/kube-rbac-proxy
-          tag: v0.4.1_vmware.2
+          tag: v0.8.0_vmware.1
   kubernetes-sigs_kind:
     - version: v1.20.5+vmware.1
       images:

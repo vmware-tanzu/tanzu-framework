@@ -217,7 +217,6 @@ github.com/buger/jsonparser v0.0.0-20180808090653-f4dd9f5a6b44/go.mod h1:bbYlZJ7
 github.com/caarlos0/ctrlc v1.0.0/go.mod h1:CdXpj4rmq0q/1Eb44M9zi2nKB0QraNKuRGYGrrHhcQw=
 github.com/caarlos0/spin v1.1.0 h1:EjsfGbZJejib25BPnDqf7iL2z9RUna7refvUf+AN9UE=
 github.com/caarlos0/spin v1.1.0/go.mod h1:HOC4pUvfhjXR2yDt+sEY9dRc2m4CCaK5z5oQYAbzXSA=
-github.com/caddyserver/caddy v1.0.3 h1:i9gRhBgvc5ifchwWtSe7pDpsdS9+Q0Rw9oYQmYUTw1w=
 github.com/caddyserver/caddy v1.0.3/go.mod h1:G+ouvOY32gENkJC+jhgl62TyhvqEsFaDiZ4uw0RzP1E=
 github.com/campoy/unique v0.0.0-20180121183637-88950e537e7e/go.mod h1:9IOqJGCPMSc6E5ydlp5NIonxObaeu/Iub/X03EKPVYo=
 github.com/cavaliercoder/go-cpio v0.0.0-20180626203310-925f9528c45e/go.mod h1:oDpT4efm8tSYHXV5tHSdRvBet/b/QzxZ+XyyPehvm3A=
@@ -243,10 +242,13 @@ github.com/containerd/stargz-snapshotter/estargz v0.4.1 h1:5e7heayhB7CcgdTkqfZqr
 github.com/containerd/stargz-snapshotter/estargz v0.4.1/go.mod h1:x7Q9dg9QYb4+ELgxmo4gBUeJB0tl5dqH1Sdz0nJU1QM=
 github.com/containernetworking/cni v0.7.1/go.mod h1:LGwApLUm2FpoOfxTDEeq8T9ipbpZ61X79hmU3w8FmsY=
 github.com/containernetworking/plugins v0.8.6/go.mod h1:qnw5mN19D8fIwkqW7oHHYDHVlzhJpcY6TQxn/fUyDDM=
+github.com/coredns/caddy v1.1.0 h1:ezvsPrT/tA/7pYDBZxu0cT0VmWk75AfIaf6GSYCNMf0=
+github.com/coredns/caddy v1.1.0/go.mod h1:A6ntJQlAWuQfFlsd9hvigKbo2WS0VUs2l1e2F+BawD4=
 github.com/coredns/corefile-migration v1.0.7/go.mod h1:OFwBp/Wc9dJt5cAZzHWMNhK1r5L0p0jDwIBc6j8NC8E=
 github.com/coredns/corefile-migration v1.0.10/go.mod h1:RMy/mXdeDlYwzt0vdMEJvT2hGJ2I86/eO0UdXmH9XNI=
-github.com/coredns/corefile-migration v1.0.11 h1:ptBYGW2ADXIB7ZEBPrhhTvNwJLQfxE3Q9IUMBhJCEeI=
 github.com/coredns/corefile-migration v1.0.11/go.mod h1:RMy/mXdeDlYwzt0vdMEJvT2hGJ2I86/eO0UdXmH9XNI=
+github.com/coredns/corefile-migration v1.0.12 h1:TJGATo0YLQJVIKJZLajXE1IrhRFtYTR1cYsGIT1YNEk=
+github.com/coredns/corefile-migration v1.0.12/go.mod h1:NJOI8ceUF/NTgEwtjD+TUq3/BnH/GF7WAM3RzCa3hBo=
 github.com/coreos/bbolt v1.3.2/go.mod h1:iRUV2dpdMOn7Bo10OQBFzIJO9kkE559Wcmn+qkEiiKk=
 github.com/coreos/etcd v3.3.10+incompatible/go.mod h1:uF7uidLiAD3TWHmW31ZFd/JWoc32PjwdhPthX9715RE=
 github.com/coreos/etcd v3.3.13+incompatible/go.mod h1:uF7uidLiAD3TWHmW31ZFd/JWoc32PjwdhPthX9715RE=
@@ -1681,8 +1683,8 @@ sigs.k8s.io/cluster-api v0.3.7/go.mod h1:G6gscKzZTGhMOOF3rDZXCxsLIbhVaacbjaiikB/
 sigs.k8s.io/cluster-api v0.3.8/go.mod h1:j2beYKyad77JkeGaiv4l2obt81C3eqxfZGFDqX0YWjs=
 sigs.k8s.io/cluster-api v0.3.9/go.mod h1:A7Om/um/j7hvqTvm+KEMEjDOn6fHKRhcVtBiuAH+tYQ=
 sigs.k8s.io/cluster-api v0.3.14/go.mod h1:qGxyPTEJWNpII9SBkeRwv+Xvy6EZRLLLzaxVfBLsBpA=
-sigs.k8s.io/cluster-api v0.3.17-0.20210519210851-677dea631d48 h1:cXeE1pZMBJv5783OhuEKrQJwXGSRbQjbqCrC5w1rifE=
-sigs.k8s.io/cluster-api v0.3.17-0.20210519210851-677dea631d48/go.mod h1:qGxyPTEJWNpII9SBkeRwv+Xvy6EZRLLLzaxVfBLsBpA=
+sigs.k8s.io/cluster-api v0.3.19 h1:qa+0OH3DAcX7/htS69D4oIDT1ZZCCcW6pWt64jOS5tA=
+sigs.k8s.io/cluster-api v0.3.19/go.mod h1:1DBZEj6GmcWxe77d8YOeac1JIa8ttP21uTHUlAyji2g=
 sigs.k8s.io/cluster-api-provider-aws v0.6.5-0.20210309190705-ff3ed1b9f6f1 h1:RvjMKAzfoRx5rWXB0S1wTb3sWZegfGIZcpxlVpGFbls=
 sigs.k8s.io/cluster-api-provider-aws v0.6.5-0.20210309190705-ff3ed1b9f6f1/go.mod h1:hekliQu4ajGABYrB+vfc0idiXJ/cEY2r0kDxbOWAElg=
 sigs.k8s.io/cluster-api-provider-azure v0.4.9-0.20200910212016-5c680a6c2dd4 h1:RL05UgjiahrpHJ0l2zO5xjG4Fpa0/eAVE8BeX0CxHjA=
