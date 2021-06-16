@@ -20,6 +20,7 @@ import (
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
+	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgctl"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/utils"
@@ -41,8 +42,12 @@ const (
 type describeClustersOptions struct {
 	namespace           string
 	showOtherConditions string
-	disableNoEcho       bool
+	// Deprecated: Use showDetails instead.
+	disableNoEcho bool
+	// Deprecated: Use showGroupMembers instead.
 	disableGroupObjects bool
+	showDetails         bool
+	showGroupMembers    bool
 }
 
 var cd = &describeClustersOptions{}
@@ -51,6 +56,37 @@ var describeClustersCmd = &cobra.Command{
 	Use:  "cluster CLUSTER_NAME",
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
+		f1 := cmd.Flags().Lookup("disable-no-echo")
+		f1Changed := false
+		if f1 != nil && f1.Changed {
+			f1Changed = true
+			cd.showDetails = cd.disableNoEcho
+		}
+		f2 := cmd.Flags().Lookup("show-details")
+		f2Changed := false
+		if f2 != nil && f2.Changed {
+			f2Changed = true
+		}
+		if f1Changed && f2Changed {
+			verifyCommandError(fmt.Errorf("only one of --show-details or --disable-no-echo should be set"))
+			return
+		}
+
+		f1 = cmd.Flags().Lookup("disable-grouping")
+		f1Changed = false
+		if f1 != nil && f1.Changed {
+			f1Changed = true
+			cd.showGroupMembers = cd.disableGroupObjects
+		}
+		f2 = cmd.Flags().Lookup("show-group-members")
+		f2Changed = false
+		if f2 != nil && f2.Changed {
+			f2Changed = true
+		}
+		if f1Changed && f2Changed {
+			verifyCommandError(fmt.Errorf("only one of --show-group-members or --disable-grouping should be set"))
+		}
+
 		err := runDescribeCluster(args[0])
 
 		verifyCommandError(err)
@@ -61,8 +97,14 @@ func init() {
 	describeClustersCmd.Flags().StringVarP(&cd.namespace, "namespace", "n", "", "The namespace from which to get workload clusters. If not provided clusters from all namespaces will be returned")
 
 	describeClustersCmd.Flags().StringVar(&cd.showOtherConditions, "show-all-conditions", "", " list of comma separated kind or kind/name for which we should show all the object's conditions (all to show conditions for all the objects)")
-	describeClustersCmd.Flags().BoolVar(&cd.disableNoEcho, "disable-no-echo", false, "Disable hiding of a MachineInfrastructure and BootstrapConfig when ready condition is true or it has the Status, Severity and Reason of the machine's object")
-	describeClustersCmd.Flags().BoolVar(&cd.disableGroupObjects, "disable-grouping", false, "Disable grouping machines when ready condition has the same Status, Severity and Reason")
+
+	describeCmd.Flags().BoolVar(&cd.disableNoEcho, "disable-no-echo", false, "Disable hiding of a MachineInfrastructure and BootstrapConfig when ready condition is true or it has the Status, Severity and Reason of the machine's object")
+	cli.DeprecateFlagWithAlternative(describeCmd, "disable-no-echo", "1.6.0", "--show-details")
+	describeCmd.Flags().BoolVar(&cd.showDetails, "show-details", false, "Show details of MachineInfrastructure and BootstrapConfig when ready condition is true or it has the Status, Severity and Reason of the machine's object")
+
+	describeCmd.Flags().BoolVar(&cd.disableGroupObjects, "disable-grouping", false, "Disable grouping machines when ready condition has the same Status, Severity and Reason")
+	cli.DeprecateFlagWithAlternative(describeCmd, "disable-grouping", "1.6.0", "--show-group-members")
+	describeCmd.Flags().BoolVar(&cd.showGroupMembers, "show-group-members", false, "Expand machine groups whose ready condition has the same Status, Severity and Reason")
 
 	describeCmd.AddCommand(describeClustersCmd)
 }
@@ -78,8 +120,8 @@ func runDescribeCluster(clusterName string) error {
 		ClusterName:         clusterName,
 		Namespace:           cd.namespace,
 		ShowOtherConditions: cd.showOtherConditions,
-		DisableNoEcho:       cd.disableNoEcho,
-		DisableGroupObjects: cd.disableGroupObjects,
+		ShowDetails:         cd.showDetails,
+		ShowGroupMembers:    cd.showGroupMembers,
 	}
 
 	results, err := tkgClient.DescribeCluster(describeClusterOptions)

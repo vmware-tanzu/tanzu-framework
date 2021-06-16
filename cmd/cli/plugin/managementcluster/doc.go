@@ -106,10 +106,10 @@ Usage:
   tanzu management-cluster get [flags]
 
 Flags:
-      --disable-grouping             Disable grouping machines when ready condition has the same Status, Severity and Reason
-      --disable-no-echo              Disable hiding of a MachineInfrastructure and BootstrapConfig when ready condition is true or it has the Status, Severity and Reason of the machine's object
   -h, --help                         help for get
       --show-all-conditions string   List of comma separated kind or kind/name for which we should show all the object's conditions (all to show conditions for all the objects)
+      --show-details                 Show details of MachineInfrastructure and BootstrapConfig when ready condition is true or it has the Status, Severity and Reason of the machine's object
+      --show-group-members           Expand machine groups whose ready condition has the same Status, Severity and Reason
 
 Global Flags:
   --log-file string   	  Log file path

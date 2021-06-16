@@ -196,7 +196,7 @@ func (c *TkgClient) DoUpgradeAddon(regionalClusterClient clusterclient.Client, /
 		c.TKGConfigReaderWriter().Set(constants.ConfigVariableFilterByAddonType, addonName)
 
 		if crsDisabledAddon {
-			// This variable configuration is used to disable CRS for addons and generate the raw yaml
+			// This variable configuration is used to deactivate CRS for addons and generate the raw yaml
 			c.TKGConfigReaderWriter().Set(constants.ConfigVaraibleDisableCRSForAddonType, addonName)
 		}
 

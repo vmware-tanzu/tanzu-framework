@@ -9,11 +9,11 @@ tanzu cluster get CLUSTER_NAME [flags]
 ### Options
 
 ```
-      --disable-grouping             Disable grouping machines when ready condition has the same Status, Severity and Reason
-      --disable-no-echo              Disable hiding of a MachineInfrastructure and BootstrapConfig when ready condition is true or it has the Status, Severity and Reason of the machine's object
   -h, --help                         help for get
   -n, --namespace string             The namespace from which to get workload clusters. If not provided clusters from all namespaces will be returned
       --show-all-conditions string   List of comma separated kind or kind/name for which we should show all the object's conditions (all to show conditions for all the objects)
+      --show-details                 Show details of MachineInfrastructure and BootstrapConfig when ready condition is true or it has the Status, Severity and Reason of the machine's object
+      --show-group-members           Expand machine groups whose ready condition has the same Status, Severity and Reason
 ```
 
 ### Options inherited from parent commands

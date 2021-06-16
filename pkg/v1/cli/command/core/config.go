@@ -31,7 +31,7 @@ func init() {
 	setConfigCmd.AddCommand(setUnstableVersionsOptionCmd)
 	serversCmd.AddCommand(listServersCmd)
 	addDeleteServersCmd()
-	cli.DeprecateCommand(showConfigCmd, "1.5.0", "get")
+	cli.DeprecateCommandWithAlternative(showConfigCmd, "1.5.0", "get")
 }
 
 var unattended bool
