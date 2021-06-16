@@ -21,6 +21,9 @@ const (
 
 // PluginNameFromBin returns a plugin name from the binary name.
 func PluginNameFromBin(binName string) string {
+	if BuildArch().IsWindows() {
+		binName = strings.TrimSuffix(binName, ".exe")
+	}
 	return strings.TrimPrefix(binName, BinNamePrefix)
 }
 
