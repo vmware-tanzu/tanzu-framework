@@ -27,6 +27,8 @@ var (
 	configPath                            = "../fakes/config/config6.yaml"
 	configPathCustomRegistrySkipTLSVerify = "../fakes/config/config_custom_registry_skip_tls_verify.yaml"
 	configPathCustomRegistryCaCert        = "../fakes/config/config_custom_registry_ca_cert.yaml"
+	configPathIPv6                        = "../fakes/config/config_ipv6.yaml"
+	configPathIPv4                        = "../fakes/config/config_ipv4.yaml"
 	registryHostname                      = "registry.mydomain.com"
 )
 
@@ -159,6 +161,48 @@ var _ = Describe("Kind Client", func() {
 					Expect(kindConfig).Should(ContainSubstring("containerPath: /etc/containerd/tkg-registry-ca.crt"))
 				})
 			})
+		})
+	})
+
+	Context("When TKG_IP_FAMILY is unset", func() {
+		BeforeEach(func() {
+			setupTestingFiles(configPath, testingDir, defaultBoMFileForTesting)
+			kindClient = buildKindClient()
+			_, kindConfigBytes, err := kindClient.GetKindNodeImageAndConfig()
+			Expect(err).NotTo(HaveOccurred())
+			kindConfig = string(kindConfigBytes)
+		})
+
+		It("generates a config with ipfamily omitted", func() {
+			Expect(kindConfig).NotTo(ContainSubstring("networking:\n  ipFamily:"))
+		})
+	})
+
+	Context("When TKG_IP_FAMILY is ipv4", func() {
+		BeforeEach(func() {
+			setupTestingFiles(configPathIPv4, testingDir, defaultBoMFileForTesting)
+			kindClient = buildKindClient()
+			_, kindConfigBytes, err := kindClient.GetKindNodeImageAndConfig()
+			Expect(err).NotTo(HaveOccurred())
+			kindConfig = string(kindConfigBytes)
+		})
+
+		It("generates a config with ipfamily set to ipv4", func() {
+			Expect(kindConfig).To(ContainSubstring("networking:\n  ipFamily: ipv4"))
+		})
+	})
+
+	Context("When TKG_IP_FAMILY is ipv6", func() {
+		BeforeEach(func() {
+			setupTestingFiles(configPathIPv6, testingDir, defaultBoMFileForTesting)
+			kindClient = buildKindClient()
+			_, kindConfigBytes, err := kindClient.GetKindNodeImageAndConfig()
+			Expect(err).NotTo(HaveOccurred())
+			kindConfig = string(kindConfigBytes)
+		})
+
+		It("generates a config with ipfamily set to ipv6", func() {
+			Expect(kindConfig).To(ContainSubstring("networking:\n  ipFamily: ipv6"))
 		})
 	})
 })
