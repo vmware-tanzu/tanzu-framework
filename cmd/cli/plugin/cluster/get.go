@@ -21,6 +21,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	"github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
+	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
 	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 
@@ -32,8 +33,12 @@ const noneTag = "<none>"
 type getClustersOptions struct {
 	namespace           string
 	showOtherConditions string
-	disableNoEcho       bool
+	// Deprecated: Use showDetails instead.
+	disableNoEcho bool
+	// Deprecated: Use showGroupMembers instead.
 	disableGroupObjects bool
+	showDetails         bool
+	showGroupMembers    bool
 }
 
 var cd = &getClustersOptions{}
@@ -49,11 +54,47 @@ func init() {
 	getClustersCmd.Flags().StringVarP(&cd.namespace, "namespace", "n", "", "The namespace from which to get workload clusters. If not provided clusters from all namespaces will be returned")
 
 	getClustersCmd.Flags().StringVar(&cd.showOtherConditions, "show-all-conditions", "", "List of comma separated kind or kind/name for which we should show all the object's conditions (all to show conditions for all the objects)")
+
 	getClustersCmd.Flags().BoolVar(&cd.disableNoEcho, "disable-no-echo", false, "Disable hiding of a MachineInfrastructure and BootstrapConfig when ready condition is true or it has the Status, Severity and Reason of the machine's object")
+	cli.DeprecateFlagWithAlternative(getClustersCmd, "disable-no-echo", "1.6.0", "--show-details")
+	getClustersCmd.Flags().BoolVar(&cd.showDetails, "show-details", false, "Show details of MachineInfrastructure and BootstrapConfig when ready condition is true or it has the Status, Severity and Reason of the machine's object")
+
 	getClustersCmd.Flags().BoolVar(&cd.disableGroupObjects, "disable-grouping", false, "Disable grouping machines when ready condition has the same Status, Severity and Reason")
+	cli.DeprecateFlagWithAlternative(getClustersCmd, "disable-grouping", "1.6.0", "--show-group-members")
+	getClustersCmd.Flags().BoolVar(&cd.showGroupMembers, "show-group-members", false, "Expand machine groups whose ready condition has the same Status, Severity and Reason")
 }
 
 func get(cmd *cobra.Command, args []string) error {
+	f1 := cmd.Flags().Lookup("disable-no-echo")
+	f1Changed := false
+	if f1 != nil && f1.Changed {
+		f1Changed = true
+		cd.showDetails = cd.disableNoEcho
+	}
+	f2 := cmd.Flags().Lookup("show-details")
+	f2Changed := false
+	if f2 != nil && f2.Changed {
+		f2Changed = true
+	}
+	if f1Changed && f2Changed {
+		return fmt.Errorf("only one of --show-details or --disable-no-echo should be set")
+	}
+
+	f1 = cmd.Flags().Lookup("disable-grouping")
+	f1Changed = false
+	if f1 != nil && f1.Changed {
+		f1Changed = true
+		cd.showGroupMembers = cd.disableGroupObjects
+	}
+	f2 = cmd.Flags().Lookup("show-group-members")
+	f2Changed = false
+	if f2 != nil && f2.Changed {
+		f2Changed = true
+	}
+	if f1Changed && f2Changed {
+		return fmt.Errorf("only one of --show-group-members or --disable-grouping should be set")
+	}
+
 	server, err := config.GetCurrentServer()
 	if err != nil {
 		return err
@@ -77,8 +118,8 @@ func getCluster(server *v1alpha1.Server, clusterName string) error {
 		ClusterName:         clusterName,
 		Namespace:           cd.namespace,
 		ShowOtherConditions: cd.showOtherConditions,
-		DisableNoEcho:       cd.disableNoEcho,
-		DisableGroupObjects: cd.disableGroupObjects,
+		ShowDetails:         cd.showDetails,
+		ShowGroupMembers:    cd.showGroupMembers,
 	}
 
 	results, err := tkgctlClient.DescribeCluster(describeClusterOptions)

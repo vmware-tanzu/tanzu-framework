@@ -19,8 +19,8 @@ type DescribeTKGClustersOptions struct {
 	ClusterName         string
 	Namespace           string
 	ShowOtherConditions string
-	DisableNoEcho       bool
-	DisableGroupObjects bool
+	ShowDetails         bool
+	ShowGroupMembers    bool
 }
 
 // DescribeClusterResult the result object for when the cluster's description is returned
@@ -41,8 +41,8 @@ func (t *tkgctl) DescribeCluster(options DescribeTKGClustersOptions) (DescribeCl
 		ClusterName:         options.ClusterName,
 		Namespace:           options.Namespace,
 		ShowOtherConditions: options.ShowOtherConditions,
-		DisableNoEcho:       options.DisableNoEcho,
-		DisableGroupObjects: options.DisableGroupObjects,
+		ShowDetails:         options.ShowDetails,
+		ShowGroupMembers:    options.ShowGroupMembers,
 		IsManagementCluster: false,
 	}
 

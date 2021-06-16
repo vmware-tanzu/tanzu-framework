@@ -9,7 +9,6 @@ import (
 
 	"github.com/fabriziopandini/capi-conditions/cmd/kubectl-capi-tree/status"
 	"github.com/pkg/errors"
-
 	"k8s.io/apimachinery/pkg/runtime"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
@@ -26,8 +25,8 @@ type DescribeTKGClustersOptions struct {
 	ClusterName         string
 	Namespace           string
 	ShowOtherConditions string
-	DisableNoEcho       bool
-	DisableGroupObjects bool
+	ShowDetails         bool
+	ShowGroupMembers    bool
 	IsManagementCluster bool
 }
 
@@ -62,8 +61,8 @@ func (c *TkgClient) DescribeCluster(options DescribeTKGClustersOptions) (*status
 
 	objs, err := status.Discovery(ctx, f, cluster, status.DiscoverOptions{
 		ShowOtherConditions: options.ShowOtherConditions,
-		DisableNoEcho:       options.DisableNoEcho,
-		DisableGroupObjects: options.DisableGroupObjects,
+		DisableNoEcho:       options.ShowDetails,
+		DisableGroupObjects: options.ShowGroupMembers,
 	})
 	if err != nil {
 		return nil, nil, nil, err

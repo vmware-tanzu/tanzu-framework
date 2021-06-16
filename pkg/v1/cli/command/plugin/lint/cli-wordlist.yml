@@ -99,6 +99,8 @@ command-flags:
   - server
   - session-cache
   - show-all-conditions
+  - show-details
+  - show-group-members
   - size
   - skip-browser
   - staging
