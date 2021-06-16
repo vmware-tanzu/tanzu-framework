@@ -63,9 +63,6 @@ func init() {
 	configClusterCmd.Flags().StringVarP(&configclusteroption.infrastructureProvider, "infrastructure", "i", "", "The target infrastructure on which to deploy the workload cluster.")
 	configClusterCmd.Flags().MarkHidden("infrastructure") //nolint
 
-	configClusterCmd.Flags().BoolVarP(&configclusteroption.disableYTT, "disable-ytt", "", false, "Disable ytt template processing and use variable substitution for cluster template generate")
-	configClusterCmd.Flags().MarkHidden("disable-ytt") //nolint
-
 	configClusterCmd.Flags().SetNormalizeFunc(aliasNormalizeFunc)
 	configCmd.AddCommand(configClusterCmd)
 }

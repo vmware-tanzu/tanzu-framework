@@ -27,7 +27,6 @@ type createClusterOptions struct {
 	timeout                     time.Duration
 	controlPlaneMachineCount    int
 	workerMachineCount          int
-	disableYTT                  bool
 	unattended                  bool
 	generateOnly                bool
 }
@@ -92,9 +91,6 @@ func init() {
 	// Usually not needed as they are implied from configuration of the management cluster.
 	createClusterCmd.Flags().StringVarP(&cc.infrastructureProvider, "infrastructure", "i", "", "The target infrastructure on which to deploy the workload cluster.")
 	createClusterCmd.Flags().MarkHidden("infrastructure") //nolint
-
-	createClusterCmd.Flags().BoolVarP(&cc.disableYTT, "disable-ytt", "", false, "Disable ytt template processing and use variable substitution for cluster template generate")
-	createClusterCmd.Flags().MarkHidden("disable-ytt") //nolint
 
 	createClusterCmd.Flags().SetNormalizeFunc(aliasNormalizeFunc)
 	createCmd.AddCommand(createClusterCmd)
