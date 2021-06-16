@@ -17,8 +17,7 @@ var listClusterTest = clitest.NewTest("list clusters", "cluster list -o json", f
 
 	var clusters []map[string]interface{}
 	stdOut := t.StdOut()
-	stdOutPtr := &stdOut
-	if err := json.Unmarshal(stdOutPtr.Bytes(), &clusters); err != nil {
+	if err := json.Unmarshal(stdOut.Bytes(), &clusters); err != nil {
 		return err
 	}
 

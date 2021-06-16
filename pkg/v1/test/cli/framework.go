@@ -7,8 +7,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
+	"os"
 	"os/exec"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/aunum/log"
@@ -243,8 +246,8 @@ type Test struct {
 	// Result of command test.
 	Result *Result
 
-	stdOut bytes.Buffer
-	stdErr bytes.Buffer
+	stdOut *bytes.Buffer
+	stdErr *bytes.Buffer
 }
 
 // NewTest returns a new command
@@ -310,28 +313,80 @@ func (t *Test) Exec() (err error) {
 }
 
 // StdOut from executing the test command.
-func (t *Test) StdOut() bytes.Buffer {
+func (t *Test) StdOut() *bytes.Buffer {
 	return t.stdOut
 }
 
 // StdErr from executing the test command.
-func (t *Test) StdErr() bytes.Buffer {
+func (t *Test) StdErr() *bytes.Buffer {
 	return t.stdErr
 }
 
 // Exec the command, exit on error
-func Exec(command string) (stdOut, stdErr bytes.Buffer, err error) {
+func Exec(command string) (stdOut, stdErr *bytes.Buffer, err error) {
 	c := cleanCommand(command)
 	cmd := exec.Command(cli.Name, c...)
-	cmd.Stdout = &stdOut
-	cmd.Stderr = &stdErr
+
+	var stdOutBytes, stdErrBytes []byte
+	var errStdout, errStderr error
+	stdOutIn, err := cmd.StdoutPipe()
+	if err != nil {
+		return nil, nil, err
+	}
+	stdErrIn, err := cmd.StderrPipe()
+	if err != nil {
+		return nil, nil, err
+	}
+
 	fmt.Printf("$ %s \n", strings.Join(cmd.Args, " "))
-	err = cmd.Run()
+	err = cmd.Start()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		stdOutBytes, errStdout = copyAndCapture(os.Stdout, stdOutIn)
+		wg.Done()
+	}()
+	stdErrBytes, errStderr = copyAndCapture(os.Stderr, stdErrIn)
+	wg.Wait()
+	err = cmd.Wait()
 	if err != nil {
 		fmt.Println(stdOut.String())
 		fmt.Println(stdErr.String())
 	}
-	return stdOut, stdErr, err
+	if errStdout != nil {
+		return nil, nil, fmt.Errorf("failed to capture stdout: %w", errStdout)
+	}
+	if errStderr != nil {
+		return nil, nil, fmt.Errorf("failed to capture stderr: %w", errStderr)
+	}
+	return bytes.NewBuffer(stdOutBytes), bytes.NewBuffer(stdErrBytes), err
+}
+
+func copyAndCapture(w io.Writer, r io.Reader) ([]byte, error) {
+	var out []byte
+	buf := make([]byte, 1024, 1024)
+	for {
+		n, err := r.Read(buf[:])
+		if n > 0 {
+			d := buf[:n]
+			out = append(out, d...)
+			_, err := w.Write(d)
+			if err != nil {
+				return out, err
+			}
+		}
+		if err != nil {
+			// Read returns io.EOF at the end of file, which is not an error for us
+			if err == io.EOF {
+				err = nil
+			}
+			return out, err
+		}
+	}
 }
 
 // cleanCommand will remove the CLIName from the command if exists as first argument.
@@ -366,7 +421,7 @@ func ExecUnmarshal(command string, outputMessage proto.Message, format string) e
 		return nil
 	}
 
-	err = encproto.BufferToProto(&stdOut, outputMessage, format)
+	err = encproto.BufferToProto(stdOut, outputMessage, format)
 	if err != nil {
 		return err
 	}
@@ -434,7 +489,7 @@ func ExecContainsErrorString(command, contains string) error {
 }
 
 // ContainsString checks that the given buffer contains the string.
-func ContainsString(stdOut bytes.Buffer, contains string) error {
+func ContainsString(stdOut *bytes.Buffer, contains string) error {
 	so := stdOut.String()
 	if !strings.Contains(so, contains) {
 		return fmt.Errorf("stdOut %q did not contain %q", so, contains)
@@ -443,7 +498,7 @@ func ContainsString(stdOut bytes.Buffer, contains string) error {
 }
 
 // ContainsAnyString checks that the given buffer contains any of the given set of strings.
-func ContainsAnyString(stdOut bytes.Buffer, contains []string) error {
+func ContainsAnyString(stdOut *bytes.Buffer, contains []string) error {
 	var containsAny bool
 	so := stdOut.String()
 

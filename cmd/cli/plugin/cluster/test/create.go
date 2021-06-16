@@ -34,7 +34,7 @@ func init() {
 		log.Fatal(err)
 	}
 
-	createClusterCommand = fmt.Sprintf("cluster create -f %s", configFile.Name())
+	createClusterCommand = fmt.Sprintf("cluster create -v3 -f %s", configFile.Name())
 	createClusterTest = clitest.NewTest("create cluster", createClusterCommand, func(t *clitest.Test) error {
 		defer os.Remove(configFile.Name())
 
