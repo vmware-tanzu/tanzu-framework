@@ -6,7 +6,6 @@ replace (
 	github.com/go-logr/logr => github.com/go-logr/logr v0.1.0
 	github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.3.1 // indirect
 	k8s.io/api => k8s.io/api v0.17.11
-	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.17.11
 	k8s.io/apimachinery => k8s.io/apimachinery v0.17.11
 	k8s.io/client-go => k8s.io/client-go v0.17.11
 	k8s.io/klog/v2 => k8s.io/klog/v2 v2.0.0
@@ -74,6 +73,7 @@ require (
 	github.com/onsi/ginkgo v1.16.2
 	github.com/onsi/gomega v1.13.0
 	github.com/otiai10/copy v1.4.2
+	github.com/pelletier/go-toml/v2 v2.0.0-beta.3
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/common v0.29.0 // indirect
 	github.com/rs/xid v1.2.1
@@ -82,7 +82,7 @@ require (
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.1
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.1-0.20210427113832-6241f9ab9942
 	github.com/vmware-tanzu/carvel-kapp-controller v0.20.0-rc.1
 	github.com/vmware-tanzu/carvel-vendir v0.19.0
 	github.com/vmware/govmomi v0.23.1
