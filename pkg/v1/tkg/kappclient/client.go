@@ -101,6 +101,24 @@ func (c *client) addAnnotations(meta *v1.ObjectMeta, isPkgPluginCreatedSvcAccoun
 	}
 }
 
+// CreatePackageRepository creates a PackageRepository CR
+func (c *client) CreatePackageRepository(repository *kappipkg.PackageRepository) error {
+	if err := c.client.Create(context.Background(), repository); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// DeletePackageRepository deletes the provided PackageRepository CR
+func (c *client) DeletePackageRepository(repository *kappipkg.PackageRepository) error {
+	if err := c.client.Delete(context.Background(), repository); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // CreateInstalledPackage creates a InstalledPackage CR
 func (c *client) CreateInstalledPackage(installedPackage *kappipkg.InstalledPackage, isPkgPluginCreatedSvcAccount, isPkgPluginCreatedSecret bool) error {
 	installedPkg := installedPackage.DeepCopy()
@@ -143,6 +161,36 @@ func (c *client) GetPackageByName(packageName, namespace string) (*kapppkg.Packa
 	return pkg, nil
 }
 
+// GetPackageRepository gets the PackageRepository CR
+func (c *client) GetPackageRepository(repositoryName string) (*kappipkg.PackageRepository, error) {
+	repository := &kappipkg.PackageRepository{}
+	err := c.client.Get(context.Background(), crtclient.ObjectKey{Name: repositoryName}, repository)
+	if err != nil {
+		return nil, err
+	}
+	return repository, nil
+}
+
+// ListPackageRepositories gets the list of PackageRepository CR
+func (c *client) ListPackageRepositories() (*kappipkg.PackageRepositoryList, error) {
+	repositoryList := &kappipkg.PackageRepositoryList{}
+	err := c.client.List(context.Background(), repositoryList)
+	if err != nil {
+		return nil, err
+	}
+	return repositoryList, nil
+}
+
+// ListPackage gets the list of Package CR
+func (c *client) ListPackages() (*kapppkg.PackageList, error) {
+	packageList := &kapppkg.PackageList{}
+	err := c.client.List(context.Background(), packageList)
+	if err != nil {
+		return nil, err
+	}
+	return packageList, nil
+}
+
 // ListInstalledPackages gets the list of InstalledPackage CR in the specified namespace.
 // If no namespace be provided, it returns the list of installed packages across all namespaces
 func (c *client) ListInstalledPackages(namespace string) (*kappipkg.InstalledPackageList, error) {
@@ -177,4 +225,13 @@ func (c *client) ListPackageVersions(packageName, namespace string) (*kapppkg.Pa
 	}
 
 	return packageVersionList, nil
+}
+
+// UpdatePackageRepository updates a PackageRepository CR
+func (c *client) UpdatePackageRepository(repository *kappipkg.PackageRepository) error {
+	if err := c.client.Update(context.Background(), repository); err != nil {
+		return err
+	}
+
+	return nil
 }

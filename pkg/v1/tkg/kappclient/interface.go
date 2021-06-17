@@ -15,10 +15,16 @@ import (
 // Client is the kapp client interface
 type Client interface {
 	CreateInstalledPackage(installedPackage *kappipkg.InstalledPackage, isPkgPluginCreatedSvcAccount bool, isPkgPluginCreatedSecret bool) error
+	CreatePackageRepository(repository *kappipkg.PackageRepository) error
+	DeletePackageRepository(repository *kappipkg.PackageRepository) error
+	GetPackageRepository(repositoryName string) (*kappipkg.PackageRepository, error)
 	GetAppCR(appName string, namespace string) (*kappctrl.App, error)
 	GetClient() crtclient.Client
 	GetInstalledPackage(installedPackageName string, namespace string) (*kappipkg.InstalledPackage, error)
 	GetPackageByName(packageName string, namespace string) (*kapppkg.Package, error)
 	ListInstalledPackages(namespace string) (*kappipkg.InstalledPackageList, error)
 	ListPackageVersions(packageName string, namespace string) (*kapppkg.PackageVersionList, error)
+	ListPackages() (*kapppkg.PackageList, error)
+	ListPackageRepositories() (*kappipkg.PackageRepositoryList, error)
+	UpdatePackageRepository(repository *kappipkg.PackageRepository) error
 }

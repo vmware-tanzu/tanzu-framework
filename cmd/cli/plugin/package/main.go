@@ -31,6 +31,8 @@ func main() {
 	p.Cmd.PersistentFlags().StringVar(&logFile, "log-file", "", "Log file path")
 
 	p.AddCommands(
+		repositoryCmd,
+		packageListCmd,
 		packageInstallCmd,
 		packageUninstallCmd,
 	)
