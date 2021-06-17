@@ -116,6 +116,53 @@ var _ = Describe("Validate", func() {
 					tkgConfigReaderWriter.Set(constants.ConfigVariableIPFamily, "ipv4")
 				})
 
+				Context("when SERVICE_CIDR and CLUSTER_CIDR are ipv4", func() {
+					It("should pass validation", func() {
+						tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, "192.168.2.1/8")
+						tkgConfigReaderWriter.Set(constants.ConfigVariableClusterCIDR, "192.168.2.1/8")
+
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).NotTo(HaveOccurred())
+					})
+				})
+				Context("when SERVICE_CIDR is ipv6", func() {
+					It("should fail validation", func() {
+						tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, "::1/8")
+
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).To(HaveOccurred())
+						Expect(validationError.Error()).To(ContainSubstring("invalid SERVICE_CIDR \"::1/8\", expected to be a CIDR of type \"ipv4\" (TKG_IP_FAMILY)"))
+					})
+				})
+				Context("when CLUSTER_CIDR is ipv6", func() {
+					It("should fail validation", func() {
+						tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, "1.2.3.4/16")
+						tkgConfigReaderWriter.Set(constants.ConfigVariableClusterCIDR, "::1/8")
+
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).To(HaveOccurred())
+						Expect(validationError.Error()).To(ContainSubstring("invalid CLUSTER_CIDR \"::1/8\", expected to be a CIDR of type \"ipv4\" (TKG_IP_FAMILY)"))
+					})
+				})
+				Context("when SERVICE_CIDR is not an actual CIDR", func() {
+					It("should fail validation", func() {
+						tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, "1.2.3.4")
+
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).To(HaveOccurred())
+						Expect(validationError.Error()).To(ContainSubstring("invalid SERVICE_CIDR \"1.2.3.4\", expected to be a CIDR of type \"ipv4\" (TKG_IP_FAMILY)"))
+					})
+				})
+				Context("when CLUSTER_CIDR is not an actual CIDR", func() {
+					It("should fail validation", func() {
+						tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, "1.2.3.4/8")
+						tkgConfigReaderWriter.Set(constants.ConfigVariableClusterCIDR, "1.2.3.4")
+
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).To(HaveOccurred())
+						Expect(validationError.Error()).To(ContainSubstring("invalid CLUSTER_CIDR \"1.2.3.4\", expected to be a CIDR of type \"ipv4\" (TKG_IP_FAMILY)"))
+					})
+				})
 				Context("when SERVICE_CIDR is undefined", func() {
 					It("should set the default CIDR", func() {
 						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
@@ -130,6 +177,94 @@ var _ = Describe("Validate", func() {
 						Expect(validationError).NotTo(HaveOccurred())
 						cidr, _ := tkgConfigReaderWriter.Get(constants.ConfigVariableClusterCIDR)
 						Expect(cidr).To(Equal("100.96.0.0/11"))
+					})
+				})
+				Context("when SERVICE_CIDR is garbage", func() {
+					It("should fail validation", func() {
+						tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, "klsfda")
+
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).To(HaveOccurred())
+						Expect(validationError.Error()).To(ContainSubstring("invalid SERVICE_CIDR \"klsfda\", expected to be a CIDR of type \"ipv4\" (TKG_IP_FAMILY)"))
+					})
+				})
+				Context("when CLUSTER_CIDR is garbage", func() {
+					It("should fail validation", func() {
+						tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, "1.2.3.4/8")
+						tkgConfigReaderWriter.Set(constants.ConfigVariableClusterCIDR, "aoiwnf")
+
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).To(HaveOccurred())
+						Expect(validationError.Error()).To(ContainSubstring("invalid CLUSTER_CIDR \"aoiwnf\", expected to be a CIDR of type \"ipv4\" (TKG_IP_FAMILY)"))
+					})
+				})
+				Context("HTTP(S)_PROXY variables", func() {
+					BeforeEach(func() {
+						tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, "1.2.3.4/8")
+						tkgConfigReaderWriter.Set(constants.ConfigVariableClusterCIDR, "1.2.3.4/8")
+					})
+					Context("when HTTP_PROXY and HTTPS_PROXY are unset", func() {
+						It("should pass validation", func() {
+							validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+							Expect(validationError).NotTo(HaveOccurred())
+						})
+					})
+					Context("when HTTP_PROXY and HTTPS_PROXY are ipv4", func() {
+						It("should pass validation", func() {
+							tkgConfigReaderWriter.Set(constants.TKGHTTPProxy, "http://1.2.3.4")
+							tkgConfigReaderWriter.Set(constants.TKGHTTPSProxy, "https://1.2.3.4")
+
+							validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+							Expect(validationError).NotTo(HaveOccurred())
+						})
+					})
+					Context("when HTTP_PROXY and HTTPS_PROXY are ipv6 with ports", func() {
+						It("should fail validation", func() {
+							tkgConfigReaderWriter.Set(constants.TKGHTTPProxy, "http://[::1]:3128")
+							tkgConfigReaderWriter.Set(constants.TKGHTTPSProxy, "https://[::1]:3128")
+
+							validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+							Expect(validationError).To(HaveOccurred())
+							Expect(validationError.Error()).To(ContainSubstring("invalid TKG_HTTP_PROXY \"http://[::1]:3128\", expected to be an address of type \"ipv4\" (TKG_IP_FAMILY)"))
+						})
+					})
+					Context("when HTTP_PROXY and HTTPS_PROXY are ipv4 with ports", func() {
+						It("should pass validation", func() {
+							tkgConfigReaderWriter.Set(constants.TKGHTTPProxy, "http://1.2.3.4:3128")
+							tkgConfigReaderWriter.Set(constants.TKGHTTPSProxy, "https://1.2.3.4:3128")
+
+							validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+							Expect(validationError).NotTo(HaveOccurred())
+						})
+					})
+					Context("when HTTP_PROXY and HTTPS_PROXY are domain names", func() {
+						It("should pass validation", func() {
+							tkgConfigReaderWriter.Set(constants.TKGHTTPProxy, "http://foo.bar.com")
+							tkgConfigReaderWriter.Set(constants.TKGHTTPSProxy, "https://foo.bar.com")
+
+							validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+							Expect(validationError).NotTo(HaveOccurred())
+						})
+					})
+					Context("when HTTP_PROXY is ipv6", func() {
+						It("should fail validation", func() {
+							tkgConfigReaderWriter.Set(constants.TKGHTTPProxy, "http://[::1]")
+							tkgConfigReaderWriter.Set(constants.TKGHTTPSProxy, "https://foo.bar.com")
+
+							validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+							Expect(validationError).To(HaveOccurred())
+							Expect(validationError.Error()).To(ContainSubstring("invalid TKG_HTTP_PROXY \"http://[::1]\", expected to be an address of type \"ipv4\" (TKG_IP_FAMILY)"))
+						})
+					})
+					Context("when HTTPS_PROXY is ipv6", func() {
+						It("should fail validation", func() {
+							tkgConfigReaderWriter.Set(constants.TKGHTTPProxy, "https://foo.bar.com")
+							tkgConfigReaderWriter.Set(constants.TKGHTTPSProxy, "http://[::1]")
+
+							validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+							Expect(validationError).To(HaveOccurred())
+							Expect(validationError.Error()).To(ContainSubstring("invalid TKG_HTTPS_PROXY \"http://[::1]\", expected to be an address of type \"ipv4\" (TKG_IP_FAMILY)"))
+						})
 					})
 				})
 			})
@@ -248,6 +383,16 @@ var _ = Describe("Validate", func() {
 
 							validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
 							Expect(validationError).NotTo(HaveOccurred())
+						})
+					})
+					Context("when HTTP_PROXY and HTTPS_PROXY are ipv4 with ports", func() {
+						It("should fail validation", func() {
+							tkgConfigReaderWriter.Set(constants.TKGHTTPProxy, "http://1.2.3.4:3128")
+							tkgConfigReaderWriter.Set(constants.TKGHTTPSProxy, "https://1.2.3.4:3128")
+
+							validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+							Expect(validationError).To(HaveOccurred())
+							Expect(validationError.Error()).To(ContainSubstring("invalid TKG_HTTP_PROXY \"http://1.2.3.4:3128\", expected to be an address of type \"ipv6\" (TKG_IP_FAMILY)"))
 						})
 					})
 					Context("when HTTP_PROXY and HTTPS_PROXY are domain names", func() {
