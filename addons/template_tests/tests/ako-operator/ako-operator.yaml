@@ -13,6 +13,8 @@ spec:
     kind: AKODeploymentConfig
     listKind: AKODeploymentConfigList
     plural: akodeploymentconfigs
+    shortNames:
+    - adc
     singular: akodeploymentconfig
   scope: Cluster
   versions:
@@ -649,6 +651,8 @@ spec:
           value: "False"
         - name: tkg_management_cluster_name
           value: default-cluster
+        - name: control_plane_endpoint_port
+          value: "6443"
         resources:
           limits:
             cpu: 100m
