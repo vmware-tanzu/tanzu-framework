@@ -34,7 +34,7 @@ func (p *pkgClient) resolvePackage(pkgName, pkgVersion, namespace string) (*kapp
 		}
 	}
 
-	return nil, nil, errors.Errorf(fmt.Sprintf("failed to resolve package %s %s", pkgName, pkgVersion))
+	return nil, nil, errors.Errorf(fmt.Sprintf("failed to resolve package '%s' with version '%s'", pkgName, pkgVersion))
 }
 
 // validateRepository ensures that another repository (with the same name or same OCI registry URL) does not already exist in the cluster

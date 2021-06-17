@@ -12,6 +12,8 @@ import (
 	kapppkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/packages/v1alpha1"
 )
 
+//go:generate counterfeiter -o ../fakes/kappclient.go --fake-name KappClient . Client
+
 // Client is the kapp client interface
 type Client interface {
 	CreateInstalledPackage(installedPackage *kappipkg.InstalledPackage, isPkgPluginCreatedSvcAccount bool, isPkgPluginCreatedSecret bool) error

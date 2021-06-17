@@ -51,10 +51,10 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions) error 
 		objKey := crtclient.ObjectKey{Name: o.ServiceAccountName, Namespace: o.Namespace}
 		svcAccount := &corev1.ServiceAccount{}
 		if err := p.kappClient.GetClient().Get(context.Background(), objKey, svcAccount); err != nil {
-			return errors.Wrap(err, fmt.Sprintf("failed to find service account %s in namespace %s", o.ServiceAccountName, o.Namespace))
+			return errors.Wrap(err, fmt.Sprintf("failed to find service account '%s' in namespace '%s'", o.ServiceAccountName, o.Namespace))
 		}
 		if _, ok := svcAccount.GetAnnotations()[tkgpackagedatamodel.TanzuPkgPluginAnnotation]; ok {
-			return errors.New(fmt.Sprintf("provided service account '%s' is already used by another package in namespace %s", o.ServiceAccountName, o.Namespace))
+			return errors.New(fmt.Sprintf("provided service account '%s' is already used by another package in namespace '%s'", o.ServiceAccountName, o.Namespace))
 		}
 	}
 
@@ -123,7 +123,7 @@ func (p *pkgClient) createDataValuesSecret(o *tkgpackagedatamodel.PackageOptions
 	dataValues := make(map[string][]byte)
 
 	if dataValues[filepath.Base(o.ValuesFile)], err = ioutil.ReadFile(o.ValuesFile); err != nil {
-		return err
+		return errors.Wrap(err, fmt.Sprintf("failed to read from data values file '%s'", o.ValuesFile))
 	}
 	secretName := fmt.Sprintf(tkgpackagedatamodel.SecretName, o.InstalledPkgName, o.Namespace)
 	secret := &corev1.Secret{

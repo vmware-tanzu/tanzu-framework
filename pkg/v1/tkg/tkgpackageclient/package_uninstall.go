@@ -31,13 +31,13 @@ func (p *pkgClient) UnInstallPackage(o *tkgpackagedatamodel.PackageUninstallOpti
 			log.Infof("package %s is not installed in namespace %s", o.InstalledPkgName, o.Namespace)
 			return nil
 		}
-		return errors.Wrap(err, fmt.Sprintf("failed to find installed package %s in namespace %s", o.InstalledPkgName, o.Namespace))
+		return errors.Wrap(err, fmt.Sprintf("failed to find installed package '%s' in namespace '%s'", o.InstalledPkgName, o.Namespace))
 	}
 
 	log.Infof("Uninstalling package '%s' from namespace '%s'", o.InstalledPkgName, o.Namespace)
 
 	if err := p.deleteInstalledPackage(o); err != nil {
-		return errors.Wrap(err, "Error deleting installed package.")
+		return err
 	}
 
 	if err := p.waitForAppCRDeletion(o); err != nil {
@@ -123,7 +123,7 @@ func (p *pkgClient) waitForAppCRDeletion(o *tkgpackagedatamodel.PackageUninstall
 		}
 		for _, cond := range app.Status.Conditions {
 			if cond.Type == kappctrl.DeleteFailed {
-				return false, fmt.Errorf("app reconciliation failed: %s", app.Status.UsefulErrorMessage)
+				return false, fmt.Errorf("app deletion failed: %s", app.Status.UsefulErrorMessage)
 			}
 		}
 

@@ -4,8 +4,6 @@
 package main
 
 import (
-	"time"
-
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
@@ -18,6 +16,7 @@ var packageUninstallOp = tkgpackagedatamodel.NewPackageUninstallOptions()
 var packageUninstallCmd = &cobra.Command{
 	Use:   "uninstall",
 	Short: "Uninstall a package",
+	Long:  "Remove the installed package and almost all resources installed as part of installation of the package from the cluster. Namespaces created during installation of the package, do not automatically get deleted at the time of package uninstallation.",
 	Args:  cobra.ExactArgs(1),
 	RunE:  packageUninstall,
 }
@@ -25,8 +24,8 @@ var packageUninstallCmd = &cobra.Command{
 func init() {
 	packageUninstallCmd.Flags().StringVarP(&packageUninstallOp.Namespace, "namespace", "n", "default", "Target namespace from which the package should be deleted, optional")
 	packageUninstallCmd.Flags().StringVarP(&packageUninstallOp.KubeConfig, "kubeconfig", "", "", "The path to the kubeconfig file, optional")
-	packageUninstallCmd.Flags().DurationVarP(&packageUninstallOp.PollInterval, "poll_interval", "", 1*time.Second, "Time interval between subsequent polls of package deletion status, optional")
-	packageUninstallCmd.Flags().DurationVarP(&packageUninstallOp.PollTimeout, "poll_timeout", "", 5*time.Minute, "Timeout value for polls of package deletion status, optional")
+	packageUninstallCmd.Flags().DurationVarP(&packageUninstallOp.PollInterval, "poll-interval", "", tkgpackagedatamodel.DefaultPollInterval, "Time interval between subsequent polls of package deletion status, optional")
+	packageUninstallCmd.Flags().DurationVarP(&packageUninstallOp.PollTimeout, "poll-timeout", "", tkgpackagedatamodel.DefaultPollTimeout, "Timeout value for polls of package deletion status, optional")
 }
 
 func packageUninstall(_ *cobra.Command, args []string) error {
