@@ -14,7 +14,6 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgctl"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/utils"
 )
 
 type listClusterOptions struct {
@@ -34,7 +33,7 @@ var listClustersCmd = &cobra.Command{
 func init() {
 	listClustersCmd.Flags().StringVarP(&lc.namespace, "namespace", "n", "", "The namespace from which to list workload clusters. If not provided clusters from all namespaces will be returned")
 	listClustersCmd.Flags().BoolVarP(&lc.includeMC, "include-management-cluster", "", false, "Show active management cluster information as well")
-	listClustersCmd.Flags().StringVarP(&lc.outputFormat, "output", "o", "", "Output format. Supported formats: json|yaml")
+	listClustersCmd.Flags().StringVarP(&lc.outputFormat, "output", "o", "", "Output format (yaml|json|table)")
 }
 
 func list(cmd *cobra.Command, args []string) error {
@@ -46,11 +45,11 @@ func list(cmd *cobra.Command, args []string) error {
 	if server.IsGlobal() {
 		return errors.New("listing cluster with a global server is not implemented yet")
 	}
-	return listClusters(server)
+	return listClusters(cmd, server)
 }
 
 //nolint:gocritic
-func listClusters(server *v1alpha1.Server) error {
+func listClusters(cmd *cobra.Command, server *v1alpha1.Server) error {
 	tkgctlClient, err := createTKGClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context)
 	if err != nil {
 		return err
@@ -67,17 +66,18 @@ func listClusters(server *v1alpha1.Server) error {
 		return err
 	}
 
-	if lc.outputFormat != "" {
-		return utils.RenderOutput(clusters, lc.outputFormat)
-	}
-
-	t := component.NewTableWriter("NAME", "NAMESPACE", "STATUS", "CONTROLPLANE", "WORKERS", "KUBERNETES", "ROLES", "PLAN")
-	for _, cl := range clusters {
-		clusterRoles := "<none>"
-		if len(cl.Roles) != 0 {
-			clusterRoles = strings.Join(cl.Roles, ",")
+	var t component.OutputWriter
+	if lc.outputFormat == string(component.JSONOutputType) || lc.outputFormat == string(component.YAMLOutputType) {
+		t = component.NewObjectWriter(cmd.OutOrStdout(), lc.outputFormat, clusters)
+	} else {
+		t = component.NewOutputWriter(cmd.OutOrStdout(), lc.outputFormat, "NAME", "NAMESPACE", "STATUS", "CONTROLPLANE", "WORKERS", "KUBERNETES", "ROLES", "PLAN")
+		for _, cl := range clusters {
+			clusterRoles := "<none>"
+			if len(cl.Roles) != 0 {
+				clusterRoles = strings.Join(cl.Roles, ",")
+			}
+			t.AddRow(cl.Name, cl.Namespace, cl.Status, cl.ControlPlaneCount, cl.WorkerCount, cl.K8sVersion, clusterRoles, cl.Plan)
 		}
-		t.Append([]string{cl.Name, cl.Namespace, cl.Status, cl.ControlPlaneCount, cl.WorkerCount, cl.K8sVersion, clusterRoles, cl.Plan})
 	}
 	t.Render()
 

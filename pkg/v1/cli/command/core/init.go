@@ -13,6 +13,10 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 )
 
+var (
+	outputFormat string
+)
+
 func init() {
 	initCmd.SetUsageFunc(cli.SubCmdUsageFunc)
 }

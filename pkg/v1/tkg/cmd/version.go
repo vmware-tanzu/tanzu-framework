@@ -8,15 +8,9 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/buildinfo"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/utils"
 )
-
-type versionOptions struct {
-	outputFormat string
-}
-
-var vo = &versionOptions{}
 
 type versionInfo struct {
 	Version   string
@@ -29,26 +23,28 @@ var versionCmd = &cobra.Command{
 	Long:  "Display the version of the Tanzu Kubernetes Grid CLI",
 
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return runVersion()
+		return runVersion(cmd)
 	},
 }
 
 func init() {
-	versionCmd.Flags().StringVarP(&vo.outputFormat, "output", "o", "", "Output format. Supported formats: json|yaml")
+	versionCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format. Supported formats: json|yaml|table")
 
 	RootCmd.AddCommand(versionCmd)
 }
 
-func runVersion() error {
+func runVersion(cmd *cobra.Command) error {
 	verInfo := versionInfo{Version: buildinfo.Version, GitCommit: buildinfo.Commit}
 
-	if vo.outputFormat != "" {
-		return utils.RenderOutput(verInfo, vo.outputFormat)
+	if outputFormat == string(component.JSONOutputType) || outputFormat == string(component.YAMLOutputType) {
+		output := component.NewObjectWriter(cmd.OutOrStdout(), outputFormat, verInfo)
+		output.Render()
+		return nil
 	}
 
-	fmt.Println("Client:")
-	fmt.Printf("\tVersion: %s\n", verInfo.Version)
-	fmt.Printf("\tGit commit: %s\n", verInfo.GitCommit)
+	fmt.Fprintln(cmd.OutOrStdout(), "Client:")
+	fmt.Fprintf(cmd.OutOrStdout(), "\tVersion: %s\n", verInfo.Version)
+	fmt.Fprintf(cmd.OutOrStdout(), "\tGit commit: %s\n", verInfo.GitCommit)
 
 	return nil
 }

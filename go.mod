@@ -55,10 +55,8 @@ require (
 	github.com/gorilla/websocket v1.4.2
 	github.com/gosuri/uitable v0.0.4
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
-	github.com/helloeave/json v1.15.3
 	github.com/hinshun/vt10x v0.0.0-20180809195222-d55458df857c // indirect
 	github.com/imdario/mergo v0.3.9
-	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/jeremywohl/flatten v1.0.1
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/jinzhu/copier v0.2.8

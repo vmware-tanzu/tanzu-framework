@@ -22,10 +22,11 @@ var repositoryListCmd = &cobra.Command{
 
 func init() {
 	repositoryListCmd.Flags().StringVarP(&repositoryListOp.KubeConfig, "kubeconfig", "", "", "The path to the kubeconfig file, optional")
+	repositoryListCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table)")
 	repositoryCmd.AddCommand(repositoryListCmd)
 }
 
-func repositoryList(_ *cobra.Command, _ []string) error {
+func repositoryList(cmd *cobra.Command, _ []string) error {
 	pkgClient, err := tkgpackageclient.NewTKGPackageClient(repositoryListOp.KubeConfig)
 	if err != nil {
 		return err
@@ -36,13 +37,14 @@ func repositoryList(_ *cobra.Command, _ []string) error {
 		return err
 	}
 
-	t := component.NewTableWriter("NAME", "REPOSITORY", "STATUS", "DETAILS")
-	for _, packageRepository := range packageRepositoryList.Items { //nolint:gocritic
-		t.Append([]string{
+	t := component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "NAME", "REPOSITORY", "STATUS", "DETAILS")
+	for i := range packageRepositoryList.Items {
+		packageRepository := &packageRepositoryList.Items[i]
+		t.AddRow(
 			packageRepository.Name,
 			packageRepository.Spec.Fetch.ImgpkgBundle.Image,
 			packageRepository.Status.FriendlyDescription,
-			packageRepository.Status.UsefulErrorMessage})
+			packageRepository.Status.UsefulErrorMessage)
 	}
 	t.Render()
 

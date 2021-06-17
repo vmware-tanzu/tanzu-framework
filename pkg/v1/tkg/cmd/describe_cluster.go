@@ -5,7 +5,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"sort"
 	"strings"
 	"time"
@@ -13,7 +12,6 @@ import (
 	"github.com/fabriziopandini/capi-conditions/cmd/kubectl-capi-tree/status"
 	"github.com/fatih/color"
 	"github.com/gosuri/uitable"
-	"github.com/jedib0t/go-pretty/table"
 	"github.com/spf13/cobra"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/duration"
@@ -21,9 +19,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
+	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgctl"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/utils"
 )
 
 const (
@@ -87,7 +85,7 @@ var describeClustersCmd = &cobra.Command{
 			verifyCommandError(fmt.Errorf("only one of --show-group-members or --disable-grouping should be set"))
 		}
 
-		err := runDescribeCluster(args[0])
+		err := runDescribeCluster(cmd, args[0])
 
 		verifyCommandError(err)
 	},
@@ -109,7 +107,7 @@ func init() {
 	describeCmd.AddCommand(describeClustersCmd)
 }
 
-func runDescribeCluster(clusterName string) error {
+func runDescribeCluster(cmd *cobra.Command, clusterName string) error {
 	tkgClient, err := newTKGCtlClient()
 	if err != nil {
 		return err
@@ -129,29 +127,24 @@ func runDescribeCluster(clusterName string) error {
 		return err
 	}
 
-	t := utils.CreateTableWriter()
-	t.SetOutputMirror(os.Stdout)
-	t.AppendHeader(table.Row{"NAME", "NAMESPACE", "STATUS", "CONTROLPLANE", "WORKERS", "KUBERNETES", "ROLES"})
-
+	t := component.NewOutputWriter(cmd.OutOrStdout(), "table", "NAME", "NAMESPACE", "STATUS", "CONTROLPLANE", "WORKERS", "KUBERNETES", "ROLES")
 	cl := results.ClusterInfo
 	clusterRoles := ClusterRoleNone
 	if len(cl.Roles) != 0 {
 		clusterRoles = strings.Join(cl.Roles, ",")
 	}
-	t.AppendRow(table.Row{cl.Name, cl.Namespace, cl.Status, cl.ControlPlaneCount, cl.WorkerCount, cl.K8sVersion, clusterRoles})
-
+	t.AddRow(cl.Name, cl.Namespace, cl.Status, cl.ControlPlaneCount, cl.WorkerCount, cl.K8sVersion, clusterRoles)
 	t.Render()
+
 	log.Infof("\n\nDetails:\n\n")
 	treeView(results.Objs, results.Cluster)
 
 	// If it is a Management Cluster, output the providers
 	if results.InstalledProviders != nil {
 		log.Infof("\n\nProviders:\n\n")
-		p := utils.CreateTableWriter()
-		p.SetOutputMirror(os.Stdout)
-		p.AppendHeader(table.Row{"NAMESPACE", "NAME", "TYPE", "PROVIDERNAME", "VERSION", "WATCHNAMESPACE"})
+		p := component.NewOutputWriter(cmd.OutOrStdout(), "table", "NAMESPACE", "NAME", "TYPE", "PROVIDERNAME", "VERSION", "WATCHNAMESPACE")
 		for i := range results.InstalledProviders.Items {
-			p.AppendRow(table.Row{results.InstalledProviders.Items[i].Namespace, results.InstalledProviders.Items[i].Name, results.InstalledProviders.Items[i].Type, results.InstalledProviders.Items[i].ProviderName, results.InstalledProviders.Items[i].Version, results.InstalledProviders.Items[i].WatchedNamespace})
+			p.AddRow(results.InstalledProviders.Items[i].Namespace, results.InstalledProviders.Items[i].Name, results.InstalledProviders.Items[i].Type, results.InstalledProviders.Items[i].ProviderName, results.InstalledProviders.Items[i].Version, results.InstalledProviders.Items[i].WatchedNamespace)
 		}
 		p.Render()
 	}

@@ -20,6 +20,7 @@ var descriptor = cliv1alpha1.PluginDescriptor{
 
 var logLevel int32
 var logFile string
+var outputFormat string
 
 func main() {
 	p, err := plugin.NewPlugin(&descriptor)

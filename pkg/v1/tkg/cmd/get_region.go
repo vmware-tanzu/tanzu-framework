@@ -4,12 +4,9 @@
 package cmd
 
 import (
-	"os"
-
-	"github.com/jedib0t/go-pretty/table"
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/utils"
+	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
 )
 
 type getRegionsOptions struct {
@@ -25,18 +22,18 @@ var getRegionsCmd = &cobra.Command{
 	Short:   "Get the currently defined management cluster contexts",
 	Long:    "Get the currently defined management cluster contexts",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return runGetRegions()
+		return runGetRegions(cmd)
 	},
 }
 
 func init() {
 	getRegionsCmd.Flags().StringVarP(&gr.clusterName, "name", "n", "", "The name of the management cluster")
-	getRegionsCmd.Flags().StringVarP(&gr.outputFormat, "output", "o", "", "Output format. Supported formats: json|yaml")
+	getRegionsCmd.Flags().StringVarP(&gr.outputFormat, "output", "o", "", "Output format. Supported formats: json|yaml|table")
 
 	getCmd.AddCommand(getRegionsCmd)
 }
 
-func runGetRegions() error {
+func runGetRegions(cmd *cobra.Command) error {
 	tkgClient, err := newTKGCtlClient()
 	if err != nil {
 		return err
@@ -47,20 +44,17 @@ func runGetRegions() error {
 		return err
 	}
 
-	// if output format is specified use that output format to render output
-	// if not table format will be used
-	if gr.outputFormat != "" {
-		return utils.RenderOutput(regions, gr.outputFormat)
-	}
-
-	t := utils.CreateTableWriter()
-	t.SetOutputMirror(os.Stdout)
-	t.AppendHeader(table.Row{"Management-Cluster-Name", "Context-Name", "Status"})
-	for _, r := range regions {
-		if r.IsCurrentContext {
-			t.AppendRow(table.Row{r.ClusterName + " *", r.ContextName, r.Status})
-		} else {
-			t.AppendRow(table.Row{r.ClusterName, r.ContextName, r.Status})
+	var t component.OutputWriter
+	if outputFormat == string(component.JSONOutputType) || outputFormat == string(component.YAMLOutputType) {
+		t = component.NewObjectWriter(cmd.OutOrStdout(), outputFormat, regions)
+	} else {
+		t = component.NewOutputWriter(cmd.OutOrStderr(), gr.outputFormat, "Management-Cluster-Name", "Context-Name", "Status")
+		for _, r := range regions {
+			if r.IsCurrentContext {
+				t.AddRow(r.ClusterName+" *", r.ContextName, r.Status)
+			} else {
+				t.AddRow(r.ClusterName, r.ContextName, r.Status)
+			}
 		}
 	}
 	t.Render()
