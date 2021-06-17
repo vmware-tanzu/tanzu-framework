@@ -7,8 +7,6 @@ package shared
 import (
 	"context"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/test/framework/exec"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"gopkg.in/yaml.v3"
@@ -22,6 +20,7 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigbom"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/test/framework"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/test/framework/exec"
 )
 
 type E2EAddonSpecInput struct {

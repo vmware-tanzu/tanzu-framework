@@ -8,9 +8,9 @@ imageInfo:
   images:
     kappControllerImage:
       imagePath: kapp-controller
-      tag: v0.19.0_vmware.1
+      tag: v0.18.0_vmware.1
 kappController:
-  namespace: kapp-controller
+  namespace: tkg-system
   createNamespace: true
   deployment:
     hostNetwork: null

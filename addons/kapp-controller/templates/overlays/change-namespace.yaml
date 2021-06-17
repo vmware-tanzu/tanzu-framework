@@ -33,26 +33,3 @@ subjects:
 ---
 metadata:
   namespace: #@ data.values.kappController.namespace
-
-#@overlay/match by=overlay.subset({"kind": "APIService"}),expects="1+"
----
-spec:
-  service:
-    namespace: #@ data.values.kappController.namespace
-
-#@overlay/match by=overlay.subset({"kind":"Service","metadata":{"name": "packages-api"}})
----
-metadata:
-  namespace: #@ data.values.kappController.namespace
-
-#@overlay/match by=overlay.subset({"kind": "ClusterRoleBinding","metadata": {"name": "pkg-apiserver:system:auth-delegator"}}),expects="1+"
----
-subjects:
-#@overlay/match by=overlay.subset({"kind": "ServiceAccount"}),expects="1+"
-- namespace: #@ data.values.kappController.namespace
-
-#@overlay/match by=overlay.subset({"kind": "RoleBinding","metadata": {"name": "pkgserver-auth-reader"}}),expects="1+"
----
-subjects:
-#@overlay/match by=overlay.subset({"kind": "ServiceAccount"}),expects="1+"
-- namespace: #@ data.values.kappController.namespace
