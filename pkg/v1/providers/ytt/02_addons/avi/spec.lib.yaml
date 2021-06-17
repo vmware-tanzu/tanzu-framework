@@ -56,6 +56,8 @@ spec:
               value: #@ "{}".format(data.values.AVI_CONTROL_PLANE_HA_PROVIDER)  
             - name: tkg_management_cluster_name
               value: #@ data.values.CLUSTER_NAME     
+            - name: control_plane_endpoint_port
+              value: #@ "{}".format(data.values.VSPHERE_CONTROL_PLANE_ENDPOINT_PORT)     
           resources:
             limits:
               cpu: 100m

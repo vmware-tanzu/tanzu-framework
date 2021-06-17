@@ -38,3 +38,4 @@ akoOperator:
     avi_control_plane_ha_provider: false
     avi_management_cluster_vip_network_name: "VM Network"
     avi_management_cluster_vip_network_cidr: 10.186.80.0/20
+    avi_control_plane_endpoint_port: 6443
