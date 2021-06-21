@@ -30,12 +30,6 @@ mkdir -p $TKG_CONFIG_DIR
 # shellcheck source=tests/clustergen/diffcluster/helpers.sh
 . "${TESTROOT}"/diffcluster/helpers.sh
 
-YTT=${YTT:-true}
-YTTARG=""
-if [ "$YTT" = "false" ]; then
-  YTTARG="--disable-ytt"
-fi
-
 generate_cluster_configurations() {
   outputdir=$1
   cd "${TESTDATA}"
@@ -57,12 +51,12 @@ generate_cluster_configurations() {
   fi
 
   echo "# failed cases" >${outputdir}/failed.txt
-  echo "Running $TKG config cluster (${YTTARG}) ..."
+  echo "Running $TKG config cluster ..."
   for t in $CASES; do
     cmdargs=()
     read -r -a cmdargs < <(grep EXE: "$t" | cut -d: -f2-)
     cp "$t" /tmp/test_tkg_config
-    $TKG --file /tmp/test_tkg_config --configdir ${TKG_CONFIG_DIR} --log_file /tmp/"$t".log config cluster "${cmdargs[@]}" $YTTARG 2>/tmp/err.txt 1>/tmp/expected.yaml
+    $TKG --file /tmp/test_tkg_config --configdir ${TKG_CONFIG_DIR} --log_file /tmp/"$t".log config cluster "${cmdargs[@]}" 2>/tmp/err.txt 1>/tmp/expected.yaml
     #shellcheck disable=SC2181
     if [ $? -eq 0 ]; then
       echo "$t":POS >>${outputdir}/failed.txt
@@ -75,7 +69,7 @@ generate_cluster_configurations() {
       # represented as a NEGative test case. The output of the failed command is captured and is part
       # of the compliance dataset.
       cp "$t" /tmp/test_tkg_config
-      $TKG --file /tmp/test_tkg_config --configdir ${TKG_CONFIG_DIR} --log_file /tmp/"$t".log config cluster "${cmdargs[@]}" $YTTARG &>${outputdir}/"$t".output
+      $TKG --file /tmp/test_tkg_config --configdir ${TKG_CONFIG_DIR} --log_file /tmp/"$t".log config cluster "${cmdargs[@]}" &>${outputdir}/"$t".output
       echo "$t":NEG >>${outputdir}/failed.txt
       echo -n "$t (NEG) : "
     fi
