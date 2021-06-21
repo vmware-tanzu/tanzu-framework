@@ -78,6 +78,7 @@ jobs:
           export TKG_DEFAULT_BOM_IMAGE_TAG=${{ steps.extract_bom.outputs.bomtag }}
         fi
         env | sort
+        make configure-bom
         make all
 
     - name: Test
@@ -88,6 +89,7 @@ jobs:
         if [[ ! -z "${{ steps.extract_bom.outputs.bomtag }}" ]]; then
           export TKG_DEFAULT_BOM_IMAGE_TAG=${{ steps.extract_bom.outputs.bomtag }}
         fi
+        make configure-bom
         make test
 
 
