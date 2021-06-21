@@ -11,6 +11,7 @@ imageInfo:
       tag: v0.20.0-rc.1_vmware.1
 kappController:
   namespace: mynamespace
+  globalNamespace: myglobalnamespace
   createNamespace: true
   deployment:
     hostNetwork: true

@@ -9,6 +9,7 @@
 #@   bomData = get_bom_data_for_tkr_name()
 #@ end
 
+#@ GLOBAL_NAMESPACE = "tkg-standard"
 #@ def kappcontrolleroverlay():
 
 #@overlay/match by=overlay.subset({"kind":"ConfigMap","metadata":{"name": "kapp-controller-config"}})
@@ -38,6 +39,8 @@ spec:
       containers:
       #@overlay/match by=overlay.subset({"name":"kapp-controller"})
       - args:
+        #@overlay/match by=overlay.subset("-packaging-global-namespace=kapp-controller-packaging-global")
+        - #@ "-packaging-global-namespace={}".format(data.values.kappController.globalNamespace)
         #@overlay/append
         - -concurrency=2
       #@overlay/match by=overlay.subset({"name":"kapp-controller"})
@@ -63,6 +66,11 @@ spec:
 metadata:
   name: #@ data.values.NAMESPACE
 
+#@overlay/match by=overlay.subset({"kind":"Namespace","metadata":{"name": "kapp-controller-packaging-global"}}),expects="1+"
+---
+metadata:
+  name: #@ data.values.globalNamespace
+
 #@overlay/match by=overlay.subset({"kind": "ServiceAccount","metadata": {"name": "kapp-controller-sa"}}),expects="1+"
 ---
 metadata:
@@ -80,6 +88,38 @@ subjects:
 metadata:
   #@overlay/match missing_ok=True
   annotations:
+    #@overlay/match missing_ok=True
     tkg.tanzu.vmware.com/addon-type: "addons-management/kapp-controller"
+
+#@overlay/match by=overlay.subset({"kind": "APIService"}),expects="1+"
+---
+spec:
+  service:
+    namespace: #@ data.values.NAMESPACE
+
+#@overlay/match by=overlay.subset({"kind":"Service","metadata":{"name": "packaging-api"}})
+---
+metadata:
+  namespace: #@ data.values.NAMESPACE
+
+#@overlay/match by=overlay.subset({"kind": "ClusterRoleBinding","metadata": {"name": "pkg-apiserver:system:auth-delegator"}}),expects="1+"
+---
+subjects:
+#@overlay/match by=overlay.subset({"kind": "ServiceAccount"}),expects="1+"
+- namespace: #@ data.values.NAMESPACE
+
+#@overlay/match by=overlay.subset({"kind": "RoleBinding","metadata": {"name": "pkgserver-auth-reader"}}),expects="1+"
+---
+subjects:
+#@overlay/match by=overlay.subset({"kind": "ServiceAccount"}),expects="1+"
+- namespace: #@ data.values.NAMESPACE
+
+
+#@overlay/match by=overlay.subset({"kind":"CustomResourceDefinition","metadata":{"name": "packagerepositories.packaging.carvel.dev"}})
+---
+metadata:
+  annotations:
+    #@overlay/match missing_ok=True
+    packaging.carvel.dev/global-namespace: #@ GLOBAL_NAMESPACE
 
 #@ end
