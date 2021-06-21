@@ -34,7 +34,7 @@ func (c *TkgClient) GetKubernetesVersions() (*KubernetesVersionsInfo, error) {
 	return c.DoGetTanzuKubernetesReleases(regionalClusterClient)
 }
 
-// DoGetTanzuKubernetesReleases gets TKR
+// DoGetTanzuKubernetesReleases gets TKr
 func (c *TkgClient) DoGetTanzuKubernetesReleases(regionalClusterClient clusterclient.Client) (*KubernetesVersionsInfo, error) {
 	isPacific, err := regionalClusterClient.IsPacificRegionalCluster()
 	if err == nil && isPacific {

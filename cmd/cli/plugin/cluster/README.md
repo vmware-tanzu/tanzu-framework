@@ -15,7 +15,7 @@ Flags:
   -d, --dry-run       Does not create cluster but show the deployment YAML instead
   -f, --file string   Cluster configuration file from which to create a Cluster
   -h, --help          help for create
-      --tkr string    TanzuKubernetesRelease(TKR) to be used for creating the workload cluster
+      --tkr string    TanzuKubernetesRelease(TKr) to be used for creating the workload cluster
 ```
 ```
 >>> tanzu cluster list --help
@@ -66,7 +66,7 @@ Flags:
   -h, --help                        help for upgrade
   -n, --namespace string            The namespace where the workload cluster was created. Assumes 'default' if not specified
   -t, --timeout duration            Time duration to wait for an operation before timeout. Timeout duration in hours(h)/minutes(m)/seconds(s) units or as some combination of them (e.g. 2h, 30m, 2h30m10s) (default 30m0s)
-      --tkr string                  TanzuKubernetesRelease(TKR) to upgrade to
+      --tkr string                  TanzuKubernetesRelease(TKr) to upgrade to
   -y, --yes                         Upgrade workload cluster without asking for confirmation
 ```
 ```

@@ -108,7 +108,7 @@ func (c *client) CheckBOMsNeedUpdate() (bool, error) {
 
 	defaultTKRVersion, err := c.tkgBomClient.GetDefaultTKRVersion()
 	if err != nil {
-		return false, errors.Wrap(err, "failed to get default TKR version")
+		return false, errors.Wrap(err, "failed to get default TKr version")
 	}
 	defaultTKRBOMFileName := fmt.Sprintf("tkr-bom-%s.yaml", defaultTKRVersion)
 	defaultTKRBOMFilePath := filepath.Join(bomsDir, defaultTKRBOMFileName)

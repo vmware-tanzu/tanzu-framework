@@ -1,7 +1,7 @@
-# Get Available TKR
+# Get Available TKr
 
 
-## Get available Tanzu Kubernetes Releases
+## Get available Tanzu Kubernetes releases
 ```
 tanzu kubernetes-release get -h 
 Usage:
@@ -23,7 +23,7 @@ tanzu kubernetes-release get
   v1.19.3---vmware.2  v1.19.3+vmware.2-tkg.1            True              False
 ```
 
-## Get available upgrades for a Tanzu Kubernetes Release
+## Get available upgrades for a Tanzu Kubernetes release
 ```
 Tanzu kubernetes-release  available-upgrades get -h
 Usage:
@@ -40,7 +40,7 @@ tanzu kubernetes-release  available-upgrades get v1.18.6---vmware.1
  v1.19.3---vmware.2     v1.19.3+vmware.2-tkg.1      
 ```
 
-## Get supported OS info of a Tanzu Kubernetes Release
+## Get supported OS info of a Tanzu Kubernetes release
 ```
 tanzu kubernetes-release os get -h
 Usage:

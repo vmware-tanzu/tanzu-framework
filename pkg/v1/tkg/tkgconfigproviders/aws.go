@@ -81,7 +81,7 @@ type K8sVersionAMIMap map[string]string
 func (c *client) NewAWSConfig(params *models.AWSRegionalClusterParams, encodedCredentials string) (*AWSConfig, error) { //nolint:funlen,gocyclo
 	bomConfiguration, err := c.tkgBomClient.GetDefaultTkrBOMConfiguration()
 	if err != nil {
-		return nil, errors.Wrap(err, "unable to get default TKR BoM configuration")
+		return nil, errors.Wrap(err, "unable to get default TKr BoM configuration")
 	}
 
 	amiID := ""
@@ -91,7 +91,7 @@ func (c *client) NewAWSConfig(params *models.AWSRegionalClusterParams, encodedCr
 	}
 
 	if amiID == "" {
-		return nil, errors.Errorf("No AMI found in region %s for TKR version %s", params.AwsAccountParams.Region, bomConfiguration.Release.Version)
+		return nil, errors.Errorf("No AMI found in region %s for TKr version %s", params.AwsAccountParams.Region, bomConfiguration.Release.Version)
 	}
 
 	res := &AWSConfig{

@@ -144,7 +144,7 @@ var (
 				})
 				It("Should return the bomConfiguration", func() {
 					Expect(err).To(HaveOccurred())
-					Expect(err).To(MatchError("No BOM file found with TKR version "))
+					Expect(err).To(MatchError("No BOM file found with TKr version "))
 				})
 			})
 			Context("When tkr version is found", func() {

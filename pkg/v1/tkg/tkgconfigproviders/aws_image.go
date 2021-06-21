@@ -23,13 +23,13 @@ func (c *client) GetAWSAMIInfo(tkrBoMConfiguration *tkgconfigbom.BOMConfiguratio
 	var exists bool
 	// check if the AMI exists for given aws region
 	if mappedAMIs, exists = tkrBoMConfiguration.AMI[awsRegion]; !exists {
-		return nil, errors.Errorf("no AMI found in region %s for TKR version %s", awsRegion, tkrBoMConfiguration.Release.Version)
+		return nil, errors.Errorf("no AMI found in region %s for TKr version %s", awsRegion, tkrBoMConfiguration.Release.Version)
 	}
 
 	ami := tkgconfighelper.SelectAWSImageBasedonOSOptions(mappedAMIs, c.TKGConfigReaderWriter())
 	if ami == nil {
 		osInfo := tkgconfighelper.GetUserProvidedOsOptions(c.TKGConfigReaderWriter())
-		return nil, errors.Errorf("no AMI found in region %s for TKR version: '%s' and os options: '(%v,%v,%v)'", awsRegion, tkrBoMConfiguration.Release.Version, osInfo.Name, osInfo.Version, osInfo.Arch)
+		return nil, errors.Errorf("no AMI found in region %s for TKr version: '%s' and os options: '(%v,%v,%v)'", awsRegion, tkrBoMConfiguration.Release.Version, osInfo.Name, osInfo.Version, osInfo.Arch)
 	}
 
 	return ami, nil

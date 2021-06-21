@@ -18,7 +18,7 @@ var configClusterCmd = &cobra.Command{
 	Generates a cluster plan representing the desired state of a Tanzu Kubernetes cluster that can then be applied to a management cluster.`),
 
 	Example: Examples(`
-		# Generates a yaml file for creating a development cluster with TKR v1.17.3---vmware.2-tkr.1
+		# Generates a yaml file for creating a development cluster with TKr v1.17.3---vmware.2-tkr.1
 		tkg config cluster my-cluster --plan=dev --tkr=v1.17.3---vmware.2-tkr.1
 
 		# Generates a yaml file for creating a production cluster with custom number of nodes
@@ -49,7 +49,7 @@ func init() {
 	}
 	configClusterCmd.Flags().StringVarP(&configclusteroption.clusterConfigFile, "file", "", "", "The cluster configuration file (default \"$HOME/.tkg/cluster-config.yaml\")")
 
-	configClusterCmd.Flags().StringVarP(&configclusteroption.tkrName, "tkr", "", "", "TanzuKubernetesRelease(TKR) to be used for creating the workload cluster")
+	configClusterCmd.Flags().StringVarP(&configclusteroption.tkrName, "tkr", "", "", "TanzuKubernetesRelease(TKr) to be used for creating the workload cluster")
 	configClusterCmd.Flags().IntVarP(&configclusteroption.controlPlaneMachineCount, "controlplane-machine-count", "c", 0, "The number of control plane machines to be added to the workload cluster (default 1 or 3 depending on dev or prod plan)")
 	configClusterCmd.Flags().IntVarP(&configclusteroption.workerMachineCount, "worker-machine-count", "w", 0, "The number of worker machines to be added to the workload cluster (default 1 or 3 depending on dev or prod plan)")
 	configClusterCmd.Flags().StringVarP(&configclusteroption.namespace, "namespace", "n", "", "The namespace where the cluster should be deployed. Assumes 'default' if not specified")

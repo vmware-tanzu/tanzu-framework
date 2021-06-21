@@ -51,8 +51,8 @@ func main() {
 		"Enable leader election for controller manager. "+
 			"Enabling this will ensure there is only one active controller manager.")
 	flag.BoolVar(&skipVerifyRegistryCerts, "skip-verify-registry-cert", false, "Set whether to verify server's certificate chain and host name")
-	flag.Float64Var(&initTKRDiscoveryFreq, "initial-discover-frequency", 60, "Initial TKR discovery frequency in seconds")
-	flag.Float64Var(&continuousTKRDiscoverFreq, "continuous-discover-frequency", 600, "Continuous TKR discovery frequency in seconds")
+	flag.Float64Var(&initTKRDiscoveryFreq, "initial-discover-frequency", 60, "Initial TKr discovery frequency in seconds")
+	flag.Float64Var(&continuousTKRDiscoverFreq, "continuous-discover-frequency", 600, "Continuous TKr discovery frequency in seconds")
 	flag.Parse()
 
 	ctrl.SetLogger(zap.New(zap.UseDevMode(true)))

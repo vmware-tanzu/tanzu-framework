@@ -8,7 +8,7 @@ Simple App addon
 
 ### Management Cluster
 
-1. Create TKR CRD
+1. Create TKr CRD
    
     ```shell
     kubectl apply -f ../../../config/crd/bases/run.tanzu.vmware.com_tanzukubernetesreleases.yaml
@@ -20,7 +20,7 @@ Simple App addon
     kubectl apply -f ../tanzu-addons-manager.yaml
     ```
 
-3. Create TKR instance and BOM configmap
+3. Create TKr instance and BOM configmap
 
    ```shell
    kubectl apply -f tkr.yaml

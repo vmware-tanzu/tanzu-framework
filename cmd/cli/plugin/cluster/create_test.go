@@ -69,7 +69,7 @@ var _ = Describe("getLatestTKRVersionMatchingTKRPrefix", func() {
 		})
 		It("should return error ", func() {
 			Expect(err).To(HaveOccurred())
-			errString := "found multiple TKRs [v1.17.18---vmware.2-tkg.1-zlatest1 v1.17.18---vmware.2-tkg.1-rc.1] matching the criteria"
+			errString := "found multiple TKrs [v1.17.18---vmware.2-tkg.1-zlatest1 v1.17.18---vmware.2-tkg.1-rc.1] matching the criteria"
 			Expect(err.Error()).To(ContainSubstring(errString))
 		})
 	})
@@ -83,7 +83,7 @@ var _ = Describe("getLatestTKRVersionMatchingTKRPrefix", func() {
 		})
 		It("should return error as there is no single compatible TKR", func() {
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("could not find a matching compatible TanzuKubernetesRelease for name \"v1.17\""))
+			Expect(err.Error()).To(ContainSubstring("could not find a matching compatible Tanzu Kubernetes release for name \"v1.17\""))
 		})
 	})
 })

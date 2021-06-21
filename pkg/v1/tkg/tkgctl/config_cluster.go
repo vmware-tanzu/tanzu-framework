@@ -45,7 +45,7 @@ func (t *tkgctl) ConfigCluster(configClusterOption CreateClusterOptions) error {
 	} else {
 		options.TKRVersion, options.KubernetesVersion, err = t.getAndDownloadTkrIfNeeded(configClusterOption.TkrVersion)
 		if err != nil {
-			return errors.Wrapf(err, "unable to determine the TKR version and kubernetes version based on '%v'", configClusterOption.TkrVersion)
+			return errors.Wrapf(err, "unable to determine the TKr version and kubernetes version based on '%v'", configClusterOption.TkrVersion)
 		}
 	}
 

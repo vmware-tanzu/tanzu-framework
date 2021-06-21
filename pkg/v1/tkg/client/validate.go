@@ -103,7 +103,7 @@ func NewValidationError(code int, text string) *ValidationError {
 
 // DownloadBomFile downloads BoM file
 func (c *TkgClient) DownloadBomFile(tkrName string) error {
-	log.V(1).Infof("Downloading bom for TKR %q", tkrName)
+	log.V(1).Infof("Downloading bom for TKr %q", tkrName)
 
 	currentRegion, err := c.GetCurrentRegionContext()
 	if err != nil {
@@ -121,7 +121,7 @@ func (c *TkgClient) DownloadBomFile(tkrName string) error {
 	tkrConfigMap := &corev1.ConfigMap{}
 	if err := regionalClusterClient.GetResource(tkrConfigMap, tkrName, constants.TkrNamespace, nil, nil); err != nil {
 		if apierrors.IsNotFound(err) {
-			return errors.Errorf("ConfigMap for TKR name %q not available to download bom", tkrName)
+			return errors.Errorf("ConfigMap for TKr name %q not available to download bom", tkrName)
 		}
 
 		return err
@@ -150,18 +150,18 @@ func (c *TkgClient) ConfigureAndValidateTkrVersion(tkrVersion string) (string, s
 	if tkrVersion == "" {
 		tkrBoMConfig, err := c.tkgBomClient.GetDefaultTkrBOMConfiguration()
 		if err != nil {
-			return "", "", errors.Wrap(err, "unable to get default TKR bom")
+			return "", "", errors.Wrap(err, "unable to get default TKr bom")
 		}
 		tkrVersion = tkrBoMConfig.Release.Version
 		k8sVersion, err = tkgconfigbom.GetK8sVersionFromTkrBoM(tkrBoMConfig)
 		if err != nil {
-			return "", "", errors.Wrap(err, "unable to get default k8s version from TKR bom")
+			return "", "", errors.Wrap(err, "unable to get default k8s version from TKr bom")
 		}
 	} else {
 		// BoM downloading should only be required if user are passing tkrName,
 		// otherwise we should use default config which is always present on user's machine
 
-		// download bom if not present locally for given TKR
+		// download bom if not present locally for given TKr
 		_, err = c.tkgBomClient.GetBOMConfigurationFromTkrVersion(tkrVersion)
 		if err != nil {
 			_, ok := err.(tkgconfigbom.BomNotPresent)
@@ -199,7 +199,7 @@ func (c *TkgClient) ConfigureAzureVMImage(tkrVersion string) error {
 
 	if azureVMImage == nil {
 		osInfo := tkgconfighelper.GetUserProvidedOsOptions(c.TKGConfigReaderWriter())
-		return errors.Errorf("unable to find the azure vm image info for TKR version: '%v' and os options: '(%v,%v,%v)'", tkrVersion, osInfo.Name, osInfo.Version, osInfo.Arch)
+		return errors.Errorf("unable to find the azure vm image info for TKr version: '%v' and os options: '(%v,%v,%v)'", tkrVersion, osInfo.Name, osInfo.Version, osInfo.Arch)
 	}
 
 	// using image ID
@@ -235,7 +235,7 @@ func (c *TkgClient) ConfigureAzureVMImage(tkrVersion string) error {
 		return nil
 	}
 
-	return errors.Errorf("invalid azure image info: %v, for TKR version: %v", *azureVMImage, tkrVersion)
+	return errors.Errorf("invalid azure image info: %v, for TKr version: %v", *azureVMImage, tkrVersion)
 }
 
 // ConfigureAndValidateAzureConfig configures and validates azure configurationn
@@ -262,7 +262,7 @@ func (c *TkgClient) ConfigureAndValidateAzureConfig(tkrVersion string, nodeSizes
 	}
 
 	if tkrVersion == "" {
-		return errors.New("TKR version is empty")
+		return errors.New("TKr version is empty")
 	}
 
 	if err := c.ConfigureAzureVMImage(tkrVersion); err != nil {
@@ -295,12 +295,12 @@ func (c *TkgClient) ConfigureAndValidateDockerConfig(tkrVersion string, nodeSize
 	c.SetProviderType(DockerProviderName)
 
 	if tkrVersion == "" {
-		return errors.New("TKR version is empty")
+		return errors.New("TKr version is empty")
 	}
 
 	bomConfiguration, err := c.tkgBomClient.GetBOMConfigurationFromTkrVersion(tkrVersion)
 	if err != nil {
-		return errors.Wrapf(err, "unable to get bom configuration for TKR version %s", tkrVersion)
+		return errors.Wrapf(err, "unable to get bom configuration for TKr version %s", tkrVersion)
 	}
 
 	kindNodeImage := bomConfiguration.Components["kubernetes-sigs_kind"][0].Images["kindNodeImage"]
@@ -312,12 +312,12 @@ func (c *TkgClient) ConfigureAndValidateDockerConfig(tkrVersion string, nodeSize
 // ConfigureAndValidateAwsConfig configures and validates aws configuration
 func (c *TkgClient) ConfigureAndValidateAwsConfig(tkrVersion string, skipValidation, isProdConfig bool, workerMachineCount int64, isManagementCluster, useExistingVPC bool) error {
 	if tkrVersion == "" {
-		return errors.New("TKR version is empty")
+		return errors.New("TKr version is empty")
 	}
 
 	bomConfiguration, err := c.tkgBomClient.GetBOMConfigurationFromTkrVersion(tkrVersion)
 	if err != nil {
-		return errors.Wrapf(err, "unable to get bom configuration for TKR version %s", tkrVersion)
+		return errors.Wrapf(err, "unable to get bom configuration for TKr version %s", tkrVersion)
 	}
 
 	awsRegion, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAWSRegion)
@@ -428,7 +428,7 @@ func (c *TkgClient) TrimVsphereSSHKey() {
 func (c *TkgClient) ConfigureAndValidateVSphereTemplate(vcClient vc.Client, tkrVersion, dc string) error {
 	var err error
 	if tkrVersion == "" {
-		return errors.New("TKR version is empty")
+		return errors.New("TKr version is empty")
 	}
 
 	templateName, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereTemplate)
@@ -440,7 +440,7 @@ func (c *TkgClient) ConfigureAndValidateVSphereTemplate(vcClient vc.Client, tkrV
 
 	vsphereVM, err := vcClient.GetAndValidateVirtualMachineTemplate(tkrBom.GetOVAVersions(), tkrVersion, templateName, dc, c.TKGConfigReaderWriter())
 	if err != nil || vsphereVM == nil {
-		return errors.Wrapf(err, "unable to get or validate %s for given TanzuKubernetesRelease", constants.ConfigVariableVsphereTemplate)
+		return errors.Wrapf(err, "unable to get or validate %s for given Tanzu Kubernetes release", constants.ConfigVariableVsphereTemplate)
 	}
 
 	c.TKGConfigReaderWriter().Set(constants.ConfigVariableVsphereTemplate, vsphereVM.Name)
