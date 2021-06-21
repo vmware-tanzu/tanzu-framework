@@ -10,7 +10,7 @@ import (
 )
 
 func (p *pkgClient) DeleteRepository(o *tkgpackagedatamodel.RepositoryDeleteOptions) (bool, error) {
-	packageRepo, err := p.kappClient.GetPackageRepository(o.RepositoryName)
+	packageRepo, err := p.kappClient.GetPackageRepository(o.RepositoryName, o.Namespace)
 
 	if err != nil {
 		return false, nil

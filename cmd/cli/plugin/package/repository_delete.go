@@ -24,6 +24,7 @@ var repositoryDeleteCmd = &cobra.Command{
 func init() {
 	repositoryDeleteCmd.Flags().BoolVarP(&repoDeleteOp.IsForce, "force", "f", false, "Force deletion of the repository")
 	repositoryDeleteCmd.Flags().StringVarP(&repoDeleteOp.KubeConfig, "kubeconfig", "", "", "The path to the kubeconfig file, optional")
+	repositoryDeleteCmd.Flags().StringVarP(&repoDeleteOp.Namespace, "namespace", "n", "default", "Namespace of repository, optional")
 	repositoryCmd.AddCommand(repositoryDeleteCmd)
 }
 
@@ -41,13 +42,13 @@ func repositoryDelete(_ *cobra.Command, args []string) error {
 
 	found, err := pkgClient.DeleteRepository(repoDeleteOp)
 	if !found {
-		log.Warningf("Could not find package repository '%s'\n", repoDeleteOp.RepositoryName)
+		log.Warningf("Could not find package repository '%s' in namespace '%s'\n", repoDeleteOp.RepositoryName, repoDeleteOp.Namespace)
 		return nil
 	} else if err != nil {
 		return err
 	}
 
-	log.Infof("Deleted package repository '%s'\n", repoDeleteOp.RepositoryName)
+	log.Infof("Deleted package repository '%s' in namespace '%s'\n", repoDeleteOp.RepositoryName, repoDeleteOp.Namespace)
 
 	return nil
 }

@@ -12,8 +12,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
-	"github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/installpackage/v1alpha1"
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
+	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackagedatamodel"
@@ -43,7 +43,7 @@ var _ = Describe("UnInstall Package", func() {
 				},
 			},
 		}
-		installedPkg = v1alpha1.InstalledPackage{
+		pkgInstall = kappipkg.PackageInstall{
 			TypeMeta: metav1.TypeMeta{Kind: "InstalledPackage"},
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      testInstalledPkgName,
@@ -59,17 +59,17 @@ var _ = Describe("UnInstall Package", func() {
 
 	JustBeforeEach(func() {
 		ctl = &pkgClient{kappClient: kappCtl}
-		err = ctl.UnInstallPackage(&options)
+		err = ctl.UninstallPackage(&options)
 	})
 
 	Context("failure in getting installed packages", func() {
 		BeforeEach(func() {
 			kappCtl = &fakes.KappClient{}
-			kappCtl.GetInstalledPackageReturns(nil, errors.New("failure in GetInstalledPackage"))
+			kappCtl.GetPackageInstallReturns(nil, errors.New("failure in GetPackageInstall"))
 		})
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("failure in GetInstalledPackage"))
+			Expect(err.Error()).To(ContainSubstring("failure in GetPackageInstall"))
 		})
 		AfterEach(func() { options = opts })
 	})
@@ -79,12 +79,12 @@ var _ = Describe("UnInstall Package", func() {
 			kappCtl = &fakes.KappClient{}
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
-			kappCtl.GetInstalledPackageReturns(&installedPkg, nil)
-			crtCtl.DeleteReturns(errors.New("failure in InstalledPackage deletion"))
+			kappCtl.GetPackageInstallReturns(&pkgInstall, nil)
+			crtCtl.DeleteReturns(errors.New("failure in PackageInstall deletion"))
 		})
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("failure in InstalledPackage deletion"))
+			Expect(err.Error()).To(ContainSubstring("failure in PackageInstall deletion"))
 		})
 		AfterEach(func() { options = opts })
 	})
@@ -94,7 +94,7 @@ var _ = Describe("UnInstall Package", func() {
 			kappCtl = &fakes.KappClient{}
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
-			kappCtl.GetInstalledPackageReturns(&installedPkg, nil)
+			kappCtl.GetPackageInstallReturns(&pkgInstall, nil)
 			crtCtl.DeleteReturns(nil)
 			app.Status.Conditions = append(app.Status.Conditions, kappctrl.AppCondition{
 				Type: kappctrl.DeleteFailed,
@@ -114,10 +114,10 @@ var _ = Describe("UnInstall Package", func() {
 			kappCtl = &fakes.KappClient{}
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
-			kappCtl.GetInstalledPackageReturns(&installedPkg, nil)
+			kappCtl.GetPackageInstallReturns(&pkgInstall, nil)
 			crtCtl.DeleteReturns(nil)
 			kappCtl.GetAppCRReturns(nil, apierrors.NewNotFound(schema.GroupResource{Resource: "App"}, testInstalledPkgName))
-			Expect(len(installedPkg.GetAnnotations())).To(Equal(len(installedPkg.Annotations)))
+			Expect(len(pkgInstall.GetAnnotations())).To(Equal(len(pkgInstall.Annotations)))
 		})
 		It(testSuccessMsg, func() {
 			Expect(err).ToNot(HaveOccurred())

@@ -13,7 +13,7 @@ import (
 )
 
 func (p *pkgClient) UpdateRepository(o *tkgpackagedatamodel.RepositoryOptions) error {
-	existingRepository, err := p.kappClient.GetPackageRepository(o.RepositoryName)
+	existingRepository, err := p.kappClient.GetPackageRepository(o.RepositoryName, o.Namespace)
 	if err != nil && !k8serror.IsNotFound(err) {
 		return err
 	}

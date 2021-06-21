@@ -4,6 +4,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
@@ -22,7 +24,9 @@ var repositoryListCmd = &cobra.Command{
 
 func init() {
 	repositoryListCmd.Flags().StringVarP(&repositoryListOp.KubeConfig, "kubeconfig", "", "", "The path to the kubeconfig file, optional")
+	repositoryListCmd.Flags().StringVarP(&repositoryListOp.Namespace, "namespace", "n", "default", "Namespace of repository, optional")
 	repositoryListCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table)")
+	repositoryListCmd.Flags().BoolVarP(&repositoryListOp.AllNamespaces, "all-namespaces", "A", false, "If present, list the repositories across all namespaces.")
 	repositoryCmd.AddCommand(repositoryListCmd)
 }
 
@@ -32,19 +36,45 @@ func repositoryList(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	packageRepositoryList, err := pkgClient.ListRepositories()
+	if repositoryListOp.AllNamespaces {
+		repositoryListOp.Namespace = ""
+	}
+
+	packageRepositoryList, err := pkgClient.ListRepositories(repositoryListOp)
 	if err != nil {
 		return err
 	}
 
-	t := component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "NAME", "REPOSITORY", "STATUS", "DETAILS")
-	for i := range packageRepositoryList.Items {
-		packageRepository := &packageRepositoryList.Items[i]
-		t.AddRow(
-			packageRepository.Name,
-			packageRepository.Spec.Fetch.ImgpkgBundle.Image,
-			packageRepository.Status.FriendlyDescription,
-			packageRepository.Status.UsefulErrorMessage)
+	var t component.OutputWriter
+
+	if repositoryListOp.AllNamespaces {
+		t = component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "NAME", "REPOSITORY", "STATUS", "DETAILS", "NAMESPACE")
+	} else {
+		t = component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "NAME", "REPOSITORY", "STATUS", "DETAILS")
+	}
+	for _, packageRepository := range packageRepositoryList.Items { //nolint:gocritic
+		status := packageRepository.Status.FriendlyDescription
+		details := packageRepository.Status.UsefulErrorMessage
+		if len(status) > tkgpackagedatamodel.ShortDescriptionMaxLength {
+			status = fmt.Sprintf("%s...", status[:tkgpackagedatamodel.ShortDescriptionMaxLength])
+		}
+		if len(details) > tkgpackagedatamodel.ShortDescriptionMaxLength {
+			details = fmt.Sprintf("%s...", details[:tkgpackagedatamodel.ShortDescriptionMaxLength])
+		}
+		if repositoryListOp.AllNamespaces {
+			t.AddRow(
+				packageRepository.Name,
+				packageRepository.Spec.Fetch.ImgpkgBundle.Image,
+				status,
+				details,
+				packageRepository.Namespace)
+		} else {
+			t.AddRow(
+				packageRepository.Name,
+				packageRepository.Spec.Fetch.ImgpkgBundle.Image,
+				status,
+				details)
+		}
 	}
 	t.Render()
 

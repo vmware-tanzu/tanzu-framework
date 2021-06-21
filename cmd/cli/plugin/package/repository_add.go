@@ -22,6 +22,9 @@ var repositoryAddCmd = &cobra.Command{
 
 func init() {
 	repositoryAddCmd.Flags().StringVarP(&repoAddOp.KubeConfig, "kubeconfig", "", "", "The path to the kubeconfig file, optional")
+	repositoryAddCmd.Flags().BoolVarP(&repoAddOp.CreateNamespace, "create-namespace", "", false, "Create namespace if the target namespace does not exist, optional")
+	repositoryAddCmd.Flags().StringVarP(&repoAddOp.Namespace, "namespace", "n", "default", "Target namespace to add the repository, optional")
+
 	repositoryCmd.AddCommand(repositoryAddCmd)
 }
 

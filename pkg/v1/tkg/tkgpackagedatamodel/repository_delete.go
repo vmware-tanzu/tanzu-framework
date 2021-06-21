@@ -8,6 +8,7 @@ type RepositoryDeleteOptions struct {
 	RepositoryName string
 	IsForce        bool
 	KubeConfig     string
+	Namespace      string
 }
 
 // NewRepositoryDeleteOptions instantiates RepositoryDeleteOptions

@@ -14,7 +14,7 @@ import (
 var packageUninstallOp = tkgpackagedatamodel.NewPackageUninstallOptions()
 
 var packageUninstallCmd = &cobra.Command{
-	Use:   "uninstall",
+	Use:   "uninstall INSTALL_NAME",
 	Short: "Uninstall a package",
 	Long:  "Remove the installed package and almost all resources installed as part of installation of the package from the cluster. Namespaces created during installation of the package, do not automatically get deleted at the time of package uninstallation.",
 	Args:  cobra.ExactArgs(1),
@@ -36,7 +36,7 @@ func packageUninstall(_ *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := pkgClient.UnInstallPackage(packageUninstallOp); err != nil {
+	if err := pkgClient.UninstallPackage(packageUninstallOp); err != nil {
 		return err
 	}
 

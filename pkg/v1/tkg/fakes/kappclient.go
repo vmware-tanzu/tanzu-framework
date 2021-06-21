@@ -4,26 +4,26 @@ package fakes
 import (
 	"sync"
 
-	"github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/installpackage/v1alpha1"
 	v1alpha1a "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
-	v1alpha1b "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/packages/v1alpha1"
+	"github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+	v1alpha1b "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/kappclient"
 )
 
 type KappClient struct {
-	CreateInstalledPackageStub        func(*v1alpha1.InstalledPackage, bool, bool) error
-	createInstalledPackageMutex       sync.RWMutex
-	createInstalledPackageArgsForCall []struct {
-		arg1 *v1alpha1.InstalledPackage
+	CreatePackageInstallStub        func(*v1alpha1.PackageInstall, bool, bool) error
+	createPackageInstallMutex       sync.RWMutex
+	createPackageInstallArgsForCall []struct {
+		arg1 *v1alpha1.PackageInstall
 		arg2 bool
 		arg3 bool
 	}
-	createInstalledPackageReturns struct {
+	createPackageInstallReturns struct {
 		result1 error
 	}
-	createInstalledPackageReturnsOnCall map[int]struct {
+	createPackageInstallReturnsOnCall map[int]struct {
 		result1 error
 	}
 	CreatePackageRepositoryStub        func(*v1alpha1.PackageRepository) error
@@ -72,38 +72,39 @@ type KappClient struct {
 	getClientReturnsOnCall map[int]struct {
 		result1 client.Client
 	}
-	GetInstalledPackageStub        func(string, string) (*v1alpha1.InstalledPackage, error)
-	getInstalledPackageMutex       sync.RWMutex
-	getInstalledPackageArgsForCall []struct {
+	GetPackageInstallStub        func(string, string) (*v1alpha1.PackageInstall, error)
+	getPackageInstallMutex       sync.RWMutex
+	getPackageInstallArgsForCall []struct {
 		arg1 string
 		arg2 string
 	}
-	getInstalledPackageReturns struct {
-		result1 *v1alpha1.InstalledPackage
+	getPackageInstallReturns struct {
+		result1 *v1alpha1.PackageInstall
 		result2 error
 	}
-	getInstalledPackageReturnsOnCall map[int]struct {
-		result1 *v1alpha1.InstalledPackage
+	getPackageInstallReturnsOnCall map[int]struct {
+		result1 *v1alpha1.PackageInstall
 		result2 error
 	}
-	GetPackageByNameStub        func(string, string) (*v1alpha1b.Package, error)
-	getPackageByNameMutex       sync.RWMutex
-	getPackageByNameArgsForCall []struct {
+	GetPackageMetadataByNameStub        func(string, string) (*v1alpha1b.PackageMetadata, error)
+	getPackageMetadataByNameMutex       sync.RWMutex
+	getPackageMetadataByNameArgsForCall []struct {
 		arg1 string
 		arg2 string
 	}
-	getPackageByNameReturns struct {
-		result1 *v1alpha1b.Package
+	getPackageMetadataByNameReturns struct {
+		result1 *v1alpha1b.PackageMetadata
 		result2 error
 	}
-	getPackageByNameReturnsOnCall map[int]struct {
-		result1 *v1alpha1b.Package
+	getPackageMetadataByNameReturnsOnCall map[int]struct {
+		result1 *v1alpha1b.PackageMetadata
 		result2 error
 	}
-	GetPackageRepositoryStub        func(string) (*v1alpha1.PackageRepository, error)
+	GetPackageRepositoryStub        func(string, string) (*v1alpha1.PackageRepository, error)
 	getPackageRepositoryMutex       sync.RWMutex
 	getPackageRepositoryArgsForCall []struct {
 		arg1 string
+		arg2 string
 	}
 	getPackageRepositoryReturns struct {
 		result1 *v1alpha1.PackageRepository
@@ -113,22 +114,36 @@ type KappClient struct {
 		result1 *v1alpha1.PackageRepository
 		result2 error
 	}
-	ListInstalledPackagesStub        func(string) (*v1alpha1.InstalledPackageList, error)
-	listInstalledPackagesMutex       sync.RWMutex
-	listInstalledPackagesArgsForCall []struct {
+	ListPackageInstallsStub        func(string) (*v1alpha1.PackageInstallList, error)
+	listPackageInstallsMutex       sync.RWMutex
+	listPackageInstallsArgsForCall []struct {
 		arg1 string
 	}
-	listInstalledPackagesReturns struct {
-		result1 *v1alpha1.InstalledPackageList
+	listPackageInstallsReturns struct {
+		result1 *v1alpha1.PackageInstallList
 		result2 error
 	}
-	listInstalledPackagesReturnsOnCall map[int]struct {
-		result1 *v1alpha1.InstalledPackageList
+	listPackageInstallsReturnsOnCall map[int]struct {
+		result1 *v1alpha1.PackageInstallList
 		result2 error
 	}
-	ListPackageRepositoriesStub        func() (*v1alpha1.PackageRepositoryList, error)
+	ListPackageMetadataStub        func(string) (*v1alpha1b.PackageMetadataList, error)
+	listPackageMetadataMutex       sync.RWMutex
+	listPackageMetadataArgsForCall []struct {
+		arg1 string
+	}
+	listPackageMetadataReturns struct {
+		result1 *v1alpha1b.PackageMetadataList
+		result2 error
+	}
+	listPackageMetadataReturnsOnCall map[int]struct {
+		result1 *v1alpha1b.PackageMetadataList
+		result2 error
+	}
+	ListPackageRepositoriesStub        func(string) (*v1alpha1.PackageRepositoryList, error)
 	listPackageRepositoriesMutex       sync.RWMutex
 	listPackageRepositoriesArgsForCall []struct {
+		arg1 string
 	}
 	listPackageRepositoriesReturns struct {
 		result1 *v1alpha1.PackageRepositoryList
@@ -138,23 +153,11 @@ type KappClient struct {
 		result1 *v1alpha1.PackageRepositoryList
 		result2 error
 	}
-	ListPackageVersionsStub        func(string, string) (*v1alpha1b.PackageVersionList, error)
-	listPackageVersionsMutex       sync.RWMutex
-	listPackageVersionsArgsForCall []struct {
-		arg1 string
-		arg2 string
-	}
-	listPackageVersionsReturns struct {
-		result1 *v1alpha1b.PackageVersionList
-		result2 error
-	}
-	listPackageVersionsReturnsOnCall map[int]struct {
-		result1 *v1alpha1b.PackageVersionList
-		result2 error
-	}
-	ListPackagesStub        func() (*v1alpha1b.PackageList, error)
+	ListPackagesStub        func(string, string) (*v1alpha1b.PackageList, error)
 	listPackagesMutex       sync.RWMutex
 	listPackagesArgsForCall []struct {
+		arg1 string
+		arg2 string
 	}
 	listPackagesReturns struct {
 		result1 *v1alpha1b.PackageList
@@ -179,64 +182,65 @@ type KappClient struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *KappClient) CreateInstalledPackage(arg1 *v1alpha1.InstalledPackage, arg2 bool, arg3 bool) error {
-	fake.createInstalledPackageMutex.Lock()
-	ret, specificReturn := fake.createInstalledPackageReturnsOnCall[len(fake.createInstalledPackageArgsForCall)]
-	fake.createInstalledPackageArgsForCall = append(fake.createInstalledPackageArgsForCall, struct {
-		arg1 *v1alpha1.InstalledPackage
+func (fake *KappClient) CreatePackageInstall(arg1 *v1alpha1.PackageInstall, arg2 bool, arg3 bool) error {
+	fake.createPackageInstallMutex.Lock()
+	ret, specificReturn := fake.createPackageInstallReturnsOnCall[len(fake.createPackageInstallArgsForCall)]
+	fake.createPackageInstallArgsForCall = append(fake.createPackageInstallArgsForCall, struct {
+		arg1 *v1alpha1.PackageInstall
 		arg2 bool
 		arg3 bool
 	}{arg1, arg2, arg3})
-	fake.recordInvocation("CreateInstalledPackage", []interface{}{arg1, arg2, arg3})
-	fake.createInstalledPackageMutex.Unlock()
-	if fake.CreateInstalledPackageStub != nil {
-		return fake.CreateInstalledPackageStub(arg1, arg2, arg3)
+	stub := fake.CreatePackageInstallStub
+	fakeReturns := fake.createPackageInstallReturns
+	fake.recordInvocation("CreatePackageInstall", []interface{}{arg1, arg2, arg3})
+	fake.createPackageInstallMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.createInstalledPackageReturns
 	return fakeReturns.result1
 }
 
-func (fake *KappClient) CreateInstalledPackageCallCount() int {
-	fake.createInstalledPackageMutex.RLock()
-	defer fake.createInstalledPackageMutex.RUnlock()
-	return len(fake.createInstalledPackageArgsForCall)
+func (fake *KappClient) CreatePackageInstallCallCount() int {
+	fake.createPackageInstallMutex.RLock()
+	defer fake.createPackageInstallMutex.RUnlock()
+	return len(fake.createPackageInstallArgsForCall)
 }
 
-func (fake *KappClient) CreateInstalledPackageCalls(stub func(*v1alpha1.InstalledPackage, bool, bool) error) {
-	fake.createInstalledPackageMutex.Lock()
-	defer fake.createInstalledPackageMutex.Unlock()
-	fake.CreateInstalledPackageStub = stub
+func (fake *KappClient) CreatePackageInstallCalls(stub func(*v1alpha1.PackageInstall, bool, bool) error) {
+	fake.createPackageInstallMutex.Lock()
+	defer fake.createPackageInstallMutex.Unlock()
+	fake.CreatePackageInstallStub = stub
 }
 
-func (fake *KappClient) CreateInstalledPackageArgsForCall(i int) (*v1alpha1.InstalledPackage, bool, bool) {
-	fake.createInstalledPackageMutex.RLock()
-	defer fake.createInstalledPackageMutex.RUnlock()
-	argsForCall := fake.createInstalledPackageArgsForCall[i]
+func (fake *KappClient) CreatePackageInstallArgsForCall(i int) (*v1alpha1.PackageInstall, bool, bool) {
+	fake.createPackageInstallMutex.RLock()
+	defer fake.createPackageInstallMutex.RUnlock()
+	argsForCall := fake.createPackageInstallArgsForCall[i]
 	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
-func (fake *KappClient) CreateInstalledPackageReturns(result1 error) {
-	fake.createInstalledPackageMutex.Lock()
-	defer fake.createInstalledPackageMutex.Unlock()
-	fake.CreateInstalledPackageStub = nil
-	fake.createInstalledPackageReturns = struct {
+func (fake *KappClient) CreatePackageInstallReturns(result1 error) {
+	fake.createPackageInstallMutex.Lock()
+	defer fake.createPackageInstallMutex.Unlock()
+	fake.CreatePackageInstallStub = nil
+	fake.createPackageInstallReturns = struct {
 		result1 error
 	}{result1}
 }
 
-func (fake *KappClient) CreateInstalledPackageReturnsOnCall(i int, result1 error) {
-	fake.createInstalledPackageMutex.Lock()
-	defer fake.createInstalledPackageMutex.Unlock()
-	fake.CreateInstalledPackageStub = nil
-	if fake.createInstalledPackageReturnsOnCall == nil {
-		fake.createInstalledPackageReturnsOnCall = make(map[int]struct {
+func (fake *KappClient) CreatePackageInstallReturnsOnCall(i int, result1 error) {
+	fake.createPackageInstallMutex.Lock()
+	defer fake.createPackageInstallMutex.Unlock()
+	fake.CreatePackageInstallStub = nil
+	if fake.createPackageInstallReturnsOnCall == nil {
+		fake.createPackageInstallReturnsOnCall = make(map[int]struct {
 			result1 error
 		})
 	}
-	fake.createInstalledPackageReturnsOnCall[i] = struct {
+	fake.createPackageInstallReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
 }
@@ -247,15 +251,16 @@ func (fake *KappClient) CreatePackageRepository(arg1 *v1alpha1.PackageRepository
 	fake.createPackageRepositoryArgsForCall = append(fake.createPackageRepositoryArgsForCall, struct {
 		arg1 *v1alpha1.PackageRepository
 	}{arg1})
+	stub := fake.CreatePackageRepositoryStub
+	fakeReturns := fake.createPackageRepositoryReturns
 	fake.recordInvocation("CreatePackageRepository", []interface{}{arg1})
 	fake.createPackageRepositoryMutex.Unlock()
-	if fake.CreatePackageRepositoryStub != nil {
-		return fake.CreatePackageRepositoryStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.createPackageRepositoryReturns
 	return fakeReturns.result1
 }
 
@@ -307,15 +312,16 @@ func (fake *KappClient) DeletePackageRepository(arg1 *v1alpha1.PackageRepository
 	fake.deletePackageRepositoryArgsForCall = append(fake.deletePackageRepositoryArgsForCall, struct {
 		arg1 *v1alpha1.PackageRepository
 	}{arg1})
+	stub := fake.DeletePackageRepositoryStub
+	fakeReturns := fake.deletePackageRepositoryReturns
 	fake.recordInvocation("DeletePackageRepository", []interface{}{arg1})
 	fake.deletePackageRepositoryMutex.Unlock()
-	if fake.DeletePackageRepositoryStub != nil {
-		return fake.DeletePackageRepositoryStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.deletePackageRepositoryReturns
 	return fakeReturns.result1
 }
 
@@ -368,15 +374,16 @@ func (fake *KappClient) GetAppCR(arg1 string, arg2 string) (*v1alpha1a.App, erro
 		arg1 string
 		arg2 string
 	}{arg1, arg2})
+	stub := fake.GetAppCRStub
+	fakeReturns := fake.getAppCRReturns
 	fake.recordInvocation("GetAppCR", []interface{}{arg1, arg2})
 	fake.getAppCRMutex.Unlock()
-	if fake.GetAppCRStub != nil {
-		return fake.GetAppCRStub(arg1, arg2)
+	if stub != nil {
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getAppCRReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -430,15 +437,16 @@ func (fake *KappClient) GetClient() client.Client {
 	ret, specificReturn := fake.getClientReturnsOnCall[len(fake.getClientArgsForCall)]
 	fake.getClientArgsForCall = append(fake.getClientArgsForCall, struct {
 	}{})
+	stub := fake.GetClientStub
+	fakeReturns := fake.getClientReturns
 	fake.recordInvocation("GetClient", []interface{}{})
 	fake.getClientMutex.Unlock()
-	if fake.GetClientStub != nil {
-		return fake.GetClientStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.getClientReturns
 	return fakeReturns.result1
 }
 
@@ -477,149 +485,153 @@ func (fake *KappClient) GetClientReturnsOnCall(i int, result1 client.Client) {
 	}{result1}
 }
 
-func (fake *KappClient) GetInstalledPackage(arg1 string, arg2 string) (*v1alpha1.InstalledPackage, error) {
-	fake.getInstalledPackageMutex.Lock()
-	ret, specificReturn := fake.getInstalledPackageReturnsOnCall[len(fake.getInstalledPackageArgsForCall)]
-	fake.getInstalledPackageArgsForCall = append(fake.getInstalledPackageArgsForCall, struct {
+func (fake *KappClient) GetPackageInstall(arg1 string, arg2 string) (*v1alpha1.PackageInstall, error) {
+	fake.getPackageInstallMutex.Lock()
+	ret, specificReturn := fake.getPackageInstallReturnsOnCall[len(fake.getPackageInstallArgsForCall)]
+	fake.getPackageInstallArgsForCall = append(fake.getPackageInstallArgsForCall, struct {
 		arg1 string
 		arg2 string
 	}{arg1, arg2})
-	fake.recordInvocation("GetInstalledPackage", []interface{}{arg1, arg2})
-	fake.getInstalledPackageMutex.Unlock()
-	if fake.GetInstalledPackageStub != nil {
-		return fake.GetInstalledPackageStub(arg1, arg2)
+	stub := fake.GetPackageInstallStub
+	fakeReturns := fake.getPackageInstallReturns
+	fake.recordInvocation("GetPackageInstall", []interface{}{arg1, arg2})
+	fake.getPackageInstallMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getInstalledPackageReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
-func (fake *KappClient) GetInstalledPackageCallCount() int {
-	fake.getInstalledPackageMutex.RLock()
-	defer fake.getInstalledPackageMutex.RUnlock()
-	return len(fake.getInstalledPackageArgsForCall)
+func (fake *KappClient) GetPackageInstallCallCount() int {
+	fake.getPackageInstallMutex.RLock()
+	defer fake.getPackageInstallMutex.RUnlock()
+	return len(fake.getPackageInstallArgsForCall)
 }
 
-func (fake *KappClient) GetInstalledPackageCalls(stub func(string, string) (*v1alpha1.InstalledPackage, error)) {
-	fake.getInstalledPackageMutex.Lock()
-	defer fake.getInstalledPackageMutex.Unlock()
-	fake.GetInstalledPackageStub = stub
+func (fake *KappClient) GetPackageInstallCalls(stub func(string, string) (*v1alpha1.PackageInstall, error)) {
+	fake.getPackageInstallMutex.Lock()
+	defer fake.getPackageInstallMutex.Unlock()
+	fake.GetPackageInstallStub = stub
 }
 
-func (fake *KappClient) GetInstalledPackageArgsForCall(i int) (string, string) {
-	fake.getInstalledPackageMutex.RLock()
-	defer fake.getInstalledPackageMutex.RUnlock()
-	argsForCall := fake.getInstalledPackageArgsForCall[i]
+func (fake *KappClient) GetPackageInstallArgsForCall(i int) (string, string) {
+	fake.getPackageInstallMutex.RLock()
+	defer fake.getPackageInstallMutex.RUnlock()
+	argsForCall := fake.getPackageInstallArgsForCall[i]
 	return argsForCall.arg1, argsForCall.arg2
 }
 
-func (fake *KappClient) GetInstalledPackageReturns(result1 *v1alpha1.InstalledPackage, result2 error) {
-	fake.getInstalledPackageMutex.Lock()
-	defer fake.getInstalledPackageMutex.Unlock()
-	fake.GetInstalledPackageStub = nil
-	fake.getInstalledPackageReturns = struct {
-		result1 *v1alpha1.InstalledPackage
+func (fake *KappClient) GetPackageInstallReturns(result1 *v1alpha1.PackageInstall, result2 error) {
+	fake.getPackageInstallMutex.Lock()
+	defer fake.getPackageInstallMutex.Unlock()
+	fake.GetPackageInstallStub = nil
+	fake.getPackageInstallReturns = struct {
+		result1 *v1alpha1.PackageInstall
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *KappClient) GetInstalledPackageReturnsOnCall(i int, result1 *v1alpha1.InstalledPackage, result2 error) {
-	fake.getInstalledPackageMutex.Lock()
-	defer fake.getInstalledPackageMutex.Unlock()
-	fake.GetInstalledPackageStub = nil
-	if fake.getInstalledPackageReturnsOnCall == nil {
-		fake.getInstalledPackageReturnsOnCall = make(map[int]struct {
-			result1 *v1alpha1.InstalledPackage
+func (fake *KappClient) GetPackageInstallReturnsOnCall(i int, result1 *v1alpha1.PackageInstall, result2 error) {
+	fake.getPackageInstallMutex.Lock()
+	defer fake.getPackageInstallMutex.Unlock()
+	fake.GetPackageInstallStub = nil
+	if fake.getPackageInstallReturnsOnCall == nil {
+		fake.getPackageInstallReturnsOnCall = make(map[int]struct {
+			result1 *v1alpha1.PackageInstall
 			result2 error
 		})
 	}
-	fake.getInstalledPackageReturnsOnCall[i] = struct {
-		result1 *v1alpha1.InstalledPackage
+	fake.getPackageInstallReturnsOnCall[i] = struct {
+		result1 *v1alpha1.PackageInstall
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *KappClient) GetPackageByName(arg1 string, arg2 string) (*v1alpha1b.Package, error) {
-	fake.getPackageByNameMutex.Lock()
-	ret, specificReturn := fake.getPackageByNameReturnsOnCall[len(fake.getPackageByNameArgsForCall)]
-	fake.getPackageByNameArgsForCall = append(fake.getPackageByNameArgsForCall, struct {
+func (fake *KappClient) GetPackageMetadataByName(arg1 string, arg2 string) (*v1alpha1b.PackageMetadata, error) {
+	fake.getPackageMetadataByNameMutex.Lock()
+	ret, specificReturn := fake.getPackageMetadataByNameReturnsOnCall[len(fake.getPackageMetadataByNameArgsForCall)]
+	fake.getPackageMetadataByNameArgsForCall = append(fake.getPackageMetadataByNameArgsForCall, struct {
 		arg1 string
 		arg2 string
 	}{arg1, arg2})
-	fake.recordInvocation("GetPackageByName", []interface{}{arg1, arg2})
-	fake.getPackageByNameMutex.Unlock()
-	if fake.GetPackageByNameStub != nil {
-		return fake.GetPackageByNameStub(arg1, arg2)
+	stub := fake.GetPackageMetadataByNameStub
+	fakeReturns := fake.getPackageMetadataByNameReturns
+	fake.recordInvocation("GetPackageMetadataByName", []interface{}{arg1, arg2})
+	fake.getPackageMetadataByNameMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getPackageByNameReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
-func (fake *KappClient) GetPackageByNameCallCount() int {
-	fake.getPackageByNameMutex.RLock()
-	defer fake.getPackageByNameMutex.RUnlock()
-	return len(fake.getPackageByNameArgsForCall)
+func (fake *KappClient) GetPackageMetadataByNameCallCount() int {
+	fake.getPackageMetadataByNameMutex.RLock()
+	defer fake.getPackageMetadataByNameMutex.RUnlock()
+	return len(fake.getPackageMetadataByNameArgsForCall)
 }
 
-func (fake *KappClient) GetPackageByNameCalls(stub func(string, string) (*v1alpha1b.Package, error)) {
-	fake.getPackageByNameMutex.Lock()
-	defer fake.getPackageByNameMutex.Unlock()
-	fake.GetPackageByNameStub = stub
+func (fake *KappClient) GetPackageMetadataByNameCalls(stub func(string, string) (*v1alpha1b.PackageMetadata, error)) {
+	fake.getPackageMetadataByNameMutex.Lock()
+	defer fake.getPackageMetadataByNameMutex.Unlock()
+	fake.GetPackageMetadataByNameStub = stub
 }
 
-func (fake *KappClient) GetPackageByNameArgsForCall(i int) (string, string) {
-	fake.getPackageByNameMutex.RLock()
-	defer fake.getPackageByNameMutex.RUnlock()
-	argsForCall := fake.getPackageByNameArgsForCall[i]
+func (fake *KappClient) GetPackageMetadataByNameArgsForCall(i int) (string, string) {
+	fake.getPackageMetadataByNameMutex.RLock()
+	defer fake.getPackageMetadataByNameMutex.RUnlock()
+	argsForCall := fake.getPackageMetadataByNameArgsForCall[i]
 	return argsForCall.arg1, argsForCall.arg2
 }
 
-func (fake *KappClient) GetPackageByNameReturns(result1 *v1alpha1b.Package, result2 error) {
-	fake.getPackageByNameMutex.Lock()
-	defer fake.getPackageByNameMutex.Unlock()
-	fake.GetPackageByNameStub = nil
-	fake.getPackageByNameReturns = struct {
-		result1 *v1alpha1b.Package
+func (fake *KappClient) GetPackageMetadataByNameReturns(result1 *v1alpha1b.PackageMetadata, result2 error) {
+	fake.getPackageMetadataByNameMutex.Lock()
+	defer fake.getPackageMetadataByNameMutex.Unlock()
+	fake.GetPackageMetadataByNameStub = nil
+	fake.getPackageMetadataByNameReturns = struct {
+		result1 *v1alpha1b.PackageMetadata
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *KappClient) GetPackageByNameReturnsOnCall(i int, result1 *v1alpha1b.Package, result2 error) {
-	fake.getPackageByNameMutex.Lock()
-	defer fake.getPackageByNameMutex.Unlock()
-	fake.GetPackageByNameStub = nil
-	if fake.getPackageByNameReturnsOnCall == nil {
-		fake.getPackageByNameReturnsOnCall = make(map[int]struct {
-			result1 *v1alpha1b.Package
+func (fake *KappClient) GetPackageMetadataByNameReturnsOnCall(i int, result1 *v1alpha1b.PackageMetadata, result2 error) {
+	fake.getPackageMetadataByNameMutex.Lock()
+	defer fake.getPackageMetadataByNameMutex.Unlock()
+	fake.GetPackageMetadataByNameStub = nil
+	if fake.getPackageMetadataByNameReturnsOnCall == nil {
+		fake.getPackageMetadataByNameReturnsOnCall = make(map[int]struct {
+			result1 *v1alpha1b.PackageMetadata
 			result2 error
 		})
 	}
-	fake.getPackageByNameReturnsOnCall[i] = struct {
-		result1 *v1alpha1b.Package
+	fake.getPackageMetadataByNameReturnsOnCall[i] = struct {
+		result1 *v1alpha1b.PackageMetadata
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *KappClient) GetPackageRepository(arg1 string) (*v1alpha1.PackageRepository, error) {
+func (fake *KappClient) GetPackageRepository(arg1 string, arg2 string) (*v1alpha1.PackageRepository, error) {
 	fake.getPackageRepositoryMutex.Lock()
 	ret, specificReturn := fake.getPackageRepositoryReturnsOnCall[len(fake.getPackageRepositoryArgsForCall)]
 	fake.getPackageRepositoryArgsForCall = append(fake.getPackageRepositoryArgsForCall, struct {
 		arg1 string
-	}{arg1})
-	fake.recordInvocation("GetPackageRepository", []interface{}{arg1})
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.GetPackageRepositoryStub
+	fakeReturns := fake.getPackageRepositoryReturns
+	fake.recordInvocation("GetPackageRepository", []interface{}{arg1, arg2})
 	fake.getPackageRepositoryMutex.Unlock()
-	if fake.GetPackageRepositoryStub != nil {
-		return fake.GetPackageRepositoryStub(arg1)
+	if stub != nil {
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getPackageRepositoryReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -629,17 +641,17 @@ func (fake *KappClient) GetPackageRepositoryCallCount() int {
 	return len(fake.getPackageRepositoryArgsForCall)
 }
 
-func (fake *KappClient) GetPackageRepositoryCalls(stub func(string) (*v1alpha1.PackageRepository, error)) {
+func (fake *KappClient) GetPackageRepositoryCalls(stub func(string, string) (*v1alpha1.PackageRepository, error)) {
 	fake.getPackageRepositoryMutex.Lock()
 	defer fake.getPackageRepositoryMutex.Unlock()
 	fake.GetPackageRepositoryStub = stub
 }
 
-func (fake *KappClient) GetPackageRepositoryArgsForCall(i int) string {
+func (fake *KappClient) GetPackageRepositoryArgsForCall(i int) (string, string) {
 	fake.getPackageRepositoryMutex.RLock()
 	defer fake.getPackageRepositoryMutex.RUnlock()
 	argsForCall := fake.getPackageRepositoryArgsForCall[i]
-	return argsForCall.arg1
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *KappClient) GetPackageRepositoryReturns(result1 *v1alpha1.PackageRepository, result2 error) {
@@ -668,83 +680,150 @@ func (fake *KappClient) GetPackageRepositoryReturnsOnCall(i int, result1 *v1alph
 	}{result1, result2}
 }
 
-func (fake *KappClient) ListInstalledPackages(arg1 string) (*v1alpha1.InstalledPackageList, error) {
-	fake.listInstalledPackagesMutex.Lock()
-	ret, specificReturn := fake.listInstalledPackagesReturnsOnCall[len(fake.listInstalledPackagesArgsForCall)]
-	fake.listInstalledPackagesArgsForCall = append(fake.listInstalledPackagesArgsForCall, struct {
+func (fake *KappClient) ListPackageInstalls(arg1 string) (*v1alpha1.PackageInstallList, error) {
+	fake.listPackageInstallsMutex.Lock()
+	ret, specificReturn := fake.listPackageInstallsReturnsOnCall[len(fake.listPackageInstallsArgsForCall)]
+	fake.listPackageInstallsArgsForCall = append(fake.listPackageInstallsArgsForCall, struct {
 		arg1 string
 	}{arg1})
-	fake.recordInvocation("ListInstalledPackages", []interface{}{arg1})
-	fake.listInstalledPackagesMutex.Unlock()
-	if fake.ListInstalledPackagesStub != nil {
-		return fake.ListInstalledPackagesStub(arg1)
+	stub := fake.ListPackageInstallsStub
+	fakeReturns := fake.listPackageInstallsReturns
+	fake.recordInvocation("ListPackageInstalls", []interface{}{arg1})
+	fake.listPackageInstallsMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.listInstalledPackagesReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
-func (fake *KappClient) ListInstalledPackagesCallCount() int {
-	fake.listInstalledPackagesMutex.RLock()
-	defer fake.listInstalledPackagesMutex.RUnlock()
-	return len(fake.listInstalledPackagesArgsForCall)
+func (fake *KappClient) ListPackageInstallsCallCount() int {
+	fake.listPackageInstallsMutex.RLock()
+	defer fake.listPackageInstallsMutex.RUnlock()
+	return len(fake.listPackageInstallsArgsForCall)
 }
 
-func (fake *KappClient) ListInstalledPackagesCalls(stub func(string) (*v1alpha1.InstalledPackageList, error)) {
-	fake.listInstalledPackagesMutex.Lock()
-	defer fake.listInstalledPackagesMutex.Unlock()
-	fake.ListInstalledPackagesStub = stub
+func (fake *KappClient) ListPackageInstallsCalls(stub func(string) (*v1alpha1.PackageInstallList, error)) {
+	fake.listPackageInstallsMutex.Lock()
+	defer fake.listPackageInstallsMutex.Unlock()
+	fake.ListPackageInstallsStub = stub
 }
 
-func (fake *KappClient) ListInstalledPackagesArgsForCall(i int) string {
-	fake.listInstalledPackagesMutex.RLock()
-	defer fake.listInstalledPackagesMutex.RUnlock()
-	argsForCall := fake.listInstalledPackagesArgsForCall[i]
+func (fake *KappClient) ListPackageInstallsArgsForCall(i int) string {
+	fake.listPackageInstallsMutex.RLock()
+	defer fake.listPackageInstallsMutex.RUnlock()
+	argsForCall := fake.listPackageInstallsArgsForCall[i]
 	return argsForCall.arg1
 }
 
-func (fake *KappClient) ListInstalledPackagesReturns(result1 *v1alpha1.InstalledPackageList, result2 error) {
-	fake.listInstalledPackagesMutex.Lock()
-	defer fake.listInstalledPackagesMutex.Unlock()
-	fake.ListInstalledPackagesStub = nil
-	fake.listInstalledPackagesReturns = struct {
-		result1 *v1alpha1.InstalledPackageList
+func (fake *KappClient) ListPackageInstallsReturns(result1 *v1alpha1.PackageInstallList, result2 error) {
+	fake.listPackageInstallsMutex.Lock()
+	defer fake.listPackageInstallsMutex.Unlock()
+	fake.ListPackageInstallsStub = nil
+	fake.listPackageInstallsReturns = struct {
+		result1 *v1alpha1.PackageInstallList
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *KappClient) ListInstalledPackagesReturnsOnCall(i int, result1 *v1alpha1.InstalledPackageList, result2 error) {
-	fake.listInstalledPackagesMutex.Lock()
-	defer fake.listInstalledPackagesMutex.Unlock()
-	fake.ListInstalledPackagesStub = nil
-	if fake.listInstalledPackagesReturnsOnCall == nil {
-		fake.listInstalledPackagesReturnsOnCall = make(map[int]struct {
-			result1 *v1alpha1.InstalledPackageList
+func (fake *KappClient) ListPackageInstallsReturnsOnCall(i int, result1 *v1alpha1.PackageInstallList, result2 error) {
+	fake.listPackageInstallsMutex.Lock()
+	defer fake.listPackageInstallsMutex.Unlock()
+	fake.ListPackageInstallsStub = nil
+	if fake.listPackageInstallsReturnsOnCall == nil {
+		fake.listPackageInstallsReturnsOnCall = make(map[int]struct {
+			result1 *v1alpha1.PackageInstallList
 			result2 error
 		})
 	}
-	fake.listInstalledPackagesReturnsOnCall[i] = struct {
-		result1 *v1alpha1.InstalledPackageList
+	fake.listPackageInstallsReturnsOnCall[i] = struct {
+		result1 *v1alpha1.PackageInstallList
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *KappClient) ListPackageRepositories() (*v1alpha1.PackageRepositoryList, error) {
-	fake.listPackageRepositoriesMutex.Lock()
-	ret, specificReturn := fake.listPackageRepositoriesReturnsOnCall[len(fake.listPackageRepositoriesArgsForCall)]
-	fake.listPackageRepositoriesArgsForCall = append(fake.listPackageRepositoriesArgsForCall, struct {
-	}{})
-	fake.recordInvocation("ListPackageRepositories", []interface{}{})
-	fake.listPackageRepositoriesMutex.Unlock()
-	if fake.ListPackageRepositoriesStub != nil {
-		return fake.ListPackageRepositoriesStub()
+func (fake *KappClient) ListPackageMetadata(arg1 string) (*v1alpha1b.PackageMetadataList, error) {
+	fake.listPackageMetadataMutex.Lock()
+	ret, specificReturn := fake.listPackageMetadataReturnsOnCall[len(fake.listPackageMetadataArgsForCall)]
+	fake.listPackageMetadataArgsForCall = append(fake.listPackageMetadataArgsForCall, struct {
+		arg1 string
+	}{arg1})
+	stub := fake.ListPackageMetadataStub
+	fakeReturns := fake.listPackageMetadataReturns
+	fake.recordInvocation("ListPackageMetadata", []interface{}{arg1})
+	fake.listPackageMetadataMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *KappClient) ListPackageMetadataCallCount() int {
+	fake.listPackageMetadataMutex.RLock()
+	defer fake.listPackageMetadataMutex.RUnlock()
+	return len(fake.listPackageMetadataArgsForCall)
+}
+
+func (fake *KappClient) ListPackageMetadataCalls(stub func(string) (*v1alpha1b.PackageMetadataList, error)) {
+	fake.listPackageMetadataMutex.Lock()
+	defer fake.listPackageMetadataMutex.Unlock()
+	fake.ListPackageMetadataStub = stub
+}
+
+func (fake *KappClient) ListPackageMetadataArgsForCall(i int) string {
+	fake.listPackageMetadataMutex.RLock()
+	defer fake.listPackageMetadataMutex.RUnlock()
+	argsForCall := fake.listPackageMetadataArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *KappClient) ListPackageMetadataReturns(result1 *v1alpha1b.PackageMetadataList, result2 error) {
+	fake.listPackageMetadataMutex.Lock()
+	defer fake.listPackageMetadataMutex.Unlock()
+	fake.ListPackageMetadataStub = nil
+	fake.listPackageMetadataReturns = struct {
+		result1 *v1alpha1b.PackageMetadataList
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *KappClient) ListPackageMetadataReturnsOnCall(i int, result1 *v1alpha1b.PackageMetadataList, result2 error) {
+	fake.listPackageMetadataMutex.Lock()
+	defer fake.listPackageMetadataMutex.Unlock()
+	fake.ListPackageMetadataStub = nil
+	if fake.listPackageMetadataReturnsOnCall == nil {
+		fake.listPackageMetadataReturnsOnCall = make(map[int]struct {
+			result1 *v1alpha1b.PackageMetadataList
+			result2 error
+		})
+	}
+	fake.listPackageMetadataReturnsOnCall[i] = struct {
+		result1 *v1alpha1b.PackageMetadataList
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *KappClient) ListPackageRepositories(arg1 string) (*v1alpha1.PackageRepositoryList, error) {
+	fake.listPackageRepositoriesMutex.Lock()
+	ret, specificReturn := fake.listPackageRepositoriesReturnsOnCall[len(fake.listPackageRepositoriesArgsForCall)]
+	fake.listPackageRepositoriesArgsForCall = append(fake.listPackageRepositoriesArgsForCall, struct {
+		arg1 string
+	}{arg1})
+	stub := fake.ListPackageRepositoriesStub
 	fakeReturns := fake.listPackageRepositoriesReturns
+	fake.recordInvocation("ListPackageRepositories", []interface{}{arg1})
+	fake.listPackageRepositoriesMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -754,10 +833,17 @@ func (fake *KappClient) ListPackageRepositoriesCallCount() int {
 	return len(fake.listPackageRepositoriesArgsForCall)
 }
 
-func (fake *KappClient) ListPackageRepositoriesCalls(stub func() (*v1alpha1.PackageRepositoryList, error)) {
+func (fake *KappClient) ListPackageRepositoriesCalls(stub func(string) (*v1alpha1.PackageRepositoryList, error)) {
 	fake.listPackageRepositoriesMutex.Lock()
 	defer fake.listPackageRepositoriesMutex.Unlock()
 	fake.ListPackageRepositoriesStub = stub
+}
+
+func (fake *KappClient) ListPackageRepositoriesArgsForCall(i int) string {
+	fake.listPackageRepositoriesMutex.RLock()
+	defer fake.listPackageRepositoriesMutex.RUnlock()
+	argsForCall := fake.listPackageRepositoriesArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *KappClient) ListPackageRepositoriesReturns(result1 *v1alpha1.PackageRepositoryList, result2 error) {
@@ -786,84 +872,23 @@ func (fake *KappClient) ListPackageRepositoriesReturnsOnCall(i int, result1 *v1a
 	}{result1, result2}
 }
 
-func (fake *KappClient) ListPackageVersions(arg1 string, arg2 string) (*v1alpha1b.PackageVersionList, error) {
-	fake.listPackageVersionsMutex.Lock()
-	ret, specificReturn := fake.listPackageVersionsReturnsOnCall[len(fake.listPackageVersionsArgsForCall)]
-	fake.listPackageVersionsArgsForCall = append(fake.listPackageVersionsArgsForCall, struct {
-		arg1 string
-		arg2 string
-	}{arg1, arg2})
-	fake.recordInvocation("ListPackageVersions", []interface{}{arg1, arg2})
-	fake.listPackageVersionsMutex.Unlock()
-	if fake.ListPackageVersionsStub != nil {
-		return fake.ListPackageVersionsStub(arg1, arg2)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	fakeReturns := fake.listPackageVersionsReturns
-	return fakeReturns.result1, fakeReturns.result2
-}
-
-func (fake *KappClient) ListPackageVersionsCallCount() int {
-	fake.listPackageVersionsMutex.RLock()
-	defer fake.listPackageVersionsMutex.RUnlock()
-	return len(fake.listPackageVersionsArgsForCall)
-}
-
-func (fake *KappClient) ListPackageVersionsCalls(stub func(string, string) (*v1alpha1b.PackageVersionList, error)) {
-	fake.listPackageVersionsMutex.Lock()
-	defer fake.listPackageVersionsMutex.Unlock()
-	fake.ListPackageVersionsStub = stub
-}
-
-func (fake *KappClient) ListPackageVersionsArgsForCall(i int) (string, string) {
-	fake.listPackageVersionsMutex.RLock()
-	defer fake.listPackageVersionsMutex.RUnlock()
-	argsForCall := fake.listPackageVersionsArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
-}
-
-func (fake *KappClient) ListPackageVersionsReturns(result1 *v1alpha1b.PackageVersionList, result2 error) {
-	fake.listPackageVersionsMutex.Lock()
-	defer fake.listPackageVersionsMutex.Unlock()
-	fake.ListPackageVersionsStub = nil
-	fake.listPackageVersionsReturns = struct {
-		result1 *v1alpha1b.PackageVersionList
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *KappClient) ListPackageVersionsReturnsOnCall(i int, result1 *v1alpha1b.PackageVersionList, result2 error) {
-	fake.listPackageVersionsMutex.Lock()
-	defer fake.listPackageVersionsMutex.Unlock()
-	fake.ListPackageVersionsStub = nil
-	if fake.listPackageVersionsReturnsOnCall == nil {
-		fake.listPackageVersionsReturnsOnCall = make(map[int]struct {
-			result1 *v1alpha1b.PackageVersionList
-			result2 error
-		})
-	}
-	fake.listPackageVersionsReturnsOnCall[i] = struct {
-		result1 *v1alpha1b.PackageVersionList
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *KappClient) ListPackages() (*v1alpha1b.PackageList, error) {
+func (fake *KappClient) ListPackages(arg1 string, arg2 string) (*v1alpha1b.PackageList, error) {
 	fake.listPackagesMutex.Lock()
 	ret, specificReturn := fake.listPackagesReturnsOnCall[len(fake.listPackagesArgsForCall)]
 	fake.listPackagesArgsForCall = append(fake.listPackagesArgsForCall, struct {
-	}{})
-	fake.recordInvocation("ListPackages", []interface{}{})
+		arg1 string
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.ListPackagesStub
+	fakeReturns := fake.listPackagesReturns
+	fake.recordInvocation("ListPackages", []interface{}{arg1, arg2})
 	fake.listPackagesMutex.Unlock()
-	if fake.ListPackagesStub != nil {
-		return fake.ListPackagesStub()
+	if stub != nil {
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.listPackagesReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -873,10 +898,17 @@ func (fake *KappClient) ListPackagesCallCount() int {
 	return len(fake.listPackagesArgsForCall)
 }
 
-func (fake *KappClient) ListPackagesCalls(stub func() (*v1alpha1b.PackageList, error)) {
+func (fake *KappClient) ListPackagesCalls(stub func(string, string) (*v1alpha1b.PackageList, error)) {
 	fake.listPackagesMutex.Lock()
 	defer fake.listPackagesMutex.Unlock()
 	fake.ListPackagesStub = stub
+}
+
+func (fake *KappClient) ListPackagesArgsForCall(i int) (string, string) {
+	fake.listPackagesMutex.RLock()
+	defer fake.listPackagesMutex.RUnlock()
+	argsForCall := fake.listPackagesArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *KappClient) ListPackagesReturns(result1 *v1alpha1b.PackageList, result2 error) {
@@ -911,15 +943,16 @@ func (fake *KappClient) UpdatePackageRepository(arg1 *v1alpha1.PackageRepository
 	fake.updatePackageRepositoryArgsForCall = append(fake.updatePackageRepositoryArgsForCall, struct {
 		arg1 *v1alpha1.PackageRepository
 	}{arg1})
+	stub := fake.UpdatePackageRepositoryStub
+	fakeReturns := fake.updatePackageRepositoryReturns
 	fake.recordInvocation("UpdatePackageRepository", []interface{}{arg1})
 	fake.updatePackageRepositoryMutex.Unlock()
-	if fake.UpdatePackageRepositoryStub != nil {
-		return fake.UpdatePackageRepositoryStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.updatePackageRepositoryReturns
 	return fakeReturns.result1
 }
 
@@ -968,8 +1001,8 @@ func (fake *KappClient) UpdatePackageRepositoryReturnsOnCall(i int, result1 erro
 func (fake *KappClient) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.createInstalledPackageMutex.RLock()
-	defer fake.createInstalledPackageMutex.RUnlock()
+	fake.createPackageInstallMutex.RLock()
+	defer fake.createPackageInstallMutex.RUnlock()
 	fake.createPackageRepositoryMutex.RLock()
 	defer fake.createPackageRepositoryMutex.RUnlock()
 	fake.deletePackageRepositoryMutex.RLock()
@@ -978,18 +1011,18 @@ func (fake *KappClient) Invocations() map[string][][]interface{} {
 	defer fake.getAppCRMutex.RUnlock()
 	fake.getClientMutex.RLock()
 	defer fake.getClientMutex.RUnlock()
-	fake.getInstalledPackageMutex.RLock()
-	defer fake.getInstalledPackageMutex.RUnlock()
-	fake.getPackageByNameMutex.RLock()
-	defer fake.getPackageByNameMutex.RUnlock()
+	fake.getPackageInstallMutex.RLock()
+	defer fake.getPackageInstallMutex.RUnlock()
+	fake.getPackageMetadataByNameMutex.RLock()
+	defer fake.getPackageMetadataByNameMutex.RUnlock()
 	fake.getPackageRepositoryMutex.RLock()
 	defer fake.getPackageRepositoryMutex.RUnlock()
-	fake.listInstalledPackagesMutex.RLock()
-	defer fake.listInstalledPackagesMutex.RUnlock()
+	fake.listPackageInstallsMutex.RLock()
+	defer fake.listPackageInstallsMutex.RUnlock()
+	fake.listPackageMetadataMutex.RLock()
+	defer fake.listPackageMetadataMutex.RUnlock()
 	fake.listPackageRepositoriesMutex.RLock()
 	defer fake.listPackageRepositoriesMutex.RUnlock()
-	fake.listPackageVersionsMutex.RLock()
-	defer fake.listPackageVersionsMutex.RUnlock()
 	fake.listPackagesMutex.RLock()
 	defer fake.listPackagesMutex.RUnlock()
 	fake.updatePackageRepositoryMutex.RLock()

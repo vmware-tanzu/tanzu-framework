@@ -79,7 +79,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.7.0
-	github.com/vmware-tanzu/carvel-kapp-controller v0.19.1-0.20210520224100-5da6db716abe
+	github.com/vmware-tanzu/carvel-kapp-controller v0.20.0-rc.1
 	github.com/vmware-tanzu/carvel-vendir v0.19.0
 	github.com/vmware/govmomi v0.23.1
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0

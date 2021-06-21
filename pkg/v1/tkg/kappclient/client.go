@@ -18,9 +18,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 	k8sconfig "sigs.k8s.io/controller-runtime/pkg/client/config"
 
-	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/installpackage/v1alpha1"
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
-	kapppkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/packages/v1alpha1"
+	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+	kapppkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackagedatamodel"
 )
@@ -119,8 +119,8 @@ func (c *client) DeletePackageRepository(repository *kappipkg.PackageRepository)
 	return nil
 }
 
-// CreateInstalledPackage creates a InstalledPackage CR
-func (c *client) CreateInstalledPackage(installedPackage *kappipkg.InstalledPackage, isPkgPluginCreatedSvcAccount, isPkgPluginCreatedSecret bool) error {
+// CreatePackageInstall creates a PackageInstall CR
+func (c *client) CreatePackageInstall(installedPackage *kappipkg.PackageInstall, isPkgPluginCreatedSvcAccount, isPkgPluginCreatedSecret bool) error {
 	installedPkg := installedPackage.DeepCopy()
 	c.addAnnotations(&installedPkg.ObjectMeta, isPkgPluginCreatedSvcAccount, isPkgPluginCreatedSecret)
 
@@ -141,9 +141,9 @@ func (c *client) GetAppCR(appName, namespace string) (*kappctrl.App, error) {
 	return app, nil
 }
 
-// GetInstalledPackage gets the InstalledPackage CR for the provided package name
-func (c *client) GetInstalledPackage(installedPackageName, namespace string) (*kappipkg.InstalledPackage, error) {
-	installedPkg := &kappipkg.InstalledPackage{}
+// GetPackageInstall gets the PackageInstall CR for the provided package name
+func (c *client) GetPackageInstall(installedPackageName, namespace string) (*kappipkg.PackageInstall, error) {
+	installedPkg := &kappipkg.PackageInstall{}
 	if err := c.client.Get(context.Background(), crtclient.ObjectKey{Name: installedPackageName, Namespace: namespace}, installedPkg); err != nil {
 		return nil, err
 	}
@@ -151,9 +151,9 @@ func (c *client) GetInstalledPackage(installedPackageName, namespace string) (*k
 	return installedPkg, nil
 }
 
-// GetPackageByName gets the package with the specified name
-func (c *client) GetPackageByName(packageName, namespace string) (*kapppkg.Package, error) {
-	pkg := &kapppkg.Package{}
+// GetPackageMetadataByName gets the package with the specified name
+func (c *client) GetPackageMetadataByName(packageName, namespace string) (*kapppkg.PackageMetadata, error) {
+	pkg := &kapppkg.PackageMetadata{}
 	if err := c.client.Get(context.Background(), crtclient.ObjectKey{Name: packageName, Namespace: namespace}, pkg); err != nil {
 		return nil, err
 	}
@@ -162,44 +162,50 @@ func (c *client) GetPackageByName(packageName, namespace string) (*kapppkg.Packa
 }
 
 // GetPackageRepository gets the PackageRepository CR
-func (c *client) GetPackageRepository(repositoryName string) (*kappipkg.PackageRepository, error) {
+func (c *client) GetPackageRepository(repositoryName, namespace string) (*kappipkg.PackageRepository, error) {
 	repository := &kappipkg.PackageRepository{}
-	err := c.client.Get(context.Background(), crtclient.ObjectKey{Name: repositoryName}, repository)
+	err := c.client.Get(context.Background(), crtclient.ObjectKey{Name: repositoryName, Namespace: namespace}, repository)
 	if err != nil {
 		return nil, err
 	}
 	return repository, nil
 }
 
-// ListPackageRepositories gets the list of PackageRepository CR
-func (c *client) ListPackageRepositories() (*kappipkg.PackageRepositoryList, error) {
+// ListPackageRepositories gets the list of PackageRepository CRs
+func (c *client) ListPackageRepositories(namespace string) (*kappipkg.PackageRepositoryList, error) {
+	var selectors []crtclient.ListOption
 	repositoryList := &kappipkg.PackageRepositoryList{}
-	err := c.client.List(context.Background(), repositoryList)
+
+	selectors = []crtclient.ListOption{crtclient.InNamespace(namespace)}
+
+	err := c.client.List(context.Background(), repositoryList, selectors...)
 	if err != nil {
 		return nil, err
 	}
 	return repositoryList, nil
 }
 
-// ListPackage gets the list of Package CR
-func (c *client) ListPackages() (*kapppkg.PackageList, error) {
-	packageList := &kapppkg.PackageList{}
-	err := c.client.List(context.Background(), packageList)
+// ListPackageMetadata gets the list of PackageMetadata CRs
+func (c *client) ListPackageMetadata(namespace string) (*kapppkg.PackageMetadataList, error) {
+	var selectors []crtclient.ListOption
+	packageList := &kapppkg.PackageMetadataList{}
+
+	selectors = []crtclient.ListOption{crtclient.InNamespace(namespace)}
+
+	err := c.client.List(context.Background(), packageList, selectors...)
 	if err != nil {
 		return nil, err
 	}
 	return packageList, nil
 }
 
-// ListInstalledPackages gets the list of InstalledPackage CR in the specified namespace.
+// ListInstalledPackages gets the list of PackageInstall CR in the specified namespace.
 // If no namespace be provided, it returns the list of installed packages across all namespaces
-func (c *client) ListInstalledPackages(namespace string) (*kappipkg.InstalledPackageList, error) {
+func (c *client) ListPackageInstalls(namespace string) (*kappipkg.PackageInstallList, error) {
 	var selectors []crtclient.ListOption
-	installedPackageList := &kappipkg.InstalledPackageList{}
+	installedPackageList := &kappipkg.PackageInstallList{}
 
-	if namespace != "" {
-		selectors = []crtclient.ListOption{crtclient.InNamespace(namespace)}
-	}
+	selectors = []crtclient.ListOption{crtclient.InNamespace(namespace)}
 
 	if err := c.client.List(context.Background(), installedPackageList, selectors...); err != nil {
 		return nil, err
@@ -208,14 +214,14 @@ func (c *client) ListInstalledPackages(namespace string) (*kappipkg.InstalledPac
 	return installedPackageList, nil
 }
 
-// ListPackageVersions gets the list of PackageVersion CR
-func (c *client) ListPackageVersions(packageName, namespace string) (*kapppkg.PackageVersionList, error) {
+// ListPackages gets the list of Package CRs
+func (c *client) ListPackages(packageName, namespace string) (*kapppkg.PackageList, error) {
 	var selectors []crtclient.ListOption
-	packageVersionList := &kapppkg.PackageVersionList{}
+	packageVersionList := &kapppkg.PackageList{}
 
 	if packageName != "" {
 		selectors = []crtclient.ListOption{
-			crtclient.MatchingFields(map[string]string{"spec.packageName": packageName}),
+			crtclient.MatchingFields(map[string]string{"spec.refName": packageName}),
 			crtclient.InNamespace(namespace),
 		}
 	}

@@ -16,16 +16,16 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 
-	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/installpackage/v1alpha1"
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
+	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
-// UnInstallPackage uninstalls the InstalledPackage and its associated resources from the cluster
-func (p *pkgClient) UnInstallPackage(o *tkgpackagedatamodel.PackageUninstallOptions) error {
-	installedPkg, err := p.kappClient.GetInstalledPackage(o.InstalledPkgName, o.Namespace)
+// UninstallPackage uninstalls the InstalledPackage and its associated resources from the cluster
+func (p *pkgClient) UninstallPackage(o *tkgpackagedatamodel.PackageUninstallOptions) error {
+	installedPkg, err := p.kappClient.GetPackageInstall(o.InstalledPkgName, o.Namespace)
 	if err != nil {
 		if apierrors.IsNotFound(err) {
 			log.Infof("package %s is not installed in namespace %s", o.InstalledPkgName, o.Namespace)
@@ -36,7 +36,7 @@ func (p *pkgClient) UnInstallPackage(o *tkgpackagedatamodel.PackageUninstallOpti
 
 	log.Infof("Uninstalling package '%s' from namespace '%s'", o.InstalledPkgName, o.Namespace)
 
-	if err := p.deleteInstalledPackage(o); err != nil {
+	if err := p.deletePackageInstall(o); err != nil {
 		return err
 	}
 
@@ -51,8 +51,8 @@ func (p *pkgClient) UnInstallPackage(o *tkgpackagedatamodel.PackageUninstallOpti
 	return nil
 }
 
-// deletePkgPluginCreatedResources deletes the associated resources which were installed upon installation of the InstalledPackage CR
-func (p *pkgClient) deletePkgPluginCreatedResources(installedPkg *kappipkg.InstalledPackage) error {
+// deletePkgPluginCreatedResources deletes the associated resources which were installed upon installation of the PackageInstall CR
+func (p *pkgClient) deletePkgPluginCreatedResources(installedPkg *kappipkg.PackageInstall) error {
 	for k, v := range installedPkg.GetAnnotations() {
 		split := strings.Split(k, "/")
 		if len(split) <= 1 {
@@ -98,8 +98,8 @@ func (p *pkgClient) deletePkgPluginCreatedResources(installedPkg *kappipkg.Insta
 }
 
 // deleteInstalledPackage deletes the InstalledPackage CR
-func (p *pkgClient) deleteInstalledPackage(o *tkgpackagedatamodel.PackageUninstallOptions) error {
-	obj := &kappipkg.InstalledPackage{
+func (p *pkgClient) deletePackageInstall(o *tkgpackagedatamodel.PackageUninstallOptions) error {
+	obj := &kappipkg.PackageInstall{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      o.InstalledPkgName,
 			Namespace: o.Namespace,

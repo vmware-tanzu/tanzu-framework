@@ -5,7 +5,9 @@ package tkgpackagedatamodel
 
 // RepositoryListOptions includes fields for repository list
 type RepositoryListOptions struct {
-	KubeConfig string
+	KubeConfig    string
+	Namespace     string
+	AllNamespaces bool
 }
 
 // NewRepositoryListOptions instantiates RepositoryListOptions

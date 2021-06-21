@@ -5,8 +5,8 @@
 package tkgpackageclient
 
 import (
-	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/installpackage/v1alpha1"
-	kapppkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/packages/v1alpha1"
+	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+	kapppkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackagedatamodel"
 )
@@ -14,12 +14,12 @@ import (
 // TKGPackageClient is the TKG package client interface
 type TKGPackageClient interface {
 	InstallPackage(o *tkgpackagedatamodel.PackageOptions) error
-	UnInstallPackage(o *tkgpackagedatamodel.PackageUninstallOptions) error
+	UninstallPackage(o *tkgpackagedatamodel.PackageUninstallOptions) error
 	AddRepository(o *tkgpackagedatamodel.RepositoryOptions) error
 	DeleteRepository(o *tkgpackagedatamodel.RepositoryDeleteOptions) (bool, error)
-	ListInstalledPackages(o *tkgpackagedatamodel.PackageListOptions) (*kappipkg.InstalledPackageList, error)
-	ListPackageVersions(o *tkgpackagedatamodel.PackageListOptions) (*kapppkg.PackageVersionList, error)
-	ListPackages() (*kapppkg.PackageList, error)
-	ListRepositories() (*kappipkg.PackageRepositoryList, error)
+	ListPackageInstalls(o *tkgpackagedatamodel.PackageListOptions) (*kappipkg.PackageInstallList, error)
+	ListPackages(o *tkgpackagedatamodel.PackageListOptions) (*kapppkg.PackageList, error)
+	ListPackageMetadata(o *tkgpackagedatamodel.PackageListOptions) (*kapppkg.PackageMetadataList, error)
+	ListRepositories(o *tkgpackagedatamodel.RepositoryListOptions) (*kappipkg.PackageRepositoryList, error)
 	UpdateRepository(o *tkgpackagedatamodel.RepositoryOptions) error
 }

@@ -356,9 +356,7 @@ func (r *AddonReconciler) reconcileAddonAppNormal(
 						PathsFrom: []kappctrl.AppFetchInlineSource{
 							{
 								SecretRef: &kappctrl.AppFetchInlineSourceRef{
-									LocalObjectReference: corev1.LocalObjectReference{
-										Name: util.GenerateAppSecretNameFromAddonSecret(addonSecret),
-									},
+									Name: util.GenerateAppSecretNameFromAddonSecret(addonSecret),
 								},
 							},
 						},

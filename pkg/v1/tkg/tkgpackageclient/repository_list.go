@@ -5,11 +5,13 @@ package tkgpackageclient
 
 import (
 	"github.com/pkg/errors"
-	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/installpackage/v1alpha1"
+	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
-func (p *pkgClient) ListRepositories() (*kappipkg.PackageRepositoryList, error) {
-	packageRepositoryList, err := p.kappClient.ListPackageRepositories()
+func (p *pkgClient) ListRepositories(o *tkgpackagedatamodel.RepositoryListOptions) (*kappipkg.PackageRepositoryList, error) {
+	packageRepositoryList, err := p.kappClient.ListPackageRepositories(o.Namespace)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to list existing package repositories in the cluster")
 	}

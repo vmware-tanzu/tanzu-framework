@@ -159,9 +159,7 @@ var _ = Describe("Addon Reconciler", func() {
 						PathsFrom: []kappctrl.AppFetchInlineSource{
 							{
 								SecretRef: &kappctrl.AppFetchInlineSourceRef{
-									LocalObjectReference: v1.LocalObjectReference{
-										Name: "antrea-data-values",
-									},
+									Name: "antrea-data-values",
 								},
 							},
 						},

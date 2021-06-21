@@ -10,16 +10,15 @@ import (
 	"path/filepath"
 
 	"github.com/pkg/errors"
+	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
+	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+	versions "github.com/vmware-tanzu/carvel-vendir/pkg/vendir/versions/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
-
-	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/installpackage/v1alpha1"
-	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
-	versions "github.com/vmware-tanzu/carvel-vendir/pkg/vendir/versions/v1alpha1"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackagedatamodel"
@@ -64,7 +63,7 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions) error 
 		}
 	}
 
-	if err := p.createInstalledPackage(o); err != nil {
+	if err := p.createPackageInstall(o); err != nil {
 		return err
 	}
 
@@ -161,15 +160,15 @@ func (p *pkgClient) createNamespace(namespace string) error {
 	return nil
 }
 
-// createInstalledPackage creates the InstalledPackage CR
-func (p *pkgClient) createInstalledPackage(o *tkgpackagedatamodel.PackageOptions) error {
-	// construct the InstalledPackage CR
-	installedPackage := &kappipkg.InstalledPackage{
+// createPackageInstall creates the PackageInstall CR
+func (p *pkgClient) createPackageInstall(o *tkgpackagedatamodel.PackageOptions) error {
+	// construct the PackageInstall CR
+	packageInstall := &kappipkg.PackageInstall{
 		ObjectMeta: metav1.ObjectMeta{Name: o.InstalledPkgName, Namespace: o.Namespace},
-		Spec: kappipkg.InstalledPackageSpec{
+		Spec: kappipkg.PackageInstallSpec{
 			ServiceAccountName: o.ServiceAccountName,
-			PackageVersionRef: &kappipkg.PackageVersionRef{
-				PackageName: o.PackageName,
+			PackageRef: &kappipkg.PackageRef{
+				RefName: o.PackageName,
 				VersionSelection: &versions.VersionSelectionSemver{
 					Constraints: o.Version,
 					Prereleases: &versions.VersionSelectionSemverPrereleases{},
@@ -180,16 +179,16 @@ func (p *pkgClient) createInstalledPackage(o *tkgpackagedatamodel.PackageOptions
 
 	// if configuration data file was provided, reference the secret name in the InstalledPackage
 	if o.CreateSecret {
-		installedPackage.Spec.Values = []kappipkg.InstalledPackageValues{
+		packageInstall.Spec.Values = []kappipkg.PackageInstallValues{
 			{
-				SecretRef: &kappipkg.InstalledPackageValuesSecretRef{
+				SecretRef: &kappipkg.PackageInstallValuesSecretRef{
 					Name: fmt.Sprintf(tkgpackagedatamodel.SecretName, o.InstalledPkgName, o.Namespace),
 				},
 			},
 		}
 	}
 
-	if err := p.kappClient.CreateInstalledPackage(installedPackage, o.CreateServiceAccount, o.CreateSecret); err != nil {
+	if err := p.kappClient.CreatePackageInstall(packageInstall, o.CreateServiceAccount, o.CreateSecret); err != nil {
 		return errors.Wrap(err, "failed to create InstalledPackage resource")
 	}
 
@@ -220,7 +219,7 @@ func (p *pkgClient) createServiceAccount(o *tkgpackagedatamodel.PackageOptions) 
 // waitForPackageInstallation waits until the package get installed successfully or a failure happen
 func (p *pkgClient) waitForPackageInstallation(o *tkgpackagedatamodel.PackageOptions) error {
 	if err := wait.Poll(o.PollInterval, o.PollTimeout, func() (done bool, err error) {
-		pkg, err := p.kappClient.GetInstalledPackage(o.InstalledPkgName, o.Namespace)
+		pkg, err := p.kappClient.GetPackageInstall(o.InstalledPkgName, o.Namespace)
 		if err != nil {
 			return false, err
 		}

@@ -7,8 +7,10 @@ package tkgpackagedatamodel
 type RepositoryOptions struct {
 	RepositoryName   string
 	RepositoryURL    string
-	CreateRepository bool
 	KubeConfig       string
+	Namespace        string
+	CreateRepository bool
+	CreateNamespace  bool
 }
 
 // NewRepositoryOptions instantiates RepositoryOptions
