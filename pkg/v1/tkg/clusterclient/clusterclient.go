@@ -54,7 +54,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 
 	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	tkcv1alpha1 "github.com/vmware-tanzu-private/core/pkg/v1/tkg/api/tkc/v1alpha1"
 	tmcv1alpha1 "github.com/vmware-tanzu-private/core/pkg/v1/tkg/api/tmc/v1alpha1"
 	azureclient "github.com/vmware-tanzu-private/core/pkg/v1/tkg/azure"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/buildinfo"
@@ -361,7 +360,7 @@ func init() {
 	_ = capav1alpha3.AddToScheme(scheme)
 	_ = capzv1alpha3.AddToScheme(scheme)
 	_ = capdv1alpha3.AddToScheme(scheme)
-	_ = tkcv1alpha1.AddToScheme(scheme)
+	_ = runv1alpha1.AddToScheme(scheme)
 	_ = betav1.AddToScheme(scheme)
 	_ = tmcv1alpha1.AddToScheme(scheme)
 	_ = extensionsV1.AddToScheme(scheme)
