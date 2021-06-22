@@ -11,9 +11,9 @@ import (
 	kapppkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 )
 
-// resolvePackage takes a package name and package version and returns the corresponding package
-// and package version resources. If the resolution be unsuccessful, an error is returned.
-func (p *pkgClient) resolvePackage(pkgName, pkgVersion, namespace string) (*kapppkg.PackageMetadata, *kapppkg.Package, error) {
+// GetPackage takes a package name and package version and returns the corresponding Package and PackageVersion
+// If the resolution is unsuccessful, an error is returned.
+func (p *pkgClient) GetPackage(pkgName, pkgVersion, namespace string) (*kapppkg.PackageMetadata, *kapppkg.Package, error) {
 	var (
 		resolvedPackage *kapppkg.PackageMetadata
 		err             error
@@ -23,12 +23,12 @@ func (p *pkgClient) resolvePackage(pkgName, pkgVersion, namespace string) (*kapp
 		return nil, nil, errors.Wrap(err, "failed to find a package with the specified name")
 	}
 
-	packages, err := p.kappClient.ListPackages(pkgName, namespace)
+	packageVersions, err := p.kappClient.ListPackages(pkgName, namespace)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "failed to list package versions")
 	}
 
-	for _, item := range packages.Items { //nolint:gocritic
+	for _, item := range packageVersions.Items { //nolint:gocritic
 		if item.Spec.Version == pkgVersion {
 			return resolvedPackage, &item, nil
 		}
@@ -41,7 +41,7 @@ func (p *pkgClient) resolvePackage(pkgName, pkgVersion, namespace string) (*kapp
 func (p *pkgClient) validateRepository(repositoryName, repositoryImg, namespace string) error {
 	repositoryList, err := p.kappClient.ListPackageRepositories(namespace)
 	if err != nil {
-		return errors.Wrap(err, "failed to list current package repository")
+		return errors.Wrap(err, "failed to list package repositories")
 	}
 
 	for _, repository := range repositoryList.Items { //nolint:gocritic

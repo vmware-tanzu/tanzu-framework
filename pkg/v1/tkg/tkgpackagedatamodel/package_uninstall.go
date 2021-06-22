@@ -7,11 +7,11 @@ import "time"
 
 // PackageUninstallOptions includes fields for package uninstall
 type PackageUninstallOptions struct {
-	InstalledPkgName string
-	KubeConfig       string
-	Namespace        string
-	PollInterval     time.Duration
-	PollTimeout      time.Duration
+	PkgInstallName string
+	KubeConfig     string
+	Namespace      string
+	PollInterval   time.Duration
+	PollTimeout    time.Duration
 }
 
 // NewPackageUninstallOptions instantiates PackageUninstallOptions

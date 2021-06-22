@@ -7,22 +7,21 @@ package tkgpackagedatamodel
 import "time"
 
 const (
-	DefaultAPIVersion         = "install.package.carvel.dev/v1alpha1"
-	TanzuPkgPluginAnnotation  = "tkg.tanzu.vmware.com/tanzu-package"
-	TanzuPkgPluginPrefix      = "tanzu-package-"
 	ClusterRoleBindingName    = "%s-%s-cluster-rolebinding"
 	ClusterRoleName           = "%s-%s-cluster-role"
+	DefaultAPIVersion         = "install.package.carvel.dev/v1alpha1"
 	DefaultPollInterval       = 1 * time.Second
 	DefaultPollTimeout        = 5 * time.Minute
 	KindClusterRole           = "ClusterRole"
 	KindClusterRoleBinding    = "ClusterRoleBinding"
-	KindInstalledPackage      = "InstalledPackage"
 	KindNamespace             = "Namespace"
+	KindPackageInstall        = "PackageInstall"
+	KindPackageRepository     = "PackageRepository"
 	KindSecret                = "Secret"
 	KindServiceAccount        = "ServiceAccount"
-	KindPackageRepository     = "PackageRepository"
-	PackageRepositoryKind     = "PackageRepository"
 	SecretName                = "%s-%s-values"
 	ServiceAccountName        = "%s-%s-sa"
 	ShortDescriptionMaxLength = 20
+	TanzuPkgPluginAnnotation  = "tkg.tanzu.vmware.com/tanzu-package"
+	TanzuPkgPluginPrefix      = "tanzu-package-"
 )

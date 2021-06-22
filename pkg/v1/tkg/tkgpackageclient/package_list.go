@@ -5,6 +5,7 @@ package tkgpackageclient
 
 import (
 	"github.com/pkg/errors"
+
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	kapppkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 
@@ -12,11 +13,11 @@ import (
 )
 
 func (p *pkgClient) ListPackageInstalls(o *tkgpackagedatamodel.PackageListOptions) (*kappipkg.PackageInstallList, error) {
-	installedPackageList, err := p.kappClient.ListPackageInstalls(o.Namespace)
+	packageInstallList, err := p.kappClient.ListPackageInstalls(o.Namespace)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to list installed packages")
 	}
-	return installedPackageList, nil
+	return packageInstallList, nil
 }
 
 func (p *pkgClient) ListPackageMetadata(o *tkgpackagedatamodel.PackageListOptions) (*kapppkg.PackageMetadataList, error) {

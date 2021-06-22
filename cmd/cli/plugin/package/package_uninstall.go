@@ -29,18 +29,22 @@ func init() {
 }
 
 func packageUninstall(_ *cobra.Command, args []string) error {
-	packageUninstallOp.InstalledPkgName = args[0]
+	packageUninstallOp.PkgInstallName = args[0]
 
 	pkgClient, err := tkgpackageclient.NewTKGPackageClient(packageUninstallOp.KubeConfig)
 	if err != nil {
 		return err
 	}
 
-	if err := pkgClient.UninstallPackage(packageUninstallOp); err != nil {
+	found, err := pkgClient.UninstallPackage(packageUninstallOp)
+	if !found {
+		return nil
+	}
+	if err != nil {
 		return err
 	}
 
-	log.Infof("Uninstalled package '%s' from namespace '%s'\n", packageUninstallOp.InstalledPkgName, packageUninstallOp.Namespace)
+	log.Infof("Uninstalled package '%s' from namespace '%s'\n", packageUninstallOp.PkgInstallName, packageUninstallOp.Namespace)
 
 	return nil
 }

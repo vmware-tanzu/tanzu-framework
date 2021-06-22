@@ -14,7 +14,7 @@ import (
 // TKGPackageClient is the TKG package client interface
 type TKGPackageClient interface {
 	InstallPackage(o *tkgpackagedatamodel.PackageOptions) error
-	UninstallPackage(o *tkgpackagedatamodel.PackageUninstallOptions) error
+	UninstallPackage(o *tkgpackagedatamodel.PackageUninstallOptions) (bool, error)
 	AddRepository(o *tkgpackagedatamodel.RepositoryOptions) error
 	DeleteRepository(o *tkgpackagedatamodel.RepositoryDeleteOptions) (bool, error)
 	ListPackageInstalls(o *tkgpackagedatamodel.PackageListOptions) (*kappipkg.PackageInstallList, error)

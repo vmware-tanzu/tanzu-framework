@@ -23,37 +23,37 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
-// UninstallPackage uninstalls the InstalledPackage and its associated resources from the cluster
-func (p *pkgClient) UninstallPackage(o *tkgpackagedatamodel.PackageUninstallOptions) error {
-	installedPkg, err := p.kappClient.GetPackageInstall(o.InstalledPkgName, o.Namespace)
+// UninstallPackage uninstalls the PackageInstall and its associated resources from the cluster
+func (p *pkgClient) UninstallPackage(o *tkgpackagedatamodel.PackageUninstallOptions) (bool, error) {
+	pkgInstall, err := p.kappClient.GetPackageInstall(o.PkgInstallName, o.Namespace)
 	if err != nil {
 		if apierrors.IsNotFound(err) {
-			log.Infof("package %s is not installed in namespace %s", o.InstalledPkgName, o.Namespace)
-			return nil
+			log.Warningf("package %s is not installed in namespace %s", o.PkgInstallName, o.Namespace)
+			return false, nil
 		}
-		return errors.Wrap(err, fmt.Sprintf("failed to find installed package '%s' in namespace '%s'", o.InstalledPkgName, o.Namespace))
+		return false, errors.Wrap(err, fmt.Sprintf("failed to find installed package '%s' in namespace '%s'", o.PkgInstallName, o.Namespace))
 	}
 
-	log.Infof("Uninstalling package '%s' from namespace '%s'", o.InstalledPkgName, o.Namespace)
+	log.Infof("Uninstalling package '%s' from namespace '%s'", o.PkgInstallName, o.Namespace)
 
 	if err := p.deletePackageInstall(o); err != nil {
-		return err
+		return true, err
 	}
 
 	if err := p.waitForAppCRDeletion(o); err != nil {
-		return err
+		return true, err
 	}
 
-	if err := p.deletePkgPluginCreatedResources(installedPkg); err != nil {
-		return err
+	if err := p.deletePkgPluginCreatedResources(pkgInstall); err != nil {
+		return true, err
 	}
 
-	return nil
+	return true, nil
 }
 
 // deletePkgPluginCreatedResources deletes the associated resources which were installed upon installation of the PackageInstall CR
-func (p *pkgClient) deletePkgPluginCreatedResources(installedPkg *kappipkg.PackageInstall) error {
-	for k, v := range installedPkg.GetAnnotations() {
+func (p *pkgClient) deletePkgPluginCreatedResources(pkgInstall *kappipkg.PackageInstall) error {
+	for k, v := range pkgInstall.GetAnnotations() {
 		split := strings.Split(k, "/")
 		if len(split) <= 1 {
 			continue
@@ -63,7 +63,7 @@ func (p *pkgClient) deletePkgPluginCreatedResources(installedPkg *kappipkg.Packa
 			continue
 		}
 		var obj runtime.Object
-		objMeta := metav1.ObjectMeta{Name: v, Namespace: installedPkg.Namespace}
+		objMeta := metav1.ObjectMeta{Name: v, Namespace: pkgInstall.Namespace}
 
 		switch resourceKind[1] {
 		case tkgpackagedatamodel.KindSecret:
@@ -97,18 +97,18 @@ func (p *pkgClient) deletePkgPluginCreatedResources(installedPkg *kappipkg.Packa
 	return nil
 }
 
-// deleteInstalledPackage deletes the InstalledPackage CR
+// deletePackageInstall deletes the PackageInstall CR
 func (p *pkgClient) deletePackageInstall(o *tkgpackagedatamodel.PackageUninstallOptions) error {
 	obj := &kappipkg.PackageInstall{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      o.InstalledPkgName,
+			Name:      o.PkgInstallName,
 			Namespace: o.Namespace,
 		},
-		TypeMeta: metav1.TypeMeta{Kind: tkgpackagedatamodel.KindInstalledPackage},
+		TypeMeta: metav1.TypeMeta{Kind: tkgpackagedatamodel.KindPackageInstall},
 	}
 
 	if err := p.kappClient.GetClient().Delete(context.Background(), obj); err != nil {
-		return errors.Wrap(err, "failed to delete InstalledPackage resource")
+		return errors.Wrap(err, "failed to delete PackageInstall resource")
 	}
 
 	return nil
@@ -117,7 +117,7 @@ func (p *pkgClient) deletePackageInstall(o *tkgpackagedatamodel.PackageUninstall
 // waitForAppCRDeletion waits until the App CR get deleted successfully or a failure happen
 func (p *pkgClient) waitForAppCRDeletion(o *tkgpackagedatamodel.PackageUninstallOptions) error {
 	if err := wait.Poll(o.PollInterval, o.PollTimeout, func() (done bool, err error) {
-		app, err := p.kappClient.GetAppCR(o.InstalledPkgName, o.Namespace)
+		app, err := p.kappClient.GetAppCR(o.PkgInstallName, o.Namespace)
 		if err != nil && apierrors.IsNotFound(err) {
 			return true, nil
 		}

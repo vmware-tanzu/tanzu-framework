@@ -19,22 +19,23 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
-var _ = Describe("UnInstall Package", func() {
+var _ = Describe("Uninstall Package", func() {
 	var (
 		ctl     *pkgClient
 		crtCtl  *fakes.CRTClusterClient
 		kappCtl *fakes.KappClient
 		err     error
+		found   bool
 		opts    = tkgpackagedatamodel.PackageUninstallOptions{
-			InstalledPkgName: testInstalledPkgName,
-			Namespace:        testNamespaceName,
-			PollInterval:     testPollInterval,
-			PollTimeout:      testPollTimeout,
+			PkgInstallName: testPkgInstallName,
+			Namespace:      testNamespaceName,
+			PollInterval:   testPollInterval,
+			PollTimeout:    testPollTimeout,
 		}
 		options = opts
 		app     = kappctrl.App{
 			TypeMeta:   metav1.TypeMeta{Kind: "App"},
-			ObjectMeta: metav1.ObjectMeta{Name: testInstalledPkgName, Namespace: testNamespaceName},
+			ObjectMeta: metav1.ObjectMeta{Name: testPkgInstallName, Namespace: testNamespaceName},
 			Status: kappctrl.AppStatus{
 				GenericStatus: kappctrl.GenericStatus{
 					Conditions: []kappctrl.AppCondition{
@@ -44,9 +45,9 @@ var _ = Describe("UnInstall Package", func() {
 			},
 		}
 		pkgInstall = kappipkg.PackageInstall{
-			TypeMeta: metav1.TypeMeta{Kind: "InstalledPackage"},
+			TypeMeta: metav1.TypeMeta{Kind: tkgpackagedatamodel.KindPackageInstall},
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      testInstalledPkgName,
+				Name:      testPkgInstallName,
 				Namespace: testNamespaceName,
 				Annotations: map[string]string{
 					tkgpackagedatamodel.TanzuPkgPluginAnnotation + "-" + tkgpackagedatamodel.KindClusterRole:        "test-pkg-test-ns-cluster-role",
@@ -59,7 +60,7 @@ var _ = Describe("UnInstall Package", func() {
 
 	JustBeforeEach(func() {
 		ctl = &pkgClient{kappClient: kappCtl}
-		err = ctl.UninstallPackage(&options)
+		found, err = ctl.UninstallPackage(&options)
 	})
 
 	Context("failure in getting installed packages", func() {
@@ -70,6 +71,7 @@ var _ = Describe("UnInstall Package", func() {
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("failure in GetPackageInstall"))
+			Expect(found).To(BeFalse())
 		})
 		AfterEach(func() { options = opts })
 	})
@@ -85,6 +87,7 @@ var _ = Describe("UnInstall Package", func() {
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("failure in PackageInstall deletion"))
+			Expect(found).To(BeTrue())
 		})
 		AfterEach(func() { options = opts })
 	})
@@ -105,6 +108,7 @@ var _ = Describe("UnInstall Package", func() {
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring(testUsefulErrMsg))
+			Expect(found).To(BeTrue())
 		})
 		AfterEach(func() { options = opts })
 	})
@@ -116,12 +120,12 @@ var _ = Describe("UnInstall Package", func() {
 			kappCtl.GetClientReturns(crtCtl)
 			kappCtl.GetPackageInstallReturns(&pkgInstall, nil)
 			crtCtl.DeleteReturns(nil)
-			kappCtl.GetAppCRReturns(nil, apierrors.NewNotFound(schema.GroupResource{Resource: "App"}, testInstalledPkgName))
+			kappCtl.GetAppCRReturns(nil, apierrors.NewNotFound(schema.GroupResource{Resource: "App"}, testPkgInstallName))
 			Expect(len(pkgInstall.GetAnnotations())).To(Equal(len(pkgInstall.Annotations)))
 		})
 		It(testSuccessMsg, func() {
 			Expect(err).ToNot(HaveOccurred())
-			expectedDeletedResourceNames := []string{testServiceAccountName, testClusterRoleName, testClusterRoleBindingName, testSecretValuesName, testInstalledPkgName}
+			expectedDeletedResourceNames := []string{testServiceAccountName, testClusterRoleName, testClusterRoleBindingName, testSecretValuesName, testPkgInstallName}
 			deleteCallCnt := crtCtl.DeleteCallCount()
 			Expect(deleteCallCnt).To(BeNumerically("==", len(expectedDeletedResourceNames)))
 			deletedResourceNames := make([]string, deleteCallCnt)
@@ -130,6 +134,7 @@ var _ = Describe("UnInstall Package", func() {
 				deletedResourceNames[i] = testGetObjectName(obj)
 			}
 			Expect(deletedResourceNames).Should(ConsistOf(expectedDeletedResourceNames))
+			Expect(found).To(BeTrue())
 		})
 		AfterEach(func() { options = opts })
 	})

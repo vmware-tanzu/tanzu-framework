@@ -4,6 +4,8 @@
 package tkgpackageclient
 
 import (
+	"fmt"
+
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -28,7 +30,7 @@ func (p *pkgClient) AddRepository(o *tkgpackagedatamodel.RepositoryOptions) erro
 	newPackageRepo := p.newPackageRepository(o.RepositoryName, o.RepositoryURL, o.Namespace)
 
 	if err := p.kappClient.CreatePackageRepository(newPackageRepo); err != nil {
-		return errors.Wrap(err, "failed to create package repository resource")
+		return errors.Wrap(err, fmt.Sprintf("failed to create package repository '%s'", o.RepositoryName))
 	}
 
 	return nil
@@ -37,7 +39,7 @@ func (p *pkgClient) AddRepository(o *tkgpackagedatamodel.RepositoryOptions) erro
 // newPackageRepository creates a new instance of the PackageRepository object
 func (p *pkgClient) newPackageRepository(repositoryName, repositoryImg, namespace string) *kappipkg.PackageRepository {
 	return &kappipkg.PackageRepository{
-		TypeMeta:   metav1.TypeMeta{APIVersion: tkgpackagedatamodel.DefaultAPIVersion, Kind: tkgpackagedatamodel.PackageRepositoryKind},
+		TypeMeta:   metav1.TypeMeta{APIVersion: tkgpackagedatamodel.DefaultAPIVersion, Kind: tkgpackagedatamodel.KindPackageRepository},
 		ObjectMeta: metav1.ObjectMeta{Name: repositoryName, Namespace: namespace},
 		Spec: kappipkg.PackageRepositorySpec{Fetch: &kappipkg.PackageRepositoryFetch{
 			ImgpkgBundle: &kappctrl.AppFetchImgpkgBundle{Image: repositoryImg},

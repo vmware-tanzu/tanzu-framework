@@ -5,6 +5,7 @@ package tkgpackageclient
 
 import (
 	"github.com/pkg/errors"
+
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackagedatamodel"

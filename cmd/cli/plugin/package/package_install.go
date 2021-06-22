@@ -36,7 +36,7 @@ func init() {
 }
 
 func packageInstall(_ *cobra.Command, args []string) error {
-	packageInstallOp.InstalledPkgName = args[0]
+	packageInstallOp.PkgInstallName = args[0]
 
 	pkgClient, err := tkgpackageclient.NewTKGPackageClient(packageInstallOp.KubeConfig)
 	if err != nil {
@@ -47,7 +47,7 @@ func packageInstall(_ *cobra.Command, args []string) error {
 		return err
 	}
 
-	log.Infof("Added installed package '%s' in namespace '%s'\n", packageInstallOp.InstalledPkgName, packageInstallOp.Namespace)
+	log.Infof("Added installed package '%s' in namespace '%s'\n", packageInstallOp.PkgInstallName, packageInstallOp.Namespace)
 
 	return nil
 }

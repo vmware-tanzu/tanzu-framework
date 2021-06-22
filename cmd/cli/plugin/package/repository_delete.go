@@ -44,7 +44,8 @@ func repositoryDelete(_ *cobra.Command, args []string) error {
 	if !found {
 		log.Warningf("Could not find package repository '%s' in namespace '%s'\n", repoDeleteOp.RepositoryName, repoDeleteOp.Namespace)
 		return nil
-	} else if err != nil {
+	}
+	if err != nil {
 		return err
 	}
 

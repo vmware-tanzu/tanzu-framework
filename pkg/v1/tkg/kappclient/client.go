@@ -120,8 +120,8 @@ func (c *client) DeletePackageRepository(repository *kappipkg.PackageRepository)
 }
 
 // CreatePackageInstall creates a PackageInstall CR
-func (c *client) CreatePackageInstall(installedPackage *kappipkg.PackageInstall, isPkgPluginCreatedSvcAccount, isPkgPluginCreatedSecret bool) error {
-	installedPkg := installedPackage.DeepCopy()
+func (c *client) CreatePackageInstall(packageInstall *kappipkg.PackageInstall, isPkgPluginCreatedSvcAccount, isPkgPluginCreatedSecret bool) error {
+	installedPkg := packageInstall.DeepCopy()
 	c.addAnnotations(&installedPkg.ObjectMeta, isPkgPluginCreatedSvcAccount, isPkgPluginCreatedSecret)
 
 	if err := c.client.Create(context.Background(), installedPkg); err != nil {
@@ -142,9 +142,9 @@ func (c *client) GetAppCR(appName, namespace string) (*kappctrl.App, error) {
 }
 
 // GetPackageInstall gets the PackageInstall CR for the provided package name
-func (c *client) GetPackageInstall(installedPackageName, namespace string) (*kappipkg.PackageInstall, error) {
+func (c *client) GetPackageInstall(packageInstallName, namespace string) (*kappipkg.PackageInstall, error) {
 	installedPkg := &kappipkg.PackageInstall{}
-	if err := c.client.Get(context.Background(), crtclient.ObjectKey{Name: installedPackageName, Namespace: namespace}, installedPkg); err != nil {
+	if err := c.client.Get(context.Background(), crtclient.ObjectKey{Name: packageInstallName, Namespace: namespace}, installedPkg); err != nil {
 		return nil, err
 	}
 
@@ -199,19 +199,19 @@ func (c *client) ListPackageMetadata(namespace string) (*kapppkg.PackageMetadata
 	return packageList, nil
 }
 
-// ListInstalledPackages gets the list of PackageInstall CR in the specified namespace.
+// ListPackageInstalls gets the list of PackageInstall CR in the specified namespace.
 // If no namespace be provided, it returns the list of installed packages across all namespaces
 func (c *client) ListPackageInstalls(namespace string) (*kappipkg.PackageInstallList, error) {
 	var selectors []crtclient.ListOption
-	installedPackageList := &kappipkg.PackageInstallList{}
+	packageInstallList := &kappipkg.PackageInstallList{}
 
 	selectors = []crtclient.ListOption{crtclient.InNamespace(namespace)}
 
-	if err := c.client.List(context.Background(), installedPackageList, selectors...); err != nil {
+	if err := c.client.List(context.Background(), packageInstallList, selectors...); err != nil {
 		return nil, err
 	}
 
-	return installedPackageList, nil
+	return packageInstallList, nil
 }
 
 // ListPackages gets the list of Package CRs

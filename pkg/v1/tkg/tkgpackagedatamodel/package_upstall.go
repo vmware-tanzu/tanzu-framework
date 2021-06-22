@@ -8,7 +8,7 @@ import "time"
 // PackageOptions includes fields for package install/update
 type PackageOptions struct {
 	ClusterRoleName      string
-	InstalledPkgName     string
+	PkgInstallName       string
 	KubeConfig           string
 	Namespace            string
 	PackageName          string

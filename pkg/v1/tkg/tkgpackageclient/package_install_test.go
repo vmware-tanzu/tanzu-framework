@@ -8,12 +8,12 @@ import (
 	"os"
 	"time"
 
-	"k8s.io/apimachinery/pkg/api/meta"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
+
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
@@ -31,13 +31,43 @@ const (
 	testSecretValuesName       = "test-pkg-test-ns-values" //nolint:gosec
 	testServiceAccountName     = "test-pkg-test-ns-sa"
 	testNamespaceName          = "test-ns"
-	testInstalledPkgName       = "test-pkg"
+	testPkgInstallName         = "test-pkg"
+	testPkgName                = "test-pkg.com"
+	testPkgVersion             = "1.0.0"
 	testPollInterval           = 100 * time.Millisecond
 	testPollTimeout            = 1 * time.Minute
 	testFailureMsg             = "should return an error"
 	testSuccessMsg             = "should not return an error"
 	testUsefulErrMsg           = "some failure happened"
 	testValuesFile             = "value-file"
+)
+
+var (
+	testPkgInstall = &kappipkg.PackageInstall{
+		TypeMeta:   metav1.TypeMeta{Kind: tkgpackagedatamodel.KindPackageInstall},
+		ObjectMeta: metav1.ObjectMeta{Name: testPkgInstallName, Namespace: testNamespaceName},
+		Spec: kappipkg.PackageInstallSpec{
+			ServiceAccountName: testServiceAccountName,
+			PackageRef:         &kappipkg.PackageRef{RefName: testPkgInstallName},
+		},
+		Status: kappipkg.PackageInstallStatus{
+			GenericStatus: kappctrl.GenericStatus{
+				Conditions:         []kappctrl.AppCondition{{Type: kappctrl.Reconciling}, {Type: kappctrl.ReconcileSucceeded}},
+				UsefulErrorMessage: "",
+			},
+		},
+	}
+
+	testPkgVersionList = &kapppkg.PackageList{
+		TypeMeta: metav1.TypeMeta{Kind: "PackageVersionList"},
+		Items: []kapppkg.Package{
+			{TypeMeta: metav1.TypeMeta{
+				Kind: "PackageVersion"},
+				ObjectMeta: metav1.ObjectMeta{Name: testPkgInstallName, Namespace: testNamespaceName},
+				Spec:       kapppkg.PackageSpec{RefName: testPkgInstallName, Version: testPkgVersion},
+			},
+		},
+	}
 )
 
 var _ = Describe("Install Package", func() {
@@ -47,37 +77,15 @@ var _ = Describe("Install Package", func() {
 		kappCtl *fakes.KappClient
 		err     error
 		opts    = tkgpackagedatamodel.PackageOptions{
-			InstalledPkgName: testInstalledPkgName,
-			Namespace:        testNamespaceName,
-			PackageName:      "test-pkg.com",
-			Version:          "1.0.0",
-			PollInterval:     testPollInterval,
-			PollTimeout:      testPollTimeout,
-			CreateNamespace:  true,
+			PkgInstallName:  testPkgInstallName,
+			Namespace:       testNamespaceName,
+			PackageName:     testPkgName,
+			Version:         testPkgVersion,
+			PollInterval:    testPollInterval,
+			PollTimeout:     testPollTimeout,
+			CreateNamespace: true,
 		}
-		options    = opts
-		pkgInstall = kappipkg.PackageInstall{
-			TypeMeta:   metav1.TypeMeta{Kind: "InstalledPackage"},
-			ObjectMeta: metav1.ObjectMeta{Name: testInstalledPkgName, Namespace: testNamespaceName},
-			Status: kappipkg.PackageInstallStatus{
-				GenericStatus: kappctrl.GenericStatus{
-					Conditions: []kappctrl.AppCondition{
-						{Type: kappctrl.Reconciling},
-						{Type: kappctrl.ReconcileSucceeded},
-					},
-					UsefulErrorMessage: "",
-				},
-			},
-		}
-		pkgList = &kapppkg.PackageList{
-			Items: []kapppkg.Package{
-				{TypeMeta: metav1.TypeMeta{
-					Kind: "Package"},
-					ObjectMeta: metav1.ObjectMeta{Name: testInstalledPkgName, Namespace: testNamespaceName},
-					Spec:       kapppkg.PackageSpec{RefName: testInstalledPkgName, Version: "1.0.0"},
-				},
-			},
-		}
+		options = opts
 	)
 
 	JustBeforeEach(func() {
@@ -103,8 +111,8 @@ var _ = Describe("Install Package", func() {
 			kappCtl = &fakes.KappClient{}
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
-			kappCtl.ListPackagesReturns(pkgList, nil)
-			crtCtl.GetReturns(apierrors.NewNotFound(schema.GroupResource{Resource: "ServiceAccount"}, testServiceAccountName))
+			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
+			crtCtl.GetReturns(apierrors.NewNotFound(schema.GroupResource{Resource: tkgpackagedatamodel.KindServiceAccount}, testServiceAccountName))
 		})
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
@@ -119,7 +127,7 @@ var _ = Describe("Install Package", func() {
 			kappCtl = &fakes.KappClient{}
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
-			kappCtl.ListPackagesReturns(pkgList, nil)
+			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
 		})
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
@@ -134,7 +142,7 @@ var _ = Describe("Install Package", func() {
 			kappCtl = &fakes.KappClient{}
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
-			kappCtl.ListPackagesReturns(pkgList, nil)
+			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
 			kappCtl.GetPackageMetadataByNameReturns(nil, apierrors.NewNotFound(schema.GroupResource{Resource: "PackageMetadata"}, "test-pkg.org"))
 		})
 		It(testFailureMsg, func() {
@@ -150,7 +158,7 @@ var _ = Describe("Install Package", func() {
 			kappCtl = &fakes.KappClient{}
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
-			kappCtl.ListPackagesReturns(pkgList, nil)
+			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
 		})
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
@@ -165,7 +173,7 @@ var _ = Describe("Install Package", func() {
 			kappCtl = &fakes.KappClient{}
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
-			kappCtl.ListPackagesReturns(pkgList, nil)
+			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
 			kappCtl.GetPackageInstallReturns(nil, errors.New("failure in GetPackageInstall"))
 		})
 		It(testFailureMsg, func() {
@@ -181,11 +189,11 @@ var _ = Describe("Install Package", func() {
 			kappCtl = &fakes.KappClient{}
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
-			kappCtl.ListPackagesReturns(pkgList, nil)
-			kappCtl.GetPackageInstallReturns(&pkgInstall, nil)
-			Expect(len(pkgInstall.Status.Conditions)).To(BeNumerically("==", 2))
-			pkgInstall.Status.Conditions[1] = kappctrl.AppCondition{Type: kappctrl.ReconcileFailed}
-			pkgInstall.Status.UsefulErrorMessage = testUsefulErrMsg
+			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
+			kappCtl.GetPackageInstallReturns(testPkgInstall, nil)
+			Expect(len(testPkgInstall.Status.Conditions)).To(BeNumerically("==", 2))
+			testPkgInstall.Status.Conditions[1] = kappctrl.AppCondition{Type: kappctrl.ReconcileFailed}
+			testPkgInstall.Status.UsefulErrorMessage = testUsefulErrMsg
 		})
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
@@ -193,7 +201,7 @@ var _ = Describe("Install Package", func() {
 		})
 		AfterEach(func() {
 			options = opts
-			pkgInstall.Status.Conditions[1].Type = kappctrl.ReconcileSucceeded
+			testPkgInstall.Status.Conditions[1].Type = kappctrl.ReconcileSucceeded
 		})
 	})
 
@@ -202,8 +210,8 @@ var _ = Describe("Install Package", func() {
 			kappCtl = &fakes.KappClient{}
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
-			kappCtl.ListPackagesReturns(pkgList, nil)
-			crtCtl.GetReturns(apierrors.NewNotFound(schema.GroupResource{Resource: "Namespace"}, testNamespaceName))
+			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
+			crtCtl.GetReturns(apierrors.NewNotFound(schema.GroupResource{Resource: tkgpackagedatamodel.KindNamespace}, testNamespaceName))
 		})
 		It(testSuccessMsg, func() {
 			Expect(err).ToNot(HaveOccurred())
@@ -218,7 +226,7 @@ var _ = Describe("Install Package", func() {
 			kappCtl = &fakes.KappClient{}
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
-			kappCtl.ListPackagesReturns(pkgList, nil)
+			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
 		})
 		It(testSuccessMsg, func() {
 			Expect(err).ToNot(HaveOccurred())
@@ -234,8 +242,8 @@ var _ = Describe("Install Package", func() {
 			kappCtl = &fakes.KappClient{}
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
-			kappCtl.ListPackagesReturns(pkgList, nil)
-			kappCtl.GetPackageInstallReturns(&pkgInstall, nil)
+			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
+			kappCtl.GetPackageInstallReturns(testPkgInstall, nil)
 		})
 		It(testSuccessMsg, func() {
 			Expect(err).ToNot(HaveOccurred())
@@ -251,7 +259,7 @@ var _ = Describe("Install Package", func() {
 			kappCtl = &fakes.KappClient{}
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
-			kappCtl.ListPackagesReturns(pkgList, nil)
+			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
 			err = ioutil.WriteFile(testValuesFile, []byte("test"), 0644)
 			Expect(err).ToNot(HaveOccurred())
 		})
@@ -281,7 +289,7 @@ func testPackageInstallPostValidation(crtCtl *fakes.CRTClusterClient, kappCtl *f
 	kappCreateCallCnt := kappCtl.CreatePackageInstallCallCount()
 	Expect(kappCreateCallCnt).To(BeNumerically("==", 1))
 	installed, _, _ := kappCtl.CreatePackageInstallArgsForCall(0)
-	Expect(installed.Name).Should(Equal(testInstalledPkgName))
+	Expect(installed.Name).Should(Equal(testPkgInstallName))
 }
 
 func testGetObjectName(o interface{}) string {
