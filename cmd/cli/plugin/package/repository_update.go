@@ -40,7 +40,7 @@ func repositoryUpdate(_ *cobra.Command, args []string) error {
 		return err
 	}
 
-	log.Infof("Updated package repository '%s'\n", repoUpdateOp.RepositoryName)
+	log.Infof("Updated package repository '%s'", repoUpdateOp.RepositoryName)
 
 	return nil
 }

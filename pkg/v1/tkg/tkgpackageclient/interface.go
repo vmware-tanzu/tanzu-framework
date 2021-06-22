@@ -13,8 +13,12 @@ import (
 
 // TKGPackageClient is the TKG package client interface
 type TKGPackageClient interface {
+	GetPackage(pkgName, pkgVersion, namespace string) (*kapppkg.PackageMetadata, *kapppkg.Package, error)
+	GetRepository(o *tkgpackagedatamodel.RepositoryGetOptions) (*kappipkg.PackageRepository, error)
+	GetPackageInstall(o *tkgpackagedatamodel.PackageGetOptions) (*kappipkg.PackageInstall, error)
 	InstallPackage(o *tkgpackagedatamodel.PackageOptions) error
 	UninstallPackage(o *tkgpackagedatamodel.PackageUninstallOptions) (bool, error)
+	UpdatePackage(o *tkgpackagedatamodel.PackageOptions) error
 	AddRepository(o *tkgpackagedatamodel.RepositoryOptions) error
 	DeleteRepository(o *tkgpackagedatamodel.RepositoryDeleteOptions) (bool, error)
 	ListPackageInstalls(o *tkgpackagedatamodel.PackageListOptions) (*kappipkg.PackageInstallList, error)

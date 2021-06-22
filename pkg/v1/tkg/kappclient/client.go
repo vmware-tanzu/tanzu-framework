@@ -233,6 +233,15 @@ func (c *client) ListPackages(packageName, namespace string) (*kapppkg.PackageLi
 	return packageVersionList, nil
 }
 
+// UpdatePackageInstall updates the PackageInstall CR
+func (c *client) UpdatePackageInstall(installedPackage *kappipkg.PackageInstall) error {
+	if err := c.client.Update(context.Background(), installedPackage); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // UpdatePackageRepository updates a PackageRepository CR
 func (c *client) UpdatePackageRepository(repository *kappipkg.PackageRepository) error {
 	if err := c.client.Update(context.Background(), repository); err != nil {

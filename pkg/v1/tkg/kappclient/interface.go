@@ -29,4 +29,5 @@ type Client interface {
 	ListPackages(packageName string, namespace string) (*kapppkg.PackageList, error)
 	ListPackageRepositories(namespace string) (*kappipkg.PackageRepositoryList, error)
 	UpdatePackageRepository(repository *kappipkg.PackageRepository) error
+	UpdatePackageInstall(installedPackage *kappipkg.PackageInstall) error
 }

@@ -14,7 +14,6 @@ Usage:
   tanzu package [command]
 
 Available Commands:
-  install       Install a package
   get           Get details for a package or installed package
   install       Install a package
   list          List a package
@@ -68,6 +67,9 @@ Note: Steps 2 & 3 are applicable until the kapp controller alpha release is buil
    - list a repository
    - get a repository status
    - list packages
+   - get a package information
+   - get an installed package information
+   - update a package
    - delete a repository
    
    For v0.20.0-rc.1 release, use the following image package bundles for testing:
@@ -82,21 +84,35 @@ Note: Steps 2 & 3 are applicable until the kapp controller alpha release is buil
    Package Repository 'testrepo' added
    ```
 
-8. Update a repository
+8. Get repository status
+   ```sh
+   >>> tanzu package repository get testrepo -n test-ns
+   NAME      VERSION  REPOSITORY                                                                                                        STATUS               REASON
+   testrepo  627590   index.docker.io/k8slt/kc-e2e-repo-bundle@sha256:388d353574446eea0bba4e3f656079963660704e0d474fbc87b3a9bc6efb1688  Reconcile succeeded
+   ```
+
+9. Update a repository
 
    ```sh
    >>> tanzu package repository update testrepo2 projects-stg.registry.vmware.com/tkg/shivaani/package-bundle:1.0.0 -n test-ns
    Updated package repository 'testrepo2'
    ```
 
-9. List the repository
+10. List the repository
    ```sh
    >>> tanzu package repository list -n test-ns
    NAME      REPOSITORY                                                                                                        STATUS               DETAILS  
    testrepo  index.docker.io/k8slt/kc-e2e-test-repo@sha256:62d187c044fd6a5c57ac870733fe4413ebf7e2909d8b6267707c5dd2080821e6    Reconcile succeeded          
    ```
 
-10. Install a package
+11. Get information of a package
+   ```sh
+   >>> tanzu package get --available simple-app.corp.com --version 1.0.0
+   NAME                 VERSION  PACKAGEPROVIDER  MINIMUMCAPACITYREQUIREMENTS  SHORTDESCRIPTION
+   simple-app.corp.com  1.0.0                                                  Simple app consisting of a k8s deployment and service
+   ```
+
+12. Install a package
 
     Example 1: Install the specified version for package name "fluent-bit.tkg-standard.tanzu.vmware" and while providing the values.yaml file.
     ```sh
@@ -124,7 +140,28 @@ Note: Steps 2 & 3 are applicable until the kapp controller alpha release is buil
     Added installed package 'simple-app' in namespace 'test-ns-2'
     ```
 
-11. Uninstall a package
+13. Get information of an installed package
+   ```sh
+   >>> tanzu package get simple-app --namespace test-ns
+   NAME        VERSION     NAMESPACE  STATUS                REASON
+   simple-app  3.0.0-rc.1  test-ns    Reconcile succeeded
+   ```
+
+14. Update a package
+
+    Example 1: Update a package with different version
+    ```sh
+    >>> tanzu package update fluent-bit --namespace test-ns --version 2.0.0
+    Updated package 'fluent-bit' in namespace 'test-ns'
+    ```
+
+    Example 2: Update a package which is not installed
+    ```sh
+    >>> tanzu package update fluent-bit --package-name fluent-bit.tkg-standard.tanzu.vmware --version 1.0.0 --namespace test-ns --install
+    Updated package 'fluent-bit' in namespace 'test-ns'
+    ```
+
+15. Uninstall a package
 
     ```sh
     >>> tanzu package uninstall fluentbit --namespace test-ns
@@ -132,7 +169,7 @@ Note: Steps 2 & 3 are applicable until the kapp controller alpha release is buil
     Uninstalled package 'fluentbit' from namespace 'test-ns'
     ```
 
-12. List the packages
+16. List the packages
 
    ```sh
    #List installed packages in the default namespace
@@ -189,7 +226,7 @@ Note: Steps 2 & 3 are applicable until the kapp controller alpha release is buil
 
    ```
 
-13. Delete the repository
+17. Delete the repository
    ```sh
    >>> tanzu package repository delete testrepo --namespace test-ns
    Deleted package repository 'testrepo' in namespace 'test-ns'

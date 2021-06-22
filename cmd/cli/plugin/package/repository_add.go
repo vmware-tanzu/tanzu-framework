@@ -41,7 +41,7 @@ func repositoryAdd(_ *cobra.Command, args []string) error {
 		return err
 	}
 
-	log.Infof("Added package repository '%s'\n", repoAddOp.RepositoryName)
+	log.Infof("Added package repository '%s'", repoAddOp.RepositoryName)
 
 	return nil
 }

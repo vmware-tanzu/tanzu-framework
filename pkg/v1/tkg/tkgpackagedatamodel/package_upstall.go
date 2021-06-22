@@ -20,6 +20,7 @@ type PackageOptions struct {
 	CreateNamespace      bool
 	CreateSecret         bool
 	CreateServiceAccount bool
+	Install              bool
 	Wait                 bool
 }
 
