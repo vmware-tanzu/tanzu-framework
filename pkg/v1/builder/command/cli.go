@@ -30,6 +30,7 @@ type plugin struct {
 	path     string
 	testPath string
 	docPath  string
+	modPath  string
 	arch     cli.Arch
 	buildID  string
 }
@@ -168,14 +169,14 @@ func getMaxParallelism() int {
 func compileCore(corePath string, arch cli.Arch) cli.Plugin {
 	log.Break()
 	log.Info("building core binary")
-	err := buildTargets(corePath, filepath.Join(artifactsDir, cli.CoreName, version), cli.CoreName, arch, "")
+	err := buildTargets(corePath, filepath.Join(artifactsDir, cli.CoreName, version), cli.CoreName, arch, "", "")
 	if err != nil {
 		log.Errorf("error: %v", err)
 		os.Exit(1)
 	}
 
 	// TODO (pbarker): should copy.
-	err = buildTargets(corePath, filepath.Join(artifactsDir, cli.CoreName, cli.VersionLatest), cli.CoreName, arch, "")
+	err = buildTargets(corePath, filepath.Join(artifactsDir, cli.CoreName, cli.VersionLatest), cli.CoreName, arch, "", "")
 	if err != nil {
 		log.Errorf("error: %v", err)
 		os.Exit(1)
@@ -296,7 +297,23 @@ func compile(cmd *cobra.Command, args []string) error {
 
 func buildPlugin(path string, arch cli.Arch, id string) (plugin, error) {
 	log.Infof("%s - building plugin at path %q", id, path)
-	b, err := exec.Command("go", "run", "-ldflags", ldflags, fmt.Sprintf("./%s", path), "info").CombinedOutput()
+
+	var modPath string
+
+	cmd := exec.Command("go", "run", "-ldflags", ldflags)
+
+	if isLocalGoModFileExists(path) {
+		modPath = path
+		cmd.Dir = modPath
+		cmd.Args = append(cmd.Args, "./.")
+		runUpdateGoDep(path, id)
+	} else {
+		modPath = ""
+		cmd.Args = append(cmd.Args, fmt.Sprintf("./%s", path))
+	}
+
+	cmd.Args = append(cmd.Args, "info")
+	b, err := cmd.CombinedOutput()
 
 	if err != nil {
 		log.Errorf("%s - error: %v", id, err)
@@ -322,13 +339,28 @@ func buildPlugin(path string, arch cli.Arch, id string) (plugin, error) {
 		log.Errorf("%s - plugin %q requires a README.md file", id, desc.Name)
 		return plugin{}, err
 	}
-	p := plugin{
-		PluginDescriptor: desc,
-		path:             path,
-		testPath:         testPath,
-		arch:             arch,
-		docPath:          docPath,
-		buildID:          id,
+
+	p := plugin{}
+	if modPath != "" {
+		p = plugin{
+			PluginDescriptor: desc,
+			path:             ".",
+			testPath:         "test",
+			arch:             arch,
+			docPath:          docPath,
+			modPath:          modPath,
+			buildID:          id,
+		}
+	} else {
+		p = plugin{
+			PluginDescriptor: desc,
+			path:             path,
+			testPath:         testPath,
+			arch:             arch,
+			docPath:          docPath,
+			modPath:          "",
+			buildID:          id,
+		}
 	}
 
 	log.Debugy("plugin", p)
@@ -347,7 +379,7 @@ type target struct {
 	args []string
 }
 
-func (t target) build(targetPath, prefix string) error {
+func (t target) build(targetPath, prefix string, modPath string) error {
 	cmd := exec.Command("go", "build")
 
 	var commonArgs = []string{
@@ -356,10 +388,15 @@ func (t target) build(targetPath, prefix string) error {
 
 	cmd.Args = append(cmd.Args, t.args...)
 	cmd.Args = append(cmd.Args, commonArgs...)
-	cmd.Args = append(cmd.Args, fmt.Sprintf("./%s", targetPath))
 
 	cmd.Env = append(cmd.Env, os.Environ()...)
 	cmd.Env = append(cmd.Env, t.env...)
+
+	if modPath != "" {
+		cmd.Dir = modPath
+	}
+
+	cmd.Args = append(cmd.Args, fmt.Sprintf("./%s", targetPath))
 
 	log.Infof("%s$ %s", prefix, cmd.String())
 	output, err := cmd.CombinedOutput()
@@ -460,14 +497,19 @@ var archMap = map[cli.Arch]targetBuilder{
 }
 
 func (p *plugin) compile() error {
+	artifactsDir, err := filepath.Abs(artifactsDir)
+	if err != nil {
+		return err
+	}
+
 	outPath := filepath.Join(artifactsDir, p.Name, p.Version)
-	err := buildTargets(p.path, outPath, p.Name, p.arch, p.buildID)
+	err = buildTargets(p.path, outPath, p.Name, p.arch, p.buildID, p.modPath)
 	if err != nil {
 		return err
 	}
 
 	testOutPath := filepath.Join(artifactsDir, p.Name, p.Version, "test")
-	err = buildTargets(p.testPath, testOutPath, fmt.Sprintf("%s-test", p.Name), p.arch, p.buildID)
+	err = buildTargets(p.testPath, testOutPath, fmt.Sprintf("%s-test", p.Name), p.arch, p.buildID, p.modPath)
 	if err != nil {
 		return err
 	}
@@ -485,7 +527,7 @@ func (p *plugin) compile() error {
 	return nil
 }
 
-func buildTargets(targetPath, outPath, pluginName string, arch cli.Arch, id string) error {
+func buildTargets(targetPath, outPath, pluginName string, arch cli.Arch, id string, modPath string) error {
 	if id != "" {
 		id = fmt.Sprintf("%s - ", id)
 	}
@@ -508,10 +550,39 @@ func buildTargets(targetPath, outPath, pluginName string, arch cli.Arch, id stri
 
 	for _, targetBuilder := range targets {
 		tgt := targetBuilder(pluginName, outPath)
-		err := tgt.build(targetPath, id)
+		err := tgt.build(targetPath, id, modPath)
 		if err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+func runUpdateGoDep(targetPath, prefix string) error {
+	cmdgomoddownload := exec.Command("go", "mod", "download")
+	cmdgomoddownload.Dir = targetPath
+
+	log.Infof("%s$ %s", prefix, cmdgomoddownload.String())
+	output, err := cmdgomoddownload.CombinedOutput()
+	if err != nil {
+		log.Errorf("%serror: %v", prefix, err)
+		log.Errorf("%soutput: %v", prefix, string(output))
+		return err
+	}
+
+	cmdgomodtidy := exec.Command("go", "mod", "tidy")
+	cmdgomodtidy.Dir = targetPath
+	log.Infof("%s$ %s", prefix, cmdgomodtidy.String())
+	output, err = cmdgomodtidy.CombinedOutput()
+	if err != nil {
+		log.Errorf("%serror: %v", prefix, err)
+		log.Errorf("%soutput: %v", prefix, string(output))
+		return err
+	}
+	return nil
+}
+
+func isLocalGoModFileExists(path string) bool {
+	_, err := os.Stat(filepath.Join(path, "go.mod"))
+	return err == nil
 }
