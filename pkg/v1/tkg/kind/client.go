@@ -58,7 +58,8 @@ containerdConfigPatches:
 
 	kindNetworking = `
 networking:
-  ipFamily: %s`
+  podSubnet: %s
+  serviceSubnet: %s`
 )
 
 // Client is used to create/delete kubernetes-in-docker cluster
@@ -292,13 +293,33 @@ func (k *KindClusterProxy) getKindExtraMounts() (string, error) {
 }
 
 // Return the networking field for kind Cluster object
-// if TKG_IP_FAMILY is set then set the networking field
+// set the podSubnet and serviceSubnet fields
+// if TKG_IP_FAMILY is set then set the ipFamily field
 func (k *KindClusterProxy) getKindNetworkingConfig() string {
+	ipFamilyConfig := ""
 	ipFamily, err := k.options.Readerwriter.Get(constants.ConfigVariableIPFamily)
-	if err != nil || ipFamily == "" {
-		// ignore this error as TKG_IP_FAMILY is optional
-		return ""
+	if err == nil || ipFamily != "" {
+		ipFamilyConfig = fmt.Sprintf("ipFamily: %s", ipFamily)
 	}
-
-	return fmt.Sprintf(kindNetworking, ipFamily)
+	podSubnet, err := k.options.Readerwriter.Get(constants.ConfigVariableClusterCIDR)
+	if err != nil {
+		if ipFamily == constants.IPv6Family {
+			podSubnet = constants.DefaultIPv6ClusterCIDR
+		} else {
+			podSubnet = constants.DefaultIPv4ClusterCIDR
+		}
+	}
+	serviceSubnet, err := k.options.Readerwriter.Get(constants.ConfigVariableServiceCIDR)
+	if err != nil {
+		if ipFamily == constants.IPv6Family {
+			serviceSubnet = constants.DefaultIPv6ServiceCIDR
+		} else {
+			serviceSubnet = constants.DefaultIPv4ServiceCIDR
+		}
+	}
+	networkConfig := fmt.Sprintf(kindNetworking, podSubnet, serviceSubnet)
+	if ipFamilyConfig != "" {
+		networkConfig = fmt.Sprintf("%s\n%s", networkConfig, ipFamilyConfig)
+	}
+	return networkConfig
 }
