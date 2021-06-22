@@ -60,7 +60,7 @@ Use "tanzu package repository [command] --help" for more information about a com
 Note: Steps 2 & 3 are applicable until the kapp controller alpha release is built into daily build
 
 2. Delete kapp-controller deployment 
-3. Apply kapp controller and carvel CRD's from core/cmd/cli/plugin/package/kapp-package/v0.19.0-alpha.9.yaml
+3. Apply kapp controller and carvel CRD's from https://github.com/vmware-tanzu/carvel-kapp-controller/blob/develop/alpha-releases/v0.20.0-rc.1.yml
 4. Build cli
 5. Install cli and plugins
 6. Use package commands to:
@@ -70,34 +70,30 @@ Note: Steps 2 & 3 are applicable until the kapp controller alpha release is buil
    - list packages
    - delete a repository
    
-   For alpha.9 release, use the following image package bundles for testing:
-   ```
-   1. Repository URL ( Simple App ) => index.docker.io/k8slt/kc-e2e-repo-bundle@sha256:388d353574446eea0bba4e3f656079963660704e0d474fbc87b3a9bc6efb1688
-   2. Repository URL ( Fluent Bit, Cert Manager ) => projects-stg.registry.vmware.com/tkg/tkgextensions-dev/tkg-standard-repo:d60aeb6
-   3. Repository URL ( Contour, Harbor, Cert Manager ) => projects-stg.registry.vmware.com/tkg/tkgextensions-dev/tkg-standard-repo@sha256:e5a307190145ccb92eecf86d3c863d3d37e82c7f8c3383ecd8d2d5640e9b9649
-   ```
+   For v0.20.0-rc.1 release, use the following image package bundles for testing:
+   1. Repository URL  => index.docker.io/k8slt/kc-e2e-test-repo@sha256:62d187c044fd6a5c57ac870733fe4413ebf7e2909d8b6267707c5dd2080821e6
    
    Here is an example workflow
    
 7. Add a repository
 
    ```sh
-   >>> tanzu package repository add testrepo index.docker.io/k8slt/kc-e2e-repo-bundle@sha256:388d353574446eea0bba4e3f656079963660704e0d474fbc87b3a9bc6efb1688
+   >>> tanzu package repository add testrepo index.docker.io/k8slt/kc-e2e-test-repo@sha256:62d187c044fd6a5c57ac870733fe4413ebf7e2909d8b6267707c5dd2080821e6 -n test-ns --create-namespace
    Package Repository 'testrepo' added
    ```
 
 8. Update a repository
 
    ```sh
-   >>> tanzu package repository update testrepo projects-stg.registry.vmware.com/tkg/shivaani/package-bundle:1.0.0
-   Successfully updated package repository 'testrepo'
+   >>> tanzu package repository update testrepo2 projects-stg.registry.vmware.com/tkg/shivaani/package-bundle:1.0.0 -n test-ns
+   Updated package repository 'testrepo2'
    ```
 
 9. List the repository
    ```sh
-   >>> tanzu package repository list
+   >>> tanzu package repository list -n test-ns
    NAME      REPOSITORY                                                                                                        STATUS               DETAILS  
-   testrepo  index.docker.io/k8slt/kc-e2e-repo-bundle@sha256:388d353574446eea0bba4e3f656079963660704e0d474fbc87b3a9bc6efb1688  Reconcile succeeded          
+   testrepo  index.docker.io/k8slt/kc-e2e-test-repo@sha256:62d187c044fd6a5c57ac870733fe4413ebf7e2909d8b6267707c5dd2080821e6    Reconcile succeeded          
    ```
 
 10. Install a package
@@ -106,6 +102,7 @@ Note: Steps 2 & 3 are applicable until the kapp controller alpha release is buil
     ```sh
     
     >>> tanzu package install fluentbit --package-name fluent-bit.tkg-standard.tanzu.vmware --namespace test-ns --create-namespace --version 1.7.5-vmware1 --values-file values.yaml
+    Installing package 'fluentbit' in namespace 'test-ns'
     Added installed package 'fluentbit' in namespace 'test-ns'
     ```
 
@@ -131,7 +128,8 @@ Note: Steps 2 & 3 are applicable until the kapp controller alpha release is buil
 
     ```sh
     >>> tanzu package uninstall fluentbit --namespace test-ns
-    Uninstalled package 'fluentbit' in namespace 'test-ns'
+    Uninstalling package 'fluentbit' from namespace 'test-ns'
+    Uninstalled package 'fluentbit' from namespace 'test-ns'
     ```
 
 12. List the packages
@@ -153,16 +151,16 @@ Note: Steps 2 & 3 are applicable until the kapp controller alpha release is buil
    fluent-bit  1.7.5-vmware1
   
    #List all available package CRs
-   >>> tanzu package list --available
+   >>> tanzu package list --available --namespace test-ns
    NAME                                    DISPLAYNAME        SHORTDESCRIPTION                                             
    cert-manager.tkg-standard.tanzu.vmware  cert-manager       This package provides certificate management functionality.  
    fluent-bit.tkg-standard.tanzu.vmware    fluent-bit         This package provides logging functionality.                 
    simple-app.corp.com                     simple-app v1.0.0  Simple app consisting of a k8s deployment and service
   
    #List all available packages for package name
-   >>> tanzu package list --available fluent-bit.tkg-standard.tanzu.vmware
+   >>> tanzu package list --available fluent-bit.tkg-standard.tanzu.vmware --namespace test-ns
    or
-   >>> tanzu package list fluent-bit.tkg-standard.tanzu.vmware --available 
+   >>> tanzu package list fluent-bit.tkg-standard.tanzu.vmware --available --namespace test-ns
    NAME                                  VERSION        
    fluent-bit.tkg-standard.tanzu.vmware  1.7.5-vmware1  
   
@@ -180,12 +178,12 @@ Note: Steps 2 & 3 are applicable until the kapp controller alpha release is buil
    NAME  VERSION        
    myfb  1.7.5-vmware1  
   
-   >>> tanzu package list --available --kubeconfig wc-kc-alpha8 
+   >>> tanzu package list --available --namespace test-ns --kubeconfig wc-kc-alpha8 
    NAME                                    DISPLAYNAME   SHORTDESCRIPTION                                             
    cert-manager.tkg-standard.tanzu.vmware  cert-manager  This package provides certificate management functionality.  
    fluent-bit.tkg-standard.tanzu.vmware    fluent-bit    This package provides logging functionality.                 
   
-   >>> tanzu package list --available cert-manager.tkg-standard.tanzu.vmware --kubeconfig wc-kc-alpha8
+   >>> tanzu package list --available cert-manager.tkg-standard.tanzu.vmware --namespace test-ns --kubeconfig wc-kc-alpha8
    NAME                                    VERSION        
    cert-manager.tkg-standard.tanzu.vmware  1.1.0-vmware1  
 
@@ -193,6 +191,6 @@ Note: Steps 2 & 3 are applicable until the kapp controller alpha release is buil
 
 13. Delete the repository
    ```sh
-   >>> tanzu package repository delete testrepo
-   Successfully deleted package repository 'testrepo'
+   >>> tanzu package repository delete testrepo --namespace test-ns
+   Deleted package repository 'testrepo' in namespace 'test-ns'
    ```
