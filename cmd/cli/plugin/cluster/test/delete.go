@@ -13,7 +13,7 @@ var (
 	deleteClusterTest *clitest.Test
 )
 
-func init() {
+func initDelete() {
 	deleteClusterCommand := fmt.Sprintf("cluster delete %s -y", clusterName)
 	deleteClusterTest = clitest.NewTest("delete cluster", deleteClusterCommand, func(t *clitest.Test) error {
 		if err := t.ExecContainsErrorString(fmt.Sprintf("Workload cluster '%s' is being deleted ", clusterName)); err != nil {
