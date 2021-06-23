@@ -17,7 +17,7 @@ NODE_MACHINE_TYPE: "NA"
 _TKG_CLUSTER_FORCE_ROLE: "NA", "management"
 
 _CNAME: "testcluster"
-_INFRA: "vsphere:v0.7.7", "aws:v0.6.4"
+_INFRA: "vsphere:v0.7.8", "aws:v0.6.6"
 _PLAN: "dev", "prod"
 CNI: "", "calico", "antrea", "none"
 
