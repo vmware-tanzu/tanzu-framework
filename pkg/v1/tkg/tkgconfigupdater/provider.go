@@ -201,7 +201,6 @@ func extractVersionFromPath(path string) (string, error) {
 }
 
 func (c *client) InitProvidersRegistry() (registry.Registry, error) {
-
 	verifyCerts := true
 	skipVerifyCerts, err := c.tkgConfigReaderWriter.Get(constants.ConfigVariableCustomImageRepositorySkipTLSVerify)
 	if err == nil && strings.EqualFold(skipVerifyCerts, "true") {

@@ -3,7 +3,9 @@
 
 // +build !embedproviders
 
-// Package manifest...
+// Package manifest ...
 package manifest
 
+// ProviderZipBundle variable defined when embedproviders tag is not passed during build
+// Meaning provider will be downloaded based on TKG BoM file
 var ProviderZipBundle []byte

@@ -40,11 +40,6 @@ var DefaultConfigMap = map[string]string{
 	constants.KeyCertManagerTimeout: constants.DefaultCertmanagerDeploymentTimeout.String(),
 }
 
-const (
-	k8sVersionVariableObsoleteComment      = `Obsolete. Please use '-k' or '--kubernetes-version' to override the default kubernetes version`
-	vsphereTemplateVariableObsoleteComment = `VSPHERE_TEMPLATE will be autodetected based on the kubernetes version. Please use VSPHERE_TEMPLATE only to override this behavior`
-)
-
 func (c *client) SetDefaultConfiguration() {
 	for k, v := range DefaultConfigMap {
 		c.TKGConfigReaderWriter().Set(k, v)
@@ -208,8 +203,8 @@ func (c *client) EnsureTemplateFiles() (bool, error) {
 
 	providerDirPath := filepath.Join(tkgDir, constants.LocalProvidersFolderName)
 
-	if c.isProviderTemplatesEmbeded() {
-		return true, c.saveEmbededProviderTemplates(providerDirPath)
+	if c.isProviderTemplatesEmbedded() {
+		return true, c.saveEmbeddedProviderTemplates(providerDirPath)
 	}
 
 	if providersNeedUpdate {
@@ -279,33 +274,6 @@ func (c *client) saveFile(filePath string, data []byte) error {
 		return errors.Wrapf(err, "unable to save file '%s'", filePath)
 	}
 
-	return nil
-}
-
-// saveEmbeddedBomToUserDefaultBOMDirectory writes file's content to user's default BOM directory if
-// BOM file with same name does not exists
-func (c *client) saveEmbeddedBomToUserDefaultBOMDirectory(bomFileName string, bomFileBytes []byte) error {
-	bomDir, err := c.tkgConfigPathsClient.GetTKGBoMDirectory()
-	if err != nil {
-		return err
-	}
-
-	if _, err := os.Stat(bomDir); os.IsNotExist(err) {
-		if err = os.MkdirAll(bomDir, constants.DefaultDirectoryPermissions); err != nil {
-			return errors.Wrap(err, "cannot create TKG BOM directory")
-		}
-	}
-
-	bomFilePath := filepath.Join(bomDir, bomFileName)
-
-	// Write BOM file only if user's BOM file with same version does not exists.
-	// This will ensure that TKG CLI does not override user's customized BOM file.
-	if _, err := os.Stat(bomFilePath); os.IsNotExist(err) {
-		err = ioutil.WriteFile(bomFilePath, bomFileBytes, constants.ConfigFilePermissions)
-		if err != nil {
-			return errors.Wrap(err, "cannot create TKG BOM file")
-		}
-	}
 	return nil
 }
 

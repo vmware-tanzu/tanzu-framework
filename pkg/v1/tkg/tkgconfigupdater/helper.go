@@ -83,30 +83,7 @@ func unzip(srcfilepath, destdir string) error {
 	return nil
 }
 
-func getBundledProvidersChecksum(zipPath string) ([]byte, error) {
-	var err error
-
-	r, err := zip.OpenReader(zipPath)
-	if err != nil {
-		return nil, err
-	}
-	defer r.Close()
-
-	checksumFilePath := filepath.ToSlash(constants.LocalProvidersChecksumFileName)
-	for _, f := range r.File {
-		if f.Name == checksumFilePath {
-			rc, err := f.Open()
-			if err != nil {
-				return nil, err
-			}
-			defer rc.Close()
-			return io.ReadAll(rc)
-		}
-	}
-	return nil, errors.New("providers.sha256sum is not bundled properly")
-}
-
-func (c *client) isProviderTemplatesEmbeded() bool {
+func (c *client) isProviderTemplatesEmbedded() bool {
 	providersZipBytes, err := c.providerGetter.GetProviderBundle()
 	if err != nil || len(providersZipBytes) == 0 {
 		return false
@@ -114,7 +91,7 @@ func (c *client) isProviderTemplatesEmbeded() bool {
 	return true
 }
 
-func (c *client) saveEmbededProviderTemplates(providerPath string) error {
+func (c *client) saveEmbeddedProviderTemplates(providerPath string) error {
 	providersZipBytes, err := c.providerGetter.GetProviderBundle()
 	if err != nil {
 		return errors.Wrap(err, "cannot find the provider bundle")
@@ -130,22 +107,6 @@ func (c *client) saveEmbededProviderTemplates(providerPath string) error {
 		return errors.Wrap(err, "error while unzipping providers")
 	}
 	return nil
-}
-
-// markDeprecatedConfigurationOptions adds comment on top of deprecated configuration variable in
-// ~/.tkg/config.yaml file
-func markDeprecatedConfigurationOptions(tkgConfigNode *yaml.Node) {
-	k8sVersionIndex := GetNodeIndex(tkgConfigNode.Content[0].Content, constants.ConfigVariableKubernetesVersion)
-	// if variable is present in config file add a comment
-	if k8sVersionIndex > 0 {
-		tkgConfigNode.Content[0].Content[k8sVersionIndex-1].HeadComment = k8sVersionVariableObsoleteComment
-	}
-
-	vsphereTemplateIndex := GetNodeIndex(tkgConfigNode.Content[0].Content, constants.ConfigVariableVsphereTemplate)
-	// if variable is present in config file add a comment
-	if vsphereTemplateIndex > 0 {
-		tkgConfigNode.Content[0].Content[vsphereTemplateIndex-1].HeadComment = vsphereTemplateVariableObsoleteComment
-	}
 }
 
 // updateVersion updates the CLI version to the config file

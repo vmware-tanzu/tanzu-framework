@@ -653,7 +653,7 @@ func deleteTempDirectory() {
 	os.Remove(testingDir)
 }
 
-func getConfigFilePath(filename string) string {
+func getConfigFilePath(filename string) string { // nolint:unparam
 	filePath := "../fakes/config/" + filename
 	return setupPrerequsiteForTesting(filePath, testingDir, defaultBomFile)
 }

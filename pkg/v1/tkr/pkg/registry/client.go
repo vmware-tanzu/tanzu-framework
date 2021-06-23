@@ -77,7 +77,8 @@ func getFileContentFromImage(image regv1.Image, filename string) ([]byte, error)
 
 		defer layerStream.Close()
 
-		files, err := getFileFromLayer(layerStream)
+		files := make(map[string][]byte)
+		err = getFileFromLayer(layerStream, files)
 		if err != nil {
 			return nil, err
 		}
@@ -91,8 +92,7 @@ func getFileContentFromImage(image regv1.Image, filename string) ([]byte, error)
 	return nil, errors.New("cannot find file from the image")
 }
 
-func getFileFromLayer(stream io.Reader) (map[string][]byte, error) {
-	files := make(map[string][]byte)
+func getFileFromLayer(stream io.Reader, files map[string][]byte) error {
 	tarReader := tar.NewReader(stream)
 
 	for {
@@ -101,22 +101,22 @@ func getFileFromLayer(stream io.Reader) (map[string][]byte, error) {
 			if err == io.EOF {
 				break
 			}
-			return files, err
+			return err
 		}
 
 		if hdr.Typeflag == tar.TypeReg || hdr.Typeflag == tar.TypeRegA {
 			buf, err := io.ReadAll(tarReader)
 			if err != nil {
-				return files, err
+				return err
 			}
 			files[hdr.Name] = buf
 		}
 	}
-	return files, nil
+	return nil
 }
 
 // GetFiles get all the files content bundled in the given image:tag.
-func (r *registry) GetFiles(image string, tag string) (map[string][]byte, error) {
+func (r *registry) GetFiles(image, tag string) (map[string][]byte, error) {
 	ref, err := regname.ParseReference(fmt.Sprintf("%s:%s", image, tag), regname.WeakValidation)
 	if err != nil {
 		return nil, err
@@ -126,7 +126,7 @@ func (r *registry) GetFiles(image string, tag string) (map[string][]byte, error)
 		return nil, errors.Wrap(err, "Collecting images: %s")
 	}
 	if len(imgs) == 0 {
-		return nil, errors.New("Expected to find at least one image, but found none")
+		return nil, errors.New("expected to find at least one image, but found none")
 	}
 
 	if len(imgs) > 1 {
@@ -143,6 +143,8 @@ func getAllFilesContentFromImage(image regv1.Image) (map[string][]byte, error) {
 		return nil, err
 	}
 
+	files := make(map[string][]byte)
+
 	for _, imgLayer := range layers {
 		layerStream, err := imgLayer.Uncompressed()
 		if err != nil {
@@ -151,12 +153,15 @@ func getAllFilesContentFromImage(image regv1.Image) (map[string][]byte, error) {
 
 		defer layerStream.Close()
 
-		files, err := getFileFromLayer(layerStream)
+		err = getFileFromLayer(layerStream, files)
 		if err != nil {
 			return nil, err
 		}
+	}
 
+	if len(files) != 0 {
 		return files, nil
 	}
+
 	return nil, errors.New("cannot find file from the image")
 }

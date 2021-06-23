@@ -9,20 +9,20 @@ import (
 	"path/filepath"
 
 	"github.com/pkg/errors"
+
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigbom"
 )
 
 // CheckProviderTemplatesNeedUpdate checks if .tkg/providers/config.yaml is up-to-date.
 func (c *client) CheckProviderTemplatesNeedUpdate() (bool, error) {
-
 	// Do not update provider templates if `SUPPRESS_PROVIDERS_UPDATE` env variable is set
 	if isSuppressProviderUpdateEnvSet() {
 		return false, nil
 	}
 
-	// If local develeopment and providers are embeded then always update providers based
-	if c.isProviderTemplatesEmbeded() {
+	// If local develeopment and providers are embedded then always update providers based
+	if c.isProviderTemplatesEmbedded() {
 		return true, nil
 	}
 
