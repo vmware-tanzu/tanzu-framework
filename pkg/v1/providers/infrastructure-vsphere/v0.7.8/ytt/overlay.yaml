@@ -269,3 +269,12 @@ spec:
       infrastructureRef:
         name: #@ "{}-worker".format(data.values.CLUSTER_NAME)
       version: #@ data.values.KUBERNETES_VERSION
+#@overlay/match by=overlay.subset({"kind": "Secret", "metadata":{"name": "${ CLUSTER_NAME }"}})
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ data.values.CLUSTER_NAME
+stringData:
+  username: #@ data.values.VSPHERE_USERNAME
+  password: #@ data.values.VSPHERE_PASSWORD
