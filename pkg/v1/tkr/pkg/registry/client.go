@@ -123,7 +123,7 @@ func (r *registry) GetFiles(image, tag string) (map[string][]byte, error) {
 	}
 	imgs, err := ctlimg.NewImages(ref, r.registry).Images()
 	if err != nil {
-		return nil, errors.Wrap(err, "Collecting images: %s")
+		return nil, errors.Wrap(err, "Collecting images")
 	}
 	if len(imgs) == 0 {
 		return nil, errors.New("expected to find at least one image, but found none")

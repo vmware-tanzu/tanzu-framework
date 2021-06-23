@@ -336,52 +336,7 @@ var _ = Describe("EnsureTemplateFiles", func() {
 			providerConfigPath := filepath.Join(testingDir, constants.LocalProvidersFolderName, constants.LocalProvidersConfigFileName)
 			_, err = os.Stat(providerConfigPath)
 			Expect(err).ToNot(HaveOccurred())
-		})
-	})
-
-	Context("When the providers folder exsits, and there is no need for updating", func() {
-		BeforeEach(func() {
-			needUpdate = false
-			err = os.MkdirAll(testingDir, os.ModePerm)
-			Expect(err).ToNot(HaveOccurred())
-			// make sure the providers is written properly
-			needUpdate, err = client.CheckProviderTemplatesNeedUpdate()
-			Expect(err).ToNot(HaveOccurred())
-			Expect(needUpdate).To(Equal(false))
-		})
-
-		It("should keeps the original providers fold under $HOME/.tkg", func() {
-			providerConfigPath := filepath.Join(testingDir, constants.LocalProvidersFolderName, constants.LocalProvidersConfigFileName)
-			_, err = os.Stat(providerConfigPath)
-			Expect(err).ToNot(HaveOccurred())
-			needUpdate, err = client.CheckProviderTemplatesNeedUpdate()
-			Expect(err).ToNot(HaveOccurred())
-			Expect(needUpdate).To(Equal(false))
-		})
-	})
-
-	Context("When the providers folder exists, and it needs to be updated", func() {
-		BeforeEach(func() {
-			needUpdate = true
-			// write providers to tmp folder and modify providers.sha256sum
-			err = os.MkdirAll(testingDir, os.ModePerm)
-			Expect(err).ToNot(HaveOccurred())
-			providerChecksumPath := filepath.Join(testingDir, constants.LocalProvidersFolderName, constants.LocalProvidersChecksumFileName)
-			err = os.WriteFile(providerChecksumPath, []byte("mismatched-checksum"), constants.ConfigFilePermissions)
-			Expect(err).ToNot(HaveOccurred())
-			// make sure the providers is written properly
-			needUpdate, err := client.CheckProviderTemplatesNeedUpdate()
-			Expect(err).ToNot(HaveOccurred())
-			Expect(needUpdate).To(Equal(true))
-		})
-
-		It("should update the providers folder under $HOME/.tkg", func() {
-			providerConfigPath := filepath.Join(testingDir, constants.LocalProvidersFolderName, constants.LocalProvidersConfigFileName)
-			_, err = os.Stat(providerConfigPath)
-			Expect(err).ToNot(HaveOccurred())
-			needUpdate, err := client.CheckProviderTemplatesNeedUpdate()
-			Expect(err).ToNot(HaveOccurred())
-			Expect(needUpdate).To(Equal(false))
+			Expect(needUpdate).To(BeTrue())
 		})
 	})
 
@@ -404,60 +359,30 @@ var _ = Describe("CheckProviderTemplatesNeedUpdate", func() {
 		tkgConfigReaderWriter, err := tkgconfigreaderwriter.NewReaderWriterFromConfigFile(configPath, filepath.Join(testingDir, "config.yaml"))
 		Expect(err).NotTo(HaveOccurred())
 		client = New(testingDir, NewProviderTest(), tkgConfigReaderWriter)
+		_, err = client.EnsureTemplateFiles()
+		Expect(err).NotTo(HaveOccurred())
 	})
 	JustBeforeEach(func() {
 		needUpdate, err = client.CheckProviderTemplatesNeedUpdate()
 	})
 
-	Context("When providers directory does not exist", func() {
-		It("should return false for needUpdate flag ", func() {
-			Expect(err).ToNot(HaveOccurred())
-			Expect(needUpdate).To(Equal(false))
-		})
-	})
-
-	Context("When providers/providers.sha256sum is missing", func() {
-		BeforeEach(func() {
-			// write providers to tmp folder but remove the providers.sha256sum
-			err = os.MkdirAll(testingDir, os.ModePerm)
-			Expect(err).ToNot(HaveOccurred())
-			providerConfigPath := filepath.Join(testingDir, constants.LocalProvidersFolderName, constants.LocalProvidersChecksumFileName)
-			err = os.Remove(providerConfigPath)
-			Expect(err).ToNot(HaveOccurred())
-		})
-
+	Context("When providers are embedded", func() {
 		It("should return true for needUpdate flag ", func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(needUpdate).To(Equal(true))
 		})
 	})
 
-	Context("When the bundled and local providers.sha256sum are identical", func() {
+	Context("When SUPPRESS_PROVIDERS_UPDATE environment variable is specified", func() {
 		BeforeEach(func() {
-			// write providers to tmp folder
-			err = os.MkdirAll(testingDir, os.ModePerm)
-			Expect(err).ToNot(HaveOccurred())
+			os.Setenv(constants.SuppressProvidersUpdate, "1")
 		})
-
+		AfterEach(func() {
+			os.Unsetenv(constants.SuppressProvidersUpdate)
+		})
 		It("should return false for needUpdate flag ", func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(needUpdate).To(Equal(false))
-		})
-	})
-
-	Context("When the bundled and local providers.sha256sum have difference", func() {
-		BeforeEach(func() {
-			// write providers to tmp folder but change the providers.sha256sum
-			err = os.MkdirAll(testingDir, os.ModePerm)
-			Expect(err).ToNot(HaveOccurred())
-			providerChecksumPath := filepath.Join(testingDir, constants.LocalProvidersFolderName, constants.LocalProvidersChecksumFileName)
-			err = os.WriteFile(providerChecksumPath, []byte("mismatched-checksum"), constants.ConfigFilePermissions)
-			Expect(err).ToNot(HaveOccurred())
-		})
-
-		It("should return true for needUpdate flag ", func() {
-			Expect(err).ToNot(HaveOccurred())
-			Expect(needUpdate).To(Equal(true))
 		})
 	})
 
@@ -489,6 +414,8 @@ var _ = Describe("EnsureProviders", func() {
 		tkgConfigReaderWriter, err = tkgconfigreaderwriter.NewReaderWriterFromConfigFile(clusterConfigPath, filepath.Join(testingDir, "config.yaml"))
 		Expect(err).NotTo(HaveOccurred())
 		client = New(testingDir, NewProviderTest(), tkgConfigReaderWriter)
+		_, err = client.EnsureTemplateFiles()
+		Expect(err).NotTo(HaveOccurred())
 		err = client.EnsureProvidersInConfig(needUpdate, tkgConfigNode)
 	})
 
@@ -560,6 +487,8 @@ var _ = Describe("EnsureImages", func() {
 		tkgConfigReaderWriter, err = tkgconfigreaderwriter.NewReaderWriterFromConfigFile(clusterConfigPath, filepath.Join(testingDir, "config.yaml"))
 		Expect(err).NotTo(HaveOccurred())
 		client = New(testingDir, NewProviderTest(), tkgConfigReaderWriter)
+		_, err = client.EnsureTemplateFiles()
+		Expect(err).NotTo(HaveOccurred())
 		err = client.EnsureImages(needUpdate, tkgConfigNode)
 	})
 

@@ -13,6 +13,7 @@ import (
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes"
+	fakeproviders "github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes/providers"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigpaths"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/utils"
 )
@@ -32,13 +33,15 @@ var _ = Describe("Unit tests for config cluster", func() {
 		err           error
 		ccOps         CreateClusterOptions
 	)
+
 	JustBeforeEach(func() {
 		configDir, err = os.MkdirTemp("", "test")
 		err = os.MkdirAll(testingDir, 0o700)
 		Expect(err).ToNot(HaveOccurred())
 		prepareConfiDir(configDir)
 		options := Options{
-			ConfigDir: configDir,
+			ConfigDir:      configDir,
+			ProviderGetter: fakeproviders.FakeProviderGetter(),
 		}
 		c, createErr := New(options)
 		Expect(createErr).ToNot(HaveOccurred())

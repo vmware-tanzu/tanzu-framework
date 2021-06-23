@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes"
+	fakeproviders "github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes/providers"
 )
 
 var _ = Describe("Unit tests for delete cluster", func() {
@@ -28,7 +29,8 @@ var _ = Describe("Unit tests for delete cluster", func() {
 		Expect(err).ToNot(HaveOccurred())
 		prepareConfiDir(configDir)
 		options := Options{
-			ConfigDir: configDir,
+			ConfigDir:      configDir,
+			ProviderGetter: fakeproviders.FakeProviderGetter(),
 		}
 		c, createErr := New(options)
 		Expect(createErr).ToNot(HaveOccurred())

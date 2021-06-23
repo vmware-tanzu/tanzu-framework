@@ -12,6 +12,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
+	fakeproviders "github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes/providers"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/providerinterface"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigupdater"
@@ -22,19 +23,26 @@ var _ = Describe("ensureBoMandProvidersPrerequisite", func() {
 		err                    error
 		providerGetter         providerinterface.ProviderInterface
 		tkgConfigUpdaterClient tkgconfigupdater.Client
+		tkgConfigReaderWriter  tkgconfigreaderwriter.TKGConfigReaderWriter
 	)
 
 	BeforeEach(func() {
 		testingDir, err = os.MkdirTemp("", "test")
 		err = os.MkdirAll(testingDir, 0o700)
 		Expect(err).ToNot(HaveOccurred())
-		providerGetter = getDefaultProviderGetter()
-		tkgConfigReaderWriter, err1 := tkgconfigreaderwriter.NewReaderWriterFromConfigFile("../fakes/config/config.yaml", "../fakes/config/config.yaml")
-		Expect(err1).ToNot(HaveOccurred())
+		providerGetter = fakeproviders.FakeProviderGetter()
+		tkgConfigReaderWriter, err = tkgconfigreaderwriter.NewReaderWriterFromConfigFile("../fakes/config/config.yaml", "../fakes/config/config.yaml")
+		Expect(err).ToNot(HaveOccurred())
 		tkgConfigUpdaterClient = tkgconfigupdater.New(testingDir, providerGetter, tkgConfigReaderWriter)
 	})
 
 	Context("When two goroutines try to modify the file under configDir", func() {
+		BeforeEach(func() {
+			tkgConfigReaderWriter.Set(constants.ConfigVariableBomCustomImagePath, "tkg-bom")
+		})
+		AfterEach(func() {
+			tkgConfigReaderWriter.Set(constants.ConfigVariableBomCustomImagePath, "")
+		})
 		It("should not return errors", func() {
 			errs := make(chan error, 2)
 			defer close(errs)
@@ -72,7 +80,8 @@ var _ = Describe("Unit test for New", func() {
 		os.Setenv(constants.ConfigVariableBomCustomImageTag, "")
 		configDir, _ = ioutil.TempDir("", "cluster_client_test")
 		options = Options{
-			ConfigDir: configDir,
+			ConfigDir:      configDir,
+			ProviderGetter: fakeproviders.FakeProviderGetter(),
 		}
 		_, err = New(options)
 	})
