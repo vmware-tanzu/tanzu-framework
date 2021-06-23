@@ -306,7 +306,11 @@ func buildPlugin(path string, arch cli.Arch, id string) (plugin, error) {
 		modPath = path
 		cmd.Dir = modPath
 		cmd.Args = append(cmd.Args, "./.")
-		runUpdateGoDep(path, id)
+		err := runUpdateGoDep(path, id)
+		if err != nil {
+			log.Errorf("%s - cannot update go dependencies in path: %s - error: %v", id, path, err)
+			return plugin{}, err
+		}
 	} else {
 		modPath = ""
 		cmd.Args = append(cmd.Args, fmt.Sprintf("./%s", path))
@@ -379,7 +383,7 @@ type target struct {
 	args []string
 }
 
-func (t target) build(targetPath, prefix string, modPath string) error {
+func (t target) build(targetPath, prefix, modPath string) error {
 	cmd := exec.Command("go", "build")
 
 	var commonArgs = []string{
@@ -497,18 +501,18 @@ var archMap = map[cli.Arch]targetBuilder{
 }
 
 func (p *plugin) compile() error {
-	artifactsDir, err := filepath.Abs(artifactsDir)
+	absArtifactsDir, err := filepath.Abs(artifactsDir)
 	if err != nil {
 		return err
 	}
 
-	outPath := filepath.Join(artifactsDir, p.Name, p.Version)
+	outPath := filepath.Join(absArtifactsDir, p.Name, p.Version)
 	err = buildTargets(p.path, outPath, p.Name, p.arch, p.buildID, p.modPath)
 	if err != nil {
 		return err
 	}
 
-	testOutPath := filepath.Join(artifactsDir, p.Name, p.Version, "test")
+	testOutPath := filepath.Join(absArtifactsDir, p.Name, p.Version, "test")
 	err = buildTargets(p.testPath, testOutPath, fmt.Sprintf("%s-test", p.Name), p.arch, p.buildID, p.modPath)
 	if err != nil {
 		return err
@@ -519,7 +523,7 @@ func (p *plugin) compile() error {
 		return err
 	}
 
-	configPath := filepath.Join(artifactsDir, p.Name, cli.PluginFileName)
+	configPath := filepath.Join(absArtifactsDir, p.Name, cli.PluginFileName)
 	err = os.WriteFile(configPath, b, 0644)
 	if err != nil {
 		return err
@@ -527,7 +531,7 @@ func (p *plugin) compile() error {
 	return nil
 }
 
-func buildTargets(targetPath, outPath, pluginName string, arch cli.Arch, id string, modPath string) error {
+func buildTargets(targetPath, outPath, pluginName string, arch cli.Arch, id, modPath string) error {
 	if id != "" {
 		id = fmt.Sprintf("%s - ", id)
 	}
