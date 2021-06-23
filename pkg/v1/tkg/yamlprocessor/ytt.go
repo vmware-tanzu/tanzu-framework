@@ -7,7 +7,7 @@ package yamlprocessor
 import (
 	"fmt"
 	"io"
-	"strings"
+	"strconv"
 
 	"github.com/k14s/ytt/pkg/cmd/template"
 	yttui "github.com/k14s/ytt/pkg/cmd/ui"
@@ -15,6 +15,7 @@ import (
 	"github.com/k14s/ytt/pkg/workspace"
 	"github.com/k14s/ytt/pkg/yamlmeta"
 	"github.com/pkg/errors"
+	"gopkg.in/yaml.v3"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/api/tkg/v1alpha1"
 )
@@ -73,25 +74,32 @@ func (p *YTTProcessor) GetTemplateName(version, plan string) string {
 	return fmt.Sprintf("%s.yaml", name)
 }
 
+func (p *YTTProcessor) getLoader(rawArtifact []byte) (*workspace.LibraryLoader, error) {
+	srcPaths, err := p.getYttSrcDir(rawArtifact)
+	if err != nil {
+		return nil, err
+	}
+
+	yttFiles, err := p.getYttFiles(srcPaths)
+	if err != nil {
+		return nil, err
+	}
+
+	lib := workspace.NewRootLibrary(yttFiles)
+	libCtx := workspace.LibraryExecutionContext{Current: lib, Root: lib}
+	libExecFact := workspace.NewLibraryExecutionFactory(&noopUI{}, workspace.TemplateLoaderOpts{})
+	return libExecFact.New(libCtx), nil
+}
+
 // GetVariables returns a list of the variables specified from the ytt data
 // values.
 func (p *YTTProcessor) GetVariables(rawArtifact []byte) ([]string, error) {
-	srcDirs, err := p.getYttSrcDir(rawArtifact)
-	if err != nil {
-		return nil, errors.Wrap(err, "unable to get ytt src dir")
-	}
-
-	yttFiles, err := p.getYttFiles(srcDirs)
+	libLoader, err := p.getLoader(rawArtifact)
 	if err != nil {
 		return nil, err
 	}
 
 	var variables []string
-	lib := workspace.NewRootLibrary(yttFiles)
-	libCtx := workspace.LibraryExecutionContext{Current: lib, Root: lib}
-	libExecFact := workspace.NewLibraryExecutionFactory(&noopUI{}, workspace.TemplateLoaderOpts{})
-	libLoader := libExecFact.New(libCtx)
-
 	values, _, err := libLoader.Values([]*workspace.DataValues{})
 	if err != nil || values == nil || values.Doc == nil {
 		return nil, errors.Wrap(err, "unable to load yaml document")
@@ -117,20 +125,6 @@ func (p *YTTProcessor) Process(rawArtifact []byte, variablesClient func(string) 
 		return nil, err
 	}
 
-	srcPaths, err := p.getYttSrcDir(rawArtifact)
-	if err != nil {
-		return nil, err
-	}
-
-	yttFiles, err := p.getYttFiles(srcPaths)
-	if err != nil {
-		return nil, err
-	}
-
-	lib := workspace.NewRootLibrary(yttFiles)
-	libCtx := workspace.LibraryExecutionContext{Current: lib, Root: lib}
-	libExecFact := workspace.NewLibraryExecutionFactory(&noopUI{}, workspace.TemplateLoaderOpts{})
-	libLoader := libExecFact.New(libCtx)
 	// build out the data values for ytt
 	dataValues := make([]string, 0, len(variables))
 	for _, vName := range variables {
@@ -139,16 +133,27 @@ func (p *YTTProcessor) Process(rawArtifact []byte, variablesClient func(string) 
 			// skip the variables that don't have user specified values
 			continue
 		}
-		if vValue == "" {
-			// Setting empty string is required because if not set
-			// ytt processor sets null as value
-			dataValues = append(dataValues, fmt.Sprintf("%s=\"\"", vName))
-		} else if strings.HasPrefix(vValue, "!") {
-			// If the string values starts with '!' then that value is treated as
-			// yaml tag if we do not add "" around the value. Hence adding "".
-			dataValues = append(dataValues, fmt.Sprintf("%s=\"%s\"", vName, vValue))
-		} else {
+
+		convs := []yamlScalarConvertable{
+			nullConvertable,
+			booleanConvertable,
+			integerConvertable,
+			floatConvertable,
+			structuredConvertable,
+		}
+
+		convertable := false
+		for _, conv := range convs {
+			convertable = conv(vValue)
+			if convertable {
+				break
+			}
+		}
+
+		if convertable {
 			dataValues = append(dataValues, fmt.Sprintf("%s=%s", vName, vValue))
+		} else {
+			dataValues = append(dataValues, fmt.Sprintf("%s=\"%s\"", vName, vValue))
 		}
 	}
 	dvf := template.DataValuesFlags{
@@ -160,6 +165,12 @@ func (p *YTTProcessor) Process(rawArtifact []byte, variablesClient func(string) 
 	if err != nil {
 		return nil, err
 	}
+
+	libLoader, err := p.getLoader(rawArtifact)
+	if err != nil {
+		return nil, err
+	}
+
 	valuesDoc, libraryValueDoc, err := libLoader.Values(overlayValuesDoc)
 	if err != nil {
 		return nil, err
@@ -290,3 +301,38 @@ func (n noopWriter) Write(p []byte) (int, error) {
 }
 
 var _ io.Writer = noopWriter{}
+
+type yamlScalarConvertable func(in string) bool
+
+func structuredConvertable(in string) bool {
+	var result interface{}
+	if err := yaml.Unmarshal([]byte(in), &result); err == nil && result != nil {
+		return true
+	}
+	return false
+}
+
+func nullConvertable(in string) bool {
+	return in == "~" || in == "null"
+}
+
+func booleanConvertable(in string) bool {
+	if _, err := strconv.ParseBool(in); err == nil {
+		return true
+	}
+	return false
+}
+
+func integerConvertable(in string) bool {
+	if _, err := strconv.ParseUint(in, 0, 0); err == nil {
+		return true
+	}
+	return false
+}
+
+func floatConvertable(in string) bool {
+	if _, err := strconv.ParseFloat(in, 64); err == nil {
+		return true
+	}
+	return false
+}

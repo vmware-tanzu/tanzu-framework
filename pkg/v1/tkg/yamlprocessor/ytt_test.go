@@ -293,6 +293,124 @@ region: us-east-1a
 			Expect(err).To(HaveOccurred())
 			Expect(actual).To(BeNil())
 		})
+
+		Context("yaml scalar value tests", func() {
+			var testTemplate = `
+#@ load("@ytt:data", "data")
+---
+decimal: #@ data.values.decimalInt
+octal: #@ data.values.octalInt
+hexadecimal: #@ data.values.hexadecimalInt
+boolean: #@ data.values.booleanVal
+float: #@ data.values.floatVal
+`
+			var dataTemplate = `
+#@data/values
+---
+decimalInt:
+octalInt:
+hexadecimalInt:
+booleanVal:
+floatVal:
+`
+			When("data values are yaml scalars", func() {
+				It("Should not quote the value", func() {
+					dir, err := os.MkdirTemp("", "tkg-cli")
+					Expect(err).NotTo(HaveOccurred())
+					defer os.RemoveAll(dir)
+					templateFile := filepath.Join(dir, "test-template.yaml")
+					dataFile := filepath.Join(dir, "data-template.yaml")
+
+					Expect(os.WriteFile(templateFile, []byte(testTemplate), 0o600)).To(Succeed())
+					Expect(os.WriteFile(dataFile, []byte(dataTemplate), 0o600)).To(Succeed())
+
+					configClient := NewFakeVariableClient().
+						WithVar("decimalInt", "9").
+						WithVar("octalInt", "0o600").
+						WithVar("hexadecimalInt", "0xF").
+						WithVar("booleanVal", "true").
+						WithVar("floatVal", "3.14")
+					path := v1alpha1.PathInfo{Path: dir}
+					dp := &fakeDefinitionParser{
+						parsePath: []v1alpha1.PathInfo{path},
+					}
+					yp := yamlprocessor.NewYttProcessor(yamlprocessor.InjectDefinitionParser(dp))
+
+					actual, err := yp.Process([]byte("doesn't matter"), configClient.Get)
+					Expect(err).ToNot(HaveOccurred())
+					Expect(actual).ToNot(BeNil())
+					expectedYaml := `decimal: 9
+octal: 384
+hexadecimal: 15
+boolean: true
+float: 3.14
+`
+					Expect(string(actual)).To(Equal(expectedYaml))
+				})
+			})
+			When("data values are non scalars", func() {
+				var testTemplate = `
+#@ load("@ytt:data", "data")			
+---
+password1: #@ data.values.password1
+password2: #@ data.values.password2
+password3: #@ data.values.password3
+password4: #@ data.values.password4
+password5: #@ data.values.password5
+multiline: #@ data.values.multiline
+structured: #@ data.values.structured
+`
+				var dataTemplate = `
+#@data/values
+---
+password1:
+password2:
+password3:
+password4:
+password5:
+multiline:
+structured:
+`
+				It("Should quote the value", func() {
+					dir, err := os.MkdirTemp("", "tkg-cli")
+					Expect(err).NotTo(HaveOccurred())
+					defer os.RemoveAll(dir)
+					templateFile := filepath.Join(dir, "test-template.yaml")
+					dataFile := filepath.Join(dir, "data-template.yaml")
+
+					Expect(os.WriteFile(templateFile, []byte(testTemplate), 0o600)).To(Succeed())
+					Expect(os.WriteFile(dataFile, []byte(dataTemplate), 0o600)).To(Succeed())
+
+					configClient := NewFakeVariableClient().
+						WithVar("password1", "%&%VMware!").
+						WithVar("password2", "!VMware!").
+						WithVar("password3", "#VMware!").
+						WithVar("password4", "&VMware!").
+						WithVar("password5", "*VMware!").
+						WithVar("multiline", "multi-line\nstring").
+						WithVar("structured", "{\n\t\"key\": \"value\"}")
+					path := v1alpha1.PathInfo{Path: dir}
+					dp := &fakeDefinitionParser{
+						parsePath: []v1alpha1.PathInfo{path},
+					}
+					yp := yamlprocessor.NewYttProcessor(yamlprocessor.InjectDefinitionParser(dp))
+
+					actual, err := yp.Process([]byte("doesn't matter"), configClient.Get)
+					Expect(err).ToNot(HaveOccurred())
+					Expect(actual).ToNot(BeNil())
+					expectedYaml := `password1: '%&%VMware!'
+password2: '!VMware!'
+password3: '#VMware!'
+password4: '&VMware!'
+password5: '*VMware!'
+multiline: multi-line string
+structured:
+  key: value
+`
+					Expect(string(actual)).To(Equal(expectedYaml))
+				})
+			})
+		})
 	})
 })
 
