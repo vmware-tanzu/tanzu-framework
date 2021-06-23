@@ -63,9 +63,11 @@ apiVersion: cluster.x-k8s.io/v1alpha3
 kind: Cluster
 metadata:
   name: #@ data.values.CLUSTER_NAME
+  #@ if data.values.VSPHERE_CONTROL_PLANE_ENDPOINT:
   #@overlay/match missing_ok=True
   annotations:
     tkg.tanzu.vmware.com/cluster-controlplane-endpoint: #@ data.values.VSPHERE_CONTROL_PLANE_ENDPOINT
+  #@ end
   labels:
     #@overlay/match missing_ok=True
     #@yaml/text-templated-strings
