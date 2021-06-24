@@ -1433,6 +1433,9 @@ func (c *TkgClient) configureAndValidateIPFamilyConfiguration() error {
 	// ignoring error because IPFamily is an optional configuration
 	// if not set Get will return an empty string
 	ipFamily, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableIPFamily)
+	if ipFamily == "" {
+		ipFamily = constants.IPv4Family
+	}
 
 	serviceCIDR, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableServiceCIDR)
 	clusterCIDR, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterCIDR)
