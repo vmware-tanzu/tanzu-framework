@@ -29,6 +29,7 @@ var (
 	configPathCustomRegistryCaCert        = "../fakes/config/config_custom_registry_ca_cert.yaml"
 	configPathIPv6                        = "../fakes/config/config_ipv6.yaml"
 	configPathIPv4                        = "../fakes/config/config_ipv4.yaml"
+	configPathCIDR                        = "../fakes/config/config_cluster_service_cidr.yaml"
 	registryHostname                      = "registry.mydomain.com"
 )
 
@@ -174,7 +175,7 @@ var _ = Describe("Kind Client", func() {
 		})
 
 		It("generates a config with ipfamily omitted", func() {
-			Expect(kindConfig).NotTo(ContainSubstring("networking:\n  ipFamily:"))
+			Expect(kindConfig).NotTo(ContainSubstring("ipFamily:"))
 		})
 	})
 
@@ -188,7 +189,7 @@ var _ = Describe("Kind Client", func() {
 		})
 
 		It("generates a config with ipfamily set to ipv4", func() {
-			Expect(kindConfig).To(ContainSubstring("networking:\n  ipFamily: ipv4"))
+			Expect(kindConfig).To(ContainSubstring("ipFamily: ipv4"))
 		})
 	})
 
@@ -202,7 +203,37 @@ var _ = Describe("Kind Client", func() {
 		})
 
 		It("generates a config with ipfamily set to ipv6", func() {
-			Expect(kindConfig).To(ContainSubstring("networking:\n  ipFamily: ipv6"))
+			Expect(kindConfig).To(ContainSubstring("ipFamily: ipv6"))
+		})
+	})
+
+	Context("When CLUSTER_CIDR and SERVICE_CIDR are not set", func() {
+		BeforeEach(func() {
+			setupTestingFiles(configPath, testingDir, defaultBoMFileForTesting)
+			kindClient = buildKindClient()
+			_, kindConfigBytes, err := kindClient.GetKindNodeImageAndConfig()
+			Expect(err).NotTo(HaveOccurred())
+			kindConfig = string(kindConfigBytes)
+		})
+
+		It("generates a config with default pod and service subnet", func() {
+			Expect(kindConfig).To(ContainSubstring("podSubnet: 100.96.0.0/11"))
+			Expect(kindConfig).To(ContainSubstring("serviceSubnet: 100.64.0.0/13"))
+		})
+	})
+
+	Context("When CLUSTER_CIDR and SERVICE_CIDR are explicitly set", func() {
+		BeforeEach(func() {
+			setupTestingFiles(configPathCIDR, testingDir, defaultBoMFileForTesting)
+			kindClient = buildKindClient()
+			_, kindConfigBytes, err := kindClient.GetKindNodeImageAndConfig()
+			Expect(err).NotTo(HaveOccurred())
+			kindConfig = string(kindConfigBytes)
+		})
+
+		It("generates a config with specified pod and service subnet", func() {
+			Expect(kindConfig).To(ContainSubstring("podSubnet: 200.200.200.0/24"))
+			Expect(kindConfig).To(ContainSubstring("serviceSubnet: 250.250.250.0/24"))
 		})
 	})
 })

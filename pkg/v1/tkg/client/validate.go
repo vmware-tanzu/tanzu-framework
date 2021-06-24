@@ -55,18 +55,6 @@ var (
 	AWSPublicSubnetIDConfigVariables  = []string{constants.ConfigVariableAWSPublicSubnetID, constants.ConfigVariableAWSPublicSubnetID1, constants.ConfigVariableAWSPublicSubnetID2}
 )
 
-const (
-	// de-facto defaults initially chosen by kops: https://github.com/kubernetes/kops
-	defaultIPv4ClusterCIDR = "100.96.0.0/11"
-	defaultIPv4ServiceCIDR = "100.64.0.0/13"
-
-	// chosen to match our IPv4 defaults
-	// use /48 for cluster CIDR because each node gets a /64 by default in IPv6
-	defaultIPv6ClusterCIDR = "fd00:100:96::/48"
-	// use /108 is the max allowed for IPv6
-	defaultIPv6ServiceCIDR = "fd00:100:64::/108"
-)
-
 var trueString = "true"
 
 // VsphereResourceType vsphere resource types
@@ -1451,12 +1439,12 @@ func (c *TkgClient) configureAndValidateIPFamilyConfiguration() error {
 
 	if ipFamily == constants.IPv6Family {
 		if serviceCIDR == "" {
-			c.TKGConfigReaderWriter().Set(constants.ConfigVariableServiceCIDR, defaultIPv6ServiceCIDR)
+			c.TKGConfigReaderWriter().Set(constants.ConfigVariableServiceCIDR, constants.DefaultIPv6ServiceCIDR)
 		} else if !c.validateIPv6CIDR(serviceCIDR) {
 			return invalidCIDRError(constants.ConfigVariableServiceCIDR, serviceCIDR, ipFamily)
 		}
 		if clusterCIDR == "" {
-			c.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterCIDR, defaultIPv6ClusterCIDR)
+			c.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterCIDR, constants.DefaultIPv6ClusterCIDR)
 		} else if !c.validateIPv6CIDR(clusterCIDR) {
 			return invalidCIDRError(constants.ConfigVariableClusterCIDR, clusterCIDR, ipFamily)
 		}
@@ -1468,10 +1456,10 @@ func (c *TkgClient) configureAndValidateIPFamilyConfiguration() error {
 		}
 	} else { // For cases when TKG_IP_FAMILY is empty or ipv4
 		if serviceCIDR == "" {
-			c.TKGConfigReaderWriter().Set(constants.ConfigVariableServiceCIDR, defaultIPv4ServiceCIDR)
+			c.TKGConfigReaderWriter().Set(constants.ConfigVariableServiceCIDR, constants.DefaultIPv4ServiceCIDR)
 		}
 		if clusterCIDR == "" {
-			c.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterCIDR, defaultIPv4ClusterCIDR)
+			c.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterCIDR, constants.DefaultIPv4ClusterCIDR)
 		}
 	}
 	return nil
