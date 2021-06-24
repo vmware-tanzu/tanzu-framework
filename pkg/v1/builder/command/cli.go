@@ -344,27 +344,21 @@ func buildPlugin(path string, arch cli.Arch, id string) (plugin, error) {
 		return plugin{}, err
 	}
 
-	p := plugin{}
+	p := plugin{
+		PluginDescriptor: desc,
+		arch:             arch,
+		docPath:          docPath,
+		buildID:          id,
+	}
+
 	if modPath != "" {
-		p = plugin{
-			PluginDescriptor: desc,
-			path:             ".",
-			testPath:         "test",
-			arch:             arch,
-			docPath:          docPath,
-			modPath:          modPath,
-			buildID:          id,
-		}
+		p.path = "."
+		p.testPath = "test"
+		p.modPath = modPath
 	} else {
-		p = plugin{
-			PluginDescriptor: desc,
-			path:             path,
-			testPath:         testPath,
-			arch:             arch,
-			docPath:          docPath,
-			modPath:          "",
-			buildID:          id,
-		}
+		p.path = path
+		p.testPath = testPath
+		p.modPath = ""
 	}
 
 	log.Debugy("plugin", p)
