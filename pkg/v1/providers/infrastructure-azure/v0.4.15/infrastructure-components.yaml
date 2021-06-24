@@ -3802,7 +3802,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
-        image: projects-stg.registry.vmware.com/tkg/cluster-api/nmi:v1.6.3_vmware.1
+        image: registry.tkg.vmware.run/cluster-api/nmi:v1.6.3_vmware.2
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:
