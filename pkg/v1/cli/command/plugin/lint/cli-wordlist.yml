@@ -1,9 +1,10 @@
 ---
 nouns:
-  - account
+  - account 
   - admin-kubeconfig
   - alpha
   - app
+  - available-upgrades
   - aws
   - ceip-participation
   - cluster
@@ -17,6 +18,7 @@ nouns:
   - login
   - machinehealthcheck
   - management-cluster
+  - os
   - permissions
   - pinniped-auth
   - plugin
@@ -25,7 +27,6 @@ nouns:
   - repo
   - workspace
 verbs:
-  - available-upgrades
   - clean
   - completion
   - create
@@ -37,7 +38,6 @@ verbs:
   - init
   - install
   - list
-  - os
   - register
   - scale
   - show
