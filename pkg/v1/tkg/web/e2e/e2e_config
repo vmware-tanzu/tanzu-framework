@@ -4,8 +4,8 @@ export MC_NAME=mgmt-vsphere-e2e
 export CONTROL_PLANE_TYPE=dev
 
 export VCIP=vsphere.local
-export DEFAULT_VC_USER=admin@vsphere.local
-export DEFAULT_VC_PASSWORD=VMware123!
+export DEFAULT_VC_USER=administrator
+export DEFAULT_VC_PASSWORD=password
 export DEFAULT_SSH_KEY=123457892342134
 export DEFAULT_VC_DATACENTER=/SDDC-Datacenter/dc-1
 export DEFAULT_VC_MC_TYPE=large

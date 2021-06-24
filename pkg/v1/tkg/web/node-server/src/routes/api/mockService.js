@@ -77,9 +77,9 @@ router.get(`${ENDPOINT}/edition`, (req, res) => {
  */
 router.post(`${ENDPOINT}/avi`, (req, res) => {
     winston.info('Mock TKG UI CONNECT AVI CONTROLLER API');
-    if ((req.body.host === 'avi.local' || req.body.host === '192.168.1.1') &&
+    if ((req.body.host === 'avi.local') &&
         (req.body.username === 'administrator' || req.body.username === 'admin') &&
-        (req.body.password === 'VMware123!' || req.body.password === 'Admin!23')) {
+        (req.body.password === 'password')) {
         res.status(200);
         res.json({});
     } else {
@@ -191,9 +191,9 @@ router.get(`${ENDPOINT}/avi/vipnetworks`, (req, res) => {
  */
 router.post(`${ENDPOINT}/providers/vsphere`, (req, res) => {
     winston.info('Mock TKG UI CONNECT VC API');
-    if ((req.body.host === 'vsphere.local' || req.body.host === '192.168.111.36') &&
-        (req.body.username === 'admin@vsphere.local' || req.body.username === 'administrator@vsphere.local') &&
-        (req.body.password === 'VMware123!' || req.body.password === 'Admin!23')) {
+    if ((req.body.host === 'vsphere.local') &&
+        (req.body.username === 'admin' || req.body.username === 'administrator') &&
+        (req.body.password === 'password')) {
         res.status(200);
         res.json({
             "version": "6.7.0:14367737",

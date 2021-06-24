@@ -141,9 +141,9 @@
                 <app-os-image-step [formGroup]="form.controls.osImageForm"
                     formName="osimages" [wizardFormService]="wizardFormService" type="VSPHERE"
                     [tkrVersion]="(tkrVersion | async)"
-                    [noImageAlertMessage]="'Your ' + clusterType + ' cluster will be deployed with TanzuKubernetesRelease ' + (tkrVersion | async) + '.
-                                    We are unable to detect a VM template that belongs to this TanzuKubernetesRelease. You must install
-                                    a VM template that belongs to TanzuKubernetesRelease ' +  (tkrVersion | async) + ' to continue with deployment of
+                    [noImageAlertMessage]="'Your ' + clusterType + ' cluster will be deployed with Tanzu Kubernetes release (TKr) ' + (tkrVersion | async) + '.
+                                    We are unable to detect a VM template that belongs to this Tanzu Kubernetes release. You must install
+                                    a VM template that belongs to Tanzu Kubernetes release ' +  (tkrVersion | async) + ' to continue with deployment of
                                     the ' + clusterType + ' cluster. You may click the refresh icon to reload the OS image list once the
                                     appropriate VM template has been installed.'"
                     osImageTooltipContent="Select a VM template for a base OS image that you have already imported
