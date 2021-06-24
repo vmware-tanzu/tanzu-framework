@@ -20,7 +20,7 @@ import (
 // GetClusterConfiguration gets cluster configuration
 func (c *TkgClient) GetClusterConfiguration(options *CreateClusterOptions) ([]byte, error) { // nolint:gocyclo
 	// check if user provided both infra provider name and version, so that user doesn't have to
-	// have a regional cluster created before he generates work load cluster config, else follow the usual path
+	// have a management cluster created before he generates work load cluster config, else follow the usual path
 	if options.ProviderRepositorySource.InfrastructureProvider != "" {
 		provider, version, err := ParseProviderName(options.ProviderRepositorySource.InfrastructureProvider)
 		if err != nil {

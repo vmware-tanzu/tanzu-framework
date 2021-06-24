@@ -12,7 +12,7 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/clusterclient"
 )
 
-// GetTanzuKubernetesReleases returns TKR list
+// GetTanzuKubernetesReleases returns TKr list
 func (c *TkgClient) GetTanzuKubernetesReleases(tkrName string) ([]runv1alpha1.TanzuKubernetesRelease, error) {
 	currentRegion, err := c.GetCurrentRegionContext()
 	if err != nil {

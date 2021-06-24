@@ -40,7 +40,7 @@ var _ = Describe("Region manager", func() {
 			regions, err = manager.ListRegionContexts()
 		})
 
-		Context("When regions node does not present in tkg config yaml", func() {
+		Context("When regions node is not present in tkg config file", func() {
 			BeforeEach(func() {
 				tkgConfigPath = fakeConfigYAMLFilePath
 			})
@@ -51,12 +51,12 @@ var _ = Describe("Region manager", func() {
 			})
 		})
 
-		Context("When regions are set in tkg config path", func() {
+		Context("When regions are set in tkg config file", func() {
 			BeforeEach(func() {
 				tkgConfigPath = fakeConfig2YAMLFilePath
 			})
 
-			It("should return no regions", func() {
+			It("should return egions", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(len(regions)).To(Equal(3))
 			})
@@ -126,7 +126,7 @@ var _ = Describe("Region manager", func() {
 			err = manager.SaveRegionContext(region)
 		})
 
-		Context("when regions node does not present in tkg config file", func() {
+		Context("when regions node is not present in tkg config file", func() {
 			BeforeEach(func() {
 				tkgConfigPath = fakeConfigYAMLFilePath
 				region = RegionContext{
@@ -145,7 +145,7 @@ var _ = Describe("Region manager", func() {
 			})
 		})
 
-		Context("when a region with the same cluster name and context name has already existed", func() {
+		Context("when a region with the same cluster name and context name already exists", func() {
 			BeforeEach(func() {
 				tkgConfigPath = fakeConfig2YAMLFilePath
 				region = RegionContext{
@@ -182,7 +182,7 @@ var _ = Describe("Region manager", func() {
 			err = manager.UpsertRegionContext(region)
 		})
 
-		Context("when regions node does not present in tkg config file", func() {
+		Context("when regions node is not present in tkg config file", func() {
 			BeforeEach(func() {
 				tkgConfigPath = fakeConfigYAMLFilePath
 				region = RegionContext{
@@ -201,7 +201,7 @@ var _ = Describe("Region manager", func() {
 			})
 		})
 
-		Context("when a region with the same cluster name and context name already exist", func() {
+		Context("when a region with the same cluster name and context name already exists", func() {
 			BeforeEach(func() {
 				tkgConfigPath = fakeConfig2YAMLFilePath
 				region = RegionContext{
@@ -265,7 +265,7 @@ var _ = Describe("Region manager", func() {
 			})
 		})
 
-		Context("When current-region-context key presents without value", func() {
+		Context("When current-region-context key has no value", func() {
 			BeforeEach(func() {
 				tkgConfigPath = "../fakes/config/config3.yaml"
 				clusterName = RegionalCluster2
@@ -295,7 +295,7 @@ var _ = Describe("Region manager", func() {
 			})
 		})
 
-		Context("When context in tkg config file", func() {
+		Context("When context is present in tkg config file", func() {
 			BeforeEach(func() {
 				tkgConfigPath = fakeConfig2YAMLFilePath
 				clusterName = RegionalCluster2
@@ -323,7 +323,7 @@ var _ = Describe("Region manager", func() {
 			Expect(err).ToNot(HaveOccurred())
 			regionContext, err = manager.GetCurrentContext()
 		})
-		Context("When current context is not set in tkg file", func() {
+		Context("When current context is not set in tkg config file", func() {
 			BeforeEach(func() {
 				tkgConfigPath = fakeConfigYAMLFilePath
 			})
@@ -333,7 +333,7 @@ var _ = Describe("Region manager", func() {
 			})
 		})
 
-		Context("When current context is set in tkg file", func() {
+		Context("When current context is set in tkg config file", func() {
 			BeforeEach(func() {
 				tkgConfigPath = fakeConfig2YAMLFilePath
 			})

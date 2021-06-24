@@ -21,7 +21,7 @@ import (
 
 var (
 	testingDir string
-	_          = Describe("Unit tests for bom client", func() {
+	_          = Describe("Unit tests for BOM client", func() {
 		var (
 			bomClient         tkgconfigbom.Client
 			fakeRegistry      *fakes.Registry
@@ -99,21 +99,21 @@ var (
 				})
 			})
 
-			Context("when downloading the TKG BOM file is success but fails to download TKR BOM file", func() {
+			Context("when downloading the TKG BOM file is success but fails to download TKr BOM file", func() {
 				BeforeEach(func() {
 					data, err := os.ReadFile("../fakes/config/bom/tkg-bom-v1.3.1.yaml")
 					Expect(err).ToNot(HaveOccurred())
 					fakeRegistry.GetFileReturnsOnCall(0, data, nil)
-					fakeRegistry.GetFileReturnsOnCall(1, nil, errors.New("fake GetFile error for TKR BOM file"))
+					fakeRegistry.GetFileReturnsOnCall(1, nil, errors.New("fake GetFile error for TKr BOM file"))
 				})
 				It("should return an error", func() {
 					err := bomClient.DownloadDefaultBOMFilesFromRegistry(fakeRegistry)
 					Expect(err).To(HaveOccurred())
 					Expect(err.Error()).To(ContainSubstring("failed to download the BOM file from image name"))
-					Expect(err.Error()).To(ContainSubstring("fake GetFile error for TKR BOM file"))
+					Expect(err.Error()).To(ContainSubstring("fake GetFile error for TKr BOM file"))
 				})
 			})
-			Context("when downloading the TKG BOM file and TKR BOM file is success ", func() {
+			Context("when downloading the TKG BOM file and TKr BOM file is success ", func() {
 				BeforeEach(func() {
 					tkgdata, err := os.ReadFile("../fakes/config/bom/tkg-bom-v1.3.1.yaml")
 					Expect(err).ToNot(HaveOccurred())
@@ -128,7 +128,7 @@ var (
 				})
 			})
 		})
-		Context("When getting BOMConfiguration from TKR version", func() {
+		Context("When getting BOMConfiguration from TKr version", func() {
 			var (
 				tkrVersion       string
 				bomConfiguration *tkgconfigbom.BOMConfiguration

@@ -8,7 +8,7 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/models"
 )
 
-// Client ldap client
+// Client is a LDAP client interface
 type Client interface {
 	LdapConnect(params *models.LdapParams) (*models.LdapTestResult, error)
 	LdapBind() (*models.LdapTestResult, error)

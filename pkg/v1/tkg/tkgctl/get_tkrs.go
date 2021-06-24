@@ -5,7 +5,7 @@ package tkgctl
 
 import runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
 
-// GetClusters returns list of cluster
+// GetTanzuKubernetesReleases returns the available TanzuKubernetesReleases
 func (t *tkgctl) GetTanzuKubernetesReleases(tkrName string) ([]runv1alpha1.TanzuKubernetesRelease, error) {
 	tkrs, err := t.tkgClient.GetTanzuKubernetesReleases(tkrName)
 	if err != nil {

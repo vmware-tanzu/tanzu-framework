@@ -22,7 +22,7 @@ type imageForConfigFile struct {
 func (c *client) EnsureImages(needUpdate bool, tkgConfigNode *yaml.Node) error {
 	imageIndex := GetNodeIndex(tkgConfigNode.Content[0].Content, constants.ImagesConfigKey)
 
-	// Always update the image section to handle users using different BOM files.
+	// Always update the image section to handle users using different BOM files. //-x clean up?
 	// if imageIndex != -1 && !needUpdate {
 	// 	return nil
 	// }

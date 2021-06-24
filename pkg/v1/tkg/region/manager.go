@@ -181,7 +181,7 @@ func (m *manager) UpsertRegionContext(region RegionContext) error {
 	return nil
 }
 
-// DeleteRegionContext deletes a regional cluster data from tkg config file
+// DeleteRegionContext deletes a management cluster data from tkg config file
 func (m *manager) DeleteRegionContext(clusterName string) error {
 	tkgConfigNode, err := m.loadTkgConfig()
 	if err != nil {
@@ -231,7 +231,7 @@ func (m *manager) DeleteRegionContext(clusterName string) error {
 	return nil
 }
 
-// GetRegionContext gets a regional cluster info by cluster name, contextName is an optional parameter
+// GetRegionContext gets a management cluster info by cluster name, contextName is an optional parameter
 func (m *manager) getRegionContext(clusterName, contextName string) (RegionContext, error) {
 	regions, err := m.ListRegionContexts()
 	if err != nil {
@@ -265,7 +265,7 @@ func (m *manager) getRegionContext(clusterName, contextName string) (RegionConte
 	return RegionContext{}, errors.Errorf("multiple contexts are found for cluster %s, please specify a context name", clusterName)
 }
 
-// SetCurrentContext sets current regional cluster context into tkg config file
+// SetCurrentContext sets current management cluster context into tkg config file
 func (m *manager) SetCurrentContext(clusterName, contextName string) error {
 	region, err := m.getRegionContext(clusterName, contextName)
 	if err != nil {

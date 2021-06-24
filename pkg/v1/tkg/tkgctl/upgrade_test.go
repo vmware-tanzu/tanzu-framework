@@ -56,7 +56,7 @@ var _ = Describe("Unit tests for upgrade management cluster", func() {
 		err = ctl.UpgradeRegion(ops)
 	})
 
-	Context("when cannot get default tkrbom", func() {
+	Context("when cannot get default tkr bom", func() {
 		BeforeEach(func() {
 			bomClient.GetDefaultTkrBOMConfigurationReturns(nil, errors.New("unable to get default tkr bom"))
 		})

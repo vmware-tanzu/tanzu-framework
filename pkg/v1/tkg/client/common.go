@@ -119,8 +119,8 @@ func getKubectlVersion() (string, error) { //nolint
 
 // ValidatePrerequisites validate docker and kubectl commands
 func (c *TkgClient) ValidatePrerequisites(validateDocker, validateKubectl bool) error {
-	// Note: Kind cluster also support podman apart from docker, however in tkg-cli we are ensuring the docker provider,
-	// so if we decide to support podman in future we need to change this method.
+	// Note: Kind cluster also support podman apart from docker, so if we decide
+	// to support podman in future we need to change this method.
 	if validateDocker {
 		if err := c.validateDockerPrerequisites(); err != nil {
 			return errors.Wrap(err, "docker prerequisites validation failed")

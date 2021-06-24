@@ -106,7 +106,7 @@ func (c *client) GetDefaultK8sVersion() (string, error) {
 	return GetK8sVersionFromTkrBoM(tkrBoMConfig)
 }
 
-// GetK8sVersionFromTkrVersion returns k8s version from TKR version
+// GetK8sVersionFromTkrVersion returns k8s version from TKr version
 func (c *client) GetK8sVersionFromTkrVersion(tkrVersion string) (string, error) {
 	tkrBoMConfig, err := c.GetBOMConfigurationFromTkrVersion(tkrVersion)
 	if err != nil {
@@ -148,14 +148,14 @@ func (c *client) GetDefaultTKGReleaseVersion() (string, error) {
 	return bomConfig.Release.Version, nil
 }
 
-// GetDefaultTKRVersion return default TKR version from default TKG BOM file
+// GetDefaultTKRVersion return default TKr version from default TKG BOM file
 func (c *client) GetDefaultTKRVersion() (string, error) {
 	bomConfig, err := c.GetDefaultTkgBOMConfiguration()
 	if err != nil {
 		return "", errors.Wrap(err, "unable to read default bom file")
 	}
 	if bomConfig.Default == nil || bomConfig.Default.TKRVersion == "" {
-		return "", errors.New("no TKR version information present in default BoM file")
+		return "", errors.New("no TKr version information present in default BoM file")
 	}
 	return bomConfig.Default.TKRVersion, nil
 }
@@ -196,7 +196,7 @@ func (c *client) loadBOMConfigurationFromFiledata(data []byte) (*BOMConfiguratio
 		bomConfiguration.ProvidersVersionMap["infrastructure-vsphere"] = getSimpleVersion(bomConfiguration.Components["cluster_api_vsphere"][0].Version)
 		bomConfiguration.ProvidersVersionMap["infrastructure-azure"] = getSimpleVersion(bomConfiguration.Components["cluster-api-provider-azure"][0].Version)
 		bomConfiguration.ProvidersVersionMap["infrastructure-tkg-service-vsphere"] = "v1.0.0"
-	} else { // TKR BOM
+	} else { // TKr BOM
 		if errDevRepository == nil && bomConfiguration.ImageConfig.ImageRepository == devRepository {
 			bomConfiguration.KubeadmConfigSpec.ImageRepository = bomConfiguration.ImageConfig.ImageRepository
 			bomConfiguration.KubeadmConfigSpec.DNS.ImageRepository = bomConfiguration.ImageConfig.ImageRepository
@@ -362,7 +362,7 @@ func (c *client) GetCustomRepository() (string, error) {
 	return c.TKGConfigReaderWriter().Get(constants.ConfigVariableCustomImageRepository)
 }
 
-// GetK8sVersionFromTkrBoM returns k8s version from TKR BoM file
+// GetK8sVersionFromTkrBoM returns k8s version from TKr BoM file
 func GetK8sVersionFromTkrBoM(bomConfig *BOMConfiguration) (string, error) {
 	if bomConfig == nil {
 		return "", errors.New("invalid BoM configuration")
@@ -376,7 +376,7 @@ func GetK8sVersionFromTkrBoM(bomConfig *BOMConfiguration) (string, error) {
 	return "", errors.New("no kubernetes component found in TKr BOM")
 }
 
-// GetTKRBOMImageTagNameFromTKRVersion returns TKR BOM InageTag Name from TKR Version
+// GetTKRBOMImageTagNameFromTKRVersion returns TKr BOM InageTag Name from TKr Version
 func GetTKRBOMImageTagNameFromTKRVersion(tkrVersion string) string {
 	return strings.ReplaceAll(tkrVersion, "+", "_")
 }
@@ -426,7 +426,7 @@ func (c *client) DownloadDefaultBOMFilesFromRegistry(bomRegistry registry.Regist
 		return errors.Wrap(err, "failed to get BOM configuration from the BOM content downloaded from the registry")
 	}
 
-	// get the TKR BOM Image tag name from the downloaded TKG BOM file
+	// get the TKr BOM Image tag name from the downloaded TKG BOM file
 	if bomConfiguration.Default == nil || bomConfiguration.Default.TKRVersion == "" {
 		return errors.New("failed to read kubernetes version from the BOM file downloaded from the registry")
 	}

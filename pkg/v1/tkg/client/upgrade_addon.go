@@ -57,7 +57,7 @@ func (c *TkgClient) UpgradeAddon(options *UpgradeAddonOptions) error {
 		return errors.Wrap(err, "addons upgrade for 'Tanzu Kubernetes Cluster service for vSphere' management cluster is not yet supported")
 	}
 
-	// get the regional cluster name and namespace in case of regional cluster upgrade
+	// get the management cluster name and namespace in case of management cluster upgrade
 	if options.IsRegionalCluster {
 		clusterName, namespace, err := c.getRegionalClusterNameAndNamespace(regionalClusterClient)
 		if err != nil {

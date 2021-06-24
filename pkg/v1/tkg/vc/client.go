@@ -486,7 +486,7 @@ func (c *DefaultClient) GetVirtualMachines(ctx context.Context, datacenterMOID s
 	return results, nil
 }
 
-// getImportedCapvVirtualMachinesTemplates gets imported virtual machine images used for tkg
+// getImportedVirtualMachinesImages gets imported virtual machine images used for tkg
 func (c *DefaultClient) getImportedVirtualMachinesImages(ctx context.Context, datacenterMOID string) ([]mo.VirtualMachine, error) {
 	if c.vmomiClient == nil {
 		return nil, fmt.Errorf("uninitialized vmomi client")

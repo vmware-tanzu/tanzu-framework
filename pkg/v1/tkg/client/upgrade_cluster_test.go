@@ -177,7 +177,7 @@ var _ = Describe("Unit tests for upgrade cluster", func() {
 				Expect(err.Error()).To(ContainSubstring("attempted to upgrade kubernetes from v1.18.5+vmware.1 to v1.18.0+vmware.1. Kubernetes version downgrade is not allowed."))
 			})
 		})
-		Context("When KCP object retrival fails from regional cluster", func() {
+		Context("When KCP object retrival fails from management cluster", func() {
 			BeforeEach(func() {
 				regionalClusterClient.GetKCPObjectForClusterReturns(nil, errors.New("fake-error"))
 			})

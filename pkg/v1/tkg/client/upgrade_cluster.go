@@ -96,7 +96,7 @@ type clusterUpgradeInfo struct {
 	UpgradeState upgradeStatus
 }
 
-// UpgradeCluster upgrades workload and regional clusters k8s version
+// UpgradeCluster upgrades workload and management clusters k8s version
 // Steps:
 // 1. Verify k8s version
 // 2. Get the Upgrade configuration by reading BOM file to get the ImageTag and ImageRepository information for CoreDNS and Etcd,
@@ -131,7 +131,7 @@ func (c *TkgClient) UpgradeCluster(options *UpgradeClusterOptions) error { // no
 		return c.DoPacificClusterUpgrade(regionalClusterClient, options)
 	}
 
-	// get the regional cluster name and namespace in case of regional cluster upgrade
+	// get the management cluster name and namespace in case of management cluster upgrade
 	if options.IsRegionalCluster {
 		clusterName, namespace, err := c.getRegionalClusterNameAndNamespace(regionalClusterClient)
 		if err != nil {

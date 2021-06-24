@@ -15,7 +15,7 @@ import (
 func (c *TkgClient) ActivateTanzuKubernetesReleases(tkrName string) error {
 	regionalClusterClient, err := c.getRegionalClusterClient()
 	if err != nil {
-		return errors.Wrap(err, "failed to get regional cluster client")
+		return errors.Wrap(err, "failed to get management cluster client")
 	}
 
 	return regionalClusterClient.ActivateTanzuKubernetesReleases(tkrName)
@@ -25,7 +25,7 @@ func (c *TkgClient) ActivateTanzuKubernetesReleases(tkrName string) error {
 func (c *TkgClient) DeactivateTanzuKubernetesReleases(tkrName string) error {
 	regionalClusterClient, err := c.getRegionalClusterClient()
 	if err != nil {
-		return errors.Wrap(err, "failed to get regional cluster client")
+		return errors.Wrap(err, "failed to get management cluster client")
 	}
 
 	return regionalClusterClient.DeactivateTanzuKubernetesReleases(tkrName)
