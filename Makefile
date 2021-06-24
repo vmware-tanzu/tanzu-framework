@@ -16,6 +16,13 @@ ifeq ($(GOHOSTOS),windows)
 	NUL = NUL
 endif
 
+ifeq ($(GOHOSTOS), linux)
+XDG_DATA_HOME := ${HOME}/.local/share
+endif
+ifeq ($(GOHOSTOS), darwin)
+XDG_DATA_HOME := "$${HOME}/Library/Application Support"
+endif
+
 # Directories
 TOOLS_DIR := $(abspath hack/tools)
 TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
@@ -80,6 +87,37 @@ ENVS := linux-amd64 windows-amd64 darwin-amd64
 
 .DEFAULT_GOAL:=help
 
+BUILD_SHA ?= $$(git describe --match=$(git rev-parse --short HEAD) --always --dirty)
+BUILD_DATE ?= $$(date -u +"%Y-%m-%d")
+BUILD_VERSION ?= $(shell git describe --tags --abbrev=0 2>$(NUL))
+ifeq ($(strip $(BUILD_VERSION)),)
+BUILD_VERSION = dev
+endif
+# BUILD_EDITION is the Tanzu Edition, the plugin should be built for.
+# Valid values for BUILD_EDITION are 'tce' and 'tkg'. Default value of BUILD_EDITION is 'tkg'.
+# TODO: Need a flexible version selector to not break plugin upgrade - https://github.com/vmware-tanzu-private/core/issues/603
+ifneq ($(BUILD_EDITION), tce)
+BUILD_EDITION = tkg
+endif
+
+LD_FLAGS = -s -w
+LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildDate=$(BUILD_DATE)'
+LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildSHA=$(BUILD_SHA)'
+LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildVersion=$(BUILD_VERSION)'
+LD_FLAGS += -X 'main.BuildEdition=$(BUILD_EDITION)'
+LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/tkg/buildinfo.IsOfficialBuild=$(IS_OFFICIAL_BUILD)'
+
+ARTIFACTS_DIR ?= ./artifacts
+
+XDG_CACHE_HOME := ${HOME}/.cache
+
+export XDG_DATA_HOME
+export XDG_CACHE_HOME
+
+## --------------------------------------
+## API/controller building and generation
+## --------------------------------------
+
 help: ## Display this help
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[0-9a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-25s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
@@ -135,44 +173,11 @@ endif
 ## --------------------------------------
 ## Tooling Binaries
 ## --------------------------------------
+
 tools: $(TOOLING_BINARIES) ## Build tooling binaries
 .PHONY: $(TOOLING_BINARIES)
 $(TOOLING_BINARIES):
 	make -C $(TOOLS_DIR) $(@F)
-
-BUILD_SHA ?= $$(git describe --match=$(git rev-parse --short HEAD) --always --dirty)
-BUILD_DATE ?= $$(date -u +"%Y-%m-%d")
-BUILD_VERSION ?= $(shell git describe --tags --abbrev=0 2>$(NUL))
-ifeq ($(strip $(BUILD_VERSION)),)
-BUILD_VERSION = dev
-endif
-# BUILD_EDITION is the Tanzu Edition, the plugin should be built for.
-# Valid values for BUILD_EDITION are 'tce' and 'tkg'. Default value of BUILD_EDITION is 'tkg'.
-# TODO: Need a flexible version selector to not break plugin upgrade - https://github.com/vmware-tanzu-private/core/issues/603
-ifneq ($(BUILD_EDITION), tce)
-BUILD_EDITION = tkg
-endif
-
-LD_FLAGS = -s -w
-LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildDate=$(BUILD_DATE)'
-LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildSHA=$(BUILD_SHA)'
-LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildVersion=$(BUILD_VERSION)'
-LD_FLAGS += -X 'main.BuildEdition=$(BUILD_EDITION)'
-LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/tkg/buildinfo.IsOfficialBuild=$(IS_OFFICIAL_BUILD)'
-
-ARTIFACTS_DIR ?= ./artifacts
-
-ifeq ($(GOHOSTOS), linux)
-XDG_DATA_HOME := ${HOME}/.local/share
-endif
-ifeq ($(GOHOSTOS), darwin)
-XDG_DATA_HOME := "$${HOME}/Library/Application Support"
-endif
-
-XDG_CACHE_HOME := ${HOME}/.cache
-
-export XDG_DATA_HOME
-export XDG_CACHE_HOME
 
 ## --------------------------------------
 ## Version
@@ -229,31 +234,26 @@ build-cli-%: prep-build-cli
 	./hack/embed-pinniped-binary.sh go ${OS} ${ARCH}
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --corepath "cmd/cli/tanzu" --artifacts artifacts/${OS}/${ARCH}/cli --target  ${OS}_${ARCH}
 
+## --------------------------------------
+## Build locally
+## --------------------------------------
+
 .PHONY: build-cli-local
 build-cli-local: build-cli-${GOHOSTOS}-${GOHOSTARCH} ## Build Tanzu CLI locally
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin/${GOHOSTOS}/${GOHOSTARCH}/cli --target local
+
+.PHONY: build-install-cli-local
+build-install-cli-local: clean-catalog-cache clean-cli-plugins build-cli-local install-cli-plugins install-cli ## Local build and install the CLI plugins
+
+## --------------------------------------
+## manage cli mocks
+## --------------------------------------
 
 .PHONY: build-cli-mocks
 build-cli-mocks: ## Build Tanzu CLI mocks
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version 0.0.1 --ldflags "$(LD_FLAGS)" --path ./test/cli/mock/plugin-old --artifacts ./test/cli/mock/artifacts-old
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version 0.0.2 --ldflags "$(LD_FLAGS)" --path ./test/cli/mock/plugin-new --artifacts ./test/cli/mock/artifacts-new
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version 0.0.3 --ldflags "$(LD_FLAGS)" --path ./test/cli/mock/plugin-alt --artifacts ./test/cli/mock/artifacts-alt
-
-.PHONY: build-cli-image
-build-cli-image: ## Build the CLI image
-	docker build -t projects.registry.vmware.com/tanzu/cli:latest -f Dockerfile.cli .
-
-.PHONY: build-install-cli-all ## Build and install the CLI plugins
-build-install-cli-all: clean-catalog-cache clean-cli-plugins build-cli install-cli-plugins install-cli ## Build and install Tanzu CLI plugins
-
-.PHONY: build-install-cli-local
-build-install-cli-local: clean-catalog-cache clean-cli-plugins build-cli-local install-cli-plugins install-cli ## Local build and install the CLI plugins
-
-# This target is added as some tests still relies on tkg cli.
-# TODO: Remove this target when all tests are migrated to use tanzu cli
-.PHONY: tkg-cli ## Builds tkg-cli binary
-tkg-cli: configure-bom prep-build-cli ## Build tkg CLI binary only, and without rebuilding ui bits
-	GO111MODULE=on $(GO) build -o $(BIN_DIR)/tkg-${GOHOSTOS}-${GOHOSTARCH} -ldflags "${LD_FLAGS}" cmd/cli/tkg/main.go
 
 ## --------------------------------------
 ## install binaries and plugins
@@ -278,6 +278,19 @@ install-cli-plugins: set-unstable-versions  ## Install Tanzu CLI plugins
 .PHONY: set-unstable-versions
 set-unstable-versions:  ## Configures the unstable versions
 	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go config set unstable-versions $(TANZU_PLUGIN_UNSTABLE_VERSIONS)
+
+.PHONY: build-install-cli-all ## Build and install the CLI plugins
+build-install-cli-all: clean-catalog-cache clean-cli-plugins build-cli install-cli-plugins install-cli ## Build and install Tanzu CLI plugins
+
+# This target is added as some tests still relies on tkg cli.
+# TODO: Remove this target when all tests are migrated to use tanzu cli
+.PHONY: tkg-cli ## Builds tkg-cli binary
+tkg-cli: configure-bom prep-build-cli ## Build tkg CLI binary only, and without rebuilding ui bits
+	GO111MODULE=on $(GO) build -o $(BIN_DIR)/tkg-${GOHOSTOS}-${GOHOSTARCH} -ldflags "${LD_FLAGS}" cmd/cli/tkg/main.go
+
+.PHONY: build-cli-image
+build-cli-image: ## Build the CLI image
+	docker build -t projects.registry.vmware.com/tanzu/cli:latest -f Dockerfile.cli .
 
 ## --------------------------------------
 ## Release binaries
@@ -421,6 +434,7 @@ generate-ui-swagger-api: ## Generate swagger files for UI backend
 ## --------------------------------------
 ## Provider templates/overlays
 ## --------------------------------------
+
 .PHONY: providers
 providers: $(GOBINDATA)
 	make -C pkg/v1/providers -f Makefile ci
@@ -433,6 +447,7 @@ clustergen:
 ## --------------------------------------
 ## TKG integration tests
 ## --------------------------------------
+
 GINKGO_NODES  ?= 1
 GINKGO_NOCOLOR ?= false
 
