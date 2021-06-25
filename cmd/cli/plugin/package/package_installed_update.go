@@ -38,7 +38,7 @@ func packageUpdate(_ *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := pkgClient.UpdatePackage(packageInstalledUpdateOp); err != nil {
+	if err := pkgClient.UpdatePackageInstall(packageInstalledUpdateOp); err != nil {
 		return err
 	}
 

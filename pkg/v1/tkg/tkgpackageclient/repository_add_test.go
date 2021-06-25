@@ -59,7 +59,7 @@ var _ = Describe("Add Repository", func() {
 		err = ctl.AddRepository(&options)
 	})
 
-	Context("failure in listing package repositories", func() {
+	Context("failure in listing package repositories due to ListPackageRepositories API error", func() {
 		BeforeEach(func() {
 			kappCtl = &fakes.KappClient{}
 			kappCtl.ListPackageRepositoriesReturns(nil, errors.New("failure in ListPackageRepositories"))
@@ -116,7 +116,7 @@ var _ = Describe("Add Repository", func() {
 		AfterEach(func() { options = opts })
 	})
 
-	Context("failure in creating package repository", func() {
+	Context("failure in creating package repository due to CreatePackageRepository API error", func() {
 		BeforeEach(func() {
 			options.RepositoryName = testSecondRepoName
 			options.RepositoryURL = testSecondRepoURL

@@ -16,7 +16,7 @@ import (
 func (p *pkgClient) GetRepository(o *tkgpackagedatamodel.RepositoryOptions) (*kappipkg.PackageRepository, error) {
 	packageRepository, err := p.kappClient.GetPackageRepository(o.RepositoryName, o.Namespace)
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf("failed to find package repository '%s'", o.RepositoryName))
+		return nil, errors.Wrap(err, fmt.Sprintf("failed to find package repository '%s' in namespace '%s'", o.RepositoryName, o.Namespace))
 	}
 	return packageRepository, nil
 }

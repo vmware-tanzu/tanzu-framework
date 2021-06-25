@@ -11,7 +11,7 @@ import (
 	kapppkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 )
 
-// GetPackage takes a package name and package version and returns the corresponding Package and PackageVersion
+// GetPackage takes a package name and package version and returns the corresponding PackageMetadata and Package.
 // If the resolution is unsuccessful, an error is returned.
 func (p *pkgClient) GetPackage(pkgName, pkgVersion, namespace string) (*kapppkg.PackageMetadata, *kapppkg.Package, error) {
 	var (
@@ -20,7 +20,7 @@ func (p *pkgClient) GetPackage(pkgName, pkgVersion, namespace string) (*kapppkg.
 	)
 
 	if resolvedPackage, err = p.kappClient.GetPackageMetadataByName(pkgName, namespace); err != nil {
-		return nil, nil, errors.Wrap(err, "failed to find a package with the specified name")
+		return nil, nil, errors.Wrapf(err, "failed to find a package with name '%s'", pkgName)
 	}
 
 	packageVersions, err := p.kappClient.ListPackages(pkgName, namespace)

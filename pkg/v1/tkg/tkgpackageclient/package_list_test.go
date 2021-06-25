@@ -45,7 +45,7 @@ var _ = Describe("List Packages", func() {
 		}
 	)
 
-	Context("failure in listing available packages", func() {
+	Context("failure in listing available packages due to ListPackageMetadata API error", func() {
 		BeforeEach(func() {
 			options.Available = true
 			kappCtl = &fakes.KappClient{}
@@ -77,7 +77,7 @@ var _ = Describe("List Packages", func() {
 		AfterEach(func() { options = opts })
 	})
 
-	Context("failure in listing installed packages", func() {
+	Context("failure in listing installed packages due to ListPackageInstalls API error", func() {
 		BeforeEach(func() {
 			options.ListInstalled = true
 			kappCtl = &fakes.KappClient{}
@@ -109,7 +109,7 @@ var _ = Describe("List Packages", func() {
 		AfterEach(func() { options = opts })
 	})
 
-	Context("failure in listing package versions", func() {
+	Context("failure in listing package versions due to ListPackages API error", func() {
 		BeforeEach(func() {
 			options.Available = true
 			options.PackageName = testPkgInstallName

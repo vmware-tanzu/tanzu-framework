@@ -63,7 +63,7 @@ var _ = Describe("Uninstall Package", func() {
 		found, err = ctl.UninstallPackage(&options)
 	})
 
-	Context("failure in getting installed packages", func() {
+	Context("failure in getting installed packages due to GetPackageInstall API error", func() {
 		BeforeEach(func() {
 			kappCtl = &fakes.KappClient{}
 			kappCtl.GetPackageInstallReturns(nil, errors.New("failure in GetPackageInstall"))

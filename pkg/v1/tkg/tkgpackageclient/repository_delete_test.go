@@ -30,7 +30,7 @@ var _ = Describe("Delete Repository", func() {
 		found, err = ctl.DeleteRepository(&options)
 	})
 
-	Context("failure in deleting the package repository", func() {
+	Context("failure in deleting the package repository due to DeletePackageRepository API error", func() {
 		BeforeEach(func() {
 			kappCtl = &fakes.KappClient{}
 			kappCtl.GetPackageRepositoryReturns(testRepository, nil)

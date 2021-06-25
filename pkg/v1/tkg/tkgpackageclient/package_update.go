@@ -12,13 +12,13 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
-func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageInstalledOptions) error {
-	pkg, err := p.kappClient.GetPackageInstall(o.PkgInstallName, o.Namespace)
+func (p *pkgClient) UpdatePackageInstall(o *tkgpackagedatamodel.PackageInstalledOptions) error {
+	pkgInstall, err := p.kappClient.GetPackageInstall(o.PkgInstallName, o.Namespace)
 	if err != nil && !k8serror.IsNotFound(err) {
 		return err
 	}
 
-	if pkg == nil {
+	if pkgInstall == nil {
 		// package is not installed yet and install flag is present, install the package
 		if o.Install {
 			if o.PackageName == "" {
@@ -33,18 +33,19 @@ func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageInstalledOptions
 	}
 
 	// update installed package with a different version
-	if o.Version != pkg.Status.Version {
+	if o.Version != pkgInstall.Status.Version {
 		// check if user provided version is valid
-		if _, _, err := p.GetPackage(pkg.Spec.PackageRef.RefName, o.Version, o.Namespace); err != nil {
+		if _, _, err := p.GetPackage(pkgInstall.Spec.PackageRef.RefName, o.Version, o.Namespace); err != nil {
 			return err
 		}
 
-		if pkg.Spec.PackageRef == nil || pkg.Spec.PackageRef.VersionSelection == nil {
+		if pkgInstall.Spec.PackageRef == nil || pkgInstall.Spec.PackageRef.VersionSelection == nil {
 			return errors.New(fmt.Sprintf("failed to update package '%s'", o.PkgInstallName))
 		}
 
-		pkg.Spec.PackageRef.VersionSelection.Constraints = o.Version
-		if err = p.kappClient.UpdatePackageInstall(pkg); err != nil {
+		pkgInstallToUpdate := pkgInstall.DeepCopy()
+		pkgInstallToUpdate.Spec.PackageRef.VersionSelection.Constraints = o.Version
+		if err = p.kappClient.UpdatePackageInstall(pkgInstallToUpdate); err != nil {
 			return errors.Wrap(err, fmt.Sprintf("failed to update package '%s'", o.PkgInstallName))
 		}
 	}

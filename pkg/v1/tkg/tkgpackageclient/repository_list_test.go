@@ -38,7 +38,7 @@ var _ = Describe("List Repositories", func() {
 		repositories, err = ctl.ListRepositories(&options)
 	})
 
-	Context("failure in listing package repositories", func() {
+	Context("failure in listing package repositories due to ListPackageRepositories API error", func() {
 		BeforeEach(func() {
 			kappCtl = &fakes.KappClient{}
 			kappCtl.ListPackageRepositoriesReturns(nil, errors.New("failure in ListPackageRepositories"))

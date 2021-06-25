@@ -93,7 +93,7 @@ var _ = Describe("Install Package", func() {
 		err = ctl.InstallPackage(&options)
 	})
 
-	Context("failure in listing package versions", func() {
+	Context("failure in listing package versions due to ListPackages API error", func() {
 		BeforeEach(func() {
 			kappCtl = &fakes.KappClient{}
 			kappCtl.ListPackagesReturns(nil, errors.New("failure in ListPackages"))
@@ -167,7 +167,7 @@ var _ = Describe("Install Package", func() {
 		AfterEach(func() { options = opts })
 	})
 
-	Context("failure in getting installed package", func() {
+	Context("failure in getting installed package due to GetPackageInstall API error in waitForPackageInstallation", func() {
 		BeforeEach(func() {
 			options.Wait = true
 			kappCtl = &fakes.KappClient{}
@@ -236,7 +236,7 @@ var _ = Describe("Install Package", func() {
 		AfterEach(func() { options = opts })
 	})
 
-	Context("success in installing the package with wait flag being set", func() {
+	Context("success in installing the package with a successful reconciliation (Wait flag being set)", func() {
 		BeforeEach(func() {
 			options.Wait = true
 			kappCtl = &fakes.KappClient{}

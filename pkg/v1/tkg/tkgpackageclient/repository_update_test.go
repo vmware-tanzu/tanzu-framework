@@ -38,7 +38,7 @@ var _ = Describe("Update Repository", func() {
 		err = ctl.UpdateRepository(&options)
 	})
 
-	Context("failure in getting the package repository", func() {
+	Context("failure in getting the package repository due to GetPackageRepository API error", func() {
 		BeforeEach(func() {
 			kappCtl = &fakes.KappClient{}
 			kappCtl.GetPackageRepositoryReturns(nil, errors.New("failure in GetPackageRepository"))
@@ -62,7 +62,7 @@ var _ = Describe("Update Repository", func() {
 		AfterEach(func() { options = opts })
 	})
 
-	Context("failure in adding package repository", func() {
+	Context("failure in adding package repository as a repository with the same OCI registry URL already exists", func() {
 		BeforeEach(func() {
 			options.CreateRepository = true
 			options.RepositoryName = testSecondRepoName
@@ -77,7 +77,7 @@ var _ = Describe("Update Repository", func() {
 		AfterEach(func() { options = opts })
 	})
 
-	Context("failure in updating package repository", func() {
+	Context("failure in updating package repository due to UpdatePackageRepository API error", func() {
 		BeforeEach(func() {
 			kappCtl = &fakes.KappClient{}
 			kappCtl.GetPackageRepositoryReturns(testRepository, apierrors.NewNotFound(schema.GroupResource{Resource: "Repository"}, testRepoName))
