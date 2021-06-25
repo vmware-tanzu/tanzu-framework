@@ -1433,39 +1433,47 @@ func (c *TkgClient) configureAndValidateIPFamilyConfiguration() error {
 	// ignoring error because IPFamily is an optional configuration
 	// if not set Get will return an empty string
 	ipFamily, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableIPFamily)
+	if ipFamily == "" {
+		ipFamily = constants.IPv4Family
+	}
 
 	serviceCIDR, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableServiceCIDR)
 	clusterCIDR, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterCIDR)
 
-	if ipFamily == constants.IPv6Family {
-		if serviceCIDR == "" {
-			c.TKGConfigReaderWriter().Set(constants.ConfigVariableServiceCIDR, constants.DefaultIPv6ServiceCIDR)
-		} else if !c.validateIPv6CIDR(serviceCIDR) {
-			return invalidCIDRError(constants.ConfigVariableServiceCIDR, serviceCIDR, ipFamily)
-		}
-		if clusterCIDR == "" {
-			c.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterCIDR, constants.DefaultIPv6ClusterCIDR)
-		} else if !c.validateIPv6CIDR(clusterCIDR) {
-			return invalidCIDRError(constants.ConfigVariableClusterCIDR, clusterCIDR, ipFamily)
-		}
-		if err := c.validateIPHostnameIsIPv6(constants.TKGHTTPProxy); err != nil {
-			return err
-		}
-		if err := c.validateIPHostnameIsIPv6(constants.TKGHTTPSProxy); err != nil {
-			return err
-		}
-	} else { // For cases when TKG_IP_FAMILY is empty or ipv4
-		if serviceCIDR == "" {
-			c.TKGConfigReaderWriter().Set(constants.ConfigVariableServiceCIDR, constants.DefaultIPv4ServiceCIDR)
-		}
-		if clusterCIDR == "" {
-			c.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterCIDR, constants.DefaultIPv4ClusterCIDR)
-		}
+	if serviceCIDR == "" {
+		c.TKGConfigReaderWriter().Set(constants.ConfigVariableServiceCIDR, c.defaultServiceCIDR(ipFamily))
+	} else if !c.validateCIDRForIPFamily(serviceCIDR, ipFamily) {
+		return invalidCIDRError(constants.ConfigVariableServiceCIDR, serviceCIDR, ipFamily)
+	}
+	if clusterCIDR == "" {
+		c.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterCIDR, c.defaultClusterCIDR(ipFamily))
+	} else if !c.validateCIDRForIPFamily(clusterCIDR, ipFamily) {
+		return invalidCIDRError(constants.ConfigVariableClusterCIDR, clusterCIDR, ipFamily)
+	}
+	if err := c.validateIPHostnameForIPFamily(constants.TKGHTTPProxy, ipFamily); err != nil {
+		return err
+	}
+	if err := c.validateIPHostnameForIPFamily(constants.TKGHTTPSProxy, ipFamily); err != nil {
+		return err
 	}
 	return nil
 }
 
-func (c *TkgClient) validateIPHostnameIsIPv6(configKey string) error {
+func (c *TkgClient) defaultClusterCIDR(ipFamily string) string {
+	if ipFamily == constants.IPv6Family {
+		return constants.DefaultIPv6ClusterCIDR
+	}
+	return constants.DefaultIPv4ClusterCIDR
+}
+
+func (c *TkgClient) defaultServiceCIDR(ipFamily string) string {
+	if ipFamily == constants.IPv6Family {
+		return constants.DefaultIPv6ServiceCIDR
+	}
+	return constants.DefaultIPv4ServiceCIDR
+}
+
+func (c *TkgClient) validateIPHostnameForIPFamily(configKey, ipFamily string) error {
 	urlString, err := c.TKGConfigReaderWriter().Get(configKey)
 	if err != nil {
 		return nil
@@ -1476,28 +1484,32 @@ func (c *TkgClient) validateIPHostnameIsIPv6(configKey string) error {
 		return nil
 	}
 
-	ip := net.ParseIP(parsedURL.Host)
+	ip := net.ParseIP(parsedURL.Hostname())
 	if ip == nil {
 		return nil
 	}
 
-	if ip.To4() != nil {
-		return errors.Errorf("invalid %s \"%s\", expected to be an address of type \"ipv6\" (%s)",
-			configKey, urlString, constants.ConfigVariableIPFamily)
+	if ipFamily == constants.IPv6Family && ip.To4() == nil {
+		return nil
 	}
 
-	return nil
+	if ipFamily != constants.IPv6Family && ip.To4() != nil { // ipFamily may be "" or "ipv4"
+		return nil
+	}
+
+	return errors.Errorf("invalid %s \"%s\", expected to be an address of type \"%s\" (%s)",
+		configKey, urlString, ipFamily, constants.ConfigVariableIPFamily)
 }
 
-func (c *TkgClient) validateIPv6CIDR(cidr string) bool {
+func (c *TkgClient) validateCIDRForIPFamily(cidr, ipFamily string) bool {
 	ip, _, err := net.ParseCIDR(cidr)
 	if err != nil {
 		return false
 	}
-	if ip.To4() != nil {
-		return false
+	if ipFamily == constants.IPv6Family {
+		return ip.To4() == nil
 	}
-	return true
+	return ip.To4() != nil
 }
 
 func invalidCIDRError(configKey, cidr, ipFamily string) error {

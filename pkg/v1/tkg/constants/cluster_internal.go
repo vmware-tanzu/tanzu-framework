@@ -82,6 +82,7 @@ const (
 
 // networking constants
 const (
+	IPv4Family = "ipv4"
 	IPv6Family = "ipv6"
 
 	LocalHost     = "localhost"
