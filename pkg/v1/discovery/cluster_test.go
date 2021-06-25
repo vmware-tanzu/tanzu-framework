@@ -9,147 +9,123 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/apis/testapigroup"
+	testapigroup "k8s.io/apimachinery/pkg/apis/testapigroup/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	apitest "k8s.io/apimachinery/pkg/test"
-	fakediscovery "k8s.io/client-go/discovery/fake"
-	dynamicFake "k8s.io/client-go/dynamic/fake"
-	k8stesting "k8s.io/client-go/testing"
 )
 
-func TestClusterDiscoveryTable(t *testing.T) {
-	var mySchema = Schema("mytestschema", partialSchema)
-
-	type testCase struct {
-		queryTargets    []QueryTarget
-		discoveryClient *fakediscovery.FakeDiscovery
-		dynamicClient   *dynamicFake.FakeDynamicClient
-		err             string
-		pass            bool
-	}
-
-	var fakeTesting = &k8stesting.Fake{
-		Resources: apiResources,
-	}
-	var fakeBrokenTesting = &k8stesting.Fake{
-		Resources: []*metav1.APIResourceList{},
-	}
-	scheme, _ := apitest.TestScheme()
-
-	// Scheme with the correct data
-	var fakeClientCarp = dynamicFake.NewSimpleDynamicClient(scheme, testObjects...)
-	var discoveryClientCarp = &fakediscovery.FakeDiscovery{Fake: fakeTesting}
-
-	// Scheme without any correct data
-	var fakeClientBroken = dynamicFake.NewSimpleDynamicClient(scheme)
-	var discoveryClientBroken = &fakediscovery.FakeDiscovery{Fake: fakeBrokenTesting}
-
-	// Scheme with partially correct data
-	var fakeClientHalf = dynamicFake.NewSimpleDynamicClient(scheme, testObjects...)
-	var discoveryClientHalf = &fakediscovery.FakeDiscovery{Fake: fakeBrokenTesting}
-
-	var testTable = []testCase{
-		{
-			discoveryClient: discoveryClientCarp,
-			dynamicClient:   fakeClientCarp,
-			pass:            true,
-			queryTargets:    []QueryTarget{testGVR1, testResource1, mySchema},
-		},
-		{
-			discoveryClient: discoveryClientBroken,
-			dynamicClient:   fakeClientBroken,
-			pass:            false,
-			err:             "not found",
-			queryTargets:    []QueryTarget{testGVR1, testResource1, mySchema},
-		},
-		{
-			discoveryClient: discoveryClientHalf,
-			dynamicClient:   fakeClientHalf,
-			pass:            false,
-			err:             "not found",
-			queryTargets:    []QueryTarget{testGVR1, testResource1, mySchema},
-		},
-		{
-			discoveryClient: discoveryClientHalf,
-			dynamicClient:   fakeClientHalf,
-			pass:            true,
-			queryTargets:    []QueryTarget{},
-		},
-	}
-
-	for _, testCase := range testTable {
-		c, err := NewClusterQueryClient(testCase.dynamicClient, testCase.discoveryClient)
-		if err != nil {
-			t.Fatalf("at=new-query-client err=%q", err)
-		}
-		q := c.Query(testCase.queryTargets...).Prepare()
-
-		ok, err := q()
-		if err != nil {
-			if testCase.err == "" {
-				t.Fatalf("no error string specified but error obtained err=%q", err)
-			}
-
-			if !strings.Contains(err.Error(), testCase.err) {
-				t.Fatalf("error string doesnt match partial=%q err=%q", testCase.err, err)
-			}
-			// error expected and obtained
-			continue
-		}
-
-		if testCase.pass && !ok {
-			t.Fatal("query expected to pass but failed")
-		}
-	}
-}
-
 var carp = corev1.ObjectReference{
-	Kind:       "carp",
+	Kind:       "Carp",
 	Name:       "test14",
 	Namespace:  "testns",
-	APIVersion: "testapigroup.apimachinery.k8s.io/v1",
+	APIVersion: testapigroup.SchemeGroupVersion.String(),
 }
 
 var testAnnotations = map[string]string{
 	"cluster.x-k8s.io/provider": "infrastructure-fake",
 }
 
-var testResource1 = Object(&carp).WithAnnotations(testAnnotations) //.WithConditions(field)
+var testObject = Object(&carp).WithAnnotations(testAnnotations) // .WithConditions(field)
 
-var testGVR = testapigroup.Resource("carp").WithVersion("v1")
-
-var testGVR1 = GVR(&testGVR) //.WithFields(field)
+var testGVR = Group(testapigroup.SchemeGroupVersion.Group).WithVersions(testapigroup.SchemeGroupVersion.Version).WithResource("carps")
 
 var testObjects = []runtime.Object{
 	&testapigroup.Carp{
-		TypeMeta:   metav1.TypeMeta{Kind: "Carp", APIVersion: "v1"},
-		ObjectMeta: metav1.ObjectMeta{Name: "test14", Namespace: "testns"},
+		ObjectMeta: metav1.ObjectMeta{Name: "test14", Namespace: "testns", Annotations: testAnnotations},
 	},
 }
 
 var apiResources = []*metav1.APIResourceList{
 	{
-		GroupVersion: testGVR.GroupVersion().String(),
+		GroupVersion: testapigroup.SchemeGroupVersion.String(),
 		APIResources: []metav1.APIResource{
 			{
-				Name:    "Carps",
-				Kind:    "carp",
-				Group:   testGVR.Group,
-				Version: testGVR.Version,
+				Name:       "carps",
+				Kind:       "Carp",
+				Group:      testapigroup.SchemeGroupVersion.Group,
+				Version:    testapigroup.SchemeGroupVersion.Version,
+				Namespaced: true,
 			},
 		},
 	},
 }
 
-// There doesnt seem to be any support for fake openapiv2 response data at the moment
-var partialSchema = `{}`
-
-func FakeDiscoveryClient(t *testing.T) (*ClusterQueryClient, error) {
-	fakeTesting := &k8stesting.Fake{
-		Resources: apiResources,
-	}
-	discovery := &fakediscovery.FakeDiscovery{Fake: fakeTesting}
+func queryClientWithResourcesAndObjects() (*ClusterQueryClient, error) {
 	scheme, _ := apitest.TestScheme()
-	fakeClient := dynamicFake.NewSimpleDynamicClient(scheme, testObjects...)
-	return NewClusterQueryClient(fakeClient, discovery)
+	return NewFakeClusterQueryClient(apiResources, scheme, testObjects)
+}
+
+func queryClientWithNoResources() (*ClusterQueryClient, error) {
+	scheme, _ := apitest.TestScheme()
+	return NewFakeClusterQueryClient([]*metav1.APIResourceList{}, scheme, testObjects)
+}
+
+func queryClientWithResourcesAndNoObjects() (*ClusterQueryClient, error) {
+	scheme, _ := apitest.TestScheme()
+	return NewFakeClusterQueryClient(apiResources, scheme, []runtime.Object{})
+}
+
+func TestClusterQueries(t *testing.T) {
+	testCases := []struct {
+		description       string
+		discoveryClientFn func() (*ClusterQueryClient, error)
+		queryTargets      []QueryTarget
+		want              bool
+		err               string
+	}{
+		{
+			description:       "all queries successful",
+			discoveryClientFn: queryClientWithResourcesAndObjects,
+			queryTargets:      []QueryTarget{testGVR, testObject},
+			want:              true,
+		},
+		{
+			description:       "resource not found",
+			discoveryClientFn: queryClientWithNoResources,
+			queryTargets:      []QueryTarget{testGVR, testObject},
+			want:              false,
+			err:               "no matches for kind \"Carp\" in version \"testapigroup.apimachinery.k8s.io/v1\"",
+		},
+		{
+			description:       "resource found but not object",
+			discoveryClientFn: queryClientWithResourcesAndNoObjects,
+			queryTargets:      []QueryTarget{testGVR, testObject},
+			want:              false,
+			err:               "",
+		},
+		{
+			description:       "no query targets",
+			discoveryClientFn: queryClientWithResourcesAndObjects,
+			queryTargets:      []QueryTarget{},
+			want:              true,
+			err:               "",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			c, err := tc.discoveryClientFn()
+			if err != nil {
+				t.Error(err)
+			}
+
+			q := c.Query(tc.queryTargets...).Prepare()
+
+			got, err := q()
+			if err != nil {
+				if tc.err == "" {
+					t.Errorf("no error string specified, but got error: %v", err)
+				}
+				if !strings.Contains(err.Error(), tc.err) {
+					t.Errorf("error string=%q doesn't match partial=%q", tc.err, err)
+				}
+			} else if tc.err != "" {
+				t.Errorf("error string=%q specified but error not found", tc.err)
+			}
+
+			if got != tc.want {
+				t.Errorf("got=%t, want=%t", got, tc.want)
+			}
+		})
+	}
 }
