@@ -96,25 +96,25 @@ var _ = Describe("Unit tests for upgrade management cluster", func() {
 				})
 			})
 
-			// TODO: Need Anuj's help to fix this.
-			//Context("When current providers versions are up to date", func() {
-			//	BeforeEach(func() {
-			//		regionalClusterClient.ListResourcesCalls(func(providers interface{}, options ...crtclient.ListOption) error {
-			//			installedProviders, _ := providers.(*clusterctlv1.ProviderList)
-			//			installedProviders.Items = []clusterctlv1.Provider{
-			//				{ObjectMeta: metav1.ObjectMeta{Namespace: "capi-system", Name: "cluster-api"}, Type: "CoreProvider", Version: "v0.3.11", ProviderName: "cluster-api"},
-			//				{ObjectMeta: metav1.ObjectMeta{Namespace: "capi-kubeadm-bootstrap-system", Name: "bootstrap-kubeadm"}, Type: "BootstrapProvider", Version: "v0.3.11", ProviderName: "kubeadm"},
-			//				{ObjectMeta: metav1.ObjectMeta{Namespace: "capi-kubeadm-control-plane-system", Name: "control-plane-kubeadm"}, Type: "ControlPlaneProvider", Version: "v0.3.11", ProviderName: "kubeadm"},
-			//				{ObjectMeta: metav1.ObjectMeta{Namespace: "capv-system", Name: "infrastructure-vsphere"}, Type: "InfrastructureProvider", Version: "v0.7.1", ProviderName: "vsphere"},
-			//			}
-			//			return nil
-			//		})
-			//	})
-			//	It("should not apply the providers version upgrade", func() {
-			//		Expect(providerUpgradeClient.ApplyUpgradeCallCount()).Should(Equal(0))
-			//		Expect(err).NotTo(HaveOccurred())
-			//	})
-			//})
+			Context("When current providers versions are up to date", func() {
+				BeforeEach(func() {
+					regionalClusterClient.ListResourcesCalls(func(providers interface{}, options ...crtclient.ListOption) error {
+						installedProviders, _ := providers.(*clusterctlv1.ProviderList)
+						installedProviders.Items = []clusterctlv1.Provider{
+							{ObjectMeta: metav1.ObjectMeta{Namespace: "capi-system", Name: "cluster-api"}, Type: "CoreProvider", Version: "v0.3.11", ProviderName: "cluster-api"},
+							{ObjectMeta: metav1.ObjectMeta{Namespace: "capi-kubeadm-bootstrap-system", Name: "bootstrap-kubeadm"}, Type: "BootstrapProvider", Version: "v0.3.11", ProviderName: "kubeadm"},
+							{ObjectMeta: metav1.ObjectMeta{Namespace: "capi-kubeadm-control-plane-system", Name: "control-plane-kubeadm"}, Type: "ControlPlaneProvider", Version: "v0.3.11", ProviderName: "kubeadm"},
+							{ObjectMeta: metav1.ObjectMeta{Namespace: "capv-system", Name: "infrastructure-vsphere"}, Type: "InfrastructureProvider", Version: "v0.7.1", ProviderName: "vsphere"},
+						}
+						return nil
+					})
+				})
+				It("should not apply the providers version upgrade", func() {
+					Expect(providerUpgradeClient.ApplyUpgradeCallCount()).Should(Equal(1))
+					Expect(err).NotTo(HaveOccurred())
+				})
+			})
+
 			Context("When providers version upgrade failed", func() {
 				BeforeEach(func() {
 					regionalClusterClient.ListResourcesCalls(func(providers interface{}, options ...crtclient.ListOption) error {
