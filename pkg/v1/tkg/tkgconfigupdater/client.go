@@ -57,8 +57,6 @@ type Client interface {
 
 	GetDefaultInfrastructureVersion(providerName string) (string, error)
 
-	EnsureBOMFiles() error
-
 	EnsureProviderTemplates() error
 
 	SetDefaultConfiguration()
@@ -68,6 +66,12 @@ type Client interface {
 	// CheckBOMsNeedUpdate checks if bom files are up-to-date.
 	// returns true if $HOME/.tkg/bom directory exists, not empty and doesn't contain the defaultBoM file
 	CheckBOMsNeedUpdate() (bool, error)
+	// EnsureBOMFiles ensures the local BOM files. If forceUpdate option is set, TKG compatibility file would fetched
+	// from the registry and would update BOM files if the latest TKG compatibility file version points to new BOM files
+	EnsureBOMFiles(forceUpdate bool) error
+	// EnsureTKGCompatibilityFile ensures the TKG compatibility file. If forceUpdate option is set,TKG compatibility would fetched
+	// TKG compatibility file would fetched from the registry though local copy exists
+	EnsureTKGCompatibilityFile(forceUpdate bool) error
 
 	// EnsureCredEncoding ensures the credentials encoding
 	EnsureCredEncoding(tkgConfigNode *yaml.Node)

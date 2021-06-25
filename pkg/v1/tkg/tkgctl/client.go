@@ -71,6 +71,9 @@ type Options struct {
 	// SettingsFile should only be provided if user want to override default TKG settings file path
 	// by default `ConfigDir/config.yaml` file will be used to store tkg settings
 	SettingsFile string
+	// ForceUpdateTKGCompatibilityImage should only be provided if user want to explicitly force update
+	// TKG compatibility image which would also update the tkg-bom and tkr-bom files
+	ForceUpdateTKGCompatibilityImage bool
 }
 
 // New creates new tkgctl client
@@ -136,11 +139,17 @@ func New(options Options) (TKGClient, error) { //nolint:gocritic
 		return nil, err
 	}
 
-	// ensure BOM files are extracted if missing
-	err = ensureBoMandProvidersPrerequisite(options.ConfigDir, allClients.TKGConfigUpdaterClient)
+	// ensure BoM and Providers prerequisite files are extracted if missing
+	err = ensureBoMandProvidersPrerequisite(options.ConfigDir, allClients.TKGConfigUpdaterClient, options.ForceUpdateTKGCompatibilityImage)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to ensure prerequisites")
 	}
+	// Set default BOM name to the config variables to use during template generation
+	defaultBoMFileName, err := allClients.TKGBomClient.GetDefaultBoMFileName()
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to get default BOM file name")
+	}
+	allClients.ConfigClient.TKGConfigReaderWriter().Set(constants.ConfigVariableDefaultBomFile, defaultBoMFileName)
 
 	return &tkgctl{
 		configDir:                options.ConfigDir,
@@ -175,7 +184,7 @@ func ensureTKGConfigFile(configDir string, providerGetter providerinterface.Prov
 	return err
 }
 
-func ensureBoMandProvidersPrerequisite(configDir string, tkgConfigUpdaterClient tkgconfigupdater.Client) error {
+func ensureBoMandProvidersPrerequisite(configDir string, tkgConfigUpdaterClient tkgconfigupdater.Client, forceUpdateBoMFiles bool) error {
 	var err error
 
 	lock, err := utils.GetFileLockWithTimeOut(filepath.Join(configDir, constants.LocalTanzuFileLock), utils.DefaultLockTimeout)
@@ -188,9 +197,8 @@ func ensureBoMandProvidersPrerequisite(configDir string, tkgConfigUpdaterClient 
 			log.Warningf("cannot release lock for ensuring local files, reason: %v", err)
 		}
 	}()
-
 	// ensure BOM files are extracted if missing
-	err = tkgConfigUpdaterClient.EnsureBOMFiles()
+	err = tkgConfigUpdaterClient.EnsureBOMFiles(forceUpdateBoMFiles)
 	if err != nil {
 		return errors.Wrap(err, "unable to ensure tkg BOM file")
 	}
@@ -257,4 +265,20 @@ func ensureConfigImages(configDir string, tkgConfigUpdater tkgconfigupdater.Clie
 	}()
 
 	return tkgConfigUpdater.EnsureConfigImages()
+}
+
+func ensureTKGCompatibilityAndBOMFiles(configDir string, tkgConfigUpdaterClient tkgconfigupdater.Client, forceUpdate bool) error {
+	var err error
+	lock, err := utils.GetFileLockWithTimeOut(filepath.Join(configDir, constants.LocalTanzuFileLock), utils.DefaultLockTimeout)
+	if err != nil {
+		return errors.Wrap(err, "cannot acquire lock for ensuring local files")
+	}
+
+	defer func() {
+		if err := lock.Unlock(); err != nil {
+			log.Warningf("cannot release lock for ensuring local files, reason: %v", err)
+		}
+	}()
+	// EnsureBOMFiles() would also ensure TKGCompatibility file
+	return tkgConfigUpdaterClient.EnsureBOMFiles(forceUpdate)
 }

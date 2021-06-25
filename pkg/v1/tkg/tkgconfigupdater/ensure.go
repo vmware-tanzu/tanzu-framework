@@ -92,8 +92,51 @@ func (c *client) DecodeCredentialsInViper() error {
 	return nil
 }
 
+// EnsureTKGCompatibilityFile ensures the TKG compatibility file. If forceUpdate option is set,TKG compatibility would fetched
+// TKG compatibility file would fetched from the registry though local copy exists
+func (c *client) EnsureTKGCompatibilityFile(forceUpdate bool) error {
+	compatibilityDir, err := c.tkgConfigPathsClient.GetTKGCompatibilityDirectory()
+	if err != nil {
+		return err
+	}
+
+	if _, err := os.Stat(compatibilityDir); os.IsNotExist(err) {
+		if err = os.MkdirAll(compatibilityDir, constants.DefaultDirectoryPermissions); err != nil {
+			return errors.Wrap(err, "cannot create compatibility directory")
+		}
+	}
+
+	compatabilityFilePath, err := c.tkgConfigPathsClient.GetTKGCompatibilityConfigPath()
+	if err != nil {
+		return errors.Wrap(err, "failed to get the TKG Compatibility file path")
+	}
+	compatibilityFileExists := true
+	if _, err := os.Stat(compatabilityFilePath); os.IsNotExist(err) {
+		compatibilityFileExists = false
+	}
+
+	if compatibilityFileExists && !forceUpdate {
+		return nil
+	}
+
+	bomRegistry, err := c.tkgBomClient.InitBOMRegistry()
+	if err != nil {
+		return errors.Wrap(err, "failed to initialize the BOM registry to download default TKG compatibility file ")
+	}
+
+	err = c.tkgBomClient.DownloadTKGCompatibilityFileFromRegistry(bomRegistry)
+	if err != nil {
+		return errors.Wrap(err, "failed to download TKG compatibility file from the registry")
+	}
+	return nil
+}
+
 // EnsureBOMFiles ensures BOM files for all supported TKG versions do exist
-func (c *client) EnsureBOMFiles() error {
+func (c *client) EnsureBOMFiles(forceUpdate bool) error {
+	err := c.EnsureTKGCompatibilityFile(forceUpdate)
+	if err != nil {
+		return err
+	}
 	tkgDir, bomDir, _, err := c.tkgConfigPathsClient.GetTKGConfigDirectories()
 	if err != nil {
 		return err
@@ -116,7 +159,7 @@ func (c *client) EnsureBOMFiles() error {
 	}
 
 	// If there are existing BOM files and doesn't need update then do nothing
-	if !isBOMDirectoryEmpty && !bomsNeedUpdate {
+	if !isBOMDirectoryEmpty && !bomsNeedUpdate && !forceUpdate {
 		return nil
 	}
 
@@ -127,7 +170,7 @@ func (c *client) EnsureBOMFiles() error {
 		backupFilePath := filepath.Join(tkgDir, fmt.Sprintf("%s-%s-%s", "bom", t.Format("20060102150405"), utils.GenerateRandomID(8, true)))
 		err = os.Rename(originalPath, backupFilePath)
 		if err != nil {
-			return errors.Wrap(err, "failed to back up the original providers folder")
+			return errors.Wrap(err, "failed to back up the original BOM folder")
 		}
 		log.V(4).Infof("The old bom folder %s is backed up to %s", originalPath, backupFilePath)
 	}

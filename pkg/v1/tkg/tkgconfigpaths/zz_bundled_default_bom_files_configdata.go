@@ -10,7 +10,7 @@ package tkgconfigpaths
 // All the variables are set during build time
 // Note: Please !!DO NOT!!! change the name or remove this variable
 var (
-	TKGDefaultBOMImageRepo string = "projects-stg.registry.vmware.com/tkg"
-	TKGDefaultBOMImagePath string = "tkg-bom"
-	TKGDefaultBOMImageTag  string = "v1.4.0-zshippable"
+	TKGDefaultImageRepo               string = "projects-stg.registry.vmware.com/tkg"
+	TKGDefaultCompatibilityImagePath  string = "v1.4.0-zshippable/tkg-compatibility"
+	TKGManagementClusterPluginVersion string = "v1.4.0-pre-alpha-1"
 )

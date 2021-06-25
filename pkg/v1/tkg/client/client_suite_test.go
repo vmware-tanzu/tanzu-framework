@@ -6,6 +6,7 @@ package client_test
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -1586,6 +1587,15 @@ func CreateTKGClientOpts(clusterConfigFile string, configDir string, defaultBomF
 	}))
 }
 
+var testTKGCompatibilityFileFmt = `
+version: v1
+managementClusterPluginVersions:
+- version: %s
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: %s
+`
+
 func setupTestingFiles(clusterConfigFile string, configDir string, defaultBomFile string) {
 	testClusterConfigFile := filepath.Join(configDir, "config.yaml")
 	err := utils.CopyFile(clusterConfigFile, testClusterConfigFile)
@@ -1597,8 +1607,37 @@ func setupTestingFiles(clusterConfigFile string, configDir string, defaultBomFil
 		err = os.MkdirAll(bomDir, 0o700)
 		Expect(err).ToNot(HaveOccurred())
 	}
-
-	tkgconfigpaths.TKGDefaultBOMImageTag = utils.GetTKGBoMTagFromFileName(filepath.Base(defaultBomFile))
 	err = utils.CopyFile(defaultBomFile, filepath.Join(bomDir, filepath.Base(defaultBomFile)))
+	Expect(err).ToNot(HaveOccurred())
+
+	compatibilityDir, err := tkgconfigpaths.New(configDir).GetTKGCompatibilityDirectory()
+	Expect(err).ToNot(HaveOccurred())
+	if _, err := os.Stat(compatibilityDir); os.IsNotExist(err) {
+		err = os.MkdirAll(compatibilityDir, 0o700)
+		Expect(err).ToNot(HaveOccurred())
+	}
+
+	defaultBomFileTag := utils.GetTKGBoMTagFromFileName(filepath.Base(defaultBomFile))
+	testTKGCompatabilityFileContent := fmt.Sprintf(testTKGCompatibilityFileFmt, tkgconfigpaths.TKGManagementClusterPluginVersion, defaultBomFileTag)
+
+	compatibilityConfigFile, err := tkgconfigpaths.New(configDir).GetTKGCompatibilityConfigPath()
+	Expect(err).ToNot(HaveOccurred())
+	err = os.WriteFile(compatibilityConfigFile, []byte(testTKGCompatabilityFileContent), constants.ConfigFilePermissions)
+	Expect(err).ToNot(HaveOccurred())
+}
+func updateDefaultBoMFileName(configDir string, defaultBomFile string) {
+	compatibilityDir, err := tkgconfigpaths.New(configDir).GetTKGCompatibilityDirectory()
+	Expect(err).ToNot(HaveOccurred())
+	if _, err := os.Stat(compatibilityDir); os.IsNotExist(err) {
+		err = os.MkdirAll(compatibilityDir, 0o700)
+		Expect(err).ToNot(HaveOccurred())
+	}
+
+	defaultBomFileTag := utils.GetTKGBoMTagFromFileName(filepath.Base(defaultBomFile))
+	testTKGCompatabilityFileContent := fmt.Sprintf(testTKGCompatibilityFileFmt, tkgconfigpaths.TKGManagementClusterPluginVersion, defaultBomFileTag)
+
+	compatibilityConfigFile, err := tkgconfigpaths.New(configDir).GetTKGCompatibilityConfigPath()
+	Expect(err).ToNot(HaveOccurred())
+	err = os.WriteFile(compatibilityConfigFile, []byte(testTKGCompatabilityFileContent), constants.ConfigFilePermissions)
 	Expect(err).ToNot(HaveOccurred())
 }

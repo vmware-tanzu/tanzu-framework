@@ -24,6 +24,9 @@ type Client interface {
 	// GetTKGProvidersDirectory returns path to tkg config directory "$HOME/.tkg/providers"
 	GetTKGProvidersDirectory() (string, error)
 
+	// GetTKGCompatibilityDirectory returns path to tkg compatibility directory "<TKGConfigDirectory>/compatibility"
+	GetTKGCompatibilityDirectory() (string, error)
+
 	// GetTKGBoMDirectory returns path to tkg config directory "$HOME/.tkg/bom"
 	GetTKGBoMDirectory() (string, error)
 
@@ -40,4 +43,7 @@ type Client interface {
 
 	// GetDefaultClusterConfigPath returns default cluster config file path
 	GetDefaultClusterConfigPath() (string, error)
+
+	// GetTKGCompatibilityConfigPath returns TKG compatibility file path
+	GetTKGCompatibilityConfigPath() (string, error)
 }

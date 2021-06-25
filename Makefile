@@ -64,16 +64,13 @@ endif
 # NPM registry to use for downloading node modules for UI build
 CUSTOM_NPM_REGISTRY ?= $(shell git config tkg.npmregistry)
 
-# BoM repo, path and tag related configuration
-# TODO: update the image tag to latest
-ifndef TKG_DEFAULT_BOM_IMAGE_REPO
-TKG_DEFAULT_BOM_IMAGE_REPO = "projects-stg.registry.vmware.com/tkg"
+# TKG Compatibility Image repo and  path related configuration
+ifndef TKG_DEFAULT_IMAGE_REPOSITORY
+TKG_DEFAULT_IMAGE_REPOSITORY = "projects-stg.registry.vmware.com/tkg"
 endif
-ifndef TKG_DEFAULT_BOM_IMAGE_PATH
-TKG_DEFAULT_BOM_IMAGE_PATH = "tkg-bom"
-endif
-ifndef TKG_DEFAULT_BOM_IMAGE_TAG
-TKG_DEFAULT_BOM_IMAGE_TAG = "v1.4.0-zshippable"
+ifndef TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH
+# TODO change it to "tkg-compatibility" once the image is pushed to registry
+TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH = "v1.4.0-zshippable/tkg-compatibility"
 endif
 
 DOCKER_DIR := /app
@@ -437,9 +434,9 @@ generate-bindata: generate-telemetry-bindata generate-ui-bindata
 .PHONY: configure-bom
 configure-bom:
 	# Update default BoM Filename variable in tkgconfig pkg
-	sed "s+TKG_DEFAULT_BOM_IMAGE_REPO+${TKG_DEFAULT_BOM_IMAGE_REPO}+g"  hack/update-bundled-bom-filename/update-bundled-default-bom-files-configdata.txt | \
-	sed "s+TKG_DEFAULT_BOM_IMAGE_PATH+${TKG_DEFAULT_BOM_IMAGE_PATH}+g" | \
-	sed "s/TKG_DEFAULT_BOM_IMAGE_TAG/${TKG_DEFAULT_BOM_IMAGE_TAG}/g"  > pkg/v1/tkg/tkgconfigpaths/zz_bundled_default_bom_files_configdata.go
+	sed "s+TKG_DEFAULT_IMAGE_REPOSITORY+${TKG_DEFAULT_IMAGE_REPOSITORY}+g"  hack/update-bundled-bom-filename/update-bundled-default-bom-files-configdata.txt | \
+	sed "s+TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH+${TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH}+g" | \
+	sed "s+TKG_MANAGEMENT_CLUSTER_PLUGIN_VERSION+${BUILD_VERSION}+g"  > pkg/v1/tkg/tkgconfigpaths/zz_bundled_default_bom_files_configdata.go
 
 .PHONY: generate-ui-swagger-api
 generate-ui-swagger-api: ## Generate swagger files for UI backend

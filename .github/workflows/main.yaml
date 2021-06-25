@@ -62,7 +62,6 @@ jobs:
       run: |
         export BOMCOMMENT=$(echo -e "${{ steps.findcomment.outputs.comment-body }}" | tr -d "[:space:]")
         echo "##[set-output name=bompath;]$(echo "$BOMCOMMENT" | awk -F : '{print $2}')"
-        echo "##[set-output name=bomtag;]$(echo "$BOMCOMMENT" | awk -F : '{print $3}')"
       id: extract_bom
 
     - name: Verify
@@ -72,10 +71,7 @@ jobs:
     - name: Build
       run: |
         if [[ ! -z "${{ steps.extract_bom.outputs.bompath }}" ]]; then
-          export TKG_DEFAULT_BOM_IMAGE_PATH=${{ steps.extract_bom.outputs.bompath }}
-        fi
-        if [[ ! -z "${{ steps.extract_bom.outputs.bomtag }}" ]]; then
-          export TKG_DEFAULT_BOM_IMAGE_TAG=${{ steps.extract_bom.outputs.bomtag }}
+          export TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH=${{ steps.extract_bom.outputs.bompath }}
         fi
         env | sort
         make configure-bom
@@ -84,10 +80,7 @@ jobs:
     - name: Test
       run: |
         if [[ ! -z "${{ steps.extract_bom.outputs.bompath }}" ]]; then
-          export TKG_DEFAULT_BOM_IMAGE_PATH=${{ steps.extract_bom.outputs.bompath }}
-        fi
-        if [[ ! -z "${{ steps.extract_bom.outputs.bomtag }}" ]]; then
-          export TKG_DEFAULT_BOM_IMAGE_TAG=${{ steps.extract_bom.outputs.bomtag }}
+          export TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH=${{ steps.extract_bom.outputs.bompath }}
         fi
         make configure-bom
         make test

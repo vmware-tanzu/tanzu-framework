@@ -56,7 +56,8 @@ func updateClusterCredentials(clusterName string) error {
 
 	var promptOpts []component.PromptOpt
 
-	tkgctlClient, err := newTKGCtlClient()
+	forceUpdateTKGCompatibilityImage := false
+	tkgctlClient, err := newTKGCtlClient(forceUpdateTKGCompatibilityImage)
 	if err != nil {
 		return err
 	}

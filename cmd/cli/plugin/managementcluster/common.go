@@ -15,7 +15,7 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/config"
 )
 
-func newTKGCtlClient() (tkgctl.TKGClient, error) {
+func newTKGCtlClient(forceUpdateTKGCompatibilityImage bool) (tkgctl.TKGClient, error) {
 	tkgConfigDir, err := getTKGConfigDir()
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to get default TKG config directory")
@@ -26,7 +26,9 @@ func newTKGCtlClient() (tkgctl.TKGClient, error) {
 		CustomizerOptions: types.CustomizerOptions{
 			RegionManagerFactory: NewFactory(),
 		},
-		LogOptions: tkgctl.LoggingOptions{Verbosity: logLevel, File: logFile},
+
+		LogOptions:                       tkgctl.LoggingOptions{Verbosity: logLevel, File: logFile},
+		ForceUpdateTKGCompatibilityImage: forceUpdateTKGCompatibilityImage,
 	})
 }
 

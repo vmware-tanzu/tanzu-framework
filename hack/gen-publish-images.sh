@@ -39,13 +39,29 @@ echo "set -euo pipefail"
 echodual "Note that yq must be version above or equal to version 4.5 and below version 5."
 
 actualImageRepository=""
-# Iterate through BoM file to create the complete Image name
-# and then pull, retag and push image to custom registry.
+# Iterate through BoM file to read actual image repository
 for TKG_BOM_FILE in "$BOM_DIR"/*.yaml; do
   echodual "Processing BOM file ${TKG_BOM_FILE}"
   # Get actual image repository from BoM file
   actualImageRepository=$(yq e '.imageConfig.imageRepository' "$TKG_BOM_FILE")
-  yq e '.. | select(has("images"))|.images[] | .imagePath + ":" + .tag ' "$TKG_BOM_FILE" |
+  break
+done
+# Iterate through TKG BoM file to create the complete Image name
+# and then pull, retag and push image to custom registry.
+list=$(imgpkg  tag  list -i "${actualImageRepository}"/tkg-bom)
+for imageTag in ${list}; do
+  if [[ ${imageTag} == v* ]]; then 
+    TKG_BOM_FILE="tkg-bom-${imageTag//_/+}.yaml"
+    echodual "Processing TKG BOM file ${TKG_BOM_FILE}"
+
+    actualTKGImage=${actualImageRepository}/tkg-bom:${imageTag}
+    customTKGImage=${TKG_CUSTOM_IMAGE_REPOSITORY}/tkg-bom:${imageTag}
+    echo ""
+    echo "docker pull $actualTKGImage"
+    echo "docker tag  $actualTKGImage $customTKGImage"
+    echo "docker push $customTKGImage"
+    imgpkg pull --image "${actualImageRepository}/tkg-bom:${imageTag}" --output "tmp" > /dev/null 2>&1
+    yq e '.. | select(has("images"))|.images[] | .imagePath + ":" + .tag ' "tmp/$TKG_BOM_FILE" |
     while read -r image; do
       actualImage=${actualImageRepository}/${image}
       customImage=$TKG_CUSTOM_IMAGE_REPOSITORY/${image}
@@ -54,8 +70,10 @@ for TKG_BOM_FILE in "$BOM_DIR"/*.yaml; do
       echo "docker push $customImage"
       echo ""
     done
-  echodual "Finished processing BOM file ${TKG_BOM_FILE}"
-  echo ""
+    rm -rf tmp
+    echodual "Finished processing TKG BOM file ${TKG_BOM_FILE}"
+    echo ""
+  fi
 done
 
 # Iterate through TKR BoM file to create the complete Image name
@@ -100,5 +118,20 @@ for imageTag in ${list}; do
     echo "docker push $customImage"
     echo ""
     echodual "Finished processing TKR compatibility image"
+  fi
+done
+
+list=$(imgpkg  tag  list -i ${actualImageRepository}/tkg-compatibility)
+for imageTag in ${list}; do
+  if [[ ${imageTag} == v* ]]; then 
+    echodual "Processing TKG compatibility image"
+    actualImage=${actualImageRepository}/tkg-compatibility:${imageTag}
+    customImage=$TKG_CUSTOM_IMAGE_REPOSITORY/tkg-compatibility:${imageTag}
+    echo ""
+    echo "docker pull $actualImageRepository/tkg-compatibility:$imageTag"
+    echo "docker tag  $actualImage $customImage"
+    echo "docker push $customImage"
+    echo ""
+    echodual "Finished processing TKG compatibility image"
   fi
 done

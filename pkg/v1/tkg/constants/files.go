@@ -17,6 +17,7 @@ const (
 
 	LocalProvidersConfigFileName = "config.yaml"
 	LocalBOMsFolderName          = "bom"
+	LocalCompatibilityFolderName = "compatibility"
 
 	LocalProvidersChecksumFileName = "providers.sha256sum"
 	OverrideFolder                 = "overrides"
@@ -27,6 +28,7 @@ const (
 
 	TKGConfigFileName               = "config.yaml"
 	TKGDefaultClusterConfigFileName = "cluster-config.yaml"
+	TKGCompatibilityFileName        = "tkg-compatibility.yaml"
 
 	TKGClusterConfigFileDirForUI           = "clusterconfigs"
 	TKGRegistryCertFile                    = "registry_certs"

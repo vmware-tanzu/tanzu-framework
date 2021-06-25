@@ -59,7 +59,8 @@ func getKubeconfig(cmd *cobra.Command, args []string) error {
 }
 
 func getClusterKubeconfig(server *v1alpha1.Server) error {
-	tkgctlClient, err := newTKGCtlClient()
+	forceUpdateTKGCompatibilityImage := false
+	tkgctlClient, err := newTKGCtlClient(forceUpdateTKGCompatibilityImage)
 	if err != nil {
 		return err
 	}

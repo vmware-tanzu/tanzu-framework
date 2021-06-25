@@ -10,7 +10,7 @@ package tkgconfigpaths
 // All the variables are set during build time
 // Note: Please !!DO NOT!!! change the name or remove this variable
 var (
-	TKGDefaultBOMImageRepo string = "TKG_DEFAULT_BOM_IMAGE_REPO"
-	TKGDefaultBOMImagePath string = "TKG_DEFAULT_BOM_IMAGE_PATH"
-	TKGDefaultBOMImageTag  string = "TKG_DEFAULT_BOM_IMAGE_TAG"
+	TKGDefaultImageRepo               string = "TKG_DEFAULT_IMAGE_REPOSITORY"
+	TKGDefaultCompatibilityImagePath  string = "TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH"
+	TKGManagementClusterPluginVersion string = "TKG_MANAGEMENT_CLUSTER_PLUGIN_VERSION"
 )

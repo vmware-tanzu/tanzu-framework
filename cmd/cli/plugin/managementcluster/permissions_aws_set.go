@@ -26,7 +26,8 @@ func init() {
 }
 
 func setAWSPermissions(cmd *cobra.Command, args []string) error {
-	tkgctlClient, err := newTKGCtlClient()
+	forceUpdateTKGCompatibilityImage := false
+	tkgctlClient, err := newTKGCtlClient(forceUpdateTKGCompatibilityImage)
 	if err != nil {
 		return err
 	}

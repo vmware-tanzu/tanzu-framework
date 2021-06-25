@@ -9,6 +9,8 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"sort"
+	"strconv"
 	"strings"
 
 	"k8s.io/apimachinery/pkg/util/version"
@@ -66,14 +68,12 @@ func (c *client) GetDefaultTkgBOMConfiguration() (*BOMConfiguration, error) {
 }
 
 // GetDefaultBoMFileName returns name of default BoM file
-func (c *client) GetDefaultBoMFileName() string {
-	if c.tkgConfigReaderWriter != nil {
-		customBoMTag, err := c.tkgConfigReaderWriter.Get(constants.ConfigVariableBomCustomImageTag)
-		if err == nil && customBoMTag != "" {
-			return c.getdefaultTKGBoMFileNameFromTag(customBoMTag)
-		}
+func (c *client) GetDefaultBoMFileName() (string, error) {
+	defaultBOMFileName, err := c.getDefaultTKGBOMFileNameFromCompatabilityFile()
+	if err != nil {
+		return "", errors.Wrap(err, "unable to get the default BOM file name")
 	}
-	return c.getdefaultTKGBoMFileNameFromTag(tkgconfigpaths.TKGDefaultBOMImageTag)
+	return defaultBOMFileName, nil
 }
 
 // GetDefaultBoMFilePath returns path of default BoM file
@@ -82,7 +82,11 @@ func (c *client) GetDefaultBoMFilePath() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(bomDir, c.GetDefaultBoMFileName()), nil
+	defaultBOMFileName, err := c.GetDefaultBoMFileName()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(bomDir, defaultBOMFileName), nil
 }
 
 func (c *client) getdefaultTKGBoMFileNameFromTag(tag string) string {
@@ -386,24 +390,18 @@ If this is an internet-restricted environment please refer to the documentation 
 `
 
 func (c *client) DownloadDefaultBOMFilesFromRegistry(bomRegistry registry.Registry) error { //nolint:gocyclo
-	bomImageRepo := tkgconfigpaths.TKGDefaultBOMImageRepo
+	bomImageRepo := tkgconfigpaths.TKGDefaultImageRepo
 
 	customRepository, err := c.tkgConfigReaderWriter.Get(constants.ConfigVariableCustomImageRepository)
 	if err == nil && customRepository != "" {
 		bomImageRepo = customRepository
 	}
 
-	tkgBOMImagePath := bomImageRepo + "/" + tkgconfigpaths.TKGDefaultBOMImagePath
-	customTKGBOMImagePath, err := c.tkgConfigReaderWriter.Get(constants.ConfigVariableBomCustomImagePath)
-	if err == nil && customTKGBOMImagePath != "" {
-		tkgBOMImagePath = bomImageRepo + "/" + customTKGBOMImagePath
+	bomImagePath, tkgBOMImageTag, err := c.getDefaultBOMFileImagePathAndTagFromCompatabilityFile()
+	if err != nil {
+		return errors.Wrap(err, "unable to get the default BOM file ImagePath and Image Tag from the TKG Compatibility file")
 	}
-
-	tkgBOMImageTag := tkgconfigpaths.TKGDefaultBOMImageTag
-	customTKGBOMImageTag, err := c.tkgConfigReaderWriter.Get(constants.ConfigVariableBomCustomImageTag)
-	if err == nil && customTKGBOMImageTag != "" {
-		tkgBOMImageTag = customTKGBOMImageTag
-	}
+	tkgBOMImagePath := bomImageRepo + "/" + bomImagePath
 
 	tkgconfigpath, err := c.tkgConfigPathsClient.GetTKGConfigPath()
 	if err != nil {
@@ -416,7 +414,7 @@ func (c *client) DownloadDefaultBOMFilesFromRegistry(bomRegistry registry.Regist
 		return errors.Errorf(errorDownloadingDefaultBOMFiles, fmt.Sprintf("%s:%s", tkgBOMImagePath, tkgBOMImageTag), err, tkgconfigpath)
 	}
 
-	err = c.saveEmbeddedBomToUserDefaultBOMDirectory(c.GetDefaultBoMFileName(), tkgBOMContent)
+	err = c.saveEmbeddedBomToUserDefaultBOMDirectory(c.getdefaultTKGBoMFileNameFromTag(tkgBOMImageTag), tkgBOMContent)
 	if err != nil {
 		return errors.Wrap(err, "failed to save the BOM file downloaded from image registry")
 	}
@@ -462,6 +460,63 @@ func (c *client) DownloadDefaultBOMFilesFromRegistry(bomRegistry registry.Regist
 	return nil
 }
 
+var errorDownloadingTKGCompatibilityFile string = `failed to download the TKG Compatibility file from image name '%s':%v
+If this is an internet-restricted environment please refer to the documentation to set TKG_CUSTOM_IMAGE_REPOSITORY and related configuration variables in %s 
+`
+
+func (c *client) DownloadTKGCompatibilityFileFromRegistry(bomRegistry registry.Registry) error {
+	compatibilityImageRepo := tkgconfigpaths.TKGDefaultImageRepo
+
+	customRepository, err := c.tkgConfigReaderWriter.Get(constants.ConfigVariableCustomImageRepository)
+	if err == nil && customRepository != "" {
+		compatibilityImageRepo = customRepository
+	}
+
+	tkgCompatibilityImagePath := compatibilityImageRepo + "/" + tkgconfigpaths.TKGDefaultCompatibilityImagePath
+	customTKGCompatibilityImagePath, err := c.tkgConfigReaderWriter.Get(constants.ConfigVariableCompatibilityCustomImagePath)
+	if err == nil && customTKGCompatibilityImagePath != "" {
+		tkgCompatibilityImagePath = compatibilityImageRepo + "/" + customTKGCompatibilityImagePath
+	}
+
+	tags, err := bomRegistry.ListImageTags(tkgCompatibilityImagePath)
+	if err != nil || len(tags) == 0 {
+		return errors.Wrap(err, "failed to list TKG compatibility image tags")
+	}
+
+	tagNum := []int{}
+	for _, tag := range tags {
+		ver, err := strconv.Atoi(tag[1:])
+		if err == nil {
+			tagNum = append(tagNum, ver)
+		}
+	}
+
+	sort.Ints(tagNum)
+	if len(tagNum) == 0 {
+		return errors.New("failed to get valid image tags for TKG compatibility image")
+	}
+
+	// get the latest tag version
+	tagName := fmt.Sprintf("v%d", tagNum[len(tagNum)-1])
+	tkgconfigpath, err := c.tkgConfigPathsClient.GetTKGConfigPath()
+	if err != nil {
+		return err
+	}
+
+	log.V(4).Infof("Downloading the TKG Compatibility file from Image name '%s", fmt.Sprintf("%s:%s", tkgCompatibilityImagePath, tagName))
+	tkgCompatibilityContent, err := bomRegistry.GetFile(tkgCompatibilityImagePath, tagName, "")
+	if err != nil {
+		return errors.Errorf(errorDownloadingTKGCompatibilityFile, fmt.Sprintf("%s:%s", tkgCompatibilityImagePath, tagName), err, tkgconfigpath)
+	}
+
+	err = c.saveTKGCompatibilityFileToUserDefaultCompatibilityDirectory(tkgCompatibilityContent)
+	if err != nil {
+		return errors.Wrap(err, "failed to save the BOM file downloaded from image registry")
+	}
+
+	return nil
+}
+
 func (c *client) InitBOMRegistry() (registry.Registry, error) {
 	verifyCerts := true
 	skipVerifyCerts, err := c.tkgConfigReaderWriter.Get(constants.ConfigVariableCustomImageRepositorySkipTLSVerify)
@@ -502,7 +557,7 @@ func (c *client) InitBOMRegistry() (registry.Registry, error) {
 }
 
 // saveEmbeddedBomToUserDefaultBOMDirectory writes file's content to user's default BOM directory if
-// BOM file with same name does not exists
+// BOM file with same name does not exist
 func (c *client) saveEmbeddedBomToUserDefaultBOMDirectory(bomFileName string, bomFileBytes []byte) error {
 	bomDir, err := c.tkgConfigPathsClient.GetTKGBoMDirectory()
 	if err != nil {
@@ -517,17 +572,97 @@ func (c *client) saveEmbeddedBomToUserDefaultBOMDirectory(bomFileName string, bo
 
 	bomFilePath := filepath.Join(bomDir, bomFileName)
 
-	// Write BOM file only if user's BOM file with same version does not exists.
+	// Write BOM file only if user's BOM file with same version does not exist.
 	// This will ensure that TKG CLI does not override user's customized BOM file.
+	// TODO: Should we consider user local customized BOM files anymore? or should we ask user to upload the customized BOM files to private registry?
 	if _, err := os.Stat(bomFilePath); os.IsNotExist(err) {
 		err = os.WriteFile(bomFilePath, bomFileBytes, constants.ConfigFilePermissions)
 		if err != nil {
 			return errors.Wrap(err, "cannot create TKG BOM file")
 		}
+	} else if err == nil {
+		log.V(4).Infof("BOM file %q already exist, so skipped saving the downloaded BOM file ", bomFilePath)
 	}
 	return nil
 }
 
+// saveEmbeddedBomToUserDefaultBOMDirectory writes file's content to user's default BOM directory if
+// BOM file with same name does not exist
+func (c *client) saveTKGCompatibilityFileToUserDefaultCompatibilityDirectory(tkgCompatibilityFileBytes []byte) error {
+	compatibilityDir, err := c.tkgConfigPathsClient.GetTKGCompatibilityDirectory()
+	if err != nil {
+		return err
+	}
+
+	if _, err := os.Stat(compatibilityDir); os.IsNotExist(err) {
+		if err = os.MkdirAll(compatibilityDir, constants.DefaultDirectoryPermissions); err != nil {
+			return errors.Wrap(err, "cannot create TKG Compatibility directory")
+		}
+	}
+
+	compatibilityFilePath := filepath.Join(compatibilityDir, constants.TKGCompatibilityFileName)
+	err = os.WriteFile(compatibilityFilePath, tkgCompatibilityFileBytes, constants.ConfigFilePermissions)
+	if err != nil {
+		return errors.Wrap(err, "cannot create TKG Compatibility file")
+	}
+
+	return nil
+}
+func (c *client) getDefaultTKGBOMFileNameFromCompatabilityFile() (string, error) {
+	compatibilityFile, err := c.tkgConfigPathsClient.GetTKGCompatibilityConfigPath()
+	if err != nil {
+		return "", errors.Wrap(err, "failed to read TKG Compatibility file")
+	}
+
+	if _, err := os.Stat(compatibilityFile); os.IsNotExist(err) {
+		return "", errors.Wrap(err, "failed to read TKG Compatibility file")
+	}
+
+	metadataContent, err := os.ReadFile(compatibilityFile)
+	if err != nil {
+		return "", errors.Wrapf(err, "unable to read TKG Compatibility file %s", compatibilityFile)
+	}
+	var metadata TKGCompatibilityMetadata
+	err = yaml.Unmarshal(metadataContent, &metadata)
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to unmarshal TKG compatibility file %s", compatibilityFile)
+	}
+
+	for idx := range metadata.ManagementClusterPluginVersions {
+		if strings.HasPrefix(metadata.ManagementClusterPluginVersions[idx].Version, tkgconfigpaths.TKGManagementClusterPluginVersion) {
+			return c.getdefaultTKGBoMFileNameFromTag(metadata.ManagementClusterPluginVersions[idx].SupportedTKGBOMVersions[0].ImageTag), nil
+		}
+	}
+
+	return "", errors.Errorf("unable to find the supported TKG BOM version for the management plugin version %q in the TKG Compatibility file %q", tkgconfigpaths.TKGManagementClusterPluginVersion, compatibilityFile)
+}
+func (c *client) getDefaultBOMFileImagePathAndTagFromCompatabilityFile() (string, string, error) {
+	compatibilityFile, err := c.tkgConfigPathsClient.GetTKGCompatibilityConfigPath()
+	if err != nil {
+		return "", "", errors.Wrap(err, "failed to read TKG Compatibility file")
+	}
+
+	if _, err := os.Stat(compatibilityFile); os.IsNotExist(err) {
+		return "", "", errors.Wrap(err, "failed to read TKG Compatibility file")
+	}
+
+	metadataContent, err := os.ReadFile(compatibilityFile)
+	if err != nil {
+		return "", "", errors.Wrapf(err, "unable to read TKG Compatibility file %s", compatibilityFile)
+	}
+	var metadata TKGCompatibilityMetadata
+	err = yaml.Unmarshal(metadataContent, &metadata)
+	if err != nil {
+		return "", "", errors.Wrapf(err, "failed to unmarshal TKG compatibility file %s", compatibilityFile)
+	}
+
+	for idx := range metadata.ManagementClusterPluginVersions {
+		if strings.HasPrefix(metadata.ManagementClusterPluginVersions[idx].Version, tkgconfigpaths.TKGManagementClusterPluginVersion) {
+			return metadata.ManagementClusterPluginVersions[idx].SupportedTKGBOMVersions[0].ImagePath, metadata.ManagementClusterPluginVersions[idx].SupportedTKGBOMVersions[0].ImageTag, nil
+		}
+	}
+	return "", "", errors.Errorf("unable to find the supported TKG BOM version for the management plugin version %q in the TKG Compatibility file %q", tkgconfigpaths.TKGManagementClusterPluginVersion, compatibilityFile)
+}
 func addRegistryTrustedRootCertsFileForWindows(registryOpts *ctlimg.RegistryOpts) error {
 	filePath, err := tkgconfigpaths.GetRegistryTrustedCACertFileForWindows()
 	if err != nil {

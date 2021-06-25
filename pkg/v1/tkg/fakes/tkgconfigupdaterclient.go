@@ -57,9 +57,10 @@ type TKGConfigUpdaterClient struct {
 	decodeCredentialsInViperReturnsOnCall map[int]struct {
 		result1 error
 	}
-	EnsureBOMFilesStub        func() error
+	EnsureBOMFilesStub        func(bool) error
 	ensureBOMFilesMutex       sync.RWMutex
 	ensureBOMFilesArgsForCall []struct {
+		arg1 bool
 	}
 	ensureBOMFilesReturns struct {
 		result1 error
@@ -114,6 +115,17 @@ type TKGConfigUpdaterClient struct {
 		result1 error
 	}
 	ensureProvidersInConfigReturnsOnCall map[int]struct {
+		result1 error
+	}
+	EnsureTKGCompatibilityFileStub        func(bool) error
+	ensureTKGCompatibilityFileMutex       sync.RWMutex
+	ensureTKGCompatibilityFileArgsForCall []struct {
+		arg1 bool
+	}
+	ensureTKGCompatibilityFileReturns struct {
+		result1 error
+	}
+	ensureTKGCompatibilityFileReturnsOnCall map[int]struct {
 		result1 error
 	}
 	EnsureTKGConfigFileStub        func() (string, error)
@@ -386,15 +398,16 @@ func (fake *TKGConfigUpdaterClient) DecodeCredentialsInViperReturnsOnCall(i int,
 	}{result1}
 }
 
-func (fake *TKGConfigUpdaterClient) EnsureBOMFiles() error {
+func (fake *TKGConfigUpdaterClient) EnsureBOMFiles(arg1 bool) error {
 	fake.ensureBOMFilesMutex.Lock()
 	ret, specificReturn := fake.ensureBOMFilesReturnsOnCall[len(fake.ensureBOMFilesArgsForCall)]
 	fake.ensureBOMFilesArgsForCall = append(fake.ensureBOMFilesArgsForCall, struct {
-	}{})
-	fake.recordInvocation("EnsureBOMFiles", []interface{}{})
+		arg1 bool
+	}{arg1})
+	fake.recordInvocation("EnsureBOMFiles", []interface{}{arg1})
 	fake.ensureBOMFilesMutex.Unlock()
 	if fake.EnsureBOMFilesStub != nil {
-		return fake.EnsureBOMFilesStub()
+		return fake.EnsureBOMFilesStub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
@@ -409,10 +422,17 @@ func (fake *TKGConfigUpdaterClient) EnsureBOMFilesCallCount() int {
 	return len(fake.ensureBOMFilesArgsForCall)
 }
 
-func (fake *TKGConfigUpdaterClient) EnsureBOMFilesCalls(stub func() error) {
+func (fake *TKGConfigUpdaterClient) EnsureBOMFilesCalls(stub func(bool) error) {
 	fake.ensureBOMFilesMutex.Lock()
 	defer fake.ensureBOMFilesMutex.Unlock()
 	fake.EnsureBOMFilesStub = stub
+}
+
+func (fake *TKGConfigUpdaterClient) EnsureBOMFilesArgsForCall(i int) bool {
+	fake.ensureBOMFilesMutex.RLock()
+	defer fake.ensureBOMFilesMutex.RUnlock()
+	argsForCall := fake.ensureBOMFilesArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *TKGConfigUpdaterClient) EnsureBOMFilesReturns(result1 error) {
@@ -695,6 +715,66 @@ func (fake *TKGConfigUpdaterClient) EnsureProvidersInConfigReturnsOnCall(i int, 
 	}{result1}
 }
 
+func (fake *TKGConfigUpdaterClient) EnsureTKGCompatibilityFile(arg1 bool) error {
+	fake.ensureTKGCompatibilityFileMutex.Lock()
+	ret, specificReturn := fake.ensureTKGCompatibilityFileReturnsOnCall[len(fake.ensureTKGCompatibilityFileArgsForCall)]
+	fake.ensureTKGCompatibilityFileArgsForCall = append(fake.ensureTKGCompatibilityFileArgsForCall, struct {
+		arg1 bool
+	}{arg1})
+	fake.recordInvocation("EnsureTKGCompatibilityFile", []interface{}{arg1})
+	fake.ensureTKGCompatibilityFileMutex.Unlock()
+	if fake.EnsureTKGCompatibilityFileStub != nil {
+		return fake.EnsureTKGCompatibilityFileStub(arg1)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.ensureTKGCompatibilityFileReturns
+	return fakeReturns.result1
+}
+
+func (fake *TKGConfigUpdaterClient) EnsureTKGCompatibilityFileCallCount() int {
+	fake.ensureTKGCompatibilityFileMutex.RLock()
+	defer fake.ensureTKGCompatibilityFileMutex.RUnlock()
+	return len(fake.ensureTKGCompatibilityFileArgsForCall)
+}
+
+func (fake *TKGConfigUpdaterClient) EnsureTKGCompatibilityFileCalls(stub func(bool) error) {
+	fake.ensureTKGCompatibilityFileMutex.Lock()
+	defer fake.ensureTKGCompatibilityFileMutex.Unlock()
+	fake.EnsureTKGCompatibilityFileStub = stub
+}
+
+func (fake *TKGConfigUpdaterClient) EnsureTKGCompatibilityFileArgsForCall(i int) bool {
+	fake.ensureTKGCompatibilityFileMutex.RLock()
+	defer fake.ensureTKGCompatibilityFileMutex.RUnlock()
+	argsForCall := fake.ensureTKGCompatibilityFileArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *TKGConfigUpdaterClient) EnsureTKGCompatibilityFileReturns(result1 error) {
+	fake.ensureTKGCompatibilityFileMutex.Lock()
+	defer fake.ensureTKGCompatibilityFileMutex.Unlock()
+	fake.EnsureTKGCompatibilityFileStub = nil
+	fake.ensureTKGCompatibilityFileReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *TKGConfigUpdaterClient) EnsureTKGCompatibilityFileReturnsOnCall(i int, result1 error) {
+	fake.ensureTKGCompatibilityFileMutex.Lock()
+	defer fake.ensureTKGCompatibilityFileMutex.Unlock()
+	fake.EnsureTKGCompatibilityFileStub = nil
+	if fake.ensureTKGCompatibilityFileReturnsOnCall == nil {
+		fake.ensureTKGCompatibilityFileReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.ensureTKGCompatibilityFileReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
 func (fake *TKGConfigUpdaterClient) EnsureTKGConfigFile() (string, error) {
 	fake.ensureTKGConfigFileMutex.Lock()
 	ret, specificReturn := fake.ensureTKGConfigFileReturnsOnCall[len(fake.ensureTKGConfigFileArgsForCall)]
@@ -914,6 +994,8 @@ func (fake *TKGConfigUpdaterClient) Invocations() map[string][][]interface{} {
 	defer fake.ensureProviderTemplatesMutex.RUnlock()
 	fake.ensureProvidersInConfigMutex.RLock()
 	defer fake.ensureProvidersInConfigMutex.RUnlock()
+	fake.ensureTKGCompatibilityFileMutex.RLock()
+	defer fake.ensureTKGCompatibilityFileMutex.RUnlock()
 	fake.ensureTKGConfigFileMutex.RLock()
 	defer fake.ensureTKGConfigFileMutex.RUnlock()
 	fake.ensureTemplateFilesMutex.RLock()

@@ -13,6 +13,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes"
 	fakehelper "github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes/helper"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/kind"
@@ -254,6 +255,15 @@ func buildKindClient() kind.Client {
 	return kind.New(&options)
 }
 
+var testTKGCompatibilityFileFmt = `
+version: v1
+managementClusterPluginVersions:
+- version: %s
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: %s
+`
+
 func setupTestingFiles(clusterConfigFile string, configDir string, defaultBomFile string) {
 	testClusterConfigFile := filepath.Join(configDir, "config.yaml")
 	err := utils.CopyFile(clusterConfigFile, testClusterConfigFile)
@@ -266,7 +276,21 @@ func setupTestingFiles(clusterConfigFile string, configDir string, defaultBomFil
 		Expect(err).ToNot(HaveOccurred())
 	}
 
-	tkgconfigpaths.TKGDefaultBOMImageTag = utils.GetTKGBoMTagFromFileName(filepath.Base(defaultBomFile))
 	err = utils.CopyFile(defaultBomFile, filepath.Join(bomDir, filepath.Base(defaultBomFile)))
+	Expect(err).ToNot(HaveOccurred())
+
+	compatibilityDir, err := tkgconfigpaths.New(configDir).GetTKGCompatibilityDirectory()
+	Expect(err).ToNot(HaveOccurred())
+	if _, err := os.Stat(compatibilityDir); os.IsNotExist(err) {
+		err = os.MkdirAll(compatibilityDir, 0o700)
+		Expect(err).ToNot(HaveOccurred())
+	}
+
+	defaultBomFileTag := utils.GetTKGBoMTagFromFileName(filepath.Base(defaultBomFile))
+	testTKGCompatabilityFileContent := fmt.Sprintf(testTKGCompatibilityFileFmt, tkgconfigpaths.TKGManagementClusterPluginVersion, defaultBomFileTag)
+
+	compatibilityConfigFile, err := tkgconfigpaths.New(configDir).GetTKGCompatibilityConfigPath()
+	Expect(err).ToNot(HaveOccurred())
+	err = os.WriteFile(compatibilityConfigFile, []byte(testTKGCompatabilityFileContent), constants.ConfigFilePermissions)
 	Expect(err).ToNot(HaveOccurred())
 }
