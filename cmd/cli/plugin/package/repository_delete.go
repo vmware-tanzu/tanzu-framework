@@ -9,10 +9,7 @@ import (
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackageclient"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackagedatamodel"
 )
-
-var repoDeleteOp = tkgpackagedatamodel.NewRepositoryDeleteOptions()
 
 var repositoryDeleteCmd = &cobra.Command{
 	Use:   "delete REPOSITORY_NAME",
@@ -22,34 +19,32 @@ var repositoryDeleteCmd = &cobra.Command{
 }
 
 func init() {
-	repositoryDeleteCmd.Flags().BoolVarP(&repoDeleteOp.IsForce, "force", "f", false, "Force deletion of the repository")
-	repositoryDeleteCmd.Flags().StringVarP(&repoDeleteOp.KubeConfig, "kubeconfig", "", "", "The path to the kubeconfig file, optional")
-	repositoryDeleteCmd.Flags().StringVarP(&repoDeleteOp.Namespace, "namespace", "n", "default", "Namespace of repository, optional")
+	repositoryDeleteCmd.Flags().BoolVarP(&repoOp.IsForceDelete, "force", "f", false, "Force deletion of the repository")
 	repositoryCmd.AddCommand(repositoryDeleteCmd)
 }
 
 func repositoryDelete(_ *cobra.Command, args []string) error {
 	if len(args) == 1 {
-		repoDeleteOp.RepositoryName = args[0]
+		repoOp.RepositoryName = args[0]
 	} else {
 		return errors.New("incorrect number of input parameters. Usage: tanzu package repository delete REPO_NAME [FLAGS]")
 	}
 
-	pkgClient, err := tkgpackageclient.NewTKGPackageClient(repoDeleteOp.KubeConfig)
+	pkgClient, err := tkgpackageclient.NewTKGPackageClient(repoOp.KubeConfig)
 	if err != nil {
 		return err
 	}
 
-	found, err := pkgClient.DeleteRepository(repoDeleteOp)
+	found, err := pkgClient.DeleteRepository(repoOp)
 	if !found {
-		log.Warningf("Could not find package repository '%s' in namespace '%s'\n", repoDeleteOp.RepositoryName, repoDeleteOp.Namespace)
+		log.Warningf("Could not find package repository '%s' in namespace '%s'\n", repoOp.RepositoryName, repoOp.Namespace)
 		return nil
 	}
 	if err != nil {
 		return err
 	}
 
-	log.Infof("Deleted package repository '%s' in namespace '%s'\n", repoDeleteOp.RepositoryName, repoDeleteOp.Namespace)
+	log.Infof("Deleted package repository '%s' in namespace '%s'\n", repoOp.RepositoryName, repoOp.Namespace)
 
 	return nil
 }

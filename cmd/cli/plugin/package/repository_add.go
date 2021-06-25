@@ -8,10 +8,7 @@ import (
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackageclient"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackagedatamodel"
 )
-
-var repoAddOp = tkgpackagedatamodel.NewRepositoryOptions()
 
 var repositoryAddCmd = &cobra.Command{
 	Use:   "add REPOSITORY_NAME REPOSITORY_URL ",
@@ -21,27 +18,25 @@ var repositoryAddCmd = &cobra.Command{
 }
 
 func init() {
-	repositoryAddCmd.Flags().StringVarP(&repoAddOp.KubeConfig, "kubeconfig", "", "", "The path to the kubeconfig file, optional")
-	repositoryAddCmd.Flags().BoolVarP(&repoAddOp.CreateNamespace, "create-namespace", "", false, "Create namespace if the target namespace does not exist, optional")
-	repositoryAddCmd.Flags().StringVarP(&repoAddOp.Namespace, "namespace", "n", "default", "Target namespace to add the repository, optional")
+	repositoryAddCmd.Flags().BoolVarP(&repoOp.CreateNamespace, "create-namespace", "", false, "Create namespace if the target namespace does not exist, optional")
 
 	repositoryCmd.AddCommand(repositoryAddCmd)
 }
 
 func repositoryAdd(_ *cobra.Command, args []string) error {
-	repoAddOp.RepositoryName = args[0]
-	repoAddOp.RepositoryURL = args[1]
+	repoOp.RepositoryName = args[0]
+	repoOp.RepositoryURL = args[1]
 
-	pkgClient, err := tkgpackageclient.NewTKGPackageClient(repoAddOp.KubeConfig)
+	pkgClient, err := tkgpackageclient.NewTKGPackageClient(repoOp.KubeConfig)
 	if err != nil {
 		return err
 	}
 
-	if err := pkgClient.AddRepository(repoAddOp); err != nil {
+	if err := pkgClient.AddRepository(repoOp); err != nil {
 		return err
 	}
 
-	log.Infof("Added package repository '%s'", repoAddOp.RepositoryName)
+	log.Infof("Added package repository '%s'", repoOp.RepositoryName)
 
 	return nil
 }

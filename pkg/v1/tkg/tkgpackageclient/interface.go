@@ -14,16 +14,17 @@ import (
 // TKGPackageClient is the TKG package client interface
 type TKGPackageClient interface {
 	GetPackage(pkgName, pkgVersion, namespace string) (*kapppkg.PackageMetadata, *kapppkg.Package, error)
-	GetRepository(o *tkgpackagedatamodel.RepositoryGetOptions) (*kappipkg.PackageRepository, error)
+	GetRepository(o *tkgpackagedatamodel.RepositoryOptions) (*kappipkg.PackageRepository, error)
 	GetPackageInstall(o *tkgpackagedatamodel.PackageGetOptions) (*kappipkg.PackageInstall, error)
-	InstallPackage(o *tkgpackagedatamodel.PackageOptions) error
+	InstallPackage(o *tkgpackagedatamodel.PackageInstalledOptions) error
+	InstallPackageWithProgress(o *tkgpackagedatamodel.PackageInstalledOptions, packageProgress *tkgpackagedatamodel.PackageProgress)
 	UninstallPackage(o *tkgpackagedatamodel.PackageUninstallOptions) (bool, error)
-	UpdatePackage(o *tkgpackagedatamodel.PackageOptions) error
+	UpdatePackage(o *tkgpackagedatamodel.PackageInstalledOptions) error
 	AddRepository(o *tkgpackagedatamodel.RepositoryOptions) error
-	DeleteRepository(o *tkgpackagedatamodel.RepositoryDeleteOptions) (bool, error)
+	DeleteRepository(o *tkgpackagedatamodel.RepositoryOptions) (bool, error)
 	ListPackageInstalls(o *tkgpackagedatamodel.PackageListOptions) (*kappipkg.PackageInstallList, error)
 	ListPackages(o *tkgpackagedatamodel.PackageListOptions) (*kapppkg.PackageList, error)
 	ListPackageMetadata(o *tkgpackagedatamodel.PackageListOptions) (*kapppkg.PackageMetadataList, error)
-	ListRepositories(o *tkgpackagedatamodel.RepositoryListOptions) (*kappipkg.PackageRepositoryList, error)
+	ListRepositories(o *tkgpackagedatamodel.RepositoryOptions) (*kappipkg.PackageRepositoryList, error)
 	UpdateRepository(o *tkgpackagedatamodel.RepositoryOptions) error
 }

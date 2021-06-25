@@ -21,7 +21,7 @@ var _ = Describe("List Repositories", func() {
 		ctl     *pkgClient
 		kappCtl *fakes.KappClient
 		err     error
-		opts    = tkgpackagedatamodel.RepositoryListOptions{
+		opts    = tkgpackagedatamodel.RepositoryOptions{
 			Namespace:     testNamespaceName,
 			AllNamespaces: false,
 		}

@@ -17,9 +17,9 @@ var _ = Describe("Delete Repository", func() {
 		ctl     *pkgClient
 		kappCtl *fakes.KappClient
 		err     error
-		opts    = tkgpackagedatamodel.RepositoryDeleteOptions{
+		opts    = tkgpackagedatamodel.RepositoryOptions{
 			RepositoryName: testRepoName,
-			IsForce:        false,
+			IsForceDelete:  false,
 		}
 		options = opts
 		found   bool

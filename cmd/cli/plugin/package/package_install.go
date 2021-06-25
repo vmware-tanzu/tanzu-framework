@@ -4,6 +4,10 @@
 package main
 
 import (
+	"fmt"
+	"time"
+
+	"github.com/briandowns/spinner"
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
@@ -11,7 +15,7 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
-var packageInstallOp = tkgpackagedatamodel.NewPackageOptions()
+var packageInstallOp = tkgpackagedatamodel.NewPackageInstalledOptions()
 
 var packageInstallCmd = &cobra.Command{
 	Use:   "install INSTALL_NAME",
@@ -43,11 +47,55 @@ func packageInstall(_ *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := pkgClient.InstallPackage(packageInstallOp); err != nil {
+	pp := &tkgpackagedatamodel.PackageProgress{
+		ProgressMsg: make(chan string, 10),
+		Err:         make(chan error),
+		Done:        make(chan struct{}),
+	}
+	go pkgClient.InstallPackageWithProgress(packageInstallOp, pp)
+
+	if err := displayInstallProgress(fmt.Sprintf("Installing package %s", packageInstallOp.PackageName), pp); err != nil {
 		return err
 	}
-
 	log.Infof("Added installed package '%s' in namespace '%s'\n", packageInstallOp.PkgInstallName, packageInstallOp.Namespace)
-
 	return nil
+}
+
+func displayInstallProgress(initialMsg string, pp *tkgpackagedatamodel.PackageProgress) error {
+	var currMsg string
+
+	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
+	if err := s.Color("bgBlack", "bold", "fgWhite"); err != nil {
+		return err
+	}
+	s.Suffix = fmt.Sprintf(" %s", initialMsg)
+	s.Start()
+
+	defer func() {
+		if s.Active() {
+			s.Stop()
+		}
+	}()
+	for {
+		select {
+		case err := <-pp.Err:
+			s.FinalMSG = fmt.Sprintf("%s\n", err.Error())
+			return err
+		case msg := <-pp.ProgressMsg:
+			if msg != currMsg {
+				log.Infof("\n")
+				s.Suffix = fmt.Sprintf(" %s", msg)
+				currMsg = msg
+			}
+		case <-pp.Done:
+			for msg := range pp.ProgressMsg {
+				if msg != currMsg {
+					log.Infof("\n")
+					s.Suffix = fmt.Sprintf(" %s", msg)
+					currMsg = msg
+				}
+			}
+			return nil
+		}
+	}
 }

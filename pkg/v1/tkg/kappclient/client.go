@@ -242,6 +242,15 @@ func (c *client) UpdatePackageInstall(installedPackage *kappipkg.PackageInstall)
 	return nil
 }
 
+// GetPackage gets Package CR
+func (c *client) GetPackage(packageName, namespace string) (*kapppkg.Package, error) {
+	pkg := &kapppkg.Package{}
+	if err := c.client.Get(context.Background(), crtclient.ObjectKey{Name: packageName, Namespace: namespace}, pkg); err != nil {
+		return nil, err
+	}
+	return pkg, nil
+}
+
 // UpdatePackageRepository updates a PackageRepository CR
 func (c *client) UpdatePackageRepository(repository *kappipkg.PackageRepository) error {
 	if err := c.client.Update(context.Background(), repository); err != nil {

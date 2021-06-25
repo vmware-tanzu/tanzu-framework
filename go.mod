@@ -29,7 +29,7 @@ require (
 	github.com/aunum/log v0.0.0-20200821225356-38d2e2c8b489
 	github.com/avinetworks/sdk v0.0.0-20201123134013-c157ef55b6f7
 	github.com/aws/aws-sdk-go v1.36.26
-	github.com/caarlos0/spin v1.1.0
+	github.com/briandowns/spinner v1.16.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/docker/docker v1.4.2-0.20190924003213-a8608b5b67c7
 	github.com/elazarl/go-bindata-assetfs v1.0.1

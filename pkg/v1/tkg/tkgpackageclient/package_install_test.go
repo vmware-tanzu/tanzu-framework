@@ -76,7 +76,7 @@ var _ = Describe("Install Package", func() {
 		crtCtl  *fakes.CRTClusterClient
 		kappCtl *fakes.KappClient
 		err     error
-		opts    = tkgpackagedatamodel.PackageOptions{
+		opts    = tkgpackagedatamodel.PackageInstalledOptions{
 			PkgInstallName:  testPkgInstallName,
 			Namespace:       testNamespaceName,
 			PackageName:     testPkgName,

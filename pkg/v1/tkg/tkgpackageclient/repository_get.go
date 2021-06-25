@@ -13,7 +13,7 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
-func (p *pkgClient) GetRepository(o *tkgpackagedatamodel.RepositoryGetOptions) (*kappipkg.PackageRepository, error) {
+func (p *pkgClient) GetRepository(o *tkgpackagedatamodel.RepositoryOptions) (*kappipkg.PackageRepository, error) {
 	packageRepository, err := p.kappClient.GetPackageRepository(o.RepositoryName, o.Namespace)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("failed to find package repository '%s'", o.RepositoryName))

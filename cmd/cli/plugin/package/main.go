@@ -33,11 +33,9 @@ func main() {
 
 	p.AddCommands(
 		repositoryCmd,
-		packageGetCmd,
-		packageListCmd,
 		packageInstallCmd,
-		packageUninstallCmd,
-		packageUpdateCmd,
+		packageAvailableCmd,
+		packageInstalledCmd,
 	)
 	if err := p.Execute(); err != nil {
 		os.Exit(1)

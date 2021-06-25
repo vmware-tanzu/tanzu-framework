@@ -13,8 +13,6 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
-var repositoryListOp = tkgpackagedatamodel.NewRepositoryListOptions()
-
 var repositoryListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List repositories",
@@ -23,34 +21,38 @@ var repositoryListCmd = &cobra.Command{
 }
 
 func init() {
-	repositoryListCmd.Flags().StringVarP(&repositoryListOp.KubeConfig, "kubeconfig", "", "", "The path to the kubeconfig file, optional")
-	repositoryListCmd.Flags().StringVarP(&repositoryListOp.Namespace, "namespace", "n", "default", "Namespace of repository, optional")
 	repositoryListCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table)")
-	repositoryListCmd.Flags().BoolVarP(&repositoryListOp.AllNamespaces, "all-namespaces", "A", false, "If present, list the repositories across all namespaces.")
+	repositoryListCmd.Flags().BoolVarP(&repoOp.AllNamespaces, "all-namespaces", "A", false, "If present, list the repositories across all namespaces.")
 	repositoryCmd.AddCommand(repositoryListCmd)
 }
 
 func repositoryList(cmd *cobra.Command, _ []string) error {
-	pkgClient, err := tkgpackageclient.NewTKGPackageClient(repositoryListOp.KubeConfig)
+	pkgClient, err := tkgpackageclient.NewTKGPackageClient(repoOp.KubeConfig)
 	if err != nil {
 		return err
 	}
 
-	if repositoryListOp.AllNamespaces {
-		repositoryListOp.Namespace = ""
+	if repoOp.AllNamespaces {
+		repoOp.Namespace = ""
 	}
 
-	packageRepositoryList, err := pkgClient.ListRepositories(repositoryListOp)
-	if err != nil {
-		return err
-	}
+	var t component.OutputWriterSpinner
 
-	var t component.OutputWriter
-
-	if repositoryListOp.AllNamespaces {
-		t = component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "NAME", "REPOSITORY", "STATUS", "DETAILS", "NAMESPACE")
+	if repoOp.AllNamespaces {
+		t, err = component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), outputFormat,
+			"Retrieving repositories...", true, "NAME", "REPOSITORY", "STATUS", "DETAILS", "NAMESPACE")
 	} else {
-		t = component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "NAME", "REPOSITORY", "STATUS", "DETAILS")
+		t, err = component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), outputFormat, "Retrieving repositories...", true,
+			"NAME", "REPOSITORY", "STATUS", "DETAILS")
+	}
+	if err != nil {
+		return err
+	}
+
+	packageRepositoryList, err := pkgClient.ListRepositories(repoOp)
+	if err != nil {
+		t.StopSpinner()
+		return err
 	}
 	for _, packageRepository := range packageRepositoryList.Items { //nolint:gocritic
 		status := packageRepository.Status.FriendlyDescription
@@ -61,7 +63,7 @@ func repositoryList(cmd *cobra.Command, _ []string) error {
 		if len(details) > tkgpackagedatamodel.ShortDescriptionMaxLength {
 			details = fmt.Sprintf("%s...", details[:tkgpackagedatamodel.ShortDescriptionMaxLength])
 		}
-		if repositoryListOp.AllNamespaces {
+		if repoOp.AllNamespaces {
 			t.AddRow(
 				packageRepository.Name,
 				packageRepository.Spec.Fetch.ImgpkgBundle.Image,
@@ -76,7 +78,7 @@ func repositoryList(cmd *cobra.Command, _ []string) error {
 				details)
 		}
 	}
-	t.Render()
+	t.RenderWithSpinner()
 
 	return nil
 }

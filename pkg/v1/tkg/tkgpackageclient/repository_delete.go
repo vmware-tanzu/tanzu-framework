@@ -11,7 +11,7 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
-func (p *pkgClient) DeleteRepository(o *tkgpackagedatamodel.RepositoryDeleteOptions) (bool, error) {
+func (p *pkgClient) DeleteRepository(o *tkgpackagedatamodel.RepositoryOptions) (bool, error) {
 	packageRepo, err := p.kappClient.GetPackageRepository(o.RepositoryName, o.Namespace)
 
 	if err != nil {

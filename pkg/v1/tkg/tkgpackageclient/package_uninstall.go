@@ -34,8 +34,6 @@ func (p *pkgClient) UninstallPackage(o *tkgpackagedatamodel.PackageUninstallOpti
 		return false, errors.Wrap(err, fmt.Sprintf("failed to find installed package '%s' in namespace '%s'", o.PkgInstallName, o.Namespace))
 	}
 
-	log.Infof("Uninstalling package '%s' from namespace '%s'", o.PkgInstallName, o.Namespace)
-
 	if err := p.deletePackageInstall(o); err != nil {
 		return true, err
 	}

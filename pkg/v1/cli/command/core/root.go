@@ -8,8 +8,9 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
-	"github.com/caarlos0/spin"
+	"github.com/briandowns/spinner"
 	"github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
 
@@ -67,7 +68,11 @@ func NewRootCmd() (*cobra.Command, error) {
 
 	// check that all plugins in the core distro are installed or do so.
 	if !noInit && !cli.IsDistributionSatisfied(plugins) {
-		s := spin.New("%s   initializing")
+		s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
+		if err := s.Color("bgBlack", "bold", "fgWhite"); err != nil {
+			return nil, err
+		}
+		s.Suffix = fmt.Sprintf(" %s", "initializing")
 		s.Start()
 		cfg, err := config.GetClientConfig()
 		if err != nil {

@@ -22,8 +22,6 @@ var repositoryUpdateCmd = &cobra.Command{
 
 func init() {
 	repositoryUpdateCmd.Flags().BoolVarP(&repoUpdateOp.CreateRepository, "create", "", false, "Creates the repository if it does not exist")
-	repositoryUpdateCmd.Flags().StringVarP(&repoUpdateOp.Namespace, "namespace", "n", "default", "Namespace of repository, optional")
-	repositoryUpdateCmd.Flags().StringVarP(&repoUpdateOp.KubeConfig, "kubeconfig", "", "", "The path to the kubeconfig file, optional")
 	repositoryCmd.AddCommand(repositoryUpdateCmd)
 }
 

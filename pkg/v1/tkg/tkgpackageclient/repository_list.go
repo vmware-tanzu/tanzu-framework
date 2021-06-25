@@ -11,7 +11,7 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
-func (p *pkgClient) ListRepositories(o *tkgpackagedatamodel.RepositoryListOptions) (*kappipkg.PackageRepositoryList, error) {
+func (p *pkgClient) ListRepositories(o *tkgpackagedatamodel.RepositoryOptions) (*kappipkg.PackageRepositoryList, error) {
 	packageRepositoryList, err := p.kappClient.ListPackageRepositories(o.Namespace)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to list existing package repositories in the cluster")

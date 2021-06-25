@@ -8,13 +8,12 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackageclient"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackagedatamodel"
 )
-
-var repositoryGetOp = tkgpackagedatamodel.NewRepositoryGetOptions()
 
 var repositoryGetCmd = &cobra.Command{
 	Use:   "get REPOSITORY_NAME",
@@ -24,30 +23,37 @@ var repositoryGetCmd = &cobra.Command{
 }
 
 func init() {
-	repositoryGetCmd.Flags().StringVarP(&repositoryGetOp.Namespace, "namespace", "n", "default", "Target namespace to get the repository, optional")
-	repositoryGetCmd.Flags().StringVarP(&repositoryGetOp.KubeConfig, "kubeconfig", "", "", "The path to the kubeconfig file, optional")
 	repositoryGetCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table)")
 	repositoryCmd.AddCommand(repositoryGetCmd)
 }
 
 func repositoryGet(cmd *cobra.Command, args []string) error {
 	if len(args) == 1 {
-		repositoryGetOp.RepositoryName = args[0]
+		repoOp.RepositoryName = args[0]
 	} else {
 		return errors.New("incorrect number of input parameters. Usage: tanzu package repository get REPOSITORY_NAME [FLAGS]")
 	}
-
-	pkgClient, err := tkgpackageclient.NewTKGPackageClient(repositoryGetOp.KubeConfig)
+	pkgClient, err := tkgpackageclient.NewTKGPackageClient(repoOp.KubeConfig)
 	if err != nil {
 		return err
 	}
-
-	packageRepository, err := pkgClient.GetRepository(repositoryGetOp)
+	t, err := component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), outputFormat,
+		fmt.Sprintf("Retrieving repository %s...", repoOp.RepositoryName), true)
 	if err != nil {
-		return errors.Wrap(err, fmt.Sprintf("failed to find package repository '%s'", repositoryGetOp.RepositoryName))
+		return err
 	}
-	t := component.NewOutputWriter(cmd.OutOrStdout(), outputFormat)
 	t.SetKeys("NAME", "VERSION", "REPOSITORY", "STATUS", "REASON")
+
+	packageRepository, err := pkgClient.GetRepository(repoOp)
+	if err != nil {
+		t.StopSpinner()
+		if apierrors.IsNotFound(err) {
+			log.Infof("failed to find package repository '%s'", repoOp.RepositoryName)
+		} else {
+			return err
+		}
+	}
+
 	t.AddRow(
 		packageRepository.Name,
 		packageRepository.ResourceVersion,
@@ -55,6 +61,6 @@ func repositoryGet(cmd *cobra.Command, args []string) error {
 		packageRepository.Status.FriendlyDescription,
 		packageRepository.Status.UsefulErrorMessage,
 	)
-	t.Render()
+	t.RenderWithSpinner()
 	return nil
 }

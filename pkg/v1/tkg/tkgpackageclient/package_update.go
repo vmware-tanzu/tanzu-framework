@@ -12,7 +12,7 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
-func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions) error {
+func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageInstalledOptions) error {
 	pkg, err := p.kappClient.GetPackageInstall(o.PkgInstallName, o.Namespace)
 	if err != nil && !k8serror.IsNotFound(err) {
 		return err

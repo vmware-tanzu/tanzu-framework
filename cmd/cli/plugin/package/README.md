@@ -14,11 +14,11 @@ Usage:
   tanzu package [command]
 
 Available Commands:
-  get           Get details for a package or installed package
-  install       Install a package
-  list          List a package
-  repository    Repository operations
-  uninstall     Uninstall a package
+    available   Manage available packages
+    install     Install a package
+    installed   Manage installed packages
+    repository  Manage registered package repositories
+
 
 Flags:
   -h, --help              help for package
@@ -107,9 +107,19 @@ Note: Steps 2 & 3 are applicable until the kapp controller alpha release is buil
 
 11. Get information of a package
    ```sh
-   >>> tanzu package get --available simple-app.corp.com --version 1.0.0
-   NAME                 VERSION  PACKAGEPROVIDER  MINIMUMCAPACITYREQUIREMENTS  SHORTDESCRIPTION
-   simple-app.corp.com  1.0.0                                                  Simple app consisting of a k8s deployment and service
+   >>> tanzu package available get simple-app.corp.com/version 1.0.0
+        NAME: simple-app.corp.com
+        VERSION: 1.0.0
+        RELEASED-AT: 2021-Jun-23 10:00:00Z
+        DISPLAY-NAME: Simple app
+        SHORT-DESCRIPTION: Simple app consisting of a k8s deployment...
+        PACKAGE-PROVIDER:
+        MINIMUM-CAPACITY-REQUIREMENTS:
+        LONG-DESCRIPTION: ...
+        MAINTAINERS: ...
+        RELEASE-NOTES: ...
+        LICENSE: Apache 2.0
+
    ```
 
 12. Install a package
@@ -142,7 +152,7 @@ Note: Steps 2 & 3 are applicable until the kapp controller alpha release is buil
 
 13. Get information of an installed package
    ```sh
-   >>> tanzu package get simple-app --namespace test-ns
+   >>> tanzu package installed get simple-app --namespace test-ns
    NAME        VERSION     NAMESPACE  STATUS                REASON
    simple-app  3.0.0-rc.1  test-ns    Reconcile succeeded
    ```
@@ -157,14 +167,14 @@ Note: Steps 2 & 3 are applicable until the kapp controller alpha release is buil
 
     Example 2: Update a package which is not installed
     ```sh
-    >>> tanzu package update fluent-bit --package-name fluent-bit.tkg-standard.tanzu.vmware --version 1.0.0 --namespace test-ns --install
+    >>> tanzu package installed update fluent-bit --package-name fluent-bit.tkg-standard.tanzu.vmware --version 1.0.0 --namespace test-ns --install
     Updated package 'fluent-bit' in namespace 'test-ns'
     ```
 
 15. Uninstall a package
 
     ```sh
-    >>> tanzu package uninstall fluentbit --namespace test-ns
+    >>> tanzu package installed delete fluentbit --namespace test-ns
     Uninstalling package 'fluentbit' from namespace 'test-ns'
     Uninstalled package 'fluentbit' from namespace 'test-ns'
     ```
@@ -173,54 +183,50 @@ Note: Steps 2 & 3 are applicable until the kapp controller alpha release is buil
 
    ```sh
    #List installed packages in the default namespace
-   >>> tanzu package list
-   NAME  VERSION
+   >>> tanzu installed list
+   NAME  DISPLAY-NAME  SHORT-DESCRIPTION
   
    #List installed packages across all namespaces
-   >>> tanzu package list -A
-   NAME        VERSION        NAMESPACE      
-   fluent-bit  1.7.5-vmware1  tanzu-logging  
-   mysa        2.0.0          test-sa      
+   >>> tanzu installed list -A
+   NAME       DISPLAY-NAME  SHORT-DESCRIPTION  NAMESPACE
+
   
    #List installed packages in user provided namespace
-   >>> tanzu package list --namespace tanzu-logging
+   >>> tanzu package installed list --namespace tanzu-logging
    NAME        VERSION        
    fluent-bit  1.7.5-vmware1
   
    #List all available package CRs
-   >>> tanzu package list --available --namespace test-ns
+   >>> tanzu package available list
    NAME                                    DISPLAYNAME        SHORTDESCRIPTION                                             
    cert-manager.tkg-standard.tanzu.vmware  cert-manager       This package provides certificate management functionality.  
    fluent-bit.tkg-standard.tanzu.vmware    fluent-bit         This package provides logging functionality.                 
    simple-app.corp.com                     simple-app v1.0.0  Simple app consisting of a k8s deployment and service
   
    #List all available packages for package name
-   >>> tanzu package list --available fluent-bit.tkg-standard.tanzu.vmware --namespace test-ns
-   or
-   >>> tanzu package list fluent-bit.tkg-standard.tanzu.vmware --available --namespace test-ns
-   NAME                                  VERSION        
-   fluent-bit.tkg-standard.tanzu.vmware  1.7.5-vmware1  
+   >>> tanzu package available list fluent-bit.tkg-standard.tanzu.vmware --namespace test-ns
+
   
    With kubeconfig flag
 
-   >>> tanzu package list --kubeconfig wc-kc-alpha8                       
+   >>> tanzu package installed list --kubeconfig wc-kc-alpha8                       
    NAME  VERSION  
   
-   >>> tanzu package list -A --kubeconfig wc-kc-alpha8
+   >>> tanzu package installed list -A --kubeconfig wc-kc-alpha8
    NAME  VERSION        NAMESPACE        
    mycm  1.1.0-vmware1  test-1           
    myfb  1.7.5-vmware1  test-logging-wc  
       
-   >>> tanzu package list --namespace test-logging-wc --kubeconfig wc-kc-alpha8
+   >>> tanzu package installed list --namespace test-logging-wc --kubeconfig wc-kc-alpha8
    NAME  VERSION        
    myfb  1.7.5-vmware1  
   
-   >>> tanzu package list --available --namespace test-ns --kubeconfig wc-kc-alpha8 
+   >>> tanzu package available list --namespace test-ns --kubeconfig wc-kc-alpha8 
    NAME                                    DISPLAYNAME   SHORTDESCRIPTION                                             
    cert-manager.tkg-standard.tanzu.vmware  cert-manager  This package provides certificate management functionality.  
    fluent-bit.tkg-standard.tanzu.vmware    fluent-bit    This package provides logging functionality.                 
   
-   >>> tanzu package list --available cert-manager.tkg-standard.tanzu.vmware --namespace test-ns --kubeconfig wc-kc-alpha8
+   >>> tanzu package available list cert-manager.tkg-standard.tanzu.vmware --namespace test-ns --kubeconfig wc-kc-alpha8
    NAME                                    VERSION        
    cert-manager.tkg-standard.tanzu.vmware  1.1.0-vmware1  
 

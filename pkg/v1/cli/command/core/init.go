@@ -4,8 +4,11 @@
 package core
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/aunum/log"
-	"github.com/caarlos0/spin"
+	"github.com/briandowns/spinner"
 	"github.com/spf13/cobra"
 
 	cliv1alpha1 "github.com/vmware-tanzu-private/core/apis/cli/v1alpha1"
@@ -29,7 +32,11 @@ var initCmd = &cobra.Command{
 	},
 	SilenceErrors: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		s := spin.New("%s   initializing")
+		s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
+		if err := s.Color("bgBlack", "bold", "fgWhite"); err != nil {
+			return err
+		}
+		s.Suffix = fmt.Sprintf(" %s", "initializing")
 		s.Start()
 
 		cfg, err := config.GetClientConfig()

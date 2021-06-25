@@ -11,6 +11,8 @@ type RepositoryOptions struct {
 	Namespace        string
 	CreateRepository bool
 	CreateNamespace  bool
+	IsForceDelete    bool
+	AllNamespaces    bool
 }
 
 // NewRepositoryOptions instantiates RepositoryOptions
