@@ -28,6 +28,20 @@ The CLI has specific targets for local development due to its distributed nature
 
 ### Building Plugins
 
+The CLI builder can accept directories using a single, global Go module
+or multiple Go modules within sub directories.
+
+Generally, the directory structure when building plugins may look like:
+
+```
+plugins-directory
+|- foo-plugin
+|- bar-plugin
+```
+
+where `foo-plugin` and `bar-plugin` are within a single, global, top level Go module
+or are both individually, their own Go module. Both are accepted.
+
 Consider these command while building plugins:
 
 `make build-install-cli-all`: cleans, builds and installs plugins.
