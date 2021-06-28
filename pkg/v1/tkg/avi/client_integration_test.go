@@ -32,7 +32,7 @@ var _ = Describe("AVI Real Client", func() {
 			It("should fail", func() {
 				cp := &avi_models.AviControllerParams{
 					Username: "admin",
-					Password: "Admin!",
+					Password: "CHANGE_BEFORE_USE",
 					Host:     "10.92.195.49",
 					Tenant:   "admin",
 				}
@@ -47,7 +47,7 @@ var _ = Describe("AVI Real Client", func() {
 			It("should succeed", func() {
 				cp := &avi_models.AviControllerParams{
 					Username: "admin",
-					Password: "Admin!23",
+					Password: "CHANGE_BEFORE_USE",
 					Host:     "10.92.195.49",
 					Tenant:   "admin",
 				}
@@ -62,7 +62,7 @@ var _ = Describe("AVI Real Client", func() {
 			It("should fail", func() {
 				cp := &avi_models.AviControllerParams{
 					Username: "admin",
-					Password: "Admin!",
+					Password: "CHANGE_BEFORE_USE",
 					Host:     "10.92.195.49",
 					Tenant:   "admin",
 					CAData: `-----BEGIN CERTIFICATE-----
@@ -95,7 +95,7 @@ S7PlMtE24mmPhGhgoZ1kK8dCsXz66WcvPX7HMzDz041SgvbBQVKLQZ/p
 			It("should succeed", func() {
 				cp := &avi_models.AviControllerParams{
 					Username: "admin",
-					Password: "Admin!23",
+					Password: "CHANGE_BEFORE_USE",
 					Host:     "10.92.195.49",
 					Tenant:   "admin",
 					CAData: `-----BEGIN CERTIFICATE-----
@@ -128,7 +128,7 @@ NZl6xLnQEOlZzdx0Eq2ElNgPwxMRfrysU8Q+MusiMCRxMeE=
 		BeforeEach(func() {
 			cp := &avi_models.AviControllerParams{
 				Username: "admin",
-				Password: "Admin!23",
+				Password: "CHANGE_BEFORE_USE",
 				Host:     "10.92.195.49",
 				Tenant:   "admin",
 				CAData: `-----BEGIN CERTIFICATE-----

@@ -21,6 +21,7 @@ import (
 // AviSessionTimeout is timeout for avi session
 const AviSessionTimeout = 60
 const pageSizeMax = "200"
+const aviDefaultTenant = "admin" // Per TKG-5862
 
 type client struct {
 	ControllerParams   *models.AviControllerParams
@@ -49,7 +50,7 @@ func (c *client) VerifyAccount(params *models.AviControllerParams) (bool, error)
 	if params.CAData == "" {
 		aviClient, err = clients.NewAviClient(params.Host, params.Username,
 			session.SetPassword(params.Password),
-			session.SetTenant(params.Username))
+			session.SetTenant(aviDefaultTenant))
 	} else {
 		var transport *http.Transport
 		caCertPool := x509.NewCertPool()
@@ -62,7 +63,7 @@ func (c *client) VerifyAccount(params *models.AviControllerParams) (bool, error)
 
 		options := []func(*session.AviSession) error{
 			session.SetPassword(params.Password),
-			session.SetTenant(params.Username),
+			session.SetTenant(aviDefaultTenant),
 			session.SetControllerStatusCheckLimits(1, 1),
 			session.DisableControllerStatusCheckOnFailure(true),
 			session.SetTimeout(AviSessionTimeout * time.Second),
