@@ -4,10 +4,19 @@
 package cli
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
+
+type FakeRepository struct {
+	Repository
+}
+
+func (f *FakeRepository) List() ([]Plugin, error) {
+	return []Plugin{}, context.DeadlineExceeded
+}
 
 func TestMultiRepo(t *testing.T) {
 	repoNew := newTestRepo(t, "artifacts-new")
@@ -47,4 +56,17 @@ func TestMultiRepo(t *testing.T) {
 
 	_, err = m.Find("artifacts-new.foo")
 	require.NoError(t, err)
+}
+
+func TestMultiRepoWithUnreachableRepos(t *testing.T) {
+	repoNew := newTestRepo(t, "artifacts-new")
+	repoAlt := newTestRepo(t, "artifacts-alt")
+	repoFake := &FakeRepository{}
+	m := NewMultiRepo(repoNew)
+	m.AddRepository(repoFake)
+	m.AddRepository(repoAlt)
+
+	mp, err := m.ListPlugins()
+	require.Error(t, err)
+	require.Len(t, mp, 1)
 }
