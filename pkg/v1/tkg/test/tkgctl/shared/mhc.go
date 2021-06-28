@@ -56,7 +56,7 @@ func E2EMhcSpec(context context.Context, inputGetter func() E2EMhcSpecInput) { /
 		mcProxy = framework.NewClusterProxy(mcClusterName, "", mcContextName)
 
 		rand.Seed(time.Now().UnixNano())
-		clusterName = "tkg-cli-wc"
+		clusterName = input.E2EConfig.ClusterPrefix + "wc"
 
 		tkgCtlClient, err = tkgctl.New(tkgctl.Options{
 			ConfigDir: input.E2EConfig.TkgConfigDir,

@@ -61,46 +61,39 @@ func E2ECEIPSpec(context context.Context, inputGetter func() E2ECEIPSpecInput) {
 		Expect(err).To(BeNil())
 	})
 
-	Describe("should verify telemetry job urls for stage and prod", func() {
-		It("should verify ceip opted out", func() {
-			_, _ = GinkgoWriter.Write([]byte("Setting opt out status"))
-			err := tkgCtlClient.SetCeip("false", "", "")
-			Expect(err).ToNot(HaveOccurred())
+	It("should verify CEIP opt-in and opt-out", func() {
+		By("should verify ceip opted out")
+		err := tkgCtlClient.SetCeip("false", "", "")
+		Expect(err).ToNot(HaveOccurred())
 
-			duration := 10 * time.Second
-			time.Sleep(duration)
+		duration := 5 * time.Second
+		time.Sleep(duration)
 
-			optOutStatus, err := tkgCtlClient.GetCEIP()
-			Expect(err).ToNot(HaveOccurred())
-			Expect(optOutStatus.CeipStatus).To(Equal("Opt-out"))
-		})
+		optOutStatus, err := tkgCtlClient.GetCEIP()
+		Expect(err).ToNot(HaveOccurred())
+		Expect(optOutStatus.CeipStatus).To(Equal("Opt-out"))
 
-		It("should verify prod telemetry url added", func() {
-			err = tkgCtlClient.SetCeip("true", "true", "")
-			Expect(err).ToNot(HaveOccurred())
+		By("should verify ceip opted in and prod telemetry url")
+		err = tkgCtlClient.SetCeip("true", "true", "")
+		Expect(err).ToNot(HaveOccurred())
 
-			cStatus, err := tkgCtlClient.GetCEIP()
-			Expect(err).ToNot(HaveOccurred())
-			Expect(cStatus.CeipStatus).To(Equal("Opt-in"))
+		cStatus, err := tkgCtlClient.GetCEIP()
+		Expect(err).ToNot(HaveOccurred())
+		Expect(cStatus.CeipStatus).To(Equal("Opt-in"))
 
-			err = verifyTelemetryJobURL(context, "https://scapi.vmware.com", mcProxy)
-			Expect(err).ToNot(HaveOccurred())
-		})
+		err = verifyTelemetryJobURL(context, "https://scapi.vmware.com", mcProxy)
+		Expect(err).ToNot(HaveOccurred())
 
-		It("should verify staging telemetry url added", func() {
-			err = tkgCtlClient.SetCeip("true", "false", "")
-			Expect(err).ToNot(HaveOccurred())
+		By("should verify ceip opted in and stage telemetry url")
+		err = tkgCtlClient.SetCeip("true", "false", "")
+		Expect(err).ToNot(HaveOccurred())
 
-			cStatus, err := tkgCtlClient.GetCEIP()
-			Expect(err).ToNot(HaveOccurred())
-			Expect(cStatus.CeipStatus).To(Equal("Opt-in"))
+		cStatus, err = tkgCtlClient.GetCEIP()
+		Expect(err).ToNot(HaveOccurred())
+		Expect(cStatus.CeipStatus).To(Equal("Opt-in"))
 
-			err = verifyTelemetryJobURL(context, "https://scapi-stg.vmware.com", mcProxy)
-			Expect(err).ToNot(HaveOccurred())
-		})
-	})
-
-	AfterEach(func() {
+		err = verifyTelemetryJobURL(context, "https://scapi-stg.vmware.com", mcProxy)
+		Expect(err).ToNot(HaveOccurred())
 	})
 }
 

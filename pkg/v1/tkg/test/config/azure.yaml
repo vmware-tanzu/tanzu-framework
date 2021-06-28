@@ -1,8 +1,13 @@
 ---
 infrastructure_name: azure
-infrastructure_version: v0.4.10
-capi_version: v0.3.10
-kubernetes_version: v1.20.4+vmware.1
+cluster_prefix: ""
+tkg_config_variables:
+  AZURE_SUBSCRIPTION_ID: ""
+  AZURE_TENANT_ID: ""
+  AZURE_CLIENT_ID: ""
+  AZURE_CLIENT_SECRET: ""
+  AZURE_LOCATION: eastus
+  AZURE_SSH_PUBLIC_KEY_B64: >-
+    c3NoLXJzYSBBQUFBQjNOemFDMXljMkVBQUFBREFRQUJBQUFCQVFDeGJUQVNQdDFXemNtdGl0VGVlTVpPWDRRdG1ROURvSUFydGNwSXJVTkgzL1dJTjhna3RDSURGSklQQzA2RGNMekh5QzlKeUxRcmEyODdqWktFZUp0OUhVZ215UDBwVEI0R3dsUjQxSnNaMm1uRU05bHI0YVQyQy96eDlkWE94d0tyMWlONnpjUlhjOHJlYk9xZlJKdG8xSEd1WkF6SVdOWXJ0ZDZKWSsxL2MxWXJFaVhmeUhOWVdJK3drdzdQaWJBOUlMSnh1SW00L01xNHJVUlNUL2FSclVsSVRZQStvK1FqRjZPNDQyMkFTaXl0UUxQRVVrb2VmMHQrRnNLSms3YXBnaHFLT2tIaVRPTTkzTkd6MVZpU2V6ZlNrR21oc0xIOXVxQ0ovaDQwektFWGJNbEh1NjBML3VOOHhUcEhhMWY2MWh1cU90WDZzelN2M0RkcWdpVFogc2FpYkBzYWliLWEwMS52bXdhcmUuY29t
 management_cluster_options:
   plan: dev
-kubernetes_version_old: v1.19.1+vmware.2

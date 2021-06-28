@@ -23,8 +23,6 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgctl"
 )
 
-const clusterName = "tkg-cli-wc"
-
 var (
 	// path to the e2e config file
 	e2eConfigPath string
@@ -34,6 +32,8 @@ var (
 
 	// config read from e2eConfigPath to be used in the tests
 	e2eConfig *framework.E2EConfig
+
+	clusterName string
 )
 
 func TestE2E(t *testing.T) {
@@ -103,6 +103,7 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	}
 
 	// Create initial workload cluster
+	clusterName = e2eConfig.ClusterPrefix + "wc"
 	options := framework.CreateClusterOptions{
 		ClusterName: clusterName,
 		Namespace:   constants.DefaultNamespace,
@@ -155,7 +156,6 @@ var _ = SynchronizedAfterSuite(func() {
 	timeout, err := time.ParseDuration(e2eConfig.DefaultTimeout)
 	Expect(err).To(BeNil())
 
-	clusterName := "tkg-cli-wc"
 	By(fmt.Sprintf("Deleting workload cluster %q", clusterName))
 
 	logsDir := filepath.Join(artifactsFolder, "logs")

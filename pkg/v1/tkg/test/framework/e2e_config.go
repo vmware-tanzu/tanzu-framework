@@ -102,6 +102,9 @@ func (c *E2EConfig) Defaults() {
 		home, err := os.UserHomeDir()
 		Expect(err).To(BeNil())
 		c.TkgConfigDir = filepath.Join(home, ".tkg")
+
+		err = os.MkdirAll(c.TkgConfigDir, os.ModePerm)
+		Expect(err).To(BeNil())
 	}
 
 	if c.TkgClusterConfigPath == "" {
