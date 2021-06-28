@@ -12,6 +12,10 @@ on:
       - 'pkg/v1/providers/**'
       - '.github/workflows/plugin_tests.yaml'
 
+concurrency:
+  group: ${{ format('plugin-tests-{0}', github.head_ref) }}
+  cancel-in-progress: true
+
 jobs:
   build:
     name: Plugin Tests

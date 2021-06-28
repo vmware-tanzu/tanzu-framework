@@ -54,7 +54,7 @@ func WaitForNodes(proxy *ClusterProxy, desiredCount int) {
 		time.Sleep(30 * time.Second) // nolint:gomnd
 	}
 
-	Fail("Timed out waiting for nodes count to reach %q", desiredCount)
+	Fail(fmt.Sprintf("Timed out waiting for nodes count to reach %q", desiredCount))
 }
 
 // GetTempClusterConfigFile gets temporary config file
@@ -62,7 +62,7 @@ func GetTempClusterConfigFile(clusterConfigFile string, options *CreateClusterOp
 	clusterOptions := map[string]string{}
 
 	_, err := os.Stat(clusterConfigFile)
-	if err != nil {
+	if err == nil {
 		yamlFile, err := ioutil.ReadFile(clusterConfigFile)
 		if err != nil {
 			return "", err
