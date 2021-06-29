@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Report a bug to help us improve Core
+about: Report a bug to help us improve Tanzu Framework
 ---
 
 **Bug description**

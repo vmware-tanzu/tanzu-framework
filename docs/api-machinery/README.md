@@ -4,4 +4,4 @@ Documentation for API Machinery related things.
 
 ## Table of Contents
 
-* [Tanzu Core Controllers Using Kubebuilder](tanzu-core-controllers.md)
+* [Tanzu Framework Controllers Using Kubebuilder](tanzu-core-controllers.md)

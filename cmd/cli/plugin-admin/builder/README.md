@@ -8,7 +8,7 @@ Scaffolds and builds Tanzu plugin repositories
 
 `tanzu builder init <repo-name>` will initialize a new plugin repository with scaffolding for:
 
-- Core CLI integration
+- Tanzu Framework CLI integration
 - GolangCI linting config
 - Github and Gitlab CI config
 - A Makefile

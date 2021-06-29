@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest an idea to improve Core
+about: Suggest an idea to improve Tanzu Framework
 ---
 (This is used to request new product features)
 

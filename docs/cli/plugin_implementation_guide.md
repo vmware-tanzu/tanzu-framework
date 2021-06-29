@@ -13,7 +13,7 @@ The Tanzu CLI is a modular design that consists of plugins. To bootstrap a new p
 This architecture enables teams to build, own, and release their own piece of functionality as well as enable external partners to integrate with the system.
 
 Current implementations:
-- [Core plugins](https://github.com/vmware-tanzu-private/core/tree/main/cmd/cli/plugin)
+- [Tanzu Framework plugins](https://github.com/vmware-tanzu-private/core/tree/main/cmd/cli/plugin)
 - [Admin plugins](https://github.com/vmware-tanzu-private/core/tree/main/cmd/cli/plugin-admin)
 - [Advanced plugins](https://gitlab.eng.vmware.com/tanzu/cli-plugins)
 
@@ -78,22 +78,22 @@ On boot, the CLI will check that the distro is present within the given set of p
 Initialization of the distributions can be prevented by setting the env var `TANZU_CLI_NO_INIT=true`
 
 ### Release
-When a git tag is created on the repositories, it will version all the plugins in that repository to the current tag. The plugin binaries built for that 
-tag will be namespaced under the tag semver. 
+When a git tag is created on the repositories, it will version all the plugins in that repository to the current tag. The plugin binaries built for that
+tag will be namespaced under the tag semver.
 
 All merges to main will be under the `dev` namespace in the artifacts repository.
 
-When listing or installing plugins, a `version finder` is used to parse the available versions of the plugin. By defaultc the version finder will attempt to 
+When listing or installing plugins, a `version finder` is used to parse the available versions of the plugin. By defaultc the version finder will attempt to
 find the latest stable semver, which excludes semvers with build suffixes e.g. `1.2.3-rc.1`. If you wish to include unstable builds you can use the `--include-unstable` flag which will look for the latest version regardless of build suffixes.
 
 ------------------------------
 
 ## Repositories
-The core framework exists in https://github.com/vmware-tanzu-private/core any
+Framework exists in https://github.com/vmware-tanzu/tanzu-framework any
 plugins that are considered open source should exist in that repository as well.
 
 Other repositories should follow the model seen in
-(TODO:add example url) and vendor the core repository.
+(TODO:add example url) and vendor the repository.
 Ideally these plugins should exist in the same area as the API definitions.
 
 ------------------------------
@@ -104,7 +104,7 @@ CLI commands should utilize the plugin component library in `pkg/cli/component` 
 
 ### Asynchronous Requests
 Commands should be written in such a way as to return as quickly as possible.
-When a request is not expected to return immediately, as is often the case with declarative commands, the command should return immediately with an exit code indicating the server's response. 
+When a request is not expected to return immediately, as is often the case with declarative commands, the command should return immediately with an exit code indicating the server's response.
 
 The completion notice should include an example of the `get` command the user would need in order to poll the resource to check the state/status of the operation.
 

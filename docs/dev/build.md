@@ -1,15 +1,15 @@
-# Developing With Core
+# Developing With Tanzu Framework
 
-Core is meant to be extended, and these docs will help outline the available dev-centric features.
+Framework is meant to be extended, and these docs will help outline the available dev-centric features.
 
 ## Local Builds
 
 There are Make targets provided to help establish a good workflow for local development.
-With these workflows you can iterate on changes to APIs, Core CLI or CLI Plugins.
+With these workflows you can iterate on changes to APIs, Framework CLI or CLI Plugins.
 
 ### Building APIs
 
-To build the APIs in core, the following commands exist:
+To build the APIs in Framework, the following commands exist:
 
 `make generate`: Generates API and boilerplate code via controller-gen.
 
@@ -18,7 +18,7 @@ To build the APIs in core, the following commands exist:
 `make deploy`: Runs kustomize on config/ output and pipes to kubectl to deploy to your current kubeconfig
 context.
 
-### Tanzu Core CLI
+### Framework CLI
 
 The CLI has specific targets for local development due to its distributed nature.
 

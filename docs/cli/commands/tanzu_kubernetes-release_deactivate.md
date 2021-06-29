@@ -1,19 +1,19 @@
-## tanzu kubernetes-release get
+## tanzu kubernetes-release deactivate
 
-Get available Tanzu Kubernetes Releases
+Deactivate Tanzu Kubernetes Releases
 
 ### Synopsis
 
-Get available Tanzu Kubernetes Releases
+Deactivate Tanzu Kubernetes Releases
 
 ```
-tanzu kubernetes-release get TKR_NAME [flags]
+tanzu kubernetes-release deactivate TKR_NAME [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for get
+  -h, --help   help for deactivate
 ```
 
 ### Options inherited from parent commands

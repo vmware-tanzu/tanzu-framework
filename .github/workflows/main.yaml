@@ -115,7 +115,7 @@ jobs:
       uses: golangci/golangci-lint-action@v2
       with:
         version: v1.39.0
-        args: --timeout=5m -v
+        args: --timeout=10m -v
         working-directory: ${{matrix.working-directory}}
 
     - name: Run vale doc linter

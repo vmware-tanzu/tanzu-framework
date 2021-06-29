@@ -29,7 +29,7 @@ Windows executable can be found at https://storage.googleapis.com/tanzu-cli/arti
 
 * [go](https://golang.org/dl/) version 1.16
 
-Clone the core repo and run the below command to build and install CLI and plugins locally
+Clone Tanzu Framework and run the below command to build and install CLI and plugins locally.
 ```
 TANZU_CLI_NO_INIT=true make build-install-cli-all
 ```

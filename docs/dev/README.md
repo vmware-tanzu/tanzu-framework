@@ -1,9 +1,9 @@
 # Development Docs
 
-Documentation for the Core repo development process.
+Documentation centered on Tanzu Framework and its development process.
 
 ## Table of Contents
 
-* [Local Development With Core](build.md)
+* [Local Development With Framework](build.md)
 * [Troubleshooting](troubleshooting.md)
 * [Design Proposal Template](_proposal.md)

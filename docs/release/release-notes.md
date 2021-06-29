@@ -1,8 +1,8 @@
 # Release notes
 
 This document provides guidance on providing release notes for changes made to
-the core repo. Release notes act as a direct line of communication with the
-users, making them aware of the changes and act as reference points for users 
+Tanzu Framework. Release notes act as a direct line of communication with the
+users, making them aware of the changes and act as reference points for users
 about to install or upgrade to a particular release.
 
 ## Table of Contents
@@ -23,7 +23,7 @@ this could mean:
 - Metrics changes
 - Dependency changes
 - API changes
-- CLI Changes  
+- CLI Changes
 - Configuration schema change
 - Fix of a vulnerability (CVE)
 
@@ -36,7 +36,7 @@ No release notes are required for changes to:
 A release note needs a clear, concise description of the change in simple plain language.
 This includes:
 
-* an indicator if the pull request Added, Changed, Fixed, Removed, Deprecated 
+* an indicator if the pull request Added, Changed, Fixed, Removed, Deprecated
   functionality or changed enhancement.
 * the name of the affected API or configuration fields, CLI commands/flags.
 * a link to relevant user documentation about the enhancement/feature.
@@ -56,7 +56,7 @@ Some examples of release notes:
 * Fixed a bug that prevents CLI from initializing.
 
 ## Applying a Release Note
-Any pull request with user visible changes, should 
+Any pull request with user visible changes, should
 * include a release-note block in the pull request description.
 * add an appropriate [kind label](kind-labels.md) to the pull request.
 
@@ -80,5 +80,5 @@ A release note needs to be changed or rephrased if one of the following cases
 apply:
 * The release note does not communicate the full purpose of the change.
 * The release note is grammatically incorrect.
-* The release does not comply with the guidelines on the contents of the 
+* The release does not comply with the guidelines on the contents of the
   release note.

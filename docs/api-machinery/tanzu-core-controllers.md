@@ -1,11 +1,11 @@
-# Tanzu Core Controllers Using Kubebuilder
+# Tanzu Framework Controllers Using Kubebuilder
 
 ## Table of Contents
 
 * [Summary](#summary)
 * [Goals](#goals)
 * [Non Goals](#non-goals)
-* [Building Controllers in Core](#building-controllers-in-core)
+* [Building Framework Controllers](#building-Framework-controllers)
   * [Create a new API and Controller](#create-a-new-api-and-controller)
   * [Change API and Controller](#change-api-and-controller)
   * [Generate Deepcopy Functions and Manifests](#generate-deepcopy-functions-and-manifests)
@@ -30,12 +30,12 @@
 
 ## Summary
 
-This document provides guidance for controller development in `vmware-tanzu-private/core` repo using Kubebuilder and
+This document provides guidance for controller development in `vmware-tanzu/tanzu-framework` repo using Kubebuilder and
 outlines some best practices.
 
 ## Goals
 
-* Standardize controller development in core repo using Kubebuilder.
+* Standardize Framework controller development using Kubebuilder.
 * Provide guidance on how to get started with writing new controllers.
 * Provide best practices for controller development and webhook conversion.
 
@@ -43,10 +43,10 @@ outlines some best practices.
 
 * Provide guidance on resource naming and versioning.
 
-## Building Controllers in Core
+## Building Framework Controllers
 
-The `core` repo is already set up for using Kubebuilder with the domain `tanzu.vmware.com`, which means all the resources
-created in `core` will end with `tanzu.vmware.com` in its API group.
+The `tanzu-framework` repo is already set up for using Kubebuilder with the domain `tanzu.vmware.com`, which means all the resources
+created in `tanzu-framework` will end with `tanzu.vmware.com` in its API group.
 
 ### Create a new API and Controller
 

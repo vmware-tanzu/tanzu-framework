@@ -21,7 +21,7 @@ The CLI is based on a plugin architecture. This architecture enables teams to bu
 
 ### Current implementations
 
-- Core plugins
+-  Main Tanzu Framework plugins
   - Plugins required to provide the base functionality for the Tanzu CLI.
 - Admin plugins
   - Plugins for creating, managing and testing plugins.
@@ -128,10 +128,10 @@ Conversely, a stable version is one that does not contain such a suffix.
 ## Groups
 Plugins are displayed within groups. This enables the user to easily identify what functionality they may be looking for as plugins proliferate.
 
-Currently updating plugin groups is not available to end users. New groups must be added to the core repo. This was done to improve consistency but may want to be revisited in the future.
+Currently updating plugin groups is not available to end users as new groups must be added to Framework directly. This was done to improve consistency but may want to be revisited in the future.
 
 ## Testing
-Every plugin requires a test which the compiler enforces. Plugin tests are a nested binary under the plugin which should implement the test framework. 
+Every plugin requires a test which the compiler enforces. Plugin tests are a nested binary under the plugin which should implement the test framework.
 
 Plugin tests can be run by installing the admin test plugin, which provides the ability to run tests for any of the currently installed plugins. It will fetch the test binaries for each plugin from its respective repo.
 

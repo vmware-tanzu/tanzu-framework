@@ -3,7 +3,7 @@
 When running commands or developing locally, sometimes things may go awry and you may need
 more information on the status of the cluster.
 
-The following tips may be useful when troubleshooting aspects of Core.
+The following tips may be useful when troubleshooting aspects of Tanzu Framework.
 
 ### Verbose Output
 
@@ -24,4 +24,4 @@ The [Build doc](build.md) describes how to accomplish this.
 ### Open an Issue
 
 If you stumble into a situation where a clean build of the main branch will not build cleanly, please open an
-issue for the Core team so we can help.
+issue for Framework so the team can help.
