@@ -14,10 +14,13 @@ import (
 var packageInstalledUpdateOp = tkgpackagedatamodel.NewPackageInstalledOptions()
 
 var packageInstalledUpdateCmd = &cobra.Command{
-	Use:   "update",
+	Use:   "update INSTALLED_PACKAGE_NAME",
 	Short: "Update installed package",
 	Args:  cobra.ExactArgs(1),
-	RunE:  packageUpdate,
+	Example: `
+    # Update installed package with name 'mypkg' with some version to version '3.0.0-rc.1' in specified namespace 	
+    tanzu package installed update mypkg --version 3.0.0-rc.1 --namespace test-ns`,
+	RunE: packageUpdate,
 }
 
 func init() {

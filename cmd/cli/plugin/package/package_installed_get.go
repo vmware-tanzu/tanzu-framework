@@ -18,10 +18,13 @@ import (
 var packageInstalledGetOp = tkgpackagedatamodel.NewPackageGetOptions()
 
 var packageInstalledGetCmd = &cobra.Command{
-	Use:   "get NAME",
+	Use:   "get INSTALLED_PACKAGE_NAME",
 	Short: "Get details for an installed package",
 	Args:  cobra.ExactArgs(1),
-	RunE:  packageInstalledGet,
+	Example: `
+    # Get package details for installed package with name 'contour-pkg' in specified namespace 	
+    tanzu package installed get contour-pkg --namespace test-ns`,
+	RunE: packageInstalledGet,
 }
 
 func init() {
@@ -57,6 +60,7 @@ func packageInstalledGet(cmd *cobra.Command, args []string) error {
 	t.AddRow("PACKAGE-VERSION", pkg.Spec.PackageRef.VersionSelection.Constraints)
 	t.AddRow("STATUS", pkg.Status.FriendlyDescription)
 	t.AddRow("CONDITIONS", pkg.Status.Conditions)
+	t.AddRow("USEFUL-ERROR-MESSAGE", pkg.Status.UsefulErrorMessage)
 
 	t.RenderWithSpinner()
 

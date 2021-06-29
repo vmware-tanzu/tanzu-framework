@@ -17,7 +17,13 @@ var repositoryListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List repositories",
 	Args:  cobra.NoArgs,
-	RunE:  repositoryList,
+	Example: `
+    # List repositories across all namespaces 	
+    tanzu package repository list -A
+	
+    # List installed packages from default namespace	
+    tanzu package repository list`,
+	RunE: repositoryList,
 }
 
 func init() {

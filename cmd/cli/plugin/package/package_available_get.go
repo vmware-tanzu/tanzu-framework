@@ -16,9 +16,12 @@ import (
 )
 
 var packageAvailableGetCmd = &cobra.Command{
-	Use:     "get PACKAGE_NAME or PACKAGE_NAME/VERSION",
-	Short:   "get package detail",
-	Args:    cobra.ExactArgs(1),
+	Use:   "get PACKAGE_NAME or PACKAGE_NAME/VERSION",
+	Short: "get package detail",
+	Args:  cobra.ExactArgs(1),
+	Example: `
+    # Get package details for a package with specified version 	
+    tanzu package available get contour.tanzu.vmware.com/1.15.1-tkg.1-vmware1 --namespace test-ns`,
 	RunE:    packageAvailableGet,
 	PreRunE: validatePackage,
 }

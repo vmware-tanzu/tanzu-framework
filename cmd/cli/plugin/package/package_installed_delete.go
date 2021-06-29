@@ -18,11 +18,14 @@ import (
 var packageInstalledDeleteOp = tkgpackagedatamodel.NewPackageUninstallOptions()
 
 var packageInstalledDeleteCmd = &cobra.Command{
-	Use:   "delete INSTALL_NAME",
+	Use:   "delete INSTALLED_PACKAGE_NAME",
 	Short: "Delete an installed package",
 	Long:  "Remove the installed package and almost all resources installed as part of installation of the package from the cluster. Namespaces created during installation of the package, do not automatically get deleted at the time of package uninstallation.",
 	Args:  cobra.ExactArgs(1),
-	RunE:  packageUninstall,
+	Example: `
+    # Delete installed package with name 'contour-pkg' from specified namespace 	
+    tanzu package installed delete contour-pkg -n test-ns`,
+	RunE: packageUninstall,
 }
 
 func init() {

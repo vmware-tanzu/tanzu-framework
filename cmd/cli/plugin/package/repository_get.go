@@ -19,7 +19,10 @@ var repositoryGetCmd = &cobra.Command{
 	Use:   "get REPOSITORY_NAME",
 	Short: "Get repository status",
 	Args:  cobra.ExactArgs(1),
-	RunE:  repositoryGet,
+	Example: `
+    # Get details for a repository in specified namespace 	
+    tanzu package repository get repo --namespace test-ns`,
+	RunE: repositoryGet,
 }
 
 func init() {

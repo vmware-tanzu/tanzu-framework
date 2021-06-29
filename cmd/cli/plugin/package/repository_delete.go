@@ -15,7 +15,10 @@ var repositoryDeleteCmd = &cobra.Command{
 	Use:   "delete REPOSITORY_NAME",
 	Short: "Delete a repository",
 	Args:  cobra.ExactArgs(1),
-	RunE:  repositoryDelete,
+	Example: `
+    # Delete a repository in specified namespace 	
+    tanzu package repository delete repo --namespace test-ns`,
+	RunE: repositoryDelete,
 }
 
 func init() {

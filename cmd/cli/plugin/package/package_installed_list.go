@@ -14,7 +14,13 @@ var packageInstalledListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List installed packages",
 	Args:  cobra.NoArgs,
-	RunE:  packageInstalledList,
+	Example: `
+    # List installed packages across all namespaces 	
+    tanzu package installed list -A
+	
+    # List installed packages from specified namespace	
+    tanzu package installed list --namespace test-ns`,
+	RunE: packageInstalledList,
 }
 
 func init() {

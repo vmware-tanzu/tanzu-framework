@@ -80,7 +80,7 @@ Note: Steps 2 & 3 are applicable until the kapp controller alpha release is buil
 7. Add a repository
 
    ```sh
-   >>> tanzu package repository add testrepo index.docker.io/k8slt/kc-e2e-test-repo@sha256:62d187c044fd6a5c57ac870733fe4413ebf7e2909d8b6267707c5dd2080821e6 -n test-ns --create-namespace
+   >>> tanzu package repository add testrepo --url index.docker.io/k8slt/kc-e2e-test-repo@sha256:62d187c044fd6a5c57ac870733fe4413ebf7e2909d8b6267707c5dd2080821e6 -n test-ns --create-namespace
    Package Repository 'testrepo' added
    ```
 
@@ -94,7 +94,7 @@ Note: Steps 2 & 3 are applicable until the kapp controller alpha release is buil
 9. Update a repository
 
    ```sh
-   >>> tanzu package repository update testrepo2 projects-stg.registry.vmware.com/tkg/shivaani/package-bundle:1.0.0 -n test-ns
+   >>> tanzu package repository update testrepo2 --url projects-stg.registry.vmware.com/tkg/shivaani/package-bundle:1.0.0 -n test-ns
    Updated package repository 'testrepo2'
    ```
 
@@ -108,17 +108,17 @@ Note: Steps 2 & 3 are applicable until the kapp controller alpha release is buil
 11. Get information of a package
    ```sh
    >>> tanzu package available get simple-app.corp.com/version 1.0.0
-        NAME: simple-app.corp.com
-        VERSION: 1.0.0
-        RELEASED-AT: 2021-Jun-23 10:00:00Z
-        DISPLAY-NAME: Simple app
-        SHORT-DESCRIPTION: Simple app consisting of a k8s deployment...
-        PACKAGE-PROVIDER:
-        MINIMUM-CAPACITY-REQUIREMENTS:
-        LONG-DESCRIPTION: ...
-        MAINTAINERS: ...
-        RELEASE-NOTES: ...
-        LICENSE: Apache 2.0
+    NAME: simple-app.corp.com
+    VERSION: 1.0.0
+    RELEASED-AT: 2021-Jun-23 10:00:00Z
+    DISPLAY-NAME: Simple app
+    SHORT-DESCRIPTION: Simple app consisting of a k8s deployment...
+    PACKAGE-PROVIDER:
+    MINIMUM-CAPACITY-REQUIREMENTS:
+    LONG-DESCRIPTION: ...
+    MAINTAINERS: ...
+    RELEASE-NOTES: ...
+    LICENSE: Apache 2.0
 
    ```
 

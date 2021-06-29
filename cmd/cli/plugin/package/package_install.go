@@ -18,10 +18,16 @@ import (
 var packageInstallOp = tkgpackagedatamodel.NewPackageInstalledOptions()
 
 var packageInstallCmd = &cobra.Command{
-	Use:   "install INSTALL_NAME",
+	Use:   "install INSTALLED_PACKAGE_NAME",
 	Short: "Install a package",
 	Args:  cobra.ExactArgs(1),
-	RunE:  packageInstall,
+	Example: `
+    # Install package contour with installed package name as 'contour-pkg' with specified version and without waiting for package reconciliation to complete 	
+    tanzu package install contour-pkg --package-name contour.tanzu.vmware.com --namespace test-ns --version 1.15.1-tkg.1-vmware1 --wait=false
+	
+    # Install package contour with kubeconfig flag and waiting for package reconcilaition to complete	
+    tanzu package install contour-pkg --package-name contour.tanzu.vmware.com --namespace test-ns --version 1.15.1-tkg.1-vmware1 --kubeconfig path/to/kubeconfig`,
+	RunE: packageInstall,
 }
 
 func init() {
@@ -32,7 +38,7 @@ func init() {
 	packageInstallCmd.Flags().StringVarP(&packageInstallOp.ServiceAccountName, "service-account-name", "", "", "Name of an existing service account used to install underlying package contents, optional")
 	packageInstallCmd.Flags().StringVarP(&packageInstallOp.ValuesFile, "values-file", "f", "", "The path to the configuration values file, optional")
 	packageInstallCmd.Flags().StringVarP(&packageInstallOp.KubeConfig, "kubeconfig", "", "", "The path to the kubeconfig file, optional")
-	packageInstallCmd.Flags().BoolVarP(&packageInstallOp.Wait, "wait", "", true, "Wait for the package reconciliation to complete, optional")
+	packageInstallCmd.Flags().BoolVarP(&packageInstallOp.Wait, "wait", "", true, "Wait for the package reconciliation to complete, optional. To disable wait, specify --wait=false")
 	packageInstallCmd.Flags().DurationVarP(&packageInstallOp.PollInterval, "poll-interval", "", tkgpackagedatamodel.DefaultPollInterval, "Time interval between subsequent polls of package reconciliation status, optional")
 	packageInstallCmd.Flags().DurationVarP(&packageInstallOp.PollTimeout, "poll-timeout", "", tkgpackagedatamodel.DefaultPollTimeout, "Timeout value for polls of package reconciliation status, optional")
 	packageInstallCmd.MarkFlagRequired("package-name") //nolint

@@ -16,7 +16,13 @@ var packageAvailableListCmd = &cobra.Command{
 	Use:   "list or list PACKAGE_NAME",
 	Short: "List available packages",
 	Args:  cobra.MaximumNArgs(1),
-	RunE:  packageAvailableList,
+	Example: `
+    # List available packages across all namespaces 	
+    tanzu package available list -A
+	
+    # List all versions for available package from specified namespace	
+    tanzu package available list contour.tanzu.vmware.com --namespace test-ns`,
+	RunE: packageAvailableList,
 }
 
 func init() {
