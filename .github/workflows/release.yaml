@@ -56,3 +56,11 @@ jobs:
         path: ./artifacts-admin
         destination: tanzu-cli-admin-plugins
         credentials: ${{ secrets.GCP_BUCKET_SA }}
+
+    - id: create_draft_release
+      name: Create Draft Release
+      uses: softprops/action-gh-release@v1
+      with:
+        draft: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
