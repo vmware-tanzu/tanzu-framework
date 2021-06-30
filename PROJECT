@@ -11,4 +11,7 @@ resources:
 - group: cli
   kind: Catalog
   version: v1alpha1
+- group: config
+  kind: Feature
+  version: v1alpha1
 version: "2"

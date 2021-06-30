@@ -1,0 +1,10 @@
+apiVersion: config.tanzu.vmware.com/v1alpha1
+kind: Feature
+metadata:
+  name: feature-sample
+spec:
+  description: "A sample Feature"
+  immutable: false
+  discoverable: true
+  maturity: "dev"
+  activated: false
