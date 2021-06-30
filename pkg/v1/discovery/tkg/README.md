@@ -1,13 +1,17 @@
 # TKG Discovery
 
-This repository is a collection of constants and functions which expose Discovery queries aimed at making it simple to extend and integrate with TKG.
+This repository is a collection of constants and functions which expose Discovery queries aimed at making it simple to 
+extend and integrate with TKG.
 
+Initialize a new TKG `DiscoveryClient` using `rest.Config`. Then, you can run any existing queries:
 
-Initialize a new new TKGDiscovery client with a context, a dynamic client and a discovery client. Then, you can run any existing queries:
-```
-tkg := NewTKGDiscovery(ctx, dynamicClient, discoveryClient)
+```go
+tkg, err := NewDiscoveryClientForConfig(cfg)
+if err != nil {
+	log.Fatal(err)
+}
 
-if !tkg.IsProviderFoo() {
-	log.Fatal("Provider Type is Foo")
+if tkg.IsManagementCluster() {
+	log.Info("Management cluster")
 }
 ```

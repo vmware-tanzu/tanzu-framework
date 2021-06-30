@@ -6,7 +6,21 @@ package discovery
 import (
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/rest"
 )
+
+// NewClusterQueryClientForConfig returns a new cluster query builder for a REST config.
+func NewClusterQueryClientForConfig(config *rest.Config) (*ClusterQueryClient, error) {
+	discoveryClient, err := discovery.NewDiscoveryClientForConfig(config)
+	if err != nil {
+		return nil, err
+	}
+	dynamicClient, err := dynamic.NewForConfig(config)
+	if err != nil {
+		return nil, err
+	}
+	return NewClusterQueryClient(dynamicClient, discoveryClient)
+}
 
 // NewClusterQueryClient returns a new cluster query builder
 func NewClusterQueryClient(dynamicClient dynamic.Interface, discoveryClient discovery.DiscoveryInterface) (*ClusterQueryClient, error) {
@@ -74,7 +88,7 @@ func (c *ClusterQuery) Execute() (bool, error) {
 		}
 	}
 
-	return true, nil
+	return len(c.queryFailures) == 0, nil
 }
 
 // Prepare queries for the discovery API on the resources, GVKs and/or partial schema a cluster has.
