@@ -86,9 +86,12 @@ Note: Steps 2 & 3 are applicable until the kapp controller alpha release is buil
 
 8. Get repository status
    ```sh
-   >>> tanzu package repository get testrepo -n test-ns
-   NAME      VERSION  REPOSITORY                                                                                                        STATUS               REASON
-   testrepo  627590   index.docker.io/k8slt/kc-e2e-repo-bundle@sha256:388d353574446eea0bba4e3f656079963660704e0d474fbc87b3a9bc6efb1688  Reconcile succeeded
+   >>> tanzu package repository get testrepo -n test-ns 
+   NAME        test-repo                                                       
+   VERSION     3656761                                                         
+   REPOSITORY  projects-stg.registry.vmware.com/tkg/shivaani/test-repo:v1.0.0  
+   STATUS      Reconcile succeeded                                             
+   REASON                                                                                                                     
    ```
 
 9. Update a repository
