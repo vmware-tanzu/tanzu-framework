@@ -4,10 +4,9 @@ import (
 	"bytes"
 	"fmt"
 	"strings"
+	"time"
 
 	"k8s.io/apimachinery/pkg/util/wait"
-
-	"time"
 
 	clitest "github.com/vmware-tanzu-private/core/pkg/v1/test/cli"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackagedatamodel"
@@ -23,11 +22,11 @@ type PackagePluginBase interface {
 	GetAvailablePackage(packageName string, o *tkgpackagedatamodel.PackageAvailableOptions) PackagePluginResult
 	ListAvailablePackage(o *tkgpackagedatamodel.PackageAvailableOptions) PackagePluginResult
 
-	CreateInstalledPackage(o *tkgpackagedatamodel.PackageInstalledOptions) PackagePluginResult
-	GetInstalledPackage(o *tkgpackagedatamodel.PackageGetOptions) PackagePluginResult
-	UpdateInstalledPackage(o *tkgpackagedatamodel.PackageInstalledOptions) PackagePluginResult
-	DeleteInstalledPackage(o *tkgpackagedatamodel.PackageUninstallOptions) PackagePluginResult
-	ListInstalledPackage(o *tkgpackagedatamodel.PackageInstalledOptions) PackagePluginResult
+	CreateInstalledPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult
+	GetInstalledPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult
+	UpdateInstalledPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult
+	DeleteInstalledPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult
+	ListInstalledPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult
 }
 
 type PackagePluginHelpers interface {
@@ -36,10 +35,10 @@ type PackagePluginHelpers interface {
 	CheckAndDeleteRepository(o *tkgpackagedatamodel.RepositoryOptions) PackagePluginResult
 	CheckRepositoryDeleted(o *tkgpackagedatamodel.RepositoryOptions) PackagePluginResult
 	CheckPackageAvailable(packageName string, o *tkgpackagedatamodel.PackageAvailableOptions) PackagePluginResult
-	CheckAndInstallPackage(o *tkgpackagedatamodel.PackageInstalledOptions) PackagePluginResult
-	CheckPackageInstalled(o *tkgpackagedatamodel.PackageInstalledOptions) PackagePluginResult
-	CheckAndUninstallPackage(o *tkgpackagedatamodel.PackageUninstallOptions) PackagePluginResult
-	CheckPackageDeleted(o *tkgpackagedatamodel.PackageUninstallOptions) PackagePluginResult
+	CheckAndInstallPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult
+	CheckPackageInstalled(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult
+	CheckAndUninstallPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult
+	CheckPackageDeleted(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult
 }
 
 type PackagePlugin interface {
@@ -225,7 +224,7 @@ func (p *packagePlugin) ListAvailablePackage(o *tkgpackagedatamodel.PackageAvail
 	return result
 }
 
-func (p *packagePlugin) CreateInstalledPackage(o *tkgpackagedatamodel.PackageInstalledOptions) PackagePluginResult {
+func (p *packagePlugin) CreateInstalledPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult {
 	var result PackagePluginResult
 	cmd := fmt.Sprintf("tanzu package installed create %s --package-name %s", o.PkgInstallName, o.PackageName)
 	if o.Version != "" {
@@ -259,7 +258,7 @@ func (p *packagePlugin) CreateInstalledPackage(o *tkgpackagedatamodel.PackageIns
 	return result
 }
 
-func (p *packagePlugin) GetInstalledPackage(o *tkgpackagedatamodel.PackageGetOptions) PackagePluginResult {
+func (p *packagePlugin) GetInstalledPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult {
 	var result PackagePluginResult
 	cmd := fmt.Sprintf("tanzu package installed get %s", o.PackageName)
 	if o.Namespace != "" {
@@ -272,7 +271,7 @@ func (p *packagePlugin) GetInstalledPackage(o *tkgpackagedatamodel.PackageGetOpt
 	return result
 }
 
-func (p *packagePlugin) UpdateInstalledPackage(o *tkgpackagedatamodel.PackageInstalledOptions) PackagePluginResult {
+func (p *packagePlugin) UpdateInstalledPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult {
 	var result PackagePluginResult
 	cmd := fmt.Sprintf("tanzu package installed update %s --package-name %s", o.PkgInstallName, o.PackageName)
 	if o.Version != "" {
@@ -306,7 +305,7 @@ func (p *packagePlugin) UpdateInstalledPackage(o *tkgpackagedatamodel.PackageIns
 	return result
 }
 
-func (p *packagePlugin) DeleteInstalledPackage(o *tkgpackagedatamodel.PackageUninstallOptions) PackagePluginResult {
+func (p *packagePlugin) DeleteInstalledPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult {
 	var result PackagePluginResult
 	cmd := fmt.Sprintf("tanzu package installed delete %s", o.PkgInstallName)
 	if o.Namespace != "" {
@@ -325,7 +324,7 @@ func (p *packagePlugin) DeleteInstalledPackage(o *tkgpackagedatamodel.PackageUni
 	return result
 }
 
-func (p *packagePlugin) ListInstalledPackage(o *tkgpackagedatamodel.PackageInstalledOptions) PackagePluginResult {
+func (p *packagePlugin) ListInstalledPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult {
 	var result PackagePluginResult
 	cmd := fmt.Sprintf("tanzu package installed list")
 	if o.Namespace != "" {
@@ -432,9 +431,9 @@ func (p *packagePlugin) CheckPackageAvailable(packageName string, o *tkgpackaged
 	return result
 }
 
-func (p *packagePlugin) CheckAndInstallPackage(o *tkgpackagedatamodel.PackageInstalledOptions) PackagePluginResult {
+func (p *packagePlugin) CheckAndInstallPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult {
 	var result PackagePluginResult
-	getResult := p.GetInstalledPackage(&tkgpackagedatamodel.PackageGetOptions{
+	getResult := p.GetInstalledPackage(&tkgpackagedatamodel.PackageOptions{
 		PackageName: o.PkgInstallName,
 		Namespace:   o.Namespace,
 	})
@@ -444,10 +443,10 @@ func (p *packagePlugin) CheckAndInstallPackage(o *tkgpackagedatamodel.PackageIns
 	return result
 }
 
-func (p *packagePlugin) CheckPackageInstalled(o *tkgpackagedatamodel.PackageInstalledOptions) PackagePluginResult {
+func (p *packagePlugin) CheckPackageInstalled(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult {
 	var result PackagePluginResult
 	if err := wait.PollImmediate(p.interval, p.timeout, func() (done bool, err error) {
-		result = p.GetInstalledPackage(&tkgpackagedatamodel.PackageGetOptions{
+		result = p.GetInstalledPackage(&tkgpackagedatamodel.PackageOptions{
 			PackageName: o.PkgInstallName,
 			Namespace:   o.Namespace,
 		})
@@ -468,9 +467,9 @@ func (p *packagePlugin) CheckPackageInstalled(o *tkgpackagedatamodel.PackageInst
 	return result
 }
 
-func (p *packagePlugin) CheckAndUninstallPackage(o *tkgpackagedatamodel.PackageUninstallOptions) PackagePluginResult {
+func (p *packagePlugin) CheckAndUninstallPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult {
 	var result PackagePluginResult
-	getResult := p.GetInstalledPackage(&tkgpackagedatamodel.PackageGetOptions{
+	getResult := p.GetInstalledPackage(&tkgpackagedatamodel.PackageOptions{
 		PackageName: o.PkgInstallName,
 		Namespace:   o.Namespace,
 	})
@@ -480,10 +479,10 @@ func (p *packagePlugin) CheckAndUninstallPackage(o *tkgpackagedatamodel.PackageU
 	return result
 }
 
-func (p *packagePlugin) CheckPackageDeleted(o *tkgpackagedatamodel.PackageUninstallOptions) PackagePluginResult {
+func (p *packagePlugin) CheckPackageDeleted(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult {
 	var result PackagePluginResult
 	if err := wait.PollImmediate(p.interval, p.timeout, func() (done bool, err error) {
-		result = p.GetInstalledPackage(&tkgpackagedatamodel.PackageGetOptions{
+		result = p.GetInstalledPackage(&tkgpackagedatamodel.PackageOptions{
 			PackageName: o.PkgInstallName,
 			Namespace:   o.Namespace,
 		})

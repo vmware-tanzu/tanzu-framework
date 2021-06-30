@@ -40,14 +40,14 @@ func repositoryDelete(_ *cobra.Command, args []string) error {
 
 	found, err := pkgClient.DeleteRepository(repoOp)
 	if !found {
-		log.Warningf("Could not find package repository '%s' in namespace '%s'\n", repoOp.RepositoryName, repoOp.Namespace)
+		log.Warningf("package repository '%s' does not exist in namespace '%s'", repoOp.RepositoryName, repoOp.Namespace)
 		return nil
 	}
 	if err != nil {
 		return err
 	}
 
-	log.Infof("Deleted package repository '%s' in namespace '%s'\n", repoOp.RepositoryName, repoOp.Namespace)
+	log.Infof("Deleted package repository '%s' in namespace '%s'", repoOp.RepositoryName, repoOp.Namespace)
 
 	return nil
 }

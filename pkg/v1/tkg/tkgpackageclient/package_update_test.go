@@ -24,7 +24,7 @@ var _ = Describe("Update Package", func() {
 		crtCtl  *fakes.CRTClusterClient
 		kappCtl *fakes.KappClient
 		err     error
-		opts    = tkgpackagedatamodel.PackageInstalledOptions{
+		opts    = tkgpackagedatamodel.PackageOptions{
 			PkgInstallName:  testPkgInstallName,
 			Namespace:       testNamespaceName,
 			Version:         "2.0.0",
@@ -33,12 +33,20 @@ var _ = Describe("Update Package", func() {
 			CreateNamespace: true,
 			Install:         false,
 		}
-		options = opts
+		options  = opts
+		progress *tkgpackagedatamodel.PackageProgress
 	)
 
 	JustBeforeEach(func() {
+		progress = &tkgpackagedatamodel.PackageProgress{
+			ProgressMsg: make(chan string, 10),
+			Err:         make(chan error),
+			Done:        make(chan struct{}),
+			Success:     make(chan bool),
+		}
 		ctl = &pkgClient{kappClient: kappCtl}
-		err = ctl.UpdatePackageInstall(&options)
+		go ctl.UpdatePackage(&options, progress)
+		err = testReceive(progress)
 	})
 
 	Context("failure in getting the installed package due to GetPackageInstall API error", func() {
@@ -111,6 +119,7 @@ var _ = Describe("Update Package", func() {
 		BeforeEach(func() {
 			options.Version = testPkgVersion
 			kappCtl = &fakes.KappClient{}
+			testPkgInstall.Spec.PackageRef.VersionSelection = nil
 			kappCtl.GetPackageInstallReturns(testPkgInstall, nil)
 			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
 		})
@@ -118,7 +127,10 @@ var _ = Describe("Update Package", func() {
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("failed to update package 'test-pkg'"))
 		})
-		AfterEach(func() { options = opts })
+		AfterEach(func() {
+			options = opts
+			testPkgInstall.Spec.PackageRef.VersionSelection = testVersionSelection
+		})
 	})
 
 	Context("failure in updating the installed package due to UpdatePackageInstall API error", func() {

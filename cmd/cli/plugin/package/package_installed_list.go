@@ -24,17 +24,17 @@ var packageInstalledListCmd = &cobra.Command{
 }
 
 func init() {
-	packageInstalledListCmd.Flags().BoolVarP(&packageinstalledOp.AllNamespaces, "all-namespaces", "A", false, "If present, list packages across all namespaces.")
+	packageInstalledListCmd.Flags().BoolVarP(&packageInstalledOp.AllNamespaces, "all-namespaces", "A", false, "If present, list packages across all namespaces.")
 	packageInstalledCmd.AddCommand(packageInstalledListCmd)
 }
 
 func packageInstalledList(cmd *cobra.Command, args []string) error {
-	kc, err := kappclient.NewKappClient(packageinstalledOp.KubeConfig)
+	kc, err := kappclient.NewKappClient(packageInstalledOp.KubeConfig)
 	if err != nil {
 		return err
 	}
-	if packageinstalledOp.AllNamespaces {
-		packageinstalledOp.Namespace = ""
+	if packageInstalledOp.AllNamespaces {
+		packageInstalledOp.Namespace = ""
 	}
 	t, err := component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), outputFormat,
 		"Retrieving installed packages...", true)
@@ -42,19 +42,19 @@ func packageInstalledList(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	pkgInstalledList, err := kc.ListPackageInstalls(packageinstalledOp.Namespace)
+	pkgInstalledList, err := kc.ListPackageInstalls(packageInstalledOp.Namespace)
 	if err != nil {
 		return err
 	}
 
-	if packageinstalledOp.AllNamespaces {
+	if packageInstalledOp.AllNamespaces {
 		t.SetKeys("NAME", "PACKAGE-NAME", "PACKAGE-VERSION", "STATUS", "NAMESPACE")
 	} else {
 		t.SetKeys("NAME", "PACKAGE-NAME", "PACKAGE-VERSION", "STATUS")
 	}
 	for i := range pkgInstalledList.Items {
 		pkg := pkgInstalledList.Items[i]
-		if packageinstalledOp.AllNamespaces {
+		if packageInstalledOp.AllNamespaces {
 			t.AddRow(pkg.Name, pkg.Spec.PackageRef.RefName, pkg.Spec.PackageRef.VersionSelection.Constraints,
 				pkg.Status.FriendlyDescription, pkg.Namespace)
 		} else {

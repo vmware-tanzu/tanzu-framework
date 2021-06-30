@@ -1,6 +1,6 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-//nolint:dupl
+
 package main
 
 import (
@@ -39,7 +39,7 @@ func repositoryUpdate(_ *cobra.Command, args []string) error {
 		return err
 	}
 
-	log.Infof("Updated package repository '%s'", repoOp.RepositoryName)
+	log.Infof("Updated package repository '%s' in namespace '%s'", repoOp.RepositoryName, repoOp.Namespace)
 
 	return nil
 }

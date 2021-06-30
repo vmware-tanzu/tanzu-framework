@@ -3,16 +3,16 @@
 
 package tkgpackagedatamodel
 
-// RepositoryOptions includes fields for repository install/update
+// RepositoryOptions includes fields for repository operations
 type RepositoryOptions struct {
-	RepositoryName   string
-	RepositoryURL    string
 	KubeConfig       string
 	Namespace        string
+	RepositoryName   string
+	RepositoryURL    string
+	AllNamespaces    bool
 	CreateRepository bool
 	CreateNamespace  bool
 	IsForceDelete    bool
-	AllNamespaces    bool
 }
 
 // NewRepositoryOptions instantiates RepositoryOptions

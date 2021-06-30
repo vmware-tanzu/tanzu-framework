@@ -25,15 +25,15 @@ var _ = Describe("Uninstall Package", func() {
 		crtCtl  *fakes.CRTClusterClient
 		kappCtl *fakes.KappClient
 		err     error
-		found   bool
-		opts    = tkgpackagedatamodel.PackageUninstallOptions{
+		opts    = tkgpackagedatamodel.PackageOptions{
 			PkgInstallName: testPkgInstallName,
 			Namespace:      testNamespaceName,
 			PollInterval:   testPollInterval,
 			PollTimeout:    testPollTimeout,
 		}
-		options = opts
-		app     = kappctrl.App{
+		options  = opts
+		progress *tkgpackagedatamodel.PackageProgress
+		app      = kappctrl.App{
 			TypeMeta:   metav1.TypeMeta{Kind: "App"},
 			ObjectMeta: metav1.ObjectMeta{Name: testPkgInstallName, Namespace: testNamespaceName},
 			Status: kappctrl.AppStatus{
@@ -59,8 +59,15 @@ var _ = Describe("Uninstall Package", func() {
 	)
 
 	JustBeforeEach(func() {
+		progress = &tkgpackagedatamodel.PackageProgress{
+			ProgressMsg: make(chan string, 10),
+			Err:         make(chan error),
+			Done:        make(chan struct{}),
+			Success:     make(chan bool),
+		}
 		ctl = &pkgClient{kappClient: kappCtl}
-		found, err = ctl.UninstallPackage(&options)
+		go ctl.UninstallPackage(&options, progress)
+		err = testReceive(progress)
 	})
 
 	Context("failure in getting installed packages due to GetPackageInstall API error", func() {
@@ -71,7 +78,6 @@ var _ = Describe("Uninstall Package", func() {
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("failure in GetPackageInstall"))
-			Expect(found).To(BeFalse())
 		})
 		AfterEach(func() { options = opts })
 	})
@@ -87,7 +93,6 @@ var _ = Describe("Uninstall Package", func() {
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("failure in PackageInstall deletion"))
-			Expect(found).To(BeTrue())
 		})
 		AfterEach(func() { options = opts })
 	})
@@ -108,7 +113,6 @@ var _ = Describe("Uninstall Package", func() {
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring(testUsefulErrMsg))
-			Expect(found).To(BeTrue())
 		})
 		AfterEach(func() { options = opts })
 	})
@@ -134,7 +138,6 @@ var _ = Describe("Uninstall Package", func() {
 				deletedResourceNames[i] = testGetObjectName(obj)
 			}
 			Expect(deletedResourceNames).Should(ConsistOf(expectedDeletedResourceNames))
-			Expect(found).To(BeTrue())
 		})
 		AfterEach(func() { options = opts })
 	})

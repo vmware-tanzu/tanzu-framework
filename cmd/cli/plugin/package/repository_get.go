@@ -50,10 +50,10 @@ func repositoryGet(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		t.StopSpinner()
 		if apierrors.IsNotFound(err) {
-			log.Infof("failed to find package repository '%s'", repoOp.RepositoryName)
-		} else {
-			return err
+			log.Warningf("package repository '%s' does not exist in namespace '%s'", repoOp.RepositoryName, repoOp.Namespace)
+			return nil
 		}
+		return err
 	}
 
 	t.AddRow("NAME:", packageRepository.Name)

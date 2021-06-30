@@ -22,17 +22,21 @@ var _ = Describe("List Packages", func() {
 		ctl     *pkgClient
 		kappCtl *fakes.KappClient
 		err     error
-		opts    = tkgpackagedatamodel.PackageListOptions{
-			Available:     false,
+		opts    = tkgpackagedatamodel.PackageOptions{
 			AllNamespaces: false,
-			ListInstalled: false,
 			Namespace:     testNamespaceName,
 		}
-		options         = opts
-		pkgMetadataList *kapppkg.PackageMetadataList
-		packageInstalls *kappipkg.PackageInstallList
-		packageVersions *kapppkg.PackageList
-		pkgInstallList  = &kappipkg.PackageInstallList{
+		options       = opts
+		optsAvailable = tkgpackagedatamodel.PackageAvailableOptions{
+			Namespace:     testNamespaceName,
+			AllNamespaces: false,
+			ValuesSchema:  false,
+		}
+		optionsAvailable = optsAvailable
+		pkgMetadataList  *kapppkg.PackageMetadataList
+		packageInstalls  *kappipkg.PackageInstallList
+		packageVersions  *kapppkg.PackageList
+		pkgInstallList   = &kappipkg.PackageInstallList{
 			TypeMeta: metav1.TypeMeta{Kind: "PackageInstallList"},
 			Items:    []kappipkg.PackageInstall{*testPkgInstall},
 		}
@@ -47,39 +51,36 @@ var _ = Describe("List Packages", func() {
 
 	Context("failure in listing available packages due to ListPackageMetadata API error", func() {
 		BeforeEach(func() {
-			options.Available = true
 			kappCtl = &fakes.KappClient{}
 			kappCtl.ListPackageMetadataReturns(nil, errors.New("failure in ListPackageMetadata"))
 			ctl = &pkgClient{kappClient: kappCtl}
-			pkgMetadataList, err = ctl.ListPackageMetadata(&options)
+			pkgMetadataList, err = ctl.ListPackageMetadata(&optionsAvailable)
 		})
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("failure in ListPackageMetadata"))
 			Expect(pkgMetadataList).To(BeNil())
 		})
-		AfterEach(func() { options = opts })
+		AfterEach(func() { optionsAvailable = optsAvailable })
 	})
 
 	Context("success in listing available packages", func() {
 		BeforeEach(func() {
-			options.Available = true
 			kappCtl = &fakes.KappClient{}
 			kappCtl.ListPackageMetadataReturns(packageMetadataList, nil)
 			ctl = &pkgClient{kappClient: kappCtl}
-			pkgMetadataList, err = ctl.ListPackageMetadata(&options)
+			pkgMetadataList, err = ctl.ListPackageMetadata(&optionsAvailable)
 		})
 		It(testSuccessMsg, func() {
 			Expect(err).NotTo(HaveOccurred())
 			Expect(pkgMetadataList).NotTo(BeNil())
 			Expect(pkgMetadataList).To(Equal(packageMetadataList))
 		})
-		AfterEach(func() { options = opts })
+		AfterEach(func() { optionsAvailable = optsAvailable })
 	})
 
 	Context("failure in listing installed packages due to ListPackageInstalls API error", func() {
 		BeforeEach(func() {
-			options.ListInstalled = true
 			kappCtl = &fakes.KappClient{}
 			kappCtl.ListPackageInstallsReturns(nil, errors.New("failure in ListPackageInstalls"))
 			ctl = &pkgClient{kappClient: kappCtl}
@@ -95,7 +96,6 @@ var _ = Describe("List Packages", func() {
 
 	Context("success in listing installed packages", func() {
 		BeforeEach(func() {
-			options.ListInstalled = true
 			kappCtl = &fakes.KappClient{}
 			kappCtl.ListPackageInstallsReturns(pkgInstallList, nil)
 			ctl = &pkgClient{kappClient: kappCtl}
@@ -111,35 +111,33 @@ var _ = Describe("List Packages", func() {
 
 	Context("failure in listing package versions due to ListPackages API error", func() {
 		BeforeEach(func() {
-			options.Available = true
-			options.PackageName = testPkgInstallName
+			optionsAvailable.PackageName = testPkgInstallName
 			kappCtl = &fakes.KappClient{}
 			kappCtl.ListPackagesReturns(nil, errors.New("failure in ListPackages"))
 			ctl = &pkgClient{kappClient: kappCtl}
-			packageVersions, err = ctl.ListPackages(&options)
+			packageVersions, err = ctl.ListPackages(&optionsAvailable)
 		})
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("failure in ListPackages"))
 			Expect(packageVersions).To(BeNil())
 		})
-		AfterEach(func() { options = opts })
+		AfterEach(func() { optionsAvailable = optsAvailable })
 	})
 
 	Context("success in listing package versions", func() {
 		BeforeEach(func() {
-			options.Available = true
-			options.PackageName = testPkgInstallName
+			optionsAvailable.PackageName = testPkgInstallName
 			kappCtl = &fakes.KappClient{}
 			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
 			ctl = &pkgClient{kappClient: kappCtl}
-			packageVersions, err = ctl.ListPackages(&options)
+			packageVersions, err = ctl.ListPackages(&optionsAvailable)
 		})
 		It(testSuccessMsg, func() {
 			Expect(err).NotTo(HaveOccurred())
 			Expect(packageVersions).NotTo(BeNil())
 			Expect(packageVersions).To(Equal(testPkgVersionList))
 		})
-		AfterEach(func() { options = opts })
+		AfterEach(func() { optionsAvailable = optsAvailable })
 	})
 })

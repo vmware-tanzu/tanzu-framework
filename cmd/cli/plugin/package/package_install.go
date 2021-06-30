@@ -15,7 +15,7 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
-var packageInstallOp = tkgpackagedatamodel.NewPackageInstalledOptions()
+var packageInstallOp = tkgpackagedatamodel.NewPackageOptions()
 
 var packageInstallCmd = &cobra.Command{
 	Use:   "install INSTALLED_PACKAGE_NAME",
@@ -57,17 +57,20 @@ func packageInstall(_ *cobra.Command, args []string) error {
 		ProgressMsg: make(chan string, 10),
 		Err:         make(chan error),
 		Done:        make(chan struct{}),
+		Success:     make(chan bool),
 	}
-	go pkgClient.InstallPackageWithProgress(packageInstallOp, pp)
+	go pkgClient.InstallPackage(packageInstallOp, pp, false)
 
-	if err := displayInstallProgress(fmt.Sprintf("Installing package %s", packageInstallOp.PackageName), pp); err != nil {
+	initialMsg := fmt.Sprintf("Installing package '%s'", packageInstallOp.PackageName)
+	successMsg := fmt.Sprintf("Added installed package '%s' in namespace '%s'", packageInstallOp.PkgInstallName, packageInstallOp.Namespace)
+	if err := displayProgress(initialMsg, successMsg, pp); err != nil {
 		return err
 	}
-	log.Infof("Added installed package '%s' in namespace '%s'\n", packageInstallOp.PkgInstallName, packageInstallOp.Namespace)
+
 	return nil
 }
 
-func displayInstallProgress(initialMsg string, pp *tkgpackagedatamodel.PackageProgress) error {
+func displayProgress(initialMsg, successMsg string, pp *tkgpackagedatamodel.PackageProgress) error {
 	var currMsg string
 
 	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
@@ -100,6 +103,12 @@ func displayInstallProgress(initialMsg string, pp *tkgpackagedatamodel.PackagePr
 					s.Suffix = fmt.Sprintf(" %s", msg)
 					currMsg = msg
 				}
+			}
+			return nil
+
+		case success := <-pp.Success:
+			if success {
+				log.Infof("\n %s", successMsg)
 			}
 			return nil
 		}

@@ -5,17 +5,12 @@ package main
 
 import (
 	"fmt"
-	"time"
 
-	"github.com/briandowns/spinner"
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackageclient"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackagedatamodel"
 )
-
-var packageInstalledDeleteOp = tkgpackagedatamodel.NewPackageUninstallOptions()
 
 var packageInstalledDeleteCmd = &cobra.Command{
 	Use:   "delete INSTALLED_PACKAGE_NAME",
@@ -29,38 +24,33 @@ var packageInstalledDeleteCmd = &cobra.Command{
 }
 
 func init() {
-	packageInstalledDeleteCmd.Flags().StringVarP(&packageInstalledDeleteOp.Namespace, "namespace", "n", "default", "Target namespace from which the package should be deleted, optional")
-	packageInstalledDeleteCmd.Flags().DurationVarP(&packageInstalledDeleteOp.PollInterval, "poll-interval", "", tkgpackagedatamodel.DefaultPollInterval, "Time interval between subsequent polls of package deletion status, optional")
-	packageInstalledDeleteCmd.Flags().DurationVarP(&packageInstalledDeleteOp.PollTimeout, "poll-timeout", "", tkgpackagedatamodel.DefaultPollTimeout, "Timeout value for polls of package deletion status, optional")
+	packageInstalledDeleteCmd.Flags().StringVarP(&packageInstalledOp.Namespace, "namespace", "n", "default", "Target namespace from which the package should be deleted, optional")
+	packageInstalledDeleteCmd.Flags().DurationVarP(&packageInstalledOp.PollInterval, "poll-interval", "", tkgpackagedatamodel.DefaultPollInterval, "Time interval between subsequent polls of package deletion status, optional")
+	packageInstalledDeleteCmd.Flags().DurationVarP(&packageInstalledOp.PollTimeout, "poll-timeout", "", tkgpackagedatamodel.DefaultPollTimeout, "Timeout value for polls of package deletion status, optional")
 	packageInstalledCmd.AddCommand(packageInstalledDeleteCmd)
 }
 
 func packageUninstall(_ *cobra.Command, args []string) error {
-	packageInstalledDeleteOp.PkgInstallName = args[0]
+	packageInstalledOp.PkgInstallName = args[0]
 
-	pkgClient, err := tkgpackageclient.NewTKGPackageClient(packageInstalledDeleteOp.KubeConfig)
+	pkgClient, err := tkgpackageclient.NewTKGPackageClient(packageInstalledOp.KubeConfig)
 	if err != nil {
 		return err
 	}
 
-	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
-	if err := s.Color("bgBlack", "bold", "fgWhite"); err != nil {
-		return err
+	pp := &tkgpackagedatamodel.PackageProgress{
+		ProgressMsg: make(chan string, 10),
+		Err:         make(chan error),
+		Done:        make(chan struct{}),
+		Success:     make(chan bool),
 	}
-	s.Suffix = fmt.Sprintf(" %s", fmt.Sprintf("Deleting installed package '%s' from namespace '%s'",
-		packageInstalledDeleteOp.PkgInstallName, packageInstalledDeleteOp.Namespace))
-	s.Start()
+	go pkgClient.UninstallPackage(packageInstalledOp, pp)
 
-	found, err := pkgClient.UninstallPackage(packageInstalledDeleteOp)
-	s.Stop()
-	if !found {
-		log.Infof("Installed package '%s' not found in namespace '%s'\n", packageInstalledDeleteOp.PkgInstallName, packageInstalledDeleteOp.Namespace)
-		return nil
-	}
-	if err != nil {
+	initialMsg := fmt.Sprintf("Uninstalling package '%s' from namespace '%s'", packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace)
+	successMsg := fmt.Sprintf("Uninstalled package '%s' from namespace '%s'", packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace)
+	if err := displayProgress(initialMsg, successMsg, pp); err != nil {
 		return err
 	}
-	log.Infof("Deleted installed package '%s' from namespace '%s'\n", packageInstalledDeleteOp.PkgInstallName, packageInstalledDeleteOp.Namespace)
 
 	return nil
 }

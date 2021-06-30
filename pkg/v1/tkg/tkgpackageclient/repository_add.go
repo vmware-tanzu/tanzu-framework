@@ -46,3 +46,24 @@ func (p *pkgClient) newPackageRepository(repositoryName, repositoryImg, namespac
 		}},
 	}
 }
+
+// validateRepository ensures that another repository (with the same name or same OCI registry URL) does not already exist in the cluster
+func (p *pkgClient) validateRepository(repositoryName, repositoryImg, namespace string) error {
+	repositoryList, err := p.kappClient.ListPackageRepositories(namespace)
+	if err != nil {
+		return errors.Wrap(err, "failed to list package repositories")
+	}
+
+	for _, repository := range repositoryList.Items { //nolint:gocritic
+		if repository.Name == repositoryName {
+			return errors.New("repository with the same name already exists")
+		}
+
+		if repository.Spec.Fetch != nil && repository.Spec.Fetch.ImgpkgBundle != nil &&
+			repository.Spec.Fetch.ImgpkgBundle.Image == repositoryImg {
+			return errors.New("repository with the same OCI registry URL already exists")
+		}
+	}
+
+	return nil
+}

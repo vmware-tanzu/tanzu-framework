@@ -17,16 +17,15 @@ var packageInstalledCreateCmd = &cobra.Command{
 }
 
 func init() {
-	packageInstalledCreateCmd.Flags().StringVarP(&packageInstallOp.PackageName, "package-name", "p", "", "Name of the package to be installed")
-	packageInstalledCreateCmd.Flags().StringVarP(&packageInstallOp.Version, "version", "v", "", "Version of the package to be installed")
-	packageInstalledCreateCmd.Flags().BoolVarP(&packageInstallOp.CreateNamespace, "create-namespace", "", false, "Create namespace if the target namespace does not exist, optional")
-	packageInstalledCreateCmd.Flags().StringVarP(&packageInstallOp.Namespace, "namespace", "n", "default", "Target namespace to install the package, optional")
-	packageInstalledCreateCmd.Flags().StringVarP(&packageInstallOp.ServiceAccountName, "service-account-name", "", "", "Name of an existing service account used to install underlying package contents, optional")
-	packageInstalledCreateCmd.Flags().StringVarP(&packageInstallOp.ValuesFile, "values-file", "f", "", "The path to the configuration values file, optional")
-	packageInstalledCreateCmd.Flags().StringVarP(&packageInstallOp.KubeConfig, "kubeconfig", "", "", "The path to the kubeconfig file, optional")
-	packageInstalledCreateCmd.Flags().BoolVarP(&packageInstallOp.Wait, "wait", "", true, "Wait for the package reconciliation to complete, optional")
-	packageInstalledCreateCmd.Flags().DurationVarP(&packageInstallOp.PollInterval, "poll-interval", "", tkgpackagedatamodel.DefaultPollInterval, "Time interval between subsequent polls of package reconciliation status, optional")
-	packageInstalledCreateCmd.Flags().DurationVarP(&packageInstallOp.PollTimeout, "poll-timeout", "", tkgpackagedatamodel.DefaultPollTimeout, "Timeout value for polls of package reconciliation status, optional")
+	packageInstalledCreateCmd.Flags().StringVarP(&packageInstalledOp.PackageName, "package-name", "p", "", "Name of the package to be installed")
+	packageInstalledCreateCmd.Flags().StringVarP(&packageInstalledOp.Version, "version", "v", "", "Version of the package to be installed")
+	packageInstalledCreateCmd.Flags().BoolVarP(&packageInstalledOp.CreateNamespace, "create-namespace", "", false, "Create namespace if the target namespace does not exist, optional")
+	packageInstalledCreateCmd.Flags().StringVarP(&packageInstalledOp.Namespace, "namespace", "n", "default", "Target namespace to install the package, optional")
+	packageInstalledCreateCmd.Flags().StringVarP(&packageInstalledOp.ServiceAccountName, "service-account-name", "", "", "Name of an existing service account used to install underlying package contents, optional")
+	packageInstalledCreateCmd.Flags().StringVarP(&packageInstalledOp.ValuesFile, "values-file", "f", "", "The path to the configuration values file, optional")
+	packageInstalledCreateCmd.Flags().BoolVarP(&packageInstalledOp.Wait, "wait", "", true, "Wait for the package reconciliation to complete, optional")
+	packageInstalledCreateCmd.Flags().DurationVarP(&packageInstalledOp.PollInterval, "poll-interval", "", tkgpackagedatamodel.DefaultPollInterval, "Time interval between subsequent polls of package reconciliation status, optional")
+	packageInstalledCreateCmd.Flags().DurationVarP(&packageInstalledOp.PollTimeout, "poll-timeout", "", tkgpackagedatamodel.DefaultPollTimeout, "Timeout value for polls of package reconciliation status, optional")
 	packageInstalledCreateCmd.MarkFlagRequired("package-name") //nolint
 	packageInstalledCreateCmd.MarkFlagRequired("version")      //nolint
 	packageInstalledCmd.AddCommand(packageInstalledCreateCmd)

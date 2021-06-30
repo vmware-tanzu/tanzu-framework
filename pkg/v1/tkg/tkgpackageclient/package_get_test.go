@@ -19,7 +19,7 @@ var _ = Describe("Get Installed Package", func() {
 		ctl     *pkgClient
 		kappCtl *fakes.KappClient
 		err     error
-		opts    = tkgpackagedatamodel.PackageGetOptions{
+		opts    = tkgpackagedatamodel.PackageOptions{
 			PackageName: testPkgName,
 			Namespace:   testNamespaceName,
 		}

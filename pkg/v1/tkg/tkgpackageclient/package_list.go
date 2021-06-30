@@ -12,7 +12,7 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
-func (p *pkgClient) ListPackageInstalls(o *tkgpackagedatamodel.PackageListOptions) (*kappipkg.PackageInstallList, error) {
+func (p *pkgClient) ListPackageInstalls(o *tkgpackagedatamodel.PackageOptions) (*kappipkg.PackageInstallList, error) {
 	packageInstallList, err := p.kappClient.ListPackageInstalls(o.Namespace)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to list installed packages")
@@ -20,7 +20,7 @@ func (p *pkgClient) ListPackageInstalls(o *tkgpackagedatamodel.PackageListOption
 	return packageInstallList, nil
 }
 
-func (p *pkgClient) ListPackageMetadata(o *tkgpackagedatamodel.PackageListOptions) (*kapppkg.PackageMetadataList, error) {
+func (p *pkgClient) ListPackageMetadata(o *tkgpackagedatamodel.PackageAvailableOptions) (*kapppkg.PackageMetadataList, error) {
 	packageList, err := p.kappClient.ListPackageMetadata(o.Namespace)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to list packages")
@@ -28,7 +28,7 @@ func (p *pkgClient) ListPackageMetadata(o *tkgpackagedatamodel.PackageListOption
 	return packageList, nil
 }
 
-func (p *pkgClient) ListPackages(o *tkgpackagedatamodel.PackageListOptions) (*kapppkg.PackageList, error) {
+func (p *pkgClient) ListPackages(o *tkgpackagedatamodel.PackageAvailableOptions) (*kapppkg.PackageList, error) {
 	packageVersionList, err := p.kappClient.ListPackages(o.PackageName, o.Namespace)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to list package versions")

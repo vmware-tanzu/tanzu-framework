@@ -70,10 +70,10 @@ func packageAvailableGet(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		t.StopSpinner()
 		if apierrors.IsNotFound(err) {
-			log.Infof("failed to find package '%s'", pkgName)
-		} else {
-			return err
+			log.Warningf("package '%s' does not exist in namespace '%s'", pkgName, packageAvailableOp.Namespace)
+			return nil
 		}
+		return err
 	}
 
 	if pkgVersion != "" {

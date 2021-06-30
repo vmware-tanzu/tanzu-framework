@@ -15,16 +15,15 @@ import (
 type TKGPackageClient interface {
 	AddRepository(o *tkgpackagedatamodel.RepositoryOptions) error
 	DeleteRepository(o *tkgpackagedatamodel.RepositoryOptions) (bool, error)
-	GetPackageInstall(o *tkgpackagedatamodel.PackageGetOptions) (*kappipkg.PackageInstall, error)
-	GetPackage(pkgName, pkgVersion, namespace string) (*kapppkg.PackageMetadata, *kapppkg.Package, error)
+	GetPackageInstall(o *tkgpackagedatamodel.PackageOptions) (*kappipkg.PackageInstall, error)
+	GetPackage(o *tkgpackagedatamodel.PackageOptions) (*kapppkg.PackageMetadata, *kapppkg.Package, error)
 	GetRepository(o *tkgpackagedatamodel.RepositoryOptions) (*kappipkg.PackageRepository, error)
-	InstallPackage(o *tkgpackagedatamodel.PackageInstalledOptions) error
-	InstallPackageWithProgress(o *tkgpackagedatamodel.PackageInstalledOptions, packageProgress *tkgpackagedatamodel.PackageProgress)
-	ListPackageInstalls(o *tkgpackagedatamodel.PackageListOptions) (*kappipkg.PackageInstallList, error)
-	ListPackageMetadata(o *tkgpackagedatamodel.PackageListOptions) (*kapppkg.PackageMetadataList, error)
-	ListPackages(o *tkgpackagedatamodel.PackageListOptions) (*kapppkg.PackageList, error)
+	InstallPackage(o *tkgpackagedatamodel.PackageOptions, packageProgress *tkgpackagedatamodel.PackageProgress, update bool)
+	ListPackageInstalls(o *tkgpackagedatamodel.PackageOptions) (*kappipkg.PackageInstallList, error)
+	ListPackageMetadata(o *tkgpackagedatamodel.PackageAvailableOptions) (*kapppkg.PackageMetadataList, error)
+	ListPackages(o *tkgpackagedatamodel.PackageAvailableOptions) (*kapppkg.PackageList, error)
 	ListRepositories(o *tkgpackagedatamodel.RepositoryOptions) (*kappipkg.PackageRepositoryList, error)
-	UninstallPackage(o *tkgpackagedatamodel.PackageUninstallOptions) (bool, error)
-	UpdatePackageInstall(o *tkgpackagedatamodel.PackageInstalledOptions) error
+	UninstallPackage(o *tkgpackagedatamodel.PackageOptions, packageProgress *tkgpackagedatamodel.PackageProgress)
+	UpdatePackage(o *tkgpackagedatamodel.PackageOptions, packageProgress *tkgpackagedatamodel.PackageProgress)
 	UpdateRepository(o *tkgpackagedatamodel.RepositoryOptions) error
 }

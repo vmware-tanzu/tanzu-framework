@@ -69,7 +69,8 @@ func packageAvailableList(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	pkgs, err := kc.ListPackages(args[0], packageAvailableOp.Namespace)
+	packageAvailableOp.PackageName = args[0]
+	pkgs, err := kc.ListPackages(packageAvailableOp.PackageName, packageAvailableOp.Namespace)
 	if err != nil {
 		return err
 	}

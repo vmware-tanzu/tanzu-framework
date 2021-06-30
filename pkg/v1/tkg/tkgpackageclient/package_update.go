@@ -9,46 +9,60 @@ import (
 	"github.com/pkg/errors"
 	k8serror "k8s.io/apimachinery/pkg/api/errors"
 
+	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
-func (p *pkgClient) UpdatePackageInstall(o *tkgpackagedatamodel.PackageInstalledOptions) error {
-	pkgInstall, err := p.kappClient.GetPackageInstall(o.PkgInstallName, o.Namespace)
-	if err != nil && !k8serror.IsNotFound(err) {
-		return err
+func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progress *tkgpackagedatamodel.PackageProgress) {
+	var (
+		pkgInstall *kappipkg.PackageInstall
+		err        error
+	)
+
+	defer func() {
+		packageProgressCleanup(err, progress)
+	}()
+
+	progress.ProgressMsg <- fmt.Sprintf("Getting package install for '%s'", o.PkgInstallName)
+	pkgInstall, err = p.kappClient.GetPackageInstall(o.PkgInstallName, o.Namespace)
+	if err != nil {
+		if k8serror.IsNotFound(err) {
+			err = nil
+		} else {
+			return
+		}
 	}
 
 	if pkgInstall == nil {
-		// package is not installed yet and install flag is present, install the package
-		if o.Install {
-			if o.PackageName == "" {
-				return errors.New("package-name is required when install flag is declared")
-			}
-			if err := p.InstallPackage(o); err != nil {
-				return err
-			}
-			return nil
+		if !o.Install {
+			err = errors.New(fmt.Sprintf("package '%s' is not among the list of installed packages in namespace '%s'", o.PkgInstallName, o.Namespace))
+			return
 		}
-		return errors.New(fmt.Sprintf("package '%s' is not among the list of installed packages in namespace '%s'", o.PkgInstallName, o.Namespace))
-	}
-
-	// update installed package with a different version
-	if o.Version != pkgInstall.Status.Version {
-		// check if user provided version is valid
-		if _, _, err := p.GetPackage(pkgInstall.Spec.PackageRef.RefName, o.Version, o.Namespace); err != nil {
-			return err
+		if o.PackageName == "" {
+			err = errors.New("package-name is required when install flag is declared")
+			return
 		}
-
+		progress.ProgressMsg <- fmt.Sprintf("Installing package '%s'", o.PkgInstallName)
+		p.InstallPackage(o, progress, true)
+	} else if pkgInstall != nil && o.Version != pkgInstall.Status.Version {
 		if pkgInstall.Spec.PackageRef == nil || pkgInstall.Spec.PackageRef.VersionSelection == nil {
-			return errors.New(fmt.Sprintf("failed to update package '%s'", o.PkgInstallName))
+			err = errors.New(fmt.Sprintf("failed to update package '%s'", o.PkgInstallName))
+			return
 		}
-
+		progress.ProgressMsg <- fmt.Sprintf("Getting package metadata for '%s'", pkgInstall.Spec.PackageRef.RefName)
+		o.PackageName = pkgInstall.Spec.PackageRef.RefName
+		if _, _, err = p.GetPackage(o); err != nil {
+			return
+		}
 		pkgInstallToUpdate := pkgInstall.DeepCopy()
 		pkgInstallToUpdate.Spec.PackageRef.VersionSelection.Constraints = o.Version
+		progress.ProgressMsg <- fmt.Sprintf("Updating package install for '%s'", o.PkgInstallName)
 		if err = p.kappClient.UpdatePackageInstall(pkgInstallToUpdate); err != nil {
-			return errors.Wrap(err, fmt.Sprintf("failed to update package '%s'", o.PkgInstallName))
+			err = errors.Wrap(err, fmt.Sprintf("failed to update package '%s'", o.PkgInstallName))
+			return
 		}
 	}
 
-	return nil
+	progress.Success <- true
 }

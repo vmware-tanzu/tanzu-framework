@@ -20,6 +20,7 @@ import (
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	kapppkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
+	versions "github.com/vmware-tanzu/carvel-vendir/pkg/vendir/versions/v1alpha1"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackagedatamodel"
@@ -48,7 +49,10 @@ var (
 		ObjectMeta: metav1.ObjectMeta{Name: testPkgInstallName, Namespace: testNamespaceName},
 		Spec: kappipkg.PackageInstallSpec{
 			ServiceAccountName: testServiceAccountName,
-			PackageRef:         &kappipkg.PackageRef{RefName: testPkgInstallName},
+			PackageRef: &kappipkg.PackageRef{
+				RefName:          testPkgInstallName,
+				VersionSelection: testVersionSelection,
+			},
 		},
 		Status: kappipkg.PackageInstallStatus{
 			GenericStatus: kappctrl.GenericStatus{
@@ -68,6 +72,10 @@ var (
 			},
 		},
 	}
+
+	testVersionSelection = &versions.VersionSelectionSemver{Constraints: "1.0.0"}
+
+	testPackageInstallName = "test-package"
 )
 
 var _ = Describe("Install Package", func() {
@@ -76,7 +84,7 @@ var _ = Describe("Install Package", func() {
 		crtCtl  *fakes.CRTClusterClient
 		kappCtl *fakes.KappClient
 		err     error
-		opts    = tkgpackagedatamodel.PackageInstalledOptions{
+		opts    = tkgpackagedatamodel.PackageOptions{
 			PkgInstallName:  testPkgInstallName,
 			Namespace:       testNamespaceName,
 			PackageName:     testPkgName,
@@ -85,12 +93,21 @@ var _ = Describe("Install Package", func() {
 			PollTimeout:     testPollTimeout,
 			CreateNamespace: true,
 		}
-		options = opts
+		options  = opts
+		progress *tkgpackagedatamodel.PackageProgress
+		update   bool
 	)
 
 	JustBeforeEach(func() {
+		progress = &tkgpackagedatamodel.PackageProgress{
+			ProgressMsg: make(chan string, 10),
+			Err:         make(chan error),
+			Done:        make(chan struct{}),
+			Success:     make(chan bool),
+		}
 		ctl = &pkgClient{kappClient: kappCtl}
-		err = ctl.InstallPackage(&options)
+		go ctl.InstallPackage(&options, progress, update)
+		err = testReceive(progress)
 	})
 
 	Context("failure in listing package versions due to ListPackages API error", func() {
@@ -190,6 +207,7 @@ var _ = Describe("Install Package", func() {
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
 			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
+			testPkgInstall.Name = testPackageInstallName
 			kappCtl.GetPackageInstallReturns(testPkgInstall, nil)
 			Expect(len(testPkgInstall.Status.Conditions)).To(BeNumerically("==", 2))
 			testPkgInstall.Status.Conditions[1] = kappctrl.AppCondition{Type: kappctrl.ReconcileFailed}
@@ -202,6 +220,7 @@ var _ = Describe("Install Package", func() {
 		AfterEach(func() {
 			options = opts
 			testPkgInstall.Status.Conditions[1].Type = kappctrl.ReconcileSucceeded
+			testPkgInstall.Name = testPkgInstallName
 		})
 	})
 
@@ -243,6 +262,7 @@ var _ = Describe("Install Package", func() {
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
 			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
+			testPkgInstall.Name = testPackageInstallName
 			kappCtl.GetPackageInstallReturns(testPkgInstall, nil)
 		})
 		It(testSuccessMsg, func() {
@@ -250,7 +270,10 @@ var _ = Describe("Install Package", func() {
 			expectedCreatedResourceNames := []string{testServiceAccountName, testClusterRoleName, testClusterRoleBindingName}
 			testPackageInstallPostValidation(crtCtl, kappCtl, expectedCreatedResourceNames)
 		})
-		AfterEach(func() { options = opts })
+		AfterEach(func() {
+			options = opts
+			testPkgInstall.Name = testPkgInstallName
+		})
 	})
 
 	Context("success in installing the package with secret value file specified", func() {
@@ -272,6 +295,21 @@ var _ = Describe("Install Package", func() {
 			options = opts
 			err = os.Remove(testValuesFile)
 			Expect(err).ToNot(HaveOccurred())
+		})
+	})
+
+	Context("success when a duplicate package install name is provided", func() {
+		BeforeEach(func() {
+			options.Wait = true
+			kappCtl = &fakes.KappClient{}
+			crtCtl = &fakes.CRTClusterClient{}
+			kappCtl.GetPackageInstallReturns(testPkgInstall, nil)
+		})
+		It(testFailureMsg, func() {
+			Expect(err).NotTo(HaveOccurred())
+		})
+		AfterEach(func() {
+			options = opts
 		})
 	})
 })
@@ -296,4 +334,19 @@ func testGetObjectName(o interface{}) string {
 	accessor, err := meta.Accessor(o)
 	Expect(err).ToNot(HaveOccurred())
 	return accessor.GetName()
+}
+
+func testReceive(progress *tkgpackagedatamodel.PackageProgress) error {
+	for {
+		select {
+		case err := <-progress.Err:
+			return err
+		case <-progress.ProgressMsg:
+			continue
+		case <-progress.Done:
+			return nil
+		case <-progress.Success:
+			return nil
+		}
+	}
 }

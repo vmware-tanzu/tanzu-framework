@@ -9,7 +9,7 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
-var packageinstalledOp = tkgpackagedatamodel.NewPackageInstalledOptions()
+var packageInstalledOp = tkgpackagedatamodel.NewPackageOptions()
 
 var packageInstalledCmd = &cobra.Command{
 	Use:       "installed",
@@ -19,6 +19,6 @@ var packageInstalledCmd = &cobra.Command{
 }
 
 func init() {
-	packageInstalledCmd.PersistentFlags().StringVarP(&packageinstalledOp.KubeConfig, "kubeconfig", "", "", "The path to the kubeconfig file, optional")
+	packageInstalledCmd.PersistentFlags().StringVarP(&packageInstalledOp.KubeConfig, "kubeconfig", "", "", "The path to the kubeconfig file, optional")
 	packageInstalledCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table)")
 }

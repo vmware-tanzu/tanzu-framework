@@ -10,12 +10,9 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/kappclient"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackageclient"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackagedatamodel"
 )
-
-var packageInstalledGetOp = tkgpackagedatamodel.NewPackageGetOptions()
 
 var packageInstalledGetCmd = &cobra.Command{
 	Use:   "get INSTALLED_PACKAGE_NAME",
@@ -28,33 +25,34 @@ var packageInstalledGetCmd = &cobra.Command{
 }
 
 func init() {
-	packageInstalledGetCmd.Flags().StringVarP(&packageInstalledGetOp.Namespace, "namespace", "n", "default", "Namespace for installed package CR")
+	packageInstalledGetCmd.Flags().StringVarP(&packageInstalledOp.Namespace, "namespace", "n", "default", "Namespace for installed package CR")
 	packageInstalledCmd.AddCommand(packageInstalledGetCmd)
 }
 
 func packageInstalledGet(cmd *cobra.Command, args []string) error {
-	pkgClient, err := tkgpackageclient.NewTKGPackageClient(packageInstalledGetOp.KubeConfig)
+	kc, err := kappclient.NewKappClient(packageAvailableOp.KubeConfig)
 	if err != nil {
 		return err
 	}
+
 	pkgName = args[0]
-	packageInstalledGetOp.PackageName = pkgName
+	packageInstalledOp.PackageName = pkgName
 	t, err := component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), outputFormat,
 		fmt.Sprintf("Retrieving installation details for %s...", pkgName), true)
 	if err != nil {
 		return err
 	}
 
-	pkg, err := pkgClient.GetPackageInstall(packageInstalledGetOp)
-
+	pkg, err := kc.GetPackageInstall(packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace)
 	if err != nil {
 		t.StopSpinner()
 		if apierrors.IsNotFound(err) {
-			log.Infof("failed to find installed package '%s'", pkgName)
-		} else {
-			return err
+			log.Warningf("installed package '%s' does not exist in namespace '%s'", pkgName, packageInstalledOp.Namespace)
+			return nil
 		}
+		return err
 	}
+
 	t.AddRow("NAME", pkg.Name)
 	t.AddRow("PACKAGE-NAME", pkg.Spec.PackageRef.RefName)
 	t.AddRow("PACKAGE-VERSION", pkg.Spec.PackageRef.VersionSelection.Constraints)

@@ -5,13 +5,14 @@ package tkgpackagedatamodel
 
 // PackageAvailableOptions includes fields for package available
 type PackageAvailableOptions struct {
-	Namespace     string
 	KubeConfig    string
+	Namespace     string
+	PackageName   string
 	AllNamespaces bool
 	ValuesSchema  bool
 }
 
-// NewPackageAvailableOptions instantiates PackageListOptions
+// NewPackageAvailableOptions instantiates PackageAvailableOptions
 func NewPackageAvailableOptions() *PackageAvailableOptions {
 	return &PackageAvailableOptions{}
 }
