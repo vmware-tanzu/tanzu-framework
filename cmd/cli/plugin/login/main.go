@@ -15,6 +15,7 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/oauth2"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/tools/clientcmd"
 
 	cliv1alpha1 "github.com/vmware-tanzu-private/core/apis/cli/v1alpha1"
 	configv1alpha1 "github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
@@ -66,12 +67,17 @@ func main() {
 	# Login to TKG management cluster by using kubeconfig path and context for the management cluster
 	tanzu login --kubeconfig path/to/kubeconfig --context path/to/context --name mgmt-cluster
 
+	# Login to TKG management cluster by using default kubeconfig path and context for the management cluster
+	tanzu login  --context path/to/context --name mgmt-cluster
+
 	# Login to an existing server
 	tanzu login --server mgmt-cluster
 
 	[*] : User has two options to login to TKG. User can choose the login endpoint option
 	by providing 'endpoint', or user can choose to use the kubeconfig for the management cluster by
-	providing 'kubeconfig' and 'context'
+	providing 'kubeconfig' and 'context'. If only '--context' is set and '--kubeconfig' is unset
+	$KUBECONFIG env variable would be used and, if $KUBECONFIG env is also unset default 
+	kubeconfig($HOME/.kube/config) would be used
 	`
 	if err := p.Execute(); err != nil {
 		os.Exit(1)
@@ -194,8 +200,8 @@ func getPromptOpts() []component.PromptOpt {
 }
 
 func createNewServer() (server *configv1alpha1.Server, err error) {
-	// user provided command line options to create a server using kubeconfig and context
-	if kubeConfig != "" && kubecontext != "" {
+	// user provided command line options to create a server using kubeconfig[optional] and context
+	if kubecontext != "" {
 		return createServerWithKubeconfig()
 	}
 	// user provided command line options to create a server using endpoint
@@ -228,7 +234,7 @@ func createNewServer() (server *configv1alpha1.Server, err error) {
 
 func createServerWithKubeconfig() (server *configv1alpha1.Server, err error) {
 	promptOpts := getPromptOpts()
-	if kubeConfig == "" {
+	if kubeConfig == "" && kubecontext == "" {
 		err = component.Prompt(
 			&component.PromptConfig{
 				Message: "Enter path to kubeconfig (if any)",
@@ -239,6 +245,9 @@ func createServerWithKubeconfig() (server *configv1alpha1.Server, err error) {
 		if err != nil {
 			return
 		}
+	}
+	if kubeConfig == "" {
+		kubeConfig = getDefaultKubeconfigPath()
 	}
 
 	if kubeConfig != "" && kubecontext == "" {
@@ -445,4 +454,13 @@ func sanitizeEndpoint(endpoint string) string {
 		return fmt.Sprintf("%s:443", endpoint)
 	}
 	return endpoint
+}
+
+func getDefaultKubeconfigPath() string {
+	kubeConfigFilename := os.Getenv(clientcmd.RecommendedConfigPathEnvVar)
+	// fallback to default kubeconfig file location if no env variable set
+	if kubeConfigFilename == "" {
+		kubeConfigFilename = clientcmd.RecommendedHomeFile
+	}
+	return kubeConfigFilename
 }
