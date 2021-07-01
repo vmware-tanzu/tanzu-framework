@@ -25,6 +25,7 @@ var packageInstalledListCmd = &cobra.Command{
 
 func init() {
 	packageInstalledListCmd.Flags().BoolVarP(&packageInstalledOp.AllNamespaces, "all-namespaces", "A", false, "If present, list packages across all namespaces.")
+	packageInstalledListCmd.Flags().StringVarP(&packageInstalledOp.Namespace, "namespace", "n", "default", "Namespace for installed package CR")
 	packageInstalledCmd.AddCommand(packageInstalledListCmd)
 }
 
