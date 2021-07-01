@@ -206,6 +206,10 @@ var _ = Describe("Kind Client", func() {
 		It("generates a config with ipfamily set to ipv6", func() {
 			Expect(kindConfig).To(ContainSubstring("ipFamily: ipv6"))
 		})
+
+		It("nests ipFamilyConfig into networkConfig", func() {
+			Expect(kindConfig).To(MatchRegexp(`(?m)^  ipFamily: ipv6$`))
+		})
 	})
 
 	Context("When CLUSTER_CIDR and SERVICE_CIDR are not set", func() {
