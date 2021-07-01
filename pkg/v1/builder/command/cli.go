@@ -36,10 +36,10 @@ type plugin struct {
 }
 
 var (
-	version, path, artifactsDir, ldflags string
-	corePath, match, description         string
-	dryRun                               bool
-	targetArch                           []string
+	version, path, artifactsDir, ldflags, tags string
+	corePath, match, description               string
+	dryRun                                     bool
+	targetArch                                 []string
 )
 
 const local = "local"
@@ -69,6 +69,7 @@ var CLICmd = &cobra.Command{
 func init() {
 	CompileCmd.Flags().StringVar(&version, "version", "", "version of the root cli (required)")
 	CompileCmd.Flags().StringVar(&ldflags, "ldflags", "", "ldflags to set on build")
+	CompileCmd.Flags().StringVar(&tags, "tags", "", "tags to set on build")
 	CompileCmd.Flags().StringVar(&match, "match", "*", "match a plugin name to build, supports globbing")
 	CompileCmd.Flags().StringArrayVar(&targetArch, "target", []string{"all"}, "only compile for specific target(s), use 'local' to compile for host os")
 	CompileCmd.Flags().StringVar(&path, "path", "./cmd/cli/plugin", "path of the plugins directory")
@@ -300,7 +301,7 @@ func buildPlugin(path string, arch cli.Arch, id string) (plugin, error) {
 
 	var modPath string
 
-	cmd := exec.Command("go", "run", "-ldflags", ldflags)
+	cmd := exec.Command("go", "run", "-ldflags", ldflags, "-tags", tags)
 
 	if isLocalGoModFileExists(path) {
 		modPath = path
@@ -382,6 +383,7 @@ func (t target) build(targetPath, prefix, modPath string) error {
 
 	var commonArgs = []string{
 		"-ldflags", ldflags,
+		"-tags", tags,
 	}
 
 	cmd.Args = append(cmd.Args, t.args...)

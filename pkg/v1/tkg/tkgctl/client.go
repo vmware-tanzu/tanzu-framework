@@ -100,7 +100,7 @@ func New(options Options) (TKGClient, error) { //nolint:gocritic
 		TKGSettingsFile:   options.SettingsFile,
 	}
 
-	err = ensurePrerequisite(options.ConfigDir, options.ProviderGetter)
+	err = ensureTKGConfigFile(options.ConfigDir, options.ProviderGetter)
 	if err != nil {
 		return nil, err
 	}
@@ -137,14 +137,9 @@ func New(options Options) (TKGClient, error) { //nolint:gocritic
 	}
 
 	// ensure BOM files are extracted if missing
-	err = allClients.TKGConfigUpdaterClient.EnsureBOMFiles()
+	err = ensureBoMandProvidersPrerequisite(options.ConfigDir, allClients.TKGConfigUpdaterClient)
 	if err != nil {
-		return nil, errors.Wrap(err, "unable to ensure tkg BOM file")
-	}
-	// ensure that `images` configuration gets updated correctly in tkg settings file
-	err = ensureConfigImages(options.ConfigDir, allClients.TKGConfigUpdaterClient)
-	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "unable to ensure prerequisites")
 	}
 
 	return &tkgctl{
@@ -162,7 +157,7 @@ func New(options Options) (TKGClient, error) { //nolint:gocritic
 	}, nil
 }
 
-func ensurePrerequisite(configDir string, providerGetter providerinterface.ProviderInterface) error {
+func ensureTKGConfigFile(configDir string, providerGetter providerinterface.ProviderInterface) error {
 	var err error
 
 	lock, err := utils.GetFileLockWithTimeOut(filepath.Join(configDir, constants.LocalTanzuFileLock), utils.DefaultLockTimeout)
@@ -176,19 +171,42 @@ func ensurePrerequisite(configDir string, providerGetter providerinterface.Provi
 		}
 	}()
 
-	tkgConfigUpdaterClient := tkgconfigupdater.New(configDir, providerGetter, nil)
-	providersNeedsUpdate, _, tkgConfigNeedsUpdate, err := tkgConfigUpdaterClient.GetUpdateStatus()
+	_, err = tkgconfigupdater.New(configDir, providerGetter, nil).EnsureTKGConfigFile()
+	return err
+}
+
+func ensureBoMandProvidersPrerequisite(configDir string, tkgConfigUpdaterClient tkgconfigupdater.Client) error {
+	var err error
+
+	lock, err := utils.GetFileLockWithTimeOut(filepath.Join(configDir, constants.LocalTanzuFileLock), utils.DefaultLockTimeout)
+	if err != nil {
+		return errors.Wrap(err, "cannot acquire lock for ensuring local files")
+	}
+
+	defer func() {
+		if err := lock.Unlock(); err != nil {
+			log.Warningf("cannot release lock for ensuring local files, reason: %v", err)
+		}
+	}()
+
+	// ensure BOM files are extracted if missing
+	err = tkgConfigUpdaterClient.EnsureBOMFiles()
+	if err != nil {
+		return errors.Wrap(err, "unable to ensure tkg BOM file")
+	}
+	// ensure that `images` configuration gets updated correctly in tkg settings file
+	err = tkgConfigUpdaterClient.EnsureConfigImages()
 	if err != nil {
 		return err
 	}
 
-	// Note: Removing this prompt as we are separating cluster config and tkg settings file,
-	// we can manage the internal TKG settings independently without prompting user for it.
-	// if err := promptWarningIfRequired(providersNeedsUpdate, bomsNeedUpdate, tkgConfigNeedsUpdate, false); err != nil {
-	// 	return err
-	// }
+	// ensure that providers templates are extracted and placed under ConfigDir/providers
+	err = tkgConfigUpdaterClient.EnsureProviderTemplates()
+	if err != nil {
+		return err
+	}
 
-	return tkgConfigUpdaterClient.EnsureConfigPrerequisite(providersNeedsUpdate, tkgConfigNeedsUpdate)
+	return nil
 }
 
 func configureLogging(logOptions LoggingOptions) {

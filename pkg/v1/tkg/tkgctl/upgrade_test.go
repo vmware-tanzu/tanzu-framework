@@ -12,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes"
+	fakeproviders "github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes/providers"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigbom"
 )
 
@@ -35,7 +36,8 @@ var _ = Describe("Unit tests for upgrade management cluster", func() {
 		Expect(err).ToNot(HaveOccurred())
 		prepareConfiDir(configDir)
 		options := Options{
-			ConfigDir: configDir,
+			ConfigDir:      configDir,
+			ProviderGetter: fakeproviders.FakeProviderGetter(),
 		}
 		c, createErr := New(options)
 		Expect(createErr).ToNot(HaveOccurred())
@@ -115,7 +117,8 @@ var _ = Describe("Unit tests for upgrade cluster", func() {
 		Expect(err).ToNot(HaveOccurred())
 		prepareConfiDir(configDir)
 		options := Options{
-			ConfigDir: configDir,
+			ConfigDir:      configDir,
+			ProviderGetter: fakeproviders.FakeProviderGetter(),
 		}
 		c, createErr := New(options)
 		Expect(createErr).ToNot(HaveOccurred())

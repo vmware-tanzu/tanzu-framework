@@ -18,5 +18,5 @@ func New() providerinterface.ProviderInterface {
 }
 
 func (p *provider) GetProviderBundle() ([]byte, error) {
-	return manifest.Asset("provider-bundle/providers.zip")
+	return manifest.ProviderZipBundle, nil
 }

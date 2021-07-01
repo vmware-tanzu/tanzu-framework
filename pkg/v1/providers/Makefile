@@ -18,17 +18,38 @@ VENDIR := $(TOOLS_BIN_DIR)/vendir
 VENDIR_VERSION = v0.17.0
 CLUSTERGEN_OUTPUT_DIR ?= expected
 CLUSTERGEN_BASE ?= origin/main
+PROVIDER_DIR_NAME = providers
+PROVIDER_BUNDLE_DIR = provider-bundle/${PROVIDER_DIR_NAME}
+PROVIDER_BUNDLE_ZIP = ${PROJECT_ROOT}/client/manifest/providers.zip
 
-FILES_TO_IGNORE='.env\|.idea\|.git\|.github\|hack\|.yamllint\|.gitlab\|Makefile\|provider-bundle\|tests\|README.md\|client\|go.mod\|go.sum'
+# Image URL to use building/pushing provider image
+PROVIDER_TEMPLATE_IMG_NAME ?= provider-templates
+IMAGE_REPO ?= vmware.io
+PROVIDER_TEMPLATE_IMG_TAG ?= latest
+
+
+FILES_TO_IGNORE='.env\|.idea\|.git\|.github\|hack\|.yamllint\|.gitlab\|Makefile\|provider-bundle\|tests\|README.md\|client\|go.mod\|go.sum\|providers.sha256sum|\Dockerfile.templates'
 
 help:  ## Display this help
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
 verify-build:  ## verify-build verifies the changes with generated files
 
-all: lint checksum generate-bindata verify ## run all target
+all: lint checksum verify ## run all target
 
-ci: checksum generate-bindata verify ## run ci target
+ci: checksum verify ## run ci target
+
+.PHONY: checksum
+checksum: ## Generate checksum of provider files
+	find . -type f | grep -v ${FILES_TO_IGNORE} | sort | xargs shasum -a 256 | shasum -a 256 | cut -d" " -f1 > providers.sha256sum
+
+.PHONY: verify
+verify: ## verify that checksum and generated bindata file match
+	git diff --exit-code providers.sha256sum client/manifest/zz_generated.bindata.go || (echo "Run make vendir-sync and ensure diff is added to your changeset")
+
+.PHONY: build-cli ## build tkg cli with existing provider changes
+build-cli:
+	CLI_REPO=${CLI_REPO} ${CLI_REPO}/hack/clustergen/rebuild-cli.sh ${PWD}
 
 ## --------------------------------------
 ## Linting
@@ -39,50 +60,44 @@ lint: ## Run YAML linter
 	${CLI_REPO}/hack/yamllint.sh
 
 ## --------------------------------------
-## Generate provider
+## Generate provider templates
 ## --------------------------------------
 
 .PHONY: clean-providers
 clean-providers: ## cleans provider-bundle
 	# cleanup old provider bundles
 	@rm -rf provider-bundle || true
-	@mkdir -p provider-bundle/tmp
+	@mkdir -p ${PROVIDER_BUNDLE_DIR}
 
-.PHONY: generate-provider-bundle
-generate-provider-bundle: clean-providers ## generates provider zip bundle
-	# using temporary directory to extract all files which needs to bundle,
-	# updating the file modification time, file permissions and sorting files to get
-	# consistent zip file across all platform as this zip bytes are used to generate
-	# zz_generated.bindata.go file
-	find . -type f | grep -v ${FILES_TO_IGNORE} | xargs tar cf - -T - | tar -C provider-bundle/tmp -x
-	cd provider-bundle/tmp && for i in `find . -type f`; do touch -t 202006091513 $$i; chmod 644 $$i; done && find . -type f | sort | zip -qXo ../providers.zip -@ && cd .. && rm -rf tmp
+setup-provider-for-generation: clean-providers
+	# using temporary directory to extract all files which needs to bundle
+	find . -type f | grep -v ${FILES_TO_IGNORE} | xargs tar cf - -T - | tar -C ${PROVIDER_BUNDLE_DIR} -x
 
-rename-test-outputs: ## show commands to rename the expected output files to match up with testcases renamed by generate-testcases
-	# Assumes that the topmost commit contains the testcases rename
-	git show --summary | grep '^ rename' | perl -pe 's@rename (.*){(\d+.case) => (\d+.case).*@git mv $$1/expected/$$2.output $$1/expected/$$3.output@'
+.PHONY: generate-provider-bundle-zip
+generate-provider-bundle-zip: setup-provider-for-generation ## generates provider zip bundle
+	cd ${PROVIDER_BUNDLE_DIR} && zip -r ${PROVIDER_BUNDLE_ZIP} .
 
-.PHONY: generate-bindata
-generate-bindata: generate-provider-bundle ## Generate go-bindata files
-	$(GOBINDATA) -mode=420 -modtime=1 -nometadata -o=client/manifest/zz_generated.bindata.go -pkg=manifest provider-bundle/providers.zip
+## --------------------------------------
+## build save and push Provider templates
+## --------------------------------------
 
-.PHONY: checksum
-checksum: ## Generate checksum of provider files
-	find . -type f | grep -v ${FILES_TO_IGNORE} | sort | xargs shasum -a 256 | shasum -a 256 | cut -d" " -f1 > providers.sha256sum
+build-provider-template-image: setup-provider-for-generation ## Build provider template image
+	cd ${PROVIDER_BUNDLE_DIR} && docker build -t $(IMAGE_REPO)/${PROVIDER_TEMPLATE_IMG_NAME}:${PROVIDER_TEMPLATE_IMG_TAG} -f ../../hack/Dockerfile.templates .
 
-.PHONY: verify
-verify: ## verify that checksum and generated bindata file match
-	git diff --exit-code providers.sha256sum client/manifest/zz_generated.bindata.go || (echo "Run make vendir-sync and ensure diff is added to your changeset")
+save-provider-template-image: ## Save provider template image
+	mkdir -p "${PROJECT_ROOT}/artifacts"
+	docker save $(IMAGE_REPO)/${PROVIDER_TEMPLATE_IMG_NAME}:${PROVIDER_TEMPLATE_IMG_TAG} | gzip -c > "${PROJECT_ROOT}/artifacts/${PROVIDER_TEMPLATE_IMG_NAME}-${PROVIDER_TEMPLATE_IMG_TAG}.tar.gz"
 
-.PHONY: update-checksum-bindata ## update providers checksum and bindata file
-update-checksum-bindata: checksum generate-bindata
-
-.PHONY: build-cli ## build tkg cli with existing provider changes
-build-cli:
-	CLI_REPO=${CLI_REPO} ${CLI_REPO}/hack/clustergen/rebuild-cli.sh ${PWD}
+push-provider-template-image: ## Push provider template image
+	docker push $(IMAGE_REPO)/${PROVIDER_TEMPLATE_IMG_NAME}:${PROVIDER_TEMPLATE_IMG_TAG}
 
 ## --------------------------------------
 ## Cluster generation tests
 ## --------------------------------------
+
+rename-test-outputs: ## show commands to rename the expected output files to match up with testcases renamed by generate-testcases
+	# Assumes that the topmost commit contains the testcases rename
+	git show --summary | grep '^ rename' | perl -pe 's@rename (.*){(\d+.case) => (\d+.case).*@git mv $$1/expected/$$2.output $$1/expected/$$3.output@'
 
 .PHONY: generate-testcases
 generate-testcases: ## Regenerates test cases based on parameter model files. Requires PICT to be available.

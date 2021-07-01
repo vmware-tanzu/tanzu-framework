@@ -16,6 +16,7 @@ import (
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/utils"
 )
 
@@ -38,11 +39,6 @@ var KeysToEncode = []string{
 var DefaultConfigMap = map[string]string{
 	constants.KeyCertManagerTimeout: constants.DefaultCertmanagerDeploymentTimeout.String(),
 }
-
-const (
-	k8sVersionVariableObsoleteComment      = `Obsolete. Please use '-k' or '--kubernetes-version' to override the default kubernetes version`
-	vsphereTemplateVariableObsoleteComment = `VSPHERE_TEMPLATE will be autodetected based on the kubernetes version. Please use VSPHERE_TEMPLATE only to override this behavior`
-)
 
 func (c *client) SetDefaultConfiguration() {
 	for k, v := range DefaultConfigMap {
@@ -177,64 +173,113 @@ func (c *client) EnsureTKGConfigFile() (string, error) {
 	return tkgConfigPath, nil
 }
 
-// EnsureTemplateFiles ensures that $HOME/.tkg/proivders exists and it is up-to-date
-func (c *client) EnsureTemplateFiles(needUpdate bool) error {
-	cfgDir, err := c.tkgConfigPathsClient.GetTKGDirectory()
+// EnsureTemplateFiles ensures that $HOME/.tkg/providers exists and it is up-to-date
+func (c *client) EnsureTemplateFiles() (bool, error) {
+	tkgDir, _, providersDir, err := c.tkgConfigPathsClient.GetTKGConfigDirectories()
+	if err != nil {
+		return false, err
+	}
+
+	if _, err := os.Stat(providersDir); os.IsNotExist(err) {
+		if err = os.MkdirAll(providersDir, constants.DefaultDirectoryPermissions); err != nil {
+			return false, errors.Wrap(err, "cannot create tkg providers directory")
+		}
+	}
+
+	isProvidersDirectoryEmpty, err := isDirectoryEmpty(providersDir)
+	if err != nil {
+		return false, errors.Wrap(err, "failed to check if provider's directory is empty")
+	}
+
+	providersNeedUpdate, err := c.CheckProviderTemplatesNeedUpdate()
+	if err != nil {
+		return false, err
+	}
+
+	// If there are existing BOM files and doesn't need update then do nothing
+	if !isProvidersDirectoryEmpty && !providersNeedUpdate {
+		return false, nil
+	}
+
+	providerDirPath := filepath.Join(tkgDir, constants.LocalProvidersFolderName)
+
+	if c.isProviderTemplatesEmbedded() {
+		return true, c.saveEmbeddedProviderTemplates(providerDirPath)
+	}
+
+	if providersNeedUpdate {
+		if !isProvidersDirectoryEmpty {
+			t := time.Now()
+			backupFilePath := filepath.Join(tkgDir, fmt.Sprintf("%s-%s-%s", constants.LocalProvidersFolderName, t.Format("20060102150405"), utils.GenerateRandomID(8, true)))
+			err := os.Rename(providerDirPath, backupFilePath)
+			if err == nil {
+				log.Warningf("the old providers folder %s is backed up to %s", providerDirPath, backupFilePath)
+			}
+		}
+		return true, c.saveProvidersFromRemoteRepo(providerDirPath)
+	}
+	return false, nil
+}
+
+func (c *client) saveProvidersFromRemoteRepo(providerDirPath string) error {
+	tkgBomConfig, err := c.tkgBomClient.GetDefaultTkgBOMConfiguration()
+	if err != nil {
+		return errors.Wrap(err, "error reading TKG BoM configuration")
+	}
+
+	bomRegistry, err := c.tkgBomClient.InitBOMRegistry()
+	if err != nil {
+		return errors.Wrap(err, "failed to initialize the providers registry to download providers")
+	}
+
+	providerTemplateImage, err := getProviderTemplateImageFromBoM(tkgBomConfig)
 	if err != nil {
 		return err
 	}
 
-	if _, err := os.Stat(cfgDir); os.IsNotExist(err) {
-		if err = os.MkdirAll(cfgDir, constants.DefaultDirectoryPermissions); err != nil {
-			return errors.Wrap(err, "cannot create tkg config directory")
-		}
-	}
-
-	path := filepath.Join(cfgDir, constants.LocalProvidersFolderName)
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return c.SaveTemplateFiles(cfgDir, false)
-	}
-
-	if needUpdate {
-		return c.SaveTemplateFiles(cfgDir, true)
-	}
-
-	return nil
-}
-
-func (c *client) SaveTemplateFiles(tkgDir string, needUpdate bool) error {
-	filePath := filepath.Join(tkgDir, constants.LocalProvidersZipFileName)
-
-	err := c.saveTemplatesZipFile(filePath)
+	fullImagePath := tkgconfigbom.GetFullImagePath(providerTemplateImage, tkgBomConfig.ImageConfig.ImageRepository)
+	imageTag := providerTemplateImage.Tag
+	filesMap, err := bomRegistry.GetFiles(fullImagePath, imageTag)
 	if err != nil {
-		return errors.Wrap(err, "cannot load the providers.zip file into local file system")
+		return errors.Wrap(err, "failed to get providers files from repository")
 	}
 
-	providerDirPath := filepath.Join(tkgDir, constants.LocalProvidersFolderName)
-	if needUpdate {
-		t := time.Now()
-		backupFilePath := filepath.Join(tkgDir, fmt.Sprintf("%s-%s-%s", constants.LocalProvidersFolderName, t.Format("20060102150405"), utils.GenerateRandomID(8, true)))
-		err = os.Rename(providerDirPath, backupFilePath)
+	for k, v := range filesMap {
+		filePath := filepath.Join(providerDirPath, k)
+		err := c.saveFile(filePath, v)
 		if err != nil {
-			return errors.Wrap(err, "failed to back up the original providers folder")
+			return errors.Wrapf(err, "error while saving provider template file '%s'", k)
 		}
-		log.Warningf("the old providers folder %s is backed up to %s", providerDirPath, backupFilePath)
 	}
 
-	err = unzip(filePath, providerDirPath)
+	providerTagFileName := filepath.Join(providerDirPath, imageTag)
+	err = c.saveFile(providerTagFileName, []byte{})
 	if err != nil {
-		return errors.Wrap(err, "cannot unzip the provider bundle")
-	}
-	err = os.Remove(filePath)
-	if err != nil {
-		return errors.Wrap(err, "cannot remove provider.zip file")
+		return errors.Wrapf(err, "error while saving provider tag file '%s'", providerTagFileName)
 	}
 	return nil
 }
 
-func (c *client) EnsureConfigPrerequisite(needUpdate, tkgConfigNeedUpdate bool) error {
+func (c *client) saveFile(filePath string, data []byte) error {
+	dirName := filepath.Dir(filePath)
+	if _, serr := os.Stat(dirName); serr != nil {
+		merr := os.MkdirAll(dirName, os.ModePerm)
+		if merr != nil {
+			return merr
+		}
+	}
+
+	err := os.WriteFile(filePath, data, constants.ConfigFilePermissions)
+	if err != nil {
+		return errors.Wrapf(err, "unable to save file '%s'", filePath)
+	}
+
+	return nil
+}
+
+func (c *client) EnsureProviderTemplates() error {
 	// ensure the latest $HOME/providers
-	err := c.EnsureTemplateFiles(needUpdate)
+	templatesUpdated, err := c.EnsureTemplateFiles()
 	if err != nil {
 		return errors.Wrap(err, "unable to ensure provider template files")
 	}
@@ -254,15 +299,10 @@ func (c *client) EnsureConfigPrerequisite(needUpdate, tkgConfigNeedUpdate bool) 
 	c.EnsureCredEncoding(&tkgConfigNode)
 
 	// ensure the providers section in the tkgconfig is correct and up-to-date
-	err = c.EnsureProviders(needUpdate || tkgConfigNeedUpdate, &tkgConfigNode)
+	err = c.EnsureProvidersInConfig(templatesUpdated, &tkgConfigNode)
 	if err != nil {
 		return errors.Wrap(err, "unable to ensure default providers")
 	}
-
-	// add comment on top of deprecated configuration variable in config file
-	// TODO(refactoring): need to do something different here as we
-	// are separating clusterconfig and tkgconfig
-	markDeprecatedConfigurationOptions(&tkgConfigNode)
 
 	// update the cli version in the config file
 	err = updateVersion(&tkgConfigNode)

@@ -4,15 +4,19 @@
 package tkgconfigupdater
 
 import (
+	"encoding/base64"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 
+	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/image"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigpaths"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/registry"
 )
 
 type provider struct {
@@ -53,8 +57,8 @@ func (c *client) defaultProviders() (providers, error) {
 	return providersConfig, nil
 }
 
-// EnsureProviders ensures the providers section in tkgconfig exisits and it is synchronized with the latest providers
-func (c *client) EnsureProviders(needUpdate bool, tkgConfigNode *yaml.Node) error { //nolint:gocyclo
+// EnsureProvidersInConfig ensures the providers section in tkgconfig exisits and it is synchronized with the latest providers
+func (c *client) EnsureProvidersInConfig(needUpdate bool, tkgConfigNode *yaml.Node) error { //nolint:gocyclo
 	providerIndex := GetNodeIndex(tkgConfigNode.Content[0].Content, constants.ProvidersConfigKey)
 	if providerIndex != -1 && !needUpdate {
 		return nil
@@ -196,63 +200,34 @@ func extractVersionFromPath(path string) (string, error) {
 	return strs[len(strs)-2], nil
 }
 
-// CheckTkgConfigNeedUpdate checks if the providers section in tkg configuration file is synchronized with $HOME/.tkg/providers/config.yaml
-func (c *client) CheckTkgConfigNeedUpdate() (bool, string, error) { //nolint:gocyclo
-	tkgConfigPath, err := c.tkgConfigPathsClient.GetTKGConfigPath()
-	if err != nil {
-		return false, "", err
-	}
-	if _, err := os.Stat(tkgConfigPath); os.IsNotExist(err) {
-		return false, tkgConfigPath, nil
-	} else if err != nil {
-		return false, "", err
+func (c *client) InitProvidersRegistry() (registry.Registry, error) {
+	verifyCerts := true
+	skipVerifyCerts, err := c.tkgConfigReaderWriter.Get(constants.ConfigVariableCustomImageRepositorySkipTLSVerify)
+	if err == nil && strings.EqualFold(skipVerifyCerts, "true") {
+		verifyCerts = false
 	}
 
-	providerConfigPath, err := c.tkgConfigPathsClient.GetProvidersConfigFilePath()
-	if err != nil {
-		return false, "", err
-	}
-	if _, err := os.Stat(providerConfigPath); os.IsNotExist(err) {
-		return false, tkgConfigPath, nil
-	} else if err != nil {
-		return false, "", err
+	registryOpts := ctlimg.RegistryOpts{
+		VerifyCerts: verifyCerts,
+		Anon:        true,
 	}
 
-	defaultProviders, err := c.defaultProviders()
-	if err != nil {
-		return false, "", err
-	}
-
-	tkgConfigData, err := os.ReadFile(tkgConfigPath)
-	if err != nil {
-		return false, "", errors.Wrapf(err, "unable to read tkg configuration from: %s", tkgConfigPath)
-	}
-
-	var tkgConfigProviders providers
-	err = yaml.Unmarshal(tkgConfigData, &tkgConfigProviders)
-	if err != nil {
-		return false, "", err
-	}
-
-	if len(tkgConfigProviders.Providers) == 0 {
-		return false, tkgConfigPath, nil
-	}
-
-	for _, dp := range defaultProviders.Providers {
-		found := false
-		for _, p := range tkgConfigProviders.Providers {
-			if p.Name == dp.Name && p.ProviderType == dp.ProviderType {
-				if p.URL != dp.URL {
-					return true, tkgConfigPath, nil
-				}
-				found = true
-				break
-			}
+	customImageRepoCACertEnv, err := c.tkgConfigReaderWriter.Get(constants.ConfigVariableCustomImageRepositoryCaCertificate)
+	if err == nil && customImageRepoCACertEnv != "" {
+		filePath, err := tkgconfigpaths.GetRegistryCertFile()
+		if err != nil {
+			return nil, err
 		}
-		if !found {
-			return true, tkgConfigPath, nil
+		decoded, err := base64.StdEncoding.DecodeString(customImageRepoCACertEnv)
+		if err != nil {
+			return nil, errors.Wrap(err, "unable to decode the base64-encoded custom registry CA certificate string")
 		}
+		err = os.WriteFile(filePath, decoded, 0644)
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to write the custom image registry CA cert to file '%s'", filePath)
+		}
+		registryOpts.CACertPaths = []string{filePath}
 	}
 
-	return false, tkgConfigPath, nil
+	return registry.New(&registryOpts)
 }

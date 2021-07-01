@@ -92,7 +92,6 @@ jobs:
         make configure-bom
         make test
 
-
   golangci-lint:
     name: Lint
     runs-on: ubuntu-latest

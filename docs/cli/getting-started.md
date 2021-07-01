@@ -31,7 +31,7 @@ Windows executable can be found at https://storage.googleapis.com/tanzu-cli/arti
 
 Clone Tanzu Framework and run the below command to build and install CLI and plugins locally.
 ```
-TANZU_CLI_NO_INIT=true make build-install-cli-all
+TANZU_CLI_NO_INIT=true make build-install-cli-local
 ```
 
 ## Usage

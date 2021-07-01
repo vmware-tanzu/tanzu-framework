@@ -83,51 +83,30 @@ func unzip(srcfilepath, destdir string) error {
 	return nil
 }
 
-func getBundledProvidersChecksum(zipPath string) ([]byte, error) {
-	var err error
-
-	r, err := zip.OpenReader(zipPath)
-	if err != nil {
-		return nil, err
+func (c *client) isProviderTemplatesEmbedded() bool {
+	providersZipBytes, err := c.providerGetter.GetProviderBundle()
+	if err != nil || len(providersZipBytes) == 0 {
+		return false
 	}
-	defer r.Close()
-
-	checksumFilePath := filepath.ToSlash(constants.LocalProvidersChecksumFileName)
-	for _, f := range r.File {
-		if f.Name == checksumFilePath {
-			rc, err := f.Open()
-			if err != nil {
-				return nil, err
-			}
-			defer rc.Close()
-			return io.ReadAll(rc)
-		}
-	}
-	return nil, errors.New("providers.sha256sum is not bundled properly")
+	return true
 }
 
-func (c *client) saveTemplatesZipFile(zipPath string) error {
+func (c *client) saveEmbeddedProviderTemplates(providerPath string) error {
 	providersZipBytes, err := c.providerGetter.GetProviderBundle()
 	if err != nil {
 		return errors.Wrap(err, "cannot find the provider bundle")
 	}
-	return os.WriteFile(zipPath, providersZipBytes, 0o644)
-}
-
-// markDeprecatedConfigurationOptions adds comment on top of deprecated configuration variable in
-// ~/.tkg/config.yaml file
-func markDeprecatedConfigurationOptions(tkgConfigNode *yaml.Node) {
-	k8sVersionIndex := GetNodeIndex(tkgConfigNode.Content[0].Content, constants.ConfigVariableKubernetesVersion)
-	// if variable is present in config file add a comment
-	if k8sVersionIndex > 0 {
-		tkgConfigNode.Content[0].Content[k8sVersionIndex-1].HeadComment = k8sVersionVariableObsoleteComment
+	providerZipPath := filepath.Join(providerPath, constants.LocalProvidersZipFileName)
+	if err := os.WriteFile(providerZipPath, providersZipBytes, 0o644); err != nil {
+		return errors.Wrap(err, "error while writing provider zip file")
 	}
 
-	vsphereTemplateIndex := GetNodeIndex(tkgConfigNode.Content[0].Content, constants.ConfigVariableVsphereTemplate)
-	// if variable is present in config file add a comment
-	if vsphereTemplateIndex > 0 {
-		tkgConfigNode.Content[0].Content[vsphereTemplateIndex-1].HeadComment = vsphereTemplateVariableObsoleteComment
+	defer os.Remove(providerZipPath)
+
+	if err := unzip(providerZipPath, providerPath); err != nil {
+		return errors.Wrap(err, "error while unzipping providers")
 	}
+	return nil
 }
 
 // updateVersion updates the CLI version to the config file

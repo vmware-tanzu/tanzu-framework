@@ -4,22 +4,15 @@
 package main
 
 import (
-	"bytes"
-	"io"
-	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 
-	"github.com/aunum/log"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/spf13/afero"
 	corev1 "k8s.io/api/core/v1"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha3"
 
 	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/utils"
 )
 
 func TestAPIs(t *testing.T) {
@@ -87,93 +80,6 @@ var _ = Describe("getLatestTKRVersionMatchingTKRPrefix", func() {
 		})
 	})
 })
-
-func Test_CreateClusterCommand(t *testing.T) {
-	for _, test := range []struct {
-		testcase    string
-		stringMatch []string
-		preConfig   func()
-	}{
-		{
-			testcase:    "When default tanzu config file does not exist",
-			stringMatch: []string{"kind: Cluster", "name: test-cluster"},
-		},
-		{
-			testcase:    "When default tanzu config file exists but current server is not configured",
-			stringMatch: []string{"kind: Cluster", "name: test-cluster"},
-			preConfig: func() {
-				configureTanzuConfig("./testdata/tanzuconfig/config1.yaml")
-			},
-		},
-		{
-			testcase:    "When default tanzu config file exists and current server is configured",
-			stringMatch: []string{"kind: Cluster", "name: test-cluster"},
-			preConfig: func() {
-				configureTanzuConfig("./testdata/tanzuconfig/config2.yaml")
-			},
-		},
-	} {
-		t.Run(test.testcase, func(t *testing.T) {
-			defer configureHomeDirectory()()
-			out := captureStdoutStderr(runCreateClusterCmd)
-			for _, str := range test.stringMatch {
-				if !strings.Contains(out, str) {
-					t.Fatalf("expected \"%s\" to contain \"%s\"", out, str)
-				}
-			}
-		})
-	}
-}
-
-func runCreateClusterCmd() {
-	cmd := createClusterCmd
-	cmd.SetArgs([]string{"test-cluster", "-i", "docker:v0.3.19", "-p", "dev", "-d"})
-	_ = cmd.Execute()
-}
-
-func captureStdoutStderr(f func()) string {
-	old := os.Stdout
-	r, w, _ := os.Pipe()
-	os.Stdout = w
-	os.Stderr = w
-
-	f()
-
-	w.Close()
-	os.Stdout = old
-
-	var buf bytes.Buffer
-	_, _ = io.Copy(&buf, r)
-	return buf.String()
-}
-
-func configureHomeDirectory() func() {
-	fs := new(afero.MemMapFs)
-	f, err := afero.TempDir(fs, "", "CreateClusterTest")
-	if err != nil {
-		log.Fatal(err)
-	}
-	os.Setenv("HOME", f)
-	return func() {
-		os.Unsetenv("HOME")
-	}
-}
-
-func configureTanzuConfig(file string) {
-	dirname, err := os.UserHomeDir()
-	if err != nil {
-		log.Fatal(err)
-	}
-	tanzuDir := filepath.Join(dirname, ".tanzu")
-	err = os.Mkdir(tanzuDir, 0600)
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = utils.CopyFile(file, filepath.Join(tanzuDir, "config.yaml"))
-	if err != nil {
-		log.Fatal(err)
-	}
-}
 
 func getFakeTKR(tkrName, k8sversion string, compatibleStatus corev1.ConditionStatus, updatesAvailableMsg string) runv1alpha1.TanzuKubernetesRelease {
 	tkr := runv1alpha1.TanzuKubernetesRelease{}
