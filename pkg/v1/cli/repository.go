@@ -136,6 +136,9 @@ const (
 
 	// AllPlugins is the keyword for all plugins.
 	AllPlugins = "all"
+
+	// DefaultManifestQueryTimeout is max time to wait for querying for a plugin manifest
+	DefaultManifestQueryTimeout = 5 * time.Second
 )
 
 // GCPBucketRepository is a artifact repository utilizing a GCP bucket.
@@ -362,7 +365,8 @@ func (g *GCPBucketRepository) Name() string {
 
 // Manifest retrieves the manifest for a repository.
 func (g *GCPBucketRepository) Manifest() (manifest Manifest, err error) {
-	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(context.Background(), DefaultManifestQueryTimeout)
+	defer cancel()
 
 	bkt, err := g.getBucket(ctx)
 	if err != nil {

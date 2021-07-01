@@ -4,6 +4,7 @@
 package core
 
 import (
+	"context"
 	"fmt"
 	"path/filepath"
 	"sort"
@@ -63,7 +64,11 @@ var listPluginCmd = &cobra.Command{
 		repos := getRepositories()
 		plugins, err := repos.ListPlugins()
 		if err != nil {
-			return err
+			if errors.Is(err, context.DeadlineExceeded) {
+				log.Warning("Unable to query remote plugin repositories")
+			} else {
+				return err
+			}
 		}
 
 		data := [][]string{}
@@ -100,6 +105,8 @@ var listPluginCmd = &cobra.Command{
 		}
 
 		// show plugins installed locally but not found in repositories
+		// failure to query the remote repository will degenerate the plugin list
+		// to this view as well
 		for _, desc := range descriptors {
 			var exists bool
 			for _, d := range data {
