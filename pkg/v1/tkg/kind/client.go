@@ -319,7 +319,9 @@ func (k *KindClusterProxy) getKindNetworkingConfig() string {
 	}
 	networkConfig := fmt.Sprintf(kindNetworking, podSubnet, serviceSubnet)
 	if ipFamilyConfig != "" {
-		networkConfig = fmt.Sprintf("%s\n%s", networkConfig, ipFamilyConfig)
+		// we need to nest ipFamilyConfig into networkConfig
+		const indentation = "  "
+		networkConfig = fmt.Sprintf("%s\n%s%s", networkConfig, indentation, ipFamilyConfig)
 	}
 	return networkConfig
 }
