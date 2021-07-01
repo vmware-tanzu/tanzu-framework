@@ -45,7 +45,7 @@ func (c *TkgClient) DeleteRegion(options DeleteRegionOptions) error { //nolint:f
 	var cleanupClusterKubeconfigPath string
 
 	defer func() {
-		// if regional cluster deletion is not being started and kind cluster is already created
+		// if management cluster deletion is not being started and kind cluster is already created
 		if !isSuccessful && isStartedRegionalClusterDeletion {
 			c.displayHelpTextOnDeleteRegionFailure(cleanupClusterKubeconfigPath, isCleanupClusterCreated, cleanupClusterName, options.ClusterName)
 			return
@@ -82,7 +82,7 @@ func (c *TkgClient) DeleteRegion(options DeleteRegionOptions) error { //nolint:f
 	}
 
 	log.Info("Verifying management cluster...")
-	// Verify presence of workload cluster and return regional cluster name and namespace
+	// Verify presence of workload cluster and return management cluster name and namespace
 	regionalClusterNamespace, err := c.verifyDeleteRegion(regionalClusterClient, options)
 	if err != nil {
 		return err
@@ -126,7 +126,7 @@ func (c *TkgClient) DeleteRegion(options DeleteRegionOptions) error { //nolint:f
 		}
 
 		log.Info("Installing providers to cleanup cluster...")
-		// Initialize cleanup cluster using same provider name and version from regional cluster
+		// Initialize cleanup cluster using same provider name and version from management cluster
 		if err = c.InitializeProviders(&initOptionsForCleanupCluster, cleanupClusterClient, cleanupClusterKubeconfigPath); err != nil {
 			return errors.Wrap(err, "unable to initialize providers")
 		}
@@ -142,7 +142,7 @@ func (c *TkgClient) DeleteRegion(options DeleteRegionOptions) error { //nolint:f
 			_ = utils.DeleteFile(regionalClusterKubeConfigPath)
 		}()
 
-		// Move all Cluster API objects from regional cluster to cleanup cluster for all namespaces
+		// Move all Cluster API objects from management cluster to cleanup cluster for all namespaces
 		if err = c.MoveObjects(regionalClusterKubeConfigPath, cleanupClusterKubeconfigPath, regionalClusterNamespace); err != nil {
 			return errors.Wrap(err, "unable to move Cluster API objects from management cluster to cleanup cluster")
 		}
@@ -159,12 +159,12 @@ func (c *TkgClient) DeleteRegion(options DeleteRegionOptions) error { //nolint:f
 	}
 
 	log.Info("Deleting management cluster...")
-	// Delete regional cluster, this will start process of deleting cluster and its underlying resources
+	// Delete management cluster, this will start process of deleting cluster and its underlying resources
 	if err = c.deleteCluster(cleanupClusterKubeconfigPath, options.ClusterName, regionalClusterNamespace); err != nil {
 		return errors.Wrap(err, "unable to delete management cluster")
 	}
 
-	// Regional cluster deletion happens in background and we cannot teardown the cleanup kind cluster until the regional cluster is deleted successfully
+	// management cluster deletion happens in background and we cannot teardown the cleanup kind cluster until the management cluster is deleted successfully
 	if err = c.waitForClusterDeletion(cleanupClusterKubeconfigPath, options.ClusterName, regionalClusterNamespace); err != nil {
 		return errors.Wrapf(err, "error waiting for management cluster '%s' to be deleted", options.ClusterName)
 	}

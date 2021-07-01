@@ -40,7 +40,7 @@ type client struct {
 	conn   *ldapApi.Conn
 }
 
-// New creates a new ldap client
+// New creates a new LDAP client
 func New() Client {
 	return &client{
 		params: nil,
@@ -48,7 +48,7 @@ func New() Client {
 	}
 }
 
-// LdapConnect verified the reachability of the LDAP server
+// LdapConnect verifies the reachability of the LDAP server
 func (c *client) LdapConnect(params *tkg_models.LdapParams) (*tkg_models.LdapTestResult, error) {
 	c.params = params
 	var err error
@@ -78,8 +78,8 @@ func (c *client) LdapConnect(params *tkg_models.LdapParams) (*tkg_models.LdapTes
 	return resultSuccess, nil
 }
 
-// Now verify username and password via an authentication/bind in ldap jargons.
-// Please note, BindDn amd BindPassword are not must-haves in order to create
+// LdapBind verifies username and password is properly authenticated via bind
+// Note that BindDn amd BindPassword are not must-haves in order to create
 // a connection
 func (c *client) LdapBind() (*tkg_models.LdapTestResult, error) {
 	dn := c.params.LdapBindDn
@@ -96,7 +96,7 @@ func (c *client) LdapBind() (*tkg_models.LdapTestResult, error) {
 	return resultSuccess, nil
 }
 
-// Let's verify User Search function
+// LdapUserSearch verifies user search function is able to locate the user
 func (c *client) LdapUserSearch() (*tkg_models.LdapTestResult, error) {
 	baseDn := strings.TrimSpace(c.params.LdapUserSearchBaseDn)
 	filter := strings.TrimSpace(c.params.LdapUserSearchFilter)
@@ -146,7 +146,7 @@ func (c *client) LdapUserSearch() (*tkg_models.LdapTestResult, error) {
 	return resultSuccess, nil
 }
 
-// Let's verify Group Search
+// LdapGroupSearch verifies group search is able to locate group
 func (c *client) LdapGroupSearch() (*tkg_models.LdapTestResult, error) {
 	attrs := []string{}
 	if len(c.params.LdapGroupSearchNameAttr) > 0 {
@@ -205,6 +205,7 @@ func (c *client) LdapGroupSearch() (*tkg_models.LdapTestResult, error) {
 	return resultSuccess, nil
 }
 
+// LdapCloseConnection closes the LDAP connection
 func (c *client) LdapCloseConnection() {
 	if c.conn != nil {
 		c.conn.Close()

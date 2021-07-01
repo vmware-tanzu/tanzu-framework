@@ -12,7 +12,7 @@ import (
 
 	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/image"
 	"github.com/pkg/errors"
-	"gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v3"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigpaths"
@@ -57,7 +57,7 @@ func (c *client) defaultProviders() (providers, error) {
 	return providersConfig, nil
 }
 
-// EnsureProvidersInConfig ensures the providers section in tkgconfig exisits and it is synchronized with the latest providers
+// EnsureProvidersInConfig ensures the providers section in tkgconfig exists and it is synchronized with the latest providers
 func (c *client) EnsureProvidersInConfig(needUpdate bool, tkgConfigNode *yaml.Node) error { //nolint:gocyclo
 	providerIndex := GetNodeIndex(tkgConfigNode.Content[0].Content, constants.ProvidersConfigKey)
 	if providerIndex != -1 && !needUpdate {

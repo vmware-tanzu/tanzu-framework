@@ -49,7 +49,7 @@ func GetAllCAPIClusterObjects(options TestAllClusterComponentOptions) []runtime.
 	return runtimeObjects
 }
 
-// NewCluster return a CAPI v1aplha3.Cluster object
+// NewCluster returns a CAPI v1aplha3.Cluster object
 func NewCluster(options TestAllClusterComponentOptions) *capi.Cluster {
 	cluster := &capi.Cluster{
 		TypeMeta: metav1.TypeMeta{
@@ -83,7 +83,7 @@ func NewCluster(options TestAllClusterComponentOptions) *capi.Cluster {
 	return cluster
 }
 
-// NewKCP return a CAPI v1aplha3.KubeadmControlPlane object
+// NewKCP returns a CAPI v1aplha3.KubeadmControlPlane object
 func NewKCP(options TestAllClusterComponentOptions) runtime.Object {
 	kcp := &controlplanev1.KubeadmControlPlane{
 		ObjectMeta: metav1.ObjectMeta{
@@ -125,7 +125,7 @@ func NewKCP(options TestAllClusterComponentOptions) runtime.Object {
 	return kcp
 }
 
-// NewMD return a CAPI v1aplha3.MachineDeployment object
+// NewMD returns a CAPI v1aplha3.MachineDeployment object
 func NewMD(options TestAllClusterComponentOptions) []runtime.Object {
 	mds := []runtime.Object{}
 	for index, MDOptions := range options.ListMDOptions {
@@ -334,7 +334,7 @@ func GetAllPacificClusterObjects(options TestAllClusterComponentOptions) []runti
 	return runtimeObjects
 }
 
-// NewPacificCluster return new TanzuKubernetesCluster object
+// NewPacificCluster returns new TanzuKubernetesCluster object
 func NewPacificCluster(options TestAllClusterComponentOptions) runtime.Object {
 	return &runv1alpha1.TanzuKubernetesCluster{
 		TypeMeta: metav1.TypeMeta{
@@ -412,7 +412,7 @@ func NewMachinesForPacific(options TestAllClusterComponentOptions) []runtime.Obj
 
 // ###################### Generic objects creation helper ######################
 
-// NewDaemonSet return new daemonset object from options
+// NewDaemonSet returns new daemonset object from options
 func NewDaemonSet(options TestDaemonSetOption) runtime.Object {
 	ds := &appsv1.DaemonSet{
 		ObjectMeta: metav1.ObjectMeta{
@@ -427,7 +427,7 @@ func NewDaemonSet(options TestDaemonSetOption) runtime.Object {
 	return ds
 }
 
-// NewDeployment return new deployment object from options
+// NewDeployment returns new deployment object from options
 func NewDeployment(options TestDeploymentOption) runtime.Object {
 	dp := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{

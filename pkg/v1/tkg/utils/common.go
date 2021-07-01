@@ -255,7 +255,7 @@ func IsOnWindows() bool {
 	return runtime.GOOS == "windows"
 }
 
-// GetTkrNameFromTkrVersion gets TKR name from TKR version
+// GetTkrNameFromTkrVersion gets TKr name from TKr version
 func GetTkrNameFromTkrVersion(tkrVersion string) string {
 	strs := strings.Split(tkrVersion, "+")
 	if len(strs) != numSplits {
@@ -264,7 +264,7 @@ func GetTkrNameFromTkrVersion(tkrVersion string) string {
 	return strs[0] + "---" + strs[1]
 }
 
-// GetTKRVersionFromTKRName gets TKR version from TKR name
+// GetTKRVersionFromTKRName gets TKr version from TKr name
 func GetTKRVersionFromTKRName(tkrName string) string {
 	strs := strings.Split(tkrName, "---")
 	if len(strs) != numSplits {

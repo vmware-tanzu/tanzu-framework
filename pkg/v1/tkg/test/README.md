@@ -1,8 +1,8 @@
 # TKG Integration tests
 
 ## What are these tests?
-TKG integration tests validates the `tkgctl` library used underneath by the cluster, management-cluster plugins and also by the TMC to integrate with TKG. 
-These tests leverage CAPD provider to be able to run without needing access to any external infrastructure.
+TKG integration tests validates the tkg client library used by the cluster, management-cluster plugins.
+Some of these tests leverages CAPD provider to be able to run without needing access to any external cloud infrastructure.
 
 ## How to run these tests locally?
 They are developed using the [Ginkgo testing framework](https://github.com/onsi/ginkgo). Here are the steps to run them locally:
@@ -17,9 +17,10 @@ E2E_CONFIG=pkg/v1/tkg/test/config/docker.yaml hack/tools/bin/ginkgo -v -trace --
 ```
 
 ## Troubleshooting
-If you are running these CAPD based integration tests on MAC, make sure that there are enough resources allocated to docker in the docker settings, here are some recommendations: 
+If you are running the CAPD based integration tests on an Apple system, it is recommended that Docker Desktop is allocated the following resources at
+minimum:
 ```
-Memory: 6GB+
-Swap: 2GB+
-Disk image size: 100GB+
+ - Memory: 6GB+
+ - Swap: 2GB+
+ - Disk image size: 100GB+
 ```

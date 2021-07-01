@@ -3,7 +3,7 @@
 
 package tkgctl
 
-// ActivateTanzuKubernetesReleases activates the given TKR
+// ActivateTanzuKubernetesReleases activates the given TKr
 func (t *tkgctl) ActivateTanzuKubernetesReleases(tkrName string) error {
 	err := t.tkgClient.ActivateTanzuKubernetesReleases(tkrName)
 	if err != nil {
@@ -13,7 +13,7 @@ func (t *tkgctl) ActivateTanzuKubernetesReleases(tkrName string) error {
 	return nil
 }
 
-// DeactivateTanzuKubernetesReleases deactivates the given TKR
+// DeactivateTanzuKubernetesReleases deactivates the given TKr
 func (t *tkgctl) DeactivateTanzuKubernetesReleases(tkrName string) error {
 	err := t.tkgClient.DeactivateTanzuKubernetesReleases(tkrName)
 	if err != nil {

@@ -91,7 +91,7 @@ type DeleteRegionOptions struct {
 
 // Client is used to interact with the tkg client library
 type Client interface {
-	// InitRegion creates and initializes a regional management cluster via a
+	// InitRegion creates and initializes a management cluster via a
 	// self-provisioned bootstrap cluster if necessary
 	InitRegion(options *InitRegionOptions) error
 	// InitRegionDryRun generates the management cluster manifest that would be
@@ -108,25 +108,25 @@ type Client interface {
 	CreateCluster(options *CreateClusterOptions, waitForCluster bool) error
 	// CreateAWSCloudFormationStack create aws cloud formation stack
 	CreateAWSCloudFormationStack() error
-	// DeleteRegion deletes regional cluster via a self-provisioned kind cluster
+	// DeleteRegion deletes management cluster via a self-provisioned kind cluster
 	DeleteRegion(options DeleteRegionOptions) error
-	// DeRegisterManagementClusterFromTmc deregisters management cluster from TMC
+	// DeRegisterManagementClusterFromTmc deregisters management cluster from Tanzu Mission Control
 	DeRegisterManagementClusterFromTmc(clusterName string) error
-	// VerifyRegion checks if the kube context points to a regional clusters,
+	// VerifyRegion checks if the kube context points to a management clusters,
 	VerifyRegion(kubeConfigPath string) (region.RegionContext, error)
-	// AddRegionContext adds a regional cluster context to tkg config file
+	// AddRegionContext adds a management cluster context to tkg config file
 	AddRegionContext(region region.RegionContext, overwrite bool, useDirectReference bool) error
-	// GetRegionContexts gets all tkg managed regional cluster context context
+	// GetRegionContexts gets all tkg managed management cluster context context
 	GetRegionContexts(clusterName string) ([]region.RegionContext, error)
-	// SetRegionContext sets a regional cluster context to be current context
+	// SetRegionContext sets a management cluster context to be current context
 	SetRegionContext(clusterName string, contextName string) error
-	// GetCurrentRegionContext() gets the current regional cluster context
+	// GetCurrentRegionContext() gets the current management cluster context
 	GetCurrentRegionContext() (region.RegionContext, error)
 	// GetWorkloadClusterCredentials merges workload cluster credentials into kubeconfig path
 	GetWorkloadClusterCredentials(options GetWorkloadClusterCredentialsOptions) (string, string, error)
-	// ListTKGClusters lists workload clusters managed by the regional cluster
+	// ListTKGClusters lists workload clusters managed by the management cluster
 	ListTKGClusters(options ListTKGClustersOptions) ([]ClusterInfo, error)
-	// DeleteWorkloadCluster deletes a workload cluster managed by the regional cluster
+	// DeleteWorkloadCluster deletes a workload cluster managed by the management cluster
 	DeleteWorkloadCluster(options DeleteWorkloadClusterOptions) error
 	// ScaleCluster scales the cluster
 	ScaleCluster(options ScaleClusterOptions) error
@@ -137,7 +137,7 @@ type Client interface {
 	ConfigureAndValidateManagementClusterConfiguration(options *InitRegionOptions, skipValidation bool) *ValidationError
 	// UpgradeManagementCluster upgrades tkg cluster to specific kubernetes version
 	UpgradeManagementCluster(options *UpgradeClusterOptions) error
-	// Register management cluster to TMC
+	// Register management cluster to Tanzu Mission Control
 	RegisterManagementClusterToTmc(kubeConfigPath string, tmcRegistrationURL string) error
 	// Opt-in/out to CEIP on Management Cluster
 	SetCEIPParticipation(ceipOptIn bool, isProd string, labels string) error

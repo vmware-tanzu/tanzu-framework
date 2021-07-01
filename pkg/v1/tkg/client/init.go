@@ -77,7 +77,7 @@ func (c *TkgClient) InitRegionDryRun(options *InitRegionOptions) ([]byte, error)
 		regionalConfigBytes []byte
 		err                 error
 	)
-	// Obtain regional cluster configuration of a provided flavor
+	// Obtain management cluster configuration of a provided flavor
 	if regionalConfigBytes, options.ClusterName, err = c.BuildRegionalClusterConfiguration(options); err != nil {
 		return nil, errors.Wrap(err, "unable to build management cluster configuration")
 	}
@@ -132,7 +132,7 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 			log.SendProgressUpdate(statusFailed, "", InitRegionSteps)
 		}
 
-		// if regional cluster creation failed after bootstrap kind cluster was successfully created
+		// if management cluster creation failed after bootstrap kind cluster was successfully created
 		if !isSuccessful && isStartedRegionalClusterCreation {
 			c.displayHelpTextOnFailure(options, isBootstrapClusterCreated, bootstrapClusterKubeconfigPath)
 			return
@@ -160,7 +160,7 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	log.SendProgressUpdate(statusRunning, StepGenerateClusterConfiguration, InitRegionSteps)
 	log.Info("Generating cluster configuration...")
 
-	// Obtain regional cluster configuration of a provided flavor
+	// Obtain management cluster configuration of a provided flavor
 	if regionalConfigBytes, options.ClusterName, err = c.BuildRegionalClusterConfiguration(options); err != nil {
 		return errors.Wrap(err, "unable to build management cluster configuration")
 	}
@@ -265,7 +265,7 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 
 	log.SendProgressUpdate(statusRunning, StepMoveClusterAPIObjects, InitRegionSteps)
 	log.Info("Moving all Cluster API objects from bootstrap cluster to management cluster...")
-	// Move all Cluster API objects from bootstrap cluster to created to regional cluster for all namespaces
+	// Move all Cluster API objects from bootstrap cluster to created to management cluster for all namespaces
 	if err = c.MoveObjects(bootstrapClusterKubeconfigPath, regionalClusterKubeconfigPath, targetClusterNamespace); err != nil {
 		return errors.Wrap(err, "unable to move Cluster API objects from bootstrap cluster to management cluster")
 	}
@@ -401,7 +401,7 @@ func (c *TkgClient) ensureKindCluster(kubeconfig string, useExistingCluster bool
 		Readerwriter:   c.TKGConfigReaderWriter(),
 	})
 
-	// Create kind cluster which will be used to deploy regional cluster
+	// Create kind cluster which will be used to deploy management cluster
 	clusterName, err := c.kindClient.CreateKindCluster()
 	if err != nil {
 		return "", err

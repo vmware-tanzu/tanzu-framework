@@ -166,11 +166,11 @@ type Client interface {
 	GetCurrentClusterName(context string) (string, error)
 	// GetCurrentKubeContext returns the current kube xontext
 	GetCurrentKubeContext() (string, error)
-	// IsRegionalCluster() checks if the current kube context point to a regional cluster
+	// IsRegionalCluster() checks if the current kube context point to a management cluster
 	IsRegionalCluster() error
 	// GetRegionalClusterDefaultProviderName returns the default provider name of provider type
 	GetRegionalClusterDefaultProviderName(providerType clusterctlv1.ProviderType) (string, error)
-	// ListClusters lists workload cluster managed by a regional cluster in a given namespace
+	// ListClusters lists workload cluster managed by a management cluster in a given namespace
 	ListClusters(namespace string) ([]capi.Cluster, error)
 	// DeleteCluster deletes cluster in the given namespace
 	DeleteCluster(clusterName string, namespace string) error
@@ -184,7 +184,7 @@ type Client interface {
 	GetMachineObjectsForCluster(clusterName string, namespace string) (map[string]capi.Machine, map[string]capi.Machine, error)
 	// UpdateReplicas updates the replica count for the given resource
 	UpdateReplicas(resourceReference interface{}, resourceName, resourceNameSpace string, replicaCount int32) error
-	// IsPacificRegionalCluster checks if the cluster pointed to by kubeconfig  is Pacific regional cluster(supervisor)
+	// IsPacificRegionalCluster checks if the cluster pointed to by kubeconfig  is Pacific management cluster(supervisor)
 	IsPacificRegionalCluster() (bool, error)
 	// WaitForPacificCluster waits for the Vsphere-pacific provider workload cluster to be fully provisioned
 	WaitForPacificCluster(clusterName string, namespace string, version string) error
@@ -239,7 +239,7 @@ type Client interface {
 	HasCEIPTelemetryJob(clusterName string) (bool, error)
 	// GetPacificTKCAPIVersion gets the Pacific TKC API version
 	GetPacificTKCAPIVersion() (string, error)
-	// GetPacificTanzuKubernetesReleases returns the list of TanzuKubernetesRelease versions if TKR object is available in TKGS
+	// GetPacificTanzuKubernetesReleases returns the list of TanzuKubernetesRelease versions if TKr object is available in TKGS
 	GetPacificTanzuKubernetesReleases() ([]string, error)
 	// GetVCCredentialsFromSecret gets the vSphere username and password used to deploy the cluster
 	GetVCCredentialsFromSecret() (string, string, error)
@@ -259,7 +259,7 @@ type Client interface {
 	GetClientSet() CrtClient
 	// GetPinnipedIssuerURLAndCA fetches Pinniped supervisor IssuerURL and IssuerCA data from management cluster
 	GetPinnipedIssuerURLAndCA() (string, string, error)
-	// GetTanzuKubernetesReleases returns the TKRs with 'tkrName' prefix match. If tkrName is not provided it returns all the available TKRs
+	// GetTanzuKubernetesReleases returns the TKr's with 'tkrName' prefix match. If tkrName is not provided it returns all the available TKr's
 	GetTanzuKubernetesReleases(tkrName string) ([]runv1alpha1.TanzuKubernetesRelease, error)
 	// GetBomConfigMap returns configmap associated w3ith the tkrNameLabel
 	GetBomConfigMap(tkrNameLabel string) (corev1.ConfigMap, error)
@@ -943,7 +943,7 @@ func (c *client) GetTanzuKubernetesReleases(tkrName string) ([]runv1alpha1.Tanzu
 		return nil, c.ListResources(&tkrList)
 	})
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to list current TKRs")
+		return nil, errors.Wrap(err, "failed to list current TKr's")
 	}
 	if tkrName == "" {
 		return tkrList.Items, nil
@@ -968,7 +968,7 @@ func (c *client) GetBomConfigMap(tkrNameLabel string) (corev1.ConfigMap, error) 
 	cmList := &corev1.ConfigMapList{}
 	err := c.clientSet.List(context.Background(), cmList, selectors...)
 	if err != nil {
-		return corev1.ConfigMap{}, errors.Wrap(err, "failed to list current TKRs")
+		return corev1.ConfigMap{}, errors.Wrap(err, "failed to list current TKr's")
 	}
 	if len(cmList.Items) != 1 {
 		return corev1.ConfigMap{}, errors.Wrapf(err, "failed to find the BOM ConfigMap matching the label %s: %v", tkrNameLabel, err)
@@ -993,7 +993,7 @@ func (c *client) GetClusterInfrastructure() (string, error) {
 }
 
 // DeactivateTanzuKubernetesReleases deactivates the given TanzuKubernetesReleases
-// TKR is deactivated by adding label (inactive: "" ) to the TKR resource
+// TKr is deactivated by adding label (inactive: "" ) to the TKr resource
 func (c *client) DeactivateTanzuKubernetesReleases(tkrName string) error {
 	var tkr runv1alpha1.TanzuKubernetesRelease
 	deactivateTKRTimeout := 2 * CheckResourceInterval
@@ -1016,7 +1016,7 @@ func (c *client) DeactivateTanzuKubernetesReleases(tkrName string) error {
 }
 
 // ActivateTanzuKubernetesReleases activates the given TanzuKubernetesReleases
-// TKR is activated by removing the inactive label (by patching labels with inactive: null) on TKR resource
+// TKr is activated by removing the inactive label (by patching labels with inactive: null) on TKr resource
 func (c *client) ActivateTanzuKubernetesReleases(tkrName string) error {
 	var tkr runv1alpha1.TanzuKubernetesRelease
 	activateTKRTimeout := 2 * CheckResourceInterval
@@ -1344,7 +1344,7 @@ func (c *client) GetCurrentKubeconfigFile() string {
 	return c.kubeConfigPath
 }
 
-// IsRegionalCluster() checks if the current kube context point to a regional cluster
+// IsRegionalCluster() checks if the current kube context point to a management cluster
 func (c *client) IsRegionalCluster() error {
 	var providers clusterctlv1.ProviderList
 
@@ -1363,7 +1363,7 @@ func (c *client) IsRegionalCluster() error {
 		}
 
 		if !found {
-			return errors.Errorf("not a valid regional cluster, missing provider: %s", string(t))
+			return errors.Errorf("not a valid management cluster, missing provider: %s", string(t))
 		}
 	}
 

@@ -31,7 +31,7 @@ func New(configDir string, tkgConfigReaderWriter tkgconfigreaderwriter.TKGConfig
 
 // Client implements TKG configuration updater functions
 type Client interface {
-	// GetBOMConfigurationFromTkrVersion gets BoM configuration based on TKR version
+	// GetBOMConfigurationFromTkrVersion gets BoM configuration based on TKr version
 	GetBOMConfigurationFromTkrVersion(tkrVersion string) (*BOMConfiguration, error)
 	// GetDefaultBOMConfiguration reads BOM file from ~/.tkg/bom/${TKGDefaultBOMFileName} location
 	GetDefaultTkgBOMConfiguration() (*BOMConfiguration, error)
@@ -41,7 +41,7 @@ type Client interface {
 	GetDefaultClusterAPIProviders() (string, string, string, error)
 	// GetDefaultK8sVersion return default k8s version from BOM file
 	GetDefaultK8sVersion() (string, error)
-	// GetK8sVersionFromTkrVersion returns k8s version from TKR version
+	// GetK8sVersionFromTkrVersion returns k8s version from TKr version
 	GetK8sVersionFromTkrVersion(tkrVersion string) (string, error)
 	// GetDefaultTKGReleaseVersion return default tkg release version from BOM file
 	GetDefaultTKGReleaseVersion() (string, error)
@@ -57,7 +57,7 @@ type Client interface {
 	DownloadDefaultBOMFilesFromRegistry(registry.Registry) error
 	// Initializes the registry for downloading the bom files
 	InitBOMRegistry() (registry.Registry, error)
-	// GetDefaultTKRVersion return default TKR version from default TKG BOM file
+	// GetDefaultTKRVersion return default TKr version from default TKG BOM file
 	GetDefaultTKRVersion() (string, error)
 	// GetDefaultBoMFilePath returns path of default BoM file
 	GetDefaultBoMFilePath() (string, error)

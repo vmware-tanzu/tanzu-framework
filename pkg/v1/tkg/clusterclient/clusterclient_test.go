@@ -915,7 +915,7 @@ var _ = Describe("Cluster Client", func() {
 
 				isPacific, err = clstClient.IsPacificRegionalCluster()
 			})
-			It("should return the cluster is not a pacific regional cluster", func() {
+			It("should return the cluster is not a pacific management cluster", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(isPacific).To(Equal(false))
 			})
@@ -933,7 +933,7 @@ var _ = Describe("Cluster Client", func() {
 					),
 				)
 			})
-			It("should return the cluster is not a pacific regional cluster, if 'TanzuKubernetesCluster' CRD doesn't exist", func() {
+			It("should return the cluster is not a pacific management cluster, if 'TanzuKubernetesCluster' CRD doesn't exist", func() {
 				server.AppendHandlers(
 					ghttp.CombineHandlers(
 						ghttp.VerifyRequest("GET", "/apis/run.tanzu.vmware.com/v1alpha1"),
@@ -950,7 +950,7 @@ var _ = Describe("Cluster Client", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(isPacific).To(Equal(false))
 			})
-			It("should return the cluster is a pacific regional cluster, if 'TanzuKubernetesCluster' CRD exist", func() {
+			It("should return the cluster is a pacific management cluster, if 'TanzuKubernetesCluster' CRD exist", func() {
 				server.AppendHandlers(
 					ghttp.CombineHandlers(
 						ghttp.VerifyRequest("GET", "/apis/run.tanzu.vmware.com/v1alpha1"),
@@ -1408,7 +1408,7 @@ var _ = Describe("Cluster Client", func() {
 			Expect(err).NotTo(HaveOccurred())
 			err = clstClient.PatchImageRepositoryInKubeProxyDaemonSet(newImageRepository)
 		})
-		Context("When kube-proxy daemonset object does not exits", func() {
+		Context("When kube-proxy daemonset object does not exist", func() {
 			BeforeEach(func() {
 				newImageRepository = imageRepository
 				kubeProxyDSCreateOption = fakehelper.TestDaemonSetOption{Name: "fake-daemonset", Namespace: metav1.NamespaceSystem, Image: "registry.tkg.vmware.run/kube-proxy:v1.17.3_vmware.2", IncludeContainer: true}
@@ -1418,7 +1418,7 @@ var _ = Describe("Cluster Client", func() {
 			})
 		})
 
-		Context("When kube-proxy daemonset object exits but continer specs are missing", func() {
+		Context("When kube-proxy daemonset object exists but container specs are missing", func() {
 			BeforeEach(func() {
 				newImageRepository = imageRepository
 				kubeProxyDSCreateOption = fakehelper.TestDaemonSetOption{Name: "kube-proxy", Namespace: metav1.NamespaceSystem, Image: "registry.tkg.vmware.run/kube-proxy:v1.17.3_vmware.2", IncludeContainer: false}
@@ -1903,7 +1903,7 @@ var _ = Describe("Cluster Client", func() {
 			})
 			It("should return an error", func() {
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("failed to list current TKRs"))
+				Expect(err.Error()).To(ContainSubstring("failed to list current TKr's"))
 				Expect(err.Error()).To(ContainSubstring("fake GetTanzuKubernetesRelease error"))
 			})
 		})

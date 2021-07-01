@@ -29,7 +29,7 @@ const (
 
 //go:generate counterfeiter -o ../fakes/vcclient.go --fake-name VCClient . Client
 
-// Client represents a vcenter client
+// Client represents a vCenter client
 type Client interface {
 	// Login authenticates with Virtual Center using user/password
 	Login(ctx context.Context, user, password string) (string, error)
@@ -41,7 +41,7 @@ type Client interface {
 	// CheckUserSessionActive check if a user session is Active
 	CheckUserSessionActive() (bool, error)
 
-	// GetDatastores returns a list of Datastores for the given datacenter
+	// GetDatastores returns a list of datastores for the given datacenter
 	GetDatastores(ctx context.Context, datacenterMOID string) ([]*models.VSphereDatastore, error)
 
 	// GetDatacenters returns a list of all datacenters in the vSphere inventory.
@@ -65,7 +65,7 @@ type Client interface {
 	// GetVirtualMachineImages gets vm templates for kubernetes
 	GetVirtualMachineImages(ctx context.Context, datacenterMOID string) ([]*tkgtypes.VSphereVirtualMachine, error)
 
-	// DetectPacific detects if project pacific is enabled on vsphere
+	// DetectPacific detects if project pacific is enabled on vSphere
 	DetectPacific(ctx context.Context) (bool, error)
 
 	// GetFolders gets all folders under a datacenter
@@ -73,15 +73,15 @@ type Client interface {
 
 	// GetComputeResources gets resource pools and their ancestors
 	GetComputeResources(ctx context.Context, datacenterMOID string) ([]*models.VSphereManagementObject, error)
-	// FindResourcePool find the vsphere resource pool from path, return moid
+	// FindResourcePool find the vSphere resource pool from path, return moid
 	FindResourcePool(ctx context.Context, path, dcPath string) (string, error)
-	// FindFolder find the vsphere folder from path, return moid
+	// FindFolder find the vSphere folder from path, return moid
 	FindFolder(ctx context.Context, path, dcPath string) (string, error)
-	// FindVirtualMachine find the vsphere virtual machine from path, return moid
+	// FindVirtualMachine find the vSphere virtual machine from path, return moid
 	FindVirtualMachine(ctx context.Context, path, dcPath string) (string, error)
-	// FindDataCenter find the vsphere datacenter from path, return moid
+	// FindDataCenter find the vSphere datacenter from path, return moid
 	FindDataCenter(ctx context.Context, path string) (string, error)
-	// FindDatastore find the vsphere datastore from path, return moid
+	// FindDatastore find the vSphere datastore from path, return moid
 	FindDatastore(ctx context.Context, path, dcPath string) (string, error)
 	// GetAndValidateVirtualMachineTemplateForK8sVersion validates and returns valid virtual machine template
 	GetAndValidateVirtualMachineTemplate(ovaVersions []string, tkrName string, templateName, dc string, tkgConfigReaderWriter tkgconfigreaderwriter.TKGConfigReaderWriter) (*tkgtypes.VSphereVirtualMachine, error)

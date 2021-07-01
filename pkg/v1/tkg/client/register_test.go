@@ -78,7 +78,7 @@ var _ = Describe("TMC Registration Tests", func() {
 			})
 		})
 
-		When("Cluster is not a Pacific Regional cluster", func() {
+		When("Cluster is not a Pacific management cluster", func() {
 			BeforeEach(func() {
 				clusterClient.IsPacificRegionalClusterReturns(false, nil)
 				clusterClientFactory.NewClientReturns(clusterClient, nil)

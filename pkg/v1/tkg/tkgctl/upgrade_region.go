@@ -24,9 +24,8 @@ type UpgradeRegionOptions struct {
 	OSVersion   string
 	OSArch      string
 
-	// VSphereTemplateName (deprecated: please use
-	// OSName, OSVersion and OSArch config variable
-	// to filter vSphereTemplate)
+	// VSphereTemplateName (deprecated: please use OSName, OSVersion and OSArch
+	// config variables to filter vSphereTemplate)
 	VSphereTemplateName string
 }
 
