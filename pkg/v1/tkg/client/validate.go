@@ -556,11 +556,11 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
-	if err = c.ConfigureAndValidateHTTPProxyConfiguration(name); err != nil {
+	if err = c.configureAndValidateIPFamilyConfiguration(); err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
-	if err = c.configureAndValidateIPFamilyConfiguration(); err != nil {
+	if err = c.ConfigureAndValidateHTTPProxyConfiguration(name); err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 

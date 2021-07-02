@@ -100,7 +100,7 @@ func (c *TkgClient) DeleteRegion(options DeleteRegionOptions) error { //nolint:f
 		}
 
 		// configure variables required to deploy providers
-		if err := c.configureVariablesForProvidersInstallation(regionalClusterClient); err != nil {
+		if err := c.configureVariablesForProvidersInstallation(regionalClusterClient, regionalClusterNamespace); err != nil {
 			return errors.Wrap(err, "unable to configure variables for provider installation")
 		}
 

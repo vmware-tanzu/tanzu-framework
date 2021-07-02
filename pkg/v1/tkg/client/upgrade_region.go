@@ -100,7 +100,7 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 		return errors.New("upgrading 'Tanzu Kubernetes Cluster service for vSphere' management cluster is not yet supported")
 	}
 
-	if err := c.configureVariablesForProvidersInstallation(regionalClusterClient); err != nil {
+	if err := c.configureVariablesForProvidersInstallation(regionalClusterClient, options.Namespace); err != nil {
 		return errors.Wrap(err, "unable to configure variables for provider installation")
 	}
 
@@ -153,7 +153,7 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 	return nil
 }
 
-func (c *TkgClient) configureVariablesForProvidersInstallation(regionalClusterClient clusterclient.Client) error {
+func (c *TkgClient) configureVariablesForProvidersInstallation(regionalClusterClient clusterclient.Client, regionalClusterNamespace string) error {
 	infraProvider, err := regionalClusterClient.GetRegionalClusterDefaultProviderName(clusterctlv1.InfrastructureProviderType)
 	if err != nil {
 		return errors.Wrap(err, "failed to get cluster provider information.")
@@ -163,7 +163,7 @@ func (c *TkgClient) configureVariablesForProvidersInstallation(regionalClusterCl
 		return errors.Wrap(err, "failed to parse provider name")
 	}
 	// set default values for variables required for infrastructure component spec rendering
-	err = c.setConfigurationForUpgrade(regionalClusterClient)
+	err = c.setConfigurationForUpgrade(regionalClusterClient, regionalClusterNamespace)
 	if err != nil {
 		return errors.Wrap(err, "failed to set configurations for upgrade")
 	}

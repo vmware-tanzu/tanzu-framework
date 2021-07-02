@@ -5,6 +5,7 @@ package client
 
 import (
 	"fmt"
+	"net"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -14,6 +15,7 @@ import (
 	"github.com/pkg/errors"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
@@ -233,4 +235,69 @@ func TimedExecution(command func() error) (time.Duration, error) {
 	start := time.Now()
 	err := command()
 	return time.Since(start), err
+}
+
+// GetIPFamily returns a ClusterIPFamily from the configuration provided.
+// TODO: Replace this code with capi implementation when Cluster uses v1alpha4 Cluster type
+// https://github.com/kubernetes-sigs/cluster-api/blob/c6803793164abe26b61dae2f1b9b375d4acbecf9/api/v1alpha4/cluster_types.go#L224-L291
+func getIPFamily(c *capi.Cluster) (string, error) {
+	var podCIDRs, serviceCIDRs []string
+	if c.Spec.ClusterNetwork != nil {
+		if c.Spec.ClusterNetwork.Pods != nil {
+			podCIDRs = c.Spec.ClusterNetwork.Pods.CIDRBlocks
+		}
+		if c.Spec.ClusterNetwork.Services != nil {
+			serviceCIDRs = c.Spec.ClusterNetwork.Services.CIDRBlocks
+		}
+	}
+	if len(podCIDRs) == 0 && len(serviceCIDRs) == 0 {
+		return constants.IPv4Family, nil
+	}
+
+	podsIPFamily, err := ipFamilyForCIDRStrings(podCIDRs)
+	if err != nil {
+		return "", fmt.Errorf("pods: %s", err)
+	}
+	if len(serviceCIDRs) == 0 {
+		return podsIPFamily, nil
+	}
+
+	servicesIPFamily, err := ipFamilyForCIDRStrings(serviceCIDRs)
+	if err != nil {
+		return "", fmt.Errorf("services: %s", err)
+	}
+	if len(podCIDRs) == 0 {
+		return servicesIPFamily, nil
+	}
+
+	return podsIPFamily, nil
+}
+
+func ipFamilyForCIDRStrings(cidrs []string) (string, error) {
+	if len(cidrs) > 1 {
+		return "", errors.New("too many CIDRs specified")
+	}
+	var foundIPv4 bool
+	var foundIPv6 bool
+	for _, cidr := range cidrs {
+		ip, _, err := net.ParseCIDR(cidr)
+		if err != nil {
+			return "", fmt.Errorf("could not parse CIDR: %s", err)
+		}
+		if ip.To4() != nil {
+			foundIPv4 = true
+		} else {
+			foundIPv6 = true
+		}
+	}
+	switch {
+	case foundIPv4 && foundIPv6:
+		return "", errors.New("dualstack not supported")
+	case foundIPv4:
+		return constants.IPv4Family, nil
+	case foundIPv6:
+		return constants.IPv6Family, nil
+	default:
+		return "", nil
+	}
 }

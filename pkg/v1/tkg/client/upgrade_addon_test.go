@@ -10,7 +10,10 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
+	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
+
 	. "github.com/vmware-tanzu-private/core/pkg/v1/tkg/client"
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes"
 )
@@ -45,13 +48,40 @@ var _ = Describe("Unit tests for addons upgrade", func() {
 	})
 
 	Describe("When upgrading addons", func() {
+		const (
+			clusterName = "tkg-mgmt"
+		)
+		var (
+			serviceCIDRs []string
+			podCIDRs     []string
+		)
 		BeforeEach(func() {
+			serviceCIDRs = []string{"1.2.3.4/16"}
+			podCIDRs = []string{"2.3.4.5/16"}
+
 			setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
 			setupBomFile("../fakes/config/bom/tkg-bom-v1.3.1.yaml", testingDir)
 			regionalClusterClient.PatchResourceReturns(nil)
 			regionalClusterClient.GetKCPObjectForClusterReturns(getDummyKCP(constants.DockerMachineTemplate), nil)
-			regionalClusterClient.GetResourceReturns(nil)
 			currentClusterClient.GetKubernetesVersionReturns(currentK8sVersion, nil)
+			regionalClusterClient.GetCurrentKubeContextReturns("context", nil)
+			regionalClusterClient.GetCurrentClusterNameReturns(clusterName, nil)
+			regionalClusterClient.GetResourceCalls(func(cluster interface{}, resourceName, namespace string, postVerify clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
+				if cluster, ok := cluster.(*capi.Cluster); ok && resourceName == clusterName && namespace == upgradeAddonOptions.Namespace {
+					cluster.Spec = capi.ClusterSpec{
+						ClusterNetwork: &capi.ClusterNetwork{
+							Services: &capi.NetworkRanges{
+								CIDRBlocks: serviceCIDRs,
+							},
+							Pods: &capi.NetworkRanges{
+								CIDRBlocks: podCIDRs,
+							},
+						},
+					}
+					return nil
+				}
+				return nil
+			})
 			isRegionalCluster = true
 
 			clusterConfigGetter = func(*CreateClusterOptions) ([]byte, error) {
@@ -153,6 +183,37 @@ var _ = Describe("Unit tests for addons upgrade", func() {
 			It("should returns an error", func() {
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(ContainSubstring("upgrade of 'tkr/tkr-controller' component is only supported on management cluster"))
+			})
+		})
+
+		Describe("When setting networking configuration", func() {
+			It("sets the cluster CIDR in the TKGConfig", func() {
+				clusterCIDR, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterCIDR)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(clusterCIDR).To(Equal("2.3.4.5/16"))
+			})
+			It("sets the service CIDR in the TKGConfig", func() {
+				serviceCIDR, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableServiceCIDR)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(serviceCIDR).To(Equal("1.2.3.4/16"))
+			})
+			When("the cluster is ipv4", func() {
+				It("sets the IPFamily to ipv4", func() {
+					ipFamily, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableIPFamily)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(ipFamily).To(Equal("ipv4"))
+				})
+			})
+			When("the cluster is ipv6", func() {
+				BeforeEach(func() {
+					serviceCIDRs = []string{"fd00::/32"}
+					podCIDRs = []string{"fd01::/32"}
+				})
+				It("sets the IPFamily to ipv6", func() {
+					ipFamily, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableIPFamily)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(ipFamily).To(Equal("ipv6"))
+				})
 			})
 		})
 	})

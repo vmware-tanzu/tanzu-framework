@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/jinzhu/copier"
 	"github.com/pkg/errors"
+	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/clusterclient"
@@ -200,7 +201,7 @@ func (c *TkgClient) DoUpgradeAddon(regionalClusterClient clusterclient.Client, /
 			c.TKGConfigReaderWriter().Set(constants.ConfigVaraibleDisableCRSForAddonType, addonName)
 		}
 
-		if err := c.setConfigurationForUpgrade(regionalClusterClient); err != nil {
+		if err := c.setConfigurationForUpgrade(regionalClusterClient, options.Namespace); err != nil {
 			return errors.Wrap(err, "unable to set cluster configuration")
 		}
 
@@ -226,13 +227,17 @@ func (c *TkgClient) DoUpgradeAddon(regionalClusterClient clusterclient.Client, /
 	return nil
 }
 
-func (c *TkgClient) setConfigurationForUpgrade(regionalClusterClient clusterclient.Client) error {
+func (c *TkgClient) setConfigurationForUpgrade(regionalClusterClient clusterclient.Client, regionalClusterNamespace string) error {
 	if err := c.setProxyConfiguration(regionalClusterClient); err != nil {
 		return errors.Wrapf(err, "error while getting proxy configuration from cluster and setting it")
 	}
 
 	if err := c.setCustomImageRepositoryConfiguration(regionalClusterClient); err != nil {
 		return errors.Wrapf(err, "error while getting custom image repository configuration from cluster and setting it")
+	}
+
+	if err := c.setNetworkingConfiguration(regionalClusterClient, regionalClusterNamespace); err != nil {
+		return errors.Wrap(err, "error while initializing networking configuration")
 	}
 
 	return nil
@@ -302,6 +307,38 @@ func (c *TkgClient) setCustomImageRepositoryConfiguration(regionalClusterClient 
 			customImageRepositoryCaCertificateEncoded := base64.StdEncoding.EncodeToString([]byte(customImageRepositoryCaCertificate))
 			c.TKGConfigReaderWriter().Set(constants.ConfigVariableCustomImageRepositoryCaCertificate, customImageRepositoryCaCertificateEncoded)
 		}
+	}
+
+	return nil
+}
+
+func (c *TkgClient) setNetworkingConfiguration(regionalClusterClient clusterclient.Client, regionalClusterNamespace string) error {
+	context, err := regionalClusterClient.GetCurrentKubeContext()
+	if err != nil {
+		return errors.Wrap(err, "unable to get current kube context")
+	}
+	clusterName, err := regionalClusterClient.GetCurrentClusterName(context)
+	if err != nil {
+		return errors.Wrapf(err, "unable to get current cluster name for context %q", context)
+	}
+	cluster := &capi.Cluster{}
+	err = regionalClusterClient.GetResource(cluster, clusterName, regionalClusterNamespace, nil, nil)
+	if err != nil {
+		return errors.Wrapf(err, "unable to get cluster %q from namespace %q", clusterName, regionalClusterNamespace)
+	}
+
+	if cluster.Spec.ClusterNetwork != nil {
+		if cluster.Spec.ClusterNetwork.Pods != nil && len(cluster.Spec.ClusterNetwork.Pods.CIDRBlocks) > 0 {
+			c.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterCIDR, cluster.Spec.ClusterNetwork.Pods.CIDRBlocks[0])
+		}
+		if cluster.Spec.ClusterNetwork.Services != nil && len(cluster.Spec.ClusterNetwork.Services.CIDRBlocks) > 0 {
+			c.TKGConfigReaderWriter().Set(constants.ConfigVariableServiceCIDR, cluster.Spec.ClusterNetwork.Services.CIDRBlocks[0])
+		}
+		ipFamily, err := getIPFamily(cluster)
+		if err != nil {
+			return errors.Wrapf(err, "unable to get IPFamily of %q", clusterName)
+		}
+		c.TKGConfigReaderWriter().Set(constants.ConfigVariableIPFamily, ipFamily)
 	}
 
 	return nil
