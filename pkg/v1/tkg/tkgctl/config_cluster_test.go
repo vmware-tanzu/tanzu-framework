@@ -4,6 +4,7 @@
 package tkgctl
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -116,6 +117,15 @@ var _ = Describe("Unit tests for config cluster", func() {
 	})
 })
 
+var testTKGCompatibilityFileFmt = `
+version: v1
+managementClusterPluginVersions:
+- version: %s
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: %s
+`
+
 func prepareConfiDir(configDir string) {
 	bomDir, err := tkgconfigpaths.New(configDir).GetTKGBoMDirectory()
 	Expect(err).ToNot(HaveOccurred())
@@ -124,10 +134,24 @@ func prepareConfiDir(configDir string) {
 		Expect(err).ToNot(HaveOccurred())
 	}
 
-	os.Setenv(constants.ConfigVariableBomCustomImageTag, utils.GetTKGBoMTagFromFileName(filepath.Base(defaultTKGBomFileForTesting)))
 	err = utils.CopyFile(defaultTKGBomFileForTesting, filepath.Join(bomDir, filepath.Base(defaultTKGBomFileForTesting)))
 	Expect(err).ToNot(HaveOccurred())
 
 	err = utils.CopyFile(defaultTKRBomFileForTesting, filepath.Join(bomDir, filepath.Base(defaultTKRBomFileForTesting)))
+	Expect(err).ToNot(HaveOccurred())
+
+	compatibilityDir, err := tkgconfigpaths.New(configDir).GetTKGCompatibilityDirectory()
+	Expect(err).ToNot(HaveOccurred())
+	if _, err := os.Stat(compatibilityDir); os.IsNotExist(err) {
+		err = os.MkdirAll(compatibilityDir, 0o700)
+		Expect(err).ToNot(HaveOccurred())
+	}
+
+	defaultBomFileTag := utils.GetTKGBoMTagFromFileName(filepath.Base(defaultTKGBomFileForTesting))
+	testTKGCompatabilityFileContent := fmt.Sprintf(testTKGCompatibilityFileFmt, tkgconfigpaths.TKGManagementClusterPluginVersion, defaultBomFileTag)
+
+	compatibilityConfigFile, err := tkgconfigpaths.New(configDir).GetTKGCompatibilityConfigPath()
+	Expect(err).ToNot(HaveOccurred())
+	err = os.WriteFile(compatibilityConfigFile, []byte(testTKGCompatabilityFileContent), constants.ConfigFilePermissions)
 	Expect(err).ToNot(HaveOccurred())
 }

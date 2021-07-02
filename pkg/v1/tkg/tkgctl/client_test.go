@@ -11,7 +11,6 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
 	fakeproviders "github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes/providers"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/providerinterface"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigreaderwriter"
@@ -30,6 +29,7 @@ var _ = Describe("ensureBoMandProvidersPrerequisite", func() {
 		testingDir, err = os.MkdirTemp("", "test")
 		err = os.MkdirAll(testingDir, 0o700)
 		Expect(err).ToNot(HaveOccurred())
+		prepareConfiDir(testingDir)
 		providerGetter = fakeproviders.FakeProviderGetter()
 		tkgConfigReaderWriter, err = tkgconfigreaderwriter.NewReaderWriterFromConfigFile("../fakes/config/config.yaml", "../fakes/config/config.yaml")
 		Expect(err).ToNot(HaveOccurred())
@@ -37,12 +37,6 @@ var _ = Describe("ensureBoMandProvidersPrerequisite", func() {
 	})
 
 	Context("When two goroutines try to modify the file under configDir", func() {
-		BeforeEach(func() {
-			tkgConfigReaderWriter.Set(constants.ConfigVariableBomCustomImagePath, "tkg-bom")
-		})
-		AfterEach(func() {
-			tkgConfigReaderWriter.Set(constants.ConfigVariableBomCustomImagePath, "")
-		})
 		It("should not return errors", func() {
 			errs := make(chan error, 2)
 			defer close(errs)
@@ -50,13 +44,13 @@ var _ = Describe("ensureBoMandProvidersPrerequisite", func() {
 			wg.Add(2)
 			go func() {
 				defer wg.Done()
-				err := ensureBoMandProvidersPrerequisite(testingDir, tkgConfigUpdaterClient)
+				err := ensureBoMandProvidersPrerequisite(testingDir, tkgConfigUpdaterClient, true)
 				errs <- err
 			}()
 
 			go func() {
 				defer wg.Done()
-				err := ensureBoMandProvidersPrerequisite(testingDir, tkgConfigUpdaterClient)
+				err := ensureBoMandProvidersPrerequisite(testingDir, tkgConfigUpdaterClient, true)
 				errs <- err
 			}()
 			wg.Wait()
@@ -77,8 +71,8 @@ var _ = Describe("Unit test for New", func() {
 		configDir string
 	)
 	JustBeforeEach(func() {
-		os.Setenv(constants.ConfigVariableBomCustomImageTag, "")
 		configDir, _ = ioutil.TempDir("", "cluster_client_test")
+		prepareConfiDir(configDir)
 		options = Options{
 			ConfigDir:      configDir,
 			ProviderGetter: fakeproviders.FakeProviderGetter(),

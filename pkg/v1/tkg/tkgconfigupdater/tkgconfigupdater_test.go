@@ -639,6 +639,15 @@ func countProviders() (int, error) {
 	return len(providersConfig.Providers), nil
 }
 
+var testTKGCompatibilityFileFmt = `
+version: v1
+managementClusterPluginVersions:
+- version: %s
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: %s
+`
+
 func setupPrerequsiteForTesting(clusterConfigFile string, testingDir string, defaultBomFile string) string {
 	bomDir, err := tkgconfigpaths.New(testingDir).GetTKGBoMDirectory()
 	Expect(err).ToNot(HaveOccurred())
@@ -653,9 +662,24 @@ func setupPrerequsiteForTesting(clusterConfigFile string, testingDir string, def
 	err = utils.CopyFile(clusterConfigFile, testClusterConfigFile)
 	Expect(err).ToNot(HaveOccurred())
 
-	tkgconfigpaths.TKGDefaultBOMImageTag = utils.GetTKGBoMTagFromFileName(filepath.Base(defaultBomFile))
 	err = utils.CopyFile(defaultBomFile, filepath.Join(bomDir, filepath.Base(defaultBomFile)))
 	Expect(err).ToNot(HaveOccurred())
+
+	compatibilityDir, err := tkgconfigpaths.New(testingDir).GetTKGCompatibilityDirectory()
+	Expect(err).ToNot(HaveOccurred())
+	if _, err := os.Stat(compatibilityDir); os.IsNotExist(err) {
+		err = os.MkdirAll(compatibilityDir, 0o700)
+		Expect(err).ToNot(HaveOccurred())
+	}
+
+	defaultBomFileTag := utils.GetTKGBoMTagFromFileName(filepath.Base(defaultBomFile))
+	testTKGCompatabilityFileContent := fmt.Sprintf(testTKGCompatibilityFileFmt, tkgconfigpaths.TKGManagementClusterPluginVersion, defaultBomFileTag)
+
+	compatibilityConfigFile, err := tkgconfigpaths.New(testingDir).GetTKGCompatibilityConfigPath()
+	Expect(err).ToNot(HaveOccurred())
+	err = os.WriteFile(compatibilityConfigFile, []byte(testTKGCompatabilityFileContent), constants.ConfigFilePermissions)
+	Expect(err).ToNot(HaveOccurred())
+
 	return testClusterConfigFile
 }
 

@@ -20,6 +20,17 @@ type TKGConfigBomClient struct {
 	downloadDefaultBOMFilesFromRegistryReturnsOnCall map[int]struct {
 		result1 error
 	}
+	DownloadTKGCompatibilityFileFromRegistryStub        func(registry.Registry) error
+	downloadTKGCompatibilityFileFromRegistryMutex       sync.RWMutex
+	downloadTKGCompatibilityFileFromRegistryArgsForCall []struct {
+		arg1 registry.Registry
+	}
+	downloadTKGCompatibilityFileFromRegistryReturns struct {
+		result1 error
+	}
+	downloadTKGCompatibilityFileFromRegistryReturnsOnCall map[int]struct {
+		result1 error
+	}
 	GetAutoscalerImageForK8sVersionStub        func(string) (string, error)
 	getAutoscalerImageForK8sVersionMutex       sync.RWMutex
 	getAutoscalerImageForK8sVersionArgsForCall []struct {
@@ -92,15 +103,17 @@ type TKGConfigBomClient struct {
 		result1 []byte
 		result2 error
 	}
-	GetDefaultBoMFileNameStub        func() string
+	GetDefaultBoMFileNameStub        func() (string, error)
 	getDefaultBoMFileNameMutex       sync.RWMutex
 	getDefaultBoMFileNameArgsForCall []struct {
 	}
 	getDefaultBoMFileNameReturns struct {
 		result1 string
+		result2 error
 	}
 	getDefaultBoMFileNameReturnsOnCall map[int]struct {
 		result1 string
+		result2 error
 	}
 	GetDefaultBoMFilePathStub        func() (string, error)
 	getDefaultBoMFilePathMutex       sync.RWMutex
@@ -285,6 +298,66 @@ func (fake *TKGConfigBomClient) DownloadDefaultBOMFilesFromRegistryReturnsOnCall
 		})
 	}
 	fake.downloadDefaultBOMFilesFromRegistryReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *TKGConfigBomClient) DownloadTKGCompatibilityFileFromRegistry(arg1 registry.Registry) error {
+	fake.downloadTKGCompatibilityFileFromRegistryMutex.Lock()
+	ret, specificReturn := fake.downloadTKGCompatibilityFileFromRegistryReturnsOnCall[len(fake.downloadTKGCompatibilityFileFromRegistryArgsForCall)]
+	fake.downloadTKGCompatibilityFileFromRegistryArgsForCall = append(fake.downloadTKGCompatibilityFileFromRegistryArgsForCall, struct {
+		arg1 registry.Registry
+	}{arg1})
+	fake.recordInvocation("DownloadTKGCompatibilityFileFromRegistry", []interface{}{arg1})
+	fake.downloadTKGCompatibilityFileFromRegistryMutex.Unlock()
+	if fake.DownloadTKGCompatibilityFileFromRegistryStub != nil {
+		return fake.DownloadTKGCompatibilityFileFromRegistryStub(arg1)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.downloadTKGCompatibilityFileFromRegistryReturns
+	return fakeReturns.result1
+}
+
+func (fake *TKGConfigBomClient) DownloadTKGCompatibilityFileFromRegistryCallCount() int {
+	fake.downloadTKGCompatibilityFileFromRegistryMutex.RLock()
+	defer fake.downloadTKGCompatibilityFileFromRegistryMutex.RUnlock()
+	return len(fake.downloadTKGCompatibilityFileFromRegistryArgsForCall)
+}
+
+func (fake *TKGConfigBomClient) DownloadTKGCompatibilityFileFromRegistryCalls(stub func(registry.Registry) error) {
+	fake.downloadTKGCompatibilityFileFromRegistryMutex.Lock()
+	defer fake.downloadTKGCompatibilityFileFromRegistryMutex.Unlock()
+	fake.DownloadTKGCompatibilityFileFromRegistryStub = stub
+}
+
+func (fake *TKGConfigBomClient) DownloadTKGCompatibilityFileFromRegistryArgsForCall(i int) registry.Registry {
+	fake.downloadTKGCompatibilityFileFromRegistryMutex.RLock()
+	defer fake.downloadTKGCompatibilityFileFromRegistryMutex.RUnlock()
+	argsForCall := fake.downloadTKGCompatibilityFileFromRegistryArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *TKGConfigBomClient) DownloadTKGCompatibilityFileFromRegistryReturns(result1 error) {
+	fake.downloadTKGCompatibilityFileFromRegistryMutex.Lock()
+	defer fake.downloadTKGCompatibilityFileFromRegistryMutex.Unlock()
+	fake.DownloadTKGCompatibilityFileFromRegistryStub = nil
+	fake.downloadTKGCompatibilityFileFromRegistryReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *TKGConfigBomClient) DownloadTKGCompatibilityFileFromRegistryReturnsOnCall(i int, result1 error) {
+	fake.downloadTKGCompatibilityFileFromRegistryMutex.Lock()
+	defer fake.downloadTKGCompatibilityFileFromRegistryMutex.Unlock()
+	fake.DownloadTKGCompatibilityFileFromRegistryStub = nil
+	if fake.downloadTKGCompatibilityFileFromRegistryReturnsOnCall == nil {
+		fake.downloadTKGCompatibilityFileFromRegistryReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.downloadTKGCompatibilityFileFromRegistryReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
 }
@@ -632,7 +705,7 @@ func (fake *TKGConfigBomClient) GetCustomRepositoryCaCertificateReturnsOnCall(i 
 	}{result1, result2}
 }
 
-func (fake *TKGConfigBomClient) GetDefaultBoMFileName() string {
+func (fake *TKGConfigBomClient) GetDefaultBoMFileName() (string, error) {
 	fake.getDefaultBoMFileNameMutex.Lock()
 	ret, specificReturn := fake.getDefaultBoMFileNameReturnsOnCall[len(fake.getDefaultBoMFileNameArgsForCall)]
 	fake.getDefaultBoMFileNameArgsForCall = append(fake.getDefaultBoMFileNameArgsForCall, struct {
@@ -643,10 +716,10 @@ func (fake *TKGConfigBomClient) GetDefaultBoMFileName() string {
 		return fake.GetDefaultBoMFileNameStub()
 	}
 	if specificReturn {
-		return ret.result1
+		return ret.result1, ret.result2
 	}
 	fakeReturns := fake.getDefaultBoMFileNameReturns
-	return fakeReturns.result1
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *TKGConfigBomClient) GetDefaultBoMFileNameCallCount() int {
@@ -655,33 +728,36 @@ func (fake *TKGConfigBomClient) GetDefaultBoMFileNameCallCount() int {
 	return len(fake.getDefaultBoMFileNameArgsForCall)
 }
 
-func (fake *TKGConfigBomClient) GetDefaultBoMFileNameCalls(stub func() string) {
+func (fake *TKGConfigBomClient) GetDefaultBoMFileNameCalls(stub func() (string, error)) {
 	fake.getDefaultBoMFileNameMutex.Lock()
 	defer fake.getDefaultBoMFileNameMutex.Unlock()
 	fake.GetDefaultBoMFileNameStub = stub
 }
 
-func (fake *TKGConfigBomClient) GetDefaultBoMFileNameReturns(result1 string) {
+func (fake *TKGConfigBomClient) GetDefaultBoMFileNameReturns(result1 string, result2 error) {
 	fake.getDefaultBoMFileNameMutex.Lock()
 	defer fake.getDefaultBoMFileNameMutex.Unlock()
 	fake.GetDefaultBoMFileNameStub = nil
 	fake.getDefaultBoMFileNameReturns = struct {
 		result1 string
-	}{result1}
+		result2 error
+	}{result1, result2}
 }
 
-func (fake *TKGConfigBomClient) GetDefaultBoMFileNameReturnsOnCall(i int, result1 string) {
+func (fake *TKGConfigBomClient) GetDefaultBoMFileNameReturnsOnCall(i int, result1 string, result2 error) {
 	fake.getDefaultBoMFileNameMutex.Lock()
 	defer fake.getDefaultBoMFileNameMutex.Unlock()
 	fake.GetDefaultBoMFileNameStub = nil
 	if fake.getDefaultBoMFileNameReturnsOnCall == nil {
 		fake.getDefaultBoMFileNameReturnsOnCall = make(map[int]struct {
 			result1 string
+			result2 error
 		})
 	}
 	fake.getDefaultBoMFileNameReturnsOnCall[i] = struct {
 		result1 string
-	}{result1}
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *TKGConfigBomClient) GetDefaultBoMFilePath() (string, error) {
@@ -1250,6 +1326,8 @@ func (fake *TKGConfigBomClient) Invocations() map[string][][]interface{} {
 	defer fake.invocationsMutex.RUnlock()
 	fake.downloadDefaultBOMFilesFromRegistryMutex.RLock()
 	defer fake.downloadDefaultBOMFilesFromRegistryMutex.RUnlock()
+	fake.downloadTKGCompatibilityFileFromRegistryMutex.RLock()
+	defer fake.downloadTKGCompatibilityFileFromRegistryMutex.RUnlock()
 	fake.getAutoscalerImageForK8sVersionMutex.RLock()
 	defer fake.getAutoscalerImageForK8sVersionMutex.RUnlock()
 	fake.getAvailableK8sVersionsFromBOMFilesMutex.RLock()

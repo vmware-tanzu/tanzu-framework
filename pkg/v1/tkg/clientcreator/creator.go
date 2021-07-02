@@ -8,7 +8,6 @@ import (
 	"github.com/pkg/errors"
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/features"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/region"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigbom"
@@ -59,9 +58,6 @@ func CreateAllClients(appConfig types.AppConfig, tkgConfigReaderWriter tkgconfig
 	tkgConfigUpdaterClient := tkgconfigupdater.New(appConfig.TKGConfigDir, appConfig.ProviderGetter, configClient.TKGConfigReaderWriter())
 	tkgBomClient := tkgconfigbom.New(appConfig.TKGConfigDir, configClient.TKGConfigReaderWriter())
 	tkgConfigProvidersClient := tkgconfigproviders.New(appConfig.TKGConfigDir, configClient.TKGConfigReaderWriter())
-
-	// Set default BOM name to the config variables to use during template generation
-	configClient.TKGConfigReaderWriter().Set(constants.ConfigVariableDefaultBomFile, tkgBomClient.GetDefaultBoMFileName())
 
 	// Create clusterctl client
 	clusterctlClient, err := clusterctl.New("", clusterctl.InjectConfig(configClient.ClusterConfigClient()))

@@ -39,6 +39,15 @@ func (c *client) GetTKGBoMDirectory() (string, error) {
 	return filepath.Join(tkgDir, constants.LocalBOMsFolderName), nil
 }
 
+// GetTKGCompatibilityDirectory returns path to tkg compatibility directory "<TKGConfigDirectory>/compatibility"
+func (c *client) GetTKGCompatibilityDirectory() (string, error) {
+	tkgDir, err := c.GetTKGDirectory()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(tkgDir, constants.LocalCompatibilityFolderName), nil
+}
+
 // GetTKGConfigDirectories returns tkg config directories in below order
 // (tkgDir, bomDir, providersDir, error)
 func (c *client) GetTKGConfigDirectories() (string, string, string, error) {
@@ -60,6 +69,15 @@ func (c *client) GetProvidersConfigFilePath() (string, error) {
 	}
 
 	return filepath.Join(providersDir, constants.LocalProvidersConfigFileName), nil
+}
+
+// GetTKGCompatibilityConfigPath returns TKG compatibility file path
+func (c *client) GetTKGCompatibilityConfigPath() (string, error) {
+	compatibilityDir, err := c.GetTKGCompatibilityDirectory()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(compatibilityDir, constants.TKGCompatibilityFileName), nil
 }
 
 // GetTKGConfigPath returns tkg configfile path

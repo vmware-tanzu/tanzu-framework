@@ -71,7 +71,8 @@ func init() {
 }
 
 func runUpgradeRegion(server *v1alpha1.Server) error {
-	tkgClient, err := newTKGCtlClient()
+	forceUpdateTKGCompatibilityImage := false
+	tkgClient, err := newTKGCtlClient(forceUpdateTKGCompatibilityImage)
 	if err != nil {
 		return err
 	}

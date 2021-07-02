@@ -57,6 +57,16 @@ func (c *client) CheckProviderTemplatesNeedUpdate() (bool, error) {
 // returns true if $HOME/.tkg/bom directory exists, not empty and doesn't contain the defaultBoM file
 func (c *client) CheckBOMsNeedUpdate() (bool, error) {
 	var err error
+
+	compatibilityFileExists, err := c.checkTKGCompatibilityFileExists()
+	if err != nil {
+		return false, err
+	}
+	// tkg-compatibility file contents determines default BOM files, if compatibility file doesn't exists it should trigger BOM file updates
+	if !compatibilityFileExists {
+		return true, nil
+	}
+
 	bomsDir, err := c.tkgConfigPathsClient.GetTKGBoMDirectory()
 	if err != nil {
 		return false, err
@@ -112,4 +122,23 @@ func getProviderTemplateImageFromBoM(tkgBomConfig *tkgconfigbom.BOMConfiguration
 
 func isSuppressProviderUpdateEnvSet() bool {
 	return os.Getenv(constants.SuppressProvidersUpdate) != ""
+}
+
+// checkTKGCompatibilityFileExists checks if TKG compatibility file exists.
+// returns true if <TKGConfigDir>/compatibility directory exists and contains the TKG Compatibility file
+func (c *client) checkTKGCompatibilityFileExists() (bool, error) {
+	var err error
+	compatibilityConfigFile, err := c.tkgConfigPathsClient.GetTKGCompatibilityConfigPath()
+	if err != nil {
+		return false, errors.Wrap(err, "unable to get TKG compatibility file path")
+	}
+	_, err = os.Stat(compatibilityConfigFile)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return false, nil
+		}
+		// for any other error return error
+		return false, errors.Wrap(err, "failed to check TKG compatibility file exists")
+	}
+	return true, nil
 }

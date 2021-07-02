@@ -15,6 +15,7 @@ import (
 
 	"github.com/otiai10/copy"
 
+	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
 	fakehelper "github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes/helper"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigpaths"
@@ -47,7 +48,6 @@ func setupBomFile(defaultBomFile string, configDir string) { // nolint
 		Expect(err).ToNot(HaveOccurred())
 	}
 
-	tkgconfigpaths.TKGDefaultBOMImageTag = utils.GetTKGBoMTagFromFileName(filepath.Base(defaultBomFile))
 	err = utils.CopyFile(defaultBomFile, filepath.Join(bomDir, defaultBoMFileName))
 	Expect(err).ToNot(HaveOccurred())
 }
@@ -783,6 +783,15 @@ func newForTesting(clusterConfigFile string, testingDir string, defaultBomFile s
 	return New(testingDir, tkgConfigReaderWriter)
 }
 
+var testTKGCompatibilityFileFmt = `
+version: v1
+managementClusterPluginVersions:
+- version: %s
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: %s
+`
+
 func setupPrerequsiteForTesting(clusterConfigFile string, testingDir string, defaultBomFile string) string {
 	testClusterConfigFile := filepath.Join(testingDir, "config.yaml")
 	err := utils.CopyFile(clusterConfigFile, testClusterConfigFile)
@@ -795,10 +804,22 @@ func setupPrerequsiteForTesting(clusterConfigFile string, testingDir string, def
 		Expect(err).ToNot(HaveOccurred())
 	}
 
-	tkgconfigpaths.TKGDefaultBOMImageTag = utils.GetTKGBoMTagFromFileName(filepath.Base(defaultBomFile))
-
 	err = copy.Copy(filepath.Dir(defaultBomFile), bomDir)
 	Expect(err).ToNot(HaveOccurred())
 
+	compatibilityDir, err := tkgconfigpaths.New(testingDir).GetTKGCompatibilityDirectory()
+	Expect(err).ToNot(HaveOccurred())
+	if _, err := os.Stat(compatibilityDir); os.IsNotExist(err) {
+		err = os.MkdirAll(compatibilityDir, 0o700)
+		Expect(err).ToNot(HaveOccurred())
+	}
+
+	defaultBomFileTag := utils.GetTKGBoMTagFromFileName(filepath.Base(defaultBomFile))
+	testTKGCompatabilityFileContent := fmt.Sprintf(testTKGCompatibilityFileFmt, tkgconfigpaths.TKGManagementClusterPluginVersion, defaultBomFileTag)
+
+	compatibilityConfigFile, err := tkgconfigpaths.New(testingDir).GetTKGCompatibilityConfigPath()
+	Expect(err).ToNot(HaveOccurred())
+	err = os.WriteFile(compatibilityConfigFile, []byte(testTKGCompatabilityFileContent), constants.ConfigFilePermissions)
+	Expect(err).ToNot(HaveOccurred())
 	return testClusterConfigFile
 }

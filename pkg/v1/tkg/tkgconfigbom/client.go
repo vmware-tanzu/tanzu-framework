@@ -55,6 +55,8 @@ type Client interface {
 	GetAutoscalerImageForK8sVersion(k8sVersion string) (string, error)
 	// Downloads the default BOM files from the registry
 	DownloadDefaultBOMFilesFromRegistry(registry.Registry) error
+	// Downloads the TKG Compatibility file from the registry
+	DownloadTKGCompatibilityFileFromRegistry(registry.Registry) error
 	// Initializes the registry for downloading the bom files
 	InitBOMRegistry() (registry.Registry, error)
 	// GetDefaultTKRVersion return default TKr version from default TKG BOM file
@@ -62,7 +64,7 @@ type Client interface {
 	// GetDefaultBoMFilePath returns path of default BoM file
 	GetDefaultBoMFilePath() (string, error)
 	// GetDefaultBoMFileName returns name of default BoM file
-	GetDefaultBoMFileName() string
+	GetDefaultBoMFileName() (string, error)
 }
 
 func (c *client) TKGConfigReaderWriter() tkgconfigreaderwriter.TKGConfigReaderWriter {

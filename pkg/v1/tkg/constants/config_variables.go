@@ -8,8 +8,7 @@ const (
 	ConfigVariableDefaultBomFile                     = "TKG_DEFAULT_BOM"
 	ConfigVariableCustomImageRepository              = "TKG_CUSTOM_IMAGE_REPOSITORY"
 	ConfigVariableDevImageRepository                 = "TKG_DEV_IMAGE_REPOSITORY"
-	ConfigVariableBomCustomImagePath                 = "TKG_BOM_CUSTOM_IMAGE_PATH" // Only used to override the TKGDefaultBOMImagePath in run time.
-	ConfigVariableBomCustomImageTag                  = "TKG_BOM_CUSTOM_IMAGE_TAG"  // Only used to override the TKGDefaultBOMImageTag in run time.
+	ConfigVariableCompatibilityCustomImagePath       = "TKG_CUSTOM_COMPATIBILITY_IMAGE_PATH"
 	ConfigVariableCustomImageRepositorySkipTLSVerify = "TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY"
 	ConfigVariableCustomImageRepositoryCaCertificate = "TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE"
 

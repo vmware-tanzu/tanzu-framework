@@ -53,17 +53,20 @@ type InitRegionOptions struct {
 // Init initializes tkg management cluster
 func (t *tkgctl) Init(options InitRegionOptions) error {
 	var err error
-
 	options.ClusterConfigFile, err = t.ensureClusterConfigFile(options.ClusterConfigFile)
 	if err != nil {
 		return err
 	}
-
 	err = ensureConfigImages(t.configDir, t.tkgConfigUpdaterClient)
 	if err != nil {
 		return err
 	}
-
+	// Update the tkg-compatibility file and BOM files
+	forceUpdateTKGCompatibilityFile := true
+	err = ensureTKGCompatibilityAndBOMFiles(t.configDir, t.tkgConfigUpdaterClient, forceUpdateTKGCompatibilityFile)
+	if err != nil {
+		return err
+	}
 	options.CoreProvider, options.BootstrapProvider, options.ControlPlaneProvider, err = t.tkgBomClient.GetDefaultClusterAPIProviders()
 	if err != nil {
 		return err

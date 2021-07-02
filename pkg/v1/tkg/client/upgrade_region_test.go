@@ -17,7 +17,6 @@ import (
 
 	. "github.com/vmware-tanzu-private/core/pkg/v1/tkg/client"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigpaths"
 )
 
 var _ = Describe("Unit tests for upgrade management cluster", func() {
@@ -61,7 +60,7 @@ var _ = Describe("Unit tests for upgrade management cluster", func() {
 			})
 			Context("When reading upgrade information from BOM file fails", func() {
 				BeforeEach(func() {
-					tkgconfigpaths.TKGDefaultBOMImageTag = "v1.3.1-fake"
+					updateDefaultBoMFileName(testingDir, "tkg-bom-v1.3.1-fake.yaml")
 				})
 				It("should return an error", func() {
 					Expect(err).To(HaveOccurred())

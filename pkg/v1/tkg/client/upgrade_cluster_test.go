@@ -836,8 +836,6 @@ func setupBomFile(defaultBomFile string, configDir string) {
 		err = os.MkdirAll(bomDir, 0o700)
 		Expect(err).ToNot(HaveOccurred())
 	}
-
-	tkgconfigpaths.TKGDefaultBOMImageTag = utils.GetTKGBoMTagFromFileName(filepath.Base(defaultBomFile))
 	err = utils.CopyFile(defaultBomFile, filepath.Join(bomDir, filepath.Base(defaultBomFile)))
 	Expect(err).ToNot(HaveOccurred())
 }

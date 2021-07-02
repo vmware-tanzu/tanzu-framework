@@ -26,7 +26,8 @@ func init() {
 }
 
 func runGetCEIP(cmd *cobra.Command) error {
-	tkgClient, err := newTKGCtlClient()
+	forceUpdateTKGCompatibilityImage := false
+	tkgClient, err := newTKGCtlClient(forceUpdateTKGCompatibilityImage)
 	if err != nil {
 		return err
 	}

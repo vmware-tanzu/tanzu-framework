@@ -139,7 +139,8 @@ func aliasNormalizeFunc(f *pflag.FlagSet, name string) pflag.NormalizedName {
 }
 
 func runInit() error {
-	tkgClient, err := newTKGCtlClient()
+	forceUpdateTKGCompatibilityImage := true
+	tkgClient, err := newTKGCtlClient(forceUpdateTKGCompatibilityImage)
 	if err != nil {
 		return err
 	}
