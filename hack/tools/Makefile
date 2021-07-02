@@ -57,6 +57,10 @@ $(GINKGO): go.mod
 	mkdir -p $(BIN_DIR)
 	go build -tags=tools -o $(BIN_DIR)/ginkgo github.com/onsi/ginkgo/ginkgo
 
+COUNTERFEITER := $(BIN_DIR)/counterfeiter
+$(COUNTERFEITER): $(BIN_DIR) go.mod go.sum
+	go build -tags=tools -o $@ github.com/maxbrunsfeld/counterfeiter/v6
+
 golangci-lint: $(GOLANGCI_LINT) $(SRCS) ## Build golangci-lint
 $(GOLANGCI_LINT): go.mod
 	go build -tags=tools -o $@ github.com/golangci/golangci-lint/cmd/golangci-lint

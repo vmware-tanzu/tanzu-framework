@@ -221,6 +221,14 @@ type Client interface {
 	PatchCalicoKubeControllerDeploymentWithNewNodeSelector(selectorKey, selectorValue string) error
 	// PatchImageRepositoryInKubeProxyDaemonSet updates kubeproxy daemonset with new/custom image repository
 	PatchImageRepositoryInKubeProxyDaemonSet(newImageRepository string) error
+	// PatchClusterAPIAWSControllersToUseEC2Credentials ensures that the Cluster API Provider AWS
+	// controller is pinned to control plane nodes and is running without static credentials such
+	// that Cluster API AWS runs using the EC2 instance profile attached to the control plane node.
+	// This is done by zeroing out the credentials secret for CAPA, causing the AWS SDK to fall back
+	// to the default credential provider chain. We additionally patch the deployment to ensure
+	// the controller has node affinity to only run on the control plane nodes.
+	// This should NOT be used when running Cluster API Provider AWS on managed control planes, e.g. EKS
+	PatchClusterAPIAWSControllersToUseEC2Credentials() error
 	// PatchCoreDNSImageRepositoryInKubeadmConfigMap updates kubeadm-config configMap with new/custom image repository
 	PatchCoreDNSImageRepositoryInKubeadmConfigMap(newImageRepository string) error
 	// PatchClusterObjectWithOptionalMetadata applies patch to cluster objects based on given optional metadata
@@ -1855,6 +1863,67 @@ func (c *client) PatchImageRepositoryInKubeProxyDaemonSet(newImageRepository str
 			return errors.Wrap(err, "unable to update the kube-proxy daemonset")
 		}
 	}
+	return nil
+}
+
+// PatchClusterAPIAWSControllersToUseEC2Credentials ensures that the Cluster API Provider AWS
+// controller is pinned to control plane nodes and is running without static credentials such
+// that Cluster API AWS runs using the EC2 instance profile attached to the control plane node.
+// This is done by zeroing out the credentials secret for CAPA, causing the AWS SDK to fall back
+// to the default credential provider chain. We additionally patch the deployment to ensure
+// the controller has node affinity to only run on the control plane nodes.
+// This should NOT be used when running Cluster API Provider AWS on managed control planes, e.g. EKS
+func (c *client) PatchClusterAPIAWSControllersToUseEC2Credentials() error {
+	ns := &corev1.Namespace{}
+	if err := c.GetResource(ns, CAPAControllerNamespace, CAPAControllerNamespace, nil, nil); err != nil {
+		if apierrors.IsNotFound(err) {
+			// no capa-system namespace, return without errors
+			return nil
+		}
+		return err
+	}
+
+	log.V(6).Info("Kubernetes Cluster API Provider AWS detected, attempting to zero out credentials and pivot to EC2 instance profile")
+
+	creds := &corev1.Secret{}
+	if err := c.GetResource(creds, CAPACredentialsSecretName, CAPAControllerNamespace, nil, nil); err != nil {
+		if apierrors.IsNotFound(err) {
+			// Warn if secret isn't found
+			log.V(4).Warningf("Could not find Kubernetes Cluster API Provider AWS credentials secret: %s/%s ", CAPAControllerNamespace, CAPACredentialsSecretName)
+			return nil
+		}
+		return err
+	}
+
+	if creds.StringData == nil {
+		creds.StringData = map[string]string{}
+	}
+	creds.StringData["credentials"] = "\n"
+
+	if err := c.clientSet.Update(ctx, creds); err != nil {
+		return errors.Wrap(err, "unable to update the Cluster API Provider AWS credentials secret")
+	}
+
+	deployment := &appsv1.Deployment{}
+	if err := c.GetResource(deployment, CAPAControllerDeploymentName, CAPAControllerNamespace, nil, nil); err != nil {
+		if apierrors.IsNotFound(err) {
+			// Warn, but do not block if controller deployment is not found
+			log.V(4).Warningf("Could not find Kubernetes Cluster API Provider AWS controller deployment: %s/%s ", CAPAControllerNamespace, CAPAControllerDeploymentName)
+			return nil
+		}
+		return err
+	}
+
+	helper, err := patch.NewHelper(deployment, c.clientSet)
+	if err != nil {
+		return err
+	}
+	capaPodSpec := &deployment.Spec.Template.Spec
+	ensurePodSpecControlPlaneAffinity(capaPodSpec)
+	if err := helper.Patch(ctx, deployment); err != nil {
+		return errors.Wrap(err, "unable to update the Cluster API Provider AWS deployment")
+	}
+
 	return nil
 }
 

@@ -12,6 +12,38 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
+var (
+	controlPlaneTolerations = []corev1.Toleration{
+		{
+			Effect: "NoSchedule",
+			Key:    "node-role.kubernetes.io/control-plane",
+		},
+		{
+			Effect: "NoSchedule",
+			Key:    "node-role.kubernetes.io/master",
+		},
+	}
+
+	controlPlaneNodeSelectors = []corev1.NodeSelectorTerm{
+		{
+			MatchExpressions: []corev1.NodeSelectorRequirement{
+				{
+					Key:      "node-role.kubernetes.io/control-plane",
+					Operator: "Exists",
+				},
+			},
+		},
+		{
+			MatchExpressions: []corev1.NodeSelectorRequirement{
+				{
+					Key:      "node-role.kubernetes.io/master",
+					Operator: "Exists",
+				},
+			},
+		},
+	}
+)
+
 // yamlToUnstructured reads yaml bytes and converts it to *unstructured.Unstructured.
 func yamlToUnstructured(rawYAML []byte) (*unstructured.Unstructured, error) {
 	unst := &unstructured.Unstructured{}
@@ -56,4 +88,38 @@ func UpdateCoreDNSImageRepositoryInKubeadmConfigMap(kubedmconfigmap *corev1.Conf
 	}
 	kubedmconfigmap.Data[clusterConfigurationKey] = string(updated)
 	return nil
+}
+
+// ensurePodSpecControlPlaneAffinity sets tolerations and affinity on a pod spec
+// to ensure that it runs on a control plane node.
+func ensurePodSpecControlPlaneAffinity(spec *corev1.PodSpec) {
+	spec.Tolerations = ensureControlPlaneTolerations(spec.Tolerations)
+	spec.Affinity = &corev1.Affinity{
+		NodeAffinity: &corev1.NodeAffinity{
+			RequiredDuringSchedulingIgnoredDuringExecution: &corev1.NodeSelector{
+				NodeSelectorTerms: controlPlaneNodeSelectors,
+			},
+		},
+	}
+}
+
+// ensureControlPlaneTolerations sets the tolerations to allow a pod to run
+// on a control plane node
+func ensureControlPlaneTolerations(tolerations []corev1.Toleration) []corev1.Toleration {
+	for _, cpToleration := range controlPlaneTolerations {
+		if !hasToleration(cpToleration, tolerations) {
+			tolerations = append(tolerations, cpToleration)
+		}
+	}
+	return tolerations
+}
+
+// hasToleration returns true if a slice of tolerations includes a given toleration
+func hasToleration(toleration corev1.Toleration, tolerations []corev1.Toleration) bool {
+	for _, t := range tolerations {
+		if t == toleration {
+			return true
+		}
+	}
+	return false
 }

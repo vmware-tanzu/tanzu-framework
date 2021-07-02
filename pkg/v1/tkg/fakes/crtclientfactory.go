@@ -36,15 +36,16 @@ func (fake *CrtClientFactory) NewClient(arg1 *rest.Config, arg2 client.Options) 
 		arg1 *rest.Config
 		arg2 client.Options
 	}{arg1, arg2})
+	stub := fake.NewClientStub
+	fakeReturns := fake.newClientReturns
 	fake.recordInvocation("NewClient", []interface{}{arg1, arg2})
 	fake.newClientMutex.Unlock()
-	if fake.NewClientStub != nil {
-		return fake.NewClientStub(arg1, arg2)
+	if stub != nil {
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.newClientReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 

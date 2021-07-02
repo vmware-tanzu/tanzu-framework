@@ -248,15 +248,16 @@ func (fake *TKGConfigBomClient) DownloadDefaultBOMFilesFromRegistry(arg1 registr
 	fake.downloadDefaultBOMFilesFromRegistryArgsForCall = append(fake.downloadDefaultBOMFilesFromRegistryArgsForCall, struct {
 		arg1 registry.Registry
 	}{arg1})
+	stub := fake.DownloadDefaultBOMFilesFromRegistryStub
+	fakeReturns := fake.downloadDefaultBOMFilesFromRegistryReturns
 	fake.recordInvocation("DownloadDefaultBOMFilesFromRegistry", []interface{}{arg1})
 	fake.downloadDefaultBOMFilesFromRegistryMutex.Unlock()
-	if fake.DownloadDefaultBOMFilesFromRegistryStub != nil {
-		return fake.DownloadDefaultBOMFilesFromRegistryStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.downloadDefaultBOMFilesFromRegistryReturns
 	return fakeReturns.result1
 }
 
@@ -308,15 +309,16 @@ func (fake *TKGConfigBomClient) DownloadTKGCompatibilityFileFromRegistry(arg1 re
 	fake.downloadTKGCompatibilityFileFromRegistryArgsForCall = append(fake.downloadTKGCompatibilityFileFromRegistryArgsForCall, struct {
 		arg1 registry.Registry
 	}{arg1})
+	stub := fake.DownloadTKGCompatibilityFileFromRegistryStub
+	fakeReturns := fake.downloadTKGCompatibilityFileFromRegistryReturns
 	fake.recordInvocation("DownloadTKGCompatibilityFileFromRegistry", []interface{}{arg1})
 	fake.downloadTKGCompatibilityFileFromRegistryMutex.Unlock()
-	if fake.DownloadTKGCompatibilityFileFromRegistryStub != nil {
-		return fake.DownloadTKGCompatibilityFileFromRegistryStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.downloadTKGCompatibilityFileFromRegistryReturns
 	return fakeReturns.result1
 }
 
@@ -368,15 +370,16 @@ func (fake *TKGConfigBomClient) GetAutoscalerImageForK8sVersion(arg1 string) (st
 	fake.getAutoscalerImageForK8sVersionArgsForCall = append(fake.getAutoscalerImageForK8sVersionArgsForCall, struct {
 		arg1 string
 	}{arg1})
+	stub := fake.GetAutoscalerImageForK8sVersionStub
+	fakeReturns := fake.getAutoscalerImageForK8sVersionReturns
 	fake.recordInvocation("GetAutoscalerImageForK8sVersion", []interface{}{arg1})
 	fake.getAutoscalerImageForK8sVersionMutex.Unlock()
-	if fake.GetAutoscalerImageForK8sVersionStub != nil {
-		return fake.GetAutoscalerImageForK8sVersionStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getAutoscalerImageForK8sVersionReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -430,15 +433,16 @@ func (fake *TKGConfigBomClient) GetAvailableK8sVersionsFromBOMFiles() ([]string,
 	ret, specificReturn := fake.getAvailableK8sVersionsFromBOMFilesReturnsOnCall[len(fake.getAvailableK8sVersionsFromBOMFilesArgsForCall)]
 	fake.getAvailableK8sVersionsFromBOMFilesArgsForCall = append(fake.getAvailableK8sVersionsFromBOMFilesArgsForCall, struct {
 	}{})
+	stub := fake.GetAvailableK8sVersionsFromBOMFilesStub
+	fakeReturns := fake.getAvailableK8sVersionsFromBOMFilesReturns
 	fake.recordInvocation("GetAvailableK8sVersionsFromBOMFiles", []interface{}{})
 	fake.getAvailableK8sVersionsFromBOMFilesMutex.Unlock()
-	if fake.GetAvailableK8sVersionsFromBOMFilesStub != nil {
-		return fake.GetAvailableK8sVersionsFromBOMFilesStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getAvailableK8sVersionsFromBOMFilesReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -486,15 +490,16 @@ func (fake *TKGConfigBomClient) GetBOMConfigurationFromTkrVersion(arg1 string) (
 	fake.getBOMConfigurationFromTkrVersionArgsForCall = append(fake.getBOMConfigurationFromTkrVersionArgsForCall, struct {
 		arg1 string
 	}{arg1})
+	stub := fake.GetBOMConfigurationFromTkrVersionStub
+	fakeReturns := fake.getBOMConfigurationFromTkrVersionReturns
 	fake.recordInvocation("GetBOMConfigurationFromTkrVersion", []interface{}{arg1})
 	fake.getBOMConfigurationFromTkrVersionMutex.Unlock()
-	if fake.GetBOMConfigurationFromTkrVersionStub != nil {
-		return fake.GetBOMConfigurationFromTkrVersionStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getBOMConfigurationFromTkrVersionReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -548,15 +553,16 @@ func (fake *TKGConfigBomClient) GetCurrentTKGVersion() string {
 	ret, specificReturn := fake.getCurrentTKGVersionReturnsOnCall[len(fake.getCurrentTKGVersionArgsForCall)]
 	fake.getCurrentTKGVersionArgsForCall = append(fake.getCurrentTKGVersionArgsForCall, struct {
 	}{})
+	stub := fake.GetCurrentTKGVersionStub
+	fakeReturns := fake.getCurrentTKGVersionReturns
 	fake.recordInvocation("GetCurrentTKGVersion", []interface{}{})
 	fake.getCurrentTKGVersionMutex.Unlock()
-	if fake.GetCurrentTKGVersionStub != nil {
-		return fake.GetCurrentTKGVersionStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.getCurrentTKGVersionReturns
 	return fakeReturns.result1
 }
 
@@ -600,15 +606,16 @@ func (fake *TKGConfigBomClient) GetCustomRepository() (string, error) {
 	ret, specificReturn := fake.getCustomRepositoryReturnsOnCall[len(fake.getCustomRepositoryArgsForCall)]
 	fake.getCustomRepositoryArgsForCall = append(fake.getCustomRepositoryArgsForCall, struct {
 	}{})
+	stub := fake.GetCustomRepositoryStub
+	fakeReturns := fake.getCustomRepositoryReturns
 	fake.recordInvocation("GetCustomRepository", []interface{}{})
 	fake.getCustomRepositoryMutex.Unlock()
-	if fake.GetCustomRepositoryStub != nil {
-		return fake.GetCustomRepositoryStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getCustomRepositoryReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -655,15 +662,16 @@ func (fake *TKGConfigBomClient) GetCustomRepositoryCaCertificate() ([]byte, erro
 	ret, specificReturn := fake.getCustomRepositoryCaCertificateReturnsOnCall[len(fake.getCustomRepositoryCaCertificateArgsForCall)]
 	fake.getCustomRepositoryCaCertificateArgsForCall = append(fake.getCustomRepositoryCaCertificateArgsForCall, struct {
 	}{})
+	stub := fake.GetCustomRepositoryCaCertificateStub
+	fakeReturns := fake.getCustomRepositoryCaCertificateReturns
 	fake.recordInvocation("GetCustomRepositoryCaCertificate", []interface{}{})
 	fake.getCustomRepositoryCaCertificateMutex.Unlock()
-	if fake.GetCustomRepositoryCaCertificateStub != nil {
-		return fake.GetCustomRepositoryCaCertificateStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getCustomRepositoryCaCertificateReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -710,15 +718,16 @@ func (fake *TKGConfigBomClient) GetDefaultBoMFileName() (string, error) {
 	ret, specificReturn := fake.getDefaultBoMFileNameReturnsOnCall[len(fake.getDefaultBoMFileNameArgsForCall)]
 	fake.getDefaultBoMFileNameArgsForCall = append(fake.getDefaultBoMFileNameArgsForCall, struct {
 	}{})
+	stub := fake.GetDefaultBoMFileNameStub
+	fakeReturns := fake.getDefaultBoMFileNameReturns
 	fake.recordInvocation("GetDefaultBoMFileName", []interface{}{})
 	fake.getDefaultBoMFileNameMutex.Unlock()
-	if fake.GetDefaultBoMFileNameStub != nil {
-		return fake.GetDefaultBoMFileNameStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getDefaultBoMFileNameReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -765,15 +774,16 @@ func (fake *TKGConfigBomClient) GetDefaultBoMFilePath() (string, error) {
 	ret, specificReturn := fake.getDefaultBoMFilePathReturnsOnCall[len(fake.getDefaultBoMFilePathArgsForCall)]
 	fake.getDefaultBoMFilePathArgsForCall = append(fake.getDefaultBoMFilePathArgsForCall, struct {
 	}{})
+	stub := fake.GetDefaultBoMFilePathStub
+	fakeReturns := fake.getDefaultBoMFilePathReturns
 	fake.recordInvocation("GetDefaultBoMFilePath", []interface{}{})
 	fake.getDefaultBoMFilePathMutex.Unlock()
-	if fake.GetDefaultBoMFilePathStub != nil {
-		return fake.GetDefaultBoMFilePathStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getDefaultBoMFilePathReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -820,15 +830,16 @@ func (fake *TKGConfigBomClient) GetDefaultClusterAPIProviders() (string, string,
 	ret, specificReturn := fake.getDefaultClusterAPIProvidersReturnsOnCall[len(fake.getDefaultClusterAPIProvidersArgsForCall)]
 	fake.getDefaultClusterAPIProvidersArgsForCall = append(fake.getDefaultClusterAPIProvidersArgsForCall, struct {
 	}{})
+	stub := fake.GetDefaultClusterAPIProvidersStub
+	fakeReturns := fake.getDefaultClusterAPIProvidersReturns
 	fake.recordInvocation("GetDefaultClusterAPIProviders", []interface{}{})
 	fake.getDefaultClusterAPIProvidersMutex.Unlock()
-	if fake.GetDefaultClusterAPIProvidersStub != nil {
-		return fake.GetDefaultClusterAPIProvidersStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2, ret.result3, ret.result4
 	}
-	fakeReturns := fake.getDefaultClusterAPIProvidersReturns
 	return fakeReturns.result1, fakeReturns.result2, fakeReturns.result3, fakeReturns.result4
 }
 
@@ -881,15 +892,16 @@ func (fake *TKGConfigBomClient) GetDefaultK8sVersion() (string, error) {
 	ret, specificReturn := fake.getDefaultK8sVersionReturnsOnCall[len(fake.getDefaultK8sVersionArgsForCall)]
 	fake.getDefaultK8sVersionArgsForCall = append(fake.getDefaultK8sVersionArgsForCall, struct {
 	}{})
+	stub := fake.GetDefaultK8sVersionStub
+	fakeReturns := fake.getDefaultK8sVersionReturns
 	fake.recordInvocation("GetDefaultK8sVersion", []interface{}{})
 	fake.getDefaultK8sVersionMutex.Unlock()
-	if fake.GetDefaultK8sVersionStub != nil {
-		return fake.GetDefaultK8sVersionStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getDefaultK8sVersionReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -936,15 +948,16 @@ func (fake *TKGConfigBomClient) GetDefaultTKGReleaseVersion() (string, error) {
 	ret, specificReturn := fake.getDefaultTKGReleaseVersionReturnsOnCall[len(fake.getDefaultTKGReleaseVersionArgsForCall)]
 	fake.getDefaultTKGReleaseVersionArgsForCall = append(fake.getDefaultTKGReleaseVersionArgsForCall, struct {
 	}{})
+	stub := fake.GetDefaultTKGReleaseVersionStub
+	fakeReturns := fake.getDefaultTKGReleaseVersionReturns
 	fake.recordInvocation("GetDefaultTKGReleaseVersion", []interface{}{})
 	fake.getDefaultTKGReleaseVersionMutex.Unlock()
-	if fake.GetDefaultTKGReleaseVersionStub != nil {
-		return fake.GetDefaultTKGReleaseVersionStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getDefaultTKGReleaseVersionReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -991,15 +1004,16 @@ func (fake *TKGConfigBomClient) GetDefaultTKRVersion() (string, error) {
 	ret, specificReturn := fake.getDefaultTKRVersionReturnsOnCall[len(fake.getDefaultTKRVersionArgsForCall)]
 	fake.getDefaultTKRVersionArgsForCall = append(fake.getDefaultTKRVersionArgsForCall, struct {
 	}{})
+	stub := fake.GetDefaultTKRVersionStub
+	fakeReturns := fake.getDefaultTKRVersionReturns
 	fake.recordInvocation("GetDefaultTKRVersion", []interface{}{})
 	fake.getDefaultTKRVersionMutex.Unlock()
-	if fake.GetDefaultTKRVersionStub != nil {
-		return fake.GetDefaultTKRVersionStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getDefaultTKRVersionReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1046,15 +1060,16 @@ func (fake *TKGConfigBomClient) GetDefaultTkgBOMConfiguration() (*tkgconfigbom.B
 	ret, specificReturn := fake.getDefaultTkgBOMConfigurationReturnsOnCall[len(fake.getDefaultTkgBOMConfigurationArgsForCall)]
 	fake.getDefaultTkgBOMConfigurationArgsForCall = append(fake.getDefaultTkgBOMConfigurationArgsForCall, struct {
 	}{})
+	stub := fake.GetDefaultTkgBOMConfigurationStub
+	fakeReturns := fake.getDefaultTkgBOMConfigurationReturns
 	fake.recordInvocation("GetDefaultTkgBOMConfiguration", []interface{}{})
 	fake.getDefaultTkgBOMConfigurationMutex.Unlock()
-	if fake.GetDefaultTkgBOMConfigurationStub != nil {
-		return fake.GetDefaultTkgBOMConfigurationStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getDefaultTkgBOMConfigurationReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1101,15 +1116,16 @@ func (fake *TKGConfigBomClient) GetDefaultTkrBOMConfiguration() (*tkgconfigbom.B
 	ret, specificReturn := fake.getDefaultTkrBOMConfigurationReturnsOnCall[len(fake.getDefaultTkrBOMConfigurationArgsForCall)]
 	fake.getDefaultTkrBOMConfigurationArgsForCall = append(fake.getDefaultTkrBOMConfigurationArgsForCall, struct {
 	}{})
+	stub := fake.GetDefaultTkrBOMConfigurationStub
+	fakeReturns := fake.getDefaultTkrBOMConfigurationReturns
 	fake.recordInvocation("GetDefaultTkrBOMConfiguration", []interface{}{})
 	fake.getDefaultTkrBOMConfigurationMutex.Unlock()
-	if fake.GetDefaultTkrBOMConfigurationStub != nil {
-		return fake.GetDefaultTkrBOMConfigurationStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getDefaultTkrBOMConfigurationReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1157,15 +1173,16 @@ func (fake *TKGConfigBomClient) GetK8sVersionFromTkrVersion(arg1 string) (string
 	fake.getK8sVersionFromTkrVersionArgsForCall = append(fake.getK8sVersionFromTkrVersionArgsForCall, struct {
 		arg1 string
 	}{arg1})
+	stub := fake.GetK8sVersionFromTkrVersionStub
+	fakeReturns := fake.getK8sVersionFromTkrVersionReturns
 	fake.recordInvocation("GetK8sVersionFromTkrVersion", []interface{}{arg1})
 	fake.getK8sVersionFromTkrVersionMutex.Unlock()
-	if fake.GetK8sVersionFromTkrVersionStub != nil {
-		return fake.GetK8sVersionFromTkrVersionStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getK8sVersionFromTkrVersionReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1219,15 +1236,16 @@ func (fake *TKGConfigBomClient) InitBOMRegistry() (registry.Registry, error) {
 	ret, specificReturn := fake.initBOMRegistryReturnsOnCall[len(fake.initBOMRegistryArgsForCall)]
 	fake.initBOMRegistryArgsForCall = append(fake.initBOMRegistryArgsForCall, struct {
 	}{})
+	stub := fake.InitBOMRegistryStub
+	fakeReturns := fake.initBOMRegistryReturns
 	fake.recordInvocation("InitBOMRegistry", []interface{}{})
 	fake.initBOMRegistryMutex.Unlock()
-	if fake.InitBOMRegistryStub != nil {
-		return fake.InitBOMRegistryStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.initBOMRegistryReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1274,15 +1292,16 @@ func (fake *TKGConfigBomClient) IsCustomRepositorySkipTLSVerify() bool {
 	ret, specificReturn := fake.isCustomRepositorySkipTLSVerifyReturnsOnCall[len(fake.isCustomRepositorySkipTLSVerifyArgsForCall)]
 	fake.isCustomRepositorySkipTLSVerifyArgsForCall = append(fake.isCustomRepositorySkipTLSVerifyArgsForCall, struct {
 	}{})
+	stub := fake.IsCustomRepositorySkipTLSVerifyStub
+	fakeReturns := fake.isCustomRepositorySkipTLSVerifyReturns
 	fake.recordInvocation("IsCustomRepositorySkipTLSVerify", []interface{}{})
 	fake.isCustomRepositorySkipTLSVerifyMutex.Unlock()
-	if fake.IsCustomRepositorySkipTLSVerifyStub != nil {
-		return fake.IsCustomRepositorySkipTLSVerifyStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.isCustomRepositorySkipTLSVerifyReturns
 	return fakeReturns.result1
 }
 

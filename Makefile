@@ -144,6 +144,9 @@ manifests: controller-gen ## Generate manifests e.g. CRD, RBAC etc.
 		paths=./apis/... \
 		output:crd:artifacts:config=config/crd/bases
 
+generate-go: $(COUNTERFEITER) ## Generate code via go generate.
+	PATH=$(abspath hack/tools/bin):$(PATH) go generate ./...
+
 generate: controller-gen ## Generate code via controller-gen
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt",year=$(shell date +%Y) paths="./..."
 	$(MAKE) fmt
@@ -253,7 +256,7 @@ build-cli-%: prep-build-cli
 # with embedded provider templates. This is used only for dev build and not for production builds.
 # When using embedded providers, `~/.config/tanzu/tkg/providers` directory always gets overwritten with the
 # embdedded providers. To skip the provider updates, specify `SUPPRESS_PROVIDERS_UPDATE` environment variable.
-# Note: If any local builds want to skip embedding providers and want utilize providers from TKG BoM file, 
+# Note: If any local builds want to skip embedding providers and want utilize providers from TKG BoM file,
 # To skip provider embedding, pass `BUILD_TAGS=skipembedproviders` to make target (`make BUILD_TAGS=skipembedproviders build-cli-local)
 .PHONY: build-cli-local
 build-cli-local: configure-buildtags-embedproviders build-cli-${GOHOSTOS}-${GOHOSTARCH} ## Build Tanzu CLI locally. cluster and management-cluster plugins are built with embedded providers.

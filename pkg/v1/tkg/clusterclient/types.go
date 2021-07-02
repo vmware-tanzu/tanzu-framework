@@ -11,6 +11,9 @@ const (
 	TKGOperationInfoKey                  = "TKGOperationInfo"
 	TKGOperationLastObservedTimestampKey = "TKGOperationLastObservedTimestamp"
 	TKGVersionKey                        = "TKGVERSION"
+	CAPAControllerNamespace              = "capa-system"
+	CAPACredentialsSecretName            = "capa-manager-bootstrap-credentials"
+	CAPAControllerDeploymentName         = "capa-controller-manager"
 )
 
 // Operation type constants

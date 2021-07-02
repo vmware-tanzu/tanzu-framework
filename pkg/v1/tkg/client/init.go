@@ -247,6 +247,10 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		return errors.Wrap(err, "unable to initialize providers on management cluster")
 	}
 
+	if err := regionalClusterClient.PatchClusterAPIAWSControllersToUseEC2Credentials(); err != nil {
+		return err
+	}
+
 	log.Info("Waiting for the management cluster to get ready for move...")
 	if err := c.WaitForClusterReadyForMove(bootStrapClusterClient, options.ClusterName, targetClusterNamespace); err != nil {
 		return errors.Wrap(err, "unable to wait for cluster getting ready for move")

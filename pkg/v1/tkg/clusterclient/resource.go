@@ -161,6 +161,8 @@ func (c *client) list(clusterName, namespace string, o interface{}, postVerify P
 
 func (c *client) getRuntimeObject(o interface{}) (runtime.Object, error) { //nolint:gocyclo,funlen
 	switch obj := o.(type) {
+	case *corev1.Namespace:
+		return obj, nil
 	case *corev1.Secret:
 		return obj, nil
 	case *corev1.SecretList:

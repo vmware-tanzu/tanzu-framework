@@ -1453,6 +1453,82 @@ var _ = Describe("Cluster Client", func() {
 		})
 	})
 
+	Describe("PatchClusterAPIAWSControllersToUseEC2Credentials", func() {
+		var (
+			fakeClientSet crtclient.Client
+		)
+
+		JustBeforeEach(func() {
+			reInitialize()
+		})
+
+		Context("When Cluster API Provider AWS isn't present", func() {
+			BeforeEach(func() {
+				fakeClientSet = fake.NewFakeClientWithScheme(scheme)
+				crtClientFactory.NewClientReturns(fakeClientSet, nil)
+				clusterClientOptions = NewOptions(poller, crtClientFactory, discoveryClientFactory, nil)
+
+				kubeConfigPath := getConfigFilePath("config1.yaml")
+				clstClient, err = NewClient(kubeConfigPath, "", clusterClientOptions)
+
+			})
+			It("should not return an error", func() {
+				Expect(clstClient.PatchClusterAPIAWSControllersToUseEC2Credentials()).To(Succeed())
+			})
+		})
+
+		Context("When Cluster API Provider AWS is present", func() {
+			BeforeEach(func() {
+				fakeClientSet = fake.NewFakeClientWithScheme(scheme,
+					fakehelper.NewClusterAPIAWSControllerComponents()...,
+				)
+				crtClientFactory.NewClientReturns(fakeClientSet, nil)
+				clusterClientOptions = NewOptions(poller, crtClientFactory, discoveryClientFactory, nil)
+
+				kubeConfigPath := getConfigFilePath("config1.yaml")
+				clstClient, err = NewClient(kubeConfigPath, "", clusterClientOptions)
+
+			})
+			It("should not return an error and should have patched the bootstrap manager credentials and set affinity", func() {
+				Expect(clstClient.PatchClusterAPIAWSControllersToUseEC2Credentials()).To(Succeed())
+				secret := &corev1.Secret{}
+				Expect(clstClient.GetResource(secret, "capa-manager-bootstrap-credentials", "capa-system", nil, nil)).To(Succeed())
+				deployment := &appsv1.Deployment{}
+				Expect(clstClient.GetResource(deployment, CAPAControllerDeploymentName, CAPAControllerNamespace, nil, nil)).To(Succeed())
+				// TODO: @randomvariable Uncomment when switched over from fakeclient to envtest
+				// Expect(secret.Data["credentials"]).To(Equal([]byte(base64.StdEncoding.EncodeToString([]byte("\n")))))
+				// Expect(deployment.Spec.Template.Spec.Affinity).ToNot(BeNil())
+				// Expect(deployment.Spec.Template.Spec.Affinity.NodeAffinity).ToNot(BeNil())
+				// nodeAffinity := deployment.Spec.Template.Spec.Affinity.NodeAffinity
+				// Expect(nodeAffinity).To(Equal(
+				// 	&corev1.NodeAffinity{
+				// 		RequiredDuringSchedulingIgnoredDuringExecution: &corev1.NodeSelector{
+				// 			NodeSelectorTerms: []corev1.NodeSelectorTerm{
+				// 				{
+				// 					MatchExpressions: []corev1.NodeSelectorRequirement{
+				// 						{
+				// 							Key:      "node-role.kubernetes.io/control-plane",
+				// 							Operator: "Exists",
+				// 						},
+				// 					},
+				// 				},
+				// 				{
+				// 					MatchExpressions: []corev1.NodeSelectorRequirement{
+				// 						{
+				// 							Key:      "node-role.kubernetes.io/master",
+				// 							Operator: "Exists",
+				// 						},
+				// 					},
+				// 				},
+				// 			},
+				// 		},
+				// 	},
+				// ))
+
+			})
+		})
+	})
+
 	Describe("PatchCoreDNSImageRepositoryInKubeadmConfigMap", func() {
 		var (
 			newImageRepository string

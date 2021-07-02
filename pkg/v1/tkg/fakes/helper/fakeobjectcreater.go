@@ -204,6 +204,39 @@ func NewAWSCluster(awsClusterOptions TestAWSClusterOptions) runtime.Object {
 	return &awsCluster
 }
 
+// NewClusterAPIAWSControllerComponents inserts a minimal fake of
+// Cluster API Provider AWS controller objects for testing.
+func NewClusterAPIAWSControllerComponents() []runtime.Object {
+	components := []runtime.Object{}
+	ns := &corev1.Namespace{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: clusterclient.CAPAControllerNamespace,
+		},
+	}
+	secret := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      clusterclient.CAPACredentialsSecretName,
+			Namespace: clusterclient.CAPAControllerNamespace,
+		},
+		Data: map[string][]byte{
+			"credentials": []byte(base64.StdEncoding.EncodeToString([]byte("fakeawscredentials"))),
+		},
+	}
+	deployment := &appsv1.Deployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      clusterclient.CAPAControllerDeploymentName,
+			Namespace: clusterclient.CAPAControllerNamespace,
+		},
+		Spec: appsv1.DeploymentSpec{
+			Template: corev1.PodTemplateSpec{
+				Spec: corev1.PodSpec{},
+			},
+		},
+	}
+	components = append(components, ns, secret, deployment)
+	return components
+}
+
 // NewInfrastructureTemplates returns new InfrastructureMachine objects
 func NewInfrastructureTemplates(options TestAllClusterComponentOptions) []runtime.Object {
 	infrastructureTemplates := []runtime.Object{}

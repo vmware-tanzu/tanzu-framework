@@ -303,15 +303,16 @@ func (fake *VCClient) AcquireTicket() (string, error) {
 	ret, specificReturn := fake.acquireTicketReturnsOnCall[len(fake.acquireTicketArgsForCall)]
 	fake.acquireTicketArgsForCall = append(fake.acquireTicketArgsForCall, struct {
 	}{})
+	stub := fake.AcquireTicketStub
+	fakeReturns := fake.acquireTicketReturns
 	fake.recordInvocation("AcquireTicket", []interface{}{})
 	fake.acquireTicketMutex.Unlock()
-	if fake.AcquireTicketStub != nil {
-		return fake.AcquireTicketStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.acquireTicketReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -358,15 +359,16 @@ func (fake *VCClient) CheckUserSessionActive() (bool, error) {
 	ret, specificReturn := fake.checkUserSessionActiveReturnsOnCall[len(fake.checkUserSessionActiveArgsForCall)]
 	fake.checkUserSessionActiveArgsForCall = append(fake.checkUserSessionActiveArgsForCall, struct {
 	}{})
+	stub := fake.CheckUserSessionActiveStub
+	fakeReturns := fake.checkUserSessionActiveReturns
 	fake.recordInvocation("CheckUserSessionActive", []interface{}{})
 	fake.checkUserSessionActiveMutex.Unlock()
-	if fake.CheckUserSessionActiveStub != nil {
-		return fake.CheckUserSessionActiveStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.checkUserSessionActiveReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -414,15 +416,16 @@ func (fake *VCClient) DetectPacific(arg1 context.Context) (bool, error) {
 	fake.detectPacificArgsForCall = append(fake.detectPacificArgsForCall, struct {
 		arg1 context.Context
 	}{arg1})
+	stub := fake.DetectPacificStub
+	fakeReturns := fake.detectPacificReturns
 	fake.recordInvocation("DetectPacific", []interface{}{arg1})
 	fake.detectPacificMutex.Unlock()
-	if fake.DetectPacificStub != nil {
-		return fake.DetectPacificStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.detectPacificReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -478,15 +481,16 @@ func (fake *VCClient) FindDataCenter(arg1 context.Context, arg2 string) (string,
 		arg1 context.Context
 		arg2 string
 	}{arg1, arg2})
+	stub := fake.FindDataCenterStub
+	fakeReturns := fake.findDataCenterReturns
 	fake.recordInvocation("FindDataCenter", []interface{}{arg1, arg2})
 	fake.findDataCenterMutex.Unlock()
-	if fake.FindDataCenterStub != nil {
-		return fake.FindDataCenterStub(arg1, arg2)
+	if stub != nil {
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.findDataCenterReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -543,15 +547,16 @@ func (fake *VCClient) FindDatastore(arg1 context.Context, arg2 string, arg3 stri
 		arg2 string
 		arg3 string
 	}{arg1, arg2, arg3})
+	stub := fake.FindDatastoreStub
+	fakeReturns := fake.findDatastoreReturns
 	fake.recordInvocation("FindDatastore", []interface{}{arg1, arg2, arg3})
 	fake.findDatastoreMutex.Unlock()
-	if fake.FindDatastoreStub != nil {
-		return fake.FindDatastoreStub(arg1, arg2, arg3)
+	if stub != nil {
+		return stub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.findDatastoreReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -608,15 +613,16 @@ func (fake *VCClient) FindFolder(arg1 context.Context, arg2 string, arg3 string)
 		arg2 string
 		arg3 string
 	}{arg1, arg2, arg3})
+	stub := fake.FindFolderStub
+	fakeReturns := fake.findFolderReturns
 	fake.recordInvocation("FindFolder", []interface{}{arg1, arg2, arg3})
 	fake.findFolderMutex.Unlock()
-	if fake.FindFolderStub != nil {
-		return fake.FindFolderStub(arg1, arg2, arg3)
+	if stub != nil {
+		return stub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.findFolderReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -673,15 +679,16 @@ func (fake *VCClient) FindResourcePool(arg1 context.Context, arg2 string, arg3 s
 		arg2 string
 		arg3 string
 	}{arg1, arg2, arg3})
+	stub := fake.FindResourcePoolStub
+	fakeReturns := fake.findResourcePoolReturns
 	fake.recordInvocation("FindResourcePool", []interface{}{arg1, arg2, arg3})
 	fake.findResourcePoolMutex.Unlock()
-	if fake.FindResourcePoolStub != nil {
-		return fake.FindResourcePoolStub(arg1, arg2, arg3)
+	if stub != nil {
+		return stub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.findResourcePoolReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -738,15 +745,16 @@ func (fake *VCClient) FindVirtualMachine(arg1 context.Context, arg2 string, arg3
 		arg2 string
 		arg3 string
 	}{arg1, arg2, arg3})
+	stub := fake.FindVirtualMachineStub
+	fakeReturns := fake.findVirtualMachineReturns
 	fake.recordInvocation("FindVirtualMachine", []interface{}{arg1, arg2, arg3})
 	fake.findVirtualMachineMutex.Unlock()
-	if fake.FindVirtualMachineStub != nil {
-		return fake.FindVirtualMachineStub(arg1, arg2, arg3)
+	if stub != nil {
+		return stub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.findVirtualMachineReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -810,15 +818,16 @@ func (fake *VCClient) GetAndValidateVirtualMachineTemplate(arg1 []string, arg2 s
 		arg4 string
 		arg5 tkgconfigreaderwriter.TKGConfigReaderWriter
 	}{arg1Copy, arg2, arg3, arg4, arg5})
+	stub := fake.GetAndValidateVirtualMachineTemplateStub
+	fakeReturns := fake.getAndValidateVirtualMachineTemplateReturns
 	fake.recordInvocation("GetAndValidateVirtualMachineTemplate", []interface{}{arg1Copy, arg2, arg3, arg4, arg5})
 	fake.getAndValidateVirtualMachineTemplateMutex.Unlock()
-	if fake.GetAndValidateVirtualMachineTemplateStub != nil {
-		return fake.GetAndValidateVirtualMachineTemplateStub(arg1, arg2, arg3, arg4, arg5)
+	if stub != nil {
+		return stub(arg1, arg2, arg3, arg4, arg5)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getAndValidateVirtualMachineTemplateReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -874,15 +883,16 @@ func (fake *VCClient) GetComputeResources(arg1 context.Context, arg2 string) ([]
 		arg1 context.Context
 		arg2 string
 	}{arg1, arg2})
+	stub := fake.GetComputeResourcesStub
+	fakeReturns := fake.getComputeResourcesReturns
 	fake.recordInvocation("GetComputeResources", []interface{}{arg1, arg2})
 	fake.getComputeResourcesMutex.Unlock()
-	if fake.GetComputeResourcesStub != nil {
-		return fake.GetComputeResourcesStub(arg1, arg2)
+	if stub != nil {
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getComputeResourcesReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -938,15 +948,16 @@ func (fake *VCClient) GetDataCenterMOID(arg1 context.Context, arg2 string) (stri
 		arg1 context.Context
 		arg2 string
 	}{arg1, arg2})
+	stub := fake.GetDataCenterMOIDStub
+	fakeReturns := fake.getDataCenterMOIDReturns
 	fake.recordInvocation("GetDataCenterMOID", []interface{}{arg1, arg2})
 	fake.getDataCenterMOIDMutex.Unlock()
-	if fake.GetDataCenterMOIDStub != nil {
-		return fake.GetDataCenterMOIDStub(arg1, arg2)
+	if stub != nil {
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getDataCenterMOIDReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1001,15 +1012,16 @@ func (fake *VCClient) GetDatacenters(arg1 context.Context) ([]*models.VSphereDat
 	fake.getDatacentersArgsForCall = append(fake.getDatacentersArgsForCall, struct {
 		arg1 context.Context
 	}{arg1})
+	stub := fake.GetDatacentersStub
+	fakeReturns := fake.getDatacentersReturns
 	fake.recordInvocation("GetDatacenters", []interface{}{arg1})
 	fake.getDatacentersMutex.Unlock()
-	if fake.GetDatacentersStub != nil {
-		return fake.GetDatacentersStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getDatacentersReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1065,15 +1077,16 @@ func (fake *VCClient) GetDatastores(arg1 context.Context, arg2 string) ([]*model
 		arg1 context.Context
 		arg2 string
 	}{arg1, arg2})
+	stub := fake.GetDatastoresStub
+	fakeReturns := fake.getDatastoresReturns
 	fake.recordInvocation("GetDatastores", []interface{}{arg1, arg2})
 	fake.getDatastoresMutex.Unlock()
-	if fake.GetDatastoresStub != nil {
-		return fake.GetDatastoresStub(arg1, arg2)
+	if stub != nil {
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getDatastoresReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1129,15 +1142,16 @@ func (fake *VCClient) GetFolders(arg1 context.Context, arg2 string) ([]*models.V
 		arg1 context.Context
 		arg2 string
 	}{arg1, arg2})
+	stub := fake.GetFoldersStub
+	fakeReturns := fake.getFoldersReturns
 	fake.recordInvocation("GetFolders", []interface{}{arg1, arg2})
 	fake.getFoldersMutex.Unlock()
-	if fake.GetFoldersStub != nil {
-		return fake.GetFoldersStub(arg1, arg2)
+	if stub != nil {
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getFoldersReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1193,15 +1207,16 @@ func (fake *VCClient) GetNetworks(arg1 context.Context, arg2 string) ([]*models.
 		arg1 context.Context
 		arg2 string
 	}{arg1, arg2})
+	stub := fake.GetNetworksStub
+	fakeReturns := fake.getNetworksReturns
 	fake.recordInvocation("GetNetworks", []interface{}{arg1, arg2})
 	fake.getNetworksMutex.Unlock()
-	if fake.GetNetworksStub != nil {
-		return fake.GetNetworksStub(arg1, arg2)
+	if stub != nil {
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getNetworksReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1257,15 +1272,16 @@ func (fake *VCClient) GetResourcePools(arg1 context.Context, arg2 string) ([]*mo
 		arg1 context.Context
 		arg2 string
 	}{arg1, arg2})
+	stub := fake.GetResourcePoolsStub
+	fakeReturns := fake.getResourcePoolsReturns
 	fake.recordInvocation("GetResourcePools", []interface{}{arg1, arg2})
 	fake.getResourcePoolsMutex.Unlock()
-	if fake.GetResourcePoolsStub != nil {
-		return fake.GetResourcePoolsStub(arg1, arg2)
+	if stub != nil {
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getResourcePoolsReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1319,15 +1335,16 @@ func (fake *VCClient) GetVSphereVersion() (string, string, error) {
 	ret, specificReturn := fake.getVSphereVersionReturnsOnCall[len(fake.getVSphereVersionArgsForCall)]
 	fake.getVSphereVersionArgsForCall = append(fake.getVSphereVersionArgsForCall, struct {
 	}{})
+	stub := fake.GetVSphereVersionStub
+	fakeReturns := fake.getVSphereVersionReturns
 	fake.recordInvocation("GetVSphereVersion", []interface{}{})
 	fake.getVSphereVersionMutex.Unlock()
-	if fake.GetVSphereVersionStub != nil {
-		return fake.GetVSphereVersionStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2, ret.result3
 	}
-	fakeReturns := fake.getVSphereVersionReturns
 	return fakeReturns.result1, fakeReturns.result2, fakeReturns.result3
 }
 
@@ -1379,15 +1396,16 @@ func (fake *VCClient) GetVirtualMachineImages(arg1 context.Context, arg2 string)
 		arg1 context.Context
 		arg2 string
 	}{arg1, arg2})
+	stub := fake.GetVirtualMachineImagesStub
+	fakeReturns := fake.getVirtualMachineImagesReturns
 	fake.recordInvocation("GetVirtualMachineImages", []interface{}{arg1, arg2})
 	fake.getVirtualMachineImagesMutex.Unlock()
-	if fake.GetVirtualMachineImagesStub != nil {
-		return fake.GetVirtualMachineImagesStub(arg1, arg2)
+	if stub != nil {
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getVirtualMachineImagesReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1443,15 +1461,16 @@ func (fake *VCClient) GetVirtualMachines(arg1 context.Context, arg2 string) ([]*
 		arg1 context.Context
 		arg2 string
 	}{arg1, arg2})
+	stub := fake.GetVirtualMachinesStub
+	fakeReturns := fake.getVirtualMachinesReturns
 	fake.recordInvocation("GetVirtualMachines", []interface{}{arg1, arg2})
 	fake.getVirtualMachinesMutex.Unlock()
-	if fake.GetVirtualMachinesStub != nil {
-		return fake.GetVirtualMachinesStub(arg1, arg2)
+	if stub != nil {
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getVirtualMachinesReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1508,15 +1527,16 @@ func (fake *VCClient) Login(arg1 context.Context, arg2 string, arg3 string) (str
 		arg2 string
 		arg3 string
 	}{arg1, arg2, arg3})
+	stub := fake.LoginStub
+	fakeReturns := fake.loginReturns
 	fake.recordInvocation("Login", []interface{}{arg1, arg2, arg3})
 	fake.loginMutex.Unlock()
-	if fake.LoginStub != nil {
-		return fake.LoginStub(arg1, arg2, arg3)
+	if stub != nil {
+		return stub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.loginReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 

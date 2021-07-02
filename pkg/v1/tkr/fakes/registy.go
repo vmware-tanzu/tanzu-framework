@@ -62,15 +62,16 @@ func (fake *Registry) GetFile(arg1 string, arg2 string, arg3 string) ([]byte, er
 		arg2 string
 		arg3 string
 	}{arg1, arg2, arg3})
+	stub := fake.GetFileStub
+	fakeReturns := fake.getFileReturns
 	fake.recordInvocation("GetFile", []interface{}{arg1, arg2, arg3})
 	fake.getFileMutex.Unlock()
-	if fake.GetFileStub != nil {
-		return fake.GetFileStub(arg1, arg2, arg3)
+	if stub != nil {
+		return stub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getFileReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -126,15 +127,16 @@ func (fake *Registry) GetFiles(arg1 string, arg2 string) (map[string][]byte, err
 		arg1 string
 		arg2 string
 	}{arg1, arg2})
+	stub := fake.GetFilesStub
+	fakeReturns := fake.getFilesReturns
 	fake.recordInvocation("GetFiles", []interface{}{arg1, arg2})
 	fake.getFilesMutex.Unlock()
-	if fake.GetFilesStub != nil {
-		return fake.GetFilesStub(arg1, arg2)
+	if stub != nil {
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getFilesReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -189,15 +191,16 @@ func (fake *Registry) ListImageTags(arg1 string) ([]string, error) {
 	fake.listImageTagsArgsForCall = append(fake.listImageTagsArgsForCall, struct {
 		arg1 string
 	}{arg1})
+	stub := fake.ListImageTagsStub
+	fakeReturns := fake.listImageTagsReturns
 	fake.recordInvocation("ListImageTags", []interface{}{arg1})
 	fake.listImageTagsMutex.Unlock()
-	if fake.ListImageTagsStub != nil {
-		return fake.ListImageTagsStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.listImageTagsReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 

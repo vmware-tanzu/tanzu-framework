@@ -334,6 +334,11 @@ func (c *TkgClient) applyPatchAndWait(regionalClusterClient, currentClusterClien
 	var err error
 	kubernetesVersion := upgradeClusterConfig.UpgradeComponentInfo.KubernetesVersion
 
+	// Ensure Cluster API Provider AWS is running on the control plane before continuing with EC2 instance profile
+	if err := currentClusterClient.PatchClusterAPIAWSControllersToUseEC2Credentials(); err != nil {
+		return err
+	}
+
 	// Clusters deployed with TKG CLI version prior to v1.2 uses `beta.kubernetes.io/os: linux` nodeSelector
 	// for `calico-node` daemonset and `calico-kube-controller` deployment.
 	// As k8s v1.19.x removed the support for `beta.kubernetes.io/os: linux` node label and it requires nodes

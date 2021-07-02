@@ -178,15 +178,16 @@ func (fake *TKGConfigUpdaterClient) CheckBOMsNeedUpdate() (bool, error) {
 	ret, specificReturn := fake.checkBOMsNeedUpdateReturnsOnCall[len(fake.checkBOMsNeedUpdateArgsForCall)]
 	fake.checkBOMsNeedUpdateArgsForCall = append(fake.checkBOMsNeedUpdateArgsForCall, struct {
 	}{})
+	stub := fake.CheckBOMsNeedUpdateStub
+	fakeReturns := fake.checkBOMsNeedUpdateReturns
 	fake.recordInvocation("CheckBOMsNeedUpdate", []interface{}{})
 	fake.checkBOMsNeedUpdateMutex.Unlock()
-	if fake.CheckBOMsNeedUpdateStub != nil {
-		return fake.CheckBOMsNeedUpdateStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.checkBOMsNeedUpdateReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -234,15 +235,16 @@ func (fake *TKGConfigUpdaterClient) CheckInfrastructureVersion(arg1 string) (str
 	fake.checkInfrastructureVersionArgsForCall = append(fake.checkInfrastructureVersionArgsForCall, struct {
 		arg1 string
 	}{arg1})
+	stub := fake.CheckInfrastructureVersionStub
+	fakeReturns := fake.checkInfrastructureVersionReturns
 	fake.recordInvocation("CheckInfrastructureVersion", []interface{}{arg1})
 	fake.checkInfrastructureVersionMutex.Unlock()
-	if fake.CheckInfrastructureVersionStub != nil {
-		return fake.CheckInfrastructureVersionStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.checkInfrastructureVersionReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -296,15 +298,16 @@ func (fake *TKGConfigUpdaterClient) CheckProviderTemplatesNeedUpdate() (bool, er
 	ret, specificReturn := fake.checkProviderTemplatesNeedUpdateReturnsOnCall[len(fake.checkProviderTemplatesNeedUpdateArgsForCall)]
 	fake.checkProviderTemplatesNeedUpdateArgsForCall = append(fake.checkProviderTemplatesNeedUpdateArgsForCall, struct {
 	}{})
+	stub := fake.CheckProviderTemplatesNeedUpdateStub
+	fakeReturns := fake.checkProviderTemplatesNeedUpdateReturns
 	fake.recordInvocation("CheckProviderTemplatesNeedUpdate", []interface{}{})
 	fake.checkProviderTemplatesNeedUpdateMutex.Unlock()
-	if fake.CheckProviderTemplatesNeedUpdateStub != nil {
-		return fake.CheckProviderTemplatesNeedUpdateStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.checkProviderTemplatesNeedUpdateReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -351,15 +354,16 @@ func (fake *TKGConfigUpdaterClient) DecodeCredentialsInViper() error {
 	ret, specificReturn := fake.decodeCredentialsInViperReturnsOnCall[len(fake.decodeCredentialsInViperArgsForCall)]
 	fake.decodeCredentialsInViperArgsForCall = append(fake.decodeCredentialsInViperArgsForCall, struct {
 	}{})
+	stub := fake.DecodeCredentialsInViperStub
+	fakeReturns := fake.decodeCredentialsInViperReturns
 	fake.recordInvocation("DecodeCredentialsInViper", []interface{}{})
 	fake.decodeCredentialsInViperMutex.Unlock()
-	if fake.DecodeCredentialsInViperStub != nil {
-		return fake.DecodeCredentialsInViperStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.decodeCredentialsInViperReturns
 	return fakeReturns.result1
 }
 
@@ -404,15 +408,16 @@ func (fake *TKGConfigUpdaterClient) EnsureBOMFiles(arg1 bool) error {
 	fake.ensureBOMFilesArgsForCall = append(fake.ensureBOMFilesArgsForCall, struct {
 		arg1 bool
 	}{arg1})
+	stub := fake.EnsureBOMFilesStub
+	fakeReturns := fake.ensureBOMFilesReturns
 	fake.recordInvocation("EnsureBOMFiles", []interface{}{arg1})
 	fake.ensureBOMFilesMutex.Unlock()
-	if fake.EnsureBOMFilesStub != nil {
-		return fake.EnsureBOMFilesStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.ensureBOMFilesReturns
 	return fakeReturns.result1
 }
 
@@ -463,15 +468,16 @@ func (fake *TKGConfigUpdaterClient) EnsureConfigImages() error {
 	ret, specificReturn := fake.ensureConfigImagesReturnsOnCall[len(fake.ensureConfigImagesArgsForCall)]
 	fake.ensureConfigImagesArgsForCall = append(fake.ensureConfigImagesArgsForCall, struct {
 	}{})
+	stub := fake.EnsureConfigImagesStub
+	fakeReturns := fake.ensureConfigImagesReturns
 	fake.recordInvocation("EnsureConfigImages", []interface{}{})
 	fake.ensureConfigImagesMutex.Unlock()
-	if fake.EnsureConfigImagesStub != nil {
-		return fake.EnsureConfigImagesStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.ensureConfigImagesReturns
 	return fakeReturns.result1
 }
 
@@ -515,9 +521,10 @@ func (fake *TKGConfigUpdaterClient) EnsureCredEncoding(arg1 *yaml.Node) {
 	fake.ensureCredEncodingArgsForCall = append(fake.ensureCredEncodingArgsForCall, struct {
 		arg1 *yaml.Node
 	}{arg1})
+	stub := fake.EnsureCredEncodingStub
 	fake.recordInvocation("EnsureCredEncoding", []interface{}{arg1})
 	fake.ensureCredEncodingMutex.Unlock()
-	if fake.EnsureCredEncodingStub != nil {
+	if stub != nil {
 		fake.EnsureCredEncodingStub(arg1)
 	}
 }
@@ -548,15 +555,16 @@ func (fake *TKGConfigUpdaterClient) EnsureImages(arg1 bool, arg2 *yaml.Node) err
 		arg1 bool
 		arg2 *yaml.Node
 	}{arg1, arg2})
+	stub := fake.EnsureImagesStub
+	fakeReturns := fake.ensureImagesReturns
 	fake.recordInvocation("EnsureImages", []interface{}{arg1, arg2})
 	fake.ensureImagesMutex.Unlock()
-	if fake.EnsureImagesStub != nil {
-		return fake.EnsureImagesStub(arg1, arg2)
+	if stub != nil {
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.ensureImagesReturns
 	return fakeReturns.result1
 }
 
@@ -607,15 +615,16 @@ func (fake *TKGConfigUpdaterClient) EnsureProviderTemplates() error {
 	ret, specificReturn := fake.ensureProviderTemplatesReturnsOnCall[len(fake.ensureProviderTemplatesArgsForCall)]
 	fake.ensureProviderTemplatesArgsForCall = append(fake.ensureProviderTemplatesArgsForCall, struct {
 	}{})
+	stub := fake.EnsureProviderTemplatesStub
+	fakeReturns := fake.ensureProviderTemplatesReturns
 	fake.recordInvocation("EnsureProviderTemplates", []interface{}{})
 	fake.ensureProviderTemplatesMutex.Unlock()
-	if fake.EnsureProviderTemplatesStub != nil {
-		return fake.EnsureProviderTemplatesStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.ensureProviderTemplatesReturns
 	return fakeReturns.result1
 }
 
@@ -661,15 +670,16 @@ func (fake *TKGConfigUpdaterClient) EnsureProvidersInConfig(arg1 bool, arg2 *yam
 		arg1 bool
 		arg2 *yaml.Node
 	}{arg1, arg2})
+	stub := fake.EnsureProvidersInConfigStub
+	fakeReturns := fake.ensureProvidersInConfigReturns
 	fake.recordInvocation("EnsureProvidersInConfig", []interface{}{arg1, arg2})
 	fake.ensureProvidersInConfigMutex.Unlock()
-	if fake.EnsureProvidersInConfigStub != nil {
-		return fake.EnsureProvidersInConfigStub(arg1, arg2)
+	if stub != nil {
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.ensureProvidersInConfigReturns
 	return fakeReturns.result1
 }
 
@@ -721,15 +731,16 @@ func (fake *TKGConfigUpdaterClient) EnsureTKGCompatibilityFile(arg1 bool) error 
 	fake.ensureTKGCompatibilityFileArgsForCall = append(fake.ensureTKGCompatibilityFileArgsForCall, struct {
 		arg1 bool
 	}{arg1})
+	stub := fake.EnsureTKGCompatibilityFileStub
+	fakeReturns := fake.ensureTKGCompatibilityFileReturns
 	fake.recordInvocation("EnsureTKGCompatibilityFile", []interface{}{arg1})
 	fake.ensureTKGCompatibilityFileMutex.Unlock()
-	if fake.EnsureTKGCompatibilityFileStub != nil {
-		return fake.EnsureTKGCompatibilityFileStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.ensureTKGCompatibilityFileReturns
 	return fakeReturns.result1
 }
 
@@ -780,15 +791,16 @@ func (fake *TKGConfigUpdaterClient) EnsureTKGConfigFile() (string, error) {
 	ret, specificReturn := fake.ensureTKGConfigFileReturnsOnCall[len(fake.ensureTKGConfigFileArgsForCall)]
 	fake.ensureTKGConfigFileArgsForCall = append(fake.ensureTKGConfigFileArgsForCall, struct {
 	}{})
+	stub := fake.EnsureTKGConfigFileStub
+	fakeReturns := fake.ensureTKGConfigFileReturns
 	fake.recordInvocation("EnsureTKGConfigFile", []interface{}{})
 	fake.ensureTKGConfigFileMutex.Unlock()
-	if fake.EnsureTKGConfigFileStub != nil {
-		return fake.EnsureTKGConfigFileStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.ensureTKGConfigFileReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -835,15 +847,16 @@ func (fake *TKGConfigUpdaterClient) EnsureTemplateFiles() (bool, error) {
 	ret, specificReturn := fake.ensureTemplateFilesReturnsOnCall[len(fake.ensureTemplateFilesArgsForCall)]
 	fake.ensureTemplateFilesArgsForCall = append(fake.ensureTemplateFilesArgsForCall, struct {
 	}{})
+	stub := fake.EnsureTemplateFilesStub
+	fakeReturns := fake.ensureTemplateFilesReturns
 	fake.recordInvocation("EnsureTemplateFiles", []interface{}{})
 	fake.ensureTemplateFilesMutex.Unlock()
-	if fake.EnsureTemplateFilesStub != nil {
-		return fake.EnsureTemplateFilesStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.ensureTemplateFilesReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -891,15 +904,16 @@ func (fake *TKGConfigUpdaterClient) GetDefaultInfrastructureVersion(arg1 string)
 	fake.getDefaultInfrastructureVersionArgsForCall = append(fake.getDefaultInfrastructureVersionArgsForCall, struct {
 		arg1 string
 	}{arg1})
+	stub := fake.GetDefaultInfrastructureVersionStub
+	fakeReturns := fake.getDefaultInfrastructureVersionReturns
 	fake.recordInvocation("GetDefaultInfrastructureVersion", []interface{}{arg1})
 	fake.getDefaultInfrastructureVersionMutex.Unlock()
-	if fake.GetDefaultInfrastructureVersionStub != nil {
-		return fake.GetDefaultInfrastructureVersionStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getDefaultInfrastructureVersionReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -952,9 +966,10 @@ func (fake *TKGConfigUpdaterClient) SetDefaultConfiguration() {
 	fake.setDefaultConfigurationMutex.Lock()
 	fake.setDefaultConfigurationArgsForCall = append(fake.setDefaultConfigurationArgsForCall, struct {
 	}{})
+	stub := fake.SetDefaultConfigurationStub
 	fake.recordInvocation("SetDefaultConfiguration", []interface{}{})
 	fake.setDefaultConfigurationMutex.Unlock()
-	if fake.SetDefaultConfigurationStub != nil {
+	if stub != nil {
 		fake.SetDefaultConfigurationStub()
 	}
 }
