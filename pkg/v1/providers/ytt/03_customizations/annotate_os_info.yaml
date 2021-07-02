@@ -10,3 +10,5 @@ metadata:
   annotations:
     #@overlay/match missing_ok=True
     osInfo: #@ "{},{},{}".format(data.values.OS_NAME, data.values.OS_VERSION, data.values.OS_ARCH)
+    #@overlay/match missing_ok=True
+    testing_pr_actions: with_this
