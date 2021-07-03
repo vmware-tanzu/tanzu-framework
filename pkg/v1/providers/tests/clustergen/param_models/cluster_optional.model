@@ -119,7 +119,9 @@ AUTOSCALER_MAX_NODES_TOTAL: "NA", "10", "50", "0"
 ANTREA_NO_SNAT: "false", "true"
 ANTREA_TRAFFIC_ENCAP_MODE: "encap", "noEncap", "hybrid", "networkPolicyOnly"
 ANTREA_PROXY: "false", "true"
+ANTREA_ENDPOINTSLICE: "false", "true"
 ANTREA_POLICY: "false", "true"
+ANTREA_NODEPORTLOCAL: "false", "true"
 ANTREA_TRACEFLOW: "false", "true"
 
 # pass --VSPHERE-CONTROLPLANE-ENDPOINT flag only for vSphere provider

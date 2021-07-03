@@ -329,7 +329,7 @@ spec:
 
           # Install antrea-agent & ovs
           Import-Module c:/k/antrea/helper.psm1
-          & Install-AntreaAgent -KubernetesVersion "v1.21.1" -KubernetesHome "c:/k" -KubeConfig "C:/etc/kubernetes/kubelet.conf" -AntreaVersion "v0.13.2" -AntreaHome "c:/k/antrea"
+          & Install-AntreaAgent -KubernetesVersion "v1.21.1" -KubernetesHome "c:/k" -KubeConfig "C:/etc/kubernetes/kubelet.conf" -AntreaVersion "v0.13.3" -AntreaHome "c:/k/antrea"
           New-KubeProxyServiceInterface
           & c:/k/antrea/Install-OVS.ps1 -ImportCertificate $false -LocalFile c:/k/antrea/ovs-win64.zip
           Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
@@ -2068,7 +2068,7 @@ data:
               valueFrom:
                 fieldRef:
                   fieldPath: spec.serviceAccountName
-            image: projects.registry.vmware.com/antrea/antrea-ubuntu:v0.13.1
+            image: projects.registry.vmware.com/antrea/antrea-ubuntu:v0.13.3
             livenessProbe:
               failureThreshold: 5
               httpGet:
@@ -2248,7 +2248,7 @@ data:
               valueFrom:
                 fieldRef:
                   fieldPath: spec.nodeName
-            image: projects.registry.vmware.com/antrea/antrea-ubuntu:v0.13.1
+            image: projects.registry.vmware.com/antrea/antrea-ubuntu:v0.13.3
             livenessProbe:
               exec:
                 command:
@@ -2308,7 +2308,7 @@ data:
             - --log_file_max_num=4
             command:
             - start_ovs
-            image: projects.registry.vmware.com/antrea/antrea-ubuntu:v0.13.1
+            image: projects.registry.vmware.com/antrea/antrea-ubuntu:v0.13.3
             livenessProbe:
               exec:
                 command:
@@ -2342,7 +2342,7 @@ data:
           initContainers:
           - command:
             - install_cni
-            image: projects.registry.vmware.com/antrea/antrea-ubuntu:v0.13.1
+            image: projects.registry.vmware.com/antrea/antrea-ubuntu:v0.13.3
             name: install-cni
             resources:
               requests:
