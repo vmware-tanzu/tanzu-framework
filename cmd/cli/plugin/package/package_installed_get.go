@@ -42,6 +42,7 @@ func packageInstalledGet(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+
 	pkg, err := kc.GetPackageInstall(packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace)
 	if err != nil {
 		t.StopSpinner()
