@@ -36,7 +36,7 @@ func packageInstalledGet(cmd *cobra.Command, args []string) error {
 	}
 
 	pkgName = args[0]
-	packageInstalledOp.PackageName = pkgName
+	packageInstalledOp.PkgInstallName = pkgName
 	t, err := component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), outputFormat,
 		fmt.Sprintf("Retrieving installation details for %s...", pkgName), true)
 	if err != nil {
