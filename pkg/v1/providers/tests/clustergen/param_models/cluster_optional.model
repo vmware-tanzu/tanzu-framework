@@ -125,5 +125,5 @@ ANTREA_NODEPORTLOCAL: "false", "true"
 ANTREA_TRACEFLOW: "false", "true"
 
 # pass --VSPHERE-CONTROLPLANE-ENDPOINT flag only for vSphere provider
-IF [_INFRA] = "\"vsphere:v0.7.6\"" THEN [--VSPHERE-CONTROLPLANE-ENDPOINT] = "\"10.10.10.10\"";
-IF [_INFRA] <> "\"vsphere:v0.7.6\"" THEN [--VSPHERE-CONTROLPLANE-ENDPOINT] = "\"NOTPROVIDED\"";
+IF [_INFRA] = "\"vsphere:v0.7.8\"" THEN [--VSPHERE-CONTROLPLANE-ENDPOINT] = "\"10.10.10.10\"";
+IF [_INFRA] <> "\"vsphere:v0.7.8\"" THEN [--VSPHERE-CONTROLPLANE-ENDPOINT] = "\"NOTPROVIDED\"";
