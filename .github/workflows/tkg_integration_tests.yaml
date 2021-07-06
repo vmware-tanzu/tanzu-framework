@@ -81,7 +81,8 @@ jobs:
           export TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH=${{ steps.extract_bom.outputs.bompath }}
         fi
         make configure-bom
-        E2E_CONFIG=$PWD/pkg/v1/tkg/test/config/docker.yaml hack/tools/bin/ginkgo -nodes=3 -v -trace pkg/v1/tkg/test/tkgctl/docker
+        make generate-embedproviders
+        E2E_CONFIG=$PWD/pkg/v1/tkg/test/config/docker.yaml hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders pkg/v1/tkg/test/tkgctl/docker
 
   integ-tests-azure:
     name: TKG Integration Tests CAPZ
@@ -164,7 +165,8 @@ jobs:
           export TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH=${{ steps.extract_bom.outputs.bompath }}
         fi
         make configure-bom
-        E2E_CONFIG=$PWD/pkg/v1/tkg/test/config/azure.yaml hack/tools/bin/ginkgo -nodes=3 -v -trace pkg/v1/tkg/test/tkgctl/azure
+        make generate-embedproviders
+        E2E_CONFIG=$PWD/pkg/v1/tkg/test/config/azure.yaml hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders pkg/v1/tkg/test/tkgctl/azure
 
     - uses: Azure/login@v1.1
       if: ${{ always() }}

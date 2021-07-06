@@ -473,17 +473,17 @@ GINKGO_NODES  ?= 1
 GINKGO_NOCOLOR ?= false
 
 .PHONY: e2e-tkgctl-docker
-e2e-tkgctl-docker: $(GINKGO) ## Run ginkgo tkgctl E2E tests
-	$(GINKGO) -v -trace -nodes=$(GINKGO_NODES) --noColor=$(GINKGO_NOCOLOR) $(GINKGO_ARGS) pkg/v1/tkg/test/tkgctl/docker
+e2e-tkgctl-docker: $(GINKGO) generate-embedproviders ## Run ginkgo tkgctl E2E tests
+	$(GINKGO) -v -trace -nodes=$(GINKGO_NODES) --noColor=$(GINKGO_NOCOLOR) $(GINKGO_ARGS) -tags embedproviders pkg/v1/tkg/test/tkgctl/docker
 
 .PHONY: e2e-tkgctl-azure
-e2e-tkgctl-azure: $(GINKGO) ## Run ginkgo tkgctl E2E tests
-	$(GINKGO) -v -trace -nodes=$(GINKGO_NODES) --noColor=$(GINKGO_NOCOLOR) $(GINKGO_ARGS) pkg/v1/tkg/test/tkgctl/azure
+e2e-tkgctl-azure: $(GINKGO) generate-embedproviders ## Run ginkgo tkgctl E2E tests
+	$(GINKGO) -v -trace -nodes=$(GINKGO_NODES) --noColor=$(GINKGO_NOCOLOR) $(GINKGO_ARGS) -tags embedproviders pkg/v1/tkg/test/tkgctl/azure
 
 .PHONY: e2e-tkgctl-aws
-e2e-tkgctl-aws: $(GINKGO) ## Run ginkgo tkgctl E2E tests
-	$(GINKGO) -v -trace -nodes=$(GINKGO_NODES) --noColor=$(GINKGO_NOCOLOR) $(GINKGO_ARGS) pkg/v1/tkg/test/tkgctl/aws
+e2e-tkgctl-aws: $(GINKGO) generate-embedproviders ## Run ginkgo tkgctl E2E tests
+	$(GINKGO) -v -trace -nodes=$(GINKGO_NODES) --noColor=$(GINKGO_NOCOLOR) $(GINKGO_ARGS) -tags embedproviders pkg/v1/tkg/test/tkgctl/aws
 
 .PHONY: e2e-tkgctl-vc67
-e2e-tkgctl-vc67: $(GINKGO) ## Run ginkgo tkgctl E2E tests
-	$(GINKGO) -v -trace -nodes=$(GINKGO_NODES) --noColor=$(GINKGO_NOCOLOR) $(GINKGO_ARGS) pkg/v1/tkg/test/tkgctl/vsphere67
+e2e-tkgctl-vc67: $(GINKGO) generate-embedproviders ## Run ginkgo tkgctl E2E tests
+	$(GINKGO) -v -trace -nodes=$(GINKGO_NODES) --noColor=$(GINKGO_NOCOLOR) $(GINKGO_ARGS) -tags embedproviders pkg/v1/tkg/test/tkgctl/vsphere67
