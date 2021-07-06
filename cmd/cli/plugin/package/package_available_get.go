@@ -13,6 +13,8 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/kappclient"
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
+
+	"github.com/jeremywohl/flatten"
 )
 
 var packageAvailableGetCmd = &cobra.Command{
@@ -47,7 +49,7 @@ func validatePackage(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func packageAvailableGet(cmd *cobra.Command, args []string) error {
+func packageAvailableGet(cmd *cobra.Command, args []string) error { //nolint:funlen,gocyclo
 	kc, err := kappclient.NewKappClient(packageAvailableOp.KubeConfig)
 	if err != nil {
 		return err
@@ -56,8 +58,44 @@ func packageAvailableGet(cmd *cobra.Command, args []string) error {
 		packageAvailableOp.Namespace = ""
 	}
 	if packageAvailableOp.ValuesSchema {
-		// TODO
-		return fmt.Errorf("unimplemented")
+		pkg, err := kc.GetPackage(fmt.Sprintf("%s.%s", pkgName, pkgVersion), packageAvailableOp.Namespace)
+		if err != nil {
+			return err
+		}
+
+		if len(pkg.Spec.ValuesSchema.OpenAPIv3.Raw) == 0 {
+			log.Infof("failed to find package '%s' values schema", pkgName)
+			return nil
+		}
+
+		s := string(pkg.Spec.ValuesSchema.OpenAPIv3.Raw)
+		sflat, err := flatten.FlattenString(s, "", flatten.DotStyle)
+		if err != nil {
+			return err
+		}
+		strim := strings.Trim(sflat, "{}")
+		srep := strings.Replace(strim, "\"", "", -1)
+		entries := strings.Split(srep, ",")
+
+		t, err := component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), outputFormat,
+			fmt.Sprintf("Retrieving package details for %s...", args[0]), true)
+		if err != nil {
+			return err
+		}
+
+		t.SetKeys("KEY", "DEFAULT", "TYPE", "DESCRIPTION")
+		for _, e := range entries {
+			parts := strings.Split(e, ":")
+			if strings.Contains(parts[0], "description") {
+				t.AddRow(parts[0], "", "", parts[1])
+			} else if strings.Contains(parts[0], "type") {
+				t.AddRow(parts[0], "", parts[1], "")
+			} else {
+				t.AddRow(parts[0], parts[1], "", "")
+			}
+		}
+		t.RenderWithSpinner()
+		return nil
 	}
 
 	t, err := component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), outputFormat,

@@ -108,6 +108,7 @@ Use "tanzu package repository [command] --help" for more information about a com
    ```
 
 7. Get information of a package
+   Example 1: Get detailed information of a package
    ```sh
    >>> tanzu package available get contour.tanzu.vmware.com/1.15.1+vmware.1-tkg.1 --namespace test-ns
    / Retrieving package details for contour.tanzu.vmware.com/1.15.1+vmware.1-tkg.1... 
@@ -124,6 +125,15 @@ Use "tanzu package repository [command] --help" for more information about a com
      LICENSE:                        [] 
    ```
 
+   Example 2: Get values schema of a package
+   ```sh
+   >>> tanzu package available get schema-package.carvel.dev/1.0.0 -n test-ns --values-schema
+   KEY                               DEFAULT  TYPE    DESCRIPTION
+   properties.hello_msg.description                   The message simple-app will display
+   properties.hello_msg.type                  string
+   properties.svc_port.description                    Port number for service. Defaults to 80.
+   properties.svc_port.type                   int
+   ```
 8. Install a package
 
     Example 1: Install the specified version for package name "fluent-bit.tkg-standard.tanzu.vmware", while providing the values.yaml file and without waiting for package reconciliation to complete
