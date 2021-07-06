@@ -10,27 +10,24 @@ on:
     - 'pkg/v1/providers/**'
 
 jobs:
-  lint:
+  build:
+    name: Providers Templates Tests
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v1
+
     - name: yaml-lint
       uses: ibiqlik/action-yamllint@v3
       with:
         file_or_dir: pkg/v1/providers
         config_file: pkg/v1/providers/.yamllint
-  build:
-    name: Providers Templates Tests
-    runs-on: ubuntu-latest
-    steps:
+
     - name: Set up Go 1.x
       uses: actions/setup-go@v2
       with:
         go-version: '1.16'
       id: go
-
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v1
 
     - name: Config Credentials
       env:

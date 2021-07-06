@@ -38,7 +38,7 @@ def get_bom_filename(k8sVersion):
     return None
 
 def main():
-    k8sVersion = "v1.20.5+vmware.1-tkg.1-zlatest" 
+    k8sVersion = "v1.21.1+vmware.4-tkg.1-zshippable"
     bomFile = get_bom_filename(k8sVersion)
     bomDir = get_bom_dir()
     bomFilePath = os.path.join(bomDir, bomFile)
