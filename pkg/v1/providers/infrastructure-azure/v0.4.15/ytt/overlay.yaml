@@ -77,12 +77,20 @@ spec:
       role: control-plane
       cidrBlocks:
       - #@ data.values.AZURE_CONTROL_PLANE_SUBNET_CIDR
+      #@ if len(data.values.AZURE_CONTROL_PLANE_SUBNET_SECURITY_GROUP) != 0:
+      #@overlay/match missing_ok=True
+      securityGroup: #@ data.values.AZURE_CONTROL_PLANE_SUBNET_SECURITY_GROUP
+      #@ end
     #@overlay/match by=overlay.index(1)
     #@overlay/replace
     - name: #@ data.values.AZURE_NODE_SUBNET_NAME
       role: node
       cidrBlocks:
       - #@ data.values.AZURE_NODE_SUBNET_CIDR
+      #@ if len(data.values.AZURE_NODE_SUBNET_SECURITY_GROUP) != 0: 
+      #@overlay/match missing_ok=True
+      securityGroup: #@ data.values.AZURE_NODE_SUBNET_SECURITY_GROUP
+      #@ end
     #@ if data.values.AZURE_ENABLE_PRIVATE_CLUSTER:
     #@overlay/match missing_ok=True
     apiServerLB:

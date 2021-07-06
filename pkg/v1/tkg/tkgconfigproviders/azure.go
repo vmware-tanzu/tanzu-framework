@@ -33,7 +33,9 @@ type AzureConfig struct {
 	WorkerNodeSubnet          string `yaml:"AZURE_NODE_SUBNET_NAME,omitempty"`
 	VNetCIDR                  string `yaml:"AZURE_VNET_CIDR,omitempty"`
 	ControlPlaneSubnetCIDR    string `yaml:"AZURE_CONTROL_PLANE_SUBNET_CIDR,omitempty"`
+	ControlPlaneSubnetSG      string `yaml:"AZURE_CONTROL_PLANE_SUBNET_SECURITY_GROUP,omitempty"`
 	WorkerNodeSubnetCIDR      string `yaml:"AZURE_NODE_SUBNET_CIDR,omitempty"`
+	WorkerNodeSubnetSG        string `yaml:"AZURE_NODE_SUBNET_SECURITY_GROUP,omitempty"`
 	MachineHealthCheckEnabled string `yaml:"ENABLE_MHC,omitempty"`
 	EnableAuditLogging        string `yaml:"ENABLE_AUDIT_LOGGING"`
 	ServiceCIDR               string `yaml:"SERVICE_CIDR,omitempty"`
