@@ -1,0 +1,26 @@
+apiVersion: run.tanzu.vmware.com/v1alpha1
+kind: Capability
+metadata:
+  name: capability-sample
+spec:
+  query:
+    groupVersionResources:
+      - name: "gvrTKR"
+        group: "run.tanzu.vmware.com"
+        versions:
+          - v1alpha1
+        resource: "tanzukubernetesreleases"
+      - name: "gvrTKC"
+        group: "run.tanzu.vmware.com"
+        versions:
+          - v1alpha1
+        resource: "tanzukubernetesclusters"
+    objects:
+      - name: "nsxNamespace"
+        objectReference:
+          kind: "Namespace"
+          name: "vmware-system-nsx"
+          apiVersion: "v1"
+    partialSchemas:
+      - name: "emptyPartialSchema"
+        partialSchema: "{}"
