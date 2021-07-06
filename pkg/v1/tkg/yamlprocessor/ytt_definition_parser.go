@@ -14,7 +14,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/api/tkg/v1alpha1"
+	"github.com/vmware-tanzu-private/core/apis/providers/v1alpha1"
 
 	"k8s.io/client-go/util/homedir"
 	"k8s.io/kubectl/pkg/scheme"

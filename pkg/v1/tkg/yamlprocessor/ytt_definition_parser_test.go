@@ -31,7 +31,7 @@ var _ = Describe("YttDefinitionParser", func() {
 
 			ydp := yamlprocessor.NewYttDefinitionParser()
 			templateDef := []byte(fmt.Sprintf(`
-apiVersion: run.tanzu.vmware.com/v1alpha1
+apiVersion: providers.tanzu.vmware.com/v1alpha1
 kind: TemplateDefinition
 spec:
   paths:
@@ -62,7 +62,7 @@ spec:
 			ydp := yamlprocessor.NewYttDefinitionParser(yamlprocessor.InjectTKGDir(tkgDir))
 
 			templateDef := []byte(fmt.Sprintf(`
-apiVersion: run.tanzu.vmware.com/v1alpha1
+apiVersion: providers.tanzu.vmware.com/v1alpha1
 kind: TemplateDefinition
 spec:
   paths:
@@ -93,7 +93,7 @@ spec:
 			dirPathOutsideConfigDir := filepath.Join("providers", "..", "..", "tmp", "bad", "yamldir")
 
 			templateDef := []byte(fmt.Sprintf(`
-apiVersion: run.tanzu.vmware.com/v1alpha1
+apiVersion: providers.tanzu.vmware.com/v1alpha1
 kind: TemplateDefinition
 spec:
   paths:
@@ -128,28 +128,28 @@ spec:
   - path: ~/.tkg/providers/infrastructure-aws/v0.5.3/ytt`),
 
 			Entry("if it doesn't recognize the kind of the template definition", `
-apiVersion: run.tanzu.vmware.com/v1alpha1
+apiVersion: providers.tanzu.vmware.com/v1alpha1
 kind: SomeDefinition
 spec:
   paths:
   - path: ~/.tkg/providers/infrastructure-aws/v0.5.3/ytt`),
 
 			Entry("if the path is not absolute", `
-apiVersion: run.tanzu.vmware.com/v1alpha1
+apiVersion: providers.tanzu.vmware.com/v1alpha1
 kind: TemplateDefinition
 spec:
   paths:
   - path: ../plan1/ytt`),
 
 			Entry("if the path doesn't exist", `
-apiVersion: run.tanzu.vmware.com/v1alpha1
+apiVersion: providers.tanzu.vmware.com/v1alpha1
 kind: TemplateDefinition
 spec:
   paths:
   - path: /Users/foo/.tkg/providers/nothing-here`),
 
 			Entry("if the path is not within the expected basepath of $HOME/.tkg/providers", `
-apiVersion: run.tanzu.vmware.com/v1alpha1
+apiVersion: providers.tanzu.vmware.com/v1alpha1
 kind: TemplateDefinition
 spec:
   paths:
