@@ -9,12 +9,11 @@
 
 #@ def get_standard_package_repo_yaml():
 #! The reason to have bomData.components["tkg-standard-packages"] instead of bomData.components.tkg-standard-packages is because
-#! YTT does not allow - to be used as .tkg-standard-packages.
-#@ standard_package_repo_bundle = get_bom_data_for_tkr_name().components["tkg-standard-packages"][0].images.tanzuStandardPackageRepositoryImage
+#! YTT does not allow - to be used as .tkg-standard-packages
+#@ standard_package_repo_bundle = get_default_tkg_bom_data().components["tkg-standard-packages"][0].images.tanzuStandardPackageRepositoryImage
 apiVersion: packaging.carvel.dev/v1alpha1
 kind: PackageRepository
 metadata:
-  #! Addons Manager will read it and reconcile.
   name: standard
   namespace: tkg-system
   annotations:
