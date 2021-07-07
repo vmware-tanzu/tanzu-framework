@@ -15,7 +15,7 @@ apiVersion: packaging.carvel.dev/v1alpha1
 kind: PackageRepository
 metadata:
   name: standard
-  namespace: tkg-system
+  namespace: tanzu-standard
   annotations:
     tkg.tanzu.vmware.com/addon-type: "addons-management/standard-package-repo"
 spec:

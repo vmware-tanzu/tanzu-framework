@@ -11,7 +11,7 @@
 ---
 kappController:
   namespace: tkg-system
-  globalNamespace: tkg-standard
+  globalNamespace: tanzu-standard
   createNamespace: true
   image: #! For backwards compatibility. i.e. C.1 mgmt cluster creates a C.0 wlc with older addon templates.
     repository: #@ get_image_repo_for_component(kappControllerImage)

@@ -9,7 +9,7 @@
 #@   bomData = get_bom_data_for_tkr_name()
 #@ end
 
-#@ GLOBAL_NAMESPACE = "tkg-standard"
+#@ GLOBAL_NAMESPACE = "tanzu-standard"
 #@ def kappcontrolleroverlay():
 
 #@overlay/match by=overlay.subset({"kind":"ConfigMap","metadata":{"name": "kapp-controller-config"}})
