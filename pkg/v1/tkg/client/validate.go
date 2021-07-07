@@ -356,21 +356,20 @@ func (c *TkgClient) configureAMIAndOSForAWS(bomConfiguration *tkgconfigbom.BOMCo
 	return nil
 }
 
-func checkIfRequiredPermissionsPresent(awsClient aws.Client) error {
+func checkIfRequiredPermissionsPresent(awsClient aws.Client) {
 	stacks, err := awsClient.ListCloudFormationStacks()
 	if err != nil {
 		log.Warningf("unable to verify if the AWS CloudFormation stack %s is available in the AWS account.", aws.DefaultCloudFormationStackName)
-		return nil
+		return
 	}
 
 	for _, stack := range stacks {
 		if stack == aws.DefaultCloudFormationStackName {
-			return nil
+			return
 		}
 	}
 	// TODO: should have check on whether IAM permissions are present
-	log.Warningf("cannot find AWS CloudFormation stack %s, which is used in the management of IAM groups and policies required by TKG.", aws.DefaultCloudFormationStackName)
-	return nil
+	log.Warningf("cannot find AWS CloudFormation stack %s, which is used in the management of IAM groups and policies required by TKG. You might need to create one manually before creating a cluster", aws.DefaultCloudFormationStackName)
 }
 
 // ConfigureAndValidateAWSConfig configures and validates aws configuration
@@ -379,22 +378,25 @@ func (c *TkgClient) ConfigureAndValidateAWSConfig(tkrVersion string, nodeSizes N
 
 	awsClient, err := c.EncodeAWSCredentialsAndGetClient(clusterClient)
 	if err != nil {
-		return errors.Wrap(err, "failed to get AWS client")
+		log.Warningf("failed to encode AWS credentials. Unable to create AWS client. Necessary validations will be handled by Cluster API for AWS")
 	}
 
-	if !skipValidation {
-		if err := checkIfRequiredPermissionsPresent(awsClient); err != nil {
-			return err
+	useExistingVPC := false
+	if awsClient == nil {
+		log.Warningf("unable to create awsClient")
+	} else {
+		if !skipValidation {
+			checkIfRequiredPermissionsPresent(awsClient)
 		}
-	}
 
-	if err := c.OverrideAWSNodeSizeWithOptions(nodeSizes, awsClient, skipValidation); err != nil {
-		return errors.Wrap(err, "cannot set AWS node size")
-	}
+		if err := c.OverrideAWSNodeSizeWithOptions(nodeSizes, awsClient, skipValidation); err != nil {
+			log.Warningf("failed to override node size. Node size validation will be handled by Cluster API for AWS")
+		}
 
-	useExistingVPC, err := c.SetAndValidateDefaultAWSVPCConfiguration(isProdConfig, awsClient, skipValidation)
-	if err != nil {
-		return errors.Wrap(err, "failed to validate VPC configuration variables")
+		useExistingVPC, err = c.SetAndValidateDefaultAWSVPCConfiguration(isProdConfig, awsClient, skipValidation)
+		if err != nil {
+			log.Warningf("failed to validate VPC configuration")
+		}
 	}
 
 	return c.ConfigureAndValidateAwsConfig(tkrVersion, skipValidation, isProdConfig, workerMachineCount, isManagementCluster, useExistingVPC)
