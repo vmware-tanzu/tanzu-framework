@@ -31,7 +31,7 @@ jobs:
 
     - name: Config Credentials
       env:
-        GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+        GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN_MIA }}
       run: |
         git config --global url."https://git:$GH_ACCESS_TOKEN@github.com".insteadOf "https://github.com"
 
@@ -78,7 +78,7 @@ jobs:
       with:
         path: ./pkg/v1/providers/tests/clustergen/testdata/clustergen.diff.txt
         destination: tkg-clustergen/${{ steps.extract_pr.outputs.prnum }}/${{ steps.time.outputs.time }}
-        credentials: ${{ secrets.GCP_BUCKET_SA }}
+        credentials: ${{ secrets.GCP_BUCKET_SA_MIA }}
 
     - id: upload-clustergen-results2
       if: ${{ steps.clustergen.outputs.diffstatus == 0 }}
@@ -86,7 +86,7 @@ jobs:
       with:
         path: ./pkg/v1/providers/tests/clustergen/testdata/clustergen.html
         destination: tkg-clustergen/${{ steps.extract_pr.outputs.prnum }}/${{ steps.time.outputs.time }}
-        credentials: ${{ secrets.GCP_BUCKET_SA }}
+        credentials: ${{ secrets.GCP_BUCKET_SA_MIA }}
 
     - name: Create comment with diffs
       if: ${{ steps.clustergen.outputs.diffstatus == 0 }}

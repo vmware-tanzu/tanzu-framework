@@ -35,7 +35,7 @@ jobs:
 
       - name: Config credentials
         env:
-          GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+          GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN.MIA }}
         run: |
           git config --global url."https://git:$GH_ACCESS_TOKEN@github.com".insteadOf "https://github.com"
 
