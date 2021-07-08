@@ -29,12 +29,6 @@ jobs:
         go-version: '1.16'
       id: go
 
-    - name: Config Credentials
-      env:
-        GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN_MIA }}
-      run: |
-        git config --global url."https://git:$GH_ACCESS_TOKEN@github.com".insteadOf "https://github.com"
-
     - name: Basic checks
       run: |
         make providers
@@ -73,6 +67,7 @@ jobs:
       id: clustergen
 
     - id: upload-clustergen-results
+      continue-on-error: true
       if: ${{ steps.clustergen.outputs.diffstatus == 0 }}
       uses: google-github-actions/upload-cloud-storage@main
       with:
@@ -80,7 +75,20 @@ jobs:
         destination: tkg-clustergen/${{ steps.extract_pr.outputs.prnum }}/${{ steps.time.outputs.time }}
         credentials: ${{ secrets.GCP_BUCKET_SA_MIA }}
 
+    - id: show-clustergen-results
+      if: ${{ steps.upload-clustergen-results.outcome != 'success' }}
+      run: |
+        head -500 ./pkg/v1/providers/tests/clustergen/testdata/clustergen.diff.txt
+
+    - id: publish-clustergen-results-as-artifacts
+      if: ${{ steps.clustergen.outputs.diffstatus == 0 }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: clustergen-diff-txt
+        path: ./pkg/v1/providers/tests/clustergen/testdata/clustergen.diff.txt
+
     - id: upload-clustergen-results2
+      continue-on-error: true
       if: ${{ steps.clustergen.outputs.diffstatus == 0 }}
       uses: google-github-actions/upload-cloud-storage@main
       with:
@@ -89,6 +97,7 @@ jobs:
         credentials: ${{ secrets.GCP_BUCKET_SA_MIA }}
 
     - name: Create comment with diffs
+      continue-on-error: true
       if: ${{ steps.clustergen.outputs.diffstatus == 0 }}
       uses: peter-evans/create-or-update-comment@v1
       with:
@@ -101,6 +110,7 @@ jobs:
           Please review at least one of the above to verify that the effects on the generated cluster configurations are exactly what the PR intended. (Consider giving a thumbs-up if so)
 
     - name: Create comment indicating no changes detected
+      continue-on-error: true
       if: ${{ steps.clustergen.outputs.diffstatus != 0 }}
       uses: peter-evans/create-or-update-comment@v1
       with:
