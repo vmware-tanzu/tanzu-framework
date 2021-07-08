@@ -13,7 +13,7 @@ import (
 	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
 )
 
-// GetTKGDirectory returns path to tkg config directory "$HOME/.tkg"
+// GetTKGDirectory returns path to tkg config directory "$HOME/.tanzu/tkg"
 func (c *client) GetTKGDirectory() (string, error) {
 	if c.configDir == "" {
 		return "", errors.New("tkg config directory is empty")
@@ -21,7 +21,7 @@ func (c *client) GetTKGDirectory() (string, error) {
 	return c.configDir, nil
 }
 
-// GetTKGProvidersDirectory returns path to tkg config directory "$HOME/.tkg/providers"
+// GetTKGProvidersDirectory returns path to tkg config directory "$HOME/.tanzu/tkg/providers"
 func (c *client) GetTKGProvidersDirectory() (string, error) {
 	tkgDir, err := c.GetTKGDirectory()
 	if err != nil {
@@ -30,7 +30,7 @@ func (c *client) GetTKGProvidersDirectory() (string, error) {
 	return filepath.Join(tkgDir, constants.LocalProvidersFolderName), nil
 }
 
-// GetTKGBoMDirectory returns path to tkg config directory "$HOME/.tkg/bom"
+// GetTKGBoMDirectory returns path to tkg config directory "$HOME/.tanzu/tkg/bom"
 func (c *client) GetTKGBoMDirectory() (string, error) {
 	tkgDir, err := c.GetTKGDirectory()
 	if err != nil {
@@ -61,7 +61,7 @@ func (c *client) GetTKGConfigDirectories() (string, string, string, error) {
 }
 
 // GetProvidersConfigFilePath returns config file path from providers dir
-// "$HOME/.tkg/providers/config.yaml"
+// "$HOME/.tanzu/tkg/providers/config.yaml"
 func (c *client) GetProvidersConfigFilePath() (string, error) {
 	providersDir, err := c.GetTKGProvidersDirectory()
 	if err != nil {
