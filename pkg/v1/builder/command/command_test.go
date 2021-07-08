@@ -6,7 +6,6 @@ package command
 import (
 	"bytes"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"testing"
 
@@ -64,6 +63,8 @@ func Test_BuilderInitAndAddPlugin(t *testing.T) {
 	assert.Nil(err)
 	assert.Equal(expected, stdout.String())
 
+	/* Disabling test until repository is public, see #83
+
 	// Assert make init and test exit 0
 	osCmd := exec.Command("make", "init")
 	_, err = osCmd.CombinedOutput()
@@ -71,4 +72,5 @@ func Test_BuilderInitAndAddPlugin(t *testing.T) {
 	osCmd = exec.Command("make", "test")
 	_, err = osCmd.CombinedOutput()
 	assert.Nil(err)
+	*/
 }
