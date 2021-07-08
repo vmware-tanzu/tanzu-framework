@@ -11,9 +11,9 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes"
-	fakeproviders "github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes/providers"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigbom"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
+	fakeproviders "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes/providers"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
 )
 
 var _ = Describe("Unit tests for upgrade management cluster", func() {

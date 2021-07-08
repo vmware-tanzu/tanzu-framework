@@ -11,9 +11,9 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/api/tmc/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/clusterclient"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/api/tmc/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 )
 
 // TmcNamespaceName TMC namespace

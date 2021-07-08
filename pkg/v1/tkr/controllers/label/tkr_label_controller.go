@@ -16,8 +16,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
-	runv1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	mgrcontext "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/context"
+	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	mgrcontext "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/context"
 )
 
 const (

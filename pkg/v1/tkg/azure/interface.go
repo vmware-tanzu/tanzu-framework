@@ -7,7 +7,7 @@ package azure
 import (
 	"context"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/models"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 )
 
 // Client defines methods to access Azure inventory

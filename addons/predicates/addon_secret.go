@@ -11,9 +11,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 
-	"github.com/vmware-tanzu-private/core/addons/constants"
-	addontypes "github.com/vmware-tanzu-private/core/addons/pkg/types"
-	"github.com/vmware-tanzu-private/core/addons/pkg/util"
+	"github.com/vmware-tanzu/tanzu-framework/addons/constants"
+	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 )
 
 // processAddonSecret returns true if secret should be processed.

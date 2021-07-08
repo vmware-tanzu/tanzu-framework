@@ -8,7 +8,7 @@ import (
 
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	runtanzuv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
+	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 )
 
 // GetTKRByName gets TKR object given a TKR name

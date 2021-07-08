@@ -25,11 +25,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	runv1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/constants"
-	mgrcontext "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/context"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/registry"
-	types "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/types"
+	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
+	mgrcontext "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/context"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/registry"
+	types "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
 )
 
 // TanzuKubernetesReleaseReconciler reconciles a TanzuKubernetesRelease object

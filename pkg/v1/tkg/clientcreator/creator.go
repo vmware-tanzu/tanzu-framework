@@ -8,14 +8,14 @@ import (
 	"github.com/pkg/errors"
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/features"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/region"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigbom"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigpaths"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigproviders"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigreaderwriter"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigupdater"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/types"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/features"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigproviders"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigupdater"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/types"
 )
 
 // Clients is a combination structure of clients

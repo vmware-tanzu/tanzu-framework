@@ -5,7 +5,7 @@
 package ldap
 
 import (
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/models"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 )
 
 // Client is a LDAP client interface

@@ -24,13 +24,13 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/util/retry"
 
-	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/configure/concierge"
-	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/configure/dex"
-	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/configure/supervisor"
-	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/constants"
-	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/inspect"
-	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/utils"
-	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/vars"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/configure/concierge"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/configure/dex"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/configure/supervisor"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/inspect"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/utils"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/vars"
 )
 
 // Clients contains the various client interfaces used.

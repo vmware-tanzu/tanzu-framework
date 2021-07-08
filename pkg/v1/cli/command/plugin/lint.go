@@ -8,7 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/cli/command/plugin/lint"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/plugin/lint"
 )
 
 // LintCmd inspects the Cobra command tree to ensure all commands meet the linting standards

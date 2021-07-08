@@ -12,7 +12,7 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/yamlprocessor"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/yamlprocessor"
 )
 
 var _ = Describe("YttDefinitionParser", func() {

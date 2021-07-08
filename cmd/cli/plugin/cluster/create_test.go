@@ -12,7 +12,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha3"
 
-	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
+	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 )
 
 func TestAPIs(t *testing.T) {

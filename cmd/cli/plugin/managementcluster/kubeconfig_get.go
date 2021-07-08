@@ -9,14 +9,14 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	tkgclient "github.com/vmware-tanzu-private/core/pkg/v1/tkg/client"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgctl"
-	tkgutils "github.com/vmware-tanzu-private/core/pkg/v1/tkg/utils"
+	tkgclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
+	tkgutils "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 
-	"github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
-	tkgauth "github.com/vmware-tanzu-private/core/pkg/v1/auth/tkg"
-	"github.com/vmware-tanzu-private/core/pkg/v1/config"
+	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	tkgauth "github.com/vmware-tanzu/tanzu-framework/pkg/v1/auth/tkg"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
 
 type getClusterKubeconfigOptions struct {

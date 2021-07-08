@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
 
-	core "github.com/vmware-tanzu-private/core/pkg/v1/cli/command/core"
+	core "github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/core"
 )
 
 var (

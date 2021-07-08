@@ -4,7 +4,7 @@ package fakes
 import (
 	"sync"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/registry"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/registry"
 )
 
 type Registry struct {

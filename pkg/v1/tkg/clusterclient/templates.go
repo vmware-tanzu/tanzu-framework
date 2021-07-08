@@ -7,7 +7,7 @@ import (
 	"github.com/pkg/errors"
 	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/vc"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/vc"
 )
 
 func (c *client) GetVCClientAndDataCenter(clusterName, clusterNamespace, vsphereMachineTemplateObjectName string) (vc.Client, string, error) {

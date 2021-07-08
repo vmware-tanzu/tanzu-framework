@@ -7,9 +7,9 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/pkg/errors"
 
-	featuresclient "github.com/vmware-tanzu-private/core/pkg/v1/tkg/features"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/restapi/operations/edition"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/restapi/operations/features"
+	featuresclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/features"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/edition"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/features"
 )
 
 // GetFeatureFlags handles requests to GET features

@@ -22,7 +22,7 @@ reference: https://pkg.go.dev/sigs.k8s.io/cluster-api/cmd/clusterctl/
 - Implements YAML processor interface that is used with clusterctl when creation cluster templates. https://pkg.go.dev/sigs.k8s.io/cluster-api/cmd/clusterctl/client/yamlprocessor#Processor
 - The responsibility of this package is to use the ytt library and implement functionality that returns cluster template bytes when requested by the clusterctl library when generating cluster templates.
     - reads ytt overlay files based on the template-definition-file provided and processes the overlay using the provided config variable generating cluster templates.
-    - https://github.com/vmware-tanzu-private/tkg-cli/tree/master/pkg/yamlprocessor
+    - https://github.com/vmware-tanzu/tkg-cli/tree/master/pkg/yamlprocessor
 
 ## [tkgconfigreaderwriter](/pkg/v1/tkg/tkgconfigreaderwriter)
 - This is also a very core package under the tkg library

@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
 
 // GetFakeKubeConfigFilePath returns fake kubeconfig file path

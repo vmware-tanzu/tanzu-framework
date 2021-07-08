@@ -10,8 +10,8 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/region"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
 )
 
 const fakeURL = "http://0.0.0.0"

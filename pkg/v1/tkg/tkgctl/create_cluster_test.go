@@ -10,12 +10,12 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/region"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigbom"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigreaderwriter"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigupdater"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigupdater"
 )
 
 const fakeTKRVersion = "1.19.0+vmware.1-tkg.1"

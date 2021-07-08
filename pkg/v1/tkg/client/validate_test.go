@@ -10,11 +10,11 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/client"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigbom"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigreaderwriter"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
 )
 
 var _ = Describe("Validate", func() {

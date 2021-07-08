@@ -8,9 +8,9 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/clusterclient"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/region"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/utils"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 )
 
 // VerifyRegion verifies management cluster

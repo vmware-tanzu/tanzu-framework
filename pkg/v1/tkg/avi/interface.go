@@ -8,7 +8,7 @@ import (
 	"github.com/avinetworks/sdk/go/models"
 	"github.com/avinetworks/sdk/go/session"
 
-	avi_models "github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/models"
+	avi_models "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 )
 
 // Client defines methods to access AVI controller via its REST API

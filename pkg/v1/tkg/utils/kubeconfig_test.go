@@ -13,8 +13,8 @@ import (
 	"github.com/onsi/gomega/ghttp"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 
-	fakehelper "github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes/helper"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/utils"
+	fakehelper "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes/helper"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 )
 
 var _ = Describe("Kubeconfig Tests", func() {

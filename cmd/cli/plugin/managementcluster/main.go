@@ -8,9 +8,9 @@ import (
 
 	"github.com/aunum/log"
 
-	cliv1alpha1 "github.com/vmware-tanzu-private/core/apis/cli/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
-	"github.com/vmware-tanzu-private/core/pkg/v1/cli/command/plugin"
+	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/plugin"
 )
 
 var (

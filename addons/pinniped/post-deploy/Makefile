@@ -17,7 +17,7 @@ fmt: ## Format the code base
 	goimports -w ./pkg ./main.go
 
 native: ## Build binary
-	CGO_ENABLED=0 go build -o tkg-pinniped-post-deploy -ldflags="-s -w -X $(GOTARGET)/pkg/buildinfo.Version=$(GIT_VERSION) -X github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/buildinfo.GitSHA=$(GIT_REF_LONG)" github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy
+	CGO_ENABLED=0 go build -o tkg-pinniped-post-deploy -ldflags="-s -w -X $(GOTARGET)/pkg/buildinfo.Version=$(GIT_VERSION) -X github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/buildinfo.GitSHA=$(GIT_REF_LONG)" github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy
 
 .PHONY: build-images
 build-images: ## Build tkg-pinniped-post-deploy docker images

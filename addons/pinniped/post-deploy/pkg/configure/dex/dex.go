@@ -14,9 +14,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/constants"
-	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/schemas"
-	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/vars"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/schemas"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/vars"
 )
 
 // Configurator contains client information for Dex.

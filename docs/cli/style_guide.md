@@ -54,11 +54,11 @@ tanzu management-cluster kubeconfig get --admin
 ```
 
 ### Global Flags
-Global flags are maintained by the [Tanzu CLI SIG](https://github.com/vmware-tanzu-private/community/tree/main/sigs/api-cli) and adding to the current global set should be managed through the SIG
+Global flags are maintained by the [Tanzu CLI SIG](https://github.com/vmware-tanzu/community/tree/main/sigs/api-cli) and adding to the current global set should be managed through the SIG
 
 ### Nouns
 Any nouns being added must exist in the [Shared Taxonomy document](/hack/linter/cli-wordlist.yml)
-* Introducing nouns to support the creation of new commands and/or subcommands should be reviewed by the [Tanzu CLI SIG](https://github.com/vmware-tanzu-private/community/tree/main/sigs/api-cli)
+* Introducing nouns to support the creation of new commands and/or subcommands should be reviewed by the [Tanzu CLI SIG](https://github.com/vmware-tanzu/community/tree/main/sigs/api-cli)
 
 Compound words should be - delimited
 ```
@@ -120,7 +120,7 @@ tanzu cluster create CLUSTER-NAME [flags]
 
 ### Components - Command
 Available for plugins written in golang
-CLI commands should utilize the plugin component library in [pkg/cli/component](https://github.com/vmware-tanzu-private/core/tree/main/pkg/v1/cli/component) for interactive features like prompts or table printing
+CLI commands should utilize the plugin component library in [pkg/cli/component](https://github.com/vmware-tanzu/tanzu-framework/tree/main/pkg/v1/cli/component) for interactive features like prompts or table printing
 Available input components
 * Prompt
 * Select
@@ -368,7 +368,7 @@ Make it easy to submit bug reports and feedback
 
 ### Plugins
 
-For information about developing plugins, see the [Plugin Guide](https://github.com/vmware-tanzu-private/core/blob/main/docs/cli/plugin_guide.md)
+For information about developing plugins, see the [Plugin Guide](https://github.com/vmware-tanzu/tanzu-framework/blob/main/docs/cli/plugin_guide.md)
 
 ### Contributions to the Style Guide
 

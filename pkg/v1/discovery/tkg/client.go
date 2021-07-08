@@ -11,8 +11,8 @@ import (
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/discovery"
+	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/discovery"
 )
 
 // Scheme is a scheme that knows about TKG resources that are used to determine capabilities.

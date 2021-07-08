@@ -8,8 +8,8 @@ import (
 
 	"k8s.io/apimachinery/pkg/util/wait"
 
-	clitest "github.com/vmware-tanzu-private/core/pkg/v1/test/cli"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackagedatamodel"
+	clitest "github.com/vmware-tanzu/tanzu-framework/pkg/v1/test/cli"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
 type PackagePluginBase interface {

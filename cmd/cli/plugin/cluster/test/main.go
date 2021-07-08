@@ -11,10 +11,10 @@ import (
 	"github.com/spf13/cobra"
 	"sigs.k8s.io/yaml"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
-	"github.com/vmware-tanzu-private/core/pkg/v1/cli/command/plugin"
-	clitest "github.com/vmware-tanzu-private/core/pkg/v1/test/cli"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/plugin"
+	clitest "github.com/vmware-tanzu/tanzu-framework/pkg/v1/test/cli"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
 
 const (

@@ -6,12 +6,12 @@ package handlers
 import (
 	"github.com/go-openapi/runtime/middleware"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/models"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/client"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/clientcreator"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/clusterclient"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/restapi/operations/docker"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clientcreator"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/docker"
 )
 
 // IsDockerDaemonAvailable validates docker daemon availability

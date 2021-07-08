@@ -27,13 +27,13 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
-	"github.com/vmware-tanzu-private/core/addons/constants"
-	addonconfig "github.com/vmware-tanzu-private/core/addons/pkg/config"
-	addontypes "github.com/vmware-tanzu-private/core/addons/pkg/types"
-	"github.com/vmware-tanzu-private/core/addons/pkg/util"
-	addonpredicates "github.com/vmware-tanzu-private/core/addons/predicates"
-	runtanzuv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	bomtypes "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/types"
+	"github.com/vmware-tanzu/tanzu-framework/addons/constants"
+	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
+	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
+	addonpredicates "github.com/vmware-tanzu/tanzu-framework/addons/predicates"
+	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	bomtypes "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
 )
 
 const (

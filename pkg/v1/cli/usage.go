@@ -14,7 +14,7 @@ import (
 	"github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/config"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
 
 // CmdMap is the map of command groups to plugins

@@ -19,8 +19,8 @@ import (
 	grpc_oauth "google.golang.org/grpc/credentials/oauth"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	configv1alpha1 "github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/config"
+	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
 
 const (

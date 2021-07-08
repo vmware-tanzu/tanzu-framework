@@ -10,9 +10,9 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
-	. "github.com/vmware-tanzu-private/core/pkg/v1/tkg/client"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes"
-	fakehelper "github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes/helper"
+	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
+	fakehelper "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes/helper"
 )
 
 var _ = Describe("Unit tests for scalePacificCluster", func() {

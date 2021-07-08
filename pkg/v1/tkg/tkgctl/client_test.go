@@ -11,10 +11,10 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	fakeproviders "github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes/providers"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/providerinterface"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigreaderwriter"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigupdater"
+	fakeproviders "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes/providers"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/providerinterface"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigupdater"
 )
 
 var _ = Describe("ensureBoMandProvidersPrerequisite", func() {

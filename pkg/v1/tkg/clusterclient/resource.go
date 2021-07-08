@@ -29,9 +29,9 @@ import (
 	"sigs.k8s.io/cluster-api/util/conditions"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
-	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/api/tmc/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
+	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/api/tmc/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 )
 
 // PostVerifyrFunc is a function which should be used as closure

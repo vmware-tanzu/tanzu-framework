@@ -6,7 +6,7 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
 )
 
 type getRegionsOptions struct {

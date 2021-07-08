@@ -30,7 +30,7 @@ import (
 	"github.com/skratchdot/open-golang/open"
 	"golang.org/x/net/netutil"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/restapi/operations"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations"
 )
 
 const (

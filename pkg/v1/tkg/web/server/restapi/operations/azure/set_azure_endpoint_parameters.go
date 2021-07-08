@@ -12,7 +12,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 
-	models "github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/models"
+	models "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 )
 
 // NewSetAzureEndpointParams creates a new SetAzureEndpointParams object

@@ -16,7 +16,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	models "github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/models"
+	models "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 )
 
 // NewCreateVSphereRegionalClusterParams creates a new CreateVSphereRegionalClusterParams object

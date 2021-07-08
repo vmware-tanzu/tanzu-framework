@@ -22,9 +22,9 @@ import (
 	"sigs.k8s.io/cluster-api/util/patch"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/test/framework"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgctl"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 )
 
 type E2EMhcSpecInput struct {

@@ -21,7 +21,7 @@ import (
 	"github.com/Azure/go-autorest/autorest/azure/auth"
 	"github.com/pkg/errors"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/models"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 )
 
 const (

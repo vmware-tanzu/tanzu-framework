@@ -18,14 +18,14 @@ import (
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/clusterclient"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/kind"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/region"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfighelper"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/utils"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/yamlprocessor"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/kind"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfighelper"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/yamlprocessor"
 )
 
 const (

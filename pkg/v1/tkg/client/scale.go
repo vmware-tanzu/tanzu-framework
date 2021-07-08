@@ -10,9 +10,9 @@ import (
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/clusterclient"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 )
 
 // ScaleClusterOptions defines options to scale tkg cluster

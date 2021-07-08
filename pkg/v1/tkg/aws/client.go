@@ -17,7 +17,7 @@ import (
 	cloudformation "sigs.k8s.io/cluster-api-provider-aws/cmd/clusterawsadm/cloudformation/service"
 	awscreds "sigs.k8s.io/cluster-api-provider-aws/cmd/clusterawsadm/credentials"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/models"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 )
 
 const (

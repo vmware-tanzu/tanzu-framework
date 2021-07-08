@@ -10,10 +10,10 @@ import (
 	"github.com/pkg/errors"
 	yaml "gopkg.in/yaml.v3"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigreaderwriter"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/utils"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 )
 
 // SaveConfig saves and updates key-value pairs in existing config file

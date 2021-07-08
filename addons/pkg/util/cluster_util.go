@@ -18,9 +18,9 @@ import (
 	clusterapisecretutil "sigs.k8s.io/cluster-api/util/secret"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/vmware-tanzu-private/core/addons/pkg/constants"
-	runtanzuv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	bomtypes "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/types"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
+	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	bomtypes "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
 )
 
 const (

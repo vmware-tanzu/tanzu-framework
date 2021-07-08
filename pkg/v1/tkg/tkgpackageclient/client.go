@@ -4,7 +4,7 @@
 package tkgpackageclient
 
 import (
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/kappclient"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/kappclient"
 )
 
 type pkgClient struct {

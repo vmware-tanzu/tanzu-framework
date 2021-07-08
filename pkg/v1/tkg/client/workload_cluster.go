@@ -16,10 +16,10 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	addonsv1 "sigs.k8s.io/cluster-api/exp/addons/api/v1alpha3"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/clusterclient"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/utils"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 )
 
 // GetWorkloadClusterCredentialsOptions contains options supported by GetWorkloadClusterCredntials

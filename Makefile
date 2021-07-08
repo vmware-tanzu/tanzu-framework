@@ -76,7 +76,7 @@ endif
 DOCKER_DIR := /app
 SWAGGER=docker run --rm -v ${PWD}:${DOCKER_DIR} quay.io/goswagger/swagger:v0.21.0
 
-PRIVATE_REPOS="github.com/vmware-tanzu-private"
+PRIVATE_REPOS="github.com/vmware-tanzu"
 GO := GOPRIVATE=${PRIVATE_REPOS} go
 
 # Add supported OS-ARCHITECTURE combinations here
@@ -92,17 +92,16 @@ BUILD_VERSION = dev
 endif
 # BUILD_EDITION is the Tanzu Edition, the plugin should be built for.
 # Valid values for BUILD_EDITION are 'tce' and 'tkg'. Default value of BUILD_EDITION is 'tkg'.
-# TODO: Need a flexible version selector to not break plugin upgrade - https://github.com/vmware-tanzu-private/core/issues/603
 ifneq ($(BUILD_EDITION), tce)
 BUILD_EDITION = tkg
 endif
 
 LD_FLAGS = -s -w
-LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildDate=$(BUILD_DATE)'
-LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildSHA=$(BUILD_SHA)'
-LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/cli.BuildVersion=$(BUILD_VERSION)'
+LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli.BuildDate=$(BUILD_DATE)'
+LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli.BuildSHA=$(BUILD_SHA)'
+LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli.BuildVersion=$(BUILD_VERSION)'
 LD_FLAGS += -X 'main.BuildEdition=$(BUILD_EDITION)'
-LD_FLAGS += -X 'github.com/vmware-tanzu-private/core/pkg/v1/tkg/buildinfo.IsOfficialBuild=$(IS_OFFICIAL_BUILD)'
+LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/buildinfo.IsOfficialBuild=$(IS_OFFICIAL_BUILD)'
 
 BUILD_TAGS ?=
 
@@ -336,7 +335,7 @@ release-%:
 .PHONY: test
 test: generate fmt vet manifests build-cli-mocks ## Run tests
 	## Skip running TKG integration tests
-	$(GO) test -coverprofile cover.out -v `go list ./... | grep -v github.com/vmware-tanzu-private/core/pkg/v1/tkg/test`
+	$(GO) test -coverprofile cover.out -v `go list ./... | grep -v github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test`
 	$(MAKE) kubebuilder -C $(TOOLS_DIR)
 	KUBEBUILDER_ASSETS=$(ROOT_DIR)/$(KUBEBUILDER)/bin GOPRIVATE=$(PRIVATE_REPOS) $(MAKE) test -C addons
 
@@ -345,7 +344,7 @@ test-cli: build-cli-mocks ## Run tests
 	$(GO) test ./...
 
 fmt: tools ## Run goimports
-	$(GOIMPORTS) -w -local github.com/vmware-tanzu-private ./
+	$(GOIMPORTS) -w -local github.com/vmware-tanzu ./
 
 vet: ## Run go vet
 	$(GO) vet ./...

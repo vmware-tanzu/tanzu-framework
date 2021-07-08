@@ -9,7 +9,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	tkg_models "github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/models"
+	tkg_models "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 )
 
 var ldapClient *client

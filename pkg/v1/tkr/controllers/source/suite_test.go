@@ -25,9 +25,9 @@ import (
 
 	// +kubebuilder:scaffold:imports
 
-	runv1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/fakes"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/constants"
+	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/fakes"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
 )
 
 const (

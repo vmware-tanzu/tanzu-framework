@@ -6,7 +6,7 @@ import (
 
 	"sigs.k8s.io/kind/pkg/cluster"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/kind"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/kind"
 )
 
 type KindProvider struct {

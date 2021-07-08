@@ -13,8 +13,8 @@ The Tanzu CLI is a modular design that consists of plugins. To bootstrap a new p
 This architecture enables teams to build, own, and release their own piece of functionality as well as enable external partners to integrate with the system.
 
 Current implementations:
-- [Tanzu Framework plugins](https://github.com/vmware-tanzu-private/core/tree/main/cmd/cli/plugin)
-- [Admin plugins](https://github.com/vmware-tanzu-private/core/tree/main/cmd/cli/plugin-admin)
+- [Tanzu Framework plugins](https://github.com/vmware-tanzu/tanzu-framework/tree/main/cmd/cli/plugin)
+- [Admin plugins](https://github.com/vmware-tanzu/tanzu-framework/tree/main/cmd/cli/plugin-admin)
 - [Advanced plugins](https://gitlab.eng.vmware.com/tanzu/cli-plugins)
 
 ### Repository

@@ -9,7 +9,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/vmware-tanzu-private/core/apis/run/v1alpha1/upgrade"
+	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1/upgrade"
 )
 
 // VirtualMachineState describes the state of a VM.

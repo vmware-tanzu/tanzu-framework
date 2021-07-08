@@ -19,9 +19,9 @@ import (
 
 	// +kubebuilder:scaffold:imports
 
-	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	tkrsourcectr "github.com/vmware-tanzu-private/core/pkg/v1/tkr/controllers/source"
-	mgrcontext "github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/context"
+	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	tkrsourcectr "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/controllers/source"
+	mgrcontext "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/context"
 )
 
 var (

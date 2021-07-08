@@ -10,9 +10,9 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 
-	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/utils"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/constants"
+	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
 )
 
 // UpgradesNotAvailableError is an error type to return when upgrades are not available

@@ -14,8 +14,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/yaml"
 
-	"github.com/vmware-tanzu-private/core/addons/calico/test/lib/repo"
-	"github.com/vmware-tanzu-private/core/addons/calico/test/lib/ytt"
+	"github.com/vmware-tanzu/tanzu-framework/addons/calico/test/lib/repo"
+	"github.com/vmware-tanzu/tanzu-framework/addons/calico/test/lib/ytt"
 )
 
 var _ = Describe("Calico Ytt Templates", func() {

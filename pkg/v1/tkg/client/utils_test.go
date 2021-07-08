@@ -10,8 +10,8 @@ import (
 	. "github.com/onsi/gomega"
 	"k8s.io/client-go/tools/clientcmd"
 
-	. "github.com/vmware-tanzu-private/core/pkg/v1/tkg/client"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/utils"
+	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 )
 
 var _ = Describe("Utils", func() {

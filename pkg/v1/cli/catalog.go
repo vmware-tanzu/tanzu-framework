@@ -22,7 +22,7 @@ import (
 	"golang.org/x/mod/semver"
 	apimachineryjson "k8s.io/apimachinery/pkg/runtime/serializer/json"
 
-	cliv1alpha1 "github.com/vmware-tanzu-private/core/apis/cli/v1alpha1"
+	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 )
 
 const (

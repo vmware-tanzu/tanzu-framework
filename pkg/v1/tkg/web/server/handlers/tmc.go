@@ -11,7 +11,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/restapi/operations/tmc"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/tmc"
 )
 
 // RetrieveTMCInstallYml defines handler for RetrieveTMCInstallYml endpoint.

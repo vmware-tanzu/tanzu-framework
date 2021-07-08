@@ -13,22 +13,22 @@ import (
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 
-	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
+	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 
 	clusterctlconfig "sigs.k8s.io/cluster-api/cmd/clusterctl/client/config"
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/repository"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/clusterclient"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/features"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/kind"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/region"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigbom"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigpaths"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigproviders"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigreaderwriter"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigupdater"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/types"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/vc"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/features"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/kind"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigproviders"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigupdater"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/types"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/vc"
 )
 
 type (

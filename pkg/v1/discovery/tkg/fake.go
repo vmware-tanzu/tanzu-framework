@@ -8,8 +8,8 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrlfake "sigs.k8s.io/controller-runtime/pkg/client/fake" //nolint:staticcheck
 
-	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/discovery"
+	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/discovery"
 )
 
 var (

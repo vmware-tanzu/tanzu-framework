@@ -11,10 +11,10 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
-	"github.com/vmware-tanzu-private/core/pkg/v1/config"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/clusterclient"
+	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 )
 
 const lenMsg = 2

@@ -4,7 +4,7 @@
 package tkgctl
 
 import (
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 )
 
 // SetRegionOptions options for set active management cluster

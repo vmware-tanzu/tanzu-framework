@@ -22,6 +22,6 @@ Last Updated: 7/8/21
 
 |Issue|Description|
 |---|---|
-|[725](https://github.com/vmware-tanzu-private/core/issues/725)|Capabilities Part 2 - TKG Discovery API|
-|[726](https://github.com/vmware-tanzu-private/core/issues/725)|Capabilities Part 3 - Capabilities Custom Resource|
-|[558](https://github.com/vmware-tanzu-private/core/issues/558)|Controller Devex Tools|
+|[725](https://github.com/vmware-tanzu/tanzu-framework/issues/725)|Capabilities Part 2 - TKG Discovery API|
+|[726](https://github.com/vmware-tanzu/tanzu-framework/issues/725)|Capabilities Part 3 - Capabilities Custom Resource|
+|[558](https://github.com/vmware-tanzu/tanzu-framework/issues/558)|Controller Devex Tools|

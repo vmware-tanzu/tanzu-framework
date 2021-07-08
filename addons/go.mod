@@ -1,9 +1,9 @@
-module github.com/vmware-tanzu-private/core/addons
+module github.com/vmware-tanzu/tanzu-framework/addons
 
 go 1.16
 
 replace (
-	github.com/vmware-tanzu-private/core => ../
+	github.com/vmware-tanzu/tanzu-framework => ../
 	k8s.io/api => k8s.io/api v0.19.2
 	k8s.io/client-go => k8s.io/client-go v0.19.2
 	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v0.3.11-0.20201204161359-8437691189ad
@@ -14,7 +14,7 @@ require (
 	github.com/onsi/ginkgo v1.16.2
 	github.com/onsi/gomega v1.13.0
 	github.com/pkg/errors v0.9.1
-	github.com/vmware-tanzu-private/core v0.0.0-20201211200158-5838874f2c38
+	github.com/vmware-tanzu/tanzu-framework v0.0.0-20201211200158-5838874f2c38
 	github.com/vmware-tanzu/carvel-kapp-controller v0.20.0-rc.1
 	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.21.2

@@ -11,17 +11,17 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/client/avi"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/client/aws"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/client/azure"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/client/docker"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/client/edition"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/client/features"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/client/ldap"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/client/provider"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/client/tmc"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/client/ui"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/client/vsphere"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/client/avi"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/client/aws"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/client/azure"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/client/docker"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/client/edition"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/client/features"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/client/ldap"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/client/provider"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/client/tmc"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/client/ui"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/client/vsphere"
 )
 
 // Default kickstart UI HTTP client.

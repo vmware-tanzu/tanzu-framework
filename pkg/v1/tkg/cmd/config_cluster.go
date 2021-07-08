@@ -6,9 +6,9 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgctl"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/utils"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 )
 
 var configClusterCmd = &cobra.Command{

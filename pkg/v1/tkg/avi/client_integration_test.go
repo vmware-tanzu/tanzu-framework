@@ -9,7 +9,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	avi_models "github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/models"
+	avi_models "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 )
 
 var realClient Client

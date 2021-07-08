@@ -12,11 +12,11 @@ import (
 	"github.com/pkg/errors"
 	"sigs.k8s.io/cluster-api-provider-aws/cmd/clusterawsadm/credentials"
 
-	awsclient "github.com/vmware-tanzu-private/core/pkg/v1/tkg/aws"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigbom"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/models"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/restapi/operations/aws"
+	awsclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/aws"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/aws"
 )
 
 // GetAWSEndpoint gets aws account info set in environment variables

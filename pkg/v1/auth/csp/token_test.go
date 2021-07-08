@@ -18,7 +18,7 @@ import (
 	"golang.org/x/oauth2"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	configv1alpha1 "github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
+	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 )
 
 var JWTHeader = `{"alg":"HS256","typ":"JWT"}`

@@ -10,7 +10,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/aws/ini"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/aws/ini"
 )
 
 func getCredentialSections(filename string) (ini.Sections, error) {

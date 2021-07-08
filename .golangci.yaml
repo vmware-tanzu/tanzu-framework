@@ -33,7 +33,7 @@ linters-settings:
   gocyclo:
     min-complexity: 15
   goimports:
-    local-prefixes: github.com/vmware-tanzu-private
+    local-prefixes: github.com/vmware-tanzu
   golint:
     min-confidence: 0.3
   gomnd:

@@ -12,11 +12,11 @@ import (
 	"github.com/spf13/cobra"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
 
-	cliv1alpha1 "github.com/vmware-tanzu-private/core/apis/cli/v1alpha1"
-	configv1alpha1 "github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
-	"github.com/vmware-tanzu-private/core/pkg/v1/cli/component"
-	"github.com/vmware-tanzu-private/core/pkg/v1/config"
+	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
 
 func init() {

@@ -10,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 )
 
 func readOutput(t *testing.T, r io.Reader, c chan<- []byte) {

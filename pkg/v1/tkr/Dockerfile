@@ -7,7 +7,7 @@ FROM golang:1.16 as builder
 WORKDIR /workspace
 
 
-ENV GOPRIVATE=github.com/vmware-tanzu-private/*
+ENV GOPRIVATE=github.com/vmware-tanzu/*
 
 # Create the image's SSH directory.
 RUN mkdir -p /root/.ssh && chmod 0700 /root/.ssh

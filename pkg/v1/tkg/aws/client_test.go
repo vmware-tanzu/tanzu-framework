@@ -10,7 +10,7 @@ import (
 	. "github.com/onsi/gomega"
 	awscreds "sigs.k8s.io/cluster-api-provider-aws/cmd/clusterawsadm/credentials"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/aws"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/aws"
 )
 
 func TestClient(t *testing.T) {

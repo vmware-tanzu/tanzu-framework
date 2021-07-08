@@ -13,8 +13,8 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/util/retry"
 
-	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/constants"
-	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/utils"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/utils"
 
 	"go.uber.org/zap"
 

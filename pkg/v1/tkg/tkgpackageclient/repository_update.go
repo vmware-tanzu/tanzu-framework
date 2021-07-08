@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 	k8serror "k8s.io/apimachinery/pkg/api/errors"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgpackagedatamodel"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
 func (p *pkgClient) UpdateRepository(o *tkgpackagedatamodel.RepositoryOptions) error {

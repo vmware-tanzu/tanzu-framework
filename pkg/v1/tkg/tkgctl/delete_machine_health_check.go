@@ -6,8 +6,8 @@ package tkgctl
 import (
 	"fmt"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/client"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 )
 
 // DeleteMachineHealthCheckOptions delete cluster options

@@ -9,7 +9,7 @@ import (
 
 	uexec "k8s.io/utils/exec"
 
-	"github.com/vmware-tanzu-private/core/addons/calico/test/lib/repo"
+	"github.com/vmware-tanzu/tanzu-framework/addons/calico/test/lib/repo"
 )
 
 // Command struct holds ytt command related information.

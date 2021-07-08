@@ -6,8 +6,8 @@ package plugin
 import (
 	"github.com/spf13/cobra"
 
-	cliv1alpha1 "github.com/vmware-tanzu-private/core/apis/cli/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
+	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 )
 
 func newRootCmd(descriptor *cliv1alpha1.PluginDescriptor) *cobra.Command {

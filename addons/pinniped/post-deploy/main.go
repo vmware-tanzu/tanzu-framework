@@ -15,8 +15,8 @@ import (
 	"k8s.io/client-go/kubernetes"
 	k8sconfig "sigs.k8s.io/controller-runtime/pkg/client/config"
 
-	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/configure"
-	"github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy/pkg/vars"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/configure"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/vars"
 )
 
 var (

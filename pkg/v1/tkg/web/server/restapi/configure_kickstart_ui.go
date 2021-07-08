@@ -13,13 +13,13 @@ import (
 	runtime "github.com/go-openapi/runtime"
 	middleware "github.com/go-openapi/runtime/middleware"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/restapi/operations"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/restapi/operations/aws"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/restapi/operations/features"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/restapi/operations/provider"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/restapi/operations/ui"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/restapi/operations/vsphere"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/aws"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/features"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/provider"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/ui"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/vsphere"
 )
 
 func configureFlags(api *operations.KickstartUIAPI) {

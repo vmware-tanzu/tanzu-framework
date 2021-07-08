@@ -14,8 +14,8 @@ import (
 	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
-	azureclient "github.com/vmware-tanzu-private/core/pkg/v1/tkg/azure"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
+	azureclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/azure"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 )
 
 // constants related to credentials

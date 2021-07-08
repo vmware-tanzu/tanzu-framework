@@ -6,7 +6,7 @@ package tkgctl
 import (
 	"sort"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/client"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
 )
 
 // ListTKGClustersOptions ptions passed while getting a list of TKG Clusters

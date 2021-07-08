@@ -13,7 +13,7 @@ import (
 
 	ldapApi "github.com/go-ldap/ldap/v3"
 
-	tkg_models "github.com/vmware-tanzu-private/core/pkg/v1/tkg/web/server/models"
+	tkg_models "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 )
 
 const (

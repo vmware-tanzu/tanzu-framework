@@ -5,7 +5,7 @@ package tkgconfigreaderwriter_test
 import (
 	"testing"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgconfigreaderwriter"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
 )
 
 func Test_New_Success(t *testing.T) {

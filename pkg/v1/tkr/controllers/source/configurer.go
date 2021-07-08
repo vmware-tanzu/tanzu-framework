@@ -13,7 +13,7 @@ import (
 	k8serr "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkr/pkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
 )
 
 const (

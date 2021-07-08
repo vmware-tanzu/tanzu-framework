@@ -21,8 +21,8 @@ import (
 	"github.com/spf13/pflag"
 	"gopkg.in/yaml.v2"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/cli"
-	encproto "github.com/vmware-tanzu-private/core/pkg/v1/encoding/proto"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
+	encproto "github.com/vmware-tanzu/tanzu-framework/pkg/v1/encoding/proto"
 )
 
 // Main holds state for multiple command tests.

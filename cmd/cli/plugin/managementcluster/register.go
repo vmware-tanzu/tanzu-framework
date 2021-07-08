@@ -6,9 +6,9 @@ package main
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/tkgctl"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 
-	"github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 )
 
 var registerCmd = &cobra.Command{

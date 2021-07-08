@@ -12,8 +12,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 
-	addonconstants "github.com/vmware-tanzu-private/core/addons/pkg/constants"
-	"github.com/vmware-tanzu-private/core/addons/pkg/util"
+	addonconstants "github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 )
 
 // processBomConfigMap returns true if configmap should be processed.

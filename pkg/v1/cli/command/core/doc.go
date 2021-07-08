@@ -13,9 +13,9 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
 
-	cliv1alpha1 "github.com/vmware-tanzu-private/core/apis/cli/v1alpha1"
-	cli "github.com/vmware-tanzu-private/core/pkg/v1/cli"
-	coreTemplates "github.com/vmware-tanzu-private/core/pkg/v1/cli/command/core/templates"
+	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	cli "github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
+	coreTemplates "github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/core/templates"
 )
 
 // DefaultDocsDir is the base docs directory

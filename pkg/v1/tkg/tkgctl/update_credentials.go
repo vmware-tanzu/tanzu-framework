@@ -6,8 +6,8 @@ package tkgctl
 import (
 	"time"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/client"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
 
 // UpdateCredentialsClusterOptions options that can be passed while updating cluster credentials

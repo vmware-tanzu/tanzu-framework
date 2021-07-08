@@ -6,8 +6,8 @@ package tkg
 import (
 	"context"
 
-	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	"github.com/vmware-tanzu-private/core/pkg/v1/discovery"
+	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/discovery"
 )
 
 // HasTanzuRunGroup checks if run.tanzu.vmware.com API group exists and optionally checks versions.

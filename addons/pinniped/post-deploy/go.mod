@@ -1,4 +1,4 @@
-module github.com/vmware-tanzu-private/core/addons/pinniped/post-deploy
+module github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy
 
 go 1.16
 

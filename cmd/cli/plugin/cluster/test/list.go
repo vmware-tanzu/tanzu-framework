@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	clitest "github.com/vmware-tanzu-private/core/pkg/v1/test/cli"
+	clitest "github.com/vmware-tanzu/tanzu-framework/pkg/v1/test/cli"
 )
 
 var listClusterTest = clitest.NewTest("list clusters", "cluster list -o json", func(t *clitest.Test) error {

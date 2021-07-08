@@ -12,7 +12,7 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/mod/semver"
 
-	cliv1alpha1 "github.com/vmware-tanzu-private/core/apis/cli/v1alpha1"
+	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 )
 
 // CoreName is the name of the core binary.

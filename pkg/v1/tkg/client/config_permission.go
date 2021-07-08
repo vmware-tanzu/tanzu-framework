@@ -6,9 +6,9 @@ package client
 import (
 	"os"
 
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/aws"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/aws"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 
 	"github.com/pkg/errors"
 

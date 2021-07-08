@@ -9,7 +9,7 @@ import (
 
 	"sigs.k8s.io/kind/pkg/log"
 
-	logt "github.com/vmware-tanzu-private/core/pkg/v1/tkg/log"
+	logt "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 )
 
 // NewLogger creates logger to retrieve kind cluster provider logs

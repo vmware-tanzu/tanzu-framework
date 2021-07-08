@@ -20,7 +20,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 
-	tkgauth "github.com/vmware-tanzu-private/core/pkg/v1/auth/tkg"
+	tkgauth "github.com/vmware-tanzu/tanzu-framework/pkg/v1/auth/tkg"
 )
 
 var testingDir string

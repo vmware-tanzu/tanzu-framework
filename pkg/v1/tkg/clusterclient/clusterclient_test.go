@@ -39,11 +39,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/fake" //nolint:staticcheck
 	"sigs.k8s.io/yaml"
 
-	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
-	. "github.com/vmware-tanzu-private/core/pkg/v1/tkg/clusterclient"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes"
-	fakehelper "github.com/vmware-tanzu-private/core/pkg/v1/tkg/fakes/helper"
+	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
+	fakehelper "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes/helper"
 )
 
 func TestClusterClient(t *testing.T) {

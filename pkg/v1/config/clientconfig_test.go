@@ -12,7 +12,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/require"
 
-	configv1alpha1 "github.com/vmware-tanzu-private/core/apis/config/v1alpha1"
+	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 )
 
 func cleanupDir(dir string) {

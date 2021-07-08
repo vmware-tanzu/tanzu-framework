@@ -18,7 +18,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	azure "github.com/vmware-tanzu-private/core/pkg/v1/tkg/azure/mocks"
+	azure "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/azure/mocks"
 )
 
 var (

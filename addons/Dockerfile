@@ -6,8 +6,8 @@ FROM mirror.gcr.io/library/golang:1.16 as builder
 
 WORKDIR /workspace
 
-ENV GOPRIVATE=github.com/vmware-tanzu-private/*
-ENV GONOSUMDB=github.com/vmware-tanzu-private/*
+ENV GOPRIVATE=github.com/vmware-tanzu/*
+ENV GONOSUMDB=github.com/vmware-tanzu/*
 
 ARG SSH_PRIVATE_KEY
 

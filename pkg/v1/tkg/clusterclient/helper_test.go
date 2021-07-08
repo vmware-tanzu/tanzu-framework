@@ -13,7 +13,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"sigs.k8s.io/yaml"
 
-	. "github.com/vmware-tanzu-private/core/pkg/v1/tkg/clusterclient"
+	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 )
 
 var _ = Describe("Cluster Client Helper", func() {

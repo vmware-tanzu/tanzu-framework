@@ -78,7 +78,7 @@ So if a user specified a `--worker-node-count` of 9 for a prod workload cluster,
 
 Workload clusters on plan DEV are unaffected by this change.
 
-These changes are dependent on this PR for spreading control plane nodes: https://github.com/vmware-tanzu-private/tkg-cli/pull/491
+These changes are dependent on this PR for spreading control plane nodes: https://github.com/vmware-tanzu/tkg-cli/pull/491
 
 ### Template changes required:
 - Set `failureDomain` property of `Machine` spec
