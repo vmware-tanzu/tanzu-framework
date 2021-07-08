@@ -37,13 +37,13 @@ func (r *CapabilityReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 	}
 
 	// Query GVRs.
-	capability.Status.Result.GroupVersionResources = r.queryGVRs(ctx, log, capability.Spec.Query.GroupVersionResources)
+	capability.Status.Results.GroupVersionResources = r.queryGVRs(ctx, log, capability.Spec.Queries.GroupVersionResources)
 
 	// Query Objects.
-	capability.Status.Result.Objects = r.queryObjects(ctx, log, capability.Spec.Query.Objects)
+	capability.Status.Results.Objects = r.queryObjects(ctx, log, capability.Spec.Queries.Objects)
 
 	// Query PartialSchemas.
-	capability.Status.Result.PartialSchemas = r.queryPartialSchemas(ctx, log, capability.Spec.Query.PartialSchemas)
+	capability.Status.Results.PartialSchemas = r.queryPartialSchemas(ctx, log, capability.Spec.Queries.PartialSchemas)
 
 	return ctrl.Result{}, r.Status().Update(ctx, capability)
 }
