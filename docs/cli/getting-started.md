@@ -46,9 +46,6 @@ Available command groups:
     builder                 Build Tanzu components 
     test                    Test the CLI 
         
-  Extra
-    joesay                  Stuff Joe says 
-        
   Run
     cluster                 Kubernetes cluster operations 
     kubernetes-release      Kubernetes release operations 
