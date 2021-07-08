@@ -4,7 +4,7 @@
 #@ load("tanzu-addons-manager_addon_data.lib.yaml", "tanzuaddonsmanagerdatavalues", "tanzuaddonsmanagerimageinfodatavalues")
 
 #@ if data.values.PROVIDER_TYPE != "tkg-service-vsphere":
-#@   tanzuAddonsManagerTemplatesImage = get_bom_data_for_tkr_name().components["tanzu_core_addons"][0].images.tanzuAddonsManagerTemplatesImage
+#@   tanzuAddonsManagerTemplatesImage = get_bom_data_for_tkr_name().components["tanzu-framework-addons"][0].images.tanzuAddonsManagerTemplatesImage
 #@ end
 
 #@ def tanzuaddonsmanagerappyaml():

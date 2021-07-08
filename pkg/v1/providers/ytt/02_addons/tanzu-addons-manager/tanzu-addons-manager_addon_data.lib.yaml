@@ -2,7 +2,7 @@
 #@ load("/lib/helpers.star", "get_bom_data_for_tkr_name", "tkg_image_repo")
 
 #@ if data.values.PROVIDER_TYPE != "tkg-service-vsphere":
-#@   tanzuAddonsManagerImage = get_bom_data_for_tkr_name().components["tanzu_core_addons"][0].images.tanzuAddonsManagerImage
+#@   tanzuAddonsManagerImage = get_bom_data_for_tkr_name().components["tanzu-framework-addons"][0].images.tanzuAddonsManagerImage
 #@ end
 
 #@ def tanzuaddonsmanagerdatavalues():
