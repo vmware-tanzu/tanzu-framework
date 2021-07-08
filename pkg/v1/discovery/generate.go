@@ -46,7 +46,7 @@ func QueryTargetsToCapabilityResource(queryTargets []QueryTarget) (*runv1alpha1.
 
 	capability := &runv1alpha1.Capability{
 		Spec: runv1alpha1.CapabilitySpec{
-			Query: runv1alpha1.Query{
+			Queries: runv1alpha1.Queries{
 				GroupVersionResources: gvrQueries,
 				Objects:               objectQueries,
 				PartialSchemas:        partialSchemaQueries,

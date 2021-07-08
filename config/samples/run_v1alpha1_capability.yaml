@@ -3,7 +3,7 @@ kind: Capability
 metadata:
   name: capability-sample
 spec:
-  query:
+  queries:
     groupVersionResources:
       - name: "gvrTKR"
         group: "run.tanzu.vmware.com"

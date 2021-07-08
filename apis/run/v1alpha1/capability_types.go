@@ -10,12 +10,12 @@ import (
 
 // CapabilitySpec defines the desired state of Capability
 type CapabilitySpec struct {
-	// Query specifies set of queries that are evaluated.
-	Query Query `json:"query"`
+	// Queries specifies set of queries that are evaluated.
+	Queries Queries `json:"queries"`
 }
 
-// Query specifies various forms of queries that is answered by the discovery package.
-type Query struct {
+// Queries specifies various forms of queries that is answered by the discovery package.
+type Queries struct {
 	// GroupVersionResources evaluates a slice of GVR queries.
 	// +listType=map
 	// +listMapKey=name
@@ -85,8 +85,8 @@ type QueryPartialSchema struct {
 
 // CapabilityStatus defines the observed state of Capability
 type CapabilityStatus struct {
-	// Result represents the results of all the queries specified in the spec.
-	Result Result `json:"result"`
+	// Results represents the results of all the queries specified in the spec.
+	Results Results `json:"results"`
 }
 
 // QueryResult represents the result of a single query.
@@ -106,8 +106,8 @@ type QueryResult struct {
 	ErrorDetail string `json:"errorDetail"`
 }
 
-// Result represents the results of queries in Query.
-type Result struct {
+// Results represents the results of queries in Queries.
+type Results struct {
 	// GroupVersionResources represents results of GVR queries in spec.
 	// +listType=map
 	// +listMapKey=name
