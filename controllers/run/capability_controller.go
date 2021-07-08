@@ -5,6 +5,7 @@ package controllers
 
 import (
 	"context"
+	"time"
 
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -14,6 +15,8 @@ import (
 	runv1alpha1 "github.com/vmware-tanzu-private/core/apis/run/v1alpha1"
 	"github.com/vmware-tanzu-private/core/pkg/v1/discovery"
 )
+
+const contextTimeout = 15 * time.Second
 
 // CapabilityReconciler reconciles a Capability object.
 type CapabilityReconciler struct {
@@ -28,7 +31,9 @@ type CapabilityReconciler struct {
 
 // Reconcile reconciles a Capability spec by executing specified queries.
 func (r *CapabilityReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	ctx := context.TODO()
+	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
+	defer cancel()
+
 	log := r.Log.WithValues("capability", req.NamespacedName)
 
 	capability := &runv1alpha1.Capability{}
@@ -37,22 +42,23 @@ func (r *CapabilityReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 	}
 
 	// Query GVRs.
-	capability.Status.Results.GroupVersionResources = r.queryGVRs(ctx, log, capability.Spec.Queries.GroupVersionResources)
+	capability.Status.Results.GroupVersionResources = r.queryGVRs(log, capability.Spec.Queries.GroupVersionResources)
 
 	// Query Objects.
-	capability.Status.Results.Objects = r.queryObjects(ctx, log, capability.Spec.Queries.Objects)
+	capability.Status.Results.Objects = r.queryObjects(log, capability.Spec.Queries.Objects)
 
 	// Query PartialSchemas.
-	capability.Status.Results.PartialSchemas = r.queryPartialSchemas(ctx, log, capability.Spec.Queries.PartialSchemas)
+	capability.Status.Results.PartialSchemas = r.queryPartialSchemas(log, capability.Spec.Queries.PartialSchemas)
 
 	return ctrl.Result{}, r.Status().Update(ctx, capability)
 }
 
 // queryGVRs executes GVR queries and returns results.
-func (r *CapabilityReconciler) queryGVRs(ctx context.Context, log logr.Logger, queries []runv1alpha1.QueryGVR) []runv1alpha1.QueryResult {
-	return r.executeQueries(ctx, log.WithValues("queryType", "GVR"), func() map[string]discovery.QueryTarget {
+func (r *CapabilityReconciler) queryGVRs(log logr.Logger, queries []runv1alpha1.QueryGVR) []runv1alpha1.QueryResult {
+	return r.executeQueries(log.WithValues("queryType", "GVR"), func() map[string]discovery.QueryTarget {
 		queryTargets := make(map[string]discovery.QueryTarget)
-		for _, q := range queries {
+		for i := range queries {
+			q := queries[i]
 			query := discovery.Group(q.Group).WithVersions(q.Versions...).WithResource(q.Resource)
 			queryTargets[q.Name] = query
 		}
@@ -61,10 +67,11 @@ func (r *CapabilityReconciler) queryGVRs(ctx context.Context, log logr.Logger, q
 }
 
 // queryObjects executes Object queries and returns results.
-func (r *CapabilityReconciler) queryObjects(ctx context.Context, log logr.Logger, queries []runv1alpha1.QueryObject) []runv1alpha1.QueryResult {
-	return r.executeQueries(ctx, log.WithValues("queryType", "Object"), func() map[string]discovery.QueryTarget {
+func (r *CapabilityReconciler) queryObjects(log logr.Logger, queries []runv1alpha1.QueryObject) []runv1alpha1.QueryResult {
+	return r.executeQueries(log.WithValues("queryType", "Object"), func() map[string]discovery.QueryTarget {
 		queryTargets := make(map[string]discovery.QueryTarget)
-		for _, q := range queries {
+		for i := range queries {
+			q := queries[i]
 			query := discovery.Object(&q.ObjectReference).WithAnnotations(q.WithAnnotations).WithoutAnnotations(q.WithoutAnnotations)
 			queryTargets[q.Name] = query
 		}
@@ -73,10 +80,11 @@ func (r *CapabilityReconciler) queryObjects(ctx context.Context, log logr.Logger
 }
 
 // queryPartialSchemas executes PartialSchema queries and returns results.
-func (r *CapabilityReconciler) queryPartialSchemas(ctx context.Context, log logr.Logger, queries []runv1alpha1.QueryPartialSchema) []runv1alpha1.QueryResult {
-	return r.executeQueries(ctx, log.WithValues("queryType", "PartialSchema"), func() map[string]discovery.QueryTarget {
+func (r *CapabilityReconciler) queryPartialSchemas(log logr.Logger, queries []runv1alpha1.QueryPartialSchema) []runv1alpha1.QueryResult {
+	return r.executeQueries(log.WithValues("queryType", "PartialSchema"), func() map[string]discovery.QueryTarget {
 		queryTargets := make(map[string]discovery.QueryTarget)
-		for _, q := range queries {
+		for i := range queries {
+			q := queries[i]
 			// TODO: why does Schema take a name?
 			query := discovery.Schema(q.Name, q.PartialSchema)
 			queryTargets[q.Name] = query
@@ -86,7 +94,7 @@ func (r *CapabilityReconciler) queryPartialSchemas(ctx context.Context, log logr
 }
 
 // executeQueries executes queries using the discovery client and stores results.
-func (r *CapabilityReconciler) executeQueries(ctx context.Context, log logr.Logger, specToQueryTargetFn func() map[string]discovery.QueryTarget) []runv1alpha1.QueryResult {
+func (r *CapabilityReconciler) executeQueries(log logr.Logger, specToQueryTargetFn func() map[string]discovery.QueryTarget) []runv1alpha1.QueryResult {
 	var results []runv1alpha1.QueryResult
 	queryTargetsMap := specToQueryTargetFn()
 	for name, queryTarget := range queryTargetsMap {

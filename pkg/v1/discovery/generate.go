@@ -1,3 +1,6 @@
+// Copyright 2021 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package discovery
 
 import (
@@ -19,7 +22,7 @@ func QueryTargetsToCapabilityResource(queryTargets []QueryTarget) (*runv1alpha1.
 		switch query := qt.(type) {
 		case *QueryGVR:
 			q := runv1alpha1.QueryGVR{
-				Name:     fmt.Sprintf("gvr-%d", rand.Int31()),
+				Name:     fmt.Sprintf("gvr-%d", rand.Int31()), //nolint:gosec
 				Group:    query.group,
 				Versions: query.versions,
 				Resource: query.resource,
@@ -27,7 +30,7 @@ func QueryTargetsToCapabilityResource(queryTargets []QueryTarget) (*runv1alpha1.
 			gvrQueries = append(gvrQueries, q)
 		case *QueryObject:
 			q := runv1alpha1.QueryObject{
-				Name:               fmt.Sprintf("object-%d", rand.Int31()),
+				Name:               fmt.Sprintf("object-%d", rand.Int31()), //nolint:gosec
 				ObjectReference:    *query.object,
 				WithAnnotations:    query.annotationsMap(true),
 				WithoutAnnotations: query.annotationsMap(false),
@@ -35,7 +38,7 @@ func QueryTargetsToCapabilityResource(queryTargets []QueryTarget) (*runv1alpha1.
 			objectQueries = append(objectQueries, q)
 		case *QueryPartialSchema:
 			q := runv1alpha1.QueryPartialSchema{
-				Name:          fmt.Sprintf("partialSchema-%d", rand.Int31()),
+				Name:          fmt.Sprintf("partialSchema-%d", rand.Int31()), //nolint:gosec
 				PartialSchema: query.schema,
 			}
 			partialSchemaQueries = append(partialSchemaQueries, q)
