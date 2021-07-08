@@ -36,8 +36,8 @@ spec:
         spec:
           description: Spec is the capability spec that has cluster queries.
           properties:
-            query:
-              description: Query specifies set of queries that are evaluated.
+            queries:
+              description: Queries specifies set of queries that are evaluated.
               properties:
                 groupVersionResources:
                   description: GroupVersionResources evaluates a slice of GVR queries.
@@ -167,14 +167,14 @@ spec:
                   x-kubernetes-list-type: map
               type: object
           required:
-          - query
+          - queries
           type: object
         status:
           description: Status is the capability status that has results of cluster
             queries.
           properties:
-            result:
-              description: Result represents the results of all the queries specified
+            results:
+              description: Results represents the results of all the queries specified
                 in the spec.
               properties:
                 groupVersionResources:
@@ -268,7 +268,7 @@ spec:
                   x-kubernetes-list-type: map
               type: object
           required:
-          - result
+          - results
           type: object
       type: object
   version: v1alpha1
