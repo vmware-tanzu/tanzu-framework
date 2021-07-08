@@ -109,15 +109,15 @@ func (c *client) CheckBOMsNeedUpdate() (bool, error) {
 }
 
 func getProviderTemplateImageFromBoM(tkgBomConfig *tkgconfigbom.BOMConfiguration) (*tkgconfigbom.ImageInfo, error) {
-	if _, exists := tkgBomConfig.Components["tanzu_core"]; !exists {
-		return nil, errors.New("unable to find tanzu_core component in TKG BoM file")
+	if _, exists := tkgBomConfig.Components["tanzu-framework"]; !exists {
+		return nil, errors.New("unable to find tanzu-framework component in TKG BoM file")
 	}
 
-	if _, exists := tkgBomConfig.Components["tanzu_core"][0].Images["providerTemplateImage"]; !exists {
+	if _, exists := tkgBomConfig.Components["tanzu-framework"][0].Images["providerTemplateImage"]; !exists {
 		return nil, errors.New("unable to find providerTemplateImage in TKG BoM file")
 	}
 
-	return tkgBomConfig.Components["tanzu_core"][0].Images["providerTemplateImage"], nil
+	return tkgBomConfig.Components["tanzu-framework"][0].Images["providerTemplateImage"], nil
 }
 
 func isSuppressProviderUpdateEnvSet() bool {
