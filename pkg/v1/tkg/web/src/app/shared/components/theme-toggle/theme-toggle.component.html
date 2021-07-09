@@ -1,0 +1,14 @@
+<div class="theme-select"
+    [attr.aria-label]="'switch color theme'"
+    (click)="switchTheme()"
+    [ngSwitch]="theme.name"
+    [ngClass]="theme.name">
+    <ng-container *ngSwitchCase="'light'">
+        <clr-icon shape="moon"></clr-icon>
+        Dark
+    </ng-container>
+    <ng-container *ngSwitchCase="'dark'">
+        <clr-icon shape="sun"></clr-icon>
+        Light
+    </ng-container>
+</div>

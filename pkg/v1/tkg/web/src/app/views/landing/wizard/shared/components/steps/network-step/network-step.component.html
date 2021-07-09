@@ -1,0 +1,308 @@
+<form [formGroup]="formGroup">
+    <div *ngIf="errorNotification" class="alert alert-danger" role="alert">
+        <div class="alert-items">
+            <div class="alert-item static">
+                <div class="alert-icon-wrapper">
+                    <clr-icon class="alert-icon" shape="exclamation-circle"></clr-icon>
+                </div>
+                <span class="alert-text">
+                    {{ errorNotification }}
+                </span>
+            </div>
+        </div>
+        <button (click)="errorNotification = null" type="button" class="close" aria-label="Close">
+            <clr-icon aria-hidden="true" shape="close"></clr-icon>
+        </button>
+    </div>
+    <h4 i18n="network step title" class="inline" aria-level="2">
+        Kubernetes Network Settings
+    </h4>
+    <span aria-live="assertive" *ngIf="enableNetworkName">
+        <button class="btn-refresh reset"
+                role="button"
+                aria-label="refresh network"
+                tabindex="0"
+                (click)="loadVSphereNetworks()">
+                <clr-icon
+                    *ngIf="!loadingNetworks"
+                    shape="refresh"
+                    aria-label="network loaded"
+                >
+                </clr-icon>
+        </button>
+        <span aria-label="loading resources"
+            *ngIf="loadingNetworks"
+            class="spinner spinner-sm">
+        </span>
+    </span>
+    <h5 i18n="network cni provider" aria-level="3">
+        CNI Provider: {{getCniTypeLabel()}}
+    </h5>
+    <div class="clr-row">
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *ngIf="enableNetworkName">
+            <div
+                    [attr.data-step-metadata]="formName"
+                    data-name="networkName"
+                    data-label="network name">
+                <clr-datalist-container>
+                    <label i18n="network label" class="clr-col-lg-12 clr-col-12">
+                        NETWORK NAME
+                        <clr-tooltip>
+                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                        <span>
+                            Select a vSphere network to use as the Kubernetes service network.
+                        </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                    <input clrDatalistInput name="networkName" formControlName="networkName" />
+                    <datalist id="networkName">
+                        <option *ngFor="let vmNetwork of vmNetworks" [value]="vmNetwork?.name"></option>
+                    </datalist>
+                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                </clr-datalist-container>
+                <clr-control-error *ngIf="showFormError('networkName')">
+                    Selecting a VM network is required
+                </clr-control-error>
+            </div>
+        </div>
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *ngIf="cniType == 'antrea'">
+            <clr-input-container [attr.data-step-metadata]="formName">
+                <label i18n="cluster service cidr label" clr-control-label>
+                    CLUSTER SERVICE CIDR
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                If the recommended CIDR range of 100.64.0.0/13 is unavailable,
+                                enter a different CIDR range to use for the Kubernetes services.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <input clrInput formControlName="clusterServiceCidr" placeholder="xxx.xxx.xxx.xxx/xx" />
+                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+                <clr-control-error i18n="cluster service cidr required msg" *clrIfError="validatorEnum.REQUIRED">
+                    Cluster Service CIDR cannot be empty
+                </clr-control-error>
+                <clr-control-error i18n="cluster service cidr required msg" *clrIfError="validatorEnum.VALID_IP">
+                    Cluster Service CIDR format is invalid
+                </clr-control-error>
+                <clr-control-error i18n="cluster service cidr required msg" *clrIfError="validatorEnum.NETWORKING_IP_UNIQUE">
+                    Cluster Service CIDR must be unique
+                </clr-control-error>
+            </clr-input-container>
+        </div>
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *ngIf="cniType == 'antrea' || cniType == 'calico'">
+            <clr-input-container [attr.data-step-metadata]="formName">
+                <label i18n="cluster pod cidr label" clr-control-label>
+                    CLUSTER POD CIDR
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                If the recommended CIDR range of 192.168.0.0/16 is unavailable,
+                                enter a different CIDR range to use for pods.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <input clrInput formControlName="clusterPodCidr" placeholder="xxx.xxx.xxx.xxx/xx" />
+                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+                <clr-control-error i18n="cluster pod cidr required msg" *clrIfError="validatorEnum.REQUIRED">
+                    Cluster POD CIDR cannot be empty
+                </clr-control-error>
+                <clr-control-error i18n="cluster pod cidr invalid msg" *clrIfError="validatorEnum.VALID_IP">
+                    Cluster POD CIDR format is invalid
+                </clr-control-error>
+            </clr-input-container>
+        </div>
+    </div>
+    <h4 i18n="Proxy Settings" class="sub-title" aria-level="2">
+        Proxy Settings
+    </h4>
+    <div class="clr-row">
+        <div class="clr-col-12">
+            <clr-toggle-container [attr.data-step-metadata]="formName">
+                <clr-toggle-wrapper>
+                    <input type="checkbox" clrToggle name="proxySettings" formControlName="proxySettings" (change)="toggleProxySetting()"/>
+                    <label>Enable Proxy Settings</label>
+                </clr-toggle-wrapper>
+            </clr-toggle-container>
+        </div>
+    </div>
+    <ng-container *ngIf="formGroup.value['proxySettings']">
+        <div class="clr-row">
+            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                <clr-input-container [attr.data-step-metadata]="formName">
+                    <label i18n="http proxy url label" clr-control-label>
+                        HTTP PROXY URL
+                        <clr-tooltip>
+                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                <span>
+                                    HTTP proxy URL to be configured globally in the {{ clusterType }} cluster for accessing infrastructure
+                                    deployed behind the proxy.
+                                </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                    <input clrInput name="httpProxyUrl" formControlName="httpProxyUrl" placeholder="http://exampleUrl" />
+                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                    <clr-control-error i18n="http proxy url required msg" *clrIfError="validatorEnum.REQUIRED">
+                        Http proxy url cannot be empty
+                    </clr-control-error>
+                    <clr-control-error i18n="http(s) required msg" *clrIfError="validatorEnum.HTTP_OR_HTTPS">
+                        http:// prefix is missing
+                    </clr-control-error>
+                </clr-input-container>
+            </div>
+        </div>
+        <div class="clr-row">
+            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                <clr-input-container [attr.data-step-metadata]="formName">
+                    <label i18n="http proxy username label" clr-control-label>
+                        HTTP PROXY USERNAME (OPTIONAL)
+                        <clr-tooltip>
+                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                <span>
+                                    HTTP proxy username.
+                                </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                    <input clrInput name="httpProxyUsername" formControlName="httpProxyUsername" placeholder="Username" />
+                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                </clr-input-container>
+            </div>
+            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                <clr-password-container [attr.data-step-metadata]="formName">
+                    <label i18n="http proxy password label" clr-control-label>
+                        HTTP PROXY PASSWORD (OPTIONAL)
+                        <clr-tooltip>
+                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                <span>
+                                    HTTP proxy password.
+                                </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                    <input clrPassword name="httpProxyPassword" formControlName="httpProxyPassword" placeholder="Password" />
+                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                </clr-password-container>
+            </div>
+        </div>
+        <div class="clr-row">
+            <div class="clr-col-12">
+                <div class="checkbox-wrapper" [attr.data-step-metadata]="formName">
+                    <clr-checkbox-wrapper>
+                        <input type="checkbox" clrCheckbox name="isSameAsHttp" formControlName="isSameAsHttp" (change)="toggleProxySetting()"/>
+                        <label>Use same configuration for https proxy</label>
+                    </clr-checkbox-wrapper>
+                </div>
+            </div>
+        </div>
+        <div class="clr-row" *ngIf="!formGroup.value.isSameAsHttp">
+            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                <clr-input-container [attr.data-step-metadata]="formName">
+                    <label i18n="http proxy url label" clr-control-label>
+                        HTTPS PROXY URL
+                        <clr-tooltip>
+                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                <span>
+                                    HTTPS proxy URL to be configured globally in the {{ clusterType }} cluster for accessing infrastructure
+                                    deployed behind the proxy.
+                                </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                    <input clrInput name="httpsProxyUrl" formControlName="httpsProxyUrl" placeholder="http://exampleUrl" />
+                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                    <clr-control-error i18n="http proxy url required msg" *clrIfError="validatorEnum.REQUIRED">
+                        Https proxy url cannot be empty
+                    </clr-control-error>
+                    <clr-control-error i18n="http(s) required msg" *clrIfError="validatorEnum.HTTP_OR_HTTPS">
+                        http:// or https:// prefix is missing
+                    </clr-control-error>
+                </clr-input-container>
+            </div>
+        </div>
+        <div class="clr-row" *ngIf="!formGroup.value.isSameAsHttp">
+            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                <clr-input-container [attr.data-step-metadata]="formName">
+                    <label i18n="https proxy username label" clr-control-label>
+                        HTTPS PROXY USERNAME (OPTIONAL)
+                        <clr-tooltip>
+                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                <span>
+                                    HTTPS proxy username.
+                                </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                    <input clrInput name="httpsProxyUsername" formControlName="httpsProxyUsername" placeholder="Username" />
+                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                </clr-input-container>
+            </div>
+            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                <clr-password-container [attr.data-step-metadata]="formName">
+                    <label i18n="https proxy password label" clr-control-label>
+                        HTTPS PROXY PASSWORD (OPTIONAL)
+                        <clr-tooltip>
+                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                <span>
+                                    HTTPS proxy password.
+                                </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                    <input clrPassword name="httpsProxyPassword" formControlName="httpsProxyPassword" placeholder="Password" />
+                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                </clr-password-container>
+            </div>
+        </div>
+        <div class="clr-row">
+            <div class="clr-col-4">
+                <clr-input-container [attr.data-step-metadata]="formName" class="word-break">
+                    <label i18n="no proxy label" clr-control-label>
+                        NO PROXY (OPTIONAL)
+                        <clr-tooltip>
+                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                <span *ngIf="!enableNetworkName">
+                                    A comma separated list of network CIDRs or host names. Example: noproxy.yourdomain.com,192.168.0.0/24.
+                                </span>
+                                <span *ngIf="enableNetworkName">
+                                    A comma separated list of network CIDRs or host names. Example: noproxy.yourdomain.com,192.168.0.0/24.
+                                    It is recommended that you enter the VM CIDR range for the VM network selected above.
+                                    Failing to do so will result in traffic between api-server and kubelet being forwarded
+                                    to the proxy, impacting kubectl log commands.
+                                </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                    <input clrInput name="noProxy" formControlName="noProxy" placeholder="" />
+                    <clr-control-helper *ngIf="fullNoProxy">
+                        <div class="title">FULL NO PROXY LIST</div>
+                        {{fullNoProxy}}
+                    </clr-control-helper>
+                </clr-input-container>
+            </div>
+        </div>
+    </ng-container>
+</form>

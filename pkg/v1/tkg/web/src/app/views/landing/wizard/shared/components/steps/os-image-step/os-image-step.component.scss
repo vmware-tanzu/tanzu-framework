@@ -1,0 +1,26 @@
+.os-image {
+    display: inline-block;
+}
+
+.refresh-btn {
+    cursor: pointer;
+    display: inline-block;
+    height: 100%;
+    vertical-align: top;
+    color: #0072a3;
+    position: relative;
+    top: 48px;
+    
+    &.reset {
+        background: none;
+        border: none;
+        padding: 0;
+        font: inherit;
+        cursor: pointer;
+        outline: inherit;
+    }
+}
+
+.hidden {
+    visibility: hidden;
+}

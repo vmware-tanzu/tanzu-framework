@@ -1,0 +1,28 @@
+<form [formGroup]="formGroup">
+    <p>
+        VMware's Customer Experience Improvement Program ("CEIP") provides VMware with information that
+        enables VMware to improve its products and services and fix problems. By choosing to participate
+        in CEIP, you agree that VMware may collect technical information about your use of VMware
+        products and services on a regular basis. This information does not personally identify you.
+    </p>
+    <p>
+        For more details about the Program, please see
+        <a href="http://www.vmware.com/trustvmware/ceip.html" target="_blank">
+            http://www.vmware.com/trustvmware/ceip.html
+        </a>
+    </p>
+    <div class="clr-row">
+        <div class="clr-col-12">
+            <div>
+                <clr-checkbox-container [attr.data-step-metadata]="formName">
+                    <clr-checkbox-wrapper>
+                        <input type="checkbox" clrCheckbox value="true" name="ceipOptIn" formControlName="ceipOptIn"/>
+                        <label clr-control-label data-full="CEIP OPT-IN">
+                            Participate in the Customer Experience Improvement Program
+                        </label>
+                    </clr-checkbox-wrapper>
+                </clr-checkbox-container>
+            </div>
+        </div>
+    </div>
+</form>

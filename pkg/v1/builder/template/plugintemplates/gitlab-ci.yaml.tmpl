@@ -1,0 +1,20 @@
+buildpush:
+  only:
+    - master
+stage: deploy
+image: golang:1.16.0
+script:
+  # Note: this is all one step because the artifacts were too large to copy over.
+  - make
+
+  # Download and install Google Cloud SDK
+  - wget https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz
+  - tar zxvf google-cloud-sdk.tar.gz && ./google-cloud-sdk/install.sh --usage-reporting=false --path-update=true
+  - PATH="google-cloud-sdk/bin:${PATH}"
+  - gcloud --quiet components update
+
+  - echo $GCP_BUCKET_SA > ${HOME}/gcloud-service-key.json
+  - gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
+  - gcloud config set project $GCP_PROJECT_ID
+
+  - gsutil -m cp -R artifacts gs://{{ .RepositoryName }}

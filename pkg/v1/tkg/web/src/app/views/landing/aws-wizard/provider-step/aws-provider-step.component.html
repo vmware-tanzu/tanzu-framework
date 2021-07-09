@@ -1,0 +1,177 @@
+<form [formGroup]="formGroup">
+    <app-step-form-notification [errorNotification]="errorNotification"></app-step-form-notification>
+
+    <div class="clr-row">
+        <div class="clr-col-8">
+            <clr-radio-container clrInline>
+                <label>
+                    AWS CREDENTIAL TYPE
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                Choose Static Credentials to enter AWS account credentials directly in the Access Key ID
+                                and Secret Access Key fields for your Amazon EC2 account. Choose Credential Profile to
+                                select an already existing AWS credential profile.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <clr-radio-wrapper>
+                    <input
+                        type="radio"
+                        name="authType"
+                        clrRadio
+                        value="staticCredentials"
+                        formControlName="authType">
+                    <label>
+                        Static Credentials
+                    </label>
+                </clr-radio-wrapper>
+                <clr-radio-wrapper>
+                    <input
+                        type="radio"
+                        name="authType"
+                        clrRadio
+                        value="credentialProfile"
+                        formControlName="authType">
+                    <label>
+                        Credential Profile
+                    </label>
+                </clr-radio-wrapper>
+            </clr-radio-container>
+        </div>
+    </div>
+    <ng-container *ngIf="authTypeValue==='staticCredentials'">
+        <p>
+            Enter AWS account credentials directly in the Access Key ID and Secret Access Key fields for your
+            Amazon EC2 account. Optionally specify an AWS session token in Session Token if your AWS account is
+            configured to require temporary credentials. If Access Key ID and Secret Access Key are left blank,
+            credentials will be obtained via the Default Credential Provider Chain.
+        </p>
+        <div class="clr-row">
+            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                <clr-password-container [attr.data-step-metadata]="formName">
+                    <label i18n="aws access key id label" clr-control-label>
+                        ACCESS KEY ID (OPTIONAL)
+                        <clr-tooltip>
+                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                <span>
+                                    Optional access key ID for your AWS account.
+                                </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                    <input clrPassword formControlName="accessKeyID" placeholder="access key ID"/>
+                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                </clr-password-container>
+            </div>
+            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                <clr-password-container [attr.data-step-metadata]="formName">
+                    <label i18n="aws secret access key label" clr-control-label>
+                        SECRET ACCESS KEY (OPTIONAL)
+                        <clr-tooltip>
+                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                <span>
+                                    Optional secret access key for your AWS account.
+                                </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                    <input clrPassword formControlName="secretAccessKey" placeholder="access key"/>
+                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                </clr-password-container>
+            </div>
+            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                <clr-input-container [attr.data-step-metadata]="formName">
+                    <label i18n="aws session token label" clr-control-label>
+                        SESSION TOKEN (OPTIONAL)
+                        <clr-tooltip>
+                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
+                                <span>
+                                    Optionally specify an AWS Session Token
+                                </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                    <input clrInput formControlName="sessionToken" placeholder="session token"/>
+                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                </clr-input-container>
+            </div>
+        </div>
+    </ng-container>
+
+    <ng-container *ngIf="authTypeValue==='credentialProfile'">
+        <p>
+            Select an already existing AWS credential profile. If you select a profile, the access key and session token
+            information configured for your profile are passed to the installer without displaying actual values in the UI.
+        </p>
+        <div class="clr-row">
+            <div class="clr-col-4">
+                <clr-select-container [attr.data-step-metadata]="formName">
+                    <label i18n="aws credential profile label">
+                        AWS CREDENTIAL PROFILE
+                        <clr-tooltip>
+                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                <span>
+                                    AWS Credential Profiles are loaded from your environment by the default credential
+                                    provider chain.
+                                </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                    <select clrSelect name="profileName" formControlName="profileName">
+                        <option aria-label="blank" title="blank"></option>
+                        <option *ngFor="let profile of profileNames" [value]="profile">{{profile}}</option>
+                    </select>
+                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                </clr-select-container>
+            </div>
+        </div>
+    </ng-container>
+
+        <div class="clr-row">
+            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                <clr-select-container [attr.data-step-metadata]="formName">
+                    <label i18n="aws region label">
+                        REGION
+                        <clr-tooltip>
+                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                Select an AWS region for your {{ clusterType }} cluster.
+                            </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                    <select clrSelect name="region" formControlName="region">
+                        <option aria-label="blank" title="blank"></option>
+                        <option *ngFor="let region of regions" [value]="region">{{ region }}</option>
+                    </select>
+                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                    <clr-control-error i18n="AWS region required msg" *clrIfError="validatorEnum.REQUIRED">
+                        A region must be selected
+                    </clr-control-error>
+                </clr-select-container>
+            </div>
+
+        </div>
+
+    <div class="clr-row">
+        <div class="clr-col-4" aria-live="assertive">
+            <button [disabled]="isConnectDisabled() || validCredentials" (click)="verifyCredentails()"
+                i18n="connect btn" class="btn btn-primary btn-connect">
+                {{ validCredentials ? "CONNECTED" : "CONNECT" }}
+            </button>
+        </div>
+    </div>
+</form>

@@ -1,0 +1,67 @@
+[header-bar-root] {
+    .branding {
+        cursor: pointer;
+    }
+
+    .title {
+        font-size: 18px;
+        font-family: Metropolis, Avenir Next, Helvetica Neue, Arial,sans-serif;
+    }
+
+    .trademark {
+        padding-left: 3px;
+        font-family: Metropolis, Avenir Next, Helvetica Neue, Arial,sans-serif;
+    }
+
+    .mr4 {
+        margin-right: 4px;
+    }
+
+    clr-icon {
+        height: 24px;
+        width: 24px;
+    }
+
+    .logo-24 {
+        margin-right: 10px;
+    }
+
+    clr-dropdown-menu {
+        z-index: 1050;
+    }
+
+    .header {
+        position: relative;
+        z-index: 2000;
+
+        .header-actions {
+            .btn {
+                align-self: center;
+                margin-right: 2em;
+                background-color: #90c9df;
+                color: #00364d;
+            }
+        }
+    }
+}
+
+// spinner overlay customizations
+.spinner-overlay {
+    height: 100%;
+    width: 100%;
+    z-index: 1050;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: #FAFAFA;
+    opacity: 0.5;
+    text-align: center;
+
+    .spinner {
+        position: relative;
+        top: 50%;
+        -webkit-transform: translateY(-50%);
+        -ms-transform: translateY(-50%);
+        transform: translateY(-50%);
+    }
+}

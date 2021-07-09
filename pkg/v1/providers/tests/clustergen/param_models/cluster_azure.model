@@ -1,0 +1,157 @@
+--CONTROLPLANE-MACHINE-COUNT: "NOTPROVIDED", "1","3","5"
+--WORKER-MACHINE-COUNT:       "NOTPROVIDED", "3"
+--CONTROLPLANE-SIZE:          "NOTPROVIDED", "i3.xlarge"
+--TKR:                        "NOTPROVIDED", "v1.20.5---vmware.1-tkg.1-zlatest", "v0.0.0+no-azure-image", "v0.0.0+marketplace-image", "v0.0.0+marketplace-image-no-thirdpartyimage", "v0.0.0+shared-gallery-image"
+--NAMESPACE:                  "NOTPROVIDED", "default", "test"
+--SIZE:                       "NOTPROVIDED", "t3.medium"
+--WORKER-SIZE:                "NOTPROVIDED", "m5.xlarge"
+--CNI:                        "''", "antrea", "calico", "none"
+
+CONTROL_PLANE_MACHINE_COUNT: "NA","1","3","5"
+WORKER_MACHINE_COUNT: "NA","1","3","5"
+
+_CNAME: "testcluster"
+_PLAN: "dev", "prod"
+_INFRA: "azure:v0.4.15"
+
+NODE_STARTUP_TIMEOUT: "20m"
+
+CLUSTER_CIDR: "100.96.0.0/11", "10.10.10.10/18"
+SERVICE_CIDR: "100.64.0.0/18", "10.10.10.10/16"
+NAMESPACE: "NA", "default", "test", "namespace with spaces"
+
+AZURE_LOCATION: "eastus", "westus"
+AZURE_SUBSCRIPTION_ID: "6c2a2ce1-649f-9d9k-a19c-c729h3cf6126"
+AZURE_TENANT_ID: "b39138ca-7jk2-4b4a-a4d6-cd8hjliyd62f0"
+AZURE_CLIENT_ID: "<encoded:ZTc5ZjM1M2MtZWQ3Ny00YjljLWIyMTgtOTA5NTEzZTJlZmMz>"
+AZURE_CLIENT_SECRET: "<encoded:NkR+Wlp4dEpOQU9ZOV9rY0FHVVJoUzlwMHBMSE83dS0udw==>"
+AZURE_ENVIRONMENT: "AzurePublicCloud"
+
+AZURE_SSH_PUBLIC_KEY_B64: "c3NoLXJzYSBB", "c3NoLXJzYSBC"
+AZURE_CONTROL_PLANE_MACHINE_TYPE: "Standard_B2s", "Standard_Dv2s"
+AZURE_NODE_MACHINE_TYPE: "Standard_B2s", "Standard_Dv2s"
+
+AZURE_ENABLE_ACCELERATED_NETWORKING: "NA", "true", "false"
+
+AZURE_RESOURCE_GROUP: "NA", "azure-resource-group"
+AZURE_VNET_RESOURCE_GROUP: "NA", "azure-vnet-resource-group"
+AZURE_VNET_NAME: "NA", "azure-vnet-name"
+AZURE_VNET_CIDR: "NA", "10.0.0.0/8"
+AZURE_CONTROL_PLANE_SUBNET_NAME: "NA", "azure-control-plane-subnet"
+AZURE_CONTROL_PLANE_SUBNET_CIDR: "NA", "10.0.0.0/16"
+AZURE_NODE_SUBNET_NAME: "NA", "azure-node-subnet"
+AZURE_NODE_SUBNET_CIDR: "NA", "10.1.0.0/16"
+
+# Azure VM Image configuration
+AZURE_IMAGE_RESOURCE_GROUP: "NA", "image_resource_group"
+AZURE_IMAGE_NAME: "NA", "image_name"
+AZURE_IMAGE_SUBSCRIPTION_ID: "NA", "image_subscription_id"
+AZURE_IMAGE_GALLERY: "NA", "image_gallery"
+
+AZURE_IMAGE_PUBLISHER: "NA", "image_publisher"
+AZURE_IMAGE_OFFER: "NA", "image_offer"
+AZURE_IMAGE_SKU: "NA", "image_sku"
+AZURE_IMAGE_THIRD_PARTY: "NA", "true", "false"
+
+AZURE_IMAGE_VERSION: "NA", "image_version"
+
+AZURE_IMAGE_ID: "NA", "image_id"
+
+AZURE_VM_IMAGE: "NA", "BYOI", "MARKETPLACE", "IMAGE_ID"
+
+AZURE_NODE_AZ: "1"
+AZURE_NODE_AZ_1: "NA", "2"
+AZURE_NODE_AZ_2: "NA", "3"
+
+WORKER_MACHINE_COUNT_0: "NA", "1", "2"
+WORKER_MACHINE_COUNT_1: "NA", "1", "2"
+WORKER_MACHINE_COUNT_2: "NA", "1", "2"
+
+AZURE_CUSTOM_TAGS: "NA", "tagKey=tagValue", "tagKey1=tagValue2"
+
+AZURE_ENABLE_PRIVATE_CLUSTER: "NA", "true", "false"
+AZURE_FRONTEND_PRIVATE_IP: "NA", "20.20.20.20"
+
+AZURE_CONTROL_PLANE_OS_DISK_SIZE: "NA", "128", "256"
+AZURE_CONTROL_PLANE_OS_DISK_STORAGE_ACCOUNT_TYPE: "NA", "Premium_LRS"
+AZURE_NODE_OS_DISK_SIZE: "NA", "128", "256"
+AZURE_NODE_OS_DISK_STORAGE_ACCOUNT_TYPE: "NA", "Premium_LRS"
+
+AZURE_CONTROL_PLANE_DATA_DISK_SIZE: "NA", "256", "512"
+AZURE_ENABLE_NODE_DATA_DISK: "NA", "true", "false"
+AZURE_NODE_DATA_DISK_SIZE: "NA", "256", "512"
+
+AZURE_CONTROL_PLANE_SUBNET_SECURITY_GROUP: "NA", "SecurityGroup"
+AZURE_NODE_SUBNET_SECURITY_GROUP: "NA", "SecurityGroup"
+
+OS_NAME:  "NA", "photon", "ubuntu"
+OS_VERSION:  "NA", "20.04", "3"
+IF [OS_NAME] = "\"NA\"" THEN [OS_VERSION] = "\"NA\"";
+IF [--TKR] <> "\"v1.20.5---vmware.1-tkg.1-zlatest\"" THEN [OS_NAME] = "\"NA\"";
+IF [--TKR] <> "\"v1.20.5---vmware.1-tkg.1-zlatest\"" THEN [OS_VERSION] = "\"NA\"";
+IF [OS_NAME] = "\"NA\"" THEN [OS_VERSION] = "\"NA\"";
+IF [OS_NAME] = "\"photon\"" THEN [OS_VERSION] = "\"3\"";
+
+
+# Azure VM Image info in BOM
+IF [AZURE_VM_IMAGE] = "\"NA\"" THEN [AZURE_IMAGE_RESOURCE_GROUP] = "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"NA\"" THEN [AZURE_IMAGE_NAME] = "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"NA\"" THEN [AZURE_IMAGE_SUBSCRIPTION_ID] = "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"NA\"" THEN [AZURE_IMAGE_GALLERY] = "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"NA\"" THEN [AZURE_IMAGE_PUBLISHER] = "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"NA\"" THEN [AZURE_IMAGE_SKU] = "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"NA\"" THEN [AZURE_IMAGE_THIRD_PARTY] = "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"NA\"" THEN [AZURE_IMAGE_OFFER] = "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"NA\"" THEN [AZURE_IMAGE_VERSION] = "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"NA\"" THEN [AZURE_IMAGE_ID] = "\"NA\"";
+
+# Azure VM Image(Marketplace) info in config
+IF [AZURE_VM_IMAGE] = "\"BYOI\"" THEN [AZURE_IMAGE_RESOURCE_GROUP] <> "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"BYOI\"" THEN [AZURE_IMAGE_NAME] <> "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"BYOI\"" THEN [AZURE_IMAGE_SUBSCRIPTION_ID] <> "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"BYOI\"" THEN [AZURE_IMAGE_GALLERY] <> "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"BYOI\"" THEN [AZURE_IMAGE_PUBLISHER] = "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"BYOI\"" THEN [AZURE_IMAGE_SKU] = "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"BYOI\"" THEN [AZURE_IMAGE_THIRD_PARTY] = "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"BYOI\"" THEN [AZURE_IMAGE_OFFER] = "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"BYOI\"" THEN [AZURE_IMAGE_ID] = "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"BYOI\"" THEN [AZURE_IMAGE_VERSION] <> "\"NA\"";
+
+# Azure VM Image(Shared image gallery) info in config
+IF [AZURE_VM_IMAGE] = "\"MARKETPLACE\"" THEN [AZURE_IMAGE_RESOURCE_GROUP] = "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"MARKETPLACE\"" THEN [AZURE_IMAGE_NAME] = "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"MARKETPLACE\"" THEN [AZURE_IMAGE_SUBSCRIPTION_ID] = "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"MARKETPLACE\"" THEN [AZURE_IMAGE_GALLERY] = "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"MARKETPLACE\"" THEN [AZURE_IMAGE_PUBLISHER] <> "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"MARKETPLACE\"" THEN [AZURE_IMAGE_SKU] <> "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"MARKETPLACE\"" THEN [AZURE_IMAGE_THIRD_PARTY] <> "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"MARKETPLACE\"" THEN [AZURE_IMAGE_OFFER] <> "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"MARKETPLACE\"" THEN [AZURE_IMAGE_VERSION] <> "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"MARKETPLACE\"" THEN [AZURE_IMAGE_ID] = "\"NA\"";
+
+# Azure image ID
+IF [AZURE_VM_IMAGE] = "\"IMAGE_ID\"" THEN [AZURE_IMAGE_RESOURCE_GROUP] = "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"IMAGE_ID\"" THEN [AZURE_IMAGE_NAME] = "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"IMAGE_ID\"" THEN [AZURE_IMAGE_SUBSCRIPTION_ID] = "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"IMAGE_ID\"" THEN [AZURE_IMAGE_GALLERY] = "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"IMAGE_ID\"" THEN [AZURE_IMAGE_PUBLISHER] = "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"IMAGE_ID\"" THEN [AZURE_IMAGE_SKU] = "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"IMAGE_ID\"" THEN [AZURE_IMAGE_THIRD_PARTY] = "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"IMAGE_ID\"" THEN [AZURE_IMAGE_OFFER] = "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"IMAGE_ID\"" THEN [AZURE_IMAGE_VERSION] = "\"NA\"";
+IF [AZURE_VM_IMAGE] = "\"IMAGE_ID\"" THEN [AZURE_IMAGE_ID] <> "\"NA\"";
+
+# if plan is prod
+IF [_PLAN] = "\"prod\"" THEN [AZURE_NODE_AZ_1] <> "\"NA\"";
+IF [_PLAN] = "\"prod\"" THEN [AZURE_NODE_AZ_2] <> "\"NA\"";
+IF [_PLAN] = "\"prod\"" AND [WORKER_MACHINE_COUNT_0] = "\"NA\"" THEN [WORKER_MACHINE_COUNT_1] = "\"NA\"";
+IF [_PLAN] = "\"prod\"" AND [WORKER_MACHINE_COUNT_0] = "\"NA\"" THEN [WORKER_MACHINE_COUNT_2] = "\"NA\"";
+IF [_PLAN] = "\"prod\"" AND [WORKER_MACHINE_COUNT_0] <> "\"NA\"" THEN [WORKER_MACHINE_COUNT_1] <> "\"NA\"";
+IF [_PLAN] = "\"prod\"" AND [WORKER_MACHINE_COUNT_0] <> "\"NA\"" THEN [WORKER_MACHINE_COUNT_2] <> "\"NA\"";
+
+# if plan is dev
+IF [_PLAN] = "\"dev\"" THEN [AZURE_NODE_AZ_1] = "\"NA\"";
+IF [_PLAN] = "\"dev\"" THEN [AZURE_NODE_AZ_2] = "\"NA\"";
+IF [_PLAN] = "\"dev\"" THEN [WORKER_MACHINE_COUNT_0] = "\"NA\"";
+IF [_PLAN] = "\"dev\"" THEN [WORKER_MACHINE_COUNT_1] = "\"NA\"";
+IF [_PLAN] = "\"dev\"" THEN [WORKER_MACHINE_COUNT_2] = "\"NA\"";

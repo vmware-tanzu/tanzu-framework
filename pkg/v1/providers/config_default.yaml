@@ -1,0 +1,533 @@
+#@data/values
+
+#@overlay/match-child-defaults missing_ok=True
+---
+
+#! ---------------------------------------------------------------------
+#! List of variables used in cluster configuration and their default
+#! values, where available. It is recommended that overrides to any of
+#! these values be done is the cluster configuration file instead.
+#! ---------------------------------------------------------------------
+
+
+
+#! ---------------------------------------------------------------------
+#! Cluster creation basic configuration
+#! ---------------------------------------------------------------------
+#! Cluster name to use when deploying cluster.
+#! CLUSTER_NAME is required while creating workload cluster
+CLUSTER_NAME:
+#! Plan to use when creating cluster. Supported values 'dev', 'prod'
+CLUSTER_PLAN:
+#! Namespace to use to deploy workload cluster
+#! if not provided `default` namespace will be used for workload cluster
+NAMESPACE:
+#! Supported infrastructure provider values are 'vsphere', 'aws', 'azure'
+#! INFRASTRUCTURE_PROVIDER is required while creating management cluster
+INFRASTRUCTURE_PROVIDER:
+
+#! Instance size configuration
+#! Instance size options available for vSphere are as follows:
+#!   vSphere: [extra-large,large,medium,small]
+
+#! Specify size for all nodes including control plane and worker nodes.
+#! It can be overridden by CONTROLPLANE_SIZE and WORKER_SIZE config variables
+SIZE:
+#! Specify size for the control plane node
+CONTROLPLANE_SIZE:
+#! Specify size of the worker node
+WORKER_SIZE:
+
+#! Management cluster creation specific configuration, does not apply to workload clusters
+
+#! VMware's Customer Experience Improvement Program ("CEIP") provides VMware with information that enables
+#! VMware to improve its products and services and fix problems. By choosing to participate in CEIP, you agree that
+#! VMware may collect technical information about your use of VMware products and services on a regular basis. This
+#! information does not personally identify you.
+#! Specify if this management cluster should participate in VMware CEIP. (default true)
+ENABLE_CEIP_PARTICIPATION:
+#! Deploy TKG Management cluster on vSphere 7.0 without prompt
+DEPLOY_TKG_ON_VSPHERE7:
+#! Enable TKGS on vSphere 7.0 without prompt
+ENABLE_TKGS_ON_VSPHERE7:
+#! URL to download the yml which has configuration related to resources to be deployed on the
+#! management cluster for it to register with Tanzu Mission Control
+TMC_REGISTRATION_URL:
+
+
+
+#! ---------------------------------------------------------------------
+#! Settings for vSphere infrastructure provider
+#! ---------------------------------------------------------------------
+
+#! CPU,disk,memory values to be used for creating cluster VMs
+#! this can be overridden by defining the VSPHERE_WORKER_DISK_GIB for the workers
+#! and VSPHERE_CONTROL_PLANE_DISK_GIB for the control plane
+VSPHERE_NUM_CPUS: 2
+VSPHERE_DISK_GIB: 40
+VSPHERE_MEM_MIB: 4096
+
+#! Specific overrides of the above settings that only apply control plane
+#! or worker nodes
+VSPHERE_CONTROL_PLANE_NUM_CPUS: 2
+VSPHERE_CONTROL_PLANE_DISK_GIB: 40
+VSPHERE_CONTROL_PLANE_MEM_MIB: 8192
+
+VSPHERE_WORKER_NUM_CPUS: 2
+VSPHERE_WORKER_DISK_GIB: 40
+VSPHERE_WORKER_MEM_MIB: 4096
+
+VSPHERE_CLONE_MODE: "fullClone"
+
+#! The network portgroup to assign each VM node
+VSPHERE_NETWORK: VM Network
+
+#! The name of the VM template to be used to create a specific version of a Tanzu
+#! Kubernetes Cluster. Since the appropriate template is automatically
+#! discovered from the vCenter inventory, the use of this setting is no longer
+#! necessary except to disambiguate among 2 or more applicable VM templates.
+VSPHERE_TEMPLATE:
+
+#! The name of the VM Windows template to be used to create a specific version of
+#! a Tanzu Kubernetes Cluster including WINDOWS node.
+VSPHERE_WINDOWS_TEMPLATE:
+
+VIP_NETWORK_INTERFACE: "eth0"
+
+#! The contents of the public key to be injected into the VM nodes created
+VSPHERE_SSH_AUTHORIZED_KEY:
+VSPHERE_USERNAME:
+VSPHERE_PASSWORD:
+
+#! The content of zone and region infomation is used to deploy CPI and CSI in a 
+#! vSphere environment that includes multiple data centers or host clusters.
+VSPHERE_REGION:
+VSPHERE_ZONE:
+
+#! FQDN or IP address to vCenter
+VSPHERE_SERVER:
+
+#! Full inventory path or names are supported for the following
+#! the former is required if there are multiple entities of the same type and
+#! name in the VC inventory.
+VSPHERE_DATACENTER:
+#! Name of an existing resource pool in which to place this Tanzu Kubernetes cluster
+VSPHERE_RESOURCE_POOL:
+#! Name of the vSphere datastore to deploy the Tanzu Kubernetes cluster
+#! as it appears in the vSphere inventory
+VSPHERE_DATASTORE:
+#! name of an existing VM folder in which to place Tanzu Kubernetes Grid VMs
+VSPHERE_FOLDER:
+VSPHERE_STORAGE_POLICY_ID: ""
+#! Thumbprint of the vCenter server specified with VSPHERE_SERVER config variable
+#! this value can be skipped if user wants to use insecure connection
+#! by setting VSPHERE_INSECURE to true
+VSPHERE_TLS_THUMBPRINT: ""
+VSPHERE_INSECURE: false
+#! Virtual IP address or FQDN for the cluster's control plane nodes
+VSPHERE_CONTROL_PLANE_ENDPOINT:
+VSPHERE_CONTROL_PLANE_ENDPOINT_PORT: 6443
+#! NSX-T specific configurations for enabling NSX-T routable pods
+#! set this to true to enable NSX-T routable pods
+NSXT_POD_ROUTING_ENABLED: false
+NSXT_ROUTER_PATH: ""
+#! NSX-T username
+NSXT_USERNAME: ""
+#! NSX-T password
+NSXT_PASSWORD: ""
+#! NSX-T host
+NSXT_MANAGER_HOST: ""
+#! set this to true if NSX-T uses self-signed cert
+NSXT_ALLOW_UNVERIFIED_SSL: "false"
+#! set this to true if NSX-T uses remote authentication (authentication done through the vIDM)
+NSXT_REMOTE_AUTH: "false"
+NSXT_VMC_ACCESS_TOKEN: ""
+NSXT_VMC_AUTH_HOST: ""
+NSXT_CLIENT_CERT_KEY_DATA: ""
+NSXT_CLIENT_CERT_DATA: ""
+NSXT_ROOT_CA_DATA_B64: ""
+#! SecretName is the secret name for NSX-T username and password
+NSXT_SECRET_NAME: "cloud-provider-vsphere-nsxt-credentials"
+#! SecretNamespace is the secret namespace for NSX-T username and password
+NSXT_SECRET_NAMESPACE: "kube-system"
+
+
+
+#! ---------------------------------------------------------------------
+#! Settings for AWS infrastructure provider
+#! ---------------------------------------------------------------------
+#! For list of supported regions, see TKG documentation.
+#! If you have already set an environment variable for the region, you must unset it.
+AWS_REGION:
+#! AZ has to be contained in the AWS region
+AWS_NODE_AZ: ""
+#! set these if you want 3 control plane nodes. The below
+#! availability zones must be in the same region as AWS_NODE_AZ
+AWS_NODE_AZ_1: ""
+AWS_NODE_AZ_2: ""
+#! A new VPC will be created for the cluster to be created if this is set blank
+#! to use a VPC that already exists in your selected AWS region, enter the ID of the VPC
+#! and then set AWS_PUBLIC_SUBNET_ID and AWS_PRIVATE_SUBNET_ID.
+#! This option is not required if you set AWS_VPC_CIDR.
+AWS_VPC_ID: ""
+AWS_PRIVATE_SUBNET_ID: ""
+AWS_PUBLIC_SUBNET_ID: ""
+AWS_PUBLIC_SUBNET_ID_1: ""
+AWS_PRIVATE_SUBNET_ID_1: ""
+AWS_PUBLIC_SUBNET_ID_2: ""
+AWS_PRIVATE_SUBNET_ID_2: ""
+AWS_VPC_CIDR: 10.0.0.0/16
+AWS_PRIVATE_NODE_CIDR: 10.0.0.0/24
+AWS_PUBLIC_NODE_CIDR: 10.0.1.0/24
+AWS_PRIVATE_NODE_CIDR_1: 10.0.2.0/24
+AWS_PUBLIC_NODE_CIDR_1: 10.0.3.0/24
+AWS_PRIVATE_NODE_CIDR_2: 10.0.4.0/24
+AWS_PUBLIC_NODE_CIDR_2: 10.0.5.0/24
+
+#! Control plane and worker node instance types.
+#! For node sizing recommendations, refer to TKG documentation.
+CONTROL_PLANE_MACHINE_TYPE: t3.large
+NODE_MACHINE_TYPE: m5.large
+
+#! Name of the SSH private key that you registered with your Amazon EC2 accoun
+AWS_SSH_KEY_NAME:
+
+#! Specify "true" to deploy an AWS basion host in the availability zone, or "false" to reuse an existing bastion host
+BASTION_HOST_ENABLED: true
+
+
+
+#! ---------------------------------------------------------------------
+#! Settings for creating clusters on vSphere with Tanzu
+#! ---------------------------------------------------------------------
+#! Identifies the storage class to be used for storage of the disks that store the root file systems of the worker nodes.
+CONTROL_PLANE_STORAGE_CLASS:
+#! Specifies the name of the VirtualMachineClass that describes the virtual
+#! hardware settings to be used each control plane node in the pool.
+CONTROL_PLANE_VM_CLASS:
+#! Specifies a named storage class to be annotated as the default in the
+#! cluster. If you do not specify it, there is no default.
+DEFAULT_STORAGE_CLASS:
+#! Specifies the service domain for the cluster
+SERVICE_DOMAIN:
+#! Specifies named persistent volume (PV) storage classes for container
+#! workloads. Storage classes associated with the Supervisor Namespace are
+#! replicated in the cluster. In other words, each storage class listed must be
+#! available on the Supervisor Namespace for this to be a valid value
+STORAGE_CLASSES:
+#! Identifies the storage class to be used for storage of the disks that store the root file systems of the worker nodes.
+WORKER_STORAGE_CLASS:
+#! Specifies the name of the VirtualMachineClass that describes the virtual
+#! hardware settings to be used each worker node in the pool
+WORKER_VM_CLASS:
+
+
+
+#! ---------------------------------------------------------------------
+#! Settings for AZURE infrastructure provider
+#! ---------------------------------------------------------------------
+#! Azure account configurations
+
+#! The Azure cloud to deploy to, supported clouds are :
+#! AzurePublicCloud, AzureChinaCloud, AzureGermanCloud, AzureUSGovernmentCloud
+AZURE_ENVIRONMENT: "AzurePublicCloud"
+#! The tenant ID is the ID of the AAD directory in which the app for Tanzu Kubernetes Grid is created
+#! A Tenant is representative of an organization within Azure Active Directory.
+#! It is a dedicated instance of the Azure AD service
+AZURE_TENANT_ID:
+#! The subscription ID is a GUID that uniquely identifies the subscription to use Azure services.
+AZURE_SUBSCRIPTION_ID:
+#! The client ID of the app for Tanzu Kubernetes Grid that you registered with Azure
+AZURE_CLIENT_ID:
+#! The client password of the app for Tanzu Kubernetes Grid that you registered with Azure
+AZURE_CLIENT_SECRET:
+#! Azure region where the resources will be created
+AZURE_LOCATION:
+#! SSH to allow for access to the cluster machines, as a base64-encoded string
+AZURE_SSH_PUBLIC_KEY_B64:
+#! Azure virtual machine size
+AZURE_CONTROL_PLANE_MACHINE_TYPE: "Standard_D2s_v3"
+AZURE_NODE_MACHINE_TYPE: "Standard_D2s_v3"
+#! Accelerated networking turned off by default until
+#! https://launchpad.net/~timg-tpi/+archive/ubuntu/mlx-tunnel-offload-lp1921769 is addressed
+AZURE_ENABLE_ACCELERATED_NETWORKING: false
+
+#! resource-group-name that already exists in your Azure account.
+#! AZURE_RESOURCE_GROUP and AZURE_VNET_RESOURCE_GROUP are the same by default.
+
+#! Must be unique to each cluster.
+AZURE_RESOURCE_GROUP: ""
+#! If unset the value of AZURE_RESOURCE_GROUP will be used as the resoure group
+#! for the VNET
+AZURE_VNET_RESOURCE_GROUP: ""
+
+AZURE_VNET_NAME: ""
+AZURE_VNET_CIDR: "10.0.0.0/16"
+AZURE_CONTROL_PLANE_SUBNET_NAME: ""
+AZURE_CONTROL_PLANE_SUBNET_CIDR: "10.0.0.0/24"
+AZURE_CONTROL_PLANE_SUBNET_SECURITY_GROUP: ""
+AZURE_NODE_SUBNET_NAME: ""
+AZURE_NODE_SUBNET_CIDR: "10.0.1.0/24"
+AZURE_NODE_SUBNET_SECURITY_GROUP: ""
+
+#! AZ has to be contained in the Azure location.
+#! If not provided, the default value for AZURE_NODE_AZ is 1, AZURE_NODE_AZ_1 is 2 and AZURE_NODE_AZ_2 is 3
+AZURE_NODE_AZ: ""
+#! set these if you want to customize the AZs for a prod cluster. The below
+#! availability zones must be in the same region as AZURE_NODE_AZ
+AZURE_NODE_AZ_1: ""
+AZURE_NODE_AZ_2: ""
+
+#! set of tags to add to Azure resources managed by the Azure provider
+AZURE_CUSTOM_TAGS:
+
+#! disk configuration
+AZURE_CONTROL_PLANE_OS_DISK_SIZE_GIB: 128
+AZURE_CONTROL_PLANE_OS_DISK_STORAGE_ACCOUNT_TYPE: Premium_LRS
+AZURE_NODE_OS_DISK_SIZE_GIB: 128
+AZURE_NODE_OS_DISK_STORAGE_ACCOUNT_TYPE: Premium_LRS
+
+AZURE_CONTROL_PLANE_DATA_DISK_SIZE_GIB: 256
+AZURE_ENABLE_NODE_DATA_DISK: false
+AZURE_NODE_DATA_DISK_SIZE_GIB: 256
+
+#! Deploy private Azure clusters.
+#! A Private cluster will have an Azure internal load balancer load balancing traffic inside the VNet to the control plane nodes.
+AZURE_ENABLE_PRIVATE_CLUSTER: false
+AZURE_FRONTEND_PRIVATE_IP: "10.0.0.100"
+
+#! Azure VM Image Config values
+#! Azure image ID
+AZURE_IMAGE_ID:
+#! Azure shared image gallery
+AZURE_IMAGE_RESOURCE_GROUP:
+AZURE_IMAGE_NAME:
+AZURE_IMAGE_SUBSCRIPTION_ID:
+AZURE_IMAGE_GALLERY:
+#! Azure marketplace image
+AZURE_IMAGE_PUBLISHER:
+AZURE_IMAGE_OFFER:
+AZURE_IMAGE_SKU:
+AZURE_IMAGE_THIRD_PARTY:
+#! For both marketplace and shared image gallery
+AZURE_IMAGE_VERSION:
+
+
+
+#! ---------------------------------------------------------------------
+#! OIDC-related configuration
+#! Set these values to enable OIDC on management cluster.
+#! ---------------------------------------------------------------------
+#! ENABLE_OIDC is either true or false. It can be set by user or by tkg cli option --enable-cluster-options="oidc"
+ENABLE_OIDC: false
+#! OIDC_ISSUER_URL is https://<KUBERNETES_API_SERVER_ENDPOINT>:30167
+#! OIDC_USERNAME_CLAIM is JWT claim to use as the user name. e.g, sub, email or name.
+#! OIDC_GROUPS_CLAIM is JWT claim to use as the user's group.
+#! OIDC_DEX_CA can be obtained by retrieving the secret dex-cert-tls from namespace tanzu-system-auth in the management cluster
+#! e.g. kubectl get secret dex-cert-tls -n tanzu-system-auth -o 'go-template={{ index .data "ca.crt" }}' | base64 -D | gzip | base64
+OIDC_ISSUER_URL:
+OIDC_USERNAME_CLAIM:
+OIDC_GROUPS_CLAIM:
+OIDC_DEX_CA:
+
+
+
+#! ---------------------------------------------------------------------
+#! Machine Health Check configuration
+#! ---------------------------------------------------------------------
+ENABLE_MHC: true
+MHC_UNKNOWN_STATUS_TIMEOUT: 5m
+MHC_FALSE_STATUS_TIMEOUT: 12m
+
+#! Common configuration
+#! ---------------------------------------------------------------------
+
+#! Set this value to configure TKG to use a custom image repository for any
+#! container image that needs to be pulled during cluster creation. This is
+#! useful when deploying in an internet-restricted environment with the help
+#! of a private container registry.
+#! See TKG documentation for more information about preparing a private
+#! container repository.
+TKG_CUSTOM_IMAGE_REPOSITORY: ""
+TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY: false
+TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE: ""
+
+#! PROXY configuration
+TKG_HTTP_PROXY: ""
+TKG_HTTPS_PROXY: ""
+TKG_NO_PROXY: ""
+
+#! IP Family setting
+TKG_IP_FAMILY:
+
+#! Audit Logging settings
+ENABLE_AUDIT_LOGGING: false
+
+#! Configures default storage class for workload cluster if enabled
+ENABLE_DEFAULT_STORAGE_CLASS: true
+
+#! CIDR default values are set based on TKG_IP_FAMILY in the CLI
+CLUSTER_CIDR:
+SERVICE_CIDR:
+NODE_STARTUP_TIMEOUT: 20m
+
+CONTROL_PLANE_MACHINE_COUNT: 1
+WORKER_MACHINE_COUNT: 1
+#! sets the number of worker nodes in the first AZ, AWS_NODE_AZ.
+WORKER_MACHINE_COUNT_0:
+#! sets the number of worker nodes in the second AZ, AWS_NODE_AZ_1.
+WORKER_MACHINE_COUNT_1:
+#! sets the number of worker nodes in the third AZ, AWS_NODE_AZ_2.
+WORKER_MACHINE_COUNT_2:
+
+#! OS selection configuration
+OS_NAME: ""
+OS_VERSION: ""
+OS_ARCH: ""
+
+
+
+#! ---------------------------------------------------------------------
+#! Autoscaler related configuration
+#! ---------------------------------------------------------------------
+ENABLE_AUTOSCALER: false
+AUTOSCALER_MAX_NODES_TOTAL: "0"
+AUTOSCALER_SCALE_DOWN_DELAY_AFTER_ADD: "10m"
+AUTOSCALER_SCALE_DOWN_DELAY_AFTER_DELETE: "10s"
+AUTOSCALER_SCALE_DOWN_DELAY_AFTER_FAILURE: "3m"
+AUTOSCALER_SCALE_DOWN_UNNEEDED_TIME: "10m"
+AUTOSCALER_MAX_NODE_PROVISION_TIME: "15m"
+AUTOSCALER_MIN_SIZE_0:
+AUTOSCALER_MAX_SIZE_0:
+AUTOSCALER_MIN_SIZE_1:
+AUTOSCALER_MAX_SIZE_1:
+AUTOSCALER_MIN_SIZE_2:
+AUTOSCALER_MAX_SIZE_2:
+
+
+
+#! ---------------------------------------------------------------------
+#! Settings for Docker infrastructure provider
+#! ---------------------------------------------------------------------
+DOCKER_MACHINE_TEMPLATE_IMAGE:
+
+
+
+#! ---------------------------------------------------------------------
+#! Pinniped identity management configuration
+#! ---------------------------------------------------------------------
+#! Identifies the Identity management type to be deployed. Possible values are "oidc" or "ldap"
+IDENTITY_MANAGEMENT_TYPE: "oidc"
+
+#! Settings for Pinniped OIDC
+CERT_DURATION: 2160h
+CERT_RENEW_BEFORE: 360h
+OIDC_IDENTITY_PROVIDER_NAME:
+OIDC_IDENTITY_PROVIDER_ISSUER_URL:
+OIDC_IDENTITY_PROVIDER_CLIENT_ID:
+OIDC_IDENTITY_PROVIDER_CLIENT_SECRET:
+#! comma separated list of scopes apart from openid e.g:"email,offline_access"
+OIDC_IDENTITY_PROVIDER_SCOPES: "email,profile,groups"
+OIDC_IDENTITY_PROVIDER_USERNAME_CLAIM:
+OIDC_IDENTITY_PROVIDER_GROUPS_CLAIM:
+#! The following two variables are used to configure Pinniped JWTAuthenticator for workload clusters
+SUPERVISOR_ISSUER_URL:
+SUPERVISOR_ISSUER_CA_BUNDLE_DATA_B64:
+
+#! Settings for LDAP (Pinniped configured with Dex)
+LDAP_BIND_DN:
+LDAP_BIND_PASSWORD:
+LDAP_HOST:
+LDAP_USER_SEARCH_BASE_DN:
+LDAP_USER_SEARCH_FILTER:
+LDAP_USER_SEARCH_USERNAME: userPrincipalName
+LDAP_USER_SEARCH_ID_ATTRIBUTE: DN
+LDAP_USER_SEARCH_EMAIL_ATTRIBUTE: DN
+LDAP_USER_SEARCH_NAME_ATTRIBUTE:
+LDAP_GROUP_SEARCH_BASE_DN:
+LDAP_GROUP_SEARCH_FILTER:
+LDAP_GROUP_SEARCH_USER_ATTRIBUTE: DN
+LDAP_GROUP_SEARCH_GROUP_ATTRIBUTE:
+LDAP_GROUP_SEARCH_NAME_ATTRIBUTE: cn
+LDAP_ROOT_CA_DATA_B64:
+
+
+
+#! ---------------------------------------------------------------------
+#! AVI NSX Advanced Loader Balancer configuration
+#! ---------------------------------------------------------------------
+#! Where to use Avi aka. NSX Advanced Loader Balancer
+AVI_ENABLE: false
+
+#! Settings for Avi, aka. NSX Advanced Loader Balancer
+AVI_NAMESPACE: "tkg-system-networking"
+AVI_DISABLE_INGRESS_CLASS: true
+AVI_AKO_IMAGE_PULL_POLICY: IfNotPresent
+AVI_ADMIN_CREDENTIAL_NAME: avi-controller-credentials
+AVI_CA_NAME: avi-controller-ca
+
+AVI_CONTROLLER:
+AVI_USERNAME: ""
+AVI_PASSWORD: ""
+AVI_CLOUD_NAME:
+AVI_SERVICE_ENGINE_GROUP:
+AVI_DATA_NETWORK:
+AVI_DATA_NETWORK_CIDR:
+AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME:
+AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR:
+AVI_CA_DATA_B64: ""
+AVI_LABELS: ""
+
+AVI_DISABLE_STATIC_ROUTE_SYNC: true
+AVI_INGRESS_DEFAULT_INGRESS_CONTROLLER: false
+AVI_INGRESS_SHARD_VS_SIZE: ""
+AVI_INGRESS_SERVICE_TYPE: ""
+AVI_INGRESS_NODE_NETWORK_LIST: []
+
+AVI_CONTROL_PLANE_HA_PROVIDER: false
+
+#! ---------------------------------------------------------------------
+#! Antrea CNI configuration
+#! ---------------------------------------------------------------------
+ANTREA_NO_SNAT: false
+ANTREA_TRAFFIC_ENCAP_MODE: "encap"
+ANTREA_PROXY: true
+ANTREA_ENDPOINTSLICE: false
+ANTREA_POLICY: true
+ANTREA_NODEPORTLOCAL: false
+ANTREA_TRACEFLOW: true
+
+
+
+#! ---------------------------------------------------------------------
+#! Internal configuration, not meant to be overridden
+#! ---------------------------------------------------------------------
+TKG_DEFAULT_BOM:
+PROVIDER_TYPE:
+TKG_CLUSTER_ROLE:
+TKG_VERSION:
+FILTER_BY_ADDON_TYPE:
+REMOVE_CRS_FOR_ADDON_TYPE:
+DISABLE_CRS_FOR_ADDON_TYPE:
+CNI: antrea
+KUBERNETES_RELEASE:
+KUBERNETES_VERSION: v1.19.1+vmware.2
+#! This is autofilled by TKG CLI
+AWS_AMI_ID:
+TKR_DISCOVER_FREQUENCY: 600
+#! vSphere version
+VSPHERE_VERSION:
+
+
+#! ---------------------------------------------------------------------
+#! BoM file processing, internal use only
+#! ---------------------------------------------------------------------
+
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:data", "data")
+
+#@ files = data.list()
+boms:
+    #@ for/end file in [ f for f in files if f.startswith("tkg-bom") or  f.startswith("tkr-bom") or f.startswith("bom")]:
+    - bom_name: #@ file
+      bom_data: #@ yaml.decode(data.read(file))

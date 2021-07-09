@@ -1,0 +1,14 @@
+@import '../properties.scss';
+
+@mixin logo-container($logo: $logo_blue) {
+    background: url($logo);
+    background-size: contain;
+    background-repeat: no-repeat;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+@mixin logo-sizer($width, $height) {
+    width: $width + 0px;
+    height: $height + 0px;
+}

@@ -1,0 +1,189 @@
+<form [formGroup]="formGroup">
+    <div *ngIf="!connected" class="alert alert-info" role="alert">
+        <div class="alert-items">
+            <div class="alert-item static">
+                <div class="alert-icon-wrapper">
+                    <clr-icon class="alert-icon" shape="info-circle"></clr-icon>
+                </div>
+                <span class="alert-text" i18n="vsphere wizard step info notification">
+                    You must click "CONNECT" to verify
+                    the vSphere credentials before moving to next step.
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="errorNotification" class="alert alert-danger" role="alert">
+        <div class="alert-items">
+            <div class="alert-item static">
+                <div class="alert-icon-wrapper">
+                    <clr-icon class="alert-icon" shape="exclamation-circle"></clr-icon>
+                </div>
+                <span class="alert-text" i18n="connect vcenter failure notification">
+                    {{ errorNotification }}
+                </span>
+            </div>
+        </div>
+        <button (click)="errorNotification = null" type="button" class="close" aria-label="Close">
+            <clr-icon aria-hidden="true" shape="close"></clr-icon>
+        </button>
+    </div>
+    <h4 aria-level="2">vSphere {{ vsphereVersion }}</h4>
+    <div class="clr-row">
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+            <clr-input-container [attr.data-step-metadata]="formName">
+                <label i18n="vcenter server addr label" clr-control-label aria-describedby="tooltip-vcenter-server">
+                    VCENTER SERVER
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                IP address or hostname of the vCenter server that manages your vSphere infrastructure.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <input clrInput formControlName="vcenterAddress" placeholder="IP or FQDN" />
+                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+                <clr-control-error i18n="vcenter server addr required msg" *clrIfError="validatorEnum.REQUIRED">
+                    vCenter Server address cannot be empty
+                </clr-control-error>
+                <clr-control-error i18n="vcenter server addr valid msg" *clrIfError="validatorEnum.VALID_IP_OR_FQDN">
+                    Enter a valid IP address or FQDN
+                </clr-control-error>
+            </clr-input-container>
+        </div>
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+            <clr-input-container [attr.data-step-metadata]="formName">
+                <label i18n="username label" clr-control-label>
+                    USERNAME
+                </label>
+                <input clrInput formControlName="username" placeholder="username" />
+                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+                <clr-control-error i18n="username required msg" *clrIfError="validatorEnum.REQUIRED">
+                    Username cannot be empty
+                </clr-control-error>
+            </clr-input-container>
+        </div>
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+            <clr-password-container [attr.data-step-metadata]="formName">
+                <label i18n="password label" clr-control-label>
+                    PASSWORD
+                </label>
+                <input clrPassword formControlName="password" placeholder="password" />
+                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+                <clr-control-error i18n="Password required msg" *clrIfError="validatorEnum.REQUIRED">
+                    Password cannot be empty
+                </clr-control-error>
+            </clr-password-container>
+        </div>
+    </div>
+
+    <div class="clr-row">
+        <div class="clr-col-12 clr-col-sm-4" aria-live="assertive">
+            <button [clrLoading]="loadingState" [disabled]="getDisabled() || connected" (click)="connectVC()" i18n="connect btn"
+                class="btn btn-primary btn-connect">
+                {{ connected ? "CONNECTED" : "CONNECT" }}
+            </button>
+        </div>
+    </div>
+    <div class="clr-row">
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+            <clr-select-container [attr.data-step-metadata]="formName">
+                <label i18n="datacenter label">
+                    DATACENTER
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                Name of the datacenter in vCenter Server in which to place the
+                                {{ clusterType }} cluster.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <select clrSelect name="datacenter" formControlName="datacenter">
+                    <option aria-label="blank" title="blank"></option>
+                    <ng-container *ngFor="let datacenter of datacenters">
+                        <option [value]="datacenter.name">
+                            {{datacenter.name}}
+                        </option>
+                    </ng-container>
+                </select>
+                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+                <clr-control-error>Selecting a datacenter is required</clr-control-error>
+            </clr-select-container>
+        </div>
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-8">
+            <div class="clr-form-control" [attr.data-step-metadata]="formName">
+                <label for="ssh_key" class="clr-control-label" [class.label-disabled]="!connected" >
+                    SSH PUBLIC KEY
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                The contents of an 4096-bit SSH-2 RSA public key from a key pair
+                                that you have created for the {{ clusterType }} cluster to use.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <div
+                        class="clr-control-container clr-col-12 no-gutters"
+                        [class.clr-error]="formGroup.get('ssh_key').invalid">
+                    <div class="clr-textarea-wrapper">
+                        <textarea formControlName="ssh_key" id="ssh_key" placeholder="" class="clr-textarea" aria-describedby="ssh_key_error_msg"></textarea>
+                        <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
+                    </div>
+                    <span id="ssh_key_error_msg" class="clr-subtext" *ngIf="formGroup.get('ssh_key').invalid">SSH Public Key is required</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<app-ssl-thumbprint-modal [thumbprint]="thumbprint" [vcenterHost]="vsphereHost" (verifiedThumbprint)="thumbprintModalResponse($event)"></app-ssl-thumbprint-modal>
+<!-- vSphere 7.0 Modal -->
+<clr-modal [(clrModalOpen)]="vSphereWithK8ModalOpen" [clrModalSize]="'xl'">
+    <h3 class="modal-title" i18n="vsphere without kubernetes notification title">
+        <div class="vsphere-icon-30"></div>{{ vSphereModalTitle }}
+    </h3>
+    <div class="modal-body">
+        <p i18n="vsphere with k8s detected page content">
+            {{ vSphereModalBody }}
+        </p>
+        <p>
+            <button
+                    class="btn btn-primary btn-width-350"
+                    (click)="launchVsphereWcp()">
+                Configure vSphere with Tanzu
+            </button>
+        </p>
+        <p>
+            Tanzu Kubernetes Grid Service is the preferred way to consume Tanzu Kubernetes Grid in
+            vSphere {{ vsphereVersion }} environments. Alternatively you may deploy a non-integrated
+            Tanzu Kubernetes Grid instance on vSphere {{ vsphereVersion }}.
+        </p>
+        <p>
+            <button
+                    class="btn btn-primary btn-width-350"
+                    (click)="vSphereWithK8ModalOpen = false">
+                Deploy TKG {{ clusterType | titlecase }} Cluster
+            </button>
+        </p>
+        <p>
+            What's the difference between Tanzu Kubernetes Grid multicloud and Tanzu Kubernetes Grid Service? Learn more
+            <a href="https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid/index.html" target="_blank">
+                here.<clr-icon shape="pop-out"></clr-icon>
+            </a><br>
+            Documentation for vSphere with Tanzu and Tanzu Kubernetes Grid Service can be found
+            <a href="https://docs.vmware.com/en/VMware-vSphere/7.0/vmware-vsphere-with-kubernetes/GUID-C163490C-BE03-4DFE-8A03-5316D3245765.html" target="_blank">
+                here.<clr-icon shape="pop-out"></clr-icon>
+            </a><br>
+
+        </p>
+    </div>
+</clr-modal>

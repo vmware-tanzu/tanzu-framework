@@ -1,0 +1,17 @@
+domain: tanzu.vmware.com
+multigroup: true
+repo: github.com/vmware-tanzu/tanzu-framework
+resources:
+- group: config
+  kind: ClientConfig
+  version: v1alpha1
+- group: run
+  kind: TanzuKubernetesRelease
+  version: v1alpha1
+- group: cli
+  kind: Catalog
+  version: v1alpha1
+- group: config
+  kind: Feature
+  version: v1alpha1
+version: "2"

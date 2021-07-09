@@ -1,0 +1,28 @@
+@import '../landing.component.scss';
+
+:host ::ng-deep log-monitor {
+    .container {
+        height: calc(100vh - 360px);
+        margin-top: 4px;
+        min-height: 570px;
+    }
+}
+
+.spinner-container {
+    margin-top: 4px;
+}
+
+.progress-div {
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.clr-timeline.clr-timeline-vertical {
+    min-width: 9rem;
+}
+
+.clr-row {
+    h4 {
+        margin-top: 0;
+    }
+}

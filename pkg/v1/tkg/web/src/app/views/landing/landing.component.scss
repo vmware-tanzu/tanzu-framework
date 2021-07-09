@@ -1,0 +1,18 @@
+@import '../../../sass/properties.scss';
+
+@media (max-width: $medium) {
+    .image-container {
+        height: 200px;
+        text-align: center;
+    }
+}
+@media (max-width: $medium) {
+    .landing-image {
+        width: 300px;
+        height: 200px;
+    }
+}
+
+.clr-row.main-row {
+    min-height: 400px;
+}

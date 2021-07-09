@@ -1,0 +1,261 @@
+/* You can add global styles to this file, and also import other style files */
+@import './sass/mixins/logo-base.scss';
+
+// Dark theme overrides
+body.dark {
+    .header {
+        background-color: #485a6a;
+    }
+
+    button.clr-accordion-header-button {
+        color: #fff;
+    }
+}
+
+// Branding logos
+.tanzu-logo {
+    @include logo-container('./assets/images/tanzu-logo.svg');
+    top: -2px;
+    position: relative;
+    margin-right: 6px;
+    width: 36px;
+    height: 36px;
+}
+
+.tce-logo {
+    @include logo-container('./assets/images/tce-logo.svg');
+    top: -2px;
+    position: relative;
+    margin-right: 6px;
+    width: 36px;
+    height: 36px;
+}
+
+.landing-image {
+    display: inline-block;
+    text-indent: -9999px;
+    margin-top: 26px;
+    width: 100%;
+    height: 100%;
+    background: url(./assets/images/welcome-intro.svg);
+    background-size: 100% auto;
+    background-repeat: no-repeat;
+}
+
+.no-gutters {
+    padding: 0;
+}
+
+// wizard fixes
+.btn-connect {
+    margin-top: 20px;
+}
+
+.btn-refresh {
+    color: #0072a3;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.clr-accordion {
+    margin-bottom: 0;
+
+    // tooltip icon fixes
+    label {
+        clr-tooltip {
+            clr-icon {
+                bottom: 1px;
+                position: relative;
+            }
+        }
+    }
+
+    h4 {
+        margin-top: 0;
+
+        clr-tooltip {
+            clr-icon {
+                position: relative;
+                bottom: 1px;
+                right: 4px;
+            }
+        }
+
+        .btn-refresh {
+            clr-icon {
+                position: relative;
+                bottom: 2px;
+            }
+        }
+
+        .spinner-sm {
+            top: 2px;
+        }
+    }
+
+    .card-footer {
+        label {
+            font-weight: 600;
+            font-size: .541667rem;
+            line-height: .75rem;
+        }
+    }
+
+    .alert {
+        margin-bottom: 10px;
+    }
+
+    .clr-select-wrapper {
+        select {
+            min-width: 100px;
+            max-width: 200px;
+        }
+    }
+}
+
+.card {
+    .card-footer {
+        clr-datalist-container {
+            margin-top: 0;
+        }
+    }
+}
+
+clr-control-error.clr-subtext {
+    color: #c72100;
+}
+
+.label-disabled {
+    opacity: 0.54;
+}
+
+.input-disabled {
+    opacity: 0.7;
+}
+
+.hide {
+    max-height: 0px;
+    overflow: hidden;
+    visibility: hidden;
+}
+
+.brand-logo {
+    background-size: contain;
+    background-repeat: no-repeat;
+    display: inline-block;
+    vertical-align: middle;
+    width: 36px;
+    height: 36px;
+    margin-bottom: 6px;
+    margin-right: 4px;
+}
+.inline {
+    display: inline;
+}
+
+//////////////////////////////////////
+// Generic logo icons
+//////////////////////////////////////
+
+.logo-16 {
+    @include logo-container($logo_blue);
+    @include logo-sizer(16, 16);
+}
+
+.logo-24 {
+    @include logo-container($logo_blue);
+    @include logo-sizer(24, 24);
+}
+
+.logo-30 {
+    @include logo-container($logo_blue);
+    @include logo-sizer(30, 30);
+}
+
+.logo-100 {
+    @include logo-container($logo_blue);
+    @include logo-sizer(100, 100);
+}
+
+//////////////////////////////////////
+// Other logo icons
+//////////////////////////////////////
+.vsphere-icon-30 {
+    @include logo-container($logo-vsphere);
+    @include logo-sizer(30, 30);
+}
+
+.vsphere-icon-48 {
+    @include logo-container($logo-vsphere);
+    @include logo-sizer(48, 48);
+}
+
+.aws-ec2-icon-30 {
+    @include logo-container($logo-aws-ec2);
+    @include logo-sizer(30, 30);
+}
+
+.aws-ec2-icon-48 {
+    @include logo-container($logo-aws-ec2);
+    @include logo-sizer(48, 48);
+}
+
+.ms-azure-icon-30 {
+    @include logo-container($logo-ms-azure);
+    @include logo-sizer(30, 30);
+}
+
+.ms-azure-icon-48 {
+    @include logo-container($logo-ms-azure);
+    @include logo-sizer(48, 48);
+}
+
+.docker-icon-30 {
+    @include logo-container($logo-docker);
+    @include logo-sizer(30, 30);
+}
+
+.docker-icon-48 {
+    @include logo-container($logo-docker);
+    @include logo-sizer(48, 48);
+}
+
+//////////////////////////////////////
+// Common or shared styles
+//////////////////////////////////////
+
+.align-left {
+    text-align: left;
+}
+
+.align-right {
+    text-align: right;
+}
+
+.mt-20 {
+     margin-top: 20px;
+}
+
+.mt-30 {
+    margin-top: 30px;
+}
+
+.mt-40 {
+    margin-top: 40px;
+}
+
+.mb-20 {
+    margin-bottom: 20px;
+}
+
+.mb-10 {
+    margin-bottom: 10px;
+}
+
+.pl-5 {
+    padding-left: 5px;
+}
+
+.pr-5 {
+    padding-right: 5px;
+}

@@ -1,0 +1,25 @@
+#@data/values
+#@overlay/match-child-defaults missing_ok=True
+
+---
+imageInfo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+  imagePullPolicy: IfNotPresent
+  images:
+    kappControllerImage:
+      imagePath: kapp-controller
+      tag: v0.20.0-rc.1_vmware.1
+kappController:
+  namespace: tkg-system
+  globalNamespace: tkg-standard
+  createNamespace: true
+  deployment:
+    hostNetwork: null
+    priorityClassName: null
+    concurrency: 2
+  config:
+    caCerts: ""
+    httpProxy: ""
+    httpsProxy: ""
+    noProxy: ""
+    dangerousSkipTLSVerify: ""

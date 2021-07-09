@@ -1,0 +1,281 @@
+<form [formGroup]="formGroup">
+    <div *ngIf="!validCredentials" class="alert alert-info" role="alert">
+        <div class="alert-items">
+            <div class="alert-item static">
+                <div class="alert-icon-wrapper">
+                    <clr-icon class="alert-icon" shape="info-circle"></clr-icon>
+                </div>
+                <span class="alert-text" i18n="wizard step info notification">
+                    You must click "CONNECT" to verify
+                    the Azure credentials before moving to next step.
+                </span>
+            </div>
+        </div>
+    </div>
+    <app-step-form-notification [errorNotification]="errorNotification"></app-step-form-notification>
+    <div class="clr-row">
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+            <clr-input-container [attr.data-step-metadata]="formName">
+                <label i18n="azure tanent id label" clr-control-label>
+                    TENANT ID
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                The tenant ID for you Azure account.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <input clrInput formControlName="tenantId" placeholder="Tenant ID" />
+                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+                <clr-control-error i18n="Azure tenant ID required msg" *clrIfError="validatorEnum.REQUIRED">
+                    Azure tenant ID cannot be empty
+                </clr-control-error>
+            </clr-input-container>
+        </div>
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+            <clr-input-container [attr.data-step-metadata]="formName">
+                <label i18n="azure client id label" clr-control-label>
+                    CLIENT ID
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                The client ID for you Azure account.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <input clrInput formControlName="clientId" placeholder="Client ID" />
+                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+                <clr-control-error i18n="Azure client ID required msg" *clrIfError="validatorEnum.REQUIRED">
+                    Azure client ID cannot be empty
+                </clr-control-error>
+            </clr-input-container>
+        </div>
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+            <clr-password-container [attr.data-step-metadata]="formName">
+                <label i18n="azure client secret label" clr-control-label>
+                    CLIENT SECRET
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
+                            <span>
+                                The client secret for you Azure account.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <input clrPassword formControlName="clientSecret" placeholder="Client Secret" />
+                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+                <clr-control-error i18n="Azure client secret required msg" *clrIfError="validatorEnum.REQUIRED">
+                    Azure client secret cannot be empty
+                </clr-control-error>
+            </clr-password-container>
+        </div>
+    </div>
+    <div class="clr-row">
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+            <clr-input-container [attr.data-step-metadata]="formName">
+                <label i18n="azure subscription id label" clr-control-label>
+                    SUBSCRIPTION ID
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                The subscription ID for your Azure account.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <input clrInput formControlName="subscriptionId" placeholder="Subscription ID" />
+                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+                <clr-control-error i18n="azure subscription ID required msg" *clrIfError="validatorEnum.REQUIRED">
+                    Subscription ID cannot be empty
+                </clr-control-error>
+            </clr-input-container>
+        </div>
+                <div class="clr-col-4 region-container">
+                    <clr-select-container [attr.data-step-metadata]="formName">
+                        <label i18n="azure environment label">
+                            AZURE ENVIRONMENT
+                            <clr-tooltip>
+                                <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                    <span>
+                                        Select an Azure Environment for your {{ clusterType }} cluster. Azure Environment is the name of the
+                                        AzureCloud to be used
+                                    </span>
+                                </clr-tooltip-content>
+                            </clr-tooltip>
+                        </label>
+                        <select clrSelect name="azureCloud" formControlName="azureCloud">
+                            <option *ngFor="let ac of azureClouds" [value]="ac.name">{{ ac.displayName }}</option>
+                        </select>
+                        <clr-control-error i18n="azureCloud required msg" *clrIfError="validatorEnum.REQUIRED">
+                            Azure Environment is required
+                        </clr-control-error>
+                    </clr-select-container>
+                    <span *ngIf="loadingRegions" class="spinner spinner-sm">
+                        Loading...
+                    </span>
+                </div>
+    </div>
+
+    <div class="clr-row">
+        <div class="clr-col-4" aria-live="assertive">
+            <button [clrLoading]="loadingState" id="btn-azure-provider-connect" [disabled]="isConnectDisabled() || validCredentials"
+                (click)="verifyCredentails()" i18n="connect btn" class="btn btn-primary btn-connect">
+                {{ validCredentials ? "CONNECTED" : "CONNECT" }}
+            </button>
+        </div>
+    </div>
+
+    <div class="clr-row">
+        <div class="clr-col-6 region-container">
+            <clr-select-container [attr.data-step-metadata]="formName">
+                <label i18n="azure region label">
+                    REGION
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                Select an Azure region for your {{ clusterType }} cluster.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <select clrSelect name="region" formControlName="region">
+                    <option aria-label="blank" title="blank"></option>
+                    <option *ngFor="let region of regions" [value]="region.name">{{ region.displayName }}</option>
+                </select>
+                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+                <clr-control-error i18n="azure reguib required msg" *clrIfError="validatorEnum.REQUIRED">
+                    Azure Region is required
+                </clr-control-error>
+            </clr-select-container>
+            <span *ngIf="loadingRegions" class="spinner spinner-sm">
+                Loading...
+            </span>
+        </div>
+    </div>
+    <div class="clr-row">
+        <div class="clr-col-12 clr-col-lg-8">
+            <clr-textarea-container [attr.data-step-metadata]="formName" >
+                <label for="ssh_key" class="clr-control-label">
+                    SSH PUBLIC KEY
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                The contents of the SSH public key from a key pair
+                                that you have created for use with Azure.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                    <textarea clrTextarea formControlName="sshPublicKey" placeholder="" class="clr-col-12 no-gutters" aria-label="ssh public key"></textarea>
+                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+                <clr-control-error i18n="azure ssh public key required msg" *clrIfError="validatorEnum.REQUIRED">
+                    SSH public key is required
+                </clr-control-error>
+            </clr-textarea-container>
+        </div>
+    </div>
+
+    <div class="clr-row">
+        <clr-radio-container clrInline>
+            <label>
+                RESOURCE GROUP
+                <clr-tooltip>
+                    <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                    <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                Select an existing resource group or create a new one to continue.
+                            </span>
+                    </clr-tooltip-content>
+                </clr-tooltip>
+            </label>
+            <clr-radio-wrapper>
+                <input type="radio" clrRadio formControlName="resourceGroupOption" (click)="show('existing')" required
+                    value="existing" />
+                <label>Select an existing resource group</label>
+            </clr-radio-wrapper>
+            <clr-radio-wrapper>
+                <input type="radio" clrRadio formControlName="resourceGroupOption" (click)="show('custom')" required
+                    value="custom" [attr.disabled]="resourceGroupSelection"/>
+                <label>Create a new resource group</label>
+            </clr-radio-wrapper>
+            <clr-control-error>Must select an option for entering the resource group!</clr-control-error>
+        </clr-radio-container>
+    </div>
+
+    <div *ngIf="showOption === 'existing'" class="clr-row">
+        <div class="clr-col-12">
+            <clr-select-container [attr.data-step-metadata]="formName">
+                <label i18n="azure resource group name label" clr-control-label>
+                    EXISTING RESOURCE GROUP
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                Select the existing resource group for your {{ clusterType }} cluster.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <select clrSelect name="resourceGroupExisting" formControlName="resourceGroupExisting">
+                    <option aria-label="blank" title="blank"></option>
+                    <option *ngFor="let resourceGroup of resourceGroups" [value]="resourceGroup.name">
+                        {{ resourceGroup.name }}
+                    </option>
+                </select>
+                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+                <clr-control-error i18n="azure resource group required msg" *clrIfError="validatorEnum.REQUIRED">
+                    Azure Resource Group is required
+                </clr-control-error>
+            </clr-select-container>
+        </div>
+    </div>
+
+    <div *ngIf="showOption === 'custom'" class="clr-row">
+        <div class="clr-col-12">
+            <clr-input-container [attr.data-step-metadata]="formName">
+                <label i18n="azure resource group name label" clr-control-label>
+                    RESOURCE GROUP NAME
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                The name of the new resource group to be created.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <input clrInput #newRgn formControlName="resourceGroupCustom" placeholder="resource group name"
+                    (input)="onResourceGroupNameChange()" />
+                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+                <clr-control-error i18n="azure resource group name required msg" *clrIfError="validatorEnum.REQUIRED">
+                    Resource Group Name cannot be empty
+                </clr-control-error>
+                <clr-control-error i18n="azure resource group name validation msg" *clrIfError="validatorEnum.VALID_RESOURCE_GROUP_NAME">
+                    Resource Group Name format is invalid
+                </clr-control-error>
+                <clr-control-error i18n="azure resource group name duplicate msg"
+                    *clrIfError="validatorEnum.UNIQUE_RESOURCE_GROUP_NAME">
+                    Resource Group Name already exists
+                </clr-control-error>
+            </clr-input-container>
+        </div>
+    </div>
+
+</form>

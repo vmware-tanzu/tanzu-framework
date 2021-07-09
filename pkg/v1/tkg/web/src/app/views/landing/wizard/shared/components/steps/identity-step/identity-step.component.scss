@@ -1,0 +1,111 @@
+.radio-label {
+    padding-bottom: 15px;
+    font-size: 16px;
+}
+
+.endpoint-ip-input {
+    width: 112px;
+    min-width: 112px;
+}
+
+.endpoint-port-input {
+    width: 40px;
+    min-width: 40px;
+}
+
+.endpoint-slash {
+    width: 25px;
+    min-width: 25px;
+    border-bottom: none;
+    margin-right: -3px;
+    margin-left: 60px;
+}
+
+.endpoint-colon {
+    width: 25px;
+    min-width: 25px;
+    border-bottom: none;
+    margin-right: -11px;
+}
+
+clr-select-container.ldap-header {
+    margin-top: -23px;
+}
+
+// Temporary override to fix top margins
+.oidc-form {
+    clr-input-container.clr-form-control {
+        margin-top: 0;
+    }
+}
+
+.ldap-endpoint {
+    margin-top: 0;
+
+    label.ldap-endpoint-label {
+        display: block;
+        line-height: 18px;
+        font-size: 13px;
+        font-weight: 600;
+        top: 25px;
+        position: relative;
+        color: #454545;
+    }
+
+    .clr-input-wrapper {
+        display: inline-block;
+
+        input {
+            margin-left: 0;
+        }
+    }
+
+    clr-icon.clr-validate-icon.clr-error {
+        position: relative;
+        right: -20px;
+        display: inline-block;
+    }
+}
+
+.clr-textarea {
+    width: 500px;
+    height: 120px;
+}
+
+.claim-container {
+    margin-left: 0;
+}
+
+.btn-claim {
+    margin-left: 1rem;
+}
+
+.btn-delete {
+    border: none;
+}
+
+.claim-input {
+    margin-top: .1rem;
+    margin-bottom: 24px;
+}
+
+.clr-textarea {
+    width: 500px;
+    height: 120px;
+}
+
+.err-claim {
+    max-width: 175px;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+}
+
+.button-container {
+    display: flex;
+    flex: 1 1;
+    justify-content: center;
+    align-items: center;
+}

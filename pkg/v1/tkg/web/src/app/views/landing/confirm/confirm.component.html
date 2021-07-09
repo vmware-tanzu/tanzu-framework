@@ -1,0 +1,44 @@
+<div class="clr-row">
+    <div class="clr-col-12">
+        <h2 i18n="start page welcome title" aria-level="1">{{ pageTitle }} - Confirm Settings</h2>
+    </div>
+</div>
+<div *ngIf="errorNotification" class="alert alert-danger" role="alert">
+  <div class="alert-items">
+    <div class="alert-item static">
+      <div class="alert-icon-wrapper">
+        <clr-icon class="alert-icon" shape="exclamation-circle"></clr-icon>
+      </div>
+      <span class="alert-text" i18n="connect vcenter failure notification">
+          {{ errorNotification }}
+      </span>
+    </div>
+  </div>
+  <button (click)="errorNotification = null" type="button" class="close" aria-label="Close">
+    <clr-icon aria-hidden="true" shape="close"></clr-icon>
+  </button>
+</div>
+<ng-container *ngFor="let formData of formMetaDataList; let idx = index">
+    <div class="clr-row">
+        <div class="clr-col-12">
+            <table class="table">
+                <thead *ngIf="stepMetaDataList[idx]">
+                    <tr>
+                        <th class="left">{{ stepMetaDataList[idx].title }}</th>
+                        <th class="left">{{ stepMetaDataList[idx].description }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <ng-container *ngFor="let entry of entries(formData)">
+                        <tr>
+                            <td class="left">{{ entry.label }}</td>
+                            <td class="left">{{ entry.displayValue }}</td>
+                        </tr>
+                    </ng-container>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</ng-container>
+
+<app-preview-config></app-preview-config>

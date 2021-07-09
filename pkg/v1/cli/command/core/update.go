@@ -1,0 +1,119 @@
+// Copyright 2021 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+package core
+
+import (
+	"fmt"
+	"strings"
+
+	"github.com/AlecAivazis/survey/v2"
+	"github.com/aunum/log"
+	"github.com/spf13/cobra"
+
+	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
+)
+
+var yesUpdate bool
+
+func init() {
+	updateCmd.SetUsageFunc(cli.SubCmdUsageFunc)
+	updateCmd.Flags().BoolVarP(&yesUpdate, "yes", "y", false, "force update; skip prompt")
+	updateCmd.Flags().StringSliceVarP(&local, "local", "l", []string{}, "path to local repository")
+}
+
+var updateCmd = &cobra.Command{
+	Use:   "update",
+	Short: "Update the CLI",
+	Annotations: map[string]string{
+		"group": string(cliv1alpha1.SystemCmdGroup),
+	},
+	RunE: func(cmd *cobra.Command, args []string) error {
+		// clean the catalog cache when updating the cli
+		if err := cli.CleanCatalogCache(); err != nil {
+			log.Debugf("Failed to clean the Plugin descriptors cache %v", err)
+		}
+		plugins, err := cli.ListPlugins()
+		if err != nil {
+			return err
+		}
+
+		repos := getRepositories()
+		coreRepo, err := repos.Find(cli.CoreName)
+		if err != nil {
+			return err
+		}
+
+		type updateInfo struct {
+			version string
+			repo    cli.Repository
+		}
+
+		updateMap := map[*cliv1alpha1.PluginDescriptor]updateInfo{}
+		for _, plugin := range plugins {
+			if plugin.Name == cli.CoreName {
+				continue
+			}
+			update, repo, version, err := cli.HasPluginUpdateIn(repos, plugin)
+			if err != nil {
+				log.Warningf("could not find local plugin %q in any remote repositories", plugin.Name)
+				continue
+			}
+			if update {
+				updateMap[plugin] = updateInfo{version, repo}
+			}
+		}
+
+		coreUpdate, coreVersion, err := cli.HasUpdate(coreRepo)
+		if err != nil {
+			return err
+		}
+
+		if len(updateMap) == 0 && !coreUpdate {
+			log.Info("everything up to date")
+			return nil
+		}
+
+		log.Info("the following updates will take place:")
+		if coreUpdate {
+			fmt.Printf("     %s %s → %s\n", cli.CoreName, cli.BuildVersion, coreVersion)
+		}
+		for plugin, version := range updateMap {
+			fmt.Printf("     %s %s → %s\n", plugin.Name, plugin.Version, version)
+		}
+		// formatting
+		fmt.Println()
+
+		if !yesUpdate {
+			input := &survey.Input{Message: "would you like to continue? [y/n]"}
+			var resp string
+			err := survey.AskOne(input, &resp)
+			if err != nil {
+				return err
+			}
+			update := strings.ToLower(resp)
+			if update != "y" && update != "yes" {
+				log.Info("aborting update")
+				return nil
+			}
+		}
+		for plugin, info := range updateMap {
+			err := cli.InstallPlugin(plugin.Name, info.version, info.repo)
+			if err != nil {
+				return err
+			}
+		}
+
+		// update core
+		err = cli.Update(coreRepo)
+		if err != nil {
+			return err
+		}
+
+		// formatting
+		fmt.Println()
+		log.Success("successfully updated CLI")
+		return nil
+	},
+}

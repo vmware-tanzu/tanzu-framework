@@ -1,0 +1,124 @@
+<form [formGroup]="formGroup">
+    <h4 i18n="vpc for aws" aria-level="2">
+        VPC for AWS
+    </h4>
+    <app-step-form-notification [errorNotification]="errorNotification"></app-step-form-notification>
+    <div class="clr-row">
+        <div class="clr-col-8">
+            <clr-radio-container clrInline>
+                <clr-radio-wrapper>
+                    <input type="radio" name="vpcType" clrRadio value="new" formControlName="vpcType">
+                    <label>
+                        Create new VPC on AWS
+                    </label>
+                </clr-radio-wrapper>
+                <clr-radio-wrapper>
+                    <input type="radio" name="vpcType" clrRadio value="existing" formControlName="vpcType">
+                    <label>
+                        Select an existing VPC
+                    </label>
+                </clr-radio-wrapper>
+            </clr-radio-container>
+        </div>
+    </div>
+
+    <div class="clr-row" *ngIf="formGroup.value.vpcType == 'new'">
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+            <clr-input-container [attr.data-step-metadata]="formName">
+                <label i18n="aws vpc cidr label" clr-control-label>
+                    VPC CIDR
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                The CIDR block to be used when the provider creates a managed VPC.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <input clrInput formControlName="vpc" placeholder="" />
+                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+                <clr-control-error i18n="aws vpc cidr required msg" *clrIfError="validatorEnum.REQUIRED">
+                    VPC CIDR cannot be empty
+                </clr-control-error>
+                <clr-control-error i18n="aws vpc cidr invalid msg" *clrIfError="validatorEnum.VALID_IP">
+                    VPC CIDR format is invalid
+                </clr-control-error>
+            </clr-input-container>
+        </div>
+    </div>
+    <div class="clr-row" *ngIf="formGroup.value.vpcType == 'existing'">
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+            <clr-select-container [attr.data-step-metadata]="formName">
+                <label i18n="existing vpc label">
+                    VPC ID
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                Select an existing VPC from your AWS account.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <select clrSelect name="existingVpcId" formControlName="existingVpcId"
+                    (change)="existingVpcOnChange($event.target.value)">
+                    <option aria-label="blank" title="blank"></option>
+                    <ng-container *ngFor="let existingVpc of existingVpcs">
+                        <option [value]="existingVpc.id">
+                            {{ existingVpc.id }}
+                        </option>
+                    </ng-container>
+                </select>
+                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+                <clr-control-error>Selecting an existing VPC is required</clr-control-error>
+            </clr-select-container>
+        </div>
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+            <clr-input-container [attr.data-step-metadata]="formName">
+                <label i18n="existing vpc cidr" clr-control-label>
+                    VPC CIDR
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                Read-only. The VPC CIDR associated with the selected existing VPC.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <input clrInput formControlName="existingVpcCidr" placeholder="" [readonly]="true"
+                    class="input-disabled" />
+                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+            </clr-input-container>
+        </div>
+    </div>
+
+    <div class="clr-row" *ngIf="formGroup.value.vpcType == 'existing'">
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+            <clr-checkbox-container [attr.data-step-metadata]="formName">
+                <clr-checkbox-wrapper>
+                    <input type="checkbox" clrCheckbox name="nonInternetFacingVPC"
+                        formControlName="nonInternetFacingVPC" role="checkbox"
+                        aria-label="This is not an internet facing VPC" />
+                    <label i18n="aws vpc non internet facing" clr-control-label
+                        data-full="THIS IS NOT AN INTERNET FACING VPC">
+                        This is not an internet facing VPC
+                        <clr-tooltip>
+                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                <span>
+                                    Public subnet IDs shouldn't be provided for any non internet facing VPC.
+                                </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                </clr-checkbox-wrapper>
+            </clr-checkbox-container>
+        </div>
+    </div>
+
+</form>

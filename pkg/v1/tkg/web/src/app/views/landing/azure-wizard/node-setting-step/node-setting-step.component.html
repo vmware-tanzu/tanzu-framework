@@ -1,0 +1,183 @@
+<form [formGroup]="formGroup" *ngIf="displayForm">
+    <h4 i18n="cluster settings" aria-level="2">
+        {{ clusterType | titlecase }} Cluster Settings
+    </h4>
+
+    <div class="clr-row">
+        <div class="clr-col-lg-6 clr-col-12">
+            <a class="card clickable" [ngClass]="{'card-selected': getEnvType()==='dev'}" (click)="cardClick('dev')" role="none">
+                <div class="card-block">
+                    <clr-icon class="card-icon" shape="computer" size="72">
+                    </clr-icon>
+                    <p class="card-title" i18n="development control plane title">
+                        Development
+                    </p>
+                    <p i18n="development description" class="card-text">
+                        Single control plane node. Recommended for a development environment.
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <div class="clr-row" [attr.data-step-metadata]="formName">
+                        <div class="clr-col-lg-5 clr-col-12">
+                            <label i18n="instance type label" data-full="Development instance type">
+                                INSTANCE TYPE
+                                <clr-tooltip>
+                                    <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                    <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                        <span>
+                                            Choose the configuration for the control plane node VMs depending on
+                                            the expected number of workload clusters to manage.
+                                        </span>
+                                    </clr-tooltip-content>
+                                </clr-tooltip>
+                            </label>
+                        </div>
+                        <div class="clr-col-lg-7 clr-col-12">
+                            <clr-select-container class="node-type-container">
+                                <select clrSelect class="node-type-select" name="devInstanceType"
+                                    role="listbox" aria-label="development instance type"
+                                    formControlName="devInstanceType">
+                                    <option aria-label="blank" title="blank"></option>
+                                    <ng-container *ngFor="let nodeType of nodeTypes">
+                                        <option [value]="nodeType.name">
+                                            {{nodeType.name}}
+                                        </option>
+                                    </ng-container>
+                                </select>
+                            </clr-select-container>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="clr-col-lg-6 clr-col-12">
+            <a class="card clickable" [ngClass]="{'card-selected': getEnvType()==='prod'}" (click)="cardClick('prod')" role="none">
+                <div class="card-block">
+                    <clr-icon class="card-icon" shape="building" size="72">
+                    </clr-icon>
+                    <p class="card-title" i18n="production control plane title">
+                        Production
+                    </p>
+                    <p i18n="production description" class="card-text">
+                        Three control plane nodes. Recommended for a production environment.
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <div class="clr-row" [attr.data-step-metadata]="formName">
+                        <div class="clr-col-lg-5 clr-col-12">
+                            <label i18n="instance type label" data-full="Production instance type">
+                                INSTANCE TYPE
+                                <clr-tooltip>
+                                    <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                    <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                        <span>
+                                            Choose the configuration for the control plane node VMs depending on
+                                            the expected number of workload clusters to manage.
+                                        </span>
+                                    </clr-tooltip-content>
+                                </clr-tooltip>
+                            </label>
+                        </div>
+                        <div class="clr-col-lg-7 clr-col-12">
+                            <clr-select-container class="node-type-container">
+                                <select clrSelect class="node-type-select" name="prodInstanceType"
+                                    role="listbox" aria-label="production instance type"
+                                    formControlName="prodInstanceType">
+                                    <option aria-label="blank" title="blank"></option>
+                                    <ng-container *ngFor="let nodeType of nodeTypes">
+                                        <option [value]="nodeType.name">
+                                            {{nodeType.name}}
+                                        </option>
+                                    </ng-container>
+                                </select>
+                            </clr-select-container>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="clr-row">
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+            <clr-input-container [attr.data-step-metadata]="formName">
+                <label i18n="cluster name label" clr-control-label>
+                    {{ clusterType | uppercase }} CLUSTER NAME (OPTIONAL)
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                Optionally specify a name for the {{ clusterType }} cluster. If left blank,
+                                the installer names the cluster automatically.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <input clrInput formControlName="managementClusterName" placeholder="optional" maxlength="42"/>
+                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+                <clr-control-error i18n="cluster name valid msg"
+                    *clrIfError="validatorEnum.VALID_CLUSTER_NAME">
+                    {{ clusterType | titlecase }} Cluster Name must consist of lower case alphanumeric characters, '-' or '.', and must start
+                    and end with an alphanumeric character.
+                </clr-control-error>
+                <clr-control-error i18n="cluster name valid msg" *clrIfError="validatorEnum.WHITESPACE">
+                    {{ clusterType | titlecase }} Cluster Name must not include whitespace on ends.
+                </clr-control-error>
+            </clr-input-container>
+        </div>
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *ngIf="clusterType !== 'standalone'">
+            <clr-select-container [attr.data-step-metadata]="formName">
+                <label i18n="azure worker node instance label">
+                    WORKER NODE INSTANCE TYPE
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                Select worker node instance type.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <select clrSelect name="workerNodeInstanceType" formControlName="workerNodeInstanceType" role="listbox" aria-label="worker node instance type">
+                    <option aria-label="blank" title="blank"></option>
+                    <ng-container *ngFor="let nodeType of nodeTypes">
+                        <option [value]="nodeType.name">
+                            {{nodeType.name}}
+                        </option>
+                    </ng-container>
+                </select>
+                <clr-control-error>Selecting a worker node instance type is required</clr-control-error>
+            </clr-select-container>
+        </div>
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+            <clr-checkbox-container [attr.data-step-metadata]="formName">
+                <label i18n="cluster enable machine health check" clr-control-label
+                    data-full="ENABLE MACHINE HEALTH CHECKS">
+                    MACHINE HEALTH CHECKS
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
+                            <span>
+                                Enable Machine Health Checks to provide node health monitoring on the clusters that you
+                                deploy with this {{ clusterType }} cluster.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <clr-checkbox-wrapper>
+                    <input type="checkbox" clrCheckbox name="machineHealthChecksEnabled"
+                        role="checkbox" aria-label="Enable Machine Health Checks"
+                        formControlName="machineHealthChecksEnabled" />
+                    <label>Enable</label>
+                </clr-checkbox-wrapper>
+            </clr-checkbox-container>
+        </div>
+    </div>
+    <div class="clr-row">
+        <div class="clr-col-4">
+            <app-audit-logging [formGroup]="formGroup" [formName]="formName"></app-audit-logging>
+        </div>
+    </div>
+</form>

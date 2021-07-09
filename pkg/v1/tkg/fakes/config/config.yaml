@@ -1,0 +1,27 @@
+providers:
+  - # add a custom provider
+    name: "my-infra-provider"
+    url: "https://github.com/myorg/myrepo/releases/latest/infrastructure_components.yaml"
+    type: "InfrastructureProvider"
+  - name: "cluster-api" # override a pre-defined provider
+    url: "https://github.com/myorg/myforkofclusterapi/releases/latest/core_components.yaml"
+    type: "CoreProvider"
+  - name: aws
+    url: /Users/dummy/.tkg/providers/infrastructure-aws/v0.5.1/infrastructure-components.yaml
+    type: InfrastructureProvider
+  - name: vsphere
+    url: /Users/dummy/.tkg/providers/infrastructure-vsphere/v0.6.2/infrastructure-components.yaml
+    type: InfrastructureProvider
+  - name: vsphere
+    url: /Users/dummy/.tkg/providers/infrastructure-vsphere/v0.7.0/infrastructure-components.yaml
+    type: InfrastructureProvider
+
+# Values for environment variable substitution
+AWS_B64ENCODED_CREDENTIALS: XXXXXXXX
+VSPHERE_SERVER: "10.10.10.10"
+KUBERNETES_VERSION: v1.16.0
+BAR: bar
+AWS_VPC_ID: VPC-XXXXXXX
+VSPHERE_RESOURCE_POOL: "*/cluster365/Resources"
+VSPHERE_DATACENTER: dc-0
+FOO: new-foo

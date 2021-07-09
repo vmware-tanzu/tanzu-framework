@@ -1,0 +1,86 @@
+<form [formGroup]="formGroup">
+    <div *ngIf="osImages?.length == 0" class="alert alert-warning" role="alert">
+        <div class="alert-items">
+            <div class="alert-item static">
+                <div class="alert-icon-wrapper">
+                    <clr-icon class="alert-icon" shape="exclamation-triangle"></clr-icon>
+                </div>
+                <span class="alert-text" i18n="os image k8s version notification">
+                    {{ noImageAlertMessage }}
+                </span>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="nonTemplateAlert && enableNonTemplateAlert" class="alert alert-warning" role="alert">
+        <div class="alert-items">
+            <div class="alert-item static">
+                <div class="alert-icon-wrapper">
+                    <clr-icon class="alert-icon" shape="exclamation-triangle"></clr-icon>
+                </div>
+                <span class="alert-text" i18n="os image k8s version notification">
+                    Your selected OS image must be converted to a VM template. You may click the refresh icon to reload
+                    the OS image list once this has been done.
+                </span>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="errorNotification" class="alert alert-danger" role="alert">
+        <div class="alert-items">
+            <div class="alert-item static">
+                <div class="alert-icon-wrapper">
+                    <clr-icon class="alert-icon" shape="exclamation-circle"></clr-icon>
+                </div>
+                <span class="alert-text" i18n="retrieve os list failure notification">
+                    {{ errorNotification }}
+                </span>
+            </div>
+        </div>
+        <button (click)="errorNotification = null" type="button" class="close" aria-label="Close">
+            <clr-icon aria-hidden="true" shape="close"></clr-icon>
+        </button>
+    </div>
+    <h4 i18n="os image title" aria-level="2" *ngIf="tkrVersion">
+        OS Image with Kubernetes {{ tkrVersion }}
+    </h4>
+
+    <clr-select-container class="os-image" [attr.data-step-metadata]="formName">
+        <label i18n="os image label">
+            OS IMAGE
+            <clr-tooltip>
+                <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                    <span>
+                        {{ osImageTooltipContent }}
+                    </span>
+                </clr-tooltip-content>
+            </clr-tooltip>
+        </label>
+        <select clrSelect name="osImage" formControlName="osImage" (change)="onOptionsSelected()">
+            <option aria-label="blank" title="blank"></option>
+            <ng-container *ngFor="let osImage of osImages">
+                <option [ngValue]="osImage">
+                    {{ osImage.name }}
+                </option>
+            </ng-container>
+        </select>
+        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+        <clr-control-helper></clr-control-helper>
+        <clr-control-error>Selecting an OS image is required</clr-control-error>
+    </clr-select-container>
+    <button class="refresh-btn reset" 
+            role="button" 
+            aria-label="refresh os images" 
+            tabindex="0"
+            (click)="retrieveOsImages()">
+            <clr-icon
+                *ngIf="!loadingOsTemplate"
+                shape="refresh"
+                aria-label="os images loaded"
+            >
+            </clr-icon>
+    </button>
+    <span aria-label="loading resources"
+        *ngIf="loadingOsTemplate"
+        class="spinner spinner-sm">
+    </span>
+</form>

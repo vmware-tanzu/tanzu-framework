@@ -1,0 +1,40 @@
+apiVersion: run.tanzu.vmware.com/v1alpha1
+kind: TanzuKubernetesRelease
+metadata:
+  name: v1.16.8---vmware.1-tkg.3.60d2ffd
+  labels:
+    v1: ""
+    v1.16: ""
+    v1.16.8: latest
+    v1.16.8---vmware: latest
+    v1.16.8---vmware.1: latest
+    v1.16.8---vmware.1-tkg: latest
+    v1.16.8---vmware.1-tkg.3: latest
+    v1.16.8---vmware.1-tkg.3.60d2ffd: latest
+
+spec:
+  version: 1.16.8+vmware.1-tkg.3.60d2ffd
+
+  kubernetesVersion: 1.16.8+vmware.1
+
+  repository: vmware.io
+
+  images:
+  - name: coredns
+    repository: vmware.io  # optional (default: top level repository)
+    tag: v1.6.5_vmware.2
+  - name: etcd
+    tag: v3.3.15_vmware.4
+
+  nodeImageRef:
+    apiVersion: vmoperator.vmware.com/v1alpha1
+    kind: VirtualMachineImage
+    name: photon-3-k8s-v1.16.8---vmware.1-tkg.3.60d2ffd
+
+status:
+  conditions:
+  - type: UpdateAvailable # TODO GCM-3187
+    status: True
+    message: a TKR with a later version is available
+  - type: Compatible
+    status: True

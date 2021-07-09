@@ -1,0 +1,64 @@
+<div class="clr-row mb-20">
+    <div class="clr-col-12">
+        <clr-icon
+            shape="arrow"
+            dir="left"
+            size="30"
+            class="is-info back-link"
+            role="button"
+            tabindex="0"
+            aria-label="back"
+            (click)="navigate(APP_ROUTES.LANDING)"></clr-icon>
+        <h2 i18n="wizard title">
+            <div class="vsphere-icon-30"></div>
+            vSphere with Tanzu Environment Detected
+        </h2>
+    </div>
+</div>
+<p i18n="vsphere with k8s detected page content">
+    You have connected to a vSphere 7 environment which could be entitled for vSphere with Tanzu
+    and Tanzu Kubernetes Grid Service. By using vSphere with Tanzu you can turn a vSphere cluster
+    into a platform for running Kubernetes workloads in dedicated resource pools. Once enabled on a
+    vSphere cluster, vSphere with Tanzu creates a Kubernetes control plane directly in the hypervisor
+    layer. You can then run Kubernetes containers by deploying vSphere Pods, or you can create upstream
+    Kubernetes clusters through the VMware Tanzu™ Kubernetes Grid™ Service and run your applications
+    inside these clusters. Tanzu Kubernetes Grid Service is the preferred way to consume Tanzu Kubernetes
+    Grid on vSphere environments.
+</p>
+<p>
+    <button
+            class="btn btn-primary" style="width: 600px; max-width: 600px;"
+            (click)="launchVsphereWcp()">
+        Configure vSphere with Tanzu
+    </button>
+</p>
+<p>
+    Deploying a non-integrated Tanzu Kubernetes Grid {{ clusterType }} cluster on vSphere 7 requires a subscription
+    to Tanzu Kubernetes Grid Plus.
+</p>
+<div>
+    <clr-toggle-container>
+        <clr-toggle-wrapper>
+            <input type="checkbox" clrToggle name="options" [(ngModel)]="hasTkgPlus"/>
+            <label>I have a subscription to Tanzu Kubernetes Grid Plus</label>
+        </clr-toggle-wrapper>
+    </clr-toggle-container>
+</div>
+<button
+        class="btn btn-primary" style="width: 600px; max-width: 600px;"
+        (click)="relaunchVsphereWizard()"
+        [disabled]="hasTkgPlus === false">
+    Deploy non-integrated Tanzu Kubernetes Grid {{ clusterType | titlecase }} Cluster
+</button>
+<p>
+    Not sure of the difference between TKG multicloud and TKG Service? Learn more
+    <a href="https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid/index.html" target="_blank">
+        here. <clr-icon shape="pop-out"></clr-icon>
+    </a><br>
+    Documentation for vSphere with Tanzu and TKG Service can be found
+    <a href="https://docs.vmware.com/en/VMware-vSphere/7.0/vmware-vsphere-with-kubernetes/GUID-C163490C-BE03-4DFE-8A03-5316D3245765.html" target="_blank">
+        here.<clr-icon shape="pop-out"></clr-icon>
+    </a><br>
+
+</p>
+

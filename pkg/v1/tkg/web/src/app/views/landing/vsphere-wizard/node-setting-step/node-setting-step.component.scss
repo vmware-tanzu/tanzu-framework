@@ -1,0 +1,56 @@
+.card-icon {
+    position: relative;
+    left: 43%;
+}
+
+.card-title {
+    text-align: center;
+}
+
+.card-selected {
+    box-shadow: 0 .15rem 0 0 var(--clr-card-clickable-box-shadow-color);
+    border-style: solid;
+    transform: translateY(-.1rem);
+    transition: border .2s ease,transform .2s ease,-webkit-transform .2s ease;
+    border-color: var(--clr-card-clickable-border-color, #179bd3);
+}
+
+.card-footer {
+    .clr-row {
+        align-items: baseline;
+    }
+}
+
+.ha-template {
+    display: inline-block;
+}
+
+.refresh-btn {
+    cursor: pointer;
+    display: inline-block;
+    height: 100%;
+    vertical-align: top;
+    color: #0072a3;
+
+    clr-icon,
+    .spinner-sm {
+        position: relative;
+        top: 48px;
+    }
+}
+
+.node-type-container {
+    max-width: 45%;
+}
+
+.node-type-select {
+    display: inline-block;
+    max-width: 200px;
+}
+
+// tooltip max-width fix
+:host ::ng-deep clr-tooltip {
+    clr-tooltip-content {
+        max-width: 300px;
+    }
+}

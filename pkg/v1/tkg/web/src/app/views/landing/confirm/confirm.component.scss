@@ -1,0 +1,27 @@
+@import '../../../../sass/properties.scss';
+.table th.left:first-child,
+.table td.left:first-child {
+    width: 300px;
+}
+
+@media (max-width: $small) {
+    .table th.left:first-child,
+    .table td.left:first-child {
+        width: 150px;
+    }
+}
+
+.inner-th {
+    border-collapse: separate;
+    border-top-color: rgb(204, 204, 204);
+    border-top-style: solid;
+    border-top-width: 1px;
+}
+
+table.table {
+    table-layout: fixed;
+}
+
+table.table td {
+    word-wrap: break-word;
+}

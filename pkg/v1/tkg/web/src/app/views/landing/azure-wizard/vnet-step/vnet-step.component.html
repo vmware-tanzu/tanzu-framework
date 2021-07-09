@@ -1,0 +1,354 @@
+<form [formGroup]="formGroup">
+    <app-step-form-notification [errorNotification]="errorNotification"></app-step-form-notification>
+
+    <h4 i18n="network step title" aria-level="2">
+        VNET for Azure
+    </h4>
+    <div class="clr-row">
+        <div class="clr-col-12">
+            <clr-radio-container clrInline>
+                <clr-radio-wrapper>
+                    <input type="radio" clrRadio formControlName="vnetOption" required
+                        value="CUSTOM" />
+                    <label>Create a new VNET on Azure</label>
+                </clr-radio-wrapper>
+                <clr-radio-wrapper>
+                    <input type="radio" clrRadio formControlName="vnetOption" required
+                        value="EXISTING" />
+                    <label>Select an existing VNET</label>
+                </clr-radio-wrapper>
+                <clr-control-error>Must select an option for entering the VNET!</clr-control-error>
+            </clr-radio-container>
+        </div>
+    </div>
+
+    <div *ngIf="showOption === 'CUSTOM'">
+        <div class="clr-row">
+            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                <clr-select-container [attr.data-step-metadata]="formName">
+                    <label i18n="azure region label">
+                        RESOURCE GROUP
+                        <clr-tooltip>
+                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                <span>
+                                    Select an Azure resource group.
+                                </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                    <select clrSelect name="resourceGroup" formControlName="resourceGroup">
+                        <option aria-label="blank" title="blank"></option>
+                        <option *ngIf="customResourceGroup !== ''" [value]="customResourceGroup">{{customResourceGroup}}</option>
+                        <option *ngFor="let rg of resourceGroups" [value]="rg.name">{{ rg.name }}
+                        </option>
+                    </select>
+                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                    <clr-control-error i18n="azure resource group required msg" *clrIfError="validatorEnum.REQUIRED">
+                        Azure Resource Group is required
+                    </clr-control-error>
+                </clr-select-container>
+            </div>
+            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                <clr-input-container [attr.data-step-metadata]="formName">
+                    <label i18n="azure vnet name label" clr-control-label>
+                        VNET NAME
+                        <clr-tooltip>
+                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                <span>
+                                    The name of the new VNET to be created upon deployment of your {{ clusterType }} cluster.
+                                </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                    <input clrInput formControlName="vnetNameCustom" placeholder="VNET name" />
+                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                    <clr-control-error i18n="azure VNET name required msg" *clrIfError="validatorEnum.REQUIRED">
+                        VNET Name cannot be empty
+                    </clr-control-error>
+                </clr-input-container>
+            </div>
+            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                <clr-input-container [attr.data-step-metadata]="formName">
+                    <label i18n="azure region label">
+                        VNET CIDR BLOCK
+                        <clr-tooltip>
+                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
+                                <span>
+                                    Enter an Azure VNET CIDR block for the new VNET. Default value is {{defaultVnetCidr}}.
+                                </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                    <input clrInput name="vnetCidrBlock" formControlName="vnetCidrBlock" placeholder="VNET CIDR block" />
+                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                    <clr-control-error i18n="azure resource group required msg" *clrIfError="validatorEnum.REQUIRED">
+                        Azure VNET CIDR block is required
+                    </clr-control-error>
+                    <clr-control-error i18n="azure vnet cidr block invalid msg" *clrIfError="validatorEnum.VALID_IP">
+                        VNET CIDR block format is invalid
+                    </clr-control-error>
+                </clr-input-container>
+            </div>
+        </div>
+        <div class="clr-row">
+            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                <clr-input-container [attr.data-step-metadata]="formName">
+                    <label i18n="azure control plane subnet label" clr-control-label>
+                        CONTROL PLANE SUBNET NAME
+                        <clr-tooltip>
+                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                <span>
+                                    A name for the subnet assigned to the {{ clusterType }} cluster control plane node.
+                                </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                    <input clrInput formControlName="controlPlaneSubnetNew" placeholder="Subnet name" />
+                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                    <clr-control-error i18n="azure control plane subnet required msg" *clrIfError="validatorEnum.REQUIRED">
+                        control plane subnet name cannot be empty
+                    </clr-control-error>
+                </clr-input-container>
+            </div>
+            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                <clr-input-container [attr.data-step-metadata]="formName">
+                    <label i18n="azure control plane cidr label" clr-control-label>
+                        CONTROL PLANE SUBNET CIDR
+                        <clr-tooltip>
+                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                <span>
+                                    A subnet for the {{ clusterType }} cluster control plane node. This subnet
+                                    should belong to your VNET CIDR. Default value is {{defaultControlPlaneCidr}}.
+                                </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                    <input clrInput name="controlPlaneSubnetCidrNew" formControlName="controlPlaneSubnetCidrNew" placeholder="CIDR" />
+                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                    <clr-control-error i18n="azure control plane cidr required msg" *clrIfError="validatorEnum.REQUIRED">
+                        control plane subnet cidr cannot be empty
+                    </clr-control-error>
+                    <clr-control-error i18n="azure control plane cidr invalid msg" *clrIfError="validatorEnum.VALID_IP">
+                        control plane subnet cidr format is invalid
+                    </clr-control-error>
+                </clr-input-container>
+            </div>
+        </div>
+        <div class="clr-row">
+            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                <clr-input-container [attr.data-step-metadata]="formName">
+                    <label i18n="azure worker node subnet label" clr-control-label>
+                        WORKER NODE SUBNET NAME
+                        <clr-tooltip>
+                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                <span>
+                                    A name for the subnet assigned to the {{ clusterType }} cluster worker nodes.
+                                </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                    <input clrInput formControlName="workerNodeSubnetNew" placeholder="Subnet name" />
+                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                    <clr-control-error i18n="azure worker node subnet required msg" *clrIfError="validatorEnum.REQUIRED">
+                        worker node subnet name cannot be empty
+                    </clr-control-error>
+                </clr-input-container>
+            </div>
+            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                <clr-input-container [attr.data-step-metadata]="formName">
+                    <label i18n="azure worker node cidr label" clr-control-label>
+                        WORKER NODE SUBNET CIDR
+                        <clr-tooltip>
+                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                <span>
+                                    A subnet for the {{ clusterType }} cluster worker nodes. This subnet
+                                    should belong to your VNET CIDR. Default value is {{defaultWorkerNodeCidr}}.
+                                </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                    <input clrInput name="workerNodeSubnetCidrNew" formControlName="workerNodeSubnetCidrNew" placeholder="CIDR" />
+                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                    <clr-control-error i18n="azure worker node cidr required msg" *clrIfError="validatorEnum.REQUIRED">
+                        worker node subnet cidr cannot be empty
+                    </clr-control-error>
+                    <clr-control-error i18n="azure worker node cidr invalid msg" *clrIfError="validatorEnum.VALID_IP">
+                        worker node subnet cidr format is invalid
+                    </clr-control-error>
+                </clr-input-container>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="showOption === 'EXISTING'" class="clr-row">
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+            <clr-select-container [attr.data-step-metadata]="formName">
+                <label i18n="azure resourceg group label">
+                    RESOURCE GROUP
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                Select an Azure resource group.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <select clrSelect name="resourceGroup" formControlName="resourceGroup">
+                    <option aria-label="blank" title="blank"></option>
+                    <option *ngFor="let rg of resourceGroups" [value]="rg.name">{{ rg.name }}
+                    </option>
+                </select>
+                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+                <clr-control-error i18n="azure resource group required msg" *clrIfError="validatorEnum.REQUIRED">
+                    Azure Resource Group is required
+                </clr-control-error>
+            </clr-select-container>
+        </div>
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+            <clr-select-container [attr.data-step-metadata]="formName">
+                <label i18n="azure vnet name label">
+                    VNET NAME
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                Select an Azure VNET.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <select clrSelect name="vnetNameExisting" formControlName="vnetNameExisting">
+                    <option aria-label="blank" title="blank"></option>
+                    <option *ngFor="let vne of vnetNamesExisting" [value]="vne">{{ vne }}
+                    </option>
+                </select>
+                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+                <clr-control-error i18n="azure resource group required msg" *clrIfError="validatorEnum.REQUIRED">
+                    Azure VNET name is required
+                </clr-control-error>
+            </clr-select-container>
+        </div>
+    </div>
+
+    <div *ngIf="showOption === 'EXISTING'" class="clr-row">
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+            <clr-select-container [attr.data-step-metadata]="formName">
+                <label i18n="azure control plane subnet label">
+                    CONTROL PLANE SUBNET
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                Select an Azure control plane subnet.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <select clrSelect name="controlPlaneSubnet" formControlName="controlPlaneSubnet">
+                    <option aria-label="blank" title="blank"></option>
+                    <option *ngFor="let cps of controlPlaneSubnets" [value]="cps.name">{{ cps.name }}
+                    </option>
+                </select>
+                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+                <clr-control-error i18n="azure resource group required msg" *clrIfError="validatorEnum.REQUIRED">
+                    Control plane subnet is required
+                </clr-control-error>
+            </clr-select-container>
+        </div>
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+            <clr-select-container [attr.data-step-metadata]="formName">
+                <label i18n="azure worker node subnet label">
+                    WORKER NODE SUBNET
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                Select a worker node subnet.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <select clrSelect name="workerNodeSubnet" formControlName="workerNodeSubnet">
+                    <option aria-label="blank" title="blank"></option>
+                    <option *ngFor="let wns of workerNodeSubnets" [value]="wns.name">{{ wns.name }}
+                    </option>
+                </select>
+                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+                <clr-control-error i18n="azure worker node subnet required msg" *clrIfError="validatorEnum.REQUIRED">
+                    Azure worker node subnet is required
+                </clr-control-error>
+            </clr-select-container>
+        </div>
+    </div>
+
+    <div class="clr-row">
+        <div class="clr-col-4">
+            <clr-checkbox-container [attr.data-step-metadata]="formName">
+                <clr-checkbox-wrapper>
+                    <input type="checkbox" clrCheckbox name="privateAzureCluster"
+                        formControlName="privateAzureCluster" />
+                    <label i18n="Azure whether it is going to be a private cluster label">
+                        PRIVATE AZURE CLUSTER
+                        <clr-tooltip>
+                            <clr-icon clrTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                <span>
+                                    Check this if creating a cluster using private IP.
+                                </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                </clr-checkbox-wrapper>
+            </clr-checkbox-container>
+        </div>
+    </div>
+    <div class="clr-row">
+        <div *ngIf="createPrivateCluster" class="clr-col-6">
+            <clr-input-container [attr.data-step-metadata]="formName">
+                <label class="hidden" i18n="load balancer template label">
+                    PRIVATE IP
+                    <clr-tooltip>
+                        <clr-icon clrTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            When using an api server load balancer of type Internal, the default private IP address associated with that load
+                            balancer will be 10.0.0.100. If also specifying a custom virtual network, make sure you provide a private IP address
+                            that is in the range of your control plane subnet and not in use.
+                            <span *ngIf="cidrHolder[showOption]">Must be a valid IP within subnet {{cidrHolder[showOption]}}</span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <input clrInput formControlName="privateIP" placeholder="" />
+                <clr-control-error i18n="private IP required msg" *clrIfError="validatorEnum.REQUIRED">
+                    Private IP is required
+                </clr-control-error>
+                <clr-control-error i18n="private IP format msg"
+                    *clrIfError="validatorEnum.VALID_IP_OR_FQDN">
+                    Private IP format is invalid
+                </clr-control-error>
+                <clr-control-error i18n="private IP not in range msg" *clrIfError="validatorEnum.IP_IN_SUBNET_RANGE">
+                    Private IP not in the designated subnet range
+                </clr-control-error>
+            </clr-input-container>
+        </div>
+    </div>
+
+</form>

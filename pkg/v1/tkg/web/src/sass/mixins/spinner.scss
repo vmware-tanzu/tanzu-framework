@@ -1,0 +1,32 @@
+@mixin spinner {
+    .spinner-wrapper {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-top: 120px;
+    }
+
+    .spinner-text {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        justify-content: center;
+    }
+
+    .loading-overlap-wrapper {
+
+        position: relative;
+
+        .loading-overlap {
+            float: left;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            opacity: 1;
+            z-index: 10;
+        }
+    }
+}

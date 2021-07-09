@@ -1,0 +1,28 @@
+clr-input-container {
+    padding-left: 12px;
+}
+.resource-form {
+    min-height: 230px;
+}
+.tree-container {
+    display: block;
+    background: #eee;
+    margin-left: 12px;
+    margin-top: 12px;
+    padding-right: 12px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+button.reset {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+}
+
+:host-context(.dark) .tree-container {
+    background: #22343c;
+}

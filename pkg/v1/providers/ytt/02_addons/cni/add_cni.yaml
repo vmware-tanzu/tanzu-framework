@@ -1,0 +1,142 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:struct", "struct")
+#@ load("/lib/helpers.star", "ValuesFormatStr")
+
+#@ def removeKappConfigCR():
+#@overlay/match by=overlay.subset({"apiVersion":"kapp.k14s.io/v1alpha1","kind":"Config"})
+#@overlay/remove
+---
+#@ end
+
+#! skip generation of CNI for TKGs and on cluster upgrade
+#@ if data.values.PROVIDER_TYPE != "tkg-service-vsphere" and not data.values.FILTER_BY_ADDON_TYPE:
+
+#@ if data.values.CNI == "calico":
+#@ load("/vendir/cni/cni.lib.yaml", "cni_calico_lib")
+
+#@ load("calico/calico_addon_data.lib.yaml", "calicodatavalues", "calicoImageInfo")
+
+#! skip generation of CNI for workload clusters
+#@ if data.values.TKG_CLUSTER_ROLE != "workload":
+---
+apiVersion: addons.cluster.x-k8s.io/v1alpha3
+kind: ClusterResourceSet
+metadata:
+  name: #@ "{}-calico".format(data.values.CLUSTER_NAME)
+  labels:
+    cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "cni/calico"
+spec:
+  strategy: "ApplyOnce"
+  clusterSelector:
+    matchLabels:
+      tkg.tanzu.vmware.com/cluster-name: #@ data.values.CLUSTER_NAME
+  resources:
+    - name: #@ "{}-calico-crs".format(data.values.CLUSTER_NAME)
+      kind: Secret
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ "{}-calico-crs".format(data.values.CLUSTER_NAME)
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "cni/calico"
+type: addons.cluster.x-k8s.io/resource-set
+stringData:
+  value: #@ yaml.encode(cni_calico_lib.with_data_values(struct.encode(yaml.decode(yaml.encode(calicodatavalues())))).with_data_values(struct.encode(yaml.decode(yaml.encode(calicoImageInfo())))).eval())
+#@ end
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ "{}-calico-addon".format(data.values.CLUSTER_NAME)
+  namespace: #@ data.values.NAMESPACE
+  labels:
+    tkg.tanzu.vmware.com/addon-name: "calico"
+    tkg.tanzu.vmware.com/cluster-name: #@ data.values.CLUSTER_NAME
+    clusterctl.cluster.x-k8s.io/move: ""
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "cni/calico"
+type: tkg.tanzu.vmware.com/addon
+stringData:
+  values.yaml: #@ ValuesFormatStr.format(yaml.encode(calicodatavalues()))
+
+#@ end
+
+#@ if data.values.CNI == "antrea":
+#@ load("/vendir/cni/cni.lib.yaml", "cni_antrea_lib")
+#@ load("antrea/antrea_addon_data.lib.yaml", "antreadatavalues", "antreaImageInfo")
+
+#! skip generation of CNI for workload clusters
+#@ if data.values.TKG_CLUSTER_ROLE != "workload":
+---
+apiVersion: addons.cluster.x-k8s.io/v1alpha3
+kind: ClusterResourceSet
+metadata:
+  name: #@ "{}-antrea".format(data.values.CLUSTER_NAME)
+  labels:
+    cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "cni/antrea"
+spec:
+  strategy: "ApplyOnce"
+  clusterSelector:
+    matchLabels:
+      tkg.tanzu.vmware.com/cluster-name: #@ data.values.CLUSTER_NAME
+  resources:
+    - name: #@ "{}-antrea-crs".format(data.values.CLUSTER_NAME)
+      kind: Secret
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ "{}-antrea-crs".format(data.values.CLUSTER_NAME)
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "cni/antrea"
+type: addons.cluster.x-k8s.io/resource-set
+stringData:
+  value: #@ yaml.encode(overlay.apply(cni_antrea_lib.with_data_values(antreadatavalues()).with_data_values(antreaImageInfo()).eval(),removeKappConfigCR()))
+#@ end
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ "{}-antrea-addon".format(data.values.CLUSTER_NAME)
+  namespace: #@ data.values.NAMESPACE
+  labels:
+    tkg.tanzu.vmware.com/addon-name: "antrea"
+    tkg.tanzu.vmware.com/cluster-name: #@ data.values.CLUSTER_NAME
+    clusterctl.cluster.x-k8s.io/move: ""
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "cni/antrea"
+type: tkg.tanzu.vmware.com/addon
+stringData:
+  values.yaml: #@ ValuesFormatStr.format(yaml.encode(antreadatavalues()))
+
+#! Add CNI ingress rules to AWS cluster incase of CNI=antrea
+#@overlay/match missing_ok=True,by=overlay.subset({"kind":"AWSCluster"})
+---
+kind: AWSCluster
+spec:
+  networkSpec:
+    #@overlay/match missing_ok=True
+    cni:
+      cniIngressRules:
+        - description: antrea1
+          fromPort: 10349
+          protocol: tcp
+          toPort: 10349
+        - description: genev
+          fromPort: 6081
+          protocol: udp
+          toPort: 6081
+
+
+#@ end
+
+#@ end

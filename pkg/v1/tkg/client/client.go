@@ -1,0 +1,257 @@
+// Copyright 2021 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+// Package client implements core functionality of the tkg client
+package client
+
+import (
+	"time"
+
+	"github.com/fabriziopandini/capi-conditions/cmd/kubectl-capi-tree/status"
+	"github.com/pkg/errors"
+	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
+	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
+
+	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+
+	clusterctlconfig "sigs.k8s.io/cluster-api/cmd/clusterctl/client/config"
+	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/repository"
+
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/features"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/kind"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigproviders"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigupdater"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/types"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/vc"
+)
+
+type (
+	// Provider CAPI provider interface
+	Provider clusterctlconfig.Provider
+	// Components CAPI repostory components interface
+	Components repository.Components
+)
+
+// ClusterConfigOptions contains options required to generate a cluster configuration
+type ClusterConfigOptions clusterctl.GetClusterTemplateOptions
+
+// CreateClusterOptions contains options required to create a cluster
+type CreateClusterOptions struct {
+	ClusterConfigOptions
+	TKRVersion                  string
+	NodeSizeOptions             NodeSizeOptions
+	CniType                     string
+	ClusterOptionsEnableList    []string
+	VsphereControlPlaneEndpoint string
+	SkipValidation              bool
+	ClusterType                 TKGClusterType
+}
+
+// InitRegionOptions contains options supported by InitRegion
+type InitRegionOptions struct {
+	NodeSizeOptions             NodeSizeOptions
+	ClusterConfigFile           string
+	Kubeconfig                  string
+	Plan                        string
+	ClusterName                 string
+	CoreProvider                string
+	BootstrapProvider           string
+	InfrastructureProvider      string
+	ControlPlaneProvider        string
+	Namespace                   string
+	WatchingNamespace           string
+	TmcRegistrationURL          string
+	CniType                     string
+	VsphereControlPlaneEndpoint string
+	Edition                     string
+	Annotations                 map[string]string
+	Labels                      map[string]string
+	FeatureFlags                map[string]string
+	LaunchUI                    bool
+	DisableYTT                  bool
+	CeipOptIn                   bool
+	UseExistingCluster          bool
+}
+
+// DeleteRegionOptions contains options supported by DeleteRegion
+type DeleteRegionOptions struct {
+	Kubeconfig         string
+	ClusterName        string
+	Force              bool
+	UseExistingCluster bool
+}
+
+//go:generate counterfeiter -o ../fakes/client.go --fake-name Client . Client
+
+// Client is used to interact with the tkg client library
+type Client interface {
+	// InitRegion creates and initializes a management cluster via a
+	// self-provisioned bootstrap cluster if necessary
+	InitRegion(options *InitRegionOptions) error
+	// InitRegionDryRun generates the management cluster manifest that would be
+	// used by InitRegion to provision a new cluster
+	InitRegionDryRun(options *InitRegionOptions) ([]byte, error)
+	// GetClusterConfiguration returns a cluster configuration generated with
+	// parameters provided in the set of provided template options
+	GetClusterConfiguration(options *CreateClusterOptions) ([]byte, error)
+	// ConfigureAndValidateTkrVersion takes tkrVersion, if empty fetches default tkr & k8s version from config
+	// and validates k8s version format is valid semantic version
+	ConfigureAndValidateTkrVersion(tkrVersion string) (string, string, error)
+	// CreateCluster creates a workload cluster based on a cluster template
+	// generated from the provided options
+	CreateCluster(options *CreateClusterOptions, waitForCluster bool) error
+	// CreateAWSCloudFormationStack create aws cloud formation stack
+	CreateAWSCloudFormationStack() error
+	// DeleteRegion deletes management cluster via a self-provisioned kind cluster
+	DeleteRegion(options DeleteRegionOptions) error
+	// DeRegisterManagementClusterFromTmc deregisters management cluster from Tanzu Mission Control
+	DeRegisterManagementClusterFromTmc(clusterName string) error
+	// VerifyRegion checks if the kube context points to a management clusters,
+	VerifyRegion(kubeConfigPath string) (region.RegionContext, error)
+	// AddRegionContext adds a management cluster context to tkg config file
+	AddRegionContext(region region.RegionContext, overwrite bool, useDirectReference bool) error
+	// GetRegionContexts gets all tkg managed management cluster context context
+	GetRegionContexts(clusterName string) ([]region.RegionContext, error)
+	// SetRegionContext sets a management cluster context to be current context
+	SetRegionContext(clusterName string, contextName string) error
+	// GetCurrentRegionContext() gets the current management cluster context
+	GetCurrentRegionContext() (region.RegionContext, error)
+	// GetWorkloadClusterCredentials merges workload cluster credentials into kubeconfig path
+	GetWorkloadClusterCredentials(options GetWorkloadClusterCredentialsOptions) (string, string, error)
+	// ListTKGClusters lists workload clusters managed by the management cluster
+	ListTKGClusters(options ListTKGClustersOptions) ([]ClusterInfo, error)
+	// DeleteWorkloadCluster deletes a workload cluster managed by the management cluster
+	DeleteWorkloadCluster(options DeleteWorkloadClusterOptions) error
+	// ScaleCluster scales the cluster
+	ScaleCluster(options ScaleClusterOptions) error
+	// UpgradeCluster upgrades tkg cluster to specific kubernetes version
+	UpgradeCluster(options *UpgradeClusterOptions) error
+	// ConfigureAndValidateManagementClusterConfiguration validates the management cluster configuration
+	// User is expected to validate the configuration before creating management cluster using init operation
+	ConfigureAndValidateManagementClusterConfiguration(options *InitRegionOptions, skipValidation bool) *ValidationError
+	// UpgradeManagementCluster upgrades tkg cluster to specific kubernetes version
+	UpgradeManagementCluster(options *UpgradeClusterOptions) error
+	// Register management cluster to Tanzu Mission Control
+	RegisterManagementClusterToTmc(kubeConfigPath string, tmcRegistrationURL string) error
+	// Opt-in/out to CEIP on Management Cluster
+	SetCEIPParticipation(ceipOptIn bool, isProd string, labels string) error
+	// Get opt-in/out status for CEIP on all Management Clusters
+	GetCEIPParticipation() (ClusterCeipInfo, error)
+	// DeleteMachineHealthCheck deletes MachineHealthCheck for the given cluster
+	DeleteMachineHealthCheck(options MachineHealthCheckOptions) error
+	// ListMachineHealthChecks lists all the machine health check
+	GetMachineHealthChecks(options MachineHealthCheckOptions) ([]MachineHealthCheck, error)
+	// IsPacificManagementCluster checks if the cluster pointed to by kubeconfig is Pacific management cluster(supervisor)
+	IsPacificManagementCluster() (bool, error)
+	// SetMachineHealthCheck create or update a machine health check object
+	SetMachineHealthCheck(options *SetMachineHealthCheckOptions) error
+	// GetKubernetesVersions returns the supported k8s versions for workload cluster
+	GetKubernetesVersions() (*KubernetesVersionsInfo, error)
+	// ParseHiddenArgsAsFeatureFlags adds the hidden flags from InitRegionOptions as enabled feature flags
+	ParseHiddenArgsAsFeatureFlags(options *InitRegionOptions)
+	// SaveFeatureFlags saves the feature flags to the config file via featuresClient
+	SaveFeatureFlags(featureFlags map[string]string) error
+	// ValidatePrerequisites valides prerequisites for init command
+	ValidatePrerequisites(validateDocker, validateKubectl bool) error
+	// GetVSphereEndpoint creates the vSphere client using the credentials from the management cluster if cluster client is provided,
+	// otherwise, the vSphere client will be created from the credentials set in the user's environment.
+	GetVSphereEndpoint(client clusterclient.Client) (vc.Client, error)
+	// ConfigureTimeout updates/configures timeout already set in the tkgClient
+	ConfigureTimeout(timeout time.Duration)
+	// TKGConfigReaderWriter returns tkgConfigReaderWriter client
+	TKGConfigReaderWriter() tkgconfigreaderwriter.TKGConfigReaderWriter
+	// UpdateManagementCluster updates a management cluster
+	UpdateCredentialsRegion(options *UpdateCredentialsOptions) error
+	// UpdateCredentialsCluster updates a workload cluster
+	UpdateCredentialsCluster(options *UpdateCredentialsOptions) error
+	// GetClusterPinnipedInfo returns the cluster and pinniped info
+	GetClusterPinnipedInfo(options GetClusterPinnipedInfoOptions) (*ClusterPinnipedInfo, error)
+	// DescribeCluster describes all the objects in the Cluster
+	DescribeCluster(options DescribeTKGClustersOptions) (*status.ObjectTree, *clusterv1.Cluster, *clusterctlv1.ProviderList, error)
+	// DescribeProvider describes all the installed providers
+	DescribeProvider() (*clusterctlv1.ProviderList, error)
+	// DownloadBomFile downloads BomFile from management cluster's config map
+	DownloadBomFile(tkrName string) error
+	// IsManagementClusterAKindCluster determines if the creation of management cluster is successful
+	IsManagementClusterAKindCluster(clusterName string) (bool, error)
+	// GetTanzuKubernetesReleases returns the available TanzuKubernetesReleases
+	GetTanzuKubernetesReleases(tkrName string) ([]runv1alpha1.TanzuKubernetesRelease, error)
+	// ActivateTanzuKubernetesReleases activates TanzuKubernetesRelease
+	ActivateTanzuKubernetesReleases(tkrName string) error
+	// DeactivateTanzuKubernetesReleases deactivates TanzuKubernetesRelease
+	DeactivateTanzuKubernetesReleases(tkrName string) error
+}
+
+// TkgClient implements Client.
+type TkgClient struct {
+	clusterctlClient         clusterctl.Client
+	kindClient               kind.Client
+	readerwriterConfigClient tkgconfigreaderwriter.Client
+	regionManager            region.Manager
+	tkgConfigDir             string
+	timeout                  time.Duration
+	featuresClient           features.Client
+	tkgConfigProvidersClient tkgconfigproviders.Client
+	tkgBomClient             tkgconfigbom.Client
+	tkgConfigUpdaterClient   tkgconfigupdater.Client
+	tkgConfigPathsClient     tkgconfigpaths.Client
+	clusterKubeConfig        *types.ClusterKubeConfig
+	clusterClientFactory     clusterclient.ClusterClientFactory
+}
+
+// Options new client options
+type Options struct {
+	ClusterCtlClient         clusterctl.Client
+	ReaderWriterConfigClient tkgconfigreaderwriter.Client
+	RegionManager            region.Manager
+	TKGConfigDir             string
+	Timeout                  time.Duration
+	FeaturesClient           features.Client
+	TKGConfigProvidersClient tkgconfigproviders.Client
+	TKGBomClient             tkgconfigbom.Client
+	TKGConfigUpdater         tkgconfigupdater.Client
+	TKGPathsClient           tkgconfigpaths.Client
+	ClusterKubeConfig        *types.ClusterKubeConfig
+	ClusterClientFactory     clusterclient.ClusterClientFactory
+}
+
+// ensure tkgClient implements Client.
+var _ Client = &TkgClient{}
+
+// New returns a tkgClient.
+func New(options Options) (*TkgClient, error) { // nolint:gocritic
+	err := options.TKGConfigUpdater.DecodeCredentialsInViper()
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to update encoded credentials")
+	}
+
+	// Set default configuration
+	options.TKGConfigUpdater.SetDefaultConfiguration()
+
+	return &TkgClient{
+		clusterctlClient:         options.ClusterCtlClient,
+		kindClient:               nil,
+		readerwriterConfigClient: options.ReaderWriterConfigClient,
+		regionManager:            options.RegionManager,
+		tkgConfigDir:             options.TKGConfigDir,
+		timeout:                  options.Timeout,
+		featuresClient:           options.FeaturesClient,
+		tkgConfigProvidersClient: options.TKGConfigProvidersClient,
+		tkgBomClient:             options.TKGBomClient,
+		tkgConfigUpdaterClient:   options.TKGConfigUpdater,
+		tkgConfigPathsClient:     options.TKGPathsClient,
+		clusterKubeConfig:        options.ClusterKubeConfig,
+		clusterClientFactory:     options.ClusterClientFactory,
+	}, nil
+}
+
+// TKGConfigReaderWriter returns tkgConfigReaderWriter client
+func (c *TkgClient) TKGConfigReaderWriter() tkgconfigreaderwriter.TKGConfigReaderWriter {
+	return c.readerwriterConfigClient.TKGConfigReaderWriter()
+}

@@ -1,0 +1,36 @@
+@import '../../../../sass/properties.scss';
+
+:host ::ng-deep button.clr-accordion-header-button {
+    font-size: 14px;
+    padding: 9px 18px;
+    color: #474747;
+    .clr-accordion-complete-icon {
+        color: #4C773C;
+    }
+} 
+
+clr-icon.back-link {
+    margin-right: 8px;
+    cursor: pointer;
+    position: relative;
+    top: 10px;
+    float:left;
+}
+
+h2 {
+    margin-top: 0;
+}
+
+.aws-ec2-icon-30 {
+    position: relative;
+    top: -2px;
+}
+
+@media (max-width: $small) {
+    .btn-container {
+        text-align: center;
+        .deploy-btn, .edit-btn {
+            width: 100%;
+        }
+    }
+}
