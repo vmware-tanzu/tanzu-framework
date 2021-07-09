@@ -83,15 +83,15 @@ func packageAvailableGet(cmd *cobra.Command, args []string) error { //nolint:fun
 			return err
 		}
 
-		t.SetKeys("KEY", "DEFAULT", "TYPE", "DESCRIPTION")
+		t.SetKeys("KEY", "DESCRIPTION", "DEFAULT")
 		for _, e := range entries {
 			parts := strings.Split(e, ":")
 			if strings.Contains(parts[0], "description") {
-				t.AddRow(parts[0], "", "", parts[1])
-			} else if strings.Contains(parts[0], "type") {
-				t.AddRow(parts[0], "", parts[1], "")
+				t.AddRow(parts[0][:len(parts[0])-12], parts[1], "")
+			} else if strings.Contains(parts[0], "default") {
+				t.AddRow(parts[0][:len(parts[0])-8], "", parts[1])
 			} else {
-				t.AddRow(parts[0], parts[1], "", "")
+				t.AddRow(parts[0], "", "")
 			}
 		}
 		t.RenderWithSpinner()
