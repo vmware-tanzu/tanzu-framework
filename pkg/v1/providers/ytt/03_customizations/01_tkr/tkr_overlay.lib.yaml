@@ -23,7 +23,7 @@ spec:
       containers:
       #@overlay/match by=overlay.subset({"name":"manager"})
       #! TODO: Consume image from BOM
-      - image: #@ "{}/{}:{}".format(get_image_repo_for_component(bomData.components["tanzu_core"][0].images.tkrImage), bomData.components["tanzu_core"][0].images.tkrImage.imagePath, bomData.components["tanzu_core"][0].images.tkrImage.tag)
+      - image: #@ "{}/{}:{}".format(get_image_repo_for_component(bomData.components["tanzu-framework"][0].images.tkrImage), bomData.components["tanzu-framework"][0].images.tkrImage.imagePath, bomData.components["tanzu-framework"][0].images.tkrImage.tag)
         args:
         #! TODO: Consume bom-image-path from BOM
         #@overlay/append

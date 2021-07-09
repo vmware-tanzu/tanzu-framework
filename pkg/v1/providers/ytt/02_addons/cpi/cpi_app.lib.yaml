@@ -5,7 +5,7 @@
 
 
 #@ def vsphere_app():
-#@ vsphereCpiTemplatesImage = get_bom_data_for_tkr_name().components["tanzu_core_addons"][0].images.vsphereCpiTemplatesImage
+#@ vsphereCpiTemplatesImage = get_bom_data_for_tkr_name().components["tanzu-framework-addons"][0].images.vsphereCpiTemplatesImage
 ---
 apiVersion: kappctrl.k14s.io/v1alpha1
 kind: App
