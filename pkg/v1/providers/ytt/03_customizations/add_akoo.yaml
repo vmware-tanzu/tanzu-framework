@@ -38,8 +38,13 @@ certificateAuthorityRef:
 #@overlay/match missing_ok=True
 dataNetwork:
   #@overlay/replace
+#@ if data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME and data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR: 
   name: #@ data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME
   cidr: #@ data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR 
+#@ else:
+  name: #@ data.values.AVI_DATA_NETWORK
+  cidr: #@ data.values.AVI_DATA_NETWORK_CIDR
+#@ end
 #@ end
 
 --- #@ crd()
