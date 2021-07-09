@@ -1,6 +1,6 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:yaml", "yaml")
-#@ load("/lib/helpers.star", "get_bom_data_for_tkr_name", "get_image_repo_for_component")
+#@ load("/lib/helpers.star", "get_default_tkg_bom_data", "get_image_repo_for_component")
 
 #! This file contains the logic to install standard package repo on clusters. We need to install standard package repo when provisioning
 #! a management cluster or workload clusters. The installation of PackageRepository CR is done by CRS， CRS will retry
