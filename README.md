@@ -1,5 +1,7 @@
 # Tanzu Framework
 
+foobar
+
 ## What is Framework?
 Framework is both the foundation for Tanzu editions and a set of
 building blocks that can be used to extend Tanzu. Framework enables
