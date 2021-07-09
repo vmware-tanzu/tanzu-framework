@@ -23,6 +23,7 @@ var repositoryUpdateCmd = &cobra.Command{
 func init() {
 	repositoryUpdateCmd.Flags().StringVarP(&repoOp.RepositoryURL, "url", "", "", "OCI registry url for package repository bundle")
 	repositoryUpdateCmd.Flags().BoolVarP(&repoOp.CreateRepository, "create", "", false, "Creates the repository if it does not exist")
+	repositoryUpdateCmd.Flags().BoolVarP(&repoOp.CreateNamespace, "create-namespace", "", false, "Create namespace if the target namespace does not exist, optional")
 	repositoryUpdateCmd.MarkFlagRequired("url") //nolint
 	repositoryCmd.AddCommand(repositoryUpdateCmd)
 }
