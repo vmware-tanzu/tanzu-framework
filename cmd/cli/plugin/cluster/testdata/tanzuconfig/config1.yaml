@@ -1,0 +1,11 @@
+clientOptions:
+  cli:
+    repositories:
+    - gcpPluginRepository:
+        bucketName: tanzu-cli
+        name: core
+    - gcpPluginRepository:
+        bucketName: tanzu-cli-advanced-plugins
+        name: advanced
+metadata:
+  creationTimestamp: null
