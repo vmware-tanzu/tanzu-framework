@@ -9,7 +9,6 @@ import (
 	"github.com/aunum/log"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/plugin"
 )
 
@@ -21,7 +20,7 @@ var (
 var descriptor = cliv1alpha1.PluginDescriptor{
 	Name:            "management-cluster",
 	Description:     "Kubernetes management cluster operations",
-	Version:         cli.BuildVersion,
+	Version:         "v1.4.0-pre-alpha-1",
 	BuildSHA:        "",
 	Group:           cliv1alpha1.RunCmdGroup,
 	Aliases:         []string{"mc", "management-clusters"},

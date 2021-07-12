@@ -38,6 +38,7 @@ type initRegionOptions struct {
 	ceipOptIn                   string
 	cniType                     string
 	featureFlags                map[string]string
+	featureGate                 map[string]string
 	bind                        string
 	browser                     string
 	vsphereControlPlaneEndpoint string
@@ -128,6 +129,8 @@ func init() {
 	createCmd.Flags().StringToStringVarP(&iro.featureFlags, "feature-flags", "", nil, "Activate and deactivate hidden features in the form 'feature1=true,feature2=false'")
 	createCmd.Flags().MarkHidden("feature-flags") //nolint
 
+	createCmd.Flags().StringToStringVarP(&iro.featureGate, "feature-gates", "", nil, "Activate and deactivate TKG features in the form 'feature1=true,feature2=false'")
+
 	createCmd.Flags().SetNormalizeFunc(aliasNormalizeFunc)
 }
 
@@ -164,6 +167,7 @@ func runInit() error {
 		CeipOptIn:                   iro.ceipOptIn,
 		CniType:                     iro.cniType,
 		FeatureFlags:                iro.featureFlags,
+		FeatureGate:                 iro.featureGate,
 		EnableTKGSOnVsphere7:        iro.enableTKGSOnVsphere7,
 		DeployTKGonVsphere7:         iro.deployTKGonVsphere7,
 		Bind:                        iro.bind,

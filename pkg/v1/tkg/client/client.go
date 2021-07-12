@@ -73,6 +73,7 @@ type InitRegionOptions struct {
 	Annotations                 map[string]string
 	Labels                      map[string]string
 	FeatureFlags                map[string]string
+	FeatureGate                 map[string]string
 	LaunchUI                    bool
 	DisableYTT                  bool
 	CeipOptIn                   bool

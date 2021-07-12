@@ -52,7 +52,9 @@ import (
 	"sigs.k8s.io/cluster-api/util/patch"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
+	"sigs.k8s.io/yaml"
 
+	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	tmcv1alpha1 "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/api/tmc/v1alpha1"
 	azureclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/azure"
@@ -241,6 +243,8 @@ type Client interface {
 	DeleteExistingKappController() error
 	// AddCEIPTelemetryJob creates telemetry cronjob component on cluster
 	AddCEIPTelemetryJob(clusterName, providerName string, bomConfig *tkgconfigbom.BOMConfiguration, isProd, labels, httpProxy, httpsProxy, noProxy string) error
+	// AddFeatureGate adds a FeatureGate to activate/deactivate TKG Features
+	AddFeatureGate(featureGate map[string]string) error
 	// RemoveCEIPTelemetryJob deletes telemetry cronjob component on cluster
 	RemoveCEIPTelemetryJob(clusterName string) error
 	// HasCEIPTelemetryJob checks if telemetry cronjob component is on cluster
@@ -2109,6 +2113,42 @@ func (c *client) HasCEIPTelemetryJob(clusterName string) (bool, error) {
 		return false, nil
 	}
 	return len(cronJobs.Items) > 0, nil
+}
+
+func (c *client) AddFeatureGate(featureGate map[string]string) error {
+	featureGateCR := generateDefaultFeatureGateCR()
+	for feature, activation := range featureGate {
+		b, err := strconv.ParseBool(activation)
+		if err != nil {
+			return errors.Wrap(err, "unable to create FeatureGate resource")
+		}
+		featureGateCR.Spec.Features = append(featureGateCR.Spec.Features, configv1alpha1.FeatureReference{
+			Name:     feature,
+			Activate: b,
+		})
+	}
+	featureGateYaml, err := yaml.Marshal(generateDefaultFeatureGateCR())
+	if err != nil {
+		return errors.Wrap(err, "failed to marshal FeatureGate")
+	}
+	err = c.kubectlApply(string(featureGateYaml))
+	if err != nil {
+		return errors.Wrap(err, "failed to create FeatureGate")
+	}
+	return nil
+}
+
+func generateDefaultFeatureGateCR() configv1alpha1.FeatureGate {
+	return configv1alpha1.FeatureGate{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "FeatureGate",
+			APIVersion: configv1alpha1.GroupVersion.String(),
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "tkg-system",
+		},
+		Spec: configv1alpha1.FeatureGateSpec{},
+	}
 }
 
 // Options provides way to customize creation of clusterClient

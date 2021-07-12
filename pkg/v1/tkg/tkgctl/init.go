@@ -40,6 +40,7 @@ type InitRegionOptions struct {
 	VsphereControlPlaneEndpoint string
 	Edition                     string
 	FeatureFlags                map[string]string
+	FeatureGate                 map[string]string
 	Timeout                     time.Duration
 	UI                          bool
 	UseExistingCluster          bool

@@ -49,6 +49,17 @@ type ClusterClient struct {
 	addCEIPTelemetryJobReturnsOnCall map[int]struct {
 		result1 error
 	}
+	AddFeatureGateStub        func(map[string]string) error
+	addFeatureGateMutex       sync.RWMutex
+	addFeatureGateArgsForCall []struct {
+		arg1 map[string]string
+	}
+	addFeatureGateReturns struct {
+		result1 error
+	}
+	addFeatureGateReturnsOnCall map[int]struct {
+		result1 error
+	}
 	ApplyStub        func(string) error
 	applyMutex       sync.RWMutex
 	applyArgsForCall []struct {
@@ -1128,6 +1139,25 @@ func (fake *ClusterClient) AddCEIPTelemetryJobReturnsOnCall(i int, result1 error
 	fake.addCEIPTelemetryJobReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
+}
+
+func (fake *ClusterClient) AddFeatureGate(arg1 map[string]string) error {
+	fake.addFeatureGateMutex.Lock()
+	ret, specificReturn := fake.addFeatureGateReturnsOnCall[len(fake.addFeatureGateReturnsOnCall)]
+	fake.addFeatureGateArgsForCall = append(fake.addFeatureGateArgsForCall, struct {
+		arg1 map[string]string
+	}{arg1})
+	stub := fake.AddFeatureGateStub
+	fakeReturns := fake.addFeatureGateReturns
+	fake.recordInvocation("AddFeatureGate", []interface{}{arg1})
+	fake.addFeatureGateMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
 }
 
 func (fake *ClusterClient) Apply(arg1 string) error {
@@ -5697,6 +5727,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.activateTanzuKubernetesReleasesMutex.RUnlock()
 	fake.addCEIPTelemetryJobMutex.RLock()
 	defer fake.addCEIPTelemetryJobMutex.RUnlock()
+	fake.addFeatureGateMutex.RLock()
+	defer fake.addFeatureGateMutex.RUnlock()
 	fake.applyMutex.RLock()
 	defer fake.applyMutex.RUnlock()
 	fake.applyFileMutex.RLock()

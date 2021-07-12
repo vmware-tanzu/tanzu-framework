@@ -320,6 +320,12 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		}
 	}
 
+	if options.FeatureGate != nil {
+		if err := regionalClusterClient.AddFeatureGate(options.FeatureGate); err != nil {
+			return errors.Wrap(err, "unable to add FeatureGate")
+		}
+	}
+
 	log.Info("Waiting for additional components to be up and running...")
 	if err := c.WaitForAddonsDeployments(regionalClusterClient); err != nil {
 		return err
