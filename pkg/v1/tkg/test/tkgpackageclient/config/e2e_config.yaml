@@ -1,7 +1,0 @@
----
-create-cluster: true
-mc-cluster-name: ""
-wlc-cluster-name: ""
-mc-kubeconfig-Path: ""
-wlc-kubeconfig-Path: ""
-repository-url: "projects-stg.registry.vmware.com/tkg/shivaani/test-repo:v1.0.0"

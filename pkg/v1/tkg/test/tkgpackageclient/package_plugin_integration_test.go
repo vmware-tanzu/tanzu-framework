@@ -19,22 +19,26 @@ import (
 
 	packagelib "github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/package/test/lib"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
-type E2EConfig struct {
-	CreateCluster     bool   `json:"create-cluster"`
-	RepositoryURL     string `json:"repository-url"`
-	ClusterNameMC     string `json:"mc-cluster-name"`
-	ClusterNameWLC    string `json:"wlc-cluster-name"`
-	kubeConfigPathMC  string `json:"mc-kubeconfig-Path"`
-	kubeConfigPathWLC string `json:"wlc-kubeconfig-Path"`
+type PackagePluginConfig struct {
+	UseExistingCluster   bool   `json:"use-existing-cluster"`
+	PackageName          string `json:"package-name"`
+	PackageVersion       string `json:"package-version"`
+	PackageVersionUpdate string `json:"package-version-update"`
+	RepositoryURL        string `json:"repository-url"`
+	ClusterNameMC        string `json:"mc-cluster-name"`
+	ClusterNameWLC       string `json:"wlc-cluster-name"`
+	KubeConfigPathMC     string `json:"mc-kubeconfig-Path"`
+	KubeConfigPathWLC    string `json:"wlc-kubeconfig-Path"`
 }
 
 var (
-	config                 = &E2EConfig{}
+	config                 = &PackagePluginConfig{}
 	configPath             string
 	tkgCfgDir              string
 	err                    error
@@ -44,32 +48,22 @@ var (
 	pollInterval           = 10 * time.Second
 	pollTimeout            = 3 * time.Minute
 	testRepoName           = "test-repo"
-	testPkgName            = "pkg.test.carvel.dev"
 	testPkgInstallName     = "test-pkg"
-	testVersionOne         = "1.0.0"
-	testVersionThree       = "3.0.0-rc.1"
 	pkgAvailableOptions    = tkgpackagedatamodel.PackageAvailableOptions{}
-	pkgOptions             = tkgpackagedatamodel.PackageOptions{
-		CreateNamespace: true,
-		PackageName:     testPkgName,
-		PkgInstallName:  testPkgInstallName,
-		Version:         testVersionOne,
-	}
-	repoOptions = tkgpackagedatamodel.RepositoryOptions{
-		CreateNamespace: true,
-		RepositoryName:  testRepoName,
-	}
+	pkgOptions             tkgpackagedatamodel.PackageOptions
+	repoOptions            tkgpackagedatamodel.RepositoryOptions
 )
 
 var _ = Describe("Package plugin integration test", func() {
 	var (
-		homeDir    string
-		currentDir string
+		homeDir           string
+		currentDir        string
+		clusterConfigFile string
 	)
 
 	BeforeSuite(func() {
-		defaultCfgPath := path.Join(currentDir, "config/e2e_config.yaml")
-		flag.StringVar(&configPath, "e2e-config", defaultCfgPath, "path to the e2e config file")
+		defaultCfgPath := path.Join(currentDir, "config/package_plugin_config.yaml")
+		flag.StringVar(&configPath, "package-plugin-config", defaultCfgPath, "path to the package plugin config file")
 
 		configData, err := ioutil.ReadFile(configPath)
 		Expect(err).NotTo(HaveOccurred())
@@ -86,23 +80,23 @@ var _ = Describe("Package plugin integration test", func() {
 		Expect(err).NotTo(HaveOccurred())
 
 		if config.ClusterNameMC == "" {
-			config.ClusterNameMC = fmt.Sprintf(framework.TkgDefaultClusterPrefix + "mc-test-pkg-plugin-2")
+			config.ClusterNameMC = fmt.Sprintf(framework.TkgDefaultClusterPrefix + "mc-test-pkg-plugin")
 		}
 
 		if config.ClusterNameWLC == "" {
-			config.ClusterNameWLC = fmt.Sprintf(framework.TkgDefaultClusterPrefix + "wlc-test-pkg-plugin-2")
+			config.ClusterNameWLC = fmt.Sprintf(framework.TkgDefaultClusterPrefix + "wlc-test-pkg-plugin")
 		}
 
-		if config.kubeConfigPathMC == "" {
-			config.kubeConfigPathMC = filepath.Join(homeDir, ".kube-tkg/config")
+		if config.KubeConfigPathMC == "" {
+			config.KubeConfigPathMC = filepath.Join(homeDir, ".kube-tkg/config")
 		}
 
-		if config.kubeConfigPathWLC == "" {
-			config.kubeConfigPathWLC = filepath.Join(tkgCfgDir, config.ClusterNameWLC+".kubeconfig")
+		if config.KubeConfigPathWLC == "" {
+			config.KubeConfigPathWLC = filepath.Join(tkgCfgDir, config.ClusterNameWLC+".kubeconfig")
 		}
 
-		if config.CreateCluster {
-			By(fmt.Sprintf("Creating managemnet cluster %q", config.ClusterNameMC))
+		if !config.UseExistingCluster {
+			By(fmt.Sprintf("Creating management cluster %q", config.ClusterNameMC))
 			cli, err := tkgctl.New(tkgctl.Options{
 				ConfigDir: tkgCfgDir,
 				LogOptions: tkgctl.LoggingOptions{
@@ -135,33 +129,71 @@ var _ = Describe("Package plugin integration test", func() {
 				Namespace:   constants.DefaultNamespace,
 				Plan:        "dev",
 			}
-			config.kubeConfigPathWLC, err = framework.GetTempClusterConfigFile("", &options)
+			clusterConfigFile, err = framework.GetTempClusterConfigFile("", &options)
 			Expect(err).To(BeNil())
+			defer os.Remove(clusterConfigFile)
 
 			err = tkgCtlClient.CreateCluster(tkgctl.CreateClusterOptions{
-				ClusterConfigFile: config.kubeConfigPathWLC,
+				ClusterConfigFile: clusterConfigFile,
 			})
 			Expect(err).To(BeNil())
+
+			err = tkgCtlClient.GetCredentials(tkgctl.GetWorkloadClusterCredentialsOptions{
+				ClusterName: config.ClusterNameWLC,
+				Namespace:   constants.DefaultNamespace,
+				ExportFile:  config.KubeConfigPathWLC,
+			})
+			Expect(err).NotTo(HaveOccurred())
+			log.Info("Finished creating management and workload clusters")
+		}
+
+		if config.PackageName == "" {
+			config.PackageName = "fluent-bit.tanzu.vmware.com"
+		}
+
+		if config.PackageVersion == "" {
+			config.PackageVersion = "1.7.5+vmware.1-tkg.1"
+		}
+
+		if config.PackageVersionUpdate == "" {
+			config.PackageVersionUpdate = "1.7.5+vmware.1-tkg.1"
+		}
+
+		if config.RepositoryURL == "" {
+			config.RepositoryURL = "projects-stg.registry.vmware.com/tkg/test-packages/standard-repo:v1.0.0"
+		}
+
+		pkgOptions = tkgpackagedatamodel.PackageOptions{
+			CreateNamespace: true,
+			PackageName:     config.PackageName,
+			PkgInstallName:  testPkgInstallName,
+			Version:         config.PackageVersion,
+		}
+		repoOptions = tkgpackagedatamodel.RepositoryOptions{
+			CreateNamespace: true,
+			RepositoryName:  testRepoName,
 		}
 	})
 
 	Context("testing package plugin on management cluster", func() {
 		BeforeEach(func() {
-			packagePlugin = packagelib.NewPackagePlugin(config.kubeConfigPathMC, pollInterval, pollTimeout, "", "", 0)
+			packagePlugin = packagelib.NewPackagePlugin(config.KubeConfigPathMC, pollInterval, pollTimeout, "", "", 0)
 		})
 
 		It("should pass all checks on management cluster", func() {
 			testHelper()
+			log.Info("Finished package plugin tests on management cluster")
 		})
 	})
 
 	Context("testing package plugin on workload cluster", func() {
 		BeforeEach(func() {
-			packagePlugin = packagelib.NewPackagePlugin(config.kubeConfigPathWLC, pollInterval, pollTimeout, "", "", 0)
+			packagePlugin = packagelib.NewPackagePlugin(config.KubeConfigPathWLC, pollInterval, pollTimeout, "", "", 0)
 		})
 
 		It("should pass all checks on workload cluster", func() {
 			testHelper()
+			log.Info("Finished package plugin tests on workload cluster")
 		})
 	})
 })
@@ -192,7 +224,7 @@ func testHelper() {
 
 	By("get package available")
 	pkgAvailableOptions.AllNamespaces = false
-	result = packagePlugin.GetAvailablePackage(testPkgName, &pkgAvailableOptions)
+	result = packagePlugin.GetAvailablePackage(config.PackageName, &pkgAvailableOptions)
 	Expect(result.Error).ToNot(HaveOccurred())
 
 	By("create package install")
@@ -207,7 +239,7 @@ func testHelper() {
 	Expect(result.Error).ToNot(HaveOccurred())
 
 	By("update package install")
-	pkgOptions.Version = testVersionThree
+	pkgOptions.Version = config.PackageVersionUpdate
 	result = packagePlugin.UpdateInstalledPackage(&pkgOptions)
 	Expect(result.Error).ToNot(HaveOccurred())
 

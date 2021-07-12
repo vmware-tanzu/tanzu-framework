@@ -1,0 +1,10 @@
+---
+use-existing-cluster: false
+mc-cluster-name: ""
+wlc-cluster-name: ""
+mc-kubeconfig-Path: ""
+wlc-kubeconfig-Path: ""
+repository-url: "projects-stg.registry.vmware.com/tkg/test-packages/standard-repo:v1.0.0"
+package-name: "fluent-bit.tanzu.vmware.com"
+package-version: "1.7.5+vmware.1-tkg.1"
+package-version-update: "1.7.5+vmware.1-tkg.1"
