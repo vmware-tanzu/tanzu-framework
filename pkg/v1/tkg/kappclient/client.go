@@ -259,3 +259,23 @@ func (c *client) UpdatePackageRepository(repository *kappipkg.PackageRepository)
 
 	return nil
 }
+
+func (c *client) GetSecretValue(secretName, namespace string) ([]byte, error) {
+	var err error
+
+	secret := &corev1.Secret{}
+	err = c.client.Get(context.Background(), crtclient.ObjectKey{Name: secretName, Namespace: namespace}, secret)
+	if err != nil {
+		return nil, err
+	}
+
+	data := []byte("")
+	for _, key := range secret.Data {
+		if key != nil {
+			data = key
+			break
+		}
+	}
+
+	return data, nil
+}
