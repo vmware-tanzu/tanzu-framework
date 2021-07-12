@@ -5,6 +5,7 @@ resources:
 - bases/run.tanzu.vmware.com_tanzukubernetesreleases.yaml
 - bases/cli.tanzu.vmware.com_catalogs.yaml
 - bases/config.tanzu.vmware.com_features.yaml
+- bases/config.tanzu.vmware.com_featuregates.yaml
 # +kubebuilder:scaffold:crdkustomizeresource
 
 patchesStrategicMerge:

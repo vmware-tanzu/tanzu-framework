@@ -1,0 +1,7 @@
+apiVersion: config.tanzu.vmware.com/v1alpha1
+kind: FeatureGate
+metadata:
+  name: featuregate-sample
+spec:
+  # Add fields here
+  foo: bar
