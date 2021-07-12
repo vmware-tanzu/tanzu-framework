@@ -186,6 +186,7 @@ func (c *TkgClient) DoUpgradeAddon(regionalClusterClient clusterclient.Client, /
 				return errors.Errorf("upgrade of '%s' component is only supported on management cluster", addonName)
 			}
 			crsDisabledAddon = true
+		case "addons-management/standard-package-repo":
 		case "tkr/tkr-controller":
 			if !options.IsRegionalCluster {
 				return errors.Errorf("upgrade of '%s' component is only supported on management cluster", addonName)

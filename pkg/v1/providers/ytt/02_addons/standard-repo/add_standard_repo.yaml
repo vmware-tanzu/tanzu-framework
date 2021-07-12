@@ -7,7 +7,7 @@
 #! in the case if the PackageRepository CRD does not exist. PackageRepository CRD will be created as part of the deployment
 #! of kapp-controller, but we could not guarantee kapp-controller could be deployed prior to this.
 
-#@ def standard_package_repo_yaml():
+#@ def standard_package_repo():
 #! The reason to have bomData.components["tkg-standard-packages"] instead of bomData.components.tkg-standard-packages is because
 #! YTT does not allow - to be used as .tkg-standard-packages
 #@ standard_package_repo_bundle = get_default_tkg_bom_data().components["tkg-standard-packages"][0].images.tanzuStandardPackageRepositoryImage
@@ -16,6 +16,8 @@ kind: PackageRepository
 metadata:
   name: standard
   namespace: tanzu-standard
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "addons-management/standard-package-repo"
 spec:
   fetch:
     imgpkgBundle:
@@ -25,9 +27,6 @@ spec:
 #@ if data.values.PROVIDER_TYPE != "tkg-service-vsphere":
 #! We need to install standard package repository on both management cluster and workload clusters because it contains the bundles
 #! for all standard addons which can be optionally installed.
-#@ if data.values.DISABLE_CRS_FOR_ADDON_TYPE:
---- #@ standard_package_repo_yaml()
-#@ else:
 ---
 apiVersion: addons.cluster.x-k8s.io/v1alpha3
 kind: ClusterResourceSet
@@ -35,6 +34,8 @@ metadata:
   name: #@ "{}-standard-package-repository".format(data.values.CLUSTER_NAME)
   labels:
     cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "addons-management/standard-package-repo"
 spec:
   strategy: "ApplyOnce"
   clusterSelector:
@@ -48,8 +49,9 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: #@ "{}-standard-package-repository-crs".format(data.values.CLUSTER_NAME)
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "addons-management/standard-package-repo"
 type: addons.cluster.x-k8s.io/resource-set
 stringData:
-  value: #@ yaml.encode(standard_package_repo_yaml())
-#@ end
+  value: #@ yaml.encode(standard_package_repo())
 #@ end
