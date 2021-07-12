@@ -450,6 +450,11 @@ var _ = Describe("Cluster Client", func() {
 						Type:   capi.InfrastructureReadyCondition,
 						Status: corev1.ConditionFalse,
 					})
+					conditions = append(conditions, capi.Condition{
+						Type:   capi.ReadyCondition,
+						Status: corev1.ConditionFalse,
+						Reason: "Infrastructure not ready",
+					})
 					cluster.(*capi.Cluster).Status.Conditions = conditions
 					return nil
 				})
@@ -457,7 +462,7 @@ var _ = Describe("Cluster Client", func() {
 			})
 			It("should return an error", func() {
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("cluster infrastructure is still being provisioned"))
+				Expect(err.Error()).To(ContainSubstring("cluster infrastructure is still being provisioned: Infrastructure not ready"))
 			})
 		})
 		Context("When cluster object is present but the cluster control plane is not yet initialized", func() {
@@ -472,6 +477,11 @@ var _ = Describe("Cluster Client", func() {
 						Type:   capi.ControlPlaneReadyCondition,
 						Status: corev1.ConditionFalse,
 					})
+					conditions = append(conditions, capi.Condition{
+						Type:   capi.ReadyCondition,
+						Status: corev1.ConditionFalse,
+						Reason: "Cloning @ Machine/tkg-mgmt-vc-control-plane-ds26n",
+					})
 					cluster.(*capi.Cluster).Status.Conditions = conditions
 					return nil
 				})
@@ -479,7 +489,7 @@ var _ = Describe("Cluster Client", func() {
 			})
 			It("should return an error", func() {
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("cluster control plane is still being initialized"))
+				Expect(err.Error()).To(ContainSubstring("cluster control plane is still being initialized: Cloning @ Machine/tkg-mgmt-vc-control-plane-ds26n"))
 			})
 		})
 		Context("When cluster object and machine objects are present and provisioned", func() {
