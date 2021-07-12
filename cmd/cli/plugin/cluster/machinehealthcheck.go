@@ -8,7 +8,13 @@ import (
 )
 
 var machineHealthCheckCmd = &cobra.Command{
-	Use:   "machinehealthcheck",
-	Short: "MachineHealthCheck operations for a cluster",
-	Long:  `Get, set, or delete a MachineHealthCheck object for a Tanzu Kubernetes cluster`,
+	Use:     "machinehealthcheck",
+	Short:   "MachineHealthCheck operations for a cluster",
+	Long:    `Get, set, or delete a MachineHealthCheck object for a Tanzu Kubernetes cluster`,
+	Aliases: []string{"mhc"},
+}
+
+func init() {
+	machineHealthCheckCmd.AddCommand(machineHealthCheckControlPlaneCmd)
+	machineHealthCheckCmd.AddCommand(machineHealthCheckNodeCmd)
 }
