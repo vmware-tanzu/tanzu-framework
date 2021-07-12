@@ -94,6 +94,9 @@ type Client interface {
 	// InitRegion creates and initializes a management cluster via a
 	// self-provisioned bootstrap cluster if necessary
 	InitRegion(options *InitRegionOptions) error
+	// InitStandaloneRegion creates and initializes a tkg cluster that is not managed by
+	// an active tkg management cluster.
+	InitStandaloneRegion(options *InitRegionOptions) error
 	// InitRegionDryRun generates the management cluster manifest that would be
 	// used by InitRegion to provision a new cluster
 	InitRegionDryRun(options *InitRegionOptions) ([]byte, error)
@@ -110,6 +113,8 @@ type Client interface {
 	CreateAWSCloudFormationStack() error
 	// DeleteRegion deletes management cluster via a self-provisioned kind cluster
 	DeleteRegion(options DeleteRegionOptions) error
+	// DeleteStandalone deletes a standalone cluster
+	DeleteStandalone(options DeleteRegionOptions) error
 	// DeRegisterManagementClusterFromTmc deregisters management cluster from Tanzu Mission Control
 	DeRegisterManagementClusterFromTmc(clusterName string) error
 	// VerifyRegion checks if the kube context points to a management clusters,
