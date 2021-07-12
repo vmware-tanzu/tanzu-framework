@@ -1,0 +1,15 @@
+clientOptions:
+  cli:
+    repositories:
+    - gcpPluginRepository:
+        bucketName: tanzu-cli
+        name: core
+current: vsphere-mc-1
+metadata:
+  creationTimestamp: null
+servers:
+- managementClusterOpts:
+    context: "" 
+    path: ""
+  name: vsphere-mc-1
+  type: managementcluster

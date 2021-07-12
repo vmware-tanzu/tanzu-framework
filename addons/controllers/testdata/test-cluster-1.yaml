@@ -1,0 +1,120 @@
+---
+apiVersion: run.tanzu.vmware.com/v1alpha1
+kind: TanzuKubernetesRelease
+metadata:
+  name: v1.19.3---vmware.1
+  namespace: tkr-system
+spec:
+  version: v1.19.3---vmware.1
+  kubernetesVersion: 1.19.3+vmware.1
+---
+apiVersion: cluster.x-k8s.io/v1alpha3
+kind: Cluster
+metadata:
+  name: test-cluster-1
+  namespace: default
+  labels:
+    tkg.tanzu.vmware.com/cluster-name: test-cluster-1
+    tanzuKubernetesRelease: v1.19.3---vmware.1
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name:  v1.19.3---vmware.1
+  namespace: tkr-system
+  labels:
+    tanzuKubernetesRelease: v1.19.3---vmware.1
+data:
+  bomContent: |
+    release:
+      version: v1.19.3+vmware.1
+    components:
+      coredns:
+      - version: v1.7.0+vmware.5
+        images:
+          coredns:
+            imagePath: coredns
+            tag: v1.7.0_vmware.5
+      etcd:
+      - version: v3.4.13+vmware.4
+        images:
+          etcd:
+            imagePath: etcd
+            tag: v3.4.13_vmware.4
+      kubernetes:
+      - version: v1.19.3+vmware.2
+    imageConfig:
+      imageRepository: projects-stg.registry.vmware.com/tkg
+    addons:
+      tanzu-addons-manager:
+        category: addons-management
+        clusterTypes:
+        - management
+        - workload
+        templatesImagePath: addons/tanzu-addons-manager-templates
+        templatesImageTag: 98adbf4
+      vsphere-cpi:
+        category: cpi
+        clusterTypes:
+        - management
+        - workload
+        templatesImagePath: addons/vsphere-cpi-templates
+        templatesImageTag: 98adbf4
+      kapp-controller:
+        category: addons-management
+        clusterTypes:
+        - management
+        - workload
+        templatesImagePath: addons/kapp-controller-templates
+        templatesImageTag: 98adbf4
+      pinniped-addon:
+        category: authentication
+        clusterTypes:
+        - management
+        - workload
+        templatesImagePath: addons/pinniped-addon-templates
+        templatesImageTag: 98adbf4
+      antrea:
+        category: cni
+        clusterTypes:
+        - management
+        - workload
+        templatesImagePath: addons/antrea-templates
+        templatesImageTag: 98adbf4
+      calico:
+        category: cni
+        clusterTypes:
+        - management
+        - workload
+        templatesImagePath: addons/calico-templates
+        templatesImageTag: 98adbf4
+      metrics-server-addon:
+        category: metrics
+        clusterTypes:
+        - management
+        - workload
+        templatesImagePath: addons/metrics-server-addon-templates
+        templatesImageTag: 98adbf4
+      vsphere-csi:
+        category: csi
+        clusterTypes:
+        - management
+        - workload
+        templatesImagePath: addons/vsphere-csi-templates
+        templatesImageTag: 98adbf4
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: test-cluster-1-antrea
+  namespace: default
+  labels:
+    tkg.tanzu.vmware.com/addon-name: antrea
+    tkg.tanzu.vmware.com/cluster-name: test-cluster-1
+#  annotations:
+#    tkg.tanzu.vmware.com/remote-app: "true"
+type: tkg.tanzu.vmware.com/addon
+stringData:
+  values.yaml: |
+    serviceCidr: 100.64.0.0/13
