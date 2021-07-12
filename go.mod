@@ -120,3 +120,6 @@ require (
 	sigs.k8s.io/kind v0.11.1
 	sigs.k8s.io/yaml v1.2.0
 )
+
+// sigs.k8s.io/cluster-api => ../../github.com/vmware-tanzu/cluster-api
+replace sigs.k8s.io/cluster-api => github.com/vmware-tanzu/cluster-api v0.3.15-0.20210609222148-e9e6c9d422e8
