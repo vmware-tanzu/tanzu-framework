@@ -207,8 +207,6 @@ github.com/blakesmith/ar v0.0.0-20190502131153-809d4375e1fb/go.mod h1:PkYb9DJNAw
 github.com/blang/semver v3.5.0+incompatible/go.mod h1:kRBLl5iJ+tD4TcOOxsy/0fnwebNt5EWlYSAyrTnjyyk=
 github.com/blang/semver v3.5.1+incompatible h1:cQNTCjp13qL8KC3Nbxr/y2Bqb63oX6wdnnjpJbkM4JQ=
 github.com/blang/semver v3.5.1+incompatible/go.mod h1:kRBLl5iJ+tD4TcOOxsy/0fnwebNt5EWlYSAyrTnjyyk=
-github.com/blang/semver/v4 v4.0.0 h1:1PFHFE6yCCTv8C1TeyNNarDzntLi7wMI5i/pzqYIsAM=
-github.com/blang/semver/v4 v4.0.0/go.mod h1:IbckMUScFkM3pff0VJDNKRiT6TG/YpiHIM2yvyW5YoQ=
 github.com/bmatcuk/doublestar v1.2.1/go.mod h1:wiQtGV+rzVYxB7WIlirSN++5HPtPlXEo9MEoZQC/PmE=
 github.com/bombsimon/wsl/v2 v2.0.0/go.mod h1:mf25kr/SqFEPhhcxW1+7pxzGlW+hIl/hYTKY95VwV8U=
 github.com/bombsimon/wsl/v2 v2.2.0/go.mod h1:Azh8c3XGEJl9LyX0/sFC+CKMc7Ssgua0g+6abzXN4Pg=
@@ -709,6 +707,8 @@ github.com/k14s/difflib v0.0.0-20201117154628-0c031775bf57 h1:CwBRArr+BWBopnUJhD
 github.com/k14s/difflib v0.0.0-20201117154628-0c031775bf57/go.mod h1:B0xN2MiNBGWOWi9CcfAo9LBI8IU4J1utlbOIJCsmKr4=
 github.com/k14s/imgpkg v0.6.0 h1:o5nfYciVGF53EUdzQhv96sYuqnoplw4oWWvxr8c86d8=
 github.com/k14s/imgpkg v0.6.0/go.mod h1:vFWIWK44PadM7SWJ+AaPieRMUavjRNzfdijG3uHDwkQ=
+github.com/k14s/semver/v4 v4.0.1-0.20210701191048-266d47ac6115 h1:wKSifC/VbCaQMqXYn6/gSFqle82OX4bE3KYALDU9FlU=
+github.com/k14s/semver/v4 v4.0.1-0.20210701191048-266d47ac6115/go.mod h1:mGrnmO5qnhJIaSiwMo05cvRL6Ww9ccYbTgNFcm6RHZQ=
 github.com/k14s/starlark-go v0.0.0-20200720175618-3a5c849cc368 h1:4bcRTTSx+LKSxMWibIwzHnDNmaN1x52oEpvnjCy+8vk=
 github.com/k14s/starlark-go v0.0.0-20200720175618-3a5c849cc368/go.mod h1:lKGj1op99m4GtQISxoD2t+K+WO/q2NzEPKvfXFQfbCA=
 github.com/k14s/ytt v0.32.1-0.20210511155130-214258be2519 h1:YON8R27QM0biZogW55l96HwPr2rAblBQeqGJ3h7EoFo=
@@ -1081,10 +1081,10 @@ github.com/vishvananda/netns v0.0.0-20180720170159-13995c7128cc/go.mod h1:ZjcWmF
 github.com/vishvananda/netns v0.0.0-20191106174202-0a2b9b5464df/go.mod h1:JP3t17pCcGlemwknint6hfoeCVQrEMVwxRLRjXpq+BU=
 github.com/vito/go-interact v0.0.0-20171111012221-fa338ed9e9ec h1:Klu98tQ9Z1t23gvC7p7sCmvxkZxLhBHLNyrUPsWsYFg=
 github.com/vito/go-interact v0.0.0-20171111012221-fa338ed9e9ec/go.mod h1:wPlfmglZmRWMYv/qJy3P+fK/UnoQB5ISk4txfNd9tDo=
-github.com/vmware-tanzu/carvel-kapp-controller v0.20.0-rc.1 h1:TAGOPqde+Qvnn+37sx+m8aYrGCxSjswd479Z9tDS6vw=
-github.com/vmware-tanzu/carvel-kapp-controller v0.20.0-rc.1/go.mod h1:QI4z6DehAOzrsupQO5geZA8i5FoLymZZMAX8Td9L+t0=
-github.com/vmware-tanzu/carvel-vendir v0.19.0 h1:4FTeDcxwEuZWdFlFqh+11NqnJciCkkOe/Pnd0CvBoj4=
-github.com/vmware-tanzu/carvel-vendir v0.19.0/go.mod h1:HF7iLB0NyEFHuCvM0EJ42fERk20l2ImpktJzhSEdqOU=
+github.com/vmware-tanzu/carvel-kapp-controller v0.20.0 h1:wB0+BqufzNnB+JLiPnrpEYnRwLudA2+oUCh6VY1RDo8=
+github.com/vmware-tanzu/carvel-kapp-controller v0.20.0/go.mod h1:0k+uS/A/igA0N2Eaji89isLeG+26J/vJRFoxqaNEI4k=
+github.com/vmware-tanzu/carvel-vendir v0.21.1 h1:9Vxd80ehSguJ2r52RwqHJXyxJpbExQSlCJ09qdJlDwI=
+github.com/vmware-tanzu/carvel-vendir v0.21.1/go.mod h1:mziJq0YD0HDXJLFjT4kQFTtL5KXNYI4E0sQpqjIawKw=
 github.com/vmware/govmomi v0.20.3/go.mod h1:URlwyTFZX72RmxtxuaFL2Uj3fD1JTvZdx59bHWk6aFU=
 github.com/vmware/govmomi v0.23.1 h1:vU09hxnNR/I7e+4zCJvW+5vHu5dO64Aoe2Lw7Yi/KRg=
 github.com/vmware/govmomi v0.23.1/go.mod h1:Y+Wq4lst78L85Ge/F8+ORXIWiKYqaro1vhAulACy9Lc=
@@ -1461,6 +1461,7 @@ golang.org/x/tools v0.0.0-20200505023115-26f46d2f7ef8/go.mod h1:EkVYQZoAsY45+roY
 golang.org/x/tools v0.0.0-20200512131952-2bc93b1c0c88/go.mod h1:EkVYQZoAsY45+roYkvgYkIh4xh/qjgUK9TdY2XT94GE=
 golang.org/x/tools v0.0.0-20200515010526-7d3b6ebf133d/go.mod h1:EkVYQZoAsY45+roYkvgYkIh4xh/qjgUK9TdY2XT94GE=
 golang.org/x/tools v0.0.0-20200616133436-c1934b75d054/go.mod h1:EkVYQZoAsY45+roYkvgYkIh4xh/qjgUK9TdY2XT94GE=
+golang.org/x/tools v0.0.0-20200616195046-dc31b401abb5/go.mod h1:EkVYQZoAsY45+roYkvgYkIh4xh/qjgUK9TdY2XT94GE=
 golang.org/x/tools v0.0.0-20200618134242-20370b0cb4b2/go.mod h1:EkVYQZoAsY45+roYkvgYkIh4xh/qjgUK9TdY2XT94GE=
 golang.org/x/tools v0.0.0-20200619180055-7c47624df98f/go.mod h1:EkVYQZoAsY45+roYkvgYkIh4xh/qjgUK9TdY2XT94GE=
 golang.org/x/tools v0.0.0-20200729194436-6467de6f59a7/go.mod h1:njjCfa9FT2d7l9Bc6FUM5FLjQPp3cFF28FI3qnDFljA=
@@ -1768,7 +1769,7 @@ sigs.k8s.io/cluster-api/test/infrastructure/docker v0.0.0-20200707192359-e68354f
 sigs.k8s.io/cluster-api/test/infrastructure/docker v0.0.0-20200707192359-e68354f948db/go.mod h1:3+pxrqtxqc6YB4YdI8PJO6tpB2GFEun1LgeHc8sx9Bc=
 sigs.k8s.io/controller-runtime v0.5.14 h1:lmoRaPvLg9877ZOnjFivjtyIdqyLbWfcCEilxHXTEj4=
 sigs.k8s.io/controller-runtime v0.5.14/go.mod h1:OTqxLuz7gVcrq+BHGUgedRu6b2VIKCEc7Pu4Jbwui0A=
-sigs.k8s.io/controller-tools v0.3.0/go.mod h1:enhtKGfxZD1GFEoMgP8Fdbu+uKQ/cq1/WGJhdVChfvI=
+sigs.k8s.io/controller-tools v0.4.1/go.mod h1:G9rHdZMVlBDocIxGkK3jHLWqcTMNvveypYJwrvYKjWU=
 sigs.k8s.io/kind v0.11.1 h1:pVzOkhUwMBrCB0Q/WllQDO3v14Y+o2V0tFgjTqIUjwA=
 sigs.k8s.io/kind v0.11.1/go.mod h1:fRpgVhtqAWrtLB9ED7zQahUimpUXuG/iHT88xYqEGIA=
 sigs.k8s.io/kustomize v2.0.3+incompatible/go.mod h1:MkjgH3RdOWrievjo6c9T245dYlB5QeXV4WCbnt/PEpU=
