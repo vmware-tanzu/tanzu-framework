@@ -64,9 +64,9 @@ jobs:
         echo "##[set-output name=bompath;]$(echo "$BOMCOMMENT" | awk -F : '{print $2}')"
       id: extract_bom
 
-    - name: Verify
-      run: |
-        make verify
+        #    - name: Verify
+        #      run: |
+        #        make verify
 
     - name: Build
       run: |
