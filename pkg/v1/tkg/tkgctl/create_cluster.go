@@ -180,6 +180,13 @@ func (t *tkgctl) configureCreateClusterOptionsFromConfigFile(cc *CreateClusterOp
 		if err == nil {
 			cc.InfrastructureProvider = infraProvider
 		}
+		// CheckInfrastructureVersion needs to be directly called for windows because we have a separate windows plan
+		if cc.InfrastructureProvider == "windows-vsphere" {
+			cc.InfrastructureProvider, err = t.tkgConfigUpdaterClient.CheckInfrastructureVersion(cc.InfrastructureProvider)
+			if err != nil {
+				return errors.Wrap(err, "unable to check infrastructure provider version")
+			}
+		}
 	}
 
 	// set Size variable from config File
