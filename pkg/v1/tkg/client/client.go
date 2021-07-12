@@ -151,6 +151,10 @@ type Client interface {
 	IsPacificManagementCluster() (bool, error)
 	// SetMachineHealthCheck create or update a machine health check object
 	SetMachineHealthCheck(options *SetMachineHealthCheckOptions) error
+	// SetMachineDeployment create machine deployment in a cluster
+	SetMachineDeployment(options SetMachineDeploymentOptions) error
+	// DeleteMachineDeployment deletes a machine deployment in a cluster
+	DeleteMachineDeployment(options DeleteMachineDeploymentOptions) error
 	// GetKubernetesVersions returns the supported k8s versions for workload cluster
 	GetKubernetesVersions() (*KubernetesVersionsInfo, error)
 	// ParseHiddenArgsAsFeatureFlags adds the hidden flags from InitRegionOptions as enabled feature flags

@@ -55,6 +55,10 @@ type TKGClient interface {
 	SetCeip(ceipOptIn, isProd, labels string) error
 	// SetMachineHealthCheck apply machine health check to the cluster
 	SetMachineHealthCheck(options SetMachineHealthCheckOptions) error
+	// SetMachineDeployment applies a machine deployment to the cluster
+	SetMachineDeployment(options client.SetMachineDeploymentOptions) error
+	// DeleteMachineDeployment deletes a machine deployment from the cluster
+	DeleteMachineDeployment(options client.DeleteMachineDeploymentOptions) error
 	// SetRegion sets active management cluster
 	SetRegion(options SetRegionOptions) error
 	// UpgradeCluster upgrade tkg workload cluster
