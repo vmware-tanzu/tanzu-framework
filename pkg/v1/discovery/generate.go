@@ -49,10 +49,13 @@ func QueryTargetsToCapabilityResource(queryTargets []QueryTarget) (*runv1alpha1.
 
 	capability := &runv1alpha1.Capability{
 		Spec: runv1alpha1.CapabilitySpec{
-			Queries: runv1alpha1.Queries{
-				GroupVersionResources: gvrQueries,
-				Objects:               objectQueries,
-				PartialSchemas:        partialSchemaQueries,
+			Queries: []runv1alpha1.Query{
+				{
+					Name:                  fmt.Sprintf("query-%d", rand.Int31()), //nolint:gosec
+					GroupVersionResources: gvrQueries,
+					Objects:               objectQueries,
+					PartialSchemas:        partialSchemaQueries,
+				},
 			},
 		},
 	}

@@ -41,14 +41,19 @@ func (r *CapabilityReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	// Query GVRs.
-	capability.Status.Results.GroupVersionResources = r.queryGVRs(log, capability.Spec.Queries.GroupVersionResources)
+	capability.Status.Results = make([]runv1alpha1.Result, len(capability.Spec.Queries))
 
-	// Query Objects.
-	capability.Status.Results.Objects = r.queryObjects(log, capability.Spec.Queries.Objects)
+	for i, query := range capability.Spec.Queries {
+		l := log.WithValues("query", query.Name)
 
-	// Query PartialSchemas.
-	capability.Status.Results.PartialSchemas = r.queryPartialSchemas(log, capability.Spec.Queries.PartialSchemas)
+		capability.Status.Results[i].Name = query.Name
+		// Query GVRs.
+		capability.Status.Results[i].GroupVersionResources = r.queryGVRs(l, query.GroupVersionResources)
+		// Query Objects.
+		capability.Status.Results[i].Objects = r.queryObjects(l, query.Objects)
+		// Query PartialSchemas.
+		capability.Status.Results[i].PartialSchemas = r.queryPartialSchemas(l, query.PartialSchemas)
+	}
 
 	return ctrl.Result{}, r.Status().Update(ctx, capability)
 }
