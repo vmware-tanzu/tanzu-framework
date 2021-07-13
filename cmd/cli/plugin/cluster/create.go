@@ -45,6 +45,7 @@ type createClusterOptions struct {
 	timeout                     time.Duration
 	generateOnly                bool
 	unattended                  bool
+	featureGate                 map[string]string
 }
 
 var cc = &createClusterOptions{}
@@ -73,6 +74,7 @@ func init() {
 	createClusterCmd.Flags().BoolVarP(&cc.unattended, "yes", "y", false, "Create workload cluster without asking for confirmation")
 	createClusterCmd.Flags().StringVarP(&cc.enableClusterOptions, "enable-cluster-options", "", "", "List of comma separated cluster options to be enabled")
 	createClusterCmd.Flags().StringVarP(&cc.infrastructureProvider, "infrastructure", "i", "", "The target infrastructure on which to deploy the workload cluster.")
+	createClusterCmd.Flags().StringToStringVarP(&cc.featureGate, "feature-gate", "", nil, "Activate and deactivate TKG features in workload cluster in the form 'feature1=true,feature2=false'")
 
 	// Hide some of the variables not relevant to tanzu cli at the moment
 	createClusterCmd.Flags().MarkHidden("plan")                          //nolint
@@ -165,6 +167,7 @@ func createCluster(clusterName string, server *v1alpha1.Server) error {
 		VsphereControlPlaneEndpoint: cc.vsphereControlPlaneEndpoint,
 		SkipPrompt:                  cc.unattended,
 		Timeout:                     cc.timeout,
+		FeatureGate:                 cc.featureGate,
 	}
 
 	return tkgctlClient.CreateCluster(ccOptions)

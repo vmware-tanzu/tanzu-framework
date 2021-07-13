@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/util/version"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
@@ -16,6 +18,7 @@ import (
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/repository"
 	addonsv1 "sigs.k8s.io/cluster-api/exp/addons/api/v1alpha3"
 
+	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
@@ -149,10 +152,6 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 	if !waitForCluster {
 		return nil
 	}
-	return c.waitForClusterCreation(regionalClusterClient, options)
-}
-
-func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.Client, options *CreateClusterOptions) error {
 	log.Info("Waiting for cluster to be initialized...")
 	kubeConfigBytes, err := c.WaitForClusterInitializedAndGetKubeConfig(regionalClusterClient, options.ClusterName, options.TargetNamespace)
 	if err != nil {
@@ -171,6 +170,56 @@ func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.C
 	if err != nil {
 		return errors.Wrap(err, "unable to save management cluster kubeconfig to TKG managed kubeconfig")
 	}
+
+	if err := c.waitForClusterCreation(regionalClusterClient, options, workloadClusterKubeconfigPath, kubeContext); err != nil {
+		return err
+	}
+
+	if options.FeatureGate != nil {
+		return addFeatureGate(nil, workloadClusterKubeconfigPath, kubeContext)
+	}
+
+	return nil
+}
+
+func addFeatureGate(featureGate map[string]string, workloadClusterKubeconfigPath, kubeContext string) error {
+	workloadClusterClient, err := clusterclient.NewClient(workloadClusterKubeconfigPath, kubeContext, clusterclient.Options{OperationTimeout: 15 * time.Minute})
+	if err != nil {
+		return err
+	}
+	featureGateCR := generateDefaultFeatureGateCR()
+	for feature, activation := range featureGate {
+		b, err := strconv.ParseBool(activation)
+		if err != nil {
+			return errors.Wrap(err, "unable to create FeatureGate resource")
+		}
+		featureGateCR.Spec.Features = append(featureGateCR.Spec.Features, configv1alpha1.FeatureReference{
+			Name:     feature,
+			Activate: b,
+		})
+	}
+	err = workloadClusterClient.CreateResource(featureGateCR, "tkg-system", "")
+	if err != nil {
+		return errors.Wrap(err, "failed to create FeatureGate resource")
+	}
+	return nil
+}
+
+func generateDefaultFeatureGateCR() configv1alpha1.FeatureGate {
+	return configv1alpha1.FeatureGate{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "FeatureGate",
+			APIVersion: configv1alpha1.GroupVersion.String(),
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "tkg-system",
+		},
+		Spec: configv1alpha1.FeatureGateSpec{},
+	}
+}
+
+func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.Client, options *CreateClusterOptions,
+	workloadClusterKubeconfigPath string, kubeContext string) error {
 
 	log.Info("Waiting for cluster nodes to be available...")
 	if err := c.WaitForClusterReadyAfterCreate(regionalClusterClient, options.ClusterName, options.TargetNamespace); err != nil {

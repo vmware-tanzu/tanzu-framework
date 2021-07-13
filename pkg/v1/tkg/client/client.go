@@ -51,6 +51,7 @@ type CreateClusterOptions struct {
 	VsphereControlPlaneEndpoint string
 	SkipValidation              bool
 	ClusterType                 TKGClusterType
+	FeatureGate                 map[string]string
 }
 
 // InitRegionOptions contains options supported by InitRegion

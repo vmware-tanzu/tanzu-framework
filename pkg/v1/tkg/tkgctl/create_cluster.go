@@ -40,6 +40,7 @@ type CreateClusterOptions struct {
 	Timeout                     time.Duration
 	GenerateOnly                bool
 	SkipPrompt                  bool
+	FeatureGate                 map[string]string
 }
 
 //nolint:gocritic
