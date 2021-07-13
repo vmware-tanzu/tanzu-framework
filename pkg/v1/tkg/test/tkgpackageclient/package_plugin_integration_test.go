@@ -144,6 +144,7 @@ var _ = Describe("Package plugin integration test", func() {
 				ExportFile:  config.KubeConfigPathWLC,
 			})
 			Expect(err).NotTo(HaveOccurred())
+
 			log.Info("Finished creating management and workload clusters")
 		}
 

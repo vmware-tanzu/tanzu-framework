@@ -9,11 +9,11 @@ on:
       - '.github/workflows/tkgpackage_integration_test.yaml'
       - 'pkg/v1/tkg/tkgpackage*/*'
       - 'pkg/v1/tkg/kappclient/*'
-      - 'cmd/cli/plugin/package/**'
       - 'pkg/v1/tkg/test/tkgpackageclient/**'
+      - 'cmd/cli/plugin/package/**'
 
 concurrency:
-  group: ${{ format('integration-tests-{0}', github.head_ref) }}
+  group: ${{ format('package-plugin-integration-tests-{0}', github.head_ref) }}
   cancel-in-progress: true
 
 jobs:
@@ -84,4 +84,7 @@ jobs:
           fi
           make configure-bom
           make generate-embedproviders
-          E2E_CONFIG=$PWD/pkg/v1/tkg/test/tkgpackageclient/config/package_plugin_config.yaml hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders pkg/v1/tkg/test/tkgpackageclient
+          make build-cli-local
+          make install-cli
+          make install-cli-plugins
+          E2E_CONFIG=$PWD/pkg/v1/tkg/test/tkgpackageclient/config/package_plugin_config.yaml hack/tools/bin/ginkgo -v -trace -tags embedproviders pkg/v1/tkg/test/tkgpackageclient
