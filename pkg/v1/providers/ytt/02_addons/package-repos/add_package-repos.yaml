@@ -7,7 +7,7 @@
 #! in the case if the PackageRepository CRD does not exist. PackageRepository CRD will be created as part of the deployment
 #! of kapp-controller, but we could not guarantee kapp-controller could be deployed prior to this.
 
-#@ def get_core_package_repo_yaml():
+#@ def core_package_repo():
 #! The reason to have bomData.components["tkg-core-packages"] instead of bomData.components.tkg-core-packages is because
 #! YTT does not allow - to be used as .tkg-core-packages.
 #@ core_package_repo_bundle = get_bom_data_for_tkr_name().components["tkg-core-packages"][0].images.tanzuCorePackageRepositoryImage
@@ -30,7 +30,7 @@ spec:
 #! We need to install core package repository on both mgmt cluster and workload clusters because it contains the bundles
 #! for all core addons which are needed on all clusters.
 #@ if data.values.DISABLE_CRS_FOR_ADDON_TYPE and "addons-management/core-package-repo" in data.values.DISABLE_CRS_FOR_ADDON_TYPE:
---- #@ get_core_package_repo_yaml()
+--- #@ core_package_repo()
 #@ else:
 ---
 apiVersion: addons.cluster.x-k8s.io/v1alpha3
@@ -58,6 +58,6 @@ metadata:
     tkg.tanzu.vmware.com/addon-type: "addons-management/core-package-repo"
 type: addons.cluster.x-k8s.io/resource-set
 stringData:
-  value: #@ yaml.encode(get_core_package_repo_yaml())
+  value: #@ yaml.encode(core_package_repo())
 #@ end
 #@ end

@@ -41,20 +41,6 @@ const (
 	deleteRequeueAfter = 10 * time.Second
 )
 
-// AddonKappResourceReconciler is the interface for Kapp related reconcilers
-type AddonKappResourceReconciler interface {
-	ReconcileAddonKappResourceNormal(
-		remoteApp bool,
-		remoteCluster *clusterapiv1alpha3.Cluster,
-		addonSecret *corev1.Secret,
-		addonConfig *bomtypes.Addon,
-		imageRepository string,
-		bom *bomtypes.Bom) error
-
-	ReconcileAddonKappResourceDelete(
-		addonSecret *corev1.Secret) error
-}
-
 // AddonReconciler contains the reconciler information for addon controllers.
 type AddonReconciler struct {
 	Client     client.Client

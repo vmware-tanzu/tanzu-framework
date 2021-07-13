@@ -14,6 +14,9 @@ const (
 	// ClusterNameLabel is the label on the Secret to indicate the cluster on which addon is to be installed
 	ClusterNameLabel = "tkg.tanzu.vmware.com/cluster-name"
 
+	// YttMarkerAnnotation is the key for an annotation that indicates that data secret has Ytt markers
+	YttMarkerAnnotation = "ext.packaging.carvel.dev/ytt-data-values-overlays"
+
 	// AddonFinalizer is the finalizer for the add on.
 	AddonFinalizer = "tkg.tanzu.vmware.com/addon"
 
@@ -22,9 +25,6 @@ const (
 
 	// AddonRemoteAppAnnotation is the add on remote app annotation
 	AddonRemoteAppAnnotation = "tkg.tanzu.vmware.com/remote-app"
-
-	// AddonExtYttPathsFromSecretNameAnnotation is the annotation that specifies a data secret has annotations
-	AddonExtYttPathsFromSecretNameAnnotation = "ext.packaging.carvel.dev/ytt-data-values-overlays" //nolint:gosec
 
 	// AddonNameAnnotation is the add on name annotation
 	AddonNameAnnotation = AddonNameLabel

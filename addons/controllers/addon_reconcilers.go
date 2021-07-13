@@ -20,6 +20,20 @@ import (
 	bomtypes "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
 )
 
+// AddonKappResourceReconciler is the interface for Kapp related reconcilers
+type AddonKappResourceReconciler interface {
+	ReconcileAddonKappResourceNormal(
+		remoteApp bool,
+		remoteCluster *clusterapiv1alpha3.Cluster,
+		addonSecret *corev1.Secret,
+		addonConfig *bomtypes.Addon,
+		imageRepository string,
+		bom *bomtypes.Bom) error
+
+	ReconcileAddonKappResourceDelete(
+		addonSecret *corev1.Secret) error
+}
+
 func (r *AddonReconciler) reconcileAddonNamespace(
 	ctx context.Context,
 	log logr.Logger,
