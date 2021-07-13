@@ -10,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	aws "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha3"
+	azure "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha3"
 	vsphere "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
 	"sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha3"
@@ -17,6 +18,11 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 )
 
+type GetMachineDeploymentOptions struct {
+	ClusterName string
+	Name        string
+	Namespace   string
+}
 type SetMachineDeploymentOptions struct {
 	ClusterName string
 	Namespace   string
@@ -86,15 +92,19 @@ func (c *TkgClient) SetMachineDeployment(options SetMachineDeploymentOptions) er
 	}
 
 	baseWorker := workers[0]
+	update := false
 	for _, worker := range workers {
 		if worker.Name == options.Name {
 			baseWorker = worker
+			update = true
 		}
 	}
 
 	baseWorker.Annotations = map[string]string{}
 	baseWorker.Name = options.Name
-	baseWorker.ResourceVersion = ""
+	if !update {
+		baseWorker.ResourceVersion = ""
+	}
 	if options.Replicas != nil {
 		baseWorker.Spec.Replicas = options.Replicas
 	}
@@ -107,13 +117,18 @@ func (c *TkgClient) SetMachineDeployment(options SetMachineDeploymentOptions) er
 	kcTemplate.Name = fmt.Sprintf("%s-kct", options.Name)
 	kcTemplate.ResourceVersion = ""
 
-	if err = clusterClient.CreateResource(kcTemplate, kcTemplate.Name, options.Namespace); err != nil {
-		return errors.Wrap(err, "could not create kubeadmconfigtemplate")
+	if !update {
+		if err = clusterClient.CreateResource(kcTemplate, kcTemplate.Name, options.Namespace); err != nil {
+			return errors.Wrap(err, "could not create kubeadmconfigtemplate")
+		}
 	}
 
 	machineTemplateName := fmt.Sprintf("%s-mt", options.Name)
 	switch iaasType := options.IaasType; iaasType {
 	case "vsphere":
+		if update {
+			break
+		}
 		var vSphereMachineTemplate vsphere.VSphereMachineTemplate
 		err = retrieveMachineTemplate(clusterClient, baseWorker.Spec.Template.Spec.InfrastructureRef, &vSphereMachineTemplate)
 		if err != nil {
@@ -126,8 +141,10 @@ func (c *TkgClient) SetMachineDeployment(options SetMachineDeploymentOptions) er
 		if err = clusterClient.CreateResource(&vSphereMachineTemplate, machineTemplateName, options.Namespace); err != nil {
 			return errors.Wrap(err, "could not create machine template")
 		}
-		break
 	case "aws":
+		if update {
+			break
+		}
 		var awsMachineTemplate aws.AWSMachineTemplate
 		err = retrieveMachineTemplate(clusterClient, baseWorker.Spec.Template.Spec.InfrastructureRef, &awsMachineTemplate)
 		if err != nil {
@@ -139,23 +156,41 @@ func (c *TkgClient) SetMachineDeployment(options SetMachineDeploymentOptions) er
 		awsMachineTemplate.Spec.Template.Spec.AMI = aws.AWSResourceReference{
 			ID: options.AWS.AMIID,
 		}
-		awsMachineTemplate.Spec.Template.Spec.InstanceID = &options.NodeMachineType
+		awsMachineTemplate.Spec.Template.Spec.InstanceType = options.NodeMachineType
+		awsMachineTemplate.Spec.Template.Spec.SSHKeyName = &options.SSHKeyName
 		if err = clusterClient.CreateResource(&awsMachineTemplate, machineTemplateName, options.Namespace); err != nil {
 			return errors.Wrap(err, "could not create machine template")
 		}
 	case "azure":
+		if update {
+			break
+		}
+		var azureMachineTemplate azure.AzureMachineTemplate
+		err = retrieveMachineTemplate(clusterClient, baseWorker.Spec.Template.Spec.InfrastructureRef, &azureMachineTemplate)
+		if err != nil {
+			return err
+		}
+		azureMachineTemplate.Annotations = map[string]string{}
+		azureMachineTemplate.Name = machineTemplateName
+		azureMachineTemplate.ResourceVersion = ""
+		azureMachineTemplate.Spec.Template.Spec.VMSize = options.NodeMachineType
+		if err = clusterClient.CreateResource(&azureMachineTemplate, machineTemplateName, options.Namespace); err != nil {
+			return errors.Wrap(err, "could not create machine template")
+		}
 	default:
 		return errors.New("Unrecognized IaasType")
 	}
 
-	// if err = clusterClient.CreateResource(machineTemplate, machineTemplateName, options.Namespace); err != nil {
-	// 	return errors.Wrap(err, "could not create machine template")
-	// }
-
 	baseWorker.Spec.Template.Spec.Bootstrap.ConfigRef.Name = kcTemplate.Name
 	baseWorker.Spec.Template.Spec.InfrastructureRef.Name = machineTemplateName
-	if err = clusterClient.CreateResource(&baseWorker, baseWorker.Name, options.Namespace); err != nil {
-		return errors.Wrap(err, "failed to create machinedeployment")
+	if update {
+		if err = clusterClient.UpdateResource(&baseWorker, baseWorker.Name, options.Namespace); err != nil {
+			return errors.Wrap(err, "failed to create machinedeployment")
+		}
+	} else {
+		if err = clusterClient.CreateResource(&baseWorker, baseWorker.Name, options.Namespace); err != nil {
+			return errors.Wrap(err, "failed to create machinedeployment")
+		}
 	}
 	return nil
 }
@@ -201,17 +236,42 @@ func (c *TkgClient) DeleteMachineDeployment(options DeleteMachineDeploymentOptio
 		return errors.Wrap(err, "unable to retrieve kubeadmconfigtemplate")
 	}
 
-	var machineTemplate interface{}
-	err = retrieveMachineTemplate(clusterClient, toDelete.Spec.Template.Spec.InfrastructureRef, &machineTemplate)
-	if err != nil {
-		return errors.Wrap(err, "unable to retrieve machine template")
+	var deleteCmd func() error
+	switch machineKind := toDelete.Spec.Template.Spec.InfrastructureRef.Kind; machineKind {
+	case "VSphereMachineTemplate":
+		var machineTemplate vsphere.VSphereMachineTemplate
+		err = retrieveMachineTemplate(clusterClient, toDelete.Spec.Template.Spec.InfrastructureRef, &machineTemplate)
+		if err != nil {
+			return errors.Wrap(err, "unable to retrieve machine template")
+		}
+		deleteCmd = func() error {
+			return clusterClient.DeleteResource(&machineTemplate)
+		}
+	case "AWSMachineTemplate":
+		var machineTemplate aws.AWSMachineTemplate
+		err = retrieveMachineTemplate(clusterClient, toDelete.Spec.Template.Spec.InfrastructureRef, &machineTemplate)
+		if err != nil {
+			return errors.Wrap(err, "unable to retrieve machine template")
+		}
+		deleteCmd = func() error {
+			return clusterClient.DeleteResource(&machineTemplate)
+		}
+	case "AzureMachineTemplate":
+		var machineTemplate azure.AzureMachineTemplate
+		err = retrieveMachineTemplate(clusterClient, toDelete.Spec.Template.Spec.InfrastructureRef, &machineTemplate)
+		if err != nil {
+			return errors.Wrap(err, "unable to retrieve machine template")
+		}
+		deleteCmd = func() error {
+			return clusterClient.DeleteResource(&machineTemplate)
+		}
 	}
 
 	err = clusterClient.DeleteResource(&toDelete)
 	if err != nil {
 		return errors.Wrap(err, "unable to delete machine deployment")
 	}
-	err = clusterClient.DeleteResource(machineTemplate)
+	err = deleteCmd()
 	if err != nil {
 		return errors.Wrap(err, "unable to delete machine template")
 	}
@@ -223,6 +283,28 @@ func (c *TkgClient) DeleteMachineDeployment(options DeleteMachineDeploymentOptio
 	return nil
 }
 
+func (c *TkgClient) GetMachineDeployments(options GetMachineDeploymentOptions) ([]capi.MachineDeployment, error) {
+	currentRegion, err := c.GetCurrentRegionContext()
+	if err != nil {
+		return nil, errors.Wrap(err, "not a valid management cluster")
+	}
+	clusterclientOptions := clusterclient.Options{
+		GetClientInterval: 1 * time.Second,
+		GetClientTimeout:  3 * time.Second,
+	}
+	clusterClient, err := clusterclient.NewClient(currentRegion.SourceFilePath, currentRegion.ContextName, clusterclientOptions)
+	if err != nil {
+		return nil, errors.Wrap(err, "Unable to create clusterclient")
+	}
+
+	workers, err := clusterClient.GetMDObjectForCluster(options.ClusterName, options.Namespace)
+	if err != nil || len(workers) == 0 {
+		return nil, errors.Wrap(err, "unable to get worker machine deployments")
+	}
+
+	return workers, nil
+}
+
 func retrieveMachineTemplate(clusterClient clusterclient.Client, infraTemplate corev1.ObjectReference, machineTemplate interface{}) error {
 	err := clusterClient.GetResource(machineTemplate, infraTemplate.Name, infraTemplate.Namespace, nil, nil)
 	if err != nil {
@@ -230,10 +312,6 @@ func retrieveMachineTemplate(clusterClient clusterclient.Client, infraTemplate c
 	}
 
 	return nil
-}
-
-func populateMachineTemplate() {
-
 }
 
 func retrieveKubeadmConfigTemplate(clusterClient clusterclient.Client, configRef corev1.ObjectReference) (*v1alpha3.KubeadmConfigTemplate, error) {
@@ -246,10 +324,6 @@ func retrieveKubeadmConfigTemplate(clusterClient clusterclient.Client, configRef
 	}
 
 	return &kcTemplate, nil
-}
-
-func populateKubeadmConfigTemplate() {
-
 }
 
 func populateVSphereMachineTemplate(machineTemplate *vsphere.VSphereMachineTemplate, options SetMachineDeploymentOptions) {

@@ -264,6 +264,19 @@ type Client struct {
 		result1 *client.KubernetesVersionsInfo
 		result2 error
 	}
+	GetMachineDeploymentsStub        func(client.GetMachineDeploymentOptions) ([]v1alpha3.MachineDeployment, error)
+	getMachineDeploymentsMutex       sync.RWMutex
+	getMachineDeploymentsArgsForCall []struct {
+		arg1 client.GetMachineDeploymentOptions
+	}
+	getMachineDeploymentsReturns struct {
+		result1 []v1alpha3.MachineDeployment
+		result2 error
+	}
+	getMachineDeploymentsReturnsOnCall map[int]struct {
+		result1 []v1alpha3.MachineDeployment
+		result2 error
+	}
 	GetMachineHealthChecksStub        func(client.MachineHealthCheckOptions) ([]client.MachineHealthCheck, error)
 	getMachineHealthChecksMutex       sync.RWMutex
 	getMachineHealthChecksArgsForCall []struct {
@@ -1807,6 +1820,70 @@ func (fake *Client) GetKubernetesVersionsReturnsOnCall(i int, result1 *client.Ku
 	}
 	fake.getKubernetesVersionsReturnsOnCall[i] = struct {
 		result1 *client.KubernetesVersionsInfo
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *Client) GetMachineDeployments(arg1 client.GetMachineDeploymentOptions) ([]v1alpha3.MachineDeployment, error) {
+	fake.getMachineDeploymentsMutex.Lock()
+	ret, specificReturn := fake.getMachineDeploymentsReturnsOnCall[len(fake.getMachineDeploymentsArgsForCall)]
+	fake.getMachineDeploymentsArgsForCall = append(fake.getMachineDeploymentsArgsForCall, struct {
+		arg1 client.GetMachineDeploymentOptions
+	}{arg1})
+	stub := fake.GetMachineDeploymentsStub
+	fakeReturns := fake.getMachineDeploymentsReturns
+	fake.recordInvocation("GetMachineDeployments", []interface{}{arg1})
+	fake.getMachineDeploymentsMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *Client) GetMachineDeploymentsCallCount() int {
+	fake.getMachineDeploymentsMutex.RLock()
+	defer fake.getMachineDeploymentsMutex.RUnlock()
+	return len(fake.getMachineDeploymentsArgsForCall)
+}
+
+func (fake *Client) GetMachineDeploymentsCalls(stub func(client.GetMachineDeploymentOptions) ([]v1alpha3.MachineDeployment, error)) {
+	fake.getMachineDeploymentsMutex.Lock()
+	defer fake.getMachineDeploymentsMutex.Unlock()
+	fake.GetMachineDeploymentsStub = stub
+}
+
+func (fake *Client) GetMachineDeploymentsArgsForCall(i int) client.GetMachineDeploymentOptions {
+	fake.getMachineDeploymentsMutex.RLock()
+	defer fake.getMachineDeploymentsMutex.RUnlock()
+	argsForCall := fake.getMachineDeploymentsArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *Client) GetMachineDeploymentsReturns(result1 []v1alpha3.MachineDeployment, result2 error) {
+	fake.getMachineDeploymentsMutex.Lock()
+	defer fake.getMachineDeploymentsMutex.Unlock()
+	fake.GetMachineDeploymentsStub = nil
+	fake.getMachineDeploymentsReturns = struct {
+		result1 []v1alpha3.MachineDeployment
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *Client) GetMachineDeploymentsReturnsOnCall(i int, result1 []v1alpha3.MachineDeployment, result2 error) {
+	fake.getMachineDeploymentsMutex.Lock()
+	defer fake.getMachineDeploymentsMutex.Unlock()
+	fake.GetMachineDeploymentsStub = nil
+	if fake.getMachineDeploymentsReturnsOnCall == nil {
+		fake.getMachineDeploymentsReturnsOnCall = make(map[int]struct {
+			result1 []v1alpha3.MachineDeployment
+			result2 error
+		})
+	}
+	fake.getMachineDeploymentsReturnsOnCall[i] = struct {
+		result1 []v1alpha3.MachineDeployment
 		result2 error
 	}{result1, result2}
 }
@@ -3374,6 +3451,8 @@ func (fake *Client) Invocations() map[string][][]interface{} {
 	defer fake.getCurrentRegionContextMutex.RUnlock()
 	fake.getKubernetesVersionsMutex.RLock()
 	defer fake.getKubernetesVersionsMutex.RUnlock()
+	fake.getMachineDeploymentsMutex.RLock()
+	defer fake.getMachineDeploymentsMutex.RUnlock()
 	fake.getMachineHealthChecksMutex.RLock()
 	defer fake.getMachineHealthChecksMutex.RUnlock()
 	fake.getRegionContextsMutex.RLock()

@@ -9,6 +9,7 @@ import (
 
 	"github.com/fabriziopandini/capi-conditions/cmd/kubectl-capi-tree/status"
 	"github.com/pkg/errors"
+	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
@@ -151,6 +152,8 @@ type Client interface {
 	IsPacificManagementCluster() (bool, error)
 	// SetMachineHealthCheck create or update a machine health check object
 	SetMachineHealthCheck(options *SetMachineHealthCheckOptions) error
+	// GetMachineDeployments gets a list of MachineDeployments for a cluster
+	GetMachineDeployments(options GetMachineDeploymentOptions) ([]capi.MachineDeployment, error)
 	// SetMachineDeployment create machine deployment in a cluster
 	SetMachineDeployment(options SetMachineDeploymentOptions) error
 	// DeleteMachineDeployment deletes a machine deployment in a cluster
