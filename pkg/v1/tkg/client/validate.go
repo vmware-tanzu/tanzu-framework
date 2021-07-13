@@ -378,24 +378,22 @@ func (c *TkgClient) ConfigureAndValidateAWSConfig(tkrVersion string, nodeSizes N
 
 	awsClient, err := c.EncodeAWSCredentialsAndGetClient(clusterClient)
 	if err != nil {
-		log.Warningf("failed to encode AWS credentials. Unable to create AWS client. Necessary validations will be handled by Cluster API for AWS")
+		log.Warningf("unable to create AWS client. Skipping validations that require an AWS client")
 	}
 
 	useExistingVPC := false
-	if awsClient == nil {
-		log.Warningf("unable to create awsClient")
-	} else {
+	if awsClient != nil {
 		if !skipValidation {
 			checkIfRequiredPermissionsPresent(awsClient)
 		}
 
 		if err := c.OverrideAWSNodeSizeWithOptions(nodeSizes, awsClient, skipValidation); err != nil {
-			log.Warningf("failed to override node size. Node size validation will be handled by Cluster API for AWS")
+			log.Warningf("unable to override node size")
 		}
 
 		useExistingVPC, err = c.SetAndValidateDefaultAWSVPCConfiguration(isProdConfig, awsClient, skipValidation)
 		if err != nil {
-			log.Warningf("failed to validate VPC configuration")
+			log.Warningf("unable to validate VPC configuration, %s", err.Error())
 		}
 	}
 
