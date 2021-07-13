@@ -33,7 +33,6 @@ func init() {
 	listNodePoolsCmd.Flags().StringVarP(&lnp.namespace, "namespace", "n", "default", "The namespace from which to list workload clusters.")
 	listNodePoolsCmd.Flags().StringVarP(&lnp.outputFormat, "output", "o", "", "Output format (yaml|json|table)")
 	clusterNodePoolCmd.AddCommand(listNodePoolsCmd)
-
 }
 
 func listNodePools(cmd *cobra.Command, args []string) error {

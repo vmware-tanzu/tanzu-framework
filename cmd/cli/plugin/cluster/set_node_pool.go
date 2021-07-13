@@ -16,12 +16,12 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
 )
 
-type ClusterSetNodePoolCmdOptions struct {
+type clusterSetNodePoolCmdOptions struct {
 	FilePath  string
 	Namespace string
 }
 
-var setNodePoolOptions ClusterSetNodePoolCmdOptions
+var setNodePoolOptions clusterSetNodePoolCmdOptions
 
 var clusterSetNodePoolCmd = &cobra.Command{
 	Use:   "set CLUSTER_NAME",
@@ -32,7 +32,7 @@ var clusterSetNodePoolCmd = &cobra.Command{
 func init() {
 	clusterSetNodePoolCmd.Flags().StringVarP(&setNodePoolOptions.FilePath, "file", "f", "", "The file describing the node pool (required)")
 	clusterSetNodePoolCmd.Flags().StringVar(&setNodePoolOptions.Namespace, "namespace", "default", "The namespace the cluster is found in.")
-	clusterSetNodePoolCmd.MarkFlagRequired("file")
+	_ = clusterSetNodePoolCmd.MarkFlagRequired("file")
 	clusterNodePoolCmd.AddCommand(clusterSetNodePoolCmd)
 }
 
@@ -48,6 +48,7 @@ func runSetNodePool(cmd *cobra.Command, args []string) error {
 	return SetNodePool(server, args[0])
 }
 
+// SetNodePool creates or updates a node pool
 func SetNodePool(server *v1alpha1.Server, clusterName string) error {
 	tkgctlClient, err := createTKGClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context)
 	if err != nil {
@@ -70,5 +71,5 @@ func SetNodePool(server *v1alpha1.Server, clusterName string) error {
 		NodePool:    nodePool,
 	}
 
-	return tkgctlClient.SetMachineDeployment(options)
+	return tkgctlClient.SetMachineDeployment(&options)
 }

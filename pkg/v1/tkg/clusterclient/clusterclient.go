@@ -2319,11 +2319,6 @@ func getK8sClients(kubeConfigBytes []byte, crtClientFactory CrtClientFactory, di
 	return clientSet, nil
 }
 
-func (c *client) MachineDeployment(name string) error {
-	//c.ApplyFile()
-	return nil
-}
-
 type k8ClientSet struct {
 	crtClient       crtclient.Client
 	discoveryClient discovery.DiscoveryInterface

@@ -59,7 +59,7 @@ type TKGClient interface {
 	// GetMachineDeployments gets machine deployments from a cluster
 	GetMachineDeployments(options client.GetMachineDeploymentOptions) ([]capi.MachineDeployment, error)
 	// SetMachineDeployment applies a machine deployment to the cluster
-	SetMachineDeployment(options client.SetMachineDeploymentOptions) error
+	SetMachineDeployment(options *client.SetMachineDeploymentOptions) error
 	// DeleteMachineDeployment deletes a machine deployment from the cluster
 	DeleteMachineDeployment(options client.DeleteMachineDeploymentOptions) error
 	// SetRegion sets active management cluster

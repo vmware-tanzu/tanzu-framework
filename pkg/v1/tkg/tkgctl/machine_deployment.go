@@ -13,7 +13,7 @@ func (c *tkgctl) GetMachineDeployments(options client.GetMachineDeploymentOption
 	return c.tkgClient.GetMachineDeployments(options)
 }
 
-func (c *tkgctl) SetMachineDeployment(options client.SetMachineDeploymentOptions) error {
+func (c *tkgctl) SetMachineDeployment(options *client.SetMachineDeploymentOptions) error {
 	if err := c.tkgClient.SetMachineDeployment(options); err != nil {
 		return err
 	}

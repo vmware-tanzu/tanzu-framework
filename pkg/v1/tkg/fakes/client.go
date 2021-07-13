@@ -458,10 +458,10 @@ type Client struct {
 	setCEIPParticipationReturnsOnCall map[int]struct {
 		result1 error
 	}
-	SetMachineDeploymentStub        func(client.SetMachineDeploymentOptions) error
+	SetMachineDeploymentStub        func(*client.SetMachineDeploymentOptions) error
 	setMachineDeploymentMutex       sync.RWMutex
 	setMachineDeploymentArgsForCall []struct {
-		arg1 client.SetMachineDeploymentOptions
+		arg1 *client.SetMachineDeploymentOptions
 	}
 	setMachineDeploymentReturns struct {
 		result1 error
@@ -2799,11 +2799,11 @@ func (fake *Client) SetCEIPParticipationReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *Client) SetMachineDeployment(arg1 client.SetMachineDeploymentOptions) error {
+func (fake *Client) SetMachineDeployment(arg1 *client.SetMachineDeploymentOptions) error {
 	fake.setMachineDeploymentMutex.Lock()
 	ret, specificReturn := fake.setMachineDeploymentReturnsOnCall[len(fake.setMachineDeploymentArgsForCall)]
 	fake.setMachineDeploymentArgsForCall = append(fake.setMachineDeploymentArgsForCall, struct {
-		arg1 client.SetMachineDeploymentOptions
+		arg1 *client.SetMachineDeploymentOptions
 	}{arg1})
 	stub := fake.SetMachineDeploymentStub
 	fakeReturns := fake.setMachineDeploymentReturns
@@ -2824,13 +2824,13 @@ func (fake *Client) SetMachineDeploymentCallCount() int {
 	return len(fake.setMachineDeploymentArgsForCall)
 }
 
-func (fake *Client) SetMachineDeploymentCalls(stub func(client.SetMachineDeploymentOptions) error) {
+func (fake *Client) SetMachineDeploymentCalls(stub func(*client.SetMachineDeploymentOptions) error) {
 	fake.setMachineDeploymentMutex.Lock()
 	defer fake.setMachineDeploymentMutex.Unlock()
 	fake.SetMachineDeploymentStub = stub
 }
 
-func (fake *Client) SetMachineDeploymentArgsForCall(i int) client.SetMachineDeploymentOptions {
+func (fake *Client) SetMachineDeploymentArgsForCall(i int) *client.SetMachineDeploymentOptions {
 	fake.setMachineDeploymentMutex.RLock()
 	defer fake.setMachineDeploymentMutex.RUnlock()
 	argsForCall := fake.setMachineDeploymentArgsForCall[i]
