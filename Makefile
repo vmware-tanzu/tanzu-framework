@@ -454,11 +454,6 @@ generate-ui-swagger-api: ## Generate swagger files for UI backend
 ## Provider templates/overlays
 ## --------------------------------------
 
-.PHONY: providers
-providers: $(GOBINDATA)
-	make -C pkg/v1/providers -f Makefile ci
-	$(MAKE) fmt
-
 .PHONY: clustergen
 clustergen:
 	CLUSTERGEN_BASE=${CLUSTERGEN_BASE} make -C pkg/v1/providers -f Makefile cluster-generation-diffs

@@ -1,6 +1,6 @@
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:data", "data")
-#@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "get_default_tkg_bom_data", "kubeadm_image_repo", "tkg_image_repo", "get_vsphere_thumbprint")
+#@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "get_default_tkg_bom_data", "kubeadm_image_repo", "get_image_repo_for_component", "get_vsphere_thumbprint")
 #@ load("lib/validate.star", "validate_configuration")
 #@ load("@ytt:yaml", "yaml")
 #@ validate_configuration("vsphere")
@@ -36,7 +36,7 @@ spec:
       value: "10"
     - name: vip_retryperiod
       value: "2"
-    image: #@ "{}/{}:{}".format(tkg_image_repo(), bomData.components["kube-vip"][0].images.kubeVipImage.imagePath, bomData.components["kube-vip"][0].images.kubeVipImage.tag)
+    image: #@ "{}/{}:{}".format(get_image_repo_for_component(bomData.components["kube-vip"][0].images.kubeVipImage), bomData.components["kube-vip"][0].images.kubeVipImage.imagePath, bomData.components["kube-vip"][0].images.kubeVipImage.tag)
     imagePullPolicy: IfNotPresent
     name: kube-vip
     resources: {}
@@ -63,6 +63,11 @@ apiVersion: cluster.x-k8s.io/v1alpha3
 kind: Cluster
 metadata:
   name: #@ data.values.CLUSTER_NAME
+  #@ if data.values.VSPHERE_CONTROL_PLANE_ENDPOINT:
+  #@overlay/match missing_ok=True
+  annotations:
+    tkg.tanzu.vmware.com/cluster-controlplane-endpoint: #@ data.values.VSPHERE_CONTROL_PLANE_ENDPOINT
+  #@ end
   labels:
     #@overlay/match missing_ok=True
     #@yaml/text-templated-strings
@@ -93,31 +98,20 @@ apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
 kind: VSphereCluster
 metadata:
   name: #@ data.values.CLUSTER_NAME
-#@overlay/replace
 spec:
-  cloudProviderConfiguration:
-    global:
-      insecure: true
-      secretName: cloud-provider-vsphere-credentials
-      secretNamespace: kube-system
-    network:
-      name: #@ data.values.VSPHERE_NETWORK
-    providerConfig:
-      cloud:
-        controllerImage: gcr.io/cloud-provider-vsphere/cpi/release/manager:v1.2.1
-    virtualCenter:
-      #@yaml/text-templated-strings
-      (@= data.values.VSPHERE_SERVER @):
-        datacenters: #@ data.values.VSPHERE_DATACENTER
-    workspace:
-      datacenter: #@ data.values.VSPHERE_DATACENTER
-      datastore: #@ data.values.VSPHERE_DATASTORE
-      folder: #@ data.values.VSPHERE_FOLDER
-      server: #@ data.values.VSPHERE_SERVER
+  #@ if not data.values.AVI_CONTROL_PLANE_HA_PROVIDER:
   controlPlaneEndpoint:
     host: #@ data.values.VSPHERE_CONTROL_PLANE_ENDPOINT
     port: 6443
   server: #@ data.values.VSPHERE_SERVER
+  #@ else:
+  #@overlay/remove
+  controlPlaneEndpoint:
+  #@ end
+  thumbprint: #@ get_vsphere_thumbprint()
+  identityRef:
+    kind: Secret
+    name: #@ data.values.CLUSTER_NAME
 
 #@overlay/match by=overlay.subset({"kind": "VSphereMachineTemplate", "metadata":{"name": "${ CLUSTER_NAME }-control-plane"}})
 ---
@@ -131,15 +125,23 @@ spec:
       cloneMode:  #@ data.values.VSPHERE_CLONE_MODE
       datacenter: #@ data.values.VSPHERE_DATACENTER
       datastore: #@ data.values.VSPHERE_DATASTORE
+      storagePolicyName: #@ data.values.VSPHERE_STORAGE_POLICY_ID
       diskGiB: #@ data.values.VSPHERE_CONTROL_PLANE_DISK_GIB
       folder: #@ data.values.VSPHERE_FOLDER
       memoryMiB: #@ data.values.VSPHERE_CONTROL_PLANE_MEM_MIB
       network:
         devices:
+        #@ if data.values.TKG_IP_FAMILY == "ipv6":
+        #@overlay/match by=overlay.index(0)
+        #@overlay/replace
+        - dhcp6: true
+          networkName: #@ data.values.VSPHERE_NETWORK
+        #@ else:
         #@overlay/match by=overlay.index(0)
         #@overlay/replace
         - dhcp4: true
           networkName: #@ data.values.VSPHERE_NETWORK
+        #@ end
       numCPUs: #@ data.values.VSPHERE_CONTROL_PLANE_NUM_CPUS
       resourcePool: #@ data.values.VSPHERE_RESOURCE_POOL
       server: #@ data.values.VSPHERE_SERVER
@@ -157,15 +159,23 @@ spec:
       cloneMode:  #@ data.values.VSPHERE_CLONE_MODE
       datacenter: #@ data.values.VSPHERE_DATACENTER
       datastore: #@ data.values.VSPHERE_DATASTORE
+      storagePolicyName: #@ data.values.VSPHERE_STORAGE_POLICY_ID
       diskGiB: 80
       folder: #@ data.values.VSPHERE_FOLDER
       memoryMiB: #@ data.values.VSPHERE_WORKER_MEM_MIB
       network:
         devices:
+        #@ if data.values.TKG_IP_FAMILY == "ipv6":
+        #@overlay/match by=overlay.index(0)
+        #@overlay/replace
+        - dhcp6: true
+          networkName: #@ data.values.VSPHERE_NETWORK
+        #@ else:
         #@overlay/match by=overlay.index(0)
         #@overlay/replace
         - dhcp4: true
           networkName: #@ data.values.VSPHERE_NETWORK
+        #@ end
       numCPUs: #@ data.values.VSPHERE_WORKER_NUM_CPUS
       resourcePool: #@ data.values.VSPHERE_RESOURCE_POOL
       server: #@ data.values.VSPHERE_SERVER
@@ -192,30 +202,15 @@ spec:
       dns:
         imageRepository: #@ kubeadm_image_repo(bomDataForK8sVersion.kubeadmConfigSpec.dns.imageRepository)
         imageTag: #@ bomDataForK8sVersion.kubeadmConfigSpec.dns.imageTag
-      apiServer:
-        extraArgs:
-          cloud-provider: external
-      controllerManager:
-        extraArgs:
-          cloud-provider: external
     files:
+    #@ if not data.values.AVI_CONTROL_PLANE_HA_PROVIDER:
     #@overlay/match by=overlay.index(0)
     - content: #@ yaml.encode(kube_vip_pod())
-      owner: root:root
-      path: /etc/kubernetes/manifests/kube-vip.yaml
-    initConfiguration:
-      nodeRegistration:
-        criSocket: /var/run/containerd/containerd.sock
-        kubeletExtraArgs:
-          cloud-provider: external
-        name: '{{ ds.meta_data.hostname }}'
-    joinConfiguration:
-      nodeRegistration:
-        criSocket: /var/run/containerd/containerd.sock
-        kubeletExtraArgs:
-          cloud-provider: external
-        name: '{{ ds.meta_data.hostname }}'
-    useExperimentalRetryJoin: true
+    #@ else:
+    #@overlay/match by=overlay.index(0)
+    #@overlay/remove
+    - content:
+    #@ end
     users:
     #@overlay/match by=overlay.index(0)
     #@overlay/replace
@@ -223,10 +218,17 @@ spec:
       sshAuthorizedKeys:
       - #@ data.values.VSPHERE_SSH_AUTHORIZED_KEY
       sudo: ALL=(ALL) NOPASSWD:ALL
+    #! TODO: we can remove this block once we are consuming a version of containerd with this change: https://github.com/containerd/containerd/pull/5145
+    #@ if data.values.TKG_IP_FAMILY == "ipv6":
+    #@overlay/match missing_ok=True
+    postKubeadmCommands:
+    #@overlay/append
+    - sed -i '/listen-client-urls/ s/$/,https:\/\/127.0.0.1:2379/' /etc/kubernetes/manifests/etcd.yaml
+    #@ end
   replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
   version: #@ data.values.KUBERNETES_VERSION
 
-#@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate"})
+#@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate", "metadata":{"name": "${ CLUSTER_NAME }-md-0-windows-containerd"}})
 ---
 apiVersion: bootstrap.cluster.x-k8s.io/v1alpha3
 kind: KubeadmConfigTemplate
@@ -349,13 +351,15 @@ spec:
       postKubeadmCommands:
       - powershell C:/Temp/antrea.ps1 -ExecutionPolicy Bypass
       users:
+      #@overlay/match by=overlay.index(0)
+      #@overlay/replace
       - name: capv
         groups: Administrators
         sshAuthorizedKeys:
         - #@ data.values.VSPHERE_SSH_AUTHORIZED_KEY
         sudo: ALL=(ALL) NOPASSWD:ALL
 
-#@overlay/match by=overlay.subset({"kind":"MachineDeployment"})
+#@overlay/match by=overlay.subset({"kind":"MachineDeployment", "metadata":{"name": "${ CLUSTER_NAME }-md-0-windows-containerd"}})
 ---
 apiVersion: cluster.x-k8s.io/v1alpha3
 kind: MachineDeployment
@@ -377,15 +381,20 @@ spec:
     spec:
       bootstrap:
         configRef:
-          apiVersion: bootstrap.cluster.x-k8s.io/v1alpha3
-          kind: KubeadmConfigTemplate
           name: #@ "{}-md-0-windows-containerd".format(data.values.CLUSTER_NAME)
       clusterName: #@ data.values.CLUSTER_NAME
       infrastructureRef:
-        apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
-        kind: VSphereMachineTemplate
         name: #@ "{}-windows-containerd".format(data.values.CLUSTER_NAME)
       version: #@ data.values.KUBERNETES_VERSION
+#@overlay/match by=overlay.subset({"kind": "Secret", "metadata":{"name": "${ CLUSTER_NAME }"}})
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ data.values.CLUSTER_NAME
+stringData:
+  username: #@ data.values.VSPHERE_USERNAME
+  password: #@ data.values.VSPHERE_PASSWORD
 ---
 apiVersion: addons.cluster.x-k8s.io/v1alpha3
 kind: ClusterResourceSet

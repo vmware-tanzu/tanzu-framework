@@ -32,6 +32,9 @@ spec:
   controlPlaneEndpoint:
     host: '${ VSPHERE_CONTROL_PLANE_ENDPOINT }'
     port: 6443
+  identityRef:
+    kind: Secret
+    name: '${ CLUSTER_NAME }'
   thumbprint: '${ VSPHERE_TLS_THUMBPRINT }'
   server: '${ VSPHERE_SERVER }'
 ---
@@ -46,6 +49,7 @@ spec:
       cloneMode: '${ VSPHERE_CLONE_MODE }'
       datacenter: '${ VSPHERE_DATACENTER }'
       datastore: '${ VSPHERE_DATASTORE }'
+      storagePolicyName: '${ VSPHERE_STORAGE_POLICY_ID }'
       diskGiB: ${VSPHERE_CONTROL_PLANE_DISK_GIB}
       folder: '${ VSPHERE_FOLDER }'
       memoryMiB: ${VSPHERE_CONTROL_PLANE_MEM_MIB}
@@ -69,6 +73,7 @@ spec:
       cloneMode: '${ VSPHERE_CLONE_MODE }'
       datacenter: '${ VSPHERE_DATACENTER }'
       datastore: '${ VSPHERE_DATASTORE }'
+      storagePolicyName: '${ VSPHERE_STORAGE_POLICY_ID }'
       diskGiB: ${VSPHERE_WORKER_DISK_GIB}
       folder: '${ VSPHERE_FOLDER }'
       memoryMiB: ${VSPHERE_WORKER_MEM_MIB}
@@ -79,7 +84,7 @@ spec:
       numCPUs: ${ VSPHERE_WORKER_NUM_CPUS }
       resourcePool: '${ VSPHERE_RESOURCE_POOL }'
       server: '${ VSPHERE_SERVER }'
-      template: windows-2019-kube-v1.19.1-containerd
+      template: '${ VSPHERE_WINDOWS_TEMPLATE }'
 ---
 apiVersion: controlplane.cluster.x-k8s.io/v1alpha3
 kind: KubeadmControlPlane
@@ -253,5 +258,13 @@ spec:
         apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
         kind: VSphereMachineTemplate
         name: '${ CLUSTER_NAME }-windows-containerd'
-      version: v1.19.1
-
+      version: '${ KUBERNETES_VERSION }'
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: '${ CLUSTER_NAME }'
+  namespace: '${ NAMESPACE }'
+stringData:
+  username: '${ VSPHERE_USERNAME }'
+  password: '${ VSPHERE_PASSWORD }'
