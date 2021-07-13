@@ -49,7 +49,7 @@ func validatePackage(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func packageAvailableGet(cmd *cobra.Command, args []string) error { //nolint:funlen,gocyclo
+func packageAvailableGet(cmd *cobra.Command, args []string) error { //nolint:gocyclo
 	kc, err := kappclient.NewKappClient(packageAvailableOp.KubeConfig)
 	if err != nil {
 		return err
@@ -98,7 +98,7 @@ func packageAvailableGet(cmd *cobra.Command, args []string) error { //nolint:fun
 		return nil
 	}
 
-	t, err := component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), outputFormat,
+	t, err := component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), getOutputFormat(),
 		fmt.Sprintf("Retrieving package details for %s...", args[0]), true)
 	if err != nil {
 		return err
@@ -119,26 +119,17 @@ func packageAvailableGet(cmd *cobra.Command, args []string) error { //nolint:fun
 		if err != nil {
 			return err
 		}
-		t.AddRow("NAME:", pkg.Spec.RefName)
-		t.AddRow("VERSION:", pkg.Spec.Version)
-		t.AddRow("RELEASED-AT:", pkg.Spec.ReleasedAt)
-		t.AddRow("DISPLAY-NAME:", pkgMetadata.Spec.DisplayName)
-		t.AddRow("SHORT-DESCRIPTION:", pkgMetadata.Spec.ShortDescription)
-		t.AddRow("PACKAGE-PROVIDER:", pkgMetadata.Spec.ProviderName)
-		t.AddRow("MINIMUM-CAPACITY-REQUIREMENTS:", pkg.Spec.CapactiyRequirementsDescription)
-		t.AddRow("LONG-DESCRIPTION:", pkgMetadata.Spec.LongDescription)
-		t.AddRow("MAINTAINERS:", pkgMetadata.Spec.Maintainers)
-		t.AddRow("RELEASE-NOTES:", pkg.Spec.ReleaseNotes)
-		t.AddRow("LICENSE:", pkg.Spec.Licenses)
+		t.SetKeys("name", "version", "released-at", "display-name", "short-description", "package-provider", "minimum-capacity-requirements",
+			"long-description", "maintainers", "release-notes", "license")
+		t.AddRow(pkg.Spec.RefName, pkg.Spec.Version, pkg.Spec.ReleasedAt, pkgMetadata.Spec.DisplayName, pkgMetadata.Spec.ShortDescription,
+			pkgMetadata.Spec.ProviderName, pkg.Spec.CapactiyRequirementsDescription, pkgMetadata.Spec.LongDescription, pkgMetadata.Spec.Maintainers,
+			pkg.Spec.ReleaseNotes, pkg.Spec.Licenses)
 
 		t.RenderWithSpinner()
 	} else {
-		t.AddRow("NAME:", pkgMetadata.Name)
-		t.AddRow("DISPLAY-NAME:", pkgMetadata.Spec.DisplayName)
-		t.AddRow("SHORT-DESCRIPTION:", pkgMetadata.Spec.ShortDescription)
-		t.AddRow("PACKAGE-PROVIDER:", pkgMetadata.Spec.ProviderName)
-		t.AddRow("LONG-DESCRIPTION:", pkgMetadata.Spec.LongDescription)
-		t.AddRow("MAINTAINERS:", pkgMetadata.Spec.Maintainers)
+		t.SetKeys("name", "display-name", "short-description", "package-provider", "long-description", "maintainers")
+		t.AddRow(pkgMetadata.Name, pkgMetadata.Spec.DisplayName, pkgMetadata.Spec.ShortDescription,
+			pkgMetadata.Spec.ProviderName, pkgMetadata.Spec.LongDescription, pkgMetadata.Spec.Maintainers)
 
 		t.RenderWithSpinner()
 	}
