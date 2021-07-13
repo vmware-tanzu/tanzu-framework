@@ -20,7 +20,7 @@ type PackagePluginBase interface {
 	ListRepository(o *tkgpackagedatamodel.RepositoryOptions) PackagePluginResult
 
 	GetAvailablePackage(packageName string, o *tkgpackagedatamodel.PackageAvailableOptions) PackagePluginResult
-	ListAvailablePackage(o *tkgpackagedatamodel.PackageAvailableOptions) PackagePluginResult
+	ListAvailablePackage(packageName string, o *tkgpackagedatamodel.PackageAvailableOptions) PackagePluginResult
 
 	CreateInstalledPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult
 	GetInstalledPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult
@@ -208,9 +208,16 @@ func (p *packagePlugin) GetAvailablePackage(packageName string, o *tkgpackagedat
 	return result
 }
 
-func (p *packagePlugin) ListAvailablePackage(o *tkgpackagedatamodel.PackageAvailableOptions) PackagePluginResult {
-	var result PackagePluginResult
-	cmd := fmt.Sprintf("tanzu package available list")
+func (p *packagePlugin) ListAvailablePackage(packageName string, o *tkgpackagedatamodel.PackageAvailableOptions) PackagePluginResult {
+	var (
+		cmd    string
+		result PackagePluginResult
+	)
+	if packageName == "" {
+		cmd = fmt.Sprintf("tanzu package available list")
+	} else {
+		cmd = fmt.Sprintf("tanzu package available list %s", packageName)
+	}
 	if o.AllNamespaces {
 		cmd += fmt.Sprintf(" --all-namespaces")
 	}
@@ -251,7 +258,6 @@ func (p *packagePlugin) CreateInstalledPackage(o *tkgpackagedatamodel.PackageOpt
 	if o.PollTimeout != 0 {
 		cmd += fmt.Sprintf(" --poll-timeout %s", o.PollTimeout)
 	}
-	cmd = p.addOutputFormat(cmd)
 	cmd = p.addKubeconfig(cmd)
 	cmd = p.addGlobalOptions(cmd)
 	result.Stdout, result.Stderr, result.Error = clitest.Exec(cmd)
@@ -286,7 +292,6 @@ func (p *packagePlugin) UpdateInstalledPackage(o *tkgpackagedatamodel.PackageOpt
 	if o.ValuesFile != "" {
 		cmd += fmt.Sprintf(" --values-file %s", o.ValuesFile)
 	}
-	cmd = p.addOutputFormat(cmd)
 	cmd = p.addKubeconfig(cmd)
 	cmd = p.addGlobalOptions(cmd)
 	result.Stdout, result.Stderr, result.Error = clitest.Exec(cmd)
@@ -305,7 +310,6 @@ func (p *packagePlugin) DeleteInstalledPackage(o *tkgpackagedatamodel.PackageOpt
 	if o.PollTimeout != 0 {
 		cmd += fmt.Sprintf(" --poll-timeout %s", o.PollTimeout)
 	}
-	cmd = p.addOutputFormat(cmd)
 	cmd = p.addKubeconfig(cmd)
 	cmd = p.addGlobalOptions(cmd)
 	result.Stdout, result.Stderr, result.Error = clitest.Exec(cmd)

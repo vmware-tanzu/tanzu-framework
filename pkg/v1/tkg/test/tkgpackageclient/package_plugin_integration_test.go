@@ -4,11 +4,11 @@
 package tkgpackageclient_test
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path"
 	"path/filepath"
 	"testing"
 	"time"
@@ -35,6 +35,24 @@ type PackagePluginConfig struct {
 	ClusterNameWLC       string `json:"wlc-cluster-name"`
 	KubeConfigPathMC     string `json:"mc-kubeconfig-Path"`
 	KubeConfigPathWLC    string `json:"wlc-kubeconfig-Path"`
+	WithValueFile        bool   `json:"with-value-file"`
+}
+
+type repositoryOutput struct {
+	Name       string `json:"name"`
+	Repository string `json:"repository"`
+	Status     string `json:"status"`
+}
+
+type packageInstalledOutput struct {
+	Name           string `json:"name"`
+	PackageName    string `json:"package-name"`
+	PackageVersion string `json:"package-version"`
+	Status         string `json:"status"`
+}
+
+type packageAvailableOutput struct {
+	Name string `json:"name"`
 }
 
 var (
@@ -52,18 +70,21 @@ var (
 	pkgAvailableOptions    = tkgpackagedatamodel.PackageAvailableOptions{}
 	pkgOptions             tkgpackagedatamodel.PackageOptions
 	repoOptions            tkgpackagedatamodel.RepositoryOptions
+	repoOutput             []repositoryOutput
+	expectedRepoOutput     repositoryOutput
+	pkgOutput              []packageInstalledOutput
+	expectedPkgOutput      packageInstalledOutput
+	pkgAvailableOutput     []packageAvailableOutput
 )
 
 var _ = Describe("Package plugin integration test", func() {
 	var (
 		homeDir           string
-		currentDir        string
 		clusterConfigFile string
 	)
 
 	BeforeSuite(func() {
-		defaultCfgPath := path.Join(currentDir, "config/package_plugin_config.yaml")
-		flag.StringVar(&configPath, "package-plugin-config", defaultCfgPath, "path to the package plugin config file")
+		flag.StringVar(&configPath, "package-plugin-config", "config/package_plugin_config.yaml", "path to the package plugin config file")
 
 		configData, err := ioutil.ReadFile(configPath)
 		Expect(err).NotTo(HaveOccurred())
@@ -72,8 +93,6 @@ var _ = Describe("Package plugin integration test", func() {
 		Expect(config).NotTo(BeNil())
 
 		homeDir, err = os.UserHomeDir()
-		Expect(err).NotTo(HaveOccurred())
-		currentDir, err = os.Getwd()
 		Expect(err).NotTo(HaveOccurred())
 		tkgCfgDir = filepath.Join(homeDir, ".tkg")
 		err = os.MkdirAll(tkgCfgDir, os.ModePerm)
@@ -174,27 +193,40 @@ var _ = Describe("Package plugin integration test", func() {
 			CreateNamespace: true,
 			RepositoryName:  testRepoName,
 		}
+
+		expectedRepoOutput = repositoryOutput{
+			Name:       testRepoName,
+			Repository: config.RepositoryURL,
+			Status:     "Reconcile succeeded",
+		}
+
+		expectedPkgOutput = packageInstalledOutput{
+			Name:           testPkgInstallName,
+			PackageName:    config.PackageName,
+			PackageVersion: config.PackageVersion,
+			Status:         "Reconcile succeeded",
+		}
 	})
 
 	Context("testing package plugin on management cluster", func() {
 		BeforeEach(func() {
-			packagePlugin = packagelib.NewPackagePlugin(config.KubeConfigPathMC, pollInterval, pollTimeout, "", "", 0)
+			packagePlugin = packagelib.NewPackagePlugin(config.KubeConfigPathMC, pollInterval, pollTimeout, "json", "", 0)
 		})
 
 		It("should pass all checks on management cluster", func() {
 			testHelper()
-			log.Info("Finished package plugin tests on management cluster")
+			log.Info("Successfully finished package plugin tests on management cluster")
 		})
 	})
 
 	Context("testing package plugin on workload cluster", func() {
 		BeforeEach(func() {
-			packagePlugin = packagelib.NewPackagePlugin(config.KubeConfigPathWLC, pollInterval, pollTimeout, "", "", 0)
+			packagePlugin = packagelib.NewPackagePlugin(config.KubeConfigPathWLC, pollInterval, pollTimeout, "json", "", 0)
 		})
 
 		It("should pass all checks on workload cluster", func() {
 			testHelper()
-			log.Info("Finished package plugin tests on workload cluster")
+			log.Info("Successfully finished package plugin tests on workload cluster")
 		})
 	})
 })
@@ -213,24 +245,59 @@ func testHelper() {
 	By("list package repository")
 	result = packagePlugin.ListRepository(&repoOptions)
 	Expect(result.Error).ToNot(HaveOccurred())
+	err = json.Unmarshal(result.Stdout.Bytes(), &repoOutput)
+	Expect(err).ToNot(HaveOccurred())
+	Expect(len(repoOutput)).To(BeNumerically("==", 1))
+	Expect(repoOutput[0]).To(Equal(expectedRepoOutput))
 
 	By("get package repository")
 	result = packagePlugin.GetRepository(&repoOptions)
 	Expect(result.Error).ToNot(HaveOccurred())
+	err = json.Unmarshal(result.Stdout.Bytes(), &repoOutput)
+	Expect(err).ToNot(HaveOccurred())
+	Expect(len(repoOutput)).To(BeNumerically("==", 1))
+	Expect(repoOutput[0]).To(Equal(expectedRepoOutput))
 
-	By("list package available")
+	By("list package available without packagename argument")
 	pkgAvailableOptions.AllNamespaces = true
-	result = packagePlugin.ListAvailablePackage(&pkgAvailableOptions)
+	result = packagePlugin.ListAvailablePackage("", &pkgAvailableOptions)
 	Expect(result.Error).ToNot(HaveOccurred())
+	err = json.Unmarshal(result.Stdout.Bytes(), &pkgAvailableOutput)
+	Expect(err).ToNot(HaveOccurred())
+	Expect(pkgAvailableOutput).To(ContainElement(packageAvailableOutput{Name: config.PackageName}))
 
-	By("get package available")
+	By("list package available with packagename argument")
+	pkgAvailableOptions.AllNamespaces = true
+	result = packagePlugin.ListAvailablePackage(config.PackageName, &pkgAvailableOptions)
+	Expect(result.Error).ToNot(HaveOccurred())
+	err = json.Unmarshal(result.Stdout.Bytes(), &pkgAvailableOutput)
+	Expect(err).ToNot(HaveOccurred())
+	Expect(pkgAvailableOutput).To(ContainElement(packageAvailableOutput{Name: config.PackageName}))
+
+	By("get package available packagename format")
 	pkgAvailableOptions.AllNamespaces = false
 	result = packagePlugin.GetAvailablePackage(config.PackageName, &pkgAvailableOptions)
 	Expect(result.Error).ToNot(HaveOccurred())
+	err = json.Unmarshal(result.Stdout.Bytes(), &pkgAvailableOutput)
+	Expect(err).ToNot(HaveOccurred())
+	Expect(len(pkgAvailableOutput)).To(BeNumerically("==", 1))
+	Expect(pkgAvailableOutput[0].Name).To(Equal(config.PackageName))
+
+	By("get package available packagename/packageversion format")
+	result = packagePlugin.GetAvailablePackage(config.PackageName+"/"+config.PackageVersion, &pkgAvailableOptions)
+	Expect(result.Error).ToNot(HaveOccurred())
+	err = json.Unmarshal(result.Stdout.Bytes(), &pkgAvailableOutput)
+	Expect(err).ToNot(HaveOccurred())
+	Expect(len(pkgAvailableOutput)).To(BeNumerically("==", 1))
+	Expect(pkgAvailableOutput[0].Name).To(Equal(config.PackageName))
 
 	By("create package install")
+	pkgOptions.Wait = true
 	pkgOptions.PollInterval = pollInterval
 	pkgOptions.PollTimeout = pollTimeout
+	if config.WithValueFile {
+		pkgOptions.ValuesFile = "config/values.yaml"
+	}
 	result = packagePlugin.CreateInstalledPackage(&pkgOptions)
 	Expect(result.Error).ToNot(HaveOccurred())
 
@@ -238,15 +305,27 @@ func testHelper() {
 	pkgOptions.AllNamespaces = true
 	result = packagePlugin.ListInstalledPackage(&pkgOptions)
 	Expect(result.Error).ToNot(HaveOccurred())
+	err = json.Unmarshal(result.Stdout.Bytes(), &pkgOutput)
+	Expect(err).ToNot(HaveOccurred())
+	Expect(len(pkgOutput)).To(BeNumerically("==", 1))
+	Expect(pkgOutput[0]).To(Equal(expectedPkgOutput))
 
 	By("update package install")
+	pkgOptions.Wait = true
 	pkgOptions.Version = config.PackageVersionUpdate
+	if config.WithValueFile {
+		pkgOptions.ValuesFile = "config/values_update.yaml"
+	}
 	result = packagePlugin.UpdateInstalledPackage(&pkgOptions)
 	Expect(result.Error).ToNot(HaveOccurred())
 
 	By("get package install")
 	result = packagePlugin.GetInstalledPackage(&pkgOptions)
 	Expect(result.Error).ToNot(HaveOccurred())
+	err = json.Unmarshal(result.Stdout.Bytes(), &pkgOutput)
+	Expect(err).ToNot(HaveOccurred())
+	Expect(len(pkgOutput)).To(BeNumerically("==", 1))
+	Expect(pkgOutput[0]).To(Equal(expectedPkgOutput))
 
 	By("delete package install")
 	pkgOptions.PollInterval = pollInterval

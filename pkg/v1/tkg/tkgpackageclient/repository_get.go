@@ -23,5 +23,6 @@ func (p *pkgClient) GetRepository(o *tkgpackagedatamodel.RepositoryOptions) (*ka
 		}
 		return nil, errors.Wrap(err, fmt.Sprintf("failed to find package repository '%s' in namespace '%s'", o.RepositoryName, o.Namespace))
 	}
+
 	return packageRepository, nil
 }

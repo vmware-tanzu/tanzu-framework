@@ -149,7 +149,7 @@ func (p *pkgClient) deletePackageInstall(o *tkgpackagedatamodel.PackageOptions) 
 // waitForAppCRDeletion waits until the App CR get deleted successfully or a failure happen
 func (p *pkgClient) waitForAppCRDeletion(o *tkgpackagedatamodel.PackageOptions, progress chan string) error {
 	if err := wait.Poll(o.PollInterval, o.PollTimeout, func() (done bool, err error) {
-		app, err := p.kappClient.GetAppCR(o.PkgInstallName, o.Namespace)
+		app, err := p.kappClient.GetAppCR(o.PkgInstallName, o.Namespace)// TODO: wait on package CR deletion instead
 		if err != nil && apierrors.IsNotFound(err) {
 			return true, nil
 		}

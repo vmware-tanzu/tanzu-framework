@@ -8,3 +8,4 @@ repository-url: "projects-stg.registry.vmware.com/tkg/test-packages/standard-rep
 package-name: "fluent-bit.tanzu.vmware.com"
 package-version: "1.7.5+vmware.1-tkg.1"
 package-version-update: "1.7.5+vmware.1-tkg.1"
+with-value-file: true
