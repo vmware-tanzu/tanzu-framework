@@ -148,6 +148,16 @@ func (q *QueryObject) Reason() string {
 	return fmt.Sprintf("kind=%s status=unmatched presence=%t", q.object.Kind, q.presence)
 }
 
+func (q *QueryObject) annotationsMap(presence bool) map[string]string {
+	annotations := make(map[string]string)
+	for _, a := range q.annotations {
+		if a.presence == presence {
+			annotations[a.key] = a.value
+		}
+	}
+	return annotations
+}
+
 type resourceAnnotation struct {
 	key      string
 	value    string
