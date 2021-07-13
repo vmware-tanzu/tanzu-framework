@@ -27,19 +27,15 @@ import sys
 def get_bom_dir():
     return os.path.join(sys.argv[1], "bom")
 
-def get_bom_filename(k8sVersion):
+def get_default_tkr_bom():
     bomDir = get_bom_dir()
     for bomFile in os.listdir(bomDir):
-        bomFilePath = os.path.join(bomDir, bomFile)
-        with open(bomFilePath) as file:
-            bom = yaml.safe_load(file)
-            if(bom["release"]["version"] == k8sVersion):
-                return bomFile
+        if(bomFile.startswith("tkr-bom")):
+            return bomFile
     return None
 
 def main():
-    k8sVersion = "v1.21.1+vmware.4-tkg.1-zshippable"
-    bomFile = get_bom_filename(k8sVersion)
+    bomFile = get_default_tkr_bom()
     bomDir = get_bom_dir()
     bomFilePath = os.path.join(bomDir, bomFile)
     with open(bomFilePath) as file:

@@ -35,17 +35,7 @@ help:  ## Display this help
 
 verify-build:  ## verify-build verifies the changes with generated files
 
-all: lint checksum verify ## run all target
-
-ci: checksum verify ## run ci target
-
-.PHONY: checksum
-checksum: ## Generate checksum of provider files
-	find . -type f | grep -v ${FILES_TO_IGNORE} | sort | xargs shasum -a 256 | shasum -a 256 | cut -d" " -f1 > providers.sha256sum
-
-.PHONY: verify
-verify: ## verify that checksum and generated bindata file match
-	git diff --exit-code providers.sha256sum client/manifest/zz_generated.bindata.go || (echo "Run make vendir-sync and ensure diff is added to your changeset")
+all: lint ## run all target
 
 .PHONY: build-cli ## build tkg cli with existing provider changes
 build-cli:

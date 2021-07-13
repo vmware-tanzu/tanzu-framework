@@ -7,6 +7,7 @@ package inspect
 import (
 	"context"
 	"fmt"
+	"net"
 	"net/url"
 	"time"
 
@@ -180,7 +181,7 @@ func (i *Inspector) GetServiceEndpoint(namespace, name string) (string, error) {
 			zap.S().Error(err)
 			return "", err
 		}
-		serviceEndpoint = fmt.Sprintf("%s://%s:%d", "https", host, service.Spec.Ports[0].NodePort)
+		serviceEndpoint = fmt.Sprintf("https://%s", net.JoinHostPort(host, fmt.Sprint(service.Spec.Ports[0].NodePort)))
 	} else if service.Spec.Type == corev1.ServiceTypeLoadBalancer {
 		hostname := service.Status.LoadBalancer.Ingress[0].Hostname
 		ip := service.Status.LoadBalancer.Ingress[0].IP
@@ -191,7 +192,7 @@ func (i *Inspector) GetServiceEndpoint(namespace, name string) (string, error) {
 			// on gce or openstack it usually is set to be IP
 			host = ip
 		}
-		serviceEndpoint = fmt.Sprintf("%s://%s:%d", "https", host, service.Spec.Ports[0].Port)
+		serviceEndpoint = fmt.Sprintf("https://%s", net.JoinHostPort(host, fmt.Sprint(service.Spec.Ports[0].Port)))
 	}
 	// TODO: file a JIRA to track the issue being discussed under https://vmware.slack.com/archives/G01HFK90QE8/p1610051838070300?thread_ts=1610051580.069400&cid=G01HFK90QE8
 	serviceEndpoint = utils.RemoveDefaultTLSPort(serviceEndpoint)
