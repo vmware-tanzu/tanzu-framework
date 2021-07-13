@@ -424,9 +424,9 @@ func (c *client) GetKubeConfigPath() string {
 }
 
 // Apply runs kubectl apply every `interval` until it succeeds or a timeout is reached.
-func (c *client) Apply(yaml string) error {
+func (c *client) Apply(yamlString string) error {
 	_, err := c.poller.PollImmediateWithGetter(kubectlApplyRetryInterval, kubectlApplyRetryTimeout, func() (interface{}, error) {
-		return nil, c.kubectlApply(yaml)
+		return nil, c.kubectlApply(yamlString)
 	})
 	return err
 }
@@ -1152,13 +1152,13 @@ func (c *client) kubectlApplyFile(url string) error {
 	return nil
 }
 
-func (c *client) kubectlApply(yaml string) error {
+func (c *client) kubectlApply(yamlString string) error {
 	f, err := os.CreateTemp("", "kubeapply-")
 	if err != nil {
 		return errors.Wrap(err, "unable to create temp file")
 	}
 	defer removeAppliedFile(f)
-	err = os.WriteFile(f.Name(), []byte(yaml), constants.ConfigFilePermissions)
+	err = os.WriteFile(f.Name(), []byte(yamlString), constants.ConfigFilePermissions)
 	if err != nil {
 		return errors.Wrap(err, "unable to write temp file")
 	}
@@ -1440,14 +1440,14 @@ func (c *client) UpdateReplicas(resourceReference interface{}, resourceName, res
 }
 
 func (c *client) GetPacificTKCAPIVersion() (string, error) {
-	yaml, err := c.poller.PollImmediateWithGetter(kubectlApplyRetryInterval, kubectlApplyRetryTimeout, func() (interface{}, error) {
+	yamlString, err := c.poller.PollImmediateWithGetter(kubectlApplyRetryInterval, kubectlApplyRetryTimeout, func() (interface{}, error) {
 		return c.kubectlExplainResource("tkc")
 	})
 	if err != nil {
 		return "", errors.Wrap(err, "failed to get kubectl explain response for tkc resource")
 	}
 
-	yamlBytes := yaml.([]byte)
+	yamlBytes := yamlString.([]byte)
 	re := regexp.MustCompile(`VERSION:(.*)\n`)
 	match := re.FindStringSubmatch(string(yamlBytes))
 	if len(match) == 0 || strings.TrimSpace(match[1]) == "" {

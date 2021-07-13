@@ -209,10 +209,10 @@ func ensureBoMandProvidersPrerequisite(configDir string, tkgConfigUpdaterClient 
 	}
 
 	// ensure that providers templates are extracted and placed under ConfigDir/providers
-	//err = tkgConfigUpdaterClient.EnsureProviderTemplates()
-	//if err != nil {
-	//	return err
-	//}
+	err = tkgConfigUpdaterClient.EnsureProviderTemplates()
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
