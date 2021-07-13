@@ -14,6 +14,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	clusterctlclient "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 	"strconv"
 	"strings"
 	"time"
@@ -570,6 +571,36 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 	if name == VSphereProviderName {
 		if err := c.ConfigureAndValidateVsphereConfig(tkrVersion, options.NodeSizeOptions, options.VsphereControlPlaneEndpoint, skipValidation, nil); err != nil {
 			return err
+		}
+
+		for _, region := range regions {
+			kubeConfig := clusterctlclient.Kubeconfig{Path: region.SourceFilePath, Context: region.ContextName}
+			//if options.ProviderRepositorySource.InfrastructureProvider != "" {
+			//	options.ProviderRepositorySource.InfrastructureProvider, err = c.tkgConfigUpdaterClient.CheckInfrastructureVersion(options.ProviderRepositorySource.InfrastructureProvider)
+			//	if err != nil {
+			//		return errors.Wrap(err, "unable to check infrastructure provider version")
+			//	}
+			//}
+			clusterclientOptions := clusterclient.Options{
+				GetClientInterval: 1 * time.Second,
+				GetClientTimeout:  3 * time.Second,
+				OperationTimeout:  c.timeout,
+			}
+			regionalClusterClient, err := clusterclient.NewClient(kubeConfig.Path, kubeConfig.Context, clusterclientOptions)
+			if err != nil {
+				return NewValidationError(ValidationErrorCode, "unable to get cluster client while creating cluster")
+			}
+
+			clusters, err := regionalClusterClient.ListClusters("tkg-system")
+			if err != nil {
+				return NewValidationError(ValidationErrorCode, "unable to get list of management clusters under namespace tkg-system")
+			}
+
+			for i := range clusters {
+				if clusters[i].Spec.ControlPlaneEndpoint.Host == options.VsphereControlPlaneEndpoint {
+					return NewValidationError(ValidationErrorCode, "Control plane endpoint already exists")
+				}
+			}
 		}
 	}
 
