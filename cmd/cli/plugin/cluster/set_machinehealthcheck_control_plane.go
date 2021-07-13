@@ -60,7 +60,7 @@ func runCreateMachineHealthCheckCP(server *v1alpha1.Server, clusterName string) 
 	}
 
 	if setMHCCP.matchLabels == "" {
-		setMHCCP.matchLabels = "cluster.x-k8s.io/control-plane: "
+		setMHCCP.matchLabels = controlPlaneLabel + ": "
 	}
 
 	options := tkgctl.SetMachineHealthCheckOptions{

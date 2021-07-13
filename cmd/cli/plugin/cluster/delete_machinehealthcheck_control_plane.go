@@ -44,7 +44,7 @@ func deleteMachineHealthCheckCP(cmd *cobra.Command, args []string) error {
 	}
 
 	if server.IsGlobal() {
-		return errors.New("getting machine healthcheck with a global server is not implemented yet")
+		return errors.New("deleting machine healthcheck with a global server is not implemented yet")
 	}
 	return runDeleteMachineHealthCheckCP(server, args[0])
 }
@@ -56,7 +56,7 @@ func runDeleteMachineHealthCheckCP(server *v1alpha1.Server, clusterName string) 
 	}
 
 	if deleteMHCCP.matchLabel == "" {
-		deleteMHCCP.matchLabel = "cluster.x-k8s.io/control-plane"
+		deleteMHCCP.matchLabel = controlPlaneLabel
 	}
 
 	options := tkgctl.DeleteMachineHealthCheckOptions{

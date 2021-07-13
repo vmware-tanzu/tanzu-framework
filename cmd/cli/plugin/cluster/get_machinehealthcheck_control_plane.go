@@ -59,7 +59,7 @@ func runGetMachineHealthCheckCP(server *v1alpha1.Server, clusterName string) err
 		ClusterName:            clusterName,
 		Namespace:              getMHCCP.namespace,
 		MachineHealthCheckName: getMHCCP.machinehealthCheckName,
-		MatchLabel:             "cluster.x-k8s.io/control-plane",
+		MatchLabel:             controlPlaneLabel,
 	}
 
 	mhcList, err := tkgctlClient.GetMachineHealthCheck(options)

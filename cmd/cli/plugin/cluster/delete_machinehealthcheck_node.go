@@ -44,7 +44,7 @@ func deleteMachineHealthCheckNode(cmd *cobra.Command, args []string) error {
 	}
 
 	if server.IsGlobal() {
-		return errors.New("getting machine healthcheck with a global server is not implemented yet")
+		return errors.New("deleting machine healthcheck with a global server is not implemented yet")
 	}
 	return runDeleteMachineHealthCheckNode(server, args[0])
 }
@@ -56,7 +56,7 @@ func runDeleteMachineHealthCheckNode(server *v1alpha1.Server, clusterName string
 	}
 
 	if deleteMHCNode.matchLabel == "" {
-		deleteMHCNode.matchLabel = "node-pool"
+		deleteMHCNode.matchLabel = nodePoolLabel
 	}
 
 	options := tkgctl.DeleteMachineHealthCheckOptions{

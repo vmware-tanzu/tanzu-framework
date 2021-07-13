@@ -59,7 +59,7 @@ func runGetMachineHealthCheckNode(server *v1alpha1.Server, clusterName string) e
 		ClusterName:            clusterName,
 		Namespace:              getMHCNode.namespace,
 		MachineHealthCheckName: getMHCNode.machinehealthCheckName,
-		MatchLabel:             "node-pool",
+		MatchLabel:             nodePoolLabel,
 	}
 
 	mhcList, err := tkgctlClient.GetMachineHealthCheck(options)

@@ -5,7 +5,13 @@ package main
 
 import (
 	"github.com/spf13/cobra"
+
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
+)
+
+const (
+	controlPlaneLabel = "cluster.x-k8s.io/control-plane"
+	nodePoolLabel     = "node-pool"
 )
 
 var machineHealthCheckCmd = &cobra.Command{
