@@ -6,11 +6,8 @@ package main
 import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-
 	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
-
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 )
 
@@ -38,8 +35,6 @@ func init() {
 }
 
 func deleteMachineHealthCheck(cmd *cobra.Command, args []string) error {
-	log.V(1).Infof("This command is being deprecated, and will only allow you to delete MHC for the nodes of the cluster. Please use tanzu cluster mhc control-plane delete to delete the MHC for the control plane\n" +
-		"Please use tanzu cluster mhc node delete to delete the MHC object for the node")
 	server, err := config.GetCurrentServer()
 	if err != nil {
 		return err

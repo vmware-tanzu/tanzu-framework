@@ -5,9 +5,6 @@ package main
 
 import (
 	"errors"
-
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
-
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
@@ -44,8 +41,6 @@ func init() {
 }
 
 func setMachineHealthCheck(cmd *cobra.Command, args []string) error {
-	log.V(1).Infof("This command is being deprecated, and will only allow you to set MHC for the nodes of the cluster. Please use tanzu cluster mhc control-plane set to enable MHC for the control plane\n" +
-		"Please use tanzu cluster mhc node set to set the MHC object for the node")
 	server, err := config.GetCurrentServer()
 	if err != nil {
 		return err
