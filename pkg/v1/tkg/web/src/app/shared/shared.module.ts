@@ -17,6 +17,7 @@ import { ClarityModule } from "@clr/angular";
 import { FeatureToggleDirective } from './directives/feature-flag.directive';
 import { A11yTooltipTriggerDirective } from './directives/a11y-tooltip-trigger.directive';
 import { RemoveAriaLabelledByDirective } from './directives/remove-aria-labelledBy.directive';
+import { ContextualHelpComponent } from './contextual-help/contextual-help.component';
 
 const declaredAndExportedModules = [
     CommonModule,
@@ -39,12 +40,14 @@ const declaredAndExportedModules = [
         ...declaredAndExportedModules,
         FeatureToggleDirective,
         A11yTooltipTriggerDirective,
-        RemoveAriaLabelledByDirective
+        RemoveAriaLabelledByDirective,
+        ContextualHelpComponent
     ],
     declarations: [
         FeatureToggleDirective,
         A11yTooltipTriggerDirective,
-        RemoveAriaLabelledByDirective
+        RemoveAriaLabelledByDirective,
+        ContextualHelpComponent
     ]
 })
 export class SharedModule { }
