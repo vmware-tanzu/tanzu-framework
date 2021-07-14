@@ -6,6 +6,7 @@ replace (
 	github.com/go-logr/logr => github.com/go-logr/logr v0.1.0
 	github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.3.1 // indirect
 	k8s.io/api => k8s.io/api v0.17.11
+	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.17.11
 	k8s.io/apimachinery => k8s.io/apimachinery v0.17.11
 	k8s.io/client-go => k8s.io/client-go v0.17.11
 	k8s.io/klog/v2 => k8s.io/klog/v2 v2.0.0
@@ -116,6 +117,7 @@ require (
 	sigs.k8s.io/cluster-api-provider-vsphere v0.7.1
 	sigs.k8s.io/cluster-api/test/infrastructure/docker v0.0.0-20200707192359-e68354f948db
 	sigs.k8s.io/controller-runtime v0.7.0
+	sigs.k8s.io/controller-tools v0.3.0
 	sigs.k8s.io/kind v0.11.1
 	sigs.k8s.io/yaml v1.2.0
 )

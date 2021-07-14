@@ -35,17 +35,7 @@ help:  ## Display this help
 
 verify-build:  ## verify-build verifies the changes with generated files
 
-all: lint checksum verify ## run all target
-
-ci: checksum verify ## run ci target
-
-.PHONY: checksum
-checksum: ## Generate checksum of provider files
-	find . -type f | grep -v ${FILES_TO_IGNORE} | sort | xargs shasum -a 256 | shasum -a 256 | cut -d" " -f1 > providers.sha256sum
-
-.PHONY: verify
-verify: ## verify that checksum and generated bindata file match
-	git diff --exit-code providers.sha256sum client/manifest/zz_generated.bindata.go || (echo "Run make vendir-sync and ensure diff is added to your changeset")
+all: lint ## run all target
 
 .PHONY: build-cli ## build tkg cli with existing provider changes
 build-cli:
@@ -127,12 +117,6 @@ $(VENDIR):
 ## --------------------------------------
 
 .PHONY: vendir-sync
-vendir-sync: ## Run "vendir sync"
-	rm -rf ./ytt/vendir/cni/_ytt_lib/addons/calico/templates/* && \
-	rm -rf ./ytt/vendir/cni/_ytt_lib/addons/antrea/templates/* && \
-	rm -rf ./ytt/vendir/vsphere_cpi/_ytt_lib/addons/vsphere_cpi/templates/* && \
-	cp -r ../../../addons/calico/templates ./ytt/vendir/cni/_ytt_lib/addons/calico/ && \
-	cp -r ../../../addons/antrea/templates ./ytt/vendir/cni/_ytt_lib/addons/antrea/ && \
-	cp -r ../../../addons/vsphere_cpi/templates ./ytt/vendir/vsphere_cpi/_ytt_lib/addons/vsphere_cpi/
-
+vendir-sync: vendir  ## Run vendir sync
+	${TOOLS_BIN_DIR}/vendir sync
 # end of Makefile

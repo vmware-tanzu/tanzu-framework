@@ -83,3 +83,22 @@ data:
         - workload
         templatesImagePath: addons/vsphere-csi-templates
         templatesImageTag: 98adbf4
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: test-cluster-1-antrea
+  namespace: default
+  labels:
+    tkg.tanzu.vmware.com/addon-name: antrea
+    tkg.tanzu.vmware.com/cluster-name: test-cluster-1
+#  annotations:
+#    tkg.tanzu.vmware.com/remote-app: "true"
+type: tkg.tanzu.vmware.com/addon
+stringData:
+  values.yaml: |
+    #@data/values
+    #@overlay/match-child-defaults missing_ok=True
+    ---
+    serviceCidr: 100.64.0.0/13

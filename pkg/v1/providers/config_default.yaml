@@ -312,7 +312,9 @@ AZURE_IMAGE_THIRD_PARTY:
 #! For both marketplace and shared image gallery
 AZURE_IMAGE_VERSION:
 
-
+#! Azure multi-tenancy
+AZURE_IDENTITY_NAME:
+AZURE_IDENTITY_NAMESPACE:
 
 #! ---------------------------------------------------------------------
 #! OIDC-related configuration

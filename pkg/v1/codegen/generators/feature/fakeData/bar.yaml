@@ -1,0 +1,13 @@
+
+---
+apiVersion: config.tanzu.vmware.com/v1alpha1
+kind: Feature
+metadata:
+  creationTimestamp: null
+  name: bar
+spec:
+  activated: false
+  discoverable: false
+  immutable: false
+  maturity: dev
+status: {}
