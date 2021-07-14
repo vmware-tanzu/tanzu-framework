@@ -63,8 +63,8 @@ var (
 	packagePlugin          packagelib.PackagePlugin
 	result                 packagelib.PackagePluginResult
 	clusterCreationTimeout = 30 * time.Minute
-	pollInterval           = 10 * time.Second
-	pollTimeout            = 3 * time.Minute
+	pollInterval           = 15 * time.Second
+	pollTimeout            = 10 * time.Minute
 	testRepoName           = "test-repo"
 	testPkgInstallName     = "test-pkg"
 	pkgAvailableOptions    = tkgpackagedatamodel.PackageAvailableOptions{}
@@ -307,8 +307,8 @@ func testHelper() {
 	Expect(result.Error).ToNot(HaveOccurred())
 	err = json.Unmarshal(result.Stdout.Bytes(), &pkgOutput)
 	Expect(err).ToNot(HaveOccurred())
-	Expect(len(pkgOutput)).To(BeNumerically("==", 1))
-	Expect(pkgOutput[0]).To(Equal(expectedPkgOutput))
+	Expect(len(pkgOutput)).To(BeNumerically(">=", 1))
+	Expect(pkgOutput).To(ContainElement(expectedPkgOutput))
 
 	By("update package install")
 	pkgOptions.Wait = true
