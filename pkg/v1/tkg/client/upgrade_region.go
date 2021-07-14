@@ -162,8 +162,9 @@ func (c *TkgClient) configureVariablesForProvidersInstallation(regionalClusterCl
 	if err != nil {
 		return errors.Wrap(err, "failed to parse provider name")
 	}
-	// set default values for variables required for infrastructure component spec rendering
-	err = c.setConfigurationForUpgrade(regionalClusterClient)
+	// retrieve required variables required for infrastructure component spec rendering
+	// set them to default values if they don't exist.
+	err = c.retriveRegionalClusterConfiguration(regionalClusterClient)
 	if err != nil {
 		return errors.Wrap(err, "failed to set configurations for upgrade")
 	}

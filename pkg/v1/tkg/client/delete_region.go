@@ -88,6 +88,11 @@ func (c *TkgClient) DeleteRegion(options DeleteRegionOptions) error { //nolint:f
 		return err
 	}
 
+	err = c.retriveRegionalClusterConfiguration(regionalClusterClient)
+	if err != nil {
+		return errors.Wrap(err, "failed to set configurations for deletion")
+	}
+
 	isFailure, err := c.IsManagementClusterAKindCluster(options.ClusterName)
 	if err != nil {
 		return err
