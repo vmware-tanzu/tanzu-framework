@@ -29,9 +29,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 
-	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
-
+	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+
+	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
+	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 )
 
 // These tests use Ginkgo (BDD-style Go testing framework). Refer to
@@ -91,6 +93,9 @@ var _ = BeforeSuite(func(done Done) {
 	err = controlplanev1alpha3.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
 
+	err = pkgiv1alpha1.AddToScheme(scheme)
+	Expect(err).NotTo(HaveOccurred())
+
 	k8sClient, err = client.New(cfg, client.Options{Scheme: scheme})
 	Expect(err).ToNot(HaveOccurred())
 	Expect(k8sClient).ToNot(BeNil())
@@ -115,6 +120,16 @@ var _ = BeforeSuite(func(done Done) {
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("Addon"),
 		Scheme: mgr.GetScheme(),
+		Config: addonconfig.Config{
+			AppSyncPeriod:           appSyncPeriod,
+			AppWaitTimeout:          appWaitTimeout,
+			AddonNamespace:          addonNamespace,
+			AddonServiceAccount:     addonServiceAccount,
+			AddonClusterRole:        addonClusterRole,
+			AddonClusterRoleBinding: addonClusterRoleBinding,
+			AddonImagePullPolicy:    addonImagePullPolicy,
+			CorePackageRepoName:     corePackageRepoName,
+		},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
 	// pre-create namespace

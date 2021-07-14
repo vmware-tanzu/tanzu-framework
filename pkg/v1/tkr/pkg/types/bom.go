@@ -100,6 +100,7 @@ type Addon struct {
 	TemplatesImageTag    string               `yaml:"templatesImageTag,omitempty"`
 	AddonTemplatesImage  []ComponentReference `yaml:"addonTemplatesImage,omitempty"`
 	AddonContainerImages []ComponentReference `yaml:"addonContainerImages,omitempty"`
+	PackageName          string               `yaml:"packageName,omitempty"`
 }
 
 // BomContent contains the content of a BOM file
