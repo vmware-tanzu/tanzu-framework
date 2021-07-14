@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
   pull_request:
-    branches: [ main, migrate-tkg-cli/* ]
+    branches: [ main ]
 
 jobs:
 
@@ -97,12 +97,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Config credentials
-      env:
-        GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
-      run: |
-        git config --global url."https://git:$GH_ACCESS_TOKEN@github.com".insteadOf "https://github.com"
-
     - name: Run golangci-lint
       uses: golangci/golangci-lint-action@v2
       with:
@@ -111,7 +105,5 @@ jobs:
         working-directory: ${{matrix.working-directory}}
 
     - name: Run vale doc linter
-      env:
-        GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
       run: |
         make doc-lint

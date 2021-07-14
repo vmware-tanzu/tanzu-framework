@@ -101,6 +101,14 @@ spec:
     #@ end
   resourceGroup: #@ data.values.AZURE_RESOURCE_GROUP or data.values.CLUSTER_NAME
   subscriptionID: #@ data.values.AZURE_SUBSCRIPTION_ID
+  #@ if data.values.AZURE_IDENTITY_NAME:
+  #@overlay/match missing_ok=True
+  identityRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+    kind: AzureClusterIdentity
+    name: #@ data.values.AZURE_IDENTITY_NAME
+    namespace: #@ data.values.AZURE_IDENTITY_NAMESPACE
+  #@ end
 
 #@overlay/match by=overlay.subset({"kind":"KubeadmControlPlane"})
 ---
