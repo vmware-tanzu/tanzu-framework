@@ -24,7 +24,7 @@ jobs:
                run_id: ${{github.event.workflow_run.id }},
             });
             var matchArtifact = artifacts.data.artifacts.filter((artifact) => {
-              return artifact.name == "pr"
+              return artifact.name == "clustergen-output"
             })[0];
             var download = await github.actions.downloadArtifact({
                owner: context.repo.owner,
@@ -33,12 +33,12 @@ jobs:
                archive_format: 'zip',
             });
             var fs = require('fs');
-            fs.writeFileSync('${{github.workspace}}/pr.zip', Buffer.from(download.data));
+            fs.writeFileSync('${{github.workspace}}/clustergen-output.zip', Buffer.from(download.data));
 
       - name: Read artifact info
         shell: bash
         run: |
-          unzip pr.zip
+          unzip clustergen-output.zip
           echo "##[set-output name=diffstatus;]$(cat ./clustergen.status)"
           echo "##[set-output name=prnum;]$(cat ./prnum)"
         id: read_artifact
