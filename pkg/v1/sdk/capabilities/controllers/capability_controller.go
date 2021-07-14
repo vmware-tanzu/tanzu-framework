@@ -64,7 +64,7 @@ func (r *CapabilityReconciler) queryGVRs(log logr.Logger, queries []runv1alpha1.
 		queryTargets := make(map[string]discovery.QueryTarget)
 		for i := range queries {
 			q := queries[i]
-			query := discovery.Group(q.Group).WithVersions(q.Versions...).WithResource(q.Resource)
+			query := discovery.Group(q.Name, q.Group).WithVersions(q.Versions...).WithResource(q.Resource)
 			queryTargets[q.Name] = query
 		}
 		return queryTargets
@@ -77,7 +77,7 @@ func (r *CapabilityReconciler) queryObjects(log logr.Logger, queries []runv1alph
 		queryTargets := make(map[string]discovery.QueryTarget)
 		for i := range queries {
 			q := queries[i]
-			query := discovery.Object(&q.ObjectReference).WithAnnotations(q.WithAnnotations).WithoutAnnotations(q.WithoutAnnotations)
+			query := discovery.Object(q.Name, &q.ObjectReference).WithAnnotations(q.WithAnnotations).WithoutAnnotations(q.WithoutAnnotations)
 			queryTargets[q.Name] = query
 		}
 		return queryTargets
@@ -90,7 +90,6 @@ func (r *CapabilityReconciler) queryPartialSchemas(log logr.Logger, queries []ru
 		queryTargets := make(map[string]discovery.QueryTarget)
 		for i := range queries {
 			q := queries[i]
-			// TODO: why does Schema take a name?
 			query := discovery.Schema(q.Name, q.PartialSchema)
 			queryTargets[q.Name] = query
 		}
@@ -104,12 +103,18 @@ func (r *CapabilityReconciler) executeQueries(log logr.Logger, specToQueryTarget
 	queryTargetsMap := specToQueryTargetFn()
 	for name, queryTarget := range queryTargetsMap {
 		result := runv1alpha1.QueryResult{Name: name}
-		found, err := r.ClusterQueryClient.Query(queryTarget).Execute()
+		c := r.ClusterQueryClient.Query(queryTarget)
+		found, err := c.Execute()
 		if err != nil {
 			result.Error = true
 			result.ErrorDetail = err.Error()
 		}
 		result.Found = found
+		if !found {
+			if qr := c.Results().ForQuery(name); qr != nil {
+				result.NotFoundReason = qr.NotFoundReason
+			}
+		}
 		results = append(results, result)
 	}
 	log.Info("Executed queries", "num", len(queryTargetsMap))
