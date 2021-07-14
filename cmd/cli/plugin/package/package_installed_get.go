@@ -38,7 +38,7 @@ func packageInstalledGet(cmd *cobra.Command, args []string) error {
 
 	pkgName = args[0]
 	packageInstalledOp.PkgInstallName = pkgName
-	t, err := component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), outputFormat,
+	t, err := component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), getOutputFormat(),
 		fmt.Sprintf("Retrieving installation details for %s...", pkgName), true)
 	if err != nil {
 		return err
@@ -54,12 +54,9 @@ func packageInstalledGet(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	t.AddRow("NAME:", pkg.Name)
-	t.AddRow("PACKAGE-NAME:", pkg.Spec.PackageRef.RefName)
-	t.AddRow("PACKAGE-VERSION:", pkg.Spec.PackageRef.VersionSelection.Constraints)
-	t.AddRow("STATUS:", pkg.Status.FriendlyDescription)
-	t.AddRow("CONDITIONS:", pkg.Status.Conditions)
-	t.AddRow("USEFUL-ERROR-MESSAGE:", pkg.Status.UsefulErrorMessage)
+	t.SetKeys("name", "package-name", "package-version", "status", "conditions", "useful-error-message")
+	t.AddRow(pkg.Name, pkg.Spec.PackageRef.RefName, pkg.Spec.PackageRef.VersionSelection.Constraints,
+		pkg.Status.FriendlyDescription, pkg.Status.Conditions, pkg.Status.UsefulErrorMessage)
 
 	t.RenderWithSpinner()
 

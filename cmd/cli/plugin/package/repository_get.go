@@ -38,7 +38,7 @@ func repositoryGet(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	t, err := component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), outputFormat,
+	t, err := component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), getOutputFormat(),
 		fmt.Sprintf("Retrieving repository %s...", repoOp.RepositoryName), true)
 	if err != nil {
 		return err
@@ -50,11 +50,9 @@ func repositoryGet(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	t.AddRow("NAME:", packageRepository.Name)
-	t.AddRow("VERSION:", packageRepository.ResourceVersion)
-	t.AddRow("REPOSITORY:", packageRepository.Spec.Fetch.ImgpkgBundle.Image)
-	t.AddRow("STATUS:", packageRepository.Status.FriendlyDescription)
-	t.AddRow("REASON:", packageRepository.Status.UsefulErrorMessage)
+	t.SetKeys("name", "version", "repository", "status", "reason")
+	t.AddRow(packageRepository.Name, packageRepository.ResourceVersion, packageRepository.Spec.Fetch.ImgpkgBundle.Image,
+		packageRepository.Status.FriendlyDescription, packageRepository.Status.UsefulErrorMessage)
 
 	t.RenderWithSpinner()
 	return nil
