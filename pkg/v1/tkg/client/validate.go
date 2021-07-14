@@ -375,26 +375,23 @@ func checkIfRequiredPermissionsPresent(awsClient aws.Client) {
 // ConfigureAndValidateAWSConfig configures and validates aws configuration
 func (c *TkgClient) ConfigureAndValidateAWSConfig(tkrVersion string, nodeSizes NodeSizeOptions, skipValidation, isProdConfig bool, workerMachineCount int64, clusterClient clusterclient.Client, isManagementCluster bool) error {
 	c.SetProviderType(AWSProviderName)
-
 	awsClient, err := c.EncodeAWSCredentialsAndGetClient(clusterClient)
 	if err != nil {
 		log.Warningf("unable to create AWS client. Skipping validations that require an AWS client")
+		return c.ConfigureAndValidateAwsConfig(tkrVersion, skipValidation, isProdConfig, workerMachineCount, isManagementCluster, false)
 	}
 
-	useExistingVPC := false
-	if awsClient != nil {
-		if !skipValidation {
-			checkIfRequiredPermissionsPresent(awsClient)
-		}
+	if !skipValidation {
+		checkIfRequiredPermissionsPresent(awsClient)
+	}
 
-		if err := c.OverrideAWSNodeSizeWithOptions(nodeSizes, awsClient, skipValidation); err != nil {
-			log.Warningf("unable to override node size")
-		}
+	if err := c.OverrideAWSNodeSizeWithOptions(nodeSizes, awsClient, skipValidation); err != nil {
+		log.Warningf("unable to override node size")
+	}
 
-		useExistingVPC, err = c.SetAndValidateDefaultAWSVPCConfiguration(isProdConfig, awsClient, skipValidation)
-		if err != nil {
-			log.Warningf("unable to validate VPC configuration, %s", err.Error())
-		}
+	useExistingVPC, err := c.SetAndValidateDefaultAWSVPCConfiguration(isProdConfig, awsClient, skipValidation)
+	if err != nil {
+		log.Warningf("unable to validate VPC configuration, %s", err.Error())
 	}
 
 	return c.ConfigureAndValidateAwsConfig(tkrVersion, skipValidation, isProdConfig, workerMachineCount, isManagementCluster, useExistingVPC)
