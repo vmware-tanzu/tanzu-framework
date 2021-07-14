@@ -25,7 +25,11 @@
                 </p>
             </div>
             <div class="card-footer">
-                <button class="btn btn-primary" id="btn-deploy-docker" (click)="navigateToWizard(PROVIDERS.DOCKER)">
+                <button
+                    class="btn btn-primary"
+                    id="btn-deploy-docker"
+                    (click)="navigateToWizard(PROVIDERS.DOCKER)"
+                    [attr.aria-label]="'deploy on docker'">
                     Deploy
                 </button>
             </div>
@@ -45,7 +49,11 @@
                 </p>
             </div>
             <div class="card-footer">
-                <button class="btn btn-primary" id="btn-deploy-vsphere" (click)="navigateToWizard(PROVIDERS.VSPHERE)">
+                <button
+                    class="btn btn-primary"
+                    id="btn-deploy-vsphere"
+                    (click)="navigateToWizard(PROVIDERS.VSPHERE)"
+                    [attr.aria-label]="'deploy on vmware vsphere'">
                     Deploy
                 </button>
             </div>
@@ -65,7 +73,11 @@
                 </p>
             </div>
             <div class="card-footer">
-                <button class="btn btn-primary" id="btn-deploy-aws" (click)="navigateToWizard(PROVIDERS.AWS)">
+                <button
+                    class="btn btn-primary"
+                    id="btn-deploy-aws"
+                    (click)="navigateToWizard(PROVIDERS.AWS)"
+                    [attr.aria-label]="'deploy on amazon ec2'">
                     Deploy
                 </button>
             </div>
@@ -85,7 +97,11 @@
                 </p>
             </div>
             <div class="card-footer">
-                <button class="btn btn-primary" id="btn-deploy-azure" (click)="navigateToWizard(PROVIDERS.AZURE)">
+                <button
+                    class="btn btn-primary"
+                    id="btn-deploy-azure"
+                    (click)="navigateToWizard(PROVIDERS.AZURE)"
+                    [attr.aria-label]="'deploy on microsoft azure'">
                     Deploy
                 </button>
             </div>

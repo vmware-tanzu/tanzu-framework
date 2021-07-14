@@ -129,7 +129,13 @@
         <div class="clr-col-12">
             <clr-toggle-container [attr.data-step-metadata]="formName">
                 <clr-toggle-wrapper>
-                    <input type="checkbox" clrToggle name="proxySettings" formControlName="proxySettings" (change)="toggleProxySetting()"/>
+                    <input
+                        type="checkbox"
+                        clrToggle n
+                        ame="proxySettings"
+                        formControlName="proxySettings"
+                        (change)="toggleProxySetting()"
+                        aria-label="enabling proxy settings exposes additional configuration fields"/>
                     <label>Enable Proxy Settings</label>
                 </clr-toggle-wrapper>
             </clr-toggle-container>
