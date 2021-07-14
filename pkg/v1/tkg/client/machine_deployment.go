@@ -41,14 +41,15 @@ type DeleteMachineDeploymentOptions struct {
 
 // NodePool a struct describing a node pool
 type NodePool struct {
-	Name            string          `yaml:"name"`
-	Replicas        *int32          `yaml:"replicas,omitempty"`
-	IaasType        string          `yaml:"iaasType"`
-	NodeMachineType string          `yaml:"nodeMachineType,omitempty"`
-	SSHKeyName      string          `yaml:"sshKeyName,omitempty"`
-	VSphere         VSphereNodePool `yaml:"vsphere,omitempty"`
-	AWS             AWSNodePool     `yaml:"aws,omitempty"`
-	Azure           AzureNodePool   `yaml:"azure,omitempty"`
+	Name            string            `yaml:"name"`
+	Replicas        *int32            `yaml:"replicas,omitempty"`
+	IaasType        string            `yaml:"iaasType"`
+	NodeMachineType string            `yaml:"nodeMachineType,omitempty"`
+	SSHKeyName      string            `yaml:"sshKeyName,omitempty"`
+	Labels          map[string]string `yaml:"labels,omitempty"`
+	VSphere         VSphereNodePool   `yaml:"vsphere,omitempty"`
+	AWS             AWSNodePool       `yaml:"aws,omitempty"`
+	Azure           AzureNodePool     `yaml:"azure,omitempty"`
 }
 
 // AWSNodePool a struct describing properties neceesary for a node pool on AWS
@@ -98,6 +99,7 @@ func (c *TkgClient) SetMachineDeployment(options *SetMachineDeploymentOptions) e
 		if workers[i].Name == options.Name {
 			baseWorker = workers[i]
 			update = true
+			break
 		}
 	}
 
@@ -108,6 +110,10 @@ func (c *TkgClient) SetMachineDeployment(options *SetMachineDeploymentOptions) e
 	}
 	if options.Replicas != nil {
 		baseWorker.Spec.Replicas = options.Replicas
+	}
+
+	for k, v := range options.Labels {
+		baseWorker.Labels[k] = v
 	}
 
 	kcTemplate, err := retrieveKubeadmConfigTemplate(clusterClient, baseWorker.Spec.Template.Spec.Bootstrap.ConfigRef)
@@ -182,8 +188,10 @@ func (c *TkgClient) SetMachineDeployment(options *SetMachineDeploymentOptions) e
 		return errors.New("unrecognized IaasType")
 	}
 
-	baseWorker.Spec.Template.Spec.Bootstrap.ConfigRef.Name = kcTemplate.Name
-	baseWorker.Spec.Template.Spec.InfrastructureRef.Name = machineTemplateName
+	if !update {
+		baseWorker.Spec.Template.Spec.Bootstrap.ConfigRef.Name = kcTemplate.Name
+		baseWorker.Spec.Template.Spec.InfrastructureRef.Name = machineTemplateName
+	}
 	if update {
 		if err = clusterClient.UpdateResource(&baseWorker, baseWorker.Name, options.Namespace); err != nil {
 			return errors.Wrap(err, "failed to create machinedeployment")
@@ -214,6 +222,7 @@ func (c *TkgClient) DeleteMachineDeployment(options DeleteMachineDeploymentOptio
 		if workers[i].Name == options.Name {
 			matched = true
 			toDelete = workers[i]
+			break
 		}
 	}
 
