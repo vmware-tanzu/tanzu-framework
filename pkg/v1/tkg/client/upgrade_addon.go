@@ -205,7 +205,7 @@ func (c *TkgClient) DoUpgradeAddon(regionalClusterClient clusterclient.Client, /
 			c.TKGConfigReaderWriter().Set(constants.ConfigVaraibleDisableCRSForAddonType, addonName)
 		}
 
-		if err := c.setConfigurationForUpgrade(regionalClusterClient); err != nil {
+		if err := c.retriveRegionalClusterConfiguration(regionalClusterClient); err != nil {
 			return errors.Wrap(err, "unable to set cluster configuration")
 		}
 
@@ -231,7 +231,9 @@ func (c *TkgClient) DoUpgradeAddon(regionalClusterClient clusterclient.Client, /
 	return nil
 }
 
-func (c *TkgClient) setConfigurationForUpgrade(regionalClusterClient clusterclient.Client) error {
+// retriveRegionalClusterConfiguration gets TKG configurations from regional cluster and sets the TKGConfigReaderWriter.
+// this is required when we want to mutate the existing regional cluster.
+func (c *TkgClient) retriveRegionalClusterConfiguration(regionalClusterClient clusterclient.Client) error {
 	if err := c.setProxyConfiguration(regionalClusterClient); err != nil {
 		return errors.Wrapf(err, "error while getting proxy configuration from cluster and setting it")
 	}
