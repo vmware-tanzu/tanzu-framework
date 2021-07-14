@@ -31,7 +31,7 @@ spec:
     - name: vip_interface
       value:  #@ data.values.VIP_NETWORK_INTERFACE
     - name: vip_leaseduration
-      value: "15"
+      value: "999"
     - name: vip_renewdeadline
       value: "10"
     - name: vip_retryperiod
