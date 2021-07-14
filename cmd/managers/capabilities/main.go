@@ -16,8 +16,8 @@ import (
 	// +kubebuilder:scaffold:imports
 
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
-	controllers "github.com/vmware-tanzu/tanzu-framework/controllers/run"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/discovery"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/controllers"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/discovery"
 )
 
 var (

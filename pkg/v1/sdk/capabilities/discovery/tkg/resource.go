@@ -7,7 +7,7 @@ import (
 	"context"
 
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/discovery"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/discovery"
 )
 
 // HasTanzuRunGroup checks if run.tanzu.vmware.com API group exists and optionally checks versions.
