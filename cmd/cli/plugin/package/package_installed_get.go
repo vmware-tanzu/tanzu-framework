@@ -65,19 +65,19 @@ func packageInstalledGet(cmd *cobra.Command, args []string) error {
 		}
 		defer f.Close()
 		w := bufio.NewWriter(f)
+
+		dataValue := ""
 		for _, value := range pkg.Spec.Values {
 			if value.SecretRef != nil {
-				if value.SecretRef.Name == packageInstalledOp.SecretName {
-					s, err := kc.GetSecretValue(packageInstalledOp.SecretName, packageInstalledOp.Namespace)
-					if err != nil {
-						return err
-					}
-					res := string(s)
-					if _, err = fmt.Fprintf(w, "%s", res); err != nil {
-						return err
-					}
+				s, err := kc.GetSecretValue(value.SecretRef.Name, packageInstalledOp.Namespace)
+				if err != nil {
+					return err
 				}
+				dataValue = dataValue + string(s)
 			}
+		}
+		if _, err = fmt.Fprintf(w, "%s", dataValue); err != nil {
+			return err
 		}
 		w.Flush()
 		return nil

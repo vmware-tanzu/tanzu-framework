@@ -272,8 +272,7 @@ func (c *client) GetSecretValue(secretName, namespace string) ([]byte, error) {
 	var data []byte
 	for _, key := range secret.Data {
 		if key != nil {
-			data = key
-			break
+			data = append(data, key...)
 		}
 	}
 
