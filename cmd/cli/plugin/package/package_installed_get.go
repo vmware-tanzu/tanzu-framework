@@ -73,7 +73,7 @@ func packageInstalledGet(cmd *cobra.Command, args []string) error {
 				if err != nil {
 					return err
 				}
-				dataValue = dataValue + string(s)
+				dataValue += string(s)
 			}
 		}
 		if _, err = fmt.Fprintf(w, "%s", dataValue); err != nil {
