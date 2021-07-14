@@ -84,6 +84,9 @@ AZURE_NODE_DATA_DISK_SIZE: "NA", "256", "512"
 AZURE_CONTROL_PLANE_SUBNET_SECURITY_GROUP: "NA", "SecurityGroup"
 AZURE_NODE_SUBNET_SECURITY_GROUP: "NA", "SecurityGroup"
 
+AZURE_IDENTITY_NAME: "NA", "test-identity1", "test-identity2"
+AZURE_IDENTITY_NAMESPACE: "NA", "default", "test-ns1"
+
 OS_NAME:  "NA", "photon", "ubuntu"
 OS_VERSION:  "NA", "20.04", "3"
 IF [OS_NAME] = "\"NA\"" THEN [OS_VERSION] = "\"NA\"";

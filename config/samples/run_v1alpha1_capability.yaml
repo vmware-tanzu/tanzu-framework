@@ -1,0 +1,40 @@
+apiVersion: run.tanzu.vmware.com/v1alpha1
+kind: Capability
+metadata:
+  name: capability-sample
+spec:
+  queries:
+    - name: "q1"
+      groupVersionResources:
+        - name: "fooGVR"
+          group: "run.tanzu.vmware.com"
+          versions:
+            - v1alpha1
+          resource: "tanzukubernetesreleases"
+        - name: "barGVR"
+          group: "run.tanzu.vmware.com"
+          versions:
+            - v1alpha1
+          resource: "tanzukubernetesclusters"
+      objects:
+        - name: "fooObject"
+          objectReference:
+            kind: "Namespace"
+            name: "vmware-system-nsx"
+            apiVersion: "v1"
+      partialSchemas:
+        - name: "fooPartialSchema"
+          partialSchema: "{}"
+    - name: "q2"
+      groupVersionResources:
+        - name: "bazGVR"
+          group: "run.tanzu.vmware.com"
+          versions:
+            - v1alpha1
+          resource: "tanzukubernetesreleases"
+      objects:
+        - name: "bazObject"
+          objectReference:
+            kind: "Namespace"
+            name: "tkg-system"
+            apiVersion: "v1"

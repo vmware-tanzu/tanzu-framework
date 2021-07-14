@@ -3,21 +3,21 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:yaml", "yaml")
 #@ load("/lib/helpers.star", "ValuesFormatStr")
-#@ load("tanzu-addons-manager_app.lib.yaml", "tanzuaddonsmanagerappyaml")
+#@ load("tanzu-addons-manager_package.lib.yaml", "tanzuaddonsmanagerpackageyaml")
 #@ load("tanzu-addons-manager_addon_data.lib.yaml", "tanzuaddonsmanagerdatavalues")
 #@ load("tanzu-addons-manager_overlay.lib.yaml", "tanzuaddonsmanageroverlay")
 
 #@ if data.values.PROVIDER_TYPE != "tkg-service-vsphere" and data.values.TKG_CLUSTER_ROLE != "workload":
 
 #@ if data.values.DISABLE_CRS_FOR_ADDON_TYPE and "addons-management/tanzu-addons-manager" in data.values.DISABLE_CRS_FOR_ADDON_TYPE:
---- #@ template.replace(overlay.apply(tanzuaddonsmanagerappyaml(), tanzuaddonsmanageroverlay()))
+--- #@ template.replace(overlay.apply(tanzuaddonsmanagerpackageyaml(), tanzuaddonsmanageroverlay()))
 
 #@ else:
 ---
 apiVersion: addons.cluster.x-k8s.io/v1alpha3
 kind: ClusterResourceSet
 metadata:
-  name: #@ "{}-tanzu-addons-manager-app".format(data.values.CLUSTER_NAME)
+  name: #@ "{}-tanzu-addons-manager-package".format(data.values.CLUSTER_NAME)
   labels:
     cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
   annotations:
@@ -28,18 +28,18 @@ spec:
     matchLabels:
       tkg.tanzu.vmware.com/cluster-name: #@ data.values.CLUSTER_NAME
   resources:
-    - name: #@ "{}-tanzu-addons-manager-app-crs".format(data.values.CLUSTER_NAME)
+    - name: #@ "{}-tanzu-addons-manager-package-crs".format(data.values.CLUSTER_NAME)
       kind: Secret
 ---
 apiVersion: v1
 kind: Secret
 metadata:
-  name: #@ "{}-tanzu-addons-manager-app-crs".format(data.values.CLUSTER_NAME)
+  name: #@ "{}-tanzu-addons-manager-package-crs".format(data.values.CLUSTER_NAME)
   annotations:
     tkg.tanzu.vmware.com/addon-type: "addons-management/tanzu-addons-manager"
 type: addons.cluster.x-k8s.io/resource-set
 stringData:
-  value: #@ yaml.encode(overlay.apply(tanzuaddonsmanagerappyaml(), tanzuaddonsmanageroverlay()))
+  value: #@ yaml.encode(overlay.apply(tanzuaddonsmanagerpackageyaml(), tanzuaddonsmanageroverlay()))
 
 #@ end
 ---

@@ -6,6 +6,7 @@ replace (
 	github.com/go-logr/logr => github.com/go-logr/logr v0.1.0
 	github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.3.1 // indirect
 	k8s.io/api => k8s.io/api v0.17.11
+	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.17.11
 	k8s.io/apimachinery => k8s.io/apimachinery v0.17.11
 	k8s.io/client-go => k8s.io/client-go v0.17.11
 	k8s.io/klog/v2 => k8s.io/klog/v2 v2.0.0

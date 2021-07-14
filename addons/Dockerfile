@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Build the manager binary
-FROM mirror.gcr.io/library/golang:1.16 as builder
+FROM harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.16 as builder
 
 WORKDIR /workspace
 
