@@ -215,7 +215,7 @@ var _ = Describe("Package plugin integration test", func() {
 
 		It("should pass all checks on management cluster", func() {
 			testHelper()
-			log.Info("Successfully finished package plugin tests on management cluster")
+			log.Info("Successfully finished package plugin integration tests on management cluster")
 		})
 	})
 
@@ -226,7 +226,7 @@ var _ = Describe("Package plugin integration test", func() {
 
 		It("should pass all checks on workload cluster", func() {
 			testHelper()
-			log.Info("Successfully finished package plugin tests on workload cluster")
+			log.Info("Successfully finished package plugin integration tests on workload cluster")
 		})
 	})
 })
