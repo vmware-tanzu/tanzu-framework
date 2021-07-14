@@ -235,10 +235,9 @@ func (c *client) ListPackages(packageName, namespace string) (*kapppkg.PackageLi
 
 // UpdatePackageInstall updates the PackageInstall CR
 func (c *client) UpdatePackageInstall(packageInstall *kappipkg.PackageInstall, isPkgPluginCreatedSecret bool) error {
-	installedPkg := packageInstall.DeepCopy()
-	c.addAnnotations(&installedPkg.ObjectMeta, false, isPkgPluginCreatedSecret)
+	c.addAnnotations(&packageInstall.ObjectMeta, false, isPkgPluginCreatedSecret)
 
-	if err := c.client.Update(context.Background(), installedPkg); err != nil {
+	if err := c.client.Update(context.Background(), packageInstall); err != nil {
 		return err
 	}
 
