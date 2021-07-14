@@ -73,12 +73,12 @@
     <tkg-kickstart-ui-confirm [errorNotification]="errorNotification"></tkg-kickstart-ui-confirm>
     <div class="clr-row mt-20">
         <div class="clr-col-12">
-            <button class="btn btn-primary" [disabled]="disableDeployButton" (click)="deploy()">
-                Deploy {{ clusterType | titlecase }} Cluster
-            </button>
             <button class="btn btn-outline" (click)="reviewConfiguration(false)"
                 i18n="return to wizard for edit button">
                 Edit Configuration
+            </button>
+            <button class="btn btn-primary" [disabled]="disableDeployButton" (click)="deploy()">
+                Deploy {{ clusterType | titlecase }} Cluster
             </button>
         </div>
     </div>
