@@ -18,7 +18,7 @@
     </div>
     <app-shared-delete-data-popup></app-shared-delete-data-popup>
     <form clrStepper #wizard [formGroup]="form">
-        <clr-stepper-panel formGroupName="dockerDaemonForm">
+        <clr-stepper-panel formGroupName="dockerDaemonForm" removeAriaLabelledBy>
             <clr-step-title i18n="docker daemon step name">
                 Docker Daemon
             </clr-step-title>
@@ -34,7 +34,7 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="networkForm">
+        <clr-stepper-panel formGroupName="networkForm" removeAriaLabelledBy>
             <clr-step-title i18n="Kubernetes network step name">
                 Kubernetes Network
             </clr-step-title>
