@@ -187,6 +187,12 @@ func (c *TkgClient) DoUpgradeAddon(regionalClusterClient clusterclient.Client, /
 			}
 			crsDisabledAddon = true
 		case "addons-management/standard-package-repo":
+			// This ensures that CRS for standard-package-repo gets added
+			// for new clusters as well as upgrades. CRS for standard repo
+			// package resource will ensure one time create and no upgrades after
+			// initial create. The case is empty because we only need to set
+			// crsDisabledAddon = false which is the default and ensures that
+			// default isn't triggered.
 		case "tkr/tkr-controller":
 			if !options.IsRegionalCluster {
 				return errors.Errorf("upgrade of '%s' component is only supported on management cluster", addonName)
