@@ -98,6 +98,9 @@ func (ow *outputwriter) dataStruct() []map[string]string {
 	for _, itemValues := range ow.values {
 		item := map[string]string{}
 		for i, value := range itemValues {
+			if i == len(keys) {
+				continue
+			}
 			item[keys[i]] = value
 		}
 		data = append(data, item)
@@ -183,6 +186,10 @@ func renderListTable(ow *outputwriter) {
 	for i, header := range ow.keys {
 		row := []string{}
 		for _, data := range ow.values {
+			if i >= len(data) {
+				// There are more headers than values, leave it blank
+				continue
+			}
 			row = append(row, data[i])
 		}
 		headerLabel := strings.ToUpper(header) + ":"
@@ -193,6 +200,15 @@ func renderListTable(ow *outputwriter) {
 
 // renderTable prints output as a table
 func renderTable(ow *outputwriter) {
+	// Drop values if there aren't as many as the headers
+	headerLength := len(ow.keys)
+	for i, values := range ow.values {
+		if len(values) <= headerLength {
+			continue
+		}
+
+		ow.values[i] = values[:headerLength]
+	}
 	table := tablewriter.NewWriter(ow.out)
 	table.SetBorder(false)
 	table.SetCenterSeparator("")

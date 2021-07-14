@@ -62,6 +62,42 @@ func TestNewOutputWriterInvalid(t *testing.T) {
 	validateTableOutput(t, b.String())
 }
 
+func TestTableTooManyValues(t *testing.T) {
+	var b bytes.Buffer
+	tab := NewOutputWriter(&b, string(TableOutputType), "a", "b")
+	require.NotNil(t, tab)
+	tab.AddRow("1", "2", "3")
+	tab.Render()
+
+	output := b.String()
+	require.NotNil(t, output)
+	lines := strings.Split(output, "\n")
+
+	// Output should contain header row, data row, and a blank line
+	require.Equal(t, 3, len(lines), "%v", lines)
+	require.Contains(t, lines[0], "A")
+	require.Contains(t, lines[0], "B")
+	require.Equal(t, lines[1], "  1  2  ")
+}
+
+func TestTableTooFewValues(t *testing.T) {
+	var b bytes.Buffer
+	tab := NewOutputWriter(&b, string(TableOutputType), "a", "b", "c")
+	require.NotNil(t, tab)
+	tab.AddRow("1", "2")
+	tab.Render()
+
+	output := b.String()
+	require.NotNil(t, output)
+	lines := strings.Split(output, "\n")
+
+	// Output should contain header row, data row, and a blank line
+	require.Equal(t, 3, len(lines), "%v", lines)
+	require.Contains(t, lines[0], "A")
+	require.Contains(t, lines[0], "B")
+	require.Equal(t, lines[1], "  1  2  ")
+}
+
 func validateTableOutput(t *testing.T, output string) {
 	require.NotNil(t, output)
 	lines := strings.Split(output, "\n")
@@ -96,6 +132,45 @@ func TestNewOutputWriterListTable(t *testing.T) {
 	require.Contains(t, lines[2], "3, 6")
 }
 
+func TestListTableTooManyValues(t *testing.T) {
+	var b bytes.Buffer
+	tab := NewOutputWriter(&b, string(ListTableOutputType), "a", "b")
+	require.NotNil(t, tab)
+	tab.AddRow("1", "2", "3")
+	tab.Render()
+
+	output := b.String()
+	require.NotNil(t, output)
+	lines := strings.Split(output, "\n")
+
+	// Output should contain header row, data row, and a blank line
+	require.Equal(t, 3, len(lines), "%v", lines)
+	require.Contains(t, lines[0], "A:")
+	require.Contains(t, lines[0], " 1")
+	require.Contains(t, lines[1], "B:")
+	require.Contains(t, lines[1], " 2")
+}
+
+func TestListTableTooFewValues(t *testing.T) {
+	var b bytes.Buffer
+	tab := NewOutputWriter(&b, string(ListTableOutputType), "a", "b", "c")
+	require.NotNil(t, tab)
+	tab.AddRow("1", "2")
+	tab.Render()
+
+	output := b.String()
+	require.NotNil(t, output)
+	lines := strings.Split(output, "\n")
+
+	// Output should contain header row, data row, and a blank line
+	require.Equal(t, 4, len(lines), "%v", lines)
+	require.Contains(t, lines[0], "A:")
+	require.Contains(t, lines[0], " 1")
+	require.Contains(t, lines[1], "B:")
+	require.Contains(t, lines[1], " 2")
+	require.Contains(t, lines[2], "C:")
+}
+
 func TestNewOutputWriterYAML(t *testing.T) {
 	var b bytes.Buffer
 	tab := NewOutputWriter(&b, string(YAMLOutputType), "a", "b", "c")
@@ -116,6 +191,46 @@ func TestNewOutputWriterYAML(t *testing.T) {
 	require.Contains(t, lines[3], "- a: \"4\"")
 	require.Contains(t, lines[4], "  b: \"5\"")
 	require.Contains(t, lines[5], "  c: \"6\"")
+}
+
+func TestYAMLWriterTooManyValues(t *testing.T) {
+	var b bytes.Buffer
+	tab := NewOutputWriter(&b, string(YAMLOutputType), "a", "b")
+	require.NotNil(t, tab)
+	tab.AddRow("1", "2", "3")
+	tab.AddRow("4", "5", "6")
+	tab.Render()
+
+	output := b.String()
+	require.NotNil(t, output)
+
+	lines := strings.Split(output, "\n")
+	// Output should contain our two objects of three values and a blank line
+	require.Equal(t, 5, len(lines), "%v", lines)
+	require.Contains(t, lines[0], "- a: \"1\"")
+	require.Contains(t, lines[1], "  b: \"2\"")
+	require.Contains(t, lines[2], "- a: \"4\"")
+	require.Contains(t, lines[3], "  b: \"5\"")
+}
+
+func TestYAMLTooFewValues(t *testing.T) {
+	var b bytes.Buffer
+	tab := NewOutputWriter(&b, string(YAMLOutputType), "a", "b", "c")
+	require.NotNil(t, tab)
+	tab.AddRow("1", "2")
+	tab.AddRow("4", "5")
+	tab.Render()
+
+	output := b.String()
+	require.NotNil(t, output)
+
+	lines := strings.Split(output, "\n")
+	// Output should contain our two objects of three values and a blank line
+	require.Equal(t, 5, len(lines), "%v", lines)
+	require.Contains(t, lines[0], "- a: \"1\"")
+	require.Contains(t, lines[1], "  b: \"2\"")
+	require.Contains(t, lines[2], "- a: \"4\"")
+	require.Contains(t, lines[3], "  b: \"5\"")
 }
 
 func TestNewOutputWriterJSON(t *testing.T) {
