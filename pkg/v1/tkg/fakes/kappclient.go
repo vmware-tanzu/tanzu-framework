@@ -182,10 +182,11 @@ type KappClient struct {
 		result1 *v1alpha1b.PackageList
 		result2 error
 	}
-	UpdatePackageInstallStub        func(*v1alpha1.PackageInstall) error
+	UpdatePackageInstallStub        func(*v1alpha1.PackageInstall, bool) error
 	updatePackageInstallMutex       sync.RWMutex
 	updatePackageInstallArgsForCall []struct {
 		arg1 *v1alpha1.PackageInstall
+		arg2 bool
 	}
 	updatePackageInstallReturns struct {
 		result1 error
@@ -1028,18 +1029,19 @@ func (fake *KappClient) ListPackagesReturnsOnCall(i int, result1 *v1alpha1b.Pack
 	}{result1, result2}
 }
 
-func (fake *KappClient) UpdatePackageInstall(arg1 *v1alpha1.PackageInstall) error {
+func (fake *KappClient) UpdatePackageInstall(arg1 *v1alpha1.PackageInstall, arg2 bool) error {
 	fake.updatePackageInstallMutex.Lock()
 	ret, specificReturn := fake.updatePackageInstallReturnsOnCall[len(fake.updatePackageInstallArgsForCall)]
 	fake.updatePackageInstallArgsForCall = append(fake.updatePackageInstallArgsForCall, struct {
 		arg1 *v1alpha1.PackageInstall
-	}{arg1})
+		arg2 bool
+	}{arg1, arg2})
 	stub := fake.UpdatePackageInstallStub
 	fakeReturns := fake.updatePackageInstallReturns
-	fake.recordInvocation("UpdatePackageInstall", []interface{}{arg1})
+	fake.recordInvocation("UpdatePackageInstall", []interface{}{arg1, arg2})
 	fake.updatePackageInstallMutex.Unlock()
 	if stub != nil {
-		return stub(arg1)
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1
@@ -1053,17 +1055,17 @@ func (fake *KappClient) UpdatePackageInstallCallCount() int {
 	return len(fake.updatePackageInstallArgsForCall)
 }
 
-func (fake *KappClient) UpdatePackageInstallCalls(stub func(*v1alpha1.PackageInstall) error) {
+func (fake *KappClient) UpdatePackageInstallCalls(stub func(*v1alpha1.PackageInstall, bool) error) {
 	fake.updatePackageInstallMutex.Lock()
 	defer fake.updatePackageInstallMutex.Unlock()
 	fake.UpdatePackageInstallStub = stub
 }
 
-func (fake *KappClient) UpdatePackageInstallArgsForCall(i int) *v1alpha1.PackageInstall {
+func (fake *KappClient) UpdatePackageInstallArgsForCall(i int) (*v1alpha1.PackageInstall, bool) {
 	fake.updatePackageInstallMutex.RLock()
 	defer fake.updatePackageInstallMutex.RUnlock()
 	argsForCall := fake.updatePackageInstallArgsForCall[i]
-	return argsForCall.arg1
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *KappClient) UpdatePackageInstallReturns(result1 error) {
