@@ -590,8 +590,8 @@ func InitializePlugin(name string) error {
 	// Note: If user is installing old version of plugin than it is possible that
 	// the plugin does not implement post-install command. Ignoring the
 	// errors if the command does not exist for a particular plugin.
-	if err != nil && !strings.Contains(err.Error(), "unknown command") {
-		log.Warningf("error while initializing plugin '%q'. Error: %v", name, string(b))
+	if err != nil && !strings.Contains(string(b), "unknown command") {
+		log.Warningf("Warning: Failed to initialize plugin '%q' after installation. %v", name, string(b))
 	}
 
 	return nil

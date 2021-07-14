@@ -11,7 +11,7 @@ imageInfo:
       tag: v0.20.0-rc.1_vmware.1
 kappController:
   namespace: tkg-system
-  globalNamespace: tkg-standard
+  globalNamespace: tanzu-standard
   createNamespace: true
   deployment:
     hostNetwork: null

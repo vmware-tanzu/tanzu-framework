@@ -1,4 +1,5 @@
 name: Provider Template Tests
+# note: this name is referenced in recv_providers.yaml
 
 on:
   # only on pull requests as some tests involves comparing results based on differences
@@ -29,12 +30,6 @@ jobs:
         go-version: '1.16'
       id: go
 
-    - name: Config Credentials
-      env:
-        GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
-      run: |
-        git config --global url."https://git:$GH_ACCESS_TOKEN@github.com".insteadOf "https://github.com"
-
     - name: Extract PR Info
       shell: bash
       run: |
@@ -52,54 +47,25 @@ jobs:
         chmod +x bin/ytt
         echo "$PWD/bin" >> $GITHUB_PATH
 
-    - name: Get Time
-      id: time
-      uses: nanzm/get-time-action@v1.1
-      with:
-        format: 'YYYYMMDDHHmmss'
-
     - name: Run clustergen verification tests
       run: |
         echo BRANCH=${{ steps.extract_pr.outputs.branch }}
         echo PRNUM==${{ steps.extract_pr.outputs.prnum }}
         echo BASEBRANCH=${{ steps.extract_pr.outputs.basebranch }}
         env BASEBRANCH=${{ steps.extract_pr.outputs.basebranch }}
+        status=$(test -s ./pkg/v1/providers/tests/clustergen/testdata/clustergen.diff.txt; echo $?)
         CLI_REPO=$PWD ./hack/clustergen/ci-validate-clustergen.sh ${{ steps.extract_pr.outputs.branch }} ${{ steps.extract_pr.outputs.basebranch }}
-        echo "##[set-output name=diffstatus;]$(test -s ./pkg/v1/providers/tests/clustergen/testdata/clustergen.diff.txt; echo $?)"
+        echo "##[set-output name=diffstatus;]$status"
+        echo $status > ./pkg/v1/providers/tests/clustergen/testdata/clustergen.status
+        echo ${{ steps.extract_pr.outputs.prnum }} > ./pkg/v1/providers/tests/clustergen/testdata/prnum
       id: clustergen
 
-    - id: upload-clustergen-results
-      if: ${{ steps.clustergen.outputs.diffstatus == 0 }}
-      uses: google-github-actions/upload-cloud-storage@main
+    - id: publish-clustergen-results-as-artifacts
+      uses: actions/upload-artifact@v2
       with:
-        path: ./pkg/v1/providers/tests/clustergen/testdata/clustergen.diff.txt
-        destination: tkg-clustergen/${{ steps.extract_pr.outputs.prnum }}/${{ steps.time.outputs.time }}
-        credentials: ${{ secrets.GCP_BUCKET_SA }}
-
-    - id: upload-clustergen-results2
-      if: ${{ steps.clustergen.outputs.diffstatus == 0 }}
-      uses: google-github-actions/upload-cloud-storage@main
-      with:
-        path: ./pkg/v1/providers/tests/clustergen/testdata/clustergen.html
-        destination: tkg-clustergen/${{ steps.extract_pr.outputs.prnum }}/${{ steps.time.outputs.time }}
-        credentials: ${{ secrets.GCP_BUCKET_SA }}
-
-    - name: Create comment with diffs
-      if: ${{ steps.clustergen.outputs.diffstatus == 0 }}
-      uses: peter-evans/create-or-update-comment@v1
-      with:
-        issue-number: ${{ steps.extract_pr.outputs.prnum }}
-        body: |
-          Cluster Generation A/B Results:
-          https://storage.googleapis.com/tkg-clustergen/${{ steps.extract_pr.outputs.prnum }}/${{ steps.time.outputs.time }}/clustergen.diff.txt
-          https://storage.googleapis.com/tkg-clustergen/${{ steps.extract_pr.outputs.prnum }}/${{ steps.time.outputs.time }}/clustergen.html
-          Author and reviewers:
-          Please review at least one of the above to verify that the effects on the generated cluster configurations are exactly what the PR intended. (Consider giving a thumbs-up if so)
-
-    - name: Create comment indicating no changes detected
-      if: ${{ steps.clustergen.outputs.diffstatus != 0 }}
-      uses: peter-evans/create-or-update-comment@v1
-      with:
-        issue-number: ${{ steps.extract_pr.outputs.prnum }}
-        body: |
-          Cluster Generation A/B Results: (no changes detected)
+        name: clustergen-output
+        path: |
+           ./pkg/v1/providers/tests/clustergen/testdata/prnum
+           ./pkg/v1/providers/tests/clustergen/testdata/clustergen.status
+           ./pkg/v1/providers/tests/clustergen/testdata/clustergen.diff.txt
+           ./pkg/v1/providers/tests/clustergen/testdata/clustergen.html
