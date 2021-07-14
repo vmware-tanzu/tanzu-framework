@@ -541,7 +541,7 @@ func (c *TkgClient) ConfigureAndValidateWorkloadClusterConfiguration(options *Cr
 	}
 
 	if name == VSphereProviderName {
-		if err := c.ConfigureAndValidateVsphereConfig(options.TKRVersion, options.NodeSizeOptions, options.VsphereControlPlaneEndpoint, skipValidation, clusterClient); err != nil {
+		if err := c.ConfigureAndValidateVsphereConfig(options.TKRVersion, options.NodeSizeOptions, options.VsphereControlPlaneEndpoint, skipValidation, nil); err != nil {
 			return errors.Wrap(err, "vSphere config validation failed")
 		}
 
