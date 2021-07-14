@@ -1,13 +1,16 @@
 <div [ngClass]="{'hide': review}">
     <div class="clr-row mb-20">
         <div class="clr-col-12">
-            <h2 i18n="wizard title">
-                <clr-icon
-                        shape="arrow"
-                        dir="left"
-                        size="30"
-                        class="is-info back-link"
-                        (click)="navigate(APP_ROUTES.LANDING)"></clr-icon>
+            <clr-icon
+                    shape="arrow"
+                    dir="left"
+                    size="30"
+                    class="is-info back-link"
+                    role="button"
+                    tabindex="0"
+                    aria-label="back"
+                    (click)="navigate(APP_ROUTES.LANDING)"></clr-icon>
+            <h2 i18n="wizard title" aria-level="1">
                 <div class="docker-icon-30"></div>
                 Deploy {{ clusterType | titlecase }} Cluster on Docker
             </h2>
