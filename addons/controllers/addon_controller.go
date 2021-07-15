@@ -6,14 +6,19 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
+	"k8s.io/apimachinery/pkg/util/sets"
+	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/utils/pointer"
 	clusterapiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	controlplanev1alpha3 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
@@ -27,6 +32,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/source"
+
+	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
+	kapppkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+	kappdatapkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
@@ -131,6 +140,74 @@ func (r *AddonReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ct
 	}
 
 	return result, nil
+}
+
+// WaitForCRDs checks if CRDs are available by polling for resources that addon controller depends on.
+func (r *AddonReconciler) WaitForCRDs(mgr ctrl.Manager) error {
+	// add all the CRDs the controller is watching and is dependent on
+	var crds = map[schema.GroupVersion]*sets.String{}
+	// cluster-api
+	clusterapiv1alpha3Resources := sets.NewString("clusters", "kubeadmcontrolplanes")
+	crds[runtanzuv1alpha1.GroupVersion] = &clusterapiv1alpha3Resources
+
+	// tkr
+	runtanzuv1alpha1Resources := sets.NewString("tanzukubernetesreleases")
+	crds[runtanzuv1alpha1.GroupVersion] = &runtanzuv1alpha1Resources
+
+	// kapp-controller APIs
+	kappctrlv1alpha1Resources := sets.NewString("apps")
+	crds[kappctrl.SchemeGroupVersion] = &kappctrlv1alpha1Resources
+
+	kapppkgv1alpha1Resources := sets.NewString("packageinstalls", "packagerepositories")
+	crds[kapppkg.SchemeGroupVersion] = &kapppkgv1alpha1Resources
+
+	kappdatapkgv1alpha1Resources := sets.NewString("packagemetadatas", "packages")
+	crds[kappdatapkg.SchemeGroupVersion] = &kappdatapkgv1alpha1Resources
+
+	addonPod := &corev1.Pod{ObjectMeta: metav1.ObjectMeta{Name: os.Getenv("POD_NAME"), Namespace: os.Getenv("POD_NAMESPACE")}}
+
+	poller := func() (done bool, err error) {
+		// Create new clientset for every invocation to avoid caching of resources
+		cs, err := clientset.NewForConfig(mgr.GetConfig())
+		if err != nil {
+			return false, err
+		}
+
+		allFound := true
+		for gv, resources := range crds {
+			// All resources found, do nothing
+			if resources.Len() == 0 {
+				delete(crds, gv)
+				continue
+			}
+
+			// Get the Resources for this GroupVersion
+			groupVersion := gv.String()
+			resourceList, err := cs.Discovery().ServerResourcesForGroupVersion(groupVersion)
+			if err != nil {
+				r.Log.Error(err, "error retrieving GroupVersion", "GroupVersion", groupVersion)
+				mgr.GetEventRecorderFor(constants.AddonControllerName).Eventf(addonPod, corev1.EventTypeWarning,
+					"Polling for GroupVersion", "The GroupVersion '%s' is not available yet", groupVersion)
+				return false, nil
+			}
+
+			// Remove each found resource from the resources set that we are waiting for
+			for i := 0; i < len(resourceList.APIResources); i++ {
+				resources.Delete(resourceList.APIResources[i].Name)
+			}
+
+			// Still waiting on some resources in this group version
+			if resources.Len() != 0 {
+				allFound = false
+				r.Log.Info("resources are not available yet", "api-resources", resources, "GroupVersion", groupVersion)
+				mgr.GetEventRecorderFor(constants.AddonControllerName).Eventf(addonPod, corev1.EventTypeWarning,
+					"Polling for api-resources", "The api-resources '%s' in GroupVersion '%s' are not available yet", resources, groupVersion)
+			}
+		}
+		return allFound, nil
+	}
+
+	return wait.PollImmediate(constants.CRDWaitPollInterval, constants.CRDWaitPollTimeout, poller)
 }
 
 // reconcileDelete deletes the addon secrets that belong to the cluster
