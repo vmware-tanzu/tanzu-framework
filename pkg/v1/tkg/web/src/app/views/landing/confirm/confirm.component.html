@@ -1,6 +1,6 @@
 <div class="clr-row">
     <div class="clr-col-12">
-        <h2 i18n="start page welcome title" aria-level="1" aria-live="assertive">{{ pageTitle }} - Confirm Settings</h2>
+        <h2 i18n="start page welcome title" aria-level="1">{{ pageTitle }} - Confirm Settings</h2>
     </div>
 </div>
 <div *ngIf="errorNotification" class="alert alert-danger" role="alert">
@@ -25,15 +25,15 @@
                 <caption *ngIf="stepMetaDataList[idx]">{{ stepMetaDataList[idx].title }} settings</caption>
                 <thead *ngIf="stepMetaDataList[idx]">
                     <tr>
-                        <th class="left" scope="row">{{ stepMetaDataList[idx].title }}</th>
-                        <th class="left" scope="row">{{ stepMetaDataList[idx].description }}</th>
+                        <th class="left">{{ stepMetaDataList[idx].title }}</th>
+                        <th class="left">{{ stepMetaDataList[idx].description }}</th>
                     </tr>
                 </thead>
                 <tbody>
                     <ng-container *ngFor="let entry of entries(formData)">
                         <tr>
-                            <td class="left" scope="row">{{ entry.label }}</td>
-                            <td class="left" scope="row">{{ entry.displayValue }}</td>
+                            <td class="left">{{ entry.label }}</td>
+                            <td class="left">{{ entry.displayValue }}</td>
                         </tr>
                     </ng-container>
                 </tbody>
