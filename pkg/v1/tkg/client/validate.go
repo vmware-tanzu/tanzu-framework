@@ -579,7 +579,7 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 
 		err := c.ValidateVsphereControlPlaneEndpointIP(options.VsphereControlPlaneEndpoint)
 		if err != nil {
-			return NewValidationError(ValidationErrorCode, err.Error())
+			log.Warningf("WARNING: The control plane endpoint %s might already exist. This might affect the deployment of the cluster", options.VsphereControlPlaneEndpoint)
 		}
 	}
 
@@ -606,23 +606,32 @@ func (c *TkgClient) ValidateVsphereControlPlaneEndpointIP(endpointIP string) *Va
 		return NewValidationError(ValidationErrorCode, "unable to read network name from the configs")
 	}
 
+	currentServer, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereServer)
+	if err != nil {
+		return NewValidationError(ValidationErrorCode, "unable to read vsphere server from the configs")
+	}
+
 	regions, _ := c.GetRegionContexts("")
 	for _, regionContext := range regions {
 		regionalClusterClient, err := c.getRegionClient(regionContext)
 		if err != nil {
-			return NewValidationError(ValidationErrorCode, "unable to create regionalClient")
+			log.V(6).Infof("Unable to create regionalClient")
+			continue
 		}
 
-		networkName, err := getNetworkName(regionalClusterClient, regionContext.ClusterName)
+		vSphereMachineTemplate, err := getVsphereMachineTemplate(regionalClusterClient, regionContext.ClusterName)
 		if err != nil {
 			log.V(6).Infof("Unable to find Network name for context %s. Skipping validation for this context", regionContext.ContextName)
 			continue
 		}
 
-		log.V(4).Infof("Network name: %s", networkName)
+		network := vSphereMachineTemplate.Spec.Template.Spec.Network.Devices[0].NetworkName
+		server := vSphereMachineTemplate.Spec.Template.Spec.Server
 
-		if currentNetwork == networkName {
-			log.V(6).Infof("Network names matched, validating...")
+		log.V(4).Infof("Network name: %s", network)
+
+		if currentNetwork == network && currentServer == server {
+			log.V(6).Infof("Network names, and server matched, validating...")
 			managementClusters, err := regionalClusterClient.ListClusters(TKGsystemNamespace)
 			if err != nil {
 				log.V(6).Infof("Unable to list management clusters")
@@ -662,23 +671,22 @@ func (c *TkgClient) getRegionClient(regionContext region.RegionContext) (cluster
 	return client, nil
 }
 
-func getNetworkName(client clusterclient.Client, clusterName string) (string, error) {
+func getVsphereMachineTemplate(client clusterclient.Client, clusterName string) (*capvv1alpha3.VSphereMachineTemplate, error) {
 	vsphereMachineTemplate := &capvv1alpha3.VSphereMachineTemplate{}
 	nameSpace, err := client.GetCurrentNamespace()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	log.V(4).Infof("Namespace: %s, Cluster Name: %s", nameSpace, clusterName)
 	kcp, err := client.GetKCPObjectForCluster(clusterName, "tkg-system")
 	if err != nil {
 		log.V(4).Infof("Error getting KCP Object")
-		return "", err
+		return nil, err
 	}
 	if err := client.GetResource(vsphereMachineTemplate, kcp.Spec.InfrastructureTemplate.Name, "tkg-system", nil, nil); err != nil {
-		return "", err
+		return nil, err
 	}
-	networkName := vsphereMachineTemplate.Spec.Template.Spec.Network.Devices[0].NetworkName
-	return networkName, nil
+	return vsphereMachineTemplate, nil
 }
 
 // ConfigureAndValidateVsphereConfig configures and validates vsphere configuration
@@ -729,6 +737,7 @@ func (c *TkgClient) ConfigureAndValidateVsphereConfig(tkrVersion string, nodeSiz
 	if err != nil {
 		return NewValidationError(ValidationErrorCode, errors.Errorf("failed to get vSphere version from VC client").Error())
 	}
+
 	c.SetVsphereVersion(vsphereVersion)
 
 	return nil
