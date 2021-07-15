@@ -4,7 +4,9 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -12,6 +14,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/kappclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
 var packageInstalledGetCmd = &cobra.Command{
@@ -26,6 +29,7 @@ var packageInstalledGetCmd = &cobra.Command{
 
 func init() {
 	packageInstalledGetCmd.Flags().StringVarP(&packageInstalledOp.Namespace, "namespace", "n", "default", "Namespace for installed package CR")
+	packageInstalledGetCmd.Flags().StringVarP(&packageInstalledOp.ValuesFile, "values-file", "f", "", "The path to the configuration values file, optional")
 	packageInstalledCmd.AddCommand(packageInstalledGetCmd)
 }
 
@@ -51,6 +55,42 @@ func packageInstalledGet(cmd *cobra.Command, args []string) error {
 			return nil
 		}
 		return err
+	}
+
+	if packageInstalledOp.ValuesFile != "" {
+		packageInstalledOp.SecretName = fmt.Sprintf(tkgpackagedatamodel.SecretName, packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace)
+		f, err := os.Create(packageInstalledOp.ValuesFile)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		w := bufio.NewWriter(f)
+
+		dataValue := ""
+		for _, value := range pkg.Spec.Values {
+			if value.SecretRef == nil {
+				continue
+			}
+			s, err := kc.GetSecretValue(value.SecretRef.Name, packageInstalledOp.Namespace)
+			if err != nil {
+				return err
+			}
+
+			if len(string(s)) < 3 {
+				dataValue += tkgpackagedatamodel.YamlSeparator
+				dataValue += "\n"
+			}
+			if len(string(s)) >= 3 && string(s)[:3] != tkgpackagedatamodel.YamlSeparator {
+				dataValue += tkgpackagedatamodel.YamlSeparator
+				dataValue += "\n"
+			}
+			dataValue += string(s)
+		}
+		if _, err = fmt.Fprintf(w, "%s", dataValue); err != nil {
+			return err
+		}
+		w.Flush()
+		return nil
 	}
 
 	t.SetKeys("name", "package-name", "package-version", "status", "conditions", "useful-error-message")
