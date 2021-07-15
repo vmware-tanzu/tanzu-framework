@@ -56,6 +56,7 @@ lint: ## Run YAML linter
 .PHONY: clean-providers
 clean-providers: ## cleans provider-bundle
 	# cleanup old provider bundles
+	@rm -rf client/manifest/providers.zip
 	@rm -rf provider-bundle || true
 	@mkdir -p ${PROVIDER_BUNDLE_DIR}
 
