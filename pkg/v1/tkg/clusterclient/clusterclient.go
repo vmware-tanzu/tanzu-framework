@@ -250,7 +250,7 @@ type Client interface {
 	// GetPacificTanzuKubernetesReleases returns the list of TanzuKubernetesRelease versions if TKr object is available in TKGS
 	GetPacificTanzuKubernetesReleases() ([]string, error)
 	// GetVCCredentialsFromSecret gets the vSphere username and password used to deploy the cluster
-	GetVCCredentialsFromSecret() (string, string, error)
+	GetVCCredentialsFromSecret(string) (string, string, error)
 	// GetVCServer gets the vSphere server that used to deploy the cluster
 	GetVCServer() (string, error)
 	// GetAWSEncodedCredentialsFromSecret gets the AWS base64 credentials used to deploy the cluster

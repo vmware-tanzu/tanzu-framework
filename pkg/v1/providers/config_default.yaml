@@ -367,7 +367,9 @@ OIDC_DEX_CA:
 #! ---------------------------------------------------------------------
 #! Machine Health Check configuration
 #! ---------------------------------------------------------------------
-ENABLE_MHC: true
+ENABLE_MHC:
+ENABLE_MHC_WORKER_NODE: true
+ENABLE_MHC_CONTROL_PLANE: true
 MHC_UNKNOWN_STATUS_TIMEOUT: 5m
 MHC_FALSE_STATUS_TIMEOUT: 12m
 

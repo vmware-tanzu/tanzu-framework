@@ -241,7 +241,7 @@ func WaitForNodeRemediation(ctx context.Context, clusterName string, namespace s
 	Eventually(func() bool {
 		_, _ = GinkgoWriter.Write([]byte("Waiting until the unhealthy node is remediated\n"))
 		mhcList := getMhcListForCluster(ctx, mcProxy, clusterName, namespace)
-		Expect(len(mhcList.Items)).To(Equal(1))
+		Expect(len(mhcList.Items)).To(Equal(2))
 		mhc := mhcList.Items[0]
 
 		for _, nodeName := range mhc.Status.Targets {
