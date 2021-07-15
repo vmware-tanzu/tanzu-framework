@@ -68,22 +68,23 @@ func packageInstalledGet(cmd *cobra.Command, args []string) error {
 
 		dataValue := ""
 		for _, value := range pkg.Spec.Values {
-			if value.SecretRef != nil { //nolint:gocritic
-				s, err := kc.GetSecretValue(value.SecretRef.Name, packageInstalledOp.Namespace)
-				if err != nil {
-					return err
-				}
-
-				if len(string(s)) < 3 {
-					dataValue += tkgpackagedatamodel.YamlSeparator
-					dataValue += "\n"
-				}
-				if len(string(s)) >= 3 && string(s)[:3] != tkgpackagedatamodel.YamlSeparator {
-					dataValue += tkgpackagedatamodel.YamlSeparator
-					dataValue += "\n"
-				}
-				dataValue += string(s)
+			if value.SecretRef == nil {
+				continue
 			}
+			s, err := kc.GetSecretValue(value.SecretRef.Name, packageInstalledOp.Namespace)
+			if err != nil {
+				return err
+			}
+
+			if len(string(s)) < 3 {
+				dataValue += tkgpackagedatamodel.YamlSeparator
+				dataValue += "\n"
+			}
+			if len(string(s)) >= 3 && string(s)[:3] != tkgpackagedatamodel.YamlSeparator {
+				dataValue += tkgpackagedatamodel.YamlSeparator
+				dataValue += "\n"
+			}
+			dataValue += string(s)
 		}
 		if _, err = fmt.Fprintf(w, "%s", dataValue); err != nil {
 			return err
