@@ -428,7 +428,7 @@ func (c *TkgClient) ConfigureAndValidateVSphereTemplate(vcClient vc.Client, tkrV
 
 	vsphereVM, err := vcClient.GetAndValidateVirtualMachineTemplate(tkrBom.GetOVAVersions(), tkrVersion, templateName, dc, c.TKGConfigReaderWriter())
 	if err != nil || vsphereVM == nil {
-		return errors.Wrapf(err, "unable to get or validate %s for given Tanzu Kubernetes release", constants.ConfigVariableVsphereTemplate)
+		return errors.Wrap(err, "unable to get or validate VM Template for given Tanzu Kubernetes release")
 	}
 
 	c.TKGConfigReaderWriter().Set(constants.ConfigVariableVsphereTemplate, vsphereVM.Name)
