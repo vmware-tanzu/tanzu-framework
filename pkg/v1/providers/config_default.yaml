@@ -99,7 +99,7 @@ VSPHERE_SSH_AUTHORIZED_KEY:
 VSPHERE_USERNAME:
 VSPHERE_PASSWORD:
 
-#! The content of zone and region infomation is used to deploy CPI and CSI in a 
+#! The content of zone and region infomation is used to deploy CPI and CSI in a
 #! vSphere environment that includes multiple data centers or host clusters.
 VSPHERE_REGION:
 VSPHERE_ZONE:
@@ -183,6 +183,36 @@ AWS_PRIVATE_NODE_CIDR_1: 10.0.2.0/24
 AWS_PUBLIC_NODE_CIDR_1: 10.0.3.0/24
 AWS_PRIVATE_NODE_CIDR_2: 10.0.4.0/24
 AWS_PUBLIC_NODE_CIDR_2: 10.0.5.0/24
+#! AWS_SECURITY_GROUP_APISERVER_LB is an optional security group ID of a pre-created
+#! security group that will be used for Kubernetes API Server ELB, and will control
+#! inbound access to the the control plane endpoint.
+AWS_SECURITY_GROUP_APISERVER_LB: ""
+#! AWS_SECURITY_GROUP_BASTION is an optional security group ID of a pre-created
+#! security group that will be used to control in-bound access to the bastion.
+AWS_SECURITY_GROUP_BASTION: ""
+#! AWS_SECURITY_GROUP_CONTROLPLANE is an optional security group ID of a pre-created
+#! security group that will be used to control in-bound access to the control plane nodes.
+#! This group must allow access to port 6443 from AWS_SECURITY_GROUP_APISERVER_LB.
+AWS_SECURITY_GROUP_CONTROLPLANE: ""
+#! AWS_SECURITY_GROUP_LB is an optional security group for use by the Kubernetes
+#! AWS Cloud Provider for setting rules for ELBs.
+AWS_SECURITY_GROUP_LB: ""
+#! AWS_SECURITY_GROUP_NODE is an optional security group that will be used to
+#! to control in-bound acceess to all nodes.
+AWS_SECURITY_GROUP_NODE: ""
+#! AWS_IDENTITY_REF_KIND is an optional kind of a Kubernetes resource containing
+#! an identity to be used for a cluster. Defaults to AWSClusterRoleIdentity if
+#! AWS_IDENTITY_REF_NAME is also set.
+AWS_IDENTITY_REF_KIND: ""
+#! AWS_IDENTITY_REF_NAME is an optional name of a Kubernetes resource containing
+#! an identity to be used for a cluster.
+AWS_IDENTITY_REF_NAME: ""
+#! AWS_CONTROL_PLANE_OS_DISK_SIZE_GIB is the size of the root volume of the
+#! control plane instances of a cluster.
+AWS_CONTROL_PLANE_OS_DISK_SIZE_GIB: 80
+#! AWS_NODE_OS_DISK_SIZE_GIB is the size of the root volume of the
+#! node instances of a cluster.
+AWS_NODE_OS_DISK_SIZE_GIB: 80
 
 #! Control plane and worker node instance types.
 #! For node sizing recommendations, refer to TKG documentation.
@@ -337,7 +367,9 @@ OIDC_DEX_CA:
 #! ---------------------------------------------------------------------
 #! Machine Health Check configuration
 #! ---------------------------------------------------------------------
-ENABLE_MHC: true
+ENABLE_MHC:
+ENABLE_MHC_WORKER_NODE: true
+ENABLE_MHC_CONTROL_PLANE: true
 MHC_UNKNOWN_STATUS_TIMEOUT: 5m
 MHC_FALSE_STATUS_TIMEOUT: 12m
 
