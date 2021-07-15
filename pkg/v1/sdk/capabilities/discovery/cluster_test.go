@@ -25,9 +25,9 @@ var testAnnotations = map[string]string{
 	"cluster.x-k8s.io/provider": "infrastructure-fake",
 }
 
-var testObject = Object(&carp).WithAnnotations(testAnnotations) // .WithConditions(field)
+var testObject = Object("carpObj", &carp).WithAnnotations(testAnnotations) // .WithConditions(field)
 
-var testGVR = Group(testapigroup.SchemeGroupVersion.Group).WithVersions(testapigroup.SchemeGroupVersion.Version).WithResource("carps")
+var testGVR = Group("carpResource", testapigroup.SchemeGroupVersion.Group).WithVersions(testapigroup.SchemeGroupVersion.Version).WithResource("carps")
 
 var testObjects = []runtime.Object{
 	&testapigroup.Carp{
@@ -99,6 +99,13 @@ func TestClusterQueries(t *testing.T) {
 			queryTargets:      []QueryTarget{},
 			want:              true,
 			err:               "",
+		},
+		{
+			description:       "query target names contain duplicates",
+			discoveryClientFn: queryClientWithResourcesAndObjects,
+			queryTargets:      []QueryTarget{testGVR, testObject, Object("carpObj", &carp)},
+			want:              false,
+			err:               "query target names must be unique",
 		},
 	}
 

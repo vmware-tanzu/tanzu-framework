@@ -13,18 +13,25 @@ import (
 )
 
 // Group represents any API group that may exist on a cluster, with ability to specify versions and resource to check for GVR.
-func Group(group string) *QueryGVR {
+func Group(queryName, group string) *QueryGVR {
 	return &QueryGVR{
+		name:  queryName,
 		group: group,
 	}
 }
 
 // QueryGVR provides insight to the clusters GVRs
 type QueryGVR struct {
+	name          string
 	group         string
 	resource      string
 	versions      []string
 	unmatchedGVRs []string
+}
+
+// Name returns the name of the query.
+func (q *QueryGVR) Name() string {
+	return q.name
 }
 
 // WithVersions checks if an API group with all the specified versions exist.

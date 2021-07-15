@@ -93,6 +93,6 @@ func (dc *DiscoveryClient) HasNSX(ctx context.Context) (bool, error) {
 		Name:       namespaceNSX,
 		APIVersion: corev1.SchemeGroupVersion.Version,
 	}
-	query := discovery.Object(nsx)
+	query := discovery.Object("nsx", nsx)
 	return dc.clusterQueryClient.PreparedQuery(query)()
 }
