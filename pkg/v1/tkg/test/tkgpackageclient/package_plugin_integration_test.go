@@ -232,7 +232,16 @@ var _ = Describe("Package plugin integration test", func() {
 })
 
 func testHelper() {
-	By("Adding package repository")
+	By("List package repository")
+	result = packagePlugin.ListRepository(&tkgpackagedatamodel.RepositoryOptions{AllNamespaces: false})
+	Expect(result.Error).ToNot(HaveOccurred())
+	err = json.Unmarshal(result.Stdout.Bytes(), &repoOutput)
+	Expect(err).ToNot(HaveOccurred())
+	Expect(len(repoOutput)).To(BeNumerically("==", 1))
+	log.Infof(fmt.Sprintf("repository name", repoOutput[0]))
+	Expect(repoOutput[0]).To(Equal(expectedRepoOutput))
+
+	By("Update package repository")
 	repoOptions.RepositoryURL = config.RepositoryURL
 	repoOptions.CreateRepository = true
 	result = packagePlugin.UpdateRepository(&repoOptions)
