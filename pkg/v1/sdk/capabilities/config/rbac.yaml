@@ -62,6 +62,7 @@ rules:
       - ""
     resources:
       - configmaps
+      - namespaces
       - nodes
     verbs:
       - get

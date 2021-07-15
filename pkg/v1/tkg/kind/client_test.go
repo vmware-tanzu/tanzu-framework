@@ -12,6 +12,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	kindv1 "sigs.k8s.io/kind/pkg/apis/config/v1alpha4"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
@@ -44,7 +45,7 @@ var (
 	kindProvider *fakes.KindProvider
 	err          error
 	clusterName  string
-	kindConfig   string
+	kindConfig   *kindv1.Cluster
 )
 
 var _ = Describe("Kind Client", func() {
@@ -131,17 +132,16 @@ var _ = Describe("Kind Client", func() {
 			BeforeEach(func() {
 				setupTestingFiles(configPathCustomRegistrySkipTLSVerify, testingDir, defaultBoMFileForTesting)
 				kindClient = buildKindClient()
-				_, kindConfigBytes, err := kindClient.GetKindNodeImageAndConfig()
+				_, kindConfig, err = kindClient.GetKindNodeImageAndConfig()
 				Expect(err).NotTo(HaveOccurred())
-				kindConfig = string(kindConfigBytes)
 			})
 
 			Describe("Generate kind cluster config", func() {
 				It("generates 'insecure_skip_verify = true' in containerdConfigPatches", func() {
-					Expect(kindConfig).Should(ContainSubstring(fmt.Sprintf(kind.KindRegistryConfigSkipTLSVerify, registryHostname)))
-					Expect(kindConfig).Should(ContainSubstring("insecure_skip_verify = true"))
-					Expect(kindConfig).ShouldNot(ContainSubstring("ca_file = \"/etc/containerd/tkg-registry-ca.crt\""))
-					Expect(kindConfig).ShouldNot(ContainSubstring("containerPath: /etc/containerd/tkg-registry-ca.crt"))
+					Expect(kindConfig.ContainerdConfigPatches[0]).Should(ContainSubstring(fmt.Sprintf("plugins.'io.containerd.grpc.v1.cri'.registry.configs.'%s'.tls", registryHostname)))
+					Expect(kindConfig.ContainerdConfigPatches[0]).Should(ContainSubstring("insecure_skip_verify = true"))
+					Expect(kindConfig.ContainerdConfigPatches[0]).ShouldNot(ContainSubstring("ca_file = '/etc/containerd/tkg-registry-ca.crt'"))
+					Expect(len(kindConfig.Nodes[0].ExtraMounts)).To(Equal(1))
 				})
 			})
 		})
@@ -150,17 +150,16 @@ var _ = Describe("Kind Client", func() {
 			BeforeEach(func() {
 				setupTestingFiles(configPathCustomRegistryCaCert, testingDir, defaultBoMFileForTesting)
 				kindClient = buildKindClient()
-				_, kindConfigBytes, err := kindClient.GetKindNodeImageAndConfig()
+				_, kindConfig, err = kindClient.GetKindNodeImageAndConfig()
 				Expect(err).NotTo(HaveOccurred())
-				kindConfig = string(kindConfigBytes)
 			})
 
 			Describe("Generate kind cluster config", func() {
 				It("generates ca_file config in containerdConfigPatches", func() {
-					Expect(kindConfig).Should(ContainSubstring(fmt.Sprintf(kind.KindRegistryConfigCaCert, registryHostname)))
-					Expect(kindConfig).Should(ContainSubstring("insecure_skip_verify = false"))
-					Expect(kindConfig).Should(ContainSubstring("ca_file = \"/etc/containerd/tkg-registry-ca.crt\""))
-					Expect(kindConfig).Should(ContainSubstring("containerPath: /etc/containerd/tkg-registry-ca.crt"))
+					Expect(kindConfig.ContainerdConfigPatches[0]).Should(ContainSubstring(fmt.Sprintf("plugins.'io.containerd.grpc.v1.cri'.registry.configs.'%s'.tls", registryHostname)))
+					Expect(kindConfig.ContainerdConfigPatches[0]).Should(ContainSubstring("insecure_skip_verify = false"))
+					Expect(kindConfig.ContainerdConfigPatches[0]).Should(ContainSubstring("ca_file = '/etc/containerd/tkg-registry-ca.crt'"))
+					Expect(kindConfig.Nodes[0].ExtraMounts[1].ContainerPath).Should(ContainSubstring("/etc/containerd/tkg-registry-ca.crt"))
 				})
 			})
 		})
@@ -170,13 +169,12 @@ var _ = Describe("Kind Client", func() {
 		BeforeEach(func() {
 			setupTestingFiles(configPath, testingDir, defaultBoMFileForTesting)
 			kindClient = buildKindClient()
-			_, kindConfigBytes, err := kindClient.GetKindNodeImageAndConfig()
+			_, kindConfig, err = kindClient.GetKindNodeImageAndConfig()
 			Expect(err).NotTo(HaveOccurred())
-			kindConfig = string(kindConfigBytes)
 		})
 
 		It("generates a config with ipfamily omitted", func() {
-			Expect(kindConfig).NotTo(ContainSubstring("ipFamily:"))
+			Expect(string(kindConfig.Networking.IPFamily)).To(Equal(""))
 		})
 	})
 
@@ -184,13 +182,12 @@ var _ = Describe("Kind Client", func() {
 		BeforeEach(func() {
 			setupTestingFiles(configPathIPv4, testingDir, defaultBoMFileForTesting)
 			kindClient = buildKindClient()
-			_, kindConfigBytes, err := kindClient.GetKindNodeImageAndConfig()
+			_, kindConfig, err = kindClient.GetKindNodeImageAndConfig()
 			Expect(err).NotTo(HaveOccurred())
-			kindConfig = string(kindConfigBytes)
 		})
 
 		It("generates a config with ipfamily set to ipv4", func() {
-			Expect(kindConfig).To(ContainSubstring("ipFamily: ipv4"))
+			Expect(kindConfig.Networking.IPFamily).To(Equal(kindv1.IPv4Family))
 		})
 	})
 
@@ -198,17 +195,12 @@ var _ = Describe("Kind Client", func() {
 		BeforeEach(func() {
 			setupTestingFiles(configPathIPv6, testingDir, defaultBoMFileForTesting)
 			kindClient = buildKindClient()
-			_, kindConfigBytes, err := kindClient.GetKindNodeImageAndConfig()
+			_, kindConfig, err = kindClient.GetKindNodeImageAndConfig()
 			Expect(err).NotTo(HaveOccurred())
-			kindConfig = string(kindConfigBytes)
 		})
 
 		It("generates a config with ipfamily set to ipv6", func() {
-			Expect(kindConfig).To(ContainSubstring("ipFamily: ipv6"))
-		})
-
-		It("nests ipFamilyConfig into networkConfig", func() {
-			Expect(kindConfig).To(MatchRegexp(`(?m)^  ipFamily: ipv6$`))
+			Expect(kindConfig.Networking.IPFamily).To(Equal(kindv1.IPv6Family))
 		})
 	})
 
@@ -216,14 +208,13 @@ var _ = Describe("Kind Client", func() {
 		BeforeEach(func() {
 			setupTestingFiles(configPath, testingDir, defaultBoMFileForTesting)
 			kindClient = buildKindClient()
-			_, kindConfigBytes, err := kindClient.GetKindNodeImageAndConfig()
+			_, kindConfig, err = kindClient.GetKindNodeImageAndConfig()
 			Expect(err).NotTo(HaveOccurred())
-			kindConfig = string(kindConfigBytes)
 		})
 
 		It("generates a config with default pod and service subnet", func() {
-			Expect(kindConfig).To(ContainSubstring("podSubnet: 100.96.0.0/11"))
-			Expect(kindConfig).To(ContainSubstring("serviceSubnet: 100.64.0.0/13"))
+			Expect(kindConfig.Networking.PodSubnet).To(Equal("100.96.0.0/11"))
+			Expect(kindConfig.Networking.ServiceSubnet).To(Equal("100.64.0.0/13"))
 		})
 	})
 
@@ -231,14 +222,13 @@ var _ = Describe("Kind Client", func() {
 		BeforeEach(func() {
 			setupTestingFiles(configPathCIDR, testingDir, defaultBoMFileForTesting)
 			kindClient = buildKindClient()
-			_, kindConfigBytes, err := kindClient.GetKindNodeImageAndConfig()
+			_, kindConfig, err = kindClient.GetKindNodeImageAndConfig()
 			Expect(err).NotTo(HaveOccurred())
-			kindConfig = string(kindConfigBytes)
 		})
 
 		It("generates a config with specified pod and service subnet", func() {
-			Expect(kindConfig).To(ContainSubstring("podSubnet: 200.200.200.0/24"))
-			Expect(kindConfig).To(ContainSubstring("serviceSubnet: 250.250.250.0/24"))
+			Expect(kindConfig.Networking.PodSubnet).To(Equal("200.200.200.0/24"))
+			Expect(kindConfig.Networking.ServiceSubnet).To(Equal("250.250.250.0/24"))
 		})
 	})
 })
