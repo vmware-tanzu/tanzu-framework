@@ -579,7 +579,7 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 
 		err := c.ValidateVsphereControlPlaneEndpointIP(options.VsphereControlPlaneEndpoint)
 		if err != nil {
-			log.Warningf("WARNING: The control plane endpoint %s might already exist. This might affect the deployment of the cluster", options.VsphereControlPlaneEndpoint)
+			log.Warningf("WARNING: The control plane endpoint '%s' might already used by other cluster. This might affect the deployment of the cluster", options.VsphereControlPlaneEndpoint)
 		}
 	}
 
