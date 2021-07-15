@@ -14,10 +14,11 @@
 apiVersion: packaging.carvel.dev/v1alpha1
 kind: PackageRepository
 metadata:
-  name: standard
-  namespace: tanzu-standard
+  name: tanzu-standard
+  namespace: tanzu-package-repo-global
   annotations:
     tkg.tanzu.vmware.com/addon-type: "addons-management/standard-package-repo"
+    tanzu.vmware.com/owner: "tkg"
 spec:
   fetch:
     imgpkgBundle:

@@ -96,7 +96,14 @@ func (c *client) saveEmbeddedProviderTemplates(providerPath string) error {
 	if err != nil {
 		return errors.Wrap(err, "cannot find the provider bundle")
 	}
-	providerZipPath := filepath.Join(providerPath, constants.LocalProvidersZipFileName)
+
+	// Remove existing provider files under directory
+	err = os.RemoveAll(providerPath)
+	if err != nil {
+		return errors.Wrap(err, "error while deleting providers directory")
+	}
+
+	providerZipPath := filepath.Join(providerPath, "..", constants.LocalProvidersZipFileName)
 	if err := os.WriteFile(providerZipPath, providersZipBytes, 0o644); err != nil {
 		return errors.Wrap(err, "error while writing provider zip file")
 	}
