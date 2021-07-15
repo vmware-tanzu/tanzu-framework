@@ -16,7 +16,7 @@ kind: PackageRepository
 metadata:
   #! The core package repository name is hardcoded internally under core/addons/constants/constants.go
   #! Addons Manager will read it and reconcile.
-  name: core
+  name: tanzu-core
   namespace: tkg-system
   annotations:
     tkg.tanzu.vmware.com/addon-type: "addons-management/core-package-repo"

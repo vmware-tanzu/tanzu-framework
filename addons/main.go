@@ -80,7 +80,7 @@ func main() {
 	flag.StringVar(&addonClusterRole, "addon-cluster-role-name", "tkg-addons-app-cluster-role", "The name of addon clusterRole")
 	flag.StringVar(&addonClusterRoleBinding, "addon-cluster-role-binding-name", "tkg-addons-app-cluster-role-binding", "The name of addon clusterRoleBinding")
 	flag.StringVar(&addonImagePullPolicy, "addon-image-pull-policy", "IfNotPresent", "The addon image pull policy")
-	flag.StringVar(&corePackageRepoName, "core-package-repo-name", "core", "The name of core package repository")
+	flag.StringVar(&corePackageRepoName, "core-package-repo-name", "tanzu-core", "The name of core package repository")
 
 	flag.Parse()
 
