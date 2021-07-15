@@ -20,8 +20,9 @@ import (
 // WithAnnotations()
 // WithLabels()
 // WithConditions()
-func Object(obj *corev1.ObjectReference) *QueryObject {
+func Object(queryName string, obj *corev1.ObjectReference) *QueryObject {
 	return &QueryObject{
+		name:     queryName,
 		object:   obj,
 		presence: true,
 	}
@@ -29,10 +30,16 @@ func Object(obj *corev1.ObjectReference) *QueryObject {
 
 // QueryObject allows for resource querying
 type QueryObject struct {
+	name        string
 	object      *corev1.ObjectReference
 	annotations []resourceAnnotation
 	presence    bool
 	//	conditions []resourceCondition
+}
+
+// Name is the name of the query.
+func (q *QueryObject) Name() string {
+	return q.name
 }
 
 // WithoutAnnotations ensures lack of presence annotations on a resource
