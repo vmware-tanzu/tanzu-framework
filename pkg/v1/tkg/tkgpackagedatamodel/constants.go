@@ -25,4 +25,5 @@ const (
 	TanzuPkgPluginAnnotation  = "tkg.tanzu.vmware.com/tanzu-package"
 	TanzuPkgPluginPrefix      = "tanzu-package"
 	TanzuPkgPluginResource    = "%s-%s"
+	YamlSeparator             = "---"
 )
