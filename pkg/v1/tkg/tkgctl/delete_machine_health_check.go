@@ -16,6 +16,7 @@ type DeleteMachineHealthCheckOptions struct {
 	Namespace              string
 	MachinehealthCheckName string
 	SkipPrompt             bool
+	MatchLabel             string
 }
 
 // DeleteMachineHealthCheck deletes MHC on cluster
@@ -33,6 +34,7 @@ func (t *tkgctl) DeleteMachineHealthCheck(options DeleteMachineHealthCheckOption
 		ClusterName:            options.ClusterName,
 		Namespace:              options.Namespace,
 		MachineHealthCheckName: options.MachinehealthCheckName,
+		MatchLabel:             options.MatchLabel,
 	}
 	err = t.tkgClient.DeleteMachineHealthCheck(optionsMHC)
 	if err != nil {

@@ -12,6 +12,7 @@ type GetMachineHealthCheckOptions struct {
 	ClusterName            string
 	MachineHealthCheckName string
 	Namespace              string
+	MatchLabel             string
 }
 
 // GetMachineHealthCheck return machinehealthcheck configuration for the cluster
@@ -20,6 +21,7 @@ func (t *tkgctl) GetMachineHealthCheck(options GetMachineHealthCheckOptions) ([]
 		ClusterName:            options.ClusterName,
 		Namespace:              options.Namespace,
 		MachineHealthCheckName: options.MachineHealthCheckName,
+		MatchLabel:             options.MatchLabel,
 	}
 
 	return t.tkgClient.GetMachineHealthChecks(machineHealthCheckOptions)
