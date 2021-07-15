@@ -11,34 +11,8 @@ body.dark {
         color: #fff;
     }
 }
-// End dark theme overrides
 
-// Accessibility fixes
-    // form field error increase contrast of error color
-    .clr-validate-icon,
-    .clr-error .clr-subtext  {
-        color: #f76b64;
-    }
-    .clr-error .clr-input:not([readonly]) {
-        border-bottom-color: #f76b64;
-    }
-    .clr-error .clr-textarea {
-        border-color: #f76b64;
-    }
-// End accessibility fixes
-
-// Branding and logos
-.brand-logo {
-    background-size: contain;
-    background-repeat: no-repeat;
-    display: inline-block;
-    vertical-align: middle;
-    width: 36px;
-    height: 36px;
-    margin-bottom: 6px;
-    margin-right: 4px;
-}
-
+// Branding logos
 .tanzu-logo {
     @include logo-container('./assets/images/tanzu-logo.svg');
     top: -2px;
@@ -56,13 +30,28 @@ body.dark {
     width: 36px;
     height: 36px;
 }
-// End branding logos
 
-// Wizard fixes
+.landing-image {
+    display: inline-block;
+    text-indent: -9999px;
+    margin-top: 26px;
+    width: 100%;
+    height: 100%;
+    background: url(./assets/images/welcome-intro.svg);
+    background-size: 100% auto;
+    background-repeat: no-repeat;
+}
+
 .no-gutters {
     padding: 0;
 }
 
+// contextual help
+clr-icon.contextual-help {
+    cursor: pointer;
+}
+
+// wizard fixes
 .btn-connect {
     margin-top: 20px;
 }
@@ -148,7 +137,26 @@ clr-control-error.clr-subtext {
 .input-disabled {
     opacity: 0.7;
 }
-// End wizard fixes
+
+.hide {
+    max-height: 0px;
+    overflow: hidden;
+    visibility: hidden;
+}
+
+.brand-logo {
+    background-size: contain;
+    background-repeat: no-repeat;
+    display: inline-block;
+    vertical-align: middle;
+    width: 36px;
+    height: 36px;
+    margin-bottom: 6px;
+    margin-right: 4px;
+}
+.inline {
+    display: inline;
+}
 
 //////////////////////////////////////
 // Generic logo icons
@@ -220,26 +228,6 @@ clr-control-error.clr-subtext {
 //////////////////////////////////////
 // Common or shared styles
 //////////////////////////////////////
-.landing-image {
-    display: inline-block;
-    text-indent: -9999px;
-    margin-top: 26px;
-    width: 100%;
-    height: 100%;
-    background: url(./assets/images/welcome-intro.svg);
-    background-size: 100% auto;
-    background-repeat: no-repeat;
-}
-
-.hide {
-    max-height: 0px;
-    overflow: hidden;
-    visibility: hidden;
-}
-
-.inline {
-    display: inline;
-}
 
 .align-left {
     text-align: left;

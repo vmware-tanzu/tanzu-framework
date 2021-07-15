@@ -6,7 +6,7 @@
     "clean": "rimraf ./dist",
     "lint": "ng lint",
     "generate-api-client": "rimraf ./src/app/swagger/ && api-client-generator -s ./api/spec.yaml -o ./src/app/swagger/",
-    "start": "ng lint && npm run generate-api-client && ng serve",
+    "start": "ng lint && npm run build-index && npm run generate-api-client && ng serve",
     "build": " ng lint && npm run generate-api-client && ng build",
     "build:prod": "npm run clean && npm run generate-api-client && ng build --prod",
     "build:ci": "npm run clean && npm run generate-api-client && ng lint && npm run test && npm run build:prod",
@@ -16,7 +16,8 @@
     "e2e": "cd e2e && npm run e2e",
     "aws-e2e": "cd e2e && npm run aws-e2e",
     "vsphere-e2e": "cd e2e && npm run vsphere-e2e",
-    "azure-e2e": "cd e2e && npm run azure-e2e"
+    "azure-e2e": "cd e2e && npm run azure-e2e",
+    "build-index": "node src/app/shared/contextual-help/build-script/build.js"
   },
   "dependencies": {
     "@angular/animations": "^9.1.13",
@@ -38,6 +39,7 @@
     "@webcomponents/webcomponentsjs": "^2.0.0",
     "codemirror": "^5.61.1",
     "dotenv": "^8.2.0",
+    "elasticlunr": "^0.9.5",
     "lodash": "^4.17.21",
     "netmask": "^2.0.2",
     "ngx-log-monitor": "^1.2.0",
@@ -57,6 +59,7 @@
     "@types/node": "^12.11.1",
     "api-client-generator": "^4.7.1",
     "codelyzer": "^5.1.2",
+    "html-frontmatter": "^1.6.1",
     "jasmine-core": "^3.7.1",
     "jasmine-spec-reporter": "^4.2.1",
     "karma": "^6.3.3",
@@ -69,6 +72,7 @@
     "protractor-fail-fast": "^3.1.0",
     "protractor-jasmine2-screenshot-reporter": "^0.5.0",
     "puppeteer": "^2.1.1",
+    "remove-html-comments": "^1.0.2",
     "rimraf": "^3.0.2",
     "ts-node": "^7.0.1",
     "tslint": "^5.20.1",
