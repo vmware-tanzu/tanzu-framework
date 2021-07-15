@@ -151,8 +151,6 @@ Use "tanzu package repository [command] --help" for more information about a com
 
     An example values.yaml is as follows:
     ```sh
-    #@data/values
-    #@overlay/match-child-defaults missing_ok=True
     ---
     fluent_bit:
       outputs: |
