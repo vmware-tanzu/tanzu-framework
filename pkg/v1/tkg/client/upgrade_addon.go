@@ -276,22 +276,16 @@ func (c *TkgClient) setProxyConfiguration(regionalClusterClient clusterclient.Cl
 		return nil
 	}
 
-	if httpProxy, err := c.TKGConfigReaderWriter().Get(constants.HTTPProxy); err != nil || httpProxy == "" {
-		if httpProxy := configmap.Data["httpProxy"]; httpProxy != "" {
-			c.TKGConfigReaderWriter().Set(constants.TKGHTTPProxy, httpProxy)
-		}
+	if httpProxy := configmap.Data["httpProxy"]; httpProxy != "" {
+		c.TKGConfigReaderWriter().Set(constants.TKGHTTPProxy, httpProxy)
 	}
 
-	if httpsProxy, err := c.TKGConfigReaderWriter().Get(constants.TKGHTTPSProxy); err != nil || httpsProxy == "" {
-		if httpsProxy := configmap.Data["httpsProxy"]; httpsProxy != "" {
-			c.TKGConfigReaderWriter().Set(constants.TKGHTTPSProxy, httpsProxy)
-		}
+	if httpsProxy := configmap.Data["httpsProxy"]; httpsProxy != "" {
+		c.TKGConfigReaderWriter().Set(constants.TKGHTTPSProxy, httpsProxy)
 	}
 
-	if noProxy, err := c.TKGConfigReaderWriter().Get(constants.TKGNoProxy); err != nil || noProxy == "" {
-		if noProxy := configmap.Data["noProxy"]; noProxy != "" {
-			c.TKGConfigReaderWriter().Set(constants.TKGNoProxy, noProxy)
-		}
+	if noProxy := configmap.Data["noProxy"]; noProxy != "" {
+		c.TKGConfigReaderWriter().Set(constants.TKGNoProxy, noProxy)
 	}
 
 	return nil
@@ -310,17 +304,13 @@ func (c *TkgClient) setCustomImageRepositoryConfiguration(regionalClusterClient 
 		return nil
 	}
 
-	if customImageRepository, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableCustomImageRepository); err != nil || customImageRepository == "" {
-		if customImageRepository := configmap.Data["imageRepository"]; customImageRepository != "" {
-			c.TKGConfigReaderWriter().Set(constants.ConfigVariableCustomImageRepository, customImageRepository)
-		}
+	if customImageRepository := configmap.Data["imageRepository"]; customImageRepository != "" {
+		c.TKGConfigReaderWriter().Set(constants.ConfigVariableCustomImageRepository, customImageRepository)
 	}
 
-	if customImageRepositoryCaCertificate, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableCustomImageRepositoryCaCertificate); err != nil || customImageRepositoryCaCertificate == "" {
-		if customImageRepositoryCaCertificate := configmap.Data["caCerts"]; customImageRepositoryCaCertificate != "" {
-			customImageRepositoryCaCertificateEncoded := base64.StdEncoding.EncodeToString([]byte(customImageRepositoryCaCertificate))
-			c.TKGConfigReaderWriter().Set(constants.ConfigVariableCustomImageRepositoryCaCertificate, customImageRepositoryCaCertificateEncoded)
-		}
+	if customImageRepositoryCaCertificate := configmap.Data["caCerts"]; customImageRepositoryCaCertificate != "" {
+		customImageRepositoryCaCertificateEncoded := base64.StdEncoding.EncodeToString([]byte(customImageRepositoryCaCertificate))
+		c.TKGConfigReaderWriter().Set(constants.ConfigVariableCustomImageRepositoryCaCertificate, customImageRepositoryCaCertificateEncoded)
 	}
 
 	return nil
