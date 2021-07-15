@@ -1,4 +1,4 @@
-<div class="title"> Docker daemon <a (click)="connectToDocker()" *ngIf="!connected"> CONNECT TO DOCKER</a></div>
+<div class="title"> Docker Daemon <button class="btn btn-link" (click)="connectToDocker()" *ngIf="!connected">CONNECT TO DOCKER</button></div>
 
 <div class="alert alert-danger" role="alert" *ngIf="!connected && !connecting">
     <div class="alert-items">

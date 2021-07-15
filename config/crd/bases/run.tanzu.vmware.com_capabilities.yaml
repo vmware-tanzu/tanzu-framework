@@ -210,13 +210,17 @@ spec:
                             an error occurred.
                           type: string
                         found:
-                          description: Found is a boolean which represents if the
-                            query condition succeeded.
+                          description: Found is a boolean which indicates if the query
+                            condition succeeded.
                           type: boolean
                         name:
                           description: Name is the name of the query in spec whose
                             result this struct represents.
                           minLength: 1
+                          type: string
+                        notFoundReason:
+                          description: NotFoundReason provides the reason if the query
+                            condition fails. This is non-empty when Found is false.
                           type: string
                       required:
                       - name
@@ -243,13 +247,17 @@ spec:
                             an error occurred.
                           type: string
                         found:
-                          description: Found is a boolean which represents if the
-                            query condition succeeded.
+                          description: Found is a boolean which indicates if the query
+                            condition succeeded.
                           type: boolean
                         name:
                           description: Name is the name of the query in spec whose
                             result this struct represents.
                           minLength: 1
+                          type: string
+                        notFoundReason:
+                          description: NotFoundReason provides the reason if the query
+                            condition fails. This is non-empty when Found is false.
                           type: string
                       required:
                       - name
@@ -273,13 +281,17 @@ spec:
                             an error occurred.
                           type: string
                         found:
-                          description: Found is a boolean which represents if the
-                            query condition succeeded.
+                          description: Found is a boolean which indicates if the query
+                            condition succeeded.
                           type: boolean
                         name:
                           description: Name is the name of the query in spec whose
                             result this struct represents.
                           minLength: 1
+                          type: string
+                        notFoundReason:
+                          description: NotFoundReason provides the reason if the query
+                            condition fails. This is non-empty when Found is false.
                           type: string
                       required:
                       - name

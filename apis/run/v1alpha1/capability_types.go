@@ -103,15 +103,19 @@ type QueryResult struct {
 	// +kubebuilder:validation:Required
 	// +kubebuilder:validation:MinLength:=1
 	Name string `json:"name"`
-	// Found is a boolean which represents if the query condition succeeded.
+	// Found is a boolean which indicates if the query condition succeeded.
 	// +optional
 	Found bool `json:"found"`
 	// Error indicates if an error occurred while processing the query.
 	// +optional
-	Error bool `json:"error"`
+	Error bool `json:"error,omitempty"`
 	// ErrorDetail represents the error detail, if an error occurred.
 	// +optional
-	ErrorDetail string `json:"errorDetail"`
+	ErrorDetail string `json:"errorDetail,omitempty"`
+	// NotFoundReason provides the reason if the query condition fails.
+	// This is non-empty when Found is false.
+	// +optional
+	NotFoundReason string `json:"notFoundReason,omitempty"`
 }
 
 // Result represents the results of queries in Query.

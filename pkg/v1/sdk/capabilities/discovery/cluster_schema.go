@@ -25,6 +25,11 @@ type QueryPartialSchema struct {
 	presence bool
 }
 
+// Name is the name of the query.
+func (q *QueryPartialSchema) Name() string {
+	return q.name
+}
+
 // Run the partial query match
 func (q *QueryPartialSchema) Run(config *clusterQueryClientConfig) (bool, error) {
 	doc, err := config.discoveryClientset.OpenAPISchema()
