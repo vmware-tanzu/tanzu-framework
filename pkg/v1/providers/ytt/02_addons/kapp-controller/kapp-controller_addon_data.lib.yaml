@@ -11,7 +11,7 @@
 kappController:
   namespace: tkg-system
   createNamespace: true
-  globalNamespace: tanzu-standard
+  globalNamespace: tanzu-package-repo-global
 #@ if data.values.TKG_CLUSTER_ROLE == "workload": #! For backwards compatibility. i.e. C.1 mgmt cluster creates a C.0 wlc with older addon templates.
   image: #! For backwards compatibility. i.e. C.1 mgmt cluster creates a C.0 wlc with older addon templates.
     repository: #@ get_image_repo_for_component(kappControllerImage)
