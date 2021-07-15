@@ -16,7 +16,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/discovery"
 )
 
-const contextTimeout = 15 * time.Second
+const contextTimeout = 60 * time.Second
 
 // CapabilityReconciler reconciles a Capability object.
 type CapabilityReconciler struct {
