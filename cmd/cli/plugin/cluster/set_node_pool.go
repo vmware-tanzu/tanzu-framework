@@ -43,7 +43,7 @@ func runSetNodePool(cmd *cobra.Command, args []string) error {
 	}
 
 	if server.IsGlobal() {
-		return errors.New("setting machine healthcheck with a global server is not implemented yet")
+		return errors.New("setting node pool with a global server is not implemented yet")
 	}
 	return SetNodePool(server, args[0])
 }

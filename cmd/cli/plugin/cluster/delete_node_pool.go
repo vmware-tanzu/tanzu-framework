@@ -30,6 +30,7 @@ var deleteNodePoolCmd = &cobra.Command{
 
 func init() {
 	deleteNodePoolCmd.Flags().StringVarP(&deleteNP.nodePoolName, "name", "n", "", "Name of the NodePool object")
+	_ = deleteNodePoolCmd.MarkFlagRequired("name")
 	deleteNodePoolCmd.Flags().StringVar(&deleteNP.namespace, "namespace", "", "The namespace where the NodePool object was created, default to the cluster's namespace")
 	clusterNodePoolCmd.AddCommand(deleteNodePoolCmd)
 }
