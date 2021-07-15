@@ -1,13 +1,8 @@
 .title {
     font-size: 16px;
     margin-bottom: 20px;
-    a {
-        text-decoration: none;
-        color: #49AFD9;
-        margin-left: 31px;
-        font-size: 14px;
-        &:hover {
-            cursor: pointer;
-        }
+
+    .btn-link {
+        margin-bottom: 9px;
     }
 }
