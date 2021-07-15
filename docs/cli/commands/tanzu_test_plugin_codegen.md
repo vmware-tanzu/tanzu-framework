@@ -1,15 +1,15 @@
-## tanzu test plugin test
+## tanzu test plugin codegen
 
-Test the CLI
+Tanzu code generation tool
 
 ```
-tanzu test plugin test [flags]
+tanzu test plugin codegen [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for test
+  -h, --help   help for codegen
 ```
 
 ### SEE ALSO
