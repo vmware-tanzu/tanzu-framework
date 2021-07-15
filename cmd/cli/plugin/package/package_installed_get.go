@@ -73,8 +73,14 @@ func packageInstalledGet(cmd *cobra.Command, args []string) error {
 				if err != nil {
 					return err
 				}
-				if string(s)[:3] != "---" {
-					dataValue += "---\n"
+
+				if len(string(s)) < 3 {
+					dataValue += tkgpackagedatamodel.YamlSeparator
+					dataValue += "\n"
+				}
+				if len(string(s)) >= 3 && string(s)[:3] != tkgpackagedatamodel.YamlSeparator {
+					dataValue += tkgpackagedatamodel.YamlSeparator
+					dataValue += "\n"
 				}
 				dataValue += string(s)
 			}

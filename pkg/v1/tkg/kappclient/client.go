@@ -273,8 +273,13 @@ func (c *client) GetSecretValue(secretName, namespace string) ([]byte, error) {
 
 	var data []byte
 	for _, value := range secret.Data {
-		if string(value)[:3] != "---" {
-			data = append(data, "---\n"...)
+		if len(string(value)) < 3 {
+			data = append(data, tkgpackagedatamodel.YamlSeparator...)
+			data = append(data, "\n"...)
+		}
+		if len(string(value)) >= 3 && string(value)[:3] != tkgpackagedatamodel.YamlSeparator {
+			data = append(data, tkgpackagedatamodel.YamlSeparator...)
+			data = append(data, "\n"...)
 		}
 		data = append(data, value...)
 	}

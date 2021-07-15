@@ -24,4 +24,5 @@ const (
 	ShortDescriptionMaxLength = 20
 	TanzuPkgPluginAnnotation  = "tkg.tanzu.vmware.com/tanzu-package"
 	TanzuPkgPluginPrefix      = "tanzu-package-"
+	YamlSeparator             = "---"
 )
