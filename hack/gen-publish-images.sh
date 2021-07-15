@@ -6,6 +6,9 @@ set -euo pipefail
 
 TANZU_BOM_DIR=${HOME}/.config/tanzu/tkg/bom
 INSTALL_INSTRUCTIONS='See https://github.com/mikefarah/yq#install for installation instructions'
+TKG_CUSTOM_IMAGE_REPOSITORY=${TKG_CUSTOM_IMAGE_REPOSITORY:-''}
+TKG_IMAGE_REPO=${TKG_IMAGE_REPO:-''}
+
 
 echodual() {
   echo "$@" 1>&2
@@ -13,14 +16,12 @@ echodual() {
 }
 
 if [ -z "$TKG_CUSTOM_IMAGE_REPOSITORY" ]; then
-  echo "TKG_CUSTOM_IMAGE_REPOSITORY variable is not defined" >&2
+  echo "TKG_CUSTOM_IMAGE_REPOSITORY variable is required but is not defined" >&2
   exit 1
 fi
 
-if [[ -d "$TANZU_BOM_DIR" ]]; then
-  BOM_DIR="${TANZU_BOM_DIR}"
-else
-  echo "Tanzu Kubernetes Grid directories not found. Run CLI once to initialise." >&2
+if [ -z "$TKG_IMAGE_REPO" ]; then
+  echo "TKG_IMAGE_REPO variable is required but is not defined" >&2
   exit 2
 fi
 
@@ -46,19 +47,13 @@ function imgpkg_copy() {
 echo "set -euo pipefail"
 echodual "Note that yq must be version above or equal to version 4.5 and below version 5."
 
-actualImageRepository=""
-# Iterate through BoM file to read actual image repository
-for TKG_BOM_FILE in "$BOM_DIR"/*.yaml; do
-  # Get actual image repository from BoM file
-  actualImageRepository=$(yq e '.imageConfig.imageRepository' "$TKG_BOM_FILE")
-  break
-done
+actualImageRepository="$TKG_IMAGE_REPO"
 
 # Iterate through TKG BoM file to create the complete Image name
 # and then pull, retag and push image to custom registry.
 list=$(imgpkg  tag  list -i "${actualImageRepository}"/tkg-bom)
 for imageTag in ${list}; do
-  if [[ ${imageTag} == v* ]]; then 
+  if [[ ${imageTag} == v* ]]; then
     TKG_BOM_FILE="tkg-bom-${imageTag//_/+}.yaml"
     imgpkg pull --image "${actualImageRepository}/tkg-bom:${imageTag}" --output "tmp" > /dev/null 2>&1
     echodual "Processing TKG BOM file ${TKG_BOM_FILE}"
