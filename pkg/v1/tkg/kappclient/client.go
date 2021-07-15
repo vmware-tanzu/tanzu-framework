@@ -272,10 +272,11 @@ func (c *client) GetSecretValue(secretName, namespace string) ([]byte, error) {
 	}
 
 	var data []byte
-	for _, key := range secret.Data {
-		if key != nil {
-			data = append(data, key...)
+	for _, value := range secret.Data {
+		if string(value)[:3] != "---" {
+			data = append(data, "---\n"...)
 		}
+		data = append(data, value...)
 	}
 
 	return data, nil

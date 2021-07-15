@@ -73,6 +73,9 @@ func packageInstalledGet(cmd *cobra.Command, args []string) error {
 				if err != nil {
 					return err
 				}
+				if string(s)[:3] != "---" {
+					dataValue += "---\n"
+				}
 				dataValue += string(s)
 			}
 		}
