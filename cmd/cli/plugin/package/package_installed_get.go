@@ -68,7 +68,7 @@ func packageInstalledGet(cmd *cobra.Command, args []string) error {
 
 		dataValue := ""
 		for _, value := range pkg.Spec.Values {
-			if value.SecretRef != nil {
+			if value.SecretRef != nil { //nolint:gocritic
 				s, err := kc.GetSecretValue(value.SecretRef.Name, packageInstalledOp.Namespace)
 				if err != nil {
 					return err
