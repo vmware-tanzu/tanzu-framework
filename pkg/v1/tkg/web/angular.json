@@ -48,7 +48,8 @@
               "node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js",
               "node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js",
               "node_modules/@clr/icons/clr-icons.min.js",
-              "node_modules/sort-paths/browser/sort-paths.js"
+              "node_modules/sort-paths/browser/sort-paths.js",
+              "node_modules/elasticlunr/elasticlunr.min.js"
             ]
           },
           "configurations": {
@@ -115,7 +116,8 @@
               "src/styles.scss"
             ],
             "scripts": [
-              "node_modules/sort-paths/browser/sort-paths.js"
+              "node_modules/sort-paths/browser/sort-paths.js",
+              "node_modules/elasticlunr/elasticlunr.min.js"
             ],
             "codeCoverageExclude": [
               "src/app/testing/**",
