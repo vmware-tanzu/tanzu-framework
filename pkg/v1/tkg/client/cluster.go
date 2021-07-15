@@ -541,7 +541,7 @@ func (c *TkgClient) ConfigureAndValidateWorkloadClusterConfiguration(options *Cr
 	}
 
 	if name == VSphereProviderName {
-		if err := c.ConfigureAndValidateVsphereConfig(options.TKRVersion, options.NodeSizeOptions, options.VsphereControlPlaneEndpoint, skipValidation, clusterClient); err != nil {
+		if err := c.ConfigureAndValidateVsphereConfig(options.TKRVersion, options.NodeSizeOptions, options.VsphereControlPlaneEndpoint, skipValidation, nil); err != nil {
 			return errors.Wrap(err, "vSphere config validation failed")
 		}
 
@@ -552,7 +552,7 @@ func (c *TkgClient) ConfigureAndValidateWorkloadClusterConfiguration(options *Cr
 
 	if name == AzureProviderName {
 		if err := c.ConfigureAndValidateAzureConfig(options.TKRVersion, options.NodeSizeOptions, skipValidation,
-			options.ClusterConfigOptions.ProviderRepositorySource.Flavor == constants.PlanProd, *options.WorkerMachineCount, clusterClient, false); err != nil {
+			options.ClusterConfigOptions.ProviderRepositorySource.Flavor == constants.PlanProd, *options.WorkerMachineCount, nil, false); err != nil {
 			return errors.Wrap(err, "Azure config validation failed")
 		}
 	}

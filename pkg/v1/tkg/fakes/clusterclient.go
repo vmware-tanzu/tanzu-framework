@@ -481,9 +481,10 @@ type ClusterClient struct {
 		result2 string
 		result3 error
 	}
-	GetVCCredentialsFromSecretStub        func() (string, string, error)
+	GetVCCredentialsFromSecretStub        func(string) (string, string, error)
 	getVCCredentialsFromSecretMutex       sync.RWMutex
 	getVCCredentialsFromSecretArgsForCall []struct {
+		arg1 string
 	}
 	getVCCredentialsFromSecretReturns struct {
 		result1 string
@@ -3195,17 +3196,18 @@ func (fake *ClusterClient) GetVCClientAndDataCenterReturnsOnCall(i int, result1 
 	}{result1, result2, result3}
 }
 
-func (fake *ClusterClient) GetVCCredentialsFromSecret() (string, string, error) {
+func (fake *ClusterClient) GetVCCredentialsFromSecret(arg1 string) (string, string, error) {
 	fake.getVCCredentialsFromSecretMutex.Lock()
 	ret, specificReturn := fake.getVCCredentialsFromSecretReturnsOnCall[len(fake.getVCCredentialsFromSecretArgsForCall)]
 	fake.getVCCredentialsFromSecretArgsForCall = append(fake.getVCCredentialsFromSecretArgsForCall, struct {
-	}{})
+		arg1 string
+	}{arg1})
 	stub := fake.GetVCCredentialsFromSecretStub
 	fakeReturns := fake.getVCCredentialsFromSecretReturns
-	fake.recordInvocation("GetVCCredentialsFromSecret", []interface{}{})
+	fake.recordInvocation("GetVCCredentialsFromSecret", []interface{}{arg1})
 	fake.getVCCredentialsFromSecretMutex.Unlock()
 	if stub != nil {
-		return stub()
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2, ret.result3
@@ -3219,10 +3221,17 @@ func (fake *ClusterClient) GetVCCredentialsFromSecretCallCount() int {
 	return len(fake.getVCCredentialsFromSecretArgsForCall)
 }
 
-func (fake *ClusterClient) GetVCCredentialsFromSecretCalls(stub func() (string, string, error)) {
+func (fake *ClusterClient) GetVCCredentialsFromSecretCalls(stub func(string) (string, string, error)) {
 	fake.getVCCredentialsFromSecretMutex.Lock()
 	defer fake.getVCCredentialsFromSecretMutex.Unlock()
 	fake.GetVCCredentialsFromSecretStub = stub
+}
+
+func (fake *ClusterClient) GetVCCredentialsFromSecretArgsForCall(i int) string {
+	fake.getVCCredentialsFromSecretMutex.RLock()
+	defer fake.getVCCredentialsFromSecretMutex.RUnlock()
+	argsForCall := fake.getVCCredentialsFromSecretArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *ClusterClient) GetVCCredentialsFromSecretReturns(result1 string, result2 string, result3 error) {
