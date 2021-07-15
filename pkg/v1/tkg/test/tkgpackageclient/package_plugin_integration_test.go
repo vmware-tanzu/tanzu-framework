@@ -65,9 +65,14 @@ var (
 	clusterCreationTimeout = 30 * time.Minute
 	pollInterval           = 15 * time.Second
 	pollTimeout            = 10 * time.Minute
-	testRepoName           = "test-repo"
+	standardRepoName       = "standard"
+	standardNamespace      = "tanzu-standard"
+	standardRepoURL        = "projects-stg.registry.vmware.com/tkg/packages/standard/repo:v1.4.0-zshippable"
 	testPkgInstallName     = "test-pkg"
-	pkgAvailableOptions    = tkgpackagedatamodel.PackageAvailableOptions{}
+	testPkgName            = "fluent-bit.tanzu.vmware.com"
+	testPkgVersion         = "1.7.5+vmware.1-tkg.1-zshippable"
+	testPkgVersionUpdate   = "1.7.5+vmware.1-tkg.1-zshippable"
+	pkgAvailableOptions    tkgpackagedatamodel.PackageAvailableOptions
 	pkgOptions             tkgpackagedatamodel.PackageOptions
 	repoOptions            tkgpackagedatamodel.RepositoryOptions
 	repoOutput             []repositoryOutput
@@ -167,35 +172,41 @@ var _ = Describe("Package plugin integration test", func() {
 			log.Info("Finished creating management and workload clusters")
 		}
 
+		if config.RepositoryURL == "" {
+			config.RepositoryURL = standardRepoURL
+		}
+
 		if config.PackageName == "" {
-			config.PackageName = "fluent-bit.tanzu.vmware.com"
+			config.PackageName = testPkgName
 		}
 
 		if config.PackageVersion == "" {
-			config.PackageVersion = "1.7.5+vmware.1-tkg.1"
+			config.PackageVersion = testPkgVersion
 		}
 
 		if config.PackageVersionUpdate == "" {
-			config.PackageVersionUpdate = "1.7.5+vmware.1-tkg.1"
+			config.PackageVersionUpdate = testPkgVersionUpdate
 		}
 
-		if config.RepositoryURL == "" {
-			config.RepositoryURL = "projects-stg.registry.vmware.com/tkg/test-packages/standard-repo:v1.0.0"
+		pkgAvailableOptions = tkgpackagedatamodel.PackageAvailableOptions{
+			Namespace: standardNamespace,
 		}
 
 		pkgOptions = tkgpackagedatamodel.PackageOptions{
 			CreateNamespace: true,
+			Namespace:       standardNamespace,
 			PackageName:     config.PackageName,
 			PkgInstallName:  testPkgInstallName,
 			Version:         config.PackageVersion,
 		}
 		repoOptions = tkgpackagedatamodel.RepositoryOptions{
 			CreateNamespace: true,
-			RepositoryName:  testRepoName,
+			Namespace:       standardNamespace,
+			RepositoryName:  standardRepoName,
 		}
 
 		expectedRepoOutput = repositoryOutput{
-			Name:       testRepoName,
+			Name:       standardRepoName,
 			Repository: config.RepositoryURL,
 			Status:     "Reconcile succeeded",
 		}
@@ -232,18 +243,10 @@ var _ = Describe("Package plugin integration test", func() {
 })
 
 func testHelper() {
-	By("List package repository")
-	result = packagePlugin.ListRepository(&tkgpackagedatamodel.RepositoryOptions{AllNamespaces: false})
-	Expect(result.Error).ToNot(HaveOccurred())
-	err = json.Unmarshal(result.Stdout.Bytes(), &repoOutput)
-	Expect(err).ToNot(HaveOccurred())
-	Expect(len(repoOutput)).To(BeNumerically("==", 1))
-	log.Infof(fmt.Sprintf("repository name", repoOutput[0]))
-	Expect(repoOutput[0]).To(Equal(expectedRepoOutput))
-
 	By("Update package repository")
 	repoOptions.RepositoryURL = config.RepositoryURL
 	repoOptions.CreateRepository = true
+	repoOptions.CreateNamespace = true
 	result = packagePlugin.UpdateRepository(&repoOptions)
 	Expect(result.Error).ToNot(HaveOccurred())
 
@@ -256,8 +259,8 @@ func testHelper() {
 	Expect(result.Error).ToNot(HaveOccurred())
 	err = json.Unmarshal(result.Stdout.Bytes(), &repoOutput)
 	Expect(err).ToNot(HaveOccurred())
-	Expect(len(repoOutput)).To(BeNumerically("==", 1))
-	Expect(repoOutput[0]).To(Equal(expectedRepoOutput))
+	Expect(len(repoOutput)).To(BeNumerically(">=", 1))
+	Expect(repoOutput).To(ContainElement(expectedRepoOutput))
 
 	By("get package repository")
 	result = packagePlugin.GetRepository(&repoOptions)
@@ -273,6 +276,7 @@ func testHelper() {
 	Expect(result.Error).ToNot(HaveOccurred())
 	err = json.Unmarshal(result.Stdout.Bytes(), &pkgAvailableOutput)
 	Expect(err).ToNot(HaveOccurred())
+	Expect(len(pkgAvailableOutput)).To(BeNumerically(">=", 1))
 	Expect(pkgAvailableOutput).To(ContainElement(packageAvailableOutput{Name: config.PackageName}))
 
 	By("list package available with packagename argument")

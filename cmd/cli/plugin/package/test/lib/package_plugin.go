@@ -148,6 +148,9 @@ func (p *packagePlugin) UpdateRepository(o *tkgpackagedatamodel.RepositoryOption
 	if o.Namespace != "" {
 		cmd += fmt.Sprintf(" --namespace %s", o.Namespace)
 	}
+	if o.CreateNamespace {
+		cmd += fmt.Sprintf(" --create-namespace")
+	}
 	if o.CreateRepository {
 		cmd += fmt.Sprintf(" --create")
 	}
