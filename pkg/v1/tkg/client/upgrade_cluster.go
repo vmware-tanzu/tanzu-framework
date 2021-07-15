@@ -309,6 +309,7 @@ func (c *TkgClient) upgradeAddons(regionalClusterClient clusterclient.Client, cu
 	addonsToBeUpgraded := []string{
 		"metadata/tkg",
 		"addons-management/kapp-controller",
+		"addons-management/standard-package-repo",
 	}
 	// tanzu-addons-manager and tkr-controller only runs in management cluster
 	if isRegionalCluster {

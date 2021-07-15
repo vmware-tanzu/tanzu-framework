@@ -39,6 +39,45 @@ spec:
       #@overlay/match by=overlay.index(0)
       - #@ data.values.SERVICE_CIDR
 
+#@overlay/match by=overlay.subset({"kind":"AWSCluster"})
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+kind: AWSCluster
+metadata:
+  name: #@ data.values.CLUSTER_NAME
+spec:
+  #@ if data.values.AWS_IDENTITY_REF_NAME != "":
+  #@overlay/match missing_ok=True
+  identityRef:
+    kind: #@ data.values.AWS_IDENTITY_REF_KIND or "AWSClusterRoleIdentity"
+    name: #@ data.values.AWS_IDENTITY_REF_NAME
+  #@ end
+  networkSpec:
+    #@ if data.values.AWS_SECURITY_GROUP_BASTION != "" or data.values.AWS_SECURITY_GROUP_CONTROLPLANE != "" or data.values.AWS_SECURITY_GROUP_APISERVER_LB != "" or data.values.AWS_SECURITY_GROUP_NODE != "" or data.values.AWS_SECURITY_GROUP_LB != "":
+    #@overlay/match missing_ok=True
+    securityGroupOverrides:
+      #@ if data.values.AWS_SECURITY_GROUP_BASTION != "":
+      #@overlay/match missing_ok=True
+      bastion: #@ data.values.AWS_SECURITY_GROUP_BASTION
+      #@ end
+      #@ if data.values.AWS_SECURITY_GROUP_CONTROLPLANE != "":
+      #@overlay/match missing_ok=True
+      controlplane: #@ data.values.AWS_SECURITY_GROUP_CONTROLPLANE
+      #@ end
+      #@ if data.values.AWS_SECURITY_GROUP_APISERVER_LB != "":
+      #@overlay/match missing_ok=True
+      apiserver-lb: #@ data.values.AWS_SECURITY_GROUP_APISERVER_LB
+      #@ end
+      #@ if data.values.AWS_SECURITY_GROUP_NODE != "":
+      #@overlay/match missing_ok=True
+      node: #@ data.values.AWS_SECURITY_GROUP_NODE
+      #@ end
+      #@ if data.values.AWS_SECURITY_GROUP_LB != "":
+      #@overlay/match missing_ok=True
+      lb: #@ data.values.AWS_SECURITY_GROUP_LB
+      #@ end
+    #@ end
+
 #@overlay/match by=overlay.subset({"kind":"KubeadmControlPlane"})
 ---
 kind: KubeadmControlPlane
@@ -93,7 +132,7 @@ spec:
       ami:
         id: #@ data.values.AWS_AMI_ID
       rootVolume:
-        size: 80
+        size: #@ int(data.values.AWS_CONTROL_PLANE_OS_DISK_SIZE_GIB) or 80
 #@overlay/match by=overlay.subset({"kind": "AWSMachineTemplate", "metadata":{"name": "${CLUSTER_NAME}-md-0"}})
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
@@ -109,7 +148,7 @@ spec:
       ami:
         id: #@ data.values.AWS_AMI_ID
       rootVolume:
-        size: 80
+        size: #@ int(data.values.AWS_NODE_OS_DISK_SIZE_GIB) or 80
 #@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate", "metadata":{"name": "${CLUSTER_NAME}-md-0"}})
 ---
 apiVersion: bootstrap.cluster.x-k8s.io/v1alpha3
