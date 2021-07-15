@@ -600,7 +600,7 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 
 // ValidateVsphereControlPlaneEndpointIP validates if the control plane endpoint has been used by another cluster in the same network
 func (c *TkgClient) ValidateVsphereControlPlaneEndpointIP(endpointIP string) *ValidationError {
-	log.V(6).Infof("Checking if VSPHERE_ENDPOINT %s is already in use", endpointIP)
+	log.V(6).Infof("Checking if VSPHERE_CONTROL_PLANE_ENDPOINT %s is already in use", endpointIP)
 	currentNetwork, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereNetwork)
 	if err != nil {
 		return NewValidationError(ValidationErrorCode, "unable to read network name from the configs")
@@ -1128,7 +1128,7 @@ func (c *TkgClient) OverrideAWSNodeSizeWithOptions(options NodeSizeOptions, awsC
 			return err
 		}
 		if _, ok := nodeMap[controlplaneMachineType]; !ok {
-			return errors.Errorf("instance type %s is not supported in awsRegion %s", controlplaneMachineType, awsRegion)
+			return errors.Errorf("instance type %s is not supported in region %s", controlplaneMachineType, awsRegion)
 		}
 
 		nodeMachineType, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableNodeMachineType)
@@ -1136,7 +1136,7 @@ func (c *TkgClient) OverrideAWSNodeSizeWithOptions(options NodeSizeOptions, awsC
 			return err
 		}
 		if _, ok := nodeMap[nodeMachineType]; !ok {
-			return errors.Errorf("instance type %s is not supported in awsRegion %s", nodeMachineType, awsRegion)
+			return errors.Errorf("instance type %s is not supported in region %s", nodeMachineType, awsRegion)
 		}
 	}
 
