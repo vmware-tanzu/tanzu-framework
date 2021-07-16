@@ -19,6 +19,8 @@ import { VSphereVirtualMachine } from 'src/app/swagger/models/v-sphere-virtual-m
 import { AwsWizardFormService } from 'src/app/shared/service/aws-wizard-form.service';
 import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import Broker from 'src/app/shared/service/broker';
+import { AppDataService } from 'src/app/shared/service/app-data.service';
+import { Observable } from 'rxjs/internal/Observable';
 
 @Component({
     selector: 'app-os-image-step',
@@ -26,7 +28,6 @@ import Broker from 'src/app/shared/service/broker';
     styleUrls: ['./os-image-step.component.scss']
 })
 export class SharedOsImageStepComponent extends StepFormDirective implements OnInit {
-    @Input() tkrVersion: string;
     @Input() wizardFormService: VSphereWizardFormService|AwsWizardFormService|AzureWizardFormService;
     @Input() type: string;
     @Input() enableNonTemplateAlert: boolean;
@@ -36,9 +37,13 @@ export class SharedOsImageStepComponent extends StepFormDirective implements OnI
     osImages: Array<VSphereVirtualMachine|AwsWizardFormService|AzureWizardFormService>;
     loadingOsTemplate: boolean = false;
     nonTemplateAlert: boolean = false;
+    tkrVersion: Observable<string>;
 
-    constructor() {
+    constructor(
+        private appDataService: AppDataService
+    ) {
         super();
+        this.tkrVersion = this.appDataService.getTkrVersion();
     }
 
     ngOnInit() {
