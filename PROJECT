@@ -17,4 +17,7 @@ resources:
 - group: run
   kind: Capability
   version: v1alpha1
+- group: config
+  kind: FeatureGate
+  version: v1alpha1
 version: "2"

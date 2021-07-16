@@ -16,7 +16,8 @@
 #@ if data.values.CNI == "calico":
 #@ load("/vendir/cni/cni.lib.yaml", "cni_calico_lib")
 
-#@ load("calico/calico_addon_data.lib.yaml", "calicodatavalues", "calicoImageInfo")
+#@ load("calico/calico_addon_data.lib.yaml", "calicodatavalues")
+#@ load("calico/calico_overlay.lib.yaml", "updatecalicoimage")
 
 #! skip generation of CNI for workload clusters
 #@ if data.values.TKG_CLUSTER_ROLE != "workload":
@@ -46,7 +47,7 @@ metadata:
     tkg.tanzu.vmware.com/addon-type: "cni/calico"
 type: addons.cluster.x-k8s.io/resource-set
 stringData:
-  value: #@ yaml.encode(cni_calico_lib.with_data_values(struct.encode(yaml.decode(yaml.encode(calicodatavalues())))).with_data_values(struct.encode(yaml.decode(yaml.encode(calicoImageInfo())))).eval())
+  value: #@ yaml.encode(overlay.apply(cni_calico_lib.with_data_values(calicodatavalues()).eval(), updatecalicoimage()))
 #@ end
 
 ---
@@ -69,7 +70,8 @@ stringData:
 
 #@ if data.values.CNI == "antrea":
 #@ load("/vendir/cni/cni.lib.yaml", "cni_antrea_lib")
-#@ load("antrea/antrea_addon_data.lib.yaml", "antreadatavalues", "antreaImageInfo")
+#@ load("antrea/antrea_addon_data.lib.yaml", "antreadatavalues")
+#@ load("antrea/antrea_overlay.lib.yaml", "updateantreaimage")
 
 #! skip generation of CNI for workload clusters
 #@ if data.values.TKG_CLUSTER_ROLE != "workload":
@@ -99,7 +101,7 @@ metadata:
     tkg.tanzu.vmware.com/addon-type: "cni/antrea"
 type: addons.cluster.x-k8s.io/resource-set
 stringData:
-  value: #@ yaml.encode(overlay.apply(cni_antrea_lib.with_data_values(antreadatavalues()).with_data_values(antreaImageInfo()).eval(),removeKappConfigCR()))
+  value: #@ yaml.encode(overlay.apply(cni_antrea_lib.with_data_values(antreadatavalues()).eval(), removeKappConfigCR(), updateantreaimage()))
 #@ end
 
 ---

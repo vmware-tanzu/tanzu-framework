@@ -6,7 +6,6 @@
 #@ end
 
 #@ def vsphere_cpi_data_values():
----
 vsphereCPI:
   tlsThumbprint: #@ get_vsphere_thumbprint()
   server: #@ data.values.VSPHERE_SERVER
@@ -48,15 +47,4 @@ vsphereCPI:
   http_proxy: #@ data.values.TKG_HTTP_PROXY
   https_proxy: #@ data.values.TKG_HTTPS_PROXY
   no_proxy: #@ get_no_proxy()
-#@ end
-
-#@ def vsphere_cpi_image_info():
----
-imageInfo:
-  imageRepository: #@ tkg_image_repo()
-  imagePullPolicy: IfNotPresent
-  images:
-    ccmControllerImage:
-      imagePath: #@ cpiImage.imagePath
-      tag: #@ cpiImage.tag
 #@ end

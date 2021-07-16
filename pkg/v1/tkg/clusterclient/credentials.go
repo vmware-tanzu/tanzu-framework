@@ -35,13 +35,35 @@ const (
 	CapvNamespace                    = "capv-system"
 )
 
-func (c *client) GetVCCredentialsFromSecret() (string, string, error) {
+func (c *client) GetVCCredentialsFromSecret(clusterName string) (string, string, error) {
 	secretList := &corev1.SecretList{}
 	err := c.ListResources(secretList, &crtclient.ListOptions{})
 	if err != nil {
 		return "", "", errors.Wrap(err, "unable to retrieve vSphere credentials")
 	}
 
+	// multi-tenancy feature is introduced in TKG 1.4. credentials are saved as a cluster specific secret on the management cluster
+	var usernameBytes []byte
+	var passwordBytes []byte
+
+	for i := range secretList.Items {
+		if clusterName == "" {
+			break
+		}
+
+		if secretList.Items[i].Name == clusterName {
+			usernameBytes = secretList.Items[i].Data["username"]
+			passwordBytes = secretList.Items[i].Data["password"]
+
+			if len(usernameBytes) == 0 || len(passwordBytes) == 0 {
+				break
+			}
+			return string(usernameBytes), string(passwordBytes), nil
+		}
+	}
+
+	// If cluster specific secret is not present, fallback on bootstrap credential secret
+	log.Info("cluster specific secret is not present, fallback on bootstrap credential secret")
 	var credentialBytes []byte
 	for i := range secretList.Items {
 		if secretList.Items[i].Name == vSphereBootstrapCredentialSecret {
@@ -79,7 +101,7 @@ func (c *client) GetVCCredentialsFromSecret() (string, string, error) {
 }
 
 func (c *client) UpdateCapvManagerBootstrapCredentialsSecret(username, password string) error {
-	oldUsername, oldPassword, err := c.GetVCCredentialsFromSecret()
+	oldUsername, oldPassword, err := c.GetVCCredentialsFromSecret("")
 	if err != nil {
 		return err
 	}

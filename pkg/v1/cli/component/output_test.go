@@ -33,7 +33,7 @@ func TestNewOutputWriterNewHeaders(t *testing.T) {
 	require.NotNil(t, output)
 
 	lines := strings.Split(output, "\n")
-	// Output should contain header row, data row, and a blank lines
+	// Output should contain header row, data row, and a blank line
 	require.Equal(t, 3, len(lines), "%v", lines)
 	require.Contains(t, lines[0], "D")
 	require.Contains(t, lines[0], "E")
@@ -64,15 +64,36 @@ func TestNewOutputWriterInvalid(t *testing.T) {
 
 func validateTableOutput(t *testing.T, output string) {
 	require.NotNil(t, output)
-	require.NotNil(t, output)
 	lines := strings.Split(output, "\n")
 
-	// Output should contain header row, data row, and a blank lines
+	// Output should contain header row, data row, and a blank line
 	require.Equal(t, 3, len(lines), "%v", lines)
 	require.Contains(t, lines[0], "A")
 	require.Contains(t, lines[0], "B")
 	require.Contains(t, lines[0], "C")
 	require.Equal(t, lines[1], "  1  2  3  ")
+}
+
+func TestNewOutputWriterListTable(t *testing.T) {
+	var b bytes.Buffer
+	tab := NewOutputWriter(&b, string(ListTableOutputType), "a", "b", "c")
+	require.NotNil(t, tab)
+	tab.AddRow("1", "2", "3")
+	tab.AddRow("4", "5", "6")
+	tab.Render()
+
+	output := b.String()
+	require.NotNil(t, output)
+	lines := strings.Split(output, "\n")
+
+	// Output should contain row per header and a blank line
+	require.Equal(t, 4, len(lines), "%v", lines)
+	require.Contains(t, lines[0], "A:")
+	require.Contains(t, lines[0], "1, 4")
+	require.Contains(t, lines[1], "B:")
+	require.Contains(t, lines[1], "2, 5")
+	require.Contains(t, lines[2], "C:")
+	require.Contains(t, lines[2], "3, 6")
 }
 
 func TestNewOutputWriterYAML(t *testing.T) {

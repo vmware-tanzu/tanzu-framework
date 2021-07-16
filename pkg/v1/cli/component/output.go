@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"strconv"
 	"strings"
 
 	"github.com/olekukonko/tablewriter"
@@ -31,8 +32,10 @@ const (
 	TableOutputType OutputType = "table"
 	// YAMLOutputType specifies output should be in yaml format.
 	YAMLOutputType OutputType = "yaml"
-	// JSONOutputType sepcifies output should be in json format.
+	// JSONOutputType specifies output should be in json format.
 	JSONOutputType OutputType = "json"
+	// ListTableOutputType specified output should be in a list table format.
+	ListTableOutputType OutputType = "listtable"
 )
 
 // outputwriter is our internal implementation.
@@ -78,6 +81,8 @@ func (ow *outputwriter) Render() {
 		renderJSON(ow.out, ow.dataStruct())
 	case YAMLOutputType:
 		renderYAML(ow.out, ow.dataStruct())
+	case ListTableOutputType:
+		renderListTable(ow)
 	default:
 		renderTable(ow)
 	}
@@ -163,6 +168,27 @@ func renderYAML(out io.Writer, data interface{}) {
 	}
 
 	fmt.Fprintf(out, "%s", yamlInBytes)
+}
+
+// renderListTable prints output as a list table.
+func renderListTable(ow *outputwriter) {
+	headerLength := 10
+	for _, header := range ow.keys {
+		length := len(header) + 2
+		if length > headerLength {
+			headerLength = length
+		}
+	}
+
+	for i, header := range ow.keys {
+		row := []string{}
+		for _, data := range ow.values {
+			row = append(row, data[i])
+		}
+		headerLabel := strings.ToUpper(header) + ":"
+		values := strings.Join(row, ", ")
+		fmt.Fprintf(ow.out, "%-"+strconv.Itoa(headerLength)+"s   %s\n", headerLabel, values)
+	}
 }
 
 // renderTable prints output as a table

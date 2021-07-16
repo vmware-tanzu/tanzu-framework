@@ -5,6 +5,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -27,8 +28,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
-	"github.com/vmware-tanzu/tanzu-framework/addons/constants"
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	addonpredicates "github.com/vmware-tanzu/tanzu-framework/addons/predicates"
@@ -40,7 +41,7 @@ const (
 	deleteRequeueAfter = 10 * time.Second
 )
 
-// AddonReconciler contains the reconciler information for add on controllers.
+// AddonReconciler contains the reconciler information for addon controllers.
 type AddonReconciler struct {
 	Client     client.Client
 	Log        logr.Logger
@@ -246,17 +247,30 @@ func (r *AddonReconciler) reconcileNormal(
 		return ctrl.Result{}, err
 	}
 
-	// reconcile each addon secret
+	// Get the repository used for all images
+	imageRepository, err := util.GetAddonImageRepository(ctx, r.Client, bom)
+	if err != nil || imageRepository == "" {
+		log.Info("Error getting image repository")
+		return ctrl.Result{}, err
+	}
+
 	var (
 		errors []error
 		result ctrl.Result
 	)
+	// Reconcile core package repository in the cluster
+	pkgReconciler := &PackageReconciler{ctx: ctx, log: log, clusterClient: remoteClient, Config: r.Config}
+	err = pkgReconciler.reconcileCorePackageRepository(imageRepository, bom)
+	if err != nil {
+		log.Error(err, "Error reconciling core package repository")
+		errors = append(errors, err)
+	}
 
 	for i := range addonSecrets.Items {
 		addonSecret := addonSecrets.Items[i]
 		logWithContext := log.WithValues(constants.AddonSecretNamespaceLogKey, addonSecret.Namespace, constants.AddonSecretNameLogKey, addonSecret.Name)
 
-		result, err = r.reconcileAddonSecret(ctx, logWithContext, cluster, remoteClient, &addonSecret, bom)
+		result, err = r.reconcileAddonSecret(ctx, logWithContext, cluster, remoteClient, &addonSecret, imageRepository, bom)
 		if err != nil {
 			logWithContext.Error(err, "Error reconciling addon secret")
 			errors = append(errors, err)
@@ -278,6 +292,7 @@ func (r *AddonReconciler) reconcileAddonSecret(
 	cluster *clusterapiv1alpha3.Cluster,
 	clusterClient client.Client,
 	addonSecret *corev1.Secret,
+	imageRepository string,
 	bom *bomtypes.Bom) (_ ctrl.Result, retErr error) {
 
 	var (
@@ -323,7 +338,7 @@ func (r *AddonReconciler) reconcileAddonSecret(
 		return result, nil
 	}
 
-	result, err := r.reconcileAddonSecretNormal(ctx, log, addonName, cluster, clusterClient, addonSecret, &patchAddonSecret, bom)
+	result, err := r.reconcileAddonSecretNormal(ctx, log, addonName, cluster, clusterClient, addonSecret, &patchAddonSecret, imageRepository, bom)
 	if err != nil {
 		log.Error(err, "Error reconciling addon secret", constants.AddonNameLogKey, addonName)
 		return ctrl.Result{}, err
@@ -375,18 +390,13 @@ func (r *AddonReconciler) reconcileAddonSecretNormal(
 	clusterClient client.Client,
 	addonSecret *corev1.Secret,
 	patchAddonSecret *bool,
+	imageRepository string,
 	bom *bomtypes.Bom) (ctrl.Result, error) {
 
 	// get addon config from BOM
 	addonConfig, err := bom.GetAddon(addonName)
 	if err != nil {
 		log.Info("Addon config not found from BOM for addon", constants.AddonNameLogKey, addonName)
-		return ctrl.Result{}, err
-	}
-
-	imageRepository, err := util.GetAddonImageRepository(ctx, r.Client, bom)
-	if err != nil || imageRepository == "" {
-		log.Info("Addon image repository not found for addon", constants.AddonNameLogKey, addonName)
 		return ctrl.Result{}, err
 	}
 
@@ -419,7 +429,7 @@ func (r *AddonReconciler) removeFinalizerFromAddonSecret(
 	addonName := util.GetAddonNameFromAddonSecret(addonSecret)
 
 	if checkAppBeforeRemoval {
-		appPresent, err := util.IsAppPresent(ctx, r.Client, clusterClient, addonSecret)
+		appPresent, err := util.IsAppPresent(ctx, r.Client, clusterClient, addonSecret, r.Config.AddonNamespace)
 		if err != nil {
 			log.Error(err, "Error checking if app is present", constants.AddonNameLogKey, addonName)
 			return false, false, err
@@ -488,4 +498,32 @@ func (r *AddonReconciler) shouldNotReconcile(
 	}
 
 	return false
+}
+
+// logOperationResult logs the reconcile operation results
+func logOperationResult(log logr.Logger, resourceName string, result controllerutil.OperationResult) {
+	switch result {
+	case controllerutil.OperationResultCreated,
+		controllerutil.OperationResultUpdated,
+		controllerutil.OperationResultUpdatedStatus,
+		controllerutil.OperationResultUpdatedStatusOnly:
+		log.Info(fmt.Sprintf("Resource %s %s", resourceName, result))
+	default:
+	}
+}
+
+// GetAddonKappResourceReconciler gets the correct kapp resource reconciler
+func (r *AddonReconciler) GetAddonKappResourceReconciler(
+	ctx context.Context,
+	log logr.Logger,
+	clusterClient client.Client,
+	reconcilerType string) (AddonKappResourceReconciler, error) {
+
+	switch reconcilerType {
+	case constants.TKGAppReconcilerKey:
+		return &AppReconciler{ctx: ctx, log: log, clusterClient: clusterClient, Config: r.Config}, nil
+	case constants.TKGPackageReconcilerKey:
+		return &PackageReconciler{ctx: ctx, log: log, clusterClient: clusterClient, Config: r.Config}, nil
+	}
+	return nil, fmt.Errorf("invalid reconciler type: %s", reconcilerType)
 }

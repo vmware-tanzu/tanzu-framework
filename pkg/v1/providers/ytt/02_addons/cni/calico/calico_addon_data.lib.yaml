@@ -7,7 +7,6 @@
 #@ end
 
 #@ def calicodatavalues():
----
 infraProvider: #@ data.values.PROVIDER_TYPE
 ipFamily: #@ data.values.TKG_IP_FAMILY
 calico:
@@ -31,25 +30,4 @@ calico:
     tag: #@ calicoImages.calicoKubecontrollerImage.tag
 #@ end
 
-#@ end
-
-
-#@ def calicoImageInfo():
----
-imageInfo:
-  imageRepository: #@ tkg_image_repo()
-  imagePullPolicy: IfNotPresent
-  images:
-    calicoCniImage:
-      imagePath: #@ calicoImages.calicoCniImage.imagePath
-      tag: #@ calicoImages.calicoCniImage.tag
-    calicoKubecontrollerImage:
-      imagePath: #@ calicoImages.calicoKubecontrollerImage.imagePath
-      tag: #@ calicoImages.calicoKubecontrollerImage.tag
-    calicoNodeImage:
-      imagePath: #@ calicoImages.calicoNodeImage.imagePath
-      tag: #@ calicoImages.calicoNodeImage.tag
-    calicoPodDaemonImage:
-      imagePath: #@ calicoImages.calicoPodDaemonImage.imagePath
-      tag: #@ calicoImages.calicoPodDaemonImage.tag
 #@ end

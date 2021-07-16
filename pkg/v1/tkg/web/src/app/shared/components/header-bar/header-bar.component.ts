@@ -1,9 +1,14 @@
 // Angular imports
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 // App imports
+import { takeUntil } from "rxjs/operators";
 import { APP_ROUTES } from '../../constants/routes.constants';
+import Broker from "../../service/broker";
+import { TkgEvent, TkgEventType } from "../../service/Messenger";
+import { BasicSubscriber } from "../../abstracts/basic-subscriber";
+import { EditionData } from "../../service/branding.service";
 
 /**
  * @class HeaderBarComponent
@@ -14,10 +19,24 @@ import { APP_ROUTES } from '../../constants/routes.constants';
     templateUrl: './header-bar.component.html',
     styleUrls: ['./header-bar.component.scss']
 })
-export class HeaderBarComponent {
+export class HeaderBarComponent extends BasicSubscriber implements OnInit {
+
+    edition: string = '';
+    docsUrl: string = '';
 
     constructor(private router: Router) {
+        super();
+    }
 
+    ngOnInit() {
+        Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe((data: TkgEvent) => {
+                const content: EditionData = data.payload;
+                this.edition = content.edition;
+                this.docsUrl = (this.edition === 'tkg') ? 'https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid/index.html' :
+                    'http://tanzucommunityedition.io/docs';
+            });
     }
 
     /**
@@ -28,7 +47,7 @@ export class HeaderBarComponent {
         this.router.navigate([APP_ROUTES.LANDING]);
     }
 
-    goToLink(url: string) {
-        window.open(url, "_blank");
+    navigateToDocs() {
+        window.open(this.docsUrl, "_blank");
     }
 }

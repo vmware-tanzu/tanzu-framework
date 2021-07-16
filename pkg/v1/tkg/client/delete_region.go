@@ -88,6 +88,11 @@ func (c *TkgClient) DeleteRegion(options DeleteRegionOptions) error { //nolint:f
 		return err
 	}
 
+	err = c.retriveRegionalClusterConfiguration(regionalClusterClient, regionalClusterNamespace)
+	if err != nil {
+		return errors.Wrap(err, "failed to set configurations for deletion")
+	}
+
 	isFailure, err := c.IsManagementClusterAKindCluster(options.ClusterName)
 	if err != nil {
 		return err
@@ -100,7 +105,7 @@ func (c *TkgClient) DeleteRegion(options DeleteRegionOptions) error { //nolint:f
 		}
 
 		// configure variables required to deploy providers
-		if err := c.configureVariablesForProvidersInstallation(regionalClusterClient); err != nil {
+		if err := c.configureVariablesForProvidersInstallation(regionalClusterClient, regionalClusterNamespace); err != nil {
 			return errors.Wrap(err, "unable to configure variables for provider installation")
 		}
 
