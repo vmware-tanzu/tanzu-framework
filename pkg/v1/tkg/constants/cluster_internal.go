@@ -57,10 +57,11 @@ const (
 
 // infrastructure provider name constants
 const (
-	InfrastructureProviderVSphere = "vsphere"
-	InfrastructureProviderAWS     = "aws"
-	InfrastructureProviderAzure   = "azure"
-	InfrastructureProviderDocker  = "docker"
+	InfrastructureProviderVSphere        = "vsphere"
+	InfrastructureProviderAWS            = "aws"
+	InfrastructureProviderAzure          = "azure"
+	InfrastructureProviderDocker         = "docker"
+	InfrastructureProviderWindowsVSphere = "windows-vsphere"
 )
 
 // machine template name constants
