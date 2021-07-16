@@ -125,14 +125,20 @@ Use "tanzu package repository [command] --help" for more information about a com
      LICENSE:                        [] 
    ```
 
-   Example 2: Get values schema of a package
+   Example 2: Get openAPI schema of a package
    ```sh
-   >>> tanzu package available get schema-package.carvel.dev/1.0.0 -n test-ns --values-schema
-   KEY                               DEFAULT  TYPE    DESCRIPTION
-   properties.hello_msg.description                   The message simple-app will display
-   properties.hello_msg.type                  string
-   properties.svc_port.description                    Port number for service. Defaults to 80.
-   properties.svc_port.type                   int
+   >>> tanzu package available get external-dns.tanzu.vmware.com/0.8.0+vmware.1-tkg.1 -n external-dns --values-schema
+    KEY                         DEFAULT       TYPE     DESCRIPTION
+    deployment.args             <nil>         array    List of arguments passed via command-line to external-dns.                                                                                                                         
+                                                       For more guidance on configuration options for your                                                                                                                               
+                                                       desired DNS provider, consult the ExternalDNS docs at                                                                                                                              
+                                                       https://github.com/kubernetes-sigs/external-dns#running-externaldns                                                                                                                
+                                                                                                                                                                                                                                           
+    deployment.env              <nil>         array    List of environment variables to set in the external-dns container.                                                                                                                
+    deployment.securityContext  <nil>         <nil>    SecurityContext defines the security options the external-dns container should be run with. More info: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/  
+    deployment.volumeMounts     <nil>         array    Pod volumes to mount into the external-dns container's filesystem.                                                                                                                 
+    deployment.volumes          <nil>         array    List of volumes that can be mounted by containers belonging to the external-dns pod. More info: https://kubernetes.io/docs/concepts/storage/volumes                                
+    namespace                   external-dns  string   The namespace in which to deploy ExternalDNS.
    ```
 8. Install a package
 
