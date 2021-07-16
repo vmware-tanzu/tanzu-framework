@@ -1,7 +1,7 @@
 ---
-use-existing-cluster: false
-mc-cluster-name: ""
-wlc-cluster-name: ""
+use-existing-cluster: true
+mc-cluster-name: "tkg-cli-mc-test-pkg-plugin-1"
+wlc-cluster-name: "tkg-cli-wlc-test-pkg-plugin-1"
 mc-kubeconfig-Path: ""
 wlc-kubeconfig-Path: ""
 repository-url: "projects-stg.registry.vmware.com/tkg/packages/standard/repo:v1.4.0-zshippable"
