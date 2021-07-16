@@ -89,7 +89,7 @@ var _ = Describe("Unit tests for create cluster", func() {
 			err = tkgctlClient.CreateCluster(options)
 			Expect(err).NotTo(HaveOccurred())
 		})
-		It("InfrastructureProvider is windows vsphere when GenerateOnly is true", func() {
+		It("InfrastructureProvider is windows-vsphere when GenerateOnly is true", func() {
 			kubeConfigPath := getConfigFilePath()
 			regionContext := region.RegionContext{
 				ContextName:    "queen-anne-context",
@@ -108,7 +108,7 @@ var _ = Describe("Unit tests for create cluster", func() {
 				tkgConfigUpdaterClient: tkgconfigupdater.New(testingDir, nil, tkgConfigReaderWriter),
 			}
 
-			options.InfrastructureProvider = "windows-vsphere"
+			options.InfrastructureProvider = constants.InfrastructureProviderWindowsVSphere
 			options.GenerateOnly = true
 			err = tkgctlClient.CreateCluster(options)
 			Expect(err).NotTo(HaveOccurred())
