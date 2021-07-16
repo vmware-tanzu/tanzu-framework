@@ -1,7 +1,7 @@
 --CONTROLPLANE-MACHINE-COUNT: "NOTPROVIDED", "1","3","5"
 --WORKER-MACHINE-COUNT:       "NOTPROVIDED", "3"
 --CONTROLPLANE-SIZE:          "NOTPROVIDED", "i3.xlarge"
---TKR:                        "NOTPROVIDED", "v1.20.5---vmware.1-tkg.1-zlatest"
+--TKR:                        "NOTPROVIDED", "v1.21.2+vmware.1-tkg.1-zshippable"
 --NAMESPACE:                  "NOTPROVIDED", "default", "test"
 --SIZE:                       "NOTPROVIDED", "t3.medium"
 --WORKER-SIZE:                "NOTPROVIDED", "m5.xlarge"
@@ -66,12 +66,17 @@ AWS_SECURITY_GROUP_NODE: "sg-12345", ""
 AWS_CONTROL_PLANE_OS_DISK_SIZE_GIB: "80", "90", ""
 AWS_NODE_OS_DISK_SIZE_GIB: "80", "90", ""
 
-OS_NAME:  "NA", "photon", "ubuntu", "amazon"
+OS_NAME:  "NA", "ubuntu", "amazon"
 OS_VERSION:  "NA", "20.04", "2", "3"
 IF [OS_NAME] = "\"NA\"" THEN [OS_VERSION] = "\"NA\"";
-IF [OS_NAME] = "\"photon\"" THEN [OS_VERSION] = "\"3\"";
 IF [OS_NAME] = "\"ubuntu\"" THEN [OS_VERSION] = "\"20.04\"";
 IF [OS_NAME] = "\"amazon\"" THEN [OS_VERSION] = "\"2\"";
+
+IF [AWS_REGION] = "\"us-east-1\"" THEN [AWS_NODE_AZ] = "\"us-east-1a\"";
+IF [AWS_REGION] = "\"us-east-1\"" THEN [AWS_NODE_AZ_1] <> "\"us-west-2b\"";
+IF [AWS_REGION] = "\"us-east-1\"" THEN [AWS_NODE_AZ_2] <> "\"us-west-2c\"";
+IF [AWS_REGION] = "\"us-west-2\"" THEN [AWS_NODE_AZ_1] <> "\"us-east-1b\"";
+IF [AWS_REGION] = "\"us-west-2\"" THEN [AWS_NODE_AZ_2] <> "\"us-east-1c\"";
 
 # if new VPC
 IF [AWS_VPC_ID] = "\"NA\"" THEN [AWS_VPC_CIDR] <> "\"NA\"";
