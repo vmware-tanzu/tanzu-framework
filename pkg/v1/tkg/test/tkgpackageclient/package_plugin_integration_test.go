@@ -243,6 +243,13 @@ var _ = Describe("Package plugin integration test", func() {
 })
 
 func testHelper() {
+	By("list package repository")
+	repoOptions.AllNamespaces = true
+	result = packagePlugin.ListRepository(&repoOptions)
+	Expect(result.Error).ToNot(HaveOccurred())
+	err = json.Unmarshal(result.Stdout.Bytes(), &repoOutput)
+	Expect(err).ToNot(HaveOccurred())
+
 	By("Update package repository")
 	repoOptions.RepositoryURL = config.RepositoryURL
 	repoOptions.CreateRepository = true
