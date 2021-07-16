@@ -23,6 +23,7 @@ const (
 	ServiceAccountName        = "%s-%s-sa"
 	ShortDescriptionMaxLength = 20
 	TanzuPkgPluginAnnotation  = "tkg.tanzu.vmware.com/tanzu-package"
-	TanzuPkgPluginPrefix      = "tanzu-package-"
+	TanzuPkgPluginPrefix      = "tanzu-package"
+	TanzuPkgPluginResource    = "%s-%s"
 	YamlSeparator             = "---"
 )
