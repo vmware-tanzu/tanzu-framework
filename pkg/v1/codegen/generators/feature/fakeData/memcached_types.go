@@ -14,9 +14,6 @@ type MemcachedSpec struct {
 type MemcachedStatus struct {
 }
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
-
 // Memcached is the Schema for the memcacheds API
 type Memcached struct {
 	Status            MemcachedStatus `json:"status,omitempty"`

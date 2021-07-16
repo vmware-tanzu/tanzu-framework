@@ -14,8 +14,6 @@ type MyKindSpec struct {
 type MyKindStatus struct {
 }
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
 //+tanzu:feature:name=foo,immutable=false,activated=false,discoverable=false,maturity=dev
 
 // MyKind is the Schema for the mykinds API
