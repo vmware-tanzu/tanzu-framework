@@ -1,7 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package main
+package main // nolint:dupl
 
 import (
 	"errors"
@@ -35,9 +35,9 @@ var setMachineHealthCheckCmd = &cobra.Command{
 func init() {
 	setMachineHealthCheckCmd.Flags().StringVarP(&setMHC.machineHealthCheckName, "mhc-name", "m", "", "Name of the MachineHealthCheck object")
 	setMachineHealthCheckCmd.Flags().StringVarP(&setMHC.namespace, "namespace", "n", "", "Namespace of the cluster")
-	setMachineHealthCheckCmd.Flags().StringVarP(&setMHC.nodeStartupTimeout, "node-startup-timeout", "", "", "Any machine being created that takes longer than this duration to join the cluster is considered to have failed and will be remediated")
-	setMachineHealthCheckCmd.Flags().StringVarP(&setMHC.matchLabels, "match-labels", "", "", "Label selector to match machines whose health will be exercised")
-	setMachineHealthCheckCmd.Flags().StringVarP(&setMHC.unhealthyConditions, "unhealthy-conditions", "", "", "A list of the conditions that determine whether a node is considered unhealthy. Available condition types: [Ready, MemoryPressure,DiskPressure,PIDPressure, NetworkUnavailable], Available condition status: [True, False, Unknown]")
+	setMachineHealthCheckCmd.Flags().StringVar(&setMHC.nodeStartupTimeout, "node-startup-timeout", "", "Any machine being created that takes longer than this duration to join the cluster is considered to have failed and will be remediated")
+	setMachineHealthCheckCmd.Flags().StringVar(&setMHC.matchLabels, "match-labels", "", "Label selector to match machines whose health will be exercised")
+	setMachineHealthCheckCmd.Flags().StringVar(&setMHC.unhealthyConditions, "unhealthy-conditions", "", "A list of the conditions that determine whether a node is considered unhealthy. Available condition types: [Ready, MemoryPressure,DiskPressure,PIDPressure, NetworkUnavailable], Available condition status: [True, False, Unknown]")
 	machineHealthCheckCmd.AddCommand(setMachineHealthCheckCmd)
 }
 

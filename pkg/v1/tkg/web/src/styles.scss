@@ -46,6 +46,11 @@ body.dark {
     padding: 0;
 }
 
+// contextual help
+clr-icon.contextual-help {
+    cursor: pointer;
+}
+
 // wizard fixes
 .btn-connect {
     margin-top: 20px;

@@ -1,0 +1,31 @@
+<div class="contextual-help-container" [ngClass]="{'pin': isPinned}" *ngIf="visible">
+    <div class="mask" (click)="hide()"></div>
+    <div class="content-container">
+        <div class="context-help-content-container">
+            <!-- <div class="pin-container">
+                <clr-icon shape="pin" (click)="togglePin()"></clr-icon>
+            </div> -->
+            <div>
+                <span class="title">{{title}}</span>
+                <span class="close" (click)="hide()">
+                    <clr-icon shape="window-close" size="20"></clr-icon>
+                </span>
+                <div *ngFor="let htmlContentIndex of htmlContentIndexArray">
+                    <p class="sub-title" (click)='showContent(htmlContentIndex)'>{{htmlContentIndex.title}}</p>
+                </div>
+            </div>
+        </div>
+        <div class="context-help-content-container top-layer" [class.show]="!isTopicView">
+            <div>
+                <div class="controls">
+                    <a class="back-btn" (click)="navigateBack()" *ngIf="htmlContentIndexArray.length !== 1"><span>&lt;</span>BACK</a>
+                    <span class="close" (click)="hide()">
+                        <clr-icon shape="window-close" size="20"></clr-icon>
+                    </span>
+                </div>
+                <span class="title">{{htmlContentIndex.title}}</span>
+                <div [innerHTML]="htmlContentIndex.htmlContent"></div>
+            </div>
+        </div>
+    </div>
+</div>

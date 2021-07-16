@@ -129,7 +129,13 @@
         <div class="clr-col-12">
             <clr-toggle-container [attr.data-step-metadata]="formName">
                 <clr-toggle-wrapper>
-                    <input type="checkbox" clrToggle name="proxySettings" formControlName="proxySettings" (change)="toggleProxySetting()"/>
+                    <input
+                        type="checkbox"
+                        clrToggle n
+                        ame="proxySettings"
+                        formControlName="proxySettings"
+                        (change)="toggleProxySetting()"
+                        aria-label="enabling proxy settings exposes additional configuration fields"/>
                     <label>Enable Proxy Settings</label>
                 </clr-toggle-wrapper>
             </clr-toggle-container>
@@ -168,14 +174,6 @@
                 <clr-input-container [attr.data-step-metadata]="formName">
                     <label i18n="http proxy username label" clr-control-label>
                         HTTP PROXY USERNAME (OPTIONAL)
-                        <clr-tooltip>
-                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
-                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                                <span>
-                                    HTTP proxy username.
-                                </span>
-                            </clr-tooltip-content>
-                        </clr-tooltip>
                     </label>
                     <input clrInput name="httpProxyUsername" formControlName="httpProxyUsername" placeholder="Username" />
                     <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
@@ -186,14 +184,6 @@
                 <clr-password-container [attr.data-step-metadata]="formName">
                     <label i18n="http proxy password label" clr-control-label>
                         HTTP PROXY PASSWORD (OPTIONAL)
-                        <clr-tooltip>
-                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
-                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                                <span>
-                                    HTTP proxy password.
-                                </span>
-                            </clr-tooltip-content>
-                        </clr-tooltip>
                     </label>
                     <input clrPassword name="httpProxyPassword" formControlName="httpProxyPassword" placeholder="Password" />
                     <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
@@ -243,14 +233,6 @@
                 <clr-input-container [attr.data-step-metadata]="formName">
                     <label i18n="https proxy username label" clr-control-label>
                         HTTPS PROXY USERNAME (OPTIONAL)
-                        <clr-tooltip>
-                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
-                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                                <span>
-                                    HTTPS proxy username.
-                                </span>
-                            </clr-tooltip-content>
-                        </clr-tooltip>
                     </label>
                     <input clrInput name="httpsProxyUsername" formControlName="httpsProxyUsername" placeholder="Username" />
                     <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
@@ -261,14 +243,6 @@
                 <clr-password-container [attr.data-step-metadata]="formName">
                     <label i18n="https proxy password label" clr-control-label>
                         HTTPS PROXY PASSWORD (OPTIONAL)
-                        <clr-tooltip>
-                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
-                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                                <span>
-                                    HTTPS proxy password.
-                                </span>
-                            </clr-tooltip-content>
-                        </clr-tooltip>
                     </label>
                     <input clrPassword name="httpsProxyPassword" formControlName="httpsProxyPassword" placeholder="Password" />
                     <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->

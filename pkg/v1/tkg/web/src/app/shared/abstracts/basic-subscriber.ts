@@ -1,5 +1,7 @@
 import { OnDestroy } from "@angular/core";
 import { Subject } from 'rxjs';
+import Broker from "../service/broker";
+import { TkgEventType } from "../service/Messenger";
 
 /**
  * Base class tha should be extended by any class that want to have a flag indicating if the component
@@ -15,6 +17,16 @@ export abstract class BasicSubscriber implements OnDestroy {
         this.isAlive = false;
         this.unsubscribe.next();
         this.unsubscribe.complete();
+    }
+
+    showContextualHelp(title: string, keywords: Array<string>) {
+        Broker.messenger.publish({
+            type: TkgEventType.OPEN_CONTEXTUAL_HELP,
+            payload: {
+                title,
+                keywords
+            }
+        })
     }
 
 }

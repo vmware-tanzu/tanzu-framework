@@ -122,7 +122,9 @@
             <ng-container *ngIf="steps[6]">
                 <app-os-image-step [formGroup]="form.controls.osImageForm"
                     formName="osimages" [wizardFormService]="wizardFormService" type="AZURE"
-                    osImageTooltipContent="tooltip content placeholder">
+                    osImageTooltipContent="Select a base OS image that you have already imported
+                    into your Azure account. If no compatible OS image is present, import one into
+                    Azure and click the Refresh button">
                 </app-os-image-step>
             </ng-container>
             <clr-step-content *clrIfExpanded>
