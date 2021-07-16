@@ -1,7 +1,7 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:yaml", "yaml")
 #@ load("/lib/helpers.star", "get_bom_data_for_tkr_name", "get_image_repo_for_component", "ValuesFormatStr")
-#@ load("tanzu-addons-manager_addon_data.lib.yaml", "tanzuaddonsmanagerdatavalues", "tanzuaddonsmanagerimageinfodatavalues")
+#@ load("tanzu-addons-manager_addon_data.lib.yaml", "tanzuaddonsmanagerdatavalues")
 
 #@ def tanzuaddonsmanagerpackageyaml():
 #@ tanzuAddonsManagerPackageBundle = get_bom_data_for_tkr_name().components["tkg-core-packages"][0].images["addons-manager.tanzu.vmware.com"]
