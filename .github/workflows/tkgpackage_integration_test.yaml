@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   integ-tests-package-plugin-docker:
-    name: TKG Package Plugin Integration Tests CAPD
+    name: Package Plugin Tests CAPD
     runs-on: tkg
     steps:
       - name: Free disk space on runner

@@ -27,9 +27,11 @@ import (
 
 type PackagePluginConfig struct {
 	UseExistingCluster   bool   `json:"use-existing-cluster"`
+	Namespace            string `json:"namespace"`
 	PackageName          string `json:"package-name"`
 	PackageVersion       string `json:"package-version"`
 	PackageVersionUpdate string `json:"package-version-update"`
+	RepositoryName       string `json:"repository-name"`
 	RepositoryURL        string `json:"repository-url"`
 	ClusterNameMC        string `json:"mc-cluster-name"`
 	ClusterNameWLC       string `json:"wlc-cluster-name"`
@@ -65,8 +67,8 @@ var (
 	clusterCreationTimeout = 30 * time.Minute
 	pollInterval           = 15 * time.Second
 	pollTimeout            = 10 * time.Minute
-	standardRepoName       = "standard"
-	standardNamespace      = "tanzu-standard"
+	standardRepoName       = "tanzu-standard"
+	standardNamespace      = "tanzu-package-repo-global"
 	standardRepoURL        = "projects-stg.registry.vmware.com/tkg/packages/standard/repo:v1.4.0-zshippable"
 	testPkgInstallName     = "test-pkg"
 	testPkgName            = "fluent-bit.tanzu.vmware.com"
@@ -172,6 +174,14 @@ var _ = Describe("Package plugin integration test", func() {
 			log.Info("Finished creating management and workload clusters")
 		}
 
+		if config.Namespace == "" {
+			config.Namespace = standardNamespace
+		}
+
+		if config.RepositoryName == "" {
+			config.RepositoryName = standardRepoName
+		}
+
 		if config.RepositoryURL == "" {
 			config.RepositoryURL = standardRepoURL
 		}
@@ -189,24 +199,24 @@ var _ = Describe("Package plugin integration test", func() {
 		}
 
 		pkgAvailableOptions = tkgpackagedatamodel.PackageAvailableOptions{
-			Namespace: standardNamespace,
+			Namespace: config.Namespace,
 		}
 
 		pkgOptions = tkgpackagedatamodel.PackageOptions{
 			CreateNamespace: true,
-			Namespace:       standardNamespace,
+			Namespace:       config.Namespace,
 			PackageName:     config.PackageName,
 			PkgInstallName:  testPkgInstallName,
 			Version:         config.PackageVersion,
 		}
 		repoOptions = tkgpackagedatamodel.RepositoryOptions{
 			CreateNamespace: true,
-			Namespace:       standardNamespace,
-			RepositoryName:  standardRepoName,
+			Namespace:       config.Namespace,
+			RepositoryName:  config.RepositoryName,
 		}
 
 		expectedRepoOutput = repositoryOutput{
-			Name:       standardRepoName,
+			Name:       config.RepositoryName,
 			Repository: config.RepositoryURL,
 			Status:     "Reconcile succeeded",
 		}
@@ -250,7 +260,7 @@ func testHelper() {
 	err = json.Unmarshal(result.Stdout.Bytes(), &repoOutput)
 	Expect(err).ToNot(HaveOccurred())
 
-	By("Update package repository")
+	By("update package repository")
 	repoOptions.RepositoryURL = config.RepositoryURL
 	repoOptions.CreateRepository = true
 	repoOptions.CreateNamespace = true
@@ -260,14 +270,6 @@ func testHelper() {
 	By("wait for package repository reconciliation")
 	result = packagePlugin.CheckRepositoryAvailable(&repoOptions)
 	Expect(result.Error).ToNot(HaveOccurred())
-
-	By("list package repository")
-	result = packagePlugin.ListRepository(&repoOptions)
-	Expect(result.Error).ToNot(HaveOccurred())
-	err = json.Unmarshal(result.Stdout.Bytes(), &repoOutput)
-	Expect(err).ToNot(HaveOccurred())
-	Expect(len(repoOutput)).To(BeNumerically(">=", 1))
-	Expect(repoOutput).To(ContainElement(expectedRepoOutput))
 
 	By("get package repository")
 	result = packagePlugin.GetRepository(&repoOptions)
