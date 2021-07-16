@@ -45,6 +45,12 @@ const (
 	KappControllerDeploymentName = "kapp-controller"
 	TkrControllerDeploymentName  = "tkr-controller-manager"
 
+	AkoStatefulSetName  = "ako"
+	AkoConfigMapName    = "avi-k8s-config"
+	AkoAddonSecretName  = "load-balancer-and-ingress-service-addon"
+	AkoNamespace        = "avi-system"
+	AkoCleanupCondition = "ako.vmware.com/ObjectDeletionInProgress"
+
 	ServiceDNSSuffix             = ".svc"
 	ServiceDNSClusterLocalSuffix = ".svc.cluster.local"
 )

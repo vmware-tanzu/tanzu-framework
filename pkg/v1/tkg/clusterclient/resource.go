@@ -7,6 +7,8 @@ import (
 	"context"
 	"reflect"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+
 	"github.com/pkg/errors"
 	appsv1 "k8s.io/api/apps/v1"
 	betav1 "k8s.io/api/batch/v1beta1"
@@ -163,6 +165,10 @@ func (c *client) getRuntimeObject(o interface{}) (runtime.Object, error) { //nol
 	switch obj := o.(type) {
 	case *corev1.Namespace:
 		return obj, nil
+	case *corev1.Service:
+		return obj, nil
+	case *corev1.ServiceList:
+		return obj, nil
 	case *corev1.Secret:
 		return obj, nil
 	case *corev1.SecretList:
@@ -170,6 +176,8 @@ func (c *client) getRuntimeObject(o interface{}) (runtime.Object, error) { //nol
 	case *capi.Cluster:
 		return obj, nil
 	case *appsv1.Deployment:
+		return obj, nil
+	case *appsv1.StatefulSet:
 		return obj, nil
 	case *clusterctlv1.ProviderList:
 		return obj, nil
@@ -372,5 +380,20 @@ func VerifyCRSAppliedSuccessfully(obj runtime.Object) error {
 		return kerrors.NewAggregate(errList)
 	default:
 		return errors.Errorf("invalid type: %s during VerifyCRSAppliedSuccessfully", reflect.TypeOf(crsList))
+	}
+}
+
+// VerifyAVIResourceCleanupFinished verifies that avi objects clean up finished.
+func VerifyAVIResourceCleanupFinished(obj runtime.Object) error {
+	switch statefulSet := obj.(type) {
+	case *appsv1.StatefulSet:
+		for _, condition := range statefulSet.Status.Conditions {
+			if condition.Type == constants.AkoCleanupCondition && condition.Status == corev1.ConditionFalse {
+				return nil
+			}
+		}
+		return errors.Errorf("AVI Resource clean up in progress")
+	default:
+		return errors.Errorf("invalid type: %s during VerifyAVIResourceCleanupFinished", reflect.TypeOf(statefulSet))
 	}
 }
