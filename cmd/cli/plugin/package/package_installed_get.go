@@ -30,11 +30,12 @@ var packageInstalledGetCmd = &cobra.Command{
 func init() {
 	packageInstalledGetCmd.Flags().StringVarP(&packageInstalledOp.Namespace, "namespace", "n", "default", "Namespace for installed package CR")
 	packageInstalledGetCmd.Flags().StringVarP(&packageInstalledOp.ValuesFile, "values-file", "f", "", "The path to the configuration values file, optional")
+	packageInstalledGetCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table)")
 	packageInstalledCmd.AddCommand(packageInstalledGetCmd)
 }
 
 func packageInstalledGet(cmd *cobra.Command, args []string) error {
-	kc, err := kappclient.NewKappClient(packageAvailableOp.KubeConfig)
+	kc, err := kappclient.NewKappClient(packageInstalledOp.KubeConfig)
 	if err != nil {
 		return err
 	}

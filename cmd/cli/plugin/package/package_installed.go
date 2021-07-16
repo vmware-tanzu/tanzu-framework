@@ -20,5 +20,4 @@ var packageInstalledCmd = &cobra.Command{
 
 func init() {
 	packageInstalledCmd.PersistentFlags().StringVarP(&packageInstalledOp.KubeConfig, "kubeconfig", "", "", "The path to the kubeconfig file, optional")
-	packageInstalledCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table)")
 }

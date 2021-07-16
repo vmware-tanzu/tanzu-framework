@@ -8,10 +8,8 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
 )
 
@@ -47,12 +45,7 @@ func repositoryGet(cmd *cobra.Command, args []string) error {
 	}
 
 	packageRepository, err := pkgClient.GetRepository(repoOp)
-	if err != nil {
-		t.StopSpinner()
-		if apierrors.IsNotFound(err) {
-			log.Warningf("package repository '%s' does not exist in namespace '%s'", repoOp.RepositoryName, repoOp.Namespace)
-			return nil
-		}
+	if err != nil || packageRepository == nil {
 		return err
 	}
 
