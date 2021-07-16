@@ -101,11 +101,13 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 
 	progress.ProgressMsg <- "Creating package resource"
 	if err = p.createPackageInstall(o); err != nil {
+		err = errors.Wrap(err, "\nPlease consider using 'tanzu package installed delete' to delete the already created associated resources")
 		return
 	}
 
 	if o.Wait {
 		if err = p.waitForPackageInstallation(o, progress.ProgressMsg); err != nil {
+			err = errors.Wrap(err, "\nPlease consider using 'tanzu package installed update' to update the installed package with correct settings")
 			return
 		}
 	}
@@ -128,7 +130,8 @@ func packageInstallProgressCleanup(err error, progress *tkgpackagedatamodel.Pack
 func (p *pkgClient) createClusterAdminRole(o *tkgpackagedatamodel.PackageOptions) error {
 	clusterRole := &rbacv1.ClusterRole{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: o.ClusterRoleName,
+			Name:        o.ClusterRoleName,
+			Annotations: map[string]string{tkgpackagedatamodel.TanzuPkgPluginAnnotation: fmt.Sprintf(tkgpackagedatamodel.TanzuPkgPluginResource, o.PkgInstallName, o.Namespace)},
 		},
 		Rules: []rbacv1.PolicyRule{
 			{APIGroups: []string{"*"}, Verbs: []string{"*"}, Resources: []string{"*"}},
@@ -145,8 +148,11 @@ func (p *pkgClient) createClusterAdminRole(o *tkgpackagedatamodel.PackageOptions
 // createClusterRoleBinding creates a ClusterRoleBinding resource
 func (p *pkgClient) createClusterRoleBinding(o *tkgpackagedatamodel.PackageOptions) error {
 	clusterRoleBinding := &rbacv1.ClusterRoleBinding{
-		ObjectMeta: metav1.ObjectMeta{Name: o.ClusterRoleBindingName},
-		Subjects:   []rbacv1.Subject{{Kind: tkgpackagedatamodel.KindServiceAccount, Name: o.ServiceAccountName, Namespace: o.Namespace}},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:        o.ClusterRoleBindingName,
+			Annotations: map[string]string{tkgpackagedatamodel.TanzuPkgPluginAnnotation: fmt.Sprintf(tkgpackagedatamodel.TanzuPkgPluginResource, o.PkgInstallName, o.Namespace)},
+		},
+		Subjects: []rbacv1.Subject{{Kind: tkgpackagedatamodel.KindServiceAccount, Name: o.ServiceAccountName, Namespace: o.Namespace}},
 		RoleRef: rbacv1.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
 			Kind:     tkgpackagedatamodel.KindClusterRole,
@@ -170,7 +176,12 @@ func (p *pkgClient) createDataValuesSecret(o *tkgpackagedatamodel.PackageOptions
 		return errors.Wrap(err, fmt.Sprintf("failed to read from data values file '%s'", o.ValuesFile))
 	}
 	secret := &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{Name: o.SecretName, Namespace: o.Namespace}, Data: dataValues,
+		ObjectMeta: metav1.ObjectMeta{
+			Name:        o.SecretName,
+			Namespace:   o.Namespace,
+			Annotations: map[string]string{tkgpackagedatamodel.TanzuPkgPluginAnnotation: fmt.Sprintf(tkgpackagedatamodel.TanzuPkgPluginResource, o.PkgInstallName, o.Namespace)},
+		},
+		Data: dataValues,
 	}
 
 	if err := p.kappClient.GetClient().Create(context.Background(), secret); err != nil {
@@ -243,11 +254,9 @@ func (p *pkgClient) createPackageInstall(o *tkgpackagedatamodel.PackageOptions) 
 func (p *pkgClient) createServiceAccount(o *tkgpackagedatamodel.PackageOptions) error {
 	serviceAccount := &corev1.ServiceAccount{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      o.ServiceAccountName,
-			Namespace: o.Namespace,
-			Annotations: map[string]string{
-				tkgpackagedatamodel.TanzuPkgPluginAnnotation: o.ServiceAccountName},
-		},
+			Name:        o.ServiceAccountName,
+			Namespace:   o.Namespace,
+			Annotations: map[string]string{tkgpackagedatamodel.TanzuPkgPluginAnnotation: fmt.Sprintf(tkgpackagedatamodel.TanzuPkgPluginResource, o.PkgInstallName, o.Namespace)}},
 	}
 
 	if err := p.kappClient.GetClient().Create(context.Background(), serviceAccount); err != nil {
