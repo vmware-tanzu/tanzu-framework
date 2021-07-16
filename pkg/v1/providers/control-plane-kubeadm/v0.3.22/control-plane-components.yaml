@@ -1499,7 +1499,7 @@ spec:
         - --enable-leader-election
         command:
         - /manager
-        image: registry.tkg.vmware.run/cluster-api/kubeadm-control-plane-controller:v0.3.19_vmware.1
+        image: registry.tkg.vmware.run/cluster-api/kubeadm-control-plane-controller:v0.3.22_vmware.1
         imagePullPolicy: IfNotPresent
         name: manager
       terminationGracePeriodSeconds: 10
@@ -1543,7 +1543,7 @@ spec:
         - --webhook-port=9443
         command:
         - /manager
-        image: registry.tkg.vmware.run/cluster-api/kubeadm-control-plane-controller:v0.3.19_vmware.1
+        image: registry.tkg.vmware.run/cluster-api/kubeadm-control-plane-controller:v0.3.22_vmware.1
         imagePullPolicy: IfNotPresent
         name: manager
         ports:
