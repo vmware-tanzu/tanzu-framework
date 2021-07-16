@@ -14,6 +14,7 @@ import (
 	vsphere "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
 	"sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha3"
+	docker "sigs.k8s.io/cluster-api/test/infrastructure/docker/api/v1alpha3"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 )
@@ -43,26 +44,10 @@ type DeleteMachineDeploymentOptions struct {
 type NodePool struct {
 	Name            string            `yaml:"name"`
 	Replicas        *int32            `yaml:"replicas,omitempty"`
-	IaasType        string            `yaml:"iaasType"`
+	AZ              string            `yaml:"az,omitempty"`
 	NodeMachineType string            `yaml:"nodeMachineType,omitempty"`
-	SSHKeyName      string            `yaml:"sshKeyName,omitempty"`
 	Labels          map[string]string `yaml:"labels,omitempty"`
 	VSphere         VSphereNodePool   `yaml:"vsphere,omitempty"`
-	AWS             AWSNodePool       `yaml:"aws,omitempty"`
-	Azure           AzureNodePool     `yaml:"azure,omitempty"`
-}
-
-// AWSNodePool a struct describing properties neceesary for a node pool on AWS
-type AWSNodePool struct {
-	AMIID *string `yaml:"amiID,omitempty"`
-}
-
-// AzureNodePool a struct describing properties neceesary for a node pool on Azure
-type AzureNodePool struct {
-	NodeDataDiskSizeGIB          string `yaml:"nodeDataDiskSizeGIB,omitempty"`
-	Location                     string `yaml:"location,omitempty"`
-	NodeOSDiskSizeGIB            string `yaml:"nodeOsDiskSizeGIB,omitempty"`
-	NodeOSDiskStorageAccountType string `yaml:"nodeOsDiskStorageAccountType,omitempty"`
 }
 
 // VSphereNodePool a struct describing properties necessary for a node pool on vSphere
@@ -113,7 +98,7 @@ func (c *TkgClient) SetMachineDeployment(options *SetMachineDeploymentOptions) e
 	}
 
 	for k, v := range options.Labels {
-		baseWorker.Labels[k] = v
+		baseWorker.Spec.Template.Labels[k] = v
 	}
 
 	kcTemplate, err := retrieveKubeadmConfigTemplate(clusterClient, baseWorker.Spec.Template.Spec.Bootstrap.ConfigRef)
@@ -131,8 +116,8 @@ func (c *TkgClient) SetMachineDeployment(options *SetMachineDeploymentOptions) e
 	}
 
 	machineTemplateName := fmt.Sprintf("%s-mt", options.Name)
-	switch iaasType := options.IaasType; iaasType {
-	case VSphereProviderName:
+	switch iaasType := baseWorker.Spec.Template.Spec.InfrastructureRef.Kind; iaasType {
+	case "VSphereMachineTemplate":
 		if update {
 			break
 		}
@@ -148,7 +133,7 @@ func (c *TkgClient) SetMachineDeployment(options *SetMachineDeploymentOptions) e
 		if err = clusterClient.CreateResource(&vSphereMachineTemplate, machineTemplateName, options.Namespace); err != nil {
 			return errors.Wrap(err, "could not create machine template")
 		}
-	case AWSProviderName:
+	case "AWSMachineTemplate":
 		if update {
 			break
 		}
@@ -160,15 +145,13 @@ func (c *TkgClient) SetMachineDeployment(options *SetMachineDeploymentOptions) e
 		awsMachineTemplate.Annotations = map[string]string{}
 		awsMachineTemplate.Name = machineTemplateName
 		awsMachineTemplate.ResourceVersion = ""
-		awsMachineTemplate.Spec.Template.Spec.AMI = aws.AWSResourceReference{
-			ID: options.AWS.AMIID,
+		if options.NodeMachineType == "" {
+			awsMachineTemplate.Spec.Template.Spec.InstanceType = options.NodeMachineType
 		}
-		awsMachineTemplate.Spec.Template.Spec.InstanceType = options.NodeMachineType
-		awsMachineTemplate.Spec.Template.Spec.SSHKeyName = &options.SSHKeyName
 		if err = clusterClient.CreateResource(&awsMachineTemplate, machineTemplateName, options.Namespace); err != nil {
 			return errors.Wrap(err, "could not create machine template")
 		}
-	case AzureProviderName:
+	case "AzureMachineTemplate":
 		if update {
 			break
 		}
@@ -180,17 +163,38 @@ func (c *TkgClient) SetMachineDeployment(options *SetMachineDeploymentOptions) e
 		azureMachineTemplate.Annotations = map[string]string{}
 		azureMachineTemplate.Name = machineTemplateName
 		azureMachineTemplate.ResourceVersion = ""
-		azureMachineTemplate.Spec.Template.Spec.VMSize = options.NodeMachineType
+		if options.NodeMachineType == "" {
+			azureMachineTemplate.Spec.Template.Spec.VMSize = options.NodeMachineType
+		}
 		if err = clusterClient.CreateResource(&azureMachineTemplate, machineTemplateName, options.Namespace); err != nil {
 			return errors.Wrap(err, "could not create machine template")
 		}
+	case "DockerMachineTemplate":
+		if update {
+			break
+		}
+		var dockerMachineTemplate docker.DockerMachineTemplate
+		err = retrieveMachineTemplate(clusterClient, &baseWorker.Spec.Template.Spec.InfrastructureRef, &dockerMachineTemplate)
+		if err != nil {
+			return err
+		}
+		dockerMachineTemplate.Annotations = map[string]string{}
+		dockerMachineTemplate.Name = machineTemplateName
+		dockerMachineTemplate.ResourceVersion = ""
+		if err = clusterClient.CreateResource(&dockerMachineTemplate, machineTemplateName, options.Namespace); err != nil {
+			return errors.Wrap(err, "could not create machine template")
+		}
 	default:
-		return errors.New("unrecognized IaasType")
+		fmt.Printf("%T", azure.AzureMachineTemplate{})
+		return errors.Errorf("unable to match MachineTemplate type: %s", iaasType)
 	}
 
 	if !update {
 		baseWorker.Spec.Template.Spec.Bootstrap.ConfigRef.Name = kcTemplate.Name
 		baseWorker.Spec.Template.Spec.InfrastructureRef.Name = machineTemplateName
+		if options.AZ != "" {
+			baseWorker.Spec.Template.Spec.FailureDomain = &options.AZ
+		}
 	}
 	if update {
 		if err = clusterClient.UpdateResource(&baseWorker, baseWorker.Name, options.Namespace); err != nil {
@@ -261,6 +265,15 @@ func (c *TkgClient) DeleteMachineDeployment(options DeleteMachineDeploymentOptio
 		}
 	case "AzureMachineTemplate":
 		var machineTemplate azure.AzureMachineTemplate
+		err = retrieveMachineTemplate(clusterClient, &toDelete.Spec.Template.Spec.InfrastructureRef, &machineTemplate)
+		if err != nil {
+			return errors.Wrap(err, "unable to retrieve machine template")
+		}
+		deleteCmd = func() error {
+			return clusterClient.DeleteResource(&machineTemplate)
+		}
+	case "DockerMachineTemplate":
+		var machineTemplate docker.DockerMachineTemplate
 		err = retrieveMachineTemplate(clusterClient, &toDelete.Spec.Template.Spec.InfrastructureRef, &machineTemplate)
 		if err != nil {
 			return errors.Wrap(err, "unable to retrieve machine template")
