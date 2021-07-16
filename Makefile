@@ -111,6 +111,11 @@ ifeq ($(TANZU_FORCE_NO_INIT), true)
 LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/core.forceNoInit=true'
 endif
 
+ifneq ($(strip $(GC_FLAGS)),)
+GC_FLAGS_GO := -gcflags "$(GC_FLAGS)"
+GC_FLAGS_BUILDER := --gcflags "$(GC_FLAGS)"
+endif
+
 BUILD_TAGS ?=
 
 ARTIFACTS_DIR ?= ./artifacts
@@ -238,7 +243,7 @@ build-cli: build-plugin-admin ${CLI_JOBS} ## Build Tanzu CLI
 .PHONY: build-plugin-admin
 build-plugin-admin:
 	@echo build version: $(BUILD_VERSION)
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin/${GOHOSTOS}/${GOHOSTARCH}/cli
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" $(GC_FLAGS_BUILDER) --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin/${GOHOSTOS}/${GOHOSTARCH}/cli
 
 .PHONY: build-cli-%
 build-cli-%: prep-build-cli
@@ -253,7 +258,7 @@ build-cli-%: prep-build-cli
 	fi
 
 	./hack/embed-pinniped-binary.sh go ${OS} ${ARCH}
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --corepath "cmd/cli/tanzu" --artifacts artifacts/${OS}/${ARCH}/cli --target  ${OS}_${ARCH}
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" $(GC_FLAGS_BUILDER) --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --corepath "cmd/cli/tanzu" --artifacts artifacts/${OS}/${ARCH}/cli --target  ${OS}_${ARCH}
 
 ## --------------------------------------
 ## Build locally
@@ -267,7 +272,7 @@ build-cli-%: prep-build-cli
 # To skip provider embedding, pass `BUILD_TAGS=skipembedproviders` to make target (`make BUILD_TAGS=skipembedproviders build-cli-local)
 .PHONY: build-cli-local
 build-cli-local: configure-buildtags-embedproviders build-cli-${GOHOSTOS}-${GOHOSTARCH} ## Build Tanzu CLI locally. cluster and management-cluster plugins are built with embedded providers.
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin/${GOHOSTOS}/${GOHOSTARCH}/cli --target local
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" $(GC_FLAGS_BUILDER) --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin/${GOHOSTOS}/${GOHOSTARCH}/cli --target local
 
 .PHONY: build-install-cli-local
 build-install-cli-local: clean-catalog-cache clean-cli-plugins build-cli-local install-cli-plugins install-cli ## Local build and install the CLI plugins
@@ -278,9 +283,9 @@ build-install-cli-local: clean-catalog-cache clean-cli-plugins build-cli-local i
 
 .PHONY: build-cli-mocks
 build-cli-mocks: ## Build Tanzu CLI mocks
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version 0.0.1 --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --path ./test/cli/mock/plugin-old --artifacts ./test/cli/mock/artifacts-old
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version 0.0.2 --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --path ./test/cli/mock/plugin-new --artifacts ./test/cli/mock/artifacts-new
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version 0.0.3 --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --path ./test/cli/mock/plugin-alt --artifacts ./test/cli/mock/artifacts-alt
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version 0.0.1 --ldflags "$(LD_FLAGS)" $(GC_FLAGS_BUILDER) --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --path ./test/cli/mock/plugin-old --artifacts ./test/cli/mock/artifacts-old
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version 0.0.2 --ldflags "$(LD_FLAGS)" $(GC_FLAGS_BUILDER) --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --path ./test/cli/mock/plugin-new --artifacts ./test/cli/mock/artifacts-new
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version 0.0.3 --ldflags "$(LD_FLAGS)" $(GC_FLAGS_BUILDER) --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --path ./test/cli/mock/plugin-alt --artifacts ./test/cli/mock/artifacts-alt
 
 ## --------------------------------------
 ## install binaries and plugins
@@ -288,23 +293,23 @@ build-cli-mocks: ## Build Tanzu CLI mocks
 
 .PHONY: install-cli
 install-cli: ## Install Tanzu CLI
-	$(GO) install -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu
+	$(GO) install -ldflags "$(LD_FLAGS)" $(GC_FLAGS_GO) ./cmd/cli/tanzu
 
 # Note: Invoking this target will update the unstableVersionSelector config
 # file setting to 'experimental' by default. Use TANZU_PLUGIN_UNSTABLE_VERSIONS to
 # override if necessary.
 .PHONY: install-cli-plugins
 install-cli-plugins: set-unstable-versions  ## Install Tanzu CLI plugins
-	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
+	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" $(GC_FLAGS_GO) ./cmd/cli/tanzu/main.go \
     		plugin install all --local $(ARTIFACTS_DIR)/$(GOHOSTOS)/$(GOHOSTARCH)/cli
-	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
+	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" $(GC_FLAGS_GO) ./cmd/cli/tanzu/main.go \
 		plugin install all --local $(ARTIFACTS_DIR)-admin/$(GOHOSTOS)/$(GOHOSTARCH)/cli
-	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
+	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" $(GC_FLAGS_GO) ./cmd/cli/tanzu/main.go \
 		test fetch --local $(ARTIFACTS_DIR)/$(GOHOSTOS)/$(GOHOSTARCH)/cli --local $(ARTIFACTS_DIR)-admin/$(GOHOSTOS)/$(GOHOSTARCH)/cli
 
 .PHONY: set-unstable-versions
 set-unstable-versions:  ## Configures the unstable versions
-	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go config set unstable-versions $(TANZU_PLUGIN_UNSTABLE_VERSIONS)
+	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" $(GC_FLAGS_GO) ./cmd/cli/tanzu/main.go config set unstable-versions $(TANZU_PLUGIN_UNSTABLE_VERSIONS)
 
 .PHONY: build-install-cli-all ## Build and install the CLI plugins
 build-install-cli-all: clean-catalog-cache clean-cli-plugins build-cli install-cli-plugins install-cli ## Build and install Tanzu CLI plugins
@@ -313,7 +318,7 @@ build-install-cli-all: clean-catalog-cache clean-cli-plugins build-cli install-c
 # TODO: Remove this target when all tests are migrated to use tanzu cli
 .PHONY: tkg-cli ## Builds tkg-cli binary
 tkg-cli: configure-buildtags-embedproviders configure-bom prep-build-cli ## Build tkg CLI binary only, and without rebuilding ui bits (providers are embedded to the binary)
-	GO111MODULE=on $(GO) build -o $(BIN_DIR)/tkg-${GOHOSTOS}-${GOHOSTARCH} -ldflags "${LD_FLAGS}" -tags "${BUILD_TAGS}" cmd/cli/tkg/main.go
+	GO111MODULE=on $(GO) build -o $(BIN_DIR)/tkg-${GOHOSTOS}-${GOHOSTARCH} -ldflags "${LD_FLAGS}" $(GC_FLAGS_GO) -tags "${BUILD_TAGS}" cmd/cli/tkg/main.go
 
 .PHONY: build-cli-image
 build-cli-image: ## Build the CLI image
@@ -334,7 +339,7 @@ release-%:
 	$(eval OS = $(word 1,$(subst -, ,$*)))
 
 	./hack/embed-pinniped-binary.sh go ${OS} ${ARCH}
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --corepath "cmd/cli/tanzu" --artifacts artifacts/${OS}/${ARCH}/cli --target  ${OS}_${ARCH}
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" $(GC_FLAGS_BUILDER) --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --corepath "cmd/cli/tanzu" --artifacts artifacts/${OS}/${ARCH}/cli --target  ${OS}_${ARCH}
 
 ## --------------------------------------
 ## Testing, verification, formating and cleanup
