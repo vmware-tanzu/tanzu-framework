@@ -13,8 +13,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/kappclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
-
-	"github.com/jeremywohl/flatten"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
 )
 
 var packageAvailableGetCmd = &cobra.Command{
@@ -49,33 +48,19 @@ func validatePackage(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func packageAvailableGet(cmd *cobra.Command, args []string) error { //nolint:gocyclo
-	kc, err := kappclient.NewKappClient(packageAvailableOp.KubeConfig)
-	if err != nil {
-		return err
+func packageAvailableGet(cmd *cobra.Command, args []string) error {
+	kc, kcErr := kappclient.NewKappClient(packageAvailableOp.KubeConfig)
+	if kcErr != nil {
+		return kcErr
 	}
 	if packageAvailableOp.AllNamespaces {
 		packageAvailableOp.Namespace = ""
 	}
 	if packageAvailableOp.ValuesSchema {
-		pkg, err := kc.GetPackage(fmt.Sprintf("%s.%s", pkgName, pkgVersion), packageAvailableOp.Namespace)
-		if err != nil {
-			return err
+		pkg, pkgGetErr := kc.GetPackage(fmt.Sprintf("%s.%s", pkgName, pkgVersion), packageAvailableOp.Namespace)
+		if pkgGetErr != nil {
+			return pkgGetErr
 		}
-
-		if len(pkg.Spec.ValuesSchema.OpenAPIv3.Raw) == 0 {
-			log.Infof("failed to find package '%s' values schema", pkgName)
-			return nil
-		}
-
-		s := string(pkg.Spec.ValuesSchema.OpenAPIv3.Raw)
-		sflat, err := flatten.FlattenString(s, "", flatten.DotStyle)
-		if err != nil {
-			return err
-		}
-		strim := strings.Trim(sflat, "{}")
-		srep := strings.Replace(strim, "\"", "", -1)
-		entries := strings.Split(srep, ",")
 
 		t, err := component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), outputFormat,
 			fmt.Sprintf("Retrieving package details for %s...", args[0]), true)
@@ -83,16 +68,19 @@ func packageAvailableGet(cmd *cobra.Command, args []string) error { //nolint:goc
 			return err
 		}
 
+		var parseErr error
+		dataValuesSchemaParser, parseErr := tkgpackageclient.NewValuesSchemaParser(pkg.Spec.ValuesSchema)
+		if parseErr != nil {
+			return parseErr
+		}
+		parsedProperties, parseErr := dataValuesSchemaParser.ParseProperties()
+		if parseErr != nil {
+			return parseErr
+		}
+
 		t.SetKeys("KEY", "DEFAULT", "TYPE", "DESCRIPTION")
-		for _, e := range entries {
-			parts := strings.Split(e, ":")
-			if strings.Contains(parts[0], "description") {
-				t.AddRow(parts[0], "", "", parts[1])
-			} else if strings.Contains(parts[0], "type") {
-				t.AddRow(parts[0], "", parts[1], "")
-			} else {
-				t.AddRow(parts[0], parts[1], "", "")
-			}
+		for _, v := range parsedProperties {
+			t.AddRow(v.Key, v.Default, v.Type, v.Description)
 		}
 		t.RenderWithSpinner()
 		return nil
