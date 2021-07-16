@@ -62,7 +62,6 @@ for imageTag in ${list}; do
     customTKGImage=${TKG_CUSTOM_IMAGE_REPOSITORY}/tkg-bom:${imageTag}
     imgpkg_copy "-i" $actualTKGImage $customTKGImage
     
-    
     # Get components in the tkg-bom.
     # Remove the leading '[' and trailing ']' in the output of yq.
     components=(`yq e '.components | keys | .. style="flow"' "tmp/$TKG_BOM_FILE" | sed 's/^.//;s/.$//'`)
@@ -73,7 +72,7 @@ for imageTag in ${list}; do
     get_comp_images="yq e '.components[\"${comp}\"][]  | select(has(\"images\"))|.images[] | .imagePath + \":\" + .tag' "\"tmp/\"$TKG_BOM_FILE""
 
     flags="-i"
-    if [ $comp = "tkg-standard-packages" ] || [ $comp = "tkg-core-packages" ]; then
+    if [ $comp = "tkg-standard-packages" ]; then
       flags="-b"
     fi
     eval $get_comp_images | while read -r image; do
@@ -93,7 +92,7 @@ done
 # and then pull, retag and push image to custom registry.
 list=$(imgpkg  tag  list -i ${actualImageRepository}/tkr-bom)
 for imageTag in ${list}; do
-  if [[ ${imageTag} == v* ]]; then 
+  if [[ ${imageTag} == v* ]]; then
     TKR_BOM_FILE="tkr-bom-${imageTag//_/+}.yaml"
     echodual "Processing TKR BOM file ${TKR_BOM_FILE}"
 
@@ -101,13 +100,27 @@ for imageTag in ${list}; do
     customTKRImage=${TKG_CUSTOM_IMAGE_REPOSITORY}/tkr-bom:${imageTag}
     imgpkg_copy "-i" $actualTKRImage $customTKRImage
     imgpkg pull --image ${actualImageRepository}/tkr-bom:${imageTag} --output "tmp" > /dev/null 2>&1
-    yq e '.. | select(has("images"))|.images[] | .imagePath + ":" + .tag ' "tmp/$TKR_BOM_FILE" |
-    while read -r image; do
-      actualImage=${actualImageRepository}/${image}
-      customImage=$TKG_CUSTOM_IMAGE_REPOSITORY/${image}
-      imgpkg_copy "-i" $actualImage $customImage
-      echo ""
+
+    # Get components in the tkr-bom.
+    # Remove the leading '[' and trailing ']' in the output of yq.
+    components=(`yq e '.components | keys | .. style="flow"' "tmp/$TKR_BOM_FILE" | sed 's/^.//;s/.$//'`)
+    for comp in "${components[@]}"
+    do
+    # remove: leading and trailing whitespace, and trailing comma
+    comp=`echo $comp | sed -e 's/^[[:space:]]*//' | sed 's/,*$//g'`
+    get_comp_images="yq e '.components[\"${comp}\"][]  | select(has(\"images\"))|.images[] | .imagePath + \":\" + .tag' "\"tmp/\"$TKR_BOM_FILE""
+
+    flags="-i"
+    if [ $comp = "tkg-core-packages" ]; then
+      flags="-b"
+    fi
+    eval $get_comp_images | while read -r image; do
+        actualImage=${actualImageRepository}/${image}
+        customImage=$TKG_CUSTOM_IMAGE_REPOSITORY/${image}
+        imgpkg_copy $flags $actualImage $customImage
+      done
     done
+
     rm -rf tmp
     echodual "Finished processing TKR BOM file ${TKR_BOM_FILE}"
     echo ""
