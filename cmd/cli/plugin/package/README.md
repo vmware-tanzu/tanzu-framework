@@ -174,6 +174,8 @@ Use "tanzu package repository [command] --help" for more information about a com
     ```
 
 9. Get information of an installed package
+
+   Example 1: Get information of an installed package
    ```sh
    >>> tanzu package installed get contour-pkg --namespace test-ns
    NAME:                 contour.tanzu.vmware.com                      
@@ -182,6 +184,20 @@ Use "tanzu package repository [command] --help" for more information about a com
    STATUS:               Reconcile succeeded                                       
    CONDITIONS:
    USEFUL-ERROR-MESSAGE:            
+   ```
+
+   Example 2: Get data value secret of an installed package and save it to file (example: config.yaml)
+   ```sh
+   >>> tanzu package installed get fluent-bit --namespace test-ns --values-file config.yaml
+   / Retrieving installation details for myfb...
+
+   cat config.yaml
+   ---
+   fluent_bit:
+     outputs: |
+       [OUTPUT]
+         Name     stdout
+         Match    *
    ```
 
 10. Update a package
@@ -209,6 +225,26 @@ Use "tanzu package repository [command] --help" for more information about a com
     \ Package install status: Reconciling 
     
      Updated package install 'fluent-bit' in namespace 'test-ns'
+    ```
+
+    Example 3: Update an installed package with providing values.yaml file
+    ```sh
+    >>> tanzu package installed update fluent-bit --version 1.7.5+vmware.1-tkg.1 --namespace test-ns --values-file values.yaml
+    | Updating package 'fluent-bit'
+    | Getting package install for 'fluent-bit'
+    / Updating secret 'fluent-bit-test-ns-values'
+
+    Updated package install 'fluent-bit' in namespace 'test-ns'
+    ```
+
+    An example values.yaml is as follows:
+    ```sh
+    ---
+    fluent_bit:
+      outputs: |
+        [OUTPUT]
+          Name     stdout
+          Match    *
     ```
 
 11. Uninstall a package
