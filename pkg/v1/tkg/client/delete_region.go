@@ -161,20 +161,8 @@ func (c *TkgClient) DeleteRegion(options DeleteRegionOptions) error { //nolint:f
 			return errors.Wrap(err, "unable to wait for cluster getting ready for move")
 		}
 
-		if err = c.deleteLoadBalancerTypeOfServiceInManagementCluster(regionalClusterClient); err != nil {
-			return errors.Wrap(err, "unable to delete all load balancer type of service")
-		}
-
-		if err = c.deleteAKOAddonSecretInManagementCluster(regionalClusterClient, options.ClusterName, regionalClusterNamespace); err != nil {
-			return errors.Wrap(err, "unable to delete ako add-on secret")
-		}
-
-		if err = c.cleanUpAVIResourceInManagementCluster(regionalClusterClient); err != nil {
+		if err = c.cleanUpAVIResourcesInManagementCluster(regionalClusterClient, options.ClusterName, regionalClusterNamespace); err != nil {
 			return errors.Wrap(err, "unable to clean up avi resource")
-		}
-
-		if err = c.waitForAVIResourceCleanup(regionalClusterClient); err != nil {
-			return errors.Wrap(err, "error waiting for management cluster avi resource deleted")
 		}
 	} else { // remove a management cluster whose deploymentStatus is 'Failed'
 		cleanupClusterKubeconfigPath = regionContext.SourceFilePath
@@ -449,6 +437,29 @@ func (c *TkgClient) verifyProviderConfigVariablesExists(providerName string) err
 	return errors.Errorf("value for variables [%s] is not set. Please set the value using os environment variables or the tkg config file", strings.Join(missingVariables, ","))
 }
 
+func (c *TkgClient) cleanUpAVIResourcesInManagementCluster(regionalClusterClient clusterclient.Client, clusterName, clusterNamespace string) error {
+	akoConfigMap := &corev1.ConfigMap{}
+	if err := regionalClusterClient.GetResource(akoConfigMap, constants.AkoConfigMapName, constants.AkoNamespace, nil, nil); err != nil {
+		if apierrors.IsNotFound(err) {
+			return nil
+		}
+		return errors.Wrapf(err, "unable to get ako configmap")
+	}
+	log.Info("Cleaning up AVI Resources...")
+	if err := c.deleteLoadBalancerTypeOfServiceInManagementCluster(regionalClusterClient); err != nil {
+		return errors.Wrap(err, "unable to delete all load balancer type of service")
+	}
+
+	if err := c.deleteAKOAddonSecretInManagementCluster(regionalClusterClient, clusterName, clusterNamespace); err != nil {
+		return errors.Wrap(err, "unable to delete ako add-on secret")
+	}
+	akoConfigMap.Data["deleteConfig"] = "true"
+	if err := regionalClusterClient.UpdateResource(akoConfigMap, constants.AkoConfigMapName, constants.AkoNamespace); err != nil {
+		return errors.Wrap(err, "unable to clean up avi resource")
+	}
+	return c.waitForAVIResourceCleanup(regionalClusterClient)
+}
+
 func (c *TkgClient) deleteLoadBalancerTypeOfServiceInManagementCluster(regionalClusterClient clusterclient.Client) error {
 	services := &corev1.ServiceList{}
 	if err := regionalClusterClient.ListResources(services); err != nil {
@@ -481,19 +492,6 @@ func (c *TkgClient) deleteAKOAddonSecretInManagementCluster(regionalClusterClien
 	return regionalClusterClient.DeleteResource(akoAddonSecret)
 }
 
-func (c *TkgClient) cleanUpAVIResourceInManagementCluster(regionalClusterClient clusterclient.Client) error {
-	akoConfigMap := &corev1.ConfigMap{}
-	if err := regionalClusterClient.GetResource(akoConfigMap, constants.AkoConfigMapName, constants.AkoNamespace, nil, nil); err != nil {
-		if apierrors.IsNotFound(err) {
-			return nil
-		}
-		return errors.Wrapf(err, "unable to get ako configmap")
-	}
-	log.Info("Cleaning up AVI Resources...")
-	akoConfigMap.Data["deleteConfig"] = "true"
-	return regionalClusterClient.UpdateResource(akoConfigMap, constants.AkoConfigMapName, constants.AkoNamespace)
-}
-
 func (c *TkgClient) waitForAVIResourceCleanup(regionalClusterClient clusterclient.Client) error {
 	akoStatefulSet := &v1.StatefulSet{}
 	if err := regionalClusterClient.GetResource(akoStatefulSet, constants.AkoStatefulSetName, constants.AkoNamespace, nil, nil); err != nil {
@@ -503,10 +501,8 @@ func (c *TkgClient) waitForAVIResourceCleanup(regionalClusterClient clusterclien
 		return errors.Wrapf(err, "unable to get ako statefulset")
 	}
 	if err := regionalClusterClient.WaitForAVIResourceCleanUp(constants.AkoStatefulSetName, constants.AkoNamespace); err != nil {
-		// connection refused should be consider as AVI resources cleaned up finished,
-		// because in using AVI to provide control plane VIP case, trigger AKO clean up
-		// will let mgmt cluster lose connection if AVI resources deleted.
-		// TODO: (xudongl) Any ideas how to make this line more clean? Thanks.
+		// losing connection should be consider as AVI resources clean up finished.
+		// TODO: (xudongl) Any ideas how to make this line cleaner? Thanks.
 		if strings.Contains(err.Error(), "dial tcp") {
 			return nil
 		}

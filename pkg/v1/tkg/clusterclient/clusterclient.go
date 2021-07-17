@@ -329,7 +329,7 @@ const (
 	getClientDefaultInterval          = 10 * time.Second
 	getClientDefaultTimeout           = 5 * time.Minute
 	CheckAutoscalerDeploymentTimeout  = 2 * time.Minute
-	AVIResourceCleanupTimeout         = 2 * time.Minute
+	AVIResourceCleanupTimeout         = 1 * time.Minute
 	kubeConfigSecretSuffix            = "kubeconfig"
 	kubeConfigDataField               = "value"
 	embeddedTelemetryConfigYamlPrefix = "pkg/manifest/telemetry/config-"
