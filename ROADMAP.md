@@ -7,7 +7,7 @@ This document provides an up to date description of items that are intended for 
 Discussion on the roadmap should take place in threads under Issues. Please comment on an issue if you want to provide suggestions and feedback to an item in the roadmap. Please review the roadmap to avoid potential duplicated efforts.
 
 ### How to add an item to the roadmap?
-Please open an issue to track any initiative on the roadmap of Framework. For smaller enhancements, you can just open an issue to track that initiative or feature request. We work with and rely on community feedback to focus our efforts to improve Contour and maintain a healthy roadmap.
+Please open an issue to track any initiative on the roadmap of Framework. For smaller enhancements, you can just open an issue to track that initiative or feature request. We work with and rely on community feedback to focus our efforts to improve Framework and maintain a healthy roadmap.
 
 ## Current Roadmap
 The following table includes the current roadmap for Framework.
