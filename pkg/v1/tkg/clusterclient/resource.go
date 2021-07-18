@@ -165,10 +165,6 @@ func (c *client) getRuntimeObject(o interface{}) (runtime.Object, error) { //nol
 	switch obj := o.(type) {
 	case *corev1.Namespace:
 		return obj, nil
-	case *corev1.Service:
-		return obj, nil
-	case *corev1.ServiceList:
-		return obj, nil
 	case *corev1.Secret:
 		return obj, nil
 	case *corev1.SecretList:
