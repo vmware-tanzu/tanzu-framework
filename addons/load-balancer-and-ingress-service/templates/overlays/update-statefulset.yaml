@@ -167,7 +167,11 @@ spec:
           livenessProbe:
             httpGet:
               port:  #@ values.loadBalancerAndIngressService.config.ako_settings.api_server_port
-
+#@ if hasattr(values.loadBalancerAndIngressService.config, 'tolerations') and values.loadBalancerAndIngressService.config.tolerations:
+      #@overlay/match missing_ok=True
+      tolerations: #@ values.loadBalancerAndIngressService.config.tolerations
+#@ end
+    
 #@ def pod_security_policy():
 apiVersion: #@ values.loadBalancerAndIngressService.config.rbac.psp_policy_api_version
 kind: PodSecurityPolicy
