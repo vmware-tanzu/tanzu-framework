@@ -17,6 +17,7 @@ import (
 	docker "sigs.k8s.io/cluster-api/test/infrastructure/docker/api/v1alpha3"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
 
 // GetMachineDeploymentOptions a struct describing options for retrieving MachineDeployments
@@ -90,9 +91,6 @@ func (c *TkgClient) SetMachineDeployment(options *SetMachineDeploymentOptions) e
 
 	baseWorker.Annotations = map[string]string{}
 	baseWorker.Name = options.Name
-	if !update {
-		baseWorker.ResourceVersion = ""
-	}
 	if options.Replicas != nil {
 		baseWorker.Spec.Replicas = options.Replicas
 	}
@@ -113,95 +111,38 @@ func (c *TkgClient) SetMachineDeployment(options *SetMachineDeploymentOptions) e
 		if err = clusterClient.CreateResource(kcTemplate, kcTemplate.Name, options.Namespace); err != nil {
 			return errors.Wrap(err, "could not create kubeadmconfigtemplate")
 		}
-	}
 
-	machineTemplateName := fmt.Sprintf("%s-mt", options.Name)
-	switch iaasType := baseWorker.Spec.Template.Spec.InfrastructureRef.Kind; iaasType {
-	case "VSphereMachineTemplate":
-		if update {
-			break
+		machineTemplateName := fmt.Sprintf("%s-mt", options.Name)
+		var err error
+		switch iaasType := baseWorker.Spec.Template.Spec.InfrastructureRef.Kind; iaasType {
+		case constants.VSphereMachineTemplate:
+			err = createVSphereMachineTemplate(clusterClient, &baseWorker.Spec.Template.Spec.InfrastructureRef, machineTemplateName, options)
+		case constants.AWSMachineTemplate:
+			err = createAWSMachineTemplate(clusterClient, &baseWorker.Spec.Template.Spec.InfrastructureRef, machineTemplateName, options)
+		case constants.AzureMachineTemplate:
+			err = createAzureMachineTemplate(clusterClient, &baseWorker.Spec.Template.Spec.InfrastructureRef, machineTemplateName, options)
+		case constants.DockerMachineTemplate:
+			err = createDockerMachineTemplate(clusterClient, &baseWorker.Spec.Template.Spec.InfrastructureRef, machineTemplateName, options)
+		default:
+			return errors.Errorf("unable to match MachineTemplate type: %s", iaasType)
 		}
-		var vSphereMachineTemplate vsphere.VSphereMachineTemplate
-		err = retrieveMachineTemplate(clusterClient, &baseWorker.Spec.Template.Spec.InfrastructureRef, &vSphereMachineTemplate)
 		if err != nil {
 			return err
 		}
-		vSphereMachineTemplate.Annotations = map[string]string{}
-		vSphereMachineTemplate.Name = machineTemplateName
-		vSphereMachineTemplate.ResourceVersion = ""
-		populateVSphereMachineTemplate(&vSphereMachineTemplate, options)
-		if err = clusterClient.CreateResource(&vSphereMachineTemplate, machineTemplateName, options.Namespace); err != nil {
-			return errors.Wrap(err, "could not create machine template")
-		}
-	case "AWSMachineTemplate":
-		if update {
-			break
-		}
-		var awsMachineTemplate aws.AWSMachineTemplate
-		err = retrieveMachineTemplate(clusterClient, &baseWorker.Spec.Template.Spec.InfrastructureRef, &awsMachineTemplate)
-		if err != nil {
-			return err
-		}
-		awsMachineTemplate.Annotations = map[string]string{}
-		awsMachineTemplate.Name = machineTemplateName
-		awsMachineTemplate.ResourceVersion = ""
-		if options.NodeMachineType == "" {
-			awsMachineTemplate.Spec.Template.Spec.InstanceType = options.NodeMachineType
-		}
-		if err = clusterClient.CreateResource(&awsMachineTemplate, machineTemplateName, options.Namespace); err != nil {
-			return errors.Wrap(err, "could not create machine template")
-		}
-	case "AzureMachineTemplate":
-		if update {
-			break
-		}
-		var azureMachineTemplate azure.AzureMachineTemplate
-		err = retrieveMachineTemplate(clusterClient, &baseWorker.Spec.Template.Spec.InfrastructureRef, &azureMachineTemplate)
-		if err != nil {
-			return err
-		}
-		azureMachineTemplate.Annotations = map[string]string{}
-		azureMachineTemplate.Name = machineTemplateName
-		azureMachineTemplate.ResourceVersion = ""
-		if options.NodeMachineType == "" {
-			azureMachineTemplate.Spec.Template.Spec.VMSize = options.NodeMachineType
-		}
-		if err = clusterClient.CreateResource(&azureMachineTemplate, machineTemplateName, options.Namespace); err != nil {
-			return errors.Wrap(err, "could not create machine template")
-		}
-	case "DockerMachineTemplate":
-		if update {
-			break
-		}
-		var dockerMachineTemplate docker.DockerMachineTemplate
-		err = retrieveMachineTemplate(clusterClient, &baseWorker.Spec.Template.Spec.InfrastructureRef, &dockerMachineTemplate)
-		if err != nil {
-			return err
-		}
-		dockerMachineTemplate.Annotations = map[string]string{}
-		dockerMachineTemplate.Name = machineTemplateName
-		dockerMachineTemplate.ResourceVersion = ""
-		if err = clusterClient.CreateResource(&dockerMachineTemplate, machineTemplateName, options.Namespace); err != nil {
-			return errors.Wrap(err, "could not create machine template")
-		}
-	default:
-		fmt.Printf("%T", azure.AzureMachineTemplate{})
-		return errors.Errorf("unable to match MachineTemplate type: %s", iaasType)
-	}
 
-	if !update {
+		baseWorker.ResourceVersion = ""
 		baseWorker.Spec.Template.Spec.Bootstrap.ConfigRef.Name = kcTemplate.Name
 		baseWorker.Spec.Template.Spec.InfrastructureRef.Name = machineTemplateName
 		if options.AZ != "" {
 			baseWorker.Spec.Template.Spec.FailureDomain = &options.AZ
 		}
-	}
-	if update {
-		if err = clusterClient.UpdateResource(&baseWorker, baseWorker.Name, options.Namespace); err != nil {
+
+		if err = clusterClient.CreateResource(&baseWorker, baseWorker.Name, options.Namespace); err != nil {
 			return errors.Wrap(err, "failed to create machinedeployment")
 		}
 	} else {
-		if err = clusterClient.CreateResource(&baseWorker, baseWorker.Name, options.Namespace); err != nil {
+		err = clusterClient.UpdateResource(&baseWorker, baseWorker.Name, options.Namespace)
+		if err != nil {
 			return errors.Wrap(err, "failed to create machinedeployment")
 		}
 	}
@@ -245,7 +186,7 @@ func (c *TkgClient) DeleteMachineDeployment(options DeleteMachineDeploymentOptio
 
 	var deleteCmd func() error
 	switch machineKind := toDelete.Spec.Template.Spec.InfrastructureRef.Kind; machineKind {
-	case "VSphereMachineTemplate":
+	case constants.VSphereMachineTemplate:
 		var machineTemplate vsphere.VSphereMachineTemplate
 		err = retrieveMachineTemplate(clusterClient, &toDelete.Spec.Template.Spec.InfrastructureRef, &machineTemplate)
 		if err != nil {
@@ -254,7 +195,7 @@ func (c *TkgClient) DeleteMachineDeployment(options DeleteMachineDeploymentOptio
 		deleteCmd = func() error {
 			return clusterClient.DeleteResource(&machineTemplate)
 		}
-	case "AWSMachineTemplate":
+	case constants.AWSMachineTemplate:
 		var machineTemplate aws.AWSMachineTemplate
 		err = retrieveMachineTemplate(clusterClient, &toDelete.Spec.Template.Spec.InfrastructureRef, &machineTemplate)
 		if err != nil {
@@ -263,7 +204,7 @@ func (c *TkgClient) DeleteMachineDeployment(options DeleteMachineDeploymentOptio
 		deleteCmd = func() error {
 			return clusterClient.DeleteResource(&machineTemplate)
 		}
-	case "AzureMachineTemplate":
+	case constants.AzureMachineTemplate:
 		var machineTemplate azure.AzureMachineTemplate
 		err = retrieveMachineTemplate(clusterClient, &toDelete.Spec.Template.Spec.InfrastructureRef, &machineTemplate)
 		if err != nil {
@@ -272,7 +213,7 @@ func (c *TkgClient) DeleteMachineDeployment(options DeleteMachineDeploymentOptio
 		deleteCmd = func() error {
 			return clusterClient.DeleteResource(&machineTemplate)
 		}
-	case "DockerMachineTemplate":
+	case constants.DockerMachineTemplate:
 		var machineTemplate docker.DockerMachineTemplate
 		err = retrieveMachineTemplate(clusterClient, &toDelete.Spec.Template.Spec.InfrastructureRef, &machineTemplate)
 		if err != nil {
@@ -312,6 +253,74 @@ func (c *TkgClient) GetMachineDeployments(options GetMachineDeploymentOptions) (
 	}
 
 	return workers, nil
+}
+
+func createVSphereMachineTemplate(clusterClient clusterclient.Client, infraTemplate *corev1.ObjectReference, machineTemplateName string, options *SetMachineDeploymentOptions) error {
+	var vSphereMachineTemplate vsphere.VSphereMachineTemplate
+	err := retrieveMachineTemplate(clusterClient, infraTemplate, &vSphereMachineTemplate)
+	if err != nil {
+		return err
+	}
+	vSphereMachineTemplate.Annotations = map[string]string{}
+	vSphereMachineTemplate.Name = machineTemplateName
+	vSphereMachineTemplate.ResourceVersion = ""
+	populateVSphereMachineTemplate(&vSphereMachineTemplate, options)
+	if err = clusterClient.CreateResource(&vSphereMachineTemplate, machineTemplateName, options.Namespace); err != nil {
+		return errors.Wrap(err, "could not create machine template")
+	}
+	return nil
+}
+
+func createAWSMachineTemplate(clusterClient clusterclient.Client, infraTemplate *corev1.ObjectReference, machineTemplateName string, options *SetMachineDeploymentOptions) error {
+	var awsMachineTemplate aws.AWSMachineTemplate
+	err := retrieveMachineTemplate(clusterClient, infraTemplate, &awsMachineTemplate)
+	if err != nil {
+		return err
+	}
+	awsMachineTemplate.Annotations = map[string]string{}
+	awsMachineTemplate.Name = machineTemplateName
+	awsMachineTemplate.ResourceVersion = ""
+	if options.NodeMachineType == "" {
+		awsMachineTemplate.Spec.Template.Spec.InstanceType = options.NodeMachineType
+	}
+	if err = clusterClient.CreateResource(&awsMachineTemplate, machineTemplateName, options.Namespace); err != nil {
+		return errors.Wrap(err, "could not create machine template")
+	}
+	return nil
+}
+
+func createAzureMachineTemplate(clusterClient clusterclient.Client, infraTemplate *corev1.ObjectReference, machineTemplateName string, options *SetMachineDeploymentOptions) error {
+	var azureMachineTemplate azure.AzureMachineTemplate
+	err := retrieveMachineTemplate(clusterClient, infraTemplate, &azureMachineTemplate)
+	if err != nil {
+		return err
+	}
+	if options.NodeMachineType == "" {
+		azureMachineTemplate.Spec.Template.Spec.VMSize = options.NodeMachineType
+	}
+	azureMachineTemplate.Name = machineTemplateName
+	azureMachineTemplate.Annotations = map[string]string{}
+	azureMachineTemplate.ResourceVersion = ""
+
+	if err = clusterClient.CreateResource(&azureMachineTemplate, machineTemplateName, options.Namespace); err != nil {
+		return errors.Wrap(err, "could not create machine template")
+	}
+	return nil
+}
+
+func createDockerMachineTemplate(clusterClient clusterclient.Client, infraTemplate *corev1.ObjectReference, machineTemplateName string, options *SetMachineDeploymentOptions) error {
+	var dockerMachineTemplate docker.DockerMachineTemplate
+	err := retrieveMachineTemplate(clusterClient, infraTemplate, &dockerMachineTemplate)
+	if err != nil {
+		return err
+	}
+	dockerMachineTemplate.Annotations = map[string]string{}
+	dockerMachineTemplate.Name = machineTemplateName
+	dockerMachineTemplate.ResourceVersion = ""
+	if err = clusterClient.CreateResource(&dockerMachineTemplate, machineTemplateName, options.Namespace); err != nil {
+		return errors.Wrap(err, "could not create machine template")
+	}
+	return nil
 }
 
 func retrieveMachineTemplate(clusterClient clusterclient.Client, infraTemplate *corev1.ObjectReference, machineTemplate interface{}) error {
