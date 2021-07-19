@@ -213,7 +213,7 @@ func (c *TkgClient) DoUpgradeAddon(regionalClusterClient clusterclient.Client, /
 			c.TKGConfigReaderWriter().Set(constants.ConfigVaraibleDisableCRSForAddonType, addonName)
 		}
 
-		if err := c.retriveRegionalClusterConfiguration(regionalClusterClient, options.Namespace); err != nil {
+		if err := c.retriveRegionalClusterConfiguration(regionalClusterClient); err != nil {
 			return errors.Wrap(err, "unable to set cluster configuration")
 		}
 
@@ -241,7 +241,7 @@ func (c *TkgClient) DoUpgradeAddon(regionalClusterClient clusterclient.Client, /
 
 // retriveRegionalClusterConfiguration gets TKG configurations from regional cluster and sets the TKGConfigReaderWriter.
 // this is required when we want to mutate the existing regional cluster.
-func (c *TkgClient) retriveRegionalClusterConfiguration(regionalClusterClient clusterclient.Client, regionalClusterNamespace string) error {
+func (c *TkgClient) retriveRegionalClusterConfiguration(regionalClusterClient clusterclient.Client) error {
 	if err := c.setProxyConfiguration(regionalClusterClient); err != nil {
 		return errors.Wrapf(err, "error while getting proxy configuration from cluster and setting it")
 	}
@@ -250,7 +250,7 @@ func (c *TkgClient) retriveRegionalClusterConfiguration(regionalClusterClient cl
 		return errors.Wrapf(err, "error while getting custom image repository configuration from cluster and setting it")
 	}
 
-	if err := c.setNetworkingConfiguration(regionalClusterClient, regionalClusterNamespace); err != nil {
+	if err := c.setNetworkingConfiguration(regionalClusterClient); err != nil {
 		return errors.Wrap(err, "error while initializing networking configuration")
 	}
 
@@ -316,15 +316,12 @@ func (c *TkgClient) setCustomImageRepositoryConfiguration(regionalClusterClient 
 	return nil
 }
 
-func (c *TkgClient) setNetworkingConfiguration(regionalClusterClient clusterclient.Client, regionalClusterNamespace string) error {
-	context, err := regionalClusterClient.GetCurrentKubeContext()
+func (c *TkgClient) setNetworkingConfiguration(regionalClusterClient clusterclient.Client) error {
+	clusterName, regionalClusterNamespace, err := c.getRegionalClusterNameAndNamespace(regionalClusterClient)
 	if err != nil {
-		return errors.Wrap(err, "unable to get current kube context")
+		return errors.Wrap(err, "unable to get name and namespace of current management cluster")
 	}
-	clusterName, err := regionalClusterClient.GetCurrentClusterName(context)
-	if err != nil {
-		return errors.Wrapf(err, "unable to get current cluster name for context %q", context)
-	}
+
 	cluster := &capi.Cluster{}
 	err = regionalClusterClient.GetResource(cluster, clusterName, regionalClusterNamespace, nil, nil)
 	if err != nil {
