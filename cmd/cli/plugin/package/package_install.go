@@ -56,7 +56,6 @@ func packageInstall(_ *cobra.Command, args []string) error {
 	pp := &tkgpackagedatamodel.PackageProgress{
 		ProgressMsg: make(chan string, 10),
 		Err:         make(chan error),
-		Done:        make(chan struct{}),
 		Success:     make(chan bool),
 	}
 	go pkgClient.InstallPackage(packageInstallOp, pp, false)
@@ -73,7 +72,7 @@ func packageInstall(_ *cobra.Command, args []string) error {
 func displayProgress(initialMsg, successMsg string, pp *tkgpackagedatamodel.PackageProgress) error {
 	var currMsg string
 
-	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
+	s := spinner.New(spinner.CharSets[9], 1*time.Millisecond)
 	if err := s.Color("bgBlack", "bold", "fgWhite"); err != nil {
 		return err
 	}
@@ -96,16 +95,6 @@ func displayProgress(initialMsg, successMsg string, pp *tkgpackagedatamodel.Pack
 				s.Suffix = fmt.Sprintf(" %s", msg)
 				currMsg = msg
 			}
-		case <-pp.Done:
-			for msg := range pp.ProgressMsg {
-				if msg != currMsg {
-					log.Infof("\n")
-					s.Suffix = fmt.Sprintf(" %s", msg)
-					currMsg = msg
-				}
-			}
-			return nil
-
 		case success := <-pp.Success:
 			if success {
 				log.Infof("\n %s", successMsg)

@@ -41,7 +41,6 @@ func packageUninstall(_ *cobra.Command, args []string) error {
 	pp := &tkgpackagedatamodel.PackageProgress{
 		ProgressMsg: make(chan string, 10),
 		Err:         make(chan error),
-		Done:        make(chan struct{}),
 		Success:     make(chan bool),
 	}
 	go pkgClient.UninstallPackage(packageInstalledOp, pp)

@@ -121,7 +121,6 @@ func packageInstallProgressCleanup(err error, progress *tkgpackagedatamodel.Pack
 	}
 	if !update {
 		close(progress.ProgressMsg)
-		close(progress.Done)
 		close(progress.Success)
 	}
 }

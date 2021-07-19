@@ -49,13 +49,14 @@ func (p *pkgClient) UninstallPackage(o *tkgpackagedatamodel.PackageOptions, prog
 
 	if pkgInstall != nil {
 		progress.ProgressMsg <- fmt.Sprintf("Deleting package install '%s' from namespace '%s'", o.PkgInstallName, o.Namespace)
-	}
-	if err = p.deletePackageInstall(o); err != nil {
-		return
-	}
 
-	if err = p.waitForAppCRDeletion(o, progress.ProgressMsg); err != nil {
-		return
+		if err = p.deletePackageInstall(o); err != nil {
+			return
+		}
+
+		if err = p.waitForAppCRDeletion(o, progress.ProgressMsg); err != nil {
+			return
+		}
 	}
 
 	if err = p.deletePkgPluginCreatedResources(o, pkgInstall, progress.ProgressMsg, progress.Success); err != nil {
@@ -68,7 +69,6 @@ func packageProgressCleanup(err error, progress *tkgpackagedatamodel.PackageProg
 		progress.Err <- err
 	}
 	close(progress.ProgressMsg)
-	close(progress.Done)
 	close(progress.Success)
 }
 
@@ -186,7 +186,7 @@ func (p *pkgClient) waitForAppCRDeletion(o *tkgpackagedatamodel.PackageOptions, 
 	return nil
 }
 
-// deletePreviouslyInstalledResources delete the related resources if previously installed through package plugin
+// deletePreviouslyInstalledResources deletes the related resources if previously installed through the package plugin
 func (p *pkgClient) deletePreviouslyInstalledResources(o *tkgpackagedatamodel.PackageOptions) error {
 	var objMeta metav1.ObjectMeta
 	resourceAnnotation := fmt.Sprintf(tkgpackagedatamodel.TanzuPkgPluginResource, o.PkgInstallName, o.Namespace)

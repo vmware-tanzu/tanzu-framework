@@ -41,7 +41,6 @@ var _ = Describe("Update Package", func() {
 		progress = &tkgpackagedatamodel.PackageProgress{
 			ProgressMsg: make(chan string, 10),
 			Err:         make(chan error),
-			Done:        make(chan struct{}),
 			Success:     make(chan bool),
 		}
 		ctl = &pkgClient{kappClient: kappCtl}
