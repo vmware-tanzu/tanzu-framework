@@ -41,7 +41,7 @@ function imgpkg_copy() {
     src=$2
     dst=$3
     echo ""
-    echo "imgpkg copy $flags $src $dst"
+    echo "imgpkg copy $flags $src --to-repo $dst"
 }
 
 echo "set -euo pipefail"
@@ -59,7 +59,7 @@ for imageTag in ${list}; do
     echodual "Processing TKG BOM file ${TKG_BOM_FILE}"
 
     actualTKGImage=${actualImageRepository}/tkg-bom:${imageTag}
-    customTKGImage=${TKG_CUSTOM_IMAGE_REPOSITORY}/tkg-bom:${imageTag}
+    customTKGImage=${TKG_CUSTOM_IMAGE_REPOSITORY}/tkg-bom
     imgpkg_copy "-i" $actualTKGImage $customTKGImage
     
     # Get components in the tkg-bom.
@@ -77,7 +77,8 @@ for imageTag in ${list}; do
     fi
     eval $get_comp_images | while read -r image; do
         actualImage=${actualImageRepository}/${image}
-        customImage=$TKG_CUSTOM_IMAGE_REPOSITORY/${image}
+        image2=$(echo "$image" | cut -f1 -d":")
+        customImage=$TKG_CUSTOM_IMAGE_REPOSITORY/${image2}
         imgpkg_copy $flags $actualImage $customImage
       done
     done
@@ -97,7 +98,7 @@ for imageTag in ${list}; do
     echodual "Processing TKR BOM file ${TKR_BOM_FILE}"
 
     actualTKRImage=${actualImageRepository}/tkr-bom:${imageTag}
-    customTKRImage=${TKG_CUSTOM_IMAGE_REPOSITORY}/tkr-bom:${imageTag}
+    customTKRImage=${TKG_CUSTOM_IMAGE_REPOSITORY}/tkr-bom
     imgpkg_copy "-i" $actualTKRImage $customTKRImage
     imgpkg pull --image ${actualImageRepository}/tkr-bom:${imageTag} --output "tmp" > /dev/null 2>&1
 
@@ -116,7 +117,8 @@ for imageTag in ${list}; do
     fi
     eval $get_comp_images | while read -r image; do
         actualImage=${actualImageRepository}/${image}
-        customImage=$TKG_CUSTOM_IMAGE_REPOSITORY/${image}
+        image2=$(echo "$image" | cut -f1 -d":")
+        customImage=$TKG_CUSTOM_IMAGE_REPOSITORY/${image2}
         imgpkg_copy $flags $actualImage $customImage
       done
     done
@@ -132,7 +134,7 @@ for imageTag in ${list}; do
   if [[ ${imageTag} == v* ]]; then
     echodual "Processing TKR compatibility image"
     actualImage=${actualImageRepository}/tkr-compatibility:${imageTag}
-    customImage=$TKG_CUSTOM_IMAGE_REPOSITORY/tkr-compatibility:${imageTag}
+    customImage=$TKG_CUSTOM_IMAGE_REPOSITORY/tkr-compatibility
     imgpkg_copy "-i" $actualImage $customImage
     echo ""
     echodual "Finished processing TKR compatibility image"
@@ -144,7 +146,7 @@ for imageTag in ${list}; do
   if [[ ${imageTag} == v* ]]; then 
     echodual "Processing TKG compatibility image"
     actualImage=${actualImageRepository}/tkg-compatibility:${imageTag}
-    customImage=$TKG_CUSTOM_IMAGE_REPOSITORY/tkg-compatibility:${imageTag}
+    customImage=$TKG_CUSTOM_IMAGE_REPOSITORY/tkg-compatibility
     imgpkg_copy "-i" $actualImage $customImage
     echo ""
     echodual "Finished processing TKG compatibility image"
