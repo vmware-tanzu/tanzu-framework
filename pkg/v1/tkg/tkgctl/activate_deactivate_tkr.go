@@ -3,8 +3,8 @@
 
 package tkgctl
 
-// ActivateTanzuKubernetesReleases activates the given TKr
-func (t *tkgctl) ActivateTanzuKubernetesReleases(tkrName string) error {
+// ActivateTanzuKubernetesReleases activates the given TKR
+func (t *tkgctl) ActivateTanzuKubernetesReleases(tkrName string) error { //nolint:stylecheck
 	err := t.tkgClient.ActivateTanzuKubernetesReleases(tkrName)
 	if err != nil {
 		return err
