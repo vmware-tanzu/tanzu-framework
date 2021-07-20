@@ -39,8 +39,8 @@
             <clr-icon aria-hidden="true" shape="close"></clr-icon>
         </button>
     </div>
-    <h4 i18n="os image title" aria-level="2" *ngIf="tkrVersion">
-        OS Image with Kubernetes {{ tkrVersion }}
+    <h4 i18n="os image title" aria-level="2">
+        OS Image with Kubernetes {{ tkrVersion | async }}
     </h4>
 
     <clr-select-container class="os-image" [attr.data-step-metadata]="formName">
