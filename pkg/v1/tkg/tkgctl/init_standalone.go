@@ -125,7 +125,7 @@ func (t *tkgctl) InitStandalone(options InitRegionOptions) error {
 		CniType:                     options.CniType,
 		FeatureFlags:                options.FeatureFlags,
 		VsphereControlPlaneEndpoint: options.VsphereControlPlaneEndpoint,
-		Edition:                     options.Edition,
+		Edition:                     "tce-standalone",
 	}
 
 	// take the provided hidden flags and enable the related feature flags
