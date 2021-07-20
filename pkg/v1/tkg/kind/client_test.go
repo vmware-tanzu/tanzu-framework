@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	. "github.com/onsi/ginkgo"
@@ -32,6 +33,8 @@ var (
 	configPathIPv6                        = "../fakes/config/config_ipv6.yaml"
 	configPathIPv4                        = "../fakes/config/config_ipv4.yaml"
 	configPathIPv4IPv6                    = "../fakes/config/config_ipv4_ipv6.yaml"
+	configPathKindAuditing                = "../fakes/config/config_kind_audit.yaml"
+	configPathKindAuditingFalse           = "../fakes/config/config_kind_audit_false.yaml"
 	configPathCIDR                        = "../fakes/config/config_cluster_service_cidr.yaml"
 	registryHostname                      = "registry.mydomain.com"
 )
@@ -252,7 +255,56 @@ var _ = Describe("Kind Client", func() {
 			Expect(kindConfig.Networking.ServiceSubnet).To(Equal("250.250.250.0/24"))
 		})
 	})
+
+	Context("When TKG_KIND_AUDITING is unset", func() {
+		BeforeEach(func() {
+			setupTestingFiles(configPath, testingDir, defaultBoMFileForTesting)
+			kindClient = buildKindClient()
+			_, kindConfig, err = kindClient.GetKindNodeImageAndConfig()
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		It("does not append audit log configuration as a patch", func() {
+			Expect(configHasAuditPatch(kindConfig)).To(BeFalse())
+		})
+	})
+
+	Context("When TKG_KIND_AUDITING is explicitly set", func() {
+		BeforeEach(func() {
+			setupTestingFiles(configPathKindAuditing, testingDir, defaultBoMFileForTesting)
+			kindClient = buildKindClient()
+			_, kindConfig, err = kindClient.GetKindNodeImageAndConfig()
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		It("appends audit log configuration as a patch", func() {
+			Expect(configHasAuditPatch(kindConfig)).To(BeTrue())
+		})
+	})
+
+	Context("When TKG_KIND_AUDITING is explicitly set to false", func() {
+		BeforeEach(func() {
+			setupTestingFiles(configPathKindAuditingFalse, testingDir, defaultBoMFileForTesting)
+			kindClient = buildKindClient()
+			_, kindConfig, err = kindClient.GetKindNodeImageAndConfig()
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		It("does not append audit log configuration as a patch", func() {
+			Expect(configHasAuditPatch(kindConfig)).To(BeFalse())
+		})
+	})
 })
+
+func configHasAuditPatch(kindConfig *kindv1.Cluster) bool {
+	var hasAuditPatch bool
+	for _, patch := range kindConfig.KubeadmConfigPatches {
+		if strings.Contains(patch, "audit-log-path") {
+			hasAuditPatch = true
+		}
+	}
+	return hasAuditPatch
+}
 
 func buildKindClient() kind.Client {
 	tkgConfigReaderWriter, err := tkgconfigreaderwriter.NewReaderWriterFromConfigFile(configPath, filepath.Join(testingDir, "config.yaml"))

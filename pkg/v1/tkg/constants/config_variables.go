@@ -148,6 +148,8 @@ const (
 	ConfigVariableControlPlaneNodeNameservers = "CONTROL_PLANE_NODE_NAMESERVERS"
 	ConfigVariableWorkerNodeNameservers       = "WORKER_NODE_NAMESERVERS"
 
+	ConfigVariableKindAuditing = "TKG_KIND_AUDITING"
+
 	// Below config variables are added based on init and create command flags
 
 	ConfigVariableClusterPlan             = "CLUSTER_PLAN"
