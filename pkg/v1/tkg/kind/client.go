@@ -7,15 +7,22 @@ package kind
 import (
 	"fmt"
 	"os"
+	"path"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/pelletier/go-toml/v2"
 	"github.com/rs/xid"
 	"gopkg.in/yaml.v2"
+
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	audit "k8s.io/apiserver/pkg/apis/audit/v1"
+	kubeadmv1beta1 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/types/v1beta1"
 	kindv1 "sigs.k8s.io/kind/pkg/apis/config/v1alpha4"
 	"sigs.k8s.io/kind/pkg/cluster"
 	"sigs.k8s.io/kind/pkg/errors"
+	k8syaml "sigs.k8s.io/yaml"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
@@ -29,6 +36,7 @@ const (
 	kindClusterNamePrefix       = "tkg-kind-"
 	kindClusterWaitForReadyTime = 2 * time.Minute
 	kindRegistryCAPath          = "/etc/containerd/tkg-registry-ca.crt"
+	kindAuditPath               = "/tmp/audit"
 )
 
 var (
@@ -36,11 +44,101 @@ var (
 		HostPath:      "/var/run/docker.sock",
 		ContainerPath: "/var/run/docker.sock",
 	}
+
+	auditConfiguration = audit.Policy{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "audit.k8s.io/v1",
+			Kind:       "Policy",
+		},
+		OmitStages: []audit.Stage{audit.StageRequestReceived},
+		Rules: []audit.PolicyRule{
+			{
+				Level: audit.LevelRequestResponse,
+				Resources: []audit.GroupResources{
+					{
+						Group:     "",
+						Resources: []string{"pods"},
+					},
+				},
+			},
+			{
+				Level: audit.LevelMetadata,
+				Resources: []audit.GroupResources{
+					{
+						Group:     "",
+						Resources: []string{"pods/logs", "pods/status"},
+					},
+				},
+			},
+			{
+				Level:           audit.LevelNone,
+				UserGroups:      []string{"system:authenticated"},
+				NonResourceURLs: []string{"/api*", "/version"},
+			},
+			{
+				Level:      audit.LevelRequest,
+				Namespaces: []string{"kube-system"},
+				Resources: []audit.GroupResources{
+					{
+						Group:     "",
+						Resources: []string{"configmaps"},
+					},
+				},
+			},
+			{
+				Level: audit.LevelMetadata,
+				Resources: []audit.GroupResources{
+					{
+						Group:     "",
+						Resources: []string{"secrets", "configmaps"},
+					},
+				},
+			},
+			{
+				Level: audit.LevelRequest,
+				Resources: []audit.GroupResources{
+					{
+						Group:     "",
+						Resources: []string{"extensions"},
+					},
+					{
+						Group: "cert-manager.io",
+					},
+				},
+			},
+			{
+				Level:      audit.LevelMetadata,
+				OmitStages: []audit.Stage{audit.StageRequestReceived},
+			},
+		},
+	}
+
+	auditKubeadmConfigPatch = &kubeadmv1beta1.ClusterConfiguration{
+		TypeMeta: metav1.TypeMeta{
+			Kind: "ClusterConfiguration",
+		},
+		APIServer: kubeadmv1beta1.APIServer{
+			ControlPlaneComponent: kubeadmv1beta1.ControlPlaneComponent{
+				ExtraArgs: map[string]string{
+					"audit-log-path":    path.Join(kindAuditPath, "audit.log"),
+					"audit-policy-file": path.Join(kindAuditPath, "audit-configuration.yaml"),
+				},
+				ExtraVolumes: []kubeadmv1beta1.HostPathMount{
+					{
+						Name:      "audit",
+						HostPath:  kindAuditPath,
+						MountPath: kindAuditPath,
+					},
+				},
+			},
+		},
+	}
 )
 
 type newKindNodeInput struct {
-	role   kindv1.NodeRole
-	caPath string
+	role      kindv1.NodeRole
+	caPath    string
+	auditPath string
 }
 
 func newKindNode(input newKindNodeInput) kindv1.Node {
@@ -54,6 +152,14 @@ func newKindNode(input newKindNodeInput) kindv1.Node {
 			kindv1.Mount{
 				HostPath:      input.caPath,
 				ContainerPath: kindRegistryCAPath,
+			},
+		)
+	}
+	if input.auditPath != "" {
+		node.ExtraMounts = append(node.ExtraMounts,
+			kindv1.Mount{
+				HostPath:      input.auditPath,
+				ContainerPath: kindAuditPath,
 			},
 		)
 	}
@@ -120,7 +226,7 @@ func (k *KindClusterProxy) CreateKindCluster() (string, error) {
 		k.options.ClusterName = kindClusterNamePrefix + xid.New().String()
 	}
 
-	log.V(3).Infof("Fetching configuration for kind node image...")
+	log.V(3).Info("Fetching configuration for kind node image...")
 	var config *kindv1.Cluster
 	var err error
 	k.options.NodeImage, config, err = k.GetKindNodeImageAndConfig()
@@ -128,7 +234,7 @@ func (k *KindClusterProxy) CreateKindCluster() (string, error) {
 		return "", errors.Wrap(err, "unable to get kind node image and configuration from BoM file")
 	}
 
-	log.V(3).Infof("Creating kind cluster: %s", k.options.ClusterName)
+	log.V(3).Info("Creating kind", "cluster-name", k.options.ClusterName)
 
 	// setup proxy envvars for kind clusrer if being configured in TKG
 	if proxyEnabled, err := k.options.Readerwriter.Get(constants.TKGHTTPProxyEnabled); err == nil && proxyEnabled == "true" {
@@ -174,7 +280,7 @@ func (k *KindClusterProxy) CreateKindCluster() (string, error) {
 
 // DeleteKindCluster deletes existing kind cluster
 func (k *KindClusterProxy) DeleteKindCluster() error {
-	log.V(3).Infof("Deleting kind cluster: %s", k.options.ClusterName)
+	log.V(3).Info("Deleting kind cluster", "cluster-name", k.options.ClusterName)
 	// delete kind cluster with kind provider interface
 	if err := k.options.Provider.Delete(k.options.ClusterName, k.options.KubeConfigPath); err != nil {
 		return errors.Wrapf(err, "failed to delete kind cluster %s", k.options.ClusterName)
@@ -204,10 +310,18 @@ func (k *KindClusterProxy) GetKindNodeImageAndConfig() (string, *kindv1.Cluster,
 	}
 
 	kindConfigData := []byte(strings.Join(bomConfiguration.KindKubeadmConfigSpec, "\n"))
-	kindConfig := &kindv1.Cluster{}
+	kindConfig := &kindv1.Cluster{
+		KubeadmConfigPatches: []string{},
+	}
 	err = yaml.Unmarshal(kindConfigData, kindConfig)
 	if err != nil {
 		return "", nil, errors.Wrap(err, "unable to parse kind configuration")
+	}
+
+	auditPath, err := k.applyAuditingConfiguration(kindConfig)
+
+	if err != nil {
+		return "", nil, errors.Wrap(err, "unable to apply auditing configuration")
 	}
 
 	kindNodeImageString := tkgconfigbom.GetFullImagePath(kindNodeImage, bomConfiguration.ImageConfig.ImageRepository) + ":" + kindNodeImage.Tag
@@ -218,7 +332,8 @@ func (k *KindClusterProxy) GetKindNodeImageAndConfig() (string, *kindv1.Cluster,
 	}
 
 	defaultNode := newKindNode(newKindNodeInput{
-		caPath: caCertFilePath,
+		caPath:    caCertFilePath,
+		auditPath: auditPath,
 	})
 
 	kindConfig.Nodes = []kindv1.Node{defaultNode}
@@ -234,7 +349,9 @@ func (k *KindClusterProxy) GetKindNodeImageAndConfig() (string, *kindv1.Cluster,
 		kindConfig.ContainerdConfigPatches = []string{kindRegistryConfig}
 	}
 
-	log.V(3).Infof("kindConfig: \n %v", kindConfig)
+	kindConfigString, _ := k8syaml.Marshal(kindConfig)
+
+	log.V(3).Info("Creating kind cluster with following options", "kindConfig", string(kindConfigString))
 	return kindNodeImageString, kindConfig, nil
 }
 
@@ -386,4 +503,41 @@ func (k *KindClusterProxy) getIPFamily() (kindv1.ClusterIPFamily, error) {
 	default:
 		return "", fmt.Errorf("TKG_IP_FAMILY should be one of %s, %s, %s, got %s", kindv1.IPv4Family, kindv1.IPv6Family, kindv1.DualStackFamily, normalisedIPFamily)
 	}
+}
+
+func (k *KindClusterProxy) applyAuditingConfiguration(kindCluster *kindv1.Cluster) (string, error) {
+	kindAuditing, err := k.options.Readerwriter.Get(constants.ConfigVariableKindAuditing)
+	var auditEnabled bool
+	if err != nil {
+		return "", nil
+	}
+	auditEnabled, err = strconv.ParseBool(kindAuditing)
+	if err != nil {
+		return "", errors.Wrapf(err, "unable to parse value of %s", constants.ConfigVariableKindAuditing)
+	}
+	if !auditEnabled {
+		return "", nil
+	}
+	auditDirPath, err := os.MkdirTemp("", "tkg-audit-*")
+	if err != nil {
+		return "", errors.Wrap(err, fmt.Sprintf("failed to create audit directory %s", auditDirPath))
+	}
+	log.Info("Bootstrap cluster audit logs configured", "audit-directory", auditDirPath)
+	auditConfigFilePath := path.Join(auditDirPath, "audit-configuration.yaml")
+	auditDat, err := k8syaml.Marshal(auditConfiguration)
+	if err != nil {
+		return "", errors.Wrap(err, "error marshaling audit configuration")
+	}
+	err = os.WriteFile(auditConfigFilePath, auditDat, 0o644)
+	if err != nil {
+		return "", errors.Wrap(err, fmt.Sprintf("failed to write audit configuration file %s", auditConfigFilePath))
+	}
+
+	marshaledPatch, err := k8syaml.Marshal(auditKubeadmConfigPatch)
+	stringPatch := string(marshaledPatch)
+	if err != nil {
+		return "", errors.Wrap(err, "could not generate kubeadmconfigpatch")
+	}
+	kindCluster.KubeadmConfigPatches = append(kindCluster.KubeadmConfigPatches, stringPatch)
+	return auditDirPath, nil
 }
