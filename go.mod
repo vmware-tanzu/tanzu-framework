@@ -111,7 +111,7 @@ require (
 	k8s.io/klog/v2 v2.8.0
 	k8s.io/kubectl v0.17.11
 	k8s.io/utils v0.0.0-20210527160623-6fdb442a123b
-	sigs.k8s.io/cluster-api v0.3.20-0.20210628204229-9fcfbce8e5c6
+	sigs.k8s.io/cluster-api v0.3.22-0.20210720023132-dfeb8d447bdc
 	sigs.k8s.io/cluster-api-provider-aws v0.6.5-0.20210309190705-ff3ed1b9f6f1
 	sigs.k8s.io/cluster-api-provider-azure v0.4.9-0.20200910212016-5c680a6c2dd4
 	sigs.k8s.io/cluster-api-provider-vsphere v0.7.1
