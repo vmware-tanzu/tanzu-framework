@@ -106,7 +106,7 @@ func initRegion(app *App, c *client.TkgClient) error {
 	}
 
 	tanzuEdition, _ := featuresClient.GetFeatureFlag("edition")
-	if tanzuEdition == "tce" {
+	if tanzuEdition == "tce-standalone" {
 		err = c.InitStandaloneRegion(&app.InitOptions)
 	} else {
 		err = c.InitRegion(&app.InitOptions)
