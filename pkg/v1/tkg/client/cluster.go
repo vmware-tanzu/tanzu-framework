@@ -33,7 +33,10 @@ const (
 	// AzureProviderName azure provider name
 	AzureProviderName = "azure"
 	// DockerProviderName docker provider name
-	DockerProviderName            = "docker"
+	DockerProviderName = "docker"
+	// WindowsVSphereProviderName vsphere provider name for windows
+	WindowsVSphereProviderName = "windows-vsphere"
+
 	defaultPacificProviderVersion = "v1.0.0"
 )
 
@@ -533,32 +536,30 @@ func (c *TkgClient) ConfigureAndValidateWorkloadClusterConfiguration(options *Cr
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
-	if name == AWSProviderName {
+	switch name {
+	case AWSProviderName:
 		if err := c.ConfigureAndValidateAWSConfig(options.TKRVersion, options.NodeSizeOptions, skipValidation,
 			options.ClusterConfigOptions.ProviderRepositorySource.Flavor == constants.PlanProd, *options.WorkerMachineCount, clusterClient, false); err != nil {
 			return errors.Wrap(err, "AWS config validation failed")
 		}
-	}
-
-	if name == VSphereProviderName {
+	case VSphereProviderName:
 		if err := c.ConfigureAndValidateVsphereConfig(options.TKRVersion, options.NodeSizeOptions, options.VsphereControlPlaneEndpoint, skipValidation, nil); err != nil {
 			return errors.Wrap(err, "vSphere config validation failed")
 		}
-
 		if err := c.ValidateVsphereVipWorkloadCluster(clusterClient, options.VsphereControlPlaneEndpoint, skipValidation); err != nil {
 			return NewValidationError(ValidationErrorCode, errors.Wrap(err, "vSphere control plane endpoint IP validation failed").Error())
 		}
-	}
-
-	if name == AzureProviderName {
+	case AzureProviderName:
 		if err := c.ConfigureAndValidateAzureConfig(options.TKRVersion, options.NodeSizeOptions, skipValidation,
 			options.ClusterConfigOptions.ProviderRepositorySource.Flavor == constants.PlanProd, *options.WorkerMachineCount, nil, false); err != nil {
 			return errors.Wrap(err, "Azure config validation failed")
 		}
-	}
-
-	if name == DockerProviderName {
+	case DockerProviderName:
 		if err := c.ConfigureAndValidateDockerConfig(options.TKRVersion, options.NodeSizeOptions, skipValidation); err != nil {
+			return NewValidationError(ValidationErrorCode, err.Error())
+		}
+	case WindowsVSphereProviderName:
+		if err := c.ConfigureAndValidateWindowsVsphereConfig(options.TKRVersion, options.NodeSizeOptions, options.VsphereControlPlaneEndpoint, skipValidation, nil); err != nil {
 			return NewValidationError(ValidationErrorCode, err.Error())
 		}
 	}
