@@ -122,6 +122,9 @@ func (c *TkgClient) DeleteStandalone(options DeleteRegionOptions) error {
 	if err != nil {
 		return errors.Wrap(err, "unable to restore init options")
 	}
+	// set the cluster config for deletion. This enables recieveing credentials for vsphere, AWS,
+	// and azure.
+	initOptionsForCleanupCluster.ClusterConfigFile = options.ClusterConfig
 
 	// Initialize cleanup cluster using same provider name and version from regional cluster
 	if err = c.InitializeProviders(initOptionsForCleanupCluster, cleanupClusterClient, cleanupClusterKubeconfigPath); err != nil {

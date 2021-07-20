@@ -137,9 +137,17 @@ func (app *App) StartSendingLogsToUI() {
 }
 
 func (app *App) getFilePathForSavingConfig() string {
+	// Always use the cluster name as the configuration file
+	if app.InitOptions.ClusterName != "" {
+		expectedFileName := app.InitOptions.ClusterName + ".yaml"
+		app.clusterConfigFile = filepath.Join(app.AppConfig.TKGConfigDir, constants.TKGClusterConfigFileDirForUI, expectedFileName)
+	}
+
+	// If not cluster name provided, use a random UID filename
 	if app.clusterConfigFile == "" {
 		randomFileName := utils.GenerateRandomID(10, true) + ".yaml"
 		app.clusterConfigFile = filepath.Join(app.AppConfig.TKGConfigDir, constants.TKGClusterConfigFileDirForUI, randomFileName)
 	}
+
 	return app.clusterConfigFile
 }
