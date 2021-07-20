@@ -46,6 +46,7 @@ func repositoryGet(cmd *cobra.Command, args []string) error {
 
 	packageRepository, err := pkgClient.GetRepository(repoOp)
 	if err != nil || packageRepository == nil {
+		t.StopSpinner()
 		return err
 	}
 

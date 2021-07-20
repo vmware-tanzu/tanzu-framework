@@ -9,6 +9,12 @@ import (
 	"strings"
 	"time"
 
+	"gopkg.in/yaml.v3"
+
+	v1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+
 	"github.com/pkg/errors"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
@@ -156,6 +162,10 @@ func (c *TkgClient) DeleteRegion(options DeleteRegionOptions) error { //nolint:f
 		if err := c.WaitForClusterReadyAfterReverseMove(cleanupClusterClient, options.ClusterName, regionalClusterNamespace); err != nil {
 			return errors.Wrap(err, "unable to wait for cluster getting ready for move")
 		}
+
+		if err = c.cleanUpAVIResourcesInManagementCluster(regionalClusterClient, options.ClusterName, regionalClusterNamespace); err != nil {
+			return errors.Wrap(err, "unable to clean up avi resource")
+		}
 	} else { // remove a management cluster whose deploymentStatus is 'Failed'
 		cleanupClusterKubeconfigPath = regionContext.SourceFilePath
 		cleanupClusterName = strings.TrimLeft(regionContext.ContextName, "kind-")
@@ -175,7 +185,7 @@ func (c *TkgClient) DeleteRegion(options DeleteRegionOptions) error { //nolint:f
 	}
 	lock, err := utils.GetFileLockWithTimeOut(filepath.Join(c.tkgConfigDir, constants.LocalTanzuFileLock), utils.DefaultLockTimeout)
 	if err != nil {
-		return errors.Wrap(err, "cannot acquire lock for eleting region context")
+		return errors.Wrap(err, "cannot acquire lock for deleting region context")
 	}
 
 	defer func() {
@@ -427,4 +437,62 @@ func (c *TkgClient) verifyProviderConfigVariablesExists(providerName string) err
 	}
 
 	return errors.Errorf("value for variables [%s] is not set. Please set the value using os environment variables or the tkg config file", strings.Join(missingVariables, ","))
+}
+
+func (c *TkgClient) cleanUpAVIResourcesInManagementCluster(regionalClusterClient clusterclient.Client, clusterName, clusterNamespace string) error {
+	akoAddonSecret := &corev1.Secret{}
+	if err := regionalClusterClient.GetResource(akoAddonSecret, constants.AkoAddonName+"-data-values", clusterNamespace, nil, nil); err != nil {
+		if apierrors.IsNotFound(err) {
+			return nil
+		}
+		return errors.Wrapf(err, "unable to get ako add-on secret")
+	}
+	log.Info("Cleaning up AVI Resources...")
+	akoAddonSecretData := akoAddonSecret.Data["values.yaml"]
+	var values map[string]interface{}
+	err := yaml.Unmarshal(akoAddonSecretData, &values)
+	if err != nil {
+		return err
+	}
+	akoInfo, ok := values["loadBalancerAndIngressService"].(map[string]interface{})
+	if !ok {
+		return errors.Errorf("management cluster %s ako add-on secret yaml data parse error", clusterName)
+	}
+	akoConfig, ok := akoInfo["config"].(map[string]interface{})
+	if !ok {
+		return errors.Errorf("management cluster %s ako add-on secret yaml data parse error", clusterName)
+	}
+	akoSetting, ok := akoConfig["ako_settings"].(map[string]interface{})
+	if !ok {
+		return errors.Errorf("management cluster %s ako add-on secret yaml data parse error", clusterName)
+	}
+	akoSetting["delete_config"] = "true"
+	akoAddonSecretData, err = yaml.Marshal(&values)
+	if err != nil {
+		return err
+	}
+	akoAddonSecret.Data["values.yaml"] = []byte(constants.TKGDataValueFormatString + string(akoAddonSecretData))
+	if err := regionalClusterClient.UpdateResource(akoAddonSecret, constants.AkoAddonName+"-data-values", clusterNamespace); err != nil {
+		return errors.Wrapf(err, "unable to update ako add-on secret")
+	}
+	return c.waitForAVIResourceCleanup(regionalClusterClient)
+}
+
+func (c *TkgClient) waitForAVIResourceCleanup(regionalClusterClient clusterclient.Client) error {
+	akoStatefulSet := &v1.StatefulSet{}
+	if err := regionalClusterClient.GetResource(akoStatefulSet, constants.AkoStatefulSetName, constants.AkoNamespace, nil, nil); err != nil {
+		if apierrors.IsNotFound(err) {
+			return nil
+		}
+		return errors.Wrapf(err, "unable to get ako statefulset")
+	}
+	if err := regionalClusterClient.WaitForAVIResourceCleanUp(constants.AkoStatefulSetName, constants.AkoNamespace); err != nil {
+		// losing connection should be consider as AVI resources clean up finished.
+		// TODO: (xudongl) Any ideas how to make this line cleaner? Thanks.
+		if strings.Contains(err.Error(), "dial tcp") {
+			return nil
+		}
+		return err
+	}
+	return nil
 }

@@ -140,7 +140,6 @@
             <ng-container *ngIf="steps[7]">
                 <app-os-image-step [formGroup]="form.controls.osImageForm"
                     formName="osimages" [wizardFormService]="wizardFormService" type="VSPHERE"
-                    [tkrVersion]="(tkrVersion | async)"
                     [noImageAlertMessage]="'Your ' + clusterType + ' cluster will be deployed with Tanzu Kubernetes release (TKr) ' + (tkrVersion | async) + '.
                                     We are unable to detect a VM template that belongs to this Tanzu Kubernetes release. You must install
                                     a VM template that belongs to Tanzu Kubernetes release ' +  (tkrVersion | async) + ' to continue with deployment of

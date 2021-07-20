@@ -882,6 +882,18 @@ type ClusterClient struct {
 	useContextReturnsOnCall map[int]struct {
 		result1 error
 	}
+	WaitForAVIResourceCleanUpStub        func(string, string) error
+	waitForAVIResourceCleanUpMutex       sync.RWMutex
+	waitForAVIResourceCleanUpArgsForCall []struct {
+		arg1 string
+		arg2 string
+	}
+	waitForAVIResourceCleanUpReturns struct {
+		result1 error
+	}
+	waitForAVIResourceCleanUpReturnsOnCall map[int]struct {
+		result1 error
+	}
 	WaitForAutoscalerDeploymentStub        func(string, string) error
 	waitForAutoscalerDeploymentMutex       sync.RWMutex
 	waitForAutoscalerDeploymentArgsForCall []struct {
@@ -5133,6 +5145,68 @@ func (fake *ClusterClient) UseContextReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
+func (fake *ClusterClient) WaitForAVIResourceCleanUp(arg1 string, arg2 string) error {
+	fake.waitForAVIResourceCleanUpMutex.Lock()
+	ret, specificReturn := fake.waitForAVIResourceCleanUpReturnsOnCall[len(fake.waitForAVIResourceCleanUpArgsForCall)]
+	fake.waitForAVIResourceCleanUpArgsForCall = append(fake.waitForAVIResourceCleanUpArgsForCall, struct {
+		arg1 string
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.WaitForAVIResourceCleanUpStub
+	fakeReturns := fake.waitForAVIResourceCleanUpReturns
+	fake.recordInvocation("WaitForAVIResourceCleanUp", []interface{}{arg1, arg2})
+	fake.waitForAVIResourceCleanUpMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *ClusterClient) WaitForAVIResourceCleanUpCallCount() int {
+	fake.waitForAVIResourceCleanUpMutex.RLock()
+	defer fake.waitForAVIResourceCleanUpMutex.RUnlock()
+	return len(fake.waitForAVIResourceCleanUpArgsForCall)
+}
+
+func (fake *ClusterClient) WaitForAVIResourceCleanUpCalls(stub func(string, string) error) {
+	fake.waitForAVIResourceCleanUpMutex.Lock()
+	defer fake.waitForAVIResourceCleanUpMutex.Unlock()
+	fake.WaitForAVIResourceCleanUpStub = stub
+}
+
+func (fake *ClusterClient) WaitForAVIResourceCleanUpArgsForCall(i int) (string, string) {
+	fake.waitForAVIResourceCleanUpMutex.RLock()
+	defer fake.waitForAVIResourceCleanUpMutex.RUnlock()
+	argsForCall := fake.waitForAVIResourceCleanUpArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *ClusterClient) WaitForAVIResourceCleanUpReturns(result1 error) {
+	fake.waitForAVIResourceCleanUpMutex.Lock()
+	defer fake.waitForAVIResourceCleanUpMutex.Unlock()
+	fake.WaitForAVIResourceCleanUpStub = nil
+	fake.waitForAVIResourceCleanUpReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ClusterClient) WaitForAVIResourceCleanUpReturnsOnCall(i int, result1 error) {
+	fake.waitForAVIResourceCleanUpMutex.Lock()
+	defer fake.waitForAVIResourceCleanUpMutex.Unlock()
+	fake.WaitForAVIResourceCleanUpStub = nil
+	if fake.waitForAVIResourceCleanUpReturnsOnCall == nil {
+		fake.waitForAVIResourceCleanUpReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.waitForAVIResourceCleanUpReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
 func (fake *ClusterClient) WaitForAutoscalerDeployment(arg1 string, arg2 string) error {
 	fake.waitForAutoscalerDeploymentMutex.Lock()
 	ret, specificReturn := fake.waitForAutoscalerDeploymentReturnsOnCall[len(fake.waitForAutoscalerDeploymentArgsForCall)]
@@ -5836,6 +5910,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.updateVsphereCsiConfigSecretMutex.RUnlock()
 	fake.useContextMutex.RLock()
 	defer fake.useContextMutex.RUnlock()
+	fake.waitForAVIResourceCleanUpMutex.RLock()
+	defer fake.waitForAVIResourceCleanUpMutex.RUnlock()
 	fake.waitForAutoscalerDeploymentMutex.RLock()
 	defer fake.waitForAutoscalerDeploymentMutex.RUnlock()
 	fake.waitForClusterDeletionMutex.RLock()

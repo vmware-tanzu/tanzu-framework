@@ -100,6 +100,8 @@ type Client interface {
 	WaitForDeployment(deploymentName string, namespace string) error
 	// WaitForAutoscalerDeployment waits for the autoscaler deployment to be available
 	WaitForAutoscalerDeployment(deploymentName string, namespace string) error
+	// WaitForAVIResourceCleanUp waits for the avi resource clean up finished
+	WaitForAVIResourceCleanUp(statefulSetName, namespace string) error
 	// WaitK8sVersionUpdateForCPNodes waits for k8s version to be updated
 	WaitK8sVersionUpdateForCPNodes(clusterName, namespace, kubernetesVersion string, workloadClusterClient Client) error
 	// WaitK8sVersionUpdateForWorkerNodes waits for k8s version to be updated in all worker nodes
@@ -327,6 +329,7 @@ const (
 	getClientDefaultInterval          = 10 * time.Second
 	getClientDefaultTimeout           = 5 * time.Minute
 	CheckAutoscalerDeploymentTimeout  = 2 * time.Minute
+	AVIResourceCleanupTimeout         = 2 * time.Minute
 	kubeConfigSecretSuffix            = "kubeconfig"
 	kubeConfigDataField               = "value"
 	embeddedTelemetryConfigYamlPrefix = "pkg/manifest/telemetry/config-"
@@ -560,6 +563,10 @@ func (c *client) WaitForDeployment(deploymentName, namespace string) error {
 
 func (c *client) WaitForAutoscalerDeployment(deploymentName, namespace string) error {
 	return c.GetResource(&appsv1.Deployment{}, deploymentName, namespace, VerifyAutoscalerDeploymentAvailable, &PollOptions{Interval: CheckResourceInterval, Timeout: CheckAutoscalerDeploymentTimeout})
+}
+
+func (c *client) WaitForAVIResourceCleanUp(statefulSetName, namespace string) error {
+	return c.GetResource(&appsv1.StatefulSet{}, statefulSetName, namespace, VerifyAVIResourceCleanupFinished, &PollOptions{Interval: CheckResourceInterval, Timeout: AVIResourceCleanupTimeout})
 }
 
 func verifyKubernetesUpgradeForCPNodes(clusterStatusInfo *ClusterStatusInfo, newK8sVersion string) error {

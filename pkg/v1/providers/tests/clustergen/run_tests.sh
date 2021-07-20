@@ -36,13 +36,6 @@ generate_cluster_configurations() {
   mkdir -p ${outputdir} || true
   rm -rf ${outputdir}/*
 
-  # create BoM directory and move BoM files to config directory
-  # so that CLI does not need to pull image from online repository
-  mkdir -p $TKG_CONFIG_DIR/bom
-  export TKG_BOM_CUSTOM_IMAGE_TAG=v1.3.1-zlatest
-  cp $TESTROOT/bom/tkg-bom-v1.3.1-zlatest.yaml $TKG_CONFIG_DIR/bom/
-  cp $TESTROOT/bom/tkr-bom-v1.20.5+vmware.1-tkg.1-zlatest.yaml $TKG_CONFIG_DIR/bom/
-
   $TKG get mc --configdir ${TKG_CONFIG_DIR}
   docker run -t --rm -v ${TKG_CONFIG_DIR}:${TKG_CONFIG_DIR} -v ${TESTROOT}:/clustergen -w /clustergen -e TKG_CONFIG_DIR=${TKG_CONFIG_DIR} ${BUILDER_IMAGE} /bin/bash -c "./gen_duplicate_bom_azure.py $TKG_CONFIG_DIR"
   RESULT=$?
