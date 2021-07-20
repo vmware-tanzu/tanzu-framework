@@ -55,28 +55,29 @@ type CreateClusterOptions struct {
 
 // InitRegionOptions contains options supported by InitRegion
 type InitRegionOptions struct {
+	ClusterConfigFile string `json:"clusterconfig,omitempty"`
+
+	Kubeconfig                  string `json:"kubeconfig,omitempty"`
+	Plan                        string `json:"plan,omitempty"`
+	LaunchUI                    bool   `json:"launchui,omitempty"`
+	ClusterName                 string `json:"clustername,omitempty"`
+	UseExistingCluster          bool   `json:"useexisting,omitempty"`
+	CoreProvider                string `json:"coreprovider,omitempty"`
+	BootstrapProvider           string `json:"bootstrapprovider,omitempty"`
+	InfrastructureProvider      string `json:"infrastructureprovider,omitempty"`
+	ControlPlaneProvider        string `json:"controlplaneprovider,omitempty"`
+	Namespace                   string `json:"namespace,omitempty"`
+	WatchingNamespace           string `json:"watchingnamespace,omitempty"`
 	NodeSizeOptions             NodeSizeOptions
-	ClusterConfigFile           string
-	Kubeconfig                  string
-	Plan                        string
-	ClusterName                 string
-	CoreProvider                string
-	BootstrapProvider           string
-	InfrastructureProvider      string
-	ControlPlaneProvider        string
-	Namespace                   string
-	WatchingNamespace           string
-	TmcRegistrationURL          string
-	CniType                     string
-	VsphereControlPlaneEndpoint string
-	Edition                     string
-	Annotations                 map[string]string
-	Labels                      map[string]string
-	FeatureFlags                map[string]string
-	LaunchUI                    bool
-	DisableYTT                  bool
-	CeipOptIn                   bool
-	UseExistingCluster          bool
+	TmcRegistrationURL          string            `json:"tmcregistrationurl,omitempty"`
+	Annotations                 map[string]string `json:"annotations,omitempty"`
+	Labels                      map[string]string `json:"labels,omitempty"`
+	DisableYTT                  bool              `json:"disableytt,omitempty"`
+	CeipOptIn                   bool              `json:"ceipoptin,omitempty"`
+	CniType                     string            `json:"cnitype,omitempty"`
+	FeatureFlags                map[string]string `json:"featureflags,omitempty"`
+	VsphereControlPlaneEndpoint string            `json:"vspherecontrolplaneendpoint,omitempty"`
+	Edition                     string            `json:"edition,omitempty"`
 }
 
 // DeleteRegionOptions contains options supported by DeleteRegion
@@ -85,6 +86,7 @@ type DeleteRegionOptions struct {
 	ClusterName        string
 	Force              bool
 	UseExistingCluster bool
+	ClusterConfig      string
 }
 
 //go:generate counterfeiter -o ../fakes/client.go --fake-name Client . Client
