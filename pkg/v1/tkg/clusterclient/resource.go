@@ -24,6 +24,7 @@ import (
 	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
 	capiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
+	bootstrapv1alpha3 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha3"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
 	addonsv1 "sigs.k8s.io/cluster-api/exp/addons/api/v1alpha3"
@@ -244,6 +245,8 @@ func (c *client) getRuntimeObject(o interface{}) (runtime.Object, error) { //nol
 	case *runv1alpha1.TanzuKubernetesReleaseList:
 		return obj, nil
 	case *runv1alpha1.TanzuKubernetesRelease:
+		return obj, nil
+	case *bootstrapv1alpha3.KubeadmConfigTemplate:
 		return obj, nil
 	default:
 		return nil, errors.New("invalid object type")

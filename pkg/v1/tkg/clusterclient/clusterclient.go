@@ -42,6 +42,7 @@ import (
 	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
 	capiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
+	bootstrapv1alpha3 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha3"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/cluster"
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
@@ -371,6 +372,7 @@ func init() {
 	_ = capav1alpha3.AddToScheme(scheme)
 	_ = capzv1alpha3.AddToScheme(scheme)
 	_ = capdv1alpha3.AddToScheme(scheme)
+	_ = bootstrapv1alpha3.AddToScheme(scheme)
 	_ = runv1alpha1.AddToScheme(scheme)
 	_ = betav1.AddToScheme(scheme)
 	_ = tmcv1alpha1.AddToScheme(scheme)

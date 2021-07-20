@@ -21,6 +21,7 @@ Kubernetes cluster operations
 * [tanzu cluster kubeconfig](tanzu_cluster_kubeconfig.md)	 - Cluster kubeconfig operations
 * [tanzu cluster list](tanzu_cluster_list.md)	 - List clusters
 * [tanzu cluster machinehealthcheck](tanzu_cluster_machinehealthcheck.md)	 - MachineHealthCheck operations for a cluster
+* [tanzu cluster node-pool](tanzu_cluster_node-pool.md)	 - Cluster node-pool operations
 * [tanzu cluster scale](tanzu_cluster_scale.md)	 - Scale a cluster
 * [tanzu cluster upgrade](tanzu_cluster_upgrade.md)	 - Upgrade a cluster
 
