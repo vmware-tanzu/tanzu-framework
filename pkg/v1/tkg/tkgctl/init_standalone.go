@@ -104,7 +104,29 @@ func (t *tkgctl) InitStandalone(options InitRegionOptions) error {
 		WorkerSize:       options.WorkerSize,
 	}
 
-	optionsIR := t.populateClientInitRegionOptions(&options, nodeSizeOptions, ceipOptIn)
+	// DYV
+	//optionsIR := t.populateClientInitRegionOptions(&options, nodeSizeOptions, ceipOptIn)
+	optionsIR := client.InitRegionOptions{
+		ClusterConfigFile:           options.ClusterConfigFile,
+		Kubeconfig:                  t.kubeconfig,
+		Plan:                        options.Plan,
+		LaunchUI:                    options.UI,
+		ClusterName:                 options.ClusterName,
+		UseExistingCluster:          options.UseExistingCluster,
+		InfrastructureProvider:      options.InfrastructureProvider,
+		ControlPlaneProvider:        options.ControlPlaneProvider,
+		BootstrapProvider:           options.BootstrapProvider,
+		CoreProvider:                options.CoreProvider,
+		Namespace:                   options.Namespace,
+		WatchingNamespace:           options.WatchingNamespace,
+		NodeSizeOptions:             nodeSizeOptions,
+		TmcRegistrationURL:          options.TmcRegistrationURL,
+		CeipOptIn:                   ceipOptIn,
+		CniType:                     options.CniType,
+		FeatureFlags:                options.FeatureFlags,
+		VsphereControlPlaneEndpoint: options.VsphereControlPlaneEndpoint,
+		Edition:                     options.Edition,
+	}
 
 	// take the provided hidden flags and enable the related feature flags
 	t.tkgClient.ParseHiddenArgsAsFeatureFlags(&optionsIR)
