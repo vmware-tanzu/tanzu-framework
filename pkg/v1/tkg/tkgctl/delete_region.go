@@ -21,6 +21,7 @@ type DeleteRegionOptions struct {
 	UseExistingCluster bool
 	SkipPrompt         bool
 	Timeout            time.Duration
+	ClusterConfig      string
 }
 
 // DeleteRegion deletes management cluster
