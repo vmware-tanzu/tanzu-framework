@@ -14,6 +14,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clientcreator"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	featuresclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/features"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigproviders"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigupdater"
@@ -81,7 +82,7 @@ func (app *App) CreateVSphereRegionalCluster(params vsphere.CreateVSphereRegiona
 	}
 	go app.StartSendingLogsToUI()
 	go func() {
-		err := c.InitRegion(&app.InitOptions)
+		err := initRegion(app, c)
 		if err != nil {
 			log.Error(err, "unable to set up management cluster, ")
 		} else {
@@ -96,6 +97,25 @@ func (app *App) CreateVSphereRegionalCluster(params vsphere.CreateVSphereRegiona
 	}()
 
 	return vsphere.NewCreateVSphereRegionalClusterOK().WithPayload("started creating regional cluster")
+}
+
+func initRegion(app *App, c *client.TkgClient) error {
+	featuresClient, err := featuresclient.New(app.AppConfig.TKGConfigDir, "")
+	if err != nil {
+		return err
+	}
+
+	tanzuEdition, _ := featuresClient.GetFeatureFlag("edition")
+	if tanzuEdition == "tce" {
+		err = c.InitStandaloneRegion(&app.InitOptions)
+	} else {
+		err = c.InitRegion(&app.InitOptions)
+	}
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // CreateAWSRegionalCluster creates aws management cluster
@@ -161,7 +181,7 @@ func (app *App) CreateAWSRegionalCluster(params aws.CreateAWSRegionalClusterPara
 				return
 			}
 		}
-		err := c.InitRegion(&app.InitOptions)
+		err := initRegion(app, c)
 		if err != nil {
 			log.Error(err, "unable to set up management cluster, ")
 		} else {
@@ -260,7 +280,7 @@ func (app *App) CreateAzureRegionalCluster(params azure.CreateAzureRegionalClust
 	}
 	go app.StartSendingLogsToUI()
 	go func() {
-		err := c.InitRegion(&app.InitOptions)
+		err := initRegion(app, c)
 		if err != nil {
 			log.Error(err, "unable to set up management cluster, ")
 		} else {
@@ -324,7 +344,7 @@ func (app *App) CreateDockerRegionalCluster(params docker.CreateDockerRegionalCl
 
 	go app.StartSendingLogsToUI()
 	go func() {
-		err := c.InitRegion(&app.InitOptions)
+		err := initRegion(app, c)
 		if err != nil {
 			log.Error(err, "unable to set up management cluster, ")
 		} else {
