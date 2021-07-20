@@ -23,6 +23,8 @@ func (app *App) ApplyTKGConfigForVsphere(params vsphere.ApplyTKGConfigForVsphere
 		return vsphere.NewApplyTKGConfigForVsphereInternalServerError().WithPayload(Err(err))
 	}
 
+	app.InitOptions.ClusterName = params.Params.ClusterName
+
 	err = tkgconfigupdater.SaveConfig(app.getFilePathForSavingConfig(), app.TKGConfigReaderWriter, config)
 	if err != nil {
 		return vsphere.NewApplyTKGConfigForVsphereInternalServerError().WithPayload(Err(err))
@@ -45,6 +47,8 @@ func (app *App) ApplyTKGConfigForAWS(params aws.ApplyTKGConfigForAWSParams) midd
 		return aws.NewApplyTKGConfigForAWSInternalServerError().WithPayload(Err(err))
 	}
 
+	app.InitOptions.ClusterName = params.Params.ClusterName
+
 	err = tkgconfigupdater.SaveConfig(app.getFilePathForSavingConfig(), app.TKGConfigReaderWriter, config)
 	if err != nil {
 		return aws.NewApplyTKGConfigForAWSInternalServerError().WithPayload(Err(err))
@@ -64,6 +68,8 @@ func (app *App) ApplyTKGConfigForAzure(params azure.ApplyTKGConfigForAzureParams
 		return azure.NewApplyTKGConfigForAzureInternalServerError().WithPayload(Err(err))
 	}
 
+	app.InitOptions.ClusterName = params.Params.ClusterName
+
 	err = tkgconfigupdater.SaveConfig(app.getFilePathForSavingConfig(), app.TKGConfigReaderWriter, config)
 	if err != nil {
 		return azure.NewApplyTKGConfigForAzureInternalServerError().WithPayload(Err(err))
@@ -78,6 +84,8 @@ func (app *App) ApplyTKGConfigForDocker(params docker.ApplyTKGConfigForDockerPar
 	if err != nil {
 		return docker.NewApplyTKGConfigForDockerInternalServerError().WithPayload(Err(err))
 	}
+
+	app.InitOptions.ClusterName = params.Params.ClusterName
 
 	err = tkgconfigupdater.SaveConfig(app.getFilePathForSavingConfig(), app.TKGConfigReaderWriter, config)
 	if err != nil {

@@ -63,6 +63,15 @@ func (t *tkgctl) DeleteStandalone(options DeleteRegionOptions) error {
 		Kubeconfig:         t.kubeconfig,
 		UseExistingCluster: options.UseExistingCluster,
 		ClusterName:        options.ClusterName,
+		ClusterConfig:      options.ClusterConfig,
+	}
+
+	// DYV
+	// Ensuring config also extracts the provider credentials
+	log.Infof("\nloading cluster config file at %s", optionsDR.ClusterConfig)
+	optionsDR.ClusterConfig, err = t.ensureClusterConfigFile(optionsDR.ClusterConfig)
+	if err != nil {
+		return err
 	}
 
 	err = t.tkgClient.DeleteStandalone(optionsDR)
