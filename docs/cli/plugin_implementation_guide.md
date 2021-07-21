@@ -41,6 +41,12 @@ To add the builder plugin use `tanzu plugin install builder`
 Plugins are pulled from registered repositories. On a merge to main, all the plugins in this repo are built and pushed to a public repository.
 It is useful to leverage a local repo when developing.
 
+#### PostInstallHook Implementation for a Plugin
+A plugin might need to setup initial configuration once plugin is installed. Tanzu CLI exposes this functionality with PluginDescriptor by providing `PostInstallHook` function implementation.
+Note: The same function will be invoked with `tanzu config init` command for all the installed plugin as well.
+
+Sample usage with the `management-cluster` plugin: https://github.com/vmware-tanzu/tanzu-framework/blob/main/cmd/cli/plugin/managementcluster/main.go
+
 #### Building a Plugin
 
 The Tanzu CLI itself is responsible for building plugins. You can build your new plugin with the provided make targets:
@@ -115,8 +121,7 @@ TBD
 TBD
 
 ### Config file
-~/.tanzu/config.yaml
-Issue #263  would move it to ~/.config/tanzu/config.yaml
+~/.config/tanzu/config.yaml
 
 ------------------------------
 
