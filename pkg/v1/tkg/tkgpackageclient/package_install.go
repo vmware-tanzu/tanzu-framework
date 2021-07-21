@@ -28,9 +28,10 @@ import (
 // InstallPackage installs the PackageInstall and its associated resources in the cluster
 func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progress *tkgpackagedatamodel.PackageProgress, update bool) { //nolint:gocyclo
 	var (
-		pkgInstall   *kappipkg.PackageInstall
-		err          error
-		createSecret bool
+		pkgInstall           *kappipkg.PackageInstall
+		err                  error
+		createSecret         bool
+		createServiceAccount bool
 	)
 
 	defer func() {
@@ -64,7 +65,7 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 	if o.ServiceAccountName == "" {
 		o.ServiceAccountName = fmt.Sprintf(tkgpackagedatamodel.ServiceAccountName, o.PkgInstallName, o.Namespace)
 		progress.ProgressMsg <- fmt.Sprintf("Creating service account '%s'", o.ServiceAccountName)
-		if err = p.createServiceAccount(o); err != nil {
+		if createServiceAccount, err = p.createServiceAccount(o); err != nil {
 			return
 		}
 
@@ -101,7 +102,7 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 	}
 
 	progress.ProgressMsg <- "Creating package resource"
-	if err = p.createPackageInstall(o, createSecret); err != nil {
+	if err = p.createPackageInstall(o, createServiceAccount, createSecret); err != nil {
 		err = errors.Wrap(err, "\nPlease consider using 'tanzu package installed delete' to delete the already created associated resources")
 		return
 	}
@@ -220,7 +221,7 @@ func (p *pkgClient) createNamespace(namespace string) error {
 }
 
 // createPackageInstall creates the PackageInstall CR
-func (p *pkgClient) createPackageInstall(o *tkgpackagedatamodel.PackageOptions, createSecret bool) error {
+func (p *pkgClient) createPackageInstall(o *tkgpackagedatamodel.PackageOptions, createServiceAccount, createSecret bool) error {
 	// construct the PackageInstall CR
 	packageInstall := &kappipkg.PackageInstall{
 		ObjectMeta: metav1.ObjectMeta{Name: o.PkgInstallName, Namespace: o.Namespace},
@@ -247,7 +248,7 @@ func (p *pkgClient) createPackageInstall(o *tkgpackagedatamodel.PackageOptions, 
 		}
 	}
 
-	if err := p.kappClient.CreatePackageInstall(packageInstall, o.CreateServiceAccount, createSecret); err != nil {
+	if err := p.kappClient.CreatePackageInstall(packageInstall, createServiceAccount, createSecret); err != nil {
 		return errors.Wrap(err, "failed to create PackageInstall resource")
 	}
 
@@ -255,7 +256,9 @@ func (p *pkgClient) createPackageInstall(o *tkgpackagedatamodel.PackageOptions, 
 }
 
 // createServiceAccount creates a ServiceAccount resource
-func (p *pkgClient) createServiceAccount(o *tkgpackagedatamodel.PackageOptions) error {
+func (p *pkgClient) createServiceAccount(o *tkgpackagedatamodel.PackageOptions) (bool, error) {
+	var createServiceAccount bool
+
 	serviceAccount := &corev1.ServiceAccount{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        o.ServiceAccountName,
@@ -264,12 +267,12 @@ func (p *pkgClient) createServiceAccount(o *tkgpackagedatamodel.PackageOptions) 
 	}
 
 	if err := p.kappClient.GetClient().Create(context.Background(), serviceAccount); err != nil {
-		return errors.Wrap(err, "failed to create ServiceAccount resource")
+		return false, errors.Wrap(err, "failed to create ServiceAccount resource")
 	}
 
-	o.CreateServiceAccount = true
+	createServiceAccount = true
 
-	return nil
+	return createServiceAccount, nil
 }
 
 // waitForPackageInstallation waits until the package get installed successfully or a failure happen

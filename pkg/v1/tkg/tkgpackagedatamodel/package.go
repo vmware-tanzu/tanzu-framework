@@ -22,7 +22,6 @@ type PackageOptions struct {
 	PollTimeout            time.Duration
 	AllNamespaces          bool
 	CreateNamespace        bool
-	CreateServiceAccount   bool
 	Install                bool
 	Wait                   bool
 }
