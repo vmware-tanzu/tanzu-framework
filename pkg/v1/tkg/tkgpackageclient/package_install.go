@@ -28,8 +28,9 @@ import (
 // InstallPackage installs the PackageInstall and its associated resources in the cluster
 func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progress *tkgpackagedatamodel.PackageProgress, update bool) { //nolint:gocyclo
 	var (
-		pkgInstall *kappipkg.PackageInstall
-		err        error
+		pkgInstall   *kappipkg.PackageInstall
+		err          error
+		createSecret bool
 	)
 
 	defer func() {
@@ -94,13 +95,13 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 	if o.ValuesFile != "" {
 		o.SecretName = fmt.Sprintf(tkgpackagedatamodel.SecretName, o.PkgInstallName, o.Namespace)
 		progress.ProgressMsg <- fmt.Sprintf("Creating secret '%s'", o.SecretName)
-		if err = p.createDataValuesSecret(o); err != nil {
+		if createSecret, err = p.createDataValuesSecret(o); err != nil {
 			return
 		}
 	}
 
 	progress.ProgressMsg <- "Creating package resource"
-	if err = p.createPackageInstall(o); err != nil {
+	if err = p.createPackageInstall(o, createSecret); err != nil {
 		err = errors.Wrap(err, "\nPlease consider using 'tanzu package installed delete' to delete the already created associated resources")
 		return
 	}
@@ -168,12 +169,15 @@ func (p *pkgClient) createClusterRoleBinding(o *tkgpackagedatamodel.PackageOptio
 }
 
 // createDataValuesSecret create a secret object containing the user-provided configuration.
-func (p *pkgClient) createDataValuesSecret(o *tkgpackagedatamodel.PackageOptions) error {
-	var err error
+func (p *pkgClient) createDataValuesSecret(o *tkgpackagedatamodel.PackageOptions) (bool, error) {
+	var (
+		err          error
+		createSecret bool
+	)
 	dataValues := make(map[string][]byte)
 
 	if dataValues[filepath.Base(o.ValuesFile)], err = ioutil.ReadFile(o.ValuesFile); err != nil {
-		return errors.Wrap(err, fmt.Sprintf("failed to read from data values file '%s'", o.ValuesFile))
+		return false, errors.Wrap(err, fmt.Sprintf("failed to read from data values file '%s'", o.ValuesFile))
 	}
 	secret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
@@ -185,12 +189,12 @@ func (p *pkgClient) createDataValuesSecret(o *tkgpackagedatamodel.PackageOptions
 	}
 
 	if err := p.kappClient.GetClient().Create(context.Background(), secret); err != nil {
-		return errors.Wrap(err, "failed to create Secret resource")
+		return false, errors.Wrap(err, "failed to create Secret resource")
 	}
 
-	o.CreateSecret = true
+	createSecret = true
 
-	return nil
+	return createSecret, nil
 }
 
 // createNamespace creates a namespace resource if it doesn't already exist
@@ -216,7 +220,7 @@ func (p *pkgClient) createNamespace(namespace string) error {
 }
 
 // createPackageInstall creates the PackageInstall CR
-func (p *pkgClient) createPackageInstall(o *tkgpackagedatamodel.PackageOptions) error {
+func (p *pkgClient) createPackageInstall(o *tkgpackagedatamodel.PackageOptions, createSecret bool) error {
 	// construct the PackageInstall CR
 	packageInstall := &kappipkg.PackageInstall{
 		ObjectMeta: metav1.ObjectMeta{Name: o.PkgInstallName, Namespace: o.Namespace},
@@ -233,7 +237,7 @@ func (p *pkgClient) createPackageInstall(o *tkgpackagedatamodel.PackageOptions) 
 	}
 
 	// if configuration data file was provided, reference the secret name in the PackageInstall
-	if o.CreateSecret {
+	if createSecret {
 		packageInstall.Spec.Values = []kappipkg.PackageInstallValues{
 			{
 				SecretRef: &kappipkg.PackageInstallValuesSecretRef{
@@ -243,7 +247,7 @@ func (p *pkgClient) createPackageInstall(o *tkgpackagedatamodel.PackageOptions) 
 		}
 	}
 
-	if err := p.kappClient.CreatePackageInstall(packageInstall, o.CreateServiceAccount, o.CreateSecret); err != nil {
+	if err := p.kappClient.CreatePackageInstall(packageInstall, o.CreateServiceAccount, createSecret); err != nil {
 		return errors.Wrap(err, "failed to create PackageInstall resource")
 	}
 
