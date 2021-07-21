@@ -11,7 +11,7 @@ replace (
 	k8s.io/klog/v2 => k8s.io/klog/v2 v2.0.0
 	k8s.io/kube-openapi => k8s.io/kube-openapi v0.0.0-20200410145947-bcb3869e6f29
 	sigs.k8s.io/controller-runtime => sigs.k8s.io/controller-runtime v0.5.14
-	sigs.k8s.io/kind => sigs.k8s.io/kind v0.11.1
+	sigs.k8s.io/kind => sigs.k8s.io/kind v0.11.2-0.20210720091531-3be51cf6409e
 )
 
 require (
@@ -118,6 +118,6 @@ require (
 	sigs.k8s.io/cluster-api/test/infrastructure/docker v0.0.0-20200707192359-e68354f948db
 	sigs.k8s.io/controller-runtime v0.7.0
 	sigs.k8s.io/controller-tools v0.3.0
-	sigs.k8s.io/kind v0.11.1
+	sigs.k8s.io/kind v0.11.2-0.20210720091531-3be51cf6409e
 	sigs.k8s.io/yaml v1.2.0
 )
