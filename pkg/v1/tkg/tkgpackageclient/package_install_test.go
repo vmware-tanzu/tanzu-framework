@@ -101,7 +101,6 @@ var _ = Describe("Install Package", func() {
 		progress = &tkgpackagedatamodel.PackageProgress{
 			ProgressMsg: make(chan string, 10),
 			Err:         make(chan error),
-			Done:        make(chan struct{}),
 			Success:     make(chan bool),
 		}
 		ctl = &pkgClient{kappClient: kappCtl}
@@ -342,8 +341,6 @@ func testReceive(progress *tkgpackagedatamodel.PackageProgress) error {
 			return err
 		case <-progress.ProgressMsg:
 			continue
-		case <-progress.Done:
-			return nil
 		case <-progress.Success:
 			return nil
 		}
