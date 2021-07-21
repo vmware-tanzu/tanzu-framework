@@ -69,7 +69,7 @@ var (
 	pollTimeout            = 10 * time.Minute
 	standardRepoName       = "tanzu-standard"
 	standardNamespace      = "tanzu-package-repo-global"
-	standardRepoURL        = "projects-stg.registry.vmware.com/tkg/packages/standard/repo:v1.4.0-zshippable"
+	standardRepoURL        = "projects-stg.registry.vmware.com/tkg/packageplugin/standard/repo:v1.4.0-zshippable"
 	testPkgInstallName     = "test-pkg"
 	testPkgName            = "fluent-bit.tanzu.vmware.com"
 	testPkgVersion         = "1.7.5+vmware.1-tkg.1-zshippable"
