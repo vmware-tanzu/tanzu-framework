@@ -36,6 +36,7 @@ require (
 	github.com/evanphx/json-patch v4.11.0+incompatible // indirect
 	github.com/fabriziopandini/capi-conditions v0.0.0-20201102133039-7eb142d1b6d6
 	github.com/fatih/color v1.10.0
+	github.com/getkin/kin-openapi v0.66.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-ldap/ldap/v3 v3.3.0
 	github.com/go-logr/logr v0.4.0
@@ -55,7 +56,6 @@ require (
 	github.com/google/go-containerregistry v0.4.1
 	github.com/google/uuid v1.2.0 // indirect
 	github.com/googleapis/gnostic v0.4.1
-	github.com/gorilla/mux v1.7.4 // indirect
 	github.com/gorilla/websocket v1.4.2
 	github.com/gosuri/uitable v0.0.4
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
@@ -111,7 +111,7 @@ require (
 	k8s.io/klog/v2 v2.8.0
 	k8s.io/kubectl v0.17.11
 	k8s.io/utils v0.0.0-20210527160623-6fdb442a123b
-	sigs.k8s.io/cluster-api v0.3.20-0.20210628204229-9fcfbce8e5c6
+	sigs.k8s.io/cluster-api v0.3.22-0.20210720023132-dfeb8d447bdc
 	sigs.k8s.io/cluster-api-provider-aws v0.6.5-0.20210309190705-ff3ed1b9f6f1
 	sigs.k8s.io/cluster-api-provider-azure v0.4.9-0.20200910212016-5c680a6c2dd4
 	sigs.k8s.io/cluster-api-provider-vsphere v0.7.1

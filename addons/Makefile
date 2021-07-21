@@ -10,23 +10,6 @@ export GO111MODULE := on
 
 # Image URL to use all building/pushing image targets
 IMG ?= addons-controller:latest
-IMAGE_REPO ?= vmware.io
-
-# Tag for template images, shoudld end with "-templates"
-IMAGES_OUTPUT_DIR ?= template-images
-TEMPLATES_IMG_TAG ?= $(shell git describe --always --dirty --tags)
-
-# Template image names
-ADDONS_MANAGER_TEMPLATES_IMG_NAME ?= tanzu-addons-manager-templates
-KAPP_CONTROLLER_TEMPLATES_IMG_NAME ?= kapp-controller-templates
-METRICS_SERVER_TEMPLATES_IMG_NAME ?= metrics-server-templates
-VSPHERE_CPI_TEMPLATES_IMG_NAME ?= vsphere-cpi-templates
-PINNIPED_ADDON_TEMPLATES_IMG_NAME ?= pinniped-templates
-VSPHERE_CSI_TEMPLATES_IMG_NAME ?= vsphere-csi-templates
-ANTREA_TEMPLATES_IMG_NAME ?= antrea-templates
-CALICO_TEMPLATES_IMG_NAME ?= calico-templates
-AKO_OPERATOR_TEMPLATES_IMG_NAME ?= ako-operator-templates
-AKO_TEMPLATES_IMG_NAME ?= load-balancer-and-ingress-service-templates
 
 # Directories
 BIN_DIR       := bin
@@ -38,9 +21,6 @@ export PATH := $(abspath $(BIN_DIR)):$(PATH)
 
 # Binaries
 MANAGER       := $(BIN_DIR)/manager
-
-# golang container for building binaries
-GO_CONTAINER ?= mirror.gcr.io/library/golang:1.14
 
 # ssh private key file name
 SSH_PRIVATE_KEY ?= .private_ssh_key
@@ -60,7 +40,7 @@ help: ## Display this help
 ## --------------------------------------
 
 .PHONY: test
-test: fmt vet verify-manifests lint-manifests ## Run Tests
+test: fmt vet ## Run Tests
 	$(MAKE) kubebuilder -C ${ROOT_DIR}$(TOOLS_DIR)
 	KUBEBUILDER_ASSETS=${ROOT_DIR}$(KUBEBUILDER_BIN_DIR) go test ./... -coverprofile cover.out -v 2
 
@@ -91,11 +71,6 @@ fmt: ## Fmt codebase
 .PHONY: vet
 vet: ## Vet codebase
 	go vet ./...
-
-.PHONY: lint-manifests
-    lint-manifests: tools ## Lint the addons' kubernetes manifests using kubeval
-	$(MAKE) clean-artifacts
-	./scripts/lint-manifests.sh
 
 ## --------------------------------------
 ## Development - local
@@ -135,73 +110,5 @@ git-config: ## Configure gitlab access
 ## --------------------------------------
 
 .PHONY: clean ## Remove all generated files
-clean: docker-remove clean-artifacts
+clean: docker-remove
 	rm -rf bin
-
-.PHONY: clean-artifacts  ## Remove all generated manifests
-clean-artifacts:
-	rm -rf artifacts
-	rm -rf template_tests/.rendered-output
-
-## --------------------------------------
-## Addon templates
-## --------------------------------------
-build-addon-template-images:
-	IMG_NAME="$(IMAGE_REPO)/$(ADDONS_MANAGER_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C addons-manager
-	IMG_NAME="$(IMAGE_REPO)/$(KAPP_CONTROLLER_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C kapp-controller
-	IMG_NAME="$(IMAGE_REPO)/$(VSPHERE_CPI_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C vsphere_cpi
-	IMG_NAME="$(IMAGE_REPO)/$(PINNIPED_ADDON_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C pinniped
-	IMG_NAME="$(IMAGE_REPO)/$(METRICS_SERVER_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C metrics-server
-	IMG_NAME="$(IMAGE_REPO)/$(VSPHERE_CSI_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C vsphere_csi
-	IMG_NAME="$(IMAGE_REPO)/$(ANTREA_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C antrea
-	IMG_NAME="$(IMAGE_REPO)/$(CALICO_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C calico
-	IMG_NAME="$(IMAGE_REPO)/$(AKO_OPERATOR_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C ako-operator
-	IMG_NAME="$(IMAGE_REPO)/$(AKO_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) template-image -C load-balancer-and-ingress-service
-
-save-addon-template-images:
-	mkdir -p "${ROOT_DIR}addons/artifacts"
-	docker save "$(IMAGE_REPO)/${ADDONS_MANAGER_TEMPLATES_IMG_NAME}:${TEMPLATES_IMG_TAG}" | gzip -c > "${ROOT_DIR}addons/artifacts/${ADDONS_MANAGER_TEMPLATES_IMG_NAME}-${TEMPLATES_IMG_TAG}.tar.gz"
-	docker save "$(IMAGE_REPO)/${KAPP_CONTROLLER_TEMPLATES_IMG_NAME}:${TEMPLATES_IMG_TAG}" | gzip -c > "${ROOT_DIR}addons/artifacts/${KAPP_CONTROLLER_TEMPLATES_IMG_NAME}-${TEMPLATES_IMG_TAG}.tar.gz"
-	docker save "$(IMAGE_REPO)/${VSPHERE_CPI_TEMPLATES_IMG_NAME}:${TEMPLATES_IMG_TAG}" | gzip -c > "${ROOT_DIR}addons/artifacts/${VSPHERE_CPI_TEMPLATES_IMG_NAME}-${TEMPLATES_IMG_TAG}.tar.gz"
-	docker save "$(IMAGE_REPO)/${PINNIPED_ADDON_TEMPLATES_IMG_NAME}:${TEMPLATES_IMG_TAG}" | gzip -c > "${ROOT_DIR}addons/artifacts/${PINNIPED_ADDON_TEMPLATES_IMG_NAME}-${TEMPLATES_IMG_TAG}.tar.gz"
-	docker save "$(IMAGE_REPO)/${METRICS_SERVER_TEMPLATES_IMG_NAME}:${TEMPLATES_IMG_TAG}" | gzip -c > "${ROOT_DIR}addons/artifacts/${METRICS_SERVER_TEMPLATES_IMG_NAME}-${TEMPLATES_IMG_TAG}.tar.gz"
-	docker save "$(IMAGE_REPO)/${VSPHERE_CSI_TEMPLATES_IMG_NAME}:${TEMPLATES_IMG_TAG}" | gzip -c > "${ROOT_DIR}addons/artifacts/${VSPHERE_CSI_TEMPLATES_IMG_NAME}-${TEMPLATES_IMG_TAG}.tar.gz"
-	docker save "$(IMAGE_REPO)/${ANTREA_TEMPLATES_IMG_NAME}:${TEMPLATES_IMG_TAG}" | gzip -c > "${ROOT_DIR}addons/artifacts/${ANTREA_TEMPLATES_IMG_NAME}-${TEMPLATES_IMG_TAG}.tar.gz"
-	docker save "$(IMAGE_REPO)/${CALICO_TEMPLATES_IMG_NAME}:${TEMPLATES_IMG_TAG}" | gzip -c > "${ROOT_DIR}addons/artifacts/${CALICO_TEMPLATES_IMG_NAME}-${TEMPLATES_IMG_TAG}.tar.gz"
-	docker save "$(IMAGE_REPO)/${AKO_OPERATOR_TEMPLATES_IMG_NAME}:${TEMPLATES_IMG_TAG}" | gzip -c > "${ROOT_DIR}addons/artifacts/${AKO_OPERATOR_TEMPLATES_IMG_NAME}-${TEMPLATES_IMG_TAG}.tar.gz"
-	docker save "$(IMAGE_REPO)/${AKO_TEMPLATES_IMG_NAME}:${TEMPLATES_IMG_TAG}" | gzip -c > "${ROOT_DIR}addons/artifacts/${AKO_TEMPLATES_IMG_NAME}-${TEMPLATES_IMG_TAG}.tar.gz"
-
-push-addon-template-images: ## Push template images
-	IMG_NAME="$(IMAGE_REPO)/$(ADDONS_MANAGER_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) push-template-image -C addons-manager
-	IMG_NAME="$(IMAGE_REPO)/$(KAPP_CONTROLLER_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) push-template-image -C kapp-controller
-	IMG_NAME="$(IMAGE_REPO)/$(VSPHERE_CPI_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) push-template-image -C vsphere_cpi
-	IMG_NAME="$(IMAGE_REPO)/$(PINNIPED_ADDON_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) push-template-image -C pinniped
-	IMG_NAME="$(IMAGE_REPO)/$(METRICS_SERVER_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) push-template-image -C metrics-server
-	IMG_NAME="$(IMAGE_REPO)/$(VSPHERE_CSI_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) push-template-image -C vsphere_csi
-	IMG_NAME="$(IMAGE_REPO)/$(ANTREA_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) push-template-image -C antrea
-	IMG_NAME="$(IMAGE_REPO)/$(CALICO_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) push-template-image -C calico
-	IMG_NAME="$(IMAGE_REPO)/$(AKO_OPERATOR_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) push-template-image -C ako-operator
-	IMG_NAME="$(IMAGE_REPO)/$(AKO_TEMPLATES_IMG_NAME)" IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) push-template-image -C load-balancer-and-ingress-service
-
-## --------------------------------------
-## BOM yaml that contains all add-ons
-## --------------------------------------
-bom-yaml:
-	mkdir -p "${ROOT_DIR}addons/artifacts"
-	IMG_TAG=$(TEMPLATES_IMG_TAG) $(MAKE) generate-addon-bom -C bom
-
-## --------------------------------------
-## verify manifests
-## --------------------------------------
-.PHONY: verify-manifests
-verify-manifests: tools ## Verify if rendered and actual manifests are the same
-	$(MAKE) clean-artifacts
-	./scripts/verify-manifests.sh
-
-## --------------------------------------
-## build tools
-## --------------------------------------
-.PHONY: tools
-tools: ## Prepare tooling binaries
-	$(MAKE) ytt -C ${ROOT_DIR}$(TOOLS_DIR)
-	$(MAKE) kubeval -C ${ROOT_DIR}$(TOOLS_DIR)

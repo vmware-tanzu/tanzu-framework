@@ -345,6 +345,8 @@ github.com/fortytw2/leaktest v1.3.0/go.mod h1:jDsjWgpAGjm2CA7WthBh/CdZYEPF31XHqu
 github.com/fsnotify/fsnotify v1.4.7/go.mod h1:jwhsz4b93w/PPRr/qN1Yymfu8t87LnFCMoQvtojpjFo=
 github.com/fsnotify/fsnotify v1.4.9 h1:hsms1Qyu0jgnwNXIxa+/V/PDsU6CfLf6CNO8H7IWoS4=
 github.com/fsnotify/fsnotify v1.4.9/go.mod h1:znqG4EE+3YCdAaPaxE2ZRY/06pZUdp0tY4IgpuI1SZQ=
+github.com/getkin/kin-openapi v0.66.0 h1:GNEnjUYK5j5TR8CrXBQ5Nao9kVd7kPpoTr0Y0q4eaSA=
+github.com/getkin/kin-openapi v0.66.0/go.mod h1:7Yn5whZr5kJi6t+kShccXS8ae1APpYTW6yheSwk8Yi4=
 github.com/ghodss/yaml v0.0.0-20150909031657-73d445a93680/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/ghodss/yaml v1.0.0 h1:wQHKEahhL6wmXdzwWG11gIVCkOv05bNOh+Rxn0yngAk=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
@@ -387,8 +389,9 @@ github.com/go-openapi/jsonpointer v0.0.0-20160704185906-46af16f9f7b1/go.mod h1:+
 github.com/go-openapi/jsonpointer v0.17.0/go.mod h1:cOnomiV+CVVwFLk0A/MExoFMjwdsUdVpsRhURCKh+3M=
 github.com/go-openapi/jsonpointer v0.18.0/go.mod h1:cOnomiV+CVVwFLk0A/MExoFMjwdsUdVpsRhURCKh+3M=
 github.com/go-openapi/jsonpointer v0.19.2/go.mod h1:3akKfEdA7DF1sugOqz1dVQHBcuDBPKZGEoHC/NkiQRg=
-github.com/go-openapi/jsonpointer v0.19.3 h1:gihV7YNZK1iK6Tgwwsxo2rJbD1GTbdm72325Bq8FI3w=
 github.com/go-openapi/jsonpointer v0.19.3/go.mod h1:Pl9vOtqEWErmShwVjC8pYs9cog34VGT37dQOVbmoatg=
+github.com/go-openapi/jsonpointer v0.19.5 h1:gZr+CIYByUqjcgeLXnQu2gHYQC9o73G2XUeOFYEICuY=
+github.com/go-openapi/jsonpointer v0.19.5/go.mod h1:Pl9vOtqEWErmShwVjC8pYs9cog34VGT37dQOVbmoatg=
 github.com/go-openapi/jsonreference v0.0.0-20160704190145-13c6e3589ad9/go.mod h1:W3Z9FmVs9qj+KR4zFKmDPGiLdk1D9Rlm7cyMvf57TTg=
 github.com/go-openapi/jsonreference v0.17.0/go.mod h1:g4xxGn04lDIRh0GJb5QlpE3HfopLOL6uZrK/VgnsK9I=
 github.com/go-openapi/jsonreference v0.18.0/go.mod h1:g4xxGn04lDIRh0GJb5QlpE3HfopLOL6uZrK/VgnsK9I=
@@ -595,8 +598,8 @@ github.com/goreleaser/goreleaser v0.136.0/go.mod h1:wiKrPUeSNh6Wu8nUHxZydSOVQ/OZ
 github.com/goreleaser/nfpm v1.2.1/go.mod h1:TtWrABZozuLOttX2uDlYyECfQX7x5XYkVxhjYcR6G9w=
 github.com/goreleaser/nfpm v1.3.0/go.mod h1:w0p7Kc9TAUgWMyrub63ex3M2Mgw88M4GZXoTq5UCb40=
 github.com/gorilla/mux v1.7.3/go.mod h1:1lud6UwP+6orDFRuTfBEV8e9/aOM/c4fVVCaMa2zaAs=
-github.com/gorilla/mux v1.7.4 h1:VuZ8uybHlWmqV03+zRzdwKL4tUnIp1MAQtp1mIFE1bc=
-github.com/gorilla/mux v1.7.4/go.mod h1:DVbg23sWSpFRCP0SfiEN6jmj59UnW/n46BH5rLB71So=
+github.com/gorilla/mux v1.8.0 h1:i40aqfkR1h2SlN9hojwV5ZA91wcXFOvkdNIeFDP5koI=
+github.com/gorilla/mux v1.8.0/go.mod h1:DVbg23sWSpFRCP0SfiEN6jmj59UnW/n46BH5rLB71So=
 github.com/gorilla/websocket v0.0.0-20170926233335-4201258b820c/go.mod h1:E7qHFY5m1UJ88s3WnNqhKjPHQ0heANvMoAMk2YaljkQ=
 github.com/gorilla/websocket v1.4.0/go.mod h1:E7qHFY5m1UJ88s3WnNqhKjPHQ0heANvMoAMk2YaljkQ=
 github.com/gorilla/websocket v1.4.2 h1:+/TMaTYc4QFitKJxsQ7Yye35DkWvkdLcvGKqM+x0Ufc=
@@ -1759,8 +1762,8 @@ sigs.k8s.io/cluster-api v0.3.7/go.mod h1:G6gscKzZTGhMOOF3rDZXCxsLIbhVaacbjaiikB/
 sigs.k8s.io/cluster-api v0.3.8/go.mod h1:j2beYKyad77JkeGaiv4l2obt81C3eqxfZGFDqX0YWjs=
 sigs.k8s.io/cluster-api v0.3.9/go.mod h1:A7Om/um/j7hvqTvm+KEMEjDOn6fHKRhcVtBiuAH+tYQ=
 sigs.k8s.io/cluster-api v0.3.14/go.mod h1:qGxyPTEJWNpII9SBkeRwv+Xvy6EZRLLLzaxVfBLsBpA=
-sigs.k8s.io/cluster-api v0.3.20-0.20210628204229-9fcfbce8e5c6 h1:qjmQpgyqq5wdNvayoom27zfNzb0OZp2bJ+oaLxZ+Q+0=
-sigs.k8s.io/cluster-api v0.3.20-0.20210628204229-9fcfbce8e5c6/go.mod h1:1DBZEj6GmcWxe77d8YOeac1JIa8ttP21uTHUlAyji2g=
+sigs.k8s.io/cluster-api v0.3.22-0.20210720023132-dfeb8d447bdc h1:UbinHZWjSflSyBFL7q9EVIp5C6aX8MW8oVQNy5kViiw=
+sigs.k8s.io/cluster-api v0.3.22-0.20210720023132-dfeb8d447bdc/go.mod h1:1DBZEj6GmcWxe77d8YOeac1JIa8ttP21uTHUlAyji2g=
 sigs.k8s.io/cluster-api-provider-aws v0.6.5-0.20210309190705-ff3ed1b9f6f1 h1:RvjMKAzfoRx5rWXB0S1wTb3sWZegfGIZcpxlVpGFbls=
 sigs.k8s.io/cluster-api-provider-aws v0.6.5-0.20210309190705-ff3ed1b9f6f1/go.mod h1:hekliQu4ajGABYrB+vfc0idiXJ/cEY2r0kDxbOWAElg=
 sigs.k8s.io/cluster-api-provider-azure v0.4.9-0.20200910212016-5c680a6c2dd4 h1:RL05UgjiahrpHJ0l2zO5xjG4Fpa0/eAVE8BeX0CxHjA=
