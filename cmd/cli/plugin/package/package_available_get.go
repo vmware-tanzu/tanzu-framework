@@ -111,7 +111,7 @@ func packageAvailableGet(cmd *cobra.Command, args []string) error {
 			"long-description", "maintainers", "release-notes", "license", "support", "category")
 		t.AddRow(pkg.Spec.RefName, pkg.Spec.Version, pkg.Spec.ReleasedAt, pkgMetadata.Spec.DisplayName, pkgMetadata.Spec.ShortDescription,
 			pkgMetadata.Spec.ProviderName, pkg.Spec.CapactiyRequirementsDescription, pkgMetadata.Spec.LongDescription, pkgMetadata.Spec.Maintainers,
-			pkg.Spec.ReleaseNotes, pkg.Spec.Licenses, pkgMetadata.Spec.SupportDescription, pkgMetadata.Spec.Categories )
+			pkg.Spec.ReleaseNotes, pkg.Spec.Licenses, pkgMetadata.Spec.SupportDescription, pkgMetadata.Spec.Categories)
 
 		t.RenderWithSpinner()
 	} else {
