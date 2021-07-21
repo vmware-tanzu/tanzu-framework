@@ -108,16 +108,16 @@ func packageAvailableGet(cmd *cobra.Command, args []string) error {
 			return err
 		}
 		t.SetKeys("name", "version", "released-at", "display-name", "short-description", "package-provider", "minimum-capacity-requirements",
-			"long-description", "maintainers", "release-notes", "license")
+			"long-description", "maintainers", "release-notes", "license", "support", "category")
 		t.AddRow(pkg.Spec.RefName, pkg.Spec.Version, pkg.Spec.ReleasedAt, pkgMetadata.Spec.DisplayName, pkgMetadata.Spec.ShortDescription,
 			pkgMetadata.Spec.ProviderName, pkg.Spec.CapactiyRequirementsDescription, pkgMetadata.Spec.LongDescription, pkgMetadata.Spec.Maintainers,
-			pkg.Spec.ReleaseNotes, pkg.Spec.Licenses)
+			pkg.Spec.ReleaseNotes, pkg.Spec.Licenses, pkgMetadata.Spec.SupportDescription, pkgMetadata.Spec.Categories)
 
 		t.RenderWithSpinner()
 	} else {
-		t.SetKeys("name", "display-name", "short-description", "package-provider", "long-description", "maintainers")
+		t.SetKeys("name", "display-name", "short-description", "package-provider", "long-description", "maintainers", "support", "category")
 		t.AddRow(pkgMetadata.Name, pkgMetadata.Spec.DisplayName, pkgMetadata.Spec.ShortDescription,
-			pkgMetadata.Spec.ProviderName, pkgMetadata.Spec.LongDescription, pkgMetadata.Spec.Maintainers)
+			pkgMetadata.Spec.ProviderName, pkgMetadata.Spec.LongDescription, pkgMetadata.Spec.Maintainers, pkgMetadata.Spec.SupportDescription, pkgMetadata.Spec.Categories)
 
 		t.RenderWithSpinner()
 	}
