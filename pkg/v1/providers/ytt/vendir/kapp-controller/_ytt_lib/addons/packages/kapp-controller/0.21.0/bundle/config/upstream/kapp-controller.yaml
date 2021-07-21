@@ -1240,9 +1240,9 @@ metadata:
           Type: local
         - Dirty: false
           RemoteURL: git@github.com:vmware-tanzu/carvel-kapp-controller.git
-          SHA: 0356add4b65c3744764626f139f7308c59bcf8d3
+          SHA: 84fbfc9e426bfc9b4200319c38de29b0b7f82598
           Type: git
-        URL: index.docker.io/k14s/kapp-controller@sha256:c8c19ef5035f1da43d97250d2bf24e068a0e4485ee157ab9867ef267e8247f26
+        URL: index.docker.io/k14s/kapp-controller@sha256:3e5e6e47c1011baccb66838904e816b0e1ce697327281b5e2d88307244af193a
   name: kapp-controller
   namespace: kapp-controller
 spec:
@@ -1266,10 +1266,12 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        image: index.docker.io/k14s/kapp-controller@sha256:c8c19ef5035f1da43d97250d2bf24e068a0e4485ee157ab9867ef267e8247f26
+        - name: KAPPCTRL_API_PORT
+          value: "10350"
+        image: index.docker.io/k14s/kapp-controller@sha256:3e5e6e47c1011baccb66838904e816b0e1ce697327281b5e2d88307244af193a
         name: kapp-controller
         ports:
-        - containerPort: 10349
+        - containerPort: 10350
           name: api
           protocol: TCP
         resources:

@@ -23,6 +23,6 @@ directories:
   - path: .
     git:
       url: git@github.com:vmware-tanzu/tce.git
-      ref: 334de21b2ae278bd3fd2bdf0f6b4fec2725d54ac
+      ref: 8bdf20f66730f7ed00354f5aa03727458bc77a87
     includePaths:
-    - addons/packages/kapp-controller/0.20.0/bundle/config/**/*
+    - addons/packages/kapp-controller/0.21.0/bundle/config/**/*

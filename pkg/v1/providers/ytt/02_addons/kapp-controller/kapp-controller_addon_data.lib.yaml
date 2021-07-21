@@ -23,6 +23,7 @@ kappController:
     concurrency: 4
     hostNetwork: true
     priorityClassName: system-cluster-critical
+    apiPort: 10100
 #@ if data.values.TKG_CLUSTER_ROLE == "workload": #! For mgmt cluster tolerations needs to be added using overlay due to ytt's array handling behavior
     tolerations:
     - key: CriticalAddonsOnly
