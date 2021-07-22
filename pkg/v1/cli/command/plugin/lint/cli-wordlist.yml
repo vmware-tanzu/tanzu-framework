@@ -4,6 +4,7 @@ nouns:
   - admin-kubeconfig
   - alpha
   - app
+  - available
   - available-upgrades
   - aws
   - ceip-participation
@@ -13,20 +14,24 @@ nouns:
   - credentials
   - data-protection
   - insight
+  - installed
   - kubeconfig
   - kubernetes-release
   - login
   - machinehealthcheck
   - management-cluster
   - os
+  - package
   - permissions
   - pinniped-auth
   - plugin
   - policy
   - provisioner
   - repo
+  - repository
   - workspace
 verbs:
+  - add
   - clean
   - completion
   - create
@@ -50,6 +55,7 @@ global-flags:
   - v
   - verbose
 command-flags:
+  - all-namespaces
   - apiToken
   - bind
   - browser
@@ -66,6 +72,7 @@ command-flags:
   - context
   - controlplane-machine-count
   - controlplane-size
+  - create-namespace
   - debug-session-cache
   - deploy-tkg-on-vSphere7
   - disable-grouping
@@ -93,10 +100,14 @@ command-flags:
   - os-name
   - os-version
   - output
+  - package-name
   - plan
+  - poll-interval
+  - poll-timeout
   - request-audience
   - scopes
   - server
+  - service-account-name
   - session-cache
   - show-all-conditions
   - show-details
@@ -110,10 +121,14 @@ command-flags:
   - tkr
   - tmc-registration-url
   - ui
+  - url
   - use-existing-bootstrap-cluster
   - use-existing-cleanup-cluster
+  - values-file
+  - values-schema
   - vsphere-controlplane-endpoint
   - vsphere-vm-template-name
+  - wait
   - worker-machine-count
   - worker-size
   - yes
