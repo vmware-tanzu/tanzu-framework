@@ -338,13 +338,14 @@ spec:
         - --enable-leader-election
         command:
         - /manager
-        image: gcr.io/eminent-nation-87317/ruiw0721/tkr-controller:latest
+#!       The prod registry does not use a latest tag, but the image tag will be overlayed based on the BoM file being used
+        image: projects.registry.vmware.com/tkg/tanzu_core/tkr/tkr-controller-manager:latest
         imagePullPolicy: Always
         name: manager
         resources:
           limits:
             cpu: 100m
-            memory: 30Mi
+            memory: 100Mi
           requests:
             cpu: 100m
             memory: 20Mi
