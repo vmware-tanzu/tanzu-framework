@@ -20,7 +20,7 @@ type PackagePluginBase interface {
 	ListRepository(o *tkgpackagedatamodel.RepositoryOptions) PackagePluginResult
 
 	GetAvailablePackage(packageName string, o *tkgpackagedatamodel.PackageAvailableOptions) PackagePluginResult
-	ListAvailablePackage(o *tkgpackagedatamodel.PackageAvailableOptions) PackagePluginResult
+	ListAvailablePackage(packageName string, o *tkgpackagedatamodel.PackageAvailableOptions) PackagePluginResult
 
 	CreateInstalledPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult
 	GetInstalledPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult
@@ -116,7 +116,7 @@ func (p *packagePlugin) addGlobalOptions(cmd string) string {
 
 func (p *packagePlugin) AddRepository(o *tkgpackagedatamodel.RepositoryOptions) PackagePluginResult {
 	var result PackagePluginResult
-	cmd := fmt.Sprintf("tanzu package repository add %s %s", o.RepositoryName, o.RepositoryURL)
+	cmd := fmt.Sprintf("tanzu package repository add %s --url %s", o.RepositoryName, o.RepositoryURL)
 	if o.Namespace != "" {
 		cmd += fmt.Sprintf(" --namespace %s", o.Namespace)
 	}
@@ -144,9 +144,12 @@ func (p *packagePlugin) GetRepository(o *tkgpackagedatamodel.RepositoryOptions) 
 
 func (p *packagePlugin) UpdateRepository(o *tkgpackagedatamodel.RepositoryOptions) PackagePluginResult {
 	var result PackagePluginResult
-	cmd := fmt.Sprintf("tanzu package repository update %s %s", o.RepositoryName, o.RepositoryURL)
+	cmd := fmt.Sprintf("tanzu package repository update %s --url %s", o.RepositoryName, o.RepositoryURL)
 	if o.Namespace != "" {
 		cmd += fmt.Sprintf(" --namespace %s", o.Namespace)
+	}
+	if o.CreateNamespace {
+		cmd += fmt.Sprintf(" --create-namespace")
 	}
 	if o.CreateRepository {
 		cmd += fmt.Sprintf(" --create")
@@ -208,9 +211,16 @@ func (p *packagePlugin) GetAvailablePackage(packageName string, o *tkgpackagedat
 	return result
 }
 
-func (p *packagePlugin) ListAvailablePackage(o *tkgpackagedatamodel.PackageAvailableOptions) PackagePluginResult {
-	var result PackagePluginResult
-	cmd := fmt.Sprintf("tanzu package available list")
+func (p *packagePlugin) ListAvailablePackage(packageName string, o *tkgpackagedatamodel.PackageAvailableOptions) PackagePluginResult {
+	var (
+		cmd    string
+		result PackagePluginResult
+	)
+	if packageName == "" {
+		cmd = fmt.Sprintf("tanzu package available list")
+	} else {
+		cmd = fmt.Sprintf("tanzu package available list %s", packageName)
+	}
 	if o.AllNamespaces {
 		cmd += fmt.Sprintf(" --all-namespaces")
 	}
@@ -243,15 +253,14 @@ func (p *packagePlugin) CreateInstalledPackage(o *tkgpackagedatamodel.PackageOpt
 		cmd += fmt.Sprintf(" --service-account-name %s", o.ServiceAccountName)
 	}
 	if !o.Wait {
-		cmd += fmt.Sprintf(" --wait false")
+		cmd += fmt.Sprintf(" --wait=false")
 	}
 	if o.PollInterval != 0 {
-		cmd += fmt.Sprintf(" --poll-interval %d", o.PollInterval)
+		cmd += fmt.Sprintf(" --poll-interval %s", o.PollInterval)
 	}
 	if o.PollTimeout != 0 {
-		cmd += fmt.Sprintf(" --poll-timeout %d", o.PollTimeout)
+		cmd += fmt.Sprintf(" --poll-timeout %s", o.PollTimeout)
 	}
-	cmd = p.addOutputFormat(cmd)
 	cmd = p.addKubeconfig(cmd)
 	cmd = p.addGlobalOptions(cmd)
 	result.Stdout, result.Stderr, result.Error = clitest.Exec(cmd)
@@ -260,7 +269,7 @@ func (p *packagePlugin) CreateInstalledPackage(o *tkgpackagedatamodel.PackageOpt
 
 func (p *packagePlugin) GetInstalledPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult {
 	var result PackagePluginResult
-	cmd := fmt.Sprintf("tanzu package installed get %s", o.PackageName)
+	cmd := fmt.Sprintf("tanzu package installed get %s", o.PkgInstallName)
 	if o.Namespace != "" {
 		cmd += fmt.Sprintf(" --namespace %s", o.Namespace)
 	}
@@ -280,25 +289,12 @@ func (p *packagePlugin) UpdateInstalledPackage(o *tkgpackagedatamodel.PackageOpt
 	if o.Namespace != "" {
 		cmd += fmt.Sprintf(" --namespace %s", o.Namespace)
 	}
-	if o.CreateNamespace {
-		cmd += fmt.Sprintf(" --create-namespace")
+	if o.Install {
+		cmd += fmt.Sprintf(" --install")
 	}
 	if o.ValuesFile != "" {
 		cmd += fmt.Sprintf(" --values-file %s", o.ValuesFile)
 	}
-	if o.ServiceAccountName != "" {
-		cmd += fmt.Sprintf(" --service-account-name %s", o.ServiceAccountName)
-	}
-	if !o.Wait {
-		cmd += fmt.Sprintf(" --wait false")
-	}
-	if o.PollInterval != 0 {
-		cmd += fmt.Sprintf(" --poll-interval %d", o.PollInterval)
-	}
-	if o.PollTimeout != 0 {
-		cmd += fmt.Sprintf(" --poll-timeout %d", o.PollTimeout)
-	}
-	cmd = p.addOutputFormat(cmd)
 	cmd = p.addKubeconfig(cmd)
 	cmd = p.addGlobalOptions(cmd)
 	result.Stdout, result.Stderr, result.Error = clitest.Exec(cmd)
@@ -312,12 +308,11 @@ func (p *packagePlugin) DeleteInstalledPackage(o *tkgpackagedatamodel.PackageOpt
 		cmd += fmt.Sprintf(" --namespace %s", o.Namespace)
 	}
 	if o.PollInterval != 0 {
-		cmd += fmt.Sprintf(" --poll-interval %d", o.PollInterval)
+		cmd += fmt.Sprintf(" --poll-interval %s", o.PollInterval)
 	}
 	if o.PollTimeout != 0 {
-		cmd += fmt.Sprintf(" --poll-timeout %d", o.PollTimeout)
+		cmd += fmt.Sprintf(" --poll-timeout %s", o.PollTimeout)
 	}
-	cmd = p.addOutputFormat(cmd)
 	cmd = p.addKubeconfig(cmd)
 	cmd = p.addGlobalOptions(cmd)
 	result.Stdout, result.Stderr, result.Error = clitest.Exec(cmd)
@@ -365,10 +360,9 @@ func (p *packagePlugin) CheckRepositoryAvailable(o *tkgpackagedatamodel.Reposito
 		})
 		if result.Error != nil {
 			return false, result.Error
-		} else {
-			if strings.Contains(result.Stdout.String(), "Reconcile succeeded") {
-				return true, nil
-			}
+		}
+		if result.Stdout != nil && strings.Contains(result.Stdout.String(), "Reconcile succeeded") {
+			return true, nil
 		}
 		return false, nil
 	}); err != nil {
@@ -399,12 +393,14 @@ func (p *packagePlugin) CheckRepositoryDeleted(o *tkgpackagedatamodel.Repository
 			RepositoryName: o.RepositoryName,
 			Namespace:      o.Namespace,
 		})
-		if result.Error != nil {
-			// Setting result error to nil since there will be error on get after repository is deleted
-			result.Error = nil
+		if result.Stderr != nil && strings.Contains(result.Stderr.String(), "does not exist") {
+			if result.Error != nil {
+				// Setting result error to nil since there will be error on get after repository is deleted
+				result.Error = nil
+			}
 			return true, nil
 		}
-		return false, nil
+		return false, result.Error
 	}); err != nil {
 		if result.Error == nil {
 			result.Error = err
@@ -434,8 +430,8 @@ func (p *packagePlugin) CheckPackageAvailable(packageName string, o *tkgpackaged
 func (p *packagePlugin) CheckAndInstallPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult {
 	var result PackagePluginResult
 	getResult := p.GetInstalledPackage(&tkgpackagedatamodel.PackageOptions{
-		PackageName: o.PkgInstallName,
-		Namespace:   o.Namespace,
+		PkgInstallName: o.PkgInstallName,
+		Namespace:      o.Namespace,
 	})
 	if getResult.Error != nil {
 		return p.CreateInstalledPackage(o)
@@ -447,15 +443,14 @@ func (p *packagePlugin) CheckPackageInstalled(o *tkgpackagedatamodel.PackageOpti
 	var result PackagePluginResult
 	if err := wait.PollImmediate(p.interval, p.timeout, func() (done bool, err error) {
 		result = p.GetInstalledPackage(&tkgpackagedatamodel.PackageOptions{
-			PackageName: o.PkgInstallName,
-			Namespace:   o.Namespace,
+			PkgInstallName: o.PkgInstallName,
+			Namespace:      o.Namespace,
 		})
 		if result.Error != nil {
 			return false, result.Error
-		} else {
-			if strings.Contains(result.Stdout.String(), "Reconcile succeeded") {
-				return true, nil
-			}
+		}
+		if result.Stdout != nil && strings.Contains(result.Stdout.String(), "Reconcile succeeded") {
+			return true, nil
 		}
 		return false, nil
 	}); err != nil {
@@ -470,8 +465,8 @@ func (p *packagePlugin) CheckPackageInstalled(o *tkgpackagedatamodel.PackageOpti
 func (p *packagePlugin) CheckAndUninstallPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult {
 	var result PackagePluginResult
 	getResult := p.GetInstalledPackage(&tkgpackagedatamodel.PackageOptions{
-		PackageName: o.PkgInstallName,
-		Namespace:   o.Namespace,
+		PkgInstallName: o.PkgInstallName,
+		Namespace:      o.Namespace,
 	})
 	if getResult.Error == nil {
 		return p.DeleteInstalledPackage(o)
@@ -483,15 +478,17 @@ func (p *packagePlugin) CheckPackageDeleted(o *tkgpackagedatamodel.PackageOption
 	var result PackagePluginResult
 	if err := wait.PollImmediate(p.interval, p.timeout, func() (done bool, err error) {
 		result = p.GetInstalledPackage(&tkgpackagedatamodel.PackageOptions{
-			PackageName: o.PkgInstallName,
-			Namespace:   o.Namespace,
+			PkgInstallName: o.PkgInstallName,
+			Namespace:      o.Namespace,
 		})
-		if result.Error != nil {
-			// Setting result error to nil since there will be error on get after package is deleted
-			result.Error = nil
+		if result.Stderr != nil && strings.Contains(result.Stderr.String(), "does not exist") {
+			if result.Error != nil {
+				// Setting result error to nil since there will be error on get after package is deleted
+				result.Error = nil
+			}
 			return true, nil
 		}
-		return false, nil
+		return false, result.Error
 	}); err != nil {
 		if result.Error == nil {
 			result.Error = err
