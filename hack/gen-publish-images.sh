@@ -53,7 +53,8 @@ actualImageRepository="$TKG_IMAGE_REPO"
 # and then pull, retag and push image to custom registry.
 list=$(imgpkg  tag  list -i "${actualImageRepository}"/tkg-bom)
 for imageTag in ${list}; do
-  if [[ ${imageTag} == v* ]]; then
+  tanzucliversion=$(tanzu version | head -n 1 | cut -c10-15)
+  if [[ ${imageTag} == ${tanzucliversion}* ]]; then
     TKG_BOM_FILE="tkg-bom-${imageTag//_/+}.yaml"
     imgpkg pull --image "${actualImageRepository}/tkg-bom:${imageTag}" --output "tmp" > /dev/null 2>&1
     echodual "Processing TKG BOM file ${TKG_BOM_FILE}"
@@ -61,7 +62,7 @@ for imageTag in ${list}; do
     actualTKGImage=${actualImageRepository}/tkg-bom:${imageTag}
     customTKGImage=${TKG_CUSTOM_IMAGE_REPOSITORY}/tkg-bom
     imgpkg_copy "-i" $actualTKGImage $customTKGImage
-    
+
     # Get components in the tkg-bom.
     # Remove the leading '[' and trailing ']' in the output of yq.
     components=(`yq e '.components | keys | .. style="flow"' "tmp/$TKG_BOM_FILE" | sed 's/^.//;s/.$//'`)
@@ -138,17 +139,5 @@ for imageTag in ${list}; do
     imgpkg_copy "-i" $actualImage $customImage
     echo ""
     echodual "Finished processing TKR compatibility image"
-  fi
-done
-
-list=$(imgpkg  tag  list -i ${actualImageRepository}/tkg-compatibility)
-for imageTag in ${list}; do
-  if [[ ${imageTag} == v* ]]; then 
-    echodual "Processing TKG compatibility image"
-    actualImage=${actualImageRepository}/tkg-compatibility:${imageTag}
-    customImage=$TKG_CUSTOM_IMAGE_REPOSITORY/tkg-compatibility
-    imgpkg_copy "-i" $actualImage $customImage
-    echo ""
-    echodual "Finished processing TKG compatibility image"
   fi
 done
