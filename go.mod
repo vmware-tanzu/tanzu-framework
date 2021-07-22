@@ -122,4 +122,4 @@ require (
 )
 
 // sigs.k8s.io/cluster-api => ../../github.com/vmware-tanzu/cluster-api
-replace sigs.k8s.io/cluster-api => github.com/vmware-tanzu/cluster-api v0.3.15-0.20210609222148-e9e6c9d422e8
+replace sigs.k8s.io/cluster-api => github.com/vmware-tanzu/cluster-api v0.3.23-0.20210722162135-d31e78c28159
