@@ -17,6 +17,7 @@ Example: Created vSphere workload cluster to verify change.
 <!--
 If no, just write "NONE" in the release-note block below.
 If yes, a release note is required:
+
 Enter your extended release note in the block below.
 -->
 ```release-note
@@ -28,4 +29,5 @@ Enter your extended release note in the block below.
 - [ ] Use good commit [messages](https://github.com/vmware-tanzu/tanzu-framework/blob/main/CONTRIBUTING.md)
 - [ ] Squash the commits in this branch before merge to preserve our git history
 - [ ] If this PR is just an idea or POC, use a [Draft PR](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests#draft-pull-requests) instead of a full PR
-- [ ] Add appropriate [kind label](../docs/release/kind-labels.md) according to what type of issue is being addressed.
+- [ ] Add appropriate [kind label](https://github.com/vmware-tanzu/tanzu-framework/blob/main/docs/release/kind-labels.md) according to what type of issue is being addressed.
+
