@@ -54,7 +54,7 @@ func (p *pkgClient) UninstallPackage(o *tkgpackagedatamodel.PackageOptions, prog
 			return
 		}
 
-		if err = p.waitForAppCRDeletion(o, progress.ProgressMsg); err != nil {
+		if err = p.waitForPackageInstallDeletion(o, progress.ProgressMsg); err != nil {
 			return
 		}
 	}
@@ -163,8 +163,8 @@ func (p *pkgClient) deletePackageInstall(o *tkgpackagedatamodel.PackageOptions) 
 	return nil
 }
 
-// waitForAppCRDeletion waits until the App CR get deleted successfully or a failure happen
-func (p *pkgClient) waitForAppCRDeletion(o *tkgpackagedatamodel.PackageOptions, progress chan string) error {
+// waitForPackageInstallDeletion waits until the PackageInstall CR gets deleted successfully or a failure happens
+func (p *pkgClient) waitForPackageInstallDeletion(o *tkgpackagedatamodel.PackageOptions, progress chan string) error {
 	if err := wait.Poll(o.PollInterval, o.PollTimeout, func() (done bool, err error) {
 		pkgInstall, err := p.kappClient.GetPackageInstall(o.PkgInstallName, o.Namespace)
 		if err != nil && apierrors.IsNotFound(err) {
