@@ -141,3 +141,15 @@ for imageTag in ${list}; do
     echodual "Finished processing TKR compatibility image"
   fi
 done
+
+list=$(imgpkg  tag  list -i ${actualImageRepository}/tkg-compatibility)
+for imageTag in ${list}; do
+  if [[ ${imageTag} == v* ]]; then 
+    echodual "Processing TKG compatibility image"
+    actualImage=${actualImageRepository}/tkg-compatibility:${imageTag}
+    customImage=$TKG_CUSTOM_IMAGE_REPOSITORY/tkg-compatibility
+    imgpkg_copy "-i" $actualImage $customImage
+    echo ""
+    echodual "Finished processing TKG compatibility image"
+  fi
+done
