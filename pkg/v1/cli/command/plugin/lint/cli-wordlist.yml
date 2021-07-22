@@ -72,6 +72,7 @@ command-flags:
   - context
   - controlplane-machine-count
   - controlplane-size
+  - create
   - create-namespace
   - debug-session-cache
   - deploy-tkg-on-vSphere7
@@ -126,6 +127,7 @@ command-flags:
   - use-existing-cleanup-cluster
   - values-file
   - values-schema
+  - version
   - vsphere-controlplane-endpoint
   - vsphere-vm-template-name
   - wait
