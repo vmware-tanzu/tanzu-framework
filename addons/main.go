@@ -15,6 +15,7 @@ import (
 	"k8s.io/klog/klogr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
+	"sigs.k8s.io/controller-runtime/pkg/healthz"
 
 	// +kubebuilder:scaffold:imports
 
@@ -62,6 +63,7 @@ func main() {
 	var addonClusterRoleBinding string
 	var addonImagePullPolicy string
 	var corePackageRepoName string
+	var healthdAddr string
 
 	// controller configurations
 	flag.StringVar(&metricsAddr, "metrics-addr", ":8080", "The address the metric endpoint binds to.")
@@ -81,18 +83,20 @@ func main() {
 	flag.StringVar(&addonClusterRoleBinding, "addon-cluster-role-binding-name", "tkg-addons-app-cluster-role-binding", "The name of addon clusterRoleBinding")
 	flag.StringVar(&addonImagePullPolicy, "addon-image-pull-policy", "IfNotPresent", "The addon image pull policy")
 	flag.StringVar(&corePackageRepoName, "core-package-repo-name", "tanzu-core", "The name of core package repository")
+	flag.StringVar(&healthdAddr, "health-addr", ":18316", "The address the health endpoint binds to.")
 
 	flag.Parse()
 
 	ctrl.SetLogger(klogr.New())
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
-		Scheme:             scheme,
-		MetricsBindAddress: metricsAddr,
-		Port:               9443,
-		LeaderElection:     enableLeaderElection,
-		LeaderElectionID:   "5832a104.run.tanzu.addons",
-		SyncPeriod:         &syncPeriod,
+		Scheme:                 scheme,
+		MetricsBindAddress:     metricsAddr,
+		Port:                   9443,
+		LeaderElection:         enableLeaderElection,
+		LeaderElectionID:       "5832a104.run.tanzu.addons",
+		SyncPeriod:             &syncPeriod,
+		HealthProbeBindAddress: healthdAddr,
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
@@ -101,7 +105,7 @@ func main() {
 
 	ctx := ctrl.SetupSignalHandler()
 
-	if err = (&controllers.AddonReconciler{
+	addonReconciler := &controllers.AddonReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("Addon"),
 		Scheme: mgr.GetScheme(),
@@ -115,14 +119,33 @@ func main() {
 			AddonImagePullPolicy:    addonImagePullPolicy,
 			CorePackageRepoName:     corePackageRepoName,
 		},
-	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: clusterConcurrency}); err != nil {
+	}
+	if err = addonReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: clusterConcurrency}); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Addon")
 		os.Exit(1)
 	}
 
+	if err := addonReconciler.WaitForCRDs(mgr); err != nil {
+		setupLog.Error(err, "unable to wait for CRDs")
+		os.Exit(1)
+	}
+
+	setupChecks(mgr)
 	setupLog.Info("starting manager")
 	if err := mgr.Start(ctx); err != nil {
 		setupLog.Error(err, "problem running manager")
+		os.Exit(1)
+	}
+}
+
+func setupChecks(mgr ctrl.Manager) {
+	if err := mgr.AddReadyzCheck("ping", healthz.Ping); err != nil {
+		setupLog.Error(err, "unable to create ready check")
+		os.Exit(1)
+	}
+
+	if err := mgr.AddHealthzCheck("ping", healthz.Ping); err != nil {
+		setupLog.Error(err, "unable to create health check")
 		os.Exit(1)
 	}
 }

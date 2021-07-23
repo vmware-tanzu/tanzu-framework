@@ -4,6 +4,8 @@
 // Package constants defines various constants used in the code.
 package constants
 
+import "time"
+
 const (
 	/* Addon constants section */
 
@@ -86,4 +88,13 @@ const (
 
 	// PackageRepositoryLogKey is the log key for "core-package-repository"
 	PackageRepositoryLogKey = "core-package-repository"
+
+	// AddonControllerName is name of addon-controller
+	AddonControllerName = "addon-controller"
+
+	// CRDWaitPollInterval is poll interval for checking server resources
+	CRDWaitPollInterval = time.Second * 5
+
+	// CRDWaitPollTimeout is poll timeout for checking server resources
+	CRDWaitPollTimeout = time.Minute * 10
 )

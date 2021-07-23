@@ -9,7 +9,7 @@ ROOT_DIR	:= $(dir $(shell pwd))
 export GO111MODULE := on
 
 # Image URL to use all building/pushing image targets
-IMG ?= addons-controller:latest
+IMG ?= addons-controller:$(shell git describe --always --dirty --tags)
 
 # Directories
 BIN_DIR       := bin
