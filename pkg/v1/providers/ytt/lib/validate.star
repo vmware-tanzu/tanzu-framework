@@ -1,5 +1,6 @@
 load("@ytt:data", "data")
 load("@ytt:assert", "assert")
+load("/lib/helpers.star", "validate_proxy_bypass_vsphere_host")
 
 required_variable_list_vsphere = [
   "VSPHERE_USERNAME",
@@ -42,6 +43,11 @@ def validate_configuration(provider):
     flag_missing_variable_error(required_variable_list_vsphere)
     if data.values.NSXT_POD_ROUTING_ENABLED == True:
       validate_nsxt_config()
+    end
+    #! known issue for govc: https://github.com/vmware/govmomi/issues/2494
+    #! TODO: remove the validation once the issue is resolved
+    if not data.values.VSPHERE_INSECURE:
+      validate_proxy_bypass_vsphere_host()
     end
   elif provider == "aws":
     flag_missing_variable_error(required_variable_list_aws)
