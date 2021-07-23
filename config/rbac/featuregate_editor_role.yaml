@@ -1,0 +1,24 @@
+# permissions for end users to edit featuregates.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: featuregate-editor-role
+rules:
+- apiGroups:
+  - config.tanzu.vmware.com
+  resources:
+  - featuregates
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - config.tanzu.vmware.com
+  resources:
+  - featuregates/status
+  verbs:
+  - get
