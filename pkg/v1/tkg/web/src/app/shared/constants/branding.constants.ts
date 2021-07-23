@@ -1,5 +1,11 @@
+export enum AppEdition {
+    TKG = 'tkg',
+    TCE = 'tce',
+    TCE_STANDALONE = 'tce-standalone'
+}
+
 export const brandingDefault = {
-    edition: "tkg",
+    edition: AppEdition.TKG,
     clusterType: "management",
     branding: {
         title: "Tanzu Kubernetes Grid",
@@ -19,7 +25,7 @@ export const brandingDefault = {
 }
 
 export const brandingTce = {
-    edition: "tce",
+    edition: AppEdition.TCE,
     clusterType: "management",
     branding: {
         title: "Tanzu Community Edition",
@@ -35,7 +41,7 @@ export const brandingTce = {
 }
 
 export const brandingTceStandalone = {
-    edition: "tce-standalone",
+    edition: AppEdition.TCE_STANDALONE,
     clusterType: "standalone",
     branding: {
         title: "Tanzu Community Edition",
