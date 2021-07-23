@@ -9,6 +9,6 @@ type PackageProgress struct {
 	ProgressMsg chan string
 	// Err chan for reporting errors
 	Err chan error
-	// Success chan for reporting success status
-	Success chan bool
+	// Empty struct for signaling that goroutine is finished
+	Done chan struct{}
 }

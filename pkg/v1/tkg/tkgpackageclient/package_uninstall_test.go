@@ -62,7 +62,7 @@ var _ = Describe("Uninstall Package", func() {
 		progress = &tkgpackagedatamodel.PackageProgress{
 			ProgressMsg: make(chan string, 10),
 			Err:         make(chan error),
-			Success:     make(chan bool),
+			Done:        make(chan struct{}),
 		}
 		ctl = &pkgClient{kappClient: kappCtl}
 		go ctl.UninstallPackage(&options, progress)

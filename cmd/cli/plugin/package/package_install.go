@@ -56,26 +56,37 @@ func packageInstall(_ *cobra.Command, args []string) error {
 	pp := &tkgpackagedatamodel.PackageProgress{
 		ProgressMsg: make(chan string, 10),
 		Err:         make(chan error),
-		Success:     make(chan bool),
+		Done:        make(chan struct{}),
 	}
 	go pkgClient.InstallPackage(packageInstallOp, pp, false)
 
 	initialMsg := fmt.Sprintf("Installing package '%s'", packageInstallOp.PackageName)
-	successMsg := fmt.Sprintf("Added installed package '%s' in namespace '%s'", packageInstallOp.PkgInstallName, packageInstallOp.Namespace)
-	if err := displayProgress(initialMsg, successMsg, pp); err != nil {
+	if err := displayProgress(initialMsg, pp); err != nil {
 		return err
 	}
+	log.Infof("\n %s", fmt.Sprintf("Added installed package '%s' in namespace '%s'",
+		packageInstallOp.PkgInstallName, packageInstallOp.Namespace))
 
 	return nil
 }
 
-func displayProgress(initialMsg, successMsg string, pp *tkgpackagedatamodel.PackageProgress) error {
+func displayProgress(initialMsg string, pp *tkgpackagedatamodel.PackageProgress) error {
 	var currMsg string
+	var s *spinner.Spinner
+	var err error
 
-	s := spinner.New(spinner.CharSets[9], 1*time.Millisecond)
-	if err := s.Color("bgBlack", "bold", "fgWhite"); err != nil {
+	newSpinner := func() (*spinner.Spinner, error) {
+		s = spinner.New(spinner.CharSets[9], 100*time.Millisecond)
+		if err := s.Color("bgBlack", "bold", "fgWhite"); err != nil {
+			return nil, err
+		}
+		return s, nil
+	}
+	s, err = newSpinner()
+	if err != nil {
 		return err
 	}
+
 	s.Suffix = fmt.Sprintf(" %s", initialMsg)
 	s.Start()
 
@@ -91,13 +102,30 @@ func displayProgress(initialMsg, successMsg string, pp *tkgpackagedatamodel.Pack
 			return err
 		case msg := <-pp.ProgressMsg:
 			if msg != currMsg {
+				s.Stop()
+				s, err = newSpinner()
+				if err != nil {
+					return err
+				}
 				log.Infof("\n")
 				s.Suffix = fmt.Sprintf(" %s", msg)
 				currMsg = msg
+				s.Start()
 			}
-		case success := <-pp.Success:
-			if success {
-				log.Infof("\n %s", successMsg)
+		case <-pp.Done:
+			for msg := range pp.ProgressMsg {
+				if msg == currMsg {
+					continue
+				}
+				s.Stop()
+				s, err = newSpinner()
+				if err != nil {
+					return err
+				}
+				log.Infof("\n")
+				s.Suffix = fmt.Sprintf(" %s", msg)
+				currMsg = msg
+				s.Start()
 			}
 			return nil
 		}

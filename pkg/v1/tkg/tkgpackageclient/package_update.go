@@ -50,7 +50,6 @@ func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progres
 		}
 		progress.ProgressMsg <- fmt.Sprintf("Installing package '%s'", o.PkgInstallName)
 		p.InstallPackage(o, progress, true)
-		progress.Success <- true
 		return
 	}
 
@@ -91,8 +90,6 @@ func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progres
 		err = errors.Wrap(err, fmt.Sprintf("failed to update package '%s'", o.PkgInstallName))
 		return
 	}
-
-	progress.Success <- true
 }
 
 // updateDataValuesSecret update a secret object containing the user-provided configuration.

@@ -8,6 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
@@ -46,15 +47,15 @@ func packageUpdate(_ *cobra.Command, args []string) error {
 	pp := &tkgpackagedatamodel.PackageProgress{
 		ProgressMsg: make(chan string, 10),
 		Err:         make(chan error),
-		Success:     make(chan bool),
+		Done:        make(chan struct{}),
 	}
 	go pkgClient.UpdatePackage(packageInstalledOp, pp)
 
 	initialMsg := fmt.Sprintf("Updating package '%s'", packageInstalledOp.PkgInstallName)
-	successMsg := fmt.Sprintf("Updated package install '%s' in namespace '%s'", packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace)
-	if err := displayProgress(initialMsg, successMsg, pp); err != nil {
+	if err := displayProgress(initialMsg, pp); err != nil {
 		return err
 	}
+	log.Infof("\n %s", fmt.Sprintf("Updated package install '%s' in namespace '%s'", packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace))
 
 	return nil
 }
