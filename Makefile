@@ -76,7 +76,7 @@ endif
 DOCKER_DIR := /app
 SWAGGER=docker run --rm -v ${PWD}:${DOCKER_DIR} quay.io/goswagger/swagger:v0.21.0
 
-PRIVATE_REPOS="github.com/vmware-tanzu"
+PRIVATE_REPOS="github.com/vmware-tanzu/tanzu-framework"
 GO := GOPRIVATE=${PRIVATE_REPOS} go
 
 # Add supported OS-ARCHITECTURE combinations here
