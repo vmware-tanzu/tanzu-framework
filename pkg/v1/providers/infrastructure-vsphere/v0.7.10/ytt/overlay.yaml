@@ -130,23 +130,20 @@ spec:
       memoryMiB: #@ data.values.VSPHERE_CONTROL_PLANE_MEM_MIB
       network:
         devices:
-        #@ if data.values.TKG_IP_FAMILY == "ipv6":
         #@overlay/match by=overlay.index(0)
         #@overlay/replace
-        - dhcp6: true
-          networkName: #@ data.values.VSPHERE_NETWORK
-        #@ elif data.values.TKG_IP_FAMILY in ["ipv4,ipv6", "ipv6,ipv4"]:
-        #@overlay/match by=overlay.index(0)
-        #@overlay/replace
-        - dhcp4: true
+        - networkName: #@ data.values.VSPHERE_NETWORK
+          #@ if data.values.CONTROL_PLANE_NODE_NAMESERVERS:
+          nameservers: #@ data.values.CONTROL_PLANE_NODE_NAMESERVERS.replace(" ", "").split(",")
+          #@ end
+          #@ if data.values.TKG_IP_FAMILY == "ipv6":
           dhcp6: true
-          networkName: #@ data.values.VSPHERE_NETWORK
-        #@ else:
-        #@overlay/match by=overlay.index(0)
-        #@overlay/replace
-        - dhcp4: true
-          networkName: #@ data.values.VSPHERE_NETWORK
-        #@ end
+          #@ elif data.values.TKG_IP_FAMILY in ["ipv4,ipv6", "ipv6,ipv4"]:
+          dhcp4: true
+          dhcp6: true
+          #@ else:
+          dhcp4: true
+          #@ end
       numCPUs: #@ data.values.VSPHERE_CONTROL_PLANE_NUM_CPUS
       resourcePool: #@ data.values.VSPHERE_RESOURCE_POOL
       server: #@ data.values.VSPHERE_SERVER
@@ -170,23 +167,20 @@ spec:
       memoryMiB: #@ data.values.VSPHERE_WORKER_MEM_MIB
       network:
         devices:
-        #@ if data.values.TKG_IP_FAMILY == "ipv6":
         #@overlay/match by=overlay.index(0)
         #@overlay/replace
-        - dhcp6: true
-          networkName: #@ data.values.VSPHERE_NETWORK
-        #@ elif data.values.TKG_IP_FAMILY in ["ipv4,ipv6", "ipv6,ipv4"]:
-        #@overlay/match by=overlay.index(0)
-        #@overlay/replace
-        - dhcp4: true
+        - networkName: #@ data.values.VSPHERE_NETWORK
+          #@ if data.values.WORKER_NODE_NAMESERVERS:
+          nameservers: #@ data.values.WORKER_NODE_NAMESERVERS.replace(" ", "").split(",")
+          #@ end
+          #@ if data.values.TKG_IP_FAMILY == "ipv6":
           dhcp6: true
-          networkName: #@ data.values.VSPHERE_NETWORK
-        #@ else:
-        #@overlay/match by=overlay.index(0)
-        #@overlay/replace
-        - dhcp4: true
-          networkName: #@ data.values.VSPHERE_NETWORK
-        #@ end
+          #@ elif data.values.TKG_IP_FAMILY in ["ipv4,ipv6", "ipv6,ipv4"]:
+          dhcp4: true
+          dhcp6: true
+          #@ else:
+          dhcp4: true
+          #@ end
       numCPUs: #@ data.values.VSPHERE_WORKER_NUM_CPUS
       resourcePool: #@ data.values.VSPHERE_RESOURCE_POOL
       server: #@ data.values.VSPHERE_SERVER
