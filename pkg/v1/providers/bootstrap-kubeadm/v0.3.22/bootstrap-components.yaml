@@ -3935,7 +3935,7 @@ spec:
         - --feature-gates=MachinePool=${EXP_MACHINE_POOL:=false}
         command:
         - /manager
-        image: registry.tkg.vmware.run/cluster-api/kubeadm-bootstrap-controller:v0.3.19_vmware.1
+        image: registry.tkg.vmware.run/cluster-api/kubeadm-bootstrap-controller:v0.3.22_vmware.1
         imagePullPolicy: IfNotPresent
         name: manager
       terminationGracePeriodSeconds: 10
@@ -3980,7 +3980,7 @@ spec:
         - --feature-gates=MachinePool=${EXP_MACHINE_POOL:=false}
         command:
         - /manager
-        image: registry.tkg.vmware.run/cluster-api/kubeadm-bootstrap-controller:v0.3.19_vmware.1
+        image: registry.tkg.vmware.run/cluster-api/kubeadm-bootstrap-controller:v0.3.22_vmware.1
         imagePullPolicy: IfNotPresent
         name: manager
         ports:
