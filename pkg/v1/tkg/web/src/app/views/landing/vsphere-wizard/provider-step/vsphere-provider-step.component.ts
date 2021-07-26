@@ -17,10 +17,12 @@ import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { VSphereDatacenter } from 'src/app/swagger/models/v-sphere-datacenter.model';
 import { ValidatorEnum } from '../../wizard/shared/constants/validation.constants';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import { TkgEventType } from 'src/app/shared/service/Messenger';
+import { TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
 import { SSLThumbprintModalComponent } from '../../wizard/shared/components/modals/ssl-thumbprint-modal/ssl-thumbprint-modal.component';
 import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
 import Broker from 'src/app/shared/service/broker';
+import { EditionData } from 'src/app/shared/service/branding.service';
+import { AppEdition } from 'src/app/shared/constants/branding.constants';
 
 declare var sortPaths: any;
 
@@ -57,6 +59,8 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
     vSphereModalTitle: string;
     vSphereModalBody: string;
     thumbprint: string;
+
+    edition: AppEdition = AppEdition.TCE;
 
     constructor(private validationService: ValidationService,
         private apiClient: APIClient,
@@ -133,6 +137,13 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
         this.formGroup.get('datacenter').valueChanges.subscribe(data => {
             this.dcOnChange(data)
         });
+
+        Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe((data: TkgEvent) => {
+                const content: EditionData = data.payload;
+                this.edition = content.edition;
+            });
     }
 
     setSavedDataAfterLoad() {
@@ -249,8 +260,9 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 this.connected = true;
                 this.vsphereVersion = vsphereVerInfo.version;
                 this.hasPacific = res.hasPacific;
-
-                if (isCompatible && !(_.startsWith(this.vsphereVersion, '6'))) {
+                if (isCompatible && !(_.startsWith(this.vsphereVersion, '6'))
+                    && this.edition !== AppEdition.TCE
+                    && this.edition !== AppEdition.TCE_STANDALONE) {
                     // for 7 and newer and other potential anomolies, show modal suggesting upgrade
                     this.showVSphereWithK8Modal();
                 } else if (!isCompatible) {
