@@ -92,7 +92,8 @@ func (c *client) DecodeCredentialsInViper() error {
 	return nil
 }
 
-// EnsureTKGCompatibilityFile ensures the TKG compatibility file. If forceUpdate option is set,TKG compatibility would fetched
+// EnsureTKGCompatibilityFile ensures the TKG compatibility file. If forceUpdate option is set,
+// the TKG compatibility file is fetched.
 // TKG compatibility file would fetched from the registry though local copy exists
 func (c *client) EnsureTKGCompatibilityFile(forceUpdate bool) error {
 	compatibilityDir, err := c.tkgConfigPathsClient.GetTKGCompatibilityDirectory()
@@ -116,6 +117,7 @@ func (c *client) EnsureTKGCompatibilityFile(forceUpdate bool) error {
 	}
 
 	if compatibilityFileExists && !forceUpdate {
+		log.V(4).Infof("compatibility file (%s) already exists, skipping download", compatabilityFilePath)
 		return nil
 	}
 
@@ -160,6 +162,7 @@ func (c *client) EnsureBOMFiles(forceUpdate bool) error {
 
 	// If there are existing BOM files and doesn't need update then do nothing
 	if !isBOMDirectoryEmpty && !bomsNeedUpdate && !forceUpdate {
+		log.V(4).Infof("BOM files inside %s already exists, skipping download", bomDir)
 		return nil
 	}
 

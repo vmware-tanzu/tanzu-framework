@@ -61,12 +61,6 @@ func (t *tkgctl) Init(options InitRegionOptions) error {
 	if err != nil {
 		return err
 	}
-	// Update the tkg-compatibility file and BOM files
-	forceUpdateTKGCompatibilityFile := true
-	err = ensureTKGCompatibilityAndBOMFiles(t.configDir, t.tkgConfigUpdaterClient, forceUpdateTKGCompatibilityFile)
-	if err != nil {
-		return err
-	}
 	options.CoreProvider, options.BootstrapProvider, options.ControlPlaneProvider, err = t.tkgBomClient.GetDefaultClusterAPIProviders()
 	if err != nil {
 		return err
