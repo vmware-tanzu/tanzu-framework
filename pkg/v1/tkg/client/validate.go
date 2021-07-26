@@ -577,8 +577,13 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
+	if err = c.ConfigureAndValidateNameserverConfiguration(); err != nil {
+		return NewValidationError(ValidationErrorCode, err.Error())
+	}
+
 	isProdPlan := options.Plan == constants.PlanProd
 	_, workerMachineCount := c.getMachineCountForMC(options.Plan)
+
 	switch name {
 	case AWSProviderName:
 		err = c.ConfigureAndValidateAWSConfig(tkrVersion, options.NodeSizeOptions, skipValidation, isProdPlan, int64(workerMachineCount), nil, true)
@@ -1699,4 +1704,44 @@ func getDockerBridgeNetworkCidr() (string, error) {
 	networkCidr = strings.Trim(networkCidr, "'")
 
 	return networkCidr, nil
+}
+
+// ConfigureAndValidateNameserverConfiguration validates the configuration of the control plane node and workload node nameservers
+func (c *TkgClient) ConfigureAndValidateNameserverConfiguration() error {
+	err := c.validateNameservers(constants.ConfigVariableControlPlaneNodeNameservers)
+	if err != nil {
+		return err
+	}
+
+	return c.validateNameservers(constants.ConfigVariableWorkerNodeNameservers)
+}
+
+func (c *TkgClient) validateNameservers(nameserverConfigVariable string) error {
+	// ignoring error because IPFamily is an optional configuration
+	// if not set Get will return an empty string
+	ipFamily, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableIPFamily)
+	if ipFamily == "" {
+		ipFamily = constants.IPv4Family
+	}
+
+	nameservers, err := c.TKGConfigReaderWriter().Get(nameserverConfigVariable)
+	if err != nil {
+		return nil
+	}
+
+	invalidNameservers := []string{}
+	for _, nameserver := range strings.Split(nameservers, ",") {
+		nameserver = strings.TrimSpace(nameserver)
+		ip := net.ParseIP(nameserver)
+		if ip == nil ||
+			ipFamily == constants.IPv4Family && ip.To4() == nil ||
+			ipFamily == constants.IPv6Family && ip.To4() != nil {
+			invalidNameservers = append(invalidNameservers, nameserver)
+		}
+	}
+
+	if len(invalidNameservers) > 0 {
+		return fmt.Errorf("invalid %s %q, expected to be IP addresses that match TKG_IP_FAMILY %q", nameserverConfigVariable, strings.Join(invalidNameservers, ","), ipFamily)
+	}
+	return nil
 }
