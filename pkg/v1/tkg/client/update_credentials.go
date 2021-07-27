@@ -180,6 +180,11 @@ func (c *TkgClient) updateVSphereCredentialsForCluster(clusterClient clusterclie
 		}
 	}
 
+	// update cluster identityRef secret if present
+	if err := clusterClient.UpdateVsphereIdentityRefSecret(options.ClusterName, options.Namespace, options.VSphereUpdateClusterOptions.Username, options.VSphereUpdateClusterOptions.Password); err != nil {
+		return err
+	}
+
 	// update cloud-provider-vsphere-credentials
 	if err := clusterClient.UpdateVsphereCloudProviderCredentialsSecret(options.ClusterName, options.Namespace, options.VSphereUpdateClusterOptions.Username, options.VSphereUpdateClusterOptions.Password); err != nil {
 		return err

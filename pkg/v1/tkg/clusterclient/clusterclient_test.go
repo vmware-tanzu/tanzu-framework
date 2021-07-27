@@ -1657,6 +1657,46 @@ var _ = Describe("Cluster Client", func() {
 			Expect(err).NotTo(HaveOccurred())
 		})
 
+		Context("UpdateVsphereIdentityRefSecret", func() {
+			It("should not return an error", func() {
+				clientset.GetReturns(nil)
+				clientset.PatchReturns(nil)
+				clientset.GetCalls(func(ctx context.Context, name types.NamespacedName, secret runtime.Object) error {
+					data := map[string][]byte{
+						"username": []byte(username),
+						"password": []byte(password),
+					}
+					secret.(*corev1.Secret).Data = data
+					return nil
+				})
+
+				err = clstClient.UpdateVsphereIdentityRefSecret("clusterName", "namespace", username, password)
+				Expect(err).To(BeNil())
+			})
+
+			It("should not return an error when secret not present", func() {
+				clientset.GetReturns(nil)
+				clientset.PatchReturns(nil)
+				clientset.GetCalls(func(ctx context.Context, name types.NamespacedName, secret runtime.Object) error {
+					return apierrors.NewNotFound(schema.GroupResource{Group: "", Resource: "Secret"}, "not found")
+				})
+
+				err = clstClient.UpdateVsphereIdentityRefSecret("clusterName", "namespace", username, password)
+				Expect(err).To(BeNil())
+			})
+
+			It("should return an error when clientset patch returns an error", func() {
+				clientset.GetReturns(nil)
+				clientset.PatchReturns(nil)
+				clientset.GetCalls(func(ctx context.Context, name types.NamespacedName, secret runtime.Object) error {
+					return errors.New("dummy")
+				})
+
+				err = clstClient.UpdateVsphereIdentityRefSecret("clusterName", "namespace", username, password)
+				Expect(err).ToNot(BeNil())
+			})
+		})
+
 		Context("UpdateVsphereCloudProviderCredentialsSecret", func() {
 			It("should not return an error", func() {
 				clientset.GetReturns(nil)
