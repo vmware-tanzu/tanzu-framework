@@ -21,6 +21,7 @@ import (
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	versions "github.com/vmware-tanzu/carvel-vendir/pkg/vendir/versions/v1alpha1"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
@@ -43,7 +44,8 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 	}
 
 	if pkgInstall != nil && pkgInstall.Name == o.PkgInstallName {
-		err = fmt.Errorf("package install '%s' already exists in namespace '%s'", o.PkgInstallName, o.Namespace)
+		log.Warningf("\npackage install '%s' already exists in namespace '%s'", o.PkgInstallName, o.Namespace)
+		err = errors.New(tkgpackagedatamodel.ErrPackageAlreadyInstalled)
 		return
 	}
 

@@ -296,7 +296,7 @@ var _ = Describe("Install Package", func() {
 		})
 	})
 
-	Context("success when a duplicate package install name is provided", func() {
+	Context("failure when a duplicate package install name is provided", func() {
 		BeforeEach(func() {
 			options.Wait = true
 			kappCtl = &fakes.KappClient{}
@@ -304,7 +304,8 @@ var _ = Describe("Install Package", func() {
 			kappCtl.GetPackageInstallReturns(testPkgInstall, nil)
 		})
 		It(testFailureMsg, func() {
-			Expect(err).NotTo(HaveOccurred())
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(Equal(tkgpackagedatamodel.ErrPackageAlreadyInstalled))
 		})
 		AfterEach(func() {
 			options = opts
