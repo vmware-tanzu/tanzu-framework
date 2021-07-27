@@ -10,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
+	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
@@ -101,35 +102,21 @@ func (c *client) GetVCCredentialsFromSecret(clusterName string) (string, string,
 }
 
 func (c *client) UpdateVsphereIdentityRefSecret(clusterName, namespace, username, password string) error {
-	secretList := &corev1.SecretList{}
-	err := c.ListResources(secretList, &crtclient.ListOptions{})
+	secret := &corev1.Secret{}
+
+	pollOptions := &PollOptions{Interval: CheckResourceInterval, Timeout: c.operationTimeout}
+	err := c.GetResource(secret, clusterName, namespace, nil, pollOptions)
 	if err != nil {
-		return errors.Wrap(err, "unable to retrieve vSphere credentials")
+		if k8serrors.IsNotFound(err) {
+			log.Info("Cluster identityRef secret not present. Skipping update...")
+			return nil
+		}
+
+		return err
 	}
 
 	var usernameBytes []byte
 	var passwordBytes []byte
-	var isIdentitySecretPresent bool
-	for i := range secretList.Items {
-		if secretList.Items[i].Name == clusterName {
-			usernameBytes = secretList.Items[i].Data["username"]
-			passwordBytes = secretList.Items[i].Data["password"]
-			isIdentitySecretPresent = true
-		}
-	}
-
-	if !isIdentitySecretPresent {
-		log.Info("cluster identityRef secret not present. Skipping update...")
-		return nil
-	}
-
-	log.Infof("updating identityRef secret for cluster %q", clusterName)
-	if username == "" {
-		username = string(usernameBytes)
-	}
-	if password == "" {
-		password = string(passwordBytes)
-	}
 
 	usernameBytes = []byte(username)
 	usernameBytesB64 := make([]byte, base64.StdEncoding.EncodedLen(len(usernameBytes)))
@@ -139,7 +126,7 @@ func (c *client) UpdateVsphereIdentityRefSecret(clusterName, namespace, username
 	passwordBytesB64 := make([]byte, base64.StdEncoding.EncodedLen(len(passwordBytes)))
 	base64.StdEncoding.Encode(passwordBytesB64, passwordBytes)
 
-	secret := &corev1.Secret{}
+	secret = &corev1.Secret{}
 
 	patchString := fmt.Sprintf(`[
 		{
@@ -154,7 +141,6 @@ func (c *client) UpdateVsphereIdentityRefSecret(clusterName, namespace, username
 		}
 	]`, string(usernameBytesB64), string(passwordBytesB64))
 
-	pollOptions := &PollOptions{Interval: CheckResourceInterval, Timeout: c.operationTimeout}
 	if err := c.PatchResource(secret, clusterName, namespace, patchString, types.JSONPatchType, pollOptions); err != nil {
 		return errors.Wrap(err, "unable to save cluster identityRef secret")
 	}
