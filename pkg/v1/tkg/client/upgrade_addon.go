@@ -304,13 +304,19 @@ func (c *TkgClient) setCustomImageRepositoryConfiguration(regionalClusterClient 
 		return nil
 	}
 
-	if customImageRepository := configmap.Data["imageRepository"]; customImageRepository != "" {
-		c.TKGConfigReaderWriter().Set(constants.ConfigVariableCustomImageRepository, customImageRepository)
+	// Read TKG_CUSTOM_IMAGE_REPOSITORY from configuration first to allow user to provide different image repository during cluster deletion
+	if customImageRepository, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableCustomImageRepository); err != nil || customImageRepository == "" {
+		if customImageRepository := configmap.Data["imageRepository"]; customImageRepository != "" {
+			c.TKGConfigReaderWriter().Set(constants.ConfigVariableCustomImageRepository, customImageRepository)
+		}
 	}
 
-	if customImageRepositoryCaCertificate := configmap.Data["caCerts"]; customImageRepositoryCaCertificate != "" {
-		customImageRepositoryCaCertificateEncoded := base64.StdEncoding.EncodeToString([]byte(customImageRepositoryCaCertificate))
-		c.TKGConfigReaderWriter().Set(constants.ConfigVariableCustomImageRepositoryCaCertificate, customImageRepositoryCaCertificateEncoded)
+	// Read TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE from configuration first to allow user to provide different image repository during cluster deletion
+	if customImageRepositoryCaCertificate, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableCustomImageRepositoryCaCertificate); err != nil || customImageRepositoryCaCertificate == "" {
+		if customImageRepositoryCaCertificate := configmap.Data["caCerts"]; customImageRepositoryCaCertificate != "" {
+			customImageRepositoryCaCertificateEncoded := base64.StdEncoding.EncodeToString([]byte(customImageRepositoryCaCertificate))
+			c.TKGConfigReaderWriter().Set(constants.ConfigVariableCustomImageRepositoryCaCertificate, customImageRepositoryCaCertificateEncoded)
+		}
 	}
 
 	return nil

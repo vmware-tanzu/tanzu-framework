@@ -1,6 +1,6 @@
 providers:
   - name: cluster-api
-    url: providers/cluster-api/v0.3.19/core-components.yaml
+    url: providers/cluster-api/v0.3.22/core-components.yaml
     type: CoreProvider
   - name: aws
     url: providers/infrastructure-aws/v0.6.6/infrastructure-components.yaml
@@ -18,11 +18,11 @@ providers:
     url: providers/infrastructure-tkg-service-vsphere/v1.0.0/unused.yaml
     type: InfrastructureProvider
   - name: kubeadm
-    url: providers/bootstrap-kubeadm/v0.3.19/bootstrap-components.yaml
+    url: providers/bootstrap-kubeadm/v0.3.22/bootstrap-components.yaml
     type: BootstrapProvider
   - name: kubeadm
-    url: providers/control-plane-kubeadm/v0.3.19/control-plane-components.yaml
+    url: providers/control-plane-kubeadm/v0.3.22/control-plane-components.yaml
     type: ControlPlaneProvider
   - name: docker
-    url: providers/infrastructure-docker/v0.3.19/infrastructure-components.yaml
+    url: providers/infrastructure-docker/v0.3.22/infrastructure-components.yaml
     type: InfrastructureProvider

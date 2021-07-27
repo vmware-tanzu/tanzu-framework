@@ -913,7 +913,7 @@ spec:
         - --feature-gates=MachinePool=${EXP_MACHINE_POOL:=false}
         - --metrics-addr=0
         - -v=4
-        image: registry.tkg.vmware.run/cluster-api/capd-manager:v0.3.19_vmware.1
+        image: registry.tkg.vmware.run/cluster-api/capd-manager:v0.3.22_vmware.1
         livenessProbe:
           httpGet:
             path: /healthz
