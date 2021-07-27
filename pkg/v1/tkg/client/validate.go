@@ -388,6 +388,10 @@ func (c *TkgClient) ConfigureAndValidateAWSConfig(tkrVersion string, nodeSizes N
 	c.SetProviderType(AWSProviderName)
 	awsClient, err := c.EncodeAWSCredentialsAndGetClient(clusterClient)
 	if err != nil {
+		// We must have credentials present for the instantiation of the management cluster
+		if isManagementCluster {
+			return err
+		}
 		log.Warningf("unable to create AWS client. Skipping validations that require an AWS client")
 		return c.ConfigureAndValidateAwsConfig(tkrVersion, skipValidation, isProdConfig, workerMachineCount, isManagementCluster, false)
 	}
@@ -1357,35 +1361,8 @@ func (c *TkgClient) SetMachineDeploymentWorkerCounts(workerCounts []int, totalWo
 	}
 }
 
-func (c *TkgClient) getAWSCredentialsFromSecret(clusterClient clusterclient.Client) (aws.Client, error) {
-	if clusterClient == nil {
-		return nil, errors.New("cluster client is not initialized")
-	}
-	creds, err := clusterClient.GetAWSCredentialsFromSecret()
-	if err != nil {
-		return nil, err
-	}
-
-	awsClient, err := aws.NewFromEncodedCrendentials(creds)
-	if err != nil {
-		return nil, err
-	}
-	encodedCreds, err := awsClient.EncodeCredentials()
-	if err != nil {
-		return nil, err
-	}
-	c.TKGConfigReaderWriter().Set(constants.ConfigVariableAWSB64Credentials, encodedCreds)
-	return awsClient, nil
-}
-
 // EncodeAWSCredentialsAndGetClient encodes aws credentials and returns aws client
 func (c *TkgClient) EncodeAWSCredentialsAndGetClient(clusterClient clusterclient.Client) (aws.Client, error) {
-	if awsClient, err := c.getAWSCredentialsFromSecret(clusterClient); err == nil {
-		return awsClient, nil
-	}
-
-	log.Warning("unable to get credentials from secret. Trying to get the AWS credentials from configuration file or default credentials provider chain")
-
 	creds, err := c.GetAWSCreds()
 	if err != nil {
 		return nil, err
