@@ -100,6 +100,67 @@ func (c *client) GetVCCredentialsFromSecret(clusterName string) (string, string,
 	return vsphereUsername, vspherePassword, nil
 }
 
+func (c *client) UpdateVsphereIdentityRefSecret(clusterName, namespace, username, password string) error {
+	secretList := &corev1.SecretList{}
+	err := c.ListResources(secretList, &crtclient.ListOptions{})
+	if err != nil {
+		return errors.Wrap(err, "unable to retrieve vSphere credentials")
+	}
+
+	var usernameBytes []byte
+	var passwordBytes []byte
+	var isIdentitySecretPresent bool
+	for i := range secretList.Items {
+		if secretList.Items[i].Name == clusterName {
+			usernameBytes = secretList.Items[i].Data["username"]
+			passwordBytes = secretList.Items[i].Data["password"]
+			isIdentitySecretPresent = true
+		}
+	}
+
+	if !isIdentitySecretPresent {
+		log.Info("cluster identityRef secret not present. Skipping update...")
+		return nil
+	}
+
+	log.Infof("updating identityRef secret for cluster %q", clusterName)
+	if username == "" {
+		username = string(usernameBytes)
+	}
+	if password == "" {
+		password = string(passwordBytes)
+	}
+
+	usernameBytes = []byte(username)
+	usernameBytesB64 := make([]byte, base64.StdEncoding.EncodedLen(len(usernameBytes)))
+	base64.StdEncoding.Encode(usernameBytesB64, usernameBytes)
+
+	passwordBytes = []byte(password)
+	passwordBytesB64 := make([]byte, base64.StdEncoding.EncodedLen(len(passwordBytes)))
+	base64.StdEncoding.Encode(passwordBytesB64, passwordBytes)
+
+	secret := &corev1.Secret{}
+
+	patchString := fmt.Sprintf(`[
+		{
+			"op": "replace",
+			"path": "/data/username",
+			"value": "%s"
+		},
+		{
+			"op": "replace",
+			"path": "/data/password",
+			"value": "%s"
+		}
+	]`, string(usernameBytesB64), string(passwordBytesB64))
+
+	pollOptions := &PollOptions{Interval: CheckResourceInterval, Timeout: c.operationTimeout}
+	if err := c.PatchResource(secret, clusterName, namespace, patchString, types.JSONPatchType, pollOptions); err != nil {
+		return errors.Wrap(err, "unable to save cluster identityRef secret")
+	}
+	return nil
+}
+
 func (c *client) UpdateCapvManagerBootstrapCredentialsSecret(username, password string) error {
 	oldUsername, oldPassword, err := c.GetVCCredentialsFromSecret("")
 	if err != nil {
