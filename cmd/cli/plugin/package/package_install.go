@@ -73,10 +73,12 @@ func packageInstall(_ *cobra.Command, args []string) error {
 	return nil
 }
 
-func displayProgress(initialMsg string, pp *tkgpackagedatamodel.PackageProgress) error {
-	var currMsg string
-	var s *spinner.Spinner
-	var err error
+func displayProgress(initialMsg string, pp *tkgpackagedatamodel.PackageProgress) error { //nolint:gocyclo
+	var (
+		currMsg string
+		s       *spinner.Spinner
+		err     error
+	)
 
 	newSpinner := func() (*spinner.Spinner, error) {
 		s = spinner.New(spinner.CharSets[9], 100*time.Millisecond)
@@ -88,6 +90,19 @@ func displayProgress(initialMsg string, pp *tkgpackagedatamodel.PackageProgress)
 	s, err = newSpinner()
 	if err != nil {
 		return err
+	}
+
+	writeProgress := func(s *spinner.Spinner, msg string) (string, error) {
+		s.Stop()
+		s, err = newSpinner()
+		if err != nil {
+			return "", err
+		}
+		log.Infof("\n")
+		s.Suffix = fmt.Sprintf(" %s", msg)
+		currMsg = msg
+		s.Start()
+		return currMsg, nil
 	}
 
 	s.Suffix = fmt.Sprintf(" %s", initialMsg)
@@ -108,30 +123,18 @@ func displayProgress(initialMsg string, pp *tkgpackagedatamodel.PackageProgress)
 			return err
 		case msg := <-pp.ProgressMsg:
 			if msg != currMsg {
-				s.Stop()
-				s, err = newSpinner()
-				if err != nil {
+				if currMsg, err = writeProgress(s, msg); err != nil {
 					return err
 				}
-				log.Infof("\n")
-				s.Suffix = fmt.Sprintf(" %s", msg)
-				currMsg = msg
-				s.Start()
 			}
 		case <-pp.Done:
 			for msg := range pp.ProgressMsg {
 				if msg == currMsg {
 					continue
 				}
-				s.Stop()
-				s, err = newSpinner()
-				if err != nil {
+				if currMsg, err = writeProgress(s, msg); err != nil {
 					return err
 				}
-				log.Infof("\n")
-				s.Suffix = fmt.Sprintf(" %s", msg)
-				currMsg = msg
-				s.Start()
 			}
 			return nil
 		}
