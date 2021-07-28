@@ -151,22 +151,22 @@ func (p *pkgClient) deletePackageInstall(o *tkgpackagedatamodel.PackageOptions) 
 	return nil
 }
 
-// waitForAppCRDeletion waits until the App CR get deleted successfully or a failure happen
-func (p *pkgClient) waitForAppCRDeletion(o *tkgpackagedatamodel.PackageOptions, progress chan string) error {
+// waitForPackageInstallDeletion waits until the PackageInstall CR gets deleted successfully or a failure happens
+func (p *pkgClient) waitForPackageInstallDeletion(o *tkgpackagedatamodel.PackageOptions, progress chan string) error {
 	if err := wait.Poll(o.PollInterval, o.PollTimeout, func() (done bool, err error) {
-		app, err := p.kappClient.GetAppCR(o.PkgInstallName, o.Namespace) // TODO: wait on package CR deletion instead
+		pkgInstall, err := p.kappClient.GetPackageInstall(o.PkgInstallName, o.Namespace)
 		if err != nil {
 			if apierrors.IsNotFound(err) {
 				return true, nil
 			}
 			return false, err
 		}
-		for _, cond := range app.Status.Conditions {
+		for _, cond := range pkgInstall.Status.Conditions {
 			if progress != nil {
 				progress <- fmt.Sprintf("Package uninstall status: %s", cond.Type)
 			}
 			if cond.Type == kappctrl.DeleteFailed {
-				return false, fmt.Errorf("app deletion failed: %s", app.Status.UsefulErrorMessage)
+				return false, fmt.Errorf("package install deletion failed: %s", pkgInstall.Status.UsefulErrorMessage)
 			}
 		}
 
@@ -191,7 +191,8 @@ func (p *pkgClient) deletePreviouslyInstalledResources(o *tkgpackagedatamodel.Pa
 	}
 
 	objMeta = metav1.ObjectMeta{
-		Name: fmt.Sprintf(tkgpackagedatamodel.ClusterRoleName, o.PkgInstallName, o.Namespace),
+		Name:
+			fmt.Sprintf(tkgpackagedatamodel.ClusterRoleName, o.PkgInstallName, o.Namespace),
 	}
 	if err := p.deleteAnnotatedResource(&rbacv1.ClusterRole{}, crtclient.ObjectKey{Name: objMeta.Name}, resourceAnnotation); err != nil {
 		return err

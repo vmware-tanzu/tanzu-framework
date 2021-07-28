@@ -262,6 +262,8 @@ type Client interface {
 	GetAzureCredentialsFromSecret() (azureclient.Credentials, error)
 	// UpdateCapvManagerBootstrapCredentialsSecret updates the vsphere creds used by the capv provider
 	UpdateCapvManagerBootstrapCredentialsSecret(username string, password string) error
+	// UpdateVsphereIdentityRefSecret updates vsphere cluster identityRef secret
+	UpdateVsphereIdentityRefSecret(clusterName, namespace, username, password string) error
 	// UpdateVsphereCloudProviderCredentialsSecret updates the vsphere creds used by the vsphere cloud provider
 	UpdateVsphereCloudProviderCredentialsSecret(clusterName string, namespace string, username string, password string) error
 	// UpdateVsphereCsiConfigSecret updates the vsphere csi config secret

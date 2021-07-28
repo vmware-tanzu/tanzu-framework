@@ -10,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
+	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
@@ -98,6 +99,52 @@ func (c *client) GetVCCredentialsFromSecret(clusterName string) (string, string,
 	}
 
 	return vsphereUsername, vspherePassword, nil
+}
+
+func (c *client) UpdateVsphereIdentityRefSecret(clusterName, namespace, username, password string) error {
+	secret := &corev1.Secret{}
+
+	pollOptions := &PollOptions{Interval: CheckResourceInterval, Timeout: c.operationTimeout}
+	err := c.GetResource(secret, clusterName, namespace, nil, pollOptions)
+	if err != nil {
+		if k8serrors.IsNotFound(err) {
+			log.Info("Cluster identityRef secret not present. Skipping update...")
+			return nil
+		}
+
+		return err
+	}
+
+	var usernameBytes []byte
+	var passwordBytes []byte
+
+	usernameBytes = []byte(username)
+	usernameBytesB64 := make([]byte, base64.StdEncoding.EncodedLen(len(usernameBytes)))
+	base64.StdEncoding.Encode(usernameBytesB64, usernameBytes)
+
+	passwordBytes = []byte(password)
+	passwordBytesB64 := make([]byte, base64.StdEncoding.EncodedLen(len(passwordBytes)))
+	base64.StdEncoding.Encode(passwordBytesB64, passwordBytes)
+
+	secret = &corev1.Secret{}
+
+	patchString := fmt.Sprintf(`[
+		{
+			"op": "replace",
+			"path": "/data/username",
+			"value": "%s"
+		},
+		{
+			"op": "replace",
+			"path": "/data/password",
+			"value": "%s"
+		}
+	]`, string(usernameBytesB64), string(passwordBytesB64))
+
+	if err := c.PatchResource(secret, clusterName, namespace, patchString, types.JSONPatchType, pollOptions); err != nil {
+		return errors.Wrap(err, "unable to save cluster identityRef secret")
+	}
+	return nil
 }
 
 func (c *client) UpdateCapvManagerBootstrapCredentialsSecret(username, password string) error {

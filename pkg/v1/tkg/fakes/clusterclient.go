@@ -871,6 +871,20 @@ type ClusterClient struct {
 	updateVsphereCsiConfigSecretReturnsOnCall map[int]struct {
 		result1 error
 	}
+	UpdateVsphereIdentityRefSecretStub        func(string, string, string, string) error
+	updateVsphereIdentityRefSecretMutex       sync.RWMutex
+	updateVsphereIdentityRefSecretArgsForCall []struct {
+		arg1 string
+		arg2 string
+		arg3 string
+		arg4 string
+	}
+	updateVsphereIdentityRefSecretReturns struct {
+		result1 error
+	}
+	updateVsphereIdentityRefSecretReturnsOnCall map[int]struct {
+		result1 error
+	}
 	UseContextStub        func(string) error
 	useContextMutex       sync.RWMutex
 	useContextArgsForCall []struct {
@@ -5084,6 +5098,70 @@ func (fake *ClusterClient) UpdateVsphereCsiConfigSecretReturnsOnCall(i int, resu
 	}{result1}
 }
 
+func (fake *ClusterClient) UpdateVsphereIdentityRefSecret(arg1 string, arg2 string, arg3 string, arg4 string) error {
+	fake.updateVsphereIdentityRefSecretMutex.Lock()
+	ret, specificReturn := fake.updateVsphereIdentityRefSecretReturnsOnCall[len(fake.updateVsphereIdentityRefSecretArgsForCall)]
+	fake.updateVsphereIdentityRefSecretArgsForCall = append(fake.updateVsphereIdentityRefSecretArgsForCall, struct {
+		arg1 string
+		arg2 string
+		arg3 string
+		arg4 string
+	}{arg1, arg2, arg3, arg4})
+	stub := fake.UpdateVsphereIdentityRefSecretStub
+	fakeReturns := fake.updateVsphereIdentityRefSecretReturns
+	fake.recordInvocation("UpdateVsphereIdentityRefSecret", []interface{}{arg1, arg2, arg3, arg4})
+	fake.updateVsphereIdentityRefSecretMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3, arg4)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *ClusterClient) UpdateVsphereIdentityRefSecretCallCount() int {
+	fake.updateVsphereIdentityRefSecretMutex.RLock()
+	defer fake.updateVsphereIdentityRefSecretMutex.RUnlock()
+	return len(fake.updateVsphereIdentityRefSecretArgsForCall)
+}
+
+func (fake *ClusterClient) UpdateVsphereIdentityRefSecretCalls(stub func(string, string, string, string) error) {
+	fake.updateVsphereIdentityRefSecretMutex.Lock()
+	defer fake.updateVsphereIdentityRefSecretMutex.Unlock()
+	fake.UpdateVsphereIdentityRefSecretStub = stub
+}
+
+func (fake *ClusterClient) UpdateVsphereIdentityRefSecretArgsForCall(i int) (string, string, string, string) {
+	fake.updateVsphereIdentityRefSecretMutex.RLock()
+	defer fake.updateVsphereIdentityRefSecretMutex.RUnlock()
+	argsForCall := fake.updateVsphereIdentityRefSecretArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
+}
+
+func (fake *ClusterClient) UpdateVsphereIdentityRefSecretReturns(result1 error) {
+	fake.updateVsphereIdentityRefSecretMutex.Lock()
+	defer fake.updateVsphereIdentityRefSecretMutex.Unlock()
+	fake.UpdateVsphereIdentityRefSecretStub = nil
+	fake.updateVsphereIdentityRefSecretReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ClusterClient) UpdateVsphereIdentityRefSecretReturnsOnCall(i int, result1 error) {
+	fake.updateVsphereIdentityRefSecretMutex.Lock()
+	defer fake.updateVsphereIdentityRefSecretMutex.Unlock()
+	fake.UpdateVsphereIdentityRefSecretStub = nil
+	if fake.updateVsphereIdentityRefSecretReturnsOnCall == nil {
+		fake.updateVsphereIdentityRefSecretReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.updateVsphereIdentityRefSecretReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
 func (fake *ClusterClient) UseContext(arg1 string) error {
 	fake.useContextMutex.Lock()
 	ret, specificReturn := fake.useContextReturnsOnCall[len(fake.useContextArgsForCall)]
@@ -5908,6 +5986,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.updateVsphereCloudProviderCredentialsSecretMutex.RUnlock()
 	fake.updateVsphereCsiConfigSecretMutex.RLock()
 	defer fake.updateVsphereCsiConfigSecretMutex.RUnlock()
+	fake.updateVsphereIdentityRefSecretMutex.RLock()
+	defer fake.updateVsphereIdentityRefSecretMutex.RUnlock()
 	fake.useContextMutex.RLock()
 	defer fake.useContextMutex.RUnlock()
 	fake.waitForAVIResourceCleanUpMutex.RLock()
