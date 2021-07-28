@@ -63,6 +63,7 @@ func packageInstall(_ *cobra.Command, args []string) error {
 	initialMsg := fmt.Sprintf("Installing package '%s'", packageInstallOp.PackageName)
 	if err := displayProgress(initialMsg, pp); err != nil {
 		if err.Error() == tkgpackagedatamodel.ErrPackageAlreadyInstalled {
+			log.Warningf("\npackage install '%s' already exists in namespace '%s'", packageInstallOp.PkgInstallName, packageInstallOp.Namespace)
 			return nil
 		}
 		return err

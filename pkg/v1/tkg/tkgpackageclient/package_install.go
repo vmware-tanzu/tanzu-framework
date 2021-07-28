@@ -51,7 +51,6 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 	}
 
 	if pkgInstall != nil && pkgInstall.Name == o.PkgInstallName {
-		log.Warningf("\npackage install '%s' already exists in namespace '%s'", o.PkgInstallName, o.Namespace)
 		err = &tkgpackagedatamodel.PackagePluginNonCriticalError{Reason: tkgpackagedatamodel.ErrPackageAlreadyInstalled}
 		return
 	}
