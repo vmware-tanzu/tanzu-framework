@@ -99,6 +99,8 @@ return {
 "AWS_NODE_OS_DISK_SIZE_GIB": ["aws"],
 "CONTROL_PLANE_MACHINE_TYPE": ["aws"],
 "NODE_MACHINE_TYPE": ["aws"],
+"NODE_MACHINE_TYPE_1": ["aws"],
+"NODE_MACHINE_TYPE_2": ["aws"],
 "AWS_SSH_KEY_NAME": ["aws"],
 "BASTION_HOST_ENABLED": ["aws"],
 

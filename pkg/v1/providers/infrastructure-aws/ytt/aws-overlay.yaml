@@ -130,7 +130,11 @@ metadata:
 spec:
   template:
     spec:
+      #@ if data.values.NODE_MACHINE_TYPE_1 != "":
+      instanceType: #@ data.values.NODE_MACHINE_TYPE_1
+      #@ else:
       instanceType: #@ data.values.NODE_MACHINE_TYPE
+      #@ end
       iamInstanceProfile: "nodes.tkg.cloud.vmware.com"
       sshKeyName: #@ data.values.AWS_SSH_KEY_NAME
       ami:
@@ -145,7 +149,11 @@ metadata:
 spec:
   template:
     spec:
+      #@ if data.values.NODE_MACHINE_TYPE_2 != "":
+      instanceType: #@ data.values.NODE_MACHINE_TYPE_2
+      #@ else:
       instanceType: #@ data.values.NODE_MACHINE_TYPE
+      #@ end
       iamInstanceProfile: "nodes.tkg.cloud.vmware.com"
       sshKeyName: #@ data.values.AWS_SSH_KEY_NAME
       ami:

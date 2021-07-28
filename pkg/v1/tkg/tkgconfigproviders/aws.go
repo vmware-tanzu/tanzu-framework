@@ -21,7 +21,7 @@ const (
 )
 
 // AWSConfig is the tkg config for aws
-type AWSConfig struct { // nolint:dupl
+type AWSConfig struct {
 	AccessKeyID           string `yaml:"AWS_ACCESS_KEY_ID,omitempty"`
 	AMIID                 string `yaml:"AWS_AMI_ID,omitempty"`
 	AWSPrivateSubnetID    string `yaml:"AWS_PRIVATE_SUBNET_ID"`
@@ -52,6 +52,8 @@ type AWSConfig struct { // nolint:dupl
 	Node3Az                   string `yaml:"AWS_NODE_AZ_2"`
 	NodeAz                    string `yaml:"AWS_NODE_AZ"`
 	NodeMachineType           string `yaml:"NODE_MACHINE_TYPE,omitempty"`
+	NodeMachineType1          string `yaml:"NODE_MACHINE_TYPE_1,omitempty"`
+	NodeMachineType2          string `yaml:"NODE_MACHINE_TYPE_2,omitempty"`
 	// NodeOSDiskSizeGiB is the size of the root volume of the node instances of a cluster
 	NodeOSDiskSizeGiB      string                    `yaml:"AWS_NODE_OS_DISK_SIZE_GIB,omitempty"`
 	PrivateNode2Cidr       string                    `yaml:"AWS_PRIVATE_NODE_CIDR_1"`
@@ -127,21 +129,38 @@ func (c *client) NewAWSConfig(params *models.AWSRegionalClusterParams, encodedCr
 		return nil, errors.Errorf("No AMI found in region %s for TKr version %s", params.AwsAccountParams.Region, bomConfiguration.Release.Version)
 	}
 
+	nodeMachineType1 := ""
+	nodeMachineType2 := ""
+
+	if len(params.Vpc.Azs) == 0 {
+		return nil, errors.New("AWS node availability zone cannot be empty")
+	}
+
+	if params.ControlPlaneFlavor == constants.PlanProd && len(params.Vpc.Azs) < 3 {
+		return nil, errors.Errorf("number of Availability Zones less than 3 for production cluster, actual %d", len(params.Vpc.Azs))
+	}
+
+	if params.ControlPlaneFlavor == constants.PlanProd {
+		nodeMachineType1 = params.Vpc.Azs[1].WorkerNodeType
+		nodeMachineType2 = params.Vpc.Azs[2].WorkerNodeType
+	}
+
 	res := &AWSConfig{
 		ClusterName:            params.ClusterName,
 		InfrastructureProvider: constants.InfrastructureProviderAWS,
 		ClusterPlan:            params.ControlPlaneFlavor,
 		TmcRegistrationURL:     params.TmcRegistrationURL,
-
-		Region:                params.AwsAccountParams.Region,
-		B64EncodedCredentials: encodedCredentials,
-		ControlPlaneNodeType:  params.ControlPlaneNodeType,
-		NodeMachineType:       params.WorkerNodeType,
-		AMIID:                 amiID,
-		SSHKeyName:            params.SSHKeyName,
-		ClusterCidr:           params.Networking.ClusterPodCIDR,
-		ServiceCidr:           params.Networking.ClusterServiceCIDR,
-		HTTPProxyEnabled:      falseConst,
+		Region:                 params.AwsAccountParams.Region,
+		B64EncodedCredentials:  encodedCredentials,
+		ControlPlaneNodeType:   params.ControlPlaneNodeType,
+		NodeMachineType:        params.Vpc.Azs[0].WorkerNodeType,
+		NodeMachineType1:       nodeMachineType1,
+		NodeMachineType2:       nodeMachineType2,
+		AMIID:                  amiID,
+		SSHKeyName:             params.SSHKeyName,
+		ClusterCidr:            params.Networking.ClusterPodCIDR,
+		ServiceCidr:            params.Networking.ClusterServiceCIDR,
+		HTTPProxyEnabled:       falseConst,
 	}
 
 	if params.CeipOptIn != nil {
