@@ -73,7 +73,7 @@ func packageInstall(_ *cobra.Command, args []string) error {
 	return nil
 }
 
-func displayProgress(initialMsg string, pp *tkgpackagedatamodel.PackageProgress) error { //nolint:gocyclo
+func displayProgress(initialMsg string, pp *tkgpackagedatamodel.PackageProgress) error {
 	var (
 		currMsg string
 		s       *spinner.Spinner
@@ -87,54 +87,50 @@ func displayProgress(initialMsg string, pp *tkgpackagedatamodel.PackageProgress)
 		}
 		return s, nil
 	}
-	s, err = newSpinner()
-	if err != nil {
+	if s, err = newSpinner(); err != nil {
 		return err
 	}
 
-	writeProgress := func(s *spinner.Spinner, msg string) (string, error) {
+	writeProgress := func(s *spinner.Spinner, msg string) error {
 		s.Stop()
-		s, err = newSpinner()
-		if err != nil {
-			return "", err
+		if s, err = newSpinner(); err != nil {
+			return err
 		}
 		log.Infof("\n")
 		s.Suffix = fmt.Sprintf(" %s", msg)
-		currMsg = msg
 		s.Start()
-		return currMsg, nil
+		return nil
 	}
 
 	s.Suffix = fmt.Sprintf(" %s", initialMsg)
 	s.Start()
 
 	defer func() {
-		if s.Active() {
-			s.Stop()
-		}
+		s.Stop()
 	}()
 	for {
 		select {
 		case err := <-pp.Err:
-			if err.Error() != tkgpackagedatamodel.ErrPackageAlreadyInstalled &&
-				err.Error() != tkgpackagedatamodel.ErrPackageNotInstalled {
+			if _, ok := err.(*tkgpackagedatamodel.PackagePluginNonCriticalError); !ok {
 				s.FinalMSG = fmt.Sprintf("%s\n", err.Error())
 			}
 			return err
 		case msg := <-pp.ProgressMsg:
 			if msg != currMsg {
-				if currMsg, err = writeProgress(s, msg); err != nil {
+				if err := writeProgress(s, msg); err != nil {
 					return err
 				}
+				currMsg = msg
 			}
 		case <-pp.Done:
 			for msg := range pp.ProgressMsg {
 				if msg == currMsg {
 					continue
 				}
-				if currMsg, err = writeProgress(s, msg); err != nil {
+				if err := writeProgress(s, msg); err != nil {
 					return err
 				}
+				currMsg = msg
 			}
 			return nil
 		}

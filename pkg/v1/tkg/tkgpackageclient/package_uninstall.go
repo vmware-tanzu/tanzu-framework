@@ -44,7 +44,7 @@ func (p *pkgClient) UninstallPackage(o *tkgpackagedatamodel.PackageOptions, prog
 			if err := p.deletePreviouslyInstalledResources(o); err != nil {
 				return
 			}
-			err = errors.New(tkgpackagedatamodel.ErrPackageNotInstalled)
+			err = &tkgpackagedatamodel.PackagePluginNonCriticalError{Reason: tkgpackagedatamodel.ErrPackageNotInstalled}
 		} else {
 			err = errors.Wrap(err, fmt.Sprintf("\nfailed to find installed package '%s' in namespace '%s'", o.PkgInstallName, o.Namespace))
 		}
