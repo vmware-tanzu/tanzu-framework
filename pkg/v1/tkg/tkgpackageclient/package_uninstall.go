@@ -49,13 +49,14 @@ func (p *pkgClient) UninstallPackage(o *tkgpackagedatamodel.PackageOptions, prog
 
 	if pkgInstall != nil {
 		progress.ProgressMsg <- fmt.Sprintf("Deleting package install '%s' from namespace '%s'", o.PkgInstallName, o.Namespace)
-	}
-	if err = p.deletePackageInstall(o); err != nil {
-		return
-	}
 
-	if err = p.waitForAppCRDeletion(o, progress.ProgressMsg); err != nil {
-		return
+		if err = p.deletePackageInstall(o); err != nil {
+			return
+		}
+
+		if err = p.waitForPackageInstallDeletion(o, progress.ProgressMsg); err != nil {
+			return
+		}
 	}
 
 	if err = p.deletePkgPluginCreatedResources(o, pkgInstall, progress.ProgressMsg, progress.Success); err != nil {
@@ -162,19 +163,19 @@ func (p *pkgClient) deletePackageInstall(o *tkgpackagedatamodel.PackageOptions) 
 	return nil
 }
 
-// waitForAppCRDeletion waits until the App CR get deleted successfully or a failure happen
-func (p *pkgClient) waitForAppCRDeletion(o *tkgpackagedatamodel.PackageOptions, progress chan string) error {
+// waitForPackageInstallDeletion waits until the PackageInstall CR gets deleted successfully or a failure happens
+func (p *pkgClient) waitForPackageInstallDeletion(o *tkgpackagedatamodel.PackageOptions, progress chan string) error {
 	if err := wait.Poll(o.PollInterval, o.PollTimeout, func() (done bool, err error) {
-		app, err := p.kappClient.GetAppCR(o.PkgInstallName, o.Namespace) // TODO: wait on package CR deletion instead
+		pkgInstall, err := p.kappClient.GetPackageInstall(o.PkgInstallName, o.Namespace)
 		if err != nil && apierrors.IsNotFound(err) {
 			return true, nil
 		}
-		for _, cond := range app.Status.Conditions {
+		for _, cond := range pkgInstall.Status.Conditions {
 			if progress != nil {
 				progress <- fmt.Sprintf("Package uninstall status: %s", cond.Type)
 			}
 			if cond.Type == kappctrl.DeleteFailed {
-				return false, fmt.Errorf("app deletion failed: %s", app.Status.UsefulErrorMessage)
+				return false, fmt.Errorf("package install deletion failed: %s", pkgInstall.Status.UsefulErrorMessage)
 			}
 		}
 
