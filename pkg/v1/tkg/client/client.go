@@ -192,6 +192,10 @@ type Client interface {
 	ActivateTanzuKubernetesReleases(tkrName string) error
 	// DeactivateTanzuKubernetesReleases deactivates TanzuKubernetesRelease
 	DeactivateTanzuKubernetesReleases(tkrName string) error
+	// todo: remove? GetFeatures returns Feature resources
+	GetFeatures() ([]configv1alpha1.Feature, error)
+	// GetTKGSystemFeatureGate allows access to the system gate
+	GetTKGSystemFeatureGate() (configv1alpha1.FeatureGate, error)
 }
 
 // TkgClient implements Client.

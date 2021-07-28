@@ -16,7 +16,7 @@ spec:
         app: tanzu-capabilities-manager
     spec:
       containers:
-        - image:  capabilities-controller-manager:latest
+        - image:  harbor-repo.vmware.com/tkgsdk/capability-controller:latest
           imagePullPolicy: IfNotPresent
           name: manager
           resources:

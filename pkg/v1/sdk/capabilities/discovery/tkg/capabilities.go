@@ -21,7 +21,6 @@ const (
 	clusterTypeManagement = "management"
 	// clusterTypeWorkload is the workload cluster type.
 	clusterTypeWorkload = "workload"
-
 	// metadataConfigMapNamespace is the namespace of the cluster metadata configmap.
 	metadataConfigMapNamespace = "tkg-system-public"
 	// metadataConfigMapName is the name of the cluster metadata configmap.

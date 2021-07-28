@@ -1,0 +1,24 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: selfsigned-issuer
+  namespace: tkg-system
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  # Must match inject-ca-from annotation value in the CRD/{Mutating,Validating}WebhookConfiguration.
+  name: tanzu-featuregates-serving-cert
+  namespace: tkg-system
+spec:
+  dnsNames:
+  # Must match webhook service name and namespace.
+  - tanzu-featuregates-webhook-service.tkg-system.svc
+  - tanzu-featuregates-webhook-service-cert.tkg-system.svc.cluster.local
+  issuerRef:
+    kind: Issuer
+    name: selfsigned-issuer
+  secretName: webhook-server-cert # Must match the certificate secret mounted to the controller deployment.

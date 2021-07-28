@@ -1,0 +1,58 @@
+---
+apiVersion: config.tanzu.vmware.com/v1alpha1
+kind: Feature
+metadata:
+  name: cloud-event-listener
+spec:
+  description: "Open a port to listen for cloudevents. Highly experimental!"
+  immutable: false
+  discoverable: true
+  maturity: "alpha"
+  activated: false
+---
+apiVersion: config.tanzu.vmware.com/v1alpha1
+kind: Feature
+metadata:
+  name: dodgy-experimental-periscope
+spec:
+  description: "experimental support for deploying a periscope. doesnt work very often!"
+  immutable: false
+  discoverable: true
+  maturity: "dev"
+  activated: false
+---
+apiVersion: config.tanzu.vmware.com/v1alpha1
+kind: Feature
+metadata:
+  name: super-toaster
+spec:
+  description: "An old reliable toaster"
+  immutable: true
+  discoverable: true
+  maturity: "ga"
+  activated: true
+---
+apiVersion: config.tanzu.vmware.com/v1alpha1
+kind: Feature
+metadata:
+  name: ipv6
+spec:
+  description: "Optional ipv6 support"
+  immutable: true
+  discoverable: true
+  maturity: "beta"
+  activated: true
+---
+apiVersion: config.tanzu.vmware.com/v1alpha1
+kind: Feature
+metadata:
+  name: fortan
+spec:
+  description: "Fortran support"
+  immutable: true
+  discoverable: true
+  maturity: "deprecated"
+  activated: false
+
+
+

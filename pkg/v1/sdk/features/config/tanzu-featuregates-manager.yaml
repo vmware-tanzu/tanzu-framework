@@ -16,7 +16,7 @@ spec:
         app: tanzu-featuregates-manager
     spec:
       containers:
-        - image:  featuregates-controller-manager:latest
+        - image:  harbor-repo.vmware.com/tkgsdk/featuregate-controller:latest
           imagePullPolicy: IfNotPresent
           name: manager
           resources:
@@ -38,7 +38,7 @@ spec:
         - name: cert
           secret:
             defaultMode: 420
-            secretName: tanzu-featuregates-webhook-server-cert
+            secretName: webhook-server-cert
       serviceAccount: tanzu-featuregates-manager-sa
       terminationGracePeriodSeconds: 10
       tolerations:
