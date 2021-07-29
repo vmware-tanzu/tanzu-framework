@@ -63,7 +63,7 @@ func packageInstall(_ *cobra.Command, args []string) error {
 	initialMsg := fmt.Sprintf("Installing package '%s'", packageInstallOp.PackageName)
 	if err := displayProgress(initialMsg, pp); err != nil {
 		if err.Error() == tkgpackagedatamodel.ErrPackageAlreadyInstalled {
-			log.Warningf("\npackage install '%s' already exists in namespace '%s'", packageInstallOp.PkgInstallName, packageInstallOp.Namespace)
+			log.Warningf("package install '%s' already exists in namespace '%s'", packageInstallOp.PkgInstallName, packageInstallOp.Namespace)
 			return nil
 		}
 		return err
@@ -112,9 +112,7 @@ func displayProgress(initialMsg string, pp *tkgpackagedatamodel.PackageProgress)
 	for {
 		select {
 		case err := <-pp.Err:
-			if _, ok := err.(*tkgpackagedatamodel.PackagePluginNonCriticalError); !ok {
-				s.FinalMSG = fmt.Sprintf("\n%s\n", err.Error())
-			}
+			s.FinalMSG = "\n\n"
 			return err
 		case msg := <-pp.ProgressMsg:
 			if msg != currMsg {
