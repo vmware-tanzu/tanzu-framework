@@ -1,0 +1,40 @@
+@startuml
+
+actor User
+participant "tanzu cli"
+participant "Config Directory"
+participant "Image Repository"
+
+== Install ==
+
+User -> "tanzu cli": Installs 
+
+== Download Compatibility File ==
+
+"tanzu cli" -> "Image Repository": CLI finds latest tkg-compatibility file from "projects.registry.vmware.com/tkg/tkg-compatibility" using imgpkg
+
+"Image Repository" -> "Config Directory": Download the latest compatibility file and place it under  "~/.config/tanzu/tkg/compatibility"
+
+== Download TKG BoM File ==
+
+"tanzu cli" -> "Config Directory": Reads compatibility file to find the latest TKG BoM version
+
+"tanzu cli" -> "Image Repository": CLI finds TKG BoM file from "projects.registry.vmware.com/tkg/tkg-bom:v1.4.1-patch.1"
+
+"Image Repository" -> "Config Directory": Download the TKG BoM file and place it under  "~/.config/tanzu/tkg/bom"
+
+== Download Default TKr BoM File ==
+
+"tanzu cli" -> "Config Directory": Reads TKG BoM file (`default.k8sVersion`) to find the default TKr version
+
+"tanzu cli" -> "Image Repository": CLI finds TKr BoM file from "projects.registry.vmware.com/tkg/tkr-bom:v1.21.2_vmware.1-tkg.1"
+
+"Image Repository" -> "Config Directory": Download the TKr BoM file and place it under  "~/.config/tanzu/tkg/bom"
+
+== Download Provider Templates ==
+
+"tanzu cli" -> "Config Directory": Reads TKG BoM file (`components.tanzu-framework.images.providerTemplateImage`) to find the provider template image path and tag
+
+"tanzu cli" -> "Image Repository": CLI finds provider template image "projects.registry.vmware.com/tkg/tanzu_core/provider/provider-templates:v1.4.1-patch.1"
+
+"Image Repository" -> "Config Directory": Download the provider template files and place it under  "~/.config/tanzu/tkg/providers"
