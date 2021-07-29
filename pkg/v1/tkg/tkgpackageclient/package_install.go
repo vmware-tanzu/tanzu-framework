@@ -55,7 +55,7 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 		return
 	}
 
-	progress.ProgressMsg <- fmt.Sprintf("Getting package metadata for %s", o.PackageName)
+	progress.ProgressMsg <- fmt.Sprintf("Getting package metadata for '%s'", o.PackageName)
 	if _, _, err = p.GetPackage(o); err != nil {
 		return
 	}
