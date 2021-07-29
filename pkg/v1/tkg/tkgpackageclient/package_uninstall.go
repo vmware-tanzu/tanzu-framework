@@ -55,7 +55,7 @@ func (p *pkgClient) UninstallPackage(o *tkgpackagedatamodel.PackageOptions, prog
 		return
 	}
 
-	if err = p.waitForAppCRDeletion(o, progress.ProgressMsg); err != nil {
+	if err = p.waitForPackageInstallDeletion(o, progress.ProgressMsg); err != nil {
 		return
 	}
 
@@ -191,8 +191,7 @@ func (p *pkgClient) deletePreviouslyInstalledResources(o *tkgpackagedatamodel.Pa
 	}
 
 	objMeta = metav1.ObjectMeta{
-		Name:
-			fmt.Sprintf(tkgpackagedatamodel.ClusterRoleName, o.PkgInstallName, o.Namespace),
+		Name: fmt.Sprintf(tkgpackagedatamodel.ClusterRoleName, o.PkgInstallName, o.Namespace),
 	}
 	if err := p.deleteAnnotatedResource(&rbacv1.ClusterRole{}, crtclient.ObjectKey{Name: objMeta.Name}, resourceAnnotation); err != nil {
 		return err
