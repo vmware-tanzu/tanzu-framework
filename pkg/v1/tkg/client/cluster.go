@@ -387,9 +387,6 @@ func (c *TkgClient) getPacificClusterConfiguration(options *CreateClusterOptions
 	// Set CLUSTER_PLAN to viper configuration
 	c.SetPlan(options.ProviderRepositorySource.Flavor)
 	c.SetProviderType(name)
-	if name == WindowsVSphereProviderName {
-		c.SetProviderType(VSphereProviderName)
-	}
 	c.SetTKGClusterRole(WorkloadCluster)
 	c.SetTKGVersion()
 	err = c.ConfigureAndValidateCNIType(options.CniType)
