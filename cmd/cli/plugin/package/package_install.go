@@ -113,7 +113,7 @@ func displayProgress(initialMsg string, pp *tkgpackagedatamodel.PackageProgress)
 		select {
 		case err := <-pp.Err:
 			if _, ok := err.(*tkgpackagedatamodel.PackagePluginNonCriticalError); !ok {
-				s.FinalMSG = fmt.Sprintf("%s\n", err.Error())
+				s.FinalMSG = fmt.Sprintf("\n%s\n", err.Error())
 			}
 			return err
 		case msg := <-pp.ProgressMsg:
