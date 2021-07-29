@@ -1,0 +1,13 @@
+# Copyright 2021 VMware, Inc. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+def capture_k8s_objects(k8sconf, nspaces):
+    log(prefix="Info", msg="Retrieving pod logs: namespaces={}".format(nspaces))
+    kube_capture(what="logs", namespaces=nspaces, kube_config=k8sconf)
+    log(prefix="Info", msg="Retrieving API objects: namespaces={}".format(nspaces))
+    kube_capture(what="objects", kinds=["pods", "services"], namespaces=nspaces, kube_config=k8sconf)
+    kube_capture(what="objects", kinds=["deployments", "replicasets"], groups=["apps"], namespaces=nspaces, kube_config=k8sconf)
+    kube_capture(what="objects", kinds=["apps"], groups=["kappctrl.k14s.io"], namespaces=["tkg-system"], kube_config=k8sconf)
+    kube_capture(what="objects", kinds=["tanzukubernetesreleases"], groups=["run.tanzu.vmware.com"], kube_config=k8sconf)
+    kube_capture(what="objects", kinds=["configmaps"], namespaces=["tkr-system"], kube_config=k8sconf)
+    kube_capture(what="objects", categories=["cluster-api"], kube_config=k8sconf)
