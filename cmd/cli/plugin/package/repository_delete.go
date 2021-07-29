@@ -56,7 +56,7 @@ func repositoryDelete(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	log.Infof("\n Deleted package repository '%s' in namespace '%s'", repoOp.RepositoryName, repoOp.Namespace)
+	log.Infof("\n Deleted package repository '%s' from namespace '%s'", repoOp.RepositoryName, repoOp.Namespace)
 
 	return nil
 }

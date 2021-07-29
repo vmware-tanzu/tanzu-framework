@@ -25,6 +25,11 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
+const (
+	msgRunPackageInstalledDelete = "\n\nPlease consider using 'tanzu package installed delete' to delete the already created associated resources\n"
+	msgRunPackageInstalledUpdate = "\n\nPlease consider using 'tanzu package installed update' to update the installed package with correct settings\n"
+)
+
 // InstallPackage installs the PackageInstall and its associated resources in the cluster
 func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progress *tkgpackagedatamodel.PackageProgress, update bool) { //nolint:gocyclo
 	var (
@@ -46,11 +51,11 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 	}
 
 	if pkgInstall != nil && pkgInstall.Name == o.PkgInstallName {
-		log.Warningf("\nPackage install '%s' already exists in namespace '%s'", o.PkgInstallName, o.Namespace)
+		err = &tkgpackagedatamodel.PackagePluginNonCriticalError{Reason: tkgpackagedatamodel.ErrPackageAlreadyInstalled}
 		return
 	}
 
-	progress.ProgressMsg <- fmt.Sprintf("Getting package metadata for %s", o.PackageName)
+	progress.ProgressMsg <- fmt.Sprintf("Getting package metadata for '%s'", o.PackageName)
 	if _, _, err = p.GetPackage(o); err != nil {
 		return
 	}
@@ -72,12 +77,14 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 		o.ClusterRoleName = fmt.Sprintf(tkgpackagedatamodel.ClusterRoleName, o.PkgInstallName, o.Namespace)
 		progress.ProgressMsg <- fmt.Sprintf("Creating cluster admin role '%s'", o.ClusterRoleName)
 		if err = p.createClusterAdminRole(o); err != nil {
+			log.Warning(msgRunPackageInstalledDelete)
 			return
 		}
 
 		o.ClusterRoleBindingName = fmt.Sprintf(tkgpackagedatamodel.ClusterRoleBindingName, o.PkgInstallName, o.Namespace)
 		progress.ProgressMsg <- fmt.Sprintf("Creating cluster role binding '%s'", o.ClusterRoleBindingName)
 		if err = p.createClusterRoleBinding(o); err != nil {
+			log.Warning(msgRunPackageInstalledDelete)
 			return
 		}
 	} else {
@@ -97,24 +104,23 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 		o.SecretName = fmt.Sprintf(tkgpackagedatamodel.SecretName, o.PkgInstallName, o.Namespace)
 		progress.ProgressMsg <- fmt.Sprintf("Creating secret '%s'", o.SecretName)
 		if secretCreated, err = p.createDataValuesSecret(o); err != nil {
+			log.Warning(msgRunPackageInstalledDelete)
 			return
 		}
 	}
 
 	progress.ProgressMsg <- "Creating package resource"
 	if err = p.createPackageInstall(o, serviceAccountCreated, secretCreated); err != nil {
-		err = errors.Wrap(err, "\nPlease consider using 'tanzu package installed delete' to delete the already created associated resources")
+		log.Warning(msgRunPackageInstalledDelete)
 		return
 	}
 
 	if o.Wait {
 		if err = p.waitForPackageInstallation(o, progress.ProgressMsg); err != nil {
-			err = errors.Wrap(err, "\nPlease consider using 'tanzu package installed update' to update the installed package with correct settings")
+			log.Warning(msgRunPackageInstalledUpdate)
 			return
 		}
 	}
-
-	progress.Success <- true
 }
 
 func packageInstallProgressCleanup(err error, progress *tkgpackagedatamodel.PackageProgress, update bool) {
@@ -124,7 +130,6 @@ func packageInstallProgressCleanup(err error, progress *tkgpackagedatamodel.Pack
 	if !update {
 		close(progress.ProgressMsg)
 		close(progress.Done)
-		close(progress.Success)
 	}
 }
 
