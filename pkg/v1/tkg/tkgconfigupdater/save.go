@@ -44,6 +44,9 @@ func SaveConfig(clusterConfigPath string, rw tkgconfigreaderwriter.TKGConfigRead
 		// sets variable in viper store
 		rw.Set(k, v)
 
+		if utils.ContainsString(KeysToNeverPersist, k) {
+			continue
+		}
 		// sets variable in config file
 		err = SetVariableInConfig(k, v, "", clusterConfigPath)
 		if err != nil {

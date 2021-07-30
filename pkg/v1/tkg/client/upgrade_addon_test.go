@@ -9,6 +9,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
 
@@ -37,7 +38,7 @@ var _ = Describe("Unit tests for addons upgrade", func() {
 	BeforeEach(func() {
 		regionalClusterClient = &fakes.ClusterClient{}
 		currentClusterClient = &fakes.ClusterClient{}
-		tkgClient, err = CreateTKGClient("../fakes/config/config.yaml", testingDir, "../fakes/config/bom/tkg-bom-v1.3.1.yaml", 2*time.Millisecond)
+		tkgClient, err = CreateTKGClient("../fakes/config/config2.yaml", testingDir, "../fakes/config/bom/tkg-bom-v1.3.1.yaml", 2*time.Millisecond)
 
 		upgradeAddonOptions = &UpgradeAddonOptions{
 			ClusterName:       "test-cluster",
@@ -49,7 +50,7 @@ var _ = Describe("Unit tests for addons upgrade", func() {
 
 	Describe("When upgrading addons", func() {
 		const (
-			clusterName = "tkg-mgmt"
+			clusterName = "regional-cluster-2"
 		)
 		var (
 			serviceCIDRs []string
@@ -64,10 +65,16 @@ var _ = Describe("Unit tests for addons upgrade", func() {
 			regionalClusterClient.PatchResourceReturns(nil)
 			regionalClusterClient.GetKCPObjectForClusterReturns(getDummyKCP(constants.DockerMachineTemplate), nil)
 			currentClusterClient.GetKubernetesVersionReturns(currentK8sVersion, nil)
-			regionalClusterClient.GetCurrentKubeContextReturns("context", nil)
-			regionalClusterClient.GetCurrentClusterNameReturns(clusterName, nil)
+			regionalClusterClient.ListClustersReturns([]capi.Cluster{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      clusterName,
+						Namespace: constants.DefaultNamespace,
+					},
+				},
+			}, nil)
 			regionalClusterClient.GetResourceCalls(func(cluster interface{}, resourceName, namespace string, postVerify clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
-				if cluster, ok := cluster.(*capi.Cluster); ok && resourceName == clusterName && namespace == upgradeAddonOptions.Namespace {
+				if cluster, ok := cluster.(*capi.Cluster); ok && resourceName == clusterName && namespace == constants.DefaultNamespace {
 					cluster.Spec = capi.ClusterSpec{
 						ClusterNetwork: &capi.ClusterNetwork{
 							Services: &capi.NetworkRanges{

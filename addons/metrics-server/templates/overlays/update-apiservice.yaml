@@ -1,7 +1,0 @@
-#@ load("/values.star", "values")
-#@ load("@ytt:overlay", "overlay")
-
-#@overlay/match by=overlay.subset({"kind": "APIService"})
----
-spec:
-  insecureSkipTLSVerify: #@ values.metricsServer.config.apiServiceInsecureTLS

@@ -12,7 +12,7 @@ else
 GOBIN=$(shell go env GOBIN)
 endif
 
-PRIVATE_REPOS="github.com/vmware-tanzu"
+PRIVATE_REPOS="github.com/vmware-tanzu/tanzu-framework"
 GO := GOPRIVATE=${PRIVATE_REPOS} go
 
 # ssh private key file name

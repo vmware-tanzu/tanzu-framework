@@ -42,6 +42,7 @@ import (
 	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
 	capiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
+	bootstrapv1alpha3 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha3"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/cluster"
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
@@ -100,6 +101,8 @@ type Client interface {
 	WaitForDeployment(deploymentName string, namespace string) error
 	// WaitForAutoscalerDeployment waits for the autoscaler deployment to be available
 	WaitForAutoscalerDeployment(deploymentName string, namespace string) error
+	// WaitForAVIResourceCleanUp waits for the avi resource clean up finished
+	WaitForAVIResourceCleanUp(statefulSetName, namespace string) error
 	// WaitK8sVersionUpdateForCPNodes waits for k8s version to be updated
 	WaitK8sVersionUpdateForCPNodes(clusterName, namespace, kubernetesVersion string, workloadClusterClient Client) error
 	// WaitK8sVersionUpdateForWorkerNodes waits for k8s version to be updated in all worker nodes
@@ -259,6 +262,8 @@ type Client interface {
 	GetAzureCredentialsFromSecret() (azureclient.Credentials, error)
 	// UpdateCapvManagerBootstrapCredentialsSecret updates the vsphere creds used by the capv provider
 	UpdateCapvManagerBootstrapCredentialsSecret(username string, password string) error
+	// UpdateVsphereIdentityRefSecret updates vsphere cluster identityRef secret
+	UpdateVsphereIdentityRefSecret(clusterName, namespace, username, password string) error
 	// UpdateVsphereCloudProviderCredentialsSecret updates the vsphere creds used by the vsphere cloud provider
 	UpdateVsphereCloudProviderCredentialsSecret(clusterName string, namespace string, username string, password string) error
 	// UpdateVsphereCsiConfigSecret updates the vsphere csi config secret
@@ -327,6 +332,7 @@ const (
 	getClientDefaultInterval          = 10 * time.Second
 	getClientDefaultTimeout           = 5 * time.Minute
 	CheckAutoscalerDeploymentTimeout  = 2 * time.Minute
+	AVIResourceCleanupTimeout         = 2 * time.Minute
 	kubeConfigSecretSuffix            = "kubeconfig"
 	kubeConfigDataField               = "value"
 	embeddedTelemetryConfigYamlPrefix = "pkg/manifest/telemetry/config-"
@@ -368,6 +374,7 @@ func init() {
 	_ = capav1alpha3.AddToScheme(scheme)
 	_ = capzv1alpha3.AddToScheme(scheme)
 	_ = capdv1alpha3.AddToScheme(scheme)
+	_ = bootstrapv1alpha3.AddToScheme(scheme)
 	_ = runv1alpha1.AddToScheme(scheme)
 	_ = betav1.AddToScheme(scheme)
 	_ = tmcv1alpha1.AddToScheme(scheme)
@@ -560,6 +567,10 @@ func (c *client) WaitForDeployment(deploymentName, namespace string) error {
 
 func (c *client) WaitForAutoscalerDeployment(deploymentName, namespace string) error {
 	return c.GetResource(&appsv1.Deployment{}, deploymentName, namespace, VerifyAutoscalerDeploymentAvailable, &PollOptions{Interval: CheckResourceInterval, Timeout: CheckAutoscalerDeploymentTimeout})
+}
+
+func (c *client) WaitForAVIResourceCleanUp(statefulSetName, namespace string) error {
+	return c.GetResource(&appsv1.StatefulSet{}, statefulSetName, namespace, VerifyAVIResourceCleanupFinished, &PollOptions{Interval: CheckResourceInterval, Timeout: AVIResourceCleanupTimeout})
 }
 
 func verifyKubernetesUpgradeForCPNodes(clusterStatusInfo *ClusterStatusInfo, newK8sVersion string) error {

@@ -302,6 +302,12 @@ func (c *TkgClient) ConfigureAndValidateDockerConfig(tkrVersion string, nodeSize
 	return nil
 }
 
+// ConfigureAndValidateWindowsVsphereConfig configures and validates vsphere configuration for windows
+func (c *TkgClient) ConfigureAndValidateWindowsVsphereConfig(tkrVersion string, nodeSizes NodeSizeOptions, vip string, skipValidation bool, clusterClient clusterclient.Client) *ValidationError {
+	c.SetProviderType(WindowsVSphereProviderName)
+	return nil
+}
+
 // ConfigureAndValidateAwsConfig configures and validates aws configuration
 func (c *TkgClient) ConfigureAndValidateAwsConfig(tkrVersion string, skipValidation, isProdConfig bool, workerMachineCount int64, isManagementCluster, useExistingVPC bool) error {
 	if tkrVersion == "" {
@@ -382,6 +388,10 @@ func (c *TkgClient) ConfigureAndValidateAWSConfig(tkrVersion string, nodeSizes N
 	c.SetProviderType(AWSProviderName)
 	awsClient, err := c.EncodeAWSCredentialsAndGetClient(clusterClient)
 	if err != nil {
+		// We must have credentials present for the instantiation of the management cluster
+		if isManagementCluster {
+			return err
+		}
 		log.Warningf("unable to create AWS client. Skipping validations that require an AWS client")
 		return c.ConfigureAndValidateAwsConfig(tkrVersion, skipValidation, isProdConfig, workerMachineCount, isManagementCluster, false)
 	}
@@ -506,7 +516,7 @@ func (c *TkgClient) GetVSphereEndpoint(clusterClient clusterclient.Client) (vc.C
 }
 
 // ConfigureAndValidateManagementClusterConfiguration configure and validate management cluster configuration
-func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *InitRegionOptions, skipValidation bool) *ValidationError { // nolint:gocyclo
+func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *InitRegionOptions, skipValidation bool) *ValidationError { // nolint:gocyclo,funlen
 	var err error
 	if options.ClusterName != "" {
 		if err := checkClusterNameFormat(options.ClusterName); err != nil {
@@ -566,33 +576,28 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
-	if name == AWSProviderName {
-		if err := c.ConfigureAndValidateAWSConfig(tkrVersion, options.NodeSizeOptions, skipValidation, options.Plan == constants.PlanProd, constants.DefaultWorkerMachineCountForManagementCluster, nil, true); err != nil {
+	switch name {
+	case AWSProviderName:
+		err = c.ConfigureAndValidateAWSConfig(tkrVersion, options.NodeSizeOptions, skipValidation, options.Plan == constants.PlanProd, constants.DefaultWorkerMachineCountForManagementCluster, nil, true)
+	case VSphereProviderName:
+		err := c.ConfigureAndValidateVsphereConfig(tkrVersion, options.NodeSizeOptions, options.VsphereControlPlaneEndpoint, skipValidation, nil)
+		if err != nil {
 			return NewValidationError(ValidationErrorCode, err.Error())
 		}
-	}
-
-	if name == VSphereProviderName {
-		if err := c.ConfigureAndValidateVsphereConfig(tkrVersion, options.NodeSizeOptions, options.VsphereControlPlaneEndpoint, skipValidation, nil); err != nil {
-			return err
-		}
-
-		err := c.ValidateVsphereControlPlaneEndpointIP(options.VsphereControlPlaneEndpoint)
+		err = c.ValidateVsphereControlPlaneEndpointIP(options.VsphereControlPlaneEndpoint)
 		if err != nil {
 			log.Warningf("WARNING: The control plane endpoint '%s' might already used by other cluster. This might affect the deployment of the cluster", options.VsphereControlPlaneEndpoint)
 		}
+	case AzureProviderName:
+		err = c.ConfigureAndValidateAzureConfig(tkrVersion, options.NodeSizeOptions, skipValidation, options.Plan == constants.PlanProd, constants.DefaultWorkerMachineCountForManagementCluster, nil, true)
+	case DockerProviderName:
+		err = c.ConfigureAndValidateDockerConfig(tkrVersion, options.NodeSizeOptions, skipValidation)
+	case WindowsVSphereProviderName:
+		err = c.ConfigureAndValidateWindowsVsphereConfig(tkrVersion, options.NodeSizeOptions, options.VsphereControlPlaneEndpoint, skipValidation, nil)
 	}
 
-	if name == AzureProviderName {
-		if err := c.ConfigureAndValidateAzureConfig(tkrVersion, options.NodeSizeOptions, skipValidation, options.Plan == constants.PlanProd, constants.DefaultWorkerMachineCountForManagementCluster, nil, true); err != nil {
-			return NewValidationError(ValidationErrorCode, err.Error())
-		}
-	}
-
-	if name == DockerProviderName {
-		if err := c.ConfigureAndValidateDockerConfig(tkrVersion, options.NodeSizeOptions, skipValidation); err != nil {
-			return NewValidationError(ValidationErrorCode, err.Error())
-		}
+	if err != nil {
+		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
 	return nil
@@ -1356,35 +1361,8 @@ func (c *TkgClient) SetMachineDeploymentWorkerCounts(workerCounts []int, totalWo
 	}
 }
 
-func (c *TkgClient) getAWSCredentialsFromSecret(clusterClient clusterclient.Client) (aws.Client, error) {
-	if clusterClient == nil {
-		return nil, errors.New("cluster client is not initialized")
-	}
-	creds, err := clusterClient.GetAWSCredentialsFromSecret()
-	if err != nil {
-		return nil, err
-	}
-
-	awsClient, err := aws.NewFromEncodedCrendentials(creds)
-	if err != nil {
-		return nil, err
-	}
-	encodedCreds, err := awsClient.EncodeCredentials()
-	if err != nil {
-		return nil, err
-	}
-	c.TKGConfigReaderWriter().Set(constants.ConfigVariableAWSB64Credentials, encodedCreds)
-	return awsClient, nil
-}
-
 // EncodeAWSCredentialsAndGetClient encodes aws credentials and returns aws client
 func (c *TkgClient) EncodeAWSCredentialsAndGetClient(clusterClient clusterclient.Client) (aws.Client, error) {
-	if awsClient, err := c.getAWSCredentialsFromSecret(clusterClient); err == nil {
-		return awsClient, nil
-	}
-
-	log.Warning("unable to get credentials from secret. Trying to get the AWS credentials from configuration file or default credentials provider chain")
-
 	creds, err := c.GetAWSCreds()
 	if err != nil {
 		return nil, err

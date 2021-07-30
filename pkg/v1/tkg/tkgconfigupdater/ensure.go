@@ -35,6 +35,14 @@ var KeysToEncode = []string{
 	constants.ConfigVariableOIDCIdentiryProviderClientSecret,
 }
 
+// KeysToNeverPersist are all keys that should never be persisted
+var KeysToNeverPersist = []string{
+	constants.ConfigVariableAWSAccessKeyID,
+	constants.ConfigVariableAWSSecretAccessKey,
+	constants.ConfigVariableAWSSessionToken,
+	constants.ConfigVariableAWSB64Credentials,
+}
+
 // DefaultConfigMap default configuration map
 var DefaultConfigMap = map[string]string{
 	constants.KeyCertManagerTimeout: constants.DefaultCertmanagerDeploymentTimeout.String(),

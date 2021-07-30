@@ -19,11 +19,11 @@ require (
 	github.com/vmware-tanzu/tanzu-framework v0.0.0-20201211200158-5838874f2c38
 	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.21.2
+	k8s.io/apiextensions-apiserver v0.21.2
 	k8s.io/apimachinery v0.21.2
 	k8s.io/client-go v0.21.2
 	k8s.io/klog v1.0.0
 	k8s.io/utils v0.0.0-20210527160623-6fdb442a123b
-	sigs.k8s.io/cluster-api v0.3.20-0.20210628204229-9fcfbce8e5c6
+	sigs.k8s.io/cluster-api v0.3.22
 	sigs.k8s.io/controller-runtime v0.7.0
-	sigs.k8s.io/yaml v1.2.0
 )

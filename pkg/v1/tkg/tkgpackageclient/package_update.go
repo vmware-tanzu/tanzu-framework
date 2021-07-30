@@ -21,8 +21,9 @@ import (
 
 func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progress *tkgpackagedatamodel.PackageProgress) {
 	var (
-		pkgInstall *kappipkg.PackageInstall
-		err        error
+		pkgInstall    *kappipkg.PackageInstall
+		err           error
+		secretCreated bool
 	)
 
 	defer func() {
@@ -50,7 +51,6 @@ func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progres
 		}
 		progress.ProgressMsg <- fmt.Sprintf("Installing package '%s'", o.PkgInstallName)
 		p.InstallPackage(o, progress, true)
-		progress.Success <- true
 		return
 	}
 
@@ -77,9 +77,10 @@ func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progres
 				err = errors.Wrap(err, "failed to update secret based on values file")
 				return
 			}
+			secretCreated = false
 		} else {
 			progress.ProgressMsg <- fmt.Sprintf("Creating secret '%s'", o.SecretName)
-			if err = p.createDataValuesSecret(o); err != nil {
+			if secretCreated, err = p.createDataValuesSecret(o); err != nil {
 				err = errors.Wrap(err, "failed to create secret based on values file")
 				return
 			}
@@ -87,12 +88,10 @@ func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progres
 	}
 
 	progress.ProgressMsg <- fmt.Sprintf("Updating package install for '%s'", o.PkgInstallName)
-	if err = p.kappClient.UpdatePackageInstall(pkgInstallToUpdate, o.CreateSecret); err != nil {
+	if err = p.kappClient.UpdatePackageInstall(pkgInstallToUpdate, secretCreated); err != nil {
 		err = errors.Wrap(err, fmt.Sprintf("failed to update package '%s'", o.PkgInstallName))
 		return
 	}
-
-	progress.Success <- true
 }
 
 // updateDataValuesSecret update a secret object containing the user-provided configuration.

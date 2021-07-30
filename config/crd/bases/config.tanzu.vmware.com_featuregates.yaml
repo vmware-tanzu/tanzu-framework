@@ -66,8 +66,8 @@ spec:
               x-kubernetes-list-type: map
             namespaceSelector:
               description: NamespaceSelector is a selector to specify namespaces for
-                which this feature gate applies. A nil or empty NamespaceSelector
-                means the feature gate is applied to all namespaces.
+                which this feature gate applies. Use an empty LabelSelector to match
+                all namespaces.
               properties:
                 matchExpressions:
                   description: matchExpressions is a list of label selector requirements.
@@ -109,6 +109,8 @@ spec:
                     are ANDed.
                   type: object
               type: object
+          required:
+          - namespaceSelector
           type: object
         status:
           description: Status reports activation state and availability of features
@@ -127,6 +129,13 @@ spec:
                 are deactivated for the namespaces specified in the spec. This can
                 include features that are not explicitly gated in the spec, but are
                 already available in the system as Feature resources.
+              items:
+                type: string
+              type: array
+            namespaces:
+              description: Namespaces lists the existing namespaces for which this
+                feature gate applies. This is obtained from listing all namespaces
+                and applying the NamespaceSelector specified in spec.
               items:
                 type: string
               type: array

@@ -4,9 +4,12 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
 )
@@ -26,7 +29,7 @@ func init() {
 	repositoryCmd.AddCommand(repositoryDeleteCmd)
 }
 
-func repositoryDelete(_ *cobra.Command, args []string) error {
+func repositoryDelete(cmd *cobra.Command, args []string) error {
 	if len(args) == 1 {
 		repoOp.RepositoryName = args[0]
 	} else {
@@ -38,16 +41,22 @@ func repositoryDelete(_ *cobra.Command, args []string) error {
 		return err
 	}
 
+	_, err = component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), outputFormat,
+		fmt.Sprintf("Deleting package repository '%s'...", repoOp.RepositoryName), true)
+	if err != nil {
+		return err
+	}
+
 	found, err := pkgClient.DeleteRepository(repoOp)
 	if !found {
-		log.Warningf("package repository '%s' does not exist in namespace '%s'", repoOp.RepositoryName, repoOp.Namespace)
+		log.Warningf("\n package repository '%s' does not exist in namespace '%s'", repoOp.RepositoryName, repoOp.Namespace)
 		return nil
 	}
 	if err != nil {
 		return err
 	}
 
-	log.Infof("Deleted package repository '%s' in namespace '%s'", repoOp.RepositoryName, repoOp.Namespace)
+	log.Infof("\n Deleted package repository '%s' from namespace '%s'", repoOp.RepositoryName, repoOp.Namespace)
 
 	return nil
 }
