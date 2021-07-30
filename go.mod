@@ -34,7 +34,6 @@ require (
 	github.com/docker/docker v1.4.2-0.20190924003213-a8608b5b67c7
 	github.com/elazarl/go-bindata-assetfs v1.0.1
 	github.com/evanphx/json-patch v4.11.0+incompatible // indirect
-	github.com/fabriziopandini/capi-conditions v0.0.0-20201102133039-7eb142d1b6d6
 	github.com/fatih/color v1.10.0
 	github.com/getkin/kin-openapi v0.66.0
 	github.com/ghodss/yaml v1.0.0
