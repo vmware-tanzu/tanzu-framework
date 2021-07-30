@@ -1,0 +1,7 @@
+---
+apiVersion: imgpkg.carvel.dev/v1alpha1
+images:
+- annotations:
+    kbld.carvel.dev/id: projects-stg.registry.vmware.com/tkg/sandbox/tanzu_core_addons/tanzu-addons-manager:v1.4.0_vmware.1
+  image: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tanzu-addons-manager@sha256:71c2244514dc2b0df7d177d6f70d0d802a6be5ff822f8caebfdd66f135773c61
+kind: ImagesLock

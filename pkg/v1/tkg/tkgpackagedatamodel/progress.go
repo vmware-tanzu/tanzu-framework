@@ -7,10 +7,8 @@ package tkgpackagedatamodel
 type PackageProgress struct {
 	// Use buffered chan so that sending goroutine doesn't block
 	ProgressMsg chan string
-	// Empty struct for indicating that goroutine is finished
-	Done chan struct{}
 	// Err chan for reporting errors
 	Err chan error
-	// Success chan for reporting success status
-	Success chan bool
+	// Empty struct for signaling that goroutine is finished
+	Done chan struct{}
 }

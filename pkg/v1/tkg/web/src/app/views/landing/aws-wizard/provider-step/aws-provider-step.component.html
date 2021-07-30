@@ -10,9 +10,9 @@
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="right" clrSize="lg" *clrIfOpen>
                             <span>
-                                Choose Static Credentials to enter AWS account credentials directly in the Access Key ID
-                                and Secret Access Key fields for your Amazon EC2 account. Choose Credential Profile to
-                                select an already existing AWS credential profile.
+                                Choose Credential Profile (recommended) to select an already existing AWS credential profile,
+                                or choose One-Time credentials to enter AWS account credentials directly in the Access Key ID
+                                and Secret Access Key fields for your Amazon Web Services account.
                             </span>
                         </clr-tooltip-content>
                     </clr-tooltip>
@@ -22,10 +22,10 @@
                         type="radio"
                         name="authType"
                         clrRadio
-                        value="staticCredentials"
+                        value="credentialProfile"
                         formControlName="authType">
                     <label>
-                        Static Credentials
+                        Credential Profile (recommended)
                     </label>
                 </clr-radio-wrapper>
                 <clr-radio-wrapper>
@@ -33,21 +33,29 @@
                         type="radio"
                         name="authType"
                         clrRadio
-                        value="credentialProfile"
+                        value="oneTimeCredentials"
                         formControlName="authType">
                     <label>
-                        Credential Profile
+                        One-Time Credentials
                     </label>
                 </clr-radio-wrapper>
             </clr-radio-container>
         </div>
     </div>
-    <ng-container *ngIf="authTypeValue==='staticCredentials'">
+    <ng-container *ngIf="authTypeValue==='oneTimeCredentials'">
         <p>
             Enter AWS account credentials directly in the Access Key ID and Secret Access Key fields for your
-            Amazon EC2 account. Optionally specify an AWS session token in Session Token if your AWS account is
+            Amazon Web Services account. Optionally specify an AWS session token in Session Token if your AWS account is
             configured to require temporary credentials. If Access Key ID and Secret Access Key are left blank,
-            credentials will be obtained via the Default Credential Provider Chain.
+            <a target="_blank" href="https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials">
+            credentials will be resolved automatically following the CLI precedence rules.</a>.
+            <br/><br/>
+            Credentials will not be saved in configuration files, and will need to be set each time AWS credentials
+            are required locally.
+            <br><br/>
+            Use the one-time credentials mode when you are using temporary credentials obtained via an enterprise managed
+            site or deploying from an instance on EC2 using IAM instance profiles. Using a credential profile is the
+            recommended method which will make it easier to perform management cluster upgrades and deletions.
         </p>
         <div class="clr-row">
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
@@ -109,8 +117,11 @@
 
     <ng-container *ngIf="authTypeValue==='credentialProfile'">
         <p>
-            Select an already existing AWS credential profile. If you select a profile, the access key and session token
-            information configured for your profile are passed to the installer without displaying actual values in the UI.
+            Select an already existing AWS credential profile. If you select a profile, the access keys and session token
+            information configured for your profile are temporarily passed to the installer without displaying actual values
+            in the UI.
+            <br/><br/>
+            Credential profiles can be <a href="https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html#cli-configure-quickstart-profiles" target="_blank">configured using the AWS CLI</a>.
         </p>
         <div class="clr-row">
             <div class="clr-col-4">
@@ -121,8 +132,7 @@
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                                 <span>
-                                    AWS Credential Profiles are loaded from your environment by the default credential
-                                    provider chain.
+                                    AWS Credential Profiles <a target="_blank" href="https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html#cli-configure-quickstart-precedence">are loaded automatically following the AWS CLI precedence rules.</a>.
                                 </span>
                             </clr-tooltip-content>
                         </clr-tooltip>

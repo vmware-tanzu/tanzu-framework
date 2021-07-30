@@ -47,6 +47,12 @@ func (c *ClientConfig) GetCurrentServer() (*Server, error) {
 // experimental: all pre-release versions without +build semver data
 // all: return all unstable versions.
 func (c *ClientConfig) SetUnstableVersionSelector(f VersionSelectorLevel) {
+	if c.ClientOptions == nil {
+		c.ClientOptions = &ClientOptions{}
+	}
+	if c.ClientOptions.CLI == nil {
+		c.ClientOptions.CLI = &CLIOptions{}
+	}
 	switch f {
 	case AllUnstableVersions, AlphaUnstableVersions, ExperimentalUnstableVersions, NoUnstableVersions:
 		c.ClientOptions.CLI.UnstableVersionSelector = f

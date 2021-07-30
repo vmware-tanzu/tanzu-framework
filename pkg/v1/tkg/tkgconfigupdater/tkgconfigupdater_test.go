@@ -270,6 +270,44 @@ var _ = Describe("Credential Encoding/Decoding", func() {
 		})
 	})
 
+	Context("When using sensitive AWS information", func() {
+		BeforeEach(func() {
+			clusterConfigPath = getConfigFilePath("config_never_persist.yaml")
+			standardVal := "standardVal"
+			res := map[string]string{
+				constants.ConfigVariableAWSAccessKeyID:     standardVal,
+				constants.ConfigVariableAWSSecretAccessKey: standardVal,
+				constants.ConfigVariableAWSSessionToken:    standardVal,
+				constants.ConfigVariableAWSB64Credentials:  standardVal,
+				constants.ConfigVariableAWSProfile:         standardVal,
+			}
+			tkgConfigReaderWriter, err := tkgconfigreaderwriter.NewReaderWriterFromConfigFile(clusterConfigPath, filepath.Join(testingDir, "config.yaml"))
+			Expect(err).NotTo(HaveOccurred())
+			err = SaveConfig(clusterConfigPath, tkgConfigReaderWriter, res)
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("should never have saved the information", func() {
+			configBytes, err := os.ReadFile(clusterConfigPath)
+			Expect(err).ToNot(HaveOccurred())
+			fmt.Println(string(configBytes))
+			configMap := make(map[string]interface{})
+			err = yaml.Unmarshal(configBytes, &configMap)
+			Expect(err).ToNot(HaveOccurred())
+			_, ok := configMap[constants.ConfigVariableAWSAccessKeyID]
+			Expect(ok).To(Equal(false))
+			_, ok = configMap[constants.ConfigVariableAWSSecretAccessKey]
+			Expect(ok).To(Equal(false))
+			_, ok = configMap[constants.ConfigVariableAWSSessionToken]
+			Expect(ok).To(Equal(false))
+			_, ok = configMap[constants.ConfigVariableAWSB64Credentials]
+			Expect(ok).To(Equal(false))
+			val, ok := configMap[constants.ConfigVariableAWSProfile]
+			Expect(ok).To(Equal(true))
+			Expect(val).To(Equal("standardVal"))
+		})
+	})
+
 	Context("When the ssh key is longer than 80 chars", func() {
 		var longSSHString string
 		BeforeEach(func() {
@@ -582,7 +620,7 @@ func deleteTempDirectory() {
 	os.Remove(testingDir)
 }
 
-func getConfigFilePath(filename string) string { // nolint:unparam
+func getConfigFilePath(filename string) string {
 	filePath := "../fakes/config/" + filename
 	return setupPrerequsiteForTesting(filePath, testingDir, defaultBomFile)
 }

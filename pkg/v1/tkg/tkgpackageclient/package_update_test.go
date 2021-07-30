@@ -42,7 +42,6 @@ var _ = Describe("Update Package", func() {
 			ProgressMsg: make(chan string, 10),
 			Err:         make(chan error),
 			Done:        make(chan struct{}),
-			Success:     make(chan bool),
 		}
 		ctl = &pkgClient{kappClient: kappCtl}
 		go ctl.UpdatePackage(&options, progress)
