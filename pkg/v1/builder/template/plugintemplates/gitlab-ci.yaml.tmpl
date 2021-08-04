@@ -2,7 +2,7 @@ buildpush:
   only:
     - master
 stage: deploy
-image: golang:1.16.0
+image: golang:1.16.0-buster
 script:
   # Note: this is all one step because the artifacts were too large to copy over.
   - make

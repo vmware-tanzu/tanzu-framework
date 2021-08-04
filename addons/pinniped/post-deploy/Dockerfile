@@ -1,7 +1,7 @@
 # Copyright 2021 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-FROM harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.14.4 as builder
+FROM harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.14.4-buster as builder
 
 WORKDIR /workspace
 # Copy the Go Modules manifests
