@@ -228,16 +228,16 @@ merge-areas () {
     # The array is passed by name at the end of this function
     # shellcheck disable=SC2034
     areas=(
-            ["api machinery"]=""
+            [api-machinery]=""
             [bootstrap]=""
-            ["cli machinery"]=""
-            ["cli plugin"]=""
-            ["cluster lifecycle"]=""
+            [cli-machinery]=""
+            [cli-plugins]=""
+            [cluster-lifecycle]=""
             [docs]=""
             [iam]=""
             [packages]=""
             [release]=""
-            ["repo maintenance"]=""
+            [repo-maintenance]=""
             [security]=""
             [testing]=""
     )
