@@ -24,8 +24,10 @@ Enter your extended release note in the block below.
 ```
 **New PR Checklist**
 
-- [ ] Ensure PR contains only public links or terms
-- [ ] Use good commit [messages](https://github.com/vmware-tanzu/tanzu-framework/blob/main/CONTRIBUTING.md)
-- [ ] Squash the commits in this branch before merge to preserve our git history
-- [ ] If this PR is just an idea or POC, use a [Draft PR](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests#draft-pull-requests) instead of a full PR
-- [ ] Add appropriate [kind label](../docs/release/kind-labels.md) according to what type of issue is being addressed.
+Ensure this PR:
+- [ ] references an open, labeled issue
+- [ ] contains only public links or terms
+- [ ] uses good commit [messages](https://github.com/vmware-tanzu/tanzu-framework/blob/main/CONTRIBUTING.md)
+- [ ] has squashed, scoped commit messages that match our [recommendations](https://github.com/vmware-tanzu/tanzu-framework/blob/main/CONTRIBUTING.md#commit-messages)
+- [ ] uses a [Draft PR](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests#draft-pull-requests) instead of a full PR if it is a POC or is otherwise not ready
+- [ ] has an appropriate [kind label](../docs/release/kind-labels.md) according to what type of issue is being addressed.
