@@ -2,7 +2,7 @@
 
 A simple set of instructions to set up and use the Tanzu CLI.
 
-## Installation
+## Binary installation
 
 ### Install the latest release of Tanzu CLI
 
@@ -29,9 +29,11 @@ curl -o tanzu https://storage.googleapis.com/tanzu-cli/artifacts/core/latest/tan
 Windows executable can be found at
 [https://storage.googleapis.com/tanzu-cli/artifacts/core/latest/tanzu-core-windows_amd64.exe](https://storage.googleapis.com/tanzu-cli/artifacts/core/latest/tanzu-core-windows_amd64.exe)
 
-### Build and install the CLI and plugins locally
+## Build the CLI and plugins from source
 
-#### Prerequisites
+If you want the very latest, you can also build and install tanzu CLI, and its plugins, from source.
+
+### Prerequisites
 
 * [go](https://golang.org/dl/) version 1.16
 
@@ -40,6 +42,19 @@ plugins locally for your platform.
 
 ```sh
 TANZU_CLI_NO_INIT=true make build-install-cli-local
+```
+
+When the build is done, the tanzu CLI binary and the plugins will be produced locally in the `artifacts` directory.
+The CLI binary will be in a directory similar to the following:
+
+```bash
+./artifacts/<OS>/<ARCH>/cli/core/<version>/tanzu-core-<os_arch>
+```
+
+For instance, the following is a build for MacOS:
+
+```bash
+./artifacts/darwin/amd64/cli/core/latest/tanzu-core-darwin_amd64
 ```
 
 If you additionaly want to build and install CLI and plugins for all platforms, run:
