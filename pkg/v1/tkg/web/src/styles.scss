@@ -10,6 +10,12 @@ body.dark {
     button.clr-accordion-header-button {
         color: #fff;
     }
+
+    .clr-error {
+        .clr-subtext {
+            color: #F76B64;
+        }
+    }
 }
 
 // Branding logos
@@ -142,6 +148,10 @@ clr-control-error.clr-subtext {
     max-height: 0px;
     overflow: hidden;
     visibility: hidden;
+}
+
+.display-none {
+    display: none;
 }
 
 .brand-logo {
