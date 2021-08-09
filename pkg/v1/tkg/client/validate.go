@@ -546,6 +546,10 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
+	if options.Edition != "" {
+		c.SetBuildEdition(options.Edition)
+	}
+
 	c.SetTKGClusterRole(ManagementCluster)
 	c.SetTKGVersion()
 
