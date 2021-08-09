@@ -3198,7 +3198,7 @@ spec:
         - --upstream=http://127.0.0.1:8080/
         - --logtostderr=true
         - --v=10
-        image: registry.tkg.vmware.run/cluster-api/kube-rbac-proxy:v0.4.1_vmware.2
+        image: registry.tkg.vmware.run/cluster-api/kube-rbac-proxy:${KUBE_RBAC_PROXY_IMAGE_TAG}
         name: kube-rbac-proxy
         ports:
         - containerPort: 8443
@@ -3207,7 +3207,7 @@ spec:
         - --metrics-addr=127.0.0.1:8080
         - --webhook-port=9443
         - --enable-leader-election=false
-        image: registry.tkg.vmware.run/cluster-api/cluster-api-vsphere-controller:v0.7.8_vmware.1
+        image: registry.tkg.vmware.run/cluster-api/cluster-api-vsphere-controller:${CAPV_CONTROLLER_IMAGE_TAG}
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:
@@ -3265,14 +3265,14 @@ spec:
         - --upstream=http://127.0.0.1:8080/
         - --logtostderr=true
         - --v=10
-        image: registry.tkg.vmware.run/cluster-api/kube-rbac-proxy:v0.4.1_vmware.2
+        image: registry.tkg.vmware.run/cluster-api/kube-rbac-proxy:${KUBE_RBAC_PROXY_IMAGE_TAG}
         name: kube-rbac-proxy
         ports:
         - containerPort: 8443
           name: https
       - args:
         - --metrics-addr=127.0.0.1:8080
-        image: registry.tkg.vmware.run/cluster-api/cluster-api-vsphere-controller:v0.7.8_vmware.1
+        image: registry.tkg.vmware.run/cluster-api/cluster-api-vsphere-controller:${CAPV_CONTROLLER_IMAGE_TAG}
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:
