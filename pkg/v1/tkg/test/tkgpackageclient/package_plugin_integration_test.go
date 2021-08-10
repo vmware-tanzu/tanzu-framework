@@ -352,6 +352,7 @@ func testHelper() {
 	By("delete package install")
 	pkgOptions.PollInterval = pollInterval
 	pkgOptions.PollTimeout = pollTimeout
+	pkgOptions.SkipPrompt = true
 	result = packagePlugin.DeleteInstalledPackage(&pkgOptions)
 	Expect(result.Error).ToNot(HaveOccurred())
 
