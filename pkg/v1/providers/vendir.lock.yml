@@ -18,10 +18,10 @@ directories:
   path: ytt/vendir/cni/_ytt_lib
 - contents:
   - git:
-      commitTitle: Update kapp-controller to v0.20.0 release (#931)
-      sha: 334de21b2ae278bd3fd2bdf0f6b4fec2725d54ac
+      commitTitle: Changes for adding kapp controller in tce => release 0.22.0 (#1216)
+      sha: 46ae8b4317ee4c8bb7a73cfc8d6f0989ee747b7b
       tags:
-      - v0.7.0-dev.1-51-g334de21
+      - v0.7.0-dev.2-11-g46ae8b4
     path: .
   path: ytt/vendir/kapp-controller/_ytt_lib
 kind: LockConfig
