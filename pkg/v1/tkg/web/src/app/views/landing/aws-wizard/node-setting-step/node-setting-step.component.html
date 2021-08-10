@@ -188,8 +188,8 @@
 
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-input-container [attr.data-step-metadata]="formName">
-                <label i18n="aws ssh key name label" clr-control-label>
-                    SSH KEY NAME
+                <label i18n="aws ec2 key pair label" clr-control-label>
+                    EC2 KEY PAIR
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
@@ -203,9 +203,6 @@
                 <input clrInput formControlName="sshKeyName" placeholder="ssh key name" />
                 <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
                 <clr-control-helper></clr-control-helper>
-                <clr-control-error i18n="AWS ssh key name required msg" *clrIfError="validatorEnum.REQUIRED">
-                    SSH key name cannot be empty
-                </clr-control-error>
             </clr-input-container>
         </div>
 

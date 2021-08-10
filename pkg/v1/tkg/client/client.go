@@ -7,11 +7,11 @@ package client
 import (
 	"time"
 
-	"github.com/fabriziopandini/capi-conditions/cmd/kubectl-capi-tree/status"
 	"github.com/pkg/errors"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
+	clusterctltree "sigs.k8s.io/cluster-api/cmd/clusterctl/client/tree"
 
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 
@@ -179,7 +179,7 @@ type Client interface {
 	// GetClusterPinnipedInfo returns the cluster and pinniped info
 	GetClusterPinnipedInfo(options GetClusterPinnipedInfoOptions) (*ClusterPinnipedInfo, error)
 	// DescribeCluster describes all the objects in the Cluster
-	DescribeCluster(options DescribeTKGClustersOptions) (*status.ObjectTree, *capi.Cluster, *clusterctlv1.ProviderList, error)
+	DescribeCluster(options DescribeTKGClustersOptions) (*clusterctltree.ObjectTree, *capi.Cluster, *clusterctlv1.ProviderList, error)
 	// DescribeProvider describes all the installed providers
 	DescribeProvider() (*clusterctlv1.ProviderList, error)
 	// DownloadBomFile downloads BomFile from management cluster's config map

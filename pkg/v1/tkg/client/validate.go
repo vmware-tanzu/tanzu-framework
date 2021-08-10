@@ -304,7 +304,8 @@ func (c *TkgClient) ConfigureAndValidateDockerConfig(tkrVersion string, nodeSize
 
 // ConfigureAndValidateWindowsVsphereConfig configures and validates vsphere configuration for windows
 func (c *TkgClient) ConfigureAndValidateWindowsVsphereConfig(tkrVersion string, nodeSizes NodeSizeOptions, vip string, skipValidation bool, clusterClient clusterclient.Client) *ValidationError {
-	c.SetProviderType(WindowsVSphereProviderName)
+	// INFRASTRUCTURE_PROVIDER windows-vsphere reuse vsphere as PROVIDER_TYPE
+	c.SetProviderType(VSphereProviderName)
 	return nil
 }
 
