@@ -177,12 +177,12 @@ func (c *TkgClient) DeleteStandalone(options DeleteRegionOptions) error {
 
 // RestoreObjects restores all the Cluster API objects from all the namespaces to files
 func (c *TkgClient) RestoreObjects(toKubeconfigPath string, namespace string, standaloneName string) error {
-	homeDir, err := os.UserHomeDir()
+	tceConfigDir, err := getTCEConfigDir()
 	if err != nil {
 		return err
 	}
 
-	directoryBin := filepath.Join(homeDir, ".tanzu", "tce", "objects")
+	directoryBin := filepath.Join(tceConfigDir, "objects")
 	err = os.MkdirAll(directoryBin, 0755)
 	if err != nil {
 		return err
@@ -199,12 +199,12 @@ func (c *TkgClient) RestoreObjects(toKubeconfigPath string, namespace string, st
 }
 
 func RestoreInitOptions(clusterName string) (*InitRegionOptions, error) {
-	homeDir, err := os.UserHomeDir()
+	tceConfigDir, err := getTCEConfigDir()
 	if err != nil {
 		return nil, err
 	}
 
-	initFile := filepath.Join(homeDir, ".tanzu", "tce", "init", clusterName)
+	initFile := filepath.Join(tceConfigDir, "init", clusterName)
 	byObj, err := ioutil.ReadFile(initFile)
 	if err != nil {
 		return nil, err
