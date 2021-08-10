@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -82,6 +83,15 @@ func GetClusterServerFromKubeconfigAndContext(kubeConfigPath, context string) (s
 
 // GetClusterInfoFromCluster gets the cluster Info by accessing the cluster-info configMap in kube-public namespace
 func GetClusterInfoFromCluster(clusterAPIServerURL string) (*clientcmdapi.Cluster, error) {
+	clusterAPIServerURL = strings.TrimSpace(clusterAPIServerURL)
+	if !strings.HasPrefix(clusterAPIServerURL, "https://") && !strings.HasPrefix(clusterAPIServerURL, "http://") {
+		clusterAPIServerURL = "https://" + clusterAPIServerURL
+	}
+	_, err := url.Parse(clusterAPIServerURL)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to parse endpoint URL")
+	}
+
 	clusterAPIServerURL = strings.TrimRight(clusterAPIServerURL, " /")
 	clusterInfoURL := clusterAPIServerURL + "/api/v1/namespaces/kube-public/configmaps/cluster-info"
 	//nolint:noctx
