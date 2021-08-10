@@ -9,7 +9,8 @@
                     role="button"
                     tabindex="0"
                     aria-label="back"
-                    (click)="navigate(APP_ROUTES.LANDING)"></clr-icon>
+                    (click)="navigate(APP_ROUTES.LANDING)"
+                    keyboardListener></clr-icon>
             <h2 i18n="wizard title" aria-level="1">
                 <div class="docker-icon-30"></div>
                 Deploy {{ clusterType | titlecase }} Cluster on Docker
