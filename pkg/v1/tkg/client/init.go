@@ -544,6 +544,7 @@ func (c *TkgClient) getMachineCountForMC(plan string) (int, int) {
 	case constants.PlanProd:
 		// update controlplane count for prod plan
 		controlPlaneMachineCount = constants.DefaultProdControlPlaneMachineCount
+		workerMachineCount = constants.DefaultProdWorkerMachineCountForManagementCluster
 	default:
 		// For custom plan use config variables to determine the count
 		// Verify there is no error in retrieving this and controlplane count is odd number
