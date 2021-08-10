@@ -1,0 +1,14 @@
+---
+use-existing-cluster: false
+mc-cluster-name: ""
+wlc-cluster-name: ""
+mc-kubeconfig-Path: ""
+wlc-kubeconfig-Path: ""
+namespace: "tanzu-package-repo-global"
+repository-name: "tanzu-standard"
+repository-url: "projects-stg.registry.vmware.com/tkg/packageplugin/standard/repo:v1.4.0-zshippable"
+package-name: "fluent-bit.tanzu.vmware.com"
+package-version: "1.7.5+vmware.1-tkg.1-zshippable"
+package-version-update: "1.7.5+vmware.1-tkg.1-zshippable"
+with-value-file: true
+

@@ -17,9 +17,9 @@ replace (
 require (
 	cloud.google.com/go/storage v1.10.0
 	github.com/AlecAivazis/survey/v2 v2.1.1
-	github.com/Azure/azure-sdk-for-go v46.0.0+incompatible
-	github.com/Azure/go-autorest/autorest v0.11.4
-	github.com/Azure/go-autorest/autorest/azure/auth v0.5.1
+	github.com/Azure/azure-sdk-for-go v48.2.0+incompatible
+	github.com/Azure/go-autorest/autorest v0.11.11
+	github.com/Azure/go-autorest/autorest/azure/auth v0.5.3
 	github.com/Jeffail/gabs v1.4.0
 	github.com/MakeNowJust/heredoc v1.0.0
 	github.com/Masterminds/semver v1.5.0
@@ -34,8 +34,8 @@ require (
 	github.com/docker/docker v1.4.2-0.20190924003213-a8608b5b67c7
 	github.com/elazarl/go-bindata-assetfs v1.0.1
 	github.com/evanphx/json-patch v4.11.0+incompatible // indirect
-	github.com/fabriziopandini/capi-conditions v0.0.0-20201102133039-7eb142d1b6d6
 	github.com/fatih/color v1.10.0
+	github.com/getkin/kin-openapi v0.66.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-ldap/ldap/v3 v3.3.0
 	github.com/go-logr/logr v0.4.0
@@ -55,7 +55,6 @@ require (
 	github.com/google/go-containerregistry v0.4.1
 	github.com/google/uuid v1.2.0 // indirect
 	github.com/googleapis/gnostic v0.4.1
-	github.com/gorilla/mux v1.7.4 // indirect
 	github.com/gorilla/websocket v1.4.2
 	github.com/gosuri/uitable v0.0.4
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
@@ -73,6 +72,7 @@ require (
 	github.com/onsi/ginkgo v1.16.2
 	github.com/onsi/gomega v1.13.0
 	github.com/otiai10/copy v1.4.2
+	github.com/pelletier/go-toml/v2 v2.0.0-beta.3
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/common v0.29.0 // indirect
 	github.com/rs/xid v1.2.1
@@ -81,7 +81,7 @@ require (
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.1
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.1-0.20210427113832-6241f9ab9942
 	github.com/vmware-tanzu/carvel-kapp-controller v0.20.0-rc.1
 	github.com/vmware-tanzu/carvel-vendir v0.19.0
 	github.com/vmware/govmomi v0.23.1
@@ -108,14 +108,15 @@ require (
 	k8s.io/client-go v0.21.2
 	k8s.io/cluster-bootstrap v0.21.2 // indirect
 	k8s.io/klog/v2 v2.8.0
-	k8s.io/kubectl v0.17.11
+	k8s.io/kubectl v0.17.14
 	k8s.io/utils v0.0.0-20210527160623-6fdb442a123b
-	sigs.k8s.io/cluster-api v0.3.20-0.20210628204229-9fcfbce8e5c6
-	sigs.k8s.io/cluster-api-provider-aws v0.6.5-0.20210309190705-ff3ed1b9f6f1
-	sigs.k8s.io/cluster-api-provider-azure v0.4.9-0.20200910212016-5c680a6c2dd4
-	sigs.k8s.io/cluster-api-provider-vsphere v0.7.1
-	sigs.k8s.io/cluster-api/test/infrastructure/docker v0.0.0-20200707192359-e68354f948db
+	sigs.k8s.io/cluster-api v0.3.22
+	sigs.k8s.io/cluster-api-provider-aws v0.6.6
+	sigs.k8s.io/cluster-api-provider-azure v0.4.15
+	sigs.k8s.io/cluster-api-provider-vsphere v0.7.10
+	sigs.k8s.io/cluster-api/test/infrastructure/docker v0.0.0-20210720023132-dfeb8d447bdc
 	sigs.k8s.io/controller-runtime v0.7.0
+	sigs.k8s.io/controller-tools v0.3.0
 	sigs.k8s.io/kind v0.11.1
 	sigs.k8s.io/yaml v1.2.0
 )

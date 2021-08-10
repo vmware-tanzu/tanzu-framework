@@ -15,8 +15,8 @@ export class ThemeToggleComponent {
     linkRef: HTMLLinkElement;
 
     themes = [
-        { name: 'light', href: 'assets/css/clr-ui.min.css' },
-        { name: 'dark', href: 'assets/css/clr-ui-dark.min.css' }
+        { name: 'light', href: 'clr-ui.min.css' },
+        { name: 'dark', href: 'clr-ui-dark.min.css' }
     ];
 
     darkBodyClass: string = 'dark';

@@ -100,9 +100,6 @@ spec:
 #@ if data.values.AVI_INGRESS_SERVICE_TYPE != "":
       serviceType: #@ data.values.AVI_INGRESS_SERVICE_TYPE
 #@ end
-#@ if data.values.AVI_INGRESS_NODE_NETWORK_LIST != []:
-      nodeNetworkList: #@ data.values.AVI_INGRESS_NODE_NETWORK_LIST
-#@ end
 #@ end
 
 #@ def avi_credentials():

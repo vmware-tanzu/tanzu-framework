@@ -102,7 +102,6 @@ var _ = Describe("Install Package", func() {
 			ProgressMsg: make(chan string, 10),
 			Err:         make(chan error),
 			Done:        make(chan struct{}),
-			Success:     make(chan bool),
 		}
 		ctl = &pkgClient{kappClient: kappCtl}
 		go ctl.InstallPackage(&options, progress, update)
@@ -112,6 +111,8 @@ var _ = Describe("Install Package", func() {
 	Context("failure in listing package versions due to ListPackages API error", func() {
 		BeforeEach(func() {
 			kappCtl = &fakes.KappClient{}
+			crtCtl = &fakes.CRTClusterClient{}
+			kappCtl.GetClientReturns(crtCtl)
 			kappCtl.ListPackagesReturns(nil, errors.New("failure in ListPackages"))
 		})
 		It(testFailureMsg, func() {
@@ -297,7 +298,7 @@ var _ = Describe("Install Package", func() {
 		})
 	})
 
-	Context("success when a duplicate package install name is provided", func() {
+	Context("failure when a duplicate package install name is provided", func() {
 		BeforeEach(func() {
 			options.Wait = true
 			kappCtl = &fakes.KappClient{}
@@ -305,7 +306,8 @@ var _ = Describe("Install Package", func() {
 			kappCtl.GetPackageInstallReturns(testPkgInstall, nil)
 		})
 		It(testFailureMsg, func() {
-			Expect(err).NotTo(HaveOccurred())
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(Equal(tkgpackagedatamodel.ErrPackageAlreadyInstalled))
 		})
 		AfterEach(func() {
 			options = opts
@@ -343,8 +345,6 @@ func testReceive(progress *tkgpackagedatamodel.PackageProgress) error {
 		case <-progress.ProgressMsg:
 			continue
 		case <-progress.Done:
-			return nil
-		case <-progress.Success:
 			return nil
 		}
 	}

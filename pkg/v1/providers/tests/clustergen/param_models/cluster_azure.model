@@ -1,7 +1,7 @@
 --CONTROLPLANE-MACHINE-COUNT: "NOTPROVIDED", "1","3","5"
 --WORKER-MACHINE-COUNT:       "NOTPROVIDED", "3"
 --CONTROLPLANE-SIZE:          "NOTPROVIDED", "i3.xlarge"
---TKR:                        "NOTPROVIDED", "v1.20.5---vmware.1-tkg.1-zlatest", "v0.0.0+no-azure-image", "v0.0.0+marketplace-image", "v0.0.0+marketplace-image-no-thirdpartyimage", "v0.0.0+shared-gallery-image"
+--TKR:                        "NOTPROVIDED", "v1.21.2+vmware.1-tkg.1-zshippable", "v0.0.0+no-azure-image", "v0.0.0+marketplace-image", "v0.0.0+marketplace-image-no-thirdpartyimage", "v0.0.0+shared-gallery-image"
 --NAMESPACE:                  "NOTPROVIDED", "default", "test"
 --SIZE:                       "NOTPROVIDED", "t3.medium"
 --WORKER-SIZE:                "NOTPROVIDED", "m5.xlarge"
@@ -83,6 +83,9 @@ AZURE_NODE_DATA_DISK_SIZE: "NA", "256", "512"
 
 AZURE_CONTROL_PLANE_SUBNET_SECURITY_GROUP: "NA", "SecurityGroup"
 AZURE_NODE_SUBNET_SECURITY_GROUP: "NA", "SecurityGroup"
+
+AZURE_IDENTITY_NAME: "NA", "test-identity1", "test-identity2"
+AZURE_IDENTITY_NAMESPACE: "NA", "default", "test-ns1"
 
 OS_NAME:  "NA", "photon", "ubuntu"
 OS_VERSION:  "NA", "20.04", "3"

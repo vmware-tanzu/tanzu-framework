@@ -11,7 +11,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 )
 
-// ActivateTanzuKubernetesReleases activates TKR
+// ActivateTanzuKubernetesReleases activates TKr
 func (c *TkgClient) ActivateTanzuKubernetesReleases(tkrName string) error {
 	regionalClusterClient, err := c.getRegionalClusterClient()
 	if err != nil {

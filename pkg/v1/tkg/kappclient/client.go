@@ -234,8 +234,10 @@ func (c *client) ListPackages(packageName, namespace string) (*kapppkg.PackageLi
 }
 
 // UpdatePackageInstall updates the PackageInstall CR
-func (c *client) UpdatePackageInstall(installedPackage *kappipkg.PackageInstall) error {
-	if err := c.client.Update(context.Background(), installedPackage); err != nil {
+func (c *client) UpdatePackageInstall(packageInstall *kappipkg.PackageInstall, isPkgPluginCreatedSecret bool) error {
+	c.addAnnotations(&packageInstall.ObjectMeta, false, isPkgPluginCreatedSecret)
+
+	if err := c.client.Update(context.Background(), packageInstall); err != nil {
 		return err
 	}
 
@@ -258,4 +260,29 @@ func (c *client) UpdatePackageRepository(repository *kappipkg.PackageRepository)
 	}
 
 	return nil
+}
+
+func (c *client) GetSecretValue(secretName, namespace string) ([]byte, error) {
+	var err error
+
+	secret := &corev1.Secret{}
+	err = c.client.Get(context.Background(), crtclient.ObjectKey{Name: secretName, Namespace: namespace}, secret)
+	if err != nil {
+		return nil, err
+	}
+
+	var data []byte
+	for _, value := range secret.Data {
+		if len(string(value)) < 3 {
+			data = append(data, tkgpackagedatamodel.YamlSeparator...)
+			data = append(data, "\n"...)
+		}
+		if len(string(value)) >= 3 && string(value)[:3] != tkgpackagedatamodel.YamlSeparator {
+			data = append(data, tkgpackagedatamodel.YamlSeparator...)
+			data = append(data, "\n"...)
+		}
+		data = append(data, value...)
+	}
+
+	return data, nil
 }

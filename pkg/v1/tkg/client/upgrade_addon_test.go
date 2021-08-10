@@ -9,8 +9,12 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
 
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
 )
@@ -34,7 +38,7 @@ var _ = Describe("Unit tests for addons upgrade", func() {
 	BeforeEach(func() {
 		regionalClusterClient = &fakes.ClusterClient{}
 		currentClusterClient = &fakes.ClusterClient{}
-		tkgClient, err = CreateTKGClient("../fakes/config/config.yaml", testingDir, "../fakes/config/bom/tkg-bom-v1.3.1.yaml", 2*time.Millisecond)
+		tkgClient, err = CreateTKGClient("../fakes/config/config2.yaml", testingDir, "../fakes/config/bom/tkg-bom-v1.3.1.yaml", 2*time.Millisecond)
 
 		upgradeAddonOptions = &UpgradeAddonOptions{
 			ClusterName:       "test-cluster",
@@ -45,13 +49,46 @@ var _ = Describe("Unit tests for addons upgrade", func() {
 	})
 
 	Describe("When upgrading addons", func() {
+		const (
+			clusterName = "regional-cluster-2"
+		)
+		var (
+			serviceCIDRs []string
+			podCIDRs     []string
+		)
 		BeforeEach(func() {
+			serviceCIDRs = []string{"1.2.3.4/16"}
+			podCIDRs = []string{"2.3.4.5/16"}
+
 			setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
 			setupBomFile("../fakes/config/bom/tkg-bom-v1.3.1.yaml", testingDir)
 			regionalClusterClient.PatchResourceReturns(nil)
 			regionalClusterClient.GetKCPObjectForClusterReturns(getDummyKCP(constants.DockerMachineTemplate), nil)
-			regionalClusterClient.GetResourceReturns(nil)
 			currentClusterClient.GetKubernetesVersionReturns(currentK8sVersion, nil)
+			regionalClusterClient.ListClustersReturns([]capi.Cluster{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      clusterName,
+						Namespace: constants.DefaultNamespace,
+					},
+				},
+			}, nil)
+			regionalClusterClient.GetResourceCalls(func(cluster interface{}, resourceName, namespace string, postVerify clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
+				if cluster, ok := cluster.(*capi.Cluster); ok && resourceName == clusterName && namespace == constants.DefaultNamespace {
+					cluster.Spec = capi.ClusterSpec{
+						ClusterNetwork: &capi.ClusterNetwork{
+							Services: &capi.NetworkRanges{
+								CIDRBlocks: serviceCIDRs,
+							},
+							Pods: &capi.NetworkRanges{
+								CIDRBlocks: podCIDRs,
+							},
+						},
+					}
+					return nil
+				}
+				return nil
+			})
 			isRegionalCluster = true
 
 			clusterConfigGetter = func(*CreateClusterOptions) ([]byte, error) {
@@ -153,6 +190,37 @@ var _ = Describe("Unit tests for addons upgrade", func() {
 			It("should returns an error", func() {
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(ContainSubstring("upgrade of 'tkr/tkr-controller' component is only supported on management cluster"))
+			})
+		})
+
+		Describe("When setting networking configuration", func() {
+			It("sets the cluster CIDR in the TKGConfig", func() {
+				clusterCIDR, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterCIDR)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(clusterCIDR).To(Equal("2.3.4.5/16"))
+			})
+			It("sets the service CIDR in the TKGConfig", func() {
+				serviceCIDR, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableServiceCIDR)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(serviceCIDR).To(Equal("1.2.3.4/16"))
+			})
+			When("the cluster is ipv4", func() {
+				It("sets the IPFamily to ipv4", func() {
+					ipFamily, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableIPFamily)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(ipFamily).To(Equal("ipv4"))
+				})
+			})
+			When("the cluster is ipv6", func() {
+				BeforeEach(func() {
+					serviceCIDRs = []string{"fd00::/32"}
+					podCIDRs = []string{"fd01::/32"}
+				})
+				It("sets the IPFamily to ipv6", func() {
+					ipFamily, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableIPFamily)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(ipFamily).To(Equal("ipv6"))
+				})
 			})
 		})
 	})

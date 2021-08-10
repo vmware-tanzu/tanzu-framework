@@ -7,11 +7,11 @@ import (
 	"context"
 	"time"
 
-	"github.com/fabriziopandini/capi-conditions/cmd/kubectl-capi-tree/status"
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
+	clusterctltree "sigs.k8s.io/cluster-api/cmd/clusterctl/client/tree"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
@@ -31,7 +31,7 @@ type DescribeTKGClustersOptions struct {
 }
 
 // DescribeCluster describes cluster details and status
-func (c *TkgClient) DescribeCluster(options DescribeTKGClustersOptions) (*status.ObjectTree, *clusterv1.Cluster, *clusterctlv1.ProviderList, error) {
+func (c *TkgClient) DescribeCluster(options DescribeTKGClustersOptions) (*clusterctltree.ObjectTree, *clusterv1.Cluster, *clusterctlv1.ProviderList, error) {
 	currentRegion, err := c.GetCurrentRegionContext()
 	if err != nil {
 		return nil, nil, nil, errors.Wrap(err, "cannot get current management cluster context")
@@ -59,10 +59,10 @@ func (c *TkgClient) DescribeCluster(options DescribeTKGClustersOptions) (*status
 		return nil, nil, nil, err
 	}
 
-	objs, err := status.Discovery(ctx, f, cluster, status.DiscoverOptions{
+	objs, err := clusterctltree.Discovery(ctx, f, options.Namespace, options.ClusterName, clusterctltree.DiscoverOptions{
 		ShowOtherConditions: options.ShowOtherConditions,
 		DisableNoEcho:       options.ShowDetails,
-		DisableGroupObjects: options.ShowGroupMembers,
+		DisableGrouping:     options.ShowGroupMembers,
 	})
 	if err != nil {
 		return nil, nil, nil, err

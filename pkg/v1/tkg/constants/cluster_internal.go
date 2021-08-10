@@ -45,8 +45,16 @@ const (
 	KappControllerDeploymentName = "kapp-controller"
 	TkrControllerDeploymentName  = "tkr-controller-manager"
 
+	AkoStatefulSetName  = "ako"
+	AkoAddonName        = "load-balancer-and-ingress-service"
+	AkoNamespace        = "avi-system"
+	AkoCleanupCondition = "ako.vmware.com/ObjectDeletionInProgress"
+
 	ServiceDNSSuffix             = ".svc"
 	ServiceDNSClusterLocalSuffix = ".svc.cluster.local"
+
+	// TKGDataValueFormatString is required annotations for YTT data value file
+	TKGDataValueFormatString = "#@data/values\n#@overlay/match-child-defaults missing_ok=True\n---\n"
 )
 
 // deployment plan constants
@@ -57,10 +65,11 @@ const (
 
 // infrastructure provider name constants
 const (
-	InfrastructureProviderVSphere = "vsphere"
-	InfrastructureProviderAWS     = "aws"
-	InfrastructureProviderAzure   = "azure"
-	InfrastructureProviderDocker  = "docker"
+	InfrastructureProviderVSphere        = "vsphere"
+	InfrastructureProviderAWS            = "aws"
+	InfrastructureProviderAzure          = "azure"
+	InfrastructureProviderDocker         = "docker"
+	InfrastructureProviderWindowsVSphere = "windows-vsphere"
 )
 
 // machine template name constants

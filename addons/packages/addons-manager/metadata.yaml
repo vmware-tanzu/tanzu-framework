@@ -1,0 +1,14 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: addons-manager.tanzu.vmware.com
+  namespace: addons-manager
+spec:
+  displayName: "tanzu-addons-manager"
+  longDescription: "This package provides TKG addons lifecycle management capabilities."
+  shortDescription: "This package provides TKG addons lifecycle management capabilities."
+  providerName: VMware
+  maintainers:
+  - name: Lucheng Bao 
+  categories:
+    - "addons-lifecycle-management"

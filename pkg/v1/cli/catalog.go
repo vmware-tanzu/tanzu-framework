@@ -12,6 +12,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -97,23 +98,21 @@ func GetCmd(p *cliv1alpha1.PluginDescriptor) *cobra.Command {
 			ctx := context.Background()
 			output, _, err := runner.RunOutput(ctx)
 			if err != nil {
-				return nil, cobra.ShellCompDirectiveNoFileComp
+				return nil, cobra.ShellCompDirectiveError
 			}
 
 			lines := strings.Split(strings.Trim(output, "\n"), "\n")
-			valid := false
 			var results []string
 			for _, line := range lines {
 				if strings.HasPrefix(line, ":") {
 					// Special marker in output to indicate the end
-					valid = true
-					break
+					directive, err := strconv.Atoi(line[1:])
+					if err != nil {
+						return results, cobra.ShellCompDirectiveError
+					}
+					return results, cobra.ShellCompDirective(directive)
 				}
 				results = append(results, line)
-			}
-
-			if valid {
-				return results, cobra.ShellCompDirectiveNoFileComp
 			}
 
 			return []string{}, cobra.ShellCompDirectiveError
@@ -590,8 +589,8 @@ func InitializePlugin(name string) error {
 	// Note: If user is installing old version of plugin than it is possible that
 	// the plugin does not implement post-install command. Ignoring the
 	// errors if the command does not exist for a particular plugin.
-	if err != nil && !strings.Contains(err.Error(), "unknown command") {
-		log.Warningf("error while initializing plugin '%q'. Error: %v", name, string(b))
+	if err != nil && !strings.Contains(string(b), "unknown command") {
+		log.Warningf("Warning: Failed to initialize plugin '%q' after installation. %v", name, string(b))
 	}
 
 	return nil

@@ -1,11 +1,11 @@
-* @vmware-tanzu-private/tanzu-core-reviewers
-/addons @vmware-tanzu-private/tanzu-core-reviewers @shyaamsn @danniel1205
-/cmd/cli @vmware-tanzu-private/tanzu-core-reviewers @Anuj2512
-/cmd/cli/plugin/tkr @vmware-tanzu-private/tanzu-core-reviewers @prkalle
-/pkg/v1/cli @vmware-tanzu-private/tanzu-core-reviewers @miclettej @Anuj2512
-/pkg/v1/providers @vmware-tanzu-private/tanzu-core-reviewers @Anuj2512
-/pkg/v1/tkr @vmware-tanzu-private/tanzu-core-reviewers @prkalle
-/pkg/v1/tkg/tkgpackagedatamodel @vmware-tanzu-private/tanzu-core-reviewers @shyaamsn @danniel1205 @maralavi @shivaani0505 @ggpaue @blc1996 @jessehu
-/pkg/v1/tkg/kappclient @vmware-tanzu-private/tanzu-core-reviewers @shyaamsn @danniel1205 @maralavi @shivaani0505 @ggpaue @blc1996 @jessehu
-/pkg/v1/tkg/tkgpackageclient @vmware-tanzu-private/tanzu-core-reviewers @shyaamsn @danniel1205 @maralavi @shivaani0505 @ggpaue @blc1996 @jessehu
-/cmd/cli/plugin/package @vmware-tanzu-private/tanzu-core-reviewers @shyaamsn @danniel1205 @maralavi @shivaani0505 @ggpaue @blc1996 @jessehu
+* @vmware-tanzu/tanzu-framework-reviewers
+/addons @vmware-tanzu/tanzu-framework-reviewers @shyaamsn @danniel1205
+/cmd/cli @vmware-tanzu/tanzu-framework-reviewers @Anuj2512
+/cmd/cli/plugin/tkr @vmware-tanzu/tanzu-framework-reviewers @prkalle
+/pkg/v1/cli @vmware-tanzu/tanzu-framework-reviewers @miclettej @Anuj2512
+/pkg/v1/providers @vmware-tanzu/tanzu-framework-reviewers @Anuj2512
+/pkg/v1/tkr @vmware-tanzu/tanzu-framework-reviewers @prkalle
+/pkg/v1/tkg/tkgpackagedatamodel @vmware-tanzu/tanzu-framework-reviewers @shyaamsn @danniel1205 @maralavi @shivaani0505 @ggpaue @blc1996
+/pkg/v1/tkg/kappclient @vmware-tanzu/tanzu-framework-reviewers @shyaamsn @danniel1205 @maralavi @shivaani0505 @ggpaue @blc1996
+/pkg/v1/tkg/tkgpackageclient @vmware-tanzu/tanzu-framework-reviewers @shyaamsn @danniel1205 @maralavi @shivaani0505 @ggpaue @blc1996
+/cmd/cli/plugin/package @vmware-tanzu/tanzu-framework-reviewers @shyaamsn @danniel1205 @maralavi @shivaani0505 @ggpaue @blc1996

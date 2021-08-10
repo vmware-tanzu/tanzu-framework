@@ -7,6 +7,8 @@ import (
 	"context"
 	"reflect"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+
 	"github.com/pkg/errors"
 	appsv1 "k8s.io/api/apps/v1"
 	betav1 "k8s.io/api/batch/v1beta1"
@@ -22,6 +24,7 @@ import (
 	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
 	capiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
+	bootstrapv1alpha3 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha3"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
 	addonsv1 "sigs.k8s.io/cluster-api/exp/addons/api/v1alpha3"
@@ -171,6 +174,8 @@ func (c *client) getRuntimeObject(o interface{}) (runtime.Object, error) { //nol
 		return obj, nil
 	case *appsv1.Deployment:
 		return obj, nil
+	case *appsv1.StatefulSet:
+		return obj, nil
 	case *clusterctlv1.ProviderList:
 		return obj, nil
 	case *capi.ClusterList:
@@ -240,6 +245,8 @@ func (c *client) getRuntimeObject(o interface{}) (runtime.Object, error) { //nol
 	case *runv1alpha1.TanzuKubernetesReleaseList:
 		return obj, nil
 	case *runv1alpha1.TanzuKubernetesRelease:
+		return obj, nil
+	case *bootstrapv1alpha3.KubeadmConfigTemplate:
 		return obj, nil
 	default:
 		return nil, errors.New("invalid object type")
@@ -372,5 +379,20 @@ func VerifyCRSAppliedSuccessfully(obj runtime.Object) error {
 		return kerrors.NewAggregate(errList)
 	default:
 		return errors.Errorf("invalid type: %s during VerifyCRSAppliedSuccessfully", reflect.TypeOf(crsList))
+	}
+}
+
+// VerifyAVIResourceCleanupFinished verifies that avi objects clean up finished.
+func VerifyAVIResourceCleanupFinished(obj runtime.Object) error {
+	switch statefulSet := obj.(type) {
+	case *appsv1.StatefulSet:
+		for _, condition := range statefulSet.Status.Conditions {
+			if condition.Type == constants.AkoCleanupCondition && condition.Status == corev1.ConditionFalse {
+				return nil
+			}
+		}
+		return errors.Errorf("AVI Resource clean up in progress")
+	default:
+		return errors.Errorf("invalid type: %s during VerifyAVIResourceCleanupFinished", reflect.TypeOf(statefulSet))
 	}
 }

@@ -46,6 +46,7 @@ func main() {
 		clusterKubeconfigCmd,
 		getClustersCmd,
 		availableUpgradesCmd,
+		clusterNodePoolCmd,
 	)
 	if err := p.Execute(); err != nil {
 		os.Exit(1)

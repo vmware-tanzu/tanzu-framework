@@ -481,9 +481,10 @@ type ClusterClient struct {
 		result2 string
 		result3 error
 	}
-	GetVCCredentialsFromSecretStub        func() (string, string, error)
+	GetVCCredentialsFromSecretStub        func(string) (string, string, error)
 	getVCCredentialsFromSecretMutex       sync.RWMutex
 	getVCCredentialsFromSecretArgsForCall []struct {
+		arg1 string
 	}
 	getVCCredentialsFromSecretReturns struct {
 		result1 string
@@ -870,6 +871,20 @@ type ClusterClient struct {
 	updateVsphereCsiConfigSecretReturnsOnCall map[int]struct {
 		result1 error
 	}
+	UpdateVsphereIdentityRefSecretStub        func(string, string, string, string) error
+	updateVsphereIdentityRefSecretMutex       sync.RWMutex
+	updateVsphereIdentityRefSecretArgsForCall []struct {
+		arg1 string
+		arg2 string
+		arg3 string
+		arg4 string
+	}
+	updateVsphereIdentityRefSecretReturns struct {
+		result1 error
+	}
+	updateVsphereIdentityRefSecretReturnsOnCall map[int]struct {
+		result1 error
+	}
 	UseContextStub        func(string) error
 	useContextMutex       sync.RWMutex
 	useContextArgsForCall []struct {
@@ -879,6 +894,18 @@ type ClusterClient struct {
 		result1 error
 	}
 	useContextReturnsOnCall map[int]struct {
+		result1 error
+	}
+	WaitForAVIResourceCleanUpStub        func(string, string) error
+	waitForAVIResourceCleanUpMutex       sync.RWMutex
+	waitForAVIResourceCleanUpArgsForCall []struct {
+		arg1 string
+		arg2 string
+	}
+	waitForAVIResourceCleanUpReturns struct {
+		result1 error
+	}
+	waitForAVIResourceCleanUpReturnsOnCall map[int]struct {
 		result1 error
 	}
 	WaitForAutoscalerDeploymentStub        func(string, string) error
@@ -3195,17 +3222,18 @@ func (fake *ClusterClient) GetVCClientAndDataCenterReturnsOnCall(i int, result1 
 	}{result1, result2, result3}
 }
 
-func (fake *ClusterClient) GetVCCredentialsFromSecret() (string, string, error) {
+func (fake *ClusterClient) GetVCCredentialsFromSecret(arg1 string) (string, string, error) {
 	fake.getVCCredentialsFromSecretMutex.Lock()
 	ret, specificReturn := fake.getVCCredentialsFromSecretReturnsOnCall[len(fake.getVCCredentialsFromSecretArgsForCall)]
 	fake.getVCCredentialsFromSecretArgsForCall = append(fake.getVCCredentialsFromSecretArgsForCall, struct {
-	}{})
+		arg1 string
+	}{arg1})
 	stub := fake.GetVCCredentialsFromSecretStub
 	fakeReturns := fake.getVCCredentialsFromSecretReturns
-	fake.recordInvocation("GetVCCredentialsFromSecret", []interface{}{})
+	fake.recordInvocation("GetVCCredentialsFromSecret", []interface{}{arg1})
 	fake.getVCCredentialsFromSecretMutex.Unlock()
 	if stub != nil {
-		return stub()
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2, ret.result3
@@ -3219,10 +3247,17 @@ func (fake *ClusterClient) GetVCCredentialsFromSecretCallCount() int {
 	return len(fake.getVCCredentialsFromSecretArgsForCall)
 }
 
-func (fake *ClusterClient) GetVCCredentialsFromSecretCalls(stub func() (string, string, error)) {
+func (fake *ClusterClient) GetVCCredentialsFromSecretCalls(stub func(string) (string, string, error)) {
 	fake.getVCCredentialsFromSecretMutex.Lock()
 	defer fake.getVCCredentialsFromSecretMutex.Unlock()
 	fake.GetVCCredentialsFromSecretStub = stub
+}
+
+func (fake *ClusterClient) GetVCCredentialsFromSecretArgsForCall(i int) string {
+	fake.getVCCredentialsFromSecretMutex.RLock()
+	defer fake.getVCCredentialsFromSecretMutex.RUnlock()
+	argsForCall := fake.getVCCredentialsFromSecretArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *ClusterClient) GetVCCredentialsFromSecretReturns(result1 string, result2 string, result3 error) {
@@ -5063,6 +5098,70 @@ func (fake *ClusterClient) UpdateVsphereCsiConfigSecretReturnsOnCall(i int, resu
 	}{result1}
 }
 
+func (fake *ClusterClient) UpdateVsphereIdentityRefSecret(arg1 string, arg2 string, arg3 string, arg4 string) error {
+	fake.updateVsphereIdentityRefSecretMutex.Lock()
+	ret, specificReturn := fake.updateVsphereIdentityRefSecretReturnsOnCall[len(fake.updateVsphereIdentityRefSecretArgsForCall)]
+	fake.updateVsphereIdentityRefSecretArgsForCall = append(fake.updateVsphereIdentityRefSecretArgsForCall, struct {
+		arg1 string
+		arg2 string
+		arg3 string
+		arg4 string
+	}{arg1, arg2, arg3, arg4})
+	stub := fake.UpdateVsphereIdentityRefSecretStub
+	fakeReturns := fake.updateVsphereIdentityRefSecretReturns
+	fake.recordInvocation("UpdateVsphereIdentityRefSecret", []interface{}{arg1, arg2, arg3, arg4})
+	fake.updateVsphereIdentityRefSecretMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3, arg4)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *ClusterClient) UpdateVsphereIdentityRefSecretCallCount() int {
+	fake.updateVsphereIdentityRefSecretMutex.RLock()
+	defer fake.updateVsphereIdentityRefSecretMutex.RUnlock()
+	return len(fake.updateVsphereIdentityRefSecretArgsForCall)
+}
+
+func (fake *ClusterClient) UpdateVsphereIdentityRefSecretCalls(stub func(string, string, string, string) error) {
+	fake.updateVsphereIdentityRefSecretMutex.Lock()
+	defer fake.updateVsphereIdentityRefSecretMutex.Unlock()
+	fake.UpdateVsphereIdentityRefSecretStub = stub
+}
+
+func (fake *ClusterClient) UpdateVsphereIdentityRefSecretArgsForCall(i int) (string, string, string, string) {
+	fake.updateVsphereIdentityRefSecretMutex.RLock()
+	defer fake.updateVsphereIdentityRefSecretMutex.RUnlock()
+	argsForCall := fake.updateVsphereIdentityRefSecretArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
+}
+
+func (fake *ClusterClient) UpdateVsphereIdentityRefSecretReturns(result1 error) {
+	fake.updateVsphereIdentityRefSecretMutex.Lock()
+	defer fake.updateVsphereIdentityRefSecretMutex.Unlock()
+	fake.UpdateVsphereIdentityRefSecretStub = nil
+	fake.updateVsphereIdentityRefSecretReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ClusterClient) UpdateVsphereIdentityRefSecretReturnsOnCall(i int, result1 error) {
+	fake.updateVsphereIdentityRefSecretMutex.Lock()
+	defer fake.updateVsphereIdentityRefSecretMutex.Unlock()
+	fake.UpdateVsphereIdentityRefSecretStub = nil
+	if fake.updateVsphereIdentityRefSecretReturnsOnCall == nil {
+		fake.updateVsphereIdentityRefSecretReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.updateVsphereIdentityRefSecretReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
 func (fake *ClusterClient) UseContext(arg1 string) error {
 	fake.useContextMutex.Lock()
 	ret, specificReturn := fake.useContextReturnsOnCall[len(fake.useContextArgsForCall)]
@@ -5120,6 +5219,68 @@ func (fake *ClusterClient) UseContextReturnsOnCall(i int, result1 error) {
 		})
 	}
 	fake.useContextReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ClusterClient) WaitForAVIResourceCleanUp(arg1 string, arg2 string) error {
+	fake.waitForAVIResourceCleanUpMutex.Lock()
+	ret, specificReturn := fake.waitForAVIResourceCleanUpReturnsOnCall[len(fake.waitForAVIResourceCleanUpArgsForCall)]
+	fake.waitForAVIResourceCleanUpArgsForCall = append(fake.waitForAVIResourceCleanUpArgsForCall, struct {
+		arg1 string
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.WaitForAVIResourceCleanUpStub
+	fakeReturns := fake.waitForAVIResourceCleanUpReturns
+	fake.recordInvocation("WaitForAVIResourceCleanUp", []interface{}{arg1, arg2})
+	fake.waitForAVIResourceCleanUpMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *ClusterClient) WaitForAVIResourceCleanUpCallCount() int {
+	fake.waitForAVIResourceCleanUpMutex.RLock()
+	defer fake.waitForAVIResourceCleanUpMutex.RUnlock()
+	return len(fake.waitForAVIResourceCleanUpArgsForCall)
+}
+
+func (fake *ClusterClient) WaitForAVIResourceCleanUpCalls(stub func(string, string) error) {
+	fake.waitForAVIResourceCleanUpMutex.Lock()
+	defer fake.waitForAVIResourceCleanUpMutex.Unlock()
+	fake.WaitForAVIResourceCleanUpStub = stub
+}
+
+func (fake *ClusterClient) WaitForAVIResourceCleanUpArgsForCall(i int) (string, string) {
+	fake.waitForAVIResourceCleanUpMutex.RLock()
+	defer fake.waitForAVIResourceCleanUpMutex.RUnlock()
+	argsForCall := fake.waitForAVIResourceCleanUpArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *ClusterClient) WaitForAVIResourceCleanUpReturns(result1 error) {
+	fake.waitForAVIResourceCleanUpMutex.Lock()
+	defer fake.waitForAVIResourceCleanUpMutex.Unlock()
+	fake.WaitForAVIResourceCleanUpStub = nil
+	fake.waitForAVIResourceCleanUpReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ClusterClient) WaitForAVIResourceCleanUpReturnsOnCall(i int, result1 error) {
+	fake.waitForAVIResourceCleanUpMutex.Lock()
+	defer fake.waitForAVIResourceCleanUpMutex.Unlock()
+	fake.WaitForAVIResourceCleanUpStub = nil
+	if fake.waitForAVIResourceCleanUpReturnsOnCall == nil {
+		fake.waitForAVIResourceCleanUpReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.waitForAVIResourceCleanUpReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
 }
@@ -5825,8 +5986,12 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.updateVsphereCloudProviderCredentialsSecretMutex.RUnlock()
 	fake.updateVsphereCsiConfigSecretMutex.RLock()
 	defer fake.updateVsphereCsiConfigSecretMutex.RUnlock()
+	fake.updateVsphereIdentityRefSecretMutex.RLock()
+	defer fake.updateVsphereIdentityRefSecretMutex.RUnlock()
 	fake.useContextMutex.RLock()
 	defer fake.useContextMutex.RUnlock()
+	fake.waitForAVIResourceCleanUpMutex.RLock()
+	defer fake.waitForAVIResourceCleanUpMutex.RUnlock()
 	fake.waitForAutoscalerDeploymentMutex.RLock()
 	defer fake.waitForAutoscalerDeploymentMutex.RUnlock()
 	fake.waitForClusterDeletionMutex.RLock()

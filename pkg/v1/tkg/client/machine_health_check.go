@@ -49,6 +49,7 @@ type MachineHealthCheckOptions struct {
 	ClusterName            string
 	MachineHealthCheckName string
 	Namespace              string
+	MatchLabel             string
 }
 
 // SetMachineHealthCheckOptions machinehealthcheck setter options
@@ -98,7 +99,7 @@ func (c *TkgClient) DeleteMachineHealthCheck(options MachineHealthCheckOptions) 
 
 // DeleteMachineHealthCheckWithClusterClient delete machinehealthcheck with client
 func (c *TkgClient) DeleteMachineHealthCheckWithClusterClient(clusterClient clusterclient.Client, options MachineHealthCheckOptions) error {
-	candidates, err := getMachineHealthCheckCandidates(clusterClient, options.ClusterName, options.Namespace, options.MachineHealthCheckName)
+	candidates, err := getMachineHealthCheckCandidates(clusterClient, options.ClusterName, options.Namespace, options.MachineHealthCheckName, options.MatchLabel)
 	if err != nil {
 		return errors.Wrap(err, "unable to get the MachineHealthCheck object")
 	}
@@ -144,7 +145,7 @@ func (c *TkgClient) GetMachineHealthChecks(options MachineHealthCheckOptions) ([
 func (c *TkgClient) GetMachineHealthChecksWithClusterClient(clusterClient clusterclient.Client, options MachineHealthCheckOptions) ([]MachineHealthCheck, error) {
 	res := []MachineHealthCheck{}
 
-	candidates, err := getMachineHealthCheckCandidates(clusterClient, options.ClusterName, options.Namespace, options.MachineHealthCheckName)
+	candidates, err := getMachineHealthCheckCandidates(clusterClient, options.ClusterName, options.Namespace, options.MachineHealthCheckName, options.MatchLabel)
 	if err != nil {
 		return res, nil
 	}
@@ -162,7 +163,7 @@ func (c *TkgClient) GetMachineHealthChecksWithClusterClient(clusterClient cluste
 	return res, nil
 }
 
-func getMachineHealthCheckCandidates(clusterClient clusterclient.Client, clusterName, namespace, mhcName string) ([]capi.MachineHealthCheck, error) {
+func getMachineHealthCheckCandidates(clusterClient clusterclient.Client, clusterName, namespace, mhcName, matchLabel string) ([]capi.MachineHealthCheck, error) {
 	mhcList := &capi.MachineHealthCheckList{}
 	err := clusterClient.ListResources(mhcList, &crtclient.ListOptions{Namespace: namespace})
 	if err != nil {
@@ -175,7 +176,10 @@ func getMachineHealthCheckCandidates(clusterClient clusterclient.Client, cluster
 		if mhcList.Items[i].Spec.ClusterName == clusterName &&
 			(namespace == "" || namespace == mhcList.Items[i].Namespace) &&
 			(mhcName == "" || mhcName == mhcList.Items[i].Name) {
-			candidates = append(candidates, mhcList.Items[i])
+			_, ok := mhcList.Items[i].Spec.Selector.MatchLabels[matchLabel]
+			if matchLabel == "" || ok {
+				candidates = append(candidates, mhcList.Items[i])
+			}
 		}
 	}
 
@@ -231,7 +235,7 @@ func (c *TkgClient) SetMachineHealthCheck(options *SetMachineHealthCheckOptions)
 		log.Infof("use %s as default namespace", options.Namespace)
 	}
 
-	candidates, err := getMachineHealthCheckCandidates(clusterClient, options.ClusterName, options.Namespace, options.MachineHealthCheckName)
+	candidates, err := getMachineHealthCheckCandidates(clusterClient, options.ClusterName, options.Namespace, options.MachineHealthCheckName, "")
 	if err != nil {
 		return err
 	}

@@ -8,6 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
@@ -28,6 +29,9 @@ func init() {
 	packageInstalledUpdateCmd.Flags().BoolVarP(&packageInstalledOp.Install, "install", "", false, "Install package if the installed package does not exist, optional")
 	packageInstalledUpdateCmd.Flags().StringVarP(&packageInstalledOp.PackageName, "package-name", "p", "", "The public name for the package")
 	packageInstalledUpdateCmd.Flags().StringVarP(&packageInstalledOp.Namespace, "namespace", "n", "default", "The namespace to locate the installed package which needs to be updated")
+	packageInstalledUpdateCmd.Flags().BoolVarP(&packageInstalledOp.Wait, "wait", "", true, "Wait for the package reconciliation to complete, optional. To disable wait, specify --wait=false")
+	packageInstalledUpdateCmd.Flags().DurationVarP(&packageInstalledOp.PollInterval, "poll-interval", "", tkgpackagedatamodel.DefaultPollInterval, "Time interval between subsequent polls of package reconciliation status, optional")
+	packageInstalledUpdateCmd.Flags().DurationVarP(&packageInstalledOp.PollTimeout, "poll-timeout", "", tkgpackagedatamodel.DefaultPollTimeout, "Timeout value for polls of package reconciliation status, optional")
 	packageInstalledUpdateCmd.MarkFlagRequired("version") //nolint
 	packageInstalledCmd.AddCommand(packageInstalledUpdateCmd)
 }
@@ -44,15 +48,14 @@ func packageUpdate(_ *cobra.Command, args []string) error {
 		ProgressMsg: make(chan string, 10),
 		Err:         make(chan error),
 		Done:        make(chan struct{}),
-		Success:     make(chan bool),
 	}
 	go pkgClient.UpdatePackage(packageInstalledOp, pp)
 
 	initialMsg := fmt.Sprintf("Updating package '%s'", packageInstalledOp.PkgInstallName)
-	successMsg := fmt.Sprintf("Updated package install '%s' in namespace '%s'", packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace)
-	if err := displayProgress(initialMsg, successMsg, pp); err != nil {
+	if err := displayProgress(initialMsg, pp); err != nil {
 		return err
 	}
+	log.Infof("\n %s", fmt.Sprintf("Updated package install '%s' in namespace '%s'", packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace))
 
 	return nil
 }

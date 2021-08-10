@@ -2,12 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Build the manager binary
-FROM mirror.gcr.io/library/golang:1.16 as builder
+FROM harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.16 as builder
 
 WORKDIR /workspace
 
-ENV GOPRIVATE=github.com/vmware-tanzu/*
-ENV GONOSUMDB=github.com/vmware-tanzu/*
+ENV GOPRIVATE=github.com/vmware-tanzu/tanzu-framework
 
 ARG SSH_PRIVATE_KEY
 

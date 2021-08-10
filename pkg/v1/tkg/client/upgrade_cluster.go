@@ -309,11 +309,12 @@ func (c *TkgClient) upgradeAddons(regionalClusterClient clusterclient.Client, cu
 	addonsToBeUpgraded := []string{
 		"metadata/tkg",
 		"addons-management/kapp-controller",
+		"addons-management/standard-package-repo",
 	}
 	// tanzu-addons-manager and tkr-controller only runs in management cluster
 	if isRegionalCluster {
 		addonsToBeUpgraded = append(addonsToBeUpgraded,
-			"addons-management/tanzu-addons-manager", "tkr/tkr-controller")
+			"addons-management/tanzu-addons-manager", "tkr/tkr-controller", "addons-management/core-package-repo")
 	}
 	upgradeClusterMetadataOptions := &UpgradeAddonOptions{
 		AddonNames:        addonsToBeUpgraded,

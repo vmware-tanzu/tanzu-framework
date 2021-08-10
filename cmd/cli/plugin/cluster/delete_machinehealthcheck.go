@@ -9,7 +9,6 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
-
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 )
 
@@ -43,7 +42,7 @@ func deleteMachineHealthCheck(cmd *cobra.Command, args []string) error {
 	}
 
 	if server.IsGlobal() {
-		return errors.New("getting machine healthcheck with a global server is not implemented yet")
+		return errors.New("deleting machine healthcheck with a global server is not implemented yet")
 	}
 	return runDeleteMachineHealthCheck(server, args[0])
 }

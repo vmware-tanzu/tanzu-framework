@@ -1,13 +1,17 @@
 <div [ngClass]="{'hide': review}">
     <div class="clr-row mb-20">
         <div class="clr-col-12">
-            <h2 i18n="wizard title">
-                <clr-icon
-                        shape="arrow"
-                        dir="left"
-                        size="30"
-                        class="is-info back-link"
-                        (click)="navigate(APP_ROUTES.LANDING)"></clr-icon>
+            <clr-icon
+                    shape="arrow"
+                    dir="left"
+                    size="30"
+                    class="is-info back-link"
+                    role="button"
+                    tabindex="0"
+                    aria-label="back"
+                    (click)="navigate(APP_ROUTES.LANDING)"
+                    keyboardListener></clr-icon>
+            <h2 i18n="wizard title" aria-level="1">
                 <div class="docker-icon-30"></div>
                 Deploy {{ clusterType | titlecase }} Cluster on Docker
             </h2>
@@ -15,7 +19,7 @@
     </div>
     <app-shared-delete-data-popup></app-shared-delete-data-popup>
     <form clrStepper #wizard [formGroup]="form">
-        <clr-stepper-panel formGroupName="dockerDaemonForm">
+        <clr-stepper-panel formGroupName="dockerDaemonForm" removeAriaLabelledBy>
             <clr-step-title i18n="docker daemon step name">
                 Docker Daemon
             </clr-step-title>
@@ -31,7 +35,7 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="networkForm">
+        <clr-stepper-panel formGroupName="networkForm" removeAriaLabelledBy>
             <clr-step-title i18n="Kubernetes network step name">
                 Kubernetes Network
             </clr-step-title>
@@ -73,12 +77,12 @@
     <tkg-kickstart-ui-confirm [errorNotification]="errorNotification"></tkg-kickstart-ui-confirm>
     <div class="clr-row mt-20">
         <div class="clr-col-12">
-            <button class="btn btn-primary" [disabled]="disableDeployButton" (click)="deploy()">
-                Deploy {{ clusterType | titlecase }} Cluster
-            </button>
             <button class="btn btn-outline" (click)="reviewConfiguration(false)"
                 i18n="return to wizard for edit button">
                 Edit Configuration
+            </button>
+            <button class="btn btn-primary" [disabled]="disableDeployButton" (click)="deploy()">
+                Deploy {{ clusterType | titlecase }} Cluster
             </button>
         </div>
     </div>

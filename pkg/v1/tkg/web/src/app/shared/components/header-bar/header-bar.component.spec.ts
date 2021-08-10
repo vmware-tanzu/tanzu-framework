@@ -32,12 +32,12 @@ describe('HeaderBarComponent', () => {
         expect(comp.navigateHome).toHaveBeenCalled();
     }));
 
-    it('should call goToLink() method if user clicks on Documentation link', fakeAsync(() => {
+    it('should call navigateToDocs() method if user clicks on Documentation link', fakeAsync(() => {
         const fixture = TestBed.createComponent(HeaderBarComponent);
         const comp = fixture.debugElement.componentInstance;
-        spyOn(comp, 'goToLink');
+        spyOn(comp, 'navigateToDocs');
         const elem = fixture.nativeElement.querySelector('.btn-header-action');
         elem.click();
-        expect(comp.goToLink).toHaveBeenCalled();
+        expect(comp.navigateToDocs).toHaveBeenCalled();
     }));
 });

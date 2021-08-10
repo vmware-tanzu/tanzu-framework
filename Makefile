@@ -76,7 +76,7 @@ endif
 DOCKER_DIR := /app
 SWAGGER=docker run --rm -v ${PWD}:${DOCKER_DIR} quay.io/goswagger/swagger:v0.21.0
 
-PRIVATE_REPOS="github.com/vmware-tanzu"
+PRIVATE_REPOS="github.com/vmware-tanzu/tanzu-framework"
 GO := GOPRIVATE=${PRIVATE_REPOS} go
 
 # Add supported OS-ARCHITECTURE combinations here
@@ -454,11 +454,6 @@ generate-ui-swagger-api: ## Generate swagger files for UI backend
 ## Provider templates/overlays
 ## --------------------------------------
 
-.PHONY: providers
-providers: $(GOBINDATA)
-	make -C pkg/v1/providers -f Makefile ci
-	$(MAKE) fmt
-
 .PHONY: clustergen
 clustergen:
 	CLUSTERGEN_BASE=${CLUSTERGEN_BASE} make -C pkg/v1/providers -f Makefile cluster-generation-diffs
@@ -489,3 +484,7 @@ e2e-tkgctl-aws: $(GINKGO) generate-embedproviders ## Run ginkgo tkgctl E2E tests
 .PHONY: e2e-tkgctl-vc67
 e2e-tkgctl-vc67: $(GINKGO) generate-embedproviders ## Run ginkgo tkgctl E2E tests
 	$(GINKGO) -v -trace -nodes=$(GINKGO_NODES) --noColor=$(GINKGO_NOCOLOR) $(GINKGO_ARGS) -tags embedproviders pkg/v1/tkg/test/tkgctl/vsphere67
+
+.PHONY: e2e-tkgpackageclient-docker
+e2e-tkgpackageclient-docker: $(GINKGO) generate-embedproviders ## Run ginkgo tkgpackageclient E2E tests
+	$(GINKGO) -v -trace -nodes=$(GINKGO_NODES) --noColor=$(GINKGO_NOCOLOR) $(GINKGO_ARGS) -tags embedproviders pkg/v1/tkg/test/tkgpackageclient

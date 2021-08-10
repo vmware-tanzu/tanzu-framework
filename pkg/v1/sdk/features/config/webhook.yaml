@@ -1,0 +1,41 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  creationTimestamp: null
+  name: tanzu-featuregates-validating-webhook
+  annotations:
+    # This is the expected certificate generated beforehand.
+    cert-manager.io/inject-ca-from: tkg-system/tanzu-featuregates-serving-cert
+webhooks:
+  - admissionReviewVersions:
+      - v1beta1
+    clientConfig:
+      service:
+        name: tanzu-featuregates-webhook-service
+        namespace: tkg-system
+        path: /validate-config-tanzu-vmware-com-v1alpha1-featuregate
+    failurePolicy: Fail
+    name: featuregate.config.tanzu.vmware.com
+    rules:
+      - apiGroups:
+          - config.tanzu.vmware.com
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - featuregates
+    sideEffects: None
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tanzu-featuregates-webhook-service
+  namespace: tkg-system
+spec:
+  ports:
+    - port: 443
+      targetPort: 9443
+  selector:
+      app: tanzu-featuregates-manager

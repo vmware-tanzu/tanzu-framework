@@ -1,0 +1,90 @@
+name: TKG Package Plugin Integration Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/tkgpackage_integration_test.yaml'
+      - 'pkg/v1/tkg/tkgpackage*/*'
+      - 'pkg/v1/tkg/kappclient/*'
+      - 'pkg/v1/tkg/test/tkgpackageclient/**'
+      - 'cmd/cli/plugin/package/**'
+
+concurrency:
+  group: ${{ format('package-plugin-integration-tests-{0}', github.head_ref) }}
+  cancel-in-progress: true
+
+jobs:
+  integ-tests-package-plugin-docker:
+    name: Package Plugin Tests CAPD
+    runs-on: tkg
+    steps:
+      - name: Free disk space on runner
+        run: sudo rm -rf /usr/share/dotnet
+
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.16'
+        id: go
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+
+      - name: Config credentials
+        env:
+          GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+        run: |
+          git config --global url."https://git:$GH_ACCESS_TOKEN@github.com".insteadOf "https://github.com"
+
+      - name: Get dependencies
+        run: |
+          go get -v -t -d ./...
+          if [ -f Gopkg.toml ]; then
+              curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+              dep ensure
+          fi
+
+      - name: Build Tools
+        run: make tools
+
+      - name: Extract PR Number
+        uses: Dovyski/payload-info-action@master
+        id: get_pr_num
+        with:
+          # when event is a pull request, obtaining the PR number is obvious
+          filter_pull_request: '.number'
+          # when event is a push (merge of PR), obtains original PR number from the merge commit message
+          filter_push: '.head_commit.message | capture("Merge pull request #(?<pr>[[:digit:]]+)").pr | tonumber'
+
+      - name: Find Comment
+        uses: peter-evans/find-comment@v1
+        id: findcomment
+        with:
+          issue-number: ${{ steps.get_pr_num.outputs.value }}
+          body-includes: //usebom
+          direction: last
+
+      - name: Extract Alternate BOM
+        shell: bash
+        run: |
+          export BOMCOMMENT=$(echo -e "${{ steps.findcomment.outputs.comment-body }}" | tr -d "[:space:]")
+          echo "##[set-output name=bompath;]$(echo "$BOMCOMMENT" | awk -F : '{print $2}')"
+        id: extract_bom
+
+      - name: Cleanup
+        run: rm -rf ~/.tanzu ~/.tkg ~/.config; docker kill $(docker ps -q) | true; docker system prune -a --volumes -f
+
+      - name: Run TKG Package plugin integration tests
+        run: |
+          if [[ ! -z "${{ steps.extract_bom.outputs.bompath }}" ]]; then
+            export TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH=${{ steps.extract_bom.outputs.bompath }}
+          fi
+          make configure-bom
+          make generate-embedproviders
+          make build-cli-local
+          make install-cli
+          make install-cli-plugins
+          E2E_CONFIG=$PWD/pkg/v1/tkg/test/tkgpackageclient/config/package_plugin_config.yaml hack/tools/bin/ginkgo -v -trace -tags embedproviders pkg/v1/tkg/test/tkgpackageclient

@@ -9,7 +9,9 @@
                 role="button"
                 tabindex="0"
                 aria-label="back"
-                (click)="navigate(APP_ROUTES.LANDING)"></clr-icon>
+                (click)="navigate(APP_ROUTES.LANDING)"
+                keyboardListener
+            ></clr-icon>
             <h2 i18n="wizard title" aria-level="1">
                 <div class="aws-ec2-icon-30"></div>
                 Deploy {{ clusterType | titlecase }} Cluster on Amazon EC2
@@ -126,7 +128,9 @@
             <ng-container *ngIf="steps[6]">
                 <app-os-image-step [formGroup]="form.controls.osImageForm"
                     formName="osimages" [wizardFormService]="wizardFormService" type="AWS"
-                    osImageTooltipContent="tooltip content placeholder">
+                    osImageTooltipContent="Select a base OS image that you have already imported
+                    into your AWS account. If no compatible OS image is present, import one into
+                    AWS and click the Refresh button">
                 </app-os-image-step>
             </ng-container>
             <clr-step-content *clrIfExpanded>
