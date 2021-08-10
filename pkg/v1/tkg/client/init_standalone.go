@@ -27,6 +27,7 @@ import (
 
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
@@ -210,14 +211,22 @@ func (c *TkgClient) InitStandaloneRegion(options *InitRegionOptions) error { //n
 	return nil
 }
 
+func getTCEConfigDir() (string, error) {
+	tanzuConfigDir, err := config.LocalDir()
+	if err != nil {
+		return "", errors.Wrap(err, "unable to get home directory")
+	}
+	return filepath.Join(tanzuConfigDir, "tce"), nil
+}
+
 // SaveObjects saves all the Cluster API objects from all the namespaces to files
 func (c *TkgClient) SaveObjects(fromKubeconfigPath, namespace string) error {
-	homeDir, err := os.UserHomeDir()
+	tceConfigDir, err := getTCEConfigDir()
 	if err != nil {
 		return err
 	}
 
-	directoryBin := filepath.Join(homeDir, ".tanzu", "tce", "objects")
+	directoryBin := filepath.Join(tceConfigDir, "objects")
 	err = os.MkdirAll(directoryBin, 0755)
 	if err != nil {
 		return err
@@ -233,12 +242,12 @@ func (c *TkgClient) SaveObjects(fromKubeconfigPath, namespace string) error {
 }
 
 func SaveInitOptions(options *InitRegionOptions) error {
-	homeDir, err := os.UserHomeDir()
+	tceConfigDir, err := getTCEConfigDir()
 	if err != nil {
 		return err
 	}
 
-	directoryBin := filepath.Join(homeDir, ".tanzu", "tce", "init")
+	directoryBin := filepath.Join(tceConfigDir, "init")
 	err = os.MkdirAll(directoryBin, 0755)
 	if err != nil {
 		return err
