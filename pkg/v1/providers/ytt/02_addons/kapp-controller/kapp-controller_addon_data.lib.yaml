@@ -36,7 +36,7 @@ kappController:
       value: "true"
 #@ end
   config:
-    #@ if tkg_image_repo_customized() and tkg_image_repo_ca_cert():
+    #@ if tkg_image_repo_ca_cert():
     caCerts: #@ base64.decode(tkg_image_repo_ca_cert())
     #@ end
     #@ if data.values.TKG_HTTP_PROXY:
