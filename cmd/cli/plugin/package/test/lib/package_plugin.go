@@ -313,6 +313,9 @@ func (p *packagePlugin) DeleteInstalledPackage(o *tkgpackagedatamodel.PackageOpt
 	if o.PollTimeout != 0 {
 		cmd += fmt.Sprintf(" --poll-timeout %s", o.PollTimeout)
 	}
+	if o.SkipPrompt {
+	    cmd += fmt.Sprintf(" -y")
+	}
 	cmd = p.addKubeconfig(cmd)
 	cmd = p.addGlobalOptions(cmd)
 	result.Stdout, result.Stderr, result.Error = clitest.Exec(cmd)

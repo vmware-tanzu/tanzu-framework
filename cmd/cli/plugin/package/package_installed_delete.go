@@ -8,6 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
@@ -28,6 +29,7 @@ func init() {
 	packageInstalledDeleteCmd.Flags().StringVarP(&packageInstalledOp.Namespace, "namespace", "n", "default", "Target namespace from which the package should be deleted, optional")
 	packageInstalledDeleteCmd.Flags().DurationVarP(&packageInstalledOp.PollInterval, "poll-interval", "", tkgpackagedatamodel.DefaultPollInterval, "Time interval between subsequent polls of package deletion status, optional")
 	packageInstalledDeleteCmd.Flags().DurationVarP(&packageInstalledOp.PollTimeout, "poll-timeout", "", tkgpackagedatamodel.DefaultPollTimeout, "Timeout value for polls of package deletion status, optional")
+	packageInstalledDeleteCmd.Flags().BoolVarP(&packageInstalledOp.SkipPrompt, "yes", "y", false, "Delete installed package without asking for confirmation")
 	packageInstalledCmd.AddCommand(packageInstalledDeleteCmd)
 }
 
@@ -37,6 +39,13 @@ func packageUninstall(_ *cobra.Command, args []string) error {
 	pkgClient, err := tkgpackageclient.NewTKGPackageClient(packageInstalledOp.KubeConfig)
 	if err != nil {
 		return err
+	}
+
+	if !packageInstalledOp.SkipPrompt {
+		if err := cli.AskForConfirmation(fmt.Sprintf("Deleting installed package '%s' in namespace '%s'. Are you sure?",
+			packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace)); err != nil {
+			return err
+		}
 	}
 
 	pp := &tkgpackagedatamodel.PackageProgress{
