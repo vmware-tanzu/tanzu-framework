@@ -577,17 +577,9 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
-	isProdPlan := options.Plan == constants.PlanProd
-	var workerCount int64
-	if isProdPlan {
-		workerCount = constants.DefaultProdWorkerMachineCountForManagementCluster
-	} else {
-		workerCount = constants.DefaultWorkerMachineCountForManagementCluster
-	}
-
 	switch name {
 	case AWSProviderName:
-		err = c.ConfigureAndValidateAWSConfig(tkrVersion, options.NodeSizeOptions, skipValidation, isProdPlan, workerCount, nil, true)
+		err = c.ConfigureAndValidateAWSConfig(tkrVersion, options.NodeSizeOptions, skipValidation, options.Plan == constants.PlanProd, constants.DefaultWorkerMachineCountForManagementCluster, nil, true)
 	case VSphereProviderName:
 		err := c.ConfigureAndValidateVsphereConfig(tkrVersion, options.NodeSizeOptions, options.VsphereControlPlaneEndpoint, skipValidation, nil)
 		if err != nil {
@@ -598,7 +590,7 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 			log.Warningf("WARNING: The control plane endpoint '%s' might already used by other cluster. This might affect the deployment of the cluster", options.VsphereControlPlaneEndpoint)
 		}
 	case AzureProviderName:
-		err = c.ConfigureAndValidateAzureConfig(tkrVersion, options.NodeSizeOptions, skipValidation, isProdPlan, workerCount, nil, true)
+		err = c.ConfigureAndValidateAzureConfig(tkrVersion, options.NodeSizeOptions, skipValidation, options.Plan == constants.PlanProd, constants.DefaultWorkerMachineCountForManagementCluster, nil, true)
 	case DockerProviderName:
 		err = c.ConfigureAndValidateDockerConfig(tkrVersion, options.NodeSizeOptions, skipValidation)
 	case WindowsVSphereProviderName:
@@ -1308,7 +1300,6 @@ func (c *TkgClient) ConfigureAndValidateCNIType(cniType string) error {
 
 // DistributeMachineDeploymentWorkers distributes machine deployment for worker nodes
 func (c *TkgClient) DistributeMachineDeploymentWorkers(workerMachineCount int64, isProdConfig, isManagementCluster bool, infraProviderName string) ([]int, error) { // nolint:gocyclo
-	log.V(4).Infof("Worker Machine Count %d", workerMachineCount)
 	workerCounts := make([]int, 3)
 	if infraProviderName != "aws" && infraProviderName != "azure" {
 		workerCounts[0] = int(workerMachineCount)
