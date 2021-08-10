@@ -66,4 +66,8 @@ export class SharedRegisterTmcStepComponent extends StepFormDirective implements
             }
         )
     }
+
+    resetConfigContent() {
+        this.configContent = '';
+    }
 }
