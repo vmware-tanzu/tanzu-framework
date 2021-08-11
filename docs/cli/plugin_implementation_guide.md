@@ -15,7 +15,7 @@ This architecture enables teams to build, own, and release their own piece of fu
 Current implementations:
 - [Tanzu Framework plugins](https://github.com/vmware-tanzu/tanzu-framework/tree/main/cmd/cli/plugin)
 - [Admin plugins](https://github.com/vmware-tanzu/tanzu-framework/tree/main/cmd/cli/plugin-admin)
-- [Advanced plugins](https://gitlab.eng.vmware.com/tanzu/cli-plugins)
+- Advanced plugins
 
 ### Repository
 A plugin repository represents a group of plugin artifacts that are installable by the Tanzu CLI. A repository is defined as an interface.

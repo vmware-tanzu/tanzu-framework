@@ -65,7 +65,7 @@ imageInfo:
       tag: <image-tag-2>
     ...
 ```
-The `<image-name-x>` should be exactly the same as the image names for your addon in [BOM](https://gitlab.eng.vmware.com/TKG/bolt/bolt-release-yamls/-/blob/5960e2c98ea83610624982eaec970c9b52cdc9c5/component/tkr-bom/tkr-bom-v1.20.4+vmware.1-tkg.1.yaml#L70-75)
+The `<image-name-x>` should be exactly the same as the image names for your addon in TKR BOM.
 
 
 ### Makefile

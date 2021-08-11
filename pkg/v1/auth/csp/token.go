@@ -3,10 +3,6 @@
 
 package csp
 
-/*
-Inspired from https://gitlab.eng.vmware.com/olympus/api/blob/master/pkg/common/auth/oidc.go
-*/
-
 import (
 	"bytes"
 	"context"
