@@ -13,6 +13,15 @@ This model provides a few primary benefits.
 * Allows extensions to Tanzu to be built following the same patterns as
   components of Tanzu.
 
+## Features
+
+- [Tanzu CLI and core Plugins](docs/cli/commands/)
+- [Capabilities API](apis/run/v1alpha1/capability_types.go)
+- [Features](apis/config/v1alpha1/feature_types.go) and [FeatureGates](apis/config/v1alpha1/featuregate_types.go) APIs
+- [CLI development and build tools](docs/cli/cli-architecture.md)
+- [Controllers development resources](docs/api-machinery/)
+- [User and developer documentation and guides](docs/dev/)
+
 ## Why it is important?
 It acts as the foundation for Tanzu editions enabling the re-use of the existing work
 in Tanzu Framework.
