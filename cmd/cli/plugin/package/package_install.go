@@ -18,7 +18,7 @@ import (
 var packageInstallOp = tkgpackagedatamodel.NewPackageOptions()
 
 var packageInstallCmd = &cobra.Command{
-	Use:   "install INSTALLED_PACKAGE_NAME",
+	Use:   "install INSTALLED_PACKAGE_NAME --package-name PACKAGE_NAME --version VERSION",
 	Short: "Install a package",
 	Args:  cobra.ExactArgs(1),
 	Example: `
