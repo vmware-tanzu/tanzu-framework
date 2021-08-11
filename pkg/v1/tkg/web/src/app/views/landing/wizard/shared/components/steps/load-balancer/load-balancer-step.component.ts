@@ -45,8 +45,6 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
     serviceEngineGroups: Array<AviServiceEngineGroup>;
     serviceEngineGroupsFiltered: Array<AviServiceEngineGroup>;
     labels: Map<String, String> = new Map<String, String>();
-    vipNetworkCidrLabel: string;
-    vipNetworkNameLabel: string;
     vipClusterNetworkNameLabel: string;
     vipClusterNetworkCidrLabel: string;
     vipNetworks: Array<AviVipNetwork> = [];
@@ -62,7 +60,6 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
     ngOnInit() {
         super.ngOnInit();
 
-        this.vipNetworkCidrLabel = (this.clusterType === 'standalone') ? 'VIP NETWORK CIDR' : 'WORKLOAD VIP NETWORK CIDR';
         this.vipClusterNetworkNameLabel = (this.clusterType === 'standalone') ?
             'STANDALONE CLUSTER VIP NETWORK NAME' : 'MANAGEMENT VIP NETWORK NAME';
         this.vipClusterNetworkCidrLabel = (this.clusterType === 'standalone') ?
