@@ -314,7 +314,7 @@ func (p *packagePlugin) DeleteInstalledPackage(o *tkgpackagedatamodel.PackageOpt
 		cmd += fmt.Sprintf(" --poll-timeout %s", o.PollTimeout)
 	}
 	if o.SkipPrompt {
-	    cmd += fmt.Sprintf(" -y")
+		cmd += fmt.Sprintf(" -y")
 	}
 	cmd = p.addKubeconfig(cmd)
 	cmd = p.addGlobalOptions(cmd)
