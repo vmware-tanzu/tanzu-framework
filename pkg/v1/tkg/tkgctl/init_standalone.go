@@ -68,6 +68,11 @@ func (t *tkgctl) InitStandalone(options InitRegionOptions) error {
 		return err
 	}
 
+	err = ensureConfigImages(t.configDir, t.tkgConfigUpdaterClient)
+	if err != nil {
+		return err
+	}
+
 	options.CoreProvider, options.BootstrapProvider, options.ControlPlaneProvider, err = t.tkgBomClient.GetDefaultClusterAPIProviders()
 	if err != nil {
 		return err
