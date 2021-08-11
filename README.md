@@ -21,6 +21,8 @@ This model provides a few primary benefits.
 - [CLI development and build tools](docs/cli/cli-architecture.md)
 - [Controllers development resources](docs/api-machinery/)
 - [User and developer documentation and guides](docs/dev/)
+- [Tanzu Kubernetes Release API](apis/run/v1alpha1/tanzukubernetesrelease_types.go)
+- [Tanzu Addons](addons/)
 
 ## Why it is important?
 It acts as the foundation for Tanzu editions enabling the re-use of the existing work
