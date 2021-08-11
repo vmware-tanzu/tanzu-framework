@@ -996,6 +996,19 @@ type ClusterClient struct {
 	waitForPacificClusterK8sVersionUpdateReturnsOnCall map[int]struct {
 		result1 error
 	}
+	WaitForPackageInstallStub        func(string, string, time.Duration) error
+	waitForPackageInstallMutex       sync.RWMutex
+	waitForPackageInstallArgsForCall []struct {
+		arg1 string
+		arg2 string
+		arg3 time.Duration
+	}
+	waitForPackageInstallReturns struct {
+		result1 error
+	}
+	waitForPackageInstallReturnsOnCall map[int]struct {
+		result1 error
+	}
 	WaitK8sVersionUpdateForCPNodesStub        func(string, string, string, clusterclient.Client) error
 	waitK8sVersionUpdateForCPNodesMutex       sync.RWMutex
 	waitK8sVersionUpdateForCPNodesArgsForCall []struct {
@@ -5723,6 +5736,69 @@ func (fake *ClusterClient) WaitForPacificClusterK8sVersionUpdateReturnsOnCall(i 
 	}{result1}
 }
 
+func (fake *ClusterClient) WaitForPackageInstall(arg1 string, arg2 string, arg3 time.Duration) error {
+	fake.waitForPackageInstallMutex.Lock()
+	ret, specificReturn := fake.waitForPackageInstallReturnsOnCall[len(fake.waitForPackageInstallArgsForCall)]
+	fake.waitForPackageInstallArgsForCall = append(fake.waitForPackageInstallArgsForCall, struct {
+		arg1 string
+		arg2 string
+		arg3 time.Duration
+	}{arg1, arg2, arg3})
+	stub := fake.WaitForPackageInstallStub
+	fakeReturns := fake.waitForPackageInstallReturns
+	fake.recordInvocation("WaitForPackageInstall", []interface{}{arg1, arg2, arg3})
+	fake.waitForPackageInstallMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *ClusterClient) WaitForPackageInstallCallCount() int {
+	fake.waitForPackageInstallMutex.RLock()
+	defer fake.waitForPackageInstallMutex.RUnlock()
+	return len(fake.waitForPackageInstallArgsForCall)
+}
+
+func (fake *ClusterClient) WaitForPackageInstallCalls(stub func(string, string, time.Duration) error) {
+	fake.waitForPackageInstallMutex.Lock()
+	defer fake.waitForPackageInstallMutex.Unlock()
+	fake.WaitForPackageInstallStub = stub
+}
+
+func (fake *ClusterClient) WaitForPackageInstallArgsForCall(i int) (string, string, time.Duration) {
+	fake.waitForPackageInstallMutex.RLock()
+	defer fake.waitForPackageInstallMutex.RUnlock()
+	argsForCall := fake.waitForPackageInstallArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *ClusterClient) WaitForPackageInstallReturns(result1 error) {
+	fake.waitForPackageInstallMutex.Lock()
+	defer fake.waitForPackageInstallMutex.Unlock()
+	fake.WaitForPackageInstallStub = nil
+	fake.waitForPackageInstallReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ClusterClient) WaitForPackageInstallReturnsOnCall(i int, result1 error) {
+	fake.waitForPackageInstallMutex.Lock()
+	defer fake.waitForPackageInstallMutex.Unlock()
+	fake.WaitForPackageInstallStub = nil
+	if fake.waitForPackageInstallReturnsOnCall == nil {
+		fake.waitForPackageInstallReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.waitForPackageInstallReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
 func (fake *ClusterClient) WaitK8sVersionUpdateForCPNodes(arg1 string, arg2 string, arg3 string, arg4 clusterclient.Client) error {
 	fake.waitK8sVersionUpdateForCPNodesMutex.Lock()
 	ret, specificReturn := fake.waitK8sVersionUpdateForCPNodesReturnsOnCall[len(fake.waitK8sVersionUpdateForCPNodesArgsForCall)]
@@ -6006,6 +6082,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.waitForPacificClusterMutex.RUnlock()
 	fake.waitForPacificClusterK8sVersionUpdateMutex.RLock()
 	defer fake.waitForPacificClusterK8sVersionUpdateMutex.RUnlock()
+	fake.waitForPackageInstallMutex.RLock()
+	defer fake.waitForPackageInstallMutex.RUnlock()
 	fake.waitK8sVersionUpdateForCPNodesMutex.RLock()
 	defer fake.waitK8sVersionUpdateForCPNodesMutex.RUnlock()
 	fake.waitK8sVersionUpdateForWorkerNodesMutex.RLock()

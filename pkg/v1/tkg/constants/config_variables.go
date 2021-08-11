@@ -165,4 +165,6 @@ const (
 	ConfigVariableInternalCAPVManagerImageTag     = "CAPV_CONTROLLER_IMAGE_TAG"
 	ConfigVariableInternalCAPZManagerImageTag     = "CAPZ_CONTROLLER_IMAGE_TAG"
 	ConfigVariableInternalNMIImageTag             = "NMI_IMAGE_TAG"
+
+	ConfigVariablePackageInstallTimeout = "PACKAGE_INSTALL_TIMEOUT"
 )
