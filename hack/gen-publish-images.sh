@@ -46,7 +46,7 @@ function imgpkg_copy() {
 }
 
 echo "set -euo pipefail"
-echodual "Note that yq must be version above version 4.5 and below version 5."
+echodual "Note that yq must be version above or equal to version 4.9.2 and below version 5.."
 
 actualImageRepository="$TKG_IMAGE_REPO"
 
