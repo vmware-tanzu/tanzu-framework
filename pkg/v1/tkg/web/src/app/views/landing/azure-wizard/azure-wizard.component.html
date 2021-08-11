@@ -152,7 +152,7 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="ceipOptInForm" removeAriaLabelledBy>
+        <clr-stepper-panel formGroupName="ceipOptInForm" removeAriaLabelledBy *ngIf="edition === 'tkg'">
             <clr-step-title i18n="Azure CEIP program agreement">
                 CEIP Agreement
             </clr-step-title>

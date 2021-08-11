@@ -156,7 +156,7 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="ceipOptInForm" removeAriaLabelledBy>
+        <clr-stepper-panel formGroupName="ceipOptInForm" removeAriaLabelledBy *ngIf="edition === 'tkg'">
             <clr-step-title i18n="ceip agreement step title">
                 CEIP Agreement
             </clr-step-title>
