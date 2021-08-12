@@ -14,8 +14,8 @@ import (
 )
 
 var repositoryAddCmd = &cobra.Command{
-	Use:   "add REPOSITORY_NAME ",
-	Short: "Add a repository",
+	Use:   "add REPOSITORY_NAME --url REPOSITORY_URL",
+	Short: "Add a package repository",
 	Args:  cobra.ExactArgs(1),
 	Example: `
     # Add a repository in specified namespace which does not exist 	
