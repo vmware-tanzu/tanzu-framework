@@ -181,7 +181,7 @@ func ConnectToEndpoint(ctxopts ...ContextOpts) (*grpc.ClientConn, error) {
 	return conn, nil
 }
 
-// unaryClientInterceptor adds the client information metadata to the outgoing unary gRPC request context
+// unaryClientInterceptor adds a default timeout of 30 seconds and the provided context options to the outgoing unary gRPC request context
 func unaryClientInterceptor(ctxopts ...ContextOpts) grpc.UnaryClientInterceptor {
 	return func(reqCtx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
 		timeoutCtx, cancel := context.WithTimeout(reqCtx, time.Duration(DefaultTimeout)*time.Second)
@@ -194,16 +194,13 @@ func unaryClientInterceptor(ctxopts ...ContextOpts) grpc.UnaryClientInterceptor 
 	}
 }
 
-// streamClientInterceptor adds the client information metadata to the outgoing streaming gRPC request context
+// streamClientInterceptor adds the provided context options to the outgoing streaming gRPC request context
 func streamClientInterceptor(ctxopts ...ContextOpts) grpc.StreamClientInterceptor {
 	return func(reqCtx context.Context, desc *grpc.StreamDesc, cc *grpc.ClientConn, method string, streamer grpc.Streamer, opts ...grpc.CallOption) (grpc.ClientStream, error) {
-		timeoutCtx, cancel := context.WithTimeout(reqCtx, time.Duration(DefaultTimeout)*time.Second)
-		defer cancel()
-
 		for _, opt := range ctxopts {
-			timeoutCtx = opt(timeoutCtx)
+			reqCtx = opt(reqCtx)
 		}
-		return streamer(timeoutCtx, desc, cc, method, opts...)
+		return streamer(reqCtx, desc, cc, method, opts...)
 	}
 }
 
