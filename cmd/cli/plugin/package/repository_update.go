@@ -14,8 +14,8 @@ import (
 )
 
 var repositoryUpdateCmd = &cobra.Command{
-	Use:   "update REPOSITORY_NAME ",
-	Short: "Update a repository",
+	Use:   "update REPOSITORY_NAME --url REPOSITORY_URL",
+	Short: "Update a package repository",
 	Args:  cobra.ExactArgs(1),
 	Example: `
     # Update repository in default namespace 	
@@ -25,7 +25,7 @@ var repositoryUpdateCmd = &cobra.Command{
 
 func init() {
 	repositoryUpdateCmd.Flags().StringVarP(&repoOp.RepositoryURL, "url", "", "", "OCI registry url for package repository bundle")
-	repositoryUpdateCmd.Flags().BoolVarP(&repoOp.CreateRepository, "create", "", false, "Creates the repository if it does not exist")
+	repositoryUpdateCmd.Flags().BoolVarP(&repoOp.CreateRepository, "create", "", false, "Creates the package repository if it does not exist, optional")
 	repositoryUpdateCmd.Flags().BoolVarP(&repoOp.CreateNamespace, "create-namespace", "", false, "Create namespace if the target namespace does not exist, optional")
 	repositoryUpdateCmd.MarkFlagRequired("url") //nolint
 	repositoryCmd.AddCommand(repositoryUpdateCmd)

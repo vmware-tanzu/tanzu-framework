@@ -15,7 +15,7 @@ import (
 
 var repositoryGetCmd = &cobra.Command{
 	Use:   "get REPOSITORY_NAME",
-	Short: "Get repository status",
+	Short: "Get details for a package repository",
 	Args:  cobra.ExactArgs(1),
 	Example: `
     # Get details for a repository in specified namespace 	
@@ -24,7 +24,7 @@ var repositoryGetCmd = &cobra.Command{
 }
 
 func init() {
-	repositoryGetCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table)")
+	repositoryGetCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table), optional")
 	repositoryCmd.AddCommand(repositoryGetCmd)
 }
 
