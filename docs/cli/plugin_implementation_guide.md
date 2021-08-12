@@ -38,6 +38,8 @@ To add the builder plugin use `tanzu plugin install builder`
 
 `tanzu builder cli add-plugin <plugin-name>` will add a new cli plugin.
 
+CLI plugins have to implement a Plugin descriptor which then bootstraps the plugin with some [sub-commands](https://github.com/vmware-tanzu/tanzu-framework/tree/main/pkg/v1/cli/command/plugin).
+
 Plugins are pulled from registered repositories. On a merge to main, all the plugins in this repo are built and pushed to a public repository.
 It is useful to leverage a local repo when developing.
 
