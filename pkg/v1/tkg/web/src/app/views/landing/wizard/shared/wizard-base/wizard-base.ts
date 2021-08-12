@@ -33,6 +33,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
     disableDeployButton = false;
 
     title: string;
+    edition: string;
     clusterType: string;
 
     steps = [true, false, false, false, false, false, false, false, false, false, false];
@@ -52,6 +53,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
         Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
+                this.edition = data.payload.edition;
                 this.clusterType = data.payload.clusterType;
                 this.title = data.payload.branding.title;
             });
