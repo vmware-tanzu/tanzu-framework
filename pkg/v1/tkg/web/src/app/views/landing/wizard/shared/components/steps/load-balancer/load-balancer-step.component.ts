@@ -45,6 +45,8 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
     serviceEngineGroups: Array<AviServiceEngineGroup>;
     serviceEngineGroupsFiltered: Array<AviServiceEngineGroup>;
     labels: Map<String, String> = new Map<String, String>();
+    vipClusterNetworkNameLabel: string;
+    vipClusterNetworkCidrLabel: string;
     vipNetworks: Array<AviVipNetwork> = [];
     selectedNetworkName: string;
     selectedManagementClusterNetworkName: string;
@@ -57,6 +59,12 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
 
     ngOnInit() {
         super.ngOnInit();
+
+        this.vipClusterNetworkNameLabel = (this.clusterType === 'standalone') ?
+            'STANDALONE CLUSTER VIP NETWORK NAME' : 'MANAGEMENT VIP NETWORK NAME';
+        this.vipClusterNetworkCidrLabel = (this.clusterType === 'standalone') ?
+            'STANDALONE CLUSTER VIP NETWORK CIDR' : 'MANAGEMENT VIP NETWORK CIDR';
+
         this.formGroup.addControl(
             'controllerHost',
             new FormControl('', [
@@ -346,18 +354,22 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
                 this.getSavedValue('cloudName', ''));
             this.resurrectField('serviceEngineGroupName', [Validators.required],
                 this.getSavedValue('serviceEngineGroupName', ''));
-            this.resurrectField('networkName', [Validators.required],
-                this.getSavedValue('networkName', ''));
-            this.resurrectField('networkCIDR', [
-                Validators.required,
-                this.validationService.noWhitespaceOnEnds(),
-                this.validationService.isValidIpNetworkSegment()
-            ], this.getSavedValue('networkCIDR', ''));
+            if (this.clusterType !== 'standalone') {
+                this.resurrectField('networkName', [Validators.required],
+                    this.getSavedValue('networkName', ''));
+                this.resurrectField('networkCIDR', [
+                    Validators.required,
+                    this.validationService.noWhitespaceOnEnds(),
+                    this.validationService.isValidIpNetworkSegment()
+                ], this.getSavedValue('networkCIDR', ''));
+            }
         } else {
             this.disarmField('cloudName', true);
             this.disarmField('serviceEngineGroupName', true);
-            this.disarmField('networkName', true);
-            this.disarmField('networkCIDR', true);
+            if (this.clusterType !== 'standalone') {
+                this.disarmField('networkName', true);
+                this.disarmField('networkCIDR', true);
+            }
         }
     }
 
