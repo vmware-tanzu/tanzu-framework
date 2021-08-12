@@ -207,17 +207,17 @@ func (r *PackageReconciler) ReconcileAddonKappResourceNormal( // nolint:funlen
 			ipkg.ObjectMeta.Annotations[addontypes.AddonNamespaceAnnotation] = addonSecret.Namespace
 			ipkg.ObjectMeta.Annotations[addontypes.YttMarkerAnnotation] = util.GenerateAppSecretNameFromAddonSecret(addonSecret)
 
-			ipkg.Spec = pkgiv1alpha1.PackageInstallSpec{
-				SyncPeriod:         &metav1.Duration{Duration: r.Config.AppSyncPeriod},
-				ServiceAccountName: r.Config.AddonServiceAccount,
-				PackageRef: &pkgiv1alpha1.PackageRef{
-					RefName: addonConfig.PackageName,
-					VersionSelection: &versions.VersionSelectionSemver{
-						Prereleases: &versions.VersionSelectionSemverPrereleases{},
-					},
+			ipkg.Spec.SyncPeriod = &metav1.Duration{Duration: r.Config.AppSyncPeriod}
+			ipkg.Spec.ServiceAccountName = r.Config.AddonServiceAccount
+			ipkg.Spec.PackageRef = &pkgiv1alpha1.PackageRef{
+				RefName: addonConfig.PackageName,
+				VersionSelection: &versions.VersionSelectionSemver{
+					Prereleases: &versions.VersionSelectionSemverPrereleases{},
 				},
-				Values: []pkgiv1alpha1.PackageInstallValues{
-					{SecretRef: &pkgiv1alpha1.PackageInstallValuesSecretRef{Name: util.GenerateAppSecretNameFromAddonSecret(addonSecret)}},
+			}
+			ipkg.Spec.Values = []pkgiv1alpha1.PackageInstallValues{
+				{SecretRef: &pkgiv1alpha1.PackageInstallValuesSecretRef{
+					Name: util.GenerateAppSecretNameFromAddonSecret(addonSecret)},
 				},
 			}
 
