@@ -35,7 +35,7 @@ export const brandingTce = {
             intro: "Tanzu Community Edition (TCE) is VMware's Open Source Kubernetes distribution. The installer will " +
                 "deploy a temporary cluster on your local machine to bootstrap a management cluster on your desired target. " +
                 "This management cluster can then be used to deploy and manage workload clusters.<br/><br/>For more details " +
-                "see the <a href='http://tanzucommunityedition.io/docs' target='_blank'>getting started guide</a>."
+                "see the <a href='https://tanzucommunityedition.io/docs/latest/getting-started/' target='_blank'>getting started guide</a>."
         }
     }
 }
@@ -50,7 +50,7 @@ export const brandingTceStandalone = {
             title: "Welcome to the Tanzu Community Edition Installer",
             intro: "Tanzu Community Edition (TCE) is VMware's Open Source Kubernetes distribution. The installer will " +
                 "deploy a temporary cluster on your local machine to bootstrap a standalone cluster on your desired target. " +
-                "<br/><br/>For more details see the <a href='http://tanzucommunityedition.io/docs' target='_blank'>getting started guide</a>."
+                "<br/><br/>For more details see the <a href='https://tanzucommunityedition.io/docs/latest/getting-started/' target='_blank'>getting started guide</a>."
         }
     }
 }
