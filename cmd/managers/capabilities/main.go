@@ -7,6 +7,7 @@ import (
 	"flag"
 	"os"
 
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -18,7 +19,6 @@ import (
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/controllers"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/discovery"
 )
 
 var (
@@ -28,6 +28,7 @@ var (
 
 func init() {
 	utilruntime.Must(runv1alpha1.AddToScheme(scheme))
+	utilruntime.Must(corev1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 
@@ -49,17 +50,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	c, err := discovery.NewClusterQueryClientForConfig(mgr.GetConfig())
-	if err != nil {
-		setupLog.Error(err, "unable to create ClusterQueryClient")
-		os.Exit(1)
-	}
-
 	if err = (&controllers.CapabilityReconciler{
-		Client:             mgr.GetClient(),
-		Log:                ctrl.Log.WithName("controllers").WithName("Capability"),
-		Scheme:             mgr.GetScheme(),
-		ClusterQueryClient: c,
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("Capability"),
+		Scheme: mgr.GetScheme(),
+		Host:   mgr.GetConfig().Host,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Capability")
 		os.Exit(1)
