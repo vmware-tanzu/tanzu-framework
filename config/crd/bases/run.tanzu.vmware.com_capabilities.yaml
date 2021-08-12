@@ -183,8 +183,15 @@ spec:
                 x-kubernetes-list-map-keys:
                 - name
                 x-kubernetes-list-type: map
+              serviceAccountName:
+                description: ServiceAccountName is the name of the service account
+                  with which requests are made to the API server for evaluating queries.
+                  Service account should exist in the same namespace as this resource.
+                minLength: 1
+                type: string
             required:
             - queries
+            - serviceAccountName
             type: object
           status:
             description: Status is the capability status that has results of cluster
