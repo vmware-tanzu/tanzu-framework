@@ -208,6 +208,7 @@ func (r *PackageReconciler) ReconcileAddonKappResourceNormal( // nolint:funlen
 			ipkg.ObjectMeta.Annotations[addontypes.YttMarkerAnnotation] = util.GenerateAppSecretNameFromAddonSecret(addonSecret)
 
 			ipkg.Spec = pkgiv1alpha1.PackageInstallSpec{
+				SyncPeriod:         &metav1.Duration{Duration: r.Config.AppSyncPeriod},
 				ServiceAccountName: r.Config.AddonServiceAccount,
 				PackageRef: &pkgiv1alpha1.PackageRef{
 					RefName: addonConfig.PackageName,
