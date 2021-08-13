@@ -154,6 +154,16 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 }
 
 func (c *TkgClient) configureVariablesForProvidersInstallation(regionalClusterClient clusterclient.Client) error {
+	err := c.configureImageTagsForProviderInstallation()
+	if err != nil {
+		return errors.Wrap(err, "failed to configure image tags for provider installation")
+	}
+
+	// If region client is not specified nothing to configure based on existing management cluster
+	if regionalClusterClient == nil {
+		return nil
+	}
+
 	infraProvider, err := regionalClusterClient.GetRegionalClusterDefaultProviderName(clusterctlv1.InfrastructureProviderType)
 	if err != nil {
 		return errors.Wrap(err, "failed to get cluster provider information.")
