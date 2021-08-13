@@ -5,12 +5,13 @@ namespace: kapp-controller
 kappController:
   namespace: null
   createNamespace: true
-  globalNamespace: kapp-controller-packaging-global
+  globalNamespace: tanzu-package-repo-global
   deployment:
     hostNetwork: null
     priorityClassName: null
-    concurrency: 2
+    concurrency: 4
     tolerations: []
+    apiPort: 10350
   config:
     caCerts: ""
     httpProxy: ""
