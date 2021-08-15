@@ -33,7 +33,4 @@ var DefaultRepositories []configv1alpha1.PluginRepository = []configv1alpha1.Plu
 	{
 		GCPPluginRepository: &CoreGCPBucketRepository,
 	},
-	{
-		GCPPluginRepository: &AdvancedGCPBucketRepository,
-	},
 }
