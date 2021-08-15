@@ -4,7 +4,6 @@
 package core
 
 import (
-	"context"
 	"fmt"
 	"path/filepath"
 	"sort"
@@ -63,12 +62,11 @@ var listPluginCmd = &cobra.Command{
 
 		repos := getRepositories()
 		plugins, err := repos.ListPlugins()
+
+		// Failure to query plugin metadata from remote repositories should not
+		// prevent display of information about plugins already installed.
 		if err != nil {
-			if errors.Is(err, context.DeadlineExceeded) {
-				log.Warning("Unable to query remote plugin repositories")
-			} else {
-				return err
-			}
+			log.Warningf("Unable to query remote plugin repositories : %v", err)
 		}
 
 		data := [][]string{}
@@ -92,13 +90,12 @@ var listPluginCmd = &cobra.Command{
 					if plugin.Name != desc.Name {
 						continue
 					}
+					status = "installed"
+					currentVersion = desc.Version
 					compared := semver.Compare(latestVersion, desc.Version)
 					if compared == 1 {
 						status = "upgrade available"
-						continue
 					}
-					status = "installed"
-					currentVersion = desc.Version
 				}
 				data = append(data, []string{plugin.Name, latestVersion, plugin.Description, repoName, currentVersion, status})
 			}
