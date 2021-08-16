@@ -32,10 +32,10 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         private formBuilder: FormBuilder,
         private apiClient: APIClient,
         formMetaDataService: FormMetaDataService,
-        private titleService: Title,
+        titleService: Title,
         el: ElementRef) {
 
-        super(router, el, formMetaDataService);
+        super(router, el, formMetaDataService, titleService);
 
         this.form = this.formBuilder.group({
             awsProviderForm: this.formBuilder.group({
