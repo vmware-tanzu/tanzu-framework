@@ -293,12 +293,16 @@ func (c *DefaultClient) getPath(ctx context.Context, moid string) (string, []*mo
 		}
 
 		managedEntity := &mo.ManagedEntity{}
-		err = commonProps.Properties(ctx, ref, []string{"parent", "name"}, managedEntity)
+		name, err := commonProps.ObjectName(ctx)
 		if err != nil {
 			return "", objects, err
 		}
-		path = append([]string{managedEntity.Name}, path...)
+		path = append([]string{name}, path...)
 
+		err = commonProps.Properties(ctx, ref, []string{"parent"}, managedEntity)
+		if err != nil {
+			return "", objects, err
+		}
 		if managedEntity.Parent == nil {
 			break
 		}
@@ -307,7 +311,7 @@ func (c *DefaultClient) getPath(ctx context.Context, moid string) (string, []*mo
 			defaultFolder = moid
 		} else if !isDatacenter(moid) {
 			obj := &models.VSphereManagementObject{
-				Name:         managedEntity.Name,
+				Name:         name,
 				Moid:         ref.Value,
 				ParentMoid:   managedEntity.Parent.Reference().Value,
 				ResourceType: resourceType,
@@ -360,6 +364,10 @@ func (c *DefaultClient) populateGoVCVars(moid string) (ref types.ManagedObjectRe
 		ref = types.ManagedObjectReference{Type: TypeDatacenter, Value: moid}
 		commonProps = object.NewDatacenter(c.vmomiClient.Client, ref).Common
 		resourceType = models.VSphereManagementObjectResourceTypeDatacenter
+	case isNetwork(moid):
+		ref = types.ManagedObjectReference{Type: TypeNetwork, Value: moid}
+		commonProps = object.NewNetwork(c.vmomiClient.Client, ref).Common
+		resourceType = models.VSphereManagementObjectResourceTypeNetwork
 	default:
 		err = errors.New("moid value not recognized")
 	}
@@ -400,7 +408,14 @@ func (c *DefaultClient) GetNetworks(ctx context.Context, datacenterMOID string) 
 	}
 
 	for i := range networks {
-		managedObject := models.VSphereNetwork{Name: networks[i].Name, Moid: networks[i].Reference().Value}
+		managedObject := models.VSphereNetwork{Moid: networks[i].Reference().Value}
+		path, _, err := c.getPath(ctx, networks[i].Reference().Value)
+
+		if err != nil {
+			managedObject.Name = networks[i].Name
+		} else {
+			managedObject.Name = path
+		}
 		results = append(results, &managedObject)
 	}
 	return results, nil
@@ -820,6 +835,10 @@ func isDatastore(moID string) bool {
 
 func isVirtualMachine(moID string) bool {
 	return strings.HasPrefix(moID, "vm-")
+}
+
+func isNetwork(moID string) bool {
+	return strings.HasPrefix(moID, "network-")
 }
 
 // FindResourcePool find the vsphere resource pool from path, return moid
