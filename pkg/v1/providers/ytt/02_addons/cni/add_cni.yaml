@@ -134,10 +134,6 @@ spec:
           fromPort: 10349
           protocol: tcp
           toPort: 10349
-        - description: kapp-controller-api
-          fromPort: 10100
-          protocol: tcp
-          toPort: 10100
         - description: genev
           fromPort: 6081
           protocol: udp
