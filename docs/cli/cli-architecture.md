@@ -87,6 +87,8 @@ Catalogs offer the ability to install a plugin for any given repo or set of repo
 
 Catalogs also contain the notion of a set of plugins called a distribution. A distribution is simply a set of plugins that may exist across multiple repositories. The CLI currently contains a default distribution which is the default set of plugins that should be installed on initialization. This is done so that the CLI can be easily tailored to specific company or persona needs.
 
+The above initialization process can be bypassed by setting TANZU_CLI_NO_INIT=true during runtime or with a linker flag during build time.
+
 ## Components
 CLI components aim to be the [Clarity of CLIs](https://clarity.design/), providing a common set of reusable functionality for plugin implementations. By standardizing on these components we ensure consistent UX throughout the product and make it easy to make changes to the experience across all plugins.
 
