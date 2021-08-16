@@ -35,6 +35,7 @@ func (r *CapabilityReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 	defer cancel()
 
 	log := r.Log.WithValues("capability", req.NamespacedName)
+	log.Info("Starting reconcile")
 
 	capability := &runv1alpha1.Capability{}
 	if err := r.Get(ctx, req.NamespacedName, capability); err != nil {
@@ -55,6 +56,7 @@ func (r *CapabilityReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 		capability.Status.Results[i].PartialSchemas = r.queryPartialSchemas(l, query.PartialSchemas)
 	}
 
+	log.Info("Successfully reconciled")
 	return ctrl.Result{}, r.Status().Update(ctx, capability)
 }
 
