@@ -14,6 +14,7 @@ import (
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/keepalive"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
@@ -21,6 +22,13 @@ import (
 const (
 	// DialTimeout is the default gRPC dial timeout in seconds.
 	DialTimeout = 30
+
+	// PingTime is the default gRPC keep-alive ping time internal in seconds. This corresponds to the minimum ping wait
+	// time on the server side. Ref.: https://pkg.go.dev/google.golang.org/grpc/keepalive#EnforcementPolicy
+	PingTime = 300
+
+	// PingTimeout is the default gRPC keep-alive ping timeout in seconds.
+	PingTimeout = 30
 
 	// UnaryTimeout is the default unary RPC timeout in seconds.
 	UnaryTimeout = 30
@@ -66,6 +74,10 @@ func ConnectToEndpoint(ctxopts ...ContextOpts) (*grpc.ClientConn, error) {
 		grpc.WithUnaryInterceptor(grpc_middleware.ChainUnaryClient(unaryInterceptors...)),
 		grpc.WithStreamInterceptor(grpc_middleware.ChainStreamClient(streamInterceptors...)),
 		grpc.WithBlock(),
+		grpc.WithKeepaliveParams(keepalive.ClientParameters{
+			Time:    PingTime * time.Second,
+			Timeout: PingTimeout * time.Second,
+		}),
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(DialTimeout)*time.Second)
