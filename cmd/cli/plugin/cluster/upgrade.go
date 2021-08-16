@@ -128,6 +128,7 @@ func upgradeCluster(server *v1alpha1.Server, clusterName string) error {
 		OSVersion:           uc.osVersion,
 		OSArch:              uc.osArch,
 		VSphereTemplateName: uc.vSphereTemplateName,
+		Edition:             BuildEdition,
 	}
 
 	return tkgctlClient.UpgradeCluster(upgradeClusterOptions)

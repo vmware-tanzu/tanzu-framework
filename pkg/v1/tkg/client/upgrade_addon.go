@@ -30,6 +30,7 @@ type UpgradeAddonOptions struct {
 	Namespace         string
 	Kubeconfig        string
 	IsRegionalCluster bool
+	Edition           string
 }
 
 // UpgradeAddon upgrades addons
@@ -120,6 +121,9 @@ func (c *TkgClient) DoUpgradeAddon(regionalClusterClient clusterclient.Client, /
 
 	createClusterOptions := CreateClusterOptions{
 		ClusterConfigOptions: configOptions,
+		// Build edition is required to perform addons upgrade. The providers/ytt is referencing to build edition for the
+		// rendering logic. Setting build edition here is to make sure addons upgrade to work properly.
+		Edition: options.Edition,
 	}
 
 	kcp, err := regionalClusterClient.GetKCPObjectForCluster(options.ClusterName, options.Namespace)

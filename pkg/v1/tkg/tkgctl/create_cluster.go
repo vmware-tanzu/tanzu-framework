@@ -40,6 +40,8 @@ type CreateClusterOptions struct {
 	Timeout                     time.Duration
 	GenerateOnly                bool
 	SkipPrompt                  bool
+	// Tanzu edition (either tce or tkg)
+	Edition string
 }
 
 //nolint:gocritic
@@ -149,6 +151,7 @@ func (t *tkgctl) getCreateClusterOptions(name string, cc *CreateClusterOptions) 
 		CniType:                     cc.CniType,
 		VsphereControlPlaneEndpoint: cc.VsphereControlPlaneEndpoint,
 		ClusterOptionsEnableList:    clusterOptionsEnableList,
+		Edition:                     cc.Edition,
 	}, nil
 }
 

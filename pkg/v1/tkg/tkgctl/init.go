@@ -274,6 +274,14 @@ func (t *tkgctl) configureInitManagementClusterOptionsFromConfigFile(iro *InitRe
 		}
 	}
 
+	// set BuildEdition from config variable
+	if iro.Edition == "" {
+		edition, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableBuildEdition)
+		if err == nil {
+			iro.Edition = edition
+		}
+	}
+
 	// set vSphereControlPlaneEndpoint from config variable
 	if iro.VsphereControlPlaneEndpoint == "" {
 		vSphereControlPlaneEndpoint, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereControlPlaneEndpoint)

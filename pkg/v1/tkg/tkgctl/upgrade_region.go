@@ -27,6 +27,8 @@ type UpgradeRegionOptions struct {
 	// VSphereTemplateName (deprecated: please use OSName, OSVersion and OSArch
 	// config variables to filter vSphereTemplate)
 	VSphereTemplateName string
+	// Tanzu edition (either tce or tkg)
+	Edition string
 }
 
 //nolint:gocritic
@@ -75,6 +77,7 @@ func (t *tkgctl) UpgradeRegion(options UpgradeRegionOptions) error {
 		OSVersion:           options.OSVersion,
 		OSArch:              options.OSArch,
 		SkipPrompt:          options.SkipPrompt,
+		Edition:             options.Edition,
 	}
 	err = t.tkgClient.UpgradeManagementCluster(&upgradeClusterOption)
 	if err != nil {
