@@ -36,6 +36,12 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 )
 
+const (
+	StepCreateStandaloneCluster         = "Create standalone cluster"
+	StepMoveStandaloneClusterAPIObjects = "Move cluster-api objects from bootstrap cluster to standalone cluster"
+	StepRegisterStandaloneWithTMC       = "Register standalone cluster with Tanzu Mission Control"
+)
+
 func (c *TkgClient) InitStandaloneRegion(options *InitRegionOptions) error { //nolint:gocyclo
 	var err error
 	var regionalConfigBytes []byte
@@ -50,7 +56,7 @@ func (c *TkgClient) InitStandaloneRegion(options *InitRegionOptions) error { //n
 		return err
 	}
 	if options.TmcRegistrationURL != "" {
-		InitRegionSteps = append(InitRegionSteps, StepRegisterWithTMC)
+		InitRegionSteps = append(InitRegionSteps, StepRegisterStandaloneWithTMC)
 	}
 	log.SendProgressUpdate(statusRunning, StepValidateConfiguration, InitRegionSteps)
 	log.Info("Validating configuration...")
@@ -142,7 +148,7 @@ func (c *TkgClient) InitStandaloneRegion(options *InitRegionOptions) error { //n
 	// 	targetClusterNamespace = options.Namespace
 	// }
 
-	log.SendProgressUpdate(statusRunning, StepCreateManagementCluster, InitRegionSteps)
+	log.SendProgressUpdate(statusRunning, StepCreateStandaloneCluster, InitRegionSteps)
 	log.Info("Start creating standalone cluster...")
 	err = c.DoCreateCluster(bootStrapClusterClient, options.ClusterName, targetClusterNamespace, string(regionalConfigBytes))
 	if err != nil {
@@ -184,7 +190,7 @@ func (c *TkgClient) InitStandaloneRegion(options *InitRegionOptions) error { //n
 
 	regionalClusterClient, err := clusterclient.NewClient(regionalClusterKubeconfigPath, kubeContext, clusterclient.Options{OperationTimeout: c.timeout})
 	if err != nil {
-		return errors.Wrap(err, "unable to get management cluster client")
+		return errors.Wrap(err, "unable to get standalone cluster client")
 	}
 
 	log.Info("Waiting for addons installation...")
@@ -198,11 +204,11 @@ func (c *TkgClient) InitStandaloneRegion(options *InitRegionOptions) error { //n
 		return errors.Wrap(err, "error waiting for addons to get installed")
 	}
 
-	log.SendProgressUpdate(statusRunning, StepMoveClusterAPIObjects, InitRegionSteps)
-	log.Info("Moving all Cluster API objects from bootstrap cluster to management cluster...")
+	log.SendProgressUpdate(statusRunning, StepMoveStandaloneClusterAPIObjects, InitRegionSteps)
+	log.Info("Moving all Cluster API objects from bootstrap cluster to standalone cluster...")
 	// Move all Cluster API objects from bootstrap cluster to created to regional cluster for all namespaces
 	if err = c.SaveObjects(bootstrapClusterKubeconfigPath, targetClusterNamespace); err != nil {
-		return errors.Wrap(err, "unable to move Cluster API objects from bootstrap cluster to management cluster")
+		return errors.Wrap(err, "unable to move Cluster API objects from bootstrap cluster to standalone cluster")
 	}
 
 	regionContext = region.RegionContext{ClusterName: options.ClusterName, ContextName: kubeContext, SourceFilePath: regionalClusterKubeconfigPath, Status: region.Success}
