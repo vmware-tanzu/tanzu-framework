@@ -1628,7 +1628,7 @@ definitions:
         type: string
       resourceType:
         type: string
-        enum: [datacenter, cluster, hostgroup, folder, respool, vm, datastore, host]
+        enum: [datacenter, cluster, hostgroup, folder, respool, vm, datastore, host, network]
       path:
         type: string
 
