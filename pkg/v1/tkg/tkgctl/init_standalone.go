@@ -59,7 +59,6 @@ import (
 
 // InitStandalone initializes standalone cluster
 func (t *tkgctl) InitStandalone(options InitRegionOptions) error {
-	log.Infof("\nSTANDALONE INIT YO YO YO...")
 	var err error
 
 	log.Infof("\nloading cluster config file at %s", options.ClusterConfigFile)
@@ -192,7 +191,7 @@ func (t *tkgctl) InitStandalone(options InitRegionOptions) error {
 		log.Infof("\nSetting up standalone cluster...\n")
 		err = t.tkgClient.InitStandaloneRegion(&optionsIR)
 		if err != nil {
-			return errors.Wrap(err, "unable to set up management cluster")
+			return errors.Wrap(err, "unable to set up standalone cluster")
 		}
 
 		log.Infof("\nStandalone cluster created!\n\n")

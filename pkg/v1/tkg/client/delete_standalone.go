@@ -134,9 +134,9 @@ func (c *TkgClient) DeleteStandalone(options DeleteRegionOptions) error {
 	isStartedRegionalClusterDeletion = true
 
 	// Move all Cluster API objects from files to cleanup cluster for all namespaces
-	log.Info("Moving all Cluster API objects from bootstrap cluster to management cluster...")
+	log.Info("Moving all Cluster API objects from bootstrap cluster to standalone cluster...")
 	if err = c.RestoreObjects(cleanupClusterKubeconfigPath, regionalClusterNamespace, options.ClusterName); err != nil {
-		return errors.Wrap(err, "unable to move Cluster API objects from bootstrap cluster to management cluster")
+		return errors.Wrap(err, "unable to move Cluster API objects from bootstrap cluster to standalone cluster")
 	}
 
 	log.Info("Waiting for the Cluster API objects to be ready after restore ...")
