@@ -35,7 +35,7 @@ export class HeaderBarComponent extends BasicSubscriber implements OnInit {
                 const content: EditionData = data.payload;
                 this.edition = content.edition;
                 this.docsUrl = (this.edition === 'tkg') ? 'https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid/index.html' :
-                    'https://tanzucommunityedition.io/docs/latest/getting-started/';
+                    'http://tanzucommunityedition.io/docs';
             });
     }
 

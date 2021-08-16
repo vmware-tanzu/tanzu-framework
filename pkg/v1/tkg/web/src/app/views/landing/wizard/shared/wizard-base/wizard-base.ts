@@ -2,6 +2,7 @@
 import { OnInit, ElementRef, AfterViewInit, ViewChild, Directive } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Title } from '@angular/platform-browser';
 
 // Third party imports
 import { Observable } from 'rxjs';
@@ -42,7 +43,8 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
     constructor(
         protected router: Router,
         protected el: ElementRef,
-        protected formMetaDataService: FormMetaDataService
+        protected formMetaDataService: FormMetaDataService,
+        protected titleService: Title
     ) {
 
         super();
@@ -143,6 +145,8 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
      * @param review In "Review Configuration" mode if true; otherwise in "Edit Configuration" mode
      */
     reviewConfiguration(review) {
+        const pageTitle = (review) ? `${this.title} Confirm Settings` : this.title;
+        this.titleService.setTitle(pageTitle);
         this.disableDeployButton = false;
         this.applyTkgConfig()
             .pipe(takeUntil(this.unsubscribe))
