@@ -107,6 +107,10 @@ ifneq ($(strip $(TANZU_CORE_BUCKET)),)
 LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/config.CoreBucketName=$(TANZU_CORE_BUCKET)'
 endif
 
+ifeq ($(TANZU_FORCE_NO_INIT), true)
+LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/core.forceNoInit=true'
+endif
+
 BUILD_TAGS ?=
 
 ARTIFACTS_DIR ?= ./artifacts
