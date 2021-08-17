@@ -206,7 +206,14 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	}
 
 	// save this context to tkg config incase the management cluster creation fails
-	regionContext = region.RegionContext{ClusterName: options.ClusterName, ContextName: "kind-" + bootstrapClusterName, SourceFilePath: bootstrapClusterKubeconfigPath, Status: region.Failed}
+	bootstrapClusterContext := "kind-" + bootstrapClusterName
+	if options.UseExistingCluster {
+		bootstrapClusterContext, err = getCurrentContextFromDefaultKubeConfig()
+		if err != nil {
+			return err
+		}
+	}
+	regionContext = region.RegionContext{ClusterName: options.ClusterName, ContextName: bootstrapClusterContext, SourceFilePath: bootstrapClusterKubeconfigPath, Status: region.Failed}
 
 	kubeConfigBytes, err := c.WaitForClusterInitializedAndGetKubeConfig(bootStrapClusterClient, options.ClusterName, targetClusterNamespace)
 	if err != nil {
