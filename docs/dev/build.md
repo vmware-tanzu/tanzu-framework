@@ -17,12 +17,13 @@ To build the APIs in Framework, the following commands exist:
 
 `make install`: To install CRDs into the cluster.
 
-API controllers that exist in Framework repo
+API controllers that exist in the Framework repo
 * [Addons](https://github.com/vmware-tanzu/tanzu-framework/tree/main/addons)
 * [Capabilities](https://github.com/vmware-tanzu/tanzu-framework/tree/main/pkg/v1/sdk/capabilities)
 * [TKR](https://github.com/vmware-tanzu/tanzu-framework/tree/main/pkg/v1/tkr)
 
-Each controller directory has its own Dockerfile, Makefile and manifests needed to deploy the controller to the cluster.
+Each controller directory has its own Dockerfile, Makefile and manifests needed to build the image and 
+deploy the controller to the cluster.
 
 ### Framework CLI
 
@@ -60,3 +61,11 @@ for your platform.
 
 Check out the [plugin implementation guide](../cli/plugin_implementation_guide.md) 
 for more details on how to write plugins for Tanzu CLI.
+
+### Features and FeatureGates
+
+Framework offers Features and FeatureGates APIs to allow developers to deliver new functionality to users rapidly but safely.
+With these powerful APIs the teams can modify the system behavior without changing the code for more controlled experimentation
+over the lifecyle of features, these can be incredibly useful for agile management style environments.
+
+More detailed information on these APIs check out this [doc](../api-machinery/features-and-featuregates.md) 
