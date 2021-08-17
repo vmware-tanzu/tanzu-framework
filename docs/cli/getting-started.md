@@ -40,6 +40,10 @@ If you additionaly want to build and install CLI and plugins for all platforms, 
 TANZU_CLI_NO_INIT=true make build-install-cli-all
 ```
 
+The CLI currently contains a default distribution which is the default set of plugins that should be installed on
+initialization. Initialization of the distributions can be prevented by setting the env var `TANZU_CLI_NO_INIT=true`.
+Check out this [doc](../cli/plugin_implementation_guide.md#Distributions) to learn more about distributions in Tanzu CLI
+
 ## Usage
 
 ```
