@@ -115,7 +115,7 @@ require (
 	sigs.k8s.io/cluster-api-provider-azure v0.4.15
 	sigs.k8s.io/cluster-api-provider-vsphere v0.7.10
 	sigs.k8s.io/cluster-api/test/infrastructure/docker v0.0.0-20210720023132-dfeb8d447bdc
-	sigs.k8s.io/controller-runtime v0.7.0
+	sigs.k8s.io/controller-runtime v0.9.0
 	sigs.k8s.io/controller-tools v0.3.0
 	sigs.k8s.io/kind v0.11.1
 	sigs.k8s.io/yaml v1.2.0
