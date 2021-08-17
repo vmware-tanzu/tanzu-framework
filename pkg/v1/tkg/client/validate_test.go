@@ -102,7 +102,6 @@ var _ = Describe("Validate", func() {
 				Plan:                        "dev",
 				InfrastructureProvider:      "vsphere",
 				VsphereControlPlaneEndpoint: "foo.bar",
-				Edition:                     "tkg",
 			}
 			tkgConfigReaderWriter.Set(constants.ConfigVariableVsphereNetwork, "foo network")
 		})

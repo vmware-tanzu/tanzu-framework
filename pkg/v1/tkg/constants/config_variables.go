@@ -103,7 +103,6 @@ const (
 	ConfigVariableForceRole              = "_TKG_CLUSTER_FORCE_ROLE"
 	ConfigVariableProviderType           = "PROVIDER_TYPE"
 	ConfigVariableTKGVersion             = "TKG_VERSION"
-	ConfigVariableBuildEdition           = "BUILD_EDITION"
 	ConfigVariableFilterByAddonType      = "FILTER_BY_ADDON_TYPE"
 	ConfigVaraibleDisableCRSForAddonType = "DISABLE_CRS_FOR_ADDON_TYPE"
 	ConfigVariableEnableAutoscaler       = "ENABLE_AUTOSCALER"

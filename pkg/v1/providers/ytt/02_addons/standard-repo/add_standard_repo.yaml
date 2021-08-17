@@ -25,7 +25,7 @@ spec:
       image: #@ "{}/{}:{}".format(get_image_repo_for_component(standard_package_repo_bundle), standard_package_repo_bundle.imagePath, standard_package_repo_bundle.tag)
 #@ end
 
-#@ if data.values.PROVIDER_TYPE != "tkg-service-vsphere" and data.values.BUILD_EDITION == "tkg":
+#@ if data.values.PROVIDER_TYPE != "tkg-service-vsphere":
 #! We need to install standard package repository on both management cluster and workload clusters because it contains the bundles
 #! for all standard addons which can be optionally installed.
 ---
