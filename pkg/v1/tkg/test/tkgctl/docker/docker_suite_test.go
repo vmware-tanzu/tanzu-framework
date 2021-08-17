@@ -97,7 +97,6 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 			EnableTKGSOnVsphere7:        e2eConfig.ManagementClusterOptions.EnableTKGSOnVsphere7,
 			VsphereControlPlaneEndpoint: e2eConfig.ManagementClusterOptions.Endpoint,
 			CniType:                     "calico",
-			Edition:                     "tkg",
 		})
 
 		Expect(err).To(BeNil())

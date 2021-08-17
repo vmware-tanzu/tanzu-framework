@@ -142,11 +142,6 @@ func (c *TkgClient) SetVsphereVersion(vsphereVersion string) {
 	c.TKGConfigReaderWriter().Set(constants.ConfigVariableVsphereVersion, vsphereVersion)
 }
 
-// SetBuildEdition saves the build edition
-func (c *TkgClient) SetBuildEdition(buildEdition string) {
-	c.TKGConfigReaderWriter().Set(constants.ConfigVariableBuildEdition, buildEdition)
-}
-
 // SetTKGVersion saves the tkg version based on Default BoM file
 func (c *TkgClient) SetTKGVersion() {
 	bomConfig, err := c.tkgBomClient.GetDefaultTkgBOMConfiguration()
