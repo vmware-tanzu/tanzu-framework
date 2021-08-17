@@ -5,6 +5,7 @@ package controllers
 
 import (
 	"context"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -16,6 +17,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/kubernetes"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	clusterapiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
@@ -29,11 +31,12 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 
-	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
-	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
-
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/crdwait"
+	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 )
 
 // These tests use Ginkgo (BDD-style Go testing framework). Refer to
@@ -116,9 +119,31 @@ var _ = BeforeSuite(func(done Done) {
 	mgr, err := ctrl.NewManager(testEnv.Config, options)
 	Expect(err).ToNot(HaveOccurred())
 
+	setupLog := ctrl.Log.WithName("controllers").WithName("Addon")
+
+	ctx, cancel = context.WithCancel(ctx)
+	crdwaiter := crdwait.CRDWaiter{
+		Ctx: ctx,
+		ClientSetFn: func() (kubernetes.Interface, error) {
+			return kubernetes.NewForConfig(cfg)
+		},
+		Logger:       setupLog,
+		Scheme:       scheme,
+		PollInterval: constants.CRDWaitPollInterval,
+		PollTimeout:  constants.CRDWaitPollTimeout,
+	}
+
+	if err := crdwaiter.WaitForCRDs(GetExternalCRDs(),
+		&corev1.Pod{ObjectMeta: metav1.ObjectMeta{Name: "test-pod", Namespace: "default"}},
+		constants.AddonControllerName,
+	); err != nil {
+		setupLog.Error(err, "unable to wait for CRDs")
+		os.Exit(1)
+	}
+
 	Expect((&AddonReconciler{
 		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("Addon"),
+		Log:    setupLog,
 		Scheme: mgr.GetScheme(),
 		Config: addonconfig.Config{
 			AppSyncPeriod:           appSyncPeriod,
@@ -135,8 +160,6 @@ var _ = BeforeSuite(func(done Done) {
 	// pre-create namespace
 	ns := &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "tkr-system"}}
 	Expect(k8sClient.Create(context.TODO(), ns)).To(Succeed())
-
-	ctx, cancel = context.WithCancel(ctx)
 
 	go func() {
 		defer GinkgoRecover()
