@@ -30,4 +30,10 @@ const (
 
 	// TanzuKubernetesReleaseInactiveLabel is the TKR inactive label
 	TanzuKubernetesReleaseInactiveLabel = "inactive"
+
+	// BOMMetadataConfigMapName is the name of the ConfigMap holding BOM metadata
+	BOMMetadataConfigMapName = "bom-metadata"
+
+	// BOMMetadataCompatibilityKey in binaryData in bom-metadata ConfigMap holds compatibility metadata
+	BOMMetadataCompatibilityKey = "compatibility"
 )
