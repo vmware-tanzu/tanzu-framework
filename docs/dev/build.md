@@ -20,6 +20,7 @@ To build the APIs in Framework, the following commands exist:
 API controllers that exist in the Framework repo
 * [Addons](https://github.com/vmware-tanzu/tanzu-framework/tree/main/addons)
 * [Capabilities](https://github.com/vmware-tanzu/tanzu-framework/tree/main/pkg/v1/sdk/capabilities)
+* [FeatureGates](https://github.com/vmware-tanzu/tanzu-framework/tree/main/pkg/v1/sdk/features)
 * [TKR](https://github.com/vmware-tanzu/tanzu-framework/tree/main/pkg/v1/tkr)
 
 Each controller directory has its own Dockerfile, Makefile and manifests needed to build the image and 
@@ -62,10 +63,21 @@ for your platform.
 Check out the [plugin implementation guide](../cli/plugin_implementation_guide.md) 
 for more details on how to write plugins for Tanzu CLI.
 
+### Capabilities
+
+Framework provides Capability discovery 
+[GO package](https://github.com/vmware-tanzu/tanzu-framework/tree/main/pkg/v1/sdk/capabilities/discovery)
+and Capability API to query a cluster's capabilities. It can be used to understand the API surface area and query for 
+objects in the cluster. 
+
+For more detailed information on Capability functionality offered by Framework check out this 
+[doc](../api-machinery/capability-discovery.md)
+
+
 ### Features and FeatureGates
 
-Framework offers Features and FeatureGates APIs to allow developers to deliver new functionality to users rapidly but safely.
-With these powerful APIs the teams can modify the system behavior without changing the code for more controlled experimentation
-over the lifecyle of features, these can be incredibly useful for agile management style environments.
+Framework offers Features and FeatureGates APIs to allow developers to deliver new functionality to users rapidly but 
+safely. With these powerful APIs the teams can modify the system behavior without changing the code for more controlled
+experimentation over the lifecyle of features, these can be incredibly useful for agile management style environments.
 
-More detailed information on these APIs check out this [doc](../api-machinery/features-and-featuregates.md) 
+For more detailed information on these APIs check out this [doc](../api-machinery/features-and-featuregates.md) 
