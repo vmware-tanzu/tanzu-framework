@@ -113,6 +113,8 @@ const (
 	ConfigVariableWorkerMachineCount1      = "WORKER_MACHINE_COUNT_1"
 	ConfigVariableWorkerMachineCount2      = "WORKER_MACHINE_COUNT_2"
 	ConfigVariableNodeMachineType          = "NODE_MACHINE_TYPE"
+	ConfigVariableNodeMachineType1         = "NODE_MACHINE_TYPE_1"
+	ConfigVariableNodeMachineType2         = "NODE_MACHINE_TYPE_2"
 	ConfigVariableCPMachineType            = "CONTROL_PLANE_MACHINE_TYPE"
 
 	ConfigVariableNamespace            = "NAMESPACE"

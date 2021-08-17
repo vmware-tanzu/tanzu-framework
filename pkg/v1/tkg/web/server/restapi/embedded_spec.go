@@ -761,6 +761,14 @@ func init() {
         ],
         "summary": "Retrieve AWS supported node types",
         "operationId": "getAWSNodeTypes",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "AWS availability zone, e.g. us-west-2",
+            "name": "az",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful retrieval of AWS node types",
@@ -2394,6 +2402,9 @@ func init() {
           "type": "string"
         },
         "publicSubnetID": {
+          "type": "string"
+        },
+        "workerNodeType": {
           "type": "string"
         }
       }
@@ -4256,6 +4267,14 @@ func init() {
         ],
         "summary": "Retrieve AWS supported node types",
         "operationId": "getAWSNodeTypes",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "AWS availability zone, e.g. us-west-2",
+            "name": "az",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful retrieval of AWS node types",
@@ -5889,6 +5908,9 @@ func init() {
           "type": "string"
         },
         "publicSubnetID": {
+          "type": "string"
+        },
+        "workerNodeType": {
           "type": "string"
         }
       }

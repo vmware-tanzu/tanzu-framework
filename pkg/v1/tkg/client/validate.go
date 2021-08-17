@@ -1129,7 +1129,7 @@ func (c *TkgClient) OverrideAWSNodeSizeWithOptions(options NodeSizeOptions, awsC
 	}
 
 	if !skipValidation {
-		nodeTypes, err := awsClient.ListInstanceTypes()
+		nodeTypes, err := awsClient.ListInstanceTypes("")
 		if err != nil {
 			return err
 		}
@@ -1146,12 +1146,26 @@ func (c *TkgClient) OverrideAWSNodeSizeWithOptions(options NodeSizeOptions, awsC
 			return errors.Errorf("instance type %s is not supported in region %s", controlplaneMachineType, awsRegion)
 		}
 
+		var nodeMachineTypes []string
 		nodeMachineType, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableNodeMachineType)
 		if err != nil {
 			return err
 		}
-		if _, ok := nodeMap[nodeMachineType]; !ok {
-			return errors.Errorf("instance type %s is not supported in region %s", nodeMachineType, awsRegion)
+		nodeMachineTypes = append(nodeMachineTypes, nodeMachineType)
+
+		nodeMachineType1, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableNodeMachineType1)
+		if err == nil {
+			nodeMachineTypes = append(nodeMachineTypes, nodeMachineType1)
+		}
+		nodeMachineType2, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableNodeMachineType2)
+		if err == nil {
+			nodeMachineTypes = append(nodeMachineTypes, nodeMachineType2)
+		}
+
+		for _, machineType := range nodeMachineTypes {
+			if _, ok := nodeMap[machineType]; !ok {
+				return errors.Errorf("instance type %s is not supported in region %s", nodeMachineType, awsRegion)
+			}
 		}
 	}
 
