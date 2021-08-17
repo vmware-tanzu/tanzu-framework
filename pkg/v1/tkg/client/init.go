@@ -330,6 +330,11 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		return err
 	}
 
+	log.Info("Waiting for packages to be up and running...")
+	if err := c.WaitForPackages(regionalClusterClient, regionalClusterClient, options.ClusterName, targetClusterNamespace); err != nil {
+		log.Warningf("Warning: Management cluster is created successfully, but some packages are failing. %v", err)
+	}
+
 	log.Infof("Context set for management cluster %s as '%s'.", options.ClusterName, kubeContext)
 	isSuccessful = true
 	return nil

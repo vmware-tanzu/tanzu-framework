@@ -452,8 +452,9 @@ DOCKER_MACHINE_TEMPLATE_IMAGE:
 #! ---------------------------------------------------------------------
 #! Pinniped identity management configuration
 #! ---------------------------------------------------------------------
-#! Identifies the Identity management type to be deployed. Possible values are "oidc" or "ldap"
-IDENTITY_MANAGEMENT_TYPE: "oidc"
+#! Identifies the Identity management type to be deployed. Possible values are "oidc", "ldap" or "none"
+#! If "none" is specified, pinniped services will not be deployed on the cluster
+IDENTITY_MANAGEMENT_TYPE: "none"
 
 #! Settings for Pinniped OIDC
 CERT_DURATION: 2160h
