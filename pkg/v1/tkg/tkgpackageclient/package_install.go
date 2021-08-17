@@ -60,6 +60,11 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 		if err = p.createNamespace(o.Namespace); err != nil {
 			return
 		}
+	} else {
+		progress.ProgressMsg <- fmt.Sprintf("Getting namespace '%s'", o.Namespace)
+		if err = p.kappClient.GetClient().Get(context.Background(), crtclient.ObjectKey{Name: o.Namespace}, &corev1.Namespace{}); err != nil {
+			return
+		}
 	}
 
 	progress.ProgressMsg <- fmt.Sprintf("Getting package metadata for '%s'", o.PackageName)
