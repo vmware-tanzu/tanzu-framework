@@ -11,9 +11,14 @@
 #@ end
 
 #! skip generation of CNI for TKGs and on cluster upgrade
-#@ if data.values.PROVIDER_TYPE != "tkg-service-vsphere" and not data.values.FILTER_BY_ADDON_TYPE:
+#@ if data.values.PROVIDER_TYPE != "tkg-service-vsphere":
 
-#@ if data.values.CNI == "calico":
+#! FILTER_BY_ADDON_TYPE is used to indicate INSTALL or UPGRADE case.
+#! FILTER_BY_ADDON_TYPE is empty during INSTALL and set to "kapp-controller, tanzu-addons-manager, tkr-controller" during UPGRADE.
+#! The below check ensures this ytt template is run during INSTALL or when "cni/calico" is set in FILTER_BY_ADDON_TYPE.
+#! "cni/calico" is never set by tanzu cli code and only set manually if anyone wants to register calico addon.
+
+#@ if data.values.CNI == "calico" and (not data.values.FILTER_BY_ADDON_TYPE or "cni/calico" in data.values.FILTER_BY_ADDON_TYPE):
 #@ load("/vendir/cni/cni.lib.yaml", "cni_calico_lib")
 
 #@ load("calico/calico_addon_data.lib.yaml", "calicodatavalues")
@@ -68,7 +73,12 @@ stringData:
 
 #@ end
 
-#@ if data.values.CNI == "antrea":
+#! FILTER_BY_ADDON_TYPE is used to indicate INSTALL or UPGRADE case.
+#! FILTER_BY_ADDON_TYPE is empty during INSTALL and set to "kapp-controller, tanzu-addons-manager, tkr-controller" during UPGRADE.
+#! The below check ensures this ytt template is run during INSTALL or when "cni/antrea" is set in FILTER_BY_ADDON_TYPE.
+#! "cni/antrea" is never set by tanzu cli code and only set manually if anyone wants to register antrea addon.
+
+#@ if data.values.CNI == "antrea" and (not data.values.FILTER_BY_ADDON_TYPE or "cni/antrea" in data.values.FILTER_BY_ADDON_TYPE):
 #@ load("/vendir/cni/cni.lib.yaml", "cni_antrea_lib")
 #@ load("antrea/antrea_addon_data.lib.yaml", "antreadatavalues")
 #@ load("antrea/antrea_overlay.lib.yaml", "updateantreaimage")
