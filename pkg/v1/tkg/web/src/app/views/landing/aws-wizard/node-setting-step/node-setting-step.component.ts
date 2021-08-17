@@ -114,7 +114,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         awsNodeAz1: [Validators.required],
         awsNodeAz2: [Validators.required],
         awsNodeAz3: [Validators.required],
-        workerNodeInstanceType1: [Validators.required],
+        workerNodeInstanceType1: [],
         vpcPublicSubnet1: [],
         vpcPrivateSubnet1: [],
         workerNodeInstanceType2: [],
@@ -280,7 +280,12 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             if (data === 'dev') {
                 this.nodeType = 'dev';
                 const prodFields = ['awsNodeAz2', 'awsNodeAz3', 'workerNodeInstanceType2', 'workerNodeInstanceType3', 'prodInstanceType'];
+
                 prodFields.forEach(attr => this.disarmField(attr, true));
+
+                if (this.clusterType !== 'standalone') {
+                    this.resurrectField('workerNodeInstanceType1', [Validators.required]);
+                }
 
                 this.resurrectField('devInstanceType',
                     [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
@@ -302,8 +307,9 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                             this.formGroup.get(azNew[2])])
                     ]);
                 }
-                this.resurrectField('workerNodeInstanceType2', [Validators.required]);
-                this.resurrectField('workerNodeInstanceType3', [Validators.required]);
+                if (this.clusterType !== 'standalone') {
+                    WORKER_NODE_INSTANCE_TYPES.forEach(field => this.resurrectField(field, [Validators.required]));
+                }
             }
 
             this.updateVpcSubnets();
@@ -439,7 +445,6 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 .subscribe(
                     ((nodeTypes) => {
                         this.azNodeTypes[azWorkerNodeKey] = nodeTypes;
-                        console.log(this.azNodeTypes);
                     }),
                     ((err) => {
                         const error = err.error.message || err.message || JSON.stringify(err);
