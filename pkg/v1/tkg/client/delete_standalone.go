@@ -126,6 +126,12 @@ func (c *TkgClient) DeleteStandalone(options DeleteRegionOptions) error {
 	// and azure.
 	initOptionsForCleanupCluster.ClusterConfigFile = options.ClusterConfig
 
+	// get the credentials from the init options to access standalone cluster
+	err = c.EncodeCredentials(initOptionsForCleanupCluster, cleanupClusterClient)
+	if err != nil {
+		return errors.Wrap(err, "unable to encode infrastructure provider credentials")
+	}
+
 	// Initialize cleanup cluster using same provider name and version from regional cluster
 	if err = c.InitializeProviders(initOptionsForCleanupCluster, cleanupClusterClient, cleanupClusterKubeconfigPath); err != nil {
 		return errors.Wrap(err, "unable to initialize providers")
@@ -217,4 +223,30 @@ func RestoreInitOptions(clusterName string) (*InitRegionOptions, error) {
 	}
 
 	return options, nil
+}
+
+// EncodeCredentials gets the creds for the infra provider specified in the InitRegionOptions for a specific clusterclient
+func (c *TkgClient) EncodeCredentials(initOptions *InitRegionOptions, clusterClient clusterclient.Client) error {
+	// configure variables required to deploy providers
+	providerName, _, err := ParseProviderName(initOptions.InfrastructureProvider)
+	if err != nil {
+		return errors.Wrap(err, "unable to parse provider name from bootstrap region cluster")
+	}
+
+	// since provider templates need Base64 values of credentials, encode them
+	switch providerName {
+	case AzureProviderName:
+		if _, err := c.EncodeAzureCredentialsAndGetClient(clusterClient); err != nil {
+			return errors.Wrap(err, "failed to encode azure credentials")
+		}
+	case AWSProviderName:
+		if _, err := c.EncodeAWSCredentialsAndGetClient(clusterClient); err != nil {
+			return errors.Wrap(err, "failed to encode AWS credentials")
+		}
+	case VSphereProviderName:
+		if err := c.configureVsphereCredentialsFromCluster(clusterClient); err != nil {
+			return errors.Wrap(err, "failed to configure vSphere credentials")
+		}
+
+	return nil
 }
