@@ -25,7 +25,10 @@ jobs:
 
     - name: Check out code into the Go module directory
       uses: actions/checkout@v1
-
+      - run: |
+          git fetch --unshallow --tags
+          echo $?
+          git tag --list
     - name: Config credentials
       env:
         GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
