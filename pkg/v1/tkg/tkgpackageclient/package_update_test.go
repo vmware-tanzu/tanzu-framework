@@ -80,7 +80,7 @@ var _ = Describe("Update Package", func() {
 		})
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("package-name is required when install flag is declared"))
+			Expect(err.Error()).To(ContainSubstring("package-name is required when --install flag is declared"))
 		})
 		AfterEach(func() { options = opts })
 	})

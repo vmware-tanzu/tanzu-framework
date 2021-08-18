@@ -46,7 +46,11 @@ func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progres
 			return
 		}
 		if o.PackageName == "" {
-			err = errors.New("package-name is required when install flag is declared")
+			err = errors.New("package-name is required when --install flag is declared")
+			return
+		}
+		if o.Version == "" {
+			err = errors.New("version is required when --install flag is declared")
 			return
 		}
 		progress.ProgressMsg <- fmt.Sprintf("Installing package '%s'", o.PkgInstallName)
@@ -55,31 +59,25 @@ func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progres
 	}
 
 	pkgInstallToUpdate := pkgInstall.DeepCopy()
-	if o.Version != pkgInstallToUpdate.Status.Version {
-		if pkgInstallToUpdate.Spec.PackageRef == nil || pkgInstallToUpdate.Spec.PackageRef.VersionSelection == nil {
-			err = errors.New(fmt.Sprintf("failed to update package '%s'", o.PkgInstallName))
-			return
-		}
-		progress.ProgressMsg <- fmt.Sprintf("Getting package metadata for '%s'", pkgInstallToUpdate.Spec.PackageRef.RefName)
-		o.PackageName = pkgInstallToUpdate.Spec.PackageRef.RefName
-		if _, _, err = p.GetPackage(o); err != nil {
-			return
-		}
-		pkgInstallToUpdate.Spec.PackageRef.VersionSelection.Constraints = o.Version
+
+	if pkgInstallToUpdate.Spec.PackageRef == nil || pkgInstallToUpdate.Spec.PackageRef.VersionSelection == nil {
+		err = errors.New(fmt.Sprintf("failed to update package '%s' as no existing version was found in the package install", o.PkgInstallName))
+		return
 	}
 
-	if o.ValuesFile != "" {
-		if secretCreated, err = p.updateValuesFile(o, pkgInstallToUpdate, progress.ProgressMsg); err != nil {
-			return
-		}
+	o.PackageName = pkgInstallToUpdate.Spec.PackageRef.RefName
+	if o.Version != "" {
+		pkgInstallToUpdate.Spec.PackageRef.VersionSelection.Constraints = o.Version
+	} else {
+		o.Version = pkgInstallToUpdate.Spec.PackageRef.VersionSelection.Constraints
+	}
+	progress.ProgressMsg <- fmt.Sprintf("Getting package metadata for '%s'", pkgInstallToUpdate.Spec.PackageRef.RefName)
+	if _, _, err = p.GetPackage(o); err != nil {
+		return
+	}
 
-		pkgInstallToUpdate.Spec.Values = []kappipkg.PackageInstallValues{
-			{
-				SecretRef: &kappipkg.PackageInstallValuesSecretRef{
-					Name: fmt.Sprintf(tkgpackagedatamodel.SecretName, o.PkgInstallName, o.Namespace),
-				},
-			},
-		}
+	if secretCreated, err = p.updateValuesFile(o, pkgInstallToUpdate, progress.ProgressMsg); err != nil {
+		return
 	}
 
 	progress.ProgressMsg <- fmt.Sprintf("Updating package install for '%s'", o.PkgInstallName)
@@ -95,12 +93,16 @@ func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progres
 	}
 }
 
-// updateValuesFile either creates or updates the values secret depending on whether the corresponding annotation exist or not
+// updateValuesFile either creates or updates the values secret depending on whether the corresponding annotation exists or not
 func (p *pkgClient) updateValuesFile(o *tkgpackagedatamodel.PackageOptions, pkgInstallToUpdate *kappipkg.PackageInstall, progress chan string) (bool, error) {
 	var (
 		secretCreated bool
 		err           error
 	)
+
+	if o.ValuesFile == "" {
+		return false, nil
+	}
 
 	o.SecretName = fmt.Sprintf(tkgpackagedatamodel.SecretName, o.PkgInstallName, o.Namespace)
 
@@ -115,6 +117,13 @@ func (p *pkgClient) updateValuesFile(o *tkgpackagedatamodel.PackageOptions, pkgI
 		if secretCreated, err = p.createDataValuesSecret(o); err != nil {
 			return secretCreated, errors.Wrap(err, "failed to create secret based on values file")
 		}
+	}
+
+	pkgInstallToUpdate.Spec.Values = []kappipkg.PackageInstallValues{
+		{
+			SecretRef: &kappipkg.PackageInstallValuesSecretRef{
+				Name: fmt.Sprintf(tkgpackagedatamodel.SecretName, o.PkgInstallName, o.Namespace)},
+		},
 	}
 
 	return secretCreated, nil
