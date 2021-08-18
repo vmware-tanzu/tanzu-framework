@@ -39,6 +39,9 @@ func (p *pkgClient) GetPackage(o *tkgpackagedatamodel.PackageOptions) (*kapppkg.
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "failed to list package versions")
 	}
+	if packageVersions == nil {
+		return nil, nil, errors.New("failed to list package versions")
+	}
 
 	for _, item := range packageVersions.Items { //nolint:gocritic
 		if item.Spec.Version == o.Version {

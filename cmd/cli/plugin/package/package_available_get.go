@@ -114,7 +114,7 @@ func packageAvailableGet(cmd *cobra.Command, args []string) error {
 
 func getValuesSchema(cmd *cobra.Command, args []string, kc kappclient.Client) error {
 	if pkgVersion == "" {
-		return errors.New("version is required when values-schema flag is declared. Please specify <PACKAGE-NAME>/<VERSION>")
+		return errors.New("version is required when --values-schema flag is declared. Please specify <PACKAGE-NAME>/<VERSION>")
 	}
 	pkg, pkgGetErr := kc.GetPackage(fmt.Sprintf("%s.%s", pkgName, pkgVersion), packageAvailableOp.Namespace)
 	if pkgGetErr != nil {
