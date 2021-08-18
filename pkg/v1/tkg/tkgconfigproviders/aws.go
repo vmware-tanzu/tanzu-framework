@@ -7,6 +7,8 @@ import (
 	"encoding/base64"
 	"strconv"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
+
 	"github.com/pkg/errors"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
@@ -118,13 +120,7 @@ func (c *client) NewAWSConfig(params *models.AWSRegionalClusterParams, encodedCr
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to get default TKr BoM configuration")
 	}
-
-	amiID := ""
-
-	if val, ok := bomConfiguration.AMI[params.AwsAccountParams.Region]; ok {
-		amiID = val[0].ID
-	}
-
+	amiID := getAMIId(bomConfiguration, params)
 	if amiID == "" {
 		return nil, errors.Errorf("No AMI found in region %s for TKr version %s", params.AwsAccountParams.Region, bomConfiguration.Release.Version)
 	}
@@ -284,6 +280,24 @@ func (c *client) NewAWSConfig(params *models.AWSRegionalClusterParams, encodedCr
 	}
 
 	return res, nil
+}
+
+func getAMIId(bomConfiguration *tkgconfigbom.BOMConfiguration, params *models.AWSRegionalClusterParams) string {
+	amiID := ""
+	if amis, ok := bomConfiguration.AMI[params.AwsAccountParams.Region]; ok {
+		if params.Os != nil && params.Os.OsInfo != nil {
+			for _, ami := range amis {
+				if ami.OSInfo.Name == params.Os.OsInfo.Name {
+					amiID = ami.ID
+					break
+				}
+			}
+		} else {
+			amiID = amis[0].ID
+		}
+	}
+
+	return amiID
 }
 
 // AppendSubnets append subnet information in providerConfig to paramsVpc
