@@ -3,3 +3,6 @@ rules:
   indentation:
     level: error
     indent-sequences: consistent
+ignore: |
+  **/_ytt_lib/
+

@@ -121,6 +121,7 @@ stringData:
   values.yaml: #@ ValuesFormatStr.format(yaml.encode(antreadatavalues()))
 
 #! Add CNI ingress rules to AWS cluster incase of CNI=antrea
+#! Add ingress rules to AWS cluster for kapp controller API port
 #@overlay/match missing_ok=True,by=overlay.subset({"kind":"AWSCluster"})
 ---
 kind: AWSCluster
