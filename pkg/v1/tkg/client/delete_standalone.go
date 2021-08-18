@@ -247,6 +247,7 @@ func (c *TkgClient) EncodeCredentials(initOptions *InitRegionOptions, clusterCli
 		if err := c.configureVsphereCredentialsFromCluster(clusterClient); err != nil {
 			return errors.Wrap(err, "failed to configure vSphere credentials")
 		}
+	}
 
 	return nil
 }
