@@ -62,8 +62,13 @@ func (r *reconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		return ctrl.Result{}, err
 	}
 	if configMap.Name == constants.BOMMetadataConfigMapName {
-		err := r.updateConditions(ctx)
-		return ctrl.Result{}, err
+		if err := r.updateConditions(ctx); err != nil {
+			if apierrors.IsConflict(errors.Cause(err)) {
+				return ctrl.Result{Requeue: true}, nil
+			}
+			return ctrl.Result{}, err
+		}
+		return ctrl.Result{}, nil
 	}
 
 	tkr, err := tkrFromConfigMap(configMap)
@@ -85,8 +90,13 @@ func (r *reconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		return ctrl.Result{}, err
 	}
 
-	err = r.updateConditions(ctx)
-	return ctrl.Result{}, err
+	if err := r.updateConditions(ctx); err != nil {
+		if apierrors.IsConflict(errors.Cause(err)) {
+			return ctrl.Result{Requeue: true}, nil
+		}
+		return ctrl.Result{}, err
+	}
+	return ctrl.Result{}, nil
 }
 
 func tkrFromConfigMap(configMap *corev1.ConfigMap) (*runv1.TanzuKubernetesRelease, error) {
@@ -117,12 +127,12 @@ func (r *reconciler) updateConditions(ctx context.Context) error {
 	r.UpdateTKRUpdatesAvailableCondition(tkrList.Items)
 
 	if err := r.UpdateTKRCompatibleCondition(ctx, tkrList.Items); err != nil {
-		r.log.Error(err, "failed to update Compatible condition for TKRs")
+		return errors.Wrap(err, "failed to update Compatible condition for TKRs")
 	}
 
 	for i := range tkrList.Items {
 		if err := r.client.Status().Update(ctx, &tkrList.Items[i]); err != nil {
-			return errors.Wrapf(err, "failed to update status sub resrouce for TKr %s", tkrList.Items[i].ObjectMeta.Name)
+			return errors.Wrapf(err, "failed to update status sub resource for TKR %s", tkrList.Items[i].ObjectMeta.Name)
 		}
 	}
 

@@ -13,6 +13,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
@@ -562,13 +563,29 @@ var _ = Describe("r.Reconcile()", func() {
 			objects = []runtime.Object{mgmtCluster, cmMeta, cm1, &tkr1}
 		})
 
-		It("should not return an error", func() {
-			_, err = r.Reconcile(req(cmMeta))
-			Expect(err).ToNot(HaveOccurred())
+		When("management cluster is in place", func() {
+			It("should not return an error", func() {
+				_, err = r.Reconcile(req(cmMeta))
+				Expect(err).ToNot(HaveOccurred())
 
-			tkrList := &runv1.TanzuKubernetesReleaseList{}
-			Expect(r.client.List(r.ctx, tkrList)).To(Succeed())
-			Expect(tkrList.Items).To(HaveLen(1))
+				tkrList := &runv1.TanzuKubernetesReleaseList{}
+				Expect(r.client.List(r.ctx, tkrList)).To(Succeed())
+				Expect(tkrList.Items).To(HaveLen(1))
+			})
+		})
+
+		When("there's an error getting the management cluster info", func() {
+			expectedErr := errors.New("this is a bad day for clusters")
+
+			JustBeforeEach(func() {
+				r.client = clientErrOnGetCluster{Client: r.client, err: expectedErr}
+			})
+
+			It("should return that error, so reconciliation would be retried", func() {
+				_, err := r.Reconcile(req(cmMeta))
+				Expect(err).To(HaveOccurred())
+				Expect(errors.Cause(err)).To(Equal(expectedErr))
+			})
 		})
 	})
 
@@ -589,7 +606,8 @@ var _ = Describe("r.Reconcile()", func() {
 
 		It("should still create the TKRs, but with default status conditions", func() {
 			_, err = r.Reconcile(req(cm2))
-			Expect(err).ToNot(HaveOccurred())
+			Expect(err).To(HaveOccurred())
+			Expect(apierrors.IsNotFound(errors.Cause(err))).To(BeTrue())
 
 			tkrList := &runv1.TanzuKubernetesReleaseList{}
 			Expect(r.client.List(r.ctx, tkrList)).To(Succeed())
@@ -603,6 +621,18 @@ var _ = Describe("r.Reconcile()", func() {
 		})
 	})
 })
+
+type clientErrOnGetCluster struct {
+	client.Client
+	err error
+}
+
+func (c clientErrOnGetCluster) Get(ctx context.Context, key client.ObjectKey, obj runtime.Object) error {
+	if _, ok := obj.(*capi.Cluster); !ok {
+		return c.err
+	}
+	return c.Client.Get(ctx, key, obj)
+}
 
 var _ = Describe("errorSlice.Error()", func() {
 	err := errorSlice{errors.New("one"), errors.New("two"), errors.New("three")}
