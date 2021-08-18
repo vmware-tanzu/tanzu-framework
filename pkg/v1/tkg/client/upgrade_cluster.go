@@ -45,6 +45,7 @@ type UpgradeClusterOptions struct {
 	OSArch              string
 	IsRegionalCluster   bool
 	SkipAddonUpgrade    bool
+	SkipPrompt          bool
 }
 
 type mdInfastructureTemplateInfo struct {
