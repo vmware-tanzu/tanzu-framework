@@ -343,8 +343,8 @@ const (
 	kubeConfigDataField               = "value"
 	embeddedTelemetryConfigYamlPrefix = "pkg/manifest/telemetry/config-"
 	telemetryBomImagesMapKey          = "tkgTelemetryImage"
-	prodTelemetryPath                 = "https://scapi.vmware.com/sc/api/collectors/tkg-telemetry.v1.3.0/batch"
-	stageTelemetryPath                = "https://scapi-stg.vmware.com/sc/api/collectors/tkg-telemetry.v1.3.0/batch"
+	prodTelemetryPath                 = "https://scapi.vmware.com/sc/api/collectors/tkg-telemetry.v1.4.0/batch"
+	stageTelemetryPath                = "https://scapi-stg.vmware.com/sc/api/collectors/tkg-telemetry.v1.4.0/batch"
 	statusRunning                     = "running"
 )
 
