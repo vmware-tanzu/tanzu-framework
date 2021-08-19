@@ -157,9 +157,7 @@ Use "tanzu package repository [command] --help" for more information about a com
 
     An example values.yaml is as follows:
     ```sh
-    ---
-    fluent_bit:
-      outputs: |
+    outputs: |
         [OUTPUT]
           Name     stdout
           Match    *
@@ -198,9 +196,7 @@ Use "tanzu package repository [command] --help" for more information about a com
    / Retrieving installation details for myfb...
 
    cat config.yaml
-   ---
-   fluent_bit:
-     outputs: |
+   outputs: |
        [OUTPUT]
          Name     stdout
          Match    *
@@ -245,12 +241,10 @@ Use "tanzu package repository [command] --help" for more information about a com
 
     An example values.yaml is as follows:
     ```sh
-    ---
-    fluent_bit:
-      outputs: |
+    outputs: |
         [OUTPUT]
           Name     stdout
-          Match    *
+          Match    /
     ```
 
 11. Uninstall a package
