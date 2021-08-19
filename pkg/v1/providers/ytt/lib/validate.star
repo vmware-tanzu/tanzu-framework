@@ -12,8 +12,7 @@ required_variable_list_vsphere = [
   "VSPHERE_SSH_AUTHORIZED_KEY"]
 
 required_variable_list_aws = [
-  "AWS_REGION",
-  "AWS_SSH_KEY_NAME"]
+  "AWS_REGION"]
 
 required_variable_list_azure = [
   "AZURE_TENANT_ID",
