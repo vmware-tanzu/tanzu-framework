@@ -15,6 +15,16 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
 
+const (
+	// DefaultCEIPSetting is the CEIP setting for created management-clusters
+	DefaultCEIPSetting = "true"
+	// DefaultCEIPTCESetting is the CEIP setting for TCE management-clusters
+	DefaultCEIPTCESetting = "false"
+	// TCEBuildEditionName is the name expected to represent a TCE build of the management-cluster plugin
+	// This value comes from the TCE build process (see the project's Makefile)
+	TCEBuildEditionName = "tce"
+)
+
 func newTKGCtlClient(forceUpdateTKGCompatibilityImage bool) (tkgctl.TKGClient, error) {
 	tkgConfigDir, err := getTKGConfigDir()
 	if err != nil {

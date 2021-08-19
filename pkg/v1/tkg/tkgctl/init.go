@@ -73,7 +73,7 @@ func (t *tkgctl) Init(options InitRegionOptions) error {
 
 	ceipOptIn, err := strconv.ParseBool(options.CeipOptIn)
 	if err != nil {
-		ceipOptIn = true
+		ceipOptIn = false
 	}
 
 	// init requires minimum 15 minutes timeout
