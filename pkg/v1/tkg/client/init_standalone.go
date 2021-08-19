@@ -129,6 +129,10 @@ func (c *TkgClient) InitStandaloneRegion(options *InitRegionOptions) error { //n
 		return errors.Wrap(err, "unable to get bootstrap cluster client")
 	}
 
+	if err := c.configureVariablesForProvidersInstallation(nil); err != nil {
+		return errors.Wrap(err, "unable to configure variables for provider installation")
+	}
+
 	log.SendProgressUpdate(statusRunning, StepInstallProvidersOnBootstrapCluster, InitRegionSteps)
 	log.Info("Installing providers on bootstrapper...")
 	// Initialize bootstrap cluster with providers
