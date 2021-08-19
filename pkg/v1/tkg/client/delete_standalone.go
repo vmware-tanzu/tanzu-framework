@@ -117,6 +117,10 @@ func (c *TkgClient) DeleteStandalone(options DeleteRegionOptions) error {
 		return errors.Wrap(err, "cannot create cleanup cluster client")
 	}
 
+	if err := c.configureVariablesForProvidersInstallation(nil); err != nil {
+		return errors.Wrap(err, "unable to configure variables for provider installation")
+	}
+
 	log.Info("Installing providers to cleanup cluster...")
 	initOptionsForCleanupCluster, err := RestoreInitOptions(options.ClusterName)
 	if err != nil {
