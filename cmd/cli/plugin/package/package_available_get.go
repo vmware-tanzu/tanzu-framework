@@ -7,7 +7,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
@@ -18,11 +20,14 @@ import (
 
 var packageAvailableGetCmd = &cobra.Command{
 	Use:   "get PACKAGE_NAME or PACKAGE_NAME/VERSION",
-	Short: "Get details for an available package",
+	Short: "Get details for an available package or the openAPI schema of a package with a specific version",
 	Args:  cobra.ExactArgs(1),
 	Example: `
     # Get package details for a package with specified version 	
-    tanzu package available get contour.tanzu.vmware.com/1.15.1-tkg.1-vmware1 --namespace test-ns`,
+    tanzu package available get contour.tanzu.vmware.com/1.15.1-tkg.1-vmware1 --namespace test-ns,
+
+    # Get openAPI schema of a package with specified version
+    tanzu package available get contour.tanzu.vmware.com/1.15.1-tkg.1-vmware1 --namespace test-ns --values-schema`,
 	RunE:    packageAvailableGet,
 	PreRunE: validatePackage,
 }
@@ -48,7 +53,7 @@ func validatePackage(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func packageAvailableGet(cmd *cobra.Command, args []string) error {
+func packageAvailableGet(cmd *cobra.Command, args []string) error { //nolint:gocyclo
 	kc, kcErr := kappclient.NewKappClient(packageAvailableOp.KubeConfig)
 	if kcErr != nil {
 		return kcErr
@@ -57,8 +62,14 @@ func packageAvailableGet(cmd *cobra.Command, args []string) error {
 		packageAvailableOp.Namespace = ""
 	}
 	if packageAvailableOp.ValuesSchema {
+		if pkgVersion == "" {
+			return errors.New("version is required when values-schema flag is declared. Please specify <PACKAGE-NAME>/<VERSION>")
+		}
 		pkg, pkgGetErr := kc.GetPackage(fmt.Sprintf("%s.%s", pkgName, pkgVersion), packageAvailableOp.Namespace)
 		if pkgGetErr != nil {
+			if apierrors.IsNotFound(pkgGetErr) {
+				return errors.Errorf("package '%s/%s' does not exist in the '%s' namespace", pkgName, pkgVersion, packageAvailableOp.Namespace)
+			}
 			return pkgGetErr
 		}
 
@@ -96,7 +107,7 @@ func packageAvailableGet(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		t.StopSpinner()
 		if apierrors.IsNotFound(err) {
-			log.Warningf("package '%s' does not exist in namespace '%s'", pkgName, packageAvailableOp.Namespace)
+			log.Warningf("package '%s' does not exist in the '%s' namespace", pkgName, packageAvailableOp.Namespace)
 			return nil
 		}
 		return err
@@ -105,6 +116,9 @@ func packageAvailableGet(cmd *cobra.Command, args []string) error {
 	if pkgVersion != "" {
 		pkg, err := kc.GetPackage(fmt.Sprintf("%s.%s", pkgName, pkgVersion), packageAvailableOp.Namespace)
 		if err != nil {
+			if apierrors.IsNotFound(err) {
+				return errors.Errorf("package '%s/%s' does not exist in the '%s' namespace", pkgName, pkgVersion, packageAvailableOp.Namespace)
+			}
 			return err
 		}
 		t.SetKeys("name", "version", "released-at", "display-name", "short-description", "package-provider", "minimum-capacity-requirements",
