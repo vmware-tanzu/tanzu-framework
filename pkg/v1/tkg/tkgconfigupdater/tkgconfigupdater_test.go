@@ -578,6 +578,65 @@ var _ = Describe("EnsureImages", func() {
 	})
 })
 
+var _ = Describe("Ensuring TKG compatibility file", func() {
+	var (
+		clusterConfigPath     string
+		client                Client
+		tkgConfigReaderWriter tkgconfigreaderwriter.TKGConfigReaderWriter
+		err                   error
+	)
+
+	BeforeEach(func() {
+		createTempDirectory("reader_test")
+	})
+
+	JustBeforeEach(func() {
+		tkgConfigReaderWriter, err = tkgconfigreaderwriter.NewReaderWriterFromConfigFile(clusterConfigPath, filepath.Join(testingDir, "config.yaml"))
+		Expect(err).NotTo(HaveOccurred())
+		client = New(testingDir, NewProviderTest(), tkgConfigReaderWriter)
+		tkgConfigNode := loadTKGNode(clusterConfigPath)
+
+		client.EnsureCredEncoding(tkgConfigNode)
+		writeYaml(clusterConfigPath, tkgConfigNode)
+
+		_, err = tkgconfigreaderwriter.New(clusterConfigPath)
+		Expect(err).ToNot(HaveOccurred())
+		err = client.DecodeCredentialsInViper()
+		Expect(err).ToNot(HaveOccurred())
+	})
+
+	Context("When the tkg-compatibility.yaml pre-exists", func() {
+		BeforeEach(func() {
+			clusterConfigPath = getConfigFilePath("config4.yaml")
+		})
+
+		It("should not re-download the file", func() {
+			compatibilityConfigFile, err := tkgconfigpaths.New(testingDir).GetTKGCompatibilityConfigPath()
+			Expect(err).ToNot(HaveOccurred())
+
+			// capture modified time of existing compatibility file
+			f1, err := os.Stat(compatibilityConfigFile)
+			Expect(err).ToNot(HaveOccurred())
+			f1ModTime := f1.ModTime()
+
+			// EnsureTKGCompatabilityFile will go out to a registry to retrieve a file if the
+			// compatibility is not present. Causing the test to fail and it to return a slow test
+			// warning.
+			err = client.EnsureTKGCompatibilityFile(false)
+			Expect(err).ToNot(HaveOccurred())
+
+			// capture modified time of final compatibility file
+			f2, err := os.Stat(compatibilityConfigFile)
+			Expect(err).ToNot(HaveOccurred())
+			f2ModTime := f2.ModTime()
+
+			// true when the modified times are the same
+			modTimesAreSame := f1ModTime.Equal(f2ModTime)
+			Expect(modTimesAreSame).To(Equal(true))
+		})
+	})
+})
+
 func getNodeIndex(node []*yaml.Node, key string) int {
 	appIdx := -1
 	for i, k := range node {

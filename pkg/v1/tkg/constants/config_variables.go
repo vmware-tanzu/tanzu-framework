@@ -113,6 +113,8 @@ const (
 	ConfigVariableWorkerMachineCount1      = "WORKER_MACHINE_COUNT_1"
 	ConfigVariableWorkerMachineCount2      = "WORKER_MACHINE_COUNT_2"
 	ConfigVariableNodeMachineType          = "NODE_MACHINE_TYPE"
+	ConfigVariableNodeMachineType1         = "NODE_MACHINE_TYPE_1"
+	ConfigVariableNodeMachineType2         = "NODE_MACHINE_TYPE_2"
 	ConfigVariableCPMachineType            = "CONTROL_PLANE_MACHINE_TYPE"
 
 	ConfigVariableNamespace            = "NAMESPACE"
@@ -154,4 +156,17 @@ const (
 	ConfigVariableAviPassword                      = "AVI_PASSWORD"
 	ConfigVariableLDAPBindPassword                 = "LDAP_BIND_PASSWORD"                   //nolint:gosec
 	ConfigVariableOIDCIdentiryProviderClientSecret = "OIDC_IDENTITY_PROVIDER_CLIENT_SECRET" //nolint:gosec
+
+	// Config variables for image tags used for provider installation
+	ConfigVariableInternalKubeRBACProxyImageTag   = "KUBE_RBAC_PROXY_IMAGE_TAG"
+	ConfigVariableInternalCABPKControllerImageTag = "CABPK_CONTROLLER_IMAGE_TAG"
+	ConfigVariableInternalCAPIControllerImageTag  = "CAPI_CONTROLLER_IMAGE_TAG"
+	ConfigVariableInternalKCPControllerImageTag   = "KCP_CONTROLLER_IMAGE_TAG"
+	ConfigVariableInternalCAPDManagerImageTag     = "CAPD_CONTROLLER_IMAGE_TAG"
+	ConfigVariableInternalCAPAManagerImageTag     = "CAPA_CONTROLLER_IMAGE_TAG"
+	ConfigVariableInternalCAPVManagerImageTag     = "CAPV_CONTROLLER_IMAGE_TAG"
+	ConfigVariableInternalCAPZManagerImageTag     = "CAPZ_CONTROLLER_IMAGE_TAG"
+	ConfigVariableInternalNMIImageTag             = "NMI_IMAGE_TAG"
+
+	ConfigVariablePackageInstallTimeout = "PACKAGE_INSTALL_TIMEOUT"
 )

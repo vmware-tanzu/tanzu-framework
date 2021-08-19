@@ -24,6 +24,7 @@ type PackageOptions struct {
 	CreateNamespace        bool
 	Install                bool
 	Wait                   bool
+	SkipPrompt             bool
 }
 
 // NewPackageOptions instantiates PackageOptions

@@ -204,6 +204,11 @@ func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.C
 		return errors.Wrap(err, "error waiting for addons to get installed")
 	}
 
+	log.Info("Waiting for packages to be up and running...")
+	if err := c.WaitForPackages(regionalClusterClient, workloadClusterClient, options.ClusterName, options.TargetNamespace); err != nil {
+		log.Warningf("Warning: Cluster is created successfully, but some packages are failing. %v", err)
+	}
+
 	return nil
 }
 

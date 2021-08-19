@@ -23,6 +23,9 @@ type AWSNodeAz struct {
 
 	// public subnet ID
 	PublicSubnetID string `json:"publicSubnetID,omitempty"`
+
+	// worker node type
+	WorkerNodeType string `json:"workerNodeType,omitempty"`
 }
 
 // Validate validates this a w s node az

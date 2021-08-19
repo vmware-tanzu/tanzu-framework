@@ -167,17 +167,22 @@ func (c *TkgClient) UpgradeCluster(options *UpgradeClusterOptions) error { // no
 		return err
 	}
 
-	// update autoscaler deployment if enabled
+	err = c.addKubernetesReleaseLabel(regionalClusterClient, options)
+	if err != nil {
+		return errors.Wrapf(err, "unable to patch the cluster object with TanzuKubernetesRelease label")
+	}
+
 	if !options.IsRegionalCluster {
+		// update autoscaler deployment if enabled
 		err = c.applyPatchForAutoScalerDeployment(regionalClusterClient, options)
 		if err != nil {
 			return errors.Wrapf(err, "failed to upgrade autoscaler for cluster '%s'", options.ClusterName)
 		}
-	}
 
-	err = c.addKubernetesReleaseLabel(regionalClusterClient, options)
-	if err != nil {
-		return errors.Wrapf(err, "unable to patch the cluster object with TanzuKubernetesRelease label")
+		log.Info("Waiting for packages to be up and running...")
+		if err := c.WaitForPackages(regionalClusterClient, currentClusterClient, options.ClusterName, options.Namespace); err != nil {
+			log.Warningf("Warning: Cluster is upgraded successfully, but some packages are failing. %v", err)
+		}
 	}
 
 	return nil

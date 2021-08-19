@@ -9,7 +9,9 @@
                 role="button"
                 tabindex="0"
                 aria-label="back"
-                (click)="navigate(APP_ROUTES.LANDING)"></clr-icon>
+                (click)="navigate(APP_ROUTES.LANDING)"
+                keyboardListener
+            ></clr-icon>
             <h2 i18n="wizard title" aria-level="1">
                 <div class="aws-ec2-icon-30"></div>
                 Deploy {{ clusterType | titlecase }} Cluster on Amazon EC2
@@ -154,7 +156,7 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="ceipOptInForm" removeAriaLabelledBy>
+        <clr-stepper-panel formGroupName="ceipOptInForm" removeAriaLabelledBy *ngIf="edition === 'tkg'">
             <clr-step-title i18n="ceip agreement step title">
                 CEIP Agreement
             </clr-step-title>

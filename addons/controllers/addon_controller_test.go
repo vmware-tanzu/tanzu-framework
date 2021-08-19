@@ -12,6 +12,7 @@ import (
 	. "github.com/onsi/gomega"
 	v1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/cluster-api/util/secret"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -344,6 +345,7 @@ var _ = Describe("Addon Reconciler", func() {
 
 				Expect(ipkg.Spec.ServiceAccountName).Should(Equal(addonServiceAccount))
 
+				Expect(ipkg.Spec.SyncPeriod).Should(Equal(&metav1.Duration{Duration: appSyncPeriod}))
 				Expect(ipkg.Spec.PackageRef).ShouldNot(BeNil())
 				Expect(ipkg.Spec.PackageRef.RefName).Should(Equal("antrea.vmware.com"))
 				Expect(ipkg.Spec.PackageRef.VersionSelection.Prereleases).ShouldNot(Equal(nil))

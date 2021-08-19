@@ -5,7 +5,9 @@
                 role="button"
                 tabindex="0"
                 aria-label="back"
-                (click)="navigate(APP_ROUTES.LANDING)"></clr-icon>
+                (click)="navigate(APP_ROUTES.LANDING)"
+                keyboardListener
+            ></clr-icon>
             <h2 i18n="wizard title" id="azure-title" aria-level="1">
                 <div class="ms-azure-icon-30"></div>
                 Deploy {{ clusterType | titlecase }} Cluster on Azure
@@ -150,7 +152,7 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="ceipOptInForm" removeAriaLabelledBy>
+        <clr-stepper-panel formGroupName="ceipOptInForm" removeAriaLabelledBy *ngIf="edition === 'tkg'">
             <clr-step-title i18n="Azure CEIP program agreement">
                 CEIP Agreement
             </clr-step-title>

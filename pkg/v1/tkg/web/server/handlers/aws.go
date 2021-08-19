@@ -123,7 +123,13 @@ func (app *App) GetAWSNodeTypes(params aws.GetAWSNodeTypesParams) middleware.Res
 		return aws.NewGetAWSNodeTypesInternalServerError().WithPayload(Err(errors.New("aws client is not initialized properly")))
 	}
 
-	result, err := app.awsClient.ListInstanceTypes()
+	var result []string
+	var err error
+	if params.Az == nil {
+		result, err = app.awsClient.ListInstanceTypes("")
+	} else {
+		result, err = app.awsClient.ListInstanceTypes(*params.Az)
+	}
 	if err != nil {
 		return aws.NewGetAWSNodeTypesInternalServerError().WithPayload(Err(err))
 	}

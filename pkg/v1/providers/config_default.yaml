@@ -218,6 +218,8 @@ AWS_NODE_OS_DISK_SIZE_GIB: 80
 #! For node sizing recommendations, refer to TKG documentation.
 CONTROL_PLANE_MACHINE_TYPE: t3.large
 NODE_MACHINE_TYPE: m5.large
+NODE_MACHINE_TYPE_1:
+NODE_MACHINE_TYPE_2:
 
 #! Name of the SSH private key that you registered with your Amazon EC2 accoun
 AWS_SSH_KEY_NAME:
@@ -450,8 +452,9 @@ DOCKER_MACHINE_TEMPLATE_IMAGE:
 #! ---------------------------------------------------------------------
 #! Pinniped identity management configuration
 #! ---------------------------------------------------------------------
-#! Identifies the Identity management type to be deployed. Possible values are "oidc" or "ldap"
-IDENTITY_MANAGEMENT_TYPE: "oidc"
+#! Identifies the Identity management type to be deployed. Possible values are "oidc", "ldap" or "none"
+#! If "none" is specified, pinniped services will not be deployed on the cluster
+IDENTITY_MANAGEMENT_TYPE: "none"
 
 #! Settings for Pinniped OIDC
 CERT_DURATION: 2160h

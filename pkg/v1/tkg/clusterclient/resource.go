@@ -5,9 +5,8 @@ package clusterclient
 
 import (
 	"context"
+	"fmt"
 	"reflect"
-
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 
 	"github.com/pkg/errors"
 	appsv1 "k8s.io/api/apps/v1"
@@ -32,8 +31,12 @@ import (
 	"sigs.k8s.io/cluster-api/util/conditions"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
+	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
+	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/api/tmc/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 )
 
@@ -248,6 +251,8 @@ func (c *client) getRuntimeObject(o interface{}) (runtime.Object, error) { //nol
 		return obj, nil
 	case *bootstrapv1alpha3.KubeadmConfigTemplate:
 		return obj, nil
+	case *kappipkg.PackageInstall:
+		return obj, nil
 	default:
 		return nil, errors.New("invalid object type")
 	}
@@ -394,5 +399,25 @@ func VerifyAVIResourceCleanupFinished(obj runtime.Object) error {
 		return errors.Errorf("AVI Resource clean up in progress")
 	default:
 		return errors.Errorf("invalid type: %s during VerifyAVIResourceCleanupFinished", reflect.TypeOf(statefulSet))
+	}
+}
+
+// VerifyPackageInstallReconciledSuccessfully verifies that packageInstall reconcile successfully
+func VerifyPackageInstallReconciledSuccessfully(obj runtime.Object) error {
+	switch packageInstall := obj.(type) {
+	case *kappipkg.PackageInstall:
+
+		for _, cond := range packageInstall.Status.Conditions {
+			switch cond.Type {
+			case kappctrl.ReconcileSucceeded:
+				return nil
+			case kappctrl.ReconcileFailed:
+				return fmt.Errorf("package reconciliation failed: %s", packageInstall.Status.UsefulErrorMessage)
+			}
+		}
+
+		return errors.Errorf("waiting for '%s' Package to be installed", packageInstall.Name)
+	default:
+		return errors.Errorf("invalid type: %s during VerifyPackageInstallReconcilledSuccessfully", reflect.TypeOf(packageInstall))
 	}
 }

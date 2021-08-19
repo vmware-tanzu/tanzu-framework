@@ -16,7 +16,7 @@ import (
 
 var repositoryDeleteCmd = &cobra.Command{
 	Use:   "delete REPOSITORY_NAME",
-	Short: "Delete a repository",
+	Short: "Delete a package repository",
 	Args:  cobra.ExactArgs(1),
 	Example: `
     # Delete a repository in specified namespace 	
@@ -25,7 +25,7 @@ var repositoryDeleteCmd = &cobra.Command{
 }
 
 func init() {
-	repositoryDeleteCmd.Flags().BoolVarP(&repoOp.IsForceDelete, "force", "f", false, "Force deletion of the repository")
+	repositoryDeleteCmd.Flags().BoolVarP(&repoOp.IsForceDelete, "force", "f", false, "Force deletion of the package repository, optional")
 	repositoryCmd.AddCommand(repositoryDeleteCmd)
 }
 

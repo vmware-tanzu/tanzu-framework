@@ -8,6 +8,7 @@ TANZU_BOM_DIR=${HOME}/.config/tanzu/tkg/bom
 INSTALL_INSTRUCTIONS='See https://github.com/mikefarah/yq#install for installation instructions'
 TKG_CUSTOM_IMAGE_REPOSITORY=${TKG_CUSTOM_IMAGE_REPOSITORY:-''}
 TKG_IMAGE_REPO=${TKG_IMAGE_REPO:-''}
+TKG_CUSTOM_COMPATIBILITY_IMAGE_PATH=${TKG_CUSTOM_COMPATIBILITY_IMAGE_PATH:-''}
 
 
 echodual() {
@@ -45,7 +46,7 @@ function imgpkg_copy() {
 }
 
 echo "set -euo pipefail"
-echodual "Note that yq must be version above or equal to version 4.5 and below version 5."
+echodual "Note that yq must be version above or equal to version 4.9.2 and below version 5.."
 
 actualImageRepository="$TKG_IMAGE_REPO"
 
@@ -142,11 +143,18 @@ for imageTag in ${list}; do
   fi
 done
 
-list=$(imgpkg  tag  list -i ${actualImageRepository}/tkg-compatibility)
+tkg_compatibility_endpoint=${actualImageRepository}/tkg-compatibility
+if ! [ -z "$TKG_CUSTOM_COMPATIBILITY_IMAGE_PATH" ]; then
+  # it is assumed that the TKG_CUSTOM_COMPATIBILITY_IMAGE_PATH variable would have the '/tkg-compatibility' suffix
+  # TKG_CUSTOM_COMPATIBILITY_IMAGE_PATH is also used by 'tanzu plugin install' commands and it requires the '/tkg-compatibility' suffix
+  tkg_compatibility_endpoint=${actualImageRepository}/${TKG_CUSTOM_COMPATIBILITY_IMAGE_PATH}
+fi
+
+list=$(imgpkg  tag  list -i ${tkg_compatibility_endpoint})
 for imageTag in ${list}; do
   if [[ ${imageTag} == v* ]]; then 
     echodual "Processing TKG compatibility image"
-    actualImage=${actualImageRepository}/tkg-compatibility:${imageTag}
+    actualImage=${tkg_compatibility_endpoint}:${imageTag}
     customImage=$TKG_CUSTOM_IMAGE_REPOSITORY/tkg-compatibility
     imgpkg_copy "-i" $actualImage $customImage
     echo ""

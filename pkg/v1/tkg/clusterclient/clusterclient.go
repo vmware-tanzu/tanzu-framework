@@ -54,6 +54,8 @@ import (
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 
+	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	tmcv1alpha1 "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/api/tmc/v1alpha1"
 	azureclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/azure"
@@ -103,6 +105,8 @@ type Client interface {
 	WaitForAutoscalerDeployment(deploymentName string, namespace string) error
 	// WaitForAVIResourceCleanUp waits for the avi resource clean up finished
 	WaitForAVIResourceCleanUp(statefulSetName, namespace string) error
+	// WaitForPackageInstall waits for the package to be installed successfully
+	WaitForPackageInstall(packageName, namespace string, packageInstallTimeout time.Duration) error
 	// WaitK8sVersionUpdateForCPNodes waits for k8s version to be updated
 	WaitK8sVersionUpdateForCPNodes(clusterName, namespace, kubernetesVersion string, workloadClusterClient Client) error
 	// WaitK8sVersionUpdateForWorkerNodes waits for k8s version to be updated in all worker nodes
@@ -333,12 +337,14 @@ const (
 	getClientDefaultTimeout           = 5 * time.Minute
 	CheckAutoscalerDeploymentTimeout  = 2 * time.Minute
 	AVIResourceCleanupTimeout         = 2 * time.Minute
+	PackageInstallPollInterval        = 10 * time.Second
+	PackageInstallTimeout             = 10 * time.Minute
 	kubeConfigSecretSuffix            = "kubeconfig"
 	kubeConfigDataField               = "value"
 	embeddedTelemetryConfigYamlPrefix = "pkg/manifest/telemetry/config-"
 	telemetryBomImagesMapKey          = "tkgTelemetryImage"
-	prodTelemetryPath                 = "https://scapi.vmware.com/sc/api/collectors/tkg-telemetry.v1.3.0/batch"
-	stageTelemetryPath                = "https://scapi-stg.vmware.com/sc/api/collectors/tkg-telemetry.v1.3.0/batch"
+	prodTelemetryPath                 = "https://scapi.vmware.com/sc/api/collectors/tkg-telemetry.v1.4.0/batch"
+	stageTelemetryPath                = "https://scapi-stg.vmware.com/sc/api/collectors/tkg-telemetry.v1.4.0/batch"
 	statusRunning                     = "running"
 )
 
@@ -382,6 +388,7 @@ func init() {
 	_ = rbacv1.AddToScheme(scheme)
 	_ = addonsv1.AddToScheme(scheme)
 	_ = runv1alpha1.AddToScheme(scheme)
+	_ = kappipkg.AddToScheme(scheme)
 }
 
 // ClusterStatusInfo defines the cluster status involving all main components
@@ -571,6 +578,13 @@ func (c *client) WaitForAutoscalerDeployment(deploymentName, namespace string) e
 
 func (c *client) WaitForAVIResourceCleanUp(statefulSetName, namespace string) error {
 	return c.GetResource(&appsv1.StatefulSet{}, statefulSetName, namespace, VerifyAVIResourceCleanupFinished, &PollOptions{Interval: CheckResourceInterval, Timeout: AVIResourceCleanupTimeout})
+}
+
+func (c *client) WaitForPackageInstall(packageName, namespace string, packageInstallTimeout time.Duration) error {
+	if packageInstallTimeout == 0 {
+		packageInstallTimeout = PackageInstallTimeout
+	}
+	return c.GetResource(&kappipkg.PackageInstall{}, packageName, namespace, VerifyPackageInstallReconciledSuccessfully, &PollOptions{Interval: PackageInstallPollInterval, Timeout: packageInstallTimeout})
 }
 
 func verifyKubernetesUpgradeForCPNodes(clusterStatusInfo *ClusterStatusInfo, newK8sVersion string) error {

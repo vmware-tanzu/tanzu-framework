@@ -104,8 +104,7 @@ func (c *client) GetVCCredentialsFromSecret(clusterName string) (string, string,
 func (c *client) UpdateVsphereIdentityRefSecret(clusterName, namespace, username, password string) error {
 	secret := &corev1.Secret{}
 
-	pollOptions := &PollOptions{Interval: CheckResourceInterval, Timeout: c.operationTimeout}
-	err := c.GetResource(secret, clusterName, namespace, nil, pollOptions)
+	err := c.GetResource(secret, clusterName, namespace, nil, nil)
 	if err != nil {
 		if k8serrors.IsNotFound(err) {
 			log.Info("Cluster identityRef secret not present. Skipping update...")
@@ -141,6 +140,7 @@ func (c *client) UpdateVsphereIdentityRefSecret(clusterName, namespace, username
 		}
 	]`, string(usernameBytesB64), string(passwordBytesB64))
 
+	pollOptions := &PollOptions{Interval: CheckResourceInterval, Timeout: c.operationTimeout}
 	if err := c.PatchResource(secret, clusterName, namespace, patchString, types.JSONPatchType, pollOptions); err != nil {
 		return errors.Wrap(err, "unable to save cluster identityRef secret")
 	}

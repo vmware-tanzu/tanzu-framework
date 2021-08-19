@@ -111,6 +111,8 @@ var _ = Describe("Install Package", func() {
 	Context("failure in listing package versions due to ListPackages API error", func() {
 		BeforeEach(func() {
 			kappCtl = &fakes.KappClient{}
+			crtCtl = &fakes.CRTClusterClient{}
+			kappCtl.GetClientReturns(crtCtl)
 			kappCtl.ListPackagesReturns(nil, errors.New("failure in ListPackages"))
 		})
 		It(testFailureMsg, func() {

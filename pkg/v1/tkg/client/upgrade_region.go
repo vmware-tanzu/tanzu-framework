@@ -6,14 +6,15 @@ package client
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/pkg/errors"
+	"golang.org/x/sync/errgroup"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/version"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
-
-	"golang.org/x/sync/errgroup"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
@@ -21,6 +22,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/providersupgradeclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 )
 
 // UpgradeManagementClusterOptions upgrade management cluster options
@@ -75,7 +77,7 @@ type providersUpgradeInfo struct {
 // 	d) Call the clusterctl ApplyUpgrade() to upgrade providers
 //  e) Wait for providers to be up and running
 // 2. call the UpgradeCluster() for upgrading the k8s version of the Management cluster
-func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) error {
+func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) error { //nolint:gocyclo
 	contexts, err := c.GetRegionContexts(options.ClusterName)
 	if err != nil || len(contexts) == 0 {
 		return errors.Errorf("management cluster %s not found", options.ClusterName)
@@ -150,10 +152,26 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 	if err := c.WaitForAddonsDeployments(regionalClusterClient); err != nil {
 		return err
 	}
+
+	log.Info("Waiting for packages to be up and running...")
+	if err := c.WaitForPackages(regionalClusterClient, regionalClusterClient, options.ClusterName, options.Namespace); err != nil {
+		log.Warningf("Warning: Management cluster is upgraded successfully, but some packages are failing. %v", err)
+	}
+
 	return nil
 }
 
 func (c *TkgClient) configureVariablesForProvidersInstallation(regionalClusterClient clusterclient.Client) error {
+	err := c.configureImageTagsForProviderInstallation()
+	if err != nil {
+		return errors.Wrap(err, "failed to configure image tags for provider installation")
+	}
+
+	// If region client is not specified nothing to configure based on existing management cluster
+	if regionalClusterClient == nil {
+		return nil
+	}
+
 	infraProvider, err := regionalClusterClient.GetRegionalClusterDefaultProviderName(clusterctlv1.InfrastructureProviderType)
 	if err != nil {
 		return errors.Wrap(err, "failed to get cluster provider information.")
@@ -347,4 +365,76 @@ func (c *TkgClient) WaitForAddonsDeployments(clusterClient clusterclient.Client)
 		return errors.Wrap(err, "Failed waiting for at least one CRS deployment, check logs for more detail.")
 	}
 	return nil
+}
+
+// WaitForPackages wait for packages to be up and running
+func (c *TkgClient) WaitForPackages(regionalClusterClient, currentClusterClient clusterclient.Client, clusterName, namespace string) error {
+	// Adding kapp-controller package to the exclude list
+	// For management cluster, kapp-controller is deployed using CRS and addon secret does not exist
+	// For workload cluster, kapp-controller is deployed by addons manager. Even though the
+	// addon secret for kapp-controller exists, it is not deployed using PackageInstall.
+	// Hence skipping it while waiting for packages.
+	ListExcludePackageInstallsFromWait := []string{constants.KappControllerPackageName}
+
+	// Get the list of addons secrets
+	secretList := &corev1.SecretList{}
+	err := regionalClusterClient.ListResources(secretList, &crtclient.ListOptions{Namespace: namespace})
+	if err != nil {
+		return errors.Wrap(err, "unable to get list of secrets")
+	}
+
+	// From the addons secret get the names of package installs for each addon secret
+	// This is determined from the "tkg.tanzu.vmware.com/addon-name" label on the secret
+	packageInstallNames := []string{}
+	for i := range secretList.Items {
+		if secretList.Items[i].Type == constants.AddonSecretType {
+			if cn, exists := secretList.Items[i].Labels[constants.ClusterNameLabel]; exists && cn == clusterName {
+				if addonName, exists := secretList.Items[i].Labels[constants.AddonNameLabel]; exists {
+					if !utils.ContainsString(ListExcludePackageInstallsFromWait, addonName) {
+						packageInstallNames = append(packageInstallNames, addonName)
+					}
+				}
+			}
+		}
+	}
+
+	// Start waiting for all packages in parallel using group.Wait
+	// Note: As PackageInstall resources are created in the cluster itself
+	// we are using currentClusterClient which will point to correct cluster
+	group, _ := errgroup.WithContext(context.Background())
+
+	for _, packageName := range packageInstallNames {
+		pn := packageName
+		log.V(3).Warningf("Waiting for package: %s", pn)
+		group.Go(
+			func() error {
+				err := currentClusterClient.WaitForPackageInstall(pn, constants.TkgNamespace, c.getPackageInstallTimeoutFromConfig())
+				if err != nil {
+					log.V(3).Warningf("Failure while waiting for package '%s'", pn)
+				} else {
+					log.V(3).Infof("Successfully reconciled package: %s", pn)
+				}
+				return err
+			})
+	}
+
+	err = group.Wait()
+	if err != nil {
+		return errors.Wrap(err, "Failure while waiting for packages to be installed")
+	}
+
+	return nil
+}
+
+func (c *TkgClient) getPackageInstallTimeoutFromConfig() time.Duration {
+	var err error
+	packageInstallTimeoutStr, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariablePackageInstallTimeout)
+	packageInstallTimeout := time.Duration(0)
+	if packageInstallTimeoutStr != "" {
+		packageInstallTimeout, err = time.ParseDuration(packageInstallTimeoutStr)
+		if err != nil {
+			log.Infof("Unable to parse '%s: %v'", constants.ConfigVariablePackageInstallTimeout, packageInstallTimeoutStr)
+		}
+	}
+	return packageInstallTimeout
 }

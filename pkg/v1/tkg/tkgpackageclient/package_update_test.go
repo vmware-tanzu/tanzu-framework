@@ -90,6 +90,8 @@ var _ = Describe("Update Package", func() {
 			options.Install = true
 			options.PackageName = testPkgName
 			kappCtl = &fakes.KappClient{}
+			crtCtl = &fakes.CRTClusterClient{}
+			kappCtl.GetClientReturns(crtCtl)
 			kappCtl.GetPackageInstallReturns(nil, nil)
 			kappCtl.GetPackageMetadataByNameReturns(nil, errors.New("failure in GetPackageByName"))
 		})
