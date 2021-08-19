@@ -1,0 +1,107 @@
+# Copyright 2021 VMware, Inc. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+def prog_checks():
+    if prog_avail_local("docker") == "":
+        log(prefix="Error", msg="docker program not found")
+        return False
+
+    if prog_avail_local("kind") == "":
+        log(prefix="Error", msg="kind program not found")
+        return False
+
+    if prog_avail_local("kubectl") == "":
+        log(prefix="Error", msg="kubectl program not found")
+        return False
+
+    return True
+
+# retrieve_k8s
+def capture_k8s_objects(k8sconf,cluster_name,nspaces):
+    log(prefix="Info", msg="Retrieving pod logs: cluster={}; namespaces={}".format(cluster_name,nspaces))
+    kube_capture(what="logs", namespaces=nspaces, kube_config=k8sconf)
+    log(prefix="Info", msg="Retrieving API objects: cluster={}; namespaces={}".format(cluster_name,nspaces))
+    kube_capture(what="objects", kinds=["pods", "services"], namespaces=nspaces, kube_config=k8sconf)
+    kube_capture(what="objects", kinds=["deployments", "replicasets"], groups=["apps"], namespaces=nspaces, kube_config=k8sconf)
+    kube_capture(what="objects", kinds=["apps"], groups=["kappctrl.k14s.io"], namespaces=["tkg-system"], kube_config=k8sconf)
+    kube_capture(what="objects", kinds=["tanzukubernetesreleases"], groups=["run.tanzu.vmware.com"], kube_config=k8sconf)
+    kube_capture(what="objects", kinds=["configmaps"], namespaces=["tkr-system"], kube_config=k8sconf)
+    kube_capture(what="objects", categories=["cluster-api"], kube_config=k8sconf)
+
+# extract diagnostic info from local kind boostrap cluster
+def diagnose_bootstrap_clusters():
+    # argument validation
+    name = None
+    if hasattr(args, "bootstrap_cluster_name") and len(args.bootstrap_cluster_name) > 0:
+        log(prefix="Info", msg="Bootstrap cluster: name={}".format(args.bootstrap_cluster_name))
+        name = args.bootstrap_cluster_name
+
+    if name != None and not name.startswith("tkg-kind"):
+        log(prefix="Warn", msg="Bootstrap cluster: may not be a valid cluster, expect failure: {}".format(name))
+
+    clusters=get_bootstrap_clusters(name)
+    if len(clusters) == 0:
+        log(prefix="Warn", msg="Bootstrap cluster: no cluster found: nothing will be collected")
+        return
+
+    nspaces=[
+        "capi-kubeadm-bootstrap-system",
+        "capi-kubeadm-control-plane-system",
+        "capi-system",
+        "capi-webhook-system",
+        "capv-system",
+        "capa-system",
+        "cert-manager",
+        "tkg-system",
+    ]
+
+    # for each tkg-kind cluster:
+    #  - capture kind logs, export kubecfg, and api objects
+    for kind_cluster in clusters:
+        wd = "{}/{}".format(args.workdir, kind_cluster)
+        log(prefix="Info", msg="Retrieving node logs: cluster={}".format(kind_cluster))
+        run_local("kind export logs --name {} {}/kind-logs".format(kind_cluster, wd))
+
+        # extract kubeconfig file for cluster
+        kind_cfg = capture_local(
+            cmd="kind get kubeconfig --name {0}".format(kind_cluster),
+            workdir="./",
+            file_name="{}.kubecfg".format(kind_cluster)
+        )
+
+        conf = crashd_config(workdir=wd)
+        k8sconf = kube_config(path=kind_cfg)
+
+        capture_k8s_objects(k8sconf, kind_cluster, nspaces)
+        archive(output_file="bootstrap.{}.diagnostics.tar.gz".format(kind_cluster), source_paths=[conf.workdir])
+
+# return all bootstrap clusters in kind (tkg-kind-xxxx) or
+# returns the cluster that matches name
+def get_bootstrap_clusters(name):
+    clusters = run_local("kind get clusters").split('\n')
+    result = []
+
+    for cluster in clusters:
+        if name == cluster:
+            result.append(cluster)
+            break
+
+        if cluster.startswith("tkg-kind"):
+            result.append(cluster)
+
+    if len(result) > 0:
+        log(prefix="Info", msg="Found bootstrap cluster(s): {}".format(result))
+    return result
+
+def diagnose():
+    # program pre-checks
+    if not prog_checks():
+        log(prefix="Error", msg="One or more prerequisites are not met")
+        return
+
+    # diagnose boostrap cluster
+    diagnose_bootstrap_clusters()
+
+
+# starting point
+diagnose()

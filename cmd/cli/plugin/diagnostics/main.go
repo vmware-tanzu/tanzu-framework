@@ -27,18 +27,17 @@ var (
 	//go:embed scripts
 	scriptFS embed.FS
 
-	workDir   string
-	outputDir string
 )
 
 func main() {
-	confDir, err := getConfigDir()
+
+	workDir, err  := getDefaultWorkdir()
 	if err != nil {
-		fmt.Printf("configuration dir: %s\n", err)
+		fmt.Printf("main: workdir: %s\n", err)
 		os.Exit(1)
 	}
-	workDir = confDir
-	outputDir = "./"
+
+	outputDir := getDefaultOutputDir()
 
 	p, err := plugin.NewPlugin(&pluginDesc)
 	if err != nil {
@@ -53,12 +52,16 @@ func main() {
 	}
 }
 
-func getConfigDir() (string, error) {
+func getDefaultWorkdir() (string, error) {
 	tanzuConfigDir, err := config.LocalDir()
 	if err != nil {
 		return "", err
 	}
 	return filepath.Join(tanzuConfigDir, "crashd"), nil
+}
+
+func getDefaultOutputDir() string {
+	return "./"
 }
 
 func getDefaultKubeconfig() string {
@@ -67,6 +70,10 @@ func getDefaultKubeconfig() string {
 		kcfg = filepath.Join(os.Getenv("HOME"), ".kube", "config")
 	}
 	return kcfg
+}
+
+func getDefaultClusterContext(clusterName string) string {
+	return fmt.Sprintf("%s-admin@%s", clusterName, clusterName)
 }
 
 // getCurrentManagementSvr returns the current management server

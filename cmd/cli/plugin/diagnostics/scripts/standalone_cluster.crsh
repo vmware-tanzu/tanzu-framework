@@ -6,10 +6,6 @@ def prog_checks():
         log(prefix="Error", msg="docker program not found")
         return False
 
-    if prog_avail_local("kind") == "":
-        log(prefix="Error", msg="kind program not found")
-        return False
-
     if prog_avail_local("kubectl") == "":
         log(prefix="Error", msg="kubectl program not found")
         return False
@@ -39,81 +35,32 @@ def capture_node_diagnostics(nodes):
     capture(cmd="sudo cat /var/log/cloud-init-output.log", resources=nodes)
     capture(cmd="sudo cat /var/log/cloud-init.log", resources=nodes)
 
-# extract diagnostic info from local kind boostrap cluster
-def diagnose_bootstrap_clusters():
-    clusters=get_bootstrap_clusters()
-    if len(clusters) == 0:
-        log(prefix="Warn", msg="No `tkg-kind-*` bootstrap cluster found, skipping bootstrap cluster")
-        return
-
-    nspaces=[
-        "capi-kubeadm-bootstrap-system",
-        "capi-kubeadm-control-plane-system",
-        "capi-system",
-        "capi-webhook-system",
-        "capv-system",
-        "capa-system",
-        "cert-manager",
-        "tkg-system",
-    ]
-
-    # for each tkg-kind cluster:
-    #  - capture kind logs, export kubecfg, and api objects
-    for kind_cluster in clusters:
-        wd = "{}/{}".format(args.workdir, kind_cluster)
-        log(prefix="Info", msg="Retrieving node logs: cluster={}".format(kind_cluster))
-        run_local("kind export logs --name {} {}/kind-logs".format(kind_cluster, wd))
-
-        # extract kubeconfig file for cluster
-        kind_cfg = capture_local(
-            cmd="kind get kubeconfig --name {0}".format(kind_cluster),
-            workdir="./",
-            file_name="{}.kubecfg".format(kind_cluster)
-        )
-
-        conf = crashd_config(workdir=wd)
-        k8sconf = kube_config(path=kind_cfg)
-
-        capture_k8s_objects(k8sconf, kind_cluster, nspaces)
-        archive(output_file="bootstrap.{}.diagnostics.tar.gz".format(kind_cluster), source_paths=[conf.workdir])
-
-
-# return all bootstrap clusters in kind (tkg-kind-xxxx)
-def get_bootstrap_clusters():
-    clusters = run_local("kind get clusters").split('\n')
-    result = []
-
-    for cluster in clusters:
-        if cluster.startswith("tkg-kind"):
-            result.append(cluster)
-
-    if len(result) > 0:
-        log(prefix="Info", msg="Found tkg-kind-* clusters: {}".format(result))
-    return result
-
 # diagnose_workload_cluster retrieves cluster information
 # from a non-management cluster.
-def diagnose_workload_cluster(infra, name):
-    if len(infra) == 0:
-        log(prefix="Error", msg="Infra argument not provided")
-        return
-
+def diagnose_workload_cluster():
     kubeconfig = "{}/.kube/config".format(os.home)
     if hasattr(args, "kubeconfig"):
         kubeconfig = args.kubeconfig
 
-    sshconfig = None
-    if hasattr(args, "ssh_user") and hasattr(args, "ssh_pk_file"):
-        sshconfig = ssh_config(username=args.ssh_user, private_key_path=args.ssh_pk_file)
+    # argument validation
+    infra = "docker"
+    if hasattr(args, "workload_infra") and len(args.workload_infra) > 0:
+        infra = args.workload_infra
 
-    log(prefix="Info", msg="retrieving workload cluster info...")
+    if not hasattr(args, "workload_cluster_name") or len(args.workload_cluster_name) == 0:
+        log(prefix="Error", msg="workload-cluster-name is required")
+        return
+    name = args.workload_cluster_name
+
+    context_name = "{}-admin@{}".format(name, name)
+    if hasattr(args, "workload_context") and len(args.workload_context) > 0:
+        context_name = args.workload_context
 
     wd = "{}/{}".format(args.workdir, name)
-
     conf = crashd_config(workdir=wd)
-    context_name = "{}-admin@{}".format(name, name)
+
     k8sconfig = kube_config(path=kubeconfig, cluster_context=context_name)
-    log(prefix="Info", msg="Using kube_config:  kubeconfig={}; context={}".format(kubeconfig, context_name))
+    log(prefix="Info", msg="Retrieving workload cluster: cluster={}; context={}; kubeconfig={};".format(name, context_name, kubeconfig))
 
     nspaces=[
         "capi-kubeadm-bootstrap-system",
@@ -134,14 +81,17 @@ def diagnose_workload_cluster(infra, name):
     capture_k8s_objects(k8sconfig, name, nspaces)
 
     # collect nodes data
+    sshconfig = None
+    if hasattr(args, "ssh_user") and hasattr(args, "ssh_pk_file"):
+        sshconfig = ssh_config(username=args.ssh_user, private_key_path=args.ssh_pk_file)
+
     if sshconfig != None:
         nodes=resources(provider=kube_nodes_provider(kube_config=k8sconfig, ssh_config=sshconfig))
-        capture_node_diagnostics(nodes)
+        # capture_node_diagnostics(nodes)
 
-    arc_file = "cluster.{}.diagnostics.tar.gz".format(name)
+    arc_file = "workload-cluster.{}.diagnostics.tar.gz".format(name)
     log(prefix="Info", msg="Archiving: {}".format(arc_file))
-    archive(output_file="cluster.{}.diagnostics.tar.gz".format(name), source_paths=[conf.workdir])
-
+    archive(output_file=arc_file, source_paths=[conf.workdir])
 
 def diagnose():
     # program pre-checks
@@ -149,25 +99,8 @@ def diagnose():
         log(prefix="Error", msg="One or more prerequisites are not met")
         return
 
-    # argument validation
-    infra = "docker"
-    if hasattr(args, "infra") and len(args.cluster_name) > 0:
-       infra = args.infra
-    if not hasattr(args, "cluster_name") or len(args.cluster_name) == 0:
-        log(prefix="Error", msg="cluster-name is required")
-        return
-    name = args.cluster_name
-
-    log(msg="Collecting diagnostics: infra={}; cluster-name={}".format(infra, name))
-
-    # diagnose boostrap cluster
-    diagnose_bootstrap_clusters()
-
     # diagnose cluster
-    diagnose_workload_cluster(infra, name)
-
-    log(msg="Done!")
-
+    diagnose_workload_cluster()
 
 # starting point
 diagnose()
