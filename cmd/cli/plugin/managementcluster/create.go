@@ -101,7 +101,13 @@ func init() {
 	createCmd.Flags().StringVarP(&iro.workerSize, "worker-size", "", "", "Specify size of the worker node. (See [+])")
 	createCmd.Flags().MarkHidden("worker-size") //nolint
 
-	createCmd.Flags().StringVarP(&iro.ceipOptIn, "ceip-participation", "", "", "Specify if this management cluster should participate in VMware CEIP. (See [*])")
+	// commercial Tanzu editions turn CEIP on by default.
+	// community edition turns it off
+	defaultCeip := DefaultCEIPSetting
+	if BuildEdition == TCEBuildEditionName {
+		defaultCeip = DefaultCEIPTCESetting
+	}
+	createCmd.Flags().StringVarP(&iro.ceipOptIn, "ceip-participation", "", defaultCeip, "Specify if this management cluster should participate in VMware CEIP. (See [*])")
 	createCmd.Flags().MarkHidden("ceip-participation") //nolint
 
 	createCmd.Flags().BoolVarP(&iro.deployTKGonVsphere7, "deploy-tkg-on-vSphere7", "", false, "Deploy TKG Management cluster on vSphere 7.0 without prompt")
