@@ -521,6 +521,18 @@ type ClusterClient struct {
 		result1 bool
 		result2 error
 	}
+	IsClusterRegisteredToTMCStub        func() (bool, error)
+	isClusterRegisteredToTMCMutex       sync.RWMutex
+	isClusterRegisteredToTMCArgsForCall []struct {
+	}
+	isClusterRegisteredToTMCReturns struct {
+		result1 bool
+		result2 error
+	}
+	isClusterRegisteredToTMCReturnsOnCall map[int]struct {
+		result1 bool
+		result2 error
+	}
 	IsPacificRegionalClusterStub        func() (bool, error)
 	isPacificRegionalClusterMutex       sync.RWMutex
 	isPacificRegionalClusterArgsForCall []struct {
@@ -3422,6 +3434,62 @@ func (fake *ClusterClient) HasCEIPTelemetryJobReturnsOnCall(i int, result1 bool,
 	}{result1, result2}
 }
 
+func (fake *ClusterClient) IsClusterRegisteredToTMC() (bool, error) {
+	fake.isClusterRegisteredToTMCMutex.Lock()
+	ret, specificReturn := fake.isClusterRegisteredToTMCReturnsOnCall[len(fake.isClusterRegisteredToTMCArgsForCall)]
+	fake.isClusterRegisteredToTMCArgsForCall = append(fake.isClusterRegisteredToTMCArgsForCall, struct {
+	}{})
+	stub := fake.IsClusterRegisteredToTMCStub
+	fakeReturns := fake.isClusterRegisteredToTMCReturns
+	fake.recordInvocation("IsClusterRegisteredToTMC", []interface{}{})
+	fake.isClusterRegisteredToTMCMutex.Unlock()
+	if stub != nil {
+		return stub()
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *ClusterClient) IsClusterRegisteredToTMCCallCount() int {
+	fake.isClusterRegisteredToTMCMutex.RLock()
+	defer fake.isClusterRegisteredToTMCMutex.RUnlock()
+	return len(fake.isClusterRegisteredToTMCArgsForCall)
+}
+
+func (fake *ClusterClient) IsClusterRegisteredToTMCCalls(stub func() (bool, error)) {
+	fake.isClusterRegisteredToTMCMutex.Lock()
+	defer fake.isClusterRegisteredToTMCMutex.Unlock()
+	fake.IsClusterRegisteredToTMCStub = stub
+}
+
+func (fake *ClusterClient) IsClusterRegisteredToTMCReturns(result1 bool, result2 error) {
+	fake.isClusterRegisteredToTMCMutex.Lock()
+	defer fake.isClusterRegisteredToTMCMutex.Unlock()
+	fake.IsClusterRegisteredToTMCStub = nil
+	fake.isClusterRegisteredToTMCReturns = struct {
+		result1 bool
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *ClusterClient) IsClusterRegisteredToTMCReturnsOnCall(i int, result1 bool, result2 error) {
+	fake.isClusterRegisteredToTMCMutex.Lock()
+	defer fake.isClusterRegisteredToTMCMutex.Unlock()
+	fake.IsClusterRegisteredToTMCStub = nil
+	if fake.isClusterRegisteredToTMCReturnsOnCall == nil {
+		fake.isClusterRegisteredToTMCReturnsOnCall = make(map[int]struct {
+			result1 bool
+			result2 error
+		})
+	}
+	fake.isClusterRegisteredToTMCReturnsOnCall[i] = struct {
+		result1 bool
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *ClusterClient) IsPacificRegionalCluster() (bool, error) {
 	fake.isPacificRegionalClusterMutex.Lock()
 	ret, specificReturn := fake.isPacificRegionalClusterReturnsOnCall[len(fake.isPacificRegionalClusterArgsForCall)]
@@ -6008,6 +6076,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.getVCServerMutex.RUnlock()
 	fake.hasCEIPTelemetryJobMutex.RLock()
 	defer fake.hasCEIPTelemetryJobMutex.RUnlock()
+	fake.isClusterRegisteredToTMCMutex.RLock()
+	defer fake.isClusterRegisteredToTMCMutex.RUnlock()
 	fake.isPacificRegionalClusterMutex.RLock()
 	defer fake.isPacificRegionalClusterMutex.RUnlock()
 	fake.isRegionalClusterMutex.RLock()

@@ -7,17 +7,12 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	extensionsV1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/api/tmc/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 )
-
-// TmcNamespaceName TMC namespace
-const TmcNamespaceName string = "vmware-system-tmc"
 
 // DeRegisterManagementClusterFromTmc performs steps to register management cluster to TMC
 func (c *TkgClient) DeRegisterManagementClusterFromTmc(clusterName string) error {
@@ -42,12 +37,12 @@ func (c *TkgClient) DeRegisterManagementClusterFromTmc(clusterName string) error
 		return errors.Errorf("cannot deregister a management cluster which is on vSphere 7.0 or above to Tanzu Mission Control")
 	}
 
-	// check if extensions crd is present on the cluster to check if the cluster is already registered to TMC
-	var crd extensionsV1.CustomResourceDefinition
-	if err := clusterClient.GetResource(&crd, "extensions.clusters.tmc.cloud.vmware.com", TmcNamespaceName, nil, nil); err != nil {
-		if !apierrors.IsNotFound(err) {
-			return errors.Wrapf(err, "failed to deregister the management cluster '%s' from Tanzu Mission Control", clusterName)
-		}
+	// check if the management cluster is registered with TMC or not
+	registered, err := clusterClient.IsClusterRegisteredToTMC()
+	if err != nil {
+		return errors.Wrapf(err, "failed to deregister the management cluster '%s' from Tanzu Mission Control", clusterName)
+	}
+	if !registered {
 		return errors.Errorf("management cluster '%s' is not registered to Tanzu Mission Control", clusterName)
 	}
 

@@ -39,6 +39,7 @@ const (
 	TkrNamespace       = "tkr-system"
 	TkrConfigMapName   = "tkr-controller-config"
 	TkgPublicNamespace = "tkg-system-public"
+	TmcNamespace       = "vmware-system-tmc"
 
 	KappControllerNamespace     = "tkg-system"
 	KappControllerConfigMapName = "kapp-controller-config"
