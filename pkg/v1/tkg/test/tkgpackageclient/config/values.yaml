@@ -1,6 +1,4 @@
----
-fluent_bit:
-  outputs: |
+outputs: |
     [OUTPUT]
       Name     stdout
       Match    *
