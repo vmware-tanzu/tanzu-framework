@@ -1,6 +1,16 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:overlay", "overlay")
-#@ load("/02_addons/avi/spec.lib.yaml","avi_configs_spec","avi_credentials","avi_certificate")
+#@ load("/02_addons/avi/spec.lib.yaml","avi_configs_spec")
+
+#@ def update_default_akodeploymentconfig():
+#@overlay/match missing_ok=True
+extraConfigs:
+  ingress:
+    #@ if data.values.AVI_INGRESS_NODE_NETWORK_LIST != "":
+    #@overlay/match missing_ok=True
+    nodeNetworkList: #@ data.values.AVI_INGRESS_NODE_NETWORK_LIST
+    #@ end
+#@ end
 
 #@ def update_mc_akodeploymentconfig():
 #@overlay/match missing_ok=True
@@ -13,8 +23,20 @@ clusterSelector:
 #@overlay/match missing_ok=True
 dataNetwork:
   #@overlay/replace
+  #@ if data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME and data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR: 
   name: #@ data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME
   cidr: #@ data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR 
+  #@ else:
+  name: #@ data.values.AVI_DATA_NETWORK
+  cidr: #@ data.values.AVI_DATA_NETWORK_CIDR
+  #@ end
+#@overlay/match missing_ok=True
+extraConfigs:
+  ingress:
+    #@ if data.values.AVI_INGRESS_NODE_NETWORK_LIST != "":
+    #@overlay/match missing_ok=True 
+    nodeNetworkList: #@ data.values.AVI_INGRESS_NODE_NETWORK_LIST
+    #@ end  
 #@ end
 
 #@ def akoconfigyaml():
@@ -23,13 +45,11 @@ apiVersion: networking.tkg.tanzu.vmware.com/v1alpha1
 kind: AKODeploymentConfig
 metadata:
   name: install-ako-for-all
-spec: #@ avi_configs_spec()
+spec: #@ overlay.apply(avi_configs_spec(), update_default_akodeploymentconfig())
 ---
 apiVersion: networking.tkg.tanzu.vmware.com/v1alpha1
 kind: AKODeploymentConfig
 metadata:
   name: install-ako-for-management-cluster
 spec: #@ overlay.apply(avi_configs_spec(), update_mc_akodeploymentconfig())
---- #@ avi_credentials()
---- #@ avi_certificate()
 #@ end
