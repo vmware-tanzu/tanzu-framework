@@ -26,7 +26,7 @@ go.mod go.sum: $(GO_SRCS)
 
 .PHONY: build
 build: ## Build the plugin
-	tanzu builder cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/plugin
+	tanzu builder cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/plugin --goprivate "$(PRIVATE_REPOS)"
 
 .PHONY: lint
 lint: $(GOLANGCI_LINT) ## Lint the plugin
