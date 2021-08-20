@@ -467,3 +467,78 @@ var _ = Describe("DivideVPCCidr", func() {
 		})
 	})
 })
+
+var _ = Describe("CompareMajorMinorPatchVersion", func() {
+	var (
+		v1     string
+		v2     string
+		result bool
+	)
+	JustBeforeEach(func() {
+		result = CompareMajorMinorPatchVersion(v1, v2)
+	})
+
+	Context("When v1=v1.4.2 and v2=v1.4.2", func() {
+		BeforeEach(func() {
+			v1 = "v1.4.2" // nolint:goconst
+			v2 = "v1.4.2"
+		})
+		It("should return true", func() {
+			Expect(result).To(BeTrue())
+		})
+	})
+	Context("When v1=v1.4.2+vmware.1 and v2=v1.4.2", func() {
+		BeforeEach(func() {
+			v1 = "v1.4.2+vmware.1"
+			v2 = "v1.4.2"
+		})
+		It("should return true", func() {
+			Expect(result).To(BeTrue())
+		})
+	})
+	Context("When v1=v1.4.2-latest and v2=v1.4.2", func() {
+		BeforeEach(func() {
+			v1 = "v1.4.2-latest" // nolint:goconst
+			v2 = "v1.4.2"
+		})
+		It("should return true", func() {
+			Expect(result).To(BeTrue())
+		})
+	})
+	Context("When v1=v1.4.2-latest and v2=v1.4.2+vmware", func() {
+		BeforeEach(func() {
+			v1 = "v1.4.2-latest"
+			v2 = "v1.4.2+vmware"
+		})
+		It("should return true", func() {
+			Expect(result).To(BeTrue())
+		})
+	})
+	Context("When v1=v1.4.2-latest and v2=v1.4.0+vmware", func() {
+		BeforeEach(func() {
+			v1 = "v1.4.2-latest"
+			v2 = "v1.4.0+vmware"
+		})
+		It("should return false", func() {
+			Expect(result).To(BeFalse())
+		})
+	})
+	Context("When v1=v1.4.2-latest and v2=''", func() {
+		BeforeEach(func() {
+			v1 = "v1.4.2-latest"
+			v2 = ""
+		})
+		It("should return false", func() {
+			Expect(result).To(BeFalse())
+		})
+	})
+	Context("When both versions are empty", func() {
+		BeforeEach(func() {
+			v1 = ""
+			v2 = ""
+		})
+		It("should return false", func() {
+			Expect(result).To(BeFalse())
+		})
+	})
+})

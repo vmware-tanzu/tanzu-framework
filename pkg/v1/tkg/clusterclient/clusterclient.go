@@ -57,6 +57,7 @@ import (
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	capdiscovery "github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/discovery"
 	tmcv1alpha1 "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/api/tmc/v1alpha1"
 	azureclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/azure"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/buildinfo"
@@ -286,6 +287,8 @@ type Client interface {
 	ActivateTanzuKubernetesReleases(tkrName string) error
 	// DeactivateTanzuKubernetesReleases deactivates TanzuKubernetesRelease
 	DeactivateTanzuKubernetesReleases(tkrName string) error
+	// IsClusterRegisteredToTMC returns true if cluster is registered to Tanzu Mission Control
+	IsClusterRegisteredToTMC() (bool, error)
 }
 
 // PollOptions is options for polling
@@ -2136,6 +2139,34 @@ func (c *client) HasCEIPTelemetryJob(clusterName string) (bool, error) {
 	return len(cronJobs.Items) > 0, nil
 }
 
+// IsClusterRegisteredToTMC() returns true if cluster is registered to Tanzu Mission Control
+func (c *client) IsClusterRegisteredToTMC() (bool, error) {
+	restconfigClient, err := c.GetRestConfigClient()
+	if err != nil {
+		return false, err
+	}
+	clusterQueryClient, err := capdiscovery.NewClusterQueryClientForConfig(restconfigClient)
+	if err != nil {
+		return false, err
+	}
+
+	// Check if 'cluster-agent' resource of type 'agents.clusters.tmc.cloud.vmware.com/v1alpha1' present
+	// in 'vmware-system-tmc' namespace. If present, we can say the cluster is registered to TMC
+	agent := &corev1.ObjectReference{
+		Kind:       "Agent",
+		Name:       "cluster-agent",
+		Namespace:  constants.TmcNamespace,
+		APIVersion: "clusters.tmc.cloud.vmware.com/v1alpha1",
+	}
+	var testObject = capdiscovery.Object("tmcClusterAgentObj", agent)
+
+	// Build query client.
+	cqc := clusterQueryClient.Query(testObject)
+
+	// Execute returns combined result of all queries.
+	return cqc.Execute() // return (found, err) response
+}
+
 // Options provides way to customize creation of clusterClient
 type Options struct {
 	poller                    Poller
@@ -2343,6 +2374,14 @@ type k8ClientSet struct {
 // LoadCurrentKubeconfigBytes loads current kubeconfig bytes
 func (c *client) LoadCurrentKubeconfigBytes() ([]byte, error) {
 	return c.loadKubeconfigAndEnsureContext(c.currentContext)
+}
+
+func (c *client) GetRestConfigClient() (*rest.Config, error) {
+	kubeConfigBytes, err := c.LoadCurrentKubeconfigBytes()
+	if err != nil {
+		return nil, err
+	}
+	return clientcmd.RESTConfigFromKubeConfig(kubeConfigBytes)
 }
 
 //go:generate counterfeiter -o ../fakes/crtclientfactory.go --fake-name CrtClientFactory . CrtClientFactory
