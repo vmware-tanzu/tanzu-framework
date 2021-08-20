@@ -109,7 +109,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         devInstanceType: [Validators.required],
         prodInstanceType: [Validators.required],
         bastionHostEnabled: [],
-        sshKeyName: [],
+        sshKeyName: [Validators.required],
         clusterName: [this.validationService.isValidClusterName()],
         awsNodeAz1: [Validators.required],
         awsNodeAz2: [Validators.required],

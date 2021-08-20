@@ -172,6 +172,9 @@
                 <input clrInput formControlName="sshKeyName" placeholder="ssh key name" />
                 <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
                 <clr-control-helper></clr-control-helper>
+                <clr-control-error i18n="AWS ssh key name required msg" *clrIfError="validatorEnum.REQUIRED">
+                    EC2 key pair cannot be empty
+                </clr-control-error>
             </clr-input-container>
         </div>
 
