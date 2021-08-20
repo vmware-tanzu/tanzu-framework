@@ -4,6 +4,8 @@
 package tkgpackageclient
 
 import (
+	"fmt"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
@@ -49,14 +51,21 @@ var _ = Describe("Add Repository", func() {
 			CreateNamespace:  false,
 		}
 		options           = opts
+		progress          *tkgpackagedatamodel.PackageProgress
 		pkgRepositoryList = &kappipkg.PackageRepositoryList{
 			Items: []kappipkg.PackageRepository{*testRepository},
 		}
 	)
 
 	JustBeforeEach(func() {
+		progress = &tkgpackagedatamodel.PackageProgress{
+			ProgressMsg: make(chan string, 10),
+			Err:         make(chan error),
+			Done:        make(chan struct{}),
+		}
 		ctl = &pkgClient{kappClient: kappCtl}
-		err = ctl.AddRepository(&options)
+		go ctl.AddRepository(&options, progress, tkgpackagedatamodel.OperationTypeInstall)
+		err = testReceive(progress)
 	})
 
 	Context("failure in listing package repositories due to ListPackageRepositories API error", func() {
@@ -78,7 +87,7 @@ var _ = Describe("Add Repository", func() {
 		})
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("repository with the same name already exists"))
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("package repository name '%s' already exists in namespace '%s'", options.RepositoryName, options.Namespace)))
 		})
 		AfterEach(func() { options = opts })
 	})
@@ -91,7 +100,7 @@ var _ = Describe("Add Repository", func() {
 		})
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("repository with the same OCI registry URL already exists"))
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("package repository URL '%s' already exists in namespace '%s'", options.RepositoryURL, options.Namespace)))
 		})
 		AfterEach(func() { options = opts })
 	})
@@ -110,7 +119,6 @@ var _ = Describe("Add Repository", func() {
 		})
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
-
 			Expect(err.Error()).To(ContainSubstring("failure in Get namespace"))
 		})
 		AfterEach(func() { options = opts })

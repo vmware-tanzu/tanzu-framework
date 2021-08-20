@@ -15,10 +15,8 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/util/wait"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
-	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
@@ -32,7 +30,7 @@ func (p *pkgClient) UninstallPackage(o *tkgpackagedatamodel.PackageOptions, prog
 	)
 
 	defer func() {
-		packageProgressCleanup(err, progress)
+		progressCleanup(err, progress)
 	}()
 
 	progress.ProgressMsg <- fmt.Sprintf("Getting package install for '%s'", o.PkgInstallName)
@@ -55,21 +53,13 @@ func (p *pkgClient) UninstallPackage(o *tkgpackagedatamodel.PackageOptions, prog
 		return
 	}
 
-	if err = p.waitForPackageInstallDeletion(o, progress.ProgressMsg); err != nil {
+	if err = p.waitForResourceDeletion(o.PkgInstallName, o.Namespace, o.PollInterval, o.PollTimeout, progress.ProgressMsg, tkgpackagedatamodel.ResourceTypePackageInstall); err != nil {
 		return
 	}
 
 	if err = p.deletePkgPluginCreatedResources(pkgInstall, progress.ProgressMsg); err != nil {
 		return
 	}
-}
-
-func packageProgressCleanup(err error, progress *tkgpackagedatamodel.PackageProgress) {
-	if err != nil {
-		progress.Err <- err
-	}
-	close(progress.ProgressMsg)
-	close(progress.Done)
 }
 
 // deletePkgPluginCreatedResources deletes the associated resources which were installed upon installation of the PackageInstall CR
@@ -146,33 +136,6 @@ func (p *pkgClient) deletePackageInstall(o *tkgpackagedatamodel.PackageOptions) 
 		if !apierrors.IsNotFound(err) {
 			return errors.Wrap(err, "failed to delete PackageInstall resource")
 		}
-	}
-
-	return nil
-}
-
-// waitForPackageInstallDeletion waits until the PackageInstall CR gets deleted successfully or a failure happens
-func (p *pkgClient) waitForPackageInstallDeletion(o *tkgpackagedatamodel.PackageOptions, progress chan string) error {
-	if err := wait.Poll(o.PollInterval, o.PollTimeout, func() (done bool, err error) {
-		pkgInstall, err := p.kappClient.GetPackageInstall(o.PkgInstallName, o.Namespace)
-		if err != nil {
-			if apierrors.IsNotFound(err) {
-				return true, nil
-			}
-			return false, err
-		}
-		for _, cond := range pkgInstall.Status.Conditions {
-			if progress != nil {
-				progress <- fmt.Sprintf("Package uninstall status: %s", cond.Type)
-			}
-			if cond.Type == kappctrl.DeleteFailed {
-				return false, fmt.Errorf("package install deletion failed: %s", pkgInstall.Status.UsefulErrorMessage)
-			}
-		}
-
-		return false, nil
-	}); err != nil {
-		return err
 	}
 
 	return nil

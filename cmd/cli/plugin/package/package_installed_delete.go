@@ -33,19 +33,21 @@ func init() {
 	packageInstalledCmd.AddCommand(packageInstalledDeleteCmd)
 }
 
-func packageUninstall(_ *cobra.Command, args []string) error {
+func packageUninstall(cmd *cobra.Command, args []string) error {
 	packageInstalledOp.PkgInstallName = args[0]
 
-	pkgClient, err := tkgpackageclient.NewTKGPackageClient(packageInstalledOp.KubeConfig)
-	if err != nil {
-		return err
-	}
+	cmd.SilenceUsage = true
 
 	if !packageInstalledOp.SkipPrompt {
 		if err := cli.AskForConfirmation(fmt.Sprintf("Deleting installed package '%s' in namespace '%s'. Are you sure?",
 			packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace)); err != nil {
 			return err
 		}
+	}
+
+	pkgClient, err := tkgpackageclient.NewTKGPackageClient(packageInstalledOp.KubeConfig)
+	if err != nil {
+		return err
 	}
 
 	pp := &tkgpackagedatamodel.PackageProgress{
@@ -58,7 +60,7 @@ func packageUninstall(_ *cobra.Command, args []string) error {
 	initialMsg := fmt.Sprintf("Uninstalling package '%s' from namespace '%s'", packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace)
 	if err := displayProgress(initialMsg, pp); err != nil {
 		if err.Error() == tkgpackagedatamodel.ErrPackageNotInstalled {
-			log.Warningf(fmt.Sprintf("package '%s' is not installed in namespace '%s'. Deleted previously installed resources", packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace))
+			log.Warningf("\npackage '%s' is not installed in namespace '%s'. Cleaned up related resources", packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace)
 			return nil
 		}
 		return err

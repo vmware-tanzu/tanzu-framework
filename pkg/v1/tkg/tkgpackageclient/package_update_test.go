@@ -67,7 +67,7 @@ var _ = Describe("Update Package", func() {
 		})
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("package 'test-pkg' is not among the list of installed packages in namespace 'test-ns'"))
+			Expect(err.Error()).To(ContainSubstring("package install does not exist in the namespace"))
 		})
 		AfterEach(func() { options = opts })
 	})

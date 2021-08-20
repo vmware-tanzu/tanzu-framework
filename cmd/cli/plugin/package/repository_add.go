@@ -8,9 +8,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
 var repositoryAddCmd = &cobra.Command{
@@ -26,6 +26,9 @@ var repositoryAddCmd = &cobra.Command{
 func init() {
 	repositoryAddCmd.Flags().StringVarP(&repoOp.RepositoryURL, "url", "", "", "OCI registry url for package repository bundle")
 	repositoryAddCmd.Flags().BoolVarP(&repoOp.CreateNamespace, "create-namespace", "", false, "Create namespace if the target namespace does not exist, optional")
+	repositoryAddCmd.Flags().BoolVarP(&repoOp.Wait, "wait", "", true, "Wait for the package repository reconciliation to complete, optional. To disable wait, specify --wait=false")
+	repositoryAddCmd.Flags().DurationVarP(&repoOp.PollInterval, "poll-interval", "", tkgpackagedatamodel.DefaultPollInterval, "Time interval between subsequent polls of package repository reconciliation status, optional")
+	repositoryAddCmd.Flags().DurationVarP(&repoOp.PollTimeout, "poll-timeout", "", tkgpackagedatamodel.DefaultPollTimeout, "Timeout value for polls of package repository reconciliation status, optional")
 	repositoryAddCmd.MarkFlagRequired("url") //nolint
 	repositoryCmd.AddCommand(repositoryAddCmd)
 }
@@ -33,22 +36,25 @@ func init() {
 func repositoryAdd(cmd *cobra.Command, args []string) error {
 	repoOp.RepositoryName = args[0]
 
+	cmd.SilenceUsage = true
+
 	pkgClient, err := tkgpackageclient.NewTKGPackageClient(repoOp.KubeConfig)
 	if err != nil {
 		return err
 	}
 
-	_, err = component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), outputFormat,
-		fmt.Sprintf("Adding package repository '%s'...", repoOp.RepositoryName), true)
-	if err != nil {
-		return err
+	pp := &tkgpackagedatamodel.PackageProgress{
+		ProgressMsg: make(chan string, 10),
+		Err:         make(chan error),
+		Done:        make(chan struct{}),
 	}
+	go pkgClient.AddRepository(repoOp, pp, tkgpackagedatamodel.OperationTypeInstall)
 
-	if err := pkgClient.AddRepository(repoOp); err != nil {
+	initialMsg := fmt.Sprintf("Adding package repository '%s'", repoOp.RepositoryName)
+	if err := displayProgress(initialMsg, pp); err != nil {
 		return err
 	}
 
 	log.Infof("\n Added package repository '%s'", repoOp.RepositoryName)
-
 	return nil
 }

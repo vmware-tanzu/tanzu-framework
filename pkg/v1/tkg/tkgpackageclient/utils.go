@@ -7,10 +7,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/util/wait"
 
+	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	kapppkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
+
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
 // DataValueProperty holds the details of each property under Carvel package.spec.valuesSchema.openAPIv3.properties.
@@ -103,4 +109,90 @@ func (parser *PackageValuesSchemaParser) walkOnValueSchemaProperties(docMap map[
 		}
 	}
 	return nil
+}
+
+// waitForResourceInstallation waits until the package get installed successfully or a failure happen
+func (p *pkgClient) waitForResourceInstallation(name, namespace string, pollInterval, pollTimeout time.Duration, progress chan string, rscType tkgpackagedatamodel.ResourceType) error {
+	var status kappctrl.GenericStatus
+	if err := wait.Poll(pollInterval, pollTimeout, func() (done bool, err error) {
+		switch rscType {
+		case tkgpackagedatamodel.ResourceTypePackageRepository:
+			resource, err := p.kappClient.GetPackageRepository(name, namespace)
+			if err != nil {
+				return false, err
+			}
+			status = resource.Status.GenericStatus
+		case tkgpackagedatamodel.ResourceTypePackageInstall:
+			resource, err := p.kappClient.GetPackageInstall(name, namespace)
+			if err != nil {
+				return false, err
+			}
+			status = resource.Status.GenericStatus
+		}
+		for _, cond := range status.Conditions {
+			if progress != nil {
+				progress <- fmt.Sprintf("Resource install status: %s", cond.Type)
+			}
+			switch cond.Type {
+			case kappctrl.ReconcileSucceeded:
+				return true, nil
+			case kappctrl.ReconcileFailed:
+				return false, fmt.Errorf("resource reconciliation failed: %s. %s", status.UsefulErrorMessage, status.FriendlyDescription)
+			}
+		}
+		return false, nil
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// waitForResourceDeletion waits until the CR gets deleted successfully or a failure happens
+func (p *pkgClient) waitForResourceDeletion(name, namespace string, pollInterval, pollTimeout time.Duration, progress chan string, rscType tkgpackagedatamodel.ResourceType) error {
+	var status kappctrl.GenericStatus
+	if err := wait.Poll(pollInterval, pollTimeout, func() (done bool, err error) {
+		switch rscType {
+		case tkgpackagedatamodel.ResourceTypePackageRepository:
+			resource, err := p.kappClient.GetPackageRepository(name, namespace)
+			if err != nil {
+				if apierrors.IsNotFound(err) {
+					return true, nil
+				}
+				return false, err
+			}
+			status = resource.Status.GenericStatus
+		case tkgpackagedatamodel.ResourceTypePackageInstall:
+			resource, err := p.kappClient.GetPackageInstall(name, namespace)
+			if err != nil {
+				if apierrors.IsNotFound(err) {
+					return true, nil
+				}
+				return false, err
+			}
+			status = resource.Status.GenericStatus
+		}
+		for _, cond := range status.Conditions {
+			if progress != nil {
+				progress <- fmt.Sprintf("Resource deletion status: %s", cond.Type)
+			}
+			if cond.Type == kappctrl.DeleteFailed {
+				return false, fmt.Errorf("resource deletion failed: %s. %s", status.UsefulErrorMessage, status.FriendlyDescription)
+			}
+		}
+
+		return false, nil
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func progressCleanup(err error, progress *tkgpackagedatamodel.PackageProgress) {
+	if err != nil {
+		progress.Err <- err
+	}
+	close(progress.ProgressMsg)
+	close(progress.Done)
 }

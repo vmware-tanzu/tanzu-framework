@@ -5,9 +5,7 @@ package main
 
 import (
 	"fmt"
-	"time"
 
-	"github.com/briandowns/spinner"
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
@@ -45,8 +43,10 @@ func init() {
 	packageInstallCmd.MarkFlagRequired("version")      //nolint
 }
 
-func packageInstall(_ *cobra.Command, args []string) error {
+func packageInstall(cmd *cobra.Command, args []string) error {
 	packageInstallOp.PkgInstallName = args[0]
+
+	cmd.SilenceUsage = true
 
 	pkgClient, err := tkgpackageclient.NewTKGPackageClient(packageInstallOp.KubeConfig)
 	if err != nil {
@@ -58,80 +58,14 @@ func packageInstall(_ *cobra.Command, args []string) error {
 		Err:         make(chan error),
 		Done:        make(chan struct{}),
 	}
-	go pkgClient.InstallPackage(packageInstallOp, pp, false)
+	go pkgClient.InstallPackage(packageInstallOp, pp, tkgpackagedatamodel.OperationTypeInstall)
 
 	initialMsg := fmt.Sprintf("Installing package '%s'", packageInstallOp.PackageName)
 	if err := displayProgress(initialMsg, pp); err != nil {
-		if err.Error() == tkgpackagedatamodel.ErrPackageAlreadyInstalled {
-			log.Warningf("package install '%s' already exists in namespace '%s'", packageInstallOp.PkgInstallName, packageInstallOp.Namespace)
-			return nil
-		}
 		return err
 	}
 
 	log.Infof("\n %s", fmt.Sprintf("Added installed package '%s' in namespace '%s'",
 		packageInstallOp.PkgInstallName, packageInstallOp.Namespace))
 	return nil
-}
-
-func displayProgress(initialMsg string, pp *tkgpackagedatamodel.PackageProgress) error {
-	var (
-		currMsg string
-		s       *spinner.Spinner
-		err     error
-	)
-
-	newSpinner := func() (*spinner.Spinner, error) {
-		s = spinner.New(spinner.CharSets[9], 100*time.Millisecond)
-		if err := s.Color("bgBlack", "bold", "fgWhite"); err != nil {
-			return nil, err
-		}
-		return s, nil
-	}
-	if s, err = newSpinner(); err != nil {
-		return err
-	}
-
-	writeProgress := func(s *spinner.Spinner, msg string) error {
-		s.Stop()
-		if s, err = newSpinner(); err != nil {
-			return err
-		}
-		log.Infof("\n")
-		s.Suffix = fmt.Sprintf(" %s", msg)
-		s.Start()
-		return nil
-	}
-
-	s.Suffix = fmt.Sprintf(" %s", initialMsg)
-	s.Start()
-
-	defer func() {
-		s.Stop()
-	}()
-	for {
-		select {
-		case err := <-pp.Err:
-			s.FinalMSG = "\n\n"
-			return err
-		case msg := <-pp.ProgressMsg:
-			if msg != currMsg {
-				if err := writeProgress(s, msg); err != nil {
-					return err
-				}
-				currMsg = msg
-			}
-		case <-pp.Done:
-			for msg := range pp.ProgressMsg {
-				if msg == currMsg {
-					continue
-				}
-				if err := writeProgress(s, msg); err != nil {
-					return err
-				}
-				currMsg = msg
-			}
-			return nil
-		}
-	}
 }

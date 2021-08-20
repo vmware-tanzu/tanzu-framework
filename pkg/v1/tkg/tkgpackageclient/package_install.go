@@ -14,10 +14,8 @@ import (
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/wait"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
-	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	versions "github.com/vmware-tanzu/carvel-vendir/pkg/vendir/versions/v1alpha1"
 
@@ -31,7 +29,7 @@ const (
 )
 
 // InstallPackage installs the PackageInstall and its associated resources in the cluster
-func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progress *tkgpackagedatamodel.PackageProgress, update bool) { //nolint:gocyclo
+func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progress *tkgpackagedatamodel.PackageProgress, operationType tkgpackagedatamodel.OperationType) { //nolint:gocyclo
 	var (
 		pkgInstall            *kappipkg.PackageInstall
 		err                   error
@@ -40,7 +38,13 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 	)
 
 	defer func() {
-		packageInstallProgressCleanup(err, progress, update)
+		if err != nil {
+			progress.Err <- err
+		}
+		if operationType == tkgpackagedatamodel.OperationTypeInstall {
+			close(progress.ProgressMsg)
+			close(progress.Done)
+		}
 	}()
 
 	if pkgInstall, err = p.kappClient.GetPackageInstall(o.PkgInstallName, o.Namespace); err != nil {
@@ -51,7 +55,7 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 	}
 
 	if pkgInstall != nil && pkgInstall.Name == o.PkgInstallName {
-		err = &tkgpackagedatamodel.PackagePluginNonCriticalError{Reason: tkgpackagedatamodel.ErrPackageAlreadyInstalled}
+		err = errors.New(fmt.Sprintf("package install '%s' already exists in namespace '%s'", o.PkgInstallName, o.Namespace))
 		return
 	}
 
@@ -121,20 +125,10 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 	}
 
 	if o.Wait {
-		if err = p.waitForPackageInstallation(o, progress.ProgressMsg); err != nil {
+		if err = p.waitForResourceInstallation(o.PkgInstallName, o.Namespace, o.PollInterval, o.PollTimeout, progress.ProgressMsg, tkgpackagedatamodel.ResourceTypePackageInstall); err != nil {
 			log.Warning(msgRunPackageInstalledUpdate)
 			return
 		}
-	}
-}
-
-func packageInstallProgressCleanup(err error, progress *tkgpackagedatamodel.PackageProgress, update bool) {
-	if err != nil {
-		progress.Err <- err
-	}
-	if !update {
-		close(progress.ProgressMsg)
-		close(progress.Done)
 	}
 }
 
@@ -275,30 +269,4 @@ func (p *pkgClient) createServiceAccount(o *tkgpackagedatamodel.PackageOptions) 
 	}
 
 	return true, nil
-}
-
-// waitForPackageInstallation waits until the package get installed successfully or a failure happen
-func (p *pkgClient) waitForPackageInstallation(o *tkgpackagedatamodel.PackageOptions, progress chan string) error {
-	if err := wait.Poll(o.PollInterval, o.PollTimeout, func() (done bool, err error) {
-		pkg, err := p.kappClient.GetPackageInstall(o.PkgInstallName, o.Namespace)
-		if err != nil {
-			return false, err
-		}
-		for _, cond := range pkg.Status.Conditions {
-			if progress != nil {
-				progress <- fmt.Sprintf("Package install status: %s", cond.Type)
-			}
-			switch cond.Type {
-			case kappctrl.ReconcileSucceeded:
-				return true, nil
-			case kappctrl.ReconcileFailed:
-				return false, fmt.Errorf("package reconciliation failed: %s", pkg.Status.UsefulErrorMessage)
-			}
-		}
-		return false, nil
-	}); err != nil {
-		return err
-	}
-
-	return nil
 }
