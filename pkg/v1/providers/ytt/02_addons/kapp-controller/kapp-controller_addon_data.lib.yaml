@@ -23,7 +23,15 @@ kappController:
     concurrency: 4
     hostNetwork: true
     priorityClassName: system-cluster-critical
+    #! CAPA clusters restrict ports that can be used due to security group rules. Currently cniIngressRules on CAPA don't work on upgrade which places restrictions on the port usage.
+    #! On a dev plan the port that is already allowed(10349) in cniIngressRules conflicts with antrea 10349 and can cause issues with cluster creation, so
+    #! dev plan will use 32767 (service port range) and this okay because the chance of a port collision with a service on dev plan is low.
+    #! Prod plan will use 10349 because there are multiple control and worker nodes where kapp-controller and antrea controller pod can be scheduled.
+    #@ if data.values.CLUSTER_PLAN == 'dev':
     apiPort: 32767
+    #@ else:
+    apiPort: 10349
+    #@ end
 #@ if data.values.TKG_CLUSTER_ROLE == "workload": #! For mgmt cluster tolerations needs to be added using overlay due to ytt's array handling behavior
     tolerations:
     - key: CriticalAddonsOnly
