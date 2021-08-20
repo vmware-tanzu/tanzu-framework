@@ -64,7 +64,7 @@ SWAGGER=docker run --rm -v ${PWD}:${DOCKER_DIR} quay.io/goswagger/swagger:v0.21.
 
 
 # Add supported OS-ARCHITECTURE combinations here
-ENVS := linux-amd64 windows-amd64 darwin-amd64
+ENVS := linux-amd64 linux-arm64 windows-amd64 darwin-amd64 darwin-arm64
 
 .DEFAULT_GOAL:=help
 
