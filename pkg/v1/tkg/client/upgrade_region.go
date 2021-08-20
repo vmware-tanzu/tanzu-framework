@@ -29,8 +29,7 @@ import (
 )
 
 // ErrorBlockUpgradeTMCIncompatible defines the error message to display during upgrade when cluster is registred to TMC and TMC does not support latest version of TKG
-// TODO: Add link to the document related to error message.
-const ErrorBlockUpgradeTMCIncompatible = "The management cluster cannot be upgraded to Tanzu Kubernetes Grid '%v' while registered to Tanzu Mission Control."
+const ErrorBlockUpgradeTMCIncompatible = "The management cluster cannot be upgraded to Tanzu Kubernetes Grid '%v' while registered to Tanzu Mission Control. See https://via.vmw.com/tkg-14-tmc-compat for more information."
 
 // UpgradeManagementClusterOptions upgrade management cluster options
 type UpgradeManagementClusterOptions struct {
@@ -481,8 +480,8 @@ func (c *TkgClient) validateCompatibilityWithTMC(regionalClusterClient clustercl
 
 		if !skipPrompt {
 			log.Infof("error occurred while validating compatibility with Tanzu Mission Control, %v", err)
-			// TODO: Add link to the document related compatiility as part of the prompt message
-			if err := cli.AskForConfirmation("Unable to validate compatibility of new version with Tanzu Mission Control. Do you want to continue?"); err != nil {
+			log.Warning("Unable to validate compatibility of new version with Tanzu Mission Control. See https://via.vmw.com/tkg-14-tmc-compat for more information.")
+			if err := cli.AskForConfirmation("Do you want to continue with the upgrade?"); err != nil {
 				return err
 			}
 		} else {
