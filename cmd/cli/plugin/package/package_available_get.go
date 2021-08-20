@@ -23,8 +23,11 @@ var packageAvailableGetCmd = &cobra.Command{
 	Short: "Get details for an available package or the openAPI schema of a package with a specific version",
 	Args:  cobra.ExactArgs(1),
 	Example: `
+    # Get package details for a package without specifying the version
+    tanzu package available get contour.tanzu.vmware.com --namespace test-ns
+
     # Get package details for a package with specified version 	
-    tanzu package available get contour.tanzu.vmware.com/1.15.1-tkg.1-vmware1 --namespace test-ns,
+    tanzu package available get contour.tanzu.vmware.com/1.15.1-tkg.1-vmware1 --namespace test-ns
 
     # Get openAPI schema of a package with specified version
     tanzu package available get contour.tanzu.vmware.com/1.15.1-tkg.1-vmware1 --namespace test-ns --values-schema`,
