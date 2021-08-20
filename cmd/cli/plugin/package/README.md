@@ -157,10 +157,12 @@ Use "tanzu package repository [command] --help" for more information about a com
 
     An example values.yaml is as follows:
     ```sh
-    outputs: |
-        [OUTPUT]
-          Name     stdout
-          Match    *
+    fluent_bit:
+      config:
+        outputs: |
+          [OUTPUT]
+            Name     stdout
+            Match    *
     ```
     
     Example 2: Install the latest version for package name "contour.tanzu.vmware.com". If the namespace does not exist beforehand, it gets created.
@@ -196,10 +198,12 @@ Use "tanzu package repository [command] --help" for more information about a com
    / Retrieving installation details for myfb...
 
    cat config.yaml
-   outputs: |
-       [OUTPUT]
-         Name     stdout
-         Match    *
+   fluent_bit:
+     config:
+       outputs: |
+         [OUTPUT]
+           Name     stdout
+           Match    *
    ```
 
 10. Update a package
@@ -241,10 +245,12 @@ Use "tanzu package repository [command] --help" for more information about a com
 
     An example values.yaml is as follows:
     ```sh
-    outputs: |
-        [OUTPUT]
-          Name     stdout
-          Match    /
+    fluent_bit:
+      config:
+        outputs: |
+          [OUTPUT]
+            Name     stdout
+            Match    /
     ```
 
 11. Uninstall a package

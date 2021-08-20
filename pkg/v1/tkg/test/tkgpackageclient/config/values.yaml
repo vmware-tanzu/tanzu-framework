@@ -1,4 +1,6 @@
-outputs: |
-    [OUTPUT]
-      Name     stdout
-      Match    *
+fluent_bit:
+  config:
+    outputs: |
+      [OUTPUT]
+        Name     stdout
+        Match    *
