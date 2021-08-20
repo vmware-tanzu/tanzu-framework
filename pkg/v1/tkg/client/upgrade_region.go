@@ -6,16 +6,19 @@ package client
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/util/version"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
@@ -24,6 +27,10 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 )
+
+// ErrorBlockUpgradeTMCIncompatible defines the error message to display during upgrade when cluster is registred to TMC and TMC does not support latest version of TKG
+// TODO: Add link to the document related to error message.
+const ErrorBlockUpgradeTMCIncompatible = "The management cluster cannot be upgraded to Tanzu Kubernetes Grid '%v' while registered to Tanzu Mission Control."
 
 // UpgradeManagementClusterOptions upgrade management cluster options
 type UpgradeManagementClusterOptions struct {
@@ -100,6 +107,12 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 	}
 	if isPacific {
 		return errors.New("upgrading 'Tanzu Kubernetes Cluster service for vSphere' management cluster is not yet supported")
+	}
+
+	// Validate the compatibility before upgrading management cluster
+	err = c.validateCompatibilityBeforeManagementClusterUpgrade(options, regionalClusterClient)
+	if err != nil {
+		return err
 	}
 
 	if err := c.configureVariablesForProvidersInstallation(regionalClusterClient); err != nil {
@@ -437,4 +450,76 @@ func (c *TkgClient) getPackageInstallTimeoutFromConfig() time.Duration {
 		}
 	}
 	return packageInstallTimeout
+}
+
+func (c *TkgClient) validateCompatibilityBeforeManagementClusterUpgrade(options *UpgradeClusterOptions, regionalClusterClient clusterclient.Client) error {
+	return c.validateCompatibilityWithTMC(regionalClusterClient, options.SkipPrompt)
+}
+
+// validateCompatibilityWithTMC validate compatibility of new TKG version with TMC if management cluster is registered with TMC
+func (c *TkgClient) validateCompatibilityWithTMC(regionalClusterClient clusterclient.Client, skipPrompt bool) error {
+	registered, err := regionalClusterClient.IsClusterRegisteredToTMC()
+	if err != nil || !registered {
+		return nil
+	}
+
+	log.Info("Management Cluster is registered with Tanzu Mission Control. Validating upgrade compatibility...")
+
+	tkgVersion, err := c.tkgBomClient.GetDefaultTKGReleaseVersion()
+	if err != nil {
+		return err
+	}
+
+	tmcInteropConfigMap := &corev1.ConfigMap{}
+	if err := regionalClusterClient.GetResource(tmcInteropConfigMap, "interop", constants.TmcNamespace, nil, nil); err != nil {
+		if apierrors.IsNotFound(err) {
+			// Compatibility has to be explicitly communicated by an existing iterop ConfigMap, hence failing.
+			// This is because old management cluster will not have this ConfigMap created
+			// and TMC will add this functionality in future.
+			return errors.Errorf(ErrorBlockUpgradeTMCIncompatible, tkgVersion)
+		}
+
+		if !skipPrompt {
+			log.Infof("error occurred while validating compatibility with Tanzu Mission Control, %v", err)
+			// TODO: Add link to the document related compatiility as part of the prompt message
+			if err := cli.AskForConfirmation("Unable to validate compatibility of new version with Tanzu Mission Control. Do you want to continue?"); err != nil {
+				return err
+			}
+		} else {
+			log.Infof("Warning: Unable to validate compatibility of new version with Tanzu Mission Control: %v", err)
+		}
+
+		return nil
+	}
+
+	// Get the supported versions by TMC. Below is the 'interop' ConfigMap sample.
+	// Also verify the `interop-schema-version` is of version 'v1'
+	//
+	// apiVersion: v1
+	// kind: ConfigMap
+	// metadata:
+	//   name: interop
+	//   namespace: vmware-system-tmc
+	// data:
+	//   interop-schema-version: "v1.0"
+	//   supported-versions: "v1.4.0;v1.4.1"
+	interopSchemaVersion, found := tmcInteropConfigMap.Data["interop-schema-version"]
+	if !found || interopSchemaVersion != "v1.0" {
+		return errors.Errorf(ErrorBlockUpgradeTMCIncompatible, tkgVersion)
+	}
+	supportedVersions, found := tmcInteropConfigMap.Data["supported-versions"]
+	if !found {
+		return errors.Errorf(ErrorBlockUpgradeTMCIncompatible, tkgVersion)
+	}
+
+	lstSupportedVersions := strings.Split(supportedVersions, ";")
+	for _, sv := range lstSupportedVersions {
+		if utils.CompareMajorMinorPatchVersion(sv, tkgVersion) {
+			// If compatible version is found return nil which will allow
+			// user to continue the upgrade as TMC supports new version of TKG
+			return nil
+		}
+	}
+
+	return errors.Errorf(ErrorBlockUpgradeTMCIncompatible, tkgVersion)
 }

@@ -74,6 +74,7 @@ func (t *tkgctl) UpgradeRegion(options UpgradeRegionOptions) error {
 		OSName:              options.OSName,
 		OSVersion:           options.OSVersion,
 		OSArch:              options.OSArch,
+		SkipPrompt:          options.SkipPrompt,
 	}
 	err = t.tkgClient.UpgradeManagementCluster(&upgradeClusterOption)
 	if err != nil {
