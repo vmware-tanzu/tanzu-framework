@@ -124,11 +124,11 @@ func (r *reconciler) updateConditions(ctx context.Context) error {
 		return errors.Wrap(err, "could not list TKRs")
 	}
 
-	r.UpdateTKRUpdatesAvailableCondition(tkrList.Items)
-
 	if err := r.UpdateTKRCompatibleCondition(ctx, tkrList.Items); err != nil {
 		return errors.Wrap(err, "failed to update Compatible condition for TKRs")
 	}
+
+	r.UpdateTKRUpdatesAvailableCondition(tkrList.Items)
 
 	for i := range tkrList.Items {
 		if err := r.client.Status().Update(ctx, &tkrList.Items[i]); err != nil {

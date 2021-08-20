@@ -244,6 +244,9 @@ var _ = Describe("UpdateTKRUpgradeAvailableCondition", func() {
 			tkr2, _ := NewTkrFromBom(version11810, bomContent18)
 			tkr3, _ := NewTkrFromBom(version1193, bomContent193)
 			tkr4, _ := NewTkrFromBom(version1191, bomContent191)
+			conditions.Set(&tkr2, conditions.TrueCondition(runv1.ConditionCompatible))
+			conditions.Set(&tkr3, conditions.TrueCondition(runv1.ConditionCompatible))
+			conditions.Set(&tkr4, conditions.TrueCondition(runv1.ConditionCompatible))
 			tkrs = []runv1.TanzuKubernetesRelease{tkr1, tkr4, tkr3, tkr2}
 		})
 		It("should update the UpgradeAvailable Condition with proper message", func() {
