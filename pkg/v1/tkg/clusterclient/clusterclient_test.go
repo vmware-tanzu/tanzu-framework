@@ -32,6 +32,7 @@ import (
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/utils/pointer"
+	capav1alpha3 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha3"
 	capiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
@@ -71,6 +72,7 @@ var imageRepository = "registry.tkg.vmware.new"
 func init() {
 	_ = capi.AddToScheme(scheme)
 	_ = capiv1alpha2.AddToScheme(scheme)
+	_ = capav1alpha3.AddToScheme(scheme)
 	_ = corev1.AddToScheme(scheme)
 	_ = controlplanev1.AddToScheme(scheme)
 	_ = appsv1.AddToScheme(scheme)
@@ -1932,6 +1934,140 @@ var _ = Describe("Cluster Client", func() {
 				Expect(errDelete).To(HaveOccurred())
 			})
 		})
+	})
+	Describe("UpdateAWSCNIIngressRules", func() {
+		var (
+			fakeClientSet crtclient.Client
+		)
+
+		BeforeEach(func() {
+			reInitialize()
+
+			fakeClientSet = fake.NewFakeClientWithScheme(scheme,
+				fakehelper.NewAWSCluster(fakehelper.TestAWSClusterOptions{
+					Name:      "fake-clusterName",
+					Namespace: "fake-namespace",
+					Region:    "us-east-1",
+				}),
+			)
+			crtClientFactory.NewClientReturns(fakeClientSet, nil)
+
+			clusterClientOptions = NewOptions(poller, crtClientFactory, discoveryClientFactory, nil)
+			kubeConfigPath := getConfigFilePath("config1.yaml")
+			clstClient, err = NewClient(kubeConfigPath, "", clusterClientOptions)
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		Context("When there are no existing CNI Ingress Rules", func() {
+			It("should have CNI Ingress rules for kapp-controller", func() {
+				err = clstClient.UpdateAWSCNIIngressRules("fake-clusterName", "fake-namespace")
+				Expect(err).NotTo(HaveOccurred())
+
+				awsCluster := &capav1alpha3.AWSCluster{}
+				err = clstClient.GetResource(awsCluster, "fake-clusterName", "fake-namespace", nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+
+				ingressRules := awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules
+				expectedIngressRules := capav1alpha3.CNIIngressRules{
+					{
+						Description: "kapp-controller",
+						Protocol:    capav1alpha3.SecurityGroupProtocolTCP,
+						FromPort:    DefaultKappControllerHostPort,
+						ToPort:      DefaultKappControllerHostPort,
+					},
+				}
+				Expect(ingressRules).To(Equal(expectedIngressRules))
+			})
+		})
+
+		Context("When there are existing CNI Ingress Rules", func() {
+			JustBeforeEach(func() {
+				awsCluster := &capav1alpha3.AWSCluster{}
+				err = clstClient.GetResource(awsCluster, "fake-clusterName", "fake-namespace", nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+
+				awsCluster.Spec.NetworkSpec.CNI = &capav1alpha3.CNISpec{
+					CNIIngressRules: capav1alpha3.CNIIngressRules{
+						{
+							Description: "antrea-controller",
+							Protocol:    capav1alpha3.SecurityGroupProtocolTCP,
+							FromPort:    10349,
+							ToPort:      10349,
+						},
+					},
+				}
+				err = clstClient.UpdateResource(awsCluster, "fake-clusterName", "fake-namespace")
+				Expect(err).NotTo(HaveOccurred())
+			})
+
+			It("should have CNI Ingress rules for kapp-controller", func() {
+				err = clstClient.UpdateAWSCNIIngressRules("fake-clusterName", "fake-namespace")
+				Expect(err).NotTo(HaveOccurred())
+
+				awsCluster := &capav1alpha3.AWSCluster{}
+				err = clstClient.GetResource(awsCluster, "fake-clusterName", "fake-namespace", nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+
+				ingressRules := awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules
+				expectedIngressRules := capav1alpha3.CNIIngressRules{
+					{
+						Description: "antrea-controller",
+						Protocol:    capav1alpha3.SecurityGroupProtocolTCP,
+						FromPort:    10349,
+						ToPort:      10349,
+					},
+					{
+						Description: "kapp-controller",
+						Protocol:    capav1alpha3.SecurityGroupProtocolTCP,
+						FromPort:    DefaultKappControllerHostPort,
+						ToPort:      DefaultKappControllerHostPort,
+					},
+				}
+				Expect(ingressRules).To(Equal(expectedIngressRules))
+			})
+		})
+
+		Context("When kapp-controller CNI Ingress Rules already exist", func() {
+			JustBeforeEach(func() {
+				awsCluster := &capav1alpha3.AWSCluster{}
+				err = clstClient.GetResource(awsCluster, "fake-clusterName", "fake-namespace", nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+
+				awsCluster.Spec.NetworkSpec.CNI = &capav1alpha3.CNISpec{
+					CNIIngressRules: capav1alpha3.CNIIngressRules{
+						{
+							Description: "kapp-controller",
+							Protocol:    capav1alpha3.SecurityGroupProtocolTCP,
+							FromPort:    DefaultKappControllerHostPort,
+							ToPort:      DefaultKappControllerHostPort,
+						},
+					},
+				}
+				err = clstClient.UpdateResource(awsCluster, "fake-clusterName", "fake-namespace")
+				Expect(err).NotTo(HaveOccurred())
+			})
+
+			It("should have CNI Ingress rules for kapp-controller", func() {
+				err = clstClient.UpdateAWSCNIIngressRules("fake-clusterName", "fake-namespace")
+				Expect(err).NotTo(HaveOccurred())
+
+				awsCluster := &capav1alpha3.AWSCluster{}
+				err = clstClient.GetResource(awsCluster, "fake-clusterName", "fake-namespace", nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+
+				ingressRules := awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules
+				expectedIngressRules := capav1alpha3.CNIIngressRules{
+					{
+						Description: "kapp-controller",
+						Protocol:    capav1alpha3.SecurityGroupProtocolTCP,
+						FromPort:    DefaultKappControllerHostPort,
+						ToPort:      DefaultKappControllerHostPort,
+					},
+				}
+				Expect(ingressRules).To(Equal(expectedIngressRules))
+			})
+		})
+
 	})
 	Describe("Get Pinniped Issuer URL and Issuer CA", func() {
 		var pinnipedFederationDomainObjectReturnErr error

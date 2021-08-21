@@ -74,6 +74,8 @@ import (
 const (
 	kubectlApplyRetryTimeout  = 30 * time.Second
 	kubectlApplyRetryInterval = 5 * time.Second
+	// DefaultKappControllerHostPort is the default kapp-controller port for it's extension apiserver
+	DefaultKappControllerHostPort = 10100
 )
 
 // Client provides various aspects of interaction with a Kubernetes cluster provisioned by TKG
@@ -247,6 +249,8 @@ type Client interface {
 	PatchClusterObject(clusterName, clusterNamespace string, patchJSONString string) error
 	// DeleteExistingKappController deletes the kapp-controller that already exists in the cluster.
 	DeleteExistingKappController() error
+	// UpdateAWSCNIIngressRules updates the cniIngressRules field for the AWSCluster resource.
+	UpdateAWSCNIIngressRules(clusterName, clusterNamespace string) error
 	// AddCEIPTelemetryJob creates telemetry cronjob component on cluster
 	AddCEIPTelemetryJob(clusterName, providerName string, bomConfig *tkgconfigbom.BOMConfiguration, isProd, labels, httpProxy, httpsProxy, noProxy string) error
 	// RemoveCEIPTelemetryJob deletes telemetry cronjob component on cluster
@@ -2066,6 +2070,55 @@ func (c *client) DeleteExistingKappController() error {
 		if err := c.DeleteResource(serviceAccount); err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+// UpdateAWSCNIIngressRules updates the cniIngressRules field for AWSCluster to allow for
+// kapp-controller host port that was added in newer versions.
+func (c *client) UpdateAWSCNIIngressRules(clusterName, clusterNamespace string) error {
+	awsCluster := &capav1alpha3.AWSCluster{}
+	if err := c.GetResource(awsCluster, clusterName, clusterNamespace, nil, nil); err != nil {
+		return err
+	}
+
+	if awsCluster.Spec.NetworkSpec.CNI == nil {
+		awsCluster.Spec.NetworkSpec.CNI = &capav1alpha3.CNISpec{}
+	}
+
+	if awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules == nil {
+		awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules = capav1alpha3.CNIIngressRules{}
+	}
+
+	cniIngressRules := awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules
+	// first check if existing ingress rules contains the kapp-controller port
+	for _, ingressRule := range cniIngressRules {
+		if ingressRule.Description != "kapp-controller" {
+			continue
+		}
+
+		if ingressRule.Protocol != capav1alpha3.SecurityGroupProtocolTCP {
+			continue
+		}
+
+		if ingressRule.FromPort != DefaultKappControllerHostPort || ingressRule.ToPort != DefaultKappControllerHostPort {
+			continue
+		}
+
+		return nil
+	}
+
+	cniIngressRules = append(cniIngressRules, &capav1alpha3.CNIIngressRule{
+		Description: "kapp-controller",
+		Protocol:    capav1alpha3.SecurityGroupProtocolTCP,
+		FromPort:    DefaultKappControllerHostPort,
+		ToPort:      DefaultKappControllerHostPort,
+	})
+
+	awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules = cniIngressRules
+	if err := c.UpdateResource(awsCluster, clusterName, clusterNamespace); err != nil {
+		return err
 	}
 
 	return nil

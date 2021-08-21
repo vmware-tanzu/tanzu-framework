@@ -140,6 +140,16 @@ type ClusterClient struct {
 	deleteExistingKappControllerReturnsOnCall map[int]struct {
 		result1 error
 	}
+	UpdateAWSCNIIngressRulesStub        func() error
+	updateAWSCNIIngressRulesMutex       sync.RWMutex
+	updateAWSCNIIngressRulesArgsForCall []struct {
+	}
+	updateAWSCNIIngressRulesReturns struct {
+		result1 error
+	}
+	updateAWSCNIIngressRulesReturnsOnCall map[int]struct {
+		result1 error
+	}
 	DeleteResourceStub        func(interface{}) error
 	deleteResourceMutex       sync.RWMutex
 	deleteResourceArgsForCall []struct {
@@ -1662,6 +1672,59 @@ func (fake *ClusterClient) DeleteExistingKappControllerReturnsOnCall(i int, resu
 		})
 	}
 	fake.deleteExistingKappControllerReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ClusterClient) UpdateAWSCNIIngressRules(clusterName, clusterNamespace string) error {
+	fake.updateAWSCNIIngressRulesMutex.Lock()
+	ret, specificReturn := fake.updateAWSCNIIngressRulesReturnsOnCall[len(fake.updateAWSCNIIngressRulesArgsForCall)]
+	fake.updateAWSCNIIngressRulesArgsForCall = append(fake.updateAWSCNIIngressRulesArgsForCall, struct {
+	}{})
+	stub := fake.UpdateAWSCNIIngressRulesStub
+	fakeReturns := fake.updateAWSCNIIngressRulesReturns
+	fake.recordInvocation("UpdateAWSCNIIngressRules", []interface{}{})
+	fake.updateAWSCNIIngressRulesMutex.Unlock()
+	if stub != nil {
+		return stub()
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *ClusterClient) UpdateAWSCNIIngressRulesCallCount() int {
+	fake.updateAWSCNIIngressRulesMutex.RLock()
+	defer fake.updateAWSCNIIngressRulesMutex.RUnlock()
+	return len(fake.updateAWSCNIIngressRulesArgsForCall)
+}
+
+func (fake *ClusterClient) UpdateAWSCNIIngressRulesCalls(stub func() error) {
+	fake.updateAWSCNIIngressRulesMutex.Lock()
+	defer fake.updateAWSCNIIngressRulesMutex.Unlock()
+	fake.UpdateAWSCNIIngressRulesStub = stub
+}
+
+func (fake *ClusterClient) UpdateAWSCNIIngressRulesReturns(result1 error) {
+	fake.updateAWSCNIIngressRulesMutex.Lock()
+	defer fake.updateAWSCNIIngressRulesMutex.Unlock()
+	fake.UpdateAWSCNIIngressRulesStub = nil
+	fake.updateAWSCNIIngressRulesReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ClusterClient) UpdateAWSCNIIngressRulesReturnsOnCall(i int, result1 error) {
+	fake.updateAWSCNIIngressRulesMutex.Lock()
+	defer fake.updateAWSCNIIngressRulesMutex.Unlock()
+	fake.UpdateAWSCNIIngressRulesStub = nil
+	if fake.updateAWSCNIIngressRulesReturnsOnCall == nil {
+		fake.updateAWSCNIIngressRulesReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.updateAWSCNIIngressRulesReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
 }
@@ -6018,6 +6081,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.deleteClusterMutex.RUnlock()
 	fake.deleteExistingKappControllerMutex.RLock()
 	defer fake.deleteExistingKappControllerMutex.RUnlock()
+	fake.updateAWSCNIIngressRulesMutex.RLock()
+	defer fake.updateAWSCNIIngressRulesMutex.RUnlock()
 	fake.deleteResourceMutex.RLock()
 	defer fake.deleteResourceMutex.RUnlock()
 	fake.exportCurrentKubeconfigToFileMutex.RLock()
