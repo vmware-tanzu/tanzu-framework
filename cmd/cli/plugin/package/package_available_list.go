@@ -26,6 +26,7 @@ var packageAvailableListCmd = &cobra.Command{
 }
 
 func init() {
+	packageAvailableListCmd.Flags().BoolVarP(&packageAvailableOp.AllNamespaces, "all-namespaces", "A", false, "If present, list packages across all namespaces, optional")
 	packageAvailableCmd.AddCommand(packageAvailableListCmd)
 }
 
