@@ -46,6 +46,7 @@ const (
 	ConfigVariableVsphereTemplate             = "VSPHERE_TEMPLATE"
 	ConfigVariableVsphereDatacenter           = "VSPHERE_DATACENTER"
 	ConfigVariableVsphereResourcePool         = "VSPHERE_RESOURCE_POOL"
+	ConfigVariableVsphereStoragePolicyID      = "VSPHERE_STORAGE_POLICY_ID"
 	ConfigVariableVsphereDatastore            = "VSPHERE_DATASTORE"
 	ConfigVariableVsphereFolder               = "VSPHERE_FOLDER"
 	ConfigVariableVsphereNumCpus              = "VSPHERE_NUM_CPUS"
