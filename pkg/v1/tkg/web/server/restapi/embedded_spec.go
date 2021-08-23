@@ -3328,7 +3328,8 @@ func init() {
             "respool",
             "vm",
             "datastore",
-            "host"
+            "host",
+            "network"
           ]
         }
       }
@@ -6834,7 +6835,8 @@ func init() {
             "respool",
             "vm",
             "datastore",
-            "host"
+            "host",
+            "network"
           ]
         }
       }
