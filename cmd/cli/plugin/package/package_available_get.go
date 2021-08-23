@@ -56,7 +56,7 @@ func validatePackage(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func packageAvailableGet(cmd *cobra.Command, args []string) error { //nolint:gocyclo
+func packageAvailableGet(cmd *cobra.Command, args []string) error {
 	kc, kcErr := kappclient.NewKappClient(packageAvailableOp.KubeConfig)
 	if kcErr != nil {
 		return kcErr
@@ -64,39 +64,11 @@ func packageAvailableGet(cmd *cobra.Command, args []string) error { //nolint:goc
 	if packageAvailableOp.AllNamespaces {
 		packageAvailableOp.Namespace = ""
 	}
-	if packageAvailableOp.ValuesSchema {
-		if pkgVersion == "" {
-			return errors.New("version is required when values-schema flag is declared. Please specify <PACKAGE-NAME>/<VERSION>")
-		}
-		pkg, pkgGetErr := kc.GetPackage(fmt.Sprintf("%s.%s", pkgName, pkgVersion), packageAvailableOp.Namespace)
-		if pkgGetErr != nil {
-			if apierrors.IsNotFound(pkgGetErr) {
-				return errors.Errorf("package '%s/%s' does not exist in the '%s' namespace", pkgName, pkgVersion, packageAvailableOp.Namespace)
-			}
-			return pkgGetErr
-		}
 
-		t, err := component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), outputFormat,
-			fmt.Sprintf("Retrieving package details for %s...", args[0]), true)
-		if err != nil {
+	if packageAvailableOp.ValuesSchema {
+		if err := getValuesSchema(cmd, args, kc); err != nil {
 			return err
 		}
-
-		var parseErr error
-		dataValuesSchemaParser, parseErr := tkgpackageclient.NewValuesSchemaParser(pkg.Spec.ValuesSchema)
-		if parseErr != nil {
-			return parseErr
-		}
-		parsedProperties, parseErr := dataValuesSchemaParser.ParseProperties()
-		if parseErr != nil {
-			return parseErr
-		}
-
-		t.SetKeys("KEY", "DEFAULT", "TYPE", "DESCRIPTION")
-		for _, v := range parsedProperties {
-			t.AddRow(v.Key, v.Default, v.Type, v.Description)
-		}
-		t.RenderWithSpinner()
 		return nil
 	}
 
@@ -138,5 +110,42 @@ func packageAvailableGet(cmd *cobra.Command, args []string) error { //nolint:goc
 
 		t.RenderWithSpinner()
 	}
+	return nil
+}
+
+func getValuesSchema(cmd *cobra.Command, args []string, kc kappclient.Client) error {
+	if pkgVersion == "" {
+		return errors.New("version is required when values-schema flag is declared. Please specify <PACKAGE-NAME>/<VERSION>")
+	}
+	pkg, pkgGetErr := kc.GetPackage(fmt.Sprintf("%s.%s", pkgName, pkgVersion), packageAvailableOp.Namespace)
+	if pkgGetErr != nil {
+		if apierrors.IsNotFound(pkgGetErr) {
+			return errors.Errorf("package '%s/%s' does not exist in the '%s' namespace", pkgName, pkgVersion, packageAvailableOp.Namespace)
+		}
+		return pkgGetErr
+	}
+
+	t, err := component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), outputFormat,
+		fmt.Sprintf("Retrieving package details for %s...", args[0]), true)
+	if err != nil {
+		return err
+	}
+
+	var parseErr error
+	dataValuesSchemaParser, parseErr := tkgpackageclient.NewValuesSchemaParser(pkg.Spec.ValuesSchema)
+	if parseErr != nil {
+		return parseErr
+	}
+	parsedProperties, parseErr := dataValuesSchemaParser.ParseProperties()
+	if parseErr != nil {
+		return parseErr
+	}
+
+	t.SetKeys("KEY", "DEFAULT", "TYPE", "DESCRIPTION")
+	for _, v := range parsedProperties {
+		t.AddRow(v.Key, v.Default, v.Type, v.Description)
+	}
+	t.RenderWithSpinner()
+
 	return nil
 }
