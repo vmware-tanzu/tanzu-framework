@@ -11,6 +11,7 @@ on:
       - 'pkg/v1/tkg/kappclient/*'
       - 'pkg/v1/tkg/test/tkgpackageclient/**'
       - 'cmd/cli/plugin/package/**'
+      - 'pkg/v1/tkg/tkgctl'
 
 concurrency:
   group: ${{ format('package-plugin-integration-tests-{0}', github.head_ref) }}

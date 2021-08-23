@@ -42,7 +42,7 @@ func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progres
 
 	if pkgInstall == nil {
 		if !o.Install {
-			err = errors.New(fmt.Sprintf("package '%s' is not among the list of installed packages in namespace '%s'", o.PkgInstallName, o.Namespace))
+			err = errors.New(fmt.Sprintf("package '%s' is not among the list of installed packages in namespace '%s'. Consider using the install flag to install the package", o.PkgInstallName, o.Namespace))
 			return
 		}
 		if o.PackageName == "" {
@@ -70,7 +70,6 @@ func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progres
 
 	if o.ValuesFile != "" {
 		o.SecretName = fmt.Sprintf(tkgpackagedatamodel.SecretName, o.PkgInstallName, o.Namespace)
-
 		if o.SecretName == pkgInstallToUpdate.GetAnnotations()[tkgpackagedatamodel.TanzuPkgPluginAnnotation+"-Secret"] {
 			progress.ProgressMsg <- fmt.Sprintf("Updating secret '%s'", o.SecretName)
 			if err = p.updateDataValuesSecret(o); err != nil {
@@ -84,6 +83,14 @@ func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progres
 				err = errors.Wrap(err, "failed to create secret based on values file")
 				return
 			}
+		}
+
+		pkgInstallToUpdate.Spec.Values = []kappipkg.PackageInstallValues{
+			{
+				SecretRef: &kappipkg.PackageInstallValuesSecretRef{
+					Name: fmt.Sprintf(tkgpackagedatamodel.SecretName, o.PkgInstallName, o.Namespace),
+				},
+			},
 		}
 	}
 
