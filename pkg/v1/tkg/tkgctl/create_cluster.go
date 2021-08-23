@@ -288,6 +288,14 @@ func (t *tkgctl) configureCreateClusterOptionsFromConfigFile(cc *CreateClusterOp
 		}
 	}
 
+	// set BuildEdition from config variable
+	if cc.Edition == "" {
+		edition, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableBuildEdition)
+		if err == nil {
+			cc.Edition = edition
+		}
+	}
+
 	return nil
 }
 
