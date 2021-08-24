@@ -25,6 +25,9 @@ const (
 	// TKRNamespace is the TKR namespace
 	TKRNamespace = "tkr-system"
 
+	// TKRControllerLeaderElectionCM is the ConfigMap used as the TKR Controller leader election lock
+	TKRControllerLeaderElectionCM = "abf9f9ab.tanzu.vmware.com"
+
 	// TKGNamespace is the TKG namespace
 	TKGNamespace = "tkg-system"
 
