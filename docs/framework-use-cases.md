@@ -1,7 +1,7 @@
 # Use cases
 
-This document aims to provide some use cases for Framework to understand the
-project's context.
+This document provides some use cases for Framework to understand the project's
+context.
 
 ## Use Case #1 - CLI Plugins
 
@@ -48,7 +48,6 @@ on various infrastructure providers is complex. The lack of a standard means to
 discover details about cluster resource composition and API surface area could
 result in manual poking and prodding by teams and this approach could 
 eventually manifest as undesirable patterns.
-
 
 ### Solution
 Framework provides Capability discovery [GO package](https://github.com/vmware-tanzu/tanzu-framework/tree/main/pkg/v1/sdk/capabilities/discovery)
