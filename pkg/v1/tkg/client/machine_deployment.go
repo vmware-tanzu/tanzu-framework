@@ -98,6 +98,7 @@ func (c *TkgClient) SetMachineDeployment(options *SetMachineDeploymentOptions) e
 	for k, v := range options.Labels {
 		baseWorker.Spec.Template.Labels[k] = v
 	}
+	baseWorker.Spec.Template.Labels["cluster.x-k8s.io/deployment-name"] = options.Name
 
 	kcTemplate, err := retrieveKubeadmConfigTemplate(clusterClient, baseWorker.Spec.Template.Spec.Bootstrap.ConfigRef)
 	if err != nil {
@@ -131,6 +132,7 @@ func (c *TkgClient) SetMachineDeployment(options *SetMachineDeploymentOptions) e
 		}
 
 		baseWorker.ResourceVersion = ""
+		baseWorker.Spec.Selector.MatchLabels["cluster.x-k8s.io/deployment-name"] = options.Name
 		baseWorker.Spec.Template.Spec.Bootstrap.ConfigRef.Name = kcTemplate.Name
 		baseWorker.Spec.Template.Spec.InfrastructureRef.Name = machineTemplateName
 		if options.AZ != "" {
