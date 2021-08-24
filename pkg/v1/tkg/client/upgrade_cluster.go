@@ -46,6 +46,8 @@ type UpgradeClusterOptions struct {
 	IsRegionalCluster   bool
 	SkipAddonUpgrade    bool
 	SkipPrompt          bool
+	// Tanzu edition (either tce or tkg)
+	Edition string
 }
 
 type mdInfastructureTemplateInfo struct {
@@ -287,7 +289,7 @@ func (c *TkgClient) DoClusterUpgrade(regionalClusterClient clusterclient.Client,
 	// once we update the TKG version in cluster object
 	if !options.IsRegionalCluster && !options.SkipAddonUpgrade {
 		return c.upgradeAddons(regionalClusterClient, currentClusterClient, upgradeClusterConfig.ClusterName,
-			upgradeClusterConfig.ClusterNamespace, options.IsRegionalCluster)
+			upgradeClusterConfig.ClusterNamespace, options.IsRegionalCluster, options.Edition)
 	}
 	return nil
 }
@@ -310,7 +312,7 @@ func (c *TkgClient) addKubernetesReleaseLabel(regionalClusterClient clusterclien
 }
 
 func (c *TkgClient) upgradeAddons(regionalClusterClient clusterclient.Client, currentClusterClient clusterclient.Client,
-	clusterName string, clusterNamespace string, isRegionalCluster bool) error {
+	clusterName string, clusterNamespace string, isRegionalCluster bool, tanzuEdition string) error {
 
 	addonsToBeUpgraded := []string{
 		"metadata/tkg",
@@ -327,6 +329,7 @@ func (c *TkgClient) upgradeAddons(regionalClusterClient clusterclient.Client, cu
 		ClusterName:       clusterName,
 		Namespace:         clusterNamespace,
 		IsRegionalCluster: isRegionalCluster,
+		Edition:           tanzuEdition,
 	}
 
 	err := c.DoUpgradeAddon(regionalClusterClient, currentClusterClient, upgradeClusterMetadataOptions, c.GetClusterConfiguration)

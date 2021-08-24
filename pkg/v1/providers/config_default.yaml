@@ -54,7 +54,9 @@ ENABLE_TKGS_ON_VSPHERE7:
 #! management cluster for it to register with Tanzu Mission Control
 TMC_REGISTRATION_URL:
 
-
+#! BUILD_EDITION is the Tanzu Edition, the plugin should be built for.
+#! Valid values for BUILD_EDITION are 'tce' and 'tkg'.
+BUILD_EDITION:
 
 #! ---------------------------------------------------------------------
 #! Settings for vSphere infrastructure provider
