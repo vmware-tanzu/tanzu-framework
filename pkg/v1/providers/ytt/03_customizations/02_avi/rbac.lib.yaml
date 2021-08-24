@@ -1,0 +1,230 @@
+#@ def role():
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app: tanzu-ako-operator
+  name: ako-operator-leader-election-role
+  namespace: tkg-system-networking
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps/status
+    verbs:
+      - get
+      - update
+      - patch
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+#@ end
+
+#@ def clusterrole_manager():
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  labels:
+    app: tanzu-ako-operator
+  name: ako-operator-manager-role
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - services
+      - services/status
+      - endpoints
+      - endpoints/status
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+  - apiGroups:
+      - addons.cluster.x-k8s.io
+    resources:
+      - clusterresourcesets
+      - clusterresourcesets/status
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - cluster.x-k8s.io
+    resources:
+      - clusters
+      - clusters/status
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - cluster.x-k8s.io
+    resources:
+      - machines
+      - machines/status
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - update
+      - watch
+  - apiGroups:
+      - networking.tkg.tanzu.vmware.com
+    resources:
+      - akodeploymentconfigs
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - networking.tkg.tanzu.vmware.com
+    resources:
+      - akodeploymentconfigs/status
+    verbs:
+      - get
+      - patch
+      - update
+#@ end
+
+#@ def clusterrole_proxy():
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app: tanzu-ako-operator
+  name: ako-operator-proxy-role
+rules:
+  - apiGroups:
+      - authentication.k8s.io
+    resources:
+      - tokenreviews
+    verbs:
+      - create
+  - apiGroups:
+      - authorization.k8s.io
+    resources:
+      - subjectaccessreviews
+    verbs:
+      - create
+#@ end
+
+#@ def clusterrole_metrics_reader():
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  labels:
+    app: tanzu-ako-operator
+  name: ako-operator-metrics-reader
+rules:
+  - nonResourceURLs:
+      - /metrics
+    verbs:
+      - get
+#@ end
+
+#@ def rolebinding():
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app: tanzu-ako-operator
+  name: ako-operator-leader-election-rolebinding
+  namespace: tkg-system-networking
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ako-operator-leader-election-role
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: tkg-system-networking
+#@ end
+
+#@ def clusterrolebinding_manager():
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app: tanzu-ako-operator
+  name: ako-operator-manager-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: ako-operator-manager-role
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: tkg-system-networking
+#@ end
+
+#@ def clusterrolebinding_proxy():
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app: tanzu-ako-operator
+  name: ako-operator-proxy-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: ako-operator-proxy-role
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: tkg-system-networking
+#@ end
+
+#@ def rbacyaml():
+--- #@ role()
+--- #@ clusterrole_manager()
+--- #@ clusterrole_proxy()
+--- #@ clusterrole_metrics_reader()
+--- #@ rolebinding()
+--- #@ clusterrolebinding_manager()
+--- #@ clusterrolebinding_proxy()
+#@ end

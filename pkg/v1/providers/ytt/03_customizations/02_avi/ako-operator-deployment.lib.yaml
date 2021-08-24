@@ -1,10 +1,52 @@
 #@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:base64", "base64")
 #@ load("/lib/helpers.star", "get_default_tkr_bom_data", "get_default_tkg_bom_data", "tkg_image_repo")
 
 #@ akooRepo = get_default_tkr_bom_data().components["ako-operator"][0]
 #@ akoRepo = get_default_tkr_bom_data().components["load-balancer-and-ingress-service"][0]
 #@ rbacRepo = get_default_tkg_bom_data().components["kube_rbac_proxy"][0]
+
+#@ def akooperatoryaml():
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: #@ data.values.AVI_NAMESPACE
+--- #@ akoo_deployment()
+#@ end
+
+#@ def update_mc_akodeploymentconfig():
+#@overlay/match missing_ok=True
+clusterSelector:
+  #@overlay/replace
+  matchLabels:
+    #@ if data.values.TKG_CLUSTER_ROLE != "workload":
+    cluster-role.tkg.tanzu.vmware.com/management: ""
+    #@ end
+#@overlay/match missing_ok=True
+dataNetwork:
+  #@overlay/replace
+  name: #@ data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME
+  cidr: #@ data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR
+#@ end
+
+#@ def akoconfigyaml():
+---
+apiVersion: networking.tkg.tanzu.vmware.com/v1alpha1
+kind: AKODeploymentConfig
+metadata:
+  name: install-ako-for-all
+spec: #@ avi_configs_spec()
+---
+apiVersion: networking.tkg.tanzu.vmware.com/v1alpha1
+kind: AKODeploymentConfig
+metadata:
+  name: install-ako-for-management-cluster
+spec: #@ overlay.apply(avi_configs_spec(), update_mc_akodeploymentconfig())
+--- #@ avi_credentials()
+--- #@ avi_certificate()
+#@ end
 
 #@ def labels():
 app: tanzu-ako-operator
@@ -43,7 +85,7 @@ spec:
             - --upstream=http://127.0.0.1:8080/
             - --logtostderr=true
             - --v=10
-          image: #@ rbac_image() 
+          image: #@ rbac_image()
           name: kube-rbac-proxy
           ports:
             - containerPort: 8443
@@ -58,11 +100,11 @@ spec:
             - name: bootstrap_cluster
               value: "False"
             - name: avi_control_plane_ha_provider
-              value: #@ "{}".format(data.values.AVI_CONTROL_PLANE_HA_PROVIDER)  
+              value: #@ "{}".format(data.values.AVI_CONTROL_PLANE_HA_PROVIDER)
             - name: tkg_management_cluster_name
-              value: #@ data.values.CLUSTER_NAME     
+              value: #@ data.values.CLUSTER_NAME
             - name: control_plane_endpoint_port
-              value: #@ "{}".format(data.values.VSPHERE_CONTROL_PLANE_ENDPOINT_PORT)     
+              value: #@ "{}".format(data.values.VSPHERE_CONTROL_PLANE_ENDPOINT_PORT)
           resources:
             limits:
               cpu: 100m
@@ -71,13 +113,13 @@ spec:
               cpu: 100m
               memory: 100Mi
       terminationGracePeriodSeconds: 10
-#@ end
+  #@ end
 
-#@ def avi_configs_spec():
-#@ if data.values.AVI_LABELS != "":
+  #@ def avi_configs_spec():
+  #@ if data.values.AVI_LABELS != "":
   clusterSelector:
     matchLabels: #@ data.values.AVI_LABELS
-#@ end
+  #@ end
   cloudName: #@ data.values.AVI_CLOUD_NAME
   serviceEngineGroup: #@ data.values.AVI_SERVICE_ENGINE_GROUP
   controller: #@ data.values.AVI_CONTROLLER
@@ -99,10 +141,10 @@ spec:
     ingress:
       disableIngressClass: #@ data.values.AVI_DISABLE_INGRESS_CLASS
       defaultIngressController: #@ data.values.AVI_INGRESS_DEFAULT_INGRESS_CONTROLLER
-#@ if data.values.AVI_INGRESS_SHARD_VS_SIZE != "":
+      #@ if data.values.AVI_INGRESS_SHARD_VS_SIZE != "":
       shardVSSize: #@ data.values.AVI_INGRESS_SHARD_VS_SIZE
-#@ end
-#@ if data.values.AVI_INGRESS_SERVICE_TYPE != "":
+      #@ end
+      #@ if data.values.AVI_INGRESS_SERVICE_TYPE != "":
       serviceType: #@ data.values.AVI_INGRESS_SERVICE_TYPE
 #@ end
 #@ end
