@@ -16,12 +16,10 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/ghttp"
-	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
-	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake" // nolint:staticcheck
@@ -101,7 +99,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 			BeforeEach(func() {
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
 				fakeClientSet = fake.NewFakeClientWithScheme(scheme,
-					createFakeClusterAndInfraStructureRefObjects(mgmtClusterName, searchNamespace, endpoint, "VSphereCluster")...)
+					createFakeClusterRefObjects(mgmtClusterName, searchNamespace, endpoint)...)
 				tlsserver.AppendHandlers(
 					ghttp.CombineHandlers(
 						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/cluster-info"),
@@ -124,7 +122,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				pinnipedInfo = fakehelper.GetFakePinnipedInfo(mgmtClusterName, issuer, issuerCA)
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
 				fakeClientSet = fake.NewFakeClientWithScheme(scheme,
-					createFakeClusterAndInfraStructureRefObjects(mgmtClusterName, searchNamespace, endpoint, "VSphereCluster")...)
+					createFakeClusterRefObjects(mgmtClusterName, searchNamespace, endpoint)...)
 				tlsserver.AppendHandlers(
 					ghttp.CombineHandlers(
 						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/cluster-info"),
@@ -182,7 +180,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				searchNamespace = constants.DefaultNamespace
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
 				fakeClientSet = fake.NewFakeClientWithScheme(scheme,
-					createFakeClusterAndInfraStructureRefObjects("fake-workload-cluster", searchNamespace, endpoint, "VSphereCluster")...)
+					createFakeClusterRefObjects("fake-workload-cluster", searchNamespace, endpoint)...)
 				tlsserver.AppendHandlers(
 					ghttp.CombineHandlers(
 						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/cluster-info"),
@@ -206,7 +204,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				searchNamespace = constants.DefaultNamespace
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
 				fakeClientSet = fake.NewFakeClientWithScheme(scheme,
-					createFakeClusterAndInfraStructureRefObjects("fake-workload-cluster", searchNamespace, endpoint, "VSphereCluster")...)
+					createFakeClusterRefObjects("fake-workload-cluster", searchNamespace, endpoint)...)
 				tlsserver.AppendHandlers(
 					ghttp.CombineHandlers(
 						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/cluster-info"),
@@ -255,7 +253,11 @@ func getFakeKubeConfigFilePathWithServer(testingDir, endpoint, clustername strin
 }
 
 // TODO: Should be merged to pkg/fakes/helpers/fakeobjectcreator.go
-func createFakeClusterAndInfraStructureRefObjects(name, namespace, endpoint, infrastructureKind string) []runtime.Object { // nolint:unparam
+func createFakeClusterRefObjects(name, namespace, endpoint string) []runtime.Object {
+	u, _ := url.Parse(endpoint)
+	host, port, _ := net.SplitHostPort(u.Host)
+	portInt32, _ := strconv.ParseInt(port, 10, 32)
+
 	// create a cluster object
 	cluster := &capi.Cluster{
 		TypeMeta: metav1.TypeMeta{
@@ -268,30 +270,14 @@ func createFakeClusterAndInfraStructureRefObjects(name, namespace, endpoint, inf
 		},
 
 		Spec: capi.ClusterSpec{
-			InfrastructureRef: &corev1.ObjectReference{
-				Kind: infrastructureKind,
-			},
-		},
-	}
-
-	u, _ := url.Parse(endpoint)
-	host, port, _ := net.SplitHostPort(u.Host)
-	portInt32, _ := strconv.ParseInt(port, 10, 32)
-	// create a VSphereCluster object from which API server url is read
-	vsphereCluster := &capvv1alpha3.VSphereCluster{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
-			Namespace: namespace,
-		},
-		Spec: capvv1alpha3.VSphereClusterSpec{
-			ControlPlaneEndpoint: capvv1alpha3.APIEndpoint{
+			ControlPlaneEndpoint: capi.APIEndpoint{
 				Host: host,
 				Port: int32(portInt32),
 			},
 		},
 	}
+
 	runtimeObjects := []runtime.Object{}
 	runtimeObjects = append(runtimeObjects, cluster)
-	runtimeObjects = append(runtimeObjects, vsphereCluster)
 	return runtimeObjects
 }
