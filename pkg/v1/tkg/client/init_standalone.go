@@ -17,7 +17,6 @@ limitations under the License.
 package client
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -161,9 +160,6 @@ func (c *TkgClient) InitStandaloneRegion(options *InitRegionOptions) error { //n
 	isStartedRegionalClusterCreation = true
 
 	targetClusterNamespace := defaultTkgNamespace
-	// if options.Namespace != "" {
-	// 	targetClusterNamespace = options.Namespace
-	// }
 
 	log.SendProgressUpdate(statusRunning, StepCreateStandaloneCluster, InitSARegionSteps)
 	log.Info("Start creating standalone cluster...")
@@ -174,7 +170,6 @@ func (c *TkgClient) InitStandaloneRegion(options *InitRegionOptions) error { //n
 
 	// save this context to tkg config incase the standalone cluster creation fails
 	regionContext = region.RegionContext{ClusterName: options.ClusterName, ContextName: "kind-" + bootstrapClusterName, SourceFilePath: bootstrapClusterKubeconfigPath, Status: region.Failed}
-	fmt.Printf("regionContext:\n%v", regionContext)
 
 	kubeConfigBytes, err := c.WaitForClusterInitializedAndGetKubeConfig(bootStrapClusterClient, options.ClusterName, targetClusterNamespace)
 	if err != nil {
