@@ -61,8 +61,6 @@ import (
 // InitStandalone initializes standalone cluster
 func (t *tkgctl) InitStandalone(options InitRegionOptions) error {
 	var err error
-
-	log.Infof("\nloading cluster config file at %s", options.ClusterConfigFile)
 	options.ClusterConfigFile, err = t.ensureClusterConfigFile(options.ClusterConfigFile)
 	if err != nil {
 		return err
@@ -77,7 +75,6 @@ func (t *tkgctl) InitStandalone(options InitRegionOptions) error {
 	if err != nil {
 		return err
 	}
-	log.Infof("\nloaded coreprovider: %s, bootstrapprovider: %s, and cp-provider: %s", options.CoreProvider, options.BootstrapProvider, options.ControlPlaneProvider)
 
 	err = t.configureInitManagementClusterOptionsFromConfigFile(&options)
 	if err != nil {
@@ -194,9 +191,18 @@ func (t *tkgctl) InitStandalone(options InitRegionOptions) error {
 		if err != nil {
 			return errors.Wrap(err, "unable to set up standalone cluster")
 		}
-
-		log.Infof("\nStandalone cluster created!\n\n")
+		logStandaloneCreationSuccess()
 	}
 
 	return nil
+}
+
+func logStandaloneCreationSuccess() {
+	log.Infof("\nStandalone cluster created!\n\n")
+	log.Info("\nYou can now use Kubectl to access your cluster:\n\n")
+	log.Info("  kubectl get pods -A\n\n")
+	log.Info("\nYou can also delete the cluster by running the following:\n\n")
+	log.Info("  tanzu standalone-cluster delete [name]\n\n")
+	log.Info("\nSome addons might be getting installed! Check their status by running the following:\n\n")
+	log.Info("  kubectl get apps -A\n\n")
 }
