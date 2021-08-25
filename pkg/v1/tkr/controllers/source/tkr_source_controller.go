@@ -148,23 +148,25 @@ func AddToManager(ctx *mgrcontext.ControllerManagerContext, mgr ctrl.Manager) er
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&corev1.ConfigMap{}). // we're watching ConfigMaps and producing TKRs
 		Named("tkr-source-controller").
-		WithEventFilter(inNamespace(constants.TKRNamespace)).
+		WithEventFilter(eventFilter(func(eventMeta metav1.Object) bool {
+			return eventMeta.GetNamespace() == constants.TKRNamespace && eventMeta.GetName() != constants.TKRControllerLeaderElectionCM
+		})).
 		Complete(r)
 }
 
-func inNamespace(ns string) *predicate.Funcs {
+func eventFilter(p func(eventMeta metav1.Object) bool) *predicate.Funcs {
 	return &predicate.Funcs{
-		CreateFunc: func(e event.CreateEvent) bool {
-			return e.Meta.GetNamespace() == ns
+		CreateFunc: func(createEvent event.CreateEvent) bool {
+			return p(createEvent.Meta)
 		},
-		DeleteFunc: func(e event.DeleteEvent) bool {
-			return e.Meta.GetNamespace() == ns
+		DeleteFunc: func(deleteEvent event.DeleteEvent) bool {
+			return p(deleteEvent.Meta)
 		},
-		UpdateFunc: func(e event.UpdateEvent) bool {
-			return e.MetaOld.GetNamespace() == ns
+		UpdateFunc: func(updateEvent event.UpdateEvent) bool {
+			return p(updateEvent.MetaOld)
 		},
-		GenericFunc: func(e event.GenericEvent) bool {
-			return e.Meta.GetNamespace() == ns
+		GenericFunc: func(genericEvent event.GenericEvent) bool {
+			return p(genericEvent.Meta)
 		},
 	}
 }

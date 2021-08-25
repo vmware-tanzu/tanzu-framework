@@ -21,6 +21,7 @@ import (
 
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	tkrsourcectr "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/controllers/source"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
 	mgrcontext "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/context"
 )
 
@@ -61,7 +62,9 @@ func main() {
 		Scheme:           scheme,
 		Port:             9443,
 		LeaderElection:   enableLeaderElection,
-		LeaderElectionID: "abf9f9ab.tanzu.vmware.com",
+		LeaderElectionID: constants.TKRControllerLeaderElectionCM,
+
+		LeaderElectionNamespace: constants.TKRNamespace,
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
