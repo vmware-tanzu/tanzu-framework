@@ -240,16 +240,12 @@ func (c *TkgClient) EncodeCredentials(initOptions *InitRegionOptions, clusterCli
 	// since provider templates need Base64 values of credentials, encode them
 	switch providerName {
 	case AzureProviderName:
-		if _, err := c.EncodeAzureCredentialsAndGetClient(clusterClient); err != nil {
+		if _, err := c.EncodeAzureCredentialsAndGetClient(nil); err != nil {
 			return errors.Wrap(err, "failed to encode azure credentials")
 		}
 	case AWSProviderName:
-		if _, err := c.EncodeAWSCredentialsAndGetClient(clusterClient); err != nil {
+		if _, err := c.EncodeAWSCredentialsAndGetClient(nil); err != nil {
 			return errors.Wrap(err, "failed to encode AWS credentials")
-		}
-	case VSphereProviderName:
-		if err := c.configureVsphereCredentialsFromCluster(clusterClient); err != nil {
-			return errors.Wrap(err, "failed to configure vSphere credentials")
 		}
 	}
 
