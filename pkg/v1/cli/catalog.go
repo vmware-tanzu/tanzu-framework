@@ -238,8 +238,8 @@ func ValidatePlugin(p *cliv1alpha1.PluginDescriptor) (err error) {
 
 // HasPluginUpdateIn checks if the plugin has an update in any of the given repositories.
 func HasPluginUpdateIn(repos *MultiRepo, p *cliv1alpha1.PluginDescriptor) (update bool, repo Repository, version string, err error) {
-	versionSelector := repo.VersionSelector()
 	for _, repo := range repos.repositories {
+		versionSelector := repo.VersionSelector()
 		update, version, err := HasPluginUpdate(repo, versionSelector, p)
 		if err != nil {
 			log.Debugf("could not check for update for plugin %q in repo %q: %v", p.Name, repo.Name, err)
