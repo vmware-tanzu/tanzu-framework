@@ -118,6 +118,9 @@ rules:
   - apiGroups: ["networking.x-k8s.io"]
     resources: ["gateways", "gateways/status", "gatewayclasses", "gatewayclasses/status"]
     verbs: ["get","watch","list","patch", "update"]
+  - apiGroups: ["infrastructure.cluster.x-k8s.io"]
+    resources: ["vsphereclusters", "vsphereclusters/status"]
+    verbs: ["get","watch","list","update"]
   - apiGroups:
       - policy
       - extensions
