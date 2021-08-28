@@ -39,4 +39,6 @@ const (
 
 	DefaultDualStackPrimaryIPv6ClusterCIDR = DefaultIPv6ClusterCIDR + "," + DefaultIPv4ClusterCIDR
 	DefaultDualStackPrimaryIPv6ServiceCIDR = DefaultIPv6ServiceCIDR + "," + DefaultIPv4ServiceCIDR
+	// DefaultIsWindowsWorkloadCluster is false, indicating that the normal thing to do is, is to make linux clusters.
+	DefaultIsWindowsWorkloadCluster = false
 )
