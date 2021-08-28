@@ -171,4 +171,7 @@ const (
 	ConfigVariableInternalNMIImageTag             = "NMI_IMAGE_TAG"
 
 	ConfigVariablePackageInstallTimeout = "PACKAGE_INSTALL_TIMEOUT"
+
+	// Windows specific variables
+	ConfigVariableIsWindowsWorkloadCluster = "IS_WINDOWS_WORKLOAD_CLUSTER"
 )
