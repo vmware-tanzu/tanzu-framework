@@ -90,9 +90,12 @@ VSPHERE_NETWORK: VM Network
 #! necessary except to disambiguate among 2 or more applicable VM templates.
 VSPHERE_TEMPLATE:
 
+
+#! WINDOWS PARAMETERS
 #! The name of the VM Windows template to be used to create a specific version of
 #! a Tanzu Kubernetes Cluster including WINDOWS node.
-VSPHERE_WINDOWS_TEMPLATE:
+VSPHERE_WINDOWS_TEMPLATE: ""
+IS_WINDOWS_WORKLOAD_CLUSTER: false
 
 VIP_NETWORK_INTERFACE: "eth0"
 

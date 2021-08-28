@@ -34,8 +34,6 @@ const (
 	AzureProviderName = "azure"
 	// DockerProviderName docker provider name
 	DockerProviderName = "docker"
-	// WindowsVSphereProviderName vsphere provider name for windows
-	WindowsVSphereProviderName = "windows-vsphere"
 
 	defaultPacificProviderVersion = "v1.0.0"
 )
@@ -567,10 +565,6 @@ func (c *TkgClient) ConfigureAndValidateWorkloadClusterConfiguration(options *Cr
 		}
 	case DockerProviderName:
 		if err := c.ConfigureAndValidateDockerConfig(options.TKRVersion, options.NodeSizeOptions, skipValidation); err != nil {
-			return NewValidationError(ValidationErrorCode, err.Error())
-		}
-	case WindowsVSphereProviderName:
-		if err := c.ConfigureAndValidateWindowsVsphereConfig(options.TKRVersion, options.NodeSizeOptions, options.VsphereControlPlaneEndpoint, skipValidation, nil); err != nil {
 			return NewValidationError(ValidationErrorCode, err.Error())
 		}
 	}
