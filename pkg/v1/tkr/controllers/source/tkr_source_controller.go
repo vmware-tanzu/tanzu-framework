@@ -178,20 +178,17 @@ func (r *reconciler) createBOMConfigMap(ctx context.Context, tag string) error {
 	r.log.Info("fetching BOM", "image", r.bomImage, "tag", tag)
 	bomContent, err := r.registry.GetFile(r.bomImage, tag, "")
 	if err != nil {
-		r.log.Error(err, "failed to get the BOM file from image", "name", fmt.Sprintf("%s:%s", r.bomImage, tag))
-		return nil
+		return errors.Wrapf(err, "failed to get the BOM file from image %s:%s", r.bomImage, tag)
 	}
 
 	bom, err := types.NewBom(bomContent)
 	if err != nil {
-		r.log.Error(err, "failed to parse content from image", "name", fmt.Sprintf("%s:%s", r.bomImage, tag))
-		return nil
+		return errors.Wrapf(err, "failed to parse content from image %s:%s", r.bomImage, tag)
 	}
 
 	releaseName, err := bom.GetReleaseVersion()
 	if err != nil || releaseName == "" {
-		r.log.Error(err, "failed to get the release version from the BOM", "name", fmt.Sprintf("%s:%s", r.bomImage, tag))
-		return nil
+		return errors.Wrapf(err, "failed to get the release version from BOM image %s:%s", r.bomImage, tag)
 	}
 
 	name := strings.ReplaceAll(releaseName, "+", "---")
@@ -247,7 +244,7 @@ func (r *reconciler) reconcileBOMMetadataCM(ctx context.Context) error {
 		return nil
 	})
 
-	return err
+	return errors.Wrap(err, "error creating or updating BOM metadata ConfigMap")
 }
 
 func (r *reconciler) reconcileBOMConfigMap(ctx context.Context) error {
@@ -285,6 +282,7 @@ func (r *reconciler) reconcileBOMConfigMap(ctx context.Context) error {
 		return errs
 	}
 
+	r.log.Info("done reconciling BOM images", "image", r.bomImage)
 	return nil
 }
 
@@ -427,6 +425,12 @@ func (r *reconciler) compatibilityMetadata(ctx context.Context) (*types.Compatib
 }
 
 func (r *reconciler) SyncRelease(ctx context.Context) error {
+	select {
+	case <-ctx.Done():
+		return errors.New("canceled")
+	default:
+	}
+
 	// create/update bom-metadata ConfigMap
 	if err := r.reconcileBOMMetadataCM(ctx); err != nil {
 		// not returning: even if we fail to get BOM metadata, we still want to reconcile BOM ConfigMaps
@@ -437,43 +441,51 @@ func (r *reconciler) SyncRelease(ctx context.Context) error {
 	return errors.Wrap(err, "failed to reconcile BOM ConfigMaps")
 }
 
-func (r *reconciler) initialReconcile(ticker *time.Ticker, stopChan <-chan struct{}, initialDiscoveryRetry int) {
-	defer ticker.Stop()
+func (r *reconciler) initialReconcile(ctx context.Context, frequency time.Duration, retries int) {
 	for {
-		select {
-		case <-stopChan:
-			r.log.Info("Stop performing initial TKR discovery")
-			return
-		case <-ticker.C:
-			if err := r.SyncRelease(context.Background()); err != nil {
-				r.log.Error(err, "Failed to complete initial TKR discovery")
-				initialDiscoveryRetry--
-				if initialDiscoveryRetry > 0 {
-					r.log.Info("Failed to complete initial TKR discovery, retrying")
-					continue
-				}
+		if err := r.SyncRelease(ctx); err != nil {
+			r.log.Error(err, "Failed to complete initial TKR discovery")
+			retries--
+			if retries <= 0 {
+				return
 			}
-			return
+
+			r.log.Info("Failed to complete initial TKR discovery, retrying")
+			select {
+			case <-ctx.Done():
+				r.log.Info("Stop performing initial TKR discovery")
+				return
+			case <-time.After(frequency):
+				continue
+			}
 		}
+		return
 	}
 }
 
-func (r *reconciler) tkrDiscovery(ticker *time.Ticker, stopChan <-chan struct{}) {
-	defer ticker.Stop()
+func (r *reconciler) tkrDiscovery(ctx context.Context, frequency time.Duration) {
 	for {
+		if err := r.SyncRelease(ctx); err != nil {
+			r.log.Error(err, "failed to reconcile TKRs, retrying")
+		}
 		select {
-		case <-stopChan:
-			r.log.Info("Stop performing TKr discovery")
+		case <-ctx.Done():
+			r.log.Info("Stop performing TKR discovery")
 			return
-		case <-ticker.C:
-			if err := r.SyncRelease(context.Background()); err != nil {
-				r.log.Error(err, "failed to reconcile TKRs, retrying")
-			}
+		case <-time.After(frequency):
 		}
 	}
 }
 
 func (r *reconciler) Start(stopChan <-chan struct{}) error {
+	ctx, cancel := context.WithCancel(r.ctx)
+	defer cancel()
+
+	go func() {
+		<-stopChan
+		cancel()
+	}()
+
 	var err error
 	r.log.Info("Starting TanzuKubernetesReleaase Reconciler")
 
@@ -496,13 +508,11 @@ func (r *reconciler) Start(stopChan <-chan struct{}) error {
 	}
 
 	r.log.Info("Performing an initial release discovery")
-	ticker := time.NewTicker(r.options.InitialDiscoveryFrequency)
-	r.initialReconcile(ticker, stopChan, InitialDiscoveryRetry)
+	r.initialReconcile(ctx, r.options.InitialDiscoveryFrequency, InitialDiscoveryRetry)
 
 	r.log.Info("Initial TKr discovery completed")
 
-	ticker = time.NewTicker(r.options.ContinuousDiscoveryFrequency)
-	r.tkrDiscovery(ticker, stopChan)
+	r.tkrDiscovery(ctx, r.options.ContinuousDiscoveryFrequency)
 
 	r.log.Info("Stopping Tanzu Kubernetes releaase Reconciler")
 	return nil
