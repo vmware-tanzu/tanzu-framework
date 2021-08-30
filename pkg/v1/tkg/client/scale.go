@@ -8,7 +8,6 @@ import (
 
 	"github.com/pkg/errors"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
-	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
@@ -30,7 +29,7 @@ const (
 )
 
 // ScaleCluster scales cluster vertically
-func (c *TkgClient) ScaleCluster(options ScaleClusterOptions) error { // nolint:gocyclo
+func (c *TkgClient) ScaleCluster(options ScaleClusterOptions) error {
 	currentRegion, err := c.GetCurrentRegionContext()
 	if err != nil {
 		return errors.Wrap(err, "not a valid management cluster")
@@ -50,13 +49,18 @@ func (c *TkgClient) ScaleCluster(options ScaleClusterOptions) error { // nolint:
 		options.Namespace = constants.DefaultNamespace
 	}
 
+	return c.DoScaleCluster(clusterClient, &options)
+}
+
+// DoScaleCluster performs the scale operation using the given clusterclient.Client
+func (c *TkgClient) DoScaleCluster(clusterClient clusterclient.Client, options *ScaleClusterOptions) error { // nolint:gocyclo
 	isPacific, err := clusterClient.IsPacificRegionalCluster()
 	if err != nil {
 		return errors.Wrap(err, "error determining Tanzu Kubernetes Grid service for vSphere management cluster ")
 	}
 	if isPacific {
 		// If pacific doesn't support the control plane scaling, it will return error
-		return c.ScalePacificCluster(options, clusterClient)
+		return c.ScalePacificCluster(*options, clusterClient)
 	}
 
 	errList := []error{}
@@ -76,24 +80,25 @@ func (c *TkgClient) ScaleCluster(options ScaleClusterOptions) error { // nolint:
 	}
 
 	if options.WorkerCount > 0 {
+		// scale nodes across all machine deployments in the cluster
 		workerNodeMachineDeployments, err := clusterClient.GetMDObjectForCluster(options.ClusterName, options.Namespace)
 		if err != nil || len(workerNodeMachineDeployments) == 0 {
 			errList = append(errList, errors.Wrapf(err, "unable to find worker node machine deployment object for cluster %s", options.ClusterName))
 		} else {
-			infraProvider, err := clusterClient.GetRegionalClusterDefaultProviderName(clusterctlv1.InfrastructureProviderType)
-			if err != nil {
-				return errors.Wrap(err, "failed to get cluster provider information.")
+			numMachineDeployments := int32(len(workerNodeMachineDeployments))
+			if options.WorkerCount < numMachineDeployments {
+				errList = append(errList, errors.Errorf("new worker count must be greater than or to the number of machine deployments. worker count: %d, machine deployment count: %d", options.WorkerCount, numMachineDeployments))
 			}
-			infraProviderName, _, err := ParseProviderName(infraProvider)
-			if err != nil {
-				return err
-			}
-			workerCounts, err := c.DistributeMachineDeploymentWorkers(int64(options.WorkerCount), len(workerNodeMachineDeployments) == 3, false, infraProviderName)
-			if err != nil {
-				return errors.Wrap(err, "failed to distribute cluster nodes to machine deployments.")
-			}
-			for i := range workerNodeMachineDeployments {
-				err = clusterClient.UpdateReplicas(&workerNodeMachineDeployments[i], workerNodeMachineDeployments[i].Name, workerNodeMachineDeployments[i].Namespace, int32(workerCounts[i]))
+			workersPerMD := options.WorkerCount / numMachineDeployments
+			leftoverWorkers := options.WorkerCount % numMachineDeployments
+			// each machine deployment gets scaled to have an approx equal number of replicas
+			for i := int32(0); i < numMachineDeployments; i++ {
+				workerCount := workersPerMD
+				if leftoverWorkers > 0 {
+					workerCount++
+					leftoverWorkers--
+				}
+				err = clusterClient.UpdateReplicas(&workerNodeMachineDeployments[i], workerNodeMachineDeployments[i].Name, workerNodeMachineDeployments[i].Namespace, workerCount)
 				if err != nil {
 					errList = append(errList, errors.Wrapf(err, "unable to update worker node machine deployment replica count for cluster %s", options.ClusterName))
 				}
