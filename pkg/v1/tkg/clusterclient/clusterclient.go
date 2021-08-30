@@ -97,6 +97,8 @@ type Client interface {
 	// If checkReplicas is true, will also ensure that the number of ready
 	// replicas matches the expected number in the cluster's spec
 	WaitForClusterReady(clusterName string, namespace string, checkReplicas bool) error
+	// WaitForStandaloneClusterReady waits for a standalone cluster to be ready, including the KCP
+	WaitForStandaloneClusterReady(clusterName string, namespace string, checkReplicas bool) error
 	// WaitForClusterDeletion waits for cluster object to be deleted
 	WaitForClusterDeletion(clusterName string, namespace string) error
 	// WaitForDeployment for a deployment to be fully available
@@ -526,6 +528,24 @@ func (c *client) WaitForClusterReady(clusterName, namespace string, checkAllRepl
 		}
 	}
 	if err := c.GetResourceList(&capi.MachineList{}, clusterName, namespace, VerifyMachinesReady, &PollOptions{Interval: CheckClusterInterval, Timeout: c.operationTimeout}); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *client) WaitForStandaloneClusterReady(clusterName, namespace string, checkAllReplicas bool) error {
+	if err := c.GetResource(&capi.Cluster{}, clusterName, namespace, VerifyClusterReady, &PollOptions{Interval: CheckClusterInterval, Timeout: c.operationTimeout}); err != nil {
+		return err
+	}
+	if checkAllReplicas {
+		if err := c.GetResourceList(&capi.MachineDeploymentList{}, clusterName, namespace, VerifyMachineDeploymentsReplicas, &PollOptions{Interval: CheckClusterInterval, Timeout: c.operationTimeout}); err != nil {
+			return err
+		}
+	}
+	if err := c.GetResourceList(&capi.MachineList{}, clusterName, namespace, VerifyMachinesReady, &PollOptions{Interval: CheckClusterInterval, Timeout: c.operationTimeout}); err != nil {
+		return err
+	}
+	if err := c.GetResourceList(&controlplanev1.KubeadmControlPlaneList{}, clusterName, namespace, VerifyKubeadmControlPlaneReplicas, &PollOptions{Interval: CheckClusterInterval, Timeout: c.operationTimeout}); err != nil {
 		return err
 	}
 	return nil
