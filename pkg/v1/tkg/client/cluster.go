@@ -261,6 +261,11 @@ func (c *TkgClient) WaitForClusterReadyForMove(clusterClient clusterclient.Clien
 	return clusterClient.WaitForClusterReady(name, targetNamespace, true)
 }
 
+// WaitForStandalonClusterReadyForBackup wait for cluster to be ready for backup operation
+func (c *TkgClient) WaitForStandaloneClusterReadyForBackup(clusterClient clusterclient.Client, name, targetNamespace string) error {
+	return clusterClient.WaitForStandaloneClusterReady(name, targetNamespace, true)
+}
+
 // WaitForClusterReadyAfterCreate wait for cluster to be ready after creation
 func (c *TkgClient) WaitForClusterReadyAfterCreate(clusterClient clusterclient.Client, name, targetNamespace string) error {
 	// For now we use the same waiting logic to wait for workload cluster creation. As an enhancement we may

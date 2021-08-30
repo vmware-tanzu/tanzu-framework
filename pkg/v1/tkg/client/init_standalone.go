@@ -196,7 +196,7 @@ func (c *TkgClient) InitStandaloneRegion(options *InitRegionOptions) error { //n
 	}
 
 	log.Info("Waiting for bootstrap cluster to get ready for save ...")
-	if err := c.WaitForClusterReadyForMove(bootStrapClusterClient, options.ClusterName, targetClusterNamespace); err != nil {
+	if err := c.WaitForStandaloneClusterReadyForBackup(bootStrapClusterClient, options.ClusterName, targetClusterNamespace); err != nil {
 		return errors.Wrap(err, "unable to wait for cluster getting ready for move")
 	}
 
