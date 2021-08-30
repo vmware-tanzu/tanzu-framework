@@ -1,0 +1,17 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+
+#@ if data.values.PROVIDER_TYPE == "vsphere" and data.values.TKG_CLUSTER_ROLE == "management" and data.values.AVI_ENABLED:
+#@overlay/match by=overlay.subset({"kind": "Service", "metadata": {"name": "pinniped-supervisor", "namespace": "pinniped-supervisor"}})
+---
+#@overlay/replace
+spec:
+  type: LoadBalancer
+  selector:
+    app: pinniped-supervisor
+  ports:
+    - name: https
+      protocol: TCP
+      port: 443
+      targetPort: 8443
+#@ end
