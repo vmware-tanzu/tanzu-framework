@@ -70,7 +70,7 @@ TKG_DEFAULT_IMAGE_REPOSITORY = "projects-stg.registry.vmware.com/tkg"
 endif
 ifndef TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH
 # TODO change it to "tkg-compatibility" once the image is pushed to registry
-TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH = "framework-zshippable/tkg-compatibility"
+TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH = "v0.1.0/tkg-compatibility"
 endif
 
 DOCKER_DIR := /app
