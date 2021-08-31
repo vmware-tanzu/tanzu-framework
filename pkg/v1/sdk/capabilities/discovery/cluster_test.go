@@ -25,13 +25,21 @@ var testAnnotations = map[string]string{
 	"cluster.x-k8s.io/provider": "infrastructure-fake",
 }
 
-var testObject = Object("carpObj", &carp).WithAnnotations(testAnnotations) // .WithConditions(field)
+var testObject = Object("carpObj", &carp).WithAnnotations(testAnnotations)
+
+var testObjectWithFields = Object("carpObjWithFields", &carp).
+	WithFields(".spec.serviceAccountName", "{.spec.activeDeadlineSeconds}", "{.spec.nodeSelector}") // Different ways of specifying JSONPath including "relaxed" path
 
 var testGVR = Group("carpResource", testapigroup.SchemeGroupVersion.Group).WithVersions(testapigroup.SchemeGroupVersion.Version).WithResource("carps")
 
 var testObjects = []runtime.Object{
 	&testapigroup.Carp{
 		ObjectMeta: metav1.ObjectMeta{Name: "test14", Namespace: "testns", Annotations: testAnnotations},
+		Spec: testapigroup.CarpSpec{
+			ActiveDeadlineSeconds: &[]int64{0}[0],
+			NodeSelector:          map[string]string{"foo": "bar"},
+			ServiceAccountName:    "saName",
+		},
 	},
 }
 
@@ -76,7 +84,7 @@ func TestClusterQueries(t *testing.T) {
 		{
 			description:       "all queries successful",
 			discoveryClientFn: queryClientWithResourcesAndObjects,
-			queryTargets:      []QueryTarget{testGVR, testObject},
+			queryTargets:      []QueryTarget{testGVR, testObject, testObjectWithFields},
 			want:              true,
 		},
 		{

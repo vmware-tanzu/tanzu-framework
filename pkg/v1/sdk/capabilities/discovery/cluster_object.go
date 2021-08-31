@@ -5,6 +5,7 @@ package discovery
 
 import (
 	"fmt"
+	"reflect"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -14,17 +15,19 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/restmapper"
+	"k8s.io/client-go/util/jsonpath"
+	kubectl "k8s.io/kubectl/pkg/cmd/get"
 )
 
 // Object represents any runtime.Object that could exist on a cluster, with ability to specify:
 // WithAnnotations()
-// WithLabels()
-// WithConditions()
+// WithFields()
 func Object(queryName string, obj *corev1.ObjectReference) *QueryObject {
 	return &QueryObject{
-		name:     queryName,
-		object:   obj,
-		presence: true,
+		name:       queryName,
+		object:     obj,
+		presence:   true,
+		fieldPaths: []string{},
 	}
 }
 
@@ -34,12 +37,18 @@ type QueryObject struct {
 	object      *corev1.ObjectReference
 	annotations []resourceAnnotation
 	presence    bool
-	//	conditions []resourceCondition
+	fieldPaths  []string
 }
 
 // Name is the name of the query.
 func (q *QueryObject) Name() string {
 	return q.name
+}
+
+// WithFields checks if field(s) with JSON path exists in the object's schema.
+func (q *QueryObject) WithFields(jsonPath ...string) *QueryObject {
+	q.fieldPaths = append(q.fieldPaths, jsonPath...)
+	return q
 }
 
 // WithoutAnnotations ensures lack of presence annotations on a resource
@@ -88,6 +97,46 @@ func (q *QueryObject) Run(config *clusterQueryClientConfig) (bool, error) {
 	return true, nil
 }
 
+// reflectValuesFromJSONPath returns reflect.Values returned from client-go JSON path parser.
+func (q *QueryObject) reflectValuesFromJSONPath(path string, u *unstructured.Unstructured) ([][]reflect.Value, error) {
+	parsedField, err := kubectl.RelaxedJSONPathExpression(path)
+	if err != nil {
+		return nil, err
+	}
+
+	// AllowMissingKeys is true, so it doesn't return an error if field does not exist.
+	// The caller can just check for empty result.
+	j := jsonpath.New(q.name).AllowMissingKeys(true)
+	if err := j.Parse(parsedField); err != nil {
+		return nil, err
+	}
+	return j.FindResults(u.UnstructuredContent())
+}
+
+// fieldPathExists checks if a field with JSON path exists in the object.
+func (q *QueryObject) fieldPathExists(path string, u *unstructured.Unstructured) (bool, error) {
+	v, err := q.reflectValuesFromJSONPath(path, u)
+	if err != nil {
+		return false, err
+	}
+	// Empty result is a 2D slice of one element which is an empty slice: [[]]
+	emptyResult := len(v) == 0 || (len(v) == 1 && len(v[0]) == 0)
+	return !emptyResult, nil
+}
+
+// queryFields returns the aggregated result of all field path queries.
+func (q *QueryObject) queryFields(u *unstructured.Unstructured) (bool, error) {
+	result := true
+	for _, p := range q.fieldPaths {
+		found, err := q.fieldPathExists(p, u)
+		if err != nil {
+			return false, err
+		}
+		result = result && found
+	}
+	return result, nil
+}
+
 // QueryObjectExists uses dynamic and unstructured APIs to reason about object state
 func (q *QueryObject) QueryObjectExists(resources []*restmapper.APIGroupResources, config *clusterQueryClientConfig) (bool, error) {
 	u, err := q.objectExists(resources, config)
@@ -102,7 +151,7 @@ func (q *QueryObject) QueryObjectExists(resources []*restmapper.APIGroupResource
 		return false, nil
 	}
 
-	return true, nil
+	return q.queryFields(u)
 }
 
 func (q *QueryObject) objectExists(resources []*restmapper.APIGroupResources, config *clusterQueryClientConfig) (obj *unstructured.Unstructured, err error) {
@@ -152,7 +201,7 @@ func (q *QueryObject) checkAnnotations(u *unstructured.Unstructured) bool {
 
 // Reason for failures, in a standard structure
 func (q *QueryObject) Reason() string {
-	return fmt.Sprintf("kind=%s status=unmatched presence=%t", q.object.Kind, q.presence)
+	return fmt.Sprintf("kind=%s fields=%v status=unmatched presence=%t", q.object.Kind, q.fieldPaths, q.presence)
 }
 
 func (q *QueryObject) annotationsMap(presence bool) map[string]string {
