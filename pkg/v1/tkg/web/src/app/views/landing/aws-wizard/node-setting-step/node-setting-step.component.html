@@ -169,10 +169,10 @@
                         </clr-tooltip-content>
                     </clr-tooltip>
                 </label>
-                <input clrInput formControlName="sshKeyName" placeholder="ssh key name" />
+                <input clrInput formControlName="sshKeyName" placeholder="ec2 key pair" />
                 <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
                 <clr-control-helper></clr-control-helper>
-                <clr-control-error i18n="AWS ssh key name required msg" *clrIfError="validatorEnum.REQUIRED">
+                <clr-control-error i18n="AWS ec2 key pair required msg" *clrIfError="validatorEnum.REQUIRED">
                     EC2 key pair cannot be empty
                 </clr-control-error>
             </clr-input-container>

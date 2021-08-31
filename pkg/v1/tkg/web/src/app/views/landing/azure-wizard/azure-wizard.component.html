@@ -134,7 +134,7 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="registerTmcForm" removeAriaLabelledBy>
+        <clr-stepper-panel formGroupName="registerTmcForm" removeAriaLabelledBy *ngIf="edition !== 'tce-standalone'">
             <clr-step-title i18n="register tmc step title">
                 Register TMC
             </clr-step-title>
