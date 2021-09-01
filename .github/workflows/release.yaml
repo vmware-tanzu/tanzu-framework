@@ -47,7 +47,7 @@ jobs:
       uses: google-github-actions/upload-cloud-storage@main
       with:
         path: ./artifacts
-        destination: tanzu-cli
+        destination: tanzu-cli-framework
         credentials: ${{ secrets.GCP_BUCKET_SA }}
 
     - id: upload-cli-admin-artifacts
