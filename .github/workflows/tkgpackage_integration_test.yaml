@@ -1,10 +1,8 @@
 name: TKG Package Plugin Integration Tests
 
 on:
-  push:
-    branches: [ main ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, release-* ]
     paths:
       - '.github/workflows/tkgpackage_integration_test.yaml'
       - 'pkg/v1/tkg/tkgpackage*/*'
