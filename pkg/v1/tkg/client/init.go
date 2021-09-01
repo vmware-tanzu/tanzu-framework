@@ -416,10 +416,16 @@ func (c *TkgClient) ensureKindCluster(kubeconfig string, useExistingCluster bool
 		return "", nil
 	}
 
+	bomConfig, err := c.tkgBomClient.GetDefaultTkgBOMConfiguration()
+	if err != nil {
+		return "", err
+	}
+
 	c.kindClient = kind.New(&kind.KindClusterOptions{
-		KubeConfigPath: backupPath,
-		TKGConfigDir:   c.tkgConfigDir,
-		Readerwriter:   c.TKGConfigReaderWriter(),
+		KubeConfigPath:   backupPath,
+		TKGConfigDir:     c.tkgConfigDir,
+		Readerwriter:     c.TKGConfigReaderWriter(),
+		DefaultImageRepo: bomConfig.ImageConfig.ImageRepository,
 	})
 
 	// Create kind cluster which will be used to deploy management cluster
@@ -445,16 +451,22 @@ func (c *TkgClient) teardownKindCluster(clusterName, kubeconfig string, useExist
 		return nil
 	}
 
+	bomConfig, err := c.tkgBomClient.GetDefaultTkgBOMConfiguration()
+	if err != nil {
+		return err
+	}
+
 	if c.kindClient == nil {
 		c.kindClient = kind.New(&kind.KindClusterOptions{
-			KubeConfigPath: kubeconfig,
-			ClusterName:    clusterName,
-			TKGConfigDir:   c.tkgConfigDir,
+			KubeConfigPath:   kubeconfig,
+			ClusterName:      clusterName,
+			TKGConfigDir:     c.tkgConfigDir,
+			DefaultImageRepo: bomConfig.ImageConfig.ImageRepository,
 		})
 	}
 
 	// Delete kind cluster
-	err := c.kindClient.DeleteKindCluster()
+	err = c.kindClient.DeleteKindCluster()
 	if err != nil {
 		return err
 	}
