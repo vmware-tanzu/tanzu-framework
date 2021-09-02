@@ -68,6 +68,9 @@ AWS_NODE_OS_DISK_SIZE_GIB: "80", "90", ""
 
 OS_NAME:  "NA", "ubuntu", "amazon"
 OS_VERSION:  "NA", "20.04", "2", "3"
+
+BUILD_EDITION: "tkg", "tce"
+
 IF [OS_NAME] = "\"NA\"" THEN [OS_VERSION] = "\"NA\"";
 IF [OS_NAME] = "\"ubuntu\"" THEN [OS_VERSION] = "\"20.04\"";
 IF [OS_NAME] = "\"amazon\"" THEN [OS_VERSION] = "\"2\"";
