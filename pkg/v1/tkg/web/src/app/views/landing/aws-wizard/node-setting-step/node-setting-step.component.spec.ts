@@ -93,8 +93,8 @@ describe('NodeSettingStepComponent', () => {
     });
 
     it('should return worker node instance type', () => {
-        component.formGroup.get("workerNodeInstanceType").setValue('t3.small');
-        expect(component.workerNodeInstanceTypeValue).toBe('t3.small');
+        component.formGroup.get("workerNodeInstanceType1").setValue('t3.small');
+        expect(component.formGroup.get('workerNodeInstanceType1').value).toBe('t3.small');
     });
 
     it('should return environment type', () => {

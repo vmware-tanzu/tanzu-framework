@@ -12,11 +12,12 @@ import { takeUntil } from 'rxjs/operators';
  * App imports
  */
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-import { NodeType, awsNodeTypes } from '../../wizard/shared/constants/wizard.constants';
+import { awsNodeTypes } from '../../wizard/shared/constants/wizard.constants';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { TkgEventType } from '../../../../shared/service/Messenger';
 import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import { AzureInstanceType } from 'src/app/swagger/models';
+import { AppEdition } from 'src/app/shared/constants/branding.constants';
 
 @Component({
     selector: 'app-node-setting-step',
@@ -97,6 +98,11 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             this.nodeTypes = instanceTypes.sort();
         });
 
+        if (this.edition !== AppEdition.TKG) {
+            this.resurrectField('managementClusterName',
+                [Validators.required, this.validationService.isValidClusterName()],
+                this.formGroup.get('managementClusterName').value);
+        }
     }
 
     toggleValidations() {
