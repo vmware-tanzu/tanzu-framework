@@ -1562,18 +1562,18 @@ func (c *TkgClient) configureAndValidateIPFamilyConfiguration() error {
 		ipFamily = constants.IPv4Family
 	}
 
-	serviceCIDR, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableServiceCIDR)
-	clusterCIDR, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterCIDR)
+	serviceCIDRs, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableServiceCIDR)
+	clusterCIDRs, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterCIDR)
 
-	if serviceCIDR == "" {
+	if serviceCIDRs == "" {
 		c.TKGConfigReaderWriter().Set(constants.ConfigVariableServiceCIDR, c.defaultServiceCIDR(ipFamily))
-	} else if !c.validateCIDRForIPFamily(serviceCIDR, ipFamily) {
-		return invalidCIDRError(constants.ConfigVariableServiceCIDR, serviceCIDR, ipFamily)
+	} else if err := c.validateCIDRsForIPFamily(constants.ConfigVariableServiceCIDR, serviceCIDRs, ipFamily); err != nil {
+		return err
 	}
-	if clusterCIDR == "" {
+	if clusterCIDRs == "" {
 		c.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterCIDR, c.defaultClusterCIDR(ipFamily))
-	} else if !c.validateCIDRForIPFamily(clusterCIDR, ipFamily) {
-		return invalidCIDRError(constants.ConfigVariableClusterCIDR, clusterCIDR, ipFamily)
+	} else if err := c.validateCIDRsForIPFamily(constants.ConfigVariableClusterCIDR, clusterCIDRs, ipFamily); err != nil {
+		return err
 	}
 	if err := c.validateIPHostnameForIPFamily(constants.TKGHTTPProxy, ipFamily); err != nil {
 		return err
@@ -1585,17 +1585,29 @@ func (c *TkgClient) configureAndValidateIPFamilyConfiguration() error {
 }
 
 func (c *TkgClient) defaultClusterCIDR(ipFamily string) string {
-	if ipFamily == constants.IPv6Family {
+	switch ipFamily {
+	case constants.DualStackPrimaryIPv4Family:
+		return constants.DefaultDualStackPrimaryIPv4ClusterCIDR
+	case constants.DualStackPrimaryIPv6Family:
+		return constants.DefaultDualStackPrimaryIPv6ClusterCIDR
+	case constants.IPv6Family:
 		return constants.DefaultIPv6ClusterCIDR
+	default:
+		return constants.DefaultIPv4ClusterCIDR
 	}
-	return constants.DefaultIPv4ClusterCIDR
 }
 
 func (c *TkgClient) defaultServiceCIDR(ipFamily string) string {
-	if ipFamily == constants.IPv6Family {
+	switch ipFamily {
+	case constants.DualStackPrimaryIPv4Family:
+		return constants.DefaultDualStackPrimaryIPv4ServiceCIDR
+	case constants.DualStackPrimaryIPv6Family:
+		return constants.DefaultDualStackPrimaryIPv6ServiceCIDR
+	case constants.IPv6Family:
 		return constants.DefaultIPv6ServiceCIDR
+	default:
+		return constants.DefaultIPv4ServiceCIDR
 	}
-	return constants.DefaultIPv4ServiceCIDR
 }
 
 func (c *TkgClient) validateIPHostnameForIPFamily(configKey, ipFamily string) error {
@@ -1614,27 +1626,63 @@ func (c *TkgClient) validateIPHostnameForIPFamily(configKey, ipFamily string) er
 		return nil
 	}
 
-	if ipFamily == constants.IPv6Family && ip.To4() == nil {
+	switch ipFamily {
+	case constants.DualStackPrimaryIPv4Family, constants.DualStackPrimaryIPv6Family:
 		return nil
-	}
-
-	if ipFamily != constants.IPv6Family && ip.To4() != nil { // ipFamily may be "" or "ipv4"
-		return nil
+	case constants.IPv6Family:
+		if ip.To4() == nil {
+			return nil
+		}
+	case constants.IPv4Family:
+		if ip.To4() != nil {
+			return nil
+		}
 	}
 
 	return errors.Errorf("invalid %s \"%s\", expected to be an address of type \"%s\" (%s)",
 		configKey, urlString, ipFamily, constants.ConfigVariableIPFamily)
 }
 
-func (c *TkgClient) validateCIDRForIPFamily(cidr, ipFamily string) bool {
+func (c *TkgClient) validateCIDRsForIPFamily(configVariableName, cidrs, ipFamily string) error {
+	switch ipFamily {
+	case constants.IPv4Family:
+		if !isCIDRIPv4(cidrs) {
+			return invalidCIDRError(configVariableName, cidrs, ipFamily)
+		}
+	case constants.IPv6Family:
+		if !isCIDRIPv6(cidrs) {
+			return invalidCIDRError(configVariableName, cidrs, ipFamily)
+		}
+	case constants.DualStackPrimaryIPv4Family:
+		cidrSlice := strings.Split(cidrs, ",")
+		if len(cidrSlice) != 2 || !isCIDRIPv4(cidrSlice[0]) || !isCIDRIPv6(cidrSlice[1]) {
+			return fmt.Errorf(`invalid %s %q, expepcted to have "<IPv4 CIDR>,<IPv6 CIDR>" for %s %q`,
+				configVariableName, cidrs, constants.ConfigVariableIPFamily, ipFamily)
+		}
+	case constants.DualStackPrimaryIPv6Family:
+		cidrSlice := strings.Split(cidrs, ",")
+		if len(cidrSlice) != 2 || !isCIDRIPv6(cidrSlice[0]) || !isCIDRIPv4(cidrSlice[1]) {
+			return fmt.Errorf(`invalid %s %q, expepcted to have "<IPv6 CIDR>,<IPv4 CIDR>" for %s %q`,
+				configVariableName, cidrs, constants.ConfigVariableIPFamily, ipFamily)
+		}
+	}
+	return nil
+}
+
+func isCIDRIPv4(cidr string) bool {
 	ip, _, err := net.ParseCIDR(cidr)
 	if err != nil {
 		return false
 	}
-	if ipFamily == constants.IPv6Family {
-		return ip.To4() == nil
-	}
 	return ip.To4() != nil
+}
+
+func isCIDRIPv6(cidr string) bool {
+	ip, _, err := net.ParseCIDR(cidr)
+	if err != nil {
+		return false
+	}
+	return ip.To4() == nil
 }
 
 func invalidCIDRError(configKey, cidr, ipFamily string) error {

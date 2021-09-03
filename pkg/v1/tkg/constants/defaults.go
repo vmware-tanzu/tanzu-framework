@@ -33,4 +33,11 @@ const (
 	DefaultIPv6ClusterCIDR = "fd00:100:96::/48"
 	// use /108 is the max allowed for IPv6
 	DefaultIPv6ServiceCIDR = "fd00:100:64::/108"
+
+	// dual stack IPv4,IPv6 defaults
+	DefaultDualStackPrimaryIPv4ClusterCIDR = DefaultIPv4ClusterCIDR + "," + DefaultIPv6ClusterCIDR
+	DefaultDualStackPrimaryIPv4ServiceCIDR = DefaultIPv4ServiceCIDR + "," + DefaultIPv6ServiceCIDR
+
+	DefaultDualStackPrimaryIPv6ClusterCIDR = DefaultIPv6ClusterCIDR + "," + DefaultIPv4ClusterCIDR
+	DefaultDualStackPrimaryIPv6ServiceCIDR = DefaultIPv6ServiceCIDR + "," + DefaultIPv4ServiceCIDR
 )

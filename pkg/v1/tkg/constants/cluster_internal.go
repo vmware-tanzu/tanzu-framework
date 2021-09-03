@@ -95,8 +95,10 @@ const (
 
 // networking constants
 const (
-	IPv4Family = "ipv4"
-	IPv6Family = "ipv6"
+	IPv4Family                 = "ipv4"
+	IPv6Family                 = "ipv6"
+	DualStackPrimaryIPv4Family = "ipv4,ipv6"
+	DualStackPrimaryIPv6Family = "ipv6,ipv4"
 
 	LocalHost     = "localhost"
 	LocalHostIP   = "127.0.0.1"
