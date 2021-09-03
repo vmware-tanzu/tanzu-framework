@@ -4,10 +4,10 @@
 
 #! Validate TKG_IP_FAMILY values
 
-#@ if data.values.TKG_IP_FAMILY not in ["ipv6", "ipv4", "", None]:
-#@ assert.fail("TKG_IP_FAMILY value must be \"ipv6\", \"ipv4\", or unset")
+#@ if data.values.TKG_IP_FAMILY not in ["ipv6", "ipv4", "ipv4,ipv6", "ipv6,ipv4", "", None]:
+#@ assert.fail("TKG_IP_FAMILY value must be \"ipv6\", \"ipv4\", \"ipv4,ipv6\", \"ipv6,ipv4\", or unset")
 #@ end
 
-#@ if data.values.TKG_IP_FAMILY == "ipv6" and data.values.PROVIDER_TYPE != "vsphere":
-#@ assert.fail("TKG_IP_FAMILY value of \"ipv6\" is only compatible with PROVIDER_TYPE \"vsphere\". Please set INFRASTRUCTURE_PROVIDER to a compatible value.")
+#@ if data.values.TKG_IP_FAMILY in ["ipv6", "ipv4,ipv6", "ipv6,ipv4"] and data.values.PROVIDER_TYPE != "vsphere":
+#@ assert.fail("TKG_IP_FAMILY value contains \"ipv6\". IPv6 is only compatible with PROVIDER_TYPE \"vsphere\". Please set INFRASTRUCTURE_PROVIDER to a compatible value.")
 #@ end
