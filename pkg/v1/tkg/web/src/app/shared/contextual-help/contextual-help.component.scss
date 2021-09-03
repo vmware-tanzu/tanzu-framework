@@ -18,18 +18,6 @@ $PANEL_WIDTH: 380px;
     z-index: 2500;
     overflow: hidden;
 
-    &.pin {
-        position: static;
-    }
-
-    .pin-container {
-        padding-bottom: 15px;
-        clr-icon {
-            &:hover {
-                cursor: pointer;
-            }
-        }
-    }
     .mask {
         width: 100%;
         height: 100%;
@@ -61,14 +49,20 @@ $PANEL_WIDTH: 380px;
         overflow: auto;
         &.top-layer {
             right: -$PANEL_WIDTH;
-            transition: ease-in-out 200ms right;
+            display: none;
             * {
                 max-width: 100%;
             }
+            &.show {
+                display: block;
+                animation: slidein 0.3s;
+                right: 0;
+            }
         }
-        &.show {
-            right: 0;
+        &.hide {
+            display: none;
         }
+        
         * {
             color: #ffffff;
         }

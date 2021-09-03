@@ -39,26 +39,27 @@ func (p *pkgClient) UninstallPackage(o *tkgpackagedatamodel.PackageOptions, prog
 	pkgInstall, err = p.kappClient.GetPackageInstall(o.PkgInstallName, o.Namespace)
 	if err != nil {
 		if apierrors.IsNotFound(err) {
-			progress.ProgressMsg <- fmt.Sprintf("package '%s' is not installed in namespace '%s'", o.PkgInstallName, o.Namespace)
-			err = nil
+			if err := p.deletePreviouslyInstalledResources(o); err != nil {
+				return
+			}
+			err = &tkgpackagedatamodel.PackagePluginNonCriticalError{Reason: tkgpackagedatamodel.ErrPackageNotInstalled}
 		} else {
 			err = errors.Wrap(err, fmt.Sprintf("\nfailed to find installed package '%s' in namespace '%s'", o.PkgInstallName, o.Namespace))
-			return
 		}
+		return
 	}
 
-	if pkgInstall != nil {
-		progress.ProgressMsg <- fmt.Sprintf("Deleting package install '%s' from namespace '%s'", o.PkgInstallName, o.Namespace)
-	}
+	progress.ProgressMsg <- fmt.Sprintf("Deleting package install '%s' from namespace '%s'", o.PkgInstallName, o.Namespace)
+
 	if err = p.deletePackageInstall(o); err != nil {
 		return
 	}
 
-	if err = p.waitForAppCRDeletion(o, progress.ProgressMsg); err != nil {
+	if err = p.waitForPackageInstallDeletion(o, progress.ProgressMsg); err != nil {
 		return
 	}
 
-	if err = p.deletePkgPluginCreatedResources(o, pkgInstall, progress.ProgressMsg, progress.Success); err != nil {
+	if err = p.deletePkgPluginCreatedResources(pkgInstall, progress.ProgressMsg); err != nil {
 		return
 	}
 }
@@ -69,18 +70,10 @@ func packageProgressCleanup(err error, progress *tkgpackagedatamodel.PackageProg
 	}
 	close(progress.ProgressMsg)
 	close(progress.Done)
-	close(progress.Success)
 }
 
 // deletePkgPluginCreatedResources deletes the associated resources which were installed upon installation of the PackageInstall CR
-func (p *pkgClient) deletePkgPluginCreatedResources(o *tkgpackagedatamodel.PackageOptions, pkgInstall *kappipkg.PackageInstall, progress chan string, success chan bool) error { //nolint:gocyclo
-	if pkgInstall == nil {
-		if err := p.deletePreviouslyInstalledResources(o); err != nil {
-			return err
-		}
-		return nil
-	}
-
+func (p *pkgClient) deletePkgPluginCreatedResources(pkgInstall *kappipkg.PackageInstall, progress chan string) error { //nolint:gocyclo
 	for k, v := range pkgInstall.GetAnnotations() {
 		split := strings.Split(k, "/")
 		if len(split) <= 1 {
@@ -136,10 +129,6 @@ func (p *pkgClient) deletePkgPluginCreatedResources(o *tkgpackagedatamodel.Packa
 		}
 	}
 
-	if success != nil {
-		success <- true
-	}
-
 	return nil
 }
 
@@ -162,19 +151,22 @@ func (p *pkgClient) deletePackageInstall(o *tkgpackagedatamodel.PackageOptions) 
 	return nil
 }
 
-// waitForAppCRDeletion waits until the App CR get deleted successfully or a failure happen
-func (p *pkgClient) waitForAppCRDeletion(o *tkgpackagedatamodel.PackageOptions, progress chan string) error {
+// waitForPackageInstallDeletion waits until the PackageInstall CR gets deleted successfully or a failure happens
+func (p *pkgClient) waitForPackageInstallDeletion(o *tkgpackagedatamodel.PackageOptions, progress chan string) error {
 	if err := wait.Poll(o.PollInterval, o.PollTimeout, func() (done bool, err error) {
-		app, err := p.kappClient.GetAppCR(o.PkgInstallName, o.Namespace) // TODO: wait on package CR deletion instead
-		if err != nil && apierrors.IsNotFound(err) {
-			return true, nil
+		pkgInstall, err := p.kappClient.GetPackageInstall(o.PkgInstallName, o.Namespace)
+		if err != nil {
+			if apierrors.IsNotFound(err) {
+				return true, nil
+			}
+			return false, err
 		}
-		for _, cond := range app.Status.Conditions {
+		for _, cond := range pkgInstall.Status.Conditions {
 			if progress != nil {
 				progress <- fmt.Sprintf("Package uninstall status: %s", cond.Type)
 			}
 			if cond.Type == kappctrl.DeleteFailed {
-				return false, fmt.Errorf("app deletion failed: %s", app.Status.UsefulErrorMessage)
+				return false, fmt.Errorf("package install deletion failed: %s", pkgInstall.Status.UsefulErrorMessage)
 			}
 		}
 
@@ -186,7 +178,7 @@ func (p *pkgClient) waitForAppCRDeletion(o *tkgpackagedatamodel.PackageOptions, 
 	return nil
 }
 
-// deletePreviouslyInstalledResources delete the related resources if previously installed through package plugin
+// deletePreviouslyInstalledResources deletes the related resources if previously installed through the package plugin
 func (p *pkgClient) deletePreviouslyInstalledResources(o *tkgpackagedatamodel.PackageOptions) error {
 	var objMeta metav1.ObjectMeta
 	resourceAnnotation := fmt.Sprintf(tkgpackagedatamodel.TanzuPkgPluginResource, o.PkgInstallName, o.Namespace)

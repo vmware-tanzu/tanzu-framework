@@ -10,12 +10,15 @@ import (
 // CoreRepositoryName is the core repository name.
 const CoreRepositoryName = "core"
 
+// CoreBucketName is the name of the core plugin repository bucket to use.
+var CoreBucketName = "tanzu-cli"
+
 // DefaultVersionSelector is to only use stable versions of plugins
 const DefaultVersionSelector = configv1alpha1.NoUnstableVersions
 
 // CoreGCPBucketRepository is the default GCP bucket repository.
 var CoreGCPBucketRepository = configv1alpha1.GCPPluginRepository{
-	BucketName: "tanzu-cli",
+	BucketName: CoreBucketName,
 	Name:       CoreRepositoryName,
 }
 
@@ -32,8 +35,5 @@ var AdvancedGCPBucketRepository = configv1alpha1.GCPPluginRepository{
 var DefaultRepositories []configv1alpha1.PluginRepository = []configv1alpha1.PluginRepository{
 	{
 		GCPPluginRepository: &CoreGCPBucketRepository,
-	},
-	{
-		GCPPluginRepository: &AdvancedGCPBucketRepository,
 	},
 }

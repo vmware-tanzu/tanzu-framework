@@ -13,6 +13,7 @@ import (
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/cmd"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 )
@@ -45,6 +46,8 @@ var importCmd = &cobra.Command{
 
 func init() {
 	importCmd.Flags().StringVarP(&importOption.file, "file", "f", "", "TKG settings file (default '$HOME/.tkg/config.yaml')")
+
+	cli.DeprecateCommand(importCmd, "1.5.0")
 }
 
 func getOldTKGConfigDir() (string, error) {

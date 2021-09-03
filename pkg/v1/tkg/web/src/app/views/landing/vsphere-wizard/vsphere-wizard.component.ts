@@ -43,10 +43,10 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         private appDataService: AppDataService,
         private formBuilder: FormBuilder,
         formMetaDataService: FormMetaDataService,
-        private titleService: Title,
+        titleService: Title,
         el: ElementRef) {
 
-        super(router, el, formMetaDataService);
+        super(router, el, formMetaDataService, titleService);
 
         this.form = this.formBuilder.group({
             vsphereProviderForm: this.formBuilder.group({

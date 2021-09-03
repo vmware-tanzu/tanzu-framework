@@ -304,7 +304,8 @@ func (c *TkgClient) ConfigureAndValidateDockerConfig(tkrVersion string, nodeSize
 
 // ConfigureAndValidateWindowsVsphereConfig configures and validates vsphere configuration for windows
 func (c *TkgClient) ConfigureAndValidateWindowsVsphereConfig(tkrVersion string, nodeSizes NodeSizeOptions, vip string, skipValidation bool, clusterClient clusterclient.Client) *ValidationError {
-	c.SetProviderType(WindowsVSphereProviderName)
+	// INFRASTRUCTURE_PROVIDER windows-vsphere reuse vsphere as PROVIDER_TYPE
+	c.SetProviderType(VSphereProviderName)
 	return nil
 }
 
@@ -388,6 +389,10 @@ func (c *TkgClient) ConfigureAndValidateAWSConfig(tkrVersion string, nodeSizes N
 	c.SetProviderType(AWSProviderName)
 	awsClient, err := c.EncodeAWSCredentialsAndGetClient(clusterClient)
 	if err != nil {
+		// We must have credentials present for the instantiation of the management cluster
+		if isManagementCluster {
+			return err
+		}
 		log.Warningf("unable to create AWS client. Skipping validations that require an AWS client")
 		return c.ConfigureAndValidateAwsConfig(tkrVersion, skipValidation, isProdConfig, workerMachineCount, isManagementCluster, false)
 	}
@@ -436,7 +441,7 @@ func (c *TkgClient) ConfigureAndValidateVSphereTemplate(vcClient vc.Client, tkrV
 
 	vsphereVM, err := vcClient.GetAndValidateVirtualMachineTemplate(tkrBom.GetOVAVersions(), tkrVersion, templateName, dc, c.TKGConfigReaderWriter())
 	if err != nil || vsphereVM == nil {
-		return errors.Wrapf(err, "unable to get or validate %s for given Tanzu Kubernetes release", constants.ConfigVariableVsphereTemplate)
+		return errors.Wrap(err, "unable to get or validate VM Template for given Tanzu Kubernetes release")
 	}
 
 	c.TKGConfigReaderWriter().Set(constants.ConfigVariableVsphereTemplate, vsphereVM.Name)
@@ -540,6 +545,13 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 	if err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
+
+	// BUILD_EDITION is the Tanzu Edition, the plugin should be built for. Its value is supposed be constructed from
+	// cmd/cli/plugin/managementcluster/create.go. So empty value at this point is not expected.
+	if options.Edition == "" {
+		return NewValidationError(ValidationErrorCode, "required config variable 'BUILD_EDITION' is not set")
+	}
+	c.SetBuildEdition(options.Edition)
 
 	c.SetTKGClusterRole(ManagementCluster)
 	c.SetTKGVersion()
@@ -801,7 +813,7 @@ func (c *TkgClient) ValidateVsphereResources(vcClient vc.Client, dcPath string) 
 	for _, resourceType := range VsphereResourceType {
 		path, err := c.TKGConfigReaderWriter().Get(resourceType)
 		if err != nil {
-			return nil
+			continue
 		}
 
 		switch resourceType {
@@ -811,9 +823,11 @@ func (c *TkgClient) ValidateVsphereResources(vcClient vc.Client, dcPath string) 
 				return errors.Wrapf(err, "invalid %s", resourceType)
 			}
 		case constants.ConfigVariableVsphereDatastore:
-			_, err := vcClient.FindDatastore(context.Background(), path, dcPath)
-			if err != nil {
-				return errors.Wrapf(err, "invalid %s", resourceType)
+			if path != "" {
+				_, err := vcClient.FindDatastore(context.Background(), path, dcPath)
+				if err != nil {
+					return errors.Wrapf(err, "invalid %s", resourceType)
+				}
 			}
 		case constants.ConfigVariableVsphereFolder:
 			_, err := vcClient.FindFolder(context.Background(), path, dcPath)
@@ -825,6 +839,18 @@ func (c *TkgClient) ValidateVsphereResources(vcClient vc.Client, dcPath string) 
 			return errors.Errorf("unknown vsphere resource type %s", resourceType)
 		}
 	}
+
+	return c.verifyDatastoreOrStoragePolicySet()
+}
+
+func (c *TkgClient) verifyDatastoreOrStoragePolicySet() error {
+	dataStore, dataStoreErr := c.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereDatastore)
+	storagePolicy, storagePolicyErr := c.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereStoragePolicyID)
+
+	if (dataStoreErr != nil || dataStore == "") && (storagePolicyErr != nil || storagePolicy == "") {
+		return errors.Errorf("Neither %s or %s are set. At least one of them needs to be set", constants.ConfigVariableVsphereDatastore, constants.ConfigVariableVsphereStoragePolicyID)
+	}
+
 	return nil
 }
 
@@ -1107,11 +1133,6 @@ func (c *TkgClient) OverrideAzureNodeSizeWithOptions(client azure.Client, option
 
 // OverrideAWSNodeSizeWithOptions overrides aws node size with options
 func (c *TkgClient) OverrideAWSNodeSizeWithOptions(options NodeSizeOptions, awsClient aws.Client, skipValidation bool) error {
-	awsRegion, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAWSRegion)
-	if err != nil {
-		return nil
-	}
-
 	if options.Size != "" {
 		c.TKGConfigReaderWriter().Set(constants.ConfigVariableCPMachineType, options.Size)
 		c.TKGConfigReaderWriter().Set(constants.ConfigVariableNodeMachineType, options.Size)
@@ -1124,28 +1145,59 @@ func (c *TkgClient) OverrideAWSNodeSizeWithOptions(options NodeSizeOptions, awsC
 	}
 
 	if !skipValidation {
-		nodeTypes, err := awsClient.ListInstanceTypes()
+		err := c.validateAwsInstanceTypes(awsClient)
 		if err != nil {
 			return err
 		}
-		nodeMap := make(map[string]bool)
-		for _, t := range nodeTypes {
-			nodeMap[t] = true
-		}
+	}
 
-		controlplaneMachineType, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableCPMachineType)
-		if err != nil {
-			return err
-		}
-		if _, ok := nodeMap[controlplaneMachineType]; !ok {
-			return errors.Errorf("instance type %s is not supported in region %s", controlplaneMachineType, awsRegion)
-		}
+	return nil
+}
 
-		nodeMachineType, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableNodeMachineType)
-		if err != nil {
-			return err
-		}
-		if _, ok := nodeMap[nodeMachineType]; !ok {
+func (c *TkgClient) validateAwsInstanceTypes(awsClient aws.Client) error {
+	awsRegion, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAWSRegion)
+	if err != nil {
+		return nil
+	}
+	nodeTypes, err := awsClient.ListInstanceTypes("")
+	if err != nil {
+		return err
+	}
+	nodeMap := make(map[string]bool)
+	for _, t := range nodeTypes {
+		nodeMap[t] = true
+	}
+
+	controlplaneMachineType, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableCPMachineType)
+	if err != nil {
+		return err
+	}
+	if _, ok := nodeMap[controlplaneMachineType]; !ok {
+		return errors.Errorf("instance type %s is not supported in region %s", controlplaneMachineType, awsRegion)
+	}
+
+	var nodeMachineTypes []string
+	nodeMachineType, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableNodeMachineType)
+	if err != nil {
+		return err
+	}
+	nodeMachineTypes = append(nodeMachineTypes, nodeMachineType)
+
+	nodeMachineType1, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableNodeMachineType1)
+	if err != nil {
+		log.Infof("NODE_MACHINE_TYPE_1 not set, using the default NODE_MACHINE_TYPE instead")
+	} else if nodeMachineType1 != "" {
+		nodeMachineTypes = append(nodeMachineTypes, nodeMachineType1)
+	}
+	nodeMachineType2, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableNodeMachineType2)
+	if err != nil {
+		log.Infof("NODE_MACHINE_TYPE_2 not set, using the default NODE_MACHINE_TYPE instead")
+	} else if nodeMachineType2 != "" {
+		nodeMachineTypes = append(nodeMachineTypes, nodeMachineType2)
+	}
+
+	for _, machineType := range nodeMachineTypes {
+		if _, ok := nodeMap[machineType]; !ok {
 			return errors.Errorf("instance type %s is not supported in region %s", nodeMachineType, awsRegion)
 		}
 	}
@@ -1357,35 +1409,8 @@ func (c *TkgClient) SetMachineDeploymentWorkerCounts(workerCounts []int, totalWo
 	}
 }
 
-func (c *TkgClient) getAWSCredentialsFromSecret(clusterClient clusterclient.Client) (aws.Client, error) {
-	if clusterClient == nil {
-		return nil, errors.New("cluster client is not initialized")
-	}
-	creds, err := clusterClient.GetAWSCredentialsFromSecret()
-	if err != nil {
-		return nil, err
-	}
-
-	awsClient, err := aws.NewFromEncodedCrendentials(creds)
-	if err != nil {
-		return nil, err
-	}
-	encodedCreds, err := awsClient.EncodeCredentials()
-	if err != nil {
-		return nil, err
-	}
-	c.TKGConfigReaderWriter().Set(constants.ConfigVariableAWSB64Credentials, encodedCreds)
-	return awsClient, nil
-}
-
 // EncodeAWSCredentialsAndGetClient encodes aws credentials and returns aws client
 func (c *TkgClient) EncodeAWSCredentialsAndGetClient(clusterClient clusterclient.Client) (aws.Client, error) {
-	if awsClient, err := c.getAWSCredentialsFromSecret(clusterClient); err == nil {
-		return awsClient, nil
-	}
-
-	log.Warning("unable to get credentials from secret. Trying to get the AWS credentials from configuration file or default credentials provider chain")
-
 	creds, err := c.GetAWSCreds()
 	if err != nil {
 		return nil, err

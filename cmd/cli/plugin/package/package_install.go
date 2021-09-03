@@ -18,7 +18,7 @@ import (
 var packageInstallOp = tkgpackagedatamodel.NewPackageOptions()
 
 var packageInstallCmd = &cobra.Command{
-	Use:   "install INSTALLED_PACKAGE_NAME",
+	Use:   "install INSTALLED_PACKAGE_NAME --package-name PACKAGE_NAME --version VERSION",
 	Short: "Install a package",
 	Args:  cobra.ExactArgs(1),
 	Example: `
@@ -57,58 +57,79 @@ func packageInstall(_ *cobra.Command, args []string) error {
 		ProgressMsg: make(chan string, 10),
 		Err:         make(chan error),
 		Done:        make(chan struct{}),
-		Success:     make(chan bool),
 	}
 	go pkgClient.InstallPackage(packageInstallOp, pp, false)
 
 	initialMsg := fmt.Sprintf("Installing package '%s'", packageInstallOp.PackageName)
-	successMsg := fmt.Sprintf("Added installed package '%s' in namespace '%s'", packageInstallOp.PkgInstallName, packageInstallOp.Namespace)
-	if err := displayProgress(initialMsg, successMsg, pp); err != nil {
+	if err := displayProgress(initialMsg, pp); err != nil {
+		if err.Error() == tkgpackagedatamodel.ErrPackageAlreadyInstalled {
+			log.Warningf("package install '%s' already exists in namespace '%s'", packageInstallOp.PkgInstallName, packageInstallOp.Namespace)
+			return nil
+		}
 		return err
 	}
 
+	log.Infof("\n %s", fmt.Sprintf("Added installed package '%s' in namespace '%s'",
+		packageInstallOp.PkgInstallName, packageInstallOp.Namespace))
 	return nil
 }
 
-func displayProgress(initialMsg, successMsg string, pp *tkgpackagedatamodel.PackageProgress) error {
-	var currMsg string
+func displayProgress(initialMsg string, pp *tkgpackagedatamodel.PackageProgress) error {
+	var (
+		currMsg string
+		s       *spinner.Spinner
+		err     error
+	)
 
-	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
-	if err := s.Color("bgBlack", "bold", "fgWhite"); err != nil {
+	newSpinner := func() (*spinner.Spinner, error) {
+		s = spinner.New(spinner.CharSets[9], 100*time.Millisecond)
+		if err := s.Color("bgBlack", "bold", "fgWhite"); err != nil {
+			return nil, err
+		}
+		return s, nil
+	}
+	if s, err = newSpinner(); err != nil {
 		return err
 	}
+
+	writeProgress := func(s *spinner.Spinner, msg string) error {
+		s.Stop()
+		if s, err = newSpinner(); err != nil {
+			return err
+		}
+		log.Infof("\n")
+		s.Suffix = fmt.Sprintf(" %s", msg)
+		s.Start()
+		return nil
+	}
+
 	s.Suffix = fmt.Sprintf(" %s", initialMsg)
 	s.Start()
 
 	defer func() {
-		if s.Active() {
-			s.Stop()
-		}
+		s.Stop()
 	}()
 	for {
 		select {
 		case err := <-pp.Err:
-			s.FinalMSG = fmt.Sprintf("%s\n", err.Error())
+			s.FinalMSG = "\n\n"
 			return err
 		case msg := <-pp.ProgressMsg:
 			if msg != currMsg {
-				log.Infof("\n")
-				s.Suffix = fmt.Sprintf(" %s", msg)
+				if err := writeProgress(s, msg); err != nil {
+					return err
+				}
 				currMsg = msg
 			}
 		case <-pp.Done:
 			for msg := range pp.ProgressMsg {
-				if msg != currMsg {
-					log.Infof("\n")
-					s.Suffix = fmt.Sprintf(" %s", msg)
-					currMsg = msg
+				if msg == currMsg {
+					continue
 				}
-			}
-			return nil
-
-		case success := <-pp.Success:
-			if success {
-				log.Infof("\n %s", successMsg)
+				if err := writeProgress(s, msg); err != nil {
+					return err
+				}
+				currMsg = msg
 			}
 			return nil
 		}

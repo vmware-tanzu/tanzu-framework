@@ -18,7 +18,15 @@ import { AWSSubnet } from '../../../../swagger/models/aws-subnet.model';
 import { AwsWizardFormService } from '../../../../shared/service/aws-wizard-form.service';
 import { TkgEventType } from '../../../../shared/service/Messenger';
 import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
+import { APIClient } from '../../../../swagger/api-client.service';
 import Broker from 'src/app/shared/service/broker';
+import { AppEdition } from 'src/app/shared/constants/branding.constants';
+
+export interface AzNodeTypes {
+    awsNodeAz1: Array<string>,
+    awsNodeAz2: Array<string>,
+    awsNodeAz3: Array<string>
+}
 
 export interface FilteredAzs {
     awsNodeAz1: {
@@ -39,6 +47,7 @@ export const BASTION_HOST_ENABLED = 'yes';
 const swap = (arr, index1, index2) => { [arr[index1], arr[index2]] = [arr[index2], arr[index1]] }
 
 const AZS = ['awsNodeAz1', 'awsNodeAz2', 'awsNodeAz3'];
+const WORKER_NODE_INSTANCE_TYPES = ['workerNodeInstanceType1', 'workerNodeInstanceType2', 'workerNodeInstanceType3'];
 const PUBLIC_SUBNETS = ['vpcPublicSubnet1', 'vpcPublicSubnet2', 'vpcPublicSubnet3'];
 const PRIVATE_SUBNET = ['vpcPrivateSubnet1', 'vpcPrivateSubnet2', 'vpcPrivateSubnet3'];
 const VPC_SUBNETS = [...PUBLIC_SUBNETS, ...PRIVATE_SUBNET];
@@ -47,12 +56,19 @@ const VPC_SUBNETS = [...PUBLIC_SUBNETS, ...PRIVATE_SUBNET];
     templateUrl: './node-setting-step.component.html',
     styleUrls: ['./node-setting-step.component.scss']
 })
+
 export class NodeSettingStepComponent extends StepFormDirective implements OnInit {
 
     nodeTypes: Array<string> = [];
     nodeType: string;
     vpcType: string;
     nodeAzs: Array<AWSNodeAz>;
+    azNodeTypes: AzNodeTypes = {
+        awsNodeAz1: [],
+        awsNodeAz2: [],
+        awsNodeAz3: []
+    };
+
     publicSubnets: Array<AWSSubnet>;
     privateSubnets: Array<AWSSubnet>;
 
@@ -99,15 +115,19 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         awsNodeAz1: [Validators.required],
         awsNodeAz2: [Validators.required],
         awsNodeAz3: [Validators.required],
+        workerNodeInstanceType1: [],
         vpcPublicSubnet1: [],
         vpcPrivateSubnet1: [],
+        workerNodeInstanceType2: [],
         vpcPublicSubnet2: [],
         vpcPrivateSubnet2: [],
+        workerNodeInstanceType3: [],
         vpcPublicSubnet3: [],
         vpcPrivateSubnet3: [],
     };
 
     constructor(private validationService: ValidationService,
+        private apiClient: APIClient,
         public awsWizardFormService: AwsWizardFormService) {
         super();
     }
@@ -121,13 +141,6 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                     new FormControl('', this.commonFieldMap[key])
                 );
             }
-        }
-
-        if (this.clusterType !== 'standalone') {
-            this.formGroup.addControl(
-                'workerNodeInstanceType',
-                new FormControl('', [Validators.required])
-            );
         }
 
         this.formGroup.get("bastionHostEnabled").setValue(BASTION_HOST_ENABLED);
@@ -158,6 +171,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 })
             }
         });
+
         /**
          * Whenever aws region selection changes, update AZ subregion
          */
@@ -186,7 +200,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
                 // clear az selection
                 this.clearAzs();
-                [...AZS, ...VPC_SUBNETS].forEach(attr => this.formGroup.get(attr).updateValueAndValidity());
+                [...AZS, ...WORKER_NODE_INSTANCE_TYPES, ...VPC_SUBNETS].forEach(attr => this.formGroup.get(attr).updateValueAndValidity());
             });
 
         Broker.messenger.getSubject(TkgEventType.AWS_VPC_CHANGED)
@@ -194,6 +208,12 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 this.clearAzs();
                 this.clearSubnets();
             });
+
+        if (this.edition !== AppEdition.TKG) {
+            this.resurrectField('clusterName',
+                [Validators.required, this.validationService.isValidClusterName()],
+                this.formGroup.get('clusterName').value);
+        }
 
         this.awsWizardFormService.getErrorStream(TkgEventType.AWS_GET_AVAILABILITY_ZONES)
             .pipe(takeUntil(this.unsubscribe))
@@ -251,12 +271,6 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                         [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
                         this.formGroup.get('prodInstanceType').value);
                 }
-                if (this.clusterType !== 'standalone') {
-                    this.resurrectField('workerNodeInstanceType',
-                        [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
-                        this.formGroup.get('workerNodeInstanceType').value);
-                }
-
             });
 
         AZS.forEach(az => {
@@ -265,19 +279,24 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                     takeUntil(this.unsubscribe)
                 ).subscribe((val) => {
                     this.filterSubnets(az, val);
+                    this.updateWorkerNodeInstanceTypes(az, val);
                 });
         });
 
         this.registerOnValueChange('controlPlaneSetting', data => {
             if (data === 'dev') {
                 this.nodeType = 'dev';
-                const prodFields = ['awsNodeAz2', 'awsNodeAz3', 'prodInstanceType'];
+                const prodFields = ['awsNodeAz2', 'awsNodeAz3', 'workerNodeInstanceType2', 'workerNodeInstanceType3', 'prodInstanceType'];
+
                 prodFields.forEach(attr => this.disarmField(attr, true));
+
+                if (this.clusterType !== 'standalone') {
+                    this.resurrectField('workerNodeInstanceType1', [Validators.required]);
+                }
 
                 this.resurrectField('devInstanceType',
                     [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
                     this.formGroup.get('devInstanceType').value);
-                this.resurrectField('awsNodeAz1', [Validators.required]);
             } else if (data === 'prod') {
                 this.nodeType = 'prod';
 
@@ -295,11 +314,9 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                             this.formGroup.get(azNew[2])])
                     ]);
                 }
-            }
-            if (this.clusterType !== 'standalone') {
-                this.resurrectField('workerNodeInstanceType',
-                    [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
-                    this.formGroup.get('workerNodeInstanceType').value);
+                if (this.clusterType !== 'standalone') {
+                    WORKER_NODE_INSTANCE_TYPES.forEach(field => this.resurrectField(field, [Validators.required]));
+                }
             }
 
             this.updateVpcSubnets();
@@ -324,10 +341,6 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             'prodInstanceType'
         ];
 
-        if (this.clusterType !== 'standalone') {
-            resetFields.push('workerNodeInstanceType');
-        }
-
         this.cardClick(this.getSavedValue('devInstanceType', '') === '' ? 'prod' : 'dev');
         super.setSavedDataAfterLoad();
         resetFields.forEach(field => this.formGroup.get(field).setValue(''));
@@ -341,8 +354,16 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         return this.formGroup.controls['prodInstanceType'].value;
     }
 
-    get workerNodeInstanceTypeValue() {
-        return this.formGroup.controls['workerNodeInstanceType'].value;
+    get workerNodeInstanceType1Value() {
+        return this.formGroup.controls['workerNodeInstanceType1'].value;
+    }
+
+    get workerNodeInstanceType2Value() {
+        return this.formGroup.controls['workerNodeInstanceType2'].value;
+    }
+
+    get workerNodeInstanceType3Value() {
+        return this.formGroup.controls['workerNodeInstanceType3'].value;
     }
 
     /**
@@ -405,6 +426,40 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             this.filteredAzs[azControlName].privateSubnets = this.privateSubnets.filter(obj => {
                 return obj.availabilityZoneName === az;
             });
+        }
+    }
+
+    setSavedWorkerNodeInstanceTypes(): void {
+        WORKER_NODE_INSTANCE_TYPES.forEach(field => {
+            const instanceType = this.getSavedValue(field, '');
+            this.formGroup.get(field).setValue(instanceType);
+        });
+    }
+
+    /**
+     * @method updateWorkerNodeInstanceTypes
+     * @param azWorkerNodeKey - the key of the worker node list in the azNodeTypes list to update
+     * @param availabilityZone - the availability zone name to retrieve node types against
+     * Updates available worker node instance type list per availability zone. API takes the availability zone name
+     * and returns list of node instance types available to that zone.
+     */
+    updateWorkerNodeInstanceTypes(azWorkerNodeKey, availabilityZone) {
+        if (availabilityZone) {
+            this.apiClient.getAWSNodeTypes({
+                az: availabilityZone
+            })
+                .pipe(takeUntil(this.unsubscribe))
+                .subscribe(
+                    ((nodeTypes) => {
+                        this.azNodeTypes[azWorkerNodeKey] = nodeTypes;
+                    }),
+                    ((err) => {
+                        const error = err.error.message || err.message || JSON.stringify(err);
+                        this.errorNotification = `Unable to retrieve worker node instance types. ${error}`;
+                    })
+                );
+        } else {
+            this.azNodeTypes[azWorkerNodeKey] = [];
         }
     }
 

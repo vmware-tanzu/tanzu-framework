@@ -24,8 +24,9 @@ var RootCmd = &cobra.Command{
 }
 
 var (
-	noInit bool
-	color  = true
+	noInit      bool
+	color       = true
+	forceNoInit = "false" // a string variable so as to be overridable via linker flag
 )
 
 // NewRootCmd creates a root command.
@@ -34,7 +35,7 @@ func NewRootCmd() (*cobra.Command, error) {
 	RootCmd.SetUsageFunc(u.Func())
 
 	ni := os.Getenv("TANZU_CLI_NO_INIT")
-	if ni != "" {
+	if ni != "" || strings.EqualFold(forceNoInit, "true") {
 		noInit = true
 	}
 	if os.Getenv("TANZU_CLI_NO_COLOR") != "" {

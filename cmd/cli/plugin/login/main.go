@@ -336,7 +336,7 @@ func createServerWithEndpoint() (server *configv1alpha1.Server, err error) {
 	} else {
 		kubeConfig, kubecontext, err = tkgauth.KubeconfigWithPinnipedAuthLoginPlugin(endpoint, nil)
 		if err != nil {
-			log.Fatalf("Error creating kubeconfig with tanzu pinniped-auth login plugin: err-%v", err)
+			log.Fatalf("Error creating kubeconfig with tanzu pinniped-auth login plugin: %v", err)
 			return nil, err
 		}
 		server = &configv1alpha1.Server{
@@ -435,7 +435,7 @@ func managementClusterLogin(s *configv1alpha1.Server) error {
 	if s.ManagementClusterOpts.Path != "" && s.ManagementClusterOpts.Context != "" {
 		_, err := tkgauth.GetServerKubernetesVersion(s.ManagementClusterOpts.Path, s.ManagementClusterOpts.Context)
 		if err != nil {
-			log.Fatalf("failed to login to the management cluster %s, err-%v", s.Name, err)
+			log.Fatalf("failed to login to the management cluster %s, %v", s.Name, err)
 			return err
 		}
 		err = config.PutServer(s, true)

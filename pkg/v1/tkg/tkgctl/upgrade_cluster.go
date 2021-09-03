@@ -29,6 +29,8 @@ type UpgradeClusterOptions struct {
 	// OSName, OSVersion and OSArch config variable
 	// to filter vSphereTemplate
 	VSphereTemplateName string
+	// Tanzu edition (either tce or tkg)
+	Edition string
 }
 
 //nolint:gocritic
@@ -81,6 +83,7 @@ func (t *tkgctl) UpgradeCluster(options UpgradeClusterOptions) error {
 		OSName:              options.OSName,
 		OSVersion:           options.OSVersion,
 		OSArch:              options.OSArch,
+		Edition:             options.Edition,
 	}
 	err = t.tkgClient.UpgradeCluster(&upgradeClusterOption)
 	if err != nil {

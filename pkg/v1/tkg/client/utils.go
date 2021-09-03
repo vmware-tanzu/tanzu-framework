@@ -29,6 +29,16 @@ func getDefaultKubeConfigFile() string {
 	return rules.GetDefaultFilename()
 }
 
+func getCurrentContextFromDefaultKubeConfig() (string, error) {
+	defaultKubeconfig := getDefaultKubeConfigFile()
+	config, err := clientcmd.LoadFromFile(defaultKubeconfig)
+	if err != nil {
+		return "", err
+	}
+
+	return config.CurrentContext, nil
+}
+
 // MergeKubeConfigAndSwitchContext merges kubeconfig and switches the kube-context
 func MergeKubeConfigAndSwitchContext(kubeConfig []byte, mergeFile string) (string, error) {
 	if mergeFile == "" {

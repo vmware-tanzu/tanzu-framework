@@ -23,14 +23,14 @@ func (p *pkgClient) UpdateRepository(o *tkgpackagedatamodel.RepositoryOptions) e
 		repositoryToUpdate.Spec.Fetch.ImgpkgBundle.Image = o.RepositoryURL
 
 		if err := p.kappClient.UpdatePackageRepository(repositoryToUpdate); err != nil {
-			return errors.Wrap(err, fmt.Sprintf("failed to update package repository '%s'", o.RepositoryName))
+			return errors.Wrap(err, fmt.Sprintf("failed to update package repository '%s' in namespace '%s'", o.RepositoryName, o.Namespace))
 		}
 	} else if o.CreateRepository {
 		if err := p.AddRepository(o); err != nil {
-			return errors.Wrap(err, fmt.Sprintf("failed to create package repository '%s'", o.RepositoryName))
+			return errors.Wrap(err, fmt.Sprintf("failed to create package repository '%s' in namespace '%s'", o.RepositoryName, o.Namespace))
 		}
 	} else {
-		return errors.Wrap(err, fmt.Sprintf("failed to find package repository '%s'", o.RepositoryName))
+		return errors.Wrap(err, fmt.Sprintf("failed to find package repository '%s' in namespace '%s'", o.RepositoryName, o.Namespace))
 	}
 
 	return nil

@@ -89,6 +89,7 @@ func E2EUpgradeSpec(context context.Context, inputGetter func() E2EUpgradeSpecIn
 			defer os.Remove(clusterConfigFile)
 			err = tkgCtlClient.CreateCluster(tkgctl.CreateClusterOptions{
 				ClusterConfigFile: clusterConfigFile,
+				Edition:           "tkg",
 			})
 			Expect(err).To(BeNil())
 

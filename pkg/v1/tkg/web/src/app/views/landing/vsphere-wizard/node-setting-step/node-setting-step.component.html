@@ -35,7 +35,7 @@
                 </div>
                 <div class="card-footer">
                     <div class="clr-row" [attr.data-step-metadata]="formName">
-                        <div class="clr-col-lg-5 clr-col-12">
+                        <div class="clr-col-xl-4 clr-col-sm-12 clr-col-12 no-wrap">
                             <label i18n="instance type label" data-full="Development instance type">
                                 INSTANCE TYPE
                                 <clr-tooltip>
@@ -50,7 +50,7 @@
                                 </clr-tooltip>
                             </label>
                         </div>
-                        <div class="clr-col-lg-7 clr-col-12">
+                        <div class="clr-col-xl-8 clr-col-sm-12 clr-col-12">
                             <clr-select-container class="node-type-container">
                                 <select clrSelect class="node-type-select" name="devInstanceType"
                                     formControlName="devInstanceType" role="listbox"
@@ -85,7 +85,7 @@
                 </div>
                 <div class="card-footer">
                     <div class="clr-row" [attr.data-step-metadata]="formName">
-                        <div class="clr-col-lg-5 clr-col-12">
+                        <div class="clr-col-xl-4 clr-col-sm-12 clr-col-12 no-wrap">
                             <label i18n="instance type label" data-full="Production instance type">
                                 INSTANCE TYPE
                                 <clr-tooltip>
@@ -100,7 +100,7 @@
                                 </clr-tooltip>
                             </label>
                         </div>
-                        <div class="clr-col-lg-7 clr-col-12">
+                        <div class="clr-col-xl-8 clr-col-sm-12 clr-col-12">
                             <clr-select-container class="node-type-container">
                                 <select clrSelect class="node-type-select" name="prodInstanceType"
                                     formControlName="prodInstanceType" role="listbox"
@@ -125,18 +125,21 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-input-container [attr.data-step-metadata]="formName">
                 <label i18n="cluster name label" clr-control-label>
-                    {{ clusterType | uppercase }} CLUSTER NAME (OPTIONAL)
+                    {{ clusterType | uppercase }} CLUSTER NAME {{edition === 'tkg' ? '(OPTIONAL)' : ''}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                             <span>
-                                Optionally specify a name for the {{ clusterType }} cluster. If left blank,
-                                the installer names the cluster automatically.
+                                {{  edition === 'tkg'?
+                                    'Optionally specify a name for the ' + clusterType + ' cluster. If left blank,' +
+                                    'the installer names the cluster automatically.' : 
+                                    'Specify a name for the ' + clusterType + ' cluster.'
+                                }}
                             </span>
                         </clr-tooltip-content>
                     </clr-tooltip>
                 </label>
-                <input clrInput formControlName="clusterName" placeholder="optional" maxlength="42" />
+                <input clrInput formControlName="clusterName" placeholder="{{edition === 'tkg' ? 'optional' : ''}}" maxlength="42" />
                 <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error i18n="cluster name valid msg"
@@ -146,6 +149,9 @@
                 </clr-control-error>
                 <clr-control-error i18n="cluster name valid msg" *clrIfError="validatorEnum.WHITESPACE">
                     {{ clusterType | titlecase }} Cluster Name must not include whitespace on ends.
+                </clr-control-error>
+                <clr-control-error i18n="cluster name required msg" *clrIfError="validatorEnum.REQUIRED">
+                    Cluster name is required
                 </clr-control-error>
             </clr-input-container>
         </div>

@@ -204,6 +204,11 @@ func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.C
 		return errors.Wrap(err, "error waiting for addons to get installed")
 	}
 
+	log.Info("Waiting for packages to be up and running...")
+	if err := c.WaitForPackages(regionalClusterClient, workloadClusterClient, options.ClusterName, options.TargetNamespace); err != nil {
+		log.Warningf("Warning: Cluster is created successfully, but some packages are failing. %v", err)
+	}
+
 	return nil
 }
 
@@ -514,6 +519,12 @@ func (c *TkgClient) ConfigureAndValidateWorkloadClusterConfiguration(options *Cr
 	if options.ClusterType == "" {
 		options.ClusterType = WorkloadCluster
 	}
+	// BUILD_EDITION is the Tanzu Edition, the plugin should be built for. Its value is supposed be constructed from
+	// cmd/cli/plugin/managementcluster/create.go. So empty value at this point is not expected.
+	if options.Edition == "" {
+		return NewValidationError(ValidationErrorCode, "required config variable 'BUILD_EDITION' is not set")
+	}
+	c.SetBuildEdition(options.Edition)
 	c.SetTKGClusterRole(options.ClusterType)
 	c.SetTKGVersion()
 	if !skipValidation {

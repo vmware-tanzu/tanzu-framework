@@ -35,7 +35,7 @@ func init() {
 }
 
 // VSphereConfig is the tkg config file for vsphere
-type VSphereConfig struct { // nolint:dupl
+type VSphereConfig struct {
 	ClusterName            string `yaml:"CLUSTER_NAME,omitempty"`
 	InfrastructureProvider string `yaml:"INFRASTRUCTURE_PROVIDER,omitempty"`
 	ClusterPlan            string `yaml:"CLUSTER_PLAN,omitempty"`

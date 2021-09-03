@@ -11,4 +11,3 @@ package-name: "fluent-bit.tanzu.vmware.com"
 package-version: "1.7.5+vmware.1-tkg.1-zshippable"
 package-version-update: "1.7.5+vmware.1-tkg.1-zshippable"
 with-value-file: true
-

@@ -45,6 +45,11 @@ dataNetwork:
   name: #@ data.values.AVI_DATA_NETWORK
   cidr: #@ data.values.AVI_DATA_NETWORK_CIDR
 #@ end
+#@overlay/match missing_ok=True
+extraConfigs:
+  ingress:
+    #@overlay/match missing_ok=True
+    serviceType: NodePort
 #@ end
 
 --- #@ crd()

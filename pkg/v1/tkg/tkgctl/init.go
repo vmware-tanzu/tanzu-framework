@@ -49,7 +49,7 @@ type InitRegionOptions struct {
 	GenerateOnly                bool
 }
 
-//nolint:gocritic,gocyclo
+//nolint:gocritic,gocyclo,funlen
 // Init initializes tkg management cluster
 func (t *tkgctl) Init(options InitRegionOptions) error {
 	var err error
@@ -58,12 +58,6 @@ func (t *tkgctl) Init(options InitRegionOptions) error {
 		return err
 	}
 	err = ensureConfigImages(t.configDir, t.tkgConfigUpdaterClient)
-	if err != nil {
-		return err
-	}
-	// Update the tkg-compatibility file and BOM files
-	forceUpdateTKGCompatibilityFile := true
-	err = ensureTKGCompatibilityAndBOMFiles(t.configDir, t.tkgConfigUpdaterClient, forceUpdateTKGCompatibilityFile)
 	if err != nil {
 		return err
 	}
@@ -124,9 +118,30 @@ func (t *tkgctl) Init(options InitRegionOptions) error {
 			return errors.Wrap(err, "unable to parse provider name")
 		}
 		if providerName == "vsphere" {
-			err = t.validateVsphereConfigs(&options)
+			err := t.verifyThumbprint(options.SkipPrompt)
 			if err != nil {
 				return err
+			}
+			vcClient, err := t.tkgClient.GetVSphereEndpoint(nil)
+			if err != nil {
+				return errors.Wrap(err, "unable to verify vSphere credentials")
+			}
+			validateErr := client.ValidateVSphereVersion(vcClient)
+			if validateErr != nil {
+				switch validateErr.Code {
+				case client.PacificInVC7ErrorCode:
+					shouldContinueDeployment, err := t.validationActionForVSphereVersion(true, &options)
+					if !shouldContinueDeployment {
+						return err
+					}
+				case client.PacificNotInVC7ErrorCode:
+					shouldContinueDeployment, err := t.validationActionForVSphereVersion(false, &options)
+					if !shouldContinueDeployment {
+						return err
+					}
+				default:
+					return errors.Wrap(validateErr, "configuration validation failed")
+				}
 			}
 		}
 
@@ -259,6 +274,14 @@ func (t *tkgctl) configureInitManagementClusterOptionsFromConfigFile(iro *InitRe
 		}
 	}
 
+	// set BuildEdition from config variable
+	if iro.Edition == "" {
+		edition, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableBuildEdition)
+		if err == nil {
+			iro.Edition = edition
+		}
+	}
+
 	// set vSphereControlPlaneEndpoint from config variable
 	if iro.VsphereControlPlaneEndpoint == "" {
 		vSphereControlPlaneEndpoint, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereControlPlaneEndpoint)
@@ -303,35 +326,6 @@ func (t *tkgctl) configureInitManagementClusterOptionsFromConfigFile(iro *InitRe
 	}
 
 	return nil
-}
-
-func (t *tkgctl) validateVsphereConfigs(options *InitRegionOptions) error {
-	err := t.verifyThumbprint(options.SkipPrompt)
-	if err != nil {
-		return err
-	}
-	vcClient, err := t.tkgClient.GetVSphereEndpoint(nil)
-	if err != nil {
-		return errors.Wrap(err, "unable to verify vSphere credentials")
-	}
-	validateErr := client.ValidateVSphereVersion(vcClient)
-	if validateErr != nil {
-		switch validateErr.Code {
-		case client.PacificInVC7ErrorCode:
-			shouldContinueDeployment, err := t.validationActionForVSphereVersion(true, options)
-			if !shouldContinueDeployment {
-				return err
-			}
-		case client.PacificNotInVC7ErrorCode:
-			shouldContinueDeployment, err := t.validationActionForVSphereVersion(false, options)
-			if !shouldContinueDeployment {
-				return err
-			}
-		default:
-			return errors.Wrap(validateErr, "configuration validation failed")
-		}
-	}
-	return err
 }
 
 func (t *tkgctl) populateClientInitRegionOptions(options *InitRegionOptions, nodeSizeOptions client.NodeSizeOptions, ceipOptIn bool) client.InitRegionOptions {

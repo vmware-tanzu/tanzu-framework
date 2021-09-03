@@ -30,7 +30,7 @@ func (p *pkgClient) AddRepository(o *tkgpackagedatamodel.RepositoryOptions) erro
 	newPackageRepo := p.newPackageRepository(o.RepositoryName, o.RepositoryURL, o.Namespace)
 
 	if err := p.kappClient.CreatePackageRepository(newPackageRepo); err != nil {
-		return errors.Wrap(err, fmt.Sprintf("failed to create package repository '%s'", o.RepositoryName))
+		return errors.Wrap(err, fmt.Sprintf("failed to create package repository '%s' in namespace '%s'", o.RepositoryName, o.Namespace))
 	}
 
 	return nil

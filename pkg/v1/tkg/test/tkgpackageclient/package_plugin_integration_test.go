@@ -138,6 +138,7 @@ var _ = Describe("Package plugin integration test", func() {
 				InfrastructureProvider: "docker",
 				Timeout:                clusterCreationTimeout,
 				CniType:                "calico",
+				Edition:                "tkg",
 			})
 			Expect(err).NotTo(HaveOccurred())
 
@@ -161,6 +162,7 @@ var _ = Describe("Package plugin integration test", func() {
 
 			err = tkgCtlClient.CreateCluster(tkgctl.CreateClusterOptions{
 				ClusterConfigFile: clusterConfigFile,
+				Edition:           "tkg",
 			})
 			Expect(err).To(BeNil())
 
@@ -352,6 +354,7 @@ func testHelper() {
 	By("delete package install")
 	pkgOptions.PollInterval = pollInterval
 	pkgOptions.PollTimeout = pollTimeout
+	pkgOptions.SkipPrompt = true
 	result = packagePlugin.DeleteInstalledPackage(&pkgOptions)
 	Expect(result.Error).ToNot(HaveOccurred())
 

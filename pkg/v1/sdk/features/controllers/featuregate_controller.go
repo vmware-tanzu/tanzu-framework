@@ -38,7 +38,8 @@ func (r *FeatureGateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error)
 	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
 	defer cancel()
 
-	_ = r.Log.WithValues("featuregate", req.NamespacedName)
+	log := r.Log.WithValues("featuregate", req.NamespacedName)
+	log.Info("Starting reconcile")
 
 	featureGate := &configv1alpha1.FeatureGate{}
 	if err := r.Client.Get(ctx, req.NamespacedName, featureGate); err != nil {
@@ -64,6 +65,7 @@ func (r *FeatureGateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error)
 	featureGate.Status.DeactivatedFeatures = deactivated
 	featureGate.Status.UnavailableFeatures = unavailable
 
+	log.Info("Successfully reconciled")
 	return ctrl.Result{}, r.Client.Status().Update(ctx, featureGate)
 }
 

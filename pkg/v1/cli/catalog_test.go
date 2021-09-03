@@ -70,10 +70,11 @@ func testMultiRepo(t *testing.T, multi *MultiRepo) {
 	require.NoError(t, err)
 }
 
-func testByDownGrading(t *testing.T) {
+func testByDownGrading(t *testing.T) int {
 	plugins, err := ListPlugins()
 	require.NoError(t, err)
 
+	numPluginsDowngraded := 1
 	repoOld := newTestRepo(t, "artifacts-old")
 	// downgrades from v0.0.4 to v0.0.3
 	err = InstallPlugin("baz", "v0.0.3", repoOld)
@@ -81,8 +82,32 @@ func testByDownGrading(t *testing.T) {
 	pluginsAfterDowngrade, err := ListPlugins()
 	require.NoError(t, err)
 	require.NotEqual(t, plugins, pluginsAfterDowngrade)
+	return numPluginsDowngraded
 }
 
+func testHasUpdate(t *testing.T, multi *MultiRepo, numPluginsDowngraded int) {
+	plugins, err := ListPlugins()
+	require.NoError(t, err)
+
+	numPluginsRequiringUpdate := 0
+	for _, p := range plugins {
+		hasUpdate, repo, version, err := HasPluginUpdateIn(multi, p)
+		require.NoError(t, err)
+
+		if hasUpdate {
+			numPluginsRequiringUpdate++
+
+			hasUpdate2, version2, err2 := HasPluginUpdate(repo, nil, p)
+			require.NoError(t, err2)
+
+			require.Equal(t, hasUpdate, hasUpdate2)
+			require.Equal(t, version, version2)
+		}
+	}
+	require.Equal(t, numPluginsRequiringUpdate, numPluginsDowngraded)
+}
+
+//nolint:funlen
 func TestCatalog(t *testing.T) {
 	newTestCatalog(t)
 
@@ -145,7 +170,9 @@ func TestCatalog(t *testing.T) {
 
 	testMultiRepo(t, multi)
 
-	testByDownGrading(t)
+	numPluginsDowngraded := testByDownGrading(t)
+
+	testHasUpdate(t, multi, numPluginsDowngraded)
 
 	err = EnsureDistro(multi)
 	require.NoError(t, err)

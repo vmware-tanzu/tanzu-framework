@@ -10,6 +10,7 @@ import (
 
 	"github.com/pkg/errors"
 	appsv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 	capav1alpha3 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha3"
@@ -45,6 +46,9 @@ type UpgradeClusterOptions struct {
 	OSArch              string
 	IsRegionalCluster   bool
 	SkipAddonUpgrade    bool
+	SkipPrompt          bool
+	// Tanzu edition (either tce or tkg)
+	Edition string
 }
 
 type mdInfastructureTemplateInfo struct {
@@ -167,17 +171,22 @@ func (c *TkgClient) UpgradeCluster(options *UpgradeClusterOptions) error { // no
 		return err
 	}
 
-	// update autoscaler deployment if enabled
+	err = c.addKubernetesReleaseLabel(regionalClusterClient, options)
+	if err != nil {
+		return errors.Wrapf(err, "unable to patch the cluster object with TanzuKubernetesRelease label")
+	}
+
 	if !options.IsRegionalCluster {
+		// update autoscaler deployment if enabled
 		err = c.applyPatchForAutoScalerDeployment(regionalClusterClient, options)
 		if err != nil {
 			return errors.Wrapf(err, "failed to upgrade autoscaler for cluster '%s'", options.ClusterName)
 		}
-	}
 
-	err = c.addKubernetesReleaseLabel(regionalClusterClient, options)
-	if err != nil {
-		return errors.Wrapf(err, "unable to patch the cluster object with TanzuKubernetesRelease label")
+		log.Info("Waiting for packages to be up and running...")
+		if err := c.WaitForPackages(regionalClusterClient, currentClusterClient, options.ClusterName, options.Namespace); err != nil {
+			log.Warningf("Warning: Cluster is upgraded successfully, but some packages are failing. %v", err)
+		}
 	}
 
 	return nil
@@ -281,7 +290,7 @@ func (c *TkgClient) DoClusterUpgrade(regionalClusterClient clusterclient.Client,
 	// once we update the TKG version in cluster object
 	if !options.IsRegionalCluster && !options.SkipAddonUpgrade {
 		return c.upgradeAddons(regionalClusterClient, currentClusterClient, upgradeClusterConfig.ClusterName,
-			upgradeClusterConfig.ClusterNamespace, options.IsRegionalCluster)
+			upgradeClusterConfig.ClusterNamespace, options.IsRegionalCluster, options.Edition)
 	}
 	return nil
 }
@@ -304,7 +313,7 @@ func (c *TkgClient) addKubernetesReleaseLabel(regionalClusterClient clusterclien
 }
 
 func (c *TkgClient) upgradeAddons(regionalClusterClient clusterclient.Client, currentClusterClient clusterclient.Client,
-	clusterName string, clusterNamespace string, isRegionalCluster bool) error {
+	clusterName string, clusterNamespace string, isRegionalCluster bool, tanzuEdition string) error {
 
 	addonsToBeUpgraded := []string{
 		"metadata/tkg",
@@ -321,6 +330,7 @@ func (c *TkgClient) upgradeAddons(regionalClusterClient clusterclient.Client, cu
 		ClusterName:       clusterName,
 		Namespace:         clusterNamespace,
 		IsRegionalCluster: isRegionalCluster,
+		Edition:           tanzuEdition,
 	}
 
 	err := c.DoUpgradeAddon(regionalClusterClient, currentClusterClient, upgradeClusterMetadataOptions, c.GetClusterConfiguration)
@@ -367,10 +377,9 @@ func (c *TkgClient) applyPatchAndWait(regionalClusterClient, currentClusterClien
 		}
 	}
 
-	// In TKG version prior to v1.3, kapp-controller could have been deployed by user as part of tkg-extensions deployment.
-	// We need to delete the existing kapp-controller since a new kapp-controller will be installed from TKG v1.3 for addons management.
-	if err := currentClusterClient.DeleteExistingKappController(); err != nil {
-		return errors.Wrapf(err, "unable to delete existing kapp-controller")
+	// Upgrade logic for kapp-controller related changes
+	if err := c.handleKappControllerUpgrade(regionalClusterClient, currentClusterClient, upgradeClusterConfig); err != nil {
+		return errors.Wrapf(err, "unable to apply upgrade for kapp-controller")
 	}
 
 	log.Info("Upgrading control plane nodes...")
@@ -1100,6 +1109,29 @@ func (c *TkgClient) patchKubernetesVersionToMachineDeployment(regionalClusterCli
 			return errors.Wrap(err, "unable to update the kubernetes version for worker nodes")
 		}
 	}
+	return nil
+}
+
+// handleKappControllerUpgrade contains upgrade logic required for kapp-controller.
+func (c *TkgClient) handleKappControllerUpgrade(regionalClusterClient, currentClusterClient clusterclient.Client, upgradeClusterConfig *clusterUpgradeInfo) error {
+	// In TKG version prior to v1.3, kapp-controller could have been deployed by user as part of tkg-extensions deployment.
+	// We need to delete the existing kapp-controller since a new kapp-controller will be installed from TKG v1.3 for addons management.
+	if err := currentClusterClient.DeleteExistingKappController(); err != nil {
+		return errors.Wrapf(err, "unable to delete existing kapp-controller")
+	}
+
+	// Update AWSCluster cniIngressRules to include kapp-controller API port only if CAPA is running on the management cluster
+	if err := regionalClusterClient.GetResource(&corev1.Namespace{}, clusterclient.CAPAControllerNamespace, clusterclient.CAPAControllerNamespace, nil, nil); err != nil {
+		// if capa-system namespace doesn't exist, then assume that updates to AWSCluster are not required during upgrade.
+		if !apierrors.IsNotFound(err) {
+			return errors.Wrapf(err, "unable to check if Cluster API Provider for AWS is enabled")
+		}
+	} else {
+		if err := regionalClusterClient.UpdateAWSCNIIngressRules(upgradeClusterConfig.ClusterName, upgradeClusterConfig.ClusterNamespace); err != nil {
+			return errors.Wrapf(err, "unable to update AWS CNI ingress rules")
+		}
+	}
+
 	return nil
 }
 

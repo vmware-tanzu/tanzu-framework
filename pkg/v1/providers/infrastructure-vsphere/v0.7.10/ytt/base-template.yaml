@@ -145,11 +145,11 @@ spec:
             - name: vip_interface
               value: '${ VIP_NETWORK_INTERFACE }'
             - name: vip_leaseduration
-              value: "15"
+              value: "30"
             - name: vip_renewdeadline
-              value: "10"
+              value: "20"
             - name: vip_retryperiod
-              value: "2"
+              value: "4"
             image: '${ _TKG_KUBE_VIP_IMAGE }'
             imagePullPolicy: IfNotPresent
             name: kube-vip
