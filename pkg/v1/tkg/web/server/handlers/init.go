@@ -83,12 +83,7 @@ func (app *App) CreateVSphereRegionalCluster(params vsphere.CreateVSphereRegiona
 	go app.StartSendingLogsToUI()
 	go func() {
 		err := initRegion(app, c)
-		if err != nil {
-			log.Error(err, "unable to set up management cluster, ")
-		} else {
-			log.Infof("\nManagement cluster created!\n\n")
-			log.Info("\nYou can now create your first workload cluster by running the following:\n\n")
-			log.Info("  tanzu cluster create [name] -f [file]\n\n")
+		if err == nil {
 			// wait for the logs to be dispatched to UI before exit
 			time.Sleep(sleepTimeForLogsPropogation)
 			// exit the BE server on success
@@ -102,20 +97,30 @@ func (app *App) CreateVSphereRegionalCluster(params vsphere.CreateVSphereRegiona
 func initRegion(app *App, c *client.TkgClient) error {
 	featuresClient, err := featuresclient.New(app.AppConfig.TKGConfigDir, "")
 	if err != nil {
+		log.Error(err, "unable to set up cluster, ")
 		return err
 	}
 
 	tanzuEdition, _ := featuresClient.GetFeatureFlag("edition")
 	if tanzuEdition == "tce-standalone" {
 		err = c.InitStandaloneRegion(&app.InitOptions)
+		if err != nil {
+			log.Error(err, "unable to set up standalone cluster, ")
+		} else {
+			log.Infof("\nStandalone cluster created!\n\n")
+		}
 	} else {
 		err = c.InitRegion(&app.InitOptions)
-	}
-	if err != nil {
-		return err
+		if err != nil {
+			log.Error(err, "unable to set up management cluster, ")
+		} else {
+			log.Infof("\nManagement cluster created!\n\n")
+			log.Info("\nYou can now create your first workload cluster by running the following:\n\n")
+			log.Info("  tanzu cluster create [name] -f [file]\n\n")
+		}
 	}
 
-	return nil
+	return err
 }
 
 // CreateAWSRegionalCluster creates aws management cluster
@@ -182,12 +187,7 @@ func (app *App) CreateAWSRegionalCluster(params aws.CreateAWSRegionalClusterPara
 			}
 		}
 		err := initRegion(app, c)
-		if err != nil {
-			log.Error(err, "unable to set up management cluster, ")
-		} else {
-			log.Infof("\nManagement cluster created!\n\n")
-			log.Info("\nYou can now create your first workload cluster by running the following:\n\n")
-			log.Info("  tanzu cluster create [name] -f [file]\n\n")
+		if err == nil {
 			// wait for the logs to be dispatched to UI before exit
 			time.Sleep(sleepTimeForLogsPropogation)
 			// exit the BE server on success
@@ -281,12 +281,7 @@ func (app *App) CreateAzureRegionalCluster(params azure.CreateAzureRegionalClust
 	go app.StartSendingLogsToUI()
 	go func() {
 		err := initRegion(app, c)
-		if err != nil {
-			log.Error(err, "unable to set up management cluster, ")
-		} else {
-			log.Infof("\nManagement cluster created!\n\n")
-			log.Info("\nYou can now create your first workload cluster by running the following:\n\n")
-			log.Info("  tanzu cluster create [name] -f [file]\n\n")
+		if err == nil {
 			// wait for the logs to be dispatched to UI before exit
 			time.Sleep(sleepTimeForLogsPropogation)
 			// exit the BE server on success
@@ -345,12 +340,7 @@ func (app *App) CreateDockerRegionalCluster(params docker.CreateDockerRegionalCl
 	go app.StartSendingLogsToUI()
 	go func() {
 		err := initRegion(app, c)
-		if err != nil {
-			log.Error(err, "unable to set up management cluster, ")
-		} else {
-			log.Infof("\nManagement cluster created!\n\n")
-			log.Info("\nYou can now create your first workload cluster by running the following:\n\n")
-			log.Info("  tanzu cluster create [name] -f [file]\n\n")
+		if err == nil {
 			// wait for the logs to be dispatched to UI before exit
 			time.Sleep(sleepTimeForLogsPropogation)
 			// exit the BE server on success

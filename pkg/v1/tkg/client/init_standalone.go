@@ -17,7 +17,6 @@ limitations under the License.
 package client
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -37,10 +36,23 @@ import (
 )
 
 const (
-	StepCreateStandaloneCluster         = "Create standalone cluster"
-	StepMoveStandaloneClusterAPIObjects = "Move cluster-api objects from bootstrap cluster to standalone cluster"
-	StepRegisterStandaloneWithTMC       = "Register standalone cluster with Tanzu Mission Control"
+	StepCreateStandaloneCluster             = "Create standalone cluster"
+	StepInstallProvidersOnRegionalSACluster = "Install providers on standalone cluster"
+	StepMoveStandaloneClusterAPIObjects     = "Move cluster-api objects from bootstrap cluster to standalone cluster"
+	StepRegisterStandaloneWithTMC           = "Register standalone cluster with Tanzu Mission Control"
 )
+
+// InitSARegionSteps is the standalone cluster init step sequence
+var InitSARegionSteps []string = []string{
+	StepConfigPrerequisite,
+	StepValidateConfiguration,
+	StepGenerateClusterConfiguration,
+	StepSetupBootstrapCluster,
+	StepInstallProvidersOnBootstrapCluster,
+	StepCreateStandaloneCluster,
+	StepInstallProvidersOnRegionalSACluster,
+	StepMoveStandaloneClusterAPIObjects,
+}
 
 func (c *TkgClient) InitStandaloneRegion(options *InitRegionOptions) error { //nolint:gocyclo
 	var err error
@@ -56,9 +68,9 @@ func (c *TkgClient) InitStandaloneRegion(options *InitRegionOptions) error { //n
 		return err
 	}
 	if options.TmcRegistrationURL != "" {
-		InitRegionSteps = append(InitRegionSteps, StepRegisterStandaloneWithTMC)
+		InitSARegionSteps = append(InitSARegionSteps, StepRegisterStandaloneWithTMC)
 	}
-	log.SendProgressUpdate(statusRunning, StepValidateConfiguration, InitRegionSteps)
+	log.SendProgressUpdate(statusRunning, StepValidateConfiguration, InitSARegionSteps)
 	log.Info("Validating configuration...")
 
 	// at exit, do these things
@@ -76,9 +88,9 @@ func (c *TkgClient) InitStandaloneRegion(options *InitRegionOptions) error { //n
 		}
 
 		if isSuccessful {
-			log.SendProgressUpdate(statusSuccessful, "", InitRegionSteps)
+			log.SendProgressUpdate(statusSuccessful, "", InitSARegionSteps)
 		} else {
-			log.SendProgressUpdate(statusFailed, "", InitRegionSteps)
+			log.SendProgressUpdate(statusFailed, "", InitSARegionSteps)
 		}
 
 		// if regional cluster creation failed after bootstrap kind cluster was successfully created
@@ -107,7 +119,7 @@ func (c *TkgClient) InitStandaloneRegion(options *InitRegionOptions) error { //n
 	}
 
 	log.Infof("Using infrastructure provider %s", options.InfrastructureProvider)
-	log.SendProgressUpdate(statusRunning, StepGenerateClusterConfiguration, InitRegionSteps)
+	log.SendProgressUpdate(statusRunning, StepGenerateClusterConfiguration, InitSARegionSteps)
 	log.Info("Generating cluster configuration...")
 
 	// Obtain regional cluster configuration of a provided flavor
@@ -115,7 +127,7 @@ func (c *TkgClient) InitStandaloneRegion(options *InitRegionOptions) error { //n
 		return errors.Wrap(err, "unable to build standalone cluster configuration")
 	}
 
-	log.SendProgressUpdate(statusRunning, StepSetupBootstrapCluster, InitRegionSteps)
+	log.SendProgressUpdate(statusRunning, StepSetupBootstrapCluster, InitSARegionSteps)
 	log.Info("Setting up bootstrapper...")
 	// Ensure bootstrap cluster and copy boostrap cluster kubeconfig to ~/kube-tkg directory
 	if bootstrapClusterName, err = c.ensureKindCluster(options.Kubeconfig, options.UseExistingCluster, bootstrapClusterKubeconfigPath); err != nil {
@@ -129,7 +141,11 @@ func (c *TkgClient) InitStandaloneRegion(options *InitRegionOptions) error { //n
 		return errors.Wrap(err, "unable to get bootstrap cluster client")
 	}
 
-	log.SendProgressUpdate(statusRunning, StepInstallProvidersOnBootstrapCluster, InitRegionSteps)
+	if err := c.configureVariablesForProvidersInstallation(nil); err != nil {
+		return errors.Wrap(err, "unable to configure variables for provider installation")
+	}
+
+	log.SendProgressUpdate(statusRunning, StepInstallProvidersOnRegionalSACluster, InitSARegionSteps)
 	log.Info("Installing providers on bootstrapper...")
 	// Initialize bootstrap cluster with providers
 
@@ -144,11 +160,8 @@ func (c *TkgClient) InitStandaloneRegion(options *InitRegionOptions) error { //n
 	isStartedRegionalClusterCreation = true
 
 	targetClusterNamespace := defaultTkgNamespace
-	// if options.Namespace != "" {
-	// 	targetClusterNamespace = options.Namespace
-	// }
 
-	log.SendProgressUpdate(statusRunning, StepCreateStandaloneCluster, InitRegionSteps)
+	log.SendProgressUpdate(statusRunning, StepCreateStandaloneCluster, InitSARegionSteps)
 	log.Info("Start creating standalone cluster...")
 	err = c.DoCreateCluster(bootStrapClusterClient, options.ClusterName, targetClusterNamespace, string(regionalConfigBytes))
 	if err != nil {
@@ -157,7 +170,6 @@ func (c *TkgClient) InitStandaloneRegion(options *InitRegionOptions) error { //n
 
 	// save this context to tkg config incase the standalone cluster creation fails
 	regionContext = region.RegionContext{ClusterName: options.ClusterName, ContextName: "kind-" + bootstrapClusterName, SourceFilePath: bootstrapClusterKubeconfigPath, Status: region.Failed}
-	fmt.Printf("regionContext:\n%v", regionContext)
 
 	kubeConfigBytes, err := c.WaitForClusterInitializedAndGetKubeConfig(bootStrapClusterClient, options.ClusterName, targetClusterNamespace)
 	if err != nil {
@@ -184,7 +196,7 @@ func (c *TkgClient) InitStandaloneRegion(options *InitRegionOptions) error { //n
 	}
 
 	log.Info("Waiting for bootstrap cluster to get ready for save ...")
-	if err := c.WaitForClusterReadyForMove(bootStrapClusterClient, options.ClusterName, targetClusterNamespace); err != nil {
+	if err := c.WaitForStandaloneClusterReadyForBackup(bootStrapClusterClient, options.ClusterName, targetClusterNamespace); err != nil {
 		return errors.Wrap(err, "unable to wait for cluster getting ready for move")
 	}
 
@@ -204,7 +216,7 @@ func (c *TkgClient) InitStandaloneRegion(options *InitRegionOptions) error { //n
 		return errors.Wrap(err, "error waiting for addons to get installed")
 	}
 
-	log.SendProgressUpdate(statusRunning, StepMoveStandaloneClusterAPIObjects, InitRegionSteps)
+	log.SendProgressUpdate(statusRunning, StepMoveStandaloneClusterAPIObjects, InitSARegionSteps)
 	log.Info("Moving all Cluster API objects from bootstrap cluster to standalone cluster...")
 	// Move all Cluster API objects from bootstrap cluster to created to regional cluster for all namespaces
 	if err = c.SaveObjects(bootstrapClusterKubeconfigPath, targetClusterNamespace); err != nil {

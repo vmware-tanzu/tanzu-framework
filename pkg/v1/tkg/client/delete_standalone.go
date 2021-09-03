@@ -117,6 +117,10 @@ func (c *TkgClient) DeleteStandalone(options DeleteRegionOptions) error {
 		return errors.Wrap(err, "cannot create cleanup cluster client")
 	}
 
+	if err := c.configureVariablesForProvidersInstallation(nil); err != nil {
+		return errors.Wrap(err, "unable to configure variables for provider installation")
+	}
+
 	log.Info("Installing providers to cleanup cluster...")
 	initOptionsForCleanupCluster, err := RestoreInitOptions(options.ClusterName)
 	if err != nil {
@@ -125,6 +129,12 @@ func (c *TkgClient) DeleteStandalone(options DeleteRegionOptions) error {
 	// set the cluster config for deletion. This enables recieveing credentials for vsphere, AWS,
 	// and azure.
 	initOptionsForCleanupCluster.ClusterConfigFile = options.ClusterConfig
+
+	// get the credentials from the init options to access standalone cluster
+	err = c.EncodeCredentials(initOptionsForCleanupCluster, cleanupClusterClient)
+	if err != nil {
+		return errors.Wrap(err, "unable to encode infrastructure provider credentials")
+	}
 
 	// Initialize cleanup cluster using same provider name and version from regional cluster
 	if err = c.InitializeProviders(initOptionsForCleanupCluster, cleanupClusterClient, cleanupClusterKubeconfigPath); err != nil {
@@ -217,4 +227,27 @@ func RestoreInitOptions(clusterName string) (*InitRegionOptions, error) {
 	}
 
 	return options, nil
+}
+
+// EncodeCredentials gets the creds for the infra provider specified in the InitRegionOptions for a specific clusterclient
+func (c *TkgClient) EncodeCredentials(initOptions *InitRegionOptions, clusterClient clusterclient.Client) error {
+	// configure variables required to deploy providers
+	providerName, _, err := ParseProviderName(initOptions.InfrastructureProvider)
+	if err != nil {
+		return errors.Wrap(err, "unable to parse provider name from bootstrap region cluster")
+	}
+
+	// since provider templates need Base64 values of credentials, encode them
+	switch providerName {
+	case AzureProviderName:
+		if _, err := c.EncodeAzureCredentialsAndGetClient(nil); err != nil {
+			return errors.Wrap(err, "failed to encode azure credentials")
+		}
+	case AWSProviderName:
+		if _, err := c.EncodeAWSCredentialsAndGetClient(nil); err != nil {
+			return errors.Wrap(err, "failed to encode AWS credentials")
+		}
+	}
+
+	return nil
 }
