@@ -55,12 +55,16 @@ describe('AwsWizardComponent', () => {
             }),
             awsNodeSettingForm: fb.group({
                 awsNodeAz1: [''],
+                awsNodeAz2: [''],
+                awsNodeAz3: [''],
                 bastionHostEnabled: [''],
                 controlPlaneSetting: [''],
                 devInstanceType: [''],
                 machineHealthChecksEnabled: [false],
                 createCloudFormation: [false],
-                workerNodeInstanceType: [''],
+                workerNodeInstanceType1: [''],
+                workerNodeInstanceType2: [''],
+                workerNodeInstanceType3: [''],
                 clusterName: [''],
                 sshKeyName: ['']
             }),
@@ -155,7 +159,7 @@ describe('AwsWizardComponent', () => {
             ['awsNodeSettingForm', 'devInstanceType', 't3.medium'],
             ['awsNodeSettingForm', 'sshKeyName', 'default'],
             // ['awsNodeSettingForm', 'machineHealthChecksEnabled', true],
-            ['awsNodeSettingForm', 'workerNodeInstanceType', 't3.small'],
+            ['awsNodeSettingForm', 'workerNodeInstanceType1', 't3.small'],
             ['metadataForm', 'clusterDescription', 'DescriptionEXAMPLE'],
             // ['metadataForm', 'clusterLabels', clusterLabels],
             ['metadataForm', 'clusterLocation', 'mylocation1'],
@@ -199,7 +203,7 @@ describe('AwsWizardComponent', () => {
         expect(payload.controlPlaneNodeType).toBe('t3.medium');
         expect(payload.sshKeyName).toBe('default');
         expect(payload.controlPlaneFlavor).toBe('dev');
-        expect(payload.workerNodeType).toBe('t3.small');
+        expect(payload.vpc.azs[0].workerNodeType).toBe('t3.small');
         expect(payload.bastionHostEnabled).toBe(true);
         expect(payload.machineHealthCheckEnabled).toBe(true);
         expect(payload.ceipOptIn).toBe(true);

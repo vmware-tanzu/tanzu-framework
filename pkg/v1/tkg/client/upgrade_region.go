@@ -154,7 +154,7 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 	// so, while generating cluster template with new tkg and k8s version, it does not
 	// throw version incompatibility validation error.
 	if !options.SkipAddonUpgrade {
-		err = c.upgradeAddons(regionalClusterClient, regionalClusterClient, options.ClusterName, options.Namespace, true)
+		err = c.upgradeAddons(regionalClusterClient, regionalClusterClient, options.ClusterName, options.Namespace, true, options.Edition)
 		if err != nil {
 			return err
 		}
@@ -194,7 +194,7 @@ func (c *TkgClient) configureVariablesForProvidersInstallation(regionalClusterCl
 	}
 	// retrieve required variables required for infrastructure component spec rendering
 	// set them to default values if they don't exist.
-	err = c.retriveRegionalClusterConfiguration(regionalClusterClient)
+	err = c.retrieveRegionalClusterConfiguration(regionalClusterClient)
 	if err != nil {
 		return errors.Wrap(err, "failed to set configurations for upgrade")
 	}

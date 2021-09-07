@@ -77,6 +77,7 @@ func E2EScaleSpec(context context.Context, inputGetter func() E2EScaleSpecInput)
 		defer os.Remove(clusterConfigFile)
 		err = tkgCtlClient.CreateCluster(tkgctl.CreateClusterOptions{
 			ClusterConfigFile: clusterConfigFile,
+			Edition:           "tkg",
 		})
 		Expect(err).To(BeNil())
 

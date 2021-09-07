@@ -94,7 +94,7 @@ func (c *TkgClient) DeleteRegion(options DeleteRegionOptions) error { //nolint:f
 		return err
 	}
 
-	err = c.retriveRegionalClusterConfiguration(regionalClusterClient)
+	err = c.retrieveRegionalClusterConfiguration(regionalClusterClient)
 	if err != nil {
 		return errors.Wrap(err, "failed to set configurations for deletion")
 	}
@@ -143,12 +143,6 @@ func (c *TkgClient) DeleteRegion(options DeleteRegionOptions) error { //nolint:f
 		}
 
 		isStartedRegionalClusterDeletion = true
-
-		// delete ClusterResourceSet objects if present.
-		if err = deleteCRSObjectsIfPresent(regionalClusterClient, options.ClusterName, regionalClusterNamespace); err != nil {
-			// do not fail. these resources only need to be deleted for tkg workload bootstrap clusters
-			log.Warning("Failed to delete ClusterResourceSet resources from management cluster")
-		}
 
 		log.Info("Moving Cluster API objects from management cluster to cleanup cluster...")
 		regionalClusterKubeConfigPath, err := regionalClusterClient.ExportCurrentKubeconfigToFile()

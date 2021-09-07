@@ -1,9 +1,7 @@
-import { Component, ElementRef, OnInit, ViewEncapsulation } from '@angular/core';
-import { takeUntil } from 'rxjs/operators';
+import { Component, Input, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import index from '../../../contextualHelpDocs/index.json';
 import { BasicSubscriber } from '../abstracts/basic-subscriber';
-import Broker from '../service/broker';
-import { TkgEventType } from '../service/Messenger';
+import { ContexutalHelpService } from './contexutal-help.service';
 
 declare let elasticlunr: any;
 
@@ -12,25 +10,22 @@ interface ContextualHelpIndex {
     tags: Array<string>,
     title: string
 };
-interface ContextualHelpOpenEvent {
-    type: TkgEventType.OPEN_CONTEXTUAL_HELP,
-    payload: {
-        title: string,
-        keywords: Array<string>
-    }
-};
 @Component({
     selector: 'app-contextual-help',
     templateUrl: './contextual-help.component.html',
     styleUrls: ['./contextual-help.component.scss'],
     encapsulation: ViewEncapsulation.None
 })
-export class ContextualHelpComponent extends BasicSubscriber implements OnInit {
+export class ContextualHelpComponent extends BasicSubscriber implements OnInit, OnDestroy {
 
-    visible: boolean = false;
+    @Input() id: string;
+    @Input() keywords: Array<string>;
+    @Input() title: string;
+
     isTopicView: boolean = true;
     isPinned: boolean = false;
-    title: string = '';
+    isVisible: boolean = false;
+
     lunrIndex: any;
     htmlContentIndexArray: Array<ContextualHelpIndex> = [];
     htmlContentIndex: ContextualHelpIndex = {
@@ -40,19 +35,15 @@ export class ContextualHelpComponent extends BasicSubscriber implements OnInit {
     };
 
     constructor(
-        private elementRef: ElementRef
+        private service: ContexutalHelpService
     ) {
         super();
-        Broker.messenger.getSubject(TkgEventType.OPEN_CONTEXTUAL_HELP)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((event: ContextualHelpOpenEvent) => {
-                this.show(event.payload.keywords);
-                this.title = event.payload.title;
-            });
+        this.service.add(this);
     }
 
     ngOnInit(): void {
         this.lunrIndex = elasticlunr.Index.load(index);
+        this.getHTMLContent(this.lunrIndex.search(this.keywords, {bool: 'AND'}));
     }
 
     getHTMLContent(htmlRefs) {
@@ -67,14 +58,15 @@ export class ContextualHelpComponent extends BasicSubscriber implements OnInit {
         }
     }
 
-    show(keywords: Array<string>) {
-        this.visible = true;
-        this.getHTMLContent(this.lunrIndex.search(keywords, {bool: 'AND'}));
+    open() {
+        this.isVisible = true;
     }
 
     hide() {
-        this.visible = false;
-        this.isTopicView = true;
+        if (this.htmlContentIndexArray.length > 1) {
+            this.isTopicView = true;
+        }
+        this.isVisible = false;
     }
 
     showContent(htmlContentIndex: ContextualHelpIndex) {
@@ -85,18 +77,7 @@ export class ContextualHelpComponent extends BasicSubscriber implements OnInit {
         this.isTopicView = true;
     }
 
-    togglePin() {
-        const prevEl: HTMLElement = this.elementRef.nativeElement.previousElementSibling;
-
-        if (this.isPinned) {
-            prevEl.style.marginRight = '';
-            prevEl.style.display = '';
-        } else {
-            prevEl.style.marginRight = '380px';
-            prevEl.style.display = 'block';
-        }
-
-        this.isPinned = !this.isPinned;
+    ngOnDestroy() {
+        this.service.remove(this.id);
     }
-
 }

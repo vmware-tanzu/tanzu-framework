@@ -20,6 +20,7 @@ import { TkgEventType } from '../../../../shared/service/Messenger';
 import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
 import { APIClient } from '../../../../swagger/api-client.service';
 import Broker from 'src/app/shared/service/broker';
+import { AppEdition } from 'src/app/shared/constants/branding.constants';
 
 export interface AzNodeTypes {
     awsNodeAz1: Array<string>,
@@ -207,6 +208,12 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 this.clearAzs();
                 this.clearSubnets();
             });
+
+        if (this.edition !== AppEdition.TKG) {
+            this.resurrectField('clusterName',
+                [Validators.required, this.validationService.isValidClusterName()],
+                this.formGroup.get('clusterName').value);
+        }
 
         this.awsWizardFormService.getErrorStream(TkgEventType.AWS_GET_AVAILABILITY_ZONES)
             .pipe(takeUntil(this.unsubscribe))

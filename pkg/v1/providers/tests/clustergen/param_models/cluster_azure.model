@@ -89,6 +89,9 @@ AZURE_IDENTITY_NAMESPACE: "NA", "default", "test-ns1"
 
 OS_NAME:  "NA", "photon", "ubuntu"
 OS_VERSION:  "NA", "20.04", "3"
+
+BUILD_EDITION: "tkg", "tce"
+
 IF [OS_NAME] = "\"NA\"" THEN [OS_VERSION] = "\"NA\"";
 IF [--TKR] <> "\"v1.20.5---vmware.1-tkg.1-zlatest\"" THEN [OS_NAME] = "\"NA\"";
 IF [--TKR] <> "\"v1.20.5---vmware.1-tkg.1-zlatest\"" THEN [OS_VERSION] = "\"NA\"";

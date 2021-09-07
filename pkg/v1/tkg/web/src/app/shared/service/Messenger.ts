@@ -42,10 +42,7 @@ export enum TkgEventType {
     CLI_CHANGED,
 
     // APP
-    BRANDING_CHANGED,
-
-    // CONTEXTUAL HELP
-    OPEN_CONTEXTUAL_HELP
+    BRANDING_CHANGED
 }
 
 /**

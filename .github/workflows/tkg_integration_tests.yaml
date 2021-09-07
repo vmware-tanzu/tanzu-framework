@@ -1,10 +1,8 @@
 name: TKG Integration Tests
 
 on:
-  push:
-    branches: [ main ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, release-* ]
     paths:
     - 'pkg/v1/tkg/**'
     - '!pkg/v1/tkg/tkgpackage*/*'
@@ -36,9 +34,9 @@ jobs:
 
     - name: Config credentials
       env:
-        GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        git config --global url."https://git:$GH_ACCESS_TOKEN@github.com".insteadOf "https://github.com"
+        git config --global url."https://git:$GITHUB_TOKEN@github.com".insteadOf "https://github.com"
 
     - name: Get dependencies
       run: |

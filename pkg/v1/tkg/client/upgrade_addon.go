@@ -30,6 +30,7 @@ type UpgradeAddonOptions struct {
 	Namespace         string
 	Kubeconfig        string
 	IsRegionalCluster bool
+	Edition           string
 }
 
 // UpgradeAddon upgrades addons
@@ -120,6 +121,9 @@ func (c *TkgClient) DoUpgradeAddon(regionalClusterClient clusterclient.Client, /
 
 	createClusterOptions := CreateClusterOptions{
 		ClusterConfigOptions: configOptions,
+		// Build edition is required to perform addons upgrade. The providers/ytt is referencing to build edition for the
+		// rendering logic. Setting build edition here is to make sure addons upgrade to work properly.
+		Edition: options.Edition,
 	}
 
 	kcp, err := regionalClusterClient.GetKCPObjectForCluster(options.ClusterName, options.Namespace)
@@ -213,7 +217,12 @@ func (c *TkgClient) DoUpgradeAddon(regionalClusterClient clusterclient.Client, /
 			c.TKGConfigReaderWriter().Set(constants.ConfigVaraibleDisableCRSForAddonType, addonName)
 		}
 
-		if err := c.retriveRegionalClusterConfiguration(regionalClusterClient); err != nil {
+		if options.IsRegionalCluster {
+			err = c.retrieveRegionalClusterConfiguration(regionalClusterClient)
+		} else {
+			err = c.retrieveWorkloadClusterConfiguration(regionalClusterClient, currentClusterClient, options.ClusterName, options.Namespace)
+		}
+		if err != nil {
 			return errors.Wrap(err, "unable to set cluster configuration")
 		}
 
@@ -239,9 +248,9 @@ func (c *TkgClient) DoUpgradeAddon(regionalClusterClient clusterclient.Client, /
 	return nil
 }
 
-// retriveRegionalClusterConfiguration gets TKG configurations from regional cluster and sets the TKGConfigReaderWriter.
+// retrieveRegionalClusterConfiguration gets TKG configurations from regional cluster and updates the in-memory config.
 // this is required when we want to mutate the existing regional cluster.
-func (c *TkgClient) retriveRegionalClusterConfiguration(regionalClusterClient clusterclient.Client) error {
+func (c *TkgClient) retrieveRegionalClusterConfiguration(regionalClusterClient clusterclient.Client) error {
 	if err := c.setProxyConfiguration(regionalClusterClient); err != nil {
 		return errors.Wrapf(err, "error while getting proxy configuration from cluster and setting it")
 	}
@@ -250,14 +259,38 @@ func (c *TkgClient) retriveRegionalClusterConfiguration(regionalClusterClient cl
 		return errors.Wrapf(err, "error while getting custom image repository configuration from cluster and setting it")
 	}
 
-	if err := c.setNetworkingConfiguration(regionalClusterClient); err != nil {
+	clusterName, regionalClusterNamespace, err := c.getRegionalClusterNameAndNamespace(regionalClusterClient)
+	if err != nil {
+		return errors.Wrap(err, "unable to get name and namespace of current management cluster")
+	}
+
+	if err := c.setNetworkingConfiguration(regionalClusterClient, clusterName, regionalClusterNamespace); err != nil {
+		return errors.Wrap(err, "error while initializing networking configuration")
+	}
+	return nil
+}
+
+// retrieveWorkloadClusterConfiguration gets TKG configurations from regional cluster as well as workload cluster
+// and updates the in-memory config. This is required when we want to mutate the existing workload cluster.
+func (c *TkgClient) retrieveWorkloadClusterConfiguration(regionalClusterClient, workloadClusterClient clusterclient.Client, clusterName, clusterNamespace string) error {
+	if err := c.setProxyConfiguration(workloadClusterClient); err != nil {
+		return errors.Wrapf(err, "error while getting proxy configuration from cluster and setting it")
+	}
+
+	// Sets custom image repository configuration from Management Cluster even for workload cluster
+	// Currently, TKG does not support using different image repositories for management and workload clusters.
+	if err := c.setCustomImageRepositoryConfiguration(regionalClusterClient); err != nil {
+		return errors.Wrapf(err, "error while getting custom image repository configuration from cluster and setting it")
+	}
+
+	if err := c.setNetworkingConfiguration(regionalClusterClient, clusterName, clusterNamespace); err != nil {
 		return errors.Wrap(err, "error while initializing networking configuration")
 	}
 
 	return nil
 }
 
-func (c *TkgClient) setProxyConfiguration(regionalClusterClient clusterclient.Client) (retErr error) {
+func (c *TkgClient) setProxyConfiguration(clusterClusterClient clusterclient.Client) (retErr error) {
 	// make sure proxy parameters are non-empty
 	defer func() {
 		if retErr == nil {
@@ -265,7 +298,7 @@ func (c *TkgClient) setProxyConfiguration(regionalClusterClient clusterclient.Cl
 		}
 	}()
 	configmap := &corev1.ConfigMap{}
-	if err := regionalClusterClient.GetResource(configmap, constants.KappControllerConfigMapName, constants.KappControllerNamespace, nil, nil); err != nil {
+	if err := clusterClusterClient.GetResource(configmap, constants.KappControllerConfigMapName, constants.KappControllerNamespace, nil, nil); err != nil {
 		if apierrors.IsNotFound(err) {
 			return nil
 		}
@@ -322,16 +355,11 @@ func (c *TkgClient) setCustomImageRepositoryConfiguration(regionalClusterClient 
 	return nil
 }
 
-func (c *TkgClient) setNetworkingConfiguration(regionalClusterClient clusterclient.Client) error {
-	clusterName, regionalClusterNamespace, err := c.getRegionalClusterNameAndNamespace(regionalClusterClient)
-	if err != nil {
-		return errors.Wrap(err, "unable to get name and namespace of current management cluster")
-	}
-
+func (c *TkgClient) setNetworkingConfiguration(regionalClusterClient clusterclient.Client, clusterName, clusterNamespace string) error {
 	cluster := &capi.Cluster{}
-	err = regionalClusterClient.GetResource(cluster, clusterName, regionalClusterNamespace, nil, nil)
+	err := regionalClusterClient.GetResource(cluster, clusterName, clusterNamespace, nil, nil)
 	if err != nil {
-		return errors.Wrapf(err, "unable to get cluster %q from namespace %q", clusterName, regionalClusterNamespace)
+		return errors.Wrapf(err, "unable to get cluster %q from namespace %q", clusterName, clusterNamespace)
 	}
 
 	if cluster.Spec.ClusterNetwork != nil {

@@ -546,6 +546,13 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
+	// BUILD_EDITION is the Tanzu Edition, the plugin should be built for. Its value is supposed be constructed from
+	// cmd/cli/plugin/managementcluster/create.go. So empty value at this point is not expected.
+	if options.Edition == "" {
+		return NewValidationError(ValidationErrorCode, "required config variable 'BUILD_EDITION' is not set")
+	}
+	c.SetBuildEdition(options.Edition)
+
 	c.SetTKGClusterRole(ManagementCluster)
 	c.SetTKGVersion()
 
@@ -806,7 +813,7 @@ func (c *TkgClient) ValidateVsphereResources(vcClient vc.Client, dcPath string) 
 	for _, resourceType := range VsphereResourceType {
 		path, err := c.TKGConfigReaderWriter().Get(resourceType)
 		if err != nil {
-			return nil
+			continue
 		}
 
 		switch resourceType {
@@ -816,9 +823,11 @@ func (c *TkgClient) ValidateVsphereResources(vcClient vc.Client, dcPath string) 
 				return errors.Wrapf(err, "invalid %s", resourceType)
 			}
 		case constants.ConfigVariableVsphereDatastore:
-			_, err := vcClient.FindDatastore(context.Background(), path, dcPath)
-			if err != nil {
-				return errors.Wrapf(err, "invalid %s", resourceType)
+			if path != "" {
+				_, err := vcClient.FindDatastore(context.Background(), path, dcPath)
+				if err != nil {
+					return errors.Wrapf(err, "invalid %s", resourceType)
+				}
 			}
 		case constants.ConfigVariableVsphereFolder:
 			_, err := vcClient.FindFolder(context.Background(), path, dcPath)
@@ -830,6 +839,18 @@ func (c *TkgClient) ValidateVsphereResources(vcClient vc.Client, dcPath string) 
 			return errors.Errorf("unknown vsphere resource type %s", resourceType)
 		}
 	}
+
+	return c.verifyDatastoreOrStoragePolicySet()
+}
+
+func (c *TkgClient) verifyDatastoreOrStoragePolicySet() error {
+	dataStore, dataStoreErr := c.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereDatastore)
+	storagePolicy, storagePolicyErr := c.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereStoragePolicyID)
+
+	if (dataStoreErr != nil || dataStore == "") && (storagePolicyErr != nil || storagePolicy == "") {
+		return errors.Errorf("Neither %s or %s are set. At least one of them needs to be set", constants.ConfigVariableVsphereDatastore, constants.ConfigVariableVsphereStoragePolicyID)
+	}
+
 	return nil
 }
 
