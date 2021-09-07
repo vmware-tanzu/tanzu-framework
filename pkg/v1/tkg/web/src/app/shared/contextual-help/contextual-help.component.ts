@@ -63,7 +63,7 @@ export class ContextualHelpComponent extends BasicSubscriber implements OnInit, 
     }
 
     hide() {
-        if (this.htmlContentIndexArray.length > 1) { 
+        if (this.htmlContentIndexArray.length > 1) {
             this.isTopicView = true;
         }
         this.isVisible = false;
