@@ -29,6 +29,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/controllers"
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 )
 
 var (
@@ -88,6 +89,8 @@ func main() {
 	flag.Parse()
 
 	ctrl.SetLogger(klogr.New())
+
+	setupLog.Info("Version", "version", buildinfo.Version, "buildDate", buildinfo.Date, "sha", buildinfo.SHA)
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
