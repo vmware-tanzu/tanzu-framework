@@ -26,3 +26,6 @@ providers:
   - name: docker
     url: providers/infrastructure-docker/v0.3.23/infrastructure-components.yaml
     type: InfrastructureProvider
+  - name: byoh
+    url: providers/infrastructure-byoh/v0.1.0/infrastructure-components.yaml
+    type: InfrastructureProvider
