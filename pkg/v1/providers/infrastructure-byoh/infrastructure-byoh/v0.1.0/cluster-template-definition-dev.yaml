@@ -1,0 +1,10 @@
+apiVersion: providers.tanzu.vmware.com/v1alpha1
+kind: TemplateDefinition
+spec:
+  paths:
+    - path: providers/infrastructure-byoh/v0.1.0/ytt
+    - path: providers/infrastructure-byoh/ytt
+    - path: providers/ytt
+    - path: bom
+      filemark: text-plain
+    - path: providers/config_default.yaml
