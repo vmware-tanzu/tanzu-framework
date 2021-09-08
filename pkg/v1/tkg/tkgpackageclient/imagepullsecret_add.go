@@ -16,9 +16,10 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
+// DockerConfigJSON represents auth information for pulling images
 // Note: datapolicy is seemingly used for log sanitization: https://github.com/kubernetes/enhancements/blob/master/keps/sig-security/1933-secret-logging-static-analysis/README.md
 // TODO: change to use k8s types after upgrading the K8s version
-type dockerConfigJSON struct {
+type DockerConfigJSON struct {
 	Auths map[string]dockerConfigEntry `json:"auths" datapolicy:"token"`
 }
 
@@ -29,7 +30,7 @@ type dockerConfigEntry struct {
 
 // AddImagePullSecret adds an image pull secret to the cluster
 func (p *pkgClient) AddImagePullSecret(o *tkgpackagedatamodel.ImagePullSecretOptions) error {
-	dockerCfg := dockerConfigJSON{Auths: map[string]dockerConfigEntry{o.Registry: {Username: o.Username, Password: o.Password}}}
+	dockerCfg := DockerConfigJSON{Auths: map[string]dockerConfigEntry{o.Registry: {Username: o.Username, Password: o.Password}}}
 	dockerCfgContent, err := json.Marshal(dockerCfg)
 	if err != nil {
 		return err
