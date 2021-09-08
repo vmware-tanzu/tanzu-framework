@@ -8,8 +8,8 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/buildinfo"
 )
 
 type versionInfo struct {
@@ -34,7 +34,7 @@ func init() {
 }
 
 func runVersion(cmd *cobra.Command) error {
-	verInfo := versionInfo{Version: buildinfo.Version, GitCommit: buildinfo.Commit}
+	verInfo := versionInfo{Version: buildinfo.Version, GitCommit: buildinfo.SHA}
 
 	if outputFormat == string(component.JSONOutputType) || outputFormat == string(component.YAMLOutputType) {
 		output := component.NewObjectWriter(cmd.OutOrStdout(), outputFormat, verInfo)

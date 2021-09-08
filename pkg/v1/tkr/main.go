@@ -20,6 +20,7 @@ import (
 	// +kubebuilder:scaffold:imports
 
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 	tkrsourcectr "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/controllers/source"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
 	mgrcontext "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/context"
@@ -57,6 +58,8 @@ func main() {
 	flag.Parse()
 
 	ctrl.SetLogger(zap.New(zap.UseDevMode(true)))
+
+	setupLog.Info("Version", "version", buildinfo.Version, "buildDate", buildinfo.Date, "sha", buildinfo.SHA)
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:           scheme,
