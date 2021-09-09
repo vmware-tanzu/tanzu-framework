@@ -16,7 +16,7 @@ spec:
         app: tanzu-featuregates-manager
     spec:
       containers:
-        - image:  featuregates-controller-manager:latest
+        - image: featuregates-controller-manager:latest
           imagePullPolicy: IfNotPresent
           name: manager
           resources:
