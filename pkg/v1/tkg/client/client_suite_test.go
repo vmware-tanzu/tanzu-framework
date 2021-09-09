@@ -33,11 +33,12 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	capav1alpha3 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha3"
-	capzv1alpha3 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha3"
-	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
-	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
-	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
+	capav1alpha4 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha4"
+	capzv1alpha4 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha4"
+	capvv1alpha4 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha4"
+	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	capi "sigs.k8s.io/cluster-api/api/v1beta1"
+	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 
 	tkgsv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
 
@@ -67,13 +68,14 @@ var scheme = runtime.NewScheme()
 
 func init() {
 	_ = capi.AddToScheme(scheme)
+	_ = capiv1alpha3.AddToScheme(scheme)
 	_ = corev1.AddToScheme(scheme)
 	_ = appsv1.AddToScheme(scheme)
 	_ = controlplanev1.AddToScheme(scheme)
 	_ = tkgsv1alpha2.AddToScheme(scheme)
-	_ = capav1alpha3.AddToScheme(scheme)
-	_ = capzv1alpha3.AddToScheme(scheme)
-	_ = capvv1alpha3.AddToScheme(scheme)
+	_ = capav1alpha4.AddToScheme(scheme)
+	_ = capzv1alpha4.AddToScheme(scheme)
+	_ = capvv1alpha4.AddToScheme(scheme)
 }
 
 var _ = Describe("CheckInfrastructureVersion", func() {
@@ -458,7 +460,7 @@ var _ = Describe("OverrideAzureNodeSizeWithOptions", func() {
 		instanceTypes := []*models.AzureInstanceType{&mediumInstanceType}
 
 		mockAzureClient = azure.NewMockClient(ctrl)
-		mockAzureClient.EXPECT().GetAzureInstanceTypesForRegion(context.Background(), "eastus").Return(instanceTypes, nil).Times(1)
+		mockAzureClient.EXPECT().GetAzureInstanceTypesForRegion(context.Background(), "eastus").Return(instanceTypes, nil).MaxTimes(1)
 		err = tkgClient.OverrideAzureNodeSizeWithOptions(mockAzureClient, nodeSizeOptions, false)
 	})
 

@@ -4,7 +4,7 @@
 include ../../../../common.mk
 
 IMG ?= featuregates-controller-manager:latest
-CRD_OPTIONS ?= "crd:trivialVersions=true"
+CRD_OPTIONS ?= "crd"
 
 all: manager
 

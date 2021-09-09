@@ -130,7 +130,7 @@ func (c *TkgClient) DoUpgradeAddon(regionalClusterClient clusterclient.Client, /
 	if err != nil {
 		return errors.Wrapf(err, "unable to find control plane node object for cluster %s", options.ClusterName)
 	}
-	if kcp.Spec.InfrastructureTemplate.Kind == constants.VSphereMachineTemplate {
+	if kcp.Spec.MachineTemplate.InfrastructureRef.Kind == constants.VSphereMachineTemplate {
 		// As vSphereControlPlaneEndpointIP is required for vSphere cluster for --dry-run
 		// while creating workload cluster template, setting this to dummy value currently
 		// Note: This value will not be used for addons upgrade

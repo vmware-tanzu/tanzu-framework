@@ -10,7 +10,7 @@ import (
 	. "github.com/onsi/gomega"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
+	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake" // nolint:staticcheck
 
@@ -51,7 +51,7 @@ var _ = Describe("GetMachineHealthChecks", func() {
 	})
 
 	JustBeforeEach(func() {
-		fakeClientSet = fake.NewFakeClientWithScheme(scheme, objects...)
+		fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objects...).Build()
 		crtClientFactory.NewClientReturns(fakeClientSet, nil)
 
 		regionalClusterClient, err = clusterclient.NewClient(kubeconfig, "", clusterClientOptions)
@@ -187,7 +187,7 @@ var _ = Describe("DeleteMachineHealthCheck", func() {
 	})
 
 	JustBeforeEach(func() {
-		fakeClientSet = fake.NewFakeClientWithScheme(scheme, objects...)
+		fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objects...).Build()
 		crtClientFactory.NewClientReturns(fakeClientSet, nil)
 
 		regionalClusterClient, err = clusterclient.NewClient(kubeconfig, "", clusterClientOptions)
@@ -293,7 +293,7 @@ var _ = Describe("CreateMachineHealthCheck", func() {
 	})
 
 	JustBeforeEach(func() {
-		fakeClientSet = fake.NewFakeClientWithScheme(scheme, objects...)
+		fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objects...).Build()
 		crtClientFactory.NewClientReturns(fakeClientSet, nil)
 
 		regionalClusterClient, err = clusterclient.NewClient(kubeconfig, "", clusterClientOptions)
@@ -621,7 +621,7 @@ var _ = Describe("UpdateMachineHealthCheck", func() {
 	})
 
 	JustBeforeEach(func() {
-		fakeClientSet = fake.NewFakeClientWithScheme(scheme, objects...)
+		fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objects...).Build()
 		crtClientFactory.NewClientReturns(fakeClientSet, nil)
 
 		regionalClusterClient, err = clusterclient.NewClient(kubeconfig, "", clusterClientOptions)

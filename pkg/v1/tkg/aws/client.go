@@ -265,6 +265,7 @@ func setDefaultCloudFormationTemplateValue(t *bootstrap.Template) {
 	t.Spec.NameSuffix = utilpointer.StringPtr(DefaultCloudFormationNameSuffix)
 	t.Spec.StackName = DefaultCloudFormationStackName
 	t.Spec.BootstrapUser.UserName = DefaultCloudFormationBootstrapUserName
+	t.Spec.EKS.Disable = true
 }
 
 func (c *client) ListInstanceTypes(optionalAZName string) ([]string, error) {

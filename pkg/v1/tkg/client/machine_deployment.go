@@ -12,12 +12,12 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	aws "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha3"
-	azure "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha3"
-	vsphere "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
-	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
-	"sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha3"
-	docker "sigs.k8s.io/cluster-api/test/infrastructure/docker/api/v1alpha3"
+	aws "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha4"
+	azure "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha4"
+	vsphere "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha4"
+	capi "sigs.k8s.io/cluster-api/api/v1beta1"
+	"sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1beta1"
+	docker "sigs.k8s.io/cluster-api/test/infrastructure/docker/api/v1beta1"
 
 	tkgsv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
 
@@ -508,8 +508,8 @@ func retrieveMachineTemplate(clusterClient clusterclient.Client, infraTemplate *
 	return nil
 }
 
-func retrieveKubeadmConfigTemplate(clusterClient clusterclient.Client, configRef *corev1.ObjectReference) (*v1alpha3.KubeadmConfigTemplate, error) {
-	var kcTemplate v1alpha3.KubeadmConfigTemplate
+func retrieveKubeadmConfigTemplate(clusterClient clusterclient.Client, configRef *corev1.ObjectReference) (*v1beta1.KubeadmConfigTemplate, error) {
+	var kcTemplate v1beta1.KubeadmConfigTemplate
 	kcTemplateName := configRef.Name
 	kcTemplateNamespace := configRef.Namespace
 	err := clusterClient.GetResource(&kcTemplate, kcTemplateName, kcTemplateNamespace, nil, nil)

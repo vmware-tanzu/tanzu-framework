@@ -16,11 +16,10 @@ import (
 	"k8s.io/client-go/discovery"
 	fakediscovery "k8s.io/client-go/discovery/fake"
 	fakeclientset "k8s.io/client-go/kubernetes/fake"
-	capav1alpha3 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha3"
-	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
-	capibootstrapkubeadmv1alpha3 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha3"
-	capibootstrapkubeadmtypesv1beta1 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/types/v1beta1"
-	capikubeadmv1alpha3 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
+	capav1alpha4 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha4"
+	capi "sigs.k8s.io/cluster-api/api/v1beta1"
+	capibootstrapkubeadmv1beta1 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1beta1"
+	capikubeadmv1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake" // nolint:staticcheck
 
@@ -231,11 +230,11 @@ var _ = Describe("Unit tests for upgrade cluster", func() {
 			BeforeEach(func() {
 				regionalClusterClient.GetKCPObjectForClusterReturns(getDummyKCP(constants.AWSMachineTemplate), nil)
 				regionalClusterClient.GetResourceCalls(func(resourceReference interface{}, resourceName, namespace string, postVerify clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
-					clusterObj, ok := resourceReference.(*capav1alpha3.AWSCluster)
+					clusterObj, ok := resourceReference.(*capav1alpha4.AWSCluster)
 					if !ok {
 						return nil
 					}
-					*clusterObj = capav1alpha3.AWSCluster{Spec: capav1alpha3.AWSClusterSpec{Region: "us-west-2"}}
+					*clusterObj = capav1alpha4.AWSCluster{Spec: capav1alpha4.AWSClusterSpec{Region: "us-west-2"}}
 					return nil
 				})
 			})
@@ -257,11 +256,11 @@ var _ = Describe("Unit tests for upgrade cluster", func() {
 						if regionalClusterClient.GetResourceCallCount() == 3 {
 							return errors.New("fake-error")
 						}
-						clusterObj, ok := resourceReference.(*capav1alpha3.AWSCluster)
+						clusterObj, ok := resourceReference.(*capav1alpha4.AWSCluster)
 						if !ok {
 							return nil
 						}
-						*clusterObj = capav1alpha3.AWSCluster{Spec: capav1alpha3.AWSClusterSpec{Region: "us-west-2"}}
+						*clusterObj = capav1alpha4.AWSCluster{Spec: capav1alpha4.AWSClusterSpec{Region: "us-west-2"}}
 						return nil
 					})
 				})
@@ -277,11 +276,11 @@ var _ = Describe("Unit tests for upgrade cluster", func() {
 						if regionalClusterClient.GetResourceCallCount() == 3 {
 							return errors.New("fake-error")
 						}
-						clusterObj, ok := resourceReference.(*capav1alpha3.AWSCluster)
+						clusterObj, ok := resourceReference.(*capav1alpha4.AWSCluster)
 						if !ok {
 							return nil
 						}
-						*clusterObj = capav1alpha3.AWSCluster{Spec: capav1alpha3.AWSClusterSpec{Region: "us-west-2"}}
+						*clusterObj = capav1alpha4.AWSCluster{Spec: capav1alpha4.AWSClusterSpec{Region: "us-west-2"}}
 						return nil
 					})
 				})
@@ -297,11 +296,11 @@ var _ = Describe("Unit tests for upgrade cluster", func() {
 						if regionalClusterClient.GetResourceCallCount() == 4 {
 							return errors.New("fake-error")
 						}
-						clusterObj, ok := resourceReference.(*capav1alpha3.AWSCluster)
+						clusterObj, ok := resourceReference.(*capav1alpha4.AWSCluster)
 						if !ok {
 							return nil
 						}
-						*clusterObj = capav1alpha3.AWSCluster{Spec: capav1alpha3.AWSClusterSpec{Region: "us-west-2"}}
+						*clusterObj = capav1alpha4.AWSCluster{Spec: capav1alpha4.AWSClusterSpec{Region: "us-west-2"}}
 						return nil
 					})
 					regionalClusterClient.CreateResourceReturns(errors.New("fake-error-create-resource"))
@@ -506,7 +505,7 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 		clusterClientOptions = clusterclient.NewOptions(getFakePoller(), crtClientFactory, discoveryClientFactory, verificationClientFactory)
 
 		// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
-		fakeRegionalClusterClientSet = fake.NewFakeClientWithScheme(scheme, fakehelper.GetAllCAPIClusterObjects(regionalClusterOptions)...)
+		fakeRegionalClusterClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(fakehelper.GetAllCAPIClusterObjects(regionalClusterOptions)...).Build()
 		crtClientFactory.NewClientReturns(fakeRegionalClusterClientSet, nil)
 		fakeRegionalDiscoveryClient = getDiscoveryClient(regionalClusterK8sVersion)
 		discoveryClientFactory.NewDiscoveryClientForConfigReturns(fakeRegionalDiscoveryClient, nil)
@@ -514,7 +513,7 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 		Expect(err).NotTo(HaveOccurred())
 
 		// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
-		fakeCurrentClusterClientSet = fake.NewFakeClientWithScheme(scheme)
+		fakeCurrentClusterClientSet = fake.NewClientBuilder().WithScheme(scheme).Build()
 		crtClientFactory.NewClientReturns(fakeCurrentClusterClientSet, nil)
 		fakeCurrentDiscoveryClient = getDiscoveryClient(currentClusterK8sVersion)
 		discoveryClientFactory.NewDiscoveryClientForConfigReturns(fakeCurrentDiscoveryClient, nil)
@@ -784,23 +783,23 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 	// })
 })
 
-func getDummyKCP(machineTemplateKind string) *capikubeadmv1alpha3.KubeadmControlPlane {
-	kcp := &capikubeadmv1alpha3.KubeadmControlPlane{}
+func getDummyKCP(machineTemplateKind string) *capikubeadmv1beta1.KubeadmControlPlane {
+	kcp := &capikubeadmv1beta1.KubeadmControlPlane{}
 	kcp.Name = "fake-kcp-name"
 	kcp.Namespace = "fake-kcp-namespace"
 	kcp.Spec.Version = currentK8sVersion
-	kcp.Spec.KubeadmConfigSpec = capibootstrapkubeadmv1alpha3.KubeadmConfigSpec{
-		ClusterConfiguration: &capibootstrapkubeadmtypesv1beta1.ClusterConfiguration{
+	kcp.Spec.KubeadmConfigSpec = capibootstrapkubeadmv1beta1.KubeadmConfigSpec{
+		ClusterConfiguration: &capibootstrapkubeadmv1beta1.ClusterConfiguration{
 			ImageRepository: "fake-image-repo",
-			DNS: capibootstrapkubeadmtypesv1beta1.DNS{
-				ImageMeta: capibootstrapkubeadmtypesv1beta1.ImageMeta{
+			DNS: capibootstrapkubeadmv1beta1.DNS{
+				ImageMeta: capibootstrapkubeadmv1beta1.ImageMeta{
 					ImageRepository: "fake-dns-image-repo",
 					ImageTag:        "fake-dns-image-tag",
 				},
 			},
-			Etcd: capibootstrapkubeadmtypesv1beta1.Etcd{
-				Local: &capibootstrapkubeadmtypesv1beta1.LocalEtcd{
-					ImageMeta: capibootstrapkubeadmtypesv1beta1.ImageMeta{
+			Etcd: capibootstrapkubeadmv1beta1.Etcd{
+				Local: &capibootstrapkubeadmv1beta1.LocalEtcd{
+					ImageMeta: capibootstrapkubeadmv1beta1.ImageMeta{
 						ImageRepository: "fake-etcd-image-repo",
 						ImageTag:        "fake-etcd-image-tag",
 					},
@@ -809,7 +808,7 @@ func getDummyKCP(machineTemplateKind string) *capikubeadmv1alpha3.KubeadmControl
 			},
 		},
 	}
-	kcp.Spec.InfrastructureTemplate = corev1.ObjectReference{
+	kcp.Spec.MachineTemplate.InfrastructureRef = corev1.ObjectReference{
 		Name:      "fake-infra-template-name",
 		Namespace: "fake-infra-template-namespace",
 		Kind:      machineTemplateKind,
