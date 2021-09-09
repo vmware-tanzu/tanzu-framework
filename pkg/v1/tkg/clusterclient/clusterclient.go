@@ -41,11 +41,12 @@ import (
 	capzv1alpha3 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha3"
 	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
+	capiv1alpha4 "sigs.k8s.io/cluster-api/api/v1alpha4"
 	bootstrapv1alpha3 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha3"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/cluster"
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
-	addonsv1 "sigs.k8s.io/cluster-api/exp/addons/api/v1alpha3"
+	addonsv1 "sigs.k8s.io/cluster-api/exp/addons/api/v1alpha4"
 	capdv1alpha3 "sigs.k8s.io/cluster-api/test/infrastructure/docker/api/v1alpha3"
 	"sigs.k8s.io/cluster-api/util/conditions"
 	containerutil "sigs.k8s.io/cluster-api/util/container"
@@ -140,7 +141,7 @@ type Client interface {
 	// postVerify verifies the resource with some state once it is retrieved from kubernetes, pass nil if nothing to verify
 	// pollOptions use this if you want to continuously poll for object if error occurs, pass nil if don't want polling
 	// Note: Make sure resource you are retrieving is added into Scheme with init function below
-	GetResourceList(resourceReference interface{}, clusterName, namespace string, postVerify PostVerifyrFunc, pollOptions *PollOptions) error
+	GetResourceList(resourceReference interface{}, clusterName, namespace string, postVerify PostVerifyListrFunc, pollOptions *PollOptions) error
 
 	// ListResources lists the kubernetes resources, pass reference of the object you want to get
 	// Note: Make sure resource you are retrieving is added into Scheme in init function below
@@ -377,6 +378,7 @@ var (
 
 func init() {
 	_ = capi.AddToScheme(scheme)
+	_ = capiv1alpha4.AddToScheme(scheme)
 	_ = corev1.AddToScheme(scheme)
 	_ = appsv1.AddToScheme(scheme)
 	_ = clusterctlv1.AddToScheme(scheme)
@@ -399,7 +401,7 @@ func init() {
 // ClusterStatusInfo defines the cluster status involving all main components
 type ClusterStatusInfo struct {
 	KubernetesVersion    string
-	ClusterObject        *capi.Cluster
+	ClusterObject        *capiv1alpha4.Cluster
 	KCPObject            *controlplanev1.KubeadmControlPlane
 	MDObjects            []capi.MachineDeployment
 	CPMachineObjects     map[string]capi.Machine
@@ -476,11 +478,11 @@ func (c *client) WaitForClusterInitialized(clusterName, namespace string) error 
 
 		if err == nil {
 			// If cluster's ReadyCondition is False and severity is Error, it implies non-retriable error, so return error
-			if conditions.IsFalse(currentClusterInfo.ClusterObject, capi.ReadyCondition) &&
-				(*conditions.GetSeverity(currentClusterInfo.ClusterObject, capi.ReadyCondition) == capi.ConditionSeverityError) {
+			if conditions.IsFalse(currentClusterInfo.ClusterObject, capiv1alpha4.ReadyCondition) &&
+				(*conditions.GetSeverity(currentClusterInfo.ClusterObject, capiv1alpha4.ReadyCondition) == capiv1alpha4.ConditionSeverityError) {
 				return true, errors.Errorf("cluster creation failed, reason:'%s', message:'%s'",
-					conditions.GetReason(currentClusterInfo.ClusterObject, capi.ReadyCondition),
-					conditions.GetMessage(currentClusterInfo.ClusterObject, capi.ReadyCondition))
+					conditions.GetReason(currentClusterInfo.ClusterObject, capiv1alpha4.ReadyCondition),
+					conditions.GetMessage(currentClusterInfo.ClusterObject, capiv1alpha4.ReadyCondition))
 			}
 			// Could have checked cluster's ReadyCondition is True which is currently aggregation of ControlPlaneReadyCondition
 			// and InfrastructureReadyCondition, however in future if capi adds WorkersReadyCondition into aggregation, it would
@@ -527,16 +529,16 @@ func (c *client) WaitForClusterInitialized(clusterName, namespace string) error 
 }
 
 func (c *client) WaitForClusterReady(clusterName, namespace string, checkAllReplicas bool) error {
-	if err := c.GetResource(&capi.Cluster{}, clusterName, namespace, VerifyClusterReady, &PollOptions{Interval: CheckClusterInterval, Timeout: c.operationTimeout}); err != nil {
+	if err := c.GetResource(&capiv1alpha4.Cluster{}, clusterName, namespace, VerifyClusterReady, &PollOptions{Interval: CheckClusterInterval, Timeout: c.operationTimeout}); err != nil {
 		return err
 	}
 	if checkAllReplicas {
 		// Check and wait only for MD replicas as KCP replicas would be checked in above VerifyClusterReady() since the KCP Ready condition is mirrored into cluster ControPlaneReady condition
-		if err := c.GetResourceList(&capi.MachineDeploymentList{}, clusterName, namespace, VerifyMachineDeploymentsReplicas, &PollOptions{Interval: CheckClusterInterval, Timeout: c.operationTimeout}); err != nil {
+		if err := c.GetResourceList(&capiv1alpha4.MachineDeploymentList{}, clusterName, namespace, VerifyMachineDeploymentsReplicas, &PollOptions{Interval: CheckClusterInterval, Timeout: c.operationTimeout}); err != nil {
 			return err
 		}
 	}
-	if err := c.GetResourceList(&capi.MachineList{}, clusterName, namespace, VerifyMachinesReady, &PollOptions{Interval: CheckClusterInterval, Timeout: c.operationTimeout}); err != nil {
+	if err := c.GetResourceList(&capiv1alpha4.MachineList{}, clusterName, namespace, VerifyMachinesReady, &PollOptions{Interval: CheckClusterInterval, Timeout: c.operationTimeout}); err != nil {
 		return err
 	}
 	return nil
@@ -604,9 +606,9 @@ func verifyKubernetesUpgradeForCPNodes(clusterStatusInfo *ClusterStatusInfo, new
 	}
 
 	clusterObj := clusterStatusInfo.ClusterObject
-	if !conditions.IsTrue(clusterObj, capi.ControlPlaneReadyCondition) {
+	if !conditions.IsTrue(clusterObj, capiv1alpha4.ControlPlaneReadyCondition) {
 		return errors.Errorf("control-plane is still being upgraded, reason:'%s', message:'%s' ",
-			conditions.GetReason(clusterObj, capi.ControlPlaneReadyCondition), conditions.GetMessage(clusterObj, capi.ControlPlaneReadyCondition))
+			conditions.GetReason(clusterObj, capiv1alpha4.ControlPlaneReadyCondition), conditions.GetMessage(clusterObj, capiv1alpha4.ControlPlaneReadyCondition))
 	}
 
 	if clusterStatusInfo.KubernetesVersion != newK8sVersion {
@@ -665,8 +667,8 @@ func isClusterStateChanged(lastClusterInfo, curClusterInfo *ClusterStatusInfo) b
 	}
 
 	// If the ReadyCondition's lastTransitionTime is updated it implies there is some state change
-	if !conditions.GetLastTransitionTime(curClusterInfo.ClusterObject, capi.ReadyCondition).Equal(
-		conditions.GetLastTransitionTime(lastClusterInfo.ClusterObject, capi.ReadyCondition)) {
+	if !conditions.GetLastTransitionTime(curClusterInfo.ClusterObject, capiv1alpha4.ReadyCondition).Equal(
+		conditions.GetLastTransitionTime(lastClusterInfo.ClusterObject, capiv1alpha4.ReadyCondition)) {
 		return true
 	}
 
@@ -682,8 +684,8 @@ func isClusterStateChangedForKCP(lastClusterInfo, curClusterInfo *ClusterStatusI
 		return false
 	}
 	// If the ControlPlaneReadyCondition's lastTransitionTime is updated it implies there is some state change
-	if !conditions.GetLastTransitionTime(curClusterInfo.ClusterObject, capi.ControlPlaneReadyCondition).Equal(
-		conditions.GetLastTransitionTime(lastClusterInfo.ClusterObject, capi.ControlPlaneReadyCondition)) {
+	if !conditions.GetLastTransitionTime(curClusterInfo.ClusterObject, capiv1alpha4.ControlPlaneReadyCondition).Equal(
+		conditions.GetLastTransitionTime(lastClusterInfo.ClusterObject, capiv1alpha4.ControlPlaneReadyCondition)) {
 		return true
 	}
 	return false
@@ -791,11 +793,11 @@ func (c *client) waitK8sVersionUpdateGeneric(clusterName, namespace, newK8sVersi
 		curClusterInfo = c.GetClusterStatusInfo(clusterName, namespace, workloadClusterClient)
 
 		// If cluster's ReadyCondition is False and severity is Error, it implies non-retriable error, so return error
-		if conditions.IsFalse(curClusterInfo.ClusterObject, capi.ReadyCondition) &&
-			(*conditions.GetSeverity(curClusterInfo.ClusterObject, capi.ReadyCondition) == capi.ConditionSeverityError) {
+		if conditions.IsFalse(curClusterInfo.ClusterObject, capiv1alpha4.ReadyCondition) &&
+			(*conditions.GetSeverity(curClusterInfo.ClusterObject, capiv1alpha4.ReadyCondition) == capiv1alpha4.ConditionSeverityError) {
 			return true, errors.Errorf("kubernetes version update failed, reason:'%s', message:'%s' ",
-				conditions.GetReason(curClusterInfo.ClusterObject, capi.ReadyCondition),
-				conditions.GetMessage(curClusterInfo.ClusterObject, capi.ReadyCondition))
+				conditions.GetReason(curClusterInfo.ClusterObject, capiv1alpha4.ReadyCondition),
+				conditions.GetMessage(curClusterInfo.ClusterObject, capiv1alpha4.ReadyCondition))
 		}
 		err = verifyKubernetesUpgradeFunc(&curClusterInfo, newK8sVersion)
 		if err == nil {
@@ -852,7 +854,7 @@ func (c *client) GetClusterStatusInfo(clusterName, namespace string, workloadClu
 		}
 	}
 
-	clusterStatusInfo.ClusterObject = &capi.Cluster{}
+	clusterStatusInfo.ClusterObject = &capiv1alpha4.Cluster{}
 	if err := c.GetResource(clusterStatusInfo.ClusterObject, clusterName, namespace, nil, nil); err != nil {
 		errList = append(errList, err)
 	}
@@ -1123,7 +1125,7 @@ func (c *client) GetResource(resourceReference interface{}, resourceName, namesp
 // postVerify verifies the resource with some state once it is retrieved from kubernetes, pass nil if nothing to verify
 // pollOptions use this if you want to continuously poll for object if error occurs, pass nil if don't want polling
 // Note: Make sure resource you are retrieving is added into Scheme with init function below
-func (c *client) GetResourceList(resourceReference interface{}, clusterName, namespace string, postVerify PostVerifyrFunc, pollOptions *PollOptions) error {
+func (c *client) GetResourceList(resourceReference interface{}, clusterName, namespace string, postVerify PostVerifyListrFunc, pollOptions *PollOptions) error {
 	var err error
 	if namespace == "" {
 		if namespace, err = c.GetCurrentNamespace(); err != nil {
@@ -1132,7 +1134,7 @@ func (c *client) GetResourceList(resourceReference interface{}, clusterName, nam
 	}
 
 	// get the runtime object from interface
-	obj, err := c.getRuntimeObject(resourceReference)
+	obj, err := c.getRuntimeObjectList(resourceReference)
 	if err != nil {
 		return err
 	}
@@ -1494,7 +1496,7 @@ func (c *client) IsPacificRegionalCluster() (bool, error) {
 
 func (c *client) isTKCCrdAvailableInTanzuRunAPIGroup() (bool, error) {
 	// for pacific we should be able to fetch the api group "run.tanzu.vmware.com"
-	data, err := c.discoveryClient.RESTClient().Get().AbsPath(constants.TanzuRunAPIGroupPath).Do().Raw()
+	data, err := c.discoveryClient.RESTClient().Get().AbsPath(constants.TanzuRunAPIGroupPath).Do(context.TODO()).Raw()
 	if err != nil {
 		//  If the url is not available return false
 		if apierrors.IsNotFound(err) {
@@ -1513,7 +1515,7 @@ func (c *client) isTKCCrdAvailableInTanzuRunAPIGroup() (bool, error) {
 	}
 
 	groupVersionURL := fmt.Sprintf("/apis/%s", groupversion.(string))
-	data, err = c.discoveryClient.RESTClient().Get().AbsPath(groupVersionURL).Do().Raw()
+	data, err = c.discoveryClient.RESTClient().Get().AbsPath(groupVersionURL).Do(context.TODO()).Raw()
 	if err != nil {
 		//  If the url is not available return false
 		if apierrors.IsNotFound(err) {
@@ -2113,7 +2115,7 @@ func (c *client) UpdateAWSCNIIngressRules(clusterName, clusterNamespace string) 
 		return nil
 	}
 
-	cniIngressRules = append(cniIngressRules, &capav1alpha3.CNIIngressRule{
+	cniIngressRules = append(cniIngressRules, capav1alpha3.CNIIngressRule{
 		Description: "kapp-controller",
 		Protocol:    capav1alpha3.SecurityGroupProtocolTCP,
 		FromPort:    DefaultKappControllerHostPort,

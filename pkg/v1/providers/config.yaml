@@ -1,28 +1,28 @@
 providers:
-  - name: cluster-api
-    url: providers/cluster-api/v0.3.23/core-components.yaml
-    type: CoreProvider
-  - name: aws
-    url: providers/infrastructure-aws/v0.6.6/infrastructure-components.yaml
-    type: InfrastructureProvider
-  - name: vsphere
-    url: providers/infrastructure-vsphere/v0.7.10/infrastructure-components.yaml
-    type: InfrastructureProvider
-  - name: windows-vsphere
-    url: providers/infrastructure-windows-vsphere/v0.7.8/infrastructure-components.yaml
-    type: InfrastructureProvider
-  - name: azure
-    url: providers/infrastructure-azure/v0.4.15/infrastructure-components.yaml
-    type: InfrastructureProvider
-  - name: tkg-service-vsphere
-    url: providers/infrastructure-tkg-service-vsphere/v1.0.0/unused.yaml
-    type: InfrastructureProvider
-  - name: kubeadm
-    url: providers/bootstrap-kubeadm/v0.3.23/bootstrap-components.yaml
-    type: BootstrapProvider
-  - name: kubeadm
-    url: providers/control-plane-kubeadm/v0.3.23/control-plane-components.yaml
-    type: ControlPlaneProvider
-  - name: docker
-    url: providers/infrastructure-docker/v0.3.23/infrastructure-components.yaml
-    type: InfrastructureProvider
+- name: cluster-api
+  url: providers/cluster-api/v0.4.2/core-components.yaml
+  type: CoreProvider
+- name: aws
+  url: providers/infrastructure-aws/v0.6.6/infrastructure-components.yaml
+  type: InfrastructureProvider
+- name: vsphere
+  url: providers/infrastructure-vsphere/v0.7.8/infrastructure-components.yaml
+  type: InfrastructureProvider
+- name: windows-vsphere
+  url: providers/infrastructure-windows-vsphere/v0.7.8/infrastructure-components.yaml
+  type: InfrastructureProvider
+- name: azure
+  url: providers/infrastructure-azure/v0.4.15/infrastructure-components.yaml
+  type: InfrastructureProvider
+- name: tkg-service-vsphere
+  url: providers/infrastructure-tkg-service-vsphere/v1.0.0/unused.yaml
+  type: InfrastructureProvider
+- name: kubeadm
+  url: providers/bootstrap-kubeadm/v0.4.2/bootstrap-components.yaml
+  type: BootstrapProvider
+- name: kubeadm
+  url: providers/control-plane-kubeadm/v0.4.2/control-plane-components.yaml
+  type: ControlPlaneProvider
+- name: docker
+  url: providers/infrastructure-docker/v0.4.2/infrastructure-components.yaml
+  type: InfrastructureProvider
