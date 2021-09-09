@@ -33,7 +33,8 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/utils/pointer"
 	capav1alpha3 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha3"
-	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
+	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	capi "sigs.k8s.io/cluster-api/api/v1alpha4"
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake" //nolint:staticcheck
@@ -70,6 +71,7 @@ var imageRepository = "registry.tkg.vmware.new"
 
 func init() {
 	_ = capi.AddToScheme(scheme)
+	_ = capiv1alpha3.AddToScheme(scheme)
 	_ = capav1alpha3.AddToScheme(scheme)
 	_ = corev1.AddToScheme(scheme)
 	_ = controlplanev1.AddToScheme(scheme)
@@ -124,10 +126,11 @@ var _ = Describe("Cluster Client", func() {
 		currentKubeCtx         string
 		clusterClientOptions   Options
 
-		tkcPhase       string
-		mdReplicas     Replicas
-		kcpReplicas    Replicas
-		machineObjects []capi.Machine
+		tkcPhase           string
+		mdReplicas         Replicas
+		kcpReplicas        Replicas
+		machineObjects     []capi.Machine
+		v1a3machineObjects []capiv1alpha3.Machine
 	)
 
 	BeforeSuite(createTempDirectory)
@@ -1269,13 +1272,13 @@ var _ = Describe("Cluster Client", func() {
 			clstClient, err = NewClient(kubeConfigPath, "", clusterClientOptions)
 			Expect(err).NotTo(HaveOccurred())
 
-			machineObjects = []capi.Machine{}
+			v1a3machineObjects = []capiv1alpha3.Machine{}
 		})
 		JustBeforeEach(func() {
 			clientset.ListCalls(func(ctx context.Context, o runtime.Object, opts ...crtclient.ListOption) error {
 				switch o := o.(type) {
-				case *capi.MachineList:
-					o.Items = append(o.Items, machineObjects...)
+				case *capiv1alpha3.MachineList:
+					o.Items = append(o.Items, v1a3machineObjects...)
 				default:
 					return errors.New("invalid object type")
 				}
@@ -1323,8 +1326,8 @@ var _ = Describe("Cluster Client", func() {
 			Context("When some worker machine objects has old k8s version", func() {
 				BeforeEach(func() {
 					tkcPhase = statusRunning
-					machineObjects = append(machineObjects, getDummyMachine("fake-machine-1", "fake-new-version", false))
-					machineObjects = append(machineObjects, getDummyMachine("fake-machine-2", "fake-old-version", false))
+					v1a3machineObjects = append(v1a3machineObjects, getv1alpha2DummyMachine("fake-machine-1", "fake-new-version", false))
+					v1a3machineObjects = append(v1a3machineObjects, getv1alpha2DummyMachine("fake-machine-2", "fake-old-version", false))
 				})
 				It("should not return error", func() {
 					Expect(err).To(HaveOccurred())
@@ -1334,8 +1337,8 @@ var _ = Describe("Cluster Client", func() {
 			Context("When all worker machine objects has new k8s version", func() {
 				BeforeEach(func() {
 					tkcPhase = statusRunning
-					machineObjects = append(machineObjects, getDummyMachine("fake-machine-1", "fake-new-version", false))
-					machineObjects = append(machineObjects, getDummyMachine("fake-machine-1", "fake-new-version", false))
+					v1a3machineObjects = append(v1a3machineObjects, getv1alpha2DummyMachine("fake-machine-1", "fake-new-version", false))
+					v1a3machineObjects = append(v1a3machineObjects, getv1alpha2DummyMachine("fake-machine-1", "fake-new-version", false))
 				})
 				It("should not return error", func() {
 					Expect(err).ToNot(HaveOccurred())
@@ -2277,6 +2280,19 @@ func getDummySecret(secretName string, secretData map[string][]byte, secretStrin
 
 func getDummyMachine(name, currentK8sVersion string, isCP bool) capi.Machine {
 	machine := capi.Machine{}
+	machine.Name = name
+	machine.Namespace = fakeMdNameSpace
+	machine.Spec.Version = &currentK8sVersion
+	machine.Labels = map[string]string{}
+	if isCP {
+		machine.Labels["cluster.x-k8s.io/control-plane"] = ""
+	}
+	return machine
+}
+
+func getv1alpha2DummyMachine(name, currentK8sVersion string, isCP bool) capiv1alpha3.Machine { //nolint:unparam
+	// TODO: Add test cases where isCP is true, currently there are no such tests
+	machine := capiv1alpha3.Machine{}
 	machine.Name = name
 	machine.Namespace = fakeMdNameSpace
 	machine.Spec.Version = &currentK8sVersion

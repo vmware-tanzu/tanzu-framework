@@ -66,7 +66,6 @@ type InitRegionOptions struct {
 	InfrastructureProvider      string
 	ControlPlaneProvider        string
 	Namespace                   string
-	WatchingNamespace           string
 	TmcRegistrationURL          string
 	CniType                     string
 	VsphereControlPlaneEndpoint string

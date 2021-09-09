@@ -15,7 +15,6 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -77,7 +76,7 @@ func (p *pkgClient) deletePkgPluginCreatedResources(pkgInstall *kappipkg.Package
 			continue
 		}
 
-		var obj runtime.Object
+		var obj crtclient.Object
 		objMeta := metav1.ObjectMeta{Name: v, Namespace: pkgInstall.Namespace}
 
 		switch resourceKind[1] {
@@ -183,7 +182,7 @@ func (p *pkgClient) deletePreviouslyInstalledResources(o *tkgpackagedatamodel.Pa
 }
 
 // deleteAnnotatedResource deletes the corresponding resource to the installed package name & namespace in case it has the package plugin annotation
-func (p *pkgClient) deleteAnnotatedResource(obj runtime.Object, objKey crtclient.ObjectKey, resourceAnnotation string) error {
+func (p *pkgClient) deleteAnnotatedResource(obj crtclient.Object, objKey crtclient.ObjectKey, resourceAnnotation string) error {
 	if err := p.kappClient.GetClient().Get(context.Background(), objKey, obj); err != nil {
 		if !apierrors.IsNotFound(err) {
 			return err

@@ -378,17 +378,6 @@ func (c *TkgClient) getInitOptionsFromExistingCluster(regionalClusterClient clus
 		}
 	}
 
-	// Check if installed Provider's watchedNamespace is same or not, if same means cluster
-	// was deployment with --watching-namespace parameter, else all providers are watching
-	// objects in all namespaces
-	if len(installedProviderWatchingNamespaces) != 1 {
-		initOptions.WatchingNamespace = ""
-	} else {
-		for watchingNamespace := range installedProviderWatchingNamespaces {
-			initOptions.WatchingNamespace = watchingNamespace
-		}
-	}
-
 	return initOptions, nil
 }
 
