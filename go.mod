@@ -52,7 +52,7 @@ require (
 	github.com/golang/mock v1.4.4
 	github.com/golang/protobuf v1.5.2
 	github.com/google/go-cmp v0.5.6
-	github.com/google/go-containerregistry v0.4.1
+	github.com/google/go-containerregistry v0.5.0
 	github.com/google/uuid v1.2.0 // indirect
 	github.com/googleapis/gnostic v0.4.1
 	github.com/gorilla/websocket v1.4.2
@@ -64,7 +64,7 @@ require (
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/jinzhu/copier v0.2.8
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
-	github.com/k14s/imgpkg v0.6.0
+	github.com/k14s/imgpkg v0.8.0
 	github.com/k14s/ytt v0.32.1-0.20210511155130-214258be2519
 	github.com/lithammer/dedent v1.1.0
 	github.com/logrusorgru/aurora v2.0.3+incompatible

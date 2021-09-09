@@ -15,7 +15,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/util/version"
 
-	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/image"
+	ctlregistry "github.com/k14s/imgpkg/pkg/imgpkg/registry"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 
@@ -524,7 +524,7 @@ func (c *client) InitBOMRegistry() (registry.Registry, error) {
 		verifyCerts = false
 	}
 
-	registryOpts := &ctlimg.RegistryOpts{
+	registryOpts := &ctlregistry.Opts{
 		VerifyCerts: verifyCerts,
 		Anon:        true,
 	}
@@ -663,7 +663,7 @@ func (c *client) getDefaultBOMFileImagePathAndTagFromCompatabilityFile() (string
 	}
 	return "", "", errors.Errorf("unable to find the supported TKG BOM version for the management plugin version %q in the TKG Compatibility file %q", tkgconfigpaths.TKGManagementClusterPluginVersion, compatibilityFile)
 }
-func addRegistryTrustedRootCertsFileForWindows(registryOpts *ctlimg.RegistryOpts) error {
+func addRegistryTrustedRootCertsFileForWindows(registryOpts *ctlregistry.Opts) error {
 	filePath, err := tkgconfigpaths.GetRegistryTrustedCACertFileForWindows()
 	if err != nil {
 		return err

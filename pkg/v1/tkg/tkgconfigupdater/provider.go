@@ -10,7 +10,7 @@ import (
 	"regexp"
 	"strings"
 
-	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/image"
+	ctlregistry "github.com/k14s/imgpkg/pkg/imgpkg/registry"
 	"github.com/pkg/errors"
 	yaml "gopkg.in/yaml.v3"
 
@@ -207,7 +207,7 @@ func (c *client) InitProvidersRegistry() (registry.Registry, error) {
 		verifyCerts = false
 	}
 
-	registryOpts := ctlimg.RegistryOpts{
+	registryOpts := ctlregistry.Opts{
 		VerifyCerts: verifyCerts,
 		Anon:        true,
 	}
