@@ -17,12 +17,13 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
-	aws "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha3"
-	azure "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha3"
-	vsphere "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
-	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
-	"sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha3"
-	docker "sigs.k8s.io/cluster-api/test/infrastructure/docker/api/v1alpha3"
+	aws "sigs.k8s.io/cluster-api-provider-aws/api/v1beta1"
+	azure "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha4"
+	vsphere "sigs.k8s.io/cluster-api-provider-vsphere/api/v1beta1"
+	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	capi "sigs.k8s.io/cluster-api/api/v1beta1"
+	"sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1beta1"
+	docker "sigs.k8s.io/cluster-api/test/infrastructure/docker/api/v1beta1"
 
 	tkgsv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
 
@@ -465,13 +466,13 @@ func DoGetMachineDeployments(clusterClient clusterclient.Client, options *GetMac
 // GetPacificMachineDeployments retrieves machine deployments for a Pacific(TKGS) cluster
 // This is defined separately for Pacific (TKGS) provider because the TKGS and TKGm CAPI versions could be different
 // and this should be deprecated after clusterclass is adopted by both TKGm and TKGS
-func (c *TkgClient) GetPacificMachineDeployments(options GetMachineDeploymentOptions) ([]capi.MachineDeployment, error) {
+func (c *TkgClient) GetPacificMachineDeployments(options GetMachineDeploymentOptions) ([]capiv1alpha3.MachineDeployment, error) {
 	clusterClient, err := c.getClusterClient()
 	if err != nil {
 		return nil, errors.Wrap(err, "Unable to create clusterclient")
 	}
 
-	mdList := &capi.MachineDeploymentList{}
+	mdList := &capiv1alpha3.MachineDeploymentList{}
 	if err := clusterClient.GetResourceList(mdList, options.ClusterName, options.Namespace, nil, nil); err != nil {
 		return nil, errors.Wrap(err, "unable to get machine deployment for the given cluster")
 	}
@@ -558,8 +559,8 @@ func retrieveMachineTemplate(clusterClient clusterclient.Client, infraTemplateNa
 	return nil
 }
 
-func retrieveKubeadmConfigTemplate(clusterClient clusterclient.Client, kcTemplateName, kcTemplateNamespace string) (*v1alpha3.KubeadmConfigTemplate, error) {
-	var kcTemplate v1alpha3.KubeadmConfigTemplate
+func retrieveKubeadmConfigTemplate(clusterClient clusterclient.Client, kcTemplateName, kcTemplateNamespace string) (*v1beta1.KubeadmConfigTemplate, error) {
+	var kcTemplate v1beta1.KubeadmConfigTemplate
 	err := clusterClient.GetResource(&kcTemplate, kcTemplateName, kcTemplateNamespace, nil, nil)
 	if err != nil {
 		return nil, err

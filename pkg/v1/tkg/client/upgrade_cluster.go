@@ -13,12 +13,13 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
-	capav1alpha3 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha3"
-	capzv1alpha3 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha3"
-	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
-	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
-	capikubeadmv1alpha3 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
-	capdv1alpha3 "sigs.k8s.io/cluster-api/test/infrastructure/docker/api/v1alpha3"
+	capav1beta1 "sigs.k8s.io/cluster-api-provider-aws/api/v1beta1"
+	capzv1alpha4 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha4"
+	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1beta1"
+	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	capi "sigs.k8s.io/cluster-api/api/v1beta1"
+	capikubeadmv1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
+	capdv1beta1 "sigs.k8s.io/cluster-api/test/infrastructure/docker/api/v1beta1"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
@@ -553,8 +554,8 @@ func (c *TkgClient) createInfrastructureTemplateForUpgrade(regionalClusterClient
 	clusterUpgradeConfig.ActualComponentInfo.EtcdDataDir = kcp.Spec.KubeadmConfigSpec.ClusterConfiguration.Etcd.Local.DataDir
 	clusterUpgradeConfig.ActualComponentInfo.EtcdImageRepository = kcp.Spec.KubeadmConfigSpec.ClusterConfiguration.Etcd.Local.ImageRepository
 	clusterUpgradeConfig.ActualComponentInfo.EtcdImageTag = kcp.Spec.KubeadmConfigSpec.ClusterConfiguration.Etcd.Local.ImageTag
-	clusterUpgradeConfig.ActualComponentInfo.KCPInfrastructureTemplateName = kcp.Spec.InfrastructureTemplate.Name
-	clusterUpgradeConfig.ActualComponentInfo.KCPInfrastructureTemplateNamespace = kcp.Spec.InfrastructureTemplate.Namespace
+	clusterUpgradeConfig.ActualComponentInfo.KCPInfrastructureTemplateName = kcp.Spec.MachineTemplate.InfrastructureRef.Name
+	clusterUpgradeConfig.ActualComponentInfo.KCPInfrastructureTemplateNamespace = kcp.Spec.MachineTemplate.InfrastructureRef.Namespace
 
 	clusterUpgradeConfig.MDObjects = machineDeploymentObjects
 	clusterUpgradeConfig.ActualComponentInfo.MDInfastructureTemplates = make(map[string]mdInfastructureTemplateInfo)
@@ -568,7 +569,7 @@ func (c *TkgClient) createInfrastructureTemplateForUpgrade(regionalClusterClient
 		}
 	}
 
-	switch kcp.Spec.InfrastructureTemplate.Kind {
+	switch kcp.Spec.MachineTemplate.InfrastructureRef.Kind {
 	case constants.VSphereMachineTemplate:
 		return c.createVsphereInfrastructureTemplateForUpgrade(regionalClusterClient, kcp, clusterUpgradeConfig)
 	case constants.AWSMachineTemplate:
@@ -582,7 +583,7 @@ func (c *TkgClient) createInfrastructureTemplateForUpgrade(regionalClusterClient
 	}
 }
 
-func isNewAWSTemplateRequired(machineTemplate *capav1alpha3.AWSMachineTemplate, clusterUpgradeConfig *clusterUpgradeInfo, actualK8sVersion *string) bool {
+func isNewAWSTemplateRequired(machineTemplate *capav1beta1.AWSMachineTemplate, clusterUpgradeConfig *clusterUpgradeInfo, actualK8sVersion *string) bool {
 	if actualK8sVersion == nil || *actualK8sVersion != clusterUpgradeConfig.UpgradeComponentInfo.KubernetesVersion {
 		return true
 	}
@@ -595,7 +596,7 @@ func isNewAWSTemplateRequired(machineTemplate *capav1alpha3.AWSMachineTemplate, 
 	return false
 }
 
-func isNewDockerTemplateRequired(machineTemplate *capdv1alpha3.DockerMachineTemplate, clusterUpgradeConfig *clusterUpgradeInfo, actualK8sVersion *string) bool {
+func isNewDockerTemplateRequired(machineTemplate *capdv1beta1.DockerMachineTemplate, clusterUpgradeConfig *clusterUpgradeInfo, actualK8sVersion *string) bool {
 	if actualK8sVersion == nil || *actualK8sVersion != clusterUpgradeConfig.UpgradeComponentInfo.KubernetesVersion {
 		return true
 	}
@@ -607,12 +608,12 @@ func isNewDockerTemplateRequired(machineTemplate *capdv1alpha3.DockerMachineTemp
 	return false
 }
 
-func (c *TkgClient) createAWSControlPlaneMachineTemplate(regionalClusterClient clusterclient.Client, kcp *capikubeadmv1alpha3.KubeadmControlPlane, clusterUpgradeConfig *clusterUpgradeInfo) error {
+func (c *TkgClient) createAWSControlPlaneMachineTemplate(regionalClusterClient clusterclient.Client, kcp *capikubeadmv1beta1.KubeadmControlPlane, clusterUpgradeConfig *clusterUpgradeInfo) error {
 	var err error
-	awsMachineTemplate := &capav1alpha3.AWSMachineTemplate{}
-	err = regionalClusterClient.GetResource(awsMachineTemplate, kcp.Spec.InfrastructureTemplate.Name, kcp.Spec.InfrastructureTemplate.Namespace, nil, nil)
+	awsMachineTemplate := &capav1beta1.AWSMachineTemplate{}
+	err = regionalClusterClient.GetResource(awsMachineTemplate, kcp.Spec.MachineTemplate.InfrastructureRef.Name, kcp.Spec.MachineTemplate.InfrastructureRef.Namespace, nil, nil)
 	if err != nil {
-		return errors.Wrapf(err, "unable to find AWSMachineTemplate with name '%s' in namespace '%s'", kcp.Spec.InfrastructureTemplate.Name, kcp.Spec.InfrastructureTemplate.Namespace)
+		return errors.Wrapf(err, "unable to find AWSMachineTemplate with name '%s' in namespace '%s'", kcp.Spec.MachineTemplate.InfrastructureRef.Name, kcp.Spec.MachineTemplate.InfrastructureRef.Namespace)
 	}
 
 	// Naming format of the template: Current naming format for AWSMachineTemplate for KCP is {CLUSTER_NAME}-control-plane-{KUBERNETES_VERSION}-{random-string}
@@ -625,7 +626,7 @@ func (c *TkgClient) createAWSControlPlaneMachineTemplate(regionalClusterClient c
 		return nil
 	}
 
-	awsMachineTemplateForUpgrade := &capav1alpha3.AWSMachineTemplate{}
+	awsMachineTemplateForUpgrade := &capav1beta1.AWSMachineTemplate{}
 	awsMachineTemplateForUpgrade.Name = clusterUpgradeConfig.UpgradeComponentInfo.KCPInfrastructureTemplateName
 	awsMachineTemplateForUpgrade.Namespace = clusterUpgradeConfig.UpgradeComponentInfo.KCPInfrastructureTemplateNamespace
 	awsMachineTemplateForUpgrade.Spec = awsMachineTemplate.DeepCopy().Spec
@@ -644,7 +645,7 @@ func (c *TkgClient) createAWSMachineDeploymentMachineTemplateForWorkers(regional
 
 	for i := range clusterUpgradeConfig.MDObjects {
 		// get aws machine template for given machine deployment
-		awsMachineTemplateForMD := &capav1alpha3.AWSMachineTemplate{}
+		awsMachineTemplateForMD := &capav1beta1.AWSMachineTemplate{}
 		err = regionalClusterClient.GetResource(awsMachineTemplateForMD, clusterUpgradeConfig.MDObjects[i].Spec.Template.Spec.InfrastructureRef.Name, clusterUpgradeConfig.MDObjects[i].Namespace, nil, nil)
 		if err != nil {
 			return errors.Wrapf(err, "unable to find AWSMachineTemplate with name '%s' in namespace '%s'", clusterUpgradeConfig.MDObjects[i].Spec.Template.Spec.InfrastructureRef.Name, clusterUpgradeConfig.MDObjects[i].Namespace)
@@ -666,7 +667,7 @@ func (c *TkgClient) createAWSMachineDeploymentMachineTemplateForWorkers(regional
 			MDInfrastructureTemplateNamespace: awsMachineTemplateForMD.Namespace,
 		}
 
-		awsMachineTemplateMDForUpgrade := &capav1alpha3.AWSMachineTemplate{}
+		awsMachineTemplateMDForUpgrade := &capav1beta1.AWSMachineTemplate{}
 		awsMachineTemplateMDForUpgrade.Name = clusterUpgradeConfig.UpgradeComponentInfo.MDInfastructureTemplates[clusterUpgradeConfig.MDObjects[i].Name].MDInfrastructureTemplateName
 		awsMachineTemplateMDForUpgrade.Namespace = clusterUpgradeConfig.UpgradeComponentInfo.MDInfastructureTemplates[clusterUpgradeConfig.MDObjects[i].Name].MDInfrastructureTemplateNamespace
 		awsMachineTemplateMDForUpgrade.Spec = awsMachineTemplateForMD.DeepCopy().Spec
@@ -682,7 +683,7 @@ func (c *TkgClient) createAWSMachineDeploymentMachineTemplateForWorkers(regional
 	return nil
 }
 
-func (c *TkgClient) createCAPDInfrastructureTemplateForUpgrade(regionalClusterClient clusterclient.Client, kcp *capikubeadmv1alpha3.KubeadmControlPlane, clusterUpgradeConfig *clusterUpgradeInfo) error {
+func (c *TkgClient) createCAPDInfrastructureTemplateForUpgrade(regionalClusterClient clusterclient.Client, kcp *capikubeadmv1beta1.KubeadmControlPlane, clusterUpgradeConfig *clusterUpgradeInfo) error {
 	err := c.getCAPDImageForK8sVersion(clusterUpgradeConfig)
 	if err != nil {
 		return errors.Wrap(err, "unable to get docker image for CAPD template")
@@ -697,7 +698,7 @@ func (c *TkgClient) createCAPDInfrastructureTemplateForUpgrade(regionalClusterCl
 	return nil
 }
 
-func (c *TkgClient) createAWSInfrastructureTemplateForUpgrade(regionalClusterClient clusterclient.Client, kcp *capikubeadmv1alpha3.KubeadmControlPlane, clusterUpgradeConfig *clusterUpgradeInfo) error {
+func (c *TkgClient) createAWSInfrastructureTemplateForUpgrade(regionalClusterClient clusterclient.Client, kcp *capikubeadmv1beta1.KubeadmControlPlane, clusterUpgradeConfig *clusterUpgradeInfo) error {
 	err := c.getAWSAMIIDForK8sVersion(regionalClusterClient, clusterUpgradeConfig)
 	if err != nil {
 		return errors.Wrap(err, "unable to get AMIID for aws template")
@@ -711,7 +712,7 @@ func (c *TkgClient) createAWSInfrastructureTemplateForUpgrade(regionalClusterCli
 	return nil
 }
 
-func isNewAzureTemplateRequired(machineTemplate *capzv1alpha3.AzureMachineTemplate, clusterUpgradeConfig *clusterUpgradeInfo, actualK8sVersion *string) bool { // nolint:gocyclo
+func isNewAzureTemplateRequired(machineTemplate *capzv1alpha4.AzureMachineTemplate, clusterUpgradeConfig *clusterUpgradeInfo, actualK8sVersion *string) bool { // nolint:gocyclo
 	if actualK8sVersion == nil || *actualK8sVersion != clusterUpgradeConfig.UpgradeComponentInfo.KubernetesVersion {
 		return true
 	}
@@ -751,10 +752,10 @@ func isSharedGalleryImage(azureImage *tkgconfigbom.AzureInfo) bool {
 	return azureImage.Name != "" && azureImage.ResourceGroup != "" && azureImage.SubscriptionID != "" && azureImage.Gallery != "" && azureImage.Version != ""
 }
 
-func getAzureImage(azureImage *tkgconfigbom.AzureInfo) *capzv1alpha3.Image {
+func getAzureImage(azureImage *tkgconfigbom.AzureInfo) *capzv1alpha4.Image {
 	if isMarketplaceImage(azureImage) {
-		return &capzv1alpha3.Image{
-			Marketplace: &capzv1alpha3.AzureMarketplaceImage{
+		return &capzv1alpha4.Image{
+			Marketplace: &capzv1alpha4.AzureMarketplaceImage{
 				Publisher:       azureImage.Publisher,
 				Offer:           azureImage.Offer,
 				SKU:             azureImage.Sku,
@@ -765,8 +766,8 @@ func getAzureImage(azureImage *tkgconfigbom.AzureInfo) *capzv1alpha3.Image {
 	}
 
 	if isSharedGalleryImage(azureImage) {
-		return &capzv1alpha3.Image{
-			SharedGallery: &capzv1alpha3.AzureSharedGalleryImage{
+		return &capzv1alpha4.Image{
+			SharedGallery: &capzv1alpha4.AzureSharedGalleryImage{
 				ResourceGroup:  azureImage.ResourceGroup,
 				Name:           azureImage.Name,
 				SubscriptionID: azureImage.SubscriptionID,
@@ -779,12 +780,12 @@ func getAzureImage(azureImage *tkgconfigbom.AzureInfo) *capzv1alpha3.Image {
 	return nil
 }
 
-func (c *TkgClient) createAzureControlPlaneMachineTemplate(regionalClusterClient clusterclient.Client, kcp *capikubeadmv1alpha3.KubeadmControlPlane, clusterUpgradeConfig *clusterUpgradeInfo) error {
+func (c *TkgClient) createAzureControlPlaneMachineTemplate(regionalClusterClient clusterclient.Client, kcp *capikubeadmv1beta1.KubeadmControlPlane, clusterUpgradeConfig *clusterUpgradeInfo) error {
 	var err error
-	azureMachineTemplate := &capzv1alpha3.AzureMachineTemplate{}
-	err = regionalClusterClient.GetResource(azureMachineTemplate, kcp.Spec.InfrastructureTemplate.Name, kcp.Spec.InfrastructureTemplate.Namespace, nil, nil)
+	azureMachineTemplate := &capzv1alpha4.AzureMachineTemplate{}
+	err = regionalClusterClient.GetResource(azureMachineTemplate, kcp.Spec.MachineTemplate.InfrastructureRef.Name, kcp.Spec.MachineTemplate.InfrastructureRef.Namespace, nil, nil)
 	if err != nil {
-		return errors.Wrapf(err, "unable to find AzureMachineTemplate with name %s in namespace %s", kcp.Spec.InfrastructureTemplate.Name, kcp.Spec.InfrastructureTemplate.Namespace)
+		return errors.Wrapf(err, "unable to find AzureMachineTemplate with name %s in namespace %s", kcp.Spec.MachineTemplate.InfrastructureRef.Name, kcp.Spec.MachineTemplate.InfrastructureRef.Namespace)
 	}
 
 	// Naming format of the template: Current naming format for AzureMachineTemplate for KCP is {CLUSTER_NAME}-control-plane-{KUBERNETES_VERSION}-{random-string}
@@ -797,7 +798,7 @@ func (c *TkgClient) createAzureControlPlaneMachineTemplate(regionalClusterClient
 		return nil
 	}
 
-	azureMachineTemplateForUpgrade := &capzv1alpha3.AzureMachineTemplate{}
+	azureMachineTemplateForUpgrade := &capzv1alpha4.AzureMachineTemplate{}
 	azureMachineTemplateForUpgrade.Name = clusterUpgradeConfig.UpgradeComponentInfo.KCPInfrastructureTemplateName
 	azureMachineTemplateForUpgrade.Namespace = clusterUpgradeConfig.UpgradeComponentInfo.KCPInfrastructureTemplateNamespace
 	azureMachineTemplateForUpgrade.Spec = azureMachineTemplate.DeepCopy().Spec
@@ -811,12 +812,12 @@ func (c *TkgClient) createAzureControlPlaneMachineTemplate(regionalClusterClient
 	return nil
 }
 
-func (c *TkgClient) createCAPDControlPlaneMachineTemplate(regionalClusterClient clusterclient.Client, kcp *capikubeadmv1alpha3.KubeadmControlPlane, clusterUpgradeConfig *clusterUpgradeInfo) error {
+func (c *TkgClient) createCAPDControlPlaneMachineTemplate(regionalClusterClient clusterclient.Client, kcp *capikubeadmv1beta1.KubeadmControlPlane, clusterUpgradeConfig *clusterUpgradeInfo) error {
 	var err error
-	dockerMachineTemplate := &capdv1alpha3.DockerMachineTemplate{}
-	err = regionalClusterClient.GetResource(dockerMachineTemplate, kcp.Spec.InfrastructureTemplate.Name, kcp.Spec.InfrastructureTemplate.Namespace, nil, nil)
+	dockerMachineTemplate := &capdv1beta1.DockerMachineTemplate{}
+	err = regionalClusterClient.GetResource(dockerMachineTemplate, kcp.Spec.MachineTemplate.InfrastructureRef.Name, kcp.Spec.MachineTemplate.InfrastructureRef.Namespace, nil, nil)
 	if err != nil {
-		return errors.Wrapf(err, "unable to find DockerMachineTemplate with name %s in namespace %s", kcp.Spec.InfrastructureTemplate.Name, kcp.Spec.InfrastructureTemplate.Namespace)
+		return errors.Wrapf(err, "unable to find DockerMachineTemplate with name %s in namespace %s", kcp.Spec.MachineTemplate.InfrastructureRef.Name, kcp.Spec.MachineTemplate.InfrastructureRef.Namespace)
 	}
 
 	// Naming format of the template: Current naming format for DockerMachineTemplate for KCP is {CLUSTER_NAME}-control-plane-{KUBERNETES_VERSION}-{random-string}
@@ -829,7 +830,7 @@ func (c *TkgClient) createCAPDControlPlaneMachineTemplate(regionalClusterClient 
 		return nil
 	}
 
-	dockerMachineTemplateForUpgrade := &capdv1alpha3.DockerMachineTemplate{}
+	dockerMachineTemplateForUpgrade := &capdv1beta1.DockerMachineTemplate{}
 	dockerMachineTemplateForUpgrade.Name = clusterUpgradeConfig.UpgradeComponentInfo.KCPInfrastructureTemplateName
 	dockerMachineTemplateForUpgrade.Namespace = clusterUpgradeConfig.UpgradeComponentInfo.KCPInfrastructureTemplateNamespace
 	dockerMachineTemplateForUpgrade.Spec = dockerMachineTemplate.DeepCopy().Spec
@@ -846,7 +847,7 @@ func (c *TkgClient) createCAPDControlPlaneMachineTemplate(regionalClusterClient 
 func (c *TkgClient) createCAPDMachineDeploymentMachineTemplateForWorkers(regionalClusterClient clusterclient.Client, clusterUpgradeConfig *clusterUpgradeInfo) error {
 	var err error
 	for i := range clusterUpgradeConfig.MDObjects {
-		dockerMachineTemplateForMD := &capdv1alpha3.DockerMachineTemplate{}
+		dockerMachineTemplateForMD := &capdv1beta1.DockerMachineTemplate{}
 		err = regionalClusterClient.GetResource(dockerMachineTemplateForMD, clusterUpgradeConfig.MDObjects[i].Spec.Template.Spec.InfrastructureRef.Name, clusterUpgradeConfig.MDObjects[i].Spec.Template.Spec.InfrastructureRef.Namespace, nil, nil)
 		if err != nil {
 			return errors.Wrapf(err, "unable to find DockerMachineTemplate with name %s in namespace %s", clusterUpgradeConfig.MDObjects[i].Spec.Template.Spec.InfrastructureRef.Name, clusterUpgradeConfig.MDObjects[i].Namespace)
@@ -867,7 +868,7 @@ func (c *TkgClient) createCAPDMachineDeploymentMachineTemplateForWorkers(regiona
 			MDInfrastructureTemplateNamespace: dockerMachineTemplateForMD.Namespace,
 		}
 
-		dockerMachineTemplateMDForUpgrade := &capdv1alpha3.DockerMachineTemplate{}
+		dockerMachineTemplateMDForUpgrade := &capdv1beta1.DockerMachineTemplate{}
 		dockerMachineTemplateMDForUpgrade.Name = clusterUpgradeConfig.UpgradeComponentInfo.MDInfastructureTemplates[clusterUpgradeConfig.MDObjects[i].Name].MDInfrastructureTemplateName
 		dockerMachineTemplateMDForUpgrade.Namespace = clusterUpgradeConfig.UpgradeComponentInfo.MDInfastructureTemplates[clusterUpgradeConfig.MDObjects[i].Name].MDInfrastructureTemplateNamespace
 		dockerMachineTemplateMDForUpgrade.Spec = dockerMachineTemplateForMD.DeepCopy().Spec
@@ -886,7 +887,7 @@ func (c *TkgClient) createAzureMachineDeploymentMachineTemplateForWorkers(region
 	var err error
 
 	for i := range clusterUpgradeConfig.MDObjects {
-		azureMachineTemplateForMD := &capzv1alpha3.AzureMachineTemplate{}
+		azureMachineTemplateForMD := &capzv1alpha4.AzureMachineTemplate{}
 		err = regionalClusterClient.GetResource(azureMachineTemplateForMD, clusterUpgradeConfig.MDObjects[i].Spec.Template.Spec.InfrastructureRef.Name, clusterUpgradeConfig.MDObjects[i].Namespace, nil, nil)
 		if err != nil {
 			return errors.Wrapf(err, "unable to find AzureMachineTemplate with name '%s' in namespace '%s'", clusterUpgradeConfig.MDObjects[i].Spec.Template.Spec.InfrastructureRef.Name, clusterUpgradeConfig.MDObjects[i].Namespace)
@@ -907,7 +908,7 @@ func (c *TkgClient) createAzureMachineDeploymentMachineTemplateForWorkers(region
 			MDInfrastructureTemplateNamespace: azureMachineTemplateForMD.Namespace,
 		}
 
-		azureMachineTemplateMDForUpgrade := &capzv1alpha3.AzureMachineTemplate{}
+		azureMachineTemplateMDForUpgrade := &capzv1alpha4.AzureMachineTemplate{}
 		azureMachineTemplateMDForUpgrade.Name = clusterUpgradeConfig.UpgradeComponentInfo.MDInfastructureTemplates[clusterUpgradeConfig.MDObjects[i].Name].MDInfrastructureTemplateName
 		azureMachineTemplateMDForUpgrade.Namespace = clusterUpgradeConfig.UpgradeComponentInfo.MDInfastructureTemplates[clusterUpgradeConfig.MDObjects[i].Name].MDInfrastructureTemplateNamespace
 		azureMachineTemplateMDForUpgrade.Spec = azureMachineTemplateForMD.DeepCopy().Spec
@@ -922,7 +923,7 @@ func (c *TkgClient) createAzureMachineDeploymentMachineTemplateForWorkers(region
 	return nil
 }
 
-func (c *TkgClient) createAzureInfrastructureTemplateForUpgrade(regionalClusterClient clusterclient.Client, kcp *capikubeadmv1alpha3.KubeadmControlPlane, clusterUpgradeConfig *clusterUpgradeInfo) error {
+func (c *TkgClient) createAzureInfrastructureTemplateForUpgrade(regionalClusterClient clusterclient.Client, kcp *capikubeadmv1beta1.KubeadmControlPlane, clusterUpgradeConfig *clusterUpgradeInfo) error {
 	if !isSharedGalleryImage(&clusterUpgradeConfig.UpgradeComponentInfo.AzureImage) && !isMarketplaceImage(&clusterUpgradeConfig.UpgradeComponentInfo.AzureImage) {
 		return errors.New("unable to proceed with the upgrade due to invalid azure image information")
 	}
@@ -935,7 +936,7 @@ func (c *TkgClient) createAzureInfrastructureTemplateForUpgrade(regionalClusterC
 	return nil
 }
 
-func isNewVSphereTemplateRequired(machineTemplate *capvv1alpha3.VSphereMachineTemplate, clusterUpgradeConfig *clusterUpgradeInfo, actualK8sVersion *string) bool {
+func isNewVSphereTemplateRequired(machineTemplate *capvv1beta1.VSphereMachineTemplate, clusterUpgradeConfig *clusterUpgradeInfo, actualK8sVersion *string) bool {
 	if actualK8sVersion == nil || *actualK8sVersion != clusterUpgradeConfig.UpgradeComponentInfo.KubernetesVersion {
 		return true
 	}
@@ -946,12 +947,12 @@ func isNewVSphereTemplateRequired(machineTemplate *capvv1alpha3.VSphereMachineTe
 	return false
 }
 
-func (c *TkgClient) createVSphereControlPlaneMachineTemplate(regionalClusterClient clusterclient.Client, kcp *capikubeadmv1alpha3.KubeadmControlPlane, clusterUpgradeConfig *clusterUpgradeInfo) error {
+func (c *TkgClient) createVSphereControlPlaneMachineTemplate(regionalClusterClient clusterclient.Client, kcp *capikubeadmv1beta1.KubeadmControlPlane, clusterUpgradeConfig *clusterUpgradeInfo) error {
 	// Get the actual MachineTemplate object associated with actual KCP object
-	actualVsphereMachineTemplate := &capvv1alpha3.VSphereMachineTemplate{}
-	err := regionalClusterClient.GetResource(actualVsphereMachineTemplate, kcp.Spec.InfrastructureTemplate.Name, kcp.Spec.InfrastructureTemplate.Namespace, nil, nil)
+	actualVsphereMachineTemplate := &capvv1beta1.VSphereMachineTemplate{}
+	err := regionalClusterClient.GetResource(actualVsphereMachineTemplate, kcp.Spec.MachineTemplate.InfrastructureRef.Name, kcp.Spec.MachineTemplate.InfrastructureRef.Namespace, nil, nil)
 	if err != nil {
-		return errors.Wrapf(err, "unable to find VSphereMachineTemplate with name '%s' in namespace '%s'", kcp.Spec.InfrastructureTemplate.Name, kcp.Spec.InfrastructureTemplate.Namespace)
+		return errors.Wrapf(err, "unable to find VSphereMachineTemplate with name '%s' in namespace '%s'", kcp.Spec.MachineTemplate.InfrastructureRef.Name, kcp.Spec.MachineTemplate.InfrastructureRef.Namespace)
 	}
 
 	// Naming format of the template: Current naming format for vsphereTemplate for KCP is {CLUSTER_NAME}-control-plane-{KUBERNETES_VERSION}-{random-string}
@@ -964,7 +965,7 @@ func (c *TkgClient) createVSphereControlPlaneMachineTemplate(regionalClusterClie
 		return nil
 	}
 
-	vsphereMachineTemplateForUpgrade := &capvv1alpha3.VSphereMachineTemplate{}
+	vsphereMachineTemplateForUpgrade := &capvv1beta1.VSphereMachineTemplate{}
 	vsphereMachineTemplateForUpgrade.Name = clusterUpgradeConfig.UpgradeComponentInfo.KCPInfrastructureTemplateName
 	vsphereMachineTemplateForUpgrade.Namespace = clusterUpgradeConfig.UpgradeComponentInfo.KCPInfrastructureTemplateNamespace
 	vsphereMachineTemplateForUpgrade.Spec = actualVsphereMachineTemplate.DeepCopy().Spec
@@ -983,7 +984,7 @@ func (c *TkgClient) createVSphereMachineDeploymentMachineTemplateForWorkers(regi
 
 	for i := range clusterUpgradeConfig.MDObjects {
 		// Get the actual MachineTemplate object associated with actual MD object
-		actualVsphereMachineTemplate := &capvv1alpha3.VSphereMachineTemplate{}
+		actualVsphereMachineTemplate := &capvv1beta1.VSphereMachineTemplate{}
 		err = regionalClusterClient.GetResource(actualVsphereMachineTemplate, clusterUpgradeConfig.MDObjects[i].Spec.Template.Spec.InfrastructureRef.Name, clusterUpgradeConfig.MDObjects[i].Namespace, nil, nil)
 		if err != nil {
 			return errors.Wrapf(err, "unable to find VSphereMachineTemplate with name '%s' in namespace '%s'", clusterUpgradeConfig.MDObjects[i].Spec.Template.Spec.InfrastructureRef.Name, clusterUpgradeConfig.MDObjects[i].Namespace)
@@ -1004,7 +1005,7 @@ func (c *TkgClient) createVSphereMachineDeploymentMachineTemplateForWorkers(regi
 			MDInfrastructureTemplateNamespace: actualVsphereMachineTemplate.Namespace,
 		}
 
-		vsphereMachineTemplateForUpgrade := &capvv1alpha3.VSphereMachineTemplate{}
+		vsphereMachineTemplateForUpgrade := &capvv1beta1.VSphereMachineTemplate{}
 		vsphereMachineTemplateForUpgrade.Name = clusterUpgradeConfig.UpgradeComponentInfo.MDInfastructureTemplates[clusterUpgradeConfig.MDObjects[i].Name].MDInfrastructureTemplateName
 		vsphereMachineTemplateForUpgrade.Namespace = clusterUpgradeConfig.UpgradeComponentInfo.MDInfastructureTemplates[clusterUpgradeConfig.MDObjects[i].Name].MDInfrastructureTemplateNamespace
 		vsphereMachineTemplateForUpgrade.Spec = actualVsphereMachineTemplate.DeepCopy().Spec
@@ -1019,13 +1020,13 @@ func (c *TkgClient) createVSphereMachineDeploymentMachineTemplateForWorkers(regi
 	return nil
 }
 
-func (c *TkgClient) createVsphereInfrastructureTemplateForUpgrade(regionalClusterClient clusterclient.Client, kcp *capikubeadmv1alpha3.KubeadmControlPlane, clusterUpgradeConfig *clusterUpgradeInfo) error {
+func (c *TkgClient) createVsphereInfrastructureTemplateForUpgrade(regionalClusterClient clusterclient.Client, kcp *capikubeadmv1beta1.KubeadmControlPlane, clusterUpgradeConfig *clusterUpgradeInfo) error {
 	var err error
 
 	vcClient, dcName, err := regionalClusterClient.GetVCClientAndDataCenter(
 		clusterUpgradeConfig.ClusterName,
 		clusterUpgradeConfig.ClusterNamespace,
-		kcp.Spec.InfrastructureTemplate.Name)
+		kcp.Spec.MachineTemplate.InfrastructureRef.Name)
 	if err != nil {
 		return errors.Wrap(err, "unable to create vsphere client")
 	}
@@ -1065,9 +1066,11 @@ func (c *TkgClient) patchKubernetesVersionToKubeadmControlPlane(regionalClusterC
 	patchString := `{
 		"spec": {
 		  "version": "%s",
-		  "infrastructureTemplate": {
-			"name": "%s",
-			"namespace": "%s"
+		  "machineTemplate": {
+			"infrastructureRef": {
+			  "name": "%s",
+			  "namespace": "%s"
+			}
 		  },
 		  "kubeadmConfigSpec": {
 			"clusterConfiguration": {
@@ -1103,7 +1106,7 @@ func (c *TkgClient) patchKubernetesVersionToKubeadmControlPlane(regionalClusterC
 	// that all controller pods are not started on management cluster
 	// and in this case patch fails. Retrying again should fix this issue.
 	pollOptions := &clusterclient.PollOptions{Interval: upgradePatchInterval, Timeout: upgradePatchTimeout}
-	err := regionalClusterClient.PatchResource(&capikubeadmv1alpha3.KubeadmControlPlane{}, clusterUpgradeConfig.KCPObjectName, clusterUpgradeConfig.KCPObjectNamespace, patchKubernetesVersion, types.MergePatchType, pollOptions)
+	err := regionalClusterClient.PatchResource(&capikubeadmv1beta1.KubeadmControlPlane{}, clusterUpgradeConfig.KCPObjectName, clusterUpgradeConfig.KCPObjectNamespace, patchKubernetesVersion, types.MergePatchType, pollOptions)
 	if err != nil {
 		return errors.Wrap(err, "unable to update the kubernetes version for kubeadm control plane nodes")
 	}
@@ -1241,7 +1244,13 @@ func (c *TkgClient) getRegionalClusterNameAndNamespace(clusterClient clusterclie
 
 	clusterName = regionalClusterInfo.ClusterName
 
-	clusters, err := clusterClient.ListClusters("")
+	var clusterList capiv1alpha3.ClusterList
+	err = clusterClient.ListResources(&clusterList)
+	if err != nil {
+		return "", "", err
+	}
+
+	clusters := clusterList.Items
 	if err != nil {
 		return clusterName, clusterNamespace, err
 	}
@@ -1260,7 +1269,7 @@ func (c *TkgClient) getRegionalClusterNameAndNamespace(clusterClient clusterclie
 }
 
 func (c *TkgClient) getAWSAMIIDForK8sVersion(regionalClusterClient clusterclient.Client, upgradeInfo *clusterUpgradeInfo) error {
-	awsClusterObject := &capav1alpha3.AWSCluster{}
+	awsClusterObject := &capav1beta1.AWSCluster{}
 	if err := regionalClusterClient.GetResource(awsClusterObject, upgradeInfo.ClusterName, upgradeInfo.ClusterNamespace, nil, nil); err != nil {
 		return errors.Wrap(err, "unable to retrieve aws cluster object to retrieve AMI settings")
 	}
@@ -1344,7 +1353,7 @@ func (c *TkgClient) configureOSOptionsForUpgrade(regionalClusterClient clustercl
 			}
 
 			provider := ""
-			switch kcp.Spec.InfrastructureTemplate.Kind {
+			switch kcp.Spec.MachineTemplate.InfrastructureRef.Name {
 			case constants.VSphereMachineTemplate:
 				provider = constants.InfrastructureProviderVSphere
 			case constants.AWSMachineTemplate:

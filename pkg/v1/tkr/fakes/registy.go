@@ -61,6 +61,8 @@ func (fake *Registry) GetFile(arg1 string, arg2 string) ([]byte, error) {
 	}{arg1, arg2})
 	stub := fake.GetFileStub
 	fakeReturns := fake.getFileReturns
+	stub := fake.GetFileStub
+	fakeReturns := fake.getFileReturns
 	fake.recordInvocation("GetFile", []interface{}{arg1, arg2})
 	fake.getFileMutex.Unlock()
 	if stub != nil {
@@ -123,6 +125,8 @@ func (fake *Registry) GetFiles(arg1 string) (map[string][]byte, error) {
 	fake.getFilesArgsForCall = append(fake.getFilesArgsForCall, struct {
 		arg1 string
 	}{arg1})
+	stub := fake.GetFilesStub
+	fakeReturns := fake.getFilesReturns
 	stub := fake.GetFilesStub
 	fakeReturns := fake.getFilesReturns
 	fake.recordInvocation("GetFiles", []interface{}{arg1})

@@ -294,6 +294,7 @@ func getExpectedExecConfig(endpoint, issuer, issuerCA, apiGroupSuffix string, co
 		Args:       args,
 		Env:        []clientcmdapi.ExecEnvVar{},
 		Command:    "tanzu",
+		InteractiveMode: "IfAvailable",
 	}
 	return execConfig
 }

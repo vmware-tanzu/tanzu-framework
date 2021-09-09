@@ -15,18 +15,18 @@ import (
 	rbacv1 "k8s.io/api/rbac/v1"
 	extensionsV1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
-	capav1alpha3 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha3"
-	capzv1alpha3 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha3"
-	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
-	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
-	bootstrapv1alpha3 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha3"
+	capav1beta1 "sigs.k8s.io/cluster-api-provider-aws/api/v1beta1"
+	capzv1alpha4 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha4"
+	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1beta1"
+	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	capi "sigs.k8s.io/cluster-api/api/v1beta1"
+	bootstrapv1beta1 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1beta1"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
-	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
-	addonsv1 "sigs.k8s.io/cluster-api/exp/addons/api/v1alpha3"
-	capdv1alpha3 "sigs.k8s.io/cluster-api/test/infrastructure/docker/api/v1alpha3"
+	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
+	addonsv1 "sigs.k8s.io/cluster-api/exp/addons/api/v1beta1"
+	capdv1beta1 "sigs.k8s.io/cluster-api/test/infrastructure/docker/api/v1beta1"
 	"sigs.k8s.io/cluster-api/util/conditions"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -42,10 +42,13 @@ import (
 )
 
 // PostVerifyrFunc is a function which should be used as closure
-type PostVerifyrFunc func(obj runtime.Object) error
+type PostVerifyrFunc func(obj crtclient.Object) error
+
+// PostVerifyListrFunc is a function which should be used as closure
+type PostVerifyListrFunc func(obj crtclient.ObjectList) error
 
 func (c *client) ListResources(resourceReference interface{}, option ...crtclient.ListOption) error {
-	obj, err := c.getRuntimeObject(resourceReference)
+	obj, err := c.getRuntimeObjectList(resourceReference)
 	if err != nil {
 		return err
 	}
@@ -145,8 +148,8 @@ func (c *client) get(objectName, namespace string, o interface{}, postVerify Pos
 	return nil
 }
 
-func (c *client) list(clusterName, namespace string, o interface{}, postVerify PostVerifyrFunc) error {
-	obj, err := c.getRuntimeObject(o)
+func (c *client) list(clusterName, namespace string, o interface{}, postVerify PostVerifyListrFunc) error {
+	obj, err := c.getRuntimeObjectList(o)
 	if err != nil {
 		return err
 	}
@@ -166,61 +169,49 @@ func (c *client) list(clusterName, namespace string, o interface{}, postVerify P
 	return nil
 }
 
-func (c *client) getRuntimeObject(o interface{}) (runtime.Object, error) { //nolint:gocyclo,funlen
+func (c *client) getRuntimeObject(o interface{}) (crtclient.Object, error) { //nolint:gocyclo,funlen
 	switch obj := o.(type) {
 	case *corev1.Namespace:
 		return obj, nil
 	case *corev1.Secret:
 		return obj, nil
-	case *corev1.SecretList:
-		return obj, nil
 	case *capi.Cluster:
+		return obj, nil
+	case *capiv1alpha3.Cluster:
 		return obj, nil
 	case *appsv1.Deployment:
 		return obj, nil
 	case *appsv1.StatefulSet:
 		return obj, nil
-	case *clusterctlv1.ProviderList:
-		return obj, nil
-	case *capi.ClusterList:
-		return obj, nil
 	case *capi.Machine:
 		return obj, nil
 	case *capi.MachineHealthCheck:
 		return obj, nil
-	case *capi.MachineHealthCheckList:
-		return obj, nil
-	case *capi.MachineList:
-		return obj, nil
-	case *capi.MachineDeploymentList:
-		return obj, nil
 	case *capi.MachineDeployment:
+		return obj, nil
+	case *capdv1beta1.DockerMachineTemplate:
+		return obj, nil
+	case *capiv1alpha3.Machine:
+		return obj, nil
+	case *capiv1alpha3.MachineHealthCheck:
+		return obj, nil
+	case *capiv1alpha3.MachineDeployment:
 		return obj, nil
 	case *tkgsv1alpha2.TanzuKubernetesCluster:
 		return obj, nil
-	case *tkgsv1alpha2.TanzuKubernetesClusterList:
-		return obj, nil
 	case *controlplanev1.KubeadmControlPlane:
-		return obj, nil
-	case *controlplanev1.KubeadmControlPlaneList:
 		return obj, nil
 	case *unstructured.Unstructured:
 		return obj, nil
-	case *betav1.CronJobList:
-		return obj, nil
 	case *betav1.CronJob:
 		return obj, nil
-	case *capvv1alpha3.VSphereCluster:
+	case *capvv1beta1.VSphereCluster:
 		return obj, nil
-	case *capvv1alpha3.VSphereMachineTemplate:
+	case *capvv1beta1.VSphereMachineTemplate:
 		return obj, nil
-	case *capvv1alpha3.VSphereClusterList:
+	case *capav1beta1.AWSMachineTemplate:
 		return obj, nil
-	case *capav1alpha3.AWSMachineTemplate:
-		return obj, nil
-	case *capdv1alpha3.DockerMachineTemplate:
-		return obj, nil
-	case *capav1alpha3.AWSCluster:
+	case *capav1beta1.AWSCluster:
 		return obj, nil
 	case *appsv1.DaemonSet:
 		return obj, nil
@@ -228,13 +219,11 @@ func (c *client) getRuntimeObject(o interface{}) (runtime.Object, error) { //nol
 		return obj, nil
 	case *v1alpha1.Extension:
 		return obj, nil
-	case *v1alpha1.ExtensionList:
-		return obj, nil
 	case *extensionsV1.CustomResourceDefinition:
 		return obj, nil
-	case *capzv1alpha3.AzureMachineTemplate:
+	case *capzv1alpha4.AzureMachineTemplate:
 		return obj, nil
-	case *capzv1alpha3.AzureCluster:
+	case *capzv1alpha4.AzureCluster:
 		return obj, nil
 	case *corev1.ServiceAccount:
 		return obj, nil
@@ -244,13 +233,9 @@ func (c *client) getRuntimeObject(o interface{}) (runtime.Object, error) { //nol
 		return obj, nil
 	case *addonsv1.ClusterResourceSet:
 		return obj, nil
-	case *addonsv1.ClusterResourceSetList:
-		return obj, nil
-	case *runv1alpha1.TanzuKubernetesReleaseList:
-		return obj, nil
 	case *runv1alpha1.TanzuKubernetesRelease:
 		return obj, nil
-	case *bootstrapv1alpha3.KubeadmConfigTemplate:
+	case *bootstrapv1beta1.KubeadmConfigTemplate:
 		return obj, nil
 	case *kappipkg.PackageInstall:
 		return obj, nil
@@ -259,8 +244,49 @@ func (c *client) getRuntimeObject(o interface{}) (runtime.Object, error) { //nol
 	}
 }
 
+func (c *client) getRuntimeObjectList(o interface{}) (crtclient.ObjectList, error) { //nolint:gocyclo,funlen,nolintlint
+	switch obj := o.(type) {
+	case *corev1.SecretList:
+		return obj, nil
+	case *clusterctlv1.ProviderList:
+		return obj, nil
+	case *capi.ClusterList:
+		return obj, nil
+	case *capi.MachineHealthCheckList:
+		return obj, nil
+	case *capi.MachineList:
+		return obj, nil
+	case *capi.MachineDeploymentList:
+		return obj, nil
+	case *capiv1alpha3.ClusterList:
+		return obj, nil
+	case *capiv1alpha3.MachineHealthCheckList:
+		return obj, nil
+	case *capiv1alpha3.MachineList:
+		return obj, nil
+	case *capiv1alpha3.MachineDeploymentList:
+		return obj, nil
+	case *controlplanev1.KubeadmControlPlaneList:
+		return obj, nil
+	case *betav1.CronJobList:
+		return obj, nil
+	case *capvv1beta1.VSphereClusterList:
+		return obj, nil
+	case *v1alpha1.ExtensionList:
+		return obj, nil
+	case *addonsv1.ClusterResourceSetList:
+		return obj, nil
+	case *runv1alpha1.TanzuKubernetesReleaseList:
+		return obj, nil
+	case *tkgsv1alpha2.TanzuKubernetesClusterList:
+		return obj, nil
+	default:
+		return nil, errors.New("invalid object type")
+	}
+}
+
 // VerifyClusterInitialized verifies the cluster is initialized or not (this is required before reading the kubeconfig secret)
-func VerifyClusterInitialized(obj runtime.Object) error {
+func VerifyClusterInitialized(obj crtclient.Object) error {
 	switch cluster := obj.(type) {
 	case *capi.Cluster:
 		errList := []error{}
@@ -282,14 +308,14 @@ func VerifyClusterInitialized(obj runtime.Object) error {
 }
 
 // VerifyClusterReady verifies the cluster is ready or not (this is required before starting the move operation)
-func VerifyClusterReady(obj runtime.Object) error {
+func VerifyClusterReady(obj crtclient.Object) error {
 	// Nb. Currently there is no difference between VerifyClusterReady and VerifyClusterInitialized unless WorkersReady condition
 	// would be added to cluster `Ready` condition aggregation.
 	return VerifyClusterInitialized(obj)
 }
 
 // VerifyMachinesReady verifies the machine are ready or not (this is required before starting the move operation)
-func VerifyMachinesReady(obj runtime.Object) error {
+func VerifyMachinesReady(obj crtclient.ObjectList) error {
 	switch machines := obj.(type) {
 	case *capi.MachineList:
 		errList := []error{}
@@ -307,7 +333,7 @@ func VerifyMachinesReady(obj runtime.Object) error {
 }
 
 // VerifyKubeadmControlPlaneReplicas verifies the KubeadmControlPlane has all the required replicas (this is required before starting the move operation)
-func VerifyKubeadmControlPlaneReplicas(obj runtime.Object) error {
+func VerifyKubeadmControlPlaneReplicas(obj crtclient.ObjectList) error {
 	switch kcps := obj.(type) {
 	case *controlplanev1.KubeadmControlPlaneList:
 		errList := []error{}
@@ -328,7 +354,7 @@ func VerifyKubeadmControlPlaneReplicas(obj runtime.Object) error {
 }
 
 // VerifyMachineDeploymentsReplicas verifies the MachineDeployment has all the required replicas (this is required before starting the move operation)
-func VerifyMachineDeploymentsReplicas(obj runtime.Object) error {
+func VerifyMachineDeploymentsReplicas(obj crtclient.ObjectList) error {
 	switch deployments := obj.(type) {
 	case *capi.MachineDeploymentList:
 		errList := []error{}
@@ -349,7 +375,7 @@ func VerifyMachineDeploymentsReplicas(obj runtime.Object) error {
 }
 
 // VerifyDeploymentAvailable verifies the deployment has at least one replica running under it or not
-func VerifyDeploymentAvailable(obj runtime.Object) error {
+func VerifyDeploymentAvailable(obj crtclient.Object) error {
 	switch deployment := obj.(type) {
 	case *appsv1.Deployment:
 		if deployment.Status.AvailableReplicas < 1 {
@@ -362,7 +388,7 @@ func VerifyDeploymentAvailable(obj runtime.Object) error {
 }
 
 // VerifyAutoscalerDeploymentAvailable verifies autoscaler deployment's availability
-func VerifyAutoscalerDeploymentAvailable(obj runtime.Object) error {
+func VerifyAutoscalerDeploymentAvailable(obj crtclient.Object) error {
 	switch deployment := obj.(type) {
 	case *appsv1.Deployment:
 		if *deployment.Spec.Replicas != deployment.Status.AvailableReplicas || *deployment.Spec.Replicas != deployment.Status.UpdatedReplicas || *deployment.Spec.Replicas != deployment.Status.Replicas {
@@ -375,7 +401,7 @@ func VerifyAutoscalerDeploymentAvailable(obj runtime.Object) error {
 }
 
 // VerifyCRSAppliedSuccessfully verifies that all CRS objects are applied successfully after cluster creation
-func VerifyCRSAppliedSuccessfully(obj runtime.Object) error {
+func VerifyCRSAppliedSuccessfully(obj crtclient.ObjectList) error {
 	switch crsList := obj.(type) {
 	case *addonsv1.ClusterResourceSetList:
 		errList := []error{}
@@ -391,7 +417,7 @@ func VerifyCRSAppliedSuccessfully(obj runtime.Object) error {
 }
 
 // VerifyAVIResourceCleanupFinished verifies that avi objects clean up finished.
-func VerifyAVIResourceCleanupFinished(obj runtime.Object) error {
+func VerifyAVIResourceCleanupFinished(obj crtclient.Object) error {
 	switch statefulSet := obj.(type) {
 	case *appsv1.StatefulSet:
 		for _, condition := range statefulSet.Status.Conditions {
@@ -406,7 +432,7 @@ func VerifyAVIResourceCleanupFinished(obj runtime.Object) error {
 }
 
 // VerifyPackageInstallReconciledSuccessfully verifies that packageInstall reconcile successfully
-func VerifyPackageInstallReconciledSuccessfully(obj runtime.Object) error {
+func VerifyPackageInstallReconciledSuccessfully(obj crtclient.Object) error {
 	switch packageInstall := obj.(type) {
 	case *kappipkg.PackageInstall:
 
