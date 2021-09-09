@@ -37,16 +37,17 @@ import (
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
-	capav1alpha3 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha3"
-	capzv1alpha3 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha3"
-	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
-	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
-	bootstrapv1alpha3 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha3"
+	capav1alpha4 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha4"
+	capzv1alpha4 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha4"
+	capvv1alpha4 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha4"
+	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	capi "sigs.k8s.io/cluster-api/api/v1beta1"
+	bootstrapv1 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1beta1"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/cluster"
-	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
-	addonsv1 "sigs.k8s.io/cluster-api/exp/addons/api/v1alpha3"
-	capdv1alpha3 "sigs.k8s.io/cluster-api/test/infrastructure/docker/api/v1alpha3"
+	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
+	addonsv1 "sigs.k8s.io/cluster-api/exp/addons/api/v1beta1"
+	capdv1 "sigs.k8s.io/cluster-api/test/infrastructure/docker/api/v1beta1"
 	"sigs.k8s.io/cluster-api/util/conditions"
 	containerutil "sigs.k8s.io/cluster-api/util/container"
 	"sigs.k8s.io/cluster-api/util/patch"
@@ -142,7 +143,7 @@ type Client interface {
 	// postVerify verifies the resource with some state once it is retrieved from kubernetes, pass nil if nothing to verify
 	// pollOptions use this if you want to continuously poll for object if error occurs, pass nil if don't want polling
 	// Note: Make sure resource you are retrieving is added into Scheme with init function below
-	GetResourceList(resourceReference interface{}, clusterName, namespace string, postVerify PostVerifyrFunc, pollOptions *PollOptions) error
+	GetResourceList(resourceReference interface{}, clusterName, namespace string, postVerify PostVerifyListrFunc, pollOptions *PollOptions) error
 
 	// ListResources lists the kubernetes resources, pass reference of the object you want to get
 	// Note: Make sure resource you are retrieving is added into Scheme in init function below
@@ -380,16 +381,17 @@ var (
 
 func init() {
 	_ = capi.AddToScheme(scheme)
+	_ = capiv1alpha3.AddToScheme(scheme)
 	_ = corev1.AddToScheme(scheme)
 	_ = appsv1.AddToScheme(scheme)
 	_ = clusterctlv1.AddToScheme(scheme)
 	_ = controlplanev1.AddToScheme(scheme)
 	_ = tkgsv1alpha2.AddToScheme(scheme)
-	_ = capvv1alpha3.AddToScheme(scheme)
-	_ = capav1alpha3.AddToScheme(scheme)
-	_ = capzv1alpha3.AddToScheme(scheme)
-	_ = capdv1alpha3.AddToScheme(scheme)
-	_ = bootstrapv1alpha3.AddToScheme(scheme)
+	_ = capvv1alpha4.AddToScheme(scheme)
+	_ = capav1alpha4.AddToScheme(scheme)
+	_ = capzv1alpha4.AddToScheme(scheme)
+	_ = capdv1.AddToScheme(scheme)
+	_ = bootstrapv1.AddToScheme(scheme)
 	_ = runv1alpha1.AddToScheme(scheme)
 	_ = betav1.AddToScheme(scheme)
 	_ = tmcv1alpha1.AddToScheme(scheme)
@@ -1138,7 +1140,7 @@ func (c *client) GetResource(resourceReference interface{}, resourceName, namesp
 // postVerify verifies the resource with some state once it is retrieved from kubernetes, pass nil if nothing to verify
 // pollOptions use this if you want to continuously poll for object if error occurs, pass nil if don't want polling
 // Note: Make sure resource you are retrieving is added into Scheme with init function below
-func (c *client) GetResourceList(resourceReference interface{}, clusterName, namespace string, postVerify PostVerifyrFunc, pollOptions *PollOptions) error {
+func (c *client) GetResourceList(resourceReference interface{}, clusterName, namespace string, postVerify PostVerifyListrFunc, pollOptions *PollOptions) error {
 	var err error
 	if namespace == "" {
 		if namespace, err = c.GetCurrentNamespace(); err != nil {
@@ -1147,7 +1149,7 @@ func (c *client) GetResourceList(resourceReference interface{}, clusterName, nam
 	}
 
 	// get the runtime object from interface
-	obj, err := c.getRuntimeObject(resourceReference)
+	obj, err := c.getRuntimeObjectList(resourceReference)
 	if err != nil {
 		return err
 	}
@@ -1311,7 +1313,7 @@ func (c *client) GetInfrastructureMachineKindForCluster(clusterName, namespace s
 		return "", err
 	}
 
-	return kcpObject.Spec.InfrastructureTemplate.Kind, nil
+	return kcpObject.Spec.MachineTemplate.InfrastructureRef.Kind, nil
 }
 
 // GetCurrentNamespace returns the namespace from the current context in the kubeconfig file
@@ -1509,7 +1511,7 @@ func (c *client) IsPacificRegionalCluster() (bool, error) {
 
 func (c *client) isTKCCrdAvailableInTanzuRunAPIGroup() (bool, error) {
 	// for pacific we should be able to fetch the api group "run.tanzu.vmware.com"
-	data, err := c.discoveryClient.RESTClient().Get().AbsPath(constants.TanzuRunAPIGroupPath).Do().Raw()
+	data, err := c.discoveryClient.RESTClient().Get().AbsPath(constants.TanzuRunAPIGroupPath).Do(context.TODO()).Raw()
 	if err != nil {
 		//  If the url is not available return false
 		if apierrors.IsNotFound(err) {
@@ -1528,7 +1530,7 @@ func (c *client) isTKCCrdAvailableInTanzuRunAPIGroup() (bool, error) {
 	}
 
 	groupVersionURL := fmt.Sprintf("/apis/%s", groupversion.(string))
-	data, err = c.discoveryClient.RESTClient().Get().AbsPath(groupVersionURL).Do().Raw()
+	data, err = c.discoveryClient.RESTClient().Get().AbsPath(groupVersionURL).Do(context.TODO()).Raw()
 	if err != nil {
 		//  If the url is not available return false
 		if apierrors.IsNotFound(err) {
@@ -1636,20 +1638,20 @@ func (c *client) WaitForPacificCluster(clusterName, namespace string) error {
 			return false, err
 		}
 		errcount = 0
-		if conditions.IsFalse(tkcObj, capi.ReadyCondition) &&
-			(*conditions.GetSeverity(tkcObj, capi.ReadyCondition) == capi.ConditionSeverityError) {
+		if utils.IsFalse(tkcObj, capiv1alpha3.ReadyCondition) &&
+			(*utils.GetSeverity(tkcObj, capiv1alpha3.ReadyCondition) == capiv1alpha3.ConditionSeverityError) {
 			return true, errors.Errorf("cluster is in failed state, reason:'%s', message:'%s'",
-				conditions.GetReason(tkcObj, capi.ReadyCondition),
-				conditions.GetMessage(tkcObj, capi.ReadyCondition))
+				utils.GetReason(tkcObj, capiv1alpha3.ReadyCondition),
+				utils.GetMessage(tkcObj, capiv1alpha3.ReadyCondition))
 		}
-		if conditions.IsTrue(tkcObj, capi.ReadyCondition) {
+		if utils.IsTrue(tkcObj, capiv1alpha3.ReadyCondition) {
 			return false, nil
 		}
 		if time.Since(start) > c.operationTimeout {
 			return true, errors.Errorf("time out waiting for the cluster to be ready")
 		}
-		msg := conditions.GetMessage(tkcObj, capi.ReadyCondition)
-		reason := conditions.GetReason(tkcObj, capi.ReadyCondition)
+		msg := utils.GetMessage(tkcObj, capiv1alpha3.ReadyCondition)
+		reason := utils.GetReason(tkcObj, capiv1alpha3.ReadyCondition)
 		return false, errors.Errorf("cluster is still not provisioned, reason:'%s', message: '%s' ", reason, msg)
 	})
 	return err
@@ -1723,13 +1725,13 @@ func (c *client) verifyPacificK8sVersionUpdate(clusterName, namespace, newK8sVer
 	return nil
 }
 
-func (c *client) getWorkerMachineObjectsForPacificCluster(clusterName, namespace string) ([]capi.Machine, error) {
-	mdList := &capi.MachineList{}
+func (c *client) getWorkerMachineObjectsForPacificCluster(clusterName, namespace string) ([]capiv1alpha3.Machine, error) {
+	mdList := &capiv1alpha3.MachineList{}
 	if err := c.GetResourceList(mdList, clusterName, namespace, nil, nil); err != nil {
 		return nil, err
 	}
 
-	workerMachines := []capi.Machine{}
+	workerMachines := []capiv1alpha3.Machine{}
 	for i := range mdList.Items {
 		if _, labelFound := mdList.Items[i].Labels[capi.MachineControlPlaneLabelName]; !labelFound {
 			workerMachines = append(workerMachines, mdList.Items[i])
@@ -1759,13 +1761,13 @@ func (c *client) WaitForPacificClusterK8sVersionUpdate(clusterName, namespace, n
 		}
 
 		errcount = 0
-		if conditions.IsFalse(tkcObj, capi.ReadyCondition) &&
-			(*conditions.GetSeverity(tkcObj, capi.ReadyCondition) == capi.ConditionSeverityError) {
+		if utils.IsFalse(tkcObj, capiv1alpha3.ReadyCondition) &&
+			(*utils.GetSeverity(tkcObj, capiv1alpha3.ReadyCondition) == capiv1alpha3.ConditionSeverityError) {
 			return true, errors.Errorf("cluster kubernetes version update failed, reason:'%s', message:'%s'",
-				conditions.GetReason(tkcObj, capi.ReadyCondition),
-				conditions.GetMessage(tkcObj, capi.ReadyCondition))
+				utils.GetReason(tkcObj, capiv1alpha3.ReadyCondition),
+				utils.GetMessage(tkcObj, capiv1alpha3.ReadyCondition))
 		}
-		if conditions.IsTrue(tkcObj, capi.ReadyCondition) {
+		if utils.IsTrue(tkcObj, capiv1alpha3.ReadyCondition) {
 			// check if the version is updated on worker nodes, if yes return
 			err = c.verifyPacificK8sVersionUpdate(clusterName, namespace, newK8sVersion)
 			if err == nil {
@@ -2109,17 +2111,17 @@ func (c *client) DeleteExistingKappController() error {
 // UpdateAWSCNIIngressRules updates the cniIngressRules field for AWSCluster to allow for
 // kapp-controller host port that was added in newer versions.
 func (c *client) UpdateAWSCNIIngressRules(clusterName, clusterNamespace string) error {
-	awsCluster := &capav1alpha3.AWSCluster{}
+	awsCluster := &capav1alpha4.AWSCluster{}
 	if err := c.GetResource(awsCluster, clusterName, clusterNamespace, nil, nil); err != nil {
 		return err
 	}
 
 	if awsCluster.Spec.NetworkSpec.CNI == nil {
-		awsCluster.Spec.NetworkSpec.CNI = &capav1alpha3.CNISpec{}
+		awsCluster.Spec.NetworkSpec.CNI = &capav1alpha4.CNISpec{}
 	}
 
 	if awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules == nil {
-		awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules = capav1alpha3.CNIIngressRules{}
+		awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules = capav1alpha4.CNIIngressRules{}
 	}
 
 	cniIngressRules := awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules
@@ -2129,7 +2131,7 @@ func (c *client) UpdateAWSCNIIngressRules(clusterName, clusterNamespace string) 
 			continue
 		}
 
-		if ingressRule.Protocol != capav1alpha3.SecurityGroupProtocolTCP {
+		if ingressRule.Protocol != capav1alpha4.SecurityGroupProtocolTCP {
 			continue
 		}
 
@@ -2140,9 +2142,9 @@ func (c *client) UpdateAWSCNIIngressRules(clusterName, clusterNamespace string) 
 		return nil
 	}
 
-	cniIngressRules = append(cniIngressRules, &capav1alpha3.CNIIngressRule{
+	cniIngressRules = append(cniIngressRules, capav1alpha4.CNIIngressRule{
 		Description: "kapp-controller",
-		Protocol:    capav1alpha3.SecurityGroupProtocolTCP,
+		Protocol:    capav1alpha4.SecurityGroupProtocolTCP,
 		FromPort:    DefaultKappControllerHostPort,
 		ToPort:      DefaultKappControllerHostPort,
 	})

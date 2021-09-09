@@ -7,6 +7,7 @@ package yamlprocessor
 import (
 	"fmt"
 	"io"
+	"sort"
 	"strconv"
 
 	"github.com/k14s/ytt/pkg/cmd/template"
@@ -100,28 +101,46 @@ func (p *YTTProcessor) getLoader(rawArtifact []byte) (*workspace.LibraryLoader, 
 // GetVariables returns a list of the variables specified from the ytt data
 // values.
 func (p *YTTProcessor) GetVariables(rawArtifact []byte) ([]string, error) {
+	variables, err := p.GetVariableMap(rawArtifact)
+	if err != nil {
+		return nil, err
+	}
+
+	varNames := make([]string, 0, len(variables))
+	for k := range variables {
+		varNames = append(varNames, k)
+	}
+
+	sort.Strings(varNames)
+	return varNames, nil
+}
+
+// GetVariableMap returns a map of the variables specified in the yaml.
+func (p *YTTProcessor) GetVariableMap(rawArtifact []byte) (map[string]*string, error) {
 	libLoader, err := p.getLoader(rawArtifact)
 	if err != nil {
 		return nil, err
 	}
 
-	var variables []string
 	values, _, err := libLoader.Values([]*workspace.DataValues{})
 	if err != nil || values == nil || values.Doc == nil {
 		return nil, errors.Wrap(err, "unable to load yaml document")
 	}
 
+	variableMap := make(map[string]*string, len(values.Doc.GetValues()))
 	for _, v := range values.Doc.GetValues() {
 		if t, ok := v.(*yamlmeta.Map); ok {
 			for _, mapItem := range t.Items {
 				k, ok := mapItem.Key.(string)
 				if ok {
-					variables = append(variables, k)
+					v, _ := mapItem.Value.(string)
+					variableMap[k] = &v
 				}
 			}
 		}
 	}
-	return variables, nil
+
+	return variableMap, nil
 }
 
 // Process returns the final yaml of the ytt templates.

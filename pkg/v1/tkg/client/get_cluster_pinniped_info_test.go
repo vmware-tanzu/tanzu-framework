@@ -20,7 +20,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
-	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
+	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake" // nolint:staticcheck
 
@@ -99,7 +99,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 		Context("When cluster is not found", func() {
 			BeforeEach(func() {
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
-				fakeClientSet = fake.NewFakeClientWithScheme(scheme)
+				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).Build()
 			})
 			It("should return an error", func() {
 				Expect(err).To(HaveOccurred())
@@ -109,8 +109,8 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 		Context("When cluster-info is not found in kube-public namespace", func() {
 			BeforeEach(func() {
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
-				fakeClientSet = fake.NewFakeClientWithScheme(scheme,
-					createFakeClusterRefObjects(mgmtClusterName, searchNamespace, endpoint)...)
+				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(
+					createFakeClusterRefObjects(mgmtClusterName, searchNamespace, endpoint)...).Build()
 				tlsServer.AppendHandlers(
 					ghttp.CombineHandlers(
 						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/cluster-info"),
@@ -163,8 +163,8 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 					ConciergeIsClusterScoped: conciergeIsClusterScoped,
 				})
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
-				fakeClientSet = fake.NewFakeClientWithScheme(scheme,
-					createFakeClusterRefObjects(mgmtClusterName, searchNamespace, endpoint)...)
+				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(
+					createFakeClusterRefObjects(mgmtClusterName, searchNamespace, endpoint)...).Build()
 				tlsServer.AppendHandlers(
 					ghttp.CombineHandlers(
 						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/cluster-info"),
@@ -212,7 +212,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 		Context("When cluster is not found", func() {
 			BeforeEach(func() {
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
-				fakeClientSet = fake.NewFakeClientWithScheme(scheme)
+				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).Build()
 			})
 			It("should return an error", func() {
 				Expect(err).To(HaveOccurred())
@@ -223,8 +223,8 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 			BeforeEach(func() {
 				searchNamespace = constants.DefaultNamespace
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
-				fakeClientSet = fake.NewFakeClientWithScheme(scheme,
-					createFakeClusterRefObjects("fake-workload-cluster", searchNamespace, endpoint)...)
+				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(
+					createFakeClusterRefObjects("fake-workload-cluster", searchNamespace, endpoint)...).Build()
 				tlsServer.AppendHandlers(
 					ghttp.CombineHandlers(
 						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/cluster-info"),

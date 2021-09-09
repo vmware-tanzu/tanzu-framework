@@ -5,7 +5,7 @@
 #@ if tkg_image_repo_customized():
 #@overlay/match by=overlay.subset({"kind":"KubeadmControlPlane"})
 ---
-apiVersion: controlplane.cluster.x-k8s.io/v1alpha3
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
 kind: KubeadmControlPlane
 spec:
   kubeadmConfigSpec:
@@ -25,7 +25,7 @@ spec:
 #@ if not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
 #@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate"}),expects="1+"
 ---
-apiVersion: bootstrap.cluster.x-k8s.io/v1alpha3
+apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
 kind: KubeadmConfigTemplate
 spec:
   template:

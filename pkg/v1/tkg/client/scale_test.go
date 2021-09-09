@@ -11,7 +11,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 	v1 "k8s.io/api/core/v1"
-	"sigs.k8s.io/cluster-api/api/v1alpha3"
+	"sigs.k8s.io/cluster-api/api/v1beta1"
 
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"

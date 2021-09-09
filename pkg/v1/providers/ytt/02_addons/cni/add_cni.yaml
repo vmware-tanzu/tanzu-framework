@@ -27,7 +27,7 @@
 #! skip generation of CNI for workload clusters
 #@ if data.values.TKG_CLUSTER_ROLE != "workload":
 ---
-apiVersion: addons.cluster.x-k8s.io/v1alpha3
+apiVersion: addons.cluster.x-k8s.io/v1beta1
 kind: ClusterResourceSet
 metadata:
   name: #@ "{}-calico".format(data.values.CLUSTER_NAME)
@@ -62,7 +62,7 @@ stringData:
 ---
 kind: AWSCluster
 spec:
-  networkSpec:
+  network:
     #@overlay/match missing_ok=True
     cni:
       cniIngressRules:
@@ -110,7 +110,7 @@ stringData:
 #! skip generation of CNI for workload clusters
 #@ if data.values.TKG_CLUSTER_ROLE != "workload":
 ---
-apiVersion: addons.cluster.x-k8s.io/v1alpha3
+apiVersion: addons.cluster.x-k8s.io/v1beta1
 kind: ClusterResourceSet
 metadata:
   name: #@ "{}-antrea".format(data.values.CLUSTER_NAME)
@@ -161,7 +161,7 @@ stringData:
 ---
 kind: AWSCluster
 spec:
-  networkSpec:
+  network:
     #@overlay/match missing_ok=True
     cni:
       cniIngressRules:

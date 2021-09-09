@@ -333,7 +333,6 @@ func (t *tkgctl) populateClientInitRegionOptions(options *InitRegionOptions, nod
 		BootstrapProvider:           options.BootstrapProvider,
 		CoreProvider:                options.CoreProvider,
 		Namespace:                   options.Namespace,
-		WatchingNamespace:           options.WatchingNamespace,
 		NodeSizeOptions:             nodeSizeOptions,
 		CeipOptIn:                   ceipOptIn,
 		CniType:                     options.CniType,

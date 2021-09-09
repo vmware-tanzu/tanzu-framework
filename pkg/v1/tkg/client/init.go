@@ -463,7 +463,6 @@ func (c *TkgClient) InitializeProviders(options *InitRegionOptions, clusterClien
 		BootstrapProviders:      []string{options.BootstrapProvider},
 		CoreProvider:            options.CoreProvider,
 		TargetNamespace:         options.Namespace,
-		WatchingNamespace:       options.WatchingNamespace,
 	}
 
 	componentsList, err := c.clusterctlClient.Init(clusterctlClientInitOptions)
@@ -481,9 +480,8 @@ func (c *TkgClient) InitializeProviders(options *InitRegionOptions, clusterClien
 
 	// Wait for installed providers to get up and running
 	waitOptions := waitForProvidersOptions{
-		Kubeconfig:        options.Kubeconfig,
-		TargetNamespace:   options.Namespace,
-		WatchingNamespace: options.WatchingNamespace,
+		Kubeconfig:      options.Kubeconfig,
+		TargetNamespace: options.Namespace,
 	}
 	err = c.WaitForProviders(clusterClient, waitOptions)
 	if err != nil {
@@ -582,9 +580,8 @@ func (c *TkgClient) BuildRegionalClusterConfiguration(options *InitRegionOptions
 }
 
 type waitForProvidersOptions struct {
-	Kubeconfig        string
-	TargetNamespace   string
-	WatchingNamespace string
+	Kubeconfig      string
+	TargetNamespace string
 }
 
 // WaitForProviders checks and waits for each provider components to be up and running
@@ -614,7 +611,7 @@ func (c *TkgClient) WaitForProviders(clusterClient clusterclient.Client, options
 			t, err := TimedExecution(func() error {
 				log.V(3).Infof("Waiting for provider %s", provider.Name)
 				providerNameVersion := provider.ProviderName + ":" + provider.Version
-				return c.waitForProvider(clusterClient, providerNameVersion, provider.Type, options.TargetNamespace, options.WatchingNamespace)
+				return c.waitForProvider(clusterClient, providerNameVersion, provider.Type, options.TargetNamespace)
 			})
 			if err != nil {
 				log.V(3).Warningf("Failed waiting for provider %v after %v", provider.Name, t)
@@ -635,8 +632,8 @@ func (c *TkgClient) WaitForProviders(clusterClient clusterclient.Client, options
 	return nil
 }
 
-func (c *TkgClient) waitForProvider(clusterClient clusterclient.Client, name, providerType, targetNamespace, watchingNamespace string) error {
-	providerOptions := clusterctl.ComponentsOptions{TargetNamespace: targetNamespace, WatchingNamespace: watchingNamespace}
+func (c *TkgClient) waitForProvider(clusterClient clusterclient.Client, name, providerType, targetNamespace string) error {
+	providerOptions := clusterctl.ComponentsOptions{TargetNamespace: targetNamespace}
 	// get the provider component from clusterctl
 	providerComponents, err := c.clusterctlClient.GetProviderComponents(name, clusterctlv1.ProviderType(providerType), providerOptions)
 	if err != nil {
@@ -646,10 +643,8 @@ func (c *TkgClient) waitForProvider(clusterClient clusterclient.Client, name, pr
 	var controllerName string
 	var namespace string
 
-	objs := append(providerComponents.InstanceObjs(), providerComponents.SharedObjs()...)
-
 	// get the deployment name and namespace from the provider
-	for _, object := range objs {
+	for _, object := range providerComponents.Objs() {
 		if object.GetKind() == "Deployment" {
 			controllerName = object.GetName()
 			namespace = object.GetNamespace()

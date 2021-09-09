@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
+	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 	clusterctltree "sigs.k8s.io/cluster-api/cmd/clusterctl/client/tree"
@@ -67,7 +67,6 @@ type InitRegionOptions struct {
 	InfrastructureProvider      string
 	ControlPlaneProvider        string
 	Namespace                   string
-	WatchingNamespace           string
 	CniType                     string
 	VsphereControlPlaneEndpoint string
 	Edition                     string

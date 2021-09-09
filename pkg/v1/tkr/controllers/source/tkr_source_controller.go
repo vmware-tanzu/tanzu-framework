@@ -21,7 +21,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	types2 "k8s.io/apimachinery/pkg/types"
-	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/cluster-api/util/conditions"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -50,8 +50,8 @@ type reconciler struct {
 }
 
 // Reconcile performs the reconciliation step
-func (r *reconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	ctx, cancel := context.WithCancel(r.ctx)
+func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) { //nolint:staticcheck
+	ctx, cancel := context.WithCancel(r.ctx) //nolint:staticcheck
 	defer cancel()
 
 	configMap := &corev1.ConfigMap{}
@@ -157,16 +157,16 @@ func AddToManager(ctx *mgrcontext.ControllerManagerContext, mgr ctrl.Manager) er
 func eventFilter(p func(eventMeta metav1.Object) bool) *predicate.Funcs {
 	return &predicate.Funcs{
 		CreateFunc: func(createEvent event.CreateEvent) bool {
-			return p(createEvent.Meta)
+			return p(createEvent.Object)
 		},
 		DeleteFunc: func(deleteEvent event.DeleteEvent) bool {
-			return p(deleteEvent.Meta)
+			return p(deleteEvent.Object)
 		},
 		UpdateFunc: func(updateEvent event.UpdateEvent) bool {
-			return p(updateEvent.MetaOld)
+			return p(updateEvent.ObjectOld)
 		},
 		GenericFunc: func(genericEvent event.GenericEvent) bool {
-			return p(genericEvent.Meta)
+			return p(genericEvent.Object)
 		},
 	}
 }
@@ -477,15 +477,7 @@ func (r *reconciler) tkrDiscovery(ctx context.Context, frequency time.Duration) 
 	}
 }
 
-func (r *reconciler) Start(stopChan <-chan struct{}) error {
-	ctx, cancel := context.WithCancel(r.ctx)
-	defer cancel()
-
-	go func() {
-		<-stopChan
-		cancel()
-	}()
-
+func (r *reconciler) Start(ctx context.Context) error {
 	var err error
 	r.log.Info("Starting TanzuKubernetesReleaase Reconciler")
 
