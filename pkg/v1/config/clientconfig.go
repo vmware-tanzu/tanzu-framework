@@ -432,3 +432,14 @@ func EndpointFromServer(s *configv1alpha1.Server) (endpoint string, err error) {
 		return endpoint, fmt.Errorf("unknown server type %q", s.Type)
 	}
 }
+
+func IsContextAwareDiscoveryEnabled() bool {
+	cfg, err := GetClientConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+	if cfg == nil || cfg.ClientOptions == nil || cfg.ClientOptions.CLI == nil {
+		return false
+	}
+	return cfg.ClientOptions.CLI.UseContextAwareDiscovery
+}
