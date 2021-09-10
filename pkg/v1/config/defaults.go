@@ -11,7 +11,7 @@ import (
 const CoreRepositoryName = "core"
 
 // CoreBucketName is the name of the core plugin repository bucket to use.
-var CoreBucketName = "tanzu-cli"
+var CoreBucketName = "tanzu-cli-framework"
 
 // DefaultVersionSelector is to only use stable versions of plugins
 const DefaultVersionSelector = configv1alpha1.NoUnstableVersions
