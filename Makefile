@@ -50,6 +50,8 @@ endif
 # NPM registry to use for downloading node modules for UI build
 CUSTOM_NPM_REGISTRY ?= $(shell git config tkg.npmregistry)
 
+# test checks triggered only on makefile changes
+
 # TKG Compatibility Image repo and  path related configuration
 ifndef TKG_DEFAULT_IMAGE_REPOSITORY
 TKG_DEFAULT_IMAGE_REPOSITORY = "projects-stg.registry.vmware.com/tkg"
