@@ -6,62 +6,65 @@ package proto
 import (
 	"bytes"
 	"fmt"
-	"io"
-	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/aunum/log"
 	"github.com/ghodss/yaml"
-	"github.com/golang/protobuf/jsonpb" //nolint
-	"github.com/golang/protobuf/proto"  //nolint
-	"github.com/pkg/errors"
+	"github.com/golang/protobuf/jsonpb" // nolint
+	"github.com/golang/protobuf/proto"  // nolint
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
 )
 
-// InputFileToProto reads a json/yaml input file and converts it to protobuf format
+// InputFileToProto reads a json/yaml/stdin and converts it to protobuf format.
 func InputFileToProto(filePath string, outResource proto.Message) error {
-	inputFile, err := os.Open(filePath)
-	if err != nil {
-		return errors.WithMessage(err, "Error opening the input file.")
-	}
-	defer inputFile.Close()
-
-	buf := bytes.NewBuffer(nil)
-	_, err = io.Copy(buf, inputFile)
-	if err != nil {
-		return errors.WithMessage(err, "Error copying buffer")
-	}
-
-	log.Debugf("read object --> \n---\n%s\n---\n", buf.String())
-
-	err = BufferToProto(buf, outResource, strings.TrimPrefix(filepath.Ext(filePath), "."))
+	b, err := component.ReadInput(filePath)
 	if err != nil {
 		return err
 	}
 
+	buf := bytes.NewBuffer(b)
+	err = BufferToProto(buf, outResource, strings.TrimPrefix(filepath.Ext(filePath), "."))
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-// BufferToProto tries to unmarshal a json|yaml bytes buffer to a proto message.
+// BufferToProto tries to unmarshal a json/yaml buffer of bytes to a protocol buffer message.
 func BufferToProto(buf *bytes.Buffer, message proto.Message, format string) error {
 	switch format {
 	case "json":
-		err := jsonpb.Unmarshal(buf, message)
-		if err != nil {
-			return err
-		}
-	case "yaml":
-		jsonBytes, err := yaml.YAMLToJSON(buf.Bytes())
-		if err != nil {
-			return err
-		}
-
-		err = jsonpb.UnmarshalString(string(jsonBytes), message)
-		if err != nil {
-			return err
-		}
+		return jsonUnmarshal(buf, message)
+	case "yaml", "yml":
+		return yamlUnmarshal(buf, message)
 	default:
-		return fmt.Errorf("format %q unknown, options are json|yaml", format)
+		if yamlUnmarshal(buf, message) != nil {
+			if jsonUnmarshal(buf, message) != nil {
+				return fmt.Errorf("format %q unknown, options are json|yaml", format)
+			}
+		}
+		return nil
+	}
+}
+
+// jsonUnmarshal will unmarshal json bytes to a protocol buffer message.
+func jsonUnmarshal(buf *bytes.Buffer, message proto.Message) error {
+	err := jsonpb.Unmarshal(buf, message)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// yamlUnmarshal will unmarshal yaml bytes to a protocol buffer message.
+func yamlUnmarshal(buf *bytes.Buffer, message proto.Message) error {
+	jsonBytes, err := yaml.YAMLToJSON(buf.Bytes())
+	if err != nil {
+		return err
+	}
+	err = jsonpb.UnmarshalString(string(jsonBytes), message)
+	if err != nil {
+		return err
 	}
 	return nil
 }

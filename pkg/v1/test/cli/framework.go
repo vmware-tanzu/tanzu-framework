@@ -15,14 +15,12 @@ import (
 	"time"
 
 	"github.com/aunum/log"
-	"github.com/golang/protobuf/proto" //nolint
 	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"gopkg.in/yaml.v2"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
-	encproto "github.com/vmware-tanzu/tanzu-framework/pkg/v1/encoding/proto"
 )
 
 // Main holds state for multiple command tests.
@@ -396,36 +394,6 @@ func cleanCommand(command string) []string {
 		c = c[1:]
 	}
 	return c
-}
-
-// ExecUnmarshal executes the command and unmarshals it into the message.
-func (t *Test) ExecUnmarshal(outputMessage proto.Message, format string) error {
-	err := ExecUnmarshal(t.Command, outputMessage, format)
-	if err != nil {
-		t.Result.Error(err)
-		return err
-	}
-	t.Result.Success()
-	return nil
-}
-
-// ExecUnmarshal executes the given command and unmarshals it into the message.
-func ExecUnmarshal(command string, outputMessage proto.Message, format string) error {
-	stdOut, _, err := Exec(command)
-	if err != nil {
-		return err
-	}
-
-	// empty list response
-	if strings.HasSuffix(stdOut.String(), "to list \n") {
-		return nil
-	}
-
-	err = encproto.BufferToProto(stdOut, outputMessage, format)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 // ExecContainsString executes the command and checks if the output contains the given string.
