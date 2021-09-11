@@ -23,9 +23,11 @@ import (
 
 	yaml "github.com/ghodss/yaml"
 	"github.com/pkg/errors"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 
+	carvel "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
@@ -226,6 +228,28 @@ func (c *TkgClient) InitStandaloneRegion(options *InitRegionOptions) error { //n
 	regionContext = region.RegionContext{ClusterName: options.ClusterName, ContextName: kubeContext, SourceFilePath: regionalClusterKubeconfigPath, Status: region.Success}
 	log.Infof("Context set for standalone cluster %s as '%s'.", options.ClusterName, kubeContext)
 	isSuccessful = true
+
+	// TODO(joshrosso): This is a temporary workaround to remove the tanzu-addon-manger.
+	// Since we don't do a pivot, there are CRDs it expects and without them it will remain
+	// in a CrashLoopBackoff. Long-term, we need to move to a state where TCE can specify a BOM
+	// file and providers intedependent of managed-clusters. With this in place, we'll be able to
+	// never inject the tanzu-addons-manager in the first place.
+	log.Info("Cleaning up unneeded resources (for standalone clusters)...")
+	addonMgr := &carvel.PackageInstall{
+    TypeMeta: v1.TypeMeta{
+      APIVersion: "packaging.carvel.dev/v1alpha1",
+      Kind: "PackageInstall",
+    },
+		ObjectMeta: v1.ObjectMeta{
+			Name:      "tanzu-addons-manager",
+			Namespace: "tkg-system",
+		},
+	}
+	err = regionalClusterClient.DeleteResource(addonMgr)
+	if err != nil {
+		log.Warningf("Unsuccesful clean-up of add-on manager. Error: %s. This pod may be stuck in crashloopbackup, but will not impact functionality.", err.Error())
+	}
+
 	return nil
 }
 
