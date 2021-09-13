@@ -18,7 +18,7 @@ import (
 
 var packageAvailableGetCmd = &cobra.Command{
 	Use:   "get PACKAGE_NAME or PACKAGE_NAME/VERSION",
-	Short: "get package detail",
+	Short: "Get details for an available package",
 	Args:  cobra.ExactArgs(1),
 	Example: `
     # Get package details for a package with specified version 	
@@ -28,7 +28,7 @@ var packageAvailableGetCmd = &cobra.Command{
 }
 
 func init() {
-	packageAvailableGetCmd.Flags().BoolVarP(&packageAvailableOp.ValuesSchema, "values-schema", "", false, "Values schema of the package")
+	packageAvailableGetCmd.Flags().BoolVarP(&packageAvailableOp.ValuesSchema, "values-schema", "", false, "Values schema of the package, optional")
 	packageAvailableCmd.AddCommand(packageAvailableGetCmd)
 }
 

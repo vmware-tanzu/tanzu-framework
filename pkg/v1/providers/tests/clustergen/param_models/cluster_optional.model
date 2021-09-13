@@ -17,7 +17,7 @@ NODE_MACHINE_TYPE: "NA"
 _TKG_CLUSTER_FORCE_ROLE: "NA", "management"
 
 _CNAME: "testcluster"
-_INFRA: "vsphere:v0.7.8", "aws:v0.6.6"
+_INFRA: "vsphere:v0.7.10", "aws:v0.6.6"
 _PLAN: "dev", "prod"
 CNI: "", "calico", "antrea", "none"
 
@@ -123,6 +123,8 @@ ANTREA_ENDPOINTSLICE: "false", "true"
 ANTREA_POLICY: "false", "true"
 ANTREA_NODEPORTLOCAL: "false", "true"
 ANTREA_TRACEFLOW: "false", "true"
+
+BUILD_EDITION: "tkg", "tce"
 
 # pass --VSPHERE-CONTROLPLANE-ENDPOINT flag only for vSphere provider
 IF [_INFRA] = "\"vsphere:v0.7.8\"" THEN [--VSPHERE-CONTROLPLANE-ENDPOINT] = "\"10.10.10.10\"";

@@ -131,14 +131,19 @@
                 <clr-toggle-wrapper>
                     <input
                         type="checkbox"
-                        clrToggle n
-                        ame="proxySettings"
+                        clrToggle
+                        id="proxySettings"
+                        name="proxySettings"
                         formControlName="proxySettings"
                         (change)="toggleProxySetting()"
-                        aria-label="enabling proxy settings exposes additional configuration fields"/>
+                        aria-describedby="proxySettings-helper"/>
                     <label>Enable Proxy Settings</label>
                 </clr-toggle-wrapper>
+
             </clr-toggle-container>
+            <span id="proxySettings-helper" class="display-none">
+                Enabling proxy settings exposes addition fields and disabling will hide those fields
+            </span>
         </div>
     </div>
     <ng-container *ngIf="formGroup.value['proxySettings']">

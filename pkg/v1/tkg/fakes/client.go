@@ -5,9 +5,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/fabriziopandini/capi-conditions/cmd/kubectl-capi-tree/status"
 	"sigs.k8s.io/cluster-api/api/v1alpha3"
 	v1alpha3a "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
+	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/tree"
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
@@ -162,19 +162,19 @@ type Client struct {
 	deleteWorkloadClusterReturnsOnCall map[int]struct {
 		result1 error
 	}
-	DescribeClusterStub        func(client.DescribeTKGClustersOptions) (*status.ObjectTree, *v1alpha3.Cluster, *v1alpha3a.ProviderList, error)
+	DescribeClusterStub        func(client.DescribeTKGClustersOptions) (*tree.ObjectTree, *v1alpha3.Cluster, *v1alpha3a.ProviderList, error)
 	describeClusterMutex       sync.RWMutex
 	describeClusterArgsForCall []struct {
 		arg1 client.DescribeTKGClustersOptions
 	}
 	describeClusterReturns struct {
-		result1 *status.ObjectTree
+		result1 *tree.ObjectTree
 		result2 *v1alpha3.Cluster
 		result3 *v1alpha3a.ProviderList
 		result4 error
 	}
 	describeClusterReturnsOnCall map[int]struct {
-		result1 *status.ObjectTree
+		result1 *tree.ObjectTree
 		result2 *v1alpha3.Cluster
 		result3 *v1alpha3a.ProviderList
 		result4 error
@@ -1341,7 +1341,7 @@ func (fake *Client) DeleteWorkloadClusterReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *Client) DescribeCluster(arg1 client.DescribeTKGClustersOptions) (*status.ObjectTree, *v1alpha3.Cluster, *v1alpha3a.ProviderList, error) {
+func (fake *Client) DescribeCluster(arg1 client.DescribeTKGClustersOptions) (*tree.ObjectTree, *v1alpha3.Cluster, *v1alpha3a.ProviderList, error) {
 	fake.describeClusterMutex.Lock()
 	ret, specificReturn := fake.describeClusterReturnsOnCall[len(fake.describeClusterArgsForCall)]
 	fake.describeClusterArgsForCall = append(fake.describeClusterArgsForCall, struct {
@@ -1366,7 +1366,7 @@ func (fake *Client) DescribeClusterCallCount() int {
 	return len(fake.describeClusterArgsForCall)
 }
 
-func (fake *Client) DescribeClusterCalls(stub func(client.DescribeTKGClustersOptions) (*status.ObjectTree, *v1alpha3.Cluster, *v1alpha3a.ProviderList, error)) {
+func (fake *Client) DescribeClusterCalls(stub func(client.DescribeTKGClustersOptions) (*tree.ObjectTree, *v1alpha3.Cluster, *v1alpha3a.ProviderList, error)) {
 	fake.describeClusterMutex.Lock()
 	defer fake.describeClusterMutex.Unlock()
 	fake.DescribeClusterStub = stub
@@ -1379,32 +1379,32 @@ func (fake *Client) DescribeClusterArgsForCall(i int) client.DescribeTKGClusters
 	return argsForCall.arg1
 }
 
-func (fake *Client) DescribeClusterReturns(result1 *status.ObjectTree, result2 *v1alpha3.Cluster, result3 *v1alpha3a.ProviderList, result4 error) {
+func (fake *Client) DescribeClusterReturns(result1 *tree.ObjectTree, result2 *v1alpha3.Cluster, result3 *v1alpha3a.ProviderList, result4 error) {
 	fake.describeClusterMutex.Lock()
 	defer fake.describeClusterMutex.Unlock()
 	fake.DescribeClusterStub = nil
 	fake.describeClusterReturns = struct {
-		result1 *status.ObjectTree
+		result1 *tree.ObjectTree
 		result2 *v1alpha3.Cluster
 		result3 *v1alpha3a.ProviderList
 		result4 error
 	}{result1, result2, result3, result4}
 }
 
-func (fake *Client) DescribeClusterReturnsOnCall(i int, result1 *status.ObjectTree, result2 *v1alpha3.Cluster, result3 *v1alpha3a.ProviderList, result4 error) {
+func (fake *Client) DescribeClusterReturnsOnCall(i int, result1 *tree.ObjectTree, result2 *v1alpha3.Cluster, result3 *v1alpha3a.ProviderList, result4 error) {
 	fake.describeClusterMutex.Lock()
 	defer fake.describeClusterMutex.Unlock()
 	fake.DescribeClusterStub = nil
 	if fake.describeClusterReturnsOnCall == nil {
 		fake.describeClusterReturnsOnCall = make(map[int]struct {
-			result1 *status.ObjectTree
+			result1 *tree.ObjectTree
 			result2 *v1alpha3.Cluster
 			result3 *v1alpha3a.ProviderList
 			result4 error
 		})
 	}
 	fake.describeClusterReturnsOnCall[i] = struct {
-		result1 *status.ObjectTree
+		result1 *tree.ObjectTree
 		result2 *v1alpha3.Cluster
 		result3 *v1alpha3a.ProviderList
 		result4 error

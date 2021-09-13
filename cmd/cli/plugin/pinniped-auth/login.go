@@ -16,6 +16,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
@@ -110,8 +111,8 @@ func loginoidcCmd(pinnipedloginCliExec func(args []string) error) *cobra.Command
 
 // pinnipedLoginExec executes embedded pinniped cli binary
 func pinnipedLoginExec(oidcLoginArgs []string) error {
-	buildSHA := strings.ReplaceAll(cli.BuildSHA, "-dirty", "")
-	pinnipedCLIBinFile := fmt.Sprintf("tanzu-pinniped-client-%s-%s", cli.BuildVersion, buildSHA)
+	buildSHA := strings.ReplaceAll(buildinfo.SHA, "-dirty", "")
+	pinnipedCLIBinFile := fmt.Sprintf("tanzu-pinniped-client-%s-%s", buildinfo.Version, buildSHA)
 	if runtime.GOOS == "windows" {
 		pinnipedCLIBinFile += ".exe"
 	}

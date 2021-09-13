@@ -3611,7 +3611,7 @@ spec:
         - --upstream=http://127.0.0.1:8080/
         - --logtostderr=true
         - --v=10
-        image: registry.tkg.vmware.run/cluster-api/kube-rbac-proxy:v0.4.1_vmware.2
+        image: registry.tkg.vmware.run/cluster-api/kube-rbac-proxy:${KUBE_RBAC_PROXY_IMAGE_TAG}
         name: kube-rbac-proxy
         ports:
         - containerPort: 8443
@@ -3633,7 +3633,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        image: registry.tkg.vmware.run/cluster-api/cluster-api-azure-controller:v0.4.15_vmware.1
+        image: registry.tkg.vmware.run/cluster-api/cluster-api-azure-controller:${CAPZ_CONTROLLER_IMAGE_TAG}
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:
@@ -3692,7 +3692,7 @@ spec:
         - --upstream=http://127.0.0.1:8080/
         - --logtostderr=true
         - --v=10
-        image: registry.tkg.vmware.run/cluster-api/kube-rbac-proxy:v0.4.1_vmware.2
+        image: registry.tkg.vmware.run/cluster-api/kube-rbac-proxy:${KUBE_RBAC_PROXY_IMAGE_TAG}
         name: kube-rbac-proxy
         ports:
         - containerPort: 8443
@@ -3745,7 +3745,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        image: registry.tkg.vmware.run/cluster-api/cluster-api-azure-controller:v0.4.15_vmware.1
+        image: registry.tkg.vmware.run/cluster-api/cluster-api-azure-controller:${CAPZ_CONTROLLER_IMAGE_TAG}
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:
@@ -3802,7 +3802,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
-        image: registry.tkg.vmware.run/cluster-api/nmi:v1.6.3_vmware.2
+        image: registry.tkg.vmware.run/cluster-api/nmi:${NMI_IMAGE_TAG}
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:

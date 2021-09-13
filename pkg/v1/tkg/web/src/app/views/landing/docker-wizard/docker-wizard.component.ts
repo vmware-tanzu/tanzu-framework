@@ -23,10 +23,10 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         el: ElementRef,
         formMetaDataService: FormMetaDataService,
         private formBuilder: FormBuilder,
-        private titleService: Title,
+        titleService: Title,
         private apiClient: APIClient
     ) {
-        super(router, el, formMetaDataService);
+        super(router, el, formMetaDataService, titleService);
         this.buildForm();
     }
 
@@ -44,6 +44,8 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
             dockerDaemonForm: this.formBuilder.group({
             }),
             networkForm: this.formBuilder.group({
+            }),
+            dockerNodeSettingForm: this.formBuilder.group({
             })
             // identityForm: this.formBuilder.group({
             // })
@@ -57,6 +59,8 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
             } else {
                 return 'Specify the cluster Pod CIDR';
             }
+        } else if (stepName === 'nodeSetting') {
+            return 'Optional: Specify the management cluster name'
         }
 
         // else if (stepName === 'identity') {
@@ -84,6 +88,8 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
             clusterPodCIDR: this.getFieldValue('networkForm', 'clusterPodCidr'),
             cniType: this.getFieldValue('networkForm', 'cniType')
         };
+
+        payload.clusterName = this.getFieldValue('dockerNodeSettingForm', 'clusterName');
 
         if (this.getFieldValue('networkForm', 'proxySettings')) {
             let proxySettingsMap = null;

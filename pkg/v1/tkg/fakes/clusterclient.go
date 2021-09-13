@@ -140,6 +140,16 @@ type ClusterClient struct {
 	deleteExistingKappControllerReturnsOnCall map[int]struct {
 		result1 error
 	}
+	UpdateAWSCNIIngressRulesStub        func() error
+	updateAWSCNIIngressRulesMutex       sync.RWMutex
+	updateAWSCNIIngressRulesArgsForCall []struct {
+	}
+	updateAWSCNIIngressRulesReturns struct {
+		result1 error
+	}
+	updateAWSCNIIngressRulesReturnsOnCall map[int]struct {
+		result1 error
+	}
 	DeleteResourceStub        func(interface{}) error
 	deleteResourceMutex       sync.RWMutex
 	deleteResourceArgsForCall []struct {
@@ -521,6 +531,18 @@ type ClusterClient struct {
 		result1 bool
 		result2 error
 	}
+	IsClusterRegisteredToTMCStub        func() (bool, error)
+	isClusterRegisteredToTMCMutex       sync.RWMutex
+	isClusterRegisteredToTMCArgsForCall []struct {
+	}
+	isClusterRegisteredToTMCReturns struct {
+		result1 bool
+		result2 error
+	}
+	isClusterRegisteredToTMCReturnsOnCall map[int]struct {
+		result1 bool
+		result2 error
+	}
 	IsPacificRegionalClusterStub        func() (bool, error)
 	isPacificRegionalClusterMutex       sync.RWMutex
 	isPacificRegionalClusterArgsForCall []struct {
@@ -871,6 +893,20 @@ type ClusterClient struct {
 	updateVsphereCsiConfigSecretReturnsOnCall map[int]struct {
 		result1 error
 	}
+	UpdateVsphereIdentityRefSecretStub        func(string, string, string, string) error
+	updateVsphereIdentityRefSecretMutex       sync.RWMutex
+	updateVsphereIdentityRefSecretArgsForCall []struct {
+		arg1 string
+		arg2 string
+		arg3 string
+		arg4 string
+	}
+	updateVsphereIdentityRefSecretReturns struct {
+		result1 error
+	}
+	updateVsphereIdentityRefSecretReturnsOnCall map[int]struct {
+		result1 error
+	}
 	UseContextStub        func(string) error
 	useContextMutex       sync.RWMutex
 	useContextArgsForCall []struct {
@@ -980,6 +1016,19 @@ type ClusterClient struct {
 		result1 error
 	}
 	waitForPacificClusterK8sVersionUpdateReturnsOnCall map[int]struct {
+		result1 error
+	}
+	WaitForPackageInstallStub        func(string, string, time.Duration) error
+	waitForPackageInstallMutex       sync.RWMutex
+	waitForPackageInstallArgsForCall []struct {
+		arg1 string
+		arg2 string
+		arg3 time.Duration
+	}
+	waitForPackageInstallReturns struct {
+		result1 error
+	}
+	waitForPackageInstallReturnsOnCall map[int]struct {
 		result1 error
 	}
 	WaitK8sVersionUpdateForCPNodesStub        func(string, string, string, clusterclient.Client) error
@@ -1623,6 +1672,59 @@ func (fake *ClusterClient) DeleteExistingKappControllerReturnsOnCall(i int, resu
 		})
 	}
 	fake.deleteExistingKappControllerReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ClusterClient) UpdateAWSCNIIngressRules(clusterName, clusterNamespace string) error {
+	fake.updateAWSCNIIngressRulesMutex.Lock()
+	ret, specificReturn := fake.updateAWSCNIIngressRulesReturnsOnCall[len(fake.updateAWSCNIIngressRulesArgsForCall)]
+	fake.updateAWSCNIIngressRulesArgsForCall = append(fake.updateAWSCNIIngressRulesArgsForCall, struct {
+	}{})
+	stub := fake.UpdateAWSCNIIngressRulesStub
+	fakeReturns := fake.updateAWSCNIIngressRulesReturns
+	fake.recordInvocation("UpdateAWSCNIIngressRules", []interface{}{})
+	fake.updateAWSCNIIngressRulesMutex.Unlock()
+	if stub != nil {
+		return stub()
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *ClusterClient) UpdateAWSCNIIngressRulesCallCount() int {
+	fake.updateAWSCNIIngressRulesMutex.RLock()
+	defer fake.updateAWSCNIIngressRulesMutex.RUnlock()
+	return len(fake.updateAWSCNIIngressRulesArgsForCall)
+}
+
+func (fake *ClusterClient) UpdateAWSCNIIngressRulesCalls(stub func() error) {
+	fake.updateAWSCNIIngressRulesMutex.Lock()
+	defer fake.updateAWSCNIIngressRulesMutex.Unlock()
+	fake.UpdateAWSCNIIngressRulesStub = stub
+}
+
+func (fake *ClusterClient) UpdateAWSCNIIngressRulesReturns(result1 error) {
+	fake.updateAWSCNIIngressRulesMutex.Lock()
+	defer fake.updateAWSCNIIngressRulesMutex.Unlock()
+	fake.UpdateAWSCNIIngressRulesStub = nil
+	fake.updateAWSCNIIngressRulesReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ClusterClient) UpdateAWSCNIIngressRulesReturnsOnCall(i int, result1 error) {
+	fake.updateAWSCNIIngressRulesMutex.Lock()
+	defer fake.updateAWSCNIIngressRulesMutex.Unlock()
+	fake.UpdateAWSCNIIngressRulesStub = nil
+	if fake.updateAWSCNIIngressRulesReturnsOnCall == nil {
+		fake.updateAWSCNIIngressRulesReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.updateAWSCNIIngressRulesReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
 }
@@ -3395,6 +3497,62 @@ func (fake *ClusterClient) HasCEIPTelemetryJobReturnsOnCall(i int, result1 bool,
 	}{result1, result2}
 }
 
+func (fake *ClusterClient) IsClusterRegisteredToTMC() (bool, error) {
+	fake.isClusterRegisteredToTMCMutex.Lock()
+	ret, specificReturn := fake.isClusterRegisteredToTMCReturnsOnCall[len(fake.isClusterRegisteredToTMCArgsForCall)]
+	fake.isClusterRegisteredToTMCArgsForCall = append(fake.isClusterRegisteredToTMCArgsForCall, struct {
+	}{})
+	stub := fake.IsClusterRegisteredToTMCStub
+	fakeReturns := fake.isClusterRegisteredToTMCReturns
+	fake.recordInvocation("IsClusterRegisteredToTMC", []interface{}{})
+	fake.isClusterRegisteredToTMCMutex.Unlock()
+	if stub != nil {
+		return stub()
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *ClusterClient) IsClusterRegisteredToTMCCallCount() int {
+	fake.isClusterRegisteredToTMCMutex.RLock()
+	defer fake.isClusterRegisteredToTMCMutex.RUnlock()
+	return len(fake.isClusterRegisteredToTMCArgsForCall)
+}
+
+func (fake *ClusterClient) IsClusterRegisteredToTMCCalls(stub func() (bool, error)) {
+	fake.isClusterRegisteredToTMCMutex.Lock()
+	defer fake.isClusterRegisteredToTMCMutex.Unlock()
+	fake.IsClusterRegisteredToTMCStub = stub
+}
+
+func (fake *ClusterClient) IsClusterRegisteredToTMCReturns(result1 bool, result2 error) {
+	fake.isClusterRegisteredToTMCMutex.Lock()
+	defer fake.isClusterRegisteredToTMCMutex.Unlock()
+	fake.IsClusterRegisteredToTMCStub = nil
+	fake.isClusterRegisteredToTMCReturns = struct {
+		result1 bool
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *ClusterClient) IsClusterRegisteredToTMCReturnsOnCall(i int, result1 bool, result2 error) {
+	fake.isClusterRegisteredToTMCMutex.Lock()
+	defer fake.isClusterRegisteredToTMCMutex.Unlock()
+	fake.IsClusterRegisteredToTMCStub = nil
+	if fake.isClusterRegisteredToTMCReturnsOnCall == nil {
+		fake.isClusterRegisteredToTMCReturnsOnCall = make(map[int]struct {
+			result1 bool
+			result2 error
+		})
+	}
+	fake.isClusterRegisteredToTMCReturnsOnCall[i] = struct {
+		result1 bool
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *ClusterClient) IsPacificRegionalCluster() (bool, error) {
 	fake.isPacificRegionalClusterMutex.Lock()
 	ret, specificReturn := fake.isPacificRegionalClusterReturnsOnCall[len(fake.isPacificRegionalClusterArgsForCall)]
@@ -5084,6 +5242,70 @@ func (fake *ClusterClient) UpdateVsphereCsiConfigSecretReturnsOnCall(i int, resu
 	}{result1}
 }
 
+func (fake *ClusterClient) UpdateVsphereIdentityRefSecret(arg1 string, arg2 string, arg3 string, arg4 string) error {
+	fake.updateVsphereIdentityRefSecretMutex.Lock()
+	ret, specificReturn := fake.updateVsphereIdentityRefSecretReturnsOnCall[len(fake.updateVsphereIdentityRefSecretArgsForCall)]
+	fake.updateVsphereIdentityRefSecretArgsForCall = append(fake.updateVsphereIdentityRefSecretArgsForCall, struct {
+		arg1 string
+		arg2 string
+		arg3 string
+		arg4 string
+	}{arg1, arg2, arg3, arg4})
+	stub := fake.UpdateVsphereIdentityRefSecretStub
+	fakeReturns := fake.updateVsphereIdentityRefSecretReturns
+	fake.recordInvocation("UpdateVsphereIdentityRefSecret", []interface{}{arg1, arg2, arg3, arg4})
+	fake.updateVsphereIdentityRefSecretMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3, arg4)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *ClusterClient) UpdateVsphereIdentityRefSecretCallCount() int {
+	fake.updateVsphereIdentityRefSecretMutex.RLock()
+	defer fake.updateVsphereIdentityRefSecretMutex.RUnlock()
+	return len(fake.updateVsphereIdentityRefSecretArgsForCall)
+}
+
+func (fake *ClusterClient) UpdateVsphereIdentityRefSecretCalls(stub func(string, string, string, string) error) {
+	fake.updateVsphereIdentityRefSecretMutex.Lock()
+	defer fake.updateVsphereIdentityRefSecretMutex.Unlock()
+	fake.UpdateVsphereIdentityRefSecretStub = stub
+}
+
+func (fake *ClusterClient) UpdateVsphereIdentityRefSecretArgsForCall(i int) (string, string, string, string) {
+	fake.updateVsphereIdentityRefSecretMutex.RLock()
+	defer fake.updateVsphereIdentityRefSecretMutex.RUnlock()
+	argsForCall := fake.updateVsphereIdentityRefSecretArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
+}
+
+func (fake *ClusterClient) UpdateVsphereIdentityRefSecretReturns(result1 error) {
+	fake.updateVsphereIdentityRefSecretMutex.Lock()
+	defer fake.updateVsphereIdentityRefSecretMutex.Unlock()
+	fake.UpdateVsphereIdentityRefSecretStub = nil
+	fake.updateVsphereIdentityRefSecretReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ClusterClient) UpdateVsphereIdentityRefSecretReturnsOnCall(i int, result1 error) {
+	fake.updateVsphereIdentityRefSecretMutex.Lock()
+	defer fake.updateVsphereIdentityRefSecretMutex.Unlock()
+	fake.UpdateVsphereIdentityRefSecretStub = nil
+	if fake.updateVsphereIdentityRefSecretReturnsOnCall == nil {
+		fake.updateVsphereIdentityRefSecretReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.updateVsphereIdentityRefSecretReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
 func (fake *ClusterClient) UseContext(arg1 string) error {
 	fake.useContextMutex.Lock()
 	ret, specificReturn := fake.useContextReturnsOnCall[len(fake.useContextArgsForCall)]
@@ -5645,6 +5867,69 @@ func (fake *ClusterClient) WaitForPacificClusterK8sVersionUpdateReturnsOnCall(i 
 	}{result1}
 }
 
+func (fake *ClusterClient) WaitForPackageInstall(arg1 string, arg2 string, arg3 time.Duration) error {
+	fake.waitForPackageInstallMutex.Lock()
+	ret, specificReturn := fake.waitForPackageInstallReturnsOnCall[len(fake.waitForPackageInstallArgsForCall)]
+	fake.waitForPackageInstallArgsForCall = append(fake.waitForPackageInstallArgsForCall, struct {
+		arg1 string
+		arg2 string
+		arg3 time.Duration
+	}{arg1, arg2, arg3})
+	stub := fake.WaitForPackageInstallStub
+	fakeReturns := fake.waitForPackageInstallReturns
+	fake.recordInvocation("WaitForPackageInstall", []interface{}{arg1, arg2, arg3})
+	fake.waitForPackageInstallMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *ClusterClient) WaitForPackageInstallCallCount() int {
+	fake.waitForPackageInstallMutex.RLock()
+	defer fake.waitForPackageInstallMutex.RUnlock()
+	return len(fake.waitForPackageInstallArgsForCall)
+}
+
+func (fake *ClusterClient) WaitForPackageInstallCalls(stub func(string, string, time.Duration) error) {
+	fake.waitForPackageInstallMutex.Lock()
+	defer fake.waitForPackageInstallMutex.Unlock()
+	fake.WaitForPackageInstallStub = stub
+}
+
+func (fake *ClusterClient) WaitForPackageInstallArgsForCall(i int) (string, string, time.Duration) {
+	fake.waitForPackageInstallMutex.RLock()
+	defer fake.waitForPackageInstallMutex.RUnlock()
+	argsForCall := fake.waitForPackageInstallArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *ClusterClient) WaitForPackageInstallReturns(result1 error) {
+	fake.waitForPackageInstallMutex.Lock()
+	defer fake.waitForPackageInstallMutex.Unlock()
+	fake.WaitForPackageInstallStub = nil
+	fake.waitForPackageInstallReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ClusterClient) WaitForPackageInstallReturnsOnCall(i int, result1 error) {
+	fake.waitForPackageInstallMutex.Lock()
+	defer fake.waitForPackageInstallMutex.Unlock()
+	fake.WaitForPackageInstallStub = nil
+	if fake.waitForPackageInstallReturnsOnCall == nil {
+		fake.waitForPackageInstallReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.waitForPackageInstallReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
 func (fake *ClusterClient) WaitK8sVersionUpdateForCPNodes(arg1 string, arg2 string, arg3 string, arg4 clusterclient.Client) error {
 	fake.waitK8sVersionUpdateForCPNodesMutex.Lock()
 	ret, specificReturn := fake.waitK8sVersionUpdateForCPNodesReturnsOnCall[len(fake.waitK8sVersionUpdateForCPNodesArgsForCall)]
@@ -5796,6 +6081,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.deleteClusterMutex.RUnlock()
 	fake.deleteExistingKappControllerMutex.RLock()
 	defer fake.deleteExistingKappControllerMutex.RUnlock()
+	fake.updateAWSCNIIngressRulesMutex.RLock()
+	defer fake.updateAWSCNIIngressRulesMutex.RUnlock()
 	fake.deleteResourceMutex.RLock()
 	defer fake.deleteResourceMutex.RUnlock()
 	fake.exportCurrentKubeconfigToFileMutex.RLock()
@@ -5854,6 +6141,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.getVCServerMutex.RUnlock()
 	fake.hasCEIPTelemetryJobMutex.RLock()
 	defer fake.hasCEIPTelemetryJobMutex.RUnlock()
+	fake.isClusterRegisteredToTMCMutex.RLock()
+	defer fake.isClusterRegisteredToTMCMutex.RUnlock()
 	fake.isPacificRegionalClusterMutex.RLock()
 	defer fake.isPacificRegionalClusterMutex.RUnlock()
 	fake.isRegionalClusterMutex.RLock()
@@ -5908,6 +6197,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.updateVsphereCloudProviderCredentialsSecretMutex.RUnlock()
 	fake.updateVsphereCsiConfigSecretMutex.RLock()
 	defer fake.updateVsphereCsiConfigSecretMutex.RUnlock()
+	fake.updateVsphereIdentityRefSecretMutex.RLock()
+	defer fake.updateVsphereIdentityRefSecretMutex.RUnlock()
 	fake.useContextMutex.RLock()
 	defer fake.useContextMutex.RUnlock()
 	fake.waitForAVIResourceCleanUpMutex.RLock()
@@ -5926,6 +6217,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.waitForPacificClusterMutex.RUnlock()
 	fake.waitForPacificClusterK8sVersionUpdateMutex.RLock()
 	defer fake.waitForPacificClusterK8sVersionUpdateMutex.RUnlock()
+	fake.waitForPackageInstallMutex.RLock()
+	defer fake.waitForPackageInstallMutex.RUnlock()
 	fake.waitK8sVersionUpdateForCPNodesMutex.RLock()
 	defer fake.waitK8sVersionUpdateForCPNodesMutex.RUnlock()
 	fake.waitK8sVersionUpdateForWorkerNodesMutex.RLock()

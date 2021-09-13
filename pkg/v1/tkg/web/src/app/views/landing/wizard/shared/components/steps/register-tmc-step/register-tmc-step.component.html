@@ -21,7 +21,7 @@
                                 </clr-tooltip-content>
                             </clr-tooltip>
                         </label>
-                        <input clrInput class="tmc-reg-input" formControlName="tmcRegUrl" placeholder="" />
+                        <input clrInput class="tmc-reg-input" formControlName="tmcRegUrl" placeholder="" (keydown)="resetConfigContent()"/>
                         <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
                         <clr-control-helper></clr-control-helper>
                     </clr-input-container>
@@ -35,7 +35,6 @@
 </form>
 <div class="clr-row mt-20">
     <div class="clr-col-12 yaml-content-container" tabindex="-1">
-        <div class="mask"></div>
         <ngx-codemirror
             [(ngModel)]="configContent"
             aria-label="yaml content"

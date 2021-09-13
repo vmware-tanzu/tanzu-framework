@@ -21,8 +21,9 @@ import (
 
 func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progress *tkgpackagedatamodel.PackageProgress) {
 	var (
-		pkgInstall *kappipkg.PackageInstall
-		err        error
+		pkgInstall    *kappipkg.PackageInstall
+		err           error
+		secretCreated bool
 	)
 
 	defer func() {
@@ -41,7 +42,7 @@ func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progres
 
 	if pkgInstall == nil {
 		if !o.Install {
-			err = errors.New(fmt.Sprintf("package '%s' is not among the list of installed packages in namespace '%s'", o.PkgInstallName, o.Namespace))
+			err = errors.New(fmt.Sprintf("package '%s' is not among the list of installed packages in namespace '%s'. Consider using the install flag to install the package", o.PkgInstallName, o.Namespace))
 			return
 		}
 		if o.PackageName == "" {
@@ -50,7 +51,6 @@ func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progres
 		}
 		progress.ProgressMsg <- fmt.Sprintf("Installing package '%s'", o.PkgInstallName)
 		p.InstallPackage(o, progress, true)
-		progress.Success <- true
 		return
 	}
 
@@ -70,29 +70,35 @@ func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progres
 
 	if o.ValuesFile != "" {
 		o.SecretName = fmt.Sprintf(tkgpackagedatamodel.SecretName, o.PkgInstallName, o.Namespace)
-
 		if o.SecretName == pkgInstallToUpdate.GetAnnotations()[tkgpackagedatamodel.TanzuPkgPluginAnnotation+"-Secret"] {
 			progress.ProgressMsg <- fmt.Sprintf("Updating secret '%s'", o.SecretName)
 			if err = p.updateDataValuesSecret(o); err != nil {
 				err = errors.Wrap(err, "failed to update secret based on values file")
 				return
 			}
+			secretCreated = false
 		} else {
 			progress.ProgressMsg <- fmt.Sprintf("Creating secret '%s'", o.SecretName)
-			if err = p.createDataValuesSecret(o); err != nil {
+			if secretCreated, err = p.createDataValuesSecret(o); err != nil {
 				err = errors.Wrap(err, "failed to create secret based on values file")
 				return
 			}
 		}
+
+		pkgInstallToUpdate.Spec.Values = []kappipkg.PackageInstallValues{
+			{
+				SecretRef: &kappipkg.PackageInstallValuesSecretRef{
+					Name: fmt.Sprintf(tkgpackagedatamodel.SecretName, o.PkgInstallName, o.Namespace),
+				},
+			},
+		}
 	}
 
 	progress.ProgressMsg <- fmt.Sprintf("Updating package install for '%s'", o.PkgInstallName)
-	if err = p.kappClient.UpdatePackageInstall(pkgInstallToUpdate, o.CreateSecret); err != nil {
+	if err = p.kappClient.UpdatePackageInstall(pkgInstallToUpdate, secretCreated); err != nil {
 		err = errors.Wrap(err, fmt.Sprintf("failed to update package '%s'", o.PkgInstallName))
 		return
 	}
-
-	progress.Success <- true
 }
 
 // updateDataValuesSecret update a secret object containing the user-provided configuration.

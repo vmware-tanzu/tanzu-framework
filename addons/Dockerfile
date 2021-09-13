@@ -6,8 +6,7 @@ FROM harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.16 as builder
 
 WORKDIR /workspace
 
-ENV GOPRIVATE=github.com/vmware-tanzu/*
-ENV GONOSUMDB=github.com/vmware-tanzu/*
+ENV GOPRIVATE=github.com/vmware-tanzu/tanzu-framework
 
 ARG SSH_PRIVATE_KEY
 
@@ -30,7 +29,9 @@ COPY ./ ./
 RUN go mod download
 
 # Build
-RUN cd addons && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -ldflags '-extldflags "-static"' -o bin/manager main.go
+ARG LD_FLAGS
+ENV LD_FLAGS="$LD_FLAGS "'-extldflags "-static"'
+RUN cd addons && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -ldflags "$LD_FLAGS" -o bin/manager main.go
 
 # Use distroless as minimal base image to package the manager binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details

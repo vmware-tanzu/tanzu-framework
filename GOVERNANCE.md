@@ -2,19 +2,15 @@
 This document defines the project governance for Tanzu Framework, an open source project by VMware.
 
 ## Overview
-Framework offers an open source repository that will serve multiple Tanzu products including Tanzu Community Edition,
-the Tanzu Community Edition.
+Framework offers an open source repository that will serve multiple Tanzu products including [Tanzu Community Edition](https://github.com/vmware-tanzu/tce).
 
-Tanzu Community Edition is an open source and free to use community-supported Kubernetes distribution.
-Please refer to the [Tanzu Community Edition repository](https://github.com/vmware-tanzu/tce) for more information.
-
-## Framework Repository
+## The Framework Repository
 Framework exists in a single repository and is governed by VMware and maintained under the vmware-tanzu organization.
-* Framework: The TKG hub. Multiple Tanzu products build atop our Framework. Includes APIs, shared libraries, and
+* Framework: Multiple Tanzu products build atop our Framework. The Framework includes APIs, shared libraries, and
 the Tanzu CLI and tools for integration.
 
 ## Community
-* Users: Members that consume Framework via any medium (Slack, GitHub, mailing lists, etc.).
+* Users: Members who consume Framework and engage through valuable feedback and unique perspectives.
 * Contributors: Members who contribute to Framework through documentation, code reviews, responding to
 issues, participation in proposal discussions, contributing code, etc.
 * Maintainers: Framework leaders are current employees of VMware. They are responsible for the overall
@@ -29,9 +25,7 @@ in the tree structure.
 ## Proposal Process
 One of the most important aspects in any open source community is the concept of proposals. All large changes to the
 codebase and / or new features, including ones proposed by maintainers, should be preceded by a proposal in our
-community repo. This process allows for all members of the community to weigh in on the concept (including the technical
-details), share their comments and ideas, and offer to help. It also ensures that members are not duplicating work or
-inadvertently stepping on toes by making large conflicting changes.
+community repo. This process allows for all members of the community to weigh in on the concept (including the technical details), share their comments and ideas, and offer to help. It also ensures that members are not duplicating work or inadvertently stepping on toes by making large conflicting changes.
 
 The project roadmap is defined by accepted proposals.
 
@@ -48,14 +42,14 @@ Use the [Proposal Template](docs/dev/_proposal.md) as a starting point.
 The proposal PR follows the GitHub lifecycle of the PR to indicate its status:
 
 * Open: Proposal is created and under review and discussion.
-* Approved: Proposal has been reviewed and approved.
-* Rejected: Proposal has been reviewed and rejected.
-* Merged: Proposal has been approved and code is merged in the repo.
+* Accepted: Proposal has been reviewed and accepted, and labeled “accepted" for tracking purposes.
+* Rejected: Proposal has been reviewed and rejected, and labeled “rejected” for tracking purposes.
+* Merged: Proposal has been accepted and code is merged in the repo.
 * Closed: Proposal has been finished by the lifecycle either Merged or Rejected.
 
 ### Lazy Consensus
 To maintain velocity in a project, the concept of Lazy Consensus is practiced. Ideas and / or proposals should be shared by
-maintainers via GitHub with the appropriate maintainer groups (e.g., @vmware-tanzu/core-maintainers) tagged. Out of respect
+maintainers via GitHub with the appropriate maintainer groups (e.g., @vmware-tanzu/tanzu-framework-reviewers) tagged. Out of respect
 for other contributors, major changes should be listed in the [ROADMAP](ROADMAP.md) to centralize the direction of the project.
 Author(s) of proposals, pull requests, issues, etc. will specify a time period of no less than five (5) working days for comment
 and remain cognizant of popular observed world holidays.

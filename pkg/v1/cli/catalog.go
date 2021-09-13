@@ -12,6 +12,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -23,6 +24,7 @@ import (
 	apimachineryjson "k8s.io/apimachinery/pkg/runtime/serializer/json"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 )
 
 const (
@@ -58,7 +60,7 @@ func NewTestFor(pluginName string) *cliv1alpha1.PluginDescriptor {
 		Name:        fmt.Sprintf("%s-test", pluginName),
 		Description: fmt.Sprintf("test for %s", pluginName),
 		Version:     "v0.0.1",
-		BuildSHA:    BuildSHA,
+		BuildSHA:    buildinfo.SHA,
 		Group:       cliv1alpha1.TestCmdGroup,
 		Aliases:     []string{fmt.Sprintf("%s-alias", pluginName)},
 	}
@@ -97,23 +99,21 @@ func GetCmd(p *cliv1alpha1.PluginDescriptor) *cobra.Command {
 			ctx := context.Background()
 			output, _, err := runner.RunOutput(ctx)
 			if err != nil {
-				return nil, cobra.ShellCompDirectiveNoFileComp
+				return nil, cobra.ShellCompDirectiveError
 			}
 
 			lines := strings.Split(strings.Trim(output, "\n"), "\n")
-			valid := false
 			var results []string
 			for _, line := range lines {
 				if strings.HasPrefix(line, ":") {
 					// Special marker in output to indicate the end
-					valid = true
-					break
+					directive, err := strconv.Atoi(line[1:])
+					if err != nil {
+						return results, cobra.ShellCompDirectiveError
+					}
+					return results, cobra.ShellCompDirective(directive)
 				}
 				results = append(results, line)
-			}
-
-			if valid {
-				return results, cobra.ShellCompDirectiveNoFileComp
 			}
 
 			return []string{}, cobra.ShellCompDirectiveError
@@ -202,9 +202,9 @@ func TestCmd(p *cliv1alpha1.PluginDescriptor) *cobra.Command {
 
 // ApplyDefaultConfig applies default configurations to plugin descriptor.
 func ApplyDefaultConfig(p *cliv1alpha1.PluginDescriptor) {
-	p.BuildSHA = BuildSHA
+	p.BuildSHA = buildinfo.SHA
 	if p.Version == "" {
-		p.Version = BuildVersion
+		p.Version = buildinfo.Version
 	}
 	if p.PostInstallHook == nil {
 		p.PostInstallHook = func() error {
@@ -239,8 +239,8 @@ func ValidatePlugin(p *cliv1alpha1.PluginDescriptor) (err error) {
 
 // HasPluginUpdateIn checks if the plugin has an update in any of the given repositories.
 func HasPluginUpdateIn(repos *MultiRepo, p *cliv1alpha1.PluginDescriptor) (update bool, repo Repository, version string, err error) {
-	versionSelector := repo.VersionSelector()
 	for _, repo := range repos.repositories {
+		versionSelector := repo.VersionSelector()
 		update, version, err := HasPluginUpdate(repo, versionSelector, p)
 		if err != nil {
 			log.Debugf("could not check for update for plugin %q in repo %q: %v", p.Name, repo.Name, err)

@@ -19,8 +19,8 @@ type FeatureReference struct {
 // FeatureGateSpec defines the desired state of FeatureGate
 type FeatureGateSpec struct {
 	// NamespaceSelector is a selector to specify namespaces for which this feature gate applies.
-	// A nil or empty NamespaceSelector means the feature gate is applied to all namespaces.
-	NamespaceSelector *metav1.LabelSelector `json:"namespaceSelector,omitempty"`
+	// Use an empty LabelSelector to match all namespaces.
+	NamespaceSelector metav1.LabelSelector `json:"namespaceSelector"`
 	// Features is a slice of FeatureReference to gate features.
 	// The Feature resource specified may or may not be present in the system. If the Feature is present, the
 	// FeatureGate controller and webhook sets the specified activation state only if the Feature is discoverable and
@@ -33,6 +33,9 @@ type FeatureGateSpec struct {
 
 // FeatureGateStatus defines the observed state of FeatureGate
 type FeatureGateStatus struct {
+	// Namespaces lists the existing namespaces for which this feature gate applies. This is obtained from listing all
+	// namespaces and applying the NamespaceSelector specified in spec.
+	Namespaces []string `json:"namespaces,omitempty"`
 	// ActivatedFeatures lists the discovered features that are activated for the namespaces specified in the spec.
 	// This can include features that are not explicitly gated in the spec, but are already available in the system as
 	// Feature resources.

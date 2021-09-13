@@ -34,9 +34,12 @@ const (
 	PinnipedFederationDomainObjectAPIVersion = "config.supervisor.pinniped.dev/v1alpha1"
 	PinnipedSupervisorDefaultTLSSecretName   = "pinniped-supervisor-default-tls-certificate" // #nosec
 
+	TkgNamespace = "tkg-system"
+
 	TkrNamespace       = "tkr-system"
 	TkrConfigMapName   = "tkr-controller-config"
 	TkgPublicNamespace = "tkg-system-public"
+	TmcNamespace       = "vmware-system-tmc"
 
 	KappControllerNamespace     = "tkg-system"
 	KappControllerConfigMapName = "kapp-controller-config"
@@ -44,6 +47,7 @@ const (
 	AddonsManagerDeploymentName  = "tanzu-addons-controller-manager"
 	KappControllerDeploymentName = "kapp-controller"
 	TkrControllerDeploymentName  = "tkr-controller-manager"
+	KappControllerPackageName    = "kapp-controller"
 
 	AkoStatefulSetName  = "ako"
 	AkoAddonName        = "load-balancer-and-ingress-service"
@@ -100,4 +104,14 @@ const (
 
 	LinkLocalAddress = "169.254.0.0/16"
 	AzurePublicVIP   = "168.63.129.16"
+)
+
+// addons related constants
+const (
+	// AddonSecretType is the add on Secret type
+	AddonSecretType = "tkg.tanzu.vmware.com/addon" // nolint:gosec
+	// AddonNameLabel is the label on the Secret to indicate the name of addon to be installed
+	AddonNameLabel = "tkg.tanzu.vmware.com/addon-name"
+	// ClusterNameLabel is the label on the Secret to indicate the cluster on which addon is to be installed
+	ClusterNameLabel = "tkg.tanzu.vmware.com/cluster-name"
 )

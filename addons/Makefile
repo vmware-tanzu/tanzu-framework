@@ -1,6 +1,8 @@
 # Copyright 2021 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+include ../common.mk
+
 .DEFAULT_GOAL := help
 
 ROOT_DIR	:= $(dir $(shell pwd))
@@ -9,7 +11,7 @@ ROOT_DIR	:= $(dir $(shell pwd))
 export GO111MODULE := on
 
 # Image URL to use all building/pushing image targets
-IMG ?= addons-controller:latest
+IMG ?= addons-controller:$(shell git describe --always --dirty --tags)
 
 # Directories
 BIN_DIR       := bin
@@ -55,7 +57,7 @@ test-verbose: ## Verbose tests with streaming output for debugging
 .PHONY: manager-binary
 manager-binary: $(MANAGER) ## Build manager binary
 $(MANAGER):
-	go build -o $@ -ldflags '-extldflags "-static"'
+	go build -o $@ -ldflags "$(LD_FLAGS) "'-extldflags "-static"'
 
 .PHONY: manager
 manager: fmt vet manager-binary ## Build manager binary
@@ -78,7 +80,7 @@ vet: ## Vet codebase
 
 .PHONY: run
 run: fmt vet ## Run locally
-	go run ./main.go
+	go run -ldflags "$(LD_FLAGS)" ./main.go
 
 ## --------------------------------------
 ## Docker
@@ -87,7 +89,7 @@ run: fmt vet ## Run locally
 .PHONY: docker-build
 docker-build: ## Build the docker image
 	@[ -f ../$(SSH_PRIVATE_KEY) ] || { echo "an SSH key file named $(SSH_PRIVATE_KEY) must exist and have read access to github.com" 1>&2; exit 1; }
-	cd .. && docker build -t $(IMG) -f addons/Dockerfile --build-arg SSH_PRIVATE_KEY=$(SSH_PRIVATE_KEY) .
+	cd .. && docker build -t $(IMG) -f addons/Dockerfile --build-arg LD_FLAGS="$(LD_FLAGS)" --build-arg SSH_PRIVATE_KEY=$(SSH_PRIVATE_KEY) .
 
 .PHONY: docker-push
 docker-push: ## Push the docker image

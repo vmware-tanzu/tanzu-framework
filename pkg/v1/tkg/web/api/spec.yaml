@@ -810,6 +810,12 @@ paths:
       tags: ["aws"]
       summary: "Retrieve AWS supported node types"
       operationId: getAWSNodeTypes
+      parameters:
+        - name: az
+          in: query
+          required: false
+          type: string
+          description: "AWS availability zone, e.g. us-west-2"
       responses:
         200:
           description: Successful retrieval of AWS node types
@@ -1622,7 +1628,7 @@ definitions:
         type: string
       resourceType:
         type: string
-        enum: [datacenter, cluster, hostgroup, folder, respool, vm, datastore, host]
+        enum: [datacenter, cluster, hostgroup, folder, respool, vm, datastore, host, network]
       path:
         type: string
 
@@ -1857,6 +1863,8 @@ definitions:
     type: object
     properties:
       name:
+        type: string
+      workerNodeType:
         type: string
       privateSubnetID:
         type: string
@@ -2332,7 +2340,7 @@ definitions:
   LdapTestResult:
     type: object
     properties:
-      code: 
+      code:
         type: integer
-      desc: 
+      desc:
         type: string

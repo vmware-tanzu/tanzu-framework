@@ -28,9 +28,9 @@ var packageInstalledGetCmd = &cobra.Command{
 }
 
 func init() {
-	packageInstalledGetCmd.Flags().StringVarP(&packageInstalledOp.Namespace, "namespace", "n", "default", "Namespace for installed package CR")
+	packageInstalledGetCmd.Flags().StringVarP(&packageInstalledOp.Namespace, "namespace", "n", "default", "Namespace for installed package CR, optional")
 	packageInstalledGetCmd.Flags().StringVarP(&packageInstalledOp.ValuesFile, "values-file", "f", "", "The path to the configuration values file, optional")
-	packageInstalledGetCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table)")
+	packageInstalledGetCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table), optional")
 	packageInstalledCmd.AddCommand(packageInstalledGetCmd)
 }
 
@@ -95,7 +95,7 @@ func packageInstalledGet(cmd *cobra.Command, args []string) error {
 	}
 
 	t.SetKeys("name", "package-name", "package-version", "status", "conditions", "useful-error-message")
-	t.AddRow(pkg.Name, pkg.Spec.PackageRef.RefName, pkg.Spec.PackageRef.VersionSelection.Constraints,
+	t.AddRow(pkg.Name, pkg.Spec.PackageRef.RefName, pkg.Status.Version,
 		pkg.Status.FriendlyDescription, pkg.Status.Conditions, pkg.Status.UsefulErrorMessage)
 
 	t.RenderWithSpinner()

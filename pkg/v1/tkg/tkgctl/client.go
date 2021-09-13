@@ -266,19 +266,3 @@ func ensureConfigImages(configDir string, tkgConfigUpdater tkgconfigupdater.Clie
 
 	return tkgConfigUpdater.EnsureConfigImages()
 }
-
-func ensureTKGCompatibilityAndBOMFiles(configDir string, tkgConfigUpdaterClient tkgconfigupdater.Client, forceUpdate bool) error {
-	var err error
-	lock, err := utils.GetFileLockWithTimeOut(filepath.Join(configDir, constants.LocalTanzuFileLock), utils.DefaultLockTimeout)
-	if err != nil {
-		return errors.Wrap(err, "cannot acquire lock for ensuring local files")
-	}
-
-	defer func() {
-		if err := lock.Unlock(); err != nil {
-			log.Warningf("cannot release lock for ensuring local files, reason: %v", err)
-		}
-	}()
-	// EnsureBOMFiles() would also ensure TKGCompatibility file
-	return tkgConfigUpdaterClient.EnsureBOMFiles(forceUpdate)
-}

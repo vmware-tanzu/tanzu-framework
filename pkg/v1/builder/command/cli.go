@@ -37,7 +37,7 @@ type plugin struct {
 
 var (
 	version, path, artifactsDir, ldflags, tags string
-	corePath, match, description               string
+	corePath, match, description, goprivate    string
 	dryRun                                     bool
 	targetArch                                 []string
 )
@@ -75,6 +75,7 @@ func init() {
 	CompileCmd.Flags().StringVar(&path, "path", "./cmd/cli/plugin", "path of the plugins directory")
 	CompileCmd.Flags().StringVar(&artifactsDir, "artifacts", cli.DefaultArtifactsDirectory, "path to output artifacts")
 	CompileCmd.Flags().StringVar(&corePath, "corepath", "", "path for core binary")
+	CompileCmd.Flags().StringVar(&goprivate, "goprivate", "", "comma-separated list of glob patterns of module path prefixes to set as GOPRIVATE on build")
 
 	CLICmd.AddCommand(CompileCmd)
 	CLICmd.AddCommand(NewAddPluginCmd())
@@ -301,7 +302,7 @@ func buildPlugin(path string, arch cli.Arch, id string) (plugin, error) {
 
 	var modPath string
 
-	cmd := exec.Command("go", "run", "-ldflags", ldflags, "-tags", tags)
+	cmd := goCommand("run", "-ldflags", ldflags, "-tags", tags)
 
 	if isLocalGoModFileExists(path) {
 		modPath = path
@@ -379,7 +380,7 @@ type target struct {
 }
 
 func (t target) build(targetPath, prefix, modPath string) error {
-	cmd := exec.Command("go", "build")
+	cmd := goCommand("build")
 
 	var commonArgs = []string{
 		"-ldflags", ldflags,
@@ -559,7 +560,7 @@ func buildTargets(targetPath, outPath, pluginName string, arch cli.Arch, id, mod
 }
 
 func runUpdateGoDep(targetPath, prefix string) error {
-	cmdgomoddownload := exec.Command("go", "mod", "download")
+	cmdgomoddownload := goCommand("mod", "download")
 	cmdgomoddownload.Dir = targetPath
 
 	log.Infof("%s$ %s", prefix, cmdgomoddownload.String())
@@ -570,8 +571,9 @@ func runUpdateGoDep(targetPath, prefix string) error {
 		return err
 	}
 
-	cmdgomodtidy := exec.Command("go", "mod", "tidy")
+	cmdgomodtidy := goCommand("mod", "tidy")
 	cmdgomodtidy.Dir = targetPath
+
 	log.Infof("%s$ %s", prefix, cmdgomodtidy.String())
 	output, err = cmdgomodtidy.CombinedOutput()
 	if err != nil {
@@ -585,4 +587,13 @@ func runUpdateGoDep(targetPath, prefix string) error {
 func isLocalGoModFileExists(path string) bool {
 	_, err := os.Stat(filepath.Join(path, "go.mod"))
 	return err == nil
+}
+
+func goCommand(arg ...string) *exec.Cmd {
+	cmd := exec.Command("go", arg...)
+	if goprivate != "" {
+		cmd.Env = os.Environ()
+		cmd.Env = append(cmd.Env, fmt.Sprintf("GOPRIVATE=%s", goprivate))
+	}
+	return cmd
 }

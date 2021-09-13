@@ -18,15 +18,4 @@ export abstract class BasicSubscriber implements OnDestroy {
         this.unsubscribe.next();
         this.unsubscribe.complete();
     }
-
-    showContextualHelp(title: string, keywords: Array<string>) {
-        Broker.messenger.publish({
-            type: TkgEventType.OPEN_CONTEXTUAL_HELP,
-            payload: {
-                title,
-                keywords
-            }
-        })
-    }
-
 }

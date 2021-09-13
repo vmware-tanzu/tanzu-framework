@@ -54,7 +54,9 @@ ENABLE_TKGS_ON_VSPHERE7:
 #! management cluster for it to register with Tanzu Mission Control
 TMC_REGISTRATION_URL:
 
-
+#! BUILD_EDITION is the Tanzu Edition, the plugin should be built for.
+#! Valid values for BUILD_EDITION are 'tce' and 'tkg'.
+BUILD_EDITION:
 
 #! ---------------------------------------------------------------------
 #! Settings for vSphere infrastructure provider
@@ -218,6 +220,8 @@ AWS_NODE_OS_DISK_SIZE_GIB: 80
 #! For node sizing recommendations, refer to TKG documentation.
 CONTROL_PLANE_MACHINE_TYPE: t3.large
 NODE_MACHINE_TYPE: m5.large
+NODE_MACHINE_TYPE_1: ""
+NODE_MACHINE_TYPE_2: ""
 
 #! Name of the SSH private key that you registered with your Amazon EC2 accoun
 AWS_SSH_KEY_NAME:
@@ -450,8 +454,9 @@ DOCKER_MACHINE_TEMPLATE_IMAGE:
 #! ---------------------------------------------------------------------
 #! Pinniped identity management configuration
 #! ---------------------------------------------------------------------
-#! Identifies the Identity management type to be deployed. Possible values are "oidc" or "ldap"
-IDENTITY_MANAGEMENT_TYPE: "oidc"
+#! Identifies the Identity management type to be deployed. Possible values are "oidc", "ldap" or "none"
+#! If "none" is specified, pinniped services will not be deployed on the cluster
+IDENTITY_MANAGEMENT_TYPE: "none"
 
 #! Settings for Pinniped OIDC
 CERT_DURATION: 2160h
@@ -516,7 +521,7 @@ AVI_DISABLE_STATIC_ROUTE_SYNC: true
 AVI_INGRESS_DEFAULT_INGRESS_CONTROLLER: false
 AVI_INGRESS_SHARD_VS_SIZE: ""
 AVI_INGRESS_SERVICE_TYPE: ""
-AVI_INGRESS_NODE_NETWORK_LIST: []
+AVI_INGRESS_NODE_NETWORK_LIST: ""
 
 AVI_CONTROL_PLANE_HA_PROVIDER: false
 

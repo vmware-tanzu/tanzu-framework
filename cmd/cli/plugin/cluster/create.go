@@ -165,6 +165,7 @@ func createCluster(clusterName string, server *v1alpha1.Server) error {
 		VsphereControlPlaneEndpoint: cc.vsphereControlPlaneEndpoint,
 		SkipPrompt:                  cc.unattended,
 		Timeout:                     cc.timeout,
+		Edition:                     BuildEdition,
 	}
 
 	return tkgctlClient.CreateCluster(ccOptions)

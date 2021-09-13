@@ -1,20 +1,12 @@
 # Copyright 2021 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+include ./common.mk
+
 # Image URL to use all building/pushing image targets
 IMG ?= controller:latest
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
 CRD_OPTIONS ?= "crd:trivialVersions=true"
-
-GOOS ?= $(shell go env GOOS)
-GOARCH ?= $(shell go env GOARCH)
-GOHOSTOS ?= $(shell go env GOHOSTOS)
-GOHOSTARCH ?= $(shell go env GOHOSTARCH)
-
-NUL = /dev/null
-ifeq ($(GOHOSTOS),windows)
-	NUL = NUL
-endif
 
 ifeq ($(GOHOSTOS), linux)
 XDG_DATA_HOME := ${HOME}/.local/share
@@ -47,12 +39,6 @@ ifeq ($(strip $(PINNIPED_GIT_COMMIT)),)
 PINNIPED_GIT_COMMIT = v0.4.0
 endif
 
-# Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
-ifeq (,$(shell go env GOBIN))
-GOBIN=$(shell go env GOPATH)/bin
-else
-GOBIN=$(shell go env GOBIN)
-endif
 ifndef IS_OFFICIAL_BUILD
 IS_OFFICIAL_BUILD = ""
 endif
@@ -70,38 +56,28 @@ TKG_DEFAULT_IMAGE_REPOSITORY = "projects-stg.registry.vmware.com/tkg"
 endif
 ifndef TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH
 # TODO change it to "tkg-compatibility" once the image is pushed to registry
-TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH = "v1.4.0-zshippable/tkg-compatibility"
+TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH = "framework-zshippable/tkg-compatibility"
 endif
 
 DOCKER_DIR := /app
 SWAGGER=docker run --rm -v ${PWD}:${DOCKER_DIR} quay.io/goswagger/swagger:v0.21.0
 
-PRIVATE_REPOS="github.com/vmware-tanzu"
-GO := GOPRIVATE=${PRIVATE_REPOS} go
 
 # Add supported OS-ARCHITECTURE combinations here
 ENVS := linux-amd64 windows-amd64 darwin-amd64
 
 .DEFAULT_GOAL:=help
 
-BUILD_SHA ?= $$(git describe --match=$(git rev-parse --short HEAD) --always --dirty)
-BUILD_DATE ?= $$(date -u +"%Y-%m-%d")
-BUILD_VERSION ?= $(shell git describe --tags --abbrev=0 2>$(NUL))
-ifeq ($(strip $(BUILD_VERSION)),)
-BUILD_VERSION = dev
-endif
-# BUILD_EDITION is the Tanzu Edition, the plugin should be built for.
-# Valid values for BUILD_EDITION are 'tce' and 'tkg'. Default value of BUILD_EDITION is 'tkg'.
-ifneq ($(BUILD_EDITION), tce)
-BUILD_EDITION = tkg
+LD_FLAGS += -X 'main.BuildEdition=$(BUILD_EDITION)'
+LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo.IsOfficialBuild=$(IS_OFFICIAL_BUILD)'
+
+ifneq ($(strip $(TANZU_CORE_BUCKET)),)
+LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/config.CoreBucketName=$(TANZU_CORE_BUCKET)'
 endif
 
-LD_FLAGS = -s -w
-LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli.BuildDate=$(BUILD_DATE)'
-LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli.BuildSHA=$(BUILD_SHA)'
-LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli.BuildVersion=$(BUILD_VERSION)'
-LD_FLAGS += -X 'main.BuildEdition=$(BUILD_EDITION)'
-LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/buildinfo.IsOfficialBuild=$(IS_OFFICIAL_BUILD)'
+ifeq ($(TANZU_FORCE_NO_INIT), true)
+LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/core.forceNoInit=true'
+endif
 
 BUILD_TAGS ?=
 
@@ -122,10 +98,10 @@ help: ## Display this help
 all: manager ui-build build-cli
 
 manager: generate fmt vet ## Build manager binary
-	$(GO) build -o bin/manager main.go
+	$(GO) build -ldflags "$(LD_FLAGS)" -o bin/manager main.go
 
 run: generate fmt vet manifests ## Run against the configured Kubernetes cluster in ~/.kube/config
-	$(GO) run ./main.go
+	$(GO) run -ldflags "$(LD_FLAGS)" ./main.go
 
 install: manifests ## Install CRDs into a cluster
 	kustomize build config/crd | kubectl apply -f -
@@ -151,7 +127,7 @@ generate: controller-gen ## Generate code via controller-gen
 	$(MAKE) fmt
 
 docker-build: test ## Build the docker image
-	docker build . -t ${IMG}
+	docker build . -t ${IMG} --build-arg LD_FLAGS="$(LD_FLAGS)"
 
 docker-push: ## Push the docker image
 	docker push ${IMG}
@@ -230,7 +206,7 @@ build-cli: build-plugin-admin ${CLI_JOBS} ## Build Tanzu CLI
 .PHONY: build-plugin-admin
 build-plugin-admin:
 	@echo build version: $(BUILD_VERSION)
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --tags "${BUILD_TAGS}" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin/${GOHOSTOS}/${GOHOSTARCH}/cli
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin/${GOHOSTOS}/${GOHOSTARCH}/cli
 
 .PHONY: build-cli-%
 build-cli-%: prep-build-cli
@@ -245,7 +221,7 @@ build-cli-%: prep-build-cli
 	fi
 
 	./hack/embed-pinniped-binary.sh go ${OS} ${ARCH}
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --tags "${BUILD_TAGS}" --corepath "cmd/cli/tanzu" --artifacts artifacts/${OS}/${ARCH}/cli --target  ${OS}_${ARCH}
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --corepath "cmd/cli/tanzu" --artifacts artifacts/${OS}/${ARCH}/cli --target  ${OS}_${ARCH}
 
 ## --------------------------------------
 ## Build locally
@@ -259,7 +235,7 @@ build-cli-%: prep-build-cli
 # To skip provider embedding, pass `BUILD_TAGS=skipembedproviders` to make target (`make BUILD_TAGS=skipembedproviders build-cli-local)
 .PHONY: build-cli-local
 build-cli-local: configure-buildtags-embedproviders build-cli-${GOHOSTOS}-${GOHOSTARCH} ## Build Tanzu CLI locally. cluster and management-cluster plugins are built with embedded providers.
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --tags "${BUILD_TAGS}" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin/${GOHOSTOS}/${GOHOSTARCH}/cli --target local
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin/${GOHOSTOS}/${GOHOSTARCH}/cli --target local
 
 .PHONY: build-install-cli-local
 build-install-cli-local: clean-catalog-cache clean-cli-plugins build-cli-local install-cli-plugins install-cli ## Local build and install the CLI plugins
@@ -270,9 +246,9 @@ build-install-cli-local: clean-catalog-cache clean-cli-plugins build-cli-local i
 
 .PHONY: build-cli-mocks
 build-cli-mocks: ## Build Tanzu CLI mocks
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version 0.0.1 --ldflags "$(LD_FLAGS)" --tags "${BUILD_TAGS}" --path ./test/cli/mock/plugin-old --artifacts ./test/cli/mock/artifacts-old
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version 0.0.2 --ldflags "$(LD_FLAGS)" --tags "${BUILD_TAGS}" --path ./test/cli/mock/plugin-new --artifacts ./test/cli/mock/artifacts-new
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version 0.0.3 --ldflags "$(LD_FLAGS)" --tags "${BUILD_TAGS}" --path ./test/cli/mock/plugin-alt --artifacts ./test/cli/mock/artifacts-alt
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version 0.0.1 --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --path ./test/cli/mock/plugin-old --artifacts ./test/cli/mock/artifacts-old
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version 0.0.2 --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --path ./test/cli/mock/plugin-new --artifacts ./test/cli/mock/artifacts-new
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version 0.0.3 --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --path ./test/cli/mock/plugin-alt --artifacts ./test/cli/mock/artifacts-alt
 
 ## --------------------------------------
 ## install binaries and plugins
@@ -326,7 +302,7 @@ release-%:
 	$(eval OS = $(word 1,$(subst -, ,$*)))
 
 	./hack/embed-pinniped-binary.sh go ${OS} ${ARCH}
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --tags "${BUILD_TAGS}" --corepath "cmd/cli/tanzu" --artifacts artifacts/${OS}/${ARCH}/cli --target  ${OS}_${ARCH}
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --corepath "cmd/cli/tanzu" --artifacts artifacts/${OS}/${ARCH}/cli --target  ${OS}_${ARCH}
 
 ## --------------------------------------
 ## Testing, verification, formating and cleanup
@@ -337,7 +313,7 @@ test: generate fmt vet manifests build-cli-mocks ## Run tests
 	## Skip running TKG integration tests
 	$(GO) test -coverprofile cover.out -v `go list ./... | grep -v github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test`
 	$(MAKE) kubebuilder -C $(TOOLS_DIR)
-	KUBEBUILDER_ASSETS=$(ROOT_DIR)/$(KUBEBUILDER)/bin GOPRIVATE=$(PRIVATE_REPOS) $(MAKE) test -C addons
+	KUBEBUILDER_ASSETS=$(ROOT_DIR)/$(KUBEBUILDER)/bin GOPRIVATE="$(PRIVATE_REPOS)" $(MAKE) test -C addons
 
 .PHONY: test-cli
 test-cli: build-cli-mocks ## Run tests
@@ -484,3 +460,7 @@ e2e-tkgctl-aws: $(GINKGO) generate-embedproviders ## Run ginkgo tkgctl E2E tests
 .PHONY: e2e-tkgctl-vc67
 e2e-tkgctl-vc67: $(GINKGO) generate-embedproviders ## Run ginkgo tkgctl E2E tests
 	$(GINKGO) -v -trace -nodes=$(GINKGO_NODES) --noColor=$(GINKGO_NOCOLOR) $(GINKGO_ARGS) -tags embedproviders pkg/v1/tkg/test/tkgctl/vsphere67
+
+.PHONY: e2e-tkgpackageclient-docker
+e2e-tkgpackageclient-docker: $(GINKGO) generate-embedproviders ## Run ginkgo tkgpackageclient E2E tests
+	$(GINKGO) -v -trace -nodes=$(GINKGO_NODES) --noColor=$(GINKGO_NOCOLOR) $(GINKGO_ARGS) -tags embedproviders pkg/v1/tkg/test/tkgpackageclient

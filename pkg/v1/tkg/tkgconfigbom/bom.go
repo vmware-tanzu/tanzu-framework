@@ -408,7 +408,7 @@ func (c *client) DownloadDefaultBOMFilesFromRegistry(bomRegistry registry.Regist
 		return err
 	}
 
-	log.V(4).Infof("Downloading the TKG BOM file from Image name '%s", fmt.Sprintf("%s:%s", tkgBOMImagePath, tkgBOMImageTag))
+	log.Infof("Downloading the TKG Bill of Materials (BOM) file from '%s'", fmt.Sprintf("%s:%s", tkgBOMImagePath, tkgBOMImageTag))
 	tkgBOMContent, err := bomRegistry.GetFile(tkgBOMImagePath, tkgBOMImageTag, "")
 	if err != nil {
 		return errors.Errorf(errorDownloadingDefaultBOMFiles, fmt.Sprintf("%s:%s", tkgBOMImagePath, tkgBOMImageTag), err, tkgconfigpath)
@@ -445,7 +445,7 @@ func (c *client) DownloadDefaultBOMFilesFromRegistry(bomRegistry registry.Regist
 	}
 	defaultTKRImagePath := tkrBOMImageRepo + "/" + bomConfiguration.TKRBOM.ImagePath
 
-	log.V(4).Infof("Downloading the TKr BOM file from Image name '%s", fmt.Sprintf("%s:%s", defaultTKRImagePath, tkrBOMTagName))
+	log.Infof("Downloading the TKr Bill of Materials (BOM) file from '%s'", fmt.Sprintf("%s:%s", defaultTKRImagePath, tkrBOMTagName))
 	tkrBOMContent, err := bomRegistry.GetFile(defaultTKRImagePath, tkrBOMTagName, "")
 	if err != nil {
 		return errors.Errorf(errorDownloadingDefaultBOMFiles, fmt.Sprintf("%s:%s", defaultTKRImagePath, tkrBOMTagName), err, tkgconfigpath)
@@ -478,6 +478,7 @@ func (c *client) DownloadTKGCompatibilityFileFromRegistry(bomRegistry registry.R
 		tkgCompatibilityImagePath = compatibilityImageRepo + "/" + customTKGCompatibilityImagePath
 	}
 
+	log.Infof("Downloading TKG compatibility file from '%s'", tkgCompatibilityImagePath)
 	tags, err := bomRegistry.ListImageTags(tkgCompatibilityImagePath)
 	if err != nil || len(tags) == 0 {
 		return errors.Wrap(err, "failed to list TKG compatibility image tags")
@@ -503,7 +504,6 @@ func (c *client) DownloadTKGCompatibilityFileFromRegistry(bomRegistry registry.R
 		return err
 	}
 
-	log.V(4).Infof("Downloading the TKG Compatibility file from Image name '%s", fmt.Sprintf("%s:%s", tkgCompatibilityImagePath, tagName))
 	tkgCompatibilityContent, err := bomRegistry.GetFile(tkgCompatibilityImagePath, tagName, "")
 	if err != nil {
 		return errors.Errorf(errorDownloadingTKGCompatibilityFile, fmt.Sprintf("%s:%s", tkgCompatibilityImagePath, tagName), err, tkgconfigpath)
