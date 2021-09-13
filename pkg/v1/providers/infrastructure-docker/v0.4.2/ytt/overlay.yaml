@@ -16,7 +16,7 @@
 
 #@overlay/match by=overlay.subset({"kind":"Cluster"})
 ---
-apiVersion: cluster.x-k8s.io/v1alpha3
+apiVersion: cluster.x-k8s.io/v1alpha4
 kind: Cluster
 metadata:
   name: #@ data.values.CLUSTER_NAME
@@ -47,14 +47,14 @@ spec:
 
 #@overlay/match by=overlay.subset({"kind":"DockerCluster"})
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
 kind: DockerCluster
 metadata:
   name: #@ data.values.CLUSTER_NAME
 
 #@overlay/match by=overlay.subset({"kind": "DockerMachineTemplate", "metadata":{"name": "${CLUSTER_NAME}-control-plane"}})
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
 kind: DockerMachineTemplate
 metadata:
   name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
@@ -65,15 +65,16 @@ spec:
 
 #@overlay/match by=overlay.subset({"kind":"KubeadmControlPlane"})
 ---
-apiVersion: controlplane.cluster.x-k8s.io/v1alpha3
+apiVersion: controlplane.cluster.x-k8s.io/v1alpha4
 kind: KubeadmControlPlane
 metadata:
   name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
 spec:
-  infrastructureTemplate:
-    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
-    kind: DockerMachineTemplate
-    name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
+  machineTemplate:
+    infrastructureRef:
+      apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
+      kind: DockerMachineTemplate
+      name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
   kubeadmConfigSpec:
     clusterConfiguration:
       imageRepository: #@ kubeadm_image_repo(bomDataForK8sVersion.kubeadmConfigSpec.imageRepository)
@@ -100,7 +101,7 @@ spec:
 
 #@overlay/match by=overlay.subset({"kind": "DockerMachineTemplate", "metadata":{"name": "${CLUSTER_NAME}-md-0"}})
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
 kind: DockerMachineTemplate
 metadata:
   name: #@ "{}-md-0".format(data.values.CLUSTER_NAME)
@@ -111,7 +112,7 @@ spec:
 
 #@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate", "metadata":{"name": "${CLUSTER_NAME}-md-0"}})
 ---
-apiVersion: bootstrap.cluster.x-k8s.io/v1alpha3
+apiVersion: bootstrap.cluster.x-k8s.io/v1alpha4
 kind: KubeadmConfigTemplate
 metadata:
   name: #@ "{}-md-0".format(data.values.CLUSTER_NAME)
@@ -133,7 +134,7 @@ spec:
 
 #@overlay/match by=overlay.subset({"kind":"MachineDeployment"})
 ---
-apiVersion: cluster.x-k8s.io/v1alpha3
+apiVersion: cluster.x-k8s.io/v1alpha4
 kind: MachineDeployment
 metadata:
   labels:
