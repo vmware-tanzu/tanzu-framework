@@ -36,6 +36,8 @@ const (
 	DockerProviderName = "docker"
 	// WindowsVSphereProviderName vsphere provider name for windows
 	WindowsVSphereProviderName = "windows-vsphere"
+	// BYOHProviderName BringYourOwnHost provider name
+	BYOHProviderName = "byoh"
 
 	defaultPacificProviderVersion = "v1.0.0"
 )

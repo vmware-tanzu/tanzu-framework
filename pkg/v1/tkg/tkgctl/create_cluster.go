@@ -35,6 +35,7 @@ type CreateClusterOptions struct {
 	CniType                     string
 	EnableClusterOptions        string
 	VsphereControlPlaneEndpoint string
+	ByohControlPlaneEndpoint    string
 	ControlPlaneMachineCount    int
 	WorkerMachineCount          int
 	Timeout                     time.Duration
