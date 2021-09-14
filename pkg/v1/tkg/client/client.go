@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
+	capi "sigs.k8s.io/cluster-api/api/v1alpha4"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 	clusterctltree "sigs.k8s.io/cluster-api/cmd/clusterctl/client/tree"

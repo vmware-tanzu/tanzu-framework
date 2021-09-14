@@ -37,17 +37,17 @@ import (
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
+	bootstrapv1 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha4"
 	capav1alpha3 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha3"
-	capzv1alpha3 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha3"
 	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
-	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
-	capiv1alpha4 "sigs.k8s.io/cluster-api/api/v1alpha4"
-	bootstrapv1alpha3 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha3"
+	capzv1alpha3 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha3"
+	capi "sigs.k8s.io/cluster-api/api/v1alpha4"
+	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/cluster"
-	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
+	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha4"
 	addonsv1 "sigs.k8s.io/cluster-api/exp/addons/api/v1alpha4"
-	capdv1alpha3 "sigs.k8s.io/cluster-api/test/infrastructure/docker/api/v1alpha3"
+	capdv1 "sigs.k8s.io/cluster-api/test/infrastructure/docker/api/v1alpha4"
 	"sigs.k8s.io/cluster-api/util/conditions"
 	containerutil "sigs.k8s.io/cluster-api/util/container"
 	"sigs.k8s.io/cluster-api/util/patch"
@@ -378,7 +378,7 @@ var (
 
 func init() {
 	_ = capi.AddToScheme(scheme)
-	_ = capiv1alpha4.AddToScheme(scheme)
+	_ = capiv1alpha3.AddToScheme(scheme)
 	_ = corev1.AddToScheme(scheme)
 	_ = appsv1.AddToScheme(scheme)
 	_ = clusterctlv1.AddToScheme(scheme)
@@ -386,8 +386,8 @@ func init() {
 	_ = capvv1alpha3.AddToScheme(scheme)
 	_ = capav1alpha3.AddToScheme(scheme)
 	_ = capzv1alpha3.AddToScheme(scheme)
-	_ = capdv1alpha3.AddToScheme(scheme)
-	_ = bootstrapv1alpha3.AddToScheme(scheme)
+	_ = capdv1.AddToScheme(scheme)
+	_ = bootstrapv1.AddToScheme(scheme)
 	_ = runv1alpha1.AddToScheme(scheme)
 	_ = betav1.AddToScheme(scheme)
 	_ = tmcv1alpha1.AddToScheme(scheme)
@@ -401,7 +401,7 @@ func init() {
 // ClusterStatusInfo defines the cluster status involving all main components
 type ClusterStatusInfo struct {
 	KubernetesVersion    string
-	ClusterObject        *capiv1alpha4.Cluster
+	ClusterObject        *capi.Cluster
 	KCPObject            *controlplanev1.KubeadmControlPlane
 	MDObjects            []capi.MachineDeployment
 	CPMachineObjects     map[string]capi.Machine
@@ -478,11 +478,11 @@ func (c *client) WaitForClusterInitialized(clusterName, namespace string) error 
 
 		if err == nil {
 			// If cluster's ReadyCondition is False and severity is Error, it implies non-retriable error, so return error
-			if conditions.IsFalse(currentClusterInfo.ClusterObject, capiv1alpha4.ReadyCondition) &&
-				(*conditions.GetSeverity(currentClusterInfo.ClusterObject, capiv1alpha4.ReadyCondition) == capiv1alpha4.ConditionSeverityError) {
+			if conditions.IsFalse(currentClusterInfo.ClusterObject, capi.ReadyCondition) &&
+				(*conditions.GetSeverity(currentClusterInfo.ClusterObject, capi.ReadyCondition) == capi.ConditionSeverityError) {
 				return true, errors.Errorf("cluster creation failed, reason:'%s', message:'%s'",
-					conditions.GetReason(currentClusterInfo.ClusterObject, capiv1alpha4.ReadyCondition),
-					conditions.GetMessage(currentClusterInfo.ClusterObject, capiv1alpha4.ReadyCondition))
+					conditions.GetReason(currentClusterInfo.ClusterObject, capi.ReadyCondition),
+					conditions.GetMessage(currentClusterInfo.ClusterObject, capi.ReadyCondition))
 			}
 			// Could have checked cluster's ReadyCondition is True which is currently aggregation of ControlPlaneReadyCondition
 			// and InfrastructureReadyCondition, however in future if capi adds WorkersReadyCondition into aggregation, it would
@@ -529,16 +529,16 @@ func (c *client) WaitForClusterInitialized(clusterName, namespace string) error 
 }
 
 func (c *client) WaitForClusterReady(clusterName, namespace string, checkAllReplicas bool) error {
-	if err := c.GetResource(&capiv1alpha4.Cluster{}, clusterName, namespace, VerifyClusterReady, &PollOptions{Interval: CheckClusterInterval, Timeout: c.operationTimeout}); err != nil {
+	if err := c.GetResource(&capi.Cluster{}, clusterName, namespace, VerifyClusterReady, &PollOptions{Interval: CheckClusterInterval, Timeout: c.operationTimeout}); err != nil {
 		return err
 	}
 	if checkAllReplicas {
 		// Check and wait only for MD replicas as KCP replicas would be checked in above VerifyClusterReady() since the KCP Ready condition is mirrored into cluster ControPlaneReady condition
-		if err := c.GetResourceList(&capiv1alpha4.MachineDeploymentList{}, clusterName, namespace, VerifyMachineDeploymentsReplicas, &PollOptions{Interval: CheckClusterInterval, Timeout: c.operationTimeout}); err != nil {
+		if err := c.GetResourceList(&capi.MachineDeploymentList{}, clusterName, namespace, VerifyMachineDeploymentsReplicas, &PollOptions{Interval: CheckClusterInterval, Timeout: c.operationTimeout}); err != nil {
 			return err
 		}
 	}
-	if err := c.GetResourceList(&capiv1alpha4.MachineList{}, clusterName, namespace, VerifyMachinesReady, &PollOptions{Interval: CheckClusterInterval, Timeout: c.operationTimeout}); err != nil {
+	if err := c.GetResourceList(&capi.MachineList{}, clusterName, namespace, VerifyMachinesReady, &PollOptions{Interval: CheckClusterInterval, Timeout: c.operationTimeout}); err != nil {
 		return err
 	}
 	return nil
@@ -606,9 +606,9 @@ func verifyKubernetesUpgradeForCPNodes(clusterStatusInfo *ClusterStatusInfo, new
 	}
 
 	clusterObj := clusterStatusInfo.ClusterObject
-	if !conditions.IsTrue(clusterObj, capiv1alpha4.ControlPlaneReadyCondition) {
+	if !conditions.IsTrue(clusterObj, capi.ControlPlaneReadyCondition) {
 		return errors.Errorf("control-plane is still being upgraded, reason:'%s', message:'%s' ",
-			conditions.GetReason(clusterObj, capiv1alpha4.ControlPlaneReadyCondition), conditions.GetMessage(clusterObj, capiv1alpha4.ControlPlaneReadyCondition))
+			conditions.GetReason(clusterObj, capi.ControlPlaneReadyCondition), conditions.GetMessage(clusterObj, capi.ControlPlaneReadyCondition))
 	}
 
 	if clusterStatusInfo.KubernetesVersion != newK8sVersion {
@@ -667,8 +667,8 @@ func isClusterStateChanged(lastClusterInfo, curClusterInfo *ClusterStatusInfo) b
 	}
 
 	// If the ReadyCondition's lastTransitionTime is updated it implies there is some state change
-	if !conditions.GetLastTransitionTime(curClusterInfo.ClusterObject, capiv1alpha4.ReadyCondition).Equal(
-		conditions.GetLastTransitionTime(lastClusterInfo.ClusterObject, capiv1alpha4.ReadyCondition)) {
+	if !conditions.GetLastTransitionTime(curClusterInfo.ClusterObject, capi.ReadyCondition).Equal(
+		conditions.GetLastTransitionTime(lastClusterInfo.ClusterObject, capi.ReadyCondition)) {
 		return true
 	}
 
@@ -684,8 +684,8 @@ func isClusterStateChangedForKCP(lastClusterInfo, curClusterInfo *ClusterStatusI
 		return false
 	}
 	// If the ControlPlaneReadyCondition's lastTransitionTime is updated it implies there is some state change
-	if !conditions.GetLastTransitionTime(curClusterInfo.ClusterObject, capiv1alpha4.ControlPlaneReadyCondition).Equal(
-		conditions.GetLastTransitionTime(lastClusterInfo.ClusterObject, capiv1alpha4.ControlPlaneReadyCondition)) {
+	if !conditions.GetLastTransitionTime(curClusterInfo.ClusterObject, capi.ControlPlaneReadyCondition).Equal(
+		conditions.GetLastTransitionTime(lastClusterInfo.ClusterObject, capi.ControlPlaneReadyCondition)) {
 		return true
 	}
 	return false
@@ -793,11 +793,11 @@ func (c *client) waitK8sVersionUpdateGeneric(clusterName, namespace, newK8sVersi
 		curClusterInfo = c.GetClusterStatusInfo(clusterName, namespace, workloadClusterClient)
 
 		// If cluster's ReadyCondition is False and severity is Error, it implies non-retriable error, so return error
-		if conditions.IsFalse(curClusterInfo.ClusterObject, capiv1alpha4.ReadyCondition) &&
-			(*conditions.GetSeverity(curClusterInfo.ClusterObject, capiv1alpha4.ReadyCondition) == capiv1alpha4.ConditionSeverityError) {
+		if conditions.IsFalse(curClusterInfo.ClusterObject, capi.ReadyCondition) &&
+			(*conditions.GetSeverity(curClusterInfo.ClusterObject, capi.ReadyCondition) == capi.ConditionSeverityError) {
 			return true, errors.Errorf("kubernetes version update failed, reason:'%s', message:'%s' ",
-				conditions.GetReason(curClusterInfo.ClusterObject, capiv1alpha4.ReadyCondition),
-				conditions.GetMessage(curClusterInfo.ClusterObject, capiv1alpha4.ReadyCondition))
+				conditions.GetReason(curClusterInfo.ClusterObject, capi.ReadyCondition),
+				conditions.GetMessage(curClusterInfo.ClusterObject, capi.ReadyCondition))
 		}
 		err = verifyKubernetesUpgradeFunc(&curClusterInfo, newK8sVersion)
 		if err == nil {
@@ -854,7 +854,7 @@ func (c *client) GetClusterStatusInfo(clusterName, namespace string, workloadClu
 		}
 	}
 
-	clusterStatusInfo.ClusterObject = &capiv1alpha4.Cluster{}
+	clusterStatusInfo.ClusterObject = &capi.Cluster{}
 	if err := c.GetResource(clusterStatusInfo.ClusterObject, clusterName, namespace, nil, nil); err != nil {
 		errList = append(errList, err)
 	}
@@ -1298,7 +1298,7 @@ func (c *client) GetInfrastructureMachineKindForCluster(clusterName, namespace s
 		return "", err
 	}
 
-	return kcpObject.Spec.InfrastructureTemplate.Kind, nil
+	return kcpObject.Spec.MachineTemplate.InfrastructureRef.Kind, nil
 }
 
 // GetCurrentNamespace returns the namespace from the current context in the kubeconfig file

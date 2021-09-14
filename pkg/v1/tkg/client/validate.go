@@ -689,7 +689,7 @@ func getVsphereMachineTemplate(client clusterclient.Client, clusterName string) 
 		log.V(4).Infof("Error getting KCP Object")
 		return nil, err
 	}
-	if err := client.GetResource(vsphereMachineTemplate, kcp.Spec.InfrastructureTemplate.Name, "tkg-system", nil, nil); err != nil {
+	if err := client.GetResource(vsphereMachineTemplate, kcp.Spec.MachineTemplate.InfrastructureRef.Name, "tkg-system", nil, nil); err != nil {
 		return nil, err
 	}
 	return vsphereMachineTemplate, nil
