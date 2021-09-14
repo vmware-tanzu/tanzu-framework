@@ -38,7 +38,9 @@ COPY pkg/v1/tkr/pkg/ pkg/v1/tkr/pkg/
 
 
 # Build
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -ldflags '-extldflags "-static"' -o manager pkg/v1/tkr/main.go
+ARG LD_FLAGS
+ENV LD_FLAGS="$LD_FLAGS "'-extldflags "-static"'
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -ldflags "$LD_FLAGS" -o manager pkg/v1/tkr/main.go
 
 # Use distroless as minimal base image to package the manager binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details

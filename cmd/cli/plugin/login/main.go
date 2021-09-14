@@ -423,7 +423,8 @@ func promptAPIToken() (apiToken string, err error) {
 	fmt.Println()
 	err = component.Prompt(
 		&component.PromptConfig{
-			Message: "API Token",
+			Message:   "API Token",
+			Sensitive: true,
 		},
 		&apiToken,
 		promptOpts...,

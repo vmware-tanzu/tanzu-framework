@@ -124,9 +124,6 @@ func GetIssuer(staging bool) string {
 	return ProdIssuer
 }
 
-// DefaultTimeout timeout in seconds.
-var DefaultTimeout = 30
-
 // IsExpired checks for the token expiry and returns true if the token has expired else will return false
 func IsExpired(tokenExpiry time.Time) bool {
 	// refresh at half token life
