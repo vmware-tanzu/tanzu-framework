@@ -22,7 +22,6 @@ import (
 	capav1alpha3 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha3"
 	capzv1alpha3 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha3"
 	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
-	capiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
 	cabpkv1 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha3"
 	"sigs.k8s.io/cluster-api/bootstrap/kubeadm/types/v1beta1"
@@ -400,16 +399,16 @@ func NewPacificCluster(options TestAllClusterComponentOptions) runtime.Object {
 
 // NewMDForPacific returns new v1aplha2.MachineDeployment object
 func NewMDForPacific(options TestAllClusterComponentOptions) runtime.Object {
-	md := &capiv1alpha2.MachineDeployment{
+	md := &capi.MachineDeployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "md-" + options.ClusterName,
 			Namespace: options.Namespace,
-			Labels:    map[string]string{capiv1alpha2.MachineClusterLabelName: options.ClusterName},
+			Labels:    map[string]string{capi.ClusterLabelName: options.ClusterName},
 		},
-		Spec: capiv1alpha2.MachineDeploymentSpec{
+		Spec: capi.MachineDeploymentSpec{
 			Replicas: &options.ListMDOptions[0].SpecReplicas,
 		},
-		Status: capiv1alpha2.MachineDeploymentStatus{
+		Status: capi.MachineDeploymentStatus{
 			Replicas:        options.ListMDOptions[0].Replicas,
 			ReadyReplicas:   options.ListMDOptions[0].ReadyReplicas,
 			UpdatedReplicas: options.ListMDOptions[0].UpdatedReplicas,
@@ -422,16 +421,16 @@ func NewMDForPacific(options TestAllClusterComponentOptions) runtime.Object {
 func NewMachinesForPacific(options TestAllClusterComponentOptions) []runtime.Object {
 	machines := []runtime.Object{}
 	for i, machineOption := range options.MachineOptions {
-		machine := &capiv1alpha2.Machine{
+		machine := &capi.Machine{
 			ObjectMeta: metav1.ObjectMeta{
 				Namespace: options.Namespace,
 				Name:      "machine-" + strconv.Itoa(i) + options.ClusterName,
 				Labels:    map[string]string{capi.ClusterLabelName: options.ClusterName},
 			},
-			Spec: capiv1alpha2.MachineSpec{
+			Spec: capi.MachineSpec{
 				Version: &machineOption.K8sVersion,
 			},
-			Status: capiv1alpha2.MachineStatus{
+			Status: capi.MachineStatus{
 				Phase: machineOption.Phase,
 			},
 		}

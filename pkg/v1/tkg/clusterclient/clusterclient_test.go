@@ -33,7 +33,6 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/utils/pointer"
 	capav1alpha3 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha3"
-	capiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
@@ -71,7 +70,6 @@ var imageRepository = "registry.tkg.vmware.new"
 
 func init() {
 	_ = capi.AddToScheme(scheme)
-	_ = capiv1alpha2.AddToScheme(scheme)
 	_ = capav1alpha3.AddToScheme(scheme)
 	_ = corev1.AddToScheme(scheme)
 	_ = controlplanev1.AddToScheme(scheme)
@@ -126,11 +124,10 @@ var _ = Describe("Cluster Client", func() {
 		currentKubeCtx         string
 		clusterClientOptions   Options
 
-		tkcPhase           string
-		mdReplicas         Replicas
-		kcpReplicas        Replicas
-		machineObjects     []capi.Machine
-		v1a2machineObjects []capiv1alpha2.Machine
+		tkcPhase       string
+		mdReplicas     Replicas
+		kcpReplicas    Replicas
+		machineObjects []capi.Machine
 	)
 
 	BeforeSuite(createTempDirectory)
@@ -1262,13 +1259,13 @@ var _ = Describe("Cluster Client", func() {
 			clstClient, err = NewClient(kubeConfigPath, "", clusterClientOptions)
 			Expect(err).NotTo(HaveOccurred())
 
-			v1a2machineObjects = []capiv1alpha2.Machine{}
+			machineObjects = []capi.Machine{}
 		})
 		JustBeforeEach(func() {
 			clientset.ListCalls(func(ctx context.Context, o runtime.Object, opts ...crtclient.ListOption) error {
 				switch o := o.(type) {
-				case *capiv1alpha2.MachineList:
-					o.Items = append(o.Items, v1a2machineObjects...)
+				case *capi.MachineList:
+					o.Items = append(o.Items, machineObjects...)
 				default:
 					return errors.New("invalid object type")
 				}
@@ -1316,8 +1313,8 @@ var _ = Describe("Cluster Client", func() {
 			Context("When some worker machine objects has old k8s version", func() {
 				BeforeEach(func() {
 					tkcPhase = statusRunning
-					v1a2machineObjects = append(v1a2machineObjects, getv1alpha2DummyMachine("fake-machine-1", "fake-new-version", false))
-					v1a2machineObjects = append(v1a2machineObjects, getv1alpha2DummyMachine("fake-machine-2", "fake-old-version", false))
+					machineObjects = append(machineObjects, getDummyMachine("fake-machine-1", "fake-new-version", false))
+					machineObjects = append(machineObjects, getDummyMachine("fake-machine-2", "fake-old-version", false))
 				})
 				It("should not return error", func() {
 					Expect(err).To(HaveOccurred())
@@ -1327,8 +1324,8 @@ var _ = Describe("Cluster Client", func() {
 			Context("When all worker machine objects has new k8s version", func() {
 				BeforeEach(func() {
 					tkcPhase = statusRunning
-					v1a2machineObjects = append(v1a2machineObjects, getv1alpha2DummyMachine("fake-machine-1", "fake-new-version", false))
-					v1a2machineObjects = append(v1a2machineObjects, getv1alpha2DummyMachine("fake-machine-1", "fake-new-version", false))
+					machineObjects = append(machineObjects, getDummyMachine("fake-machine-1", "fake-new-version", false))
+					machineObjects = append(machineObjects, getDummyMachine("fake-machine-1", "fake-new-version", false))
 				})
 				It("should not return error", func() {
 					Expect(err).ToNot(HaveOccurred())
@@ -2270,19 +2267,6 @@ func getDummySecret(secretName string, secretData map[string][]byte, secretStrin
 
 func getDummyMachine(name, currentK8sVersion string, isCP bool) capi.Machine {
 	machine := capi.Machine{}
-	machine.Name = name
-	machine.Namespace = fakeMdNameSpace
-	machine.Spec.Version = &currentK8sVersion
-	machine.Labels = map[string]string{}
-	if isCP {
-		machine.Labels["cluster.x-k8s.io/control-plane"] = ""
-	}
-	return machine
-}
-
-func getv1alpha2DummyMachine(name, currentK8sVersion string, isCP bool) capiv1alpha2.Machine { //nolint:unparam
-	// TODO: Add test cases where isCP is true, currently there are no such tests
-	machine := capiv1alpha2.Machine{}
 	machine.Name = name
 	machine.Namespace = fakeMdNameSpace
 	machine.Spec.Version = &currentK8sVersion

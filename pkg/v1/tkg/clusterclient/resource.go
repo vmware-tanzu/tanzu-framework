@@ -21,7 +21,6 @@ import (
 	capav1alpha3 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha3"
 	capzv1alpha3 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha3"
 	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
-	capiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
 	bootstrapv1alpha3 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha3"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
@@ -189,8 +188,6 @@ func (c *client) getRuntimeObject(o interface{}) (runtime.Object, error) { //nol
 		return obj, nil
 	case *capi.MachineHealthCheckList:
 		return obj, nil
-	case *capiv1alpha2.MachineList:
-		return obj, nil
 	case *capi.MachineList:
 		return obj, nil
 	case *capi.MachineDeploymentList:
@@ -218,8 +215,6 @@ func (c *client) getRuntimeObject(o interface{}) (runtime.Object, error) { //nol
 	case *capdv1alpha3.DockerMachineTemplate:
 		return obj, nil
 	case *capav1alpha3.AWSCluster:
-		return obj, nil
-	case *capiv1alpha2.MachineDeploymentList:
 		return obj, nil
 	case *appsv1.DaemonSet:
 		return obj, nil
