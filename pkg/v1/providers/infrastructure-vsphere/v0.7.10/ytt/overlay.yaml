@@ -135,6 +135,12 @@ spec:
         #@overlay/replace
         - dhcp6: true
           networkName: #@ data.values.VSPHERE_NETWORK
+        #@ elif data.values.TKG_IP_FAMILY in ["ipv4,ipv6", "ipv6,ipv4"]:
+        #@overlay/match by=overlay.index(0)
+        #@overlay/replace
+        - dhcp4: true
+          dhcp6: true
+          networkName: #@ data.values.VSPHERE_NETWORK
         #@ else:
         #@overlay/match by=overlay.index(0)
         #@overlay/replace
@@ -168,6 +174,12 @@ spec:
         #@overlay/match by=overlay.index(0)
         #@overlay/replace
         - dhcp6: true
+          networkName: #@ data.values.VSPHERE_NETWORK
+        #@ elif data.values.TKG_IP_FAMILY in ["ipv4,ipv6", "ipv6,ipv4"]:
+        #@overlay/match by=overlay.index(0)
+        #@overlay/replace
+        - dhcp4: true
+          dhcp6: true
           networkName: #@ data.values.VSPHERE_NETWORK
         #@ else:
         #@overlay/match by=overlay.index(0)

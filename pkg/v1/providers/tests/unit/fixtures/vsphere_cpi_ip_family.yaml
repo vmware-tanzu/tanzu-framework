@@ -1,0 +1,4 @@
+#@ load("@ytt:data", "data")
+#@ load("cpi_addon_data.lib.yaml", "vsphere_cpi_data_values")
+
+data: #@ vsphere_cpi_data_values()

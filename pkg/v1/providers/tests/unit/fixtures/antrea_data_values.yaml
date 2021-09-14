@@ -1,0 +1,4 @@
+#@ load("@ytt:data", "data")
+#@ load("/antrea_addon_data.lib.yaml", "antreadatavalues")
+
+data: #@ antreadatavalues()
