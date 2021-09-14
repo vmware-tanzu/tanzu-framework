@@ -21,7 +21,7 @@ providers:
     url: providers/bootstrap-kubeadm/v0.3.23/bootstrap-components.yaml
     type: BootstrapProvider
   - name: kubeadm
-    url: providers/control-plane-kubeadm/v0.3.23/control-plane-components.ya..ml
+    url: providers/control-plane-kubeadm/v0.3.23/control-plane-components.yaml
     type: ControlPlaneProvider
   - name: docker
     url: providers/infrastructure-docker/v0.3.23/infrastructure-components.yaml
