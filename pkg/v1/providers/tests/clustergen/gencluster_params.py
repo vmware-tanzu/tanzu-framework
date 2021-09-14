@@ -52,7 +52,9 @@ def write_test_cases(params_file, test_dir):
                     if k == "AZURE_CUSTOM_TAGS" and v.startswith('tagKey1='):
                         cfg_args.append('{}: {}'.format(k, 'tagKey1=tagValue1, tagKey2=tagValue2'))
                     elif v != "NA":
-                        cfg_args.append('{}: {}'.format(k, v))
+                        cfg_args.append('{}: {}'.format(k, v.replace("<comma>", ",")))
+
+
             testid = int(hashlib.sha256(dict_contents.encode('utf-8')).hexdigest(), 16) % 10**8
             filename = "%8.8d.case" % (testid)
             with open(os.path.join(test_dir, filename), "w") as w:
