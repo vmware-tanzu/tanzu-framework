@@ -13,6 +13,7 @@ import (
 
 	"github.com/aunum/log"
 	"github.com/ghodss/yaml"
+
 	"github.com/golang/protobuf/jsonpb" //nolint
 	"github.com/golang/protobuf/proto"  //nolint
 	"github.com/pkg/errors"
