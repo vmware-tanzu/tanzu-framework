@@ -210,7 +210,8 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         const cliG = new CliGenerator();
         const cliParams: CliFields = {
             configPath: configPath,
-            clusterType: this.clusterType
+            clusterType: this.clusterType,
+            clusterName: this.getMCName()
         };
         return cliG.getCli(cliParams);
     }
