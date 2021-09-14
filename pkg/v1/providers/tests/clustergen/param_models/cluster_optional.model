@@ -27,8 +27,9 @@ SIZE: "NA"
 CP_SIZE: "NA"
 WORKER_SIZE: "NA"
 
-CLUSTER_CIDR: "NA", "100.96.0.0/11", "fd00:100:96::/48"
-SERVICE_CIDR: "100.64.0.0/18", "fd00:100:64::/108"
+CLUSTER_CIDR: "NA", "100.96.0.0/11", "fd00:100:96::/48", "100.96.0.0/11<comma>fd00:100:96::/48", "fd00:100:96::/48<comma>100.96.0.0/11"
+SERVICE_CIDR: "100.64.0.0/18", "fd00:100:64::/108", "100.64.0.0/18<comma>fd00:100:64::/108", "fd00:100:64::/108<comma>100.64.0.0/18"
+
 NAMESPACE: "NA"
 
 VSPHERE_SSH_AUTHORIZED_KEY: "ssh-rsa A"
@@ -95,7 +96,7 @@ TKG_HTTPS_PROXY: "NA", "http://10.0.200.100", "http://[fc00:f853:ccd:e793::1]:31
 TKG_NO_PROXY: "NA", "10.0.200.1/24", "10.184.90.80"
 
 # ip family
-TKG_IP_FAMILY: "NA", "", "ipv4", "ipv6"
+TKG_IP_FAMILY: "NA", "", "ipv4", "ipv6", "ipv4<comma>ipv6", "ipv6<comma>ipv4"
 
 # audit logging
 ENABLE_AUDIT_LOGGING: "true", "false"
@@ -138,7 +139,7 @@ IF [_INFRA] <> "\"vsphere:v0.7.8\"" THEN [OS_NAME] <> "\"photon\"";
 IF [TKG_HTTP_PROXY] = "\"http://10.0.200.100\"" THEN [TKG_HTTPS_PROXY] = "\"http://10.0.200.100\"";
 IF [TKG_HTTP_PROXY] LIKE "\"http://[fc00*" THEN [TKG_HTTPS_PROXY] <> "\"http://10.0.200.100\"";
 IF [TKG_IP_FAMILY] = "\"ipv6\"" THEN [SERVICE_CIDR] = "\"fd00:100:64::/108\"";
-IF [TKG_IP_FAMILY] <> "\"ipv6\"" THEN [SERVICE_CIDR] = "\"100.64.0.0/18\"";
-IF [TKG_IP_FAMILY] <> "\"ipv6\"" THEN [TKG_HTTPS_PROXY] <> "\"http://[fc00:f853:ccd:e793::1]:3128\"";
-IF [TKG_IP_FAMILY] <> "\"ipv6\"" THEN [TKG_HTTP_PROXY] = "\"http://10.0.200.100\"";
-IF [TKG_IP_FAMILY] <> "\"ipv6\"" THEN [CLUSTER_CIDR] <> "\"fd00:100:96::/48\"";
+IF [TKG_IP_FAMILY] IN { "NA", "", "ipv4" } THEN [SERVICE_CIDR] = "\"100.64.0.0/18\"";
+IF [TKG_IP_FAMILY] IN { "NA", "", "ipv4" } THEN [TKG_HTTPS_PROXY] <> "\"http://[fc00:f853:ccd:e793::1]:3128\"";
+IF [TKG_IP_FAMILY] IN { "NA", "", "ipv4" } THEN [TKG_HTTP_PROXY] = "\"http://10.0.200.100\"";
+IF [TKG_IP_FAMILY] IN { "NA", "", "ipv4" } THEN [CLUSTER_CIDR] <> "\"fd00:100:96::/48\"";
