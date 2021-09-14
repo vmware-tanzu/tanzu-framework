@@ -57,10 +57,10 @@ func packageInstalledList(cmd *cobra.Command, args []string) error {
 	for i := range pkgInstalledList.Items {
 		pkg := pkgInstalledList.Items[i]
 		if packageInstalledOp.AllNamespaces {
-			t.AddRow(pkg.Name, pkg.Spec.PackageRef.RefName, pkg.Spec.PackageRef.VersionSelection.Constraints,
+			t.AddRow(pkg.Name, pkg.Spec.PackageRef.RefName, pkg.Status.Version,
 				pkg.Status.FriendlyDescription, pkg.Namespace)
 		} else {
-			t.AddRow(pkg.Name, pkg.Spec.PackageRef.RefName, pkg.Spec.PackageRef.VersionSelection.Constraints,
+			t.AddRow(pkg.Name, pkg.Spec.PackageRef.RefName, pkg.Status.Version,
 				pkg.Status.FriendlyDescription)
 		}
 	}

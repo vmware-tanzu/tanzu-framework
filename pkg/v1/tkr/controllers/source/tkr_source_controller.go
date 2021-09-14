@@ -73,7 +73,7 @@ func (r *reconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	tkr, err := tkrFromConfigMap(configMap)
 	if err != nil {
-		r.log.Error(err, "could not create TKR from ConfigMap", "ConfigMap", configMap.Name)
+		r.log.Error(err, "Could not create TKR from ConfigMap", "ConfigMap", configMap.Name)
 		return ctrl.Result{}, nil // no need to retry: if the ConfigMap changes, we'll get called
 	}
 	if tkr == nil {
@@ -175,23 +175,20 @@ func eventFilter(p func(eventMeta metav1.Object) bool) *predicate.Funcs {
 // +kubebuilder:rbac:groups=run.tanzu.vmware.com,resources=tanzukubernetesreleases/status,verbs=get;update;patch
 
 func (r *reconciler) createBOMConfigMap(ctx context.Context, tag string) error {
-	r.log.Info("fetching BOM", "image", r.bomImage, "tag", tag)
+	r.log.Info("Fetching BOM", "image", r.bomImage, "tag", tag)
 	bomContent, err := r.registry.GetFile(r.bomImage, tag, "")
 	if err != nil {
-		r.log.Error(err, "failed to get the BOM file from image", "name", fmt.Sprintf("%s:%s", r.bomImage, tag))
-		return nil
+		return errors.Wrapf(err, "failed to get the BOM file from image %s:%s", r.bomImage, tag)
 	}
 
 	bom, err := types.NewBom(bomContent)
 	if err != nil {
-		r.log.Error(err, "failed to parse content from image", "name", fmt.Sprintf("%s:%s", r.bomImage, tag))
-		return nil
+		return errors.Wrapf(err, "failed to parse content from image %s:%s", r.bomImage, tag)
 	}
 
 	releaseName, err := bom.GetReleaseVersion()
 	if err != nil || releaseName == "" {
-		r.log.Error(err, "failed to get the release version from the BOM", "name", fmt.Sprintf("%s:%s", r.bomImage, tag))
-		return nil
+		return errors.Wrapf(err, "failed to get the release version from BOM image %s:%s", r.bomImage, tag)
 	}
 
 	name := strings.ReplaceAll(releaseName, "+", "---")
@@ -247,11 +244,11 @@ func (r *reconciler) reconcileBOMMetadataCM(ctx context.Context) error {
 		return nil
 	})
 
-	return err
+	return errors.Wrap(err, "error creating or updating BOM metadata ConfigMap")
 }
 
 func (r *reconciler) reconcileBOMConfigMap(ctx context.Context) error {
-	r.log.Info("listing BOM image tags", "image", r.bomImage)
+	r.log.Info("Listing BOM image tags", "image", r.bomImage)
 	imageTags, err := r.registry.ListImageTags(r.bomImage)
 	if err != nil {
 		return errors.Wrap(err, "failed to list current available BOM image tags")
@@ -285,6 +282,7 @@ func (r *reconciler) reconcileBOMConfigMap(ctx context.Context) error {
 		return errs
 	}
 
+	r.log.Info("Done reconciling BOM images", "image", r.bomImage)
 	return nil
 }
 
@@ -364,7 +362,7 @@ func (r *reconciler) UpdateTKRCompatibleCondition(ctx context.Context, tkrs []ru
 }
 
 func (r *reconciler) fetchCompatibilityMetadata() (*types.CompatibilityMetadata, error) {
-	r.log.Info("listing BOM metadata image tags", "image", r.compatibilityMetadataImage)
+	r.log.Info("Listing BOM metadata image tags", "image", r.compatibilityMetadataImage)
 	tags, err := r.registry.ListImageTags(r.compatibilityMetadataImage)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to list compatibility metadata image tags")
@@ -388,15 +386,15 @@ func (r *reconciler) fetchCompatibilityMetadata() (*types.CompatibilityMetadata,
 
 	for i := len(tagNum) - 1; i >= 0; i-- {
 		tagName := fmt.Sprintf("v%d", tagNum[i])
-		r.log.Info("fetching BOM metadata image", "image", r.compatibilityMetadataImage, "tag", tagName)
+		r.log.Info("Fetching BOM metadata image", "image", r.compatibilityMetadataImage, "tag", tagName)
 		metadataContent, err = r.registry.GetFile(r.compatibilityMetadataImage, tagName, "")
 		if err == nil {
 			if err = yaml.Unmarshal(metadataContent, &metadata); err == nil {
 				break
 			}
-			r.log.Error(err, "failed to unmarshal TKr compatibility metadata file", "image", fmt.Sprintf("%s:%s", r.compatibilityMetadataImage, tagName))
+			r.log.Error(err, "Failed to unmarshal TKR compatibility metadata file", "image", fmt.Sprintf("%s:%s", r.compatibilityMetadataImage, tagName))
 		} else {
-			r.log.Error(err, "failed to retrieve TKr compatibility metadata image content", "image", fmt.Sprintf("%s:%s", r.compatibilityMetadataImage, tagName))
+			r.log.Error(err, "Failed to retrieve TKR compatibility metadata image content", "image", fmt.Sprintf("%s:%s", r.compatibilityMetadataImage, tagName))
 		}
 	}
 
@@ -427,53 +425,67 @@ func (r *reconciler) compatibilityMetadata(ctx context.Context) (*types.Compatib
 }
 
 func (r *reconciler) SyncRelease(ctx context.Context) error {
+	select {
+	case <-ctx.Done():
+		return errors.New("canceled")
+	default:
+	}
+
 	// create/update bom-metadata ConfigMap
 	if err := r.reconcileBOMMetadataCM(ctx); err != nil {
 		// not returning: even if we fail to get BOM metadata, we still want to reconcile BOM ConfigMaps
-		r.log.Error(err, "failed to reconcile BOM metadata ConfigMap")
+		r.log.Error(err, "Failed to reconcile BOM metadata ConfigMap")
 	}
 	// create BOM ConfigMaps for new images
 	err := r.reconcileBOMConfigMap(ctx)
 	return errors.Wrap(err, "failed to reconcile BOM ConfigMaps")
 }
 
-func (r *reconciler) initialReconcile(ticker *time.Ticker, stopChan <-chan struct{}, initialDiscoveryRetry int) {
-	defer ticker.Stop()
+func (r *reconciler) initialReconcile(ctx context.Context, frequency time.Duration, retries int) {
 	for {
-		select {
-		case <-stopChan:
-			r.log.Info("Stop performing initial TKR discovery")
-			return
-		case <-ticker.C:
-			if err := r.SyncRelease(context.Background()); err != nil {
-				r.log.Error(err, "Failed to complete initial TKR discovery")
-				initialDiscoveryRetry--
-				if initialDiscoveryRetry > 0 {
-					r.log.Info("Failed to complete initial TKR discovery, retrying")
-					continue
-				}
+		if err := r.SyncRelease(ctx); err != nil {
+			r.log.Error(err, "Failed to complete initial TKR discovery")
+			retries--
+			if retries <= 0 {
+				return
 			}
-			return
+
+			r.log.Info("Failed to complete initial TKR discovery, retrying")
+			select {
+			case <-ctx.Done():
+				r.log.Info("Stop performing initial TKR discovery")
+				return
+			case <-time.After(frequency):
+				continue
+			}
 		}
+		return
 	}
 }
 
-func (r *reconciler) tkrDiscovery(ticker *time.Ticker, stopChan <-chan struct{}) {
-	defer ticker.Stop()
+func (r *reconciler) tkrDiscovery(ctx context.Context, frequency time.Duration) {
 	for {
+		if err := r.SyncRelease(ctx); err != nil {
+			r.log.Error(err, "Failed to reconcile TKRs, retrying")
+		}
 		select {
-		case <-stopChan:
-			r.log.Info("Stop performing TKr discovery")
+		case <-ctx.Done():
+			r.log.Info("Stop performing TKR discovery")
 			return
-		case <-ticker.C:
-			if err := r.SyncRelease(context.Background()); err != nil {
-				r.log.Error(err, "failed to reconcile TKRs, retrying")
-			}
+		case <-time.After(frequency):
 		}
 	}
 }
 
 func (r *reconciler) Start(stopChan <-chan struct{}) error {
+	ctx, cancel := context.WithCancel(r.ctx)
+	defer cancel()
+
+	go func() {
+		<-stopChan
+		cancel()
+	}()
+
 	var err error
 	r.log.Info("Starting TanzuKubernetesReleaase Reconciler")
 
@@ -496,15 +508,13 @@ func (r *reconciler) Start(stopChan <-chan struct{}) error {
 	}
 
 	r.log.Info("Performing an initial release discovery")
-	ticker := time.NewTicker(r.options.InitialDiscoveryFrequency)
-	r.initialReconcile(ticker, stopChan, InitialDiscoveryRetry)
+	r.initialReconcile(ctx, r.options.InitialDiscoveryFrequency, InitialDiscoveryRetry)
 
-	r.log.Info("Initial TKr discovery completed")
+	r.log.Info("Initial TKR discovery completed")
 
-	ticker = time.NewTicker(r.options.ContinuousDiscoveryFrequency)
-	r.tkrDiscovery(ticker, stopChan)
+	r.tkrDiscovery(ctx, r.options.ContinuousDiscoveryFrequency)
 
-	r.log.Info("Stopping Tanzu Kubernetes releaase Reconciler")
+	r.log.Info("Stopping Tanzu Kubernetes release Reconciler")
 	return nil
 }
 

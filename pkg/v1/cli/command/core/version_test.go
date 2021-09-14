@@ -10,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 )
 
 func readOutput(t *testing.T, r io.Reader, c chan<- []byte) {
@@ -41,13 +41,13 @@ func TestVersion(t *testing.T) {
 	os.Stdout = w
 	os.Stderr = w
 
-	cli.BuildVersion = "1.2.3"
-	cli.BuildDate = "today"
-	cli.BuildSHA = "cafecafe"
+	buildinfo.Version = "1.2.3"
+	buildinfo.Date = "today"
+	buildinfo.SHA = "cafecafe"
 	defer func() {
-		cli.BuildVersion = ""
-		cli.BuildDate = ""
-		cli.BuildSHA = ""
+		buildinfo.Version = ""
+		buildinfo.Date = ""
+		buildinfo.SHA = ""
 	}()
 
 	err = versionCmd.Execute()

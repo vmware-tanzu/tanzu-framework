@@ -218,9 +218,9 @@ func (c *TkgClient) DoUpgradeAddon(regionalClusterClient clusterclient.Client, /
 		}
 
 		if options.IsRegionalCluster {
-			err = c.retrieveRegionalClusterConfiguration(regionalClusterClient)
+			err = c.RetrieveRegionalClusterConfiguration(regionalClusterClient)
 		} else {
-			err = c.retrieveWorkloadClusterConfiguration(regionalClusterClient, currentClusterClient, options.ClusterName, options.Namespace)
+			err = c.RetrieveWorkloadClusterConfiguration(regionalClusterClient, currentClusterClient, options.ClusterName, options.Namespace)
 		}
 		if err != nil {
 			return errors.Wrap(err, "unable to set cluster configuration")
@@ -248,9 +248,9 @@ func (c *TkgClient) DoUpgradeAddon(regionalClusterClient clusterclient.Client, /
 	return nil
 }
 
-// retrieveRegionalClusterConfiguration gets TKG configurations from regional cluster and updates the in-memory config.
+// RetrieveRegionalClusterConfiguration gets TKG configurations from regional cluster and updates the in-memory config.
 // this is required when we want to mutate the existing regional cluster.
-func (c *TkgClient) retrieveRegionalClusterConfiguration(regionalClusterClient clusterclient.Client) error {
+func (c *TkgClient) RetrieveRegionalClusterConfiguration(regionalClusterClient clusterclient.Client) error {
 	if err := c.setProxyConfiguration(regionalClusterClient); err != nil {
 		return errors.Wrapf(err, "error while getting proxy configuration from cluster and setting it")
 	}
@@ -270,9 +270,9 @@ func (c *TkgClient) retrieveRegionalClusterConfiguration(regionalClusterClient c
 	return nil
 }
 
-// retrieveWorkloadClusterConfiguration gets TKG configurations from regional cluster as well as workload cluster
+// RetrieveWorkloadClusterConfiguration gets TKG configurations from regional cluster as well as workload cluster
 // and updates the in-memory config. This is required when we want to mutate the existing workload cluster.
-func (c *TkgClient) retrieveWorkloadClusterConfiguration(regionalClusterClient, workloadClusterClient clusterclient.Client, clusterName, clusterNamespace string) error {
+func (c *TkgClient) RetrieveWorkloadClusterConfiguration(regionalClusterClient, workloadClusterClient clusterclient.Client, clusterName, clusterNamespace string) error {
 	if err := c.setProxyConfiguration(workloadClusterClient); err != nil {
 		return errors.Wrapf(err, "error while getting proxy configuration from cluster and setting it")
 	}
