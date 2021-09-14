@@ -194,7 +194,6 @@ func (i *Inspector) GetServiceEndpoint(namespace, name string) (string, error) {
 		}
 		serviceEndpoint = fmt.Sprintf("https://%s", net.JoinHostPort(host, fmt.Sprint(service.Spec.Ports[0].Port)))
 	}
-	// TODO: file a JIRA to track the issue being discussed under https://vmware.slack.com/archives/G01HFK90QE8/p1610051838070300?thread_ts=1610051580.069400&cid=G01HFK90QE8
 	serviceEndpoint = utils.RemoveDefaultTLSPort(serviceEndpoint)
 	zap.S().Infof("The external endpoint of Service %s/%s is %s", namespace, name, serviceEndpoint)
 	return serviceEndpoint, nil

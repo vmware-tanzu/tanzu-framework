@@ -272,7 +272,6 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p *Pa
 		var supervisorSvcEndpoint string
 		if p.SupervisorSvcEndpoint != "" {
 			// If the endpoint is passed in, then use it for management cluster otherwise construct the correct one
-			// TODO: file a JIRA to track the issue being discussed under https://vmware.slack.com/archives/G01HFK90QE8/p1610051838070300?thread_ts=1610051580.069400&cid=G01HFK90QE8
 			supervisorSvcEndpoint = utils.RemoveDefaultTLSPort(p.SupervisorSvcEndpoint)
 		} else if supervisorSvcEndpoint, err = inspector.GetServiceEndpoint(p.SupervisorSvcNamespace, p.SupervisorSvcName); err != nil {
 			zap.S().Error(err)
@@ -314,7 +313,6 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p *Pa
 
 	zap.S().Infof("Restarting Pinniped supervisor pods to reload the configmap that contains custom TLS secret names...")
 	// restart the Pinniped pod to refresh the config
-	// Discussed in: https://vmware.slack.com/archives/G01HFK90QE8/p1611970411157300
 	// After the user specifies a custom Pinniped secret name, we need to update the default Pinniped TLS secret name stored in a config map.
 	// This info can't be refreshed unless the Pinniped supervisor pods are restarted.
 	var podList *corev1.PodList
