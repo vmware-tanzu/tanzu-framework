@@ -95,7 +95,7 @@ func packageInstalledGet(cmd *cobra.Command, args []string) error {
 	}
 
 	t.SetKeys("name", "package-name", "package-version", "status", "conditions", "useful-error-message")
-	t.AddRow(pkg.Name, pkg.Spec.PackageRef.RefName, pkg.Spec.PackageRef.VersionSelection.Constraints,
+	t.AddRow(pkg.Name, pkg.Spec.PackageRef.RefName, pkg.Status.Version,
 		pkg.Status.FriendlyDescription, pkg.Status.Conditions, pkg.Status.UsefulErrorMessage)
 
 	t.RenderWithSpinner()
