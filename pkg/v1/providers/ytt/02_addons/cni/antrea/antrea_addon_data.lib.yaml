@@ -6,11 +6,45 @@
 #@   antreaImage = get_bom_data_for_tkr_name().components["antrea"][0].images.antreaImage
 #@ end
 
+#@ def is_dualstack():
+#@   return data.values.TKG_IP_FAMILY in ["ipv4,ipv6", "ipv6,ipv4"]
+#@ end
+
+#@ def get_ipv4_service_cidr():
+#@   if not is_dualstack():
+#@     return data.values.SERVICE_CIDR
+#@   end
+#@   if data.values.TKG_IP_FAMILY.startswith("ipv4"):
+#@     return data.values.SERVICE_CIDR.split(",")[0]
+#@   end
+#@   if data.values.TKG_IP_FAMILY.startswith("ipv6"):
+#@     return data.values.SERVICE_CIDR.split(",")[1]
+#@   end
+#@ end
+
+#@ def get_ipv6_service_cidr():
+#@   if not is_dualstack():
+#@     return data.values.SERVICE_CIDR
+#@   end
+#@   if data.values.TKG_IP_FAMILY.startswith("ipv6"):
+#@     return data.values.SERVICE_CIDR.split(",")[0]
+#@   end
+#@   if data.values.TKG_IP_FAMILY.startswith("ipv4"):
+#@     return data.values.SERVICE_CIDR.split(",")[1]
+#@   end
+#@ end
+
 #@ def antreadatavalues():
 infraProvider: #@ data.values.PROVIDER_TYPE
 antrea:
   config:
+    #@ if is_dualstack():
+    serviceCIDR: #@ get_ipv4_service_cidr()
+    #@overlay/match missing_ok=True
+    serviceCIDRv6: #@ get_ipv6_service_cidr()
+    #@ else:
     serviceCIDR: #@ data.values.SERVICE_CIDR
+    #@ end
     #@ if data.values.NSXT_POD_ROUTING_ENABLED:
     trafficEncapMode: "noEncap"
     noSNAT: true

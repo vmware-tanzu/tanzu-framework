@@ -283,7 +283,7 @@ def get_no_proxy():
     full_no_proxy_list.append(data.values.CLUSTER_CIDR)
     full_no_proxy_list.append("localhost")
     full_no_proxy_list.append("127.0.0.1")
-    if data.values.TKG_IP_FAMILY == "ipv6":
+    if data.values.TKG_IP_FAMILY in ["ipv6", "ipv4,ipv6", "ipv6,ipv4"]:
       full_no_proxy_list.append("::1")
     end
     full_no_proxy_list.append(".svc")

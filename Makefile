@@ -326,7 +326,8 @@ release-%:
 .PHONY: test
 test: generate fmt vet manifests build-cli-mocks ## Run tests
 	## Skip running TKG integration tests
-	$(GO) test -coverprofile cover.out -v `go list ./... | grep -v github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test`
+	$(MAKE) ytt -C $(TOOLS_DIR)
+	PATH=$(abspath hack/tools/bin):$(PATH) $(GO) test -coverprofile cover.out -v `go list ./... | grep -v github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test`
 	$(MAKE) kubebuilder -C $(TOOLS_DIR)
 	KUBEBUILDER_ASSETS=$(ROOT_DIR)/$(KUBEBUILDER)/bin GOPRIVATE="$(PRIVATE_REPOS)" $(MAKE) test -C addons
 
