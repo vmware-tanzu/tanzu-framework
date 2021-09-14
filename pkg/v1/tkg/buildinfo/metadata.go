@@ -3,5 +3,8 @@
 
 package buildinfo
 
+import "github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
+
 // IsOfficialBuild is the flag that gets set to True if it is an official build being released, it is set with the go linker's -X flag.
-var IsOfficialBuild string
+// Deprecated: use github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo.IsOfficialBuild
+var IsOfficialBuild = buildinfo.IsOfficialBuild

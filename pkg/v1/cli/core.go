@@ -13,6 +13,7 @@ import (
 	"golang.org/x/mod/semver"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 )
 
 // CoreName is the name of the core binary.
@@ -24,8 +25,8 @@ const coreDescription = "The core Tanzu CLI"
 var CoreDescriptor = cliv1alpha1.PluginDescriptor{
 	Name:        CoreName,
 	Description: coreDescription,
-	Version:     BuildVersion,
-	BuildSHA:    BuildSHA,
+	Version:     buildinfo.Version,
+	BuildSHA:    buildinfo.SHA,
 }
 
 // CorePlugin is the core plugin.
@@ -43,7 +44,7 @@ func HasUpdate(repo Repository) (update bool, version string, err error) {
 	versionSelector := repo.VersionSelector()
 
 	version = plugin.FindVersion(versionSelector)
-	compared := semver.Compare(version, BuildVersion)
+	compared := semver.Compare(version, buildinfo.Version)
 	if compared == 1 {
 		return true, version, nil
 	}
