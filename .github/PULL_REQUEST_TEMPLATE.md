@@ -25,7 +25,7 @@ Enter your extended release note in the block below.
 **New PR Checklist**
 
 Ensure this PR:
-- [ ] references an open, labeled issue
+- [ ] references an open, labeled issue (if one does not yet exist, create one before creating the PR)
 - [ ] contains only public links or terms
 - [ ] uses good commit [messages](https://github.com/vmware-tanzu/tanzu-framework/blob/main/CONTRIBUTING.md)
 - [ ] has squashed, scoped commit messages that match our [recommendations](https://github.com/vmware-tanzu/tanzu-framework/blob/main/CONTRIBUTING.md#commit-messages)
