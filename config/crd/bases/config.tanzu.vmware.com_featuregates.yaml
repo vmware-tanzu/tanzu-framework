@@ -14,7 +14,7 @@ spec:
     listKind: FeatureGateList
     plural: featuregates
     singular: featuregate
-  scope: Namespaced
+  scope: Cluster
   subresources:
     status: {}
   validation:
