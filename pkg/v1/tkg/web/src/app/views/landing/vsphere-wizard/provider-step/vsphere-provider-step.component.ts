@@ -43,6 +43,11 @@ export interface VsphereVersioninfo {
 export class VSphereProviderStepComponent extends StepFormDirective implements OnInit {
     @ViewChild(SSLThumbprintModalComponent) sslThumbprintModal: SSLThumbprintModalComponent;
 
+    /**
+     * FileReader instance
+     */
+    fileReader: FileReader;
+
     APP_ROUTES: Routes = APP_ROUTES;
 
     loading: boolean = false;
@@ -62,6 +67,8 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
         private apiClient: APIClient,
         private router: Router) {
         super();
+
+        this.fileReader = new FileReader();
     }
 
     ngOnInit() {
@@ -133,6 +140,16 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
         this.formGroup.get('datacenter').valueChanges.subscribe(data => {
             this.dcOnChange(data)
         });
+
+        this.fileReader.onload = (event) => {
+            try {
+                this.formGroup.get('ssh_key').setValue(event.target.result);
+                console.log('SSH public key File load success!');
+            } catch (error) {
+                console.log(error.message);
+                return;
+            }
+        };
     }
 
     setSavedDataAfterLoad() {
@@ -347,5 +364,52 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
      */
     showVSphereWithK8Modal() {
         this.vSphereWithK8ModalOpen = true;
+    }
+
+    /**
+     * @method onFileChanged
+     * `change` event handler for the file input.
+     * @param event
+     */
+    onFileChanged(event) {
+        if (event.target.files.length) {
+            this.processFile(event.target.files[0]);
+        }
+    }
+
+    /**
+     * @method drop
+     * @param event
+     */
+    // drop(event) {
+    //     event.preventDefault();
+    //     const file = event.dataTransfer.items ? event.dataTransfer.items[0].getAsFile() : event.dataTransfer.files[0];
+    //     this.processFile(file);
+    // }
+
+    /**
+     * @method Prevent default behavior on any event.
+     * @param event
+     */
+    prevent(event) {
+        event.preventDefault();
+    }
+
+    /**
+     * @method dragChanges
+     * `dragenter` and `dragleave` event handler for the file input.
+     */
+    // dragChanges(event) {
+    //     event.preventDefault();
+    //     this.isMouseInside = !this.isMouseInside;
+    // }
+
+    /**
+     * @method processFile
+     * Reads file and dispatches ConfigurationFileLoadAction action
+     * @param file - the file received from the input
+     */
+    private processFile(file) {
+        this.fileReader.readAsText(file);
     }
 }
