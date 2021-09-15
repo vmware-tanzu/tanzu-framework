@@ -41,6 +41,7 @@ var _ = Describe("Unit tests for create cluster", func() {
 				GenerateOnly:           false,
 				TkrVersion:             fakeTKRVersion,
 				SkipPrompt:             true,
+				Edition:                "tkg",
 			}
 		})
 		It("Namespace is taken from the context when no -n flag is specified", func() {
@@ -86,6 +87,30 @@ var _ = Describe("Unit tests for create cluster", func() {
 			}
 
 			options.Namespace = "custom-namespace"
+			err = tkgctlClient.CreateCluster(options)
+			Expect(err).NotTo(HaveOccurred())
+		})
+		It("InfrastructureProvider is windows-vsphere when GenerateOnly is true", func() {
+			kubeConfigPath := getConfigFilePath()
+			regionContext := region.RegionContext{
+				ContextName:    "queen-anne-context",
+				SourceFilePath: kubeConfigPath,
+			}
+			tkgClient = &fakes.Client{}
+			tkgClient.IsPacificManagementClusterReturns(true, nil)
+			tkgClient.GetCurrentRegionContextReturns(regionContext, nil)
+			tkgConfigReaderWriter, err := tkgconfigreaderwriter.NewReaderWriterFromConfigFile("../fakes/config/config.yaml", "../fakes/config/config.yaml")
+			Expect(err).NotTo(HaveOccurred())
+			tkgctlClient := &tkgctl{
+				configDir:              testingDir,
+				tkgClient:              tkgClient,
+				kubeconfig:             kubeConfigPath,
+				tkgConfigReaderWriter:  tkgConfigReaderWriter,
+				tkgConfigUpdaterClient: tkgconfigupdater.New(testingDir, nil, tkgConfigReaderWriter),
+			}
+
+			options.InfrastructureProvider = constants.InfrastructureProviderWindowsVSphere
+			options.GenerateOnly = true
 			err = tkgctlClient.CreateCluster(options)
 			Expect(err).NotTo(HaveOccurred())
 		})

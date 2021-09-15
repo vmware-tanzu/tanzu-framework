@@ -1,0 +1,288 @@
+---
+apiVersion: run.tanzu.vmware.com/v1alpha1
+kind: TanzuKubernetesRelease
+metadata:
+  name: v1.20.6---vmware.1
+  namespace: tkr-system
+spec:
+  version: v1.20.6---vmware.1
+  kubernetesVersion: 1.20.6+vmware.1
+---
+apiVersion: cluster.x-k8s.io/v1alpha3
+kind: Cluster
+metadata:
+  name: test-cluster-3
+  namespace: default
+  labels:
+    tkg.tanzu.vmware.com/cluster-name: test-cluster-3
+    tanzuKubernetesRelease: v1.20.6---vmware.1
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name:  v1.20.6---vmware.1
+  namespace: tkr-system
+  labels:
+    tanzuKubernetesRelease: v1.20.6---vmware.1
+data:
+  bomContent: |
+    apiVersion: run.tanzu.vmware.com/v1alpha1
+    release:
+      version: v1.20.6+vmware.1-tkg.1
+    components:
+      tkg-core-packages:
+      - version: v1.4.0+vmware.0
+        images:
+          tanzuCorePackageRepositoryImage:
+            imagePath: tanzu_core_repo/core-package-repository
+            tag: v1.4.0+vmware.0
+          antrea.vmware.com:
+            imagePath: tanzu_core/addons/antrea-package
+            tag: v1.4.0+vmware.1
+          calico.vmware.com:
+            imagePath: tanzu_core/addons/calico-package
+            tag: v1.4.0+vmware.1
+          kapp-controller.vmware.com:
+            imagePath: tanzu_core/addons/kapp-controller-package
+            tag: v1.4.0+vmware.1
+          metrics-server.vmware.com:
+            imagePath: tanzu_core/addons/metrics-server-package
+            tag: v1.4.0+vmware.1
+          pinniped.vmware.com:
+            imagePath: tanzu_core/addons/pinniped-package
+            tag: v1.4.0+vmware.1
+          tanzu-addons-manager.vmware.com:
+            imagePath: tanzu_core/addons/tanzu-addons-manager
+            tag: v1.4.0+vmware.1
+          vsphere-cpi.vmware.com:
+            imagePath: tanzu_core/addons/vsphere-cpi-package
+            tag: v1.4.0+vmware.1
+          vsphere-csi.vmware.com:
+            imagePath: tanzu_core/addons/vsphere-csi-package
+            tag: v1.4.0+vmware.1
+      antrea:
+      - version: v0.11.3+vmware.2
+        images:
+          antreaImage:
+            imagePath: antrea/antrea-debian
+            tag: v0.11.3_vmware.2
+      calico_all:
+      - version: v3.11.3+vmware.1
+        images:
+          calicoCniImage:
+            imagePath: calico-all/cni-plugin
+            tag: v3.11.3_vmware.1
+          calicoKubecontrollerImage:
+            imagePath: calico-all/kube-controllers
+            tag: v3.11.3_vmware.1
+          calicoNodeImage:
+            imagePath: calico-all/node
+            tag: v3.11.3_vmware.1
+          calicoPodDaemonImage:
+            imagePath: calico-all/pod2daemon
+            tag: v3.11.3_vmware.1
+      cloud_provider_vsphere:
+      - version: v1.18.1+vmware.1
+        images:
+          ccmControllerImage:
+            imagePath: ccm/manager
+            tag: v1.18.1_vmware.1
+      cni_plugins:
+      - version: v0.8.7+vmware.6
+      containerd:
+      - version: v1.4.3+vmware.1
+      coredns:
+      - version: v1.7.0+vmware.8
+        images:
+          coredns:
+            imagePath: coredns
+            tag: v1.7.0_vmware.8
+      cri_tools:
+      - version: v1.19.0+vmware.3
+      csi_attacher:
+      - version: v3.0.0+vmware.1
+        images:
+          csiAttacherImage:
+            imagePath: csi/csi-attacher
+            tag: v3.0.0_vmware.1
+      csi_livenessprobe:
+      - version: v2.1.0+vmware.1
+        images:
+          csiLivenessProbeImage:
+            imagePath: csi/csi-livenessprobe
+            tag: v2.1.0_vmware.1
+      csi_node_driver_registrar:
+      - version: v2.0.1+vmware.1
+        images:
+          csiNodeDriverRegistrarImage:
+            imagePath: csi/csi-node-driver-registrar
+            tag: v2.0.1_vmware.1
+      csi_provisioner:
+      - version: v2.0.0+vmware.1
+        images:
+          csiProvisonerImage:
+            imagePath: csi/csi-provisioner
+            tag: v2.0.0_vmware.1
+      dex:
+      - version: v2.27.0+vmware.1
+        images:
+          dexImage:
+            imagePath: dex
+            tag: v2.27.0_vmware.1
+      etcd:
+      - version: v3.4.13+vmware.7
+        images:
+          etcd:
+            imagePath: etcd
+            tag: v3.4.13_vmware.7
+      kapp-controller:
+      - version: v0.18.0+vmware.1
+        images:
+          kappControllerImage:
+            imagePath: kapp-controller
+            tag: v0.18.0_vmware.1
+      kubernetes:
+      - version: v1.20.6+vmware.1
+        images:
+          kubeAPIServer:
+            imagePath: kube-apiserver
+            tag: v1.20.6_vmware.1
+          kubeControllerManager:
+            imagePath: kube-controller-manager
+            tag: v1.20.6_vmware.1
+          kubeE2e:
+            imagePath: e2e-test
+            tag: v1.20.6_vmware.1
+          kubeProxy:
+            imagePath: kube-proxy
+            tag: v1.20.6_vmware.1
+          kubeScheduler:
+            imagePath: kube-scheduler
+            tag: v1.20.6_vmware.1
+          pause:
+            imagePath: pause
+            tag: "3.2"
+      kubernetes-csi_external-resizer:
+      - version: v1.0.0+vmware.1
+        images:
+          csiExternalResizer:
+            imagePath: kubernetes-csi_external-resizer
+            tag: v1.0.0_vmware.1
+      kubernetes-sigs_kind:
+      - version: v1.20.6+vmware.1
+        images:
+          kindNodeImage:
+            imagePath: kind/node
+            tag: v1.20.6_vmware.1
+      metrics-server:
+      - version: v0.4.0+vmware.1
+        images:
+          metricsServerImage:
+            imagePath: metrics-server
+            tag: v0.4.0_vmware.1
+      pinniped:
+      - version: v0.4.1+vmware.1
+        images:
+          pinnipedImage:
+            imagePath: pinniped
+            tag: v0.4.1_vmware.1
+      tanzu_core_addons:
+      - version: v1.3.1
+        images:
+          tanzuAddonsManagerImage:
+            imagePath: tanzu_core/addons/tanzu-addons-manager
+            tag: v1.3.1
+          tkgPinnipedPostDeployImage:
+            imagePath: tanzu_core/addons/tkg-pinniped-post-deploy
+            tag: v1.3.1
+      vsphere_csi_driver:
+      - version: v2.1.0+vmware.1
+        images:
+          csiControllerImage:
+            imagePath: csi/vsphere-block-csi-driver
+            tag: v2.1.0_vmware.1
+          csiMetaDataSyncerImage:
+            imagePath: csi/volume-metadata-syncer
+            tag: v2.1.0_vmware.1
+    imageConfig:
+      imageRepository: projects.registry.vmware.com/tkg
+    addons:
+      antrea:
+        category: cni
+        clusterTypes:
+        - management
+        - workload
+        packageName: antrea.vmware.com
+      calico:
+        category: cni
+        clusterTypes:
+        - management
+        - workload
+        addonTemplatesImage:
+        packageName: calico.vmware.com
+      kapp-controller:
+        category: addons-management
+        clusterTypes:
+        - management
+        - workload
+        packageName: kapp-controller.vmware.com
+      metrics-server:
+        category: metrics
+        clusterTypes:
+        - management
+        - workload
+        packageName: metrics-server.vmware.com
+      pinniped:
+        category: authentication
+        clusterTypes:
+        - management
+        - workload
+        packageName: pinniped.vmware.com
+      tanzu-addons-manager:
+        category: addons-management
+        clusterTypes:
+        - management
+        - workload
+        packageName: tanzu-addons-manager.vmware.com
+      vsphere-cpi:
+        category: cpi
+        clusterTypes:
+        - management
+        - workload
+        packageName: vsphere-cpi.vmware.com
+      vsphere-csi:
+        category: csi
+        clusterTypes:
+        - management
+        - workload
+        packageName: vsphere-csi.vmware.com
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: test-cluster-3-antrea
+  namespace: default
+  labels:
+    tkg.tanzu.vmware.com/addon-name: antrea
+    tkg.tanzu.vmware.com/cluster-name: test-cluster-3
+#  annotations:
+#    tkg.tanzu.vmware.com/remote-app: "true"
+type: tkg.tanzu.vmware.com/addon
+stringData:
+  values.yaml: |
+    serviceCidr: 100.64.0.0/13
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: test-cluster-3-kapp-controller
+  namespace: default
+  labels:
+    tkg.tanzu.vmware.com/addon-name: kapp-controller
+    tkg.tanzu.vmware.com/cluster-name: test-cluster-3
+  annotations:
+    tkg.tanzu.vmware.com/remote-app: "true"
+type: tkg.tanzu.vmware.com/addon
+stringData:
+  values.yaml: |
+    namespace: kapp-controller-ns

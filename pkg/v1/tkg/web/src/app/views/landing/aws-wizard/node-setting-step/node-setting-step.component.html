@@ -131,18 +131,21 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-input-container [attr.data-step-metadata]="formName">
                 <label i18n="cluster name label" clr-control-label>
-                    {{ clusterType | uppercase }} CLUSTER NAME (OPTIONAL)
+                    {{ clusterType | uppercase }} CLUSTER NAME {{edition === 'tkg' ? '(OPTIONAL)' : ''}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                             <span>
-                                Optionally specify a name for the {{ clusterType }} cluster. If left blank,
-                                the installer names the cluster automatically.
+                                {{  edition === 'tkg'?
+                                    'Optionally specify a name for the ' + clusterType + ' cluster. If left blank,' +
+                                    'the installer names the cluster automatically.' : 
+                                    'Specify a name for the ' + clusterType + ' cluster.'
+                                }}
                             </span>
                         </clr-tooltip-content>
                     </clr-tooltip>
                 </label>
-                <input clrInput formControlName="clusterName" placeholder="optional" maxlength="42"/>
+                <input clrInput formControlName="clusterName" placeholder="{{edition === 'tkg' ? 'optional' : ''}}" maxlength="42"/>
                 <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error i18n="cluster name valid msg" *clrIfError="validatorEnum.VALID_CLUSTER_NAME">
@@ -152,44 +155,16 @@
                 <clr-control-error i18n="cluster name valid msg" *clrIfError="validatorEnum.WHITESPACE">
                     {{ clusterType | titlecase }} Cluster Name must not include whitespace on ends.
                 </clr-control-error>
-            </clr-input-container>
-        </div>
-
-        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *ngIf="clusterType !== 'standalone'">
-            <div
-                    [attr.data-step-metadata]="formName"
-                    [attr.data-value]="workerNodeInstanceTypeValue"
-                    data-name="workerNodeInstanceType"
-                    data-label="worker node instance type">
-                <clr-datalist-container>
-                    <label i18n="worker node instance type label" class="clr-col-12 clr-col-md-12">
-                        WORKER NODE INSTANCE TYPE
-                        <clr-tooltip>
-                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
-                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                            <span>
-                                Choose the configuration for worker nodes.
-                            </span>
-                            </clr-tooltip-content>
-                        </clr-tooltip>
-                    </label>
-                    <input clrDatalistInput name="workerNodeInstanceType" formControlName="workerNodeInstanceType" role="listbox" aria-label="worker node instance type" autocomplete="off"/>
-                    <datalist id="workerNodeInstanceType">
-                        <option *ngFor="let nodeType of nodeTypes" [value]="nodeType"></option>
-                    </datalist>
-                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
-                    <clr-control-helper></clr-control-helper>
-                </clr-datalist-container>
-                <clr-control-error *ngIf="showFormError('workerNodeInstanceType')">
-                    Selecting worker node instance type is required
+                <clr-control-error i18n="cluster name required msg" *clrIfError="validatorEnum.REQUIRED">
+                    Cluster name is required
                 </clr-control-error>
-            </div>
+            </clr-input-container>
         </div>
 
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-input-container [attr.data-step-metadata]="formName">
-                <label i18n="aws ssh key name label" clr-control-label>
-                    SSH KEY NAME
+                <label i18n="aws ec2 key pair label" clr-control-label>
+                    EC2 KEY PAIR
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
@@ -200,11 +175,11 @@
                         </clr-tooltip-content>
                     </clr-tooltip>
                 </label>
-                <input clrInput formControlName="sshKeyName" placeholder="ssh key name" />
+                <input clrInput formControlName="sshKeyName" placeholder="ec2 key pair" />
                 <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
                 <clr-control-helper></clr-control-helper>
-                <clr-control-error i18n="AWS ssh key name required msg" *clrIfError="validatorEnum.REQUIRED">
-                    SSH key name cannot be empty
+                <clr-control-error i18n="AWS ec2 key pair required msg" *clrIfError="validatorEnum.REQUIRED">
+                    EC2 key pair cannot be empty
                 </clr-control-error>
             </clr-input-container>
         </div>
@@ -212,7 +187,6 @@
     </div>
 
     <div class="clr-row">
-
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-checkbox-container [attr.data-step-metadata]="formName">
                 <label i18n="cluster enable machine health check" clr-control-label data-full="ENABLE MACHINE HEALTH CHECKS">
@@ -232,7 +206,6 @@
                 </clr-checkbox-wrapper>
             </clr-checkbox-container>
         </div>
-
 
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-checkbox-container [attr.data-step-metadata]="formName">
@@ -269,9 +242,8 @@
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                             <span>
-                                Including bastion hosts in your VPC environment enables you to
-                                securely connect to your Linux instances without exposing your
-                                environment to the Internet.
+                                This CloudFormation stack creates the identity and access management (IAM) resources
+                                that Tanzu Kubernetes Grid needs to deploy and run clusters on Amazon EC2.
                             </span>
                         </clr-tooltip-content>
                     </clr-tooltip>
@@ -326,65 +298,104 @@
                 </clr-control-error>
             </clr-select-container>
         </div>
-        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *ngIf="vpcType === 'existing'">
-            <clr-select-container [attr.data-step-metadata]="formName">
-                <label i18n="existing vpc label">
-                    VPC PUBLIC SUBNET
-                    <clr-tooltip>
-                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
-                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                            <span>
-                                Choose a VPC public subnet associated with the selected AWS availability zone. If no
-                                option is available, please add a public subnet to this availability zone.
-                            </span>
-                        </clr-tooltip-content>
-                    </clr-tooltip>
-                </label>
-                <select
+        <ng-container *ngIf="vpcType === 'existing'">
+            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                <clr-select-container [attr.data-step-metadata]="formName">
+                    <label i18n="existing vpc label">
+                        VPC PUBLIC SUBNET
+                        <clr-tooltip>
+                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                <span>
+                                    Choose a VPC public subnet associated with the selected AWS availability zone. If no
+                                    option is available, please add a public subnet to this availability zone.
+                                </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                    <select
                         clrSelect
                         name="vpcPublicSubnet1"
                         formControlName="vpcPublicSubnet1">
-                    <option aria-label="blank" title="blank"></option>
-                    <ng-container *ngFor="let subnet of filteredAzs?.awsNodeAz1?.publicSubnets">
-                        <option [value]="subnet.id">
-                            {{ subnet.cidr }}
-                        </option>
-                    </ng-container>
-                </select>
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
-                <clr-control-helper></clr-control-helper>
-                <clr-control-error>Selecting a VPC public subnet is required</clr-control-error>
-            </clr-select-container>
-        </div>
-        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *ngIf="vpcType === 'existing'">
-            <clr-select-container [attr.data-step-metadata]="formName">
-                <label i18n="existing vpc label">
-                    VPC PRIVATE SUBNET
-                    <clr-tooltip>
-                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
-                        <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
-                            <span>
-                                Choose a VPC private subnet associated with the selected AWS availability zone. If no
-                                option is available, please add a private subnet to this availability zone.
-                            </span>
-                        </clr-tooltip-content>
-                    </clr-tooltip>
-                </label>
-                <select
+                        <option aria-label="blank" title="blank"></option>
+                        <ng-container *ngFor="let subnet of filteredAzs?.awsNodeAz1?.publicSubnets">
+                            <option [value]="subnet.id">
+                                {{ subnet.cidr }}
+                            </option>
+                        </ng-container>
+                    </select>
+                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                    <clr-control-error>Selecting a VPC public subnet is required</clr-control-error>
+                </clr-select-container>
+            </div>
+            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                <clr-select-container [attr.data-step-metadata]="formName">
+                    <label i18n="existing vpc label">
+                        VPC PRIVATE SUBNET
+                        <clr-tooltip>
+                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
+                                <span>
+                                    Choose a VPC private subnet associated with the selected AWS availability zone. If no
+                                    option is available, please add a private subnet to this availability zone.
+                                </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                    <select
                         clrSelect
                         name="vpcPrivateSubnet1"
                         formControlName="vpcPrivateSubnet1">
-                    <option aria-label="blank" title="blank"></option>
-                    <ng-container *ngFor="let subnet of filteredAzs?.awsNodeAz1?.privateSubnets">
-                        <option [value]="subnet.id">
-                            {{ subnet.cidr }}
-                        </option>
-                    </ng-container>
-                </select>
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
-                <clr-control-helper></clr-control-helper>
-                <clr-control-error>Selecting a VPC private subnet is required</clr-control-error>
-            </clr-select-container>
+                        <option aria-label="blank" title="blank"></option>
+                        <ng-container *ngFor="let subnet of filteredAzs?.awsNodeAz1?.privateSubnets">
+                            <option [value]="subnet.id">
+                                {{ subnet.cidr }}
+                            </option>
+                        </ng-container>
+                    </select>
+                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                    <clr-control-error>Selecting a VPC private subnet is required</clr-control-error>
+                </clr-select-container>
+            </div>
+            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4"></div>
+        </ng-container>
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *ngIf="clusterType !== 'standalone'">
+            <div
+                [attr.data-step-metadata]="formName"
+                [attr.data-value]="workerNodeInstanceType1Value"
+                data-name="workerNodeInstanceType1"
+                data-label="worker node instance type 1">
+                <clr-datalist-container>
+                    <label i18n="worker node instance type label" class="clr-col-12 clr-col-md-12">
+                        AZ1 WORKER NODE INSTANCE TYPE
+                        <clr-tooltip>
+                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                <span>
+                                    Choose the configuration for worker nodes for this AZ.
+                                </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                    <input clrDatalistInput
+                           name="workerNodeInstanceType1"
+                           formControlName="workerNodeInstanceType1"
+                           role="listbox"
+                           aria-label="worker node instance type for az1"
+                           autocomplete="off"
+                           [attr.disabled]="azNodeTypes.awsNodeAz1.length ? null : 'disabled'"/>
+                    <datalist id="workerNodeInstanceType1">
+                        <option *ngFor="let nodeType of azNodeTypes.awsNodeAz1" [value]="nodeType"></option>
+                    </datalist>
+                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                </clr-datalist-container>
+                <clr-control-error *ngIf="showFormError('workerNodeInstanceType1')">
+                    Selecting worker node instance type is required for this AZ
+                </clr-control-error>
+            </div>
         </div>
     </div>
 
@@ -414,7 +425,7 @@
                         </option>
                     </ng-container>
                 </select>
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error
                         i18n="availability zone required msg"
@@ -428,65 +439,104 @@
                 </clr-control-error>
             </clr-select-container>
         </div>
-        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *ngIf="vpcType === 'existing'">
-            <clr-select-container [attr.data-step-metadata]="formName">
-                <label i18n="existing vpc label">
-                    VPC PUBLIC SUBNET
-                    <clr-tooltip>
-                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
-                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                            <span>
-                                Choose a VPC public subnet associated with the selected AWS availability zone. If no
-                                option is available, please add a public subnet to this availability zone.
-                            </span>
-                        </clr-tooltip-content>
-                    </clr-tooltip>
-                </label>
-                <select
+        <ng-container *ngIf="nodeType === 'prod' && vpcType === 'existing'">
+            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" >
+                <clr-select-container [attr.data-step-metadata]="formName">
+                    <label i18n="existing vpc label">
+                        VPC PUBLIC SUBNET
+                        <clr-tooltip>
+                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                <span>
+                                    Choose a VPC public subnet associated with the selected AWS availability zone. If no
+                                    option is available, please add a public subnet to this availability zone.
+                                </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                    <select
                         clrSelect
                         name="vpcPublicSubnet2"
                         formControlName="vpcPublicSubnet2">
-                    <option aria-label="blank" title="blank"></option>
-                    <ng-container *ngFor="let subnet of filteredAzs?.awsNodeAz2?.publicSubnets">
-                        <option [value]="subnet.id">
-                            {{ subnet.cidr }}
-                        </option>
-                    </ng-container>
-                </select>
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
-                <clr-control-helper></clr-control-helper>
-                <clr-control-error>Selecting a VPC public subnet is required</clr-control-error>
-            </clr-select-container>
-        </div>
-        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *ngIf="vpcType === 'existing'">
-            <clr-select-container [attr.data-step-metadata]="formName">
-                <label i18n="existing vpc label">
-                    VPC PRIVATE SUBNET
-                    <clr-tooltip>
-                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
-                        <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
-                            <span>
-                                Choose a VPC private subnet associated with the selected AWS availability zone. If no
-                                option is available, please add a private subnet to this availability zone.
-                            </span>
-                        </clr-tooltip-content>
-                    </clr-tooltip>
-                </label>
-                <select
+                        <option aria-label="blank" title="blank"></option>
+                        <ng-container *ngFor="let subnet of filteredAzs?.awsNodeAz2?.publicSubnets">
+                            <option [value]="subnet.id">
+                                {{ subnet.cidr }}
+                            </option>
+                        </ng-container>
+                    </select>
+                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                    <clr-control-error>Selecting a VPC public subnet is required</clr-control-error>
+                </clr-select-container>
+            </div>
+            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                <clr-select-container [attr.data-step-metadata]="formName">
+                    <label i18n="existing vpc label">
+                        VPC PRIVATE SUBNET
+                        <clr-tooltip>
+                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
+                                <span>
+                                    Choose a VPC private subnet associated with the selected AWS availability zone. If no
+                                    option is available, please add a private subnet to this availability zone.
+                                </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                    <select
                         clrSelect
                         name="vpcPrivateSubnet2"
                         formControlName="vpcPrivateSubnet2">
-                    <option aria-label="blank" title="blank"></option>
-                    <ng-container *ngFor="let subnet of filteredAzs?.awsNodeAz2?.privateSubnets">
-                        <option [value]="subnet.id">
-                            {{ subnet.cidr }}
-                        </option>
-                    </ng-container>
-                </select>
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
-                <clr-control-helper></clr-control-helper>
-                <clr-control-error>Selecting a VPC private subnet is required</clr-control-error>
-            </clr-select-container>
+                        <option aria-label="blank" title="blank"></option>
+                        <ng-container *ngFor="let subnet of filteredAzs?.awsNodeAz2?.privateSubnets">
+                            <option [value]="subnet.id">
+                                {{ subnet.cidr }}
+                            </option>
+                        </ng-container>
+                    </select>
+                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                    <clr-control-error>Selecting a VPC private subnet is required</clr-control-error>
+                </clr-select-container>
+            </div>
+            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4"></div>
+        </ng-container>
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *ngIf="clusterType !== 'standalone'">
+            <div
+                [attr.data-step-metadata]="formName"
+                [attr.data-value]="workerNodeInstanceType2Value"
+                data-name="workerNodeInstanceType2"
+                data-label="worker node instance type 2">
+                <clr-datalist-container>
+                    <label i18n="worker node instance type label" class="clr-col-12 clr-col-md-12">
+                        AZ2 WORKER NODE INSTANCE TYPE
+                        <clr-tooltip>
+                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                Choose the configuration for worker nodes for this AZ.
+                            </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                    <input clrDatalistInput
+                           name="workerNodeInstanceType2"
+                           formControlName="workerNodeInstanceType2"
+                           role="listbox"
+                           aria-label="worker node instance type for az2"
+                           autocomplete="off"
+                           [attr.disabled]="azNodeTypes.awsNodeAz2.length ? null : 'disabled'"/>
+                    <datalist id="workerNodeInstanceType2">
+                        <option *ngFor="let nodeType of azNodeTypes.awsNodeAz2" [value]="nodeType"></option>
+                    </datalist>
+                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                </clr-datalist-container>
+                <clr-control-error *ngIf="showFormError('workerNodeInstanceType2')">
+                    Selecting worker node instance type is required for this AZ
+                </clr-control-error>
+            </div>
         </div>
     </div>
 
@@ -530,65 +580,104 @@
                 </clr-control-error>
             </clr-select-container>
         </div>
-        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *ngIf="vpcType === 'existing'">
-            <clr-select-container [attr.data-step-metadata]="formName">
-                <label i18n="existing vpc label">
-                    VPC PUBLIC SUBNET
-                    <clr-tooltip>
-                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
-                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                            <span>
-                                Choose a VPC public subnet associated with the selected AWS availability zone. If no
-                                option is available, please add a public subnet to this availability zone.
-                            </span>
-                        </clr-tooltip-content>
-                    </clr-tooltip>
-                </label>
-                <select
+        <ng-container *ngIf="nodeType === 'prod' && vpcType === 'existing'">
+            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                <clr-select-container [attr.data-step-metadata]="formName">
+                    <label i18n="existing vpc label">
+                        VPC PUBLIC SUBNET
+                        <clr-tooltip>
+                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                <span>
+                                    Choose a VPC public subnet associated with the selected AWS availability zone. If no
+                                    option is available, please add a public subnet to this availability zone.
+                                </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                    <select
                         clrSelect
                         name="vpcPublicSubnet3"
                         formControlName="vpcPublicSubnet3">
-                    <option aria-label="blank" title="blank"></option>
-                    <ng-container *ngFor="let subnet of filteredAzs?.awsNodeAz3?.publicSubnets">
-                        <option [value]="subnet.id">
-                            {{ subnet.cidr }}
-                        </option>
-                    </ng-container>
-                </select>
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
-                <clr-control-helper></clr-control-helper>
-                <clr-control-error>Selecting a VPC public subnet is required</clr-control-error>
-            </clr-select-container>
-        </div>
-        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *ngIf="vpcType === 'existing'">
-            <clr-select-container [attr.data-step-metadata]="formName">
-                <label i18n="existing vpc label">
-                    VPC PRIVATE SUBNET
-                    <clr-tooltip>
-                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
-                        <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
-                            <span>
-                                Choose a VPC private subnet associated with the selected AWS availability zone. If no
-                                option is available, please add a private subnet to this availability zone.
-                            </span>
-                        </clr-tooltip-content>
-                    </clr-tooltip>
-                </label>
-                <select
+                        <option aria-label="blank" title="blank"></option>
+                        <ng-container *ngFor="let subnet of filteredAzs?.awsNodeAz3?.publicSubnets">
+                            <option [value]="subnet.id">
+                                {{ subnet.cidr }}
+                            </option>
+                        </ng-container>
+                    </select>
+                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                    <clr-control-error>Selecting a VPC public subnet is required</clr-control-error>
+                </clr-select-container>
+            </div>
+            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+                <clr-select-container [attr.data-step-metadata]="formName">
+                    <label i18n="existing vpc label">
+                        VPC PRIVATE SUBNET
+                        <clr-tooltip>
+                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
+                                <span>
+                                    Choose a VPC private subnet associated with the selected AWS availability zone. If no
+                                    option is available, please add a private subnet to this availability zone.
+                                </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                    <select
                         clrSelect
                         name="vpcPrivateSubnet3"
                         formControlName="vpcPrivateSubnet3">
-                    <option aria-label="blank" title="blank"></option>
-                    <ng-container *ngFor="let subnet of filteredAzs?.awsNodeAz3?.privateSubnets">
-                        <option [value]="subnet.id">
-                            {{ subnet.cidr }}
-                        </option>
-                    </ng-container>
-                </select>
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
-                <clr-control-helper></clr-control-helper>
-                <clr-control-error>Selecting a VPC private subnet is required</clr-control-error>
-            </clr-select-container>
+                        <option aria-label="blank" title="blank"></option>
+                        <ng-container *ngFor="let subnet of filteredAzs?.awsNodeAz3?.privateSubnets">
+                            <option [value]="subnet.id">
+                                {{ subnet.cidr }}
+                            </option>
+                        </ng-container>
+                    </select>
+                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                    <clr-control-error>Selecting a VPC private subnet is required</clr-control-error>
+                </clr-select-container>
+            </div>
+            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4"></div>
+        </ng-container>
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *ngIf="clusterType !== 'standalone'">
+            <div
+                [attr.data-step-metadata]="formName"
+                [attr.data-value]="workerNodeInstanceType3Value"
+                data-name="workerNodeInstanceType3"
+                data-label="worker node instance type 3">
+                <clr-datalist-container>
+                    <label i18n="worker node instance type label" class="clr-col-12 clr-col-md-12">
+                        AZ3 WORKER NODE INSTANCE TYPE
+                        <clr-tooltip>
+                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                Choose the configuration for worker nodes for this AZ.
+                            </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </label>
+                    <input clrDatalistInput
+                           name="workerNodeInstanceType3"
+                           formControlName="workerNodeInstanceType3"
+                           role="listbox"
+                           aria-label="worker node instance type for az3"
+                           autocomplete="off"
+                           [attr.disabled]="azNodeTypes.awsNodeAz3.length ? null : 'disabled'"/>
+                    <datalist id="workerNodeInstanceType3">
+                        <option *ngFor="let nodeType of azNodeTypes.awsNodeAz3" [value]="nodeType"></option>
+                    </datalist>
+                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
+                    <clr-control-helper></clr-control-helper>
+                </clr-datalist-container>
+                <clr-control-error *ngIf="showFormError('workerNodeInstanceType3')">
+                    Selecting worker node instance type is required for this AZ
+                </clr-control-error>
+            </div>
         </div>
     </div>
 </form>

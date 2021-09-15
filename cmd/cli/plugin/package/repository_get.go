@@ -8,16 +8,14 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
 )
 
 var repositoryGetCmd = &cobra.Command{
 	Use:   "get REPOSITORY_NAME",
-	Short: "Get repository status",
+	Short: "Get details for a package repository",
 	Args:  cobra.ExactArgs(1),
 	Example: `
     # Get details for a repository in specified namespace 	
@@ -26,7 +24,7 @@ var repositoryGetCmd = &cobra.Command{
 }
 
 func init() {
-	repositoryGetCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table)")
+	repositoryGetCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table), optional")
 	repositoryCmd.AddCommand(repositoryGetCmd)
 }
 
@@ -40,27 +38,21 @@ func repositoryGet(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	t, err := component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), outputFormat,
+	t, err := component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), getOutputFormat(),
 		fmt.Sprintf("Retrieving repository %s...", repoOp.RepositoryName), true)
 	if err != nil {
 		return err
 	}
 
 	packageRepository, err := pkgClient.GetRepository(repoOp)
-	if err != nil {
+	if err != nil || packageRepository == nil {
 		t.StopSpinner()
-		if apierrors.IsNotFound(err) {
-			log.Warningf("package repository '%s' does not exist in namespace '%s'", repoOp.RepositoryName, repoOp.Namespace)
-			return nil
-		}
 		return err
 	}
 
-	t.AddRow("NAME:", packageRepository.Name)
-	t.AddRow("VERSION:", packageRepository.ResourceVersion)
-	t.AddRow("REPOSITORY:", packageRepository.Spec.Fetch.ImgpkgBundle.Image)
-	t.AddRow("STATUS:", packageRepository.Status.FriendlyDescription)
-	t.AddRow("REASON:", packageRepository.Status.UsefulErrorMessage)
+	t.SetKeys("name", "version", "repository", "status", "reason")
+	t.AddRow(packageRepository.Name, packageRepository.ResourceVersion, packageRepository.Spec.Fetch.ImgpkgBundle.Image,
+		packageRepository.Status.FriendlyDescription, packageRepository.Status.UsefulErrorMessage)
 
 	t.RenderWithSpinner()
 	return nil

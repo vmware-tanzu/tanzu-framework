@@ -13,7 +13,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/buildinfo"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 
 	"gopkg.in/yaml.v3"
@@ -96,7 +96,14 @@ func (c *client) saveEmbeddedProviderTemplates(providerPath string) error {
 	if err != nil {
 		return errors.Wrap(err, "cannot find the provider bundle")
 	}
-	providerZipPath := filepath.Join(providerPath, constants.LocalProvidersZipFileName)
+
+	// Remove existing provider files under directory
+	err = os.RemoveAll(providerPath)
+	if err != nil {
+		return errors.Wrap(err, "error while deleting providers directory")
+	}
+
+	providerZipPath := filepath.Join(providerPath, "..", constants.LocalProvidersZipFileName)
 	if err := os.WriteFile(providerZipPath, providersZipBytes, 0o644); err != nil {
 		return errors.Wrap(err, "error while writing provider zip file")
 	}

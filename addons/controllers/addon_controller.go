@@ -5,14 +5,20 @@ package controllers
 
 import (
 	"context"
+	"fmt"
+	"os"
 	"time"
 
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
+	"k8s.io/apimachinery/pkg/util/sets"
+	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/utils/pointer"
 	clusterapiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	controlplanev1alpha3 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
@@ -27,8 +33,12 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
-	"github.com/vmware-tanzu/tanzu-framework/addons/constants"
+	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
+	kapppkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+	kappdatapkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
+
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	addonpredicates "github.com/vmware-tanzu/tanzu-framework/addons/predicates"
@@ -40,7 +50,7 @@ const (
 	deleteRequeueAfter = 10 * time.Second
 )
 
-// AddonReconciler contains the reconciler information for add on controllers.
+// AddonReconciler contains the reconciler information for addon controllers.
 type AddonReconciler struct {
 	Client     client.Client
 	Log        logr.Logger
@@ -130,6 +140,74 @@ func (r *AddonReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ct
 	}
 
 	return result, nil
+}
+
+// WaitForCRDs checks if CRDs are available by polling for resources that addon controller depends on.
+func (r *AddonReconciler) WaitForCRDs(mgr ctrl.Manager) error {
+	// add all the CRDs the controller is watching and is dependent on
+	var crds = map[schema.GroupVersion]*sets.String{}
+	// cluster-api
+	clusterapiv1alpha3Resources := sets.NewString("clusters", "kubeadmcontrolplanes")
+	crds[runtanzuv1alpha1.GroupVersion] = &clusterapiv1alpha3Resources
+
+	// tkr
+	runtanzuv1alpha1Resources := sets.NewString("tanzukubernetesreleases")
+	crds[runtanzuv1alpha1.GroupVersion] = &runtanzuv1alpha1Resources
+
+	// kapp-controller APIs
+	kappctrlv1alpha1Resources := sets.NewString("apps")
+	crds[kappctrl.SchemeGroupVersion] = &kappctrlv1alpha1Resources
+
+	kapppkgv1alpha1Resources := sets.NewString("packageinstalls", "packagerepositories")
+	crds[kapppkg.SchemeGroupVersion] = &kapppkgv1alpha1Resources
+
+	kappdatapkgv1alpha1Resources := sets.NewString("packagemetadatas", "packages")
+	crds[kappdatapkg.SchemeGroupVersion] = &kappdatapkgv1alpha1Resources
+
+	addonPod := &corev1.Pod{ObjectMeta: metav1.ObjectMeta{Name: os.Getenv("POD_NAME"), Namespace: os.Getenv("POD_NAMESPACE")}}
+
+	poller := func() (done bool, err error) {
+		// Create new clientset for every invocation to avoid caching of resources
+		cs, err := clientset.NewForConfig(mgr.GetConfig())
+		if err != nil {
+			return false, err
+		}
+
+		allFound := true
+		for gv, resources := range crds {
+			// All resources found, do nothing
+			if resources.Len() == 0 {
+				delete(crds, gv)
+				continue
+			}
+
+			// Get the Resources for this GroupVersion
+			groupVersion := gv.String()
+			resourceList, err := cs.Discovery().ServerResourcesForGroupVersion(groupVersion)
+			if err != nil {
+				r.Log.Error(err, "error retrieving GroupVersion", "GroupVersion", groupVersion)
+				mgr.GetEventRecorderFor(constants.AddonControllerName).Eventf(addonPod, corev1.EventTypeWarning,
+					"Polling for GroupVersion", "The GroupVersion '%s' is not available yet", groupVersion)
+				return false, nil
+			}
+
+			// Remove each found resource from the resources set that we are waiting for
+			for i := 0; i < len(resourceList.APIResources); i++ {
+				resources.Delete(resourceList.APIResources[i].Name)
+			}
+
+			// Still waiting on some resources in this group version
+			if resources.Len() != 0 {
+				allFound = false
+				r.Log.Info("resources are not available yet", "api-resources", resources, "GroupVersion", groupVersion)
+				mgr.GetEventRecorderFor(constants.AddonControllerName).Eventf(addonPod, corev1.EventTypeWarning,
+					"Polling for api-resources", "The api-resources '%s' in GroupVersion '%s' are not available yet", resources, groupVersion)
+			}
+		}
+		return allFound, nil
+	}
+
+	return wait.PollImmediate(constants.CRDWaitPollInterval, constants.CRDWaitPollTimeout, poller)
 }
 
 // reconcileDelete deletes the addon secrets that belong to the cluster
@@ -246,17 +324,30 @@ func (r *AddonReconciler) reconcileNormal(
 		return ctrl.Result{}, err
 	}
 
-	// reconcile each addon secret
+	// Get the repository used for all images
+	imageRepository, err := util.GetAddonImageRepository(ctx, r.Client, bom)
+	if err != nil || imageRepository == "" {
+		log.Info("Error getting image repository")
+		return ctrl.Result{}, err
+	}
+
 	var (
 		errors []error
 		result ctrl.Result
 	)
+	// Reconcile core package repository in the cluster
+	pkgReconciler := &PackageReconciler{ctx: ctx, log: log, clusterClient: remoteClient, Config: r.Config}
+	err = pkgReconciler.reconcileCorePackageRepository(imageRepository, bom)
+	if err != nil {
+		log.Error(err, "Error reconciling core package repository")
+		errors = append(errors, err)
+	}
 
 	for i := range addonSecrets.Items {
 		addonSecret := addonSecrets.Items[i]
 		logWithContext := log.WithValues(constants.AddonSecretNamespaceLogKey, addonSecret.Namespace, constants.AddonSecretNameLogKey, addonSecret.Name)
 
-		result, err = r.reconcileAddonSecret(ctx, logWithContext, cluster, remoteClient, &addonSecret, bom)
+		result, err = r.reconcileAddonSecret(ctx, logWithContext, cluster, remoteClient, &addonSecret, imageRepository, bom)
 		if err != nil {
 			logWithContext.Error(err, "Error reconciling addon secret")
 			errors = append(errors, err)
@@ -278,6 +369,7 @@ func (r *AddonReconciler) reconcileAddonSecret(
 	cluster *clusterapiv1alpha3.Cluster,
 	clusterClient client.Client,
 	addonSecret *corev1.Secret,
+	imageRepository string,
 	bom *bomtypes.Bom) (_ ctrl.Result, retErr error) {
 
 	var (
@@ -323,7 +415,7 @@ func (r *AddonReconciler) reconcileAddonSecret(
 		return result, nil
 	}
 
-	result, err := r.reconcileAddonSecretNormal(ctx, log, addonName, cluster, clusterClient, addonSecret, &patchAddonSecret, bom)
+	result, err := r.reconcileAddonSecretNormal(ctx, log, addonName, cluster, clusterClient, addonSecret, &patchAddonSecret, imageRepository, bom)
 	if err != nil {
 		log.Error(err, "Error reconciling addon secret", constants.AddonNameLogKey, addonName)
 		return ctrl.Result{}, err
@@ -375,18 +467,13 @@ func (r *AddonReconciler) reconcileAddonSecretNormal(
 	clusterClient client.Client,
 	addonSecret *corev1.Secret,
 	patchAddonSecret *bool,
+	imageRepository string,
 	bom *bomtypes.Bom) (ctrl.Result, error) {
 
 	// get addon config from BOM
 	addonConfig, err := bom.GetAddon(addonName)
 	if err != nil {
 		log.Info("Addon config not found from BOM for addon", constants.AddonNameLogKey, addonName)
-		return ctrl.Result{}, err
-	}
-
-	imageRepository, err := util.GetAddonImageRepository(ctx, r.Client, bom)
-	if err != nil || imageRepository == "" {
-		log.Info("Addon image repository not found for addon", constants.AddonNameLogKey, addonName)
 		return ctrl.Result{}, err
 	}
 
@@ -419,7 +506,7 @@ func (r *AddonReconciler) removeFinalizerFromAddonSecret(
 	addonName := util.GetAddonNameFromAddonSecret(addonSecret)
 
 	if checkAppBeforeRemoval {
-		appPresent, err := util.IsAppPresent(ctx, r.Client, clusterClient, addonSecret)
+		appPresent, err := util.IsAppPresent(ctx, r.Client, clusterClient, addonSecret, r.Config.AddonNamespace)
 		if err != nil {
 			log.Error(err, "Error checking if app is present", constants.AddonNameLogKey, addonName)
 			return false, false, err
@@ -488,4 +575,32 @@ func (r *AddonReconciler) shouldNotReconcile(
 	}
 
 	return false
+}
+
+// logOperationResult logs the reconcile operation results
+func logOperationResult(log logr.Logger, resourceName string, result controllerutil.OperationResult) {
+	switch result {
+	case controllerutil.OperationResultCreated,
+		controllerutil.OperationResultUpdated,
+		controllerutil.OperationResultUpdatedStatus,
+		controllerutil.OperationResultUpdatedStatusOnly:
+		log.Info(fmt.Sprintf("Resource %s %s", resourceName, result))
+	default:
+	}
+}
+
+// GetAddonKappResourceReconciler gets the correct kapp resource reconciler
+func (r *AddonReconciler) GetAddonKappResourceReconciler(
+	ctx context.Context,
+	log logr.Logger,
+	clusterClient client.Client,
+	reconcilerType string) (AddonKappResourceReconciler, error) {
+
+	switch reconcilerType {
+	case constants.TKGAppReconcilerKey:
+		return &AppReconciler{ctx: ctx, log: log, clusterClient: clusterClient, Config: r.Config}, nil
+	case constants.TKGPackageReconcilerKey:
+		return &PackageReconciler{ctx: ctx, log: log, clusterClient: clusterClient, Config: r.Config}, nil
+	}
+	return nil, fmt.Errorf("invalid reconciler type: %s", reconcilerType)
 }

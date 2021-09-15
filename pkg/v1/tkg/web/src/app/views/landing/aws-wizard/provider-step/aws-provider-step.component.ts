@@ -26,7 +26,7 @@ export const AWSAccountParamsKeys = ['profileName', 'sessionToken', 'region', 'a
 export class AwsProviderStepComponent extends StepFormDirective implements OnInit {
 
     loading = false;
-    authTypeValue: string = 'staticCredentials';
+    authTypeValue: string = 'oneTimeCredentials';
 
     regions = [];
     profileNames: Array<string> = [];
@@ -43,7 +43,7 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
      * Create the initial form
      */
     private buildForm() {
-        this.formGroup.addControl('authType', new FormControl('staticCredentials', []));
+        this.formGroup.addControl('authType', new FormControl('oneTimeCredentials', []));
 
         AWSAccountParamsKeys.forEach(key => this.formGroup.addControl(
             key,
@@ -116,15 +116,15 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
         ).subscribe(data => {
             this.authTypeValue = data;
 
-            if (this.authTypeValue === 'staticCredentials') {
-                this.staticCredentialsSelectedHandler();
+            if (this.authTypeValue === 'oneTimeCredentials') {
+                this.oneTimeCredentialsSelectedHandler();
             } else if (this.authTypeValue === 'credentialProfile') {
                 this.credentialProfileSelectedHandler();
             } else {
                 this.disarmField('authType', true);
             }
         });
-        this.authTypeValue = this.getSavedValue('authType', 'staticCredentials');
+        this.authTypeValue = this.getSavedValue('authType', 'credentialProfile');
 
         this.formGroup.get('authType').setValue(this.authTypeValue);
     }
@@ -162,7 +162,7 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
             );
     }
 
-    staticCredentialsSelectedHandler() {
+    oneTimeCredentialsSelectedHandler() {
         this.disarmField('profileName', true);
     }
 

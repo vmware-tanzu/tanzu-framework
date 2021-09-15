@@ -115,7 +115,7 @@ func getPinnipedKubeconfig(tkgctlClient tkgctl.TKGClient, workloadClusterName st
 	}
 
 	if getKCOptions.exportFile != "" {
-		log.Infof("You can now access the cluster by running 'kubectl config use-context %s' under path '%s' \n", kubeconfig.CurrentContext, getKCOptions.exportFile)
+		log.Infof("You can now access the cluster by specifying '--kubeconfig %s' flag when using `kubectl` command \n", getKCOptions.exportFile)
 	} else {
 		log.Infof("You can now access the cluster by running 'kubectl config use-context %s'\n", kubeconfig.CurrentContext)
 	}

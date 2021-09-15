@@ -20,7 +20,7 @@ import (
 // NewGetAWSNodeTypesParams creates a new GetAWSNodeTypesParams object
 // with the default values initialized.
 func NewGetAWSNodeTypesParams() *GetAWSNodeTypesParams {
-
+	var ()
 	return &GetAWSNodeTypesParams{
 
 		timeout: cr.DefaultTimeout,
@@ -30,7 +30,7 @@ func NewGetAWSNodeTypesParams() *GetAWSNodeTypesParams {
 // NewGetAWSNodeTypesParamsWithTimeout creates a new GetAWSNodeTypesParams object
 // with the default values initialized, and the ability to set a timeout on a request
 func NewGetAWSNodeTypesParamsWithTimeout(timeout time.Duration) *GetAWSNodeTypesParams {
-
+	var ()
 	return &GetAWSNodeTypesParams{
 
 		timeout: timeout,
@@ -40,7 +40,7 @@ func NewGetAWSNodeTypesParamsWithTimeout(timeout time.Duration) *GetAWSNodeTypes
 // NewGetAWSNodeTypesParamsWithContext creates a new GetAWSNodeTypesParams object
 // with the default values initialized, and the ability to set a context for a request
 func NewGetAWSNodeTypesParamsWithContext(ctx context.Context) *GetAWSNodeTypesParams {
-
+	var ()
 	return &GetAWSNodeTypesParams{
 
 		Context: ctx,
@@ -50,7 +50,7 @@ func NewGetAWSNodeTypesParamsWithContext(ctx context.Context) *GetAWSNodeTypesPa
 // NewGetAWSNodeTypesParamsWithHTTPClient creates a new GetAWSNodeTypesParams object
 // with the default values initialized, and the ability to set a custom HTTPClient for a request
 func NewGetAWSNodeTypesParamsWithHTTPClient(client *http.Client) *GetAWSNodeTypesParams {
-
+	var ()
 	return &GetAWSNodeTypesParams{
 		HTTPClient: client,
 	}
@@ -60,6 +60,13 @@ func NewGetAWSNodeTypesParamsWithHTTPClient(client *http.Client) *GetAWSNodeType
 for the get a w s node types operation typically these are written to a http.Request
 */
 type GetAWSNodeTypesParams struct {
+
+	/*Az
+	  AWS availability zone, e.g. us-west-2
+
+	*/
+	Az *string
+
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
@@ -98,6 +105,17 @@ func (o *GetAWSNodeTypesParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithAz adds the az to the get a w s node types params
+func (o *GetAWSNodeTypesParams) WithAz(az *string) *GetAWSNodeTypesParams {
+	o.SetAz(az)
+	return o
+}
+
+// SetAz adds the az to the get a w s node types params
+func (o *GetAWSNodeTypesParams) SetAz(az *string) {
+	o.Az = az
+}
+
 // WriteToRequest writes these params to a swagger request
 func (o *GetAWSNodeTypesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 
@@ -105,6 +123,22 @@ func (o *GetAWSNodeTypesParams) WriteToRequest(r runtime.ClientRequest, reg strf
 		return err
 	}
 	var res []error
+
+	if o.Az != nil {
+
+		// query param az
+		var qrAz string
+		if o.Az != nil {
+			qrAz = *o.Az
+		}
+		qAz := qrAz
+		if qAz != "" {
+			if err := r.SetQueryParam("az", qAz); err != nil {
+				return err
+			}
+		}
+
+	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)

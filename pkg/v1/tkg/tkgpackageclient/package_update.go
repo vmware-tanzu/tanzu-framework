@@ -4,10 +4,15 @@
 package tkgpackageclient
 
 import (
+	"context"
 	"fmt"
+	"io/ioutil"
+	"path/filepath"
 
 	"github.com/pkg/errors"
+	corev1 "k8s.io/api/core/v1"
 	k8serror "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 
@@ -16,8 +21,9 @@ import (
 
 func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progress *tkgpackagedatamodel.PackageProgress) {
 	var (
-		pkgInstall *kappipkg.PackageInstall
-		err        error
+		pkgInstall    *kappipkg.PackageInstall
+		err           error
+		secretCreated bool
 	)
 
 	defer func() {
@@ -36,7 +42,7 @@ func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progres
 
 	if pkgInstall == nil {
 		if !o.Install {
-			err = errors.New(fmt.Sprintf("package '%s' is not among the list of installed packages in namespace '%s'", o.PkgInstallName, o.Namespace))
+			err = errors.New(fmt.Sprintf("package '%s' is not among the list of installed packages in namespace '%s'. Consider using the install flag to install the package", o.PkgInstallName, o.Namespace))
 			return
 		}
 		if o.PackageName == "" {
@@ -45,24 +51,71 @@ func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progres
 		}
 		progress.ProgressMsg <- fmt.Sprintf("Installing package '%s'", o.PkgInstallName)
 		p.InstallPackage(o, progress, true)
-	} else if pkgInstall != nil && o.Version != pkgInstall.Status.Version {
-		if pkgInstall.Spec.PackageRef == nil || pkgInstall.Spec.PackageRef.VersionSelection == nil {
+		return
+	}
+
+	pkgInstallToUpdate := pkgInstall.DeepCopy()
+	if o.Version != pkgInstallToUpdate.Status.Version {
+		if pkgInstallToUpdate.Spec.PackageRef == nil || pkgInstallToUpdate.Spec.PackageRef.VersionSelection == nil {
 			err = errors.New(fmt.Sprintf("failed to update package '%s'", o.PkgInstallName))
 			return
 		}
-		progress.ProgressMsg <- fmt.Sprintf("Getting package metadata for '%s'", pkgInstall.Spec.PackageRef.RefName)
-		o.PackageName = pkgInstall.Spec.PackageRef.RefName
+		progress.ProgressMsg <- fmt.Sprintf("Getting package metadata for '%s'", pkgInstallToUpdate.Spec.PackageRef.RefName)
+		o.PackageName = pkgInstallToUpdate.Spec.PackageRef.RefName
 		if _, _, err = p.GetPackage(o); err != nil {
 			return
 		}
-		pkgInstallToUpdate := pkgInstall.DeepCopy()
 		pkgInstallToUpdate.Spec.PackageRef.VersionSelection.Constraints = o.Version
-		progress.ProgressMsg <- fmt.Sprintf("Updating package install for '%s'", o.PkgInstallName)
-		if err = p.kappClient.UpdatePackageInstall(pkgInstallToUpdate); err != nil {
-			err = errors.Wrap(err, fmt.Sprintf("failed to update package '%s'", o.PkgInstallName))
-			return
+	}
+
+	if o.ValuesFile != "" {
+		o.SecretName = fmt.Sprintf(tkgpackagedatamodel.SecretName, o.PkgInstallName, o.Namespace)
+		if o.SecretName == pkgInstallToUpdate.GetAnnotations()[tkgpackagedatamodel.TanzuPkgPluginAnnotation+"-Secret"] {
+			progress.ProgressMsg <- fmt.Sprintf("Updating secret '%s'", o.SecretName)
+			if err = p.updateDataValuesSecret(o); err != nil {
+				err = errors.Wrap(err, "failed to update secret based on values file")
+				return
+			}
+			secretCreated = false
+		} else {
+			progress.ProgressMsg <- fmt.Sprintf("Creating secret '%s'", o.SecretName)
+			if secretCreated, err = p.createDataValuesSecret(o); err != nil {
+				err = errors.Wrap(err, "failed to create secret based on values file")
+				return
+			}
+		}
+
+		pkgInstallToUpdate.Spec.Values = []kappipkg.PackageInstallValues{
+			{
+				SecretRef: &kappipkg.PackageInstallValuesSecretRef{
+					Name: fmt.Sprintf(tkgpackagedatamodel.SecretName, o.PkgInstallName, o.Namespace),
+				},
+			},
 		}
 	}
 
-	progress.Success <- true
+	progress.ProgressMsg <- fmt.Sprintf("Updating package install for '%s'", o.PkgInstallName)
+	if err = p.kappClient.UpdatePackageInstall(pkgInstallToUpdate, secretCreated); err != nil {
+		err = errors.Wrap(err, fmt.Sprintf("failed to update package '%s'", o.PkgInstallName))
+		return
+	}
+}
+
+// updateDataValuesSecret update a secret object containing the user-provided configuration.
+func (p *pkgClient) updateDataValuesSecret(o *tkgpackagedatamodel.PackageOptions) error {
+	var err error
+	dataValues := make(map[string][]byte)
+
+	if dataValues[filepath.Base(o.ValuesFile)], err = ioutil.ReadFile(o.ValuesFile); err != nil {
+		return errors.Wrap(err, fmt.Sprintf("failed to read from data values file '%s'", o.ValuesFile))
+	}
+	secret := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{Name: o.SecretName, Namespace: o.Namespace}, Data: dataValues,
+	}
+
+	if err := p.kappClient.GetClient().Update(context.Background(), secret); err != nil {
+		return errors.Wrap(err, "failed to update Secret resource")
+	}
+
+	return nil
 }

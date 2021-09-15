@@ -1,0 +1,28 @@
+apiVersion: vendir.k14s.io/v1alpha1
+kind: Config
+directories:
+- path: ytt/vendir/vsphere_cpi/_ytt_lib
+  contents:
+  - path: .
+    git:
+      url: git@github.com:vmware-tanzu/tce.git
+      ref: df9a9cdea9886f1f5cc2856994739539cd5c5663
+    includePaths:
+    - addons/packages/vsphere-cpi/1.18.1/bundle/config/**/*
+- path: ytt/vendir/cni/_ytt_lib
+  contents:
+  - path: .
+    git:
+      url: git@github.com:vmware-tanzu/tce.git
+      ref: 0c8cf14639f151cc0268da53d133e1f6c0d836a9
+    includePaths:
+    - addons/packages/antrea/0.13.3/bundle/config/**/*
+    - addons/packages/calico/3.11.3/bundle/config/**/*
+- path: ytt/vendir/kapp-controller/_ytt_lib
+  contents:
+  - path: .
+    git:
+      url: git@github.com:vmware-tanzu/tce.git
+      ref: d78628afa044bab34e492830530ee4fdf20f40f2
+    includePaths:
+    - addons/packages/kapp-controller/0.23.0/bundle/config/**/*

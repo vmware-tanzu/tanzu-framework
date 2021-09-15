@@ -1,19 +1,10 @@
 # Copyright 2021 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+include ../../../common.mk
+
 IMG ?= tkr-controller-manager:latest
-GOOS ?= $(shell go env GOOS)
-GOARCH ?= $(shell go env GOARCH)
 CRD_OPTIONS ?= "crd:trivialVersions=true"
-
-ifeq (,$(shell go env GOBIN))
-GOBIN=$(shell go env GOPATH)/bin
-else
-GOBIN=$(shell go env GOBIN)
-endif
-
-PRIVATE_REPOS="github.com/vmware-tanzu"
-GO := GOPRIVATE=${PRIVATE_REPOS} go
 
 # ssh private key file name
 SSH_PRIVATE_KEY ?= .private_ssh_key
@@ -26,11 +17,11 @@ test: fmt vet manifests
 
 # Build manager binary
 manager: fmt vet
-	go build -o bin/manager main.go
+	go build -ldflags "$(LD_FLAGS)" -o bin/manager main.go
 
 # Run against the configured Kubernetes cluster in ~/.kube/config
 run: fmt vet
-	go run ./main.go
+	go run -ldflags "$(LD_FLAGS)" ./main.go
 
 # Run go fmt against code
 fmt:
@@ -73,4 +64,4 @@ fakes: ## Generate fake files for go unit tests
 
 .PHONY: docker-build
 docker-build:
-	cd ../../../ && docker build -t $(IMG) -f pkg/v1/tkr/Dockerfile --build-arg SSH_PRIVATE_KEY=$(SSH_PRIVATE_KEY) .
+	cd ../../../ && docker build -t $(IMG) -f pkg/v1/tkr/Dockerfile --build-arg LD_FLAGS="$(LD_FLAGS)" --build-arg SSH_PRIVATE_KEY=$(SSH_PRIVATE_KEY) .

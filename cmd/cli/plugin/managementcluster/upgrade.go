@@ -85,6 +85,7 @@ func runUpgradeRegion(server *v1alpha1.Server) error {
 		OSName:              ur.osName,
 		OSVersion:           ur.osVersion,
 		OSArch:              ur.osArch,
+		Edition:             BuildEdition,
 	}
 	return tkgClient.UpgradeRegion(options)
 }

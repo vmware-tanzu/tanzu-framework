@@ -13,7 +13,11 @@ import (
 
 // GetAWSNodeTypesURL generates an URL for the get a w s node types operation
 type GetAWSNodeTypesURL struct {
+	Az *string
+
 	_basePath string
+	// avoid unkeyed usage
+	_ struct{}
 }
 
 // WithBasePath sets the base path for this url builder, only required when it's different from the
@@ -42,6 +46,18 @@ func (o *GetAWSNodeTypesURL) Build() (*url.URL, error) {
 		_basePath = "/"
 	}
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
+
+	qs := make(url.Values)
+
+	var azQ string
+	if o.Az != nil {
+		azQ = *o.Az
+	}
+	if azQ != "" {
+		qs.Set("az", azQ)
+	}
+
+	_result.RawQuery = qs.Encode()
 
 	return &_result, nil
 }

@@ -34,7 +34,6 @@ make generate-testcases
 # TODO: Handle current commit that is not HEAD
 rm -rf tests/clustergen/testdata/new || true
 git log --pretty=oneline -5
-make generate-bindata
 CLI_REPO=${CLI_REPO} ${BASE_DIR}/rebuild-cli.sh ${PWD}
 make CLUSTERGEN_OUTPUT_DIR=new GOOS=${GOOS} GOARCH=${GOARCH} CLI_REPO=${CLI_REPO} cluster-generation-tests
 
@@ -44,7 +43,6 @@ if [ "${LAST_BASE_BRANCH_COMMIT}" != "${BASE_BRANCH_COMMIT}" ]; then
   rm -rf tests/clustergen/testdata/old || true
   git checkout -B clustergen_test_base ${GIT_BRANCH_PROVIDERS_BASE}
   git log --pretty=oneline -5
-  make generate-bindata
   CLI_REPO=${CLI_REPO} ${BASE_DIR}/rebuild-cli.sh ${PWD}
   make CLUSTERGEN_OUTPUT_DIR=old GOOS=${GOOS} GOARCH=${GOARCH} CLI_REPO=${CLI_REPO} cluster-generation-tests
   git checkout .

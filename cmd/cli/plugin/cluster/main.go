@@ -16,6 +16,11 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 )
 
+var (
+	// BuildEdition is the edition the CLI was built for. This variable will be set during the build.
+	BuildEdition string
+)
+
 var descriptor = cliv1alpha1.PluginDescriptor{
 	Name:        "cluster",
 	Description: "Kubernetes cluster operations",
@@ -46,6 +51,7 @@ func main() {
 		clusterKubeconfigCmd,
 		getClustersCmd,
 		availableUpgradesCmd,
+		clusterNodePoolCmd,
 	)
 	if err := p.Execute(); err != nil {
 		os.Exit(1)

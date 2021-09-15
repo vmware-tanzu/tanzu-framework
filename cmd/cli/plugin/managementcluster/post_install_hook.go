@@ -4,9 +4,7 @@
 package main
 
 func postInstallHook() error {
-	// To initialize configuration we do not need to do anything
-	// except creating tkgctl client. As initializing the client
-	// initializes the configuration to the tanzu config directory.
+	// Creating a tkgctl client in turn initializes the TKG configuration in the tanzu config directory.
 	forceUpdateTKGCompatibilityImage := true
 	_, err := newTKGCtlClient(forceUpdateTKGCompatibilityImage)
 	if err != nil {

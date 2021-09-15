@@ -32,7 +32,7 @@ type VSphereManagementObject struct {
 	Path string `json:"path,omitempty"`
 
 	// resource type
-	// Enum: [datacenter cluster hostgroup folder respool vm datastore host]
+	// Enum: [datacenter cluster hostgroup folder respool vm datastore host network]
 	ResourceType string `json:"resourceType,omitempty"`
 }
 
@@ -54,7 +54,7 @@ var vSphereManagementObjectTypeResourceTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["datacenter","cluster","hostgroup","folder","respool","vm","datastore","host"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["datacenter","cluster","hostgroup","folder","respool","vm","datastore","host","network"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -87,6 +87,9 @@ const (
 
 	// VSphereManagementObjectResourceTypeHost captures enum value "host"
 	VSphereManagementObjectResourceTypeHost string = "host"
+
+	// VSphereManagementObjectResourceTypeNetwork captures enum value "network"
+	VSphereManagementObjectResourceTypeNetwork string = "network"
 )
 
 // prop value enum

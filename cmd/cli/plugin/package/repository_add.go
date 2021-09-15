@@ -4,15 +4,18 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
 )
 
 var repositoryAddCmd = &cobra.Command{
-	Use:   "add REPOSITORY_NAME ",
-	Short: "Add a repository",
+	Use:   "add REPOSITORY_NAME --url REPOSITORY_URL",
+	Short: "Add a package repository",
 	Args:  cobra.ExactArgs(1),
 	Example: `
     # Add a repository in specified namespace which does not exist 	
@@ -27,10 +30,16 @@ func init() {
 	repositoryCmd.AddCommand(repositoryAddCmd)
 }
 
-func repositoryAdd(_ *cobra.Command, args []string) error {
+func repositoryAdd(cmd *cobra.Command, args []string) error {
 	repoOp.RepositoryName = args[0]
 
 	pkgClient, err := tkgpackageclient.NewTKGPackageClient(repoOp.KubeConfig)
+	if err != nil {
+		return err
+	}
+
+	_, err = component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), outputFormat,
+		fmt.Sprintf("Adding package repository '%s'...", repoOp.RepositoryName), true)
 	if err != nil {
 		return err
 	}
@@ -39,7 +48,7 @@ func repositoryAdd(_ *cobra.Command, args []string) error {
 		return err
 	}
 
-	log.Infof("Added package repository '%s'", repoOp.RepositoryName)
+	log.Infof("\n Added package repository '%s'", repoOp.RepositoryName)
 
 	return nil
 }

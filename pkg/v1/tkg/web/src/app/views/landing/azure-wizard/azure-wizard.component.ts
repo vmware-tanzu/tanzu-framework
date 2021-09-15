@@ -28,11 +28,11 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         public wizardFormService: AzureWizardFormService,
         private formBuilder: FormBuilder,
         private apiClient: APIClient,
-        private titleService: Title,
+        titleService: Title,
         formMetaDataService: FormMetaDataService,
         el: ElementRef) {
 
-        super(router, el, formMetaDataService);
+        super(router, el, formMetaDataService, titleService);
 
         this.form = this.formBuilder.group({
             azureProviderForm: this.formBuilder.group({
@@ -210,7 +210,8 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         const cliG = new CliGenerator();
         const cliParams: CliFields = {
             configPath: configPath,
-            clusterType: this.clusterType
+            clusterType: this.clusterType,
+            clusterName: this.getMCName()
         };
         return cliG.getCli(cliParams);
     }

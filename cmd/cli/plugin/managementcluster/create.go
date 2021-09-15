@@ -21,6 +21,7 @@ type initRegionOptions struct {
 	deployTKGonVsphere7         bool
 	unattended                  bool
 	dryRun                      bool
+	forceConfigUpdate           bool
 	clusterConfigFile           string
 	plan                        string
 	clusterName                 string
@@ -100,7 +101,13 @@ func init() {
 	createCmd.Flags().StringVarP(&iro.workerSize, "worker-size", "", "", "Specify size of the worker node. (See [+])")
 	createCmd.Flags().MarkHidden("worker-size") //nolint
 
-	createCmd.Flags().StringVarP(&iro.ceipOptIn, "ceip-participation", "", "", "Specify if this management cluster should participate in VMware CEIP. (See [*])")
+	// commercial Tanzu editions turn CEIP on by default.
+	// community edition turns it off
+	defaultCeip := DefaultCEIPSetting
+	if BuildEdition == TCEBuildEditionName {
+		defaultCeip = DefaultCEIPTCESetting
+	}
+	createCmd.Flags().StringVarP(&iro.ceipOptIn, "ceip-participation", "", defaultCeip, "Specify if this management cluster should participate in VMware CEIP. (See [*])")
 	createCmd.Flags().MarkHidden("ceip-participation") //nolint
 
 	createCmd.Flags().BoolVarP(&iro.deployTKGonVsphere7, "deploy-tkg-on-vSphere7", "", false, "Deploy TKG Management cluster on vSphere 7.0 without prompt")
@@ -128,6 +135,8 @@ func init() {
 	createCmd.Flags().StringToStringVarP(&iro.featureFlags, "feature-flags", "", nil, "Activate and deactivate hidden features in the form 'feature1=true,feature2=false'")
 	createCmd.Flags().MarkHidden("feature-flags") //nolint
 
+	createCmd.Flags().BoolVar(&iro.forceConfigUpdate, "force-config-update", false, "Force an update of all configuration files in ${HOME}/.config/tanzu/tkg/bom and ${HOME}/.tanzu/tkg/compatibility")
+
 	createCmd.Flags().SetNormalizeFunc(aliasNormalizeFunc)
 }
 
@@ -139,7 +148,7 @@ func aliasNormalizeFunc(f *pflag.FlagSet, name string) pflag.NormalizedName {
 }
 
 func runInit() error {
-	forceUpdateTKGCompatibilityImage := true
+	forceUpdateTKGCompatibilityImage := iro.forceConfigUpdate
 	tkgClient, err := newTKGCtlClient(forceUpdateTKGCompatibilityImage)
 	if err != nil {
 		return err

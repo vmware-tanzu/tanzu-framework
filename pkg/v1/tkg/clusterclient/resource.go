@@ -5,6 +5,7 @@ package clusterclient
 
 import (
 	"context"
+	"fmt"
 	"reflect"
 
 	"github.com/pkg/errors"
@@ -22,6 +23,7 @@ import (
 	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
 	capiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
+	bootstrapv1alpha3 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha3"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
 	addonsv1 "sigs.k8s.io/cluster-api/exp/addons/api/v1alpha3"
@@ -29,8 +31,12 @@ import (
 	"sigs.k8s.io/cluster-api/util/conditions"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
+	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
+	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/api/tmc/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 )
 
@@ -171,6 +177,8 @@ func (c *client) getRuntimeObject(o interface{}) (runtime.Object, error) { //nol
 		return obj, nil
 	case *appsv1.Deployment:
 		return obj, nil
+	case *appsv1.StatefulSet:
+		return obj, nil
 	case *clusterctlv1.ProviderList:
 		return obj, nil
 	case *capi.ClusterList:
@@ -240,6 +248,10 @@ func (c *client) getRuntimeObject(o interface{}) (runtime.Object, error) { //nol
 	case *runv1alpha1.TanzuKubernetesReleaseList:
 		return obj, nil
 	case *runv1alpha1.TanzuKubernetesRelease:
+		return obj, nil
+	case *bootstrapv1alpha3.KubeadmConfigTemplate:
+		return obj, nil
+	case *kappipkg.PackageInstall:
 		return obj, nil
 	default:
 		return nil, errors.New("invalid object type")
@@ -372,5 +384,40 @@ func VerifyCRSAppliedSuccessfully(obj runtime.Object) error {
 		return kerrors.NewAggregate(errList)
 	default:
 		return errors.Errorf("invalid type: %s during VerifyCRSAppliedSuccessfully", reflect.TypeOf(crsList))
+	}
+}
+
+// VerifyAVIResourceCleanupFinished verifies that avi objects clean up finished.
+func VerifyAVIResourceCleanupFinished(obj runtime.Object) error {
+	switch statefulSet := obj.(type) {
+	case *appsv1.StatefulSet:
+		for _, condition := range statefulSet.Status.Conditions {
+			if condition.Type == constants.AkoCleanupCondition && condition.Status == corev1.ConditionFalse {
+				return nil
+			}
+		}
+		return errors.Errorf("AVI Resource clean up in progress")
+	default:
+		return errors.Errorf("invalid type: %s during VerifyAVIResourceCleanupFinished", reflect.TypeOf(statefulSet))
+	}
+}
+
+// VerifyPackageInstallReconciledSuccessfully verifies that packageInstall reconcile successfully
+func VerifyPackageInstallReconciledSuccessfully(obj runtime.Object) error {
+	switch packageInstall := obj.(type) {
+	case *kappipkg.PackageInstall:
+
+		for _, cond := range packageInstall.Status.Conditions {
+			switch cond.Type {
+			case kappctrl.ReconcileSucceeded:
+				return nil
+			case kappctrl.ReconcileFailed:
+				return fmt.Errorf("package reconciliation failed: %s", packageInstall.Status.UsefulErrorMessage)
+			}
+		}
+
+		return errors.Errorf("waiting for '%s' Package to be installed", packageInstall.Name)
+	default:
+		return errors.Errorf("invalid type: %s during VerifyPackageInstallReconcilledSuccessfully", reflect.TypeOf(packageInstall))
 	}
 }

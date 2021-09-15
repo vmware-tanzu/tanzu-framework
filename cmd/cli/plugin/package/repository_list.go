@@ -15,7 +15,7 @@ import (
 
 var repositoryListCmd = &cobra.Command{
 	Use:   "list",
-	Short: "List repositories",
+	Short: "List package repositories",
 	Args:  cobra.NoArgs,
 	Example: `
     # List repositories across all namespaces 	
@@ -27,8 +27,8 @@ var repositoryListCmd = &cobra.Command{
 }
 
 func init() {
-	repositoryListCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table)")
-	repositoryListCmd.Flags().BoolVarP(&repoOp.AllNamespaces, "all-namespaces", "A", false, "If present, list the repositories across all namespaces.")
+	repositoryListCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table), optional")
+	repositoryListCmd.Flags().BoolVarP(&repoOp.AllNamespaces, "all-namespaces", "A", false, "If present, list the package repositories across all namespaces, optional")
 	repositoryCmd.AddCommand(repositoryListCmd)
 }
 

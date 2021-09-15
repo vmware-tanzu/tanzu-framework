@@ -3,10 +3,6 @@
 
 package csp
 
-/*
-Inspired from https://gitlab.eng.vmware.com/olympus/api/blob/master/pkg/common/auth/oidc.go
-*/
-
 import (
 	"bytes"
 	"context"
@@ -127,9 +123,6 @@ func GetIssuer(staging bool) string {
 	}
 	return ProdIssuer
 }
-
-// DefaultTimeout timeout in seconds.
-var DefaultTimeout = 30
 
 // IsExpired checks for the token expiry and returns true if the token has expired else will return false
 func IsExpired(tokenExpiry time.Time) bool {

@@ -5,7 +5,7 @@ import { finalize } from 'rxjs/operators'
 // Application imports
 import { TkgEventType } from 'src/app/shared/service/Messenger';
 import { APIClient } from 'src/app/swagger';
-import { brandingDefault, brandingTce, brandingTceStandalone } from '../constants/branding.constants';
+import { AppEdition, brandingDefault, brandingTce, brandingTceStandalone } from '../constants/branding.constants';
 import Broker from './broker';
 
 export interface BrandingObj {
@@ -22,7 +22,7 @@ export interface BrandingData {
 export interface EditionData {
     branding: BrandingData;
     clusterType: string;
-    edition: string;
+    edition: AppEdition;
 }
 
 @Injectable({
@@ -60,9 +60,9 @@ export class BrandingService {
     private setBrandingByEdition(edition?: string): void {
         let brandingPayload: EditionData = brandingDefault;
 
-        if (edition && edition === 'tce') {
+        if (edition && edition === AppEdition.TCE) {
             brandingPayload = brandingTce;
-        } else if (edition && edition === 'tce-standalone') {
+        } else if (edition && edition === AppEdition.TCE_STANDALONE) {
             brandingPayload = brandingTceStandalone;
         }
 

@@ -42,6 +42,7 @@ import (
 	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
 	capiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
+	bootstrapv1alpha3 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha3"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/cluster"
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
@@ -53,10 +54,13 @@ import (
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 
+	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
+	capdiscovery "github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/discovery"
 	tmcv1alpha1 "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/api/tmc/v1alpha1"
 	azureclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/azure"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/buildinfo"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/docker"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
@@ -70,6 +74,8 @@ import (
 const (
 	kubectlApplyRetryTimeout  = 30 * time.Second
 	kubectlApplyRetryInterval = 5 * time.Second
+	// DefaultKappControllerHostPort is the default kapp-controller port for it's extension apiserver
+	DefaultKappControllerHostPort = 10100
 )
 
 // Client provides various aspects of interaction with a Kubernetes cluster provisioned by TKG
@@ -100,6 +106,10 @@ type Client interface {
 	WaitForDeployment(deploymentName string, namespace string) error
 	// WaitForAutoscalerDeployment waits for the autoscaler deployment to be available
 	WaitForAutoscalerDeployment(deploymentName string, namespace string) error
+	// WaitForAVIResourceCleanUp waits for the avi resource clean up finished
+	WaitForAVIResourceCleanUp(statefulSetName, namespace string) error
+	// WaitForPackageInstall waits for the package to be installed successfully
+	WaitForPackageInstall(packageName, namespace string, packageInstallTimeout time.Duration) error
 	// WaitK8sVersionUpdateForCPNodes waits for k8s version to be updated
 	WaitK8sVersionUpdateForCPNodes(clusterName, namespace, kubernetesVersion string, workloadClusterClient Client) error
 	// WaitK8sVersionUpdateForWorkerNodes waits for k8s version to be updated in all worker nodes
@@ -239,6 +249,8 @@ type Client interface {
 	PatchClusterObject(clusterName, clusterNamespace string, patchJSONString string) error
 	// DeleteExistingKappController deletes the kapp-controller that already exists in the cluster.
 	DeleteExistingKappController() error
+	// UpdateAWSCNIIngressRules updates the cniIngressRules field for the AWSCluster resource.
+	UpdateAWSCNIIngressRules(clusterName, clusterNamespace string) error
 	// AddCEIPTelemetryJob creates telemetry cronjob component on cluster
 	AddCEIPTelemetryJob(clusterName, providerName string, bomConfig *tkgconfigbom.BOMConfiguration, isProd, labels, httpProxy, httpsProxy, noProxy string) error
 	// RemoveCEIPTelemetryJob deletes telemetry cronjob component on cluster
@@ -250,7 +262,7 @@ type Client interface {
 	// GetPacificTanzuKubernetesReleases returns the list of TanzuKubernetesRelease versions if TKr object is available in TKGS
 	GetPacificTanzuKubernetesReleases() ([]string, error)
 	// GetVCCredentialsFromSecret gets the vSphere username and password used to deploy the cluster
-	GetVCCredentialsFromSecret() (string, string, error)
+	GetVCCredentialsFromSecret(string) (string, string, error)
 	// GetVCServer gets the vSphere server that used to deploy the cluster
 	GetVCServer() (string, error)
 	// GetAWSEncodedCredentialsFromSecret gets the AWS base64 credentials used to deploy the cluster
@@ -259,6 +271,8 @@ type Client interface {
 	GetAzureCredentialsFromSecret() (azureclient.Credentials, error)
 	// UpdateCapvManagerBootstrapCredentialsSecret updates the vsphere creds used by the capv provider
 	UpdateCapvManagerBootstrapCredentialsSecret(username string, password string) error
+	// UpdateVsphereIdentityRefSecret updates vsphere cluster identityRef secret
+	UpdateVsphereIdentityRefSecret(clusterName, namespace, username, password string) error
 	// UpdateVsphereCloudProviderCredentialsSecret updates the vsphere creds used by the vsphere cloud provider
 	UpdateVsphereCloudProviderCredentialsSecret(clusterName string, namespace string, username string, password string) error
 	// UpdateVsphereCsiConfigSecret updates the vsphere csi config secret
@@ -277,6 +291,8 @@ type Client interface {
 	ActivateTanzuKubernetesReleases(tkrName string) error
 	// DeactivateTanzuKubernetesReleases deactivates TanzuKubernetesRelease
 	DeactivateTanzuKubernetesReleases(tkrName string) error
+	// IsClusterRegisteredToTMC returns true if cluster is registered to Tanzu Mission Control
+	IsClusterRegisteredToTMC() (bool, error)
 }
 
 // PollOptions is options for polling
@@ -327,12 +343,15 @@ const (
 	getClientDefaultInterval          = 10 * time.Second
 	getClientDefaultTimeout           = 5 * time.Minute
 	CheckAutoscalerDeploymentTimeout  = 2 * time.Minute
+	AVIResourceCleanupTimeout         = 2 * time.Minute
+	PackageInstallPollInterval        = 10 * time.Second
+	PackageInstallTimeout             = 10 * time.Minute
 	kubeConfigSecretSuffix            = "kubeconfig"
 	kubeConfigDataField               = "value"
 	embeddedTelemetryConfigYamlPrefix = "pkg/manifest/telemetry/config-"
 	telemetryBomImagesMapKey          = "tkgTelemetryImage"
-	prodTelemetryPath                 = "https://scapi.vmware.com/sc/api/collectors/tkg-telemetry.v1.3.0/batch"
-	stageTelemetryPath                = "https://scapi-stg.vmware.com/sc/api/collectors/tkg-telemetry.v1.3.0/batch"
+	prodTelemetryPath                 = "https://scapi.vmware.com/sc/api/collectors/tkg-telemetry.v1.4.0/batch"
+	stageTelemetryPath                = "https://scapi-stg.vmware.com/sc/api/collectors/tkg-telemetry.v1.4.0/batch"
 	statusRunning                     = "running"
 )
 
@@ -368,6 +387,7 @@ func init() {
 	_ = capav1alpha3.AddToScheme(scheme)
 	_ = capzv1alpha3.AddToScheme(scheme)
 	_ = capdv1alpha3.AddToScheme(scheme)
+	_ = bootstrapv1alpha3.AddToScheme(scheme)
 	_ = runv1alpha1.AddToScheme(scheme)
 	_ = betav1.AddToScheme(scheme)
 	_ = tmcv1alpha1.AddToScheme(scheme)
@@ -375,6 +395,7 @@ func init() {
 	_ = rbacv1.AddToScheme(scheme)
 	_ = addonsv1.AddToScheme(scheme)
 	_ = runv1alpha1.AddToScheme(scheme)
+	_ = kappipkg.AddToScheme(scheme)
 }
 
 // ClusterStatusInfo defines the cluster status involving all main components
@@ -560,6 +581,17 @@ func (c *client) WaitForDeployment(deploymentName, namespace string) error {
 
 func (c *client) WaitForAutoscalerDeployment(deploymentName, namespace string) error {
 	return c.GetResource(&appsv1.Deployment{}, deploymentName, namespace, VerifyAutoscalerDeploymentAvailable, &PollOptions{Interval: CheckResourceInterval, Timeout: CheckAutoscalerDeploymentTimeout})
+}
+
+func (c *client) WaitForAVIResourceCleanUp(statefulSetName, namespace string) error {
+	return c.GetResource(&appsv1.StatefulSet{}, statefulSetName, namespace, VerifyAVIResourceCleanupFinished, &PollOptions{Interval: CheckResourceInterval, Timeout: AVIResourceCleanupTimeout})
+}
+
+func (c *client) WaitForPackageInstall(packageName, namespace string, packageInstallTimeout time.Duration) error {
+	if packageInstallTimeout == 0 {
+		packageInstallTimeout = PackageInstallTimeout
+	}
+	return c.GetResource(&kappipkg.PackageInstall{}, packageName, namespace, VerifyPackageInstallReconciledSuccessfully, &PollOptions{Interval: PackageInstallPollInterval, Timeout: packageInstallTimeout})
 }
 
 func verifyKubernetesUpgradeForCPNodes(clusterStatusInfo *ClusterStatusInfo, newK8sVersion string) error {
@@ -2043,6 +2075,55 @@ func (c *client) DeleteExistingKappController() error {
 	return nil
 }
 
+// UpdateAWSCNIIngressRules updates the cniIngressRules field for AWSCluster to allow for
+// kapp-controller host port that was added in newer versions.
+func (c *client) UpdateAWSCNIIngressRules(clusterName, clusterNamespace string) error {
+	awsCluster := &capav1alpha3.AWSCluster{}
+	if err := c.GetResource(awsCluster, clusterName, clusterNamespace, nil, nil); err != nil {
+		return err
+	}
+
+	if awsCluster.Spec.NetworkSpec.CNI == nil {
+		awsCluster.Spec.NetworkSpec.CNI = &capav1alpha3.CNISpec{}
+	}
+
+	if awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules == nil {
+		awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules = capav1alpha3.CNIIngressRules{}
+	}
+
+	cniIngressRules := awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules
+	// first check if existing ingress rules contains the kapp-controller port
+	for _, ingressRule := range cniIngressRules {
+		if ingressRule.Description != "kapp-controller" {
+			continue
+		}
+
+		if ingressRule.Protocol != capav1alpha3.SecurityGroupProtocolTCP {
+			continue
+		}
+
+		if ingressRule.FromPort != DefaultKappControllerHostPort || ingressRule.ToPort != DefaultKappControllerHostPort {
+			continue
+		}
+
+		return nil
+	}
+
+	cniIngressRules = append(cniIngressRules, &capav1alpha3.CNIIngressRule{
+		Description: "kapp-controller",
+		Protocol:    capav1alpha3.SecurityGroupProtocolTCP,
+		FromPort:    DefaultKappControllerHostPort,
+		ToPort:      DefaultKappControllerHostPort,
+	})
+
+	awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules = cniIngressRules
+	if err := c.UpdateResource(awsCluster, clusterName, clusterNamespace); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // RemoveCEIPTelemetryJob removes installed telemetry job
 func (c *client) RemoveCEIPTelemetryJob(clusterName string) error {
 	hasCeip, err := c.HasCEIPTelemetryJob(clusterName)
@@ -2109,6 +2190,34 @@ func (c *client) HasCEIPTelemetryJob(clusterName string) (bool, error) {
 		return false, nil
 	}
 	return len(cronJobs.Items) > 0, nil
+}
+
+// IsClusterRegisteredToTMC() returns true if cluster is registered to Tanzu Mission Control
+func (c *client) IsClusterRegisteredToTMC() (bool, error) {
+	restconfigClient, err := c.GetRestConfigClient()
+	if err != nil {
+		return false, err
+	}
+	clusterQueryClient, err := capdiscovery.NewClusterQueryClientForConfig(restconfigClient)
+	if err != nil {
+		return false, err
+	}
+
+	// Check if 'cluster-agent' resource of type 'agents.clusters.tmc.cloud.vmware.com/v1alpha1' present
+	// in 'vmware-system-tmc' namespace. If present, we can say the cluster is registered to TMC
+	agent := &corev1.ObjectReference{
+		Kind:       "Agent",
+		Name:       "cluster-agent",
+		Namespace:  constants.TmcNamespace,
+		APIVersion: "clusters.tmc.cloud.vmware.com/v1alpha1",
+	}
+	var testObject = capdiscovery.Object("tmcClusterAgentObj", agent)
+
+	// Build query client.
+	cqc := clusterQueryClient.Query(testObject)
+
+	// Execute returns combined result of all queries.
+	return cqc.Execute() // return (found, err) response
 }
 
 // Options provides way to customize creation of clusterClient
@@ -2318,6 +2427,14 @@ type k8ClientSet struct {
 // LoadCurrentKubeconfigBytes loads current kubeconfig bytes
 func (c *client) LoadCurrentKubeconfigBytes() ([]byte, error) {
 	return c.loadKubeconfigAndEnsureContext(c.currentContext)
+}
+
+func (c *client) GetRestConfigClient() (*rest.Config, error) {
+	kubeConfigBytes, err := c.LoadCurrentKubeconfigBytes()
+	if err != nil {
+		return nil, err
+	}
+	return clientcmd.RESTConfigFromKubeConfig(kubeConfigBytes)
 }
 
 //go:generate counterfeiter -o ../fakes/crtclientfactory.go --fake-name CrtClientFactory . CrtClientFactory

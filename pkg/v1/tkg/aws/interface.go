@@ -20,6 +20,6 @@ type Client interface {
 	GetSubnetGatewayAssociations(vpcID string) (map[string]bool, error)
 	ListSubnets(vpcID string) ([]*models.AWSSubnet, error)
 	CreateCloudFormationStack() error
-	ListInstanceTypes() ([]string, error)
+	ListInstanceTypes(optionalAZName string) ([]string, error)
 	ListCloudFormationStacks() ([]string, error)
 }

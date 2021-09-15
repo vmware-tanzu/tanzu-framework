@@ -1,7 +1,7 @@
 --CONTROLPLANE-MACHINE-COUNT: "NOTPROVIDED"
 --WORKER-MACHINE-COUNT:       "NOTPROVIDED"
 --CONTROLPLANE-SIZE:          "NOTPROVIDED"
---TKR:                        "NOTPROVIDED", "v1.20.5---vmware.1-tkg.1-zlatest"
+--TKR:                        "NOTPROVIDED", "v1.21.2+vmware.1-tkg.1-zshippable"
 --NAMESPACE:                  "NOTPROVIDED"
 --SIZE:                       "NOTPROVIDED"
 --WORKER-SIZE:                "NOTPROVIDED"
@@ -17,7 +17,7 @@ NODE_MACHINE_TYPE: "NA"
 _TKG_CLUSTER_FORCE_ROLE: "NA", "management"
 
 _CNAME: "testcluster"
-_INFRA: "vsphere:v0.7.8", "aws:v0.6.6"
+_INFRA: "vsphere:v0.7.10", "aws:v0.6.6"
 _PLAN: "dev", "prod"
 CNI: "", "calico", "antrea", "none"
 
@@ -28,7 +28,7 @@ CP_SIZE: "NA"
 WORKER_SIZE: "NA"
 
 CLUSTER_CIDR: "NA", "100.96.0.0/11", "fd00:100:96::/48"
-SERVICE_CIDR: "NA", "100.64.0.0/18", "fd00:100:64::/108"
+SERVICE_CIDR: "100.64.0.0/18", "fd00:100:64::/108"
 NAMESPACE: "NA"
 
 VSPHERE_SSH_AUTHORIZED_KEY: "ssh-rsa A"
@@ -51,13 +51,13 @@ VSPHERE_TLS_THUMBPRINT : "dummythumbprint"
 NSXT_POD_ROUTING_ENABLED: "true", "false"
 NSXT_ROUTER_PATH: "NA", "/infra/tier-1s/test-router"
 NSXT_USERNAME: "NA", "admin@nsxmanager.pks.vmware.local"
-NSXT_PASSWORD: "NA", "nsxt-password"
+NSXT_PASSWORD: "NA", "nsxt-password", "nsxt-password2"
 NSXT_MANAGER_HOST: "NA", "127.0.0.0"
 NSXT_ALLOW_UNVERIFIED_SSL: "true", "false"
 NSXT_REMOTE_AUTH: "true", "false"
 NSXT_VMC_ACCESS_TOKEN: "NA", "nsxt-vmc-access-token"
-NSXT_VMC_AUTH_HOST: "NA", "nsxt-vmc-auth-host"
-NSXT_CLIENT_CERT_KEY_DATA: "NA", "client-cert-key-data"
+NSXT_VMC_AUTH_HOST: "nsxt-vmc-auth-host"
+NSXT_CLIENT_CERT_KEY_DATA: "client-cert-key-data"
 NSXT_CLIENT_CERT_DATA: "NA", "client-cert-data"
 NSXT_ROOT_CA_DATA_B64: "NA", "root-ca-data"
 NSXT_SECRET_NAME: "NA", "cloud-provider-vsphere-nsxt-credentials"
@@ -89,7 +89,7 @@ ENABLE_DEFAULT_STORAGE_CLASS: "true", "false"
 VSPHERE_STORAGE_POLICY_ID: "", "test-policy-name"
 VSPHERE_CLONE_MODE: "fullClone","linkedClone"
 
-# http proxy (to many "NA" leads to overwhelming negative cases)
+# http proxy (too many "NA" leads to overwhelmingly negative cases)
 TKG_HTTP_PROXY: "http://10.0.200.100", "http://[fc00:f853:ccd:e793::1]:3128"
 TKG_HTTPS_PROXY: "NA", "http://10.0.200.100", "http://[fc00:f853:ccd:e793::1]:3128"
 TKG_NO_PROXY: "NA", "10.0.200.1/24"
@@ -124,6 +124,21 @@ ANTREA_POLICY: "false", "true"
 ANTREA_NODEPORTLOCAL: "false", "true"
 ANTREA_TRACEFLOW: "false", "true"
 
+BUILD_EDITION: "tkg", "tce"
+
+# identity management
+IDENTITY_MANAGEMENT_TYPE: "none", "oidc", "ldap"
+
 # pass --VSPHERE-CONTROLPLANE-ENDPOINT flag only for vSphere provider
 IF [_INFRA] = "\"vsphere:v0.7.8\"" THEN [--VSPHERE-CONTROLPLANE-ENDPOINT] = "\"10.10.10.10\"";
 IF [_INFRA] <> "\"vsphere:v0.7.8\"" THEN [--VSPHERE-CONTROLPLANE-ENDPOINT] = "\"NOTPROVIDED\"";
+
+IF [_INFRA] <> "\"vsphere:v0.7.8\"" THEN [OS_NAME] <> "\"photon\"";
+
+IF [TKG_HTTP_PROXY] = "\"http://10.0.200.100\"" THEN [TKG_HTTPS_PROXY] = "\"http://10.0.200.100\"";
+IF [TKG_HTTP_PROXY] LIKE "\"http://[fc00*" THEN [TKG_HTTPS_PROXY] <> "\"http://10.0.200.100\"";
+IF [TKG_IP_FAMILY] = "\"ipv6\"" THEN [SERVICE_CIDR] = "\"fd00:100:64::/108\"";
+IF [TKG_IP_FAMILY] <> "\"ipv6\"" THEN [SERVICE_CIDR] = "\"100.64.0.0/18\"";
+IF [TKG_IP_FAMILY] <> "\"ipv6\"" THEN [TKG_HTTPS_PROXY] <> "\"http://[fc00:f853:ccd:e793::1]:3128\"";
+IF [TKG_IP_FAMILY] <> "\"ipv6\"" THEN [TKG_HTTP_PROXY] = "\"http://10.0.200.100\"";
+IF [TKG_IP_FAMILY] <> "\"ipv6\"" THEN [CLUSTER_CIDR] <> "\"fd00:100:96::/48\"";

@@ -29,17 +29,16 @@
               {
 				  "glob": "clr-ui-dark.min.css",
 				  "input": "node_modules/@clr/ui",
-				  "output": "assets/css"
+				  "output": ""
 			  },
 			  {
 				  "glob": "clr-ui.min.css",
 				  "input": "node_modules/@clr/ui",
-				  "output": "assets/css"
+				  "output": ""
 			  }
             ],
             "styles": [
               "node_modules/@clr/icons/clr-icons.min.css",
-              "node_modules/@clr/ui/clr-ui.min.css",
               "src/styles.scss",
               "node_modules/codemirror/lib/codemirror.css",
               "node_modules/codemirror/theme/blackboard.css"
@@ -48,7 +47,8 @@
               "node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js",
               "node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js",
               "node_modules/@clr/icons/clr-icons.min.js",
-              "node_modules/sort-paths/browser/sort-paths.js"
+              "node_modules/sort-paths/browser/sort-paths.js",
+              "node_modules/elasticlunr/elasticlunr.min.js"
             ]
           },
           "configurations": {
@@ -115,7 +115,8 @@
               "src/styles.scss"
             ],
             "scripts": [
-              "node_modules/sort-paths/browser/sort-paths.js"
+              "node_modules/sort-paths/browser/sort-paths.js",
+              "node_modules/elasticlunr/elasticlunr.min.js"
             ],
             "codeCoverageExclude": [
               "src/app/testing/**",

@@ -6,9 +6,9 @@ package tkgctl
 import (
 	"strings"
 
-	"github.com/fabriziopandini/capi-conditions/cmd/kubectl-capi-tree/status"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
+	clusterctltree "sigs.k8s.io/cluster-api/cmd/clusterctl/client/tree"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
@@ -25,7 +25,7 @@ type DescribeTKGClustersOptions struct {
 
 // DescribeClusterResult the result object for when the cluster's description is returned
 type DescribeClusterResult struct {
-	Objs               *status.ObjectTree
+	Objs               *clusterctltree.ObjectTree
 	Cluster            *clusterv1.Cluster
 	InstalledProviders *clusterctlv1.ProviderList
 	ClusterInfo        client.ClusterInfo

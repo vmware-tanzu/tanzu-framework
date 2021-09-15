@@ -179,6 +179,11 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		return errors.Wrap(err, "unable to get bootstrap cluster client")
 	}
 
+	// configure variables required to deploy providers
+	if err := c.configureVariablesForProvidersInstallation(nil); err != nil {
+		return errors.Wrap(err, "unable to configure variables for provider installation")
+	}
+
 	log.SendProgressUpdate(statusRunning, StepInstallProvidersOnBootstrapCluster, InitRegionSteps)
 	log.Info("Installing providers on bootstrapper...")
 	// Initialize bootstrap cluster with providers
@@ -201,7 +206,14 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	}
 
 	// save this context to tkg config incase the management cluster creation fails
-	regionContext = region.RegionContext{ClusterName: options.ClusterName, ContextName: "kind-" + bootstrapClusterName, SourceFilePath: bootstrapClusterKubeconfigPath, Status: region.Failed}
+	bootstrapClusterContext := "kind-" + bootstrapClusterName
+	if options.UseExistingCluster {
+		bootstrapClusterContext, err = getCurrentContextFromDefaultKubeConfig()
+		if err != nil {
+			return err
+		}
+	}
+	regionContext = region.RegionContext{ClusterName: options.ClusterName, ContextName: bootstrapClusterContext, SourceFilePath: bootstrapClusterKubeconfigPath, Status: region.Failed}
 
 	kubeConfigBytes, err := c.WaitForClusterInitializedAndGetKubeConfig(bootStrapClusterClient, options.ClusterName, targetClusterNamespace)
 	if err != nil {
@@ -323,6 +335,11 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	log.Info("Waiting for additional components to be up and running...")
 	if err := c.WaitForAddonsDeployments(regionalClusterClient); err != nil {
 		return err
+	}
+
+	log.Info("Waiting for packages to be up and running...")
+	if err := c.WaitForPackages(regionalClusterClient, regionalClusterClient, options.ClusterName, targetClusterNamespace); err != nil {
+		log.Warningf("Warning: Management cluster is created successfully, but some packages are failing. %v", err)
 	}
 
 	log.Infof("Context set for management cluster %s as '%s'.", options.ClusterName, kubeContext)
@@ -479,6 +496,44 @@ func (c *TkgClient) InitializeProviders(options *InitRegionOptions, clusterClien
 	if err != nil {
 		return errors.Wrap(err, "error waiting for provider components to be up and running")
 	}
+
+	return nil
+}
+
+func (c *TkgClient) configureImageTagsForProviderInstallation() error {
+	// configure image tags by reading BoM file
+	tkgBoMConfig, err := c.tkgBomClient.GetDefaultTkgBOMConfiguration()
+	if err != nil {
+		return errors.Wrap(err, "unable to get default BoM configuration")
+	}
+	configImageTag := func(configVariable, componentName, imageName string) {
+		component, exists := tkgBoMConfig.Components[componentName]
+		if !exists {
+			log.Warningf("Warning: unable to find component '%s' under BoM", componentName)
+			return
+		}
+		if len(component) == 0 {
+			log.Warningf("Warning: component '%s' is empty", componentName)
+			return
+		}
+
+		image, exists := component[0].Images[imageName]
+		if !exists {
+			log.Warningf("Warning: component '%s' does not have image '%s'", componentName, imageName)
+			return
+		}
+		c.TKGConfigReaderWriter().Set(configVariable, image.Tag)
+	}
+
+	configImageTag(constants.ConfigVariableInternalKubeRBACProxyImageTag, "kube_rbac_proxy", "kubeRbacProxyControllerImageCapi")
+	configImageTag(constants.ConfigVariableInternalCABPKControllerImageTag, "cluster_api", "cabpkControllerImage")
+	configImageTag(constants.ConfigVariableInternalCAPIControllerImageTag, "cluster_api", "capiControllerImage")
+	configImageTag(constants.ConfigVariableInternalKCPControllerImageTag, "cluster_api", "kcpControllerImage")
+	configImageTag(constants.ConfigVariableInternalCAPDManagerImageTag, "cluster_api", "capdManagerImage")
+	configImageTag(constants.ConfigVariableInternalCAPAManagerImageTag, "cluster_api_aws", "capaControllerImage")
+	configImageTag(constants.ConfigVariableInternalCAPVManagerImageTag, "cluster_api_vsphere", "capvControllerImage")
+	configImageTag(constants.ConfigVariableInternalCAPZManagerImageTag, "cluster-api-provider-azure", "capzControllerImage")
+	configImageTag(constants.ConfigVariableInternalNMIImageTag, "aad-pod-identity", "nmiImage")
 
 	return nil
 }

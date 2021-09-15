@@ -40,6 +40,8 @@ type CreateClusterOptions struct {
 	Timeout                     time.Duration
 	GenerateOnly                bool
 	SkipPrompt                  bool
+	// Tanzu edition (either tce or tkg)
+	Edition string
 }
 
 //nolint:gocritic
@@ -149,6 +151,7 @@ func (t *tkgctl) getCreateClusterOptions(name string, cc *CreateClusterOptions) 
 		CniType:                     cc.CniType,
 		VsphereControlPlaneEndpoint: cc.VsphereControlPlaneEndpoint,
 		ClusterOptionsEnableList:    clusterOptionsEnableList,
+		Edition:                     cc.Edition,
 	}, nil
 }
 
@@ -179,6 +182,13 @@ func (t *tkgctl) configureCreateClusterOptionsFromConfigFile(cc *CreateClusterOp
 		infraProvider, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableInfraProvider)
 		if err == nil {
 			cc.InfrastructureProvider = infraProvider
+		}
+		// CheckInfrastructureVersion needs to be directly called for windows because we have a separate windows plan
+		if cc.InfrastructureProvider == constants.InfrastructureProviderWindowsVSphere {
+			cc.InfrastructureProvider, err = t.tkgConfigUpdaterClient.CheckInfrastructureVersion(cc.InfrastructureProvider)
+			if err != nil {
+				return errors.Wrap(err, "unable to check infrastructure provider version")
+			}
 		}
 	}
 
@@ -275,6 +285,14 @@ func (t *tkgctl) configureCreateClusterOptionsFromConfigFile(cc *CreateClusterOp
 		enableClusterOptions, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableEnableClusterOptions)
 		if err == nil {
 			cc.EnableClusterOptions = enableClusterOptions
+		}
+	}
+
+	// set BuildEdition from config variable
+	if cc.Edition == "" {
+		edition, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableBuildEdition)
+		if err == nil {
+			cc.Edition = edition
 		}
 	}
 

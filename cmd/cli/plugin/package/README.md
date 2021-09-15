@@ -125,14 +125,20 @@ Use "tanzu package repository [command] --help" for more information about a com
      LICENSE:                        [] 
    ```
 
-   Example 2: Get values schema of a package
+   Example 2: Get openAPI schema of a package
    ```sh
-   >>> tanzu package available get schema-package.carvel.dev/1.0.0 -n test-ns --values-schema
-   KEY                               DEFAULT  TYPE    DESCRIPTION
-   properties.hello_msg.description                   The message simple-app will display
-   properties.hello_msg.type                  string
-   properties.svc_port.description                    Port number for service. Defaults to 80.
-   properties.svc_port.type                   int
+   >>> tanzu package available get external-dns.tanzu.vmware.com/0.8.0+vmware.1-tkg.1 -n external-dns --values-schema
+    KEY                         DEFAULT       TYPE     DESCRIPTION
+    deployment.args             <nil>         array    List of arguments passed via command-line to external-dns.                                                                                                                         
+                                                       For more guidance on configuration options for your                                                                                                                               
+                                                       desired DNS provider, consult the ExternalDNS docs at                                                                                                                              
+                                                       https://github.com/kubernetes-sigs/external-dns#running-externaldns                                                                                                                
+                                                                                                                                                                                                                                           
+    deployment.env              <nil>         array    List of environment variables to set in the external-dns container.                                                                                                                
+    deployment.securityContext  <nil>         <nil>    SecurityContext defines the security options the external-dns container should be run with. More info: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/  
+    deployment.volumeMounts     <nil>         array    Pod volumes to mount into the external-dns container's filesystem.                                                                                                                 
+    deployment.volumes          <nil>         array    List of volumes that can be mounted by containers belonging to the external-dns pod. More info: https://kubernetes.io/docs/concepts/storage/volumes                                
+    namespace                   external-dns  string   The namespace in which to deploy ExternalDNS.
    ```
 8. Install a package
 
@@ -151,14 +157,12 @@ Use "tanzu package repository [command] --help" for more information about a com
 
     An example values.yaml is as follows:
     ```sh
-    #@data/values
-    #@overlay/match-child-defaults missing_ok=True
-    ---
     fluent_bit:
-      outputs: |
-        [OUTPUT]
-          Name     stdout
-          Match    *
+      config:
+        outputs: |
+          [OUTPUT]
+            Name     stdout
+            Match    *
     ```
     
     Example 2: Install the latest version for package name "contour.tanzu.vmware.com". If the namespace does not exist beforehand, it gets created.
@@ -176,6 +180,8 @@ Use "tanzu package repository [command] --help" for more information about a com
     ```
 
 9. Get information of an installed package
+
+   Example 1: Get information of an installed package
    ```sh
    >>> tanzu package installed get contour-pkg --namespace test-ns
    NAME:                 contour.tanzu.vmware.com                      
@@ -184,6 +190,20 @@ Use "tanzu package repository [command] --help" for more information about a com
    STATUS:               Reconcile succeeded                                       
    CONDITIONS:
    USEFUL-ERROR-MESSAGE:            
+   ```
+
+   Example 2: Get data value secret of an installed package and save it to file (example: config.yaml)
+   ```sh
+   >>> tanzu package installed get fluent-bit --namespace test-ns --values-file config.yaml
+   / Retrieving installation details for myfb...
+
+   cat config.yaml
+   fluent_bit:
+     config:
+       outputs: |
+         [OUTPUT]
+           Name     stdout
+           Match    *
    ```
 
 10. Update a package
@@ -211,6 +231,26 @@ Use "tanzu package repository [command] --help" for more information about a com
     \ Package install status: Reconciling 
     
      Updated package install 'fluent-bit' in namespace 'test-ns'
+    ```
+
+    Example 3: Update an installed package with providing values.yaml file
+    ```sh
+    >>> tanzu package installed update fluent-bit --version 1.7.5+vmware.1-tkg.1 --namespace test-ns --values-file values.yaml
+    | Updating package 'fluent-bit'
+    | Getting package install for 'fluent-bit'
+    / Updating secret 'fluent-bit-test-ns-values'
+
+    Updated package install 'fluent-bit' in namespace 'test-ns'
+    ```
+
+    An example values.yaml is as follows:
+    ```sh
+    fluent_bit:
+      config:
+        outputs: |
+          [OUTPUT]
+            Name     stdout
+            Match    /
     ```
 
 11. Uninstall a package

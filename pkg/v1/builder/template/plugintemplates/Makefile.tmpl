@@ -14,7 +14,7 @@ TOOLS_DIR := tools
 TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
 GOLANGCI_LINT := $(TOOLS_BIN_DIR)/golangci-lint
 
-PRIVATE_REPOS=github.com/vmware-tanzu
+PRIVATE_REPOS="github.com/vmware-tanzu/tanzu-framework"
 
 export GOPRIVATE := $(PRIVATE_REPOS)
 
@@ -26,7 +26,7 @@ go.mod go.sum: $(GO_SRCS)
 
 .PHONY: build
 build: ## Build the plugin
-	tanzu builder cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/plugin
+	tanzu builder cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/plugin --goprivate "$(PRIVATE_REPOS)"
 
 .PHONY: lint
 lint: $(GOLANGCI_LINT) ## Lint the plugin

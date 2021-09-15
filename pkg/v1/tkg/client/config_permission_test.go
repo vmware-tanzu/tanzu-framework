@@ -49,7 +49,7 @@ var _ = Describe("Unit tests for get AWS credentials", func() {
 		})
 		It("should return an error", func() {
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(Equal("cannot find AWS region"))
+			Expect(err.Error()).To(ContainSubstring("cannot find AWS region"))
 		})
 	})
 
@@ -74,7 +74,7 @@ var _ = Describe("Unit tests for get AWS credentials", func() {
 		})
 		It("should return an error", func() {
 			Expect(err).To(HaveOccurred())
-			Expect(err).To(HavePrefix("NoCredentialProviders: no valid providers in chain"))
+			Expect(err.Error()).To(HavePrefix("failed to gather credentials"))
 		})
 	})
 

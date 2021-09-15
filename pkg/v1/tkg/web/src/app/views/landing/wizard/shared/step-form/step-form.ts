@@ -8,6 +8,8 @@ import { TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
 import Broker from 'src/app/shared/service/broker';
 
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { AppEdition } from 'src/app/shared/constants/branding.constants';
+import { EditionData } from 'src/app/shared/service/branding.service';
 
 const INIT_FIELD_DELAY = 50;            // ms
 /**
@@ -22,6 +24,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     @Input() formGroup: FormGroup;
     @Input() savedMetadata: { [fieldName: string]: FormMetaData };
 
+    edition: AppEdition = AppEdition.TCE;
     validatorEnum = ValidatorEnum;
     errorNotification: string;
     clusterType: string;
@@ -45,6 +48,8 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
+                const content: EditionData = data.payload;
+                this.edition = content.edition;
                 this.clusterType = data.payload.clusterType;
             });
     }

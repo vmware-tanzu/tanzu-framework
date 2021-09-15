@@ -25,11 +25,18 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
+const (
+	msgRunPackageInstalledDelete = "\n\nPlease consider using 'tanzu package installed delete' to delete the already created associated resources\n"
+	msgRunPackageInstalledUpdate = "\n\nPlease consider using 'tanzu package installed update' to update the installed package with correct settings\n"
+)
+
 // InstallPackage installs the PackageInstall and its associated resources in the cluster
 func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progress *tkgpackagedatamodel.PackageProgress, update bool) { //nolint:gocyclo
 	var (
-		pkgInstall *kappipkg.PackageInstall
-		err        error
+		pkgInstall            *kappipkg.PackageInstall
+		err                   error
+		secretCreated         bool
+		serviceAccountCreated bool
 	)
 
 	defer func() {
@@ -44,12 +51,7 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 	}
 
 	if pkgInstall != nil && pkgInstall.Name == o.PkgInstallName {
-		log.Warningf("\nPackage install '%s' already exists in namespace '%s'", o.PkgInstallName, o.Namespace)
-		return
-	}
-
-	progress.ProgressMsg <- fmt.Sprintf("Getting package metadata for %s", o.PackageName)
-	if _, _, err = p.GetPackage(o); err != nil {
+		err = &tkgpackagedatamodel.PackagePluginNonCriticalError{Reason: tkgpackagedatamodel.ErrPackageAlreadyInstalled}
 		return
 	}
 
@@ -58,24 +60,36 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 		if err = p.createNamespace(o.Namespace); err != nil {
 			return
 		}
+	} else {
+		progress.ProgressMsg <- fmt.Sprintf("Getting namespace '%s'", o.Namespace)
+		if err = p.kappClient.GetClient().Get(context.Background(), crtclient.ObjectKey{Name: o.Namespace}, &corev1.Namespace{}); err != nil {
+			return
+		}
+	}
+
+	progress.ProgressMsg <- fmt.Sprintf("Getting package metadata for '%s'", o.PackageName)
+	if _, _, err = p.GetPackage(o); err != nil {
+		return
 	}
 
 	if o.ServiceAccountName == "" {
 		o.ServiceAccountName = fmt.Sprintf(tkgpackagedatamodel.ServiceAccountName, o.PkgInstallName, o.Namespace)
 		progress.ProgressMsg <- fmt.Sprintf("Creating service account '%s'", o.ServiceAccountName)
-		if err = p.createServiceAccount(o); err != nil {
+		if serviceAccountCreated, err = p.createServiceAccount(o); err != nil {
 			return
 		}
 
 		o.ClusterRoleName = fmt.Sprintf(tkgpackagedatamodel.ClusterRoleName, o.PkgInstallName, o.Namespace)
 		progress.ProgressMsg <- fmt.Sprintf("Creating cluster admin role '%s'", o.ClusterRoleName)
 		if err = p.createClusterAdminRole(o); err != nil {
+			log.Warning(msgRunPackageInstalledDelete)
 			return
 		}
 
 		o.ClusterRoleBindingName = fmt.Sprintf(tkgpackagedatamodel.ClusterRoleBindingName, o.PkgInstallName, o.Namespace)
 		progress.ProgressMsg <- fmt.Sprintf("Creating cluster role binding '%s'", o.ClusterRoleBindingName)
 		if err = p.createClusterRoleBinding(o); err != nil {
+			log.Warning(msgRunPackageInstalledDelete)
 			return
 		}
 	} else {
@@ -94,23 +108,24 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 	if o.ValuesFile != "" {
 		o.SecretName = fmt.Sprintf(tkgpackagedatamodel.SecretName, o.PkgInstallName, o.Namespace)
 		progress.ProgressMsg <- fmt.Sprintf("Creating secret '%s'", o.SecretName)
-		if err = p.createDataValuesSecret(o); err != nil {
+		if secretCreated, err = p.createDataValuesSecret(o); err != nil {
+			log.Warning(msgRunPackageInstalledDelete)
 			return
 		}
 	}
 
 	progress.ProgressMsg <- "Creating package resource"
-	if err = p.createPackageInstall(o); err != nil {
+	if err = p.createPackageInstall(o, serviceAccountCreated, secretCreated); err != nil {
+		log.Warning(msgRunPackageInstalledDelete)
 		return
 	}
 
 	if o.Wait {
 		if err = p.waitForPackageInstallation(o, progress.ProgressMsg); err != nil {
+			log.Warning(msgRunPackageInstalledUpdate)
 			return
 		}
 	}
-
-	progress.Success <- true
 }
 
 func packageInstallProgressCleanup(err error, progress *tkgpackagedatamodel.PackageProgress, update bool) {
@@ -120,7 +135,6 @@ func packageInstallProgressCleanup(err error, progress *tkgpackagedatamodel.Pack
 	if !update {
 		close(progress.ProgressMsg)
 		close(progress.Done)
-		close(progress.Success)
 	}
 }
 
@@ -128,7 +142,8 @@ func packageInstallProgressCleanup(err error, progress *tkgpackagedatamodel.Pack
 func (p *pkgClient) createClusterAdminRole(o *tkgpackagedatamodel.PackageOptions) error {
 	clusterRole := &rbacv1.ClusterRole{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: o.ClusterRoleName,
+			Name:        o.ClusterRoleName,
+			Annotations: map[string]string{tkgpackagedatamodel.TanzuPkgPluginAnnotation: fmt.Sprintf(tkgpackagedatamodel.TanzuPkgPluginResource, o.PkgInstallName, o.Namespace)},
 		},
 		Rules: []rbacv1.PolicyRule{
 			{APIGroups: []string{"*"}, Verbs: []string{"*"}, Resources: []string{"*"}},
@@ -145,8 +160,11 @@ func (p *pkgClient) createClusterAdminRole(o *tkgpackagedatamodel.PackageOptions
 // createClusterRoleBinding creates a ClusterRoleBinding resource
 func (p *pkgClient) createClusterRoleBinding(o *tkgpackagedatamodel.PackageOptions) error {
 	clusterRoleBinding := &rbacv1.ClusterRoleBinding{
-		ObjectMeta: metav1.ObjectMeta{Name: o.ClusterRoleBindingName},
-		Subjects:   []rbacv1.Subject{{Kind: tkgpackagedatamodel.KindServiceAccount, Name: o.ServiceAccountName, Namespace: o.Namespace}},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:        o.ClusterRoleBindingName,
+			Annotations: map[string]string{tkgpackagedatamodel.TanzuPkgPluginAnnotation: fmt.Sprintf(tkgpackagedatamodel.TanzuPkgPluginResource, o.PkgInstallName, o.Namespace)},
+		},
+		Subjects: []rbacv1.Subject{{Kind: tkgpackagedatamodel.KindServiceAccount, Name: o.ServiceAccountName, Namespace: o.Namespace}},
 		RoleRef: rbacv1.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
 			Kind:     tkgpackagedatamodel.KindClusterRole,
@@ -162,24 +180,28 @@ func (p *pkgClient) createClusterRoleBinding(o *tkgpackagedatamodel.PackageOptio
 }
 
 // createDataValuesSecret create a secret object containing the user-provided configuration.
-func (p *pkgClient) createDataValuesSecret(o *tkgpackagedatamodel.PackageOptions) error {
+func (p *pkgClient) createDataValuesSecret(o *tkgpackagedatamodel.PackageOptions) (bool, error) {
 	var err error
+
 	dataValues := make(map[string][]byte)
 
 	if dataValues[filepath.Base(o.ValuesFile)], err = ioutil.ReadFile(o.ValuesFile); err != nil {
-		return errors.Wrap(err, fmt.Sprintf("failed to read from data values file '%s'", o.ValuesFile))
+		return false, errors.Wrap(err, fmt.Sprintf("failed to read from data values file '%s'", o.ValuesFile))
 	}
 	secret := &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{Name: o.SecretName, Namespace: o.Namespace}, Data: dataValues,
+		ObjectMeta: metav1.ObjectMeta{
+			Name:        o.SecretName,
+			Namespace:   o.Namespace,
+			Annotations: map[string]string{tkgpackagedatamodel.TanzuPkgPluginAnnotation: fmt.Sprintf(tkgpackagedatamodel.TanzuPkgPluginResource, o.PkgInstallName, o.Namespace)},
+		},
+		Data: dataValues,
 	}
 
 	if err := p.kappClient.GetClient().Create(context.Background(), secret); err != nil {
-		return errors.Wrap(err, "failed to create Secret resource")
+		return false, errors.Wrap(err, "failed to create Secret resource")
 	}
 
-	o.CreateSecret = true
-
-	return nil
+	return true, nil
 }
 
 // createNamespace creates a namespace resource if it doesn't already exist
@@ -205,7 +227,7 @@ func (p *pkgClient) createNamespace(namespace string) error {
 }
 
 // createPackageInstall creates the PackageInstall CR
-func (p *pkgClient) createPackageInstall(o *tkgpackagedatamodel.PackageOptions) error {
+func (p *pkgClient) createPackageInstall(o *tkgpackagedatamodel.PackageOptions, serviceAccountCreated, secretCreated bool) error {
 	// construct the PackageInstall CR
 	packageInstall := &kappipkg.PackageInstall{
 		ObjectMeta: metav1.ObjectMeta{Name: o.PkgInstallName, Namespace: o.Namespace},
@@ -222,7 +244,7 @@ func (p *pkgClient) createPackageInstall(o *tkgpackagedatamodel.PackageOptions) 
 	}
 
 	// if configuration data file was provided, reference the secret name in the PackageInstall
-	if o.CreateSecret {
+	if secretCreated {
 		packageInstall.Spec.Values = []kappipkg.PackageInstallValues{
 			{
 				SecretRef: &kappipkg.PackageInstallValuesSecretRef{
@@ -232,7 +254,7 @@ func (p *pkgClient) createPackageInstall(o *tkgpackagedatamodel.PackageOptions) 
 		}
 	}
 
-	if err := p.kappClient.CreatePackageInstall(packageInstall, o.CreateServiceAccount, o.CreateSecret); err != nil {
+	if err := p.kappClient.CreatePackageInstall(packageInstall, serviceAccountCreated, secretCreated); err != nil {
 		return errors.Wrap(err, "failed to create PackageInstall resource")
 	}
 
@@ -240,23 +262,19 @@ func (p *pkgClient) createPackageInstall(o *tkgpackagedatamodel.PackageOptions) 
 }
 
 // createServiceAccount creates a ServiceAccount resource
-func (p *pkgClient) createServiceAccount(o *tkgpackagedatamodel.PackageOptions) error {
+func (p *pkgClient) createServiceAccount(o *tkgpackagedatamodel.PackageOptions) (bool, error) {
 	serviceAccount := &corev1.ServiceAccount{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      o.ServiceAccountName,
-			Namespace: o.Namespace,
-			Annotations: map[string]string{
-				tkgpackagedatamodel.TanzuPkgPluginAnnotation: o.ServiceAccountName},
-		},
+			Name:        o.ServiceAccountName,
+			Namespace:   o.Namespace,
+			Annotations: map[string]string{tkgpackagedatamodel.TanzuPkgPluginAnnotation: fmt.Sprintf(tkgpackagedatamodel.TanzuPkgPluginResource, o.PkgInstallName, o.Namespace)}},
 	}
 
 	if err := p.kappClient.GetClient().Create(context.Background(), serviceAccount); err != nil {
-		return errors.Wrap(err, "failed to create ServiceAccount resource")
+		return false, errors.Wrap(err, "failed to create ServiceAccount resource")
 	}
 
-	o.CreateServiceAccount = true
-
-	return nil
+	return true, nil
 }
 
 // waitForPackageInstallation waits until the package get installed successfully or a failure happen

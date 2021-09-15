@@ -32,10 +32,10 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         private formBuilder: FormBuilder,
         private apiClient: APIClient,
         formMetaDataService: FormMetaDataService,
-        private titleService: Title,
+        titleService: Title,
         el: ElementRef) {
 
-        super(router, el, formMetaDataService);
+        super(router, el, formMetaDataService, titleService);
 
         this.form = this.formBuilder.group({
             awsProviderForm: this.formBuilder.group({
@@ -139,8 +139,6 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         payload.clusterName = this.getFieldValue('awsNodeSettingForm', 'clusterName');
         payload.controlPlaneNodeType = this.getControlPlaneNodeType('aws');
         payload.controlPlaneFlavor = this.getControlPlaneFlavor('aws');
-        payload.workerNodeType = (this.clusterType !== 'standalone') ?
-            this.getFieldValue('awsNodeSettingForm', 'workerNodeInstanceType') : payload.controlPlaneNodeType;
         const bastionHostEnabled = this.getFieldValue('awsNodeSettingForm', 'bastionHostEnabled');
         payload.bastionHostEnabled = bastionHostEnabled === BASTION_HOST_ENABLED;
         const machineHealthChecksEnabled = this.getFieldValue('awsNodeSettingForm', 'machineHealthChecksEnabled');
@@ -150,7 +148,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
                 this.getFieldValue('vpcForm', 'existingVpcCidr') :
                 this.getFieldValue('vpcForm', 'vpc'),
             vpcID: this.getFieldValue('vpcForm', 'existingVpcId'),
-            azs: this.getAwsNodeAzs()
+            azs: this.getAwsNodeAzs(payload)
         };
 
         payload.enableAuditLogging = this.getBooleanFieldValue("awsNodeSettingForm", "enableAuditLogging");
@@ -159,10 +157,12 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         return payload;
     }
 
-    getAwsNodeAzs() {
+    getAwsNodeAzs(payload) {
         this.nodeAzList = [
             {
                 name: this.getFieldValue('awsNodeSettingForm', 'awsNodeAz1'),
+                workerNodeType: (this.clusterType !== 'standalone') ?
+                    this.getFieldValue('awsNodeSettingForm', 'workerNodeInstanceType1') : payload.controlPlaneNodeType,
                 publicNodeCidr: (this.getFieldValue('vpcForm', 'vpcType') === 'new') ?
                     this.getFieldValue('vpcForm', 'publicNodeCidr') : '',
                 privateNodeCidr:  (this.getFieldValue('vpcForm', 'vpcType') === 'new') ?
@@ -177,6 +177,8 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         if (this.getFieldValue('awsNodeSettingForm', 'awsNodeAz2')) {
             this.nodeAzList.push({
                 name: this.getFieldValue('awsNodeSettingForm', 'awsNodeAz2'),
+                workerNodeType: (this.clusterType !== 'standalone') ?
+                    this.getFieldValue('awsNodeSettingForm', 'workerNodeInstanceType2') : payload.controlPlaneNodeType,
                 publicNodeCidr: (this.getFieldValue('vpcForm', 'vpcType') === 'new') ?
                     this.getFieldValue('vpcForm', 'publicNodeCidr') : '',
                 privateNodeCidr:  (this.getFieldValue('vpcForm', 'vpcType') === 'new') ?
@@ -191,6 +193,8 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         if (this.getFieldValue('awsNodeSettingForm', 'awsNodeAz3')) {
             this.nodeAzList.push({
                 name: this.getFieldValue('awsNodeSettingForm', 'awsNodeAz3'),
+                workerNodeType: (this.clusterType !== 'standalone') ?
+                    this.getFieldValue('awsNodeSettingForm', 'workerNodeInstanceType3') : payload.controlPlaneNodeType,
                 publicNodeCidr: (this.getFieldValue('vpcForm', 'vpcType') === 'new') ?
                     this.getFieldValue('vpcForm', 'publicNodeCidr') : '',
                 privateNodeCidr:  (this.getFieldValue('vpcForm', 'vpcType') === 'new') ?
@@ -225,7 +229,8 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         const cliG = new CliGenerator();
         const cliParams: CliFields = {
             configPath: configPath,
-            clusterType: this.clusterType
+            clusterType: this.clusterType,
+            clusterName: this.getMCName()
         };
         return cliG.getCli(cliParams);
     }

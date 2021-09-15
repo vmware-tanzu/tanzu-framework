@@ -20,7 +20,9 @@ import (
 	// +kubebuilder:scaffold:imports
 
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 	tkrsourcectr "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/controllers/source"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
 	mgrcontext "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/context"
 )
 
@@ -51,20 +53,24 @@ func main() {
 		"Enable leader election for controller manager. "+
 			"Enabling this will ensure there is only one active controller manager.")
 	flag.BoolVar(&skipVerifyRegistryCerts, "skip-verify-registry-cert", false, "Set whether to verify server's certificate chain and host name")
-	flag.Float64Var(&initTKRDiscoveryFreq, "initial-discover-frequency", 60, "Initial TKr discovery frequency in seconds")
-	flag.Float64Var(&continuousTKRDiscoverFreq, "continuous-discover-frequency", 600, "Continuous TKr discovery frequency in seconds")
+	flag.Float64Var(&initTKRDiscoveryFreq, "initial-discover-frequency", 60, "Initial TKR discovery frequency in seconds")
+	flag.Float64Var(&continuousTKRDiscoverFreq, "continuous-discover-frequency", 600, "Continuous TKR discovery frequency in seconds")
 	flag.Parse()
 
 	ctrl.SetLogger(zap.New(zap.UseDevMode(true)))
+
+	setupLog.Info("Version", "version", buildinfo.Version, "buildDate", buildinfo.Date, "sha", buildinfo.SHA)
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:           scheme,
 		Port:             9443,
 		LeaderElection:   enableLeaderElection,
-		LeaderElectionID: "abf9f9ab.tanzu.vmware.com",
+		LeaderElectionID: constants.TKRControllerLeaderElectionCM,
+
+		LeaderElectionNamespace: constants.TKRNamespace,
 	})
 	if err != nil {
-		setupLog.Error(err, "unable to start manager")
+		setupLog.Error(err, "Unable to start manager")
 		os.Exit(1)
 	}
 	mgrContext := &mgrcontext.ControllerManagerContext{
@@ -79,15 +85,15 @@ func main() {
 	}
 
 	if err := tkrsourcectr.AddToManager(mgrContext, mgr); err != nil {
-		setupLog.Error(err, "error initializing the tkr-source-controller")
+		setupLog.Error(err, "Error initializing the tkr-source-controller")
 		os.Exit(1)
 	}
 
 	// +kubebuilder:scaffold:builder
 
-	setupLog.Info("starting manager")
+	setupLog.Info("Starting manager")
 	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
-		setupLog.Error(err, "problem running manager")
+		setupLog.Error(err, "Problem running manager")
 		os.Exit(1)
 	}
 }

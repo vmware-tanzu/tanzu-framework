@@ -12,6 +12,7 @@ import (
 	"github.com/spf13/cobra"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 )
 
@@ -77,7 +78,7 @@ var updateCmd = &cobra.Command{
 
 		log.Info("the following updates will take place:")
 		if coreUpdate {
-			fmt.Printf("     %s %s → %s\n", cli.CoreName, cli.BuildVersion, coreVersion)
+			fmt.Printf("     %s %s → %s\n", cli.CoreName, buildinfo.Version, coreVersion)
 		}
 		for plugin, version := range updateMap {
 			fmt.Printf("     %s %s → %s\n", plugin.Name, plugin.Version, version)

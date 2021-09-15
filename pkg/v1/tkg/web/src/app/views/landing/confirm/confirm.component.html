@@ -1,6 +1,6 @@
 <div class="clr-row">
     <div class="clr-col-12">
-        <h2 i18n="start page welcome title" aria-level="1">{{ pageTitle }} - Confirm Settings</h2>
+        <h2 i18n="start page welcome title" aria-level="1" aria-live="assertive">{{ pageTitle }} - Confirm Settings</h2>
     </div>
 </div>
 <div *ngIf="errorNotification" class="alert alert-danger" role="alert">
@@ -22,6 +22,7 @@
     <div class="clr-row">
         <div class="clr-col-12">
             <table class="table">
+                <caption *ngIf="stepMetaDataList[idx]">{{ stepMetaDataList[idx].title }} settings</caption>
                 <thead *ngIf="stepMetaDataList[idx]">
                     <tr>
                         <th class="left">{{ stepMetaDataList[idx].title }}</th>

@@ -22,50 +22,85 @@ const (
 
 // AWSConfig is the tkg config for aws
 type AWSConfig struct {
-	ClusterName            string `yaml:"CLUSTER_NAME,omitempty"`
-	InfrastructureProvider string `yaml:"INFRASTRUCTURE_PROVIDER,omitempty"`
-	ClusterPlan            string `yaml:"CLUSTER_PLAN,omitempty"`
-	CeipParticipation      string `yaml:"ENABLE_CEIP_PARTICIPATION,omitempty"`
-	TmcRegistrationURL     string `yaml:"TMC_REGISTRATION_URL,omitempty"`
-
-	Region                    string `yaml:"AWS_REGION,omitempty"`
-	AccessKeyID               string `yaml:"AWS_ACCESS_KEY_ID,omitempty"`
-	SecretAcessKey            string `yaml:"AWS_SECRET_ACCESS_KEY,omitempty"`
+	AccessKeyID           string `yaml:"AWS_ACCESS_KEY_ID,omitempty"`
+	AMIID                 string `yaml:"AWS_AMI_ID,omitempty"`
+	AWSPrivateSubnetID    string `yaml:"AWS_PRIVATE_SUBNET_ID"`
+	AWSPrivateSubnetID2   string `yaml:"AWS_PRIVATE_SUBNET_ID_1"`
+	AWSPrivateSubnetID3   string `yaml:"AWS_PRIVATE_SUBNET_ID_2"`
+	AWSPublicSubnetID     string `yaml:"AWS_PUBLIC_SUBNET_ID"`
+	AWSPublicSubnetID2    string `yaml:"AWS_PUBLIC_SUBNET_ID_1"`
+	AWSPublicSubnetID3    string `yaml:"AWS_PUBLIC_SUBNET_ID_2"`
+	AWSVPCID              string `yaml:"AWS_VPC_ID"`
+	B64EncodedCredentials string `yaml:"AWS_B64ENCODED_CREDENTIALS,omitempty"`
+	BastionHostEnabled    string `yaml:"BASTION_HOST_ENABLED"`
+	CeipParticipation     string `yaml:"ENABLE_CEIP_PARTICIPATION,omitempty"`
+	ClusterCidr           string `yaml:"CLUSTER_CIDR"`
+	ClusterHTTPProxy      string `yaml:"TKG_HTTP_PROXY,omitempty"`
+	ClusterHTTPSProxy     string `yaml:"TKG_HTTPS_PROXY,omitempty"`
+	ClusterName           string `yaml:"CLUSTER_NAME,omitempty"`
+	ClusterNoProxy        string `yaml:"TKG_NO_PROXY,omitempty"`
+	ClusterPlan           string `yaml:"CLUSTER_PLAN,omitempty"`
+	ControlPlaneNodeType  string `yaml:"CONTROL_PLANE_MACHINE_TYPE,omitempty"`
+	// ControlPlaneOSDiskSizeGiB is the size of the root volume of the control plane instances of a cluster
+	ControlPlaneOSDiskSizeGiB string `yaml:"AWS_CONTROL_PLANE_OS_DISK_SIZE_GIB,omitempty"`
 	CredentialProfile         string `yaml:"AWS_PROFILE,omitempty"`
-	SessionToken              string `yaml:"AWS_SESSION_TOKEN,omitempty"`
-	B64EncodedCredentials     string `yaml:"AWS_B64ENCODED_CREDENTIALS,omitempty"`
-	ControlPlaneNodeType      string `yaml:"CONTROL_PLANE_MACHINE_TYPE,omitempty"`
-	NodeMachineType           string `yaml:"NODE_MACHINE_TYPE,omitempty"`
-	AMIID                     string `yaml:"AWS_AMI_ID,omitempty"`
-	SSHKeyName                string `yaml:"AWS_SSH_KEY_NAME"`
-	VPCCidr                   string `yaml:"AWS_VPC_CIDR"`
-	ClusterCidr               string `yaml:"CLUSTER_CIDR"`
-	ServiceCidr               string `yaml:"SERVICE_CIDR"`
-	AWSVPCID                  string `yaml:"AWS_VPC_ID"`
-	NodeAz                    string `yaml:"AWS_NODE_AZ"`
-	PrivateNodeCidr           string `yaml:"AWS_PRIVATE_NODE_CIDR"`
-	PublicNodeCidr            string `yaml:"AWS_PUBLIC_NODE_CIDR"`
-	AWSPrivateSubnetID        string `yaml:"AWS_PRIVATE_SUBNET_ID"`
-	AWSPublicSubnetID         string `yaml:"AWS_PUBLIC_SUBNET_ID"`
-	Node2Az                   string `yaml:"AWS_NODE_AZ_1"`
-	PrivateNode2Cidr          string `yaml:"AWS_PRIVATE_NODE_CIDR_1"`
-	PublicNode2Cidr           string `yaml:"AWS_PUBLIC_NODE_CIDR_1"`
-	AWSPrivateSubnetID2       string `yaml:"AWS_PRIVATE_SUBNET_ID_1"`
-	AWSPublicSubnetID2        string `yaml:"AWS_PUBLIC_SUBNET_ID_1"`
-	Node3Az                   string `yaml:"AWS_NODE_AZ_2"`
-	PrivateNode3Cidr          string `yaml:"AWS_PRIVATE_NODE_CIDR_2"`
-	PublicNode3Cidr           string `yaml:"AWS_PUBLIC_NODE_CIDR_2"`
-	AWSPrivateSubnetID3       string `yaml:"AWS_PRIVATE_SUBNET_ID_2"`
-	AWSPublicSubnetID3        string `yaml:"AWS_PUBLIC_SUBNET_ID_2"`
-	BastionHostEnabled        string `yaml:"BASTION_HOST_ENABLED"`
 	EnableAuditLogging        string `yaml:"ENABLE_AUDIT_LOGGING"`
-	MachineHealthCheckEnabled string `yaml:"ENABLE_MHC"`
-	ClusterHTTPProxy          string `yaml:"TKG_HTTP_PROXY,omitempty"`
-	ClusterHTTPSProxy         string `yaml:"TKG_HTTPS_PROXY,omitempty"`
-	ClusterNoProxy            string `yaml:"TKG_NO_PROXY,omitempty"`
 	HTTPProxyEnabled          string `yaml:"TKG_HTTP_PROXY_ENABLED"`
-	IDPConfig                 `yaml:",inline"`
-	OsInfo                    `yaml:",inline"`
+	InfrastructureProvider    string `yaml:"INFRASTRUCTURE_PROVIDER,omitempty"`
+	MachineHealthCheckEnabled string `yaml:"ENABLE_MHC"`
+	Node2Az                   string `yaml:"AWS_NODE_AZ_1"`
+	Node3Az                   string `yaml:"AWS_NODE_AZ_2"`
+	NodeAz                    string `yaml:"AWS_NODE_AZ"`
+	NodeMachineType           string `yaml:"NODE_MACHINE_TYPE,omitempty"`
+	NodeMachineType1          string `yaml:"NODE_MACHINE_TYPE_1,omitempty"`
+	NodeMachineType2          string `yaml:"NODE_MACHINE_TYPE_2,omitempty"`
+	// NodeOSDiskSizeGiB is the size of the root volume of the node instances of a cluster
+	NodeOSDiskSizeGiB      string                    `yaml:"AWS_NODE_OS_DISK_SIZE_GIB,omitempty"`
+	PrivateNode2Cidr       string                    `yaml:"AWS_PRIVATE_NODE_CIDR_1"`
+	PrivateNode3Cidr       string                    `yaml:"AWS_PRIVATE_NODE_CIDR_2"`
+	PrivateNodeCidr        string                    `yaml:"AWS_PRIVATE_NODE_CIDR"`
+	PublicNode2Cidr        string                    `yaml:"AWS_PUBLIC_NODE_CIDR_1"`
+	PublicNode3Cidr        string                    `yaml:"AWS_PUBLIC_NODE_CIDR_2"`
+	PublicNodeCidr         string                    `yaml:"AWS_PUBLIC_NODE_CIDR"`
+	Region                 string                    `yaml:"AWS_REGION,omitempty"`
+	SecretAcessKey         string                    `yaml:"AWS_SECRET_ACCESS_KEY,omitempty"`
+	ServiceCidr            string                    `yaml:"SERVICE_CIDR"`
+	SessionToken           string                    `yaml:"AWS_SESSION_TOKEN,omitempty"`
+	SSHKeyName             string                    `yaml:"AWS_SSH_KEY_NAME"`
+	TmcRegistrationURL     string                    `yaml:"TMC_REGISTRATION_URL,omitempty"`
+	VPCCidr                string                    `yaml:"AWS_VPC_CIDR"`
+	IdentityReference      AWSIdentityReference      `yaml:",inline"`
+	SecurityGroupOverrides AWSSecurityGroupOverrides `yaml:",inline"`
+	IDPConfig              `yaml:",inline"`
+	OsInfo                 `yaml:",inline"`
+}
+
+// AWSIdentityReference defines an optional reference to a AWS Identity Reference resource.
+type AWSIdentityReference struct {
+	// Kind is an optional kind of a Kubernetes resource containing  an identity to be used for a cluster.
+	// Defaults to AWSClusterRoleIdentity if Name is set
+	Kind string `yaml:"AWS_IDENTITY_REF_KIND,omitempty"`
+	// Name is an optional name of a Kubernetes resource containing an identity to be used for a cluster.
+	Name string `yaml:"AWS_IDENTITY_REF_NAME,omitempty"`
+}
+
+// AWSSecurityGroupOverrides can be used in conjunction with Bring Your Own Infrastructure to define specific security group
+// IDs to use for the cluster
+type AWSSecurityGroupOverrides struct {
+	// APIServerLoadBalancer is an optional security group ID of a pre-created security group that will be used for Kubernetes
+	// API Server ELB, and will control inbound access to the the control plane endpoint
+	APIServerLoadBalancer string `yaml:"AWS_SECURITY_GROUP_APISERVER_LB,omitempty"`
+	// Bastion is an optional security group ID of a pre-created security group that will be used to control in-bound access
+	// to the bastion
+	Bastion string `yaml:"AWS_SECURITY_GROUP_BASTION,omitempty"`
+	// ControlPlane is an optional security group ID of a pre-created security group that will be used to control in-bound
+	// access to the control plane nodes
+	ControlPlane string `yaml:"AWS_SECURITY_GROUP_CONTROLPLANE,omitempty"`
+	// CloudProviderLoadBalancer is an optional security group ID for use by the Kubernetes AWS Cloud Provider for setting rules
+	// for ELBs
+	CloudProviderLoadBalancer string `yaml:"AWS_SECURITY_GROUP_LB,omitempty"`
+	// Node is an optional security group ID that will be used to to control in-bound acceess to all nodes
+	Node string `yaml:"AWS_SECURITY_GROUP_NODE,omitempty"`
 }
 
 type newSubnetPair struct {
@@ -94,21 +129,38 @@ func (c *client) NewAWSConfig(params *models.AWSRegionalClusterParams, encodedCr
 		return nil, errors.Errorf("No AMI found in region %s for TKr version %s", params.AwsAccountParams.Region, bomConfiguration.Release.Version)
 	}
 
+	nodeMachineType1 := ""
+	nodeMachineType2 := ""
+
+	if len(params.Vpc.Azs) == 0 {
+		return nil, errors.New("AWS node availability zone cannot be empty")
+	}
+
+	if params.ControlPlaneFlavor == constants.PlanProd && len(params.Vpc.Azs) < 3 {
+		return nil, errors.Errorf("number of Availability Zones less than 3 for production cluster, actual %d", len(params.Vpc.Azs))
+	}
+
+	if params.ControlPlaneFlavor == constants.PlanProd {
+		nodeMachineType1 = params.Vpc.Azs[1].WorkerNodeType
+		nodeMachineType2 = params.Vpc.Azs[2].WorkerNodeType
+	}
+
 	res := &AWSConfig{
 		ClusterName:            params.ClusterName,
 		InfrastructureProvider: constants.InfrastructureProviderAWS,
 		ClusterPlan:            params.ControlPlaneFlavor,
 		TmcRegistrationURL:     params.TmcRegistrationURL,
-
-		Region:                params.AwsAccountParams.Region,
-		B64EncodedCredentials: encodedCredentials,
-		ControlPlaneNodeType:  params.ControlPlaneNodeType,
-		NodeMachineType:       params.WorkerNodeType,
-		AMIID:                 amiID,
-		SSHKeyName:            params.SSHKeyName,
-		ClusterCidr:           params.Networking.ClusterPodCIDR,
-		ServiceCidr:           params.Networking.ClusterServiceCIDR,
-		HTTPProxyEnabled:      falseConst,
+		Region:                 params.AwsAccountParams.Region,
+		B64EncodedCredentials:  encodedCredentials,
+		ControlPlaneNodeType:   params.ControlPlaneNodeType,
+		NodeMachineType:        params.Vpc.Azs[0].WorkerNodeType,
+		NodeMachineType1:       nodeMachineType1,
+		NodeMachineType2:       nodeMachineType2,
+		AMIID:                  amiID,
+		SSHKeyName:             params.SSHKeyName,
+		ClusterCidr:            params.Networking.ClusterPodCIDR,
+		ServiceCidr:            params.Networking.ClusterServiceCIDR,
+		HTTPProxyEnabled:       falseConst,
 	}
 
 	if params.CeipOptIn != nil {

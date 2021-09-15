@@ -5,7 +5,9 @@
                 role="button"
                 tabindex="0"
                 aria-label="back"
-                (click)="navigate(APP_ROUTES.LANDING)"></clr-icon>
+                (click)="navigate(APP_ROUTES.LANDING)"
+                keyboardListener
+            ></clr-icon>
             <h2 i18n="wizard title" aria-level="1">
                 <div class="vsphere-icon-30"></div>
                 Deploy {{ clusterType | titlecase }} Cluster on vSphere
@@ -140,7 +142,6 @@
             <ng-container *ngIf="steps[7]">
                 <app-os-image-step [formGroup]="form.controls.osImageForm"
                     formName="osimages" [wizardFormService]="wizardFormService" type="VSPHERE"
-                    [tkrVersion]="(tkrVersion | async)"
                     [noImageAlertMessage]="'Your ' + clusterType + ' cluster will be deployed with Tanzu Kubernetes release (TKr) ' + (tkrVersion | async) + '.
                                     We are unable to detect a VM template that belongs to this Tanzu Kubernetes release. You must install
                                     a VM template that belongs to Tanzu Kubernetes release ' +  (tkrVersion | async) + ' to continue with deployment of
@@ -158,7 +159,7 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="registerTmcForm" removeAriaLabelledBy>
+        <clr-stepper-panel formGroupName="registerTmcForm" removeAriaLabelledBy *ngIf="edition !== 'tce-standalone'">
             <clr-step-title i18n="register tmc step title">
                 Register TMC
             </clr-step-title>
@@ -176,7 +177,7 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="ceipOptInForm" removeAriaLabelledBy>
+        <clr-stepper-panel formGroupName="ceipOptInForm" removeAriaLabelledBy *ngIf="edition === 'tkg'">
             <clr-step-title i18n="ceip agreement step title">
                 CEIP Agreement
             </clr-step-title>

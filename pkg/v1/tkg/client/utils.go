@@ -5,6 +5,7 @@ package client
 
 import (
 	"fmt"
+	"net"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -14,6 +15,7 @@ import (
 	"github.com/pkg/errors"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
@@ -25,6 +27,16 @@ var isStringDigitsHyphenAndLowerCaseChars = regexp.MustCompile(`^[a-z0-9-]*$`).M
 func getDefaultKubeConfigFile() string {
 	rules := clientcmd.NewDefaultClientConfigLoadingRules()
 	return rules.GetDefaultFilename()
+}
+
+func getCurrentContextFromDefaultKubeConfig() (string, error) {
+	defaultKubeconfig := getDefaultKubeConfigFile()
+	config, err := clientcmd.LoadFromFile(defaultKubeconfig)
+	if err != nil {
+		return "", err
+	}
+
+	return config.CurrentContext, nil
 }
 
 // MergeKubeConfigAndSwitchContext merges kubeconfig and switches the kube-context
@@ -233,4 +245,92 @@ func TimedExecution(command func() error) (time.Duration, error) {
 	start := time.Now()
 	err := command()
 	return time.Since(start), err
+}
+
+// Once #164 is resolved we can upgrade to the v1alpha4 Cluster types and
+// remove type ClusterIPFamily, func GetIPFamily, and func ipFamilyForCIDRStrings
+// https://github.com/kubernetes-sigs/cluster-api/blob/c6803793164abe26b61dae2f1b9b375d4acbecf9/api/v1alpha4/cluster_types.go#L224-L291
+
+// ClusterIPFamily defines the types of supported IP families.
+type ClusterIPFamily int
+
+// Define the ClusterIPFamily constants.
+const (
+	InvalidIPFamily ClusterIPFamily = iota
+	IPv4IPFamily
+	IPv6IPFamily
+	DualStackIPFamily
+)
+
+func (f ClusterIPFamily) String() string {
+	return [...]string{"InvalidIPFamily", "IPv4IPFamily", "IPv6IPFamily", "DualStackIPFamily"}[f]
+}
+
+// GetIPFamily returns a ClusterIPFamily from the configuration provided.
+func GetIPFamily(c *capi.Cluster) (ClusterIPFamily, error) {
+	var podCIDRs, serviceCIDRs []string
+	if c.Spec.ClusterNetwork != nil {
+		if c.Spec.ClusterNetwork.Pods != nil {
+			podCIDRs = c.Spec.ClusterNetwork.Pods.CIDRBlocks
+		}
+		if c.Spec.ClusterNetwork.Services != nil {
+			serviceCIDRs = c.Spec.ClusterNetwork.Services.CIDRBlocks
+		}
+	}
+	if len(podCIDRs) == 0 && len(serviceCIDRs) == 0 {
+		return IPv4IPFamily, nil
+	}
+
+	podsIPFamily, err := ipFamilyForCIDRStrings(podCIDRs)
+	if err != nil {
+		return InvalidIPFamily, fmt.Errorf("pods: %s", err)
+	}
+	if len(serviceCIDRs) == 0 {
+		return podsIPFamily, nil
+	}
+
+	servicesIPFamily, err := ipFamilyForCIDRStrings(serviceCIDRs)
+	if err != nil {
+		return InvalidIPFamily, fmt.Errorf("services: %s", err)
+	}
+	if len(podCIDRs) == 0 {
+		return servicesIPFamily, nil
+	}
+
+	if podsIPFamily == DualStackIPFamily {
+		return DualStackIPFamily, nil
+	} else if podsIPFamily != servicesIPFamily {
+		return InvalidIPFamily, errors.New("pods and services IP family mismatch")
+	}
+
+	return podsIPFamily, nil
+}
+
+func ipFamilyForCIDRStrings(cidrs []string) (ClusterIPFamily, error) {
+	if len(cidrs) > 2 {
+		return InvalidIPFamily, errors.New("too many CIDRs specified")
+	}
+	var foundIPv4 bool
+	var foundIPv6 bool
+	for _, cidr := range cidrs {
+		ip, _, err := net.ParseCIDR(cidr)
+		if err != nil {
+			return InvalidIPFamily, fmt.Errorf("could not parse CIDR: %s", err)
+		}
+		if ip.To4() != nil {
+			foundIPv4 = true
+		} else {
+			foundIPv6 = true
+		}
+	}
+	switch {
+	case foundIPv4 && foundIPv6:
+		return DualStackIPFamily, nil
+	case foundIPv4:
+		return IPv4IPFamily, nil
+	case foundIPv6:
+		return IPv6IPFamily, nil
+	default:
+		return InvalidIPFamily, nil
+	}
 }

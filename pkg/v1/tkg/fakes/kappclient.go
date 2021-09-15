@@ -9,7 +9,6 @@ import (
 	v1alpha1a "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	"github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	v1alpha1b "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
-
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/kappclient"
 )
 
@@ -129,6 +128,20 @@ type KappClient struct {
 		result1 *v1alpha1.PackageRepository
 		result2 error
 	}
+	GetSecretValueStub        func(string, string) ([]byte, error)
+	getSecretValueMutex       sync.RWMutex
+	getSecretValueArgsForCall []struct {
+		arg1 string
+		arg2 string
+	}
+	getSecretValueReturns struct {
+		result1 []byte
+		result2 error
+	}
+	getSecretValueReturnsOnCall map[int]struct {
+		result1 []byte
+		result2 error
+	}
 	ListPackageInstallsStub        func(string) (*v1alpha1.PackageInstallList, error)
 	listPackageInstallsMutex       sync.RWMutex
 	listPackageInstallsArgsForCall []struct {
@@ -182,10 +195,11 @@ type KappClient struct {
 		result1 *v1alpha1b.PackageList
 		result2 error
 	}
-	UpdatePackageInstallStub        func(*v1alpha1.PackageInstall) error
+	UpdatePackageInstallStub        func(*v1alpha1.PackageInstall, bool) error
 	updatePackageInstallMutex       sync.RWMutex
 	updatePackageInstallArgsForCall []struct {
 		arg1 *v1alpha1.PackageInstall
+		arg2 bool
 	}
 	updatePackageInstallReturns struct {
 		result1 error
@@ -771,6 +785,71 @@ func (fake *KappClient) GetPackageRepositoryReturnsOnCall(i int, result1 *v1alph
 	}{result1, result2}
 }
 
+func (fake *KappClient) GetSecretValue(arg1 string, arg2 string) ([]byte, error) {
+	fake.getSecretValueMutex.Lock()
+	ret, specificReturn := fake.getSecretValueReturnsOnCall[len(fake.getSecretValueArgsForCall)]
+	fake.getSecretValueArgsForCall = append(fake.getSecretValueArgsForCall, struct {
+		arg1 string
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.GetSecretValueStub
+	fakeReturns := fake.getSecretValueReturns
+	fake.recordInvocation("GetSecretValue", []interface{}{arg1, arg2})
+	fake.getSecretValueMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *KappClient) GetSecretValueCallCount() int {
+	fake.getSecretValueMutex.RLock()
+	defer fake.getSecretValueMutex.RUnlock()
+	return len(fake.getSecretValueArgsForCall)
+}
+
+func (fake *KappClient) GetSecretValueCalls(stub func(string, string) ([]byte, error)) {
+	fake.getSecretValueMutex.Lock()
+	defer fake.getSecretValueMutex.Unlock()
+	fake.GetSecretValueStub = stub
+}
+
+func (fake *KappClient) GetSecretValueArgsForCall(i int) (string, string) {
+	fake.getSecretValueMutex.RLock()
+	defer fake.getSecretValueMutex.RUnlock()
+	argsForCall := fake.getSecretValueArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *KappClient) GetSecretValueReturns(result1 []byte, result2 error) {
+	fake.getSecretValueMutex.Lock()
+	defer fake.getSecretValueMutex.Unlock()
+	fake.GetSecretValueStub = nil
+	fake.getSecretValueReturns = struct {
+		result1 []byte
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *KappClient) GetSecretValueReturnsOnCall(i int, result1 []byte, result2 error) {
+	fake.getSecretValueMutex.Lock()
+	defer fake.getSecretValueMutex.Unlock()
+	fake.GetSecretValueStub = nil
+	if fake.getSecretValueReturnsOnCall == nil {
+		fake.getSecretValueReturnsOnCall = make(map[int]struct {
+			result1 []byte
+			result2 error
+		})
+	}
+	fake.getSecretValueReturnsOnCall[i] = struct {
+		result1 []byte
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *KappClient) ListPackageInstalls(arg1 string) (*v1alpha1.PackageInstallList, error) {
 	fake.listPackageInstallsMutex.Lock()
 	ret, specificReturn := fake.listPackageInstallsReturnsOnCall[len(fake.listPackageInstallsArgsForCall)]
@@ -1028,18 +1107,19 @@ func (fake *KappClient) ListPackagesReturnsOnCall(i int, result1 *v1alpha1b.Pack
 	}{result1, result2}
 }
 
-func (fake *KappClient) UpdatePackageInstall(arg1 *v1alpha1.PackageInstall) error {
+func (fake *KappClient) UpdatePackageInstall(arg1 *v1alpha1.PackageInstall, arg2 bool) error {
 	fake.updatePackageInstallMutex.Lock()
 	ret, specificReturn := fake.updatePackageInstallReturnsOnCall[len(fake.updatePackageInstallArgsForCall)]
 	fake.updatePackageInstallArgsForCall = append(fake.updatePackageInstallArgsForCall, struct {
 		arg1 *v1alpha1.PackageInstall
-	}{arg1})
+		arg2 bool
+	}{arg1, arg2})
 	stub := fake.UpdatePackageInstallStub
 	fakeReturns := fake.updatePackageInstallReturns
-	fake.recordInvocation("UpdatePackageInstall", []interface{}{arg1})
+	fake.recordInvocation("UpdatePackageInstall", []interface{}{arg1, arg2})
 	fake.updatePackageInstallMutex.Unlock()
 	if stub != nil {
-		return stub(arg1)
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1
@@ -1053,17 +1133,17 @@ func (fake *KappClient) UpdatePackageInstallCallCount() int {
 	return len(fake.updatePackageInstallArgsForCall)
 }
 
-func (fake *KappClient) UpdatePackageInstallCalls(stub func(*v1alpha1.PackageInstall) error) {
+func (fake *KappClient) UpdatePackageInstallCalls(stub func(*v1alpha1.PackageInstall, bool) error) {
 	fake.updatePackageInstallMutex.Lock()
 	defer fake.updatePackageInstallMutex.Unlock()
 	fake.UpdatePackageInstallStub = stub
 }
 
-func (fake *KappClient) UpdatePackageInstallArgsForCall(i int) *v1alpha1.PackageInstall {
+func (fake *KappClient) UpdatePackageInstallArgsForCall(i int) (*v1alpha1.PackageInstall, bool) {
 	fake.updatePackageInstallMutex.RLock()
 	defer fake.updatePackageInstallMutex.RUnlock()
 	argsForCall := fake.updatePackageInstallArgsForCall[i]
-	return argsForCall.arg1
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *KappClient) UpdatePackageInstallReturns(result1 error) {
@@ -1171,6 +1251,8 @@ func (fake *KappClient) Invocations() map[string][][]interface{} {
 	defer fake.getPackageMetadataByNameMutex.RUnlock()
 	fake.getPackageRepositoryMutex.RLock()
 	defer fake.getPackageRepositoryMutex.RUnlock()
+	fake.getSecretValueMutex.RLock()
+	defer fake.getSecretValueMutex.RUnlock()
 	fake.listPackageInstallsMutex.RLock()
 	defer fake.listPackageInstallsMutex.RUnlock()
 	fake.listPackageMetadataMutex.RLock()

@@ -267,7 +267,7 @@ func setDefaultCloudFormationTemplateValue(t *bootstrap.Template) {
 	t.Spec.BootstrapUser.UserName = DefaultCloudFormationBootstrapUserName
 }
 
-func (c *client) ListInstanceTypes() ([]string, error) {
+func (c *client) ListInstanceTypes(optionalAZName string) ([]string, error) {
 	if c.session == nil {
 		return nil, errors.New("uninitialized aws client")
 	}
@@ -276,6 +276,30 @@ func (c *client) ListInstanceTypes() ([]string, error) {
 	azs, err := svc.DescribeAvailabilityZones(&ec2.DescribeAvailabilityZonesInput{})
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot get availability zones under region")
+	}
+
+	// Return instance types for a single AZ if the AZ name is specified
+	if optionalAZName != "" {
+		filters := []*ec2.Filter{
+			{
+				Name:   aws.String("location"),
+				Values: []*string{&optionalAZName},
+			},
+		}
+		filter := &ec2.DescribeInstanceTypeOfferingsInput{Filters: filters, LocationType: aws.String(ec2.LocationTypeAvailabilityZone)}
+		// retrieve instance type offered for particular availability zone
+		instances, err := getInstanceTypeOffering(svc, filter)
+		if err != nil {
+			return nil, err
+		}
+		candidates, err := getInstanceTypes(svc)
+		if err != nil {
+			return nil, err
+		}
+		filteredInstances := filterInstanceType(candidates)
+		diffInstancesPerAz := getSetDifference(instances, filteredInstances)
+
+		return diffInstancesPerAz, nil
 	}
 
 	candidates, err := getInstanceTypes(svc)
@@ -306,7 +330,7 @@ func (c *client) ListInstanceTypes() ([]string, error) {
 		if i == 0 {
 			res = diffInstancesPerAz
 		} else {
-			res = intersection(res, diffInstancesPerAz)
+			res = union(res, diffInstancesPerAz)
 		}
 	}
 	return res, nil
@@ -386,19 +410,20 @@ func filterInstanceType(ss []*ec2.InstanceTypeInfo) (ret []string) {
 	return
 }
 
-func intersection(a, b []string) (c []string) {
+func union(a, b []string) (c []string) {
 	m := make(map[string]bool)
 
 	for _, item := range a {
 		m[item] = true
+		c = append(c, item)
 	}
 
 	for _, item := range b {
-		if _, ok := m[item]; ok {
+		if _, ok := m[item]; !ok {
 			c = append(c, item)
 		}
 	}
-	return
+	return c
 }
 
 func (c *client) ListCloudFormationStacks() ([]string, error) {
