@@ -60,7 +60,7 @@
                     <datalist id="networkName">
                         <option *ngFor="let vmNetwork of vmNetworks" [value]="vmNetwork?.name"></option>
                     </datalist>
-                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                 </clr-datalist-container>
                 <clr-control-error *ngIf="showFormError('networkName')">
@@ -83,7 +83,7 @@
                     </clr-tooltip>
                 </label>
                 <input clrInput formControlName="clusterServiceCidr" placeholder="xxx.xxx.xxx.xxx/xx" />
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error i18n="cluster service cidr required msg" *clrIfError="validatorEnum.REQUIRED">
                     Cluster Service CIDR cannot be empty
@@ -111,7 +111,7 @@
                     </clr-tooltip>
                 </label>
                 <input clrInput formControlName="clusterPodCidr" placeholder="xxx.xxx.xxx.xxx/xx" />
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error i18n="cluster pod cidr required msg" *clrIfError="validatorEnum.REQUIRED">
                     Cluster POD CIDR cannot be empty
@@ -163,7 +163,7 @@
                         </clr-tooltip>
                     </label>
                     <input clrInput name="httpProxyUrl" formControlName="httpProxyUrl" placeholder="http://exampleUrl" />
-                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                     <clr-control-error i18n="http proxy url required msg" *clrIfError="validatorEnum.REQUIRED">
                         Http proxy url cannot be empty
@@ -181,7 +181,7 @@
                         HTTP PROXY USERNAME (OPTIONAL)
                     </label>
                     <input clrInput name="httpProxyUsername" formControlName="httpProxyUsername" placeholder="Username" />
-                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                 </clr-input-container>
             </div>
@@ -191,7 +191,7 @@
                         HTTP PROXY PASSWORD (OPTIONAL)
                     </label>
                     <input clrPassword name="httpProxyPassword" formControlName="httpProxyPassword" placeholder="Password" />
-                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                 </clr-password-container>
             </div>
@@ -222,7 +222,7 @@
                         </clr-tooltip>
                     </label>
                     <input clrInput name="httpsProxyUrl" formControlName="httpsProxyUrl" placeholder="http://exampleUrl" />
-                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                     <clr-control-error i18n="http proxy url required msg" *clrIfError="validatorEnum.REQUIRED">
                         Https proxy url cannot be empty
@@ -240,7 +240,7 @@
                         HTTPS PROXY USERNAME (OPTIONAL)
                     </label>
                     <input clrInput name="httpsProxyUsername" formControlName="httpsProxyUsername" placeholder="Username" />
-                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                 </clr-input-container>
             </div>
@@ -250,7 +250,7 @@
                         HTTPS PROXY PASSWORD (OPTIONAL)
                     </label>
                     <input clrPassword name="httpsProxyPassword" formControlName="httpsProxyPassword" placeholder="Password" />
-                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                 </clr-password-container>
             </div>
