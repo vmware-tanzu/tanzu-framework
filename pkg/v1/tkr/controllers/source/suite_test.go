@@ -84,6 +84,7 @@ var _ = Describe("SyncRelease", func() {
 		addToScheme(scheme)
 		fakeClient = fake.NewFakeClientWithScheme(scheme, objects...)
 		r = reconciler{
+			ctx:      context.Background(),
 			client:   fakeClient,
 			log:      ctrllog.Log,
 			scheme:   scheme,
@@ -176,6 +177,7 @@ var _ = Describe("UpdateTKRCompatibleCondition", func() {
 		addToScheme(scheme)
 		fakeClient = fake.NewFakeClientWithScheme(scheme, objects...)
 		r = reconciler{
+			ctx:      context.Background(),
 			client:   fakeClient,
 			log:      ctrllog.Log,
 			scheme:   scheme,
@@ -283,17 +285,26 @@ var _ = Describe("initialReconcile", func() {
 		fakeRegistry *fakes.Registry
 		scheme       *runtime.Scheme
 		objects      []runtime.Object
+		ctx          context.Context
+		cancel       func()
+		retries      int
 		r            reconciler
-		stopChan     chan struct{}
 	)
 
 	BeforeEach(func() {
 		scheme = runtime.NewScheme()
 		addToScheme(scheme)
 		fakeClient = fake.NewFakeClientWithScheme(scheme, objects...)
+		retries = 3
+		ctx, cancel = context.WithCancel(context.Background())
+		go func() {
+			time.Sleep(time.Second * 5)
+			cancel()
+		}()
 	})
 	JustBeforeEach(func() {
 		r = reconciler{
+			ctx:                        ctx,
 			client:                     fakeClient,
 			log:                        ctrllog.Log,
 			scheme:                     scheme,
@@ -301,13 +312,7 @@ var _ = Describe("initialReconcile", func() {
 			bomImage:                   "my-registry.io/tkrs",
 			compatibilityMetadataImage: "",
 		}
-		ticker := time.NewTicker(time.Second)
-		stopChan = make(chan struct{})
-		go func(stopChan chan struct{}) {
-			time.Sleep(time.Second * 5)
-			stopChan <- struct{}{}
-		}(stopChan)
-		r.initialReconcile(ticker, stopChan, 3)
+		r.initialReconcile(ctx, 1*time.Second, retries)
 	})
 
 	Context("When in initial sync-up stage", func() {
@@ -357,6 +362,28 @@ var _ = Describe("initialReconcile", func() {
 			metadata, err := r.compatibilityMetadata(r.ctx)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(metadata).ToNot(BeNil())
+		})
+
+		When("there are 0 retries", func() {
+			BeforeEach(func() {
+				retries = 0
+			})
+
+			It("should not attempt fetching images more than once", func() {
+				// ListImageTags() called for both metadata and BOM images
+				// Since there are no retries, these 2 calls are supposed to be made once
+				Expect(fakeRegistry.ListImageTagsCallCount()).To(Equal(2))
+			})
+		})
+
+		When("context is canceled (controller is being stopped)", func() {
+			BeforeEach(func() {
+				cancel()
+			})
+
+			It("should not attempt fetching images", func() {
+				Expect(fakeRegistry.ListImageTagsCallCount()).To(Equal(0))
+			})
 		})
 	})
 

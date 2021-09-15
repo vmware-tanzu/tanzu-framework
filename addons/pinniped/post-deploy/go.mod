@@ -24,6 +24,5 @@ require (
 )
 
 // Import an nested go modules have some known issues. The following replace temporarily fixes it
-// https://vmware.slack.com/archives/C0158N04WDD/p1602106922371100
 // https://github.com/golang/go/issues/34055
 replace go.pinniped.dev/generated/1.19/apis => go.pinniped.dev/generated/1.19/apis v0.0.0-20201219022151-546b8b5d25c6

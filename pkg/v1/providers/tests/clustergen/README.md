@@ -27,7 +27,7 @@ pip3 install PyYAML
 
 Run cluster generation tests
 ```
-make cluster-generation-tests
+make generate-testcases cluster-generation-tests
 ```
 
 This will build a test binary capable of generating cluster configuration. This
@@ -85,7 +85,7 @@ make generate-testcases
 if PICT tool is not in PATH,
 
 ```
-make PICT=location_of_pict_binary generate_testcases
+make PICT=location_of_pict_binary generate-testcases
 ```
 
 What test cases are generated is determined by the contents of the model

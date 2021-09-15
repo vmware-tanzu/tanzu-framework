@@ -84,7 +84,7 @@
                                 </clr-tooltip>
                             </label>
                             <input clrInput id="issuerURL" formControlName="issuerURL" size="50"/>
-                            <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                            <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                             <clr-control-helper></clr-control-helper>
                             <clr-control-error *clrIfError="validatorEnum.REQUIRED">
                                 Issuer URL is required.
@@ -121,7 +121,7 @@
                                 </clr-tooltip>
                             </label>
                             <input clrInput id="clientId" formControlName="clientId" />
-                            <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                            <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                             <clr-control-helper></clr-control-helper>
                             <clr-control-error>Client ID is required. It must not include whitespace on ends.</clr-control-error>
                         </clr-input-container>
@@ -142,7 +142,7 @@
                                 </clr-tooltip>
                             </label>
                             <input clrInput type="password" name="clientSecret" formControlName="clientSecret"/>
-                            <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                            <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                             <clr-control-helper></clr-control-helper>
                             <clr-control-error>Client secret is required. It must not include whitespace on ends.</clr-control-error>
                         </clr-input-container>
@@ -171,7 +171,7 @@
                                    formControlName="scopes"
                                    size="50"
                                    placeholder="openId, profile, email, offline_access"/>
-                            <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                            <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                             <clr-control-helper></clr-control-helper>
                             <clr-control-error *clrIfError="validatorEnum.REQUIRED">
                                 Scopes are required. It must not include whitespace on ends. It must be a comma separated list of scopes.
@@ -200,7 +200,7 @@
                                    placeholder=""
                                    formControlName="oidcUsernameClaim"
                                    name="oidcUsernameClaim"/>
-                            <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                            <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                             <clr-control-helper></clr-control-helper>
                             <clr-control-error>Username claim is required.</clr-control-error>
                         </clr-input-container>
@@ -224,7 +224,7 @@
                                    placeholder=""
                                    formControlName="oidcGroupsClaim"
                                    name="oidcGroupsClaim"/>
-                            <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                            <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                             <clr-control-helper></clr-control-helper>
                             <clr-control-error>Groups claim is required.</clr-control-error>
                         </clr-input-container>
@@ -310,7 +310,7 @@
                                formControlName="bindDN"
                                name="bindDN"
                                id="bindDN"/>
-                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                         <clr-control-helper></clr-control-helper>
                     </clr-input-container>
                 </div>
@@ -335,7 +335,7 @@
                                formControlName="bindPW"
                                name="bindPW"
                                id="bindPW"/>
-                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                         <clr-control-helper></clr-control-helper>
                     </clr-input-container>
                 </div>
@@ -362,7 +362,7 @@
                                placeholder="ou=Users,dc=example,dc=com"
                                formControlName="userSearchBaseDN"
                                name="userSearchBaseDN"/>
-                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                         <clr-control-helper></clr-control-helper>
                     </clr-input-container>
                 </div>
@@ -389,7 +389,7 @@
                                placeholder="(objectClass=person)"
                                formControlName="userSearchFilter"
                                name="userSearchFilter"/>
-                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                         <clr-control-helper></clr-control-helper>
                     </clr-input-container>
                 </div>
@@ -411,7 +411,7 @@
                                placeholder="uid"
                                formControlName="userSearchUsername"
                                name="userSearchUsername"/>
-                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                         <clr-control-helper></clr-control-helper>
                     </clr-input-container>
                 </div>
@@ -439,7 +439,7 @@
                                placeholder="ou=Groups,dc=example,dc=com"
                                formControlName="groupSearchBaseDN"
                                name="groupSearchBaseDN"/>
-                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                         <clr-control-helper></clr-control-helper>
                     </clr-input-container>
                 </div>
@@ -461,7 +461,7 @@
                                formControlName="groupSearchFilter"
                                placeholder="(objectClass=groupOfNames)"
                                name="groupSearchFilter"/>
-                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                         <clr-control-helper></clr-control-helper>
                     </clr-input-container>
                 </div>
@@ -482,7 +482,7 @@
                                placeholder="cn"
                                formControlName="groupSearchNameAttr"
                                name="groupSearchNameAttr"/>
-                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                         <clr-control-helper></clr-control-helper>
                     </clr-input-container>
                 </div>
@@ -505,7 +505,7 @@
                                placeholder="distinguishedName,dn"
                                formControlName="groupSearchUserAttr"
                                name="groupSearchUserAttr"/>
-                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                         <clr-control-helper></clr-control-helper>
                     </clr-input-container>
                 </div>
@@ -526,7 +526,7 @@
                                formControlName="groupSearchGroupAttr"
                                placeholder="member"
                                name="groupSearchGroupAttr"/>
-                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                         <clr-control-helper></clr-control-helper>
                     </clr-input-container>
                 </div>

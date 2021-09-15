@@ -177,11 +177,19 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         return this.apiClient.applyTKGConfigForDocker({ params: this.getPayload() });
     }
 
+    /**
+     * Return management/standalone cluster name
+     */
+    getMCName() {
+        return this.getFieldValue('dockerNodeSettingForm', 'clusterName');
+    }
+
     getCli(configPath: string): string {
         const cliG = new CliGenerator();
         const cliParams: CliFields = {
             configPath: configPath,
-            clusterType: this.clusterType
+            clusterType: this.clusterType,
+            clusterName: this.getMCName()
         };
         return cliG.getCli(cliParams);
     }

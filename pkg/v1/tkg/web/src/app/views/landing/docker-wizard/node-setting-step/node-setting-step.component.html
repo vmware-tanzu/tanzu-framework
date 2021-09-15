@@ -3,23 +3,26 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-input-container [attr.data-step-metadata]="formName">
                 <label i18n="cluster name label" clr-control-label>
-                    {{ clusterType | uppercase }} CLUSTER NAME (OPTIONAL)
+                    {{ clusterType | uppercase }} CLUSTER NAME {{edition === 'tkg' ? '(OPTIONAL)' : ''}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                             <span>
-                                Optionally specify a name for the {{ clusterType }} cluster. If left blank,
-                                the installer names the cluster automatically.
+                                {{  edition === 'tkg'?
+                                    'Optionally specify a name for the ' + clusterType + ' cluster. If left blank,' +
+                                    'the installer names the cluster automatically.' :
+                                    'Specify a name for the ' + clusterType + ' cluster.'
+                                }}
                             </span>
                         </clr-tooltip-content>
                     </clr-tooltip>
                 </label>
                 <input clrInput formControlName="clusterName" placeholder="optional" maxlength="42"/>
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error i18n="cluster name valid msg" *clrIfError="validatorEnum.VALID_CLUSTER_NAME">
-                    {{ clusterType | titlecase }} Cluster Name must consist of lower case alphanumeric characters, '-' or '.', and must start
-                    and end with an alphanumeric character.
+                    {{ clusterType | titlecase }} Cluster name must start and end with a letter or number, and can contain only
+                    lowercase letters, numbers, and hyphens.
                 </clr-control-error>
                 <clr-control-error i18n="cluster name valid msg" *clrIfError="validatorEnum.WHITESPACE">
                     {{ clusterType | titlecase }} Cluster Name must not include whitespace on ends.
