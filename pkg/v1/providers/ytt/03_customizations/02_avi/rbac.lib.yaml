@@ -1,77 +1,11 @@
-#@ load("@ytt:data", "data")
-#@ load("@ytt:json", "json")
-#@ load("@ytt:overlay", "overlay")
-#@ load("/02_addons/avi/spec.lib.yaml", "akoo_deployment","avi_configs_spec","avi_credentials","avi_certificate")
-#@ load("/02_addons/avi/static.lib.yaml", "crd","service")
-
-#@ if data.values.PROVIDER_TYPE == "vsphere" and data.values.TKG_CLUSTER_ROLE != "workload" and data.values.AVI_ENABLE and data.values.AVI_CONTROL_PLANE_HA_PROVIDER:
-#@ def update_akoo_env():
-spec:
-  template:
-    spec:
-      containers:
-        #@overlay/match by=overlay.index(1)
-        - env:
-            #@overlay/match by=overlay.subset({"name":"bootstrap_cluster"})
-            - value: "True"
-          resources:
-            #@overlay/replace
-            requests:
-              cpu: 50m
-              memory: 20Mi
-#@ end
-
-#@ def update_bootstrap_akodeploymentconfig():
-#@overlay/match missing_ok=True
-clusterSelector:
-  #@overlay/replace
-  matchLabels:
-    cluster-role.tkg.tanzu.vmware.com/management: ""
-#@overlay/match missing_ok=True
-adminCredentialRef:
-  #@overlay/replace
-  namespace: tkg-system
-#@overlay/match missing_ok=True
-certificateAuthorityRef:
-  #@overlay/replace
-  namespace: tkg-system
-#@overlay/match missing_ok=True
-dataNetwork:
-  #@overlay/replace
-#@ if data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME and data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR: 
-  name: #@ data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME
-  cidr: #@ data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR 
-#@ else:
-  name: #@ data.values.AVI_DATA_NETWORK
-  cidr: #@ data.values.AVI_DATA_NETWORK_CIDR
-#@ end
-#@overlay/match missing_ok=True
-extraConfigs:
-  ingress:
-    #@overlay/match missing_ok=True
-    serviceType: NodePort
-#@ end
-
---- #@ crd()
---- #@ service()
---- #@ overlay.apply(akoo_deployment(), update_akoo_env())
----
-apiVersion: networking.tkg.tanzu.vmware.com/v1alpha1
-kind: AKODeploymentConfig
-metadata:
-  name: install-ako-for-management-cluster
-spec: #@ overlay.apply(avi_configs_spec(), update_bootstrap_akodeploymentconfig())
---- #@ avi_credentials()
---- #@ avi_certificate()
-
 #! RBAC for AKO Operator in bootstrap cluster
----
+#@ def role():
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
     app: tanzu-ako-operator
-  name: ako-operator-manager-bootsrap
+  name: ako-operator-manager-bootstrap
 rules:
   - apiGroups: [""]
     resources: ["*"]
@@ -84,7 +18,7 @@ rules:
     verbs: ["create", "delete", "update", "get","watch","list","patch", "update"]
   - apiGroups: ["apiextensions.k8s.io"]
     resources: ["customresourcedefinitions"]
-    verbs: ["create", "delete", "update", "get", "watch", "list"]  
+    verbs: ["create", "delete", "update", "get", "watch", "list"]
   - apiGroups: ["rbac.authorization.k8s.io"]
     resources: ["clusterroles","clusterrolebindings"]
     verbs: ["create", "delete", "update", "get", "watch", "list"]
@@ -127,7 +61,9 @@ rules:
       - use
     resourceNames:
       - "*"
----
+#@ end
+
+#@ def role_binding():
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -137,7 +73,7 @@ metadata:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: ako-operator-manager-bootsrap
+  name: ako-operator-manager-bootstrap
 subjects:
   - kind: ServiceAccount
     name: default
