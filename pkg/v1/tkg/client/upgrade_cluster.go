@@ -17,6 +17,7 @@ import (
 	capzv1alpha3 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha3"
 	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha4"
+	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	capikubeadmv1alpha4 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha4"
 	capdv1alpha4 "sigs.k8s.io/cluster-api/test/infrastructure/docker/api/v1alpha4"
 
@@ -1195,7 +1196,13 @@ func (c *TkgClient) getRegionalClusterNameAndNamespace(clusterClient clusterclie
 
 	clusterName = regionalClusterInfo.ClusterName
 
-	clusters, err := clusterClient.ListClusters("")
+	var clusterList capiv1alpha3.ClusterList
+	err = clusterClient.ListResources(&clusterList)
+	if err != nil {
+		return "", "", err
+	}
+
+	clusters := clusterList.Items
 	if err != nil {
 		return clusterName, clusterNamespace, err
 	}

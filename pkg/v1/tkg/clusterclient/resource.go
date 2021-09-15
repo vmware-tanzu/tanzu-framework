@@ -22,6 +22,7 @@ import (
 	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
 	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha4"
+	capdv1alpha4 "sigs.k8s.io/cluster-api/test/infrastructure/docker/api/v1alpha4"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha4"
 	bootstrapv1alpha3 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha4"
@@ -185,6 +186,8 @@ func (c *client) getRuntimeObject(o interface{}) (crtclient.Object, error) { //n
 	case *capi.MachineHealthCheck:
 		return obj, nil
 	case *capi.MachineDeployment:
+		return obj, nil
+	case *capdv1alpha4.DockerMachineTemplate:
 		return obj, nil
 	case *capiv1alpha3.Machine:
 		return obj, nil
