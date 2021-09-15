@@ -194,7 +194,7 @@ func (c *TkgClient) configureVariablesForProvidersInstallation(regionalClusterCl
 	}
 	// retrieve required variables required for infrastructure component spec rendering
 	// set them to default values if they don't exist.
-	err = c.retrieveRegionalClusterConfiguration(regionalClusterClient)
+	err = c.RetrieveRegionalClusterConfiguration(regionalClusterClient)
 	if err != nil {
 		return errors.Wrap(err, "failed to set configurations for upgrade")
 	}
