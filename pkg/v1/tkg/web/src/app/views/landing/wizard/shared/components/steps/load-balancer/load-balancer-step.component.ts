@@ -16,6 +16,7 @@ import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-
 import { AviVipNetwork } from './../../../../../../../swagger/models/avi-vip-network.model';
 import { TkgEventType } from 'src/app/shared/service/Messenger';
 import Broker from 'src/app/shared/service/broker';
+import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 
 export const KUBE_VIP = 'Kube-vip';
 export const NSX_ADVANCED_LOAD_BALANCER = "NSX Advanced Load Balancer";
@@ -139,6 +140,8 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
                     this.clouds = [];
                     this.disarmField('serviceEngineGroupName', true);
                     this.serviceEngineGroups = [];
+                    this.disarmField('networkCIDR', true);
+                    this.disarmField('managementClusterNetworkCIDR', true);
 
                     // If connection cleared, toggle validators OFF
                     this.toggleValidators(false);
@@ -166,7 +169,11 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
                     HA_REQUIRED_FIELDS.forEach(fieldName => this.disarmField(fieldName, true));
                 }
             });
-
+        this.registerOnIpFamilyChange('networkCIDR', [], []);
+        this.registerOnIpFamilyChange('managementClusterNetworkCIDR', [
+            this.validationService.isValidIpNetworkSegment()], [
+            this.validationService.isValidIpv6NetworkSegment()
+        ]);
     }
 
     isFieldReadyForInitWithSavedValue(fieldName: string): boolean {
@@ -360,7 +367,8 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
                 this.resurrectField('networkCIDR', [
                     Validators.required,
                     this.validationService.noWhitespaceOnEnds(),
-                    this.validationService.isValidIpNetworkSegment()
+                    this.ipFamily === IpFamilyEnum.IPv4 ?
+                        this.validationService.isValidIpNetworkSegment() : this.validationService.isValidIpv6NetworkSegment()
                 ], this.getSavedValue('networkCIDR', ''));
             }
         } else {

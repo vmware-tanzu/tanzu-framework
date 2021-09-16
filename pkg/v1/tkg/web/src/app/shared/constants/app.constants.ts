@@ -13,3 +13,8 @@ export const IAAS_DEFAULT_CIDRS = {
     CLUSTER_SVC_CIDR: '100.64.0.0/13',
     CLUSTER_POD_CIDR: '100.96.0.0/11'
 };
+
+export enum IpFamilyEnum {
+    IPv4 = 'ipv4',
+    IPv6 = 'ipv6'
+};

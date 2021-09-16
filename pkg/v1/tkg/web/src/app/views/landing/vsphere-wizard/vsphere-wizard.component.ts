@@ -31,6 +31,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
 
     datacenterMoid: Observable<string>;
     tkrVersion: Observable<string>;
+    vsphereVersion: string;
     deploymentPending: boolean = false;
     disableDeployButton = false;
 
@@ -73,6 +74,9 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
 
         this.provider = this.appDataService.getProviderType();
         this.tkrVersion = this.appDataService.getTkrVersion();
+        this.appDataService.getVsphereVersion().subscribe(version => {
+            this.vsphereVersion = version ? version + ' ': '';
+        });
     }
 
     ngOnInit() {
@@ -92,7 +96,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
                 this.getFieldValue('vsphereProviderForm', 'datacenter')) {
                 return 'vCenter ' + this.getFieldValue('vsphereProviderForm', 'vcenterAddress') + ' connected';
             } else {
-                return 'Validate the vSphere provider account for Tanzu';
+                return 'Validate the vSphere ' + this.vsphereVersion + 'provider account for Tanzu';
             }
         } else if (stepName === 'nodeSetting') {
             if (this.getFieldValue('vsphereNodeSettingForm', 'controlPlaneSetting')) {

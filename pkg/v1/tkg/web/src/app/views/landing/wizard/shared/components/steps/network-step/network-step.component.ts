@@ -11,7 +11,7 @@ import {
 /**
  * App imports
  */
-import { IAAS_DEFAULT_CIDRS } from '../../../../../../../shared/constants/app.constants';
+import { IAAS_DEFAULT_CIDRS, IpFamilyEnum } from '../../../../../../../shared/constants/app.constants';
 import { ValidationService } from '../../../validation/validation.service';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { AppDataService } from 'src/app/shared/service/app-data.service';
@@ -55,6 +55,14 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
         } as FormMetaData;
         FormMetaDataStore.saveMetaDataEntry(this.formName, 'cniType', cniTypeData);
         this.formGroup.get('cniType').setValue(this.cniType);
+
+        const cidrs = ['clusterServiceCidr', 'clusterPodCidr'];
+        cidrs.forEach(cidr => {
+            this.registerOnIpFamilyChange(cidr, [
+                this.validationService.isValidIpNetworkSegment()], [
+                this.validationService.isValidIpv6NetworkSegment()
+            ]);
+        });
     }
     buildForm() {
         const fieldsMapping = [
@@ -102,14 +110,16 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
                 this.resurrectField('clusterServiceCidr', [
                     Validators.required,
                     this.validationService.noWhitespaceOnEnds(),
-                    this.validationService.isValidIpNetworkSegment(),
+                    this.ipFamily === IpFamilyEnum.IPv4 ?
+                        this.validationService.isValidIpNetworkSegment() : this.validationService.isValidIpv6NetworkSegment(),
                     this.validationService.isIpUnique([this.formGroup.get('clusterPodCidr')])
                 ], IAAS_DEFAULT_CIDRS.CLUSTER_SVC_CIDR);
             }
             this.resurrectField('clusterPodCidr', [
                 Validators.required,
                 this.validationService.noWhitespaceOnEnds(),
-                this.validationService.isValidIpNetworkSegment(),
+                this.ipFamily === IpFamilyEnum.IPv4 ?
+                    this.validationService.isValidIpNetworkSegment() : this.validationService.isValidIpv6NetworkSegment(),
                 this.validationService.isIpUnique([this.formGroup.get('clusterServiceCidr')])
             ], IAAS_DEFAULT_CIDRS.CLUSTER_POD_CIDR);
 

@@ -11,6 +11,7 @@ export class AppDataService {
     private hasPacificCluster = new BehaviorSubject<boolean>(false);
     private tkrVersion = new BehaviorSubject<string|null>(null);
     private featureFlags = new BehaviorSubject<Map<String, String>|null>(null);
+    private vsphereVersion = new BehaviorSubject<string|null>(null);
 
     constructor() {
         this.providerType.asObservable().subscribe((data) => {
@@ -50,5 +51,13 @@ export class AppDataService {
 
     getFeatureFlags() {
         return this.featureFlags;
+    }
+
+    setVsphereVersion(version: string) {
+        this.vsphereVersion.next(version);
+    }
+
+    getVsphereVersion() {
+        return this.vsphereVersion;
     }
 }
