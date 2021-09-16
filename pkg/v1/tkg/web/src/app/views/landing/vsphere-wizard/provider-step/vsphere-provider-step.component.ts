@@ -105,6 +105,10 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 Validators.required
             ])
         );
+        this.formGroup.addControl(
+            'ssh_key_file',
+            new FormControl('', [])
+        );
 
         this.formGroup.addControl(
             'thumbprint',
@@ -152,10 +156,12 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
         this.fileReader.onload = (event) => {
             try {
                 this.formGroup.get('ssh_key').setValue(event.target.result);
+                console.log(event.target.result);
             } catch (error) {
                 console.log(error.message);
                 return;
             }
+            this.formGroup.get('ssh_key_file').setValue('');
         };
     }
 
@@ -382,6 +388,8 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
     onFileChanged(event) {
         if (event.target.files.length) {
             this.fileReader.readAsText(event.target.files[0]);
+            // clear file reader target so user can re-select same file if needed
+            event.target.value = '';
         }
     }
 }
