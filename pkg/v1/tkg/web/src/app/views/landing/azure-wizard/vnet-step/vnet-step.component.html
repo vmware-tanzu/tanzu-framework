@@ -43,7 +43,7 @@
                         <option *ngFor="let rg of resourceGroups" [value]="rg.name">{{ rg.name }}
                         </option>
                     </select>
-                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                     <clr-control-error i18n="azure resource group required msg" *clrIfError="validatorEnum.REQUIRED">
                         Azure Resource Group is required
@@ -64,7 +64,7 @@
                         </clr-tooltip>
                     </label>
                     <input clrInput formControlName="vnetNameCustom" placeholder="VNET name" />
-                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                     <clr-control-error i18n="azure VNET name required msg" *clrIfError="validatorEnum.REQUIRED">
                         VNET Name cannot be empty
@@ -85,7 +85,7 @@
                         </clr-tooltip>
                     </label>
                     <input clrInput name="vnetCidrBlock" formControlName="vnetCidrBlock" placeholder="VNET CIDR block" />
-                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                     <clr-control-error i18n="azure resource group required msg" *clrIfError="validatorEnum.REQUIRED">
                         Azure VNET CIDR block is required
@@ -111,10 +111,10 @@
                         </clr-tooltip>
                     </label>
                     <input clrInput formControlName="controlPlaneSubnetNew" placeholder="Subnet name" />
-                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                     <clr-control-error i18n="azure control plane subnet required msg" *clrIfError="validatorEnum.REQUIRED">
-                        control plane subnet name cannot be empty
+                        Control plane subnet name cannot be empty
                     </clr-control-error>
                 </clr-input-container>
             </div>
@@ -133,18 +133,18 @@
                         </clr-tooltip>
                     </label>
                     <input clrInput name="controlPlaneSubnetCidrNew" formControlName="controlPlaneSubnetCidrNew" placeholder="CIDR" />
-                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                     <clr-control-error i18n="azure control plane cidr required msg" *clrIfError="validatorEnum.REQUIRED">
-                        control plane subnet cidr cannot be empty
+                        Control plane subnet cidr cannot be empty
                     </clr-control-error>
                     <clr-control-error i18n="azure control plane cidr invalid msg" *clrIfError="validatorEnum.VALID_IP">
-                        control plane subnet cidr format is invalid
+                        Control plane subnet cidr format is invalid
                     </clr-control-error>
                 </clr-input-container>
             </div>
         </div>
-        <div class="clr-row">
+        <div class="clr-row" *ngIf="clusterType !== 'standalone'">
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                 <clr-input-container [attr.data-step-metadata]="formName">
                     <label i18n="azure worker node subnet label" clr-control-label>
@@ -159,10 +159,10 @@
                         </clr-tooltip>
                     </label>
                     <input clrInput formControlName="workerNodeSubnetNew" placeholder="Subnet name" />
-                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                     <clr-control-error i18n="azure worker node subnet required msg" *clrIfError="validatorEnum.REQUIRED">
-                        worker node subnet name cannot be empty
+                        Worker node subnet name cannot be empty
                     </clr-control-error>
                 </clr-input-container>
             </div>
@@ -181,13 +181,13 @@
                         </clr-tooltip>
                     </label>
                     <input clrInput name="workerNodeSubnetCidrNew" formControlName="workerNodeSubnetCidrNew" placeholder="CIDR" />
-                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                     <clr-control-error i18n="azure worker node cidr required msg" *clrIfError="validatorEnum.REQUIRED">
-                        worker node subnet cidr cannot be empty
+                        Worker node subnet cidr cannot be empty
                     </clr-control-error>
                     <clr-control-error i18n="azure worker node cidr invalid msg" *clrIfError="validatorEnum.VALID_IP">
-                        worker node subnet cidr format is invalid
+                        Worker node subnet cidr format is invalid
                     </clr-control-error>
                 </clr-input-container>
             </div>
@@ -213,7 +213,7 @@
                     <option *ngFor="let rg of resourceGroups" [value]="rg.name">{{ rg.name }}
                     </option>
                 </select>
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error i18n="azure resource group required msg" *clrIfError="validatorEnum.REQUIRED">
                     Azure Resource Group is required
@@ -238,7 +238,7 @@
                     <option *ngFor="let vne of vnetNamesExisting" [value]="vne">{{ vne }}
                     </option>
                 </select>
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error i18n="azure resource group required msg" *clrIfError="validatorEnum.REQUIRED">
                     Azure VNET name is required
@@ -266,14 +266,14 @@
                     <option *ngFor="let cps of controlPlaneSubnets" [value]="cps.name">{{ cps.name }}
                     </option>
                 </select>
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error i18n="azure resource group required msg" *clrIfError="validatorEnum.REQUIRED">
-                    Control plane subnet is required
+                    Azure control plane subnet is required
                 </clr-control-error>
             </clr-select-container>
         </div>
-        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *ngIf="clusterType !== 'standalone'">
             <clr-select-container [attr.data-step-metadata]="formName">
                 <label i18n="azure worker node subnet label">
                     WORKER NODE SUBNET
@@ -291,7 +291,7 @@
                     <option *ngFor="let wns of workerNodeSubnets" [value]="wns.name">{{ wns.name }}
                     </option>
                 </select>
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error i18n="azure worker node subnet required msg" *clrIfError="validatorEnum.REQUIRED">
                     Azure worker node subnet is required

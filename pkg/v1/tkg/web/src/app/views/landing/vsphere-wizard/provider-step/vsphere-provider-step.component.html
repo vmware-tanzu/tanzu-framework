@@ -44,7 +44,7 @@
                     </clr-tooltip>
                 </label>
                 <input clrInput formControlName="vcenterAddress" placeholder="IP or FQDN" />
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error i18n="vcenter server addr required msg" *clrIfError="validatorEnum.REQUIRED">
                     vCenter Server address cannot be empty
@@ -60,7 +60,7 @@
                     USERNAME
                 </label>
                 <input clrInput formControlName="username" placeholder="username" />
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error i18n="username required msg" *clrIfError="validatorEnum.REQUIRED">
                     Username cannot be empty
@@ -73,7 +73,7 @@
                     PASSWORD
                 </label>
                 <input clrPassword formControlName="password" placeholder="password" />
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error i18n="Password required msg" *clrIfError="validatorEnum.REQUIRED">
                     Password cannot be empty
@@ -113,7 +113,7 @@
                         </option>
                     </ng-container>
                 </select>
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error>Selecting a datacenter is required</clr-control-error>
             </clr-select-container>

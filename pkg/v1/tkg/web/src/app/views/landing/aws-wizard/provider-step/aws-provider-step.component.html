@@ -72,7 +72,7 @@
                         </clr-tooltip>
                     </label>
                     <input clrPassword formControlName="accessKeyID" placeholder="access key ID"/>
-                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                 </clr-password-container>
             </div>
@@ -90,7 +90,7 @@
                         </clr-tooltip>
                     </label>
                     <input clrPassword formControlName="secretAccessKey" placeholder="access key"/>
-                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                 </clr-password-container>
             </div>
@@ -108,7 +108,7 @@
                         </clr-tooltip>
                     </label>
                     <input clrInput formControlName="sessionToken" placeholder="session token"/>
-                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                 </clr-input-container>
             </div>
@@ -141,7 +141,7 @@
                         <option aria-label="blank" title="blank"></option>
                         <option *ngFor="let profile of profileNames" [value]="profile">{{profile}}</option>
                     </select>
-                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                 </clr-select-container>
             </div>
@@ -166,7 +166,7 @@
                         <option aria-label="blank" title="blank"></option>
                         <option *ngFor="let region of regions" [value]="region">{{ region }}</option>
                     </select>
-                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                     <clr-control-error i18n="AWS region required msg" *clrIfError="validatorEnum.REQUIRED">
                         A region must be selected

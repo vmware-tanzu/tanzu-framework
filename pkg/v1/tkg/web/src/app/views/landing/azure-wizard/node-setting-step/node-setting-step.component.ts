@@ -12,7 +12,6 @@ import { takeUntil } from 'rxjs/operators';
  * App imports
  */
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-import { awsNodeTypes } from '../../wizard/shared/constants/wizard.constants';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { TkgEventType } from '../../../../shared/service/Messenger';
 import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
@@ -34,7 +33,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     constructor(private validationService: ValidationService,
                 private azureWizardFormService: AzureWizardFormService) {
         super();
-        this.nodeTypes = [...awsNodeTypes];
+        this.nodeTypes = [];
     }
 
     buildForm() {
