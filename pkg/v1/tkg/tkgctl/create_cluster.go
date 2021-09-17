@@ -225,16 +225,19 @@ func (t *tkgctl) configureCreateClusterOptionsFromConfigFile(cc *CreateClusterOp
 	// set IsWindowsWorkloadCluster from config variable
 	if !cc.IsWindowsWorkloadCluster {
 		strIWC, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableIsWindowsWorkloadCluster)
-		isWindowsWorkloadCluster, err := strconv.ParseBool(strIWC)
+		// error on reading this parameter is a no-op, since its probably ephemeral and will be replaced w/ multitenant/multiworkload node-pools eventually
 		if err == nil {
-			cc.IsWindowsWorkloadCluster = isWindowsWorkloadCluster
-		} else {
-			// if no value, set to the default, which should be false since most clusters are linux.
-			cc.IsWindowsWorkloadCluster = constants.DefaultIsWindowsWorkloadCluster
-		}
-		// log this since its generally a less common use case, and windows support is relatively new.
-		if cc.IsWindowsWorkloadCluster {
-			log.Infof("\n Creating a windows workload cluster %v\n\n", cc.ClusterName)
+			isWindowsWorkloadCluster, err := strconv.ParseBool(strIWC)
+			if err == nil {
+				cc.IsWindowsWorkloadCluster = isWindowsWorkloadCluster
+			} else {
+				// if no value, set to the default, which should be false since most clusters are linux.
+				cc.IsWindowsWorkloadCluster = constants.DefaultIsWindowsWorkloadCluster
+			}
+			// log this since its generally a less common use case, and windows support is relatively new.
+			if cc.IsWindowsWorkloadCluster {
+				log.Infof("\n Creating a windows workload cluster %v\n\n", cc.ClusterName)
+			}
 		}
 	}
 
