@@ -263,9 +263,9 @@ func (t *tkgctl) configureCreateClusterOptionsFromConfigFile(cc *CreateClusterOp
 		if err == nil {
 			cc.WorkerMachineCount = wmc
 		} else {
-			cc.WorkerMachineCount = constants.DefaultDevWorkerMachineCountForWorkloadCluster
+			cc.WorkerMachineCount = constants.DefaultDevWorkerMachineCount
 			if cc.Plan == constants.PlanProd {
-				cc.WorkerMachineCount = constants.DefaultProdWorkerMachineCountForWorkloadCluster
+				cc.WorkerMachineCount = constants.DefaultProdWorkerMachineCount
 			}
 		}
 	}

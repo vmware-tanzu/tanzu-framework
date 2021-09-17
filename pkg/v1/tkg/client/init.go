@@ -600,35 +600,6 @@ func (c *TkgClient) BuildRegionalClusterConfiguration(options *InitRegionOptions
 	return bytes, options.ClusterName, err
 }
 
-func (c *TkgClient) getMachineCountForMC(plan string) (int, int) {
-	// set controlplane and worker counts to default initially
-	controlPlaneMachineCount := constants.DefaultDevControlPlaneMachineCount
-	workerMachineCount := constants.DefaultWorkerMachineCountForManagementCluster
-
-	switch plan {
-	case constants.PlanDev:
-		// use the defaults already set above
-	case constants.PlanProd:
-		// update controlplane count for prod plan
-		controlPlaneMachineCount = constants.DefaultProdControlPlaneMachineCount
-	default:
-		// For custom plan use config variables to determine the count
-		// Verify there is no error in retrieving this and controlplane count is odd number
-		// If not provided then continue to use default values
-		if cpc, err := tkgconfighelper.GetIntegerVariableFromConfig(constants.ConfigVariableControlPlaneMachineCount, c.TKGConfigReaderWriter()); err == nil && cpc%2 == 1 {
-			controlPlaneMachineCount = cpc
-		} else {
-			log.Info("Using default value for CONTROL_PLANE_MACHINE_COUNT= %v. Reason: Either provided value is even or %s", err.Error())
-		}
-		if wc, err := tkgconfighelper.GetIntegerVariableFromConfig(constants.ConfigVariableWorkerMachineCount, c.TKGConfigReaderWriter()); err == nil {
-			workerMachineCount = wc
-		} else {
-			log.Info("Using default value for WORKER_MACHINE_COUNT= %v. Reason: %s", err.Error())
-		}
-	}
-	return controlPlaneMachineCount, workerMachineCount
-}
-
 type waitForProvidersOptions struct {
 	Kubeconfig        string
 	TargetNamespace   string
