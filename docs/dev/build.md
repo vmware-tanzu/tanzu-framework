@@ -18,19 +18,20 @@ To build the APIs in Framework, the following commands exist:
 `make install`: To install CRDs into the cluster.
 
 API controllers that exist in the Framework repo
+
 * [Addons](https://github.com/vmware-tanzu/tanzu-framework/tree/main/addons)
 * [Capabilities](https://github.com/vmware-tanzu/tanzu-framework/tree/main/pkg/v1/sdk/capabilities)
 * [FeatureGates](https://github.com/vmware-tanzu/tanzu-framework/tree/main/pkg/v1/sdk/features)
 * [TKR](https://github.com/vmware-tanzu/tanzu-framework/tree/main/pkg/v1/tkr)
 
-Each controller directory has its own Dockerfile, Makefile and manifests needed to build the image and 
+Each controller directory has its own Dockerfile, Makefile and manifests needed to build the image and
 deploy the controller to the cluster.
 
 ### Framework CLI
 
 The CLI has specific targets for local development due to its distributed nature.
 
-`make build-install-cli-local`: cleans, builds and installs plugins locally for 
+`make build-install-cli-local`: cleans, builds and installs plugins locally for
 your platform
 
 `make test`: Performs a suite of tests on the CLI and API controllers.
@@ -42,7 +43,7 @@ or multiple Go modules within sub directories.
 
 Generally, the directory structure when building plugins may look like:
 
-```
+```sh
 plugins-directory
 |- foo-plugin
 |- bar-plugin
@@ -55,29 +56,28 @@ Consider these command while building plugins:
 
 `make build-install-cli-all`: cleans, builds and installs plugins.
 
-`make build-install-cli-local`: cleans, builds, installs CLI and plugins locally 
+`make build-install-cli-local`: cleans, builds, installs CLI and plugins locally
 for your platform.
 
 `make build-cli-local`: Only builds the Tanzu CLI locally.
 
-Check out the [plugin implementation guide](../cli/plugin_implementation_guide.md) 
+Check out the [plugin implementation guide](../cli/plugin_implementation_guide.md)
 for more details on how to write plugins for Tanzu CLI.
 
 ### Capabilities
 
-Framework provides Capability discovery 
+Framework provides Capability discovery
 [GO package](https://github.com/vmware-tanzu/tanzu-framework/tree/main/pkg/v1/sdk/capabilities/discovery)
-and Capability API to query a cluster's capabilities. It can be used to understand the API surface area and query for 
-objects in the cluster. 
+and Capability API to query a cluster's capabilities. It can be used to understand the API surface area and query for
+objects in the cluster.
 
-For more detailed information on Capability functionality offered by Framework check out this 
+For more detailed information on Capability functionality offered by Framework check out this
 [doc](../api-machinery/capability-discovery.md)
-
 
 ### Features and FeatureGates
 
-Framework offers Features and FeatureGates APIs to allow developers to deliver new functionality to users rapidly but 
+Framework offers Features and FeatureGates APIs to allow developers to deliver new functionality to users rapidly but
 safely. With these powerful APIs the teams can modify the system behavior without changing the code for more controlled
 experimentation over the lifecyle of features, these can be incredibly useful for agile management style environments.
 
-For more detailed information on these APIs check out this [doc](../api-machinery/features-and-featuregates.md) 
+For more detailed information on these APIs check out this [doc](../api-machinery/features-and-featuregates.md)

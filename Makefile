@@ -334,6 +334,10 @@ lint: tools doc-lint ## Run linting checks
 
 doc-lint: tools ## Run linting checks for docs
 	$(VALE) --config=.vale/config.ini --glob='*.md' ./
+	# mdlint rules with possible errors and fixes can be found here:
+	# https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md
+	# Additional configuration can be found in the .markdownlintrc file.
+	hack/check-mdlint.sh
 
 .PHONY: modules
 modules: ## Runs go mod to ensure modules are up to date.

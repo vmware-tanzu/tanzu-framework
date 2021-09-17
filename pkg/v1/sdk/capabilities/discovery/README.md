@@ -17,24 +17,25 @@ The Query Builder SDK can query for:
 Once created, these prepared queries can be exported and used whenever necessary .
 
 ## Example
-```
+
+```go
 // Define some standard objects, GVRs or schema
 var ns = corev1.ObjectReference{
-	Kind:      "namespace",
-	Name:      "ian",
-	Namespace: "ian",
+    Kind:      "namespace",
+    Name:      "ian",
+    Namespace: "ian",
 }
 
 // Its important to our use case for this annotation to also match
 var testAnnotations = map[string]string{
-	"cluster.x-k8s.io/provider": "infrastructure-fake",
+    "cluster.x-k8s.io/provider": "infrastructure-fake",
 }
 
 // We want to ensure this version of pipelines exists, perhaps with specific fields
 var testGVR = schema.GroupVersionResource{
-	Group:    "tekton.dev",
-	Version:  "v1beta1",
-	Resource: "pipelines",
+    Group:    "tekton.dev",
+    Version:  "v1beta1",
+    Resource: "pipelines",
 }
 
 // We will now generate a partial query to match our specific namespace
@@ -48,7 +49,7 @@ var testSchema1 = PartialSchema(schema).NotExist()
 
 c, err := NewClusterQueryClient()
 if err != nil {
-	return err
+    return err
 }
 
 // Build your query and use it where its necessary
@@ -56,9 +57,9 @@ OurCoolQuery := c.Query(testResource1, testGVR1, testSchema1).Prepare()
 
 ok, err := OurCoolQuery()
 if err != nil {
-	return err
+    return err
 }
 if ok {
-	log.Log("W00T")
+    log.Log("W00T")
 }
 ```

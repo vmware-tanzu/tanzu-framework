@@ -28,4 +28,5 @@
 | Engineering Lead | Justin Miclette [miclettej](https://github.com/miclettej) |
 
 ## Emeritus
-- Ian Coffey [iancoffey](https://github.com/iancoffey)
+
+* Ian Coffey [iancoffey](https://github.com/iancoffey)

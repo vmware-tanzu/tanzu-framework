@@ -1,15 +1,16 @@
-Table of Contents
-=================
+# Capability Discovery
+
+## Table of Contents
 
 * [Capability Discovery](#capability-discovery)
-    * [Discovery Go Package](#discovery-go-package)
-        * [Building a ClusterQueryClient](#building-a-clusterqueryclient)
-        * [Building and Executing Queries](#building-and-executing-queries)
-    * [Executing Pre-defined TKG queries](#executing-pre-defined-tkg-queries)
-    * [Capability CRD](#capability-crd)
-        * [Example Capability Custom Resource](#example-capability-custom-resource)
+  * [Discovery Go Package](#discovery-go-package)
+    * [Building a ClusterQueryClient](#building-a-clusterqueryclient)
+    * [Building and Executing Queries](#building-and-executing-queries)
+  * [Executing Pre-defined TKG queries](#executing-pre-defined-tkg-queries)
+  * [Capability CRD](#capability-crd)
+    * [Example Capability Custom Resource](#example-capability-custom-resource)
 
-# Capability Discovery
+------------------------
 
 The capability discovery Go package `pkg/v1/sdk/capabilities/discovery`, along with the `Capability` CRD offer the
 ability to query a cluster's capabilities. A "capability" is defined as anything a Kubernetes cluster can do or have,
@@ -39,7 +40,7 @@ cfg := config.GetConfig()
 
 clusterQueryClient, err := discovery.NewClusterQueryClientForConfig(cfg)
 if err != nil {
-	log.Error(err)
+    log.Error(err)
 }
 ```
 
@@ -73,20 +74,20 @@ c := clusterQueryClient.Query(testObject, testGVR)
 // Execute returns combined result of all queries.
 found, err := c.Execute()
 if err != nil {
-	log.Error(err)
+    log.Error(err)
 }
 
 if found {
-	log.Info("Queries successful")
+    log.Info("Queries successful")
 }
 
 // Inspect granular results of each query using the Results method (should be called after Execute).
 if result := c.Results().ForQuery("podResource"); result != nil {
-	if result.Found {
-		log.Info("Pod resource found")
-	} else {
-		log.Infof("Pod resource not found. Reason: %s", result.NotFoundReason)
-	}
+    if result.Found {
+        log.Info("Pod resource found")
+    } else {
+        log.Infof("Pod resource not found. Reason: %s", result.NotFoundReason)
+    }
 }
 ```
 
@@ -102,23 +103,23 @@ import tkgdiscovery "github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabili
 
 c, err := tkgdiscovery.NewDiscoveryClientForConfig(cfg)
 if err != nil {
-	log.Fatal(err)
+    log.Fatal(err)
 }
 
 if c.IsTKGm() {
-	log.Info("This is a TKGm cluster")
+    log.Info("This is a TKGm cluster")
 }
 
 if c.IsManagementCluster() {
-	log.Info("Management cluster")
+    log.Info("Management cluster")
 }
 
 if c.IsWorkloadCluster() {
-	log.Info("Workload cluster")
+    log.Info("Workload cluster")
 }
 
 if c.HasCloudProvider(ctx, tkgdiscovery.CloudProviderVsphere) {
-	log.Info("Cluster has vSphere cloud provider")
+    log.Info("Cluster has vSphere cloud provider")
 }
 ```
 
@@ -166,8 +167,8 @@ spec:
 The capabilities controller:
 
 1. Watches `Capability` resources that are created or updated.
-2. Executes queries specified in the spec.
-3. Writes the results to the status field of the resource.
+1. Executes queries specified in the spec.
+1. Writes the results to the status field of the resource.
 
 After reconciliation, results can be inspected by looking at the status field. Results are grouped by GVK, Object and
 Partial Schema queries, and provide a predictable data structure for consumers to parse. They can be accessed by the

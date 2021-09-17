@@ -9,16 +9,17 @@ CLI elements must function after their announced deprecation for no less than
 one minor release.
 
 ## How do we deprecate things?
+
 A **deprecation event** would coincide with a release. The rules for
 deprecation are as follows:
-1. Deprecated CLI elements must display warnings when used.
-2. The warning message should include a functional alternative to the
-   deprecated command or flag if anything.
-3. The warning message should include the release for when the command/flag
-   will be removed.
-4. The deprecation should be documented in the Release notes to make users
-   aware of the changes.
 
+1. Deprecated CLI elements must display warnings when used.
+1. The warning message should include a functional alternative to the
+   deprecated command or flag if anything.
+1. The warning message should include the release for when the command/flag
+   will be removed.
+1. The deprecation should be documented in the Release notes to make users
+   aware of the changes.
 
 **Example warning message**:
 
