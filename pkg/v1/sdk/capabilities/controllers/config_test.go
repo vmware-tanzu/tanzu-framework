@@ -13,12 +13,12 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes/scheme"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/client/fake" //nolint:staticcheck
+	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 )
 
 func TestGetConfigForServiceAccount(t *testing.T) {
 	objs, secrets := getTestObjects()
-	cl := fake.NewFakeClientWithScheme(scheme.Scheme, objs...)
+	cl := fake.NewClientBuilder().WithScheme(scheme.Scheme).WithRuntimeObjects(objs...).Build()
 	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
 	defer cancel()
 	testCases := []struct {
@@ -57,7 +57,7 @@ func TestGetConfigForServiceAccount(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
-			config, err := GetConfigForServiceAccount(ctx, tc.namespaceName, tc.serviceAccountName, cl, tc.host)
+			config, err := GetConfigForServiceAccount(ctx, cl, tc.namespaceName, tc.serviceAccountName, tc.host)
 			if err != nil {
 				if !tc.returnErr {
 					t.Errorf("error not expected, but got error: %v", err)
