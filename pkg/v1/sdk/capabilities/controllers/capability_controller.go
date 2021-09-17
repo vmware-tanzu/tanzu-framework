@@ -17,7 +17,11 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/discovery"
 )
 
-const contextTimeout = 60 * time.Second
+const (
+	contextTimeout                       = 60 * time.Second
+	serviceAccountWithDefaultPermissions = "tanzu-capabilities-manager-default-sa"
+	capabilitiesControllerNamespace      = "tkg-system"
+)
 
 // CapabilityReconciler reconciles a Capability object.
 type CapabilityReconciler struct {
@@ -43,7 +47,16 @@ func (r *CapabilityReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	config, err := GetConfigForServiceAccount(ctx, req.Namespace, capability.Spec.ServiceAccountName, r.Client, r.Host)
+	var serviceAccountName, namespaceName string
+	// use the default service account when the serviceAccountName is not provided as part of the spec
+	if len(capability.Spec.ServiceAccountName) > 0 {
+		serviceAccountName = capability.Spec.ServiceAccountName
+		namespaceName = req.Namespace
+	} else {
+		serviceAccountName = serviceAccountWithDefaultPermissions
+		namespaceName = capabilitiesControllerNamespace
+	}
+	config, err := GetConfigForServiceAccount(ctx, r.Client, namespaceName, serviceAccountName, r.Host)
 	if err != nil {
 		return ctrl.Result{}, fmt.Errorf("unable to get config for ClusterQueryClient creation: %w", err)
 	}

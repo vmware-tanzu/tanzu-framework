@@ -13,7 +13,7 @@ import (
 )
 
 // GetConfigForServiceAccount returns a *rest.Config which uses the service account for talking to a Kubernetes API server.
-func GetConfigForServiceAccount(ctx context.Context, nsName, saName string, coreClient client.Client, host string) (*rest.Config, error) {
+func GetConfigForServiceAccount(ctx context.Context, coreClient client.Client, nsName, saName, host string) (*rest.Config, error) {
 	serviceAccount := &corev1.ServiceAccount{}
 	if err := coreClient.Get(ctx, client.ObjectKey{
 		Namespace: nsName,
