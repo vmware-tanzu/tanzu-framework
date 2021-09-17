@@ -258,6 +258,21 @@ func (c *client) GetAzureRegions(ctx context.Context) ([]*models.AzureLocation, 
 		if *sku.Value().ResourceType == ResourceTypeVirtualMachine {
 			if _, ok := supportedVMFamilyTypes[*sku.Value().Family]; ok {
 				for _, locationInfo := range *sku.Value().LocationInfo {
+					includeRegion := true
+					if *sku.Value().Restrictions != nil {
+						for _, restriction := range *sku.Value().Restrictions {
+							if restriction.Type == compute.Location {
+								includeRegion = false
+								break
+							}
+						}
+					}
+
+					// don't include restricted regions
+					if !includeRegion {
+						continue
+					}
+
 					location := strings.ToLower(*locationInfo.Location)
 					if displayName, ok := regions[location]; ok {
 						result = append(result, &models.AzureLocation{
@@ -300,7 +315,20 @@ func (c *client) GetAzureInstanceTypesForRegion(ctx context.Context, region stri
 						Zones:  *locationInfo.Zones,
 					}
 
-					instanceTypes = append(instanceTypes, instanceType)
+					includeInstanceType := true
+					if *sku.Value().Restrictions != nil {
+						for _, restriction := range *sku.Value().Restrictions {
+							if restriction.Type == compute.Location {
+								includeInstanceType = false
+								break
+							}
+						}
+					}
+
+					// don't include restricted instance types
+					if includeInstanceType {
+						instanceTypes = append(instanceTypes, instanceType)
+					}
 				}
 			}
 		}
