@@ -13,8 +13,9 @@ type CapabilitySpec struct {
 	// ServiceAccountName is the name of the service account with which requests
 	// are made to the API server for evaluating queries.
 	// Service account should exist in the same namespace as this resource.
-	// +kubebuilder:validation:Required
-	// +kubebuilder:validation:MinLength:=1
+	// When this field is not specified, a default service account with only the
+	// ability to execute GVR queries is used.
+	// +optional
 	ServiceAccountName string `json:"serviceAccountName"`
 	// Queries specifies set of queries that are evaluated.
 	// +listType=map

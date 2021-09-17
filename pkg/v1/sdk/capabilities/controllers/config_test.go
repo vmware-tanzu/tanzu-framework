@@ -57,7 +57,7 @@ func TestGetConfigForServiceAccount(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
-			config, err := GetConfigForServiceAccount(ctx, tc.namespaceName, tc.serviceAccountName, cl, tc.host)
+			config, err := GetConfigForServiceAccount(ctx, cl, tc.namespaceName, tc.serviceAccountName, tc.host)
 			if err != nil {
 				if !tc.returnErr {
 					t.Errorf("error not expected, but got error: %v", err)
