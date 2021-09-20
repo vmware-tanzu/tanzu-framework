@@ -20,7 +20,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	capav1alpha3 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha3"
-	capzv1alpha3 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha3"
+	capzv1alpha4 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha4"
 	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
 	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha4"

@@ -18,7 +18,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
 	capav1alpha3 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha3"
-	capzv1alpha3 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha3"
+	capzv1alpha4 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha4"
 	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
 	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha4"
@@ -217,9 +217,9 @@ func (c *client) getRuntimeObject(o interface{}) (crtclient.Object, error) { //n
 		return obj, nil
 	case *extensionsV1.CustomResourceDefinition:
 		return obj, nil
-	case *capzv1alpha3.AzureMachineTemplate:
+	case *capzv1alpha4.AzureMachineTemplate:
 		return obj, nil
-	case *capzv1alpha3.AzureCluster:
+	case *capzv1alpha4.AzureCluster:
 		return obj, nil
 	case *corev1.ServiceAccount:
 		return obj, nil
