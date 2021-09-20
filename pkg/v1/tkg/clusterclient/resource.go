@@ -259,13 +259,15 @@ func VerifyClusterInitialized(obj runtime.Object) error {
 	case *capi.Cluster:
 		errList := []error{}
 		if !conditions.IsTrue(cluster, capi.ControlPlaneReadyCondition) {
-			errList = append(errList, errors.New("cluster control plane is still being initialized"))
+			reason := conditions.GetReason(cluster, capi.ReadyCondition)
+			errList = append(errList, fmt.Errorf("cluster control plane is still being initialized: %s", reason))
 		}
 
 		// Nb. We are verifying infrastructure ready at this stage because it provides an early signal that the infrastructure provided is
 		// properly working, but this is not strictly required for getting the kubeconfig secret
 		if !conditions.IsTrue(cluster, capi.InfrastructureReadyCondition) {
-			errList = append(errList, errors.New("cluster infrastructure is still being provisioned"))
+			reason := conditions.GetReason(cluster, capi.ReadyCondition)
+			errList = append(errList, fmt.Errorf("cluster infrastructure is still being provisioned: %s", reason))
 		}
 		return kerrors.NewAggregate(errList)
 	default:

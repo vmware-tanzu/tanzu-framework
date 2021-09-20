@@ -466,6 +466,7 @@ func (c *client) WaitForClusterInitialized(clusterName, namespace string) error 
 	var err error
 	var currentClusterInfo ClusterStatusInfo
 	var lastClusterInfo ClusterStatusInfo
+	var lastReason string
 	unchangedCounter := 0
 	interval := 15 * time.Second
 
@@ -505,6 +506,11 @@ func (c *client) WaitForClusterInitialized(clusterName, namespace string) error 
 		} else {
 			unchangedCounter++
 			log.V(7).Infof("cluster state is unchanged %v", unchangedCounter)
+		}
+
+		if lastReason != err.Error() {
+			log.Info(err.Error())
+			lastReason = err.Error()
 		}
 
 		lastClusterInfo = currentClusterInfo
