@@ -11,7 +11,7 @@ replace (
 require (
 	cloud.google.com/go/storage v1.10.0
 	github.com/AlecAivazis/survey/v2 v2.1.1
-	github.com/Azure/azure-sdk-for-go v48.2.0+incompatible
+	github.com/Azure/azure-sdk-for-go v55.2.0+incompatible
 	github.com/Azure/go-autorest/autorest v0.11.18
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.3
 	github.com/Jeffail/gabs v1.4.0
@@ -86,7 +86,6 @@ require (
 	golang.org/x/term v0.0.0-20210615171337-6886f2dfbf5b
 	google.golang.org/api v0.44.0
 	google.golang.org/grpc v1.39.0
-	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 	k8s.io/api v0.22.1
@@ -98,7 +97,7 @@ require (
 	k8s.io/utils v0.0.0-20210802155522-efc7438f0176
 	sigs.k8s.io/cluster-api v0.4.2
 	sigs.k8s.io/cluster-api-provider-aws v0.7.0
-	sigs.k8s.io/cluster-api-provider-azure v0.4.15
+	sigs.k8s.io/cluster-api-provider-azure v0.5.2
 	sigs.k8s.io/cluster-api-provider-vsphere v0.7.10
 	sigs.k8s.io/cluster-api/test v0.4.2
 	sigs.k8s.io/controller-runtime v0.9.6

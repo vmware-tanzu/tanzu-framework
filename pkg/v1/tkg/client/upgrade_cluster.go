@@ -14,7 +14,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 	capav1alpha3 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha3"
-	capzv1alpha3 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha3"
+	capzv1alpha4 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha4"
 	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha4"
 	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
@@ -666,7 +666,7 @@ func (c *TkgClient) createAWSInfrastructureTemplateForUpgrade(regionalClusterCli
 	return nil
 }
 
-func isNewAzureTemplateRequired(machineTemplate *capzv1alpha3.AzureMachineTemplate, clusterUpgradeConfig *clusterUpgradeInfo, actualK8sVersion *string) bool { // nolint:gocyclo
+func isNewAzureTemplateRequired(machineTemplate *capzv1alpha4.AzureMachineTemplate, clusterUpgradeConfig *clusterUpgradeInfo, actualK8sVersion *string) bool { // nolint:gocyclo
 	if actualK8sVersion == nil || *actualK8sVersion != clusterUpgradeConfig.UpgradeComponentInfo.KubernetesVersion {
 		return true
 	}
@@ -706,10 +706,10 @@ func isSharedGalleryImage(azureImage *tkgconfigbom.AzureInfo) bool {
 	return azureImage.Name != "" && azureImage.ResourceGroup != "" && azureImage.SubscriptionID != "" && azureImage.Gallery != "" && azureImage.Version != ""
 }
 
-func getAzureImage(azureImage *tkgconfigbom.AzureInfo) *capzv1alpha3.Image {
+func getAzureImage(azureImage *tkgconfigbom.AzureInfo) *capzv1alpha4.Image {
 	if isMarketplaceImage(azureImage) {
-		return &capzv1alpha3.Image{
-			Marketplace: &capzv1alpha3.AzureMarketplaceImage{
+		return &capzv1alpha4.Image{
+			Marketplace: &capzv1alpha4.AzureMarketplaceImage{
 				Publisher:       azureImage.Publisher,
 				Offer:           azureImage.Offer,
 				SKU:             azureImage.Sku,
@@ -720,8 +720,8 @@ func getAzureImage(azureImage *tkgconfigbom.AzureInfo) *capzv1alpha3.Image {
 	}
 
 	if isSharedGalleryImage(azureImage) {
-		return &capzv1alpha3.Image{
-			SharedGallery: &capzv1alpha3.AzureSharedGalleryImage{
+		return &capzv1alpha4.Image{
+			SharedGallery: &capzv1alpha4.AzureSharedGalleryImage{
 				ResourceGroup:  azureImage.ResourceGroup,
 				Name:           azureImage.Name,
 				SubscriptionID: azureImage.SubscriptionID,
@@ -736,7 +736,7 @@ func getAzureImage(azureImage *tkgconfigbom.AzureInfo) *capzv1alpha3.Image {
 
 func (c *TkgClient) createAzureControlPlaneMachineTemplate(regionalClusterClient clusterclient.Client, kcp *capikubeadmv1alpha4.KubeadmControlPlane, clusterUpgradeConfig *clusterUpgradeInfo) error {
 	var err error
-	azureMachineTemplate := &capzv1alpha3.AzureMachineTemplate{}
+	azureMachineTemplate := &capzv1alpha4.AzureMachineTemplate{}
 	err = regionalClusterClient.GetResource(azureMachineTemplate, kcp.Spec.MachineTemplate.InfrastructureRef.Name, kcp.Spec.MachineTemplate.InfrastructureRef.Namespace, nil, nil)
 	if err != nil {
 		return errors.Wrapf(err, "unable to find AzureMachineTemplate with name %s in namespace %s", kcp.Spec.MachineTemplate.InfrastructureRef.Name, kcp.Spec.MachineTemplate.InfrastructureRef.Namespace)
@@ -752,7 +752,7 @@ func (c *TkgClient) createAzureControlPlaneMachineTemplate(regionalClusterClient
 		return nil
 	}
 
-	azureMachineTemplateForUpgrade := &capzv1alpha3.AzureMachineTemplate{}
+	azureMachineTemplateForUpgrade := &capzv1alpha4.AzureMachineTemplate{}
 	azureMachineTemplateForUpgrade.Name = clusterUpgradeConfig.UpgradeComponentInfo.KCPInfrastructureTemplateName
 	azureMachineTemplateForUpgrade.Namespace = clusterUpgradeConfig.UpgradeComponentInfo.KCPInfrastructureTemplateNamespace
 	azureMachineTemplateForUpgrade.Spec = azureMachineTemplate.DeepCopy().Spec
@@ -841,7 +841,7 @@ func (c *TkgClient) createAzureMachineDeploymentMachineTemplateForWorkers(region
 	var err error
 
 	for i := range clusterUpgradeConfig.MDObjects {
-		azureMachineTemplateForMD := &capzv1alpha3.AzureMachineTemplate{}
+		azureMachineTemplateForMD := &capzv1alpha4.AzureMachineTemplate{}
 		err = regionalClusterClient.GetResource(azureMachineTemplateForMD, clusterUpgradeConfig.MDObjects[i].Spec.Template.Spec.InfrastructureRef.Name, clusterUpgradeConfig.MDObjects[i].Namespace, nil, nil)
 		if err != nil {
 			return errors.Wrapf(err, "unable to find AzureMachineTemplate with name '%s' in namespace '%s'", clusterUpgradeConfig.MDObjects[i].Spec.Template.Spec.InfrastructureRef.Name, clusterUpgradeConfig.MDObjects[i].Namespace)
@@ -862,7 +862,7 @@ func (c *TkgClient) createAzureMachineDeploymentMachineTemplateForWorkers(region
 			MDInfrastructureTemplateNamespace: azureMachineTemplateForMD.Namespace,
 		}
 
-		azureMachineTemplateMDForUpgrade := &capzv1alpha3.AzureMachineTemplate{}
+		azureMachineTemplateMDForUpgrade := &capzv1alpha4.AzureMachineTemplate{}
 		azureMachineTemplateMDForUpgrade.Name = clusterUpgradeConfig.UpgradeComponentInfo.MDInfastructureTemplates[clusterUpgradeConfig.MDObjects[i].Name].MDInfrastructureTemplateName
 		azureMachineTemplateMDForUpgrade.Namespace = clusterUpgradeConfig.UpgradeComponentInfo.MDInfastructureTemplates[clusterUpgradeConfig.MDObjects[i].Name].MDInfrastructureTemplateNamespace
 		azureMachineTemplateMDForUpgrade.Spec = azureMachineTemplateForMD.DeepCopy().Spec
