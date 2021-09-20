@@ -163,8 +163,8 @@
 
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-input-container [attr.data-step-metadata]="formName">
-                <label i18n="aws ec2 key pair label" clr-control-label>
-                    EC2 KEY PAIR
+                <label i18n="aws key pair label" clr-control-label>
+                    AWS KEY PAIR
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
@@ -178,8 +178,8 @@
                 <input clrInput formControlName="sshKeyName" placeholder="ec2 key pair" />
                 <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
-                <clr-control-error i18n="AWS ec2 key pair required msg" *clrIfError="validatorEnum.REQUIRED">
-                    EC2 key pair cannot be empty
+                <clr-control-error i18n="AWS key pair required msg" *clrIfError="validatorEnum.REQUIRED">
+                    AWS key pair cannot be empty
                 </clr-control-error>
             </clr-input-container>
         </div>
@@ -243,7 +243,7 @@
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                             <span>
                                 This CloudFormation stack creates the identity and access management (IAM) resources
-                                that Tanzu Kubernetes Grid needs to deploy and run clusters on Amazon EC2.
+                                that Tanzu Kubernetes Grid needs to deploy and run clusters on Amazon Web Services.
                             </span>
                         </clr-tooltip-content>
                     </clr-tooltip>
