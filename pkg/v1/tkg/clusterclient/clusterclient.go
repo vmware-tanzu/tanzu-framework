@@ -40,7 +40,6 @@ import (
 	capav1alpha3 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha3"
 	capzv1alpha3 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha3"
 	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
-	capiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
 	bootstrapv1alpha3 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha3"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
@@ -378,7 +377,6 @@ var (
 
 func init() {
 	_ = capi.AddToScheme(scheme)
-	_ = capiv1alpha2.AddToScheme(scheme)
 	_ = corev1.AddToScheme(scheme)
 	_ = appsv1.AddToScheme(scheme)
 	_ = clusterctlv1.AddToScheme(scheme)
@@ -1683,13 +1681,13 @@ func (c *client) verifyPacificK8sVersionUpdate(clusterName, namespace, newK8sVer
 	return nil
 }
 
-func (c *client) getWorkerMachineObjectsForPacificCluster(clusterName, namespace string) ([]capiv1alpha2.Machine, error) {
-	mdList := &capiv1alpha2.MachineList{}
+func (c *client) getWorkerMachineObjectsForPacificCluster(clusterName, namespace string) ([]capi.Machine, error) {
+	mdList := &capi.MachineList{}
 	if err := c.GetResourceList(mdList, clusterName, namespace, nil, nil); err != nil {
 		return nil, err
 	}
 
-	workerMachines := []capiv1alpha2.Machine{}
+	workerMachines := []capi.Machine{}
 	for i := range mdList.Items {
 		if _, labelFound := mdList.Items[i].Labels[capi.MachineControlPlaneLabelName]; !labelFound {
 			workerMachines = append(workerMachines, mdList.Items[i])
