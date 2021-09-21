@@ -55,13 +55,13 @@
                         </div>
                         <div class="clr-col-lg-7 clr-col-12">
                             <clr-datalist-container>
-                                <!-- Add a invisible label to avoid accessiblity issue -->
+                                <!-- Add a invisible label to avoid accessibility issue -->
                                 <label style="display: none;">prod instance type</label>
                                 <input clrDatalistInput name="devInstanceType" formControlName="devInstanceType" role="listbox" aria-label="development instance type" autocomplete="off"/>
                                 <datalist id="devInstanceType">
                                     <option *ngFor="let nodeType of nodeTypes" [value]="nodeType"></option>
                                 </datalist>
-                                <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
+                                <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                                 <clr-control-helper></clr-control-helper>
                             </clr-datalist-container>
                             <clr-control-error *ngIf="showFormError('devInstanceType')">
@@ -108,13 +108,13 @@
                         </div>
                         <div class="clr-col-lg-7 clr-col-12">
                             <clr-datalist-container>
-                                <!-- Add a invisible label to avoid accessiblity issue -->
+                                <!-- Add a invisible label to avoid accessibility issue -->
                                 <label style="display: none;">prod instance type</label>
                                 <input clrDatalistInput name="prodInstanceType" formControlName="prodInstanceType" role="listbox" aria-label="production instance type" autocomplete="off"/>
                                 <datalist id="prodInstanceType">
                                     <option *ngFor="let nodeType of nodeTypes" [value]="nodeType"></option>
                                 </datalist>
-                                <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
+                                <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                                 <clr-control-helper></clr-control-helper>
                             </clr-datalist-container>
                             <clr-control-error *ngIf="showFormError('prodInstanceType')">
@@ -146,7 +146,7 @@
                     </clr-tooltip>
                 </label>
                 <input clrInput formControlName="clusterName" placeholder="{{edition === 'tkg' ? 'optional' : ''}}" maxlength="42"/>
-                <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
+                <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error i18n="cluster name valid msg" *clrIfError="validatorEnum.VALID_CLUSTER_NAME">
                     {{ clusterType | titlecase }} Cluster name must start and end with a letter or number, and can contain only
@@ -163,8 +163,8 @@
 
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-input-container [attr.data-step-metadata]="formName">
-                <label i18n="aws key pair label" clr-control-label>
-                    AWS KEY PAIR
+                <label i18n="EC2 key pair label" clr-control-label>
+                    EC2 KEY PAIR
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
@@ -176,10 +176,10 @@
                     </clr-tooltip>
                 </label>
                 <input clrInput formControlName="sshKeyName" placeholder="ec2 key pair" />
-                <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
+                <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
-                <clr-control-error i18n="AWS key pair required msg" *clrIfError="validatorEnum.REQUIRED">
-                    AWS key pair cannot be empty
+                <clr-control-error i18n="EC2 key pair required msg" *clrIfError="validatorEnum.REQUIRED">
+                    EC2 key pair cannot be empty
                 </clr-control-error>
             </clr-input-container>
         </div>
@@ -284,7 +284,7 @@
                         </option>
                     </ng-container>
                 </select>
-                <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
+                <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error
                         i18n="availability zone required msg"
@@ -324,7 +324,7 @@
                             </option>
                         </ng-container>
                     </select>
-                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
+                    <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                     <clr-control-error>Selecting a VPC public subnet is required</clr-control-error>
                 </clr-select-container>
@@ -354,7 +354,7 @@
                             </option>
                         </ng-container>
                     </select>
-                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
+                    <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                     <clr-control-error>Selecting a VPC private subnet is required</clr-control-error>
                 </clr-select-container>
@@ -389,7 +389,7 @@
                     <datalist id="workerNodeInstanceType1">
                         <option *ngFor="let nodeType of azNodeTypes.awsNodeAz1" [value]="nodeType"></option>
                     </datalist>
-                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
+                    <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                 </clr-datalist-container>
                 <clr-control-error *ngIf="showFormError('workerNodeInstanceType1')">
@@ -425,7 +425,7 @@
                         </option>
                     </ng-container>
                 </select>
-                <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
+                <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error
                         i18n="availability zone required msg"
@@ -465,7 +465,7 @@
                             </option>
                         </ng-container>
                     </select>
-                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
+                    <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                     <clr-control-error>Selecting a VPC public subnet is required</clr-control-error>
                 </clr-select-container>
@@ -495,7 +495,7 @@
                             </option>
                         </ng-container>
                     </select>
-                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
+                    <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                     <clr-control-error>Selecting a VPC private subnet is required</clr-control-error>
                 </clr-select-container>
@@ -530,7 +530,7 @@
                     <datalist id="workerNodeInstanceType2">
                         <option *ngFor="let nodeType of azNodeTypes.awsNodeAz2" [value]="nodeType"></option>
                     </datalist>
-                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
+                    <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                 </clr-datalist-container>
                 <clr-control-error *ngIf="showFormError('workerNodeInstanceType2')">
@@ -566,7 +566,7 @@
                         </option>
                     </ng-container>
                 </select>
-                <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
+                <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error
                         i18n="availability zone required msg"
@@ -606,7 +606,7 @@
                             </option>
                         </ng-container>
                     </select>
-                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
+                    <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                     <clr-control-error>Selecting a VPC public subnet is required</clr-control-error>
                 </clr-select-container>
@@ -636,7 +636,7 @@
                             </option>
                         </ng-container>
                     </select>
-                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
+                    <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                     <clr-control-error>Selecting a VPC private subnet is required</clr-control-error>
                 </clr-select-container>
@@ -671,7 +671,7 @@
                     <datalist id="workerNodeInstanceType3">
                         <option *ngFor="let nodeType of azNodeTypes.awsNodeAz3" [value]="nodeType"></option>
                     </datalist>
-                    <!-- Add a empty helper to avoid accessiblity aria-describeby issue -->
+                    <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                 </clr-datalist-container>
                 <clr-control-error *ngIf="showFormError('workerNodeInstanceType3')">
