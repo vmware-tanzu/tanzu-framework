@@ -8,19 +8,20 @@ Scaffolds and builds Tanzu plugin repositories
 
 `tanzu builder init <repo-name>` will initialize a new plugin repository with scaffolding for:
 
-- Tanzu Framework CLI integration
-- GolangCI linting config
-- Github and Gitlab CI config
-- A Makefile
+* Tanzu Framework CLI integration
+* GolangCI linting config
+* GitHub and GitLab CI config
+* A Makefile
 
 For more details, this command supports a `--dry-run` flag which will show everything created:
-```
+
+```sh
 tanzu builder init <repo-name> --dry-run
 ```
 
 ### Add-plugin
 
-`tanzu builder cli add-plugin <plugin-name>` adds a new plugin to your repository. The plugins command will live in the ./cmd/plugin/<plugin-name> directory.
+`tanzu builder cli add-plugin <plugin-name>` adds a new plugin to your repository. The plugins command will live in the `./cmd/plugin/<plugin-name>` directory.
 
 ### Compile
 
@@ -28,7 +29,7 @@ tanzu builder init <repo-name> --dry-run
 
 Plugins will find that their `make build` command will suffice for most compile cases, but there are many flags at your disposal as well:
 
-```
+```txt
 --artifacts string   path to output artifacts (default "artifacts")
 --corepath string    path for core binary
 --ldflags string     ldflags to set on build

@@ -29,12 +29,13 @@ Use "tanzu imagepullsecret [command] --help" for more information about a comman
 ## Supported commands
 
 imagepullsecret plugin can be used to:
-- add a secret
-- list secrets
-- delete a secret
+
+* add a secret
+* list secrets
+* delete a secret
 
 1. Add an image pull secret
-   The "add" command creates a v1/Secret of type kubernetes.io/dockerconfigjson. 
+   The "add" command creates a v1/Secret of type kubernetes.io/dockerconfigjson.
    In case of specifying the --export-to-all-namespaces flag, a SecretExport resource with the same name will be created, which makes the secret available across all namespaces in the cluster.
 
    ```sh
@@ -43,7 +44,7 @@ imagepullsecret plugin can be used to:
       Added image pull secret 'test-secret' into namespace 'test-ns'
    ```
 
-2. Delete an image pull secret
+1. Delete an image pull secret
    The "delete" command deletes a v1/Secret of type kubernetes.io/dockerconfigjson from the specified namespace. If no namespace is specified, the secret will be deleted from the default namespace (if existing).
    In case a SecretExport resource with the same name exists, it will be deleted from the namespace as well.
 

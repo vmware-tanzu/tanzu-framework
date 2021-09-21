@@ -1,5 +1,6 @@
-Table of Contents
-=================
+# Contributing
+
+## Table of Contents
 
 * [Contributing](#contributing)
 * [Communication](#communication)
@@ -9,17 +10,17 @@ Table of Contents
   * [DCO Sign off](#dco-sign-off)
   * [Commit Messages](#commit-messages)
 
-# Contributing
+--------------
 
 We’d love to accept your patches and contributions to this project. Please
 review the following guidelines you'll need to follow in order to make a
 contribution.
 
-If you are interested in going beyond a single PR, take a look at our 
-[Contribution Ladder](docs/contribution-ladder.md) and learn how to become a 
+If you are interested in going beyond a single PR, take a look at our
+[Contribution Ladder](docs/contribution-ladder.md) and learn how to become a
 reviewer.
 
-# Communication
+## Communication
 
 We prefer communicating asynchronously through GitHub issues and the [#TBD
 Slack channel](https://kubernetes.slack.com/archives/CQCDFHWFR). In order to be
@@ -27,7 +28,7 @@ inclusive to the community, if a conversation related to an issue happens
 outside of these channels, we appreciate summarizing the conversation's context
 and adding it to an issue.
 
-# Propose a Change
+## Propose a Change
 
 Pull requests are welcome for all changes. When adding new functionality, we
 encourage including test coverage. If significant effort will be involved, we
@@ -41,7 +42,7 @@ Before submitting an issue, please search through open ones to ensure others
 have not submitted something similar. If a similar issue exists, please add any
 additional information as a comment.
 
-## Pull Request Etiquette
+### Pull Request Etiquette
 
 * Before submitting a pull request, please make sure you verify the changes
   locally. The `Makefile` in this repository provides useful targets such as
@@ -56,23 +57,23 @@ additional information as a comment.
 * Have good commit messages. Please see [Commit Messages](#commit-messages)
   section for guidelines.
 
-## Issues Lifecycle
+### Issues Lifecycle
 
 Once an issue is labeled with `in-progress`, a team member has begun
 investigating it. We keep `in-progress` issues open until they have been
 resolved and released. Once released, a comment containing release information
 will be posted in the issue's thread.
 
-## Commit Messages
+### Commit Messages
 
-- Commit messages should include a short (72 chars or less) title summarizing the change.
-- They should also include a body with more detailed explanatory text, wrapped to 72 characters.
-  - The blank line separating the summary from the body is critical (unless you omit the body entirely).
-- Commit messages should be written in the imperative: "Implement feature" and not "Implemented feature".
-- Bulleted points are fine.
-- Typically a hyphen or asterisk is used for the bullet, followed by a single space.
+* Commit messages should include a short (72 chars or less) title summarizing the change.
+* They should also include a body with more detailed explanatory text, wrapped to 72 characters.
+  * The blank line separating the summary from the body is critical (unless you omit the body entirely).
+* Commit messages should be written in the imperative: "Implement feature" and not "Implemented feature".
+* Bulleted points are fine.
+* Typically a hyphen or asterisk is used for the bullet, followed by a single space.
 
-## Merging Commits
+### Merging Commits
 
 Maintainers should prefer to merge pull requests with the [Squash and merge](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-request-merges#squash-and-merge-your-pull-request-commits) option.
 This option is preferred for a number of reasons.
@@ -83,17 +84,17 @@ easier to manage reverting changes.
 
 At a maintainer's discretion, pull requests with multiple commits can be merged
 with the [Create a merge commit](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-request-merges)
-option. Merging pull requests with multiple commits can make sense in cases 
-where a change involves code generation or mechanical changes that can be 
+option. Merging pull requests with multiple commits can make sense in cases
+where a change involves code generation or mechanical changes that can be
 cleanly separated from semantic changes. The maintainer should review commit
 messages for each commit and make sure that each commit builds and passes
 tests.
 
-## Building From Source
+### Building From Source
 
 To build the project from source, please consider the docs on [local development](docs/dev/build.md).
 
-## DCO Sign off
+### DCO Sign off
 
 All authors to the project retain copyright to their work. However, to ensure
 that they are only submitting work that they have rights to, we are requiring
@@ -101,15 +102,15 @@ everyone to acknowledge this by signing their work.
 
 To sign your work, just add a line like this at the end of your commit message:
 
-```
+```txt
 Signed-off-by: Joe Beda <joe@heptio.com>
 ```
 
 This can easily be done with the `--signoff` option to `git commit`.
 
-By doing this you state that you can certify the following (from https://developercertificate.org/):
+By doing this you state that you can certify the following [from https://developercertificate.org/](https://developercertificate.org/):
 
-```
+```txt
 Developer Certificate of Origin
 Version 1.1
 

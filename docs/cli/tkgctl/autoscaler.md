@@ -21,5 +21,4 @@ There are multiple configuration options for users to be able to configure the a
 | AUTOSCALER_MIN_SIZE_2 | Defaults to the value of WORKER_MACHINE_COUNT_2 if not set | Minimum number of nodes the autoscaler will scale down workers in the third AZ to (incase of multiple machine deployments) |
 | AUTOSCALER_MAX_SIZE_2 | Defaults to the value of WORKER_MACHINE_COUNT_2 if not set | Maximum number of nodes the autoscaler will scale up workers in the third AZ to (incase of multiple machine deployments) |
 
-
-More details about autoscaler and defaults here - https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md
+More details about autoscaler and defaults here - [https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md)

@@ -1,6 +1,6 @@
 # Tanzu Framework Adopters
 
-If you're using Tanzu Framework and want to add your organization to this list, 
+If you're using Tanzu Framework and want to add your organization to this list,
 [follow these directions][1]!
 
 ## Solutions built with Tanzu Framework
