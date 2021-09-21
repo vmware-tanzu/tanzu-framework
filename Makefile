@@ -197,16 +197,30 @@ endif
 
 # Dynamically generate the OS-ARCH targets to allow for parallel execution
 CLI_JOBS := $(addprefix build-cli-,${ENVS})
+CLI_ADMIN_JOBS := $(addprefix build-plugin-admin-,${ENVS})
 RELEASE_JOBS := $(addprefix release-,${ENVS})
 
 .PHONY: build-cli
-build-cli: build-plugin-admin ${CLI_JOBS} ## Build Tanzu CLI
+build-cli: ${CLI_ADMIN_JOBS} ${CLI_JOBS} ## Build Tanzu CLI
 	@rm -rf pinniped
 
 .PHONY: build-plugin-admin
-build-plugin-admin:
+build-plugin-admin: ${CLI_ADMIN_JOBS}
+
+.PHONY: build-plugin-admin-%
+build-plugin-admin-%:
+	$(eval ARCH = $(word 2,$(subst -, ,$*)))
+	$(eval OS = $(word 1,$(subst -, ,$*)))
+
+	@if [ "$(filter $(OS)-$(ARCH),$(ENVS))" = "" ]; then\
+		printf "\n\n======================================\n";\
+		printf "! $(OS)-$(ARCH) is not an officially supported platform!\n";\
+		printf "! Make sure to perform a full build to make sure expected plugins are available!\n";\
+		printf "======================================\n\n";\
+	fi
+
 	@echo build version: $(BUILD_VERSION)
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin/${GOHOSTOS}/${GOHOSTARCH}/cli
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin/${OS}/${ARCH}/cli --target ${OS}_${ARCH}
 
 .PHONY: build-cli-%
 build-cli-%: prep-build-cli
@@ -301,6 +315,7 @@ release-%:
 	$(eval ARCH = $(word 2,$(subst -, ,$*)))
 	$(eval OS = $(word 1,$(subst -, ,$*)))
 
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin/${OS}/${ARCH}/cli --target ${OS}_${ARCH}
 	./hack/embed-pinniped-binary.sh go ${OS} ${ARCH}
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --corepath "cmd/cli/tanzu" --artifacts artifacts/${OS}/${ARCH}/cli --target  ${OS}_${ARCH}
 
