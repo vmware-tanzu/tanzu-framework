@@ -20,6 +20,7 @@ const (
 	KindPackageInstall         = "PackageInstall"
 	KindPackageRepository      = "PackageRepository"
 	KindSecret                 = "Secret"
+	KindSecretExport           = "SecretExport"
 	KindServiceAccount         = "ServiceAccount"
 	SecretName                 = "%s-%s-values"
 	ServiceAccountName         = "%s-%s-sa"
