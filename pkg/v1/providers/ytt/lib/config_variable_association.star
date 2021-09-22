@@ -15,7 +15,7 @@ return {
 "CLUSTER_PLAN": ["vsphere", "aws", "azure", "tkg-service-vsphere", "windows-vsphere", "docker"],
 "NAMESPACE": ["vsphere", "aws", "azure", "tkg-service-vsphere", "windows-vsphere", "docker"],
 "INFRASTRUCTURE_PROVIDER": ["vsphere", "aws", "azure", "windows-vsphere", "docker"],
-"IS_IS_WINDOWS_WORKLOAD_CLUSTER": ["vsphere"],
+"IS_WINDOWS_WORKLOAD_CLUSTER": ["vsphere"],
 
 "SIZE": ["vsphere", "aws", "azure", "windows-vsphere", "docker"],
 "CONTROLPLANE_SIZE": ["vsphere", "aws", "azure", "windows-vsphere", "docker"],
