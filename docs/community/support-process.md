@@ -1,23 +1,30 @@
 # Framework Support Process
 
+## Definitions
+
+* **Framework member** - is a person who is an active contributor and with
+  write access to the `tanzu-framework` repo.
+* **Critical urgent issue** - is an issue that severely impacts the use of the
+  software and has no workarounds. This kind of issue should be labeled with
+  [severity-1]((severity-definitions.md#severity-1)) label.
+
 ## Weekly rotation
 
 The Framework members use a weekly rotation to manage community support.
 Each week, a different member is the point person for triaging the new issues
-and guiding high priority Severity-1 issues to the best state to be tackled.
+and guiding severity-1 issues to the best state to be tackled.
 
-The point person is not expected to solve every [critical(severity-1)](severity-definitions.md#severity-1)
-issue or be on-call 24x7. Instead, they will communicate expectations for the
-critical urgent issues to the community and ensure the issues are in the best
-position to be addressed.
+The point person is not expected to solve every critical(severity-1) issue or
+be on-call 24x7. Instead, they will communicate expectations for the critical
+urgent issues to the community and ensure the issues are in the best position
+to be addressed.
 
 The point person is not expected to be involved with normal non-critical
-priority(other than severity-1) issues. The critical urgent issues and any
-issues that need discussion can be discussed in the weekly SIG meet.
+priority(other than severity-1) issues.
 
 ## Start of Week
 
-We will provide a support schedule to ensure everyone knows when their support
+Support schedule will be provided to ensure everyone knows when their support
 week is occurring.
 
 The schedule will consist of members who provide a week of their expertise to
@@ -31,17 +38,15 @@ issue backlog during their scheduled week.
 
 ## During the Week
 
-We will monitor:
-
-* Framework Repository issues
-  * New issues labeled with `needs-triage`.
-  * Currently, open issues labeled as `investigating` and `triage/needs-info`.
-  * Open issues labeled as `severity-1`.
+The point person will monitor:
+ * New issues labeled with `needs-triage`.
+ * Currently, open issues labeled as `investigating` and `triage/needs-info`.
+ * Open issues labeled as `severity-1`.
 
 ### GitHub issue flow
 
 Generally speaking, new GitHub issues will fall into one of several categories.
-We use the following process for each:
+The point person will use the following process for each issue:
 
 * Feature request
   * Label the issue with `kind/feature`.
@@ -70,8 +75,6 @@ We use the following process for each:
 
 ## End of Week
 
-We ensure all GitHub issues worked on during the week are labeled with
-`investigating` and `triage/needs-info` (if appropriate), and have updated
-comments, so the next person can pick them up. The point person should discuss
-the week's developments during the SIG meeting including critical urgent(severity-1) issues
-and any important points.
+The point person will ensure all GitHub issues worked on during the week are 
+labeled with `investigating` and `triage/needs-info` (if appropriate), and have
+updated comments, so the next person can pick them up.
