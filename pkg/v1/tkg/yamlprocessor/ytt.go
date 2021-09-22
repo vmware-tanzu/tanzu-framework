@@ -17,6 +17,7 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/apis/providers/v1alpha1"
 )
 
@@ -40,6 +41,7 @@ func InjectDefinitionParser(dp DefinitionParser) YttProcessorOption {
 // YTTProcessor a type for processing and parsing ytt files.
 type YTTProcessor struct {
 	parser   DefinitionParser
+	// srcPaths is just a list of file paths
 	srcPaths []v1alpha1.PathInfo
 }
 
@@ -50,7 +52,7 @@ func NewYttProcessor(opts ...YttProcessorOption) *YTTProcessor {
 	p := &YTTProcessor{
 		parser: NewYttDefinitionParser(),
 	}
-
+	log.V(6).Infof("Processing ytt options: %v", opts)
 	for _, o := range opts {
 		o(p)
 	}
@@ -61,6 +63,8 @@ func NewYttProcessor(opts ...YttProcessorOption) *YTTProcessor {
 // configured with tkg config directory
 func NewYttProcessorWithConfigDir(configDir string) *YTTProcessor {
 	definitionParser := InjectDefinitionParser(NewYttDefinitionParser(InjectTKGDir(configDir)))
+
+	log.V(6).Info("Using configDir %v for YTT Processor")
 	return NewYttProcessor(definitionParser)
 }
 
