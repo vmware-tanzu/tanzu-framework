@@ -88,7 +88,7 @@ describe('AzureWizardComponent', () => {
         it('azure provider form', () => {
             const formName = 'azureProviderForm';
             expect(component.getStepDescription(formName))
-                .toBe('Validate the Azure provider credentials for Tanzu Kubernetes Grid');
+                .toBe('Validate the Azure provider credentials for Tanzu');
             component.form.get(formName).get('tenantId').setValue('testId');
             expect(component.getStepDescription(formName))
                 .toBe('Azure tenant: testId');

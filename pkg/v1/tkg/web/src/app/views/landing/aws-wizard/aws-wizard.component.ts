@@ -70,7 +70,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
 
     getStepDescription(stepName: string): string {
         if (stepName === 'provider') {
-            return 'Validate the AWS provider account for Tanzu Kubernetes Grid';
+            return 'Validate the AWS provider account for Tanzu';
         } else if (stepName === 'vpc') {
             const vpc = this.getFieldValue('vpcForm', 'vpc');
             const publicNodeCidr = this.getFieldValue('vpcForm', 'publicNodeCidr');

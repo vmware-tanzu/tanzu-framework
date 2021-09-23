@@ -95,7 +95,7 @@ describe('VSphereWizardComponent', () => {
 
     it('getStepDescription should return correct description when wizard is not filled', () => {
         expect(component['getStepDescription']('provider')).toBe(
-                'Validate the vSphere provider account for Tanzu Kubernetes Grid');
+                'Validate the vSphere provider account for Tanzu');
     });
 
     it('getStepDescription should return correct summary for wizard input', () => {

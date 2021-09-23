@@ -243,7 +243,10 @@
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                             <span>
                                 This CloudFormation stack creates the identity and access management (IAM) resources
-                                that Tanzu Kubernetes Grid needs to deploy and run clusters on Amazon Web Services.
+                                that Tanzu needs to deploy and run clusters on Amazon Web Services. The
+                                AWS user that you provide to Tanzu when you create the CloudFormation
+                                stack must have permissions to manage IAM resources, such as IAM policies, roles, and
+                                instance profiles. You need to create only one CloudFormation stack per AWS account.
                             </span>
                         </clr-tooltip-content>
                     </clr-tooltip>
