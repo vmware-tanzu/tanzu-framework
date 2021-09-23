@@ -53,8 +53,13 @@ func repositoryGet(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	t.SetKeys("name", "version", "repository", "status", "reason")
-	t.AddRow(packageRepository.Name, packageRepository.ResourceVersion, packageRepository.Spec.Fetch.ImgpkgBundle.Image,
+	repository, tag, _ := tkgpackageclient.ParseImageUrl(packageRepository.Spec.Fetch.ImgpkgBundle.Image)
+	if tag == "" {
+		tag = "latest release tag"
+	}
+
+	t.SetKeys("name", "version", "repository", "tag", "status", "reason")
+	t.AddRow(packageRepository.Name, packageRepository.ResourceVersion, repository, tag,
 		packageRepository.Status.FriendlyDescription, packageRepository.Status.UsefulErrorMessage)
 
 	t.RenderWithSpinner()

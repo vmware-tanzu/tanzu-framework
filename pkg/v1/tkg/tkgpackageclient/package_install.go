@@ -26,11 +26,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
-const (
-	msgRunPackageInstalledDelete = "\n\nPlease consider using 'tanzu package installed delete' to delete the already created associated resources\n"
-	msgRunPackageInstalledUpdate = "\n\nPlease consider using 'tanzu package installed update' to update the installed package with correct settings\n"
-)
-
 // InstallPackage installs the PackageInstall and its associated resources in the cluster
 func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progress *tkgpackagedatamodel.PackageProgress, operationType tkgpackagedatamodel.OperationType) { //nolint:gocyclo
 	var (
