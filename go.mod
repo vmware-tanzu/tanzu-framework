@@ -34,7 +34,7 @@ require (
 	github.com/docker/docker v1.4.2-0.20190924003213-a8608b5b67c7
 	github.com/elazarl/go-bindata-assetfs v1.0.1
 	github.com/evanphx/json-patch v4.11.0+incompatible // indirect
-	github.com/fatih/color v1.10.0
+	github.com/fatih/color v1.12.0
 	github.com/getkin/kin-openapi v0.66.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-ldap/ldap/v3 v3.3.0
@@ -57,7 +57,7 @@ require (
 	github.com/googleapis/gnostic v0.4.1
 	github.com/gorilla/websocket v1.4.2
 	github.com/gosuri/uitable v0.0.4
-	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
+	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
 	github.com/hinshun/vt10x v0.0.0-20180809195222-d55458df857c // indirect
 	github.com/imdario/mergo v0.3.12
 	github.com/jeremywohl/flatten v1.0.1
@@ -68,6 +68,7 @@ require (
 	github.com/k14s/ytt v0.32.1-0.20210511155130-214258be2519
 	github.com/lithammer/dedent v1.1.0
 	github.com/logrusorgru/aurora v2.0.3+incompatible
+	github.com/novln/docker-parser v1.0.0
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/onsi/ginkgo v1.16.2
 	github.com/onsi/gomega v1.13.0
@@ -83,9 +84,9 @@ require (
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.7.1-0.20210427113832-6241f9ab9942
 	github.com/vmware-labs/yaml-jsonpath v0.3.2
-	github.com/vmware-tanzu/carvel-kapp-controller v0.20.0-rc.1
+	github.com/vmware-tanzu/carvel-kapp-controller v0.25.0
 	github.com/vmware-tanzu/carvel-secretgen-controller v0.5.0
-	github.com/vmware-tanzu/carvel-vendir v0.19.0
+	github.com/vmware-tanzu/carvel-vendir v0.23.0
 	github.com/vmware/govmomi v0.23.1
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
 	go.uber.org/multierr v1.5.0

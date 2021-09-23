@@ -5,6 +5,7 @@ package tkgpackageclient
 
 import (
 	"fmt"
+	versions "github.com/vmware-tanzu/carvel-vendir/pkg/vendir/versions/v1alpha1"
 
 	"github.com/pkg/errors"
 	k8serror "k8s.io/apimachinery/pkg/api/errors"
@@ -36,7 +37,26 @@ func (p *pkgClient) UpdateRepository(o *tkgpackagedatamodel.RepositoryOptions, p
 
 	if existingRepository != nil {
 		repositoryToUpdate := existingRepository.DeepCopy()
+		// TODO: add package repository update validation, i.e. updated namespaced name and imageURL can't be duplicated
+
+		_, tag, err := ParseImageUrl(o.RepositoryURL)
+		if err != nil {
+			return errors.Wrap(err, "invalid repository image URL")
+		}
+
+		found, err := checkPackageRepositoryTagSelection()
+		if err != nil {
+			return errors.Wrap(err, "failed to check package repository resource version")
+		}
+
 		repositoryToUpdate.Spec.Fetch.ImgpkgBundle.Image = o.RepositoryURL
+		if found && tag == ""  {
+			repositoryToUpdate.Spec.Fetch.ImgpkgBundle.TagSelection = &versions.VersionSelection{
+				Semver: &versions.VersionSelectionSemver{
+					Constraints: defaultImageTagConstraint,
+				},
+			}
+		}
 
 		progress.ProgressMsg <- "Updating package repository resource"
 		if err = p.kappClient.UpdatePackageRepository(repositoryToUpdate); err != nil {

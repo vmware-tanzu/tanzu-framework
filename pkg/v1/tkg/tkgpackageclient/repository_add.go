@@ -5,6 +5,7 @@ package tkgpackageclient
 
 import (
 	"fmt"
+	versions "github.com/vmware-tanzu/carvel-vendir/pkg/vendir/versions/v1alpha1"
 
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -39,6 +40,11 @@ func (p *pkgClient) AddRepository(o *tkgpackagedatamodel.RepositoryOptions, prog
 		return
 	}
 
+	_, tag, err := ParseImageUrl(o.RepositoryURL)
+	if err != nil {
+		return errors.Wrap(err, "invalid repository image URL")
+	}
+
 	if o.CreateNamespace {
 		progress.ProgressMsg <- fmt.Sprintf("Creating namespace '%s'", o.Namespace)
 		if err = p.createNamespace(o.Namespace); err != nil {
@@ -46,7 +52,10 @@ func (p *pkgClient) AddRepository(o *tkgpackagedatamodel.RepositoryOptions, prog
 		}
 	}
 
-	newPackageRepo := p.newPackageRepository(o.RepositoryName, o.RepositoryURL, o.Namespace)
+	newPackageRepo, err := p.newPackageRepository(o.RepositoryName, o.RepositoryURL, tag, o.Namespace)
+	if err != nil{
+		return err
+	}
 
 	progress.ProgressMsg <- "Creating package repository resource"
 
@@ -64,14 +73,28 @@ func (p *pkgClient) AddRepository(o *tkgpackagedatamodel.RepositoryOptions, prog
 }
 
 // newPackageRepository creates a new instance of the PackageRepository object
-func (p *pkgClient) newPackageRepository(repositoryName, repositoryImg, namespace string) *kappipkg.PackageRepository {
-	return &kappipkg.PackageRepository{
+func (p *pkgClient) newPackageRepository(repositoryName, repositoryImg, tag, namespace string) (*kappipkg.PackageRepository, error) {
+	pkgr := &kappipkg.PackageRepository{
 		TypeMeta:   metav1.TypeMeta{APIVersion: tkgpackagedatamodel.DefaultAPIVersion, Kind: tkgpackagedatamodel.KindPackageRepository},
 		ObjectMeta: metav1.ObjectMeta{Name: repositoryName, Namespace: namespace},
 		Spec: kappipkg.PackageRepositorySpec{Fetch: &kappipkg.PackageRepositoryFetch{
 			ImgpkgBundle: &kappctrl.AppFetchImgpkgBundle{Image: repositoryImg},
 		}},
 	}
+
+	found, err := checkPackageRepositoryTagSelection()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to check package repository resource version")
+	}
+
+	if tag == "" && found  {
+		pkgr.Spec.Fetch.ImgpkgBundle.TagSelection = &versions.VersionSelection{
+			Semver: &versions.VersionSelectionSemver{
+				Constraints: defaultImageTagConstraint,
+			},
+		}
+	}
+	return pkgr, nil
 }
 
 // validateRepository ensures that another repository (with the same name or same OCI registry URL) does not already exist in the cluster
