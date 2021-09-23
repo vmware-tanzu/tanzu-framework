@@ -67,7 +67,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
     getStepDescription(stepName: string): string {
         if (stepName === 'azureProviderForm') {
             const tenant = this.getFieldValue('azureProviderForm', 'tenantId');
-            return tenant ? `Azure tenant: ${tenant}` : 'Validate the Azure provider credentials for Tanzu Kubernetes Grid';
+            return tenant ? `Azure tenant: ${tenant}` : 'Validate the Azure provider credentials for Tanzu';
         } else if (stepName === 'vnetForm') {
             const vnetCidrBlock = this.getFieldValue(stepName, "vnetCidrBlock");
             if (vnetCidrBlock) {

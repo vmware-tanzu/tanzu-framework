@@ -92,7 +92,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
                 this.getFieldValue('vsphereProviderForm', 'datacenter')) {
                 return 'vCenter ' + this.getFieldValue('vsphereProviderForm', 'vcenterAddress') + ' connected';
             } else {
-                return 'Validate the vSphere provider account for Tanzu Kubernetes Grid';
+                return 'Validate the vSphere provider account for Tanzu';
             }
         } else if (stepName === 'nodeSetting') {
             if (this.getFieldValue('vsphereNodeSettingForm', 'controlPlaneSetting')) {

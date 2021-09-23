@@ -104,7 +104,7 @@ describe('AwsWizardComponent', () => {
 
     describe('should return correct description', () => {
         it('is for provider step', () => {
-            expect(component.getStepDescription('provider')).toBe('Validate the AWS provider account for Tanzu Kubernetes Grid');
+            expect(component.getStepDescription('provider')).toBe('Validate the AWS provider account for Tanzu');
         });
 
         it('is for vpc step', () => {
