@@ -123,8 +123,9 @@ tanzu cluster create CLUSTER-NAME [flags]
 ```
 
 ### Flags
+* Use standard names for flags if there is one (flags used in the cli are documented [here](../../pkg/v1/cli/command/plugin/lint/cli-wordlist.yml))
+* When using flags to specify different aspects of the same object, including the object name in the flag can be helpful. `tanzu foo list --bar --bar-uid "..."` and `tanzu foo list --bar-name --bar-uid "..."` are both in use, choose whichever pattern makes more sense for your plugin.
 
-* Use standard names for flags if there is one (flags used in the cli are documented [here](/hack/linter/cli-wordlist.yml))
 * Where possible, set reasonable defaults for flag-able options that align with expected workflows
 * A user should only be required to explicitly set a max of 2 flags
 * Add as many flags as necessary to configure the command
