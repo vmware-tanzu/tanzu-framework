@@ -79,6 +79,7 @@ var _ = Describe("Update Repository", func() {
 			kappCtl = &fakes.KappClient{}
 			kappCtl.GetPackageRepositoryReturns(testRepository, apierrors.NewNotFound(schema.GroupResource{Resource: "Repository"}, testRepoName))
 			kappCtl.UpdatePackageRepositoryReturns(errors.New("failure in UpdatePackageRepository"))
+			kappCtl.ListPackageRepositoriesReturns(pkgRepositoryList, nil)
 		})
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
@@ -107,6 +108,7 @@ var _ = Describe("Update Repository", func() {
 			kappCtl = &fakes.KappClient{}
 			kappCtl.GetPackageRepositoryReturns(testRepository, apierrors.NewNotFound(schema.GroupResource{Resource: "Repository"}, testRepoName))
 			kappCtl.UpdatePackageRepositoryReturns(nil)
+			kappCtl.ListPackageRepositoriesReturns(pkgRepositoryList, nil)
 		})
 		It(testSuccessMsg, func() {
 			Expect(err).ToNot(HaveOccurred())

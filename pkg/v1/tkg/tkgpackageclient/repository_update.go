@@ -5,12 +5,12 @@ package tkgpackageclient
 
 import (
 	"fmt"
-	versions "github.com/vmware-tanzu/carvel-vendir/pkg/vendir/versions/v1alpha1"
 
 	"github.com/pkg/errors"
 	k8serror "k8s.io/apimachinery/pkg/api/errors"
 
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+	versions "github.com/vmware-tanzu/carvel-vendir/pkg/vendir/versions/v1alpha1"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
@@ -37,20 +37,22 @@ func (p *pkgClient) UpdateRepository(o *tkgpackagedatamodel.RepositoryOptions, p
 
 	if existingRepository != nil {
 		repositoryToUpdate := existingRepository.DeepCopy()
-		// TODO: add package repository update validation, i.e. updated namespaced name and imageURL can't be duplicated
-
-		_, tag, err := ParseImageUrl(o.RepositoryURL)
-		if err != nil {
-			return errors.Wrap(err, "invalid repository image URL")
+		if err := p.validateRepositoryUpdate(o.RepositoryName, o.RepositoryURL, o.Namespace); err != nil {
+			return err
 		}
 
-		found, err := checkPackageRepositoryTagSelection()
+		_, tag, err := parseImageUrl(o.RepositoryURL)
+		if err != nil {
+			return errors.Wrap(err, "failed to parse OCI registry URL")
+		}
+
+		found, err := checkPackageRepositoryTagselection()
 		if err != nil {
 			return errors.Wrap(err, "failed to check package repository resource version")
 		}
 
 		repositoryToUpdate.Spec.Fetch.ImgpkgBundle.Image = o.RepositoryURL
-		if found && tag == ""  {
+		if found && tag == "" {
 			repositoryToUpdate.Spec.Fetch.ImgpkgBundle.TagSelection = &versions.VersionSelection{
 				Semver: &versions.VersionSelectionSemver{
 					Constraints: defaultImageTagConstraint,
@@ -73,4 +75,25 @@ func (p *pkgClient) UpdateRepository(o *tkgpackagedatamodel.RepositoryOptions, p
 	} else {
 		err = &tkgpackagedatamodel.PackagePluginNonCriticalError{Reason: tkgpackagedatamodel.ErrRepoNotExists}
 	}
+}
+
+// validateRepositoryUpdate ensures that another repository (with the same name or same OCI registry URL) does not already exist in the cluster
+func (p *pkgClient) validateRepositoryUpdate(repositoryName, repositoryImg, namespace string) error {
+	repositoryList, err := p.kappClient.ListPackageRepositories(namespace)
+	if err != nil {
+		return errors.Wrap(err, "failed to list package repositories")
+	}
+
+	for _, repository := range repositoryList.Items { //nolint:gocritic
+		if repository.Name == repositoryName {
+			continue
+		}
+
+		if repository.Spec.Fetch != nil && repository.Spec.Fetch.ImgpkgBundle != nil &&
+			repository.Spec.Fetch.ImgpkgBundle.Image == repositoryImg {
+			return errors.New("repository with the same OCI registry URL already exists")
+		}
+	}
+
+	return nil
 }

@@ -72,10 +72,7 @@ func repositoryList(cmd *cobra.Command, _ []string) error {
 		if len(details) > tkgpackagedatamodel.ShortDescriptionMaxLength {
 			details = fmt.Sprintf("%s...", details[:tkgpackagedatamodel.ShortDescriptionMaxLength])
 		}
-		repository, tag, _ := tkgpackageclient.ParseImageUrl(packageRepository.Spec.Fetch.ImgpkgBundle.Image)
-		if tag == "" {
-			tag = "latest release tag"
-		}
+		repository, tag, _ := tkgpackageclient.GetCurrentRepositoryAndTagInUse(&packageRepository)
 
 		if repoOp.AllNamespaces {
 			t.AddRow(
