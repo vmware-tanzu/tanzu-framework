@@ -342,7 +342,7 @@ url:         http://myapplicationurl.com
 
 ### Color
 
-* Color is helpful to highlight important information or to convey status, however it should be an enhancment to the text, and not be relied on as the sole source of a given bit of information because it can be disabled in a user's terminal or may not be accessible to automation or screenreaders. Making status text red when it says `not ready` is ok because without the red, the status can still be determined. If, for example, the name of the resource was made red when not-ready it would not be possible to know the state of the resource if color was disabled.
+* Color is helpful to highlight important information or to convey status, however it should be an enhancement to the text, and not be relied on as the sole source of a given bit of information because it can be disabled in a user's terminal or may not be accessible to automation or screenreaders. Making status text red when it says `not ready` is ok because without the red, the status can still be determined. If, for example, the name of the resource was made red when not-ready it would not be possible to know the state of the resource if color was disabled.
 * Colors can be deactivated using an environment variable (NO_COLOR=TRUE)
 * Colors are always deactivated when the session is not a TTY session. This allows for the piping of CLI output into other commands (e.g. grep) or machine reading without including stray color characters (pending issue #369)
 * Usage tips are always in plain text, even when referencing text that might normally be colorized
