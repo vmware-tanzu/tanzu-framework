@@ -1020,9 +1020,11 @@ func (c *TkgClient) patchKubernetesVersionToKubeadmControlPlane(regionalClusterC
 	patchString := `{
 		"spec": {
 		  "version": "%s",
-		  "infrastructureTemplate": {
-			"name": "%s",
-			"namespace": "%s"
+		  "machineTemplate": {
+			"infrastructureRef": {
+			  "name": "%s",
+			  "namespace": "%s"
+			}
 		  },
 		  "kubeadmConfigSpec": {
 			"clusterConfiguration": {
