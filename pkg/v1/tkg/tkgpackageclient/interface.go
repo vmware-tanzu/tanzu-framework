@@ -13,7 +13,9 @@ import (
 
 // TKGPackageClient is the TKG package client interface
 type TKGPackageClient interface {
+	AddImagePullSecret(o *tkgpackagedatamodel.ImagePullSecretOptions) error
 	AddRepository(o *tkgpackagedatamodel.RepositoryOptions) error
+	DeleteImagePullSecret(o *tkgpackagedatamodel.ImagePullSecretOptions) (bool, error)
 	DeleteRepository(o *tkgpackagedatamodel.RepositoryOptions) (bool, error)
 	GetPackageInstall(o *tkgpackagedatamodel.PackageOptions) (*kappipkg.PackageInstall, error)
 	GetPackage(o *tkgpackagedatamodel.PackageOptions) (*kapppkg.PackageMetadata, *kapppkg.Package, error)

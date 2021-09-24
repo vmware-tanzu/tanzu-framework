@@ -5,17 +5,20 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 ## Prerequisites for Building and Running UI on Local Machine
 
 Node version 10.x.x
- - `node --version` to check which version you have 
+
+- `node --version` to check which version you have
 
 Node version can be set and managed by using NVM (Node Version Manager):
- - `brew install nvm`
- - `nvm install 10` (or `nvm use 10` to temporarily set node version)
+
+- `brew install nvm`
+- `nvm install 10` (or `nvm use 10` to temporarily set node version)
 
 To build the UI locally via Make, run `make ui-build` which will install node modules and compile UI assets into 'dist' folder.
 
 If an alternate NPM registry is required to obtain the node dependencies, it should be configured either
- - prior to running the make target, with 'npm config set registry <register-url>', or
- - providing the URL in the CUSTOM_NPM_REGISTRY environment variable.
+
+- prior to running the make target, with `npm config set registry <register-url>`, or
+- providing the URL in the CUSTOM_NPM_REGISTRY environment variable.
 
 If running UI locally without executing Makefile script, execute `npm install` from tkg-cli/web folder prior to starting or compiling UI.
 
@@ -25,7 +28,7 @@ Prerequisite - node modules have been install via `make ui-build` or `npm instal
 
 Run `npm run start` from /tkg-cli/web folder. Navigate to `http://localhost:4200/` in a browser. The app will automatically reload if you change any of the source files.
 
- - See `Running UI Mock API server` to make mock API endpoints available when developing on local machine.
+- See `Running UI Mock API server` to make mock API endpoints available when developing on local machine.
 
 ## Running UI Mock API server
 
@@ -36,9 +39,9 @@ Run `npm run start:insecure` from /tkg-cli/web/node-server folder. Node.js will 
 See Prerequisites for Building and Running UI on Local Machine
 
 To serve the tkg ui, under tkg-cli repo, run: make tkg
-Then run tkg init --infrastructure=<aws/vsphere> --ui, the command just starts the UI server and it will not trigger any tkg init steps.
+Then run `tkg init --infrastructure=<aws/vsphere> --ui`, the command just starts the UI server and it will not trigger any tkg init steps.
 
-The ui will be served at http://127.0.0.1:8080
+The ui will be served at [http://127.0.0.1:8080](http://127.0.0.1:8080)
 
 ## Build
 

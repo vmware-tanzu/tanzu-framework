@@ -4,7 +4,7 @@ Manage cluster lifecycle operations.
 
 ## Usage
 
-```
+```sh
 >>> tanzu cluster create --help
 Create a cluster
 
@@ -17,7 +17,8 @@ Flags:
   -h, --help          help for create
       --tkr string    TanzuKubernetesRelease(TKr) to be used for creating the workload cluster
 ```
-```
+
+```sh
 >>> tanzu cluster list --help
 List clusters
 
@@ -30,7 +31,8 @@ Flags:
   -n, --namespace string             The namespace from which to list workload clusters. If not provided clusters from all namespaces will be returned
   -o, --output string                Output format. Supported formats: json|yaml
 ```
-```
+
+```sh
 >>> tanzu cluster delete --help
 Delete a cluster
 
@@ -42,7 +44,8 @@ Flags:
   -n, --namespace string   The namespace where the workload cluster was created. Assumes 'default' if not specified.
   -y, --yes                Delete workload cluster without asking for confirmation
 ```
-```
+
+```sh
 >>> tanzu cluster scale --help
 Scale a cluster
 
@@ -55,7 +58,8 @@ Flags:
   -n, --namespace string                   The namespace where the workload cluster was created. Assumes 'default' if not specified.
   -w, --worker-machine-count int32         The number of worker nodes to scale to. Assumes unchanged if not specified
 ```
-```
+
+```sh
 >>> tanzu cluster upgrade --help
 Upgrade a cluster
 
@@ -69,7 +73,8 @@ Flags:
       --tkr string                  TanzuKubernetesRelease(TKr) to upgrade to
   -y, --yes                         Upgrade workload cluster without asking for confirmation
 ```
-```
+
+```sh
 >>> tanzu cluster machinehealthcheck --help
 Get,set, or delete a MachineHealthCheck object for a Tanzu Kubernetes cluster
 
@@ -81,7 +86,8 @@ Available Commands:
   get         Get MachineHealthCheck object
   set         Create or update a MachineHealthCheck for a cluster
 ```
-```
+
+```sh
 >>> tanzu cluster machinehealthcheck get --help
 Get a MachineHealthCheck object for the given cluster
 
@@ -93,7 +99,8 @@ Flags:
   -m, --mhc-name string    Name of the MachineHealthCheck object
   -n, --namespace string   The namespace where the MachineHealthCheck object was created.
 ```
-```
+
+```sh
 >>> tanzu cluster machinehealthcheck set --help
 Create or update a MachineHealthCheck object for a cluster
 
@@ -108,7 +115,8 @@ Flags:
   --node-startup-timeout string   Any machine being created that takes longer than this duration to join the cluster is considered to have failed and will be remediated
   --unhealthy-conditions string   A list of the conditions that determine whether a node is considered unhealthy. Available condition types: [Ready, MemoryPressure,DiskPressure,PIDPressure, NetworkUnavailable], Available condition status: [True, False, Unknown]heck object was created.
 ```
-```
+
+```sh
 >>> tanzu cluster machinehealthcheck delete --help
 Delete a MachineHealthCheck object for the given cluster
 
@@ -122,8 +130,8 @@ Flags:
   -y, --yes                Delete the MachineHealthCheck object without asking for confirmation
 ```
 
-```
->>> tanzu cluster credentials        
+```sh
+>>> tanzu cluster credentials
 Update credentials for a cluster
 
 Usage:
@@ -138,7 +146,7 @@ Flags:
 Use "cluster credentials [command] --help" for more information about a command.
 ```
 
-```
+```sh
 >>> tanzu cluster credentials update --help
 Update credentials for a cluster
 
@@ -152,7 +160,7 @@ Flags:
       --vsphere-user string       Username for vSphere provider
 ```
 
-```
+```sh
 >>> tanzu cluster get --help
 Getting clusters details
 
@@ -167,7 +175,7 @@ Flags:
       --show-group-members           Expand machine groups whose ready condition has the same Status, Severity and Reason
 ```
 
-```
+```sh
 >>> tanzu cluster kubeconfig get --help
 Get kubeconfig of a cluster and merge the context into the default kubeconfig file
 
@@ -175,7 +183,7 @@ Usage:
   tanzu cluster kubeconfig get CLUSTER_NAME [flags]
 
 Examples:
-  
+
         # Get workload cluster kubeconfig
         tanzu cluster kubeconfig get CLUSTER_NAME
 

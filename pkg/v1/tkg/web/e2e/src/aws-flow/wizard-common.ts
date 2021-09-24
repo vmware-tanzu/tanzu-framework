@@ -40,8 +40,8 @@ export default abstract class WizardCommon {
             const flow = new Wizard();
             flow.navigateTo();
 
-            it('should display "Deploy Management Cluster on Amazon EC2"', () => {
-                expect(flow.getTitleText()).toEqual('Deploy Management Cluster on Amazon EC2');
+            it('should display "Deploy Management Cluster on Amazon Web Services"', () => {
+                expect(flow.getTitleText()).toEqual('Deploy Management Cluster on Amazon Web Services');
             });
 
             describe("provider step", () => {

@@ -28,7 +28,7 @@
                     </clr-tooltip>
                 </label>
                 <input clrInput formControlName="tenantId" placeholder="Tenant ID" />
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error i18n="Azure tenant ID required msg" *clrIfError="validatorEnum.REQUIRED">
                     Azure tenant ID cannot be empty
@@ -49,7 +49,7 @@
                     </clr-tooltip>
                 </label>
                 <input clrInput formControlName="clientId" placeholder="Client ID" />
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error i18n="Azure client ID required msg" *clrIfError="validatorEnum.REQUIRED">
                     Azure client ID cannot be empty
@@ -70,7 +70,7 @@
                     </clr-tooltip>
                 </label>
                 <input clrPassword formControlName="clientSecret" placeholder="Client Secret" />
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error i18n="Azure client secret required msg" *clrIfError="validatorEnum.REQUIRED">
                     Azure client secret cannot be empty
@@ -93,7 +93,7 @@
                     </clr-tooltip>
                 </label>
                 <input clrInput formControlName="subscriptionId" placeholder="Subscription ID" />
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error i18n="azure subscription ID required msg" *clrIfError="validatorEnum.REQUIRED">
                     Subscription ID cannot be empty
@@ -154,7 +154,7 @@
                     <option aria-label="blank" title="blank"></option>
                     <option *ngFor="let region of regions" [value]="region.name">{{ region.displayName }}</option>
                 </select>
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error i18n="azure reguib required msg" *clrIfError="validatorEnum.REQUIRED">
                     Azure Region is required
@@ -181,7 +181,7 @@
                     </clr-tooltip>
                 </label>
                     <textarea clrTextarea formControlName="sshPublicKey" placeholder="" class="clr-col-12 no-gutters" aria-label="ssh public key"></textarea>
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error i18n="azure ssh public key required msg" *clrIfError="validatorEnum.REQUIRED">
                     SSH public key is required
@@ -237,7 +237,7 @@
                         {{ resourceGroup.name }}
                     </option>
                 </select>
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error i18n="azure resource group required msg" *clrIfError="validatorEnum.REQUIRED">
                     Azure Resource Group is required
@@ -262,7 +262,7 @@
                 </label>
                 <input clrInput #newRgn formControlName="resourceGroupCustom" placeholder="resource group name"
                     (input)="onResourceGroupNameChange()" />
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error i18n="azure resource group name required msg" *clrIfError="validatorEnum.REQUIRED">
                     Resource Group Name cannot be empty

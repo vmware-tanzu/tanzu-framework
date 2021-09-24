@@ -45,6 +45,8 @@ export interface VsphereVersioninfo {
 export class VSphereProviderStepComponent extends StepFormDirective implements OnInit {
     @ViewChild(SSLThumbprintModalComponent) sslThumbprintModal: SSLThumbprintModalComponent;
 
+    fileReader: FileReader;
+
     APP_ROUTES: Routes = APP_ROUTES;
 
     loading: boolean = false;
@@ -66,6 +68,8 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
         private apiClient: APIClient,
         private router: Router) {
         super();
+
+        this.fileReader = new FileReader();
     }
 
     ngOnInit() {
@@ -100,6 +104,10 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
             new FormControl('', [
                 Validators.required
             ])
+        );
+        this.formGroup.addControl(
+            'ssh_key_file',
+            new FormControl('', [])
         );
 
         this.formGroup.addControl(
@@ -144,6 +152,17 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 const content: EditionData = data.payload;
                 this.edition = content.edition;
             });
+
+        this.fileReader.onload = (event) => {
+            try {
+                this.formGroup.get('ssh_key').setValue(event.target.result);
+                console.log(event.target.result);
+            } catch (error) {
+                console.log(error.message);
+                return;
+            }
+            this.formGroup.get('ssh_key_file').setValue('');
+        };
     }
 
     setSavedDataAfterLoad() {
@@ -359,5 +378,18 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
      */
     showVSphereWithK8Modal() {
         this.vSphereWithK8ModalOpen = true;
+    }
+
+    /**
+     * @method onFileChanged
+     * `change` event handler for the file input.
+     * @param event
+     */
+    onFileChanged(event) {
+        if (event.target.files.length) {
+            this.fileReader.readAsText(event.target.files[0]);
+            // clear file reader target so user can re-select same file if needed
+            event.target.value = '';
+        }
     }
 }

@@ -59,7 +59,7 @@
                     <datalist id="vmFolder">
                         <option *ngFor="let folder of vmFolders" [value]="folder?.name"></option>
                     </datalist>
-                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                 </clr-datalist-container>
                 <clr-control-error *ngIf="showFormError('vmFolder')">
@@ -90,7 +90,7 @@
                     <datalist id="datastore">
                         <option *ngFor="let datastore of datastores" [value]="datastore?.name"></option>
                     </datalist>
-                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                 </clr-datalist-container>
                 <clr-control-error *ngIf="showFormError('datastore')">

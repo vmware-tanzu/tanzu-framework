@@ -3,37 +3,37 @@
 ## Table of Contents
 
 * [Content best practices](#content-best-practices)
-    * [Use present tense](#use-present-tense)
-    * [Use active voice](#use-active-voice)
-    * [Use simple and direct language](#use-simple-and-direct-language)
-    * [Address the reader as "you"](#address-the-reader-as-you)
-    * [Avoid Latin phrases](#avoid-latin-phrases)
+  * [Use present tense](#use-present-tense)
+  * [Use active voice](#use-active-voice)
+  * [Use simple and direct language](#use-simple-and-direct-language)
+  * [Address the reader as "you"](#address-the-reader-as-you)
+  * [Avoid Latin phrases](#avoid-latin-phrases)
 * [Patterns to avoid](#patterns-to-avoid)
-    * [Avoid using "we"](#avoid-using-we)
-    * [Avoid jargon and idioms](#avoid-jargon-and-idioms)
-    * [Avoid statements about the future or that will soon be out of date](#avoid-statements-about-the-future-or-that-will-soon-be-out-of-date)
-    * [Language](#language)
+  * [Avoid using "we"](#avoid-using-we)
+  * [Avoid jargon and idioms](#avoid-jargon-and-idioms)
+  * [Avoid statements about the future or that will soon be out of date](#avoid-statements-about-the-future-or-that-will-soon-be-out-of-date)
+  * [Language](#language)
 * [Documentation formatting standards](#documentation-formatting-standards)
-    * [Use camel case for API objects](#use-camel-case-for-api-objects)
-    * [Use angle brackets for placeholders](#use-angle-brackets-for-placeholders)
-    * [Use bold for user interface elements](#use-bold-for-user-interface-elements)
-    * [Use italics to define or introduce new terms](#use-italics-to-define-or-introduce-new-terms)
-    * [Use code style for filenames, directories, paths, object field names and namespaces](#use-code-style-for-filenames-directories-paths-object-field-names-and-namespaces)
-    * [Use punctuation inside quotes](#use-punctuation-inside-quotes)
+  * [Use camel case for API objects](#use-camel-case-for-api-objects)
+  * [Use angle brackets for placeholders](#use-angle-brackets-for-placeholders)
+  * [Use bold for user interface elements](#use-bold-for-user-interface-elements)
+  * [Use italics to define or introduce new terms](#use-italics-to-define-or-introduce-new-terms)
+  * [Use code style for filenames, directories, paths, object field names and namespaces](#use-code-style-for-filenames-directories-paths-object-field-names-and-namespaces)
+  * [Use punctuation inside quotes](#use-punctuation-inside-quotes)
 * [Inline code formatting](#inline-code-formatting)
-    * [Use code style for inline code and commands](#use-code-style-for-inline-code-and-commands)
-    * [Starting a sentence with a component tool or component name](#starting-a-sentence-with-a-component-tool-or-component-name)
-    * [Use normal style for string and integer field values](#use-normal-style-for-string-and-integer-field-values)
+  * [Use code style for inline code and commands](#use-code-style-for-inline-code-and-commands)
+  * [Starting a sentence with a component tool or component name](#starting-a-sentence-with-a-component-tool-or-component-name)
+  * [Use normal style for string and integer field values](#use-normal-style-for-string-and-integer-field-values)
 * [Code snippet formatting](#code-snippet-formatting)
-    * [Don't include the command prompt](#dont-include-the-command-prompt)
-    * [Separate commands from output](#separate-commands-from-output)
+  * [Don't include the command prompt](#dont-include-the-command-prompt)
+  * [Separate commands from output](#separate-commands-from-output)
 * [Tanzu word list](#tanzu-word-list)
 * [Markdown elements](#markdown-elements)
-    * [Headings](#headings)
-    * [Paragraphs](#paragraphs)
-    * [Links](#links)
-    * [Lists](#lists)
-    * [Tables](#tables)
+  * [Headings](#headings)
+  * [Paragraphs](#paragraphs)
+  * [Links](#links)
+  * [Lists](#lists)
+  * [Tables](#tables)
 
 _This style guide is adapted from the [Kubernetes documentation style guide](https://kubernetes.io/docs/contribute/style/style-guide/)._
 
@@ -42,6 +42,7 @@ writing documents. Note that these are guidelines, not rules. Use your best judg
 propose changes to these guidelines by creating PRs.
 
 ## Content best practices
+
 ### Use present tense
 
 |Do|Don't|
@@ -156,9 +157,11 @@ Use angle brackets for placeholders. Tell the reader what a placeholder represen
 
 1. Display information about a Pod:
 
-        kubectl describe pod <pod-name> -n <namespace>
+```sh
+kubectl describe pod <pod-name> -n <namespace>
+```
 
-   If the pod is in the default namespace, you can omit the '-n' parameter.
+If the pod is in the default namespace, you can omit the '-n' parameter.
 
 ### Use bold for user interface elements
 
@@ -182,7 +185,6 @@ Use angle brackets for placeholders. Tell the reader what a placeholder represen
 |Go to the `/docs/tutorials` directory.|Go to the /docs/tutorials directory.|
 |Open the `/_data/concepts.yaml` file.|Open the /\_data/concepts.yaml file.|
 
-
 ### Use punctuation inside quotes
 
 |Do|Don't|
@@ -193,6 +195,7 @@ Use angle brackets for placeholders. Tell the reader what a placeholder represen
 Exception: When the quoted word is a user input.
 
 Example:
+
 * My user ID is “IM47g”.
 * Did you try the password “mycatisawesome”?
 
@@ -241,13 +244,13 @@ For field values of type string or integer, use normal style without quotation m
 
 Verify that the Pod is running on your chosen node:
 
-```
+```sh
 kubectl get pods --output=wide
 ```
 
 The output is similar to this:
 
-```
+```sh
 NAME     READY     STATUS    RESTARTS   AGE    IP           NODE
 nginx    1/1       Running   0          13s    10.200.0.4   worker0
 ```
@@ -270,7 +273,19 @@ A list of Tanzu-specific terms and words to be used consistently across the repo
 
 ## Markdown elements
 
+In addition to the guidelines below, we check markdown syntax structure using
+the markdownlint tool. Local validation can be done by running:
+
+```sh
+make doc-lint
+```
+
+Additional information about any errors can be found in the
+[markdownlint rules](https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md)
+by searching for the `MD0xx` error code provided with the error output.
+
 ### Headings
+
 People accessing this documentation may use a screen reader or other assistive technology (AT). [Screen readers](https://en.wikipedia.org/wiki/Screen_reader) are linear output devices, they output items on a page one at a time. If there is a lot of content on a page, you can use headings to give the page an internal structure. A good page structure helps all readers to easily navigate the page or filter topics of interest.
 
 |Do|Don't|
@@ -293,31 +308,30 @@ People accessing this documentation may use a screen reader or other assistive t
 |Write hyperlinks that give you context for the content they link to. For example: Certain ports are open on your machines. See [check required ports](#check-required-ports) for more details.|Use ambiguous terms such as “click here”. For example: Certain ports are open on your machines. See [here](#check-required-ports) for more details.|
 |Write Markdown-style links: `[link text](URL)`. For example: `[TKG documentation](https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid/index.html)` and the output is  [TKG documentation](https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid/index.html).|Write HTML-style links: `Visit our tutorial!`|
 
-
 ### Lists
 
 Group items in a list that are related to each other and need to appear in a specific order or to indicate a correlation between multiple items. When a screen reader comes across a list—whether it is an ordered or unordered list—it will be announced to the user that there is a group of list items. The user can then use the arrow keys to move up and down between the various items in the list.
 
-- End each item in a list with a period if one or more items in the list are complete sentences. For the sake of consistency, normally either all items or none should be complete sentences.
+* End each item in a list with a period if one or more items in the list are complete sentences. For the sake of consistency, normally either all items or none should be complete sentences.
 
-- Ordered lists that are part of an incomplete introductory sentence can be in lowercase and punctuated as if each item was a part of the introductory sentence.
+* Ordered lists that are part of an incomplete introductory sentence can be in lowercase and punctuated as if each item was a part of the introductory sentence.
 
-- Use the number one (`1.`) for ordered lists.
+* Use the number one (`1.`) for ordered lists.
 
-- Use (`+`), (`*`), or (`-`) for unordered lists - be consistent within the same document.
+* Use (`+`), (`*`), or (`-`) for unordered lists - be consistent within the same document.
 
-- Leave a blank line after each list.
+* Leave a blank line after each list.
 
-- Indent nested lists with four spaces (for example, ⋅⋅⋅⋅).
+* Indent nested lists with four spaces (for example, ⋅⋅⋅⋅).
 
-- List items may consist of multiple paragraphs. Each subsequent paragraph in a list item must be indented by either four spaces or one tab.
+* List items may consist of multiple paragraphs. Each subsequent paragraph in a list item must be indented by either four spaces or one tab.
 
 ### Tables
 
 The semantic purpose of a data table is to present tabular data. If you need to create a table, create the table in
 markdown.
 
-```
+```sh
 Parameter | Description | Default
 :---------|:------------|:-------
 `timeout` | The timeout for requests | `30s`

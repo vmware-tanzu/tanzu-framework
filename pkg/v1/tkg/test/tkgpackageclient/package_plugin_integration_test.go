@@ -58,30 +58,31 @@ type packageAvailableOutput struct {
 }
 
 var (
-	config                 = &PackagePluginConfig{}
-	configPath             string
-	tkgCfgDir              string
-	err                    error
-	packagePlugin          packagelib.PackagePlugin
-	result                 packagelib.PackagePluginResult
-	clusterCreationTimeout = 30 * time.Minute
-	pollInterval           = 15 * time.Second
-	pollTimeout            = 10 * time.Minute
-	standardRepoName       = "tanzu-standard"
-	standardNamespace      = "tanzu-package-repo-global"
-	standardRepoURL        = "projects-stg.registry.vmware.com/tkg/packageplugin/standard/repo:v1.4.0-zshippable"
-	testPkgInstallName     = "test-pkg"
-	testPkgName            = "fluent-bit.tanzu.vmware.com"
-	testPkgVersion         = "1.7.5+vmware.1-tkg.1-zshippable"
-	testPkgVersionUpdate   = "1.7.5+vmware.1-tkg.1-zshippable"
-	pkgAvailableOptions    tkgpackagedatamodel.PackageAvailableOptions
-	pkgOptions             tkgpackagedatamodel.PackageOptions
-	repoOptions            tkgpackagedatamodel.RepositoryOptions
-	repoOutput             []repositoryOutput
-	expectedRepoOutput     repositoryOutput
-	pkgOutput              []packageInstalledOutput
-	expectedPkgOutput      packageInstalledOutput
-	pkgAvailableOutput     []packageAvailableOutput
+	config                  = &PackagePluginConfig{}
+	configPath              string
+	tkgCfgDir               string
+	err                     error
+	packagePlugin           packagelib.PackagePlugin
+	result                  packagelib.PackagePluginResult
+	clusterCreationTimeout  = 30 * time.Minute
+	pollInterval            = 15 * time.Second
+	pollTimeout             = 10 * time.Minute
+	testRepoName            = "carvel-test"
+	testNamespace           = "tanzu-package-repo-global"
+	testRepoURL             = "projects-stg.registry.vmware.com/tkg/test-packages/test-repo:v1.0.0"
+	testPkgInstallName      = "test-pkg"
+	testPkgName             = "pkg.test.carvel.dev"
+	testPkgVersion          = "3.0.0-rc.1"
+	testPkgVersionUpdate    = "2.0.0"
+	pkgAvailableOptions     tkgpackagedatamodel.PackageAvailableOptions
+	pkgOptions              tkgpackagedatamodel.PackageOptions
+	repoOptions             tkgpackagedatamodel.RepositoryOptions
+	repoOutput              []repositoryOutput
+	expectedRepoOutput      repositoryOutput
+	pkgOutput               []packageInstalledOutput
+	expectedPkgOutput       packageInstalledOutput
+	expectedPkgOutputUpdate packageInstalledOutput
+	pkgAvailableOutput      []packageAvailableOutput
 )
 
 var _ = Describe("Package plugin integration test", func() {
@@ -177,15 +178,15 @@ var _ = Describe("Package plugin integration test", func() {
 		}
 
 		if config.Namespace == "" {
-			config.Namespace = standardNamespace
+			config.Namespace = testNamespace
 		}
 
 		if config.RepositoryName == "" {
-			config.RepositoryName = standardRepoName
+			config.RepositoryName = testRepoName
 		}
 
 		if config.RepositoryURL == "" {
-			config.RepositoryURL = standardRepoURL
+			config.RepositoryURL = testRepoURL
 		}
 
 		if config.PackageName == "" {
@@ -227,6 +228,13 @@ var _ = Describe("Package plugin integration test", func() {
 			Name:           testPkgInstallName,
 			PackageName:    config.PackageName,
 			PackageVersion: config.PackageVersion,
+			Status:         "Reconcile succeeded",
+		}
+
+		expectedPkgOutputUpdate = packageInstalledOutput{
+			Name:           testPkgInstallName,
+			PackageName:    config.PackageName,
+			PackageVersion: config.PackageVersionUpdate,
 			Status:         "Reconcile succeeded",
 		}
 	})
@@ -319,6 +327,7 @@ func testHelper() {
 	pkgOptions.Wait = true
 	pkgOptions.PollInterval = pollInterval
 	pkgOptions.PollTimeout = pollTimeout
+	pkgOptions.Version = config.PackageVersion
 	if config.WithValueFile {
 		pkgOptions.ValuesFile = "config/values.yaml"
 	}
@@ -349,7 +358,7 @@ func testHelper() {
 	err = json.Unmarshal(result.Stdout.Bytes(), &pkgOutput)
 	Expect(err).ToNot(HaveOccurred())
 	Expect(len(pkgOutput)).To(BeNumerically("==", 1))
-	Expect(pkgOutput[0]).To(Equal(expectedPkgOutput))
+	Expect(pkgOutput[0]).To(Equal(expectedPkgOutputUpdate))
 
 	By("delete package install")
 	pkgOptions.PollInterval = pollInterval

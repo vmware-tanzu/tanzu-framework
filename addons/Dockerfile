@@ -18,7 +18,7 @@ RUN chmod 0400 /root/.ssh/id_rsa
 # Ensure git knows how to access github.
 RUN git config --global url."git@github.com:".insteadOf "https://github.com/"
 
-# Seed Github's host keys to prevent SSH from hanging.
+# Seed GitHub's host keys to prevent SSH from hanging.
 RUN ssh-keyscan github.com >>/root/.ssh/known_hosts
 
 # Copy the go source

@@ -23,7 +23,7 @@ tags: [tce-docker, proxy-configuration]
     For example, noproxy.yourdomain.com,192.168.0.0/24.
     <br>
     vSphere: You must enter the CIDR of the vSphere network that you selected under Network Name. The vSphere network CIDR includes the IP address of your Control Plane Endpoint. If you entered an FQDN under Control Plane Endpoint, add both the FQDN and the vSphere network CIDR to No proxy. Internally, Tanzu Kubernetes Grid appends localhost, 127.0.0.1, the values of Cluster Pod CIDR and Cluster Service CIDR, .svc, and .svc.cluster.local to the list that you enter in this field.
-    Amazon EC2: Internally, Tanzu Kubernetes Grid appends localhost, 127.0.0.1, your VPC CIDR, Cluster Pod CIDR, and Cluster Service CIDR, .svc, .svc.cluster.local, and 169.254.0.0/16 to the list that you enter in this field.
+    Amazon Web Services: Internally, Tanzu Kubernetes Grid appends localhost, 127.0.0.1, your VPC CIDR, Cluster Pod CIDR, and Cluster Service CIDR, .svc, .svc.cluster.local, and 169.254.0.0/16 to the list that you enter in this field.
     Azure: Internally, Tanzu Kubernetes Grid appends localhost, 127.0.0.1, your VNET CIDR, Cluster Pod CIDR, and Cluster Service CIDR, .svc, .svc.cluster.local, 169.254.0.0/16, and 168.63.129.16 to the list that you enter in this field.
     Important: If the management cluster VMs need to communicate with external services and infrastructure endpoints in your Tanzu Kubernetes Grid environment, ensure that those endpoints are reachable by the proxies that you configured above or add them to No proxy. Depending on your environment configuration, this may include, but is not limited to, your OIDC or LDAP server, Harbor, and in the case of vSphere, NSX-T and NSX Advanced Load Balancer.
 </p>
