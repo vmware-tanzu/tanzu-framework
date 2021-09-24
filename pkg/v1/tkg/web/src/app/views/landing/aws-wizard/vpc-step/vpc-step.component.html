@@ -37,7 +37,7 @@
                     </clr-tooltip>
                 </label>
                 <input clrInput formControlName="vpc" placeholder="" />
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error i18n="aws vpc cidr required msg" *clrIfError="validatorEnum.REQUIRED">
                     VPC CIDR cannot be empty
@@ -71,7 +71,7 @@
                         </option>
                     </ng-container>
                 </select>
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error>Selecting an existing VPC is required</clr-control-error>
             </clr-select-container>
@@ -91,7 +91,7 @@
                 </label>
                 <input clrInput formControlName="existingVpcCidr" placeholder="" [readonly]="true"
                     class="input-disabled" />
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
             </clr-input-container>
         </div>

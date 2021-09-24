@@ -63,13 +63,13 @@
                 </option>
             </ng-container>
         </select>
-        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+        <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
         <clr-control-helper></clr-control-helper>
         <clr-control-error>Selecting an OS image is required</clr-control-error>
     </clr-select-container>
-    <button class="refresh-btn reset" 
-            role="button" 
-            aria-label="refresh os images" 
+    <button class="refresh-btn reset"
+            role="button"
+            aria-label="refresh os images"
             tabindex="0"
             (click)="retrieveOsImages()">
             <clr-icon

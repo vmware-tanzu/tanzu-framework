@@ -51,6 +51,7 @@ type FeatureGateStatus struct {
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:resource:scope=Cluster
 
 // FeatureGate is the Schema for the featuregates API
 type FeatureGate struct {

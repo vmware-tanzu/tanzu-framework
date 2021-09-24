@@ -14,8 +14,6 @@ type CronjobSpec struct {
 type CronjobStatus struct {
 }
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
 //+tanzu:feature:name=bar,immutable=false,activated=false,discoverable=false,maturity=dev
 //+tanzu:feature:name=baz,immutable=false,activated=false,discoverable=false,maturity=dev
 

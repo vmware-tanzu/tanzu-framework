@@ -219,7 +219,7 @@ export const isNumericOnly = (arg: string) => {
  * @return boolean
  */
 export const isValidClustername = (arg: string) => {
-    const regexPattern = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$/;
+    const regexPattern = /^[a-z0-9][a-z0-9-.]{0,40}[a-z0-9]$/;
     return regexPattern.test(arg.trim());
 }
 

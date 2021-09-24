@@ -43,14 +43,9 @@ jobs:
     - name: Test
       run: make test
 
-    - id: upload-cli-artifacts
-      uses: google-github-actions/upload-cloud-storage@main
-      with:
-        path: ./artifacts
-        destination: tanzu-cli-framework
-        credentials: ${{ secrets.GCP_BUCKET_SA }}
-
     - id: upload-cli-admin-artifacts
+      # disable unsigned/untested artifacts upload to bucket
+      if: ${{ false }}
       uses: google-github-actions/upload-cloud-storage@main
       with:
         path: ./artifacts-admin

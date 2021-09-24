@@ -8,30 +8,34 @@ that is responsible for fetching, contextualizing, and rendering the release
 notes for Tanzu Framework.
 
 ## Installation
+
 The simplest way to install the release-notes CLI is via go get:
 
-```
+```sh
 GO111MODULE=on go get k8s.io/release/cmd/release-notes
 ```
 
 From Go 1.16:
 
-```
+```sh
 go get k8s.io/release/cmd/release-notes@latest
 ```
 
 ## Usage
+
 To generate release notes for a commit range, we would be needing some basic
 information that we need to pass to the `release-notes` command.
-* Github API token.
+
+* GitHub API token.
 * Branch or tag name.
 * The commit hash to start processing from (inclusive).
 * The commit hash to end processing at (inclusive).
 
 Then run the below command to generate the release notes for a commit range:
-```
-$ export GITHUB_TOKEN=${GITHUB_API_TOKEN}
-$ release-notes \
+
+```sh
+export GITHUB_TOKEN=${GITHUB_API_TOKEN}
+release-notes \
     --github-base-url https://github.com \
     --org vmware-tanzu-private \
     --repo core \

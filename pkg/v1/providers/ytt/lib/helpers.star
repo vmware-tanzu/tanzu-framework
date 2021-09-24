@@ -293,3 +293,15 @@ def get_no_proxy():
   end
   return ""
 end
+
+def validate_proxy_bypass_vsphere_host():
+  if data.values.PROVIDER_TYPE == "vsphere" and not data.values.VSPHERE_INSECURE:
+    no_proxy_list = []
+    if data.values.TKG_NO_PROXY != "":
+      no_proxy_list = data.values.TKG_NO_PROXY.split(",")
+      if data.values.VSPHERE_SERVER not in no_proxy_list:
+        assert.fail("unable to proxy traffic to vSphere host in security connection, either set VSPHERE_INSECURE to true or add VSPHERE_SERVER to TKG_NO_PROXY")
+      end
+    end
+  end
+end

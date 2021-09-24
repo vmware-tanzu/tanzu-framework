@@ -44,7 +44,7 @@
                     </clr-tooltip>
                 </label>
                 <input clrInput formControlName="vcenterAddress" placeholder="IP or FQDN" />
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error i18n="vcenter server addr required msg" *clrIfError="validatorEnum.REQUIRED">
                     vCenter Server address cannot be empty
@@ -60,7 +60,7 @@
                     USERNAME
                 </label>
                 <input clrInput formControlName="username" placeholder="username" />
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error i18n="username required msg" *clrIfError="validatorEnum.REQUIRED">
                     Username cannot be empty
@@ -73,7 +73,7 @@
                     PASSWORD
                 </label>
                 <input clrPassword formControlName="password" placeholder="password" />
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error i18n="Password required msg" *clrIfError="validatorEnum.REQUIRED">
                     Password cannot be empty
@@ -113,7 +113,7 @@
                         </option>
                     </ng-container>
                 </select>
-                <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error>Selecting a datacenter is required</clr-control-error>
             </clr-select-container>
@@ -127,7 +127,7 @@
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                             <span>
                                 The contents of an 4096-bit SSH-2 RSA public key from a key pair
-                                that you have created for the {{ clusterType }} cluster to use.
+                                that you have created. Allows SSH to the {{ clusterType }} cluster nodes as user capv.
                             </span>
                         </clr-tooltip-content>
                     </clr-tooltip>
@@ -140,6 +140,17 @@
                         <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
                     </div>
                     <span id="ssh_key_error_msg" class="clr-subtext" *ngIf="formGroup.get('ssh_key').invalid">SSH Public Key is required</span>
+                    <input type="file"
+                           id="ssh_key_file"
+                           class="display-none"
+                           (change)="onFileChanged($event)"
+                           #file/>
+                    <button id="browseButton"
+                            class="btn btn-small btn-link btn-browse"
+                            [attr.disabled]="connected ? null : 'disabled'"
+                            (click)="file.click()">
+                        Browse File
+                    </button>
                 </div>
             </div>
         </div>
