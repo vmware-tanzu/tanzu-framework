@@ -6,7 +6,7 @@ const (
 
 	defaultImageTag = "latest"
 	defaultImageTagConstraint = ">0.0.0"
-	kindCRDFullName = "CustomResourceDefinition"
+	fullNameCRDKind = "CustomResourceDefinition"
 	packageRepositoryCRDName = "packagerepositories.packaging.carvel.dev"
 	packageRepositoryTagSelectionJSONPath = ".spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.fetch.properties.imgpkgBundle.properties.tagSelection"
 )

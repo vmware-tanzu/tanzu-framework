@@ -53,9 +53,10 @@ func repositoryGet(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	repository, tag, _ := tkgpackageclient.ParseImageUrl(packageRepository.Spec.Fetch.ImgpkgBundle.Image)
-	if tag == "" {
-		tag = "latest release tag"
+	repository, tag, err := tkgpackageclient.GetCurrentRepositoryAndTagInUse(packageRepository)
+	if err != nil {
+		t.StopSpinner()
+		return err
 	}
 
 	t.SetKeys("name", "version", "repository", "tag", "status", "reason")
