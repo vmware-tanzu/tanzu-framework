@@ -643,7 +643,7 @@ var _ = Describe("Validate", func() {
 				validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
 				Expect(validationError).To(HaveOccurred())
 				Expect(validationError).To(MatchError(
-					fmt.Sprintf(`invalid SERVICE_CIDR %q, expepcted to have %q for TKG_IP_FAMILY %q`,
+					fmt.Sprintf(`invalid SERVICE_CIDR %q, expected to have %q for TKG_IP_FAMILY %q`,
 						serviceCIDRs,
 						expectedFormat,
 						ipFamily,
@@ -685,7 +685,7 @@ var _ = Describe("Validate", func() {
 				validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
 				Expect(validationError).To(HaveOccurred())
 				Expect(validationError).To(MatchError(
-					fmt.Sprintf(`invalid CLUSTER_CIDR %q, expepcted to have %q for TKG_IP_FAMILY %q`,
+					fmt.Sprintf(`invalid CLUSTER_CIDR %q, expected to have %q for TKG_IP_FAMILY %q`,
 						clusterCIDRs,
 						expectedFormat,
 						ipFamily,

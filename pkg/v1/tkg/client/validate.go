@@ -1656,13 +1656,13 @@ func (c *TkgClient) validateCIDRsForIPFamily(configVariableName, cidrs, ipFamily
 	case constants.DualStackPrimaryIPv4Family:
 		cidrSlice := strings.Split(cidrs, ",")
 		if len(cidrSlice) != 2 || !isCIDRIPv4(cidrSlice[0]) || !isCIDRIPv6(cidrSlice[1]) {
-			return fmt.Errorf(`invalid %s %q, expepcted to have "<IPv4 CIDR>,<IPv6 CIDR>" for %s %q`,
+			return fmt.Errorf(`invalid %s %q, expected to have "<IPv4 CIDR>,<IPv6 CIDR>" for %s %q`,
 				configVariableName, cidrs, constants.ConfigVariableIPFamily, ipFamily)
 		}
 	case constants.DualStackPrimaryIPv6Family:
 		cidrSlice := strings.Split(cidrs, ",")
 		if len(cidrSlice) != 2 || !isCIDRIPv6(cidrSlice[0]) || !isCIDRIPv4(cidrSlice[1]) {
-			return fmt.Errorf(`invalid %s %q, expepcted to have "<IPv6 CIDR>,<IPv4 CIDR>" for %s %q`,
+			return fmt.Errorf(`invalid %s %q, expected to have "<IPv6 CIDR>,<IPv4 CIDR>" for %s %q`,
 				configVariableName, cidrs, constants.ConfigVariableIPFamily, ipFamily)
 		}
 	}
