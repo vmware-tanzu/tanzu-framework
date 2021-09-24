@@ -6329,7 +6329,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        image: registry.tkg.vmware.run/cluster-api/cluster-api-azure-controller:${CAPZ_CONTROLLER_IMAGE_TAG}
+        image: docker.io/saimanoj01/cluster-api-azure-controller:${CAPZ_CONTROLLER_IMAGE_TAG}
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:
@@ -6360,7 +6360,7 @@ spec:
         - --upstream=http://127.0.0.1:8080/
         - --logtostderr=true
         - --v=10
-        image: registry.tkg.vmware.run/cluster-api/kube-rbac-proxy:${KUBE_RBAC_PROXY_IMAGE_TAG}
+        image: docker.io/saimanoj01/kube-rbac-proxy:${KUBE_RBAC_PROXY_IMAGE_TAG}
         name: kube-rbac-proxy
         ports:
         - containerPort: 8443
@@ -6415,7 +6415,7 @@ spec:
               fieldPath: spec.nodeName
         - name: LOG_LEVEL
           value: DEBUG
-        image: registry.tkg.vmware.run/cluster-api/nmi:${NMI_IMAGE_TAG}
+        image: docker.io/saimanoj01/nmi:${NMI_IMAGE_TAG}
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:
