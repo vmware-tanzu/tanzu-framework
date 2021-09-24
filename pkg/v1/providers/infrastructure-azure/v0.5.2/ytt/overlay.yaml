@@ -1,6 +1,7 @@
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:data", "data")
 #@ load("@ytt:json", "json")
+#@ load("@ytt:base64", "base64")
 
 #@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "kubeadm_image_repo", "get_azure_image")
 #@ load("lib/validate.star", "validate_configuration")
@@ -19,9 +20,25 @@
 #@ return tags
 #@ end
 
+#@ def get_identity_name():
+#@ if data.values.TKG_CLUSTER_ROLE == "management":
+#@   return data.values.AZURE_IDENTITY_NAME or "{}-identity".format(data.values.CLUSTER_NAME)
+#@ end
+#@
+#@ return data.values.AZURE_IDENTITY_NAME
+#@ end
+
+#@ def get_identity_namespace():
+#@ if data.values.TKG_CLUSTER_ROLE == "management":
+#@   return "tkg-system"
+#@ end
+#@
+#@ return data.values.AZURE_IDENTITY_NAMESPACE
+#@ end
+
 #@overlay/match by=overlay.subset({"kind":"Cluster"})
 ---
-apiVersion: cluster.x-k8s.io/v1alpha3
+apiVersion: cluster.x-k8s.io/v1alpha4
 kind: Cluster
 metadata:
   name: #@ data.values.CLUSTER_NAME
@@ -51,7 +68,7 @@ spec:
 
 #@overlay/match by=overlay.subset({"kind":"AzureCluster"})
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
 kind: AzureCluster
 metadata:
   name: #@ data.values.CLUSTER_NAME
@@ -87,7 +104,7 @@ spec:
       role: node
       cidrBlocks:
       - #@ data.values.AZURE_NODE_SUBNET_CIDR
-      #@ if len(data.values.AZURE_NODE_SUBNET_SECURITY_GROUP) != 0: 
+      #@ if len(data.values.AZURE_NODE_SUBNET_SECURITY_GROUP) != 0:
       #@overlay/match missing_ok=True
       securityGroup: #@ data.values.AZURE_NODE_SUBNET_SECURITY_GROUP
       #@ end
@@ -101,26 +118,27 @@ spec:
     #@ end
   resourceGroup: #@ data.values.AZURE_RESOURCE_GROUP or data.values.CLUSTER_NAME
   subscriptionID: #@ data.values.AZURE_SUBSCRIPTION_ID
-  #@ if data.values.AZURE_IDENTITY_NAME:
+  #@ if data.values.TKG_CLUSTER_ROLE == "management" or data.values.AZURE_IDENTITY_NAME:
   #@overlay/match missing_ok=True
   identityRef:
-    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
     kind: AzureClusterIdentity
-    name: #@ data.values.AZURE_IDENTITY_NAME
-    namespace: #@ data.values.AZURE_IDENTITY_NAMESPACE
+    name: #@ get_identity_name()
+    namespace: #@ get_identity_namespace()
   #@ end
 
 #@overlay/match by=overlay.subset({"kind":"KubeadmControlPlane"})
 ---
-apiVersion: controlplane.cluster.x-k8s.io/v1alpha3
+apiVersion: controlplane.cluster.x-k8s.io/v1alpha4
 kind: KubeadmControlPlane
 metadata:
   name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
 spec:
-  infrastructureTemplate:
-    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
-    kind: AzureMachineTemplate
-    name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
+  machineTemplate:
+    infrastructureRef:
+      apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
+      kind: AzureMachineTemplate
+      name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
   kubeadmConfigSpec:
     #@ if data.values.AZURE_ENABLE_PRIVATE_CLUSTER:
     #@overlay/match missing_ok=True
@@ -158,7 +176,7 @@ spec:
 
 #@overlay/match by=overlay.subset({"kind": "AzureMachineTemplate", "metadata":{"name": "${CLUSTER_NAME}-control-plane"}})
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
 kind: AzureMachineTemplate
 metadata:
   name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
@@ -176,13 +194,12 @@ spec:
           storageAccountType: #@ data.values.AZURE_CONTROL_PLANE_OS_DISK_STORAGE_ACCOUNT_TYPE
       #@overlay/match missing_ok=True
       image: #@ get_azure_image(bomDataForK8sVersion)
-      location: #@ data.values.AZURE_LOCATION
       sshPublicKey: #@ data.values.AZURE_SSH_PUBLIC_KEY_B64
       vmSize: #@ data.values.AZURE_CONTROL_PLANE_MACHINE_TYPE
 
 #@overlay/match by=overlay.subset({"kind":"MachineDeployment", "metadata":{"name": "${CLUSTER_NAME}-md-0"}})
 ---
-apiVersion: cluster.x-k8s.io/v1alpha3
+apiVersion: cluster.x-k8s.io/v1alpha4
 kind: MachineDeployment
 metadata:
   name: #@ "{}-md-0".format(data.values.CLUSTER_NAME)
@@ -205,7 +222,7 @@ spec:
 
 #@overlay/match by=overlay.subset({"kind": "AzureMachineTemplate", "metadata":{"name": "${CLUSTER_NAME}-md-0"}})
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
 kind: AzureMachineTemplate
 metadata:
   name: #@ "{}-md-0".format(data.values.CLUSTER_NAME)
@@ -225,13 +242,12 @@ spec:
           storageAccountType: #@ data.values.AZURE_NODE_OS_DISK_STORAGE_ACCOUNT_TYPE
       #@overlay/match missing_ok=True
       image: #@ get_azure_image(bomDataForK8sVersion)
-      location: #@ data.values.AZURE_LOCATION
       sshPublicKey: #@ data.values.AZURE_SSH_PUBLIC_KEY_B64
       vmSize: #@ data.values.AZURE_NODE_MACHINE_TYPE
 
 #@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate", "metadata":{"name": "${CLUSTER_NAME}-md-0"}})
 ---
-apiVersion: bootstrap.cluster.x-k8s.io/v1alpha3
+apiVersion: bootstrap.cluster.x-k8s.io/v1alpha4
 kind: KubeadmConfigTemplate
 metadata:
   name: #@ "{}-md-0".format(data.values.CLUSTER_NAME)
@@ -268,3 +284,31 @@ spec:
         owner: root:root
         path: /etc/kubernetes/azure.json
         permissions: "0644"
+
+#@ if data.values.TKG_CLUSTER_ROLE == "management":
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ "{}-identity-secret".format(data.values.CLUSTER_NAME)
+  namespace: tkg-system
+type: Opaque
+data:
+  clientSecret: #@ base64.encode(data.values.AZURE_CLIENT_SECRET)
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
+kind: AzureClusterIdentity
+metadata:
+  labels:
+    clusterctl.cluster.x-k8s.io/move-hierarchy: "true"
+  name: #@ data.values.AZURE_IDENTITY_NAME or "{}-identity".format(data.values.CLUSTER_NAME)
+  namespace: tkg-system
+spec:
+  allowedNamespaces: {}
+  clientID: #@ data.values.AZURE_CLIENT_ID
+  clientSecret:
+    name: #@ "{}-identity-secret".format(data.values.CLUSTER_NAME)
+    namespace: tkg-system
+  tenantID: #@ data.values.AZURE_TENANT_ID
+  type: ServicePrincipal
+#@ end
