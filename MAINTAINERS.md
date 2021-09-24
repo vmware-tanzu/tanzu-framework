@@ -18,6 +18,7 @@
 | Tech Lead | Justin Miclette [miclettej](https://github.com/miclettej) |
 | Eng Management | Shyaam Nagarajan [shyaamsn](https://github.com/shyaamsn) |
 | Eng Management | Maggie Cai [Maggiecai-vmw](https://github.com/Maggiecai-vmw) |
+| Eng Management | Maharshi Bhatt [bhattm-vmware](https://github.com/bhattm-vmware) |
 | Product Management | Natalie Fisher [nfisher-tkg](https://github.com/nfisher-tkg) |
 | Engineering | Danniel Guo [danniel1205](https://github.com/danniel1205) |
 | Engineering | Anuj Chaudhari [Anuj2512](https://github.com/Anuj2512) |
