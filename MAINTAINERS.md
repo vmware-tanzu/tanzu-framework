@@ -6,6 +6,7 @@
 |------------|-----------|-------------|
 |Vui Lam | [vuil](https://github.com/vuil) | [VMware](https://www.github.com/vmware/) |
 |Vijay Katam | [vijaykatam](https://github.com/vijaykatam ) | [VMware](https://www.github.com/vmware/) |
+|Jeff Moroski | [jmoroski](https://github.com/jmoroski ) | [VMware](https://www.github.com/vmware/) |
 
 ## Framework Core Contributors and Stakeholders
 
@@ -13,6 +14,7 @@
 |--------------|------|
 | Tech Lead | Vui Lam [vuil](https://github.com/vuil) |
 | Tech Lead  | Vijay Katam [vijaykatam](https://github.com/vijaykatam) |
+| Tech Lead  | Jeff Moroski [jmoroski](https://github.com/jmoroski) |
 | Eng Management | Shyaam Nagarajan [shyaamsn](https://github.com/shyaamsn) |
 | Eng Management | Maggie Cai [Maggiecai-vmw](https://github.com/Maggiecai-vmw) |
 | Product Management | Natalie Fisher [nfisher-tkg](https://github.com/nfisher-tkg) |
