@@ -41,6 +41,8 @@ jobs:
       run: make test
 
     - id: upload-cli-artifacts
+      # do not upload unsigned/untested artifacts to GCP bucket
+      if: ${{ false }}
       uses: google-github-actions/upload-cloud-storage@main
       with:
         path: ./artifacts
@@ -48,6 +50,8 @@ jobs:
         credentials: ${{ secrets.GCP_BUCKET_SA }}
 
     - id: upload-cli-admin-artifacts
+      # do not upload unsigned/untested artifacts to GCP bucket
+      if: ${{ false }}
       uses: google-github-actions/upload-cloud-storage@main
       with:
         path: ./artifacts-admin
