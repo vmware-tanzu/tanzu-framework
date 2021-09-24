@@ -132,6 +132,38 @@ tanzu cluster create CLUSTER-NAME [flags]
 * Consider supporting the use of a config file if the number of flags exceeds 5
 * Flags should be tab completed. The Tanzu CLI uses the cobra framework, which has tooling to help with this [Cobra shell completion docs](https://github.com/spf13/cobra/blob/master/shell_completions.md)
 
+#### Resource flags
+The Tanzu CLI follows [kubectl patterns](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#resource-units-in-kubernetes) for specifying resource units.
+
+CPU units
+`m (millicpu)`
+Example
+```
+# 100m, .1, 1
+$tanzu apps workload update <name> --limit-cpu 8
+```
+
+Memory units
+`E, P, T, G, M, K, Ei, Pi, Ti, Gi, Mi, Ki.`
+
+Example
+```
+# 128974848, 129e6, 129M , 123Mi
+$tanzu apps workload update <name> --limit-memory 16G
+```
+
+#### Time duration flags
+The Tanzu CLI follows [go patterns](https://pkg.go.dev/time#ParseDuration) for specifying time duration. 
+
+Time units
+`ns, us (or µs), ms, s, m, h`
+
+Example
+```
+# 300ms, -1.5h or 2h45m
+$ tanzu apps workload delete <name> --wait-timeout 10m
+```
+
 ### Prompting
 
 * If you are prompting for a secret, do not echo it in the terminal when the user types
@@ -310,6 +342,7 @@ url:         http://myapplicationurl.com
 
 ### Color
 
+* Color is helpful to highlight important information or to convey status, however it should be an enhancment to the text, and not be relied on as the sole source of a given bit of information because it can be disabled in a user's terminal or may not be accessible to automation or screenreaders. Making status text red when it says `not ready` is ok because without the red, the status can still be determined. If, for example, the name of the resource was made red when not-ready it would not be possible to know the state of the resource if color was disabled.
 * Colors can be deactivated using an environment variable (NO_COLOR=TRUE)
 * Colors are always deactivated when the session is not a TTY session. This allows for the piping of CLI output into other commands (e.g. grep) or machine reading without including stray color characters (pending issue #369)
 * Usage tips are always in plain text, even when referencing text that might normally be colorized
@@ -323,6 +356,7 @@ url:         http://myapplicationurl.com
   The word 'Warning:' or 'Error:' is colorized and bold, the *message* is plain text
 
 ![Example of warning and error notice text colorized red](example-images/error-warn.png)
+![Example of warning and error text in a data table colorized red](example-images/table-text.png)
 
 * Green = success, informational
 
