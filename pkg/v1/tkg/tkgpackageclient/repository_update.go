@@ -37,22 +37,19 @@ func (p *pkgClient) UpdateRepository(o *tkgpackagedatamodel.RepositoryOptions, p
 
 	if existingRepository != nil {
 		repositoryToUpdate := existingRepository.DeepCopy()
-		if err := p.validateRepositoryUpdate(o.RepositoryName, o.RepositoryURL, o.Namespace); err != nil {
-			return err
+		if err = p.validateRepositoryUpdate(o.RepositoryName, o.RepositoryURL, o.Namespace); err != nil {
+			return
 		}
 
-		_, tag, err := parseImageUrl(o.RepositoryURL)
+		var tag string
+		_, tag, err = parseRegistryImageUrl(o.RepositoryURL)
 		if err != nil {
-			return errors.Wrap(err, "failed to parse OCI registry URL")
-		}
-
-		found, err := checkPackageRepositoryTagselection()
-		if err != nil {
-			return errors.Wrap(err, "failed to check package repository resource version")
+			err = errors.Wrap(err, "failed to parse OCI registry URL")
+			return
 		}
 
 		repositoryToUpdate.Spec.Fetch.ImgpkgBundle.Image = o.RepositoryURL
-		if found && tag == "" {
+		if tag == "" {
 			repositoryToUpdate.Spec.Fetch.ImgpkgBundle.TagSelection = &versions.VersionSelection{
 				Semver: &versions.VersionSelectionSemver{
 					Constraints: defaultImageTagConstraint,
@@ -63,6 +60,7 @@ func (p *pkgClient) UpdateRepository(o *tkgpackagedatamodel.RepositoryOptions, p
 		progress.ProgressMsg <- "Updating package repository resource"
 		if err = p.kappClient.UpdatePackageRepository(repositoryToUpdate); err != nil {
 			err = errors.Wrap(err, fmt.Sprintf("failed to update package repository '%s' in namespace '%s'", o.RepositoryName, o.Namespace))
+			return
 		}
 
 		if o.Wait {

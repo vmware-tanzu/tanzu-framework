@@ -13,7 +13,7 @@ var _ = Describe("Test image utils", func() {
 
 		It("should have error if image url isn't valid", func() {
 			// case 1
-			repository, tag, err := parseImageUrl("sftp://user:passwd@example.com/foo/bar:latest")
+			repository, tag, err := parseRegistryImageUrl("sftp://user:passwd@example.com/foo/bar:latest")
 			Expect(err).To(HaveOccurred())
 			Expect(repository).To(Equal(""))
 			Expect(tag).To(Equal(""))
@@ -21,13 +21,13 @@ var _ = Describe("Test image utils", func() {
 
 		It("should give the correct tag when tag is specified", func() {
 			// case 1
-			repository, tag, err := parseImageUrl("foo/bar:1.1")
+			repository, tag, err := parseRegistryImageUrl("foo/bar:1.1")
 			Expect(err).NotTo(HaveOccurred())
 			Expect(repository).To(Equal("docker.io/foo/bar"))
 			Expect(tag).To(Equal("1.1"))
 
 			// case 2
-			repository, tag, err = parseImageUrl("http://localhost.localdomain:5000/foo/bar:latest")
+			repository, tag, err = parseRegistryImageUrl("http://localhost.localdomain:5000/foo/bar:latest")
 			Expect(err).NotTo(HaveOccurred())
 			Expect(repository).To(Equal("localhost.localdomain:5000/foo/bar"))
 			Expect(tag).To(Equal("latest"))
@@ -35,13 +35,13 @@ var _ = Describe("Test image utils", func() {
 
 		It("should give the empty tag when tag is not specified", func() {
 			// case 1
-			repository, tag, err := parseImageUrl("foo/bar")
+			repository, tag, err := parseRegistryImageUrl("foo/bar")
 			Expect(err).NotTo(HaveOccurred())
 			Expect(repository).To(Equal("docker.io/foo/bar"))
 			Expect(tag).To(Equal(""))
 
 			// case 2
-			repository, tag, err = parseImageUrl("http://localhost.localdomain:5000/foo/bar")
+			repository, tag, err = parseRegistryImageUrl("http://localhost.localdomain:5000/foo/bar")
 			Expect(err).NotTo(HaveOccurred())
 			Expect(repository).To(Equal("localhost.localdomain:5000/foo/bar"))
 			Expect(tag).To(Equal(""))
