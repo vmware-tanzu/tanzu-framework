@@ -158,7 +158,7 @@ $tanzu apps workload update <name> --limit-memory 16G
 
 #### Time duration flags
 
-The Tanzu CLI follows [go patterns](https://pkg.go.dev/time#ParseDuration) for specifying time duration. 
+The Tanzu CLI follows [go patterns](https://pkg.go.dev/time#ParseDuration) for specifying time duration.
 
 Time units
 `ns, us (or µs), ms, s, m, h`
@@ -383,14 +383,14 @@ Interactive prompting: user input is colorized, as is the preceding question mar
 ### Animation
 
 * Deactivate if stdout is not an interactive terminal
-  * The component library can provide this check 
+  * The component library can provide this check
 
 ### Symbols / Emojis
 
 * Currently no standards or guidance
 * Recommendation is to discuss plans for emoji/symbol use with SIG
 * Deactivate if stdout is not an interactive terminal
-  * The component library can provide this check 
+  * The component library can provide this check
 
 ### Components - Output
 
@@ -409,6 +409,7 @@ Interactive prompting: user input is colorized, as is the preceding question mar
 Commands will display help if passed -h, --help, or if no options are passed and a command expects them.
 
 #### The help text can provide a support path for feedback and issues
+
 * A github link or website URL in the top level help encourage user feedback
 
 Example
@@ -423,7 +424,7 @@ Flags:
       --log-file string   Log file path
 ```
 
-#### All commands and flags should have description text 
+#### All commands and flags should have description text
 
 * If possible, the text should fit on an 80 character wide screen, to prevent word wrap that makes it harder to read.
 * Description text begins with a capital letter and does not end with a period
@@ -445,6 +446,7 @@ Available command groups:
 ```
 
 #### Any complex command should have examples demonstrating its functionality
+
 Example
 
 ```txt
