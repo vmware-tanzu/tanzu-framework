@@ -45,8 +45,20 @@ function imgpkg_copy() {
     echo "imgpkg copy $flags $src --to-repo $dst"
 }
 
+if [ -n "$TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE" ]; then
+  echo $TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE > /tmp/cacrtbase64
+  base64 -d /tmp/cacrtbase64 > /tmp/cacrtbase64d.crt
+  function imgpkg_copy() {
+      flags=$1
+      src=$2
+      dst=$3
+      echo ""
+      echo "imgpkg copy $flags $src --to-repo $dst --registry-ca-cert-path /tmp/cacrtbase64d.crt"
+  }
+fi
+
 echo "set -euo pipefail"
-echodual "Note that yq must be version above or equal to version 4.9.2 and below version 5.."
+echodual "Note that yq must be version above or equal to version 4.9.2 and below version 5."
 
 actualImageRepository="$TKG_IMAGE_REPO"
 
