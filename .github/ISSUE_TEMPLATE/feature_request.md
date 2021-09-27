@@ -1,6 +1,7 @@
 ---
 name: Feature request
 about: Suggest an idea to improve Tanzu Framework
+labels: needs-triage, kind/feature
 ---
 (This is used to request new product features)
 
