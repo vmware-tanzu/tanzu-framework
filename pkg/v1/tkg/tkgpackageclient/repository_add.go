@@ -50,7 +50,7 @@ func (p *pkgClient) AddRepository(o *tkgpackagedatamodel.RepositoryOptions, prog
 
 	newPackageRepo, err := p.newPackageRepository(o.RepositoryName, o.RepositoryURL, o.Namespace)
 	if err != nil {
-		return err
+		return
 	}
 
 	progress.ProgressMsg <- "Creating package repository resource"
@@ -78,17 +78,12 @@ func (p *pkgClient) newPackageRepository(repositoryName, repositoryImg, namespac
 		}},
 	}
 
-	_, tag, err := parseImageUrl(repositoryImg)
+	_, tag, err := parseRegistryImageUrl(repositoryImg)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to parse OCI registry URL")
 	}
 
-	found, err := checkPackageRepositoryTagselection()
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to check package repository resource version")
-	}
-
-	if found && tag == "" {
+	if tag == "" {
 		pkgr.Spec.Fetch.ImgpkgBundle.TagSelection = &versions.VersionSelection{
 			Semver: &versions.VersionSelectionSemver{
 				Constraints: defaultImageTagConstraint,

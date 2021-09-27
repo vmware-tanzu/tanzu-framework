@@ -5,17 +5,13 @@ package tkgpackageclient
 
 import (
 	"strings"
+
 	"gopkg.in/yaml.v2"
 
-	corev1 "k8s.io/api/core/v1"
-	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
-	"sigs.k8s.io/controller-runtime/pkg/client/config"
-
-	"github.com/pkg/errors"
 	dockerParser "github.com/novln/docker-parser"
+	"github.com/pkg/errors"
 
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/discovery"
 )
 
 // packageRepositoryStdout is used for unmarshal the package repository stdout to get the tag in use
@@ -30,8 +26,8 @@ type packageRepositoryStdout struct {
 	} `yaml:"directories,omitempty"`
 }
 
-// parseImageUrl parses the registry image URL to get repository and tag, tag is empty if not specified
-func parseImageUrl(imgUrl string) (repository string, tag string, err error) {
+// parseRegistryImageUrl parses the registry image URL to get repository and tag, tag is empty if not specified
+func parseRegistryImageUrl(imgUrl string) (repository string, tag string, err error) {
 	ref, err := dockerParser.Parse(imgUrl)
 	if err != nil {
 		return "", "", err
@@ -39,57 +35,24 @@ func parseImageUrl(imgUrl string) (repository string, tag string, err error) {
 
 	tag = ref.Tag()
 	// dockerParser will default the tag to be latest if not specified, however we want it to be empty
-	if tag == defaultImageTag && !strings.HasSuffix(imgUrl, ":" + defaultImageTag) {
+	if tag == defaultImageTag && !strings.HasSuffix(imgUrl, ":"+defaultImageTag) {
 		tag = ""
 	}
 	return ref.Repository(), tag, nil
 }
 
-// checkPackageRepositoryTagselection checks if PackageRepository CRD has tagselection field
-func checkPackageRepositoryTagselection() (bool, error) {
-	cfg, err := config.GetConfig()
-	if err != nil {
-		return false, err
-	}
-
-	clusterQueryClient, err := discovery.NewClusterQueryClientForConfig(cfg)
-	if err != nil {
-		return false, err
-	}
-
-	var pkgrCRD = corev1.ObjectReference{
-		Kind:       fullNameCRDKind,
-		Name:       packageRepositoryCRDName,
-		APIVersion: apiextensionsv1.SchemeGroupVersion.String(),
-	}
-
-	var pkgrCRDObjectWithFields = discovery.Object("pkgrCRDWithFields", &pkgrCRD).WithFields(packageRepositoryTagSelectionJSONPath)
-
-	c := clusterQueryClient.Query(pkgrCRDObjectWithFields)
-
-	found, err := c.Execute()
-	if err != nil {
-		return false, err
-	}
-	return found, err
-}
-
 // GetCurrentRepositoryAndTagInUse fetches the current tag used by package repository, taking tagselection into account
-func GetCurrentRepositoryAndTagInUse(pkgr *kappipkg.PackageRepository) (repository, tag string, err error){
-	found, err := checkPackageRepositoryTagselection()
-	if err != nil {
-		return "", "", errors.Wrap(err, "failed to check package repository resource version")
-	}
-
-	if pkgr.Spec.Fetch == nil || pkgr.Spec.Fetch.ImgpkgBundle == nil{
+func GetCurrentRepositoryAndTagInUse(pkgr *kappipkg.PackageRepository) (repository, tag string, err error) {
+	if pkgr.Spec.Fetch == nil || pkgr.Spec.Fetch.ImgpkgBundle == nil {
 		return "", "", errors.New("failed to find OCI registry URL")
 	}
-	repository, tag, err = parseImageUrl(pkgr.Spec.Fetch.ImgpkgBundle.Image)
+
+	repository, tag, err = parseRegistryImageUrl(pkgr.Spec.Fetch.ImgpkgBundle.Image)
 	if err != nil {
 		return "", "", errors.Wrap(err, "failed to parse OCI registry URL")
 	}
 
-	if found && pkgr.Spec.Fetch.ImgpkgBundle.TagSelection != nil && pkgr.Spec.Fetch.ImgpkgBundle.TagSelection.Semver != nil && pkgr.Status.Fetch != nil{
+	if pkgr.Spec.Fetch.ImgpkgBundle.TagSelection != nil && pkgr.Spec.Fetch.ImgpkgBundle.TagSelection.Semver != nil && pkgr.Status.Fetch != nil {
 		/* Unmarshall the tag from stdout
 		   example format:
 			stdout: |
@@ -110,7 +73,7 @@ func GetCurrentRepositoryAndTagInUse(pkgr *kappipkg.PackageRepository) (reposito
 			return "", "", err
 		}
 
-		if len(m.Directories) > 0 && len(m.Directories[0].Contents) > 0 && m.Directories[0].Contents[0].ImgpkgBundle.Tag != ""{
+		if len(m.Directories) > 0 && len(m.Directories[0].Contents) > 0 && m.Directories[0].Contents[0].ImgpkgBundle.Tag != "" {
 			tag = m.Directories[0].Contents[0].ImgpkgBundle.Tag
 		}
 	}
