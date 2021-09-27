@@ -52,7 +52,7 @@ func (p *pkgClient) UpdateRepository(o *tkgpackagedatamodel.RepositoryOptions, p
 		if tag == "" {
 			repositoryToUpdate.Spec.Fetch.ImgpkgBundle.TagSelection = &versions.VersionSelection{
 				Semver: &versions.VersionSelectionSemver{
-					Constraints: defaultImageTagConstraint,
+					Constraints: tkgpackagedatamodel.DefaultRepositoryImageTagConstraint,
 				},
 			}
 		}

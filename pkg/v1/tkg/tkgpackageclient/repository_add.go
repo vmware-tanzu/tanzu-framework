@@ -86,7 +86,7 @@ func (p *pkgClient) newPackageRepository(repositoryName, repositoryImg, namespac
 	if tag == "" {
 		pkgr.Spec.Fetch.ImgpkgBundle.TagSelection = &versions.VersionSelection{
 			Semver: &versions.VersionSelectionSemver{
-				Constraints: defaultImageTagConstraint,
+				Constraints: tkgpackagedatamodel.DefaultRepositoryImageTagConstraint,
 			},
 		}
 	}
