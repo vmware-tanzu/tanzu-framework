@@ -138,6 +138,7 @@ The Tanzu CLI follows [kubectl patterns](https://kubernetes.io/docs/concepts/con
 CPU units
 `m (millicpu)`
 Example
+
 ```
 # 100m, .1, 1
 $tanzu apps workload update <name> --limit-cpu 8
@@ -147,6 +148,7 @@ Memory units
 `E, P, T, G, M, K, Ei, Pi, Ti, Gi, Mi, Ki.`
 
 Example
+
 ```
 # 128974848, 129e6, 129M , 123Mi
 $tanzu apps workload update <name> --limit-memory 16G
@@ -159,6 +161,7 @@ Time units
 `ns, us (or µs), ms, s, m, h`
 
 Example
+
 ```
 # 300ms, -1.5h or 2h45m
 $ tanzu apps workload delete <name> --wait-timeout 10m
@@ -406,6 +409,7 @@ Commands will display help if passed -h, --help, or if no options are passed and
 * A github link or website URL in the top level help encourage user feedback
 
 Example
+
 ```
 $tanzu package -h
 Tanzu package management
@@ -420,6 +424,7 @@ Flags:
 * If possible, the text should fit on an 80 character wide screen, to prevent word wrap that makes it harder to read.
 * Description text begins with a capital letter and does not end with a period
 Example
+
 ```
 Available command groups:
   Build
@@ -439,6 +444,7 @@ Available command groups:
 
 #### Any complex command should have examples demonstrating its functionality
 Example
+
 ```sh
 $ tanzu login -h
 # Login to TKG management cluster using endpoint
