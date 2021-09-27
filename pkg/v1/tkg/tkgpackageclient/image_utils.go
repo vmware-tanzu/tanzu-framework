@@ -12,6 +12,8 @@ import (
 	"github.com/pkg/errors"
 
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
 // packageRepositoryStdout is used for unmarshal the package repository stdout to get the tag in use
@@ -35,7 +37,7 @@ func parseRegistryImageUrl(imgUrl string) (repository string, tag string, err er
 
 	tag = ref.Tag()
 	// dockerParser will default the tag to be latest if not specified, however we want it to be empty
-	if tag == defaultImageTag && !strings.HasSuffix(imgUrl, ":"+defaultImageTag) {
+	if tag == tkgpackagedatamodel.DefaultRepositoryImageTag && !strings.HasSuffix(imgUrl, ":"+tkgpackagedatamodel.DefaultRepositoryImageTag) {
 		tag = ""
 	}
 	return ref.Repository(), tag, nil

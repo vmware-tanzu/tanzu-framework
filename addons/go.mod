@@ -14,9 +14,8 @@ require (
 	github.com/onsi/ginkgo v1.16.2
 	github.com/onsi/gomega v1.13.0
 	github.com/pkg/errors v0.9.1
-	github.com/vmware-tanzu/carvel-kapp-controller v0.20.0-rc.1
-	github.com/vmware-tanzu/carvel-secretgen-controller v0.5.0
-	github.com/vmware-tanzu/carvel-vendir v0.19.0
+	github.com/vmware-tanzu/carvel-kapp-controller v0.25.0
+	github.com/vmware-tanzu/carvel-vendir v0.23.0
 	github.com/vmware-tanzu/tanzu-framework v0.0.0-20201211200158-5838874f2c38
 	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.21.2
