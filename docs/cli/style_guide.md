@@ -123,6 +123,7 @@ tanzu cluster create CLUSTER-NAME [flags]
 ```
 
 ### Flags
+
 * Use standard names for flags if there is one (flags used in the cli are documented [here](../../pkg/v1/cli/command/plugin/lint/cli-wordlist.yml))
 * When using flags to specify different aspects of the same object, including the object name in the flag can be helpful. `tanzu foo list --bar --bar-uid "..."` and `tanzu foo list --bar-name --bar-uid "..."` are both in use, choose whichever pattern makes more sense for your plugin.
 
@@ -133,13 +134,14 @@ tanzu cluster create CLUSTER-NAME [flags]
 * Flags should be tab completed. The Tanzu CLI uses the cobra framework, which has tooling to help with this [Cobra shell completion docs](https://github.com/spf13/cobra/blob/master/shell_completions.md)
 
 #### Resource flags
+
 The Tanzu CLI follows [kubectl patterns](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#resource-units-in-kubernetes) for specifying resource units.
 
 CPU units
 `m (millicpu)`
 Example
 
-```
+```txt
 # 100m, .1, 1
 $tanzu apps workload update <name> --limit-cpu 8
 ```
@@ -149,12 +151,13 @@ Memory units
 
 Example
 
-```
+```txt
 # 128974848, 129e6, 129M , 123Mi
 $tanzu apps workload update <name> --limit-memory 16G
 ```
 
 #### Time duration flags
+
 The Tanzu CLI follows [go patterns](https://pkg.go.dev/time#ParseDuration) for specifying time duration. 
 
 Time units
@@ -162,7 +165,7 @@ Time units
 
 Example
 
-```
+```txt
 # 300ms, -1.5h or 2h45m
 $ tanzu apps workload delete <name> --wait-timeout 10m
 ```
@@ -222,7 +225,7 @@ If using color to communicate information, don't let it be the only indicator.
 
 Example
 
-```sh
+```txt
 $ tanzu cluster delete MY_CLUSTER
 
 This action impacts all apps in this cluster. Deleting the cluster will remove associated apps
@@ -234,7 +237,7 @@ MY_CLUSTER has not been deleted
 
 Example
 
-```sh
+```txt
 tanzu cluster delete MY_CLUSTER --yes
 ```
 
@@ -244,7 +247,7 @@ When executing a command, repeat back the command and context to the user.
 
 Example
 
-```sh
+```txt
 $ tanzu app create NAME
 Creating app NAME in namespace NAMESPACE as user USERNAME
 ```
@@ -306,7 +309,7 @@ Example
 
 Example
 
-```sh
+```txt
 NAME             STATUS   CPU   MEM   NAMESPACE            WORKSPACE
 calculator-app   running  53%   18%   mortgage-calc-dev
 calculator-bpp   running  93%   21%   mortgage-calc-test
@@ -410,7 +413,7 @@ Commands will display help if passed -h, --help, or if no options are passed and
 
 Example
 
-```
+```txt
 $tanzu package -h
 Tanzu package management
 Additional documentation is available at https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid/1.3/vmware-tanzu-kubernetes-grid-13/GUID-tanzu-cli-reference.html
@@ -421,11 +424,12 @@ Flags:
 ```
 
 #### All commands and flags should have description text 
+
 * If possible, the text should fit on an 80 character wide screen, to prevent word wrap that makes it harder to read.
 * Description text begins with a capital letter and does not end with a period
 Example
 
-```
+```txt
 Available command groups:
   Build
     apps                    Applications on Kubernetes
@@ -438,14 +442,12 @@ Available command groups:
     kubernetes-release      Kubernetes release operations
     management-cluster      Kubernetes management cluster operations
     package                 Tanzu package management
-
 ```
-
 
 #### Any complex command should have examples demonstrating its functionality
 Example
 
-```sh
+```txt
 $ tanzu login -h
 # Login to TKG management cluster using endpoint
     tanzu login --endpoint "https://login.example.com"  --name mgmt-cluster
@@ -491,7 +493,7 @@ Use context in error messages to ease recovery
 
 * If a parameter is invalid or missing, it is a chance to be helpful by telling the user exactly what they missed
 
-  ```txt
+  ```sh
   EXAMPLE “You forgot to enter the --name, apps in this namespace include App1, App2, etc...”
   ```
 
