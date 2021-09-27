@@ -189,6 +189,34 @@ func (c *client) ListPackageRepositories(namespace string) (*kappipkg.PackageRep
 	return repositoryList, nil
 }
 
+// ListImagePullSecrets gets the list of all Secrets of type "kubernetes.io/dockerconfigjson"
+func (c *client) ListImagePullSecrets(namespace string) (*corev1.SecretList, error) {
+	var selectors []crtclient.ListOption
+	secretList := &corev1.SecretList{}
+
+	selectors = []crtclient.ListOption{crtclient.InNamespace(namespace), crtclient.MatchingFields(map[string]string{"type": string(corev1.SecretTypeDockerConfigJson)})}
+
+	err := c.client.List(context.Background(), secretList, selectors...)
+	if err != nil {
+		return nil, err
+	}
+	return secretList, nil
+}
+
+// ListSecretExports gets the list of all SecretExports
+func (c *client) ListSecretExports(namespace string) (*secretgenctrl.SecretExportList, error) {
+	var selectors []crtclient.ListOption
+	secretExportList := &secretgenctrl.SecretExportList{}
+
+	selectors = []crtclient.ListOption{crtclient.InNamespace(namespace)}
+
+	err := c.client.List(context.Background(), secretExportList, selectors...)
+	if err != nil {
+		return nil, err
+	}
+	return secretExportList, nil
+}
+
 // ListPackageMetadata gets the list of PackageMetadata CRs
 func (c *client) ListPackageMetadata(namespace string) (*kapppkg.PackageMetadataList, error) {
 	var selectors []crtclient.ListOption

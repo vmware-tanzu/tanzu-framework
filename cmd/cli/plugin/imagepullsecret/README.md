@@ -44,7 +44,58 @@ imagepullsecret plugin can be used to:
       Added image pull secret 'test-secret' into namespace 'test-ns'
    ```
 
-1. Delete an image pull secret
+2. List an image pull secret
+
+   The "list" command lists a v1/Secret of type kubernetes.io/dockerconfigjson for a specified namespace. If namespace flag is not specified, it lists the secrets from `default` namespace.
+   It also supports -A flag to list the secrets across all namespaces.
+   In case a SecretExport resource exists with the same name as the Secret, it will check if it is exported `to all namespaces` or `to some namespaces` and display that in EXPORTED column. If not, it will display `not exported` in the EXPORTED column.
+
+   ```sh
+   # List image pull secrets from specified namespace
+   >>> tanzu imagepullsecret list -n test-ns
+   **/** Retrieving image pull secrets...
+     NAME         REGISTRY                 EXPORTED           AGE
+     pkg-dev-reg  registry.pivotal.io      to all namespaces  15d
+
+   # List image pull secrets across all namespaces
+   >>> tanzu imagepullsecret list -A
+   \ Retrieving image pull secrets...
+     NAME                          REGISTRY             EXPORTED           AGE  NAMESPACE
+     pkg-dev-reg                   registry.pivotal.io  to all namespaces  15d  test-ns
+     tanzu-standard-fetch-0        registry.pivotal.io  not exported       15d  tanzu-package-repo-global
+     private-repo-fetch-0          registry.pivotal.io  not exported       15d  test-ns
+     antrea-fetch-0                registry.pivotal.io  not exported       15d  tkg-system
+     metrics-server-fetch-0        registry.pivotal.io  not exported       15d  tkg-system
+     tanzu-addons-manager-fetch-0  registry.pivotal.io  not exported       15d  tkg-system
+     tanzu-core-fetch-0            registry.pivotal.io  not exported       15d  tkg-system
+
+   # List image pull secrets in json output format
+   >>> tanzu imagepullsecret list -n kapp-controller-packaging-global -o json
+   [
+     {
+       "age": "15d",
+       "exported": "to all namespaces",
+       "name": "pkg-dev-reg",
+       "registry": "us-east4-docker.pkg.dev"
+     }
+   ]
+
+   # List image pull secrets in json output format
+   >>> tanzu imagepullsecret list -n kapp-controller-packaging-global -o yaml
+   - age: 15d
+     exported: to all namespaces
+     name: pkg-dev-reg
+     registry: us-east4-docker.pkg.dev
+
+   # List image pull secrets in json output format
+   >>> tanzu imagepullsecret list -n kapp-controller-packaging-global -o table
+   / Retrieving image pull secrets...
+     NAME         REGISTRY                 EXPORTED           AGE
+     pkg-dev-reg  us-east4-docker.pkg.dev  to all namespaces  15d
+   ```
+
+3. Delete an image pull secret
+
    The "delete" command deletes a v1/Secret of type kubernetes.io/dockerconfigjson from the specified namespace. If no namespace is specified, the secret will be deleted from the default namespace (if existing).
    In case a SecretExport resource with the same name exists, it will be deleted from the namespace as well.
 

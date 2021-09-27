@@ -60,7 +60,8 @@ func repositoryList(cmd *cobra.Command, _ []string) error {
 		t.StopSpinner()
 		return err
 	}
-	for _, packageRepository := range packageRepositoryList.Items { //nolint:gocritic
+	for i := range packageRepositoryList.Items {
+		packageRepository := packageRepositoryList.Items[i]
 		status := packageRepository.Status.FriendlyDescription
 		details := packageRepository.Status.UsefulErrorMessage
 		if len(status) > tkgpackagedatamodel.ShortDescriptionMaxLength {
