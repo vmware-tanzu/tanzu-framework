@@ -49,6 +49,10 @@ Check out the [contribution guidelines](CONTRIBUTING.md) to learn more about how
 
 Reference our [troubleshooting](docs/dev/troubleshooting.md) tips if you find yourself in need of more debug options.
 
+## Framework support process
+
+Check out this support process document [here](docs/community/support-process.md) to learn more about the process.
+
 ## Roadmap
 
 Check out Framework projects [Roadmap](ROADMAP.md), and consider contributing!
