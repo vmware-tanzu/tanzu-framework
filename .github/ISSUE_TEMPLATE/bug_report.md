@@ -1,6 +1,7 @@
 ---
 name: Bug report
 about: Report a bug to help us improve Tanzu Framework
+labels: needs-triage, kind/bug
 ---
 
 **Bug description**
