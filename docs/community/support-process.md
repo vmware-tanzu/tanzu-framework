@@ -39,9 +39,10 @@ issue backlog during their scheduled week.
 ## During the Week
 
 The point person will monitor:
- * New issues labeled with `needs-triage`.
- * Currently, open issues labeled as `investigating` and `triage/needs-info`.
- * Open issues labeled as `severity-1`.
+
+* New issues labeled with `needs-triage`.
+* Currently, open issues labeled as `investigating` and `triage/needs-info`.
+* Open issues labeled as `severity-1`.
 
 ### GitHub issue flow
 
@@ -75,6 +76,6 @@ The point person will use the following process for each issue:
 
 ## End of Week
 
-The point person will ensure all GitHub issues worked on during the week are 
+The point person will ensure all GitHub issues worked on during the week are
 labeled with `investigating` and `triage/needs-info` (if appropriate), and have
 updated comments, so the next person can pick them up.
