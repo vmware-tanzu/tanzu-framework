@@ -9,10 +9,10 @@ IMG ?= controller:latest
 CRD_OPTIONS ?= "crd:trivialVersions=true"
 
 ifeq ($(GOHOSTOS), linux)
-XDG_DATA_HOME := ${HOME}/.local/share
+XDG_DATA_HOME := $(HOME)/.local/share
 endif
 ifeq ($(GOHOSTOS), darwin)
-XDG_DATA_HOME := "$${HOME}/Library/Application Support"
+XDG_DATA_HOME := "$(HOME)/Library/Application Support"
 endif
 
 # Directories
@@ -60,8 +60,7 @@ TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH = "framework-zshippable/tkg-compatibility"
 endif
 
 DOCKER_DIR := /app
-SWAGGER=docker run --rm -v ${PWD}:${DOCKER_DIR} quay.io/goswagger/swagger:v0.21.0
-
+SWAGGER=docker run --rm -v $(PWD):$(DOCKER_DIR) quay.io/goswagger/swagger:v0.21.0
 
 # Add supported OS-ARCHITECTURE combinations here
 ENVS := linux-amd64 windows-amd64 darwin-amd64
@@ -82,8 +81,9 @@ endif
 BUILD_TAGS ?=
 
 ARTIFACTS_DIR ?= ./artifacts
+ARTIFACTS_ADMIN_DIR ?= ./artifacts-admin
 
-XDG_CACHE_HOME := ${HOME}/.cache
+XDG_CACHE_HOME := $(HOME)/.cache
 
 export XDG_DATA_HOME
 export XDG_CACHE_HOME
@@ -110,7 +110,7 @@ uninstall: manifests ## Uninstall CRDs from a cluster
 	kustomize build config/crd | kubectl delete -f -
 
 deploy: manifests ## Deploy controller in the configured Kubernetes cluster in ~/.kube/config
-	cd config/manager && kustomize edit set image controller=${IMG}
+	cd config/manager && kustomize edit set image controller=$(IMG)
 	kustomize build config/default | kubectl apply -f -
 
 manifests: controller-gen ## Generate manifests e.g. CRD, RBAC etc.
@@ -127,10 +127,10 @@ generate: controller-gen ## Generate code via controller-gen
 	$(MAKE) fmt
 
 docker-build: test ## Build the docker image
-	docker build . -t ${IMG} --build-arg LD_FLAGS="$(LD_FLAGS)"
+	docker build . -t $(IMG) --build-arg LD_FLAGS="$(LD_FLAGS)"
 
 docker-push: ## Push the docker image
-	docker push ${IMG}
+	docker push $(IMG)
 
 controller-gen: ## Download controller-gen
 ifeq (, $(shell which controller-gen))
@@ -172,14 +172,14 @@ version: ## Show version
 ensure-pinniped-repo:
 	@rm -rf pinniped
 	@mkdir -p pinniped
-	@GIT_TERMINAL_PROMPT=0 git clone -q --depth 1 --branch $(PINNIPED_GIT_COMMIT) ${PINNIPED_GIT_REPOSITORY} pinniped > ${NUL} 2>&1
+	@GIT_TERMINAL_PROMPT=0 git clone -q --depth 1 --branch $(PINNIPED_GIT_COMMIT) $(PINNIPED_GIT_REPOSITORY) pinniped > $(NUL) 2>&1
 
 .PHONY: prep-build-cli
 prep-build-cli: ensure-pinniped-repo
 	$(GO) mod download
 	$(GO) mod tidy
 	EMBED_PROVIDERS_TAG=embedproviders
-ifeq "${BUILD_TAGS}" "${EMBED_PROVIDERS_TAG}"
+ifeq "$(BUILD_TAGS)" "${EMBED_PROVIDERS_TAG}"
 	make -C pkg/v1/providers -f Makefile generate-provider-bundle-zip
 endif
 
@@ -220,7 +220,7 @@ build-plugin-admin-%:
 	fi
 
 	@echo build version: $(BUILD_VERSION)
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin/${OS}/${ARCH}/cli --target ${OS}_${ARCH}
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "$(BUILD_TAGS)" --path ./cmd/cli/plugin-admin --artifacts $(ARTIFACTS_ADMIN_DIR) --target $(OS)_$(ARCH)
 
 .PHONY: build-cli-%
 build-cli-%: prep-build-cli
@@ -234,8 +234,8 @@ build-cli-%: prep-build-cli
 		printf "======================================\n\n";\
 	fi
 
-	./hack/embed-pinniped-binary.sh go ${OS} ${ARCH}
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --corepath "cmd/cli/tanzu" --artifacts artifacts/${OS}/${ARCH}/cli --target  ${OS}_${ARCH}
+	./hack/embed-pinniped-binary.sh go $(OS) $(ARCH)
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "$(BUILD_TAGS)" --corepath "cmd/cli/tanzu" --artifacts $(ARTIFACTS_DIR) --target  $(OS)_$(ARCH)
 
 ## --------------------------------------
 ## Build locally
@@ -249,7 +249,7 @@ build-cli-%: prep-build-cli
 # To skip provider embedding, pass `BUILD_TAGS=skipembedproviders` to make target (`make BUILD_TAGS=skipembedproviders build-cli-local)
 .PHONY: build-cli-local
 build-cli-local: configure-buildtags-embedproviders build-cli-${GOHOSTOS}-${GOHOSTARCH} ## Build Tanzu CLI locally. cluster and management-cluster plugins are built with embedded providers.
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin/${GOHOSTOS}/${GOHOSTARCH}/cli --target local
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "$(BUILD_TAGS)" --path ./cmd/cli/plugin-admin --artifacts $(ARTIFACTS_ADMIN_DIR) --target local
 
 .PHONY: build-install-cli-local
 build-install-cli-local: clean-catalog-cache clean-cli-plugins build-cli-local install-cli-plugins install-cli ## Local build and install the CLI plugins
@@ -260,9 +260,9 @@ build-install-cli-local: clean-catalog-cache clean-cli-plugins build-cli-local i
 
 .PHONY: build-cli-mocks
 build-cli-mocks: ## Build Tanzu CLI mocks
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version 0.0.1 --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --path ./test/cli/mock/plugin-old --artifacts ./test/cli/mock/artifacts-old
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version 0.0.2 --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --path ./test/cli/mock/plugin-new --artifacts ./test/cli/mock/artifacts-new
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version 0.0.3 --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --path ./test/cli/mock/plugin-alt --artifacts ./test/cli/mock/artifacts-alt
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version 0.0.1 --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "$(BUILD_TAGS)" --path ./test/cli/mock/plugin-old --artifacts ./test/cli/mock/artifacts-old
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version 0.0.2 --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "$(BUILD_TAGS)" --path ./test/cli/mock/plugin-new --artifacts ./test/cli/mock/artifacts-new
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version 0.0.3 --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "$(BUILD_TAGS)" --path ./test/cli/mock/plugin-alt --artifacts ./test/cli/mock/artifacts-alt
 
 ## --------------------------------------
 ## install binaries and plugins
@@ -278,11 +278,11 @@ install-cli: ## Install Tanzu CLI
 .PHONY: install-cli-plugins
 install-cli-plugins: set-unstable-versions  ## Install Tanzu CLI plugins
 	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
-    		plugin install all --local $(ARTIFACTS_DIR)/$(GOHOSTOS)/$(GOHOSTARCH)/cli
+    		plugin install all --local $(ARTIFACTS_DIR)
 	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
-		plugin install all --local $(ARTIFACTS_DIR)-admin/$(GOHOSTOS)/$(GOHOSTARCH)/cli
+		plugin install all --local $(ARTIFACTS_ADMIN_DIR)
 	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
-		test fetch --local $(ARTIFACTS_DIR)/$(GOHOSTOS)/$(GOHOSTARCH)/cli --local $(ARTIFACTS_DIR)-admin/$(GOHOSTOS)/$(GOHOSTARCH)/cli
+		test fetch --local $(ARTIFACTS_DIR) --local $(ARTIFACTS_ADMIN_DIR)
 
 .PHONY: set-unstable-versions
 set-unstable-versions:  ## Configures the unstable versions
@@ -295,7 +295,7 @@ build-install-cli-all: clean-catalog-cache clean-cli-plugins build-cli install-c
 # TODO: Remove this target when all tests are migrated to use tanzu cli
 .PHONY: tkg-cli ## Builds tkg-cli binary
 tkg-cli: configure-buildtags-embedproviders configure-bom prep-build-cli ## Build tkg CLI binary only, and without rebuilding ui bits (providers are embedded to the binary)
-	GO111MODULE=on $(GO) build -o $(BIN_DIR)/tkg-${GOHOSTOS}-${GOHOSTARCH} -ldflags "${LD_FLAGS}" -tags "${BUILD_TAGS}" cmd/cli/tkg/main.go
+	GO111MODULE=on $(GO) build -o $(BIN_DIR)/tkg-${GOHOSTOS}-${GOHOSTARCH} -ldflags "${LD_FLAGS}" -tags "$(BUILD_TAGS)" cmd/cli/tkg/main.go
 
 .PHONY: build-cli-image
 build-cli-image: ## Build the CLI image
@@ -315,9 +315,9 @@ release-%:
 	$(eval ARCH = $(word 2,$(subst -, ,$*)))
 	$(eval OS = $(word 1,$(subst -, ,$*)))
 
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin/${OS}/${ARCH}/cli --target ${OS}_${ARCH}
-	./hack/embed-pinniped-binary.sh go ${OS} ${ARCH}
-	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "${BUILD_TAGS}" --corepath "cmd/cli/tanzu" --artifacts artifacts/${OS}/${ARCH}/cli --target  ${OS}_${ARCH}
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "$(BUILD_TAGS)" --path ./cmd/cli/plugin-admin --artifacts $(ARTIFACTS_ADMIN_DIR) --target $(OS)_$(ARCH)
+	./hack/embed-pinniped-binary.sh go $(OS) $(ARCH)
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --goprivate "$(PRIVATE_REPOS)" --tags "$(BUILD_TAGS)" --corepath "cmd/cli/tanzu" --artifacts $(ARTIFACTS_DIR) --target  $(OS)_$(ARCH)
 
 ## --------------------------------------
 ## Testing, verification, formating and cleanup
@@ -439,8 +439,8 @@ configure-bom:
 .PHONY: generate-ui-swagger-api
 generate-ui-swagger-api: ## Generate swagger files for UI backend
 	rm -rf ${UI_DIR}/server/client  ${UI_DIR}/server/models ${UI_DIR}/server/restapi/operations
-	${SWAGGER} generate server -q -A kickstartUI -t $(DOCKER_DIR)/${UI_DIR}/server -f $(DOCKER_DIR)/${UI_DIR}/api/spec.yaml --exclude-main
-	${SWAGGER} generate client -q -A kickstartUI -t $(DOCKER_DIR)/${UI_DIR}/server -f $(DOCKER_DIR)/${UI_DIR}/api/spec.yaml
+	$(SWAGGER) generate server -q -A kickstartUI -t $(DOCKER_DIR)/${UI_DIR}/server -f $(DOCKER_DIR)/${UI_DIR}/api/spec.yaml --exclude-main
+	$(SWAGGER) generate client -q -A kickstartUI -t $(DOCKER_DIR)/${UI_DIR}/server -f $(DOCKER_DIR)/${UI_DIR}/api/spec.yaml
 	# reset the server.go file to avoid goswagger overwritting our custom changes.
 	git reset HEAD ${UI_DIR}/server/restapi/server.go
 	git checkout HEAD ${UI_DIR}/server/restapi/server.go
