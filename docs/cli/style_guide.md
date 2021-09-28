@@ -124,12 +124,51 @@ tanzu cluster create CLUSTER-NAME [flags]
 
 ### Flags
 
-* Use standard names for flags if there is one (flags used in the cli are documented [here](/hack/linter/cli-wordlist.yml))
+* Use standard names for flags if there is one (flags used in the cli are documented [here](../../pkg/v1/cli/command/plugin/lint/cli-wordlist.yml))
+* When using flags to specify different aspects of the same object, including the object name in the flag can be helpful. `tanzu foo list --bar --bar-uid "..."` and `tanzu foo list --bar-name --bar-uid "..."` are both in use, choose whichever pattern makes more sense for your plugin.
+
 * Where possible, set reasonable defaults for flag-able options that align with expected workflows
 * A user should only be required to explicitly set a max of 2 flags
 * Add as many flags as necessary to configure the command
 * Consider supporting the use of a config file if the number of flags exceeds 5
 * Flags should be tab completed. The Tanzu CLI uses the cobra framework, which has tooling to help with this [Cobra shell completion docs](https://github.com/spf13/cobra/blob/master/shell_completions.md)
+
+#### Resource flags
+
+The Tanzu CLI follows [kubectl patterns](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#resource-units-in-kubernetes) for specifying resource units.
+
+CPU units
+`m (millicpu)`
+Example
+
+```txt
+# 100m, .1, 1
+$tanzu apps workload update <name> --limit-cpu 8
+```
+
+Memory units
+`E, P, T, G, M, K, Ei, Pi, Ti, Gi, Mi, Ki.`
+
+Example
+
+```txt
+# 128974848, 129e6, 129M , 123Mi
+$tanzu apps workload update <name> --limit-memory 16G
+```
+
+#### Time duration flags
+
+The Tanzu CLI follows [go patterns](https://pkg.go.dev/time#ParseDuration) for specifying time duration.
+
+Time units
+`ns, us (or µs), ms, s, m, h`
+
+Example
+
+```txt
+# 300ms, -1.5h or 2h45m
+$ tanzu apps workload delete <name> --wait-timeout 10m
+```
 
 ### Prompting
 
@@ -186,7 +225,7 @@ If using color to communicate information, don't let it be the only indicator.
 
 Example
 
-```sh
+```txt
 $ tanzu cluster delete MY_CLUSTER
 
 This action impacts all apps in this cluster. Deleting the cluster will remove associated apps
@@ -198,7 +237,7 @@ MY_CLUSTER has not been deleted
 
 Example
 
-```sh
+```txt
 tanzu cluster delete MY_CLUSTER --yes
 ```
 
@@ -208,7 +247,7 @@ When executing a command, repeat back the command and context to the user.
 
 Example
 
-```sh
+```txt
 $ tanzu app create NAME
 Creating app NAME in namespace NAMESPACE as user USERNAME
 ```
@@ -270,7 +309,7 @@ Example
 
 Example
 
-```sh
+```txt
 NAME             STATUS   CPU   MEM   NAMESPACE            WORKSPACE
 calculator-app   running  53%   18%   mortgage-calc-dev
 calculator-bpp   running  93%   21%   mortgage-calc-test
@@ -309,6 +348,7 @@ url:         http://myapplicationurl.com
 
 ### Color
 
+* Color is helpful to highlight important information or to convey status, however it should be an enhancement to the text, and not be relied on as the sole source of a given bit of information because it can be deactivated in a user's terminal or may not be accessible to automation or screenreaders. Making status text red when it says `not ready` is ok because without the red, the status can still be determined. If, for example, the name of the resource was made red when not-ready it would not be possible to know the state of the resource if color was deactivated.
 * Colors can be deactivated using an environment variable (NO_COLOR=TRUE)
 * Colors are always deactivated when the session is not a TTY session. This allows for the piping of CLI output into other commands (e.g. grep) or machine reading without including stray color characters (pending issue #369)
 * Usage tips are always in plain text, even when referencing text that might normally be colorized
@@ -322,6 +362,7 @@ url:         http://myapplicationurl.com
   The word 'Warning:' or 'Error:' is colorized and bold, the *message* is plain text
 
 ![Example of warning and error notice text colorized red](example-images/error-warn.png)
+![Example of warning and error text in a data table colorized red](example-images/table-text.png)
 
 * Green = success, informational
 
@@ -342,14 +383,14 @@ Interactive prompting: user input is colorized, as is the preceding question mar
 ### Animation
 
 * Deactivate if stdout is not an interactive terminal
-  * The component library can provide this check pending resolution of issue #369
+  * The component library can provide this check
 
 ### Symbols / Emojis
 
 * Currently no standards or guidance
 * Recommendation is to discuss plans for emoji/symbol use with SIG
 * Deactivate if stdout is not an interactive terminal
-  * The component library can provide this check pending resolution of issue #369
+  * The component library can provide this check
 
 ### Components - Output
 
@@ -365,22 +406,50 @@ Interactive prompting: user input is colorized, as is the preceding question mar
 
 ## Designing help text
 
-A command will display help if passed -h, --help, or if no options are passed and a command expects them
+Commands will display help if passed -h, --help, or if no options are passed and a command expects them.
 
-Provide a support path for feedback and issues
+### The help text can provide a support path for feedback and issues
 
 * A github link or website URL in the top level help encourage user feedback
 
-All commands and flags should have description text that
+Example
 
-* Fits on an 80 character wide screen, to prevent word wrap
-* Begins with a capital letter and does not end with a period
+```txt
+$tanzu package -h
+Tanzu package management
+Additional documentation is available at https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid/1.3/vmware-tanzu-kubernetes-grid-13/GUID-tanzu-cli-reference.html
+...
+Flags:
+  -h, --help              help for package
+      --log-file string   Log file path
+```
 
-Any complex command should have examples demonstrating its functionality
+### All commands and flags should have description text
+
+* If possible, the text should fit on an 80 character wide screen, to prevent word wrap that makes it harder to read.
+* Description text begins with a capital letter and does not end with a period
+Example
+
+```txt
+Available command groups:
+  Build
+    apps                    Applications on Kubernetes
+
+  Manage
+    integration             Get available integrations and their information from registry
+
+  Run
+    cluster                 Kubernetes cluster operations
+    kubernetes-release      Kubernetes release operations
+    management-cluster      Kubernetes management cluster operations
+    package                 Tanzu package management
+```
+
+### Any complex command should have examples demonstrating its functionality
 
 Example
 
-```sh
+```txt
 $ tanzu login -h
 # Login to TKG management cluster using endpoint
     tanzu login --endpoint "https://login.example.com"  --name mgmt-cluster
@@ -426,7 +495,7 @@ Use context in error messages to ease recovery
 
 * If a parameter is invalid or missing, it is a chance to be helpful by telling the user exactly what they missed
 
-  ```txt
+  ```sh
   EXAMPLE “You forgot to enter the --name, apps in this namespace include App1, App2, etc...”
   ```
 

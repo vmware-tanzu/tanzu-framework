@@ -29,6 +29,7 @@ nouns:
   - provisioner
   - repo
   - repository
+  - wordlist
   - workspace
 verbs:
   - add
@@ -57,6 +58,7 @@ global-flags:
 command-flags:
   - all-namespaces
   - apiToken
+  - app
   - bind
   - browser
   - ca-bundle
@@ -74,6 +76,7 @@ command-flags:
   - controlplane-size
   - create
   - create-namespace
+  - debug
   - debug-session-cache
   - deploy-tkg-on-vSphere7
   - disable-grouping
@@ -83,16 +86,23 @@ command-flags:
   - enable-concierge
   - enable-tkgs-on-vSphere7
   - endpoint
+  - env
   - feature-flags
   - file
   - force
   - force-csp
   - gcp-bucket-name
   - gcp-root-path
+  - git-branch
+  - git-commit
+  - git-repo
+  - git-tag
   - include-management-cluster
   - infrastructure
   - issuer
   - kubeconfig
+  - limit-cpu
+  - limit-memory
   - listen-port
   - name
   - namespace
