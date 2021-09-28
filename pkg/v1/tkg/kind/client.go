@@ -86,12 +86,13 @@ type KindClusterProvider interface { //nolint:golint
 
 // KindClusterOptions carries options to configure kind cluster
 type KindClusterOptions struct { //nolint:golint
-	Provider       KindClusterProvider
-	ClusterName    string
-	NodeImage      string
-	KubeConfigPath string
-	TKGConfigDir   string
-	Readerwriter   tkgconfigreaderwriter.TKGConfigReaderWriter
+	Provider         KindClusterProvider
+	ClusterName      string
+	NodeImage        string
+	KubeConfigPath   string
+	TKGConfigDir     string
+	Readerwriter     tkgconfigreaderwriter.TKGConfigReaderWriter
+	DefaultImageRepo string
 }
 
 // KindClusterProxy return the Proxy used for operating kubernetes-in-docker clusters
@@ -243,16 +244,22 @@ func (k *KindClusterProxy) GetKindNodeImageAndConfig() (string, *kindv1.Cluster,
 // is set for the custom docker registry.
 func (k *KindClusterProxy) getKindRegistryConfig() (string, error) {
 	tkgconfigClient := tkgconfigbom.New(k.options.TKGConfigDir, k.options.Readerwriter)
-	customRepository, err := tkgconfigClient.GetCustomRepository()
-	if err != nil || customRepository == "" {
-		// ignore this error as TKG_CUSTOM_IMAGE_REPOSITORY is optional
+
+	customRepositoryCaCert, caCertErr := k.getDockerRegistryCACertFilePath()
+	customRepository, repoErr := tkgconfigClient.GetCustomRepository()
+	if (caCertErr != nil || customRepositoryCaCert == "") && (repoErr != nil || customRepository == "") {
 		return "", nil
 	}
-	hostname := strings.Split(customRepository, "/")[0]
 
-	customRepositoryCaCert, err := k.getDockerRegistryCACertFilePath()
-	if err != nil {
-		return "", err
+	if caCertErr != nil {
+		return "", caCertErr
+	}
+
+	hostname := ""
+	if customRepository != "" {
+		hostname = strings.Split(customRepository, "/")[0]
+	} else {
+		hostname = k.options.DefaultImageRepo
 	}
 
 	registryTLSConfig := criRegistryTLSConfig{
