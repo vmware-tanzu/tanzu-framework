@@ -408,7 +408,7 @@ Interactive prompting: user input is colorized, as is the preceding question mar
 
 Commands will display help if passed -h, --help, or if no options are passed and a command expects them.
 
-#### The help text can provide a support path for feedback and issues
+### The help text can provide a support path for feedback and issues
 
 * A github link or website URL in the top level help encourage user feedback
 
@@ -424,7 +424,7 @@ Flags:
       --log-file string   Log file path
 ```
 
-#### All commands and flags should have description text
+### All commands and flags should have description text
 
 * If possible, the text should fit on an 80 character wide screen, to prevent word wrap that makes it harder to read.
 * Description text begins with a capital letter and does not end with a period
@@ -445,7 +445,7 @@ Available command groups:
     package                 Tanzu package management
 ```
 
-#### Any complex command should have examples demonstrating its functionality
+### Any complex command should have examples demonstrating its functionality
 
 Example
 
