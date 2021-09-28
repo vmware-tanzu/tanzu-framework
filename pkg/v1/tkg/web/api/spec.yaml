@@ -1720,6 +1720,8 @@ definitions:
         type: integer
       kubernetesVersion:
         type: string
+      ipFamily:
+        type: string
       networking:
         $ref: '#/definitions/TKGNetwork'
       os:

@@ -75,7 +75,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         this.provider = this.appDataService.getProviderType();
         this.tkrVersion = this.appDataService.getTkrVersion();
         this.appDataService.getVsphereVersion().subscribe(version => {
-            this.vsphereVersion = version ? version + ' ': '';
+            this.vsphereVersion = version ? version + ' ' : '';
         });
     }
 
@@ -165,6 +165,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         const payload: VsphereRegionalClusterParams = {};
         this.initPayloadWithCommons(payload);
         const mappings = [
+            ['ipFamily', 'vsphereProviderForm', 'ipFamily'],
             ['datacenter', 'vsphereProviderForm', 'datacenter'],
             ['ssh_key', 'vsphereProviderForm', 'ssh_key'],
             ['clusterName', 'vsphereNodeSettingForm', 'clusterName'],
