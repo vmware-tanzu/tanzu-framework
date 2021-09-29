@@ -1,10 +1,13 @@
 #!/bin/bash
 
+# Copyright 2021 VMware, Inc. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 #### Setup environmental variables
 #GLOBAL_ENVS="../../../globals.env";
 #if [[ -f ${GLOBAL_ENVS} ]]
 #then
-    # shellcheck source=/dev/null       
+    # shellcheck source=/dev/null
 #    source ${GLOBAL_ENVS}
 #fi
 
