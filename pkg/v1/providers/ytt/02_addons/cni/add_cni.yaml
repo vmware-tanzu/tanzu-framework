@@ -54,6 +54,8 @@ type: addons.cluster.x-k8s.io/resource-set
 stringData:
   value: #@ yaml.encode(overlay.apply(cni_calico_lib.with_data_values(calicodatavalues()).eval(), updatecalicoimage()))
 
+#@ end
+
 #! Add ingress rules to AWS cluster for Calico ports.
 #! Add ingress rules to AWS cluster for kapp controller API port
 #@overlay/match missing_ok=True,by=overlay.subset({"kind":"AWSCluster"})
@@ -76,7 +78,6 @@ spec:
           fromPort: 10100
           protocol: tcp
           toPort: 10100
-#@ end
 
 ---
 apiVersion: v1
