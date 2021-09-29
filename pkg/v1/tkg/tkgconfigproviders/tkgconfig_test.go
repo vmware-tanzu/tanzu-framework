@@ -1,7 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package tkgconfigproviders_test
+package tkgconfigproviders
 
 import (
 	"fmt"
@@ -19,7 +19,6 @@ import (
 	fakehelper "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes/helper"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
-	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigproviders"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
@@ -114,6 +113,87 @@ var _ = Describe("Azure VM Images", func() {
 		deleteTempDirectory()
 		_ = os.Setenv("HOME", curHome)
 		_ = os.Setenv("USERPROFILE", curUserProfile)
+	})
+})
+
+var _ = Describe("Test AWS AMIID", func() {
+	var (
+		vpcConfig        *models.AWSVpc
+		params           *models.AWSRegionalClusterParams
+		flavor           string
+		bomConfiguration *tkgconfigbom.BOMConfiguration
+	)
+
+	JustBeforeEach(func() {
+		params = &models.AWSRegionalClusterParams{
+			Vpc: vpcConfig,
+			AwsAccountParams: &models.AWSAccountParams{
+				Region: fakeRegion,
+			},
+			ControlPlaneFlavor: flavor,
+			Networking: &models.TKGNetwork{
+				ClusterPodCIDR: "10.0.0.4/15",
+			},
+			KubernetesVersion: "v1.18.0+vmware.1",
+			IdentityManagement: &models.IdentityManagementConfig{
+				IdmType:            swag.String("oidc"),
+				OidcClaimMappings:  map[string]string{"groups": "group", "username": "usr"},
+				OidcClientID:       "client-id",
+				OidcClientSecret:   "clientsecret",
+				OidcProviderName:   "my-provider",
+				OidcProviderURL:    "http:0.0.0.0",
+				OidcScope:          "email",
+				OidcSkipVerifyCert: true,
+			},
+		}
+		setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
+
+		bomConfiguration = &tkgconfigbom.BOMConfiguration{
+			Release: &tkgconfigbom.ReleaseInfo{
+				Version: "v1.18.0+vmware.1-tkg.2",
+			},
+			AMI: map[string][]tkgconfigbom.AMIInfo{
+				fakeRegion: {
+					{
+						ID: "ami-123456",
+						OSInfo: tkgconfigbom.OSInfo{
+							Name:    "amazon",
+							Version: "2",
+							Arch:    "amd64",
+						},
+					},
+					{
+						ID: "ami-567890",
+						OSInfo: tkgconfigbom.OSInfo{
+							Name:    "ubuntu",
+							Version: "2",
+							Arch:    "amd64",
+						},
+					},
+				},
+			},
+		}
+
+	})
+
+	It("When OS is specified in the parameters", func() {
+		os := &models.AWSVirtualMachine{
+			Name: "ubuntu",
+			OsInfo: &models.OSInfo{
+				Arch:    "amd64",
+				Name:    "ubuntu",
+				Version: "2",
+			},
+		}
+
+		params.Os = os
+		amiID := getAMIId(bomConfiguration, params)
+		Expect(amiID).To(Equal("ami-567890"))
+	})
+
+	It("When OS is not specified in the parameters", func() {
+		amiID := getAMIId(bomConfiguration, params)
+		Expect(amiID).To(Equal("ami-123456"))
 	})
 })
 
