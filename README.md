@@ -1,57 +1,32 @@
 # Tanzu Framework
 
-## What is Framework?
+## Overview
 
-Framework is both the foundation for Tanzu editions and a set of
-building blocks that can be used to extend Tanzu. Framework enables
-APIs, code, and documentation to be shared.
+Tanzu Framework provides a set of building blocks to build atop of the [Tanzu](https://tanzu.vmware.com/tanzu) platform, which includes the following:
 
-This model provides a few primary benefits.
+* **API Machinery:** For defining and implementing APIs and their controllers
+* **CLI Machinery:** For extending the command line experience
+* **Packages:** For consistent delivery of core and optional components
 
-* Enables re-use of existing work in Tanzu editions.
-* Improvements to Framework benefit all editions.
-* Fosters cross-team collaboration.
-* Allows extensions to Tanzu to be built following the same patterns as
-  components of Tanzu.
+Framework leverages [Carvel](https://carvel.dev/) packaging and plugins to provide users with a much stronger, more integrated experience than than the loose coupling and stand-alone commands of the previous generation of tools.
 
-## Features
+## Documentation
 
-* [Tanzu CLI and core Plugins](docs/cli/commands/)
-* [Capabilities API](apis/run/v1alpha1/capability_types.go)
-* [Features](apis/config/v1alpha1/feature_types.go) and [FeatureGates](apis/config/v1alpha1/featuregate_types.go) APIs
-* [CLI development and build tools](docs/cli/cli-architecture.md)
-* [Controllers development resources](docs/api-machinery/)
-* [User and developer documentation and guides](docs/dev/)
-* [Tanzu Kubernetes Release API](apis/run/v1alpha1/tanzukubernetesrelease_types.go)
-* [Tanzu Addons](addons/)
-
-## Why it is important?
-
-It acts as the foundation for Tanzu editions enabling the re-use of the existing work
-in Tanzu Framework.
-
-## What does this repository contain?
-
-Framework acts as the central location for APIs, controllers,
-documentation, and CLI plugins used by all Tanzu editions.
+The [documentation](docs) provides a getting started guide and information about building from source, the Tanzu Framework architecture, extending the Tanzu platform, and more.
 
 ## Getting Started
 
-The best way to get started with the Tanzu CLI is to see it in action.
+The best way to get started with the Tanzu is by using the CLI.  Please see our getting started with the CLI [guide](docs/cli/getting-started.md) for more details.
 
-Get bootstrapped with the CLI getting started [guide](docs/cli/getting-started.md).
+## Contributing
 
-## How to contribute
+Thanks for taking the time to join our community and start contributing! We welcome pull requests. Feel free to dig through the [issues](https://github.com/vmware-tanzu/tanzu-framework/issues) and jump in.
 
-Check out the [contribution guidelines](CONTRIBUTING.md) to learn more about how to contribute.
+### Before you begin
 
-## Troubleshooting
-
-Reference our [troubleshooting](docs/dev/troubleshooting.md) tips if you find yourself in need of more debug options.
-
-## Framework support process
-
-Check out this support process document [here](docs/community/support-process.md) to learn more about the process.
+* Check out the [contribution guidelines](CONTRIBUTING.md) to learn more about how to contribute
+* Reference our [troubleshooting](docs/dev/troubleshooting.md) tips if you find yourself in need of more debug options.
+* Check out this support process document [here](docs/community/support-process.md) to learn more about the process.
 
 ## Roadmap
 
