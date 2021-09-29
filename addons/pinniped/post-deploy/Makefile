@@ -1,3 +1,6 @@
+# Copyright 2021 VMware, Inc. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 # If you update this file, please follow:
 # https://suva.sh/posts/well-documented-makefiles/
 

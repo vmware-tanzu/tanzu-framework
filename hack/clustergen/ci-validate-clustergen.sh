@@ -1,8 +1,10 @@
 #!/bin/bash
 
+# Copyright 2021 VMware, Inc. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 # Usage:
 # ci-validate-clustergen.sh branch_name target-branch-name
-
 
 SCRIPT_DIR="$(cd -P "$(dirname "$0")" && pwd)"
 
