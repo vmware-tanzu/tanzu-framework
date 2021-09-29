@@ -15,6 +15,7 @@
 | Tech Lead | Vui Lam [vuil](https://github.com/vuil) |
 | Tech Lead  | Vijay Katam [vijaykatam](https://github.com/vijaykatam) |
 | Tech Lead  | Jeff Moroski [jmoroski](https://github.com/jmoroski) |
+| Tech Lead | Justin Miclette [miclettej](https://github.com/miclettej) |
 | Eng Management | Shyaam Nagarajan [shyaamsn](https://github.com/shyaamsn) |
 | Eng Management | Maggie Cai [Maggiecai-vmw](https://github.com/Maggiecai-vmw) |
 | Product Management | Natalie Fisher [nfisher-tkg](https://github.com/nfisher-tkg) |
@@ -27,7 +28,6 @@
 | Engineering | Jesse Hu [jessehu](https://github.com/jessehu) |
 | Engineering | Rajath Agasthya [rajathagasthya](https://github.com/rajathagasthya) |
 | Engineering | Harish Yayi [yharish991](https://github.com/yharish991) |
-| Engineering Lead | Justin Miclette [miclettej](https://github.com/miclettej) |
 
 ## Emeritus
 
