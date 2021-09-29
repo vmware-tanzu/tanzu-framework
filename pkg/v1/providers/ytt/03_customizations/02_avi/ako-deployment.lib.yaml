@@ -1,0 +1,578 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:base64", "base64")
+#@ load("/lib/helpers.star", "get_default_tkr_bom_data", "get_default_tkg_bom_data", "tkg_image_repo")
+
+#@ akooRepo = get_default_tkr_bom_data().components["ako-operator"][0]
+#@ akoRepo = get_default_tkr_bom_data().components["load-balancer-and-ingress-service"][0]
+#@ rbacRepo = get_default_tkg_bom_data().components["kube_rbac_proxy"][0]
+
+#@ def ako_image():
+#@  return "{}/{}".format(tkg_image_repo(), akoRepo.images.loadBalancerAndIngressServiceImage.imagePath)
+#@ end
+
+#@ def tkg_system_namespace():
+#@  return "tkg-system"
+#@ end
+
+#@ def avi_system_namespace():
+#@  return "avi-system"
+#@ end
+
+#@ def cluster_namespaced_name():
+#@  return "{}-{}".format(tkg_system_namespace(), data.values.CLUSTER_NAME)
+#@ end
+
+#@ def ako_name():
+#@  return "ako-{}".format(cluster_namespaced_name())
+#@ end
+
+#! input cidr example 10.0.0.0/24
+#! output "10.0.0.0" and "24"
+#@ def ip_and_prefix():
+#@  if data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME and data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR:
+#@    cidr = data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR
+#@  else:
+#@    cidr = data.values.AVI_DATA_NETWORK_CIDR
+#@  end
+#@  return cidr.split("/")
+#@ end
+
+#@ def network_name():
+#@ if data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME and data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR:
+#@ return data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME
+#@ else:
+#@ return data.values.AVI_DATA_NETWORK
+#@ end
+
+
+#@ def vip_network():
+#@ return json.encode([{ "networkName": network_name() }])
+#@ end
+
+#@ def ako_namespace():
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: #@ avi_system_namespace()
+#@ end
+
+#@ def ako_serviceaccount():
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ako-sa
+  namespace: #@ avi_system_namespace()
+#@ end
+
+#@ def ako_configmap():
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: avi-k8s-config
+  namespace: #@ avi_system_namespace()
+data:
+  controllerIP: #@ data.values.AVI_CONTROLLER
+  serviceEngineGroupName: #@ data.values.AVI_SERVICE_ENGINE_GROUP
+  cloudName: #@ data.values.AVI_CLOUD_NAME
+  clusterName: #@ cluster_namespaced_name()
+  apiServerPort: 8080
+  subnetIP: #@ ip_and_prefix()[0]
+  subnetPrefix: #@ ip_and_prefix()[1]
+  networkName: #@ network_name()
+  disableStaticRouteSync: #@ data.values.AVI_DISABLE_STATIC_ROUTE_SYNC
+  fullSyncFrequency: 1800
+  serviceType:  NodePort
+  defaultIngController: #@ data.values.AVI_INGRESS_DEFAULT_INGRESS_CONTROLLER
+  shardVSSize: #@ data.values.AVI_INGRESS_SHARD_VS_SIZE
+  deleteConfig: false
+  vipNetworkList: #@ vip_network()
+#@ end
+
+#@ def ako_clusterrole():
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: ako-cr
+rules:
+  - apiGroups: [""]
+    resources: ["*"]
+    verbs: ['get', 'watch', 'list', 'patch']
+  - apiGroups: ["apps"]
+    resources: ["statefulsets"]
+    verbs: ["get","watch","list"]
+  - apiGroups: ["apps"]
+    resources: ["statefulsets/status"]
+    verbs: ["get","watch","list","patch", "update"]
+  - apiGroups: ["extensions", "networking.k8s.io"]
+    resources: ["ingresses", "ingresses/status"]
+    verbs: ["get","watch","list","patch", "update"]
+  - apiGroups: [""]
+    resources: ["services/status"]
+    verbs: ["get","watch","list","patch", "update"]
+  - apiGroups: ["crd.projectcalico.org"]
+    resources: ["blockaffinities"]
+    verbs: ["get", "watch", "list"]
+  - apiGroups: ["network.openshift.io"]
+    resources: ["hostsubnets"]
+    verbs: ["get", "watch", "list"]
+  - apiGroups: ["route.openshift.io"]
+    resources: ["routes", "routes/status"]
+    verbs: ["get", "watch", "list", "patch", "update"]
+  - apiGroups: ["ako.vmware.com"]
+    resources: ["aviinfrasettings", "aviinfrasettings/status", "hostrules", "hostrules/status", "httprules", "httprules/status"]
+    verbs: ["get","watch","list","patch", "update"]
+  - apiGroups: ["networking.x-k8s.io"]
+    resources: ["gateways", "gateways/status", "gatewayclasses", "gatewayclasses/status"]
+    verbs: ["get","watch","list","patch", "update"]
+#@ end
+
+#@ def ako_clusterrolebinding():
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ako-crb
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: ako-cr
+subjects:
+  - kind: ServiceAccount
+    name: ako-sa
+    namespace: #@ avi_system_namespace()
+#@ end
+
+
+#@ def ako_statefulset():
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ako
+  namespace: #@ avi_system_namespace()
+  labels:
+    app.kubernetes.io/name: #@ ako_name()
+    app.kubernetes.io/version: #@ akoRepo.images.loadBalancerAndIngressServiceImage.tag
+spec:
+  replicas: 1
+  serviceName: ako
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: #@ ako_name()
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: #@ ako_name()
+    spec:
+      serviceAccountName: ako-sa
+      securityContext: {}
+      containers:
+        - name: #@ ako_name()
+          securityContext: null
+          image: #@ ako_image()
+          imagePullPolicy: #@ data.values.AVI_AKO_IMAGE_PULL_POLICY
+          env:
+            - name: CTRL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: avi-secret
+                  key: username
+            - name: CTRL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: avi-secret
+                  key: password
+            - name: FULL_SYNC_INTERVAL
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: fullSyncFrequency
+            - name: CTRL_IPADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: controllerIP
+            - name: CLOUD_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: cloudName
+            - name: CLUSTER_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: clusterName
+            - name: DISABLE_STATIC_ROUTE_SYNC
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: disableStaticRouteSync
+            - name: SUBNET_IP
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: subnetIP
+            - name: SUBNET_PREFIX
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: subnetPrefix
+            - name: VIP_NETWORK_LIST
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: vipNetworkList
+            - name: DEFAULT_ING_CONTROLLER
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: defaultIngController
+            - name: NETWORK_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: networkName
+            - name: SEG_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: serviceEngineGroupName
+            - name: SERVICE_TYPE
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: serviceType
+            - name: LOG_FILE_PATH
+              value: ""
+            - name: LOG_FILE_NAME
+              value: ""
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          resources:
+            limits:
+              cpu: "250m"
+              memory: "300Mi"
+            requests:
+              cpu: "50m"
+              memory: "20Mi"
+          livenessProbe:
+            httpGet:
+              path: /api/status
+              port:  8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+#@ end
+
+#@ def ako_ingressclass():
+#@ if not data.values.AVI_DISABLE_INGRESS_CLASS:
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: avi-lb
+  #@ if data.values.AVI_INGRESS_DEFAULT_INGRESS_CONTROLLER:
+  annotations:
+    ingressclass.kubernetes.io/is-default-class: "true"
+  #@ end
+spec:
+  controller: ako.vmware.com/avi-lb
+  parameters:
+    apiGroup: ako.vmware.com
+    kind: IngressParameters
+    name: external-lb
+#@ end
+#@ end
+
+#@ def hostrules_crd():
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: hostrules.ako.vmware.com
+spec:
+  conversion:
+    strategy: None
+  group: ako.vmware.com
+  names:
+    kind: HostRule
+    listKind: HostRuleList
+    plural: hostrules
+    shortNames:
+      - hostrule
+      - hr
+    singular: hostrule
+  scope: Namespaced
+  versions:
+    - name: v1alpha1
+      schema:
+        openAPIV3Schema:
+          properties:
+            spec:
+              properties:
+                virtualhost:
+                  properties:
+                    analyticsProfile:
+                      type: string
+                    applicationProfile:
+                      type: string
+                    enableVirtualHost:
+                      type: boolean
+                    errorPageProfile:
+                      type: string
+                    fqdn:
+                      type: string
+                    datascripts:
+                      items:
+                        type: string
+                      type: array
+                    httpPolicy:
+                      properties:
+                        overwrite:
+                          type: boolean
+                        policySets:
+                          items:
+                            type: string
+                          type: array
+                      type: object
+                    tls:
+                      properties:
+                        sslProfile:
+                          type: string
+                        sslKeyCertificate:
+                          properties:
+                            name:
+                              type: string
+                            type:
+                              enum:
+                                - ref
+                              type: string
+                          required:
+                            - name
+                            - type
+                          type: object
+                        termination:
+                          enum:
+                            - edge
+                          type: string
+                      required:
+                        - sslKeyCertificate
+                      type: object
+                    wafPolicy:
+                      type: string
+                  required:
+                    - fqdn
+                  type: object
+              required:
+                - virtualhost
+              type: object
+            status:
+              properties:
+                error:
+                  type: string
+                status:
+                  type: string
+              type: object
+          type: object
+      additionalPrinterColumns:
+        - description: virtualhost for which the hostrule is valid
+          jsonPath: .spec.virtualhost.fqdn
+          name: Host
+          type: string
+        - description: status of the hostrule object
+          jsonPath: .status.status
+          name: Status
+          type: string
+        - jsonPath: .metadata.creationTimestamp
+          name: Age
+          type: date
+      served: true
+      storage: true
+      subresources:
+        status: {}
+#@ end
+
+#@ def httprules_crd():
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: httprules.ako.vmware.com
+spec:
+  group: ako.vmware.com
+  names:
+    plural: httprules
+    singular: httprule
+    listKind: HTTPRuleList
+    kind: HTTPRule
+    shortNames:
+      - httprule
+  scope: Namespaced
+  versions:
+    - name: v1alpha1
+      schema:
+        openAPIV3Schema:
+          properties:
+            spec:
+              properties:
+                fqdn:
+                  type: string
+                paths:
+                  items:
+                    properties:
+                      loadBalancerPolicy:
+                        properties:
+                          algorithm:
+                            enum:
+                              - LB_ALGORITHM_CONSISTENT_HASH
+                              - LB_ALGORITHM_CORE_AFFINITY
+                              - LB_ALGORITHM_FASTEST_RESPONSE
+                              - LB_ALGORITHM_FEWEST_SERVERS
+                              - LB_ALGORITHM_LEAST_CONNECTIONS
+                              - LB_ALGORITHM_LEAST_LOAD
+                              - LB_ALGORITHM_ROUND_ROBIN
+                            type: string
+                          hash:
+                            enum:
+                              - LB_ALGORITHM_CONSISTENT_HASH_CALLID
+                              - LB_ALGORITHM_CONSISTENT_HASH_SOURCE_IP_ADDRESS
+                              - LB_ALGORITHM_CONSISTENT_HASH_SOURCE_IP_ADDRESS_AND_PORT
+                              - LB_ALGORITHM_CONSISTENT_HASH_URI
+                              - LB_ALGORITHM_CONSISTENT_HASH_CUSTOM_HEADER
+                              - LB_ALGORITHM_CONSISTENT_HASH_CUSTOM_STRING
+                            type: string
+                          hostHeader:
+                            type: string
+                        type: object
+                      target:
+                        pattern: ^\/.*$
+                        type: string
+                      healthMonitors:
+                        items:
+                          type: string
+                        type: array
+                      tls:
+                        properties:
+                          destinationCA:
+                            type: string
+                          sslProfile:
+                            type: string
+                          type:
+                            enum:
+                              - reencrypt
+                            type: string
+                        required:
+                          - type
+                        type: object
+                    required:
+                      - target
+                    type: object
+                  type: array
+              required:
+                - fqdn
+              type: object
+            status:
+              properties:
+                error:
+                  type: string
+                status:
+                  type: string
+              type: object
+          type: object
+      additionalPrinterColumns:
+        - description: fqdn associated with the httprule
+          jsonPath: .spec.fqdn
+          name: HOST
+          type: string
+        - description: status of the httprule object
+          jsonPath: .status.status
+          name: Status
+          type: string
+        - jsonPath: .metadata.creationTimestamp
+          name: Age
+          type: date
+      served: true
+      storage: true
+      subresources:
+        status: {}
+#@ end
+
+#@ def aviinfrasettings_crd():
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: aviinfrasettings.ako.vmware.com
+spec:
+  conversion:
+    strategy: None
+  group: ako.vmware.com
+  names:
+    kind: AviInfraSetting
+    listKind: AviInfraSettingList
+    plural: aviinfrasettings
+    singular: aviinfrasetting
+  scope: Cluster
+  versions:
+    - name: v1alpha1
+      schema:
+        openAPIV3Schema:
+          description: AviInfraSetting is used to select specific Avi controller infra attributes.
+          properties:
+            spec:
+              properties:
+                network:
+                  properties:
+                    names:
+                      items:
+                        type: string
+                      type: array
+                    enableRhi:
+                      type: boolean
+                  type: object
+                  required:
+                    - names
+                seGroup:
+                  properties:
+                    name:
+                      type: string
+                  type: object
+                  required:
+                    - name
+                l7Settings:
+                  properties:
+                    shardSize:
+                      enum:
+                        - SMALL
+                        - MEDIUM
+                        - LARGE
+                        - DEDICATED
+                      type: string
+                  type: object
+                  required:
+                    - shardSize
+              type: object
+            status:
+              properties:
+                error:
+                  type: string
+                status:
+                  type: string
+              type: object
+          type: object
+      additionalPrinterColumns:
+        - description: status of the nas object
+          jsonPath: .status.status
+          name: Status
+          type: string
+        - jsonPath: .metadata.creationTimestamp
+          name: Age
+          type: date
+      served: true
+      storage: true
+      subresources:
+        status: {}
+#@ end
