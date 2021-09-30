@@ -1,5 +1,6 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:base64", "base64")
+#@ load("@ytt:json", "json")
 #@ load("/lib/helpers.star", "get_default_tkr_bom_data", "get_default_tkg_bom_data", "tkg_image_repo")
 
 #@ akooRepo = get_default_tkr_bom_data().components["ako-operator"][0]
@@ -38,15 +39,15 @@
 #@ end
 
 #@ def network_name():
-#@ if data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME and data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR:
-#@ return data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME
-#@ else:
-#@ return data.values.AVI_DATA_NETWORK
+#@  if data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME and data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR:
+#@    return data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME
+#@  else:
+#@    return data.values.AVI_DATA_NETWORK
+#@  end
 #@ end
 
-
 #@ def vip_network():
-#@ return json.encode([{ "networkName": network_name() }])
+#@  return json.encode([{ "networkName": network_name() }])
 #@ end
 
 #@ def ako_namespace():
