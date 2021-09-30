@@ -31,6 +31,7 @@ var (
 	configPathCustomRegistryCaCert        = "../fakes/config/config_custom_registry_ca_cert.yaml"
 	configPathIPv6                        = "../fakes/config/config_ipv6.yaml"
 	configPathIPv4                        = "../fakes/config/config_ipv4.yaml"
+	configPathIPv4IPv6                    = "../fakes/config/config_ipv4_ipv6.yaml"
 	configPathCIDR                        = "../fakes/config/config_cluster_service_cidr.yaml"
 	registryHostname                      = "registry.mydomain.com"
 )
@@ -176,6 +177,13 @@ var _ = Describe("Kind Client", func() {
 		It("generates a config with ipfamily omitted", func() {
 			Expect(string(kindConfig.Networking.IPFamily)).To(Equal(""))
 		})
+
+		Context("When CLUSTER_CIDR and SERVICE_CIDR are not set", func() {
+			It("generates a config with default pod and service subnet", func() {
+				Expect(kindConfig.Networking.PodSubnet).To(Equal("100.96.0.0/11"))
+				Expect(kindConfig.Networking.ServiceSubnet).To(Equal("100.64.0.0/13"))
+			})
+		})
 	})
 
 	Context("When TKG_IP_FAMILY is ipv4", func() {
@@ -202,19 +210,32 @@ var _ = Describe("Kind Client", func() {
 		It("generates a config with ipfamily set to ipv6", func() {
 			Expect(kindConfig.Networking.IPFamily).To(Equal(kindv1.IPv6Family))
 		})
+
+		Context("When CLUSTER_CIDR and SERVICE_CIDR are not set", func() {
+			It("generates a config with default pod and service subnet", func() {
+				Expect(kindConfig.Networking.PodSubnet).To(Equal("fd00:100:96::/48"))
+				Expect(kindConfig.Networking.ServiceSubnet).To(Equal("fd00:100:64::/108"))
+			})
+		})
 	})
 
-	Context("When CLUSTER_CIDR and SERVICE_CIDR are not set", func() {
+	Context("When TKG_IP_FAMILY is ipv4,ipv6", func() {
 		BeforeEach(func() {
-			setupTestingFiles(configPath, testingDir, defaultBoMFileForTesting)
+			setupTestingFiles(configPathIPv4IPv6, testingDir, defaultBoMFileForTesting)
 			kindClient = buildKindClient()
 			_, kindConfig, err = kindClient.GetKindNodeImageAndConfig()
 			Expect(err).NotTo(HaveOccurred())
 		})
 
-		It("generates a config with default pod and service subnet", func() {
-			Expect(kindConfig.Networking.PodSubnet).To(Equal("100.96.0.0/11"))
-			Expect(kindConfig.Networking.ServiceSubnet).To(Equal("100.64.0.0/13"))
+		It("generates a config with ipfamily set to dual", func() {
+			Expect(kindConfig.Networking.IPFamily).To(Equal(kindv1.DualStackFamily))
+		})
+
+		Context("When CLUSTER_CIDR and SERVICE_CIDR are not set", func() {
+			It("generates a config with default pod and service subnet", func() {
+				Expect(kindConfig.Networking.PodSubnet).To(Equal("100.96.0.0/11,fd00:100:96::/48"))
+				Expect(kindConfig.Networking.ServiceSubnet).To(Equal("100.64.0.0/13,fd00:100:64::/108"))
+			})
 		})
 	})
 
