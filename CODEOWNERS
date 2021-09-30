@@ -11,3 +11,4 @@
 /pkg/v1/tkg/kappclient @vmware-tanzu/tanzu-framework-reviewers @shyaamsn @danniel1205 @maralavi @shivaani0505 @ggpaue @blc1996
 /pkg/v1/tkg/tkgpackageclient @vmware-tanzu/tanzu-framework-reviewers @shyaamsn @danniel1205 @maralavi @shivaani0505 @ggpaue @blc1996
 /cmd/cli/plugin/package @vmware-tanzu/tanzu-framework-reviewers @shyaamsn @danniel1205 @maralavi @shivaani0505 @ggpaue @blc1996
+/cmd/cli/plugin/imagepullsecret @vmware-tanzu/tanzu-framework-reviewers @shivaani0505 @maralavi
