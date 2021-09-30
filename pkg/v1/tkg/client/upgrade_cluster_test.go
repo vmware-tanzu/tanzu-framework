@@ -16,7 +16,7 @@ import (
 	"k8s.io/client-go/discovery"
 	fakediscovery "k8s.io/client-go/discovery/fake"
 	fakeclientset "k8s.io/client-go/kubernetes/fake"
-	capav1alpha3 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha3"
+	capav1alpha4 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha4"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
 	capibootstrapkubeadmv1alpha3 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha3"
 	capibootstrapkubeadmtypesv1beta1 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/types/v1beta1"
@@ -231,11 +231,11 @@ var _ = Describe("Unit tests for upgrade cluster", func() {
 			BeforeEach(func() {
 				regionalClusterClient.GetKCPObjectForClusterReturns(getDummyKCP(constants.AWSMachineTemplate), nil)
 				regionalClusterClient.GetResourceCalls(func(resourceReference interface{}, resourceName, namespace string, postVerify clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
-					clusterObj, ok := resourceReference.(*capav1alpha3.AWSCluster)
+					clusterObj, ok := resourceReference.(*capav1alpha4.AWSCluster)
 					if !ok {
 						return nil
 					}
-					*clusterObj = capav1alpha3.AWSCluster{Spec: capav1alpha3.AWSClusterSpec{Region: "us-west-2"}}
+					*clusterObj = capav1alpha4.AWSCluster{Spec: capav1alpha4.AWSClusterSpec{Region: "us-west-2"}}
 					return nil
 				})
 			})
@@ -257,11 +257,11 @@ var _ = Describe("Unit tests for upgrade cluster", func() {
 						if regionalClusterClient.GetResourceCallCount() == 3 {
 							return errors.New("fake-error")
 						}
-						clusterObj, ok := resourceReference.(*capav1alpha3.AWSCluster)
+						clusterObj, ok := resourceReference.(*capav1alpha4.AWSCluster)
 						if !ok {
 							return nil
 						}
-						*clusterObj = capav1alpha3.AWSCluster{Spec: capav1alpha3.AWSClusterSpec{Region: "us-west-2"}}
+						*clusterObj = capav1alpha4.AWSCluster{Spec: capav1alpha4.AWSClusterSpec{Region: "us-west-2"}}
 						return nil
 					})
 				})
@@ -277,11 +277,11 @@ var _ = Describe("Unit tests for upgrade cluster", func() {
 						if regionalClusterClient.GetResourceCallCount() == 3 {
 							return errors.New("fake-error")
 						}
-						clusterObj, ok := resourceReference.(*capav1alpha3.AWSCluster)
+						clusterObj, ok := resourceReference.(*capav1alpha4.AWSCluster)
 						if !ok {
 							return nil
 						}
-						*clusterObj = capav1alpha3.AWSCluster{Spec: capav1alpha3.AWSClusterSpec{Region: "us-west-2"}}
+						*clusterObj = capav1alpha4.AWSCluster{Spec: capav1alpha4.AWSClusterSpec{Region: "us-west-2"}}
 						return nil
 					})
 				})
@@ -297,11 +297,11 @@ var _ = Describe("Unit tests for upgrade cluster", func() {
 						if regionalClusterClient.GetResourceCallCount() == 4 {
 							return errors.New("fake-error")
 						}
-						clusterObj, ok := resourceReference.(*capav1alpha3.AWSCluster)
+						clusterObj, ok := resourceReference.(*capav1alpha4.AWSCluster)
 						if !ok {
 							return nil
 						}
-						*clusterObj = capav1alpha3.AWSCluster{Spec: capav1alpha3.AWSClusterSpec{Region: "us-west-2"}}
+						*clusterObj = capav1alpha4.AWSCluster{Spec: capav1alpha4.AWSClusterSpec{Region: "us-west-2"}}
 						return nil
 					})
 					regionalClusterClient.CreateResourceReturns(errors.New("fake-error-create-resource"))

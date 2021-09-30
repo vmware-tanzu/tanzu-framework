@@ -38,7 +38,7 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	bootstrapv1 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha4"
-	capav1alpha3 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha3"
+	capav1alpha4 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha4"
 	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
 	capzv1alpha4 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha4"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha4"
@@ -384,7 +384,7 @@ func init() {
 	_ = clusterctlv1.AddToScheme(scheme)
 	_ = controlplanev1.AddToScheme(scheme)
 	_ = capvv1alpha3.AddToScheme(scheme)
-	_ = capav1alpha3.AddToScheme(scheme)
+	_ = capav1alpha4.AddToScheme(scheme)
 	_ = capzv1alpha4.AddToScheme(scheme)
 	_ = capdv1.AddToScheme(scheme)
 	_ = bootstrapv1.AddToScheme(scheme)
@@ -2084,17 +2084,17 @@ func (c *client) DeleteExistingKappController() error {
 // UpdateAWSCNIIngressRules updates the cniIngressRules field for AWSCluster to allow for
 // kapp-controller host port that was added in newer versions.
 func (c *client) UpdateAWSCNIIngressRules(clusterName, clusterNamespace string) error {
-	awsCluster := &capav1alpha3.AWSCluster{}
+	awsCluster := &capav1alpha4.AWSCluster{}
 	if err := c.GetResource(awsCluster, clusterName, clusterNamespace, nil, nil); err != nil {
 		return err
 	}
 
 	if awsCluster.Spec.NetworkSpec.CNI == nil {
-		awsCluster.Spec.NetworkSpec.CNI = &capav1alpha3.CNISpec{}
+		awsCluster.Spec.NetworkSpec.CNI = &capav1alpha4.CNISpec{}
 	}
 
 	if awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules == nil {
-		awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules = capav1alpha3.CNIIngressRules{}
+		awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules = capav1alpha4.CNIIngressRules{}
 	}
 
 	cniIngressRules := awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules
@@ -2104,7 +2104,7 @@ func (c *client) UpdateAWSCNIIngressRules(clusterName, clusterNamespace string) 
 			continue
 		}
 
-		if ingressRule.Protocol != capav1alpha3.SecurityGroupProtocolTCP {
+		if ingressRule.Protocol != capav1alpha4.SecurityGroupProtocolTCP {
 			continue
 		}
 
@@ -2115,9 +2115,9 @@ func (c *client) UpdateAWSCNIIngressRules(clusterName, clusterNamespace string) 
 		return nil
 	}
 
-	cniIngressRules = append(cniIngressRules, capav1alpha3.CNIIngressRule{
+	cniIngressRules = append(cniIngressRules, capav1alpha4.CNIIngressRule{
 		Description: "kapp-controller",
-		Protocol:    capav1alpha3.SecurityGroupProtocolTCP,
+		Protocol:    capav1alpha4.SecurityGroupProtocolTCP,
 		FromPort:    DefaultKappControllerHostPort,
 		ToPort:      DefaultKappControllerHostPort,
 	})

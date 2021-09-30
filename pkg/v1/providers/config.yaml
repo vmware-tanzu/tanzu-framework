@@ -3,7 +3,7 @@ providers:
   url: providers/cluster-api/v0.4.2/core-components.yaml
   type: CoreProvider
 - name: aws
-  url: providers/infrastructure-aws/v0.6.6/infrastructure-components.yaml
+  url: providers/infrastructure-aws/v0.7.0/infrastructure-components.yaml
   type: InfrastructureProvider
 - name: vsphere
   url: providers/infrastructure-vsphere/v0.7.8/infrastructure-components.yaml
