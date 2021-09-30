@@ -8,14 +8,17 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
+	"time"
 
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/wait"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
+	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	versions "github.com/vmware-tanzu/carvel-vendir/pkg/vendir/versions/v1alpha1"
 
@@ -269,4 +272,41 @@ func (p *pkgClient) createServiceAccount(o *tkgpackagedatamodel.PackageOptions) 
 	}
 
 	return true, nil
+}
+
+// waitForResourceInstallation waits until the package get installed successfully or a failure happen
+func (p *pkgClient) waitForResourceInstallation(name, namespace string, pollInterval, pollTimeout time.Duration, progress chan string, rscType tkgpackagedatamodel.ResourceType) error {
+	var status kappctrl.GenericStatus
+	if err := wait.Poll(pollInterval, pollTimeout, func() (done bool, err error) {
+		switch rscType {
+		case tkgpackagedatamodel.ResourceTypePackageRepository:
+			resource, err := p.kappClient.GetPackageRepository(name, namespace)
+			if err != nil {
+				return false, err
+			}
+			status = resource.Status.GenericStatus
+		case tkgpackagedatamodel.ResourceTypePackageInstall:
+			resource, err := p.kappClient.GetPackageInstall(name, namespace)
+			if err != nil {
+				return false, err
+			}
+			status = resource.Status.GenericStatus
+		}
+		for _, cond := range status.Conditions {
+			if progress != nil {
+				progress <- fmt.Sprintf("Resource install status: %s", cond.Type)
+			}
+			switch cond.Type {
+			case kappctrl.ReconcileSucceeded:
+				return true, nil
+			case kappctrl.ReconcileFailed:
+				return false, fmt.Errorf("resource reconciliation failed: %s. %s", status.UsefulErrorMessage, status.FriendlyDescription)
+			}
+		}
+		return false, nil
+	}); err != nil {
+		return err
+	}
+
+	return nil
 }

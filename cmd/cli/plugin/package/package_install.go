@@ -61,7 +61,7 @@ func packageInstall(cmd *cobra.Command, args []string) error {
 	go pkgClient.InstallPackage(packageInstallOp, pp, tkgpackagedatamodel.OperationTypeInstall)
 
 	initialMsg := fmt.Sprintf("Installing package '%s'", packageInstallOp.PackageName)
-	if err := displayProgress(initialMsg, pp); err != nil {
+	if err := DisplayProgress(initialMsg, pp); err != nil {
 		return err
 	}
 

@@ -51,7 +51,7 @@ func repositoryAdd(cmd *cobra.Command, args []string) error {
 	go pkgClient.AddRepository(repoOp, pp, tkgpackagedatamodel.OperationTypeInstall)
 
 	initialMsg := fmt.Sprintf("Adding package repository '%s'", repoOp.RepositoryName)
-	if err := displayProgress(initialMsg, pp); err != nil {
+	if err := DisplayProgress(initialMsg, pp); err != nil {
 		return err
 	}
 

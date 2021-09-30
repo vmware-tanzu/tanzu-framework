@@ -13,7 +13,8 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
-func displayProgress(initialMsg string, pp *tkgpackagedatamodel.PackageProgress) error {
+// DisplayProgress creates an spinner instance; keeps receiving the progress messages in the channel and displays those using the spinner until an error occurs
+func DisplayProgress(initialMsg string, pp *tkgpackagedatamodel.PackageProgress) error {
 	var (
 		currMsg string
 		s       *spinner.Spinner

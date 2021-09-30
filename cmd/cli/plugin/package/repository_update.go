@@ -52,7 +52,7 @@ func repositoryUpdate(cmd *cobra.Command, args []string) error {
 	go pkgClient.UpdateRepository(repoOp, pp)
 
 	initialMsg := fmt.Sprintf("Updating package repository '%s'", repoOp.RepositoryName)
-	if err := displayProgress(initialMsg, pp); err != nil {
+	if err := DisplayProgress(initialMsg, pp); err != nil {
 		if err.Error() == tkgpackagedatamodel.ErrRepoNotExists {
 			log.Warningf("\npackage repository '%s' does not exist in namespace '%s'. Consider using the --create flag to add the package repository", repoOp.RepositoryName, repoOp.Namespace)
 			return nil

@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
@@ -15,8 +16,10 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/wait"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
+	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
@@ -203,6 +206,55 @@ func (p *pkgClient) deleteAnnotatedResource(obj runtime.Object, objKey crtclient
 			}
 			break
 		}
+	}
+
+	return nil
+}
+
+func progressCleanup(err error, progress *tkgpackagedatamodel.PackageProgress) {
+	if err != nil {
+		progress.Err <- err
+	}
+	close(progress.ProgressMsg)
+	close(progress.Done)
+}
+
+// waitForResourceDeletion waits until the CR gets deleted successfully or a failure happens
+func (p *pkgClient) waitForResourceDeletion(name, namespace string, pollInterval, pollTimeout time.Duration, progress chan string, rscType tkgpackagedatamodel.ResourceType) error {
+	var status kappctrl.GenericStatus
+	if err := wait.Poll(pollInterval, pollTimeout, func() (done bool, err error) {
+		switch rscType {
+		case tkgpackagedatamodel.ResourceTypePackageRepository:
+			resource, err := p.kappClient.GetPackageRepository(name, namespace)
+			if err != nil {
+				if apierrors.IsNotFound(err) {
+					return true, nil
+				}
+				return false, err
+			}
+			status = resource.Status.GenericStatus
+		case tkgpackagedatamodel.ResourceTypePackageInstall:
+			resource, err := p.kappClient.GetPackageInstall(name, namespace)
+			if err != nil {
+				if apierrors.IsNotFound(err) {
+					return true, nil
+				}
+				return false, err
+			}
+			status = resource.Status.GenericStatus
+		}
+		for _, cond := range status.Conditions {
+			if progress != nil {
+				progress <- fmt.Sprintf("Resource deletion status: %s", cond.Type)
+			}
+			if cond.Type == kappctrl.DeleteFailed {
+				return false, fmt.Errorf("resource deletion failed: %s. %s", status.UsefulErrorMessage, status.FriendlyDescription)
+			}
+		}
+
+		return false, nil
+	}); err != nil {
+		return err
 	}
 
 	return nil
