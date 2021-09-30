@@ -38,6 +38,22 @@ def get_default_tkr_bom_data():
 end
 
 def get_bom_data_for_tkr_name():
+
+
+    for bom_entry in data.values.boms:
+      value = getattr(bom_entry.bom_data, release, None)
+      if value == None or value == "":
+        assert.fail("missing the release field from " + bom_entry)
+      end
+    end
+
+    for bom_entry in data.values.boms:
+      value = getattr(bom_entry.bom_data, version, None)
+      if value == None or value == "":
+        assert.fail("missing the release.version field from " + bom_entry)
+      end
+    end
+
     for bom_entry in data.values.boms:
         tkr_version = get_tkr_version_from_tkr_name(data.values.KUBERNETES_RELEASE)
         if bom_entry.bom_data.release.version == tkr_version:
