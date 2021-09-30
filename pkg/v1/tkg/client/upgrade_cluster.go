@@ -13,7 +13,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
-	capav1alpha3 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha3"
+	capav1alpha4 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha4"
 	capzv1alpha4 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha4"
 	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha4"
@@ -537,7 +537,7 @@ func (c *TkgClient) createInfrastructureTemplateForUpgrade(regionalClusterClient
 	}
 }
 
-func isNewAWSTemplateRequired(machineTemplate *capav1alpha3.AWSMachineTemplate, clusterUpgradeConfig *clusterUpgradeInfo, actualK8sVersion *string) bool {
+func isNewAWSTemplateRequired(machineTemplate *capav1alpha4.AWSMachineTemplate, clusterUpgradeConfig *clusterUpgradeInfo, actualK8sVersion *string) bool {
 	if actualK8sVersion == nil || *actualK8sVersion != clusterUpgradeConfig.UpgradeComponentInfo.KubernetesVersion {
 		return true
 	}
@@ -564,7 +564,7 @@ func isNewDockerTemplateRequired(machineTemplate *capdv1alpha4.DockerMachineTemp
 
 func (c *TkgClient) createAWSControlPlaneMachineTemplate(regionalClusterClient clusterclient.Client, kcp *capikubeadmv1alpha4.KubeadmControlPlane, clusterUpgradeConfig *clusterUpgradeInfo) error {
 	var err error
-	awsMachineTemplate := &capav1alpha3.AWSMachineTemplate{}
+	awsMachineTemplate := &capav1alpha4.AWSMachineTemplate{}
 	err = regionalClusterClient.GetResource(awsMachineTemplate, kcp.Spec.MachineTemplate.InfrastructureRef.Name, kcp.Spec.MachineTemplate.InfrastructureRef.Namespace, nil, nil)
 	if err != nil {
 		return errors.Wrapf(err, "unable to find AWSMachineTemplate with name '%s' in namespace '%s'", kcp.Spec.MachineTemplate.InfrastructureRef.Name, kcp.Spec.MachineTemplate.InfrastructureRef.Namespace)
@@ -580,7 +580,7 @@ func (c *TkgClient) createAWSControlPlaneMachineTemplate(regionalClusterClient c
 		return nil
 	}
 
-	awsMachineTemplateForUpgrade := &capav1alpha3.AWSMachineTemplate{}
+	awsMachineTemplateForUpgrade := &capav1alpha4.AWSMachineTemplate{}
 	awsMachineTemplateForUpgrade.Name = clusterUpgradeConfig.UpgradeComponentInfo.KCPInfrastructureTemplateName
 	awsMachineTemplateForUpgrade.Namespace = clusterUpgradeConfig.UpgradeComponentInfo.KCPInfrastructureTemplateNamespace
 	awsMachineTemplateForUpgrade.Spec = awsMachineTemplate.DeepCopy().Spec
@@ -599,7 +599,7 @@ func (c *TkgClient) createAWSMachineDeploymentMachineTemplateForWorkers(regional
 
 	for i := range clusterUpgradeConfig.MDObjects {
 		// get aws machine template for given machine deployment
-		awsMachineTemplateForMD := &capav1alpha3.AWSMachineTemplate{}
+		awsMachineTemplateForMD := &capav1alpha4.AWSMachineTemplate{}
 		err = regionalClusterClient.GetResource(awsMachineTemplateForMD, clusterUpgradeConfig.MDObjects[i].Spec.Template.Spec.InfrastructureRef.Name, clusterUpgradeConfig.MDObjects[i].Namespace, nil, nil)
 		if err != nil {
 			return errors.Wrapf(err, "unable to find AWSMachineTemplate with name '%s' in namespace '%s'", clusterUpgradeConfig.MDObjects[i].Spec.Template.Spec.InfrastructureRef.Name, clusterUpgradeConfig.MDObjects[i].Namespace)
@@ -621,7 +621,7 @@ func (c *TkgClient) createAWSMachineDeploymentMachineTemplateForWorkers(regional
 			MDInfrastructureTemplateNamespace: awsMachineTemplateForMD.Namespace,
 		}
 
-		awsMachineTemplateMDForUpgrade := &capav1alpha3.AWSMachineTemplate{}
+		awsMachineTemplateMDForUpgrade := &capav1alpha4.AWSMachineTemplate{}
 		awsMachineTemplateMDForUpgrade.Name = clusterUpgradeConfig.UpgradeComponentInfo.MDInfastructureTemplates[clusterUpgradeConfig.MDObjects[i].Name].MDInfrastructureTemplateName
 		awsMachineTemplateMDForUpgrade.Namespace = clusterUpgradeConfig.UpgradeComponentInfo.MDInfastructureTemplates[clusterUpgradeConfig.MDObjects[i].Name].MDInfrastructureTemplateNamespace
 		awsMachineTemplateMDForUpgrade.Spec = awsMachineTemplateForMD.DeepCopy().Spec
@@ -1223,7 +1223,7 @@ func (c *TkgClient) getRegionalClusterNameAndNamespace(clusterClient clusterclie
 }
 
 func (c *TkgClient) getAWSAMIIDForK8sVersion(regionalClusterClient clusterclient.Client, upgradeInfo *clusterUpgradeInfo) error {
-	awsClusterObject := &capav1alpha3.AWSCluster{}
+	awsClusterObject := &capav1alpha4.AWSCluster{}
 	if err := regionalClusterClient.GetResource(awsClusterObject, upgradeInfo.ClusterName, upgradeInfo.ClusterNamespace, nil, nil); err != nil {
 		return errors.Wrap(err, "unable to retrieve aws cluster object to retrieve AMI settings")
 	}
