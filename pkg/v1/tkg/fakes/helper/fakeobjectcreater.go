@@ -27,7 +27,7 @@ import (
 	"sigs.k8s.io/cluster-api/bootstrap/kubeadm/types/v1beta1"
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
 
-	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	tkgsv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
@@ -368,7 +368,7 @@ func GetAllPacificClusterObjects(options TestAllClusterComponentOptions) []runti
 
 // NewPacificCluster returns new TanzuKubernetesCluster object
 func NewPacificCluster(options TestAllClusterComponentOptions) runtime.Object {
-	return &runv1alpha1.TanzuKubernetesCluster{
+	return &tkgsv1alpha2.TanzuKubernetesCluster{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: constants.DefaultPacificClusterAPIVersion,
 			Kind:       constants.PacificClusterKind,
@@ -378,21 +378,26 @@ func NewPacificCluster(options TestAllClusterComponentOptions) runtime.Object {
 			Namespace: options.Namespace,
 			Labels:    options.Labels,
 		},
-		Spec: runv1alpha1.TanzuKubernetesClusterSpec{
-			Distribution: runv1alpha1.Distribution{
-				VersionHint: options.CPOptions.K8sVersion,
+		Spec: tkgsv1alpha2.TanzuKubernetesClusterSpec{
+			Distribution: tkgsv1alpha2.Distribution{
+				Version: options.CPOptions.K8sVersion,
 			},
-			Topology: runv1alpha1.Topology{
-				ControlPlane: runv1alpha1.TopologySettings{
-					Count: options.CPOptions.SpecReplicas,
+			Topology: tkgsv1alpha2.Topology{
+				ControlPlane: tkgsv1alpha2.TopologySettings{
+					Replicas: &options.CPOptions.SpecReplicas,
 				},
-				Workers: runv1alpha1.TopologySettings{
-					Count: options.ListMDOptions[0].SpecReplicas,
+				NodePools: []tkgsv1alpha2.NodePool{
+					{
+						Name: "workers",
+						TopologySettings: tkgsv1alpha2.TopologySettings{
+							Replicas: &options.CPOptions.SpecReplicas,
+						},
+					},
 				},
 			},
 		},
-		Status: runv1alpha1.TanzuKubernetesClusterStatus{
-			Phase: runv1alpha1.TanzuKubernetesClusterPhase(options.ClusterOptions.Phase),
+		Status: tkgsv1alpha2.TanzuKubernetesClusterStatus{
+			Phase: tkgsv1alpha2.TanzuKubernetesClusterPhase(options.ClusterOptions.Phase),
 		},
 	}
 }

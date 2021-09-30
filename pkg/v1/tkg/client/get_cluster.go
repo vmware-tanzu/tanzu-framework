@@ -4,15 +4,12 @@
 package client
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/yalp/jsonpath"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 )
 
 // ListTKGClustersOptions contains options supported by ListClusters
@@ -59,6 +56,10 @@ func (c *TkgClient) ListTKGClusters(options ListTKGClustersOptions) ([]ClusterIn
 		return nil, errors.Wrap(err, "error determining 'Tanzu Kubernetes Cluster service for vSphere' management cluster")
 	}
 	if isPacific {
+		err := c.ValidatePacificVersionWithCLI(regionalClusterClient)
+		if err != nil {
+			return nil, err
+		}
 		return c.GetClusterObjectsForPacific(regionalClusterClient, "", listOptions)
 	}
 
@@ -99,7 +100,7 @@ func (c *TkgClient) GetClusterObjects(clusterClient clusterclient.Client, listOp
 
 // GetClusterObjectsForPacific get cluster objects for TKGS clusters
 func (c *TkgClient) GetClusterObjectsForPacific(clusterClient clusterclient.Client, apiVersion string, listOptions *crtclient.ListOptions) ([]ClusterInfo, error) {
-	clusterInfoMap, err := getClusterObjectsMapForPacific(clusterClient, apiVersion, listOptions)
+	clusterInfoMap, err := getClusterObjectsMapForPacific(clusterClient, listOptions)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to retrieve combined cluster info")
 	}
@@ -111,42 +112,16 @@ func (c *TkgClient) GetClusterObjectsForPacific(clusterClient clusterclient.Clie
 			continue
 		}
 
-		name, _ := jsonpath.Read(clusterInfo.cluster, "$.metadata.name")
-		namespace, _ := jsonpath.Read(clusterInfo.cluster, "$.metadata.namespace")
-		clusterLabels, _ := jsonpath.Read(clusterInfo.cluster, "$.metadata.labels")
-		clusterStatus, _ := jsonpath.Read(clusterInfo.cluster, "$.status.phase")
-		k8sVersion, _ := jsonpath.Read(clusterInfo.cluster, "$.spec.distribution.version")
-		desiredCPCount, _ := jsonpath.Read(clusterInfo.cluster, "$.spec.topology.controlPlane.count")
-		desiredWorkerCount, _ := jsonpath.Read(clusterInfo.cluster, "$.spec.topology.workers.count")
-		plan, _ := jsonpath.Read(clusterInfo.cluster, "$.metadata.labels.tkg-plan")
-
-		getString := func(value interface{}) string {
-			if value == nil {
-				return ""
-			}
-			return fmt.Sprintf("%v", value)
-		}
-
-		clusterLabelsMap, ok := clusterLabels.(map[string]interface{})
-		if !ok {
-			log.V(3).Infof("error parsing cluster labels: %v for cluster '%v'", clusterLabels, name)
-		}
-
-		clusterLabelsMapString := make(map[string]string)
-		for key, value := range clusterLabelsMap {
-			clusterLabelsMapString[key] = value.(string)
-		}
-
 		cluster := ClusterInfo{}
-		cluster.Name = getString(name)
-		cluster.Namespace = getString(namespace)
-		cluster.Roles = getClusterRoles(clusterLabelsMapString)
-		cluster.Status = getString(clusterStatus)
-		cluster.Plan = getString(plan)
-		cluster.ControlPlaneCount = fmt.Sprintf("%v/%v", getRunningCPMachineCountForPacific(clusterInfo), getString(desiredCPCount))
-		cluster.WorkerCount = fmt.Sprintf("%v/%v", clusterInfo.md.Status.ReadyReplicas, getString(desiredWorkerCount))
-		cluster.K8sVersion = getString(k8sVersion)
-		cluster.Labels = clusterLabelsMapString
+		cluster.Name = clusterInfo.cluster.Name
+		cluster.Namespace = clusterInfo.cluster.Namespace
+		cluster.Roles = getClusterRoles(clusterInfo.cluster.Labels)
+		cluster.Status = string(clusterInfo.cluster.Status.Phase)
+		cluster.Plan = getClusterPlanForPacific(clusterInfo)
+		cluster.ControlPlaneCount = getClusterControlPlaneCountForPacific(clusterInfo)
+		cluster.WorkerCount = getClusterWorkerCountForPacific(clusterInfo)
+		cluster.K8sVersion = clusterInfo.cluster.Spec.Distribution.Version
+		cluster.Labels = clusterInfo.cluster.Labels
 		clusters = append(clusters, cluster)
 	}
 

@@ -55,7 +55,11 @@ func (c *TkgClient) ScaleCluster(options ScaleClusterOptions) error { // nolint:
 		return errors.Wrap(err, "error determining Tanzu Kubernetes Grid service for vSphere management cluster ")
 	}
 	if isPacific {
-		// If pacific doesn't support the control plane scaling, it will return error
+		err := c.ValidatePacificVersionWithCLI(clusterClient)
+		if err != nil {
+			return err
+		}
+
 		return c.ScalePacificCluster(options, clusterClient)
 	}
 
@@ -121,7 +125,7 @@ func (c *TkgClient) ScalePacificCluster(options ScaleClusterOptions, clusterClie
 		}
 	}
 	if options.ControlPlaneCount > 0 {
-		err := clusterClient.ScalePacificClusterControlPlane(options.ClusterName, options.Namespace, "", options.ControlPlaneCount)
+		err := clusterClient.ScalePacificClusterControlPlane(options.ClusterName, options.Namespace, options.ControlPlaneCount)
 		if err != nil {
 			errList = append(errList, errors.Wrapf(err, "unable to scale control plane for workload cluster %s", options.ClusterName))
 		} else {
@@ -129,7 +133,7 @@ func (c *TkgClient) ScalePacificCluster(options ScaleClusterOptions, clusterClie
 		}
 	}
 	if options.WorkerCount > 0 {
-		err := clusterClient.ScalePacificClusterWorkerNodes(options.ClusterName, options.Namespace, "", options.WorkerCount)
+		err := clusterClient.ScalePacificClusterWorkerNodes(options.ClusterName, options.Namespace, options.WorkerCount)
 		if err != nil {
 			errList = append(errList, errors.Wrapf(err, "unable to scale workers nodes for workload cluster %s", options.ClusterName))
 		} else {

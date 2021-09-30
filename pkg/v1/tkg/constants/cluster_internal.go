@@ -14,7 +14,7 @@ const (
 	// PacificClusterKind vsphere-pacific provider work load cluster kind
 	PacificClusterKind              = "TanzuKubernetesCluster"
 	PacificClusterListKind          = "TanzuKubernetesClusterList"
-	DefaultPacificClusterAPIVersion = "run.tanzu.vmware.com/v1alpha1"
+	DefaultPacificClusterAPIVersion = "run.tanzu.vmware.com/v1alpha2"
 
 	CronJobKind    = "CronJob"
 	CeipNamespace  = "tkg-system-telemetry"

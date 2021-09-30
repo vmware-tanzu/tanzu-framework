@@ -37,7 +37,7 @@ const (
 	// WindowsVSphereProviderName vsphere provider name for windows
 	WindowsVSphereProviderName = "windows-vsphere"
 
-	defaultPacificProviderVersion = "v1.0.0"
+	defaultPacificProviderVersion = "v1.1.0"
 )
 
 const (
@@ -100,6 +100,10 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 		return errors.Wrap(err, "error determining Tanzu Kubernetes Cluster service for vSphere management cluster ")
 	}
 	if isPacific {
+		err := c.ValidatePacificVersionWithCLI(regionalClusterClient)
+		if err != nil {
+			return err
+		}
 		return c.createPacificCluster(options, waitForCluster)
 	}
 
@@ -367,7 +371,7 @@ func (c *TkgClient) createPacificCluster(options *CreateClusterOptions, waitForC
 
 	log.V(3).Infof("Waiting for the Tanzu Kubernetes Cluster service for vSphere workload cluster\n")
 
-	if err := clusterClient.WaitForPacificCluster(clusterName, namespace, ""); err != nil {
+	if err := clusterClient.WaitForPacificCluster(clusterName, namespace); err != nil {
 		return errors.Wrap(err, "failed waiting for workload cluster")
 	}
 	return nil
@@ -385,7 +389,7 @@ func (c *TkgClient) getPacificClusterConfiguration(options *CreateClusterOptions
 	}
 
 	if providerVersion == "" {
-		// TODO: should be changed once we get APIs from Pacific to determine the version, for now using "1.0.0"
+		// TODO: should be changed once we get APIs from Pacific to determine the version, for now using "1.1.0"
 		providerVersion = defaultPacificProviderVersion
 	}
 
@@ -394,6 +398,7 @@ func (c *TkgClient) getPacificClusterConfiguration(options *CreateClusterOptions
 	c.SetProviderType(name)
 	c.SetTKGClusterRole(WorkloadCluster)
 	c.SetTKGVersion()
+	c.TKGConfigReaderWriter().Set(constants.ConfigVariableTkrName, "v"+utils.GetTkrNameFromTkrVersion(options.TKRVersion))
 	err = c.ConfigureAndValidateCNIType(options.CniType)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to validate CNI")

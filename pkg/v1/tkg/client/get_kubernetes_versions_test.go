@@ -4,6 +4,7 @@
 package client_test
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"time"
@@ -13,6 +14,7 @@ import (
 	"github.com/pkg/errors"
 
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
@@ -36,9 +38,21 @@ var _ = Describe("Unit tests for GetTanzuKubernetesReleases", func() {
 		BeforeEach(func() {
 			regionalClusterClient.IsPacificRegionalClusterReturns(true, nil)
 		})
+		Context("When vSphere with Kubernetes TKC API version is not supported", func() {
+			JustBeforeEach(func() {
+				regionalClusterClient.GetPacificTanzuKubernetesReleasesReturns(nil, errors.New("fake-error"))
+				regionalClusterClient.GetPacificTKCAPIVersionReturns("fake-api-versions", nil)
+				tkrInfo, err = tkgClient.DoGetTanzuKubernetesReleases(regionalClusterClient)
+			})
+			It("should return error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("Only %q Tanzu Kubernetes Cluster API version is supported by current version of Tanzu CLI", constants.DefaultPacificClusterAPIVersion)))
+			})
+		})
 		Context("When vSphere with Kubernetes does not support tanzukuberenetesrelease objects", func() {
 			JustBeforeEach(func() {
 				regionalClusterClient.GetPacificTanzuKubernetesReleasesReturns(nil, errors.New("fake-error"))
+				regionalClusterClient.GetPacificTKCAPIVersionReturns(constants.DefaultPacificClusterAPIVersion, nil)
 				tkrInfo, err = tkgClient.DoGetTanzuKubernetesReleases(regionalClusterClient)
 			})
 			It("should return error", func() {
@@ -51,6 +65,7 @@ var _ = Describe("Unit tests for GetTanzuKubernetesReleases", func() {
 			versions := []string{"v1.17.0", "v1.18.1"}
 			JustBeforeEach(func() {
 				regionalClusterClient.GetPacificTanzuKubernetesReleasesReturns(versions, nil)
+				regionalClusterClient.GetPacificTKCAPIVersionReturns(constants.DefaultPacificClusterAPIVersion, nil)
 				tkrInfo, err = tkgClient.DoGetTanzuKubernetesReleases(regionalClusterClient)
 			})
 			It("should not return error", func() {

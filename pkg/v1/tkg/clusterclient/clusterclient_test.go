@@ -23,7 +23,6 @@ import (
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
@@ -38,6 +37,8 @@ import (
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake" //nolint:staticcheck
 	"sigs.k8s.io/yaml"
+
+	tkgsv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
 
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
@@ -75,15 +76,15 @@ func init() {
 	_ = controlplanev1.AddToScheme(scheme)
 	_ = appsv1.AddToScheme(scheme)
 	_ = rbacv1.AddToScheme(scheme)
+	_ = tkgsv1alpha2.AddToScheme(scheme)
 }
 
 var testingDir string
 
 const (
-	fakeTKR1Name  = "fakeTKR1"
-	fakeTKR2Name  = "fakeTKR2"
-	statusRunning = "running"
-	osWindows     = "windows"
+	fakeTKR1Name = "fakeTKR1"
+	fakeTKR2Name = "fakeTKR2"
+	osWindows    = "windows"
 )
 
 const cpiCreds = `#@data/values
@@ -124,10 +125,10 @@ var _ = Describe("Cluster Client", func() {
 		currentKubeCtx         string
 		clusterClientOptions   Options
 
-		tkcPhase       string
 		mdReplicas     Replicas
 		kcpReplicas    Replicas
 		machineObjects []capi.Machine
+		tkcConditions  []capi.Condition
 	)
 
 	BeforeSuite(createTempDirectory)
@@ -988,7 +989,7 @@ var _ = Describe("Cluster Client", func() {
 		Context("When clientset Get api return error", func() {
 			JustBeforeEach(func() {
 				clientset.GetReturns(errors.New("fake-error"))
-				err = clstClient.WaitForPacificCluster("fake-clusterName", "fake-namespace", "fake-version")
+				err = clstClient.WaitForPacificCluster("fake-clusterName", "fake-namespace")
 			})
 			It("should return an error", func() {
 				Expect(err).To(HaveOccurred())
@@ -998,15 +999,18 @@ var _ = Describe("Cluster Client", func() {
 		})
 		Context("When ManagedCluster(pacific cluster) object is present but is not yet provisioned", func() {
 			JustBeforeEach(func() {
-				phaseMap := make(map[string]string)
-				phaseMap["phase"] = "creating"
-				fakeObj := getDummyPacificManagedClusterObj(phaseMap)
 				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster runtime.Object) error {
-					clusterObj := cluster.(*unstructured.Unstructured)
-					*clusterObj = fakeObj
+					conditions := capi.Conditions{}
+					conditions = append(conditions, capi.Condition{
+						Type:    capi.ReadyCondition,
+						Status:  corev1.ConditionFalse,
+						Reason:  "fake-reason",
+						Message: "fake-message",
+					})
+					cluster.(*tkgsv1alpha2.TanzuKubernetesCluster).Status.Conditions = conditions
 					return nil
 				})
-				err = clstClient.WaitForPacificCluster("fake-clusterName", "fake-namespace", "fake-version")
+				err = clstClient.WaitForPacificCluster("fake-clusterName", "fake-namespace")
 			})
 			It("should return an error", func() {
 				Expect(err).To(HaveOccurred())
@@ -1015,18 +1019,80 @@ var _ = Describe("Cluster Client", func() {
 		})
 		Context("When ManagedCluster(pacific cluster) object is present and is running", func() {
 			JustBeforeEach(func() {
-				phaseMap := make(map[string]string)
-				phaseMap["phase"] = statusRunning
-				fakeObj := getDummyPacificManagedClusterObj(phaseMap)
 				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster runtime.Object) error {
-					clusterObj := cluster.(*unstructured.Unstructured)
-					*clusterObj = fakeObj
+					conditions := capi.Conditions{}
+					conditions = append(conditions, capi.Condition{
+						Type:   capi.ReadyCondition,
+						Status: corev1.ConditionTrue,
+					})
+					cluster.(*tkgsv1alpha2.TanzuKubernetesCluster).Status.Conditions = conditions
 					return nil
 				})
-				err = clstClient.WaitForPacificCluster("fake-clusterName", "fake-namespace", "fake-version")
+				err = clstClient.WaitForPacificCluster("fake-clusterName", "fake-namespace")
 			})
 			It("should not return an error", func() {
 				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+	})
+
+	Describe("Patch kubernetes version for Pacific Cluster", func() {
+		BeforeEach(func() {
+			reInitialize()
+			kubeConfigPath := getConfigFilePath("config1.yaml")
+			clstClient, err = NewClient(kubeConfigPath, "", clusterClientOptions)
+			Expect(err).NotTo(HaveOccurred())
+		})
+		Context("When clientset Get api to get ManagedCluster(pacific cluster) object return error", func() {
+			JustBeforeEach(func() {
+				clientset.GetReturns(errors.New("fake-error"))
+				err = clstClient.PatchK8SVersionToPacificCluster("fake-clusterName", "fake-namespace", "fake-kubernetes-version")
+			})
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("failed to get"))
+				Expect(err.Error()).To(ContainSubstring("fake-error"))
+			})
+		})
+		Context("When clientset Patch api return error", func() {
+			JustBeforeEach(func() {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster runtime.Object) error {
+					tkc := getDummyPacificCluster()
+					*(cluster.(*tkgsv1alpha2.TanzuKubernetesCluster)) = tkc
+					return nil
+				})
+				clientset.PatchReturns(errors.New("fake-patch-error"))
+				err = clstClient.PatchK8SVersionToPacificCluster("fake-clusterName", "fake-namespace", "fake-kubernetes-version")
+			})
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("unable to patch the k8s version for tkc object"))
+			})
+		})
+		Context("When clientset Patch api return success", func() {
+			var gotPatch string
+			JustBeforeEach(func() {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster runtime.Object) error {
+					tkc := getDummyPacificCluster()
+					*(cluster.(*tkgsv1alpha2.TanzuKubernetesCluster)) = tkc
+					return nil
+				})
+				clientset.PatchCalls(func(ctx context.Context, cluster runtime.Object, patch crtclient.Patch, patchoptions ...crtclient.PatchOption) error {
+					patchBytes, err := patch.Data(cluster)
+					Expect(err).NotTo(HaveOccurred())
+					gotPatch = string(patchBytes)
+					return nil
+				})
+				err = clstClient.PatchK8SVersionToPacificCluster("fake-clusterName", "fake-namespace", "1.22.10---vmware.1-tkg.1.abc")
+			})
+			It("should not return an error", func() {
+				Expect(err).ToNot(HaveOccurred())
+				controlPlaneJsonPatchString := `{"op":"replace","path":"/spec/topology/controlPlane/tkr/reference/name","value":"v1.22.10---vmware.1-tkg.1.abc"}`
+				nodePool0JsonPatchString := `{"op":"replace","path":"/spec/topology/nodePools/0/tkr/reference/name","value":"v1.22.10---vmware.1-tkg.1.abc"}`
+				nodePool1JsonPatchString := `{"op":"replace","path":"/spec/topology/nodePools/1/tkr/reference/name","value":"v1.22.10---vmware.1-tkg.1.abc"}`
+				Expect(gotPatch).To(ContainSubstring(controlPlaneJsonPatchString))
+				Expect(gotPatch).To(ContainSubstring(nodePool0JsonPatchString))
+				Expect(gotPatch).To(ContainSubstring(nodePool1JsonPatchString))
 			})
 		})
 	})
@@ -1281,48 +1347,51 @@ var _ = Describe("Cluster Client", func() {
 				}
 				return nil
 			})
-			phaseMap := make(map[string]string)
-			phaseMap["phase"] = tkcPhase
-			fakeObj := getDummyPacificManagedClusterObj(phaseMap)
 			clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster runtime.Object) error {
-				clusterObj := cluster.(*unstructured.Unstructured)
-				*clusterObj = fakeObj
+
+				cluster.(*tkgsv1alpha2.TanzuKubernetesCluster).Status.Conditions = tkcConditions
 				return nil
 			})
-			err = clstClient.WaitForPacificClusterK8sVersionUpdate("fake-cluster-name", "fake-cluster-namespace", "fake-api-version", "fake-new-version-xyz.1.bba948a")
+			err = clstClient.WaitForPacificClusterK8sVersionUpdate("fake-cluster-name", "fake-cluster-namespace", "fake-new-version-xyz.1.bba948a")
 		})
 
-		Context("When cluster status is 'updateFailed", func() {
+		Context("When cluster 'Ready` condition was 'False' and severity was set to 'Error' ", func() {
 			BeforeEach(func() {
-				tkcPhase = "updateFailed"
+				tkcConditions = capi.Conditions{}
+				tkcConditions = append(tkcConditions, capi.Condition{
+					Type:     capi.ReadyCondition,
+					Status:   corev1.ConditionFalse,
+					Severity: capi.ConditionSeverityError,
+				})
 			})
 			It("should return an update failed error", func() {
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(ContainSubstring("cluster kubernetes version update failed"))
 			})
 		})
-		Context("When cluster status is 'deleting", func() {
+
+		Context("When cluster 'Ready` condition was 'False' and severity was set to 'Warning'", func() {
 			BeforeEach(func() {
-				tkcPhase = "deleting"
-			})
-			It("should return an update failed error", func() {
-				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("cluster kubernetes version update failed"))
-			})
-		})
-		Context("When cluster status is 'updating", func() {
-			BeforeEach(func() {
-				tkcPhase = "updating"
+				tkcConditions = capi.Conditions{}
+				tkcConditions = append(tkcConditions, capi.Condition{
+					Type:     capi.ReadyCondition,
+					Status:   corev1.ConditionFalse,
+					Severity: capi.ConditionSeverityWarning,
+				})
 			})
 			It("should return an update in progress error", func() {
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(ContainSubstring("cluster kubernetes version is still being upgraded"))
 			})
 		})
-		Context("When cluster status is 'running", func() {
+		Context("When cluster 'Ready` condition was 'True'", func() {
 			Context("When some worker machine objects has old k8s version", func() {
 				BeforeEach(func() {
-					tkcPhase = statusRunning
+					tkcConditions = capi.Conditions{}
+					tkcConditions = append(tkcConditions, capi.Condition{
+						Type:   capi.ReadyCondition,
+						Status: corev1.ConditionTrue,
+					})
 					machineObjects = append(machineObjects, getDummyMachine("fake-machine-1", "fake-new-version", false))
 					machineObjects = append(machineObjects, getDummyMachine("fake-machine-2", "fake-old-version", false))
 				})
@@ -1333,7 +1402,11 @@ var _ = Describe("Cluster Client", func() {
 			})
 			Context("When all worker machine objects has new k8s version", func() {
 				BeforeEach(func() {
-					tkcPhase = statusRunning
+					tkcConditions = capi.Conditions{}
+					tkcConditions = append(tkcConditions, capi.Condition{
+						Type:   capi.ReadyCondition,
+						Status: corev1.ConditionTrue,
+					})
 					machineObjects = append(machineObjects, getDummyMachine("fake-machine-1", "fake-new-version", false))
 					machineObjects = append(machineObjects, getDummyMachine("fake-machine-1", "fake-new-version", false))
 				})
@@ -2225,14 +2298,6 @@ func copyFile(sourceFile, destFile string) {
 	_ = os.WriteFile(destFile, input, constants.ConfigFilePermissions)
 }
 
-func getDummyPacificManagedClusterObj(phaseobj interface{}) unstructured.Unstructured {
-	fakeObj := unstructured.Unstructured{}
-	objectMap := make(map[string]interface{})
-	objectMap["status"] = phaseobj
-	fakeObj.Object = objectMap
-	return fakeObj
-}
-
 func getDummyPinnipedInfoConfigMap(configMapData map[string]string) corev1.ConfigMap {
 	fakeConfigMap := corev1.ConfigMap{}
 	fakeConfigMap.Data = configMapData
@@ -2292,4 +2357,45 @@ func getKubeadmConfigConfigMap(filename string) (*corev1.ConfigMap, error) {
 	configMap := &corev1.ConfigMap{}
 	err := yaml.Unmarshal(configMapBytes, configMap)
 	return configMap, err
+}
+
+func getDummyPacificCluster() tkgsv1alpha2.TanzuKubernetesCluster {
+	var controlPlaneReplicas int32 = 1
+	var nodepoolReplicase int32 = 2
+	controlPlane := tkgsv1alpha2.TopologySettings{
+		Replicas: &controlPlaneReplicas,
+		TKR: tkgsv1alpha2.TKRReference{
+			Reference: &corev1.ObjectReference{
+				Name: "dummy-tkr",
+			},
+		},
+	}
+	nodepools := []tkgsv1alpha2.NodePool{
+		{Name: "nodepool-1",
+			TopologySettings: tkgsv1alpha2.TopologySettings{
+				Replicas: &nodepoolReplicase,
+				TKR: tkgsv1alpha2.TKRReference{
+					Reference: &corev1.ObjectReference{
+						Name: "dummy-tkr",
+					},
+				},
+			},
+		},
+		{Name: "nodepool-2",
+			TopologySettings: tkgsv1alpha2.TopologySettings{
+				Replicas: &nodepoolReplicase,
+				TKR: tkgsv1alpha2.TKRReference{
+					Reference: &corev1.ObjectReference{
+						Name: "dummy-tkr",
+					},
+				},
+			},
+		},
+	}
+
+	tkc := tkgsv1alpha2.TanzuKubernetesCluster{}
+	tkc.ClusterName = "DummyTKC"
+	tkc.Spec.Topology.ControlPlane = controlPlane
+	tkc.Spec.Topology.NodePools = nodepools
+	return tkc
 }

@@ -1,4 +1,4 @@
-apiVersion: run.tanzu.vmware.com/v1alpha1
+apiVersion: run.tanzu.vmware.com/v1alpha2
 kind: TanzuKubernetesCluster
 metadata:
   name: ${CLUSTER_NAME}
@@ -6,8 +6,6 @@ metadata:
   labels:
     tkg.tanzu.vmware.com/cluster-name: '${ CLUSTER_NAME }'
 spec:
-  distribution:
-    version: ${KUBERNETES_VERSION}
   settings:
     network:
       cni:
@@ -25,10 +23,19 @@ spec:
 
   topology:
     controlPlane:
-      class: ${CONTROL_PLANE_VM_CLASS}
-      count: ${CONTROL_PLANE_MACHINE_COUNT}
+      vmClass: ${CONTROL_PLANE_VM_CLASS}
+      replicas: ${CONTROL_PLANE_MACHINE_COUNT}
       storageClass: ${CONTROL_PLANE_STORAGE_CLASS}
-    workers:
-      class: ${WORKER_VM_CLASS}
-      count: ${WORKER_MACHINE_COUNT}
-      storageClass: ${WORKER_STORAGE_CLASS}
+      tkr:
+        reference:
+          name: ${KUBERNETES_RELEASE}
+    nodePools:
+     - name: ${NODE_POOL_0_NAME}
+       labels: {}
+       taints: []
+       vmClass: ${WORKER_VM_CLASS}
+       replicas: ${WORKER_MACHINE_COUNT}
+       storageClass: ${WORKER_STORAGE_CLASS}
+       tkr:
+        reference:
+          name: ${KUBERNETES_RELEASE}
