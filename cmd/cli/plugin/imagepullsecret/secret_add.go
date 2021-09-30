@@ -12,11 +12,14 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
+
+const errInvalidPasswordFlags = "exactly one of --password, --password-file, --password-env-var flags should be provided"
 
 var imagePullSecretOp = tkgpackagedatamodel.NewImagePullSecretOptions()
 
@@ -25,10 +28,10 @@ var imagePullSecretAddCmd = &cobra.Command{
 	Short: "Creates a v1/Secret resource of type kubernetes.io/dockerconfigjson. In case of specifying the --export-to-all-namespaces flag, a SecretExport resource will also get created",
 	Example: `
     # Add an image pull secret
-    tanzu imagepullsecret add test-secret --registry projects-stg.registry.vmware.com --username test-user --password-file test-file,
+    tanzu imagepullsecret add test-secret --registry projects-stg.registry.vmware.com --username test-user --password-file test-file
 
-	# Add an image pull secret with 'export-to-all-namespaces' flag being set
-	tanzu imagepullsecret add test-secret --registry projects-stg.registry.vmware.com --username test-user --password test-pass --export-to-all-namespaces`,
+    # Add an image pull secret with 'export-to-all-namespaces' flag being set
+    tanzu imagepullsecret add test-secret --registry projects-stg.registry.vmware.com --username test-user --password test-pass --export-to-all-namespaces`,
 	PreRunE: secretGenAvailabilityCheck,
 	RunE:    imagePullSecretAdd,
 }
@@ -41,7 +44,7 @@ func init() {
 	imagePullSecretAddCmd.Flags().StringVarP(&imagePullSecretOp.PasswordEnvVar, "password-env-var", "", "", "Environment variable containing the password for authenticating to the private registry")
 	imagePullSecretAddCmd.Flags().StringVarP(&imagePullSecretOp.Namespace, "namespace", "n", "default", "Target namespace to add the image pull secret, optional")
 	imagePullSecretAddCmd.Flags().StringVarP(&imagePullSecretOp.KubeConfig, "kubeconfig", "", "", "The path to the kubeconfig file, optional")
-	imagePullSecretAddCmd.Flags().BoolVarP(&imagePullSecretOp.PasswordStdin, "password-stdin", "", false, "When provided, password for authenticating to the private registry would be taken from the standard input, optional")
+	imagePullSecretAddCmd.Flags().BoolVarP(&imagePullSecretOp.PasswordStdin, "password-stdin", "", false, "When provided, password for authenticating to the private registry would be taken from the standard input")
 	imagePullSecretAddCmd.Flags().BoolVarP(&imagePullSecretOp.ExportToAllNamespaces, "export-to-all-namespaces", "", false, "Make the image pull secret available across all namespaces (i.e. create SecretExport with toNamespace=*), optional")
 	imagePullSecretAddCmd.Args = cobra.ExactArgs(1)
 	imagePullSecretAddCmd.MarkFlagRequired("registry") //nolint
@@ -69,10 +72,19 @@ func imagePullSecretAdd(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	if password == "" {
+		return errors.New(errInvalidPasswordFlags)
+	}
 	imagePullSecretOp.Password = password
 
+	cmd.SilenceUsage = true
+
 	if imagePullSecretOp.ExportToAllNamespaces {
-		log.Warning("Warning: By choosing --export-to-all-namespaces, given secret contents will be available to ALL users in ALL namespaces. Please ensure that included registry credentials are read only and are safe to share.\n\n")
+		log.Warning("Warning: By choosing --export-to-all-namespaces, given secret contents will be available to ALL users in ALL namespaces. Please ensure that included registry credentials allow only read-only access to the registry with minimal necessary scope.\n\n")
+		if err := cli.AskForConfirmation("Are you sure you want to proceed?"); err != nil {
+			return errors.New("creation of the secret got aborted")
+		}
+		log.Info("\n")
 	}
 
 	pkgClient, err := tkgpackageclient.NewTKGPackageClient(imagePullSecretOp.KubeConfig)
@@ -99,8 +111,6 @@ func extractPassword() (string, error) {
 		isPasswordSet bool
 		password      string
 	)
-
-	errInvalidPasswordFlags := "exactly one of --password, --password-file, --password-env-var flags should be provided"
 
 	if imagePullSecretOp.PasswordInput != "" {
 		password = imagePullSecretOp.PasswordInput
@@ -134,10 +144,6 @@ func extractPassword() (string, error) {
 			return "", errors.New(errInvalidPasswordFlags)
 		}
 		password = os.Getenv(imagePullSecretOp.PasswordEnvVar)
-	}
-
-	if password == "" {
-		return "", errors.New(errInvalidPasswordFlags)
 	}
 
 	return password, nil

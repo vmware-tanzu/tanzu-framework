@@ -188,7 +188,7 @@ func (p *pkgClient) createDataValuesSecret(o *tkgpackagedatamodel.PackageOptions
 	if dataValues[filepath.Base(o.ValuesFile)], err = ioutil.ReadFile(o.ValuesFile); err != nil {
 		return false, errors.Wrap(err, fmt.Sprintf("failed to read from data values file '%s'", o.ValuesFile))
 	}
-	secret := &corev1.Secret{
+	secret = &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        o.SecretName,
 			Namespace:   o.Namespace,

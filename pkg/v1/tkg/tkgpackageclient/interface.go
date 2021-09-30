@@ -31,6 +31,7 @@ type TKGPackageClient interface {
 	ListRepositories(o *tkgpackagedatamodel.RepositoryOptions) (*kappipkg.PackageRepositoryList, error)
 	ListSecretExports(o *tkgpackagedatamodel.ImagePullSecretOptions) (*secretgen.SecretExportList, error)
 	UninstallPackage(o *tkgpackagedatamodel.PackageOptions, packageProgress *tkgpackagedatamodel.PackageProgress)
+	UpdateImagePullSecret(o *tkgpackagedatamodel.ImagePullSecretOptions) error
 	UpdatePackage(o *tkgpackagedatamodel.PackageOptions, packageProgress *tkgpackagedatamodel.PackageProgress)
 	UpdateRepository(o *tkgpackagedatamodel.RepositoryOptions) error
 }

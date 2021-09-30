@@ -18,7 +18,7 @@ import (
 
 // DeleteImagePullSecret deletes an image pull secret from the cluster
 func (p *pkgClient) DeleteImagePullSecret(o *tkgpackagedatamodel.ImagePullSecretOptions) (bool, error) {
-	secretExport := &secretgenctrl.SecretExport{
+	secretExport = &secretgenctrl.SecretExport{
 		TypeMeta:   metav1.TypeMeta{Kind: tkgpackagedatamodel.KindSecretExport, APIVersion: secretgenctrl.SchemeGroupVersion.String()},
 		ObjectMeta: metav1.ObjectMeta{Name: o.SecretName, Namespace: o.Namespace},
 	}
@@ -28,7 +28,7 @@ func (p *pkgClient) DeleteImagePullSecret(o *tkgpackagedatamodel.ImagePullSecret
 		}
 	}
 
-	secret := &corev1.Secret{
+	secret = &corev1.Secret{
 		TypeMeta:   metav1.TypeMeta{Kind: tkgpackagedatamodel.KindSecret, APIVersion: corev1.SchemeGroupVersion.String()},
 		ObjectMeta: metav1.ObjectMeta{Name: o.SecretName, Namespace: o.Namespace},
 	}
