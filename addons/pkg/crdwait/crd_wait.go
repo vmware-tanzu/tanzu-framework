@@ -17,7 +17,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 	typedcorev1 "k8s.io/client-go/kubernetes/typed/core/v1"
 	"k8s.io/client-go/tools/record"
-	ctrl "sigs.k8s.io/controller-runtime"
 )
 
 type clientSetProvider func() (kubernetes.Interface, error)
@@ -110,9 +109,4 @@ func (c *CRDWaiter) getEventRecorder(clientSet kubernetes.Interface, component s
 	}
 
 	return recorder, eventBroadcaster
-}
-
-// GetClientSet returns ClientSet. Tests can return fake clientSet
-func GetClientSet() (kubernetes.Interface, error) {
-	return kubernetes.NewForConfig(ctrl.GetConfigOrDie())
 }
