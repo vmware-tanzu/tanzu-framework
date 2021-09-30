@@ -1,10 +1,12 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:json", "json")
+
+### No need to go through the whole avi load if not enabled...
+#@ if data.values.PROVIDER_TYPE == "vsphere" and data.values.TKG_CLUSTER_ROLE != "workload" and data.values.AVI_ENABLE and data.values.AVI_CONTROL_PLANE_HA_PROVIDER:
 #@ load("static.lib.yaml", "crd","service")
 #@ load("rbac.lib.yaml", "role", "role_binding")
 #@ load("ako-operator-deployment.lib.yaml", "akoo_deployment", "ako_deployment_config", "avi_credentials", "avi_certificate")
 
-#@ if data.values.PROVIDER_TYPE == "vsphere" and data.values.TKG_CLUSTER_ROLE != "workload" and data.values.AVI_ENABLE and data.values.AVI_CONTROL_PLANE_HA_PROVIDER:
 --- #@ crd()
 --- #@ service()
 --- #@ role()

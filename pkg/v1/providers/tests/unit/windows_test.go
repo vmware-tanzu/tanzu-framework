@@ -19,10 +19,7 @@ var _ = Describe("Windows Ytt Templating", func() {
 	YAML_ROOT := "../../"
 	BeforeEach(func() {
 		paths = []string{
-			/**
-			Adopted from this hacky string...
-			/usr/local/bin/ytt --ignore-unknown-comments --data-value=TKG_CLUSTER_ROLE=management --data-value=IS_WINDOWS_WORKLOAD_CLUSTER=true --data-value=VSPHERE_USERNAME=a --data-value=VSPHERE_PASSWORD=a --data-value=VSPHERE_SERVER=a --data-value=VSPHERE_DATACENTER=a --data-value=VSPHERE_RESOURCE_POOL=a --data-value=VSPHERE_FOLDER=a, --data-value=VSPHERE_SSH_AUTHORIZED_KEY="a" -f tkr-bom-v1.21.1.yaml -f tkg-bom-v1.4.0.yaml -f config.yaml --data-value=TKG_DEFAULT_BOM=tkg-bom-v1.4.0.yaml --data-value=KUBERNETES_RELEASE=v1.21.2---vmware.1-tkg.2-20210924-539f8b15 -f ../../config_default.yaml -f ../../infrastructure-vsphere/v0.7.10/ytt/base-template.yaml -f ../../infrastructure-vsphere/v0.7.10/ytt/overlay-windows.yaml  -f ../..//ytt/02_addons/cni/antrea/antrea_addon_data.lib.yaml -f ../../ytt/02_addons/cpi/cpi_addon_data.lib.yaml -f ../../provider-bundle/providers/ytt/02_addons/cpi/cpi_addon_data.lib.yaml -f ./ytt_libs_4_test/
-			*/
+			//  Map item (key 'infraProvider') on line stdin.yml:8:
 			filepath.Join(YAML_ROOT, "config_default.yaml"),
 			filepath.Join("./tkr-bom-v1.21.1.yaml"),
 			filepath.Join("./tkg-bom-v1.4.0.yaml"),
@@ -31,11 +28,13 @@ var _ = Describe("Windows Ytt Templating", func() {
 			filepath.Join(YAML_ROOT, "ytt", "02_addons", "cni", "antrea", "antrea_addon_data.lib.yaml"),
 			filepath.Join(YAML_ROOT, "ytt", "02_addons", "cpi", "cpi_addon_data.lib.yaml"),
 			filepath.Join(YAML_ROOT, "provider-bundle", "providers", "ytt", "02_addons", "cpi", "cpi_addon_data.lib.yaml"),
-			filepath.Join("./ytt_libs_4_test/"),
+			filepath.Join(YAML_ROOT, "ytt"), // lib/helpers.star, lib/config_variable_association.star, lib/validate.star
 		}
 	})
 	It("Has a windows overlay", func() {
 		values := createDataValues(map[string]string{
+			"VSPHERE_INSECURE":            "true",
+			"PROVIDER_TYPE":               "vsphere",
 			"IS_WINDOWS_WORKLOAD_CLUSTER": "true",
 			"TKG_CLUSTER_ROLE":            "management",
 			"VSPHERE_USERNAME":            "a",
@@ -53,3 +52,31 @@ var _ = Describe("Windows Ytt Templating", func() {
 		Expect(err).NotTo(HaveOccurred())
 	})
 })
+
+/**
+Adopted from this hacky string...
+/usr/local/bin/ytt
+--ignore-unknown-comments
+--data-value=infraProvider=vsphere
+--data-value=TKG_CLUSTER_ROLE=management
+--data-value=IS_WINDOWS_WORKLOAD_CLUSTER=true
+--data-value=VSPHERE_USERNAME=a
+--data-value=VSPHERE_PASSWORD=a
+--data-value=VSPHERE_SERVER=a
+--data-value=VSPHERE_DATACENTER=a
+--data-value=VSPHERE_RESOURCE_POOL=a
+--data-value=VSPHERE_FOLDER=a,
+--data-value=VSPHERE_SSH_AUTHORIZED_KEY="a"
+-f tkr-bom-v1.21.1.yaml
+-f tkg-bom-v1.4.0.yaml
+-f config.yaml
+--data-value=TKG_DEFAULT_BOM=tkg-bom-v1.4.0.yaml
+--data-value=KUBERNETES_RELEASE=v1.21.2---vmware.1-tkg.2-20210924-539f8b15
+-f ../../config_default.yaml
+-f ../../infrastructure-vsphere/v0.7.10/ytt/base-template.yaml
+-f ../../infrastructure-vsphere/v0.7.10/ytt/overlay-windows.yaml
+-f ../..//ytt/02_addons/cni/antrea/antrea_addon_data.lib.yaml
+-f ../../ytt/02_addons/cpi/cpi_addon_data.lib.yaml
+-f ../../provider-bundle/providers/ytt/02_addons/cpi/cpi_addon_data.lib.yaml
+-f ./ytt_libs_4_test/
+*/
