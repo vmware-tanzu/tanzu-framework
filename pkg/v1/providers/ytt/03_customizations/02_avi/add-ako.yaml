@@ -4,7 +4,7 @@
 #@ load("ako-deployment.lib.yaml", "ako_namespace", "ako_serviceaccount",
 #@    "ako_configmap", "ako_clusterrole", "ako_clusterrolebinding",
 #@    "ako_statefulset", "ako_podsecuritypolicy", "ako_ingressclass",
-#@    "hostrules_crd", "httprules_crd", "aviinfrasettings_crd", "avi_secret")
+#@    "hostrules_crd", "httprules_crd", "aviinfrasettings_crd")
 
 #! render the ako artifacts
 #@ if data.values.PROVIDER_TYPE == "vsphere" and data.values.TKG_CLUSTER_ROLE != "workload" and data.values.AVI_ENABLE and data.values.AVI_CONTROL_PLANE_HA_PROVIDER:
@@ -19,5 +19,4 @@
 --- #@ hostrules_crd()
 --- #@ httprules_crd()
 --- #@ aviinfrasettings_crd()
---- #@ avi_secret()
 #@ end
