@@ -33,6 +33,8 @@ func init() {
 }
 
 func repositoryList(cmd *cobra.Command, _ []string) error {
+	cmd.SilenceUsage = true
+
 	pkgClient, err := tkgpackageclient.NewTKGPackageClient(repoOp.KubeConfig)
 	if err != nil {
 		return err

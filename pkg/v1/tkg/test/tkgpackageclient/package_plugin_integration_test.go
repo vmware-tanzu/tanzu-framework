@@ -368,6 +368,7 @@ func testHelper() {
 	Expect(result.Error).ToNot(HaveOccurred())
 
 	By("delete package repository")
+	repoOptions.SkipPrompt = true
 	result = packagePlugin.DeleteRepository(&repoOptions)
 	Expect(result.Error).ToNot(HaveOccurred())
 

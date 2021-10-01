@@ -8,6 +8,9 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
@@ -21,13 +24,19 @@ var _ = Describe("Delete Repository", func() {
 			RepositoryName: testRepoName,
 			IsForceDelete:  false,
 		}
-		options = opts
-		found   bool
+		options  = opts
+		progress *tkgpackagedatamodel.PackageProgress
 	)
 
 	JustBeforeEach(func() {
+		progress = &tkgpackagedatamodel.PackageProgress{
+			ProgressMsg: make(chan string, 10),
+			Err:         make(chan error),
+			Done:        make(chan struct{}),
+		}
 		ctl = &pkgClient{kappClient: kappCtl}
-		found, err = ctl.DeleteRepository(&options)
+		go ctl.DeleteRepository(&options, progress)
+		err = testReceive(progress)
 	})
 
 	Context("failure in deleting the package repository due to DeletePackageRepository API error", func() {
@@ -43,14 +52,26 @@ var _ = Describe("Delete Repository", func() {
 		AfterEach(func() { options = opts })
 	})
 
-	Context("not being able to get the package repository, no error should be returned", func() {
+	Context("not being able to get the package repository due to failure in GetPackageRepository", func() {
 		BeforeEach(func() {
 			kappCtl = &fakes.KappClient{}
 			kappCtl.GetPackageRepositoryReturns(nil, errors.New("failure in GetPackageRepository"))
 		})
 		It(testSuccessMsg, func() {
-			Expect(err).NotTo(HaveOccurred())
-			Expect(found).To(BeFalse())
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("failure in GetPackageRepository"))
+		})
+		AfterEach(func() { options = opts })
+	})
+
+	Context("not being able to get the package repository due to non existent repository", func() {
+		BeforeEach(func() {
+			kappCtl = &fakes.KappClient{}
+			kappCtl.GetPackageRepositoryReturns(nil, apierrors.NewNotFound(schema.GroupResource{Resource: tkgpackagedatamodel.KindPackageRepository}, testRepoName))
+		})
+		It(testSuccessMsg, func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring(tkgpackagedatamodel.ErrRepoNotExists))
 		})
 		AfterEach(func() { options = opts })
 	})
@@ -64,7 +85,6 @@ var _ = Describe("Delete Repository", func() {
 		})
 		It(testSuccessMsg, func() {
 			Expect(err).ToNot(HaveOccurred())
-			Expect(found).To(BeTrue())
 		})
 		AfterEach(func() { options = opts })
 	})

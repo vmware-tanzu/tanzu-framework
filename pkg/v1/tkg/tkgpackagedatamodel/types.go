@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// nolint
 package tkgpackagedatamodel
 
 import (
@@ -15,6 +16,20 @@ type PackagePluginNonCriticalError struct {
 }
 
 func (e *PackagePluginNonCriticalError) Error() string { return e.Reason }
+
+type ResourceType int
+
+const (
+	ResourceTypePackageInstall ResourceType = iota
+	ResourceTypePackageRepository
+)
+
+type OperationType int
+
+const (
+	OperationTypeInstall OperationType = iota
+	OperationTypeUpdate
+)
 
 // TypeBoolPtr satisfies Value interface defined in "https://github.com/spf13/pflag/blob/master/flag.go"
 type TypeBoolPtr struct {

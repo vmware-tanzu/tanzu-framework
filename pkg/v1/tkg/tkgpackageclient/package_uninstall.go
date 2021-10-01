@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
@@ -32,7 +33,7 @@ func (p *pkgClient) UninstallPackage(o *tkgpackagedatamodel.PackageOptions, prog
 	)
 
 	defer func() {
-		packageProgressCleanup(err, progress)
+		progressCleanup(err, progress)
 	}()
 
 	progress.ProgressMsg <- fmt.Sprintf("Getting package install for '%s'", o.PkgInstallName)
@@ -55,21 +56,13 @@ func (p *pkgClient) UninstallPackage(o *tkgpackagedatamodel.PackageOptions, prog
 		return
 	}
 
-	if err = p.waitForPackageInstallDeletion(o, progress.ProgressMsg); err != nil {
+	if err = p.waitForResourceDeletion(o.PkgInstallName, o.Namespace, o.PollInterval, o.PollTimeout, progress.ProgressMsg, tkgpackagedatamodel.ResourceTypePackageInstall); err != nil {
 		return
 	}
 
 	if err = p.deletePkgPluginCreatedResources(pkgInstall, progress.ProgressMsg); err != nil {
 		return
 	}
-}
-
-func packageProgressCleanup(err error, progress *tkgpackagedatamodel.PackageProgress) {
-	if err != nil {
-		progress.Err <- err
-	}
-	close(progress.ProgressMsg)
-	close(progress.Done)
 }
 
 // deletePkgPluginCreatedResources deletes the associated resources which were installed upon installation of the PackageInstall CR
@@ -151,33 +144,6 @@ func (p *pkgClient) deletePackageInstall(o *tkgpackagedatamodel.PackageOptions) 
 	return nil
 }
 
-// waitForPackageInstallDeletion waits until the PackageInstall CR gets deleted successfully or a failure happens
-func (p *pkgClient) waitForPackageInstallDeletion(o *tkgpackagedatamodel.PackageOptions, progress chan string) error {
-	if err := wait.Poll(o.PollInterval, o.PollTimeout, func() (done bool, err error) {
-		pkgInstall, err := p.kappClient.GetPackageInstall(o.PkgInstallName, o.Namespace)
-		if err != nil {
-			if apierrors.IsNotFound(err) {
-				return true, nil
-			}
-			return false, err
-		}
-		for _, cond := range pkgInstall.Status.Conditions {
-			if progress != nil {
-				progress <- fmt.Sprintf("Package uninstall status: %s", cond.Type)
-			}
-			if cond.Type == kappctrl.DeleteFailed {
-				return false, fmt.Errorf("package install deletion failed: %s", pkgInstall.Status.UsefulErrorMessage)
-			}
-		}
-
-		return false, nil
-	}); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // deletePreviouslyInstalledResources deletes the related resources if previously installed through the package plugin
 func (p *pkgClient) deletePreviouslyInstalledResources(o *tkgpackagedatamodel.PackageOptions) error {
 	var objMeta metav1.ObjectMeta
@@ -240,6 +206,55 @@ func (p *pkgClient) deleteAnnotatedResource(obj runtime.Object, objKey crtclient
 			}
 			break
 		}
+	}
+
+	return nil
+}
+
+func progressCleanup(err error, progress *tkgpackagedatamodel.PackageProgress) {
+	if err != nil {
+		progress.Err <- err
+	}
+	close(progress.ProgressMsg)
+	close(progress.Done)
+}
+
+// waitForResourceDeletion waits until the CR gets deleted successfully or a failure happens
+func (p *pkgClient) waitForResourceDeletion(name, namespace string, pollInterval, pollTimeout time.Duration, progress chan string, rscType tkgpackagedatamodel.ResourceType) error {
+	var status kappctrl.GenericStatus
+	if err := wait.Poll(pollInterval, pollTimeout, func() (done bool, err error) {
+		switch rscType {
+		case tkgpackagedatamodel.ResourceTypePackageRepository:
+			resource, err := p.kappClient.GetPackageRepository(name, namespace)
+			if err != nil {
+				if apierrors.IsNotFound(err) {
+					return true, nil
+				}
+				return false, err
+			}
+			status = resource.Status.GenericStatus
+		case tkgpackagedatamodel.ResourceTypePackageInstall:
+			resource, err := p.kappClient.GetPackageInstall(name, namespace)
+			if err != nil {
+				if apierrors.IsNotFound(err) {
+					return true, nil
+				}
+				return false, err
+			}
+			status = resource.Status.GenericStatus
+		}
+		for _, cond := range status.Conditions {
+			if progress != nil {
+				progress <- fmt.Sprintf("Resource deletion status: %s", cond.Type)
+			}
+			if cond.Type == kappctrl.DeleteFailed {
+				return false, fmt.Errorf("resource deletion failed: %s. %s", status.UsefulErrorMessage, status.FriendlyDescription)
+			}
+		}
+
+		return false, nil
+	}); err != nil {
+		return err
 	}
 
 	return nil

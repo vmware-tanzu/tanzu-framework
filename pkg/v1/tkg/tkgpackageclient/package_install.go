@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
+	"time"
 
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
@@ -31,7 +32,7 @@ const (
 )
 
 // InstallPackage installs the PackageInstall and its associated resources in the cluster
-func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progress *tkgpackagedatamodel.PackageProgress, update bool) { //nolint:gocyclo
+func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progress *tkgpackagedatamodel.PackageProgress, operationType tkgpackagedatamodel.OperationType) { //nolint:gocyclo
 	var (
 		pkgInstall            *kappipkg.PackageInstall
 		err                   error
@@ -40,7 +41,13 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 	)
 
 	defer func() {
-		packageInstallProgressCleanup(err, progress, update)
+		if err != nil {
+			progress.Err <- err
+		}
+		if operationType == tkgpackagedatamodel.OperationTypeInstall {
+			close(progress.ProgressMsg)
+			close(progress.Done)
+		}
 	}()
 
 	if pkgInstall, err = p.kappClient.GetPackageInstall(o.PkgInstallName, o.Namespace); err != nil {
@@ -51,7 +58,7 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 	}
 
 	if pkgInstall != nil && pkgInstall.Name == o.PkgInstallName {
-		err = &tkgpackagedatamodel.PackagePluginNonCriticalError{Reason: tkgpackagedatamodel.ErrPackageAlreadyInstalled}
+		err = errors.New(fmt.Sprintf("package install '%s' already exists in namespace '%s'", o.PkgInstallName, o.Namespace))
 		return
 	}
 
@@ -121,20 +128,10 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 	}
 
 	if o.Wait {
-		if err = p.waitForPackageInstallation(o, progress.ProgressMsg); err != nil {
+		if err = p.waitForResourceInstallation(o.PkgInstallName, o.Namespace, o.PollInterval, o.PollTimeout, progress.ProgressMsg, tkgpackagedatamodel.ResourceTypePackageInstall); err != nil {
 			log.Warning(msgRunPackageInstalledUpdate)
 			return
 		}
-	}
-}
-
-func packageInstallProgressCleanup(err error, progress *tkgpackagedatamodel.PackageProgress, update bool) {
-	if err != nil {
-		progress.Err <- err
-	}
-	if !update {
-		close(progress.ProgressMsg)
-		close(progress.Done)
 	}
 }
 
@@ -277,22 +274,33 @@ func (p *pkgClient) createServiceAccount(o *tkgpackagedatamodel.PackageOptions) 
 	return true, nil
 }
 
-// waitForPackageInstallation waits until the package get installed successfully or a failure happen
-func (p *pkgClient) waitForPackageInstallation(o *tkgpackagedatamodel.PackageOptions, progress chan string) error {
-	if err := wait.Poll(o.PollInterval, o.PollTimeout, func() (done bool, err error) {
-		pkg, err := p.kappClient.GetPackageInstall(o.PkgInstallName, o.Namespace)
-		if err != nil {
-			return false, err
+// waitForResourceInstallation waits until the package get installed successfully or a failure happen
+func (p *pkgClient) waitForResourceInstallation(name, namespace string, pollInterval, pollTimeout time.Duration, progress chan string, rscType tkgpackagedatamodel.ResourceType) error {
+	var status kappctrl.GenericStatus
+	if err := wait.Poll(pollInterval, pollTimeout, func() (done bool, err error) {
+		switch rscType {
+		case tkgpackagedatamodel.ResourceTypePackageRepository:
+			resource, err := p.kappClient.GetPackageRepository(name, namespace)
+			if err != nil {
+				return false, err
+			}
+			status = resource.Status.GenericStatus
+		case tkgpackagedatamodel.ResourceTypePackageInstall:
+			resource, err := p.kappClient.GetPackageInstall(name, namespace)
+			if err != nil {
+				return false, err
+			}
+			status = resource.Status.GenericStatus
 		}
-		for _, cond := range pkg.Status.Conditions {
+		for _, cond := range status.Conditions {
 			if progress != nil {
-				progress <- fmt.Sprintf("Package install status: %s", cond.Type)
+				progress <- fmt.Sprintf("Resource install status: %s", cond.Type)
 			}
 			switch cond.Type {
 			case kappctrl.ReconcileSucceeded:
 				return true, nil
 			case kappctrl.ReconcileFailed:
-				return false, fmt.Errorf("package reconciliation failed: %s", pkg.Status.UsefulErrorMessage)
+				return false, fmt.Errorf("resource reconciliation failed: %s. %s", status.UsefulErrorMessage, status.FriendlyDescription)
 			}
 		}
 		return false, nil
