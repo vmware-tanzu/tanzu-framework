@@ -40,10 +40,11 @@
 
 #@ def network_name():
 #@  if data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME and data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR:
-#@    return data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME
+#@    name = data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME
 #@  else:
-#@    return data.values.AVI_DATA_NETWORK
+#@    name = data.values.AVI_DATA_NETWORK
 #@  end
+#@  return name
 #@ end
 
 #@ def vip_network():

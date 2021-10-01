@@ -3,7 +3,7 @@
 
 #@ load("ako-deployment.lib.yaml", "ako_namespace", "ako_serviceaccount",
 #@    "ako_configmap", "ako_clusterrole", "ako_clusterrolebinding",
-#@    "ako_statefulset", "ako_podsecuritypolicy", "ako_ingressclass",
+#@    "ako_statefulset", "ako_ingressclass",
 #@    "hostrules_crd", "httprules_crd", "aviinfrasettings_crd")
 
 #! render the ako artifacts
@@ -14,7 +14,6 @@
 --- #@ ako_clusterrole()
 --- #@ ako_clusterrolebinding()
 --- #@ ako_statefulset()
---- #@ ako_podsecuritypolicy()
 --- #@ ako_ingressclass()
 --- #@ hostrules_crd()
 --- #@ httprules_crd()
