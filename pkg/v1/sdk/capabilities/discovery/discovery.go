@@ -26,19 +26,7 @@ func NewClusterQueryClientForConfig(config *rest.Config) (*ClusterQueryClient, e
 
 // NewClusterQueryClient returns a new cluster query builder
 func NewClusterQueryClient(dynamicClient dynamic.Interface, discoveryClient discovery.DiscoveryInterface) (*ClusterQueryClient, error) {
-	config := &clusterQueryClientConfig{
-		dynamicClient:      dynamicClient,
-		discoveryClientset: discoveryClient,
-	}
-
-	return &ClusterQueryClient{
-		config: config,
-	}, nil
-}
-
-type clusterQueryClientConfig struct {
-	dynamicClient      dynamic.Interface
-	discoveryClientset discovery.DiscoveryInterface
+	return &ClusterQueryClient{config: newClusterQueryClientConfig(dynamicClient, discoveryClient)}, nil
 }
 
 // ClusterQueryClient allows clients to inspect the cluster objects, GVK and schema state of a cluster
