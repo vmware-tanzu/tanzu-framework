@@ -1,16 +1,19 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package client_test
+package client
 
 import (
 	"os"
+	"time"
+
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	fakehelper "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes/helper"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"k8s.io/client-go/tools/clientcmd"
 
-	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 )
 
@@ -19,7 +22,17 @@ var _ = Describe("Utils", func() {
 		tempKubeConfigPath string
 		err                error
 		contextName        string
+		testingDir         string
 	)
+
+	BeforeEach((func() {
+		testingDir = fakehelper.CreateTempTestingDirectory()
+	}))
+
+	AfterEach((func() {
+		fakehelper.DeleteTempTestingDirectory(testingDir)
+	}))
+
 	Describe("DeleteContextFromKubeConfig tests", func() {
 		BeforeEach(func() {
 			f, err := os.CreateTemp("", "yaml")
@@ -69,6 +82,60 @@ var _ = Describe("Utils", func() {
 				_, ok = config.Clusters["horse-cluster"]
 				Expect(ok).To(Equal(false))
 				Expect(config.CurrentContext).To(Equal(""))
+			})
+		})
+	})
+
+	Describe("Set machine counts", func() {
+		var (
+			err       error
+			tkgClient *TkgClient
+		)
+
+		BeforeEach(func() {
+			tkgClient, err = createTKGClient("../fakes/config/config.yaml", testingDir, "../fakes/config/bom/tkg-bom-v1.3.1.yaml", 2*time.Second)
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		Describe("When plan is prod", func() {
+			plan := "prod"
+			It("Get default MC machine counts", func() {
+				defaultCPCount, defaultWorkerCount := tkgClient.getMachineCountForMC(plan)
+				Expect(defaultCPCount).To(Equal(3))
+				Expect(defaultWorkerCount).To(Equal(3))
+			})
+
+			It("Override default MC machine counts", func() {
+				tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableControlPlaneMachineCount, "5")
+				tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableWorkerMachineCount, "7")
+				defaultCPCount, defaultWorkerCount := tkgClient.getMachineCountForMC(plan)
+				Expect(defaultCPCount).To(Equal(5))
+				Expect(defaultWorkerCount).To(Equal(7))
+			})
+		})
+
+		Describe("When plan is dev", func() {
+			plan := "dev"
+			It("Get default MC machine counts", func() {
+				defaultCPCount, defaultWorkerCount := tkgClient.getMachineCountForMC(plan)
+				Expect(defaultCPCount).To(Equal(1))
+				Expect(defaultWorkerCount).To(Equal(1))
+			})
+
+			It("Override default MC machine counts", func() {
+				tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableControlPlaneMachineCount, "5")
+				tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableWorkerMachineCount, "7")
+				defaultCPCount, defaultWorkerCount := tkgClient.getMachineCountForMC(plan)
+				Expect(defaultCPCount).To(Equal(5))
+				Expect(defaultWorkerCount).To(Equal(7))
+			})
+
+			It("Use default default machine counts if overrides are even", func() {
+				tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableControlPlaneMachineCount, "4")
+				tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableWorkerMachineCount, "6")
+				defaultCPCount, defaultWorkerCount := tkgClient.getMachineCountForMC(plan)
+				Expect(defaultCPCount).To(Equal(1))
+				Expect(defaultWorkerCount).To(Equal(6))
 			})
 		})
 	})

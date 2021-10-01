@@ -11,6 +11,8 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfighelper"
+
 	"github.com/imdario/mergo"
 	"github.com/pkg/errors"
 	"k8s.io/client-go/tools/clientcmd"
@@ -333,4 +335,48 @@ func ipFamilyForCIDRStrings(cidrs []string) (ClusterIPFamily, error) {
 	default:
 		return InvalidIPFamily, nil
 	}
+}
+
+func (c *TkgClient) getMachineCountForMC(plan string) (int, int) {
+	// set controlplane and worker counts to default initially
+	controlPlaneMachineCount, workerMachineCount := c.getDefaultMachineCountForMC(plan)
+
+	// override controlplane and worker counts with user configured values if they exist
+	if cpc, err := tkgconfighelper.GetIntegerVariableFromConfig(constants.ConfigVariableControlPlaneMachineCount, c.TKGConfigReaderWriter()); err == nil {
+		if cpc%2 == 1 {
+			controlPlaneMachineCount = cpc
+		} else {
+			log.Info("Using default value for CONTROL_PLANE_MACHINE_COUNT= %d. Reason: Provided value is an even number", controlPlaneMachineCount)
+		}
+	} else {
+		log.Info("Using default value for CONTROL_PLANE_MACHINE_COUNT= %d. Reason: %s", controlPlaneMachineCount, err.Error())
+	}
+	if wc, err := tkgconfighelper.GetIntegerVariableFromConfig(constants.ConfigVariableWorkerMachineCount, c.TKGConfigReaderWriter()); err == nil {
+		workerMachineCount = wc
+	} else {
+		log.Info("Using default value for WORKER_MACHINE_COUNT= %d. Reason: %s", workerMachineCount, err.Error())
+	}
+
+	return controlPlaneMachineCount, workerMachineCount
+}
+
+func (c *TkgClient) getDefaultMachineCountForMC(plan string) (int, int) {
+	// set controlplane and worker counts to default initially
+	var controlPlaneMachineCount int
+	var workerMachineCount int
+
+	controlPlaneMachineCount = constants.DefaultDevControlPlaneMachineCount
+	workerMachineCount = constants.DefaultDevWorkerMachineCount
+
+	switch plan {
+	case constants.PlanDev:
+		// use the defaults already set above
+	case constants.PlanProd:
+		// update controlplane count for prod plan
+		controlPlaneMachineCount = constants.DefaultProdControlPlaneMachineCount
+		workerMachineCount = constants.DefaultProdWorkerMachineCount
+	default:
+		// do nothing. If config overrides are provided, they'll get overridden in the calling function
+	}
+	return controlPlaneMachineCount, workerMachineCount
 }
