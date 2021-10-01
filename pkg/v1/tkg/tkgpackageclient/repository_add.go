@@ -69,6 +69,7 @@ func (p *pkgClient) AddRepository(o *tkgpackagedatamodel.RepositoryOptions, prog
 }
 
 // newPackageRepository creates a new instance of the PackageRepository object
+// If tag is empty, use tagSelection field to select the latest release tag
 func (p *pkgClient) newPackageRepository(repositoryName, repositoryImg, namespace string) (*kappipkg.PackageRepository, error) {
 	pkgr := &kappipkg.PackageRepository{
 		TypeMeta:   metav1.TypeMeta{APIVersion: tkgpackagedatamodel.DefaultAPIVersion, Kind: tkgpackagedatamodel.KindPackageRepository},

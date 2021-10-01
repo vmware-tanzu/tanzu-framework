@@ -18,7 +18,7 @@ import (
 
 // packageRepositoryStdout is used for unmarshal the package repository stdout to get the tag in use
 type packageRepositoryStdout struct {
-	ApiVersion  string `yaml:"apiVersion,omitempty"`
+	APIVersion  string `yaml:"apiVersion,omitempty"`
 	Directories []struct {
 		Contents []struct {
 			ImgpkgBundle struct {
@@ -29,14 +29,14 @@ type packageRepositoryStdout struct {
 }
 
 // parseRegistryImageUrl parses the registry image URL to get repository and tag, tag is empty if not specified
-func parseRegistryImageUrl(imgUrl string) (repository string, tag string, err error) {
+func parseRegistryImageUrl(imgUrl string) (repository, tag string, err error) {
 	ref, err := dockerParser.Parse(imgUrl)
 	if err != nil {
 		return "", "", err
 	}
 
 	tag = ref.Tag()
-	// dockerParser will default the tag to be latest if not specified, however we want it to be empty
+	// dockerParser sets the tag to "latest" if not specified, however we want it to be empty
 	if tag == tkgpackagedatamodel.DefaultRepositoryImageTag && !strings.HasSuffix(imgUrl, ":"+tkgpackagedatamodel.DefaultRepositoryImageTag) {
 		tag = ""
 	}
