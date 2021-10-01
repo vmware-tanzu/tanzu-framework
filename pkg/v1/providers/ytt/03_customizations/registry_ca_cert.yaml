@@ -5,7 +5,7 @@
 #@ if tkg_image_repo_ca_cert() and not tkg_image_repo_skip_tls_verify():
 #@overlay/match by=overlay.subset({"kind":"KubeadmControlPlane"})
 ---
-apiVersion: controlplane.cluster.x-k8s.io/v1alpha3
+apiVersion: controlplane.cluster.x-k8s.io/v1alpha4
 kind: KubeadmControlPlane
 spec:
   kubeadmConfigSpec:
@@ -26,7 +26,7 @@ spec:
         permissions: "0444"
 #@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate"}),expects="1+"
 ---
-apiVersion: bootstrap.cluster.x-k8s.io/v1alpha3
+apiVersion: bootstrap.cluster.x-k8s.io/v1alpha4
 kind: KubeadmConfigTemplate
 spec:
   template:

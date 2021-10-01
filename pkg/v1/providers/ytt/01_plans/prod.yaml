@@ -4,7 +4,7 @@
 #@ if data.values.CLUSTER_PLAN == "prod":
 #@overlay/match missing_ok=True,by=overlay.subset({"kind":"Cluster"})
 ---
-apiVersion: cluster.x-k8s.io/v1alpha3
+apiVersion: cluster.x-k8s.io/v1alpha4
 kind: Cluster
 metadata:
   #@overlay/match missing_ok=True
