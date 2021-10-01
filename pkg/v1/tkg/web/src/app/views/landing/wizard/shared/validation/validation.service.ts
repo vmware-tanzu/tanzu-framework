@@ -534,7 +534,7 @@ export class ValidationService {
                             [ValidatorEnum.VALID_IP]: true
                         }
                     }
-                    return ctrlValueList[1] && +ctrlValueList[1] >= 0 && +ctrlValueList[1] < 64 ? null : {
+                    return ctrlValueList[1] && +ctrlValueList[1] >= 0 && +ctrlValueList[1] <= 128 ? null : {
                         [ValidatorEnum.VALID_IP]: true
                     }
                 } else {
