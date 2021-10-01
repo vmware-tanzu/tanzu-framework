@@ -75,6 +75,9 @@ var (
 	testRepoName                = "carvel-test"
 	testNamespace               = "tanzu-package-repo-global"
 	testRepoURL                 = "projects-stg.registry.vmware.com/tkg/test-packages/test-repo:v1.0.0"
+	testRepoURLNoTag            = "projects-stg.registry.vmware.com/tkg/test-packages/test-repo"
+	testRepoOriginalTag         = "v1.0.0"
+	testRepoLatestTag           = "v1.1.0"
 	testPkgInstallName          = "test-pkg"
 	testPkgName                 = "pkg.test.carvel.dev"
 	testPkgVersion              = "3.0.0-rc.1"
@@ -193,6 +196,18 @@ var _ = Describe("Package plugin integration test", func() {
 
 		if config.RepositoryURL == "" {
 			config.RepositoryURL = testRepoURL
+		}
+
+		if config.RepositoryURLNoTag == "" {
+			config.RepositoryURLNoTag = testRepoURLNoTag
+		}
+
+		if config.RepositoryOriginalTag == "" {
+			config.RepositoryOriginalTag = testRepoOriginalTag
+		}
+
+		if config.RepositoryLatestTag == "" {
+			config.RepositoryLatestTag = testRepoLatestTag
 		}
 
 		if config.PackageName == "" {

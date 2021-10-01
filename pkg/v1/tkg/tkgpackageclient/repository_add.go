@@ -69,6 +69,7 @@ func (p *pkgClient) AddRepository(o *tkgpackagedatamodel.RepositoryOptions, prog
 }
 
 // newPackageRepository creates a new instance of the PackageRepository object
+// If tag is empty, use tagSelection field to select the latest release tag
 func (p *pkgClient) newPackageRepository(repositoryName, repositoryImg, namespace string) (*kappipkg.PackageRepository, error) {
 	pkgr := &kappipkg.PackageRepository{
 		TypeMeta:   metav1.TypeMeta{APIVersion: tkgpackagedatamodel.DefaultAPIVersion, Kind: tkgpackagedatamodel.KindPackageRepository},
@@ -78,7 +79,7 @@ func (p *pkgClient) newPackageRepository(repositoryName, repositoryImg, namespac
 		}},
 	}
 
-	_, tag, err := parseRegistryImageUrl(repositoryImg)
+	_, tag, err := parseRegistryImageURL(repositoryImg)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to parse OCI registry URL")
 	}

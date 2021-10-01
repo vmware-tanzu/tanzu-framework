@@ -6,6 +6,8 @@ package tkgpackageclient
 import (
 	"fmt"
 
+	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
+
 	"github.com/pkg/errors"
 	k8serror "k8s.io/apimachinery/pkg/api/errors"
 
@@ -19,6 +21,7 @@ func (p *pkgClient) UpdateRepository(o *tkgpackagedatamodel.RepositoryOptions, p
 	var (
 		existingRepository *kappipkg.PackageRepository
 		err                error
+		tag                string
 	)
 
 	defer func() {
@@ -41,14 +44,18 @@ func (p *pkgClient) UpdateRepository(o *tkgpackagedatamodel.RepositoryOptions, p
 			return
 		}
 
-		var tag string
-		_, tag, err = parseRegistryImageUrl(o.RepositoryURL)
+		_, tag, err = parseRegistryImageURL(o.RepositoryURL)
 		if err != nil {
 			err = errors.Wrap(err, "failed to parse OCI registry URL")
 			return
 		}
 
-		repositoryToUpdate.Spec.Fetch.ImgpkgBundle.Image = o.RepositoryURL
+		repositoryToUpdate.Spec = kappipkg.PackageRepositorySpec{
+			Fetch: &kappipkg.PackageRepositoryFetch{
+				ImgpkgBundle: &kappctrl.AppFetchImgpkgBundle{Image: o.RepositoryURL},
+			},
+		}
+
 		if tag == "" {
 			repositoryToUpdate.Spec.Fetch.ImgpkgBundle.TagSelection = &versions.VersionSelection{
 				Semver: &versions.VersionSelectionSemver{

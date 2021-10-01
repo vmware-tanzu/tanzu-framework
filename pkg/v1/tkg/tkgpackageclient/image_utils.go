@@ -18,7 +18,7 @@ import (
 
 // packageRepositoryStdout is used for unmarshal the package repository stdout to get the tag in use
 type packageRepositoryStdout struct {
-	ApiVersion  string `yaml:"apiVersion,omitempty"`
+	APIVersion  string `yaml:"apiVersion,omitempty"`
 	Directories []struct {
 		Contents []struct {
 			ImgpkgBundle struct {
@@ -28,15 +28,15 @@ type packageRepositoryStdout struct {
 	} `yaml:"directories,omitempty"`
 }
 
-// parseRegistryImageUrl parses the registry image URL to get repository and tag, tag is empty if not specified
-func parseRegistryImageUrl(imgUrl string) (repository string, tag string, err error) {
+// parseRegistryImageURL parses the registry image URL to get repository and tag, tag is empty if not specified
+func parseRegistryImageURL(imgUrl string) (repository, tag string, err error) {
 	ref, err := dockerParser.Parse(imgUrl)
 	if err != nil {
 		return "", "", err
 	}
 
 	tag = ref.Tag()
-	// dockerParser will default the tag to be latest if not specified, however we want it to be empty
+	// dockerParser sets the tag to "latest" if not specified, however we want it to be empty
 	if tag == tkgpackagedatamodel.DefaultRepositoryImageTag && !strings.HasSuffix(imgUrl, ":"+tkgpackagedatamodel.DefaultRepositoryImageTag) {
 		tag = ""
 	}
@@ -49,7 +49,7 @@ func GetCurrentRepositoryAndTagInUse(pkgr *kappipkg.PackageRepository) (reposito
 		return "", "", errors.New("failed to find OCI registry URL")
 	}
 
-	repository, tag, err = parseRegistryImageUrl(pkgr.Spec.Fetch.ImgpkgBundle.Image)
+	repository, tag, err = parseRegistryImageURL(pkgr.Spec.Fetch.ImgpkgBundle.Image)
 	if err != nil {
 		return "", "", errors.Wrap(err, "failed to parse OCI registry URL")
 	}
