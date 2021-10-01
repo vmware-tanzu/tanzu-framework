@@ -29,7 +29,7 @@ spec:
 #! We need to install standard package repository on both management cluster and workload clusters because it contains the bundles
 #! for all standard addons which can be optionally installed.
 ---
-apiVersion: addons.cluster.x-k8s.io/v1alpha3
+apiVersion: addons.cluster.x-k8s.io/v1alpha4
 kind: ClusterResourceSet
 metadata:
   name: #@ "{}-standard-package-repository".format(data.values.CLUSTER_NAME)

@@ -33,7 +33,7 @@ spec:
 --- #@ core_package_repo()
 #@ else:
 ---
-apiVersion: addons.cluster.x-k8s.io/v1alpha3
+apiVersion: addons.cluster.x-k8s.io/v1alpha4
 kind: ClusterResourceSet
 metadata:
   name: #@ "{}-core-package-repository".format(data.values.CLUSTER_NAME)
