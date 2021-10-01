@@ -66,7 +66,10 @@ func (r *CapabilityReconciler) queryGVRs(log logr.Logger, queries []runv1alpha1.
 		queryTargets := make(map[string]discovery.QueryTarget)
 		for i := range queries {
 			q := queries[i]
-			query := discovery.Group(q.Name, q.Group).WithVersions(q.Versions...).WithResource(q.Resource)
+			query := discovery.Group(q.Name, q.Group).
+				WithVersions(q.Versions...).
+				WithResource(q.Resource).
+				WithFields(q.Fields...)
 			queryTargets[q.Name] = query
 		}
 		return queryTargets

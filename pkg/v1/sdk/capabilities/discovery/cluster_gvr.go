@@ -22,11 +22,13 @@ func Group(queryName, group string) *QueryGVR {
 
 // QueryGVR provides insight to the clusters GVRs
 type QueryGVR struct {
-	name          string
-	group         string
-	resource      string
-	versions      []string
-	unmatchedGVRs []string
+	name            string
+	group           string
+	resource        string
+	versions        []string
+	fieldPaths      []string
+	unmatchedGVRs   []string
+	unmatchedFields []string
 }
 
 // Name returns the name of the query.
@@ -47,10 +49,24 @@ func (q *QueryGVR) WithResource(resource string) *QueryGVR {
 	return q
 }
 
+// WithFields checks if field path(s) exist in the GVR's schema.
+// Field paths must be dot-separated identifiers (e.g. spec.containers).
+// This check is done for each version of the resource, if multiple versions are specified in the query.
+func (q *QueryGVR) WithFields(paths ...string) *QueryGVR {
+	q.fieldPaths = append(q.fieldPaths, paths...)
+	return q
+}
+
 // Run discovery
 func (q *QueryGVR) Run(config *clusterQueryClientConfig) (bool, error) {
 	if q.group != "" && q.resource != "" && len(q.versions) == 0 {
 		return false, fmt.Errorf("cannot check for group and resource existence without version info; use WithVersion method")
+	}
+
+	// Return error if fieldPaths are specifed when no versions or resource are specified. Group can be empty in case
+	// core k8s resources.
+	if len(q.fieldPaths) > 0 && (len(q.versions) == 0 || q.resource == "") {
+		return false, fmt.Errorf("all of group, versions and resource must be specified to check for field existence")
 	}
 
 	var gvrs []schema.GroupVersionResource
@@ -67,11 +83,12 @@ func (q *QueryGVR) Run(config *clusterQueryClientConfig) (bool, error) {
 		return false, err
 	}
 
-	var unmatched []string
+	var unmatchedGVRs []string
+	var unmatchedFields []string
 	for _, gvr := range gvrs {
 		// Check group.
 		if !q.groupExists(gvr.Group, groupList) {
-			unmatched = append(unmatched, gvr.String())
+			unmatchedGVRs = append(unmatchedGVRs, gvr.String())
 			continue
 		}
 
@@ -84,7 +101,7 @@ func (q *QueryGVR) Run(config *clusterQueryClientConfig) (bool, error) {
 		if err != nil {
 			// Second condition is because fake discovery client does not return a proper NotFound error.
 			if apierrors.IsNotFound(err) || strings.Contains(err.Error(), fmt.Sprintf("GroupVersion %q not found", gvr.GroupVersion().String())) {
-				unmatched = append(unmatched, gvr.String())
+				unmatchedGVRs = append(unmatchedGVRs, gvr.String())
 				continue
 			}
 			return false, err
@@ -95,13 +112,24 @@ func (q *QueryGVR) Run(config *clusterQueryClientConfig) (bool, error) {
 			continue
 		}
 		if !q.resourceExists(resources) {
-			unmatched = append(unmatched, gvr.String())
+			unmatchedGVRs = append(unmatchedGVRs, gvr.String())
 			continue
+		} else if len(q.fieldPaths) > 0 {
+			for _, p := range q.fieldPaths {
+				found, err := config.openAPISchemaHelper().fieldExistsInGVR(gvr, p)
+				if err != nil {
+					return false, err
+				}
+				if !found {
+					unmatchedFields = append(unmatchedFields, p)
+				}
+			}
 		}
 	}
 
-	q.unmatchedGVRs = unmatched
-	return len(unmatched) == 0, nil
+	q.unmatchedGVRs = unmatchedGVRs
+	q.unmatchedFields = unmatchedFields
+	return len(unmatchedGVRs) == 0 && len(unmatchedFields) == 0, nil
 }
 
 func (q *QueryGVR) groupExists(group string, groupList *metav1.APIGroupList) bool {
@@ -124,5 +152,5 @@ func (q *QueryGVR) resourceExists(resources *metav1.APIResourceList) bool {
 
 // Reason surfaces what didnt match
 func (q *QueryGVR) Reason() string {
-	return fmt.Sprintf("GVRs=%v status=unmatched presence=true", q.unmatchedGVRs)
+	return fmt.Sprintf("GVRs=%v fields=%v status=unmatched presence=true", q.unmatchedGVRs, q.unmatchedFields)
 }

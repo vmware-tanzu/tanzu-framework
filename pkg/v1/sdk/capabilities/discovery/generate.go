@@ -26,6 +26,7 @@ func QueryTargetsToCapabilityResource(queryTargets []QueryTarget) (*runv1alpha1.
 				Group:    query.group,
 				Versions: query.versions,
 				Resource: query.resource,
+				Fields:   query.fieldPaths,
 			}
 			gvrQueries = append(gvrQueries, q)
 		case *QueryObject:

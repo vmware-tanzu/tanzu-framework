@@ -75,6 +75,10 @@ type QueryGVR struct {
 	// Specifying a Resource requires at least one version to be specified in Versions.
 	// +optional
 	Resource string `json:"resource,omitempty"`
+	// Fields is a slice of dot-separated field paths to check for existence in each version of the resource's schema.
+	// Specifying fields requires all of Group, Versions and Resource fields to be specified.
+	// +optional
+	Fields []string `json:"fields,omitempty"`
 }
 
 // QueryPartialSchema queries for any OpenAPI schema that may exist on a cluster.

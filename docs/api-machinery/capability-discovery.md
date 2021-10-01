@@ -66,7 +66,10 @@ var testAnnotations = map[string]string{
 // Define queries.
 var testObject = Object("podObj", &pod).WithAnnotations(testAnnotations)
 
-var testGVR = Group("podResource", testapigroup.SchemeGroupVersion.Group).WithVersions("v1").WithResource("pods")
+var testGVR = Group("podResource", testapigroup.SchemeGroupVersion.Group).
+    WithVersions("v1").
+    WithResource("pods").
+    WithFields("spec.containers", "spec.serviceAccountName")
 
 // Build query client.
 c := clusterQueryClient.Query(testObject, testGVR)

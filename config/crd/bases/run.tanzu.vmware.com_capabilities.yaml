@@ -48,6 +48,14 @@ spec:
                       description: QueryGVR queries for an API group with the optional
                         ability to check for API versions and resource.
                       properties:
+                        fields:
+                          description: Fields is a slice of dot-separated field paths
+                            to check for existence in each version of the resource's
+                            schema. Specifying fields requires all of Group, Versions
+                            and Resource fields to be specified.
+                          items:
+                            type: string
+                          type: array
                         group:
                           description: Group is the API group to check for in the
                             cluster.
