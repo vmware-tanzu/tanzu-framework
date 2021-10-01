@@ -26,10 +26,10 @@
 | Engineering | Shivaani Gupta [shivaani0505](https://github.com/shivaani0505) |
 | Engineering | Guanpeng Gao [ggpaue](https://github.com/ggpaue) |
 | Engineering | Lucheng Bao [blc1996](https://github.com/blc1996) |
-| Engineering | Jesse Hu [jessehu](https://github.com/jessehu) |
 | Engineering | Rajath Agasthya [rajathagasthya](https://github.com/rajathagasthya) |
 | Engineering | Harish Yayi [yharish991](https://github.com/yharish991) |
 
 ## Emeritus
 
 * Ian Coffey [iancoffey](https://github.com/iancoffey)
+* Jesse Hu [jessehu](https://github.com/jessehu)
