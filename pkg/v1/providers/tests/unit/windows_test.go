@@ -47,9 +47,20 @@ var _ = Describe("Windows Ytt Templating", func() {
 			"TKG_DEFAULT_BOM":             "tkg-bom-v1.4.0.yaml",
 			"KUBERNETES_RELEASE":          "v1.21.2---vmware.1-tkg.2-20210924-539f8b15",
 		})
+
+		fmt.Println(values)
 		x, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
 		fmt.Println(x)
+		fmt.Println(values)
 		Expect(err).NotTo(HaveOccurred())
+
+		// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+		// golang parse YAML into a map
+		// for map, print keys
+		//		if key blah exists, and is important
+		//			// figure its value
+
+		// add assertions for data collected above...
 	})
 })
 
