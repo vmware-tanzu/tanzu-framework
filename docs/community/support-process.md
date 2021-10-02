@@ -53,10 +53,6 @@ The point person will use the following process for each issue:
   * Label the issue with `kind/feature`.
   * Remove `needs-triage` label and add `triage/accepted` label.
   * Determine the area of the Framework the issue belongs to and add appropriate area label.
-* Enhancement request
-  * Label the issue with `kind/enhancement`.
-  * Remove `needs-triage` label and add `triage/accepted` label.
-  * Determine the area of the Framework the issue belongs to and add appropriate area label.
 * Bug
   * Label the issue with `kind/bug`.
   * Remove `needs-triage` label and add `triage/accepted`.
