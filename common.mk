@@ -13,8 +13,7 @@ else
 GOBIN=$(shell go env GOBIN)
 endif
 
-PRIVATE_REPOS=github.com/vmware-tanzu/tanzu-framework
-GO := GOPRIVATE=${PRIVATE_REPOS} go
+GO := go
 
 NUL = /dev/null
 ifeq ($(GOHOSTOS),windows)
