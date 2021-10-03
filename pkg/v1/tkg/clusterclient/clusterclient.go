@@ -2494,7 +2494,7 @@ func NewClusterClientFactory() ClusterClientFactory {
 // Finds and returns resources with an undeleteable annotation on them
 func (c *client) ListUndeleteableResources() ([]string, error) {
 	query := fmt.Sprintf(
-		"{range .items[?(@.metadata.annotations.%s==\"true\")]}{.metadata.name}{\"\n\"}{end}",
+		"{range .items[?(@.metadata.annotations.%s==\"true\")]}{.metadata.name}{\"\\n\"}{end}",
 		strings.ReplaceAll(undeleteableResourcesAnnotation, ".", "\\."))
 	args := []string{"get", "all", fmt.Sprintf("-o=jsonpath='%s'", query)}
 	if c.kubeConfigPath != "" {
