@@ -1,7 +1,5 @@
 module github.com/vmware-tanzu/framework-unit
 
-// TODO OMG THIS DOESNT WORK:(:(:( HOW TO IMPORT GOPKG.YAM:L ?????????????
-// replace github.com/vmware-tanzu/tanzu-framework v0.5.0 => ../../../../../
 replace github.com/vmware-tanzu/tanzu-framework/pkg/v1/providers/tests/unit => ./
 
 go 1.16

@@ -17,13 +17,13 @@ import (
 // TKGPackageClient is the TKG package client interface
 type TKGPackageClient interface {
 	AddImagePullSecret(o *tkgpackagedatamodel.ImagePullSecretOptions) error
-	AddRepository(o *tkgpackagedatamodel.RepositoryOptions) error
+	AddRepository(o *tkgpackagedatamodel.RepositoryOptions, packageProgress *tkgpackagedatamodel.PackageProgress, operationType tkgpackagedatamodel.OperationType)
 	DeleteImagePullSecret(o *tkgpackagedatamodel.ImagePullSecretOptions) (bool, error)
-	DeleteRepository(o *tkgpackagedatamodel.RepositoryOptions) (bool, error)
+	DeleteRepository(o *tkgpackagedatamodel.RepositoryOptions, packageProgress *tkgpackagedatamodel.PackageProgress)
 	GetPackageInstall(o *tkgpackagedatamodel.PackageOptions) (*kappipkg.PackageInstall, error)
 	GetPackage(o *tkgpackagedatamodel.PackageOptions) (*kapppkg.PackageMetadata, *kapppkg.Package, error)
 	GetRepository(o *tkgpackagedatamodel.RepositoryOptions) (*kappipkg.PackageRepository, error)
-	InstallPackage(o *tkgpackagedatamodel.PackageOptions, packageProgress *tkgpackagedatamodel.PackageProgress, update bool)
+	InstallPackage(o *tkgpackagedatamodel.PackageOptions, packageProgress *tkgpackagedatamodel.PackageProgress, operationType tkgpackagedatamodel.OperationType)
 	ListImagePullSecrets(o *tkgpackagedatamodel.ImagePullSecretOptions) (*corev1.SecretList, error)
 	ListPackageInstalls(o *tkgpackagedatamodel.PackageOptions) (*kappipkg.PackageInstallList, error)
 	ListPackageMetadata(o *tkgpackagedatamodel.PackageAvailableOptions) (*kapppkg.PackageMetadataList, error)
@@ -31,6 +31,7 @@ type TKGPackageClient interface {
 	ListRepositories(o *tkgpackagedatamodel.RepositoryOptions) (*kappipkg.PackageRepositoryList, error)
 	ListSecretExports(o *tkgpackagedatamodel.ImagePullSecretOptions) (*secretgen.SecretExportList, error)
 	UninstallPackage(o *tkgpackagedatamodel.PackageOptions, packageProgress *tkgpackagedatamodel.PackageProgress)
+	UpdateImagePullSecret(o *tkgpackagedatamodel.ImagePullSecretOptions) error
 	UpdatePackage(o *tkgpackagedatamodel.PackageOptions, packageProgress *tkgpackagedatamodel.PackageProgress)
-	UpdateRepository(o *tkgpackagedatamodel.RepositoryOptions) error
+	UpdateRepository(o *tkgpackagedatamodel.RepositoryOptions, progress *tkgpackagedatamodel.PackageProgress)
 }

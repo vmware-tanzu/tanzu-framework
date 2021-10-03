@@ -40,6 +40,7 @@ func main() {
 		imagePullSecretAddCmd,
 		imagePullSecretDeleteCmd,
 		imagePullSecretListCmd,
+		imagePullSecretUpdateCmd,
 	)
 	if err := p.Execute(); err != nil {
 		os.Exit(1)

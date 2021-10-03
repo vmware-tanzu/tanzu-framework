@@ -347,6 +347,8 @@ lint: tools doc-lint ## Run linting checks
 	$(GOLANGCI_LINT) run -v
 	cd $(ADDONS_DIR); $(GOLANGCI_LINT) run -v
 	cd $(ADDONS_DIR)/pinniped/post-deploy/; $(GOLANGCI_LINT) run -v
+	# Check licenses in shell scripts and Makefile
+	hack/check-license.sh
 
 doc-lint: tools ## Run linting checks for docs
 	$(VALE) --config=.vale/config.ini --glob='*.md' ./

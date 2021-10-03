@@ -4,6 +4,8 @@
 package tkgpackageclient
 
 import (
+	"fmt"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
@@ -28,14 +30,21 @@ var _ = Describe("Update Repository", func() {
 			CreateRepository: false,
 		}
 		options           = opts
+		progress          *tkgpackagedatamodel.PackageProgress
 		pkgRepositoryList = &kappipkg.PackageRepositoryList{
 			Items: []kappipkg.PackageRepository{*testRepository},
 		}
 	)
 
 	JustBeforeEach(func() {
+		progress = &tkgpackagedatamodel.PackageProgress{
+			ProgressMsg: make(chan string, 10),
+			Err:         make(chan error),
+			Done:        make(chan struct{}),
+		}
 		ctl = &pkgClient{kappClient: kappCtl}
-		err = ctl.UpdateRepository(&options)
+		go ctl.UpdateRepository(&options, progress)
+		err = testReceive(progress)
 	})
 
 	Context("failure in getting the package repository due to GetPackageRepository API error", func() {
@@ -50,18 +59,6 @@ var _ = Describe("Update Repository", func() {
 		AfterEach(func() { options = opts })
 	})
 
-	Context("failure in finding the package repository", func() {
-		BeforeEach(func() {
-			kappCtl = &fakes.KappClient{}
-			kappCtl.GetPackageRepositoryReturns(nil, apierrors.NewNotFound(schema.GroupResource{Resource: "Repository"}, testRepoName))
-		})
-		It(testFailureMsg, func() {
-			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("Repository \"test-repo\" not found"))
-		})
-		AfterEach(func() { options = opts })
-	})
-
 	Context("failure in adding package repository as a repository with the same OCI registry URL already exists", func() {
 		BeforeEach(func() {
 			options.CreateRepository = true
@@ -72,7 +69,7 @@ var _ = Describe("Update Repository", func() {
 		})
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("repository with the same OCI registry URL already exists"))
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("package repository URL '%s' already exists in namespace '%s'", options.RepositoryURL, options.Namespace)))
 		})
 		AfterEach(func() { options = opts })
 	})
