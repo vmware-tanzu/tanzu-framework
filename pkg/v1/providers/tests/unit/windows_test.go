@@ -66,17 +66,15 @@ var _ = Describe("Windows Ytt Templating", func() {
 			"VSphereMachineTemplate":2,
 		}
 		seen := countCapiCompKinds(rawClusterAPIYaml)
-
 		for k,v := range clusterApiComponents {
-			if seen[k] != v {
-				fmt.Println("ERRORRRRR",k,v)
-			}
+		        Expect(seen[k]).To(Equal(v))
 		}
 
+		// TODO add more validations for things like the antrea installation contents etc...
 	})
 })
 
-
+// countCapiCompKinds counts up the number of different api types in the final YAML output
 func countCapiCompKinds(rawClusterAPIYaml string) map[string]int {
 	kinds := make(map[string]int)
 	for _, capiString := range strings.Split(rawClusterAPIYaml, "---") {
