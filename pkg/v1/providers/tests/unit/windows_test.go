@@ -8,10 +8,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/providers/tests/unit/ytt"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/providers/tests/unit/ytt"
+	"gopkg.in/yaml.v3"
 )
 
 var _ = Describe("Windows Ytt Templating", func() {
@@ -54,12 +55,13 @@ var _ = Describe("Windows Ytt Templating", func() {
 		fmt.Println(values)
 		Expect(err).NotTo(HaveOccurred())
 
-		// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-		// golang parse YAML into a map
-		// for map, print keys
-		//		if key blah exists, and is important
-		//			// figure its value
-
+		for _, capiString := range strings.Split(x, "---") {
+			capiObject := make(map[string]interface{})
+			yaml.Unmarshal([]byte(capiString), capiObject)
+			for k, v := range capiObject {
+				fmt.Println(fmt.Sprintf("%v %v", k, v))
+			}
+		}
 		// add assertions for data collected above...
 	})
 })
