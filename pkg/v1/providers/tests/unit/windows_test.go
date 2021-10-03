@@ -50,21 +50,51 @@ var _ = Describe("Windows Ytt Templating", func() {
 		})
 
 		fmt.Println(values)
-		x, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
-		fmt.Println(x)
-		fmt.Println(values)
+
+		// useful debugging information that we don't actually need for day-to-day testing
+		rawClusterAPIYaml, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
 		Expect(err).NotTo(HaveOccurred())
 
-		for _, capiString := range strings.Split(x, "---") {
-			capiObject := make(map[string]interface{})
-			yaml.Unmarshal([]byte(capiString), capiObject)
-			for k, v := range capiObject {
-				fmt.Println(fmt.Sprintf("%v %v", k, v))
+		// Test 1: Making sure that we have a few basic ClusterAPI objects in the windows templates...
+
+		// clusterApiComponents is a list of all the 'kind' objects that we want to see.
+		// for windows, the most important thing to confirm is that we have 2 VsphereMachineTemplates,
+		// since there are obviously going to be linux as well as windows machine types.
+		clusterApiComponents := map[string]int {
+			"Cluster":1,
+			"VSphereCluster":1,
+			"VSphereMachineTemplate":2,
+		}
+		seen := countCapiCompKinds(rawClusterAPIYaml)
+
+		for k,v := range clusterApiComponents {
+			if seen[k] != v {
+				fmt.Println("ERRORRRRR",k,v)
 			}
 		}
-		// add assertions for data collected above...
+
 	})
 })
+
+
+func countCapiCompKinds(rawClusterAPIYaml string) map[string]int {
+	kinds := make(map[string]int)
+	for _, capiString := range strings.Split(rawClusterAPIYaml, "---") {
+		capiObject := make(map[string]interface{})
+		yaml.Unmarshal([]byte(capiString), capiObject)
+
+		// This information is useful for debugging, but we don't test it explicitly...
+		for k, v := range capiObject {
+			kindValue := fmt.Sprintf("%v",v)
+			if k=="kind" {
+				// a kindValue is something like "VsphereCluster"
+				kinds[kindValue] = kinds[kindValue]+1
+			}
+		}
+	}
+	return kinds
+}
+
 
 /**
 Adopted from this hacky string...
