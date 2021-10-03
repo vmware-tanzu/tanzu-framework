@@ -42,6 +42,15 @@ var _ = Describe("Unit tests for delete cluster", func() {
 		}
 		err = ctl.DeleteCluster(dcOps)
 	})
+	Context("When cluster exists but has undeleteable resources", func() {
+		BeforeEach(func() {
+			msg := "cluster has undeletable resources; please delete them: thing-1, thing-2, thing-3"
+			tkgClient.DeleteWorkloadClusterReturns(errors.New(msg))
+		})
+		It("should not delete the cluster", func() {
+			Expect(err).To(HaveOccurred())
+		})
+	})
 	Context("When cluster exists and can be deleted successfully", func() {
 		BeforeEach(func() {
 			tkgClient.DeleteWorkloadClusterReturns(nil)

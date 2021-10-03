@@ -292,6 +292,8 @@ type Client interface {
 	DeactivateTanzuKubernetesReleases(tkrName string) error
 	// IsClusterRegisteredToTMC returns true if cluster is registered to Tanzu Mission Control
 	IsClusterRegisteredToTMC() (bool, error)
+	// ListUndeleteableResources returns a list of resources that should prevent cluster deletions
+	ListUndeleteableResources() ([]string, error)
 }
 
 // PollOptions is options for polling
@@ -352,6 +354,7 @@ const (
 	prodTelemetryPath                 = "https://scapi.vmware.com/sc/api/collectors/tkg-telemetry.v1.4.0/batch"
 	stageTelemetryPath                = "https://scapi-stg.vmware.com/sc/api/collectors/tkg-telemetry.v1.4.0/batch"
 	statusRunning                     = "running"
+	undeleteableResourcesAnnotation   = "run.tanzu.vmware.com/prevent-cluster-deletion"
 )
 
 const annotationPatchFormat = `
@@ -2486,4 +2489,27 @@ func (c *clusterClientFactory) NewClient(kubeConfigPath string, context string, 
 // NewClusterClientFactory creates new clusterclient factory
 func NewClusterClientFactory() ClusterClientFactory {
 	return &clusterClientFactory{}
+}
+
+// Finds and returns resources with an undeleteable annotation on them
+func (c *client) ListUndeleteableResources() ([]string, error) {
+	query := fmt.Sprintf(
+		"{range .items[?(@.metadata.annotations.%s==\"true\")]}{.metadata.name}{\"\n\"}{end}",
+		strings.ReplaceAll(undeleteableResourcesAnnotation, ".", "\\."))
+	args := []string{"get", "all", fmt.Sprintf("-o=jsonpath='%s'", query)}
+	if c.kubeConfigPath != "" {
+		args = append(args, "--kubeconfig", c.kubeConfigPath)
+	}
+
+	if c.currentContext != "" {
+		args = append(args, "--context", c.currentContext)
+	}
+
+	cmd := exec.Command("kubectl", args...)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return []string{}, errors.Wrapf(err, "kubectl get all failed, output: %s", string(out))
+	}
+
+	return strings.Split(string(out), "\n"), nil
 }
