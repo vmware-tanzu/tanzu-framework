@@ -585,3 +585,14 @@ func ConfigureEnvVariables() {
 		}
 	}
 }
+
+func GetEdition() (string, error) {
+	cfg, err := GetClientConfig()
+	if err != nil {
+		return "", err
+	}
+	if cfg != nil && cfg.ClientOptions != nil && cfg.ClientOptions.CLI != nil {
+		return cfg.ClientOptions.CLI.Edition, nil
+	}
+	return "", nil
+}

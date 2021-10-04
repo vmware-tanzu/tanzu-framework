@@ -90,7 +90,6 @@ OCI_REGISTRY ?= projects.registry.vmware.com/tanzu_framework
 
 .DEFAULT_GOAL:=help
 
-LD_FLAGS += -X 'main.BuildEdition=$(BUILD_EDITION)'
 LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo.IsOfficialBuild=$(IS_OFFICIAL_BUILD)'
 
 ifneq ($(strip $(TANZU_CORE_BUCKET)),)

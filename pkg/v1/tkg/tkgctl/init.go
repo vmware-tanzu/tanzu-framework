@@ -12,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/skratchdot/open-golang/open"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
@@ -276,9 +277,9 @@ func (t *tkgctl) configureInitManagementClusterOptionsFromConfigFile(iro *InitRe
 
 	// set BuildEdition from config variable
 	if iro.Edition == "" {
-		edition, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableBuildEdition)
+		cfg, err := config.GetClientConfig()
 		if err == nil {
-			iro.Edition = edition
+			iro.Edition = cfg.ClientOptions.CLI.Edition
 		}
 	}
 

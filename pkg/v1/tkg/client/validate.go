@@ -542,7 +542,7 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 	// BUILD_EDITION is the Tanzu Edition, the plugin should be built for. Its value is supposed be constructed from
 	// cmd/cli/plugin/managementcluster/create.go. So empty value at this point is not expected.
 	if options.Edition == "" {
-		return NewValidationError(ValidationErrorCode, "required config variable 'BUILD_EDITION' is not set")
+		return NewValidationError(ValidationErrorCode, "required config variable 'edition' is not set")
 	}
 	c.SetBuildEdition(options.Edition)
 
