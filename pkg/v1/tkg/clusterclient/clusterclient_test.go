@@ -573,6 +573,80 @@ var _ = Describe("Cluster Client", func() {
 			})
 		})
 
+		Context("When KCP object is present but not yet with all the expected replicas", func() {
+			JustBeforeEach(func() {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster runtime.Object) error {
+					conditions := capi.Conditions{}
+					conditions = append(conditions, capi.Condition{
+						Type:   capi.InfrastructureReadyCondition,
+						Status: corev1.ConditionTrue,
+					})
+					conditions = append(conditions, capi.Condition{
+						Type:   capi.ControlPlaneReadyCondition,
+						Status: corev1.ConditionTrue,
+					})
+					cluster.(*capi.Cluster).Status.Conditions = conditions
+					return nil
+				})
+				clientset.ListCalls(func(ctx context.Context, o runtime.Object, options ...crtclient.ListOption) error {
+					switch o := o.(type) {
+					case *capi.MachineList:
+					case *capi.MachineDeploymentList:
+					case *controlplanev1.KubeadmControlPlaneList:
+						o.Items = append(o.Items, controlplanev1.KubeadmControlPlane{
+							ObjectMeta: metav1.ObjectMeta{Name: "control-plane-0"},
+							Spec:       controlplanev1.KubeadmControlPlaneSpec{Replicas: pointer.Int32Ptr(1)},
+						})
+					default:
+						return errors.New("invalid object type")
+					}
+					return nil
+				})
+				err = clstClient.WaitForClusterReady("fake-clusterName", "fake-namespace", true)
+			})
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("control-plane is still creating replicas, DesiredReplicas=1 Replicas=0 ReadyReplicas=0 UpdatedReplicas=0"))
+			})
+		})
+
+		Context("When KCP object is present and all the expected replicas are available", func() {
+			JustBeforeEach(func() {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster runtime.Object) error {
+					conditions := capi.Conditions{}
+					conditions = append(conditions, capi.Condition{
+						Type:   capi.InfrastructureReadyCondition,
+						Status: corev1.ConditionTrue,
+					})
+					conditions = append(conditions, capi.Condition{
+						Type:   capi.ControlPlaneReadyCondition,
+						Status: corev1.ConditionTrue,
+					})
+					cluster.(*capi.Cluster).Status.Conditions = conditions
+					return nil
+				})
+				clientset.ListCalls(func(ctx context.Context, o runtime.Object, options ...crtclient.ListOption) error {
+					switch o := o.(type) {
+					case *capi.MachineList:
+					case *capi.MachineDeploymentList:
+					case *controlplanev1.KubeadmControlPlaneList:
+						o.Items = append(o.Items, controlplanev1.KubeadmControlPlane{
+							ObjectMeta: metav1.ObjectMeta{Name: "control-plane-0"},
+							Spec:       controlplanev1.KubeadmControlPlaneSpec{Replicas: pointer.Int32Ptr(1)},
+							Status:     controlplanev1.KubeadmControlPlaneStatus{ReadyReplicas: 1},
+						})
+					default:
+						return errors.New("invalid object type")
+					}
+					return nil
+				})
+				err = clstClient.WaitForClusterReady("fake-clusterName", "fake-namespace", true)
+			})
+			It("should return an error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+
 		Context("When MachineDeployment object is present but not yet with all the expected replicas", func() {
 			JustBeforeEach(func() {
 				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster runtime.Object) error {

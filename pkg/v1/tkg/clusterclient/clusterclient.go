@@ -531,7 +531,11 @@ func (c *client) WaitForClusterReady(clusterName, namespace string, checkAllRepl
 		return err
 	}
 	if checkAllReplicas {
-		// Check and wait only for MD replicas as KCP replicas would be checked in above VerifyClusterReady() since the KCP Ready condition is mirrored into cluster ControPlaneReady condition
+		// Check and wait for KCP replicas
+		if err := c.GetResourceList(&controlplanev1.KubeadmControlPlaneList{}, clusterName, namespace, VerifyKubeadmControlPlaneReplicas, &PollOptions{Interval: CheckClusterInterval, Timeout: c.operationTimeout}); err != nil {
+			return err
+		}
+		// Check and wait for MD replicas
 		if err := c.GetResourceList(&capi.MachineDeploymentList{}, clusterName, namespace, VerifyMachineDeploymentsReplicas, &PollOptions{Interval: CheckClusterInterval, Timeout: c.operationTimeout}); err != nil {
 			return err
 		}
