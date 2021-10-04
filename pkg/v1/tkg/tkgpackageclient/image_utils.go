@@ -29,15 +29,15 @@ type packageRepositoryStdout struct {
 }
 
 // parseRegistryImageURL parses the registry image URL to get repository and tag, tag is empty if not specified
-func parseRegistryImageURL(imgUrl string) (repository, tag string, err error) {
-	ref, err := dockerParser.Parse(imgUrl)
+func parseRegistryImageURL(imgURL string) (repository, tag string, err error) {
+	ref, err := dockerParser.Parse(imgURL)
 	if err != nil {
 		return "", "", err
 	}
 
 	tag = ref.Tag()
 	// dockerParser sets the tag to "latest" if not specified, however we want it to be empty
-	if tag == tkgpackagedatamodel.DefaultRepositoryImageTag && !strings.HasSuffix(imgUrl, ":"+tkgpackagedatamodel.DefaultRepositoryImageTag) {
+	if tag == tkgpackagedatamodel.DefaultRepositoryImageTag && !strings.HasSuffix(imgURL, ":"+tkgpackagedatamodel.DefaultRepositoryImageTag) {
 		tag = ""
 	}
 	return ref.Repository(), tag, nil

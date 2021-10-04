@@ -82,7 +82,7 @@ func (p *pkgClient) UpdateRepository(o *tkgpackagedatamodel.RepositoryOptions, p
 	}
 }
 
-// validateRepositoryUpdate ensures that another repository (with the same name or same OCI registry URL) does not already exist in the cluster
+// validateRepositoryUpdate ensures that another repository (with the same OCI registry URL) does not already exist in the cluster
 func (p *pkgClient) validateRepositoryUpdate(repositoryName, repositoryImg, namespace string) error {
 	repositoryList, err := p.kappClient.ListPackageRepositories(namespace)
 	if err != nil {
@@ -90,6 +90,7 @@ func (p *pkgClient) validateRepositoryUpdate(repositoryName, repositoryImg, name
 	}
 
 	for _, repository := range repositoryList.Items { //nolint:gocritic
+		// This stops the update validation to compare with itself
 		if repository.Name == repositoryName {
 			continue
 		}
