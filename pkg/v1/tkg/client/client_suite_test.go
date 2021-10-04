@@ -35,7 +35,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	capav1alpha4 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha4"
 	capzv1alpha4 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha4"
-	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
+	capvv1alpha4 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha4"
 	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha4"
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
@@ -74,7 +74,7 @@ func init() {
 	_ = runv1alpha1.AddToScheme(scheme)
 	_ = capav1alpha4.AddToScheme(scheme)
 	_ = capzv1alpha4.AddToScheme(scheme)
-	_ = capvv1alpha3.AddToScheme(scheme)
+	_ = capvv1alpha4.AddToScheme(scheme)
 }
 
 var _ = Describe("CheckInfrastructureVersion", func() {

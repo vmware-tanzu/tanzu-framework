@@ -11,7 +11,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	aws "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha4"
 	azure "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha4"
-	vsphere "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
+	vsphere "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha4"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha4"
 	"sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha4"
 	docker "sigs.k8s.io/cluster-api/test/infrastructure/docker/api/v1alpha4"
