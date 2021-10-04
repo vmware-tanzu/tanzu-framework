@@ -51,6 +51,7 @@ endif
 CUSTOM_NPM_REGISTRY ?= $(shell git config tkg.npmregistry)
 
 # test checks triggered only on makefile changes
+# now also used to check fork rename
 
 # TKG Compatibility Image repo and  path related configuration
 ifndef TKG_DEFAULT_IMAGE_REPOSITORY
