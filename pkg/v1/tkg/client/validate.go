@@ -18,7 +18,7 @@ import (
 	"strings"
 	"time"
 
-	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
+	capvv1alpha4 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha4"
 	clusterctlclient "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
@@ -684,8 +684,8 @@ func (c *TkgClient) getRegionClient(regionContext region.RegionContext) (cluster
 	return client, nil
 }
 
-func getVsphereMachineTemplate(client clusterclient.Client, clusterName string) (*capvv1alpha3.VSphereMachineTemplate, error) {
-	vsphereMachineTemplate := &capvv1alpha3.VSphereMachineTemplate{}
+func getVsphereMachineTemplate(client clusterclient.Client, clusterName string) (*capvv1alpha4.VSphereMachineTemplate, error) {
+	vsphereMachineTemplate := &capvv1alpha4.VSphereMachineTemplate{}
 	nameSpace, err := client.GetCurrentNamespace()
 	if err != nil {
 		return nil, err

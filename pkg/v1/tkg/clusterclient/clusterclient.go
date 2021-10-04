@@ -39,7 +39,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	bootstrapv1 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha4"
 	capav1alpha4 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha4"
-	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
+	capvv1alpha4 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha4"
 	capzv1alpha4 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha4"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha4"
 	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
@@ -383,7 +383,7 @@ func init() {
 	_ = appsv1.AddToScheme(scheme)
 	_ = clusterctlv1.AddToScheme(scheme)
 	_ = controlplanev1.AddToScheme(scheme)
-	_ = capvv1alpha3.AddToScheme(scheme)
+	_ = capvv1alpha4.AddToScheme(scheme)
 	_ = capav1alpha4.AddToScheme(scheme)
 	_ = capzv1alpha4.AddToScheme(scheme)
 	_ = capdv1.AddToScheme(scheme)

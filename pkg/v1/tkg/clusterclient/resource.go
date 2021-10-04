@@ -19,7 +19,7 @@ import (
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
 	capav1alpha4 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha4"
 	capzv1alpha4 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha4"
-	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
+	capvv1alpha4 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha4"
 	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha4"
 	capdv1alpha4 "sigs.k8s.io/cluster-api/test/infrastructure/docker/api/v1alpha4"
@@ -201,9 +201,9 @@ func (c *client) getRuntimeObject(o interface{}) (crtclient.Object, error) { //n
 		return obj, nil
 	case *betav1.CronJob:
 		return obj, nil
-	case *capvv1alpha3.VSphereCluster:
+	case *capvv1alpha4.VSphereCluster:
 		return obj, nil
-	case *capvv1alpha3.VSphereMachineTemplate:
+	case *capvv1alpha4.VSphereMachineTemplate:
 		return obj, nil
 	case *capav1alpha4.AWSMachineTemplate:
 		return obj, nil
@@ -266,7 +266,7 @@ func (c *client) getRuntimeObjectList(o interface{}) (crtclient.ObjectList, erro
 		return obj, nil
 	case *betav1.CronJobList:
 		return obj, nil
-	case *capvv1alpha3.VSphereClusterList:
+	case *capvv1alpha4.VSphereClusterList:
 		return obj, nil
 	case *v1alpha1.ExtensionList:
 		return obj, nil

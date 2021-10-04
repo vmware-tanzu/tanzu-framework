@@ -98,7 +98,7 @@ require (
 	sigs.k8s.io/cluster-api v0.4.2
 	sigs.k8s.io/cluster-api-provider-aws v0.7.0
 	sigs.k8s.io/cluster-api-provider-azure v0.5.2
-	sigs.k8s.io/cluster-api-provider-vsphere v0.7.10
+	sigs.k8s.io/cluster-api-provider-vsphere v0.8.1
 	sigs.k8s.io/cluster-api/test v0.4.2
 	sigs.k8s.io/controller-runtime v0.9.6
 	sigs.k8s.io/controller-tools v0.4.1
