@@ -1,5 +1,7 @@
 # Tanzu Framework
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/vmware-tanzu/tanzu-framework.svg)](https://pkg.go.dev/github.com/vmware-tanzu/tanzu-framework)
+
 ## Overview
 
 Tanzu Framework provides a set of building blocks to build atop of the [Tanzu](https://tanzu.vmware.com/tanzu) platform, which includes the following:
@@ -16,7 +18,7 @@ The [documentation](docs) provides a getting started guide and information about
 
 ## Getting Started
 
-The best way to get started with the Tanzu is by using the CLI.  Please see our getting started with the CLI [guide](docs/cli/getting-started.md) for more details.
+The best way to get started with Tanzu is by using the CLI.  Please see our getting started with the CLI [guide](docs/cli/getting-started.md) for more details.
 
 ## Contributing
 
