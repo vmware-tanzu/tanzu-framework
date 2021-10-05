@@ -188,41 +188,46 @@ func AvailablePlugins(serverName string) (availablePlugins []plugin.Discovered, 
 }
 
 // InstalledPlugins returns the installed plugins.
-func InstalledPlugins(serverName string, exclude ...string) (serverPlugins, standalonePlugins []*cliv1alpha1.PluginDescriptor, err error) {
-	return catalog.GetPluginsFromCatalogCache(serverName)
+func InstalledPlugins(serverName string, exclude ...string) (serverPlugins, standalonePlugins []cliv1alpha1.PluginDescriptor, err error) {
+	serverCatalog, err := catalog.NewContextCatalog(serverName)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	standAloneCatalog, err := catalog.NewContextCatalog(serverName)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return serverCatalog.List(), standAloneCatalog.List(), nil
 }
 
 // DescribePlugin describes a plugin.
 func DescribePlugin(serverName, pluginName string) (desc *cliv1alpha1.PluginDescriptor, err error) {
-	pluginPath, err := catalog.GetPluginPath(serverName, pluginName)
+	c, err := catalog.NewContextCatalog(serverName)
 	if err != nil {
+		return nil, err
+	}
+	descriptor, ok := c.Get(pluginName)
+	if !ok {
 		err = fmt.Errorf("could not get plugin path for plugin %q", pluginName)
 	}
 
-	log.Info(pluginPath)
-
-	b, err := exec.Command(pluginPath, "info").Output()
-	if err != nil {
-		err = errors.Wrapf(err, "could not describe plugin %q", pluginName)
-		return
-	}
-
-	var descriptor cliv1alpha1.PluginDescriptor
-	err = json.Unmarshal(b, &descriptor)
-	if err != nil {
-		err = fmt.Errorf("could not unmarshal plugin %q description", pluginName)
-	}
 	return &descriptor, err
 }
 
 // InitializePlugin initializes the plugin configuration
 func InitializePlugin(serverName, pluginName string) error {
-	pluginPath, err := catalog.GetPluginPath(serverName, pluginName)
+	c, err := catalog.NewContextCatalog(serverName)
 	if err != nil {
+		return err
+	}
+	descriptor, ok := c.Get(pluginName)
+	if !ok {
 		err = fmt.Errorf("could not get plugin path for plugin %q", pluginName)
 	}
 
-	b, err := exec.Command(pluginPath, "post-install").CombinedOutput()
+	b, err := exec.Command(descriptor.InstallationPath, "post-install").CombinedOutput()
 
 	// Note: If user is installing old version of plugin than it is possible that
 	// the plugin does not implement post-install command. Ignoring the
@@ -304,7 +309,11 @@ func installOrUpgradePlugin(serverName string, p plugin.Discovered, version stri
 	}
 	descriptor.InstallationPath = pluginPath
 
-	err = catalog.UpsertPluginCacheEntry(serverName, pluginName, descriptor)
+	c, err := catalog.NewContextCatalog(serverName)
+	if err != nil {
+		return err
+	}
+	err = c.Upsert(descriptor)
 	if err != nil {
 		log.Info("Plugin descriptor could not be updated in cache")
 	}
@@ -317,17 +326,21 @@ func installOrUpgradePlugin(serverName string, p plugin.Discovered, version stri
 
 // DeletePlugin deletes a plugin.
 func DeletePlugin(serverName, pluginName string) error {
-	pluginPath, err := catalog.GetPluginPath(serverName, pluginName)
+	c, err := catalog.NewContextCatalog(serverName)
 	if err != nil {
-		err = fmt.Errorf("could not get plugin path for plugin %q", pluginName)
+		return err
+	}
+	_, ok := c.Get(pluginName)
+	if !ok {
+		return fmt.Errorf("could not get plugin path for plugin %q", pluginName)
 	}
 
-	err = catalog.DeletePluginCacheEntry(serverName, pluginName)
+	err = c.Delete(pluginName)
 	if err != nil {
-		log.Debugf("Plugin descriptor could not be deleted from cache %v", err)
+		return fmt.Errorf("plugin %q could not be deleted from cache", pluginName)
 	}
 
-	return os.Remove(pluginPath)
+	return nil
 }
 
 // Clean deletes all plugins and tests.

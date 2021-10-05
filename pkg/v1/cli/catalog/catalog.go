@@ -28,6 +28,87 @@ var (
 	pluginRoot = common.DefaultPluginRoot
 )
 
+// ContextCatalog denotes a local plugin catalog for a given context or
+// stand-alone.
+type ContextCatalog struct {
+	sharedCatalog *cliv1alpha1.Catalog
+	plugins       cliv1alpha1.PluginAssociation
+}
+
+func NewContextCatalog(context string) (*ContextCatalog, error) {
+	sc, err := getCatalogCache()
+	if err != nil {
+		return nil, err
+	}
+
+	var plugins cliv1alpha1.PluginAssociation
+	if context == "" {
+		plugins = sc.StandAlonePlugins
+	} else {
+		var ok bool
+		plugins, ok = sc.ServerPlugins[context]
+		if !ok {
+			plugins = make(cliv1alpha1.PluginAssociation)
+			sc.ServerPlugins[context] = plugins
+		}
+	}
+
+	return &ContextCatalog{
+		sharedCatalog: sc,
+		plugins:       plugins,
+	}, nil
+}
+
+// Upsert inserts/updates the given plugin.
+func (c *ContextCatalog) Upsert(plugin cliv1alpha1.PluginDescriptor) error {
+	c.plugins[plugin.Name] = plugin.InstallationPath
+	c.sharedCatalog.IndexByPath[plugin.InstallationPath] = plugin
+
+	if !utils.ContainsString(c.sharedCatalog.IndexByName[plugin.Name], plugin.InstallationPath) {
+		c.sharedCatalog.IndexByName[plugin.Name] = append(c.sharedCatalog.IndexByName[plugin.Name], plugin.InstallationPath)
+	}
+
+	return saveCatalogCache(c.sharedCatalog)
+}
+
+// Get looks up the given plugin.
+func (c *ContextCatalog) Get(plugin string) (cliv1alpha1.PluginDescriptor, bool) {
+	pd := cliv1alpha1.PluginDescriptor{}
+	path, ok := c.plugins[plugin]
+	if !ok {
+		return pd, false
+	}
+
+	pd, ok = c.sharedCatalog.IndexByPath[path]
+	if !ok {
+		return pd, false
+	}
+
+	return pd, true
+}
+
+// List returns the list of active plugins.
+func (c *ContextCatalog) List() []cliv1alpha1.PluginDescriptor {
+	pds := make([]cliv1alpha1.PluginDescriptor, 0)
+	for _, installationPath := range c.plugins {
+		pd := c.sharedCatalog.IndexByPath[installationPath]
+		pds = append(pds, pd)
+	}
+	return pds
+}
+
+// Delete deletes the given plugin from the catalog, but it does not delete
+// the installation.
+func (c *ContextCatalog) Delete(plugin string) error {
+	_, ok := c.plugins[plugin]
+	if ok {
+		delete(c.plugins, plugin)
+	}
+
+	return saveCatalogCache(c.sharedCatalog)
+
+}
+
 // getCatalogCacheDir returns the local directory in which tanzu state is stored.
 func getCatalogCacheDir() (path string, err error) {
 	home, err := os.UserHomeDir()
@@ -38,20 +119,13 @@ func getCatalogCacheDir() (path string, err error) {
 	return
 }
 
-// NewCatalog creates an instance of Catalog.
-func NewCatalog() (*cliv1alpha1.Catalog, error) {
-	c := &cliv1alpha1.Catalog{}
-	if c.IndexByPath == nil {
-		c.IndexByPath = map[string]cliv1alpha1.PluginDescriptor{}
-	}
-	if c.IndexByName == nil {
-		c.IndexByName = map[string][]string{}
-	}
-	if c.StandAlonePlugins == nil {
-		c.StandAlonePlugins = map[string]string{}
-	}
-	if c.ServerPlugins == nil {
-		c.ServerPlugins = map[string]cliv1alpha1.PluginAssociation{}
+// newSharedCatalog creates an instance of the shared catalog file.
+func newSharedCatalog() (*cliv1alpha1.Catalog, error) {
+	c := &cliv1alpha1.Catalog{
+		IndexByPath:       map[string]cliv1alpha1.PluginDescriptor{},
+		IndexByName:       map[string][]string{},
+		StandAlonePlugins: map[string]string{},
+		ServerPlugins:     map[string]cliv1alpha1.PluginAssociation{},
 	}
 
 	err := ensureRoot()
@@ -69,7 +143,7 @@ func getCatalogCache() (catalog *cliv1alpha1.Catalog, err error) {
 	}
 	b, err := os.ReadFile(catalogCachePath)
 	if err != nil {
-		catalog, err = NewCatalog()
+		catalog, err = newSharedCatalog()
 		if err != nil {
 			return nil, err
 		}
@@ -141,102 +215,6 @@ func saveCatalogCache(catalog *cliv1alpha1.Catalog) error {
 	return nil
 }
 
-// savePluginsToCatalogCache saves plugins to catalog cache
-func savePluginsToCatalogCache(list []*cliv1alpha1.PluginDescriptor) error {
-	catalog, err := getCatalogCache()
-	if err != nil {
-		catalog, err = NewCatalog()
-		if err != nil {
-			return err
-		}
-	}
-	catalog.PluginDescriptors = list
-	if err := saveCatalogCache(catalog); err != nil {
-		return err
-	}
-	return nil
-}
-
-// GetPluginsFromCatalogCache gets plugins from catalog cache
-func GetPluginsFromCatalogCache(serverName string) (serverPlugins, standalonePlugins []*cliv1alpha1.PluginDescriptor, err error) {
-	var catalog *cliv1alpha1.Catalog
-
-	catalog, err = getCatalogCache()
-	if err != nil {
-		return
-	}
-
-	serverPluginAssociation, _ := catalog.ServerPlugins[serverName]
-	serverPlugins, standalonePlugins = getPluginDescriptorFromPluginAssociation(catalog.IndexByPath, serverPluginAssociation, catalog.StandAlonePlugins)
-	return
-}
-
-func getPluginDescriptorFromPluginAssociation(indexByPath map[string]cliv1alpha1.PluginDescriptor,
-	serverPluginAssociation,
-	standalonePluginAssociation cliv1alpha1.PluginAssociation) (serverPlugins, standalonePlugins []*cliv1alpha1.PluginDescriptor) {
-
-	// Add plugins from server plugin association
-	mapServerPluginToPath := serverPluginAssociation.Map()
-	for _, installationPath := range mapServerPluginToPath {
-		pd := indexByPath[installationPath]
-		serverPlugins = append(serverPlugins, &pd)
-	}
-
-	// Add plugins from standalone plugin association if the same plugin
-	// is not added from server plugin association
-	mapstandalonePluginToPath := standalonePluginAssociation.Map()
-	for pluginName, installationPath := range mapstandalonePluginToPath {
-		if _, exists := mapServerPluginToPath[pluginName]; !exists {
-			pd := indexByPath[installationPath]
-			standalonePlugins = append(standalonePlugins, &pd)
-		}
-	}
-	return
-}
-
-// UpsertPluginCacheEntry inserts or updates a plugin entry in catalog cache
-func UpsertPluginCacheEntry(serverName, pluginName string, descriptor cliv1alpha1.PluginDescriptor) error {
-	catalog, err := getCatalogCache()
-	if err != nil {
-		return err
-	}
-
-	if serverName == "" {
-		catalog.StandAlonePlugins.Add(pluginName, descriptor.InstallationPath)
-	} else {
-		catalog.ServerPlugins[serverName] = map[string]string{}
-		catalog.ServerPlugins[serverName].Add(pluginName, descriptor.InstallationPath)
-	}
-
-	catalog.IndexByPath[descriptor.InstallationPath] = descriptor
-
-	if !utils.ContainsString(catalog.IndexByName[pluginName], descriptor.InstallationPath) {
-		catalog.IndexByName[pluginName] = append(catalog.IndexByName[pluginName], descriptor.InstallationPath)
-	}
-
-	if err := saveCatalogCache(catalog); err != nil {
-		return err
-	}
-	return nil
-}
-
-// DeletePluginCacheEntry deletes plugin entry in catalog cache
-func DeletePluginCacheEntry(serverName, pluginName string) error {
-	catalog, err := getCatalogCache()
-	if err != nil {
-		return err
-	}
-
-	serverPluginAssociation, exists := catalog.ServerPlugins[serverName]
-	if exists {
-		serverPluginAssociation.Remove(pluginName)
-	}
-
-	// TODO(anuj): Delete entry for standalone plugins?
-
-	return saveCatalogCache(catalog)
-}
-
 // CleanCatalogCache cleans the catalog cache
 func CleanCatalogCache() error {
 	catalogCachePath, err := getCatalogCachePath()
@@ -247,30 +225,6 @@ func CleanCatalogCache() error {
 		return err
 	}
 	return nil
-}
-
-func GetPluginPath(serverName, pluginName string) (string, error) {
-	catalog, err := getCatalogCache()
-	if err != nil {
-		return "", err
-	}
-
-	// Get the plugin path from server plugin association if plugin exists
-	serverPluginAssociation, exists := catalog.ServerPlugins[serverName]
-	if exists {
-		path := serverPluginAssociation.Get(pluginName)
-		if path != "" {
-			return path, nil
-		}
-	}
-
-	// Else get the plugin path from the standalone plugin association
-	path := catalog.StandAlonePlugins.Get(pluginName)
-	if path != "" {
-		return path, nil
-	}
-
-	return "", errors.Errorf("unable to find the plugin '%v' for server '%v' in catalog cache", pluginName, serverName)
 }
 
 // getCatalogCachePath gets the catalog cache path

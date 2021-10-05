@@ -69,7 +69,8 @@ var listPluginCmd = &cobra.Command{
 
 			data := [][]string{}
 			for _, p := range availablePlugins {
-				data = append(data, []string{p.GetName(), p.GetDescription(), p.GetScope(), p.GetDiscovery(), p.GetRecommendedVersion(), p.GetStatus()})
+				data = append(data, []string{p.Name, p.Description, p.Scope,
+					p.Source, p.RecommendedVersion, p.Status})
 			}
 
 			output := component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "Name", "Description", "Scope", "Discovery", "Version", "Status")
