@@ -23,7 +23,7 @@ func parseRegistryImageURL(imgURL string) (repository, tag string, err error) {
 
 	repository = ref.Context().String()
 	tag = ref.TagStr()
-	// dockerParser sets the tag to "latest" if not specified, however we want it to be empty
+	// the parser function sets the tag to "latest" if not specified, however we want it to be empty
 	if tag == tkgpackagedatamodel.DefaultRepositoryImageTag && !strings.HasSuffix(imgURL, ":"+tkgpackagedatamodel.DefaultRepositoryImageTag) {
 		tag = ""
 	}
