@@ -10,6 +10,7 @@ import Broker from 'src/app/shared/service/broker';
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import { EditionData } from 'src/app/shared/service/branding.service';
+import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 
 const INIT_FIELD_DELAY = 50;            // ms
 /**
@@ -28,6 +29,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     validatorEnum = ValidatorEnum;
     errorNotification: string;
     clusterType: string;
+    ipFamily: IpFamilyEnum = IpFamilyEnum.IPv4;
 
     private delayedFieldQueue = [];
 
@@ -197,5 +199,29 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
             distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
             takeUntil(this.unsubscribe)
         ).subscribe(newValue => callback(newValue));
+    }
+
+    registerOnIpFamilyChange(fieldName: string, ipv4Validators: ValidatorFn[], ipv6Validators: ValidatorFn[], cb?: () => void) {
+        Broker.messenger.getSubject(TkgEventType.IP_FAMILY_CHANGE)
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe((data: TkgEvent) => {
+                if (data.payload === IpFamilyEnum.IPv4) {
+                    this.resurrectField(
+                        fieldName,
+                        ipv4Validators,
+                        this.formGroup.get(fieldName).value
+                    );
+                } else {
+                    this.resurrectField(
+                        fieldName,
+                        ipv6Validators,
+                        this.formGroup.get(fieldName).value
+                    );
+                }
+                this.ipFamily = data.payload;
+                if (cb) {
+                    cb();
+                }
+            });
     }
 }
