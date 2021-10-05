@@ -1,5 +1,5 @@
 ---
-apiVersion: cluster.x-k8s.io/v1alpha3
+apiVersion: cluster.x-k8s.io/v1alpha4
 kind: Cluster
 metadata:
   name: '${ CLUSTER_NAME }'
@@ -15,15 +15,15 @@ spec:
       cidrBlocks:
       - '${ SERVICE_CIDR }'
   controlPlaneRef:
-    apiVersion: controlplane.cluster.x-k8s.io/v1alpha3
+    apiVersion: controlplane.cluster.x-k8s.io/v1alpha4
     kind: KubeadmControlPlane
     name: '${ CLUSTER_NAME }-control-plane'
   infrastructureRef:
-    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
     kind: VSphereCluster
     name: '${ CLUSTER_NAME }'
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
 kind: VSphereCluster
 metadata:
   name: '${ CLUSTER_NAME }'
@@ -38,7 +38,7 @@ spec:
   thumbprint: '${ VSPHERE_TLS_THUMBPRINT }'
   server: '${ VSPHERE_SERVER }'
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
 kind: VSphereMachineTemplate
 metadata:
   name: '${ CLUSTER_NAME }-control-plane'
@@ -62,7 +62,7 @@ spec:
       server: '${ VSPHERE_SERVER }'
       template: '${ VSPHERE_TEMPLATE }'
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
 kind: VSphereMachineTemplate
 metadata:
   name: '${ CLUSTER_NAME }-worker'
@@ -86,16 +86,17 @@ spec:
       server: '${ VSPHERE_SERVER }'
       template: '${ VSPHERE_TEMPLATE }'
 ---
-apiVersion: controlplane.cluster.x-k8s.io/v1alpha3
+apiVersion: controlplane.cluster.x-k8s.io/v1alpha4
 kind: KubeadmControlPlane
 metadata:
   name: '${ CLUSTER_NAME }-control-plane'
   namespace: '${ NAMESPACE }'
 spec:
-  infrastructureTemplate:
-    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
-    kind: VSphereMachineTemplate
-    name: '${ CLUSTER_NAME }-control-plane'
+  machineTemplate:
+    infrastructureRef:
+      apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
+      kind: VSphereMachineTemplate
+      name: '${ CLUSTER_NAME }-control-plane'
   kubeadmConfigSpec:
     useExperimentalRetryJoin: true
     clusterConfiguration:
@@ -108,7 +109,6 @@ spec:
           extraArgs:
             cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
       dns:
-        type: CoreDNS
         imageRepository: '${ _TKG_COREDNS_IMAGE_REPOSITORY }'
         imageTag: '${ _TKG_COREDNS_IMAGE_TAG }'
       apiServer:
@@ -199,7 +199,7 @@ spec:
   replicas: ${ CONTROL_PLANE_MACHINE_COUNT }
   version: '${ KUBERNETES_VERSION }'
 ---
-apiVersion: bootstrap.cluster.x-k8s.io/v1alpha3
+apiVersion: bootstrap.cluster.x-k8s.io/v1alpha4
 kind: KubeadmConfigTemplate
 metadata:
   name: '${ CLUSTER_NAME }-md-0'
@@ -228,7 +228,7 @@ spec:
         - '${ VSPHERE_SSH_AUTHORIZED_KEY }'
         sudo: ALL=(ALL) NOPASSWD:ALL
 ---
-apiVersion: cluster.x-k8s.io/v1alpha3
+apiVersion: cluster.x-k8s.io/v1alpha4
 kind: MachineDeployment
 metadata:
   labels:
@@ -249,12 +249,12 @@ spec:
     spec:
       bootstrap:
         configRef:
-          apiVersion: bootstrap.cluster.x-k8s.io/v1alpha3
+          apiVersion: bootstrap.cluster.x-k8s.io/v1alpha4
           kind: KubeadmConfigTemplate
           name: '${ CLUSTER_NAME }-md-0'
       clusterName: '${ CLUSTER_NAME }'
       infrastructureRef:
-        apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+        apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
         kind: VSphereMachineTemplate
         name: '${ CLUSTER_NAME }-worker'
       version: '${ KUBERNETES_VERSION }'
