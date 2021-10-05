@@ -26,12 +26,12 @@ func NewOCIDiscovery(name, image string) Discovery {
 }
 
 // List available plugins.
-func (od *OCIDiscovery) List() (plugins []plugin.Plugin, err error) {
+func (od *OCIDiscovery) List() (plugins []plugin.Discovered, err error) {
 	return
 }
 
 // Describe a plugin.
-func (od *OCIDiscovery) Describe(name string) (plugin plugin.Plugin, err error) {
+func (od *OCIDiscovery) Describe(name string) (plugin plugin.Discovered, err error) {
 	return
 }
 

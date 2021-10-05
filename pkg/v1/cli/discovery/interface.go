@@ -14,15 +14,18 @@ import (
 type Discovery interface {
 	// Name of the repository.
 	Name() string
+
 	// List available plugins.
-	List() ([]plugin.Plugin, error)
+	List() ([]plugin.Discovered, error)
+
 	// Describe a plugin.
-	Describe(name string) (plugin.Plugin, error)
+	Describe(name string) (plugin.Discovered, error)
+
 	// Type returns type of discovery.
 	Type() string
 }
 
-func CreateDiscovery(pd v1alpha1.PluginDiscovery) (Discovery, error) {
+func CreateDiscoveryFromV1alpha1(pd v1alpha1.PluginDiscovery) (Discovery, error) {
 	if pd.GCP != nil {
 		return NewGCPDiscovery(pd.GCP.Bucket, pd.GCP.ManifestPath, pd.GCP.Name), nil
 	}

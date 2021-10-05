@@ -4,12 +4,12 @@
 package discovery
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 
 	"github.com/pkg/errors"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/distribution"
 	apimachineryjson "k8s.io/apimachinery/pkg/runtime/serializer/json"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
@@ -31,7 +31,7 @@ func NewLocalDiscovery(name, localPath string) Discovery {
 }
 
 // List available plugins.
-func (l *LocalDiscovery) List() ([]plugin.Plugin, error) {
+func (l *LocalDiscovery) List() ([]plugin.Discovered, error) {
 	plugins, err := l.Manifest()
 	if err != nil {
 		return nil, err
@@ -40,14 +40,14 @@ func (l *LocalDiscovery) List() ([]plugin.Plugin, error) {
 }
 
 // Describe a plugin.
-func (l *LocalDiscovery) Describe(name string) (plugin plugin.Plugin, err error) {
+func (l *LocalDiscovery) Describe(name string) (plugin plugin.Discovered, err error) {
 	plugins, err := l.Manifest()
 	if err != nil {
 		return
 	}
 
 	for _, p := range plugins {
-		if p.GetName() == name {
+		if p.Name == name {
 			plugin = p
 			return
 		}
@@ -62,8 +62,8 @@ func (l *LocalDiscovery) Name() string {
 }
 
 // Manifest returns the manifest for a local repository.
-func (l *LocalDiscovery) Manifest() ([]plugin.Plugin, error) {
-	plugins := []plugin.Plugin{}
+func (l *LocalDiscovery) Manifest() ([]plugin.Discovered, error) {
+	plugins := make([]plugin.Discovered, 0)
 
 	items, err := ioutil.ReadDir(l.path)
 	if err != nil {
@@ -90,9 +90,9 @@ func (l *LocalDiscovery) Manifest() ([]plugin.Plugin, error) {
 			return nil, errors.Wrap(err, "could not decode catalog file")
 		}
 
-		po := plugin.NewPlugin(p)
-		po.SetDiscovery(fmt.Sprintf("%s/%s", l.Type(), l.name))
-		plugins = append(plugins, po)
+		dp := DiscoveredFromK8sV1alpha1(p)
+		dp.Source = l.name
+		plugins = append(plugins, dp)
 	}
 	return plugins, nil
 }
@@ -100,4 +100,19 @@ func (l *LocalDiscovery) Manifest() ([]plugin.Plugin, error) {
 // Type of the repository.
 func (l *LocalDiscovery) Type() string {
 	return "local"
+}
+
+func DiscoveredFromK8sV1alpha1(p cliv1alpha1.CLIPlugin) plugin.Discovered {
+	dp := plugin.Discovered{
+		Name:               p.Name,
+		Description:        p.Spec.Description,
+		RecommendedVersion: p.Spec.RecommendedVersion,
+		Optional:           p.Spec.Optional,
+	}
+	dp.SupportedVersions = make([]string, len(p.Spec.Artifacts))
+	for v := range p.Spec.Artifacts {
+		dp.SupportedVersions = append(dp.SupportedVersions, v)
+	}
+	dp.Distribution = distribution.ArtifactsFromK8sV1alpha1(p.Spec.Artifacts)
+	return dp
 }

@@ -14,6 +14,7 @@ import (
 
 	"github.com/aunum/log"
 	"github.com/pkg/errors"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/discovery"
 	"go.uber.org/multierr"
 	"golang.org/x/mod/semver"
 
@@ -21,7 +22,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/catalog"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/discovery"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/plugin"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
@@ -63,10 +63,10 @@ func ValidatePlugin(p *cliv1alpha1.PluginDescriptor) (err error) {
 	return
 }
 
-func discoverPlugins(pd []v1alpha1.PluginDiscovery) ([]plugin.Plugin, error) {
-	allPlugins := []plugin.Plugin{}
+func discoverPlugins(pd []v1alpha1.PluginDiscovery) ([]plugin.Discovered, error) {
+	allPlugins := make([]plugin.Discovered, 0)
 	for _, d := range pd {
-		discObject, err := discovery.CreateDiscovery(d)
+		discObject, err := discovery.CreateDiscoveryFromV1alpha1(d)
 		if err != nil {
 			return nil, errors.Wrapf(err, "unable to create discovery")
 		}
@@ -81,7 +81,7 @@ func discoverPlugins(pd []v1alpha1.PluginDiscovery) ([]plugin.Plugin, error) {
 }
 
 // DiscoverStandalonePlugins returns the available standalone plugins
-func DiscoverStandalonePlugins() (plugins []plugin.Plugin, err error) {
+func DiscoverStandalonePlugins() (plugins []plugin.Discovered, err error) {
 	cfg, e := config.GetClientConfig()
 	if e != nil {
 		err = errors.Wrapf(e, "unable to get client configuration")
@@ -89,7 +89,7 @@ func DiscoverStandalonePlugins() (plugins []plugin.Plugin, err error) {
 	}
 
 	if cfg == nil || cfg.ClientOptions == nil || cfg.ClientOptions.CLI == nil {
-		plugins = []plugin.Plugin{}
+		plugins = []plugin.Discovered{}
 		return
 	}
 
@@ -98,15 +98,15 @@ func DiscoverStandalonePlugins() (plugins []plugin.Plugin, err error) {
 		return
 	}
 	for i := range plugins {
-		plugins[i].SetScope("Stand-Alone")
-		plugins[i].SetStatus("not installed")
+		plugins[i].Scope = "Stand-Alone"
+		plugins[i].Status = "not installed"
 	}
 	return
 }
 
 // DiscoverServerPlugins returns the available plugins associated with the given server
-func DiscoverServerPlugins(serverName string) (plugins []plugin.Plugin, err error) {
-	plugins = []plugin.Plugin{}
+func DiscoverServerPlugins(serverName string) (plugins []plugin.Discovered, err error) {
+	plugins = []plugin.Discovered{}
 	server, e := config.GetServer(serverName)
 	if e != nil {
 		return
@@ -117,14 +117,14 @@ func DiscoverServerPlugins(serverName string) (plugins []plugin.Plugin, err erro
 		return
 	}
 	for i := range plugins {
-		plugins[i].SetScope("Context")
-		plugins[i].SetStatus("not installed")
+		plugins[i].Scope = "Context"
+		plugins[i].Status = "not installed"
 	}
 	return
 }
 
 // DiscoverPlugins returns the available plugins that can be used with the given server
-func DiscoverPlugins(serverName string) (serverPlugins, standalonePlugins []plugin.Plugin, err error) {
+func DiscoverPlugins(serverName string) (serverPlugins, standalonePlugins []plugin.Discovered, err error) {
 	serverPlugins, err = DiscoverServerPlugins(serverName)
 	if err != nil {
 		err = errors.Wrapf(err, "unable to discover server plugins")
@@ -140,7 +140,7 @@ func DiscoverPlugins(serverName string) (serverPlugins, standalonePlugins []plug
 }
 
 // AvailablePlugins returns the list of available plugins including discovered and installed plugins
-func AvailablePlugins(serverName string) (availablePlugins []plugin.Plugin, err error) {
+func AvailablePlugins(serverName string) (availablePlugins []plugin.Discovered, err error) {
 	discoveredServerPlugins, discoveredStandalonePlugins, err := DiscoverPlugins(serverName)
 	if err != nil {
 		return
@@ -155,7 +155,7 @@ func AvailablePlugins(serverName string) (availablePlugins []plugin.Plugin, err 
 	for i := range discoveredStandalonePlugins {
 		exists := false
 		for j := range availablePlugins {
-			if discoveredStandalonePlugins[i].GetName() == availablePlugins[j].GetName() {
+			if discoveredStandalonePlugins[i].Name == availablePlugins[j].Name {
 				exists = true
 				break
 			}
@@ -167,18 +167,20 @@ func AvailablePlugins(serverName string) (availablePlugins []plugin.Plugin, err 
 
 	for i := range installedSeverPluginDesc {
 		for j := range availablePlugins {
-			if installedSeverPluginDesc[i].Name == availablePlugins[j].GetName() && availablePlugins[j].GetScope() == "Context" {
+			if installedSeverPluginDesc[i].Name == availablePlugins[j].Name &&
+				installedSeverPluginDesc[i].Discovery == availablePlugins[j].Source {
 				// Match found, Check for update available and update status
-				availablePlugins[j].SetStatus("installed")
+				availablePlugins[j].Status = "installed"
 			}
 		}
 	}
 
 	for i := range installedStandalonePluginDesc {
 		for j := range availablePlugins {
-			if installedStandalonePluginDesc[i].Name == availablePlugins[j].GetName() && availablePlugins[j].GetScope() == "Stand-Alone" {
+			if installedStandalonePluginDesc[i].Name == availablePlugins[j].Name &&
+				installedStandalonePluginDesc[i].Discovery == availablePlugins[j].Source {
 				// Match found, Check for update available and update status
-				availablePlugins[j].SetStatus("installed")
+				availablePlugins[j].Status = "installed"
 			}
 		}
 	}
@@ -239,8 +241,8 @@ func InstallPlugin(serverName, pluginName, version string) error {
 		return err
 	}
 	for i := range availablePlugins {
-		if availablePlugins[i].GetName() == pluginName {
-			if availablePlugins[i].GetScope() == "Stand-Alone" {
+		if availablePlugins[i].Name == pluginName {
+			if availablePlugins[i].Scope == "Stand-Alone" {
 				serverName = ""
 			}
 			return installOrUpgradePlugin(serverName, availablePlugins[i], version)
@@ -257,8 +259,8 @@ func UpgradePlugin(serverName, pluginName, version string) error {
 		return err
 	}
 	for i := range availablePlugins {
-		if availablePlugins[i].GetName() == pluginName {
-			if availablePlugins[i].GetScope() == "Stand-Alone" {
+		if availablePlugins[i].Name == pluginName {
+			if availablePlugins[i].Scope == "Stand-Alone" {
 				serverName = ""
 			}
 			return installOrUpgradePlugin(serverName, availablePlugins[i], version)
@@ -268,13 +270,13 @@ func UpgradePlugin(serverName, pluginName, version string) error {
 	return errors.Errorf("unable to find plugin '%v'", pluginName)
 }
 
-func installOrUpgradePlugin(serverName string, p plugin.Plugin, version string) error {
-	b, err := p.Fetch(version, runtime.GOOS, runtime.GOARCH)
+func installOrUpgradePlugin(serverName string, p plugin.Discovered, version string) error {
+	b, err := p.Distribution.Fetch(version, runtime.GOOS, runtime.GOARCH)
 	if err != nil {
 		return err
 	}
 
-	pluginName := p.GetName()
+	pluginName := p.Name
 	pluginPath := filepath.Join(pluginRoot, pluginName, version)
 
 	err = os.MkdirAll(filepath.Dir(pluginPath), os.ModePerm)

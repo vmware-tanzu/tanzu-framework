@@ -22,12 +22,12 @@ func NewGCPDiscovery(bucket, manifestPath, name string) Discovery {
 }
 
 // List available plugins.
-func (g *GCPDiscovery) List() (plugins []plugin.Plugin, err error) {
+func (g *GCPDiscovery) List() (plugins []plugin.Discovered, err error) {
 	return
 }
 
 // Describe a plugin.
-func (g *GCPDiscovery) Describe(name string) (plugin plugin.Plugin, err error) {
+func (g *GCPDiscovery) Describe(name string) (plugin plugin.Discovered, err error) {
 	return plugin, err
 }
 
