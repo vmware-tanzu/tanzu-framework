@@ -6,8 +6,6 @@ package tkgpackageclient
 import (
 	"strings"
 
-	"gopkg.in/yaml.v2"
-
 	dockerParser "github.com/novln/docker-parser"
 	"github.com/pkg/errors"
 
@@ -15,18 +13,6 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
-
-// packageRepositoryStdout is used for unmarshal the package repository stdout to get the tag in use
-type packageRepositoryStdout struct {
-	APIVersion  string `yaml:"apiVersion,omitempty"`
-	Directories []struct {
-		Contents []struct {
-			ImgpkgBundle struct {
-				Tag string `yaml:"tag,omitempty"`
-			} `yaml:"imgpkgBundle,omitempty"`
-		} `yaml:"contents,omitempty"`
-	} `yaml:"directories,omitempty"`
-}
 
 // parseRegistryImageURL parses the registry image URL to get repository and tag, tag is empty if not specified
 func parseRegistryImageURL(imgURL string) (repository, tag string, err error) {
@@ -54,30 +40,8 @@ func GetCurrentRepositoryAndTagInUse(pkgr *kappipkg.PackageRepository) (reposito
 		return "", "", errors.Wrap(err, "failed to parse OCI registry URL")
 	}
 
-	if pkgr.Spec.Fetch.ImgpkgBundle.TagSelection != nil && pkgr.Spec.Fetch.ImgpkgBundle.TagSelection.Semver != nil && pkgr.Status.Fetch != nil {
-		/* Unmarshall the tag from stdout
-		   example format:
-			stdout: |
-		      apiVersion: vendir.k14s.io/v1alpha1
-		      directories:
-		      - contents:
-		        - imgpkgBundle:
-		            image: projects.registry.vmware.com/tce/main@sha256:984450d3b1367f761da43e443c36428614c8ce9012d9fc1f2149733de0149cf4
-		            tag: 0.8.0
-		          path: .
-		        path: "0"
-		      kind: LockConfig
-		*/
-		m := packageRepositoryStdout{}
-
-		err := yaml.Unmarshal([]byte(pkgr.Status.Fetch.Stdout), &m)
-		if err != nil {
-			return "", "", err
-		}
-
-		if len(m.Directories) > 0 && len(m.Directories[0].Contents) > 0 && m.Directories[0].Contents[0].ImgpkgBundle.Tag != "" {
-			tag = m.Directories[0].Contents[0].ImgpkgBundle.Tag
-		}
+	if tag == "" {
+		tag = tkgpackagedatamodel.LatestReleaseTag
 	}
 
 	return repository, tag, nil
