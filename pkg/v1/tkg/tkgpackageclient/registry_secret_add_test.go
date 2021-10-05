@@ -25,11 +25,11 @@ var _ = Describe("Add Secret", func() {
 		crtCtl  *fakes.CRTClusterClient
 		kappCtl *fakes.KappClient
 		err     error
-		opts    = tkgpackagedatamodel.ImagePullSecretOptions{
+		opts    = tkgpackagedatamodel.RegistrySecretOptions{
 			ExportToAllNamespaces: false,
 			Namespace:             testNamespaceName,
 			Password:              testPassword,
-			Registry:              testRegistry,
+			ServerURL:             testRegistry,
 			SecretName:            testSecretName,
 			Username:              testUsername,
 		}
@@ -38,7 +38,7 @@ var _ = Describe("Add Secret", func() {
 
 	JustBeforeEach(func() {
 		ctl = &pkgClient{kappClient: kappCtl}
-		err = ctl.AddImagePullSecret(&options)
+		err = ctl.AddRegistrySecret(&options)
 	})
 
 	Context("failure in creating Secret due to Create API error", func() {

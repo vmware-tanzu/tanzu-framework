@@ -12,18 +12,18 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
-// ListImagePullSecret lists all image pull secrets of type kubernetes.io/dockerconfigjson across the cluster.
-func (p *pkgClient) ListImagePullSecrets(o *tkgpackagedatamodel.ImagePullSecretOptions) (*corev1.SecretList, error) {
-	imagePullSecretList, err := p.kappClient.ListImagePullSecrets(o.Namespace)
+// ListRegistrySecrets lists all registry secrets of type kubernetes.io/dockerconfigjson across the cluster.
+func (p *pkgClient) ListRegistrySecrets(o *tkgpackagedatamodel.RegistrySecretOptions) (*corev1.SecretList, error) {
+	registrySecretList, err := p.kappClient.ListRegistrySecrets(o.Namespace)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to list existing image pull secrets in the cluster")
+		return nil, errors.Wrap(err, "failed to list existing registry secrets in the cluster")
 	}
 
-	return imagePullSecretList, nil
+	return registrySecretList, nil
 }
 
 // ListSecretExports lists all SecretExports across the cluster.
-func (p *pkgClient) ListSecretExports(o *tkgpackagedatamodel.ImagePullSecretOptions) (*secretgenctrl.SecretExportList, error) {
+func (p *pkgClient) ListSecretExports(o *tkgpackagedatamodel.RegistrySecretOptions) (*secretgenctrl.SecretExportList, error) {
 	secretExportList, err := p.kappClient.ListSecretExports(o.Namespace)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to list existing secret exports in the cluster")

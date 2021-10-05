@@ -31,7 +31,7 @@ var _ = Describe("Update Secret", func() {
 		dockerCfgContent []byte
 		f                = false
 		t                = true
-		opts             = tkgpackagedatamodel.ImagePullSecretOptions{
+		opts             = tkgpackagedatamodel.RegistrySecretOptions{
 			Export:     tkgpackagedatamodel.TypeBoolPtr{ExportToAllNamespaces: &t},
 			Namespace:  testNamespaceName,
 			Password:   testPassword,
@@ -47,7 +47,7 @@ var _ = Describe("Update Secret", func() {
 
 	JustBeforeEach(func() {
 		ctl = &pkgClient{kappClient: kappCtl}
-		err = ctl.UpdateImagePullSecret(&options)
+		err = ctl.UpdateRegistrySecret(&options)
 	})
 
 	Context("failure in updating Secret due to Secret Get NotFound error", func() {

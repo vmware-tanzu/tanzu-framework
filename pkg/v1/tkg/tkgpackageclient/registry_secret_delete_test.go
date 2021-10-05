@@ -22,11 +22,11 @@ var _ = Describe("Delete Secret", func() {
 		kappCtl       *fakes.KappClient
 		err           error
 		isSecretFound bool
-		opts          = tkgpackagedatamodel.ImagePullSecretOptions{
+		opts          = tkgpackagedatamodel.RegistrySecretOptions{
 			ExportToAllNamespaces: false,
 			Namespace:             testNamespaceName,
 			Password:              testPassword,
-			Registry:              testRegistry,
+			ServerURL:             testRegistry,
 			SecretName:            testSecretName,
 			Username:              testUsername,
 			SkipPrompt:            true,
@@ -36,7 +36,7 @@ var _ = Describe("Delete Secret", func() {
 
 	JustBeforeEach(func() {
 		ctl = &pkgClient{kappClient: kappCtl}
-		isSecretFound, err = ctl.DeleteImagePullSecret(&options)
+		isSecretFound, err = ctl.DeleteRegistrySecret(&options)
 	})
 
 	Context("success when trying to delete SecretExport returns NotFound error", func() {

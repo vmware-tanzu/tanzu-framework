@@ -15,6 +15,6 @@
 /pkg/v1/tkg/tkgpackageclient @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners
 /pkg/v1/tkg/test/tkgpackageclient @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners
 /cmd/cli/plugin/package @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners
-/cmd/cli/plugin/imagepullsecret @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners
+/cmd/cli/plugin/secret @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners
 /cmd/cli/plugin/pinniped-auth @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-iam-owners
 /pkg/v1/tkg/tkgconfigpaths @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-release-team

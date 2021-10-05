@@ -13,7 +13,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 )
 
-var descriptor = cli.NewTestFor("imagepullsecret")
+var descriptor = cli.NewTestFor("secret")
 
 func main() {
 	p, err := plugin.NewPlugin(descriptor)

@@ -23,8 +23,8 @@ var (
 	secretExport = &secretgenctrl.SecretExport{}
 )
 
-// UpdateImagePullSecret updates an image pull Secret in the cluster
-func (p *pkgClient) UpdateImagePullSecret(o *tkgpackagedatamodel.ImagePullSecretOptions) error {
+// UpdateRegistrySecret updates a registry Secret in the cluster
+func (p *pkgClient) UpdateRegistrySecret(o *tkgpackagedatamodel.RegistrySecretOptions) error {
 	var (
 		registry string
 		username string
@@ -96,7 +96,7 @@ func (p *pkgClient) UpdateImagePullSecret(o *tkgpackagedatamodel.ImagePullSecret
 }
 
 // UpdateSecretExport updates the SecretExport resource in the cluster
-func (p *pkgClient) UpdateSecretExport(o *tkgpackagedatamodel.ImagePullSecretOptions) error {
+func (p *pkgClient) UpdateSecretExport(o *tkgpackagedatamodel.RegistrySecretOptions) error {
 	if o.Export.ExportToAllNamespaces == nil {
 		return nil
 	}
