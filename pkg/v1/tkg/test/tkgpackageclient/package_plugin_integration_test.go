@@ -250,10 +250,9 @@ var _ = Describe("Package plugin integration test", func() {
 		expectedRepoOutputLatestTag = repositoryOutput{
 			Name:       config.RepositoryName,
 			Repository: config.RepositoryURLNoTag,
-			// TODO: change Tag to config.RepositoryLatestTag after kapp controller is bumped to 0.25
-			Tag:       "",
-			Status:    "Reconcile succeeded",
-			Namespace: config.Namespace,
+			Tag:        "LATEST RELEASE",
+			Status:     "Reconcile succeeded",
+			Namespace:  config.Namespace,
 		}
 
 		expectedPkgOutput = packageInstalledOutput{

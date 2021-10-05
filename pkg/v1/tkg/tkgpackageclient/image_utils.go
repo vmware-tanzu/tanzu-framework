@@ -6,7 +6,7 @@ package tkgpackageclient
 import (
 	"strings"
 
-	dockerParser "github.com/novln/docker-parser"
+	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/pkg/errors"
 
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
@@ -16,17 +16,18 @@ import (
 
 // parseRegistryImageURL parses the registry image URL to get repository and tag, tag is empty if not specified
 func parseRegistryImageURL(imgURL string) (repository, tag string, err error) {
-	ref, err := dockerParser.Parse(imgURL)
+	ref, err := name.NewTag(imgURL)
 	if err != nil {
 		return "", "", err
 	}
 
-	tag = ref.Tag()
+	repository = ref.Context().String()
+	tag = ref.TagStr()
 	// dockerParser sets the tag to "latest" if not specified, however we want it to be empty
 	if tag == tkgpackagedatamodel.DefaultRepositoryImageTag && !strings.HasSuffix(imgURL, ":"+tkgpackagedatamodel.DefaultRepositoryImageTag) {
 		tag = ""
 	}
-	return ref.Repository(), tag, nil
+	return repository, tag, nil
 }
 
 // GetCurrentRepositoryAndTagInUse fetches the current tag used by package repository, taking tagselection into account

@@ -29,11 +29,11 @@ var _ = Describe("Test image utils", func() {
 			// case 1
 			repository, tag, err := parseRegistryImageURL("foo/bar:1.1")
 			Expect(err).NotTo(HaveOccurred())
-			Expect(repository).To(Equal("docker.io/foo/bar"))
+			Expect(repository).To(Equal("index.docker.io/foo/bar"))
 			Expect(tag).To(Equal("1.1"))
 
 			// case 2
-			repository, tag, err = parseRegistryImageURL("http://localhost.localdomain:5000/foo/bar:latest")
+			repository, tag, err = parseRegistryImageURL("localhost.localdomain:5000/foo/bar:latest")
 			Expect(err).NotTo(HaveOccurred())
 			Expect(repository).To(Equal("localhost.localdomain:5000/foo/bar"))
 			Expect(tag).To(Equal("latest"))
@@ -43,11 +43,11 @@ var _ = Describe("Test image utils", func() {
 			// case 1
 			repository, tag, err := parseRegistryImageURL("foo/bar")
 			Expect(err).NotTo(HaveOccurred())
-			Expect(repository).To(Equal("docker.io/foo/bar"))
+			Expect(repository).To(Equal("index.docker.io/foo/bar"))
 			Expect(tag).To(Equal(""))
 
 			// case 2
-			repository, tag, err = parseRegistryImageURL("http://localhost.localdomain:5000/foo/bar")
+			repository, tag, err = parseRegistryImageURL("localhost.localdomain:5000/foo/bar")
 			Expect(err).NotTo(HaveOccurred())
 			Expect(repository).To(Equal("localhost.localdomain:5000/foo/bar"))
 			Expect(tag).To(Equal(""))
@@ -93,7 +93,7 @@ var _ = Describe("Test image utils", func() {
 			}
 			repository, tag, err = GetCurrentRepositoryAndTagInUse(pkgr)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(repository).To(Equal("docker.io/foo/bar"))
+			Expect(repository).To(Equal("index.docker.io/foo/bar"))
 			Expect(tag).To(Equal("latest"))
 		})
 	})
