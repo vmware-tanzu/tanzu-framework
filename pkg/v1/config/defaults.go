@@ -33,6 +33,9 @@ var CoreBucketName = "tanzu-cli-framework"
 // DefaultVersionSelector is to only use stable versions of plugins
 const DefaultVersionSelector = configv1alpha1.NoUnstableVersions
 
+// DefaultEdition is the edition assumed when there is no value in the local config file
+const DefaultEdition = "tkg"
+
 // CoreGCPBucketRepository is the default GCP bucket repository.
 var CoreGCPBucketRepository = configv1alpha1.GCPPluginRepository{
 	BucketName: CoreBucketName,

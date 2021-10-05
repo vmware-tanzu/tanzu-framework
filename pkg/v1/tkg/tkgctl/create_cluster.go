@@ -13,7 +13,6 @@ import (
 	"github.com/pkg/errors"
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
@@ -311,9 +310,9 @@ func (t *tkgctl) configureCreateClusterOptionsFromConfigFile(cc *CreateClusterOp
 
 	// set BuildEdition from config variable
 	if cc.Edition == "" {
-		cfg, err := config.GetClientConfig()
+		edition, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableBuildEdition)
 		if err == nil {
-			cc.Edition = cfg.ClientOptions.CLI.Edition
+			cc.Edition = edition
 		}
 	}
 

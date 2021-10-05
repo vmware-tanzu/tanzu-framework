@@ -83,7 +83,7 @@ func runGenerateClusterConfig(name string, options *createClusterOptions) error 
 }
 
 func buildCreateClusterOption(name, tkrVersion string, options *createClusterOptions) tkgctl.CreateClusterOptions {
-	cfg, _ := config.GetClientConfig()
+	edition, _ := config.GetEdition()
 	return tkgctl.CreateClusterOptions{
 		ClusterConfigFile:           options.clusterConfigFile,
 		ClusterName:                 name,
@@ -102,6 +102,6 @@ func buildCreateClusterOption(name, tkrVersion string, options *createClusterOpt
 		VsphereControlPlaneEndpoint: options.vsphereControlPlaneEndpoint,
 		SkipPrompt:                  options.unattended || skipPrompt,
 		Timeout:                     options.timeout,
-		Edition:                     cfg.ClientOptions.CLI.Edition,
+		Edition:                     edition,
 	}
 }

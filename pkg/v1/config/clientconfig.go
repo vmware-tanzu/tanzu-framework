@@ -147,6 +147,7 @@ func NewClientConfig() (*configv1alpha1.ClientConfig, error) {
 			CLI: &configv1alpha1.CLIOptions{
 				Repositories:            DefaultRepositories,
 				UnstableVersionSelector: DefaultVersionSelector,
+				Edition:                 DefaultEdition,
 			},
 		},
 	}
@@ -586,6 +587,7 @@ func ConfigureEnvVariables() {
 	}
 }
 
+// GetEdition returns the edition from the local configuration file
 func GetEdition() (string, error) {
 	cfg, err := GetClientConfig()
 	if err != nil {
