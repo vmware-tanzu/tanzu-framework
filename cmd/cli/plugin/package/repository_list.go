@@ -66,18 +66,18 @@ func repositoryList(cmd *cobra.Command, _ []string) error {
 		packageRepository := packageRepositoryList.Items[i]
 		status := packageRepository.Status.FriendlyDescription
 		details := packageRepository.Status.UsefulErrorMessage
+		imageRepository, tag, _ := tkgpackageclient.GetCurrentRepositoryAndTagInUse(&packageRepository)
 		if len(status) > tkgpackagedatamodel.ShortDescriptionMaxLength {
 			status = fmt.Sprintf("%s...", status[:tkgpackagedatamodel.ShortDescriptionMaxLength])
 		}
 		if len(details) > tkgpackagedatamodel.ShortDescriptionMaxLength {
 			details = fmt.Sprintf("%s...", details[:tkgpackagedatamodel.ShortDescriptionMaxLength])
 		}
-		repository, tag, _ := tkgpackageclient.GetCurrentRepositoryAndTagInUse(&packageRepository)
 
 		if repoOp.AllNamespaces {
 			t.AddRow(
 				packageRepository.Name,
-				repository,
+				imageRepository,
 				tag,
 				status,
 				details,
@@ -85,7 +85,7 @@ func repositoryList(cmd *cobra.Command, _ []string) error {
 		} else {
 			t.AddRow(
 				packageRepository.Name,
-				repository,
+				imageRepository,
 				tag,
 				status,
 				details)

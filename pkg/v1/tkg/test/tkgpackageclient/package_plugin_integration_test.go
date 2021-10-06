@@ -80,8 +80,8 @@ var (
 	testRepoLatestTag           = "v1.1.0"
 	testPkgInstallName          = "test-pkg"
 	testPkgName                 = "pkg.test.carvel.dev"
-	testPkgVersion              = "3.0.0-rc.1"
-	testPkgVersionUpdate        = "2.0.0"
+	testPkgVersion              = "2.0.0"
+	testPkgVersionUpdate        = "3.0.0-rc.1"
 	pkgAvailableOptions         tkgpackagedatamodel.PackageAvailableOptions
 	pkgOptions                  tkgpackagedatamodel.PackageOptions
 	repoOptions                 tkgpackagedatamodel.RepositoryOptions
@@ -250,7 +250,7 @@ var _ = Describe("Package plugin integration test", func() {
 		expectedRepoOutputLatestTag = repositoryOutput{
 			Name:       config.RepositoryName,
 			Repository: config.RepositoryURLNoTag,
-			Tag:        "LATEST RELEASE",
+			Tag:        "(>0.0.0)",
 			Status:     "Reconcile succeeded",
 			Namespace:  config.Namespace,
 		}

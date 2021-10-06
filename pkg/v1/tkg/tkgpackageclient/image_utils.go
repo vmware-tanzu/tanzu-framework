@@ -4,6 +4,7 @@
 package tkgpackageclient
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/google/go-containerregistry/pkg/name"
@@ -42,7 +43,11 @@ func GetCurrentRepositoryAndTagInUse(pkgr *kappipkg.PackageRepository) (reposito
 	}
 
 	if tag == "" {
-		tag = tkgpackagedatamodel.LatestReleaseTag
+		tag = tkgpackagedatamodel.DefaultRepositoryImageTag
+	}
+
+	if pkgr.Spec.Fetch.ImgpkgBundle.TagSelection != nil && pkgr.Spec.Fetch.ImgpkgBundle.TagSelection.Semver != nil {
+		tag = fmt.Sprintf("(%s)", pkgr.Spec.Fetch.ImgpkgBundle.TagSelection.Semver.Constraints)
 	}
 
 	return repository, tag, nil

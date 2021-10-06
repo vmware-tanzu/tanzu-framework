@@ -24,7 +24,6 @@ const (
 	KindSecret                          = "Secret"
 	KindSecretExport                    = "SecretExport"
 	KindServiceAccount                  = "ServiceAccount"
-	LatestReleaseTag                    = "LATEST RELEASE"
 	SecretName                          = "%s-%s-values"
 	ServiceAccountName                  = "%s-%s-sa"
 	ShortDescriptionMaxLength           = 20

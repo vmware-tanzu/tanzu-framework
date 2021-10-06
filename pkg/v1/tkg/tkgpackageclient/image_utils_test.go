@@ -11,6 +11,7 @@ import (
 
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+	versions "github.com/vmware-tanzu/carvel-vendir/pkg/vendir/versions/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
@@ -68,7 +69,7 @@ var _ = Describe("Test image utils", func() {
 			repository, tag, err := GetCurrentRepositoryAndTagInUse(pkgr)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(repository).To(Equal("localhost.localdomain:5000/foo/bar"))
-			Expect(tag).To(Equal(tkgpackagedatamodel.LatestReleaseTag))
+			Expect(tag).To(Equal(tkgpackagedatamodel.DefaultRepositoryImageTag))
 
 			// case 2
 			pkgr = &kappipkg.PackageRepository{
@@ -95,6 +96,68 @@ var _ = Describe("Test image utils", func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(repository).To(Equal("index.docker.io/foo/bar"))
 			Expect(tag).To(Equal("latest"))
+		})
+
+		It("should have tag constraint when tagselection is specified", func() {
+			// case 1
+			pkgr := &kappipkg.PackageRepository{
+				TypeMeta:   metav1.TypeMeta{APIVersion: tkgpackagedatamodel.DefaultAPIVersion, Kind: tkgpackagedatamodel.KindPackageRepository},
+				ObjectMeta: metav1.ObjectMeta{Name: testRepoName, Namespace: testNamespaceName},
+				Spec: kappipkg.PackageRepositorySpec{Fetch: &kappipkg.PackageRepositoryFetch{
+					ImgpkgBundle: &kappctrl.AppFetchImgpkgBundle{
+						Image: "localhost.localdomain:5000/foo/bar",
+						TagSelection: &versions.VersionSelection{
+							Semver: &versions.VersionSelectionSemver{
+								Constraints: ">0.0.0",
+							},
+						},
+					},
+				}},
+			}
+			repository, tag, err := GetCurrentRepositoryAndTagInUse(pkgr)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(repository).To(Equal("localhost.localdomain:5000/foo/bar"))
+			Expect(tag).To(ContainSubstring(tkgpackagedatamodel.DefaultRepositoryImageTagConstraint))
+
+			// case 2
+			pkgr = &kappipkg.PackageRepository{
+				TypeMeta:   metav1.TypeMeta{APIVersion: tkgpackagedatamodel.DefaultAPIVersion, Kind: tkgpackagedatamodel.KindPackageRepository},
+				ObjectMeta: metav1.ObjectMeta{Name: testRepoName, Namespace: testNamespaceName},
+				Spec: kappipkg.PackageRepositorySpec{Fetch: &kappipkg.PackageRepositoryFetch{
+					ImgpkgBundle: &kappctrl.AppFetchImgpkgBundle{
+						Image: "projects-stg.registry.vmware.com/tkg/test-packages/test-repo:v1.1.0",
+						TagSelection: &versions.VersionSelection{
+							Semver: &versions.VersionSelectionSemver{
+								Constraints: ">0.0.0",
+							},
+						},
+					},
+				}},
+			}
+			repository, tag, err = GetCurrentRepositoryAndTagInUse(pkgr)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(repository).To(Equal("projects-stg.registry.vmware.com/tkg/test-packages/test-repo"))
+			Expect(tag).To(ContainSubstring(tkgpackagedatamodel.DefaultRepositoryImageTagConstraint))
+
+			// case 3
+			pkgr = &kappipkg.PackageRepository{
+				TypeMeta:   metav1.TypeMeta{APIVersion: tkgpackagedatamodel.DefaultAPIVersion, Kind: tkgpackagedatamodel.KindPackageRepository},
+				ObjectMeta: metav1.ObjectMeta{Name: testRepoName, Namespace: testNamespaceName},
+				Spec: kappipkg.PackageRepositorySpec{Fetch: &kappipkg.PackageRepositoryFetch{
+					ImgpkgBundle: &kappctrl.AppFetchImgpkgBundle{
+						Image: "foo/bar:latest",
+						TagSelection: &versions.VersionSelection{
+							Semver: &versions.VersionSelectionSemver{
+								Constraints: ">0.0.0",
+							},
+						},
+					},
+				}},
+			}
+			repository, tag, err = GetCurrentRepositoryAndTagInUse(pkgr)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(repository).To(Equal("index.docker.io/foo/bar"))
+			Expect(tag).To(ContainSubstring(tkgpackagedatamodel.DefaultRepositoryImageTagConstraint))
 		})
 	})
 })
