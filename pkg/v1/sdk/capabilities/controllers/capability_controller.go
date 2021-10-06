@@ -30,8 +30,8 @@ type CapabilityReconciler struct {
 //+kubebuilder:rbac:groups=run.tanzu.vmware.com,resources=capabilities/status,verbs=get;update;patch
 
 // Reconcile reconciles a Capability spec by executing specified queries.
-func (r *CapabilityReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
+func (r *CapabilityReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	ctx, cancel := context.WithTimeout(ctx, contextTimeout)
 	defer cancel()
 
 	log := r.Log.WithValues("capability", req.NamespacedName)
