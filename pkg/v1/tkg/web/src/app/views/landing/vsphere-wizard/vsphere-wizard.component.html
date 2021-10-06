@@ -182,6 +182,13 @@
         i18n="review cluster configuration btn">
         REVIEW CONFIGURATION
     </button>
+
+    <div *featureToggle="'global.google'">global.google is true</div>
+    <div *featureToggle="'!global.google'">global.google is false</div>
+    <div *featureToggle="'google'">google is true</div>
+    <div *featureToggle="'!google'">google is false</div>
+    <div *featureToggle="'management-cluster.foobar'">management-cluster.foobar is true</div>
+    <div *featureToggle="'!management-cluster.foobar'">management-cluster.foobar is false</div>
 </div>
 
 <ng-container *ngIf="review">
