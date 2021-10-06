@@ -267,10 +267,7 @@ func init() {
           "200": {
             "description": "Successful retrieval of feature flags",
             "schema": {
-              "type": "object",
-              "additionalProperties": {
-                "type": "string"
-              }
+              "$ref": "#/definitions/Features"
             }
           },
           "400": {
@@ -2984,6 +2981,26 @@ func init() {
       "properties": {
         "message": {
           "type": "string"
+        }
+      }
+    },
+    "FeatureMap": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "boolean"
+      }
+    },
+    "Features": {
+      "type": "object",
+      "properties": {
+        "cli": {
+          "$ref": "#/definitions/FeatureMap"
+        },
+        "plugins": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/FeatureMap"
+          }
         }
       }
     },
@@ -3777,10 +3794,7 @@ func init() {
           "200": {
             "description": "Successful retrieval of feature flags",
             "schema": {
-              "type": "object",
-              "additionalProperties": {
-                "type": "string"
-              }
+              "$ref": "#/definitions/Features"
             }
           },
           "400": {
@@ -6494,6 +6508,26 @@ func init() {
       "properties": {
         "message": {
           "type": "string"
+        }
+      }
+    },
+    "FeatureMap": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "boolean"
+      }
+    },
+    "Features": {
+      "type": "object",
+      "properties": {
+        "cli": {
+          "$ref": "#/definitions/FeatureMap"
+        },
+        "plugins": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/FeatureMap"
+          }
         }
       }
     },

@@ -8,6 +8,7 @@ import { APIClient } from './swagger/api-client.service';
 import { ProviderInfo } from './swagger/models/provider-info.model';
 import { AppDataService } from './shared/service/app-data.service';
 import { BrandingService } from './shared/service/branding.service';
+import { Features } from "./swagger/models";
 
 @Component({
     selector: 'tkg-kickstart-ui-app',
@@ -39,8 +40,8 @@ export class AppComponent extends BasicSubscriber {
         );
         this.apiClient.getFeatureFlags()
             .pipe(takeUntil(this.unsubscribe))
-            .subscribe(((flags: Map<String, String>) => {
-                this.appDataService.setFeatureFlags(flags);
+            .subscribe(((features:Features) => {
+                this.appDataService.setFeatureFlags(features);
             }),
             ((err) => {
                 console.log('Failed to retrieve feature flags.');

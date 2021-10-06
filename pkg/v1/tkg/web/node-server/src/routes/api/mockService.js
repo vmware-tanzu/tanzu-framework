@@ -59,8 +59,20 @@ router.get(`${ENDPOINT}/features`, (req, res) => {
     winston.info('Mock TKG UI GET FEATURES API');
     res.status(200);
     res.json({
-        "tmcRegistration": "enabled",
-        "vsphereIPv6": "enabled"
+        "cli": {
+            "dualStack": true,
+            "ceip": true
+        },
+        "plugins": {
+            "management-cluster": {
+                "encryptCredentials": true,
+                "featureExportConfigFromConfirm": true,
+                "vsphereIPv6": "true"
+            },
+            "cluster": {
+                "validateXyz": true
+            }
+        }
     });
 });
 
@@ -192,7 +204,7 @@ router.get(`${ENDPOINT}/avi/vipnetworks`, (req, res) => {
  */
 router.post(`${ENDPOINT}/providers/vsphere`, (req, res) => {
     winston.info('Mock TKG UI CONNECT VC API');
-    if ((req.body.host === 'vsphere.local' || req.body.host === '1.1.1.1' 
+    if ((req.body.host === 'vsphere.local' || req.body.host === '1.1.1.1'
         || req.body.host === '2001:0db8:85a3:0000:0000:8a2e:0370:7334') &&
         (req.body.username === 'admin' || req.body.username === 'administrator') &&
         (req.body.password === 'password')) {

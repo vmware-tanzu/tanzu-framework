@@ -1,6 +1,7 @@
 // Angular imports
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { Features } from "../../swagger/models";
 
 @Injectable({
     providedIn: 'root'
@@ -10,7 +11,7 @@ export class AppDataService {
     private providerType = new BehaviorSubject<string|null>(null);
     private hasPacificCluster = new BehaviorSubject<boolean>(false);
     private tkrVersion = new BehaviorSubject<string|null>(null);
-    private featureFlags = new BehaviorSubject<Map<String, String>|null>(null);
+    private featureFlags = new BehaviorSubject<Features|null>(null);
     private vsphereVersion = new BehaviorSubject<string|null>(null);
 
     constructor() {
@@ -45,8 +46,8 @@ export class AppDataService {
         return this.tkrVersion;
     }
 
-    setFeatureFlags(flags: Map<String, String>) {
-        this.featureFlags.next(flags);
+    setFeatureFlags(features: Features) {
+        this.featureFlags.next(features);
     }
 
     getFeatureFlags() {
@@ -59,5 +60,25 @@ export class AppDataService {
 
     getVsphereVersion() {
         return this.vsphereVersion;
+    }
+
+    isCliFeatureFlagEnabled(feature: string) {
+        if (this.featureFlags == null || this.featureFlags.value == null) {
+            return false;
+        }
+        if (this.featureFlags.value.cli == null) {
+            return false;
+        }
+        return this.featureFlags.value.cli[feature] === true;
+    }
+
+    isPluginFeatureFlagEnabled(plugin: string, feature: string) {
+        if (this.featureFlags == null || this.featureFlags.value == null) {
+            return false;
+        }
+        if (this.featureFlags.value.plugins == null || this.featureFlags.value.plugins[plugin] == null) {
+            return false;
+        }
+        return this.featureFlags.value.plugins[plugin][feature] === true;
     }
 }

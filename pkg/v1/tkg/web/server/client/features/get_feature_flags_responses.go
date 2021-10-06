@@ -64,21 +64,23 @@ func NewGetFeatureFlagsOK() *GetFeatureFlagsOK {
 Successful retrieval of feature flags
 */
 type GetFeatureFlagsOK struct {
-	Payload map[string]string
+	Payload *models.Features
 }
 
 func (o *GetFeatureFlagsOK) Error() string {
 	return fmt.Sprintf("[GET /api/features][%d] getFeatureFlagsOK  %+v", 200, o.Payload)
 }
 
-func (o *GetFeatureFlagsOK) GetPayload() map[string]string {
+func (o *GetFeatureFlagsOK) GetPayload() *models.Features {
 	return o.Payload
 }
 
 func (o *GetFeatureFlagsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(models.Features)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

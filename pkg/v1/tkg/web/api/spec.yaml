@@ -66,9 +66,7 @@ paths:
         200:
           description: Successful retrieval of feature flags
           schema:
-            type: object
-            additionalProperties:
-              type: string
+            $ref: "#/definitions/Features"
         400:
           description: "Bad Request"
           schema:
@@ -2338,6 +2336,21 @@ definitions:
     properties:
       path:
         type: string
+
+  Features:
+    type: object
+    properties:
+      cli:
+        $ref: '#/definitions/FeatureMap'
+      plugins:
+        type: object
+        additionalProperties:
+          $ref: '#/definitions/FeatureMap'
+
+  FeatureMap:
+    type: object
+    additionalProperties:
+      type: boolean
 
   LdapTestResult:
     type: object

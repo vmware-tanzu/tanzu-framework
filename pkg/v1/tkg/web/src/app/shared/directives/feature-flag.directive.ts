@@ -30,6 +30,8 @@ import { AppDataService } from '../service/app-data.service';
  */
 export class FeatureToggleDirective extends BasicSubscriber implements OnInit {
     @Input() featureToggle: string;
+    separator = ':';                // used for separating the starting plugin name from the feature
+    private negation: boolean;
 
     constructor(
             private templateRef: TemplateRef<any>,
@@ -40,27 +42,52 @@ export class FeatureToggleDirective extends BasicSubscriber implements OnInit {
     }
 
     ngOnInit() {
-        if (this.isEnabled()) {
+        // caller may use negation by placing '!' as first char; this inverts the display logic
+        if (this.usesNegation()) {
+            this.negation = true;
+            this.featureToggle = this.featureToggle.substr(1);
+        }
+        if (this.shouldDisplay()) {
             this.viewContainer.createEmbeddedView(this.templateRef);
         } else {
             this.viewContainer.clear();
         }
     }
 
-    /**
-     * @method isEnabled
-     * helper method to retrieve feature flags from AppDataService and set features
-     * in directive to be enabled or disabled
-     * @returns {any}
-     */
-    isEnabled() {
-        const features = this.appDataService.getFeatureFlags();
-        if (features.value == null) {
-            return false
+    private usesNegation() {
+        return this.featureToggle.length > 0 && this.featureToggle.charAt(0) === '!';
+    }
+
+    private shouldDisplay() {
+        if (this.featureToggle.length === 0) {
+            console.log('WARNING: Empty feature toggle encountered (recommend remove enclosed elements)');
+            return false;
         }
-        if (features.value['*']) {
+        if (this.featureToggle === '*') {
+            console.log('WARNING: Always-on feature toggle encountered (recommend remove toggle directive)');
             return true;
         }
-        return features.value[this.featureToggle];
+        return this.negation ? !this.isFeatureEnabled() : this.isFeatureEnabled();
+    }
+
+    /**
+     * @method isFeatureEnabled
+     * helper method to retrieve feature flag
+     * Returns true if either the global CLI or the specific plugin set 'enabled' for the feature
+     * @returns {any}
+     */
+    isFeatureEnabled() {
+        if (this.featureToggle == null) {
+            return false;
+        }
+        let pluginName, featureName;
+        const paramArray = this.featureToggle.split(this.separator);
+        if (paramArray.length === 1) {
+            featureName = paramArray[0];
+            return this.appDataService.isCliFeatureFlagEnabled(featureName)
+        }
+        pluginName = paramArray[0];
+        featureName = paramArray[1];
+        return this.appDataService.isPluginFeatureFlagEnabled(pluginName, featureName);
     }
 }
