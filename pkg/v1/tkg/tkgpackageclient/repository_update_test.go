@@ -79,6 +79,7 @@ var _ = Describe("Update Repository", func() {
 			kappCtl = &fakes.KappClient{}
 			kappCtl.GetPackageRepositoryReturns(testRepository, apierrors.NewNotFound(schema.GroupResource{Resource: "Repository"}, testRepoName))
 			kappCtl.UpdatePackageRepositoryReturns(errors.New("failure in UpdatePackageRepository"))
+			kappCtl.ListPackageRepositoriesReturns(pkgRepositoryList, nil)
 		})
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
@@ -102,11 +103,13 @@ var _ = Describe("Update Repository", func() {
 		AfterEach(func() { options = opts })
 	})
 
-	Context("success in updating package repository", func() {
+	Context("success in updating package repository with tag", func() {
 		BeforeEach(func() {
+			options.RepositoryURL = testSecondRepoURL
 			kappCtl = &fakes.KappClient{}
 			kappCtl.GetPackageRepositoryReturns(testRepository, apierrors.NewNotFound(schema.GroupResource{Resource: "Repository"}, testRepoName))
 			kappCtl.UpdatePackageRepositoryReturns(nil)
+			kappCtl.ListPackageRepositoriesReturns(pkgRepositoryList, nil)
 		})
 		It(testSuccessMsg, func() {
 			Expect(err).ToNot(HaveOccurred())
@@ -115,6 +118,28 @@ var _ = Describe("Update Repository", func() {
 			pkgRepo := kappCtl.UpdatePackageRepositoryArgsForCall(0)
 			Expect(pkgRepo.Name).Should(Equal(options.RepositoryName))
 			Expect(pkgRepo.Spec.Fetch.ImgpkgBundle.Image).Should(Equal(options.RepositoryURL))
+			Expect(pkgRepo.Spec.Fetch.ImgpkgBundle.TagSelection).Should(BeNil())
+		})
+		AfterEach(func() { options = opts })
+	})
+
+	Context("success in updating package repository without tag", func() {
+		BeforeEach(func() {
+			options.RepositoryURL = testThirdRepoURL
+			kappCtl = &fakes.KappClient{}
+			kappCtl.GetPackageRepositoryReturns(testRepository, apierrors.NewNotFound(schema.GroupResource{Resource: "Repository"}, testRepoName))
+			kappCtl.UpdatePackageRepositoryReturns(nil)
+			kappCtl.ListPackageRepositoriesReturns(pkgRepositoryList, nil)
+		})
+		It(testSuccessMsg, func() {
+			Expect(err).ToNot(HaveOccurred())
+			updateRepoCallCnt := kappCtl.UpdatePackageRepositoryCallCount()
+			Expect(updateRepoCallCnt).To(BeNumerically("==", 1))
+			pkgRepo := kappCtl.UpdatePackageRepositoryArgsForCall(0)
+			Expect(pkgRepo.Name).Should(Equal(options.RepositoryName))
+			Expect(pkgRepo.Spec.Fetch.ImgpkgBundle.Image).Should(Equal(options.RepositoryURL))
+			Expect(pkgRepo.Spec.Fetch.ImgpkgBundle.TagSelection).ShouldNot(Equal(nil))
+			Expect(pkgRepo.Spec.Fetch.ImgpkgBundle.TagSelection.Semver.Constraints).Should(Equal(tkgpackagedatamodel.DefaultRepositoryImageTagConstraint))
 		})
 		AfterEach(func() { options = opts })
 	})
