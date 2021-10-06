@@ -23,7 +23,7 @@ var packageInstallCmd = &cobra.Command{
     # Install package contour with installed package name as 'contour-pkg' with specified version and without waiting for package reconciliation to complete 	
     tanzu package install contour-pkg --package-name contour.tanzu.vmware.com --namespace test-ns --version 1.15.1-tkg.1-vmware1 --wait=false
 	
-    # Install package contour with kubeconfig flag and waiting for package reconcilaition to complete	
+    # Install package contour with kubeconfig flag and waiting for package reconciliation to complete	
     tanzu package install contour-pkg --package-name contour.tanzu.vmware.com --namespace test-ns --version 1.15.1-tkg.1-vmware1 --kubeconfig path/to/kubeconfig`,
 	RunE: packageInstall,
 }
