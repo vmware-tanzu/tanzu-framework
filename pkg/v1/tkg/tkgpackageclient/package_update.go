@@ -77,7 +77,7 @@ func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progres
 		return
 	}
 
-	if secretCreated, err = p.updateValuesFile(o, pkgInstallToUpdate, progress.ProgressMsg); err != nil {
+	if secretCreated, err = p.createOrUpdateValuesSecret(o, pkgInstallToUpdate, progress.ProgressMsg); err != nil {
 		return
 	}
 
@@ -94,8 +94,8 @@ func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progres
 	}
 }
 
-// updateValuesFile either creates or updates the values secret depending on whether the corresponding annotation exists or not
-func (p *pkgClient) updateValuesFile(o *tkgpackagedatamodel.PackageOptions, pkgInstallToUpdate *kappipkg.PackageInstall, progress chan string) (bool, error) {
+// createOrUpdateValuesSecret either creates or updates the values secret depending on whether the corresponding annotation exists or not
+func (p *pkgClient) createOrUpdateValuesSecret(o *tkgpackagedatamodel.PackageOptions, pkgInstallToUpdate *kappipkg.PackageInstall, progress chan string) (bool, error) {
 	var (
 		secretCreated bool
 		err           error

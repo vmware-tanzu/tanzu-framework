@@ -77,26 +77,12 @@ var _ = Describe("Update Package", func() {
 		AfterEach(func() { options = opts })
 	})
 
-	Context("failure in installing the package as --package-name was not provided with --install flag", func() {
+	Context("failure in installing the package due to a failure in ListPackages", func() {
 		BeforeEach(func() {
 			options.Install = true
 			kappCtl = &fakes.KappClient{}
 			kappCtl.GetPackageInstallReturnsOnCall(0, nil, nil)
-		})
-		It(testFailureMsg, func() {
-			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("failed to list package versions"))
-		})
-		AfterEach(func() { options = opts })
-	})
-
-	Context("failure in installing the package as --version was not provided with --install flag", func() {
-		BeforeEach(func() {
-			options.Install = true
-			options.Version = ""
-			options.PackageName = testPkgName
-			kappCtl = &fakes.KappClient{}
-			kappCtl.GetPackageInstallReturnsOnCall(0, nil, nil)
+			kappCtl.ListPackagesReturns(nil, errors.New("failure in ListPackages"))
 		})
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
