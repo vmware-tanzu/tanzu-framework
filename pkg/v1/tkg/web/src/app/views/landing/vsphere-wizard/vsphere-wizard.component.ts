@@ -104,7 +104,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
                 }
                 return mode;
             } else {
-                return `Specify the resources backing the ${this.clusterType} cluster`;
+                return `Specify the resources backing the ${this.clusterTypeDescriptor} cluster`;
             }
         } else if (stepName === 'resource') {
             if (this.getFieldValue('resourceForm', 'vmFolder') &&
@@ -114,7 +114,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
                     ', VM Folder: ' + this.getFieldValue('resourceForm', 'vmFolder') +
                     ', Datastore: ' + this.getFieldValue('resourceForm', 'datastore');
             } else {
-                return `Specify the resources for this ${this.clusterType}} cluster`;
+                return `Specify the resources for this ${this.clusterTypeDescriptor}} cluster`;
             }
         } else if (stepName === 'network') {
             if (this.getFieldValue('networkForm', 'networkName')) {
@@ -143,7 +143,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
             if (this.getFieldValue('metadataForm', 'clusterLocation')) {
                 return 'Location: ' + this.getFieldValue('metadataForm', 'clusterLocation');
             } else {
-                return `Specify metadata for the ${this.clusterType} cluster`;
+                return `Specify metadata for the ${this.clusterTypeDescriptor} cluster`;
             }
         } else if (stepName === 'identity') {
             if (this.getFieldValue('identityForm', 'identityType') === 'oidc' &&
@@ -175,8 +175,8 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         ];
         mappings.forEach(attr => payload[attr[0]] = this.getFieldValue(attr[1], attr[2]));
         payload.controlPlaneNodeType = this.getControlPlaneType(this.getFieldValue('vsphereNodeSettingForm', 'controlPlaneSetting'));
-        payload.workerNodeType = (this.clusterType !== 'standalone') ?
-            this.getFieldValue('vsphereNodeSettingForm', 'workerNodeInstanceType') : payload.controlPlaneNodeType;
+        payload.workerNodeType = this.appDataService.isModeClusterStandalone() ? payload.controlPlaneNodeType :
+            this.getFieldValue('vsphereNodeSettingForm', 'workerNodeInstanceType');
         payload.machineHealthCheckEnabled = this.getFieldValue("vsphereNodeSettingForm", "machineHealthChecksEnabled") === true;
 
         const vsphereCredentialsMappings = [
@@ -230,7 +230,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         const cliG = new CliGenerator();
         const cliParams: CliFields = {
             configPath: configPath,
-            clusterType: this.clusterType,
+            clusterType: this.getClusterType(),
             clusterName: this.getMCName(),
             extendCliCmds: []
         };

@@ -19,6 +19,7 @@ import { ValidationService } from '../../wizard/shared/validation/validation.ser
 import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER } from '../../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
 import Broker from 'src/app/shared/service/broker';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
+import { AppDataService } from 'src/app/shared/service/app-data.service';
 
 @Component({
     selector: 'app-node-setting-step',
@@ -39,10 +40,10 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     currentControlPlaneEndpoingProvider = KUBE_VIP;
     controlPlaneEndpointOptional = "";
 
-    constructor(private validationService: ValidationService,
+    constructor(private validationService: ValidationService, appDataService: AppDataService,
         private wizardFormService: VSphereWizardFormService) {
 
-        super();
+        super(appDataService);
         this.nodeTypes = [...vSphereNodeTypes];
     }
 
@@ -70,7 +71,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             'machineHealthChecksEnabled',
             new FormControl(true, [])
         );
-        if (this.clusterType !== 'standalone') {
+        if (!this.modeClusterStandalone) {
             this.formGroup.addControl(
                 'workerNodeInstanceType',
                 new FormControl('', [
@@ -131,14 +132,14 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             });
 
             this.formGroup.get('devInstanceType').valueChanges.subscribe(data => {
-                if (this.clusterType !== 'standalone') {
+                if (!this.modeClusterStandalone) {
                     this.formGroup.get('workerNodeInstanceType').setValue(data);
                 }
                 this.formGroup.controls['workerNodeInstanceType'].updateValueAndValidity();
             });
 
             this.formGroup.get('prodInstanceType').valueChanges.subscribe(data => {
-                if (this.clusterType !== 'standalone') {
+                if (!this.modeClusterStandalone) {
                     this.formGroup.get('workerNodeInstanceType').setValue(data);
                 }
                 this.formGroup.controls['workerNodeInstanceType'].updateValueAndValidity();

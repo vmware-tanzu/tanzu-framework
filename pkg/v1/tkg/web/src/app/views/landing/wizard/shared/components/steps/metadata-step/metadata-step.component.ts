@@ -10,6 +10,7 @@ import { FormControl } from '@angular/forms';
 import { ValidationService } from '../../../validation/validation.service';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
+import { AppDataService } from 'src/app/shared/service/app-data.service';
 
 @Component({
     selector: 'app-metadata-step',
@@ -19,10 +20,9 @@ import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-
 export class MetadataStepComponent extends StepFormDirective implements OnInit {
     labels: Map<String, String> = new Map<String, String>();
 
-    constructor(private validationService: ValidationService,
-        private wizardFormService: VSphereWizardFormService) {
-
-        super();
+    constructor(private validationService: ValidationService, private wizardFormService: VSphereWizardFormService,
+                appDataService: AppDataService) {
+        super(appDataService);
     }
 
     ngOnInit() {

@@ -14,7 +14,6 @@
     "lint": "npm run eslint:all",
     "start": "node main.js --client-dist --log --insecure",
     "start:tce": "node main.js --client-dist --log --insecure --tce",
-    "start:tce-standalone": "node main.js --client-dist --log --insecure --tce-standalone",
     "debug": "node debug main.js --client-dist --log"
   },
   "dependencies": {

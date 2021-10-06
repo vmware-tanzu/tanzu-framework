@@ -10,6 +10,7 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import Broker from 'src/app/shared/service/broker';
 import { Messenger } from 'src/app/shared/service/Messenger';
+import { ClusterType } from "../wizard/shared/constants/wizard.constants";
 
 describe('AzureWizardComponent', () => {
     let component: AzureWizardComponent;
@@ -73,7 +74,7 @@ describe('AzureWizardComponent', () => {
             osImageForm: fb.group({
             })
         });
-        component.clusterType = 'management';
+        component.clusterType = ClusterType[ClusterType.Management];
         fixture.detectChanges();
     });
 

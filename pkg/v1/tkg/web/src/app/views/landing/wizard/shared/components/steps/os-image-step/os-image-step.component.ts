@@ -41,9 +41,9 @@ export class SharedOsImageStepComponent extends StepFormDirective implements OnI
     tkrVersion: Observable<string>;
 
     constructor(
-        private appDataService: AppDataService
+        appDataService: AppDataService
     ) {
-        super();
+        super(appDataService);
         this.tkrVersion = this.appDataService.getTkrVersion();
     }
 

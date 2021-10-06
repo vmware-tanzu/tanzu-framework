@@ -6,6 +6,7 @@ import { DockerDaemonStatus } from 'src/app/swagger/models';
 import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
+import { AppDataService } from 'src/app/shared/service/app-data.service';
 
 @Component({
     selector: 'app-daemon-validation-step',
@@ -19,10 +20,10 @@ export class DaemonValidationStepComponent extends StepFormDirective implements 
     errorNotification: string = "";
 
     constructor(
-        private validationService: ValidationService,
+        private validationService: ValidationService, appDataService: AppDataService,
         private apiClient: APIClient
     ) {
-        super();
+        super(appDataService);
     }
 
     ngOnInit(): void {

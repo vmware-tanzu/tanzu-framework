@@ -6,6 +6,7 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 // App imports
 import { DeployProgressComponent } from './deploy-progress.component';
 import { AppDataService } from 'src/app/shared/service/app-data.service';
+import { ClusterType } from "../wizard/shared/constants/wizard.constants";
 
 describe('DeployProgressComponent', () => {
     let fixture: ComponentFixture<DeployProgressComponent>;
@@ -26,7 +27,7 @@ describe('DeployProgressComponent', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(DeployProgressComponent);
         component = fixture.componentInstance;
-        component.clusterType = 'management';
+        component.clusterType = ClusterType[ClusterType.Management];
         fixture.detectChanges();
     });
 

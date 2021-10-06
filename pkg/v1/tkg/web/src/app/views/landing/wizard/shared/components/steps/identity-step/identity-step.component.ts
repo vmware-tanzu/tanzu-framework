@@ -7,6 +7,7 @@ import { StepFormDirective } from '../../../step-form/step-form';
 import { ValidationService } from '../../../validation/validation.service';
 import { LdapTestResult } from 'src/app/swagger/models';
 import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
+import { AppDataService } from 'src/app/shared/service/app-data.service';
 
 const CONNECT = "CONNECT";
 const BIND = "BIND";
@@ -86,8 +87,8 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
     timelineState = {};
     timelineError = {};
 
-    constructor(private apiClient: APIClient, private validationService: ValidationService) {
-        super();
+    constructor(private apiClient: APIClient, private validationService: ValidationService, appDataService: AppDataService) {
+        super(appDataService);
         this.resetTimelineState();
     }
 

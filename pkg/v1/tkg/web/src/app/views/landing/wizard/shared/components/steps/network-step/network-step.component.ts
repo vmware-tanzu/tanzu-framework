@@ -41,8 +41,8 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
 
     constructor(private validationService: ValidationService,
         private wizardFormService: VSphereWizardFormService,
-        private appDataService: AppDataService) {
-        super();
+        appDataService: AppDataService) {
+        super(appDataService);
     }
 
     ngOnInit() {

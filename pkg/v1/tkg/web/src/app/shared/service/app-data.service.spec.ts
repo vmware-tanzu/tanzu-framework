@@ -2,7 +2,7 @@ import { TestBed, async } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { HttpClientModule } from '@angular/common/http';
 
-import { AppDataService } from './app-data.service';
+import { AppDataService } from 'src/app/shared/service/app-data.service';
 import { APIClient } from '../../swagger/api-client.service';
 
 describe('AppDataService', () => {

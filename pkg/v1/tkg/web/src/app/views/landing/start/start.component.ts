@@ -11,7 +11,7 @@ import { takeUntil } from 'rxjs/operators';
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
 import { PROVIDERS, Providers } from '../../../shared/constants/app.constants';
 import { TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
-import { AppDataService } from '../../../shared/service/app-data.service';
+import { AppDataService } from 'src/app/shared/service/app-data.service';
 import { BrandingObj, EditionData } from '../../../shared/service/branding.service';
 import { BasicSubscriber } from 'src/app/shared/abstracts/basic-subscriber';
 import Broker from 'src/app/shared/service/broker';
@@ -26,7 +26,7 @@ export class StartComponent extends BasicSubscriber implements OnInit {
     PROVIDERS: Providers = PROVIDERS;
 
     edition: string;
-    clusterType: string;
+    clusterTypeDescriptor: string;
     provider: Observable<string>;
     landingPageContent: BrandingObj;
     loading: boolean = false;
@@ -48,7 +48,7 @@ export class StartComponent extends BasicSubscriber implements OnInit {
                 const content: EditionData = data.payload;
                 const title = content.branding.title;
                 this.edition = content.edition;
-                this.clusterType = content.clusterType;
+                this.clusterTypeDescriptor = content.clusterTypeDescriptor;
                 this.landingPageContent = content.branding.landingPage;
                 this.titleService.setTitle(title);
             });

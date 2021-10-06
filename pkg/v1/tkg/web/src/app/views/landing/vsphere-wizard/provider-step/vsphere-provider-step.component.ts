@@ -68,10 +68,10 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
     enableIpv6: boolean = false;
 
     constructor(private validationService: ValidationService,
-        private appDataService: AppDataService,
+        appDataService: AppDataService,
         private apiClient: APIClient,
         private router: Router) {
-        super();
+        super(appDataService);
 
         this.fileReader = new FileReader();
     }
@@ -309,8 +309,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 this.appDataService.setVsphereVersion(vsphereVerInfo.version);
 
                 if (isCompatible && !(_.startsWith(this.vsphereVersion, '6'))
-                    && this.edition !== AppEdition.TCE
-                    && this.edition !== AppEdition.TCE_STANDALONE) {
+                    && this.edition !== AppEdition.TCE) {
                     // for 7 and newer and other potential anomolies, show modal suggesting upgrade
                     this.showVSphereWithK8Modal();
                 } else if (!isCompatible) {

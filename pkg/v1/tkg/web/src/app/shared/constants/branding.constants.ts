@@ -1,12 +1,11 @@
 export enum AppEdition {
     TKG = 'tkg',
     TCE = 'tce',
-    TCE_STANDALONE = 'tce-standalone'
 }
 
 export const brandingDefault = {
     edition: AppEdition.TKG,
-    clusterType: "management",
+    clusterTypeDescriptor: "management",
     branding: {
         title: "Tanzu Kubernetes Grid",
         landingPage: {
@@ -26,7 +25,7 @@ export const brandingDefault = {
 
 export const brandingTce = {
     edition: AppEdition.TCE,
-    clusterType: "management",
+    clusterTypeDescriptor: "management",
     branding: {
         title: "Tanzu Community Edition",
         landingPage: {
@@ -40,14 +39,10 @@ export const brandingTce = {
     }
 }
 
-export const brandingTceStandalone = {
-    edition: AppEdition.TCE_STANDALONE,
-    clusterType: "standalone",
+export const brandingStandalone = {
+    clusterTypeDescriptor: "standalone",
     branding: {
-        title: "Tanzu Community Edition",
         landingPage: {
-            logoClass: "tce-logo",
-            title: "Welcome to the Tanzu Community Edition Installer",
             intro: "Tanzu Community Edition (TCE) is VMware's Open Source Kubernetes distribution. The installer will " +
                 "deploy a temporary cluster on your local machine to bootstrap a standalone cluster on your desired target. " +
                 "<br/><br/>For more details see the <a href='http://tanzucommunityedition.io/docs' target='_blank'>getting started guide</a>."

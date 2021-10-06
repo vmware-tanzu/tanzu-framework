@@ -15,6 +15,7 @@ import { APIClient } from '../../../../swagger/api-client.service';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { TkgEventType } from '../../../../shared/service/Messenger';
 import Broker from 'src/app/shared/service/broker';
+import { AppDataService } from 'src/app/shared/service/app-data.service';
 
 export const AWSAccountParamsKeys = ['profileName', 'sessionToken', 'region', 'accessKeyID', 'secretAccessKey'];
 
@@ -33,10 +34,10 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
     validCredentials: boolean = false;
     isProfileChoosen: boolean = false;
 
-    constructor(private apiClient: APIClient) {
-        super();
+    constructor(private apiClient: APIClient, appDataService: AppDataService) {
+        super(appDataService);
 
-        console.log('cluster type from stepform directive: ' + this.clusterType);
+        console.log('cluster type from stepform directive: ' + this.clusterTypeDescriptor);
     }
 
     /**

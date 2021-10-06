@@ -8,6 +8,7 @@ import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { Vpc } from '../../../../swagger/models/vpc.model';
 import { AwsWizardFormService } from '../../../../shared/service/aws-wizard-form.service';
 import Broker from 'src/app/shared/service/broker';
+import { AppDataService } from 'src/app/shared/service/app-data.service';
 
 @Component({
     selector: 'app-vpc-step',
@@ -22,9 +23,9 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
 
     defaultVpcAddress: string = '10.0.0.0/16';
 
-    constructor(private validationService: ValidationService,
+    constructor(private validationService: ValidationService, appDataService: AppDataService,
         private awsWizardFormService: AwsWizardFormService) {
-        super();
+        super(appDataService);
     }
 
     ngOnInit() {

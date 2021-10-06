@@ -21,6 +21,7 @@ import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
 import { APIClient } from '../../../../swagger/api-client.service';
 import Broker from 'src/app/shared/service/broker';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
+import { AppDataService } from 'src/app/shared/service/app-data.service';
 
 export interface AzNodeTypes {
     awsNodeAz1: Array<string>,
@@ -128,10 +129,10 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         vpcPrivateSubnet3: [],
     };
 
-    constructor(private validationService: ValidationService,
+    constructor(private validationService: ValidationService, appDataService: AppDataService,
         private apiClient: APIClient,
         public awsWizardFormService: AwsWizardFormService) {
-        super();
+        super(appDataService);
     }
 
     buildForm() {
@@ -295,7 +296,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                     this.formGroup.get('awsNodeAz1').setValue(this.nodeAzs[0].name);
                 }
 
-                if (this.clusterType !== 'standalone') {
+                if (!this.modeClusterStandalone) {
                     this.resurrectField('workerNodeInstanceType1', [Validators.required],
                         this.azNodeTypes.awsNodeAz1.length === 1 ? this.azNodeTypes.awsNodeAz1[0] : '');
                 }
@@ -320,7 +321,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                             this.formGroup.get(azNew[2])])
                     ]);
                 }
-                if (this.clusterType !== 'standalone') {
+                if (!this.modeClusterStandalone) {
                     WORKER_NODE_INSTANCE_TYPES.forEach(field => this.resurrectField(field, [Validators.required]));
                 }
             }

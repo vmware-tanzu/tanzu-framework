@@ -75,4 +75,9 @@ export class AppDataService {
     isValueTrue(value: string) {
         return value !== null && JSON.parse(value);
     }
+
+    // convenience method
+    isModeClusterStandalone() {
+        return this.isPluginFeatureActivated('management-cluster', 'standalone-cluster-mode');
+    }
 }

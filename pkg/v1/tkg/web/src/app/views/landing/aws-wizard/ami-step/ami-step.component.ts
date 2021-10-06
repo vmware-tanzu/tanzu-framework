@@ -10,6 +10,7 @@ import { takeUntil } from 'rxjs/operators';
 
 import { APIClient } from '../../../../swagger/api-client.service';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
+import { AppDataService } from 'src/app/shared/service/app-data.service';
 
 @Component({
     selector: 'app-ami-step',
@@ -18,8 +19,8 @@ import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 })
 export class AmiStepComponent extends StepFormDirective implements OnInit {
 
-    constructor(private apiClient: APIClient) {
-        super();
+    constructor(private apiClient: APIClient, appDataService: AppDataService) {
+        super(appDataService);
     }
 
     ngOnInit() {

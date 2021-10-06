@@ -1,6 +1,8 @@
+import { ClusterType } from "../constants/wizard.constants";
+
 export interface CliFields {
     configPath: string;
-    clusterType: string;
+    clusterType: ClusterType;
     clusterName: string;
     extendCliCmds: Array<{isPrefixOfCreateCmd: boolean, cmdStr: string}>;
 }
@@ -11,7 +13,7 @@ export class CliGenerator {
         clusterName,
         extendCliCmds
     }) {
-        const clusterPrefix = (clusterType) ? clusterType : 'management';
+        const clusterPrefix = ClusterType[(clusterType) ? clusterType : ClusterType.Management];
         const clusterNameArg = (clusterName) ? ` ${clusterName} ` : '';
         let command = `tanzu ${clusterPrefix}-cluster create${clusterNameArg}`;
         const optionsMapping = [

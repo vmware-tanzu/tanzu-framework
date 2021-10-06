@@ -6,7 +6,7 @@ import { takeUntil } from 'rxjs/operators';
 import { BasicSubscriber } from './shared/abstracts/basic-subscriber';
 import { APIClient } from './swagger/api-client.service';
 import { ProviderInfo } from './swagger/models/provider-info.model';
-import { AppDataService } from './shared/service/app-data.service';
+import { AppDataService } from 'src/app/shared/service/app-data.service';
 import { BrandingService } from './shared/service/branding.service';
 import { Features } from "./swagger/models";
 
@@ -25,8 +25,6 @@ export class AppComponent extends BasicSubscriber {
 
         this.appDataService.setProviderType(null);
 
-        this.editionService.initBranding();
-
         this.apiClient.getProvider()
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(((res: ProviderInfo) => {
@@ -38,10 +36,12 @@ export class AppComponent extends BasicSubscriber {
                 console.log('Failed to retrieve provider type and Kubernetes version.');
             })
         );
+
         this.apiClient.getFeatureFlags()
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(((features: Features) => {
                 this.appDataService.setFeatureFlags(features);
+                this.editionService.initBranding(); // NOTE: the branding may depend on feature flags
             }),
             ((err) => {
                 console.log('Failed to retrieve feature flags.');

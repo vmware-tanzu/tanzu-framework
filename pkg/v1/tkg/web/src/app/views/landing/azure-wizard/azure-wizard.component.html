@@ -10,7 +10,7 @@
             ></clr-icon>
             <h2 i18n="wizard title" id="azure-title" aria-level="1">
                 <div class="ms-azure-icon-30"></div>
-                Deploy {{ clusterType | titlecase }} Cluster on Azure
+                Deploy {{ clusterTypeDescriptor | titlecase }} Cluster on Azure
             </h2>
         </div>
     </div>
@@ -50,7 +50,7 @@
 
         <clr-stepper-panel formGroupName="azureNodeSettingForm" removeAriaLabelledBy>
             <clr-step-title i18n="node setting step name">
-                {{ clusterType | titlecase }} Cluster Settings
+                {{ clusterTypeDescriptor | titlecase }} Cluster Settings
             </clr-step-title>
             <clr-step-description i18n="node setting step description">
                 {{ getStepDescription('azureNodeSettingForm') }}
@@ -162,7 +162,7 @@
     <div class="clr-row mt-20">
         <div class="clr-col-12 btn-container">
             <button class="btn btn-primary deploy-btn" [disabled]="disableDeployButton" (click)="deploy()">
-                Deploy {{ clusterType | titlecase }} Cluster
+                Deploy {{ clusterTypeDescriptor | titlecase }} Cluster
             </button>
             <button class="btn btn-outline edit-btn" (click)="reviewConfiguration(false)"
                 i18n="return to wizard for edit button">

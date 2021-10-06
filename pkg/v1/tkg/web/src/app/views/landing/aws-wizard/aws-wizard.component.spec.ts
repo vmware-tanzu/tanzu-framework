@@ -9,6 +9,7 @@ import { AwsWizardComponent } from './aws-wizard.component';
 import { SharedModule } from '../../../shared/shared.module';
 import Broker from 'src/app/shared/service/broker';
 import { Messenger } from 'src/app/shared/service/Messenger';
+import { ClusterType } from "../wizard/shared/constants/wizard.constants";
 
 describe('AwsWizardComponent', () => {
     let component: AwsWizardComponent;
@@ -88,7 +89,7 @@ describe('AwsWizardComponent', () => {
             osImageForm: fb.group({
             })
         });
-        component.clusterType = 'management';
+        component.clusterType = ClusterType[ClusterType.Management];
         fixture.detectChanges();
     });
 

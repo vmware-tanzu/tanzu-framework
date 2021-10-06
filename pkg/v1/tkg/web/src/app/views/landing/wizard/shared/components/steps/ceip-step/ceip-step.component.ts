@@ -9,6 +9,7 @@ import { FormMetaDataStore, FormMetaData } from '../../../FormMetaDataStore';
  * App imports
  */
 import { StepFormDirective } from '../../../step-form/step-form';
+import { AppDataService } from 'src/app/shared/service/app-data.service';
 
 @Component({
     selector: 'app-shared-ceip-step',
@@ -17,8 +18,8 @@ import { StepFormDirective } from '../../../step-form/step-form';
 })
 export class SharedCeipStepComponent extends StepFormDirective implements OnInit {
 
-    constructor() {
-        super();
+    constructor(appDataService: AppDataService) {
+        super(appDataService);
     }
 
     ngOnInit() {

@@ -5,8 +5,9 @@ import { finalize } from 'rxjs/operators'
 // Application imports
 import { TkgEventType } from 'src/app/shared/service/Messenger';
 import { APIClient } from 'src/app/swagger';
-import { AppEdition, brandingDefault, brandingTce, brandingTceStandalone } from '../constants/branding.constants';
+import {AppEdition, brandingDefault, brandingStandalone, brandingTce} from '../constants/branding.constants';
 import Broker from './broker';
+import { AppDataService } from 'src/app/shared/service/app-data.service';
 
 export interface BrandingObj {
     logoClass: string;
@@ -21,7 +22,7 @@ export interface BrandingData {
 
 export interface EditionData {
     branding: BrandingData;
-    clusterType: string;
+    clusterTypeDescriptor: string;
     edition: AppEdition;
 }
 
@@ -30,12 +31,13 @@ export interface EditionData {
 })
 export class BrandingService {
 
-    constructor(private apiClient: APIClient) {
+    constructor(private apiClient: APIClient, private appDataService: AppDataService) {
     }
 
     /**
      * @method initBranding
      * Initializes process of retrieving edition flag value and subsequently retrieving branding data using this flag.
+     * Note that the caller should have retrieved feature flags before calling this method
      */
     initBranding(): void {
         let brandingEdition;
@@ -54,16 +56,21 @@ export class BrandingService {
      * @method setBrandingByEdition
      * Helper method used to set branding content in Messenger payload depending on which edition is detected.
      * Dispatches 'BRANDING_CHANGED' message with branding data as payload.
-     * @param edition - Optional parameter. 'tce' or 'tce-standalone' to retrieve tce branding; otherwise retrieves
+     * @param edition - Optional parameter. 'tce' to retrieve tce branding; otherwise retrieves
      * default branding.
      */
     private setBrandingByEdition(edition?: string): void {
         let brandingPayload: EditionData = brandingDefault;
 
         if (edition && edition === AppEdition.TCE) {
+            console.log('Setting branding based on edition: ' + AppEdition.TCE);
             brandingPayload = brandingTce;
-        } else if (edition && edition === AppEdition.TCE_STANDALONE) {
-            brandingPayload = brandingTceStandalone;
+        }
+        if (this.appDataService.isModeClusterStandalone()) {
+            console.log('Due to standalone cluster mode, setting branding to edition: ' + AppEdition.TCE);
+            brandingPayload = brandingTce;
+            brandingPayload.clusterTypeDescriptor = brandingStandalone.clusterTypeDescriptor;
+            brandingPayload.branding.landingPage.intro = brandingStandalone.branding.landingPage.intro;
         }
 
         Broker.messenger.publish({

@@ -13,7 +13,7 @@
                     keyboardListener></clr-icon>
             <h2 i18n="wizard title" aria-level="1">
                 <div class="docker-icon-30"></div>
-                Deploy {{ clusterType | titlecase }} Cluster on Docker
+                Deploy {{ clusterTypeDescriptor | titlecase }} Cluster on Docker
             </h2>
         </div>
     </div>
@@ -37,7 +37,7 @@
 
         <clr-stepper-panel formGroupName="dockerNodeSettingForm" removeAriaLabelledBy>
             <clr-step-title i18n="node setting step name">
-                {{ clusterType | titlecase }} Cluster Settings
+                {{ clusterTypeDescriptor | titlecase }} Cluster Settings
             </clr-step-title>
             <clr-step-description i18n="node setting step description">
                 {{ getStepDescription('nodeSetting') }}
@@ -95,7 +95,7 @@
     <div class="clr-row mt-20">
         <div class="clr-col-12">
             <button class="btn btn-primary" [disabled]="disableDeployButton" (click)="deploy()">
-                Deploy {{ clusterType | titlecase }} Cluster
+                Deploy {{ clusterTypeDescriptor | titlecase }} Cluster
             </button>
             <button class="btn btn-outline" (click)="reviewConfiguration(false)"
                 i18n="return to wizard for edit button">
