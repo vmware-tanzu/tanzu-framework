@@ -17,10 +17,9 @@ import (
 	fakediscovery "k8s.io/client-go/discovery/fake"
 	fakeclientset "k8s.io/client-go/kubernetes/fake"
 	capav1alpha4 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha4"
-	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
-	capibootstrapkubeadmv1alpha3 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha3"
-	capibootstrapkubeadmtypesv1beta1 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/types/v1beta1"
-	capikubeadmv1alpha3 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
+	capi "sigs.k8s.io/cluster-api/api/v1alpha4"
+	capibootstrapkubeadmv1alpha4 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha4"
+	capikubeadmv1alpha4 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha4"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake" // nolint:staticcheck
 
@@ -789,23 +788,23 @@ func copyFile(sourceFile, destFile string) {
 	_ = os.WriteFile(destFile, input, constants.ConfigFilePermissions)
 }
 
-func getDummyKCP(machineTemplateKind string) *capikubeadmv1alpha3.KubeadmControlPlane {
-	kcp := &capikubeadmv1alpha3.KubeadmControlPlane{}
+func getDummyKCP(machineTemplateKind string) *capikubeadmv1alpha4.KubeadmControlPlane {
+	kcp := &capikubeadmv1alpha4.KubeadmControlPlane{}
 	kcp.Name = "fake-kcp-name"
 	kcp.Namespace = "fake-kcp-namespace"
 	kcp.Spec.Version = currentK8sVersion
-	kcp.Spec.KubeadmConfigSpec = capibootstrapkubeadmv1alpha3.KubeadmConfigSpec{
-		ClusterConfiguration: &capibootstrapkubeadmtypesv1beta1.ClusterConfiguration{
+	kcp.Spec.KubeadmConfigSpec = capibootstrapkubeadmv1alpha4.KubeadmConfigSpec{
+		ClusterConfiguration: &capibootstrapkubeadmv1alpha4.ClusterConfiguration{
 			ImageRepository: "fake-image-repo",
-			DNS: capibootstrapkubeadmtypesv1beta1.DNS{
-				ImageMeta: capibootstrapkubeadmtypesv1beta1.ImageMeta{
+			DNS: capibootstrapkubeadmv1alpha4.DNS{
+				ImageMeta: capibootstrapkubeadmv1alpha4.ImageMeta{
 					ImageRepository: "fake-dns-image-repo",
 					ImageTag:        "fake-dns-image-tag",
 				},
 			},
-			Etcd: capibootstrapkubeadmtypesv1beta1.Etcd{
-				Local: &capibootstrapkubeadmtypesv1beta1.LocalEtcd{
-					ImageMeta: capibootstrapkubeadmtypesv1beta1.ImageMeta{
+			Etcd: capibootstrapkubeadmv1alpha4.Etcd{
+				Local: &capibootstrapkubeadmv1alpha4.LocalEtcd{
+					ImageMeta: capibootstrapkubeadmv1alpha4.ImageMeta{
 						ImageRepository: "fake-etcd-image-repo",
 						ImageTag:        "fake-etcd-image-tag",
 					},
@@ -814,7 +813,7 @@ func getDummyKCP(machineTemplateKind string) *capikubeadmv1alpha3.KubeadmControl
 			},
 		},
 	}
-	kcp.Spec.InfrastructureTemplate = corev1.ObjectReference{
+	kcp.Spec.MachineTemplate.InfrastructureRef = corev1.ObjectReference{
 		Name:      "fake-infra-template-name",
 		Namespace: "fake-infra-template-namespace",
 		Kind:      machineTemplateKind,

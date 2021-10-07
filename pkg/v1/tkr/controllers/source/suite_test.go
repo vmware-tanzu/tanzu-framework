@@ -17,10 +17,11 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
-	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
+	capi "sigs.k8s.io/cluster-api/api/v1alpha4"
 	"sigs.k8s.io/cluster-api/util/conditions"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	// The fake package is deprecated, though there is talk of undeprecating it
 	"sigs.k8s.io/controller-runtime/pkg/client/fake" // nolint:staticcheck
@@ -448,7 +449,7 @@ type clientErrOnCreate struct {
 	errOnName string
 }
 
-func (c clientErrOnCreate) Create(ctx context.Context, obj runtime.Object, opts ...client.CreateOption) error {
+func (c clientErrOnCreate) Create(ctx context.Context, obj crtclient.Object, opts ...client.CreateOption) error {
 	if cm, ok := obj.(*corev1.ConfigMap); ok && cm.Name == c.errOnName {
 		return c.err
 	}
@@ -495,7 +496,7 @@ var _ = Describe("r.Reconcile()", func() {
 		})
 
 		It("should create the corresponding TKRs", func() {
-			_, err = r.Reconcile(req(cm2))
+			_, err = r.Reconcile(r.ctx, req(cm2))
 			Expect(err).ToNot(HaveOccurred())
 
 			tkrList := &runv1.TanzuKubernetesReleaseList{}
@@ -536,7 +537,7 @@ var _ = Describe("r.Reconcile()", func() {
 		})
 
 		It("should not return an error", func() {
-			_, err = r.Reconcile(req(cm1))
+			_, err = r.Reconcile(r.ctx, req(cm1))
 			Expect(err).ToNot(HaveOccurred())
 
 			tkrList := &runv1.TanzuKubernetesReleaseList{}
@@ -564,9 +565,9 @@ var _ = Describe("r.Reconcile()", func() {
 		})
 
 		It("should not return an error, and TKR is not created", func() {
-			_, err = r.Reconcile(req(cm1))
+			_, err = r.Reconcile(r.ctx, req(cm1))
 			Expect(err).ToNot(HaveOccurred())
-			_, err = r.Reconcile(req(cm2))
+			_, err = r.Reconcile(r.ctx, req(cm2))
 			Expect(err).ToNot(HaveOccurred())
 
 			tkrList := &runv1.TanzuKubernetesReleaseList{}
@@ -592,7 +593,7 @@ var _ = Describe("r.Reconcile()", func() {
 
 		When("management cluster is in place", func() {
 			It("should not return an error", func() {
-				_, err = r.Reconcile(req(cmMeta))
+				_, err = r.Reconcile(r.ctx, req(cmMeta))
 				Expect(err).ToNot(HaveOccurred())
 
 				tkrList := &runv1.TanzuKubernetesReleaseList{}
@@ -609,7 +610,7 @@ var _ = Describe("r.Reconcile()", func() {
 			})
 
 			It("should return that error, so reconciliation would be retried", func() {
-				_, err := r.Reconcile(req(cmMeta))
+				_, err := r.Reconcile(r.ctx, req(cmMeta))
 				Expect(err).To(HaveOccurred())
 				Expect(errors.Cause(err)).To(Equal(expectedErr))
 			})
@@ -632,7 +633,7 @@ var _ = Describe("r.Reconcile()", func() {
 		})
 
 		It("should still create the TKRs, but with default status conditions", func() {
-			_, err = r.Reconcile(req(cm2))
+			_, err = r.Reconcile(r.ctx, req(cm2))
 			Expect(err).To(HaveOccurred())
 			Expect(apierrors.IsNotFound(errors.Cause(err))).To(BeTrue())
 
@@ -654,7 +655,7 @@ type clientErrOnGetCluster struct {
 	err error
 }
 
-func (c clientErrOnGetCluster) Get(ctx context.Context, key client.ObjectKey, obj runtime.Object) error {
+func (c clientErrOnGetCluster) Get(ctx context.Context, key client.ObjectKey, obj crtclient.Object) error {
 	if _, ok := obj.(*capi.Cluster); !ok {
 		return c.err
 	}

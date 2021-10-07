@@ -12,7 +12,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
-	capvv1alpha4"sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha4"
+	capvv1alpha4 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha4"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	azureclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/azure"

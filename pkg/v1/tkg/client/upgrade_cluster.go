@@ -16,8 +16,8 @@ import (
 	capav1alpha4 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha4"
 	capzv1alpha4 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha4"
 	capvv1alpha4 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha4"
-	capi "sigs.k8s.io/cluster-api/api/v1alpha4"
 	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	capi "sigs.k8s.io/cluster-api/api/v1alpha4"
 	capikubeadmv1alpha4 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha4"
 	capdv1alpha4 "sigs.k8s.io/cluster-api/test/infrastructure/docker/api/v1alpha4"
 

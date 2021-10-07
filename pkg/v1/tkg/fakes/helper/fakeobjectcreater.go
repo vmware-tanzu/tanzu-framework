@@ -24,9 +24,8 @@ import (
 	capvv1alpha4 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha4"
 	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha4"
-	cabpkv1 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha3"
-	"sigs.k8s.io/cluster-api/bootstrap/kubeadm/types/v1beta1"
-	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
+	cabpkv1 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha4"
+	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha4"
 
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
@@ -75,10 +74,9 @@ func NewCluster(options TestAllClusterComponentOptions) *capi.Cluster {
 		},
 	}
 	cluster.Status = capi.ClusterStatus{
-		Phase:                   options.ClusterOptions.Phase,
-		InfrastructureReady:     options.ClusterOptions.InfrastructureReady,
-		ControlPlaneInitialized: options.ClusterOptions.ControlPlaneInitialized,
-		ControlPlaneReady:       options.ClusterOptions.ControlPlaneReady,
+		Phase:               options.ClusterOptions.Phase,
+		InfrastructureReady: options.ClusterOptions.InfrastructureReady,
+		ControlPlaneReady:   options.ClusterOptions.ControlPlaneReady,
 	}
 	return cluster
 }
@@ -92,23 +90,25 @@ func NewKCP(options TestAllClusterComponentOptions) runtime.Object {
 			Labels:    map[string]string{capi.ClusterLabelName: options.ClusterName},
 		},
 		Spec: controlplanev1.KubeadmControlPlaneSpec{
-			InfrastructureTemplate: corev1.ObjectReference{
-				Kind:      options.CPOptions.InfrastructureTemplate.Kind,
-				Namespace: options.CPOptions.InfrastructureTemplate.Namespace,
-				Name:      options.CPOptions.InfrastructureTemplate.Name,
+			MachineTemplate: controlplanev1.KubeadmControlPlaneMachineTemplate{
+				InfrastructureRef: corev1.ObjectReference{
+					Kind:      options.CPOptions.InfrastructureTemplate.Kind,
+					Namespace: options.CPOptions.InfrastructureTemplate.Namespace,
+					Name:      options.CPOptions.InfrastructureTemplate.Name,
+				},
 			},
 			Version:  options.CPOptions.K8sVersion,
 			Replicas: &options.CPOptions.SpecReplicas,
 			KubeadmConfigSpec: cabpkv1.KubeadmConfigSpec{
-				ClusterConfiguration: &v1beta1.ClusterConfiguration{
+				ClusterConfiguration: &cabpkv1.ClusterConfiguration{
 					ImageRepository: options.ClusterConfigurationOptions.ImageRepository,
-					DNS: v1beta1.DNS{ImageMeta: v1beta1.ImageMeta{
+					DNS: cabpkv1.DNS{ImageMeta: cabpkv1.ImageMeta{
 						ImageRepository: options.ClusterConfigurationOptions.DNSImageRepository,
 						ImageTag:        options.ClusterConfigurationOptions.DNSImageTag,
 					}},
-					Etcd: v1beta1.Etcd{Local: &v1beta1.LocalEtcd{
+					Etcd: cabpkv1.Etcd{Local: &cabpkv1.LocalEtcd{
 						DataDir: options.ClusterConfigurationOptions.EtcdLocalDataDir,
-						ImageMeta: v1beta1.ImageMeta{
+						ImageMeta: cabpkv1.ImageMeta{
 							ImageRepository: options.ClusterConfigurationOptions.EtcdImageRepository,
 							ImageTag:        options.ClusterConfigurationOptions.EtcdImageTag,
 						},
@@ -404,7 +404,7 @@ func NewMDForPacific(options TestAllClusterComponentOptions) runtime.Object {
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "md-" + options.ClusterName,
 			Namespace: options.Namespace,
-			Labels:    map[string]string{capiv1alpha3.MachineClusterLabelName: options.ClusterName},
+			Labels:    map[string]string{capiv1alpha3.ClusterLabelName: options.ClusterName},
 		},
 		Spec: capiv1alpha3.MachineDeploymentSpec{
 			Replicas: &options.ListMDOptions[0].SpecReplicas,

@@ -31,7 +31,7 @@ type CapabilityReconciler struct {
 
 // Reconcile reconciles a Capability spec by executing specified queries.
 func (r *CapabilityReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	ctx, cancel := context.WithTimeout(ctx, contextTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
 	defer cancel()
 
 	log := r.Log.WithValues("capability", req.NamespacedName)
