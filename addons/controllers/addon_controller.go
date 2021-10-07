@@ -17,8 +17,8 @@ import (
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/utils/pointer"
-	clusterapiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
-	controlplanev1alpha3 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
+	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	controlplanev1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
 	clusterapipatchutil "sigs.k8s.io/cluster-api/util/patch"
 	clusterApiPredicates "sigs.k8s.io/cluster-api/util/predicates"
@@ -57,7 +57,7 @@ type AddonReconciler struct {
 // SetupWithManager performs the setup actions for an add on controller, using the passed in mgr.
 func (r *AddonReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	addonController, err := ctrl.NewControllerManagedBy(mgr).
-		For(&clusterapiv1alpha3.Cluster{}).
+		For(&clusterapiv1beta1.Cluster{}).
 		Watches(
 			&source.Kind{Type: &corev1.Secret{}},
 			handler.EnqueueRequestsFromMapFunc(r.AddonSecretToClusters),
@@ -80,7 +80,7 @@ func (r *AddonReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Manager
 			),
 		).
 		Watches(
-			&source.Kind{Type: &controlplanev1alpha3.KubeadmControlPlane{}},
+			&source.Kind{Type: &controlplanev1beta1.KubeadmControlPlane{}},
 			handler.EnqueueRequestsFromMapFunc(r.KubeadmControlPlaneToClusters),
 			builder.WithPredicates(
 				addonpredicates.KubeadmControlPlane(r.Log),
@@ -106,7 +106,7 @@ func (r *AddonReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ct
 	log.Info("Reconciling cluster")
 
 	// get cluster object
-	cluster := &clusterapiv1alpha3.Cluster{}
+	cluster := &clusterapiv1beta1.Cluster{}
 	if err := r.Client.Get(ctx, req.NamespacedName, cluster); err != nil {
 		if apierrors.IsNotFound(err) {
 			log.Info("Cluster not found")
@@ -141,7 +141,7 @@ func (r *AddonReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ct
 func (r *AddonReconciler) reconcileDelete(
 	ctx context.Context,
 	log logr.Logger,
-	cluster *clusterapiv1alpha3.Cluster) (ctrl.Result, error) {
+	cluster *clusterapiv1beta1.Cluster) (ctrl.Result, error) {
 
 	log.Info("Reconciling cluster deletion")
 
@@ -223,7 +223,7 @@ func (r *AddonReconciler) reconcileDelete(
 func (r *AddonReconciler) reconcileNormal(
 	ctx context.Context,
 	log logr.Logger,
-	cluster *clusterapiv1alpha3.Cluster) (ctrl.Result, error) {
+	cluster *clusterapiv1beta1.Cluster) (ctrl.Result, error) {
 
 	// Get addon secrets for the cluster
 	addonSecrets, err := util.GetAddonSecretsForCluster(ctx, r.Client, cluster)
@@ -293,7 +293,7 @@ func (r *AddonReconciler) reconcileNormal(
 func (r *AddonReconciler) reconcileAddonSecret(
 	ctx context.Context,
 	log logr.Logger,
-	cluster *clusterapiv1alpha3.Cluster,
+	cluster *clusterapiv1beta1.Cluster,
 	clusterClient client.Client,
 	addonSecret *corev1.Secret,
 	imageRepository string,
@@ -390,7 +390,7 @@ func (r *AddonReconciler) reconcileAddonSecretNormal(
 	ctx context.Context,
 	log logr.Logger,
 	addonName string,
-	cluster *clusterapiv1alpha3.Cluster,
+	cluster *clusterapiv1beta1.Cluster,
 	clusterClient client.Client,
 	addonSecret *corev1.Secret,
 	patchAddonSecret *bool,
@@ -459,7 +459,7 @@ func (r *AddonReconciler) removeFinalizerFromAddonSecret(
 // returns true if finalizer or owner reference is added
 func (r *AddonReconciler) addMetadataToAddonSecret(
 	log logr.Logger,
-	cluster *clusterapiv1alpha3.Cluster,
+	cluster *clusterapiv1beta1.Cluster,
 	addonSecret *corev1.Secret) bool {
 
 	var patchAddonSecret bool
@@ -475,7 +475,7 @@ func (r *AddonReconciler) addMetadataToAddonSecret(
 
 	// add owner reference to addon secret
 	ownerReference := metav1.OwnerReference{
-		APIVersion:         clusterapiv1alpha3.GroupVersion.String(),
+		APIVersion:         clusterapiv1beta1.GroupVersion.String(),
 		Kind:               "Cluster",
 		Name:               cluster.Name,
 		UID:                cluster.UID,
@@ -537,10 +537,10 @@ func GetExternalCRDs() map[schema.GroupVersion]*sets.String {
 	var crds = map[schema.GroupVersion]*sets.String{}
 	// cluster-api
 	clusterapiv1alpha3Resources := sets.NewString("clusters")
-	crds[clusterapiv1alpha3.GroupVersion] = &clusterapiv1alpha3Resources
+	crds[clusterapiv1beta1.GroupVersion] = &clusterapiv1alpha3Resources
 
 	controlplanev1alpha3Resources := sets.NewString("kubeadmcontrolplanes")
-	crds[controlplanev1alpha3.GroupVersion] = &controlplanev1alpha3Resources
+	crds[controlplanev1beta1.GroupVersion] = &controlplanev1alpha3Resources
 
 	// tkr
 	runtanzuv1alpha1Resources := sets.NewString("tanzukubernetesreleases")
