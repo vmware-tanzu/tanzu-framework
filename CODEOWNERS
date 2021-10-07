@@ -4,11 +4,12 @@
 /cmd/cli @vmware-tanzu/tanzu-framework-reviewers @Anuj2512
 /cmd/cli/plugin/tkr @vmware-tanzu/tanzu-framework-reviewers @prkalle
 /pkg/v1/cli @vmware-tanzu/tanzu-framework-reviewers @miclettej @Anuj2512
-/pkg/v1/providers @vmware-tanzu/tanzu-framework-reviewers @Anuj2512
+/pkg/v1/providers @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-lcm-reviewers @Anuj2512
 /pkg/v1/providers/ytt/02_addons/auth @vmware-tanzu/tanzu-framework-reviewers @ankeesler @benjaminapetersen @sabbey37
 /pkg/v1/providers/ytt/02_addons/avi @vmware-tanzu/tanzu-framework-reviewers @XudongLiuHarold @iXinqi
 /pkg/v1/providers/ytt/03_customizations/02_avi @vmware-tanzu/tanzu-framework-reviewers @XudongLiuHarold @iXinqi
 /pkg/v1/tkr @vmware-tanzu/tanzu-framework-reviewers @prkalle
+/pkg/v1/tkg @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-lcm-reviewers
 /pkg/v1/tkg/tkgpackagedatamodel @vmware-tanzu/tanzu-framework-reviewers @shyaamsn @danniel1205 @maralavi @shivaani0505 @ggpaue @blc1996
 /pkg/v1/tkg/kappclient @vmware-tanzu/tanzu-framework-reviewers @shyaamsn @danniel1205 @maralavi @shivaani0505 @ggpaue @blc1996
 /pkg/v1/tkg/tkgpackageclient @vmware-tanzu/tanzu-framework-reviewers @shyaamsn @danniel1205 @maralavi @shivaani0505 @ggpaue @blc1996
@@ -16,3 +17,4 @@
 /cmd/cli/plugin/package @vmware-tanzu/tanzu-framework-reviewers @shyaamsn @danniel1205 @maralavi @shivaani0505 @ggpaue @blc1996
 /cmd/cli/plugin/imagepullsecret @vmware-tanzu/tanzu-framework-reviewers @shyaamsn @danniel1205 @maralavi @shivaani0505 @ggpaue @blc1996
 /cmd/cli/plugin/pinniped-auth @vmware-tanzu/tanzu-framework-reviewers @ankeesler @benjaminapetersen @sabbey37
+/pkg/v1/tkg/tkgconfigpaths @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-release-team
