@@ -14,8 +14,6 @@ import (
 
 	certmanagerv1beta1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1beta1"
 	certmanagerclientset "github.com/jetstack/cert-manager/pkg/client/clientset/versioned"
-	conciergeclientset "go.pinniped.dev/generated/1.19/client/concierge/clientset/versioned"
-	supervisorclientset "go.pinniped.dev/generated/1.19/client/supervisor/clientset/versioned"
 	"go.uber.org/zap"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -29,6 +27,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/configure/supervisor"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/inspect"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/pinnipedclientset"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/utils"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/vars"
 )
@@ -36,8 +35,8 @@ import (
 // Clients contains the various client interfaces used.
 type Clients struct {
 	K8SClientset         kubernetes.Interface
-	SupervisorClientset  supervisorclientset.Interface
-	ConciergeClientset   conciergeclientset.Interface
+	SupervisorClientset  pinnipedclientset.Supervisor
+	ConciergeClientset   pinnipedclientset.Concierge
 	CertmanagerClientset certmanagerclientset.Interface
 }
 

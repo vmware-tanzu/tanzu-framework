@@ -2,8 +2,11 @@ module github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy
 
 go 1.16
 
+// TODO: are we still using the right version of kube?
+// TODO: are we still using the right version of the generated pinniped code?
+
 require (
-	github.com/google/go-cmp v0.5.3 // indirect
+	github.com/google/go-cmp v0.5.6 // indirect // TODO: where is this used
 	github.com/jetstack/cert-manager v1.1.0
 	github.com/nxadm/tail v1.4.6 // indirect
 	github.com/onsi/ginkgo v1.14.2 // indirect
@@ -25,4 +28,10 @@ require (
 
 // Import an nested go modules have some known issues. The following replace temporarily fixes it
 // https://github.com/golang/go/issues/34055
-replace go.pinniped.dev/generated/1.19/apis => go.pinniped.dev/generated/1.19/apis v0.0.0-20201219022151-546b8b5d25c6
+//
+// Commit SHA 454b792afbd9 is tag v0.12.0.
+// TODO: I couldn't figure out how to get go.mod to respect my v0.12.0 tag.
+replace (
+	go.pinniped.dev/generated/1.19/apis => go.pinniped.dev/generated/1.19/apis v0.0.0-20210916124603-454b792afbd9
+	go.pinniped.dev/generated/1.19/client => go.pinniped.dev/generated/1.19/client v0.0.0-20210916124603-454b792afbd9
+)

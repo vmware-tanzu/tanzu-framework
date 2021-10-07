@@ -7,11 +7,11 @@ package supervisor
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"time"
 
 	configv1alpha1 "go.pinniped.dev/generated/1.19/apis/supervisor/config/v1alpha1"
 	idpv1alpha1 "go.pinniped.dev/generated/1.19/apis/supervisor/idp/v1alpha1"
-	supervisorclientset "go.pinniped.dev/generated/1.19/client/supervisor/clientset/versioned"
 	"go.uber.org/zap"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -22,12 +22,13 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/inspect"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/pinnipedclientset"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/vars"
 )
 
 // Configurator contains client information.
 type Configurator struct {
-	Clientset    supervisorclientset.Interface
+	Clientset    pinnipedclientset.Supervisor
 	K8SClientset kubernetes.Interface
 }
 
@@ -56,6 +57,7 @@ func (c Configurator) CreateOrUpdateFederationDomain(ctx context.Context, namesp
 				},
 			}
 			if _, err = c.Clientset.ConfigV1alpha1().FederationDomains(namespace).Create(ctx, newFederationDomain, metav1.CreateOptions{}); err != nil {
+				err = fmt.Errorf("could not create federationdomain %s/%s: %w", namespace, name, err)
 				zap.S().Error(err)
 				return err
 			}
@@ -63,6 +65,7 @@ func (c Configurator) CreateOrUpdateFederationDomain(ctx context.Context, namesp
 			zap.S().Infof("Created the FederationDomain %s/%s", namespace, name)
 			return nil
 		}
+		err = fmt.Errorf("could not get federationdomain %s/%s: %w", namespace, name, err)
 		zap.S().Error(err)
 		return err
 	}
@@ -72,6 +75,7 @@ func (c Configurator) CreateOrUpdateFederationDomain(ctx context.Context, namesp
 	copiedFederationDomain := federationDomain.DeepCopy()
 	copiedFederationDomain.Spec.Issuer = issuer
 	if _, err = c.Clientset.ConfigV1alpha1().FederationDomains(namespace).Update(ctx, copiedFederationDomain, metav1.UpdateOptions{}); err != nil {
+		err = fmt.Errorf("could not update federationdomain %s/%s: %w", namespace, name, err)
 		zap.S().Error(err)
 		return err
 	}
@@ -89,6 +93,7 @@ func (c Configurator) RecreateIDPForDex(ctx context.Context, dexNamespace, dexSv
 	var err error
 	var dexSvcEndpoint string
 	if dexSvcEndpoint, err = inspector.GetServiceEndpoint(dexNamespace, dexSvcName); err != nil {
+		err = fmt.Errorf("could not get dex service endpoint: %w", err)
 		zap.S().Error(err)
 		return nil, err
 	}
@@ -109,7 +114,8 @@ func (c Configurator) RecreateIDPForDex(ctx context.Context, dexNamespace, dexSv
 		},
 	)
 	if err != nil {
-		zap.S().Errorf("unable to get the OIDCProvider %s/%s. Error: %v", vars.SupervisorNamespace, vars.PinnipedOIDCProviderName, err)
+		err = fmt.Errorf("could not get oidcidentityprovider %s/%s: %w", vars.SupervisorNamespace, vars.PinnipedOIDCProviderName, err)
+		zap.S().Error(err)
 		return nil, err
 	}
 
@@ -141,7 +147,8 @@ func (c Configurator) RecreateIDPForDex(ctx context.Context, dexNamespace, dexSv
 		},
 	)
 	if err != nil {
-		zap.S().Errorf("unable to create the OIDCProvider %s/%s. Error: %v", vars.SupervisorNamespace, vars.PinnipedOIDCProviderName, err)
+		err = fmt.Errorf("could not create oidcidentityprovider %s/%s: %w", vars.SupervisorNamespace, vars.PinnipedOIDCProviderName, err)
+		zap.S().Error(err)
 		return nil, err
 	}
 
@@ -171,6 +178,7 @@ func (c Configurator) CreateOrUpdatePinnipedInfo(ctx context.Context, pinnipedIn
 		if errors.IsNotFound(err) {
 			// create if does not exist
 			if _, err = c.K8SClientset.CoreV1().ConfigMaps(constants.KubePublicNamespace).Create(ctx, pinnipedConfigMap, metav1.CreateOptions{}); err != nil {
+				err = fmt.Errorf("could not create pinniped-info configmap: %w", err)
 				zap.S().Error(err)
 				return err
 			}
@@ -179,6 +187,7 @@ func (c Configurator) CreateOrUpdatePinnipedInfo(ctx context.Context, pinnipedIn
 			return nil
 		}
 		// return err if could not get the configmap due to other errors
+		err = fmt.Errorf("could not get pinniped-info configmap: %w", err)
 		zap.S().Error(err)
 		return err
 	}
@@ -195,6 +204,7 @@ func (c Configurator) CreateOrUpdatePinnipedInfo(ctx context.Context, pinnipedIn
 		return e
 	})
 	if err != nil {
+		err = fmt.Errorf("could not update pinniped-info configmap: %w", err)
 		zap.S().Error(err)
 		return err
 	}
