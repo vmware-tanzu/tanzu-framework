@@ -7,8 +7,8 @@
 #@ akoRepo = get_default_tkr_bom_data().components["load-balancer-and-ingress-service"][0]
 #@ rbacRepo = get_default_tkg_bom_data().components["kube_rbac_proxy"][0]
 
-#@ def ako_image():
-#@  return "{}/{}".format(tkg_image_repo(), akoRepo.images.loadBalancerAndIngressServiceImage.imagePath)
+#@ def ako_image_with_tag():
+#@  return "{}/{}:{}".format(tkg_image_repo(), akoRepo.images.loadBalancerAndIngressServiceImage.imagePath, akoRepo.images.loadBalancerAndIngressServiceImage.tag)
 #@ end
 
 #@ def tkg_system_namespace():
@@ -29,13 +29,13 @@
 
 #! input cidr example 10.0.0.0/24
 #! output "10.0.0.0" and "24"
-#@ def ip_and_prefix():
+#@ def network_cidr():
 #@  if data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME and data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR:
 #@    cidr = data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR
 #@  else:
 #@    cidr = data.values.AVI_DATA_NETWORK_CIDR
 #@  end
-#@  return cidr.split("/")
+#@  return cidr
 #@ end
 
 #@ def network_name():
@@ -48,7 +48,7 @@
 #@ end
 
 #@ def vip_network():
-#@  return json.encode([{ "networkName": network_name() }])
+#@  return json.encode([{ "networkName": network_name(), "cidr": network_cidr() }])
 #@ end
 
 #@ def ako_namespace():
@@ -63,7 +63,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: ako-sa
-  namespace: #@ avi_system_namespace()
+  namespace: tkg-system
 #@ end
 
 #@ def ako_configmap():
@@ -71,23 +71,39 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: avi-k8s-config
-  namespace: #@ avi_system_namespace()
+  namespace: tkg-system
 data:
   controllerIP: #@ data.values.AVI_CONTROLLER
-  serviceEngineGroupName: #@ data.values.AVI_SERVICE_ENGINE_GROUP
+  controllerVersion: "18.2.10"
+  cniPlugin: ""
+  shardVSSize: #@ data.values.AVI_INGRESS_SHARD_VS_SIZE
+  passthroughShardSize: "SMALL"
+  fullSyncFrequency: "1800"
   cloudName: #@ data.values.AVI_CLOUD_NAME
   clusterName: #@ cluster_namespaced_name()
-  apiServerPort: 8080
-  subnetIP: #@ ip_and_prefix()[0]
-  subnetPrefix: #@ ip_and_prefix()[1]
-  networkName: #@ network_name()
-  disableStaticRouteSync: #@ data.values.AVI_DISABLE_STATIC_ROUTE_SYNC
-  fullSyncFrequency: 1800
+  servicesAPI: "false"
+  enableEVH: "false"
+  layer7Only: "false"
+  tenantsPerCluster: "false"
+  tenantName: "admin"
+  defaultDomain: ""
+  disableStaticRouteSync: #@ "{}".format(data.values.AVI_DISABLE_STATIC_ROUTE_SYNC).lower()
+  defaultIngController: #@ "{}".format(data.values.AVI_INGRESS_DEFAULT_INGRESS_CONTROLLER).lower()
+  noPGForSNI: "false"
+  enableRHI: "false"
+  nsxtT1LR: ""
+  logLevel: "WARN"
+  deleteConfig: "false"
+  advancedL4: "false"
+  autoFQDN: "default"
+  nsSyncLabelKey: ""
+  nsSyncLabelValue: ""
   serviceType:  NodePort
-  defaultIngController: #@ data.values.AVI_INGRESS_DEFAULT_INGRESS_CONTROLLER
-  shardVSSize: #@ data.values.AVI_INGRESS_SHARD_VS_SIZE
-  deleteConfig: false
+  serviceEngineGroupName: #@ data.values.AVI_SERVICE_ENGINE_GROUP
+  bgpPeerLabels: "[]"
+  nodeNetworkList: "[]"
   vipNetworkList: #@ vip_network()
+  apiServerPort: "8080"
 #@ end
 
 #@ def ako_clusterrole():
@@ -98,7 +114,7 @@ metadata:
 rules:
   - apiGroups: [""]
     resources: ["*"]
-    verbs: ['get', 'watch', 'list', 'patch']
+    verbs: ['get', 'watch', 'list']
   - apiGroups: ["apps"]
     resources: ["statefulsets"]
     verbs: ["get","watch","list"]
@@ -109,8 +125,11 @@ rules:
     resources: ["ingresses", "ingresses/status"]
     verbs: ["get","watch","list","patch", "update"]
   - apiGroups: [""]
-    resources: ["services/status"]
+    resources: ["services", "services/status", "secrets"]
     verbs: ["get","watch","list","patch", "update"]
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["get", "watch", "list", "patch"]
   - apiGroups: ["crd.projectcalico.org"]
     resources: ["blockaffinities"]
     verbs: ["get", "watch", "list"]
@@ -121,7 +140,7 @@ rules:
     resources: ["routes", "routes/status"]
     verbs: ["get", "watch", "list", "patch", "update"]
   - apiGroups: ["ako.vmware.com"]
-    resources: ["aviinfrasettings", "aviinfrasettings/status", "hostrules", "hostrules/status", "httprules", "httprules/status"]
+    resources: ["hostrules", "hostrules/status", "httprules", "httprules/status", "aviinfrasettings", "aviinfrasettings/status"]
     verbs: ["get","watch","list","patch", "update"]
   - apiGroups: ["networking.x-k8s.io"]
     resources: ["gateways", "gateways/status", "gatewayclasses", "gatewayclasses/status"]
@@ -140,7 +159,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: ako-sa
-    namespace: #@ avi_system_namespace()
+    namespace: tkg-system
 #@ end
 
 
@@ -149,7 +168,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: ako
-  namespace: #@ avi_system_namespace()
+  namespace: tkg-system
   labels:
     app.kubernetes.io/name: #@ ako_name()
     app.kubernetes.io/version: #@ akoRepo.images.loadBalancerAndIngressServiceImage.tag
@@ -169,79 +188,139 @@ spec:
       containers:
         - name: #@ ako_name()
           securityContext: null
-          image: #@ ako_image()
+          image: #@ ako_image_with_tag()
           imagePullPolicy: #@ data.values.AVI_AKO_IMAGE_PULL_POLICY
           env:
-            - name: CTRL_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: avi-secret
-                  key: username
-            - name: CTRL_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: avi-secret
-                  key: password
-            - name: FULL_SYNC_INTERVAL
-              valueFrom:
-                configMapKeyRef:
-                  name: avi-k8s-config
-                  key: fullSyncFrequency
             - name: CTRL_IPADDRESS
               valueFrom:
                 configMapKeyRef:
                   name: avi-k8s-config
                   key: controllerIP
+            - name: CTRL_VERSION
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: controllerVersion
+            - name: CNI_PLUGIN
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: cniPlugin
+            - name: SHARD_VS_SIZE
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: shardVSSize
+            - name: PASSTHROUGH_SHARD_SIZE
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: passthroughShardSize
+            - name: FULL_SYNC_INTERVAL
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: fullSyncFrequency
             - name: CLOUD_NAME
               valueFrom:
                 configMapKeyRef:
                   name: avi-k8s-config
                   key: cloudName
+            - name: TENANT_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: tenantName
+            - name: TENANTS_PER_CLUSTER
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: tenantsPerCluster
             - name: CLUSTER_NAME
               valueFrom:
                 configMapKeyRef:
                   name: avi-k8s-config
                   key: clusterName
+            - name: ENABLE_RHI
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: enableRHI
+            - name: ENABLE_EVH
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: enableEVH
+            - name: SERVICES_API
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: servicesAPI
+            - name: DEFAULT_DOMAIN
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: defaultDomain
             - name: DISABLE_STATIC_ROUTE_SYNC
               valueFrom:
                 configMapKeyRef:
                   name: avi-k8s-config
                   key: disableStaticRouteSync
-            - name: SUBNET_IP
+            - name: NAMESPACE_SYNC_LABEL_KEY
               valueFrom:
                 configMapKeyRef:
                   name: avi-k8s-config
-                  key: subnetIP
-            - name: SUBNET_PREFIX
+                  key: nsSyncLabelKey
+            - name: NAMESPACE_SYNC_LABEL_VALUE
               valueFrom:
                 configMapKeyRef:
                   name: avi-k8s-config
-                  key: subnetPrefix
-            - name: VIP_NETWORK_LIST
-              valueFrom:
-                configMapKeyRef:
-                  name: avi-k8s-config
-                  key: vipNetworkList
+                  key: nsSyncLabelValue
             - name: DEFAULT_ING_CONTROLLER
               valueFrom:
                 configMapKeyRef:
                   name: avi-k8s-config
                   key: defaultIngController
-            - name: NETWORK_NAME
-              valueFrom:
-                configMapKeyRef:
-                  name: avi-k8s-config
-                  key: networkName
             - name: SEG_NAME
               valueFrom:
                 configMapKeyRef:
                   name: avi-k8s-config
                   key: serviceEngineGroupName
+            - name: BGP_PEER_LABELS
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: bgpPeerLabels
+            - name: NODE_NETWORK_LIST
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: nodeNetworkList
+            - name: VIP_NETWORK_LIST
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: vipNetworkList
+            - name: AKO_API_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: apiServerPort
             - name: SERVICE_TYPE
               valueFrom:
                 configMapKeyRef:
                   name: avi-k8s-config
                   key: serviceType
+            - name: ADVANCED_L4
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: advancedL4
+            - name: AUTO_L4_FQDN
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: autoFQDN
             - name: LOG_FILE_PATH
               value: ""
             - name: LOG_FILE_NAME
