@@ -9,7 +9,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
-	"sigs.k8s.io/cluster-api/api/v1alpha3"
+	"sigs.k8s.io/cluster-api/api/v1alpha4"
 
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
@@ -133,16 +133,16 @@ var _ = Describe("Scale API", func() {
 				It("should update mds with the correct number of workers", func() {
 					regionalClusterClient.IsPacificRegionalClusterReturns(false, nil)
 					regionalClusterClient.GetKCPObjectForClusterReturns(nil, nil)
-					md1 := v1alpha3.MachineDeployment{}
+					md1 := v1alpha4.MachineDeployment{}
 					md1.Name = md1Name
 					md1.Namespace = defaultNamespaceName
-					md2 := v1alpha3.MachineDeployment{}
+					md2 := v1alpha4.MachineDeployment{}
 					md2.Name = md2Name
 					md2.Namespace = defaultNamespaceName
-					md3 := v1alpha3.MachineDeployment{}
+					md3 := v1alpha4.MachineDeployment{}
 					md3.Name = md3Name
 					md3.Namespace = defaultNamespaceName
-					regionalClusterClient.GetMDObjectForClusterReturns([]v1alpha3.MachineDeployment{md1, md2, md3}, nil)
+					regionalClusterClient.GetMDObjectForClusterReturns([]v1alpha4.MachineDeployment{md1, md2, md3}, nil)
 
 					scaleClusterOptions.ControlPlaneCount = 0
 					scaleClusterOptions.WorkerCount = 4
@@ -171,16 +171,16 @@ var _ = Describe("Scale API", func() {
 				It("should return an error", func() {
 					regionalClusterClient.IsPacificRegionalClusterReturns(false, nil)
 					regionalClusterClient.GetKCPObjectForClusterReturns(nil, nil)
-					md1 := v1alpha3.MachineDeployment{}
+					md1 := v1alpha4.MachineDeployment{}
 					md1.Name = md1Name
 					md1.Namespace = defaultNamespaceName
-					md2 := v1alpha3.MachineDeployment{}
+					md2 := v1alpha4.MachineDeployment{}
 					md2.Name = md2Name
 					md2.Namespace = defaultNamespaceName
-					md3 := v1alpha3.MachineDeployment{}
+					md3 := v1alpha4.MachineDeployment{}
 					md3.Name = md3Name
 					md3.Namespace = defaultNamespaceName
-					regionalClusterClient.GetMDObjectForClusterReturns([]v1alpha3.MachineDeployment{md1, md2, md3}, nil)
+					regionalClusterClient.GetMDObjectForClusterReturns([]v1alpha4.MachineDeployment{md1, md2, md3}, nil)
 
 					scaleClusterOptions.ControlPlaneCount = 0
 					scaleClusterOptions.WorkerCount = 2

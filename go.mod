@@ -3,7 +3,7 @@ module github.com/vmware-tanzu/tanzu-framework
 go 1.16
 
 replace (
-	github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.3.1 // indirect
+	github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.5.5 // indirect
 	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v0.4.2
 	sigs.k8s.io/kind => sigs.k8s.io/kind v0.11.1
 )

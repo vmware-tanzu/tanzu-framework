@@ -35,7 +35,7 @@ type FeatureGateReconciler struct {
 
 // Reconcile reconciles the FeatureGate spec by computing activated, deactivated and unavailable features.
 func (r *FeatureGateReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	ctx, cancel := context.WithTimeout(ctx, contextTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
 	defer cancel()
 
 	log := r.Log.WithValues("featuregate", req.NamespacedName)
