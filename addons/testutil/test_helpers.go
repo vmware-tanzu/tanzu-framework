@@ -26,7 +26,7 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
-	clusterapiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/cluster-api/util/secret"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
@@ -179,13 +179,13 @@ func CreateKubeconfigSecret(cfg *rest.Config, clusterName, namespace string, crC
 			Name:      secret.Name(clusterName, secret.Kubeconfig),
 			Namespace: namespace,
 			Labels: map[string]string{
-				clusterapiv1alpha3.ClusterLabelName: clusterName,
+				clusterapiv1beta1.ClusterLabelName: clusterName,
 			},
 		},
 		Data: map[string][]byte{
 			secret.KubeconfigDataName: kubeconfig,
 		},
-		Type: clusterapiv1alpha3.ClusterSecretType,
+		Type: clusterapiv1beta1.ClusterSecretType,
 	}
 
 	return crClient.Create(context.Background(), kc)
