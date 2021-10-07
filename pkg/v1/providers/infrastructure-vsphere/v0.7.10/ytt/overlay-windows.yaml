@@ -149,14 +149,6 @@ spec:
       resourcePool: #@ data.values.VSPHERE_RESOURCE_POOL
       server: #@ data.values.VSPHERE_SERVER
       template: #@ data.values.VSPHERE_TEMPLATE
-
-<<<<<<< HEAD
-=======
-
-
-
-
->>>>>>> bd058604 (Integrate windows dev plans into the VsphereCluster as a standard workload option)
 #@overlay/match by=overlay.subset({"kind": "VSphereMachineTemplate", "metadata":{"name": "${ CLUSTER_NAME }-worker"}})
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
@@ -403,10 +395,6 @@ metadata:
 stringData:
   username: #@ data.values.VSPHERE_USERNAME
   password: #@ data.values.VSPHERE_PASSWORD
-<<<<<<< HEAD
-=======
-#@ end
->>>>>>> bd058604 (Integrate windows dev plans into the VsphereCluster as a standard workload option)
 ---
 apiVersion: addons.cluster.x-k8s.io/v1alpha3
 kind: ClusterResourceSet
@@ -518,9 +506,5 @@ data:
         app: kube-proxy
       name: kube-proxy-windows
       namespace: kube-system
-<<<<<<< HEAD
     ---
 #@ end
-=======
-    ---
->>>>>>> bd058604 (Integrate windows dev plans into the VsphereCluster as a standard workload option)
