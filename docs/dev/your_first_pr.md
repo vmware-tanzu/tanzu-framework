@@ -1,9 +1,9 @@
-# Your First PR!
+# Your First PR
 
 Thanks for choosing to help improve the Tanzu Framework! This guide will
 help you build your first successful pull request.
 
-# Opening an Issue
+## Opening an Issue
 
 Your new idea starts with a new GitHub issue. You'll link your pull request to
 your issue once you're ready to submit it. This will help us appropriately
@@ -12,7 +12,7 @@ prioritize the release into which your PR should get merged into.
 [Click here](https://github.com/vmware-tanzu/tanzu-framework/issues/new) to
 open your first issue.
 
-# Getting the Code
+## Getting the Code
 
 Now that you've created your issue, your next step is to fork the repo.
 
@@ -23,13 +23,13 @@ Tanzu Framework into your Github account.
 
 ✅ **NOTE**: You'll need your terminal for the steps below.
 
-# Preparing Your Development Environment
+## Preparing Your Development Environment
 
 Next, we'll need to prepare your development environment.
 
 Before doing anything, go ahead and clone your fork with `git clone`.
 
-## Download and install Golang and GVM
+### Download and install Golang and GVM
 
 Tanzu Kubernetes Grid is written in [Golang](https://golang.org), or Go
 for short. While it is currently built against Go v1.1.7, this might change
@@ -66,7 +66,7 @@ source ~/.gvm/scripts/gvm
 gvm install "go$GOLANG_VERSION" && gvm use "go$GOLANG_VERSION"
 ```
 
-## Install dependencies
+### Install dependencies
 
 ```sh
 cd tanzu-framework
@@ -75,7 +75,7 @@ go get -v -t -d ./...
 
 Next, `cd` into `tanzu-framework` and download `tanzu-framework` dependencies:
 
-## Configure the Bill of Materials
+### Configure the Bill of Materials
 
 `make configure-bom`
 
@@ -83,7 +83,7 @@ The Bill-of-Materials, or the BoM, outlines the components required to download 
 as Docker images and ClusterAPI providers. We will need to generate this file so that
 the `tanzu` client can initialize itself. Dummy values will be used during testing.
 
-## Compile CLI components
+### Compile CLI components
 
 ```sh
 make manager build-cli
@@ -92,9 +92,9 @@ make manager build-cli
 Next, we'll build the CLI components. The `manager` binary is used as an entrypoint
 for various TKG components.
 
-# Create a test!
+## Create a test
 
-## Ginkgo and Gomega
+### Ginkgo and Gomega
 
 TKG uses [Ginkgo](https://onsi.github.io/ginkgo/) to create tests in
 [Gherkin](https://cucumber.io/docs/gherkin/) syntax. Gherkin is a syntax
@@ -106,7 +106,7 @@ version of the file from which it originated. For instance, if I wanted to
 modify `CreateCluster` inside of `pkg/v1/tkg/tkgctl/create_cluster.go`,
 I would look for its test in `pkg/v1/tkg/tkgctl/create_cluster_test.go`.
 
-## New `interface{}`s and fakes
+### New `interface{}`s and fakes
 
 Most `interface{}`s have a corresponding test double. Test doubles are generated
 automatically by [Counterfeiter](https://github.com/maxbrunsfeld/counterfeiter/).
@@ -127,7 +127,7 @@ This will create a double for `YourInterface` inside of `pkg/v1/fakes/cool_thing
 
 ❌ **WARNING**: **Do not edit the test double yourself!** ❌
 
-# Get your test passing!
+## Get your test passing
 
 ```sh
 go test ./...
@@ -137,7 +137,7 @@ As you develop the code for your new feature or fix, you should `go test`
 from time to time. Tests take about 15 seconds to complete on an
 2020 MacBook Pro with an Intel i7 CPU and 32GB RAM.
 
-# Run an end-to-end test locally!
+### Run an end-to-end test locally
 
 Once you're done implementing your feature, we encourage you to test it out
 with a real Tanzu Kubernetes Grid cluster. Fortunately, this can be done entirely
@@ -146,7 +146,7 @@ locally!
 ✅ **NOTE**: If you are using Docker for Mac or Docker for Windows, ensure
 that it is configured to use at least 100GB of disk space. ✅
 
-## Rebuild the CLI components
+### Rebuild the CLI components
 
 ```sh
 make build-cli
@@ -243,9 +243,37 @@ kind get clusters | xargs -I {} kind delete cluster --name {}
 ❌ **WARNING**: This command will delete _all_ Kind clusters on your machine!
 Use `grep -Ev` to prevent this.
 
-# Submit your PR
+## Submit your PR
 
 You're now ready to submit your PR! 🚀
 
 [Click here](https://github.com/vmware-tanzu/tanzu-framework/pulls/new) to do so.
 Remember to merge the branch in your fork against `main` on ours.
+
+## Add some documentation
+
+If your change requires documentation, consider adding it in the `docs/` directory.
+
+Before doing so, download `markdownlint` from Homebrew, Chocolatey, or `npm` and ensure that it is
+passing!
+
+```sh
+# ❌ incorrect
+$: markdownlint docs/dev/your_first_pr.md
+docs/dev/your_first_pr.md:6 MD025/single-title/single-h1 Multiple top-level headings in the same document [Context: "# Opening an Issue"]
+docs/dev/your_first_pr.md:15 MD025/single-title/single-h1 Multiple top-level headings in the same document [Context: "# Getting the Code"]
+docs/dev/your_first_pr.md:26 MD025/single-title/single-h1 Multiple top-level headings in the same document [Context: "# Preparing Your Development E..."]
+docs/dev/your_first_pr.md:95 MD025/single-title/single-h1 Multiple top-level headings in the same document [Context: "# Create a test!"]
+docs/dev/your_first_pr.md:95:16 MD026/no-trailing-punctuation Trailing punctuation in heading [Punctuation: '!']
+docs/dev/your_first_pr.md:130 MD025/single-title/single-h1 Multiple top-level headings in the same document [Context: "# Get your test passing!"]
+docs/dev/your_first_pr.md:130:24 MD026/no-trailing-punctuation Trailing punctuation in heading [Punctuation: '!']
+docs/dev/your_first_pr.md:140 MD025/single-title/single-h1 Multiple top-level headings in the same document [Context: "# Run an end-to-end test local..."]
+docs/dev/your_first_pr.md:140:33 MD026/no-trailing-punctuation Trailing punctuation in heading [Punctuation: '!']
+docs/dev/your_first_pr.md:246 MD025/single-title/single-h1 Multiple top-level headings in the same document [Context: "# Submit your PR"]
+```
+
+```sh
+# ✅ Correct
+$: markdownlint docs/dev/your_first_pr.md
+$: # all clear!
+```
