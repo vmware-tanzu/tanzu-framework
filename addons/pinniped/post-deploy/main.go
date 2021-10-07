@@ -5,6 +5,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"os"
 
 	certmanagerclientset "github.com/jetstack/cert-manager/pkg/client/clientset/versioned"
@@ -18,24 +19,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/configure"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/vars"
 )
-
-var (
-	k8sClientset         kubernetes.Interface
-	supervisorClientset  supervisorclientset.Interface
-	conciergeClientset   conciergeclientset.Interface
-	certmanagerClientset certmanagerclientset.Interface
-)
-
-func init() {
-	cfg, err := k8sconfig.GetConfig()
-	if err != nil {
-		panic(err)
-	}
-	k8sClientset = kubernetes.NewForConfigOrDie(cfg)
-	supervisorClientset = supervisorclientset.NewForConfigOrDie(cfg)
-	conciergeClientset = conciergeclientset.NewForConfigOrDie(cfg)
-	certmanagerClientset = certmanagerclientset.NewForConfigOrDie(cfg)
-}
 
 func main() {
 	// optional
@@ -99,16 +82,15 @@ func main() {
 	defer loggerMgr.Sync() //nolint:errcheck
 	logger := loggerMgr.Sugar()
 
-	err := configure.TKGAuthentication(
-		configure.Clients{
-			K8SClientset:         k8sClientset,
-			SupervisorClientset:  supervisorClientset,
-			ConciergeClientset:   conciergeClientset,
-			CertmanagerClientset: certmanagerClientset},
-	)
+	clients, err := initClients()
 	if err != nil {
 		logger.Error(err)
 		os.Exit(1) // nolint:gocritic
+	}
+
+	if err := configure.TKGAuthentication(clients); err != nil {
+		logger.Error(err)
+		os.Exit(1)
 	}
 }
 
@@ -120,4 +102,18 @@ func initZapLog() *zap.Logger {
 	config.EncoderConfig.CallerKey = "caller"
 	logger, _ := config.Build()
 	return logger
+}
+
+func initClients() (configure.Clients, error) {
+	cfg, err := k8sconfig.GetConfig()
+	if err != nil {
+		return configure.Clients{}, fmt.Errorf("could not get k8s config: %w", err)
+	}
+
+	return configure.Clients{
+		K8SClientset:         kubernetes.NewForConfigOrDie(cfg),
+		SupervisorClientset:  supervisorclientset.NewForConfigOrDie(cfg),
+		ConciergeClientset:   conciergeclientset.NewForConfigOrDie(cfg),
+		CertmanagerClientset: certmanagerclientset.NewForConfigOrDie(cfg),
+	}, nil
 }
