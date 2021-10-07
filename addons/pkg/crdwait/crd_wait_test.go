@@ -20,8 +20,8 @@ import (
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/testing"
 	"k8s.io/client-go/tools/record"
-	clusterapiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
-	controlplanev1alpha3 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
+	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	controlplanev1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	kapppkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
@@ -61,7 +61,7 @@ var _ = Describe("WaitForCRDs", func() {
 			var crds = map[schema.GroupVersion]*sets.String{}
 			// cluster-api
 			clusterapiv1alpha3Resources := sets.NewString("clusters")
-			crds[clusterapiv1alpha3.GroupVersion] = &clusterapiv1alpha3Resources
+			crds[clusterapiv1beta1.GroupVersion] = &clusterapiv1alpha3Resources
 
 			// tkr
 			runtanzuv1alpha1Resources := sets.NewString("tanzukubernetesreleases")
@@ -80,14 +80,14 @@ var _ = Describe("WaitForCRDs", func() {
 			var crds = map[schema.GroupVersion]*sets.String{}
 			// cluster-api
 			clusterapiv1alpha3Resources := sets.NewString("clusters")
-			crds[clusterapiv1alpha3.GroupVersion] = &clusterapiv1alpha3Resources
+			crds[clusterapiv1beta1.GroupVersion] = &clusterapiv1alpha3Resources
 
 			fakeClientSet.AddReactor("get", "resource", func(action testing.Action) (handled bool, ret runtime.Object, err error) {
 				return true, nil, nil
 			})
 
 			fakeClientSet.Resources = append(fakeClientSet.Resources,
-				&metav1.APIResourceList{GroupVersion: clusterapiv1alpha3.GroupVersion.String(),
+				&metav1.APIResourceList{GroupVersion: clusterapiv1beta1.GroupVersion.String(),
 					APIResources: []metav1.APIResource{
 						{Name: "clusters", Namespaced: true, Kind: "Cluster"},
 					},
@@ -107,12 +107,12 @@ var _ = Describe("WaitForCRDs", func() {
 			})
 
 			fakeClientSet.Resources = append(fakeClientSet.Resources,
-				&metav1.APIResourceList{GroupVersion: clusterapiv1alpha3.GroupVersion.String(),
+				&metav1.APIResourceList{GroupVersion: clusterapiv1beta1.GroupVersion.String(),
 					APIResources: []metav1.APIResource{
 						{Name: "clusters", Namespaced: true, Kind: "Cluster"},
 					},
 				},
-				&metav1.APIResourceList{GroupVersion: controlplanev1alpha3.GroupVersion.String(),
+				&metav1.APIResourceList{GroupVersion: controlplanev1beta1.GroupVersion.String(),
 					APIResources: []metav1.APIResource{
 						{Name: "kubeadmcontrolplanes", Namespaced: true, Kind: "KubeadmControlPlane"},
 					},
@@ -147,7 +147,7 @@ var _ = Describe("WaitForCRDs", func() {
 			var crds = map[schema.GroupVersion]*sets.String{}
 			// cluster-api
 			clusterapiv1alpha3Resources := sets.NewString("clusters")
-			crds[clusterapiv1alpha3.GroupVersion] = &clusterapiv1alpha3Resources
+			crds[clusterapiv1beta1.GroupVersion] = &clusterapiv1alpha3Resources
 
 			fakeClientSet.AddReactor("get", "resource", func(action testing.Action) (handled bool, ret runtime.Object, err error) {
 				return true, nil, nil
@@ -156,7 +156,7 @@ var _ = Describe("WaitForCRDs", func() {
 			go func() {
 				time.Sleep(time.Second * 3)
 				fakeClientSet.Resources = append(fakeClientSet.Resources,
-					&metav1.APIResourceList{GroupVersion: clusterapiv1alpha3.GroupVersion.String(),
+					&metav1.APIResourceList{GroupVersion: clusterapiv1beta1.GroupVersion.String(),
 						APIResources: []metav1.APIResource{
 							{Name: "clusters", Namespaced: true, Kind: "Cluster"},
 						},
@@ -176,13 +176,13 @@ var _ = Describe("WaitForCRDs", func() {
 			var crds = map[schema.GroupVersion]*sets.String{}
 			// cluster-api
 			clusterapiv1alpha3Resources := sets.NewString("clusters")
-			crds[clusterapiv1alpha3.GroupVersion] = &clusterapiv1alpha3Resources
+			crds[clusterapiv1beta1.GroupVersion] = &clusterapiv1alpha3Resources
 
 			crdWaiter.PollInterval = time.Second
 			crdWaiter.PollTimeout = time.Second * 2
 
 			Expect(crdWaiter.WaitForCRDs(crds, pod, "foo")).To(HaveOccurred())
-			Expect(<-fakeRecorder.Events).To(ContainSubstring(fmt.Sprintf("The GroupVersion '%s' is not available yet", clusterapiv1alpha3.GroupVersion.String())))
+			Expect(<-fakeRecorder.Events).To(ContainSubstring(fmt.Sprintf("The GroupVersion '%s' is not available yet", clusterapiv1beta1.GroupVersion.String())))
 
 		})
 	})
@@ -192,10 +192,10 @@ var _ = Describe("WaitForCRDs", func() {
 			var crds = map[schema.GroupVersion]*sets.String{}
 			// cluster-api
 			clusterapiv1alpha3Resources := sets.NewString("clusters")
-			crds[clusterapiv1alpha3.GroupVersion] = &clusterapiv1alpha3Resources
+			crds[clusterapiv1beta1.GroupVersion] = &clusterapiv1alpha3Resources
 
 			fakeClientSet.Resources = append(fakeClientSet.Resources,
-				&metav1.APIResourceList{GroupVersion: clusterapiv1alpha3.GroupVersion.String(),
+				&metav1.APIResourceList{GroupVersion: clusterapiv1beta1.GroupVersion.String(),
 					APIResources: []metav1.APIResource{
 						{Name: "foo", Namespaced: true, Kind: "Cluster"},
 					},
@@ -204,7 +204,7 @@ var _ = Describe("WaitForCRDs", func() {
 			crdWaiter.PollTimeout = time.Second * 2
 
 			Expect(crdWaiter.WaitForCRDs(crds, pod, "foo")).To(HaveOccurred())
-			Expect(<-fakeRecorder.Events).To(ContainSubstring(fmt.Sprintf("The api-resources '[clusters]' in GroupVersion '%s' are not available yet", clusterapiv1alpha3.GroupVersion.String())))
+			Expect(<-fakeRecorder.Events).To(ContainSubstring(fmt.Sprintf("The api-resources '[clusters]' in GroupVersion '%s' are not available yet", clusterapiv1beta1.GroupVersion.String())))
 
 		})
 	})
@@ -218,10 +218,10 @@ func getCRDs() map[schema.GroupVersion]*sets.String {
 	var crds = map[schema.GroupVersion]*sets.String{}
 	// cluster-api
 	clusterapiv1alpha3Resources := sets.NewString("clusters")
-	crds[clusterapiv1alpha3.GroupVersion] = &clusterapiv1alpha3Resources
+	crds[clusterapiv1beta1.GroupVersion] = &clusterapiv1alpha3Resources
 
 	controlplanev1alpha3Resources := sets.NewString("kubeadmcontrolplanes")
-	crds[controlplanev1alpha3.GroupVersion] = &controlplanev1alpha3Resources
+	crds[controlplanev1beta1.GroupVersion] = &controlplanev1alpha3Resources
 
 	// tkr
 	runtanzuv1alpha1Resources := sets.NewString("tanzukubernetesreleases")

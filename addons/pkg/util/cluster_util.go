@@ -14,7 +14,7 @@ import (
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	clusterv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	clusterv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterapisecretutil "sigs.k8s.io/cluster-api/util/secret"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -28,7 +28,7 @@ const (
 )
 
 // GetOwnerCluster returns the Cluster object owning the current resource.
-func GetOwnerCluster(ctx context.Context, c client.Client, obj *metav1.ObjectMeta) (*clusterv1alpha3.Cluster, error) {
+func GetOwnerCluster(ctx context.Context, c client.Client, obj *metav1.ObjectMeta) (*clusterv1beta1.Cluster, error) {
 	for _, ref := range obj.OwnerReferences {
 		if ref.Kind != "Cluster" {
 			continue
@@ -37,7 +37,7 @@ func GetOwnerCluster(ctx context.Context, c client.Client, obj *metav1.ObjectMet
 		if err != nil {
 			return nil, errors.WithStack(err)
 		}
-		if gv.Group == clusterv1alpha3.GroupVersion.Group {
+		if gv.Group == clusterv1beta1.GroupVersion.Group {
 			return GetClusterByName(ctx, c, obj.Namespace, ref.Name)
 		}
 	}
@@ -45,8 +45,8 @@ func GetOwnerCluster(ctx context.Context, c client.Client, obj *metav1.ObjectMet
 }
 
 // GetClusterByName finds and return a Cluster object using the specified params.
-func GetClusterByName(ctx context.Context, c client.Client, namespace, name string) (*clusterv1alpha3.Cluster, error) {
-	cluster := &clusterv1alpha3.Cluster{}
+func GetClusterByName(ctx context.Context, c client.Client, namespace, name string) (*clusterv1beta1.Cluster, error) {
+	cluster := &clusterv1beta1.Cluster{}
 	key := client.ObjectKey{
 		Namespace: namespace,
 		Name:      name,
@@ -60,14 +60,14 @@ func GetClusterByName(ctx context.Context, c client.Client, namespace, name stri
 }
 
 // GetClustersByTKR gets the clusters using this TKR
-func GetClustersByTKR(ctx context.Context, c client.Client, tkr *runtanzuv1alpha1.TanzuKubernetesRelease) ([]*clusterv1alpha3.Cluster, error) {
-	var clusters []*clusterv1alpha3.Cluster
+func GetClustersByTKR(ctx context.Context, c client.Client, tkr *runtanzuv1alpha1.TanzuKubernetesRelease) ([]*clusterv1beta1.Cluster, error) {
+	var clusters []*clusterv1beta1.Cluster
 
 	if c == nil || tkr == nil {
 		return nil, nil
 	}
 
-	clustersList := &clusterv1alpha3.ClusterList{}
+	clustersList := &clusterv1beta1.ClusterList{}
 
 	if err := c.List(ctx, clustersList, client.MatchingLabels{constants.TKRLabel: tkr.Name}); err != nil {
 		return nil, err
@@ -82,7 +82,7 @@ func GetClustersByTKR(ctx context.Context, c client.Client, tkr *runtanzuv1alpha
 
 // GetClusterClient gets cluster's client
 func GetClusterClient(ctx context.Context, currentClusterClient client.Client, scheme *runtime.Scheme, cluster client.ObjectKey) (client.Client, error) {
-	config, err := capiremote.RESTConfig(ctx, currentClusterClient, cluster)
+	config, err := capiremote.RESTConfig(ctx, constants.AddonControllerName, currentClusterClient, cluster)
 	if err != nil {
 		return nil, errors.Wrapf(err, "error fetching REST client config for remote cluster %q", cluster.String())
 	}
@@ -104,7 +104,7 @@ func GetClusterClient(ctx context.Context, currentClusterClient client.Client, s
 }
 
 // GetTKRForCluster gets the TKR for cluster
-func GetTKRForCluster(ctx context.Context, c client.Client, cluster *clusterv1alpha3.Cluster) (*runtanzuv1alpha1.TanzuKubernetesRelease, error) {
+func GetTKRForCluster(ctx context.Context, c client.Client, cluster *clusterv1beta1.Cluster) (*runtanzuv1alpha1.TanzuKubernetesRelease, error) {
 	if c == nil || cluster == nil {
 		return nil, nil
 	}
@@ -123,7 +123,7 @@ func GetTKRForCluster(ctx context.Context, c client.Client, cluster *clusterv1al
 }
 
 // GetTKRNameForCluster get the TKR name for the cluster
-func GetTKRNameForCluster(ctx context.Context, c client.Client, cluster *clusterv1alpha3.Cluster) string {
+func GetTKRNameForCluster(ctx context.Context, c client.Client, cluster *clusterv1beta1.Cluster) string {
 	if c == nil || cluster == nil {
 		return ""
 	}
@@ -132,7 +132,7 @@ func GetTKRNameForCluster(ctx context.Context, c client.Client, cluster *cluster
 }
 
 // GetBOMForCluster gets the bom associated with the cluster
-func GetBOMForCluster(ctx context.Context, c client.Client, cluster *clusterv1alpha3.Cluster) (*bomtypes.Bom, error) {
+func GetBOMForCluster(ctx context.Context, c client.Client, cluster *clusterv1beta1.Cluster) (*bomtypes.Bom, error) {
 	tkrName := GetTKRNameForCluster(ctx, c, cluster)
 	if tkrName == "" {
 		return nil, nil
@@ -154,7 +154,7 @@ type ClusterKubeconfigSecretDetails struct {
 }
 
 // GetClusterKubeconfigSecretDetails returns the name, namespace and key of the cluster's kubeconfig secret
-func GetClusterKubeconfigSecretDetails(cluster *clusterv1alpha3.Cluster) *ClusterKubeconfigSecretDetails {
+func GetClusterKubeconfigSecretDetails(cluster *clusterv1beta1.Cluster) *ClusterKubeconfigSecretDetails {
 	return &ClusterKubeconfigSecretDetails{
 		Name:      clusterapisecretutil.Name(cluster.Name, clusterapisecretutil.Kubeconfig),
 		Namespace: cluster.Namespace,

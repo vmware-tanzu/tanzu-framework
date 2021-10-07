@@ -11,7 +11,7 @@ import (
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	clusterapiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
@@ -24,7 +24,7 @@ import (
 type AddonKappResourceReconciler interface {
 	ReconcileAddonKappResourceNormal(
 		remoteApp bool,
-		remoteCluster *clusterapiv1alpha3.Cluster,
+		remoteCluster *clusterapiv1beta1.Cluster,
 		addonSecret *corev1.Secret,
 		addonConfig *bomtypes.Addon,
 		imageRepository string,
@@ -271,7 +271,7 @@ func (r *AddonReconciler) reconcileAddonDelete(
 func (r *AddonReconciler) reconcileAddonNormal(
 	ctx context.Context,
 	log logr.Logger,
-	remoteCluster *clusterapiv1alpha3.Cluster,
+	remoteCluster *clusterapiv1beta1.Cluster,
 	remoteClusterClient client.Client,
 	addonSecret *corev1.Secret,
 	addonConfig *bomtypes.Addon,

@@ -10,7 +10,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	clusterapiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
@@ -36,7 +36,7 @@ type AppReconciler struct {
 // ReconcileAddonKappResourceNormal reconciles and creates App CR
 func (r *AppReconciler) ReconcileAddonKappResourceNormal( // nolint:funlen
 	remoteApp bool,
-	remoteCluster *clusterapiv1alpha3.Cluster,
+	remoteCluster *clusterapiv1beta1.Cluster,
 	addonSecret *corev1.Secret,
 	addonConfig *bomtypes.Addon,
 	imageRepository string,

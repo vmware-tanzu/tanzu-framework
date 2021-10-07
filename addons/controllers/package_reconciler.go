@@ -8,7 +8,7 @@ import (
 	"fmt"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	clusterapiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
@@ -80,7 +80,7 @@ func (r *PackageReconciler) reconcileCorePackageRepository(
 // ReconcileAddonKappResourceNormal reconciles and creates packageinstall CR
 func (r *PackageReconciler) ReconcileAddonKappResourceNormal( // nolint:funlen
 	remoteApp bool,
-	remoteCluster *clusterapiv1alpha3.Cluster,
+	remoteCluster *clusterapiv1beta1.Cluster,
 	addonSecret *corev1.Secret,
 	addonConfig *bomtypes.Addon,
 	imageRepository string,

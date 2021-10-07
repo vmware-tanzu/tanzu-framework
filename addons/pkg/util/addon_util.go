@@ -11,7 +11,7 @@ import (
 	"gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	clusterapiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
@@ -23,7 +23,7 @@ import (
 )
 
 // GetAddonSecretsForCluster gets the addon secrets belonging to the cluster
-func GetAddonSecretsForCluster(ctx context.Context, c client.Client, cluster *clusterapiv1alpha3.Cluster) (*corev1.SecretList, error) {
+func GetAddonSecretsForCluster(ctx context.Context, c client.Client, cluster *clusterapiv1beta1.Cluster) (*corev1.SecretList, error) {
 	if cluster == nil {
 		return nil, nil
 	}
