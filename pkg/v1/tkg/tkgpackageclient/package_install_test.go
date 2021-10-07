@@ -184,7 +184,7 @@ var _ = Describe("Install Package", func() {
 		AfterEach(func() { options = opts })
 	})
 
-	Context("failure in getting installed package due to GetPackageInstall API error in waitForPackageInstallation", func() {
+	Context("failure in getting installed package due to GetPackageInstall API error in waitForResourceInstallation", func() {
 		BeforeEach(func() {
 			options.Wait = true
 			kappCtl = &fakes.KappClient{}
