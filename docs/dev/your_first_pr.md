@@ -154,9 +154,10 @@ make build-cli
 
 When you're ready to test locally, rebuild the CLI with the `make` command above.
 
-## Create the config file
+## Create the config files
 
 ```sh
+# management cluster
 cat >/tmp/config.yaml <<-CONFIG
 providers:
 - name: docker
@@ -172,9 +173,25 @@ CLUSTER_CIDR: "192.168.1.0/24"
 CNI: calico
 SIZE: 2
 CONFIG
+
+# workload cluster
+cat >/tmp/config-workload.yaml <<-CONFIG
+providers:
+- name: docker
+  url:  /Users/ncarlos/src/tanzu-framework/pkg/v1/providers/infrastructure-docker/v0.3.23/infrastructure-components.yaml
+  type: InfrastructureProvider
+CLUSTER_NAME: test-workload
+CLUSTER_PLAN: dev
+INFRASTRUCTURE_PROVIDER: docker
+SIZE: 2
+ENABLE_MHC: false
+CLUSTER_CIDR: "192.168.0.0/16"
+SERVICE_CIDR: "10.232.1.0/24"
+CNI: calico
+CONFIG
 ```
 
-First, create the config file for your management cluster so that it uses
+First, create the config files for your management and (if needed) workload cluster so that it uses
 the Docker ClusterAPI provider using a `dev` plan (or `prod`) if your change
 requires it.
 
@@ -198,8 +215,6 @@ locally. This will take about five to ten minutes to complete.
 ## Create the workload cluster (if needed)
 
 ```sh
-echo "WORKER_MACHINE_COUNT: 1" >> /tmp/config.yaml
-
 ./artifacts/$(uname)/amd64/cli/core/latest/tanzu-core-darwin_amd64 \
   cluster create [CLUSTER_NAME] -f /tmp/config.yaml
 ```
@@ -213,8 +228,6 @@ Test your feature! Remember that you can get the Kubeconfig for your
 workload cluster by running:
 
 ```sh
-echo "WORKER_MACHINE_COUNT: 1" >> /tmp/config.yaml
-
 ./artifacts/$(uname)/amd64/cli/core/latest/tanzu-core-darwin_amd64 \
   cluster kubeconfig get [CLUSTER_NAME] -f /tmp/config.yaml
 ```
