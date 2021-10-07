@@ -8,58 +8,66 @@ The Query Builder SDK can query for:
 
 - Objects
   - Annotation
-  - Labels
-  - Conditions
 - Resources
   - WithFields
 - OpenAPI Schema
 
-Once created, these prepared queries can be exported and used whenever necessary .
+Once created, these prepared queries can be exported and used whenever necessary.
 
 ## Example
 
 ```go
-// Define some standard objects, GVRs or schema
-var ns = corev1.ObjectReference{
-    Kind:      "namespace",
-    Name:      "ian",
-    Namespace: "ian",
+import (
+    "sigs.k8s.io/controller-runtime/pkg/client/config"
+    "github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/discovery"
+)
+
+cfg := config.GetConfig()
+
+clusterQueryClient, err := discovery.NewClusterQueryClientForConfig(cfg)
+if err != nil {
+    log.Error(err)
 }
 
-// Its important to our use case for this annotation to also match
+// Define objects to query.
+var pod = corev1.ObjectReference{
+    Kind:       "Pod",
+    Name:       "testpod",
+    Namespace:  "testns",
+    APIVersion: "v1",
+}
+
 var testAnnotations = map[string]string{
     "cluster.x-k8s.io/provider": "infrastructure-fake",
 }
 
-// We want to ensure this version of pipelines exists, perhaps with specific fields
-var testGVR = schema.GroupVersionResource{
-    Group:    "tekton.dev",
-    Version:  "v1beta1",
-    Resource: "pipelines",
-}
+// Define queries.
+var testObject = Object("podObj", &pod).WithAnnotations(testAnnotations)
 
-// We will now generate a partial query to match our specific namespace
-var testResource1 = Object(ns).WithAnnotations(testAnnotations).WithConditions([C])
+var testGVR = Group("podResource", testapigroup.SchemeGroupVersion.Group).
+    WithVersions("v1").
+    WithResource("pods").
+    WithFields("spec.containers", "spec.serviceAccountName") // Only works on resources with structural schema.
 
-// Our usecase requires us to match a specific GVR
-var testGVR1 = GVR(testGVR).WithFields([field])
+// Build query client.
+c := clusterQueryClient.Query(testObject, testGVR)
 
-// This partial schema is importan to be available - it doesnt matter what GVR provides it, but the schema needs to be available.
-var testSchema1 = PartialSchema(schema).NotExist()
-
-c, err := NewClusterQueryClient()
+// Execute returns combined result of all queries.
+found, err := c.Execute()
 if err != nil {
-    return err
+    log.Error(err)
 }
 
-// Build your query and use it where its necessary
-OurCoolQuery := c.Query(testResource1, testGVR1, testSchema1).Prepare()
-
-ok, err := OurCoolQuery()
-if err != nil {
-    return err
+if found {
+    log.Info("Queries successful")
 }
-if ok {
-    log.Log("W00T")
+
+// Inspect granular results of each query using the Results method (should be called after Execute).
+if result := c.Results().ForQuery("podResource"); result != nil {
+    if result.Found {
+        log.Info("Pod resource found")
+    } else {
+        log.Infof("Pod resource not found. Reason: %s", result.NotFoundReason)
+    }
 }
 ```

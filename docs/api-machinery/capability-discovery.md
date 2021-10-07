@@ -128,7 +128,7 @@ if c.HasCloudProvider(ctx, tkgdiscovery.CloudProviderVsphere) {
 
 ## Capability CRD
 
-Every TKG cluster starting from v1.4.0 includes a `Capability` CRD and an associated controller. Like the Go package
+Every cluster created by TCE and TKG includes a `Capability` CRD and an associated controller. Like the Go package
 described above, a `Capability` CR can be used to craft queries to inspect a cluster's state and store the results the
 CR's `status` field. `Capability` CRD's specification allows for different types of queries to inspect a cluster.
 
