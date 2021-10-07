@@ -277,7 +277,7 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p *Pa
 			zap.S().Error(err)
 			return err
 		}
-		supervisorConfigurator := supervisor.Configurator{Clientset: c.SupervisorClientset, K8SClientset: c.K8SClientset, CertmanagerClientset: c.CertmanagerClientset}
+		supervisorConfigurator := supervisor.Configurator{Clientset: c.SupervisorClientset, K8SClientset: c.K8SClientset}
 		if err = supervisorConfigurator.CreateOrUpdateFederationDomain(ctx, vars.SupervisorNamespace, p.FederationDomainName, supervisorSvcEndpoint); err != nil {
 			zap.S().Error(err)
 			return err
@@ -366,7 +366,7 @@ func Dex(ctx context.Context, c Clients, inspector inspect.Inspector, p *Paramet
 		}
 
 		// recreate the OIDCIdentityProvider
-		supervisorConfigurator := supervisor.Configurator{Clientset: c.SupervisorClientset, K8SClientset: c.K8SClientset, CertmanagerClientset: c.CertmanagerClientset}
+		supervisorConfigurator := supervisor.Configurator{Clientset: c.SupervisorClientset, K8SClientset: c.K8SClientset}
 		if _, err = supervisorConfigurator.RecreateIDPForDex(ctx, p.DexNamespace, p.DexSvcName, secret); err != nil {
 			zap.S().Error(err)
 			return err

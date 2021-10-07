@@ -9,7 +9,6 @@ import (
 	"encoding/base64"
 	"time"
 
-	certmanagerclientset "github.com/jetstack/cert-manager/pkg/client/clientset/versioned"
 	configv1alpha1 "go.pinniped.dev/generated/1.19/apis/supervisor/config/v1alpha1"
 	idpv1alpha1 "go.pinniped.dev/generated/1.19/apis/supervisor/idp/v1alpha1"
 	supervisorclientset "go.pinniped.dev/generated/1.19/client/supervisor/clientset/versioned"
@@ -28,9 +27,8 @@ import (
 
 // Configurator contains client information.
 type Configurator struct {
-	Clientset            supervisorclientset.Interface
-	K8SClientset         kubernetes.Interface
-	CertmanagerClientset certmanagerclientset.Interface
+	Clientset    supervisorclientset.Interface
+	K8SClientset kubernetes.Interface
 }
 
 // PinnipedInfo contains settings for the supervisor.
