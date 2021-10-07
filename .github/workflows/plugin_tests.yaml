@@ -56,6 +56,16 @@ jobs:
           # when event is a push (merge of PR), obtains original PR number from the merge commit message
           filter_push: '.head_commit.message | capture("Merge pull request #(?<pr>[[:digit:]]+)").pr | tonumber'
 
+      - name: Cache go modules
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
       - name: Find Comment
         uses: peter-evans/find-comment@v1
         id: findcomment
