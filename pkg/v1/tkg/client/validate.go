@@ -513,7 +513,7 @@ func (c *TkgClient) GetVSphereEndpoint(clusterClient clusterclient.Client) (vc.C
 func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *InitRegionOptions, skipValidation bool) *ValidationError { // nolint:gocyclo,funlen
 	var err error
 	if options.ClusterName != "" {
-		if err := checkClusterNameFormat(options.ClusterName); err != nil {
+		if err := CheckClusterNameFormat(options.ClusterName, options.InfrastructureProvider); err != nil {
 			return NewValidationError(ValidationErrorCode, err.Error())
 		}
 	}
@@ -1346,7 +1346,7 @@ func (c *TkgClient) ConfigureAndValidateCNIType(cniType string) error {
 // DistributeMachineDeploymentWorkers distributes machine deployment for worker nodes
 func (c *TkgClient) DistributeMachineDeploymentWorkers(workerMachineCount int64, isProdConfig, isManagementCluster bool, infraProviderName string) ([]int, error) { // nolint:gocyclo
 	workerCounts := make([]int, 3)
-	if infraProviderName != "aws" && infraProviderName != "azure" {
+	if infraProviderName != AWSProviderName && infraProviderName != AzureProviderName {
 		workerCounts[0] = int(workerMachineCount)
 		return workerCounts, nil
 	}
@@ -1554,14 +1554,24 @@ func (c *TkgClient) configureVsphereCredentialsFromCluster(clusterClient cluster
 	return nil
 }
 
-func checkClusterNameFormat(clusterName string) error {
-	matched, err := regexp.MatchString("^[a-z][a-z0-9-.]{0,44}[a-z0-9]$", clusterName)
+// CheckClusterNameFormat ensures that the cluster name is valid for the given provider
+func CheckClusterNameFormat(clusterName, infrastructureProvider string) error {
+	var clusterNameRegex string
+	if infrastructureProvider == AzureProviderName {
+		// Azure limitation
+		clusterNameRegex = "^[a-z][a-z0-9-.]{0,42}[a-z0-9]$"
+	} else {
+		// k8s resource name DNS limitation
+		clusterNameRegex = "^[a-z0-9][a-z0-9-.]{0,61}[a-z0-9]$"
+	}
+	matched, err := regexp.MatchString(clusterNameRegex, clusterName)
 	if err != nil {
 		return errors.Wrap(err, "failed to validate cluster name")
 	}
 	if !matched {
-		return errors.New("cluster name doesn't match regex ^[a-z][a-z0-9-.]{0,44}[a-z0-9]$, can contain only lowercase alphanumeric characters, '.' and '-', must start/end with an alphanumeric character")
+		return errors.Errorf("cluster name doesn't match regex %s, can contain only lowercase alphanumeric characters, '.' and '-'", clusterNameRegex)
 	}
+
 	return nil
 }
 
