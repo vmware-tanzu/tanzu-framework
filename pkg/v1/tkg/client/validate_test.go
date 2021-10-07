@@ -160,10 +160,21 @@ var _ = Describe("Validate", func() {
 						It("should fail validation", func() {
 							tkgConfigReaderWriter.Set(constants.TKGHTTPProxy, "http://[::1]:3128")
 							tkgConfigReaderWriter.Set(constants.TKGHTTPSProxy, "https://[::1]:3128")
+							tkgConfigReaderWriter.Set(constants.TKGHTTPProxyEnabled, "true")
 
 							validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
 							Expect(validationError).To(HaveOccurred())
 							Expect(validationError.Error()).To(ContainSubstring("invalid TKG_HTTP_PROXY \"http://[::1]:3128\", expected to be an address of type \"ipv4\" (TKG_IP_FAMILY)"))
+						})
+					})
+					Context("when HTTP_PROXY and HTTPS_PROXY are present without TKG_HTTP_PROXY_ENABLED set to true", func() {
+						It("should fail validation", func() {
+							tkgConfigReaderWriter.Set(constants.TKGHTTPProxy, "http://1.2.3.4:3128")
+							tkgConfigReaderWriter.Set(constants.TKGHTTPSProxy, "https://1.2.3.4:3128")
+
+							validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+							Expect(validationError).To(HaveOccurred())
+							Expect(validationError.Error()).To(ContainSubstring("cannot get TKG_HTTP_PROXY_ENABLED: Failed to get value for variable \"TKG_HTTP_PROXY_ENABLED\". Please set the variable value using os env variables or using the config file"))
 						})
 					})
 				})
@@ -291,15 +302,27 @@ var _ = Describe("Validate", func() {
 						It("should pass validation", func() {
 							tkgConfigReaderWriter.Set(constants.TKGHTTPProxy, "http://1.2.3.4")
 							tkgConfigReaderWriter.Set(constants.TKGHTTPSProxy, "https://1.2.3.4")
+							tkgConfigReaderWriter.Set(constants.TKGHTTPProxyEnabled, "true")
 
 							validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
 							Expect(validationError).NotTo(HaveOccurred())
+						})
+					})
+					Context("when HTTP_PROXY and HTTPS_PROXY set but not TKG_HTTP_PROXY_ENABLE is unset", func() {
+						It("should pass validation", func() {
+							tkgConfigReaderWriter.Set(constants.TKGHTTPProxy, "http://1.2.3.4")
+							tkgConfigReaderWriter.Set(constants.TKGHTTPSProxy, "http://1.2.3.4")
+
+							validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+							Expect(validationError).To(HaveOccurred())
+							Expect(validationError.Error()).To(ContainSubstring("cannot get TKG_HTTP_PROXY_ENABLED: Failed to get value for variable \"TKG_HTTP_PROXY_ENABLED\". Please set the variable value using os env variables or using the config file"))
 						})
 					})
 					Context("when HTTP_PROXY and HTTPS_PROXY are ipv6 with ports", func() {
 						It("should fail validation", func() {
 							tkgConfigReaderWriter.Set(constants.TKGHTTPProxy, "http://[::1]:3128")
 							tkgConfigReaderWriter.Set(constants.TKGHTTPSProxy, "https://[::1]:3128")
+							tkgConfigReaderWriter.Set(constants.TKGHTTPProxyEnabled, "true")
 
 							validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
 							Expect(validationError).To(HaveOccurred())
@@ -310,6 +333,7 @@ var _ = Describe("Validate", func() {
 						It("should pass validation", func() {
 							tkgConfigReaderWriter.Set(constants.TKGHTTPProxy, "http://1.2.3.4:3128")
 							tkgConfigReaderWriter.Set(constants.TKGHTTPSProxy, "https://1.2.3.4:3128")
+							tkgConfigReaderWriter.Set(constants.TKGHTTPProxyEnabled, "true")
 
 							validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
 							Expect(validationError).NotTo(HaveOccurred())
@@ -319,6 +343,7 @@ var _ = Describe("Validate", func() {
 						It("should pass validation", func() {
 							tkgConfigReaderWriter.Set(constants.TKGHTTPProxy, "http://foo.bar.com")
 							tkgConfigReaderWriter.Set(constants.TKGHTTPSProxy, "https://foo.bar.com")
+							tkgConfigReaderWriter.Set(constants.TKGHTTPProxyEnabled, "true")
 
 							validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
 							Expect(validationError).NotTo(HaveOccurred())
@@ -328,6 +353,7 @@ var _ = Describe("Validate", func() {
 						It("should fail validation", func() {
 							tkgConfigReaderWriter.Set(constants.TKGHTTPProxy, "http://[::1]")
 							tkgConfigReaderWriter.Set(constants.TKGHTTPSProxy, "https://foo.bar.com")
+							tkgConfigReaderWriter.Set(constants.TKGHTTPProxyEnabled, "true")
 
 							validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
 							Expect(validationError).To(HaveOccurred())
@@ -338,6 +364,7 @@ var _ = Describe("Validate", func() {
 						It("should fail validation", func() {
 							tkgConfigReaderWriter.Set(constants.TKGHTTPProxy, "https://foo.bar.com")
 							tkgConfigReaderWriter.Set(constants.TKGHTTPSProxy, "http://[::1]")
+							tkgConfigReaderWriter.Set(constants.TKGHTTPProxyEnabled, "true")
 
 							validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
 							Expect(validationError).To(HaveOccurred())
@@ -469,15 +496,27 @@ var _ = Describe("Validate", func() {
 						It("should pass validation", func() {
 							tkgConfigReaderWriter.Set(constants.TKGHTTPProxy, "http://[::1]")
 							tkgConfigReaderWriter.Set(constants.TKGHTTPSProxy, "https://[::1]")
+							tkgConfigReaderWriter.Set(constants.TKGHTTPProxyEnabled, "true")
 
 							validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
 							Expect(validationError).NotTo(HaveOccurred())
+						})
+					})
+					Context("when HTTP_PROXY and HTTPS_PROXY set but not TKG_HTTP_PROXY_ENABLE is unset", func() {
+						It("should pass validation", func() {
+							tkgConfigReaderWriter.Set(constants.TKGHTTPProxy, "http://[::1]")
+							tkgConfigReaderWriter.Set(constants.TKGHTTPSProxy, "http://[::1]")
+
+							validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+							Expect(validationError).To(HaveOccurred())
+							Expect(validationError.Error()).To(ContainSubstring("cannot get TKG_HTTP_PROXY_ENABLED: Failed to get value for variable \"TKG_HTTP_PROXY_ENABLED\". Please set the variable value using os env variables or using the config file"))
 						})
 					})
 					Context("when HTTP_PROXY and HTTPS_PROXY are ipv6 with ports", func() {
 						It("should pass validation", func() {
 							tkgConfigReaderWriter.Set(constants.TKGHTTPProxy, "http://[::1]:3128")
 							tkgConfigReaderWriter.Set(constants.TKGHTTPSProxy, "https://[::1]:3128")
+							tkgConfigReaderWriter.Set(constants.TKGHTTPProxyEnabled, "true")
 
 							validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
 							Expect(validationError).NotTo(HaveOccurred())
@@ -487,6 +526,7 @@ var _ = Describe("Validate", func() {
 						It("should fail validation", func() {
 							tkgConfigReaderWriter.Set(constants.TKGHTTPProxy, "http://1.2.3.4:3128")
 							tkgConfigReaderWriter.Set(constants.TKGHTTPSProxy, "https://1.2.3.4:3128")
+							tkgConfigReaderWriter.Set(constants.TKGHTTPProxyEnabled, "true")
 
 							validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
 							Expect(validationError).To(HaveOccurred())
@@ -497,6 +537,7 @@ var _ = Describe("Validate", func() {
 						It("should pass validation", func() {
 							tkgConfigReaderWriter.Set(constants.TKGHTTPProxy, "http://foo.bar.com")
 							tkgConfigReaderWriter.Set(constants.TKGHTTPSProxy, "https://foo.bar.com")
+							tkgConfigReaderWriter.Set(constants.TKGHTTPProxyEnabled, "true")
 
 							validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
 							Expect(validationError).NotTo(HaveOccurred())
@@ -506,6 +547,7 @@ var _ = Describe("Validate", func() {
 						It("should fail validation", func() {
 							tkgConfigReaderWriter.Set(constants.TKGHTTPProxy, "http://1.2.3.4")
 							tkgConfigReaderWriter.Set(constants.TKGHTTPSProxy, "https://foo.bar.com")
+							tkgConfigReaderWriter.Set(constants.TKGHTTPProxyEnabled, "true")
 
 							validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
 							Expect(validationError).To(HaveOccurred())
@@ -516,6 +558,7 @@ var _ = Describe("Validate", func() {
 						It("should fail validation", func() {
 							tkgConfigReaderWriter.Set(constants.TKGHTTPProxy, "https://foo.bar.com")
 							tkgConfigReaderWriter.Set(constants.TKGHTTPSProxy, "http://1.2.3.4")
+							tkgConfigReaderWriter.Set(constants.TKGHTTPProxyEnabled, "true")
 
 							validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
 							Expect(validationError).To(HaveOccurred())
@@ -563,9 +606,27 @@ var _ = Describe("Validate", func() {
 					tkgConfigReaderWriter.Set(constants.ConfigVariableClusterCIDR, "1.2.3.5/16,::1/8")
 					tkgConfigReaderWriter.Set(constants.TKGHTTPProxy, httpProxy)
 					tkgConfigReaderWriter.Set(constants.TKGHTTPSProxy, httpsProxy)
+					tkgConfigReaderWriter.Set(constants.TKGHTTPProxyEnabled, "true")
 
 					validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
 					Expect(validationError).NotTo(HaveOccurred())
+				},
+					Entry("IPv6 Address", "http://[::1]", "https://[::1]"),
+					Entry("IPv6 Address with Ports", "http://[::1]:3128", "https://[::1]:3128"),
+					Entry("IPv4 Address", "http://1.2.3.4", "https://1.2.3.4"),
+					Entry("IPv4 Address with Ports", "http://1.2.3.4:3128", "https://1.2.3.4:3128"),
+					Entry("Domain Name", "http://foo.bar.com", "https://foo.bar.com"),
+				)
+
+				DescribeTable("HTTP(S)_PROXY variables without TKGHTTPProxyEnabled set to true", func(httpProxy, httpsProxy string) {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, "1.2.3.4/16,::1/8")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableClusterCIDR, "1.2.3.5/16,::1/8")
+					tkgConfigReaderWriter.Set(constants.TKGHTTPProxy, httpProxy)
+					tkgConfigReaderWriter.Set(constants.TKGHTTPSProxy, httpsProxy)
+
+					validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+					Expect(validationError).To(HaveOccurred())
+					Expect(validationError.Error()).To(ContainSubstring("cannot get TKG_HTTP_PROXY_ENABLED: Failed to get value for variable \"TKG_HTTP_PROXY_ENABLED\". Please set the variable value using os env variables or using the config file"))
 				},
 					Entry("IPv6 Address", "http://[::1]", "https://[::1]"),
 					Entry("IPv6 Address with Ports", "http://[::1]:3128", "https://[::1]:3128"),
@@ -613,9 +674,27 @@ var _ = Describe("Validate", func() {
 					tkgConfigReaderWriter.Set(constants.ConfigVariableClusterCIDR, "::1/8,1.2.3.5/16")
 					tkgConfigReaderWriter.Set(constants.TKGHTTPProxy, httpProxy)
 					tkgConfigReaderWriter.Set(constants.TKGHTTPSProxy, httpsProxy)
+					tkgConfigReaderWriter.Set(constants.TKGHTTPProxyEnabled, "true")
 
 					validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
 					Expect(validationError).NotTo(HaveOccurred())
+				},
+					Entry("IPv6 Address", "http://[::1]", "https://[::1]"),
+					Entry("IPv6 Address with Ports", "http://[::1]:3128", "https://[::1]:3128"),
+					Entry("IPv4 Address", "http://1.2.3.4", "https://1.2.3.4"),
+					Entry("IPv4 Address with Ports", "http://1.2.3.4:3128", "https://1.2.3.4:3128"),
+					Entry("Domain Name", "http://foo.bar.com", "https://foo.bar.com"),
+				)
+
+				DescribeTable("HTTP(S)_PROXY variables without TKGHTTPProxyEnabled set to true", func(httpProxy, httpsProxy string) {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, "::1/8,1.2.3.4/16")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableClusterCIDR, "::1/8,1.2.3.5/16")
+					tkgConfigReaderWriter.Set(constants.TKGHTTPProxy, httpProxy)
+					tkgConfigReaderWriter.Set(constants.TKGHTTPSProxy, httpsProxy)
+
+					validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+					Expect(validationError).To(HaveOccurred())
+					Expect(validationError.Error()).To(ContainSubstring("cannot get TKG_HTTP_PROXY_ENABLED: Failed to get value for variable \"TKG_HTTP_PROXY_ENABLED\". Please set the variable value using os env variables or using the config file"))
 				},
 					Entry("IPv6 Address", "http://[::1]", "https://[::1]"),
 					Entry("IPv6 Address with Ports", "http://[::1]:3128", "https://[::1]:3128"),
