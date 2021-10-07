@@ -288,7 +288,7 @@ func TestFeaturesActivatedInNamespacesMatchingSelector(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
-			fakeClient := fake.NewFakeClientWithScheme(scheme, tc.existingObjects...)
+			fakeClient := fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(tc.existingObjects...).Build()
 			got, err := FeaturesActivatedInNamespacesMatchingSelector(context.Background(), fakeClient, tc.selector, tc.features)
 			if err != nil {
 				if tc.err == "" {

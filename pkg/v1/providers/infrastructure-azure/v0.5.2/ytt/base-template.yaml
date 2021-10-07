@@ -120,8 +120,8 @@ spec:
           cloud-provider: azure
         name: '{{ ds.meta_data["local_hostname"] }}'
     mounts:
-    - - LABEL=etcd_disk
-      - /var/lib/etcddisk
+      - - LABEL=etcd_disk
+        - /var/lib/etcddisk
     useExperimentalRetryJoin: true
     postKubeadmCommands: []
     preKubeadmCommands: []

@@ -16,7 +16,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/duration"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha4"
 	clusterctltree "sigs.k8s.io/cluster-api/cmd/clusterctl/client/tree"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
@@ -168,7 +168,7 @@ var (
 )
 
 // treeView prints object hierarchy to out stream.
-func treeView(objs *clusterctltree.ObjectTree, obj controllerutil.Object) {
+func treeView(objs *clusterctltree.ObjectTree, obj crtclient.Object) {
 	tbl := uitable.New()
 	tbl.Separator = TableSeparator
 	tbl.AddRow("NAME", "READY", "SEVERITY", "REASON", "SINCE", "MESSAGE")
@@ -219,7 +219,7 @@ func getCond(c *clusterv1.Condition) conditions {
 	return v
 }
 
-func treeViewInner(prefix string, tbl *uitable.Table, objs *clusterctltree.ObjectTree, obj controllerutil.Object) {
+func treeViewInner(prefix string, tbl *uitable.Table, objs *clusterctltree.ObjectTree, obj crtclient.Object) {
 	v := conditions{}
 	v.readyColor = gray
 
@@ -295,7 +295,7 @@ func treeViewInner(prefix string, tbl *uitable.Table, objs *clusterctltree.Objec
 	}
 }
 
-func getName(obj controllerutil.Object) string {
+func getName(obj crtclient.Object) string {
 	if clusterctltree.IsGroupObject(obj) {
 		items := strings.Split(clusterctltree.GetGroupItems(obj), clusterctltree.GroupItemsSeparator)
 		return fmt.Sprintf("%d Machines...", len(items))

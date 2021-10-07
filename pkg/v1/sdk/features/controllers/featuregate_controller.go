@@ -34,8 +34,8 @@ type FeatureGateReconciler struct {
 //+kubebuilder:rbac:groups=config.tanzu.vmware.com,resources=featuregates/status,verbs=get;update;patch
 
 // Reconcile reconciles the FeatureGate spec by computing activated, deactivated and unavailable features.
-func (r *FeatureGateReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
+func (r *FeatureGateReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) { //nolint:staticcheck
+	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout) //nolint:staticcheck
 	defer cancel()
 
 	log := r.Log.WithValues("featuregate", req.NamespacedName)

@@ -86,7 +86,7 @@ func TestNamespacesMatchingSelector(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
-			fakeClient := fake.NewFakeClientWithScheme(k8sscheme.Scheme, tc.existingNamespaces...)
+			fakeClient := fake.NewClientBuilder().WithScheme(k8sscheme.Scheme).WithRuntimeObjects(tc.existingNamespaces...).Build()
 			got, err := NamespacesMatchingSelector(context.Background(), fakeClient, tc.namespaceSelector)
 			if err != nil {
 				if tc.err == "" {

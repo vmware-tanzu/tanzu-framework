@@ -505,7 +505,7 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 		clusterClientOptions = clusterclient.NewOptions(getFakePoller(), crtClientFactory, discoveryClientFactory, verificationClientFactory)
 
 		// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
-		fakeRegionalClusterClientSet = fake.NewFakeClientWithScheme(scheme, fakehelper.GetAllCAPIClusterObjects(regionalClusterOptions)...)
+		fakeRegionalClusterClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(fakehelper.GetAllCAPIClusterObjects(regionalClusterOptions)...).Build()
 		crtClientFactory.NewClientReturns(fakeRegionalClusterClientSet, nil)
 		fakeRegionalDiscoveryClient = getDiscoveryClient(regionalClusterK8sVersion)
 		discoveryClientFactory.NewDiscoveryClientForConfigReturns(fakeRegionalDiscoveryClient, nil)
@@ -513,7 +513,7 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 		Expect(err).NotTo(HaveOccurred())
 
 		// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
-		fakeCurrentClusterClientSet = fake.NewFakeClientWithScheme(scheme)
+		fakeCurrentClusterClientSet = fake.NewClientBuilder().WithScheme(scheme).Build()
 		crtClientFactory.NewClientReturns(fakeCurrentClusterClientSet, nil)
 		fakeCurrentDiscoveryClient = getDiscoveryClient(currentClusterK8sVersion)
 		discoveryClientFactory.NewDiscoveryClientForConfigReturns(fakeCurrentDiscoveryClient, nil)
@@ -782,11 +782,6 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 	// 	})
 	// })
 })
-
-func copyFile(sourceFile, destFile string) {
-	input, _ := os.ReadFile(sourceFile)
-	_ = os.WriteFile(destFile, input, constants.ConfigFilePermissions)
-}
 
 func getDummyKCP(machineTemplateKind string) *capikubeadmv1alpha4.KubeadmControlPlane {
 	kcp := &capikubeadmv1alpha4.KubeadmControlPlane{}

@@ -88,7 +88,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 		Context("When cluster is not found", func() {
 			BeforeEach(func() {
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
-				fakeClientSet = fake.NewFakeClientWithScheme(scheme)
+				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).Build()
 			})
 			It("should return an error", func() {
 				Expect(err).To(HaveOccurred())
@@ -98,8 +98,8 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 		Context("When cluster-info is not found in kube-public namespace", func() {
 			BeforeEach(func() {
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
-				fakeClientSet = fake.NewFakeClientWithScheme(scheme,
-					createFakeClusterRefObjects(mgmtClusterName, searchNamespace, endpoint)...)
+				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(
+					createFakeClusterRefObjects(mgmtClusterName, searchNamespace, endpoint)...).Build()
 				tlsserver.AppendHandlers(
 					ghttp.CombineHandlers(
 						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/cluster-info"),
@@ -121,8 +121,8 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				clusterInfo = fakehelper.GetFakeClusterInfo(endpoint, servCert)
 				pinnipedInfo = fakehelper.GetFakePinnipedInfo(mgmtClusterName, issuer, issuerCA)
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
-				fakeClientSet = fake.NewFakeClientWithScheme(scheme,
-					createFakeClusterRefObjects(mgmtClusterName, searchNamespace, endpoint)...)
+				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(
+					createFakeClusterRefObjects(mgmtClusterName, searchNamespace, endpoint)...).Build()
 				tlsserver.AppendHandlers(
 					ghttp.CombineHandlers(
 						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/cluster-info"),
@@ -168,7 +168,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 		Context("When cluster is not found", func() {
 			BeforeEach(func() {
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
-				fakeClientSet = fake.NewFakeClientWithScheme(scheme)
+				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).Build()
 			})
 			It("should return an error", func() {
 				Expect(err).To(HaveOccurred())
@@ -179,8 +179,8 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 			BeforeEach(func() {
 				searchNamespace = constants.DefaultNamespace
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
-				fakeClientSet = fake.NewFakeClientWithScheme(scheme,
-					createFakeClusterRefObjects("fake-workload-cluster", searchNamespace, endpoint)...)
+				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(
+					createFakeClusterRefObjects("fake-workload-cluster", searchNamespace, endpoint)...).Build()
 				tlsserver.AppendHandlers(
 					ghttp.CombineHandlers(
 						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/cluster-info"),
@@ -203,8 +203,8 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				pinnipedInfo = fakehelper.GetFakePinnipedInfo(mgmtClusterName, issuer, issuerCA)
 				searchNamespace = constants.DefaultNamespace
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
-				fakeClientSet = fake.NewFakeClientWithScheme(scheme,
-					createFakeClusterRefObjects("fake-workload-cluster", searchNamespace, endpoint)...)
+				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(
+					createFakeClusterRefObjects("fake-workload-cluster", searchNamespace, endpoint)...).Build()
 				tlsserver.AppendHandlers(
 					ghttp.CombineHandlers(
 						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/cluster-info"),

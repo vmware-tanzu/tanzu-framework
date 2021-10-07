@@ -1411,7 +1411,7 @@ var _ = Describe("Cluster Client", func() {
 
 		JustBeforeEach(func() {
 			reInitialize()
-			fakeClientSet = fake.NewFakeClientWithScheme(scheme, fakehelper.NewDaemonSet(kubeProxyDSCreateOption))
+			fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(fakehelper.NewDaemonSet(kubeProxyDSCreateOption)).Build()
 			crtClientFactory.NewClientReturns(fakeClientSet, nil)
 			clusterClientOptions = NewOptions(poller, crtClientFactory, discoveryClientFactory, nil)
 
@@ -1476,7 +1476,7 @@ var _ = Describe("Cluster Client", func() {
 
 		Context("When Cluster API Provider AWS isn't present", func() {
 			BeforeEach(func() {
-				fakeClientSet = fake.NewFakeClientWithScheme(scheme)
+				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).Build()
 				crtClientFactory.NewClientReturns(fakeClientSet, nil)
 				clusterClientOptions = NewOptions(poller, crtClientFactory, discoveryClientFactory, nil)
 
@@ -1491,9 +1491,9 @@ var _ = Describe("Cluster Client", func() {
 
 		Context("When Cluster API Provider AWS is present", func() {
 			BeforeEach(func() {
-				fakeClientSet = fake.NewFakeClientWithScheme(scheme,
+				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(
 					fakehelper.NewClusterAPIAWSControllerComponents()...,
-				)
+				).Build()
 				crtClientFactory.NewClientReturns(fakeClientSet, nil)
 				clusterClientOptions = NewOptions(poller, crtClientFactory, discoveryClientFactory, nil)
 
@@ -1552,7 +1552,7 @@ var _ = Describe("Cluster Client", func() {
 			reInitialize()
 			kubeadmconfigMap, err = getKubeadmConfigConfigMap("kubeadm-config1.yaml")
 			Expect(err).NotTo(HaveOccurred())
-			fakeClientSet = fake.NewFakeClientWithScheme(scheme, kubeadmconfigMap)
+			fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(kubeadmconfigMap).Build()
 			crtClientFactory.NewClientReturns(fakeClientSet, nil)
 			clusterClientOptions = NewOptions(poller, crtClientFactory, discoveryClientFactory, nil)
 
@@ -1834,12 +1834,12 @@ var _ = Describe("Cluster Client", func() {
 
 		JustBeforeEach(func() {
 			if initClientWithKappDeployment {
-				fakeClientSet = fake.NewFakeClientWithScheme(scheme,
+				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(
 					fakehelper.NewDeployment(kappControllerDpCreateOption),
 					fakehelper.NewClusterRoleBinding(kappControllerClusterRoleBindingCreateOption),
 					fakehelper.NewClusterRole(kappControllerClusterRoleCreateOption),
 					fakehelper.NewServiceAccount(kappControllerServiceAccountCreateOption),
-				)
+				).Build()
 				crtClientFactory.NewClientReturns(fakeClientSet, nil)
 			}
 			clusterClientOptions = NewOptions(poller, crtClientFactory, discoveryClientFactory, nil)
@@ -1953,13 +1953,13 @@ var _ = Describe("Cluster Client", func() {
 		BeforeEach(func() {
 			reInitialize()
 
-			fakeClientSet = fake.NewFakeClientWithScheme(scheme,
+			fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(
 				fakehelper.NewAWSCluster(fakehelper.TestAWSClusterOptions{
 					Name:      "fake-clusterName",
 					Namespace: "fake-namespace",
 					Region:    "us-east-1",
 				}),
-			)
+			).Build()
 			crtClientFactory.NewClientReturns(fakeClientSet, nil)
 
 			clusterClientOptions = NewOptions(poller, crtClientFactory, discoveryClientFactory, nil)

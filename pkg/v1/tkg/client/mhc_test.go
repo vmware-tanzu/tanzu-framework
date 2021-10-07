@@ -51,7 +51,7 @@ var _ = Describe("GetMachineHealthChecks", func() {
 	})
 
 	JustBeforeEach(func() {
-		fakeClientSet = fake.NewFakeClientWithScheme(scheme, objects...)
+		fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objects...).Build()
 		crtClientFactory.NewClientReturns(fakeClientSet, nil)
 
 		regionalClusterClient, err = clusterclient.NewClient(kubeconfig, "", clusterClientOptions)
@@ -187,7 +187,7 @@ var _ = Describe("DeleteMachineHealthCheck", func() {
 	})
 
 	JustBeforeEach(func() {
-		fakeClientSet = fake.NewFakeClientWithScheme(scheme, objects...)
+		fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objects...).Build()
 		crtClientFactory.NewClientReturns(fakeClientSet, nil)
 
 		regionalClusterClient, err = clusterclient.NewClient(kubeconfig, "", clusterClientOptions)
@@ -293,7 +293,7 @@ var _ = Describe("CreateMachineHealthCheck", func() {
 	})
 
 	JustBeforeEach(func() {
-		fakeClientSet = fake.NewFakeClientWithScheme(scheme, objects...)
+		fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objects...).Build()
 		crtClientFactory.NewClientReturns(fakeClientSet, nil)
 
 		regionalClusterClient, err = clusterclient.NewClient(kubeconfig, "", clusterClientOptions)
@@ -621,7 +621,7 @@ var _ = Describe("UpdateMachineHealthCheck", func() {
 	})
 
 	JustBeforeEach(func() {
-		fakeClientSet = fake.NewFakeClientWithScheme(scheme, objects...)
+		fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objects...).Build()
 		crtClientFactory.NewClientReturns(fakeClientSet, nil)
 
 		regionalClusterClient, err = clusterclient.NewClient(kubeconfig, "", clusterClientOptions)

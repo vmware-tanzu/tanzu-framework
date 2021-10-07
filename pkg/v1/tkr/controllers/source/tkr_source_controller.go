@@ -50,8 +50,8 @@ type reconciler struct {
 }
 
 // Reconcile performs the reconciliation step
-func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	ctx, cancel := context.WithCancel(r.ctx)
+func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) { //nolint:staticcheck
+	ctx, cancel := context.WithCancel(r.ctx) //nolint:staticcheck
 	defer cancel()
 
 	configMap := &corev1.ConfigMap{}

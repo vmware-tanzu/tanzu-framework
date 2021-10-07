@@ -314,7 +314,7 @@ func TestNamespaceConflicts(t *testing.T) {
 			var objs []runtime.Object
 			objs = append(objs, tc.existingNamespaces...)
 			objs = append(objs, tc.existingFeatureGates...)
-			fakeClient := fake.NewFakeClientWithScheme(scheme, objs...)
+			fakeClient := fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objs...).Build()
 			got, err := tc.createObj.computeConflictingNamespaces(context.Background(), fakeClient)
 			if err != nil {
 				if tc.err == "" {

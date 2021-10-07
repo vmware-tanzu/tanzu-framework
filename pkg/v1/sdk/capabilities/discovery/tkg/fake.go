@@ -54,7 +54,7 @@ var (
 
 // newFakeDiscoveryClient returns a fake DiscoveryClient for use in tests.
 func newFakeDiscoveryClient(resources []*metav1.APIResourceList, scheme *runtime.Scheme, objs []runtime.Object) (*DiscoveryClient, error) {
-	fakeK8SClient := ctrlfake.NewFakeClientWithScheme(scheme, objs...)
+	fakeK8SClient := ctrlfake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objs...).Build()
 	fakeQueryClient, err := discovery.NewFakeClusterQueryClient(resources, scheme, objs)
 	if err != nil {
 		return nil, err

@@ -320,16 +320,6 @@ func (c *TkgClient) getProvidersUpgradeInfo(regionalClusterClient clusterclient.
 	return pUpgradeInfo, nil
 }
 
-func parseManagementGroup(installedProviders *clusterctlv1.ProviderList) (string, error) {
-	for i := range installedProviders.Items {
-		if clusterctlv1.ProviderType(installedProviders.Items[i].Type) == clusterctlv1.CoreProviderType {
-			mgmtGroupName := installedProviders.Items[i].InstanceName()
-			return mgmtGroupName, nil
-		}
-	}
-	return "", errors.New("failed to find core provider from the current providers")
-}
-
 // WaitForAddonsDeployments wait for addons deployments
 func (c *TkgClient) WaitForAddonsDeployments(clusterClient clusterclient.Client) error {
 	group, _ := errgroup.WithContext(context.Background())

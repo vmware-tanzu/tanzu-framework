@@ -21,7 +21,6 @@ import (
 	"sigs.k8s.io/cluster-api/util/conditions"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	// The fake package is deprecated, though there is talk of undeprecating it
 	"sigs.k8s.io/controller-runtime/pkg/client/fake" // nolint:staticcheck
@@ -83,7 +82,7 @@ var _ = Describe("SyncRelease", func() {
 	JustBeforeEach(func() {
 		scheme = runtime.NewScheme()
 		addToScheme(scheme)
-		fakeClient = fake.NewFakeClientWithScheme(scheme, objects...)
+		fakeClient = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objects...).Build()
 		r = reconciler{
 			ctx:      context.Background(),
 			client:   fakeClient,
@@ -176,7 +175,7 @@ var _ = Describe("UpdateTKRCompatibleCondition", func() {
 	JustBeforeEach(func() {
 		scheme = runtime.NewScheme()
 		addToScheme(scheme)
-		fakeClient = fake.NewFakeClientWithScheme(scheme, objects...)
+		fakeClient = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objects...).Build()
 		r = reconciler{
 			ctx:      context.Background(),
 			client:   fakeClient,
@@ -295,7 +294,7 @@ var _ = Describe("initialReconcile", func() {
 	BeforeEach(func() {
 		scheme = runtime.NewScheme()
 		addToScheme(scheme)
-		fakeClient = fake.NewFakeClientWithScheme(scheme, objects...)
+		fakeClient = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objects...).Build()
 		retries = 3
 		ctx, cancel = context.WithCancel(context.Background())
 		go func() {
@@ -348,7 +347,7 @@ var _ = Describe("initialReconcile", func() {
 			fakeRegistry.GetFileReturnsOnCall(3, bomContent193, nil)
 			mgmtcluster := newManagementCluster(map[string]string{constants.ManagememtClusterRoleLabel: ""}, map[string]string{constants.TKGVersionKey: "v1.1"})
 			objects = []runtime.Object{mgmtcluster}
-			fakeClient = fake.NewFakeClientWithScheme(scheme, objects...)
+			fakeClient = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objects...).Build()
 		})
 
 		It("should retrieve what can be retrieved and create appropriate ConfigMaps", func() {
@@ -403,7 +402,7 @@ var _ = Describe("initialReconcile", func() {
 
 			mgmtcluster := newManagementCluster(map[string]string{constants.ManagememtClusterRoleLabel: ""}, map[string]string{constants.TKGVersionKey: "v1.1"})
 			objects = []runtime.Object{mgmtcluster}
-			fakeClient = fake.NewFakeClientWithScheme(scheme, objects...)
+			fakeClient = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objects...).Build()
 		})
 
 		It("should create the metadata ConfigMap and all BOM ConfigMaps", func() {
@@ -449,7 +448,7 @@ type clientErrOnCreate struct {
 	errOnName string
 }
 
-func (c clientErrOnCreate) Create(ctx context.Context, obj crtclient.Object, opts ...client.CreateOption) error {
+func (c clientErrOnCreate) Create(ctx context.Context, obj client.Object, opts ...client.CreateOption) error {
 	if cm, ok := obj.(*corev1.ConfigMap); ok && cm.Name == c.errOnName {
 		return c.err
 	}
@@ -468,7 +467,7 @@ var _ = Describe("r.Reconcile()", func() {
 	JustBeforeEach(func() {
 		scheme = runtime.NewScheme()
 		addToScheme(scheme)
-		fakeClient = fake.NewFakeClientWithScheme(scheme, objects...)
+		fakeClient = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objects...).Build()
 		r = reconciler{
 			registry:                   fakeRegistry,
 			ctx:                        context.Background(),
@@ -655,7 +654,7 @@ type clientErrOnGetCluster struct {
 	err error
 }
 
-func (c clientErrOnGetCluster) Get(ctx context.Context, key client.ObjectKey, obj crtclient.Object) error {
+func (c clientErrOnGetCluster) Get(ctx context.Context, key client.ObjectKey, obj client.Object) error {
 	if _, ok := obj.(*capi.Cluster); !ok {
 		return c.err
 	}
