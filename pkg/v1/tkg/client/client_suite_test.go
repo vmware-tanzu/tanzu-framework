@@ -459,7 +459,7 @@ var _ = Describe("OverrideAzureNodeSizeWithOptions", func() {
 		instanceTypes := []*models.AzureInstanceType{&mediumInstanceType}
 
 		mockAzureClient = azure.NewMockClient(ctrl)
-		mockAzureClient.EXPECT().GetAzureInstanceTypesForRegion(context.Background(), "eastus").Return(instanceTypes, nil).Times(1)
+		mockAzureClient.EXPECT().GetAzureInstanceTypesForRegion(context.Background(), "eastus").Return(instanceTypes, nil).MaxTimes(1)
 		err = tkgClient.OverrideAzureNodeSizeWithOptions(mockAzureClient, nodeSizeOptions, false)
 	})
 
