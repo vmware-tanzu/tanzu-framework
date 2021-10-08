@@ -156,7 +156,7 @@ stringData:
  value: #@ yaml.encode(overlay.apply(get_bom_configmap(),tkgmetadataoverlay()))
 
 ---
-apiVersion: addons.cluster.x-k8s.io/v1alpha3
+apiVersion: addons.cluster.x-k8s.io/v1alpha4
 kind: ClusterResourceSet
 metadata:
  name: #@ get_metadata_crs_name()

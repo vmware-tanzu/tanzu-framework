@@ -13,38 +13,38 @@ import (
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 )
 
-func providerListFor(infraProvider InfrastructureProvider) *clusterctl.ProviderList {
-	return &clusterctl.ProviderList{
-		Items: []clusterctl.Provider{
-			{
-				ProviderName: string(infraProvider),
-				Type:         string(clusterctl.InfrastructureProviderType),
-			},
-		},
+func providerFor(infraProvider InfrastructureProvider) *clusterctl.Provider {
+	return &clusterctl.Provider{
+		ProviderName: string(infraProvider),
+		Type:         string(clusterctl.InfrastructureProviderType),
 	}
 }
 
 func TestHasInfrastructureProvider(t *testing.T) {
-	discoveryClientFor := func(providerList *clusterctl.ProviderList) (*DiscoveryClient, error) {
-		return newFakeDiscoveryClient([]*metav1.APIResourceList{}, Scheme, []runtime.Object{providerList})
+	discoveryClientFor := func(provider *clusterctl.Provider) (*DiscoveryClient, error) {
+		var objs []runtime.Object
+		if provider != nil {
+			objs = append(objs, provider)
+		}
+		return newFakeDiscoveryClient([]*metav1.APIResourceList{}, Scheme, objs)
 	}
 
 	testCases := []struct {
-		description    string
-		infraProvider  InfrastructureProvider
-		providerListFn func(infraProvider InfrastructureProvider) *clusterctl.ProviderList
-		err            string
-		want           bool
+		description   string
+		infraProvider InfrastructureProvider
+		providerFn    func(infraProvider InfrastructureProvider) *clusterctl.Provider
+		err           string
+		want          bool
 	}{
-		{"aws", InfrastructureProviderAWS, providerListFor, "", true},
-		{"azure", InfrastructureProviderAzure, providerListFor, "", true},
-		{"vsphere", InfrastructureProviderVsphere, providerListFor, "", true},
-		{"unknown", InfrastructureProvider("unknown"), providerListFor, "unsupported infrastructure provider", false},
+		{"aws", InfrastructureProviderAWS, providerFor, "", true},
+		{"azure", InfrastructureProviderAzure, providerFor, "", true},
+		{"vsphere", InfrastructureProviderVsphere, providerFor, "", true},
+		{"unknown", InfrastructureProvider("unknown"), providerFor, "unsupported infrastructure provider", false},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
-			dc, err := discoveryClientFor(tc.providerListFn(tc.infraProvider))
+			dc, err := discoveryClientFor(tc.providerFn(tc.infraProvider))
 			if err != nil {
 				t.Error(err)
 			}

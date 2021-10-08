@@ -56,7 +56,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 	Describe("get clusters tests for CP, Worker count, and Cluster Status", func() {
 		JustBeforeEach(func() {
 			// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
-			fakeClientSet = fake.NewFakeClientWithScheme(scheme, fakehelper.GetAllCAPIClusterObjects(createClusterOptions)...)
+			fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(fakehelper.GetAllCAPIClusterObjects(createClusterOptions)...).Build()
 			crtClientFactory.NewClientReturns(fakeClientSet, nil)
 
 			regionalClusterClient, err = clusterclient.NewClient(kubeconfig, "", clusterClientOptions)
@@ -818,7 +818,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 
 	Describe("get clusters tests for name and Namespace", func() {
 		JustBeforeEach(func() {
-			fakeClientSet = fake.NewFakeClientWithScheme(scheme, testClusters...)
+			fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(testClusters...).Build()
 			crtClientFactory.NewClientReturns(fakeClientSet, nil)
 			regionalClusterClient, err = clusterclient.NewClient(kubeconfig, "", clusterClientOptions)
 			Expect(err).NotTo(HaveOccurred())
@@ -884,7 +884,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 
 	Describe("get clusters tests for Pacific", func() {
 		JustBeforeEach(func() {
-			fakeClientSet = fake.NewFakeClientWithScheme(scheme, fakehelper.GetAllPacificClusterObjects(createClusterOptions)...)
+			fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(fakehelper.GetAllPacificClusterObjects(createClusterOptions)...).Build()
 			crtClientFactory.NewClientReturns(fakeClientSet, nil)
 			regionalClusterClient, err = clusterclient.NewClient(kubeconfig, "", clusterClientOptions)
 			Expect(err).NotTo(HaveOccurred())

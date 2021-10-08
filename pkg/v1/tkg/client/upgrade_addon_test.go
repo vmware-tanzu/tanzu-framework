@@ -14,7 +14,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
+	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
@@ -69,22 +70,29 @@ var _ = Describe("Unit tests for addons upgrade", func() {
 			regionalClusterClient.PatchResourceReturns(nil)
 			regionalClusterClient.GetKCPObjectForClusterReturns(getDummyKCP(constants.DockerMachineTemplate), nil)
 			currentClusterClient.GetKubernetesVersionReturns(currentK8sVersion, nil)
-			regionalClusterClient.ListClustersReturns([]capi.Cluster{
-				{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      clusterName,
-						Namespace: constants.DefaultNamespace,
-					},
-				},
-			}, nil)
+			regionalClusterClient.ListResourcesCalls(func(clusterList interface{}, options ...client.ListOption) error {
+				if clusterList, ok := clusterList.(*capiv1alpha3.ClusterList); ok {
+					clusterList.Items = []capiv1alpha3.Cluster{
+						{
+							ObjectMeta: metav1.ObjectMeta{
+								Name:      clusterName,
+								Namespace: constants.DefaultNamespace,
+							},
+						},
+					}
+					return nil
+				}
+				return nil
+			})
+
 			regionalClusterClient.GetResourceCalls(func(cluster interface{}, resourceName, namespace string, postVerify clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
-				if cluster, ok := cluster.(*capi.Cluster); ok && resourceName == clusterName && namespace == constants.DefaultNamespace {
-					cluster.Spec = capi.ClusterSpec{
-						ClusterNetwork: &capi.ClusterNetwork{
-							Services: &capi.NetworkRanges{
+				if cluster, ok := cluster.(*capiv1alpha3.Cluster); ok && resourceName == clusterName && namespace == constants.DefaultNamespace {
+					cluster.Spec = capiv1alpha3.ClusterSpec{
+						ClusterNetwork: &capiv1alpha3.ClusterNetwork{
+							Services: &capiv1alpha3.NetworkRanges{
 								CIDRBlocks: serviceCIDRs,
 							},
-							Pods: &capi.NetworkRanges{
+							Pods: &capiv1alpha3.NetworkRanges{
 								CIDRBlocks: podCIDRs,
 							},
 						},
@@ -242,20 +250,27 @@ func Test_RetrieveProxySettings(t *testing.T) {
 	g.Expect(err).To(BeNil())
 
 	regionalClusterClient := &fakes.ClusterClient{}
-	regionalClusterClient.ListClustersReturns([]capi.Cluster{
-		{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      "regional-cluster-2",
-				Namespace: constants.DefaultNamespace,
-			},
-		},
-		{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      "workload-cluster",
-				Namespace: constants.DefaultNamespace,
-			},
-		},
-	}, nil)
+	regionalClusterClient.ListResourcesCalls(func(clusterList interface{}, options ...client.ListOption) error {
+		if clusterList, ok := clusterList.(*capiv1alpha3.ClusterList); ok {
+			clusterList.Items = []capiv1alpha3.Cluster{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "regional-cluster-2",
+						Namespace: constants.DefaultNamespace,
+					},
+				},
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "workload-cluster",
+						Namespace: constants.DefaultNamespace,
+					},
+				},
+			}
+			return nil
+		}
+		return nil
+	})
+
 	regionalClusterClient.GetResourceStub = func(obj interface{}, name string, namespace string, verifyFunc clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
 		if name == constants.KappControllerConfigMapName {
 			cm := &corev1.ConfigMap{

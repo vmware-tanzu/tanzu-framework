@@ -6,7 +6,7 @@ package tkg
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	ctrlfake "sigs.k8s.io/controller-runtime/pkg/client/fake" //nolint:staticcheck
+	ctrlfake "sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/discovery"
@@ -54,7 +54,7 @@ var (
 
 // newFakeDiscoveryClient returns a fake DiscoveryClient for use in tests.
 func newFakeDiscoveryClient(resources []*metav1.APIResourceList, scheme *runtime.Scheme, objs []runtime.Object) (*DiscoveryClient, error) {
-	fakeK8SClient := ctrlfake.NewFakeClientWithScheme(scheme, objs...)
+	fakeK8SClient := ctrlfake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objs...).Build()
 	fakeQueryClient, err := discovery.NewFakeClusterQueryClient(resources, scheme, objs)
 	if err != nil {
 		return nil, err

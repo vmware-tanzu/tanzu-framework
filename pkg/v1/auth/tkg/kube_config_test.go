@@ -203,8 +203,9 @@ func getExpectedExecConfig(endpoint, issuer, issuerCA string, servCert *x509.Cer
 			"--ca-bundle-data=" + issuerCA,
 			"--request-audience=" + issuer,
 		},
-		Env:     []clientcmdapi.ExecEnvVar{},
-		Command: "tanzu",
+		Env:             []clientcmdapi.ExecEnvVar{},
+		Command:         "tanzu",
+		InteractiveMode: "IfAvailable",
 	}
 	return execConfig
 }

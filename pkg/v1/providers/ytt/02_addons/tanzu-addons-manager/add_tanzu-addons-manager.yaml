@@ -14,7 +14,7 @@
 
 #@ else:
 ---
-apiVersion: addons.cluster.x-k8s.io/v1alpha3
+apiVersion: addons.cluster.x-k8s.io/v1alpha4
 kind: ClusterResourceSet
 metadata:
   name: #@ "{}-tanzu-addons-manager-package".format(data.values.CLUSTER_NAME)

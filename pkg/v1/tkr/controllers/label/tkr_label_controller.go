@@ -54,6 +54,6 @@ type reconciler struct {
 	scheme *runtime.Scheme
 }
 
-func (r reconciler) Reconcile(req reconcile.Request) (result reconcile.Result, err error) {
+func (r reconciler) Reconcile(ctx context.Context, req reconcile.Request) (result reconcile.Result, err error) {
 	return result, err
 }

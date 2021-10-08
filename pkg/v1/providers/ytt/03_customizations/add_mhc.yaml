@@ -4,7 +4,7 @@
 #@ if data.values.PROVIDER_TYPE != "tkg-service-vsphere":
 #@ if (data.values.ENABLE_MHC != False and data.values.ENABLE_MHC_WORKER_NODE) or data.values.ENABLE_MHC:
 ---
-apiVersion: cluster.x-k8s.io/v1alpha3
+apiVersion: cluster.x-k8s.io/v1alpha4
 kind: MachineHealthCheck
 metadata:
   name: #@ data.values.CLUSTER_NAME
@@ -26,7 +26,7 @@ spec:
 #@ end
 ---
 #@ if (data.values.ENABLE_MHC != False and data.values.ENABLE_MHC_CONTROL_PLANE) or data.values.ENABLE_MHC:
-apiVersion: cluster.x-k8s.io/v1alpha3
+apiVersion: cluster.x-k8s.io/v1alpha4
 kind: MachineHealthCheck
 metadata:
   name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)

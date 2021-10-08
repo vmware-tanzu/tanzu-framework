@@ -5,6 +5,7 @@ import (
 	"context"
 	"sync"
 
+	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -13,11 +14,11 @@ import (
 )
 
 type CRTClusterClient struct {
-	CreateStub        func(context.Context, runtime.Object, ...client.CreateOption) error
+	CreateStub        func(context.Context, client.Object, ...client.CreateOption) error
 	createMutex       sync.RWMutex
 	createArgsForCall []struct {
 		arg1 context.Context
-		arg2 runtime.Object
+		arg2 client.Object
 		arg3 []client.CreateOption
 	}
 	createReturns struct {
@@ -26,11 +27,11 @@ type CRTClusterClient struct {
 	createReturnsOnCall map[int]struct {
 		result1 error
 	}
-	DeleteStub        func(context.Context, runtime.Object, ...client.DeleteOption) error
+	DeleteStub        func(context.Context, client.Object, ...client.DeleteOption) error
 	deleteMutex       sync.RWMutex
 	deleteArgsForCall []struct {
 		arg1 context.Context
-		arg2 runtime.Object
+		arg2 client.Object
 		arg3 []client.DeleteOption
 	}
 	deleteReturns struct {
@@ -39,11 +40,11 @@ type CRTClusterClient struct {
 	deleteReturnsOnCall map[int]struct {
 		result1 error
 	}
-	DeleteAllOfStub        func(context.Context, runtime.Object, ...client.DeleteAllOfOption) error
+	DeleteAllOfStub        func(context.Context, client.Object, ...client.DeleteAllOfOption) error
 	deleteAllOfMutex       sync.RWMutex
 	deleteAllOfArgsForCall []struct {
 		arg1 context.Context
-		arg2 runtime.Object
+		arg2 client.Object
 		arg3 []client.DeleteAllOfOption
 	}
 	deleteAllOfReturns struct {
@@ -52,12 +53,12 @@ type CRTClusterClient struct {
 	deleteAllOfReturnsOnCall map[int]struct {
 		result1 error
 	}
-	GetStub        func(context.Context, types.NamespacedName, runtime.Object) error
+	GetStub        func(context.Context, types.NamespacedName, client.Object) error
 	getMutex       sync.RWMutex
 	getArgsForCall []struct {
 		arg1 context.Context
 		arg2 types.NamespacedName
-		arg3 runtime.Object
+		arg3 client.Object
 	}
 	getReturns struct {
 		result1 error
@@ -65,11 +66,11 @@ type CRTClusterClient struct {
 	getReturnsOnCall map[int]struct {
 		result1 error
 	}
-	ListStub        func(context.Context, runtime.Object, ...client.ListOption) error
+	ListStub        func(context.Context, client.ObjectList, ...client.ListOption) error
 	listMutex       sync.RWMutex
 	listArgsForCall []struct {
 		arg1 context.Context
-		arg2 runtime.Object
+		arg2 client.ObjectList
 		arg3 []client.ListOption
 	}
 	listReturns struct {
@@ -78,11 +79,11 @@ type CRTClusterClient struct {
 	listReturnsOnCall map[int]struct {
 		result1 error
 	}
-	PatchStub        func(context.Context, runtime.Object, client.Patch, ...client.PatchOption) error
+	PatchStub        func(context.Context, client.Object, client.Patch, ...client.PatchOption) error
 	patchMutex       sync.RWMutex
 	patchArgsForCall []struct {
 		arg1 context.Context
-		arg2 runtime.Object
+		arg2 client.Object
 		arg3 client.Patch
 		arg4 []client.PatchOption
 	}
@@ -91,6 +92,26 @@ type CRTClusterClient struct {
 	}
 	patchReturnsOnCall map[int]struct {
 		result1 error
+	}
+	RESTMapperStub        func() meta.RESTMapper
+	rESTMapperMutex       sync.RWMutex
+	rESTMapperArgsForCall []struct {
+	}
+	rESTMapperReturns struct {
+		result1 meta.RESTMapper
+	}
+	rESTMapperReturnsOnCall map[int]struct {
+		result1 meta.RESTMapper
+	}
+	SchemeStub        func() *runtime.Scheme
+	schemeMutex       sync.RWMutex
+	schemeArgsForCall []struct {
+	}
+	schemeReturns struct {
+		result1 *runtime.Scheme
+	}
+	schemeReturnsOnCall map[int]struct {
+		result1 *runtime.Scheme
 	}
 	StatusStub        func() client.StatusWriter
 	statusMutex       sync.RWMutex
@@ -102,11 +123,11 @@ type CRTClusterClient struct {
 	statusReturnsOnCall map[int]struct {
 		result1 client.StatusWriter
 	}
-	UpdateStub        func(context.Context, runtime.Object, ...client.UpdateOption) error
+	UpdateStub        func(context.Context, client.Object, ...client.UpdateOption) error
 	updateMutex       sync.RWMutex
 	updateArgsForCall []struct {
 		arg1 context.Context
-		arg2 runtime.Object
+		arg2 client.Object
 		arg3 []client.UpdateOption
 	}
 	updateReturns struct {
@@ -119,12 +140,12 @@ type CRTClusterClient struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *CRTClusterClient) Create(arg1 context.Context, arg2 runtime.Object, arg3 ...client.CreateOption) error {
+func (fake *CRTClusterClient) Create(arg1 context.Context, arg2 client.Object, arg3 ...client.CreateOption) error {
 	fake.createMutex.Lock()
 	ret, specificReturn := fake.createReturnsOnCall[len(fake.createArgsForCall)]
 	fake.createArgsForCall = append(fake.createArgsForCall, struct {
 		arg1 context.Context
-		arg2 runtime.Object
+		arg2 client.Object
 		arg3 []client.CreateOption
 	}{arg1, arg2, arg3})
 	stub := fake.CreateStub
@@ -146,13 +167,13 @@ func (fake *CRTClusterClient) CreateCallCount() int {
 	return len(fake.createArgsForCall)
 }
 
-func (fake *CRTClusterClient) CreateCalls(stub func(context.Context, runtime.Object, ...client.CreateOption) error) {
+func (fake *CRTClusterClient) CreateCalls(stub func(context.Context, client.Object, ...client.CreateOption) error) {
 	fake.createMutex.Lock()
 	defer fake.createMutex.Unlock()
 	fake.CreateStub = stub
 }
 
-func (fake *CRTClusterClient) CreateArgsForCall(i int) (context.Context, runtime.Object, []client.CreateOption) {
+func (fake *CRTClusterClient) CreateArgsForCall(i int) (context.Context, client.Object, []client.CreateOption) {
 	fake.createMutex.RLock()
 	defer fake.createMutex.RUnlock()
 	argsForCall := fake.createArgsForCall[i]
@@ -182,12 +203,12 @@ func (fake *CRTClusterClient) CreateReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *CRTClusterClient) Delete(arg1 context.Context, arg2 runtime.Object, arg3 ...client.DeleteOption) error {
+func (fake *CRTClusterClient) Delete(arg1 context.Context, arg2 client.Object, arg3 ...client.DeleteOption) error {
 	fake.deleteMutex.Lock()
 	ret, specificReturn := fake.deleteReturnsOnCall[len(fake.deleteArgsForCall)]
 	fake.deleteArgsForCall = append(fake.deleteArgsForCall, struct {
 		arg1 context.Context
-		arg2 runtime.Object
+		arg2 client.Object
 		arg3 []client.DeleteOption
 	}{arg1, arg2, arg3})
 	stub := fake.DeleteStub
@@ -209,13 +230,13 @@ func (fake *CRTClusterClient) DeleteCallCount() int {
 	return len(fake.deleteArgsForCall)
 }
 
-func (fake *CRTClusterClient) DeleteCalls(stub func(context.Context, runtime.Object, ...client.DeleteOption) error) {
+func (fake *CRTClusterClient) DeleteCalls(stub func(context.Context, client.Object, ...client.DeleteOption) error) {
 	fake.deleteMutex.Lock()
 	defer fake.deleteMutex.Unlock()
 	fake.DeleteStub = stub
 }
 
-func (fake *CRTClusterClient) DeleteArgsForCall(i int) (context.Context, runtime.Object, []client.DeleteOption) {
+func (fake *CRTClusterClient) DeleteArgsForCall(i int) (context.Context, client.Object, []client.DeleteOption) {
 	fake.deleteMutex.RLock()
 	defer fake.deleteMutex.RUnlock()
 	argsForCall := fake.deleteArgsForCall[i]
@@ -245,12 +266,12 @@ func (fake *CRTClusterClient) DeleteReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *CRTClusterClient) DeleteAllOf(arg1 context.Context, arg2 runtime.Object, arg3 ...client.DeleteAllOfOption) error {
+func (fake *CRTClusterClient) DeleteAllOf(arg1 context.Context, arg2 client.Object, arg3 ...client.DeleteAllOfOption) error {
 	fake.deleteAllOfMutex.Lock()
 	ret, specificReturn := fake.deleteAllOfReturnsOnCall[len(fake.deleteAllOfArgsForCall)]
 	fake.deleteAllOfArgsForCall = append(fake.deleteAllOfArgsForCall, struct {
 		arg1 context.Context
-		arg2 runtime.Object
+		arg2 client.Object
 		arg3 []client.DeleteAllOfOption
 	}{arg1, arg2, arg3})
 	stub := fake.DeleteAllOfStub
@@ -272,13 +293,13 @@ func (fake *CRTClusterClient) DeleteAllOfCallCount() int {
 	return len(fake.deleteAllOfArgsForCall)
 }
 
-func (fake *CRTClusterClient) DeleteAllOfCalls(stub func(context.Context, runtime.Object, ...client.DeleteAllOfOption) error) {
+func (fake *CRTClusterClient) DeleteAllOfCalls(stub func(context.Context, client.Object, ...client.DeleteAllOfOption) error) {
 	fake.deleteAllOfMutex.Lock()
 	defer fake.deleteAllOfMutex.Unlock()
 	fake.DeleteAllOfStub = stub
 }
 
-func (fake *CRTClusterClient) DeleteAllOfArgsForCall(i int) (context.Context, runtime.Object, []client.DeleteAllOfOption) {
+func (fake *CRTClusterClient) DeleteAllOfArgsForCall(i int) (context.Context, client.Object, []client.DeleteAllOfOption) {
 	fake.deleteAllOfMutex.RLock()
 	defer fake.deleteAllOfMutex.RUnlock()
 	argsForCall := fake.deleteAllOfArgsForCall[i]
@@ -308,13 +329,13 @@ func (fake *CRTClusterClient) DeleteAllOfReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *CRTClusterClient) Get(arg1 context.Context, arg2 types.NamespacedName, arg3 runtime.Object) error {
+func (fake *CRTClusterClient) Get(arg1 context.Context, arg2 types.NamespacedName, arg3 client.Object) error {
 	fake.getMutex.Lock()
 	ret, specificReturn := fake.getReturnsOnCall[len(fake.getArgsForCall)]
 	fake.getArgsForCall = append(fake.getArgsForCall, struct {
 		arg1 context.Context
 		arg2 types.NamespacedName
-		arg3 runtime.Object
+		arg3 client.Object
 	}{arg1, arg2, arg3})
 	stub := fake.GetStub
 	fakeReturns := fake.getReturns
@@ -335,13 +356,13 @@ func (fake *CRTClusterClient) GetCallCount() int {
 	return len(fake.getArgsForCall)
 }
 
-func (fake *CRTClusterClient) GetCalls(stub func(context.Context, types.NamespacedName, runtime.Object) error) {
+func (fake *CRTClusterClient) GetCalls(stub func(context.Context, types.NamespacedName, client.Object) error) {
 	fake.getMutex.Lock()
 	defer fake.getMutex.Unlock()
 	fake.GetStub = stub
 }
 
-func (fake *CRTClusterClient) GetArgsForCall(i int) (context.Context, types.NamespacedName, runtime.Object) {
+func (fake *CRTClusterClient) GetArgsForCall(i int) (context.Context, types.NamespacedName, client.Object) {
 	fake.getMutex.RLock()
 	defer fake.getMutex.RUnlock()
 	argsForCall := fake.getArgsForCall[i]
@@ -371,12 +392,12 @@ func (fake *CRTClusterClient) GetReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *CRTClusterClient) List(arg1 context.Context, arg2 runtime.Object, arg3 ...client.ListOption) error {
+func (fake *CRTClusterClient) List(arg1 context.Context, arg2 client.ObjectList, arg3 ...client.ListOption) error {
 	fake.listMutex.Lock()
 	ret, specificReturn := fake.listReturnsOnCall[len(fake.listArgsForCall)]
 	fake.listArgsForCall = append(fake.listArgsForCall, struct {
 		arg1 context.Context
-		arg2 runtime.Object
+		arg2 client.ObjectList
 		arg3 []client.ListOption
 	}{arg1, arg2, arg3})
 	stub := fake.ListStub
@@ -398,13 +419,13 @@ func (fake *CRTClusterClient) ListCallCount() int {
 	return len(fake.listArgsForCall)
 }
 
-func (fake *CRTClusterClient) ListCalls(stub func(context.Context, runtime.Object, ...client.ListOption) error) {
+func (fake *CRTClusterClient) ListCalls(stub func(context.Context, client.ObjectList, ...client.ListOption) error) {
 	fake.listMutex.Lock()
 	defer fake.listMutex.Unlock()
 	fake.ListStub = stub
 }
 
-func (fake *CRTClusterClient) ListArgsForCall(i int) (context.Context, runtime.Object, []client.ListOption) {
+func (fake *CRTClusterClient) ListArgsForCall(i int) (context.Context, client.ObjectList, []client.ListOption) {
 	fake.listMutex.RLock()
 	defer fake.listMutex.RUnlock()
 	argsForCall := fake.listArgsForCall[i]
@@ -434,12 +455,12 @@ func (fake *CRTClusterClient) ListReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *CRTClusterClient) Patch(arg1 context.Context, arg2 runtime.Object, arg3 client.Patch, arg4 ...client.PatchOption) error {
+func (fake *CRTClusterClient) Patch(arg1 context.Context, arg2 client.Object, arg3 client.Patch, arg4 ...client.PatchOption) error {
 	fake.patchMutex.Lock()
 	ret, specificReturn := fake.patchReturnsOnCall[len(fake.patchArgsForCall)]
 	fake.patchArgsForCall = append(fake.patchArgsForCall, struct {
 		arg1 context.Context
-		arg2 runtime.Object
+		arg2 client.Object
 		arg3 client.Patch
 		arg4 []client.PatchOption
 	}{arg1, arg2, arg3, arg4})
@@ -462,13 +483,13 @@ func (fake *CRTClusterClient) PatchCallCount() int {
 	return len(fake.patchArgsForCall)
 }
 
-func (fake *CRTClusterClient) PatchCalls(stub func(context.Context, runtime.Object, client.Patch, ...client.PatchOption) error) {
+func (fake *CRTClusterClient) PatchCalls(stub func(context.Context, client.Object, client.Patch, ...client.PatchOption) error) {
 	fake.patchMutex.Lock()
 	defer fake.patchMutex.Unlock()
 	fake.PatchStub = stub
 }
 
-func (fake *CRTClusterClient) PatchArgsForCall(i int) (context.Context, runtime.Object, client.Patch, []client.PatchOption) {
+func (fake *CRTClusterClient) PatchArgsForCall(i int) (context.Context, client.Object, client.Patch, []client.PatchOption) {
 	fake.patchMutex.RLock()
 	defer fake.patchMutex.RUnlock()
 	argsForCall := fake.patchArgsForCall[i]
@@ -495,6 +516,112 @@ func (fake *CRTClusterClient) PatchReturnsOnCall(i int, result1 error) {
 	}
 	fake.patchReturnsOnCall[i] = struct {
 		result1 error
+	}{result1}
+}
+
+func (fake *CRTClusterClient) RESTMapper() meta.RESTMapper {
+	fake.rESTMapperMutex.Lock()
+	ret, specificReturn := fake.rESTMapperReturnsOnCall[len(fake.rESTMapperArgsForCall)]
+	fake.rESTMapperArgsForCall = append(fake.rESTMapperArgsForCall, struct {
+	}{})
+	stub := fake.RESTMapperStub
+	fakeReturns := fake.rESTMapperReturns
+	fake.recordInvocation("RESTMapper", []interface{}{})
+	fake.rESTMapperMutex.Unlock()
+	if stub != nil {
+		return stub()
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *CRTClusterClient) RESTMapperCallCount() int {
+	fake.rESTMapperMutex.RLock()
+	defer fake.rESTMapperMutex.RUnlock()
+	return len(fake.rESTMapperArgsForCall)
+}
+
+func (fake *CRTClusterClient) RESTMapperCalls(stub func() meta.RESTMapper) {
+	fake.rESTMapperMutex.Lock()
+	defer fake.rESTMapperMutex.Unlock()
+	fake.RESTMapperStub = stub
+}
+
+func (fake *CRTClusterClient) RESTMapperReturns(result1 meta.RESTMapper) {
+	fake.rESTMapperMutex.Lock()
+	defer fake.rESTMapperMutex.Unlock()
+	fake.RESTMapperStub = nil
+	fake.rESTMapperReturns = struct {
+		result1 meta.RESTMapper
+	}{result1}
+}
+
+func (fake *CRTClusterClient) RESTMapperReturnsOnCall(i int, result1 meta.RESTMapper) {
+	fake.rESTMapperMutex.Lock()
+	defer fake.rESTMapperMutex.Unlock()
+	fake.RESTMapperStub = nil
+	if fake.rESTMapperReturnsOnCall == nil {
+		fake.rESTMapperReturnsOnCall = make(map[int]struct {
+			result1 meta.RESTMapper
+		})
+	}
+	fake.rESTMapperReturnsOnCall[i] = struct {
+		result1 meta.RESTMapper
+	}{result1}
+}
+
+func (fake *CRTClusterClient) Scheme() *runtime.Scheme {
+	fake.schemeMutex.Lock()
+	ret, specificReturn := fake.schemeReturnsOnCall[len(fake.schemeArgsForCall)]
+	fake.schemeArgsForCall = append(fake.schemeArgsForCall, struct {
+	}{})
+	stub := fake.SchemeStub
+	fakeReturns := fake.schemeReturns
+	fake.recordInvocation("Scheme", []interface{}{})
+	fake.schemeMutex.Unlock()
+	if stub != nil {
+		return stub()
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *CRTClusterClient) SchemeCallCount() int {
+	fake.schemeMutex.RLock()
+	defer fake.schemeMutex.RUnlock()
+	return len(fake.schemeArgsForCall)
+}
+
+func (fake *CRTClusterClient) SchemeCalls(stub func() *runtime.Scheme) {
+	fake.schemeMutex.Lock()
+	defer fake.schemeMutex.Unlock()
+	fake.SchemeStub = stub
+}
+
+func (fake *CRTClusterClient) SchemeReturns(result1 *runtime.Scheme) {
+	fake.schemeMutex.Lock()
+	defer fake.schemeMutex.Unlock()
+	fake.SchemeStub = nil
+	fake.schemeReturns = struct {
+		result1 *runtime.Scheme
+	}{result1}
+}
+
+func (fake *CRTClusterClient) SchemeReturnsOnCall(i int, result1 *runtime.Scheme) {
+	fake.schemeMutex.Lock()
+	defer fake.schemeMutex.Unlock()
+	fake.SchemeStub = nil
+	if fake.schemeReturnsOnCall == nil {
+		fake.schemeReturnsOnCall = make(map[int]struct {
+			result1 *runtime.Scheme
+		})
+	}
+	fake.schemeReturnsOnCall[i] = struct {
+		result1 *runtime.Scheme
 	}{result1}
 }
 
@@ -551,12 +678,12 @@ func (fake *CRTClusterClient) StatusReturnsOnCall(i int, result1 client.StatusWr
 	}{result1}
 }
 
-func (fake *CRTClusterClient) Update(arg1 context.Context, arg2 runtime.Object, arg3 ...client.UpdateOption) error {
+func (fake *CRTClusterClient) Update(arg1 context.Context, arg2 client.Object, arg3 ...client.UpdateOption) error {
 	fake.updateMutex.Lock()
 	ret, specificReturn := fake.updateReturnsOnCall[len(fake.updateArgsForCall)]
 	fake.updateArgsForCall = append(fake.updateArgsForCall, struct {
 		arg1 context.Context
-		arg2 runtime.Object
+		arg2 client.Object
 		arg3 []client.UpdateOption
 	}{arg1, arg2, arg3})
 	stub := fake.UpdateStub
@@ -578,13 +705,13 @@ func (fake *CRTClusterClient) UpdateCallCount() int {
 	return len(fake.updateArgsForCall)
 }
 
-func (fake *CRTClusterClient) UpdateCalls(stub func(context.Context, runtime.Object, ...client.UpdateOption) error) {
+func (fake *CRTClusterClient) UpdateCalls(stub func(context.Context, client.Object, ...client.UpdateOption) error) {
 	fake.updateMutex.Lock()
 	defer fake.updateMutex.Unlock()
 	fake.UpdateStub = stub
 }
 
-func (fake *CRTClusterClient) UpdateArgsForCall(i int) (context.Context, runtime.Object, []client.UpdateOption) {
+func (fake *CRTClusterClient) UpdateArgsForCall(i int) (context.Context, client.Object, []client.UpdateOption) {
 	fake.updateMutex.RLock()
 	defer fake.updateMutex.RUnlock()
 	argsForCall := fake.updateArgsForCall[i]
@@ -629,6 +756,10 @@ func (fake *CRTClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.listMutex.RUnlock()
 	fake.patchMutex.RLock()
 	defer fake.patchMutex.RUnlock()
+	fake.rESTMapperMutex.RLock()
+	defer fake.rESTMapperMutex.RUnlock()
+	fake.schemeMutex.RLock()
+	defer fake.schemeMutex.RUnlock()
 	fake.statusMutex.RLock()
 	defer fake.statusMutex.RUnlock()
 	fake.updateMutex.RLock()

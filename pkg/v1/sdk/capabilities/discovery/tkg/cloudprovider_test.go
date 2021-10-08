@@ -14,40 +14,40 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
-func nodeListFor(cloudProvider CloudProvider) *corev1.NodeList {
-	return &corev1.NodeList{
-		Items: []corev1.Node{
-			{
-				Spec: corev1.NodeSpec{ProviderID: fmt.Sprintf("%s://xxx-xxxx-xxxx", cloudProvider)},
-			},
-		},
+func nodeFor(cloudProvider CloudProvider) *corev1.Node {
+	return &corev1.Node{
+		Spec: corev1.NodeSpec{ProviderID: fmt.Sprintf("%s://xxx-xxxx-xxxx", cloudProvider)},
 	}
 }
 
 func TestHasCloudProvider(t *testing.T) {
-	discoveryClientFor := func(nodeList *corev1.NodeList) (*DiscoveryClient, error) {
-		return newFakeDiscoveryClient([]*metav1.APIResourceList{}, Scheme, []runtime.Object{nodeList})
+	discoveryClientFor := func(node *corev1.Node) (*DiscoveryClient, error) {
+		var objs []runtime.Object
+		if node != nil {
+			objs = append(objs, node)
+		}
+		return newFakeDiscoveryClient([]*metav1.APIResourceList{}, Scheme, objs)
 	}
 
 	testCases := []struct {
 		description   string
 		cloudProvider CloudProvider
-		nodeListFn    func(cloudProvider CloudProvider) *corev1.NodeList
+		nodeFn        func(cloudProvider CloudProvider) *corev1.Node
 		err           string
 		want          bool
 	}{
-		{"aws", CloudProviderAWS, nodeListFor, "", true},
-		{"azure", CloudProviderAzure, nodeListFor, "", true},
-		{"vsphere", CloudProviderVsphere, nodeListFor, "", true},
-		{"empty node list", CloudProviderVsphere, func(cloudProvider CloudProvider) *corev1.NodeList {
-			return &corev1.NodeList{}
+		{"aws", CloudProviderAWS, nodeFor, "", true},
+		{"azure", CloudProviderAzure, nodeFor, "", true},
+		{"vsphere", CloudProviderVsphere, nodeFor, "", true},
+		{"empty node list", CloudProviderVsphere, func(cloudProvider CloudProvider) *corev1.Node {
+			return nil
 		}, "node list is empty", false},
-		{"unknown", CloudProvider("unknown"), nodeListFor, "unsupported cloud provider", false},
+		{"unknown", CloudProvider("unknown"), nodeFor, "unsupported cloud provider", false},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
-			dc, err := discoveryClientFor(tc.nodeListFn(tc.cloudProvider))
+			dc, err := discoveryClientFor(tc.nodeFn(tc.cloudProvider))
 			if err != nil {
 				t.Error(err)
 			}

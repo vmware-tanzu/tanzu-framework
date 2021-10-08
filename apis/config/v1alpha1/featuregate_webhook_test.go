@@ -14,7 +14,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client/fake" //nolint:staticcheck
+	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	stringcmp "github.com/vmware-tanzu/tanzu-framework/pkg/v1/test/cmp/strings"
 )
@@ -314,7 +314,7 @@ func TestNamespaceConflicts(t *testing.T) {
 			var objs []runtime.Object
 			objs = append(objs, tc.existingNamespaces...)
 			objs = append(objs, tc.existingFeatureGates...)
-			fakeClient := fake.NewFakeClientWithScheme(scheme, objs...)
+			fakeClient := fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objs...).Build()
 			got, err := tc.createObj.computeConflictingNamespaces(context.Background(), fakeClient)
 			if err != nil {
 				if tc.err == "" {

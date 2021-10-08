@@ -88,7 +88,7 @@ func (p *ClusterProxy) GetScheme() *runtime.Scheme {
 // GetClusterNodes gets the cluster Nodes
 func (p *ClusterProxy) GetClusterNodes() []corev1.Node {
 	clientSet := p.GetClientSet()
-	nodeList, err := clientSet.CoreV1().Nodes().List(metav1.ListOptions{})
+	nodeList, err := clientSet.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
 	Expect(err).ToNot(HaveOccurred())
 	return nodeList.Items
 }

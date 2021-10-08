@@ -4,7 +4,7 @@
 package tkgctl
 
 import (
-	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
+	capi "sigs.k8s.io/cluster-api/api/v1alpha4"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
 )

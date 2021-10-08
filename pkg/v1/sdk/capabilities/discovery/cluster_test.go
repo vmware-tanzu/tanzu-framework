@@ -12,7 +12,14 @@ import (
 	testapigroup "k8s.io/apimachinery/pkg/apis/testapigroup/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	apitest "k8s.io/apimachinery/pkg/test"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 )
+
+var testScheme = runtime.NewScheme()
+
+func init() {
+	utilruntime.Must(testapigroup.AddToScheme(testScheme))
+}
 
 var carp = corev1.ObjectReference{
 	Kind:       "Carp",
@@ -51,13 +58,11 @@ var apiResources = []*metav1.APIResourceList{
 }
 
 func queryClientWithResourcesAndObjects() (*ClusterQueryClient, error) {
-	scheme, _ := apitest.TestScheme()
-	return NewFakeClusterQueryClient(apiResources, scheme, testObjects)
+	return NewFakeClusterQueryClient(apiResources, testScheme, testObjects)
 }
 
 func queryClientWithNoResources() (*ClusterQueryClient, error) {
-	scheme, _ := apitest.TestScheme()
-	return NewFakeClusterQueryClient([]*metav1.APIResourceList{}, scheme, testObjects)
+	return NewFakeClusterQueryClient([]*metav1.APIResourceList{}, testScheme, testObjects)
 }
 
 func queryClientWithResourcesAndNoObjects() (*ClusterQueryClient, error) {

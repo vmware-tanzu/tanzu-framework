@@ -196,6 +196,7 @@ func (c *client) loadBOMConfigurationFromFiledata(data []byte) (*BOMConfiguratio
 		bomConfiguration.ProvidersVersionMap["cluster-api"] = getSimpleVersion(bomConfiguration.Components["cluster_api"][0].Version)
 		bomConfiguration.ProvidersVersionMap["bootstrap-kubeadm"] = getSimpleVersion(bomConfiguration.Components["cluster_api"][0].Version)
 		bomConfiguration.ProvidersVersionMap["control-plane-kubeadm"] = getSimpleVersion(bomConfiguration.Components["cluster_api"][0].Version)
+		bomConfiguration.ProvidersVersionMap["infrastructure-docker"] = getSimpleVersion(bomConfiguration.Components["cluster_api"][0].Version)
 		bomConfiguration.ProvidersVersionMap["infrastructure-aws"] = getSimpleVersion(bomConfiguration.Components["cluster_api_aws"][0].Version)
 		bomConfiguration.ProvidersVersionMap["infrastructure-vsphere"] = getSimpleVersion(bomConfiguration.Components["cluster_api_vsphere"][0].Version)
 		bomConfiguration.ProvidersVersionMap["infrastructure-azure"] = getSimpleVersion(bomConfiguration.Components["cluster-api-provider-azure"][0].Version)

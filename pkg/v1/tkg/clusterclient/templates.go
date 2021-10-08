@@ -5,7 +5,7 @@ package clusterclient
 
 import (
 	"github.com/pkg/errors"
-	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
+	capvv1alpha4 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha4"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/vc"
 )
@@ -20,7 +20,7 @@ func (c *client) GetVCClientAndDataCenter(clusterName, clusterNamespace, vsphere
 		return nil, "", errors.Wrap(err, "unable to retrieve vSphere credentials to retrieve VM Template")
 	}
 
-	vsphereMachineTemplate := &capvv1alpha3.VSphereMachineTemplate{}
+	vsphereMachineTemplate := &capvv1alpha4.VSphereMachineTemplate{}
 	if err = c.GetResource(vsphereMachineTemplate, vsphereMachineTemplateObjectName, clusterNamespace, nil, nil); err != nil {
 		return nil, "", errors.Wrapf(err, "unable to find VSphereMachineTemplate with name '%s' in namespace '%s' retrieve VM Template", vsphereMachineTemplateObjectName, clusterNamespace)
 	}
