@@ -344,7 +344,15 @@ release-%:
 test: generate fmt vet manifests build-cli-mocks ## Run tests
 	## Skip running TKG integration tests
 	$(MAKE) ytt -C $(TOOLS_DIR)
-	PATH=$(abspath hack/tools/bin):$(PATH) $(GO) test -coverprofile cover.out -v `go list ./... | grep -v github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test`
+
+	## Test the YTT cluster templates
+	echo "Changing into the provider test directory to verify ytt cluster templates ..."
+	cd ./pkg/v1/providers/tests/unit && PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -v -timeout 30s ./
+	echo "... ytt cluster template verification complete!"
+
+	PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -coverprofile cover.out -v `go list ./... | grep -v github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test`
+
+
 	$(MAKE) kubebuilder -C $(TOOLS_DIR)
 	KUBEBUILDER_ASSETS=$(ROOT_DIR)/$(KUBEBUILDER)/bin $(MAKE) test -C addons
 
