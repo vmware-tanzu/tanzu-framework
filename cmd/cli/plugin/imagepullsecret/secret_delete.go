@@ -6,6 +6,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
@@ -42,9 +43,11 @@ func imagePullSecretDelete(cmd *cobra.Command, args []string) error {
 	if !imagePullSecretOp.SkipPrompt {
 		if err := cli.AskForConfirmation(fmt.Sprintf("Deleting image pull secret '%s' from namespace '%s'. Are you sure?",
 			imagePullSecretOp.SecretName, imagePullSecretOp.Namespace)); err != nil {
-			return err
+			return errors.New("deletion of the secret got aborted")
 		}
 	}
+
+	cmd.SilenceUsage = true
 
 	if _, err = component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), outputFormat,
 		fmt.Sprintf("Deleting image pull secret '%s'...", imagePullSecretOp.SecretName), true); err != nil {

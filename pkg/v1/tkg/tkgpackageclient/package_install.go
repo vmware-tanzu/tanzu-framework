@@ -8,11 +8,12 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
+	"time"
 
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	k8serror "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
@@ -31,7 +32,7 @@ const (
 )
 
 // InstallPackage installs the PackageInstall and its associated resources in the cluster
-func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progress *tkgpackagedatamodel.PackageProgress, update bool) { //nolint:gocyclo
+func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progress *tkgpackagedatamodel.PackageProgress, operationType tkgpackagedatamodel.OperationType) { //nolint:gocyclo
 	var (
 		pkgInstall            *kappipkg.PackageInstall
 		err                   error
@@ -40,18 +41,29 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 	)
 
 	defer func() {
-		packageInstallProgressCleanup(err, progress, update)
+		if err != nil {
+			progress.Err <- err
+		}
+		if operationType == tkgpackagedatamodel.OperationTypeInstall {
+			close(progress.ProgressMsg)
+			close(progress.Done)
+		}
 	}()
 
 	if pkgInstall, err = p.kappClient.GetPackageInstall(o.PkgInstallName, o.Namespace); err != nil {
-		if !apierrors.IsNotFound(err) {
+		if !k8serror.IsNotFound(err) {
 			return
 		}
 		err = nil
 	}
 
 	if pkgInstall != nil && pkgInstall.Name == o.PkgInstallName {
-		err = &tkgpackagedatamodel.PackagePluginNonCriticalError{Reason: tkgpackagedatamodel.ErrPackageAlreadyInstalled}
+		err = errors.New(fmt.Sprintf("package install '%s' already exists in namespace '%s'", o.PkgInstallName, o.Namespace))
+		return
+	}
+
+	progress.ProgressMsg <- fmt.Sprintf("Getting package metadata for '%s'", o.PackageName)
+	if _, _, err = p.GetPackage(o); err != nil {
 		return
 	}
 
@@ -60,15 +72,7 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 		if err = p.createNamespace(o.Namespace); err != nil {
 			return
 		}
-	} else {
-		progress.ProgressMsg <- fmt.Sprintf("Getting namespace '%s'", o.Namespace)
-		if err = p.kappClient.GetClient().Get(context.Background(), crtclient.ObjectKey{Name: o.Namespace}, &corev1.Namespace{}); err != nil {
-			return
-		}
-	}
-
-	progress.ProgressMsg <- fmt.Sprintf("Getting package metadata for '%s'", o.PackageName)
-	if _, _, err = p.GetPackage(o); err != nil {
+	} else if err = p.kappClient.GetClient().Get(context.Background(), crtclient.ObjectKey{Name: o.Namespace}, &corev1.Namespace{}); err != nil {
 		return
 	}
 
@@ -121,20 +125,10 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 	}
 
 	if o.Wait {
-		if err = p.waitForPackageInstallation(o, progress.ProgressMsg); err != nil {
+		if err = p.waitForResourceInstallation(o.PkgInstallName, o.Namespace, o.PollInterval, o.PollTimeout, progress.ProgressMsg, tkgpackagedatamodel.ResourceTypePackageInstall); err != nil {
 			log.Warning(msgRunPackageInstalledUpdate)
 			return
 		}
-	}
-}
-
-func packageInstallProgressCleanup(err error, progress *tkgpackagedatamodel.PackageProgress, update bool) {
-	if err != nil {
-		progress.Err <- err
-	}
-	if !update {
-		close(progress.ProgressMsg)
-		close(progress.Done)
 	}
 }
 
@@ -188,7 +182,7 @@ func (p *pkgClient) createDataValuesSecret(o *tkgpackagedatamodel.PackageOptions
 	if dataValues[filepath.Base(o.ValuesFile)], err = ioutil.ReadFile(o.ValuesFile); err != nil {
 		return false, errors.Wrap(err, fmt.Sprintf("failed to read from data values file '%s'", o.ValuesFile))
 	}
-	secret := &corev1.Secret{
+	secret = &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        o.SecretName,
 			Namespace:   o.Namespace,
@@ -211,7 +205,7 @@ func (p *pkgClient) createNamespace(namespace string) error {
 		crtclient.ObjectKey{Name: namespace},
 		&corev1.Namespace{})
 	if err != nil {
-		if !apierrors.IsNotFound(err) {
+		if !k8serror.IsNotFound(err) {
 			return err
 		}
 		ns := &corev1.Namespace{
@@ -277,22 +271,34 @@ func (p *pkgClient) createServiceAccount(o *tkgpackagedatamodel.PackageOptions) 
 	return true, nil
 }
 
-// waitForPackageInstallation waits until the package get installed successfully or a failure happen
-func (p *pkgClient) waitForPackageInstallation(o *tkgpackagedatamodel.PackageOptions, progress chan string) error {
-	if err := wait.Poll(o.PollInterval, o.PollTimeout, func() (done bool, err error) {
-		pkg, err := p.kappClient.GetPackageInstall(o.PkgInstallName, o.Namespace)
-		if err != nil {
-			return false, err
+// waitForResourceInstallation waits until the package get installed successfully or a failure happen
+func (p *pkgClient) waitForResourceInstallation(name, namespace string, pollInterval, pollTimeout time.Duration, progress chan string, rscType tkgpackagedatamodel.ResourceType) error {
+	var status kappctrl.GenericStatus
+	progress <- fmt.Sprintf("Waiting for '%s' reconciliation for '%s'", rscType.String(), name)
+	if err := wait.Poll(pollInterval, pollTimeout, func() (done bool, err error) {
+		switch rscType {
+		case tkgpackagedatamodel.ResourceTypePackageRepository:
+			resource, err := p.kappClient.GetPackageRepository(name, namespace)
+			if err != nil {
+				return false, err
+			}
+			status = resource.Status.GenericStatus
+		case tkgpackagedatamodel.ResourceTypePackageInstall:
+			resource, err := p.kappClient.GetPackageInstall(name, namespace)
+			if err != nil {
+				return false, err
+			}
+			status = resource.Status.GenericStatus
 		}
-		for _, cond := range pkg.Status.Conditions {
+		for _, cond := range status.Conditions {
 			if progress != nil {
-				progress <- fmt.Sprintf("Package install status: %s", cond.Type)
+				progress <- fmt.Sprintf("Resource install status: %s", cond.Type)
 			}
 			switch cond.Type {
 			case kappctrl.ReconcileSucceeded:
 				return true, nil
 			case kappctrl.ReconcileFailed:
-				return false, fmt.Errorf("package reconciliation failed: %s", pkg.Status.UsefulErrorMessage)
+				return false, fmt.Errorf("resource reconciliation failed: %s. %s", status.UsefulErrorMessage, status.FriendlyDescription)
 			}
 		}
 		return false, nil

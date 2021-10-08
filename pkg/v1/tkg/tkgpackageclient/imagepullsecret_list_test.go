@@ -21,7 +21,7 @@ import (
 
 const testSecretExportName = "test-secret"
 
-var testDockerconfig = DockerConfigJSON{Auths: map[string]dockerConfigEntry{"us-east4-docker.pkg.dev": {Username: "test_user", Password: "test_password"}}}
+var testDockerConfig = DockerConfigJSON{Auths: map[string]dockerConfigEntry{"us-east4-docker.pkg.dev": {Username: "test_user", Password: "test_password"}}}
 
 var testSecret = &corev1.Secret{
 	TypeMeta:   metav1.TypeMeta{Kind: tkgpackagedatamodel.KindSecret, APIVersion: corev1.SchemeGroupVersion.String()},
@@ -55,7 +55,7 @@ var _ = Describe("List Secrets", func() {
 
 	JustBeforeEach(func() {
 		ctl = &pkgClient{kappClient: kappCtl}
-		dockerCfgContent, _ := json.Marshal(testDockerconfig)
+		dockerCfgContent, _ := json.Marshal(testDockerConfig)
 		testSecret.Data[corev1.DockerConfigJsonKey] = dockerCfgContent
 		secrets, err = ctl.ListImagePullSecrets(&options)
 	})

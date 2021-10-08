@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Copyright 2021 VMware, Inc. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 # Usage:
 # clustergen-check.sh base-commit current-commit
 

@@ -36,14 +36,14 @@ func (p *pkgClient) AddImagePullSecret(o *tkgpackagedatamodel.ImagePullSecretOpt
 		return err
 	}
 
-	secret := p.newSecret(o.SecretName, o.Namespace, corev1.SecretTypeDockerConfigJson)
+	secret = p.newSecret(o.SecretName, o.Namespace, corev1.SecretTypeDockerConfigJson)
 	secret.Data[corev1.DockerConfigJsonKey] = dockerCfgContent
 	if err := p.kappClient.GetClient().Create(context.Background(), secret); err != nil {
 		return errors.Wrap(err, "failed to create Secret resource")
 	}
 
 	if o.ExportToAllNamespaces {
-		secretExport := p.newSecretExport(o.SecretName, o.Namespace)
+		secretExport = p.newSecretExport(o.SecretName, o.Namespace)
 		if err := p.kappClient.GetClient().Create(context.Background(), secretExport); err != nil {
 			return errors.Wrap(err, "failed to create SecretExport resource")
 		}

@@ -22,7 +22,7 @@ spec:
     #@overlay/append
     - systemctl restart containerd
 
-#@ if data.values.INFRASTRUCTURE_PROVIDER != "windows-vsphere":
+#@ if not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
 #@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate"}),expects="1+"
 ---
 apiVersion: bootstrap.cluster.x-k8s.io/v1alpha3
@@ -44,4 +44,3 @@ spec:
       - systemctl restart containerd
 #@ end
 #@ end
-

@@ -55,8 +55,6 @@ linters-settings:
           - (github.com/aunum/log").Warnf
           - (github.com/aunum/log").Errorf
           - (github.com/aunum/log").Fatalf
-  maligned:
-    suggest-new: true
   misspell:
     locale: US
   nolintlint:

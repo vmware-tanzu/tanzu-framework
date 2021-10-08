@@ -22,11 +22,8 @@ reviewer.
 
 ## Communication
 
-We prefer communicating asynchronously through GitHub issues and the [#TBD
-Slack channel](https://kubernetes.slack.com/archives/CQCDFHWFR). In order to be
-inclusive to the community, if a conversation related to an issue happens
-outside of these channels, we appreciate summarizing the conversation's context
-and adding it to an issue.
+We prefer communicating asynchronously through GitHub issues. We currently do
+not have a slack channel or email list (hopefully soon).
 
 ## Propose a Change
 

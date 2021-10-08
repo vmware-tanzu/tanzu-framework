@@ -2,51 +2,137 @@
 
 A simple set of instructions to set up and use the Tanzu CLI.
 
-## Installation
+## Binary installation
 
 ### Install the latest release of Tanzu CLI
 
 `linux-amd64`,`windows-amd64`, and `darwin-amd64` are the OS-ARCHITECTURE
 combinations we support now.
 
-If you want to install the latest release of the Tanzu CLI, you can run the below commands:
+#### macOS/Linux
 
-#### MacOS/Linux
+- Download the latest [release](https://github.com/vmware-tanzu/tanzu-framework/releases/latest)
 
-```shell
-export ARCH=$(case $(uname -m) in x86_64) echo -n amd64 ;; aarch64) echo -n arm64 ;; esac)
-export OS=$(uname | awk '{print tolower($0)}')
+- Extract the downloaded tar file
 
-curl -o tanzu https://storage.googleapis.com/tanzu-cli/artifacts/core/latest/tanzu-core-${OS}_${ARCH} && \
-    mv tanzu /usr/local/bin/tanzu && \
-    chmod +x /usr/local/bin/tanzu
-```
+  - for macOS:
+
+    ```sh
+    mkdir tanzu && tar -xvf tanzu-framework-darwin-amd64.tar -C tanzu
+    ```
+
+  - for Linux:
+
+    ```sh
+    mkdir tanzu && tar -xvf tanzu-framework-linux-amd64.tar -C tanzu
+    ```
+
+- Install the `tanzu` CLI
+
+  - for macOS:
+
+    ```sh
+    install tanzu/cli/core/v0.5.0/tanzu-core-darwin_amd64 /usr/local/bin/tanzu
+    ```
+
+  - for Linux:
+
+    ```sh
+    sudo install tanzu/cli/core/v0.5.0/tanzu-core-linux_amd64 /usr/local/bin/tanzu
+    ```
+
+  Note: Replace `v0.5.0` with the version you've downloaded
+
+- Set `TANZU_CLI_NO_INIT=true`
+
+  ```sh
+  export TANZU_CLI_NO_INIT=true
+  ```
+
+- If you have a previous version of tanzu CLI already installed and the config file ~/.config/tanzu/config.yaml is present, run this command to make sure the default plugin repo points to the right path.
+
+  ```sh
+  tanzu plugin repo update -b tanzu-cli-framework core
+  ```
+
+- Install the downloaded plugins
+
+  ```sh
+  tanzu plugin install --local tanzu/cli all
+  ```
+
+- Verify installed plugins
+
+  ```sh
+  tanzu plugin list
+  ```
 
 #### Windows
 
-#### AMD64
+- Download the latest [release](https://github.com/vmware-tanzu/tanzu-framework/releases/latest)
 
-Windows executable can be found at
-[https://storage.googleapis.com/tanzu-cli/artifacts/core/latest/tanzu-core-windows_amd64.exe](https://storage.googleapis.com/tanzu-cli/artifacts/core/latest/tanzu-core-windows_amd64.exe)
+- Open PowerShell as an administrator, change to the download directory and run:
 
-### Build and install the CLI and plugins locally
+  ```sh
+  mkdir tanzu
+  tar -xvf tanzu-framework-windows-amd64.tar -C tanzu
+  cd .\tanzu\
+  ```
 
-#### Prerequisites
+- Save following in `install.bat` in current directory and run `install.bat`
 
-* [go](https://golang.org/dl/) version 1.16
+  ```sh
+  SET TANZU_CLI_DIR=%ProgramFiles%\tanzu
+  mkdir "%TANZU_CLI_DIR%"
+  copy /B /Y cli\core\v0.5.0\tanzu-core-windows_amd64.exe "%TANZU_CLI_DIR%\tanzu.exe"
+  set PATH=%PATH%;%TANZU_CLI_DIR%
+  SET PLUGIN_DIR=%LocalAppData%\tanzu-cli
+  mkdir %PLUGIN_DIR%
+  SET TANZU_CACHE_DIR=%LocalAppData%\.cache\tanzu
+  rmdir /Q /S %TANZU_CACHE_DIR%
+  set TANZU_CLI_NO_INIT=true
+  tanzu plugin repo update -b tanzu-cli-framework core
+  tanzu plugin install --local cli all
+  tanzu plugin list
+  ```
 
-Clone Tanzu Framework and run the below command to build and install CLI and
-plugins locally for your platform.
+  Note version `v0.5.0` in line number 3, please replace with the version you are installing.
 
-```sh
-TANZU_CLI_NO_INIT=true make build-install-cli-local
-```
+- Add `Program Files\tanzu` to your PATH.
 
-If you additionaly want to build and install CLI and plugins for all platforms, run:
+## Build the CLI and plugins from source
 
-```sh
-TANZU_CLI_NO_INIT=true make build-install-cli-all
-```
+If you want the very latest, you can also build and install tanzu CLI, and its plugins, from source.
+
+### Prerequisites
+
+- [go](https://golang.org/dl/) version 1.16
+
+- Clone Tanzu Framework and run the below command to build and install CLI and
+  plugins locally for your platform.
+
+  ```sh
+  TANZU_CLI_NO_INIT=true make build-install-cli-local
+  ```
+
+- When the build is done, the tanzu CLI binary and the plugins will be produced locally in the `artifacts` directory.
+  The CLI binary will be in a directory similar to the following:
+
+  ```bash
+  ./artifacts/<OS>/<ARCH>/cli/core/<version>/tanzu-core-<os_arch>
+  ```
+
+- For instance, the following is a build for MacOS:
+
+  ```bash
+  ./artifacts/darwin/amd64/cli/core/latest/tanzu-core-darwin_amd64
+  ```
+
+- If you additionally want to build and install CLI and plugins for all platforms, run:
+
+  ```sh
+  TANZU_CLI_NO_INIT=true make build-install-cli-all
+  ```
 
 The CLI currently contains a default distribution which is the default set of plugins that should be installed on
 initialization. Initialization of the distributions can be prevented by setting the env var `TANZU_CLI_NO_INIT=true`.

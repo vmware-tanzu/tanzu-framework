@@ -4,6 +4,7 @@
 package tkgpackageclient
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -94,7 +95,6 @@ var _ = Describe("Install Package", func() {
 		}
 		options  = opts
 		progress *tkgpackagedatamodel.PackageProgress
-		update   bool
 	)
 
 	JustBeforeEach(func() {
@@ -104,7 +104,7 @@ var _ = Describe("Install Package", func() {
 			Done:        make(chan struct{}),
 		}
 		ctl = &pkgClient{kappClient: kappCtl}
-		go ctl.InstallPackage(&options, progress, update)
+		go ctl.InstallPackage(&options, progress, tkgpackagedatamodel.OperationTypeInstall)
 		err = testReceive(progress)
 	})
 
@@ -184,7 +184,7 @@ var _ = Describe("Install Package", func() {
 		AfterEach(func() { options = opts })
 	})
 
-	Context("failure in getting installed package due to GetPackageInstall API error in waitForPackageInstallation", func() {
+	Context("failure in getting installed package due to GetPackageInstall API error in waitForResourceInstallation", func() {
 		BeforeEach(func() {
 			options.Wait = true
 			kappCtl = &fakes.KappClient{}
@@ -307,7 +307,7 @@ var _ = Describe("Install Package", func() {
 		})
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(Equal(tkgpackagedatamodel.ErrPackageAlreadyInstalled))
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("package install '%s' already exists in namespace '%s'", options.PkgInstallName, options.Namespace)))
 		})
 		AfterEach(func() {
 			options = opts

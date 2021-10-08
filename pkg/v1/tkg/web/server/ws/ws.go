@@ -7,9 +7,7 @@ package ws
 import (
 	"errors"
 	"fmt"
-	"net"
 	"net/http"
-	"net/url"
 	"syscall"
 
 	"github.com/gorilla/websocket"
@@ -24,37 +22,12 @@ var (
 	logs          = [][]byte{}
 )
 
-const (
-	localhostIP = "127.0.0.1"
-	localhost   = "localhost"
-)
-
 // InitWebsocketUpgrader initializes the upgrader and configures the
 // CheckOrigin function using the provided host
 func InitWebsocketUpgrader(hostBind string) {
-	isLocal := hostBind == localhostIP || hostBind == localhost
 	upgrader = websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
-			// 1. Get the request origin
-			// 2. Verify the origin is in allowed origins
-			// (Allowed origins are 'localhost' '127.0.0.1' and 'user-specified host with --bind flag')
-			originURL, err := url.Parse(r.Header.Get("Origin"))
-			if err != nil {
-				log.ForceWriteToStdErr([]byte(fmt.Sprintf("Error verifying websocket origin url: %s", err.Error())))
-				return false
-			}
-
-			origin, _, err := net.SplitHostPort(originURL.Host)
-			if err != nil {
-				log.ForceWriteToStdErr([]byte(fmt.Sprintf("Error verifying websocket origin: %s", err.Error())))
-				return false
-			}
-
-			// (Allowed origins are 'localhost' '127.0.0.1' and 'user-specified hostname with --bind flag')
-			if (isLocal && (origin == localhostIP || origin == localhost)) || origin == hostBind {
-				return true
-			}
-			return false
+			return true
 		},
 	}
 }

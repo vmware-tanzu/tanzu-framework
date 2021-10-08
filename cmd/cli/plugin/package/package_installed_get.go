@@ -35,6 +35,8 @@ func init() {
 }
 
 func packageInstalledGet(cmd *cobra.Command, args []string) error {
+	cmd.SilenceUsage = true
+
 	kc, err := kappclient.NewKappClient(packageInstalledOp.KubeConfig)
 	if err != nil {
 		return err

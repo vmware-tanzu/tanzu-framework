@@ -6,9 +6,6 @@ include ../../../../common.mk
 IMG ?= featuregates-controller-manager:latest
 CRD_OPTIONS ?= "crd:trivialVersions=true"
 
-# ssh private key file name
-SSH_PRIVATE_KEY ?= .private_ssh_key
-
 all: manager
 
 # Run tests
@@ -59,4 +56,4 @@ endif
 
 .PHONY: docker-build
 docker-build:
-	cd ../../../../ && docker build -t $(IMG) -f pkg/v1/sdk/features/Dockerfile --build-arg LD_FLAGS="$(LD_FLAGS)" --build-arg SSH_PRIVATE_KEY=$(SSH_PRIVATE_KEY) .
+	cd ../../../../ && docker build -t $(IMG) -f pkg/v1/sdk/features/Dockerfile --build-arg LD_FLAGS="$(LD_FLAGS)" .

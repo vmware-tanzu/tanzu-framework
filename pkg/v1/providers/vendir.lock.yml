@@ -5,7 +5,7 @@ directories:
       commitTitle: Add package templates Antrea 0.13.3 (#953)...
       sha: df9a9cdea9886f1f5cc2856994739539cd5c5663
       tags:
-      - v0.6.0-57-gdf9a9cd
+      - v0.6.0-57-gdf9a9cde
     path: .
   path: ytt/vendir/vsphere_cpi/_ytt_lib
 - contents:
@@ -13,15 +13,15 @@ directories:
       commitTitle: remove antrean configmap kapp versioned annotation (#1008)...
       sha: 0c8cf14639f151cc0268da53d133e1f6c0d836a9
       tags:
-      - v0.6.0-65-g0c8cf14
+      - v0.6.0-65-g0c8cf146
     path: .
   path: ytt/vendir/cni/_ytt_lib
 - contents:
   - git:
-      commitTitle: Changes for adding kapp controller in tce => release 0.23.0 (#1300)...
-      sha: d78628afa044bab34e492830530ee4fdf20f40f2
+      commitTitle: Changes for adding kapp controller in tce => release 0.25.0 (#1889)...
+      sha: a67d6b278c5b1e693e2143e37e4e4761e69314fe
       tags:
-      - v0.7.0-dev.4-5-gd78628a
+      - v0.8.0-46-ga67d6b27
     path: .
   path: ytt/vendir/kapp-controller/_ytt_lib
 kind: LockConfig

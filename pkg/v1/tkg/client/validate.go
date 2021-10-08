@@ -302,13 +302,6 @@ func (c *TkgClient) ConfigureAndValidateDockerConfig(tkrVersion string, nodeSize
 	return nil
 }
 
-// ConfigureAndValidateWindowsVsphereConfig configures and validates vsphere configuration for windows
-func (c *TkgClient) ConfigureAndValidateWindowsVsphereConfig(tkrVersion string, nodeSizes NodeSizeOptions, vip string, skipValidation bool, clusterClient clusterclient.Client) *ValidationError {
-	// INFRASTRUCTURE_PROVIDER windows-vsphere reuse vsphere as PROVIDER_TYPE
-	c.SetProviderType(VSphereProviderName)
-	return nil
-}
-
 // ConfigureAndValidateAwsConfig configures and validates aws configuration
 func (c *TkgClient) ConfigureAndValidateAwsConfig(tkrVersion string, skipValidation, isProdConfig bool, workerMachineCount int64, isManagementCluster, useExistingVPC bool) error {
 	if tkrVersion == "" {
@@ -584,9 +577,11 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
+	isProdPlan := options.Plan == constants.PlanProd
+	_, workerMachineCount := c.getMachineCountForMC(options.Plan)
 	switch name {
 	case AWSProviderName:
-		err = c.ConfigureAndValidateAWSConfig(tkrVersion, options.NodeSizeOptions, skipValidation, options.Plan == constants.PlanProd, constants.DefaultWorkerMachineCountForManagementCluster, nil, true)
+		err = c.ConfigureAndValidateAWSConfig(tkrVersion, options.NodeSizeOptions, skipValidation, isProdPlan, int64(workerMachineCount), nil, true)
 	case VSphereProviderName:
 		err := c.ConfigureAndValidateVsphereConfig(tkrVersion, options.NodeSizeOptions, options.VsphereControlPlaneEndpoint, skipValidation, nil)
 		if err != nil {
@@ -597,11 +592,9 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 			log.Warningf("WARNING: The control plane endpoint '%s' might already used by other cluster. This might affect the deployment of the cluster", options.VsphereControlPlaneEndpoint)
 		}
 	case AzureProviderName:
-		err = c.ConfigureAndValidateAzureConfig(tkrVersion, options.NodeSizeOptions, skipValidation, options.Plan == constants.PlanProd, constants.DefaultWorkerMachineCountForManagementCluster, nil, true)
+		err = c.ConfigureAndValidateAzureConfig(tkrVersion, options.NodeSizeOptions, skipValidation, isProdPlan, int64(workerMachineCount), nil, true)
 	case DockerProviderName:
 		err = c.ConfigureAndValidateDockerConfig(tkrVersion, options.NodeSizeOptions, skipValidation)
-	case WindowsVSphereProviderName:
-		err = c.ConfigureAndValidateWindowsVsphereConfig(tkrVersion, options.NodeSizeOptions, options.VsphereControlPlaneEndpoint, skipValidation, nil)
 	}
 
 	if err != nil {

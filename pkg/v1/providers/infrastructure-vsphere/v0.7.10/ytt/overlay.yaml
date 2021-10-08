@@ -1,6 +1,9 @@
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:data", "data")
+
+
 #@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "get_default_tkg_bom_data", "kubeadm_image_repo", "get_image_repo_for_component", "get_vsphere_thumbprint")
+
 #@ load("lib/validate.star", "validate_configuration")
 #@ load("@ytt:yaml", "yaml")
 #@ validate_configuration("vsphere")
@@ -8,6 +11,7 @@
 #@ bomDataForK8sVersion = get_bom_data_for_tkr_name()
 #@ bomData = get_default_tkg_bom_data()
 
+#@ if not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
 
 #@ def kube_vip_pod():
 ---
@@ -292,3 +296,4 @@ metadata:
 stringData:
   username: #@ data.values.VSPHERE_USERNAME
   password: #@ data.values.VSPHERE_PASSWORD
+#@ end

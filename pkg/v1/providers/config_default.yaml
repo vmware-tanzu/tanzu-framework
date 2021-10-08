@@ -90,9 +90,12 @@ VSPHERE_NETWORK: VM Network
 #! necessary except to disambiguate among 2 or more applicable VM templates.
 VSPHERE_TEMPLATE:
 
+
+#! WINDOWS PARAMETERS
 #! The name of the VM Windows template to be used to create a specific version of
 #! a Tanzu Kubernetes Cluster including WINDOWS node.
-VSPHERE_WINDOWS_TEMPLATE:
+VSPHERE_WINDOWS_TEMPLATE: ""
+IS_WINDOWS_WORKLOAD_CLUSTER: false
 
 VIP_NETWORK_INTERFACE: "eth0"
 
@@ -409,8 +412,8 @@ CLUSTER_CIDR:
 SERVICE_CIDR:
 NODE_STARTUP_TIMEOUT: 20m
 
-CONTROL_PLANE_MACHINE_COUNT: 1
-WORKER_MACHINE_COUNT: 1
+CONTROL_PLANE_MACHINE_COUNT:
+WORKER_MACHINE_COUNT:
 #! sets the number of worker nodes in the first AZ, AWS_NODE_AZ.
 WORKER_MACHINE_COUNT_0:
 #! sets the number of worker nodes in the second AZ, AWS_NODE_AZ_1.

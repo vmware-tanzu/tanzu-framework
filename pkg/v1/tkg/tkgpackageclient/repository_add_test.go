@@ -4,6 +4,8 @@
 package tkgpackageclient
 
 import (
+	"fmt"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
@@ -23,7 +25,9 @@ const (
 	testRepoName       = "test-repo"
 	testRepoURL        = "test.registry.vmware.com/test-repo"
 	testSecondRepoName = "test-repo-2"
-	testSecondRepoURL  = "test.registry.vmware.com/test-repo-2"
+	testSecondRepoURL  = "test.registry.vmware.com/test-repo-2:v1.1.0"
+	testThirdRepoName  = "test-repo-3"
+	testThirdRepoURL   = "test.registry.vmware.com/test-repo-3"
 )
 
 var testRepository = &kappipkg.PackageRepository{
@@ -49,14 +53,21 @@ var _ = Describe("Add Repository", func() {
 			CreateNamespace:  false,
 		}
 		options           = opts
+		progress          *tkgpackagedatamodel.PackageProgress
 		pkgRepositoryList = &kappipkg.PackageRepositoryList{
 			Items: []kappipkg.PackageRepository{*testRepository},
 		}
 	)
 
 	JustBeforeEach(func() {
+		progress = &tkgpackagedatamodel.PackageProgress{
+			ProgressMsg: make(chan string, 10),
+			Err:         make(chan error),
+			Done:        make(chan struct{}),
+		}
 		ctl = &pkgClient{kappClient: kappCtl}
-		err = ctl.AddRepository(&options)
+		go ctl.AddRepository(&options, progress, tkgpackagedatamodel.OperationTypeInstall)
+		err = testReceive(progress)
 	})
 
 	Context("failure in listing package repositories due to ListPackageRepositories API error", func() {
@@ -78,7 +89,7 @@ var _ = Describe("Add Repository", func() {
 		})
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("repository with the same name already exists"))
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("package repository name '%s' already exists in namespace '%s'", options.RepositoryName, options.Namespace)))
 		})
 		AfterEach(func() { options = opts })
 	})
@@ -91,7 +102,7 @@ var _ = Describe("Add Repository", func() {
 		})
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("repository with the same OCI registry URL already exists"))
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("package repository URL '%s' already exists in namespace '%s'", options.RepositoryURL, options.Namespace)))
 		})
 		AfterEach(func() { options = opts })
 	})
@@ -110,7 +121,6 @@ var _ = Describe("Add Repository", func() {
 		})
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
-
 			Expect(err.Error()).To(ContainSubstring("failure in Get namespace"))
 		})
 		AfterEach(func() { options = opts })
@@ -145,7 +155,7 @@ var _ = Describe("Add Repository", func() {
 		})
 		It(testSuccessMsg, func() {
 			Expect(err).NotTo(HaveOccurred())
-			testRepositoryAddPostValidation(kappCtl, &options)
+			testRepositoryAddPostValidation(kappCtl, &options, true)
 		})
 		AfterEach(func() { options = opts })
 	})
@@ -164,32 +174,38 @@ var _ = Describe("Add Repository", func() {
 		})
 		It(testSuccessMsg, func() {
 			Expect(err).NotTo(HaveOccurred())
-			testRepositoryAddPostValidation(kappCtl, &options)
+			testRepositoryAddPostValidation(kappCtl, &options, true)
 		})
 		AfterEach(func() { options = opts })
 	})
 
-	Context("success in creating package repository", func() {
+	Context("success in creating package repository with No tag in URL", func() {
 		BeforeEach(func() {
-			options.RepositoryName = testSecondRepoName
-			options.RepositoryURL = testSecondRepoURL
+			options.RepositoryName = testThirdRepoName
+			options.RepositoryURL = testThirdRepoURL
 			kappCtl = &fakes.KappClient{}
 			kappCtl.ListPackageRepositoriesReturns(pkgRepositoryList, nil)
 			kappCtl.CreatePackageRepositoryReturns(nil)
 		})
 		It(testSuccessMsg, func() {
 			Expect(err).ToNot(HaveOccurred())
-			testRepositoryAddPostValidation(kappCtl, &options)
+			testRepositoryAddPostValidation(kappCtl, &options, false)
 		})
 		AfterEach(func() { options = opts })
 	})
 })
 
-func testRepositoryAddPostValidation(kappCtl *fakes.KappClient, options *tkgpackagedatamodel.RepositoryOptions) {
+func testRepositoryAddPostValidation(kappCtl *fakes.KappClient, options *tkgpackagedatamodel.RepositoryOptions, hasTag bool) {
 	createRepoCallCnt := kappCtl.CreatePackageRepositoryCallCount()
 	Expect(createRepoCallCnt).To(BeNumerically("==", 1))
 	pkgRepo := kappCtl.CreatePackageRepositoryArgsForCall(0)
 	Expect(pkgRepo.Name).Should(Equal(options.RepositoryName))
 	Expect(pkgRepo.Namespace).Should(Equal(options.Namespace))
 	Expect(pkgRepo.Spec.Fetch.ImgpkgBundle.Image).Should(Equal(options.RepositoryURL))
+	if hasTag {
+		Expect(pkgRepo.Spec.Fetch.ImgpkgBundle.TagSelection).Should(BeNil())
+	} else {
+		Expect(pkgRepo.Spec.Fetch.ImgpkgBundle.TagSelection).ShouldNot(Equal(nil))
+		Expect(pkgRepo.Spec.Fetch.ImgpkgBundle.TagSelection.Semver.Constraints).Should(Equal(tkgpackagedatamodel.DefaultRepositoryImageTagConstraint))
+	}
 }

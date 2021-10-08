@@ -10,21 +10,6 @@ FROM $BUILDER_BASE_IMAGE as builder
 
 WORKDIR /workspace
 
-ENV GOPRIVATE=github.com/vmware-tanzu/tanzu-framework
-
-ARG SSH_PRIVATE_KEY
-
-# Create the image's SSH directory.
-RUN mkdir -p /root/.ssh && chmod 0700 /root/.ssh
-COPY $SSH_PRIVATE_KEY  /root/.ssh/id_rsa
-RUN chmod 0400 /root/.ssh/id_rsa
-
-# Ensure git knows how to access github.
-RUN git config --global url."git@github.com:".insteadOf "https://github.com/"
-
-# Seed GitHub's host keys to prevent SSH from hanging.
-RUN ssh-keyscan github.com >>/root/.ssh/known_hosts
-
 # Copy the go source
 COPY ./ ./
 
