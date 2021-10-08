@@ -88,13 +88,11 @@ spec:
     name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
   clusterNetwork:
     pods:
-      cidrBlocks:
-      #@overlay/match by=overlay.index(0)
-      - #@ data.values.CLUSTER_CIDR
+      #@overlay/replace
+      cidrBlocks: #@ data.values.CLUSTER_CIDR.split(",")
     services:
-      cidrBlocks:
-      #@overlay/match by=overlay.index(0)
-      - #@ data.values.SERVICE_CIDR
+      #@overlay/replace
+      cidrBlocks: #@ data.values.SERVICE_CIDR.split(",")
 
 #@overlay/match by=overlay.subset({"kind":"VSphereCluster"})
 ---
