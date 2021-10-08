@@ -111,6 +111,45 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 				Expect(err).To(HaveOccurred())
 			})
 		})
+
+		When("workload cluster is windows on vsphere", func() {
+			It("does not allow ipv6", func() {
+				values := createDataValues(map[string]string{
+					"IS_WINDOWS_WORKLOAD_CLUSTER": "true",
+					"TKG_IP_FAMILY":               "ipv6",
+					"PROVIDER_TYPE":               "vsphere",
+				})
+				_, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+				Expect(err).To(MatchError(ContainSubstring("IS_WINDOWS_WORKLOAD_CLUSTER is not compatible with TKG_IP_FAMLY values of \"ipv6\", \"ipv4,ipv6\" or \"ipv6,ipv4\"")))
+			})
+			It("allows ipv4", func() {
+				values := createDataValues(map[string]string{
+					"IS_WINDOWS_WORKLOAD_CLUSTER": "true",
+					"TKG_IP_FAMILY":               "ipv4",
+					"PROVIDER_TYPE":               "vsphere",
+				})
+				_, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+				Expect(err).NotTo(HaveOccurred())
+			})
+			It("does not allow ipv4,ipv6", func() {
+				values := createDataValues(map[string]string{
+					"IS_WINDOWS_WORKLOAD_CLUSTER": "true",
+					"TKG_IP_FAMILY":               "ipv4,ipv6",
+					"PROVIDER_TYPE":               "vsphere",
+				})
+				_, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+				Expect(err).To(MatchError(ContainSubstring("IS_WINDOWS_WORKLOAD_CLUSTER is not compatible with TKG_IP_FAMLY values of \"ipv6\", \"ipv4,ipv6\" or \"ipv6,ipv4\"")))
+			})
+			It("does not allow ipv6,ipv4", func() {
+				values := createDataValues(map[string]string{
+					"IS_WINDOWS_WORKLOAD_CLUSTER": "true",
+					"TKG_IP_FAMILY":               "ipv4,ipv6",
+					"PROVIDER_TYPE":               "vsphere",
+				})
+				_, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+				Expect(err).To(MatchError(ContainSubstring("IS_WINDOWS_WORKLOAD_CLUSTER is not compatible with TKG_IP_FAMLY values of \"ipv6\", \"ipv4,ipv6\" or \"ipv6,ipv4\"")))
+			})
+		})
 	})
 	Describe("antrea_addon_data.lib.yaml", func() {
 		var paths []string
