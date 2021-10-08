@@ -1,11 +1,12 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:json", "json")
-#@ load("static.lib.yaml", "service")
+
+#@ if data.values.PROVIDER_TYPE == "vsphere" and data.values.TKG_CLUSTER_ROLE != "workload" and data.values.AVI_ENABLE and data.values.AVI_CONTROL_PLANE_HA_PROVIDER:
+#@ load("static.lib.yaml", "crd","service")
 #@ load("rbac.lib.yaml", "role", "role_binding")
 #@ load("ako-operator-deployment.lib.yaml", "akoo_deployment", "avi_credentials", "avi_certificate")
 
-#! render the ako-operator artifacts
-#@ if data.values.PROVIDER_TYPE == "vsphere" and data.values.TKG_CLUSTER_ROLE != "workload" and data.values.AVI_ENABLE and data.values.AVI_CONTROL_PLANE_HA_PROVIDER:
+--- #@ crd()
 --- #@ service()
 --- #@ role()
 --- #@ role_binding()

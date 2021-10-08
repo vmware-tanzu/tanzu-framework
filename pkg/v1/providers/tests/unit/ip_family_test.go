@@ -16,13 +16,16 @@ import (
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/providers/tests/unit/matchers"
 )
 
+const YAML_ROOT = "../../"
+
 var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 	Describe("IP family ytt validations", func() {
 		var paths []string
 		BeforeEach(func() {
 			paths = []string{
-				filepath.Join("..", "..", "config_default.yaml"),
-				filepath.Join("..", "..", "ytt", "03_customizations", "ip_family.yaml"),
+				// assumes that ../../ is where the yaml templates live
+				filepath.Join(YAML_ROOT, "config_default.yaml"),
+				filepath.Join(YAML_ROOT, "ytt", "03_customizations", "ip_family.yaml"),
 			}
 		})
 
