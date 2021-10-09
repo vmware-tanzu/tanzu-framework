@@ -1,21 +1,17 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:json", "json")
 
-#@ load("ako-deployment.lib.yaml", "ako_namespace", "ako_serviceaccount",
+#@ load("ako-deployment.lib.yaml", "avi_secret", "ako_serviceaccount",
 #@    "ako_configmap", "ako_clusterrole", "ako_clusterrolebinding",
-#@    "ako_statefulset", "ako_ingressclass",
-#@    "hostrules_crd", "httprules_crd", "aviinfrasettings_crd")
+#@    "ako_statefulset", "ako_ingressclass")
 
 #! render the ako artifacts
 #@ if data.values.PROVIDER_TYPE == "vsphere" and data.values.TKG_CLUSTER_ROLE != "workload" and data.values.AVI_ENABLE and data.values.AVI_CONTROL_PLANE_HA_PROVIDER:
---- #@ ako_namespace()
+--- #@ avi_secret()
 --- #@ ako_serviceaccount()
 --- #@ ako_configmap()
 --- #@ ako_clusterrole()
 --- #@ ako_clusterrolebinding()
 --- #@ ako_statefulset()
 --- #@ ako_ingressclass()
---- #@ hostrules_crd()
---- #@ httprules_crd()
---- #@ aviinfrasettings_crd()
 #@ end

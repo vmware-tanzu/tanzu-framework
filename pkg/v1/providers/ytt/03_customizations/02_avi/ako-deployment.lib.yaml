@@ -11,16 +11,8 @@
 #@  return "{}/{}:{}".format(tkg_image_repo(), akoRepo.images.loadBalancerAndIngressServiceImage.imagePath, akoRepo.images.loadBalancerAndIngressServiceImage.tag)
 #@ end
 
-#@ def tkg_system_namespace():
-#@  return "tkg-system"
-#@ end
-
-#@ def avi_system_namespace():
-#@  return "avi-system"
-#@ end
-
 #@ def cluster_namespaced_name():
-#@  return "{}-{}".format(tkg_system_namespace(), data.values.CLUSTER_NAME)
+#@  return "{}-{}".format("tkg-system", data.values.CLUSTER_NAME)
 #@ end
 
 #@ def ako_name():
@@ -51,12 +43,19 @@
 #@  return json.encode([{ "networkName": network_name(), "cidr": network_cidr() }])
 #@ end
 
-#@ def ako_namespace():
+#@ def avi_secret():
 apiVersion: v1
-kind: Namespace
+kind: Secret
 metadata:
-  name: #@ avi_system_namespace()
+  name: avi-secret
+  namespace: tkg-system
+type: Opaque
+data:
+  username: #@ base64.encode(data.values.AVI_USERNAME)
+  password: #@ base64.encode(data.values.AVI_PASSWORD)
+  certificateAuthorityData: #@ data.values.AVI_CA_DATA_B64
 #@ end
+
 
 #@ def ako_serviceaccount():
 apiVersion: v1
@@ -74,34 +73,16 @@ metadata:
   namespace: tkg-system
 data:
   controllerIP: #@ data.values.AVI_CONTROLLER
-  controllerVersion: "18.2.10"
-  cniPlugin: ""
-  shardVSSize: #@ data.values.AVI_INGRESS_SHARD_VS_SIZE
-  passthroughShardSize: "SMALL"
+  cniPlugin: #@ data.values.CNI
   fullSyncFrequency: "1800"
   cloudName: #@ data.values.AVI_CLOUD_NAME
   clusterName: #@ cluster_namespaced_name()
-  servicesAPI: "false"
-  enableEVH: "false"
-  layer7Only: "false"
-  tenantsPerCluster: "false"
-  tenantName: "admin"
-  defaultDomain: ""
   disableStaticRouteSync: #@ "{}".format(data.values.AVI_DISABLE_STATIC_ROUTE_SYNC).lower()
   defaultIngController: #@ "{}".format(data.values.AVI_INGRESS_DEFAULT_INGRESS_CONTROLLER).lower()
-  noPGForSNI: "false"
-  enableRHI: "false"
-  nsxtT1LR: ""
   logLevel: "WARN"
   deleteConfig: "false"
-  advancedL4: "false"
-  autoFQDN: "default"
-  nsSyncLabelKey: ""
-  nsSyncLabelValue: ""
   serviceType:  NodePort
   serviceEngineGroupName: #@ data.values.AVI_SERVICE_ENGINE_GROUP
-  bgpPeerLabels: "[]"
-  nodeNetworkList: "[]"
   vipNetworkList: #@ vip_network()
   apiServerPort: "8080"
 #@ end
@@ -196,26 +177,11 @@ spec:
                 configMapKeyRef:
                   name: avi-k8s-config
                   key: controllerIP
-            - name: CTRL_VERSION
-              valueFrom:
-                configMapKeyRef:
-                  name: avi-k8s-config
-                  key: controllerVersion
             - name: CNI_PLUGIN
               valueFrom:
                 configMapKeyRef:
                   name: avi-k8s-config
                   key: cniPlugin
-            - name: SHARD_VS_SIZE
-              valueFrom:
-                configMapKeyRef:
-                  name: avi-k8s-config
-                  key: shardVSSize
-            - name: PASSTHROUGH_SHARD_SIZE
-              valueFrom:
-                configMapKeyRef:
-                  name: avi-k8s-config
-                  key: passthroughShardSize
             - name: FULL_SYNC_INTERVAL
               valueFrom:
                 configMapKeyRef:
@@ -226,56 +192,16 @@ spec:
                 configMapKeyRef:
                   name: avi-k8s-config
                   key: cloudName
-            - name: TENANT_NAME
-              valueFrom:
-                configMapKeyRef:
-                  name: avi-k8s-config
-                  key: tenantName
-            - name: TENANTS_PER_CLUSTER
-              valueFrom:
-                configMapKeyRef:
-                  name: avi-k8s-config
-                  key: tenantsPerCluster
             - name: CLUSTER_NAME
               valueFrom:
                 configMapKeyRef:
                   name: avi-k8s-config
                   key: clusterName
-            - name: ENABLE_RHI
-              valueFrom:
-                configMapKeyRef:
-                  name: avi-k8s-config
-                  key: enableRHI
-            - name: ENABLE_EVH
-              valueFrom:
-                configMapKeyRef:
-                  name: avi-k8s-config
-                  key: enableEVH
-            - name: SERVICES_API
-              valueFrom:
-                configMapKeyRef:
-                  name: avi-k8s-config
-                  key: servicesAPI
-            - name: DEFAULT_DOMAIN
-              valueFrom:
-                configMapKeyRef:
-                  name: avi-k8s-config
-                  key: defaultDomain
             - name: DISABLE_STATIC_ROUTE_SYNC
               valueFrom:
                 configMapKeyRef:
                   name: avi-k8s-config
                   key: disableStaticRouteSync
-            - name: NAMESPACE_SYNC_LABEL_KEY
-              valueFrom:
-                configMapKeyRef:
-                  name: avi-k8s-config
-                  key: nsSyncLabelKey
-            - name: NAMESPACE_SYNC_LABEL_VALUE
-              valueFrom:
-                configMapKeyRef:
-                  name: avi-k8s-config
-                  key: nsSyncLabelValue
             - name: DEFAULT_ING_CONTROLLER
               valueFrom:
                 configMapKeyRef:
@@ -286,16 +212,6 @@ spec:
                 configMapKeyRef:
                   name: avi-k8s-config
                   key: serviceEngineGroupName
-            - name: BGP_PEER_LABELS
-              valueFrom:
-                configMapKeyRef:
-                  name: avi-k8s-config
-                  key: bgpPeerLabels
-            - name: NODE_NETWORK_LIST
-              valueFrom:
-                configMapKeyRef:
-                  name: avi-k8s-config
-                  key: nodeNetworkList
             - name: VIP_NETWORK_LIST
               valueFrom:
                 configMapKeyRef:
@@ -311,16 +227,6 @@ spec:
                 configMapKeyRef:
                   name: avi-k8s-config
                   key: serviceType
-            - name: ADVANCED_L4
-              valueFrom:
-                configMapKeyRef:
-                  name: avi-k8s-config
-                  key: advancedL4
-            - name: AUTO_L4_FQDN
-              valueFrom:
-                configMapKeyRef:
-                  name: avi-k8s-config
-                  key: autoFQDN
             - name: LOG_FILE_PATH
               value: ""
             - name: LOG_FILE_NAME
@@ -333,22 +239,18 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
-          ports:
-            - name: http
-              containerPort: 80
-              protocol: TCP
           resources:
             limits:
               cpu: "250m"
               memory: "300Mi"
             requests:
-              cpu: "50m"
-              memory: "20Mi"
+              cpu: "100m"
+              memory: "100Mi"
           livenessProbe:
             httpGet:
               path: /api/status
               port:  8080
-            initialDelaySeconds: 5
+            initialDelaySeconds: 10
             periodSeconds: 10
 #@ end
 
@@ -369,291 +271,4 @@ spec:
     kind: IngressParameters
     name: external-lb
 #@ end
-#@ end
-
-#@ def hostrules_crd():
-apiVersion: apiextensions.k8s.io/v1
-kind: CustomResourceDefinition
-metadata:
-  name: hostrules.ako.vmware.com
-spec:
-  conversion:
-    strategy: None
-  group: ako.vmware.com
-  names:
-    kind: HostRule
-    listKind: HostRuleList
-    plural: hostrules
-    shortNames:
-      - hostrule
-      - hr
-    singular: hostrule
-  scope: Namespaced
-  versions:
-    - name: v1alpha1
-      schema:
-        openAPIV3Schema:
-          properties:
-            spec:
-              properties:
-                virtualhost:
-                  properties:
-                    analyticsProfile:
-                      type: string
-                    applicationProfile:
-                      type: string
-                    enableVirtualHost:
-                      type: boolean
-                    errorPageProfile:
-                      type: string
-                    fqdn:
-                      type: string
-                    datascripts:
-                      items:
-                        type: string
-                      type: array
-                    httpPolicy:
-                      properties:
-                        overwrite:
-                          type: boolean
-                        policySets:
-                          items:
-                            type: string
-                          type: array
-                      type: object
-                    tls:
-                      properties:
-                        sslProfile:
-                          type: string
-                        sslKeyCertificate:
-                          properties:
-                            name:
-                              type: string
-                            type:
-                              enum:
-                                - ref
-                              type: string
-                          required:
-                            - name
-                            - type
-                          type: object
-                        termination:
-                          enum:
-                            - edge
-                          type: string
-                      required:
-                        - sslKeyCertificate
-                      type: object
-                    wafPolicy:
-                      type: string
-                  required:
-                    - fqdn
-                  type: object
-              required:
-                - virtualhost
-              type: object
-            status:
-              properties:
-                error:
-                  type: string
-                status:
-                  type: string
-              type: object
-          type: object
-      additionalPrinterColumns:
-        - description: virtualhost for which the hostrule is valid
-          jsonPath: .spec.virtualhost.fqdn
-          name: Host
-          type: string
-        - description: status of the hostrule object
-          jsonPath: .status.status
-          name: Status
-          type: string
-        - jsonPath: .metadata.creationTimestamp
-          name: Age
-          type: date
-      served: true
-      storage: true
-      subresources:
-        status: {}
-#@ end
-
-#@ def httprules_crd():
-apiVersion: apiextensions.k8s.io/v1
-kind: CustomResourceDefinition
-metadata:
-  name: httprules.ako.vmware.com
-spec:
-  group: ako.vmware.com
-  names:
-    plural: httprules
-    singular: httprule
-    listKind: HTTPRuleList
-    kind: HTTPRule
-    shortNames:
-      - httprule
-  scope: Namespaced
-  versions:
-    - name: v1alpha1
-      schema:
-        openAPIV3Schema:
-          properties:
-            spec:
-              properties:
-                fqdn:
-                  type: string
-                paths:
-                  items:
-                    properties:
-                      loadBalancerPolicy:
-                        properties:
-                          algorithm:
-                            enum:
-                              - LB_ALGORITHM_CONSISTENT_HASH
-                              - LB_ALGORITHM_CORE_AFFINITY
-                              - LB_ALGORITHM_FASTEST_RESPONSE
-                              - LB_ALGORITHM_FEWEST_SERVERS
-                              - LB_ALGORITHM_LEAST_CONNECTIONS
-                              - LB_ALGORITHM_LEAST_LOAD
-                              - LB_ALGORITHM_ROUND_ROBIN
-                            type: string
-                          hash:
-                            enum:
-                              - LB_ALGORITHM_CONSISTENT_HASH_CALLID
-                              - LB_ALGORITHM_CONSISTENT_HASH_SOURCE_IP_ADDRESS
-                              - LB_ALGORITHM_CONSISTENT_HASH_SOURCE_IP_ADDRESS_AND_PORT
-                              - LB_ALGORITHM_CONSISTENT_HASH_URI
-                              - LB_ALGORITHM_CONSISTENT_HASH_CUSTOM_HEADER
-                              - LB_ALGORITHM_CONSISTENT_HASH_CUSTOM_STRING
-                            type: string
-                          hostHeader:
-                            type: string
-                        type: object
-                      target:
-                        pattern: ^\/.*$
-                        type: string
-                      healthMonitors:
-                        items:
-                          type: string
-                        type: array
-                      tls:
-                        properties:
-                          destinationCA:
-                            type: string
-                          sslProfile:
-                            type: string
-                          type:
-                            enum:
-                              - reencrypt
-                            type: string
-                        required:
-                          - type
-                        type: object
-                    required:
-                      - target
-                    type: object
-                  type: array
-              required:
-                - fqdn
-              type: object
-            status:
-              properties:
-                error:
-                  type: string
-                status:
-                  type: string
-              type: object
-          type: object
-      additionalPrinterColumns:
-        - description: fqdn associated with the httprule
-          jsonPath: .spec.fqdn
-          name: HOST
-          type: string
-        - description: status of the httprule object
-          jsonPath: .status.status
-          name: Status
-          type: string
-        - jsonPath: .metadata.creationTimestamp
-          name: Age
-          type: date
-      served: true
-      storage: true
-      subresources:
-        status: {}
-#@ end
-
-#@ def aviinfrasettings_crd():
-apiVersion: apiextensions.k8s.io/v1
-kind: CustomResourceDefinition
-metadata:
-  name: aviinfrasettings.ako.vmware.com
-spec:
-  conversion:
-    strategy: None
-  group: ako.vmware.com
-  names:
-    kind: AviInfraSetting
-    listKind: AviInfraSettingList
-    plural: aviinfrasettings
-    singular: aviinfrasetting
-  scope: Cluster
-  versions:
-    - name: v1alpha1
-      schema:
-        openAPIV3Schema:
-          description: AviInfraSetting is used to select specific Avi controller infra attributes.
-          properties:
-            spec:
-              properties:
-                network:
-                  properties:
-                    names:
-                      items:
-                        type: string
-                      type: array
-                    enableRhi:
-                      type: boolean
-                  type: object
-                  required:
-                    - names
-                seGroup:
-                  properties:
-                    name:
-                      type: string
-                  type: object
-                  required:
-                    - name
-                l7Settings:
-                  properties:
-                    shardSize:
-                      enum:
-                        - SMALL
-                        - MEDIUM
-                        - LARGE
-                        - DEDICATED
-                      type: string
-                  type: object
-                  required:
-                    - shardSize
-              type: object
-            status:
-              properties:
-                error:
-                  type: string
-                status:
-                  type: string
-              type: object
-          type: object
-      additionalPrinterColumns:
-        - description: status of the nas object
-          jsonPath: .status.status
-          name: Status
-          type: string
-        - jsonPath: .metadata.creationTimestamp
-          name: Age
-          type: date
-      served: true
-      storage: true
-      subresources:
-        status: {}
 #@ end
