@@ -177,7 +177,6 @@ func getKubectlVersion() (string, error) { //nolint
 	return kubectlClientVersion, nil
 }
 
-// Refactor to add in infra name as optional parameter - need infra name to determine if min pre-req check is required
 // ValidatePrerequisites validate docker and kubectl commands
 func (c *TkgClient) ValidatePrerequisites(validateDocker, validateKubectl bool, validateDockerResources bool) error {
 	// Note: Kind cluster also support podman apart from docker, so if we decide

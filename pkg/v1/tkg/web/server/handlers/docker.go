@@ -38,8 +38,6 @@ func (app *App) IsDockerDaemonAvailable(params docker.CheckIfDockerDaemonAvailab
 		return docker.NewCheckIfDockerDaemonAvailableInternalServerError().WithPayload(Err(err))
 	}
 
-	// the question is should I break docker resource prereqs out of validate prereqs? We seem to check kubctl version too
-	// maybe there should be a seperate api
 	if err := c.ValidatePrerequisites(true, false, true); err != nil {
 		return docker.NewCheckIfDockerDaemonAvailableBadRequest().WithPayload(Err(err))
 	}
