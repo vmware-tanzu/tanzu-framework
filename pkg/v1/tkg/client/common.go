@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"os/exec"
+	"strconv"
 	"strings"
 	"time"
 
@@ -81,6 +82,65 @@ func checkDockerDaemonIsRunning() (bool, error) {
 	return true, nil
 }
 
+func checkDockerResourceCpu() (int, error) {
+	var numberCpu int
+	var stdout []byte
+
+	path, err := exec.LookPath("docker")
+	if err != nil {
+		return 0, errors.Wrap(err, "failed to check if docker is installed")
+	}
+	// docker is not installed
+	if path == "" {
+		return 0, nil
+	}
+
+	cmd := exec.Command("docker", "system", "info", "--format", "'{{.NCPU}}'")
+
+	if stdout, err = cmd.Output(); err != nil {
+		return 0, errors.Wrap(err, "failed to get docker total CPUs")
+	}
+
+	numberCpu, err = strconv.Atoi(strings.Trim(strings.TrimSuffix(string(stdout), "\n"), "'"))
+
+	if err != nil {
+		return 0, errors.Wrap(err, "failed to convert total CPUs to integer")
+	}
+
+	return numberCpu, nil
+}
+
+func checkDockerResourceMemory() (int, error) {
+	var totalMemory, totalMemoryGB int
+	var stdout []byte
+
+	path, err := exec.LookPath("docker")
+	if err != nil {
+		return 0, errors.Wrap(err, "failed to check if docker is installed")
+	}
+	// docker is not installed
+	if path == "" {
+		return 0, nil
+	}
+
+	cmd := exec.Command("docker", "system", "info", "--format", "'{{.MemTotal}}'")
+
+	if stdout, err = cmd.Output(); err != nil {
+		return 0, errors.Wrap(err, "failed to get docker total memory")
+	}
+
+	totalMemory, err = strconv.Atoi(strings.Trim(strings.TrimSuffix(string(stdout), "\n"), "'"))
+
+	if err != nil {
+		return 0, errors.Wrap(err, "failed to convert total memory to integer")
+	}
+
+	// convert Total Memory to GB
+	totalMemoryGB = totalMemory / (1024 * 1000000)
+
+	return totalMemoryGB, nil
+}
+
 func checkKubectlInstalled() (bool, error) { //nolint
 	path, err := exec.LookPath("kubectl")
 	if err != nil {
@@ -117,21 +177,23 @@ func getKubectlVersion() (string, error) { //nolint
 	return kubectlClientVersion, nil
 }
 
+// Refactor to add in infra name as optional parameter - need infra name to determine if min pre-req check is required
 // ValidatePrerequisites validate docker and kubectl commands
-func (c *TkgClient) ValidatePrerequisites(validateDocker, validateKubectl bool) error {
+func (c *TkgClient) ValidatePrerequisites(validateDocker, validateKubectl bool, validateDockerResources bool) error {
 	// Note: Kind cluster also support podman apart from docker, so if we decide
 	// to support podman in future we need to change this method.
 	if validateDocker {
-		if err := c.validateDockerPrerequisites(); err != nil {
-			return errors.Wrap(err, "docker prerequisites validation failed")
+		if err := c.validateDockerPrerequisites(validateDockerResources); err != nil {
+			return errors.Wrap(err, "Docker prerequisites validation failed")
 		}
 	}
 
 	return nil
 }
 
-func (c *TkgClient) validateDockerPrerequisites() error {
+func (c *TkgClient) validateDockerPrerequisites(validateDockerResources bool) error {
 	var isDockerDaemonRunning bool
+	var dockerResourceCpus, dockerResourceTotalMemory int
 	var err error
 
 	if isDockerDaemonRunning, err = checkDockerDaemonIsRunning(); err != nil {
@@ -139,6 +201,24 @@ func (c *TkgClient) validateDockerPrerequisites() error {
 	}
 	if !isDockerDaemonRunning {
 		return errors.New("docker daemon is not running, Please make sure Docker daemon is up and running")
+	}
+	// validate docker allocated CPU and memory against recommended minimums
+	if validateDockerResources {
+		if dockerResourceCpus, err = checkDockerResourceCpu(); err != nil {
+			return errors.Wrap(err, "Failed to check docker minimum number of CPUs")
+		}
+
+		if !(dockerResourceCpus >= 4) {
+			return errors.Errorf("Docker resources have %d CPUs allocated; less than minimum recommended number of 4 CPUs", dockerResourceCpus)
+		}
+
+		if dockerResourceTotalMemory, err = checkDockerResourceMemory(); err != nil {
+			return errors.Wrap(err, "Failed to check docker minimum total memory")
+		}
+
+		if !(dockerResourceTotalMemory >= 6) {
+			return errors.Errorf("Docker resources have %dGB Total Memory allocated; less than minimum recommended number of 6GB Total Memory", dockerResourceTotalMemory)
+		}
 	}
 
 	return nil

@@ -1,12 +1,12 @@
-<div class="title"> Docker Daemon <button class="btn btn-link" (click)="connectToDocker()" *ngIf="!connected">CONNECT TO DOCKER</button></div>
+<div class="title"> Validate Docker Prerequisites <button class="btn btn-link" (click)="connectToDocker()" *ngIf="!connected">CONNECT TO DOCKER</button></div>
 
-<div class="alert alert-danger" role="alert" *ngIf="!connected && !connecting">
+<div class="alert alert-danger" role="alert" *ngIf="!connected && !connecting && errorNotification">
     <div class="alert-items">
         <div class="alert-item static">
             <div class="alert-icon-wrapper">
                 <clr-icon class="alert-icon" shape="exclamation-circle"></clr-icon>
             </div>
-            <span class="alert-text">Docker daemon not found. Make sure your Docker daemon is running to continue.</span>
+            <span class="alert-text">{{errorNotification}}</span>
         </div>
     </div>
 </div>
@@ -17,7 +17,7 @@
             <div class="alert-icon-wrapper">
                 <clr-icon class="alert-icon" shape="check-circle"></clr-icon>
             </div>
-            <span class="alert-text">Running Docker daemon validated</span>
+            <span class="alert-text">Running Docker daemon, allocated CPUs and Total Memory validated</span>
         </div>
     </div>
 </div>

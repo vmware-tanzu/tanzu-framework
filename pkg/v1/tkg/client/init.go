@@ -150,9 +150,20 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		log.Infof("Using custom image repository: %s", customImageRepo)
 	}
 
+	providerName, _, err := ParseProviderName(options.InfrastructureProvider)
+	if err != nil {
+		return errors.Wrap(err, "unable to parse provider name")
+	}
+
 	// validate docker only if user is not using an existing cluster
 	// Note: Validating in client code as well to cover the usecase where users use client code instead of command line.
-	if err := c.ValidatePrerequisites(!options.UseExistingCluster, true); err != nil {
+
+	// validate docker resources if provider is docker
+	validateDockerResources := false
+	if providerName == "docker" {
+		validateDockerResources = true
+	}
+	if err := c.ValidatePrerequisites(!options.UseExistingCluster, true, validateDockerResources); err != nil {
 		return err
 	}
 
@@ -303,7 +314,6 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		}
 	}
 
-	providerName, _, err := ParseProviderName(options.InfrastructureProvider)
 	if err != nil {
 		return errors.Wrap(err, "unable to parse provider name")
 	}

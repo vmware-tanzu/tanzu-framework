@@ -165,7 +165,7 @@ type Client interface {
 	// SaveFeatureFlags saves the feature flags to the config file via featuresClient
 	SaveFeatureFlags(featureFlags map[string]string) error
 	// ValidatePrerequisites valides prerequisites for init command
-	ValidatePrerequisites(validateDocker, validateKubectl bool) error
+	ValidatePrerequisites(validateDocker, validateKubectl bool, validateDockerResources bool) error
 	// GetVSphereEndpoint creates the vSphere client using the credentials from the management cluster if cluster client is provided,
 	// otherwise, the vSphere client will be created from the credentials set in the user's environment.
 	GetVSphereEndpoint(client clusterclient.Client) (vc.Client, error)
