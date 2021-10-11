@@ -190,6 +190,16 @@ func addFeatureFlag(c *configv1alpha1.ClientConfig, plugin, flag string, flagVal
 	c.ClientOptions.Features[plugin][flag] = strconv.FormatBool(flagValue)
 }
 
+func addEdition(c *configv1alpha1.ClientConfig, edition configv1alpha1.EditionSelector) {
+	if c.ClientOptions == nil {
+		c.ClientOptions = &configv1alpha1.ClientOptions{}
+	}
+	if c.ClientOptions.CLI == nil {
+		c.ClientOptions.CLI = &configv1alpha1.CLIOptions{}
+	}
+	c.ClientOptions.CLI.Edition = edition
+}
+
 // ClientConfigNotExistError is thrown when a tanzu config cannot be found.
 type ClientConfigNotExistError struct {
 	s string
@@ -261,18 +271,28 @@ func GetClientConfig() (cfg *configv1alpha1.ClientConfig, err error) {
 	}
 
 	addedDefaultDiscovery := populateDefaultStandaloneDiscovery(&c)
-	addedFeatureFlags := addMissingDefaultFeatureFlags(&c, DefaultCliFeatureFlags)
+	addedFeatureFlags := addDefaultFeatureFlagsIfMissing(&c, DefaultCliFeatureFlags)
+	addedEdition := addDefaultEditionIfMissing(&c)
 
-	if addedFeatureFlags || addedDefaultDiscovery {
+	if addedFeatureFlags || addedDefaultDiscovery || addedEdition {
 		_ = StoreClientConfig(&c)
 	}
 
 	return &c, nil
 }
 
-// addMissingDefaultFeatureFlags augments the given configuration object with any default feature flags that do not already have a value
+// addDefaultEditionIfMissing returns true if the default edition was added to the configuration (because there was no edition)
+func addDefaultEditionIfMissing(config *configv1alpha1.ClientConfig) bool {
+	if config.ClientOptions == nil || config.ClientOptions.CLI == nil || config.ClientOptions.CLI.Edition == "" {
+		addEdition(config, DefaultEdition)
+		return true
+	}
+	return false
+}
+
+// addDefaultFeatureFlagsIfMissing augments the given configuration object with any default feature flags that do not already have a value
 // and returns TRUE if any were added (so the config can be written out to disk, if the caller wants to)
-func addMissingDefaultFeatureFlags(config *configv1alpha1.ClientConfig, defaultFeatureFlags map[string]bool) bool {
+func addDefaultFeatureFlagsIfMissing(config *configv1alpha1.ClientConfig, defaultFeatureFlags map[string]bool) bool {
 	added := false
 
 	for featurePath, activated := range defaultFeatureFlags {
@@ -594,7 +614,7 @@ func GetEdition() (string, error) {
 		return "", err
 	}
 	if cfg != nil && cfg.ClientOptions != nil && cfg.ClientOptions.CLI != nil {
-		return cfg.ClientOptions.CLI.Edition, nil
+		return string(cfg.ClientOptions.CLI.Edition), nil
 	}
 	return "", nil
 }
