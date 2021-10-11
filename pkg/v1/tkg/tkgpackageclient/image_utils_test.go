@@ -53,6 +53,20 @@ var _ = Describe("Test image utils", func() {
 			Expect(repository).To(Equal("localhost.localdomain:5000/foo/bar"))
 			Expect(tag).To(Equal(""))
 		})
+
+		It("should give the digest when sha256 is specified", func() {
+			// case 1
+			repository, tag, err := parseRegistryImageURL("us-east4-docker.pkg.dev/cf-sandbox-dkalinin/test-areg-private/example-pkg-repo@sha256:a80e9b512b9eff76ab638cce50a3c4541a12673d9b698103314f32c93f1deb61")
+			Expect(err).NotTo(HaveOccurred())
+			Expect(repository).To(Equal("us-east4-docker.pkg.dev/cf-sandbox-dkalinin/test-areg-private/example-pkg-repo"))
+			Expect(tag).To(Equal("sha256:a80e9b512b9eff76ab638cce50a3c4541a12673d9b698103314f32c93f1deb61"))
+
+			// case 2
+			repository, tag, err = parseRegistryImageURL("projects-stg.registry.vmware.com/tkg/packages/standard/repo@sha256:dce0b8e03a2a2f8b7ddb732def271f50435b490875c9e90ce3df51cae8af68e5")
+			Expect(err).NotTo(HaveOccurred())
+			Expect(repository).To(Equal("projects-stg.registry.vmware.com/tkg/packages/standard/repo"))
+			Expect(tag).To(Equal("sha256:dce0b8e03a2a2f8b7ddb732def271f50435b490875c9e90ce3df51cae8af68e5"))
+		})
 	})
 
 	Context("get current repository and tag", func() {
