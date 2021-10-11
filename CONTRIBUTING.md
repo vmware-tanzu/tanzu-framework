@@ -30,6 +30,10 @@ and adding it to an issue.
 
 ## Propose a Change
 
+✅ Is this your first pull request? Check out
+[how to create your first pull request](./docs/dev/your_first_pr.md) first. Also,
+thanks for contributing!
+
 Pull requests are welcome for all changes. When adding new functionality, we
 encourage including test coverage. If significant effort will be involved, we
 suggest beginning by submitting an issue so any high level feedback can be
