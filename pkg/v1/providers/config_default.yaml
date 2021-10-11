@@ -473,6 +473,11 @@ DOCKER_MACHINE_TEMPLATE_IMAGE:
 #! If "none" is specified, pinniped services will not be deployed on the cluster
 IDENTITY_MANAGEMENT_TYPE: "none"
 
+#! ---------------------------------------------------------------------
+#! SecretGen Controller configuration
+#! ---------------------------------------------------------------------
+SECRETGEN_CONTROLLER_ENABLE: true
+
 #! Settings for Pinniped OIDC
 CERT_DURATION: 2160h
 CERT_RENEW_BEFORE: 360h
