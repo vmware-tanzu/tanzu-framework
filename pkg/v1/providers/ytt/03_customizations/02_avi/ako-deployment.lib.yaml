@@ -253,22 +253,3 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 10
 #@ end
-
-#@ def ako_ingressclass():
-#@ if not data.values.AVI_DISABLE_INGRESS_CLASS:
-apiVersion: networking.k8s.io/v1
-kind: IngressClass
-metadata:
-  name: avi-lb
-  #@ if data.values.AVI_INGRESS_DEFAULT_INGRESS_CONTROLLER:
-  annotations:
-    ingressclass.kubernetes.io/is-default-class: "true"
-  #@ end
-spec:
-  controller: ako.vmware.com/avi-lb
-  parameters:
-    apiGroup: ako.vmware.com
-    kind: IngressParameters
-    name: external-lb
-#@ end
-#@ end
