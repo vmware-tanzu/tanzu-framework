@@ -6,7 +6,6 @@ package framework
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -67,7 +66,7 @@ type E2EConfig struct {
 
 // LoadE2EConfig loads the configuration for the e2e test environment
 func LoadE2EConfig(ctx context.Context, input E2EConfigInput) *E2EConfig {
-	e2eConfigData, err := ioutil.ReadFile(input.ConfigPath)
+	e2eConfigData, err := os.ReadFile(input.ConfigPath)
 	Expect(err).ToNot(HaveOccurred(), "Failed to read the e2e test config file")
 	Expect(e2eConfigData).ToNot(BeEmpty(), "The e2e test config file should not be empty")
 

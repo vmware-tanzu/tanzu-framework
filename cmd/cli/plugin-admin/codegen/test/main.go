@@ -5,7 +5,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -36,7 +35,7 @@ func main() {
 }
 
 func initialize() error {
-	tempDir, err := ioutil.TempDir("", "*")
+	tempDir, err := os.MkdirTemp("", "*")
 	if err != nil {
 		return err
 	}
@@ -47,7 +46,7 @@ func initialize() error {
 			return err
 		}
 
-		fooFeatureCRBytes, err := ioutil.ReadFile(filepath.Join(tempDir, "foo.yaml"))
+		fooFeatureCRBytes, err := os.ReadFile(filepath.Join(tempDir, "foo.yaml"))
 		if err != nil {
 			return err
 		}

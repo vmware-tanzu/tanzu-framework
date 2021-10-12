@@ -7,7 +7,6 @@ package exec
 import (
 	"context"
 	"io"
-	"io/ioutil"
 	"os"
 	"os/exec"
 
@@ -94,11 +93,11 @@ func (c *Command) Run(ctx context.Context) ([]byte, []byte, error) {
 	if err := cmd.Start(); err != nil {
 		return nil, nil, errors.WithStack(err)
 	}
-	output, err := ioutil.ReadAll(stdout)
+	output, err := io.ReadAll(stdout)
 	if err != nil {
 		return nil, nil, errors.WithStack(err)
 	}
-	errout, err := ioutil.ReadAll(stderr)
+	errout, err := io.ReadAll(stderr)
 	if err != nil {
 		return nil, nil, errors.WithStack(err)
 	}

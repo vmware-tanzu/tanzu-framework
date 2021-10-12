@@ -5,7 +5,6 @@ package framework
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -63,7 +62,7 @@ func GetTempClusterConfigFile(clusterConfigFile string, options *CreateClusterOp
 
 	_, err := os.Stat(clusterConfigFile)
 	if err == nil {
-		yamlFile, err := ioutil.ReadFile(clusterConfigFile)
+		yamlFile, err := os.ReadFile(clusterConfigFile)
 		if err != nil {
 			return "", err
 		}
@@ -137,7 +136,7 @@ func GetTempClusterConfigFile(clusterConfigFile string, options *CreateClusterOp
 		return "", err
 	}
 
-	f, err := ioutil.TempFile("", "temp_cluster_config_"+util.RandomString(4)+".yaml") // nolint:gomnd
+	f, err := os.CreateTemp("", "temp_cluster_config_"+util.RandomString(4)+".yaml") // nolint:gomnd
 	if err != nil {
 		return "", err
 	}

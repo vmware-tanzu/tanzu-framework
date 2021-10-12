@@ -4,7 +4,6 @@
 package discovery
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -72,7 +71,7 @@ func (l *LocalDiscovery) Name() string {
 func (l *LocalDiscovery) Manifest() ([]plugin.Discovered, error) {
 	plugins := make([]plugin.Discovered, 0)
 
-	items, err := ioutil.ReadDir(l.path)
+	items, err := os.ReadDir(l.path)
 	if err != nil {
 		return nil, errors.Wrapf(err, "error while reading local plugin manifest directory")
 	}

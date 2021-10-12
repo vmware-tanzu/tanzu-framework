@@ -4,7 +4,6 @@
 package tkgctl
 
 import (
-	"io/ioutil"
 	"os"
 	"sync"
 
@@ -78,7 +77,7 @@ var _ = Describe("Unit test for New", func() {
 		tkgClient TKGClient
 	)
 	JustBeforeEach(func() {
-		configDir, _ = ioutil.TempDir("", "cluster_client_test")
+		configDir, _ = os.MkdirTemp("", "cluster_client_test")
 		prepareConfiDir(configDir)
 		options = Options{
 			ConfigDir:      configDir,
