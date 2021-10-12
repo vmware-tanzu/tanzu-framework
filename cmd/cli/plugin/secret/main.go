@@ -7,11 +7,11 @@ import (
 	"os"
 
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
-	ctrl "sigs.k8s.io/controller-runtime"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/plugin"
 	capdiscovery "github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/discovery"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/kappclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 )
 
@@ -42,8 +42,12 @@ func main() {
 	}
 }
 
-func isSecretGenAPIAvailable() (bool, error) {
-	clusterQueryClient, err := capdiscovery.NewClusterQueryClientForConfig(ctrl.GetConfigOrDie())
+func isSecretGenAPIAvailable(kubeCfgPath string) (bool, error) {
+	cfg, err := kappclient.GetKubeConfig(kubeCfgPath)
+	if err != nil {
+		return false, err
+	}
+	clusterQueryClient, err := capdiscovery.NewClusterQueryClientForConfig(cfg)
 	if err != nil {
 		log.Error(err, "failed to create a new instance of the cluster query builder")
 		return false, err

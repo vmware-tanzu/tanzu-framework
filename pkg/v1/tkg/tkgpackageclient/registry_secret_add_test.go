@@ -29,7 +29,7 @@ var _ = Describe("Add Secret", func() {
 			ExportToAllNamespaces: false,
 			Namespace:             testNamespaceName,
 			Password:              testPassword,
-			ServerURL:             testRegistry,
+			Server:                testRegistry,
 			SecretName:            testSecretName,
 			Username:              testUsername,
 		}

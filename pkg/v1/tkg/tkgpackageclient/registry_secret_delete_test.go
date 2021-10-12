@@ -26,7 +26,7 @@ var _ = Describe("Delete Secret", func() {
 			ExportToAllNamespaces: false,
 			Namespace:             testNamespaceName,
 			Password:              testPassword,
-			ServerURL:             testRegistry,
+			Server:                testRegistry,
 			SecretName:            testSecretName,
 			Username:              testUsername,
 			SkipPrompt:            true,

@@ -24,6 +24,8 @@ const (
 	KindSecret                          = "Secret"
 	KindSecretExport                    = "SecretExport"
 	KindServiceAccount                  = "ServiceAccount"
+	SecretGenAPINotAvailable            = "secret plugin can not be used as '%s' API is not available in the cluster"
+	SecretGenGVR                        = "secretgen.carvel.dev/v1alpha1"
 	SecretName                          = "%s-%s-values"
 	ServiceAccountName                  = "%s-%s-sa"
 	ShortDescriptionMaxLength           = 20

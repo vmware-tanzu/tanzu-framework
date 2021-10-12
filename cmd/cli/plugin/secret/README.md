@@ -45,7 +45,7 @@ the "secret registry" can be used to:
    In case of specifying the --export-to-all-namespaces flag, a SecretExport resource with the same name will be created, which makes the secret available across all namespaces in the cluster.
 
    ```sh
-   >>> tanzu secret registry add tanzu-net -n test-ns --server-url registry.pivotal.io --username test-user --password-file pass-file --export-to-all-namespaces
+   >>> tanzu secret registry add tanzu-net -n test-ns --server registry.pivotal.io --username test-user --password-file pass-file --export-to-all-namespaces
    / Adding registry secret 'test-secret'...
      Added registry secret 'test-secret' into namespace 'test-ns'
    ```
