@@ -64,6 +64,7 @@ require (
 	github.com/k14s/ytt v0.32.1-0.20210511155130-214258be2519
 	github.com/lithammer/dedent v1.1.0
 	github.com/logrusorgru/aurora v2.0.3+incompatible
+	github.com/oleiade/reflections v1.0.1
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.16.0
