@@ -62,6 +62,17 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         }
     }
 
+    setFromPayload(payload: DockerRegionalClusterParams) {
+        this.setFieldValue('networkForm', 'networkName', payload.networking.networkName);
+        this.setFieldValue('networkForm', 'clusterServiceCidr',  payload.networking.clusterServiceCIDR);
+        this.setFieldValue('networkForm', 'clusterPodCidr',  payload.networking.clusterPodCIDR);
+        this.setFieldValue('networkForm', 'cniType',  payload.networking.cniType);
+
+        this.setFieldValue('dockerNodeSettingForm', 'clusterName', payload.clusterName);
+
+        this.saveProxyFieldsFromPayload(payload);
+    }
+
     getPayload() {
         const payload: DockerRegionalClusterParams = {}
 
@@ -149,5 +160,16 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
 
     createRegionalCluster(payload: any): Observable<any> {
         return this.apiClient.createDockerRegionalCluster(payload);
+    }
+
+    retrievePayloadFromString(config: string): Observable<any> {
+        return this.apiClient.importTKGConfigForDocker( { params: { filecontents: config } } );
+    }
+
+    validateImportFile(config: string): string {
+        if (config.includes('INFRASTRUCTURE_PROVIDER: docker')) {
+            return '';
+        }
+        return 'This file is not a Docker configuration file!';
     }
 }

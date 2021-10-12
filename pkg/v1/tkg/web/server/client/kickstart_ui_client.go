@@ -19,6 +19,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/client/features"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/client/ldap"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/client/provider"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/client/tmc"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/client/ui"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/client/vsphere"
 )
@@ -81,6 +82,8 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *KickstartU
 	cli.Ldap = ldap.New(transport, formats)
 
 	cli.Provider = provider.New(transport, formats)
+
+	cli.Tmc = tmc.New(transport, formats)
 
 	cli.UI = ui.New(transport, formats)
 
@@ -146,6 +149,8 @@ type KickstartUI struct {
 
 	Provider *provider.Client
 
+	Tmc *tmc.Client
+
 	UI *ui.Client
 
 	Vsphere *vsphere.Client
@@ -172,6 +177,8 @@ func (c *KickstartUI) SetTransport(transport runtime.ClientTransport) {
 	c.Ldap.SetTransport(transport)
 
 	c.Provider.SetTransport(transport)
+
+	c.Tmc.SetTransport(transport)
 
 	c.UI.SetTransport(transport)
 

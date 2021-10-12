@@ -401,6 +401,40 @@ func (a *Client) GetVPCs(params *GetVPCsParams) (*GetVPCsOK, error) {
 }
 
 /*
+ImportTKGConfigForAWS generates t k g configuration object for a w s
+*/
+func (a *Client) ImportTKGConfigForAWS(params *ImportTKGConfigForAWSParams) (*ImportTKGConfigForAWSOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewImportTKGConfigForAWSParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "importTKGConfigForAWS",
+		Method:             "POST",
+		PathPattern:        "/api/providers/aws/config/import",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ImportTKGConfigForAWSReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ImportTKGConfigForAWSOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for importTKGConfigForAWS: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
 SetAWSEndpoint validates and set aws credentials
 */
 func (a *Client) SetAWSEndpoint(params *SetAWSEndpointParams) (*SetAWSEndpointCreated, error) {

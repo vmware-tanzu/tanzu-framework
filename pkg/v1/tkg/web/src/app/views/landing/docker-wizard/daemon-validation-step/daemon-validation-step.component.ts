@@ -37,6 +37,14 @@ export class DaemonValidationStepComponent extends StepFormDirective implements 
         this.connectToDocker();
     }
 
+    initFormWithSavedData() {
+        // We don't want to set the isConnected field from saved data, so we override the method's default implementation
+    }
+
+    getFormName() {
+        super.getFormName();
+    }
+
     connectToDocker() {
         this.connecting = true;
         this.apiClient.checkIfDockerDaemonAvailable()

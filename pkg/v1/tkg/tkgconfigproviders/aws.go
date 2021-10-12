@@ -353,3 +353,87 @@ func appendSubnets(paramsVpc *models.AWSVpc, highAvailability bool) ([]*newSubne
 
 	return newSubnets, nil
 }
+
+// CreateAWSParams generates a Params object from an AWSConfig, used for importing configuration files
+func (c *client) CreateAWSParams(res *AWSConfig) (params *models.AWSRegionalClusterParams, err error) {
+	ceipOptIn := res.CeipParticipation == trueConst
+	bomConfiguration, err := c.tkgBomClient.GetDefaultTkrBOMConfiguration()
+
+	params = &models.AWSRegionalClusterParams{
+		//Annotations:               nil,
+		AwsAccountParams: &models.AWSAccountParams{
+			AccessKeyID:     res.AccessKeyID,
+			ProfileName:     res.CredentialProfile,
+			Region:          res.Region,
+			SecretAccessKey: res.SecretAcessKey,
+			SessionToken:    res.SessionToken,
+		},
+		BastionHostEnabled:   res.BastionHostEnabled == trueConst,
+		CeipOptIn:            &ceipOptIn,
+		ClusterName:          res.ClusterName,
+		ControlPlaneFlavor:   res.ClusterPlan,
+		ControlPlaneNodeType: res.ControlPlaneNodeType,
+		//CreateCloudFormationStack: false,
+		EnableAuditLogging: res.EnableAuditLogging == trueConst,
+		IdentityManagement: createIdentityManagementConfig(res),
+		//KubernetesVersion:         "",
+		//Labels:                    nil,
+		MachineHealthCheckEnabled: res.MachineHealthCheckEnabled == trueConst,
+		Networking:                createNetworkingConfig(res),
+		NumOfWorkerNode:           0, // TODO SHIMON: is this ok?
+		Os: &models.AWSVirtualMachine{
+			Name: getOsName(bomConfiguration, res),
+			OsInfo: &models.OSInfo{
+				Arch:    res.OsInfo.Arch,
+				Name:    res.OsInfo.Name,
+				Version: res.OsInfo.Version,
+			},
+		},
+		SSHKeyName:         res.SSHKeyName,
+		TmcRegistrationURL: res.TmcRegistrationURL,
+		Vpc:                createVpc(res),
+		WorkerNodeType:     "", // TODO SHIMON: is this ok?
+	}
+
+	if params.CeipOptIn != nil {
+		res.CeipParticipation = strconv.FormatBool(*params.CeipOptIn)
+	}
+
+	return params, nil
+}
+
+func createAwsNodeAz(workerNodeType, privateSubnetID, publicSubnetID string) *models.AWSNodeAz {
+	if workerNodeType == "" {
+		return nil
+	}
+	return &models.AWSNodeAz{
+		PrivateSubnetID: privateSubnetID,
+		PublicSubnetID:  publicSubnetID,
+		WorkerNodeType:  workerNodeType,
+	}
+}
+
+func createVpc(awsConfig *AWSConfig) *models.AWSVpc {
+	azs := []*models.AWSNodeAz{
+		createAwsNodeAz(awsConfig.NodeMachineType, awsConfig.AWSPrivateSubnetID, awsConfig.AWSPublicSubnetID),
+		createAwsNodeAz(awsConfig.NodeMachineType1, awsConfig.AWSPrivateSubnetID2, awsConfig.AWSPublicSubnetID2),
+		createAwsNodeAz(awsConfig.NodeMachineType2, awsConfig.AWSPrivateSubnetID3, awsConfig.AWSPublicSubnetID3),
+	}
+
+	return &models.AWSVpc{
+		Azs:   azs,
+		Cidr:  "",
+		VpcID: "",
+	}
+}
+
+func getOsName(bomConfiguration *tkgconfigbom.BOMConfiguration, awsConfig *AWSConfig) string {
+	if amis, ok := bomConfiguration.AMI[awsConfig.Region]; ok {
+		for _, ami := range amis {
+			if ami.ID == awsConfig.AMIID {
+				return ami.OSInfo.Name
+			}
+		}
+	}
+	return ""
+}

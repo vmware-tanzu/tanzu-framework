@@ -698,6 +698,35 @@ paths:
           schema:
             $ref: '#/definitions/Error'
 
+  /api/providers/vsphere/config/import:
+    post:
+      tags: ["vsphere"]
+      summary: "Generate TKG configuration object for vSphere"
+      operationId: importTKGConfigForVsphere
+      parameters:
+        - in: body
+          name: params
+          description: config file from which to generate tkg configuration for vsphere
+          required: true
+          schema:
+            $ref: '#/definitions/ConfigFile'
+      responses:
+        200:
+          description: Generated TKG configuration successfully
+          schema:
+            $ref: '#/definitions/VsphereRegionalClusterParams'
+        400:
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/Error"
+        401:
+          description: Incorrect credentials
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "Internal server error"
+          schema:
+            $ref: '#/definitions/Error'
 
   /api/providers/vsphere/create:
     post:
@@ -1061,6 +1090,36 @@ paths:
           schema:
             $ref: '#/definitions/Error'
 
+  /api/providers/aws/config/import:
+    post:
+      tags: ["aws"]
+      summary: "Generate TKG configuration object for AWS"
+      operationId: importTKGConfigForAWS
+      parameters:
+        - in: body
+          name: params
+          description: config file from which to generate tkg configuration for aws
+          required: true
+          schema:
+            $ref: '#/definitions/ConfigFile'
+      responses:
+        200:
+          description: Generated TKG configuration successfully
+          schema:
+            $ref: '#/definitions/AWSRegionalClusterParams'
+        400:
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/Error"
+        401:
+          description: Incorrect credentials
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "Internal server error"
+          schema:
+            $ref: '#/definitions/Error'
+
   /api/providers/azure:
     get:
       tags: ["azure"]
@@ -1409,6 +1468,36 @@ paths:
           schema:
             $ref: '#/definitions/Error'
 
+  /api/providers/azure/config/import:
+    post:
+      tags: ["azure"]
+      summary: "Generate TKG configuration object for azure"
+      operationId: importTKGConfigForAzure
+      parameters:
+        - in: body
+          name: params
+          description: config file from which to generate tkg configuration for azure
+          required: true
+          schema:
+            $ref: '#/definitions/ConfigFile'
+      responses:
+        200:
+          description: Generated TKG configuration successfully
+          schema:
+            $ref: '#/definitions/AzureRegionalClusterParams'
+        400:
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/Error"
+        401:
+          description: Incorrect credentials
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "Internal server error"
+          schema:
+            $ref: '#/definitions/Error'
+
   /api/providers/docker/daemon:
     get:
       tags: ["docker"]
@@ -1434,12 +1523,12 @@ paths:
       summary: Generate TKG configuration file for Docker"
       operationId: exportTKGConfigForDocker
       parameters:
-      - in: body
-        name: params
-        description: parameters to generate TKG configuration file for Docker
-        required: true
-        schema:
-          $ref: '#/definitions/DockerRegionalClusterParams'
+        - in: body
+          name: params
+          description: parameters to generate TKG configuration file for Docker
+          required: true
+          schema:
+            $ref: '#/definitions/DockerRegionalClusterParams'
       responses:
         200:
           description: Generated TKG configuration successfully
@@ -1460,12 +1549,12 @@ paths:
       summary: Apply the changes to TKG configuration file for docker"
       operationId: applyTKGConfigForDocker
       parameters:
-      - in: body
-        name: params
-        description: parameters to apply changes to TKG configuration file for Docker
-        required: true
-        schema:
-          $ref: '#/definitions/DockerRegionalClusterParams'
+        - in: body
+          name: params
+          description: parameters to apply changes to TKG configuration file for Docker
+          required: true
+          schema:
+            $ref: '#/definitions/DockerRegionalClusterParams'
       responses:
         200:
           description: Apply change to TKG configuration successfully
@@ -1486,12 +1575,12 @@ paths:
       summary: "Create Docker regional cluster"
       operationId: createDockerRegionalCluster
       parameters:
-      - in: body
-        name: params
-        description: parameters to create a regional cluster
-        required: true
-        schema:
-          $ref: '#/definitions/DockerRegionalClusterParams'
+        - in: body
+          name: params
+          description: parameters to create a regional cluster
+          required: true
+          schema:
+            $ref: '#/definitions/DockerRegionalClusterParams'
       responses:
         200:
           description: Creating regional cluster started successfully
@@ -1499,6 +1588,36 @@ paths:
             type: string
         400:
           description: "Bad request"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "Internal server error"
+          schema:
+            $ref: '#/definitions/Error'
+
+  /api/providers/docker/config/import:
+    post:
+      tags: ["docker"]
+      summary: "Generate TKG configuration object for docker"
+      operationId: importTKGConfigForDocker
+      parameters:
+        - in: body
+          name: params
+          description: config file from which to generate tkg configuration for docker
+          required: true
+          schema:
+            $ref: '#/definitions/ConfigFile'
+      responses:
+        200:
+          description: Generated TKG configuration successfully
+          schema:
+            $ref: '#/definitions/DockerRegionalClusterParams'
+        400:
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/Error"
+        401:
+          description: Incorrect credentials
           schema:
             $ref: "#/definitions/Error"
         500:
@@ -2186,11 +2305,11 @@ definitions:
       network:
         $ref: '#/definitions/AviNetworkParams'
       controlPlaneHaProvider:
-          type: boolean
+        type: boolean
       managementClusterVipNetworkName:
-          type: string
+        type: string
       managementClusterVipNetworkCidr:
-          type: string
+        type: string
 
   IdentityManagementConfig:
     type: object
@@ -2323,4 +2442,10 @@ definitions:
       code:
         type: integer
       desc:
+        type: string
+
+  ConfigFile:
+    type: object
+    properties:
+      filecontents:
         type: string

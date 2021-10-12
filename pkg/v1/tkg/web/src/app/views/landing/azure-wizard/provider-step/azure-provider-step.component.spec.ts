@@ -115,7 +115,7 @@ describe('AzureProviderStepComponent', () => {
             subscriber.next();
           }));
         const regions = spyOn(component, 'getRegions').and.stub();
-        component.verifyCredentails();
+        component.verifyCredentials();
         expect(component.errorNotification).toBe('');
         expect(component.validCredentials).toBeTruthy();
         expect(regions).toHaveBeenCalled();
@@ -123,7 +123,7 @@ describe('AzureProviderStepComponent', () => {
 
     it('should show error message if credential can not be verified', () => {
         spyOn(apiService, 'setAzureEndpoint').and.returnValue(throwError({error : {message: 'oops!'}}));
-        component.verifyCredentails();
+        component.verifyCredentials();
         expect(component.errorNotification).toBe('oops!');
         expect(component.validCredentials).toBeFalsy();
         expect(component.regions).toEqual([]);
@@ -131,9 +131,9 @@ describe('AzureProviderStepComponent', () => {
     });
 
     it('should show different resource based on option', () => {
-        component.show('existing');
+        component.showResourceGroup('existing');
         expect(component.formGroup.get('resourceGroupCustom').value).toBe('');
-        component.show('custom');
+        component.showResourceGroup('custom');
         expect(component.formGroup.get('resourceGroupExisting').value).toBe('');
     });
 

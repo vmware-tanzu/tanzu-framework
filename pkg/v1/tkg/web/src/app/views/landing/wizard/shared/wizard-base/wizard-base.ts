@@ -84,13 +84,31 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
         const formNames = Object.keys(this.form.controls);
         formNames.forEach((formName) => {
             this.form.controls[formName].valueChanges.pipe(debounceTime(200)).subscribe(() => {
-                if (this.form.controls[formName].status === 'VALID') {
-                    this.formMetaDataService.saveFormMetadata(formName,
-                        this.el.nativeElement.querySelector(`clr-stepper-panel[formgroupname=${formName}]`));
+                if (this.isFormComplete(formName)) {
+                    const stepForm = this.el.nativeElement.querySelector(`clr-stepper-panel[formgroupname=${formName}]`);
+                    this.formMetaDataService.saveFormMetadata(formName, stepForm);
                 }
             });
         });
     }
+
+    // isFormComplete() is designed to indicate that a form's fields have been validated and are ready to be saved to local storage.
+    // However, this method is misleading, because the wizard framework we're using does not take into account deactivated controls,
+    // which may be necessary for full form completion.
+    // For example, some controls are deactivated until the user enters credentials and we connect to a provider's server (the deactivation
+    // prevents premature messages about required fields). After the connect, these controls are populated with values and activated; the
+    // user is required to select a value, and once activated, the form validation will insist on a value before reporting VALID.
+    // However, before the control is activated (and therefore part of the validation) the form may be validated and
+    // the status will return 'VALID', even when the control has no value yet. The form is not yet fully completed,
+    // and the values likely should not be stored in local storage, but right now we report the form is complete
+    // and we do save the values we have.
+    // Rather than change the isFormComplete() return value to reflect reality (by taking into account deactivated controls), we have
+    // introduced a 'save-requires-value' attribute for these deactivated controls, so that at least their blank value will not be saved
+    // to local storage (potentially overwriting a real value we want to keep, for use when the control is activated).
+    private isFormComplete(formName: string): boolean {
+        return this.form.controls[formName].status === 'VALID';
+    }
+
     /**
      * Collect step meta data (title, description etc.) for all steps
      */
@@ -122,7 +140,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
      * @returns {any}
      */
     getControlPlaneNodeType(provider: string) {
-        const controlPlaneType = this.getFieldValue(`${provider}NodeSettingForm`, 'controlPlaneSetting');
+        const controlPlaneType = this.getControlPlaneFlavor(provider);
         if (controlPlaneType === 'dev') {
             return this.getFieldValue(`${provider}NodeSettingForm`, 'devInstanceType');
         } else if (controlPlaneType === 'prod') {
@@ -132,8 +150,19 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
         }
     }
 
+    // Note: provider should be one of [aws,vsphere]; controlPlaneFlavor should be one of [dev, prod]
+    saveControlPlaneNodeType(provider: string, controlPlaneFlavor: string, nodeType: string) {
+        if (provider != null && controlPlaneFlavor != null) {
+            this.saveFormField(`${provider}NodeSettingForm`, `${controlPlaneFlavor}InstanceType`, nodeType);
+        }
+    }
+
     getControlPlaneFlavor(provider: string) {
         return this.getFieldValue(`${provider}NodeSettingForm`, 'controlPlaneSetting');
+    }
+
+    saveControlPlaneFlavor(provider: string, flavor: string) {
+        this.saveFormField(`${provider}NodeSettingForm`, 'controlPlaneSetting', flavor);
     }
 
     /**
@@ -203,6 +232,80 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
      */
     abstract createRegionalCluster(params: any): Observable<any>;
     abstract getPayload(): any;
+    abstract setFromPayload(payload: any);
+    abstract retrievePayloadFromString(config: string): Observable<any>;
+    abstract validateImportFile(config: string): string;
+
+    isOnFirstStep() {
+        // we're on the first step if we haven't reached the second step
+        return !this.steps[1];
+    }
+
+    resetToFirstStep() {
+        if (!this.isOnFirstStep()) {
+            let activeStep;
+            // Reset our steps array which tracks where we are
+            this.steps[0] = true;
+            // NOTE: we start at the second element
+            for (let i = 1; i < this.steps.length; i++) {
+                if (this.steps[i]) {
+                    activeStep = i;
+                    this.steps[i] = false;
+                    break;
+                }
+            }
+            this.wizard['stepperService'].resetPanels();
+            this.wizard['stepperService']['accordion'].openFirstPanel();
+        }
+    }
+
+    // returns TRUE if user (a) will not lose data on import, or (b) confirms it's OK
+    onImportButtonClick() {
+        let result = true;
+        if (!this.isOnFirstStep()) {
+            result = confirm('Importing will overwrite any data you have entered. Proceed with import?');
+        }
+        return result;
+    }
+
+    onImportFileSelected(event): void {
+        const self = this;  // capture wizard's 'this' in the outside context to use inside the reader function
+        const reader = new FileReader();
+        reader.onloadend = function() {
+            self.import(reader.result, firstFile.name);
+        };
+        const firstFile = event.target.files[0];
+        reader.readAsText(firstFile);
+        // clear file reader target so user can re-select same file if needed
+        event.target.value = '';
+    }
+
+    import(fileContent, fileName): void {
+        if (fileContent.length > 0) {
+            // check file is correct flavor
+            const errMsg = this.validateImportFile(fileContent);
+            if (errMsg.length !== 0) {
+                alert(errMsg);
+            } else {
+                this.retrievePayloadFromString(fileContent).pipe(take(1)).subscribe(
+                    ((payload) => {
+                        this.setFromPayload(payload);
+                        this.resetToFirstStep();
+                        Broker.messenger.publish({
+                            type: TkgEventType.CONFIG_FILE_IMPORTED,
+                            payload: 'Data imported from file ' + fileName
+                        });
+                    }),
+                    ((err) => {
+                        Broker.messenger.publish({
+                            type: TkgEventType.CONFIG_FILE_IMPORT_ERROR,
+                            payload: 'Error encountered while importing file ' + fileName + ': ' + err.toString()
+                        });
+                    })
+                );
+            }
+        }
+    }
 
     deploy(): void {
         this.deploymentPending = true;
@@ -260,6 +363,22 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
     }
 
     /**
+     * Set the current value of the specified field
+     * @param formName the form to set the field in
+     * @param fieldName the name of the field to set
+     * @param value the value to set the field to
+     * Returns: true if successful; false if unable to get the form or the field
+     */
+    setFieldValue(formName, fieldName, value) {
+        if (this.form.get(formName) && this.form.get(formName).get(fieldName)) {
+            console.log('SHIMON: setting ' + formName + '.' + fieldName + ' to have value of ' + value);
+            this.form.get(formName).get(fieldName).setValue(value);
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Return the current value of the specified field
      * @param formName the form to get the field from
      * @param fieldName the name of the field to get
@@ -303,6 +422,20 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
             obj[k] = v;
         }
         return obj;
+    }
+
+    /**
+     * Converts stringifyable object to ES6 map
+     * @param stringifyable object to be converted
+     */
+    objToStrMap(obj: any): Map<string, string> {
+        const result = new Map<string, string>();
+        if (obj !== null) {
+            for (const [k, v] of obj) {
+                result[k] = v;
+            }
+        }
+        return result;
     }
 
     /**
@@ -418,7 +551,133 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
             },
             'labels': this.strMapToObj(this.getFieldValue('loadBalancerForm', 'clusterLabels'))
         }
-
         return payload;
+    }
+
+    // saveFormField() is a convenience method to avoid lengthy code lines
+    saveFormField(formName, fieldName, value) {
+        this.formMetaDataService.saveFormFieldData(formName, fieldName, value);
+    }
+
+    // saveFormListbox is a convenience method to avoid lengthy code lines
+    saveFormListbox(formName, listboxName, key) {
+        this.formMetaDataService.saveFormListboxData(formName, listboxName, key);
+    }
+
+    saveProxyFieldsFromPayload(payload: any) {
+        if (payload.networking !== undefined && payload.networking.httpProxyConfiguration !== undefined) {
+            const proxyConfig = payload.networking.httpProxyConfiguration;
+            const hasProxySettings = proxyConfig.enabled;
+            this.saveFormField('networkForm', 'proxySettings', hasProxySettings);
+            if (hasProxySettings) {
+                let proxySettingsMap = [
+                    ['HTTPProxyURL', 'networkForm', 'httpProxyUrl'],
+                    ['HTTPProxyUsername', 'networkForm', 'httpProxyUsername'],
+                    ['HTTPProxyPassword', 'networkForm', 'httpProxyPassword'],
+                    ['noProxy', 'networkForm', 'noProxy']
+                ];
+                // when HTTP matches HTTPS, we check the "matches" UI box and clear the HTTPS fields
+                const httpMatchesHttps = this.httpMatchesHttpsSettings(proxyConfig);
+                this.saveFormField('networkForm', 'isSameAsHttp', httpMatchesHttps);
+                if (httpMatchesHttps) {
+                    this.saveFormField('networkForm', 'httpsProxyUrl', '');
+                    this.saveFormField('networkForm', 'httpsProxyUsername', '');
+                    this.saveFormField('networkForm', 'httpsProxyPassword', '');
+                } else {
+                    proxySettingsMap = [
+                        ...proxySettingsMap,
+                        ['HTTPSProxyURL', 'networkForm', 'httpsProxyUrl'],
+                        ['HTTPSProxyUsername', 'networkForm', 'httpsProxyUsername'],
+                        ['HTTPSProxyPassword', 'networkForm', 'httpsProxyPassword']
+                    ];
+                }
+                proxySettingsMap.forEach(attr => {
+                    this.saveFormField(attr[1], attr[2], proxyConfig[attr[0]]);
+                });
+            }
+        }
+    }
+
+    /**
+     * Fill in payload with values from all common steps
+     * @param payload
+     */
+    saveCommonFieldsFromPayload(payload: any) {
+        if (payload.networking !== undefined ) {
+            // Networking - general
+            this.saveFormField('networkForm', 'networkName', payload.networking.networkName);
+            this.saveFormField('networkForm', 'clusterServiceCidr', payload.networking.clusterServiceCIDR);
+            this.saveFormField('networkForm', 'clusterPodCidr', payload.networking.clusterPodCIDR);
+            this.saveFormField('networkForm', 'cniType', payload.networking.cniType);
+        }
+
+        // Proxy settings
+        this.saveProxyFieldsFromPayload(payload);
+
+        // Other fields
+        this.saveFormField('ceipOptInForm', 'ceipOptIn', payload.ceipOptIn);
+        this.saveFormField('registerTmcForm', 'tmcRegUrl', payload.tmc_registration_url);
+        if (payload.labels !== undefined) {
+            this.saveFormField('metadataForm', 'clusterLabels', this.objToStrMap(payload.labels));
+        }
+        this.saveFormField('osImageForm', 'osImage', payload.os);
+        if (payload.annotations !== undefined) {
+            this.saveFormField('metadataForm', 'clusterDescription', payload.annotations.description);
+            this.saveFormField('metadataForm', 'clusterLocation', payload.annotations.location);
+        }
+
+        // Identity Management form
+        if (payload.identityManagement !== undefined) {
+            const idmType = payload.identityManagement.idm_type === 'none' ? '' : payload.identityManagement.idm_type;
+            this.saveFormField('identityForm', 'identityType', idmType);
+            if (idmType === 'oidc') {
+                this.saveFormField('identityForm', 'issuerURL', payload.identityManagement.oidc_provider_url);
+                this.saveFormField('identityForm', 'clientId', payload.identityManagement.oidc_client_id);
+                this.saveFormField('identityForm', 'clientSecret', payload.identityManagement.oidc_client_secret);
+                this.saveFormField('identityForm', 'scopes', payload.identityManagement.oidc_scope);
+                this.saveFormField('identityForm', 'oidcUsernameClaim', payload.identityManagement.oidc_claim_mappings.username);
+                this.saveFormField('identityForm', 'oidcGroupsClaim', payload.identityManagement.oidc_claim_mappings.groups);
+            } else if (idmType === 'ldap') {
+                if (payload.id.ldap_url !== undefined) {
+                    // separate the IP address from the port in the LDAP URL
+                    const ldapUrlPieces = payload.id.ldap_url.split(':');
+                    this.saveFormField('identityForm', 'endpointIp', ldapUrlPieces[0]);
+                    if (ldapUrlPieces.length() > 1) {
+                        this.saveFormField('identityForm', 'endpointPort', ldapUrlPieces[1]);
+                    }
+                }
+                this.saveFormField('identityForm', 'bindDN', payload.identityManagement.ldap_bind_dn);
+                this.saveFormField('identityForm', 'bindPW', payload.identityManagement.ldap_bind_password);
+                this.saveFormField('identityForm', 'userSearchBaseDN', payload.identityManagement.ldap_user_search_base_dn);
+                this.saveFormField('identityForm', 'userSearchFilter', payload.identityManagement.ldap_user_search_filter);
+                this.saveFormField('identityForm', 'userSearchUsername', payload.identityManagement.ldap_user_search_username);
+                this.saveFormField('identityForm', 'userSearchUsername', payload.identityManagement.ldap_user_search_name_attr);
+                this.saveFormField('identityForm', 'groupSearchBaseDN', payload.identityManagement.ldap_group_search_base_dn);
+                this.saveFormField('identityForm', 'groupSearchFilter', payload.identityManagement.ldap_group_search_filter);
+                this.saveFormField('identityForm', 'groupSearchUserAttr', payload.identityManagement.ldap_group_search_user_attr);
+                this.saveFormField('identityForm', 'groupSearchGroupAttr', payload.identityManagement.ldap_group_search_group_attr);
+                this.saveFormField('identityForm', 'groupSearchNameAttr', payload.identityManagement.ldap_group_search_name_attr);
+                this.saveFormField('identityForm', 'ldapRootCAData', payload.identityManagement.ldap_root_ca);
+            }
+        }
+
+        if (payload.aviConfig !== undefined) {
+            // Load Balancer form
+            this.saveFormField('loadBalancerForm', 'controllerHost', payload.aviConfig.controller);
+            this.saveFormField('loadBalancerForm', 'username', payload.aviConfig.username);
+            this.saveFormField('loadBalancerForm', 'password', payload.aviConfig.password);
+            this.saveFormField('loadBalancerForm', 'cloudName', payload.aviConfig.cloud);
+            this.saveFormField('loadBalancerForm', 'serviceEngineGroupName', payload.aviConfig.service_engine);
+            this.saveFormField('loadBalancerForm', 'controllerCert', payload.aviConfig.ca_cert);
+            this.saveFormField('loadBalancerForm', 'networkName', payload.aviConfig.network.name);
+            this.saveFormField('loadBalancerForm', 'networkCIDR', payload.aviConfig.network.cidr);
+            this.saveFormField('loadBalancerForm', 'clusterLabels', this.objToStrMap(payload.aviConfig.labels));
+        }
+    }
+
+    private httpMatchesHttpsSettings(httpProxyConfiguration: any) {
+        return httpProxyConfiguration['HTTPProxyURL'] === httpProxyConfiguration['HTTPSProxyURL'] &&
+            httpProxyConfiguration['HTTPProxyUsername'] === httpProxyConfiguration['HTTPSProxyUsername'] &&
+            httpProxyConfiguration['HTTPProxyPassword'] === httpProxyConfiguration['HTTPSProxyPassword'];
     }
 }

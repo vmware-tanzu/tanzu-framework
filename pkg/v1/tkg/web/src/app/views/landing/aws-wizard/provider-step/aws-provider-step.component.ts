@@ -125,8 +125,9 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
             }
         });
         this.authTypeValue = this.getSavedValue('authType', 'credentialProfile');
-
         this.formGroup.get('authType').setValue(this.authTypeValue);
+
+        this.initFormWithSavedData();
     }
 
     trimCreds(data) {
@@ -144,7 +145,7 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
         this.validCredentials = false
     }
 
-    initAwsCredentials() {
+    private initAwsCredentials() {
         const getRegionObs$ =  this.apiClient.getAWSRegions().pipe(
             catchError(err => of([])),
         );
@@ -156,23 +157,23 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
             .subscribe(
                 (next) => {
                     this.regions = next[0].sort();
+                    if (this.regions.length === 1) {
+                        this.formGroup.get('region').setValue(this.regions[0]);
+                    }
                     this.profileNames = next[1];
                     if (this.profileNames.length === 1) {
                         this.formGroup.get('profileName').setValue(this.profileNames[0]);
-                    }
-                    if (this.regions.length === 1) {
-                        this.formGroup.get('region').setValue(this.regions[0]);
                     }
                 },
                 () => this.loading = false
             );
     }
 
-    oneTimeCredentialsSelectedHandler() {
+    private oneTimeCredentialsSelectedHandler() {
         this.disarmField('profileName', true);
     }
 
-    credentialProfileSelectedHandler() {
+    private credentialProfileSelectedHandler() {
         const resetFields = ['accessKeyID', 'secretAccessKey', 'sessionToken'];
         resetFields.forEach(field => this.disarmField(field, true));
     }
@@ -184,19 +185,30 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
         }
     }
 
-    setSavedDataAfterLoad() {
-        // disabled saved data
-        // super.setSavedDataAfterLoad();
-        // don't fill password fields with ****
-        this.formGroup.get('accessKeyID').setValue('');
-        this.formGroup.get('secretAccessKey').setValue('');
+    initFormWithSavedData() {
+        super.initFormWithSavedData();
+
+        // Use the presence of a saved access key to set the access type.
+        // (Which is to say: assume oneTimeCredentials unless there is a saved access key.)
+        // NOTE: if there is a real saved access key (from import) we erase it immediately after using it here
+        const savedAccessKeyId = this.getSavedValue('accessKeyID', '*');
+        const hasSavedAccessKey = !savedAccessKeyId.startsWith('*');
+        this.authTypeValue = hasSavedAccessKey ? 'oneTimeCredentials' : 'credentialProfile';
+
+        this.scrubPasswordField('accessKeyID');
+        this.scrubPasswordField('secretAccessKey');
+
+        // Initializations not needed the first time the form is loaded, but
+        // required to re-initialize after form has been used
+        this.validCredentials = false;
+        this.regions = [];
     }
 
     /**
-     * @method verifyCredentails
+     * @method verifyCredentials
      * helper method to verify AWS connection credentials
      */
-    verifyCredentails() {
+    verifyCredentials() {
         this.loading = true;
         this.errorNotification = '';
         const params = {};

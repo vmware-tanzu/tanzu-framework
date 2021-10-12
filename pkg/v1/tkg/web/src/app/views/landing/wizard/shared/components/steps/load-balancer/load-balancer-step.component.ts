@@ -174,6 +174,8 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
             this.validationService.isValidIpNetworkSegment()], [
             this.validationService.isValidIpv6NetworkSegment()
         ]);
+
+        this.initFormWithSavedData();
     }
 
     isFieldReadyForInitWithSavedValue(fieldName: string): boolean {
@@ -183,9 +185,15 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
         return true;
     }
 
-    setSavedDataAfterLoad() {
-        this.formGroup.get('controllerHost').setValue(this.getSavedValue('controllerHost', ''));
-        this.formGroup.get('username').setValue(this.getSavedValue('username', ''));
+    initFormWithSavedData() {
+        const fieldControllerHost = this.formGroup.get('controllerHost');
+        if (fieldControllerHost) {
+            fieldControllerHost.setValue(this.getSavedValue('controllerHost', ''));
+        }
+        const fieldUserName = this.formGroup.get('username');
+        if (fieldUserName) {
+            fieldUserName.setValue(this.getSavedValue('username', ''));
+        }
 
         const savedLabelsString = this.getSavedValue('clusterLabels', '');
         if (savedLabelsString !== '') {
@@ -197,7 +205,10 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
         }
 
         // clear password from saved data
-        this.formGroup.get('password').setValue('');
+        const fieldPassword = this.formGroup.get('password');
+        if (fieldPassword) {
+            fieldPassword.setValue('');
+        }
 
         this.startProcessDelayedFieldInit();    // init those fields with saved value when they become ready
     }

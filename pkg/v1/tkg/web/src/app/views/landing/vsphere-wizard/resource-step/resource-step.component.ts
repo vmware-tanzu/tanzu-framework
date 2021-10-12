@@ -117,6 +117,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
                 this.resetFieldsUponDCChange();
             });
 
+        this.initFormWithSavedData();
         DataSources.forEach(source => {
             this.wizardFormService.getDataStream(source)
                 .pipe(takeUntil(this.unsubscribe))
@@ -130,29 +131,31 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
                         this.constructResourceTree(data);
                     }
                     if (source === TkgEventType.GET_VM_FOLDERS) {
-                        this.resurrectField(VsphereField.RESOURCE_VMFOLDER,
-                            [Validators.required, this.validationService.isValidNameInList(
-                                data.map(vmFolder => vmFolder.name))], data.length === 1 ? data[0].name : '');
+                        const selectValue = data.length === 1 ? data[0].name : this.getSavedValue(VsphereField.RESOURCE_VMFOLDER, '');
+                        const validators = [Validators.required,
+                            this.validationService.isValidNameInList(data.map(vmFolder => vmFolder.name))];
+                        this.resurrectField(VsphereField.RESOURCE_VMFOLDER, validators, selectValue);
                     }
                     if (source === TkgEventType.GET_DATA_STORES) {
-                        this.resurrectField(VsphereField.RESOURCE_DATASTORE,
-                            [Validators.required, this.validationService.isValidNameInList(
-                                data.map(vmFolder => vmFolder.name))], data.length === 1 ? data[0].name : '');
+                        const selectValue = data.length === 1 ? data[0].name : this.getSavedValue(VsphereField.RESOURCE_DATASTORE, '');
+                        const validators = [Validators.required,
+                            this.validationService.isValidNameInList(data.map(vmFolder => vmFolder.name))];
+                        this.resurrectField(VsphereField.RESOURCE_DATASTORE, validators, selectValue);
                     }
                 });
         });
     }
 
-    setSavedDataAfterLoad() {
+    initFormWithSavedData() {
         // overwritten to avoid setting resource pool because it causes ng-valid console errors
-        const resetFields: string[] = [
+        const resourcePoolFields: string[] = [
             VsphereField.RESOURCE_POOL,
             VsphereField.RESOURCE_DATASTORE,
             VsphereField.RESOURCE_VMFOLDER
         ];
         if (this.hasSavedData()) {
             for (const [key, control] of Object.entries(this.formGroup.controls)) {
-                if (!resetFields.includes(key)) {
+                if (!resourcePoolFields.includes(key)) {
                     control.setValue(this.getSavedValue(key, control.value));
                 }
             }
@@ -168,10 +171,21 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
         this.retrieveVMFolders();
     }
 
-    // Reset the relevent fields upon data center change
+    // Reset the relevant fields upon data center change
     resetFieldsUponDCChange() {
-        const fieldsToReset = [VsphereField.RESOURCE_POOL, VsphereField.RESOURCE_DATASTORE, VsphereField.RESOURCE_VMFOLDER];
-        fieldsToReset.forEach(f => this.formGroup.get(f).setValue(""));
+        const fieldsToReset = [VsphereField.RESOURCE_POOL.toString(), VsphereField.RESOURCE_DATASTORE, VsphereField.RESOURCE_VMFOLDER];
+        // NOTE: because the saved data values MAY be applicable to the just-chosen DC,
+        // we try to set the fields to the saved value
+        if (this.hasSavedData()) {
+            for (const [key, control] of Object.entries(this.formGroup.controls)) {
+                if (fieldsToReset.includes(key)) {
+                    const savedValue = this.getSavedValue(key, control.value);
+                    control.setValue(savedValue);
+                }
+            }
+        } else {
+            fieldsToReset.forEach(f => this.formGroup.get(f).setValue(""));
+        }
     }
 
     /**
@@ -230,11 +244,12 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
             }
             resource.label = resource.name;
         });
-        this.constructTree(resourceTree, nodeMap);
+        const selectResourcePool = this.getSavedValue(VsphereField.RESOURCE_POOL, '');
+        this.constructTree(resourceTree, nodeMap, selectResourcePool);
         this.treeData = this.removeDatacenter(resourceTree);
     }
 
-    constructTree(treeNodes: Array<ResourcePool>, map: Map<string, Array<ResourcePool>>): void {
+    constructTree(treeNodes: Array<ResourcePool>, map: Map<string, Array<ResourcePool>>, selectResourcePool: string): void {
         if (!treeNodes || treeNodes.length <= 0) {
             return;
         }
@@ -247,7 +262,8 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
             const childNodes = map.get(node.moid) || [];
             node.children = childNodes;
             node.isExpanded = true;
-            this.constructTree(childNodes, map);
+            node.checked = selectResourcePool === node.path;
+            this.constructTree(childNodes, map, selectResourcePool);
         });
     }
 
@@ -266,25 +282,21 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
     }
 
     handleOnClick = (selected: ResourcePool) => {
-        this.processData(this.treeData, selected);
+        let resourcePoolValue = '';
         if (selected.checked) {
-            this.formGroup.get(VsphereField.RESOURCE_POOL).setValue(selected.path);
-        } else {
-            this.formGroup.get(VsphereField.RESOURCE_POOL).setValue('');
+            this.ensureOnlyOneResourceSelected(this.treeData, selected);
+            resourcePoolValue = selected.path;
         }
+        this.formGroup.get(VsphereField.RESOURCE_POOL).setValue(resourcePoolValue);
     }
 
-    processData(data: Array<ResourcePool>, selected: ResourcePool) {
-        if (!data) {
+    ensureOnlyOneResourceSelected(resourcePools: Array<ResourcePool>, selected: ResourcePool) {
+        if (!resourcePools) {
             return;
         }
-        data.forEach(node => {
-            if (node.moid === selected.moid && selected.checked) {
-                node.checked = true;
-            } else {
-                node.checked = false;
-            }
-            this.processData(node.children, selected);
+        resourcePools.forEach(node => {
+            node.checked = node.moid === selected.moid;
+            this.ensureOnlyOneResourceSelected(node.children, selected);
         });
     }
 

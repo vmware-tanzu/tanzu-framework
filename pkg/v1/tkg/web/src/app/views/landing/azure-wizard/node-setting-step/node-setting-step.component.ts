@@ -150,12 +150,13 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         this.buildForm();
         this.initForm();
         this.toggleValidations();
+        this.initFormWithSavedData();
     }
 
-    setSavedDataAfterLoad() {
+    initFormWithSavedData() {
         this.cardClick(this.getSavedValue('devInstanceType', '') === '' ? 'prod' : 'dev');
         this.getSavedValue('devInstanceType', '') === '' ? this.setProdCardValidations() : this.setDevCardValidations()
-        super.setSavedDataAfterLoad();
+        super.initFormWithSavedData();
     }
 
     cardClick(envType: string) {

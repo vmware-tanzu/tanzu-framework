@@ -661,6 +661,52 @@ func init() {
         }
       }
     },
+    "/api/providers/aws/config/import": {
+      "post": {
+        "tags": [
+          "aws"
+        ],
+        "summary": "Generate TKG configuration object for AWS",
+        "operationId": "importTKGConfigForAWS",
+        "parameters": [
+          {
+            "description": "config file from which to generate tkg configuration for aws",
+            "name": "params",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ConfigFile"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Generated TKG configuration successfully",
+            "schema": {
+              "$ref": "#/definitions/AWSRegionalClusterParams"
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Incorrect credentials",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/api/providers/aws/create": {
       "post": {
         "tags": [
@@ -1105,6 +1151,52 @@ func init() {
             "description": "Generated TKG configuration successfully",
             "schema": {
               "type": "string"
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Incorrect credentials",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/providers/azure/config/import": {
+      "post": {
+        "tags": [
+          "azure"
+        ],
+        "summary": "Generate TKG configuration object for azure",
+        "operationId": "importTKGConfigForAzure",
+        "parameters": [
+          {
+            "description": "config file from which to generate tkg configuration for azure",
+            "name": "params",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ConfigFile"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Generated TKG configuration successfully",
+            "schema": {
+              "$ref": "#/definitions/AzureRegionalClusterParams"
             }
           },
           "400": {
@@ -1579,6 +1671,52 @@ func init() {
         }
       }
     },
+    "/api/providers/docker/config/import": {
+      "post": {
+        "tags": [
+          "docker"
+        ],
+        "summary": "Generate TKG configuration object for docker",
+        "operationId": "importTKGConfigForDocker",
+        "parameters": [
+          {
+            "description": "config file from which to generate tkg configuration for docker",
+            "name": "params",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ConfigFile"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Generated TKG configuration successfully",
+            "schema": {
+              "$ref": "#/definitions/DockerRegionalClusterParams"
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Incorrect credentials",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/api/providers/docker/create": {
       "post": {
         "tags": [
@@ -1803,6 +1941,52 @@ func init() {
             "description": "Generated TKG configuration successfully",
             "schema": {
               "type": "string"
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Incorrect credentials",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/providers/vsphere/config/import": {
+      "post": {
+        "tags": [
+          "vsphere"
+        ],
+        "summary": "Generate TKG configuration object for vSphere",
+        "operationId": "importTKGConfigForVsphere",
+        "parameters": [
+          {
+            "description": "config file from which to generate tkg configuration for vsphere",
+            "name": "params",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ConfigFile"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Generated TKG configuration successfully",
+            "schema": {
+              "$ref": "#/definitions/VsphereRegionalClusterParams"
             }
           },
           "400": {
@@ -2865,6 +3049,14 @@ func init() {
           "items": {
             "$ref": "#/definitions/AzureSubnet"
           }
+        }
+      }
+    },
+    "ConfigFile": {
+      "type": "object",
+      "properties": {
+        "filecontents": {
+          "type": "string"
         }
       }
     },
@@ -4134,6 +4326,52 @@ func init() {
         }
       }
     },
+    "/api/providers/aws/config/import": {
+      "post": {
+        "tags": [
+          "aws"
+        ],
+        "summary": "Generate TKG configuration object for AWS",
+        "operationId": "importTKGConfigForAWS",
+        "parameters": [
+          {
+            "description": "config file from which to generate tkg configuration for aws",
+            "name": "params",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ConfigFile"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Generated TKG configuration successfully",
+            "schema": {
+              "$ref": "#/definitions/AWSRegionalClusterParams"
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Incorrect credentials",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/api/providers/aws/create": {
       "post": {
         "tags": [
@@ -4578,6 +4816,52 @@ func init() {
             "description": "Generated TKG configuration successfully",
             "schema": {
               "type": "string"
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Incorrect credentials",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/providers/azure/config/import": {
+      "post": {
+        "tags": [
+          "azure"
+        ],
+        "summary": "Generate TKG configuration object for azure",
+        "operationId": "importTKGConfigForAzure",
+        "parameters": [
+          {
+            "description": "config file from which to generate tkg configuration for azure",
+            "name": "params",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ConfigFile"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Generated TKG configuration successfully",
+            "schema": {
+              "$ref": "#/definitions/AzureRegionalClusterParams"
             }
           },
           "400": {
@@ -5052,6 +5336,52 @@ func init() {
         }
       }
     },
+    "/api/providers/docker/config/import": {
+      "post": {
+        "tags": [
+          "docker"
+        ],
+        "summary": "Generate TKG configuration object for docker",
+        "operationId": "importTKGConfigForDocker",
+        "parameters": [
+          {
+            "description": "config file from which to generate tkg configuration for docker",
+            "name": "params",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ConfigFile"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Generated TKG configuration successfully",
+            "schema": {
+              "$ref": "#/definitions/DockerRegionalClusterParams"
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Incorrect credentials",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/api/providers/docker/create": {
       "post": {
         "tags": [
@@ -5276,6 +5606,52 @@ func init() {
             "description": "Generated TKG configuration successfully",
             "schema": {
               "type": "string"
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Incorrect credentials",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/providers/vsphere/config/import": {
+      "post": {
+        "tags": [
+          "vsphere"
+        ],
+        "summary": "Generate TKG configuration object for vSphere",
+        "operationId": "importTKGConfigForVsphere",
+        "parameters": [
+          {
+            "description": "config file from which to generate tkg configuration for vsphere",
+            "name": "params",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ConfigFile"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Generated TKG configuration successfully",
+            "schema": {
+              "$ref": "#/definitions/VsphereRegionalClusterParams"
             }
           },
           "400": {
@@ -6338,6 +6714,14 @@ func init() {
           "items": {
             "$ref": "#/definitions/AzureSubnet"
           }
+        }
+      }
+    },
+    "ConfigFile": {
+      "type": "object",
+      "properties": {
+        "filecontents": {
+          "type": "string"
         }
       }
     },

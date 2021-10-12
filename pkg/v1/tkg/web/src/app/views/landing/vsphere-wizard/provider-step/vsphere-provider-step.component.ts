@@ -187,6 +187,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 Validators.required,
                 this.validationService.isValidIpv6OrFqdn()
             ]);
+        this.initFormWithSavedData();
     }
     disconnect() {
         this.connected = false;
@@ -195,10 +196,9 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
         this.datacenters = [];
         this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).disable();
     }
-    setSavedDataAfterLoad() {
-        super.setSavedDataAfterLoad();
-        // don't fill password field with ****
-        this.formGroup.get(VsphereField.PROVIDER_USER_PASSWORD).setValue('');
+    initFormWithSavedData() {
+        super.initFormWithSavedData();
+        this.scrubPasswordField(VsphereField.PROVIDER_USER_PASSWORD);
     }
 
     /**

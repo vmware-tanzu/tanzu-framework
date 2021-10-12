@@ -121,8 +121,10 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
                 this.disarmField('identityType', true);
             }
         });
-        this.identityTypeValue = this.getSavedValue('identityType', 'oidc');
 
+        this.initFormWithSavedData();
+        this.identityTypeValue = this.getSavedValue('identityType', 'oidc');
+        // TODO: guessing we don't need this line
         this.formGroup.get('identityType').setValue(this.identityTypeValue);
     }
 
@@ -204,8 +206,8 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
         }
     }
 
-    setSavedDataAfterLoad() {
-        super.setSavedDataAfterLoad();
+    initFormWithSavedData() {
+        super.initFormWithSavedData();
         this.formGroup.get('clientSecret').setValue('');
         if (!this.formGroup.value['idmSettings']) {
             this.formGroup.get('identityType').setValue('none');

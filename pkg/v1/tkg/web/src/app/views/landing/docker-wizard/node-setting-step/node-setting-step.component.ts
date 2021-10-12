@@ -21,7 +21,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     ngOnInit(): void {
         super.ngOnInit();
         this.formGroup.addControl('clusterName', new FormControl('', [this.validationService.isValidClusterName()]));
-
+        this.initFormWithSavedData();
         if (this.edition !== AppEdition.TKG) {
             this.resurrectField('clusterName',
                 [Validators.required, this.validationService.isValidClusterName()],

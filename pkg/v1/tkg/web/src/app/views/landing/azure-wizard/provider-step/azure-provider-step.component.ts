@@ -15,7 +15,7 @@ import { ValidationService } from '../../wizard/shared/validation/validation.ser
 import Broker from 'src/app/shared/service/broker';
 
 export const AzureAccountParamsKeys = ["tenantId", "clientId", "clientSecret", "subscriptionId", "azureCloud"];
-const extraFields = ["region", "sshPublicKey", "resourceGroupOption", "resourceGroupExisting"];
+const requiredFields = ["region", "sshPublicKey", "resourceGroupOption", "resourceGroupExisting"];
 const optionalFields = ["resourceGroupCustom"];
 
 @Component({
@@ -27,7 +27,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
 
     loadingRegions = false;
     loadingState: ClrLoadingState = ClrLoadingState.DEFAULT;
-    showOption = "existing";
+    resourceGroupOption = 'existing';
 
     regions = [];
     azureClouds = [
@@ -43,7 +43,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     resourceGroups = [];
     validCredentials = false;
 
-    resourceGroupCreationState = "create";
+    resourceGroupCreationState = 'create';
     resourceGroupSelection: string = 'disabled';
 
     constructor(
@@ -57,24 +57,19 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
      * Create the initial form
      */
     private buildForm() {
-        const fields = AzureAccountParamsKeys.concat(extraFields);
-        fields.forEach(key => this.formGroup.addControl(
-            key,
+        AzureAccountParamsKeys.concat(requiredFields).forEach(controlName => this.formGroup.addControl(
+            controlName,
             new FormControl('', [
                 Validators.required
             ])
         ));
 
-        this.formGroup.get('resourceGroupOption').setValue(this.showOption);
+        this.formGroup.get('resourceGroupOption').setValue(this.resourceGroupOption);
 
-        optionalFields.forEach(key => this.formGroup.addControl(
-            key,
+        optionalFields.forEach(controlName => this.formGroup.addControl(
+            controlName,
             new FormControl('', [])
         ));
-
-        this.formGroup.addControl(
-            "azureCloud",
-            new FormControl('AzurePublicCloud', [Validators.required]));
 
         this.formGroup['canMoveToNext'] = () => {
             return this.formGroup.valid && this.validCredentials;
@@ -112,11 +107,12 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
 
         this.wizardFormService.getDataStream(TkgEventType.AZURE_GET_RESOURCE_GROUPS)
             .pipe(takeUntil(this.unsubscribe))
-            .subscribe((rgs: AzureResourceGroup[]) => {
+            .subscribe((azureResourceGroups: AzureResourceGroup[]) => {
                 this.resourceGroupSelection = null;
-                this.resourceGroups = rgs;
-                if (rgs.length === 1) {
-                    this.formGroup.get('resourceGroupExisting').setValue(rgs[0].name);
+                this.resourceGroups = azureResourceGroups;
+                this.initResourceGroupFromSavedData();
+                if (azureResourceGroups.length === 1) {
+                    this.formGroup.get('resourceGroupExisting').setValue(azureResourceGroups[0].name);
                 }
             });
 
@@ -147,12 +143,45 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
                 this.onRegionChange(val)
             });
 
+        this.initFormWithSavedData();
     }
 
-    setSavedDataAfterLoad() {
-        super.setSavedDataAfterLoad();
-        // don't fill password field with ****
-        this.formGroup.get('clientSecret').setValue('');
+    private initResourceGroupFromSavedData() {
+        // if the user did an import, then we expect the value to be stored in 'resourceGroupCustom'
+        // we'll check and see if that value is now existing
+        let savedGroupExisting = this.getSavedValue('resourceGroupExisting', '');
+        let savedGroupCustom = this.getSavedValue('resourceGroupCustom', '');
+
+        if (this.handleIfSavedCustomResourceGroupIsNowExisting(savedGroupCustom)) {
+            savedGroupExisting = savedGroupCustom;
+            savedGroupCustom = '';
+        }
+
+        if (savedGroupCustom !== '') {
+            this.formGroup.get('resourceGroupCustom').setValue(savedGroupExisting);
+            this.showResourceGroup('custom');
+        } else if (savedGroupExisting !== '') {
+            this.formGroup.get('resourceGroupExisting').setValue(savedGroupExisting);
+            this.showResourceGroup('existing');
+        } else {
+            this.showResourceGroup(this.resourceGroupOption);
+        }
+    }
+
+    initFormWithSavedData() {
+        super.initFormWithSavedData();
+        this.initResourceGroupFromSavedData();
+
+        this.scrubPasswordField('clientSecret');
+
+        // Initializations not needed the first time the form is loaded, but
+        // required to re-initialize after form has been used
+        this.validCredentials = false;
+        this.regions = [];
+        this.resourceGroups = [];
+        this.resourceGroupCreationState = "create";
+        this.resourceGroupSelection = 'disabled';
+        this.resourceGroupOption = 'existing';
     }
 
     initAzureCredentials() {
@@ -183,27 +212,19 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
         this.apiClient.getAzureRegions()
             .pipe(
                 finalize(() => {
-                    this.loadingRegions = false
-                    const matchingRegions = this.regions.filter(r => r.displayName === this.getSavedValue('region', ''))
-                    if (matchingRegions.length > 0) {
-                        this.formGroup.get('region').setValue(matchingRegions[0].name);
-                    }
-                    if (this.regions.length === 1) {
-                        this.formGroup.get('region').setValue(this.regions[0].name);
-                    }
-
-                    // handle case where a new resource group was created, saved to local storage, and the browser was refreshed
-                    if (this.getSavedValue('resourceGroupExisting', '') === ''
-                        && this.resourceGroups.indexOf(this.getSavedValue('resourceGroupCustom', '') >= 0)) {
-                        // select the newly created resource group in the existing resource group dropdown
-                        this.formGroup.get('resourceGroupExisting').setValue(this.getSavedValue('resourceGroupCustom', ''))
-                    }
+                    this.loadingRegions = false;
                 }),
                 takeUntil(this.unsubscribe)
             )
             .subscribe(
                 regions => {
                     this.regions = regions.sort((regionA, regionB) => regionA.name.localeCompare(regionB.name));
+                    const selectedRegion = this.regions.length === 1 ? this.regions[0].name : this.getSavedValue('region', '');
+                    this.formGroup.get('region').setValue(selectedRegion);
+                    if (selectedRegion !== '') {
+                        console.log('getRegions() about to signal region change...');
+                        this.onRegionChange(selectedRegion);
+                    }
                 },
                 () => {
                     this.errorNotification = 'Unable to retrieve Azure regions';
@@ -213,18 +234,18 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     }
 
     /**
-     * @method verifyCredentails
+     * @method verifyCredentials
      * helper method to verify Azure connection credentials
      */
-    verifyCredentails() {
+    verifyCredentials() {
         this.loadingState = ClrLoadingState.LOADING
         this.errorNotification = '';
-        const params = {};
+        const accountParams = {};
         for (const key of AzureAccountParamsKeys) {
-            params[key] = this.formGroup.get(key).value;
+            accountParams[key] = this.formGroup.get(key).value;
         }
         this.apiClient.setAzureEndpoint({
-            accountParams: params
+            accountParams: accountParams
         })
             .pipe(
                 finalize(() => this.loadingState = ClrLoadingState.DEFAULT),
@@ -255,8 +276,8 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
         return !AzureAccountParamsKeys.reduce((accu, key) => this.formGroup.get(key).valid && accu, true);
     }
 
-    show(option) {
-        this.showOption = option;
+    showResourceGroup(option) {
+        this.resourceGroupOption = option;
         if (option === "existing") {
             this.formGroup.controls['resourceGroupCustom'].clearValidators();
             this.formGroup.controls['resourceGroupCustom'].setValue('');
@@ -273,6 +294,8 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
                 this.validationService.isUniqueResourceGroupName(this.resourceGroups),
             ]);
             this.clearFieldSavedData('resourceGroupExisting')
+        } else {
+            console.log('WARNING: showResourceGroup() received unrecognized value of ' + option);
         }
         this.formGroup.controls['resourceGroupCustom'].updateValueAndValidity();
         this.formGroup.controls['resourceGroupExisting'].updateValueAndValidity();
@@ -298,4 +321,16 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
         });
     }
 
+    private handleIfSavedCustomResourceGroupIsNowExisting(savedGroupCustom: string): boolean {
+        // handle case where user originally created a new (custom) resource group (and value was either saved
+        // to local storage or to config file as a custom resource group), but now when the data is restored,
+        // the resource group exists (so we should move the custom value over to the existing data slot).
+        const customIsNowExisting = this.resourceGroups.indexOf(savedGroupCustom) >= 0;
+        if (customIsNowExisting) {
+            this.clearFieldSavedData('resourceGroupCustom');
+            this.saveFieldData('resourceGroupExisting', savedGroupCustom);
+            return true;
+        }
+        return false;
+    }
 }

@@ -45,7 +45,9 @@ export enum TkgEventType {
     CLI_CHANGED,
 
     // APP
-    BRANDING_CHANGED
+    BRANDING_CHANGED,
+    CONFIG_FILE_IMPORTED,
+    CONFIG_FILE_IMPORT_ERROR
 }
 
 /**

@@ -28,6 +28,8 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     edition: AppEdition = AppEdition.TCE;
     validatorEnum = ValidatorEnum;
     errorNotification: string;
+    errorImportFile: string;
+    successImportFile: string;
     clusterTypeDescriptor: string;
     modeClusterStandalone: boolean;
     ipFamily: IpFamilyEnum = IpFamilyEnum.IPv4;
@@ -36,12 +38,8 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
 
     ngOnInit(): void {
         this.getFormName();
-        this.savedMetadata = FormMetaDataStore.getMetaData(this.formName)
+        this.savedMetadata = FormMetaDataStore.getMetaData(this.formName);
         FormMetaDataStore.updateFormList(this.formName);
-        // waits 10 milliseconds so that other setTimeout calls finish first
-        setTimeout(_ => {
-            this.setSavedDataAfterLoad();
-        }, 10);
 
         // set branding and cluster type on branding change for base wizard components
         Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
@@ -52,6 +50,22 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
                 this.clusterTypeDescriptor = data.payload.clusterTypeDescriptor;
             });
         this.modeClusterStandalone = Broker.appDataService.isModeClusterStandalone();
+
+        Broker.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe((data: TkgEvent) => {
+                this.successImportFile = data.payload;
+                // The file import saves the data to local storage, so we reinitialize this steps's form from there
+                this.savedMetadata = FormMetaDataStore.getMetaData(this.formName);
+                this.initFormWithSavedData();
+            });
+
+        Broker.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORT_ERROR)
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe((data: TkgEvent) => {
+                // Capture the import file error message
+                this.errorImportFile = data.payload;
+            });
     }
 
     /**
@@ -70,17 +84,51 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
 
     /**
      * Safely looks up the saved value of a control in savedMetadata
-     * @param key the key of the control in savedMetadata
+     * @param fieldName the name of the control in savedMetadata
      * @param defaultValue the default value if there is no saved value
      */
-    getSavedValue(key: string, defaultValue: any) {
-        const ret = (this.savedMetadata && this.savedMetadata[key]
-            && this.savedMetadata[key].displayValue) ? this.savedMetadata[key].displayValue : defaultValue;
-        return (typeof defaultValue === "boolean") ? ret === "yes" : ret
+    getSavedValue(fieldName: string, defaultValue: any) {
+        const savedValue = this.savedMetadata && this.savedMetadata[fieldName] && this.savedMetadata[fieldName].displayValue;
+        const savedKey = this.savedMetadata && this.savedMetadata[fieldName] && this.savedMetadata[fieldName].key;
+        const result = (savedKey) ? savedKey : ((savedValue) ? savedValue : defaultValue);
+
+        if (fieldName === 'region') {
+            console.log('#$#$#$ step-form.getSavedValue(): savedValue=' + savedValue + ', savedKey=' + savedKey +
+                ', defaultValue=' + defaultValue + ', result=' + result);
+        }
+
+        const shouldReturnBooleanValue = typeof defaultValue === "boolean";
+        if (shouldReturnBooleanValue) {
+            const booleanResult = result === "yes" || result === true;
+            return booleanResult;
+        }
+        return result;
+    }
+
+    /**
+     * Safely looks up the saved key of a control in savedMetadata; this will only have been set for listboxes
+     * that have a different key from the displayed label
+     * @param fieldName the name of the control in savedMetadata
+     */
+    getSavedKey(fieldName: string): string {
+        const savedKey = this.savedMetadata && this.savedMetadata[fieldName] && this.savedMetadata[fieldName].key;
+        return savedKey;
     }
 
     hasSavedData() {
         return this.savedMetadata != null
+    }
+
+    protected setFieldValue(fieldName: string, value: any): void {
+        const control = this.formGroup.get(fieldName);
+        if (control === undefined || control === null) {
+            console.log('WARNING: setFieldValue() could not find field ' + fieldName + ' to set value to ' + value);
+        } else {
+            if (fieldName === 'region') {
+                console.log('setFieldValue() sets value of ' + fieldName + ' to ' + value);
+            }
+            control.setValue(value);
+        }
     }
 
     /**
@@ -88,19 +136,44 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
      * until certain conditions to be satisfied, it automatically add this field
      * to a queue and periodically checks the readiness.
      */
-    protected initFieldWithSavedValue(fieldName: string): void {
+    protected initFieldWithSavedData(fieldName: string): void {
         if (this.isFieldReadyForInitWithSavedValue(fieldName)) {
             const control = this.formGroup.get(fieldName);
-            control.setValue(this.getSavedValue(fieldName, control.value));
+            const savedKey = this.getSavedKey(fieldName);
+            const savedValue = this.getSavedValue(fieldName, control.value);
+            // if a key was saved (for a listbox), we use the key when setting the value of the control (ie the listbox)
+            const valueForSettingControl = (savedKey) ? savedKey : savedValue;
+
+            if (fieldName === 'region') {
+                console.log('!!!!!!! initFieldWithSavedData(): fieldname=' + fieldName +
+                    ', savedKey=' + savedKey + ', savedValue=' + savedValue + ', value=' + valueForSettingControl);
+            }
+
+            control.setValue(valueForSettingControl);
             let index;
             if (index = this.delayedFieldQueue.indexOf(fieldName) >= 0) {
                 this.delayedFieldQueue.splice(index, 1);
             }
         } else {
+            console.log('SHIMON: initFieldWithSavedData(): delaying setting fieldname=' + fieldName);
             if (this.delayedFieldQueue.indexOf(fieldName) < 0) {
                 this.delayedFieldQueue.push(fieldName);
             }
         }
+    }
+
+    // scrubPasswordField() should be called AFTER the password field was set from saved data
+    protected scrubPasswordField(fieldName: string): void {
+        // ensure that the actual field value is not ********
+        const passwordControl = this.formGroup.get(fieldName);
+        if (passwordControl === undefined || passwordControl === null) {
+            console.log('WARNING: scrubPasswordField() is unable to find the field ' + fieldName);
+        } else if (passwordControl.value.startsWith('****')) {
+            passwordControl.setValue('');
+        }
+        // if there is a real password in local storage (say, from import)
+        // we erase it from local storage (presuming the caller has used the value to set the field in the form)
+        this.clearFieldSavedData(fieldName);
     }
 
     /**
@@ -108,7 +181,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
      */
     protected startProcessDelayedFieldInit() {
         if (this.delayedFieldQueue && this.delayedFieldQueue.length > 0) {
-            this.delayedFieldQueue.forEach(fieldName => this.initFieldWithSavedValue(fieldName));
+            this.delayedFieldQueue.forEach(fieldName => this.initFieldWithSavedData(fieldName));
         }
         if (this.delayedFieldQueue && this.delayedFieldQueue.length > 0) {
             setTimeout(this.startProcessDelayedFieldInit.bind(this), INIT_FIELD_DELAY);
@@ -130,21 +203,26 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     /**
      * Inits form fields with saved data if any;
      */
-    setSavedDataAfterLoad() {
+    initFormWithSavedData() {
         if (this.hasSavedData()) {
-            for (const [key, control] of Object.entries(this.formGroup.controls)) {
-                if (this.getSavedValue(key, '') !== '') {
-                    // control.setValue(this.getSavedValue(key, control.value));
-                    this.initFieldWithSavedValue(key);
-                }
+            for (const [controlName, control] of Object.entries(this.formGroup.controls)) {
+                this.initFieldWithSavedData(controlName);
             }
         }
-
         this.startProcessDelayedFieldInit();
     }
 
-    clearFieldSavedData(fieldName: string) {
+    protected clearFieldSavedData(fieldName: string) {
         FormMetaDataStore.deleteMetaDataEntry(this.formName, fieldName);
+    }
+
+    // TODO: this method saves the value as both the display value and the key, but that's sloppy
+    protected saveFieldData(fieldName: string, value: string) {
+        FormMetaDataStore.saveMetaDataEntry(this.formName, fieldName, {
+            label: '',
+            displayValue: value,
+            key: value
+        })
     }
 
     disarmField(fieldName: string, clearSavedData: boolean) {

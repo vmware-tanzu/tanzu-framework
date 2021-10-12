@@ -1,4 +1,6 @@
 <form [formGroup]="formGroup">
+    <app-error-import-file [errorImportFile]="errorImportFile"></app-error-import-file>
+    <app-import-file-success-notification [successImportFile]="successImportFile"></app-import-file-success-notification>
     <div class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-input-container [attr.data-step-metadata]="formName">

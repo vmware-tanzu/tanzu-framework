@@ -79,6 +79,9 @@ type VsphereRegionalClusterParams struct {
 	// ssh key
 	SSHKey string `json:"ssh_key,omitempty"`
 
+	// tmc registration url
+	TmcRegistrationURL string `json:"tmc_registration_url,omitempty"`
+
 	// vsphere credentials
 	VsphereCredentials *VSphereCredentials `json:"vsphereCredentials,omitempty"`
 

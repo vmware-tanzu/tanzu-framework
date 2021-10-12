@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+	"github.com/sanathkr/go-yaml"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
@@ -229,6 +230,80 @@ func (c *client) NewVSphereConfig(params *models.VsphereRegionalClusterParams) (
 	return res, nil
 }
 
+// CreateVSphereParams generates a Params object from a VSphereConfig, used for importing configuration files
+func (c *client) CreateVSphereParams(vConfig *VSphereConfig) (params *models.VsphereRegionalClusterParams, err error) { //nolint:funlen,gocyclo
+	boolCeiptOptIn, _ := strconv.ParseBool(vConfig.CeipParticipation)
+
+	params = &models.VsphereRegionalClusterParams{
+		Annotations:               nil,
+		AviConfig:                 nil,
+		CeipOptIn:                 &boolCeiptOptIn,
+		ClusterName:               vConfig.ClusterName,
+		ControlPlaneEndpoint:      vConfig.ControlPlaneEndpoint,
+		ControlPlaneFlavor:        vConfig.ClusterPlan,
+		ControlPlaneNodeType:      "",
+		Datacenter:                vConfig.Datacenter,
+		Datastore:                 vConfig.Datastore,
+		EnableAuditLogging:        vConfig.EnableAuditLogging == trueConst,
+		Folder:                    vConfig.Folder,
+		IdentityManagement:        createIdentityManagementConfig(vConfig),
+		IPFamily:                  vConfig.IPFamily,
+		KubernetesVersion:         "",
+		Labels:                    nil,
+		MachineHealthCheckEnabled: vConfig.MachineHealthCheckEnabled == trueConst,
+		Networking:                createNetworkingConfig(vConfig),
+		NumOfWorkerNode:           0,
+		Os:                        nil,
+		ResourcePool:              vConfig.ResourcePool,
+		SSHKey:                    vConfig.SSHKey,
+		TmcRegistrationURL:        vConfig.TmcRegistrationURL,
+		VsphereCredentials:        nil,
+		WorkerNodeType:            "",
+	}
+
+	if vConfig.OsInfo.Name != "" {
+		params.Os = &models.VSphereVirtualMachine{
+			// TODO SHIMON SEZ: how to invert this?
+			// c.tkgConfigReaderWriter.Set(constants.ConfigVariableVsphereTemplate, params.Os.Name)
+			Name: "GeeIDunno",
+			OsInfo: &models.OSInfo{
+				Name:    vConfig.OsInfo.Name,
+				Version: vConfig.OsInfo.Version,
+				Arch:    vConfig.OsInfo.Arch,
+			},
+		}
+	}
+
+	params.VsphereCredentials = &models.VSphereCredentials{
+		Host:       vConfig.Server,
+		Username:   vConfig.Username,
+		Password:   vConfig.Password,
+		Thumbprint: vConfig.VSphereTLSThumbprint,
+	}
+	params.ControlPlaneNodeType, _ = findVsphereNodeType(vConfig.ControlPlaneCPUs, vConfig.ControlPlaneMemory, vConfig.ControlPlaneDiskGIB)
+
+	if vConfig.AviEnable == trueConst {
+		cacert, _ := base64.StdEncoding.DecodeString(vConfig.AviCAData)
+		params.AviConfig = &models.AviConfig{
+			CaCert:                          string(cacert),
+			Cloud:                           vConfig.AviCloudName,
+			ControlPlaneHaProvider:          vConfig.AviControlPlaneEndpointProvider == trueConst,
+			Controller:                      vConfig.AviController,
+			Labels:                          yamlStringToMap(vConfig.AviLabels),
+			ManagementClusterVipNetworkCidr: vConfig.AviManagementClusterVipNetworkCidr,
+			ManagementClusterVipNetworkName: vConfig.AviManagementClusterVipNetworkName,
+			Network: &models.AviNetworkParams{
+				Cidr: vConfig.AviDataNetworkCIDR,
+				Name: vConfig.AviDataNetwork,
+			},
+			Password:      vConfig.AviPassword,
+			ServiceEngine: vConfig.AviServiceEngine,
+			Username:      vConfig.AviUsername,
+		}
+	}
+	return params, nil
+}
+
 // GetVsphereNodeSizeOptions returns the list of vSphere node size options
 func GetVsphereNodeSizeOptions() string {
 	nodeTypes := []string{}
@@ -274,6 +349,27 @@ func mapToYamlStr(m map[string]string) string {
 		metadataStr += fmt.Sprintf("'%s': '%s'\n", key, value)
 	}
 	return metadataStr
+}
+
+func yamlStringToMap(yamlString string) map[string]string {
+	result := make(map[string]string)
+	if len(yamlString) > 0 {
+		yaml.Unmarshal([]byte(yamlString), result)
+	}
+	return result
+}
+
+func findVsphereNodeType(cpus string, memory string, disk string) (string, error) {
+	for label, nodeType := range NodeTypes {
+		if nodeType.Cpus == cpus && nodeType.Memory == memory && nodeType.Disk == disk {
+			errMsg := "found node type " + label + " for cpus=" + cpus + " memory=" + memory + " disk=" + disk
+			fmt.Println("SHIMON: " + errMsg)
+			return label, nil
+		}
+	}
+	errMsg := "unable to find node type for cpus=" + cpus + " memory=" + memory + " disk=" + disk
+	fmt.Println("SHIMON: " + errMsg)
+	return "", errors.New(errMsg)
 }
 
 func isAviEnabled(params *models.VsphereRegionalClusterParams) bool {

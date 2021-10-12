@@ -27,8 +27,8 @@ export const EXISTING = "EXISTING";
 })
 export class VnetStepComponent extends StepFormDirective implements OnInit {
 
-    region = "";    // Current region selected
-    showOption = CUSTOM;
+    region = '';    // Current region selected
+    showVnetFieldsOption = CUSTOM;
 
     // An object maps vnet to subsets
     vnetSubnets = {};
@@ -86,7 +86,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
             new FormControl('', [])
         );
 
-        this.formGroup.get('vnetOption').setValue(this.showOption);
+        this.formGroup.get('vnetOption').setValue(this.showVnetFieldsOption);
 
         this.optionalFields.forEach(field => this.formGroup.addControl(
             field,
@@ -182,7 +182,6 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
 
         this.buildForm();
         this.initForm();
-        this.show(this.showOption, false);
 
         /**
          * Whenever Azure region selection changes...
@@ -219,7 +218,9 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
         this.registerOnValueChange('privateAzureCluster', this.onCreatePrivateAzureCluster.bind(this));
         this.registerOnValueChange('controlPlaneSubnetCidrNew', this.onControlPlaneSubnetCidrNewChange.bind(this));
         this.registerOnValueChange('controlPlaneSubnet', this.onControlPlaneSubnetChange.bind(this));
-        this.registerOnValueChange('vnetOption', this.show.bind(this));
+        this.registerOnValueChange('vnetOption', this.showVnetFields.bind(this));
+
+        this.initFormWithSavedData();
     }
 
     onControlPlaneSubnetChange(name: string) {
@@ -243,7 +244,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
     onCreatePrivateAzureCluster(createPrivateCluster: boolean) {
         if (createPrivateCluster) {      // private azure cluster
             this.createPrivateCluster = true;
-            const cidrValidator = this.validationService.isIpInSubnet2(this.cidrHolder, "" + this.showOption);
+            const cidrValidator = this.validationService.isIpInSubnet2(this.cidrHolder, "" + this.showVnetFieldsOption);
 
             this.resurrectField('privateIP', [Validators.required, this.validationService.isValidIpOrFqdn(), cidrValidator])
         } else {
@@ -252,16 +253,13 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
         }
     }
 
-    setSavedDataAfterLoad() {
-        if (!this.hasSavedData() || this.getSavedValue('vnetNameExisting', '') === '') {
-            this.show(CUSTOM, true);
-        } else {
-            this.show(EXISTING, true)
-        }
-        super.setSavedDataAfterLoad();
+    initFormWithSavedData() {
+        this.initVnetFromSavedData();
+        super.initFormWithSavedData();
     }
 
     onRegionChange(region: string) {
+        console.log('+++ In vnet-step, setting region to ' + region);
         this.region = region;
         this.formGroup.get("resourceGroup").setValue('');
     }
@@ -274,8 +272,10 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
                     (vnets: AzureVirtualNetwork[]) => {
                         this.vnetSubnets = vnets.reduce((accu, vnet) => { accu[vnet.name] = vnet.subnets; return accu; }, {});
                         this.vnetNamesExisting = Object.keys(this.vnetSubnets);
-                        this.formGroup.get('vnetNameExisting').setValue(this.vnetNamesExisting.length === 1 ?
-                            this.vnetNamesExisting[0] : this.getSavedValue('vnetNameExisting', ''))
+                        if (this.vnetNamesExisting.length === 1) {
+                            this.formGroup.get('vnetNameExisting').setValue(this.vnetNamesExisting[0]);
+                        }
+                        this.initVnetFromSavedData();   // user may have a saved custom vnet, even if only one existing vnet
                     },
                     err => { this.errorNotification = err.message; },
                     () => { }
@@ -307,8 +307,8 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
         }
     }
 
-    show(option: string, clearSavedData = true) {
-        this.showOption = option;
+    showVnetFields(option: string, clearSavedData = true) {
+        this.showVnetFieldsOption = option;
 
         if (option === EXISTING) {
             this.vnetFieldsExisting.forEach(field => this.resurrectField(field, [Validators.required]));
@@ -360,5 +360,40 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
         }
 
         this.onCreatePrivateAzureCluster(this.createPrivateCluster);
+    }
+
+    private handleIfSavedVnetCustomNameIsNowExisting(savedVnetCustom: string): boolean {
+        // handle case where user originally created a new (custom) vnet (and value was either saved
+        // to local storage or to config file as a custom vnet name), but now when the data is restored,
+        // the vnet name exists (so we should move the custom value over to the existing data slot).
+        const customIsNowExisting = this.vnetNamesExisting.indexOf(savedVnetCustom) >= 0;
+        if (customIsNowExisting) {
+            this.clearFieldSavedData('vnetNameCustom');
+            this.saveFieldData('vnetNameExisting', savedVnetCustom);
+            return true;
+        }
+        return false;
+    }
+
+    private initVnetFromSavedData() {
+        // if the user did an import, then we expect the value to be stored in 'vnetNameCustom'
+        // we'll check and see if that value is now existing
+        let savedVnetExisting = this.getSavedValue('vnetNameExisting', '');
+        let savedVnetCustom = this.getSavedValue('vnetNameCustom', '');
+
+        if (this.handleIfSavedVnetCustomNameIsNowExisting(savedVnetCustom)) {
+            savedVnetExisting = savedVnetCustom;
+            savedVnetCustom = '';
+        }
+
+        if (savedVnetCustom !== '') {
+            this.formGroup.get('vnetNameCustom').setValue(savedVnetExisting);
+            this.showVnetFields(CUSTOM, false);
+        } else if (savedVnetExisting !== '') {
+            this.formGroup.get('vnetNameExisting').setValue(savedVnetExisting);
+            this.showVnetFields(EXISTING, false);
+        } else {
+            this.showVnetFields(this.showVnetFieldsOption, false);
+        }
     }
 }

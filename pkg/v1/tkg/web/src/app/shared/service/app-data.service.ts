@@ -81,4 +81,16 @@ export class AppDataService {
     isModeClusterStandalone() {
         return this.isPluginFeatureActivated('management-cluster', 'standalone-cluster-mode');
     }
+
+    decodeBase64(source: string): string {
+        let encodedString = source;
+        const encodedPrefix = '<encoded:';
+        const encodedSuffix = '>';
+        if (encodedString.startsWith(encodedPrefix) && encodedString.endsWith(encodedSuffix)) {
+            // remove beginning and ending strings by taking a substring
+            encodedString = encodedString.substring(encodedPrefix.length, encodedString.length - encodedSuffix.length);
+        }
+        // console.log('SHIMON: Decoding ' + encodedString);
+        return atob(encodedString);
+    }
 }

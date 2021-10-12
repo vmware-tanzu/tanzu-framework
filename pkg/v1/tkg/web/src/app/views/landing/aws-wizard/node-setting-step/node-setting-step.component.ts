@@ -44,6 +44,7 @@ export interface FilteredAzs {
 }
 
 export const BASTION_HOST_ENABLED = 'yes';
+export const BASTION_HOST_DISABLED = 'no';
 const swap = (arr, index1, index2) => { [arr[index1], arr[index2]] = [arr[index2], arr[index1]] }
 
 const AZS = ['awsNodeAz1', 'awsNodeAz2', 'awsNodeAz3'];
@@ -339,16 +340,21 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 });
             }
         });
+
+        this.initFormWithSavedData();
     }
 
-    setSavedDataAfterLoad() {
-        this.cardClick(this.getSavedValue('devInstanceType', '') === '' ? 'prod' : 'dev');
-        super.setSavedDataAfterLoad();
-        if (this.getSavedValue('devInstanceType', '') === '') { // prod
+    initFormWithSavedData() {
+        const devInstanceType = this.getSavedValue('devInstanceType', '');
+        const prodInstanceType = this.getSavedValue('prodInstanceType', '');
+        const isProdInstanceType = devInstanceType === '';
+        this.cardClick(isProdInstanceType ? 'prod' : 'dev');
+        super.initFormWithSavedData();
+        if (isProdInstanceType) {
             this.formGroup.get('devInstanceType').setValue('');
-            this.formGroup.get('prodInstanceType').setValue(this.nodeTypes.length === 1 ? this.nodeTypes[0] : '');
+            this.formGroup.get('prodInstanceType').setValue(this.nodeTypes.length === 1 ? this.nodeTypes[0] : prodInstanceType);
         } else {
-            this.formGroup.get('devInstanceType').setValue(this.nodeTypes.length === 1 ? this.nodeTypes[0] : '');
+            this.formGroup.get('devInstanceType').setValue(this.nodeTypes.length === 1 ? this.nodeTypes[0] : devInstanceType);
             this.formGroup.get('prodInstanceType').setValue('');
         }
     }

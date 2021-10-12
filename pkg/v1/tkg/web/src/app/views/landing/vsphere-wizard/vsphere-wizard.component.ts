@@ -1,4 +1,4 @@
-import { KUBE_VIP } from './../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
+import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER } from './../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
 // Angular imports
 import { Component, OnInit, ElementRef, AfterViewInit, ViewChild } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
@@ -25,7 +25,6 @@ import Broker from "../../../shared/service/broker";
     styleUrls: ['./vsphere-wizard.component.scss'],
 })
 export class VSphereWizardComponent extends WizardBaseDirective implements OnInit {
-
     APP_ROUTES: Routes = APP_ROUTES;
     PROVIDERS: Providers = PROVIDERS;
 
@@ -209,6 +208,55 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         return payload;
     }
 
+    setFromPayload(payload: VsphereRegionalClusterParams) {
+        const mappings = [
+            ['ipFamily', 'vsphereProviderForm', 'ipFamily'],
+            ['datacenter', 'vsphereProviderForm', 'datacenter'],
+            ['ssh_key', 'vsphereProviderForm', 'ssh_key'],
+            ['clusterName', 'vsphereNodeSettingForm', 'clusterName'],
+            ['controlPlaneFlavor', 'vsphereNodeSettingForm', 'controlPlaneSetting'],
+            ['controlPlaneEndpoint', 'vsphereNodeSettingForm', 'controlPlaneEndpointIP'],
+            ['datastore', 'resourceForm', 'datastore'],
+            ['folder', 'resourceForm', 'vmFolder'],
+            ['resourcePool', 'resourceForm', 'resourcePool']
+        ];
+        mappings.forEach(attr => this.saveFormField(attr[1], attr[2], payload[attr[0]]));
+
+        this.saveControlPlaneFlavor('vsphere', payload.controlPlaneFlavor);
+        this.saveControlPlaneNodeType('vsphere', payload.controlPlaneFlavor, payload.controlPlaneNodeType);
+
+        this.saveFormField("vsphereNodeSettingForm", "enableAuditLogging", payload.enableAuditLogging);
+        this.saveFormField("vsphereNodeSettingForm", "machineHealthChecksEnabled", payload.machineHealthCheckEnabled);
+
+        if (payload.vsphereCredentials !== undefined) {
+            const vsphereCredentialsMappings = [
+                ['host', 'vsphereProviderForm', 'vcenterAddress'],
+                ['username', 'vsphereProviderForm', 'username'],
+                ['thumbprint', 'vsphereProviderForm', 'thumbprint']
+            ];
+            vsphereCredentialsMappings.forEach(attr => this.saveFormField(attr[1], attr[2], payload.vsphereCredentials[attr[0]]));
+            const decodedPassword = Broker.appDataService.decodeBase64(payload.vsphereCredentials['password']);
+            this.saveFormField('vsphereProviderForm', 'password', decodedPassword);
+        }
+
+        if (payload.aviConfig !== undefined) {
+            const endpointProvider = payload.aviConfig['controlPlaneHaProvider'] ? NSX_ADVANCED_LOAD_BALANCER : KUBE_VIP;
+            this.saveFormField('vsphereNodeSettingForm', 'controlPlaneEndpointProvider', endpointProvider);
+            // TODO: SHIMON SEZ: verify if this is a reasonable way to determine whether to populate the
+            // management cluster network name & CIDR (below):
+            // Set (or clear) the network name (based on whether it's different from the aviConfig value
+            const managementClusterVipNetworkName = payload.aviConfig['managementClusterVipNetworkName'];
+            const uiMcNetworkName = managementClusterVipNetworkName === payload.aviConfig.network.name ? '' : payload.aviConfig['managementClusterVipNetworkName'];
+            this.saveFormField("loadBalancerForm", "managementClusterNetworkName", uiMcNetworkName);
+            // Set (or clear) the CIDR setting (based on whether it's different from the aviConfig value
+            const managementClusterNetworkCIDR = payload.aviConfig['managementClusterVipNetworkCidr'];
+            const uiMcCidr = managementClusterNetworkCIDR === payload.aviConfig.network.cidr ? '' :  managementClusterNetworkCIDR;
+            this.saveFormField("loadBalancerForm", "managementClusterNetworkCIDR", uiMcCidr)
+        }
+
+        this.saveCommonFieldsFromPayload(payload);
+    }
+
     /**
      * @method method to trigger deployment
      */
@@ -269,4 +317,14 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         }
     }
 
+    retrievePayloadFromString(config: string): Observable<any> {
+        return this.apiClient.importTKGConfigForVsphere( { params: { filecontents: config } } );
+    }
+
+    validateImportFile(config: string): string {
+        if (config.includes('VSPHERE_')) {
+            return '';
+        }
+        return 'This file is not a vSphere configuration file!';
+    }
 }

@@ -1,5 +1,7 @@
 <form [formGroup]="formGroup">
     <app-step-form-notification [errorNotification]="errorNotification"></app-step-form-notification>
+    <app-error-import-file [errorImportFile]="errorImportFile"></app-error-import-file>
+    <app-import-file-success-notification [successImportFile]="successImportFile"></app-import-file-success-notification>
 
     <div class="clr-row">
         <div class="clr-col-8">
@@ -138,7 +140,7 @@
                             </clr-tooltip-content>
                         </clr-tooltip>
                     </label>
-                    <select clrSelect name="profileName" formControlName="profileName">
+                    <select clrSelect name="profileName" formControlName="profileName" save-requires-value="true">
                         <option aria-label="blank" title="blank"></option>
                         <option *ngFor="let profile of profileNames" [value]="profile">{{profile}}</option>
                     </select>
@@ -179,7 +181,7 @@
 
     <div class="clr-row">
         <div class="clr-col-4" aria-live="assertive">
-            <button [disabled]="isConnectDisabled() || validCredentials" (click)="verifyCredentails()"
+            <button [disabled]="isConnectDisabled() || validCredentials" (click)="verifyCredentials()"
                 i18n="connect btn" class="btn btn-primary btn-connect">
                 {{ validCredentials ? "CONNECTED" : "CONNECT" }}
             </button>

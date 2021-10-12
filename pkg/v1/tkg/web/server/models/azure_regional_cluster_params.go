@@ -79,6 +79,9 @@ type AzureRegionalClusterParams struct {
 	// ssh public key
 	SSHPublicKey string `json:"sshPublicKey,omitempty"`
 
+	// tmc registration url
+	TmcRegistrationURL string `json:"tmc_registration_url,omitempty"`
+
 	// vnet cidr
 	VnetCidr string `json:"vnetCidr,omitempty"`
 

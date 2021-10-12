@@ -13,7 +13,7 @@ import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-
  * App imports
  */
 import { InstanceType, IpFamilyEnum, PROVIDERS, Providers } from '../../../../shared/constants/app.constants';
-import { NodeType } from '../../wizard/shared/constants/wizard.constants';
+import { NodeType, vSphereNodeTypes } from '../../wizard/shared/constants/wizard.constants';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER } from '../../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
@@ -152,13 +152,15 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                     this.formGroup.get(VsphereField.NODESETTING_CLUSTER_NAME).value);
             }
         });
+
+        this.initFormWithSavedData();
     }
 
-    setSavedDataAfterLoad() {
+    initFormWithSavedData() {
         if (this.hasSavedData()) {
             const savedInstanceType = this.getSavedValue(VsphereField.NODESETTING_INSTANCE_TYPE_DEV, '');
             this.cardClick(savedInstanceType === InstanceType.PROD ? InstanceType.PROD : InstanceType.DEV);
-            super.setSavedDataAfterLoad();
+            super.initFormWithSavedData();
             // set the node type ID by finding it by the node type name
             let savedNodeType = this.nodeTypes.find(n => n.name === this.getSavedValue(VsphereField.NODESETTING_INSTANCE_TYPE_DEV, ''));
             if (savedNodeType) {

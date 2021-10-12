@@ -64,6 +64,7 @@ require (
 	github.com/k14s/ytt v0.32.1-0.20210511155130-214258be2519
 	github.com/lithammer/dedent v1.1.0
 	github.com/logrusorgru/aurora v2.0.3+incompatible
+	github.com/oleiade/reflections v1.0.1
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.16.0
@@ -71,6 +72,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.0-beta.3
 	github.com/pkg/errors v0.9.1
 	github.com/rs/xid v1.2.1
+	github.com/sanathkr/go-yaml v0.0.0-20170819195128-ed9d249f429b
 	github.com/satori/go.uuid v1.2.0
 	github.com/sergi/go-diff v1.2.0
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966

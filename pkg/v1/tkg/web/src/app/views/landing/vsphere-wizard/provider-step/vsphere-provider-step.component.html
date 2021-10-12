@@ -49,6 +49,8 @@
           <label>IPv6</label>
         </clr-radio-wrapper>
     </clr-radio-container>
+    <app-error-import-file [errorImportFile]="errorImportFile"></app-error-import-file>
+    <app-import-file-success-notification [successImportFile]="successImportFile"></app-import-file-success-notification>
     <div class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-input-container [attr.data-step-metadata]="formName">
@@ -144,7 +146,7 @@
                         </clr-tooltip-content>
                     </clr-tooltip>
                 </label>
-                <select clrSelect name="datacenter" formControlName="datacenter">
+                <select clrSelect name="datacenter" formControlName="datacenter" save-requires-value="true">
                     <option aria-label="blank" title="blank"></option>
                     <ng-container *ngFor="let datacenter of datacenters">
                         <option [value]="datacenter.name">

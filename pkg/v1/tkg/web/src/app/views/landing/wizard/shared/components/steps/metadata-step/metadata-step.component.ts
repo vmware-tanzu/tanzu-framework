@@ -53,9 +53,10 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
             'clusterLabels',
             new FormControl('', [])
         );
+        this.initFormWithSavedData();
     }
 
-    setSavedDataAfterLoad() {
+    initFormWithSavedData() {
         const savedLabelsString = this.getSavedValue('clusterLabels', '');
         if (savedLabelsString !== '') {
             const savedLabelsArray = savedLabelsString.split(', ')
@@ -64,7 +65,7 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
                 this.labels.set(labelArray[0], labelArray[1]);
             });
         }
-        super.setSavedDataAfterLoad();
+        super.initFormWithSavedData();
     }
 
     addLabel(key: string, value: string) {

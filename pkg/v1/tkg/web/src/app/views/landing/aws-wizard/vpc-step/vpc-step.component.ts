@@ -141,6 +141,7 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
         });
 
         this.registerOnValueChange('nonInternetFacingVPC', this.onNonInternetFacingVPCChange.bind(this));
+        this.initFormWithSavedData();
     }
 
     onNonInternetFacingVPCChange(checked: boolean) {
@@ -150,14 +151,14 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
         });
     }
 
-    setSavedDataAfterLoad() {
+    initFormWithSavedData() {
         if (!this.hasSavedData() || this.getSavedValue('vpc', '') !== '') {
             this.setNewVpcValidators();
         } else {
             this.formGroup.get('vpcType').setValue('existing');
             this.setExistingVpcValidators();
         }
-        super.setSavedDataAfterLoad();
+        super.initFormWithSavedData();
     }
 
     /**

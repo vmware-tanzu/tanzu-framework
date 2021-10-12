@@ -13,6 +13,9 @@
         </div>
     </div>
     <app-step-form-notification [errorNotification]="errorNotification"></app-step-form-notification>
+    <app-error-import-file [errorImportFile]="errorImportFile"></app-error-import-file>
+    <app-import-file-success-notification [successImportFile]="successImportFile"></app-import-file-success-notification>
+
     <div class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-input-container [attr.data-step-metadata]="formName">
@@ -130,7 +133,7 @@
     <div class="clr-row">
         <div class="clr-col-4" aria-live="assertive">
             <button [clrLoading]="loadingState" id="btn-azure-provider-connect" [disabled]="isConnectDisabled() || validCredentials"
-                (click)="verifyCredentails()" i18n="connect btn" class="btn btn-primary btn-connect">
+                    (click)="verifyCredentials()" i18n="connect btn" class="btn btn-primary btn-connect">
                 {{ validCredentials ? "CONNECTED" : "CONNECT" }}
             </button>
         </div>
@@ -150,7 +153,7 @@
                         </clr-tooltip-content>
                     </clr-tooltip>
                 </label>
-                <select clrSelect name="region" formControlName="region">
+                <select clrSelect name="region" formControlName="region" save-requires-value="true">
                     <option aria-label="blank" title="blank"></option>
                     <option *ngFor="let region of regions" [value]="region.name">{{ region.displayName }}</option>
                 </select>
@@ -204,12 +207,12 @@
                 </clr-tooltip>
             </label>
             <clr-radio-wrapper>
-                <input type="radio" clrRadio formControlName="resourceGroupOption" (click)="show('existing')" required
+                <input type="radio" clrRadio formControlName="resourceGroupOption" (click)="showResourceGroup('existing')" required
                     value="existing" />
                 <label>Select an existing resource group</label>
             </clr-radio-wrapper>
             <clr-radio-wrapper>
-                <input type="radio" clrRadio formControlName="resourceGroupOption" (click)="show('custom')" required
+                <input type="radio" clrRadio formControlName="resourceGroupOption" (click)="showResourceGroup('custom')" required
                     value="custom" [attr.disabled]="resourceGroupSelection"/>
                 <label>Create a new resource group</label>
             </clr-radio-wrapper>
@@ -217,7 +220,7 @@
         </clr-radio-container>
     </div>
 
-    <div *ngIf="showOption === 'existing'" class="clr-row">
+    <div *ngIf="resourceGroupOption === 'existing'" class="clr-row">
         <div class="clr-col-12">
             <clr-select-container [attr.data-step-metadata]="formName">
                 <label i18n="azure resource group name label" clr-control-label>
@@ -231,7 +234,7 @@
                         </clr-tooltip-content>
                     </clr-tooltip>
                 </label>
-                <select clrSelect name="resourceGroupExisting" formControlName="resourceGroupExisting">
+                <select clrSelect name="resourceGroupExisting" formControlName="resourceGroupExisting" save-requires-value="true">
                     <option aria-label="blank" title="blank"></option>
                     <option *ngFor="let resourceGroup of resourceGroups" [value]="resourceGroup.name">
                         {{ resourceGroup.name }}
@@ -246,7 +249,7 @@
         </div>
     </div>
 
-    <div *ngIf="showOption === 'custom'" class="clr-row">
+    <div *ngIf="resourceGroupOption === 'custom'" class="clr-row">
         <div class="clr-col-12">
             <clr-input-container [attr.data-step-metadata]="formName">
                 <label i18n="azure resource group name label" clr-control-label>

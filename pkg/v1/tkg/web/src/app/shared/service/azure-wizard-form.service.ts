@@ -37,6 +37,7 @@ export class AzureWizardFormService extends WizardFormBase {
         // Messenger handler for Azure region change
         Broker.messenger.getSubject(TkgEventType.AZURE_REGION_CHANGED)
             .subscribe(event => {
+                console.log('Assigning region from ' + this.region + ' to ' + event.payload);
                 this.region = event.payload;
                 DataSources.forEach(source => {
                     Broker.messenger.publish({
