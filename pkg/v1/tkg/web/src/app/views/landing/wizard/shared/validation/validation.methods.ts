@@ -1,6 +1,8 @@
 /* tslint:disable: max-line-length */
 /* tslint:disable: no-bitwise */
 
+import isIp from "is-ip";
+
 /**
  * @method ipAddrToLong
  */
@@ -34,6 +36,27 @@ export const isValidIpWithHttpsProtocol = (arg: string) => {
     const regexPattern =
         /https?:\/\/(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
     return regexPattern.test(arg.trim());
+}
+
+/**
+ * @method isValidIpv6WithHttpsProtocol decide if arg is a valid IP with https protocol prefix after trimming whitespaces
+ * @return boolean
+ */
+export const isValidIpv6WithHttpsProtocol = (arg: string) => {
+    const ipWithHttps = arg.trim();
+    const isHttp = ipWithHttps.substr(0, 7) === 'http://';
+    const isHttps = ipWithHttps.substr(0, 8) === 'https://';
+    let start = 0;
+    const end = ipWithHttps.length;
+    if (isHttp) {
+        start = 7;
+    } else if (isHttps) {
+        start = 8;
+    } else {
+        return false;
+    }
+    const ip = ipWithHttps.substring(start, end);
+    return isIp.v6(ip);
 }
 
 /**
