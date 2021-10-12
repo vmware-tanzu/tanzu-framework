@@ -28,4 +28,7 @@ var (
 
 	// DexClientID is the "pinniped-client-id" cluster type.
 	DexClientID = "pinniped-client-id"
+
+	// PinnipedDefaultAPIGroupSuffix is the API group suffix that Pinniped ships with by default.
+	PinnipedDefaultAPIGroupSuffix = "pinniped.dev"
 )
