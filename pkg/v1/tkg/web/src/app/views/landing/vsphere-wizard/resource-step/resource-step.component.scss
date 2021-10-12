@@ -26,3 +26,10 @@ button.reset {
 :host-context(.dark) .tree-container {
     background: #22343c;
 }
+
+#vmFolderListContainer ::ng-deep .clr-input-group {
+    width: 100%;
+    .clr-input {
+        width: 100%;
+    }
+}
