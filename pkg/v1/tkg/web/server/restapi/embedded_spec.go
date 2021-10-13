@@ -3451,6 +3451,9 @@ func init() {
         "identityManagement": {
           "$ref": "#/definitions/IdentityManagementConfig"
         },
+        "ipFamily": {
+          "type": "string"
+        },
         "kubernetesVersion": {
           "type": "string"
         },
@@ -6957,6 +6960,9 @@ func init() {
         },
         "identityManagement": {
           "$ref": "#/definitions/IdentityManagementConfig"
+        },
+        "ipFamily": {
+          "type": "string"
         },
         "kubernetesVersion": {
           "type": "string"

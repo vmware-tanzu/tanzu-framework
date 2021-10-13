@@ -15,6 +15,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/version"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	utilconditions "sigs.k8s.io/cluster-api/util/conditions"
 
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
@@ -128,6 +129,10 @@ type TKRVersion struct {
 }
 
 func upgradeQualified(fromTKR, toTKR *runv1.TanzuKubernetesRelease) bool {
+	if !utilconditions.IsTrue(toTKR, runv1.ConditionCompatible) {
+		return false
+	}
+
 	from, err := NewTKRVersion(fromTKR.Spec.Version)
 	if err != nil {
 		return false

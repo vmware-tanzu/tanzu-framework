@@ -103,11 +103,11 @@ func getFakeTKR(tkrName, k8sversion string, compatibleStatus corev1.ConditionSta
 	tkr.Spec.KubernetesVersion = k8sversion
 	tkr.Status.Conditions = []clusterv1.Condition{
 		{
-			Type:   clusterv1.ConditionType(runv1alpha1.ConditionCompatible),
+			Type:   runv1alpha1.ConditionCompatible,
 			Status: compatibleStatus,
 		},
 		{
-			Type:    clusterv1.ConditionType(runv1alpha1.ConditionUpgradeAvailable),
+			Type:    runv1alpha1.ConditionUpdatesAvailable,
 			Status:  corev1.ConditionTrue,
 			Message: updatesAvailableMsg,
 		},

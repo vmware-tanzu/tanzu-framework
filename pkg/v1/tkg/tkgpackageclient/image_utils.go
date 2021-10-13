@@ -17,13 +17,13 @@ import (
 
 // parseRegistryImageURL parses the registry image URL to get repository and tag, tag is empty if not specified
 func parseRegistryImageURL(imgURL string) (repository, tag string, err error) {
-	ref, err := name.NewTag(imgURL)
+	ref, err := name.ParseReference(imgURL, name.WeakValidation)
 	if err != nil {
 		return "", "", err
 	}
 
 	repository = ref.Context().String()
-	tag = ref.TagStr()
+	tag = ref.Identifier()
 	// the parser function sets the tag to "latest" if not specified, however we want it to be empty
 	if tag == tkgpackagedatamodel.DefaultRepositoryImageTag && !strings.HasSuffix(imgURL, ":"+tkgpackagedatamodel.DefaultRepositoryImageTag) {
 		tag = ""
