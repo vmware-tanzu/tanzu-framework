@@ -65,8 +65,7 @@ type QueryGVR struct {
 	// +kubebuilder:validation:MinLength:=1
 	Name string `json:"name"`
 	// Group is the API group to check for in the cluster.
-	// +kubebuilder:validation:Required
-	// +kubebuilder:validation:MinLength:=1
+	// +optional
 	Group string `json:"group"`
 	// Versions is the slice of versions to check for in the specified API group.
 	// +optional
