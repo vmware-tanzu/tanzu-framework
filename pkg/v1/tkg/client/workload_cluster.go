@@ -4,8 +4,8 @@
 package client
 
 import (
-	"fmt"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -113,8 +113,7 @@ func (c *TkgClient) DeleteWorkloadCluster(options DeleteWorkloadClusterOptions) 
 		return errors.Wrap(err, "unable to locate undeleteable resources")
 	}
 	if err == nil && len(resources) > 0 {
-		msg := fmt.Sprintf("undeleteable resources found; please delete them: %+v", resources)
-		return errors.Wrap(err, msg)
+		return errors.Wrapf(err, "undeleteable resources found; please delete them: %s", strings.Join(resources, ", "))
 	}
 
 	isPacific, err := clusterClient.IsPacificRegionalCluster()
