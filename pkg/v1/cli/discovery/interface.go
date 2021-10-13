@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package discovery is implements discovery interface for plugin discovery
 package discovery
 
 import (
@@ -25,6 +26,7 @@ type Discovery interface {
 	Type() string
 }
 
+// CreateDiscoveryFromV1alpha1 creates discovery interface from v1alpha1 API
 func CreateDiscoveryFromV1alpha1(pd v1alpha1.PluginDiscovery) (Discovery, error) {
 	if pd.GCP != nil {
 		return NewGCPDiscovery(pd.GCP.Bucket, pd.GCP.ManifestPath, pd.GCP.Name), nil

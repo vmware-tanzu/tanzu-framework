@@ -268,7 +268,7 @@ var upgradePluginCmd = &cobra.Command{
 		name := args[0]
 
 		if config.IsContextAwareDiscoveryEnabled() {
-			return errors.New("Plugin API enabled but function is not yet implemented")
+			return errors.New("context-aware discovery is enabled but function is not yet implemented")
 		}
 
 		repos := getRepositories()
@@ -298,7 +298,7 @@ var deletePluginCmd = &cobra.Command{
 		name := args[0]
 
 		if config.IsContextAwareDiscoveryEnabled() {
-			return errors.New("Plugin API enabled but function is not yet implemented")
+			return errors.New("context-aware discovery is enabled but function is not yet implemented")
 		}
 
 		err = cli.DeletePlugin(name)
@@ -312,7 +312,7 @@ var cleanPluginCmd = &cobra.Command{
 	Short: "Clean the plugins",
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
 		if config.IsContextAwareDiscoveryEnabled() {
-			return errors.New("Plugin API enabled but function is not yet implemented")
+			return errors.New("context-aware discovery is enabled but function is not yet implemented")
 		}
 
 		return cli.Clean()

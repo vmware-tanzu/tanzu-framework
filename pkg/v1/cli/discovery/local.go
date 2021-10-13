@@ -9,8 +9,9 @@ import (
 	"path/filepath"
 
 	"github.com/pkg/errors"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/distribution"
 	apimachineryjson "k8s.io/apimachinery/pkg/runtime/serializer/json"
+
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/distribution"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/plugin"
@@ -40,15 +41,15 @@ func (l *LocalDiscovery) List() ([]plugin.Discovered, error) {
 }
 
 // Describe a plugin.
-func (l *LocalDiscovery) Describe(name string) (plugin plugin.Discovered, err error) {
+func (l *LocalDiscovery) Describe(name string) (p plugin.Discovered, err error) {
 	plugins, err := l.Manifest()
 	if err != nil {
 		return
 	}
 
-	for _, p := range plugins {
-		if p.Name == name {
-			plugin = p
+	for i := range plugins {
+		if plugins[i].Name == name {
+			p = plugins[i]
 			return
 		}
 	}
@@ -90,7 +91,7 @@ func (l *LocalDiscovery) Manifest() ([]plugin.Discovered, error) {
 			return nil, errors.Wrap(err, "could not decode catalog file")
 		}
 
-		dp := DiscoveredFromK8sV1alpha1(p)
+		dp := DiscoveredFromK8sV1alpha1(&p)
 		dp.Source = l.name
 		plugins = append(plugins, dp)
 	}
@@ -102,7 +103,8 @@ func (l *LocalDiscovery) Type() string {
 	return "local"
 }
 
-func DiscoveredFromK8sV1alpha1(p cliv1alpha1.CLIPlugin) plugin.Discovered {
+// DiscoveredFromK8sV1alpha1 returns discovered plugin object from k8sV1alpha1
+func DiscoveredFromK8sV1alpha1(p *cliv1alpha1.CLIPlugin) plugin.Discovered {
 	dp := plugin.Discovered{
 		Name:               p.Name,
 		Description:        p.Spec.Description,

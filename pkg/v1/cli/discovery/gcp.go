@@ -27,8 +27,8 @@ func (g *GCPDiscovery) List() (plugins []plugin.Discovered, err error) {
 }
 
 // Describe a plugin.
-func (g *GCPDiscovery) Describe(name string) (plugin plugin.Discovered, err error) {
-	return plugin, err
+func (g *GCPDiscovery) Describe(name string) (p plugin.Discovered, err error) {
+	return p, err
 }
 
 // Name of the repository.

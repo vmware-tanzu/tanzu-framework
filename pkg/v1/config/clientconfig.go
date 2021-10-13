@@ -433,6 +433,7 @@ func EndpointFromServer(s *configv1alpha1.Server) (endpoint string, err error) {
 	}
 }
 
+// IsContextAwareDiscoveryEnabled returns true if context-aware discovery is enabled
 func IsContextAwareDiscoveryEnabled() bool {
 	cfg, err := GetClientConfig()
 	if err != nil {

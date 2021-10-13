@@ -1,12 +1,14 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package plugin ...
 package plugin
 
 import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/distribution"
 )
 
+// Discovered defines discovered plugin resource
 type Discovered struct {
 	// Description is the plugin's description.
 	Name string

@@ -3,10 +3,12 @@
 
 package artifact
 
+// OCIArtifact defines OCI artifact image endpoint
 type OCIArtifact struct {
 	Image string
 }
 
+// NewOCIArtifact creates OCI Artifact object
 func NewOCIArtifact(image string) Artifact {
 	return &OCIArtifact{
 		Image: image,

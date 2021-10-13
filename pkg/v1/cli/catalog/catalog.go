@@ -35,6 +35,7 @@ type ContextCatalog struct {
 	plugins       cliv1alpha1.PluginAssociation
 }
 
+// NewContextCatalog creates context-aware catalog
 func NewContextCatalog(context string) (*ContextCatalog, error) {
 	sc, err := getCatalogCache()
 	if err != nil {
@@ -60,7 +61,7 @@ func NewContextCatalog(context string) (*ContextCatalog, error) {
 }
 
 // Upsert inserts/updates the given plugin.
-func (c *ContextCatalog) Upsert(plugin cliv1alpha1.PluginDescriptor) error {
+func (c *ContextCatalog) Upsert(plugin cliv1alpha1.PluginDescriptor) error { //nolint:gocritic
 	c.plugins[plugin.Name] = plugin.InstallationPath
 	c.sharedCatalog.IndexByPath[plugin.InstallationPath] = plugin
 
@@ -106,7 +107,6 @@ func (c *ContextCatalog) Delete(plugin string) error {
 	}
 
 	return saveCatalogCache(c.sharedCatalog)
-
 }
 
 // getCatalogCacheDir returns the local directory in which tanzu state is stored.

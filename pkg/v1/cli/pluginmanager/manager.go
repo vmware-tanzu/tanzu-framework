@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package pluginmanager is resposible for plugin discovery and installation
 package pluginmanager
 
 import (
@@ -14,9 +15,10 @@ import (
 
 	"github.com/aunum/log"
 	"github.com/pkg/errors"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/discovery"
 	"go.uber.org/multierr"
 	"golang.org/x/mod/semver"
+
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/discovery"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
@@ -31,12 +33,17 @@ const (
 	exe = ".exe"
 )
 
+// Plugin status and scope constants
+const (
+	PluginStatusInstalled    = "installed"
+	PluginStatusNotInstalled = "not installed"
+	PluginScopeStandalone    = "Stand-Alone"
+	PluginScopeContext       = "Context"
+)
+
 var (
-	minConcurrent = 2
 	// PluginRoot is the plugin root where plugins are installed
 	pluginRoot = common.DefaultPluginRoot
-	// Distro is set of plugins that should be included with the CLI.
-	distro = common.DefaultDistro
 )
 
 // ValidatePlugin validates the plugin descriptor.
@@ -98,8 +105,8 @@ func DiscoverStandalonePlugins() (plugins []plugin.Discovered, err error) {
 		return
 	}
 	for i := range plugins {
-		plugins[i].Scope = "Stand-Alone"
-		plugins[i].Status = "not installed"
+		plugins[i].Scope = PluginScopeStandalone
+		plugins[i].Status = PluginStatusNotInstalled
 	}
 	return
 }
@@ -117,8 +124,8 @@ func DiscoverServerPlugins(serverName string) (plugins []plugin.Discovered, err 
 		return
 	}
 	for i := range plugins {
-		plugins[i].Scope = "Context"
-		plugins[i].Status = "not installed"
+		plugins[i].Scope = PluginScopeContext
+		plugins[i].Status = PluginStatusNotInstalled
 	}
 	return
 }
@@ -140,17 +147,17 @@ func DiscoverPlugins(serverName string) (serverPlugins, standalonePlugins []plug
 }
 
 // AvailablePlugins returns the list of available plugins including discovered and installed plugins
-func AvailablePlugins(serverName string) (availablePlugins []plugin.Discovered, err error) {
+func AvailablePlugins(serverName string) ([]plugin.Discovered, error) {
 	discoveredServerPlugins, discoveredStandalonePlugins, err := DiscoverPlugins(serverName)
 	if err != nil {
-		return
+		return nil, err
 	}
 	installedSeverPluginDesc, installedStandalonePluginDesc, err := InstalledPlugins(serverName)
 	if err != nil {
-		return
+		return nil, err
 	}
 
-	availablePlugins = discoveredServerPlugins
+	availablePlugins := discoveredServerPlugins
 
 	for i := range discoveredStandalonePlugins {
 		exists := false
@@ -170,7 +177,7 @@ func AvailablePlugins(serverName string) (availablePlugins []plugin.Discovered, 
 			if installedSeverPluginDesc[i].Name == availablePlugins[j].Name &&
 				installedSeverPluginDesc[i].Discovery == availablePlugins[j].Source {
 				// Match found, Check for update available and update status
-				availablePlugins[j].Status = "installed"
+				availablePlugins[j].Status = PluginStatusInstalled
 			}
 		}
 	}
@@ -180,11 +187,11 @@ func AvailablePlugins(serverName string) (availablePlugins []plugin.Discovered, 
 			if installedStandalonePluginDesc[i].Name == availablePlugins[j].Name &&
 				installedStandalonePluginDesc[i].Discovery == availablePlugins[j].Source {
 				// Match found, Check for update available and update status
-				availablePlugins[j].Status = "installed"
+				availablePlugins[j].Status = PluginStatusInstalled
 			}
 		}
 	}
-	return
+	return availablePlugins, nil
 }
 
 // InstalledPlugins returns the installed plugins.
@@ -224,10 +231,10 @@ func InitializePlugin(serverName, pluginName string) error {
 	}
 	descriptor, ok := c.Get(pluginName)
 	if !ok {
-		err = fmt.Errorf("could not get plugin path for plugin %q", pluginName)
+		return errors.Wrapf(err, "could not get plugin path for plugin %q", pluginName)
 	}
 
-	b, err := exec.Command(descriptor.InstallationPath, "post-install").CombinedOutput()
+	b, err := exec.Command(descriptor.InstallationPath, "post-install").CombinedOutput() //nolint:gosec
 
 	// Note: If user is installing old version of plugin than it is possible that
 	// the plugin does not implement post-install command. Ignoring the
@@ -247,10 +254,10 @@ func InstallPlugin(serverName, pluginName, version string) error {
 	}
 	for i := range availablePlugins {
 		if availablePlugins[i].Name == pluginName {
-			if availablePlugins[i].Scope == "Stand-Alone" {
+			if availablePlugins[i].Scope == PluginScopeStandalone {
 				serverName = ""
 			}
-			return installOrUpgradePlugin(serverName, availablePlugins[i], version)
+			return installOrUpgradePlugin(serverName, &availablePlugins[i], version)
 		}
 	}
 
@@ -265,17 +272,17 @@ func UpgradePlugin(serverName, pluginName, version string) error {
 	}
 	for i := range availablePlugins {
 		if availablePlugins[i].Name == pluginName {
-			if availablePlugins[i].Scope == "Stand-Alone" {
+			if availablePlugins[i].Scope == PluginScopeStandalone {
 				serverName = ""
 			}
-			return installOrUpgradePlugin(serverName, availablePlugins[i], version)
+			return installOrUpgradePlugin(serverName, &availablePlugins[i], version)
 		}
 	}
 
 	return errors.Errorf("unable to find plugin '%v'", pluginName)
 }
 
-func installOrUpgradePlugin(serverName string, p plugin.Discovered, version string) error {
+func installOrUpgradePlugin(serverName string, p *plugin.Discovered, version string) error {
 	b, err := p.Distribution.Fetch(version, runtime.GOOS, runtime.GOARCH)
 	if err != nil {
 		return err
@@ -300,12 +307,12 @@ func installOrUpgradePlugin(serverName string, p plugin.Discovered, version stri
 
 	b, err = exec.Command(pluginPath, "info").Output()
 	if err != nil {
-		return fmt.Errorf("could not describe plugin %q", pluginName)
+		return errors.Wrapf(err, "could not describe plugin %q", pluginName)
 	}
 	var descriptor cliv1alpha1.PluginDescriptor
 	err = json.Unmarshal(b, &descriptor)
 	if err != nil {
-		err = fmt.Errorf("could not unmarshal plugin %q description", pluginName)
+		return errors.Wrapf(err, "could not unmarshal plugin %q description", pluginName)
 	}
 	descriptor.InstallationPath = pluginPath
 

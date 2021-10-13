@@ -10,11 +10,11 @@ import (
 // OCIDiscovery is a artifact discovery endpoint utilizing OCI image
 type OCIDiscovery struct {
 	// name is a name of the discovery
-	name string `json:"name"`
+	name string
 	// image is an OCI compliant image. Which include DNS-compatible registry name,
 	// a valid URI path(MAY contain zero or more ‘/’) and a valid tag. Contains a manifest file
 	// E.g., harbor.my-domain.local/tanzu-cli/plugins-manifest:latest
-	image string `json:"image"`
+	image string
 }
 
 // NewOCIDiscovery returns a new local repository.
@@ -31,7 +31,7 @@ func (od *OCIDiscovery) List() (plugins []plugin.Discovered, err error) {
 }
 
 // Describe a plugin.
-func (od *OCIDiscovery) Describe(name string) (plugin plugin.Discovered, err error) {
+func (od *OCIDiscovery) Describe(name string) (p plugin.Discovered, err error) {
 	return
 }
 
@@ -42,5 +42,5 @@ func (od *OCIDiscovery) Name() string {
 
 // Type of the discovery.
 func (od *OCIDiscovery) Type() string {
-	return "GCP"
+	return "OCI"
 }

@@ -5,6 +5,7 @@ package distribution
 
 import (
 	"github.com/pkg/errors"
+
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/artifact"
 )
@@ -35,6 +36,7 @@ type ArtifactList []Artifact
 // Artifacts contains an artifact list for every supported version.
 type Artifacts map[string]ArtifactList
 
+// GetArtifact returns Artifact object
 func (aMap Artifacts) GetArtifact(version, os, arch string) (Artifact, error) {
 	err := errors.Errorf(
 		"could not find the artifact for version:%s, os:%s, arch:%s",
@@ -56,6 +58,7 @@ func (aMap Artifacts) GetArtifact(version, os, arch string) (Artifact, error) {
 	return Artifact{}, err
 }
 
+// Fetch the binary for a plugin version.
 func (aMap Artifacts) Fetch(version, os, arch string) ([]byte, error) {
 	a, err := aMap.GetArtifact(version, os, arch)
 	if err != nil {
@@ -73,6 +76,7 @@ func (aMap Artifacts) Fetch(version, os, arch string) ([]byte, error) {
 		"arch:%s", version, os, arch)
 }
 
+// GetDigest returns the SHA256 hash of the binary for a plugin version.
 func (aMap Artifacts) GetDigest(version, os, arch string) (string, error) {
 	a, err := aMap.GetArtifact(version, os, arch)
 	if err != nil {
@@ -82,16 +86,18 @@ func (aMap Artifacts) GetDigest(version, os, arch string) (string, error) {
 	return a.Digest, nil
 }
 
-func ArtifactFromK8sV1alpha1(a cliv1alpha1.Artifact) Artifact {
+// ArtifactFromK8sV1alpha1 returns Artifact from k8sV1alpha1
+func ArtifactFromK8sV1alpha1(a cliv1alpha1.Artifact) Artifact { //nolint:gocritic
 	return Artifact{
-		Image:  string(a.Image),
-		URI:    string(a.URI),
+		Image:  a.Image,
+		URI:    a.URI,
 		Digest: a.Digest,
 		OS:     a.OS,
 		Arch:   a.Arch,
 	}
 }
 
+// ArtifactListFromK8sV1alpha1 returns ArtifactList from k8sV1alpha1
 func ArtifactListFromK8sV1alpha1(l cliv1alpha1.ArtifactList) ArtifactList {
 	aList := make(ArtifactList, len(l))
 	for _, a := range l {
@@ -100,6 +106,7 @@ func ArtifactListFromK8sV1alpha1(l cliv1alpha1.ArtifactList) ArtifactList {
 	return aList
 }
 
+// ArtifactsFromK8sV1alpha1 returns Artifacts from k8sV1alpha1
 func ArtifactsFromK8sV1alpha1(m map[string]cliv1alpha1.ArtifactList) Artifacts {
 	aMap := make(Artifacts, len(m))
 	for v, l := range m {

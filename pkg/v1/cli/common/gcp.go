@@ -12,6 +12,7 @@ import (
 	"google.golang.org/api/option"
 )
 
+// GetGCPBucket returns gcp storage bucket handle
 func GetGCPBucket(ctx context.Context, bucketName string) (*storage.BucketHandle, error) {
 	client, err := storage.NewClient(ctx, option.WithoutAuthentication())
 	if err != nil {

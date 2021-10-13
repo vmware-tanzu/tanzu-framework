@@ -9,10 +9,12 @@ import (
 	"github.com/pkg/errors"
 )
 
+// LocalArtifact defines local artifact path
 type LocalArtifact struct {
 	Path string
 }
 
+// NewLocalArtifact creates Local Artifact object
 func NewLocalArtifact(path string) Artifact {
 	return &LocalArtifact{
 		Path: path,
