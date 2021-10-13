@@ -56,6 +56,7 @@ type Parameters struct {
 	DexSvcName              string
 	DexCertName             string
 	DexConfigMapName        string
+	PinnipedAPIGroupSuffix  string
 }
 
 func ensureDeploymentReady(ctx context.Context, c Clients, namespace, deploymentTypeName string) error {
@@ -201,6 +202,7 @@ func TKGAuthentication(c Clients) error {
 		DexSvcName:              vars.DexSvcName,
 		DexCertName:             vars.DexCertName,
 		DexConfigMapName:        vars.DexConfigMapName,
+		PinnipedAPIGroupSuffix:  vars.PinnipedAPIGroupSuffix,
 	}); err != nil {
 		// logging has been done inside the function
 		return err
@@ -297,9 +299,11 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p *Pa
 
 		// create configmap for Pinniped info
 		if err := supervisorConfigurator.CreateOrUpdatePinnipedInfo(ctx, supervisor.PinnipedInfo{
-			MgmtClusterName:    p.ClusterName,
-			Issuer:             supervisorSvcEndpoint,
-			IssuerCABundleData: caData,
+			MgmtClusterName:                  p.ClusterName,
+			Issuer:                           supervisorSvcEndpoint,
+			IssuerCABundleData:               caData,
+			PinnipedAPIGroupSuffix:           p.PinnipedAPIGroupSuffix,
+			PinnipedConciergeIsClusterScoped: false,
 		}); err != nil {
 			return err
 		}
