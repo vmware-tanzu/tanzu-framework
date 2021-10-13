@@ -166,14 +166,36 @@ func (c *TkgClient) UpgradeCluster(options *UpgradeClusterOptions) error { // no
 		}
 	}
 
-	err = c.DoClusterUpgrade(regionalClusterClient, currentClusterClient, options)
-	if err != nil {
-		return err
-	}
-
 	err = c.addKubernetesReleaseLabel(regionalClusterClient, options)
 	if err != nil {
 		return errors.Wrapf(err, "unable to patch the cluster object with TanzuKubernetesRelease label")
+	}
+
+	// Upgrade/Add certain addons to the old clusters during upgrade
+	// The addons should upgrade prior to cluster upgrade to account for forward compatibility
+	// i.e. some old addons may not run on the nodes with new k8s version
+	// The new addons will be only scheduled on new nodes, so we don't need to worry
+	// about backward compatibility as it's a rolling upgrade
+	if !options.SkipAddonUpgrade {
+		err = c.upgradeAddons(regionalClusterClient, currentClusterClient, options.ClusterName, options.Namespace, options.IsRegionalCluster, options.Edition)
+		if err != nil {
+			return err
+		}
+	}
+
+	log.Info("Waiting for additional components to be up and running...")
+	if err := c.WaitForAddonsDeployments(regionalClusterClient); err != nil {
+		return err
+	}
+
+	log.Info("Waiting for packages to be up and running...")
+	if err := c.WaitForPackages(regionalClusterClient, currentClusterClient, options.ClusterName, options.Namespace); err != nil {
+		log.Warningf("Warning: Management cluster is upgraded successfully, but some packages are failing. %v", err)
+	}
+
+	err = c.DoClusterUpgrade(regionalClusterClient, currentClusterClient, options)
+	if err != nil {
+		return err
 	}
 
 	if !options.IsRegionalCluster {
@@ -181,11 +203,6 @@ func (c *TkgClient) UpgradeCluster(options *UpgradeClusterOptions) error { // no
 		err = c.applyPatchForAutoScalerDeployment(regionalClusterClient, options)
 		if err != nil {
 			return errors.Wrapf(err, "failed to upgrade autoscaler for cluster '%s'", options.ClusterName)
-		}
-
-		log.Info("Waiting for packages to be up and running...")
-		if err := c.WaitForPackages(regionalClusterClient, currentClusterClient, options.ClusterName, options.Namespace); err != nil {
-			log.Warningf("Warning: Cluster is upgraded successfully, but some packages are failing. %v", err)
 		}
 	}
 
@@ -284,14 +301,6 @@ func (c *TkgClient) DoClusterUpgrade(regionalClusterClient clusterclient.Client,
 		return err
 	}
 
-	// Upgrade/Add certain addons on old clusters during upgrade
-	// apply this only for workload clusters, Upgrading the addons
-	// for the management cluster is done as part of management cluster upgrade
-	// once we update the TKG version in cluster object
-	if !options.IsRegionalCluster && !options.SkipAddonUpgrade {
-		return c.upgradeAddons(regionalClusterClient, currentClusterClient, upgradeClusterConfig.ClusterName,
-			upgradeClusterConfig.ClusterNamespace, options.IsRegionalCluster, options.Edition)
-	}
 	return nil
 }
 
