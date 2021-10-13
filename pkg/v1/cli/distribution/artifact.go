@@ -6,7 +6,7 @@ package distribution
 import (
 	"github.com/pkg/errors"
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
-	artifacts2 "github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/artifacts"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/artifact"
 )
 
 // Artifact points to an individual plugin binary specific to a version and
@@ -63,10 +63,10 @@ func (aMap Artifacts) Fetch(version, os, arch string) ([]byte, error) {
 	}
 
 	if a.Image != "" {
-		return artifacts2.NewOCIArtifact(a.Image).Fetch()
+		return artifact.NewOCIArtifact(a.Image).Fetch()
 	}
 	if a.URI != "" {
-		return artifacts2.NewURIArtifact(a.URI).Fetch()
+		return artifact.NewURIArtifact(a.URI).Fetch()
 	}
 
 	return nil, errors.Errorf("invalid artifact for version:%s, os:%s, "+
