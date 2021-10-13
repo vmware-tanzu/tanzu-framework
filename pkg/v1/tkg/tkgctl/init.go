@@ -87,7 +87,7 @@ func (t *tkgctl) Init(options InitRegionOptions) error {
 	// validate docker only if user is not using an existing cluster
 	log.Infof("\nValidating the pre-requisites...")
 
-	if err := t.tkgClient.ValidatePrerequisites(!options.UseExistingCluster, true, false); err != nil {
+	if err := t.tkgClient.ValidatePrerequisites(!options.UseExistingCluster, true); err != nil {
 		return err
 	}
 

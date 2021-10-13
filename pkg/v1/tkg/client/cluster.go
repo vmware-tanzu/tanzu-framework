@@ -68,7 +68,7 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 	}
 	log.Info("Validating configuration...")
 	// validate kubectl only since we need only kubectl for create cluster
-	if err := c.ValidatePrerequisites(false, true, false); err != nil {
+	if err := c.ValidatePrerequisites(false, true); err != nil {
 		return err
 	}
 	currentRegion, err := c.GetCurrentRegionContext()

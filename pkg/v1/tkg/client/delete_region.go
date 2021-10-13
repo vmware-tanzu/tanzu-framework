@@ -66,7 +66,7 @@ func (c *TkgClient) DeleteRegion(options DeleteRegionOptions) error { //nolint:f
 		_ = utils.DeleteFile(cleanupClusterKubeconfigPath)
 	}()
 
-	if err := c.ValidatePrerequisites(!options.UseExistingCluster, true, false); err != nil {
+	if err := c.ValidatePrerequisites(!options.UseExistingCluster, true); err != nil {
 		return err
 	}
 

@@ -158,13 +158,15 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	// validate docker only if user is not using an existing cluster
 	// Note: Validating in client code as well to cover the usecase where users use client code instead of command line.
 
-	// validate docker resources if provider is docker
-	validateDockerResources := false
-	if providerName == "docker" {
-		validateDockerResources = true
-	}
-	if err := c.ValidatePrerequisites(!options.UseExistingCluster, true, validateDockerResources); err != nil {
+	if err := c.ValidatePrerequisites(!options.UseExistingCluster, true); err != nil {
 		return err
+	}
+
+	// validate docker resources if provider is docker
+	if providerName == "docker" {
+		if err := c.ValidateDockerResourcePrerequisites(); err != nil {
+			return err
+		}
 	}
 
 	log.Infof("Using infrastructure provider %s", options.InfrastructureProvider)

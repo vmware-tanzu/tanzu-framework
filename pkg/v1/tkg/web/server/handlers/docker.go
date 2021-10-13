@@ -38,7 +38,11 @@ func (app *App) IsDockerDaemonAvailable(params docker.CheckIfDockerDaemonAvailab
 		return docker.NewCheckIfDockerDaemonAvailableInternalServerError().WithPayload(Err(err))
 	}
 
-	if err := c.ValidatePrerequisites(true, false, true); err != nil {
+	if err := c.ValidatePrerequisites(true, false); err != nil {
+		return docker.NewCheckIfDockerDaemonAvailableBadRequest().WithPayload(Err(err))
+	}
+
+	if err := c.ValidateDockerResourcePrerequisites(); err != nil {
 		return docker.NewCheckIfDockerDaemonAvailableBadRequest().WithPayload(Err(err))
 	}
 
