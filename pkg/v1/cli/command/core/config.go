@@ -6,7 +6,7 @@ package core
 import (
 	"fmt"
 	"os"
-	"strconv"
+	"strings"
 
 	"github.com/aunum/log"
 	"github.com/pkg/errors"
@@ -24,12 +24,14 @@ func init() {
 	configCmd.SetUsageFunc(cli.SubCmdUsageFunc)
 	configCmd.AddCommand(
 		showConfigCmd,
+		activateConfigCmd,
+		deactivateConfigCmd,
 		getConfigCmd,
 		initConfigCmd,
 		setConfigCmd,
 		serversCmd,
 	)
-	setConfigCmd.AddCommand(setUnstableVersionsOptionCmd, setFeatureOptionCmd)
+	setConfigCmd.AddCommand(setUnstableVersionsOptionCmd)
 	serversCmd.AddCommand(listServersCmd)
 	addDeleteServersCmd()
 	cli.DeprecateCommandWithAlternative(showConfigCmd, "1.5.0", "get")
@@ -87,7 +89,7 @@ var getConfigCmd = &cobra.Command{
 
 var setConfigCmd = &cobra.Command{
 	Use:   "set <key> <value>",
-	Short: "Set config option key values. Options: [unstableversions, feature]",
+	Short: "Set config option key values. Options: [unstableversions]",
 }
 
 var setUnstableVersionsOptionCmd = &cobra.Command{
@@ -121,50 +123,72 @@ var setUnstableVersionsOptionCmd = &cobra.Command{
 		return nil
 	},
 }
-var setFeatureOptionCmd = &cobra.Command{
-	Use:   "feature <plugin-name | cli> <feature-name> <true | false>",
-	Short: "Set feature flags. Valid settings: [true, false]",
+
+// setFeatureFlag sets the paramFeature value to either true or false. paramFeature can be either "featureName" or "pluginName.featureName"
+func setFeatureFlag(paramFeature string, activate bool) error {
+	cfg, err := config.GetClientConfig()
+	if err != nil {
+		return err
+	}
+	// parse the param
+	var featureName, pluginName string
+	cliLevelFeature := false
+	paramArray := strings.Split(paramFeature, ".")
+	if len(paramArray) == 1 {
+		cliLevelFeature = true
+		featureName = paramArray[0]
+	} else {
+		featureName = paramArray[0]
+		pluginName = paramArray[1]
+	}
+
+	if cfg.ClientOptions == nil {
+		cfg.ClientOptions = &configv1alpha1.ClientOptions{}
+	}
+
+	if cliLevelFeature {
+		if cfg.ClientOptions.Features == nil {
+			cfg.ClientOptions.Features = make(map[string]bool)
+		}
+		cfg.ClientOptions.Features[featureName] = activate
+	} else {
+		// Assign a plugin-level feature value
+		if cfg.ClientOptions.Plugins == nil {
+			cfg.ClientOptions.Plugins = make(map[string]configv1alpha1.FeatureMap)
+		}
+		if cfg.ClientOptions.Plugins[pluginName].Features == nil {
+			cfg.ClientOptions.Plugins[pluginName] = configv1alpha1.FeatureMap{Features: make(map[string]bool)}
+		}
+		cfg.ClientOptions.Plugins[pluginName].Features[featureName] = activate
+	}
+
+	err = config.StoreClientConfig(cfg)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var activateConfigCmd = &cobra.Command{
+	Use:   "activate <feature-name>",
+	Short: "Activate feature flag.",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if len(args) != 3 {
-			return errors.Errorf("value required <plugin-name | cli> <feature-name> <true | false>")
+		if len(args) != 1 {
+			return errors.Errorf("value required for <feature-name>")
 		}
-		cfg, err := config.GetClientConfig()
-		if err != nil {
-			return err
-		}
-		pluginName := args[0]
-		featureName := args[1]
-		value, err := strconv.ParseBool(args[2])
-		if err != nil {
-			return errors.Wrap(err, "unable to parse true|false from param \""+args[2]+"\"")
-		}
-		if cfg.ClientOptions == nil {
-			cfg.ClientOptions = &configv1alpha1.ClientOptions{}
-		}
+		return setFeatureFlag(args[0], true)
+	},
+}
 
-		if pluginName == configv1alpha1.FeatureCli {
-			// Assign a CLI-level feature value
-			if cfg.ClientOptions.Features == nil {
-				cfg.ClientOptions.Features = make(map[string]bool)
-			}
-			cfg.ClientOptions.Features[featureName] = value
-		} else {
-			// Assign a plugin-level feature value
-			if cfg.ClientOptions.Plugins == nil {
-				cfg.ClientOptions.Plugins = make(map[string]configv1alpha1.FeatureMap)
-			}
-			if cfg.ClientOptions.Plugins[pluginName].Features == nil {
-				cfg.ClientOptions.Plugins[pluginName] = configv1alpha1.FeatureMap{Features: make(map[string]bool)}
-			}
-			cfg.ClientOptions.Plugins[pluginName].Features[featureName] = value
+var deactivateConfigCmd = &cobra.Command{
+	Use:   "deactivate <feature-name>",
+	Short: "Deactivate feature flag.",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if len(args) != 1 {
+			return errors.Errorf("value required for <feature-name>")
 		}
-
-		err = config.StoreClientConfig(cfg)
-		if err != nil {
-			return err
-		}
-
-		return nil
+		return setFeatureFlag(args[0], false)
 	},
 }
 

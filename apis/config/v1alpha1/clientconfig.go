@@ -16,11 +16,6 @@ const (
 	NoUnstableVersions VersionSelectorLevel = "none"
 )
 
-const (
-	// FeatureCli allows a feature to be set at the CLI level (globally) rather than for a single plugin
-	FeatureCli string = "cli"
-)
-
 // VersionSelectorLevel allows selecting plugin versions based on semver properties
 type VersionSelectorLevel string
 
