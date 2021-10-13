@@ -82,8 +82,8 @@ func checkDockerDaemonIsRunning() (bool, error) {
 	return true, nil
 }
 
-func checkDockerResourceCpu() (int, error) {
-	var numberCpu int
+func checkDockerResource(resource string) (int, error) {
+	var resourceValue int
 	var stdout []byte
 
 	path, err := exec.LookPath("docker")
@@ -95,50 +95,18 @@ func checkDockerResourceCpu() (int, error) {
 		return 0, nil
 	}
 
-	cmd := exec.Command("docker", "system", "info", "--format", "'{{.NCPU}}'")
-
+	cmd := exec.Command("docker", "system", "info", "--format", "'{{." + resource + "}}'")
 	if stdout, err = cmd.Output(); err != nil {
-		return 0, errors.Wrap(err, "failed to get docker total CPUs")
+		return 0, errors.Wrap(err, "failed to get docker resource value")
 	}
 
-	numberCpu, err = strconv.Atoi(strings.Trim(strings.TrimSuffix(string(stdout), "\n"), "'"))
+	resourceValue, err = strconv.Atoi(strings.Trim(strings.TrimSuffix(string(stdout), "\n"), "'"))
 
 	if err != nil {
-		return 0, errors.Wrap(err, "failed to convert total CPUs to integer")
+		return 0, errors.Wrap(err, "failed to convert docker resource value to integer")
 	}
 
-	return numberCpu, nil
-}
-
-func checkDockerResourceMemory() (int, error) {
-	var totalMemory, totalMemoryGB int
-	var stdout []byte
-
-	path, err := exec.LookPath("docker")
-	if err != nil {
-		return 0, errors.Wrap(err, "failed to check if docker is installed")
-	}
-	// docker is not installed
-	if path == "" {
-		return 0, nil
-	}
-
-	cmd := exec.Command("docker", "system", "info", "--format", "'{{.MemTotal}}'")
-
-	if stdout, err = cmd.Output(); err != nil {
-		return 0, errors.Wrap(err, "failed to get docker total memory")
-	}
-
-	totalMemory, err = strconv.Atoi(strings.Trim(strings.TrimSuffix(string(stdout), "\n"), "'"))
-
-	if err != nil {
-		return 0, errors.Wrap(err, "failed to convert total memory to integer")
-	}
-
-	// convert Total Memory to GB
-	totalMemoryGB = totalMemory / (1024 * 1000000)
-
-	return totalMemoryGB, nil
+	return resourceValue, nil
 }
 
 func checkKubectlInstalled() (bool, error) { //nolint
@@ -209,7 +177,7 @@ func (c *TkgClient) ValidateDockerResourcePrerequisites() error {
 	var err error
 
 	// validate docker allocated CPU and memory against recommended minimums
-	if dockerResourceCpus, err = checkDockerResourceCpu(); err != nil {
+	if dockerResourceCpus, err = checkDockerResource("NCPU"); err != nil {
 		return errors.Wrap(err, "Failed to check docker minimum number of CPUs")
 	}
 
@@ -217,12 +185,14 @@ func (c *TkgClient) ValidateDockerResourcePrerequisites() error {
 		return errors.Errorf("Docker resources have %d CPUs allocated; less than minimum recommended number of 4 CPUs", dockerResourceCpus)
 	}
 
-	if dockerResourceTotalMemory, err = checkDockerResourceMemory(); err != nil {
+	if dockerResourceTotalMemory, err = checkDockerResource("MemTotal"); err != nil {
 		return errors.Wrap(err, "Failed to check docker minimum total memory")
 	}
 
-	if !(dockerResourceTotalMemory >= 6) {
-		return errors.Errorf("Docker resources have %dGB Total Memory allocated; less than minimum recommended number of 6GB Total Memory", dockerResourceTotalMemory)
+	dockerResourceTotalMemFormatted := dockerResourceTotalMemory / (1024 * 1000000)
+
+	if (dockerResourceTotalMemFormatted < 6) {
+		return errors.Errorf("Docker resources have %dGB Total Memory allocated; less than minimum recommended number of 6GB Total Memory", dockerResourceTotalMemFormatted)
 	}
 
 	return nil
