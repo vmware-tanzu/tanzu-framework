@@ -223,16 +223,16 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
     }
 
     /**
-     * @method to return cli command string according to special selection
+     * @method getExtendCliCmds to return cli command string according to special selection
      * For AWS, selects Create Cloudformation Stack,
      * should include tanzu management-cluster permissions aws set
-     * @returns the array includes cli command object like {isPreOfCreateCmd: true, cmdStr: "tanzu ..."}
+     * @returns the array includes cli command object like {isPrefixOfCreateCmd: true, cmdStr: "tanzu ..."}
      */
-    getExtendCliCmds(): Array<{ isPreOfCreateCmd: boolean, cmdStr: string }> {
+    getExtendCliCmds(): Array<{ isPrefixOfCreateCmd: boolean, cmdStr: string }> {
         if (this.getFieldValue('awsNodeSettingForm', 'createCloudFormation')) {
             const clusterPrefix = (this.clusterType) ? this.clusterType : 'management';
             const command = `tanzu ${clusterPrefix}-cluster permissions aws set`;
-            return [{ isPreOfCreateCmd: true, cmdStr: command }]
+            return [{ isPrefixOfCreateCmd: true, cmdStr: command }]
         }
         return []
     }

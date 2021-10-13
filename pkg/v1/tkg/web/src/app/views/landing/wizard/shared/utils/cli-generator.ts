@@ -2,7 +2,7 @@ export interface CliFields {
     configPath: string;
     clusterType: string;
     clusterName: string;
-    extendCliCmds: Array<{isPreOfCreateCmd: boolean, cmdStr: string}>;
+    extendCliCmds: Array<{isPrefixOfCreateCmd: boolean, cmdStr: string}>;
 }
 export class CliGenerator {
     getCli({
@@ -29,9 +29,9 @@ export class CliGenerator {
             }
         })
 
-        const extendCliCmdsArray: Array<{isPreOfCreateCmd: boolean, cmdStr: string}> = extendCliCmds;
+        const extendCliCmdsArray: Array<{isPrefixOfCreateCmd: boolean, cmdStr: string}> = extendCliCmds;
         extendCliCmdsArray.forEach(item => {
-            if (item.isPreOfCreateCmd) {
+            if (item.isPrefixOfCreateCmd) {
                 command = item.cmdStr + " && " + command;
             } else {
                 command = command  + " && " + item.cmdStr;
