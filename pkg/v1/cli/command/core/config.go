@@ -142,11 +142,10 @@ func setFeature(pathParam, value string) error {
 	if pathParam == "unstable-versions" {
 		return setUnstableVersions(cfg, value)
 	}
-	/*	if pathParam == "cli.edition" {
-			cfg.ClientOptions.Edition = value
-			return config.StoreClientConfig(cfg)
-		}
-	*/
+	//	if pathParam == "cli.edition" {
+	//		cfg.ClientOptions.Edition = value
+	//		return config.StoreClientConfig(cfg)
+	//	}
 
 	// parse the param
 	paramArray := strings.Split(pathParam, ".")
