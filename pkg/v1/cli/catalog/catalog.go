@@ -17,9 +17,8 @@ import (
 )
 
 const (
-	// catalogCacheDirName is the name of the local directory in which tanzu state is stored.
-	catalogCacheDirName = ".cache/tanzu"
 	// catalogCacheFileName is the name of the file which holds Catalog cache
+	// TODO: Use the original catalog file instead of using v2 once the feature is enabled by default
 	catalogCacheFileName = "catalog_v2.yaml"
 )
 
@@ -110,13 +109,8 @@ func (c *ContextCatalog) Delete(plugin string) error {
 }
 
 // getCatalogCacheDir returns the local directory in which tanzu state is stored.
-func getCatalogCacheDir() (path string, err error) {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return path, errors.Wrap(err, "could not locate user home directory")
-	}
-	path = filepath.Join(home, catalogCacheDirName)
-	return
+func getCatalogCacheDir() (path string) {
+	return common.DefaultCacheDir
 }
 
 // newSharedCatalog creates an instance of the shared catalog file.
@@ -137,11 +131,7 @@ func newSharedCatalog() (*cliv1alpha1.Catalog, error) {
 
 // getCatalogCache retrieves the catalog from from the local directory.
 func getCatalogCache() (catalog *cliv1alpha1.Catalog, err error) {
-	catalogCachePath, err := getCatalogCachePath()
-	if err != nil {
-		return nil, err
-	}
-	b, err := os.ReadFile(catalogCachePath)
+	b, err := os.ReadFile(getCatalogCachePath())
 	if err != nil {
 		catalog, err = newSharedCatalog()
 		if err != nil {
@@ -179,17 +169,10 @@ func getCatalogCache() (catalog *cliv1alpha1.Catalog, err error) {
 
 // saveCatalogCache saves the catalog in the local directory.
 func saveCatalogCache(catalog *cliv1alpha1.Catalog) error {
-	catalogCachePath, err := getCatalogCachePath()
-	if err != nil {
-		return err
-	}
-	_, err = os.Stat(catalogCachePath)
+	catalogCachePath := getCatalogCachePath()
+	_, err := os.Stat(catalogCachePath)
 	if os.IsNotExist(err) {
-		catalogCacheDir, err := getCatalogCacheDir()
-		if err != nil {
-			return errors.Wrap(err, "could not find tanzu cache dir for OS")
-		}
-		err = os.MkdirAll(catalogCacheDir, 0755)
+		err = os.MkdirAll(getCatalogCacheDir(), 0755)
 		if err != nil {
 			return errors.Wrap(err, "could not make tanzu cache directory")
 		}
@@ -217,23 +200,15 @@ func saveCatalogCache(catalog *cliv1alpha1.Catalog) error {
 
 // CleanCatalogCache cleans the catalog cache
 func CleanCatalogCache() error {
-	catalogCachePath, err := getCatalogCachePath()
-	if err != nil {
-		return err
-	}
-	if err := os.Remove(catalogCachePath); err != nil {
+	if err := os.Remove(getCatalogCachePath()); err != nil {
 		return err
 	}
 	return nil
 }
 
 // getCatalogCachePath gets the catalog cache path
-func getCatalogCachePath() (string, error) {
-	catalogCacheDir, err := getCatalogCacheDir()
-	if err != nil {
-		return "", errors.Wrap(err, "could not locate catalog cache directory")
-	}
-	return filepath.Join(catalogCacheDir, catalogCacheFileName), nil
+func getCatalogCachePath() string {
+	return filepath.Join(getCatalogCacheDir(), catalogCacheFileName)
 }
 
 // Ensure the root directory exists.

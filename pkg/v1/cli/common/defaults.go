@@ -11,6 +11,9 @@ import (
 )
 
 var (
+	// DefaultCacheDir is the default cache directory
+	DefaultCacheDir = filepath.Join(xdg.CacheHome, "tanzu")
+
 	// DefaultPluginRoot is the default plugin root.
 	DefaultPluginRoot = filepath.Join(xdg.DataHome, "tanzu-cli")
 
