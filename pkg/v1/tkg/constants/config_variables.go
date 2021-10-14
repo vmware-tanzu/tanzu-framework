@@ -38,6 +38,7 @@ const (
 	ConfigVariableAWSAMIID            = "AWS_AMI_ID"
 
 	ConfigVariableVsphereControlPlaneEndpoint = "VSPHERE_CONTROL_PLANE_ENDPOINT"
+	ConfigVariableByohControlPlaneEndpoint    = "BYOH_CONTROL_PLANE_ENDPOINT"
 	ConfigVariableVsphereServer               = "VSPHERE_SERVER"
 	ConfigVariableVsphereUsername             = "VSPHERE_USERNAME"
 	ConfigVariableVspherePassword             = "VSPHERE_PASSWORD"

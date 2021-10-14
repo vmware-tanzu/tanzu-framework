@@ -50,6 +50,7 @@ type CreateClusterOptions struct {
 	CniType                     string
 	ClusterOptionsEnableList    []string
 	VsphereControlPlaneEndpoint string
+	BYOHControlPlaneEndpoint    string
 	SkipValidation              bool
 	ClusterType                 TKGClusterType
 	Edition                     string
