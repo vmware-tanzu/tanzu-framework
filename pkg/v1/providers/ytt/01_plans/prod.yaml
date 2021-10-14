@@ -15,7 +15,7 @@ metadata:
 
 #@overlay/match missing_ok=True,by=overlay.subset({"kind":"TanzuKubernetesCluster"})
 ---
-apiVersion: run.tanzu.vmware.com/v1alpha1
+apiVersion: run.tanzu.vmware.com/v1alpha2
 kind: TanzuKubernetesCluster
 metadata:
   #@overlay/match missing_ok=True

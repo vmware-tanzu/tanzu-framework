@@ -120,6 +120,13 @@ func (c *TkgClient) DeleteWorkloadCluster(options DeleteWorkloadClusterOptions) 
 		}
 	}
 
+	if isPacific {
+		err := c.ValidatePacificVersionWithCLI(clusterClient)
+		if err != nil {
+			return err
+		}
+	}
+
 	return clusterClient.DeleteCluster(options.ClusterName, options.Namespace)
 }
 
