@@ -79,15 +79,13 @@ def tkg_image_repo():
 end
 
 def get_image_repo_for_component(image):
-  # if custom image repo is specified use that repo
-  if data.values.TKG_CUSTOM_IMAGE_REPOSITORY:
-    return data.values.TKG_CUSTOM_IMAGE_REPOSITORY
-  end
-
   # if imageRepo is specified for the component with image.imageRepository
   # than use image.imageRepository else use default imageRepo from BoM file
   if hasattr(image, 'imageRepository'):
     return image.imageRepository
+  # if custom image repo is specified use that repo
+  elif data.values.TKG_CUSTOM_IMAGE_REPOSITORY:
+    return data.values.TKG_CUSTOM_IMAGE_REPOSITORY
   else:
     return tkgBomData.imageConfig.imageRepository
   end
