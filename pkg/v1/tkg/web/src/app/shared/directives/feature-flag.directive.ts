@@ -82,12 +82,14 @@ export class FeatureToggleDirective extends BasicSubscriber implements OnInit {
         }
         let pluginName, featureName;
         const paramArray = this.featureToggle.split(this.separator);
-        if (paramArray.length === 1) {
-            featureName = paramArray[0];
-            return this.appDataService.isCliFeatureFlagEnabled(featureName)
+        if (paramArray.length !== 2) {
+            const errMsg = "Bad parameter encountered in featureToggle directive: " + this.featureToggle +
+                " should contain exactly one separator ('" + this.separator + "')"
+            console.log(errMsg);
+            return false;
         }
         pluginName = paramArray[0];
         featureName = paramArray[1];
-        return this.appDataService.isPluginFeatureFlagEnabled(pluginName, featureName);
+        return this.appDataService.isPluginFeatureActivated(pluginName, featureName);
     }
 }

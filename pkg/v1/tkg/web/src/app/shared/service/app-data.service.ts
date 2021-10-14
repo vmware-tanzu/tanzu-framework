@@ -62,18 +62,18 @@ export class AppDataService {
         return this.vsphereVersion;
     }
 
-    isCliFeatureFlagEnabled(feature: string) {
-        return this.isPluginFeatureFlagEnabled('global', feature);
+    isPluginFeatureActivated(plugin: string, feature: string) {
+        return this.isValueTrue(this.getPluginFeature(plugin, feature));
     }
 
-    isPluginFeatureFlagEnabled(plugin: string, feature: string) {
+    getPluginFeature(plugin: string, feature: string) {
         if (this.featureFlags == null || this.featureFlags.value == null) {
-            return false;
+            return null;
         }
         if (this.featureFlags.value[plugin] == null || this.featureFlags.value[plugin][feature] == null) {
-            return false;
+            return null;
         }
-        return this.isValueTrue(this.featureFlags.value[plugin][feature]);
+        return this.featureFlags.value[plugin][feature];
     }
 
     isValueTrue(value: string) {

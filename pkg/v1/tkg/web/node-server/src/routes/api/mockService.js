@@ -59,19 +59,17 @@ router.get(`${ENDPOINT}/features`, (req, res) => {
     winston.info('Mock TKG UI GET FEATURES API');
     res.status(200);
     res.json({
-        "cli": {
-            "dualStack": true,
-            "ceip": true
+        "global": {
+            "dualStack": "true",
+            "ceip": "true"
         },
-        "plugins": {
-            "management-cluster": {
-                "encryptCredentials": true,
-                "featureExportConfigFromConfirm": true,
-                "vsphereIPv6": "true"
-            },
-            "cluster": {
-                "validateXyz": true
-            }
+        "management-cluster": {
+            "encryptCredentials": "true",
+            "featureExportConfigFromConfirm": "true",
+            "vsphereIPv6": "true"
+        },
+        "cluster": {
+            "validateXyz": "true"
         }
     });
 });
