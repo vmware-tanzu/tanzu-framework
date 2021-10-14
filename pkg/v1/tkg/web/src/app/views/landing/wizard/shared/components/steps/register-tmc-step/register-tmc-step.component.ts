@@ -36,14 +36,6 @@ export class SharedRegisterTmcStepComponent extends StepFormDirective implements
         this.formGroup.get('tmcRegUrl').valueChanges.subscribe(data => {
             if (data) { this.emptyUrl = false; }
         });
-
-        // TODO: SHIMON SEZ: can we take this out?
-/*
-        const flags = this.appDataService.getFeatureFlags().value
-        if (flags != null) {
-            this.formGroup.get('tmcRegUrl').setValue(flags["tmcRegistration"])
-        }
-*/
     }
 
     // TODO: need to validate the registration url prior to making http call

@@ -97,7 +97,6 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
     }
 
     setValidators() {
-        // TODO: SHIMON SEZ this cni value apparently needs to come from the config..?
         const configuredCni = this.appDataService.getPluginFeature(managementClusterPlugin, 'cni');
         if (configuredCni && ['antrea', 'calico', 'none'].includes(configuredCni)) {
             this.cniType = configuredCni;
