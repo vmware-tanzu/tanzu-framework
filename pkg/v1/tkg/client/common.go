@@ -95,7 +95,7 @@ func checkDockerResource(resource string) (int, error) {
 		return 0, nil
 	}
 
-	cmd := exec.Command("docker", "system", "info", "--format", "'{{." + resource + "}}'")
+	cmd := exec.Command("docker", "system", "info", "--format", "'{{."+resource+"}}'")
 	if stdout, err = cmd.Output(); err != nil {
 		return 0, errors.Wrap(err, "failed to get docker resource value")
 	}
@@ -173,25 +173,27 @@ func (c *TkgClient) validateDockerPrerequisites() error {
 }
 
 func (c *TkgClient) ValidateDockerResourcePrerequisites() error {
+	const numberCpu string = "NCPU"
+	const totalMemory string = "MemTotal"
 	var dockerResourceCpus, dockerResourceTotalMemory int
 	var err error
 
 	// validate docker allocated CPU and memory against recommended minimums
-	if dockerResourceCpus, err = checkDockerResource("NCPU"); err != nil {
+	if dockerResourceCpus, err = checkDockerResource(numberCpu); err != nil {
 		return errors.Wrap(err, "Failed to check docker minimum number of CPUs")
 	}
 
-	if !(dockerResourceCpus >= 4) {
+	if dockerResourceCpus < 4 {
 		return errors.Errorf("Docker resources have %d CPUs allocated; less than minimum recommended number of 4 CPUs", dockerResourceCpus)
 	}
 
-	if dockerResourceTotalMemory, err = checkDockerResource("MemTotal"); err != nil {
+	if dockerResourceTotalMemory, err = checkDockerResource(totalMemory); err != nil {
 		return errors.Wrap(err, "Failed to check docker minimum total memory")
 	}
 
 	dockerResourceTotalMemFormatted := dockerResourceTotalMemory / (1024 * 1000000)
 
-	if (dockerResourceTotalMemFormatted < 6) {
+	if dockerResourceTotalMemFormatted < 6 {
 		return errors.Errorf("Docker resources have %dGB Total Memory allocated; less than minimum recommended number of 6GB Total Memory", dockerResourceTotalMemFormatted)
 	}
 
