@@ -247,6 +247,13 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
     }
 
     /**
+     * Retrieve the config file from the backend and return as a string
+     */
+    retrieveExportFile() {
+        return this.apiClient.exportTKGConfigForVsphere({ params: this.getPayload() });
+    }
+
+    /**
      * @method getControlPlaneType
      * helper method to return value of dev instance type or prod instance type
      * depending on what type of control plane is selected

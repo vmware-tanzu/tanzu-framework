@@ -200,27 +200,27 @@
         i18n="review cluster configuration btn">
         REVIEW CONFIGURATION
     </button>
-
-    <div *featureToggle="'global.google'">global.google is true</div>
-    <div *featureToggle="'!global.google'">global.google is false</div>
-    <div *featureToggle="'google'">google is true</div>
-    <div *featureToggle="'!google'">google is false</div>
-    <div *featureToggle="'management-cluster.foobar'">management-cluster.foobar is true</div>
-    <div *featureToggle="'!management-cluster.foobar'">management-cluster.foobar is false</div>
 </div>
 
 <ng-container *ngIf="review">
-    <tkg-kickstart-ui-confirm [errorNotification]="errorNotification"></tkg-kickstart-ui-confirm>
+    <tkg-kickstart-ui-confirm></tkg-kickstart-ui-confirm>
+    <app-error-notification [errorNotification]="errorNotification"></app-error-notification>
     <div class="clr-row mt-20">
         <div class="clr-col-12 btn-container">
+            <button class="btn btn-primary deploy-btn" [disabled]="disableDeployButton" (click)="deploy()"
+                    i18n="deploy cluster configuration btn">
+                Deploy {{ clusterType | titlecase }} Cluster
+            </button>
             <button class="btn btn-outline edit-btn" (click)="reviewConfiguration(false)"
                 i18n="return to wizard for edit button">
                 Edit Configuration
             </button>
-            <button class="btn btn-primary deploy-btn" [disabled]="disableDeployButton" (click)="deploy()"
-                i18n="deploy cluster configuration btn">
-                Deploy {{ clusterType | titlecase }} Cluster
-            </button>
+            <ng-container *featureToggle="'management-cluster.export-from-confirm'">
+                <button class="btn btn-link export-btn" (click)="exportConfiguration()"
+                        i18n="export configuration button">
+                    Export Configuration
+                </button>
+            </ng-container>
         </div>
     </div>
 </ng-container>

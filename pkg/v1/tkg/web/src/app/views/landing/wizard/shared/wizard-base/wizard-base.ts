@@ -10,12 +10,13 @@ import { BasicSubscriber } from 'src/app/shared/abstracts/basic-subscriber';
 import { APP_ROUTES, Routes } from 'src/app/shared/constants/routes.constants';
 import { Providers, PROVIDERS } from 'src/app/shared/constants/app.constants';
 import { FormMetaDataStore } from '../FormMetaDataStore';
-import { debounceTime, takeUntil } from 'rxjs/operators';
+import { debounceTime, take, takeUntil } from 'rxjs/operators';
 import { TkgEvent, TkgEventType } from './../../../../../shared/service/Messenger';
 import { ClrStepper } from '@clr/angular';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { ConfigFileInfo } from '../../../../../swagger/models/config-file-info.model';
 import Broker from 'src/app/shared/service/broker';
+import FileSaver from 'file-saver';
 
 @Directive()
 export abstract class WizardBaseDirective extends BasicSubscriber implements AfterViewInit, OnInit {
@@ -141,6 +142,11 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
     abstract applyTkgConfig(): Observable<ConfigFileInfo>;
 
     /**
+     * Retrieve the config file from the backend and return as a string
+     */
+    abstract retrieveExportFile():  Observable<string>;
+
+    /**
      * Switch the mode between "Review Configuration" and "Edit Configuration"
      * @param review In "Review Configuration" mode if true; otherwise in "Edit Configuration" mode
      */
@@ -162,13 +168,29 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
         this.review = review;
     }
 
+    exportConfiguration() {
+        this.retrieveExportFile().pipe(take(1)).subscribe(
+            ((data) => {
+                const blob = new Blob([data], {type: "text/plain;charset=utf-8"});
+                FileSaver.saveAs(blob, 'config.yaml');
+            }),
+            ((err) => {
+                this.displayError('Error encountered while creating export file: ' + err.toString());
+            })
+        )
+    }
+
+    displayError(errorMessage) {
+        this.errorNotification = errorMessage;
+    }
+
     getWizardValidity(): boolean {
         if (!FormMetaDataStore.getStepList()) {
             return false;
         }
         const totalSteps = FormMetaDataStore.getStepList().length;
-        const stepsVisisted = this.steps.filter(step => step).length;
-        return stepsVisisted > totalSteps && this.form.status === 'VALID';
+        const stepsVisited = this.steps.filter(step => step).length;
+        return stepsVisited > totalSteps && this.form.status === 'VALID';
     }
 
     /**
