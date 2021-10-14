@@ -100,6 +100,14 @@ combinations we support now.
 
 - Add `Program Files\tanzu` to your PATH.
 
+## Delete a selected plugin
+
+If you want to delete a given plugin (one use case is when a plugin has become obsolete), you can run the following command:
+
+```shell
+  tanzu plugin delete <PLUGIN_NAME>
+```
+
 ## Build the CLI and plugins from source
 
 If you want the very latest, you can also build and install tanzu CLI, and its plugins, from source.
