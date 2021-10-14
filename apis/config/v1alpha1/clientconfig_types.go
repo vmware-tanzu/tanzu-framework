@@ -91,9 +91,11 @@ type GlobalServerAuth struct {
 // ClientOptions are the client specific options.
 type ClientOptions struct {
 	// CLI options specific to the CLI.
-	CLI      *CLIOptions                  `json:"cli,omitempty" yaml:"cli"`
-	Features map[string]map[string]string `json:"features,omitempty" yaml:"features"`
+	CLI      *CLIOptions           `json:"cli,omitempty" yaml:"cli"`
+	Features map[string]FeatureMap `json:"features,omitempty" yaml:"features"`
 }
+
+type FeatureMap map[string]string
 
 // CLIOptions are options for the CLI.
 type CLIOptions struct {
