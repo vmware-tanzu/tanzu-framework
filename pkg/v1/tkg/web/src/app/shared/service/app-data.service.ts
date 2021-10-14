@@ -50,10 +50,6 @@ export class AppDataService {
         this.featureFlags.next(features);
     }
 
-    getFeatureFlags() {
-        return this.featureFlags;
-    }
-
     setVsphereVersion(version: string) {
         this.vsphereVersion.next(version);
     }

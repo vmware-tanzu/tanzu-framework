@@ -24,6 +24,7 @@ import Broker from 'src/app/shared/service/broker';
 import { EditionData } from 'src/app/shared/service/branding.service';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import { AppDataService } from 'src/app/shared/service/app-data.service';
+import { managementClusterPlugin } from "../../wizard/shared/constants/wizard.constants";
 
 declare var sortPaths: any;
 
@@ -77,10 +78,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
 
     ngOnInit() {
         super.ngOnInit();
-        const flags = this.appDataService.getFeatureFlags().value;
-        if (flags != null) {
-          this.enableIpv6 = flags["vsphereIPv6"] === 'enabled';
-        }
+        this.enableIpv6 = this.appDataService.isPluginFeatureActivated(managementClusterPlugin, 'vsphereIPv6');
         this.formGroup.addControl(
             'ipFamily',
             new FormControl(
