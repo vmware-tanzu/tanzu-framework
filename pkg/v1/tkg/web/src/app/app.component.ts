@@ -40,7 +40,7 @@ export class AppComponent extends BasicSubscriber {
         );
         this.apiClient.getFeatureFlags()
             .pipe(takeUntil(this.unsubscribe))
-            .subscribe(((features:Features) => {
+            .subscribe(((features: Features) => {
                 this.appDataService.setFeatureFlags(features);
             }),
             ((err) => {

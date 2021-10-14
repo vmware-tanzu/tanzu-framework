@@ -261,7 +261,7 @@ func init() {
         "tags": [
           "features"
         ],
-        "summary": "Retrieve list of enabled hidden features",
+        "summary": "Retrieve list of features",
         "operationId": "getFeatureFlags",
         "responses": {
           "200": {
@@ -2987,21 +2987,13 @@ func init() {
     "FeatureMap": {
       "type": "object",
       "additionalProperties": {
-        "type": "boolean"
+        "type": "string"
       }
     },
     "Features": {
       "type": "object",
-      "properties": {
-        "cli": {
-          "$ref": "#/definitions/FeatureMap"
-        },
-        "plugins": {
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/FeatureMap"
-          }
-        }
+      "additionalProperties": {
+        "$ref": "#/definitions/FeatureMap"
       }
     },
     "HTTPProxyConfiguration": {
@@ -3788,7 +3780,7 @@ func init() {
         "tags": [
           "features"
         ],
-        "summary": "Retrieve list of enabled hidden features",
+        "summary": "Retrieve list of features",
         "operationId": "getFeatureFlags",
         "responses": {
           "200": {
@@ -6514,21 +6506,13 @@ func init() {
     "FeatureMap": {
       "type": "object",
       "additionalProperties": {
-        "type": "boolean"
+        "type": "string"
       }
     },
     "Features": {
       "type": "object",
-      "properties": {
-        "cli": {
-          "$ref": "#/definitions/FeatureMap"
-        },
-        "plugins": {
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/FeatureMap"
-          }
-        }
+      "additionalProperties": {
+        "$ref": "#/definitions/FeatureMap"
       }
     },
     "HTTPProxyConfiguration": {

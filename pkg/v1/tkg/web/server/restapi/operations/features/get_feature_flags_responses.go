@@ -25,7 +25,7 @@ type GetFeatureFlagsOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *models.Features `json:"body,omitempty"`
+	Payload models.Features `json:"body,omitempty"`
 }
 
 // NewGetFeatureFlagsOK creates GetFeatureFlagsOK with default headers values
@@ -35,13 +35,13 @@ func NewGetFeatureFlagsOK() *GetFeatureFlagsOK {
 }
 
 // WithPayload adds the payload to the get feature flags o k response
-func (o *GetFeatureFlagsOK) WithPayload(payload *models.Features) *GetFeatureFlagsOK {
+func (o *GetFeatureFlagsOK) WithPayload(payload models.Features) *GetFeatureFlagsOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get feature flags o k response
-func (o *GetFeatureFlagsOK) SetPayload(payload *models.Features) {
+func (o *GetFeatureFlagsOK) SetPayload(payload models.Features) {
 	o.Payload = payload
 }
 
@@ -49,11 +49,14 @@ func (o *GetFeatureFlagsOK) SetPayload(payload *models.Features) {
 func (o *GetFeatureFlagsOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(200)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
+	payload := o.Payload
+	if payload == nil {
+		// return empty map
+		payload = models.Features{}
+	}
+
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
 	}
 }
 

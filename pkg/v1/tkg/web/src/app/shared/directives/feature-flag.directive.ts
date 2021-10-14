@@ -30,7 +30,7 @@ import { AppDataService } from '../service/app-data.service';
  */
 export class FeatureToggleDirective extends BasicSubscriber implements OnInit {
     @Input() featureToggle: string;
-    separator = ':';                // used for separating the starting plugin name from the feature
+    separator = '.';                // used for separating the starting plugin name from the feature
     private negation: boolean;
 
     constructor(

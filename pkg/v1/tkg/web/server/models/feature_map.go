@@ -11,7 +11,7 @@ import (
 
 // FeatureMap feature map
 // swagger:model FeatureMap
-type FeatureMap map[string]bool
+type FeatureMap map[string]string
 
 // Validate validates this feature map
 func (m FeatureMap) Validate(formats strfmt.Registry) error {

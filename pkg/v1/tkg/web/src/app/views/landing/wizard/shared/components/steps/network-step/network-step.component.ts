@@ -98,8 +98,10 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
     setValidators() {
         const flags = this.appDataService.getFeatureFlags().value;
 
-        if (flags && ['antrea', 'calico', 'none'].includes(flags['cni'])) {
-            this.cniType = flags['cni'];
+        // TODO: SHIMON SEZ this cni value apparently needs to come from the config..?
+        const configuredCni = flags['global']['cni'];
+        if (flags && ['antrea', 'calico', 'none'].includes(configuredCni)) {
+            this.cniType = configuredCni;
         } else {
             this.cniType = 'antrea';
         }

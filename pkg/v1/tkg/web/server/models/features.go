@@ -9,63 +9,19 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
-	"github.com/go-openapi/swag"
 )
 
 // Features features
 // swagger:model Features
-type Features struct {
-
-	// cli
-	Cli FeatureMap `json:"cli,omitempty"`
-
-	// plugins
-	Plugins map[string]FeatureMap `json:"plugins,omitempty"`
-}
+type Features map[string]FeatureMap
 
 // Validate validates this features
-func (m *Features) Validate(formats strfmt.Registry) error {
+func (m Features) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateCli(formats); err != nil {
-		res = append(res, err)
-	}
+	for k := range m {
 
-	if err := m.validatePlugins(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *Features) validateCli(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Cli) { // not required
-		return nil
-	}
-
-	if err := m.Cli.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("cli")
-		}
-		return err
-	}
-
-	return nil
-}
-
-func (m *Features) validatePlugins(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Plugins) { // not required
-		return nil
-	}
-
-	for k := range m.Plugins {
-
-		if val, ok := m.Plugins[k]; ok {
+		if val, ok := m[k]; ok {
 			if err := val.Validate(formats); err != nil {
 				return err
 			}
@@ -73,23 +29,8 @@ func (m *Features) validatePlugins(formats strfmt.Registry) error {
 
 	}
 
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (m *Features) MarshalBinary() ([]byte, error) {
-	if m == nil {
-		return nil, nil
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
 	}
-	return swag.WriteJSON(m)
-}
-
-// UnmarshalBinary interface implementation
-func (m *Features) UnmarshalBinary(b []byte) error {
-	var res Features
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*m = res
 	return nil
 }

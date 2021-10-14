@@ -63,22 +63,20 @@ export class AppDataService {
     }
 
     isCliFeatureFlagEnabled(feature: string) {
-        if (this.featureFlags == null || this.featureFlags.value == null) {
-            return false;
-        }
-        if (this.featureFlags.value.cli == null) {
-            return false;
-        }
-        return this.featureFlags.value.cli[feature] === true;
+        return this.isPluginFeatureFlagEnabled('global', feature);
     }
 
     isPluginFeatureFlagEnabled(plugin: string, feature: string) {
         if (this.featureFlags == null || this.featureFlags.value == null) {
             return false;
         }
-        if (this.featureFlags.value.plugins == null || this.featureFlags.value.plugins[plugin] == null) {
+        if (this.featureFlags.value[plugin] == null || this.featureFlags.value[plugin][feature] == null) {
             return false;
         }
-        return this.featureFlags.value.plugins[plugin][feature] === true;
+        return this.isValueTrue(this.featureFlags.value[plugin][feature]);
+    }
+
+    isValueTrue(value: string) {
+        return value !== null && JSON.parse(value);
     }
 }
