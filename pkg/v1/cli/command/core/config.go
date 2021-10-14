@@ -168,10 +168,10 @@ func setFeature(pathParam, value string) error {
 
 	// Assign a plugin-level feature value
 	if cfg.ClientOptions.Features == nil {
-		cfg.ClientOptions.Features = make(map[string]map[string]string)
+		cfg.ClientOptions.Features = make(map[string]configv1alpha1.FeatureMap)
 	}
 	if cfg.ClientOptions.Features[plugin] == nil {
-		cfg.ClientOptions.Features[plugin] = make(map[string]string)
+		cfg.ClientOptions.Features[plugin] = configv1alpha1.FeatureMap{}
 	}
 	cfg.ClientOptions.Features[plugin][key] = value
 
