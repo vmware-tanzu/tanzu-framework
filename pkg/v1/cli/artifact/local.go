@@ -5,8 +5,11 @@ package artifact
 
 import (
 	"os"
+	"path/filepath"
 
 	"github.com/pkg/errors"
+
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
 )
 
 // LocalArtifact defines local artifact path
@@ -16,6 +19,11 @@ type LocalArtifact struct {
 
 // NewLocalArtifact creates Local Artifact object
 func NewLocalArtifact(path string) Artifact {
+	// If path is not an absolute path
+	// search under `xdg.ConfigHome/tanzu-plugin/localPath` directory
+	if !filepath.IsAbs(path) {
+		path = filepath.Join(common.DefaultLocalPluginDistroDir, "distribution", path)
+	}
 	return &LocalArtifact{
 		Path: path,
 	}

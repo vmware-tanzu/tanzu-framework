@@ -12,6 +12,7 @@ type Artifact interface {
 }
 
 // NewURIArtifact creates new artifacts based on the URI
-func NewURIArtifact(path string) Artifact {
-	return nil
+func NewURIArtifact(uri string) Artifact {
+	// TODO: Support other artifact types
+	return NewLocalArtifact(uri)
 }

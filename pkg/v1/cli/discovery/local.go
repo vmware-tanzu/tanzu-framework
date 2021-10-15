@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 	apimachineryjson "k8s.io/apimachinery/pkg/runtime/serializer/json"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/distribution"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
@@ -25,6 +26,11 @@ type LocalDiscovery struct {
 
 // NewLocalDiscovery returns a new local repository.
 func NewLocalDiscovery(name, localPath string) Discovery {
+	// If path is not an absolute path
+	// search under `xdg.ConfigHome/tanzu-plugin/localPath` directory
+	if !filepath.IsAbs(localPath) {
+		localPath = filepath.Join(common.DefaultLocalPluginDistroDir, "discovery", localPath)
+	}
 	return &LocalDiscovery{
 		path: localPath,
 		name: name,

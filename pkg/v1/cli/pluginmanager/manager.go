@@ -41,10 +41,7 @@ const (
 	PluginScopeContext       = "Context"
 )
 
-var (
-	// PluginRoot is the plugin root where plugins are installed
-	pluginRoot = common.DefaultPluginRoot
-)
+var execCommand = exec.Command
 
 // ValidatePlugin validates the plugin descriptor.
 func ValidatePlugin(p *cliv1alpha1.PluginDescriptor) (err error) {
@@ -53,7 +50,7 @@ func ValidatePlugin(p *cliv1alpha1.PluginDescriptor) (err error) {
 		return nil
 	}
 	if p.Name == "" {
-		err = multierr.Append(err, fmt.Errorf("plugin %q name cannot be empty", p.Name))
+		err = multierr.Append(err, errors.New("plugin name cannot be empty"))
 	}
 	if p.Version == "" {
 		err = multierr.Append(err, fmt.Errorf("plugin %q version cannot be empty", p.Name))
@@ -104,6 +101,7 @@ func DiscoverStandalonePlugins() (plugins []plugin.Discovered, err error) {
 	if err != nil {
 		return
 	}
+
 	for i := range plugins {
 		plugins[i].Scope = PluginScopeStandalone
 		plugins[i].Status = PluginStatusNotInstalled
@@ -114,6 +112,10 @@ func DiscoverStandalonePlugins() (plugins []plugin.Discovered, err error) {
 // DiscoverServerPlugins returns the available plugins associated with the given server
 func DiscoverServerPlugins(serverName string) (plugins []plugin.Discovered, err error) {
 	plugins = []plugin.Discovered{}
+	if serverName == "" {
+		return
+	}
+
 	server, e := config.GetServer(serverName)
 	if e != nil {
 		return
@@ -142,6 +144,7 @@ func DiscoverPlugins(serverName string) (serverPlugins, standalonePlugins []plug
 		err = errors.Wrapf(err, "unable to discover server plugins")
 		return
 	}
+
 	// TODO(anuj): Remove duplicate plugins with server plugins getting higher priority
 	return
 }
@@ -196,17 +199,22 @@ func AvailablePlugins(serverName string) ([]plugin.Discovered, error) {
 
 // InstalledPlugins returns the installed plugins.
 func InstalledPlugins(serverName string, exclude ...string) (serverPlugins, standalonePlugins []cliv1alpha1.PluginDescriptor, err error) {
-	serverCatalog, err := catalog.NewContextCatalog(serverName)
+	var serverCatalog, standAloneCatalog *catalog.ContextCatalog
+
+	if serverName != "" {
+		serverCatalog, err = catalog.NewContextCatalog(serverName)
+		if err != nil {
+			return nil, nil, err
+		}
+		serverPlugins = serverCatalog.List()
+	}
+
+	standAloneCatalog, err = catalog.NewContextCatalog("")
 	if err != nil {
 		return nil, nil, err
 	}
-
-	standAloneCatalog, err := catalog.NewContextCatalog(serverName)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return serverCatalog.List(), standAloneCatalog.List(), nil
+	standalonePlugins = standAloneCatalog.List()
+	return
 }
 
 // DescribePlugin describes a plugin.
@@ -234,7 +242,7 @@ func InitializePlugin(serverName, pluginName string) error {
 		return errors.Wrapf(err, "could not get plugin path for plugin %q", pluginName)
 	}
 
-	b, err := exec.Command(descriptor.InstallationPath, "post-install").CombinedOutput() //nolint:gosec
+	b, err := execCommand(descriptor.InstallationPath, "post-install").CombinedOutput()
 
 	// Note: If user is installing old version of plugin than it is possible that
 	// the plugin does not implement post-install command. Ignoring the
@@ -289,7 +297,7 @@ func installOrUpgradePlugin(serverName string, p *plugin.Discovered, version str
 	}
 
 	pluginName := p.Name
-	pluginPath := filepath.Join(pluginRoot, pluginName, version)
+	pluginPath := filepath.Join(common.DefaultPluginRoot, pluginName, version)
 
 	err = os.MkdirAll(filepath.Dir(pluginPath), os.ModePerm)
 	if err != nil {
@@ -305,7 +313,7 @@ func installOrUpgradePlugin(serverName string, p *plugin.Discovered, version str
 		return errors.Wrap(err, "could not write file")
 	}
 
-	b, err = exec.Command(pluginPath, "info").Output()
+	b, err = execCommand(pluginPath, "info").Output()
 	if err != nil {
 		return errors.Wrapf(err, "could not describe plugin %q", pluginName)
 	}
@@ -315,6 +323,7 @@ func installOrUpgradePlugin(serverName string, p *plugin.Discovered, version str
 		return errors.Wrapf(err, "could not unmarshal plugin %q description", pluginName)
 	}
 	descriptor.InstallationPath = pluginPath
+	descriptor.Discovery = p.Source
 
 	c, err := catalog.NewContextCatalog(serverName)
 	if err != nil {
@@ -347,6 +356,8 @@ func DeletePlugin(serverName, pluginName string) error {
 		return fmt.Errorf("plugin %q could not be deleted from cache", pluginName)
 	}
 
+	// TODO: delete the plugin binary if it is not used by any server
+
 	return nil
 }
 
@@ -355,5 +366,5 @@ func Clean() error {
 	if err := catalog.CleanCatalogCache(); err != nil {
 		return errors.Errorf("Failed to clean the catalog cache %v", err)
 	}
-	return os.RemoveAll(pluginRoot)
+	return os.RemoveAll(common.DefaultPluginRoot)
 }

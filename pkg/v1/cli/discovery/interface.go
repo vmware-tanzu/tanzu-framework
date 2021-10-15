@@ -35,7 +35,7 @@ func CreateDiscoveryFromV1alpha1(pd v1alpha1.PluginDiscovery) (Discovery, error)
 		return NewOCIDiscovery(pd.OCI.Name, pd.OCI.Image), nil
 	}
 	if pd.Local != nil {
-		return NewLocalDiscovery(pd.Local.Name, pd.Local.ManifestPath), nil
+		return NewLocalDiscovery(pd.Local.Name, pd.Local.Path), nil
 	}
 	return nil, errors.New("unknown plugin discovery")
 }

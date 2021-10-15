@@ -144,8 +144,9 @@ type OCIDiscovery struct {
 	// Name is a name of the discovery
 	Name string `json:"name"`
 	// Image is an OCI compliant image. Which include DNS-compatible registry name,
-	// a valid URI path(MAY contain zero or more ‘/’) and a valid tag. Contains a manifest file
+	// a valid URI path(MAY contain zero or more ‘/’) and a valid tag.
 	// E.g., harbor.my-domain.local/tanzu-cli/plugins-manifest:latest
+	// Contains list of CLIPlugin API resources
 	Image string `json:"image"`
 }
 
@@ -181,8 +182,9 @@ type KubernetesDiscovery struct {
 type LocalDiscovery struct {
 	// Name is a name of the discovery
 	Name string `json:"name"`
-	// ManifestPath is a local path pointing to manifest file
-	ManifestPath string `json:"manifestPath"`
+	// Path is a local path pointing to directory
+	// containing a list of CLIPlugin API resources
+	Path string `json:"path"`
 }
 
 // PluginRepository is a CLI plugin repository
