@@ -17,7 +17,7 @@ review the following guidelines you'll need to follow in order to make a
 contribution.
 
 If you are interested in going beyond a single PR, take a look at our
-[Contribution Ladder](docs/contribution-ladder.md) and learn how to become a
+[Contribution Ladder](docs/community/contribution-ladder.md) and learn how to become a
 reviewer.
 
 ## Communication
