@@ -62,7 +62,7 @@ status: {}
 
 #@overlay/match by=overlay.subset({"kind":"Cluster"})
 ---
-apiVersion: cluster.x-k8s.io/v1alpha4
+apiVersion: cluster.x-k8s.io/v1beta1
 kind: Cluster
 metadata:
   name: #@ data.values.CLUSTER_NAME
@@ -82,11 +82,11 @@ metadata:
     tanzuKubernetesRelease: #@ data.values.KUBERNETES_RELEASE
 spec:
   infrastructureRef:
-    apiVersion: controlplane.cluster.x-k8s.io/v1alpha4
+    apiVersion: controlplane.cluster.x-k8s.io/v1beta1
     kind: ByoCluster
     name: #@ data.values.CLUSTER_NAME
   controlPlaneRef:
-    apiVersion: controlplane.cluster.x-k8s.io/v1alpha4
+    apiVersion: controlplane.cluster.x-k8s.io/v1beta1
     kind: KubeadmControlPlane
     name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
   clusterNetwork:
@@ -101,7 +101,7 @@ spec:
 
 #@overlay/match by=overlay.subset({"kind":"ByoCluster"})
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: ByoCluster
 metadata:
   name: #@ data.values.CLUSTER_NAME
@@ -118,7 +118,7 @@ spec:
 
 #@overlay/match by=overlay.subset({"kind": "ByoMachineTemplate", "metadata":{"name": "${ CLUSTER_NAME }-control-plane"}})
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: ByoMachineTemplate
 metadata:
   name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
@@ -128,7 +128,7 @@ spec:
 
 #@overlay/match by=overlay.subset({"kind":"KubeadmControlPlane"})
 ---
-apiVersion: controlplane.cluster.x-k8s.io/v1alpha4
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
 kind: KubeadmControlPlane
 metadata:
   name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
@@ -159,7 +159,7 @@ spec:
     #@ end
   machineTemplate:
     infrastructureRef:
-      apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
+      apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
       kind: ByoMachineTemplate
       name: byohcluster
   replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
@@ -167,7 +167,7 @@ spec:
 
 #@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate", "metadata":{"name": "${ CLUSTER_NAME }-md-0"}})
 ---
-apiVersion: bootstrap.cluster.x-k8s.io/v1alpha4
+apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
 kind: KubeadmConfigTemplate
 metadata:
   name: #@ "{}-md-0".format(data.values.CLUSTER_NAME)
