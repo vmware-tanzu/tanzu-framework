@@ -1,5 +1,5 @@
 ---
-apiVersion: cluster.x-k8s.io/v1alpha4
+apiVersion: cluster.x-k8s.io/v1beta1
 kind: Cluster
 metadata:
   name: '${ CLUSTER_NAME }'
@@ -15,15 +15,15 @@ spec:
       cidrBlocks:
       - '${ SERVICE_CIDR }'
   controlPlaneRef:
-    apiVersion: controlplane.cluster.x-k8s.io/v1alpha4
+    apiVersion: controlplane.cluster.x-k8s.io/v1beta1
     kind: KubeadmControlPlane
     name: '${ CLUSTER_NAME }-control-plane'
   infrastructureRef:
-    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
     kind: VSphereCluster
     name: '${ CLUSTER_NAME }'
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: ByoCluster
 metadata:
   name: '${ CLUSTER_NAME }'
@@ -33,7 +33,7 @@ spec:
     host: '${ VSPHERE_CONTROL_PLANE_ENDPOINT }'
     port: 6443
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: ByoMachineTemplate
 metadata:
   name: '${ CLUSTER_NAME }-control-plane'
@@ -42,7 +42,7 @@ spec:
   template:
     spec: {}
 ---
-apiVersion: controlplane.cluster.x-k8s.io/v1alpha4
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
 kind: KubeadmControlPlane
 metadata:
   name: '${ CLUSTER_NAME }-control-plane'
@@ -112,36 +112,24 @@ spec:
       nodeRegistration:
         criSocket: /var/run/containerd/containerd.sock
         kubeletExtraArgs:
-          cloud-provider: external
           tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
-        name: '{{ ds.meta_data.hostname }}'
     joinConfiguration:
       nodeRegistration:
         criSocket: /var/run/containerd/containerd.sock
         kubeletExtraArgs:
-          cloud-provider: external
           tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
-        name: '{{ ds.meta_data.hostname }}'
     preKubeadmCommands:
-    - hostname "{{ ds.meta_data.hostname }}"
     - echo "::1         ipv6-localhost ipv6-loopback" >/etc/hosts
     - echo "127.0.0.1   localhost" >>/etc/hosts
-    - echo "127.0.0.1   {{ ds.meta_data.hostname }}" >>/etc/hosts
-    - echo "{{ ds.meta_data.hostname }}" >/etc/hostname
-    users:
-    - name: capv
-      sshAuthorizedKeys:
-      - '${ VSPHERE_SSH_AUTHORIZED_KEY }'
-      sudo: ALL=(ALL) NOPASSWD:ALL
   machineTemplate:
     infrastructureRef:
-      apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
+      apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
       kind: ByoMachineTemplate
       name: byohcluster
   replicas: ${ CONTROL_PLANE_MACHINE_COUNT }
   version: '${ KUBERNETES_VERSION }'
 ---
-apiVersion: bootstrap.cluster.x-k8s.io/v1alpha4
+apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
 kind: KubeadmConfigTemplate
 metadata:
   name: '${ CLUSTER_NAME }-md-0'
@@ -154,7 +142,6 @@ spec:
         nodeRegistration:
           criSocket: /var/run/containerd/containerd.sock
           kubeletExtraArgs:
-            cloud-provider: external
             tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
           name: '{{ ds.meta_data.hostname }}'
       preKubeadmCommands:
@@ -170,7 +157,7 @@ spec:
         - '${ VSPHERE_SSH_AUTHORIZED_KEY }'
         sudo: ALL=(ALL) NOPASSWD:ALL
 ---
-apiVersion: cluster.x-k8s.io/v1alpha4
+apiVersion: cluster.x-k8s.io/v1beta1
 kind: MachineDeployment
 metadata:
   labels:
@@ -191,13 +178,13 @@ spec:
     spec:
       bootstrap:
         configRef:
-          apiVersion: bootstrap.cluster.x-k8s.io/v1alpha4
+          apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
           kind: KubeadmConfigTemplate
           name: '${ CLUSTER_NAME }-md-0'
       clusterName: '${ CLUSTER_NAME }'
       infrastructureRef:
-        apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
-        kind: VSphereMachineTemplate
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: ByoMachineTemplate
         name: '${ CLUSTER_NAME }-worker'
       version: '${ KUBERNETES_VERSION }'
 ---
@@ -207,5 +194,4 @@ metadata:
   name: '${ CLUSTER_NAME }'
   namespace: '${ NAMESPACE }'
 stringData:
-  username: '${ VSPHERE_USERNAME }'
-  password: '${ VSPHERE_PASSWORD }'
+
