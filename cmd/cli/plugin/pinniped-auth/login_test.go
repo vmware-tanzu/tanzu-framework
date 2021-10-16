@@ -6,6 +6,8 @@ package main
 import (
 	"bytes"
 	"errors"
+	"fmt"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -13,7 +15,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func Test_loginoidcCmd(t *testing.T) {
+//nolint:funlen
+func TestLoginOIDCCommand(t *testing.T) {
+	sessionsCacheFilePath := filepath.Join(mustGetConfigDir(), "sessions.yaml")
 	tests := []struct {
 		name            string
 		args            []string
@@ -21,8 +25,7 @@ func Test_loginoidcCmd(t *testing.T) {
 		wantError       bool
 		wantStdout      string
 		wantStderr      string
-		wantIssuer      string
-		wantClientID    string
+		wantArgs        []string
 	}{
 		{
 			name:      "missing required flags",
@@ -33,57 +36,166 @@ func Test_loginoidcCmd(t *testing.T) {
 			`),
 		},
 		{
-			name: "cli exec returns error",
+			name: "cli exec returns error from login",
 			args: []string{
-				"--client-id", "test-client-id",
 				"--issuer", "test-issuer",
 			},
-			wantIssuer:      "--issuer=test-issuer",
-			wantClientID:    "--client-id=test-client-id",
 			execReturnError: errors.New("pinniped cli exec fake error"),
 			wantError:       true,
 			wantStderr: Doc(`
 			Error: pinniped-auth login failed: pinniped cli exec fake error
 			`),
+			wantArgs: []string{
+				"login",
+				"oidc",
+				"--issuer=test-issuer",
+				"--client-id=pinniped-cli",
+				"--listen-port=0",
+				"--skip-browser=false",
+				fmt.Sprintf("--session-cache=%s", sessionsCacheFilePath),
+				"--debug-session-cache=false",
+				"--scopes=offline_access, openid, pinniped:request-audience",
+				"--ca-bundle=",
+				"--ca-bundle-data=",
+				"--request-audience=",
+				"--enable-concierge=false",
+				"--concierge-namespace=pinniped-concierge",
+				"--concierge-authenticator-type=",
+				"--concierge-authenticator-name=",
+				"--concierge-endpoint=",
+				"--concierge-ca-bundle-data=",
+			},
 		},
 		{
-			name: "success- test options are populated correctly",
+			name: "test options allow multiple values",
 			args: []string{
-				"--client-id", "test-client-id",
+				"--issuer", "test-issuer",
+				"--scopes", "offline_access, openid",
+				"--ca-bundle", "/some/path, /another/path",
+				"--ca-bundle-data", "somebase64encodeddata, morebase64encodeddata",
+			},
+			wantArgs: []string{
+				"login",
+				"oidc",
+				"--issuer=test-issuer",
+				"--client-id=pinniped-cli",
+				"--listen-port=0",
+				"--skip-browser=false",
+				fmt.Sprintf("--session-cache=%s", sessionsCacheFilePath),
+				"--debug-session-cache=false",
+				"--scopes=offline_access, openid",
+				"--ca-bundle=/some/path, /another/path",
+				"--ca-bundle-data=somebase64encodeddata, morebase64encodeddata",
+				"--request-audience=",
+				"--enable-concierge=false",
+				"--concierge-namespace=pinniped-concierge",
+				"--concierge-authenticator-type=",
+				"--concierge-authenticator-name=",
+				"--concierge-endpoint=",
+				"--concierge-ca-bundle-data=",
+			},
+		},
+		{
+			name: "test options are populated correctly with defaults",
+			args: []string{
 				"--issuer", "test-issuer",
 			},
-			wantIssuer:   "--issuer=test-issuer",
-			wantClientID: "--client-id=test-client-id",
+			wantArgs: []string{
+				"login",
+				"oidc",
+				"--issuer=test-issuer",
+				"--client-id=pinniped-cli",
+				"--listen-port=0",
+				"--skip-browser=false",
+				fmt.Sprintf("--session-cache=%s", sessionsCacheFilePath),
+				"--debug-session-cache=false",
+				"--scopes=offline_access, openid, pinniped:request-audience",
+				"--ca-bundle=",
+				"--ca-bundle-data=",
+				"--request-audience=",
+				"--enable-concierge=false",
+				"--concierge-namespace=pinniped-concierge",
+				"--concierge-authenticator-type=",
+				"--concierge-authenticator-name=",
+				"--concierge-endpoint=",
+				"--concierge-ca-bundle-data=",
+			},
+		},
+		{
+			name: "test options are populated correctly with given user values",
+			args: []string{
+				"--issuer", "different-issuer",
+				"--client-id", "test-client",
+				"--listen-port", "3737",
+				"--skip-browser", "true",
+				"--debug-session-cache", "true",
+				"--scopes", "openid",
+				"--session-cache", "/some/path",
+				"--ca-bundle", "/some/path",
+				"--ca-bundle-data", "somebase64encodeddata",
+				"--request-audience", "alternateaudience",
+				"--enable-concierge", "true",
+				"--concierge-namespace", "test-namespace",
+				"--concierge-authenticator-type", "webhook",
+				"--concierge-authenticator-name", "concierge-authenticator",
+				"--concierge-endpoint", "test-endpoint",
+				"--concierge-ca-bundle-data", "test-bundle",
+				"--concierge-api-group-suffix", "tuna.io",
+				"--concierge-is-cluster-scoped", "true",
+			},
+			wantArgs: []string{
+				"login",
+				"oidc",
+				"--issuer=different-issuer",
+				"--client-id=test-client",
+				"--listen-port=3737",
+				"--skip-browser=true",
+				"--session-cache=/some/path",
+				"--debug-session-cache=true",
+				"--scopes=openid",
+				"--ca-bundle=/some/path",
+				"--ca-bundle-data=somebase64encodeddata",
+				"--request-audience=alternateaudience",
+				"--enable-concierge=true",
+				"--concierge-namespace=test-namespace",
+				"--concierge-authenticator-type=webhook",
+				"--concierge-authenticator-name=concierge-authenticator",
+				"--concierge-endpoint=test-endpoint",
+				"--concierge-ca-bundle-data=test-bundle",
+			},
 		},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			var (
-				gotIssuer   string
-				gotClientID string
-			)
-			cmd := loginoidcCmd(func(execargs []string) error {
-				gotIssuer = execargs[2]
-				gotClientID = execargs[3]
 
-				return tt.execReturnError
+	for _, test := range tests {
+		test := test
+		// Resetting and setting the flags again is necessary in these tests to ensure new
+		// flags get picked up
+		loginCommand.ResetFlags()
+		setLoginCommandFlags()
+		t.Run(test.name, func(t *testing.T) {
+			var (
+				gotArgs []string
+			)
+			cmd := loginOIDCCommand(func(args []string) error {
+				gotArgs = args
+
+				return test.execReturnError
 			})
 			require.NotNil(t, cmd)
 
 			var stdout, stderr bytes.Buffer
 			cmd.SetOut(&stdout)
 			cmd.SetErr(&stderr)
-			cmd.SetArgs(tt.args)
+			cmd.SetArgs(test.args)
 			err := cmd.Execute()
-			if tt.wantError {
+			if test.wantError {
 				require.Error(t, err)
 			} else {
 				require.NoError(t, err)
 			}
-			require.Equal(t, tt.wantStdout, stdout.String(), "unexpected stdout")
-			require.Equal(t, tt.wantStderr, stderr.String(), "unexpected stderr")
-			require.Equal(t, tt.wantIssuer, gotIssuer, "unexpected issuer")
-			require.Equal(t, tt.wantClientID, gotClientID, "unexpected client ID")
+			require.Equal(t, test.wantStdout, stdout.String(), "unexpected stdout")
+			require.Equal(t, test.wantStderr, stderr.String(), "unexpected stderr")
+			require.Equal(t, test.wantArgs, gotArgs, "Given CLI arguments did not match actual CLI arguments")
 		})
 	}
 }

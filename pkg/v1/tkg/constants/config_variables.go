@@ -137,6 +137,9 @@ const (
 
 	ConfigVariableIPFamily = "TKG_IP_FAMILY"
 
+	ConfigVariableControlPlaneNodeNameservers = "CONTROL_PLANE_NODE_NAMESERVERS"
+	ConfigVariableWorkerNodeNameservers       = "WORKER_NODE_NAMESERVERS"
+
 	// Below config variables are added based on init and create command flags
 
 	ConfigVariableClusterPlan             = "CLUSTER_PLAN"

@@ -404,6 +404,10 @@ TKG_NO_PROXY: ""
 #! IP Family setting
 TKG_IP_FAMILY:
 
+#! Node Nameservers (currently only supports the vSphere provider)
+CONTROL_PLANE_NODE_NAMESERVERS:
+WORKER_NODE_NAMESERVERS:
+
 #! Audit Logging settings
 ENABLE_AUDIT_LOGGING: false
 
