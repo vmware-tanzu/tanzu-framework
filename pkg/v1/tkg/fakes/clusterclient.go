@@ -604,6 +604,18 @@ type ClusterClient struct {
 	listResourcesReturnsOnCall map[int]struct {
 		result1 error
 	}
+	ListUndeleteableResourcesStub        func() ([]string, error)
+	listUndeleteableResourcesMutex       sync.RWMutex
+	listUndeleteableResourcesArgsForCall []struct {
+	}
+	listUndeleteableResourcesReturns struct {
+		result1 []string
+		result2 error
+	}
+	listUndeleteableResourcesReturnsOnCall map[int]struct {
+		result1 []string
+		result2 error
+	}
 	LoadCurrentKubeconfigBytesStub        func() ([]byte, error)
 	loadCurrentKubeconfigBytesMutex       sync.RWMutex
 	loadCurrentKubeconfigBytesArgsForCall []struct {
@@ -3853,6 +3865,62 @@ func (fake *ClusterClient) ListResourcesReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
+func (fake *ClusterClient) ListUndeleteableResources() ([]string, error) {
+	fake.listUndeleteableResourcesMutex.Lock()
+	ret, specificReturn := fake.listUndeleteableResourcesReturnsOnCall[len(fake.listUndeleteableResourcesArgsForCall)]
+	fake.listUndeleteableResourcesArgsForCall = append(fake.listUndeleteableResourcesArgsForCall, struct {
+	}{})
+	stub := fake.ListUndeleteableResourcesStub
+	fakeReturns := fake.listUndeleteableResourcesReturns
+	fake.recordInvocation("ListUndeleteableResources", []interface{}{})
+	fake.listUndeleteableResourcesMutex.Unlock()
+	if stub != nil {
+		return stub()
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *ClusterClient) ListUndeleteableResourcesCallCount() int {
+	fake.listUndeleteableResourcesMutex.RLock()
+	defer fake.listUndeleteableResourcesMutex.RUnlock()
+	return len(fake.listUndeleteableResourcesArgsForCall)
+}
+
+func (fake *ClusterClient) ListUndeleteableResourcesCalls(stub func() ([]string, error)) {
+	fake.listUndeleteableResourcesMutex.Lock()
+	defer fake.listUndeleteableResourcesMutex.Unlock()
+	fake.ListUndeleteableResourcesStub = stub
+}
+
+func (fake *ClusterClient) ListUndeleteableResourcesReturns(result1 []string, result2 error) {
+	fake.listUndeleteableResourcesMutex.Lock()
+	defer fake.listUndeleteableResourcesMutex.Unlock()
+	fake.ListUndeleteableResourcesStub = nil
+	fake.listUndeleteableResourcesReturns = struct {
+		result1 []string
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *ClusterClient) ListUndeleteableResourcesReturnsOnCall(i int, result1 []string, result2 error) {
+	fake.listUndeleteableResourcesMutex.Lock()
+	defer fake.listUndeleteableResourcesMutex.Unlock()
+	fake.ListUndeleteableResourcesStub = nil
+	if fake.listUndeleteableResourcesReturnsOnCall == nil {
+		fake.listUndeleteableResourcesReturnsOnCall = make(map[int]struct {
+			result1 []string
+			result2 error
+		})
+	}
+	fake.listUndeleteableResourcesReturnsOnCall[i] = struct {
+		result1 []string
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *ClusterClient) LoadCurrentKubeconfigBytes() ([]byte, error) {
 	fake.loadCurrentKubeconfigBytesMutex.Lock()
 	ret, specificReturn := fake.loadCurrentKubeconfigBytesReturnsOnCall[len(fake.loadCurrentKubeconfigBytesArgsForCall)]
@@ -6153,6 +6221,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.listPacificClusterObjectsMutex.RUnlock()
 	fake.listResourcesMutex.RLock()
 	defer fake.listResourcesMutex.RUnlock()
+	fake.listUndeleteableResourcesMutex.RLock()
+	defer fake.listUndeleteableResourcesMutex.RUnlock()
 	fake.loadCurrentKubeconfigBytesMutex.RLock()
 	defer fake.loadCurrentKubeconfigBytesMutex.RUnlock()
 	fake.mergeAndUseConfigForClusterMutex.RLock()
