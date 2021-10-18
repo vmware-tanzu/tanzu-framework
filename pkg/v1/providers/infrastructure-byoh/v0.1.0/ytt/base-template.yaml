@@ -30,7 +30,7 @@ metadata:
   namespace: '${ NAMESPACE }'
 spec:
   controlPlaneEndpoint:
-    host: '${ VSPHERE_CONTROL_PLANE_ENDPOINT }'
+    host: '${ BYOH_CONTROL_PLANE_ENDPOINT }'
     port: 6443
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
@@ -51,6 +51,7 @@ spec:
   kubeadmConfigSpec:
     useExperimentalRetryJoin: true
     clusterConfiguration:
+      kubernetesVersion: '${ KUBERNETES_VERSION }'
       apiServer:
         timeoutForControlPlane: "8m0s"
         certSANs:
@@ -78,9 +79,9 @@ spec:
             - name: vip_leaderelection
               value: "true"
             - name: address
-              value: '${ VSPHERE_CONTROL_PLANE_ENDPOINT }'
+              value: '{{ .DefaultNetworkName }}'
             - name: vip_interface
-              value: '${ VIP_NETWORK_INTERFACE }'
+              value: '{{ .DefaultNetworkName }}'
             - name: vip_leaseduration
               value: "30"
             - name: vip_renewdeadline
@@ -112,15 +113,14 @@ spec:
       nodeRegistration:
         criSocket: /var/run/containerd/containerd.sock
         kubeletExtraArgs:
-          tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+          cgroup-driver: cgroupfs
+          eviction-hard: nodefs.available<0%,nodefs.inodesFree<0%,imagefs.available<0%
     joinConfiguration:
       nodeRegistration:
         criSocket: /var/run/containerd/containerd.sock
         kubeletExtraArgs:
-          tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
-    preKubeadmCommands:
-    - echo "::1         ipv6-localhost ipv6-loopback" >/etc/hosts
-    - echo "127.0.0.1   localhost" >>/etc/hosts
+          cgroup-driver: cgroupfs
+          eviction-hard: nodefs.available<0%,nodefs.inodesFree<0%,imagefs.available<0%
   machineTemplate:
     infrastructureRef:
       apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
@@ -144,13 +144,6 @@ spec:
           kubeletExtraArgs:
             tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
           name: '{{ ds.meta_data.hostname }}'
-      preKubeadmCommands:
-      - hostname "{{ ds.meta_data.hostname }}"
-      - echo "::1         ipv6-localhost ipv6-loopback" >/etc/hosts
-      - echo "127.0.0.1   localhost" >>/etc/hosts
-      - echo "127.0.0.1   {{ ds.meta_data.hostname }}" >>/etc/hosts
-      - echo "{{ ds.meta_data.hostname }}" >/etc/hostname
-      files: []
       users:
       - name: capv
         sshAuthorizedKeys:
@@ -171,10 +164,6 @@ spec:
     matchLabels:
       cluster.x-k8s.io/cluster-name: '${ CLUSTER_NAME }'
   template:
-    metadata:
-      labels:
-        cluster.x-k8s.io/cluster-name: '${ CLUSTER_NAME }'
-        node-pool: "${CLUSTER_NAME}-worker-pool"
     spec:
       bootstrap:
         configRef:
@@ -193,5 +182,4 @@ kind: Secret
 metadata:
   name: '${ CLUSTER_NAME }'
   namespace: '${ NAMESPACE }'
-stringData:
 
