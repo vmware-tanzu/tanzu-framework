@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/aunum/log"
 	"github.com/pkg/errors"
@@ -434,13 +435,29 @@ func EndpointFromServer(s *configv1alpha1.Server) (endpoint string, err error) {
 }
 
 // IsContextAwareDiscoveryEnabled returns true if context-aware discovery is enabled
+// User can set this CLI feature flag using `tanzu config set features.global.use-context-aware-discovery true`
+// This determines whether to use legacy way of discovering plugins or
+// to use the new context-aware Plugin API based plugin discovery mechanism
 func IsContextAwareDiscoveryEnabled() bool {
+	contextAwareDiscoveryEnabled := false // Default value is set to false
+
 	cfg, err := GetClientConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
-	if cfg == nil || cfg.ClientOptions == nil || cfg.ClientOptions.CLI == nil {
-		return false
+	if cfg == nil || cfg.ClientOptions == nil {
+		return contextAwareDiscoveryEnabled
 	}
-	return cfg.ClientOptions.CLI.UseContextAwareDiscovery
+
+	fm, exists := cfg.ClientOptions.Features["global"]
+	if !exists {
+		return contextAwareDiscoveryEnabled
+	}
+
+	contextAwareDiscoveryEnabledString, exists := fm["use-context-aware-discovery"]
+	if !exists {
+		return contextAwareDiscoveryEnabled
+	}
+
+	return strings.EqualFold(contextAwareDiscoveryEnabledString, "true")
 }

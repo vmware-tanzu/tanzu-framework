@@ -106,9 +106,6 @@ type CLIOptions struct {
 	DiscoverySources []PluginDiscovery `json:"discoverySources,omitempty" yaml:"discoverySources"`
 	// UnstableVersionSelector determined which version tags are allowed
 	UnstableVersionSelector VersionSelectorLevel `json:"unstableVersionSelector,omitempty" yaml:"unstableVersionSelector"`
-	// UseContextAwareDiscovery determines whether to use legacy way of discovering plugins or
-	// to use the new context-aware Plugin API based plugin discovery mechanism
-	UseContextAwareDiscovery bool `json:"useContextAwareDiscovery,omitempty" yaml:"useContextAwareDiscovery"`
 }
 
 // PluginDiscovery contains a specific distribution mechanism. Only one of the
