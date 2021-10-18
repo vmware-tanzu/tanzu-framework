@@ -120,7 +120,7 @@ func setFeature(cfg *configv1alpha1.ClientConfig, pathParam, value string) error
 	// parse the param
 	paramArray := strings.Split(pathParam, ".")
 	if len(paramArray) != 3 {
-		return errors.New("unable to parse config path parameter three parts [" + pathParam + "]  (was expecting features.<plugin>.<feature>)")
+		return errors.New("unable to parse config path parameter into three parts [" + pathParam + "]  (was expecting features.<plugin>.<feature>)")
 	}
 
 	featuresLiteral := paramArray[0]
