@@ -79,7 +79,7 @@ type VSphereNodePool struct {
 	NumCPUs           int32  `yaml:"numCPUs,omitempty"`
 }
 
-// SetMachineDeployment sets a MachineDeployment on a cluster
+// SetMachineDeployment sets a MachineDeployment on a cluster.
 func (c *TkgClient) SetMachineDeployment(options *SetMachineDeploymentOptions) error {
 	clusterClient, err := c.getClusterClient()
 	if err != nil {
@@ -404,6 +404,11 @@ func (c *TkgClient) GetMachineDeployments(options GetMachineDeploymentOptions) (
 		return nil, errors.Wrap(err, "Unable to create clusterclient")
 	}
 
+	return c.DoGetMachineDeployments(clusterClient, &options)
+}
+
+// DoGetMachineDeployments retrieves machine deployments for a cluster given a regional cluster client
+func (c *TkgClient) DoGetMachineDeployments(clusterClient clusterclient.Client, options *GetMachineDeploymentOptions) ([]capi.MachineDeployment, error) {
 	workers, err := clusterClient.GetMDObjectForCluster(options.ClusterName, options.Namespace)
 	if err != nil || len(workers) == 0 {
 		return nil, errors.Wrap(err, "unable to get worker machine deployments")
