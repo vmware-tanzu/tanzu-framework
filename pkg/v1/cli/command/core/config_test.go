@@ -62,25 +62,27 @@ func Test_config_InvalidUnstableVersions(t *testing.T) {
 // Test_config_GlobalFeature validates functionality when global feature path argument is provided.
 func Test_config_GlobalFeature(t *testing.T) {
 	cfg := &configv1alpha1.ClientConfig{}
-	err := setFeature(cfg, "features.global.foo", "bar")
+	value := "bar"
+	err := setFeature(cfg, "features.global.foo", value)
 	if err != nil {
 		t.Errorf("Unexpected error returned for global features path argument: %s", err.Error())
 	}
 
-	if cfg.ClientOptions.Features["global"]["foo"] != "bar" {
-		t.Error("cfg.ClientOptions.Features[\"global\"][\"foo\"] was not assigned the value \"bar\"")
+	if cfg.ClientOptions.Features["global"]["foo"] != value {
+		t.Error("cfg.ClientOptions.Features[\"global\"][\"foo\"] was not assigned the value \"" + value + "\"")
 	}
 }
 
 // Test_config_Feature validates functionality when normal feature path argument is provided.
 func Test_config_Feature(t *testing.T) {
 	cfg := &configv1alpha1.ClientConfig{}
-	err := setFeature(cfg, "features.any-plugin.foo", "bar")
+	value := "barr"
+	err := setFeature(cfg, "features.any-plugin.foo", value)
 	if err != nil {
 		t.Errorf("Unexpected error returned for any-plugin features path argument: %s", err.Error())
 	}
 
-	if cfg.ClientOptions.Features["any-plugin"]["foo"] != "bar" {
-		t.Error("cfg.ClientOptions.Features[\"any-plugin\"][\"foo\"] was not assigned the value \"bar\"")
+	if cfg.ClientOptions.Features["any-plugin"]["foo"] != value {
+		t.Error("cfg.ClientOptions.Features[\"any-plugin\"][\"foo\"] was not assigned the value \"" + value + "\"")
 	}
 }
