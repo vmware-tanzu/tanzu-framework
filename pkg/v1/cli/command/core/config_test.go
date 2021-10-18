@@ -4,9 +4,10 @@
 package core
 
 import (
-	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"strings"
 	"testing"
+
+	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 )
 
 // Test_config_MalformedPathArg validates functionality when an invalid argument is provided.
