@@ -183,16 +183,6 @@ func (c *TkgClient) UpgradeCluster(options *UpgradeClusterOptions) error { // no
 		}
 	}
 
-	log.Info("Waiting for additional components to be up and running...")
-	if err := c.WaitForAddonsDeployments(regionalClusterClient); err != nil {
-		return err
-	}
-
-	log.Info("Waiting for packages to be up and running...")
-	if err := c.WaitForPackages(regionalClusterClient, currentClusterClient, options.ClusterName, options.Namespace); err != nil {
-		log.Warningf("Warning: Management cluster is upgraded successfully, but some packages are failing. %v", err)
-	}
-
 	err = c.DoClusterUpgrade(regionalClusterClient, currentClusterClient, options)
 	if err != nil {
 		return err
@@ -204,6 +194,16 @@ func (c *TkgClient) UpgradeCluster(options *UpgradeClusterOptions) error { // no
 		if err != nil {
 			return errors.Wrapf(err, "failed to upgrade autoscaler for cluster '%s'", options.ClusterName)
 		}
+	}
+
+	log.Info("Waiting for additional components to be up and running...")
+	if err := c.WaitForAddonsDeployments(regionalClusterClient); err != nil {
+		return err
+	}
+
+	log.Info("Waiting for packages to be up and running...")
+	if err := c.WaitForPackages(regionalClusterClient, currentClusterClient, options.ClusterName, options.Namespace); err != nil {
+		log.Warningf("Warning: Management cluster is upgraded successfully, but some packages are failing. %v", err)
 	}
 
 	return nil

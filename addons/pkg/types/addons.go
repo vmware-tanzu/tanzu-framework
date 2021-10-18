@@ -49,6 +49,11 @@ type ImageInfo struct {
 	Images map[string]Image `yaml:"images,omitempty"`
 }
 
+// KubernetesVersionInfo contains tanzuKubernetesRelease version info
+type KubernetesVersionInfo struct {
+	KubernetesVersion string `yaml:"kubernetesVersion"`
+}
+
 // Image contains the image information
 type Image struct {
 	ImagePath string `yaml:"imagePath"`

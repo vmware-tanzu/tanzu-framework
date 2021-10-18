@@ -7,6 +7,10 @@ import (
 	"context"
 	"fmt"
 
+	"gopkg.in/yaml.v2"
+
+	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
+
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -48,6 +52,24 @@ func GetBOMByTKRName(ctx context.Context, c client.Client, tkrName string) (*bom
 // GetTKRNameFromBOMConfigMap returns tkr name given a bom configmap
 func GetTKRNameFromBOMConfigMap(bomConfigMap *corev1.ConfigMap) string {
 	return bomConfigMap.Labels[constants.TKRLabel]
+}
+
+// GetTKGVersionInfo returns kubernetes version info given a BOM
+func GetKubernetesVersionInfo(bom *bomtypes.Bom) ([]byte, error) {
+	kubeadmConfig, err := bom.GetKubeadmConfigSpec()
+	if err != nil {
+		return nil, err
+	}
+	TKRVersionInfo := &addontypes.KubernetesVersionInfo{KubernetesVersion: kubeadmConfig.KubernetesVersion}
+
+	TKRVersionBytes, err := yaml.Marshal(TKRVersionInfo)
+	if err != nil {
+		return nil, err
+	}
+
+	outputBytes := append([]byte(constants.TKGDataValueFormatString), TKRVersionBytes...)
+
+	return outputBytes, nil
 }
 
 // GetAddonImageRepository returns imageRepository from configMap `tkr-controller-config` in namespace `tkr-system` if exists else use BOM
