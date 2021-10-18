@@ -7,24 +7,34 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/pkg/errors"
 
+	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	featuresclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/features"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/edition"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/features"
 )
 
 // GetFeatureFlags handles requests to GET features
 func (app *App) GetFeatureFlags(params features.GetFeatureFlagsParams) middleware.Responder {
-	featuresClient, err := featuresclient.New(app.AppConfig.TKGConfigDir, "")
+	cfg, err := config.GetClientConfig()
 	if err != nil {
-		return features.NewGetFeatureFlagsInternalServerError().WithPayload(Err(errors.Wrap(err, "unable to get feature flags client")))
+		return features.NewGetFeatureFlagsInternalServerError().WithPayload(Err(errors.Wrap(err, "unable to get client configuration")))
 	}
-
-	featureFlags, err := featuresClient.GetFeatureFlags()
-	if err != nil {
-		return features.NewGetFeatureFlagsInternalServerError().WithPayload(Err(errors.Wrap(err, "unable to get feature flags")))
+	payload := models.Features{}
+	for pluginName, featureMap := range cfg.ClientOptions.Features {
+		payload[pluginName] = convertFeatureMap(featureMap)
 	}
+	return features.NewGetFeatureFlagsOK().WithPayload(payload)
+}
 
-	return features.NewGetFeatureFlagsOK().WithPayload(featureFlags)
+// convertFeatureMap converts a config file v1alpha1.FeatureMap to payload models.FeatureMap both of which are just hash maps
+func convertFeatureMap(featureMap v1alpha1.FeatureMap) models.FeatureMap {
+	result := models.FeatureMap{}
+	for key, value := range featureMap {
+		result[key] = value
+	}
+	return result
 }
 
 // GetTanzuEdition returns the Tanzu edition

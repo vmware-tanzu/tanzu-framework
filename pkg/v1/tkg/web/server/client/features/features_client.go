@@ -27,7 +27,7 @@ type Client struct {
 }
 
 /*
-GetFeatureFlags retrieves list of enabled hidden features
+GetFeatureFlags retrieves list of features
 */
 func (a *Client) GetFeatureFlags(params *GetFeatureFlagsParams) (*GetFeatureFlagsOK, error) {
 	// TODO: Validate the params before sending

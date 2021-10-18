@@ -64,14 +64,14 @@ func NewGetFeatureFlagsOK() *GetFeatureFlagsOK {
 Successful retrieval of feature flags
 */
 type GetFeatureFlagsOK struct {
-	Payload map[string]string
+	Payload models.Features
 }
 
 func (o *GetFeatureFlagsOK) Error() string {
 	return fmt.Sprintf("[GET /api/features][%d] getFeatureFlagsOK  %+v", 200, o.Payload)
 }
 
-func (o *GetFeatureFlagsOK) GetPayload() map[string]string {
+func (o *GetFeatureFlagsOK) GetPayload() models.Features {
 	return o.Payload
 }
 
