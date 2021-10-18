@@ -393,9 +393,11 @@ func TestRecreateIDPForDex(t *testing.T) {
 // nolint:funlen
 func TestCreateOrUpdatePinnipedInfo(t *testing.T) {
 	pinnipedInfo := PinnipedInfo{
-		MgmtClusterName:    "some-cluster-name",
-		Issuer:             "some-issuer",
-		IssuerCABundleData: "some-issuer-ca-bundle-data",
+		MgmtClusterName:                  "some-cluster-name",
+		Issuer:                           "some-issuer",
+		IssuerCABundleData:               "some-issuer-ca-bundle-data",
+		PinnipedAPIGroupSuffix:           "tuna.io",
+		PinnipedConciergeIsClusterScoped: true,
 	}
 
 	configMapGVR := corev1.SchemeGroupVersion.WithResource("configmaps")
@@ -406,9 +408,11 @@ func TestCreateOrUpdatePinnipedInfo(t *testing.T) {
 			Name:      "pinniped-info",
 		},
 		Data: map[string]string{
-			"cluster_name":          pinnipedInfo.MgmtClusterName,
-			"issuer":                pinnipedInfo.Issuer,
-			"issuer_ca_bundle_data": pinnipedInfo.IssuerCABundleData,
+			"cluster_name":                         pinnipedInfo.MgmtClusterName,
+			"issuer":                               pinnipedInfo.Issuer,
+			"issuer_ca_bundle_data":                pinnipedInfo.IssuerCABundleData,
+			"pinniped_api_group_suffix":            pinnipedInfo.PinnipedAPIGroupSuffix,
+			"pinniped_concierge_is_cluster_scoped": fmt.Sprintf("%t", pinnipedInfo.PinnipedConciergeIsClusterScoped),
 		},
 	}
 
@@ -460,6 +464,25 @@ func TestCreateOrUpdatePinnipedInfo(t *testing.T) {
 		{
 			name: "pinniped info exists and is up to date",
 			newKubeClient: func() *kubefake.Clientset {
+				return kubefake.NewSimpleClientset(pinnipedInfoConfigMap)
+			},
+			wantActions: []kubetesting.Action{
+				kubetesting.NewGetAction(configMapGVR, pinnipedInfoConfigMap.Namespace, pinnipedInfoConfigMap.Name),
+				kubetesting.NewGetAction(configMapGVR, pinnipedInfoConfigMap.Namespace, pinnipedInfoConfigMap.Name),
+				kubetesting.NewUpdateAction(configMapGVR, pinnipedInfoConfigMap.Namespace, pinnipedInfoConfigMap),
+			},
+		},
+		{
+			name: "pinniped info exists and is not up to date",
+			newKubeClient: func() *kubefake.Clientset {
+				existingPinnipedInfoConfigMap := pinnipedInfoConfigMap.DeepCopy()
+				existingPinnipedInfoConfigMap.Data = map[string]string{
+					"cluster_name":                         "some-wrong-cluster-name",
+					"issuer":                               "some-wrong-issuer",
+					"issuer_ca_bundle_data":                "some-wrong-issuer-ca-bundle-data",
+					"pinniped_api_group_suffix":            "some-wrong-pinniped-api-group-suffix",
+					"pinniped_concierge_is_cluster_scoped": "false",
+				}
 				return kubefake.NewSimpleClientset(pinnipedInfoConfigMap)
 			},
 			wantActions: []kubetesting.Action{

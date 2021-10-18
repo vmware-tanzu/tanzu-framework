@@ -34,9 +34,11 @@ type Configurator struct {
 
 // PinnipedInfo contains settings for the supervisor.
 type PinnipedInfo struct {
-	MgmtClusterName    string
-	Issuer             string
-	IssuerCABundleData string
+	MgmtClusterName                  string
+	Issuer                           string
+	IssuerCABundleData               string
+	PinnipedAPIGroupSuffix           string
+	PinnipedConciergeIsClusterScoped bool
 }
 
 // CreateOrUpdateFederationDomain creates a new federation domain or updates an existing one.
@@ -168,9 +170,11 @@ func (c Configurator) CreateOrUpdatePinnipedInfo(ctx context.Context, pinnipedIn
 			Namespace: constants.KubePublicNamespace,
 		},
 		Data: map[string]string{
-			"cluster_name":          pinnipedInfo.MgmtClusterName,
-			"issuer":                pinnipedInfo.Issuer,
-			"issuer_ca_bundle_data": pinnipedInfo.IssuerCABundleData,
+			"cluster_name":                         pinnipedInfo.MgmtClusterName,
+			"issuer":                               pinnipedInfo.Issuer,
+			"issuer_ca_bundle_data":                pinnipedInfo.IssuerCABundleData,
+			"pinniped_api_group_suffix":            pinnipedInfo.PinnipedAPIGroupSuffix,
+			"pinniped_concierge_is_cluster_scoped": fmt.Sprintf("%t", pinnipedInfo.PinnipedConciergeIsClusterScoped),
 		},
 	}
 
