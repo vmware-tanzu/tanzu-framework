@@ -371,7 +371,7 @@
                 <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                     <clr-input-container [attr.data-step-metadata]="formName">
                         <label>
-                            FILTER (OPTIONAL)
+                            FILTER
                             <clr-tooltip>
                                 <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                 <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -391,6 +391,7 @@
                                name="userSearchFilter"/>
                         <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                         <clr-control-helper></clr-control-helper>
+                        <clr-control-error>User search criteria is required</clr-control-error>
                     </clr-input-container>
                 </div>
 
@@ -398,7 +399,7 @@
                 <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                     <clr-input-container [attr.data-step-metadata]="formName">
                         <label>
-                            USERNAME (OPTIONAL)
+                            USERNAME
                             <clr-tooltip>
                                 <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                 <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
@@ -413,6 +414,7 @@
                                name="userSearchUsername"/>
                         <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                         <clr-control-helper></clr-control-helper>
+                        <clr-control-error>Username is required</clr-control-error>
                     </clr-input-container>
                 </div>
             </div>
