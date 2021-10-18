@@ -29,7 +29,7 @@ spec:
     - name: address
       value: #@ data.values.BYOH_CONTROL_PLANE_ENDPOINT
     - name: vip_interface
-      value:  #@ data.values.VIP_NETWORK_INTERFACE
+      value: "{{. DefaultNetworkInterfaceName }}"
     - name: vip_leaseduration
       value: "15"
     - name: vip_renewdeadline
@@ -173,4 +173,29 @@ kind: ConfigMap
 metadata:
   name: cpi-manifests
   namespace: default
+
+#@overlay/match by=overlay.subset({"kind":"MachineDeployment"})
 ---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: MachineDeployment
+metadata:
+  name: #@ "{}-md-0".format(data.values.CLUSTER_NAME)
+  namespace: default
+spec:
+  clusterName: #@ data.values.CLUSTER_NAME
+  replicas: #@ data.values.WORKER_MACHINE_COUNT
+  selector:
+    matchLabels: {}
+  template:
+    spec:
+      bootstrap:
+        configRef:
+          apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+          kind: KubeadmConfigTemplate
+          name: #@ "{}-md-0".format(data.values.CLUSTER_NAME)
+      clusterName: #@ data.values.CLUSTER_NAME
+      infrastructureRef:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: ByoMachineTemplate
+        name: #@ "{}-worker-0".format(data.values.CLUSTER_NAME)
+      version: #@ data.values.KUBERNETES_VERSION

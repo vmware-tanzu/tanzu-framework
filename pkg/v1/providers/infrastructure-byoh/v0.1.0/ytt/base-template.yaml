@@ -79,9 +79,9 @@ spec:
             - name: vip_leaderelection
               value: "true"
             - name: address
-              value: '{{ .DefaultNetworkName }}'
+              value: '${ BYOH_CONTROL_PLANE_ENDPOINT }'
             - name: vip_interface
-              value: '{{ .DefaultNetworkName }}'
+              value: 
             - name: vip_leaseduration
               value: "30"
             - name: vip_renewdeadline
@@ -137,27 +137,23 @@ metadata:
 spec:
   template:
     spec:
-      useExperimentalRetryJoin: true
       joinConfiguration:
         nodeRegistration:
           criSocket: /var/run/containerd/containerd.sock
           kubeletExtraArgs:
-            tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
-          name: '{{ ds.meta_data.hostname }}'
+            cgroup-driver: cgroupfs
+            eviction-hard: nodefs.available<0%,nodefs.inodesFree<0%,imagefs.available<0%
 ---
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: MachineDeployment
 metadata:
-  labels:
-    cluster.x-k8s.io/cluster-name: '${ CLUSTER_NAME }'
   name: '${ CLUSTER_NAME }-md-0'
   namespace: '${ NAMESPACE }'
 spec:
   clusterName: '${ CLUSTER_NAME }'
   replicas: ${ WORKER_MACHINE_COUNT }
   selector:
-    matchLabels:
-      cluster.x-k8s.io/cluster-name: '${ CLUSTER_NAME }'
+    matchLabels: {}
   template:
     spec:
       bootstrap:
@@ -171,10 +167,5 @@ spec:
         kind: ByoMachineTemplate
         name: '${ CLUSTER_NAME }-worker'
       version: '${ KUBERNETES_VERSION }'
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: '${ CLUSTER_NAME }'
-  namespace: '${ NAMESPACE }'
+
 
