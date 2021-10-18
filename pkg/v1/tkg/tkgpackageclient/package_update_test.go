@@ -170,7 +170,7 @@ var _ = Describe("Update Package", func() {
 		})
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("failed to create secret based on values file: failed to read from data values file"))
+			Expect(err.Error()).To(ContainSubstring("failed to read from data values file 'value-file': open value-file: no such file or directory"))
 		})
 		AfterEach(func() {
 			options = opts
