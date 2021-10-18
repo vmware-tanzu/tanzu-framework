@@ -41,7 +41,7 @@ var _ = Describe("List Secrets", func() {
 		ctl     *pkgClient
 		kappCtl *fakes.KappClient
 		err     error
-		opts    = tkgpackagedatamodel.ImagePullSecretOptions{
+		opts    = tkgpackagedatamodel.RegistrySecretOptions{
 			Namespace:     testNamespaceName,
 			AllNamespaces: false,
 		}
@@ -57,18 +57,18 @@ var _ = Describe("List Secrets", func() {
 		ctl = &pkgClient{kappClient: kappCtl}
 		dockerCfgContent, _ := json.Marshal(testDockerConfig)
 		testSecret.Data[corev1.DockerConfigJsonKey] = dockerCfgContent
-		secrets, err = ctl.ListImagePullSecrets(&options)
+		secrets, err = ctl.ListRegistrySecrets(&options)
 	})
 
-	Context("failure in listing secrets due to ListImagePullSecrets API error", func() {
+	Context("failure in listing secrets due to ListRegistrySecrets API error", func() {
 		BeforeEach(func() {
 			kappCtl = &fakes.KappClient{}
-			kappCtl.ListImagePullSecretsReturns(nil, errors.New("failure in ListImagePullSecrets"))
+			kappCtl.ListRegistrySecretsReturns(nil, errors.New("failure in ListRegistrySecrets"))
 			ctl = &pkgClient{kappClient: kappCtl}
 		})
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("failure in ListImagePullSecrets"))
+			Expect(err.Error()).To(ContainSubstring("failure in ListRegistrySecrets"))
 			Expect(secrets).To(BeNil())
 		})
 	})
@@ -76,7 +76,7 @@ var _ = Describe("List Secrets", func() {
 	Context("success in listing secrets", func() {
 		BeforeEach(func() {
 			kappCtl = &fakes.KappClient{}
-			kappCtl.ListImagePullSecretsReturns(secretList, nil)
+			kappCtl.ListRegistrySecretsReturns(secretList, nil)
 			ctl = &pkgClient{kappClient: kappCtl}
 		})
 		It(testSuccessMsg, func() {
@@ -92,7 +92,7 @@ var _ = Describe("List Secret Exports", func() {
 		ctl     *pkgClient
 		kappCtl *fakes.KappClient
 		err     error
-		opts    = tkgpackagedatamodel.ImagePullSecretOptions{
+		opts    = tkgpackagedatamodel.RegistrySecretOptions{
 			Namespace:     testNamespaceName,
 			AllNamespaces: false,
 		}

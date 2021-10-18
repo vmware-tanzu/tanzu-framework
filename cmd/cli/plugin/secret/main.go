@@ -16,14 +16,13 @@ import (
 )
 
 var descriptor = cliv1alpha1.PluginDescriptor{
-	Name:        "imagepullsecret",
-	Description: "Manage image pull secret operations. Image pull secrets enable the package and package repository consumers to authenticate to private registries.",
+	Name:        "secret",
+	Description: "Tanzu secret management",
 	Group:       cliv1alpha1.RunCmdGroup,
 }
 
 var (
 	logLevel     int32
-	logFile      string
 	outputFormat string
 )
 
@@ -34,13 +33,9 @@ func main() {
 	}
 
 	p.Cmd.PersistentFlags().Int32VarP(&logLevel, "verbose", "", 0, "Number for the log level verbosity(0-9)")
-	p.Cmd.PersistentFlags().StringVar(&logFile, "log-file", "", "Log file path")
 
 	p.AddCommands(
-		imagePullSecretAddCmd,
-		imagePullSecretDeleteCmd,
-		imagePullSecretListCmd,
-		imagePullSecretUpdateCmd,
+		registrySecretCmd,
 	)
 	if err := p.Execute(); err != nil {
 		os.Exit(1)

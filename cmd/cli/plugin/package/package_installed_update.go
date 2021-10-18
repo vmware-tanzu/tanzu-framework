@@ -21,7 +21,8 @@ var packageInstalledUpdateCmd = &cobra.Command{
 	Example: `
     # Update installed package with name 'mypkg' with some version to version '3.0.0-rc.1' in specified namespace 	
     tanzu package installed update mypkg --version 3.0.0-rc.1 --namespace test-ns`,
-	RunE: packageUpdate,
+	RunE:         packageUpdate,
+	SilenceUsage: true,
 }
 
 func init() {
@@ -51,8 +52,6 @@ func packageUpdate(cmd *cobra.Command, args []string) error {
 			return errors.New("--version is required when --install flag is declared")
 		}
 	}
-
-	cmd.SilenceUsage = true
 
 	pkgClient, err := tkgpackageclient.NewTKGPackageClient(packageInstalledOp.KubeConfig)
 	if err != nil {

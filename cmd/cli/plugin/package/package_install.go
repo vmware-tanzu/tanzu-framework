@@ -25,7 +25,8 @@ var packageInstallCmd = &cobra.Command{
 	
     # Install package contour with kubeconfig flag and waiting for package reconciliation to complete	
     tanzu package install contour-pkg --package-name contour.tanzu.vmware.com --namespace test-ns --version 1.15.1-tkg.1-vmware1 --kubeconfig path/to/kubeconfig`,
-	RunE: packageInstall,
+	RunE:         packageInstall,
+	SilenceUsage: true,
 }
 
 func init() {
@@ -45,8 +46,6 @@ func init() {
 
 func packageInstall(cmd *cobra.Command, args []string) error {
 	packageInstallOp.PkgInstallName = args[0]
-
-	cmd.SilenceUsage = true
 
 	pkgClient, err := tkgpackageclient.NewTKGPackageClient(packageInstallOp.KubeConfig)
 	if err != nil {

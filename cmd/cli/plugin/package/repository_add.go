@@ -20,7 +20,8 @@ var repositoryAddCmd = &cobra.Command{
 	Example: `
     # Add a repository in specified namespace which does not exist 	
     tanzu package repository add repo --url projects-stg.registry.vmware.com/tkg/standard-repo:v1.0.0 --namespace test-ns --create-namespace`,
-	RunE: repositoryAdd,
+	RunE:         repositoryAdd,
+	SilenceUsage: true,
 }
 
 func init() {
@@ -35,8 +36,6 @@ func init() {
 
 func repositoryAdd(cmd *cobra.Command, args []string) error {
 	repoOp.RepositoryName = args[0]
-
-	cmd.SilenceUsage = true
 
 	pkgClient, err := tkgpackageclient.NewTKGPackageClient(repoOp.KubeConfig)
 	if err != nil {
