@@ -29,14 +29,14 @@ Fixes #
 
 ### PR Checklist
 
-<!-- Please acknowlege by checking that they are being followed -->
+<!-- Please acknowledge by checking that they are being followed -->
 
 - [ ] Squash the commits into one or a small number of logical commits
       <!--
       This repository adopts a linear git history model where no merge commits are necessary. To
       keep the commit history tidy, it is recommended that authors be responsible for the decision
       whether to squash the PR's changes into a single commit (and tidy up the commit message in the
-      process) or organizing them into a small number of self-contained and meaningful ones.
+      process) or organizing them into a small number of self-contained and meaningful commits.
       -->
 - [ ] Use good commit [messages](https://github.com/vmware-tanzu/tanzu-framework/blob/main/CONTRIBUTING.md)
 - [ ] Ensure PR contains terms all contributors can understand and links all contributors can access
