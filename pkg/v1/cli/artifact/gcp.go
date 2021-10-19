@@ -15,8 +15,7 @@ import (
 )
 
 // GCPArtifact provides a Google Cloud Storage bucket with an optional base path (or
-// object prefix). The object download path name is constructed as
-// `{Bucket}/{BasePath}/{Version}/{OS}/{Arch}`.
+// object prefix).
 type GCPArtifact struct {
 	// Bucket is a Google Cloud Storage bucket.
 	// E.g., tanzu-cli

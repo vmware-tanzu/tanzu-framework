@@ -17,5 +17,6 @@ func NewOCIArtifact(image string) Artifact {
 
 // Fetch an artifact.
 func (g *OCIArtifact) Fetch() ([]byte, error) {
+	// TODO(anujc25): implement OCI artifact fetch
 	return nil, nil
 }

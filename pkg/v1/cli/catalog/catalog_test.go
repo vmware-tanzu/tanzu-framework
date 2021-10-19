@@ -31,7 +31,7 @@ func Test_ContextCatalog_With_Empty_Context(t *testing.T) {
 		Version:          "1.0.0",
 	}
 
-	err = cc.Upsert(pd1)
+	err = cc.Upsert(&pd1)
 	assert.Nil(err)
 
 	pd, exists := cc.Get("fakeplugin1")
@@ -45,7 +45,7 @@ func Test_ContextCatalog_With_Empty_Context(t *testing.T) {
 		InstallationPath: "/path/to/plugin/fakeplugin2",
 		Version:          "2.0.0",
 	}
-	err = cc.Upsert(pd2)
+	err = cc.Upsert(&pd2)
 	assert.Nil(err)
 
 	pd, exists = cc.Get("fakeplugin2")
@@ -106,7 +106,7 @@ func Test_ContextCatalog_With_Context(t *testing.T) { //nolint:funlen
 		Version:          "1.0.0",
 	}
 
-	err = cc.Upsert(pd1)
+	err = cc.Upsert(&pd1)
 	assert.Nil(err)
 
 	pd, exists := cc.Get("fakeplugin1")
@@ -120,7 +120,7 @@ func Test_ContextCatalog_With_Context(t *testing.T) { //nolint:funlen
 		InstallationPath: "/path/to/plugin/fakeplugin2",
 		Version:          "2.0.0",
 	}
-	err = cc.Upsert(pd2)
+	err = cc.Upsert(&pd2)
 	assert.Nil(err)
 
 	pd, exists = cc.Get("fakeplugin2")
@@ -181,4 +181,13 @@ func sortarray(pds []cliv1alpha1.PluginDescriptor) {
 	sort.Slice(pds, func(i, j int) bool {
 		return pds[i].Name < pds[j].Name
 	})
+}
+
+// Test_CatalogCacheFileName tests we default to catalog.yaml file when
+// the featuregate is configured to true by default
+func Test_CatalogCacheFileName(t *testing.T) {
+	assert := assert.New(t)
+	if common.IsContextAwareDiscoveryEnabled {
+		assert.Equal(catalogCacheFileName, "catalog.yaml")
+	}
 }

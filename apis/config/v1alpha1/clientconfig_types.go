@@ -143,7 +143,8 @@ type OCIDiscovery struct {
 	// Image is an OCI compliant image. Which include DNS-compatible registry name,
 	// a valid URI path(MAY contain zero or more ‘/’) and a valid tag.
 	// E.g., harbor.my-domain.local/tanzu-cli/plugins-manifest:latest
-	// Contains list of CLIPlugin API resources
+	// Contains a directory containing YAML files, each of which contains single
+	// CLIPlugin API resource.
 	Image string `json:"image"`
 }
 
@@ -180,7 +181,8 @@ type LocalDiscovery struct {
 	// Name is a name of the discovery
 	Name string `json:"name"`
 	// Path is a local path pointing to directory
-	// containing a list of CLIPlugin API resources
+	// containing YAML files, each of which contains single
+	// CLIPlugin API resource.
 	Path string `json:"path"`
 }
 

@@ -23,11 +23,13 @@ func NewGCPDiscovery(bucket, manifestPath, name string) Discovery {
 
 // List available plugins.
 func (g *GCPDiscovery) List() (plugins []plugin.Discovered, err error) {
+	// TODO: implement GCP discovery plugin list
 	return
 }
 
 // Describe a plugin.
 func (g *GCPDiscovery) Describe(name string) (p plugin.Discovered, err error) {
+	// TODO: implement GCP discovery plugin describe
 	return p, err
 }
 

@@ -2,6 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // Package discovery is implements discovery interface for plugin discovery
+// Discovery is the interface to fetch the list of available plugins, their
+// supported versions and how to download them either stand-alone or scoped to a server.
+// A separate interface for discovery helps to decouple discovery (which is usually
+// tied to a server or user identity) from distribution (which can be shared).
 package discovery
 
 import (
@@ -11,7 +15,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/plugin"
 )
 
-// Discovery is an interface to fetch list of available plugins
+// Discovery is the interface to fetch the list of available plugins
 type Discovery interface {
 	// Name of the repository.
 	Name() string

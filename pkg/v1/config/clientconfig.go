@@ -9,13 +9,13 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
 
 	"github.com/aunum/log"
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/runtime/serializer/json"
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
 )
 
 // DefaultCliFeatureFlags is used to populate an initially empty config file with default values for feature flags.
@@ -27,6 +27,7 @@ var (
 	DefaultCliFeatureFlags = map[string]bool{
 		"features.management-cluster.import":             false,
 		"features.management-cluster.export-from-config": false,
+		"features.global.use-context-aware-discovery":    common.IsContextAwareDiscoveryEnabled,
 	}
 )
 
@@ -438,26 +439,15 @@ func EndpointFromServer(s *configv1alpha1.Server) (endpoint string, err error) {
 // User can set this CLI feature flag using `tanzu config set features.global.use-context-aware-discovery true`
 // This determines whether to use legacy way of discovering plugins or
 // to use the new context-aware Plugin API based plugin discovery mechanism
+// Users can set this featureflag so that we can have context-aware plugin discovery be opt-in for now.
 func IsContextAwareDiscoveryEnabled() bool {
-	contextAwareDiscoveryEnabled := false // Default value is set to false
-
 	cfg, err := GetClientConfig()
 	if err != nil {
-		log.Fatal(err)
+		return false
 	}
-	if cfg == nil || cfg.ClientOptions == nil {
-		return contextAwareDiscoveryEnabled
+	status, err := cfg.IsConfigFeatureActivated("features.global.use-context-aware-discovery")
+	if err != nil {
+		return false
 	}
-
-	fm, exists := cfg.ClientOptions.Features["global"]
-	if !exists {
-		return contextAwareDiscoveryEnabled
-	}
-
-	contextAwareDiscoveryEnabledString, exists := fm["use-context-aware-discovery"]
-	if !exists {
-		return contextAwareDiscoveryEnabled
-	}
-
-	return strings.EqualFold(contextAwareDiscoveryEnabledString, "true")
+	return status
 }

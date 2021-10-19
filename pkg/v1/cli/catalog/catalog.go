@@ -60,9 +60,9 @@ func NewContextCatalog(context string) (*ContextCatalog, error) {
 }
 
 // Upsert inserts/updates the given plugin.
-func (c *ContextCatalog) Upsert(plugin cliv1alpha1.PluginDescriptor) error { //nolint:gocritic
+func (c *ContextCatalog) Upsert(plugin *cliv1alpha1.PluginDescriptor) error {
 	c.plugins[plugin.Name] = plugin.InstallationPath
-	c.sharedCatalog.IndexByPath[plugin.InstallationPath] = plugin
+	c.sharedCatalog.IndexByPath[plugin.InstallationPath] = *plugin
 
 	if !utils.ContainsString(c.sharedCatalog.IndexByName[plugin.Name], plugin.InstallationPath) {
 		c.sharedCatalog.IndexByName[plugin.Name] = append(c.sharedCatalog.IndexByName[plugin.Name], plugin.InstallationPath)
@@ -71,7 +71,7 @@ func (c *ContextCatalog) Upsert(plugin cliv1alpha1.PluginDescriptor) error { //n
 	return saveCatalogCache(c.sharedCatalog)
 }
 
-// Get looks up the given plugin.
+// Get looks up the descriptor of a plugin given its name.
 func (c *ContextCatalog) Get(plugin string) (cliv1alpha1.PluginDescriptor, bool) {
 	pd := cliv1alpha1.PluginDescriptor{}
 	path, ok := c.plugins[plugin]
@@ -88,6 +88,8 @@ func (c *ContextCatalog) Get(plugin string) (cliv1alpha1.PluginDescriptor, bool)
 }
 
 // List returns the list of active plugins.
+// Active plugin means the plugin that are available to the user
+// based on the current logged-in server.
 func (c *ContextCatalog) List() []cliv1alpha1.PluginDescriptor {
 	pds := make([]cliv1alpha1.PluginDescriptor, 0)
 	for _, installationPath := range c.plugins {

@@ -12,8 +12,10 @@ type OCIDiscovery struct {
 	// name is a name of the discovery
 	name string
 	// image is an OCI compliant image. Which include DNS-compatible registry name,
-	// a valid URI path(MAY contain zero or more ‘/’) and a valid tag. Contains a manifest file
+	// a valid URI path(MAY contain zero or more ‘/’) and a valid tag
 	// E.g., harbor.my-domain.local/tanzu-cli/plugins-manifest:latest
+	// Contains a directory containing YAML files, each of which contains single
+	// CLIPlugin API resource.
 	image string
 }
 
@@ -27,11 +29,13 @@ func NewOCIDiscovery(name, image string) Discovery {
 
 // List available plugins.
 func (od *OCIDiscovery) List() (plugins []plugin.Discovered, err error) {
+	// TODO(anujc25): implement OCI discovery plugin list
 	return
 }
 
 // Describe a plugin.
 func (od *OCIDiscovery) Describe(name string) (p plugin.Discovered, err error) {
+	// TODO(anujc25): implement OCI discovery plugin describe
 	return
 }
 

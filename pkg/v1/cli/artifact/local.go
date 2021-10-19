@@ -14,13 +14,16 @@ import (
 
 // LocalArtifact defines local artifact path
 type LocalArtifact struct {
+	// Path is path to local binary artifact
+	// if path is not an absolute path search under
+	// `xdg.ConfigHome/tanzu-plugin/localPath` directory
 	Path string
 }
 
 // NewLocalArtifact creates Local Artifact object
+// If path is not an absolute path
+// search under `xdg.ConfigHome/tanzu-plugin/distribution` directory
 func NewLocalArtifact(path string) Artifact {
-	// If path is not an absolute path
-	// search under `xdg.ConfigHome/tanzu-plugin/localPath` directory
 	if !filepath.IsAbs(path) {
 		path = filepath.Join(common.DefaultLocalPluginDistroDir, "distribution", path)
 	}
@@ -29,11 +32,11 @@ func NewLocalArtifact(path string) Artifact {
 	}
 }
 
-// Fetch an artifact.
+// Fetch reads the local artifact from its path
 func (l *LocalArtifact) Fetch() ([]byte, error) {
 	b, err := os.ReadFile(l.Path)
 	if err != nil {
-		return nil, errors.Wrapf(err, "error while reading manifest file")
+		return nil, errors.Wrapf(err, "error while reading artifact")
 	}
 	return b, nil
 }

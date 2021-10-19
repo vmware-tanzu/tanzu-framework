@@ -25,9 +25,9 @@ type LocalDiscovery struct {
 }
 
 // NewLocalDiscovery returns a new local repository.
+// If provided localPath is not an absolute path
+// search under `xdg.ConfigHome/tanzu-plugin/discovery` directory
 func NewLocalDiscovery(name, localPath string) Discovery {
-	// If path is not an absolute path
-	// search under `xdg.ConfigHome/tanzu-plugin/localPath` directory
 	if !filepath.IsAbs(localPath) {
 		localPath = filepath.Join(common.DefaultLocalPluginDistroDir, "discovery", localPath)
 	}
@@ -80,7 +80,14 @@ func (l *LocalDiscovery) Manifest() ([]plugin.Discovered, error) {
 		if item.IsDir() {
 			continue
 		}
-		b, err := os.ReadFile(filepath.Join(l.path, item.Name()))
+		path := filepath.Join(l.path, item.Name())
+
+		// ignore non yaml files
+		if filepath.Ext(path) != ".yaml" && filepath.Ext(path) != ".yml" {
+			continue
+		}
+
+		b, err := os.ReadFile(path)
 		if err != nil {
 			return nil, errors.Wrapf(err, "error while reading manifest file")
 		}

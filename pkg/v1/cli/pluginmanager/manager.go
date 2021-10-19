@@ -329,7 +329,7 @@ func installOrUpgradePlugin(serverName string, p *plugin.Discovered, version str
 	if err != nil {
 		return err
 	}
-	err = c.Upsert(descriptor)
+	err = c.Upsert(&descriptor)
 	if err != nil {
 		log.Info("Plugin descriptor could not be updated in cache")
 	}

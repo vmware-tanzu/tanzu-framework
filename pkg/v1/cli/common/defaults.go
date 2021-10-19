@@ -20,7 +20,9 @@ var (
 	// DefaultLocalPluginDistroDir is the default Local plugin distribution root directory
 	// This directory will be used for local discovery and local distribute of plugins
 	DefaultLocalPluginDistroDir = filepath.Join(xdg.ConfigHome, "tanzu-plugin")
+)
 
-	// DefaultDistro is the core set of plugins that should be included with the CLI.
-	DefaultDistro = []string{"login", "pinniped-auth", "cluster", "management-cluster", "kubernetes-release"}
+const (
+	// IsContextAwareDiscoveryEnabled defines default to use when the user has not configured a value
+	IsContextAwareDiscoveryEnabled = false
 )
