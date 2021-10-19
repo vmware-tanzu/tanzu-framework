@@ -205,9 +205,9 @@ func (r *AddonReconciler) ReconcileAddonDataValuesSecretNormal(
 			addonDataValuesSecret.Data["imageInfo.yaml"] = imageInfoBytes
 		}
 		// Add kubernetesVersion info
-		TKRVersionBytes, err := util.GetKubernetesVersionInfo(bom)
+		TKRVersionBytes, err := util.GetTKRVersionInfo(bom)
 		if err != nil {
-			log.Error(err, "Error retrieving Kubernetes version info from BOM")
+			log.Error(err, "Error retrieving TKR version info from BOM")
 			return err
 		}
 		addonDataValuesSecret.Data["tanzuKubernetesRelease.yaml"] = TKRVersionBytes

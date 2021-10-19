@@ -103,24 +103,15 @@ type Addon struct {
 	PackageName          string               `yaml:"packageName,omitempty"`
 }
 
-// KubeadmConfigSpec contains kubeadm config info
-type KubeadmConfigSpec struct {
-	ApiVersion        string `yaml:"apiVersion,omitempty"`
-	Kind              string `yaml:"kind,omitempty"`
-	ImageRepository   string `yaml:"imageRepository,omitempty"`
-	KubernetesVersion string `yaml:"kubernetesVersion,omitempty"`
-}
-
 // BomContent contains the content of a BOM file
 type BomContent struct {
-	Release           Release                    `yaml:"release"`
-	Components        map[string][]ComponentInfo `yaml:"components"`
-	KubeadmConfigSpec KubeadmConfigSpec          `yaml:"kubeadmConfigSpec"`
-	ImageConfig       ImageConfig                `yaml:"imageConfig"`
-	OVA               OVAInfos                   `yaml:"ova"`
-	AMI               AMIInfos                   `yaml:"ami,omitempty"`
-	Azure             AzureInfos                 `yaml:"azure,omitempty"`
-	Addons            Addons                     `yaml:"addons,omitempty"`
+	Release     Release                    `yaml:"release"`
+	Components  map[string][]ComponentInfo `yaml:"components"`
+	ImageConfig ImageConfig                `yaml:"imageConfig"`
+	OVA         OVAInfos                   `yaml:"ova"`
+	AMI         AMIInfos                   `yaml:"ami,omitempty"`
+	Azure       AzureInfos                 `yaml:"azure,omitempty"`
+	Addons      Addons                     `yaml:"addons,omitempty"`
 }
 
 // Bom represents a BOM file
@@ -208,14 +199,6 @@ func (b *Bom) Components() (map[string][]ComponentInfo, error) {
 		return nil, errors.New("the BOM is not initialized")
 	}
 	return b.bom.Components, nil
-}
-
-// Components gets all release components in the BOM file
-func (b *Bom) GetKubeadmConfigSpec() (KubeadmConfigSpec, error) {
-	if !b.initialzed {
-		return KubeadmConfigSpec{}, errors.New("the BOM is not initialized")
-	}
-	return b.bom.KubeadmConfigSpec, nil
 }
 
 // GetImageRepository gets the image repository

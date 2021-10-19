@@ -17,6 +17,7 @@ import (
 	capzv1alpha3 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha3"
 	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
+	capibootstrapkubeadmv1alpha3 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha3"
 	capikubeadmv1alpha3 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
 	capdv1alpha3 "sigs.k8s.io/cluster-api/test/infrastructure/docker/api/v1alpha3"
 
@@ -359,6 +360,7 @@ func (c *TkgClient) applyPatchAndWait(regionalClusterClient, currentClusterClien
 		return err
 	}
 
+	// TODO: put this code snippet somewhere else before addon upgrade
 	// Clusters deployed with TKG CLI version prior to v1.2 uses `beta.kubernetes.io/os: linux` nodeSelector
 	// for `calico-node` daemonset and `calico-kube-controller` deployment.
 	// As k8s v1.19.x removed the support for `beta.kubernetes.io/os: linux` node label and it requires nodes
@@ -386,6 +388,7 @@ func (c *TkgClient) applyPatchAndWait(regionalClusterClient, currentClusterClien
 		}
 	}
 
+	// TODO: put this code snippet somewhere else before addon upgrade
 	// Upgrade logic for kapp-controller related changes
 	if err := c.handleKappControllerUpgrade(regionalClusterClient, currentClusterClient, upgradeClusterConfig); err != nil {
 		return errors.Wrapf(err, "unable to apply upgrade for kapp-controller")
@@ -1045,6 +1048,13 @@ func (c *TkgClient) patchKubernetesVersionToKubeadmControlPlane(regionalClusterC
 				  "imageTag": "%s"
 				}
 			  }
+			},
+			"joinConfiguration": {
+			  "nodeRegistration": {
+				"kubeletExtraArgs": {
+				  "node-labels": "tanzuKubernetesRelease=%s"
+				}
+			  }
 			}
 		  }
 		}
@@ -1057,7 +1067,8 @@ func (c *TkgClient) patchKubernetesVersionToKubeadmControlPlane(regionalClusterC
 		clusterUpgradeConfig.UpgradeComponentInfo.CoreDNSImageRepository,
 		clusterUpgradeConfig.UpgradeComponentInfo.CoreDNSImageTag,
 		clusterUpgradeConfig.UpgradeComponentInfo.EtcdImageRepository,
-		clusterUpgradeConfig.UpgradeComponentInfo.EtcdImageTag)
+		clusterUpgradeConfig.UpgradeComponentInfo.EtcdImageTag,
+		utils.GetTkrNameFromTkrVersion(clusterUpgradeConfig.UpgradeComponentInfo.TkrVersion))
 
 	log.V(3).Infof("Applying KubeadmControlPlane Patch: %s", patchKubernetesVersion)
 
@@ -1090,7 +1101,25 @@ func (c *TkgClient) patchKubernetesVersionToMachineDeployment(regionalClusterCli
 			return nil
 		}
 
-		patchString := `{
+		kubeadmConfigTemplatePatchString := `{
+			"spec": {
+			  "template": {
+				"spec": {
+				  "joinConfiguration": {
+					"nodeRegistration": {
+					  "kubeletExtraArgs": {
+						"node-labels": "tanzuKubernetesRelease=%s"
+					  }
+					}
+				  }
+				}
+			  }
+			}
+		  }`
+
+		patchKubeadmConfigTemplate := fmt.Sprintf(kubeadmConfigTemplatePatchString, utils.GetTkrNameFromTkrVersion(clusterUpgradeConfig.UpgradeComponentInfo.TkrVersion))
+
+		machineDeploymentPatchString := `{
 			"spec": {
 			  "template": {
 				"spec": {
@@ -1104,16 +1133,19 @@ func (c *TkgClient) patchKubernetesVersionToMachineDeployment(regionalClusterCli
 			}
 		  }`
 
-		patchKubernetesVersion := fmt.Sprintf(patchString,
+		patchMachineDeployment := fmt.Sprintf(machineDeploymentPatchString,
 			clusterUpgradeConfig.UpgradeComponentInfo.KubernetesVersion,
 			clusterUpgradeConfig.UpgradeComponentInfo.MDInfastructureTemplates[clusterUpgradeConfig.MDObjects[i].Name].MDInfrastructureTemplateName,
 			clusterUpgradeConfig.UpgradeComponentInfo.MDInfastructureTemplates[clusterUpgradeConfig.MDObjects[i].Name].MDInfrastructureTemplateNamespace)
 
-		log.V(3).Infof("Applying MachineDeployment Patch: %s", patchKubernetesVersion)
+		log.V(3).Infof("Applying MachineDeployment Patch: %s", patchMachineDeployment)
 
 		// Using polling to retry on any failed patch attempt.
 		pollOptions := &clusterclient.PollOptions{Interval: upgradePatchInterval, Timeout: upgradePatchTimeout}
-		err = regionalClusterClient.PatchResource(&capi.MachineDeployment{}, clusterUpgradeConfig.MDObjects[i].Name, clusterUpgradeConfig.MDObjects[i].Namespace, patchKubernetesVersion, types.MergePatchType, pollOptions)
+
+		err = regionalClusterClient.PatchResource(&capibootstrapkubeadmv1alpha3.KubeadmConfigTemplate{}, clusterUpgradeConfig.MDObjects[i].Name, clusterUpgradeConfig.MDObjects[i].Namespace, patchKubeadmConfigTemplate, types.MergePatchType, pollOptions)
+
+		err = regionalClusterClient.PatchResource(&capi.MachineDeployment{}, clusterUpgradeConfig.MDObjects[i].Name, clusterUpgradeConfig.MDObjects[i].Namespace, patchMachineDeployment, types.MergePatchType, pollOptions)
 		if err != nil {
 			return errors.Wrap(err, "unable to update the kubernetes version for worker nodes")
 		}

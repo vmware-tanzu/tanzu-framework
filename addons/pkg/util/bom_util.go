@@ -9,13 +9,13 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
-
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
+	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
+	tkgutils "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 	bomtypes "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
 )
 
@@ -54,13 +54,14 @@ func GetTKRNameFromBOMConfigMap(bomConfigMap *corev1.ConfigMap) string {
 	return bomConfigMap.Labels[constants.TKRLabel]
 }
 
-// GetTKGVersionInfo returns kubernetes version info given a BOM
-func GetKubernetesVersionInfo(bom *bomtypes.Bom) ([]byte, error) {
-	kubeadmConfig, err := bom.GetKubeadmConfigSpec()
+// GetTKRVersionInfo returns TKR version info given a BOM
+func GetTKRVersionInfo(bom *bomtypes.Bom) ([]byte, error) {
+	TKRVersion, err := bom.GetReleaseVersion()
 	if err != nil {
 		return nil, err
 	}
-	TKRVersionInfo := &addontypes.KubernetesVersionInfo{KubernetesVersion: kubeadmConfig.KubernetesVersion}
+
+	TKRVersionInfo := &addontypes.TKRVersionInfo{TKRVersionInfo: tkgutils.GetTkrNameFromTkrVersion(TKRVersion)}
 
 	TKRVersionBytes, err := yaml.Marshal(TKRVersionInfo)
 	if err != nil {
