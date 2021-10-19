@@ -23,6 +23,8 @@ const (
 	TypeDatastore       = "Datastore"
 	TypeHost            = "HostSystem"
 	TypeNetwork         = "Network"
+	TypeDvpg            = "DistributedVirtualPortgroup"
+	TypeDvs             = "VmwareDistributedVirtualSwitch"
 	TypeOpaqueNetwork   = "OpaqueNetwork"
 	TypeVirtualMachine  = "VirtualMachine"
 )
