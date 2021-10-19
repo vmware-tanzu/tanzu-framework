@@ -126,6 +126,7 @@ const (
 	TKGHTTPSProxy       = "TKG_HTTPS_PROXY"
 	TKGHTTPProxyEnabled = "TKG_HTTP_PROXY_ENABLED"
 	TKGNoProxy          = "TKG_NO_PROXY"
+	TKGProxyCACert      = "TKG_PROXY_CA_CERT"
 
 	ConfigVariableOSName    = "OS_NAME"
 	ConfigVariableOSVersion = "OS_VERSION"

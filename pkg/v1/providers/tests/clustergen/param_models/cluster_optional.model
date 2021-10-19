@@ -94,6 +94,7 @@ VSPHERE_CLONE_MODE: "fullClone","linkedClone"
 TKG_HTTP_PROXY: "http://10.0.200.100", "http://[fc00:f853:ccd:e793::1]:3128"
 TKG_HTTPS_PROXY: "NA", "http://10.0.200.100", "http://[fc00:f853:ccd:e793::1]:3128"
 TKG_NO_PROXY: "NA", "10.0.200.1/24", "10.184.90.80"
+TKG_PROXY_CA_CERT: "NA", "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tClBST1hZIENBIENFUlQ="
 
 # ip family
 TKG_IP_FAMILY: "NA", "", "ipv4", "ipv6", "ipv4<comma>ipv6", "ipv6<comma>ipv4"
