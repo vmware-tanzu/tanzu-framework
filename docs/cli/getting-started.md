@@ -18,13 +18,13 @@ combinations we support now.
   - for macOS:
 
     ```sh
-    mkdir tanzu && tar -xvf tanzu-framework-darwin-amd64.tar -C tanzu
+    mkdir tanzu && tar -zxvf tanzu-framework-darwin-amd64.tar.gz -C tanzu
     ```
 
   - for Linux:
 
     ```sh
-    mkdir tanzu && tar -xvf tanzu-framework-linux-amd64.tar -C tanzu
+    mkdir tanzu && tar -zxvf tanzu-framework-linux-amd64.tar.gz -C tanzu
     ```
 
 - Install the `tanzu` CLI
@@ -74,8 +74,7 @@ combinations we support now.
 - Open PowerShell as an administrator, change to the download directory and run:
 
   ```sh
-  mkdir tanzu
-  tar -xvf tanzu-framework-windows-amd64.tar -C tanzu
+  Expand-Archive tanzu-framework-windows-amd64.zip -DestinationPath tanzu
   cd .\tanzu\
   ```
 
