@@ -3,7 +3,6 @@
 #@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "get_default_tkg_bom_data", "kubeadm_image_repo", "get_image_repo_for_component", "get_vsphere_thumbprint")
 #@ load("lib/validate.star", "validate_configuration")
 #@ load("@ytt:yaml", "yaml")
-#@ validate_configuration("vsphere")
 
 #@ bomDataForK8sVersion = get_bom_data_for_tkr_name()
 #@ bomData = get_default_tkg_bom_data()
@@ -29,7 +28,7 @@ spec:
     - name: address
       value: #@ data.values.BYOH_CONTROL_PLANE_ENDPOINT
     - name: vip_interface
-      value: "{{. DefaultNetworkInterfaceName }}"
+      value: "{{ .DefaultNetworkInterfaceName}}"
     - name: vip_leaseduration
       value: "15"
     - name: vip_renewdeadline
@@ -82,7 +81,7 @@ metadata:
     tanzuKubernetesRelease: #@ data.values.KUBERNETES_RELEASE
 spec:
   infrastructureRef:
-    apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
     kind: ByoCluster
     name: #@ data.values.CLUSTER_NAME
   controlPlaneRef:
@@ -133,7 +132,7 @@ kind: KubeadmControlPlane
 metadata:
   name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
 spec:
-  kubeadmConfigSpec:      
+  kubeadmConfigSpec:
     files:
     #@ if not data.values.AVI_CONTROL_PLANE_HA_PROVIDER:
     #@overlay/match by=overlay.index(0)
@@ -154,7 +153,7 @@ spec:
     infrastructureRef:
       apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
       kind: ByoMachineTemplate
-      name: byohcluster
+      name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
   replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
   version: #@ data.values.KUBERNETES_VERSION
 
