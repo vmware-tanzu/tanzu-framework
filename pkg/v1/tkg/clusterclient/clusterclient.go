@@ -70,6 +70,8 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/vc"
 	tkrconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
+	tkgclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
+
 )
 
 const (
@@ -1444,6 +1446,8 @@ func (c *client) GetRegionalClusterDefaultProviderName(providerType clusterctlv1
 	// If there is only one provider, this is the default
 	if names.Len() == 1 {
 		return names.List()[0], nil
+	} else if names.Len() == 2 && names.Has(tkgclient.BYOHProviderName){
+		return tkgclient.BYOHProviderName, nil
 	}
 	// There is no provider or more than one provider of this type; in both cases, a default provider name cannot be decided.
 	return "", errors.New("unable to find the default provider,since there are more than 1 providers")

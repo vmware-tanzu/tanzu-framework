@@ -134,6 +134,7 @@ VSPHERE_CONTROL_PLANE_ENDPOINT:
 VSPHERE_CONTROL_PLANE_ENDPOINT_PORT: 6443
 #! Virtual IP address or FQDN for the BYOH's control plane nodes
 BYOH_CONTROL_PLANE_ENDPOINT:
+BYOH_CONTROL_PLANE_ENDPOINT_PORT: 6443
 
 #! NSX-T specific configurations for enabling NSX-T routable pods
 #! set this to true to enable NSX-T routable pods

@@ -35,7 +35,7 @@ const (
 	// DockerProviderName docker provider name
 	DockerProviderName = "docker"
 	// BYOHProviderName BringYourOwnHost provider name
-	BYOHProviderName = "bringyourownhost"
+	BYOHProviderName = "byoh"
 
 	defaultPacificProviderVersion = "v1.1.0"
 )
