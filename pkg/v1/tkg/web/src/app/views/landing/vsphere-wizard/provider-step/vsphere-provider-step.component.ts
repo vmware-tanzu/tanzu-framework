@@ -359,6 +359,9 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 this.formGroup.get('datacenter').enable();
                 this.formGroup.get('ssh_key').enable();
                 this.formGroup.get('datacenter').setValue(this.getSavedValue('datacenter', ''));
+                if (this.datacenters.length === 1) {
+                    this.formGroup.get('datacenter').setValue(this.datacenters[0].name);
+                }
             },
             (err) => {
                 const error = err.error.message || err.message || JSON.stringify(err);

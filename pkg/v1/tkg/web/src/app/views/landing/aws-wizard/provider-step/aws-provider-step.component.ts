@@ -157,6 +157,12 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
                 (next) => {
                     this.regions = next[0].sort();
                     this.profileNames = next[1];
+                    if (this.profileNames.length === 1) {
+                        this.formGroup.get('profileName').setValue(this.profileNames[0]);
+                    }
+                    if (this.regions.length === 1) {
+                        this.formGroup.get('region').setValue(this.regions[0]);
+                    }
                 },
                 () => this.loading = false
             );
