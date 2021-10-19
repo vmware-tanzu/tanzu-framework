@@ -29,19 +29,19 @@ combinations we support now.
 
 - Install the `tanzu` CLI
 
+  Note: Replace `v0.8.0` with the version you've downloaded.
+
   - for macOS:
 
     ```sh
-    install tanzu/cli/core/v0.5.0/tanzu-core-darwin_amd64 /usr/local/bin/tanzu
+    install tanzu/cli/core/v0.8.0/tanzu-core-darwin_amd64 /usr/local/bin/tanzu
     ```
 
   - for Linux:
 
     ```sh
-    sudo install tanzu/cli/core/v0.5.0/tanzu-core-linux_amd64 /usr/local/bin/tanzu
+    sudo install tanzu/cli/core/v0.8.0/tanzu-core-linux_amd64 /usr/local/bin/tanzu
     ```
-
-  Note: Replace `v0.5.0` with the version you've downloaded
 
 - Set `TANZU_CLI_NO_INIT=true`
 
@@ -81,10 +81,12 @@ combinations we support now.
 
 - Save following in `install.bat` in current directory and run `install.bat`
 
+  Note: Replace `v0.8.0` (line number 3) with the version you've downloaded.
+
   ```sh
   SET TANZU_CLI_DIR=%ProgramFiles%\tanzu
   mkdir "%TANZU_CLI_DIR%"
-  copy /B /Y cli\core\v0.5.0\tanzu-core-windows_amd64.exe "%TANZU_CLI_DIR%\tanzu.exe"
+  copy /B /Y cli\core\v0.8.0\tanzu-core-windows_amd64.exe "%TANZU_CLI_DIR%\tanzu.exe"
   set PATH=%PATH%;%TANZU_CLI_DIR%
   SET PLUGIN_DIR=%LocalAppData%\tanzu-cli
   mkdir %PLUGIN_DIR%
@@ -96,16 +98,21 @@ combinations we support now.
   tanzu plugin list
   ```
 
-  Note version `v0.5.0` in line number 3, please replace with the version you are installing.
-
 - Add `Program Files\tanzu` to your PATH.
 
 ## Delete a selected plugin
 
 If you want to delete a given plugin (one use case is when a plugin has become obsolete), you can run the following command:
 
-```shell
-  tanzu plugin delete <PLUGIN_NAME>
+```sh
+tanzu plugin delete <PLUGIN_NAME>
+```
+
+With `v0.8.0` release, the plugin `imagepullsecret` is deprecated and renamed `secret`. The new plugin `secret` will be installed following
+the instructions listed above. Remove the installed deprecated plugin if it exists using:
+
+```sh
+tanzu plugin delete imagepullsecret
 ```
 
 ## Build the CLI and plugins from source
