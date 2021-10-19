@@ -17,7 +17,7 @@ review the following guidelines you'll need to follow in order to make a
 contribution.
 
 If you are interested in going beyond a single PR, take a look at our
-[Contribution Ladder](docs/contribution-ladder.md) and learn how to become a
+[Contribution Ladder](docs/community/contribution-ladder.md) and learn how to become a
 reviewer.
 
 ## Communication
@@ -80,7 +80,7 @@ Second, a one-to-one correspondence between pull requests and commits makes it
 easier to manage reverting changes.
 
 At a maintainer's discretion, pull requests with multiple commits can be merged
-with the [Create a merge commit](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-request-merges)
+with the [Rebase and merge](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-request-merges#rebase-and-merge-your-pull-request-commits)
 option. Merging pull requests with multiple commits can make sense in cases
 where a change involves code generation or mechanical changes that can be
 cleanly separated from semantic changes. The maintainer should review commit

@@ -35,16 +35,15 @@ func (fake *ClusterClientFactory) NewClient(arg1 string, arg2 string, arg3 clust
 		arg2 string
 		arg3 clusterclient.Options
 	}{arg1, arg2, arg3})
-	stub := fake.NewClientStub
-	fakeReturns := fake.newClientReturns
 	fake.recordInvocation("NewClient", []interface{}{arg1, arg2, arg3})
 	fake.newClientMutex.Unlock()
-	if stub != nil {
-		return stub(arg1, arg2, arg3)
+	if fake.NewClientStub != nil {
+		return fake.NewClientStub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
+	fakeReturns := fake.newClientReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 

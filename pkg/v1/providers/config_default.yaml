@@ -257,6 +257,14 @@ WORKER_STORAGE_CLASS:
 #! Specifies the name of the VirtualMachineClass that describes the virtual
 #! hardware settings to be used each worker node in the pool
 WORKER_VM_CLASS:
+#! Specifies the name of the first node pool
+NODE_POOL_0_NAME: "workers"
+#! Specifies the labels to be applied on first node pool. It should be of the
+#! format "key1=value1,key2=value2"
+NODE_POOL_0_LABELS:
+#! Specifies the taints string to be applied on first node pool. It should be of the
+#! format "key1=value1:effect1,key2=value2:effect2"
+NODE_POOL_0_TAINTS:
 
 
 
@@ -401,6 +409,10 @@ TKG_NO_PROXY: ""
 #! IP Family setting
 TKG_IP_FAMILY:
 
+#! Node Nameservers (currently only supports the vSphere provider)
+CONTROL_PLANE_NODE_NAMESERVERS:
+WORKER_NODE_NAMESERVERS:
+
 #! Audit Logging settings
 ENABLE_AUDIT_LOGGING: false
 
@@ -460,6 +472,11 @@ DOCKER_MACHINE_TEMPLATE_IMAGE:
 #! Identifies the Identity management type to be deployed. Possible values are "oidc", "ldap" or "none"
 #! If "none" is specified, pinniped services will not be deployed on the cluster
 IDENTITY_MANAGEMENT_TYPE: "none"
+
+#! ---------------------------------------------------------------------
+#! SecretGen Controller configuration
+#! ---------------------------------------------------------------------
+SECRETGEN_CONTROLLER_ENABLE: true
 
 #! Settings for Pinniped OIDC
 CERT_DURATION: 2160h

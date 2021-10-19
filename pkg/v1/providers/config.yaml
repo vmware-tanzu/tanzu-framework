@@ -12,7 +12,7 @@ providers:
     url: providers/infrastructure-azure/v0.4.15/infrastructure-components.yaml
     type: InfrastructureProvider
   - name: tkg-service-vsphere
-    url: providers/infrastructure-tkg-service-vsphere/v1.0.0/unused.yaml
+    url: providers/infrastructure-tkg-service-vsphere/v1.1.0/unused.yaml
     type: InfrastructureProvider
   - name: kubeadm
     url: providers/bootstrap-kubeadm/v0.3.23/bootstrap-components.yaml

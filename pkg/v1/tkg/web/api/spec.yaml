@@ -60,15 +60,13 @@ paths:
   /api/features:
     get:
       tags: ["features"]
-      summary: "Retrieve list of enabled hidden features"
+      summary: "Retrieve list of features"
       operationId: getFeatureFlags
       responses:
         200:
           description: Successful retrieval of feature flags
           schema:
-            type: object
-            additionalProperties:
-              type: string
+            $ref: "#/definitions/Features"
         400:
           description: "Bad Request"
           schema:
@@ -2338,6 +2336,16 @@ definitions:
     properties:
       path:
         type: string
+
+  Features:
+    type: object
+    additionalProperties:
+      $ref: '#/definitions/FeatureMap'
+
+  FeatureMap:
+    type: object
+    additionalProperties:
+      type: string
 
   LdapTestResult:
     type: object

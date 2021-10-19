@@ -261,16 +261,13 @@ func init() {
         "tags": [
           "features"
         ],
-        "summary": "Retrieve list of enabled hidden features",
+        "summary": "Retrieve list of features",
         "operationId": "getFeatureFlags",
         "responses": {
           "200": {
             "description": "Successful retrieval of feature flags",
             "schema": {
-              "type": "object",
-              "additionalProperties": {
-                "type": "string"
-              }
+              "$ref": "#/definitions/Features"
             }
           },
           "400": {
@@ -2985,6 +2982,18 @@ func init() {
         "message": {
           "type": "string"
         }
+      }
+    },
+    "FeatureMap": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "Features": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/FeatureMap"
       }
     },
     "HTTPProxyConfiguration": {
@@ -3771,16 +3780,13 @@ func init() {
         "tags": [
           "features"
         ],
-        "summary": "Retrieve list of enabled hidden features",
+        "summary": "Retrieve list of features",
         "operationId": "getFeatureFlags",
         "responses": {
           "200": {
             "description": "Successful retrieval of feature flags",
             "schema": {
-              "type": "object",
-              "additionalProperties": {
-                "type": "string"
-              }
+              "$ref": "#/definitions/Features"
             }
           },
           "400": {
@@ -6495,6 +6501,18 @@ func init() {
         "message": {
           "type": "string"
         }
+      }
+    },
+    "FeatureMap": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "Features": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/FeatureMap"
       }
     },
     "HTTPProxyConfiguration": {

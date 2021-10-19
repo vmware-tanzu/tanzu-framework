@@ -22,7 +22,8 @@ var repositoryDeleteCmd = &cobra.Command{
 	Example: `
     # Delete a repository in specified namespace 	
     tanzu package repository delete repo --namespace test-ns`,
-	RunE: repositoryDelete,
+	RunE:         repositoryDelete,
+	SilenceUsage: true,
 }
 
 func init() {
@@ -40,8 +41,6 @@ func repositoryDelete(cmd *cobra.Command, args []string) error {
 	} else {
 		return errors.New("incorrect number of input parameters. Usage: tanzu package repository delete REPO_NAME [FLAGS]")
 	}
-
-	cmd.SilenceUsage = true
 
 	if !repoOp.SkipPrompt {
 		if err := cli.AskForConfirmation(fmt.Sprintf("Deleting package repository '%s' in namespace '%s'. Are you sure?",

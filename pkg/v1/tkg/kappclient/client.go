@@ -189,8 +189,8 @@ func (c *client) ListPackageRepositories(namespace string) (*kappipkg.PackageRep
 	return repositoryList, nil
 }
 
-// ListImagePullSecrets gets the list of all Secrets of type "kubernetes.io/dockerconfigjson"
-func (c *client) ListImagePullSecrets(namespace string) (*corev1.SecretList, error) {
+// ListRegistrySecrets gets the list of all Secrets of type "kubernetes.io/dockerconfigjson"
+func (c *client) ListRegistrySecrets(namespace string) (*corev1.SecretList, error) {
 	var selectors []crtclient.ListOption
 	secretList := &corev1.SecretList{}
 
