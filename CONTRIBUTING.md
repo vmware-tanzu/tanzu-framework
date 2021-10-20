@@ -37,18 +37,6 @@ Before submitting an issue, please search through open ones to ensure others
 have not submitted something similar. If a similar issue exists, please add any
 additional information as a comment.
 
-<!-- TODO: this section should be revised, but it needs discussion first.
-     https://github.com/vmware-tanzu/tanzu-framework/issues/874
-
-### Issues Lifecycle
-
-Once an issue is labeled with `in-progress`, a team member has begun
-investigating it. We keep `in-progress` issues open until they have been
-resolved and released. Once released, a comment containing release information
-will be posted in the issue's thread.
-
--->
-
 ## Contribute a Change
 
 Pull requests are welcome for all changes, whether they are improving
