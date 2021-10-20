@@ -30,8 +30,7 @@ import (
 // nolint:funlen
 func TestPinniped(t *testing.T) {
 	const (
-		apiGroupSuffix = "tuna.io"
-
+		apiGroupSuffix      = "tuna.io"
 		supervisorNamespace = "pinniped-supervisor" // vars.SupervisorNamespace default
 	)
 
@@ -83,6 +82,17 @@ func TestPinniped(t *testing.T) {
 			"cluster_name":                         "some-pinniped-info-management-cluster-name",
 			"issuer":                               serviceHTTPSEndpoint(supervisorService),
 			"issuer_ca_bundle_data":                base64.StdEncoding.EncodeToString(supervisorCertificateSecret.Data["ca.crt"]),
+			"pinniped_api_group_suffix":            apiGroupSuffix,
+			"pinniped_concierge_is_cluster_scoped": "false",
+		},
+	}
+
+	pinnipedInfoConfigMapWorkloadCluster := &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: "kube-public",
+			Name:      "pinniped-info",
+		},
+		Data: map[string]string{
 			"pinniped_api_group_suffix":            apiGroupSuffix,
 			"pinniped_concierge_is_cluster_scoped": "false",
 		},
@@ -243,9 +253,13 @@ func TestPinniped(t *testing.T) {
 				SupervisorSvcEndpoint:  jwtAuthenticator.Spec.Issuer,
 				SupervisorCABundleData: jwtAuthenticator.Spec.TLS.CertificateAuthorityData,
 				JWTAuthenticatorName:   jwtAuthenticator.Name,
+				PinnipedAPIGroupSuffix: apiGroupSuffix,
 			},
 			wantKubeClientActions: []kubetesting.Action{
-				// 2. Look for any supervisor pods to recreate (we do this on both management and workload clusters)
+				// 2. Create the Pinniped info configmap
+				kubetesting.NewGetAction(configMapGVR, pinnipedInfoConfigMapWorkloadCluster.Namespace, pinnipedInfoConfigMapWorkloadCluster.Name),
+				kubetesting.NewCreateAction(configMapGVR, pinnipedInfoConfigMapWorkloadCluster.Namespace, pinnipedInfoConfigMapWorkloadCluster),
+				// 3. Look for any supervisor pods to recreate (we do this on both management and workload clusters)
 				kubetesting.NewListAction(podGVR, podGVK, supervisorNamespace, metav1.ListOptions{}),
 			},
 			wantCertManagerClientActions: []kubetesting.Action{},
@@ -254,6 +268,26 @@ func TestPinniped(t *testing.T) {
 				kubetesting.NewGetAction(jwtAuthenticatorGVR, jwtAuthenticator.Namespace, jwtAuthenticator.Name),
 				kubetesting.NewUpdateAction(jwtAuthenticatorGVR, jwtAuthenticator.Namespace, toUnstructured(jwtAuthenticator, false)),
 			},
+		},
+		{
+			name: "unknown cluster type",
+			newKubeClient: func() *kubefake.Clientset {
+				return kubefake.NewSimpleClientset()
+			},
+			newCertManagerClient: func() *certmanagerfake.Clientset {
+				return certmanagerfake.NewSimpleClientset(supervisorCertificate)
+			},
+			newKubeDynamicClient: func() *kubedynamicfake.FakeDynamicClient {
+				defaultJWTAuthenticator := jwtAuthenticator.DeepCopy()
+				return kubedynamicfake.NewSimpleDynamicClient(scheme, defaultJWTAuthenticator)
+			},
+			parameters: Parameters{
+				ClusterType: "penguin",
+			},
+			wantError:                    "unknown cluster type penguin",
+			wantKubeClientActions:        []kubetesting.Action{},
+			wantCertManagerClientActions: []kubetesting.Action{},
+			wantKubeDynamicClientActions: []kubetesting.Action{},
 		},
 	}
 	for _, test := range tests {
