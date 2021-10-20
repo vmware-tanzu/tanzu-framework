@@ -99,12 +99,7 @@ func SetConfig(data map[string]string, clusterConfigPath string) error {
 		}
 	}
 
-	// copy the parameter data over top any existing configuration data
-	for key, value := range data {
-		if !shouldExcludeFromFile(key) {
-			tkgConfigMap[key] = value
-		}
-	}
+	mergeParamDataWithConfigFile(data, tkgConfigMap)
 
 	outBytes, err := yaml.Marshal(&tkgConfigMap)
 	if err != nil {
@@ -116,6 +111,15 @@ func SetConfig(data map[string]string, clusterConfigPath string) error {
 	}
 
 	return nil
+}
+
+func mergeParamDataWithConfigFile(data map[string]string, tkgConfigMap map[string]interface{}) {
+	// copy the parameter data over top any existing configuration data
+	for key, value := range data {
+		if !shouldExcludeFromFile(key) {
+			tkgConfigMap[key] = value
+		}
+	}
 }
 
 func shouldExcludeFromFile(key string) bool {

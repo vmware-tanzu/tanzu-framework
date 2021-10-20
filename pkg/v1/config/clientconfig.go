@@ -26,8 +26,8 @@ import (
 var (
 	DefaultCliFeatureFlags = map[string]bool{
 		"features.management-cluster.import":             false,
-		"features.management-cluster.export-from-config": false,
 		"features.global.use-context-aware-discovery":    common.IsContextAwareDiscoveryEnabled,
+		"features.management-cluster.export-from-config": true,
 	}
 )
 

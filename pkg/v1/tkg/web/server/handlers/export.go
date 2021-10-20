@@ -80,10 +80,8 @@ func transformConfigToString(config interface{}) (out string, err error) {
 	var configMap map[string]string
 	var configByte []byte
 
-	if err == nil {
-		// turn the configuration object into a map
-		configMap, err = tkgconfigupdater.CreateConfigMap(config)
-	}
+	// turn the configuration object into a map
+	configMap, err = tkgconfigupdater.CreateConfigMap(config)
 	if err == nil {
 		// turn the map into a byte array
 		configByte, err = yaml.Marshal(&configMap)
