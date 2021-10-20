@@ -150,7 +150,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         );
         this.formGroup.addControl(
             'createCloudFormation',
-            new FormControl(false, [])
+            new FormControl(true, [])
         );
     }
 
