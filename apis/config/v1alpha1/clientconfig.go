@@ -66,8 +66,9 @@ func (c *ClientConfig) SetUnstableVersionSelector(f VersionSelectorLevel) {
 	c.ClientOptions.CLI.UnstableVersionSelector = AllUnstableVersions
 }
 
-func (c *ClientConfig) IsConfigFeatureActivated(featureName string) (bool, error) {
-	plugin, flag, err := c.SplitFeaturePath(featureName)
+// IsConfigFeatureActivated return true if the feature is activated, false if not. An error if the featurePath is malformed
+func (c *ClientConfig) IsConfigFeatureActivated(featurePath string) (bool, error) {
+	plugin, flag, err := c.SplitFeaturePath(featurePath)
 	if err != nil {
 		return false, err
 	}
@@ -79,12 +80,15 @@ func (c *ClientConfig) IsConfigFeatureActivated(featureName string) (bool, error
 
 	booleanValue, err := strconv.ParseBool(c.ClientOptions.Features[plugin][flag])
 	if err != nil {
-		errMsg := "error converting " + featureName + " entry '" + c.ClientOptions.Features[plugin][flag] + "' to boolean value: " + err.Error()
+		errMsg := "error converting " + featurePath + " entry '" + c.ClientOptions.Features[plugin][flag] + "' to boolean value: " + err.Error()
 		return false, errors.New(errMsg)
 	}
 	return booleanValue, nil
 }
 
+// SplitFeaturePath splits a features path into the pluginName and the featureName
+// For example "features.management-cluster.dual-stack" returns "management-cluster", "dual-stack"
+// An error results from a malformed path, including any path that does not start with "features."
 func (c *ClientConfig) SplitFeaturePath(featurePath string) (string, string, error) {
 	// parse the param
 	paramArray := strings.Split(featurePath, ".")
