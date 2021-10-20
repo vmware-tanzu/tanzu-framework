@@ -126,12 +126,16 @@ func populateDefaultCliFeatureValues(c *configv1alpha1.ClientConfig, defaultCliF
 		if err != nil {
 			return err
 		}
-		if c.ClientOptions.Features[plugin] == nil {
-			c.ClientOptions.Features[plugin] = configv1alpha1.FeatureMap{}
-		}
-		c.ClientOptions.Features[plugin][flag] = strconv.FormatBool(flagValue)
+		addFeatureFlag(c, plugin, flag, flagValue)
 	}
 	return nil
+}
+
+func addFeatureFlag(c *configv1alpha1.ClientConfig, plugin, flag string, flagValue bool) {
+	if c.ClientOptions.Features[plugin] == nil {
+		c.ClientOptions.Features[plugin] = configv1alpha1.FeatureMap{}
+	}
+	c.ClientOptions.Features[plugin][flag] = strconv.FormatBool(flagValue)
 }
 
 // ClientConfigNotExistError is thrown when a tanzu config cannot be found.
@@ -203,7 +207,35 @@ func GetClientConfig() (cfg *configv1alpha1.ClientConfig, err error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "could not decode config file")
 	}
+
+	added := addMissingDefaultFeatureFlags(&c, DefaultCliFeatureFlags)
+	if added {
+		_ = StoreClientConfig(&c)
+	}
+
 	return &c, nil
+}
+
+// addMissingDefaultFeatureFlags augments the given configuration object with any default feature flags that do not already have a value
+// and returns TRUE if any were added (so the config can be written out to disk, if the caller wants to)
+func addMissingDefaultFeatureFlags(config *configv1alpha1.ClientConfig, defaultFeatureFlags map[string]bool) bool {
+	added := false
+
+	for featurePath, activated := range defaultFeatureFlags {
+		plugin, feature, err := config.SplitFeaturePath(featurePath)
+		if err == nil && !containsFeatureFlag(config, plugin, feature) {
+			addFeatureFlag(config, plugin, feature, activated)
+			added = true
+		}
+	}
+
+	return added
+}
+
+// containsFeatureFlag returns true if the features section in the configuration object contains any value for the plugin.feature combination
+func containsFeatureFlag(config *configv1alpha1.ClientConfig, plugin, feature string) bool {
+	return config.ClientOptions != nil && config.ClientOptions.Features != nil && config.ClientOptions.Features[plugin] != nil &&
+		config.ClientOptions.Features[plugin][feature] != ""
 }
 
 // storeConfigToLegacyDir stores configuration to legacy dir and logs warning in case of errors.
