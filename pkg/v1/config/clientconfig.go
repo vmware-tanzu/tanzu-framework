@@ -24,7 +24,8 @@ import (
 // will fail. Note that "global" is a special value for <plugin> to be used for CLI-wide features.
 var (
 	DefaultCliFeatureFlags = map[string]bool{
-		"features.management-cluster.import": true,
+		"features.management-cluster.import":             false,
+		"features.management-cluster.export-from-config": false,
 	}
 )
 
