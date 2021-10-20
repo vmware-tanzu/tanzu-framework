@@ -148,6 +148,7 @@ func getPinnipedCLICmd(args []string, loginOptions *loginOIDCOptions, pluginRoot
 	cmd := exec.Command(pinnipedCLIBinFilePath, args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
 
 	return cmd, nil
 }

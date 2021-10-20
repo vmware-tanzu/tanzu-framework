@@ -320,6 +320,7 @@ func TestGetPinnipedCLICmd(t *testing.T) {
 			require.Equal(t, append([]string{cmd.Path}, wantArgs...), cmd.Args)
 			require.Equal(t, os.Stdout, cmd.Stdout)
 			require.Equal(t, os.Stderr, cmd.Stderr)
+			require.Equal(t, os.Stdin, cmd.Stdin)
 			require.Empty(t, cmd.Env)
 			require.Empty(t, cmd.Dir)
 		})
