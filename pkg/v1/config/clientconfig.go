@@ -8,12 +8,25 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/aunum/log"
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/runtime/serializer/json"
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+)
+
+// DefaultCliFeatureFlags is used to populate an initially empty config file with default values for feature flags.
+// If a developer expects that their feature will be ready to release, they should create an entry here with a true
+// value. If a developer has a beta feature they want to expose, but leave turned off by default, they should create
+// an entry here with a false value. The keys MUST be in the format "features.<plugin>.<feature>" or initialization
+// will fail. Note that "global" is a special value for <plugin> to be used for CLI-wide features.
+var (
+	DefaultCliFeatureFlags = map[string]bool{
+		"features.management-cluster.import":             false,
+		"features.management-cluster.export-from-config": false,
+	}
 )
 
 const (
@@ -98,7 +111,27 @@ func NewClientConfig() (*configv1alpha1.ClientConfig, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	err = populateDefaultCliFeatureValues(c, DefaultCliFeatureFlags)
+	if err != nil {
+		return nil, err
+	}
 	return c, nil
+}
+
+func populateDefaultCliFeatureValues(c *configv1alpha1.ClientConfig, defaultCliFeatureFlags map[string]bool) error {
+	c.ClientOptions.Features = make(map[string]configv1alpha1.FeatureMap)
+	for featureName, flagValue := range defaultCliFeatureFlags {
+		plugin, flag, err := c.SplitFeaturePath(featureName)
+		if err != nil {
+			return err
+		}
+		if c.ClientOptions.Features[plugin] == nil {
+			c.ClientOptions.Features[plugin] = configv1alpha1.FeatureMap{}
+		}
+		c.ClientOptions.Features[plugin][flag] = strconv.FormatBool(flagValue)
+	}
+	return nil
 }
 
 // ClientConfigNotExistError is thrown when a tanzu config cannot be found.
