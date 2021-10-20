@@ -15,6 +15,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/serializer/json"
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
 )
 
 // DefaultCliFeatureFlags is used to populate an initially empty config file with default values for feature flags.
@@ -26,6 +27,7 @@ var (
 	DefaultCliFeatureFlags = map[string]bool{
 		"features.management-cluster.import":             false,
 		"features.management-cluster.export-from-config": false,
+		"features.global.use-context-aware-discovery":    common.IsContextAwareDiscoveryEnabled,
 	}
 )
 
@@ -431,4 +433,21 @@ func EndpointFromServer(s *configv1alpha1.Server) (endpoint string, err error) {
 	default:
 		return endpoint, fmt.Errorf("unknown server type %q", s.Type)
 	}
+}
+
+// IsContextAwareDiscoveryEnabled returns true if context-aware discovery is enabled
+// User can set this CLI feature flag using `tanzu config set features.global.use-context-aware-discovery true`
+// This determines whether to use legacy way of discovering plugins or
+// to use the new context-aware Plugin API based plugin discovery mechanism
+// Users can set this featureflag so that we can have context-aware plugin discovery be opt-in for now.
+func IsContextAwareDiscoveryEnabled() bool {
+	cfg, err := GetClientConfig()
+	if err != nil {
+		return false
+	}
+	status, err := cfg.IsConfigFeatureActivated("features.global.use-context-aware-discovery")
+	if err != nil {
+		return false
+	}
+	return status
 }
