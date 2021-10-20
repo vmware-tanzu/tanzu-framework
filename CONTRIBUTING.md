@@ -109,24 +109,23 @@ Once a pull request has been opened, the following must take place before it is 
 
 While these steps will not always take place in the same order, the following describes the process for a typical pull request once it is opened:
 
-1. Review is automatically requested from CODEOWNERS and `needs-triage` label is automatically added.
+1. Review is automatically requested from CODEOWNERS.
 2. Assignee is added to pull request to ensure it gets proper attention throughout the process.
    Typically one of the CODEOWNERS will assign themselves, but they may choose to delegate to someone else.
-3. Triage removes `needs-triage` and adds `ok-to-merge` if the pull request is generally aligned with product goals and does not conflict with current milestones; otherwise they may add a comment and a `do-not-merge/*` label.
+3. Triage removes adds `ok-to-merge` if the pull request is generally aligned with product goals and does not conflict with current milestones; otherwise they may add a comment and a `do-not-merge/*` label.
 4. Assignee may request others to do an initial review; anyone else may review
 5. Reviewers leave feedback
 6. Contributor updates pull request to address feedback
 7. Requested reviewer approves pull request
 8. Assignee approves pull request
-9. Assignee merges pull request or requests another member to merge it if
-    necessary.
+9. Assignee merges pull request or requests another member to merge it if necessary.
 
 During the review process itself, direct discussion among contributors and reviewers is encouraged.
 
 Throughout the process, and until the pull request has been merged, the following should be transparent to the contributor:
 
 * Has the pull request been assigned to anyone yet?
-* Has the pull request been triaged yet?
+* Has the pull request been labeled with `ok-to-merge` or `do-not-merge/*`?
 * Has someone been requested to review the pull request?
 * Has the PR been approved by a reviewer?
 * Has the PR been approved by the approver?
