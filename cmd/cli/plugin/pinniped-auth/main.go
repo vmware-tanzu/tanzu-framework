@@ -26,7 +26,7 @@ func main() {
 		log.Fatal(err)
 	}
 	p.AddCommands(
-		loginOIDCCommand(pinnipedLoginExec),
+		loginOIDCCommand(getPinnipedCLICmd),
 	)
 	if err := p.Execute(); err != nil {
 		os.Exit(1)
