@@ -60,6 +60,8 @@ endif
 DOCKER_DIR := /app
 SWAGGER=docker run --rm -v ${PWD}:${DOCKER_DIR} quay.io/goswagger/swagger:v0.21.0
 
+# OCI registry for hosting tanzu framework components (containers and packages)
+OCI_REGISTRY ?= projects.registry.vmware.com/tanzu_framework
 
 # Add supported OS-ARCHITECTURE combinations here
 ENVS := linux-amd64 windows-amd64 darwin-amd64
@@ -85,6 +87,7 @@ XDG_CACHE_HOME := ${HOME}/.cache
 
 export XDG_DATA_HOME
 export XDG_CACHE_HOME
+export OCI_REGISTRY
 
 ## --------------------------------------
 ## API/controller building and generation
@@ -478,3 +481,31 @@ e2e-tkgctl-vc67: $(GINKGO) generate-embedproviders ## Run ginkgo tkgctl E2E test
 .PHONY: e2e-tkgpackageclient-docker
 e2e-tkgpackageclient-docker: $(GINKGO) generate-embedproviders ## Run ginkgo tkgpackageclient E2E tests
 	$(GINKGO) -v -trace -nodes=$(GINKGO_NODES) --noColor=$(GINKGO_NOCOLOR) $(GINKGO_ARGS) -tags embedproviders pkg/v1/tkg/test/tkgpackageclient
+
+## --------------------------------------
+## Docker build
+## --------------------------------------
+
+# These are the components in this repo that need to have a docker image built.
+# This variable refers to directory paths that contain a Makefile with `docker-build`, `docker-publish` and
+# `kbld-image-replace` targets that can build and push a docker image for that component.
+COMPONENTS := pkg/v1/sdk/features
+
+.PHONY: docker-build
+docker-build: TARGET=docker-build
+docker-build: $(COMPONENTS)
+
+.PHONY: docker-publish
+docker-publish: TARGET=docker-publish
+docker-publish: $(COMPONENTS)
+
+.PHONY: kbld-image-replace
+kbld-image-replace: TARGET=kbld-image-replace
+kbld-image-replace: $(COMPONENTS)
+
+.PHONY: $(COMPONENTS)
+$(COMPONENTS):
+	$(MAKE) -C $@ $(TARGET) IMG_VERSION_OVERRIDE=$(BUILD_VERSION)
+
+.PHONY: docker-all
+docker-all: docker-build docker-publish kbld-image-replace
