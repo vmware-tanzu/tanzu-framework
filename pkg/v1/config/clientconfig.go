@@ -36,6 +36,7 @@ var (
 		"features.management-cluster.import":                  false,
 		"features.management-cluster.export-from-config":      true,
 		"features.management-cluster.standalone-cluster-mode": false,
+		"features.global.use-context-aware-discovery":    common.IsContextAwareDiscoveryEnabled,
 	}
 )
 
