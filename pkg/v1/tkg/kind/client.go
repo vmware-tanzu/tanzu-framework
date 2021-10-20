@@ -132,24 +132,8 @@ func (k *KindClusterProxy) CreateKindCluster() (string, error) {
 	log.V(3).Infof("Creating kind cluster: %s", k.options.ClusterName)
 
 	// setup proxy envvars for kind clusrer if being configured in TKG
-	if proxyEnabled, err := k.options.Readerwriter.Get(constants.TKGHTTPProxyEnabled); err == nil && proxyEnabled == "true" {
-		httpProxy, err := k.options.Readerwriter.Get(constants.TKGHTTPProxy)
-		if err != nil {
-			return "", errors.Wrapf(err, "failed to get %s", constants.TKGHTTPProxy)
-		}
-		httpsProxy, err := k.options.Readerwriter.Get(constants.TKGHTTPSProxy)
-		if err != nil {
-			return "", errors.Wrapf(err, "failed to get %s", constants.TKGHTTPSProxy)
-		}
-		noProxy, err := k.options.Readerwriter.Get(constants.TKGNoProxy)
-		if err != nil {
-			return "", errors.Wrapf(err, "failed to get %s", constants.TKGNoProxy)
-		}
-		noProxyList := strings.Split(noProxy, ",")
-		os.Setenv("HTTP_PROXY", httpProxy)
-		os.Setenv("HTTPS_PROXY", httpsProxy)
-		os.Setenv("NO_PROXY", strings.Join(append(noProxyList, fmt.Sprintf("%s-control-plane", k.options.ClusterName)), ","))
-	}
+	k.setupProxyConfigurationForKindCluster()
+
 	// create kind cluster with kind provider interface
 	if err := k.options.Provider.Create(
 		k.options.ClusterName,
@@ -240,8 +224,6 @@ func (k *KindClusterProxy) GetKindNodeImageAndConfig() (string, *kindv1.Cluster,
 }
 
 // Return the containerdConfigPatches field for kind Cluster object
-// if TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY or TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
-// is set for the custom docker registry.
 func (k *KindClusterProxy) getKindRegistryConfig() (string, error) {
 	tkgconfigClient := tkgconfigbom.New(k.options.TKGConfigDir, k.options.Readerwriter)
 
@@ -312,7 +294,7 @@ func (k *KindClusterProxy) getDockerRegistryCACertFilePath() (string, error) {
 		return k.caCertPath, nil
 	}
 	tkgconfigClient := tkgconfigbom.New(k.options.TKGConfigDir, k.options.Readerwriter)
-	customRepositoryCaCert, err := tkgconfigClient.GetCustomRepositoryCaCertificate()
+	customRepositoryCaCert, err := tkgconfigClient.GetCustomRepositoryCaCertificateForClient()
 	if err != nil {
 		return "", err
 	}
@@ -392,5 +374,52 @@ func (k *KindClusterProxy) getIPFamily() (kindv1.ClusterIPFamily, error) {
 		return normalisedIPFamily, nil
 	default:
 		return "", fmt.Errorf("TKG_IP_FAMILY should be one of %s, %s, %s, got %s", kindv1.IPv4Family, kindv1.IPv6Family, kindv1.DualStackFamily, normalisedIPFamily)
+	}
+}
+
+// setupProxyConfigurationForKindCluster sets up proxy configuration for kind cluster
+//
+// This function takes HTTP_PROXY, HTTPS_PROXY, NO_PROXY variable into consideration as well.
+// The precedence of the configuration variable is as below:
+// 1. HTTP_PROXY , HTTPS_PROXY , NO_PROXY
+// 2. TKG_HTTP_PROXY , TKG_HTTPS_PROXY , TKG_NO_PROXY
+//
+// Meaning if User has provided env variable for HTTP_PROXY that will have higher precedence than
+// TKG_HTTP_PROXY when using it with kind cluster.
+//
+// This will allow user to configure different proxy configuration for kind cluster than the
+// proxy configuration needed for management/workload cluster deployment
+func (k *KindClusterProxy) setupProxyConfigurationForKindCluster() {
+	var httpProxy, httpsProxy, noProxy, tkgHTTPProxy, tkgHTTPSProxy, tkgNoProxy string
+
+	httpProxy, _ = k.options.Readerwriter.Get(constants.HTTPProxy)
+	httpsProxy, _ = k.options.Readerwriter.Get(constants.HTTPSProxy)
+	noProxy, _ = k.options.Readerwriter.Get(constants.NoProxy)
+
+	if proxyEnabled, err := k.options.Readerwriter.Get(constants.TKGHTTPProxyEnabled); err == nil && proxyEnabled == "true" {
+		tkgHTTPProxy, _ = k.options.Readerwriter.Get(constants.TKGHTTPProxy)
+		tkgHTTPSProxy, _ = k.options.Readerwriter.Get(constants.TKGHTTPSProxy)
+		tkgNoProxy, _ = k.options.Readerwriter.Get(constants.TKGNoProxy)
+	}
+
+	if httpProxy == "" && tkgHTTPProxy != "" {
+		httpProxy = tkgHTTPProxy
+	}
+	if httpsProxy == "" && tkgHTTPSProxy != "" {
+		httpsProxy = tkgHTTPSProxy
+	}
+	if noProxy == "" && tkgNoProxy != "" {
+		noProxy = tkgNoProxy
+	}
+
+	if httpProxy != "" {
+		os.Setenv(constants.HTTPProxy, httpProxy)
+	}
+	if httpsProxy != "" {
+		os.Setenv(constants.HTTPSProxy, httpsProxy)
+	}
+	if noProxy != "" {
+		noProxyList := strings.Split(noProxy, ",")
+		os.Setenv(constants.NoProxy, strings.Join(append(noProxyList, fmt.Sprintf("%s-control-plane", k.options.ClusterName)), ","))
 	}
 }

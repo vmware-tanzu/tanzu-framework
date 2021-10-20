@@ -98,7 +98,7 @@ def tkg_image_repo_skip_tls_verify():
 end
 
 def tkg_image_repo_ca_cert():
-  return data.values.TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
+  return data.values.TKG_PROXY_CA_CERT if data.values.TKG_PROXY_CA_CERT else data.values.TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
 end
 
 def tkg_image_repo_hostname():

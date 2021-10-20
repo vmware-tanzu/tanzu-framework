@@ -131,15 +131,16 @@ func (fake *DiscoveryClient) OpenAPISchema() (*openapi_v2.Document, error) {
 	ret, specificReturn := fake.openAPISchemaReturnsOnCall[len(fake.openAPISchemaArgsForCall)]
 	fake.openAPISchemaArgsForCall = append(fake.openAPISchemaArgsForCall, struct {
 	}{})
+	stub := fake.OpenAPISchemaStub
+	fakeReturns := fake.openAPISchemaReturns
 	fake.recordInvocation("OpenAPISchema", []interface{}{})
 	fake.openAPISchemaMutex.Unlock()
-	if fake.OpenAPISchemaStub != nil {
-		return fake.OpenAPISchemaStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.openAPISchemaReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -186,15 +187,16 @@ func (fake *DiscoveryClient) RESTClient() rest.Interface {
 	ret, specificReturn := fake.rESTClientReturnsOnCall[len(fake.rESTClientArgsForCall)]
 	fake.rESTClientArgsForCall = append(fake.rESTClientArgsForCall, struct {
 	}{})
+	stub := fake.RESTClientStub
+	fakeReturns := fake.rESTClientReturns
 	fake.recordInvocation("RESTClient", []interface{}{})
 	fake.rESTClientMutex.Unlock()
-	if fake.RESTClientStub != nil {
-		return fake.RESTClientStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.rESTClientReturns
 	return fakeReturns.result1
 }
 
@@ -238,15 +240,16 @@ func (fake *DiscoveryClient) ServerGroups() (*v1.APIGroupList, error) {
 	ret, specificReturn := fake.serverGroupsReturnsOnCall[len(fake.serverGroupsArgsForCall)]
 	fake.serverGroupsArgsForCall = append(fake.serverGroupsArgsForCall, struct {
 	}{})
+	stub := fake.ServerGroupsStub
+	fakeReturns := fake.serverGroupsReturns
 	fake.recordInvocation("ServerGroups", []interface{}{})
 	fake.serverGroupsMutex.Unlock()
-	if fake.ServerGroupsStub != nil {
-		return fake.ServerGroupsStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.serverGroupsReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -293,15 +296,16 @@ func (fake *DiscoveryClient) ServerGroupsAndResources() ([]*v1.APIGroup, []*v1.A
 	ret, specificReturn := fake.serverGroupsAndResourcesReturnsOnCall[len(fake.serverGroupsAndResourcesArgsForCall)]
 	fake.serverGroupsAndResourcesArgsForCall = append(fake.serverGroupsAndResourcesArgsForCall, struct {
 	}{})
+	stub := fake.ServerGroupsAndResourcesStub
+	fakeReturns := fake.serverGroupsAndResourcesReturns
 	fake.recordInvocation("ServerGroupsAndResources", []interface{}{})
 	fake.serverGroupsAndResourcesMutex.Unlock()
-	if fake.ServerGroupsAndResourcesStub != nil {
-		return fake.ServerGroupsAndResourcesStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2, ret.result3
 	}
-	fakeReturns := fake.serverGroupsAndResourcesReturns
 	return fakeReturns.result1, fakeReturns.result2, fakeReturns.result3
 }
 
@@ -351,15 +355,16 @@ func (fake *DiscoveryClient) ServerPreferredNamespacedResources() ([]*v1.APIReso
 	ret, specificReturn := fake.serverPreferredNamespacedResourcesReturnsOnCall[len(fake.serverPreferredNamespacedResourcesArgsForCall)]
 	fake.serverPreferredNamespacedResourcesArgsForCall = append(fake.serverPreferredNamespacedResourcesArgsForCall, struct {
 	}{})
+	stub := fake.ServerPreferredNamespacedResourcesStub
+	fakeReturns := fake.serverPreferredNamespacedResourcesReturns
 	fake.recordInvocation("ServerPreferredNamespacedResources", []interface{}{})
 	fake.serverPreferredNamespacedResourcesMutex.Unlock()
-	if fake.ServerPreferredNamespacedResourcesStub != nil {
-		return fake.ServerPreferredNamespacedResourcesStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.serverPreferredNamespacedResourcesReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -406,15 +411,16 @@ func (fake *DiscoveryClient) ServerPreferredResources() ([]*v1.APIResourceList, 
 	ret, specificReturn := fake.serverPreferredResourcesReturnsOnCall[len(fake.serverPreferredResourcesArgsForCall)]
 	fake.serverPreferredResourcesArgsForCall = append(fake.serverPreferredResourcesArgsForCall, struct {
 	}{})
+	stub := fake.ServerPreferredResourcesStub
+	fakeReturns := fake.serverPreferredResourcesReturns
 	fake.recordInvocation("ServerPreferredResources", []interface{}{})
 	fake.serverPreferredResourcesMutex.Unlock()
-	if fake.ServerPreferredResourcesStub != nil {
-		return fake.ServerPreferredResourcesStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.serverPreferredResourcesReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -461,15 +467,16 @@ func (fake *DiscoveryClient) ServerResources() ([]*v1.APIResourceList, error) {
 	ret, specificReturn := fake.serverResourcesReturnsOnCall[len(fake.serverResourcesArgsForCall)]
 	fake.serverResourcesArgsForCall = append(fake.serverResourcesArgsForCall, struct {
 	}{})
+	stub := fake.ServerResourcesStub
+	fakeReturns := fake.serverResourcesReturns
 	fake.recordInvocation("ServerResources", []interface{}{})
 	fake.serverResourcesMutex.Unlock()
-	if fake.ServerResourcesStub != nil {
-		return fake.ServerResourcesStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.serverResourcesReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -517,15 +524,16 @@ func (fake *DiscoveryClient) ServerResourcesForGroupVersion(arg1 string) (*v1.AP
 	fake.serverResourcesForGroupVersionArgsForCall = append(fake.serverResourcesForGroupVersionArgsForCall, struct {
 		arg1 string
 	}{arg1})
+	stub := fake.ServerResourcesForGroupVersionStub
+	fakeReturns := fake.serverResourcesForGroupVersionReturns
 	fake.recordInvocation("ServerResourcesForGroupVersion", []interface{}{arg1})
 	fake.serverResourcesForGroupVersionMutex.Unlock()
-	if fake.ServerResourcesForGroupVersionStub != nil {
-		return fake.ServerResourcesForGroupVersionStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.serverResourcesForGroupVersionReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -579,15 +587,16 @@ func (fake *DiscoveryClient) ServerVersion() (*version.Info, error) {
 	ret, specificReturn := fake.serverVersionReturnsOnCall[len(fake.serverVersionArgsForCall)]
 	fake.serverVersionArgsForCall = append(fake.serverVersionArgsForCall, struct {
 	}{})
+	stub := fake.ServerVersionStub
+	fakeReturns := fake.serverVersionReturns
 	fake.recordInvocation("ServerVersion", []interface{}{})
 	fake.serverVersionMutex.Unlock()
-	if fake.ServerVersionStub != nil {
-		return fake.ServerVersionStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.serverVersionReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 

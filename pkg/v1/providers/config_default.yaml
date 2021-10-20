@@ -402,9 +402,13 @@ TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY: false
 TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE: ""
 
 #! PROXY configuration
+#! If `TKG_PROXY_CA_CERT` is specified it gets used instead of
+#! `TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE` while communicating
+#! with the registry
 TKG_HTTP_PROXY: ""
 TKG_HTTPS_PROXY: ""
 TKG_NO_PROXY: ""
+TKG_PROXY_CA_CERT: ""
 
 #! IP Family setting
 TKG_IP_FAMILY:

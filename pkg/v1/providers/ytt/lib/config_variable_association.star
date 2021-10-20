@@ -182,6 +182,7 @@ return {
 "TKG_HTTP_PROXY": ["vsphere", "aws", "azure", "docker"],
 "TKG_HTTPS_PROXY": ["vsphere", "aws", "azure", "docker"],
 "TKG_NO_PROXY": ["vsphere", "aws", "azure", "docker"],
+"TKG_PROXY_CA_CERT": ["vsphere", "aws", "azure", "docker"],
 
 "TKG_IP_FAMILY": ["vsphere", "aws", "azure", "docker"],
 
