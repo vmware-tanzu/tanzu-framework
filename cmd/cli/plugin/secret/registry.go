@@ -29,13 +29,13 @@ func init() {
 }
 
 func secretGenAvailabilityCheck(_ *cobra.Command, _ []string) error {
-	const secretGenGVR = "secretgen.carvel.dev/v1alpha1"
-	found, err := isSecretGenAPIAvailable()
+	found, err := isSecretGenAPIAvailable(registrySecretOp.KubeConfig)
 	if err != nil {
-		return errors.Wrap(err, fmt.Sprintf("failed to check for the availability of '%s' API", secretGenGVR))
+		return errors.Wrap(err, fmt.Sprintf("failed to check for the availability of '%s' API", tkgpackagedatamodel.SecretGenGVR))
 	}
 	if !found {
-		return errors.New(fmt.Sprintf("secret registry operations can not be used as '%s' API is not available in the cluster", secretGenGVR))
+		return errors.New(fmt.Sprintf(tkgpackagedatamodel.SecretGenAPINotAvailable, tkgpackagedatamodel.SecretGenGVR))
 	}
+
 	return nil
 }

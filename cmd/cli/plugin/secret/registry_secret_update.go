@@ -37,6 +37,7 @@ func init() {
 	registrySecretUpdateCmd.Flags().StringVarP(&registrySecretOp.PasswordFile, "password-file", "", "", "File containing the password for authenticating to the private registry")
 	registrySecretUpdateCmd.Flags().StringVarP(&registrySecretOp.PasswordEnvVar, "password-env-var", "", "", "Environment variable containing the password for authenticating to the private registry")
 	registrySecretUpdateCmd.Flags().BoolVarP(&registrySecretOp.PasswordStdin, "password-stdin", "", false, "When provided, password for authenticating to the private registry would be taken from the standard input")
+	registrySecretUpdateCmd.Flags().BoolVarP(&registrySecretOp.SkipPrompt, "yes", "y", false, "In case the --export-to-all-namespaces flag was provided, export/un-export of the secret will be performed without asking for confirmation, optional")
 	registrySecretUpdateCmd.Flags().VarPF(&registrySecretOp.Export, "export-to-all-namespaces", "", "If set to true, the secret gets available across all namespaces. If set to false, the secret will get unexported from ALL namespaces in which it was previously exported to. In case of not specifying this flag, no changes will be made in the existing SecretExport resource. optional").NoOptDefVal = "true"
 	registrySecretCmd.AddCommand(registrySecretUpdateCmd)
 	registrySecretUpdateCmd.Args = cobra.ExactArgs(1)
@@ -61,8 +62,10 @@ func registrySecretUpdate(cmd *cobra.Command, args []string) error {
 		} else {
 			log.Warning("Warning: By specifying --export-to-all-namespaces as false, the secret contents will get unexported from ALL namespaces in which it was previously available to.\n")
 		}
-		if err := cli.AskForConfirmation("Are you sure you want to proceed?"); err != nil {
-			return errors.New("update of the secret got aborted")
+		if !registrySecretOp.SkipPrompt {
+			if err := cli.AskForConfirmation("Are you sure you want to proceed?"); err != nil {
+				return errors.New("update of the secret got aborted")
+			}
 		}
 		log.Info("\n")
 	}

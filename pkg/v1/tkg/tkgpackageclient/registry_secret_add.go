@@ -30,7 +30,7 @@ type dockerConfigEntry struct {
 
 // AddRegistrySecret adds a registry secret to the cluster
 func (p *pkgClient) AddRegistrySecret(o *tkgpackagedatamodel.RegistrySecretOptions) error {
-	dockerCfg := DockerConfigJSON{Auths: map[string]dockerConfigEntry{o.ServerURL: {Username: o.Username, Password: o.Password}}}
+	dockerCfg := DockerConfigJSON{Auths: map[string]dockerConfigEntry{o.Server: {Username: o.Username, Password: o.Password}}}
 	dockerCfgContent, err := json.Marshal(dockerCfg)
 	if err != nil {
 		return err

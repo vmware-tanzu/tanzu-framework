@@ -16,7 +16,7 @@ type RegistrySecretOptions struct {
 	PasswordEnvVar        string
 	PasswordFile          string
 	PasswordInput         string
-	ServerURL             string
+	Server                string
 	SecretName            string
 	Username              string
 }

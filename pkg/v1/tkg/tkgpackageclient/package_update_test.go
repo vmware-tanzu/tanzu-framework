@@ -285,6 +285,7 @@ var _ = Describe("Update Package", func() {
 				VersionSelection: &versions.VersionSelectionSemver{},
 			}
 			kappCtl.GetPackageInstallReturnsOnCall(1, testPkgInstall, nil)
+			Expect(testPkgInstall.Status.ObservedGeneration).To(Equal(testPkgInstall.Generation))
 			Expect(len(testPkgInstall.Status.Conditions)).To(BeNumerically("==", 2))
 			testPkgInstall.Status.Conditions[1].Type = kappctrl.ReconcileFailed
 			testPkgInstall.Status.UsefulErrorMessage = testUsefulErrMsg

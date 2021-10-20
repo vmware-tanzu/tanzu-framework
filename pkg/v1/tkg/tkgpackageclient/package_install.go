@@ -272,8 +272,11 @@ func (p *pkgClient) createServiceAccount(o *tkgpackagedatamodel.PackageOptions) 
 }
 
 // waitForResourceInstallation waits until the package get installed successfully or a failure happen
-func (p *pkgClient) waitForResourceInstallation(name, namespace string, pollInterval, pollTimeout time.Duration, progress chan string, rscType tkgpackagedatamodel.ResourceType) error {
-	var status kappctrl.GenericStatus
+func (p *pkgClient) waitForResourceInstallation(name, namespace string, pollInterval, pollTimeout time.Duration, progress chan string, rscType tkgpackagedatamodel.ResourceType) error { //nolint:gocyclo
+	var (
+		status             kappctrl.GenericStatus
+		reconcileSucceeded bool
+	)
 	progress <- fmt.Sprintf("Waiting for '%s' reconciliation for '%s'", rscType.String(), name)
 	if err := wait.Poll(pollInterval, pollTimeout, func() (done bool, err error) {
 		switch rscType {
@@ -282,28 +285,45 @@ func (p *pkgClient) waitForResourceInstallation(name, namespace string, pollInte
 			if err != nil {
 				return false, err
 			}
+			if resource.Generation != resource.Status.ObservedGeneration {
+				// Should wait for generation to be observed before checking the reconciliation status so that we know we are checking the new spec
+				return false, nil
+			}
 			status = resource.Status.GenericStatus
 		case tkgpackagedatamodel.ResourceTypePackageInstall:
 			resource, err := p.kappClient.GetPackageInstall(name, namespace)
 			if err != nil {
 				return false, err
 			}
+			if resource.Generation != resource.Status.ObservedGeneration {
+				// Should wait for generation to be observed before checking the reconciliation status so that we know we are checking the new spec
+				return false, nil
+			}
 			status = resource.Status.GenericStatus
 		}
+
 		for _, cond := range status.Conditions {
 			if progress != nil {
-				progress <- fmt.Sprintf("Resource install status: %s", cond.Type)
+				progress <- fmt.Sprintf("'%s' resource install status: %s", rscType.String(), cond.Type)
 			}
-			switch cond.Type {
-			case kappctrl.ReconcileSucceeded:
+			switch {
+			case cond.Type == kappctrl.ReconcileSucceeded && cond.Status == corev1.ConditionTrue:
+				if progress != nil {
+					progress <- fmt.Sprintf("'%s' resource successfully reconciled", rscType.String())
+				}
+				reconcileSucceeded = true
 				return true, nil
-			case kappctrl.ReconcileFailed:
+			case cond.Type == kappctrl.ReconcileFailed && cond.Status == corev1.ConditionTrue:
 				return false, fmt.Errorf("resource reconciliation failed: %s. %s", status.UsefulErrorMessage, status.FriendlyDescription)
 			}
 		}
 		return false, nil
 	}); err != nil {
 		return err
+	}
+
+	if !reconcileSucceeded {
+		return errors.New(fmt.Sprintf("'%s' resource reconciliation failed", rscType.String()))
 	}
 
 	return nil
