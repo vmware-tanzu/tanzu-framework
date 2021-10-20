@@ -124,12 +124,6 @@ generate: controller-gen ## Generate code via controller-gen
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt",year=$(shell date +%Y) paths="./..."
 	$(MAKE) fmt
 
-docker-build: test ## Build the docker image
-	docker build . -t ${IMG} --build-arg LD_FLAGS="$(LD_FLAGS)"
-
-docker-push: ## Push the docker image
-	docker push ${IMG}
-
 controller-gen: ## Download controller-gen
 ifeq (, $(shell which controller-gen))
 	@{ \
