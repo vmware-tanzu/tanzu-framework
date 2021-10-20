@@ -87,7 +87,7 @@ var (
 	result                      packagelib.PackagePluginResult
 	resultImgPullSecret         secretlib.SecretPluginResult
 	clusterCreationTimeout      = 30 * time.Minute
-	pollInterval                = 30 * time.Second
+	pollInterval                = 20 * time.Second
 	pollTimeout                 = 10 * time.Minute
 	testImgPullSecretName       = "test-secret"
 	testNamespace               = "test-ns"
@@ -290,6 +290,8 @@ var _ = Describe("Package plugin integration test", func() {
 			Version:         config.PackageVersion,
 			SkipPrompt:      true,
 			Wait:            true,
+			PollInterval:    pollInterval,
+			PollTimeout:     pollTimeout,
 		}
 		repoOptions = tkgpackagedatamodel.RepositoryOptions{
 			CreateNamespace: true,
@@ -297,6 +299,8 @@ var _ = Describe("Package plugin integration test", func() {
 			RepositoryName:  config.RepositoryName,
 			SkipPrompt:      true,
 			Wait:            true,
+			PollInterval:    pollInterval,
+			PollTimeout:     pollTimeout,
 		}
 
 		expectedRepoOutput = repositoryOutput{
@@ -381,22 +385,19 @@ func cleanup() {
 }
 
 func testHelper() {
+	By("trying to update package repository with a private URL")
+	repoOptions.RepositoryURL = config.RepositoryURLPrivate
+	repoOptions.CreateRepository = true
+	repoOptions.PollTimeout = 20 * time.Second
+	result = packagePlugin.UpdateRepository(&repoOptions)
+	Expect(result.Error).To(HaveOccurred())
+
 	By("add registry secret")
 	imgPullSecretOptions.Username = testRegistryUsername
 	imgPullSecretOptions.PasswordInput = testRegistryPassword
 	imgPullSecretOptions.Server = testRegistry
 	resultImgPullSecret = secretPlugin.AddRegistrySecret(&imgPullSecretOptions)
 	Expect(resultImgPullSecret.Error).ToNot(HaveOccurred())
-
-	/*By("trying to update package repository with a private URL, which should fail")
-	repoOptions.RepositoryURL = config.RepositoryURLPrivate
-	repoOptions.CreateRepository = true
-	repoOptions.PollInterval = 30 * time.Second
-	result = packagePlugin.UpdateRepository(&repoOptions)
-	Expect(result.Error).To(HaveOccurred())
-	Expect(result.Stderr).ToNot(BeNil())
-	Expect(result.Stderr.String()).To(ContainSubstring("unauthorized to access repository"))
-	*/
 
 	By("update registry secret to export the secret from default namespace to all namespaces")
 	t := true
@@ -411,14 +412,20 @@ func testHelper() {
 	Expect(err).ToNot(HaveOccurred())
 	Expect(len(imgPullSecretOutput)).To(BeNumerically(">=", 1))
 
-	By("update package repository with a private URL and wait for package repository reconciliation")
+	By("wait for the private package repository reconciliation")
 	repoOptions.RepositoryURL = config.RepositoryURLPrivate
 	repoOptions.CreateRepository = true
 	repoOptions.PollInterval = pollInterval
 	repoOptions.PollTimeout = pollTimeout
-	packagePlugin.UpdateRepository(&repoOptions)
 	result = packagePlugin.CheckRepositoryAvailable(&repoOptions)
 	Expect(result.Error).ToNot(HaveOccurred())
+
+	By("list package repository")
+	repoOptions.AllNamespaces = true
+	result = packagePlugin.ListRepository(&repoOptions)
+	Expect(result.Error).ToNot(HaveOccurred())
+	err = json.Unmarshal(result.Stdout.Bytes(), &repoOutput)
+	Expect(err).ToNot(HaveOccurred())
 
 	By("get package repository")
 	repoOutput = []repositoryOutput{{Namespace: testNamespace}}
@@ -428,23 +435,6 @@ func testHelper() {
 	Expect(err).ToNot(HaveOccurred())
 	Expect(len(repoOutput)).To(BeNumerically("==", 1))
 	Expect(repoOutput[0]).To(Equal(expectedRepoOutputPrivate))
-
-	/*By("create package install")
-	pkgOptions.PollInterval = pollInterval
-	pkgOptions.PollTimeout = pollTimeout
-	result = packagePlugin.CreateInstalledPackage(&pkgOptions)
-	Expect(result.Error).ToNot(HaveOccurred())
-
-	By("delete package install")
-	result = packagePlugin.DeleteInstalledPackage(&pkgOptions)
-	Expect(result.Error).ToNot(HaveOccurred())*/
-
-	By("list package repository")
-	repoOptions.AllNamespaces = true
-	result = packagePlugin.ListRepository(&repoOptions)
-	Expect(result.Error).ToNot(HaveOccurred())
-	err = json.Unmarshal(result.Stdout.Bytes(), &repoOutput)
-	Expect(err).ToNot(HaveOccurred())
 
 	By("update package repository with a new URL without tag")
 	repoOptions.RepositoryURL = config.RepositoryURLNoTag

@@ -326,7 +326,5 @@ func (p *pkgClient) waitForResourceInstallation(name, namespace string, pollInte
 		return errors.New(fmt.Sprintf("'%s' resource reconciliation failed", rscType.String()))
 	}
 
-	log.Info("resource is reconciled")
-
 	return nil
 }
