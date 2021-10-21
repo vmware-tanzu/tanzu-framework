@@ -20,7 +20,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/util/retry"
 
-	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/inspect"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/pinnipedclientset"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/vars"
@@ -34,11 +33,11 @@ type Configurator struct {
 
 // PinnipedInfo contains settings for the supervisor.
 type PinnipedInfo struct {
-	MgmtClusterName                  string
-	Issuer                           string
-	IssuerCABundleData               string
-	PinnipedAPIGroupSuffix           string
-	PinnipedConciergeIsClusterScoped bool
+	MgmtClusterName                  *string `json:"cluster_name,omitempty"`
+	Issuer                           *string `json:"issuer,omitempty"`
+	IssuerCABundleData               *string `json:"issuer_ca_bundle_data,omitempty"`
+	PinnipedAPIGroupSuffix           string  `json:"pinniped_api_group_suffix"`
+	PinnipedConciergeIsClusterScoped bool    `json:"pinniped_concierge_is_cluster_scoped,string"`
 }
 
 // CreateOrUpdateFederationDomain creates a new federation domain or updates an existing one.
@@ -156,63 +155,4 @@ func (c Configurator) RecreateIDPForDex(ctx context.Context, dexNamespace, dexSv
 
 	zap.S().Infof("Recreated OIDCIdentityProvider %s/%s to point to Dex %s/%s", vars.SupervisorNamespace, vars.PinnipedOIDCProviderName, dexNamespace, dexSvcName)
 	return updatedIDP, nil
-}
-
-// CreateOrUpdatePinnipedInfo creates pinniped information or updates existing data.
-func (c Configurator) CreateOrUpdatePinnipedInfo(ctx context.Context, pinnipedInfo PinnipedInfo) error {
-	var err error
-	zap.S().Info("Creating the ConfigMap for Pinniped info")
-
-	// create configmap under kube-public namespace
-	pinnipedConfigMap := &corev1.ConfigMap{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      constants.PinnipedInfoConfigMapName,
-			Namespace: constants.KubePublicNamespace,
-		},
-		Data: map[string]string{
-			"cluster_name":                         pinnipedInfo.MgmtClusterName,
-			"issuer":                               pinnipedInfo.Issuer,
-			"issuer_ca_bundle_data":                pinnipedInfo.IssuerCABundleData,
-			"pinniped_api_group_suffix":            pinnipedInfo.PinnipedAPIGroupSuffix,
-			"pinniped_concierge_is_cluster_scoped": fmt.Sprintf("%t", pinnipedInfo.PinnipedConciergeIsClusterScoped),
-		},
-	}
-
-	if _, err = c.K8SClientset.CoreV1().ConfigMaps(constants.KubePublicNamespace).Get(ctx, constants.PinnipedInfoConfigMapName, metav1.GetOptions{}); err != nil {
-		if errors.IsNotFound(err) {
-			// create if does not exist
-			if _, err = c.K8SClientset.CoreV1().ConfigMaps(constants.KubePublicNamespace).Create(ctx, pinnipedConfigMap, metav1.CreateOptions{}); err != nil {
-				err = fmt.Errorf("could not create pinniped-info configmap: %w", err)
-				zap.S().Error(err)
-				return err
-			}
-
-			zap.S().Infof("Created the ConfigMap %s/%s for Pinniped info", constants.KubePublicNamespace, constants.PinnipedInfoConfigMapName)
-			return nil
-		}
-		// return err if could not get the configmap due to other errors
-		err = fmt.Errorf("could not get pinniped-info configmap: %w", err)
-		zap.S().Error(err)
-		return err
-	}
-
-	// if we have configmap fetched, try to update
-	err = retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		var e error
-		var configMapUpdated *corev1.ConfigMap
-		if configMapUpdated, e = c.K8SClientset.CoreV1().ConfigMaps(constants.KubePublicNamespace).Get(ctx, constants.PinnipedInfoConfigMapName, metav1.GetOptions{}); e != nil {
-			return e
-		}
-		configMapUpdated.Data = pinnipedConfigMap.Data
-		_, e = c.K8SClientset.CoreV1().ConfigMaps(constants.KubePublicNamespace).Update(ctx, configMapUpdated, metav1.UpdateOptions{})
-		return e
-	})
-	if err != nil {
-		err = fmt.Errorf("could not update pinniped-info configmap: %w", err)
-		zap.S().Error(err)
-		return err
-	}
-
-	zap.S().Infof("Updated the ConfigMap %s/%s for Pinniped info", constants.KubePublicNamespace, constants.PinnipedInfoConfigMapName)
-	return nil
 }
