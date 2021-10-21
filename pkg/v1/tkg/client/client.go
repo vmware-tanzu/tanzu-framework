@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
@@ -156,7 +157,7 @@ type Client interface {
 	GetMachineDeployments(options GetMachineDeploymentOptions) ([]capi.MachineDeployment, error)
 	// GetPacificMachineDeployments gets machine deployments from a Pacific cluster
 	// Note: This would be soon deprecated after TKGS and TKGm adopt the clusterclass
-	GetPacificMachineDeployments(options GetMachineDeploymentOptions) ([]capi.MachineDeployment, error)
+	GetPacificMachineDeployments(options GetMachineDeploymentOptions) ([]capiv1alpha3.MachineDeployment, error)
 	// SetMachineDeployment create machine deployment in a cluster
 	SetMachineDeployment(options *SetMachineDeploymentOptions) error
 	// DeleteMachineDeployment deletes a machine deployment in a cluster
