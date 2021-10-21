@@ -17,7 +17,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/types"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
-	capav1alpha4 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha4"
+	capav1beta1 "sigs.k8s.io/cluster-api-provider-aws/api/v1beta1"
 	capzv1alpha4 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha4"
 	capvv1alpha4 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha4"
 	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
@@ -209,9 +209,9 @@ func (c *client) getRuntimeObject(o interface{}) (crtclient.Object, error) { //n
 		return obj, nil
 	case *capvv1alpha4.VSphereMachineTemplate:
 		return obj, nil
-	case *capav1alpha4.AWSMachineTemplate:
+	case *capav1beta1.AWSMachineTemplate:
 		return obj, nil
-	case *capav1alpha4.AWSCluster:
+	case *capav1beta1.AWSCluster:
 		return obj, nil
 	case *appsv1.DaemonSet:
 		return obj, nil

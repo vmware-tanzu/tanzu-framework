@@ -11,7 +11,7 @@
 
 #@overlay/match by=overlay.subset({"kind":"AWSCluster"})
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: AWSCluster
 metadata:
   name: #@ data.values.CLUSTER_NAME
@@ -41,7 +41,7 @@ spec:
 #@ if data.values.CLUSTER_PLAN == "prod":
 #@overlay/match by=overlay.subset({"kind":"AWSCluster"})
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: AWSCluster
 spec:
   network:
@@ -69,7 +69,7 @@ spec:
       cidrBlock: #@ data.values.AWS_PRIVATE_NODE_CIDR_2
       id: #@ data.values.AWS_PRIVATE_SUBNET_ID_2
 ---
-apiVersion: cluster.x-k8s.io/v1alpha4
+apiVersion: cluster.x-k8s.io/v1beta1
 kind: MachineDeployment
 metadata:
   name: #@ "{}-md-1".format(data.values.CLUSTER_NAME)
@@ -88,15 +88,15 @@ spec:
       bootstrap:
         configRef:
           name: #@ "{}-md-1".format(data.values.CLUSTER_NAME)
-          apiVersion: bootstrap.cluster.x-k8s.io/v1alpha4
+          apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
           kind: KubeadmConfigTemplate
       infrastructureRef:
         name: #@ "{}-md-1".format(data.values.CLUSTER_NAME)
-        apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
         kind: AWSMachineTemplate
       failureDomain: #@ default_az_1
 ---
-apiVersion: cluster.x-k8s.io/v1alpha4
+apiVersion: cluster.x-k8s.io/v1beta1
 kind: MachineDeployment
 metadata:
   name: #@ "{}-md-2".format(data.values.CLUSTER_NAME)
@@ -115,15 +115,15 @@ spec:
       bootstrap:
         configRef:
           name: #@ "{}-md-2".format(data.values.CLUSTER_NAME)
-          apiVersion: bootstrap.cluster.x-k8s.io/v1alpha4
+          apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
           kind: KubeadmConfigTemplate
       infrastructureRef:
         name: #@ "{}-md-2".format(data.values.CLUSTER_NAME)
-        apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
         kind: AWSMachineTemplate
       failureDomain: #@ default_az_2
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: AWSMachineTemplate
 metadata:
   name: #@ "{}-md-1".format(data.values.CLUSTER_NAME)
@@ -142,7 +142,7 @@ spec:
       rootVolume:
         size: #@ int(data.values.AWS_NODE_OS_DISK_SIZE_GIB) or 80
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: AWSMachineTemplate
 metadata:
   name: #@ "{}-md-2".format(data.values.CLUSTER_NAME)
@@ -161,7 +161,7 @@ spec:
       rootVolume:
         size: #@ int(data.values.AWS_NODE_OS_DISK_SIZE_GIB) or 80
 ---
-apiVersion: bootstrap.cluster.x-k8s.io/v1alpha4
+apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
 kind: KubeadmConfigTemplate
 metadata:
   name: #@ "{}-md-1".format(data.values.CLUSTER_NAME)
@@ -174,7 +174,7 @@ spec:
           kubeletExtraArgs:
             cloud-provider: aws
 ---
-apiVersion: bootstrap.cluster.x-k8s.io/v1alpha4
+apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
 kind: KubeadmConfigTemplate
 metadata:
   name: #@ "{}-md-2".format(data.values.CLUSTER_NAME)
