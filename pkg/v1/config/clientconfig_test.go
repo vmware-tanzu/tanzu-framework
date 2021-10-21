@@ -300,3 +300,63 @@ func TestConfigFeaturesSplitNameInvalid(t *testing.T) {
 	_, _, err := cfg.SplitFeaturePath(featureInvalid)
 	require.Error(t, err, "invalid feature name '"+featureInvalid+"' should generate error")
 }
+
+func TestConfigFeaturesDefaultsAdded(t *testing.T) {
+	defaultFeatureFlags := map[string]bool{
+		"features.global.truthy":   true,
+		"features.global.falsey":   false,
+		"features.existing.truthy": true,
+		"features.existing.falsey": false,
+	}
+	// NOTE: the existing values are OPPOSITE of the default and should stay that way:
+	cliFeatureFlags := configv1alpha1.FeatureMap{
+		"truthy": "false",
+		"falsey": "true",
+	}
+	cliFeatureMap := make(map[string]configv1alpha1.FeatureMap)
+	cliFeatureMap["existing"] = cliFeatureFlags
+	cfg := &configv1alpha1.ClientConfig{
+		ClientOptions: &configv1alpha1.ClientOptions{
+			CLI: &configv1alpha1.CLIOptions{
+				Repositories:            DefaultRepositories,
+				UnstableVersionSelector: DefaultVersionSelector,
+			},
+			Features: cliFeatureMap,
+		},
+	}
+
+	added := addMissingDefaultFeatureFlags(cfg, defaultFeatureFlags)
+	require.True(t, added, "addMissingDefaultFeatureFlags should have added missing default values")
+	require.Equal(t, cfg.ClientOptions.Features["existing"]["truthy"], "false", "addMissingDefaultFeatureFlags should have left existing FALSE value for truthy")
+	require.Equal(t, cfg.ClientOptions.Features["existing"]["falsey"], "true", "addMissingDefaultFeatureFlags should have left existing TRUE value for falsey")
+	require.Equal(t, cfg.ClientOptions.Features["global"]["truthy"], "true", "addMissingDefaultFeatureFlags should have added global TRUE value for truthy")
+	require.Equal(t, cfg.ClientOptions.Features["global"]["falsey"], "false", "addMissingDefaultFeatureFlags should have added global FALSE value for falsey")
+}
+
+func TestConfigFeaturesDefaultsNoneAdded(t *testing.T) {
+	defaultFeatureFlags := map[string]bool{
+		"features.existing.truthy": true,
+		"features.existing.falsey": false,
+	}
+	// NOTE: the existing values are OPPOSITE of the default and should stay that way:
+	cliFeatureFlags := configv1alpha1.FeatureMap{
+		"truthy": "false",
+		"falsey": "true",
+	}
+	cliFeatureMap := make(map[string]configv1alpha1.FeatureMap)
+	cliFeatureMap["existing"] = cliFeatureFlags
+	cfg := &configv1alpha1.ClientConfig{
+		ClientOptions: &configv1alpha1.ClientOptions{
+			CLI: &configv1alpha1.CLIOptions{
+				Repositories:            DefaultRepositories,
+				UnstableVersionSelector: DefaultVersionSelector,
+			},
+			Features: cliFeatureMap,
+		},
+	}
+
+	added := addMissingDefaultFeatureFlags(cfg, defaultFeatureFlags)
+	require.False(t, added, "addMissingDefaultFeatureFlags should NOT have added any default values")
+	require.Equal(t, cfg.ClientOptions.Features["existing"]["truthy"], "false", "addMissingDefaultFeatureFlags should have left existing FALSE value for truthy")
+	require.Equal(t, cfg.ClientOptions.Features["existing"]["falsey"], "true", "addMissingDefaultFeatureFlags should have left existing TRUE value for falsey")
+}
