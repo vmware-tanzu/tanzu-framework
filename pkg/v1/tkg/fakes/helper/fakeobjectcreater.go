@@ -21,7 +21,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	capav1beta1 "sigs.k8s.io/cluster-api-provider-aws/api/v1beta1"
 	capzv1alpha4 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha4"
-	capvv1alpha4 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha4"
+	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1beta1"
 	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	cabpkv1 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1beta1"
@@ -272,7 +272,7 @@ func NewInfrastructureMachineTemplate(templateOptions TestObject) runtime.Object
 
 // NewVSphereMachineTemplate returns new VSphereMachineTemplate
 func NewVSphereMachineTemplate(templateOptions TestObject) runtime.Object {
-	template := capvv1alpha4.VSphereMachineTemplate{
+	template := capvv1beta1.VSphereMachineTemplate{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      templateOptions.Name,
 			Namespace: templateOptions.Namespace,

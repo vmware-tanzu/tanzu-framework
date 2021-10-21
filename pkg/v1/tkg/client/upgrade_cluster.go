@@ -15,7 +15,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	capav1beta1 "sigs.k8s.io/cluster-api-provider-aws/api/v1beta1"
 	capzv1alpha4 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha4"
-	capvv1alpha4 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha4"
+	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1beta1"
 	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	capikubeadmv1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
@@ -894,7 +894,7 @@ func (c *TkgClient) createAzureInfrastructureTemplateForUpgrade(regionalClusterC
 	return nil
 }
 
-func isNewVSphereTemplateRequired(machineTemplate *capvv1alpha4.VSphereMachineTemplate, clusterUpgradeConfig *clusterUpgradeInfo, actualK8sVersion *string) bool {
+func isNewVSphereTemplateRequired(machineTemplate *capvv1beta1.VSphereMachineTemplate, clusterUpgradeConfig *clusterUpgradeInfo, actualK8sVersion *string) bool {
 	if actualK8sVersion == nil || *actualK8sVersion != clusterUpgradeConfig.UpgradeComponentInfo.KubernetesVersion {
 		return true
 	}
@@ -907,7 +907,7 @@ func isNewVSphereTemplateRequired(machineTemplate *capvv1alpha4.VSphereMachineTe
 
 func (c *TkgClient) createVSphereControlPlaneMachineTemplate(regionalClusterClient clusterclient.Client, kcp *capikubeadmv1beta1.KubeadmControlPlane, clusterUpgradeConfig *clusterUpgradeInfo) error {
 	// Get the actual MachineTemplate object associated with actual KCP object
-	actualVsphereMachineTemplate := &capvv1alpha4.VSphereMachineTemplate{}
+	actualVsphereMachineTemplate := &capvv1beta1.VSphereMachineTemplate{}
 	err := regionalClusterClient.GetResource(actualVsphereMachineTemplate, kcp.Spec.MachineTemplate.InfrastructureRef.Name, kcp.Spec.MachineTemplate.InfrastructureRef.Namespace, nil, nil)
 	if err != nil {
 		return errors.Wrapf(err, "unable to find VSphereMachineTemplate with name '%s' in namespace '%s'", kcp.Spec.MachineTemplate.InfrastructureRef.Name, kcp.Spec.MachineTemplate.InfrastructureRef.Namespace)
@@ -923,7 +923,7 @@ func (c *TkgClient) createVSphereControlPlaneMachineTemplate(regionalClusterClie
 		return nil
 	}
 
-	vsphereMachineTemplateForUpgrade := &capvv1alpha4.VSphereMachineTemplate{}
+	vsphereMachineTemplateForUpgrade := &capvv1beta1.VSphereMachineTemplate{}
 	vsphereMachineTemplateForUpgrade.Name = clusterUpgradeConfig.UpgradeComponentInfo.KCPInfrastructureTemplateName
 	vsphereMachineTemplateForUpgrade.Namespace = clusterUpgradeConfig.UpgradeComponentInfo.KCPInfrastructureTemplateNamespace
 	vsphereMachineTemplateForUpgrade.Spec = actualVsphereMachineTemplate.DeepCopy().Spec
@@ -942,7 +942,7 @@ func (c *TkgClient) createVSphereMachineDeploymentMachineTemplateForWorkers(regi
 
 	for i := range clusterUpgradeConfig.MDObjects {
 		// Get the actual MachineTemplate object associated with actual MD object
-		actualVsphereMachineTemplate := &capvv1alpha4.VSphereMachineTemplate{}
+		actualVsphereMachineTemplate := &capvv1beta1.VSphereMachineTemplate{}
 		err = regionalClusterClient.GetResource(actualVsphereMachineTemplate, clusterUpgradeConfig.MDObjects[i].Spec.Template.Spec.InfrastructureRef.Name, clusterUpgradeConfig.MDObjects[i].Namespace, nil, nil)
 		if err != nil {
 			return errors.Wrapf(err, "unable to find VSphereMachineTemplate with name '%s' in namespace '%s'", clusterUpgradeConfig.MDObjects[i].Spec.Template.Spec.InfrastructureRef.Name, clusterUpgradeConfig.MDObjects[i].Namespace)
@@ -963,7 +963,7 @@ func (c *TkgClient) createVSphereMachineDeploymentMachineTemplateForWorkers(regi
 			MDInfrastructureTemplateNamespace: actualVsphereMachineTemplate.Namespace,
 		}
 
-		vsphereMachineTemplateForUpgrade := &capvv1alpha4.VSphereMachineTemplate{}
+		vsphereMachineTemplateForUpgrade := &capvv1beta1.VSphereMachineTemplate{}
 		vsphereMachineTemplateForUpgrade.Name = clusterUpgradeConfig.UpgradeComponentInfo.MDInfastructureTemplates[clusterUpgradeConfig.MDObjects[i].Name].MDInfrastructureTemplateName
 		vsphereMachineTemplateForUpgrade.Namespace = clusterUpgradeConfig.UpgradeComponentInfo.MDInfastructureTemplates[clusterUpgradeConfig.MDObjects[i].Name].MDInfrastructureTemplateNamespace
 		vsphereMachineTemplateForUpgrade.Spec = actualVsphereMachineTemplate.DeepCopy().Spec
