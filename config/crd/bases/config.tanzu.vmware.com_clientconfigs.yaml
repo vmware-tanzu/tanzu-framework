@@ -85,16 +85,17 @@ spec:
                         description: LocalDiscovery is set if the plugins are to be
                           discovered via Local Manifest fast.
                         properties:
-                          manifestPath:
-                            description: ManifestPath is a local path pointing to
-                              manifest file
-                            type: string
                           name:
                             description: Name is a name of the discovery
                             type: string
+                          path:
+                            description: Path is a local path pointing to directory
+                              containing YAML files, each of which contains single
+                              CLIPlugin API resource.
+                            type: string
                         required:
-                        - manifestPath
                         - name
+                        - path
                         type: object
                       oci:
                         description: OCIDiscovery is set if the plugins are to be
@@ -103,8 +104,9 @@ spec:
                           image:
                             description: Image is an OCI compliant image. Which include
                               DNS-compatible registry name, a valid URI path(MAY contain
-                              zero or more ‘/’) and a valid tag. Contains a manifest
-                              file E.g., harbor.my-domain.local/tanzu-cli/plugins-manifest:latest
+                              zero or more ‘/’) and a valid tag. E.g., harbor.my-domain.local/tanzu-cli/plugins-manifest:latest
+                              Contains a directory containing YAML files, each of
+                              which contains single CLIPlugin API resource.
                             type: string
                           name:
                             description: Name is a name of the discovery
@@ -160,11 +162,14 @@ spec:
                   description: UnstableVersionSelector determined which version tags
                     are allowed
                   type: string
-                useContextAwareDiscovery:
-                  description: UseContextAwareDiscovery determines whether to use
-                    legacy way of discovering plugins or to use the new context-aware
-                    Plugin API based plugin discovery mechanism
-                  type: boolean
+              type: object
+            features:
+              additionalProperties:
+                additionalProperties:
+                  type: string
+                description: FeatureMap is simply a hash table, but needs an explicit
+                  type to be an object in another hash map (cf ClientOptions.Features)
+                type: object
               type: object
           type: object
         current:
@@ -237,16 +242,17 @@ spec:
                       description: LocalDiscovery is set if the plugins are to be
                         discovered via Local Manifest fast.
                       properties:
-                        manifestPath:
-                          description: ManifestPath is a local path pointing to manifest
-                            file
-                          type: string
                         name:
                           description: Name is a name of the discovery
                           type: string
+                        path:
+                          description: Path is a local path pointing to directory
+                            containing YAML files, each of which contains single CLIPlugin
+                            API resource.
+                          type: string
                       required:
-                      - manifestPath
                       - name
+                      - path
                       type: object
                     oci:
                       description: OCIDiscovery is set if the plugins are to be discovered
@@ -255,8 +261,9 @@ spec:
                         image:
                           description: Image is an OCI compliant image. Which include
                             DNS-compatible registry name, a valid URI path(MAY contain
-                            zero or more ‘/’) and a valid tag. Contains a manifest
-                            file E.g., harbor.my-domain.local/tanzu-cli/plugins-manifest:latest
+                            zero or more ‘/’) and a valid tag. E.g., harbor.my-domain.local/tanzu-cli/plugins-manifest:latest
+                            Contains a directory containing YAML files, each of which
+                            contains single CLIPlugin API resource.
                           type: string
                         name:
                           description: Name is a name of the discovery

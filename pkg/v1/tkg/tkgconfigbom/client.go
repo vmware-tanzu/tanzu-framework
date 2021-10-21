@@ -51,7 +51,12 @@ type Client interface {
 	GetCurrentTKGVersion() string
 	GetCustomRepository() (string, error)
 	IsCustomRepositorySkipTLSVerify() bool
-	GetCustomRepositoryCaCertificate() ([]byte, error)
+	// GetCustomRepositoryCaCertificateForClient returns CA certificate to use with cli client
+	// This function reads the CA certificate from following variables in decreasing order of precedence:
+	// 1. PROXY_CA_CERT
+	// 2. TKG_PROXY_CA_CERT
+	// 3. TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
+	GetCustomRepositoryCaCertificateForClient() ([]byte, error)
 	GetAutoscalerImageForK8sVersion(k8sVersion string) (string, error)
 	// Downloads the default BOM files from the registry
 	DownloadDefaultBOMFilesFromRegistry(registry.Registry) error

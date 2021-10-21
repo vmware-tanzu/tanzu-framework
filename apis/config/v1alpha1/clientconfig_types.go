@@ -91,8 +91,12 @@ type GlobalServerAuth struct {
 // ClientOptions are the client specific options.
 type ClientOptions struct {
 	// CLI options specific to the CLI.
-	CLI *CLIOptions `json:"cli,omitempty" yaml:"cli"`
+	CLI      *CLIOptions           `json:"cli,omitempty" yaml:"cli"`
+	Features map[string]FeatureMap `json:"features,omitempty" yaml:"features"`
 }
+
+// FeatureMap is simply a hash table, but needs an explicit type to be an object in another hash map (cf ClientOptions.Features)
+type FeatureMap map[string]string
 
 // CLIOptions are options for the CLI.
 type CLIOptions struct {
@@ -102,9 +106,6 @@ type CLIOptions struct {
 	DiscoverySources []PluginDiscovery `json:"discoverySources,omitempty" yaml:"discoverySources"`
 	// UnstableVersionSelector determined which version tags are allowed
 	UnstableVersionSelector VersionSelectorLevel `json:"unstableVersionSelector,omitempty" yaml:"unstableVersionSelector"`
-	// UseContextAwareDiscovery determines whether to use legacy way of discovering plugins or
-	// to use the new context-aware Plugin API based plugin discovery mechanism
-	UseContextAwareDiscovery bool `json:"useContextAwareDiscovery,omitempty" yaml:"useContextAwareDiscovery"`
 }
 
 // PluginDiscovery contains a specific distribution mechanism. Only one of the
@@ -140,8 +141,10 @@ type OCIDiscovery struct {
 	// Name is a name of the discovery
 	Name string `json:"name"`
 	// Image is an OCI compliant image. Which include DNS-compatible registry name,
-	// a valid URI path(MAY contain zero or more ‘/’) and a valid tag. Contains a manifest file
+	// a valid URI path(MAY contain zero or more ‘/’) and a valid tag.
 	// E.g., harbor.my-domain.local/tanzu-cli/plugins-manifest:latest
+	// Contains a directory containing YAML files, each of which contains single
+	// CLIPlugin API resource.
 	Image string `json:"image"`
 }
 
@@ -177,8 +180,10 @@ type KubernetesDiscovery struct {
 type LocalDiscovery struct {
 	// Name is a name of the discovery
 	Name string `json:"name"`
-	// ManifestPath is a local path pointing to manifest file
-	ManifestPath string `json:"manifestPath"`
+	// Path is a local path pointing to directory
+	// containing YAML files, each of which contains single
+	// CLIPlugin API resource.
+	Path string `json:"path"`
 }
 
 // PluginRepository is a CLI plugin repository

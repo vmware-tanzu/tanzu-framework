@@ -19,6 +19,7 @@ import (
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/pluginmanager"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
 
@@ -55,6 +56,36 @@ var listPluginCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List available plugins",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		if config.IsContextAwareDiscoveryEnabled() {
+			server, err := config.GetCurrentServer()
+			if err != nil {
+				return err
+			}
+
+			availablePlugins, err := pluginmanager.AvailablePlugins(server.Name)
+			if err != nil {
+				return err
+			}
+
+			data := [][]string{}
+			for _, p := range availablePlugins {
+				data = append(data, []string{p.Name, p.Description, p.Scope,
+					p.Source, p.RecommendedVersion, p.Status})
+			}
+
+			output := component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "Name", "Description", "Scope", "Discovery", "Version", "Status")
+			for _, row := range data {
+				vals := make([]interface{}, len(row))
+				for i, val := range row {
+					vals[i] = val
+				}
+				output.AddRow(vals...)
+			}
+			output.Render()
+
+			return nil
+		}
+
 		descriptors, err := cli.ListPlugins()
 		if err != nil {
 			return err
@@ -144,6 +175,25 @@ var describePluginCmd = &cobra.Command{
 		}
 		name := args[0]
 
+		if config.IsContextAwareDiscoveryEnabled() {
+			server, err := config.GetCurrentServer()
+			if err != nil {
+				return err
+			}
+			pd, err := pluginmanager.DescribePlugin(server.Name, name)
+			if err != nil {
+				return err
+			}
+
+			b, err := yaml.Marshal(pd)
+			if err != nil {
+				return errors.Wrap(err, "could not marshal plugin")
+			}
+			fmt.Println(string(b))
+
+			return nil
+		}
+
 		repos := getRepositories()
 
 		repo, err := repos.Find(name)
@@ -173,6 +223,14 @@ var installPluginCmd = &cobra.Command{
 			return fmt.Errorf("must provide plugin name as positional argument")
 		}
 		name := args[0]
+
+		if config.IsContextAwareDiscoveryEnabled() {
+			server, err := config.GetCurrentServer()
+			if err != nil {
+				return err
+			}
+			return pluginmanager.InstallPlugin(server.Name, name, version)
+		}
 
 		repos := getRepositories()
 
@@ -209,6 +267,10 @@ var upgradePluginCmd = &cobra.Command{
 		}
 		name := args[0]
 
+		if config.IsContextAwareDiscoveryEnabled() {
+			return errors.New("context-aware discovery is enabled but function is not yet implemented")
+		}
+
 		repos := getRepositories()
 		repo, err := repos.Find(name)
 		if err != nil {
@@ -235,6 +297,10 @@ var deletePluginCmd = &cobra.Command{
 		}
 		name := args[0]
 
+		if config.IsContextAwareDiscoveryEnabled() {
+			return errors.New("context-aware discovery is enabled but function is not yet implemented")
+		}
+
 		err = cli.DeletePlugin(name)
 
 		return
@@ -245,6 +311,10 @@ var cleanPluginCmd = &cobra.Command{
 	Use:   "clean",
 	Short: "Clean the plugins",
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
+		if config.IsContextAwareDiscoveryEnabled() {
+			return errors.New("context-aware discovery is enabled but function is not yet implemented")
+		}
+
 		return cli.Clean()
 	},
 }

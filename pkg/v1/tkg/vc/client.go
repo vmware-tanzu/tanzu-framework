@@ -299,6 +299,17 @@ func (c *DefaultClient) getPath(ctx context.Context, moid string) (string, []*mo
 		}
 		path = append([]string{name}, path...)
 
+		if ref.Type == TypeDvpg {
+			var portgroup mo.DistributedVirtualPortgroup
+			err = commonProps.Properties(ctx, ref, []string{"config"}, &portgroup)
+			if err != nil {
+				return "", objects, err
+			}
+
+			moid = portgroup.Config.DistributedVirtualSwitch.Value
+			continue
+		}
+
 		err = commonProps.Properties(ctx, ref, []string{"parent"}, managedEntity)
 		if err != nil {
 			return "", objects, err
@@ -367,6 +378,14 @@ func (c *DefaultClient) populateGoVCVars(moid string) (ref types.ManagedObjectRe
 	case isNetwork(moid):
 		ref = types.ManagedObjectReference{Type: TypeNetwork, Value: moid}
 		commonProps = object.NewNetwork(c.vmomiClient.Client, ref).Common
+		resourceType = models.VSphereManagementObjectResourceTypeNetwork
+	case isDvPortGroup(moid):
+		ref = types.ManagedObjectReference{Type: TypeDvpg, Value: moid}
+		commonProps = object.NewDistributedVirtualPortgroup(c.vmomiClient.Client, ref).Common
+		resourceType = models.VSphereManagementObjectResourceTypeNetwork
+	case isDvs(moid):
+		ref = types.ManagedObjectReference{Type: TypeDvs, Value: moid}
+		commonProps = object.NewDistributedVirtualSwitch(c.vmomiClient.Client, ref).Common
 		resourceType = models.VSphereManagementObjectResourceTypeNetwork
 	default:
 		err = errors.New("moid value not recognized")
@@ -837,7 +856,15 @@ func isVirtualMachine(moID string) bool {
 }
 
 func isNetwork(moID string) bool {
-	return strings.HasPrefix(moID, "network-") || strings.HasPrefix(moID, "dvportgroup-")
+	return strings.HasPrefix(moID, "network-")
+}
+
+func isDvPortGroup(moID string) bool {
+	return strings.HasPrefix(moID, "dvportgroup-")
+}
+
+func isDvs(moID string) bool {
+	return strings.HasPrefix(moID, "dvs-")
 }
 
 // FindResourcePool find the vsphere resource pool from path, return moid

@@ -21,6 +21,7 @@ import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { VSphereNetwork } from 'src/app/swagger/models/v-sphere-network.model';
 import Broker from 'src/app/shared/service/broker';
+import { managementClusterPlugin } from "../../../constants/wizard.constants";
 
 declare var sortPaths: any;
 @Component({
@@ -96,10 +97,9 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
     }
 
     setValidators() {
-        const flags = this.appDataService.getFeatureFlags().value;
-
-        if (flags && ['antrea', 'calico', 'none'].includes(flags['cni'])) {
-            this.cniType = flags['cni'];
+        const configuredCni = this.appDataService.getPluginFeature(managementClusterPlugin, 'cni');
+        if (configuredCni && ['antrea', 'calico', 'none'].includes(configuredCni)) {
+            this.cniType = configuredCni;
         } else {
             this.cniType = 'antrea';
         }
