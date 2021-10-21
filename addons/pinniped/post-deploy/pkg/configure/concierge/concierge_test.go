@@ -137,7 +137,7 @@ func TestCreateOrUpdateJWTAuthenticator(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			kubeDynamicClient := test.newKubeDynamicClient()
 			err := Configurator{
-				Clientset: pinnipedclientset.NewConcierge(kubeDynamicClient, apiGroupSuffix),
+				Clientset: pinnipedclientset.NewConcierge(kubeDynamicClient, apiGroupSuffix, false),
 			}.CreateOrUpdateJWTAuthenticator(
 				context.Background(),
 				jwtAuthenticator.Namespace,

@@ -25,6 +25,9 @@ func main() {
 	flag.StringVar(&vars.PinnipedAPIGroupSuffix, "pinniped-api-group-suffix", vars.PinnipedAPIGroupSuffix, "The API group suffix used to talk to Pinniped APIs")
 
 	// optional
+	flag.BoolVar(&vars.ConciergeIsClusterScoped, "concierge-is-cluster-scoped", vars.ConciergeIsClusterScoped, "Whether the Pinniped Concierge APIs are cluster-scoped")
+
+	// optional
 	flag.StringVar(&vars.SupervisorNamespace, "supervisor-namespace", vars.SupervisorNamespace, "The namespace of Pinniped supervisor")
 
 	// required for management cluster: yes
@@ -117,7 +120,7 @@ func initClients() (configure.Clients, error) {
 	return configure.Clients{
 		K8SClientset:         kubernetes.NewForConfigOrDie(cfg),
 		SupervisorClientset:  pinnipedclientset.NewSupervisor(dynamicClient, vars.PinnipedAPIGroupSuffix),
-		ConciergeClientset:   pinnipedclientset.NewConcierge(dynamicClient, vars.PinnipedAPIGroupSuffix),
+		ConciergeClientset:   pinnipedclientset.NewConcierge(dynamicClient, vars.PinnipedAPIGroupSuffix, vars.ConciergeIsClusterScoped),
 		CertmanagerClientset: certmanagerclientset.NewForConfigOrDie(cfg),
 	}, nil
 }
