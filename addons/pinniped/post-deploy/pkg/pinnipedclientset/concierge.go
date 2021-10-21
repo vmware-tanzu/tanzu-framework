@@ -14,34 +14,46 @@ import (
 
 // NewConcierge returns a new client for Concierge APIs that are being served with the provided
 // apiGroupSuffix.
-func NewConcierge(client dynamic.Interface, apiGroupSuffix string) Concierge {
-	return &concierge{client: client, apiGroupSuffix: apiGroupSuffix}
+func NewConcierge(client dynamic.Interface, apiGroupSuffix string, conciergeIsClusterScoped bool) Concierge {
+	return &concierge{
+		client:                   client,
+		apiGroupSuffix:           apiGroupSuffix,
+		conciergeIsClusterScoped: conciergeIsClusterScoped,
+	}
 }
 
 type concierge struct {
-	client         dynamic.Interface
-	apiGroupSuffix string
+	client                   dynamic.Interface
+	apiGroupSuffix           string
+	conciergeIsClusterScoped bool
 }
 
 func (c *concierge) AuthenticationV1alpha1() ConciergeAuthenticationV1alpha1 {
-	return &conciergeAuthenticationV1alpha1{client: c.client, apiGroupSuffix: c.apiGroupSuffix}
+	return &conciergeAuthenticationV1alpha1{
+		client:                   c.client,
+		apiGroupSuffix:           c.apiGroupSuffix,
+		conciergeIsClusterScoped: c.conciergeIsClusterScoped,
+	}
 }
 
 type conciergeAuthenticationV1alpha1 struct {
-	client         dynamic.Interface
-	apiGroupSuffix string
+	client                   dynamic.Interface
+	apiGroupSuffix           string
+	conciergeIsClusterScoped bool
 }
 
 func (c *conciergeAuthenticationV1alpha1) JWTAuthenticators(namespace string) ConciergeJWTAuthenticators {
-	return &conciergeJWTAuthenticators{
-		client: c.client.Resource(
-			schema.GroupVersionResource{
-				Group:    translateAPIGroup(authenticationv1alpha1.GroupName, c.apiGroupSuffix),
-				Version:  authenticationv1alpha1.SchemeGroupVersion.Version,
-				Resource: "jwtauthenticators",
-			},
-		).Namespace(namespace),
+	client := c.client.Resource(
+		schema.GroupVersionResource{
+			Group:    translateAPIGroup(authenticationv1alpha1.GroupName, c.apiGroupSuffix),
+			Version:  authenticationv1alpha1.SchemeGroupVersion.Version,
+			Resource: "jwtauthenticators",
+		},
+	)
+	if c.conciergeIsClusterScoped {
+		return &conciergeJWTAuthenticators{client: client}
 	}
+	return &conciergeJWTAuthenticators{client: client.Namespace(namespace)}
 }
 
 type conciergeJWTAuthenticators struct {
