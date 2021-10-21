@@ -4,6 +4,7 @@
 package client
 
 import (
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -178,7 +179,7 @@ func (c *TkgClient) scaleWorkersNodePool(clusterClient clusterclient.Client, opt
 			Replicas: &options.WorkerCount,
 		},
 	}
-	if err := c.DoSetMachineDeployment(clusterClient, &mdOptions); err != nil {
+	if err := DoSetMachineDeployment(clusterClient, &mdOptions); err != nil {
 		return errors.Wrapf(err, "Unable to scale node pool %s", options.NodePoolName)
 	}
 
@@ -198,13 +199,15 @@ func (c *TkgClient) mdExists(clusterClient clusterclient.Client, options *ScaleC
 		Namespace:   options.Namespace,
 		Name:        options.NodePoolName,
 	}
-	mds, err := c.DoGetMachineDeployments(clusterClient, &getOptions)
+	mds, err := DoGetMachineDeployments(clusterClient, &getOptions)
 	if err != nil {
 		return false, errors.Wrapf(err, "Failed to get node pools for cluster %s", options.ClusterName)
 	}
 
+	npName := strings.Replace(options.NodePoolName, options.ClusterName+"-", "", -1)
+
 	for i := range mds {
-		if mds[i].Name == options.NodePoolName {
+		if mds[i].Name == npName {
 			return true, nil
 		}
 	}
