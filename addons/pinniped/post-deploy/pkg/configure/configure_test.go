@@ -300,7 +300,7 @@ func TestPinniped(t *testing.T) {
 				K8SClientset:         fakeKubeClient,
 				CertmanagerClientset: fakeCertManagerClient,
 				SupervisorClientset:  pinnipedclientset.NewSupervisor(fakeKubeDynamicClient, apiGroupSuffix),
-				ConciergeClientset:   pinnipedclientset.NewConcierge(fakeKubeDynamicClient, apiGroupSuffix),
+				ConciergeClientset:   pinnipedclientset.NewConcierge(fakeKubeDynamicClient, apiGroupSuffix, false),
 			}
 			inspector := inspect.Inspector{K8sClientset: fakeKubeClient, Context: context.Background()}
 			err := Pinniped(context.Background(), clients, inspector, &test.parameters)
