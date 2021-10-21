@@ -65,6 +65,7 @@ require (
 	github.com/jinzhu/copier v0.2.8
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
 	github.com/k14s/imgpkg v0.6.0
+	github.com/k14s/semver/v4 v4.0.1-0.20210701191048-266d47ac6115
 	github.com/k14s/ytt v0.32.1-0.20210511155130-214258be2519
 	github.com/lithammer/dedent v1.1.0
 	github.com/logrusorgru/aurora v2.0.3+incompatible
