@@ -197,6 +197,8 @@ type Client interface {
 	UpdateReplicas(resourceReference interface{}, resourceName, resourceNameSpace string, replicaCount int32) error
 	// IsPacificRegionalCluster checks if the cluster pointed to by kubeconfig  is Pacific management cluster(supervisor)
 	IsPacificRegionalCluster() (bool, error)
+	// GetPacificClusterObject gets Pacific cluster object
+	GetPacificClusterObject(clusterName, namespace string) (*tkgsv1alpha2.TanzuKubernetesCluster, error)
 	// WaitForPacificCluster waits for the Vsphere-pacific provider workload cluster to be fully provisioned
 	WaitForPacificCluster(clusterName string, namespace string) error
 	// ListPacificClusterObjects returns TanzuKubernetesClusterList object
@@ -409,7 +411,8 @@ type ClusterStatusInfo struct {
 	RetrievalError       error
 }
 
-type jsonPatch struct {
+// JSONPatch patch used for patching of object using patch of type JSONPatchType
+type JSONPatch struct {
 	Op    string `json:"op"`
 	Path  string `json:"path"`
 	Value string `json:"value"`
@@ -1459,7 +1462,7 @@ func (c *client) ListClusters(namespace string) ([]capi.Cluster, error) {
 func (c *client) DeleteCluster(clusterName, namespace string) error {
 	isPacific, err := c.IsPacificRegionalCluster()
 	if err == nil && isPacific {
-		tkcObj, err := c.getPacificClusterObject(clusterName, namespace)
+		tkcObj, err := c.GetPacificClusterObject(clusterName, namespace)
 		if err != nil {
 			errString := fmt.Sprintf("failed to get cluster object for delete: %s", err.Error())
 			return errors.New(errString)
@@ -1555,7 +1558,7 @@ func (c *client) isTKCCrdAvailableInTanzuRunAPIGroup() (bool, error) {
 }
 
 func (c *client) PatchK8SVersionToPacificCluster(clusterName, namespace, kubernetesVersion string) error {
-	tkcObj, err := c.getPacificClusterObject(clusterName, namespace)
+	tkcObj, err := c.GetPacificClusterObject(clusterName, namespace)
 	if err != nil {
 		return errors.Wrap(err, "failed to patch kubernetes version")
 	}
@@ -1565,7 +1568,7 @@ func (c *client) PatchK8SVersionToPacificCluster(clusterName, namespace, kuberne
 	}
 
 	// patch tkrName for control plane
-	payload := []jsonPatch{{
+	payload := []JSONPatch{{
 		Op:    "replace",
 		Path:  "/spec/topology/controlPlane/tkr/reference/name",
 		Value: tkrName,
@@ -1573,7 +1576,7 @@ func (c *client) PatchK8SVersionToPacificCluster(clusterName, namespace, kuberne
 	// patch tkrName for nodepools
 	numOfNodepools := len(tkcObj.Spec.Topology.NodePools)
 	for idx := 0; idx < numOfNodepools; idx++ {
-		nodepoolPatch := jsonPatch{
+		nodepoolPatch := JSONPatch{
 			Op:    "replace",
 			Path:  fmt.Sprintf("/spec/topology/nodePools/%d/tkr/reference/name", idx),
 			Value: tkrName,
@@ -1594,7 +1597,7 @@ func (c *client) PatchK8SVersionToPacificCluster(clusterName, namespace, kuberne
 }
 
 func (c *client) ScalePacificClusterControlPlane(clusterName, namespace string, controlPlaneCount int32) error {
-	tkcObj, err := c.getPacificClusterObject(clusterName, namespace)
+	tkcObj, err := c.GetPacificClusterObject(clusterName, namespace)
 	if err != nil {
 		return err
 	}
@@ -1607,7 +1610,7 @@ func (c *client) ScalePacificClusterControlPlane(clusterName, namespace string, 
 }
 
 func (c *client) ScalePacificClusterWorkerNodes(clusterName, namespace string, workersCount int32) error {
-	tkcObj, err := c.getPacificClusterObject(clusterName, namespace)
+	tkcObj, err := c.GetPacificClusterObject(clusterName, namespace)
 	if err != nil {
 		return err
 	}
@@ -1624,7 +1627,7 @@ func (c *client) WaitForPacificCluster(clusterName, namespace string) error {
 	start := time.Now()
 	errcount := 0
 	err = c.poller.PollImmediateInfiniteWithGetter(CheckClusterInterval, func() (interface{}, error) {
-		tkcObj, err := c.getPacificClusterObject(clusterName, namespace)
+		tkcObj, err := c.GetPacificClusterObject(clusterName, namespace)
 		if err != nil {
 			if CheckClusterInterval*time.Duration(errcount) > 2*time.Minute {
 				return true, err
@@ -1652,7 +1655,7 @@ func (c *client) WaitForPacificCluster(clusterName, namespace string) error {
 	return err
 }
 
-func (c *client) getPacificClusterObject(clusterName, namespace string) (*tkgsv1alpha2.TanzuKubernetesCluster, error) {
+func (c *client) GetPacificClusterObject(clusterName, namespace string) (*tkgsv1alpha2.TanzuKubernetesCluster, error) {
 	var err error
 	if namespace == "" {
 		if namespace, err = c.GetCurrentNamespace(); err != nil {
@@ -1744,7 +1747,7 @@ func (c *client) WaitForPacificClusterK8sVersionUpdate(clusterName, namespace, n
 
 	getterFunc := func() (interface{}, error) {
 		var tkcObj *tkgsv1alpha2.TanzuKubernetesCluster
-		tkcObj, err = c.getPacificClusterObject(clusterName, namespace)
+		tkcObj, err = c.GetPacificClusterObject(clusterName, namespace)
 		if err != nil {
 			// if control-plane API server couldn't respond to the get TKC object requests for more than 2 minutes continuously,
 			// break from poll with error instead of waiting for long time period
