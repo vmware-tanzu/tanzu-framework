@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"testing"
 
-	certmanagerv1beta1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1beta1"
+	certmanagerv1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1"
 	certmanagerfake "github.com/jetstack/cert-manager/pkg/client/clientset/versioned/fake"
 	"github.com/stretchr/testify/require"
 	authv1alpha1 "go.pinniped.dev/generated/1.19/apis/concierge/authentication/v1alpha1"
@@ -88,13 +88,13 @@ func TestPinniped(t *testing.T) {
 		},
 	}
 
-	certificateGVR := certmanagerv1beta1.SchemeGroupVersion.WithResource("certificates")
-	supervisorCertificate := &certmanagerv1beta1.Certificate{
+	certificateGVR := certmanagerv1.SchemeGroupVersion.WithResource("certificates")
+	supervisorCertificate := &certmanagerv1.Certificate{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: supervisorNamespace,
 			Name:      "some-supervisor-certificate-name",
 		},
-		Spec: certmanagerv1beta1.CertificateSpec{
+		Spec: certmanagerv1.CertificateSpec{
 			SecretName: supervisorCertificateSecret.Name,
 			IPAddresses: []string{
 				supervisorService.Status.LoadBalancer.Ingress[0].IP,
