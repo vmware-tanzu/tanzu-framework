@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	certmanagerv1beta1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1beta1"
+	certmanagerv1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1"
 	certmanagerclientset "github.com/jetstack/cert-manager/pkg/client/clientset/versioned"
 	"go.uber.org/zap"
 	corev1 "k8s.io/api/core/v1"
@@ -246,7 +246,7 @@ func configureTLSSecret(ctx context.Context, c Clients, certNamespace, certName,
 		}
 	} else {
 		// Update Pinniped supervisor certificate
-		var updatedCert *certmanagerv1beta1.Certificate
+		var updatedCert *certmanagerv1.Certificate
 		if updatedCert, err = updateCertSubjectAltNames(ctx, c, certNamespace, certName, endpoint); err != nil {
 			// log has been done inside of UpdateCert()
 			return secret, err
@@ -426,11 +426,11 @@ func Dex(ctx context.Context, c Clients, inspector inspect.Inspector, p *Paramet
 	return nil
 }
 
-func updateCertSubjectAltNames(ctx context.Context, c Clients, certNamespace, certName, fullURL string) (*certmanagerv1beta1.Certificate, error) {
+func updateCertSubjectAltNames(ctx context.Context, c Clients, certNamespace, certName, fullURL string) (*certmanagerv1.Certificate, error) {
 	var err error
-	var cert *certmanagerv1beta1.Certificate
+	var cert *certmanagerv1.Certificate
 
-	if cert, err = c.CertmanagerClientset.CertmanagerV1beta1().Certificates(certNamespace).Get(ctx, certName, metav1.GetOptions{}); err != nil {
+	if cert, err = c.CertmanagerClientset.CertmanagerV1().Certificates(certNamespace).Get(ctx, certName, metav1.GetOptions{}); err != nil {
 		// no-op is the certificate does not exist
 		if errors.IsNotFound(err) {
 			zap.S().Warnf("The Certificate %s/%s does not exist. Nothing to be updated", certNamespace, certName)
@@ -473,11 +473,11 @@ func updateCertSubjectAltNames(ctx context.Context, c Clients, certNamespace, ce
 	}
 	host := parsedURL.Hostname()
 	zap.S().Infof("Updating the Certificate %s/%s with host: %s", certNamespace, certName, host)
-	var updatedCert *certmanagerv1beta1.Certificate
+	var updatedCert *certmanagerv1.Certificate
 	err = retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		var fetchedCert *certmanagerv1beta1.Certificate
+		var fetchedCert *certmanagerv1.Certificate
 		var e error
-		if fetchedCert, e = c.CertmanagerClientset.CertmanagerV1beta1().Certificates(certNamespace).Get(ctx, certName, metav1.GetOptions{}); e != nil {
+		if fetchedCert, e = c.CertmanagerClientset.CertmanagerV1().Certificates(certNamespace).Get(ctx, certName, metav1.GetOptions{}); e != nil {
 			return e
 		}
 		if utils.IsIP(host) {
@@ -489,7 +489,7 @@ func updateCertSubjectAltNames(ctx context.Context, c Clients, certNamespace, ce
 			fetchedCert.Spec.CommonName = ""
 			fetchedCert.Spec.DNSNames = []string{host}
 		}
-		updatedCert, e = c.CertmanagerClientset.CertmanagerV1beta1().Certificates(certNamespace).Update(ctx, fetchedCert, metav1.UpdateOptions{})
+		updatedCert, e = c.CertmanagerClientset.CertmanagerV1().Certificates(certNamespace).Update(ctx, fetchedCert, metav1.UpdateOptions{})
 		return e
 	})
 	if err != nil {
