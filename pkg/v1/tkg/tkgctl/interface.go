@@ -8,6 +8,7 @@ import (
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	tkgsv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
 )
@@ -80,4 +81,11 @@ type TKGClient interface {
 	ActivateTanzuKubernetesReleases(tkrName string) error
 	// DeactivateTanzuKubernetesReleases deactivates TanzuKubernetesRelease
 	DeactivateTanzuKubernetesReleases(tkrName string) error
+	// IsPacificRegionalCluster checks if the cluster pointed to by kubeconfig  is Pacific management cluster(supervisor)
+	IsPacificRegionalCluster() (bool, error)
+	// GetPacificClusterObject gets Pacific cluster object
+	GetPacificClusterObject(clusterName, namespace string) (*tkgsv1alpha2.TanzuKubernetesCluster, error)
+	// GetPacificMachineDeployments gets machine deployments from a Pacific cluster
+	// Note: This would be soon deprecated after TKGS and TKGm adopt the clusterclass
+	GetPacificMachineDeployments(options client.GetMachineDeploymentOptions) ([]capi.MachineDeployment, error)
 }
