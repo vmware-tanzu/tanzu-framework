@@ -23,7 +23,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	// The fake package is deprecated, though there is talk of undeprecating it
-	"sigs.k8s.io/controller-runtime/pkg/client/fake" // nolint:staticcheck
+	"sigs.k8s.io/controller-runtime/pkg/client/fake" // nolint:staticcheck,nolintlint
 	ctrllog "sigs.k8s.io/controller-runtime/pkg/log"
 
 	// +kubebuilder:scaffold:imports

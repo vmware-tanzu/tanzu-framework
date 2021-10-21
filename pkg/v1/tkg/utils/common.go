@@ -25,7 +25,7 @@ import (
 	utilversion "k8s.io/apimachinery/pkg/util/version"
 	"k8s.io/client-go/tools/clientcmd"
 	clusterv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 )
@@ -299,11 +299,15 @@ func CompareMajorMinorPatchVersion(version1, version2 string) bool {
 	return false
 }
 
+// Getter interface defines methods that a Cluster API object should implement in order to
+// use the conditions package for getting conditions.
 type Getter interface {
-	controllerutil.Object
+	crtclient.Object
 	GetConditions() clusterv1alpha3.Conditions
 }
 
+// Get returns the condition with the given type, if the condition does not exists,
+// it returns nil.
 func Get(from Getter, t clusterv1alpha3.ConditionType) *clusterv1alpha3.Condition {
 	conditions := from.GetConditions()
 	if conditions == nil {
