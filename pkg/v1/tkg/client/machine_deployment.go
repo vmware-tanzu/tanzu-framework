@@ -19,7 +19,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	aws "sigs.k8s.io/cluster-api-provider-aws/api/v1beta1"
 	azure "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha4"
-	vsphere "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha4"
+	vsphere "sigs.k8s.io/cluster-api-provider-vsphere/api/v1beta1"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1beta1"
 	docker "sigs.k8s.io/cluster-api/test/infrastructure/docker/api/v1beta1"

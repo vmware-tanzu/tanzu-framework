@@ -35,7 +35,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	capav1beta1 "sigs.k8s.io/cluster-api-provider-aws/api/v1beta1"
 	capzv1alpha4 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha4"
-	capvv1alpha4 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha4"
+	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1beta1"
 	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
@@ -75,7 +75,7 @@ func init() {
 	_ = tkgsv1alpha2.AddToScheme(scheme)
 	_ = capav1beta1.AddToScheme(scheme)
 	_ = capzv1alpha4.AddToScheme(scheme)
-	_ = capvv1alpha4.AddToScheme(scheme)
+	_ = capvv1beta1.AddToScheme(scheme)
 }
 
 var _ = Describe("CheckInfrastructureVersion", func() {
