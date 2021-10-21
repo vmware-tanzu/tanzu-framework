@@ -120,7 +120,6 @@ func NewClientConfig() (*configv1alpha1.ClientConfig, error) {
 }
 
 func populateDefaultCliFeatureValues(c *configv1alpha1.ClientConfig, defaultCliFeatureFlags map[string]bool) error {
-	c.ClientOptions.Features = make(map[string]configv1alpha1.FeatureMap)
 	for featureName, flagValue := range defaultCliFeatureFlags {
 		plugin, flag, err := c.SplitFeaturePath(featureName)
 		if err != nil {
@@ -132,6 +131,9 @@ func populateDefaultCliFeatureValues(c *configv1alpha1.ClientConfig, defaultCliF
 }
 
 func addFeatureFlag(c *configv1alpha1.ClientConfig, plugin, flag string, flagValue bool) {
+	if c.ClientOptions.Features == nil {
+		c.ClientOptions.Features = make(map[string]configv1alpha1.FeatureMap)
+	}
 	if c.ClientOptions.Features[plugin] == nil {
 		c.ClientOptions.Features[plugin] = make(map[string]string)
 	}
