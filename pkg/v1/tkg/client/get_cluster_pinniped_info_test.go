@@ -22,7 +22,7 @@ import (
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/client/fake" // nolint:staticcheck
+	"sigs.k8s.io/controller-runtime/pkg/client/fake" // nolint:staticcheck,nolintlint
 
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"

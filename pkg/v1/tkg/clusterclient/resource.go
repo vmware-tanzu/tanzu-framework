@@ -244,7 +244,7 @@ func (c *client) getRuntimeObject(o interface{}) (crtclient.Object, error) { //n
 	}
 }
 
-func (c *client) getRuntimeObjectList(o interface{}) (crtclient.ObjectList, error) { //nolint:gocyclo,funlen
+func (c *client) getRuntimeObjectList(o interface{}) (crtclient.ObjectList, error) { //nolint:gocyclo,funlen,nolintlint
 	switch obj := o.(type) {
 	case *corev1.SecretList:
 		return obj, nil
