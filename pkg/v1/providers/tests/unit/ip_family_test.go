@@ -204,8 +204,8 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 		BeforeEach(func() {
 			paths = []string{
 				filepath.Join("fixtures", "yttmocks"),
-				filepath.Join("..", "..", "infrastructure-vsphere", "v0.8.1", "ytt", "overlay.yaml"),
-				filepath.Join("..", "..", "infrastructure-vsphere", "v0.8.1", "ytt", "base-template.yaml"),
+				filepath.Join("..", "..", "infrastructure-vsphere", "v1.0.0", "ytt", "overlay.yaml"),
+				filepath.Join("..", "..", "infrastructure-vsphere", "v1.0.0", "ytt", "base-template.yaml"),
 				filepath.Join("..", "..", "config_default.yaml"),
 			}
 		})

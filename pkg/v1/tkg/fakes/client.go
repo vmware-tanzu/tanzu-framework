@@ -294,17 +294,17 @@ type Client struct {
 		result1 *v1alpha2.TanzuKubernetesCluster
 		result2 error
 	}
-	GetPacificMachineDeploymentsStub        func(client.GetMachineDeploymentOptions) ([]v1alpha3.MachineDeployment, error)
+	GetPacificMachineDeploymentsStub        func(client.GetMachineDeploymentOptions) ([]v1alpha3a.MachineDeployment, error)
 	getPacificMachineDeploymentsMutex       sync.RWMutex
 	getPacificMachineDeploymentsArgsForCall []struct {
 		arg1 client.GetMachineDeploymentOptions
 	}
 	getPacificMachineDeploymentsReturns struct {
-		result1 []v1alpha3.MachineDeployment
+		result1 []v1alpha3a.MachineDeployment
 		result2 error
 	}
 	getPacificMachineDeploymentsReturnsOnCall map[int]struct {
-		result1 []v1alpha3.MachineDeployment
+		result1 []v1alpha3a.MachineDeployment
 		result2 error
 	}
 	GetRegionContextsStub        func(string) ([]region.RegionContext, error)
@@ -1960,7 +1960,7 @@ func (fake *Client) GetPacificClusterObjectReturnsOnCall(i int, result1 *v1alpha
 	}{result1, result2}
 }
 
-func (fake *Client) GetPacificMachineDeployments(arg1 client.GetMachineDeploymentOptions) ([]v1alpha3.MachineDeployment, error) {
+func (fake *Client) GetPacificMachineDeployments(arg1 client.GetMachineDeploymentOptions) ([]v1alpha3a.MachineDeployment, error) {
 	fake.getPacificMachineDeploymentsMutex.Lock()
 	ret, specificReturn := fake.getPacificMachineDeploymentsReturnsOnCall[len(fake.getPacificMachineDeploymentsArgsForCall)]
 	fake.getPacificMachineDeploymentsArgsForCall = append(fake.getPacificMachineDeploymentsArgsForCall, struct {
@@ -1984,7 +1984,7 @@ func (fake *Client) GetPacificMachineDeploymentsCallCount() int {
 	return len(fake.getPacificMachineDeploymentsArgsForCall)
 }
 
-func (fake *Client) GetPacificMachineDeploymentsCalls(stub func(client.GetMachineDeploymentOptions) ([]v1alpha3.MachineDeployment, error)) {
+func (fake *Client) GetPacificMachineDeploymentsCalls(stub func(client.GetMachineDeploymentOptions) ([]v1alpha3a.MachineDeployment, error)) {
 	fake.getPacificMachineDeploymentsMutex.Lock()
 	defer fake.getPacificMachineDeploymentsMutex.Unlock()
 	fake.GetPacificMachineDeploymentsStub = stub
@@ -1997,28 +1997,28 @@ func (fake *Client) GetPacificMachineDeploymentsArgsForCall(i int) client.GetMac
 	return argsForCall.arg1
 }
 
-func (fake *Client) GetPacificMachineDeploymentsReturns(result1 []v1alpha3.MachineDeployment, result2 error) {
+func (fake *Client) GetPacificMachineDeploymentsReturns(result1 []v1alpha3a.MachineDeployment, result2 error) {
 	fake.getPacificMachineDeploymentsMutex.Lock()
 	defer fake.getPacificMachineDeploymentsMutex.Unlock()
 	fake.GetPacificMachineDeploymentsStub = nil
 	fake.getPacificMachineDeploymentsReturns = struct {
-		result1 []v1alpha3.MachineDeployment
+		result1 []v1alpha3a.MachineDeployment
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *Client) GetPacificMachineDeploymentsReturnsOnCall(i int, result1 []v1alpha3.MachineDeployment, result2 error) {
+func (fake *Client) GetPacificMachineDeploymentsReturnsOnCall(i int, result1 []v1alpha3a.MachineDeployment, result2 error) {
 	fake.getPacificMachineDeploymentsMutex.Lock()
 	defer fake.getPacificMachineDeploymentsMutex.Unlock()
 	fake.GetPacificMachineDeploymentsStub = nil
 	if fake.getPacificMachineDeploymentsReturnsOnCall == nil {
 		fake.getPacificMachineDeploymentsReturnsOnCall = make(map[int]struct {
-			result1 []v1alpha3.MachineDeployment
+			result1 []v1alpha3a.MachineDeployment
 			result2 error
 		})
 	}
 	fake.getPacificMachineDeploymentsReturnsOnCall[i] = struct {
-		result1 []v1alpha3.MachineDeployment
+		result1 []v1alpha3a.MachineDeployment
 		result2 error
 	}{result1, result2}
 }

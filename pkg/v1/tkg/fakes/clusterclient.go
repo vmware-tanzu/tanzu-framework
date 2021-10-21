@@ -2711,15 +2711,16 @@ func (fake *ClusterClient) GetPacificClusterObject(arg1 string, arg2 string) (*v
 		arg1 string
 		arg2 string
 	}{arg1, arg2})
+	stub := fake.GetPacificClusterObjectStub
+	fakeReturns := fake.getPacificClusterObjectReturns
 	fake.recordInvocation("GetPacificClusterObject", []interface{}{arg1, arg2})
 	fake.getPacificClusterObjectMutex.Unlock()
-	if fake.GetPacificClusterObjectStub != nil {
-		return fake.GetPacificClusterObjectStub(arg1, arg2)
+	if stub != nil {
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getPacificClusterObjectReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
