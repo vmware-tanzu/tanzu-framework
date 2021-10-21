@@ -298,20 +298,34 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p *Pa
 		}
 
 		// create configmap for Pinniped info
-		if err := supervisorConfigurator.CreateOrUpdatePinnipedInfo(ctx, supervisor.PinnipedInfo{
-			MgmtClusterName:                  p.ClusterName,
-			Issuer:                           supervisorSvcEndpoint,
-			IssuerCABundleData:               caData,
+		if err := createOrUpdatePinnipedInfo(ctx, supervisor.PinnipedInfo{
+			MgmtClusterName:                  &p.ClusterName,
+			Issuer:                           &supervisorSvcEndpoint,
+			IssuerCABundleData:               &caData,
 			PinnipedAPIGroupSuffix:           p.PinnipedAPIGroupSuffix,
 			PinnipedConciergeIsClusterScoped: false,
-		}); err != nil {
+		}, c.K8SClientset); err != nil {
 			return err
 		}
-	} else if err = conciergeConfigurator.CreateOrUpdateJWTAuthenticator(ctx, vars.ConciergeNamespace, p.JWTAuthenticatorName, p.SupervisorSvcEndpoint, p.ClusterName, p.SupervisorCABundleData); err != nil {
-		// on workload cluster, we only create or update JWTAuthenticator
-		// SupervisorSvcEndpoint will be passed in on workload cluster
-		zap.S().Error(err)
-		return err
+	} else if p.ClusterType == constants.TKGWorkloadClusterType {
+		zap.S().Info("Workload cluster detected")
+
+		if err = conciergeConfigurator.CreateOrUpdateJWTAuthenticator(ctx, vars.ConciergeNamespace, p.JWTAuthenticatorName, p.SupervisorSvcEndpoint, p.ClusterName, p.SupervisorCABundleData); err != nil {
+			// on workload cluster, we only create or update JWTAuthenticator
+			// SupervisorSvcEndpoint will be passed in on workload cluster
+			zap.S().Error(err)
+			return err
+		}
+
+		// create configmap for Pinniped info
+		if err := createOrUpdatePinnipedInfo(ctx, supervisor.PinnipedInfo{
+			PinnipedAPIGroupSuffix:           p.PinnipedAPIGroupSuffix,
+			PinnipedConciergeIsClusterScoped: false,
+		}, c.K8SClientset); err != nil {
+			return err
+		}
+	} else {
+		return fmt.Errorf("unknown cluster type %s", p.ClusterType)
 	}
 
 	zap.S().Infof("Restarting Pinniped supervisor pods to reload the configmap that contains custom TLS secret names...")
