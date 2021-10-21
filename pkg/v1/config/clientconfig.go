@@ -131,6 +131,9 @@ func populateDefaultCliFeatureValues(c *configv1alpha1.ClientConfig, defaultCliF
 }
 
 func addFeatureFlag(c *configv1alpha1.ClientConfig, plugin, flag string, flagValue bool) {
+	if c.ClientOptions == nil {
+		c.ClientOptions = &configv1alpha1.ClientOptions{}
+	}
 	if c.ClientOptions.Features == nil {
 		c.ClientOptions.Features = make(map[string]configv1alpha1.FeatureMap)
 	}
