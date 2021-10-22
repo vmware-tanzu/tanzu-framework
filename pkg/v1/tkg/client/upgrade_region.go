@@ -83,7 +83,7 @@ type providersUpgradeInfo struct {
 // 	d) Call the clusterctl ApplyUpgrade() to upgrade providers
 //  e) Wait for providers to be up and running
 // 2. call the UpgradeCluster() for upgrading the k8s version of the Management cluster
-func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) error { //nolint:gocyclo
+func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) error {
 	contexts, err := c.GetRegionContexts(options.ClusterName)
 	if err != nil || len(contexts) == 0 {
 		return errors.Errorf("management cluster %s not found", options.ClusterName)
@@ -147,27 +147,6 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 	err = regionalClusterClient.PatchClusterObjectWithTKGVersion(options.ClusterName, options.Namespace, c.tkgBomClient.GetCurrentTKGVersion())
 	if err != nil {
 		return err
-	}
-
-	// Upgrade/Add certain addons to the old clusters during upgrade
-	// This is done after we patch the management cluster object with new TKG version
-	// so, while generating cluster template with new tkg and k8s version, it does not
-	// throw version incompatibility validation error.
-	if !options.SkipAddonUpgrade {
-		err = c.upgradeAddons(regionalClusterClient, regionalClusterClient, options.ClusterName, options.Namespace, true, options.Edition)
-		if err != nil {
-			return err
-		}
-	}
-
-	log.Info("Waiting for additional components to be up and running...")
-	if err := c.WaitForAddonsDeployments(regionalClusterClient); err != nil {
-		return err
-	}
-
-	log.Info("Waiting for packages to be up and running...")
-	if err := c.WaitForPackages(regionalClusterClient, regionalClusterClient, options.ClusterName, options.Namespace); err != nil {
-		log.Warningf("Warning: Management cluster is upgraded successfully, but some packages are failing. %v", err)
 	}
 
 	return nil
