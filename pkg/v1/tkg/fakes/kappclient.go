@@ -258,16 +258,15 @@ func (fake *KappClient) CreatePackageInstall(arg1 *v1alpha1.PackageInstall, arg2
 		arg2 bool
 		arg3 bool
 	}{arg1, arg2, arg3})
-	stub := fake.CreatePackageInstallStub
-	fakeReturns := fake.createPackageInstallReturns
 	fake.recordInvocation("CreatePackageInstall", []interface{}{arg1, arg2, arg3})
 	fake.createPackageInstallMutex.Unlock()
-	if stub != nil {
-		return stub(arg1, arg2, arg3)
+	if fake.CreatePackageInstallStub != nil {
+		return fake.CreatePackageInstallStub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1
 	}
+	fakeReturns := fake.createPackageInstallReturns
 	return fakeReturns.result1
 }
 
@@ -319,16 +318,15 @@ func (fake *KappClient) CreatePackageRepository(arg1 *v1alpha1.PackageRepository
 	fake.createPackageRepositoryArgsForCall = append(fake.createPackageRepositoryArgsForCall, struct {
 		arg1 *v1alpha1.PackageRepository
 	}{arg1})
-	stub := fake.CreatePackageRepositoryStub
-	fakeReturns := fake.createPackageRepositoryReturns
 	fake.recordInvocation("CreatePackageRepository", []interface{}{arg1})
 	fake.createPackageRepositoryMutex.Unlock()
-	if stub != nil {
-		return stub(arg1)
+	if fake.CreatePackageRepositoryStub != nil {
+		return fake.CreatePackageRepositoryStub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
+	fakeReturns := fake.createPackageRepositoryReturns
 	return fakeReturns.result1
 }
 
@@ -380,16 +378,15 @@ func (fake *KappClient) DeletePackageRepository(arg1 *v1alpha1.PackageRepository
 	fake.deletePackageRepositoryArgsForCall = append(fake.deletePackageRepositoryArgsForCall, struct {
 		arg1 *v1alpha1.PackageRepository
 	}{arg1})
-	stub := fake.DeletePackageRepositoryStub
-	fakeReturns := fake.deletePackageRepositoryReturns
 	fake.recordInvocation("DeletePackageRepository", []interface{}{arg1})
 	fake.deletePackageRepositoryMutex.Unlock()
-	if stub != nil {
-		return stub(arg1)
+	if fake.DeletePackageRepositoryStub != nil {
+		return fake.DeletePackageRepositoryStub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
+	fakeReturns := fake.deletePackageRepositoryReturns
 	return fakeReturns.result1
 }
 
@@ -442,16 +439,15 @@ func (fake *KappClient) GetAppCR(arg1 string, arg2 string) (*v1alpha1a.App, erro
 		arg1 string
 		arg2 string
 	}{arg1, arg2})
-	stub := fake.GetAppCRStub
-	fakeReturns := fake.getAppCRReturns
 	fake.recordInvocation("GetAppCR", []interface{}{arg1, arg2})
 	fake.getAppCRMutex.Unlock()
-	if stub != nil {
-		return stub(arg1, arg2)
+	if fake.GetAppCRStub != nil {
+		return fake.GetAppCRStub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
+	fakeReturns := fake.getAppCRReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -505,16 +501,15 @@ func (fake *KappClient) GetClient() client.Client {
 	ret, specificReturn := fake.getClientReturnsOnCall[len(fake.getClientArgsForCall)]
 	fake.getClientArgsForCall = append(fake.getClientArgsForCall, struct {
 	}{})
-	stub := fake.GetClientStub
-	fakeReturns := fake.getClientReturns
 	fake.recordInvocation("GetClient", []interface{}{})
 	fake.getClientMutex.Unlock()
-	if stub != nil {
-		return stub()
+	if fake.GetClientStub != nil {
+		return fake.GetClientStub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
+	fakeReturns := fake.getClientReturns
 	return fakeReturns.result1
 }
 
@@ -560,16 +555,15 @@ func (fake *KappClient) GetPackage(arg1 string, arg2 string) (*v1alpha1b.Package
 		arg1 string
 		arg2 string
 	}{arg1, arg2})
-	stub := fake.GetPackageStub
-	fakeReturns := fake.getPackageReturns
 	fake.recordInvocation("GetPackage", []interface{}{arg1, arg2})
 	fake.getPackageMutex.Unlock()
-	if stub != nil {
-		return stub(arg1, arg2)
+	if fake.GetPackageStub != nil {
+		return fake.GetPackageStub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
+	fakeReturns := fake.getPackageReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -625,16 +619,15 @@ func (fake *KappClient) GetPackageInstall(arg1 string, arg2 string) (*v1alpha1.P
 		arg1 string
 		arg2 string
 	}{arg1, arg2})
-	stub := fake.GetPackageInstallStub
-	fakeReturns := fake.getPackageInstallReturns
 	fake.recordInvocation("GetPackageInstall", []interface{}{arg1, arg2})
 	fake.getPackageInstallMutex.Unlock()
-	if stub != nil {
-		return stub(arg1, arg2)
+	if fake.GetPackageInstallStub != nil {
+		return fake.GetPackageInstallStub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
+	fakeReturns := fake.getPackageInstallReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -690,16 +683,15 @@ func (fake *KappClient) GetPackageMetadataByName(arg1 string, arg2 string) (*v1a
 		arg1 string
 		arg2 string
 	}{arg1, arg2})
-	stub := fake.GetPackageMetadataByNameStub
-	fakeReturns := fake.getPackageMetadataByNameReturns
 	fake.recordInvocation("GetPackageMetadataByName", []interface{}{arg1, arg2})
 	fake.getPackageMetadataByNameMutex.Unlock()
-	if stub != nil {
-		return stub(arg1, arg2)
+	if fake.GetPackageMetadataByNameStub != nil {
+		return fake.GetPackageMetadataByNameStub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
+	fakeReturns := fake.getPackageMetadataByNameReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -755,16 +747,15 @@ func (fake *KappClient) GetPackageRepository(arg1 string, arg2 string) (*v1alpha
 		arg1 string
 		arg2 string
 	}{arg1, arg2})
-	stub := fake.GetPackageRepositoryStub
-	fakeReturns := fake.getPackageRepositoryReturns
 	fake.recordInvocation("GetPackageRepository", []interface{}{arg1, arg2})
 	fake.getPackageRepositoryMutex.Unlock()
-	if stub != nil {
-		return stub(arg1, arg2)
+	if fake.GetPackageRepositoryStub != nil {
+		return fake.GetPackageRepositoryStub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
+	fakeReturns := fake.getPackageRepositoryReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -820,16 +811,15 @@ func (fake *KappClient) GetSecretValue(arg1 string, arg2 string) ([]byte, error)
 		arg1 string
 		arg2 string
 	}{arg1, arg2})
-	stub := fake.GetSecretValueStub
-	fakeReturns := fake.getSecretValueReturns
 	fake.recordInvocation("GetSecretValue", []interface{}{arg1, arg2})
 	fake.getSecretValueMutex.Unlock()
-	if stub != nil {
-		return stub(arg1, arg2)
+	if fake.GetSecretValueStub != nil {
+		return fake.GetSecretValueStub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
+	fakeReturns := fake.getSecretValueReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -884,16 +874,15 @@ func (fake *KappClient) ListPackageInstalls(arg1 string) (*v1alpha1.PackageInsta
 	fake.listPackageInstallsArgsForCall = append(fake.listPackageInstallsArgsForCall, struct {
 		arg1 string
 	}{arg1})
-	stub := fake.ListPackageInstallsStub
-	fakeReturns := fake.listPackageInstallsReturns
 	fake.recordInvocation("ListPackageInstalls", []interface{}{arg1})
 	fake.listPackageInstallsMutex.Unlock()
-	if stub != nil {
-		return stub(arg1)
+	if fake.ListPackageInstallsStub != nil {
+		return fake.ListPackageInstallsStub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
+	fakeReturns := fake.listPackageInstallsReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -948,16 +937,15 @@ func (fake *KappClient) ListPackageMetadata(arg1 string) (*v1alpha1b.PackageMeta
 	fake.listPackageMetadataArgsForCall = append(fake.listPackageMetadataArgsForCall, struct {
 		arg1 string
 	}{arg1})
-	stub := fake.ListPackageMetadataStub
-	fakeReturns := fake.listPackageMetadataReturns
 	fake.recordInvocation("ListPackageMetadata", []interface{}{arg1})
 	fake.listPackageMetadataMutex.Unlock()
-	if stub != nil {
-		return stub(arg1)
+	if fake.ListPackageMetadataStub != nil {
+		return fake.ListPackageMetadataStub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
+	fakeReturns := fake.listPackageMetadataReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1012,16 +1000,15 @@ func (fake *KappClient) ListPackageRepositories(arg1 string) (*v1alpha1.PackageR
 	fake.listPackageRepositoriesArgsForCall = append(fake.listPackageRepositoriesArgsForCall, struct {
 		arg1 string
 	}{arg1})
-	stub := fake.ListPackageRepositoriesStub
-	fakeReturns := fake.listPackageRepositoriesReturns
 	fake.recordInvocation("ListPackageRepositories", []interface{}{arg1})
 	fake.listPackageRepositoriesMutex.Unlock()
-	if stub != nil {
-		return stub(arg1)
+	if fake.ListPackageRepositoriesStub != nil {
+		return fake.ListPackageRepositoriesStub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
+	fakeReturns := fake.listPackageRepositoriesReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1077,16 +1064,15 @@ func (fake *KappClient) ListPackages(arg1 string, arg2 string) (*v1alpha1b.Packa
 		arg1 string
 		arg2 string
 	}{arg1, arg2})
-	stub := fake.ListPackagesStub
-	fakeReturns := fake.listPackagesReturns
 	fake.recordInvocation("ListPackages", []interface{}{arg1, arg2})
 	fake.listPackagesMutex.Unlock()
-	if stub != nil {
-		return stub(arg1, arg2)
+	if fake.ListPackagesStub != nil {
+		return fake.ListPackagesStub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
+	fakeReturns := fake.listPackagesReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1141,16 +1127,15 @@ func (fake *KappClient) ListRegistrySecrets(arg1 string) (*v1.SecretList, error)
 	fake.listRegistrySecretsArgsForCall = append(fake.listRegistrySecretsArgsForCall, struct {
 		arg1 string
 	}{arg1})
-	stub := fake.ListRegistrySecretsStub
-	fakeReturns := fake.listRegistrySecretsReturns
 	fake.recordInvocation("ListRegistrySecrets", []interface{}{arg1})
 	fake.listRegistrySecretsMutex.Unlock()
-	if stub != nil {
-		return stub(arg1)
+	if fake.ListRegistrySecretsStub != nil {
+		return fake.ListRegistrySecretsStub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
+	fakeReturns := fake.listRegistrySecretsReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1205,16 +1190,15 @@ func (fake *KappClient) ListSecretExports(arg1 string) (*v1alpha1c.SecretExportL
 	fake.listSecretExportsArgsForCall = append(fake.listSecretExportsArgsForCall, struct {
 		arg1 string
 	}{arg1})
-	stub := fake.ListSecretExportsStub
-	fakeReturns := fake.listSecretExportsReturns
 	fake.recordInvocation("ListSecretExports", []interface{}{arg1})
 	fake.listSecretExportsMutex.Unlock()
-	if stub != nil {
-		return stub(arg1)
+	if fake.ListSecretExportsStub != nil {
+		return fake.ListSecretExportsStub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
+	fakeReturns := fake.listSecretExportsReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1270,16 +1254,15 @@ func (fake *KappClient) UpdatePackageInstall(arg1 *v1alpha1.PackageInstall, arg2
 		arg1 *v1alpha1.PackageInstall
 		arg2 bool
 	}{arg1, arg2})
-	stub := fake.UpdatePackageInstallStub
-	fakeReturns := fake.updatePackageInstallReturns
 	fake.recordInvocation("UpdatePackageInstall", []interface{}{arg1, arg2})
 	fake.updatePackageInstallMutex.Unlock()
-	if stub != nil {
-		return stub(arg1, arg2)
+	if fake.UpdatePackageInstallStub != nil {
+		return fake.UpdatePackageInstallStub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1
 	}
+	fakeReturns := fake.updatePackageInstallReturns
 	return fakeReturns.result1
 }
 
@@ -1331,16 +1314,15 @@ func (fake *KappClient) UpdatePackageRepository(arg1 *v1alpha1.PackageRepository
 	fake.updatePackageRepositoryArgsForCall = append(fake.updatePackageRepositoryArgsForCall, struct {
 		arg1 *v1alpha1.PackageRepository
 	}{arg1})
-	stub := fake.UpdatePackageRepositoryStub
-	fakeReturns := fake.updatePackageRepositoryReturns
 	fake.recordInvocation("UpdatePackageRepository", []interface{}{arg1})
 	fake.updatePackageRepositoryMutex.Unlock()
-	if stub != nil {
-		return stub(arg1)
+	if fake.UpdatePackageRepositoryStub != nil {
+		return fake.UpdatePackageRepositoryStub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
+	fakeReturns := fake.updatePackageRepositoryReturns
 	return fakeReturns.result1
 }
 

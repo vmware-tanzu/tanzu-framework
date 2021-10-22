@@ -82,17 +82,17 @@ func NewKickstartUIAPI(spec *loads.Document) *KickstartUIAPI {
 		VsphereCreateVSphereRegionalClusterHandler: vsphere.CreateVSphereRegionalClusterHandlerFunc(func(params vsphere.CreateVSphereRegionalClusterParams) middleware.Responder {
 			return middleware.NotImplemented("operation VsphereCreateVSphereRegionalCluster has not yet been implemented")
 		}),
-		AwsGenerateTKGConfigForAWSHandler: aws.GenerateTKGConfigForAWSHandlerFunc(func(params aws.GenerateTKGConfigForAWSParams) middleware.Responder {
-			return middleware.NotImplemented("operation AwsGenerateTKGConfigForAWS has not yet been implemented")
+		AwsExportTKGConfigForAWSHandler: aws.ExportTKGConfigForAWSHandlerFunc(func(params aws.ExportTKGConfigForAWSParams) middleware.Responder {
+			return middleware.NotImplemented("operation AwsExportTKGConfigForAWS has not yet been implemented")
 		}),
-		AzureGenerateTKGConfigForAzureHandler: azure.GenerateTKGConfigForAzureHandlerFunc(func(params azure.GenerateTKGConfigForAzureParams) middleware.Responder {
-			return middleware.NotImplemented("operation AzureGenerateTKGConfigForAzure has not yet been implemented")
+		AzureExportTKGConfigForAzureHandler: azure.ExportTKGConfigForAzureHandlerFunc(func(params azure.ExportTKGConfigForAzureParams) middleware.Responder {
+			return middleware.NotImplemented("operation AzureExportTKGConfigForAzure has not yet been implemented")
 		}),
-		DockerGenerateTKGConfigForDockerHandler: docker.GenerateTKGConfigForDockerHandlerFunc(func(params docker.GenerateTKGConfigForDockerParams) middleware.Responder {
-			return middleware.NotImplemented("operation DockerGenerateTKGConfigForDocker has not yet been implemented")
+		DockerExportTKGConfigForDockerHandler: docker.ExportTKGConfigForDockerHandlerFunc(func(params docker.ExportTKGConfigForDockerParams) middleware.Responder {
+			return middleware.NotImplemented("operation DockerExportTKGConfigForDocker has not yet been implemented")
 		}),
-		VsphereGenerateTKGConfigForVsphereHandler: vsphere.GenerateTKGConfigForVsphereHandlerFunc(func(params vsphere.GenerateTKGConfigForVsphereParams) middleware.Responder {
-			return middleware.NotImplemented("operation VsphereGenerateTKGConfigForVsphere has not yet been implemented")
+		VsphereExportTKGConfigForVsphereHandler: vsphere.ExportTKGConfigForVsphereHandlerFunc(func(params vsphere.ExportTKGConfigForVsphereParams) middleware.Responder {
+			return middleware.NotImplemented("operation VsphereExportTKGConfigForVsphere has not yet been implemented")
 		}),
 		AwsGetAWSAvailabilityZonesHandler: aws.GetAWSAvailabilityZonesHandlerFunc(func(params aws.GetAWSAvailabilityZonesParams) middleware.Responder {
 			return middleware.NotImplemented("operation AwsGetAWSAvailabilityZones has not yet been implemented")
@@ -270,14 +270,14 @@ type KickstartUIAPI struct {
 	DockerCreateDockerRegionalClusterHandler docker.CreateDockerRegionalClusterHandler
 	// VsphereCreateVSphereRegionalClusterHandler sets the operation handler for the create v sphere regional cluster operation
 	VsphereCreateVSphereRegionalClusterHandler vsphere.CreateVSphereRegionalClusterHandler
-	// AwsGenerateTKGConfigForAWSHandler sets the operation handler for the generate t k g config for a w s operation
-	AwsGenerateTKGConfigForAWSHandler aws.GenerateTKGConfigForAWSHandler
-	// AzureGenerateTKGConfigForAzureHandler sets the operation handler for the generate t k g config for azure operation
-	AzureGenerateTKGConfigForAzureHandler azure.GenerateTKGConfigForAzureHandler
-	// DockerGenerateTKGConfigForDockerHandler sets the operation handler for the generate t k g config for docker operation
-	DockerGenerateTKGConfigForDockerHandler docker.GenerateTKGConfigForDockerHandler
-	// VsphereGenerateTKGConfigForVsphereHandler sets the operation handler for the generate t k g config for vsphere operation
-	VsphereGenerateTKGConfigForVsphereHandler vsphere.GenerateTKGConfigForVsphereHandler
+	// AwsExportTKGConfigForAWSHandler sets the operation handler for the export t k g config for a w s operation
+	AwsExportTKGConfigForAWSHandler aws.ExportTKGConfigForAWSHandler
+	// AzureExportTKGConfigForAzureHandler sets the operation handler for the export t k g config for azure operation
+	AzureExportTKGConfigForAzureHandler azure.ExportTKGConfigForAzureHandler
+	// DockerExportTKGConfigForDockerHandler sets the operation handler for the export t k g config for docker operation
+	DockerExportTKGConfigForDockerHandler docker.ExportTKGConfigForDockerHandler
+	// VsphereExportTKGConfigForVsphereHandler sets the operation handler for the export t k g config for vsphere operation
+	VsphereExportTKGConfigForVsphereHandler vsphere.ExportTKGConfigForVsphereHandler
 	// AwsGetAWSAvailabilityZonesHandler sets the operation handler for the get a w s availability zones operation
 	AwsGetAWSAvailabilityZonesHandler aws.GetAWSAvailabilityZonesHandler
 	// AwsGetAWSCredentialProfilesHandler sets the operation handler for the get a w s credential profiles operation
@@ -467,20 +467,20 @@ func (o *KickstartUIAPI) Validate() error {
 		unregistered = append(unregistered, "vsphere.CreateVSphereRegionalClusterHandler")
 	}
 
-	if o.AwsGenerateTKGConfigForAWSHandler == nil {
-		unregistered = append(unregistered, "aws.GenerateTKGConfigForAWSHandler")
+	if o.AwsExportTKGConfigForAWSHandler == nil {
+		unregistered = append(unregistered, "aws.ExportTKGConfigForAWSHandler")
 	}
 
-	if o.AzureGenerateTKGConfigForAzureHandler == nil {
-		unregistered = append(unregistered, "azure.GenerateTKGConfigForAzureHandler")
+	if o.AzureExportTKGConfigForAzureHandler == nil {
+		unregistered = append(unregistered, "azure.ExportTKGConfigForAzureHandler")
 	}
 
-	if o.DockerGenerateTKGConfigForDockerHandler == nil {
-		unregistered = append(unregistered, "docker.GenerateTKGConfigForDockerHandler")
+	if o.DockerExportTKGConfigForDockerHandler == nil {
+		unregistered = append(unregistered, "docker.ExportTKGConfigForDockerHandler")
 	}
 
-	if o.VsphereGenerateTKGConfigForVsphereHandler == nil {
-		unregistered = append(unregistered, "vsphere.GenerateTKGConfigForVsphereHandler")
+	if o.VsphereExportTKGConfigForVsphereHandler == nil {
+		unregistered = append(unregistered, "vsphere.ExportTKGConfigForVsphereHandler")
 	}
 
 	if o.AwsGetAWSAvailabilityZonesHandler == nil {
@@ -803,22 +803,22 @@ func (o *KickstartUIAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/api/providers/aws/generate"] = aws.NewGenerateTKGConfigForAWS(o.context, o.AwsGenerateTKGConfigForAWSHandler)
+	o.handlers["POST"]["/api/providers/aws/config/export"] = aws.NewExportTKGConfigForAWS(o.context, o.AwsExportTKGConfigForAWSHandler)
 
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/api/providers/azure/generate"] = azure.NewGenerateTKGConfigForAzure(o.context, o.AzureGenerateTKGConfigForAzureHandler)
+	o.handlers["POST"]["/api/providers/azure/config/export"] = azure.NewExportTKGConfigForAzure(o.context, o.AzureExportTKGConfigForAzureHandler)
 
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/api/providers/docker/generate"] = docker.NewGenerateTKGConfigForDocker(o.context, o.DockerGenerateTKGConfigForDockerHandler)
+	o.handlers["POST"]["/api/providers/docker/config/export"] = docker.NewExportTKGConfigForDocker(o.context, o.DockerExportTKGConfigForDockerHandler)
 
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/api/providers/vsphere/generate"] = vsphere.NewGenerateTKGConfigForVsphere(o.context, o.VsphereGenerateTKGConfigForVsphereHandler)
+	o.handlers["POST"]["/api/providers/vsphere/config/export"] = vsphere.NewExportTKGConfigForVsphere(o.context, o.VsphereExportTKGConfigForVsphereHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

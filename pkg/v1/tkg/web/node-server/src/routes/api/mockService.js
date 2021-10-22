@@ -65,7 +65,7 @@ router.get(`${ENDPOINT}/features`, (req, res) => {
         },
         "management-cluster": {
             "encryptCredentials": "true",
-            "featureExportConfigFromConfirm": "true",
+            "export-from-confirm": "true",
             "vsphereIPv6": "true"
         },
         "cluster": {
@@ -487,6 +487,16 @@ router.get(`${ENDPOINT}/providers/vsphere/osimages`, (req, res) => {
     res.json(osImageResponse);
 });
 
+/**
+ * Mock route for getting config file
+ */
+router.post(`${ENDPOINT}/providers/vsphere/config/export`, (req, res) => {
+    winston.info('Mock TKG UI export config');
+    res.status(200);    res.status(200);
+    res.json("Pretend this is a beautiful config file");
+});
+
+
 /*** AWS releated APIs ***/
 
 /**
@@ -697,6 +707,16 @@ router.post(`${ENDPOINT}/providers/aws/tkgconfig`, (req, res) => {
         path: "/path/to/config"
     });
 });
+
+/**
+ * Mock route for getting config file
+ */
+router.post(`${ENDPOINT}/providers/aws/config/export`, (req, res) => {
+    winston.info('Mock TKG UI export config');
+    res.status(200);    res.status(200);
+    res.json("Pretend this is a beautiful config file");
+});
+
 
 /*** Azure related mock services ***/
 
@@ -932,6 +952,15 @@ router.post(`${ENDPOINT}/providers/azure/tkgconfig`, (req, res) => {
     });
 });
 
+/**
+ * Mock route for getting config file
+ */
+router.post(`${ENDPOINT}/providers/azure/config/export`, (req, res) => {
+    winston.info('Mock TKG UI export config');
+    res.status(200);    res.status(200);
+    res.json("Pretend this is a beautiful config file");
+});
+
 /*********************************   VSPHERE   **********************************/
 
 /**
@@ -1044,6 +1073,15 @@ router.post(`${ENDPOINT}/providers/docker/tkgconfig`, (req, res) => {
     res.json({
         path: "/path/to/config"
     });
+});
+
+/**
+ * Mock route for getting config file
+ */
+router.post(`${ENDPOINT}/providers/docker/config/export`, (req, res) => {
+    winston.info('Mock TKG UI export config');
+    res.status(200);    res.status(200);
+    res.json("Pretend this is a beautiful config file");
 });
 
 /**
