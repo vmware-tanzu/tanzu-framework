@@ -6,9 +6,9 @@ package tkgpackageclient
 import (
 	"fmt"
 
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
 	"github.com/pkg/errors"
+	k8serror "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
@@ -24,7 +24,10 @@ const (
 
 // AddRepository validates the provided input and adds the package repository CR to the cluster
 func (p *pkgClient) AddRepository(o *tkgpackagedatamodel.RepositoryOptions, progress *tkgpackagedatamodel.PackageProgress, operationType tkgpackagedatamodel.OperationType) {
-	var err error
+	var (
+		pkgRepository *kappipkg.PackageRepository
+		err           error
+	)
 
 	defer func() {
 		if err != nil {
@@ -35,6 +38,20 @@ func (p *pkgClient) AddRepository(o *tkgpackagedatamodel.RepositoryOptions, prog
 			close(progress.Done)
 		}
 	}()
+
+	if pkgRepository, err = p.kappClient.GetPackageRepository(o.RepositoryName, o.Namespace); err != nil {
+		if !k8serror.IsNotFound(err) {
+			return
+		}
+		err = nil
+	}
+
+	if pkgRepository != nil {
+		progress.ProgressMsg <- fmt.Sprintf("Updating package repository '%s'", o.RepositoryName)
+		p.UpdateRepository(o, progress, tkgpackagedatamodel.OperationTypeInstall)
+		err = &tkgpackagedatamodel.PackagePluginNonCriticalError{Reason: tkgpackagedatamodel.ErrRepoAlreadyExists}
+		return
+	}
 
 	progress.ProgressMsg <- "Validating provided settings for the package repository"
 	if err = p.validateRepositoryAdd(o.RepositoryName, o.RepositoryURL, o.Namespace); err != nil {

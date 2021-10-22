@@ -27,12 +27,11 @@ import (
 )
 
 const (
-	msgRunPackageInstalledDelete = "\n\nPlease consider using 'tanzu package installed delete' to delete the already created associated resources\n"
 	msgRunPackageInstalledUpdate = "\n\nPlease consider using 'tanzu package installed update' to update the installed package with correct settings\n"
 )
 
 // InstallPackage installs the PackageInstall and its associated resources in the cluster
-func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progress *tkgpackagedatamodel.PackageProgress, operationType tkgpackagedatamodel.OperationType) { //nolint:gocyclo
+func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progress *tkgpackagedatamodel.PackageProgress, operationType tkgpackagedatamodel.OperationType) {
 	var (
 		pkgInstall            *kappipkg.PackageInstall
 		err                   error
@@ -57,8 +56,10 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 		err = nil
 	}
 
-	if pkgInstall != nil && pkgInstall.Name == o.PkgInstallName {
-		err = errors.New(fmt.Sprintf("package install '%s' already exists in namespace '%s'", o.PkgInstallName, o.Namespace))
+	if pkgInstall != nil {
+		progress.ProgressMsg <- fmt.Sprintf("Updating package '%s'", o.PkgInstallName)
+		p.UpdatePackage(o, progress, tkgpackagedatamodel.OperationTypeInstall)
+		err = &tkgpackagedatamodel.PackagePluginNonCriticalError{Reason: tkgpackagedatamodel.ErrPackageAlreadyExists}
 		return
 	}
 
@@ -76,51 +77,12 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 		return
 	}
 
-	if o.ServiceAccountName == "" {
-		o.ServiceAccountName = fmt.Sprintf(tkgpackagedatamodel.ServiceAccountName, o.PkgInstallName, o.Namespace)
-		progress.ProgressMsg <- fmt.Sprintf("Creating service account '%s'", o.ServiceAccountName)
-		if serviceAccountCreated, err = p.createServiceAccount(o); err != nil {
-			return
-		}
-
-		o.ClusterRoleName = fmt.Sprintf(tkgpackagedatamodel.ClusterRoleName, o.PkgInstallName, o.Namespace)
-		progress.ProgressMsg <- fmt.Sprintf("Creating cluster admin role '%s'", o.ClusterRoleName)
-		if err = p.createClusterAdminRole(o); err != nil {
-			log.Warning(msgRunPackageInstalledDelete)
-			return
-		}
-
-		o.ClusterRoleBindingName = fmt.Sprintf(tkgpackagedatamodel.ClusterRoleBindingName, o.PkgInstallName, o.Namespace)
-		progress.ProgressMsg <- fmt.Sprintf("Creating cluster role binding '%s'", o.ClusterRoleBindingName)
-		if err = p.createClusterRoleBinding(o); err != nil {
-			log.Warning(msgRunPackageInstalledDelete)
-			return
-		}
-	} else {
-		objKey := crtclient.ObjectKey{Name: o.ServiceAccountName, Namespace: o.Namespace}
-		svcAccount := &corev1.ServiceAccount{}
-		if err = p.kappClient.GetClient().Get(context.Background(), objKey, svcAccount); err != nil {
-			err = errors.Wrap(err, fmt.Sprintf("failed to find service account '%s' in namespace '%s'", o.ServiceAccountName, o.Namespace))
-			return
-		}
-		if _, ok := svcAccount.GetAnnotations()[tkgpackagedatamodel.TanzuPkgPluginAnnotation]; ok {
-			err = errors.New(fmt.Sprintf("provided service account '%s' is already used by another package in namespace '%s'", o.ServiceAccountName, o.Namespace))
-			return
-		}
-	}
-
-	if o.ValuesFile != "" {
-		o.SecretName = fmt.Sprintf(tkgpackagedatamodel.SecretName, o.PkgInstallName, o.Namespace)
-		progress.ProgressMsg <- fmt.Sprintf("Creating secret '%s'", o.SecretName)
-		if secretCreated, err = p.createDataValuesSecret(o); err != nil {
-			log.Warning(msgRunPackageInstalledDelete)
-			return
-		}
+	if serviceAccountCreated, secretCreated, err = p.createRelatedResources(o, progress.ProgressMsg); err != nil {
+		return
 	}
 
 	progress.ProgressMsg <- "Creating package resource"
 	if err = p.createPackageInstall(o, serviceAccountCreated, secretCreated); err != nil {
-		log.Warning(msgRunPackageInstalledDelete)
 		return
 	}
 
@@ -132,8 +94,59 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 	}
 }
 
-// createClusterAdminRole creates a ClusterRole resource
-func (p *pkgClient) createClusterAdminRole(o *tkgpackagedatamodel.PackageOptions) error {
+func (p *pkgClient) createRelatedResources(o *tkgpackagedatamodel.PackageOptions, progress chan string) (bool, bool, error) {
+	var (
+		secretCreated         bool
+		serviceAccountCreated bool
+		err                   error
+	)
+
+	if o.ServiceAccountName == "" {
+		o.ServiceAccountName = fmt.Sprintf(tkgpackagedatamodel.ServiceAccountName, o.PkgInstallName, o.Namespace)
+		progress <- fmt.Sprintf("Creating service account '%s'", o.ServiceAccountName)
+		if serviceAccountCreated, err = p.createOrUpdateServiceAccount(o); err != nil {
+			return serviceAccountCreated, secretCreated, err
+		}
+
+		o.ClusterRoleName = fmt.Sprintf(tkgpackagedatamodel.ClusterRoleName, o.PkgInstallName, o.Namespace)
+		progress <- fmt.Sprintf("Creating cluster admin role '%s'", o.ClusterRoleName)
+		if err := p.createOrUpdateClusterAdminRole(o); err != nil {
+			return serviceAccountCreated, secretCreated, err
+		}
+
+		o.ClusterRoleBindingName = fmt.Sprintf(tkgpackagedatamodel.ClusterRoleBindingName, o.PkgInstallName, o.Namespace)
+		progress <- fmt.Sprintf("Creating cluster role binding '%s'", o.ClusterRoleBindingName)
+		if err := p.createOrUpdateClusterRoleBinding(o); err != nil {
+			return serviceAccountCreated, secretCreated, err
+		}
+	} else {
+		objKey := crtclient.ObjectKey{Name: o.ServiceAccountName, Namespace: o.Namespace}
+		svcAccount := &corev1.ServiceAccount{}
+		if err = p.kappClient.GetClient().Get(context.Background(), objKey, svcAccount); err != nil {
+			err = errors.Wrap(err, fmt.Sprintf("failed to find service account '%s' in namespace '%s'", o.ServiceAccountName, o.Namespace))
+			return serviceAccountCreated, secretCreated, err
+		}
+		if svcAccountAnnotation, ok := svcAccount.GetAnnotations()[tkgpackagedatamodel.TanzuPkgPluginAnnotation]; ok {
+			if svcAccountAnnotation != fmt.Sprintf(tkgpackagedatamodel.TanzuPkgPluginResource, o.PkgInstallName, o.Namespace) {
+				err = errors.New(fmt.Sprintf("provided service account '%s' is already used by another package in namespace '%s'", o.ServiceAccountName, o.Namespace))
+				return serviceAccountCreated, secretCreated, err
+			}
+		}
+	}
+
+	if o.ValuesFile != "" {
+		o.SecretName = fmt.Sprintf(tkgpackagedatamodel.SecretName, o.PkgInstallName, o.Namespace)
+		progress <- fmt.Sprintf("Creating secret '%s'", o.SecretName)
+		if secretCreated, err = p.createOrUpdateDataValuesSecret(o); err != nil {
+			return serviceAccountCreated, secretCreated, err
+		}
+	}
+
+	return serviceAccountCreated, secretCreated, nil
+}
+
+// createOrUpdateClusterAdminRole creates or updates a ClusterRole resource
+func (p *pkgClient) createOrUpdateClusterAdminRole(o *tkgpackagedatamodel.PackageOptions) error {
 	clusterRole := &rbacv1.ClusterRole{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        o.ClusterRoleName,
@@ -145,14 +158,20 @@ func (p *pkgClient) createClusterAdminRole(o *tkgpackagedatamodel.PackageOptions
 	}
 
 	if err := p.kappClient.GetClient().Create(context.Background(), clusterRole); err != nil {
-		return errors.Wrap(err, "failed to create ClusterRole resource")
+		if k8serror.IsAlreadyExists(err) {
+			if err := p.kappClient.GetClient().Update(context.Background(), clusterRole); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
 	}
 
 	return nil
 }
 
-// createClusterRoleBinding creates a ClusterRoleBinding resource
-func (p *pkgClient) createClusterRoleBinding(o *tkgpackagedatamodel.PackageOptions) error {
+// createOrUpdateClusterRoleBinding creates or updates a ClusterRoleBinding resource
+func (p *pkgClient) createOrUpdateClusterRoleBinding(o *tkgpackagedatamodel.PackageOptions) error {
 	clusterRoleBinding := &rbacv1.ClusterRoleBinding{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        o.ClusterRoleBindingName,
@@ -167,14 +186,20 @@ func (p *pkgClient) createClusterRoleBinding(o *tkgpackagedatamodel.PackageOptio
 	}
 
 	if err := p.kappClient.GetClient().Create(context.Background(), clusterRoleBinding); err != nil {
-		return errors.Wrap(err, "failed to create ClusterRoleBinding resource")
+		if k8serror.IsAlreadyExists(err) {
+			if err := p.kappClient.GetClient().Update(context.Background(), clusterRoleBinding); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
 	}
 
 	return nil
 }
 
-// createDataValuesSecret create a secret object containing the user-provided configuration.
-func (p *pkgClient) createDataValuesSecret(o *tkgpackagedatamodel.PackageOptions) (bool, error) {
+// createOrUpdateDataValuesSecret create or updates a secret object containing the user-provided configuration.
+func (p *pkgClient) createOrUpdateDataValuesSecret(o *tkgpackagedatamodel.PackageOptions) (bool, error) {
 	var err error
 
 	dataValues := make(map[string][]byte)
@@ -192,7 +217,13 @@ func (p *pkgClient) createDataValuesSecret(o *tkgpackagedatamodel.PackageOptions
 	}
 
 	if err := p.kappClient.GetClient().Create(context.Background(), secret); err != nil {
-		return false, errors.Wrap(err, "failed to create Secret resource")
+		if k8serror.IsAlreadyExists(err) {
+			if err := p.kappClient.GetClient().Update(context.Background(), secret); err != nil {
+				return false, err
+			}
+		} else {
+			return false, err
+		}
 	}
 
 	return true, nil
@@ -255,8 +286,8 @@ func (p *pkgClient) createPackageInstall(o *tkgpackagedatamodel.PackageOptions, 
 	return nil
 }
 
-// createServiceAccount creates a ServiceAccount resource
-func (p *pkgClient) createServiceAccount(o *tkgpackagedatamodel.PackageOptions) (bool, error) {
+// createOrUpdateServiceAccount creates or updates a ServiceAccount resource
+func (p *pkgClient) createOrUpdateServiceAccount(o *tkgpackagedatamodel.PackageOptions) (bool, error) {
 	serviceAccount := &corev1.ServiceAccount{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        o.ServiceAccountName,
@@ -265,7 +296,13 @@ func (p *pkgClient) createServiceAccount(o *tkgpackagedatamodel.PackageOptions) 
 	}
 
 	if err := p.kappClient.GetClient().Create(context.Background(), serviceAccount); err != nil {
-		return false, errors.Wrap(err, "failed to create ServiceAccount resource")
+		if k8serror.IsAlreadyExists(err) {
+			if err := p.kappClient.GetClient().Update(context.Background(), serviceAccount); err != nil {
+				return false, err
+			}
+		} else {
+			return false, err
+		}
 	}
 
 	return true, nil

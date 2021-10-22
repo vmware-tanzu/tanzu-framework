@@ -51,7 +51,7 @@ var (
 		Spec: kappipkg.PackageInstallSpec{
 			ServiceAccountName: testServiceAccountName,
 			PackageRef: &kappipkg.PackageRef{
-				RefName:          testPkgInstallName,
+				RefName:          testPkgName,
 				VersionSelection: testVersionSelection,
 			},
 		},
@@ -76,8 +76,6 @@ var (
 	}
 
 	testVersionSelection = &versions.VersionSelectionSemver{Constraints: "1.0.0"}
-
-	testPackageInstallName = "test-package"
 )
 
 var _ = Describe("Install Package", func() {
@@ -110,7 +108,69 @@ var _ = Describe("Install Package", func() {
 		err = testReceive(progress)
 	})
 
-	Context("failure in listing package versions due to ListPackages API error", func() {
+	Context("failure in getting installed package due to GetPackageInstall API error", func() {
+		BeforeEach(func() {
+			kappCtl = &fakes.KappClient{}
+			crtCtl = &fakes.CRTClusterClient{}
+			kappCtl.GetClientReturns(crtCtl)
+			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
+			kappCtl.GetPackageInstallReturnsOnCall(0, nil, errors.New("failure in GetPackageInstall"))
+		})
+		It(testFailureMsg, func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("failure in GetPackageInstall"))
+		})
+		AfterEach(func() { options = opts })
+	})
+
+	Context("falling back to update when trying to install an existing package install (with reconciliation failure)", func() {
+		BeforeEach(func() {
+			options.Wait = true
+			options.ValuesFile = testValuesFile
+			kappCtl = &fakes.KappClient{}
+			crtCtl = &fakes.CRTClusterClient{}
+			kappCtl.GetClientReturns(crtCtl)
+			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
+			kappCtl.GetPackageInstallReturns(testPkgInstall, nil)
+			err = os.WriteFile(testValuesFile, []byte("test"), 0644)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(testPkgInstall.Status.ObservedGeneration).To(Equal(testPkgInstall.Generation))
+			Expect(len(testPkgInstall.Status.Conditions)).To(BeNumerically("==", 2))
+			testPkgInstall.Status.Conditions[1] = kappctrl.AppCondition{Type: kappctrl.ReconcileFailed, Status: corev1.ConditionTrue}
+			testPkgInstall.Status.UsefulErrorMessage = testUsefulErrMsg
+		})
+		It(testFailureMsg, func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring(testUsefulErrMsg))
+		})
+		AfterEach(func() {
+			options = opts
+			testPkgInstall.Status.Conditions[1].Type = kappctrl.ReconcileSucceeded
+			err = os.Remove(testValuesFile)
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
+
+	Context("falling back to update when trying to install an existing package install (throwing non-critical error)", func() {
+		BeforeEach(func() {
+			options.Wait = true
+			options.PackageName = testPkgName
+			kappCtl = &fakes.KappClient{}
+			crtCtl = &fakes.CRTClusterClient{}
+			Expect(options.PackageName).To(Equal(testPkgInstall.Spec.PackageRef.RefName))
+			kappCtl.GetPackageInstallReturns(testPkgInstall, nil)
+			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
+		})
+		It(testFailureMsg, func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring(tkgpackagedatamodel.ErrPackageAlreadyExists))
+		})
+		AfterEach(func() {
+			options = opts
+		})
+	})
+
+	Context("failure in listing package versions due to ListPackages API error (in GetPackage())", func() {
 		BeforeEach(func() {
 			kappCtl = &fakes.KappClient{}
 			crtCtl = &fakes.CRTClusterClient{}
@@ -120,22 +180,6 @@ var _ = Describe("Install Package", func() {
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("failure in ListPackages"))
-		})
-		AfterEach(func() { options = opts })
-	})
-
-	Context("failure in finding the provided service account", func() {
-		BeforeEach(func() {
-			options.ServiceAccountName = testServiceAccountName
-			kappCtl = &fakes.KappClient{}
-			crtCtl = &fakes.CRTClusterClient{}
-			kappCtl.GetClientReturns(crtCtl)
-			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
-			crtCtl.GetReturns(apierrors.NewNotFound(schema.GroupResource{Resource: tkgpackagedatamodel.KindServiceAccount}, testServiceAccountName))
-		})
-		It(testFailureMsg, func() {
-			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("ServiceAccount \"test-pkg-test-ns-sa\" not found"))
 		})
 		AfterEach(func() { options = opts })
 	})
@@ -171,6 +215,173 @@ var _ = Describe("Install Package", func() {
 		AfterEach(func() { options = opts })
 	})
 
+	Context("failure in namespace creation due to namespace Get API error", func() {
+		BeforeEach(func() {
+			options.CreateNamespace = true
+			kappCtl = &fakes.KappClient{}
+			crtCtl = &fakes.CRTClusterClient{}
+			kappCtl.GetClientReturns(crtCtl)
+			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
+			crtCtl.GetReturns(errors.New("failure in Get namespace"))
+		})
+		It(testFailureMsg, func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("failure in Get namespace"))
+		})
+		AfterEach(func() { options = opts })
+	})
+
+	Context("failure in namespace creation due to namespace Create API error", func() {
+		BeforeEach(func() {
+			options.CreateNamespace = true
+			kappCtl = &fakes.KappClient{}
+			crtCtl = &fakes.CRTClusterClient{}
+			kappCtl.GetClientReturns(crtCtl)
+			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
+			crtCtl.GetReturns(apierrors.NewNotFound(schema.GroupResource{Resource: tkgpackagedatamodel.KindNamespace}, testNamespaceName))
+			crtCtl.CreateReturns(errors.New("failure in Create namespace"))
+		})
+		It(testFailureMsg, func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("failure in Create namespace"))
+		})
+		AfterEach(func() { options = opts })
+	})
+
+	Context("failure in getting an existing namespace (namespace NotFound error)", func() {
+		BeforeEach(func() {
+			options.CreateNamespace = false
+			kappCtl = &fakes.KappClient{}
+			crtCtl = &fakes.CRTClusterClient{}
+			kappCtl.GetClientReturns(crtCtl)
+			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
+			crtCtl.GetReturns(apierrors.NewNotFound(schema.GroupResource{Resource: tkgpackagedatamodel.KindNamespace}, testNamespaceName))
+		})
+		It(testFailureMsg, func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("Namespace \"%s\" not found", testNamespaceName)))
+		})
+		AfterEach(func() { options = opts })
+	})
+
+	Context("failure in creating service account", func() {
+		BeforeEach(func() {
+			kappCtl = &fakes.KappClient{}
+			crtCtl = &fakes.CRTClusterClient{}
+			kappCtl.GetClientReturns(crtCtl)
+			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
+			crtCtl.CreateReturnsOnCall(0, errors.New("failure in Create ServiceAccount"))
+		})
+		It(testFailureMsg, func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("failure in Create ServiceAccount"))
+		})
+		AfterEach(func() { options = opts })
+	})
+
+	Context("failure in updating service account", func() {
+		BeforeEach(func() {
+			kappCtl = &fakes.KappClient{}
+			crtCtl = &fakes.CRTClusterClient{}
+			kappCtl.GetClientReturns(crtCtl)
+			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
+			crtCtl.CreateReturnsOnCall(0, apierrors.NewAlreadyExists(schema.GroupResource{Resource: tkgpackagedatamodel.KindServiceAccount}, testServiceAccountName))
+			crtCtl.UpdateReturnsOnCall(0, errors.New("failure in Update ServiceAccount"))
+		})
+		It(testFailureMsg, func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("failure in Update ServiceAccount"))
+		})
+		AfterEach(func() { options = opts })
+	})
+
+	Context("failure in creating cluster admin role", func() {
+		BeforeEach(func() {
+			kappCtl = &fakes.KappClient{}
+			crtCtl = &fakes.CRTClusterClient{}
+			kappCtl.GetClientReturns(crtCtl)
+			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
+			crtCtl.CreateReturnsOnCall(0, nil)
+			crtCtl.CreateReturnsOnCall(1, errors.New("failure in Create ClusterRole"))
+		})
+		It(testFailureMsg, func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("failure in Create ClusterRole"))
+		})
+		AfterEach(func() { options = opts })
+	})
+
+	Context("failure in updating cluster admin role", func() {
+		BeforeEach(func() {
+			kappCtl = &fakes.KappClient{}
+			crtCtl = &fakes.CRTClusterClient{}
+			kappCtl.GetClientReturns(crtCtl)
+			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
+			crtCtl.CreateReturnsOnCall(0, apierrors.NewAlreadyExists(schema.GroupResource{Resource: tkgpackagedatamodel.KindServiceAccount}, testServiceAccountName))
+			crtCtl.UpdateReturnsOnCall(0, nil)
+			crtCtl.CreateReturnsOnCall(1, apierrors.NewAlreadyExists(schema.GroupResource{Resource: tkgpackagedatamodel.KindClusterRole}, testClusterRoleName))
+			crtCtl.UpdateReturnsOnCall(1, errors.New("failure in Update ClusterRole"))
+		})
+		It(testFailureMsg, func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("failure in Update ClusterRole"))
+		})
+		AfterEach(func() { options = opts })
+	})
+
+	Context("failure in creating cluster role binding", func() {
+		BeforeEach(func() {
+			kappCtl = &fakes.KappClient{}
+			crtCtl = &fakes.CRTClusterClient{}
+			kappCtl.GetClientReturns(crtCtl)
+			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
+			crtCtl.CreateReturnsOnCall(0, nil)
+			crtCtl.CreateReturnsOnCall(1, nil)
+			crtCtl.CreateReturnsOnCall(2, errors.New("failure in Create ClusterRoleBinding"))
+		})
+		It(testFailureMsg, func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("failure in Create ClusterRoleBinding"))
+		})
+		AfterEach(func() { options = opts })
+	})
+
+	Context("failure in updating cluster role binding", func() {
+		BeforeEach(func() {
+			kappCtl = &fakes.KappClient{}
+			crtCtl = &fakes.CRTClusterClient{}
+			kappCtl.GetClientReturns(crtCtl)
+			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
+			crtCtl.CreateReturnsOnCall(0, apierrors.NewAlreadyExists(schema.GroupResource{Resource: tkgpackagedatamodel.KindServiceAccount}, testServiceAccountName))
+			crtCtl.UpdateReturnsOnCall(0, nil)
+			crtCtl.CreateReturnsOnCall(1, apierrors.NewAlreadyExists(schema.GroupResource{Resource: tkgpackagedatamodel.KindClusterRole}, testClusterRoleName))
+			crtCtl.UpdateReturnsOnCall(1, nil)
+			crtCtl.CreateReturnsOnCall(2, apierrors.NewAlreadyExists(schema.GroupResource{Resource: tkgpackagedatamodel.KindClusterRoleBinding}, testClusterRoleBindingName))
+			crtCtl.UpdateReturnsOnCall(2, errors.New("failure in Update ClusterRoleBinding"))
+		})
+		It(testFailureMsg, func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("failure in Update ClusterRoleBinding"))
+		})
+		AfterEach(func() { options = opts })
+	})
+
+	Context("failure in finding the provided service account", func() {
+		BeforeEach(func() {
+			options.ServiceAccountName = testServiceAccountName
+			kappCtl = &fakes.KappClient{}
+			crtCtl = &fakes.CRTClusterClient{}
+			kappCtl.GetClientReturns(crtCtl)
+			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
+			crtCtl.GetReturns(apierrors.NewNotFound(schema.GroupResource{Resource: tkgpackagedatamodel.KindServiceAccount}, testServiceAccountName))
+		})
+		It(testFailureMsg, func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("ServiceAccount \"test-pkg-test-ns-sa\" not found"))
+		})
+		AfterEach(func() { options = opts })
+	})
+
 	Context("failure in finding the provided secret value file", func() {
 		BeforeEach(func() {
 			options.ValuesFile = testValuesFile
@@ -186,31 +397,95 @@ var _ = Describe("Install Package", func() {
 		AfterEach(func() { options = opts })
 	})
 
-	Context("failure in getting installed package due to GetPackageInstall API error in waitForResourceInstallation", func() {
+	Context("failure in creating secret", func() {
 		BeforeEach(func() {
-			options.Wait = true
+			options.ValuesFile = testValuesFile
 			kappCtl = &fakes.KappClient{}
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
 			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
-			kappCtl.GetPackageInstallReturns(nil, errors.New("failure in GetPackageInstall"))
+			err = os.WriteFile(testValuesFile, []byte("test"), 0644)
+			Expect(err).ToNot(HaveOccurred())
+			crtCtl.CreateReturnsOnCall(0, nil)
+			crtCtl.CreateReturnsOnCall(1, nil)
+			crtCtl.CreateReturnsOnCall(2, nil)
+			crtCtl.CreateReturnsOnCall(3, errors.New("failure in Create Secret"))
 		})
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("failure in GetPackageInstall"))
+			Expect(err.Error()).To(ContainSubstring("failure in Create Secret"))
 		})
-		AfterEach(func() { options = opts })
+		AfterEach(func() {
+			options = opts
+			err = os.Remove(testValuesFile)
+			Expect(err).ToNot(HaveOccurred())
+		})
 	})
 
-	Context("failure in installed package reconciliation", func() {
+	Context("failure in updating secret", func() {
+		BeforeEach(func() {
+			options.ValuesFile = testValuesFile
+			kappCtl = &fakes.KappClient{}
+			crtCtl = &fakes.CRTClusterClient{}
+			kappCtl.GetClientReturns(crtCtl)
+			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
+			err = os.WriteFile(testValuesFile, []byte("test"), 0644)
+			Expect(err).ToNot(HaveOccurred())
+			crtCtl.CreateReturnsOnCall(0, apierrors.NewAlreadyExists(schema.GroupResource{Resource: tkgpackagedatamodel.KindServiceAccount}, testServiceAccountName))
+			crtCtl.UpdateReturnsOnCall(0, nil)
+			crtCtl.CreateReturnsOnCall(1, apierrors.NewAlreadyExists(schema.GroupResource{Resource: tkgpackagedatamodel.KindClusterRole}, testClusterRoleName))
+			crtCtl.UpdateReturnsOnCall(1, nil)
+			crtCtl.CreateReturnsOnCall(2, apierrors.NewAlreadyExists(schema.GroupResource{Resource: tkgpackagedatamodel.KindClusterRoleBinding}, testClusterRoleBindingName))
+			crtCtl.UpdateReturnsOnCall(2, nil)
+			crtCtl.CreateReturnsOnCall(3, apierrors.NewAlreadyExists(schema.GroupResource{Resource: tkgpackagedatamodel.KindSecret}, testSecretName))
+			crtCtl.UpdateReturnsOnCall(3, errors.New("failure in Update Secret"))
+		})
+		It(testFailureMsg, func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("failure in Update Secret"))
+		})
+		AfterEach(func() {
+			options = opts
+			err = os.Remove(testValuesFile)
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
+
+	Context("failure in creating package install due to CreatePackageInstall API error", func() {
+		BeforeEach(func() {
+			options.ValuesFile = testValuesFile
+			kappCtl = &fakes.KappClient{}
+			crtCtl = &fakes.CRTClusterClient{}
+			kappCtl.GetClientReturns(crtCtl)
+			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
+			err = os.WriteFile(testValuesFile, []byte("test"), 0644)
+			Expect(err).ToNot(HaveOccurred())
+			crtCtl.CreateReturnsOnCall(0, nil)
+			crtCtl.CreateReturnsOnCall(1, nil)
+			crtCtl.CreateReturnsOnCall(2, nil)
+			crtCtl.CreateReturnsOnCall(3, nil)
+			kappCtl.CreatePackageInstallReturns(errors.New("failure in CreatePackageInstall"))
+		})
+		It(testFailureMsg, func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("failure in CreatePackageInstall"))
+		})
+		AfterEach(func() {
+			options = opts
+			err = os.Remove(testValuesFile)
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
+
+	Context("failure when trying to install a package install (with reconciliation failure)", func() {
 		BeforeEach(func() {
 			options.Wait = true
 			kappCtl = &fakes.KappClient{}
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
 			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
-			testPkgInstall.Name = testPackageInstallName
-			kappCtl.GetPackageInstallReturns(testPkgInstall, nil)
+			kappCtl.GetPackageInstallReturnsOnCall(0, nil, apierrors.NewNotFound(schema.GroupResource{Resource: tkgpackagedatamodel.KindPackageInstall}, testPkgInstallName))
+			kappCtl.GetPackageInstallReturnsOnCall(1, testPkgInstall, nil)
 			Expect(testPkgInstall.Status.ObservedGeneration).To(Equal(testPkgInstall.Generation))
 			Expect(len(testPkgInstall.Status.Conditions)).To(BeNumerically("==", 2))
 			testPkgInstall.Status.Conditions[1] = kappctrl.AppCondition{Type: kappctrl.ReconcileFailed, Status: corev1.ConditionTrue}
@@ -223,7 +498,6 @@ var _ = Describe("Install Package", func() {
 		AfterEach(func() {
 			options = opts
 			testPkgInstall.Status.Conditions[1].Type = kappctrl.ReconcileSucceeded
-			testPkgInstall.Name = testPkgInstallName
 		})
 	})
 
@@ -258,6 +532,23 @@ var _ = Describe("Install Package", func() {
 		AfterEach(func() { options = opts })
 	})
 
+	Context("failure in installing the package due to GetPackageInstall API error in waitForResourceInstallation", func() {
+		BeforeEach(func() {
+			options.Wait = true
+			kappCtl = &fakes.KappClient{}
+			crtCtl = &fakes.CRTClusterClient{}
+			kappCtl.GetClientReturns(crtCtl)
+			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
+			kappCtl.GetPackageInstallReturnsOnCall(0, nil, nil)
+			kappCtl.GetPackageInstallReturnsOnCall(1, nil, errors.New("failure in GetPackageInstall"))
+		})
+		It(testFailureMsg, func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("failure in GetPackageInstall"))
+		})
+		AfterEach(func() { options = opts })
+	})
+
 	Context("success in installing the package with a successful reconciliation (Wait flag being set)", func() {
 		BeforeEach(func() {
 			options.Wait = true
@@ -265,8 +556,8 @@ var _ = Describe("Install Package", func() {
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
 			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
-			testPkgInstall.Name = testPackageInstallName
-			kappCtl.GetPackageInstallReturns(testPkgInstall, nil)
+			kappCtl.GetPackageInstallReturnsOnCall(0, nil, apierrors.NewNotFound(schema.GroupResource{Resource: tkgpackagedatamodel.KindPackageInstall}, testPkgInstallName))
+			kappCtl.GetPackageInstallReturnsOnCall(1, testPkgInstall, nil)
 			Expect(testPkgInstall.Status.ObservedGeneration).To(Equal(testPkgInstall.Generation))
 		})
 		It(testSuccessMsg, func() {
@@ -276,7 +567,6 @@ var _ = Describe("Install Package", func() {
 		})
 		AfterEach(func() {
 			options = opts
-			testPkgInstall.Name = testPkgInstallName
 		})
 	})
 
@@ -302,19 +592,22 @@ var _ = Describe("Install Package", func() {
 		})
 	})
 
-	Context("failure when a duplicate package install name is provided", func() {
+	Context("failure when trying to update an existing package install, but providing a different o.PackageName than Spec.PackageRef.RefName", func() {
 		BeforeEach(func() {
 			options.Wait = true
+			options.PackageName = "some-other-package"
 			kappCtl = &fakes.KappClient{}
 			crtCtl = &fakes.CRTClusterClient{}
+			Expect(options.PackageName).NotTo(Equal(testPkgInstall.Spec.PackageRef.RefName))
 			kappCtl.GetPackageInstallReturns(testPkgInstall, nil)
 		})
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("package install '%s' already exists in namespace '%s'", options.PkgInstallName, options.Namespace)))
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("installed package '%s' is already associated with package '%s'", options.PkgInstallName, testPkgInstall.Spec.PackageRef.RefName)))
 		})
 		AfterEach(func() {
 			options = opts
+			options.PackageName = testPkgName
 		})
 	})
 })

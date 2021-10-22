@@ -17,7 +17,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
-func (p *pkgClient) UpdateRepository(o *tkgpackagedatamodel.RepositoryOptions, progress *tkgpackagedatamodel.PackageProgress) {
+func (p *pkgClient) UpdateRepository(o *tkgpackagedatamodel.RepositoryOptions, progress *tkgpackagedatamodel.PackageProgress, operationType tkgpackagedatamodel.OperationType) {
 	var (
 		existingRepository *kappipkg.PackageRepository
 		err                error
@@ -25,7 +25,13 @@ func (p *pkgClient) UpdateRepository(o *tkgpackagedatamodel.RepositoryOptions, p
 	)
 
 	defer func() {
-		progressCleanup(err, progress)
+		if err != nil {
+			progress.Err <- err
+		}
+		if operationType == tkgpackagedatamodel.OperationTypeUpdate {
+			close(progress.ProgressMsg)
+			close(progress.Done)
+		}
 	}()
 
 	progress.ProgressMsg <- fmt.Sprintf("Getting package repository '%s'", o.RepositoryName)
@@ -40,6 +46,7 @@ func (p *pkgClient) UpdateRepository(o *tkgpackagedatamodel.RepositoryOptions, p
 
 	if existingRepository != nil {
 		repositoryToUpdate := existingRepository.DeepCopy()
+		progress.ProgressMsg <- "Validating provided settings for the package repository"
 		if err = p.validateRepositoryUpdate(o.RepositoryName, o.RepositoryURL, o.Namespace); err != nil {
 			return
 		}
