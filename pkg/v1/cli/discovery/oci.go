@@ -11,6 +11,7 @@ import (
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/carvelhelpers"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/plugin"
 )
 
@@ -63,7 +64,7 @@ func (od *OCIDiscovery) Name() string {
 
 // Type of the discovery.
 func (od *OCIDiscovery) Type() string {
-	return "OCI"
+	return common.DiscoveryTypeOCI
 }
 
 // Manifest returns the manifest for a local repository.

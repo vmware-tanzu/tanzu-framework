@@ -3,7 +3,10 @@
 
 package discovery
 
-import "github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/plugin"
+import (
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/plugin"
+)
 
 // GCPDiscovery is a artifact discovery endpoing utilizing a GCP bucket.
 type GCPDiscovery struct {
@@ -40,5 +43,5 @@ func (g *GCPDiscovery) Name() string {
 
 // Type of the discovery.
 func (g *GCPDiscovery) Type() string {
-	return "GCP"
+	return common.DiscoveryTypeGCP
 }

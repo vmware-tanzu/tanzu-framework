@@ -108,7 +108,7 @@ func (l *LocalDiscovery) Manifest() ([]plugin.Discovered, error) {
 
 // Type of the repository.
 func (l *LocalDiscovery) Type() string {
-	return "local"
+	return common.DiscoveryTypeLocal
 }
 
 // DiscoveredFromK8sV1alpha1 returns discovered plugin object from k8sV1alpha1

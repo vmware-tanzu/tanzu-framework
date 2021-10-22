@@ -29,6 +29,7 @@ nouns:
   - provisioner
   - repo
   - repository
+  - source
   - wordlist
   - workspace
 verbs:
@@ -131,6 +132,7 @@ command-flags:
   - timeout
   - tkr
   - ui
+  - uri
   - url
   - use-existing-bootstrap-cluster
   - use-existing-cleanup-cluster
