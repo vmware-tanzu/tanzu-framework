@@ -238,4 +238,12 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
     applyTkgConfig() {
         return this.apiClient.applyTKGConfigForAWS({ params: this.getPayload() });
     }
+
+    /**
+     * Retrieve the config file from the backend and return as a string
+     */
+    retrieveExportFile() {
+        return this.apiClient.exportTKGConfigForAWS({ params: this.getPayload() });
+    }
+
 }

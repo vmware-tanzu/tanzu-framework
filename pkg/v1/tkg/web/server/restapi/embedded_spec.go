@@ -659,16 +659,16 @@ func init() {
         }
       }
     },
-    "/api/providers/aws/create": {
+    "/api/providers/aws/config/export": {
       "post": {
         "tags": [
           "aws"
         ],
-        "summary": "Create AWS regional cluster",
-        "operationId": "createAWSRegionalCluster",
+        "summary": "Generate TKG configuration file for AWS\"",
+        "operationId": "exportTKGConfigForAWS",
         "parameters": [
           {
-            "description": "parameters to create a regional cluster",
+            "description": "parameters to generate TKG configuration file for AWS",
             "name": "params",
             "in": "body",
             "required": true,
@@ -679,7 +679,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Creating regional cluster started successfully",
+            "description": "Generated TKG configuration successfully",
             "schema": {
               "type": "string"
             }
@@ -705,16 +705,16 @@ func init() {
         }
       }
     },
-    "/api/providers/aws/generate": {
+    "/api/providers/aws/create": {
       "post": {
         "tags": [
           "aws"
         ],
-        "summary": "Generate TKG configuration file for AWS\"",
-        "operationId": "generateTKGConfigForAWS",
+        "summary": "Create AWS regional cluster",
+        "operationId": "createAWSRegionalCluster",
         "parameters": [
           {
-            "description": "parameters to generate TKG configuration file for AWS",
+            "description": "parameters to create a regional cluster",
             "name": "params",
             "in": "body",
             "required": true,
@@ -725,7 +725,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Generated TKG configuration successfully",
+            "description": "Creating regional cluster started successfully",
             "schema": {
               "type": "string"
             }
@@ -1126,16 +1126,16 @@ func init() {
         }
       }
     },
-    "/api/providers/azure/create": {
+    "/api/providers/azure/config/export": {
       "post": {
         "tags": [
           "azure"
         ],
-        "summary": "Create Azure regional cluster",
-        "operationId": "createAzureRegionalCluster",
+        "summary": "Generate TKG configuration file for Azure\"",
+        "operationId": "exportTKGConfigForAzure",
         "parameters": [
           {
-            "description": "parameters to create a regional cluster",
+            "description": "parameters to generate TKG configuration file for Azure",
             "name": "params",
             "in": "body",
             "required": true,
@@ -1146,7 +1146,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Creating regional cluster started successfully",
+            "description": "Generated TKG configuration successfully",
             "schema": {
               "type": "string"
             }
@@ -1172,16 +1172,16 @@ func init() {
         }
       }
     },
-    "/api/providers/azure/generate": {
+    "/api/providers/azure/create": {
       "post": {
         "tags": [
           "azure"
         ],
-        "summary": "Generate TKG configuration file for Azure\"",
-        "operationId": "generateTKGConfigForAzure",
+        "summary": "Create Azure regional cluster",
+        "operationId": "createAzureRegionalCluster",
         "parameters": [
           {
-            "description": "parameters to generate TKG configuration file for Azure",
+            "description": "parameters to create a regional cluster",
             "name": "params",
             "in": "body",
             "required": true,
@@ -1192,7 +1192,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Generated TKG configuration successfully",
+            "description": "Creating regional cluster started successfully",
             "schema": {
               "type": "string"
             }
@@ -1583,6 +1583,46 @@ func init() {
         }
       }
     },
+    "/api/providers/docker/config/export": {
+      "post": {
+        "tags": [
+          "docker"
+        ],
+        "summary": "Generate TKG configuration file for Docker\"",
+        "operationId": "exportTKGConfigForDocker",
+        "parameters": [
+          {
+            "description": "parameters to generate TKG configuration file for Docker",
+            "name": "params",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DockerRegionalClusterParams"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Generated TKG configuration successfully",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/api/providers/docker/create": {
       "post": {
         "tags": [
@@ -1635,46 +1675,6 @@ func init() {
             "description": "Checked the docker daemon status successfully.",
             "schema": {
               "$ref": "#/definitions/DockerDaemonStatus"
-            }
-          },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "500": {
-            "description": "Internal server error",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      }
-    },
-    "/api/providers/docker/generate": {
-      "post": {
-        "tags": [
-          "docker"
-        ],
-        "summary": "Generate TKG configuration file for Docker\"",
-        "operationId": "generateTKGConfigForDocker",
-        "parameters": [
-          {
-            "description": "parameters to generate TKG configuration file for Docker",
-            "name": "params",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/DockerRegionalClusterParams"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Generated TKG configuration successfully",
-            "schema": {
-              "type": "string"
             }
           },
           "400": {
@@ -1801,6 +1801,52 @@ func init() {
               "items": {
                 "$ref": "#/definitions/VSphereManagementObject"
               }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Incorrect credentials",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/providers/vsphere/config/export": {
+      "post": {
+        "tags": [
+          "vsphere"
+        ],
+        "summary": "Generate TKG configuration file for vSphere",
+        "operationId": "exportTKGConfigForVsphere",
+        "parameters": [
+          {
+            "description": "params to generate tkg configuration for vsphere",
+            "name": "params",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/VsphereRegionalClusterParams"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Generated TKG configuration successfully",
+            "schema": {
+              "type": "string"
             }
           },
           "400": {
@@ -1979,52 +2025,6 @@ func init() {
               "items": {
                 "$ref": "#/definitions/VSphereFolder"
               }
-            }
-          },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "401": {
-            "description": "Incorrect credentials",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "500": {
-            "description": "Internal server error",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      }
-    },
-    "/api/providers/vsphere/generate": {
-      "post": {
-        "tags": [
-          "vsphere"
-        ],
-        "summary": "Generate TKG configuration file for vSphere",
-        "operationId": "generateTKGConfigForVsphere",
-        "parameters": [
-          {
-            "description": "params to generate tkg configuration for vsphere",
-            "name": "params",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/VsphereRegionalClusterParams"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Generated TKG configuration successfully",
-            "schema": {
-              "type": "string"
             }
           },
           "400": {
@@ -4178,16 +4178,16 @@ func init() {
         }
       }
     },
-    "/api/providers/aws/create": {
+    "/api/providers/aws/config/export": {
       "post": {
         "tags": [
           "aws"
         ],
-        "summary": "Create AWS regional cluster",
-        "operationId": "createAWSRegionalCluster",
+        "summary": "Generate TKG configuration file for AWS\"",
+        "operationId": "exportTKGConfigForAWS",
         "parameters": [
           {
-            "description": "parameters to create a regional cluster",
+            "description": "parameters to generate TKG configuration file for AWS",
             "name": "params",
             "in": "body",
             "required": true,
@@ -4198,7 +4198,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Creating regional cluster started successfully",
+            "description": "Generated TKG configuration successfully",
             "schema": {
               "type": "string"
             }
@@ -4224,16 +4224,16 @@ func init() {
         }
       }
     },
-    "/api/providers/aws/generate": {
+    "/api/providers/aws/create": {
       "post": {
         "tags": [
           "aws"
         ],
-        "summary": "Generate TKG configuration file for AWS\"",
-        "operationId": "generateTKGConfigForAWS",
+        "summary": "Create AWS regional cluster",
+        "operationId": "createAWSRegionalCluster",
         "parameters": [
           {
-            "description": "parameters to generate TKG configuration file for AWS",
+            "description": "parameters to create a regional cluster",
             "name": "params",
             "in": "body",
             "required": true,
@@ -4244,7 +4244,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Generated TKG configuration successfully",
+            "description": "Creating regional cluster started successfully",
             "schema": {
               "type": "string"
             }
@@ -4645,16 +4645,16 @@ func init() {
         }
       }
     },
-    "/api/providers/azure/create": {
+    "/api/providers/azure/config/export": {
       "post": {
         "tags": [
           "azure"
         ],
-        "summary": "Create Azure regional cluster",
-        "operationId": "createAzureRegionalCluster",
+        "summary": "Generate TKG configuration file for Azure\"",
+        "operationId": "exportTKGConfigForAzure",
         "parameters": [
           {
-            "description": "parameters to create a regional cluster",
+            "description": "parameters to generate TKG configuration file for Azure",
             "name": "params",
             "in": "body",
             "required": true,
@@ -4665,7 +4665,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Creating regional cluster started successfully",
+            "description": "Generated TKG configuration successfully",
             "schema": {
               "type": "string"
             }
@@ -4691,16 +4691,16 @@ func init() {
         }
       }
     },
-    "/api/providers/azure/generate": {
+    "/api/providers/azure/create": {
       "post": {
         "tags": [
           "azure"
         ],
-        "summary": "Generate TKG configuration file for Azure\"",
-        "operationId": "generateTKGConfigForAzure",
+        "summary": "Create Azure regional cluster",
+        "operationId": "createAzureRegionalCluster",
         "parameters": [
           {
-            "description": "parameters to generate TKG configuration file for Azure",
+            "description": "parameters to create a regional cluster",
             "name": "params",
             "in": "body",
             "required": true,
@@ -4711,7 +4711,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Generated TKG configuration successfully",
+            "description": "Creating regional cluster started successfully",
             "schema": {
               "type": "string"
             }
@@ -5102,6 +5102,46 @@ func init() {
         }
       }
     },
+    "/api/providers/docker/config/export": {
+      "post": {
+        "tags": [
+          "docker"
+        ],
+        "summary": "Generate TKG configuration file for Docker\"",
+        "operationId": "exportTKGConfigForDocker",
+        "parameters": [
+          {
+            "description": "parameters to generate TKG configuration file for Docker",
+            "name": "params",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DockerRegionalClusterParams"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Generated TKG configuration successfully",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/api/providers/docker/create": {
       "post": {
         "tags": [
@@ -5154,46 +5194,6 @@ func init() {
             "description": "Checked the docker daemon status successfully.",
             "schema": {
               "$ref": "#/definitions/DockerDaemonStatus"
-            }
-          },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "500": {
-            "description": "Internal server error",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      }
-    },
-    "/api/providers/docker/generate": {
-      "post": {
-        "tags": [
-          "docker"
-        ],
-        "summary": "Generate TKG configuration file for Docker\"",
-        "operationId": "generateTKGConfigForDocker",
-        "parameters": [
-          {
-            "description": "parameters to generate TKG configuration file for Docker",
-            "name": "params",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/DockerRegionalClusterParams"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Generated TKG configuration successfully",
-            "schema": {
-              "type": "string"
             }
           },
           "400": {
@@ -5320,6 +5320,52 @@ func init() {
               "items": {
                 "$ref": "#/definitions/VSphereManagementObject"
               }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Incorrect credentials",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/providers/vsphere/config/export": {
+      "post": {
+        "tags": [
+          "vsphere"
+        ],
+        "summary": "Generate TKG configuration file for vSphere",
+        "operationId": "exportTKGConfigForVsphere",
+        "parameters": [
+          {
+            "description": "params to generate tkg configuration for vsphere",
+            "name": "params",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/VsphereRegionalClusterParams"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Generated TKG configuration successfully",
+            "schema": {
+              "type": "string"
             }
           },
           "400": {
@@ -5498,52 +5544,6 @@ func init() {
               "items": {
                 "$ref": "#/definitions/VSphereFolder"
               }
-            }
-          },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "401": {
-            "description": "Incorrect credentials",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "500": {
-            "description": "Internal server error",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      }
-    },
-    "/api/providers/vsphere/generate": {
-      "post": {
-        "tags": [
-          "vsphere"
-        ],
-        "summary": "Generate TKG configuration file for vSphere",
-        "operationId": "generateTKGConfigForVsphere",
-        "parameters": [
-          {
-            "description": "params to generate tkg configuration for vsphere",
-            "name": "params",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/VsphereRegionalClusterParams"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Generated TKG configuration successfully",
-            "schema": {
-              "type": "string"
             }
           },
           "400": {
