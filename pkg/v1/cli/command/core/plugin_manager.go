@@ -56,7 +56,7 @@ var listPluginCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List available plugins",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if config.IsContextAwareDiscoveryEnabled() {
+		if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
 			server, err := config.GetCurrentServer()
 			if err != nil {
 				return err
@@ -175,7 +175,7 @@ var describePluginCmd = &cobra.Command{
 		}
 		name := args[0]
 
-		if config.IsContextAwareDiscoveryEnabled() {
+		if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
 			server, err := config.GetCurrentServer()
 			if err != nil {
 				return err
@@ -224,7 +224,7 @@ var installPluginCmd = &cobra.Command{
 		}
 		name := args[0]
 
-		if config.IsContextAwareDiscoveryEnabled() {
+		if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
 			server, err := config.GetCurrentServer()
 			if err != nil {
 				return err
@@ -267,7 +267,7 @@ var upgradePluginCmd = &cobra.Command{
 		}
 		name := args[0]
 
-		if config.IsContextAwareDiscoveryEnabled() {
+		if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
 			return errors.New("context-aware discovery is enabled but function is not yet implemented")
 		}
 
@@ -297,7 +297,7 @@ var deletePluginCmd = &cobra.Command{
 		}
 		name := args[0]
 
-		if config.IsContextAwareDiscoveryEnabled() {
+		if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
 			return errors.New("context-aware discovery is enabled but function is not yet implemented")
 		}
 
@@ -311,7 +311,7 @@ var cleanPluginCmd = &cobra.Command{
 	Use:   "clean",
 	Short: "Clean the plugins",
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
-		if config.IsContextAwareDiscoveryEnabled() {
+		if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
 			return errors.New("context-aware discovery is enabled but function is not yet implemented")
 		}
 

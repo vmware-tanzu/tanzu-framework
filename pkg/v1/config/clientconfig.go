@@ -15,7 +15,14 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/serializer/json"
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
+)
+
+// This block is for global feature constants, to allow them to be used more broadly
+const (
+	// FeatureContextAwareDiscovery determines whether to use legacy way of discovering plugins or
+	// to use the new context-aware Plugin API based plugin discovery mechanism
+	// Users can set this featureflag so that we can have context-aware plugin discovery be opt-in for now.
+	FeatureContextAwareDiscovery = "features.global.context-aware-discovery"
 )
 
 // DefaultCliFeatureFlags is used to populate an initially empty config file with default values for feature flags.
@@ -25,8 +32,8 @@ import (
 // will fail. Note that "global" is a special value for <plugin> to be used for CLI-wide features.
 var (
 	DefaultCliFeatureFlags = map[string]bool{
+		FeatureContextAwareDiscovery:                     false,
 		"features.management-cluster.import":             false,
-		"features.global.use-context-aware-discovery":    common.IsContextAwareDiscoveryEnabled,
 		"features.management-cluster.export-from-config": true,
 	}
 )
@@ -472,17 +479,14 @@ func EndpointFromServer(s *configv1alpha1.Server) (endpoint string, err error) {
 	}
 }
 
-// IsContextAwareDiscoveryEnabled returns true if context-aware discovery is enabled
-// User can set this CLI feature flag using `tanzu config set features.global.use-context-aware-discovery true`
-// This determines whether to use legacy way of discovering plugins or
-// to use the new context-aware Plugin API based plugin discovery mechanism
-// Users can set this featureflag so that we can have context-aware plugin discovery be opt-in for now.
-func IsContextAwareDiscoveryEnabled() bool {
+// IsFeatureActivated returns true if the given feature is activated
+// User can set this CLI feature flag using `tanzu config set features.global.<feature> true`
+func IsFeatureActivated(feature string) bool {
 	cfg, err := GetClientConfig()
 	if err != nil {
 		return false
 	}
-	status, err := cfg.IsConfigFeatureActivated("features.global.use-context-aware-discovery")
+	status, err := cfg.IsConfigFeatureActivated(feature)
 	if err != nil {
 		return false
 	}
