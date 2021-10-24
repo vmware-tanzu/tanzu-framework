@@ -22,18 +22,26 @@ BIN_DIR := bin
 ROOT_DIR := $(shell git rev-parse --show-toplevel)
 ADDONS_DIR := addons
 YTT_TESTS_DIR := pkg/v1/providers/tests
+PACKAGES_SCRIPTS_DIR := $(abspath hack/packages/scripts)
 UI_DIR := pkg/v1/tkg/web
 
 # Add tooling binaries here and in hack/tools/Makefile
-GOLANGCI_LINT := $(TOOLS_BIN_DIR)/golangci-lint
-GOIMPORTS := $(TOOLS_BIN_DIR)/goimports
-GOBINDATA := $(TOOLS_BIN_DIR)/gobindata
-KUBEBUILDER := $(TOOLS_BIN_DIR)/kubebuilder
-YTT := $(TOOLS_BIN_DIR)/ytt
-KUBEVAL := $(TOOLS_BIN_DIR)/kubeval
-GINKGO := $(TOOLS_BIN_DIR)/ginkgo
-VALE := $(TOOLS_BIN_DIR)/vale
-TOOLING_BINARIES := $(GOLANGCI_LINT) $(YTT) $(KUBEVAL) $(GOIMPORTS) $(GOBINDATA) $(GINKGO) $(VALE)
+GOLANGCI_LINT      := $(TOOLS_BIN_DIR)/golangci-lint
+GOIMPORTS          := $(TOOLS_BIN_DIR)/goimports
+GOBINDATA          := $(TOOLS_BIN_DIR)/gobindata
+KUBEBUILDER        := $(TOOLS_BIN_DIR)/kubebuilder
+YTT                := $(TOOLS_BIN_DIR)/ytt
+KBLD               := $(TOOLS_BIN_DIR)/kbld
+VENDIR             := $(TOOLS_BIN_DIR)/vendir
+IMGPKG             := $(TOOLS_BIN_DIR)/imgpkg
+KAPP               := $(TOOLS_BIN_DIR)/kapp
+KUBEVAL            := $(TOOLS_BIN_DIR)/kubeval
+GINKGO             := $(TOOLS_BIN_DIR)/ginkgo
+VALE               := $(TOOLS_BIN_DIR)/vale
+YQ                 := $(TOOLS_BIN_DIR)/yq
+TOOLING_BINARIES   := $(GOLANGCI_LINT) $(YTT) $(KBLD) $(VENDIR) $(IMGPKG) $(KAPP) $(KUBEVAL) $(GOIMPORTS) $(GOBINDATA) $(GINKGO) $(VALE) $(YQ)
+
+export MANAGEMENT_PACKAGE_REPO_VERSION ?= $(BUILD_VERSION)
 
 PINNIPED_GIT_REPOSITORY = https://github.com/vmware-tanzu/pinniped.git
 PINNIPED_VERSIONS = v0.4.4 v0.12.0
@@ -546,3 +554,65 @@ $(COMPONENTS):
 
 .PHONY: docker-all
 docker-all: docker-build docker-publish kbld-image-replace
+
+## --------------------------------------
+## Packages
+## --------------------------------------
+
+.PHONY: create-management-package
+create-management-package: ## Stub out new package directories and manifests. Usage: make create-management-package PACKAGE_NAME=foobar
+	@hack/packages/scripts/create-management-package.sh $(PACKAGE_NAME)
+
+.PHONY: package-bundles
+package-bundles: management-package-bundles ## Build tar bundles for packages
+
+.PHONY: package-repos-bundles
+package-repos-bundles: management-package-bundles management-package-repos-bundles ## Build tar bundles for package repos
+
+.PHONY: push-package-bundles
+push-package-bundles: push-management-package-bundles  ## Push package bundles
+
+.PHONY: push-package-repo-bundles
+push-package-repo-bundles: push-management-package-repo-bundles ## Push package repo bundles
+
+.PHONY: push-management-package-bundles
+push-management-package-bundles: tools ## Push management package bundles
+	PACKAGE_REPOSITORY="management" REGISTRY=$(OCI_REGISTRY)/packages/management $(PACKAGES_SCRIPTS_DIR)/package-utils.sh push_package_bundles
+
+.PHONY: push-management-package-repo-bundles
+push-management-package-repo-bundles: tools push-management-package-bundles ## Push management package repo bundles
+	PACKAGE_REPOSITORY="management" REGISTRY=$(OCI_REGISTRY)/packages/management $(PACKAGES_SCRIPTS_DIR)/package-utils.sh push_package_repo_bundles
+
+.PHONY: management-imgpkg-lock-output
+management-imgpkg-lock-output: tools ## Generate imgpkg lock output for packages
+	PACKAGE_REPOSITORY="management" $(PACKAGES_SCRIPTS_DIR)/package-utils.sh generate_imgpkg_lock_output
+
+.PHONY: management-package-bundles
+management-package-bundles: tools management-imgpkg-lock-output ## Build tar bundles for packages
+	PACKAGE_REPOSITORY="management" $(PACKAGES_SCRIPTS_DIR)/package-utils.sh create_package_bundles localhost:5000
+
+.PHONY: management-package-repos-bundles
+management-package-repos-bundles: tools management-package-bundles ## Build tar bundles for package repos
+	PACKAGE_REPOSITORY="management" REGISTRY=$(OCI_REGISTRY)/packages/management $(PACKAGES_SCRIPTS_DIR)/package-utils.sh create_package_repo_bundles
+
+.PHONY: clean-registry
+clean-registry: ## Stops and removes local docker registry
+	docker container stop registry && docker container rm -v registry || true
+
+.PHONY: local-registry
+local-registry: clean-registry ## Starts up a local docker registry
+	docker run -d -p 5000:5000 --name registry mirror.gcr.io/library/registry:2
+
+.PHONY: trivy-scan
+trivy-scan: ## Trivy scan images used in packages
+	make -C $(TOOLS_DIR) trivy
+	$(PACKAGES_SCRIPTS_DIR)/package-utils.sh trivy_scan
+
+.PHONY: management-package-vendir-sync
+management-package-vendir-sync: ## Performs a `vendir sync` for each management package
+	@cd management-packages && for package in *; do\
+		printf "\n===> syncing $${package}\n";\
+		pushd $${package}/bundle;\
+		$(TOOLS_BIN_DIR)/vendir sync >> /dev/null;\
+		popd;\
+	done
