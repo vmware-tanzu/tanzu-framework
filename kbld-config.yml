@@ -1,5 +1,7 @@
 apiVersion: kbld.k14s.io/v1alpha1
 kind: Config
 overrides:
+#! featuregates
 - image: featuregates-controller-manager:latest
   newImage: ""
+

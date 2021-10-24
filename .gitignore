@@ -43,3 +43,7 @@ providers.tar.gz
 
 # Mac OS files
 .DS_Store
+
+# Build artifacts related to management packages
+/management-packages-artifacts
+package-values-sha256.yaml

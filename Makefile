@@ -21,18 +21,27 @@ TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
 BIN_DIR := bin
 ROOT_DIR := $(shell git rev-parse --show-toplevel)
 ADDONS_DIR := addons
+PACKAGES_SCRIPTS_DIR := $(abspath hack/packages/scripts)
 UI_DIR := pkg/v1/tkg/web
 
 # Add tooling binaries here and in hack/tools/Makefile
-GOLANGCI_LINT := $(TOOLS_BIN_DIR)/golangci-lint
-GOIMPORTS := $(TOOLS_BIN_DIR)/goimports
-GOBINDATA := $(TOOLS_BIN_DIR)/gobindata
-KUBEBUILDER := $(TOOLS_BIN_DIR)/kubebuilder
-YTT := $(TOOLS_BIN_DIR)/ytt
-KUBEVAL := $(TOOLS_BIN_DIR)/kubeval
-GINKGO := $(TOOLS_BIN_DIR)/ginkgo
-VALE := $(TOOLS_BIN_DIR)/vale
-TOOLING_BINARIES := $(GOLANGCI_LINT) $(YTT) $(KUBEVAL) $(GOIMPORTS) $(GOBINDATA) $(GINKGO) $(VALE)
+GOLANGCI_LINT      := $(TOOLS_BIN_DIR)/golangci-lint
+GOIMPORTS          := $(TOOLS_BIN_DIR)/goimports
+GOBINDATA          := $(TOOLS_BIN_DIR)/gobindata
+KUBEBUILDER        := $(TOOLS_BIN_DIR)/kubebuilder
+YTT                := $(TOOLS_BIN_DIR)/ytt
+KBLD               := $(TOOLS_BIN_DIR)/kbld
+VENDIR             := $(TOOLS_BIN_DIR)/vendir
+IMGPKG             := $(TOOLS_BIN_DIR)/imgpkg
+KAPP               := $(TOOLS_BIN_DIR)/kapp
+TRIVY              := $(TOOLS_BIN_DIR)/trivy
+KUBEVAL            := $(TOOLS_BIN_DIR)/kubeval
+GINKGO             := $(TOOLS_BIN_DIR)/ginkgo
+VALE               := $(TOOLS_BIN_DIR)/vale
+YQ                 := $(TOOLS_BIN_DIR)/yq
+TOOLING_BINARIES   := $(GOLANGCI_LINT) $(YTT) $(KBLD) $(VENDIR) $(IMGPKG) $(KAPP) $(KUBEVAL) $(GOIMPORTS) $(GOBINDATA) $(GINKGO) $(VALE) $(YQ)
+
+export MANAGEMENT_PACKAGE_REPO_VERSION ?= $(shell git describe --tags --always)
 
 PINNIPED_GIT_REPOSITORY = https://github.com/vmware-tanzu/pinniped.git
 PINNIPED_VERSIONS = v0.4.4 v0.12.0
@@ -62,6 +71,9 @@ SWAGGER=docker run --rm -v ${PWD}:${DOCKER_DIR} quay.io/goswagger/swagger:v0.21.
 
 # OCI registry for hosting tanzu framework components (containers and packages)
 OCI_REGISTRY ?= projects.registry.vmware.com/tanzu_framework
+
+# Management package registry
+MANAGEMENT_PACKAGES_IMAGE_REGISTRY ?= ${OCI_REGISTRY}
 
 # Add supported OS-ARCHITECTURE combinations here
 ENVS := linux-amd64 windows-amd64 darwin-amd64
@@ -509,3 +521,50 @@ $(COMPONENTS):
 
 .PHONY: docker-all
 docker-all: docker-build docker-publish kbld-image-replace
+
+## --------------------------------------
+## Packages
+## --------------------------------------
+
+.PHONY: create-package
+create-package: ## Stub out new package directories and manifests. Usage: make create-package NAME=foobar VERSION=10.0.0
+	@hack/packages/scripts/create-package.sh $(NAME)
+
+.PHONY: package-bundles
+package-bundles: management-package-bundles ## Build tar bundles for packages
+
+.PHONY: package-repos-bundles
+package-repos-bundles: management-package-repos-bundles ## Build tar bundles for package repos
+management-package-repos-bundles: management-package-bundles management-package-repos-bundles
+
+.PHONY: push-package-bundles
+push-package-bundles: push-management-package-bundles  ## Push package bundles
+
+.PHONY: push-package-repo-bundles
+push-package-repo-bundles: ## Push package repo bundles
+push-package-repo-bundles: push-management-package-repo-bundles
+
+.PHONY: push-management-package-bundles
+push-management-package-bundles: tools ## Push management package bundles
+	PACKAGE_REPOSITORY="management" REGISTRY=$(MANAGEMENT_PACKAGES_IMAGE_REGISTRY) $(PACKAGES_SCRIPTS_DIR)/package-utils.sh push_package_bundles
+
+.PHONY: push-management-package-repo-bundles
+push-management-package-repo-bundles: tools push-management-package-bundles ## Push management package repo bundles
+	PACKAGE_REPOSITORY="management" REGISTRY=$(MANAGEMENT_PACKAGES_IMAGE_REGISTRY) $(PACKAGES_SCRIPTS_DIR)/package-utils.sh push_package_repo_bundles
+
+.PHONY: management-imgpkg-lock-output
+management-imgpkg-lock-output: tools ## Generate imgpkg lock output for packages
+	PACKAGE_REPOSITORY="management" $(PACKAGES_SCRIPTS_DIR)/package-utils.sh generate_imgpkg_lock_output
+
+.PHONY: management-package-bundles
+management-package-bundles: tools management-imgpkg-lock-output ## Build tar bundles for packages
+	PACKAGE_REPOSITORY="management" $(PACKAGES_SCRIPTS_DIR)/package-utils.sh create_package_bundles localhost:5000
+
+.PHONY: management-package-repos-bundles
+management-package-repos-bundles: tools management-package-bundles ## Build tar bundles for package repos
+	PACKAGE_REPOSITORY="management" REGISTRY=$(MANAGEMENT_PACKAGES_IMAGE_REGISTRY) $(PACKAGES_SCRIPTS_DIR)/package-utils.sh create_package_repo_bundles
+
+.PHONY: local-registry
+local-registry: ## Starts up a local docker registry
+	docker container stop registry && docker container rm -v registry || true
+	docker run -d -p 5000:5000 --name registry projects-stg.registry.vmware.com/tkg/vkatam/registry:2
