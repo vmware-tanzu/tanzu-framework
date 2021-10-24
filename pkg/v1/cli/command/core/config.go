@@ -22,7 +22,6 @@ import (
 func init() {
 	configCmd.SetUsageFunc(cli.SubCmdUsageFunc)
 	configCmd.AddCommand(
-		showConfigCmd,
 		getConfigCmd,
 		initConfigCmd,
 		setConfigCmd,
@@ -31,7 +30,6 @@ func init() {
 	setConfigCmd.AddCommand(setUnstableVersionsOptionCmd)
 	serversCmd.AddCommand(listServersCmd)
 	addDeleteServersCmd()
-	cli.DeprecateCommandWithAlternative(showConfigCmd, "1.5.0", "get")
 }
 
 var unattended bool
@@ -47,23 +45,6 @@ var configCmd = &cobra.Command{
 	Short: "Configuration for the CLI",
 	Annotations: map[string]string{
 		"group": string(cliv1alpha1.SystemCmdGroup),
-	},
-}
-
-var showConfigCmd = &cobra.Command{
-	Use:   "show",
-	Short: "Show the current configuration",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		cfgPath, err := config.ClientConfigPath()
-		if err != nil {
-			return err
-		}
-		b, err := os.ReadFile(cfgPath)
-		if err != nil {
-			return err
-		}
-		fmt.Println(string(b))
-		return nil
 	},
 }
 
