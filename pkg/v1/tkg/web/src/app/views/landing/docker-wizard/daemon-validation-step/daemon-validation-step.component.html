@@ -1,4 +1,14 @@
-<div class="title"> Validate Docker Prerequisites <button class="btn btn-link" (click)="connectToDocker()" *ngIf="!connected">CONNECT TO DOCKER</button></div>
+<div class="title"> Validate Docker Prerequisites
+    <clr-tooltip>
+        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+            <span>
+                Please ensure that Docker is running on your local machine, and that Docker settings have
+                a minimum of 4 CPUs and 6GB RAM allocated.
+            </span>
+        </clr-tooltip-content>
+    </clr-tooltip>
+    <button class="btn btn-link" (click)="connectToDocker()" *ngIf="!connected">CONNECT TO DOCKER</button></div>
 
 <div class="alert alert-danger" role="alert" *ngIf="!connected && !connecting && errorNotification">
     <div class="alert-items">
@@ -17,7 +27,7 @@
             <div class="alert-icon-wrapper">
                 <clr-icon class="alert-icon" shape="check-circle"></clr-icon>
             </div>
-            <span class="alert-text">Running Docker daemon, allocated CPUs and Total Memory validated</span>
+            <span class="alert-text">Running Docker daemon, minimum allocated CPUs (4) and Total Memory (6GB) validated.</span>
         </div>
     </div>
 </div>
