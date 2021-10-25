@@ -30,6 +30,8 @@ import (
 	"sigs.k8s.io/cluster-api/util/conditions"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
+	tkgsv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
+
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 
@@ -193,6 +195,10 @@ func (c *client) getRuntimeObject(o interface{}) (runtime.Object, error) { //nol
 	case *capi.MachineDeploymentList:
 		return obj, nil
 	case *capi.MachineDeployment:
+		return obj, nil
+	case *tkgsv1alpha2.TanzuKubernetesCluster:
+		return obj, nil
+	case *tkgsv1alpha2.TanzuKubernetesClusterList:
 		return obj, nil
 	case *controlplanev1.KubeadmControlPlane:
 		return obj, nil

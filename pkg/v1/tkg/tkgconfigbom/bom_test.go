@@ -293,13 +293,13 @@ var (
 				})
 			})
 		})
-		Context("GetCustomRepositoryCaCertificate", func() {
+		Context("GetCustomRepositoryCaCertificateForClient", func() {
 			var (
 				actual []byte
 				err    error
 			)
 			JustBeforeEach(func() {
-				actual, err = bomClient.GetCustomRepositoryCaCertificate()
+				actual, err = bomClient.GetCustomRepositoryCaCertificateForClient()
 			})
 			When("BOM file is present without a Custom Image Repository", func() {
 				It("should return the custom registry", func() {

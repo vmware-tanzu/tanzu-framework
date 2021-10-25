@@ -62,6 +62,28 @@ func NewKappClient(kubeCfgPath string) (Client, error) {
 		return nil, err
 	}
 
+	if restConfig, err = GetKubeConfig(kubeCfgPath); err != nil {
+		return nil, err
+	}
+
+	mapper, err := apiutil.NewDynamicRESTMapper(restConfig, apiutil.WithLazyDiscovery)
+	if err != nil {
+		return nil, errors.Wrap(err, "Unable to set up rest mapper")
+	}
+	crtClient, err := crtclient.New(restConfig, crtclient.Options{Scheme: scheme, Mapper: mapper})
+	if err != nil {
+		return nil, errors.Wrap(err, "Unable to create cluster client")
+	}
+	return &client{client: crtClient}, nil
+}
+
+// GetKubeConfig gets kubeconfig from the provided kubeconfig path. Otherwise, it gets the kubeconfig from "$HOME/.kube/config" if existing
+func GetKubeConfig(kubeCfgPath string) (*rest.Config, error) {
+	var (
+		restConfig *rest.Config
+		err        error
+	)
+
 	if kubeCfgPath == "" {
 		if restConfig, err = k8sconfig.GetConfig(); err != nil {
 			return nil, err
@@ -80,15 +102,7 @@ func NewKappClient(kubeCfgPath string) (Client, error) {
 		}
 	}
 
-	mapper, err := apiutil.NewDynamicRESTMapper(restConfig, apiutil.WithLazyDiscovery)
-	if err != nil {
-		return nil, errors.Wrap(err, "Unable to set up rest mapper")
-	}
-	crtClient, err := crtclient.New(restConfig, crtclient.Options{Scheme: scheme, Mapper: mapper})
-	if err != nil {
-		return nil, errors.Wrap(err, "Unable to create cluster client")
-	}
-	return &client{client: crtClient}, nil
+	return restConfig, nil
 }
 
 func (c *client) addAnnotations(meta *v1.ObjectMeta, isPkgPluginCreatedSvcAccount, isPkgPluginCreatedSecret bool) {
@@ -189,8 +203,8 @@ func (c *client) ListPackageRepositories(namespace string) (*kappipkg.PackageRep
 	return repositoryList, nil
 }
 
-// ListImagePullSecrets gets the list of all Secrets of type "kubernetes.io/dockerconfigjson"
-func (c *client) ListImagePullSecrets(namespace string) (*corev1.SecretList, error) {
+// ListRegistrySecrets gets the list of all Secrets of type "kubernetes.io/dockerconfigjson"
+func (c *client) ListRegistrySecrets(namespace string) (*corev1.SecretList, error) {
 	var selectors []crtclient.ListOption
 	secretList := &corev1.SecretList{}
 

@@ -28,7 +28,17 @@
             <clr-icon aria-hidden="true" shape="close"></clr-icon>
         </button>
     </div>
-    <h4 aria-level="2">vSphere {{ vsphereVersion }}</h4>
+    <clr-radio-container clrInline *ngIf="enableIpv6">
+        <label>Select the IP family to use throughout this installer</label>
+        <clr-radio-wrapper>
+          <input type="radio" clrRadio name="ipFamily" required value="ipv4" formControlName="ipFamily" />
+          <label>IPv4</label>
+        </clr-radio-wrapper>
+        <clr-radio-wrapper>
+          <input type="radio" clrRadio name="ipFamily" required value="ipv6" formControlName="ipFamily" />
+          <label>IPv6</label>
+        </clr-radio-wrapper>
+    </clr-radio-container>
     <div class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-input-container [attr.data-step-metadata]="formName">

@@ -12,6 +12,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
+	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -46,7 +47,7 @@ const (
 var (
 	testPkgInstall = &kappipkg.PackageInstall{
 		TypeMeta:   metav1.TypeMeta{Kind: tkgpackagedatamodel.KindPackageInstall},
-		ObjectMeta: metav1.ObjectMeta{Name: testPkgInstallName, Namespace: testNamespaceName},
+		ObjectMeta: metav1.ObjectMeta{Name: testPkgInstallName, Namespace: testNamespaceName, Generation: 1},
 		Spec: kappipkg.PackageInstallSpec{
 			ServiceAccountName: testServiceAccountName,
 			PackageRef: &kappipkg.PackageRef{
@@ -56,8 +57,9 @@ var (
 		},
 		Status: kappipkg.PackageInstallStatus{
 			GenericStatus: kappctrl.GenericStatus{
-				Conditions:         []kappctrl.AppCondition{{Type: kappctrl.Reconciling}, {Type: kappctrl.ReconcileSucceeded}},
+				Conditions:         []kappctrl.AppCondition{{Type: kappctrl.Reconciling, Status: corev1.ConditionTrue}, {Type: kappctrl.ReconcileSucceeded, Status: corev1.ConditionTrue}},
 				UsefulErrorMessage: "",
+				ObservedGeneration: 1,
 			},
 		},
 	}
@@ -184,7 +186,7 @@ var _ = Describe("Install Package", func() {
 		AfterEach(func() { options = opts })
 	})
 
-	Context("failure in getting installed package due to GetPackageInstall API error in waitForPackageInstallation", func() {
+	Context("failure in getting installed package due to GetPackageInstall API error in waitForResourceInstallation", func() {
 		BeforeEach(func() {
 			options.Wait = true
 			kappCtl = &fakes.KappClient{}
@@ -209,8 +211,9 @@ var _ = Describe("Install Package", func() {
 			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
 			testPkgInstall.Name = testPackageInstallName
 			kappCtl.GetPackageInstallReturns(testPkgInstall, nil)
+			Expect(testPkgInstall.Status.ObservedGeneration).To(Equal(testPkgInstall.Generation))
 			Expect(len(testPkgInstall.Status.Conditions)).To(BeNumerically("==", 2))
-			testPkgInstall.Status.Conditions[1] = kappctrl.AppCondition{Type: kappctrl.ReconcileFailed}
+			testPkgInstall.Status.Conditions[1] = kappctrl.AppCondition{Type: kappctrl.ReconcileFailed, Status: corev1.ConditionTrue}
 			testPkgInstall.Status.UsefulErrorMessage = testUsefulErrMsg
 		})
 		It(testFailureMsg, func() {
@@ -264,6 +267,7 @@ var _ = Describe("Install Package", func() {
 			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
 			testPkgInstall.Name = testPackageInstallName
 			kappCtl.GetPackageInstallReturns(testPkgInstall, nil)
+			Expect(testPkgInstall.Status.ObservedGeneration).To(Equal(testPkgInstall.Generation))
 		})
 		It(testSuccessMsg, func() {
 			Expect(err).ToNot(HaveOccurred())

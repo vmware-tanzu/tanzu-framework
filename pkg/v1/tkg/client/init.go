@@ -354,7 +354,7 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		log.Warningf("Warning: Management cluster is created successfully, but some packages are failing. %v", err)
 	}
 
-	log.Infof("Context set for management cluster %s as '%s'.", options.ClusterName, kubeContext)
+	log.Infof("You can now access the management cluster %s by running 'kubectl config use-context %s'", options.ClusterName, kubeContext)
 	isSuccessful = true
 	return nil
 }

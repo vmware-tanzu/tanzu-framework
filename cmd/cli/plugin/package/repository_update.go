@@ -20,7 +20,8 @@ var repositoryUpdateCmd = &cobra.Command{
 	Example: `
     # Update repository in default namespace 	
     tanzu package repository update repo --url projects-stg.registry.vmware.com/tkg/standard-repo:v1.0.1 --namespace test-ns`,
-	RunE: repositoryUpdate,
+	RunE:         repositoryUpdate,
+	SilenceUsage: true,
 }
 
 func init() {
@@ -36,8 +37,6 @@ func init() {
 
 func repositoryUpdate(cmd *cobra.Command, args []string) error {
 	repoOp.RepositoryName = args[0]
-
-	cmd.SilenceUsage = true
 
 	pkgClient, err := tkgpackageclient.NewTKGPackageClient(repoOp.KubeConfig)
 	if err != nil {

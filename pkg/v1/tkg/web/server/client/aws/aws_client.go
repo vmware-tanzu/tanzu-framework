@@ -95,36 +95,36 @@ func (a *Client) CreateAWSRegionalCluster(params *CreateAWSRegionalClusterParams
 }
 
 /*
-GenerateTKGConfigForAWS generates t k g configuration file for a w s
+ExportTKGConfigForAWS generates t k g configuration file for a w s
 */
-func (a *Client) GenerateTKGConfigForAWS(params *GenerateTKGConfigForAWSParams) (*GenerateTKGConfigForAWSOK, error) {
+func (a *Client) ExportTKGConfigForAWS(params *ExportTKGConfigForAWSParams) (*ExportTKGConfigForAWSOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewGenerateTKGConfigForAWSParams()
+		params = NewExportTKGConfigForAWSParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "generateTKGConfigForAWS",
+		ID:                 "exportTKGConfigForAWS",
 		Method:             "POST",
-		PathPattern:        "/api/providers/aws/generate",
+		PathPattern:        "/api/providers/aws/config/export",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &GenerateTKGConfigForAWSReader{formats: a.formats},
+		Reader:             &ExportTKGConfigForAWSReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*GenerateTKGConfigForAWSOK)
+	success, ok := result.(*ExportTKGConfigForAWSOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
-	msg := fmt.Sprintf("unexpected success response for generateTKGConfigForAWS: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	msg := fmt.Sprintf("unexpected success response for exportTKGConfigForAWS: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 

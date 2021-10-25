@@ -132,6 +132,10 @@ func (c *TkgClient) UpgradeCluster(options *UpgradeClusterOptions) error { // no
 		return errors.Wrap(err, "error determining 'Tanzu Kubernetes Cluster service for vSphere' management cluster")
 	}
 	if isPacific {
+		err := c.ValidatePacificVersionWithCLI(regionalClusterClient)
+		if err != nil {
+			return err
+		}
 		return c.DoPacificClusterUpgrade(regionalClusterClient, options)
 	}
 
@@ -239,11 +243,11 @@ func (c *TkgClient) DoPacificClusterUpgrade(regionalClusterClient clusterclient.
 		return errors.New("upgrading kubernetes on 'Tanzu Kubernetes Cluster service for vSphere' management cluster is not yet supported")
 	}
 	log.Infof("Patching TanzuKubernetesCluster object with the kubernetes version %s...", options.KubernetesVersion)
-	if err := regionalClusterClient.PatchK8SVersionToPacificCluster(options.ClusterName, options.Namespace, "", options.KubernetesVersion); err != nil {
+	if err := regionalClusterClient.PatchK8SVersionToPacificCluster(options.ClusterName, options.Namespace, options.KubernetesVersion); err != nil {
 		return errors.Wrap(err, "failed to update the Kubernetes version for TanzuKubernetesCluster object")
 	}
 	log.Info("Waiting for the 'Tanzu Kubernetes Cluster service for vSphere' cluster kubernetes version update and it may take a while...")
-	if err := regionalClusterClient.WaitForPacificClusterK8sVersionUpdate(options.ClusterName, options.Namespace, "", options.KubernetesVersion); err != nil {
+	if err := regionalClusterClient.WaitForPacificClusterK8sVersionUpdate(options.ClusterName, options.Namespace, options.KubernetesVersion); err != nil {
 		return errors.Wrap(err, "failed waiting on updating kubernetes version for 'Tanzu Kubernetes Cluster service for vSphere' cluster")
 	}
 

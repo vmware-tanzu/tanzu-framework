@@ -31,16 +31,15 @@ func (fake *ProvidersUpgradeClient) ApplyUpgrade(arg1 *client.ApplyUpgradeOption
 	fake.applyUpgradeArgsForCall = append(fake.applyUpgradeArgsForCall, struct {
 		arg1 *client.ApplyUpgradeOptions
 	}{arg1})
-	stub := fake.ApplyUpgradeStub
-	fakeReturns := fake.applyUpgradeReturns
 	fake.recordInvocation("ApplyUpgrade", []interface{}{arg1})
 	fake.applyUpgradeMutex.Unlock()
-	if stub != nil {
-		return stub(arg1)
+	if fake.ApplyUpgradeStub != nil {
+		return fake.ApplyUpgradeStub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
+	fakeReturns := fake.applyUpgradeReturns
 	return fakeReturns.result1
 }
 

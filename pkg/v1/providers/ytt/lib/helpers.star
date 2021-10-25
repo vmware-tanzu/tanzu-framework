@@ -98,7 +98,7 @@ def tkg_image_repo_skip_tls_verify():
 end
 
 def tkg_image_repo_ca_cert():
-  return data.values.TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
+  return data.values.TKG_PROXY_CA_CERT if data.values.TKG_PROXY_CA_CERT else data.values.TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
 end
 
 def tkg_image_repo_hostname():
@@ -304,4 +304,17 @@ def validate_proxy_bypass_vsphere_host():
       end
     end
   end
+end
+
+# get_labels_map_from_string constructs a map from given string of the format "key1=label1,key2=label2"
+def get_labels_map_from_string(labelString):
+   labelMap = {}
+   for val in labelString.split(','):
+    kv = val.split('=')
+    if len(kv) != 2:
+      assert.fail("given labels string \""+labelString+"\" must be in the  \"key1=label1,key2=label2\" format ")
+    end
+    labelMap.update({kv[0]: kv[1]})
+   end
+   return labelMap
 end

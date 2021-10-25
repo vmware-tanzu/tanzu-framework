@@ -24,6 +24,16 @@ const (
 	ResourceTypePackageRepository
 )
 
+func (r ResourceType) String() string {
+	switch r {
+	case ResourceTypePackageInstall:
+		return "PackageInstall"
+	case ResourceTypePackageRepository:
+		return "PackageRepository"
+	}
+	return ""
+}
+
 type OperationType int
 
 const (

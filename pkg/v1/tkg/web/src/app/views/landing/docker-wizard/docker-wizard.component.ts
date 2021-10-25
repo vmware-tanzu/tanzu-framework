@@ -129,6 +129,13 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         return this.getFieldValue('dockerNodeSettingForm', 'clusterName');
     }
 
+    /**
+     * Retrieve the config file from the backend and return as a string
+     */
+    retrieveExportFile() {
+        return this.apiClient.exportTKGConfigForDocker({ params: this.getPayload() });
+    }
+
     getCli(configPath: string): string {
         const cliG = new CliGenerator();
         const cliParams: CliFields = {

@@ -13,6 +13,7 @@ test/cli/mock/artifacts*
 tanzu
 addons/artifacts
 pinniped/
+!addons/pinniped/
 
 # providers/clustergen-related files
 provider-bundle
@@ -21,7 +22,6 @@ providers.zip
 providers.tar.gz
 
 # Build artifacts that may not be cleaned up properly
-pinniped
 .rendered-output/
 
 # Test binary, build with `go test -c`
@@ -36,6 +36,7 @@ pinniped
 
 # editor and IDE paraphernalia
 .idea
+*.iml
 *.swp
 *.swo
 *~

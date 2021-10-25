@@ -15,7 +15,7 @@ community:
 * Submit a pull request to fix an issue.
 * Review pull requests.
 * Report a bug.
-* Participate in the discussion in GitHub issues, slack, etc.
+* Participate in the discussion in GitHub issues etc.
 
 ## Contributor
 

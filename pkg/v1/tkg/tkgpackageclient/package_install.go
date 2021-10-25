@@ -13,7 +13,7 @@ import (
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	k8serror "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
@@ -51,7 +51,7 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 	}()
 
 	if pkgInstall, err = p.kappClient.GetPackageInstall(o.PkgInstallName, o.Namespace); err != nil {
-		if !apierrors.IsNotFound(err) {
+		if !k8serror.IsNotFound(err) {
 			return
 		}
 		err = nil
@@ -62,20 +62,17 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 		return
 	}
 
+	progress.ProgressMsg <- fmt.Sprintf("Getting package metadata for '%s'", o.PackageName)
+	if _, _, err = p.GetPackage(o); err != nil {
+		return
+	}
+
 	if o.CreateNamespace {
 		progress.ProgressMsg <- fmt.Sprintf("Creating namespace '%s'", o.Namespace)
 		if err = p.createNamespace(o.Namespace); err != nil {
 			return
 		}
-	} else {
-		progress.ProgressMsg <- fmt.Sprintf("Getting namespace '%s'", o.Namespace)
-		if err = p.kappClient.GetClient().Get(context.Background(), crtclient.ObjectKey{Name: o.Namespace}, &corev1.Namespace{}); err != nil {
-			return
-		}
-	}
-
-	progress.ProgressMsg <- fmt.Sprintf("Getting package metadata for '%s'", o.PackageName)
-	if _, _, err = p.GetPackage(o); err != nil {
+	} else if err = p.kappClient.GetClient().Get(context.Background(), crtclient.ObjectKey{Name: o.Namespace}, &corev1.Namespace{}); err != nil {
 		return
 	}
 
@@ -208,7 +205,7 @@ func (p *pkgClient) createNamespace(namespace string) error {
 		crtclient.ObjectKey{Name: namespace},
 		&corev1.Namespace{})
 	if err != nil {
-		if !apierrors.IsNotFound(err) {
+		if !k8serror.IsNotFound(err) {
 			return err
 		}
 		ns := &corev1.Namespace{
@@ -275,8 +272,12 @@ func (p *pkgClient) createServiceAccount(o *tkgpackagedatamodel.PackageOptions) 
 }
 
 // waitForResourceInstallation waits until the package get installed successfully or a failure happen
-func (p *pkgClient) waitForResourceInstallation(name, namespace string, pollInterval, pollTimeout time.Duration, progress chan string, rscType tkgpackagedatamodel.ResourceType) error {
-	var status kappctrl.GenericStatus
+func (p *pkgClient) waitForResourceInstallation(name, namespace string, pollInterval, pollTimeout time.Duration, progress chan string, rscType tkgpackagedatamodel.ResourceType) error { //nolint:gocyclo
+	var (
+		status             kappctrl.GenericStatus
+		reconcileSucceeded bool
+	)
+	progress <- fmt.Sprintf("Waiting for '%s' reconciliation for '%s'", rscType.String(), name)
 	if err := wait.Poll(pollInterval, pollTimeout, func() (done bool, err error) {
 		switch rscType {
 		case tkgpackagedatamodel.ResourceTypePackageRepository:
@@ -284,28 +285,45 @@ func (p *pkgClient) waitForResourceInstallation(name, namespace string, pollInte
 			if err != nil {
 				return false, err
 			}
+			if resource.Generation != resource.Status.ObservedGeneration {
+				// Should wait for generation to be observed before checking the reconciliation status so that we know we are checking the new spec
+				return false, nil
+			}
 			status = resource.Status.GenericStatus
 		case tkgpackagedatamodel.ResourceTypePackageInstall:
 			resource, err := p.kappClient.GetPackageInstall(name, namespace)
 			if err != nil {
 				return false, err
 			}
+			if resource.Generation != resource.Status.ObservedGeneration {
+				// Should wait for generation to be observed before checking the reconciliation status so that we know we are checking the new spec
+				return false, nil
+			}
 			status = resource.Status.GenericStatus
 		}
+
 		for _, cond := range status.Conditions {
 			if progress != nil {
-				progress <- fmt.Sprintf("Resource install status: %s", cond.Type)
+				progress <- fmt.Sprintf("'%s' resource install status: %s", rscType.String(), cond.Type)
 			}
-			switch cond.Type {
-			case kappctrl.ReconcileSucceeded:
+			switch {
+			case cond.Type == kappctrl.ReconcileSucceeded && cond.Status == corev1.ConditionTrue:
+				if progress != nil {
+					progress <- fmt.Sprintf("'%s' resource successfully reconciled", rscType.String())
+				}
+				reconcileSucceeded = true
 				return true, nil
-			case kappctrl.ReconcileFailed:
+			case cond.Type == kappctrl.ReconcileFailed && cond.Status == corev1.ConditionTrue:
 				return false, fmt.Errorf("resource reconciliation failed: %s. %s", status.UsefulErrorMessage, status.FriendlyDescription)
 			}
 		}
 		return false, nil
 	}); err != nil {
 		return err
+	}
+
+	if !reconcileSucceeded {
+		return errors.New(fmt.Sprintf("'%s' resource reconciliation failed", rscType.String()))
 	}
 
 	return nil

@@ -8,12 +8,34 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/aunum/log"
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/runtime/serializer/json"
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+)
+
+// This block is for global feature constants, to allow them to be used more broadly
+const (
+	// FeatureContextAwareDiscovery determines whether to use legacy way of discovering plugins or
+	// to use the new context-aware Plugin API based plugin discovery mechanism
+	// Users can set this featureflag so that we can have context-aware plugin discovery be opt-in for now.
+	FeatureContextAwareDiscovery = "features.global.context-aware-discovery"
+)
+
+// DefaultCliFeatureFlags is used to populate an initially empty config file with default values for feature flags.
+// If a developer expects that their feature will be ready to release, they should create an entry here with a true
+// value. If a developer has a beta feature they want to expose, but leave turned off by default, they should create
+// an entry here with a false value. The keys MUST be in the format "features.<plugin>.<feature>" or initialization
+// will fail. Note that "global" is a special value for <plugin> to be used for CLI-wide features.
+var (
+	DefaultCliFeatureFlags = map[string]bool{
+		FeatureContextAwareDiscovery:                     false,
+		"features.management-cluster.import":             false,
+		"features.management-cluster.export-from-config": true,
+	}
 )
 
 const (
@@ -98,7 +120,36 @@ func NewClientConfig() (*configv1alpha1.ClientConfig, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	err = populateDefaultCliFeatureValues(c, DefaultCliFeatureFlags)
+	if err != nil {
+		return nil, err
+	}
 	return c, nil
+}
+
+func populateDefaultCliFeatureValues(c *configv1alpha1.ClientConfig, defaultCliFeatureFlags map[string]bool) error {
+	for featureName, flagValue := range defaultCliFeatureFlags {
+		plugin, flag, err := c.SplitFeaturePath(featureName)
+		if err != nil {
+			return err
+		}
+		addFeatureFlag(c, plugin, flag, flagValue)
+	}
+	return nil
+}
+
+func addFeatureFlag(c *configv1alpha1.ClientConfig, plugin, flag string, flagValue bool) {
+	if c.ClientOptions == nil {
+		c.ClientOptions = &configv1alpha1.ClientOptions{}
+	}
+	if c.ClientOptions.Features == nil {
+		c.ClientOptions.Features = make(map[string]configv1alpha1.FeatureMap)
+	}
+	if c.ClientOptions.Features[plugin] == nil {
+		c.ClientOptions.Features[plugin] = make(map[string]string)
+	}
+	c.ClientOptions.Features[plugin][flag] = strconv.FormatBool(flagValue)
 }
 
 // ClientConfigNotExistError is thrown when a tanzu config cannot be found.
@@ -170,7 +221,35 @@ func GetClientConfig() (cfg *configv1alpha1.ClientConfig, err error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "could not decode config file")
 	}
+
+	added := addMissingDefaultFeatureFlags(&c, DefaultCliFeatureFlags)
+	if added {
+		_ = StoreClientConfig(&c)
+	}
+
 	return &c, nil
+}
+
+// addMissingDefaultFeatureFlags augments the given configuration object with any default feature flags that do not already have a value
+// and returns TRUE if any were added (so the config can be written out to disk, if the caller wants to)
+func addMissingDefaultFeatureFlags(config *configv1alpha1.ClientConfig, defaultFeatureFlags map[string]bool) bool {
+	added := false
+
+	for featurePath, activated := range defaultFeatureFlags {
+		plugin, feature, err := config.SplitFeaturePath(featurePath)
+		if err == nil && !containsFeatureFlag(config, plugin, feature) {
+			addFeatureFlag(config, plugin, feature, activated)
+			added = true
+		}
+	}
+
+	return added
+}
+
+// containsFeatureFlag returns true if the features section in the configuration object contains any value for the plugin.feature combination
+func containsFeatureFlag(config *configv1alpha1.ClientConfig, plugin, feature string) bool {
+	return config.ClientOptions != nil && config.ClientOptions.Features != nil && config.ClientOptions.Features[plugin] != nil &&
+		config.ClientOptions.Features[plugin][feature] != ""
 }
 
 // storeConfigToLegacyDir stores configuration to legacy dir and logs warning in case of errors.
@@ -398,4 +477,18 @@ func EndpointFromServer(s *configv1alpha1.Server) (endpoint string, err error) {
 	default:
 		return endpoint, fmt.Errorf("unknown server type %q", s.Type)
 	}
+}
+
+// IsFeatureActivated returns true if the given feature is activated
+// User can set this CLI feature flag using `tanzu config set features.global.<feature> true`
+func IsFeatureActivated(feature string) bool {
+	cfg, err := GetClientConfig()
+	if err != nil {
+		return false
+	}
+	status, err := cfg.IsConfigFeatureActivated(feature)
+	if err != nil {
+		return false
+	}
+	return status
 }

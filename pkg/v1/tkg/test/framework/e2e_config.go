@@ -139,22 +139,5 @@ func (c *E2EConfig) Validate() error {
 
 // SaveTkgConfigVariables saves the config variables from e2e config to the TKG config file
 func (c *E2EConfig) SaveTkgConfigVariables() error {
-	_, err := os.Stat(c.TkgClusterConfigPath)
-	if os.IsNotExist(err) {
-		file, err := os.Create(c.TkgClusterConfigPath)
-		if err != nil {
-			return err
-		}
-
-		file.Close()
-	}
-
-	for k, v := range c.TkgConfigVariables {
-		err = tkgconfigupdater.SetVariableInConfig(k, v, "", c.TkgClusterConfigPath)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return tkgconfigupdater.SetConfig(c.TkgConfigVariables, c.TkgClusterConfigPath)
 }

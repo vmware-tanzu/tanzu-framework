@@ -51,13 +51,15 @@ The point person will use the following process for each issue:
 
 * Feature request
   * Label the issue with `kind/feature`.
-  * Remove `needs-triage` label and add `triage/accepted` label.
-  * Determine the area of the Framework the issue belongs to and add appropriate area label.
+  * Determine the area of the Framework the issue belongs to and add appropriate
+    [area](https://github.com/vmware-tanzu/tanzu-framework/labels?q=area) label.
+  * Remove `needs-triage` label.
 * Bug
   * Label the issue with `kind/bug`.
-  * Remove `needs-triage` label and add `triage/accepted`.
-  * Determine the area of the Framework the issue belongs to and add appropriate area label.
+  * Determine the area of the Framework the issue belongs to and add appropriate
+    [area](https://github.com/vmware-tanzu/tanzu-framework/labels?q=area) label.
   * If the issue is critical urgent, it should be labeled as `severity-1`.
+  * Remove `needs-triage` label.
 * User question/problem that does not fall into one of the previous categories
   * Assign the issue to yourself.
   * When you start investigating/responding, label the issue with `investigating`.

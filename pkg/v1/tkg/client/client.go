@@ -14,6 +14,7 @@ import (
 	clusterctltree "sigs.k8s.io/cluster-api/cmd/clusterctl/client/tree"
 
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	tkgsv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
 
 	clusterctlconfig "sigs.k8s.io/cluster-api/cmd/clusterctl/client/config"
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/repository"
@@ -154,6 +155,9 @@ type Client interface {
 	SetMachineHealthCheck(options *SetMachineHealthCheckOptions) error
 	// GetMachineDeployments gets a list of MachineDeployments for a cluster
 	GetMachineDeployments(options GetMachineDeploymentOptions) ([]capi.MachineDeployment, error)
+	// GetPacificMachineDeployments gets machine deployments from a Pacific cluster
+	// Note: This would be soon deprecated after TKGS and TKGm adopt the clusterclass
+	GetPacificMachineDeployments(options GetMachineDeploymentOptions) ([]capi.MachineDeployment, error)
 	// SetMachineDeployment create machine deployment in a cluster
 	SetMachineDeployment(options *SetMachineDeploymentOptions) error
 	// DeleteMachineDeployment deletes a machine deployment in a cluster
@@ -195,6 +199,10 @@ type Client interface {
 	ActivateTanzuKubernetesReleases(tkrName string) error
 	// DeactivateTanzuKubernetesReleases deactivates TanzuKubernetesRelease
 	DeactivateTanzuKubernetesReleases(tkrName string) error
+	// IsPacificRegionalCluster checks if the cluster pointed to by kubeconfig  is Pacific management cluster(supervisor)
+	IsPacificRegionalCluster() (bool, error)
+	// GetPacificClusterObject gets Pacific cluster object
+	GetPacificClusterObject(clusterName, namespace string) (*tkgsv1alpha2.TanzuKubernetesCluster, error)
 }
 
 // TkgClient implements Client.

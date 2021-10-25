@@ -3,7 +3,12 @@
 
 package v1alpha1
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+	"strconv"
+	"strings"
+)
 
 const (
 	// AllUnstableVersions allows all plugin versions
@@ -59,4 +64,44 @@ func (c *ClientConfig) SetUnstableVersionSelector(f VersionSelectorLevel) {
 		return
 	}
 	c.ClientOptions.CLI.UnstableVersionSelector = AllUnstableVersions
+}
+
+// IsConfigFeatureActivated return true if the feature is activated, false if not. An error if the featurePath is malformed
+func (c *ClientConfig) IsConfigFeatureActivated(featurePath string) (bool, error) {
+	plugin, flag, err := c.SplitFeaturePath(featurePath)
+	if err != nil {
+		return false, err
+	}
+
+	if c.ClientOptions == nil || c.ClientOptions.Features == nil ||
+		c.ClientOptions.Features[plugin] == nil || c.ClientOptions.Features[plugin][flag] == "" {
+		return false, nil
+	}
+
+	booleanValue, err := strconv.ParseBool(c.ClientOptions.Features[plugin][flag])
+	if err != nil {
+		errMsg := "error converting " + featurePath + " entry '" + c.ClientOptions.Features[plugin][flag] + "' to boolean value: " + err.Error()
+		return false, errors.New(errMsg)
+	}
+	return booleanValue, nil
+}
+
+// SplitFeaturePath splits a features path into the pluginName and the featureName
+// For example "features.management-cluster.dual-stack" returns "management-cluster", "dual-stack"
+// An error results from a malformed path, including any path that does not start with "features."
+func (c *ClientConfig) SplitFeaturePath(featurePath string) (string, string, error) {
+	// parse the param
+	paramArray := strings.Split(featurePath, ".")
+	if len(paramArray) != 3 {
+		return "", "", errors.New("unable to parse feature name config parameter into three parts [" + featurePath + "]  (was expecting features.<plugin>.<feature>)")
+	}
+
+	featuresLiteral := paramArray[0]
+	plugin := paramArray[1]
+	flag := paramArray[2]
+
+	if featuresLiteral != "features" {
+		return "", "", errors.New("unsupported feature config path parameter [" + featuresLiteral + "] (was expecting 'features.<plugin>.<feature>')")
+	}
+	return plugin, flag, nil
 }

@@ -23,6 +23,8 @@ import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
 import Broker from 'src/app/shared/service/broker';
 import { EditionData } from 'src/app/shared/service/branding.service';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
+import { AppDataService } from 'src/app/shared/service/app-data.service';
+import { managementClusterPlugin } from "../../wizard/shared/constants/wizard.constants";
 
 declare var sortPaths: any;
 
@@ -63,8 +65,10 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
     thumbprint: string;
 
     edition: AppEdition = AppEdition.TCE;
+    enableIpv6: boolean = false;
 
     constructor(private validationService: ValidationService,
+        private appDataService: AppDataService,
         private apiClient: APIClient,
         private router: Router) {
         super();
@@ -74,6 +78,12 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
 
     ngOnInit() {
         super.ngOnInit();
+        this.enableIpv6 = this.appDataService.isPluginFeatureActivated(managementClusterPlugin, 'vsphereIPv6');
+        this.formGroup.addControl(
+            'ipFamily',
+            new FormControl(
+                'ipv4', [])
+        );
         this.formGroup.addControl(
             'vcenterAddress',
             new FormControl('', [
@@ -134,16 +144,20 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                     takeUntil(this.unsubscribe)
                 )
                 .subscribe(() => {
-                    this.connected = false;
-                    this.loadingState = ClrLoadingState.DEFAULT;
-                    this.formGroup.get('datacenter').setValue('');
-                    this.datacenters = [];
-                    this.formGroup.get('datacenter').disable();
+                    this.disconnect();
                 });
         });
 
         this.formGroup.get('datacenter').valueChanges.subscribe(data => {
             this.dcOnChange(data)
+        });
+
+        this.formGroup.get('ipFamily').valueChanges.subscribe(data => {
+            Broker.messenger.publish({
+                type: TkgEventType.IP_FAMILY_CHANGE,
+                payload: data
+            });
+            this.disconnect();
         });
 
         Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
@@ -163,8 +177,21 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
             }
             this.formGroup.get('ssh_key_file').setValue('');
         };
+        this.registerOnIpFamilyChange('vcenterAddress', [
+                Validators.required,
+                this.validationService.isValidIpOrFqdn()
+            ], [
+                Validators.required,
+                this.validationService.isValidIpv6OrFqdn()
+            ]);
     }
-
+    disconnect() {
+        this.connected = false;
+        this.loadingState = ClrLoadingState.DEFAULT;
+        this.formGroup.get('datacenter').setValue('');
+        this.datacenters = [];
+        this.formGroup.get('datacenter').disable();
+    }
     setSavedDataAfterLoad() {
         super.setSavedDataAfterLoad();
         // don't fill password field with ****
@@ -279,6 +306,8 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 this.connected = true;
                 this.vsphereVersion = vsphereVerInfo.version;
                 this.hasPacific = res.hasPacific;
+                this.appDataService.setVsphereVersion(vsphereVerInfo.version);
+
                 if (isCompatible && !(_.startsWith(this.vsphereVersion, '6'))
                     && this.edition !== AppEdition.TCE
                     && this.edition !== AppEdition.TCE_STANDALONE) {
@@ -330,6 +359,9 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 this.formGroup.get('datacenter').enable();
                 this.formGroup.get('ssh_key').enable();
                 this.formGroup.get('datacenter').setValue(this.getSavedValue('datacenter', ''));
+                if (this.datacenters.length === 1) {
+                    this.formGroup.get('datacenter').setValue(this.datacenters[0].name);
+                }
             },
             (err) => {
                 const error = err.error.message || err.message || JSON.stringify(err);
