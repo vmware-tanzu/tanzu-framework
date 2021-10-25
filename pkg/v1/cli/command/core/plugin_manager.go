@@ -233,14 +233,9 @@ var installPluginCmd = &cobra.Command{
 			pluginVersion := version
 
 			if pluginVersion == cli.VersionLatest {
-				availablePlugins, err := pluginmanager.AvailablePlugins(server.Name)
+				pluginVersion, err = pluginmanager.GetRecommendedVersionOfPlugin(server.Name, name)
 				if err != nil {
 					return err
-				}
-				for i := range availablePlugins {
-					if availablePlugins[i].Name == name {
-						pluginVersion = availablePlugins[i].RecommendedVersion
-					}
 				}
 			}
 
@@ -292,15 +287,10 @@ var upgradePluginCmd = &cobra.Command{
 			if err != nil {
 				return err
 			}
-			availablePlugins, err := pluginmanager.AvailablePlugins(server.Name)
+
+			pluginVersion, err := pluginmanager.GetRecommendedVersionOfPlugin(server.Name, name)
 			if err != nil {
 				return err
-			}
-			pluginVersion := ""
-			for i := range availablePlugins {
-				if availablePlugins[i].Name == name {
-					pluginVersion = availablePlugins[i].RecommendedVersion
-				}
 			}
 
 			err = pluginmanager.UpgradePlugin(server.Name, name, pluginVersion)
