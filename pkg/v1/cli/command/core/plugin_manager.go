@@ -229,7 +229,27 @@ var installPluginCmd = &cobra.Command{
 			if err != nil {
 				return err
 			}
-			return pluginmanager.InstallPlugin(server.Name, name, version)
+
+			pluginVersion := version
+
+			if pluginVersion == cli.VersionLatest {
+				availablePlugins, err := pluginmanager.AvailablePlugins(server.Name)
+				if err != nil {
+					return err
+				}
+				for i := range availablePlugins {
+					if availablePlugins[i].Name == name {
+						pluginVersion = availablePlugins[i].RecommendedVersion
+					}
+				}
+			}
+
+			err = pluginmanager.InstallPlugin(server.Name, name, pluginVersion)
+			if err != nil {
+				return err
+			}
+			log.Successf("successfully installed '%s' plugin", name)
+			return nil
 		}
 
 		repos := getRepositories()
@@ -268,7 +288,27 @@ var upgradePluginCmd = &cobra.Command{
 		name := args[0]
 
 		if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
-			return errors.New("context-aware discovery is enabled but function is not yet implemented")
+			server, err := config.GetCurrentServer()
+			if err != nil {
+				return err
+			}
+			availablePlugins, err := pluginmanager.AvailablePlugins(server.Name)
+			if err != nil {
+				return err
+			}
+			pluginVersion := ""
+			for i := range availablePlugins {
+				if availablePlugins[i].Name == name {
+					pluginVersion = availablePlugins[i].RecommendedVersion
+				}
+			}
+
+			err = pluginmanager.UpgradePlugin(server.Name, name, pluginVersion)
+			if err != nil {
+				return err
+			}
+			log.Successf("successfully upgraded plugin '%s' to version '%s'", name, pluginVersion)
+			return nil
 		}
 
 		repos := getRepositories()
@@ -298,7 +338,18 @@ var deletePluginCmd = &cobra.Command{
 		name := args[0]
 
 		if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
-			return errors.New("context-aware discovery is enabled but function is not yet implemented")
+			server, err := config.GetCurrentServer()
+			if err != nil {
+				return err
+			}
+
+			err = pluginmanager.DeletePlugin(server.Name, name)
+			if err != nil {
+				return err
+			}
+
+			log.Successf("successfully deleted plugin '%s'", name)
+			return nil
 		}
 
 		err = cli.DeletePlugin(name)
@@ -312,9 +363,8 @@ var cleanPluginCmd = &cobra.Command{
 	Short: "Clean the plugins",
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
 		if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
-			return errors.New("context-aware discovery is enabled but function is not yet implemented")
+			return pluginmanager.Clean()
 		}
-
 		return cli.Clean()
 	},
 }
