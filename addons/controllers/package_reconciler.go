@@ -205,7 +205,7 @@ func (r *PackageReconciler) ReconcileAddonKappResourceNormal( // nolint:funlen
 			ipkg.ObjectMeta.Annotations[addontypes.AddonTypeAnnotation] = fmt.Sprintf("%s/%s", addonConfig.Category, addonName)
 			ipkg.ObjectMeta.Annotations[addontypes.AddonNameAnnotation] = addonSecret.Name
 			ipkg.ObjectMeta.Annotations[addontypes.AddonNamespaceAnnotation] = addonSecret.Namespace
-			ipkg.ObjectMeta.Annotations[addontypes.YttMarkerAnnotation] = util.GenerateAppSecretNameFromAddonSecret(addonSecret)
+			ipkg.ObjectMeta.Annotations[addontypes.YttMarkerAnnotation] = ""
 
 			ipkg.Spec.SyncPeriod = &metav1.Duration{Duration: r.Config.AppSyncPeriod}
 			ipkg.Spec.ServiceAccountName = r.Config.AddonServiceAccount
