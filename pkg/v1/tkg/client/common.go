@@ -95,7 +95,7 @@ func checkDockerResource(resource string) (int, error) {
 		return 0, nil
 	}
 
-	cmd := exec.Command("docker", "system", "info", "--format", "'{{."+resource+"}}'")
+	cmd := exec.Command("docker", "system", "info", "--format", "'{{."+resource+"}}'") // nolint:gosec
 	if stdout, err = cmd.Output(); err != nil {
 		return 0, errors.Wrap(err, "failed to get docker resource value")
 	}
@@ -172,14 +172,15 @@ func (c *TkgClient) validateDockerPrerequisites() error {
 	return nil
 }
 
+// ValidateDockerResourcePrerequisites validates docker number CPU and memory resource settings
 func (c *TkgClient) ValidateDockerResourcePrerequisites() error {
-	const numberCpu string = "NCPU"
+	const numberCPU string = "NCPU"
 	const totalMemory string = "MemTotal"
 	var dockerResourceCpus, dockerResourceTotalMemory int
 	var err error
 
 	// validate docker allocated CPU and memory against recommended minimums
-	if dockerResourceCpus, err = checkDockerResource(numberCpu); err != nil {
+	if dockerResourceCpus, err = checkDockerResource(numberCPU); err != nil {
 		return errors.Wrap(err, "Failed to check docker minimum number of CPUs")
 	}
 
