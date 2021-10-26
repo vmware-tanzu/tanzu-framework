@@ -15,13 +15,14 @@ import (
 
 	"k8s.io/apimachinery/pkg/util/version"
 
-	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/image"
+	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/registry"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/registry"
 )
 
@@ -342,11 +343,22 @@ func (c *client) IsCustomRepositorySkipTLSVerify() bool {
 // 1. PROXY_CA_CERT
 // 2. TKG_PROXY_CA_CERT
 // 3. TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
-func (c *client) GetCustomRepositoryCaCertificateForClient() ([]byte, error) {
+func GetCustomRepositoryCaCertificateForClient(tkgconfigReaderWriter tkgconfigreaderwriter.TKGConfigReaderWriter) ([]byte, error) {
 	caCert := ""
-	proxyCACertValue, errProxyCACert := c.TKGConfigReaderWriter().Get(constants.ProxyCACert)
-	tkgProxyCACertValue, errTkgProxyCACertValue := c.TKGConfigReaderWriter().Get(constants.TKGProxyCACert)
-	customImageRepoCACert, errCustomImageRepoCACert := c.TKGConfigReaderWriter().Get(constants.ConfigVariableCustomImageRepositoryCaCertificate)
+	var errProxyCACert, errTkgProxyCACertValue, errCustomImageRepoCACert error
+	var proxyCACertValue, tkgProxyCACertValue, customImageRepoCACert string
+
+	// Get the proxy configuration from tkgconfigreaderwriter if not nil
+	// otherwise get the same proxy configuration from os environment variable
+	if tkgconfigReaderWriter != nil {
+		proxyCACertValue, errProxyCACert = tkgconfigReaderWriter.Get(constants.ProxyCACert)
+		tkgProxyCACertValue, errTkgProxyCACertValue = tkgconfigReaderWriter.Get(constants.TKGProxyCACert)
+		customImageRepoCACert, errCustomImageRepoCACert = tkgconfigReaderWriter.Get(constants.ConfigVariableCustomImageRepositoryCaCertificate)
+	} else {
+		proxyCACertValue = os.Getenv(constants.ProxyCACert)
+		tkgProxyCACertValue = os.Getenv(constants.TKGProxyCACert)
+		customImageRepoCACert = os.Getenv(constants.ConfigVariableCustomImageRepositoryCaCertificate)
+	}
 
 	if errProxyCACert == nil && proxyCACertValue != "" {
 		caCert = proxyCACertValue
@@ -539,19 +551,19 @@ func (c *client) InitBOMRegistry() (registry.Registry, error) {
 		verifyCerts = false
 	}
 
-	registryOpts := &ctlimg.RegistryOpts{
+	registryOpts := &ctlimg.Opts{
 		VerifyCerts: verifyCerts,
 		Anon:        true,
 	}
 
 	if runtime.GOOS == "windows" {
-		err := addRegistryTrustedRootCertsFileForWindows(registryOpts)
+		err := AddRegistryTrustedRootCertsFileForWindows(registryOpts)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	caCertBytes, err := c.GetCustomRepositoryCaCertificateForClient()
+	caCertBytes, err := GetCustomRepositoryCaCertificateForClient(c.TKGConfigReaderWriter())
 	if err == nil && len(caCertBytes) != 0 {
 		filePath, err := tkgconfigpaths.GetRegistryCertFile()
 		if err != nil {
@@ -674,7 +686,9 @@ func (c *client) getDefaultBOMFileImagePathAndTagFromCompatabilityFile() (string
 	}
 	return "", "", errors.Errorf("unable to find the supported TKG BOM version for the management plugin version %q in the TKG Compatibility file %q", tkgconfigpaths.TKGManagementClusterPluginVersion, compatibilityFile)
 }
-func addRegistryTrustedRootCertsFileForWindows(registryOpts *ctlimg.RegistryOpts) error {
+
+// AddRegistryTrustedRootCertsFileForWindows adds CA certificate to registry options for windows environments
+func AddRegistryTrustedRootCertsFileForWindows(registryOpts *ctlimg.Opts) error {
 	filePath, err := tkgconfigpaths.GetRegistryTrustedCACertFileForWindows()
 	if err != nil {
 		return err

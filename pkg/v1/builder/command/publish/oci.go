@@ -11,10 +11,9 @@ import (
 
 	"github.com/aunum/log"
 	"github.com/pkg/errors"
+
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
 )
-
-// TODO: to be implemented as part of https://github.com/vmware-tanzu/tanzu-framework/issues/946
 
 // OCIPublisher defines OCI publisher configuration
 type OCIPublisher struct {

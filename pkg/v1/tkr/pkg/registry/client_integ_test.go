@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"testing"
 
-	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/image"
+	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/registry"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
 )
@@ -27,7 +27,7 @@ func TestRegistryPullBOM(t *testing.T) {
 		t.Fatalf("wrong TEST_BOM_IMAGE_NUM, %s", err.Error())
 	}
 
-	ro := ctlimg.RegistryOpts{}
+	ro := ctlimg.Opts{}
 
 	reg, err := New(&ro)
 	if err != nil {

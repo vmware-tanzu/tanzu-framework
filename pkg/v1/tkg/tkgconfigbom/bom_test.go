@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -31,11 +32,13 @@ var (
 			clusterConfigFile           string
 			kubeconfig7Path             = "../fakes/config/config7.yaml"
 			defaultTKGBoMFileForTesting = "../fakes/config/bom/tkg-bom-v1.3.1.yaml"
+			tkgConfigReaderWriter       tkgconfigreaderwriter.TKGConfigReaderWriter
 		)
 
 		JustBeforeEach(func() {
+			var err error
 			setupTestingFiles(clusterConfigFile, tkgConfigDir, defaultTKGBoMFileForTesting)
-			tkgConfigReaderWriter, err := tkgconfigreaderwriter.NewReaderWriterFromConfigFile(clusterConfigFile, filepath.Join(tkgConfigDir, "config.yaml"))
+			tkgConfigReaderWriter, err = tkgconfigreaderwriter.NewReaderWriterFromConfigFile(clusterConfigFile, filepath.Join(tkgConfigDir, "config.yaml"))
 			Expect(err).NotTo(HaveOccurred())
 
 			bomClient = tkgconfigbom.New(tkgConfigDir, tkgConfigReaderWriter)
@@ -179,8 +182,8 @@ var (
 				var receivedImageTag string
 				BeforeEach(func() {
 					fakeRegistry.ListImageTagsReturns([]string{"v3", "v1", "v2"}, nil)
-					fakeRegistry.GetFileCalls(func(ImagePath string, ImageTag string, filename string) ([]byte, error) {
-						receivedImageTag = ImageTag
+					fakeRegistry.GetFileCalls(func(ImageWithTag string, filename string) ([]byte, error) {
+						receivedImageTag = strings.Split(ImageWithTag, ":")[1]
 						return nil, errors.New("fake GetFile error for TKG Compatibility file")
 					})
 				})
@@ -299,7 +302,7 @@ var (
 				err    error
 			)
 			JustBeforeEach(func() {
-				actual, err = bomClient.GetCustomRepositoryCaCertificateForClient()
+				actual, err = tkgconfigbom.GetCustomRepositoryCaCertificateForClient(tkgConfigReaderWriter)
 			})
 			When("BOM file is present without a Custom Image Repository", func() {
 				It("should return the custom registry", func() {

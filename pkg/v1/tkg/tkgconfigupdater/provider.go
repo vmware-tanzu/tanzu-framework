@@ -9,11 +9,12 @@ import (
 	"regexp"
 	"strings"
 
-	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/image"
+	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/registry"
 	"github.com/pkg/errors"
 	yaml "gopkg.in/yaml.v3"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/registry"
 )
@@ -206,12 +207,12 @@ func (c *client) InitProvidersRegistry() (registry.Registry, error) {
 		verifyCerts = false
 	}
 
-	registryOpts := ctlimg.RegistryOpts{
+	registryOpts := ctlimg.Opts{
 		VerifyCerts: verifyCerts,
 		Anon:        true,
 	}
 
-	caCertBytes, err := c.tkgBomClient.GetCustomRepositoryCaCertificateForClient()
+	caCertBytes, err := tkgconfigbom.GetCustomRepositoryCaCertificateForClient(c.tkgConfigReaderWriter)
 	if err == nil && len(caCertBytes) != 0 {
 		filePath, err := tkgconfigpaths.GetRegistryCertFile()
 		if err != nil {

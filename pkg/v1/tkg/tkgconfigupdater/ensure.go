@@ -304,34 +304,17 @@ func (c *client) saveProvidersFromRemoteRepo(providerDirPath string) error {
 
 	for k, v := range filesMap {
 		filePath := filepath.Join(providerDirPath, k)
-		err := c.saveFile(filePath, v)
+		err := utils.SaveFile(filePath, v)
 		if err != nil {
 			return errors.Wrapf(err, "error while saving provider template file '%s'", k)
 		}
 	}
 
 	providerTagFileName := filepath.Join(providerDirPath, imageTag)
-	err = c.saveFile(providerTagFileName, []byte{})
+	err = utils.SaveFile(providerTagFileName, []byte{})
 	if err != nil {
 		return errors.Wrapf(err, "error while saving provider tag file '%s'", providerTagFileName)
 	}
-	return nil
-}
-
-func (c *client) saveFile(filePath string, data []byte) error {
-	dirName := filepath.Dir(filePath)
-	if _, serr := os.Stat(dirName); serr != nil {
-		merr := os.MkdirAll(dirName, os.ModePerm)
-		if merr != nil {
-			return merr
-		}
-	}
-
-	err := os.WriteFile(filePath, data, constants.ConfigFilePermissions)
-	if err != nil {
-		return errors.Wrapf(err, "unable to save file '%s'", filePath)
-	}
-
 	return nil
 }
 

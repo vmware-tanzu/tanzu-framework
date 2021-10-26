@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
-	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/image"
+	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/registry"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
@@ -46,7 +46,7 @@ type reconciler struct {
 	bomImage                   string
 	compatibilityMetadataImage string
 	registry                   registry.Registry
-	registryOps                ctlimg.RegistryOpts
+	registryOps                ctlimg.Opts
 }
 
 // Reconcile performs the reconciliation step
@@ -519,7 +519,7 @@ func (r *reconciler) Start(stopChan <-chan struct{}) error {
 }
 
 func newReconciler(ctx *mgrcontext.ControllerManagerContext) *reconciler {
-	regOpts := ctlimg.RegistryOpts{
+	regOpts := ctlimg.Opts{
 		VerifyCerts: ctx.VerifyRegistryCert,
 		Anon:        true,
 	}

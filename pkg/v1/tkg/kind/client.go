@@ -293,8 +293,7 @@ func (k *KindClusterProxy) getDockerRegistryCACertFilePath() (string, error) {
 	if k.caCertPath != "" {
 		return k.caCertPath, nil
 	}
-	tkgconfigClient := tkgconfigbom.New(k.options.TKGConfigDir, k.options.Readerwriter)
-	customRepositoryCaCert, err := tkgconfigClient.GetCustomRepositoryCaCertificateForClient()
+	customRepositoryCaCert, err := tkgconfigbom.GetCustomRepositoryCaCertificateForClient(k.options.Readerwriter)
 	if err != nil {
 		return "", err
 	}

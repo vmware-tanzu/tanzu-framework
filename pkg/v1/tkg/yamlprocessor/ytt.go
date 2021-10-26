@@ -6,11 +6,9 @@ package yamlprocessor
 
 import (
 	"fmt"
-	"io"
 	"strconv"
 
 	"github.com/k14s/ytt/pkg/cmd/template"
-	yttui "github.com/k14s/ytt/pkg/cmd/ui"
 	"github.com/k14s/ytt/pkg/files"
 	"github.com/k14s/ytt/pkg/workspace"
 	"github.com/k14s/ytt/pkg/yamlmeta"
@@ -18,6 +16,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/providers/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/carvelhelpers"
 )
 
 // DefinitionParser provides behavior to process template definition
@@ -93,7 +92,7 @@ func (p *YTTProcessor) getLoader(rawArtifact []byte) (*workspace.LibraryLoader, 
 
 	lib := workspace.NewRootLibrary(yttFiles)
 	libCtx := workspace.LibraryExecutionContext{Current: lib, Root: lib}
-	libExecFact := workspace.NewLibraryExecutionFactory(&noopUI{}, workspace.TemplateLoaderOpts{})
+	libExecFact := workspace.NewLibraryExecutionFactory(&carvelhelpers.NoopUI{}, workspace.TemplateLoaderOpts{})
 	return libExecFact.New(libCtx), nil
 }
 
@@ -279,34 +278,6 @@ func (p *YTTProcessor) updateFilesMetadata(srcFile *files.File, fileMark string)
 	}
 	return nil
 }
-
-type noopUI struct{}
-
-var _ yttui.UI = noopUI{}
-
-func (ui noopUI) Printf(str string, args ...interface{}) {
-	// noop
-}
-
-func (ui noopUI) Debugf(str string, args ...interface{}) {
-	// noop
-}
-
-func (ui noopUI) Warnf(str string, args ...interface{}) {
-	// noop
-}
-
-func (ui noopUI) DebugWriter() io.Writer {
-	return noopWriter{}
-}
-
-type noopWriter struct{}
-
-func (n noopWriter) Write(p []byte) (int, error) {
-	return 0, nil
-}
-
-var _ io.Writer = noopWriter{}
 
 type yamlScalarConvertable func(in string) bool
 
