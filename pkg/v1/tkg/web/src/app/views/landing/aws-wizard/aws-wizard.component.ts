@@ -229,7 +229,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
      */
     getExtendCliCmds(): Array<{ isPrefixOfCreateCmd: boolean, cmdStr: string }> {
         if (this.getFieldValue('awsNodeSettingForm', 'createCloudFormation')) {
-            const clusterPrefix = (this.clusterType) ? this.clusterType : 'management';
+            const clusterPrefix = (this.getClusterType()) ? this.getClusterType() : 'management';
             const command = `tanzu ${clusterPrefix}-cluster permissions aws set`;
             return [{ isPrefixOfCreateCmd: true, cmdStr: command }]
         }
