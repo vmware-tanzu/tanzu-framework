@@ -38,13 +38,13 @@ const ldapValidatedFields: Array<string> = [
     'endpointIp',
     'endpointPort',
     'bindPW',
+    'userSearchFilter',
     'userSearchUsername'
 ];
 
 const ldapNonValidatedFields: Array<string> = [
     'bindDN',
     'userSearchBaseDN',
-    'userSearchFilter',
     'groupSearchBaseDN',
     'groupSearchFilter',
     'groupSearchUserAttr',
@@ -175,6 +175,11 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
         ], this.getSavedValue('endpointPort', ''));
 
         this.resurrectField('bindPW', [], '');
+
+        this.resurrectField('userSearchFilter', [
+            Validators.required
+        ], this.getSavedValue('userSearchFilter', ''));
+
         this.resurrectField('userSearchUsername', [
             Validators.required
         ], this.getSavedValue('userSearchUsername', ''));
