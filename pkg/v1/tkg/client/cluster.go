@@ -63,7 +63,7 @@ var TKGSupportedClusterOptions string
 
 // CreateCluster create workload cluster
 func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster bool) error { //nolint:gocyclo,funlen
-	if err := checkClusterNameFormat(options.ClusterName); err != nil {
+	if err := CheckClusterNameFormat(options.ClusterName, options.ProviderRepositorySource.InfrastructureProvider); err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 	log.Info("Validating configuration...")
