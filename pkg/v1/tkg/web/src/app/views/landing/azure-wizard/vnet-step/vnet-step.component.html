@@ -144,7 +144,7 @@
                 </clr-input-container>
             </div>
         </div>
-        <div class="clr-row" *featureToggle="'!standalone-cluster-mode'">
+        <div class="clr-row" *featureToggle="'!management-cluster.standalone-cluster-mode'">
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                 <clr-input-container [attr.data-step-metadata]="formName">
                     <label i18n="azure worker node subnet label" clr-control-label>
@@ -273,7 +273,7 @@
                 </clr-control-error>
             </clr-select-container>
         </div>
-        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *featureToggle="'!standalone-cluster-mode'">
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *featureToggle="'!management-cluster.standalone-cluster-mode'">
             <clr-select-container [attr.data-step-metadata]="formName">
                 <label i18n="azure worker node subnet label">
                     WORKER NODE SUBNET
