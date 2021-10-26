@@ -16,7 +16,6 @@ import { ClrStepper } from '@clr/angular';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { ConfigFileInfo } from '../../../../../swagger/models/config-file-info.model';
 import Broker from 'src/app/shared/service/broker';
-import { AppDataService } from "src/app/shared/service/app-data.service";
 import { ClusterType } from "../constants/wizard.constants";
 import FileSaver from 'file-saver';
 
@@ -47,8 +46,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
         protected router: Router,
         protected el: ElementRef,
         protected formMetaDataService: FormMetaDataService,
-        protected titleService: Title,
-        protected appDataService: AppDataService
+        protected titleService: Title
     ) {
 
         super();
@@ -197,7 +195,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
     }
 
     getClusterType(): ClusterType {
-        return this.appDataService.isModeClusterStandalone() ? ClusterType.Standalone : ClusterType.Management;
+        return Broker.appDataService.isModeClusterStandalone() ? ClusterType.Standalone : ClusterType.Management;
     }
 
     /**

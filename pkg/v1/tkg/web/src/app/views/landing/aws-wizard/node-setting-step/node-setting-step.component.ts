@@ -21,7 +21,6 @@ import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
 import { APIClient } from '../../../../swagger/api-client.service';
 import Broker from 'src/app/shared/service/broker';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
-import { AppDataService } from 'src/app/shared/service/app-data.service';
 
 export interface AzNodeTypes {
     awsNodeAz1: Array<string>,
@@ -129,10 +128,10 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         vpcPrivateSubnet3: [],
     };
 
-    constructor(private validationService: ValidationService, appDataService: AppDataService,
+    constructor(private validationService: ValidationService,
         private apiClient: APIClient,
         public awsWizardFormService: AwsWizardFormService) {
-        super(appDataService);
+        super();
     }
 
     buildForm() {

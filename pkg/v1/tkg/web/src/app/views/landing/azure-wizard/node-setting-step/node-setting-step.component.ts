@@ -17,7 +17,6 @@ import { TkgEventType } from '../../../../shared/service/Messenger';
 import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import { AzureInstanceType } from 'src/app/swagger/models';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
-import { AppDataService } from 'src/app/shared/service/app-data.service';
 
 @Component({
     selector: 'app-node-setting-step',
@@ -31,9 +30,9 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     currentRegion = "US-WEST";
     displayForm = false;
 
-    constructor(private validationService: ValidationService, appDataService: AppDataService,
+    constructor(private validationService: ValidationService,
                 private azureWizardFormService: AzureWizardFormService) {
-        super(appDataService);
+        super();
         this.nodeTypes = [];
     }
 

@@ -20,7 +20,6 @@ import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import Broker from 'src/app/shared/service/broker';
-import { AppDataService } from 'src/app/shared/service/app-data.service';
 
 declare var sortPaths: any;
 
@@ -68,9 +67,9 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
     treeData = [];
 
     constructor(
-        private wizardFormService: VSphereWizardFormService, appDataService: AppDataService,
+        private wizardFormService: VSphereWizardFormService,
         private validationService: ValidationService) {
-        super(appDataService);
+        super();
     }
 
     ngOnInit() {

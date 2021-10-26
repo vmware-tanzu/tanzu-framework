@@ -11,7 +11,6 @@ import { takeUntil } from 'rxjs/operators';
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
 import { PROVIDERS, Providers } from '../../../shared/constants/app.constants';
 import { TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
-import { AppDataService } from 'src/app/shared/service/app-data.service';
 import { BrandingObj, EditionData } from '../../../shared/service/branding.service';
 import { BasicSubscriber } from 'src/app/shared/abstracts/basic-subscriber';
 import Broker from 'src/app/shared/service/broker';
@@ -32,10 +31,9 @@ export class StartComponent extends BasicSubscriber implements OnInit {
     loading: boolean = false;
 
     constructor(private router: Router,
-                private appDataService: AppDataService,
                 private titleService: Title) {
         super();
-        this.provider = this.appDataService.getProviderType();
+        this.provider = Broker.appDataService.getProviderType();
     }
 
     ngOnInit() {
@@ -61,7 +59,7 @@ export class StartComponent extends BasicSubscriber implements OnInit {
      */
     navigateToWizard(provider: string): void {
         this.loading = true;
-        this.appDataService.setProviderType(provider);
+        Broker.appDataService.setProviderType(provider);
         let wizard;
         switch (provider) {
             case PROVIDERS.VSPHERE: {

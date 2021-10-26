@@ -11,7 +11,6 @@ import {
  * App imports
  */
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-import { AppDataService } from 'src/app/shared/service/app-data.service';
 
 @Component({
     selector: 'app-worker-node-setting-step',
@@ -23,10 +22,6 @@ export class WorkerNodeSettingStepComponent extends StepFormDirective implements
     currentRegion = "US-WEST";
     workderNodeInstanceTypes = ["large", "medium", "small"];
     azs = ["US-WEST", "US-EAST"];
-
-    constructor(appDataService: AppDataService) {
-        super(appDataService);
-    }
 
     buildForm() {
         this.formGroup.addControl(

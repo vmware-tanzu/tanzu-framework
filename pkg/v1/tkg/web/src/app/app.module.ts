@@ -19,7 +19,6 @@ import { HeaderBarModule } from './shared/components/header-bar/header-bar.modul
 import { ThemeToggleComponent } from './shared/components/theme-toggle/theme-toggle.component';
 
 // Service imports
-import { AppDataService } from 'src/app/shared/service/app-data.service';
 import { BrandingService } from './shared/service/branding.service';
 import { WebsocketService } from './shared/service/websocket.service';
 import { VSphereWizardFormService } from './shared/service/vsphere-wizard-form.service';
@@ -47,7 +46,6 @@ import { VSphereWizardFormService } from './shared/service/vsphere-wizard-form.s
         CodemirrorModule
     ],
     providers: [
-        AppDataService,
         BrandingService,
         WebsocketService
     ],

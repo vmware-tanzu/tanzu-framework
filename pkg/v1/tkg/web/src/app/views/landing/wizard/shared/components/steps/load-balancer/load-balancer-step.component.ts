@@ -17,7 +17,6 @@ import { AviVipNetwork } from './../../../../../../../swagger/models/avi-vip-net
 import { TkgEventType } from 'src/app/shared/service/Messenger';
 import Broker from 'src/app/shared/service/broker';
 import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
-import { AppDataService } from 'src/app/shared/service/app-data.service';
 
 export const KUBE_VIP = 'Kube-vip';
 export const NSX_ADVANCED_LOAD_BALANCER = "NSX Advanced Load Balancer";
@@ -54,9 +53,9 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
     selectedManagementClusterNetworkName: string;
     currentControlPlaneEndpoingProvider: string;
 
-    constructor(private validationService: ValidationService, appDataService: AppDataService,
+    constructor(private validationService: ValidationService,
         private apiClient: APIClient, private wizardFormService: VSphereWizardFormService) {
-        super(appDataService);
+        super();
     }
 
     ngOnInit() {

@@ -14,6 +14,7 @@ import { AwsWizardFormService } from 'src/app/shared/service/aws-wizard-form.ser
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { BASTION_HOST_ENABLED } from './node-setting-step/node-setting-step.component';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
+import Broker from "../../../shared/service/broker";
 
 @Component({
     selector: 'aws-wizard',
@@ -159,7 +160,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         this.nodeAzList = [
             {
                 name: this.getFieldValue('awsNodeSettingForm', 'awsNodeAz1'),
-                workerNodeType: this.appDataService.isModeClusterStandalone() ? payload.controlPlaneNodeType :
+                workerNodeType: Broker.appDataService.isModeClusterStandalone() ? payload.controlPlaneNodeType :
                     this.getFieldValue('awsNodeSettingForm', 'workerNodeInstanceType1'),
                 publicNodeCidr: (this.getFieldValue('vpcForm', 'vpcType') === 'new') ?
                     this.getFieldValue('vpcForm', 'publicNodeCidr') : '',
@@ -175,7 +176,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         if (this.getFieldValue('awsNodeSettingForm', 'awsNodeAz2')) {
             this.nodeAzList.push({
                 name: this.getFieldValue('awsNodeSettingForm', 'awsNodeAz2'),
-                workerNodeType: (!this.appDataService.isModeClusterStandalone()) ?
+                workerNodeType: (!Broker.appDataService.isModeClusterStandalone()) ?
                     this.getFieldValue('awsNodeSettingForm', 'workerNodeInstanceType2') : payload.controlPlaneNodeType,
                 publicNodeCidr: (this.getFieldValue('vpcForm', 'vpcType') === 'new') ?
                     this.getFieldValue('vpcForm', 'publicNodeCidr') : '',
@@ -191,7 +192,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         if (this.getFieldValue('awsNodeSettingForm', 'awsNodeAz3')) {
             this.nodeAzList.push({
                 name: this.getFieldValue('awsNodeSettingForm', 'awsNodeAz3'),
-                workerNodeType: (!this.appDataService.isModeClusterStandalone()) ?
+                workerNodeType: (!Broker.appDataService.isModeClusterStandalone()) ?
                     this.getFieldValue('awsNodeSettingForm', 'workerNodeInstanceType3') : payload.controlPlaneNodeType,
                 publicNodeCidr: (this.getFieldValue('vpcForm', 'vpcType') === 'new') ?
                     this.getFieldValue('vpcForm', 'publicNodeCidr') : '',

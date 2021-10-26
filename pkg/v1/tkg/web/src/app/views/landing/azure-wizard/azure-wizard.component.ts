@@ -12,6 +12,7 @@ import { AzureRegionalClusterParams } from 'src/app/swagger/models';
 import { AzureAccountParamsKeys } from './provider-step/azure-provider-step.component';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { EXISTING } from './vnet-step/vnet-step.component';
+import Broker from 'src/app/shared/service/broker';
 
 @Component({
     selector: 'app-azure-wizard',
@@ -131,7 +132,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
 
         payload.controlPlaneMachineType = this.getControlPlaneNodeType("azure");
         payload.controlPlaneFlavor = this.getControlPlaneFlavor("azure");
-        payload.workerMachineType = this.appDataService.isModeClusterStandalone() ? payload.controlPlaneMachineType :
+        payload.workerMachineType = Broker.appDataService.isModeClusterStandalone() ? payload.controlPlaneMachineType :
             this.getFieldValue('azureNodeSettingForm', 'workerNodeInstanceType');
         payload.machineHealthCheckEnabled = this.getBooleanFieldValue("azureNodeSettingForm", "machineHealthChecksEnabled");
 

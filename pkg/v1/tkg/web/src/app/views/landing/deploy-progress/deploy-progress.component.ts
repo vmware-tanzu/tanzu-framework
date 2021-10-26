@@ -12,7 +12,6 @@ import { LogMessage as NgxLogMessage } from 'ngx-log-monitor';
 import { BasicSubscriber } from '../../../shared/abstracts/basic-subscriber';
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
 import { WebsocketService } from '../../../shared/service/websocket.service';
-import { AppDataService } from 'src/app/shared/service/app-data.service';
 import { FormMetaDataStore } from '../wizard/shared/FormMetaDataStore';
 import { TkgEvent, TkgEventType } from "../../../shared/service/Messenger";
 import Broker from 'src/app/shared/service/broker';
@@ -42,8 +41,7 @@ export class DeployProgressComponent extends BasicSubscriber implements OnInit {
     phases: Array<string> = [];
     currentPhaseIdx: number;
 
-    constructor(private websocketService: WebsocketService,
-                private appDataService: AppDataService) {
+    constructor(private websocketService: WebsocketService) {
         super();
         Broker.messenger.getSubject(TkgEventType.CLI_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
@@ -62,7 +60,7 @@ export class DeployProgressComponent extends BasicSubscriber implements OnInit {
                 this.clusterTypeDescriptor = data.payload.clusterTypeDescriptor;
             });
 
-        this.appDataService.getProviderType()
+        Broker.appDataService.getProviderType()
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((provider) => {
                 if (provider && provider.includes('vsphere')) {

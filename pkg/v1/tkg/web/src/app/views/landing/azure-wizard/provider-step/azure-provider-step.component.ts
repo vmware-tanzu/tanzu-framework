@@ -9,7 +9,6 @@ import { debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs/op
 import { APIClient } from '../../../../swagger/api-client.service';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { TkgEventType } from '../../../../shared/service/Messenger';
-import { AppDataService } from 'src/app/shared/service/app-data.service';
 import { AzureResourceGroup } from './../../../../swagger/models/azure-resource-group.model';
 import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
@@ -49,9 +48,9 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
 
     constructor(
         private apiClient: APIClient,
-        private wizardFormService: AzureWizardFormService, appDataService: AppDataService,
+        private wizardFormService: AzureWizardFormService,
         private validationService: ValidationService) {
-        super(appDataService);
+        super();
     }
 
     /**

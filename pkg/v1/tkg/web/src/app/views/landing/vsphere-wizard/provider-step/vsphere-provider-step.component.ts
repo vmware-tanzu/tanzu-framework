@@ -23,7 +23,6 @@ import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
 import Broker from 'src/app/shared/service/broker';
 import { EditionData } from 'src/app/shared/service/branding.service';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
-import { AppDataService } from 'src/app/shared/service/app-data.service';
 import { managementClusterPlugin } from "../../wizard/shared/constants/wizard.constants";
 
 declare var sortPaths: any;
@@ -68,17 +67,16 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
     enableIpv6: boolean = false;
 
     constructor(private validationService: ValidationService,
-        appDataService: AppDataService,
         private apiClient: APIClient,
         private router: Router) {
-        super(appDataService);
+        super();
 
         this.fileReader = new FileReader();
     }
 
     ngOnInit() {
         super.ngOnInit();
-        this.enableIpv6 = this.appDataService.isPluginFeatureActivated(managementClusterPlugin, 'vsphereIPv6');
+        this.enableIpv6 = Broker.appDataService.isPluginFeatureActivated(managementClusterPlugin, 'vsphereIPv6');
         this.formGroup.addControl(
             'ipFamily',
             new FormControl(
@@ -306,7 +304,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 this.connected = true;
                 this.vsphereVersion = vsphereVerInfo.version;
                 this.hasPacific = res.hasPacific;
-                this.appDataService.setVsphereVersion(vsphereVerInfo.version);
+                Broker.appDataService.setVsphereVersion(vsphereVerInfo.version);
 
                 if (isCompatible && !(_.startsWith(this.vsphereVersion, '6'))
                     && this.edition !== AppEdition.TCE) {

@@ -171,14 +171,6 @@ spec:
                   type to be an object in another hash map (cf ClientOptions.Features)
                 type: object
               type: object
-            features:
-              additionalProperties:
-                additionalProperties:
-                  type: string
-                description: FeatureMap is simply a hash table, but needs an explicit
-                  type to be an object in another hash map (cf ClientOptions.Features)
-                type: object
-              type: object
           type: object
         current:
           description: CurrentServer in use.

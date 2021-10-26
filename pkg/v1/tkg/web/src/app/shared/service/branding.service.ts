@@ -7,7 +7,6 @@ import { TkgEventType } from 'src/app/shared/service/Messenger';
 import { APIClient } from 'src/app/swagger';
 import {AppEdition, brandingDefault, brandingStandalone, brandingTce} from '../constants/branding.constants';
 import Broker from './broker';
-import { AppDataService } from 'src/app/shared/service/app-data.service';
 
 export interface BrandingObj {
     logoClass: string;
@@ -31,7 +30,7 @@ export interface EditionData {
 })
 export class BrandingService {
 
-    constructor(private apiClient: APIClient, private appDataService: AppDataService) {
+    constructor(private apiClient: APIClient) {
     }
 
     /**
@@ -66,7 +65,7 @@ export class BrandingService {
             console.log('Setting branding based on edition: ' + AppEdition.TCE);
             brandingPayload = brandingTce;
         }
-        if (this.appDataService.isModeClusterStandalone()) {
+        if (Broker.appDataService.isModeClusterStandalone()) {
             console.log('Due to standalone cluster mode, setting branding to edition: ' + AppEdition.TCE);
             brandingPayload = brandingTce;
             brandingPayload.clusterTypeDescriptor = brandingStandalone.clusterTypeDescriptor;

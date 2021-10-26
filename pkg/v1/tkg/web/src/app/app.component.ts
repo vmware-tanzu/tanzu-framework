@@ -6,9 +6,9 @@ import { takeUntil } from 'rxjs/operators';
 import { BasicSubscriber } from './shared/abstracts/basic-subscriber';
 import { APIClient } from './swagger/api-client.service';
 import { ProviderInfo } from './swagger/models/provider-info.model';
-import { AppDataService } from 'src/app/shared/service/app-data.service';
 import { BrandingService } from './shared/service/branding.service';
 import { Features } from "./swagger/models";
+import Broker from "./shared/service/broker";
 
 @Component({
     selector: 'tkg-kickstart-ui-app',
@@ -19,18 +19,17 @@ export class AppComponent extends BasicSubscriber {
     providerType: string = null;
 
     constructor(private apiClient: APIClient,
-                private appDataService: AppDataService,
                 private editionService: BrandingService) {
         super();
 
-        this.appDataService.setProviderType(null);
+        Broker.appDataService.setProviderType(null);
 
         this.apiClient.getProvider()
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(((res: ProviderInfo) => {
                 this.providerType = res.provider;
-                this.appDataService.setProviderType(res.provider);
-                this.appDataService.setTkrVersion(res.tkrVersion);
+                Broker.appDataService.setProviderType(res.provider);
+                Broker.appDataService.setTkrVersion(res.tkrVersion);
             }),
             ((err) => {
                 console.log('Failed to retrieve provider type and Kubernetes version.');
@@ -40,7 +39,7 @@ export class AppComponent extends BasicSubscriber {
         this.apiClient.getFeatureFlags()
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(((features: Features) => {
-                this.appDataService.setFeatureFlags(features);
+                Broker.appDataService.setFeatureFlags(features);
                 this.editionService.initBranding(); // NOTE: the branding may depend on feature flags
             }),
             ((err) => {

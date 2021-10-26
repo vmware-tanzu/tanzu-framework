@@ -9,7 +9,6 @@ import { FormControl } from '@angular/forms';
  * App imports
  */
 import { StepFormDirective } from '../../../step-form/step-form';
-import { AppDataService } from 'src/app/shared/service/app-data.service';
 
 @Component({
     selector: 'app-shared-register-tmc-step',
@@ -21,8 +20,8 @@ export class SharedRegisterTmcStepComponent extends StepFormDirective implements
     configContent: any;
     emptyUrl: boolean = true;
 
-    constructor(private http: HttpClient, appDataService: AppDataService) {
-        super(appDataService);
+    constructor(private http: HttpClient) {
+        super();
     }
 
     ngOnInit() {

@@ -17,8 +17,6 @@ import { AzureResourceGroup } from 'src/app/swagger/models';
 import { APIClient } from 'src/app/swagger';
 import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore'
 import Broker from 'src/app/shared/service/broker';
-import { AppDataService } from 'src/app/shared/service/app-data.service';
-
 
 const CUSTOM = "CUSTOM";
 export const EXISTING = "EXISTING";
@@ -58,9 +56,9 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
     vnetFieldsNew: Array<string> = [];
 
     constructor(private apiClient: APIClient,
-        private validationService: ValidationService, appDataService: AppDataService,
+        private validationService: ValidationService,
         private wizardFormService: AzureWizardFormService) {
-        super(appDataService);
+        super();
     }
 
     /**
@@ -156,7 +154,6 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
         this.defaultCidrFields = this.modeClusterStandalone ?
             ["vnetCidrBlock", "controlPlaneSubnetCidrNew", ] :
             ["vnetCidrBlock", "controlPlaneSubnetCidrNew", "workerNodeSubnetCidrNew"];
-
 
         this.vnetFieldsExisting = this.modeClusterStandalone ?
             ["vnetNameExisting", "controlPlaneSubnet"] :

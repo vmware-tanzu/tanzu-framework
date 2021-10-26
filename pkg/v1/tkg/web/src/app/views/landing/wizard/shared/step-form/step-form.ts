@@ -10,7 +10,6 @@ import Broker from 'src/app/shared/service/broker';
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import { EditionData } from 'src/app/shared/service/branding.service';
-import { AppDataService } from 'src/app/shared/service/app-data.service';
 import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 
 const INIT_FIELD_DELAY = 50;            // ms
@@ -31,15 +30,9 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     errorNotification: string;
     clusterTypeDescriptor: string;
     modeClusterStandalone: boolean;
-    appDataService: AppDataService;
     ipFamily: IpFamilyEnum = IpFamilyEnum.IPv4;
 
     private delayedFieldQueue = [];
-
-    protected constructor(appDataService: AppDataService) {
-        super();
-        this.appDataService = appDataService;
-    }
 
     ngOnInit(): void {
         this.getFormName();
@@ -58,7 +51,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
                 this.edition = content.edition;
                 this.clusterTypeDescriptor = data.payload.clusterTypeDescriptor;
             });
-        this.modeClusterStandalone = this.appDataService.isModeClusterStandalone();
+        this.modeClusterStandalone = Broker.appDataService.isModeClusterStandalone();
     }
 
     /**

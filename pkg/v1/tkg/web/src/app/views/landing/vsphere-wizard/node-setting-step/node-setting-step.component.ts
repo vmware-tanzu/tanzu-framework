@@ -19,7 +19,6 @@ import { ValidationService } from '../../wizard/shared/validation/validation.ser
 import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER } from '../../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
 import Broker from 'src/app/shared/service/broker';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
-import { AppDataService } from 'src/app/shared/service/app-data.service';
 
 @Component({
     selector: 'app-node-setting-step',
@@ -40,10 +39,10 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     currentControlPlaneEndpoingProvider = KUBE_VIP;
     controlPlaneEndpointOptional = "";
 
-    constructor(private validationService: ValidationService, appDataService: AppDataService,
+    constructor(private validationService: ValidationService,
         private wizardFormService: VSphereWizardFormService) {
 
-        super(appDataService);
+        super();
         this.nodeTypes = [...vSphereNodeTypes];
     }
 
