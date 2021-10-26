@@ -264,21 +264,37 @@ build-install-cli-local: clean-catalog-cache clean-cli-plugins build-cli-local i
 STANDALONE_PLUGINS := login management-cluster package pinniped-auth
 CONTEXT_PLUGINS := cluster kubernetes-release secret
 
-.PHONY: publish-plugins
-publish-plugins:
+.PHONY: publish-plugins-all-local
+publish-plugins-all-local: ## Publish CLI Plugins locally for all supported os-arch
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go publish --type local --plugins "$(STANDALONE_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${ENVS}" --local-output-discovery-dir "$(XDG_CONFIG_HOME)/tanzu-plugins/discovery/standalone" --local-output-distribution-dir "$(XDG_CONFIG_HOME)/tanzu-plugins/distribution" --input-artifact-dir $(ARTIFACTS_DIR)
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go publish --type local --plugins "$(CONTEXT_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${ENVS}" --local-output-discovery-dir "$(XDG_CONFIG_HOME)/tanzu-plugins/discovery/context" --local-output-distribution-dir "$(XDG_CONFIG_HOME)/tanzu-plugins/distribution" --input-artifact-dir $(ARTIFACTS_DIR)
 
 .PHONY: publish-plugins-local
-publish-plugins-local:
+publish-plugins-local: ## Publish CLI Plugins locally for current host os-arch only
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go publish --type local --plugins "$(STANDALONE_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${GOHOSTOS}-${GOHOSTARCH}" --local-output-discovery-dir "$(XDG_CONFIG_HOME)/tanzu-plugins/discovery/standalone" --local-output-distribution-dir "$(XDG_CONFIG_HOME)/tanzu-plugins/distribution" --input-artifact-dir $(ARTIFACTS_DIR)
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go publish --type local --plugins "$(CONTEXT_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${GOHOSTOS}-${GOHOSTARCH}" --local-output-discovery-dir "$(XDG_CONFIG_HOME)/tanzu-plugins/discovery/context" --local-output-distribution-dir "$(XDG_CONFIG_HOME)/tanzu-plugins/distribution" --input-artifact-dir $(ARTIFACTS_DIR)
 
-.PHONY: build-publish-plugins
-build-publish-plugins: clean-catalog-cache clean-cli-plugins build-cli install-cli publish-plugins
+.PHONY: publish-plugins-all-oci
+publish-plugins-all-oci: ## Publish CLI Plugins as OCI image for all supported os-arch
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go publish --type oci --plugins "$(STANDALONE_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${ENVS}" --oci-discovery-image ${OCI_REGISTRY}/tanzu-plugins/discovery/standalone:v0.0.1 --oci-distribution-image-repository ${OCI_REGISTRY}/tanzu-plugins/distribution/ --input-artifact-dir $(ROOT_DIR)/$(ARTIFACTS_DIR)
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go publish --type oci --plugins "$(CONTEXT_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${ENVS}" --oci-discovery-image ${OCI_REGISTRY}/tanzu-plugins/discovery/context:v0.0.1 --oci-distribution-image-repository ${OCI_REGISTRY}/tanzu-plugins/distribution/ --input-artifact-dir $(ROOT_DIR)/$(ARTIFACTS_DIR)
 
+.PHONY: publish-plugins-oci
+publish-plugins-oci: ## Publish CLI Plugins as OCI image for current host os-arch only
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go publish --type oci --plugins "$(STANDALONE_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${GOHOSTOS}-${GOHOSTARCH}" --oci-discovery-image ${OCI_REGISTRY}/tanzu-plugins/discovery/standalone:v0.0.1 --oci-distribution-image-repository ${OCI_REGISTRY}/tanzu-plugins/distribution/ --input-artifact-dir $(ROOT_DIR)/$(ARTIFACTS_DIR)
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go publish --type oci --plugins "$(CONTEXT_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${GOHOSTOS}-${GOHOSTARCH}" --oci-discovery-image ${OCI_REGISTRY}/tanzu-plugins/discovery/context:v0.0.1 --oci-distribution-image-repository ${OCI_REGISTRY}/tanzu-plugins/distribution/ --input-artifact-dir $(ROOT_DIR)/$(ARTIFACTS_DIR)
+
+.PHONY: build-publish-plugins-all-local
+build-publish-plugins-all-local: clean-catalog-cache clean-cli-plugins build-cli publish-plugins-all-local ## Build and Publish CLI Plugins locally for all supported os-arch
+	
 .PHONY: build-publish-plugins-local
-build-publish-plugins-local: clean-catalog-cache clean-cli-plugins build-cli-local install-cli publish-plugins-local
+build-publish-plugins-local: clean-catalog-cache clean-cli-plugins build-cli-local publish-plugins-local ## Build and Publish CLI Plugins locally for current host os-arch only
+
+.PHONY: build-publish-plugins-all-oci
+build-publish-plugins-all-oci: clean-catalog-cache clean-cli-plugins build-cli publish-plugins-all-oci ## Build and Publish CLI Plugins as OCI image for all supported os-arch
+	
+.PHONY: build-publish-plugins-oci
+build-publish-plugins-oci: clean-catalog-cache clean-cli-plugins build-cli-local publish-plugins-oci ## Build and Publish CLI Plugins as OCI image for current host os-arch only
 
 ## --------------------------------------
 ## manage cli mocks
