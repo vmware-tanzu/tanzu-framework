@@ -573,6 +573,10 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
+	if err = c.validateServiceCIDRNetmask(); err != nil {
+		return NewValidationError(ValidationErrorCode, err.Error())
+	}
+
 	if err = c.ConfigureAndValidateHTTPProxyConfiguration(name); err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
@@ -1601,6 +1605,29 @@ func (c *TkgClient) configureAndValidateIPFamilyConfiguration() error {
 	}
 	if err := c.validateIPHostnameForIPFamily(constants.TKGHTTPSProxy, ipFamily); err != nil {
 		return err
+	}
+	return nil
+}
+
+func (c *TkgClient) validateServiceCIDRNetmask() error {
+	// kube-apiserver requires that the service CIDR be of limited size.
+	// This validation avoids a case where the cluster never comes up when
+	// the CIDR is too large.
+	// https://github.com/kubernetes/kubernetes/blob/3c87c43ceff6122637c8d8070601f7271026360e/cmd/kube-apiserver/app/options/validation.go#L52
+	configVariableName := constants.ConfigVariableServiceCIDR
+	serviceCIDRs, _ := c.TKGConfigReaderWriter().Get(configVariableName)
+	cidrSlice := strings.Split(serviceCIDRs, ",")
+	for _, cidrString := range cidrSlice {
+		_, cidr, err := net.ParseCIDR(cidrString)
+		if err != nil {
+			// This should never happen since CIDRs were already validated before
+			return errors.Errorf("invalid %s \"%s\"", configVariableName, serviceCIDRs)
+		}
+		maxCIDRBits := 20
+		var ones, bits = cidr.Mask.Size()
+		if bits-ones > maxCIDRBits {
+			return errors.Errorf("invalid %s \"%s\", expected netmask to be \"/%d\" or greater", configVariableName, cidrString, bits-maxCIDRBits)
+		}
 	}
 	return nil
 }
