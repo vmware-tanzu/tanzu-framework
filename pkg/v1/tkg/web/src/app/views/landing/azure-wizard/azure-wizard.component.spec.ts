@@ -74,7 +74,7 @@ describe('AzureWizardComponent', () => {
             osImageForm: fb.group({
             })
         });
-        component.clusterTypeDescriptor = ClusterType[ClusterType.Management];
+        component.clusterTypeDescriptor = '' + ClusterType.Management;
         fixture.detectChanges();
     });
 

@@ -7,18 +7,14 @@ export interface CliFields {
     extendCliCmds: Array<{isPrefixOfCreateCmd: boolean, cmdStr: string}>;
 }
 export class CliGenerator {
-    getCli({
-        configPath,
-        clusterType,
-        clusterName,
-        extendCliCmds
-    }) {
-        const clusterPrefix = ClusterType[(clusterType) ? clusterType : ClusterType.Management];
-        const clusterNameArg = (clusterName) ? ` ${clusterName} ` : '';
+    getCli(cliFields: CliFields) {
+        const clusterType = (cliFields.clusterType) ? cliFields.clusterType : ClusterType.Management;
+        const clusterPrefix = '' + clusterType;
+        const clusterNameArg = (cliFields.clusterName) ? ` ${cliFields.clusterName} ` : '';
         let command = `tanzu ${clusterPrefix}-cluster create${clusterNameArg}`;
         const optionsMapping = [
-            ['--file', configPath],
-            ['-v', 6]
+            ['--file', cliFields.configPath],
+            ['-v', '6']
         ];
         optionsMapping.forEach(option => {
             if (option[1] || typeof option[1] === 'boolean') {
@@ -31,7 +27,7 @@ export class CliGenerator {
             }
         })
 
-        const extendCliCmdsArray: Array<{isPrefixOfCreateCmd: boolean, cmdStr: string}> = extendCliCmds;
+        const extendCliCmdsArray: Array<{isPrefixOfCreateCmd: boolean, cmdStr: string}> = cliFields.extendCliCmds;
         extendCliCmdsArray.forEach(item => {
             if (item.isPrefixOfCreateCmd) {
                 command = item.cmdStr + " && " + command;
