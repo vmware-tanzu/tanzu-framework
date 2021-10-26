@@ -1,0 +1,16 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+#@ if data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
+#@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate"})
+---
+spec:
+  template:
+    spec:
+      files:
+      - path: c:\k\prevent_windows_updates.ps1
+        content: |
+          & sc.exe config wuauserv start= disabled
+          & sc.exe stop wuauserv 
+      postKubeadmCommands:
+      - powershell c:/k/prevent_windows_updates.ps1 -ExecutionPolicy Bypass
+#@ end
