@@ -186,7 +186,7 @@ func (c *TkgClient) ValidateDockerResourcePrerequisites() error {
 
 	minimumDockerCPUs := 4
 	if dockerResourceCpus < minimumDockerCPUs {
-		return errors.Errorf("Docker resources have %d CPUs allocated; less than minimum recommended number of 4 CPUs", dockerResourceCpus)
+		return errors.Errorf("Docker resources have %d CPUs allocated; less than minimum recommended number of %d CPUs", dockerResourceCpus, minimumDockerCPUs)
 	}
 
 	if dockerResourceTotalMemory, err = checkDockerResource(totalMemory); err != nil {
@@ -197,7 +197,7 @@ func (c *TkgClient) ValidateDockerResourcePrerequisites() error {
 
 	minimumDockerTotalMem := 6
 	if dockerResourceTotalMemFormatted < minimumDockerTotalMem {
-		return errors.Errorf("Docker resources have %dGB Total Memory allocated; less than minimum recommended number of 6GB Total Memory", dockerResourceTotalMemFormatted)
+		return errors.Errorf("Docker resources have %dGB Total Memory allocated; less than minimum recommended number of %dGB Total Memory", dockerResourceTotalMemFormatted, minimumDockerTotalMem)
 	}
 
 	return nil
