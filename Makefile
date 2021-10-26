@@ -50,7 +50,7 @@ CUSTOM_NPM_REGISTRY ?= $(shell git config tkg.npmregistry)
 
 # TKG Compatibility Image repo and  path related configuration
 ifndef TKG_DEFAULT_IMAGE_REPOSITORY
-TKG_DEFAULT_IMAGE_REPOSITORY = "projects.registry.vmware.com/tkg"
+TKG_DEFAULT_IMAGE_REPOSITORY = "projects.registry.vmware.com/saib"
 endif
 ifndef TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH
 # TODO change it to "tkg-compatibility" once the image is pushed to registry
