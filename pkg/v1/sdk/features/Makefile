@@ -3,7 +3,7 @@
 
 include ../../../../common.mk
 
-IMG_DEFAULT_NAME := featuregates/featuregates-controller-manager
+IMG_DEFAULT_NAME := featuregates-controller-manager
 IMG_DEFAULT_TAG := latest
 IMG_DEFAULT_NAME_TAG := $(IMG_DEFAULT_NAME):$(IMG_DEFAULT_TAG)
 
@@ -76,6 +76,10 @@ docker-publish: ## Publish docker image
 .PHONY: kbld-image-replace
 kbld-image-replace: ## Add newImage in kbld-config.yml
 	cd ../../../../hack/packages/kbld-image-replace && $(MAKE) run IMAGE=$(IMG_DEFAULT_NAME_TAG) NEW_IMAGE=$(IMG)
+
+.PHONY: docker-image-name
+docker-image-name:
+	@echo $(IMG)
 
 .PHONY: docker-build-and-publish
 docker-build-and-publish: docker-build docker-publish kbld-image-replace
