@@ -16,7 +16,8 @@ antrea:
       AntreaProxy: true
       EndpointSlice: false
       AntreaPolicy: true
+      FlowExporter: false
+      Egress: false
       NodePortLocal: false
       AntreaTraceflow: true
-      FlowExporter: false
       NetworkPolicyStats: false

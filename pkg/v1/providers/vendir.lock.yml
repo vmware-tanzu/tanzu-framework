@@ -10,10 +10,10 @@ directories:
   path: ytt/vendir/vsphere_cpi/_ytt_lib
 - contents:
   - git:
-      commitTitle: Add calico 3.19.1 package (#1606)...
-      sha: 9dc64e01bfb67cc128f618a419415c0f73a82cdc
+      commitTitle: 'fix: change cert-manager.io/v1alpha2 to cert-manager.io/v1 (#2411)...'
+      sha: 4886ea2defd2567eb0a8b2453bb10bf265d2842a
       tags:
-      - v0.10.0-dev.1-86-g9dc64e01
+      - v0.10.0-dev.1-158-g4886ea2d
     path: .
   path: ytt/vendir/cni/_ytt_lib
 - contents:
