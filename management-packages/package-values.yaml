@@ -20,3 +20,11 @@ managementPackageRepository:
       kubeAPIBurst: 30
 
   packages:
+    - name: featuregates
+      displayName: featuregates
+      #! Relative path to package bundle
+      path: management-packages/featuregates
+      domain: tanzu.vmware.com
+      version: latest
+      #! Gets replaced with imgpkg sha256 at build, this should be name:version
+      sha256: "featuregates:latest"
