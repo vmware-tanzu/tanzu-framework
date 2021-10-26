@@ -5,27 +5,40 @@ package main
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"fmt"
+	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/MakeNowJust/heredoc"
 	"github.com/stretchr/testify/require"
+
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
+)
+
+const (
+	tanzuCLIBuildVersion = "1.2.3"
+	tanzuCLIBuildSHA     = "abc123"
 )
 
 //nolint:funlen
 func TestLoginOIDCCommand(t *testing.T) {
 	sessionsCacheFilePath := filepath.Join(mustGetConfigDir(), "sessions.yaml")
 	tests := []struct {
-		name            string
-		args            []string
-		execReturnError error
-		wantError       bool
-		wantStdout      string
-		wantStderr      string
-		wantArgs        []string
+		name                 string
+		args                 []string
+		getPinnipedCLICmdErr error
+		execReturnExitCode   int
+		wantError            bool
+		wantStdout           string
+		wantStderr           string
+		wantArgs             []string
 	}{
 		{
 			name:      "missing required flags",
@@ -36,14 +49,45 @@ func TestLoginOIDCCommand(t *testing.T) {
 			`),
 		},
 		{
+			name: "getting pinniped cli cmd fails",
+			args: []string{
+				"--issuer", "test-issuer",
+			},
+			getPinnipedCLICmdErr: errors.New("some construction error"),
+			wantError:            true,
+			wantStderr: Doc(`
+				Error: cannot construct pinniped cli command: some construction error
+			`),
+			wantArgs: []string{
+				"login",
+				"oidc",
+				"--issuer=test-issuer",
+				"--client-id=pinniped-cli",
+				"--listen-port=0",
+				"--skip-browser=false",
+				fmt.Sprintf("--session-cache=%s", sessionsCacheFilePath),
+				"--debug-session-cache=false",
+				"--scopes=offline_access, openid, pinniped:request-audience",
+				"--ca-bundle=",
+				"--ca-bundle-data=",
+				"--request-audience=",
+				"--enable-concierge=false",
+				"--concierge-namespace=pinniped-concierge",
+				"--concierge-authenticator-type=",
+				"--concierge-authenticator-name=",
+				"--concierge-endpoint=",
+				"--concierge-ca-bundle-data=",
+			},
+		},
+		{
 			name: "cli exec returns error from login",
 			args: []string{
 				"--issuer", "test-issuer",
 			},
-			execReturnError: errors.New("pinniped cli exec fake error"),
-			wantError:       true,
+			execReturnExitCode: 88,
+			wantError:          true,
 			wantStderr: Doc(`
-			Error: pinniped-auth login failed: pinniped cli exec fake error
+			Error: pinniped-auth login failed: exit status 88
 			`),
 			wantArgs: []string{
 				"login",
@@ -176,10 +220,16 @@ func TestLoginOIDCCommand(t *testing.T) {
 			var (
 				gotArgs []string
 			)
-			cmd := loginOIDCCommand(func(args []string) error {
+			cmd := loginOIDCCommand(func(args []string, loginOptions *loginOIDCOptions, pluginRoot, buildVersion, buildSHA string) (*exec.Cmd, error) {
 				gotArgs = args
 
-				return test.execReturnError
+				require.Equal(t, cli.DefaultPluginRoot, pluginRoot)
+				require.Equal(t, buildinfo.Version, buildVersion)
+				require.Equal(t, buildinfo.SHA, buildSHA)
+
+				cmd := exec.Command("./testdata/fake-pinniped-cli.sh")
+				cmd.Env = []string{fmt.Sprintf("FAKE_PINNIPED_CLI_EXIT_CODE=%d", test.execReturnExitCode)}
+				return cmd, test.getPinnipedCLICmdErr
 			})
 			require.NotNil(t, cmd)
 
@@ -200,10 +250,153 @@ func TestLoginOIDCCommand(t *testing.T) {
 	}
 }
 
+func TestGetPinnipedCLICmd(t *testing.T) {
+	tests := []struct {
+		name                string
+		isBuildSHADirty     bool
+		loginOptions        *loginOIDCOptions
+		wantError           string
+		wantPinnipedVersion string
+		wantBinary          []byte
+	}{
+		{
+			name:                "0.4.4 cli",
+			loginOptions:        &loginOIDCOptions{conciergeAPIGroupSuffix: "pinniped.dev", conciergeIsClusterScoped: false},
+			wantPinnipedVersion: "v0.4.4",
+			wantBinary:          pinnipedv044Binary,
+		},
+		{
+			name:                "0.4.4 cli with dirty build sha",
+			isBuildSHADirty:     true,
+			loginOptions:        &loginOIDCOptions{conciergeAPIGroupSuffix: "pinniped.dev", conciergeIsClusterScoped: false},
+			wantPinnipedVersion: "v0.4.4",
+			wantBinary:          pinnipedv044Binary,
+		},
+		{
+			name:                "0.12.0 cli",
+			loginOptions:        &loginOIDCOptions{conciergeAPIGroupSuffix: "pinniped.dev", conciergeIsClusterScoped: true},
+			wantPinnipedVersion: "v0.12.0",
+			wantBinary:          pinnipedv0120Binary,
+		},
+		{
+			name:                "0.12.0 with other API group",
+			loginOptions:        &loginOIDCOptions{conciergeAPIGroupSuffix: "tuna.io", conciergeIsClusterScoped: true},
+			wantPinnipedVersion: "v0.12.0",
+			wantBinary:          pinnipedv0120Binary,
+		},
+		{
+			name:         "weird unsupported situation",
+			loginOptions: &loginOIDCOptions{conciergeAPIGroupSuffix: "tuna.io", conciergeIsClusterScoped: false},
+			wantError:    "cannot support non-default API group suffix with namespace-scoped Concierge APIs",
+		},
+	}
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			pluginRoot, err := os.MkdirTemp("", "pinniped-auth-get-pinniped-cli-cmd-test-*")
+			require.NoError(t, err)
+			defer require.NoError(t, os.RemoveAll(pluginRoot))
+
+			buildSHA := tanzuCLIBuildSHA
+			wantBuildSHA := tanzuCLIBuildSHA
+			if test.isBuildSHADirty {
+				buildSHA = buildSHA + "-dirty"
+			}
+
+			wantPathBasename := fmt.Sprintf("tanzu-pinniped-%s-client-%s-%s", test.wantPinnipedVersion, tanzuCLIBuildVersion, wantBuildSHA)
+			wantPath := filepath.Join(pluginRoot, "tanzu-pinniped-go-client", wantPathBasename)
+			wantArgs := []string{"some", "args", "here"}
+
+			cmd, err := getPinnipedCLICmd(wantArgs, test.loginOptions, pluginRoot, tanzuCLIBuildVersion, buildSHA)
+			if test.wantError != "" {
+				require.EqualError(t, err, test.wantError)
+				return
+			}
+			require.NoError(t, err)
+
+			require.Equal(t, wantPath, cmd.Path)
+			require.FileExists(t, cmd.Path)
+			requireFileContents(t, cmd.Path, test.wantBinary)
+			require.Equal(t, append([]string{cmd.Path}, wantArgs...), cmd.Args)
+			require.Equal(t, os.Stdout, cmd.Stdout)
+			require.Equal(t, os.Stderr, cmd.Stderr)
+			require.Equal(t, os.Stdin, cmd.Stdin)
+			require.Empty(t, cmd.Env)
+			require.Empty(t, cmd.Dir)
+		})
+	}
+}
+
+// TestGetPinnipedCLICmdMultipleUsage validates that the pinniped CLI binary logic works when used
+// multiple times with the same plugin root.
+func TestGetPinnipedCLICmdMultipleUsage(t *testing.T) {
+	pluginRoot, err := os.MkdirTemp("", "pinniped-auth-get-pinniped-cli-cmd-test-*")
+	require.NoError(t, err)
+	defer require.NoError(t, os.RemoveAll(pluginRoot))
+
+	steps := []struct {
+		loginOptions        *loginOIDCOptions
+		wantPinnipedVersion string
+		wantBinary          []byte
+	}{
+		{
+			loginOptions:        &loginOIDCOptions{conciergeAPIGroupSuffix: "pinniped.dev", conciergeIsClusterScoped: false},
+			wantPinnipedVersion: "v0.4.4",
+			wantBinary:          pinnipedv044Binary,
+		},
+		{
+			loginOptions:        &loginOIDCOptions{conciergeAPIGroupSuffix: "pinniped.dev", conciergeIsClusterScoped: true},
+			wantPinnipedVersion: "v0.12.0",
+			wantBinary:          pinnipedv0120Binary,
+		},
+		{
+			loginOptions:        &loginOIDCOptions{conciergeAPIGroupSuffix: "pinniped.dev", conciergeIsClusterScoped: false},
+			wantPinnipedVersion: "v0.4.4",
+			wantBinary:          pinnipedv044Binary,
+		},
+		{
+			loginOptions:        &loginOIDCOptions{conciergeAPIGroupSuffix: "tuna.io", conciergeIsClusterScoped: true},
+			wantPinnipedVersion: "v0.12.0",
+			wantBinary:          pinnipedv0120Binary,
+		},
+	}
+	for _, step := range steps {
+		wantPathBasename := fmt.Sprintf("tanzu-pinniped-%s-client-%s-%s", step.wantPinnipedVersion, tanzuCLIBuildVersion, tanzuCLIBuildSHA)
+		wantPath := filepath.Join(pluginRoot, "tanzu-pinniped-go-client", wantPathBasename)
+
+		cmd, err := getPinnipedCLICmd([]string{}, step.loginOptions, pluginRoot, tanzuCLIBuildVersion, tanzuCLIBuildSHA)
+		require.NoError(t, err)
+		require.Equal(t, wantPath, cmd.Path)
+		require.FileExists(t, cmd.Path)
+		requireFileContents(t, cmd.Path, step.wantBinary)
+	}
+}
+
 func Doc(s string) string {
 	const (
 		tab       = "\t"
 		twoSpaces = "  "
 	)
 	return strings.ReplaceAll(heredoc.Doc(s), tab, twoSpaces)
+}
+
+func requireFileContents(t *testing.T, path string, wantContents []byte) {
+	t.Helper()
+
+	gotContents, err := os.ReadFile(path)
+	require.NoError(t, err)
+
+	// These binary files can be really large (~50M), so comparing them via digest will speed up the
+	// tests considerably.
+	hash := sha256.New()
+
+	hash.Reset()
+	hash.Write(wantContents)
+	wantDigest := hash.Sum(nil)
+
+	hash.Reset()
+	hash.Write(gotContents)
+	gotDigest := hash.Sum(nil)
+
+	require.Equalf(t, hex.EncodeToString(wantDigest[:]), hex.EncodeToString(gotDigest[:]), "path %q does not have expected contents", path)
 }

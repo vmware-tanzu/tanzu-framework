@@ -13,6 +13,7 @@ import (
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
 
 func Test_ContextCatalog_With_Empty_Context(t *testing.T) {
@@ -187,7 +188,7 @@ func sortarray(pds []cliv1alpha1.PluginDescriptor) {
 // the featuregate is configured to true by default
 func Test_CatalogCacheFileName(t *testing.T) {
 	assert := assert.New(t)
-	if common.IsContextAwareDiscoveryEnabled {
+	if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
 		assert.Equal(catalogCacheFileName, "catalog.yaml")
 	}
 }

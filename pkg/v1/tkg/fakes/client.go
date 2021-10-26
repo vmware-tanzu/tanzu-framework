@@ -587,6 +587,16 @@ type Client struct {
 	upgradeManagementClusterReturnsOnCall map[int]struct {
 		result1 error
 	}
+	ValidateDockerResourcePrerequisitesStub        func() error
+	validateDockerResourcePrerequisitesMutex       sync.RWMutex
+	validateDockerResourcePrerequisitesArgsForCall []struct {
+	}
+	validateDockerResourcePrerequisitesReturns struct {
+		result1 error
+	}
+	validateDockerResourcePrerequisitesReturnsOnCall map[int]struct {
+		result1 error
+	}
 	ValidatePrerequisitesStub        func(bool, bool) error
 	validatePrerequisitesMutex       sync.RWMutex
 	validatePrerequisitesArgsForCall []struct {
@@ -3506,6 +3516,59 @@ func (fake *Client) UpgradeManagementClusterReturnsOnCall(i int, result1 error) 
 	}{result1}
 }
 
+func (fake *Client) ValidateDockerResourcePrerequisites() error {
+	fake.validateDockerResourcePrerequisitesMutex.Lock()
+	ret, specificReturn := fake.validateDockerResourcePrerequisitesReturnsOnCall[len(fake.validateDockerResourcePrerequisitesArgsForCall)]
+	fake.validateDockerResourcePrerequisitesArgsForCall = append(fake.validateDockerResourcePrerequisitesArgsForCall, struct {
+	}{})
+	stub := fake.ValidateDockerResourcePrerequisitesStub
+	fakeReturns := fake.validateDockerResourcePrerequisitesReturns
+	fake.recordInvocation("ValidateDockerResourcePrerequisites", []interface{}{})
+	fake.validateDockerResourcePrerequisitesMutex.Unlock()
+	if stub != nil {
+		return stub()
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *Client) ValidateDockerResourcePrerequisitesCallCount() int {
+	fake.validateDockerResourcePrerequisitesMutex.RLock()
+	defer fake.validateDockerResourcePrerequisitesMutex.RUnlock()
+	return len(fake.validateDockerResourcePrerequisitesArgsForCall)
+}
+
+func (fake *Client) ValidateDockerResourcePrerequisitesCalls(stub func() error) {
+	fake.validateDockerResourcePrerequisitesMutex.Lock()
+	defer fake.validateDockerResourcePrerequisitesMutex.Unlock()
+	fake.ValidateDockerResourcePrerequisitesStub = stub
+}
+
+func (fake *Client) ValidateDockerResourcePrerequisitesReturns(result1 error) {
+	fake.validateDockerResourcePrerequisitesMutex.Lock()
+	defer fake.validateDockerResourcePrerequisitesMutex.Unlock()
+	fake.ValidateDockerResourcePrerequisitesStub = nil
+	fake.validateDockerResourcePrerequisitesReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *Client) ValidateDockerResourcePrerequisitesReturnsOnCall(i int, result1 error) {
+	fake.validateDockerResourcePrerequisitesMutex.Lock()
+	defer fake.validateDockerResourcePrerequisitesMutex.Unlock()
+	fake.ValidateDockerResourcePrerequisitesStub = nil
+	if fake.validateDockerResourcePrerequisitesReturnsOnCall == nil {
+		fake.validateDockerResourcePrerequisitesReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.validateDockerResourcePrerequisitesReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
 func (fake *Client) ValidatePrerequisites(arg1 bool, arg2 bool) error {
 	fake.validatePrerequisitesMutex.Lock()
 	ret, specificReturn := fake.validatePrerequisitesReturnsOnCall[len(fake.validatePrerequisitesArgsForCall)]
@@ -3731,6 +3794,8 @@ func (fake *Client) Invocations() map[string][][]interface{} {
 	defer fake.upgradeClusterMutex.RUnlock()
 	fake.upgradeManagementClusterMutex.RLock()
 	defer fake.upgradeManagementClusterMutex.RUnlock()
+	fake.validateDockerResourcePrerequisitesMutex.RLock()
+	defer fake.validateDockerResourcePrerequisitesMutex.RUnlock()
 	fake.validatePrerequisitesMutex.RLock()
 	defer fake.validatePrerequisitesMutex.RUnlock()
 	fake.verifyRegionMutex.RLock()

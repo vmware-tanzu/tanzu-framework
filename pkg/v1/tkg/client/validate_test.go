@@ -871,3 +871,44 @@ var _ = Describe("Validate", func() {
 		})
 	})
 })
+
+var _ = Describe("Cluster Name Validation", func() {
+	var (
+		infrastructureProvider string
+		err                    error
+	)
+	Context("Azure Cluster", func() {
+		BeforeEach(func() {
+			infrastructureProvider = "azure"
+		})
+		When("cluster name starts with lowercase alpha and is less than 45 characters", func() {
+			It("should validate successfully", func() {
+				err = client.CheckClusterNameFormat("azure-test-cluster", infrastructureProvider)
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+		When("cluster name does not start with lowercase alpha and is more than 44 characters", func() {
+			It("should throw an error", func() {
+				err = client.CheckClusterNameFormat("1-azure-test-cluster-with-a-really-long-name-that-is-excessive", infrastructureProvider)
+				Expect(err).To(HaveOccurred())
+			})
+		})
+	})
+	Context("AWS/vSphere Cluster", func() {
+		BeforeEach(func() {
+			infrastructureProvider = "aws"
+		})
+		When("cluster name starts with lowercase alphanumeric and is less than 64 characters", func() {
+			It("should validate successfully", func() {
+				err = client.CheckClusterNameFormat("1aws-test-cluster", infrastructureProvider)
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+		When("cluster name does not start with lowercase alphanumeric and is more than 63 characters", func() {
+			It("should throw an error", func() {
+				err = client.CheckClusterNameFormat("-aws-test-cluster-with-a-really-long-name-that-is-excessive-and-still-needs-to-be-longer", infrastructureProvider)
+				Expect(err).To(HaveOccurred())
+			})
+		})
+	})
+})

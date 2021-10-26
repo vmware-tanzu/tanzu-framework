@@ -233,7 +233,8 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         const cliParams: CliFields = {
             configPath: configPath,
             clusterType: this.clusterType,
-            clusterName: this.getMCName()
+            clusterName: this.getMCName(),
+            extendCliCmds: []
         };
         return cliG.getCli(cliParams);
     }

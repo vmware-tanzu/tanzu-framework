@@ -95,6 +95,9 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         .pipe(takeUntil(this.unsubscribe))
         .subscribe((instanceTypes: AzureInstanceType[]) => {
             this.nodeTypes = instanceTypes.sort();
+            if (this.clusterType !== 'standalone' && this.nodeTypes.length === 1) {
+                this.formGroup.get('workerNodeInstanceType').setValue(this.nodeTypes[0].name);
+            }
         });
 
         if (this.edition !== AppEdition.TKG) {
@@ -123,6 +126,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         this.formGroup.get('devInstanceType').setValidators([
             Validators.required
         ]);
+        this.formGroup.controls['devInstanceType'].setValue(this.nodeTypes.length === 1 ? this.nodeTypes[0].name : '');
         this.formGroup.controls['prodInstanceType'].clearValidators();
         this.formGroup.controls['prodInstanceType'].setValue('');
         this.formGroup.get('devInstanceType').updateValueAndValidity();
@@ -134,6 +138,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         this.formGroup.controls['prodInstanceType'].setValidators([
             Validators.required
         ]);
+        this.formGroup.controls['prodInstanceType'].setValue(this.nodeTypes.length === 1 ? this.nodeTypes[0].name : '');
         this.formGroup.get('devInstanceType').clearValidators();
         this.formGroup.controls['devInstanceType'].setValue('');
         this.formGroup.get('devInstanceType').updateValueAndValidity();

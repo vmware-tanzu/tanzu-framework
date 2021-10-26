@@ -113,7 +113,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
             } else if (this.getFieldValue('identityForm', 'identityType') === 'ldap' &&
                 this.getFieldValue('identityForm', 'endpointIp')) {
                 return 'LDAP configured: ' + this.getFieldValue('identityForm', 'endpointIp') + ':' +
-                this.getFieldValue('identityForm', 'endpointPort');
+                    this.getFieldValue('identityForm', 'endpointPort');
             } else {
                 return 'Specify identity management'
             }
@@ -165,9 +165,9 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
                     this.getFieldValue('awsNodeSettingForm', 'workerNodeInstanceType1') : payload.controlPlaneNodeType,
                 publicNodeCidr: (this.getFieldValue('vpcForm', 'vpcType') === 'new') ?
                     this.getFieldValue('vpcForm', 'publicNodeCidr') : '',
-                privateNodeCidr:  (this.getFieldValue('vpcForm', 'vpcType') === 'new') ?
+                privateNodeCidr: (this.getFieldValue('vpcForm', 'vpcType') === 'new') ?
                     this.getFieldValue('vpcForm', 'privateNodeCidr') : '',
-                publicSubnetID:  (this.getFieldValue('vpcForm', 'vpcType') === 'existing') ?
+                publicSubnetID: (this.getFieldValue('vpcForm', 'vpcType') === 'existing') ?
                     this.getFieldValue('awsNodeSettingForm', 'vpcPublicSubnet1') : '',
                 privateSubnetID: (this.getFieldValue('vpcForm', 'vpcType') === 'existing') ?
                     this.getFieldValue('awsNodeSettingForm', 'vpcPrivateSubnet1') : ''
@@ -181,9 +181,9 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
                     this.getFieldValue('awsNodeSettingForm', 'workerNodeInstanceType2') : payload.controlPlaneNodeType,
                 publicNodeCidr: (this.getFieldValue('vpcForm', 'vpcType') === 'new') ?
                     this.getFieldValue('vpcForm', 'publicNodeCidr') : '',
-                privateNodeCidr:  (this.getFieldValue('vpcForm', 'vpcType') === 'new') ?
+                privateNodeCidr: (this.getFieldValue('vpcForm', 'vpcType') === 'new') ?
                     this.getFieldValue('vpcForm', 'privateNodeCidr') : '',
-                publicSubnetID:  (this.getFieldValue('vpcForm', 'vpcType') === 'existing') ?
+                publicSubnetID: (this.getFieldValue('vpcForm', 'vpcType') === 'existing') ?
                     this.getFieldValue('awsNodeSettingForm', 'vpcPublicSubnet2') : '',
                 privateSubnetID: (this.getFieldValue('vpcForm', 'vpcType') === 'existing') ?
                     this.getFieldValue('awsNodeSettingForm', 'vpcPrivateSubnet2') : ''
@@ -197,9 +197,9 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
                     this.getFieldValue('awsNodeSettingForm', 'workerNodeInstanceType3') : payload.controlPlaneNodeType,
                 publicNodeCidr: (this.getFieldValue('vpcForm', 'vpcType') === 'new') ?
                     this.getFieldValue('vpcForm', 'publicNodeCidr') : '',
-                privateNodeCidr:  (this.getFieldValue('vpcForm', 'vpcType') === 'new') ?
+                privateNodeCidr: (this.getFieldValue('vpcForm', 'vpcType') === 'new') ?
                     this.getFieldValue('vpcForm', 'privateNodeCidr') : '',
-                publicSubnetID:  (this.getFieldValue('vpcForm', 'vpcType') === 'existing') ?
+                publicSubnetID: (this.getFieldValue('vpcForm', 'vpcType') === 'existing') ?
                     this.getFieldValue('awsNodeSettingForm', 'vpcPublicSubnet3') : '',
                 privateSubnetID: (this.getFieldValue('vpcForm', 'vpcType') === 'existing') ?
                     this.getFieldValue('awsNodeSettingForm', 'vpcPrivateSubnet3') : ''
@@ -223,6 +223,21 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
     }
 
     /**
+     * @method getExtendCliCmds to return cli command string according to special selection
+     * For AWS, selects Create Cloudformation Stack,
+     * should include tanzu management-cluster permissions aws set
+     * @returns the array includes cli command object like {isPrefixOfCreateCmd: true, cmdStr: "tanzu ..."}
+     */
+    getExtendCliCmds(): Array<{ isPrefixOfCreateCmd: boolean, cmdStr: string }> {
+        if (this.getFieldValue('awsNodeSettingForm', 'createCloudFormation')) {
+            const clusterPrefix = (this.clusterType) ? this.clusterType : 'management';
+            const command = `tanzu ${clusterPrefix}-cluster permissions aws set`;
+            return [{ isPrefixOfCreateCmd: true, cmdStr: command }]
+        }
+        return []
+    }
+
+    /**
      * Get the CLI used to deploy the management/standalone cluster
      */
     getCli(configPath: string): string {
@@ -230,7 +245,8 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         const cliParams: CliFields = {
             configPath: configPath,
             clusterType: this.clusterType,
-            clusterName: this.getMCName()
+            clusterName: this.getMCName(),
+            extendCliCmds: this.getExtendCliCmds()
         };
         return cliG.getCli(cliParams);
     }

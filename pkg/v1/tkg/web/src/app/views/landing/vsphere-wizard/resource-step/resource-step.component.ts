@@ -1,7 +1,7 @@
 /**
  * Angular Modules
  */
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {
     Validators,
     FormControl
@@ -102,6 +102,15 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
                 this.errorNotification = errors.filter(error => error).join(" ")
             });
 
+        /**
+         * Whenever data center selection changes, reset the relevant fields
+        */
+        Broker.messenger.getSubject(TkgEventType.DATACENTER_CHANGED)
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe(event => {
+                this.resetFieldsUponDCChange();
+            });
+
         DataSources.forEach(source => {
             this.wizardFormService.getDataStream(source)
                 .pipe(takeUntil(this.unsubscribe))
@@ -116,23 +125,16 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
                     }
                     if (source === TkgEventType.GET_VM_FOLDERS) {
                         this.resurrectField('vmFolder',
-                            [Validators.required, this.validationService.isValidNameInList(data.map(vmFolder => vmFolder.name))]);
+                            [Validators.required, this.validationService.isValidNameInList(
+                                data.map(vmFolder => vmFolder.name))], data.length === 1 ? data[0].name : '');
                     }
                     if (source === TkgEventType.GET_DATA_STORES) {
                         this.resurrectField('datastore',
-                            [Validators.required, this.validationService.isValidNameInList(data.map(vmFolder => vmFolder.name))]);
+                            [Validators.required, this.validationService.isValidNameInList(
+                                data.map(vmFolder => vmFolder.name))], data.length === 1 ? data[0].name : '');
                     }
                 });
         });
-
-        /**
-         * Whenever data center selection changes, reset the relevant fields
-        */
-        Broker.messenger.getSubject(TkgEventType.DATACENTER_CHANGED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(event => {
-                this.resetFieldsUponDCChange();
-            })
     }
 
     setSavedDataAfterLoad() {
