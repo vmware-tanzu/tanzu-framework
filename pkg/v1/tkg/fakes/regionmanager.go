@@ -87,16 +87,15 @@ func (fake *RegionManager) DeleteRegionContext(arg1 string) error {
 	fake.deleteRegionContextArgsForCall = append(fake.deleteRegionContextArgsForCall, struct {
 		arg1 string
 	}{arg1})
-	stub := fake.DeleteRegionContextStub
-	fakeReturns := fake.deleteRegionContextReturns
 	fake.recordInvocation("DeleteRegionContext", []interface{}{arg1})
 	fake.deleteRegionContextMutex.Unlock()
-	if stub != nil {
-		return stub(arg1)
+	if fake.DeleteRegionContextStub != nil {
+		return fake.DeleteRegionContextStub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
+	fakeReturns := fake.deleteRegionContextReturns
 	return fakeReturns.result1
 }
 
@@ -147,16 +146,15 @@ func (fake *RegionManager) GetCurrentContext() (region.RegionContext, error) {
 	ret, specificReturn := fake.getCurrentContextReturnsOnCall[len(fake.getCurrentContextArgsForCall)]
 	fake.getCurrentContextArgsForCall = append(fake.getCurrentContextArgsForCall, struct {
 	}{})
-	stub := fake.GetCurrentContextStub
-	fakeReturns := fake.getCurrentContextReturns
 	fake.recordInvocation("GetCurrentContext", []interface{}{})
 	fake.getCurrentContextMutex.Unlock()
-	if stub != nil {
-		return stub()
+	if fake.GetCurrentContextStub != nil {
+		return fake.GetCurrentContextStub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
+	fakeReturns := fake.getCurrentContextReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -203,16 +201,15 @@ func (fake *RegionManager) ListRegionContexts() ([]region.RegionContext, error) 
 	ret, specificReturn := fake.listRegionContextsReturnsOnCall[len(fake.listRegionContextsArgsForCall)]
 	fake.listRegionContextsArgsForCall = append(fake.listRegionContextsArgsForCall, struct {
 	}{})
-	stub := fake.ListRegionContextsStub
-	fakeReturns := fake.listRegionContextsReturns
 	fake.recordInvocation("ListRegionContexts", []interface{}{})
 	fake.listRegionContextsMutex.Unlock()
-	if stub != nil {
-		return stub()
+	if fake.ListRegionContextsStub != nil {
+		return fake.ListRegionContextsStub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
+	fakeReturns := fake.listRegionContextsReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -260,16 +257,15 @@ func (fake *RegionManager) SaveRegionContext(arg1 region.RegionContext) error {
 	fake.saveRegionContextArgsForCall = append(fake.saveRegionContextArgsForCall, struct {
 		arg1 region.RegionContext
 	}{arg1})
-	stub := fake.SaveRegionContextStub
-	fakeReturns := fake.saveRegionContextReturns
 	fake.recordInvocation("SaveRegionContext", []interface{}{arg1})
 	fake.saveRegionContextMutex.Unlock()
-	if stub != nil {
-		return stub(arg1)
+	if fake.SaveRegionContextStub != nil {
+		return fake.SaveRegionContextStub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
+	fakeReturns := fake.saveRegionContextReturns
 	return fakeReturns.result1
 }
 
@@ -322,16 +318,15 @@ func (fake *RegionManager) SetCurrentContext(arg1 string, arg2 string) error {
 		arg1 string
 		arg2 string
 	}{arg1, arg2})
-	stub := fake.SetCurrentContextStub
-	fakeReturns := fake.setCurrentContextReturns
 	fake.recordInvocation("SetCurrentContext", []interface{}{arg1, arg2})
 	fake.setCurrentContextMutex.Unlock()
-	if stub != nil {
-		return stub(arg1, arg2)
+	if fake.SetCurrentContextStub != nil {
+		return fake.SetCurrentContextStub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1
 	}
+	fakeReturns := fake.setCurrentContextReturns
 	return fakeReturns.result1
 }
 
@@ -383,16 +378,15 @@ func (fake *RegionManager) UpsertRegionContext(arg1 region.RegionContext) error 
 	fake.upsertRegionContextArgsForCall = append(fake.upsertRegionContextArgsForCall, struct {
 		arg1 region.RegionContext
 	}{arg1})
-	stub := fake.UpsertRegionContextStub
-	fakeReturns := fake.upsertRegionContextReturns
 	fake.recordInvocation("UpsertRegionContext", []interface{}{arg1})
 	fake.upsertRegionContextMutex.Unlock()
-	if stub != nil {
-		return stub(arg1)
+	if fake.UpsertRegionContextStub != nil {
+		return fake.UpsertRegionContextStub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
+	fakeReturns := fake.upsertRegionContextReturns
 	return fakeReturns.result1
 }
 

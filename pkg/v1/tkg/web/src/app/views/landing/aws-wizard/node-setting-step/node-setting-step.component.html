@@ -56,7 +56,7 @@
                         <div class="clr-col-lg-7 clr-col-12">
                             <clr-datalist-container>
                                 <!-- Add a invisible label to avoid accessibility issue -->
-                                <label style="display: none;">prod instance type</label>
+                                <label style="display: none;">dev instance type</label>
                                 <input clrDatalistInput name="devInstanceType" formControlName="devInstanceType" role="listbox" aria-label="development instance type" autocomplete="off"/>
                                 <datalist id="devInstanceType">
                                     <option *ngFor="let nodeType of nodeTypes" [value]="nodeType"></option>

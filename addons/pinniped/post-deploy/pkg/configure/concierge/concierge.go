@@ -6,18 +6,19 @@ package concierge
 
 import (
 	"context"
-
-	"go.uber.org/zap"
+	"fmt"
 
 	authv1alpha1 "go.pinniped.dev/generated/1.19/apis/concierge/authentication/v1alpha1"
-	conciergeclientset "go.pinniped.dev/generated/1.19/client/concierge/clientset/versioned"
+	"go.uber.org/zap"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/pinnipedclientset"
 )
 
 // Configurator contains concierge client information.
 type Configurator struct {
-	Clientset conciergeclientset.Interface
+	Clientset pinnipedclientset.Concierge
 }
 
 // CreateOrUpdateJWTAuthenticator creates a new JWT or updates an existing one.
@@ -28,7 +29,7 @@ func (c Configurator) CreateOrUpdateJWTAuthenticator(ctx context.Context, namesp
 		if errors.IsNotFound(err) {
 			// create if not found
 			zap.S().Infof("Creating the JWTAuthenticator %s/%s", namespace, name)
-			newFederationDomain := &authv1alpha1.JWTAuthenticator{
+			newJWTAuthenticator := &authv1alpha1.JWTAuthenticator{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      name,
 					Namespace: namespace,
@@ -41,7 +42,8 @@ func (c Configurator) CreateOrUpdateJWTAuthenticator(ctx context.Context, namesp
 					},
 				},
 			}
-			if _, err = c.Clientset.AuthenticationV1alpha1().JWTAuthenticators(namespace).Create(ctx, newFederationDomain, metav1.CreateOptions{}); err != nil {
+			if _, err = c.Clientset.AuthenticationV1alpha1().JWTAuthenticators(namespace).Create(ctx, newJWTAuthenticator, metav1.CreateOptions{}); err != nil {
+				err = fmt.Errorf("could not create jwtauthenticator %s: %w", name, err)
 				zap.S().Error(err)
 				return err
 			}
@@ -49,6 +51,7 @@ func (c Configurator) CreateOrUpdateJWTAuthenticator(ctx context.Context, namesp
 			zap.S().Infof("Created the JWTAuthenticator %s/%s", namespace, name)
 			return nil
 		}
+		err = fmt.Errorf("could not get jwtauthenticator %s: %w", name, err)
 		zap.S().Error(err)
 		return err
 	}
@@ -62,6 +65,7 @@ func (c Configurator) CreateOrUpdateJWTAuthenticator(ctx context.Context, namesp
 		CertificateAuthorityData: caData,
 	}
 	if _, err = c.Clientset.AuthenticationV1alpha1().JWTAuthenticators(namespace).Update(ctx, copiedJwtAuthenticator, metav1.UpdateOptions{}); err != nil {
+		err = fmt.Errorf("could not update jwtauthenticator %s: %w", name, err)
 		zap.S().Error(err)
 		return err
 	}

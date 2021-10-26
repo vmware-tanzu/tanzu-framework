@@ -12,6 +12,7 @@ labels: needs-triage, kind/bug
 - [ ] Addons
 - [ ] CLI
 - [ ] Docs
+- [ ] IAM
 - [ ] Installation
 - [ ] Plugin
 - [ ] Security

@@ -1,0 +1,41 @@
+apiVersion: run.tanzu.vmware.com/v1alpha2
+kind: TanzuKubernetesCluster
+metadata:
+  name: ${CLUSTER_NAME}
+  namespace: ${NAMESPACE}
+  labels:
+    tkg.tanzu.vmware.com/cluster-name: '${ CLUSTER_NAME }'
+spec:
+  settings:
+    network:
+      cni:
+        name: calico
+      pods:
+        cidrBlocks:
+        - ${CLUSTER_CIDR} #! CIDR block used by Calico
+      serviceDomain: ${SERVICE_DOMAIN}
+      services:
+        cidrBlocks:
+        - ${SERVICE_CIDR} #! CIDR block used by Calico
+    storage:
+      classes: []
+      defaultClass: "${DEFAULT_STORAGE_CLASS}"
+
+  topology:
+    controlPlane:
+      vmClass: ${CONTROL_PLANE_VM_CLASS}
+      replicas: ${CONTROL_PLANE_MACHINE_COUNT}
+      storageClass: ${CONTROL_PLANE_STORAGE_CLASS}
+      tkr:
+        reference:
+          name: ${KUBERNETES_RELEASE}
+    nodePools:
+    - name: ${NODE_POOL_0_NAME}
+      labels: {}
+      taints: []
+      vmClass: ${WORKER_VM_CLASS}
+      replicas: ${WORKER_MACHINE_COUNT}
+      storageClass: ${WORKER_STORAGE_CLASS}
+      tkr:
+        reference:
+          name: ${KUBERNETES_RELEASE}

@@ -266,6 +266,13 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         return this.apiClient.applyTKGConfigForAzure({ params: this.getPayload() });
     }
 
+    /**
+     * Retrieve the config file from the backend and return as a string
+     */
+    retrieveExportFile() {
+        return this.apiClient.exportTKGConfigForAzure({ params: this.getPayload() });
+    }
+
     getAdditionalNoProxyInfo() {
         const vnetCidr = this.getFieldValue('vpcForm', 'vnetCidrBlock');
         return (vnetCidr ? vnetCidr + ',' : '')  + '169.254.0.0/16,168.63.129.16';

@@ -337,14 +337,29 @@ func (c *client) IsCustomRepositorySkipTLSVerify() bool {
 	return false
 }
 
-func (c *client) GetCustomRepositoryCaCertificate() ([]byte, error) {
-	value, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableCustomImageRepositoryCaCertificate)
-	if err != nil {
-		// return empty content when not specified
+// GetCustomRepositoryCaCertificateForClient returns CA certificate to use with cli client
+// This function reads the CA certificate from following variables in decreasing order of precedence:
+// 1. PROXY_CA_CERT
+// 2. TKG_PROXY_CA_CERT
+// 3. TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
+func (c *client) GetCustomRepositoryCaCertificateForClient() ([]byte, error) {
+	caCert := ""
+	proxyCACertValue, errProxyCACert := c.TKGConfigReaderWriter().Get(constants.ProxyCACert)
+	tkgProxyCACertValue, errTkgProxyCACertValue := c.TKGConfigReaderWriter().Get(constants.TKGProxyCACert)
+	customImageRepoCACert, errCustomImageRepoCACert := c.TKGConfigReaderWriter().Get(constants.ConfigVariableCustomImageRepositoryCaCertificate)
+
+	if errProxyCACert == nil && proxyCACertValue != "" {
+		caCert = proxyCACertValue
+	} else if errTkgProxyCACertValue == nil && tkgProxyCACertValue != "" {
+		caCert = tkgProxyCACertValue
+	} else if errCustomImageRepoCACert == nil && customImageRepoCACert != "" {
+		caCert = customImageRepoCACert
+	} else {
+		// return empty content when none is specified
 		return []byte{}, nil
 	}
 
-	decoded, err := base64.StdEncoding.DecodeString(value)
+	decoded, err := base64.StdEncoding.DecodeString(caCert)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to decode the base64-encoded custom registry CA certificate string")
 	}
@@ -536,17 +551,13 @@ func (c *client) InitBOMRegistry() (registry.Registry, error) {
 		}
 	}
 
-	customImageRepoCACertEnv, err := c.tkgConfigReaderWriter.Get(constants.ConfigVariableCustomImageRepositoryCaCertificate)
-	if err == nil && customImageRepoCACertEnv != "" {
+	caCertBytes, err := c.GetCustomRepositoryCaCertificateForClient()
+	if err == nil && len(caCertBytes) != 0 {
 		filePath, err := tkgconfigpaths.GetRegistryCertFile()
 		if err != nil {
 			return nil, err
 		}
-		decoded, err := base64.StdEncoding.DecodeString(customImageRepoCACertEnv)
-		if err != nil {
-			return nil, errors.Wrap(err, "unable to decode the base64-encoded custom registry CA certificate string")
-		}
-		err = os.WriteFile(filePath, decoded, 0o644)
+		err = os.WriteFile(filePath, caCertBytes, 0o644)
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to write the custom image registry CA cert to file '%s'", filePath)
 		}

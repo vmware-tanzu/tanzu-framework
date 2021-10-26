@@ -150,7 +150,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         );
         this.formGroup.addControl(
             'createCloudFormation',
-            new FormControl(false, [])
+            new FormControl(true, [])
         );
     }
 
@@ -265,21 +265,21 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 if (this.nodeType === 'dev') {
                     this.resurrectField('devInstanceType',
                         [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
-                        this.formGroup.get('devInstanceType').value);
+                        this.nodeTypes.length === 1 ? this.nodeTypes[0] : this.formGroup.get('devInstanceType').value);
                 } else {
                     this.resurrectField('prodInstanceType',
                         [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
-                        this.formGroup.get('prodInstanceType').value);
+                        this.nodeTypes.length === 1 ? this.nodeTypes[0] : this.formGroup.get('prodInstanceType').value);
                 }
             });
 
-        AZS.forEach(az => {
+        AZS.forEach((az, index) => {
             this.formGroup.get(az).valueChanges
                 .pipe(
                     takeUntil(this.unsubscribe)
                 ).subscribe((val) => {
                     this.filterSubnets(az, val);
-                    this.updateWorkerNodeInstanceTypes(az, val);
+                    this.updateWorkerNodeInstanceTypes(az, val, index);
                 });
         });
 
@@ -289,21 +289,25 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 const prodFields = ['awsNodeAz2', 'awsNodeAz3', 'workerNodeInstanceType2', 'workerNodeInstanceType3', 'prodInstanceType'];
 
                 prodFields.forEach(attr => this.disarmField(attr, true));
+                if (this.nodeAzs && this.nodeAzs.length === 1) {
+                    this.formGroup.get('awsNodeAz1').setValue(this.nodeAzs[0].name);
+                }
 
                 if (this.clusterType !== 'standalone') {
-                    this.resurrectField('workerNodeInstanceType1', [Validators.required]);
+                    this.resurrectField('workerNodeInstanceType1', [Validators.required],
+                        this.azNodeTypes.awsNodeAz1.length === 1 ? this.azNodeTypes.awsNodeAz1[0] : '');
                 }
 
                 this.resurrectField('devInstanceType',
                     [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
-                    this.formGroup.get('devInstanceType').value);
+                    this.nodeTypes.length === 1 ? this.nodeTypes[0] : this.formGroup.get('devInstanceType').value);
             } else if (data === 'prod') {
                 this.nodeType = 'prod';
 
                 this.disarmField('devInstanceType', true);
                 this.resurrectField('prodInstanceType',
                     [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
-                    this.formGroup.get('prodInstanceType').value);
+                    this.nodeTypes.length === 1 ? this.nodeTypes[0] : this.formGroup.get('prodInstanceType').value);
                 const azNew = [...AZS];
                 for (let i = 0; i < AZS.length; i++) {
                     swap(azNew, i, 0);
@@ -336,14 +340,15 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     setSavedDataAfterLoad() {
-        const resetFields = [
-            'devInstanceType',
-            'prodInstanceType'
-        ];
-
         this.cardClick(this.getSavedValue('devInstanceType', '') === '' ? 'prod' : 'dev');
         super.setSavedDataAfterLoad();
-        resetFields.forEach(field => this.formGroup.get(field).setValue(''));
+        if (this.getSavedValue('devInstanceType', '') === '') { // prod
+            this.formGroup.get('devInstanceType').setValue('');
+            this.formGroup.get('prodInstanceType').setValue(this.nodeTypes.length === 1 ? this.nodeTypes[0] : '');
+        } else {
+            this.formGroup.get('devInstanceType').setValue(this.nodeTypes.length === 1 ? this.nodeTypes[0] : '');
+            this.formGroup.get('prodInstanceType').setValue('');
+        }
     }
 
     get devInstanceTypeValue() {
@@ -443,7 +448,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
      * Updates available worker node instance type list per availability zone. API takes the availability zone name
      * and returns list of node instance types available to that zone.
      */
-    updateWorkerNodeInstanceTypes(azWorkerNodeKey, availabilityZone) {
+    updateWorkerNodeInstanceTypes(azWorkerNodeKey, availabilityZone, index) {
         if (availabilityZone) {
             this.apiClient.getAWSNodeTypes({
                 az: availabilityZone
@@ -452,6 +457,18 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 .subscribe(
                     ((nodeTypes) => {
                         this.azNodeTypes[azWorkerNodeKey] = nodeTypes;
+                        if (nodeTypes.length === 1) {
+                            this.formGroup.get(WORKER_NODE_INSTANCE_TYPES[index]).setValue(nodeTypes[0]);
+                        }
+
+                        if (this.vpcType === 'existing') {
+                            if (this.filteredAzs[AZS[index]].publicSubnets.length === 1) {
+                                this.formGroup.get(PUBLIC_SUBNETS[index]).setValue(this.filteredAzs[AZS[index]].publicSubnets[0].id);
+                            }
+                            if (this.filteredAzs[AZS[index]].privateSubnets.length === 1) {
+                                this.formGroup.get(PRIVATE_SUBNET[index]).setValue(this.filteredAzs[AZS[index]].privateSubnets[0].id);
+                            }
+                        }
                     }),
                     ((err) => {
                         const error = err.error.message || err.message || JSON.stringify(err);

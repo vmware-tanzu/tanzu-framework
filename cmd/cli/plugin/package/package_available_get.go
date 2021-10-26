@@ -30,8 +30,9 @@ var packageAvailableGetCmd = &cobra.Command{
 
     # Get openAPI schema of a package with specified version
     tanzu package available get contour.tanzu.vmware.com/1.15.1-tkg.1-vmware1 --namespace test-ns --values-schema`,
-	RunE:    packageAvailableGet,
-	PreRunE: validatePackage,
+	RunE:         packageAvailableGet,
+	PreRunE:      validatePackage,
+	SilenceUsage: true,
 }
 
 func init() {

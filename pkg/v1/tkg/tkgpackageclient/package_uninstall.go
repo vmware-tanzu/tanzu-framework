@@ -232,6 +232,10 @@ func (p *pkgClient) waitForResourceDeletion(name, namespace string, pollInterval
 				}
 				return false, err
 			}
+			if resource.Generation != resource.Status.ObservedGeneration {
+				// Should wait for generation to be observed before checking the reconciliation status so that we know we are checking the new spec
+				return false, nil
+			}
 			status = resource.Status.GenericStatus
 		case tkgpackagedatamodel.ResourceTypePackageInstall:
 			resource, err := p.kappClient.GetPackageInstall(name, namespace)
@@ -241,13 +245,17 @@ func (p *pkgClient) waitForResourceDeletion(name, namespace string, pollInterval
 				}
 				return false, err
 			}
+			if resource.Generation != resource.Status.ObservedGeneration {
+				// Should wait for generation to be observed before checking the reconciliation status so that we know we are checking the new spec
+				return false, nil
+			}
 			status = resource.Status.GenericStatus
 		}
 		for _, cond := range status.Conditions {
 			if progress != nil {
-				progress <- fmt.Sprintf("Resource deletion status: %s", cond.Type)
+				progress <- fmt.Sprintf("'%s' resource deletion status: %s", rscType.String(), cond.Type)
 			}
-			if cond.Type == kappctrl.DeleteFailed {
+			if cond.Type == kappctrl.DeleteFailed && cond.Status == corev1.ConditionTrue {
 				return false, fmt.Errorf("resource deletion failed: %s. %s", status.UsefulErrorMessage, status.FriendlyDescription)
 			}
 		}

@@ -35,9 +35,7 @@ VALE := $(TOOLS_BIN_DIR)/vale
 TOOLING_BINARIES := $(GOLANGCI_LINT) $(YTT) $(KUBEVAL) $(GOIMPORTS) $(GOBINDATA) $(GINKGO) $(VALE)
 
 PINNIPED_GIT_REPOSITORY = https://github.com/vmware-tanzu/pinniped.git
-ifeq ($(strip $(PINNIPED_GIT_COMMIT)),)
-PINNIPED_GIT_COMMIT = v0.4.0
-endif
+PINNIPED_VERSIONS = v0.4.4 v0.12.0
 
 ifndef IS_OFFICIAL_BUILD
 IS_OFFICIAL_BUILD = ""
@@ -172,7 +170,7 @@ version: ## Show version
 ensure-pinniped-repo:
 	@rm -rf pinniped
 	@mkdir -p pinniped
-	@GIT_TERMINAL_PROMPT=0 git clone -q --depth 1 --branch $(PINNIPED_GIT_COMMIT) ${PINNIPED_GIT_REPOSITORY} pinniped > ${NUL} 2>&1
+	@GIT_TERMINAL_PROMPT=0 git clone -q ${PINNIPED_GIT_REPOSITORY} pinniped > ${NUL} 2>&1
 
 .PHONY: prep-build-cli
 prep-build-cli: ensure-pinniped-repo
@@ -234,7 +232,7 @@ build-cli-%: prep-build-cli
 		printf "======================================\n\n";\
 	fi
 
-	./hack/embed-pinniped-binary.sh go ${OS} ${ARCH}
+	./hack/embed-pinniped-binary.sh go ${OS} ${ARCH} ${PINNIPED_VERSIONS}
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --tags "${BUILD_TAGS}" --corepath "cmd/cli/tanzu" --artifacts artifacts/${OS}/${ARCH}/cli --target  ${OS}_${ARCH}
 
 ## --------------------------------------
