@@ -96,11 +96,14 @@ func loginOIDCCommand(
 			fmt.Sprintf("--ca-bundle-data=%s", strings.Join(loginOptions.caBundleData, ",")),
 			fmt.Sprintf("--request-audience=%s", loginOptions.requestAudience),
 			fmt.Sprintf("--enable-concierge=%s", strconv.FormatBool(loginOptions.conciergeEnabled)),
-			fmt.Sprintf("--concierge-namespace=%s", loginOptions.conciergeNamespace),
 			fmt.Sprintf("--concierge-authenticator-type=%s", loginOptions.conciergeAuthenticatorType),
 			fmt.Sprintf("--concierge-authenticator-name=%s", loginOptions.conciergeAuthenticatorName),
 			fmt.Sprintf("--concierge-endpoint=%s", loginOptions.conciergeEndpoint),
 			fmt.Sprintf("--concierge-ca-bundle-data=%s", loginOptions.conciergeCABundle),
+		}
+
+		if !loginOptions.conciergeIsClusterScoped {
+			oidcLoginArgs = append(oidcLoginArgs, fmt.Sprintf("--concierge-namespace=%s", loginOptions.conciergeNamespace))
 		}
 
 		pinnipedCliCmd, err := getPinnipedCLICmdFunc(oidcLoginArgs, loginOptions, cli.DefaultPluginRoot, buildinfo.Version, buildinfo.SHA)
