@@ -59,6 +59,8 @@ const VPC_SUBNETS = [...PUBLIC_SUBNETS, ...PRIVATE_SUBNET];
 
 export class NodeSettingStepComponent extends StepFormDirective implements OnInit {
 
+    APP_EDITION: any = AppEdition;
+
     nodeTypes: Array<string> = [];
     nodeType: string;
     vpcType: string;

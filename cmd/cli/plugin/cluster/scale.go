@@ -16,6 +16,7 @@ import (
 
 type scaleClustersOptions struct {
 	namespace         string
+	nodePoolName      string
 	workerCount       int32
 	controlPlaneCount int32
 }
@@ -32,6 +33,7 @@ var scaleClusterCmd = &cobra.Command{
 func init() {
 	scaleClusterCmd.Flags().Int32VarP(&sc.workerCount, "worker-machine-count", "w", 0, "The number of worker nodes to scale to. Assumes unchanged if not specified")
 	scaleClusterCmd.Flags().Int32VarP(&sc.controlPlaneCount, "controlplane-machine-count", "c", 0, "The number of control plane nodes to scale to. Assumes unchanged if not specified")
+	scaleClusterCmd.Flags().StringVarP(&sc.nodePoolName, "node-pool-name", "p", "", "The name of the node-pool to scale")
 	scaleClusterCmd.Flags().StringVarP(&sc.namespace, "namespace", "n", "", "The namespace where the workload cluster was created. Assumes 'default' if not specified.")
 }
 
@@ -58,6 +60,7 @@ func scaleCluster(server *v1alpha1.Server, clusterName string) error {
 		ControlPlaneCount: sc.controlPlaneCount,
 		WorkerCount:       sc.workerCount,
 		Namespace:         sc.namespace,
+		NodePoolName:      sc.nodePoolName,
 	}
 
 	return tkgctlClient.ScaleCluster(scaleClusterOptions)

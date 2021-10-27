@@ -191,9 +191,7 @@ func (r *AddonReconciler) ReconcileAddonDataValuesSecretNormal(
 
 	addonDataValuesSecretMutateFn := func() error {
 		addonDataValuesSecret.Type = corev1.SecretTypeOpaque
-		if addonDataValuesSecret.Data == nil {
-			addonDataValuesSecret.Data = map[string][]byte{}
-		}
+		addonDataValuesSecret.Data = map[string][]byte{}
 		for k, v := range addonSecret.Data {
 			addonDataValuesSecret.Data[k] = v
 		}

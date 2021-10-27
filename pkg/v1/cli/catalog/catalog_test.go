@@ -6,7 +6,6 @@ package catalog
 import (
 	"os"
 	"path/filepath"
-	"sort"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -57,12 +56,9 @@ func Test_ContextCatalog_With_Empty_Context(t *testing.T) {
 
 	pds := cc.List()
 	assert.Equal(len(pds), 2)
-	assert.Equal(pds[0].Name, "fakeplugin1")
-	assert.Equal(pds[0].InstallationPath, "/path/to/plugin/fakeplugin1")
-	assert.Equal(pds[0].Version, "1.0.0")
-	assert.Equal(pds[1].Name, "fakeplugin2")
-	assert.Equal(pds[1].InstallationPath, "/path/to/plugin/fakeplugin2")
-	assert.Equal(pds[1].Version, "2.0.0")
+	assert.ElementsMatch([]string{pds[0].Name, pds[1].Name}, []string{"fakeplugin1", "fakeplugin2"})
+	assert.ElementsMatch([]string{pds[0].InstallationPath, pds[1].InstallationPath}, []string{"/path/to/plugin/fakeplugin1", "/path/to/plugin/fakeplugin2"})
+	assert.ElementsMatch([]string{pds[0].Version, pds[1].Version}, []string{"1.0.0", "2.0.0"})
 
 	err = cc.Delete("fakeplugin2")
 	assert.Nil(err)
@@ -92,7 +88,7 @@ func Test_ContextCatalog_With_Empty_Context(t *testing.T) {
 	os.RemoveAll(common.DefaultPluginRoot)
 }
 
-func Test_ContextCatalog_With_Context(t *testing.T) { //nolint:funlen
+func Test_ContextCatalog_With_Context(t *testing.T) {
 	common.DefaultCacheDir = filepath.Join(os.TempDir(), "test")
 
 	assert := assert.New(t)
@@ -131,14 +127,10 @@ func Test_ContextCatalog_With_Context(t *testing.T) { //nolint:funlen
 	assert.Equal(pd.Version, "2.0.0")
 
 	pds := cc.List()
-	sortarray(pds)
 	assert.Equal(len(pds), 2)
-	assert.Equal(pds[0].Name, "fakeplugin1")
-	assert.Equal(pds[0].InstallationPath, "/path/to/plugin/fakeplugin1")
-	assert.Equal(pds[0].Version, "1.0.0")
-	assert.Equal(pds[1].Name, "fakeplugin2")
-	assert.Equal(pds[1].InstallationPath, "/path/to/plugin/fakeplugin2")
-	assert.Equal(pds[1].Version, "2.0.0")
+	assert.ElementsMatch([]string{pds[0].Name, pds[1].Name}, []string{"fakeplugin1", "fakeplugin2"})
+	assert.ElementsMatch([]string{pds[0].InstallationPath, pds[1].InstallationPath}, []string{"/path/to/plugin/fakeplugin1", "/path/to/plugin/fakeplugin2"})
+	assert.ElementsMatch([]string{pds[0].Version, pds[1].Version}, []string{"1.0.0", "2.0.0"})
 
 	err = cc.Delete("fakeplugin2")
 	assert.Nil(err)
@@ -148,7 +140,6 @@ func Test_ContextCatalog_With_Context(t *testing.T) { //nolint:funlen
 	assert.NotEqual(pd.Name, "fakeplugin2")
 
 	pds = cc.List()
-	sortarray(pds)
 	assert.Equal(len(pds), 1)
 
 	// Create another catalog with same context
@@ -176,12 +167,6 @@ func Test_ContextCatalog_With_Context(t *testing.T) { //nolint:funlen
 	assert.False(exists)
 
 	os.RemoveAll(common.DefaultPluginRoot)
-}
-
-func sortarray(pds []cliv1alpha1.PluginDescriptor) {
-	sort.Slice(pds, func(i, j int) bool {
-		return pds[i].Name < pds[j].Name
-	})
 }
 
 // Test_CatalogCacheFileName tests we default to catalog.yaml file when
