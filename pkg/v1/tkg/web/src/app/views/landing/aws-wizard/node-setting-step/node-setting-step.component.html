@@ -131,12 +131,12 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-input-container [attr.data-step-metadata]="formName">
                 <label i18n="cluster name label" clr-control-label>
-                    {{ clusterType | uppercase }} CLUSTER NAME {{edition === 'tkg' ? '(OPTIONAL)' : ''}}
+                    {{ clusterType | uppercase }} CLUSTER NAME {{edition === APP_EDITION.TKG ? '(OPTIONAL)' : ''}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                             <span>
-                                {{  edition === 'tkg'?
+                                {{  edition === APP_EDITION.TKG ?
                                     'Optionally specify a name for the ' + clusterType + ' cluster. If left blank,' +
                                     'the installer names the cluster automatically.' :
                                     'Specify a name for the ' + clusterType + ' cluster.'
@@ -145,7 +145,7 @@
                         </clr-tooltip-content>
                     </clr-tooltip>
                 </label>
-                <input clrInput formControlName="clusterName" placeholder="{{edition === 'tkg' ? 'optional' : ''}}" maxlength="42"/>
+                <input clrInput formControlName="clusterName" placeholder="{{edition === APP_EDITION.TKG ? 'optional' : ''}}" maxlength="42"/>
                 <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error i18n="cluster name valid msg" *clrIfError="validatorEnum.VALID_CLUSTER_NAME">

@@ -79,11 +79,11 @@ func TestPinniped(t *testing.T) {
 			Name:      "pinniped-info",
 		},
 		Data: map[string]string{
-			"cluster_name":                         "some-pinniped-info-management-cluster-name",
-			"issuer":                               serviceHTTPSEndpoint(supervisorService),
-			"issuer_ca_bundle_data":                base64.StdEncoding.EncodeToString(supervisorCertificateSecret.Data["ca.crt"]),
-			"pinniped_api_group_suffix":            apiGroupSuffix,
-			"pinniped_concierge_is_cluster_scoped": "true",
+			"cluster_name":                "some-pinniped-info-management-cluster-name",
+			"issuer":                      serviceHTTPSEndpoint(supervisorService),
+			"issuer_ca_bundle_data":       base64.StdEncoding.EncodeToString(supervisorCertificateSecret.Data["ca.crt"]),
+			"concierge_api_group_suffix":  apiGroupSuffix,
+			"concierge_is_cluster_scoped": "true",
 		},
 	}
 
@@ -93,8 +93,8 @@ func TestPinniped(t *testing.T) {
 			Name:      "pinniped-info",
 		},
 		Data: map[string]string{
-			"pinniped_api_group_suffix":            apiGroupSuffix,
-			"pinniped_concierge_is_cluster_scoped": "true",
+			"concierge_api_group_suffix":  apiGroupSuffix,
+			"concierge_is_cluster_scoped": "true",
 		},
 	}
 

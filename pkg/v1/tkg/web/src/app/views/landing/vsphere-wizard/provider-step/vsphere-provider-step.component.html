@@ -29,7 +29,17 @@
         </button>
     </div>
     <clr-radio-container clrInline *ngIf="enableIpv6">
-        <label>Select the IP family to use throughout this installer</label>
+        <label>
+            Select the IP family to use throughout this installer
+            <clr-tooltip>
+                <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                    <span>
+                        This choice dictates the required IP format for addresses and CIDRs in the rest of the installer.
+                    </span>
+                </clr-tooltip-content>
+            </clr-tooltip>
+        </label>
         <clr-radio-wrapper>
           <input type="radio" clrRadio name="ipFamily" required value="ipv4" formControlName="ipFamily" />
           <label>IPv4</label>

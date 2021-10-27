@@ -33,11 +33,11 @@ type Configurator struct {
 
 // PinnipedInfo contains settings for the supervisor.
 type PinnipedInfo struct {
-	MgmtClusterName                  *string `json:"cluster_name,omitempty"`
-	Issuer                           *string `json:"issuer,omitempty"`
-	IssuerCABundleData               *string `json:"issuer_ca_bundle_data,omitempty"`
-	PinnipedAPIGroupSuffix           string  `json:"pinniped_api_group_suffix"`
-	PinnipedConciergeIsClusterScoped bool    `json:"pinniped_concierge_is_cluster_scoped,string"`
+	MgmtClusterName          *string `json:"cluster_name,omitempty"`
+	Issuer                   *string `json:"issuer,omitempty"`
+	IssuerCABundleData       *string `json:"issuer_ca_bundle_data,omitempty"`
+	ConciergeAPIGroupSuffix  string  `json:"concierge_api_group_suffix"`
+	ConciergeIsClusterScoped bool    `json:"concierge_is_cluster_scoped,string"`
 }
 
 // CreateOrUpdateFederationDomain creates a new federation domain or updates an existing one.
