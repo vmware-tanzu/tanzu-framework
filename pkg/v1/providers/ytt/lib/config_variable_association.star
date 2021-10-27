@@ -24,7 +24,6 @@ return {
 "ENABLE_CEIP_PARTICIPATION": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker"],
 "DEPLOY_TKG_ON_VSPHERE7": ["vsphere"],
 "ENABLE_TKGS_ON_VSPHERE7": ["vsphere"],
-"TMC_REGISTRATION_URL": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker"],
 
 "VSPHERE_NUM_CPUS": ["vsphere"],
 "VSPHERE_DISK_GIB": ["vsphere"],

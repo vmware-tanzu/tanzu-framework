@@ -50,11 +50,9 @@ const (
 	StepCreateManagementCluster            = "Create management cluster"
 	StepInstallProvidersOnRegionalCluster  = "Install providers on management cluster"
 	StepMoveClusterAPIObjects              = "Move cluster-api objects from bootstrap cluster to management cluster"
-	StepRegisterWithTMC                    = "Register management cluster with Tanzu Mission Control"
 )
 
 const (
-	tmcFeatureFlag     = "tmcRegistration"
 	cniFeatureFlag     = "cni"
 	editionFeatureFlag = "edition"
 )
@@ -100,9 +98,7 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	if err != nil {
 		return err
 	}
-	if options.TmcRegistrationURL != "" {
-		InitRegionSteps = append(InitRegionSteps, StepRegisterWithTMC)
-	}
+
 	log.SendProgressUpdate(statusRunning, StepValidateConfiguration, InitRegionSteps)
 
 	log.Info("Validating configuration...")
@@ -306,16 +302,6 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		return errors.Wrap(err, "unable to patch cluster object")
 	}
 
-	// install TMC agent workloads on the management cluster
-	if options.TmcRegistrationURL != "" {
-		if err = registerWithTmc(options.TmcRegistrationURL, regionalClusterClient); err != nil {
-			log.Error(err, "Failed to register management cluster to Tanzu Mission Control")
-
-			log.Warningf("\nTo attach the management cluster to Tanzu Mission Control:")
-			log.Warningf("\ttanzu management-cluster register --tmc-registration-url %s", options.TmcRegistrationURL)
-		}
-	}
-
 	if err != nil {
 		return errors.Wrap(err, "unable to parse provider name")
 	}
@@ -356,23 +342,6 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 
 	log.Infof("You can now access the management cluster %s by running 'kubectl config use-context %s'", options.ClusterName, kubeContext)
 	isSuccessful = true
-	return nil
-}
-
-func registerWithTmc(url string, regionalClusterClient clusterclient.Client) error {
-	log.SendProgressUpdate(statusRunning, StepRegisterWithTMC, InitRegionSteps)
-	log.Info("Registering management cluster with TMC...")
-
-	if !utils.IsValidURL(url) {
-		return errors.Errorf("TMC registration URL '%s' is not valid", url)
-	}
-
-	err := regionalClusterClient.ApplyFile(url)
-	if err != nil {
-		return errors.Wrap(err, "failed to register management cluster to TMC")
-	}
-
-	log.Infof("Successfully registered management cluster to TMC")
 	return nil
 }
 
@@ -710,9 +679,6 @@ func (c *TkgClient) displayHelpTextOnFailure(options *InitRegionOptions,
 
 // ParseHiddenArgsAsFeatureFlags adds the hidden flags from InitRegionOptions as enabled feature flags
 func (c *TkgClient) ParseHiddenArgsAsFeatureFlags(options *InitRegionOptions) {
-	if options.TmcRegistrationURL != "" {
-		options.FeatureFlags = c.safelyAddFeatureFlag(options.FeatureFlags, tmcFeatureFlag, options.TmcRegistrationURL)
-	}
 	if options.CniType != "" {
 		options.FeatureFlags = c.safelyAddFeatureFlag(options.FeatureFlags, cniFeatureFlag, options.CniType)
 	}

@@ -44,7 +44,7 @@ spec:
   validation:
     openAPIV3Schema:
       description: TanzuKubernetesCluster is the schema for the Tanzu Kubernetes Grid
-        service for vSphere API.
+        service for vSphere API. nolint:gocritic
       properties:
         apiVersion:
           description: 'APIVersion defines the versioned schema of this representation
@@ -61,7 +61,7 @@ spec:
         spec:
           description: 'TanzuKubernetesClusterSpec defines the desired state of TanzuKubernetesCluster:
             its nodes, the software installed on those nodes and the way that software
-            should be configured.'
+            should be configured. nolint:gocritic'
           properties:
             distribution:
               description: 'Distribution specifies the distribution for the Tanzu
@@ -529,7 +529,7 @@ spec:
           type: object
         status:
           description: TanzuKubernetesClusterStatus defines the observed state of
-            TanzuKubernetesCluster.
+            TanzuKubernetesCluster. nolint:gocritic
           properties:
             addons:
               description: Addons groups the statuses of a Tanzu Kubernetes cluster's

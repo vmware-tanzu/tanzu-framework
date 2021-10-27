@@ -68,7 +68,6 @@ type InitRegionOptions struct {
 	ControlPlaneProvider        string
 	Namespace                   string
 	WatchingNamespace           string
-	TmcRegistrationURL          string
 	CniType                     string
 	VsphereControlPlaneEndpoint string
 	Edition                     string
@@ -112,8 +111,6 @@ type Client interface {
 	CreateAWSCloudFormationStack() error
 	// DeleteRegion deletes management cluster via a self-provisioned kind cluster
 	DeleteRegion(options DeleteRegionOptions) error
-	// DeRegisterManagementClusterFromTmc deregisters management cluster from Tanzu Mission Control
-	DeRegisterManagementClusterFromTmc(clusterName string) error
 	// VerifyRegion checks if the kube context points to a management clusters,
 	VerifyRegion(kubeConfigPath string) (region.RegionContext, error)
 	// AddRegionContext adds a management cluster context to tkg config file
@@ -139,8 +136,6 @@ type Client interface {
 	ConfigureAndValidateManagementClusterConfiguration(options *InitRegionOptions, skipValidation bool) *ValidationError
 	// UpgradeManagementCluster upgrades tkg cluster to specific kubernetes version
 	UpgradeManagementCluster(options *UpgradeClusterOptions) error
-	// Register management cluster to Tanzu Mission Control
-	RegisterManagementClusterToTmc(kubeConfigPath string, tmcRegistrationURL string) error
 	// Opt-in/out to CEIP on Management Cluster
 	SetCEIPParticipation(ceipOptIn bool, isProd string, labels string) error
 	// Get opt-in/out status for CEIP on all Management Clusters

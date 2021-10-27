@@ -5,10 +5,6 @@ import (
 	"sync"
 	"time"
 
-	"sigs.k8s.io/cluster-api/api/v1alpha3"
-	v1alpha3a "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
-	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/tree"
-
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
@@ -16,6 +12,9 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/vc"
+	"sigs.k8s.io/cluster-api/api/v1alpha3"
+	v1alpha3a "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
+	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/tree"
 )
 
 type Client struct {
@@ -95,17 +94,6 @@ type Client struct {
 		result1 error
 	}
 	createClusterReturnsOnCall map[int]struct {
-		result1 error
-	}
-	DeRegisterManagementClusterFromTmcStub        func(string) error
-	deRegisterManagementClusterFromTmcMutex       sync.RWMutex
-	deRegisterManagementClusterFromTmcArgsForCall []struct {
-		arg1 string
-	}
-	deRegisterManagementClusterFromTmcReturns struct {
-		result1 error
-	}
-	deRegisterManagementClusterFromTmcReturnsOnCall map[int]struct {
 		result1 error
 	}
 	DeactivateTanzuKubernetesReleasesStub        func(string) error
@@ -450,18 +438,6 @@ type Client struct {
 	parseHiddenArgsAsFeatureFlagsMutex       sync.RWMutex
 	parseHiddenArgsAsFeatureFlagsArgsForCall []struct {
 		arg1 *client.InitRegionOptions
-	}
-	RegisterManagementClusterToTmcStub        func(string, string) error
-	registerManagementClusterToTmcMutex       sync.RWMutex
-	registerManagementClusterToTmcArgsForCall []struct {
-		arg1 string
-		arg2 string
-	}
-	registerManagementClusterToTmcReturns struct {
-		result1 error
-	}
-	registerManagementClusterToTmcReturnsOnCall map[int]struct {
-		result1 error
 	}
 	SaveFeatureFlagsStub        func(map[string]string) error
 	saveFeatureFlagsMutex       sync.RWMutex
@@ -1014,66 +990,6 @@ func (fake *Client) CreateClusterReturnsOnCall(i int, result1 error) {
 		})
 	}
 	fake.createClusterReturnsOnCall[i] = struct {
-		result1 error
-	}{result1}
-}
-
-func (fake *Client) DeRegisterManagementClusterFromTmc(arg1 string) error {
-	fake.deRegisterManagementClusterFromTmcMutex.Lock()
-	ret, specificReturn := fake.deRegisterManagementClusterFromTmcReturnsOnCall[len(fake.deRegisterManagementClusterFromTmcArgsForCall)]
-	fake.deRegisterManagementClusterFromTmcArgsForCall = append(fake.deRegisterManagementClusterFromTmcArgsForCall, struct {
-		arg1 string
-	}{arg1})
-	fake.recordInvocation("DeRegisterManagementClusterFromTmc", []interface{}{arg1})
-	fake.deRegisterManagementClusterFromTmcMutex.Unlock()
-	if fake.DeRegisterManagementClusterFromTmcStub != nil {
-		return fake.DeRegisterManagementClusterFromTmcStub(arg1)
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	fakeReturns := fake.deRegisterManagementClusterFromTmcReturns
-	return fakeReturns.result1
-}
-
-func (fake *Client) DeRegisterManagementClusterFromTmcCallCount() int {
-	fake.deRegisterManagementClusterFromTmcMutex.RLock()
-	defer fake.deRegisterManagementClusterFromTmcMutex.RUnlock()
-	return len(fake.deRegisterManagementClusterFromTmcArgsForCall)
-}
-
-func (fake *Client) DeRegisterManagementClusterFromTmcCalls(stub func(string) error) {
-	fake.deRegisterManagementClusterFromTmcMutex.Lock()
-	defer fake.deRegisterManagementClusterFromTmcMutex.Unlock()
-	fake.DeRegisterManagementClusterFromTmcStub = stub
-}
-
-func (fake *Client) DeRegisterManagementClusterFromTmcArgsForCall(i int) string {
-	fake.deRegisterManagementClusterFromTmcMutex.RLock()
-	defer fake.deRegisterManagementClusterFromTmcMutex.RUnlock()
-	argsForCall := fake.deRegisterManagementClusterFromTmcArgsForCall[i]
-	return argsForCall.arg1
-}
-
-func (fake *Client) DeRegisterManagementClusterFromTmcReturns(result1 error) {
-	fake.deRegisterManagementClusterFromTmcMutex.Lock()
-	defer fake.deRegisterManagementClusterFromTmcMutex.Unlock()
-	fake.DeRegisterManagementClusterFromTmcStub = nil
-	fake.deRegisterManagementClusterFromTmcReturns = struct {
-		result1 error
-	}{result1}
-}
-
-func (fake *Client) DeRegisterManagementClusterFromTmcReturnsOnCall(i int, result1 error) {
-	fake.deRegisterManagementClusterFromTmcMutex.Lock()
-	defer fake.deRegisterManagementClusterFromTmcMutex.Unlock()
-	fake.DeRegisterManagementClusterFromTmcStub = nil
-	if fake.deRegisterManagementClusterFromTmcReturnsOnCall == nil {
-		fake.deRegisterManagementClusterFromTmcReturnsOnCall = make(map[int]struct {
-			result1 error
-		})
-	}
-	fake.deRegisterManagementClusterFromTmcReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
 }
@@ -1986,16 +1902,15 @@ func (fake *Client) GetPacificClusterObject(arg1 string, arg2 string) (*v1alpha2
 		arg1 string
 		arg2 string
 	}{arg1, arg2})
-	stub := fake.GetPacificClusterObjectStub
-	fakeReturns := fake.getPacificClusterObjectReturns
 	fake.recordInvocation("GetPacificClusterObject", []interface{}{arg1, arg2})
 	fake.getPacificClusterObjectMutex.Unlock()
-	if stub != nil {
-		return stub(arg1, arg2)
+	if fake.GetPacificClusterObjectStub != nil {
+		return fake.GetPacificClusterObjectStub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
+	fakeReturns := fake.getPacificClusterObjectReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -2050,16 +1965,15 @@ func (fake *Client) GetPacificMachineDeployments(arg1 client.GetMachineDeploymen
 	fake.getPacificMachineDeploymentsArgsForCall = append(fake.getPacificMachineDeploymentsArgsForCall, struct {
 		arg1 client.GetMachineDeploymentOptions
 	}{arg1})
-	stub := fake.GetPacificMachineDeploymentsStub
-	fakeReturns := fake.getPacificMachineDeploymentsReturns
 	fake.recordInvocation("GetPacificMachineDeployments", []interface{}{arg1})
 	fake.getPacificMachineDeploymentsMutex.Unlock()
-	if stub != nil {
-		return stub(arg1)
+	if fake.GetPacificMachineDeploymentsStub != nil {
+		return fake.GetPacificMachineDeploymentsStub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
+	fakeReturns := fake.getPacificMachineDeploymentsReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -2609,16 +2523,15 @@ func (fake *Client) IsPacificRegionalCluster() (bool, error) {
 	ret, specificReturn := fake.isPacificRegionalClusterReturnsOnCall[len(fake.isPacificRegionalClusterArgsForCall)]
 	fake.isPacificRegionalClusterArgsForCall = append(fake.isPacificRegionalClusterArgsForCall, struct {
 	}{})
-	stub := fake.IsPacificRegionalClusterStub
-	fakeReturns := fake.isPacificRegionalClusterReturns
 	fake.recordInvocation("IsPacificRegionalCluster", []interface{}{})
 	fake.isPacificRegionalClusterMutex.Unlock()
-	if stub != nil {
-		return stub()
+	if fake.IsPacificRegionalClusterStub != nil {
+		return fake.IsPacificRegionalClusterStub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
+	fakeReturns := fake.isPacificRegionalClusterReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -2752,67 +2665,6 @@ func (fake *Client) ParseHiddenArgsAsFeatureFlagsArgsForCall(i int) *client.Init
 	defer fake.parseHiddenArgsAsFeatureFlagsMutex.RUnlock()
 	argsForCall := fake.parseHiddenArgsAsFeatureFlagsArgsForCall[i]
 	return argsForCall.arg1
-}
-
-func (fake *Client) RegisterManagementClusterToTmc(arg1 string, arg2 string) error {
-	fake.registerManagementClusterToTmcMutex.Lock()
-	ret, specificReturn := fake.registerManagementClusterToTmcReturnsOnCall[len(fake.registerManagementClusterToTmcArgsForCall)]
-	fake.registerManagementClusterToTmcArgsForCall = append(fake.registerManagementClusterToTmcArgsForCall, struct {
-		arg1 string
-		arg2 string
-	}{arg1, arg2})
-	fake.recordInvocation("RegisterManagementClusterToTmc", []interface{}{arg1, arg2})
-	fake.registerManagementClusterToTmcMutex.Unlock()
-	if fake.RegisterManagementClusterToTmcStub != nil {
-		return fake.RegisterManagementClusterToTmcStub(arg1, arg2)
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	fakeReturns := fake.registerManagementClusterToTmcReturns
-	return fakeReturns.result1
-}
-
-func (fake *Client) RegisterManagementClusterToTmcCallCount() int {
-	fake.registerManagementClusterToTmcMutex.RLock()
-	defer fake.registerManagementClusterToTmcMutex.RUnlock()
-	return len(fake.registerManagementClusterToTmcArgsForCall)
-}
-
-func (fake *Client) RegisterManagementClusterToTmcCalls(stub func(string, string) error) {
-	fake.registerManagementClusterToTmcMutex.Lock()
-	defer fake.registerManagementClusterToTmcMutex.Unlock()
-	fake.RegisterManagementClusterToTmcStub = stub
-}
-
-func (fake *Client) RegisterManagementClusterToTmcArgsForCall(i int) (string, string) {
-	fake.registerManagementClusterToTmcMutex.RLock()
-	defer fake.registerManagementClusterToTmcMutex.RUnlock()
-	argsForCall := fake.registerManagementClusterToTmcArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
-}
-
-func (fake *Client) RegisterManagementClusterToTmcReturns(result1 error) {
-	fake.registerManagementClusterToTmcMutex.Lock()
-	defer fake.registerManagementClusterToTmcMutex.Unlock()
-	fake.RegisterManagementClusterToTmcStub = nil
-	fake.registerManagementClusterToTmcReturns = struct {
-		result1 error
-	}{result1}
-}
-
-func (fake *Client) RegisterManagementClusterToTmcReturnsOnCall(i int, result1 error) {
-	fake.registerManagementClusterToTmcMutex.Lock()
-	defer fake.registerManagementClusterToTmcMutex.Unlock()
-	fake.RegisterManagementClusterToTmcStub = nil
-	if fake.registerManagementClusterToTmcReturnsOnCall == nil {
-		fake.registerManagementClusterToTmcReturnsOnCall = make(map[int]struct {
-			result1 error
-		})
-	}
-	fake.registerManagementClusterToTmcReturnsOnCall[i] = struct {
-		result1 error
-	}{result1}
 }
 
 func (fake *Client) SaveFeatureFlags(arg1 map[string]string) error {
@@ -3475,16 +3327,15 @@ func (fake *Client) ValidateDockerResourcePrerequisites() error {
 	ret, specificReturn := fake.validateDockerResourcePrerequisitesReturnsOnCall[len(fake.validateDockerResourcePrerequisitesArgsForCall)]
 	fake.validateDockerResourcePrerequisitesArgsForCall = append(fake.validateDockerResourcePrerequisitesArgsForCall, struct {
 	}{})
-	stub := fake.ValidateDockerResourcePrerequisitesStub
-	fakeReturns := fake.validateDockerResourcePrerequisitesReturns
 	fake.recordInvocation("ValidateDockerResourcePrerequisites", []interface{}{})
 	fake.validateDockerResourcePrerequisitesMutex.Unlock()
-	if stub != nil {
-		return stub()
+	if fake.ValidateDockerResourcePrerequisitesStub != nil {
+		return fake.ValidateDockerResourcePrerequisitesStub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
+	fakeReturns := fake.validateDockerResourcePrerequisitesReturns
 	return fakeReturns.result1
 }
 
@@ -3664,8 +3515,6 @@ func (fake *Client) Invocations() map[string][][]interface{} {
 	defer fake.createAWSCloudFormationStackMutex.RUnlock()
 	fake.createClusterMutex.RLock()
 	defer fake.createClusterMutex.RUnlock()
-	fake.deRegisterManagementClusterFromTmcMutex.RLock()
-	defer fake.deRegisterManagementClusterFromTmcMutex.RUnlock()
 	fake.deactivateTanzuKubernetesReleasesMutex.RLock()
 	defer fake.deactivateTanzuKubernetesReleasesMutex.RUnlock()
 	fake.deleteMachineDeploymentMutex.RLock()
@@ -3722,8 +3571,6 @@ func (fake *Client) Invocations() map[string][][]interface{} {
 	defer fake.listTKGClustersMutex.RUnlock()
 	fake.parseHiddenArgsAsFeatureFlagsMutex.RLock()
 	defer fake.parseHiddenArgsAsFeatureFlagsMutex.RUnlock()
-	fake.registerManagementClusterToTmcMutex.RLock()
-	defer fake.registerManagementClusterToTmcMutex.RUnlock()
 	fake.saveFeatureFlagsMutex.RLock()
 	defer fake.saveFeatureFlagsMutex.RUnlock()
 	fake.scaleClusterMutex.RLock()
