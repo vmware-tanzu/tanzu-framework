@@ -45,8 +45,6 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
             }),
             metadataForm: this.formBuilder.group({
             }),
-            registerTmcForm: this.formBuilder.group({
-            }),
             networkForm: this.formBuilder.group({
             }),
             identityForm: this.formBuilder.group({
@@ -93,12 +91,6 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
                 return `Cluster service CIDR: ${serviceCidr} Cluster POD CIDR: ${podCidr}`;
             }
             return "Specify how TKG networking is provided and global network settings";
-        } else if (stepName === 'registerTmcFrom') {
-            const tmcRegUrl = this.getFieldValue(stepName, "tmcRegUrl");
-            if (tmcRegUrl) {
-                return `TMC Registration URL: ${tmcRegUrl}`;
-            }
-            return "Optional: register Tanzu Mission Control";
         } else if (stepName === 'ceipOptInForm') {
             return "Join the CEIP program for TKG";
         } else if (stepName === 'identity') {

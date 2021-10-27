@@ -23,11 +23,8 @@ export class FormMetaDataService {
     /**
      * Extract the meta data for one particular form field by analyzing the
      * native DOM tree.
-     *
-     * TODO: supports addtional form control types for a complete framework.
      */
     getFormMetadata(formName: string, container: any) {
-
         // First handle the case where label or value are hard-coded in the container node
         let label = container.getAttribute("data-label");
         let displayValue = container.getAttribute("data-value");
