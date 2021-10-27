@@ -130,7 +130,7 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 	if err != nil {
 		return err
 	}
-	bytes, err = c.getClusterConfiguration(&options.ClusterConfigOptions, isManagementCluster, infraProviderName)
+	bytes, err = c.getClusterConfiguration(&options.ClusterConfigOptions, isManagementCluster, infraProviderName, options.IsWindowsWorkloadCluster)
 	if err != nil {
 		return errors.Wrap(err, "unable to get cluster configuration")
 	}

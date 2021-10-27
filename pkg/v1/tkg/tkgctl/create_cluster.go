@@ -155,6 +155,7 @@ func (t *tkgctl) getCreateClusterOptions(name string, cc *CreateClusterOptions) 
 		VsphereControlPlaneEndpoint: cc.VsphereControlPlaneEndpoint,
 		ClusterOptionsEnableList:    clusterOptionsEnableList,
 		Edition:                     cc.Edition,
+		IsWindowsWorkloadCluster:    cc.IsWindowsWorkloadCluster,
 	}, nil
 }
 
