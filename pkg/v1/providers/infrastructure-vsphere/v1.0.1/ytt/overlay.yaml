@@ -302,6 +302,11 @@ spec:
       infrastructureRef:
         name: #@ "{}-worker".format(data.values.CLUSTER_NAME)
       version: #@ data.values.KUBERNETES_VERSION
+      #@overlay/match missing_ok=True
+      #@ if data.values.VSPHERE_AZ_0:
+      failureDomain: #@ data.values.VSPHERE_AZ_0
+      #@ end
+
 #@overlay/match by=overlay.subset({"kind": "Secret", "metadata":{"name": "${ CLUSTER_NAME }"}})
 ---
 apiVersion: v1
