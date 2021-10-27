@@ -35,11 +35,11 @@ spec:
     - name: vip_interface
       value:  #@ data.values.VIP_NETWORK_INTERFACE
     - name: vip_leaseduration
-      value: "15"
+      value: "30"
     - name: vip_renewdeadline
-      value: "10"
+      value: "20"
     - name: vip_retryperiod
-      value: "2"
+      value: "4"
     image: #@ "{}/{}:{}".format(get_image_repo_for_component(bomData.components["kube-vip"][0].images.kubeVipImage), bomData.components["kube-vip"][0].images.kubeVipImage.imagePath, bomData.components["kube-vip"][0].images.kubeVipImage.tag)
     imagePullPolicy: IfNotPresent
     name: kube-vip
@@ -109,7 +109,7 @@ spec:
   #@ else:
   #@overlay/remove
   controlPlaneEndpoint:
-  #@ end  
+  #@ end
   thumbprint: #@ get_vsphere_thumbprint()
   server: #@ data.values.VSPHERE_SERVER
   identityRef:
@@ -216,7 +216,7 @@ spec:
     #@overlay/match by=overlay.index(0)
     - content: #@ yaml.encode(kube_vip_pod())
     #@ else:
-    #@overlay/match by=overlay.index(0)  
+    #@overlay/match by=overlay.index(0)
     #@overlay/remove
     - content:
     #@ end
