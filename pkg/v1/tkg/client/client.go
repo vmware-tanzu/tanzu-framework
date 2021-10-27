@@ -52,6 +52,7 @@ type CreateClusterOptions struct {
 	ClusterOptionsEnableList    []string
 	VsphereControlPlaneEndpoint string
 	SkipValidation              bool
+	IsWindowsWorkloadCluster    bool
 	ClusterType                 TKGClusterType
 	Edition                     string
 }

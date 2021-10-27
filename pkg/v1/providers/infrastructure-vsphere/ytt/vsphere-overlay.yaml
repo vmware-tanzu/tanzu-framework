@@ -11,7 +11,7 @@
 
 #@ bomDataForK8sVersion = get_bom_data_for_tkr_name()
 
-#@ if data.values.CLUSTER_PLAN == "prod":
+#@ if data.values.CLUSTER_PLAN == "prod" and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
 #@overlay/match by=overlay.subset({"kind":"VSphereCluster"})
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1

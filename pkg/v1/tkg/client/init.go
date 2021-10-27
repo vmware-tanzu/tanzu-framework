@@ -574,7 +574,7 @@ func (c *TkgClient) BuildRegionalClusterConfiguration(options *InitRegionOptions
 		clusterConfigOptions.YamlProcessor = yamlprocessor.NewYttProcessorWithConfigDir(c.tkgConfigDir)
 	}
 
-	bytes, err = c.getClusterConfiguration(&clusterConfigOptions, true, clusterConfigOptions.ProviderRepositorySource.InfrastructureProvider)
+	bytes, err = c.getClusterConfiguration(&clusterConfigOptions, true, clusterConfigOptions.ProviderRepositorySource.InfrastructureProvider, false)
 
 	return bytes, options.ClusterName, err
 }
