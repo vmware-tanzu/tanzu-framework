@@ -548,8 +548,22 @@ func GetFakeClusterInfo(server string, cert *x509.Certificate) string {
 	return clusterInfoJSON
 }
 
+// PinnipedInfo contains settings for the supervisor.
+type PinnipedInfo struct {
+	ClusterName              string  `json:"cluster_name"`
+	Issuer                   string  `json:"issuer"`
+	IssuerCABundleData       string  `json:"issuer_ca_bundle_data"`
+	ConciergeAPIGroupSuffix  *string `json:"concierge_api_group_suffix,omitempty"`
+	ConciergeIsClusterScoped bool    `json:"concierge_is_cluster_scoped,string"`
+}
+
 // GetFakePinnipedInfo returns the pinniped-info configmap
-func GetFakePinnipedInfo(clustername, issuer, issuerCA string) string {
+func GetFakePinnipedInfo(pinnipedInfo PinnipedInfo) string {
+	data, err := json.Marshal(pinnipedInfo)
+	if err != nil {
+		err = fmt.Errorf("could not marshal Pinniped info into JSON: %w", err)
+	}
+
 	pinnipedInfoJSON := `
 	{
 		"kind": "ConfigMap",
@@ -558,12 +572,8 @@ func GetFakePinnipedInfo(clustername, issuer, issuerCA string) string {
 	  	  "name": "pinniped-info",
 	  	  "namespace": "kube-public"
 		},
-		"data": {
-		  "cluster_name": "%s",
-		  "issuer": "%s",
-		  "issuer_ca_bundle_data": "%s"
-		}
+		"data": %s
 	}`
-	pinnipedInfoJSON = fmt.Sprintf(pinnipedInfoJSON, clustername, issuer, issuerCA)
+	pinnipedInfoJSON = fmt.Sprintf(pinnipedInfoJSON, string(data))
 	return pinnipedInfoJSON
 }

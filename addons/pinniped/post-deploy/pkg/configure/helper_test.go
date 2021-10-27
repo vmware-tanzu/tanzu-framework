@@ -29,30 +29,31 @@ func TestCreateOrUpdatePinnipedInfo(t *testing.T) {
 		name      = "pinniped-info"
 	)
 	var (
-		clusterName = "some-cluster-name"
-		issuer      = "some-issuer"
-		issuerCA    = "some-issuer-ca-bundle-data"
-		emptyString = ""
+		clusterName    = "some-cluster-name"
+		issuer         = "some-issuer"
+		issuerCA       = "some-issuer-ca-bundle-data"
+		emptyString    = ""
+		apiGroupSuffix = "tuna.io"
 	)
 	managementClusterPinnipedInfo := supervisor.PinnipedInfo{
-		MgmtClusterName:                  &clusterName,
-		Issuer:                           &issuer,
-		IssuerCABundleData:               &issuerCA,
-		PinnipedAPIGroupSuffix:           "tuna.io",
-		PinnipedConciergeIsClusterScoped: true,
+		MgmtClusterName:          &clusterName,
+		Issuer:                   &issuer,
+		IssuerCABundleData:       &issuerCA,
+		ConciergeAPIGroupSuffix:  apiGroupSuffix,
+		ConciergeIsClusterScoped: true,
 	}
 
 	workloadClusterPinnipedInfo := supervisor.PinnipedInfo{
-		PinnipedAPIGroupSuffix:           "tuna.io",
-		PinnipedConciergeIsClusterScoped: true,
+		ConciergeAPIGroupSuffix:  apiGroupSuffix,
+		ConciergeIsClusterScoped: true,
 	}
 
 	emptyFieldsPinnipedInfo := supervisor.PinnipedInfo{
-		MgmtClusterName:                  &emptyString,
-		Issuer:                           &emptyString,
-		IssuerCABundleData:               &emptyString,
-		PinnipedAPIGroupSuffix:           emptyString,
-		PinnipedConciergeIsClusterScoped: false,
+		MgmtClusterName:          &emptyString,
+		Issuer:                   &emptyString,
+		IssuerCABundleData:       &emptyString,
+		ConciergeAPIGroupSuffix:  emptyString,
+		ConciergeIsClusterScoped: false,
 	}
 
 	configMapGVR := corev1.SchemeGroupVersion.WithResource("configmaps")
@@ -63,11 +64,11 @@ func TestCreateOrUpdatePinnipedInfo(t *testing.T) {
 			Name:      name,
 		},
 		Data: map[string]string{
-			"cluster_name":                         clusterName,
-			"issuer":                               issuer,
-			"issuer_ca_bundle_data":                issuerCA,
-			"pinniped_api_group_suffix":            managementClusterPinnipedInfo.PinnipedAPIGroupSuffix,
-			"pinniped_concierge_is_cluster_scoped": fmt.Sprintf("%t", managementClusterPinnipedInfo.PinnipedConciergeIsClusterScoped),
+			"cluster_name":                clusterName,
+			"issuer":                      issuer,
+			"issuer_ca_bundle_data":       issuerCA,
+			"concierge_api_group_suffix":  apiGroupSuffix,
+			"concierge_is_cluster_scoped": fmt.Sprintf("%t", managementClusterPinnipedInfo.ConciergeIsClusterScoped),
 		},
 	}
 
@@ -77,8 +78,8 @@ func TestCreateOrUpdatePinnipedInfo(t *testing.T) {
 			Name:      name,
 		},
 		Data: map[string]string{
-			"pinniped_api_group_suffix":            workloadClusterPinnipedInfo.PinnipedAPIGroupSuffix,
-			"pinniped_concierge_is_cluster_scoped": fmt.Sprintf("%t", workloadClusterPinnipedInfo.PinnipedConciergeIsClusterScoped),
+			"concierge_api_group_suffix":  apiGroupSuffix,
+			"concierge_is_cluster_scoped": fmt.Sprintf("%t", workloadClusterPinnipedInfo.ConciergeIsClusterScoped),
 		},
 	}
 
@@ -88,11 +89,11 @@ func TestCreateOrUpdatePinnipedInfo(t *testing.T) {
 			Name:      name,
 		},
 		Data: map[string]string{
-			"cluster_name":                         "",
-			"issuer":                               "",
-			"issuer_ca_bundle_data":                "",
-			"pinniped_api_group_suffix":            "",
-			"pinniped_concierge_is_cluster_scoped": "false",
+			"cluster_name":                "",
+			"issuer":                      "",
+			"issuer_ca_bundle_data":       "",
+			"concierge_api_group_suffix":  "",
+			"concierge_is_cluster_scoped": "false",
 		},
 	}
 
@@ -174,8 +175,8 @@ func TestCreateOrUpdatePinnipedInfo(t *testing.T) {
 			newKubeClient: func() *kubefake.Clientset {
 				existingPinnipedInfoConfigMap := managementClusterPinnipedInfoConfigMap.DeepCopy()
 				existingPinnipedInfoConfigMap.Data = map[string]string{
-					"pinniped_api_group_suffix":            "some-wrong-pinniped-api-group-suffix",
-					"pinniped_concierge_is_cluster_scoped": "false",
+					"concierge_api_group_suffix":  "some-wrong-pinniped-api-group-suffix",
+					"concierge_is_cluster_scoped": "false",
 				}
 				return kubefake.NewSimpleClientset(managementClusterPinnipedInfoConfigMap)
 			},
