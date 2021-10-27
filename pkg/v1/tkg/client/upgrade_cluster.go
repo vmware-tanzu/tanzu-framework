@@ -110,7 +110,7 @@ type clusterUpgradeInfo struct {
 // 5. Wait for k8s version to be updated for the cluster
 // 6. Patch MachineDeployment object to upgrade worker nodes
 // 7. Wait for k8s version to be updated for all worker nodes
-func (c *TkgClient) UpgradeCluster(options *UpgradeClusterOptions) error { // nolint:gocyclo
+func (c *TkgClient) UpgradeCluster(options *UpgradeClusterOptions) error { // nolint:funlen,gocyclo
 	if options == nil {
 		return errors.New("invalid upgrade cluster options nil")
 	}
@@ -180,7 +180,7 @@ func (c *TkgClient) UpgradeCluster(options *UpgradeClusterOptions) error { // no
 	// i.e. some old addons may not run on the nodes with new k8s version
 	// We will ensure backward compatibility when shipping packages going forward
 	if !options.SkipAddonUpgrade {
-		err = c.upgradeAddons(regionalClusterClient, currentClusterClient, options.ClusterName, options.Namespace, options.IsRegionalCluster, options.Edition)
+		err = c.upgradeAddonPreNodeUpgrade(regionalClusterClient, currentClusterClient, options.ClusterName, options.Namespace, options.IsRegionalCluster, options.Edition)
 		if err != nil {
 			return err
 		}
@@ -189,6 +189,14 @@ func (c *TkgClient) UpgradeCluster(options *UpgradeClusterOptions) error { // no
 	err = c.DoClusterUpgrade(regionalClusterClient, currentClusterClient, options)
 	if err != nil {
 		return err
+	}
+
+	// Upgrade addon metadata configmaps after the nodes are upgraded
+	if !options.SkipAddonUpgrade {
+		err = c.upgradeAddonPostNodeUpgrade(regionalClusterClient, currentClusterClient, options.ClusterName, options.Namespace, options.IsRegionalCluster, options.Edition)
+		if err != nil {
+			return err
+		}
 	}
 
 	if !options.IsRegionalCluster {
@@ -326,13 +334,13 @@ func (c *TkgClient) addKubernetesReleaseLabel(regionalClusterClient clusterclien
 	return nil
 }
 
-func (c *TkgClient) upgradeAddons(regionalClusterClient clusterclient.Client, currentClusterClient clusterclient.Client,
+// upgradeAddonPreNodeUpgrade upgrades kapp-controller, addons-manager, tkr-controller and core packageRepository
+// before control plane nodes and worker nodes are bumped to new K8S version, to take care of forward compatibility
+func (c *TkgClient) upgradeAddonPreNodeUpgrade(regionalClusterClient clusterclient.Client, currentClusterClient clusterclient.Client,
 	clusterName string, clusterNamespace string, isRegionalCluster bool, tanzuEdition string) error {
 
 	addonsToBeUpgraded := []string{
-		"metadata/tkg",
 		"addons-management/kapp-controller",
-		"addons-management/standard-package-repo",
 	}
 	// tanzu-addons-manager and tkr-controller only runs in management cluster
 	if isRegionalCluster {
@@ -349,7 +357,31 @@ func (c *TkgClient) upgradeAddons(regionalClusterClient clusterclient.Client, cu
 
 	err := c.DoUpgradeAddon(regionalClusterClient, currentClusterClient, upgradeClusterMetadataOptions, c.GetClusterConfiguration)
 	if err != nil {
-		return errors.Wrap(err, "failed to deploy additional components after kubernetes upgrade")
+		return errors.Wrap(err, "failed to update additional addon components")
+	}
+
+	return nil
+}
+
+// upgradeAddonPostNodeUpgrade upgrades metadata configmaps and core packageRepository after node upgrade
+func (c *TkgClient) upgradeAddonPostNodeUpgrade(regionalClusterClient clusterclient.Client, currentClusterClient clusterclient.Client,
+	clusterName string, clusterNamespace string, isRegionalCluster bool, tanzuEdition string) error {
+
+	addonsToBeUpgraded := []string{
+		"metadata/tkg",
+		"addons-management/standard-package-repo",
+	}
+	upgradeClusterMetadataOptions := &UpgradeAddonOptions{
+		AddonNames:        addonsToBeUpgraded,
+		ClusterName:       clusterName,
+		Namespace:         clusterNamespace,
+		IsRegionalCluster: isRegionalCluster,
+		Edition:           tanzuEdition,
+	}
+
+	err := c.DoUpgradeAddon(regionalClusterClient, currentClusterClient, upgradeClusterMetadataOptions, c.GetClusterConfiguration)
+	if err != nil {
+		return errors.Wrap(err, "failed to update metadata configmaps after kubernetes upgrade")
 	}
 
 	return nil
