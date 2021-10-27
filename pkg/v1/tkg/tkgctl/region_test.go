@@ -14,8 +14,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
 )
 
-const fakeURL = "http://0.0.0.0"
-
 var _ = Describe("Unit tests for add region", func() {
 	var (
 		ctl       tkgctl
@@ -148,88 +146,6 @@ var _ = Describe("Unit test for get region", func() {
 	Context("when region exists", func() {
 		BeforeEach(func() {
 			tkgClient.GetRegionContextsReturns(nil, nil)
-		})
-		It("should not return an error", func() {
-			Expect(err).ToNot(HaveOccurred())
-		})
-	})
-})
-
-var _ = Describe("Unit test for register region", func() {
-	var (
-		ctl       tkgctl
-		tkgClient = &fakes.Client{}
-		ops       = RegisterOptions{
-			ClusterName:        "my-cluster",
-			TMCRegistrationURL: "",
-		}
-		err error
-	)
-
-	JustBeforeEach(func() {
-		ctl = tkgctl{
-			configDir: testingDir,
-			tkgClient: tkgClient,
-		}
-		err = ctl.RegisterWithTmc(ops)
-	})
-
-	Context("when url is not valid", func() {
-		It("should return an error", func() {
-			Expect(err).To(HaveOccurred())
-		})
-	})
-
-	Context("when failed to register region", func() {
-		BeforeEach(func() {
-			ops.TMCRegistrationURL = fakeURL
-			tkgClient.RegisterManagementClusterToTmcReturns(errors.New("region not found"))
-		})
-		It("should return an error", func() {
-			Expect(err).To(HaveOccurred())
-		})
-	})
-	Context("when it is able to register region to tmc", func() {
-		BeforeEach(func() {
-			ops.TMCRegistrationURL = fakeURL
-			tkgClient.RegisterManagementClusterToTmcReturns(nil)
-		})
-		It("should not return an error", func() {
-			Expect(err).ToNot(HaveOccurred())
-		})
-	})
-})
-
-var _ = Describe("Unit test for deregister region", func() {
-	var (
-		ctl       tkgctl
-		tkgClient = &fakes.Client{}
-		ops       = DeregisterFromTMCOptions{
-			ClusterName: "my-cluster",
-			SkipPrompt:  true,
-		}
-		err error
-	)
-
-	JustBeforeEach(func() {
-		ctl = tkgctl{
-			configDir: testingDir,
-			tkgClient: tkgClient,
-		}
-		err = ctl.DeregisterFromTmc(ops)
-	})
-
-	Context("when failed to deregister region", func() {
-		BeforeEach(func() {
-			tkgClient.DeRegisterManagementClusterFromTmcReturns(errors.New("region not found"))
-		})
-		It("should return an error", func() {
-			Expect(err).To(HaveOccurred())
-		})
-	})
-	Context("when it is able to deregister region from tmc", func() {
-		BeforeEach(func() {
-			tkgClient.DeRegisterManagementClusterFromTmcReturns(nil)
 		})
 		It("should not return an error", func() {
 			Expect(err).ToNot(HaveOccurred())

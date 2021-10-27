@@ -151,7 +151,6 @@ const (
 	ConfigVariableEnableCEIPParticipation = "ENABLE_CEIP_PARTICIPATION"
 	ConfigVariableDeployTKGOnVsphere7     = "DEPLOY_TKG_ON_VSPHERE7"
 	ConfigVariableEnableTKGSonVsphere7    = "ENABLE_TKGS_ON_VSPHERE7"
-	ConfigVariableTMCRegistrationURL      = "TMC_REGISTRATION_URL"
 	ConfigVariableSize                    = "SIZE"
 	ConfigVariableControlPlaneSize        = "CONTROLPLANE_SIZE"
 	ConfigVariableWorkerSize              = "WORKER_SIZE"

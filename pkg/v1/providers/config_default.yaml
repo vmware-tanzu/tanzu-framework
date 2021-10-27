@@ -50,9 +50,6 @@ ENABLE_CEIP_PARTICIPATION:
 DEPLOY_TKG_ON_VSPHERE7:
 #! Enable TKGS on vSphere 7.0 without prompt
 ENABLE_TKGS_ON_VSPHERE7:
-#! URL to download the yml which has configuration related to resources to be deployed on the
-#! management cluster for it to register with Tanzu Mission Control
-TMC_REGISTRATION_URL:
 
 #! BUILD_EDITION is the Tanzu Edition, the plugin should be built for.
 #! Valid values for BUILD_EDITION are 'tce' and 'tkg'.
