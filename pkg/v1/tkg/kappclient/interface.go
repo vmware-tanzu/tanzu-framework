@@ -32,7 +32,7 @@ type Client interface {
 	ListPackageMetadata(namespace string) (*kapppkg.PackageMetadataList, error)
 	ListPackages(packageName string, namespace string) (*kapppkg.PackageList, error)
 	ListPackageRepositories(namespace string) (*kappipkg.PackageRepositoryList, error)
-	ListImagePullSecrets(namespace string) (*corev1.SecretList, error)
+	ListRegistrySecrets(namespace string) (*corev1.SecretList, error)
 	ListSecretExports(namespace string) (*secretgen.SecretExportList, error)
 	UpdatePackageInstall(packageInstall *kappipkg.PackageInstall, isPkgPluginCreatedSecret bool) error
 	UpdatePackageRepository(repository *kappipkg.PackageRepository) error

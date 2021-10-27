@@ -23,7 +23,8 @@ var repositoryListCmd = &cobra.Command{
 	
     # List installed packages from default namespace	
     tanzu package repository list`,
-	RunE: repositoryList,
+	RunE:         repositoryList,
+	SilenceUsage: true,
 }
 
 func init() {
@@ -33,8 +34,6 @@ func init() {
 }
 
 func repositoryList(cmd *cobra.Command, _ []string) error {
-	cmd.SilenceUsage = true
-
 	pkgClient, err := tkgpackageclient.NewTKGPackageClient(repoOp.KubeConfig)
 	if err != nil {
 		return err

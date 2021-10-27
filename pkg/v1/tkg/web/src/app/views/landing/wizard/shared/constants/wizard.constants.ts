@@ -4,6 +4,8 @@ export interface NodeType {
     name: string;
 }
 
+export const managementClusterPlugin = 'management-cluster';
+
 export const vSphereNodeTypes: Array<NodeType> = [
     {
         id: 'small',

@@ -233,7 +233,8 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         const cliParams: CliFields = {
             configPath: configPath,
             clusterType: this.clusterType,
-            clusterName: this.getMCName()
+            clusterName: this.getMCName(),
+            extendCliCmds: []
         };
         return cliG.getCli(cliParams);
     }
@@ -244,6 +245,13 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
      */
     applyTkgConfig() {
         return this.apiClient.applyTKGConfigForVsphere({ params: this.getPayload() });
+    }
+
+    /**
+     * Retrieve the config file from the backend and return as a string
+     */
+    retrieveExportFile() {
+        return this.apiClient.exportTKGConfigForVsphere({ params: this.getPayload() });
     }
 
     /**

@@ -72,7 +72,7 @@ clr-icon.contextual-help {
     margin-bottom: 0;
 
     // tooltip icon fixes
-    label {
+    .title, label {
         clr-tooltip {
             clr-icon {
                 bottom: 1px;
@@ -277,4 +277,8 @@ clr-control-error.clr-subtext {
 
 .pr-5 {
     padding-right: 5px;
+}
+
+.export-btn {
+    float: right;
 }

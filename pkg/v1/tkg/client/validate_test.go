@@ -714,5 +714,201 @@ var _ = Describe("Validate", func() {
 				Entry("Primary IPv6: Garbage", dualStackIPv6Primary, "asdf,fasd"),
 			)
 		})
+		Context("Nameserver configuration and validation", func() {
+			It("should allow empty nameserver configurations", func() {
+				validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+				Expect(validationError).NotTo(HaveOccurred())
+			})
+
+			Context("Control Plane Node Nameservers", func() {
+				Context("when CONTROL_PLANE_NODE_NAMESERVERS is a valid set of IPv4 address", func() {
+					It("should pass validation", func() {
+						tkgConfigReaderWriter.Set(constants.ConfigVariableControlPlaneNodeNameservers, "8.8.8.8,8.8.4.4")
+
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).NotTo(HaveOccurred())
+					})
+				})
+				Context("when CONTROL_PLANE_NODE_NAMESERVERS is a valid set of IPv6 address and TKG_IP_FAMILY is ipv6", func() {
+					It("should pass validation", func() {
+						tkgConfigReaderWriter.Set(constants.ConfigVariableIPFamily, "ipv6")
+						tkgConfigReaderWriter.Set(constants.ConfigVariableControlPlaneNodeNameservers, "2001:DB8::1, 2001:DB8::2")
+
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).NotTo(HaveOccurred())
+					})
+				})
+				Context("when CONTROL_PLANE_NODE_NAMESERVERS only contains IPv6 addresses and TKG_IP_FAMILY is ipv4,ipv6", func() {
+					It("should pass validation", func() {
+						tkgConfigReaderWriter.Set(constants.ConfigVariableIPFamily, "ipv4,ipv6")
+						tkgConfigReaderWriter.Set(constants.ConfigVariableControlPlaneNodeNameservers, "2001:DB8::1,2001:DB8::2")
+
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).NotTo(HaveOccurred())
+					})
+				})
+				Context("when CONTROL_PLANE_NODE_NAMESERVERS only contains IPv4 addresses and TKG_IP_FAMILY is ipv4,ipv6", func() {
+					It("should pass validation", func() {
+						tkgConfigReaderWriter.Set(constants.ConfigVariableIPFamily, "ipv4,ipv6")
+						tkgConfigReaderWriter.Set(constants.ConfigVariableControlPlaneNodeNameservers, "8.8.8.8,8.8.4.4")
+
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).NotTo(HaveOccurred())
+					})
+				})
+				Context("when CONTROL_PLANE_NODE_NAMESERVERS is a valid set of IPv4,IPv6 address and TKG_IP_FAMILY is ipv4,ipv6", func() {
+					It("should pass validation", func() {
+						tkgConfigReaderWriter.Set(constants.ConfigVariableIPFamily, "ipv4,ipv6")
+						tkgConfigReaderWriter.Set(constants.ConfigVariableControlPlaneNodeNameservers, "8.8.8.8,2001:DB8::2,8.8.4.4,2001:DB8::4")
+
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).NotTo(HaveOccurred())
+					})
+				})
+				Context("when CONTROL_PLANE_NODE_NAMESERVERS contains multiple invalid entries", func() {
+					It("should return an error", func() {
+						tkgConfigReaderWriter.Set(constants.ConfigVariableControlPlaneNodeNameservers, "google.dns,1.2.3.4,foo.bar")
+
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).To(HaveOccurred())
+						Expect(validationError.Error()).To(ContainSubstring("invalid CONTROL_PLANE_NODE_NAMESERVERS \"google.dns,foo.bar\", expected to be IP addresses that match TKG_IP_FAMILY \"ipv4\""))
+					})
+				})
+				Context("when CONTROL_PLANE_NODE_NAMESERVERS is a IPv6, but the TKG_IP_FAMILY is ipv4", func() {
+					It("should return an error", func() {
+						tkgConfigReaderWriter.Set(constants.ConfigVariableControlPlaneNodeNameservers, "2001:DB8::1")
+
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).To(HaveOccurred())
+						Expect(validationError.Error()).To(ContainSubstring("invalid CONTROL_PLANE_NODE_NAMESERVERS \"2001:DB8::1\", expected to be IP addresses that match TKG_IP_FAMILY \"ipv4\""))
+					})
+				})
+				Context("when CONTROL_PLANE_NODE_NAMESERVERS is a IPv4, but the TKG_IP_FAMILY is ipv6", func() {
+					It("should return an error", func() {
+						tkgConfigReaderWriter.Set(constants.ConfigVariableIPFamily, "ipv6")
+						tkgConfigReaderWriter.Set(constants.ConfigVariableControlPlaneNodeNameservers, "8.8.8.8")
+
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).To(HaveOccurred())
+						Expect(validationError.Error()).To(ContainSubstring("invalid CONTROL_PLANE_NODE_NAMESERVERS \"8.8.8.8\", expected to be IP addresses that match TKG_IP_FAMILY \"ipv6\""))
+					})
+				})
+			})
+			Context("Worker Node Nameservers", func() {
+				Context("when WORKER_NODE_NAMESERVERS is a valid set of IPv4 address", func() {
+					It("should pass validation", func() {
+						tkgConfigReaderWriter.Set(constants.ConfigVariableWorkerNodeNameservers, "8.8.8.8,8.8.4.4")
+
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).NotTo(HaveOccurred())
+					})
+				})
+				Context("when WORKER_NODE_NAMESERVERS is a valid set of IPv6 address and TKG_IP_FAMILY is ipv6", func() {
+					It("should pass validation", func() {
+						tkgConfigReaderWriter.Set(constants.ConfigVariableIPFamily, "ipv6")
+						tkgConfigReaderWriter.Set(constants.ConfigVariableWorkerNodeNameservers, "2001:DB8::1, 2001:DB8::2")
+
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).NotTo(HaveOccurred())
+					})
+				})
+				Context("when WORKER_NODE_NAMESERVERS only contains IPv6 addresses and TKG_IP_FAMILY is ipv4,ipv6", func() {
+					It("should pass validation", func() {
+						tkgConfigReaderWriter.Set(constants.ConfigVariableIPFamily, "ipv4,ipv6")
+						tkgConfigReaderWriter.Set(constants.ConfigVariableWorkerNodeNameservers, "2001:DB8::1,2001:DB8::2")
+
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).NotTo(HaveOccurred())
+					})
+				})
+				Context("when WORKER_NODE_NAMESERVERS only contains IPv4 addresses and TKG_IP_FAMILY is ipv4,ipv6", func() {
+					It("should pass validation", func() {
+						tkgConfigReaderWriter.Set(constants.ConfigVariableIPFamily, "ipv4,ipv6")
+						tkgConfigReaderWriter.Set(constants.ConfigVariableWorkerNodeNameservers, "8.8.8.8,8.8.4.4")
+
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).NotTo(HaveOccurred())
+					})
+				})
+				Context("when WORKER_NODE_NAMESERVERS is a valid set of IPv4,IPv6 address and TKG_IP_FAMILY is ipv4,ipv6", func() {
+					It("should pass validation", func() {
+						tkgConfigReaderWriter.Set(constants.ConfigVariableIPFamily, "ipv4,ipv6")
+						tkgConfigReaderWriter.Set(constants.ConfigVariableWorkerNodeNameservers, "8.8.8.8,2001:DB8::2,8.8.4.4,2001:DB8::4")
+
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).NotTo(HaveOccurred())
+					})
+				})
+				Context("when WORKER_NODE_NAMESERVERS contains multiple invalid entries", func() {
+					It("should return an error", func() {
+						tkgConfigReaderWriter.Set(constants.ConfigVariableWorkerNodeNameservers, "google.dns,1.2.3.4,foo.bar")
+
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).To(HaveOccurred())
+						Expect(validationError.Error()).To(ContainSubstring("invalid WORKER_NODE_NAMESERVERS \"google.dns,foo.bar\", expected to be IP addresses that match TKG_IP_FAMILY \"ipv4\""))
+					})
+				})
+				Context("when WORKER_NODE_NAMESERVERS is a IPv6, but the TKG_IP_FAMILY is ipv4", func() {
+					It("should return an error", func() {
+						tkgConfigReaderWriter.Set(constants.ConfigVariableWorkerNodeNameservers, "2001:DB8::1")
+
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).To(HaveOccurred())
+						Expect(validationError.Error()).To(ContainSubstring("invalid WORKER_NODE_NAMESERVERS \"2001:DB8::1\", expected to be IP addresses that match TKG_IP_FAMILY \"ipv4\""))
+					})
+				})
+				Context("when WORKER_NODE_NAMESERVERS is a IPv4, but the TKG_IP_FAMILY is ipv6", func() {
+					It("should return an error", func() {
+						tkgConfigReaderWriter.Set(constants.ConfigVariableIPFamily, "ipv6")
+						tkgConfigReaderWriter.Set(constants.ConfigVariableWorkerNodeNameservers, "8.8.8.8")
+
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).To(HaveOccurred())
+						Expect(validationError.Error()).To(ContainSubstring("invalid WORKER_NODE_NAMESERVERS \"8.8.8.8\", expected to be IP addresses that match TKG_IP_FAMILY \"ipv6\""))
+					})
+				})
+			})
+		})
+	})
+})
+
+var _ = Describe("Cluster Name Validation", func() {
+	var (
+		infrastructureProvider string
+		err                    error
+	)
+	Context("Azure Cluster", func() {
+		BeforeEach(func() {
+			infrastructureProvider = "azure"
+		})
+		When("cluster name starts with lowercase alpha and is less than 45 characters", func() {
+			It("should validate successfully", func() {
+				err = client.CheckClusterNameFormat("azure-test-cluster", infrastructureProvider)
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+		When("cluster name does not start with lowercase alpha and is more than 44 characters", func() {
+			It("should throw an error", func() {
+				err = client.CheckClusterNameFormat("1-azure-test-cluster-with-a-really-long-name-that-is-excessive", infrastructureProvider)
+				Expect(err).To(HaveOccurred())
+			})
+		})
+	})
+	Context("AWS/vSphere Cluster", func() {
+		BeforeEach(func() {
+			infrastructureProvider = "aws"
+		})
+		When("cluster name starts with lowercase alphanumeric and is less than 64 characters", func() {
+			It("should validate successfully", func() {
+				err = client.CheckClusterNameFormat("1aws-test-cluster", infrastructureProvider)
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+		When("cluster name does not start with lowercase alphanumeric and is more than 63 characters", func() {
+			It("should throw an error", func() {
+				err = client.CheckClusterNameFormat("-aws-test-cluster-with-a-really-long-name-that-is-excessive-and-still-needs-to-be-longer", infrastructureProvider)
+				Expect(err).To(HaveOccurred())
+			})
+		})
 	})
 })

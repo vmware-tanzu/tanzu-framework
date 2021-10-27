@@ -211,7 +211,8 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         const cliParams: CliFields = {
             configPath: configPath,
             clusterType: this.clusterType,
-            clusterName: this.getMCName()
+            clusterName: this.getMCName(),
+            extendCliCmds: []
         };
         return cliG.getCli(cliParams);
     }
@@ -263,6 +264,13 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
     }
     applyTkgConfig() {
         return this.apiClient.applyTKGConfigForAzure({ params: this.getPayload() });
+    }
+
+    /**
+     * Retrieve the config file from the backend and return as a string
+     */
+    retrieveExportFile() {
+        return this.apiClient.exportTKGConfigForAzure({ params: this.getPayload() });
     }
 
     getAdditionalNoProxyInfo() {

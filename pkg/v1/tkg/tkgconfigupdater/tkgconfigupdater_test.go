@@ -106,39 +106,6 @@ var _ = Describe("SaveConfig", func() {
 		})
 	})
 
-	Context("When the key is exported to environment variable", func() {
-		BeforeEach(func() {
-			clusterConfigPath = constConfigPath
-			key = constKeyBAR
-			value = constValueFoo
-			vars = make(map[string]string)
-			vars[key] = value
-			_ = os.Setenv(key, "bar")
-		})
-
-		It("should override the environment variable with the new value", func() {
-			Expect(err).ToNot(HaveOccurred())
-			res := os.Getenv(key)
-			Expect(res).To(Equal(value))
-		})
-	})
-
-	Context("When the key is exported to environment variable", func() {
-		BeforeEach(func() {
-			clusterConfigPath = constConfigPath
-			key = constKeyFOO
-			value = constValueFoo
-			vars = make(map[string]string)
-			vars[key] = value
-		})
-
-		It("should export new key-value pair to environment variable", func() {
-			Expect(err).ToNot(HaveOccurred())
-			res := os.Getenv(key)
-			Expect(res).To(Equal(value))
-		})
-	})
-
 	AfterEach(func() {
 		err = os.WriteFile(clusterConfigPath, originalFile, constants.ConfigFilePermissions)
 		Expect(err).ToNot(HaveOccurred())

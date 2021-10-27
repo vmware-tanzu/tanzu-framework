@@ -7,12 +7,11 @@ package supervisor
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"time"
 
-	certmanagerclientset "github.com/jetstack/cert-manager/pkg/client/clientset/versioned"
 	configv1alpha1 "go.pinniped.dev/generated/1.19/apis/supervisor/config/v1alpha1"
 	idpv1alpha1 "go.pinniped.dev/generated/1.19/apis/supervisor/idp/v1alpha1"
-	supervisorclientset "go.pinniped.dev/generated/1.19/client/supervisor/clientset/versioned"
 	"go.uber.org/zap"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -21,23 +20,24 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/util/retry"
 
-	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/inspect"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/pinnipedclientset"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/vars"
 )
 
 // Configurator contains client information.
 type Configurator struct {
-	Clientset            supervisorclientset.Interface
-	K8SClientset         kubernetes.Interface
-	CertmanagerClientset certmanagerclientset.Interface
+	Clientset    pinnipedclientset.Supervisor
+	K8SClientset kubernetes.Interface
 }
 
 // PinnipedInfo contains settings for the supervisor.
 type PinnipedInfo struct {
-	MgmtClusterName    string
-	Issuer             string
-	IssuerCABundleData string
+	MgmtClusterName                  *string `json:"cluster_name,omitempty"`
+	Issuer                           *string `json:"issuer,omitempty"`
+	IssuerCABundleData               *string `json:"issuer_ca_bundle_data,omitempty"`
+	PinnipedAPIGroupSuffix           string  `json:"pinniped_api_group_suffix"`
+	PinnipedConciergeIsClusterScoped bool    `json:"pinniped_concierge_is_cluster_scoped,string"`
 }
 
 // CreateOrUpdateFederationDomain creates a new federation domain or updates an existing one.
@@ -58,6 +58,7 @@ func (c Configurator) CreateOrUpdateFederationDomain(ctx context.Context, namesp
 				},
 			}
 			if _, err = c.Clientset.ConfigV1alpha1().FederationDomains(namespace).Create(ctx, newFederationDomain, metav1.CreateOptions{}); err != nil {
+				err = fmt.Errorf("could not create federationdomain %s/%s: %w", namespace, name, err)
 				zap.S().Error(err)
 				return err
 			}
@@ -65,6 +66,7 @@ func (c Configurator) CreateOrUpdateFederationDomain(ctx context.Context, namesp
 			zap.S().Infof("Created the FederationDomain %s/%s", namespace, name)
 			return nil
 		}
+		err = fmt.Errorf("could not get federationdomain %s/%s: %w", namespace, name, err)
 		zap.S().Error(err)
 		return err
 	}
@@ -74,6 +76,7 @@ func (c Configurator) CreateOrUpdateFederationDomain(ctx context.Context, namesp
 	copiedFederationDomain := federationDomain.DeepCopy()
 	copiedFederationDomain.Spec.Issuer = issuer
 	if _, err = c.Clientset.ConfigV1alpha1().FederationDomains(namespace).Update(ctx, copiedFederationDomain, metav1.UpdateOptions{}); err != nil {
+		err = fmt.Errorf("could not update federationdomain %s/%s: %w", namespace, name, err)
 		zap.S().Error(err)
 		return err
 	}
@@ -91,6 +94,7 @@ func (c Configurator) RecreateIDPForDex(ctx context.Context, dexNamespace, dexSv
 	var err error
 	var dexSvcEndpoint string
 	if dexSvcEndpoint, err = inspector.GetServiceEndpoint(dexNamespace, dexSvcName); err != nil {
+		err = fmt.Errorf("could not get dex service endpoint: %w", err)
 		zap.S().Error(err)
 		return nil, err
 	}
@@ -111,7 +115,8 @@ func (c Configurator) RecreateIDPForDex(ctx context.Context, dexNamespace, dexSv
 		},
 	)
 	if err != nil {
-		zap.S().Errorf("unable to get the OIDCProvider %s/%s. Error: %v", vars.SupervisorNamespace, vars.PinnipedOIDCProviderName, err)
+		err = fmt.Errorf("could not get oidcidentityprovider %s/%s: %w", vars.SupervisorNamespace, vars.PinnipedOIDCProviderName, err)
+		zap.S().Error(err)
 		return nil, err
 	}
 
@@ -143,64 +148,11 @@ func (c Configurator) RecreateIDPForDex(ctx context.Context, dexNamespace, dexSv
 		},
 	)
 	if err != nil {
-		zap.S().Errorf("unable to create the OIDCProvider %s/%s. Error: %v", vars.SupervisorNamespace, vars.PinnipedOIDCProviderName, err)
+		err = fmt.Errorf("could not create oidcidentityprovider %s/%s: %w", vars.SupervisorNamespace, vars.PinnipedOIDCProviderName, err)
+		zap.S().Error(err)
 		return nil, err
 	}
 
 	zap.S().Infof("Recreated OIDCIdentityProvider %s/%s to point to Dex %s/%s", vars.SupervisorNamespace, vars.PinnipedOIDCProviderName, dexNamespace, dexSvcName)
 	return updatedIDP, nil
-}
-
-// CreateOrUpdatePinnipedInfo creates pinniped information or updates existing data.
-func (c Configurator) CreateOrUpdatePinnipedInfo(ctx context.Context, pinnipedInfo PinnipedInfo) error {
-	var err error
-	zap.S().Info("Creating the ConfigMap for Pinniped info")
-
-	// create configmap under kube-public namespace
-	pinnipedConfigMap := &corev1.ConfigMap{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      constants.PinnipedInfoConfigMapName,
-			Namespace: constants.KubePublicNamespace,
-		},
-		Data: map[string]string{
-			"cluster_name":          pinnipedInfo.MgmtClusterName,
-			"issuer":                pinnipedInfo.Issuer,
-			"issuer_ca_bundle_data": pinnipedInfo.IssuerCABundleData,
-		},
-	}
-
-	if _, err = c.K8SClientset.CoreV1().ConfigMaps(constants.KubePublicNamespace).Get(ctx, constants.PinnipedInfoConfigMapName, metav1.GetOptions{}); err != nil {
-		if errors.IsNotFound(err) {
-			// create if does not exist
-			if _, err = c.K8SClientset.CoreV1().ConfigMaps(constants.KubePublicNamespace).Create(ctx, pinnipedConfigMap, metav1.CreateOptions{}); err != nil {
-				zap.S().Error(err)
-				return err
-			}
-
-			zap.S().Infof("Created the ConfigMap %s/%s for Pinniped info", constants.KubePublicNamespace, constants.PinnipedInfoConfigMapName)
-			return nil
-		}
-		// return err if could not get the configmap due to other errors
-		zap.S().Error(err)
-		return err
-	}
-
-	// if we have configmap fetched, try to update
-	err = retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		var e error
-		var configMapUpdated *corev1.ConfigMap
-		if configMapUpdated, e = c.K8SClientset.CoreV1().ConfigMaps(constants.KubePublicNamespace).Get(ctx, constants.PinnipedInfoConfigMapName, metav1.GetOptions{}); e != nil {
-			return e
-		}
-		configMapUpdated.Data = pinnipedConfigMap.Data
-		_, e = c.K8SClientset.CoreV1().ConfigMaps(constants.KubePublicNamespace).Update(ctx, configMapUpdated, metav1.UpdateOptions{})
-		return e
-	})
-	if err != nil {
-		zap.S().Error(err)
-		return err
-	}
-
-	zap.S().Infof("Updated the ConfigMap %s/%s for Pinniped info", constants.KubePublicNamespace, constants.PinnipedInfoConfigMapName)
-	return nil
 }

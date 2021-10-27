@@ -13,7 +13,7 @@ import (
 	"net/url"
 	"time"
 
-	certmanagerv1beta1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1beta1"
+	certmanagerv1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1"
 	"go.uber.org/zap"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -53,7 +53,7 @@ func RandomHex(n int) (string, error) {
 }
 
 // GetSecretFromCert extracts the secret for the certificate.
-func GetSecretFromCert(ctx context.Context, client kubernetes.Interface, cert *certmanagerv1beta1.Certificate) (*corev1.Secret, error) {
+func GetSecretFromCert(ctx context.Context, client kubernetes.Interface, cert *certmanagerv1.Certificate) (*corev1.Secret, error) {
 	// get secret from cert
 	var secret *corev1.Secret
 	secretNamespace := cert.Namespace

@@ -20,11 +20,11 @@
     <app-shared-delete-data-popup></app-shared-delete-data-popup>
     <form clrStepper #wizard [formGroup]="form">
         <clr-stepper-panel formGroupName="dockerDaemonForm" removeAriaLabelledBy>
-            <clr-step-title i18n="docker daemon step name">
-                Docker Daemon
+            <clr-step-title i18n="docker prerequisite step name">
+                Docker Prerequisites
             </clr-step-title>
-            <clr-step-description i18n="IaaS provder step description">
-                Validate the local Docker daemon
+            <clr-step-description i18n="Docker prerequisite step description">
+                Validate the local Docker daemon, allocated CPUs and Total Memory
             </clr-step-description>
             <ng-container *ngIf="steps[0]">
                 <app-daemon-validation-step [formGroup]="form.controls.dockerDaemonForm" formName="dockerDaemon">
@@ -90,16 +90,23 @@
     </button>
 </div>
 <ng-container *ngIf="review">
-    <tkg-kickstart-ui-confirm [errorNotification]="errorNotification"></tkg-kickstart-ui-confirm>
+    <tkg-kickstart-ui-confirm></tkg-kickstart-ui-confirm>
+    <app-error-notification [errorNotification]="errorNotification"></app-error-notification>
     <div class="clr-row mt-20">
         <div class="clr-col-12">
+            <button class="btn btn-primary" [disabled]="disableDeployButton" (click)="deploy()">
+                Deploy {{ clusterType | titlecase }} Cluster
+            </button>
             <button class="btn btn-outline" (click)="reviewConfiguration(false)"
                 i18n="return to wizard for edit button">
                 Edit Configuration
             </button>
-            <button class="btn btn-primary" [disabled]="disableDeployButton" (click)="deploy()">
-                Deploy {{ clusterType | titlecase }} Cluster
-            </button>
+            <ng-container *featureToggle="'management-cluster.export-from-confirm'">
+                <button class="btn btn-link export-btn" (click)="exportConfiguration()"
+                        i18n="export configuration button">
+                    Export Configuration
+                </button>
+            </ng-container>
         </div>
     </div>
 </ng-container>

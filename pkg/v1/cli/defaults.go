@@ -4,4 +4,4 @@
 package cli
 
 // DefaultDistro is the core set of plugins that should be included with the CLI.
-var DefaultDistro = []string{"login", "pinniped-auth", "cluster", "management-cluster", "kubernetes-release", "package"}
+var DefaultDistro = []string{"login", "pinniped-auth", "cluster", "management-cluster", "kubernetes-release", "package", "secret"}

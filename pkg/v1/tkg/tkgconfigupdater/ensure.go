@@ -36,6 +36,10 @@ var KeysToEncode = []string{
 }
 
 // KeysToNeverPersist are all keys that should never be persisted
+// NOTE: AWS users should persist credentials by creating named profiles using AWS CLI: aws configure --profile <name>,
+// and then use the AWS_PROFILE variable. Temporary static credentials last at most 12 hours, and AWS
+// red-flags partner products that save static credentials, so we do not save them.
+// This is different than vSphere and Azure where static credentials are the norm.
 var KeysToNeverPersist = []string{
 	constants.ConfigVariableAWSAccessKeyID,
 	constants.ConfigVariableAWSSecretAccessKey,

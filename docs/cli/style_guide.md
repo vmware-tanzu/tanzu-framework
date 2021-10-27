@@ -9,6 +9,13 @@ that they adhere to established patterns
 
 ------------------------------
 
+## Styleguide Checklists
+
+Two checklists to help contributors design and develop styleguide-consistent commands are available.
+
+* The [design-stage checklist](design_stage_styleguide_checklist.md) is meant to be used prior to implementation.
+* The [build-stage checklist](build_stage_styleguide_checklist.md) is meant to be used during implementation.
+
 ## Design Principles
 
 ### Prioritize human users first
@@ -61,13 +68,13 @@ tanzu management-cluster kubeconfig get --admin
 
 ### Global Flags
 
-Global flags are maintained by the [Tanzu CLI SIG](https://github.com/vmware-tanzu/community/tree/main/sigs/api-cli) and adding to the current global set should be managed through the SIG
+Global flags are maintained by the Tanzu CLI SIG and adding to the current global set should be managed through the SIG
 
 ### Nouns
 
 Any nouns being added must exist in the [Shared Taxonomy document](/hack/linter/cli-wordlist.yml)
 
-* Introducing nouns to support the creation of new commands and/or subcommands should be reviewed by the [Tanzu CLI SIG](https://github.com/vmware-tanzu/community/tree/main/sigs/api-cli)
+* Introducing nouns to support the creation of new commands and/or subcommands should be reviewed by the Tanzu CLI SIG
 
 Compound words should be `-` delimited
 
