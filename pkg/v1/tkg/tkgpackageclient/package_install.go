@@ -33,10 +33,9 @@ const (
 // InstallPackage installs the PackageInstall and its associated resources in the cluster
 func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progress *tkgpackagedatamodel.PackageProgress, operationType tkgpackagedatamodel.OperationType) {
 	var (
-		pkgInstall            *kappipkg.PackageInstall
-		err                   error
-		secretCreated         bool
-		serviceAccountCreated bool
+		pkgInstall                      *kappipkg.PackageInstall
+		pkgPluginResourceCreationStatus *tkgpackagedatamodel.PkgPluginResourceCreationStatus
+		err                             error
 	)
 
 	defer func() {
@@ -77,12 +76,12 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 		return
 	}
 
-	if serviceAccountCreated, secretCreated, err = p.createRelatedResources(o, progress.ProgressMsg); err != nil {
+	if pkgPluginResourceCreationStatus, err = p.createRelatedResources(o, progress.ProgressMsg); err != nil {
 		return
 	}
 
 	progress.ProgressMsg <- "Creating package resource"
-	if err = p.createPackageInstall(o, serviceAccountCreated, secretCreated); err != nil {
+	if err = p.createPackageInstall(o, pkgPluginResourceCreationStatus); err != nil {
 		return
 	}
 
@@ -94,42 +93,41 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 	}
 }
 
-func (p *pkgClient) createRelatedResources(o *tkgpackagedatamodel.PackageOptions, progress chan string) (bool, bool, error) {
+func (p *pkgClient) createRelatedResources(o *tkgpackagedatamodel.PackageOptions, progress chan string) (*tkgpackagedatamodel.PkgPluginResourceCreationStatus, error) {
 	var (
-		secretCreated         bool
-		serviceAccountCreated bool
-		err                   error
+		pkgPluginResourceCreationStatus tkgpackagedatamodel.PkgPluginResourceCreationStatus
+		err                             error
 	)
 
 	if o.ServiceAccountName == "" {
 		o.ServiceAccountName = fmt.Sprintf(tkgpackagedatamodel.ServiceAccountName, o.PkgInstallName, o.Namespace)
 		progress <- fmt.Sprintf("Creating service account '%s'", o.ServiceAccountName)
-		if serviceAccountCreated, err = p.createOrUpdateServiceAccount(o); err != nil {
-			return serviceAccountCreated, secretCreated, err
+		if pkgPluginResourceCreationStatus.IsServiceAccountCreated, err = p.createOrUpdateServiceAccount(o); err != nil {
+			return &pkgPluginResourceCreationStatus, err
 		}
 
 		o.ClusterRoleName = fmt.Sprintf(tkgpackagedatamodel.ClusterRoleName, o.PkgInstallName, o.Namespace)
 		progress <- fmt.Sprintf("Creating cluster admin role '%s'", o.ClusterRoleName)
 		if err := p.createOrUpdateClusterAdminRole(o); err != nil {
-			return serviceAccountCreated, secretCreated, err
+			return &pkgPluginResourceCreationStatus, err
 		}
 
 		o.ClusterRoleBindingName = fmt.Sprintf(tkgpackagedatamodel.ClusterRoleBindingName, o.PkgInstallName, o.Namespace)
 		progress <- fmt.Sprintf("Creating cluster role binding '%s'", o.ClusterRoleBindingName)
 		if err := p.createOrUpdateClusterRoleBinding(o); err != nil {
-			return serviceAccountCreated, secretCreated, err
+			return &pkgPluginResourceCreationStatus, err
 		}
 	} else {
 		objKey := crtclient.ObjectKey{Name: o.ServiceAccountName, Namespace: o.Namespace}
 		svcAccount := &corev1.ServiceAccount{}
 		if err = p.kappClient.GetClient().Get(context.Background(), objKey, svcAccount); err != nil {
 			err = errors.Wrap(err, fmt.Sprintf("failed to find service account '%s' in namespace '%s'", o.ServiceAccountName, o.Namespace))
-			return serviceAccountCreated, secretCreated, err
+			return &pkgPluginResourceCreationStatus, err
 		}
 		if svcAccountAnnotation, ok := svcAccount.GetAnnotations()[tkgpackagedatamodel.TanzuPkgPluginAnnotation]; ok {
 			if svcAccountAnnotation != fmt.Sprintf(tkgpackagedatamodel.TanzuPkgPluginResource, o.PkgInstallName, o.Namespace) {
 				err = errors.New(fmt.Sprintf("provided service account '%s' is already used by another package in namespace '%s'", o.ServiceAccountName, o.Namespace))
-				return serviceAccountCreated, secretCreated, err
+				return &pkgPluginResourceCreationStatus, err
 			}
 		}
 	}
@@ -137,12 +135,12 @@ func (p *pkgClient) createRelatedResources(o *tkgpackagedatamodel.PackageOptions
 	if o.ValuesFile != "" {
 		o.SecretName = fmt.Sprintf(tkgpackagedatamodel.SecretName, o.PkgInstallName, o.Namespace)
 		progress <- fmt.Sprintf("Creating secret '%s'", o.SecretName)
-		if secretCreated, err = p.createOrUpdateDataValuesSecret(o); err != nil {
-			return serviceAccountCreated, secretCreated, err
+		if pkgPluginResourceCreationStatus.IsSecretCreated, err = p.createOrUpdateDataValuesSecret(o); err != nil {
+			return &pkgPluginResourceCreationStatus, err
 		}
 	}
 
-	return serviceAccountCreated, secretCreated, nil
+	return &pkgPluginResourceCreationStatus, nil
 }
 
 // createOrUpdateClusterAdminRole creates or updates a ClusterRole resource
@@ -252,7 +250,7 @@ func (p *pkgClient) createNamespace(namespace string) error {
 }
 
 // createPackageInstall creates the PackageInstall CR
-func (p *pkgClient) createPackageInstall(o *tkgpackagedatamodel.PackageOptions, serviceAccountCreated, secretCreated bool) error {
+func (p *pkgClient) createPackageInstall(o *tkgpackagedatamodel.PackageOptions, pkgPluginResourceCreationStatus *tkgpackagedatamodel.PkgPluginResourceCreationStatus) error {
 	// construct the PackageInstall CR
 	packageInstall := &kappipkg.PackageInstall{
 		ObjectMeta: metav1.ObjectMeta{Name: o.PkgInstallName, Namespace: o.Namespace},
@@ -269,7 +267,7 @@ func (p *pkgClient) createPackageInstall(o *tkgpackagedatamodel.PackageOptions, 
 	}
 
 	// if configuration data file was provided, reference the secret name in the PackageInstall
-	if secretCreated {
+	if pkgPluginResourceCreationStatus.IsSecretCreated {
 		packageInstall.Spec.Values = []kappipkg.PackageInstallValues{
 			{
 				SecretRef: &kappipkg.PackageInstallValuesSecretRef{
@@ -279,7 +277,7 @@ func (p *pkgClient) createPackageInstall(o *tkgpackagedatamodel.PackageOptions, 
 		}
 	}
 
-	if err := p.kappClient.CreatePackageInstall(packageInstall, serviceAccountCreated, secretCreated); err != nil {
+	if err := p.kappClient.CreatePackageInstall(packageInstall, pkgPluginResourceCreationStatus); err != nil {
 		return errors.Wrap(err, "failed to create PackageInstall resource")
 	}
 

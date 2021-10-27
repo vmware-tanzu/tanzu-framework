@@ -21,11 +21,11 @@ import (
 
 func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progress *tkgpackagedatamodel.PackageProgress, operationType tkgpackagedatamodel.OperationType) {
 	var (
-		pkgInstall         *kappipkg.PackageInstall
-		pkgInstallToUpdate *kappipkg.PackageInstall
-		err                error
-		secretCreated      bool
-		changed            bool
+		pkgInstall                      *kappipkg.PackageInstall
+		pkgInstallToUpdate              *kappipkg.PackageInstall
+		pkgPluginResourceCreationStatus tkgpackagedatamodel.PkgPluginResourceCreationStatus
+		err                             error
+		changed                         bool
 	)
 
 	defer func() {
@@ -65,7 +65,7 @@ func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progres
 		return
 	}
 
-	if secretCreated, err = p.createOrUpdateValuesSecret(o, pkgInstallToUpdate, progress.ProgressMsg); err != nil {
+	if pkgPluginResourceCreationStatus.IsSecretCreated, err = p.createOrUpdateValuesSecret(o, pkgInstallToUpdate, progress.ProgressMsg); err != nil {
 		return
 	}
 
@@ -74,7 +74,7 @@ func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progres
 	}
 
 	progress.ProgressMsg <- fmt.Sprintf("Updating package install for '%s'", o.PkgInstallName)
-	if err = p.kappClient.UpdatePackageInstall(pkgInstallToUpdate, secretCreated); err != nil {
+	if err = p.kappClient.UpdatePackageInstall(pkgInstallToUpdate, &pkgPluginResourceCreationStatus); err != nil {
 		err = errors.Wrap(err, fmt.Sprintf("failed to update package '%s'", o.PkgInstallName))
 		return
 	}

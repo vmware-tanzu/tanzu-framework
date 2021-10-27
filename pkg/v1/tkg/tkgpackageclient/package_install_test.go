@@ -624,7 +624,7 @@ func testPackageInstallPostValidation(crtCtl *fakes.CRTClusterClient, kappCtl *f
 
 	kappCreateCallCnt := kappCtl.CreatePackageInstallCallCount()
 	Expect(kappCreateCallCnt).To(BeNumerically("==", 1))
-	installed, _, _ := kappCtl.CreatePackageInstallArgsForCall(0)
+	installed, _ := kappCtl.CreatePackageInstallArgsForCall(0)
 	Expect(installed.Name).Should(Equal(testPkgInstallName))
 }
 
