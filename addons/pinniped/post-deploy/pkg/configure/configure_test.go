@@ -83,7 +83,7 @@ func TestPinniped(t *testing.T) {
 			"issuer":                               serviceHTTPSEndpoint(supervisorService),
 			"issuer_ca_bundle_data":                base64.StdEncoding.EncodeToString(supervisorCertificateSecret.Data["ca.crt"]),
 			"pinniped_api_group_suffix":            apiGroupSuffix,
-			"pinniped_concierge_is_cluster_scoped": "false",
+			"pinniped_concierge_is_cluster_scoped": "true",
 		},
 	}
 
@@ -94,7 +94,7 @@ func TestPinniped(t *testing.T) {
 		},
 		Data: map[string]string{
 			"pinniped_api_group_suffix":            apiGroupSuffix,
-			"pinniped_concierge_is_cluster_scoped": "false",
+			"pinniped_concierge_is_cluster_scoped": "true",
 		},
 	}
 
@@ -190,15 +190,16 @@ func TestPinniped(t *testing.T) {
 				return kubedynamicfake.NewSimpleDynamicClient(scheme, defaultJWTAuthenticator)
 			},
 			parameters: Parameters{
-				ClusterType:             "management",
-				ClusterName:             pinnipedInfoConfigMap.Data["cluster_name"],
-				SupervisorSvcNamespace:  supervisorService.Namespace,
-				SupervisorSvcName:       supervisorService.Name,
-				FederationDomainName:    federationDomain.Name,
-				SupervisorCertNamespace: supervisorCertificate.Namespace,
-				SupervisorCertName:      supervisorCertificate.Name,
-				JWTAuthenticatorName:    jwtAuthenticator.Name,
-				PinnipedAPIGroupSuffix:  apiGroupSuffix,
+				ClusterType:              "management",
+				ClusterName:              pinnipedInfoConfigMap.Data["cluster_name"],
+				SupervisorSvcNamespace:   supervisorService.Namespace,
+				SupervisorSvcName:        supervisorService.Name,
+				FederationDomainName:     federationDomain.Name,
+				SupervisorCertNamespace:  supervisorCertificate.Namespace,
+				SupervisorCertName:       supervisorCertificate.Name,
+				JWTAuthenticatorName:     jwtAuthenticator.Name,
+				PinnipedAPIGroupSuffix:   apiGroupSuffix,
+				ConciergeIsClusterScoped: true,
 			},
 			wantKubeClientActions: []kubetesting.Action{
 				// 1. Get the supervisor service endpoint to create the correct issuer
@@ -247,13 +248,14 @@ func TestPinniped(t *testing.T) {
 				return kubedynamicfake.NewSimpleDynamicClient(scheme, defaultJWTAuthenticator)
 			},
 			parameters: Parameters{
-				ClusterType:            "workload",
-				ClusterName:            jwtAuthenticator.Spec.Audience,
-				SupervisorSvcNamespace: supervisorService.Namespace,
-				SupervisorSvcEndpoint:  jwtAuthenticator.Spec.Issuer,
-				SupervisorCABundleData: jwtAuthenticator.Spec.TLS.CertificateAuthorityData,
-				JWTAuthenticatorName:   jwtAuthenticator.Name,
-				PinnipedAPIGroupSuffix: apiGroupSuffix,
+				ClusterType:              "workload",
+				ClusterName:              jwtAuthenticator.Spec.Audience,
+				SupervisorSvcNamespace:   supervisorService.Namespace,
+				SupervisorSvcEndpoint:    jwtAuthenticator.Spec.Issuer,
+				SupervisorCABundleData:   jwtAuthenticator.Spec.TLS.CertificateAuthorityData,
+				JWTAuthenticatorName:     jwtAuthenticator.Name,
+				PinnipedAPIGroupSuffix:   apiGroupSuffix,
+				ConciergeIsClusterScoped: true,
 			},
 			wantKubeClientActions: []kubetesting.Action{
 				// 2. Create the Pinniped info configmap
