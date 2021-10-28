@@ -19,6 +19,7 @@ type ScaleClusterOptions struct {
 	Kubeconfig        string
 	ClusterName       string
 	Namespace         string
+	NodePoolName      string
 	WorkerCount       int32
 	ControlPlaneCount int32
 }
@@ -53,13 +54,16 @@ func (c *TkgClient) ScaleCluster(options ScaleClusterOptions) error {
 }
 
 // DoScaleCluster performs the scale operation using the given clusterclient.Client
-func (c *TkgClient) DoScaleCluster(clusterClient clusterclient.Client, options *ScaleClusterOptions) error { // nolint:gocyclo
+func (c *TkgClient) DoScaleCluster(clusterClient clusterclient.Client, options *ScaleClusterOptions) error {
 	isPacific, err := clusterClient.IsPacificRegionalCluster()
 	if err != nil {
 		return errors.Wrap(err, "error determining Tanzu Kubernetes Grid service for vSphere management cluster ")
 	}
 	if isPacific {
-		// If pacific doesn't support the control plane scaling, it will return error
+		err := c.ValidatePacificVersionWithCLI(clusterClient)
+		if err != nil {
+			return err
+		}
 		return c.ScalePacificCluster(*options, clusterClient)
 	}
 
@@ -80,32 +84,10 @@ func (c *TkgClient) DoScaleCluster(clusterClient clusterclient.Client, options *
 	}
 
 	if options.WorkerCount > 0 {
-		// scale nodes across all machine deployments in the cluster
-		workerNodeMachineDeployments, err := clusterClient.GetMDObjectForCluster(options.ClusterName, options.Namespace)
-		if err != nil || len(workerNodeMachineDeployments) == 0 {
-			errList = append(errList, errors.Wrapf(err, "unable to find worker node machine deployment object for cluster %s", options.ClusterName))
+		if options.NodePoolName == "" {
+			errList = append(errList, c.scaleWorkersDefault(clusterClient, options)...)
 		} else {
-			numMachineDeployments := int32(len(workerNodeMachineDeployments))
-			if options.WorkerCount < numMachineDeployments {
-				errList = append(errList, errors.Errorf("new worker count must be greater than or to the number of machine deployments. worker count: %d, machine deployment count: %d", options.WorkerCount, numMachineDeployments))
-			}
-			workersPerMD := options.WorkerCount / numMachineDeployments
-			leftoverWorkers := options.WorkerCount % numMachineDeployments
-			// each machine deployment gets scaled to have an approx equal number of replicas
-			for i := int32(0); i < numMachineDeployments; i++ {
-				workerCount := workersPerMD
-				if leftoverWorkers > 0 {
-					workerCount++
-					leftoverWorkers--
-				}
-				err = clusterClient.UpdateReplicas(&workerNodeMachineDeployments[i], workerNodeMachineDeployments[i].Name, workerNodeMachineDeployments[i].Namespace, workerCount)
-				if err != nil {
-					errList = append(errList, errors.Wrapf(err, "unable to update worker node machine deployment replica count for cluster %s", options.ClusterName))
-				}
-			}
-			if len(errList) == 0 {
-				log.Infof("Successfully updated worker node machine deployment replica count for cluster %s", options.ClusterName)
-			}
+			errList = append(errList, c.scaleWorkersNodePool(clusterClient, options))
 		}
 	}
 
@@ -126,7 +108,7 @@ func (c *TkgClient) ScalePacificCluster(options ScaleClusterOptions, clusterClie
 		}
 	}
 	if options.ControlPlaneCount > 0 {
-		err := clusterClient.ScalePacificClusterControlPlane(options.ClusterName, options.Namespace, "", options.ControlPlaneCount)
+		err := clusterClient.ScalePacificClusterControlPlane(options.ClusterName, options.Namespace, options.ControlPlaneCount)
 		if err != nil {
 			errList = append(errList, errors.Wrapf(err, "unable to scale control plane for workload cluster %s", options.ClusterName))
 		} else {
@@ -134,7 +116,7 @@ func (c *TkgClient) ScalePacificCluster(options ScaleClusterOptions, clusterClie
 		}
 	}
 	if options.WorkerCount > 0 {
-		err := clusterClient.ScalePacificClusterWorkerNodes(options.ClusterName, options.Namespace, "", options.WorkerCount)
+		err := clusterClient.ScalePacificClusterWorkerNodes(options.ClusterName, options.Namespace, options.WorkerCount)
 		if err != nil {
 			errList = append(errList, errors.Wrapf(err, "unable to scale workers nodes for workload cluster %s", options.ClusterName))
 		} else {
@@ -145,4 +127,87 @@ func (c *TkgClient) ScalePacificCluster(options ScaleClusterOptions, clusterClie
 		return nil
 	}
 	return kerrors.NewAggregate(errList)
+}
+
+func (c *TkgClient) scaleWorkersDefault(clusterClient clusterclient.Client, options *ScaleClusterOptions) []error {
+	// scale nodes across all machine deployments in the cluster
+	workerNodeMachineDeployments, err := clusterClient.GetMDObjectForCluster(options.ClusterName, options.Namespace)
+	if err != nil {
+		return []error{errors.Wrapf(err, "error retrieving worker node machine deployment objects for cluster %s", options.ClusterName)}
+	}
+	if len(workerNodeMachineDeployments) == 0 {
+		return []error{errors.Errorf("no machine deployments found in cluster %s", options.ClusterName)}
+	}
+
+	numMachineDeployments := int32(len(workerNodeMachineDeployments))
+	if options.WorkerCount < numMachineDeployments {
+		return []error{errors.Errorf("new worker count must be greater than or equal to the number of machine deployments. worker count: %d, machine deployment count: %d", options.WorkerCount, numMachineDeployments)}
+	}
+	workersPerMD := options.WorkerCount / numMachineDeployments
+	leftoverWorkers := options.WorkerCount % numMachineDeployments
+	var errList []error
+	// each machine deployment gets scaled to have an approx equal number of replicas
+	for i := int32(0); i < numMachineDeployments; i++ {
+		workerCount := desiredWorkerCount(workersPerMD, leftoverWorkers, i)
+		err := clusterClient.UpdateReplicas(&workerNodeMachineDeployments[i], workerNodeMachineDeployments[i].Name, workerNodeMachineDeployments[i].Namespace, workerCount)
+		if err != nil {
+			errList = append(errList, errors.Wrapf(err, "unable to update worker node replica count for machine deployment %s on cluster %s", workerNodeMachineDeployments[i].Name, options.ClusterName))
+		}
+	}
+
+	if len(errList) == 0 {
+		log.Infof("Successfully updated worker node machine deployment replica count for cluster %s", options.ClusterName)
+	}
+	return errList
+}
+
+func (c *TkgClient) scaleWorkersNodePool(clusterClient clusterclient.Client, options *ScaleClusterOptions) error {
+	mdExists, err := c.mdExists(clusterClient, options)
+	if err != nil {
+		return err
+	}
+	if !mdExists {
+		return errors.Errorf("Could not find node pool with name %s", options.NodePoolName)
+	}
+
+	mdOptions := SetMachineDeploymentOptions{
+		Namespace:   options.Namespace,
+		ClusterName: options.ClusterName,
+		NodePool: NodePool{
+			Name:     options.NodePoolName,
+			Replicas: &options.WorkerCount,
+		},
+	}
+	if err := c.DoSetMachineDeployment(clusterClient, &mdOptions); err != nil {
+		return errors.Wrapf(err, "Unable to scale node pool %s", options.NodePoolName)
+	}
+
+	return nil
+}
+
+func desiredWorkerCount(workersPerMD, leftoverWorkers, i int32) int32 {
+	if i < leftoverWorkers {
+		return workersPerMD + 1
+	}
+	return workersPerMD
+}
+
+func (c *TkgClient) mdExists(clusterClient clusterclient.Client, options *ScaleClusterOptions) (bool, error) {
+	getOptions := GetMachineDeploymentOptions{
+		ClusterName: options.ClusterName,
+		Namespace:   options.Namespace,
+		Name:        options.NodePoolName,
+	}
+	mds, err := c.DoGetMachineDeployments(clusterClient, &getOptions)
+	if err != nil {
+		return false, errors.Wrapf(err, "Failed to get node pools for cluster %s", options.ClusterName)
+	}
+
+	for i := range mds {
+		if mds[i].Name == options.NodePoolName {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }

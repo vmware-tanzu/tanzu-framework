@@ -34,6 +34,8 @@ type ClusterPinnipedInfo struct {
 	PinnipedInfo *utils.PinnipedConfigMapInfo
 }
 
+const defaultPinnipedAPIGroupSuffix = "pinniped.dev"
+
 // GetClusterPinnipedInfo gets pinniped information from cluster
 func (c *TkgClient) GetClusterPinnipedInfo(options GetClusterPinnipedInfoOptions) (*ClusterPinnipedInfo, error) {
 	clusterclientOptions := clusterclient.Options{
@@ -87,9 +89,29 @@ func (c *TkgClient) GetWCClusterPinnipedInfo(regionalClusterClient clusterclient
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get management cluster-info")
 	}
-	pinnipedInfo, err := utils.GetPinnipedInfoFromCluster(mcClusterInfo)
+	managementClusterPinnipedInfo, err := utils.GetPinnipedInfoFromCluster(mcClusterInfo)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get pinniped-info from management cluster")
+	}
+	if managementClusterPinnipedInfo == nil {
+		return nil, errors.New("failed to get pinniped-info from management cluster")
+	}
+
+	workloadClusterPinnipedInfo, err := utils.GetPinnipedInfoFromCluster(clusterInfo)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get pinniped-info from workload cluster")
+	}
+
+	pinnipedInfo := managementClusterPinnipedInfo
+	if workloadClusterPinnipedInfo != nil {
+		// Get ConciergeAPIGroupSuffix and ConciergeIsClusterScoped from workload cluster in case it is different from the management cluster
+		pinnipedInfo.Data.ConciergeAPIGroupSuffix = workloadClusterPinnipedInfo.Data.ConciergeAPIGroupSuffix
+		pinnipedInfo.Data.ConciergeIsClusterScoped = workloadClusterPinnipedInfo.Data.ConciergeIsClusterScoped
+	} else {
+		// If workloadClusterPinnipedInfo is nil, assume it is an older TKG cluster and set ConciergeAPIGroupSuffix and ConciergeIsClusterScoped to defaults
+		var _defaultPinnipedAPIGroupSuffix = defaultPinnipedAPIGroupSuffix
+		pinnipedInfo.Data.ConciergeAPIGroupSuffix = &_defaultPinnipedAPIGroupSuffix
+		pinnipedInfo.Data.ConciergeIsClusterScoped = false
 	}
 
 	return &ClusterPinnipedInfo{
@@ -122,6 +144,10 @@ func (c *TkgClient) GetMCClusterPinnipedInfo(regionalClusterClient clusterclient
 	pinnipedInfo, err := utils.GetPinnipedInfoFromCluster(clusterInfo)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get pinniped-info from cluster")
+	}
+
+	if pinnipedInfo == nil {
+		return nil, errors.New("failed to get pinniped-info from cluster")
 	}
 
 	return &ClusterPinnipedInfo{

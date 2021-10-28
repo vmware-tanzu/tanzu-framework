@@ -20,7 +20,8 @@ var repositoryGetCmd = &cobra.Command{
 	Example: `
     # Get details for a repository in specified namespace 	
     tanzu package repository get repo --namespace test-ns`,
-	RunE: repositoryGet,
+	RunE:         repositoryGet,
+	SilenceUsage: true,
 }
 
 func init() {
@@ -34,8 +35,6 @@ func repositoryGet(cmd *cobra.Command, args []string) error {
 	} else {
 		return errors.New("incorrect number of input parameters. Usage: tanzu package repository get REPOSITORY_NAME [FLAGS]")
 	}
-
-	cmd.SilenceUsage = true
 
 	pkgClient, err := tkgpackageclient.NewTKGPackageClient(repoOp.KubeConfig)
 	if err != nil {

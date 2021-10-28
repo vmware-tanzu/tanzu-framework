@@ -43,6 +43,7 @@ type VSphereConfig struct {
 	TmcRegistrationURL     string `yaml:"TMC_REGISTRATION_URL,omitempty"`
 
 	K8sVersion                         string `yaml:"KUBERNETES_VERSION,omitempty"`
+	IPFamily                           string `yaml:"TKG_IP_FAMILY,omitempty"`
 	Server                             string `yaml:"VSPHERE_SERVER,omitempty"`
 	Username                           string `yaml:"VSPHERE_USERNAME,omitempty"`
 	Password                           string `yaml:"VSPHERE_PASSWORD,omitempty"`
@@ -100,6 +101,7 @@ func (c *client) NewVSphereConfig(params *models.VsphereRegionalClusterParams) (
 		Folder:               params.Folder,
 		SSHKey:               params.SSHKey,
 		ControlPlaneEndpoint: params.ControlPlaneEndpoint,
+		IPFamily:             params.IPFamily,
 		HTTPProxyEnabled:     falseConst,
 	}
 	if params.Os != nil {

@@ -59,16 +59,15 @@ func (fake *KindProvider) Create(arg1 string, arg2 ...cluster.CreateOption) erro
 		arg1 string
 		arg2 []cluster.CreateOption
 	}{arg1, arg2})
-	stub := fake.CreateStub
-	fakeReturns := fake.createReturns
 	fake.recordInvocation("Create", []interface{}{arg1, arg2})
 	fake.createMutex.Unlock()
-	if stub != nil {
-		return stub(arg1, arg2...)
+	if fake.CreateStub != nil {
+		return fake.CreateStub(arg1, arg2...)
 	}
 	if specificReturn {
 		return ret.result1
 	}
+	fakeReturns := fake.createReturns
 	return fakeReturns.result1
 }
 
@@ -121,16 +120,15 @@ func (fake *KindProvider) Delete(arg1 string, arg2 string) error {
 		arg1 string
 		arg2 string
 	}{arg1, arg2})
-	stub := fake.DeleteStub
-	fakeReturns := fake.deleteReturns
 	fake.recordInvocation("Delete", []interface{}{arg1, arg2})
 	fake.deleteMutex.Unlock()
-	if stub != nil {
-		return stub(arg1, arg2)
+	if fake.DeleteStub != nil {
+		return fake.DeleteStub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1
 	}
+	fakeReturns := fake.deleteReturns
 	return fakeReturns.result1
 }
 
@@ -183,16 +181,15 @@ func (fake *KindProvider) KubeConfig(arg1 string, arg2 bool) (string, error) {
 		arg1 string
 		arg2 bool
 	}{arg1, arg2})
-	stub := fake.KubeConfigStub
-	fakeReturns := fake.kubeConfigReturns
 	fake.recordInvocation("KubeConfig", []interface{}{arg1, arg2})
 	fake.kubeConfigMutex.Unlock()
-	if stub != nil {
-		return stub(arg1, arg2)
+	if fake.KubeConfigStub != nil {
+		return fake.KubeConfigStub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
+	fakeReturns := fake.kubeConfigReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 

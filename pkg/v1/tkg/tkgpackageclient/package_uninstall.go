@@ -40,7 +40,7 @@ func (p *pkgClient) UninstallPackage(o *tkgpackagedatamodel.PackageOptions, prog
 	pkgInstall, err = p.kappClient.GetPackageInstall(o.PkgInstallName, o.Namespace)
 	if err != nil {
 		if apierrors.IsNotFound(err) {
-			if err := p.deletePreviouslyInstalledResources(o); err != nil {
+			if err := p.deletePreviouslyInstalledResources(o, progress.ProgressMsg); err != nil {
 				return
 			}
 			err = &tkgpackagedatamodel.PackagePluginNonCriticalError{Reason: tkgpackagedatamodel.ErrPackageNotInstalled}
@@ -145,37 +145,27 @@ func (p *pkgClient) deletePackageInstall(o *tkgpackagedatamodel.PackageOptions) 
 }
 
 // deletePreviouslyInstalledResources deletes the related resources if previously installed through the package plugin
-func (p *pkgClient) deletePreviouslyInstalledResources(o *tkgpackagedatamodel.PackageOptions) error {
-	var objMeta metav1.ObjectMeta
+func (p *pkgClient) deletePreviouslyInstalledResources(o *tkgpackagedatamodel.PackageOptions, progress chan string) error {
+	var name string
 	resourceAnnotation := fmt.Sprintf(tkgpackagedatamodel.TanzuPkgPluginResource, o.PkgInstallName, o.Namespace)
 
-	objMeta = metav1.ObjectMeta{
-		Name: fmt.Sprintf(tkgpackagedatamodel.ClusterRoleBindingName, o.PkgInstallName, o.Namespace),
-	}
-	if err := p.deleteAnnotatedResource(&rbacv1.ClusterRoleBinding{}, crtclient.ObjectKey{Name: objMeta.Name}, resourceAnnotation); err != nil {
+	name = fmt.Sprintf(tkgpackagedatamodel.ClusterRoleBindingName, o.PkgInstallName, o.Namespace)
+	if err := p.deleteAnnotatedResource("role binding", &rbacv1.ClusterRoleBinding{}, crtclient.ObjectKey{Name: name}, resourceAnnotation, progress); err != nil {
 		return err
 	}
 
-	objMeta = metav1.ObjectMeta{
-		Name: fmt.Sprintf(tkgpackagedatamodel.ClusterRoleName, o.PkgInstallName, o.Namespace),
-	}
-	if err := p.deleteAnnotatedResource(&rbacv1.ClusterRole{}, crtclient.ObjectKey{Name: objMeta.Name}, resourceAnnotation); err != nil {
+	name = fmt.Sprintf(tkgpackagedatamodel.ClusterRoleName, o.PkgInstallName, o.Namespace)
+	if err := p.deleteAnnotatedResource("admin role", &rbacv1.ClusterRole{}, crtclient.ObjectKey{Name: name}, resourceAnnotation, progress); err != nil {
 		return err
 	}
 
-	objMeta = metav1.ObjectMeta{
-		Name:      fmt.Sprintf(tkgpackagedatamodel.ServiceAccountName, o.PkgInstallName, o.Namespace),
-		Namespace: o.Namespace,
-	}
-	if err := p.deleteAnnotatedResource(&corev1.ServiceAccount{}, crtclient.ObjectKey{Name: objMeta.Name, Namespace: o.Namespace}, resourceAnnotation); err != nil {
+	name = fmt.Sprintf(tkgpackagedatamodel.ServiceAccountName, o.PkgInstallName, o.Namespace)
+	if err := p.deleteAnnotatedResource("service account", &corev1.ServiceAccount{}, crtclient.ObjectKey{Name: name, Namespace: o.Namespace}, resourceAnnotation, progress); err != nil {
 		return err
 	}
 
-	objMeta = metav1.ObjectMeta{
-		Name:      fmt.Sprintf(tkgpackagedatamodel.SecretName, o.PkgInstallName, o.Namespace),
-		Namespace: o.Namespace,
-	}
-	if err := p.deleteAnnotatedResource(&corev1.Secret{}, crtclient.ObjectKey{Name: objMeta.Name, Namespace: o.Namespace}, resourceAnnotation); err != nil {
+	name = fmt.Sprintf(tkgpackagedatamodel.SecretName, o.PkgInstallName, o.Namespace)
+	if err := p.deleteAnnotatedResource("secret", &corev1.Secret{}, crtclient.ObjectKey{Name: name, Namespace: o.Namespace}, resourceAnnotation, progress); err != nil {
 		return err
 	}
 
@@ -183,12 +173,13 @@ func (p *pkgClient) deletePreviouslyInstalledResources(o *tkgpackagedatamodel.Pa
 }
 
 // deleteAnnotatedResource deletes the corresponding resource to the installed package name & namespace in case it has the package plugin annotation
-func (p *pkgClient) deleteAnnotatedResource(obj runtime.Object, objKey crtclient.ObjectKey, resourceAnnotation string) error {
+func (p *pkgClient) deleteAnnotatedResource(resourceType string, obj runtime.Object, objKey crtclient.ObjectKey, resourceAnnotation string, progress chan string) error {
 	if err := p.kappClient.GetClient().Get(context.Background(), objKey, obj); err != nil {
 		if !apierrors.IsNotFound(err) {
 			return err
 		}
 	} else {
+		progress <- fmt.Sprintf("Deleting %s '%s'", resourceType, objKey.Name)
 		o, err := meta.Accessor(obj)
 		if err != nil {
 			return err
@@ -232,6 +223,10 @@ func (p *pkgClient) waitForResourceDeletion(name, namespace string, pollInterval
 				}
 				return false, err
 			}
+			if resource.Generation != resource.Status.ObservedGeneration {
+				// Should wait for generation to be observed before checking the reconciliation status so that we know we are checking the new spec
+				return false, nil
+			}
 			status = resource.Status.GenericStatus
 		case tkgpackagedatamodel.ResourceTypePackageInstall:
 			resource, err := p.kappClient.GetPackageInstall(name, namespace)
@@ -241,13 +236,17 @@ func (p *pkgClient) waitForResourceDeletion(name, namespace string, pollInterval
 				}
 				return false, err
 			}
+			if resource.Generation != resource.Status.ObservedGeneration {
+				// Should wait for generation to be observed before checking the reconciliation status so that we know we are checking the new spec
+				return false, nil
+			}
 			status = resource.Status.GenericStatus
 		}
 		for _, cond := range status.Conditions {
 			if progress != nil {
-				progress <- fmt.Sprintf("Resource deletion status: %s", cond.Type)
+				progress <- fmt.Sprintf("'%s' resource deletion status: %s", rscType.String(), cond.Type)
 			}
-			if cond.Type == kappctrl.DeleteFailed {
+			if cond.Type == kappctrl.DeleteFailed && cond.Status == corev1.ConditionTrue {
 				return false, fmt.Errorf("resource deletion failed: %s. %s", status.UsefulErrorMessage, status.FriendlyDescription)
 			}
 		}

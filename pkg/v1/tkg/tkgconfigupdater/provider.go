@@ -4,7 +4,6 @@
 package tkgconfigupdater
 
 import (
-	"encoding/base64"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -212,17 +211,13 @@ func (c *client) InitProvidersRegistry() (registry.Registry, error) {
 		Anon:        true,
 	}
 
-	customImageRepoCACertEnv, err := c.tkgConfigReaderWriter.Get(constants.ConfigVariableCustomImageRepositoryCaCertificate)
-	if err == nil && customImageRepoCACertEnv != "" {
+	caCertBytes, err := c.tkgBomClient.GetCustomRepositoryCaCertificateForClient()
+	if err == nil && len(caCertBytes) != 0 {
 		filePath, err := tkgconfigpaths.GetRegistryCertFile()
 		if err != nil {
 			return nil, err
 		}
-		decoded, err := base64.StdEncoding.DecodeString(customImageRepoCACertEnv)
-		if err != nil {
-			return nil, errors.Wrap(err, "unable to decode the base64-encoded custom registry CA certificate string")
-		}
-		err = os.WriteFile(filePath, decoded, 0644)
+		err = os.WriteFile(filePath, caCertBytes, 0644)
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to write the custom image registry CA cert to file '%s'", filePath)
 		}

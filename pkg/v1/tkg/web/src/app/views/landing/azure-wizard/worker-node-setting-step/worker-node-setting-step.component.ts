@@ -23,10 +23,6 @@ export class WorkerNodeSettingStepComponent extends StepFormDirective implements
     workderNodeInstanceTypes = ["large", "medium", "small"];
     azs = ["US-WEST", "US-EAST"];
 
-    constructor() {
-        super();
-    }
-
     buildForm() {
         this.formGroup.addControl(
             'workerNodeInstanceType',
@@ -53,5 +49,4 @@ export class WorkerNodeSettingStepComponent extends StepFormDirective implements
         this.buildForm();
         this.initForm();
     }
-
 }

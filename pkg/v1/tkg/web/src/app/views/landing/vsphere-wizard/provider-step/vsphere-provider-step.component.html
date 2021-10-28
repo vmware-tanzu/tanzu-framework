@@ -28,7 +28,27 @@
             <clr-icon aria-hidden="true" shape="close"></clr-icon>
         </button>
     </div>
-    <h4 aria-level="2">vSphere {{ vsphereVersion }}</h4>
+    <clr-radio-container clrInline *ngIf="enableIpv6">
+        <label>
+            Select the IP family to use throughout this installer
+            <clr-tooltip>
+                <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                    <span>
+                        This choice dictates the required IP format for addresses and CIDRs in the rest of the installer.
+                    </span>
+                </clr-tooltip-content>
+            </clr-tooltip>
+        </label>
+        <clr-radio-wrapper>
+          <input type="radio" clrRadio name="ipFamily" required value="ipv4" formControlName="ipFamily" />
+          <label>IPv4</label>
+        </clr-radio-wrapper>
+        <clr-radio-wrapper>
+          <input type="radio" clrRadio name="ipFamily" required value="ipv6" formControlName="ipFamily" />
+          <label>IPv6</label>
+        </clr-radio-wrapper>
+    </clr-radio-container>
     <div class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-input-container [attr.data-step-metadata]="formName">
@@ -100,7 +120,7 @@
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                             <span>
                                 Name of the datacenter in vCenter Server in which to place the
-                                {{ clusterType }} cluster.
+                                {{ clusterTypeDescriptor }} cluster.
                             </span>
                         </clr-tooltip-content>
                     </clr-tooltip>
@@ -127,7 +147,7 @@
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                             <span>
                                 The contents of an 4096-bit SSH-2 RSA public key from a key pair
-                                that you have created. Allows SSH to the {{ clusterType }} cluster nodes as user capv.
+                                that you have created. Allows SSH to the {{ clusterTypeDescriptor }} cluster nodes as user capv.
                             </span>
                         </clr-tooltip-content>
                     </clr-tooltip>
@@ -182,7 +202,7 @@
             <button
                     class="btn btn-primary btn-width-350"
                     (click)="vSphereWithK8ModalOpen = false">
-                Deploy TKG {{ clusterType | titlecase }} Cluster
+                Deploy TKG {{ clusterTypeDescriptor | titlecase }} Cluster
             </button>
         </p>
         <p>

@@ -126,6 +126,7 @@ const (
 	TKGHTTPSProxy       = "TKG_HTTPS_PROXY"
 	TKGHTTPProxyEnabled = "TKG_HTTP_PROXY_ENABLED"
 	TKGNoProxy          = "TKG_NO_PROXY"
+	TKGProxyCACert      = "TKG_PROXY_CA_CERT"
 
 	ConfigVariableOSName    = "OS_NAME"
 	ConfigVariableOSVersion = "OS_VERSION"
@@ -135,6 +136,9 @@ const (
 	ConfigVariableServiceCIDR = "SERVICE_CIDR"
 
 	ConfigVariableIPFamily = "TKG_IP_FAMILY"
+
+	ConfigVariableControlPlaneNodeNameservers = "CONTROL_PLANE_NODE_NAMESERVERS"
+	ConfigVariableWorkerNodeNameservers       = "WORKER_NODE_NAMESERVERS"
 
 	// Below config variables are added based on init and create command flags
 

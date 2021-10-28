@@ -28,7 +28,8 @@ required_variable_list_tkgs = [
   "CONTROL_PLANE_VM_CLASS",
   "SERVICE_DOMAIN",
   "WORKER_STORAGE_CLASS",
-  "WORKER_VM_CLASS"]
+  "WORKER_VM_CLASS",
+  "NODE_POOL_0_NAME"]
 
 def validate_configuration(provider):
   #! skip validation when only employing the template to generate

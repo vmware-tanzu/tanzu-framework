@@ -5,26 +5,22 @@ package cli
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
-	"strconv"
 	"strings"
 	"sync"
 
 	"github.com/aunum/log"
 	"github.com/pkg/errors"
-	"github.com/spf13/cobra"
 	"go.uber.org/multierr"
 	"golang.org/x/mod/semver"
 	apimachineryjson "k8s.io/apimachinery/pkg/runtime/serializer/json"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 )
 
 const (
@@ -52,165 +48,6 @@ func getCatalogCacheDir() (path string, err error) {
 	}
 	path = filepath.Join(home, catalogCacheDirName)
 	return
-}
-
-// NewTestFor creates a plugin descriptor for a test plugin.
-func NewTestFor(pluginName string) *cliv1alpha1.PluginDescriptor {
-	return &cliv1alpha1.PluginDescriptor{
-		Name:        fmt.Sprintf("%s-test", pluginName),
-		Description: fmt.Sprintf("test for %s", pluginName),
-		Version:     "v0.0.1",
-		BuildSHA:    buildinfo.SHA,
-		Group:       cliv1alpha1.TestCmdGroup,
-		Aliases:     []string{fmt.Sprintf("%s-alias", pluginName)},
-	}
-}
-
-// GetCmd returns a cobra command for the plugin.
-func GetCmd(p *cliv1alpha1.PluginDescriptor) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   p.Name,
-		Short: p.Description,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			runner := NewRunner(p.Name, args)
-			ctx := context.Background()
-			return runner.Run(ctx)
-		},
-		DisableFlagParsing: true,
-		Annotations: map[string]string{
-			"group": string(p.Group),
-		},
-		Hidden:  p.Hidden,
-		Aliases: p.Aliases,
-	}
-
-	// Handle command line completion types.
-	if p.CompletionType == cliv1alpha1.NativePluginCompletion {
-		cmd.ValidArgsFunction = func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-			// Parses the completion info provided by cobra.Command. This should be formatted similar to:
-			//   help	Help about any command
-			//   :4
-			//   Completion ended with directive: ShellCompDirectiveNoFileComp
-			completion := []string{"__complete"}
-			completion = append(completion, args...)
-			completion = append(completion, toComplete)
-
-			runner := NewRunner(p.Name, completion)
-			ctx := context.Background()
-			output, _, err := runner.RunOutput(ctx)
-			if err != nil {
-				return nil, cobra.ShellCompDirectiveError
-			}
-
-			lines := strings.Split(strings.Trim(output, "\n"), "\n")
-			var results []string
-			for _, line := range lines {
-				if strings.HasPrefix(line, ":") {
-					// Special marker in output to indicate the end
-					directive, err := strconv.Atoi(line[1:])
-					if err != nil {
-						return results, cobra.ShellCompDirectiveError
-					}
-					return results, cobra.ShellCompDirective(directive)
-				}
-				results = append(results, line)
-			}
-
-			return []string{}, cobra.ShellCompDirectiveError
-		}
-	} else if p.CompletionType == cliv1alpha1.StaticPluginCompletion {
-		cmd.ValidArgs = p.CompletionArgs
-	} else if p.CompletionType == cliv1alpha1.DynamicPluginCompletion {
-		cmd.ValidArgsFunction = func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-			// Pass along the full completion information. Trivial plugins may not support
-			// completion depth, but we can provide the information in case they do.
-			completion := []string{p.CompletionCommand}
-			completion = append(completion, args...)
-			completion = append(completion, toComplete)
-
-			runner := NewRunner(p.Name, completion)
-			ctx := context.Background()
-			output, stderr, err := runner.RunOutput(ctx)
-			if err != nil || stderr != "" {
-				return nil, cobra.ShellCompDirectiveError
-			}
-
-			// Expectation is that plugins will return a list of nouns, one per line. Can be either just
-			// the noun, or "noun[tab]Description".
-			return strings.Split(strings.Trim(output, "\n"), "\n"), cobra.ShellCompDirectiveNoFileComp
-		}
-	}
-
-	cmd.SetHelpFunc(func(c *cobra.Command, args []string) {
-		// Plugin commands don't provide full details to the default "help" cmd.
-		// To get around this, we need to intercept and send the help request
-		// out to the plugin.
-		// Cobra also doesn't pass along any additional args since it has parsed
-		// the command structure, and as far as it knows, there are no subcommands
-		// below the top level plugin command. To get around this to support help
-		// calls such as "tanzu help cluster list", we need to do some argument
-		// parsing ourselves and modify what gets passed along to the plugin.
-		helpArgs := getHelpArguments()
-
-		// Pass this new command in to our plugin to have it handle help output
-		runner := NewRunner(p.Name, helpArgs)
-		ctx := context.Background()
-		err := runner.Run(ctx)
-		if err != nil {
-			log.Error("Help output for '%s' is not available.", c.Name())
-		}
-	})
-	return cmd
-}
-
-// getHelpArguments extracts the command line to pass along to help calls.
-// The help function is only ever called for help commands in the format of
-// "tanzu help cmd", so we can assume anything two after "help" should get
-// passed along (this also accounts for aliases).
-func getHelpArguments() []string {
-	cliArgs := os.Args
-	helpArgs := []string{}
-	for i := range cliArgs {
-		if cliArgs[i] == "help" {
-			// Found the "help" argument, now capture anything after the plugin name/alias
-			argLen := len(cliArgs)
-			if (i + 1) < argLen {
-				helpArgs = cliArgs[i+2:]
-			}
-			break
-		}
-	}
-
-	// Then add the -h flag for whatever we found
-	return append(helpArgs, "-h")
-}
-
-// TestCmd returns a cobra command for the plugin.
-func TestCmd(p *cliv1alpha1.PluginDescriptor) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   p.Name,
-		Short: p.Description,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			runner := NewRunner(p.Name, args)
-			ctx := context.Background()
-			return runner.RunTest(ctx)
-		},
-		DisableFlagParsing: true,
-	}
-	return cmd
-}
-
-// ApplyDefaultConfig applies default configurations to plugin descriptor.
-func ApplyDefaultConfig(p *cliv1alpha1.PluginDescriptor) {
-	p.BuildSHA = buildinfo.SHA
-	if p.Version == "" {
-		p.Version = buildinfo.Version
-	}
-	if p.PostInstallHook == nil {
-		p.PostInstallHook = func() error {
-			return nil
-		}
-	}
 }
 
 // ValidatePlugin validates the plugin descriptor.
@@ -377,7 +214,7 @@ func saveCatalogCache(catalog *cliv1alpha1.Catalog) error {
 
 	s := apimachineryjson.NewSerializerWithOptions(apimachineryjson.DefaultMetaFactory, scheme, scheme,
 		apimachineryjson.SerializerOptions{Yaml: true, Pretty: false, Strict: false})
-	catalog.GetObjectKind().SetGroupVersionKind(cliv1alpha1.GroupVersionKind)
+	catalog.GetObjectKind().SetGroupVersionKind(cliv1alpha1.GroupVersionKindCatalog)
 	buf := new(bytes.Buffer)
 	if err := s.Encode(catalog, buf); err != nil {
 		return errors.Wrap(err, "failed to encode catalog cache file")
@@ -451,8 +288,8 @@ func getPluginsFromCatalogCache() (list []*cliv1alpha1.PluginDescriptor, err err
 	return catalog.PluginDescriptors, nil
 }
 
-// insertOrUpdatePluginCacheEntry inserts or updates a plugin entry in catalog cache
-func insertOrUpdatePluginCacheEntry(name string) error {
+// upsertPluginCacheEntry inserts or updates a plugin entry in catalog cache
+func upsertPluginCacheEntry(name string) error {
 	list, err := getPluginsFromCatalogCache()
 	if err != nil {
 		return err
@@ -626,7 +463,7 @@ func installOrUpgradePlugin(name, version string, repo Repository) error {
 	if err != nil {
 		return errors.Wrap(err, "could not write file")
 	}
-	err = insertOrUpdatePluginCacheEntry(name)
+	err = upsertPluginCacheEntry(name)
 	if err != nil {
 		log.Debug("Plugin descriptor could not be updated in cache")
 	}

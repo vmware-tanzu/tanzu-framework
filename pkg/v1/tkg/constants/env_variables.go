@@ -5,8 +5,10 @@ package constants
 
 // environment variables for http proxy
 const (
-	HTTPNoProxy = "NO_PROXY"
+	NoProxy     = "NO_PROXY"
 	HTTPProxy   = "HTTP_PROXY"
+	HTTPSProxy  = "HTTPS_PROXY"
+	ProxyCACert = "PROXY_CA_CERT"
 )
 
 // environment variables for internal development use

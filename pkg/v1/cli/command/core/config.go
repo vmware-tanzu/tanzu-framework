@@ -6,6 +6,7 @@ package core
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/aunum/log"
 	"github.com/pkg/errors"
@@ -22,16 +23,13 @@ import (
 func init() {
 	configCmd.SetUsageFunc(cli.SubCmdUsageFunc)
 	configCmd.AddCommand(
-		showConfigCmd,
 		getConfigCmd,
 		initConfigCmd,
 		setConfigCmd,
 		serversCmd,
 	)
-	setConfigCmd.AddCommand(setUnstableVersionsOptionCmd)
 	serversCmd.AddCommand(listServersCmd)
 	addDeleteServersCmd()
-	cli.DeprecateCommandWithAlternative(showConfigCmd, "1.5.0", "get")
 }
 
 var unattended bool
@@ -47,23 +45,6 @@ var configCmd = &cobra.Command{
 	Short: "Configuration for the CLI",
 	Annotations: map[string]string{
 		"group": string(cliv1alpha1.SystemCmdGroup),
-	},
-}
-
-var showConfigCmd = &cobra.Command{
-	Use:   "show",
-	Short: "Show the current configuration",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		cfgPath, err := config.ClientConfigPath()
-		if err != nil {
-			return err
-		}
-		b, err := os.ReadFile(cfgPath)
-		if err != nil {
-			return err
-		}
-		fmt.Println(string(b))
-		return nil
 	},
 }
 
@@ -85,41 +66,80 @@ var getConfigCmd = &cobra.Command{
 }
 
 var setConfigCmd = &cobra.Command{
-	Use:   "set <key> <value>",
-	Short: "Set config option key values. Options: [unstableversions]",
-}
-
-var setUnstableVersionsOptionCmd = &cobra.Command{
-	Use:   "unstable-versions <value>",
-	Short: "Set unstable-versions. Valid settings: [all, none, alpha, experimental]",
+	Use:   "set <path> <value>",
+	Short: "Set config values at the given path. path values: [unstable-versions, features.global.<feature>, features.<plugin>.<feature>]",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if len(args) == 0 {
-			return errors.Errorf("value required [all, none, alpha, experimental]")
+		if len(args) < 2 {
+			return errors.Errorf("both path and value are required")
+		}
+		if len(args) > 2 {
+			return errors.Errorf("only path and value are allowed")
 		}
 		cfg, err := config.GetClientConfig()
 		if err != nil {
 			return err
 		}
-		optionKey := configv1alpha1.VersionSelectorLevel(args[0])
 
-		switch optionKey {
-		case configv1alpha1.AllUnstableVersions,
-			configv1alpha1.AlphaUnstableVersions,
-			configv1alpha1.ExperimentalUnstableVersions,
-			configv1alpha1.NoUnstableVersions:
-			cfg.SetUnstableVersionSelector(optionKey)
-		default:
-			return fmt.Errorf("unknown unstableversions setting: %s", optionKey)
-		}
-
-		err = config.StoreClientConfig(cfg)
+		err = setFeature(cfg, args[0], args[1])
 		if err != nil {
 			return err
 		}
 
-		return nil
+		return config.StoreClientConfig(cfg)
 	},
 }
+
+// setFeature sets the key-value pair for the given path
+func setFeature(cfg *configv1alpha1.ClientConfig, pathParam, value string) error {
+	// special cases:
+	// backward compatibility
+	if pathParam == "unstable-versions" {
+		return setUnstableVersions(cfg, value)
+	}
+
+	// parse the param
+	paramArray := strings.Split(pathParam, ".")
+	if len(paramArray) != 3 {
+		return errors.New("unable to parse config path parameter into three parts [" + pathParam + "]  (was expecting features.<plugin>.<feature>)")
+	}
+
+	featuresLiteral := paramArray[0]
+	plugin := paramArray[1]
+	key := paramArray[2]
+
+	if featuresLiteral != "features" {
+		return errors.New("unsupported config path parameter [" + featuresLiteral + "] (was expecting 'features.<plugin>.<feature>')")
+	}
+
+	if cfg.ClientOptions == nil {
+		cfg.ClientOptions = &configv1alpha1.ClientOptions{}
+	}
+	if cfg.ClientOptions.Features == nil {
+		cfg.ClientOptions.Features = make(map[string]configv1alpha1.FeatureMap)
+	}
+	if cfg.ClientOptions.Features[plugin] == nil {
+		cfg.ClientOptions.Features[plugin] = configv1alpha1.FeatureMap{}
+	}
+	cfg.ClientOptions.Features[plugin][key] = value
+
+	return nil
+}
+
+func setUnstableVersions(cfg *configv1alpha1.ClientConfig, value string) error {
+	optionKey := configv1alpha1.VersionSelectorLevel(value)
+
+	switch optionKey {
+	case configv1alpha1.AllUnstableVersions,
+		configv1alpha1.AlphaUnstableVersions,
+		configv1alpha1.ExperimentalUnstableVersions,
+		configv1alpha1.NoUnstableVersions:
+		cfg.SetUnstableVersionSelector(optionKey)
+	default:
+		return fmt.Errorf("unknown unstable-versions setting: %s; should be one of [all, none, alpha, experimental]", optionKey)
+	}
+	return nil
+}
+
 var initConfigCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initialize config with defaults",

@@ -12,7 +12,7 @@ import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-
 /**
  * App imports
  */
-import { PROVIDERS, Providers } from '../../../../shared/constants/app.constants';
+import { IpFamilyEnum, PROVIDERS, Providers } from '../../../../shared/constants/app.constants';
 import { NodeType, vSphereNodeTypes } from '../../wizard/shared/constants/wizard.constants';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
@@ -70,7 +70,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             'machineHealthChecksEnabled',
             new FormControl(true, [])
         );
-        if (this.clusterType !== 'standalone') {
+        if (!this.modeClusterStandalone) {
             this.formGroup.addControl(
                 'workerNodeInstanceType',
                 new FormControl('', [
@@ -100,6 +100,13 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         );
 
         this.registerOnValueChange("controlPlaneEndpointProvider", this.onControlPlaneEndpoingProviderChange.bind(this));
+        this.registerOnIpFamilyChange('controlPlaneEndpointIP', [
+            Validators.required,
+            this.validationService.isValidIpOrFqdn()
+        ], [
+            Validators.required,
+            this.validationService.isValidIpv6OrFqdn()
+        ]);
 
         setTimeout(_ => {
             this.displayForm = true;
@@ -124,14 +131,14 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             });
 
             this.formGroup.get('devInstanceType').valueChanges.subscribe(data => {
-                if (this.clusterType !== 'standalone') {
+                if (!this.modeClusterStandalone) {
                     this.formGroup.get('workerNodeInstanceType').setValue(data);
                 }
                 this.formGroup.controls['workerNodeInstanceType'].updateValueAndValidity();
             });
 
             this.formGroup.get('prodInstanceType').valueChanges.subscribe(data => {
-                if (this.clusterType !== 'standalone') {
+                if (!this.modeClusterStandalone) {
                     this.formGroup.get('workerNodeInstanceType').setValue(data);
                 }
                 this.formGroup.controls['workerNodeInstanceType'].updateValueAndValidity();
@@ -171,9 +178,9 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         });
         this.resurrectField("controlPlaneEndpointIP", (provider === KUBE_VIP) ? [
             Validators.required,
-            this.validationService.isValidIpOrFqdn()
+            this.ipFamily === IpFamilyEnum.IPv4 ? this.validationService.isValidIpOrFqdn() : this.validationService.isValidIpv6OrFqdn()
         ] : [
-            this.validationService.isValidIpOrFqdn()
+            this.ipFamily === IpFamilyEnum.IPv4 ? this.validationService.isValidIpOrFqdn() : this.validationService.isValidIpv6OrFqdn()
         ], this.getSavedValue("controlPlaneEndpointIP", ""));
 
         this.controlPlaneEndpointOptional = (provider === KUBE_VIP ? "" : "(OPTIONAL)");

@@ -20,7 +20,8 @@ var repositoryUpdateCmd = &cobra.Command{
 	Example: `
     # Update repository in default namespace 	
     tanzu package repository update repo --url projects-stg.registry.vmware.com/tkg/standard-repo:v1.0.1 --namespace test-ns`,
-	RunE: repositoryUpdate,
+	RunE:         repositoryUpdate,
+	SilenceUsage: true,
 }
 
 func init() {
@@ -34,10 +35,8 @@ func init() {
 	repositoryCmd.AddCommand(repositoryUpdateCmd)
 }
 
-func repositoryUpdate(cmd *cobra.Command, args []string) error {
+func repositoryUpdate(_ *cobra.Command, args []string) error { //nolint
 	repoOp.RepositoryName = args[0]
-
-	cmd.SilenceUsage = true
 
 	pkgClient, err := tkgpackageclient.NewTKGPackageClient(repoOp.KubeConfig)
 	if err != nil {
@@ -49,17 +48,17 @@ func repositoryUpdate(cmd *cobra.Command, args []string) error {
 		Err:         make(chan error),
 		Done:        make(chan struct{}),
 	}
-	go pkgClient.UpdateRepository(repoOp, pp)
+	go pkgClient.UpdateRepository(repoOp, pp, tkgpackagedatamodel.OperationTypeUpdate)
 
 	initialMsg := fmt.Sprintf("Updating package repository '%s'", repoOp.RepositoryName)
 	if err := DisplayProgress(initialMsg, pp); err != nil {
 		if err.Error() == tkgpackagedatamodel.ErrRepoNotExists {
-			log.Warningf("\npackage repository '%s' does not exist in namespace '%s'. Consider using the --create flag to add the package repository", repoOp.RepositoryName, repoOp.Namespace)
+			log.Warningf("package repository '%s' does not exist in namespace '%s'. Consider using the --create flag to add the package repository", repoOp.RepositoryName, repoOp.Namespace)
 			return nil
 		}
 		return err
 	}
 
-	log.Infof("\n Updated package repository '%s' in namespace '%s'", repoOp.RepositoryName, repoOp.Namespace)
+	log.Infof("Updated package repository '%s' in namespace '%s'", repoOp.RepositoryName, repoOp.Namespace)
 	return nil
 }

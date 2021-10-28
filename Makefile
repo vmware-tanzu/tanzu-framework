@@ -35,9 +35,7 @@ VALE := $(TOOLS_BIN_DIR)/vale
 TOOLING_BINARIES := $(GOLANGCI_LINT) $(YTT) $(KUBEVAL) $(GOIMPORTS) $(GOBINDATA) $(GINKGO) $(VALE)
 
 PINNIPED_GIT_REPOSITORY = https://github.com/vmware-tanzu/pinniped.git
-ifeq ($(strip $(PINNIPED_GIT_COMMIT)),)
-PINNIPED_GIT_COMMIT = v0.4.0
-endif
+PINNIPED_VERSIONS = v0.4.4 v0.12.0
 
 ifndef IS_OFFICIAL_BUILD
 IS_OFFICIAL_BUILD = ""
@@ -62,9 +60,8 @@ endif
 DOCKER_DIR := /app
 SWAGGER=docker run --rm -v ${PWD}:${DOCKER_DIR} quay.io/goswagger/swagger:v0.21.0
 
-
-# Add supported OS-ARCHITECTURE combinations here
-ENVS := linux-amd64 windows-amd64 darwin-amd64
+# OCI registry for hosting tanzu framework components (containers and packages)
+OCI_REGISTRY ?= projects.registry.vmware.com/tanzu_framework
 
 .DEFAULT_GOAL:=help
 
@@ -84,9 +81,12 @@ BUILD_TAGS ?=
 ARTIFACTS_DIR ?= ./artifacts
 
 XDG_CACHE_HOME := ${HOME}/.cache
+XDG_CONFIG_HOME :=${HOME}/.config
 
 export XDG_DATA_HOME
 export XDG_CACHE_HOME
+export XDG_CONFIG_HOME
+export OCI_REGISTRY
 
 ## --------------------------------------
 ## API/controller building and generation
@@ -125,12 +125,6 @@ generate-go: $(COUNTERFEITER) ## Generate code via go generate.
 generate: controller-gen ## Generate code via controller-gen
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt",year=$(shell date +%Y) paths="./..."
 	$(MAKE) fmt
-
-docker-build: test ## Build the docker image
-	docker build . -t ${IMG} --build-arg LD_FLAGS="$(LD_FLAGS)"
-
-docker-push: ## Push the docker image
-	docker push ${IMG}
 
 controller-gen: ## Download controller-gen
 ifeq (, $(shell which controller-gen))
@@ -172,7 +166,7 @@ version: ## Show version
 ensure-pinniped-repo:
 	@rm -rf pinniped
 	@mkdir -p pinniped
-	@GIT_TERMINAL_PROMPT=0 git clone -q --depth 1 --branch $(PINNIPED_GIT_COMMIT) ${PINNIPED_GIT_REPOSITORY} pinniped > ${NUL} 2>&1
+	@GIT_TERMINAL_PROMPT=0 git clone -q ${PINNIPED_GIT_REPOSITORY} pinniped > ${NUL} 2>&1
 
 .PHONY: prep-build-cli
 prep-build-cli: ensure-pinniped-repo
@@ -234,7 +228,7 @@ build-cli-%: prep-build-cli
 		printf "======================================\n\n";\
 	fi
 
-	./hack/embed-pinniped-binary.sh go ${OS} ${ARCH}
+	./hack/embed-pinniped-binary.sh go ${OS} ${ARCH} ${PINNIPED_VERSIONS}
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --tags "${BUILD_TAGS}" --corepath "cmd/cli/tanzu" --artifacts artifacts/${OS}/${ARCH}/cli --target  ${OS}_${ARCH}
 
 ## --------------------------------------
@@ -253,6 +247,29 @@ build-cli-local: configure-buildtags-embedproviders build-cli-${GOHOSTOS}-${GOHO
 
 .PHONY: build-install-cli-local
 build-install-cli-local: clean-catalog-cache clean-cli-plugins build-cli-local install-cli-plugins install-cli ## Local build and install the CLI plugins
+
+## --------------------------------------
+## Build and publish CLIPlugin Discovery resource files and binaries
+## --------------------------------------
+
+STANDALONE_PLUGINS := login management-cluster package pinniped-auth
+CONTEXT_PLUGINS := cluster kubernetes-release secret
+
+.PHONY: publish-plugins
+publish-plugins:
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go publish --type local --plugins "$(STANDALONE_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${ENVS}" --local-output-discovery-dir "$(XDG_CONFIG_HOME)/tanzu-plugins/discovery/standalone" --local-output-distribution-dir "$(XDG_CONFIG_HOME)/tanzu-plugins/distribution" --input-artifact-dir $(ARTIFACTS_DIR)
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go publish --type local --plugins "$(CONTEXT_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${ENVS}" --local-output-discovery-dir "$(XDG_CONFIG_HOME)/tanzu-plugins/discovery/context" --local-output-distribution-dir "$(XDG_CONFIG_HOME)/tanzu-plugins/distribution" --input-artifact-dir $(ARTIFACTS_DIR)
+
+.PHONY: publish-plugins-local
+publish-plugins-local:
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go publish --type local --plugins "$(STANDALONE_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${GOHOSTOS}-${GOHOSTARCH}" --local-output-discovery-dir "$(XDG_CONFIG_HOME)/tanzu-plugins/discovery/standalone" --local-output-distribution-dir "$(XDG_CONFIG_HOME)/tanzu-plugins/distribution" --input-artifact-dir $(ARTIFACTS_DIR)
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go publish --type local --plugins "$(CONTEXT_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${GOHOSTOS}-${GOHOSTARCH}" --local-output-discovery-dir "$(XDG_CONFIG_HOME)/tanzu-plugins/discovery/context" --local-output-distribution-dir "$(XDG_CONFIG_HOME)/tanzu-plugins/distribution" --input-artifact-dir $(ARTIFACTS_DIR)
+
+.PHONY: build-publish-plugins
+build-publish-plugins: clean-catalog-cache clean-cli-plugins build-cli install-cli publish-plugins
+	
+.PHONY: build-publish-plugins-local
+build-publish-plugins-local: clean-catalog-cache clean-cli-plugins build-cli-local install-cli publish-plugins-local
 
 ## --------------------------------------
 ## manage cli mocks
@@ -316,7 +333,7 @@ release-%:
 	$(eval OS = $(word 1,$(subst -, ,$*)))
 
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --tags "${BUILD_TAGS}" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin/${OS}/${ARCH}/cli --target ${OS}_${ARCH}
-	./hack/embed-pinniped-binary.sh go ${OS} ${ARCH}
+	./hack/embed-pinniped-binary.sh go ${OS} ${ARCH} ${PINNIPED_VERSIONS}
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --tags "${BUILD_TAGS}" --corepath "cmd/cli/tanzu" --artifacts artifacts/${OS}/${ARCH}/cli --target  ${OS}_${ARCH}
 
 ## --------------------------------------
@@ -486,3 +503,31 @@ e2e-tkgctl-vc67: $(GINKGO) generate-embedproviders ## Run ginkgo tkgctl E2E test
 .PHONY: e2e-tkgpackageclient-docker
 e2e-tkgpackageclient-docker: $(GINKGO) generate-embedproviders ## Run ginkgo tkgpackageclient E2E tests
 	$(GINKGO) -v -trace -nodes=$(GINKGO_NODES) --noColor=$(GINKGO_NOCOLOR) $(GINKGO_ARGS) -tags embedproviders pkg/v1/tkg/test/tkgpackageclient
+
+## --------------------------------------
+## Docker build
+## --------------------------------------
+
+# These are the components in this repo that need to have a docker image built.
+# This variable refers to directory paths that contain a Makefile with `docker-build`, `docker-publish` and
+# `kbld-image-replace` targets that can build and push a docker image for that component.
+COMPONENTS := cliplugins pkg/v1/sdk/features
+
+.PHONY: docker-build
+docker-build: TARGET=docker-build
+docker-build: $(COMPONENTS)
+
+.PHONY: docker-publish
+docker-publish: TARGET=docker-publish
+docker-publish: $(COMPONENTS)
+
+.PHONY: kbld-image-replace
+kbld-image-replace: TARGET=kbld-image-replace
+kbld-image-replace: $(COMPONENTS)
+
+.PHONY: $(COMPONENTS)
+$(COMPONENTS):
+	$(MAKE) -C $@ $(TARGET) IMG_VERSION_OVERRIDE=$(BUILD_VERSION)
+
+.PHONY: docker-all
+docker-all: docker-build docker-publish kbld-image-replace

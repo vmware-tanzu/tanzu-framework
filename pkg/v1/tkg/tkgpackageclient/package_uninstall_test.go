@@ -8,6 +8,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
@@ -34,8 +35,9 @@ var _ = Describe("Uninstall Package", func() {
 		pkgInstall = kappipkg.PackageInstall{
 			TypeMeta: metav1.TypeMeta{Kind: tkgpackagedatamodel.KindPackageInstall},
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      testPkgInstallName,
-				Namespace: testNamespaceName,
+				Name:       testPkgInstallName,
+				Namespace:  testNamespaceName,
+				Generation: 1,
 				Annotations: map[string]string{
 					tkgpackagedatamodel.TanzuPkgPluginAnnotation + "-" + tkgpackagedatamodel.KindClusterRole:        "test-pkg-test-ns-cluster-role",
 					tkgpackagedatamodel.TanzuPkgPluginAnnotation + "-" + tkgpackagedatamodel.KindClusterRoleBinding: "test-pkg-test-ns-cluster-rolebinding",
@@ -93,12 +95,14 @@ var _ = Describe("Uninstall Package", func() {
 			pkgInstall.Status = kappipkg.PackageInstallStatus{
 				GenericStatus: kappctrl.GenericStatus{
 					Conditions: []kappctrl.AppCondition{
-						{Type: kappctrl.Deleting},
-						{Type: kappctrl.DeleteFailed},
+						{Type: kappctrl.Deleting, Status: corev1.ConditionTrue},
+						{Type: kappctrl.DeleteFailed, Status: corev1.ConditionTrue},
 					},
 					UsefulErrorMessage: testUsefulErrMsg,
+					ObservedGeneration: 1,
 				},
 			}
+			Expect(pkgInstall.Status.ObservedGeneration).To(Equal(pkgInstall.Generation))
 			kappCtl.GetPackageInstallReturns(&pkgInstall, nil)
 		})
 		It(testFailureMsg, func() {

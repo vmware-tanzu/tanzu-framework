@@ -513,7 +513,7 @@ func (c *TkgClient) GetVSphereEndpoint(clusterClient clusterclient.Client) (vc.C
 func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *InitRegionOptions, skipValidation bool) *ValidationError { // nolint:gocyclo,funlen
 	var err error
 	if options.ClusterName != "" {
-		if err := checkClusterNameFormat(options.ClusterName); err != nil {
+		if err := CheckClusterNameFormat(options.ClusterName, options.InfrastructureProvider); err != nil {
 			return NewValidationError(ValidationErrorCode, err.Error())
 		}
 	}
@@ -577,8 +577,13 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
+	if err = c.ConfigureAndValidateNameserverConfiguration(); err != nil {
+		return NewValidationError(ValidationErrorCode, err.Error())
+	}
+
 	isProdPlan := options.Plan == constants.PlanProd
 	_, workerMachineCount := c.getMachineCountForMC(options.Plan)
+
 	switch name {
 	case AWSProviderName:
 		err = c.ConfigureAndValidateAWSConfig(tkrVersion, options.NodeSizeOptions, skipValidation, isProdPlan, int64(workerMachineCount), nil, true)
@@ -1341,7 +1346,7 @@ func (c *TkgClient) ConfigureAndValidateCNIType(cniType string) error {
 // DistributeMachineDeploymentWorkers distributes machine deployment for worker nodes
 func (c *TkgClient) DistributeMachineDeploymentWorkers(workerMachineCount int64, isProdConfig, isManagementCluster bool, infraProviderName string) ([]int, error) { // nolint:gocyclo
 	workerCounts := make([]int, 3)
-	if infraProviderName != "aws" && infraProviderName != "azure" {
+	if infraProviderName != AWSProviderName && infraProviderName != AzureProviderName {
 		workerCounts[0] = int(workerMachineCount)
 		return workerCounts, nil
 	}
@@ -1420,6 +1425,19 @@ func (c *TkgClient) EncodeAWSCredentialsAndGetClient(clusterClient clusterclient
 	c.TKGConfigReaderWriter().Set(constants.ConfigVariableAWSB64Credentials, b64Creds)
 
 	return awsClient, nil
+}
+
+// ValidatePacificVersionWithCLI validate Pacific TKC API version with cli version
+func (c *TkgClient) ValidatePacificVersionWithCLI(regionalClusterClient clusterclient.Client) error {
+	tkcAPIVersion, err := regionalClusterClient.GetPacificTKCAPIVersion()
+	if err != nil {
+		return errors.Wrap(err, "error determining the Tanzu Kubernetes Cluster API version")
+	}
+	if tkcAPIVersion != constants.DefaultPacificClusterAPIVersion {
+		return errors.Errorf("Only %q Tanzu Kubernetes Cluster API version is supported by current version of Tanzu CLI. Please upgrade 'Tanzu Kubernetes Cluster service for vSphere' to latest version if you are using older version",
+			constants.DefaultPacificClusterAPIVersion)
+	}
+	return nil
 }
 
 // ConfigureAndValidateHTTPProxyConfiguration configures and validates http proxy configuration
@@ -1541,14 +1559,24 @@ func (c *TkgClient) configureVsphereCredentialsFromCluster(clusterClient cluster
 	return nil
 }
 
-func checkClusterNameFormat(clusterName string) error {
-	matched, err := regexp.MatchString("^[a-z][a-z0-9-.]{0,44}[a-z0-9]$", clusterName)
+// CheckClusterNameFormat ensures that the cluster name is valid for the given provider
+func CheckClusterNameFormat(clusterName, infrastructureProvider string) error {
+	var clusterNameRegex string
+	if infrastructureProvider == AzureProviderName {
+		// Azure limitation
+		clusterNameRegex = "^[a-z][a-z0-9-.]{0,42}[a-z0-9]$"
+	} else {
+		// k8s resource name DNS limitation
+		clusterNameRegex = "^[a-z0-9][a-z0-9-.]{0,61}[a-z0-9]$"
+	}
+	matched, err := regexp.MatchString(clusterNameRegex, clusterName)
 	if err != nil {
 		return errors.Wrap(err, "failed to validate cluster name")
 	}
 	if !matched {
-		return errors.New("cluster name doesn't match regex ^[a-z][a-z0-9-.]{0,44}[a-z0-9]$, can contain only lowercase alphanumeric characters, '.' and '-', must start/end with an alphanumeric character")
+		return errors.Errorf("cluster name doesn't match regex %s, can contain only lowercase alphanumeric characters, '.' and '-'", clusterNameRegex)
 	}
+
 	return nil
 }
 
@@ -1704,4 +1732,44 @@ func getDockerBridgeNetworkCidr() (string, error) {
 	networkCidr = strings.Trim(networkCidr, "'")
 
 	return networkCidr, nil
+}
+
+// ConfigureAndValidateNameserverConfiguration validates the configuration of the control plane node and workload node nameservers
+func (c *TkgClient) ConfigureAndValidateNameserverConfiguration() error {
+	err := c.validateNameservers(constants.ConfigVariableControlPlaneNodeNameservers)
+	if err != nil {
+		return err
+	}
+
+	return c.validateNameservers(constants.ConfigVariableWorkerNodeNameservers)
+}
+
+func (c *TkgClient) validateNameservers(nameserverConfigVariable string) error {
+	// ignoring error because IPFamily is an optional configuration
+	// if not set Get will return an empty string
+	ipFamily, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableIPFamily)
+	if ipFamily == "" {
+		ipFamily = constants.IPv4Family
+	}
+
+	nameservers, err := c.TKGConfigReaderWriter().Get(nameserverConfigVariable)
+	if err != nil {
+		return nil
+	}
+
+	invalidNameservers := []string{}
+	for _, nameserver := range strings.Split(nameservers, ",") {
+		nameserver = strings.TrimSpace(nameserver)
+		ip := net.ParseIP(nameserver)
+		if ip == nil ||
+			ipFamily == constants.IPv4Family && ip.To4() == nil ||
+			ipFamily == constants.IPv6Family && ip.To4() != nil {
+			invalidNameservers = append(invalidNameservers, nameserver)
+		}
+	}
+
+	if len(invalidNameservers) > 0 {
+		return fmt.Errorf("invalid %s %q, expected to be IP addresses that match TKG_IP_FAMILY %q", nameserverConfigVariable, strings.Join(invalidNameservers, ","), ipFamily)
+	}
+	return nil
 }

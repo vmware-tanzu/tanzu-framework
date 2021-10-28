@@ -21,7 +21,8 @@ var packageInstalledUpdateCmd = &cobra.Command{
 	Example: `
     # Update installed package with name 'mypkg' with some version to version '3.0.0-rc.1' in specified namespace 	
     tanzu package installed update mypkg --version 3.0.0-rc.1 --namespace test-ns`,
-	RunE: packageUpdate,
+	RunE:         packageUpdate,
+	SilenceUsage: true,
 }
 
 func init() {
@@ -52,8 +53,6 @@ func packageUpdate(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	cmd.SilenceUsage = true
-
 	pkgClient, err := tkgpackageclient.NewTKGPackageClient(packageInstalledOp.KubeConfig)
 	if err != nil {
 		return err
@@ -64,17 +63,17 @@ func packageUpdate(cmd *cobra.Command, args []string) error {
 		Err:         make(chan error),
 		Done:        make(chan struct{}),
 	}
-	go pkgClient.UpdatePackage(packageInstalledOp, pp)
+	go pkgClient.UpdatePackage(packageInstalledOp, pp, tkgpackagedatamodel.OperationTypeUpdate)
 
-	initialMsg := fmt.Sprintf("Updating package '%s'", packageInstalledOp.PkgInstallName)
+	initialMsg := fmt.Sprintf("Updating installed package '%s'", packageInstalledOp.PkgInstallName)
 	if err := DisplayProgress(initialMsg, pp); err != nil {
 		if err.Error() == tkgpackagedatamodel.ErrPackageNotInstalled {
-			log.Warningf("\npackage '%s' is not among the list of installed packages in namespace '%s'. Consider using the --install flag to install the package", packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace)
+			log.Warningf("package '%s' is not among the list of installed packages in namespace '%s'. Consider using the --install flag to install the package", packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace)
 			return nil
 		}
 		return err
 	}
 
-	log.Infof("\n %s", fmt.Sprintf("Updated package install '%s' in namespace '%s'", packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace))
+	log.Infof("%s", fmt.Sprintf("Updated installed package '%s' in namespace '%s'", packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace))
 	return nil
 }

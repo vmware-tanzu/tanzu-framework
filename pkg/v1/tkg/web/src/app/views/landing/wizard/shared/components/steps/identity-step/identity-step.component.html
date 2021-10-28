@@ -354,12 +354,12 @@
                                 <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                                     <span>Enter the location in the LDAP directory tree where user search begins.
                                         The LDAP search base typically matches your domain name. For example: a domain named
-                                        cloud.example.com may use ou=Users,dc=example,dc=com as the user search base.</span>
+                                        cloud.example.com may use cn=Users,dc=example,dc=com as the user search base.</span>
                                 </clr-tooltip-content>
                             </clr-tooltip>
                         </label>
                         <input clrInput
-                               placeholder="ou=Users,dc=example,dc=com"
+                               placeholder="cn=Users,dc=example,dc=com"
                                formControlName="userSearchBaseDN"
                                name="userSearchBaseDN"/>
                         <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
@@ -371,7 +371,7 @@
                 <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                     <clr-input-container [attr.data-step-metadata]="formName">
                         <label>
-                            FILTER (OPTIONAL)
+                            FILTER
                             <clr-tooltip>
                                 <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                 <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -391,6 +391,7 @@
                                name="userSearchFilter"/>
                         <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                         <clr-control-helper></clr-control-helper>
+                        <clr-control-error>Filter is required</clr-control-error>
                     </clr-input-container>
                 </div>
 
@@ -398,7 +399,7 @@
                 <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                     <clr-input-container [attr.data-step-metadata]="formName">
                         <label>
-                            USERNAME (OPTIONAL)
+                            USERNAME
                             <clr-tooltip>
                                 <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                 <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
@@ -413,6 +414,7 @@
                                name="userSearchUsername"/>
                         <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                         <clr-control-helper></clr-control-helper>
+                        <clr-control-error>Username is required</clr-control-error>
                     </clr-input-container>
                 </div>
             </div>
@@ -431,12 +433,12 @@
                                 <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                                     <span>Enter the location in the LDAP directory tree where group search begins.
                                         The LDAP search base typically matches your domain name. For example: a domain named
-                                        cloud.example.com may use ou=Groups,dc=example,dc=com as the group search base.</span>
+                                        cloud.example.com may use dc=example,dc=com as the group search base.</span>
                                 </clr-tooltip-content>
                             </clr-tooltip>
                         </label>
                         <input clrInput
-                               placeholder="ou=Groups,dc=example,dc=com"
+                               placeholder="dc=example,dc=com"
                                formControlName="groupSearchBaseDN"
                                name="groupSearchBaseDN"/>
                         <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
@@ -448,7 +450,7 @@
                 <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                     <clr-input-container [attr.data-step-metadata]="formName">
                         <label>
-                            FILTER (OPTIONAL)
+                            FILTER
                             <clr-tooltip>
                                 <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                 <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -463,6 +465,7 @@
                                name="groupSearchFilter"/>
                         <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                         <clr-control-helper></clr-control-helper>
+                        <clr-control-error>Groups search filter is required.</clr-control-error>
                     </clr-input-container>
                 </div>
 

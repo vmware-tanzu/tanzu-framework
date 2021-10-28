@@ -16,11 +16,6 @@ import { StepFormDirective } from '../../../step-form/step-form';
     styleUrls: ['./ceip-step.component.scss']
 })
 export class SharedCeipStepComponent extends StepFormDirective implements OnInit {
-
-    constructor() {
-        super();
-    }
-
     ngOnInit() {
         super.ngOnInit();
         this.formGroup.addControl(

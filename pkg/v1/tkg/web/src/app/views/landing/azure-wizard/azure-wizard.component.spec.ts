@@ -10,6 +10,7 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import Broker from 'src/app/shared/service/broker';
 import { Messenger } from 'src/app/shared/service/Messenger';
+import { ClusterType } from "../wizard/shared/constants/wizard.constants";
 
 describe('AzureWizardComponent', () => {
     let component: AzureWizardComponent;
@@ -58,9 +59,6 @@ describe('AzureWizardComponent', () => {
             metadataForm: fb.group({
                 clusterLocation: ['']
             }),
-            registerTmcForm: fb.group({
-                tmcRegUrl: ['']
-            }),
             networkForm: fb.group({
                 clusterServiceCidr: [''],
                 clusterPodCidr: [''],
@@ -76,7 +74,7 @@ describe('AzureWizardComponent', () => {
             osImageForm: fb.group({
             })
         });
-        component.clusterType = 'management';
+        component.clusterTypeDescriptor = '' + ClusterType.Management;
         fixture.detectChanges();
     });
 
@@ -125,11 +123,6 @@ describe('AzureWizardComponent', () => {
             component.form.get(formName).get('clusterPodCidr').setValue('2.2.2.2/23');
             expect(component.getStepDescription(formName))
                 .toBe('Cluster service CIDR: 1.1.1.1/23 Cluster POD CIDR: 2.2.2.2/23');
-        });
-        it('register tmc form', () => {
-            const formName = 'registerTmcFrom';
-            expect(component.getStepDescription(formName))
-                .toBe('Optional: register Tanzu Mission Control');
         });
         it('ceip opt in form', () => {
             const formName = 'ceipOptInForm';

@@ -25,7 +25,7 @@ type GetFeatureFlagsOK struct {
 	/*
 	  In: Body
 	*/
-	Payload map[string]string `json:"body,omitempty"`
+	Payload models.Features `json:"body,omitempty"`
 }
 
 // NewGetFeatureFlagsOK creates GetFeatureFlagsOK with default headers values
@@ -35,13 +35,13 @@ func NewGetFeatureFlagsOK() *GetFeatureFlagsOK {
 }
 
 // WithPayload adds the payload to the get feature flags o k response
-func (o *GetFeatureFlagsOK) WithPayload(payload map[string]string) *GetFeatureFlagsOK {
+func (o *GetFeatureFlagsOK) WithPayload(payload models.Features) *GetFeatureFlagsOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get feature flags o k response
-func (o *GetFeatureFlagsOK) SetPayload(payload map[string]string) {
+func (o *GetFeatureFlagsOK) SetPayload(payload models.Features) {
 	o.Payload = payload
 }
 
@@ -52,7 +52,7 @@ func (o *GetFeatureFlagsOK) WriteResponse(rw http.ResponseWriter, producer runti
 	payload := o.Payload
 	if payload == nil {
 		// return empty map
-		payload = make(map[string]string, 50)
+		payload = models.Features{}
 	}
 
 	if err := producer.Produce(rw, payload); err != nil {

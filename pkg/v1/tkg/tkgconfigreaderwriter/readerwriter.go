@@ -25,6 +25,7 @@ type TKGConfigReaderWriter interface {
 	config.Reader
 
 	MergeInConfig(configFilePath string) error
+	SetMap(data map[string]string)
 }
 
 // newTKGConfigReaderWriter returns a viper and config reader writer
@@ -78,6 +79,12 @@ func (v *tkgConfigReaderWriter) Get(key string) (string, error) {
 
 func (v *tkgConfigReaderWriter) Set(key, value string) {
 	v.viperStore.Set(key, value)
+}
+
+func (v *tkgConfigReaderWriter) SetMap(data map[string]string) {
+	for key, val := range data {
+		v.Set(key, val)
+	}
 }
 
 func (v *tkgConfigReaderWriter) UnmarshalKey(key string, rawval interface{}) error {

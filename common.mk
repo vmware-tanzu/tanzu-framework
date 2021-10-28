@@ -38,3 +38,9 @@ LD_FLAGS = -s -w
 LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo.Date=$(BUILD_DATE)'
 LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo.SHA=$(BUILD_SHA)'
 LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo.Version=$(BUILD_VERSION)'
+
+# Add supported OS-ARCHITECTURE combinations here
+ENVS := linux-amd64 windows-amd64 darwin-amd64
+STANDALONE_PLUGINS := login management-cluster package
+CONTEXTAWARE_PLUGINS := cluster kubernetes-release pinniped-auth secret
+PLUGINS := $(STANDALONE_PLUGINS) $(CONTEXTAWARE_PLUGINS)

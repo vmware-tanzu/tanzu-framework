@@ -49,6 +49,11 @@ type TKGConfigReaderWriter struct {
 		arg1 string
 		arg2 string
 	}
+	SetMapStub        func(map[string]string)
+	setMapMutex       sync.RWMutex
+	setMapArgsForCall []struct {
+		arg1 map[string]string
+	}
 	UnmarshalKeyStub        func(string, interface{}) error
 	unmarshalKeyMutex       sync.RWMutex
 	unmarshalKeyArgsForCall []struct {
@@ -71,16 +76,15 @@ func (fake *TKGConfigReaderWriter) Get(arg1 string) (string, error) {
 	fake.getArgsForCall = append(fake.getArgsForCall, struct {
 		arg1 string
 	}{arg1})
-	stub := fake.GetStub
-	fakeReturns := fake.getReturns
 	fake.recordInvocation("Get", []interface{}{arg1})
 	fake.getMutex.Unlock()
-	if stub != nil {
-		return stub(arg1)
+	if fake.GetStub != nil {
+		return fake.GetStub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
+	fakeReturns := fake.getReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -135,16 +139,15 @@ func (fake *TKGConfigReaderWriter) Init(arg1 string) error {
 	fake.initArgsForCall = append(fake.initArgsForCall, struct {
 		arg1 string
 	}{arg1})
-	stub := fake.InitStub
-	fakeReturns := fake.initReturns
 	fake.recordInvocation("Init", []interface{}{arg1})
 	fake.initMutex.Unlock()
-	if stub != nil {
-		return stub(arg1)
+	if fake.InitStub != nil {
+		return fake.InitStub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
+	fakeReturns := fake.initReturns
 	return fakeReturns.result1
 }
 
@@ -196,16 +199,15 @@ func (fake *TKGConfigReaderWriter) MergeInConfig(arg1 string) error {
 	fake.mergeInConfigArgsForCall = append(fake.mergeInConfigArgsForCall, struct {
 		arg1 string
 	}{arg1})
-	stub := fake.MergeInConfigStub
-	fakeReturns := fake.mergeInConfigReturns
 	fake.recordInvocation("MergeInConfig", []interface{}{arg1})
 	fake.mergeInConfigMutex.Unlock()
-	if stub != nil {
-		return stub(arg1)
+	if fake.MergeInConfigStub != nil {
+		return fake.MergeInConfigStub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
+	fakeReturns := fake.mergeInConfigReturns
 	return fakeReturns.result1
 }
 
@@ -257,10 +259,9 @@ func (fake *TKGConfigReaderWriter) Set(arg1 string, arg2 string) {
 		arg1 string
 		arg2 string
 	}{arg1, arg2})
-	stub := fake.SetStub
 	fake.recordInvocation("Set", []interface{}{arg1, arg2})
 	fake.setMutex.Unlock()
-	if stub != nil {
+	if fake.SetStub != nil {
 		fake.SetStub(arg1, arg2)
 	}
 }
@@ -284,6 +285,37 @@ func (fake *TKGConfigReaderWriter) SetArgsForCall(i int) (string, string) {
 	return argsForCall.arg1, argsForCall.arg2
 }
 
+func (fake *TKGConfigReaderWriter) SetMap(arg1 map[string]string) {
+	fake.setMapMutex.Lock()
+	fake.setMapArgsForCall = append(fake.setMapArgsForCall, struct {
+		arg1 map[string]string
+	}{arg1})
+	fake.recordInvocation("SetMap", []interface{}{arg1})
+	fake.setMapMutex.Unlock()
+	if fake.SetMapStub != nil {
+		fake.SetMapStub(arg1)
+	}
+}
+
+func (fake *TKGConfigReaderWriter) SetMapCallCount() int {
+	fake.setMapMutex.RLock()
+	defer fake.setMapMutex.RUnlock()
+	return len(fake.setMapArgsForCall)
+}
+
+func (fake *TKGConfigReaderWriter) SetMapCalls(stub func(map[string]string)) {
+	fake.setMapMutex.Lock()
+	defer fake.setMapMutex.Unlock()
+	fake.SetMapStub = stub
+}
+
+func (fake *TKGConfigReaderWriter) SetMapArgsForCall(i int) map[string]string {
+	fake.setMapMutex.RLock()
+	defer fake.setMapMutex.RUnlock()
+	argsForCall := fake.setMapArgsForCall[i]
+	return argsForCall.arg1
+}
+
 func (fake *TKGConfigReaderWriter) UnmarshalKey(arg1 string, arg2 interface{}) error {
 	fake.unmarshalKeyMutex.Lock()
 	ret, specificReturn := fake.unmarshalKeyReturnsOnCall[len(fake.unmarshalKeyArgsForCall)]
@@ -291,16 +323,15 @@ func (fake *TKGConfigReaderWriter) UnmarshalKey(arg1 string, arg2 interface{}) e
 		arg1 string
 		arg2 interface{}
 	}{arg1, arg2})
-	stub := fake.UnmarshalKeyStub
-	fakeReturns := fake.unmarshalKeyReturns
 	fake.recordInvocation("UnmarshalKey", []interface{}{arg1, arg2})
 	fake.unmarshalKeyMutex.Unlock()
-	if stub != nil {
-		return stub(arg1, arg2)
+	if fake.UnmarshalKeyStub != nil {
+		return fake.UnmarshalKeyStub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1
 	}
+	fakeReturns := fake.unmarshalKeyReturns
 	return fakeReturns.result1
 }
 
@@ -357,6 +388,8 @@ func (fake *TKGConfigReaderWriter) Invocations() map[string][][]interface{} {
 	defer fake.mergeInConfigMutex.RUnlock()
 	fake.setMutex.RLock()
 	defer fake.setMutex.RUnlock()
+	fake.setMapMutex.RLock()
+	defer fake.setMapMutex.RUnlock()
 	fake.unmarshalKeyMutex.RLock()
 	defer fake.unmarshalKeyMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}

@@ -35,11 +35,11 @@ spec:
     - name: vip_interface
       value:  #@ data.values.VIP_NETWORK_INTERFACE
     - name: vip_leaseduration
-      value: "15"
+      value: "30"
     - name: vip_renewdeadline
-      value: "10"
+      value: "20"
     - name: vip_retryperiod
-      value: "2"
+      value: "4"
     image: #@ "{}/{}:{}".format(get_image_repo_for_component(bomData.components["kube-vip"][0].images.kubeVipImage), bomData.components["kube-vip"][0].images.kubeVipImage.imagePath, bomData.components["kube-vip"][0].images.kubeVipImage.tag)
     imagePullPolicy: IfNotPresent
     name: kube-vip
@@ -109,7 +109,7 @@ spec:
   #@ else:
   #@overlay/remove
   controlPlaneEndpoint:
-  #@ end  
+  #@ end
   thumbprint: #@ get_vsphere_thumbprint()
   server: #@ data.values.VSPHERE_SERVER
   identityRef:
@@ -134,23 +134,20 @@ spec:
       memoryMiB: #@ data.values.VSPHERE_CONTROL_PLANE_MEM_MIB
       network:
         devices:
-        #@ if data.values.TKG_IP_FAMILY == "ipv6":
         #@overlay/match by=overlay.index(0)
         #@overlay/replace
-        - dhcp6: true
-          networkName: #@ data.values.VSPHERE_NETWORK
-        #@ elif data.values.TKG_IP_FAMILY in ["ipv4,ipv6", "ipv6,ipv4"]:
-        #@overlay/match by=overlay.index(0)
-        #@overlay/replace
-        - dhcp4: true
+        - networkName: #@ data.values.VSPHERE_NETWORK
+          #@ if data.values.CONTROL_PLANE_NODE_NAMESERVERS:
+          nameservers: #@ data.values.CONTROL_PLANE_NODE_NAMESERVERS.replace(" ", "").split(",")
+          #@ end
+          #@ if data.values.TKG_IP_FAMILY == "ipv6":
           dhcp6: true
-          networkName: #@ data.values.VSPHERE_NETWORK
-        #@ else:
-        #@overlay/match by=overlay.index(0)
-        #@overlay/replace
-        - dhcp4: true
-          networkName: #@ data.values.VSPHERE_NETWORK
-        #@ end
+          #@ elif data.values.TKG_IP_FAMILY in ["ipv4,ipv6", "ipv6,ipv4"]:
+          dhcp4: true
+          dhcp6: true
+          #@ else:
+          dhcp4: true
+          #@ end
       numCPUs: #@ data.values.VSPHERE_CONTROL_PLANE_NUM_CPUS
       resourcePool: #@ data.values.VSPHERE_RESOURCE_POOL
       server: #@ data.values.VSPHERE_SERVER
@@ -174,23 +171,20 @@ spec:
       memoryMiB: #@ data.values.VSPHERE_WORKER_MEM_MIB
       network:
         devices:
-        #@ if data.values.TKG_IP_FAMILY == "ipv6":
         #@overlay/match by=overlay.index(0)
         #@overlay/replace
-        - dhcp6: true
-          networkName: #@ data.values.VSPHERE_NETWORK
-        #@ elif data.values.TKG_IP_FAMILY in ["ipv4,ipv6", "ipv6,ipv4"]:
-        #@overlay/match by=overlay.index(0)
-        #@overlay/replace
-        - dhcp4: true
+        - networkName: #@ data.values.VSPHERE_NETWORK
+          #@ if data.values.WORKER_NODE_NAMESERVERS:
+          nameservers: #@ data.values.WORKER_NODE_NAMESERVERS.replace(" ", "").split(",")
+          #@ end
+          #@ if data.values.TKG_IP_FAMILY == "ipv6":
           dhcp6: true
-          networkName: #@ data.values.VSPHERE_NETWORK
-        #@ else:
-        #@overlay/match by=overlay.index(0)
-        #@overlay/replace
-        - dhcp4: true
-          networkName: #@ data.values.VSPHERE_NETWORK
-        #@ end
+          #@ elif data.values.TKG_IP_FAMILY in ["ipv4,ipv6", "ipv6,ipv4"]:
+          dhcp4: true
+          dhcp6: true
+          #@ else:
+          dhcp4: true
+          #@ end
       numCPUs: #@ data.values.VSPHERE_WORKER_NUM_CPUS
       resourcePool: #@ data.values.VSPHERE_RESOURCE_POOL
       server: #@ data.values.VSPHERE_SERVER
@@ -222,7 +216,7 @@ spec:
     #@overlay/match by=overlay.index(0)
     - content: #@ yaml.encode(kube_vip_pod())
     #@ else:
-    #@overlay/match by=overlay.index(0)  
+    #@overlay/match by=overlay.index(0)
     #@overlay/remove
     - content:
     #@ end
