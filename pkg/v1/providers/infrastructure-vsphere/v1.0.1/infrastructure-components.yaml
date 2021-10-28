@@ -460,7 +460,21 @@ spec:
     singular: vspherecluster
   scope: Namespaced
   versions:
-  - name: v1alpha3
+  - additionalPrinterColumns:
+    - description: Cluster infrastructure is ready for VSphereMachine
+      jsonPath: .status.ready
+      name: Ready
+      type: string
+    - description: Server is the address of the vSphere endpoint
+      jsonPath: .spec.server
+      name: Server
+      type: string
+    - description: API Endpoint
+      jsonPath: .spec.controlPlaneEndpoint[0]
+      name: ControlPlaneEndpoint
+      priority: 1
+      type: string
+    name: v1alpha3
     schema:
       openAPIV3Schema:
         description: VSphereCluster is the Schema for the vsphereclusters API
@@ -836,7 +850,7 @@ spec:
       jsonPath: .status.ready
       name: Ready
       type: string
-    - description: Server is the address of the vSphere endpoint.
+    - description: Server is the address of the vSphere endpoint
       jsonPath: .spec.server
       name: Server
       type: string
@@ -2021,8 +2035,7 @@ spec:
                     description: ComputeCluster as the failure domain
                     type: string
                   datacenter:
-                    description: The underlying infrastructure for this failure domain
-                      Datacenter as the failure domain
+                    description: Datacenter as the failure domain.
                     type: string
                   datastore:
                     description: Datastore is the name or inventory path of the datastore
@@ -2126,7 +2139,25 @@ spec:
     singular: vspheremachine
   scope: Namespaced
   versions:
-  - name: v1alpha3
+  - additionalPrinterColumns:
+    - description: Cluster to which this VSphereMachine belongs
+      jsonPath: .metadata.labels.cluster\.x-k8s\.io/cluster-name
+      name: Cluster
+      type: string
+    - description: Machine ready status
+      jsonPath: .status.ready
+      name: Ready
+      type: string
+    - description: VSphereMachine instance ID
+      jsonPath: .spec.providerID
+      name: ProviderID
+      type: string
+    - description: Machine object which owns this VSphereMachine
+      jsonPath: .metadata.ownerReferences[?(@.kind=="Machine")].name
+      name: Machine
+      priority: 1
+      type: string
+    name: v1alpha3
     schema:
       openAPIV3Schema:
         description: VSphereMachine is the Schema for the vspheremachines API
@@ -2512,7 +2543,7 @@ spec:
       jsonPath: .spec.providerID
       name: ProviderID
       type: string
-    - description: Machine object which owns with this VSphereMachine
+    - description: Machine object which owns this VSphereMachine
       jsonPath: .metadata.ownerReferences[?(@.kind=="Machine")].name
       name: Machine
       priority: 1
@@ -2945,7 +2976,8 @@ spec:
                 type: object
               datacenter:
                 description: Datacenter is the name or inventory path of the datacenter
-                  in which the virtual machine is created/located.
+                  in which the virtual machine is created/located. Defaults to * which
+                  selects the default datacenter.
                 type: string
               datastore:
                 description: Datastore is the name or inventory path of the datastore
@@ -4057,6 +4089,7 @@ spec:
                       datacenter:
                         description: Datacenter is the name or inventory path of the
                           datacenter in which the virtual machine is created/located.
+                          Defaults to * which selects the default datacenter.
                         type: string
                       datastore:
                         description: Datastore is the name or inventory path of the
@@ -4711,6 +4744,10 @@ spec:
                   field is required at runtime for other controllers that read this
                   CRD as unstructured data.
                 type: boolean
+              retryAfter:
+                description: RetryAfter tracks the time we can retry queueing a task
+                format: date-time
+                type: string
               snapshot:
                 description: Snapshot is the name of the snapshot from which the VM
                   was cloned if LinkedMode is enabled.
@@ -5117,6 +5154,10 @@ spec:
                   field is required at runtime for other controllers that read this
                   CRD as unstructured data.
                 type: boolean
+              retryAfter:
+                description: RetryAfter tracks the time we can retry queueing a task
+                format: date-time
+                type: string
               snapshot:
                 description: Snapshot is the name of the snapshot from which the VM
                   was cloned if LinkedMode is enabled.
@@ -5213,7 +5254,8 @@ spec:
                 type: object
               datacenter:
                 description: Datacenter is the name or inventory path of the datacenter
-                  in which the virtual machine is created/located.
+                  in which the virtual machine is created/located. Defaults to * which
+                  selects the default datacenter.
                 type: string
               datastore:
                 description: Datastore is the name or inventory path of the datastore
@@ -5529,6 +5571,10 @@ spec:
                   field is required at runtime for other controllers that read this
                   CRD as unstructured data.
                 type: boolean
+              retryAfter:
+                description: RetryAfter tracks the time we can retry queueing a task
+                format: date-time
+                type: string
               snapshot:
                 description: Snapshot is the name of the snapshot from which the VM
                   was cloned if LinkedMode is enabled.
@@ -5965,6 +6011,27 @@ webhooks:
     - UPDATE
     resources:
     - vspherefailuredomains
+  sideEffects: None
+- admissionReviewVersions:
+  - v1beta1
+  clientConfig:
+    service:
+      name: capv-webhook-service
+      namespace: capv-system
+      path: /mutate-infrastructure-cluster-x-k8s-io-v1beta1-vspheremachine
+  failurePolicy: Fail
+  matchPolicy: Equivalent
+  name: default.vspheremachine.infrastructure.cluster.x-k8s.io
+  rules:
+  - apiGroups:
+    - infrastructure.cluster.x-k8s.io
+    apiVersions:
+    - v1beta1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - vspheremachines
   sideEffects: None
 ---
 apiVersion: admissionregistration.k8s.io/v1

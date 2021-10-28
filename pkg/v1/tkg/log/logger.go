@@ -98,7 +98,7 @@ func (l *logger) Outputf(format string, args ...interface{}) {
 }
 
 // V returns an InfoLogger value for a specific verbosity level.
-func (l *logger) V(level int) logr.InfoLogger { //nolint:staticcheck
+func (l *logger) V(level int) logr.Logger {
 	nl := l.clone()
 	nl.level = int32(level)
 	return nl

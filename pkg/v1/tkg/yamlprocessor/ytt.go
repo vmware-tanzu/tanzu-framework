@@ -6,7 +6,6 @@ package yamlprocessor
 
 import (
 	"fmt"
-	"io"
 	"sort"
 	"strconv"
 

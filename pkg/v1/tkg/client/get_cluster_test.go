@@ -418,10 +418,9 @@ var _ = Describe("Unit tests for get clusters", func() {
 						TkgLabelClusterRolePrefix + TkgLabelClusterRoleWorkload: "",
 					},
 					ClusterOptions: fakehelper.TestClusterOptions{
-						Phase:                   "provisioned",
-						InfrastructureReady:     true,
-						ControlPlaneInitialized: true,
-						ControlPlaneReady:       false,
+						Phase:               "provisioned",
+						InfrastructureReady: true,
+						ControlPlaneReady:   false,
 					},
 					CPOptions: fakehelper.TestCPOptions{
 						SpecReplicas:    3,
@@ -452,7 +451,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 				Expect(clusterInfo[0].WorkerCount).To(Equal(fmt.Sprintf("%v/%v", createClusterOptions.ListMDOptions[0].ReadyReplicas, createClusterOptions.ListMDOptions[0].SpecReplicas)))
 				Expect(clusterInfo[0].K8sVersion).To(Equal(createClusterOptions.CPOptions.K8sVersion))
 				Expect(clusterInfo[0].Roles).To(Equal([]string{TkgLabelClusterRoleWorkload}))
-				Expect(clusterInfo[0].Status).To(Equal(string(TKGClusterPhaseUpdating)))
+				Expect(clusterInfo[0].Status).To(Equal(string(TKGClusterPhaseCreating)))
 			})
 		})
 

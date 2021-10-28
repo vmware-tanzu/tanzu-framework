@@ -368,6 +368,19 @@ var (
 				})
 			})
 		})
+		Context("GetDefaultTkgBOMConfiguration", func() {
+			It("Should be populated with CAPI version and the supported provider versions", func() {
+				bomConfiguration, err := bomClient.GetDefaultTkgBOMConfiguration()
+				Expect(err).ToNot(HaveOccurred())
+				Expect(bomConfiguration.ProvidersVersionMap["cluster-api"]).To(Equal("v0.3.11-13-ga74685ee9"))
+				Expect(bomConfiguration.ProvidersVersionMap["bootstrap-kubeadm"]).To(Equal("v0.3.11-13-ga74685ee9"))
+				Expect(bomConfiguration.ProvidersVersionMap["control-plane-kubeadm"]).To(Equal("v0.3.11-13-ga74685ee9"))
+				Expect(bomConfiguration.ProvidersVersionMap["infrastructure-docker"]).To(Equal("v0.3.11-13-ga74685ee9"))
+				Expect(bomConfiguration.ProvidersVersionMap["infrastructure-azure"]).To(Equal("v0.4.8-47-gfbb2d55b"))
+				Expect(bomConfiguration.ProvidersVersionMap["infrastructure-aws"]).To(Equal("v0.6.3"))
+				Expect(bomConfiguration.ProvidersVersionMap["infrastructure-vsphere"]).To(Equal("v0.7.1"))
+			})
+		})
 		Context("GetFullImagePath", func() {
 			var (
 				image               *tkgconfigbom.ImageInfo

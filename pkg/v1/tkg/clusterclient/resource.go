@@ -10,33 +10,18 @@ import (
 
 	"github.com/pkg/errors"
 	appsv1 "k8s.io/api/apps/v1"
-	betav1 "k8s.io/api/batch/v1beta1"
 	corev1 "k8s.io/api/core/v1"
-	rbacv1 "k8s.io/api/rbac/v1"
-	extensionsV1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/types"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
-	capav1beta1 "sigs.k8s.io/cluster-api-provider-aws/api/v1beta1"
-	capzv1alpha4 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha4"
-	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1beta1"
-	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
-	bootstrapv1beta1 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1beta1"
-	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	addonsv1 "sigs.k8s.io/cluster-api/exp/addons/api/v1beta1"
-	capdv1beta1 "sigs.k8s.io/cluster-api/test/infrastructure/docker/api/v1beta1"
 	"sigs.k8s.io/cluster-api/util/conditions"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
-
-	tkgsv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
 
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 
-	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/api/tmc/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 )
@@ -48,7 +33,7 @@ type PostVerifyrFunc func(obj crtclient.Object) error
 type PostVerifyListrFunc func(obj crtclient.ObjectList) error
 
 func (c *client) ListResources(resourceReference interface{}, option ...crtclient.ListOption) error {
-	obj, err := c.getRuntimeObjectList(resourceReference)
+	obj, err := getRuntimeObjectList(resourceReference)
 	if err != nil {
 		return err
 	}
@@ -59,7 +44,7 @@ func (c *client) ListResources(resourceReference interface{}, option ...crtclien
 }
 
 func (c *client) DeleteResource(resourceReference interface{}) error {
-	obj, err := c.getRuntimeObject(resourceReference)
+	obj, err := getRuntimeObject(resourceReference)
 	if err != nil {
 		return err
 	}
@@ -70,7 +55,7 @@ func (c *client) DeleteResource(resourceReference interface{}) error {
 }
 
 func (c *client) CreateResource(resourceReference interface{}, resourceName, namespace string, opts ...crtclient.CreateOption) error {
-	obj, err := c.getRuntimeObject(resourceReference)
+	obj, err := getRuntimeObject(resourceReference)
 	if err != nil {
 		return err
 	}
@@ -83,7 +68,7 @@ func (c *client) CreateResource(resourceReference interface{}, resourceName, nam
 }
 
 func (c *client) UpdateResource(resourceReference interface{}, resourceName, namespace string, opts ...crtclient.UpdateOption) error {
-	obj, err := c.getRuntimeObject(resourceReference)
+	obj, err := getRuntimeObject(resourceReference)
 	if err != nil {
 		return err
 	}
@@ -112,7 +97,7 @@ func (c *client) PatchResource(resourceReference interface{}, resourceName, name
 func (c *client) patchResource(resourceReference interface{}, resourceName, namespace, patchJSONString string, patchType types.PatchType) error {
 	patch := crtclient.RawPatch(patchType, []byte(patchJSONString))
 
-	obj, err := c.getRuntimeObject(resourceReference)
+	obj, err := getRuntimeObject(resourceReference)
 	if err != nil {
 		return err
 	}
@@ -134,7 +119,7 @@ func (c *client) patchResource(resourceReference interface{}, resourceName, name
 }
 
 func (c *client) get(objectName, namespace string, o interface{}, postVerify PostVerifyrFunc) error {
-	obj, err := c.getRuntimeObject(o)
+	obj, err := getRuntimeObject(o)
 	if err != nil {
 		return err
 	}
@@ -149,7 +134,7 @@ func (c *client) get(objectName, namespace string, o interface{}, postVerify Pos
 }
 
 func (c *client) list(clusterName, namespace string, o interface{}, postVerify PostVerifyListrFunc) error {
-	obj, err := c.getRuntimeObjectList(o)
+	obj, err := getRuntimeObjectList(o)
 	if err != nil {
 		return err
 	}
@@ -169,120 +154,20 @@ func (c *client) list(clusterName, namespace string, o interface{}, postVerify P
 	return nil
 }
 
-func (c *client) getRuntimeObject(o interface{}) (crtclient.Object, error) { //nolint:gocyclo,funlen
-	switch obj := o.(type) {
-	case *corev1.Namespace:
-		return obj, nil
-	case *corev1.Secret:
-		return obj, nil
-	case *capi.Cluster:
-		return obj, nil
-	case *capiv1alpha3.Cluster:
-		return obj, nil
-	case *appsv1.Deployment:
-		return obj, nil
-	case *appsv1.StatefulSet:
-		return obj, nil
-	case *capi.Machine:
-		return obj, nil
-	case *capi.MachineHealthCheck:
-		return obj, nil
-	case *capi.MachineDeployment:
-		return obj, nil
-	case *capdv1beta1.DockerMachineTemplate:
-		return obj, nil
-	case *capiv1alpha3.Machine:
-		return obj, nil
-	case *capiv1alpha3.MachineHealthCheck:
-		return obj, nil
-	case *capiv1alpha3.MachineDeployment:
-		return obj, nil
-	case *tkgsv1alpha2.TanzuKubernetesCluster:
-		return obj, nil
-	case *controlplanev1.KubeadmControlPlane:
-		return obj, nil
-	case *unstructured.Unstructured:
-		return obj, nil
-	case *betav1.CronJob:
-		return obj, nil
-	case *capvv1beta1.VSphereCluster:
-		return obj, nil
-	case *capvv1beta1.VSphereMachineTemplate:
-		return obj, nil
-	case *capav1beta1.AWSMachineTemplate:
-		return obj, nil
-	case *capav1beta1.AWSCluster:
-		return obj, nil
-	case *appsv1.DaemonSet:
-		return obj, nil
-	case *corev1.ConfigMap:
-		return obj, nil
-	case *v1alpha1.Extension:
-		return obj, nil
-	case *extensionsV1.CustomResourceDefinition:
-		return obj, nil
-	case *capzv1alpha4.AzureMachineTemplate:
-		return obj, nil
-	case *capzv1alpha4.AzureCluster:
-		return obj, nil
-	case *corev1.ServiceAccount:
-		return obj, nil
-	case *rbacv1.ClusterRole:
-		return obj, nil
-	case *rbacv1.ClusterRoleBinding:
-		return obj, nil
-	case *addonsv1.ClusterResourceSet:
-		return obj, nil
-	case *runv1alpha1.TanzuKubernetesRelease:
-		return obj, nil
-	case *bootstrapv1beta1.KubeadmConfigTemplate:
-		return obj, nil
-	case *kappipkg.PackageInstall:
-		return obj, nil
-	default:
+func getRuntimeObject(o interface{}) (crtclient.Object, error) {
+	obj, ok := o.(crtclient.Object)
+	if !ok {
 		return nil, errors.New("invalid object type")
 	}
+	return obj, nil
 }
 
-func (c *client) getRuntimeObjectList(o interface{}) (crtclient.ObjectList, error) { //nolint:gocyclo,funlen,nolintlint
-	switch obj := o.(type) {
-	case *corev1.SecretList:
-		return obj, nil
-	case *clusterctlv1.ProviderList:
-		return obj, nil
-	case *capi.ClusterList:
-		return obj, nil
-	case *capi.MachineHealthCheckList:
-		return obj, nil
-	case *capi.MachineList:
-		return obj, nil
-	case *capi.MachineDeploymentList:
-		return obj, nil
-	case *capiv1alpha3.ClusterList:
-		return obj, nil
-	case *capiv1alpha3.MachineHealthCheckList:
-		return obj, nil
-	case *capiv1alpha3.MachineList:
-		return obj, nil
-	case *capiv1alpha3.MachineDeploymentList:
-		return obj, nil
-	case *controlplanev1.KubeadmControlPlaneList:
-		return obj, nil
-	case *betav1.CronJobList:
-		return obj, nil
-	case *capvv1beta1.VSphereClusterList:
-		return obj, nil
-	case *v1alpha1.ExtensionList:
-		return obj, nil
-	case *addonsv1.ClusterResourceSetList:
-		return obj, nil
-	case *runv1alpha1.TanzuKubernetesReleaseList:
-		return obj, nil
-	case *tkgsv1alpha2.TanzuKubernetesClusterList:
-		return obj, nil
-	default:
+func getRuntimeObjectList(o interface{}) (crtclient.ObjectList, error) {
+	obj, ok := o.(crtclient.ObjectList)
+	if !ok {
 		return nil, errors.New("invalid object type")
 	}
+	return obj, nil
 }
 
 // VerifyClusterInitialized verifies the cluster is initialized or not (this is required before reading the kubeconfig secret)

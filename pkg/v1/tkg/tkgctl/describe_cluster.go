@@ -6,6 +6,8 @@ package tkgctl
 import (
 	"strings"
 
+	"github.com/pkg/errors"
+
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	clusterctltree "sigs.k8s.io/cluster-api/cmd/clusterctl/client/tree"
@@ -83,6 +85,17 @@ func (t *tkgctl) DescribeCluster(options DescribeTKGClustersOptions) (DescribeCl
 				}
 			}
 		}
+	}
+
+	isPacific, err := t.IsPacificRegionalCluster()
+	if err != nil {
+		return results, errors.Wrap(err, "error determining 'Tanzu Kubernetes Cluster service for vSphere' management cluster")
+	}
+
+	// TODO: Can be removed when TKGS and TKGm converge to the same CAPI version.
+	// https://github.com/vmware-tanzu/tanzu-framework/issues/1063
+	if isPacific {
+		return results, nil
 	}
 
 	objs, cluster, installedProviders, err := t.tkgClient.DescribeCluster(DescribeTKGClustersOptions)

@@ -4,17 +4,17 @@ go 1.16
 
 replace (
 	github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.5.5 // indirect
+	github.com/k14s/kbld => github.com/anujc25/carvel-kbld v0.31.0-update-vendir
 	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.0.0
-    github.com/k14s/kbld => github.com/anujc25/carvel-kbld v0.31.0-update-vendir
 	sigs.k8s.io/kind => sigs.k8s.io/kind v0.11.1
 )
 
 require (
 	cloud.google.com/go/storage v1.10.0
 	github.com/AlecAivazis/survey/v2 v2.1.1
-	github.com/Azure/azure-sdk-for-go v55.2.0+incompatible
-	github.com/Azure/go-autorest/autorest v0.11.18
-	github.com/Azure/go-autorest/autorest/azure/auth v0.5.3
+	github.com/Azure/azure-sdk-for-go v58.1.0+incompatible
+	github.com/Azure/go-autorest/autorest v0.11.21
+	github.com/Azure/go-autorest/autorest/azure/auth v0.5.8
 	github.com/Jeffail/gabs v1.4.0
 	github.com/MakeNowJust/heredoc v1.0.0
 	github.com/Masterminds/semver v1.5.0
@@ -42,12 +42,11 @@ require (
 	github.com/go-openapi/swag v0.19.14
 	github.com/go-openapi/validate v0.19.8
 	github.com/gobwas/glob v0.2.3
-	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/mock v1.6.0
 	github.com/golang/protobuf v1.5.2
 	github.com/google/go-cmp v0.5.6
-	github.com/googleapis/gnostic v0.5.5
 	github.com/google/go-containerregistry v0.6.0
+	github.com/googleapis/gnostic v0.5.5
 	github.com/gorilla/websocket v1.4.2
 	github.com/gosuri/uitable v0.0.4
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
@@ -64,7 +63,7 @@ require (
 	github.com/lithammer/dedent v1.1.0
 	github.com/logrusorgru/aurora v2.0.3+incompatible
 	github.com/olekukonko/tablewriter v0.0.4
-	github.com/onsi/ginkgo v1.16.4
+	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.16.0
 	github.com/otiai10/copy v1.4.2
 	github.com/pelletier/go-toml/v2 v2.0.0-beta.3
@@ -81,10 +80,10 @@ require (
 	github.com/vmware-tanzu/carvel-kapp-controller v0.25.0
 	github.com/vmware-tanzu/carvel-secretgen-controller v0.5.0
 	github.com/vmware-tanzu/carvel-vendir v0.23.0
-	github.com/vmware/govmomi v0.26.1
+	github.com/vmware/govmomi v0.27.1
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
 	go.uber.org/multierr v1.6.0
-	golang.org/x/mod v0.4.2
+	golang.org/x/mod v0.5.1
 	golang.org/x/net v0.0.0-20211005215030-d2e5035098b3
 	golang.org/x/oauth2 v0.0.0-20210819190943-2bc19b11175f
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
@@ -102,8 +101,8 @@ require (
 	k8s.io/utils v0.0.0-20210930125809-cb0fa318a74b
 	sigs.k8s.io/cluster-api v1.0.0
 	sigs.k8s.io/cluster-api-provider-aws v1.0.0
-	sigs.k8s.io/cluster-api-provider-azure v0.5.2
-	sigs.k8s.io/cluster-api-provider-vsphere v1.0.0
+	sigs.k8s.io/cluster-api-provider-azure v1.0.0
+	sigs.k8s.io/cluster-api-provider-vsphere v1.0.1
 	sigs.k8s.io/cluster-api/test v1.0.0
 	sigs.k8s.io/controller-runtime v0.10.2
 	sigs.k8s.io/controller-tools v0.7.0

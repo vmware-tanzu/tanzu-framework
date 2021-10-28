@@ -290,6 +290,7 @@ func getClusterStatus(clusterInfo *clusterObjects) TKGClusterPhase {
 	readyReplicas, specReplicas, replicas, updatedReplicas := getClusterReplicas(clusterInfo.mds)
 
 	creationCompleteCondition := clusterInfo.cluster.Status.InfrastructureReady &&
+		clusterInfo.cluster.Status.ControlPlaneReady &&
 		clusterInfo.kcp.Status.ReadyReplicas > 0 &&
 		readyReplicas > 0
 

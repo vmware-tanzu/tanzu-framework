@@ -234,7 +234,7 @@ func (c *TkgClient) DoProvidersUpgrade(regionalClusterClient clusterclient.Clien
 // GenerateProvidersUpgradeOptions generates provider upgrade options
 func (c *TkgClient) GenerateProvidersUpgradeOptions(pUpgradeInfo *providersUpgradeInfo) (*ApplyProvidersUpgradeOptions, error) {
 	puo := &ApplyProvidersUpgradeOptions{}
-	puo.Contract = "v1alpha4"
+	puo.Contract = "v1beta1"
 
 	for i := range pUpgradeInfo.providers {
 		instanceVersion := pUpgradeInfo.providers[i].Namespace + "/" + pUpgradeInfo.providers[i].ProviderName + ":" + pUpgradeInfo.providers[i].Version

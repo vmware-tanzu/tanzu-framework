@@ -50,19 +50,19 @@ type reconciler struct {
 }
 
 // Reconcile performs the reconciliation step
-func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) { //nolint:staticcheck
-	ctx, cancel := context.WithCancel(r.ctx) //nolint:staticcheck
+func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	ctxCancel, cancel := context.WithCancel(ctx)
 	defer cancel()
 
 	configMap := &corev1.ConfigMap{}
-	if err := r.client.Get(ctx, types2.NamespacedName{Namespace: req.Namespace, Name: req.Name}, configMap); err != nil {
+	if err := r.client.Get(ctxCancel, types2.NamespacedName{Namespace: req.Namespace, Name: req.Name}, configMap); err != nil {
 		if apierrors.IsNotFound(err) {
 			return ctrl.Result{}, nil // do nothing if the ConfigMap does not exist
 		}
 		return ctrl.Result{}, err
 	}
 	if configMap.Name == constants.BOMMetadataConfigMapName {
-		if err := r.updateConditions(ctx); err != nil {
+		if err := r.updateConditions(ctxCancel); err != nil {
 			if apierrors.IsConflict(errors.Cause(err)) {
 				return ctrl.Result{Requeue: true}, nil
 			}
@@ -80,17 +80,17 @@ func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		return ctrl.Result{}, nil // no need to retry: no TKR in this ConfigMap
 	}
 
-	if err := r.client.Create(ctx, tkr); err != nil {
+	if err := r.client.Create(ctxCancel, tkr); err != nil {
 		if apierrors.IsAlreadyExists(err) {
 			return ctrl.Result{}, nil // the TKR already exists, we're done.
 		}
 		return ctrl.Result{}, errors.Wrapf(err, "could not create TKR: ConfigMap.name='%s'", configMap.Name)
 	}
-	if err := r.client.Status().Update(ctx, tkr); err != nil {
+	if err := r.client.Status().Update(ctxCancel, tkr); err != nil {
 		return ctrl.Result{}, err
 	}
 
-	if err := r.updateConditions(ctx); err != nil {
+	if err := r.updateConditions(ctxCancel); err != nil {
 		if apierrors.IsConflict(errors.Cause(err)) {
 			return ctrl.Result{Requeue: true}, nil
 		}

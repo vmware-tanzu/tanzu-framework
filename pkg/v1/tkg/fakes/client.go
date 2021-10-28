@@ -5,8 +5,9 @@ import (
 	"sync"
 	"time"
 
-	"sigs.k8s.io/cluster-api/api/V1beta1"
-	v1alpha3a "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
+	v1alpha3a "sigs.k8s.io/cluster-api/api/v1alpha3"
+	"sigs.k8s.io/cluster-api/api/v1beta1"
+	"sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/tree"
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"

@@ -4,6 +4,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"sort"
@@ -106,6 +107,15 @@ func getClusterDetails(currServ *v1alpha1.Server) error {
 	tkgClient, err := newTKGCtlClient(forceUpdateTKGCompatibilityImage)
 	if err != nil {
 		return err
+	}
+
+	isPacific, err := tkgClient.IsPacificRegionalCluster()
+	if err != nil {
+		return errors.New("error determining 'Tanzu Kubernetes Cluster service for vSphere' management cluster")
+	}
+
+	if isPacific {
+		return errors.New("detected 'Tanzu Kubernetes service for vSphere'. Currently this operation is not supported for 'Tanzu Kubernetes service for vSphere'")
 	}
 
 	// Output the Status

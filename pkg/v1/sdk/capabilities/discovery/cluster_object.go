@@ -123,7 +123,7 @@ func (q *QueryObject) objectExists(resources []*restmapper.APIGroupResources, co
 		dr = config.dynamicClient.Resource(mapping.Resource)
 	}
 
-	o, err := dr.Get(context.TODO(), q.object.Name, metav1.GetOptions{})
+	o, err := dr.Get(context.Background(), q.object.Name, metav1.GetOptions{})
 	if err != nil {
 		if errors.IsNotFound(err) {
 			return nil, nil

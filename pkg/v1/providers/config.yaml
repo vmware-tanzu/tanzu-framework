@@ -6,10 +6,10 @@ providers:
   url: providers/infrastructure-aws/v1.0.0/infrastructure-components.yaml
   type: InfrastructureProvider
 - name: vsphere
-  url: providers/infrastructure-vsphere/v1.0.0/infrastructure-components.yaml
+  url: providers/infrastructure-vsphere/v1.0.1/infrastructure-components.yaml
   type: InfrastructureProvider
 - name: azure
-  url: providers/infrastructure-azure/v0.5.2/infrastructure-components.yaml
+  url: providers/infrastructure-azure/v1.0.0/infrastructure-components.yaml
   type: InfrastructureProvider
 - name: tkg-service-vsphere
   url: providers/infrastructure-tkg-service-vsphere/v1.1.0/unused.yaml

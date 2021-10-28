@@ -127,8 +127,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 			BeforeEach(func() {
 				var clusterInfo string
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
-				fakeClientSet = fake.NewFakeClientWithScheme(scheme,
-					createFakeClusterRefObjects(mgmtClusterName, searchNamespace, endpoint)...)
+				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(createFakeClusterRefObjects(mgmtClusterName, searchNamespace, endpoint)...).Build()
 				clusterInfo = fakehelper.GetFakeClusterInfo(endpoint, servCert)
 				tlsServer.AppendHandlers(
 					ghttp.CombineHandlers(
@@ -248,7 +247,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				workloadClusterInfo = fakehelper.GetFakeClusterInfo(tlsServerWLCluster.URL(), tlsServerWLCluster.HTTPTestServer.Certificate())
 				searchNamespace = constants.DefaultNamespace
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
-				fakeClientSet = fake.NewFakeClientWithScheme(scheme, clusterRefs...)
+				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(clusterRefs...).Build()
 				tlsServer.AppendHandlers(
 					ghttp.CombineHandlers(
 						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/cluster-info"),
@@ -294,7 +293,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				})
 				searchNamespace = constants.DefaultNamespace
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
-				fakeClientSet = fake.NewFakeClientWithScheme(scheme, clusterRefs...)
+				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(clusterRefs...).Build()
 				tlsServer.AppendHandlers(
 					ghttp.CombineHandlers(
 						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/cluster-info"),
@@ -350,7 +349,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				})
 				searchNamespace = constants.DefaultNamespace
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
-				fakeClientSet = fake.NewFakeClientWithScheme(scheme, clusterRefs...)
+				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(clusterRefs...).Build()
 				tlsServer.AppendHandlers(
 					ghttp.CombineHandlers(
 						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/cluster-info"),
@@ -406,7 +405,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				})
 				searchNamespace = constants.DefaultNamespace
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
-				fakeClientSet = fake.NewFakeClientWithScheme(scheme, clusterRefs...)
+				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(clusterRefs...).Build()
 				tlsServer.AppendHandlers(
 					ghttp.CombineHandlers(
 						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/cluster-info"),

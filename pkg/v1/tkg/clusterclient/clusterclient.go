@@ -38,7 +38,7 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	capav1beta1 "sigs.k8s.io/cluster-api-provider-aws/api/v1beta1"
-	capzv1alpha4 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha4"
+	capzv1beta1 "sigs.k8s.io/cluster-api-provider-azure/api/v1beta1"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1beta1"
 	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
@@ -389,7 +389,7 @@ func init() {
 	_ = tkgsv1alpha2.AddToScheme(scheme)
 	_ = capvv1beta1.AddToScheme(scheme)
 	_ = capav1beta1.AddToScheme(scheme)
-	_ = capzv1alpha4.AddToScheme(scheme)
+	_ = capzv1beta1.AddToScheme(scheme)
 	_ = capdv1.AddToScheme(scheme)
 	_ = bootstrapv1.AddToScheme(scheme)
 	_ = runv1alpha1.AddToScheme(scheme)
@@ -576,7 +576,7 @@ func (c *client) WaitForResourceDeletion(resourceReference interface{}, resource
 	}
 
 	// get the runtime object from interface
-	obj, err := c.getRuntimeObject(resourceReference)
+	obj, err := getRuntimeObject(resourceReference)
 	if err != nil {
 		return err
 	}
@@ -1115,7 +1115,7 @@ func (c *client) GetResource(resourceReference interface{}, resourceName, namesp
 	}
 
 	// get the runtime object from interface
-	obj, err := c.getRuntimeObject(resourceReference)
+	obj, err := getRuntimeObject(resourceReference)
 	if err != nil {
 		return err
 	}
@@ -1149,7 +1149,7 @@ func (c *client) GetResourceList(resourceReference interface{}, clusterName, nam
 	}
 
 	// get the runtime object from interface
-	obj, err := c.getRuntimeObjectList(resourceReference)
+	obj, err := getRuntimeObjectList(resourceReference)
 	if err != nil {
 		return err
 	}
@@ -1511,7 +1511,7 @@ func (c *client) IsPacificRegionalCluster() (bool, error) {
 
 func (c *client) isTKCCrdAvailableInTanzuRunAPIGroup() (bool, error) {
 	// for pacific we should be able to fetch the api group "run.tanzu.vmware.com"
-	data, err := c.discoveryClient.RESTClient().Get().AbsPath(constants.TanzuRunAPIGroupPath).Do(context.TODO()).Raw()
+	data, err := c.discoveryClient.RESTClient().Get().AbsPath(constants.TanzuRunAPIGroupPath).Do(context.Background()).Raw()
 	if err != nil {
 		//  If the url is not available return false
 		if apierrors.IsNotFound(err) {
@@ -1530,7 +1530,7 @@ func (c *client) isTKCCrdAvailableInTanzuRunAPIGroup() (bool, error) {
 	}
 
 	groupVersionURL := fmt.Sprintf("/apis/%s", groupversion.(string))
-	data, err = c.discoveryClient.RESTClient().Get().AbsPath(groupVersionURL).Do(context.TODO()).Raw()
+	data, err = c.discoveryClient.RESTClient().Get().AbsPath(groupVersionURL).Do(context.Background()).Raw()
 	if err != nil {
 		//  If the url is not available return false
 		if apierrors.IsNotFound(err) {
