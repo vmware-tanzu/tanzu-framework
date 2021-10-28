@@ -347,7 +347,7 @@ test: generate fmt vet manifests build-cli-mocks ## Run tests
 	$(MAKE) ytt -C $(TOOLS_DIR)
 
 	## Test the YTT cluster templates
-	echo "Changing into the provider test directory to verify ytt cluster templates ..."
+	echo "Changing into the provider test directory to verify ytt cluster templates..."
 	cd ./pkg/v1/providers/tests/unit && PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -v -timeout 30s ./
 	echo "... ytt cluster template verification complete!"
 
