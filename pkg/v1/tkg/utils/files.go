@@ -4,6 +4,9 @@
 package utils
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
+	"io"
 	"os"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
@@ -50,4 +53,21 @@ func WriteToFile(sourceFile string, data []byte) error {
 // DeleteFile deletes the file from given location
 func DeleteFile(filePath string) error {
 	return os.Remove(filePath)
+}
+
+// SHA256FromFile returns SHA256 sum of a file
+func SHA256FromFile(filePath string) (string, error) {
+	f, err := os.Open(filePath)
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+
+	h := sha256.New()
+	if _, err := io.Copy(h, f); err != nil {
+		return "", err
+	}
+	b := h.Sum(nil)
+
+	return hex.EncodeToString(b), nil
 }

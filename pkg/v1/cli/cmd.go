@@ -35,7 +35,7 @@ func GetCmd(p *cliv1alpha1.PluginDescriptor) *cobra.Command {
 		Use:   p.Name,
 		Short: p.Description,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			runner := NewRunner(p.Name, args)
+			runner := NewRunner(p.Name, p.InstallationPath, args)
 			ctx := context.Background()
 			return runner.Run(ctx)
 		},
@@ -58,7 +58,7 @@ func GetCmd(p *cliv1alpha1.PluginDescriptor) *cobra.Command {
 			completion = append(completion, args...)
 			completion = append(completion, toComplete)
 
-			runner := NewRunner(p.Name, completion)
+			runner := NewRunner(p.Name, p.InstallationPath, completion)
 			ctx := context.Background()
 			output, _, err := runner.RunOutput(ctx)
 			if err != nil {
@@ -91,7 +91,7 @@ func GetCmd(p *cliv1alpha1.PluginDescriptor) *cobra.Command {
 			completion = append(completion, args...)
 			completion = append(completion, toComplete)
 
-			runner := NewRunner(p.Name, completion)
+			runner := NewRunner(p.Name, p.InstallationPath, completion)
 			ctx := context.Background()
 			output, stderr, err := runner.RunOutput(ctx)
 			if err != nil || stderr != "" {
@@ -116,7 +116,7 @@ func GetCmd(p *cliv1alpha1.PluginDescriptor) *cobra.Command {
 		helpArgs := getHelpArguments()
 
 		// Pass this new command in to our plugin to have it handle help output
-		runner := NewRunner(p.Name, helpArgs)
+		runner := NewRunner(p.Name, p.InstallationPath, helpArgs)
 		ctx := context.Background()
 		err := runner.Run(ctx)
 		if err != nil {
@@ -154,7 +154,7 @@ func TestCmd(p *cliv1alpha1.PluginDescriptor) *cobra.Command {
 		Use:   p.Name,
 		Short: p.Description,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			runner := NewRunner(p.Name, args)
+			runner := NewRunner(p.Name, p.InstallationPath, args)
 			ctx := context.Background()
 			return runner.RunTest(ctx)
 		},

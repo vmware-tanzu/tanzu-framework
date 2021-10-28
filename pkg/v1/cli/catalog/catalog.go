@@ -189,7 +189,7 @@ func saveCatalogCache(catalog *cliv1alpha1.Catalog) error {
 
 	s := apimachineryjson.NewSerializerWithOptions(apimachineryjson.DefaultMetaFactory, scheme, scheme,
 		apimachineryjson.SerializerOptions{Yaml: true, Pretty: false, Strict: false})
-	catalog.GetObjectKind().SetGroupVersionKind(cliv1alpha1.GroupVersionKind)
+	catalog.GetObjectKind().SetGroupVersionKind(cliv1alpha1.GroupVersionKindCatalog)
 	buf := new(bytes.Buffer)
 	if err := s.Encode(catalog, buf); err != nil {
 		return errors.Wrap(err, "failed to encode catalog cache file")
