@@ -550,7 +550,7 @@ func (c *TkgClient) ConfigureAndValidateWorkloadClusterConfiguration(options *Cr
 		return NewValidationError(ValidationErrorCode, errors.Wrap(err, "unable to validate CNI type").Error())
 	}
 
-	if err = c.configureAndValidateIPFamilyConfiguration(); err != nil {
+	if err = c.configureAndValidateIPFamilyConfiguration(TkgLabelClusterRoleWorkload); err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 

@@ -27,6 +27,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/aws"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/azure"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
@@ -569,7 +570,7 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
-	if err = c.configureAndValidateIPFamilyConfiguration(); err != nil {
+	if err = c.configureAndValidateIPFamilyConfiguration(TkgLabelClusterRoleManagement); err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
@@ -1584,12 +1585,17 @@ func CheckClusterNameFormat(clusterName, infrastructureProvider string) error {
 	return nil
 }
 
-func (c *TkgClient) configureAndValidateIPFamilyConfiguration() error {
+func (c *TkgClient) configureAndValidateIPFamilyConfiguration(clusterRole string) error {
 	// ignoring error because IPFamily is an optional configuration
 	// if not set Get will return an empty string
 	ipFamily, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableIPFamily)
 	if ipFamily == "" {
 		ipFamily = constants.IPv4Family
+	}
+
+	err := c.checkIPFamilyFeatureFlags(ipFamily, clusterRole)
+	if err != nil {
+		return err
 	}
 
 	serviceCIDRs, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableServiceCIDR)
@@ -1799,4 +1805,32 @@ func (c *TkgClient) validateNameservers(nameserverConfigVariable string) error {
 		return fmt.Errorf("invalid %s %q, expected to be IP addresses that match TKG_IP_FAMILY %q", nameserverConfigVariable, strings.Join(invalidNameservers, ","), ipFamily)
 	}
 	return nil
+}
+
+func (c *TkgClient) checkIPFamilyFeatureFlags(ipFamily, clusterRole string) error {
+	if clusterRole == TkgLabelClusterRoleManagement {
+		dualIPv4PrimaryEnabled := c.IsFeatureActivated(config.FeatureFlagManagementClusterDualStackIPv4Primary)
+		if !dualIPv4PrimaryEnabled && ipFamily == constants.DualStackPrimaryIPv4Family {
+			return dualStackFeatureFlagError(ipFamily, config.FeatureFlagManagementClusterDualStackIPv4Primary)
+		}
+		dualIPv6PrimaryEnabled := c.IsFeatureActivated(config.FeatureFlagManagementClusterDualStackIPv6Primary)
+		if !dualIPv6PrimaryEnabled && ipFamily == constants.DualStackPrimaryIPv6Family {
+			return dualStackFeatureFlagError(ipFamily, config.FeatureFlagManagementClusterDualStackIPv6Primary)
+		}
+	} else {
+		dualIPv4PrimaryEnabled := c.IsFeatureActivated(config.FeatureFlagClusterDualStackIPv4Primary)
+		if !dualIPv4PrimaryEnabled && ipFamily == constants.DualStackPrimaryIPv4Family {
+			return dualStackFeatureFlagError(ipFamily, config.FeatureFlagClusterDualStackIPv4Primary)
+		}
+		dualIPv6PrimaryEnabled := c.IsFeatureActivated(config.FeatureFlagClusterDualStackIPv6Primary)
+		if !dualIPv6PrimaryEnabled && ipFamily == constants.DualStackPrimaryIPv6Family {
+			return dualStackFeatureFlagError(ipFamily, config.FeatureFlagClusterDualStackIPv6Primary)
+		}
+	}
+
+	return nil
+}
+
+func dualStackFeatureFlagError(ipFamily, featureFlag string) error {
+	return fmt.Errorf("option TKG_IP_FAMILY is set to %q, but dualstack support is not enabled (because it is under development). To enable dualstack, set %s to \"true\"", ipFamily, featureFlag)
 }
