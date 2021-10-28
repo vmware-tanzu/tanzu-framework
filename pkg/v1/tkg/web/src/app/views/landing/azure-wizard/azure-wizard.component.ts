@@ -12,6 +12,7 @@ import { AzureRegionalClusterParams } from 'src/app/swagger/models';
 import { AzureAccountParamsKeys } from './provider-step/azure-provider-step.component';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { EXISTING } from './vnet-step/vnet-step.component';
+import Broker from 'src/app/shared/service/broker';
 
 @Component({
     selector: 'app-azure-wizard',
@@ -77,13 +78,13 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
             if (controlPlaneSetting) {
                 return `Control plane type: ${controlPlaneSetting}`;
             }
-            return `Specifying the resources backing the ${this.clusterType} cluster`;
+            return `Specifying the resources backing the ${this.clusterTypeDescriptor} cluster`;
         } else if (stepName === 'metadataForm') {
             const location = this.getFieldValue(stepName, "clusterLocation");
             if (location) {
                 return `Location: ${location}`;
             }
-            return `Specify metadata for the ${this.clusterType} cluster`;
+            return `Specify metadata for the ${this.clusterTypeDescriptor} cluster`;
         } else if (stepName === 'networkForm') {
             const serviceCidr = this.getFieldValue(stepName, "clusterServiceCidr");
             const podCidr = this.getFieldValue(stepName, "clusterPodCidr");
@@ -131,8 +132,8 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
 
         payload.controlPlaneMachineType = this.getControlPlaneNodeType("azure");
         payload.controlPlaneFlavor = this.getControlPlaneFlavor("azure");
-        payload.workerMachineType = (this.clusterType !== 'standalone') ?
-            this.getFieldValue('azureNodeSettingForm', 'workerNodeInstanceType') : payload.controlPlaneMachineType;
+        payload.workerMachineType = Broker.appDataService.isModeClusterStandalone() ? payload.controlPlaneMachineType :
+            this.getFieldValue('azureNodeSettingForm', 'workerNodeInstanceType');
         payload.machineHealthCheckEnabled = this.getBooleanFieldValue("azureNodeSettingForm", "machineHealthChecksEnabled");
 
         const resourceGroupOption = this.getFieldValue("azureProviderForm", "resourceGroupOption");
@@ -202,7 +203,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         const cliG = new CliGenerator();
         const cliParams: CliFields = {
             configPath: configPath,
-            clusterType: this.clusterType,
+            clusterType: this.getClusterType(),
             clusterName: this.getMCName(),
             extendCliCmds: []
         };

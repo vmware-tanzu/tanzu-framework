@@ -120,7 +120,7 @@
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                             <span>
                                 Name of the datacenter in vCenter Server in which to place the
-                                {{ clusterType }} cluster.
+                                {{ clusterTypeDescriptor }} cluster.
                             </span>
                         </clr-tooltip-content>
                     </clr-tooltip>
@@ -147,7 +147,7 @@
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                             <span>
                                 The contents of an 4096-bit SSH-2 RSA public key from a key pair
-                                that you have created. Allows SSH to the {{ clusterType }} cluster nodes as user capv.
+                                that you have created. Allows SSH to the {{ clusterTypeDescriptor }} cluster nodes as user capv.
                             </span>
                         </clr-tooltip-content>
                     </clr-tooltip>
@@ -202,7 +202,7 @@
             <button
                     class="btn btn-primary btn-width-350"
                     (click)="vSphereWithK8ModalOpen = false">
-                Deploy TKG {{ clusterType | titlecase }} Cluster
+                Deploy TKG {{ clusterTypeDescriptor | titlecase }} Cluster
             </button>
         </p>
         <p>

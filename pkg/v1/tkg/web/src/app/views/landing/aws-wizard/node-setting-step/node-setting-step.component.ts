@@ -295,7 +295,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                     this.formGroup.get('awsNodeAz1').setValue(this.nodeAzs[0].name);
                 }
 
-                if (this.clusterType !== 'standalone') {
+                if (!this.modeClusterStandalone) {
                     this.resurrectField('workerNodeInstanceType1', [Validators.required],
                         this.azNodeTypes.awsNodeAz1.length === 1 ? this.azNodeTypes.awsNodeAz1[0] : '');
                 }
@@ -320,7 +320,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                             this.formGroup.get(azNew[2])])
                     ]);
                 }
-                if (this.clusterType !== 'standalone') {
+                if (!this.modeClusterStandalone) {
                     WORKER_NODE_INSTANCE_TYPES.forEach(field => this.resurrectField(field, [Validators.required]));
                 }
             }

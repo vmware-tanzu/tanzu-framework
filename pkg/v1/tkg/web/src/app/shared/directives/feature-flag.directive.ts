@@ -3,7 +3,7 @@
  */
 import { Directive, Input, TemplateRef, ViewContainerRef, OnInit } from '@angular/core';
 import { BasicSubscriber } from '../abstracts/basic-subscriber';
-import { AppDataService } from '../service/app-data.service';
+import Broker from "../service/broker";
 
 /**
  * App imports
@@ -35,8 +35,7 @@ export class FeatureToggleDirective extends BasicSubscriber implements OnInit {
 
     constructor(
             private templateRef: TemplateRef<any>,
-            private viewContainer: ViewContainerRef,
-            private appDataService: AppDataService
+            private viewContainer: ViewContainerRef
     ) {
         super();
     }
@@ -90,6 +89,6 @@ export class FeatureToggleDirective extends BasicSubscriber implements OnInit {
         }
         pluginName = paramArray[0];
         featureName = paramArray[1];
-        return this.appDataService.isPluginFeatureActivated(pluginName, featureName);
+        return Broker.appDataService.isPluginFeatureActivated(pluginName, featureName);
     }
 }

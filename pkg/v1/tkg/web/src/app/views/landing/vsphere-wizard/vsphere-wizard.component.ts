@@ -12,12 +12,12 @@ import { Observable } from 'rxjs';
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
 import { APIClient } from '../../../swagger/api-client.service';
 import { PROVIDERS, Providers } from '../../../shared/constants/app.constants';
-import { AppDataService } from '../../../shared/service/app-data.service';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
 import { VsphereRegionalClusterParams } from 'src/app/swagger/models/vsphere-regional-cluster-params.model';
+import Broker from "../../../shared/service/broker";
 
 @Component({
     selector: 'app-wizard',
@@ -41,7 +41,6 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         private apiClient: APIClient,
         router: Router,
         public wizardFormService: VSphereWizardFormService,
-        private appDataService: AppDataService,
         private formBuilder: FormBuilder,
         formMetaDataService: FormMetaDataService,
         titleService: Title,
@@ -70,9 +69,9 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
             })
         });
 
-        this.provider = this.appDataService.getProviderType();
-        this.tkrVersion = this.appDataService.getTkrVersion();
-        this.appDataService.getVsphereVersion().subscribe(version => {
+        this.provider = Broker.appDataService.getProviderType();
+        this.tkrVersion = Broker.appDataService.getTkrVersion();
+        Broker.appDataService.getVsphereVersion().subscribe(version => {
             this.vsphereVersion = version ? version + ' ' : '';
         });
     }
@@ -104,7 +103,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
                 }
                 return mode;
             } else {
-                return `Specify the resources backing the ${this.clusterType} cluster`;
+                return `Specify the resources backing the ${this.clusterTypeDescriptor} cluster`;
             }
         } else if (stepName === 'resource') {
             if (this.getFieldValue('resourceForm', 'vmFolder') &&
@@ -114,7 +113,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
                     ', VM Folder: ' + this.getFieldValue('resourceForm', 'vmFolder') +
                     ', Datastore: ' + this.getFieldValue('resourceForm', 'datastore');
             } else {
-                return `Specify the resources for this ${this.clusterType}} cluster`;
+                return `Specify the resources for this ${this.clusterTypeDescriptor}} cluster`;
             }
         } else if (stepName === 'network') {
             if (this.getFieldValue('networkForm', 'networkName')) {
@@ -143,7 +142,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
             if (this.getFieldValue('metadataForm', 'clusterLocation')) {
                 return 'Location: ' + this.getFieldValue('metadataForm', 'clusterLocation');
             } else {
-                return `Specify metadata for the ${this.clusterType} cluster`;
+                return `Specify metadata for the ${this.clusterTypeDescriptor} cluster`;
             }
         } else if (stepName === 'identity') {
             if (this.getFieldValue('identityForm', 'identityType') === 'oidc' &&
@@ -175,8 +174,8 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         ];
         mappings.forEach(attr => payload[attr[0]] = this.getFieldValue(attr[1], attr[2]));
         payload.controlPlaneNodeType = this.getControlPlaneType(this.getFieldValue('vsphereNodeSettingForm', 'controlPlaneSetting'));
-        payload.workerNodeType = (this.clusterType !== 'standalone') ?
-            this.getFieldValue('vsphereNodeSettingForm', 'workerNodeInstanceType') : payload.controlPlaneNodeType;
+        payload.workerNodeType = Broker.appDataService.isModeClusterStandalone() ? payload.controlPlaneNodeType :
+            this.getFieldValue('vsphereNodeSettingForm', 'workerNodeInstanceType');
         payload.machineHealthCheckEnabled = this.getFieldValue("vsphereNodeSettingForm", "machineHealthChecksEnabled") === true;
 
         const vsphereCredentialsMappings = [
@@ -230,7 +229,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         const cliG = new CliGenerator();
         const cliParams: CliFields = {
             configPath: configPath,
-            clusterType: this.clusterType,
+            clusterType: this.getClusterType(),
             clusterName: this.getMCName(),
             extendCliCmds: []
         };
