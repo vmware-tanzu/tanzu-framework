@@ -21,6 +21,7 @@ TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
 BIN_DIR := bin
 ROOT_DIR := $(shell git rev-parse --show-toplevel)
 ADDONS_DIR := addons
+YTT_TESTS_DIR := pkg/v1/providers/tests
 UI_DIR := pkg/v1/tkg/web
 
 # Add tooling binaries here and in hack/tools/Makefile
@@ -347,9 +348,15 @@ vet: ## Run go vet
 lint: tools doc-lint ## Run linting checks
 	# Linter runs per module, add each one here and make sure they match
 	# in .github/workflows/main.yaml for CI coverage
+
+	# Linting for the addons...
 	$(GOLANGCI_LINT) run -v
 	cd $(ADDONS_DIR); $(GOLANGCI_LINT) run -v
 	cd $(ADDONS_DIR)/pinniped/post-deploy/; $(GOLANGCI_LINT) run -v
+
+	# Linting for the YTT generation test code...
+	cd $(YTT_TESTS_DIR); $(GOLANGCI_LINT) run -v 
+
 	# Check licenses in shell scripts and Makefile
 	hack/check-license.sh
 
