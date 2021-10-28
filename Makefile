@@ -63,9 +63,6 @@ SWAGGER=docker run --rm -v ${PWD}:${DOCKER_DIR} quay.io/goswagger/swagger:v0.21.
 # OCI registry for hosting tanzu framework components (containers and packages)
 OCI_REGISTRY ?= projects.registry.vmware.com/tanzu_framework
 
-# Add supported OS-ARCHITECTURE combinations here
-ENVS := linux-amd64 windows-amd64 darwin-amd64
-
 .DEFAULT_GOAL:=help
 
 LD_FLAGS += -X 'main.BuildEdition=$(BUILD_EDITION)'
@@ -514,7 +511,7 @@ e2e-tkgpackageclient-docker: $(GINKGO) generate-embedproviders ## Run ginkgo tkg
 # These are the components in this repo that need to have a docker image built.
 # This variable refers to directory paths that contain a Makefile with `docker-build`, `docker-publish` and
 # `kbld-image-replace` targets that can build and push a docker image for that component.
-COMPONENTS := pkg/v1/sdk/features
+COMPONENTS := cliplugins pkg/v1/sdk/features
 
 .PHONY: docker-build
 docker-build: TARGET=docker-build

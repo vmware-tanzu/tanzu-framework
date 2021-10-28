@@ -77,8 +77,8 @@ docker-publish: ## Publish docker image
 kbld-image-replace: ## Add newImage in kbld-config.yml
 	cd ../../../../hack/packages/kbld-image-replace && $(MAKE) run IMAGE=$(IMG_DEFAULT_NAME_TAG) NEW_IMAGE=$(IMG)
 
-.PHONY: docker-image-name
-docker-image-name:
+.PHONY: docker-image-names
+docker-image-names:
 	@echo $(IMG)
 
 .PHONY: docker-build-and-publish
