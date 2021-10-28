@@ -1502,35 +1502,6 @@ paths:
           schema:
             $ref: '#/definitions/Error'
 
-  /api/integration/tmc:
-    get:
-      tags: ["tmc"]
-      summary: "Retrieves TMC install yml from provided URL"
-      operationId: retrieveTMCInstallYml
-      parameters:
-        - name: url
-          in: query
-          description: The URL to retrieve the TMC install yml from.
-          required: true
-          type: string
-      responses:
-        200:
-          description: Successfully retrieved TMC install yml.
-          schema:
-            type: string
-        400:
-          description: "Bad request"
-          schema:
-            $ref: "#/definitions/Error"
-        500:
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/Error'
-        502:
-          description: Bad Gateway
-          schema:
-            $ref: '#/definitions/Error'
-
 definitions:
   Error:
     type: object
@@ -1722,8 +1693,6 @@ definitions:
         type: string
       machineHealthCheckEnabled:
         type: boolean
-      tmc_registration_url:
-        type: string
       ceipOptIn:
         type: boolean
         default: true
@@ -1779,8 +1748,6 @@ definitions:
           type: string
       machineHealthCheckEnabled:
         type: boolean
-      tmc_registration_url:
-        type: string
       ceipOptIn:
         type: boolean
         default: true
@@ -2045,8 +2012,6 @@ definitions:
         type: string
       os:
         $ref: '#/definitions/AzureVirtualMachine'
-      tmc_registration_url:
-        type: string
       ceipOptIn:
         type: boolean
         default: true
@@ -2077,8 +2042,6 @@ definitions:
       numOfWorkerNodes:
         type: string
       kubernetesVersion:
-        type: string
-      tmc_registration_url:
         type: string
       ceipOptIn:
         type: boolean
@@ -2332,7 +2295,7 @@ definitions:
   LdapTestResult:
     type: object
     properties:
-      code: 
+      code:
         type: integer
-      desc: 
+      desc:
         type: string

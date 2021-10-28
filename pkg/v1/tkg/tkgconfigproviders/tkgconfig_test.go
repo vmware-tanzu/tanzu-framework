@@ -605,7 +605,6 @@ var _ = Describe("NewAzureConfig", func() {
 		client Client
 		params = &models.AzureRegionalClusterParams{
 			ClusterName:        "my-cluster",
-			TmcRegistrationURL: "http:0.0.0.0",
 			ControlPlaneFlavor: flavor,
 			Location:           "US WEST 2",
 			Networking: &models.TKGNetwork{
@@ -660,7 +659,6 @@ var _ = Describe("NewVsphereConfig", func() {
 		client Client
 		params = &models.VsphereRegionalClusterParams{
 			ClusterName:        "my-cluster",
-			TmcRegistrationURL: "http:0.0.0.0",
 			ControlPlaneFlavor: flavor,
 			Networking: &models.TKGNetwork{
 				ClusterPodCIDR: "10.0.0.4/15",
@@ -724,7 +722,6 @@ var _ = Describe("NewDockerConfig", func() {
 		client Client
 		params = &models.DockerRegionalClusterParams{
 			ClusterName:        "my-cluster",
-			TmcRegistrationURL: "http:0.0.0.0",
 			ControlPlaneFlavor: flavor,
 			Networking: &models.TKGNetwork{
 				ClusterPodCIDR: "10.0.0.4/15",

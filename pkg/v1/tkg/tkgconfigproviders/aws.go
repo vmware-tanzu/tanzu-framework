@@ -26,7 +26,6 @@ type AWSConfig struct {
 	InfrastructureProvider string `yaml:"INFRASTRUCTURE_PROVIDER,omitempty"`
 	ClusterPlan            string `yaml:"CLUSTER_PLAN,omitempty"`
 	CeipParticipation      string `yaml:"ENABLE_CEIP_PARTICIPATION,omitempty"`
-	TmcRegistrationURL     string `yaml:"TMC_REGISTRATION_URL,omitempty"`
 
 	Region                    string `yaml:"AWS_REGION,omitempty"`
 	AccessKeyID               string `yaml:"AWS_ACCESS_KEY_ID,omitempty"`
@@ -98,7 +97,6 @@ func (c *client) NewAWSConfig(params *models.AWSRegionalClusterParams, encodedCr
 		ClusterName:            params.ClusterName,
 		InfrastructureProvider: constants.InfrastructureProviderAWS,
 		ClusterPlan:            params.ControlPlaneFlavor,
-		TmcRegistrationURL:     params.TmcRegistrationURL,
 
 		Region:                params.AwsAccountParams.Region,
 		B64EncodedCredentials: encodedCredentials,
