@@ -17,13 +17,13 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/multierr"
 	"golang.org/x/mod/semver"
-
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/discovery"
+	kerrors "k8s.io/apimachinery/pkg/util/errors"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/catalog"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/discovery"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/plugin"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
@@ -125,6 +125,7 @@ func DiscoverServerPlugins(serverName string) (plugins []plugin.Discovered, err 
 }
 
 // DiscoverPlugins returns the available plugins that can be used with the given server
+// If serverName is empty(""), return only standalone plugins
 func DiscoverPlugins(serverName string) (serverPlugins, standalonePlugins []plugin.Discovered, err error) {
 	serverPlugins, err = DiscoverServerPlugins(serverName)
 	if err != nil {
@@ -142,6 +143,7 @@ func DiscoverPlugins(serverName string) (serverPlugins, standalonePlugins []plug
 }
 
 // AvailablePlugins returns the list of available plugins including discovered and installed plugins
+// If serverName is empty(""), return only available standalone plugins
 func AvailablePlugins(serverName string) ([]plugin.Discovered, error) {
 	discoveredServerPlugins, discoveredStandalonePlugins, err := DiscoverPlugins(serverName)
 	if err != nil {
@@ -190,6 +192,7 @@ func AvailablePlugins(serverName string) ([]plugin.Discovered, error) {
 }
 
 // InstalledPlugins returns the installed plugins.
+// If serverName is empty(""), return only installed standalone plugins
 func InstalledPlugins(serverName string, exclude ...string) (serverPlugins, standalonePlugins []cliv1alpha1.PluginDescriptor, err error) {
 	var serverCatalog, standAloneCatalog *catalog.ContextCatalog
 
@@ -210,6 +213,7 @@ func InstalledPlugins(serverName string, exclude ...string) (serverPlugins, stan
 }
 
 // DescribePlugin describes a plugin.
+// If serverName is empty(""), only consider standalone plugins
 func DescribePlugin(serverName, pluginName string) (desc *cliv1alpha1.PluginDescriptor, err error) {
 	c, err := catalog.NewContextCatalog(serverName)
 	if err != nil {
@@ -224,6 +228,7 @@ func DescribePlugin(serverName, pluginName string) (desc *cliv1alpha1.PluginDesc
 }
 
 // InitializePlugin initializes the plugin configuration
+// If serverName is empty(""), only consider standalone plugins
 func InitializePlugin(serverName, pluginName string) error {
 	c, err := catalog.NewContextCatalog(serverName)
 	if err != nil {
@@ -247,6 +252,7 @@ func InitializePlugin(serverName, pluginName string) error {
 }
 
 // InstallPlugin installs a plugin from the given repository.
+// If serverName is empty(""), only consider standalone plugins
 func InstallPlugin(serverName, pluginName, version string) error {
 	availablePlugins, err := AvailablePlugins(serverName)
 	if err != nil {
@@ -265,6 +271,7 @@ func InstallPlugin(serverName, pluginName, version string) error {
 }
 
 // UpgradePlugin upgrades a plugin from the given repository.
+// If serverName is empty(""), only consider standalone plugins
 func UpgradePlugin(serverName, pluginName, version string) error {
 	availablePlugins, err := AvailablePlugins(serverName)
 	if err != nil {
@@ -283,6 +290,7 @@ func UpgradePlugin(serverName, pluginName, version string) error {
 }
 
 // GetRecommendedVersionOfPlugin returns recommended version of the plugin
+// If serverName is empty(""), only consider standalone plugins
 func GetRecommendedVersionOfPlugin(serverName, pluginName string) (string, error) {
 	availablePlugins, err := AvailablePlugins(serverName)
 	if err != nil {
@@ -297,6 +305,8 @@ func GetRecommendedVersionOfPlugin(serverName, pluginName string) (string, error
 }
 
 func installOrUpgradePlugin(serverName string, p *plugin.Discovered, version string) error {
+	log.Info("Installing plugin", p.Name)
+
 	b, err := p.Distribution.Fetch(version, runtime.GOOS, runtime.GOARCH)
 	if err != nil {
 		return err
@@ -347,6 +357,7 @@ func installOrUpgradePlugin(serverName string, p *plugin.Discovered, version str
 }
 
 // DeletePlugin deletes a plugin.
+// If serverName is empty(""), only consider standalone plugins
 func DeletePlugin(serverName, pluginName string) error {
 	c, err := catalog.NewContextCatalog(serverName)
 	if err != nil {
@@ -364,6 +375,40 @@ func DeletePlugin(serverName, pluginName string) error {
 
 	// TODO: delete the plugin binary if it is not used by any server
 
+	return nil
+}
+
+// SyncPlugins automatically downloads all available plugins to users machine
+// If serverName is empty(""), only sync standalone plugins
+func SyncPlugins(serverName string) error {
+	log.Info("Checking for required plugins...")
+	plugins, err := AvailablePlugins(serverName)
+	if err != nil {
+		return err
+	}
+
+	installed := false
+
+	errList := make([]error, 0)
+	for idx := range plugins {
+		if plugins[idx].Status != common.PluginStatusInstalled {
+			installed = true
+			err = InstallPlugin(serverName, plugins[idx].Name, plugins[idx].RecommendedVersion)
+			if err != nil {
+				errList = append(errList, err)
+			}
+		}
+	}
+	err = kerrors.NewAggregate(errList)
+	if err != nil {
+		return err
+	}
+
+	if !installed {
+		log.Info("All required plugins are already installed and up-to-date")
+	} else {
+		log.Info("Successfully installed all required plugins")
+	}
 	return nil
 }
 

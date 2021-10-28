@@ -38,6 +38,7 @@ func init() {
 		deletePluginCmd,
 		repoCmd,
 		cleanPluginCmd,
+		syncPluginCmd,
 	)
 	listPluginCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table)")
 	pluginCmd.PersistentFlags().StringSliceVarP(&local, "local", "l", []string{}, "path to local repository")
@@ -57,12 +58,13 @@ var listPluginCmd = &cobra.Command{
 	Short: "List available plugins",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
+			serverName := ""
 			server, err := config.GetCurrentServer()
-			if err != nil {
-				return err
+			if err == nil && server != nil {
+				serverName = server.Name
 			}
 
-			availablePlugins, err := pluginmanager.AvailablePlugins(server.Name)
+			availablePlugins, err := pluginmanager.AvailablePlugins(serverName)
 			if err != nil {
 				return err
 			}
@@ -176,11 +178,12 @@ var describePluginCmd = &cobra.Command{
 		name := args[0]
 
 		if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
+			serverName := ""
 			server, err := config.GetCurrentServer()
-			if err != nil {
-				return err
+			if err == nil && server != nil {
+				serverName = server.Name
 			}
-			pd, err := pluginmanager.DescribePlugin(server.Name, name)
+			pd, err := pluginmanager.DescribePlugin(serverName, name)
 			if err != nil {
 				return err
 			}
@@ -225,21 +228,22 @@ var installPluginCmd = &cobra.Command{
 		name := args[0]
 
 		if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
+			serverName := ""
 			server, err := config.GetCurrentServer()
-			if err != nil {
-				return err
+			if err == nil && server != nil {
+				serverName = server.Name
 			}
 
 			pluginVersion := version
 
 			if pluginVersion == cli.VersionLatest {
-				pluginVersion, err = pluginmanager.GetRecommendedVersionOfPlugin(server.Name, name)
+				pluginVersion, err = pluginmanager.GetRecommendedVersionOfPlugin(serverName, name)
 				if err != nil {
 					return err
 				}
 			}
 
-			err = pluginmanager.InstallPlugin(server.Name, name, pluginVersion)
+			err = pluginmanager.InstallPlugin(serverName, name, pluginVersion)
 			if err != nil {
 				return err
 			}
@@ -283,17 +287,18 @@ var upgradePluginCmd = &cobra.Command{
 		name := args[0]
 
 		if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
+			serverName := ""
 			server, err := config.GetCurrentServer()
+			if err == nil && server != nil {
+				serverName = server.Name
+			}
+
+			pluginVersion, err := pluginmanager.GetRecommendedVersionOfPlugin(serverName, name)
 			if err != nil {
 				return err
 			}
 
-			pluginVersion, err := pluginmanager.GetRecommendedVersionOfPlugin(server.Name, name)
-			if err != nil {
-				return err
-			}
-
-			err = pluginmanager.UpgradePlugin(server.Name, name, pluginVersion)
+			err = pluginmanager.UpgradePlugin(serverName, name, pluginVersion)
 			if err != nil {
 				return err
 			}
@@ -328,12 +333,13 @@ var deletePluginCmd = &cobra.Command{
 		name := args[0]
 
 		if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
+			serverName := ""
 			server, err := config.GetCurrentServer()
-			if err != nil {
-				return err
+			if err == nil && server != nil {
+				serverName = server.Name
 			}
 
-			err = pluginmanager.DeletePlugin(server.Name, name)
+			err = pluginmanager.DeletePlugin(serverName, name)
 			if err != nil {
 				return err
 			}
@@ -356,6 +362,27 @@ var cleanPluginCmd = &cobra.Command{
 			return pluginmanager.Clean()
 		}
 		return cli.Clean()
+	},
+}
+
+var syncPluginCmd = &cobra.Command{
+	Use:   "sync",
+	Short: "Sync the plugins",
+	RunE: func(cmd *cobra.Command, args []string) (err error) {
+		if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
+			serverName := ""
+			server, err := config.GetCurrentServer()
+			if err == nil && server != nil {
+				serverName = server.Name
+			}
+			err = pluginmanager.SyncPlugins(serverName)
+			if err != nil {
+				return err
+			}
+			log.Success("Done")
+			return nil
+		}
+		return errors.Errorf("command is only applicable if `%s` feature is enabled", config.FeatureContextAwareDiscovery)
 	},
 }
 

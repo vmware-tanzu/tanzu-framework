@@ -18,8 +18,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 )
 
-var testCase string
-
 const (
 	testcaseInstallLogin     = "install-login"
 	testcaseInstallCluster   = "install-cluster"
@@ -57,13 +55,11 @@ func Test_InstallPlugin_InstalledPlugins(t *testing.T) {
 	defer func() { execCommand = exec.Command }()
 
 	// Try installing not-existing package
-	testCase = testcaseInstallNotexists
 	err := InstallPlugin("", "notexists", "v0.2.0")
 	assert.NotNil(err)
 	assert.Contains(err.Error(), "unable to find plugin 'notexists'")
 
 	// Install login (standalone) package
-	testCase = testcaseInstallLogin
 	err = InstallPlugin("", "login", "v0.2.0")
 	assert.Nil(err)
 	// Verify installed plugin
@@ -74,7 +70,6 @@ func Test_InstallPlugin_InstalledPlugins(t *testing.T) {
 	assert.Equal("login", installedStandalonePlugins[0].Name)
 
 	// Try installing cluster plugin through standalone discovery
-	testCase = testcaseInstallCluster
 	err = InstallPlugin("", "cluster", "v0.2.0")
 	assert.NotNil(err)
 	assert.Contains(err.Error(), "unable to find plugin 'cluster'")
@@ -204,16 +199,82 @@ func Test_ValidatePlugin(t *testing.T) {
 	assert.Contains(err.Error(), "plugin \"fakeplugin\" group cannot be empty")
 }
 
+func Test_SyncPlugins_Standalone_Plugins(t *testing.T) {
+	assert := assert.New(t)
+
+	defer setupLocalDistoForTesting()()
+	execCommand = fakeExecCommand
+	defer func() { execCommand = exec.Command }()
+
+	// Get available standalone plugins and verify the status is `not installed`
+	discovered, err := AvailablePlugins("")
+	assert.Nil(err)
+	assert.Equal(1, len(discovered))
+	assert.Equal("login", discovered[0].Name)
+	assert.Equal(common.PluginScopeStandalone, discovered[0].Scope)
+	assert.Equal(common.PluginStatusNotInstalled, discovered[0].Status)
+
+	// Sync standalone plugins
+	err = SyncPlugins("")
+	assert.Nil(err)
+
+	// Get available standalone plugins and verify the status is updated to `installed`
+	discovered, err = AvailablePlugins("")
+	assert.Nil(err)
+	assert.Equal(1, len(discovered))
+	assert.Equal("login", discovered[0].Name)
+	assert.Equal(common.PluginScopeStandalone, discovered[0].Scope)
+	assert.Equal(common.PluginStatusInstalled, discovered[0].Status)
+}
+
+func Test_SyncPlugins_All_Plugins(t *testing.T) {
+	assert := assert.New(t)
+
+	defer setupLocalDistoForTesting()()
+	execCommand = fakeExecCommand
+	defer func() { execCommand = exec.Command }()
+
+	// Get all available plugins(standalone+context-aware) and verify the status is `not installed`
+	discovered, err := AvailablePlugins("mgmt")
+	assert.Nil(err)
+	assert.Equal(2, len(discovered))
+	assert.Equal("cluster", discovered[0].Name)
+	assert.Equal(common.PluginScopeContext, discovered[0].Scope)
+	assert.Equal(common.PluginStatusNotInstalled, discovered[0].Status)
+	assert.Equal("login", discovered[1].Name)
+	assert.Equal(common.PluginScopeStandalone, discovered[1].Scope)
+	assert.Equal(common.PluginStatusNotInstalled, discovered[1].Status)
+
+	// Sync standalone plugins
+	err = SyncPlugins("mgmt")
+	assert.Nil(err)
+
+	// Get all available plugins(standalone+context-aware) and verify the status is updated to `installed`
+	discovered, err = AvailablePlugins("mgmt")
+	assert.Nil(err)
+	assert.Equal(2, len(discovered))
+	assert.Equal("cluster", discovered[0].Name)
+	assert.Equal(common.PluginScopeContext, discovered[0].Scope)
+	assert.Equal(common.PluginStatusInstalled, discovered[0].Status)
+	assert.Equal("login", discovered[1].Name)
+	assert.Equal(common.PluginScopeStandalone, discovered[1].Scope)
+	assert.Equal(common.PluginStatusInstalled, discovered[1].Status)
+}
+
 func mockInstallPlugin(assert *assert.Assertions, server, name, version string) { //nolint:unparam
 	execCommand = fakeExecCommand
 	defer func() { execCommand = exec.Command }()
 
-	testCase = "install-" + name
 	err := InstallPlugin(server, name, version)
 	assert.Nil(err)
 }
 
 func fakeExecCommand(command string, args ...string) *exec.Cmd {
+	// get plugin name based on the command
+	// command path is of the form `path/to/plugin-root-directory/login/v0.2.0`
+	pluginName := filepath.Base(filepath.Dir(command))
+	testCase := "install-" + pluginName
+
 	cs := []string{"-test.run=TestHelperProcess", "--", command}
 	cs = append(cs, args...)
 	cmd := exec.Command(os.Args[0], cs...) //nolint:gosec
