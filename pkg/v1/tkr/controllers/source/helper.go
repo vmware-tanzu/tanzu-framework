@@ -5,10 +5,9 @@ package source
 
 import (
 	"context"
+	"regexp"
 	"strconv"
 	"strings"
-
-	"regexp"
 	"time"
 
 	"github.com/pkg/errors"
@@ -16,15 +15,14 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/version"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	utilconditions "sigs.k8s.io/cluster-api/util/conditions"
 
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
-	types "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
 )
 
 const (
-	// VMwareVersionSeparator is the separator to use
-	VMwareVersionSeparator = "+vmware."
 	// InitialDiscoveryRetry is the number of retries for the initial TKR sync-up
 	InitialDiscoveryRetry = 10
 	// GetManagementClusterInfoFailedError is the error message for not getting management cluster info
@@ -131,6 +129,10 @@ type TKRVersion struct {
 }
 
 func upgradeQualified(fromTKR, toTKR *runv1.TanzuKubernetesRelease) bool {
+	if !utilconditions.IsTrue(toTKR, runv1.ConditionCompatible) {
+		return false
+	}
+
 	from, err := NewTKRVersion(fromTKR.Spec.Version)
 	if err != nil {
 		return false
@@ -220,10 +222,6 @@ func (r *reconciler) GetManagementClusterVersion(ctx context.Context) (string, e
 	return "", errors.New(GetManagementClusterInfoFailedError)
 }
 
-func isManagementClusterNotReadyError(err error) bool {
-	return strings.Contains(err.Error(), GetManagementClusterInfoFailedError)
-}
-
 func hasDeprecateUpgradeAvailableCondition(conditions []clusterv1.Condition) bool {
 	for _, c := range conditions {
 		if c.Type == runv1.ConditionUpgradeAvailable {
@@ -231,4 +229,20 @@ func hasDeprecateUpgradeAvailableCondition(conditions []clusterv1.Condition) boo
 		}
 	}
 	return false
+}
+
+type errorSlice []error
+
+func (e errorSlice) Error() string {
+	if len(e) == 0 {
+		return ""
+	}
+	sb := &strings.Builder{}
+	for i, err := range e {
+		if i != 0 {
+			sb.WriteString(", ")
+		}
+		sb.WriteString(err.Error())
+	}
+	return sb.String()
 }

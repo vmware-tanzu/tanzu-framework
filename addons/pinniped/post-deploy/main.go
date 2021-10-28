@@ -5,39 +5,28 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"os"
 
 	certmanagerclientset "github.com/jetstack/cert-manager/pkg/client/clientset/versioned"
-	conciergeclientset "go.pinniped.dev/generated/1.19/client/concierge/clientset/versioned"
-	supervisorclientset "go.pinniped.dev/generated/1.19/client/supervisor/clientset/versioned"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	k8sconfig "sigs.k8s.io/controller-runtime/pkg/client/config"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/configure"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/pinnipedclientset"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/vars"
 )
 
-var (
-	k8sClientset         kubernetes.Interface
-	supervisorClientset  supervisorclientset.Interface
-	conciergeClientset   conciergeclientset.Interface
-	certmanagerClientset certmanagerclientset.Interface
-)
-
-func init() {
-	cfg, err := k8sconfig.GetConfig()
-	if err != nil {
-		panic(err)
-	}
-	k8sClientset = kubernetes.NewForConfigOrDie(cfg)
-	supervisorClientset = supervisorclientset.NewForConfigOrDie(cfg)
-	conciergeClientset = conciergeclientset.NewForConfigOrDie(cfg)
-	certmanagerClientset = certmanagerclientset.NewForConfigOrDie(cfg)
-}
-
 func main() {
+	// optional
+	flag.StringVar(&vars.PinnipedAPIGroupSuffix, "pinniped-api-group-suffix", vars.PinnipedAPIGroupSuffix, "The API group suffix used to talk to Pinniped APIs")
+
+	// optional
+	flag.BoolVar(&vars.ConciergeIsClusterScoped, "concierge-is-cluster-scoped", vars.ConciergeIsClusterScoped, "Whether the Pinniped Concierge APIs are cluster-scoped")
+
 	// optional
 	flag.StringVar(&vars.SupervisorNamespace, "supervisor-namespace", vars.SupervisorNamespace, "The namespace of Pinniped supervisor")
 
@@ -99,16 +88,15 @@ func main() {
 	defer loggerMgr.Sync() //nolint:errcheck
 	logger := loggerMgr.Sugar()
 
-	err := configure.TKGAuthentication(
-		configure.Clients{
-			K8SClientset:         k8sClientset,
-			SupervisorClientset:  supervisorClientset,
-			ConciergeClientset:   conciergeClientset,
-			CertmanagerClientset: certmanagerClientset},
-	)
+	clients, err := initClients()
 	if err != nil {
 		logger.Error(err)
 		os.Exit(1) // nolint:gocritic
+	}
+
+	if err := configure.TKGAuthentication(clients); err != nil {
+		logger.Error(err)
+		os.Exit(1)
 	}
 }
 
@@ -120,4 +108,19 @@ func initZapLog() *zap.Logger {
 	config.EncoderConfig.CallerKey = "caller"
 	logger, _ := config.Build()
 	return logger
+}
+
+func initClients() (configure.Clients, error) {
+	cfg, err := k8sconfig.GetConfig()
+	if err != nil {
+		return configure.Clients{}, fmt.Errorf("could not get k8s config: %w", err)
+	}
+
+	dynamicClient := dynamic.NewForConfigOrDie(cfg)
+	return configure.Clients{
+		K8SClientset:         kubernetes.NewForConfigOrDie(cfg),
+		SupervisorClientset:  pinnipedclientset.NewSupervisor(dynamicClient, vars.PinnipedAPIGroupSuffix),
+		ConciergeClientset:   pinnipedclientset.NewConcierge(dynamicClient, vars.PinnipedAPIGroupSuffix, vars.ConciergeIsClusterScoped),
+		CertmanagerClientset: certmanagerclientset.NewForConfigOrDie(cfg),
+	}, nil
 }

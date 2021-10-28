@@ -33,7 +33,7 @@ func (c *client) NewDockerConfig(params *models.DockerRegionalClusterParams) (*D
 	res := &DockerConfig{
 		ClusterName:            params.ClusterName,
 		InfrastructureProvider: constants.InfrastructureProviderDocker,
-		ClusterPlan:            params.ControlPlaneFlavor,
+		ClusterPlan:            constants.PlanDev,
 		ClusterCIDR:            params.Networking.ClusterPodCIDR,
 		ServiceCIDR:            params.Networking.ClusterServiceCIDR,
 		HTTPProxyEnabled:       falseConst,

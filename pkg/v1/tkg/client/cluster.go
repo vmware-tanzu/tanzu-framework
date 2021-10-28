@@ -33,8 +33,9 @@ const (
 	// AzureProviderName azure provider name
 	AzureProviderName = "azure"
 	// DockerProviderName docker provider name
-	DockerProviderName            = "docker"
-	defaultPacificProviderVersion = "v1.0.0"
+	DockerProviderName = "docker"
+
+	defaultPacificProviderVersion = "v1.1.0"
 )
 
 const (
@@ -62,7 +63,7 @@ var TKGSupportedClusterOptions string
 
 // CreateCluster create workload cluster
 func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster bool) error { //nolint:gocyclo,funlen
-	if err := checkClusterNameFormat(options.ClusterName); err != nil {
+	if err := CheckClusterNameFormat(options.ClusterName, options.ProviderRepositorySource.InfrastructureProvider); err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 	log.Info("Validating configuration...")
@@ -97,6 +98,10 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 		return errors.Wrap(err, "error determining Tanzu Kubernetes Cluster service for vSphere management cluster ")
 	}
 	if isPacific {
+		err := c.ValidatePacificVersionWithCLI(regionalClusterClient)
+		if err != nil {
+			return err
+		}
 		return c.createPacificCluster(options, waitForCluster)
 	}
 
@@ -199,6 +204,11 @@ func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.C
 		waitForCNI:            true,
 	}); err != nil {
 		return errors.Wrap(err, "error waiting for addons to get installed")
+	}
+
+	log.Info("Waiting for packages to be up and running...")
+	if err := c.WaitForPackages(regionalClusterClient, workloadClusterClient, options.ClusterName, options.TargetNamespace); err != nil {
+		log.Warningf("Warning: Cluster is created successfully, but some packages are failing. %v", err)
 	}
 
 	return nil
@@ -359,7 +369,7 @@ func (c *TkgClient) createPacificCluster(options *CreateClusterOptions, waitForC
 
 	log.V(3).Infof("Waiting for the Tanzu Kubernetes Cluster service for vSphere workload cluster\n")
 
-	if err := clusterClient.WaitForPacificCluster(clusterName, namespace, ""); err != nil {
+	if err := clusterClient.WaitForPacificCluster(clusterName, namespace); err != nil {
 		return errors.Wrap(err, "failed waiting for workload cluster")
 	}
 	return nil
@@ -377,7 +387,7 @@ func (c *TkgClient) getPacificClusterConfiguration(options *CreateClusterOptions
 	}
 
 	if providerVersion == "" {
-		// TODO: should be changed once we get APIs from Pacific to determine the version, for now using "1.0.0"
+		// TODO: should be changed once we get APIs from Pacific to determine the version, for now using "1.1.0"
 		providerVersion = defaultPacificProviderVersion
 	}
 
@@ -386,6 +396,11 @@ func (c *TkgClient) getPacificClusterConfiguration(options *CreateClusterOptions
 	c.SetProviderType(name)
 	c.SetTKGClusterRole(WorkloadCluster)
 	c.SetTKGVersion()
+	tkrName := utils.GetTkrNameFromTkrVersion(options.TKRVersion)
+	if !strings.HasPrefix(tkrName, "v") {
+		tkrName = "v" + tkrName
+	}
+	c.TKGConfigReaderWriter().Set(constants.ConfigVariableTkrName, tkrName)
 	err = c.ConfigureAndValidateCNIType(options.CniType)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to validate CNI")
@@ -511,6 +526,12 @@ func (c *TkgClient) ConfigureAndValidateWorkloadClusterConfiguration(options *Cr
 	if options.ClusterType == "" {
 		options.ClusterType = WorkloadCluster
 	}
+	// BUILD_EDITION is the Tanzu Edition, the plugin should be built for. Its value is supposed be constructed from
+	// cmd/cli/plugin/managementcluster/create.go. So empty value at this point is not expected.
+	if options.Edition == "" {
+		return NewValidationError(ValidationErrorCode, "required config variable 'BUILD_EDITION' is not set")
+	}
+	c.SetBuildEdition(options.Edition)
 	c.SetTKGClusterRole(options.ClusterType)
 	c.SetTKGVersion()
 	if !skipValidation {
@@ -533,31 +554,25 @@ func (c *TkgClient) ConfigureAndValidateWorkloadClusterConfiguration(options *Cr
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
-	if name == AWSProviderName {
+	switch name {
+	case AWSProviderName:
 		if err := c.ConfigureAndValidateAWSConfig(options.TKRVersion, options.NodeSizeOptions, skipValidation,
 			options.ClusterConfigOptions.ProviderRepositorySource.Flavor == constants.PlanProd, *options.WorkerMachineCount, clusterClient, false); err != nil {
 			return errors.Wrap(err, "AWS config validation failed")
 		}
-	}
-
-	if name == VSphereProviderName {
-		if err := c.ConfigureAndValidateVsphereConfig(options.TKRVersion, options.NodeSizeOptions, options.VsphereControlPlaneEndpoint, skipValidation, clusterClient); err != nil {
+	case VSphereProviderName:
+		if err := c.ConfigureAndValidateVsphereConfig(options.TKRVersion, options.NodeSizeOptions, options.VsphereControlPlaneEndpoint, skipValidation, nil); err != nil {
 			return errors.Wrap(err, "vSphere config validation failed")
 		}
-
 		if err := c.ValidateVsphereVipWorkloadCluster(clusterClient, options.VsphereControlPlaneEndpoint, skipValidation); err != nil {
 			return NewValidationError(ValidationErrorCode, errors.Wrap(err, "vSphere control plane endpoint IP validation failed").Error())
 		}
-	}
-
-	if name == AzureProviderName {
+	case AzureProviderName:
 		if err := c.ConfigureAndValidateAzureConfig(options.TKRVersion, options.NodeSizeOptions, skipValidation,
-			options.ClusterConfigOptions.ProviderRepositorySource.Flavor == constants.PlanProd, *options.WorkerMachineCount, clusterClient, false); err != nil {
+			options.ClusterConfigOptions.ProviderRepositorySource.Flavor == constants.PlanProd, *options.WorkerMachineCount, nil, false); err != nil {
 			return errors.Wrap(err, "Azure config validation failed")
 		}
-	}
-
-	if name == DockerProviderName {
+	case DockerProviderName:
 		if err := c.ConfigureAndValidateDockerConfig(options.TKRVersion, options.NodeSizeOptions, skipValidation); err != nil {
 			return NewValidationError(ValidationErrorCode, err.Error())
 		}

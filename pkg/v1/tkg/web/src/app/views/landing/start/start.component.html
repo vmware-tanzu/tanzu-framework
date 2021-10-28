@@ -7,11 +7,11 @@
 </div>
 <div class="clr-row">
     <div class="clr-col-lg-12 clr-col-sm-12 clr-col-12">
-        <h4 aria-level="2">Deploy the {{ clusterType }} cluster</h4>
+        <h4 aria-level="2">Deploy the {{ clusterTypeDescriptor }} cluster</h4>
     </div>
 </div>
 <div class="clr-row" *ngIf="!loading">
-    <div class="clr-col-lg-4 clr-col-sm-6 clr-col-12" *ngIf="edition === 'tce' || edition === 'tce-standalone'">
+    <div class="clr-col-lg-4 clr-col-sm-6 clr-col-12" *ngIf="edition === 'tce'">
         <div class="card provider">
             <div class="card-block">
                 <div class="card-title">
@@ -21,11 +21,15 @@
                     <div class="docker-icon-48"></div>
                 </div>
                 <p class="card-text">
-                    Deploy your {{ clusterType }} cluster on your local workstation
+                    Deploy your {{ clusterTypeDescriptor }} cluster on your local workstation
                 </p>
             </div>
             <div class="card-footer">
-                <button class="btn btn-primary" id="btn-deploy-docker" (click)="navigateToWizard(PROVIDERS.DOCKER)">
+                <button
+                    class="btn btn-primary"
+                    id="btn-deploy-docker"
+                    (click)="navigateToWizard(PROVIDERS.DOCKER)"
+                    [attr.aria-label]="'deploy on docker'">
                     Deploy
                 </button>
             </div>
@@ -41,11 +45,15 @@
                     <div class="vsphere-icon-48"></div>
                 </div>
                 <p class="card-text">
-                    Deploy your {{ clusterType }} cluster on VMware vSphere
+                    Deploy your {{ clusterTypeDescriptor }} cluster on VMware vSphere
                 </p>
             </div>
             <div class="card-footer">
-                <button class="btn btn-primary" id="btn-deploy-vsphere" (click)="navigateToWizard(PROVIDERS.VSPHERE)">
+                <button
+                    class="btn btn-primary"
+                    id="btn-deploy-vsphere"
+                    (click)="navigateToWizard(PROVIDERS.VSPHERE)"
+                    [attr.aria-label]="'deploy on vmware vsphere'">
                     Deploy
                 </button>
             </div>
@@ -55,17 +63,21 @@
         <div class="card provider">
             <div class="card-block">
                 <div class="card-title">
-                    Amazon EC2
+                    Amazon Web Services
                 </div>
                 <div class="card-media-block wrap">
                     <div class="aws-ec2-icon-48"></div>
                 </div>
                 <p class="card-text">
-                    Deploy your {{ clusterType }} cluster on Amazon Elastic Compute Cloud
+                    Deploy your {{ clusterTypeDescriptor }} cluster on Amazon Elastic Compute Cloud
                 </p>
             </div>
             <div class="card-footer">
-                <button class="btn btn-primary" id="btn-deploy-aws" (click)="navigateToWizard(PROVIDERS.AWS)">
+                <button
+                    class="btn btn-primary"
+                    id="btn-deploy-aws"
+                    (click)="navigateToWizard(PROVIDERS.AWS)"
+                    [attr.aria-label]="'deploy on Amazon Web Services'">
                     Deploy
                 </button>
             </div>
@@ -81,11 +93,15 @@
                     <div class="ms-azure-icon-48"></div>
                 </div>
                 <p class="card-text">
-                    Deploy your {{ clusterType }} cluster on Microsoft Azure
+                    Deploy your {{ clusterTypeDescriptor }} cluster on Microsoft Azure
                 </p>
             </div>
             <div class="card-footer">
-                <button class="btn btn-primary" id="btn-deploy-azure" (click)="navigateToWizard(PROVIDERS.AZURE)">
+                <button
+                    class="btn btn-primary"
+                    id="btn-deploy-azure"
+                    (click)="navigateToWizard(PROVIDERS.AZURE)"
+                    [attr.aria-label]="'deploy on microsoft azure'">
                     Deploy
                 </button>
             </div>

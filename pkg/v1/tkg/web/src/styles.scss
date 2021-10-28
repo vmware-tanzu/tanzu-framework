@@ -10,6 +10,12 @@ body.dark {
     button.clr-accordion-header-button {
         color: #fff;
     }
+
+    .clr-error {
+        .clr-subtext {
+            color: #F76B64;
+        }
+    }
 }
 
 // Branding logos
@@ -43,7 +49,12 @@ body.dark {
 }
 
 .no-gutters {
-    padding: 0;
+    padding: 0 !important;
+}
+
+// contextual help
+clr-icon.contextual-help {
+    cursor: pointer;
 }
 
 // wizard fixes
@@ -61,7 +72,7 @@ body.dark {
     margin-bottom: 0;
 
     // tooltip icon fixes
-    label {
+    .title, label {
         clr-tooltip {
             clr-icon {
                 bottom: 1px;
@@ -137,6 +148,14 @@ clr-control-error.clr-subtext {
     max-height: 0px;
     overflow: hidden;
     visibility: hidden;
+}
+
+.display-none {
+    display: none;
+}
+
+.no-wrap {
+    white-space: nowrap;
 }
 
 .brand-logo {
@@ -258,4 +277,8 @@ clr-control-error.clr-subtext {
 
 .pr-5 {
     padding-right: 5px;
+}
+
+.export-btn {
+    float: right;
 }

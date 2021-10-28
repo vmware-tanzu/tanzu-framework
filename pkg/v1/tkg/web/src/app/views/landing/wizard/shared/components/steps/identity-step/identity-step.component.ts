@@ -6,6 +6,7 @@ import { APIClient } from 'src/app/swagger';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { ValidationService } from '../../../validation/validation.service';
 import { LdapTestResult } from 'src/app/swagger/models';
+import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 
 const CONNECT = "CONNECT";
 const BIND = "BIND";
@@ -36,14 +37,14 @@ const oidcFields: Array<string> = [
 const ldapValidatedFields: Array<string> = [
     'endpointIp',
     'endpointPort',
-    'bindPW'
+    'bindPW',
+    'userSearchFilter',
+    'userSearchUsername'
 ];
 
 const ldapNonValidatedFields: Array<string> = [
     'bindDN',
     'userSearchBaseDN',
-    'userSearchFilter',
-    'userSearchUsername',
     'groupSearchBaseDN',
     'groupSearchFilter',
     'groupSearchUserAttr',
@@ -98,6 +99,13 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
 
         this.fields.forEach(field => this.formGroup.addControl(field, new FormControl('', [])));
 
+        this.registerOnIpFamilyChange('issuerURL', [], [], () => {
+            if (this.identityTypeValue === 'oidc') {
+                this.setOIDCValidators();
+            } else if (this.identityTypeValue === 'ldap') {
+                this.setLDAPValidators();
+            }
+        });
         this.formGroup.get('identityType').valueChanges.pipe(
             distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
             takeUntil(this.unsubscribe)
@@ -122,7 +130,8 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
         this.resurrectField('issuerURL', [
             Validators.required,
             this.validationService.noWhitespaceOnEnds(),
-            this.validationService.isValidIpOrFqdnWithHttpsProtocol(),
+            this.ipFamily === IpFamilyEnum.IPv4 ?
+                this.validationService.isValidIpOrFqdnWithHttpsProtocol() : this.validationService.isValidIpv6OrFqdnWithHttpsProtocol(),
             this.validationService.isStringWithoutUrlFragment(),
             this.validationService.isStringWithoutQueryParams(),
         ], this.getSavedValue('issuerURL', ''));
@@ -160,10 +169,20 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
         this.resurrectField('endpointPort', [
             Validators.required,
             this.validationService.noWhitespaceOnEnds(),
-            this.validationService.isValidLdap(this.formGroup.get('endpointIp'))
+            this.ipFamily === IpFamilyEnum.IPv4 ?
+                this.validationService.isValidLdap(this.formGroup.get('endpointIp')) :
+                this.validationService.isValidIpv6Ldap(this.formGroup.get('endpointIp'))
         ], this.getSavedValue('endpointPort', ''));
 
         this.resurrectField('bindPW', [], '');
+
+        this.resurrectField('userSearchFilter', [
+            Validators.required
+        ], this.getSavedValue('userSearchFilter', ''));
+
+        this.resurrectField('userSearchUsername', [
+            Validators.required
+        ], this.getSavedValue('userSearchUsername', ''));
 
         ldapNonValidatedFields.forEach(field => this.resurrectField(
             field, [], this.getSavedValue(field, '')));

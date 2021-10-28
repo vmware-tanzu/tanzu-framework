@@ -1,0 +1,27 @@
+apiVersion: vendir.k14s.io/v1alpha1
+directories:
+- contents:
+  - git:
+      commitTitle: Add package templates Antrea 0.13.3 (#953)...
+      sha: df9a9cdea9886f1f5cc2856994739539cd5c5663
+      tags:
+      - v0.6.0-57-gdf9a9cde
+    path: .
+  path: ytt/vendir/vsphere_cpi/_ytt_lib
+- contents:
+  - git:
+      commitTitle: Add calico 3.19.1 package (#1606)...
+      sha: 9dc64e01bfb67cc128f618a419415c0f73a82cdc
+      tags:
+      - v0.10.0-dev.1-86-g9dc64e01
+    path: .
+  path: ytt/vendir/cni/_ytt_lib
+- contents:
+  - git:
+      commitTitle: Changes for adding kapp controller in tce => release 0.25.0 (#1889)...
+      sha: a67d6b278c5b1e693e2143e37e4e4761e69314fe
+      tags:
+      - v0.8.0-46-ga67d6b27
+    path: .
+  path: ytt/vendir/kapp-controller/_ytt_lib
+kind: LockConfig

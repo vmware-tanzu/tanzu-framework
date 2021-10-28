@@ -337,14 +337,29 @@ func (c *client) IsCustomRepositorySkipTLSVerify() bool {
 	return false
 }
 
-func (c *client) GetCustomRepositoryCaCertificate() ([]byte, error) {
-	value, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableCustomImageRepositoryCaCertificate)
-	if err != nil {
-		// return empty content when not specified
+// GetCustomRepositoryCaCertificateForClient returns CA certificate to use with cli client
+// This function reads the CA certificate from following variables in decreasing order of precedence:
+// 1. PROXY_CA_CERT
+// 2. TKG_PROXY_CA_CERT
+// 3. TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
+func (c *client) GetCustomRepositoryCaCertificateForClient() ([]byte, error) {
+	caCert := ""
+	proxyCACertValue, errProxyCACert := c.TKGConfigReaderWriter().Get(constants.ProxyCACert)
+	tkgProxyCACertValue, errTkgProxyCACertValue := c.TKGConfigReaderWriter().Get(constants.TKGProxyCACert)
+	customImageRepoCACert, errCustomImageRepoCACert := c.TKGConfigReaderWriter().Get(constants.ConfigVariableCustomImageRepositoryCaCertificate)
+
+	if errProxyCACert == nil && proxyCACertValue != "" {
+		caCert = proxyCACertValue
+	} else if errTkgProxyCACertValue == nil && tkgProxyCACertValue != "" {
+		caCert = tkgProxyCACertValue
+	} else if errCustomImageRepoCACert == nil && customImageRepoCACert != "" {
+		caCert = customImageRepoCACert
+	} else {
+		// return empty content when none is specified
 		return []byte{}, nil
 	}
 
-	decoded, err := base64.StdEncoding.DecodeString(value)
+	decoded, err := base64.StdEncoding.DecodeString(caCert)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to decode the base64-encoded custom registry CA certificate string")
 	}
@@ -408,7 +423,7 @@ func (c *client) DownloadDefaultBOMFilesFromRegistry(bomRegistry registry.Regist
 		return err
 	}
 
-	log.V(4).Infof("Downloading the TKG BOM file from Image name '%s", fmt.Sprintf("%s:%s", tkgBOMImagePath, tkgBOMImageTag))
+	log.Infof("Downloading the TKG Bill of Materials (BOM) file from '%s'", fmt.Sprintf("%s:%s", tkgBOMImagePath, tkgBOMImageTag))
 	tkgBOMContent, err := bomRegistry.GetFile(tkgBOMImagePath, tkgBOMImageTag, "")
 	if err != nil {
 		return errors.Errorf(errorDownloadingDefaultBOMFiles, fmt.Sprintf("%s:%s", tkgBOMImagePath, tkgBOMImageTag), err, tkgconfigpath)
@@ -445,7 +460,7 @@ func (c *client) DownloadDefaultBOMFilesFromRegistry(bomRegistry registry.Regist
 	}
 	defaultTKRImagePath := tkrBOMImageRepo + "/" + bomConfiguration.TKRBOM.ImagePath
 
-	log.V(4).Infof("Downloading the TKr BOM file from Image name '%s", fmt.Sprintf("%s:%s", defaultTKRImagePath, tkrBOMTagName))
+	log.Infof("Downloading the TKr Bill of Materials (BOM) file from '%s'", fmt.Sprintf("%s:%s", defaultTKRImagePath, tkrBOMTagName))
 	tkrBOMContent, err := bomRegistry.GetFile(defaultTKRImagePath, tkrBOMTagName, "")
 	if err != nil {
 		return errors.Errorf(errorDownloadingDefaultBOMFiles, fmt.Sprintf("%s:%s", defaultTKRImagePath, tkrBOMTagName), err, tkgconfigpath)
@@ -478,6 +493,7 @@ func (c *client) DownloadTKGCompatibilityFileFromRegistry(bomRegistry registry.R
 		tkgCompatibilityImagePath = compatibilityImageRepo + "/" + customTKGCompatibilityImagePath
 	}
 
+	log.Infof("Downloading TKG compatibility file from '%s'", tkgCompatibilityImagePath)
 	tags, err := bomRegistry.ListImageTags(tkgCompatibilityImagePath)
 	if err != nil || len(tags) == 0 {
 		return errors.Wrap(err, "failed to list TKG compatibility image tags")
@@ -503,7 +519,6 @@ func (c *client) DownloadTKGCompatibilityFileFromRegistry(bomRegistry registry.R
 		return err
 	}
 
-	log.V(4).Infof("Downloading the TKG Compatibility file from Image name '%s", fmt.Sprintf("%s:%s", tkgCompatibilityImagePath, tagName))
 	tkgCompatibilityContent, err := bomRegistry.GetFile(tkgCompatibilityImagePath, tagName, "")
 	if err != nil {
 		return errors.Errorf(errorDownloadingTKGCompatibilityFile, fmt.Sprintf("%s:%s", tkgCompatibilityImagePath, tagName), err, tkgconfigpath)
@@ -536,17 +551,13 @@ func (c *client) InitBOMRegistry() (registry.Registry, error) {
 		}
 	}
 
-	customImageRepoCACertEnv, err := c.tkgConfigReaderWriter.Get(constants.ConfigVariableCustomImageRepositoryCaCertificate)
-	if err == nil && customImageRepoCACertEnv != "" {
+	caCertBytes, err := c.GetCustomRepositoryCaCertificateForClient()
+	if err == nil && len(caCertBytes) != 0 {
 		filePath, err := tkgconfigpaths.GetRegistryCertFile()
 		if err != nil {
 			return nil, err
 		}
-		decoded, err := base64.StdEncoding.DecodeString(customImageRepoCACertEnv)
-		if err != nil {
-			return nil, errors.Wrap(err, "unable to decode the base64-encoded custom registry CA certificate string")
-		}
-		err = os.WriteFile(filePath, decoded, 0o644)
+		err = os.WriteFile(filePath, caCertBytes, 0o644)
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to write the custom image registry CA cert to file '%s'", filePath)
 		}

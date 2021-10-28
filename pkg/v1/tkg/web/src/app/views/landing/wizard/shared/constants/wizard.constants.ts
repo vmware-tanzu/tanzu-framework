@@ -4,6 +4,15 @@ export interface NodeType {
     name: string;
 }
 
+export const managementClusterPlugin = 'management-cluster';
+
+// ClusterType enum are data values sent to the backend to specify the cluster type
+// To reference the string on the right, use '' + ClusterType.Management
+export enum ClusterType {
+    Management = 'management',
+    Standalone = 'standalone',
+}
+
 export const vSphereNodeTypes: Array<NodeType> = [
     {
         id: 'small',
@@ -20,48 +29,5 @@ export const vSphereNodeTypes: Array<NodeType> = [
     {
         id: 'extra-large',
         name: 'extra-large (cpu: 8, ram: 32 GB, disk: 80 GB)'
-    }
-];
-
-export const awsNodeTypes: Array<NodeType> = [
-    {
-        id: 't3.small',
-        name: 't3.small'
-    },
-    {
-        id: 't3.medium',
-        name: 't3.medium'
-    },
-    {
-        id: 't3.large',
-        name: 't3.large'
-    },
-    {
-        id: 't3.xlarge',
-        name: 't3.xlarge'
-    },
-    {
-        id: 'm5.large',
-        name: 'm5.large'
-    },
-    {
-        id: 'm5.xlarge',
-        name: 'm5.xlarge'
-    },
-    {
-        id: 'm5a.2xlarge',
-        name: 'm5a.2xlarge'
-    },
-    {
-        id: 'm5a.4xlarge',
-        name: 'm5a.4xlarge'
-    },
-    {
-        id: 'r4.8xlarge',
-        name: 'r4.8xlarge'
-    },
-    {
-        id: 'i3.xlarge',
-        name: 'i3.xlarge'
     }
 ];

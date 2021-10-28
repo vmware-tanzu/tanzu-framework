@@ -6,8 +6,9 @@ To login to Mission Control, enter a valid mission control endpoint and give the
 
 To login to TKG Management cluster,  enter server endpoint which would be pinniped endpoint, and path to the cluster-info file. Providing these details is a temporary workaround till further details of cluster discovery process are figured out.
 
-***Sample cluster-info file:***
-```
+***Sample cluster-info file***:
+
+```yaml
 apiVersion: v1
 clusters:
 - cluster:
@@ -15,4 +16,3 @@ clusters:
     server: https://tkg-test-mc-apiserver-1734810883.us-west-2.elb.amazonaws.com:6443
   name: tkg-test-mc
 ```
-

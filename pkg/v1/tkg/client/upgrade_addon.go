@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/jinzhu/copier"
 	"github.com/pkg/errors"
+	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
@@ -29,6 +30,7 @@ type UpgradeAddonOptions struct {
 	Namespace         string
 	Kubeconfig        string
 	IsRegionalCluster bool
+	Edition           string
 }
 
 // UpgradeAddon upgrades addons
@@ -119,6 +121,9 @@ func (c *TkgClient) DoUpgradeAddon(regionalClusterClient clusterclient.Client, /
 
 	createClusterOptions := CreateClusterOptions{
 		ClusterConfigOptions: configOptions,
+		// Build edition is required to perform addons upgrade. The providers/ytt is referencing to build edition for the
+		// rendering logic. Setting build edition here is to make sure addons upgrade to work properly.
+		Edition: options.Edition,
 	}
 
 	kcp, err := regionalClusterClient.GetKCPObjectForCluster(options.ClusterName, options.Namespace)
@@ -181,6 +186,18 @@ func (c *TkgClient) DoUpgradeAddon(regionalClusterClient clusterclient.Client, /
 				return errors.Errorf("upgrade of '%s' component is only supported on management cluster", addonName)
 			}
 			crsDisabledAddon = true
+		case "addons-management/core-package-repo":
+			if !options.IsRegionalCluster {
+				return errors.Errorf("upgrade of '%s' component is only supported on management cluster", addonName)
+			}
+			crsDisabledAddon = true
+		case "addons-management/standard-package-repo":
+			// This ensures that CRS for standard-package-repo gets added
+			// for new clusters as well as upgrades. CRS for standard repo
+			// package resource will ensure one time create and no upgrades after
+			// initial create. The case is empty because we only need to set
+			// crsDisabledAddon = false which is the default and ensures that
+			// default isn't triggered.
 		case "tkr/tkr-controller":
 			if !options.IsRegionalCluster {
 				return errors.Errorf("upgrade of '%s' component is only supported on management cluster", addonName)
@@ -200,7 +217,12 @@ func (c *TkgClient) DoUpgradeAddon(regionalClusterClient clusterclient.Client, /
 			c.TKGConfigReaderWriter().Set(constants.ConfigVaraibleDisableCRSForAddonType, addonName)
 		}
 
-		if err := c.setConfigurationForUpgrade(regionalClusterClient); err != nil {
+		if options.IsRegionalCluster {
+			err = c.RetrieveRegionalClusterConfiguration(regionalClusterClient)
+		} else {
+			err = c.RetrieveWorkloadClusterConfiguration(regionalClusterClient, currentClusterClient, options.ClusterName, options.Namespace)
+		}
+		if err != nil {
 			return errors.Wrap(err, "unable to set cluster configuration")
 		}
 
@@ -226,7 +248,9 @@ func (c *TkgClient) DoUpgradeAddon(regionalClusterClient clusterclient.Client, /
 	return nil
 }
 
-func (c *TkgClient) setConfigurationForUpgrade(regionalClusterClient clusterclient.Client) error {
+// RetrieveRegionalClusterConfiguration gets TKG configurations from regional cluster and updates the in-memory config.
+// this is required when we want to mutate the existing regional cluster.
+func (c *TkgClient) RetrieveRegionalClusterConfiguration(regionalClusterClient clusterclient.Client) error {
 	if err := c.setProxyConfiguration(regionalClusterClient); err != nil {
 		return errors.Wrapf(err, "error while getting proxy configuration from cluster and setting it")
 	}
@@ -235,10 +259,38 @@ func (c *TkgClient) setConfigurationForUpgrade(regionalClusterClient clusterclie
 		return errors.Wrapf(err, "error while getting custom image repository configuration from cluster and setting it")
 	}
 
+	clusterName, regionalClusterNamespace, err := c.getRegionalClusterNameAndNamespace(regionalClusterClient)
+	if err != nil {
+		return errors.Wrap(err, "unable to get name and namespace of current management cluster")
+	}
+
+	if err := c.setNetworkingConfiguration(regionalClusterClient, clusterName, regionalClusterNamespace); err != nil {
+		return errors.Wrap(err, "error while initializing networking configuration")
+	}
 	return nil
 }
 
-func (c *TkgClient) setProxyConfiguration(regionalClusterClient clusterclient.Client) (retErr error) {
+// RetrieveWorkloadClusterConfiguration gets TKG configurations from regional cluster as well as workload cluster
+// and updates the in-memory config. This is required when we want to mutate the existing workload cluster.
+func (c *TkgClient) RetrieveWorkloadClusterConfiguration(regionalClusterClient, workloadClusterClient clusterclient.Client, clusterName, clusterNamespace string) error {
+	if err := c.setProxyConfiguration(workloadClusterClient); err != nil {
+		return errors.Wrapf(err, "error while getting proxy configuration from cluster and setting it")
+	}
+
+	// Sets custom image repository configuration from Management Cluster even for workload cluster
+	// Currently, TKG does not support using different image repositories for management and workload clusters.
+	if err := c.setCustomImageRepositoryConfiguration(regionalClusterClient); err != nil {
+		return errors.Wrapf(err, "error while getting custom image repository configuration from cluster and setting it")
+	}
+
+	if err := c.setNetworkingConfiguration(regionalClusterClient, clusterName, clusterNamespace); err != nil {
+		return errors.Wrap(err, "error while initializing networking configuration")
+	}
+
+	return nil
+}
+
+func (c *TkgClient) setProxyConfiguration(clusterClusterClient clusterclient.Client) (retErr error) {
 	// make sure proxy parameters are non-empty
 	defer func() {
 		if retErr == nil {
@@ -246,7 +298,7 @@ func (c *TkgClient) setProxyConfiguration(regionalClusterClient clusterclient.Cl
 		}
 	}()
 	configmap := &corev1.ConfigMap{}
-	if err := regionalClusterClient.GetResource(configmap, constants.KappControllerConfigMapName, constants.KappControllerNamespace, nil, nil); err != nil {
+	if err := clusterClusterClient.GetResource(configmap, constants.KappControllerConfigMapName, constants.KappControllerNamespace, nil, nil); err != nil {
 		if apierrors.IsNotFound(err) {
 			return nil
 		}
@@ -257,22 +309,16 @@ func (c *TkgClient) setProxyConfiguration(regionalClusterClient clusterclient.Cl
 		return nil
 	}
 
-	if httpProxy, err := c.TKGConfigReaderWriter().Get(constants.HTTPProxy); err != nil || httpProxy == "" {
-		if httpProxy := configmap.Data["httpProxy"]; httpProxy != "" {
-			c.TKGConfigReaderWriter().Set(constants.TKGHTTPProxy, httpProxy)
-		}
+	if httpProxy := configmap.Data["httpProxy"]; httpProxy != "" {
+		c.TKGConfigReaderWriter().Set(constants.TKGHTTPProxy, httpProxy)
 	}
 
-	if httpsProxy, err := c.TKGConfigReaderWriter().Get(constants.TKGHTTPSProxy); err != nil || httpsProxy == "" {
-		if httpsProxy := configmap.Data["httpsProxy"]; httpsProxy != "" {
-			c.TKGConfigReaderWriter().Set(constants.TKGHTTPSProxy, httpsProxy)
-		}
+	if httpsProxy := configmap.Data["httpsProxy"]; httpsProxy != "" {
+		c.TKGConfigReaderWriter().Set(constants.TKGHTTPSProxy, httpsProxy)
 	}
 
-	if noProxy, err := c.TKGConfigReaderWriter().Get(constants.TKGNoProxy); err != nil || noProxy == "" {
-		if noProxy := configmap.Data["noProxy"]; noProxy != "" {
-			c.TKGConfigReaderWriter().Set(constants.TKGNoProxy, noProxy)
-		}
+	if noProxy := configmap.Data["noProxy"]; noProxy != "" {
+		c.TKGConfigReaderWriter().Set(constants.TKGNoProxy, noProxy)
 	}
 
 	return nil
@@ -291,16 +337,49 @@ func (c *TkgClient) setCustomImageRepositoryConfiguration(regionalClusterClient 
 		return nil
 	}
 
+	// Read TKG_CUSTOM_IMAGE_REPOSITORY from configuration first to allow user to provide different image repository during cluster deletion
 	if customImageRepository, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableCustomImageRepository); err != nil || customImageRepository == "" {
 		if customImageRepository := configmap.Data["imageRepository"]; customImageRepository != "" {
 			c.TKGConfigReaderWriter().Set(constants.ConfigVariableCustomImageRepository, customImageRepository)
 		}
 	}
 
+	// Read TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE from configuration first to allow user to provide different image repository during cluster deletion
 	if customImageRepositoryCaCertificate, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableCustomImageRepositoryCaCertificate); err != nil || customImageRepositoryCaCertificate == "" {
 		if customImageRepositoryCaCertificate := configmap.Data["caCerts"]; customImageRepositoryCaCertificate != "" {
 			customImageRepositoryCaCertificateEncoded := base64.StdEncoding.EncodeToString([]byte(customImageRepositoryCaCertificate))
 			c.TKGConfigReaderWriter().Set(constants.ConfigVariableCustomImageRepositoryCaCertificate, customImageRepositoryCaCertificateEncoded)
+		}
+	}
+
+	return nil
+}
+
+func (c *TkgClient) setNetworkingConfiguration(regionalClusterClient clusterclient.Client, clusterName, clusterNamespace string) error {
+	cluster := &capi.Cluster{}
+	err := regionalClusterClient.GetResource(cluster, clusterName, clusterNamespace, nil, nil)
+	if err != nil {
+		return errors.Wrapf(err, "unable to get cluster %q from namespace %q", clusterName, clusterNamespace)
+	}
+
+	if cluster.Spec.ClusterNetwork != nil {
+		if cluster.Spec.ClusterNetwork.Pods != nil && len(cluster.Spec.ClusterNetwork.Pods.CIDRBlocks) > 0 {
+			c.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterCIDR, cluster.Spec.ClusterNetwork.Pods.CIDRBlocks[0])
+		}
+		if cluster.Spec.ClusterNetwork.Services != nil && len(cluster.Spec.ClusterNetwork.Services.CIDRBlocks) > 0 {
+			c.TKGConfigReaderWriter().Set(constants.ConfigVariableServiceCIDR, cluster.Spec.ClusterNetwork.Services.CIDRBlocks[0])
+		}
+		ipFamily, err := GetIPFamily(cluster)
+		if err != nil {
+			return errors.Wrapf(err, "unable to get IPFamily of %q", clusterName)
+		}
+		switch ipFamily {
+		case IPv4IPFamily:
+			c.TKGConfigReaderWriter().Set(constants.ConfigVariableIPFamily, constants.IPv4Family)
+		case IPv6IPFamily:
+			c.TKGConfigReaderWriter().Set(constants.ConfigVariableIPFamily, constants.IPv6Family)
+		default:
+			return fmt.Errorf("unable to detect valid IPFamily, found %s", ipFamily)
 		}
 	}
 

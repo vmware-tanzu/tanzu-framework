@@ -12,11 +12,11 @@ import { takeUntil } from 'rxjs/operators';
  * App imports
  */
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-import { NodeType, awsNodeTypes } from '../../wizard/shared/constants/wizard.constants';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { TkgEventType } from '../../../../shared/service/Messenger';
 import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import { AzureInstanceType } from 'src/app/swagger/models';
+import { AppEdition } from 'src/app/shared/constants/branding.constants';
 
 @Component({
     selector: 'app-node-setting-step',
@@ -33,7 +33,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     constructor(private validationService: ValidationService,
                 private azureWizardFormService: AzureWizardFormService) {
         super();
-        this.nodeTypes = [...awsNodeTypes];
+        this.nodeTypes = [];
     }
 
     buildForm() {
@@ -69,7 +69,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             ])
         );
 
-        if (this.clusterType !== 'standalone') {
+        if (!this.modeClusterStandalone) {
             this.formGroup.addControl(
                 'workerNodeInstanceType',
                 new FormControl('', [
@@ -95,8 +95,16 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         .pipe(takeUntil(this.unsubscribe))
         .subscribe((instanceTypes: AzureInstanceType[]) => {
             this.nodeTypes = instanceTypes.sort();
+            if (!this.modeClusterStandalone && this.nodeTypes.length === 1) {
+                this.formGroup.get('workerNodeInstanceType').setValue(this.nodeTypes[0].name);
+            }
         });
 
+        if (this.edition !== AppEdition.TKG) {
+            this.resurrectField('managementClusterName',
+                [Validators.required, this.validationService.isValidClusterName()],
+                this.formGroup.get('managementClusterName').value);
+        }
     }
 
     toggleValidations() {
@@ -118,6 +126,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         this.formGroup.get('devInstanceType').setValidators([
             Validators.required
         ]);
+        this.formGroup.controls['devInstanceType'].setValue(this.nodeTypes.length === 1 ? this.nodeTypes[0].name : '');
         this.formGroup.controls['prodInstanceType'].clearValidators();
         this.formGroup.controls['prodInstanceType'].setValue('');
         this.formGroup.get('devInstanceType').updateValueAndValidity();
@@ -129,6 +138,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         this.formGroup.controls['prodInstanceType'].setValidators([
             Validators.required
         ]);
+        this.formGroup.controls['prodInstanceType'].setValue(this.nodeTypes.length === 1 ? this.nodeTypes[0].name : '');
         this.formGroup.get('devInstanceType').clearValidators();
         this.formGroup.controls['devInstanceType'].setValue('');
         this.formGroup.get('devInstanceType').updateValueAndValidity();

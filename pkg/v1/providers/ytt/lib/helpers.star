@@ -98,7 +98,7 @@ def tkg_image_repo_skip_tls_verify():
 end
 
 def tkg_image_repo_ca_cert():
-  return data.values.TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
+  return data.values.TKG_PROXY_CA_CERT if data.values.TKG_PROXY_CA_CERT else data.values.TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
 end
 
 def tkg_image_repo_hostname():
@@ -283,7 +283,7 @@ def get_no_proxy():
     full_no_proxy_list.append(data.values.CLUSTER_CIDR)
     full_no_proxy_list.append("localhost")
     full_no_proxy_list.append("127.0.0.1")
-    if data.values.TKG_IP_FAMILY == "ipv6":
+    if data.values.TKG_IP_FAMILY in ["ipv6", "ipv4,ipv6", "ipv6,ipv4"]:
       full_no_proxy_list.append("::1")
     end
     full_no_proxy_list.append(".svc")
@@ -292,4 +292,29 @@ def get_no_proxy():
     return populated_no_proxy
   end
   return ""
+end
+
+def validate_proxy_bypass_vsphere_host():
+  if data.values.PROVIDER_TYPE == "vsphere" and not data.values.VSPHERE_INSECURE:
+    no_proxy_list = []
+    if data.values.TKG_NO_PROXY != "":
+      no_proxy_list = data.values.TKG_NO_PROXY.split(",")
+      if data.values.VSPHERE_SERVER not in no_proxy_list:
+        assert.fail("unable to proxy traffic to vSphere host in security connection, either set VSPHERE_INSECURE to true or add VSPHERE_SERVER to TKG_NO_PROXY")
+      end
+    end
+  end
+end
+
+# get_labels_map_from_string constructs a map from given string of the format "key1=label1,key2=label2"
+def get_labels_map_from_string(labelString):
+   labelMap = {}
+   for val in labelString.split(','):
+    kv = val.split('=')
+    if len(kv) != 2:
+      assert.fail("given labels string \""+labelString+"\" must be in the  \"key1=label1,key2=label2\" format ")
+    end
+    labelMap.update({kv[0]: kv[1]})
+   end
+   return labelMap
 end

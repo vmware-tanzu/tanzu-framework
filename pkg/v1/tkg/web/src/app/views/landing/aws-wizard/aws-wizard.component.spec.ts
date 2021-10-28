@@ -9,6 +9,7 @@ import { AwsWizardComponent } from './aws-wizard.component';
 import { SharedModule } from '../../../shared/shared.module';
 import Broker from 'src/app/shared/service/broker';
 import { Messenger } from 'src/app/shared/service/Messenger';
+import { ClusterType } from "../wizard/shared/constants/wizard.constants";
 
 describe('AwsWizardComponent', () => {
     let component: AwsWizardComponent;
@@ -55,12 +56,16 @@ describe('AwsWizardComponent', () => {
             }),
             awsNodeSettingForm: fb.group({
                 awsNodeAz1: [''],
+                awsNodeAz2: [''],
+                awsNodeAz3: [''],
                 bastionHostEnabled: [''],
                 controlPlaneSetting: [''],
                 devInstanceType: [''],
                 machineHealthChecksEnabled: [false],
                 createCloudFormation: [false],
-                workerNodeInstanceType: [''],
+                workerNodeInstanceType1: [''],
+                workerNodeInstanceType2: [''],
+                workerNodeInstanceType3: [''],
                 clusterName: [''],
                 sshKeyName: ['']
             }),
@@ -82,11 +87,9 @@ describe('AwsWizardComponent', () => {
                 ceipOptIn: [true]
             }),
             osImageForm: fb.group({
-            }),
-            registerTmcForm: fb.group({
             })
         });
-        component.clusterType = 'management';
+        component.clusterTypeDescriptor = '' + ClusterType.Management;
         fixture.detectChanges();
     });
 
@@ -100,7 +103,7 @@ describe('AwsWizardComponent', () => {
 
     describe('should return correct description', () => {
         it('is for provider step', () => {
-            expect(component.getStepDescription('provider')).toBe('Validate the AWS provider account for Tanzu Kubernetes Grid');
+            expect(component.getStepDescription('provider')).toBe('Validate the AWS provider account for Tanzu');
         });
 
         it('is for vpc step', () => {
@@ -155,7 +158,7 @@ describe('AwsWizardComponent', () => {
             ['awsNodeSettingForm', 'devInstanceType', 't3.medium'],
             ['awsNodeSettingForm', 'sshKeyName', 'default'],
             // ['awsNodeSettingForm', 'machineHealthChecksEnabled', true],
-            ['awsNodeSettingForm', 'workerNodeInstanceType', 't3.small'],
+            ['awsNodeSettingForm', 'workerNodeInstanceType1', 't3.small'],
             ['metadataForm', 'clusterDescription', 'DescriptionEXAMPLE'],
             // ['metadataForm', 'clusterLabels', clusterLabels],
             ['metadataForm', 'clusterLocation', 'mylocation1'],
@@ -199,7 +202,7 @@ describe('AwsWizardComponent', () => {
         expect(payload.controlPlaneNodeType).toBe('t3.medium');
         expect(payload.sshKeyName).toBe('default');
         expect(payload.controlPlaneFlavor).toBe('dev');
-        expect(payload.workerNodeType).toBe('t3.small');
+        expect(payload.vpc.azs[0].workerNodeType).toBe('t3.small');
         expect(payload.bastionHostEnabled).toBe(true);
         expect(payload.machineHealthCheckEnabled).toBe(true);
         expect(payload.ceipOptIn).toBe(true);
@@ -207,7 +210,12 @@ describe('AwsWizardComponent', () => {
 
     it('should generate cli', () => {
         const path = '/testPath/xyz.yaml';
-        expect(component.getCli(path)).toBe(`tanzu management-cluster create --file ${path} -v 6`);
+        const payload = component.getPayload();
+        if (payload.createCloudFormationStack) {
+            expect(component.getCli(path)).toBe(`tanzu management-cluster permissions aws set && tanzu management-cluster create --file ${path} -v 6`);
+        } else {
+            expect(component.getCli(path)).toBe(`tanzu management-cluster create --file ${path} -v 6`);
+        }
     });
 
     it('should call api to create aws regional cluster', () => {

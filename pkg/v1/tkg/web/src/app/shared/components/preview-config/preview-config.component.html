@@ -1,6 +1,6 @@
 <div class="clr-row">
     <div class="clr-col-12">
-        <table class="table">
+        <table class="table" role="presentation">
             <thead>
                 <tr>
                     <th class="left">CLI Command Equivalent</th>
@@ -11,9 +11,9 @@
                 <tr>
                     <td class="left code">{{ cli }}</td>
                     <td class="left">
-                        <app-copy-to-clipboard-button [btnLabel]="'Copy'"
+                        <app-copy-to-clipboard-button [btnLabel]="'Copy CLI Command'"
                             [tooltip]="'Click here to copy the CLI to clipboard'" [value]="cli"
-                            [btnClasses]="['btn-outline', 'btn-sm']">
+                            [btnClasses]="['btn-link', 'btn-sm']">
                         </app-copy-to-clipboard-button>
                     </td>
                 </tr>

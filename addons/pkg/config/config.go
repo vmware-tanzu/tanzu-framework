@@ -10,6 +10,12 @@ import (
 
 // Config contains configuration information.
 type Config struct {
-	AppSyncPeriod  time.Duration
-	AppWaitTimeout time.Duration
+	AppSyncPeriod           time.Duration
+	AppWaitTimeout          time.Duration
+	AddonNamespace          string
+	AddonServiceAccount     string
+	AddonClusterRole        string
+	AddonClusterRoleBinding string
+	AddonImagePullPolicy    string
+	CorePackageRepoName     string
 }

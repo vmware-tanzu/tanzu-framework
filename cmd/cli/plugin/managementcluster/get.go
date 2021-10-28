@@ -10,13 +10,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/fabriziopandini/capi-conditions/cmd/kubectl-capi-tree/status"
 	"github.com/fatih/color"
 	"github.com/gosuri/uitable"
 	"github.com/spf13/cobra"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/duration"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	clusterctltree "sigs.k8s.io/cluster-api/cmd/clusterctl/client/tree"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
@@ -164,7 +164,7 @@ var (
 )
 
 // treeView prints object hierarchy to out stream.
-func treeView(objs *status.ObjectTree, obj controllerutil.Object) {
+func treeView(objs *clusterctltree.ObjectTree, obj controllerutil.Object) {
 	tbl := uitable.New()
 	tbl.Separator = separator
 	tbl.AddRow("NAME", "READY", "SEVERITY", "REASON", "SINCE", "MESSAGE")
@@ -215,23 +215,23 @@ func getCond(c *clusterv1.Condition) conditions {
 	return v
 }
 
-func treeViewInner(prefix string, tbl *uitable.Table, objs *status.ObjectTree, obj controllerutil.Object) {
+func treeViewInner(prefix string, tbl *uitable.Table, objs *clusterctltree.ObjectTree, obj controllerutil.Object) {
 	v := conditions{}
 	v.readyColor = gray
 
-	ready := status.GetReadyCondition(obj)
+	ready := clusterctltree.GetReadyCondition(obj)
 	name := getName(obj)
 	if ready != nil {
 		v = getCond(ready)
 	}
 
-	if status.IsGroupObject(obj) {
+	if clusterctltree.IsGroupObject(obj) {
 		name = white.Add(color.Bold).Sprintf(name)
-		items := strings.Split(status.GetGroupItems(obj), status.GroupItemsSeparator)
+		items := strings.Split(clusterctltree.GetGroupItems(obj), clusterctltree.GroupItemsSeparator)
 		if len(items) <= maxItemLength {
-			v.message = gray.Sprintf("See %s", strings.Join(items, status.GroupItemsSeparator))
+			v.message = gray.Sprintf("See %s", strings.Join(items, clusterctltree.GroupItemsSeparator))
 		} else {
-			v.message = gray.Sprintf("See %s, ...", strings.Join(items[:2], status.GroupItemsSeparator))
+			v.message = gray.Sprintf("See %s, ...", strings.Join(items[:2], clusterctltree.GroupItemsSeparator))
 		}
 	}
 	if !obj.GetDeletionTimestamp().IsZero() {
@@ -248,8 +248,8 @@ func treeViewInner(prefix string, tbl *uitable.Table, objs *status.ObjectTree, o
 
 	chs := objs.GetObjectsByParent(obj.GetUID())
 
-	if status.IsShowConditionsObject(obj) {
-		otherConditions := status.GetOtherConditions(obj)
+	if clusterctltree.IsShowConditionsObject(obj) {
+		otherConditions := clusterctltree.GetOtherConditions(obj)
 		for i := range otherConditions {
 			cond := otherConditions[i]
 
@@ -292,12 +292,12 @@ func treeViewInner(prefix string, tbl *uitable.Table, objs *status.ObjectTree, o
 }
 
 func getName(obj controllerutil.Object) string {
-	if status.IsGroupObject(obj) {
-		items := strings.Split(status.GetGroupItems(obj), status.GroupItemsSeparator)
+	if clusterctltree.IsGroupObject(obj) {
+		items := strings.Split(clusterctltree.GetGroupItems(obj), clusterctltree.GroupItemsSeparator)
 		return fmt.Sprintf("%d Machines...", len(items))
 	}
 
-	if status.IsVirtualObject(obj) {
+	if clusterctltree.IsVirtualObject(obj) {
 		return obj.GetName()
 	}
 
@@ -306,7 +306,7 @@ func getName(obj controllerutil.Object) string {
 		color.New(color.Bold).Sprint(obj.GetName()))
 
 	name := objName
-	if objectPrefix := status.GetMetaName(obj); objectPrefix != "" {
+	if objectPrefix := clusterctltree.GetMetaName(obj); objectPrefix != "" {
 		name = fmt.Sprintf("%s - %s", objectPrefix, gray.Sprintf(name))
 	}
 	return name

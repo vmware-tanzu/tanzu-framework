@@ -17,10 +17,13 @@ import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { VSphereDatacenter } from 'src/app/swagger/models/v-sphere-datacenter.model';
 import { ValidatorEnum } from '../../wizard/shared/constants/validation.constants';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import { TkgEventType } from 'src/app/shared/service/Messenger';
+import { TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
 import { SSLThumbprintModalComponent } from '../../wizard/shared/components/modals/ssl-thumbprint-modal/ssl-thumbprint-modal.component';
 import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
 import Broker from 'src/app/shared/service/broker';
+import { EditionData } from 'src/app/shared/service/branding.service';
+import { AppEdition } from 'src/app/shared/constants/branding.constants';
+import { managementClusterPlugin } from "../../wizard/shared/constants/wizard.constants";
 
 declare var sortPaths: any;
 
@@ -43,6 +46,8 @@ export interface VsphereVersioninfo {
 export class VSphereProviderStepComponent extends StepFormDirective implements OnInit {
     @ViewChild(SSLThumbprintModalComponent) sslThumbprintModal: SSLThumbprintModalComponent;
 
+    fileReader: FileReader;
+
     APP_ROUTES: Routes = APP_ROUTES;
 
     loading: boolean = false;
@@ -58,14 +63,25 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
     vSphereModalBody: string;
     thumbprint: string;
 
+    edition: AppEdition = AppEdition.TCE;
+    enableIpv6: boolean = false;
+
     constructor(private validationService: ValidationService,
         private apiClient: APIClient,
         private router: Router) {
         super();
+
+        this.fileReader = new FileReader();
     }
 
     ngOnInit() {
         super.ngOnInit();
+        this.enableIpv6 = Broker.appDataService.isPluginFeatureActivated(managementClusterPlugin, 'vsphereIPv6');
+        this.formGroup.addControl(
+            'ipFamily',
+            new FormControl(
+                'ipv4', [])
+        );
         this.formGroup.addControl(
             'vcenterAddress',
             new FormControl('', [
@@ -97,6 +113,10 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 Validators.required
             ])
         );
+        this.formGroup.addControl(
+            'ssh_key_file',
+            new FormControl('', [])
+        );
 
         this.formGroup.addControl(
             'thumbprint',
@@ -122,19 +142,54 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                     takeUntil(this.unsubscribe)
                 )
                 .subscribe(() => {
-                    this.connected = false;
-                    this.loadingState = ClrLoadingState.DEFAULT;
-                    this.formGroup.get('datacenter').setValue('');
-                    this.datacenters = [];
-                    this.formGroup.get('datacenter').disable();
+                    this.disconnect();
                 });
         });
 
         this.formGroup.get('datacenter').valueChanges.subscribe(data => {
             this.dcOnChange(data)
         });
-    }
 
+        this.formGroup.get('ipFamily').valueChanges.subscribe(data => {
+            Broker.messenger.publish({
+                type: TkgEventType.IP_FAMILY_CHANGE,
+                payload: data
+            });
+            this.disconnect();
+        });
+
+        Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe((data: TkgEvent) => {
+                const content: EditionData = data.payload;
+                this.edition = content.edition;
+            });
+
+        this.fileReader.onload = (event) => {
+            try {
+                this.formGroup.get('ssh_key').setValue(event.target.result);
+                console.log(event.target.result);
+            } catch (error) {
+                console.log(error.message);
+                return;
+            }
+            this.formGroup.get('ssh_key_file').setValue('');
+        };
+        this.registerOnIpFamilyChange('vcenterAddress', [
+                Validators.required,
+                this.validationService.isValidIpOrFqdn()
+            ], [
+                Validators.required,
+                this.validationService.isValidIpv6OrFqdn()
+            ]);
+    }
+    disconnect() {
+        this.connected = false;
+        this.loadingState = ClrLoadingState.DEFAULT;
+        this.formGroup.get('datacenter').setValue('');
+        this.datacenters = [];
+        this.formGroup.get('datacenter').disable();
+    }
     setSavedDataAfterLoad() {
         super.setSavedDataAfterLoad();
         // don't fill password field with ****
@@ -249,8 +304,10 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 this.connected = true;
                 this.vsphereVersion = vsphereVerInfo.version;
                 this.hasPacific = res.hasPacific;
+                Broker.appDataService.setVsphereVersion(vsphereVerInfo.version);
 
-                if (isCompatible && !(_.startsWith(this.vsphereVersion, '6'))) {
+                if (isCompatible && !(_.startsWith(this.vsphereVersion, '6'))
+                    && this.edition !== AppEdition.TCE) {
                     // for 7 and newer and other potential anomolies, show modal suggesting upgrade
                     this.showVSphereWithK8Modal();
                 } else if (!isCompatible) {
@@ -299,6 +356,9 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 this.formGroup.get('datacenter').enable();
                 this.formGroup.get('ssh_key').enable();
                 this.formGroup.get('datacenter').setValue(this.getSavedValue('datacenter', ''));
+                if (this.datacenters.length === 1) {
+                    this.formGroup.get('datacenter').setValue(this.datacenters[0].name);
+                }
             },
             (err) => {
                 const error = err.error.message || err.message || JSON.stringify(err);
@@ -347,5 +407,18 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
      */
     showVSphereWithK8Modal() {
         this.vSphereWithK8ModalOpen = true;
+    }
+
+    /**
+     * @method onFileChanged
+     * `change` event handler for the file input.
+     * @param event
+     */
+    onFileChanged(event) {
+        if (event.target.files.length) {
+            this.fileReader.readAsText(event.target.files[0]);
+            // clear file reader target so user can re-select same file if needed
+            event.target.value = '';
+        }
     }
 }

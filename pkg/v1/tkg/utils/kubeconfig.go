@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -22,9 +23,11 @@ type PinnipedConfigMapInfo struct {
 	Kind    string `json:"kind" yaml:"kind"`
 	Version string `json:"apiVersion" yaml:"apiVersion"`
 	Data    struct {
-		ClusterName    string `json:"cluster_name" yaml:"cluster_name"`
-		Issuer         string `json:"issuer" yaml:"issuer"`
-		IssuerCABundle string `json:"issuer_ca_bundle_data" yaml:"issuer_ca_bundle_data"`
+		ClusterName              string  `json:"cluster_name" yaml:"cluster_name"`
+		Issuer                   string  `json:"issuer" yaml:"issuer"`
+		IssuerCABundle           string  `json:"issuer_ca_bundle_data" yaml:"issuer_ca_bundle_data"`
+		ConciergeAPIGroupSuffix  *string `json:"concierge_api_group_suffix,omitempty" yaml:"concierge_api_group_suffix"`
+		ConciergeIsClusterScoped bool    `json:"concierge_is_cluster_scoped,string" yaml:"concierge_is_cluster_scoped"`
 	}
 }
 
@@ -82,6 +85,15 @@ func GetClusterServerFromKubeconfigAndContext(kubeConfigPath, context string) (s
 
 // GetClusterInfoFromCluster gets the cluster Info by accessing the cluster-info configMap in kube-public namespace
 func GetClusterInfoFromCluster(clusterAPIServerURL string) (*clientcmdapi.Cluster, error) {
+	clusterAPIServerURL = strings.TrimSpace(clusterAPIServerURL)
+	if !strings.HasPrefix(clusterAPIServerURL, "https://") && !strings.HasPrefix(clusterAPIServerURL, "http://") {
+		clusterAPIServerURL = "https://" + clusterAPIServerURL
+	}
+	_, err := url.Parse(clusterAPIServerURL)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to parse endpoint URL")
+	}
+
 	clusterAPIServerURL = strings.TrimRight(clusterAPIServerURL, " /")
 	clusterInfoURL := clusterAPIServerURL + "/api/v1/namespaces/kube-public/configmaps/cluster-info"
 	//nolint:noctx
@@ -162,6 +174,9 @@ func GetPinnipedInfoFromCluster(clusterInfo *clientcmdapi.Cluster) (*PinnipedCon
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
+		if response.StatusCode == http.StatusNotFound {
+			return nil, nil
+		}
 		return nil, errors.New("failed to get pinniped-info from the cluster")
 	}
 
@@ -173,7 +188,7 @@ func GetPinnipedInfoFromCluster(clusterInfo *clientcmdapi.Cluster) (*PinnipedCon
 	var pinnipedConfigMapInfo PinnipedConfigMapInfo
 	err = json.Unmarshal(responseBody, &pinnipedConfigMapInfo)
 	if err != nil {
-		return nil, errors.Wrap(err, "error parsing http response body ")
+		return nil, errors.Wrap(err, "error parsing http response body")
 	}
 
 	return &pinnipedConfigMapInfo, nil

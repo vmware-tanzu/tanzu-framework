@@ -97,6 +97,7 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 			EnableTKGSOnVsphere7:        e2eConfig.ManagementClusterOptions.EnableTKGSOnVsphere7,
 			VsphereControlPlaneEndpoint: e2eConfig.ManagementClusterOptions.Endpoint,
 			CniType:                     "calico",
+			Edition:                     "tkg",
 		})
 
 		Expect(err).To(BeNil())
@@ -128,6 +129,7 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	defer os.Remove(clusterConfigFile)
 	err = tkgCtlClient.CreateCluster(tkgctl.CreateClusterOptions{
 		ClusterConfigFile: clusterConfigFile,
+		Edition:           "tkg",
 	})
 	Expect(err).To(BeNil())
 

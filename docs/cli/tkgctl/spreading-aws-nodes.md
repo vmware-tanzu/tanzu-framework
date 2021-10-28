@@ -4,7 +4,7 @@ tkgctl library supports spreading nodes of a prod cluster across AZs. This is su
 
 ## Functionality Changes
 
-For `dev` and `prod` clusters, in the kickstart UI you no longer need to provide the CIDRs for the subnet(s) if you are choosing to create a new VPC. Library divides the subnet CIDRs for you based on the VPC CIDR you provide. 
+For `dev` and `prod` clusters, in the kickstart UI you no longer need to provide the CIDRs for the subnet(s) if you are choosing to create a new VPC. Library divides the subnet CIDRs for you based on the VPC CIDR you provide.
 
 For `prod` clusters, TKG now requires that you provide a unique AZ for each of the 3 control plane nodes. There is no option to create a prod cluster in one or two AZs. This means that you must create a prod management cluster in a region that has at least 3 AZs. In addition, it is required that you specify which AZs you would like to place the nodes in.
 
@@ -12,7 +12,7 @@ For `prod` clusters, TKG now requires that you provide a unique AZ for each of t
 
 The prod cluster plan now expects additional AZ and subnet configurations variables to support this feature. These variables can be populated in two different ways depending on if you are using an existing VPC or would like to create a new one as shown in the following examples:
 
-### Configuration Variables for Existing VPC:
+### Configuration Variables for Existing VPC
 
 ```yaml
 AWS_VPC_ID: "vpc_id"
@@ -27,7 +27,7 @@ AWS_NODE_AZ_1: "az1"
 AWS_NODE_AZ_2: "az2"
 ```
 
-### Configuration Variables for New VPC:
+### Configuration Variables for New VPC
 
 ```yaml
 AWS_VPC_CIDR: 10.0.0.0/16
@@ -46,7 +46,7 @@ AWS_PRIVATE_NODE_CIDR_2: 10.0.5.0/24
 
 The configuration variables expected by dev cluster plan remain unchanged, as shown in the following examples to use for an existing VPC and new VPC:
 
-### Configuration Variables for Existing VPC:
+### Configuration Variables for Existing VPC
 
 ```yaml
 AWS_VPC_ID: "vpc_id"
@@ -55,7 +55,7 @@ AWS_PUBLIC_SUBNET_ID: "public_subnet0_id"
 AWS_NODE_AZ: "az0"
 ```
 
-### Configuration Variables for New VPC:
+### Configuration Variables for New VPC
 
 ```yaml
 AWS_VPC_CIDR: 10.0.0.0/16
@@ -64,37 +64,36 @@ AWS_PUBLIC_NODE_CIDR: 10.0.0.0/24
 AWS_PRIVATE_NODE_CIDR: 10.0.1.0/24
 ```
 
+## Spreading Machine Deployments for Workload Clusters in AWS
 
+**Goal:** Spread worker nodes / machine deployments of prod workload clusters across AZs
 
-# Spreading Machine Deployments for Workload Clusters in AWS
+Spreading AWSMachines across multiple AZs within a MachineDeployment is not yet supported by CAPA natively. However, there is an issue open regarding it:
+[https://github.com/kubernetes-sigs/cluster-api/issues/3358](https://github.com/kubernetes-sigs/cluster-api/issues/3358)
 
-**Goal: Spread worker nodes / machine deployments of prod workload clusters across AZs**
-
-Spreading AWSMachines across multiple AZs within a MachineDeployment is not yet supported by CAPA natively. However, there is an issue open regarding it: https://github.com/kubernetes-sigs/cluster-api/issues/3358
-
-Currently, until CAPA supports this natively, the recommended pattern to achieve this is to create multiple MachineDeployments, each deploying AWSMachines to a different AZ. 
+Currently, until CAPA supports this natively, the recommended pattern to achieve this is to create multiple MachineDeployments, each deploying AWSMachines to a different AZ.
 
 So if a user specified a `--worker-node-count` of 9 for a prod workload cluster, TKG would create 3 MachineDeployments each with a `replica` of 3 and each with a unique `failureDomain` value (3 AZs are required since this is a prod cluster).
 
 Workload clusters on plan DEV are unaffected by this change.
 
-These changes are dependent on this PR for spreading control plane nodes: https://github.com/vmware-tanzu/tkg-cli/pull/491
+### Template changes required
 
-### Template changes required:
 - Set `failureDomain` property of `Machine` spec
 - Conditionally add 2 additional MachineDeployments, AWSMachineTemplates, and KubeadmConfigTemplates if the plan is PROD
-- Set the replica count for each `MachineDeployment` accordingly 
+- Set the replica count for each `MachineDeployment` accordingly
 - Update the default `MachineDeployment`, `AWSMachineTemplate`, and `KubeadmConfigTemplate` so the YTT matchers to include `metdata.name`
 
-### CLI changes required:
+### CLI changes required
+
 - Add three new config variables, `WORKER_MACHINE_COUNT_0`, `WORKER_MACHINE_COUNT_1`, and `WORKER_MACHINE_COUNT_2`
-- Add logic to `validate.go` to divide the number of worker machines evenly across the 3 MachineDeployments if the plan is PROD and `WORKER_MACHINE_COUNT_0`, `WORKER_MACHINE_COUNT_1` and `WORKER_MACHINE_COUNT_2` are not provided. 
+- Add logic to `validate.go` to divide the number of worker machines evenly across the 3 MachineDeployments if the plan is PROD and `WORKER_MACHINE_COUNT_0`, `WORKER_MACHINE_COUNT_1` and `WORKER_MACHINE_COUNT_2` are not provided.
 - Update `client/scale.go` to distribute the new number of workers evenly in `ScaleCluster()` using the same logic in `validate.go`
 - Handle the situation where PROD management clusters only have 1 worker node by distributing the 1 worker replica value across the 3 MDs like 1,0,0.
 
-**Distribute Nodes Logic**
+#### Distribute Nodes Logic
 
-```
+```python
 num_workers_per_az = floor(worker-node-count / 3)
 remainder = worker-node-count % 3
 azs[0] = num_workers_per_az
@@ -106,7 +105,7 @@ for a in azs:
     remainder -= 1
 ```
 
-## Template Changes:
+## Template Changes
 
 `providers/infrastructure-aws/ytt/aws-overlay.yaml`:
 

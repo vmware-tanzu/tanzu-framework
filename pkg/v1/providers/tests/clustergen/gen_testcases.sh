@@ -1,19 +1,7 @@
 #!/usr/bin/env bash
-# Copyright 2020 The TKG Contributors.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 
-# Generates pair-wise combinatorial test cases. http://pairwise.org/
+# Copyright 2021 VMware, Inc. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 # alternate location of the pict (https://github.com/microsoft/pict) binary if not in PATH
 PICT=${PICT:=pict}
@@ -34,14 +22,11 @@ for infra in ${infras}; do
 
   if [ "${RUNPICT}" = true ]; then
     echo -n >"${PARAMS_CSV}"
-    git checkout lastgen/pict.gen."$infra"
-    [ -f lastgen/pict.gen."$infra" ] || touch lastgen/pict.gen."$infra"
     model=${TESTROOT}/param_models/cluster_"$infra".model
     echo processing "$model" ...
-    ${PICT} "$model" /e:lastgen/pict.gen."$infra" /s
+    ${PICT} "$model" /s
     echo ${PICT} "$model" to /tmp/pict.gen."$infra"
-    ${PICT} "$model" /e:lastgen/pict.gen."$infra" >/tmp/pict.gen."$infra"
-    cp /tmp/pict.gen."$infra" lastgen/pict.gen."$infra"
+    ${PICT} "$model" >/tmp/pict.gen."$infra"
     echo "${PARAMS_CSV}"
     # pict's output is padded to tabular form. Cleanse it into csv with no spaces between values
     perl -pe 's/"\s+"/","/g; s/([-A-Z0-9_])\s+([-A-Z0-9_])/$1,$2/g; s/@@/,/g' /tmp/pict.gen."${infra}" >>"${PARAMS_CSV}"

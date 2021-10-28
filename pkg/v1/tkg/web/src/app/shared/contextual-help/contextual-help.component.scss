@@ -1,0 +1,120 @@
+$PANEL_WIDTH: 380px;
+
+@keyframes slidein {
+    from {
+      right: -$PANEL_WIDTH;
+    }
+  
+    to {
+      right: 0;
+    }
+  }
+.contextual-help-container {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 2500;
+    overflow: hidden;
+
+    .mask {
+        width: 100%;
+        height: 100%;
+        background-color: #000000;
+        opacity: 0.7;
+    }
+    .content-container {
+        position: absolute;
+        top: 60px;
+        right: 0;
+        width: $PANEL_WIDTH;
+        height: calc(100% - 60px);
+        background: #25333D;
+        padding: 27px;
+        color: #ffffff;
+        overflow: auto;
+        animation: slidein 0.3s;
+        overflow: hidden;
+    }
+    .context-help-content-container {
+        position: absolute;
+        top: 0px;
+        right: 0;
+        width: 100%;
+        height: calc(100% - 60px);
+        background: #25333D;
+        padding: 27px;
+        color: #ffffff;
+        overflow: auto;
+        &.top-layer {
+            right: -$PANEL_WIDTH;
+            display: none;
+            * {
+                max-width: 100%;
+            }
+            &.show {
+                display: block;
+                animation: slidein 0.3s;
+                right: 0;
+            }
+        }
+        &.hide {
+            display: none;
+        }
+        
+        * {
+            color: #ffffff;
+        }
+        .sub-title {
+            font-size: 14px;
+            &:hover {
+                cursor: pointer;
+            }
+        }
+        .title {
+            display: inline-block;
+            padding-top: 10px;
+            font-size: 18px;
+        }
+        .close {
+            clr-icon {
+                &:hover {
+                    cursor: pointer;
+                }
+            }
+        }
+        .controls {
+            .back-btn {
+                font-size: 12px;
+                color: #49AFD9;
+                text-decoration: none;
+                &:hover{
+                    cursor: pointer;
+                }
+                span {
+                    padding: 0 5px;
+                    color: #49AFD9;
+                }
+            }
+            .close {
+                clr-icon {
+                    &:hover {
+                        cursor: pointer;
+                    }
+                }
+            }
+        }
+        .bottom-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .top-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+    }
+}

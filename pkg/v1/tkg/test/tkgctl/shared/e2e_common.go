@@ -82,6 +82,7 @@ func E2ECommonSpec(context context.Context, inputGetter func() E2ECommonSpecInpu
 		defer os.Remove(clusterConfigFile)
 		err = tkgCtlClient.ConfigCluster(tkgctl.CreateClusterOptions{
 			ClusterConfigFile: clusterConfigFile,
+			Edition:           "tkg",
 		})
 		Expect(err).To(BeNil())
 
@@ -112,6 +113,7 @@ func E2ECommonSpec(context context.Context, inputGetter func() E2ECommonSpecInpu
 		defer os.Remove(clusterConfigFile)
 		err = tkgCtlClient.CreateCluster(tkgctl.CreateClusterOptions{
 			ClusterConfigFile: clusterConfigFile,
+			Edition:           "tkg",
 		})
 		Expect(err).To(BeNil())
 

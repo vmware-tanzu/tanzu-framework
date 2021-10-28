@@ -308,5 +308,5 @@ func (r *BarReconciler) SetupWithManager(mgr ctrl.Manager) error {
 ## References
 
 1. [controller-runtime FAQ](https://github.com/kubernetes-sigs/controller-runtime/blob/master/FAQ.md)
-2. [Kubebuilder book](https://book.kubebuilder.io)
-3. [Kubernetes API conventions](https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md)
+1. [Kubebuilder book](https://book.kubebuilder.io)
+1. [Kubernetes API conventions](https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md)

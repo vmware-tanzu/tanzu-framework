@@ -68,9 +68,10 @@ type AWSClient struct {
 		result1 []string
 		result2 error
 	}
-	ListInstanceTypesStub        func() ([]string, error)
+	ListInstanceTypesStub        func(string) ([]string, error)
 	listInstanceTypesMutex       sync.RWMutex
 	listInstanceTypesArgsForCall []struct {
+		arg1 string
 	}
 	listInstanceTypesReturns struct {
 		result1 []string
@@ -416,17 +417,18 @@ func (fake *AWSClient) ListCloudFormationStacksReturnsOnCall(i int, result1 []st
 	}{result1, result2}
 }
 
-func (fake *AWSClient) ListInstanceTypes() ([]string, error) {
+func (fake *AWSClient) ListInstanceTypes(arg1 string) ([]string, error) {
 	fake.listInstanceTypesMutex.Lock()
 	ret, specificReturn := fake.listInstanceTypesReturnsOnCall[len(fake.listInstanceTypesArgsForCall)]
 	fake.listInstanceTypesArgsForCall = append(fake.listInstanceTypesArgsForCall, struct {
-	}{})
+		arg1 string
+	}{arg1})
 	stub := fake.ListInstanceTypesStub
 	fakeReturns := fake.listInstanceTypesReturns
-	fake.recordInvocation("ListInstanceTypes", []interface{}{})
+	fake.recordInvocation("ListInstanceTypes", []interface{}{arg1})
 	fake.listInstanceTypesMutex.Unlock()
 	if stub != nil {
-		return stub()
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -440,10 +442,17 @@ func (fake *AWSClient) ListInstanceTypesCallCount() int {
 	return len(fake.listInstanceTypesArgsForCall)
 }
 
-func (fake *AWSClient) ListInstanceTypesCalls(stub func() ([]string, error)) {
+func (fake *AWSClient) ListInstanceTypesCalls(stub func(string) ([]string, error)) {
 	fake.listInstanceTypesMutex.Lock()
 	defer fake.listInstanceTypesMutex.Unlock()
 	fake.ListInstanceTypesStub = stub
+}
+
+func (fake *AWSClient) ListInstanceTypesArgsForCall(i int) string {
+	fake.listInstanceTypesMutex.RLock()
+	defer fake.listInstanceTypesMutex.RUnlock()
+	argsForCall := fake.listInstanceTypesArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *AWSClient) ListInstanceTypesReturns(result1 []string, result2 error) {

@@ -80,6 +80,7 @@ func (app *App) ConfigureHandlers(api middleware.RoutableAPI) { // nolint:funlen
 	a.VsphereGetVSphereComputeResourcesHandler = vsphere.GetVSphereComputeResourcesHandlerFunc(app.GetVsphereComputeResources)
 	a.VsphereApplyTKGConfigForVsphereHandler = vsphere.ApplyTKGConfigForVsphereHandlerFunc(app.ApplyTKGConfigForVsphere)
 	a.VsphereGetVsphereThumbprintHandler = vsphere.GetVsphereThumbprintHandlerFunc(app.GetVsphereThumbprint)
+	a.VsphereExportTKGConfigForVsphereHandler = vsphere.ExportTKGConfigForVsphereHandlerFunc(app.ExportVSphereConfig)
 
 	a.AwsSetAWSEndpointHandler = aws.SetAWSEndpointHandlerFunc(app.SetAWSEndPoint)
 	a.AwsGetVPCsHandler = aws.GetVPCsHandlerFunc(app.GetVPCs)
@@ -91,6 +92,7 @@ func (app *App) ConfigureHandlers(api middleware.RoutableAPI) { // nolint:funlen
 	a.AwsGetAWSNodeTypesHandler = aws.GetAWSNodeTypesHandlerFunc(app.GetAWSNodeTypes)
 	a.AwsGetAWSCredentialProfilesHandler = aws.GetAWSCredentialProfilesHandlerFunc(app.GetAWSCredentialProfiles)
 	a.AwsGetAWSOSImagesHandler = aws.GetAWSOSImagesHandlerFunc(app.GetAWSOSImages)
+	a.AwsExportTKGConfigForAWSHandler = aws.ExportTKGConfigForAWSHandlerFunc(app.ExportAWSConfig)
 
 	a.AzureGetAzureEndpointHandler = azure.GetAzureEndpointHandlerFunc(app.GetAzureEndpoint)
 	a.AzureSetAzureEndpointHandler = azure.SetAzureEndpointHandlerFunc(app.SetAzureEndPoint)
@@ -103,10 +105,12 @@ func (app *App) ConfigureHandlers(api middleware.RoutableAPI) { // nolint:funlen
 	a.AzureApplyTKGConfigForAzureHandler = azure.ApplyTKGConfigForAzureHandlerFunc(app.ApplyTKGConfigForAzure)
 	a.AzureCreateAzureRegionalClusterHandler = azure.CreateAzureRegionalClusterHandlerFunc(app.CreateAzureRegionalCluster)
 	a.AzureGetAzureOSImagesHandler = azure.GetAzureOSImagesHandlerFunc(app.GetAzureOSImages)
+	a.AzureExportTKGConfigForAzureHandler = azure.ExportTKGConfigForAzureHandlerFunc(app.ExportAzureConfig)
 
 	a.DockerCheckIfDockerDaemonAvailableHandler = docker.CheckIfDockerDaemonAvailableHandlerFunc(app.IsDockerDaemonAvailable)
 	a.DockerApplyTKGConfigForDockerHandler = docker.ApplyTKGConfigForDockerHandlerFunc(app.ApplyTKGConfigForDocker)
 	a.DockerCreateDockerRegionalClusterHandler = docker.CreateDockerRegionalClusterHandlerFunc(app.CreateDockerRegionalCluster)
+	a.DockerExportTKGConfigForDockerHandler = docker.ExportTKGConfigForDockerHandlerFunc(app.ExportDockerConfig)
 
 	a.FeaturesGetFeatureFlagsHandler = features.GetFeatureFlagsHandlerFunc(app.GetFeatureFlags)
 	a.EditionGetTanzuEditionHandler = edition.GetTanzuEditionHandlerFunc(app.GetTanzuEdition)

@@ -17,12 +17,12 @@
                             <clr-tooltip>
                                 <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                 <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                                    <span>Optionally specify a url to register your {{ clusterType }} cluster with Tanzu Mission Control.</span>
+                                    <span>Optionally specify a url to register your {{ clusterTypeDescriptor }} cluster with Tanzu Mission Control.</span>
                                 </clr-tooltip-content>
                             </clr-tooltip>
                         </label>
-                        <input clrInput class="tmc-reg-input" formControlName="tmcRegUrl" placeholder="" />
-                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <input clrInput class="tmc-reg-input" formControlName="tmcRegUrl" placeholder="" (keydown)="resetConfigContent()"/>
+                        <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                         <clr-control-helper></clr-control-helper>
                     </clr-input-container>
                 </div>
@@ -35,7 +35,6 @@
 </form>
 <div class="clr-row mt-20">
     <div class="clr-col-12 yaml-content-container" tabindex="-1">
-        <div class="mask"></div>
         <ngx-codemirror
             [(ngModel)]="configContent"
             aria-label="yaml content"

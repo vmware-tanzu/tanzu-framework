@@ -52,6 +52,9 @@ type VsphereRegionalClusterParams struct {
 	// identity management
 	IdentityManagement *IdentityManagementConfig `json:"identityManagement,omitempty"`
 
+	// ip family
+	IPFamily string `json:"ipFamily,omitempty"`
+
 	// kubernetes version
 	KubernetesVersion string `json:"kubernetesVersion,omitempty"`
 

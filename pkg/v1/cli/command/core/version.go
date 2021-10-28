@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 )
 
@@ -23,7 +24,7 @@ var versionCmd = &cobra.Command{
 		"group": string(cliv1alpha1.SystemCmdGroup),
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Printf("version: %s\nbuildDate: %s\nsha: %s\n", cli.BuildVersion, cli.BuildDate, cli.BuildSHA)
+		fmt.Printf("version: %s\nbuildDate: %s\nsha: %s\n", buildinfo.Version, buildinfo.Date, buildinfo.SHA)
 		return nil
 	},
 }

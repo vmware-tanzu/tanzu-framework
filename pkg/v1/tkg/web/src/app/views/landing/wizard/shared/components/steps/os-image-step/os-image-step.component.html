@@ -39,8 +39,8 @@
             <clr-icon aria-hidden="true" shape="close"></clr-icon>
         </button>
     </div>
-    <h4 i18n="os image title" aria-level="2" *ngIf="tkrVersion">
-        OS Image with Kubernetes {{ tkrVersion }}
+    <h4 i18n="os image title" aria-level="2">
+        OS Image with Kubernetes {{ tkrVersion | async }}
     </h4>
 
     <clr-select-container class="os-image" [attr.data-step-metadata]="formName">
@@ -63,13 +63,13 @@
                 </option>
             </ng-container>
         </select>
-        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+        <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
         <clr-control-helper></clr-control-helper>
         <clr-control-error>Selecting an OS image is required</clr-control-error>
     </clr-select-container>
-    <button class="refresh-btn reset" 
-            role="button" 
-            aria-label="refresh os images" 
+    <button class="refresh-btn reset"
+            role="button"
+            aria-label="refresh os images"
             tabindex="0"
             (click)="retrieveOsImages()">
             <clr-icon

@@ -6,7 +6,6 @@
 #@ end
 
 #@ def vsphere_cpi_data_values():
----
 vsphereCPI:
   tlsThumbprint: #@ get_vsphere_thumbprint()
   server: #@ data.values.VSPHERE_SERVER
@@ -17,7 +16,10 @@ vsphereCPI:
   zone: #@ data.values.VSPHERE_ZONE
   insecureFlag: #@ data.values.VSPHERE_INSECURE
 #@ if data.values.TKG_IP_FAMILY:
-  ipFamily: #@ data.values.TKG_IP_FAMILY
+  #! For now, use the first ipFamily when TKG_IP_FAMILY is a dual stack value (ipv4,ipv6 or ipv6,ipv4)
+  #! TODO: stop doing this when this issue is resolved:
+  #! https://github.com/kubernetes/cloud-provider-vsphere/issues/302
+  ipFamily: #@ data.values.TKG_IP_FAMILY.split(",")[0]
 #@ end
 #@ if data.values.TKG_CLUSTER_ROLE == "workload": #! For backwards compatibility. i.e. C.1 mgmt cluster creates a C.0 wlc with older addon templates.
   image:
@@ -48,15 +50,4 @@ vsphereCPI:
   http_proxy: #@ data.values.TKG_HTTP_PROXY
   https_proxy: #@ data.values.TKG_HTTPS_PROXY
   no_proxy: #@ get_no_proxy()
-#@ end
-
-#@ def vsphere_cpi_image_info():
----
-imageInfo:
-  imageRepository: #@ tkg_image_repo()
-  imagePullPolicy: IfNotPresent
-  images:
-    ccmControllerImage:
-      imagePath: #@ cpiImage.imagePath
-      tag: #@ cpiImage.tag
 #@ end

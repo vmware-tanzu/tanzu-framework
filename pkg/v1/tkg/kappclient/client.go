@@ -21,6 +21,7 @@ import (
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	kapppkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
+	secretgenctrl "github.com/vmware-tanzu/carvel-secretgen-controller/pkg/apis/secretgen2/v1alpha1"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
@@ -57,6 +58,31 @@ func NewKappClient(kubeCfgPath string) (Client, error) {
 	if err := kappctrl.AddToScheme(scheme); err != nil {
 		return nil, err
 	}
+	if err := secretgenctrl.AddToScheme(scheme); err != nil {
+		return nil, err
+	}
+
+	if restConfig, err = GetKubeConfig(kubeCfgPath); err != nil {
+		return nil, err
+	}
+
+	mapper, err := apiutil.NewDynamicRESTMapper(restConfig, apiutil.WithLazyDiscovery)
+	if err != nil {
+		return nil, errors.Wrap(err, "Unable to set up rest mapper")
+	}
+	crtClient, err := crtclient.New(restConfig, crtclient.Options{Scheme: scheme, Mapper: mapper})
+	if err != nil {
+		return nil, errors.Wrap(err, "Unable to create cluster client")
+	}
+	return &client{client: crtClient}, nil
+}
+
+// GetKubeConfig gets kubeconfig from the provided kubeconfig path. Otherwise, it gets the kubeconfig from "$HOME/.kube/config" if existing
+func GetKubeConfig(kubeCfgPath string) (*rest.Config, error) {
+	var (
+		restConfig *rest.Config
+		err        error
+	)
 
 	if kubeCfgPath == "" {
 		if restConfig, err = k8sconfig.GetConfig(); err != nil {
@@ -76,15 +102,7 @@ func NewKappClient(kubeCfgPath string) (Client, error) {
 		}
 	}
 
-	mapper, err := apiutil.NewDynamicRESTMapper(restConfig, apiutil.WithLazyDiscovery)
-	if err != nil {
-		return nil, errors.Wrap(err, "Unable to set up rest mapper")
-	}
-	crtClient, err := crtclient.New(restConfig, crtclient.Options{Scheme: scheme, Mapper: mapper})
-	if err != nil {
-		return nil, errors.Wrap(err, "Unable to create cluster client")
-	}
-	return &client{client: crtClient}, nil
+	return restConfig, nil
 }
 
 func (c *client) addAnnotations(meta *v1.ObjectMeta, isPkgPluginCreatedSvcAccount, isPkgPluginCreatedSecret bool) {
@@ -185,6 +203,34 @@ func (c *client) ListPackageRepositories(namespace string) (*kappipkg.PackageRep
 	return repositoryList, nil
 }
 
+// ListRegistrySecrets gets the list of all Secrets of type "kubernetes.io/dockerconfigjson"
+func (c *client) ListRegistrySecrets(namespace string) (*corev1.SecretList, error) {
+	var selectors []crtclient.ListOption
+	secretList := &corev1.SecretList{}
+
+	selectors = []crtclient.ListOption{crtclient.InNamespace(namespace), crtclient.MatchingFields(map[string]string{"type": string(corev1.SecretTypeDockerConfigJson)})}
+
+	err := c.client.List(context.Background(), secretList, selectors...)
+	if err != nil {
+		return nil, err
+	}
+	return secretList, nil
+}
+
+// ListSecretExports gets the list of all SecretExports
+func (c *client) ListSecretExports(namespace string) (*secretgenctrl.SecretExportList, error) {
+	var selectors []crtclient.ListOption
+	secretExportList := &secretgenctrl.SecretExportList{}
+
+	selectors = []crtclient.ListOption{crtclient.InNamespace(namespace)}
+
+	err := c.client.List(context.Background(), secretExportList, selectors...)
+	if err != nil {
+		return nil, err
+	}
+	return secretExportList, nil
+}
+
 // ListPackageMetadata gets the list of PackageMetadata CRs
 func (c *client) ListPackageMetadata(namespace string) (*kapppkg.PackageMetadataList, error) {
 	var selectors []crtclient.ListOption
@@ -234,8 +280,10 @@ func (c *client) ListPackages(packageName, namespace string) (*kapppkg.PackageLi
 }
 
 // UpdatePackageInstall updates the PackageInstall CR
-func (c *client) UpdatePackageInstall(installedPackage *kappipkg.PackageInstall) error {
-	if err := c.client.Update(context.Background(), installedPackage); err != nil {
+func (c *client) UpdatePackageInstall(packageInstall *kappipkg.PackageInstall, isPkgPluginCreatedSecret bool) error {
+	c.addAnnotations(&packageInstall.ObjectMeta, false, isPkgPluginCreatedSecret)
+
+	if err := c.client.Update(context.Background(), packageInstall); err != nil {
 		return err
 	}
 
@@ -258,4 +306,29 @@ func (c *client) UpdatePackageRepository(repository *kappipkg.PackageRepository)
 	}
 
 	return nil
+}
+
+func (c *client) GetSecretValue(secretName, namespace string) ([]byte, error) {
+	var err error
+
+	secret := &corev1.Secret{}
+	err = c.client.Get(context.Background(), crtclient.ObjectKey{Name: secretName, Namespace: namespace}, secret)
+	if err != nil {
+		return nil, err
+	}
+
+	var data []byte
+	for _, value := range secret.Data {
+		if len(string(value)) < 3 {
+			data = append(data, tkgpackagedatamodel.YamlSeparator...)
+			data = append(data, "\n"...)
+		}
+		if len(string(value)) >= 3 && string(value)[:3] != tkgpackagedatamodel.YamlSeparator {
+			data = append(data, tkgpackagedatamodel.YamlSeparator...)
+			data = append(data, "\n"...)
+		}
+		data = append(data, value...)
+	}
+
+	return data, nil
 }

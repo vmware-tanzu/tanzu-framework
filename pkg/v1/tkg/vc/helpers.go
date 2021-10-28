@@ -81,7 +81,7 @@ func (c *DefaultClient) GetAndValidateVirtualMachineTemplate(
 		return nil, errors.Errorf("unable to find VM Template associated with TanzuKubernetesRelease %s, but found these VM(s) [%s] that can be used once converted to a VM Template", tkrVersion, strings.Join(nonTemplateVMs, ","))
 	}
 
-	return nil, errors.Errorf("unable to find VM Template associated with TanzuKubernetesRelease %s. Please upload VM Template for this TanzuKubernetesRelease to continue", tkrVersion)
+	return nil, errors.Errorf("unable to find VM Template associated with TanzuKubernetesRelease %s. Please upload at least one VM Template from versions [%v] to continue", tkrVersion, strings.Join(ovaVersions, ","))
 }
 
 // FindMatchingVirtualMachineTemplate finds a virtual machine template that matches the ova versions

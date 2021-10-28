@@ -49,7 +49,7 @@
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                         <span>
-                            Select an existing VM folder in which to place the {{ clusterType }}
+                            Select an existing VM folder in which to place the {{ clusterTypeDescriptor }}
                             cluster VMs.
                         </span>
                             </clr-tooltip-content>
@@ -59,7 +59,7 @@
                     <datalist id="vmFolder">
                         <option *ngFor="let folder of vmFolders" [value]="folder?.name"></option>
                     </datalist>
-                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                 </clr-datalist-container>
                 <clr-control-error *ngIf="showFormError('vmFolder')">
@@ -81,7 +81,7 @@
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
                         <span>
-                            Select a vSphere datastore for the {{ clusterType }} cluster to use.
+                            Select a vSphere datastore for the {{ clusterTypeDescriptor }} cluster to use.
                         </span>
                             </clr-tooltip-content>
                         </clr-tooltip>
@@ -90,7 +90,7 @@
                     <datalist id="datastore">
                         <option *ngFor="let datastore of datastores" [value]="datastore?.name"></option>
                     </datalist>
-                    <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                    <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                 </clr-datalist-container>
                 <clr-control-error *ngIf="showFormError('datastore')">
@@ -108,7 +108,7 @@
                     <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                     <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                     <span>
-                        Select a cluster, host, or a resource pool for your {{ clusterType }} cluster.
+                        Select a cluster, host, or a resource pool for your {{ clusterTypeDescriptor }} cluster.
                     </span>
                     </clr-tooltip-content>
                 </clr-tooltip>

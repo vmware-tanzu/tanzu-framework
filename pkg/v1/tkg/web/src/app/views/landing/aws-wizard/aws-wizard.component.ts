@@ -1,5 +1,5 @@
 // Angular imports
-import { Component, OnInit, ElementRef } from '@angular/core';
+import { Component, ElementRef, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
@@ -11,9 +11,10 @@ import { AWSAccountParamsKeys } from './provider-step/aws-provider-step.componen
 import { AWSRegionalClusterParams } from 'src/app/swagger/models';
 import { APIClient } from 'src/app/swagger';
 import { AwsWizardFormService } from 'src/app/shared/service/aws-wizard-form.service';
-import { CliGenerator, CliFields } from '../wizard/shared/utils/cli-generator';
+import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { BASTION_HOST_ENABLED } from './node-setting-step/node-setting-step.component';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
+import Broker from "../../../shared/service/broker";
 
 @Component({
     selector: 'aws-wizard',
@@ -32,10 +33,10 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         private formBuilder: FormBuilder,
         private apiClient: APIClient,
         formMetaDataService: FormMetaDataService,
-        private titleService: Title,
+        titleService: Title,
         el: ElementRef) {
 
-        super(router, el, formMetaDataService);
+        super(router, el, formMetaDataService, titleService);
 
         this.form = this.formBuilder.group({
             awsProviderForm: this.formBuilder.group({
@@ -53,8 +54,6 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
             ceipOptInForm: this.formBuilder.group({
             }),
             osImageForm: this.formBuilder.group({
-            }),
-            registerTmcForm: this.formBuilder.group({
             })
         });
     }
@@ -70,7 +69,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
 
     getStepDescription(stepName: string): string {
         if (stepName === 'provider') {
-            return 'Validate the AWS provider account for Tanzu Kubernetes Grid';
+            return 'Validate the AWS provider account for Tanzu';
         } else if (stepName === 'vpc') {
             const vpc = this.getFieldValue('vpcForm', 'vpc');
             const publicNodeCidr = this.getFieldValue('vpcForm', 'publicNodeCidr');
@@ -91,7 +90,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
                 }
                 return mode;
             } else {
-                return `Specify the resources backing the ${this.clusterType} cluster`;
+                return `Specify the resources backing the ${this.clusterTypeDescriptor} cluster`;
             }
         } else if (stepName === 'network') {
             if (this.getFieldValue('networkForm', 'clusterPodCidr')) {
@@ -104,7 +103,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
                 this.form.get('metadataForm').get('clusterLocation').value) {
                 return 'Location: ' + this.form.get('metadataForm').get('clusterLocation').value;
             } else {
-                return `Specify metadata for the ${this.clusterType} cluster`;
+                return `Specify metadata for the ${this.clusterTypeDescriptor} cluster`;
             }
         } else if (stepName === 'identity') {
             if (this.getFieldValue('identityForm', 'identityType') === 'oidc' &&
@@ -113,7 +112,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
             } else if (this.getFieldValue('identityForm', 'identityType') === 'ldap' &&
                 this.getFieldValue('identityForm', 'endpointIp')) {
                 return 'LDAP configured: ' + this.getFieldValue('identityForm', 'endpointIp') + ':' +
-                this.getFieldValue('identityForm', 'endpointPort');
+                    this.getFieldValue('identityForm', 'endpointPort');
             } else {
                 return 'Specify identity management'
             }
@@ -139,8 +138,6 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         payload.clusterName = this.getFieldValue('awsNodeSettingForm', 'clusterName');
         payload.controlPlaneNodeType = this.getControlPlaneNodeType('aws');
         payload.controlPlaneFlavor = this.getControlPlaneFlavor('aws');
-        payload.workerNodeType = (this.clusterType !== 'standalone') ?
-            this.getFieldValue('awsNodeSettingForm', 'workerNodeInstanceType') : payload.controlPlaneNodeType;
         const bastionHostEnabled = this.getFieldValue('awsNodeSettingForm', 'bastionHostEnabled');
         payload.bastionHostEnabled = bastionHostEnabled === BASTION_HOST_ENABLED;
         const machineHealthChecksEnabled = this.getFieldValue('awsNodeSettingForm', 'machineHealthChecksEnabled');
@@ -150,7 +147,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
                 this.getFieldValue('vpcForm', 'existingVpcCidr') :
                 this.getFieldValue('vpcForm', 'vpc'),
             vpcID: this.getFieldValue('vpcForm', 'existingVpcId'),
-            azs: this.getAwsNodeAzs()
+            azs: this.getAwsNodeAzs(payload)
         };
 
         payload.enableAuditLogging = this.getBooleanFieldValue("awsNodeSettingForm", "enableAuditLogging");
@@ -159,15 +156,17 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         return payload;
     }
 
-    getAwsNodeAzs() {
+    getAwsNodeAzs(payload) {
         this.nodeAzList = [
             {
                 name: this.getFieldValue('awsNodeSettingForm', 'awsNodeAz1'),
+                workerNodeType: Broker.appDataService.isModeClusterStandalone() ? payload.controlPlaneNodeType :
+                    this.getFieldValue('awsNodeSettingForm', 'workerNodeInstanceType1'),
                 publicNodeCidr: (this.getFieldValue('vpcForm', 'vpcType') === 'new') ?
                     this.getFieldValue('vpcForm', 'publicNodeCidr') : '',
-                privateNodeCidr:  (this.getFieldValue('vpcForm', 'vpcType') === 'new') ?
+                privateNodeCidr: (this.getFieldValue('vpcForm', 'vpcType') === 'new') ?
                     this.getFieldValue('vpcForm', 'privateNodeCidr') : '',
-                publicSubnetID:  (this.getFieldValue('vpcForm', 'vpcType') === 'existing') ?
+                publicSubnetID: (this.getFieldValue('vpcForm', 'vpcType') === 'existing') ?
                     this.getFieldValue('awsNodeSettingForm', 'vpcPublicSubnet1') : '',
                 privateSubnetID: (this.getFieldValue('vpcForm', 'vpcType') === 'existing') ?
                     this.getFieldValue('awsNodeSettingForm', 'vpcPrivateSubnet1') : ''
@@ -177,11 +176,13 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         if (this.getFieldValue('awsNodeSettingForm', 'awsNodeAz2')) {
             this.nodeAzList.push({
                 name: this.getFieldValue('awsNodeSettingForm', 'awsNodeAz2'),
+                workerNodeType: (!Broker.appDataService.isModeClusterStandalone()) ?
+                    this.getFieldValue('awsNodeSettingForm', 'workerNodeInstanceType2') : payload.controlPlaneNodeType,
                 publicNodeCidr: (this.getFieldValue('vpcForm', 'vpcType') === 'new') ?
                     this.getFieldValue('vpcForm', 'publicNodeCidr') : '',
-                privateNodeCidr:  (this.getFieldValue('vpcForm', 'vpcType') === 'new') ?
+                privateNodeCidr: (this.getFieldValue('vpcForm', 'vpcType') === 'new') ?
                     this.getFieldValue('vpcForm', 'privateNodeCidr') : '',
-                publicSubnetID:  (this.getFieldValue('vpcForm', 'vpcType') === 'existing') ?
+                publicSubnetID: (this.getFieldValue('vpcForm', 'vpcType') === 'existing') ?
                     this.getFieldValue('awsNodeSettingForm', 'vpcPublicSubnet2') : '',
                 privateSubnetID: (this.getFieldValue('vpcForm', 'vpcType') === 'existing') ?
                     this.getFieldValue('awsNodeSettingForm', 'vpcPrivateSubnet2') : ''
@@ -191,11 +192,13 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         if (this.getFieldValue('awsNodeSettingForm', 'awsNodeAz3')) {
             this.nodeAzList.push({
                 name: this.getFieldValue('awsNodeSettingForm', 'awsNodeAz3'),
+                workerNodeType: (!Broker.appDataService.isModeClusterStandalone()) ?
+                    this.getFieldValue('awsNodeSettingForm', 'workerNodeInstanceType3') : payload.controlPlaneNodeType,
                 publicNodeCidr: (this.getFieldValue('vpcForm', 'vpcType') === 'new') ?
                     this.getFieldValue('vpcForm', 'publicNodeCidr') : '',
-                privateNodeCidr:  (this.getFieldValue('vpcForm', 'vpcType') === 'new') ?
+                privateNodeCidr: (this.getFieldValue('vpcForm', 'vpcType') === 'new') ?
                     this.getFieldValue('vpcForm', 'privateNodeCidr') : '',
-                publicSubnetID:  (this.getFieldValue('vpcForm', 'vpcType') === 'existing') ?
+                publicSubnetID: (this.getFieldValue('vpcForm', 'vpcType') === 'existing') ?
                     this.getFieldValue('awsNodeSettingForm', 'vpcPublicSubnet3') : '',
                 privateSubnetID: (this.getFieldValue('vpcForm', 'vpcType') === 'existing') ?
                     this.getFieldValue('awsNodeSettingForm', 'vpcPrivateSubnet3') : ''
@@ -219,13 +222,30 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
     }
 
     /**
+     * @method getExtendCliCmds to return cli command string according to special selection
+     * For AWS, selects Create Cloudformation Stack,
+     * should include tanzu management-cluster permissions aws set
+     * @returns the array includes cli command object like {isPrefixOfCreateCmd: true, cmdStr: "tanzu ..."}
+     */
+    getExtendCliCmds(): Array<{ isPrefixOfCreateCmd: boolean, cmdStr: string }> {
+        if (this.getFieldValue('awsNodeSettingForm', 'createCloudFormation')) {
+            const clusterPrefix = (this.getClusterType()) ? this.getClusterType() : 'management';
+            const command = `tanzu ${clusterPrefix}-cluster permissions aws set`;
+            return [{ isPrefixOfCreateCmd: true, cmdStr: command }]
+        }
+        return []
+    }
+
+    /**
      * Get the CLI used to deploy the management/standalone cluster
      */
     getCli(configPath: string): string {
         const cliG = new CliGenerator();
         const cliParams: CliFields = {
             configPath: configPath,
-            clusterType: this.clusterType
+            clusterType: this.getClusterType(),
+            clusterName: this.getMCName(),
+            extendCliCmds: this.getExtendCliCmds()
         };
         return cliG.getCli(cliParams);
     }
@@ -233,4 +253,12 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
     applyTkgConfig() {
         return this.apiClient.applyTKGConfigForAWS({ params: this.getPayload() });
     }
+
+    /**
+     * Retrieve the config file from the backend and return as a string
+     */
+    retrieveExportFile() {
+        return this.apiClient.exportTKGConfigForAWS({ params: this.getPayload() });
+    }
+
 }

@@ -12,10 +12,8 @@ import (
 	"strings"
 	"time"
 
-	certmanagerv1beta1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1beta1"
+	certmanagerv1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1"
 	certmanagerclientset "github.com/jetstack/cert-manager/pkg/client/clientset/versioned"
-	conciergeclientset "go.pinniped.dev/generated/1.19/client/concierge/clientset/versioned"
-	supervisorclientset "go.pinniped.dev/generated/1.19/client/supervisor/clientset/versioned"
 	"go.uber.org/zap"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -29,6 +27,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/configure/supervisor"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/inspect"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/pinnipedclientset"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/utils"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/vars"
 )
@@ -36,27 +35,29 @@ import (
 // Clients contains the various client interfaces used.
 type Clients struct {
 	K8SClientset         kubernetes.Interface
-	SupervisorClientset  supervisorclientset.Interface
-	ConciergeClientset   conciergeclientset.Interface
+	SupervisorClientset  pinnipedclientset.Supervisor
+	ConciergeClientset   pinnipedclientset.Concierge
 	CertmanagerClientset certmanagerclientset.Interface
 }
 
 // Parameters contains the settings used.
 type Parameters struct {
-	ClusterName             string
-	ClusterType             string
-	SupervisorSvcName       string
-	SupervisorSvcNamespace  string
-	SupervisorSvcEndpoint   string
-	FederationDomainName    string
-	JWTAuthenticatorName    string
-	SupervisorCertName      string
-	SupervisorCertNamespace string
-	SupervisorCABundleData  string
-	DexNamespace            string
-	DexSvcName              string
-	DexCertName             string
-	DexConfigMapName        string
+	ClusterName              string
+	ClusterType              string
+	SupervisorSvcName        string
+	SupervisorSvcNamespace   string
+	SupervisorSvcEndpoint    string
+	FederationDomainName     string
+	JWTAuthenticatorName     string
+	SupervisorCertName       string
+	SupervisorCertNamespace  string
+	SupervisorCABundleData   string
+	DexNamespace             string
+	DexSvcName               string
+	DexCertName              string
+	DexConfigMapName         string
+	PinnipedAPIGroupSuffix   string
+	ConciergeIsClusterScoped bool
 }
 
 func ensureDeploymentReady(ctx context.Context, c Clients, namespace, deploymentTypeName string) error {
@@ -188,20 +189,22 @@ func TKGAuthentication(c Clients) error {
 	}
 
 	if err := Pinniped(ctx, c, inspector, &Parameters{
-		ClusterName:             tkgMetadata.Cluster.Name,
-		ClusterType:             tkgMetadata.Cluster.Type,
-		SupervisorSvcName:       vars.SupervisorSvcName,
-		SupervisorSvcNamespace:  vars.SupervisorNamespace,
-		SupervisorSvcEndpoint:   vars.SupervisorSvcEndpoint,
-		FederationDomainName:    vars.FederationDomainName,
-		JWTAuthenticatorName:    vars.JWTAuthenticatorName,
-		SupervisorCertName:      vars.SupervisorCertName,
-		SupervisorCertNamespace: vars.SupervisorNamespace,
-		SupervisorCABundleData:  vars.SupervisorCABundleData,
-		DexNamespace:            vars.DexNamespace,
-		DexSvcName:              vars.DexSvcName,
-		DexCertName:             vars.DexCertName,
-		DexConfigMapName:        vars.DexConfigMapName,
+		ClusterName:              tkgMetadata.Cluster.Name,
+		ClusterType:              tkgMetadata.Cluster.Type,
+		SupervisorSvcName:        vars.SupervisorSvcName,
+		SupervisorSvcNamespace:   vars.SupervisorNamespace,
+		SupervisorSvcEndpoint:    vars.SupervisorSvcEndpoint,
+		FederationDomainName:     vars.FederationDomainName,
+		JWTAuthenticatorName:     vars.JWTAuthenticatorName,
+		SupervisorCertName:       vars.SupervisorCertName,
+		SupervisorCertNamespace:  vars.SupervisorNamespace,
+		SupervisorCABundleData:   vars.SupervisorCABundleData,
+		DexNamespace:             vars.DexNamespace,
+		DexSvcName:               vars.DexSvcName,
+		DexCertName:              vars.DexCertName,
+		DexConfigMapName:         vars.DexConfigMapName,
+		PinnipedAPIGroupSuffix:   vars.PinnipedAPIGroupSuffix,
+		ConciergeIsClusterScoped: vars.ConciergeIsClusterScoped,
 	}); err != nil {
 		// logging has been done inside the function
 		return err
@@ -245,7 +248,7 @@ func configureTLSSecret(ctx context.Context, c Clients, certNamespace, certName,
 		}
 	} else {
 		// Update Pinniped supervisor certificate
-		var updatedCert *certmanagerv1beta1.Certificate
+		var updatedCert *certmanagerv1.Certificate
 		if updatedCert, err = updateCertSubjectAltNames(ctx, c, certNamespace, certName, endpoint); err != nil {
 			// log has been done inside of UpdateCert()
 			return secret, err
@@ -272,13 +275,12 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p *Pa
 		var supervisorSvcEndpoint string
 		if p.SupervisorSvcEndpoint != "" {
 			// If the endpoint is passed in, then use it for management cluster otherwise construct the correct one
-			// TODO: file a JIRA to track the issue being discussed under https://vmware.slack.com/archives/G01HFK90QE8/p1610051838070300?thread_ts=1610051580.069400&cid=G01HFK90QE8
 			supervisorSvcEndpoint = utils.RemoveDefaultTLSPort(p.SupervisorSvcEndpoint)
 		} else if supervisorSvcEndpoint, err = inspector.GetServiceEndpoint(p.SupervisorSvcNamespace, p.SupervisorSvcName); err != nil {
 			zap.S().Error(err)
 			return err
 		}
-		supervisorConfigurator := supervisor.Configurator{Clientset: c.SupervisorClientset, K8SClientset: c.K8SClientset, CertmanagerClientset: c.CertmanagerClientset}
+		supervisorConfigurator := supervisor.Configurator{Clientset: c.SupervisorClientset, K8SClientset: c.K8SClientset}
 		if err = supervisorConfigurator.CreateOrUpdateFederationDomain(ctx, vars.SupervisorNamespace, p.FederationDomainName, supervisorSvcEndpoint); err != nil {
 			zap.S().Error(err)
 			return err
@@ -298,23 +300,38 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p *Pa
 		}
 
 		// create configmap for Pinniped info
-		if err := supervisorConfigurator.CreateOrUpdatePinnipedInfo(ctx, supervisor.PinnipedInfo{
-			MgmtClusterName:    p.ClusterName,
-			Issuer:             supervisorSvcEndpoint,
-			IssuerCABundleData: caData,
-		}); err != nil {
+		if err := createOrUpdatePinnipedInfo(ctx, supervisor.PinnipedInfo{
+			MgmtClusterName:          &p.ClusterName,
+			Issuer:                   &supervisorSvcEndpoint,
+			IssuerCABundleData:       &caData,
+			ConciergeAPIGroupSuffix:  p.PinnipedAPIGroupSuffix,
+			ConciergeIsClusterScoped: p.ConciergeIsClusterScoped,
+		}, c.K8SClientset); err != nil {
 			return err
 		}
-	} else if err = conciergeConfigurator.CreateOrUpdateJWTAuthenticator(ctx, vars.ConciergeNamespace, p.JWTAuthenticatorName, p.SupervisorSvcEndpoint, p.ClusterName, p.SupervisorCABundleData); err != nil {
-		// on workload cluster, we only create or update JWTAuthenticator
-		// SupervisorSvcEndpoint will be passed in on workload cluster
-		zap.S().Error(err)
-		return err
+	} else if p.ClusterType == constants.TKGWorkloadClusterType {
+		zap.S().Info("Workload cluster detected")
+
+		if err = conciergeConfigurator.CreateOrUpdateJWTAuthenticator(ctx, vars.ConciergeNamespace, p.JWTAuthenticatorName, p.SupervisorSvcEndpoint, p.ClusterName, p.SupervisorCABundleData); err != nil {
+			// on workload cluster, we only create or update JWTAuthenticator
+			// SupervisorSvcEndpoint will be passed in on workload cluster
+			zap.S().Error(err)
+			return err
+		}
+
+		// create configmap for Pinniped info
+		if err := createOrUpdatePinnipedInfo(ctx, supervisor.PinnipedInfo{
+			ConciergeAPIGroupSuffix:  p.PinnipedAPIGroupSuffix,
+			ConciergeIsClusterScoped: p.ConciergeIsClusterScoped,
+		}, c.K8SClientset); err != nil {
+			return err
+		}
+	} else {
+		return fmt.Errorf("unknown cluster type %s", p.ClusterType)
 	}
 
 	zap.S().Infof("Restarting Pinniped supervisor pods to reload the configmap that contains custom TLS secret names...")
 	// restart the Pinniped pod to refresh the config
-	// Discussed in: https://vmware.slack.com/archives/G01HFK90QE8/p1611970411157300
 	// After the user specifies a custom Pinniped secret name, we need to update the default Pinniped TLS secret name stored in a config map.
 	// This info can't be refreshed unless the Pinniped supervisor pods are restarted.
 	var podList *corev1.PodList
@@ -368,7 +385,7 @@ func Dex(ctx context.Context, c Clients, inspector inspect.Inspector, p *Paramet
 		}
 
 		// recreate the OIDCIdentityProvider
-		supervisorConfigurator := supervisor.Configurator{Clientset: c.SupervisorClientset, K8SClientset: c.K8SClientset, CertmanagerClientset: c.CertmanagerClientset}
+		supervisorConfigurator := supervisor.Configurator{Clientset: c.SupervisorClientset, K8SClientset: c.K8SClientset}
 		if _, err = supervisorConfigurator.RecreateIDPForDex(ctx, p.DexNamespace, p.DexSvcName, secret); err != nil {
 			zap.S().Error(err)
 			return err
@@ -425,11 +442,11 @@ func Dex(ctx context.Context, c Clients, inspector inspect.Inspector, p *Paramet
 	return nil
 }
 
-func updateCertSubjectAltNames(ctx context.Context, c Clients, certNamespace, certName, fullURL string) (*certmanagerv1beta1.Certificate, error) {
+func updateCertSubjectAltNames(ctx context.Context, c Clients, certNamespace, certName, fullURL string) (*certmanagerv1.Certificate, error) {
 	var err error
-	var cert *certmanagerv1beta1.Certificate
+	var cert *certmanagerv1.Certificate
 
-	if cert, err = c.CertmanagerClientset.CertmanagerV1beta1().Certificates(certNamespace).Get(ctx, certName, metav1.GetOptions{}); err != nil {
+	if cert, err = c.CertmanagerClientset.CertmanagerV1().Certificates(certNamespace).Get(ctx, certName, metav1.GetOptions{}); err != nil {
 		// no-op is the certificate does not exist
 		if errors.IsNotFound(err) {
 			zap.S().Warnf("The Certificate %s/%s does not exist. Nothing to be updated", certNamespace, certName)
@@ -472,11 +489,11 @@ func updateCertSubjectAltNames(ctx context.Context, c Clients, certNamespace, ce
 	}
 	host := parsedURL.Hostname()
 	zap.S().Infof("Updating the Certificate %s/%s with host: %s", certNamespace, certName, host)
-	var updatedCert *certmanagerv1beta1.Certificate
+	var updatedCert *certmanagerv1.Certificate
 	err = retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		var fetchedCert *certmanagerv1beta1.Certificate
+		var fetchedCert *certmanagerv1.Certificate
 		var e error
-		if fetchedCert, e = c.CertmanagerClientset.CertmanagerV1beta1().Certificates(certNamespace).Get(ctx, certName, metav1.GetOptions{}); e != nil {
+		if fetchedCert, e = c.CertmanagerClientset.CertmanagerV1().Certificates(certNamespace).Get(ctx, certName, metav1.GetOptions{}); e != nil {
 			return e
 		}
 		if utils.IsIP(host) {
@@ -488,7 +505,7 @@ func updateCertSubjectAltNames(ctx context.Context, c Clients, certNamespace, ce
 			fetchedCert.Spec.CommonName = ""
 			fetchedCert.Spec.DNSNames = []string{host}
 		}
-		updatedCert, e = c.CertmanagerClientset.CertmanagerV1beta1().Certificates(certNamespace).Update(ctx, fetchedCert, metav1.UpdateOptions{})
+		updatedCert, e = c.CertmanagerClientset.CertmanagerV1().Certificates(certNamespace).Update(ctx, fetchedCert, metav1.UpdateOptions{})
 		return e
 	})
 	if err != nil {

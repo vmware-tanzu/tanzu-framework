@@ -150,10 +150,23 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		log.Infof("Using custom image repository: %s", customImageRepo)
 	}
 
+	providerName, _, err := ParseProviderName(options.InfrastructureProvider)
+	if err != nil {
+		return errors.Wrap(err, "unable to parse provider name")
+	}
+
 	// validate docker only if user is not using an existing cluster
 	// Note: Validating in client code as well to cover the usecase where users use client code instead of command line.
+
 	if err := c.ValidatePrerequisites(!options.UseExistingCluster, true); err != nil {
 		return err
+	}
+
+	// validate docker resources if provider is docker
+	if providerName == "docker" {
+		if err := c.ValidateDockerResourcePrerequisites(); err != nil {
+			return err
+		}
 	}
 
 	log.Infof("Using infrastructure provider %s", options.InfrastructureProvider)
@@ -179,6 +192,11 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		return errors.Wrap(err, "unable to get bootstrap cluster client")
 	}
 
+	// configure variables required to deploy providers
+	if err := c.configureVariablesForProvidersInstallation(nil); err != nil {
+		return errors.Wrap(err, "unable to configure variables for provider installation")
+	}
+
 	log.SendProgressUpdate(statusRunning, StepInstallProvidersOnBootstrapCluster, InitRegionSteps)
 	log.Info("Installing providers on bootstrapper...")
 	// Initialize bootstrap cluster with providers
@@ -201,7 +219,14 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	}
 
 	// save this context to tkg config incase the management cluster creation fails
-	regionContext = region.RegionContext{ClusterName: options.ClusterName, ContextName: "kind-" + bootstrapClusterName, SourceFilePath: bootstrapClusterKubeconfigPath, Status: region.Failed}
+	bootstrapClusterContext := "kind-" + bootstrapClusterName
+	if options.UseExistingCluster {
+		bootstrapClusterContext, err = getCurrentContextFromDefaultKubeConfig()
+		if err != nil {
+			return err
+		}
+	}
+	regionContext = region.RegionContext{ClusterName: options.ClusterName, ContextName: bootstrapClusterContext, SourceFilePath: bootstrapClusterKubeconfigPath, Status: region.Failed}
 
 	kubeConfigBytes, err := c.WaitForClusterInitializedAndGetKubeConfig(bootStrapClusterClient, options.ClusterName, targetClusterNamespace)
 	if err != nil {
@@ -291,7 +316,6 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		}
 	}
 
-	providerName, _, err := ParseProviderName(options.InfrastructureProvider)
 	if err != nil {
 		return errors.Wrap(err, "unable to parse provider name")
 	}
@@ -325,7 +349,12 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		return err
 	}
 
-	log.Infof("Context set for management cluster %s as '%s'.", options.ClusterName, kubeContext)
+	log.Info("Waiting for packages to be up and running...")
+	if err := c.WaitForPackages(regionalClusterClient, regionalClusterClient, options.ClusterName, targetClusterNamespace); err != nil {
+		log.Warningf("Warning: Management cluster is created successfully, but some packages are failing. %v", err)
+	}
+
+	log.Infof("You can now access the management cluster %s by running 'kubectl config use-context %s'", options.ClusterName, kubeContext)
 	isSuccessful = true
 	return nil
 }
@@ -399,10 +428,16 @@ func (c *TkgClient) ensureKindCluster(kubeconfig string, useExistingCluster bool
 		return "", nil
 	}
 
+	bomConfig, err := c.tkgBomClient.GetDefaultTkgBOMConfiguration()
+	if err != nil {
+		return "", err
+	}
+
 	c.kindClient = kind.New(&kind.KindClusterOptions{
-		KubeConfigPath: backupPath,
-		TKGConfigDir:   c.tkgConfigDir,
-		Readerwriter:   c.TKGConfigReaderWriter(),
+		KubeConfigPath:   backupPath,
+		TKGConfigDir:     c.tkgConfigDir,
+		Readerwriter:     c.TKGConfigReaderWriter(),
+		DefaultImageRepo: bomConfig.ImageConfig.ImageRepository,
 	})
 
 	// Create kind cluster which will be used to deploy management cluster
@@ -428,16 +463,22 @@ func (c *TkgClient) teardownKindCluster(clusterName, kubeconfig string, useExist
 		return nil
 	}
 
+	bomConfig, err := c.tkgBomClient.GetDefaultTkgBOMConfiguration()
+	if err != nil {
+		return err
+	}
+
 	if c.kindClient == nil {
 		c.kindClient = kind.New(&kind.KindClusterOptions{
-			KubeConfigPath: kubeconfig,
-			ClusterName:    clusterName,
-			TKGConfigDir:   c.tkgConfigDir,
+			KubeConfigPath:   kubeconfig,
+			ClusterName:      clusterName,
+			TKGConfigDir:     c.tkgConfigDir,
+			DefaultImageRepo: bomConfig.ImageConfig.ImageRepository,
 		})
 	}
 
 	// Delete kind cluster
-	err := c.kindClient.DeleteKindCluster()
+	err = c.kindClient.DeleteKindCluster()
 	if err != nil {
 		return err
 	}
@@ -479,6 +520,44 @@ func (c *TkgClient) InitializeProviders(options *InitRegionOptions, clusterClien
 	if err != nil {
 		return errors.Wrap(err, "error waiting for provider components to be up and running")
 	}
+
+	return nil
+}
+
+func (c *TkgClient) configureImageTagsForProviderInstallation() error {
+	// configure image tags by reading BoM file
+	tkgBoMConfig, err := c.tkgBomClient.GetDefaultTkgBOMConfiguration()
+	if err != nil {
+		return errors.Wrap(err, "unable to get default BoM configuration")
+	}
+	configImageTag := func(configVariable, componentName, imageName string) {
+		component, exists := tkgBoMConfig.Components[componentName]
+		if !exists {
+			log.Warningf("Warning: unable to find component '%s' under BoM", componentName)
+			return
+		}
+		if len(component) == 0 {
+			log.Warningf("Warning: component '%s' is empty", componentName)
+			return
+		}
+
+		image, exists := component[0].Images[imageName]
+		if !exists {
+			log.Warningf("Warning: component '%s' does not have image '%s'", componentName, imageName)
+			return
+		}
+		c.TKGConfigReaderWriter().Set(configVariable, image.Tag)
+	}
+
+	configImageTag(constants.ConfigVariableInternalKubeRBACProxyImageTag, "kube_rbac_proxy", "kubeRbacProxyControllerImageCapi")
+	configImageTag(constants.ConfigVariableInternalCABPKControllerImageTag, "cluster_api", "cabpkControllerImage")
+	configImageTag(constants.ConfigVariableInternalCAPIControllerImageTag, "cluster_api", "capiControllerImage")
+	configImageTag(constants.ConfigVariableInternalKCPControllerImageTag, "cluster_api", "kcpControllerImage")
+	configImageTag(constants.ConfigVariableInternalCAPDManagerImageTag, "cluster_api", "capdManagerImage")
+	configImageTag(constants.ConfigVariableInternalCAPAManagerImageTag, "cluster_api_aws", "capaControllerImage")
+	configImageTag(constants.ConfigVariableInternalCAPVManagerImageTag, "cluster_api_vsphere", "capvControllerImage")
+	configImageTag(constants.ConfigVariableInternalCAPZManagerImageTag, "cluster-api-provider-azure", "capzControllerImage")
+	configImageTag(constants.ConfigVariableInternalNMIImageTag, "aad-pod-identity", "nmiImage")
 
 	return nil
 }
@@ -531,35 +610,6 @@ func (c *TkgClient) BuildRegionalClusterConfiguration(options *InitRegionOptions
 	bytes, err = c.getClusterConfiguration(&clusterConfigOptions, true, clusterConfigOptions.ProviderRepositorySource.InfrastructureProvider)
 
 	return bytes, options.ClusterName, err
-}
-
-func (c *TkgClient) getMachineCountForMC(plan string) (int, int) {
-	// set controlplane and worker counts to default initially
-	controlPlaneMachineCount := constants.DefaultDevControlPlaneMachineCount
-	workerMachineCount := constants.DefaultWorkerMachineCountForManagementCluster
-
-	switch plan {
-	case constants.PlanDev:
-		// use the defaults already set above
-	case constants.PlanProd:
-		// update controlplane count for prod plan
-		controlPlaneMachineCount = constants.DefaultProdControlPlaneMachineCount
-	default:
-		// For custom plan use config variables to determine the count
-		// Verify there is no error in retrieving this and controlplane count is odd number
-		// If not provided then continue to use default values
-		if cpc, err := tkgconfighelper.GetIntegerVariableFromConfig(constants.ConfigVariableControlPlaneMachineCount, c.TKGConfigReaderWriter()); err == nil && cpc%2 == 1 {
-			controlPlaneMachineCount = cpc
-		} else {
-			log.Info("Using default value for CONTROL_PLANE_MACHINE_COUNT= %v. Reason: Either provided value is even or %s", err.Error())
-		}
-		if wc, err := tkgconfighelper.GetIntegerVariableFromConfig(constants.ConfigVariableWorkerMachineCount, c.TKGConfigReaderWriter()); err == nil {
-			workerMachineCount = wc
-		} else {
-			log.Info("Using default value for WORKER_MACHINE_COUNT= %v. Reason: %s", err.Error())
-		}
-	}
-	return controlPlaneMachineCount, workerMachineCount
 }
 
 type waitForProvidersOptions struct {

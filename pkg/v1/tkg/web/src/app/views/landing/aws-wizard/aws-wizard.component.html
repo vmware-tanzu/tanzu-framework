@@ -9,10 +9,12 @@
                 role="button"
                 tabindex="0"
                 aria-label="back"
-                (click)="navigate(APP_ROUTES.LANDING)"></clr-icon>
+                (click)="navigate(APP_ROUTES.LANDING)"
+                keyboardListener
+            ></clr-icon>
             <h2 i18n="wizard title" aria-level="1">
                 <div class="aws-ec2-icon-30"></div>
-                Deploy {{ clusterType | titlecase }} Cluster on Amazon EC2
+                Deploy {{ clusterTypeDescriptor | titlecase }} Cluster on Amazon Web Services
             </h2>
         </div>
     </div>
@@ -52,7 +54,7 @@
 
         <clr-stepper-panel formGroupName="awsNodeSettingForm" removeAriaLabelledBy>
             <clr-step-title i18n="node setting step name">
-                {{ clusterType | titlecase }} Cluster Settings
+                {{ clusterTypeDescriptor | titlecase }} Cluster Settings
             </clr-step-title>
             <clr-step-description i18n="node setting step description">
                 {{ getStepDescription('nodeSetting') }}
@@ -126,7 +128,9 @@
             <ng-container *ngIf="steps[6]">
                 <app-os-image-step [formGroup]="form.controls.osImageForm"
                     formName="osimages" [wizardFormService]="wizardFormService" type="AWS"
-                    osImageTooltipContent="tooltip content placeholder">
+                    osImageTooltipContent="Select a base OS image that you have already imported
+                    into your AWS account. If no compatible OS image is present, import one into
+                    AWS and click the Refresh button">
                 </app-os-image-step>
             </ng-container>
             <clr-step-content *clrIfExpanded>
@@ -134,32 +138,14 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="registerTmcForm" removeAriaLabelledBy>
-            <clr-step-title i18n="register tmc step title">
-                Register TMC
-            </clr-step-title>
-            <clr-step-description i18n="register tmc step description">
-                Optionally Register with Tanzu Mission Control
-            </clr-step-description>
-            <ng-container *ngIf="steps[7]">
-                <app-shared-register-tmc-step
-                        [formGroup]="form.controls.registerTmcForm"
-                        formName="registerTmc">
-                </app-shared-register-tmc-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-
-        <clr-stepper-panel formGroupName="ceipOptInForm" removeAriaLabelledBy>
+        <clr-stepper-panel formGroupName="ceipOptInForm" removeAriaLabelledBy *ngIf="edition === 'tkg'">
             <clr-step-title i18n="ceip agreement step title">
                 CEIP Agreement
             </clr-step-title>
             <clr-step-description i18n="ceip agreement step description">
                 Join the CEIP Program for TKG
             </clr-step-description>
-            <ng-container *ngIf="steps[8]">
+            <ng-container *ngIf="steps[7]">
                 <app-shared-ceip-step
                     [formGroup]="form.controls.ceipOptInForm"
                     formName="ceipOptIn">
@@ -176,16 +162,23 @@
 </div>
 
 <ng-container *ngIf="review">
-    <tkg-kickstart-ui-confirm [errorNotification]="errorNotification"></tkg-kickstart-ui-confirm>
+    <tkg-kickstart-ui-confirm></tkg-kickstart-ui-confirm>
+    <app-error-notification [errorNotification]="errorNotification"></app-error-notification>
     <div class="clr-row mt-20">
         <div class="clr-col-12 btn-container">
+            <button class="btn btn-primary deploy-btn" [disabled]="disableDeployButton" (click)="deploy()">
+                Deploy {{ clusterTypeDescriptor | titlecase }} Cluster
+            </button>
             <button class="btn btn-outline edit-btn" (click)="reviewConfiguration(false)"
                 i18n="return to wizard for edit button">
                 Edit Configuration
             </button>
-            <button class="btn btn-primary deploy-btn" [disabled]="disableDeployButton" (click)="deploy()">
-                Deploy {{ clusterType | titlecase }} Cluster
-            </button>
+            <ng-container *featureToggle="'management-cluster.export-from-confirm'">
+                <button class="btn btn-link export-btn" (click)="exportConfiguration()"
+                        i18n="export configuration button">
+                    Export Configuration
+                </button>
+            </ng-container>
         </div>
     </div>
 </ng-container>

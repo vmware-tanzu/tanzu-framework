@@ -22,10 +22,12 @@ var packageAvailableListCmd = &cobra.Command{
 	
     # List all versions for available package from specified namespace	
     tanzu package available list contour.tanzu.vmware.com --namespace test-ns`,
-	RunE: packageAvailableList,
+	RunE:         packageAvailableList,
+	SilenceUsage: true,
 }
 
 func init() {
+	packageAvailableListCmd.Flags().BoolVarP(&packageAvailableOp.AllNamespaces, "all-namespaces", "A", false, "If present, list packages across all namespaces, optional")
 	packageAvailableCmd.AddCommand(packageAvailableListCmd)
 }
 

@@ -1,0 +1,17 @@
+apiVersion: config.tanzu.vmware.com/v1alpha1
+kind: FeatureGate
+metadata:
+  name: featuregate-sample
+spec:
+  namespaceSelector:
+    matchExpressions:
+      - key: kubernetes.io/metadata.name
+        operator: In
+        values:
+          - tkg-system
+          - default
+  features:
+    - name: "foo"
+      activate: true
+    - name: "bar"
+      activate: false

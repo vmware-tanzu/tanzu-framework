@@ -1,5 +1,6 @@
 load("@ytt:data", "data")
 load("@ytt:assert", "assert")
+load("/lib/helpers.star", "validate_proxy_bypass_vsphere_host")
 
 required_variable_list_vsphere = [
   "VSPHERE_USERNAME",
@@ -7,7 +8,6 @@ required_variable_list_vsphere = [
   "VSPHERE_SERVER",
   "VSPHERE_DATACENTER",
   "VSPHERE_RESOURCE_POOL",
-  "VSPHERE_DATASTORE",
   "VSPHERE_FOLDER",
   "VSPHERE_SSH_AUTHORIZED_KEY"]
 
@@ -28,7 +28,8 @@ required_variable_list_tkgs = [
   "CONTROL_PLANE_VM_CLASS",
   "SERVICE_DOMAIN",
   "WORKER_STORAGE_CLASS",
-  "WORKER_VM_CLASS"]
+  "WORKER_VM_CLASS",
+  "NODE_POOL_0_NAME"]
 
 def validate_configuration(provider):
   #! skip validation when only employing the template to generate
@@ -42,6 +43,11 @@ def validate_configuration(provider):
     flag_missing_variable_error(required_variable_list_vsphere)
     if data.values.NSXT_POD_ROUTING_ENABLED == True:
       validate_nsxt_config()
+    end
+    #! known issue for govc: https://github.com/vmware/govmomi/issues/2494
+    #! TODO: remove the validation once the issue is resolved
+    if data.values.TKG_HTTP_PROXY != "":
+      validate_proxy_bypass_vsphere_host()
     end
   elif provider == "aws":
     flag_missing_variable_error(required_variable_list_aws)

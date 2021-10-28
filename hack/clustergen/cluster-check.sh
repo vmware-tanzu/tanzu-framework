@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Copyright 2021 VMware, Inc. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 # Usage:
 # clustergen-check.sh base-commit current-commit
 
@@ -33,8 +36,7 @@ make generate-testcases
 
 # TODO: Handle current commit that is not HEAD
 rm -rf tests/clustergen/testdata/new || true
-git log --pretty=oneline -5
-make generate-bindata
+git log --pretty=oneline -5 | cat
 CLI_REPO=${CLI_REPO} ${BASE_DIR}/rebuild-cli.sh ${PWD}
 make CLUSTERGEN_OUTPUT_DIR=new GOOS=${GOOS} GOARCH=${GOARCH} CLI_REPO=${CLI_REPO} cluster-generation-tests
 
@@ -43,8 +45,7 @@ if [ "${LAST_BASE_BRANCH_COMMIT}" != "${BASE_BRANCH_COMMIT}" ]; then
   echo -n "${BASE_BRANCH_COMMIT}" > "${LAST_BASE_BRANCH_COMMIT_FILE}"
   rm -rf tests/clustergen/testdata/old || true
   git checkout -B clustergen_test_base ${GIT_BRANCH_PROVIDERS_BASE}
-  git log --pretty=oneline -5
-  make generate-bindata
+  git log --pretty=oneline -5 | cat
   CLI_REPO=${CLI_REPO} ${BASE_DIR}/rebuild-cli.sh ${PWD}
   make CLUSTERGEN_OUTPUT_DIR=old GOOS=${GOOS} GOARCH=${GOARCH} CLI_REPO=${CLI_REPO} cluster-generation-tests
   git checkout .

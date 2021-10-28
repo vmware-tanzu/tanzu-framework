@@ -22,13 +22,12 @@ import (
 	capav1alpha3 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha3"
 	capzv1alpha3 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha3"
 	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
-	capiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
 	cabpkv1 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha3"
 	"sigs.k8s.io/cluster-api/bootstrap/kubeadm/types/v1beta1"
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
 
-	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	tkgsv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
@@ -369,7 +368,7 @@ func GetAllPacificClusterObjects(options TestAllClusterComponentOptions) []runti
 
 // NewPacificCluster returns new TanzuKubernetesCluster object
 func NewPacificCluster(options TestAllClusterComponentOptions) runtime.Object {
-	return &runv1alpha1.TanzuKubernetesCluster{
+	return &tkgsv1alpha2.TanzuKubernetesCluster{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: constants.DefaultPacificClusterAPIVersion,
 			Kind:       constants.PacificClusterKind,
@@ -379,37 +378,42 @@ func NewPacificCluster(options TestAllClusterComponentOptions) runtime.Object {
 			Namespace: options.Namespace,
 			Labels:    options.Labels,
 		},
-		Spec: runv1alpha1.TanzuKubernetesClusterSpec{
-			Distribution: runv1alpha1.Distribution{
-				VersionHint: options.CPOptions.K8sVersion,
+		Spec: tkgsv1alpha2.TanzuKubernetesClusterSpec{
+			Distribution: tkgsv1alpha2.Distribution{
+				Version: options.CPOptions.K8sVersion,
 			},
-			Topology: runv1alpha1.Topology{
-				ControlPlane: runv1alpha1.TopologySettings{
-					Count: options.CPOptions.SpecReplicas,
+			Topology: tkgsv1alpha2.Topology{
+				ControlPlane: tkgsv1alpha2.TopologySettings{
+					Replicas: &options.CPOptions.SpecReplicas,
 				},
-				Workers: runv1alpha1.TopologySettings{
-					Count: options.ListMDOptions[0].SpecReplicas,
+				NodePools: []tkgsv1alpha2.NodePool{
+					{
+						Name: "workers",
+						TopologySettings: tkgsv1alpha2.TopologySettings{
+							Replicas: &options.CPOptions.SpecReplicas,
+						},
+					},
 				},
 			},
 		},
-		Status: runv1alpha1.TanzuKubernetesClusterStatus{
-			Phase: runv1alpha1.TanzuKubernetesClusterPhase(options.ClusterOptions.Phase),
+		Status: tkgsv1alpha2.TanzuKubernetesClusterStatus{
+			Phase: tkgsv1alpha2.TanzuKubernetesClusterPhase(options.ClusterOptions.Phase),
 		},
 	}
 }
 
 // NewMDForPacific returns new v1aplha2.MachineDeployment object
 func NewMDForPacific(options TestAllClusterComponentOptions) runtime.Object {
-	md := &capiv1alpha2.MachineDeployment{
+	md := &capi.MachineDeployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "md-" + options.ClusterName,
 			Namespace: options.Namespace,
-			Labels:    map[string]string{capiv1alpha2.MachineClusterLabelName: options.ClusterName},
+			Labels:    map[string]string{capi.ClusterLabelName: options.ClusterName},
 		},
-		Spec: capiv1alpha2.MachineDeploymentSpec{
+		Spec: capi.MachineDeploymentSpec{
 			Replicas: &options.ListMDOptions[0].SpecReplicas,
 		},
-		Status: capiv1alpha2.MachineDeploymentStatus{
+		Status: capi.MachineDeploymentStatus{
 			Replicas:        options.ListMDOptions[0].Replicas,
 			ReadyReplicas:   options.ListMDOptions[0].ReadyReplicas,
 			UpdatedReplicas: options.ListMDOptions[0].UpdatedReplicas,
@@ -422,16 +426,16 @@ func NewMDForPacific(options TestAllClusterComponentOptions) runtime.Object {
 func NewMachinesForPacific(options TestAllClusterComponentOptions) []runtime.Object {
 	machines := []runtime.Object{}
 	for i, machineOption := range options.MachineOptions {
-		machine := &capiv1alpha2.Machine{
+		machine := &capi.Machine{
 			ObjectMeta: metav1.ObjectMeta{
 				Namespace: options.Namespace,
 				Name:      "machine-" + strconv.Itoa(i) + options.ClusterName,
 				Labels:    map[string]string{capi.ClusterLabelName: options.ClusterName},
 			},
-			Spec: capiv1alpha2.MachineSpec{
+			Spec: capi.MachineSpec{
 				Version: &machineOption.K8sVersion,
 			},
-			Status: capiv1alpha2.MachineStatus{
+			Status: capi.MachineStatus{
 				Phase: machineOption.Phase,
 			},
 		}
@@ -544,8 +548,22 @@ func GetFakeClusterInfo(server string, cert *x509.Certificate) string {
 	return clusterInfoJSON
 }
 
+// PinnipedInfo contains settings for the supervisor.
+type PinnipedInfo struct {
+	ClusterName              string  `json:"cluster_name"`
+	Issuer                   string  `json:"issuer"`
+	IssuerCABundleData       string  `json:"issuer_ca_bundle_data"`
+	ConciergeAPIGroupSuffix  *string `json:"concierge_api_group_suffix,omitempty"`
+	ConciergeIsClusterScoped bool    `json:"concierge_is_cluster_scoped,string"`
+}
+
 // GetFakePinnipedInfo returns the pinniped-info configmap
-func GetFakePinnipedInfo(clustername, issuer, issuerCA string) string {
+func GetFakePinnipedInfo(pinnipedInfo PinnipedInfo) string {
+	data, err := json.Marshal(pinnipedInfo)
+	if err != nil {
+		err = fmt.Errorf("could not marshal Pinniped info into JSON: %w", err)
+	}
+
 	pinnipedInfoJSON := `
 	{
 		"kind": "ConfigMap",
@@ -554,12 +572,8 @@ func GetFakePinnipedInfo(clustername, issuer, issuerCA string) string {
 	  	  "name": "pinniped-info",
 	  	  "namespace": "kube-public"
 		},
-		"data": {
-		  "cluster_name": "%s",
-		  "issuer": "%s",
-		  "issuer_ca_bundle_data": "%s"
-		}
+		"data": %s
 	}`
-	pinnipedInfoJSON = fmt.Sprintf(pinnipedInfoJSON, clustername, issuer, issuerCA)
+	pinnipedInfoJSON = fmt.Sprintf(pinnipedInfoJSON, string(data))
 	return pinnipedInfoJSON
 }

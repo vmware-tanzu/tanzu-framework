@@ -11,11 +11,10 @@ import (
 const (
 	DefaultCNIType = "antrea"
 
-	DefaultDevControlPlaneMachineCount              = 1
-	DefaultProdControlPlaneMachineCount             = 3
-	DefaultWorkerMachineCountForManagementCluster   = 1
-	DefaultDevWorkerMachineCountForWorkloadCluster  = 1
-	DefaultProdWorkerMachineCountForWorkloadCluster = 3
+	DefaultDevControlPlaneMachineCount  = 1
+	DefaultProdControlPlaneMachineCount = 3
+	DefaultDevWorkerMachineCount        = 1
+	DefaultProdWorkerMachineCount       = 3
 
 	DefaultOperationTimeout            = 30 * time.Second
 	DefaultLongRunningOperationTimeout = 30 * time.Minute
@@ -33,4 +32,13 @@ const (
 	DefaultIPv6ClusterCIDR = "fd00:100:96::/48"
 	// use /108 is the max allowed for IPv6
 	DefaultIPv6ServiceCIDR = "fd00:100:64::/108"
+
+	// dual stack IPv4,IPv6 defaults
+	DefaultDualStackPrimaryIPv4ClusterCIDR = DefaultIPv4ClusterCIDR + "," + DefaultIPv6ClusterCIDR
+	DefaultDualStackPrimaryIPv4ServiceCIDR = DefaultIPv4ServiceCIDR + "," + DefaultIPv6ServiceCIDR
+
+	DefaultDualStackPrimaryIPv6ClusterCIDR = DefaultIPv6ClusterCIDR + "," + DefaultIPv4ClusterCIDR
+	DefaultDualStackPrimaryIPv6ServiceCIDR = DefaultIPv6ServiceCIDR + "," + DefaultIPv4ServiceCIDR
+	// DefaultIsWindowsWorkloadCluster is false, indicating that the normal thing to do is, is to make linux clusters.
+	DefaultIsWindowsWorkloadCluster = false
 )

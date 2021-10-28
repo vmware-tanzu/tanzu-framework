@@ -15,7 +15,7 @@ import (
 
 var repositoryListCmd = &cobra.Command{
 	Use:   "list",
-	Short: "List repositories",
+	Short: "List package repositories",
 	Args:  cobra.NoArgs,
 	Example: `
     # List repositories across all namespaces 	
@@ -23,12 +23,13 @@ var repositoryListCmd = &cobra.Command{
 	
     # List installed packages from default namespace	
     tanzu package repository list`,
-	RunE: repositoryList,
+	RunE:         repositoryList,
+	SilenceUsage: true,
 }
 
 func init() {
-	repositoryListCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table)")
-	repositoryListCmd.Flags().BoolVarP(&repoOp.AllNamespaces, "all-namespaces", "A", false, "If present, list the repositories across all namespaces.")
+	repositoryListCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table), optional")
+	repositoryListCmd.Flags().BoolVarP(&repoOp.AllNamespaces, "all-namespaces", "A", false, "If present, list the package repositories across all namespaces, optional")
 	repositoryCmd.AddCommand(repositoryListCmd)
 }
 
@@ -46,10 +47,10 @@ func repositoryList(cmd *cobra.Command, _ []string) error {
 
 	if repoOp.AllNamespaces {
 		t, err = component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), outputFormat,
-			"Retrieving repositories...", true, "NAME", "REPOSITORY", "STATUS", "DETAILS", "NAMESPACE")
+			"Retrieving repositories...", true, "NAME", "REPOSITORY", "TAG", "STATUS", "DETAILS", "NAMESPACE")
 	} else {
 		t, err = component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), outputFormat, "Retrieving repositories...", true,
-			"NAME", "REPOSITORY", "STATUS", "DETAILS")
+			"NAME", "REPOSITORY", "TAG", "STATUS", "DETAILS")
 	}
 	if err != nil {
 		return err
@@ -60,26 +61,31 @@ func repositoryList(cmd *cobra.Command, _ []string) error {
 		t.StopSpinner()
 		return err
 	}
-	for _, packageRepository := range packageRepositoryList.Items { //nolint:gocritic
+	for i := range packageRepositoryList.Items {
+		packageRepository := packageRepositoryList.Items[i]
 		status := packageRepository.Status.FriendlyDescription
 		details := packageRepository.Status.UsefulErrorMessage
+		imageRepository, tag, _ := tkgpackageclient.GetCurrentRepositoryAndTagInUse(&packageRepository)
 		if len(status) > tkgpackagedatamodel.ShortDescriptionMaxLength {
 			status = fmt.Sprintf("%s...", status[:tkgpackagedatamodel.ShortDescriptionMaxLength])
 		}
 		if len(details) > tkgpackagedatamodel.ShortDescriptionMaxLength {
 			details = fmt.Sprintf("%s...", details[:tkgpackagedatamodel.ShortDescriptionMaxLength])
 		}
+
 		if repoOp.AllNamespaces {
 			t.AddRow(
 				packageRepository.Name,
-				packageRepository.Spec.Fetch.ImgpkgBundle.Image,
+				imageRepository,
+				tag,
 				status,
 				details,
 				packageRepository.Namespace)
 		} else {
 			t.AddRow(
 				packageRepository.Name,
-				packageRepository.Spec.Fetch.ImgpkgBundle.Image,
+				imageRepository,
+				tag,
 				status,
 				details)
 		}

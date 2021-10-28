@@ -20,12 +20,14 @@ var packageInstalledListCmd = &cobra.Command{
 	
     # List installed packages from specified namespace	
     tanzu package installed list --namespace test-ns`,
-	RunE: packageInstalledList,
+	RunE:         packageInstalledList,
+	SilenceUsage: true,
 }
 
 func init() {
-	packageInstalledListCmd.Flags().BoolVarP(&packageInstalledOp.AllNamespaces, "all-namespaces", "A", false, "If present, list packages across all namespaces.")
-	packageInstalledListCmd.Flags().StringVarP(&packageInstalledOp.Namespace, "namespace", "n", "default", "Namespace for installed package CR")
+	packageInstalledListCmd.Flags().BoolVarP(&packageInstalledOp.AllNamespaces, "all-namespaces", "A", false, "If present, list packages across all namespaces, optional")
+	packageInstalledListCmd.Flags().StringVarP(&packageInstalledOp.Namespace, "namespace", "n", "default", "Namespace for installed package CR, optional")
+	packageInstalledListCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table), optional")
 	packageInstalledCmd.AddCommand(packageInstalledListCmd)
 }
 
@@ -56,10 +58,10 @@ func packageInstalledList(cmd *cobra.Command, args []string) error {
 	for i := range pkgInstalledList.Items {
 		pkg := pkgInstalledList.Items[i]
 		if packageInstalledOp.AllNamespaces {
-			t.AddRow(pkg.Name, pkg.Spec.PackageRef.RefName, pkg.Spec.PackageRef.VersionSelection.Constraints,
+			t.AddRow(pkg.Name, pkg.Spec.PackageRef.RefName, pkg.Status.Version,
 				pkg.Status.FriendlyDescription, pkg.Namespace)
 		} else {
-			t.AddRow(pkg.Name, pkg.Spec.PackageRef.RefName, pkg.Spec.PackageRef.VersionSelection.Constraints,
+			t.AddRow(pkg.Name, pkg.Spec.PackageRef.RefName, pkg.Status.Version,
 				pkg.Status.FriendlyDescription)
 		}
 	}

@@ -54,7 +54,9 @@ ENABLE_TKGS_ON_VSPHERE7:
 #! management cluster for it to register with Tanzu Mission Control
 TMC_REGISTRATION_URL:
 
-
+#! BUILD_EDITION is the Tanzu Edition, the plugin should be built for.
+#! Valid values for BUILD_EDITION are 'tce' and 'tkg'.
+BUILD_EDITION:
 
 #! ---------------------------------------------------------------------
 #! Settings for vSphere infrastructure provider
@@ -88,9 +90,12 @@ VSPHERE_NETWORK: VM Network
 #! necessary except to disambiguate among 2 or more applicable VM templates.
 VSPHERE_TEMPLATE:
 
+
+#! WINDOWS PARAMETERS
 #! The name of the VM Windows template to be used to create a specific version of
 #! a Tanzu Kubernetes Cluster including WINDOWS node.
-VSPHERE_WINDOWS_TEMPLATE:
+VSPHERE_WINDOWS_TEMPLATE: ""
+IS_WINDOWS_WORKLOAD_CLUSTER: false
 
 VIP_NETWORK_INTERFACE: "eth0"
 
@@ -99,7 +104,7 @@ VSPHERE_SSH_AUTHORIZED_KEY:
 VSPHERE_USERNAME:
 VSPHERE_PASSWORD:
 
-#! The content of zone and region infomation is used to deploy CPI and CSI in a 
+#! The content of zone and region infomation is used to deploy CPI and CSI in a
 #! vSphere environment that includes multiple data centers or host clusters.
 VSPHERE_REGION:
 VSPHERE_ZONE:
@@ -183,11 +188,43 @@ AWS_PRIVATE_NODE_CIDR_1: 10.0.2.0/24
 AWS_PUBLIC_NODE_CIDR_1: 10.0.3.0/24
 AWS_PRIVATE_NODE_CIDR_2: 10.0.4.0/24
 AWS_PUBLIC_NODE_CIDR_2: 10.0.5.0/24
+#! AWS_SECURITY_GROUP_APISERVER_LB is an optional security group ID of a pre-created
+#! security group that will be used for Kubernetes API Server ELB, and will control
+#! inbound access to the the control plane endpoint.
+AWS_SECURITY_GROUP_APISERVER_LB: ""
+#! AWS_SECURITY_GROUP_BASTION is an optional security group ID of a pre-created
+#! security group that will be used to control in-bound access to the bastion.
+AWS_SECURITY_GROUP_BASTION: ""
+#! AWS_SECURITY_GROUP_CONTROLPLANE is an optional security group ID of a pre-created
+#! security group that will be used to control in-bound access to the control plane nodes.
+#! This group must allow access to port 6443 from AWS_SECURITY_GROUP_APISERVER_LB.
+AWS_SECURITY_GROUP_CONTROLPLANE: ""
+#! AWS_SECURITY_GROUP_LB is an optional security group for use by the Kubernetes
+#! AWS Cloud Provider for setting rules for ELBs.
+AWS_SECURITY_GROUP_LB: ""
+#! AWS_SECURITY_GROUP_NODE is an optional security group that will be used to
+#! to control in-bound acceess to all nodes.
+AWS_SECURITY_GROUP_NODE: ""
+#! AWS_IDENTITY_REF_KIND is an optional kind of a Kubernetes resource containing
+#! an identity to be used for a cluster. Defaults to AWSClusterRoleIdentity if
+#! AWS_IDENTITY_REF_NAME is also set.
+AWS_IDENTITY_REF_KIND: ""
+#! AWS_IDENTITY_REF_NAME is an optional name of a Kubernetes resource containing
+#! an identity to be used for a cluster.
+AWS_IDENTITY_REF_NAME: ""
+#! AWS_CONTROL_PLANE_OS_DISK_SIZE_GIB is the size of the root volume of the
+#! control plane instances of a cluster.
+AWS_CONTROL_PLANE_OS_DISK_SIZE_GIB: 80
+#! AWS_NODE_OS_DISK_SIZE_GIB is the size of the root volume of the
+#! node instances of a cluster.
+AWS_NODE_OS_DISK_SIZE_GIB: 80
 
 #! Control plane and worker node instance types.
 #! For node sizing recommendations, refer to TKG documentation.
 CONTROL_PLANE_MACHINE_TYPE: t3.large
 NODE_MACHINE_TYPE: m5.large
+NODE_MACHINE_TYPE_1: ""
+NODE_MACHINE_TYPE_2: ""
 
 #! Name of the SSH private key that you registered with your Amazon EC2 accoun
 AWS_SSH_KEY_NAME:
@@ -220,6 +257,14 @@ WORKER_STORAGE_CLASS:
 #! Specifies the name of the VirtualMachineClass that describes the virtual
 #! hardware settings to be used each worker node in the pool
 WORKER_VM_CLASS:
+#! Specifies the name of the first node pool
+NODE_POOL_0_NAME: "workers"
+#! Specifies the labels to be applied on first node pool. It should be of the
+#! format "key1=value1,key2=value2"
+NODE_POOL_0_LABELS:
+#! Specifies the taints string to be applied on first node pool. It should be of the
+#! format "key1=value1:effect1,key2=value2:effect2"
+NODE_POOL_0_TAINTS:
 
 
 
@@ -312,7 +357,9 @@ AZURE_IMAGE_THIRD_PARTY:
 #! For both marketplace and shared image gallery
 AZURE_IMAGE_VERSION:
 
-
+#! Azure multi-tenancy
+AZURE_IDENTITY_NAME:
+AZURE_IDENTITY_NAMESPACE:
 
 #! ---------------------------------------------------------------------
 #! OIDC-related configuration
@@ -335,7 +382,9 @@ OIDC_DEX_CA:
 #! ---------------------------------------------------------------------
 #! Machine Health Check configuration
 #! ---------------------------------------------------------------------
-ENABLE_MHC: true
+ENABLE_MHC:
+ENABLE_MHC_WORKER_NODE: true
+ENABLE_MHC_CONTROL_PLANE: true
 MHC_UNKNOWN_STATUS_TIMEOUT: 5m
 MHC_FALSE_STATUS_TIMEOUT: 12m
 
@@ -353,12 +402,20 @@ TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY: false
 TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE: ""
 
 #! PROXY configuration
+#! If `TKG_PROXY_CA_CERT` is specified it gets used instead of
+#! `TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE` while communicating
+#! with the registry
 TKG_HTTP_PROXY: ""
 TKG_HTTPS_PROXY: ""
 TKG_NO_PROXY: ""
+TKG_PROXY_CA_CERT: ""
 
 #! IP Family setting
 TKG_IP_FAMILY:
+
+#! Node Nameservers (currently only supports the vSphere provider)
+CONTROL_PLANE_NODE_NAMESERVERS:
+WORKER_NODE_NAMESERVERS:
 
 #! Audit Logging settings
 ENABLE_AUDIT_LOGGING: false
@@ -371,8 +428,8 @@ CLUSTER_CIDR:
 SERVICE_CIDR:
 NODE_STARTUP_TIMEOUT: 20m
 
-CONTROL_PLANE_MACHINE_COUNT: 1
-WORKER_MACHINE_COUNT: 1
+CONTROL_PLANE_MACHINE_COUNT:
+WORKER_MACHINE_COUNT:
 #! sets the number of worker nodes in the first AZ, AWS_NODE_AZ.
 WORKER_MACHINE_COUNT_0:
 #! sets the number of worker nodes in the second AZ, AWS_NODE_AZ_1.
@@ -416,8 +473,14 @@ DOCKER_MACHINE_TEMPLATE_IMAGE:
 #! ---------------------------------------------------------------------
 #! Pinniped identity management configuration
 #! ---------------------------------------------------------------------
-#! Identifies the Identity management type to be deployed. Possible values are "oidc" or "ldap"
-IDENTITY_MANAGEMENT_TYPE: "oidc"
+#! Identifies the Identity management type to be deployed. Possible values are "oidc", "ldap" or "none"
+#! If "none" is specified, pinniped services will not be deployed on the cluster
+IDENTITY_MANAGEMENT_TYPE: "none"
+
+#! ---------------------------------------------------------------------
+#! SecretGen Controller configuration
+#! ---------------------------------------------------------------------
+SECRETGEN_CONTROLLER_ENABLE: true
 
 #! Settings for Pinniped OIDC
 CERT_DURATION: 2160h
@@ -482,7 +545,7 @@ AVI_DISABLE_STATIC_ROUTE_SYNC: true
 AVI_INGRESS_DEFAULT_INGRESS_CONTROLLER: false
 AVI_INGRESS_SHARD_VS_SIZE: ""
 AVI_INGRESS_SERVICE_TYPE: ""
-AVI_INGRESS_NODE_NETWORK_LIST: []
+AVI_INGRESS_NODE_NETWORK_LIST: ""
 
 AVI_CONTROL_PLANE_HA_PROVIDER: false
 

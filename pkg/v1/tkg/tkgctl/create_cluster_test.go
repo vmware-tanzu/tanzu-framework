@@ -41,6 +41,7 @@ var _ = Describe("Unit tests for create cluster", func() {
 				GenerateOnly:           false,
 				TkrVersion:             fakeTKRVersion,
 				SkipPrompt:             true,
+				Edition:                "tkg",
 			}
 		})
 		It("Namespace is taken from the context when no -n flag is specified", func() {

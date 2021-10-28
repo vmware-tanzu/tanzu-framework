@@ -9,7 +9,10 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+
+	strfmt "github.com/go-openapi/strfmt"
 )
 
 // NewGetAWSNodeTypesParams creates a new GetAWSNodeTypesParams object
@@ -27,6 +30,11 @@ type GetAWSNodeTypesParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
+
+	/*AWS availability zone, e.g. us-west-2
+	  In: query
+	*/
+	Az *string
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -38,8 +46,33 @@ func (o *GetAWSNodeTypesParams) BindRequest(r *http.Request, route *middleware.M
 
 	o.HTTPRequest = r
 
+	qs := runtime.Values(r.URL.Query())
+
+	qAz, qhkAz, _ := qs.GetOK("az")
+	if err := o.bindAz(qAz, qhkAz, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// bindAz binds and validates parameter Az from query.
+func (o *GetAWSNodeTypesParams) bindAz(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	o.Az = &raw
+
 	return nil
 }

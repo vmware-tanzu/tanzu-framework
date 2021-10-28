@@ -3,16 +3,22 @@
 
 package tkgpackagedatamodel
 
+import "time"
+
 // RepositoryOptions includes fields for repository operations
 type RepositoryOptions struct {
 	KubeConfig       string
 	Namespace        string
 	RepositoryName   string
 	RepositoryURL    string
+	PollInterval     time.Duration
+	PollTimeout      time.Duration
 	AllNamespaces    bool
 	CreateRepository bool
 	CreateNamespace  bool
 	IsForceDelete    bool
+	SkipPrompt       bool
+	Wait             bool
 }
 
 // NewRepositoryOptions instantiates RepositoryOptions

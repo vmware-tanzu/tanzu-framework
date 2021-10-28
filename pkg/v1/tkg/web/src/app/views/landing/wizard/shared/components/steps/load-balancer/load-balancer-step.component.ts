@@ -16,6 +16,7 @@ import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-
 import { AviVipNetwork } from './../../../../../../../swagger/models/avi-vip-network.model';
 import { TkgEventType } from 'src/app/shared/service/Messenger';
 import Broker from 'src/app/shared/service/broker';
+import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 
 export const KUBE_VIP = 'Kube-vip';
 export const NSX_ADVANCED_LOAD_BALANCER = "NSX Advanced Load Balancer";
@@ -45,6 +46,8 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
     serviceEngineGroups: Array<AviServiceEngineGroup>;
     serviceEngineGroupsFiltered: Array<AviServiceEngineGroup>;
     labels: Map<String, String> = new Map<String, String>();
+    vipClusterNetworkNameLabel: string;
+    vipClusterNetworkCidrLabel: string;
     vipNetworks: Array<AviVipNetwork> = [];
     selectedNetworkName: string;
     selectedManagementClusterNetworkName: string;
@@ -57,6 +60,12 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
 
     ngOnInit() {
         super.ngOnInit();
+
+        this.vipClusterNetworkNameLabel = this.modeClusterStandalone ?
+            'STANDALONE CLUSTER VIP NETWORK NAME' : 'MANAGEMENT VIP NETWORK NAME';
+        this.vipClusterNetworkCidrLabel = this.modeClusterStandalone ?
+            'STANDALONE CLUSTER VIP NETWORK CIDR' : 'MANAGEMENT VIP NETWORK CIDR';
+
         this.formGroup.addControl(
             'controllerHost',
             new FormControl('', [
@@ -131,6 +140,8 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
                     this.clouds = [];
                     this.disarmField('serviceEngineGroupName', true);
                     this.serviceEngineGroups = [];
+                    this.disarmField('networkCIDR', true);
+                    this.disarmField('managementClusterNetworkCIDR', true);
 
                     // If connection cleared, toggle validators OFF
                     this.toggleValidators(false);
@@ -158,7 +169,11 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
                     HA_REQUIRED_FIELDS.forEach(fieldName => this.disarmField(fieldName, true));
                 }
             });
-
+        this.registerOnIpFamilyChange('networkCIDR', [], []);
+        this.registerOnIpFamilyChange('managementClusterNetworkCIDR', [
+            this.validationService.isValidIpNetworkSegment()], [
+            this.validationService.isValidIpv6NetworkSegment()
+        ]);
     }
 
     isFieldReadyForInitWithSavedValue(fieldName: string): boolean {
@@ -346,18 +361,23 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
                 this.getSavedValue('cloudName', ''));
             this.resurrectField('serviceEngineGroupName', [Validators.required],
                 this.getSavedValue('serviceEngineGroupName', ''));
-            this.resurrectField('networkName', [Validators.required],
-                this.getSavedValue('networkName', ''));
-            this.resurrectField('networkCIDR', [
-                Validators.required,
-                this.validationService.noWhitespaceOnEnds(),
-                this.validationService.isValidIpNetworkSegment()
-            ], this.getSavedValue('networkCIDR', ''));
+            if (!this.modeClusterStandalone) {
+                this.resurrectField('networkName', [Validators.required],
+                    this.getSavedValue('networkName', ''));
+                this.resurrectField('networkCIDR', [
+                    Validators.required,
+                    this.validationService.noWhitespaceOnEnds(),
+                    this.ipFamily === IpFamilyEnum.IPv4 ?
+                        this.validationService.isValidIpNetworkSegment() : this.validationService.isValidIpv6NetworkSegment()
+                ], this.getSavedValue('networkCIDR', ''));
+            }
         } else {
             this.disarmField('cloudName', true);
             this.disarmField('serviceEngineGroupName', true);
-            this.disarmField('networkName', true);
-            this.disarmField('networkCIDR', true);
+            if (!this.modeClusterStandalone) {
+                this.disarmField('networkName', true);
+                this.disarmField('networkCIDR', true);
+            }
         }
     }
 

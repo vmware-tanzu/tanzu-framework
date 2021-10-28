@@ -144,6 +144,17 @@ func New(options Options) (TKGClient, error) { //nolint:gocritic
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to ensure prerequisites")
 	}
+	tkgConfigFile, err := allClients.TKGConfigPathsClient.GetTKGConfigPath()
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to get TKG config file path")
+	}
+	// re-initialize the TKG config reader writer after the providers are updated
+	// as the TKG config file would be updated too.
+	err = tkgClient.TKGConfigReaderWriter().Init(tkgConfigFile)
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to initialize the TKG config reader writer")
+	}
+
 	// Set default BOM name to the config variables to use during template generation
 	defaultBoMFileName, err := allClients.TKGBomClient.GetDefaultBoMFileName()
 	if err != nil {
@@ -265,20 +276,4 @@ func ensureConfigImages(configDir string, tkgConfigUpdater tkgconfigupdater.Clie
 	}()
 
 	return tkgConfigUpdater.EnsureConfigImages()
-}
-
-func ensureTKGCompatibilityAndBOMFiles(configDir string, tkgConfigUpdaterClient tkgconfigupdater.Client, forceUpdate bool) error {
-	var err error
-	lock, err := utils.GetFileLockWithTimeOut(filepath.Join(configDir, constants.LocalTanzuFileLock), utils.DefaultLockTimeout)
-	if err != nil {
-		return errors.Wrap(err, "cannot acquire lock for ensuring local files")
-	}
-
-	defer func() {
-		if err := lock.Unlock(); err != nil {
-			log.Warningf("cannot release lock for ensuring local files, reason: %v", err)
-		}
-	}()
-	// EnsureBOMFiles() would also ensure TKGCompatibility file
-	return tkgConfigUpdaterClient.EnsureBOMFiles(forceUpdate)
 }

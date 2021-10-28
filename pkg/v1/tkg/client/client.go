@@ -7,13 +7,14 @@ package client
 import (
 	"time"
 
-	"github.com/fabriziopandini/capi-conditions/cmd/kubectl-capi-tree/status"
 	"github.com/pkg/errors"
-	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
+	clusterctltree "sigs.k8s.io/cluster-api/cmd/clusterctl/client/tree"
 
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	tkgsv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
 
 	clusterctlconfig "sigs.k8s.io/cluster-api/cmd/clusterctl/client/config"
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/repository"
@@ -51,6 +52,7 @@ type CreateClusterOptions struct {
 	VsphereControlPlaneEndpoint string
 	SkipValidation              bool
 	ClusterType                 TKGClusterType
+	Edition                     string
 }
 
 // InitRegionOptions contains options supported by InitRegion
@@ -151,14 +153,25 @@ type Client interface {
 	IsPacificManagementCluster() (bool, error)
 	// SetMachineHealthCheck create or update a machine health check object
 	SetMachineHealthCheck(options *SetMachineHealthCheckOptions) error
+	// GetMachineDeployments gets a list of MachineDeployments for a cluster
+	GetMachineDeployments(options GetMachineDeploymentOptions) ([]capi.MachineDeployment, error)
+	// GetPacificMachineDeployments gets machine deployments from a Pacific cluster
+	// Note: This would be soon deprecated after TKGS and TKGm adopt the clusterclass
+	GetPacificMachineDeployments(options GetMachineDeploymentOptions) ([]capi.MachineDeployment, error)
+	// SetMachineDeployment create machine deployment in a cluster
+	SetMachineDeployment(options *SetMachineDeploymentOptions) error
+	// DeleteMachineDeployment deletes a machine deployment in a cluster
+	DeleteMachineDeployment(options DeleteMachineDeploymentOptions) error
 	// GetKubernetesVersions returns the supported k8s versions for workload cluster
 	GetKubernetesVersions() (*KubernetesVersionsInfo, error)
 	// ParseHiddenArgsAsFeatureFlags adds the hidden flags from InitRegionOptions as enabled feature flags
 	ParseHiddenArgsAsFeatureFlags(options *InitRegionOptions)
 	// SaveFeatureFlags saves the feature flags to the config file via featuresClient
 	SaveFeatureFlags(featureFlags map[string]string) error
-	// ValidatePrerequisites valides prerequisites for init command
+	// ValidatePrerequisites validates prerequisites for init command
 	ValidatePrerequisites(validateDocker, validateKubectl bool) error
+	// ValidateDockerResourcePrerequisites validates resource prerequisites for docker
+	ValidateDockerResourcePrerequisites() error
 	// GetVSphereEndpoint creates the vSphere client using the credentials from the management cluster if cluster client is provided,
 	// otherwise, the vSphere client will be created from the credentials set in the user's environment.
 	GetVSphereEndpoint(client clusterclient.Client) (vc.Client, error)
@@ -173,7 +186,7 @@ type Client interface {
 	// GetClusterPinnipedInfo returns the cluster and pinniped info
 	GetClusterPinnipedInfo(options GetClusterPinnipedInfoOptions) (*ClusterPinnipedInfo, error)
 	// DescribeCluster describes all the objects in the Cluster
-	DescribeCluster(options DescribeTKGClustersOptions) (*status.ObjectTree, *clusterv1.Cluster, *clusterctlv1.ProviderList, error)
+	DescribeCluster(options DescribeTKGClustersOptions) (*clusterctltree.ObjectTree, *capi.Cluster, *clusterctlv1.ProviderList, error)
 	// DescribeProvider describes all the installed providers
 	DescribeProvider() (*clusterctlv1.ProviderList, error)
 	// DownloadBomFile downloads BomFile from management cluster's config map
@@ -186,6 +199,10 @@ type Client interface {
 	ActivateTanzuKubernetesReleases(tkrName string) error
 	// DeactivateTanzuKubernetesReleases deactivates TanzuKubernetesRelease
 	DeactivateTanzuKubernetesReleases(tkrName string) error
+	// IsPacificRegionalCluster checks if the cluster pointed to by kubeconfig  is Pacific management cluster(supervisor)
+	IsPacificRegionalCluster() (bool, error)
+	// GetPacificClusterObject gets Pacific cluster object
+	GetPacificClusterObject(clusterName, namespace string) (*tkgsv1alpha2.TanzuKubernetesCluster, error)
 }
 
 // TkgClient implements Client.

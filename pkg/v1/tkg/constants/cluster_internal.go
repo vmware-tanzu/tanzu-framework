@@ -14,7 +14,7 @@ const (
 	// PacificClusterKind vsphere-pacific provider work load cluster kind
 	PacificClusterKind              = "TanzuKubernetesCluster"
 	PacificClusterListKind          = "TanzuKubernetesClusterList"
-	DefaultPacificClusterAPIVersion = "run.tanzu.vmware.com/v1alpha1"
+	DefaultPacificClusterAPIVersion = "run.tanzu.vmware.com/v1alpha2"
 
 	CronJobKind    = "CronJob"
 	CeipNamespace  = "tkg-system-telemetry"
@@ -34,9 +34,12 @@ const (
 	PinnipedFederationDomainObjectAPIVersion = "config.supervisor.pinniped.dev/v1alpha1"
 	PinnipedSupervisorDefaultTLSSecretName   = "pinniped-supervisor-default-tls-certificate" // #nosec
 
+	TkgNamespace = "tkg-system"
+
 	TkrNamespace       = "tkr-system"
 	TkrConfigMapName   = "tkr-controller-config"
 	TkgPublicNamespace = "tkg-system-public"
+	TmcNamespace       = "vmware-system-tmc"
 
 	KappControllerNamespace     = "tkg-system"
 	KappControllerConfigMapName = "kapp-controller-config"
@@ -44,9 +47,18 @@ const (
 	AddonsManagerDeploymentName  = "tanzu-addons-controller-manager"
 	KappControllerDeploymentName = "kapp-controller"
 	TkrControllerDeploymentName  = "tkr-controller-manager"
+	KappControllerPackageName    = "kapp-controller"
+
+	AkoStatefulSetName  = "ako"
+	AkoAddonName        = "load-balancer-and-ingress-service"
+	AkoNamespace        = "avi-system"
+	AkoCleanupCondition = "ako.vmware.com/ObjectDeletionInProgress"
 
 	ServiceDNSSuffix             = ".svc"
 	ServiceDNSClusterLocalSuffix = ".svc.cluster.local"
+
+	// TKGDataValueFormatString is required annotations for YTT data value file
+	TKGDataValueFormatString = "#@data/values\n#@overlay/match-child-defaults missing_ok=True\n---\n"
 )
 
 // deployment plan constants
@@ -82,8 +94,10 @@ const (
 
 // networking constants
 const (
-	IPv4Family = "ipv4"
-	IPv6Family = "ipv6"
+	IPv4Family                 = "ipv4"
+	IPv6Family                 = "ipv6"
+	DualStackPrimaryIPv4Family = "ipv4,ipv6"
+	DualStackPrimaryIPv6Family = "ipv6,ipv4"
 
 	LocalHost     = "localhost"
 	LocalHostIP   = "127.0.0.1"
@@ -91,4 +105,14 @@ const (
 
 	LinkLocalAddress = "169.254.0.0/16"
 	AzurePublicVIP   = "168.63.129.16"
+)
+
+// addons related constants
+const (
+	// AddonSecretType is the add on Secret type
+	AddonSecretType = "tkg.tanzu.vmware.com/addon" // nolint:gosec
+	// AddonNameLabel is the label on the Secret to indicate the name of addon to be installed
+	AddonNameLabel = "tkg.tanzu.vmware.com/addon-name"
+	// ClusterNameLabel is the label on the Secret to indicate the cluster on which addon is to be installed
+	ClusterNameLabel = "tkg.tanzu.vmware.com/cluster-name"
 )

@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"strconv"
 	"strings"
 
 	"github.com/olekukonko/tablewriter"
@@ -31,8 +32,10 @@ const (
 	TableOutputType OutputType = "table"
 	// YAMLOutputType specifies output should be in yaml format.
 	YAMLOutputType OutputType = "yaml"
-	// JSONOutputType sepcifies output should be in json format.
+	// JSONOutputType specifies output should be in json format.
 	JSONOutputType OutputType = "json"
+	// ListTableOutputType specified output should be in a list table format.
+	ListTableOutputType OutputType = "listtable"
 )
 
 // outputwriter is our internal implementation.
@@ -78,6 +81,8 @@ func (ow *outputwriter) Render() {
 		renderJSON(ow.out, ow.dataStruct())
 	case YAMLOutputType:
 		renderYAML(ow.out, ow.dataStruct())
+	case ListTableOutputType:
+		renderListTable(ow)
 	default:
 		renderTable(ow)
 	}
@@ -93,6 +98,9 @@ func (ow *outputwriter) dataStruct() []map[string]string {
 	for _, itemValues := range ow.values {
 		item := map[string]string{}
 		for i, value := range itemValues {
+			if i == len(keys) {
+				continue
+			}
 			item[keys[i]] = value
 		}
 		data = append(data, item)
@@ -165,8 +173,42 @@ func renderYAML(out io.Writer, data interface{}) {
 	fmt.Fprintf(out, "%s", yamlInBytes)
 }
 
+// renderListTable prints output as a list table.
+func renderListTable(ow *outputwriter) {
+	headerLength := 10
+	for _, header := range ow.keys {
+		length := len(header) + 2
+		if length > headerLength {
+			headerLength = length
+		}
+	}
+
+	for i, header := range ow.keys {
+		row := []string{}
+		for _, data := range ow.values {
+			if i >= len(data) {
+				// There are more headers than values, leave it blank
+				continue
+			}
+			row = append(row, data[i])
+		}
+		headerLabel := strings.ToUpper(header) + ":"
+		values := strings.Join(row, ", ")
+		fmt.Fprintf(ow.out, "%-"+strconv.Itoa(headerLength)+"s   %s\n", headerLabel, values)
+	}
+}
+
 // renderTable prints output as a table
 func renderTable(ow *outputwriter) {
+	// Drop values if there aren't as many as the headers
+	headerLength := len(ow.keys)
+	for i, values := range ow.values {
+		if len(values) <= headerLength {
+			continue
+		}
+
+		ow.values[i] = values[:headerLength]
+	}
 	table := tablewriter.NewWriter(ow.out)
 	table.SetBorder(false)
 	table.SetCenterSeparator("")

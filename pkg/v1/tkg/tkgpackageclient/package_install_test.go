@@ -4,6 +4,7 @@
 package tkgpackageclient
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -11,6 +12,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
+	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -45,7 +47,7 @@ const (
 var (
 	testPkgInstall = &kappipkg.PackageInstall{
 		TypeMeta:   metav1.TypeMeta{Kind: tkgpackagedatamodel.KindPackageInstall},
-		ObjectMeta: metav1.ObjectMeta{Name: testPkgInstallName, Namespace: testNamespaceName},
+		ObjectMeta: metav1.ObjectMeta{Name: testPkgInstallName, Namespace: testNamespaceName, Generation: 1},
 		Spec: kappipkg.PackageInstallSpec{
 			ServiceAccountName: testServiceAccountName,
 			PackageRef: &kappipkg.PackageRef{
@@ -55,8 +57,9 @@ var (
 		},
 		Status: kappipkg.PackageInstallStatus{
 			GenericStatus: kappctrl.GenericStatus{
-				Conditions:         []kappctrl.AppCondition{{Type: kappctrl.Reconciling}, {Type: kappctrl.ReconcileSucceeded}},
+				Conditions:         []kappctrl.AppCondition{{Type: kappctrl.Reconciling, Status: corev1.ConditionTrue}, {Type: kappctrl.ReconcileSucceeded, Status: corev1.ConditionTrue}},
 				UsefulErrorMessage: "",
+				ObservedGeneration: 1,
 			},
 		},
 	}
@@ -94,7 +97,6 @@ var _ = Describe("Install Package", func() {
 		}
 		options  = opts
 		progress *tkgpackagedatamodel.PackageProgress
-		update   bool
 	)
 
 	JustBeforeEach(func() {
@@ -102,16 +104,17 @@ var _ = Describe("Install Package", func() {
 			ProgressMsg: make(chan string, 10),
 			Err:         make(chan error),
 			Done:        make(chan struct{}),
-			Success:     make(chan bool),
 		}
 		ctl = &pkgClient{kappClient: kappCtl}
-		go ctl.InstallPackage(&options, progress, update)
+		go ctl.InstallPackage(&options, progress, tkgpackagedatamodel.OperationTypeInstall)
 		err = testReceive(progress)
 	})
 
 	Context("failure in listing package versions due to ListPackages API error", func() {
 		BeforeEach(func() {
 			kappCtl = &fakes.KappClient{}
+			crtCtl = &fakes.CRTClusterClient{}
+			kappCtl.GetClientReturns(crtCtl)
 			kappCtl.ListPackagesReturns(nil, errors.New("failure in ListPackages"))
 		})
 		It(testFailureMsg, func() {
@@ -183,7 +186,7 @@ var _ = Describe("Install Package", func() {
 		AfterEach(func() { options = opts })
 	})
 
-	Context("failure in getting installed package due to GetPackageInstall API error in waitForPackageInstallation", func() {
+	Context("failure in getting installed package due to GetPackageInstall API error in waitForResourceInstallation", func() {
 		BeforeEach(func() {
 			options.Wait = true
 			kappCtl = &fakes.KappClient{}
@@ -208,8 +211,9 @@ var _ = Describe("Install Package", func() {
 			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
 			testPkgInstall.Name = testPackageInstallName
 			kappCtl.GetPackageInstallReturns(testPkgInstall, nil)
+			Expect(testPkgInstall.Status.ObservedGeneration).To(Equal(testPkgInstall.Generation))
 			Expect(len(testPkgInstall.Status.Conditions)).To(BeNumerically("==", 2))
-			testPkgInstall.Status.Conditions[1] = kappctrl.AppCondition{Type: kappctrl.ReconcileFailed}
+			testPkgInstall.Status.Conditions[1] = kappctrl.AppCondition{Type: kappctrl.ReconcileFailed, Status: corev1.ConditionTrue}
 			testPkgInstall.Status.UsefulErrorMessage = testUsefulErrMsg
 		})
 		It(testFailureMsg, func() {
@@ -263,6 +267,7 @@ var _ = Describe("Install Package", func() {
 			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
 			testPkgInstall.Name = testPackageInstallName
 			kappCtl.GetPackageInstallReturns(testPkgInstall, nil)
+			Expect(testPkgInstall.Status.ObservedGeneration).To(Equal(testPkgInstall.Generation))
 		})
 		It(testSuccessMsg, func() {
 			Expect(err).ToNot(HaveOccurred())
@@ -297,7 +302,7 @@ var _ = Describe("Install Package", func() {
 		})
 	})
 
-	Context("success when a duplicate package install name is provided", func() {
+	Context("failure when a duplicate package install name is provided", func() {
 		BeforeEach(func() {
 			options.Wait = true
 			kappCtl = &fakes.KappClient{}
@@ -305,7 +310,8 @@ var _ = Describe("Install Package", func() {
 			kappCtl.GetPackageInstallReturns(testPkgInstall, nil)
 		})
 		It(testFailureMsg, func() {
-			Expect(err).NotTo(HaveOccurred())
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("package install '%s' already exists in namespace '%s'", options.PkgInstallName, options.Namespace)))
 		})
 		AfterEach(func() {
 			options = opts
@@ -343,8 +349,6 @@ func testReceive(progress *tkgpackagedatamodel.PackageProgress) error {
 		case <-progress.ProgressMsg:
 			continue
 		case <-progress.Done:
-			return nil
-		case <-progress.Success:
 			return nil
 		}
 	}

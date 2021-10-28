@@ -11,6 +11,7 @@ import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-
 import { VSphereWizardFormServiceStub } from 'src/app/testing/vsphere-wizard-form.service.stub';
 import Broker from 'src/app/shared/service/broker';
 import { Messenger } from 'src/app/shared/service/Messenger';
+import { ClusterType } from "../wizard/shared/constants/wizard.constants";
 
 describe('VSphereWizardComponent', () => {
     let component: VSphereWizardComponent;
@@ -66,12 +67,10 @@ describe('VSphereWizardComponent', () => {
             }),
             osImageForm: fb.group({
             }),
-            registerTmcForm: fb.group({
-            }),
             ceipOptInForm: fb.group({
             })
         });
-        component.clusterType = 'management';
+        component.clusterTypeDescriptor = '' + ClusterType.Management;
         fixture.detectChanges();
     });
 
@@ -95,7 +94,7 @@ describe('VSphereWizardComponent', () => {
 
     it('getStepDescription should return correct description when wizard is not filled', () => {
         expect(component['getStepDescription']('provider')).toBe(
-                'Validate the vSphere provider account for Tanzu Kubernetes Grid');
+                'Validate the vSphere provider account for Tanzu');
     });
 
     it('getStepDescription should return correct summary for wizard input', () => {

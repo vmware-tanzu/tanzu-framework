@@ -8,9 +8,8 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
@@ -31,24 +30,14 @@ var _ = Describe("Uninstall Package", func() {
 			PollInterval:   testPollInterval,
 			PollTimeout:    testPollTimeout,
 		}
-		options  = opts
-		progress *tkgpackagedatamodel.PackageProgress
-		app      = kappctrl.App{
-			TypeMeta:   metav1.TypeMeta{Kind: "App"},
-			ObjectMeta: metav1.ObjectMeta{Name: testPkgInstallName, Namespace: testNamespaceName},
-			Status: kappctrl.AppStatus{
-				GenericStatus: kappctrl.GenericStatus{
-					Conditions: []kappctrl.AppCondition{
-						{Type: kappctrl.Deleting},
-					},
-				},
-			},
-		}
+		options    = opts
+		progress   *tkgpackagedatamodel.PackageProgress
 		pkgInstall = kappipkg.PackageInstall{
 			TypeMeta: metav1.TypeMeta{Kind: tkgpackagedatamodel.KindPackageInstall},
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      testPkgInstallName,
-				Namespace: testNamespaceName,
+				Name:       testPkgInstallName,
+				Namespace:  testNamespaceName,
+				Generation: 1,
 				Annotations: map[string]string{
 					tkgpackagedatamodel.TanzuPkgPluginAnnotation + "-" + tkgpackagedatamodel.KindClusterRole:        "test-pkg-test-ns-cluster-role",
 					tkgpackagedatamodel.TanzuPkgPluginAnnotation + "-" + tkgpackagedatamodel.KindClusterRoleBinding: "test-pkg-test-ns-cluster-rolebinding",
@@ -63,7 +52,6 @@ var _ = Describe("Uninstall Package", func() {
 			ProgressMsg: make(chan string, 10),
 			Err:         make(chan error),
 			Done:        make(chan struct{}),
-			Success:     make(chan bool),
 		}
 		ctl = &pkgClient{kappClient: kappCtl}
 		go ctl.UninstallPackage(&options, progress)
@@ -97,47 +85,29 @@ var _ = Describe("Uninstall Package", func() {
 		AfterEach(func() { options = opts })
 	})
 
-	Context("failure in App CR deletion", func() {
+	Context("failure in PackageInstall CR deletion", func() {
 		BeforeEach(func() {
 			kappCtl = &fakes.KappClient{}
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
 			kappCtl.GetPackageInstallReturns(&pkgInstall, nil)
 			crtCtl.DeleteReturns(nil)
-			app.Status.Conditions = append(app.Status.Conditions, kappctrl.AppCondition{
-				Type: kappctrl.DeleteFailed,
-			})
-			app.Status.UsefulErrorMessage = testUsefulErrMsg
-			kappCtl.GetAppCRReturns(&app, nil)
+			pkgInstall.Status = kappipkg.PackageInstallStatus{
+				GenericStatus: kappctrl.GenericStatus{
+					Conditions: []kappctrl.AppCondition{
+						{Type: kappctrl.Deleting, Status: corev1.ConditionTrue},
+						{Type: kappctrl.DeleteFailed, Status: corev1.ConditionTrue},
+					},
+					UsefulErrorMessage: testUsefulErrMsg,
+					ObservedGeneration: 1,
+				},
+			}
+			Expect(pkgInstall.Status.ObservedGeneration).To(Equal(pkgInstall.Generation))
+			kappCtl.GetPackageInstallReturns(&pkgInstall, nil)
 		})
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring(testUsefulErrMsg))
-		})
-		AfterEach(func() { options = opts })
-	})
-
-	Context("success in uninstalling the package and associated resources", func() {
-		BeforeEach(func() {
-			kappCtl = &fakes.KappClient{}
-			crtCtl = &fakes.CRTClusterClient{}
-			kappCtl.GetClientReturns(crtCtl)
-			kappCtl.GetPackageInstallReturns(&pkgInstall, nil)
-			crtCtl.DeleteReturns(nil)
-			kappCtl.GetAppCRReturns(nil, apierrors.NewNotFound(schema.GroupResource{Resource: "App"}, testPkgInstallName))
-			Expect(len(pkgInstall.GetAnnotations())).To(Equal(len(pkgInstall.Annotations)))
-		})
-		It(testSuccessMsg, func() {
-			Expect(err).ToNot(HaveOccurred())
-			expectedDeletedResourceNames := []string{testServiceAccountName, testClusterRoleName, testClusterRoleBindingName, testSecretValuesName, testPkgInstallName}
-			deleteCallCnt := crtCtl.DeleteCallCount()
-			Expect(deleteCallCnt).To(BeNumerically("==", len(expectedDeletedResourceNames)))
-			deletedResourceNames := make([]string, deleteCallCnt)
-			for i := 0; i < deleteCallCnt; i++ {
-				_, obj, _ := crtCtl.DeleteArgsForCall(i)
-				deletedResourceNames[i] = testGetObjectName(obj)
-			}
-			Expect(deletedResourceNames).Should(ConsistOf(expectedDeletedResourceNames))
 		})
 		AfterEach(func() { options = opts })
 	})

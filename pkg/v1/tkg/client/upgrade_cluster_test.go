@@ -784,11 +784,6 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 	// })
 })
 
-func copyFile(sourceFile, destFile string) {
-	input, _ := os.ReadFile(sourceFile)
-	_ = os.WriteFile(destFile, input, constants.ConfigFilePermissions)
-}
-
 func getDummyKCP(machineTemplateKind string) *capikubeadmv1alpha3.KubeadmControlPlane {
 	kcp := &capikubeadmv1alpha3.KubeadmControlPlane{}
 	kcp.Name = "fake-kcp-name"

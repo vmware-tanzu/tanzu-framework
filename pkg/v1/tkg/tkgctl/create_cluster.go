@@ -5,6 +5,7 @@ package tkgctl
 
 import (
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -23,6 +24,10 @@ import (
 
 // CreateClusterOptions options to create the cluster
 type CreateClusterOptions struct {
+	IsWindowsWorkloadCluster bool
+	GenerateOnly             bool
+	SkipPrompt               bool
+
 	ClusterConfigFile           string
 	ClusterName                 string
 	Plan                        string
@@ -38,8 +43,8 @@ type CreateClusterOptions struct {
 	ControlPlaneMachineCount    int
 	WorkerMachineCount          int
 	Timeout                     time.Duration
-	GenerateOnly                bool
-	SkipPrompt                  bool
+	// Tanzu edition (either tce or tkg)
+	Edition string
 }
 
 //nolint:gocritic
@@ -149,6 +154,7 @@ func (t *tkgctl) getCreateClusterOptions(name string, cc *CreateClusterOptions) 
 		CniType:                     cc.CniType,
 		VsphereControlPlaneEndpoint: cc.VsphereControlPlaneEndpoint,
 		ClusterOptionsEnableList:    clusterOptionsEnableList,
+		Edition:                     cc.Edition,
 	}, nil
 }
 
@@ -206,13 +212,32 @@ func (t *tkgctl) configureCreateClusterOptionsFromConfigFile(cc *CreateClusterOp
 		}
 	}
 
-	// set vSphereControlPlaneEndpoint from config variable
+	// set CniType from config variable
 	if cc.CniType == "" {
 		cniType, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableCNI)
 		if err == nil {
 			cc.CniType = cniType
 		} else {
 			cc.CniType = constants.DefaultCNIType
+		}
+	}
+
+	// set IsWindowsWorkloadCluster from config variable
+	if !cc.IsWindowsWorkloadCluster {
+		strIWC, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableIsWindowsWorkloadCluster)
+		// error on reading this parameter is a no-op, since its probably ephemeral and will be replaced w/ multitenant/multiworkload node-pools eventually
+		if err == nil {
+			isWindowsWorkloadCluster, err := strconv.ParseBool(strIWC)
+			if err == nil {
+				cc.IsWindowsWorkloadCluster = isWindowsWorkloadCluster
+			} else {
+				// if no value, set to the default, which should be false since most clusters are linux.
+				cc.IsWindowsWorkloadCluster = constants.DefaultIsWindowsWorkloadCluster
+			}
+			// log this since its generally a less common use case, and windows support is relatively new.
+			if cc.IsWindowsWorkloadCluster {
+				log.Infof("\n Creating a windows workload cluster %v\n\n", cc.ClusterName)
+			}
 		}
 	}
 
@@ -253,9 +278,9 @@ func (t *tkgctl) configureCreateClusterOptionsFromConfigFile(cc *CreateClusterOp
 		if err == nil {
 			cc.WorkerMachineCount = wmc
 		} else {
-			cc.WorkerMachineCount = constants.DefaultDevWorkerMachineCountForWorkloadCluster
+			cc.WorkerMachineCount = constants.DefaultDevWorkerMachineCount
 			if cc.Plan == constants.PlanProd {
-				cc.WorkerMachineCount = constants.DefaultProdWorkerMachineCountForWorkloadCluster
+				cc.WorkerMachineCount = constants.DefaultProdWorkerMachineCount
 			}
 		}
 	}
@@ -275,6 +300,14 @@ func (t *tkgctl) configureCreateClusterOptionsFromConfigFile(cc *CreateClusterOp
 		enableClusterOptions, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableEnableClusterOptions)
 		if err == nil {
 			cc.EnableClusterOptions = enableClusterOptions
+		}
+	}
+
+	// set BuildEdition from config variable
+	if cc.Edition == "" {
+		edition, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableBuildEdition)
+		if err == nil {
+			cc.Edition = edition
 		}
 	}
 

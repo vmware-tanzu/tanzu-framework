@@ -12,7 +12,6 @@ import { LogMessage as NgxLogMessage } from 'ngx-log-monitor';
 import { BasicSubscriber } from '../../../shared/abstracts/basic-subscriber';
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
 import { WebsocketService } from '../../../shared/service/websocket.service';
-import { AppDataService } from '../../../shared/service/app-data.service';
 import { FormMetaDataStore } from '../wizard/shared/FormMetaDataStore';
 import { TkgEvent, TkgEventType } from "../../../shared/service/Messenger";
 import Broker from 'src/app/shared/service/broker';
@@ -27,7 +26,7 @@ export class DeployProgressComponent extends BasicSubscriber implements OnInit {
     providerType: string = '';
     cli: string = '';
     pageTitle: string = '';
-    clusterType: string;
+    clusterTypeDescriptor: string;
     messages: any[] = [];
     msgs$ = new BehaviorSubject<NgxLogMessage>(null);
     curStatus: any = {
@@ -42,8 +41,7 @@ export class DeployProgressComponent extends BasicSubscriber implements OnInit {
     phases: Array<string> = [];
     currentPhaseIdx: number;
 
-    constructor(private websocketService: WebsocketService,
-                private appDataService: AppDataService) {
+    constructor(private websocketService: WebsocketService) {
         super();
         Broker.messenger.getSubject(TkgEventType.CLI_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
@@ -59,10 +57,10 @@ export class DeployProgressComponent extends BasicSubscriber implements OnInit {
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
                 this.pageTitle = data.payload.branding.title;
-                this.clusterType = data.payload.clusterType;
+                this.clusterTypeDescriptor = data.payload.clusterTypeDescriptor;
             });
 
-        this.appDataService.getProviderType()
+        Broker.appDataService.getProviderType()
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((provider) => {
                 if (provider && provider.includes('vsphere')) {
@@ -184,11 +182,11 @@ export class DeployProgressComponent extends BasicSubscriber implements OnInit {
      */
     getStatusDescription(): string {
         if (this.curStatus.status === 'running') {
-            return `Deployment of the ${this.pageTitle} ${this.clusterType} cluster to ${this.providerType} is in progress.`;
+            return `Deployment of the ${this.pageTitle} ${this.clusterTypeDescriptor} cluster to ${this.providerType} is in progress.`;
         } else if (this.curStatus.status === 'successful') {
-            return `Deployment of the ${this.pageTitle} ${this.clusterType} cluster to ${this.providerType} is successful.`;
+            return `Deployment of the ${this.pageTitle} ${this.clusterTypeDescriptor} cluster to ${this.providerType} is successful.`;
         } else if (this.curStatus.status === 'failed') {
-            return `Deployment of the ${this.pageTitle} ${this.clusterType} cluster to ${this.providerType} has failed.`;
+            return `Deployment of the ${this.pageTitle} ${this.clusterTypeDescriptor} cluster to ${this.providerType} has failed.`;
         }
     }
 }

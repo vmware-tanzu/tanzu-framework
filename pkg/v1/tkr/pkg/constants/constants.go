@@ -25,9 +25,18 @@ const (
 	// TKRNamespace is the TKR namespace
 	TKRNamespace = "tkr-system"
 
+	// TKRControllerLeaderElectionCM is the ConfigMap used as the TKR Controller leader election lock
+	TKRControllerLeaderElectionCM = "abf9f9ab.tanzu.vmware.com"
+
 	// TKGNamespace is the TKG namespace
 	TKGNamespace = "tkg-system"
 
 	// TanzuKubernetesReleaseInactiveLabel is the TKR inactive label
 	TanzuKubernetesReleaseInactiveLabel = "inactive"
+
+	// BOMMetadataConfigMapName is the name of the ConfigMap holding BOM metadata
+	BOMMetadataConfigMapName = "bom-metadata"
+
+	// BOMMetadataCompatibilityKey in binaryData in bom-metadata ConfigMap holds compatibility metadata
+	BOMMetadataCompatibilityKey = "compatibility"
 )

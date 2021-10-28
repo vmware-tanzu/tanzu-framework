@@ -1,26 +1,30 @@
 <div [ngClass]="{'hide': review}">
     <div class="clr-row mb-20">
         <div class="clr-col-12">
-            <h2 i18n="wizard title">
-                <clr-icon
-                        shape="arrow"
-                        dir="left"
-                        size="30"
-                        class="is-info back-link"
-                        (click)="navigate(APP_ROUTES.LANDING)"></clr-icon>
+            <clr-icon
+                    shape="arrow"
+                    dir="left"
+                    size="30"
+                    class="is-info back-link"
+                    role="button"
+                    tabindex="0"
+                    aria-label="back"
+                    (click)="navigate(APP_ROUTES.LANDING)"
+                    keyboardListener></clr-icon>
+            <h2 i18n="wizard title" aria-level="1">
                 <div class="docker-icon-30"></div>
-                Deploy {{ clusterType | titlecase }} Cluster on Docker
+                Deploy {{ clusterTypeDescriptor | titlecase }} Cluster on Docker
             </h2>
         </div>
     </div>
     <app-shared-delete-data-popup></app-shared-delete-data-popup>
     <form clrStepper #wizard [formGroup]="form">
-        <clr-stepper-panel formGroupName="dockerDaemonForm">
-            <clr-step-title i18n="docker daemon step name">
-                Docker Daemon
+        <clr-stepper-panel formGroupName="dockerDaemonForm" removeAriaLabelledBy>
+            <clr-step-title i18n="docker prerequisite step name">
+                Docker Prerequisites
             </clr-step-title>
-            <clr-step-description i18n="IaaS provder step description">
-                Validate the local Docker daemon
+            <clr-step-description i18n="Docker prerequisite step description">
+                Validate the local Docker daemon, allocated CPUs and Total Memory
             </clr-step-description>
             <ng-container *ngIf="steps[0]">
                 <app-daemon-validation-step [formGroup]="form.controls.dockerDaemonForm" formName="dockerDaemon">
@@ -31,14 +35,30 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="networkForm">
+        <clr-stepper-panel formGroupName="dockerNodeSettingForm" removeAriaLabelledBy>
+            <clr-step-title i18n="node setting step name">
+                {{ clusterTypeDescriptor | titlecase }} Cluster Settings
+            </clr-step-title>
+            <clr-step-description i18n="node setting step description">
+                {{ getStepDescription('nodeSetting') }}
+            </clr-step-description>
+            <ng-container *ngIf="steps[1]">
+                <app-node-setting-step [formGroup]="form.controls.dockerNodeSettingForm" formName="dockerNodeSettings">
+                </app-node-setting-step>
+            </ng-container>
+            <clr-step-content *clrIfExpanded>
+                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
+            </clr-step-content>
+        </clr-stepper-panel>
+
+        <clr-stepper-panel formGroupName="networkForm" removeAriaLabelledBy>
             <clr-step-title i18n="Kubernetes network step name">
                 Kubernetes Network
             </clr-step-title>
             <clr-step-description i18n="Kubernetes network step description">
                 {{ getStepDescription('network') }}
             </clr-step-description>
-            <ng-container *ngIf="steps[1]">
+            <ng-container *ngIf="steps[2]">
                 <app-shared-network-step [formGroup]="form.controls.networkForm" formName="network">
                 </app-shared-network-step>
             </ng-container>
@@ -70,16 +90,23 @@
     </button>
 </div>
 <ng-container *ngIf="review">
-    <tkg-kickstart-ui-confirm [errorNotification]="errorNotification"></tkg-kickstart-ui-confirm>
+    <tkg-kickstart-ui-confirm></tkg-kickstart-ui-confirm>
+    <app-error-notification [errorNotification]="errorNotification"></app-error-notification>
     <div class="clr-row mt-20">
         <div class="clr-col-12">
             <button class="btn btn-primary" [disabled]="disableDeployButton" (click)="deploy()">
-                Deploy {{ clusterType | titlecase }} Cluster
+                Deploy {{ clusterTypeDescriptor | titlecase }} Cluster
             </button>
             <button class="btn btn-outline" (click)="reviewConfiguration(false)"
                 i18n="return to wizard for edit button">
                 Edit Configuration
             </button>
+            <ng-container *featureToggle="'management-cluster.export-from-confirm'">
+                <button class="btn btn-link export-btn" (click)="exportConfiguration()"
+                        i18n="export configuration button">
+                    Export Configuration
+                </button>
+            </ng-container>
         </div>
     </div>
 </ng-container>

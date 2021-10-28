@@ -6,7 +6,7 @@
         <p>Click Continue if the thumbprint is valid or Cancel if the thumbprint is not valid.</p>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-primary continue-btn" (click)="continueBtnHandler()">Continue</button>
+        <button type="button" class="btn btn-primary continue-btn" (click)="continueBtnHandler()" keyboardListener>Continue</button>
         <button type="button" class="btn btn-outline" (click)="close()">Cancel</button>
     </div>
 </clr-modal>

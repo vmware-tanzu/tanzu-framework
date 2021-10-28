@@ -106,39 +106,6 @@ var _ = Describe("SaveConfig", func() {
 		})
 	})
 
-	Context("When the key is exported to environment variable", func() {
-		BeforeEach(func() {
-			clusterConfigPath = constConfigPath
-			key = constKeyBAR
-			value = constValueFoo
-			vars = make(map[string]string)
-			vars[key] = value
-			_ = os.Setenv(key, "bar")
-		})
-
-		It("should override the environment variable with the new value", func() {
-			Expect(err).ToNot(HaveOccurred())
-			res := os.Getenv(key)
-			Expect(res).To(Equal(value))
-		})
-	})
-
-	Context("When the key is exported to environment variable", func() {
-		BeforeEach(func() {
-			clusterConfigPath = constConfigPath
-			key = constKeyFOO
-			value = constValueFoo
-			vars = make(map[string]string)
-			vars[key] = value
-		})
-
-		It("should export new key-value pair to environment variable", func() {
-			Expect(err).ToNot(HaveOccurred())
-			res := os.Getenv(key)
-			Expect(res).To(Equal(value))
-		})
-	})
-
 	AfterEach(func() {
 		err = os.WriteFile(clusterConfigPath, originalFile, constants.ConfigFilePermissions)
 		Expect(err).ToNot(HaveOccurred())
@@ -267,6 +234,44 @@ var _ = Describe("Credential Encoding/Decoding", func() {
 			viperValue, err := tkgConfigReaderWriter.Get(constants.ConfigVariableVspherePassword)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(viperValue).To(Equal("Admin$123"))
+		})
+	})
+
+	Context("When using sensitive AWS information", func() {
+		BeforeEach(func() {
+			clusterConfigPath = getConfigFilePath("config_never_persist.yaml")
+			standardVal := "standardVal"
+			res := map[string]string{
+				constants.ConfigVariableAWSAccessKeyID:     standardVal,
+				constants.ConfigVariableAWSSecretAccessKey: standardVal,
+				constants.ConfigVariableAWSSessionToken:    standardVal,
+				constants.ConfigVariableAWSB64Credentials:  standardVal,
+				constants.ConfigVariableAWSProfile:         standardVal,
+			}
+			tkgConfigReaderWriter, err := tkgconfigreaderwriter.NewReaderWriterFromConfigFile(clusterConfigPath, filepath.Join(testingDir, "config.yaml"))
+			Expect(err).NotTo(HaveOccurred())
+			err = SaveConfig(clusterConfigPath, tkgConfigReaderWriter, res)
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("should never have saved the information", func() {
+			configBytes, err := os.ReadFile(clusterConfigPath)
+			Expect(err).ToNot(HaveOccurred())
+			fmt.Println(string(configBytes))
+			configMap := make(map[string]interface{})
+			err = yaml.Unmarshal(configBytes, &configMap)
+			Expect(err).ToNot(HaveOccurred())
+			_, ok := configMap[constants.ConfigVariableAWSAccessKeyID]
+			Expect(ok).To(Equal(false))
+			_, ok = configMap[constants.ConfigVariableAWSSecretAccessKey]
+			Expect(ok).To(Equal(false))
+			_, ok = configMap[constants.ConfigVariableAWSSessionToken]
+			Expect(ok).To(Equal(false))
+			_, ok = configMap[constants.ConfigVariableAWSB64Credentials]
+			Expect(ok).To(Equal(false))
+			val, ok := configMap[constants.ConfigVariableAWSProfile]
+			Expect(ok).To(Equal(true))
+			Expect(val).To(Equal("standardVal"))
 		})
 	})
 
@@ -540,6 +545,65 @@ var _ = Describe("EnsureImages", func() {
 	})
 })
 
+var _ = Describe("Ensuring TKG compatibility file", func() {
+	var (
+		clusterConfigPath     string
+		client                Client
+		tkgConfigReaderWriter tkgconfigreaderwriter.TKGConfigReaderWriter
+		err                   error
+	)
+
+	BeforeEach(func() {
+		createTempDirectory("reader_test")
+	})
+
+	JustBeforeEach(func() {
+		tkgConfigReaderWriter, err = tkgconfigreaderwriter.NewReaderWriterFromConfigFile(clusterConfigPath, filepath.Join(testingDir, "config.yaml"))
+		Expect(err).NotTo(HaveOccurred())
+		client = New(testingDir, NewProviderTest(), tkgConfigReaderWriter)
+		tkgConfigNode := loadTKGNode(clusterConfigPath)
+
+		client.EnsureCredEncoding(tkgConfigNode)
+		writeYaml(clusterConfigPath, tkgConfigNode)
+
+		_, err = tkgconfigreaderwriter.New(clusterConfigPath)
+		Expect(err).ToNot(HaveOccurred())
+		err = client.DecodeCredentialsInViper()
+		Expect(err).ToNot(HaveOccurred())
+	})
+
+	Context("When the tkg-compatibility.yaml pre-exists", func() {
+		BeforeEach(func() {
+			clusterConfigPath = getConfigFilePath("config4.yaml")
+		})
+
+		It("should not re-download the file", func() {
+			compatibilityConfigFile, err := tkgconfigpaths.New(testingDir).GetTKGCompatibilityConfigPath()
+			Expect(err).ToNot(HaveOccurred())
+
+			// capture modified time of existing compatibility file
+			f1, err := os.Stat(compatibilityConfigFile)
+			Expect(err).ToNot(HaveOccurred())
+			f1ModTime := f1.ModTime()
+
+			// EnsureTKGCompatabilityFile will go out to a registry to retrieve a file if the
+			// compatibility is not present. Causing the test to fail and it to return a slow test
+			// warning.
+			err = client.EnsureTKGCompatibilityFile(false)
+			Expect(err).ToNot(HaveOccurred())
+
+			// capture modified time of final compatibility file
+			f2, err := os.Stat(compatibilityConfigFile)
+			Expect(err).ToNot(HaveOccurred())
+			f2ModTime := f2.ModTime()
+
+			// true when the modified times are the same
+			modTimesAreSame := f1ModTime.Equal(f2ModTime)
+			Expect(modTimesAreSame).To(Equal(true))
+		})
+	})
+})
+
 func getNodeIndex(node []*yaml.Node, key string) int {
 	appIdx := -1
 	for i, k := range node {
@@ -582,7 +646,7 @@ func deleteTempDirectory() {
 	os.Remove(testingDir)
 }
 
-func getConfigFilePath(filename string) string { // nolint:unparam
+func getConfigFilePath(filename string) string {
 	filePath := "../fakes/config/" + filename
 	return setupPrerequsiteForTesting(filePath, testingDir, defaultBomFile)
 }

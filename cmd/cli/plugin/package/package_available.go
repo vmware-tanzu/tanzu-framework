@@ -21,6 +21,5 @@ var packageAvailableCmd = &cobra.Command{
 func init() {
 	packageAvailableCmd.PersistentFlags().StringVarP(&packageAvailableOp.KubeConfig, "kubeconfig", "", "", "The path to the kubeconfig file, optional")
 	packageAvailableCmd.PersistentFlags().StringVarP(&packageAvailableOp.Namespace, "namespace", "n", "default", "Namespace of packages, optional")
-	packageAvailableCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table)")
-	packageAvailableCmd.PersistentFlags().BoolVarP(&packageAvailableOp.AllNamespaces, "all-namespaces", "A", false, "If present, list packages across all namespaces.")
+	packageAvailableCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table), optional")
 }

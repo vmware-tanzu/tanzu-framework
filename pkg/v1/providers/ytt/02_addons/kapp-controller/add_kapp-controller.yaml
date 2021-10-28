@@ -3,14 +3,14 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:yaml", "yaml")
 #@ load("/lib/helpers.star", "ValuesFormatStr")
-#@ load("kapp-controller.lib.yaml", "kappcontrolleryaml")
 #@ load("kapp-controller_overlay.lib.yaml", "kappcontrolleroverlay")
 #@ load("kapp-controller_addon_data.lib.yaml", "kappcontrollerdatavalues")
+#@ load("/vendir/kapp-controller/kapp-controller.lib.yaml", "kapp_controller_lib")
 
 #@ if data.values.PROVIDER_TYPE != "tkg-service-vsphere" and data.values.TKG_CLUSTER_ROLE != "workload":
 
 #@ if data.values.DISABLE_CRS_FOR_ADDON_TYPE and "addons-management/kapp-controller" in data.values.DISABLE_CRS_FOR_ADDON_TYPE:
---- #@ template.replace(overlay.apply(kappcontrolleryaml(), kappcontrolleroverlay()))
+--- #@ template.replace(overlay.apply(kapp_controller_lib.with_data_values(kappcontrollerdatavalues()).eval(), kappcontrolleroverlay()))
 
 #@ else:
 ---
@@ -39,7 +39,7 @@ metadata:
     tkg.tanzu.vmware.com/addon-type: "addons-management/kapp-controller"
 type: addons.cluster.x-k8s.io/resource-set
 stringData:
-  value: #@ yaml.encode(overlay.apply(kappcontrolleryaml(), kappcontrolleroverlay()))
+  value: #@ yaml.encode(overlay.apply(kapp_controller_lib.with_data_values(kappcontrollerdatavalues()).eval(), kappcontrolleroverlay()))
 
 #@ end
 #@ end

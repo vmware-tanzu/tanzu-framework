@@ -84,7 +84,7 @@
                                 </clr-tooltip>
                             </label>
                             <input clrInput id="issuerURL" formControlName="issuerURL" size="50"/>
-                            <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                            <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                             <clr-control-helper></clr-control-helper>
                             <clr-control-error *clrIfError="validatorEnum.REQUIRED">
                                 Issuer URL is required.
@@ -121,7 +121,7 @@
                                 </clr-tooltip>
                             </label>
                             <input clrInput id="clientId" formControlName="clientId" />
-                            <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                            <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                             <clr-control-helper></clr-control-helper>
                             <clr-control-error>Client ID is required. It must not include whitespace on ends.</clr-control-error>
                         </clr-input-container>
@@ -142,7 +142,7 @@
                                 </clr-tooltip>
                             </label>
                             <input clrInput type="password" name="clientSecret" formControlName="clientSecret"/>
-                            <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                            <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                             <clr-control-helper></clr-control-helper>
                             <clr-control-error>Client secret is required. It must not include whitespace on ends.</clr-control-error>
                         </clr-input-container>
@@ -171,7 +171,7 @@
                                    formControlName="scopes"
                                    size="50"
                                    placeholder="openId, profile, email, offline_access"/>
-                            <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                            <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                             <clr-control-helper></clr-control-helper>
                             <clr-control-error *clrIfError="validatorEnum.REQUIRED">
                                 Scopes are required. It must not include whitespace on ends. It must be a comma separated list of scopes.
@@ -200,7 +200,7 @@
                                    placeholder=""
                                    formControlName="oidcUsernameClaim"
                                    name="oidcUsernameClaim"/>
-                            <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                            <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                             <clr-control-helper></clr-control-helper>
                             <clr-control-error>Username claim is required.</clr-control-error>
                         </clr-input-container>
@@ -224,7 +224,7 @@
                                    placeholder=""
                                    formControlName="oidcGroupsClaim"
                                    name="oidcGroupsClaim"/>
-                            <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                            <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                             <clr-control-helper></clr-control-helper>
                             <clr-control-error>Groups claim is required.</clr-control-error>
                         </clr-input-container>
@@ -310,7 +310,7 @@
                                formControlName="bindDN"
                                name="bindDN"
                                id="bindDN"/>
-                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                         <clr-control-helper></clr-control-helper>
                     </clr-input-container>
                 </div>
@@ -335,7 +335,7 @@
                                formControlName="bindPW"
                                name="bindPW"
                                id="bindPW"/>
-                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                         <clr-control-helper></clr-control-helper>
                     </clr-input-container>
                 </div>
@@ -354,15 +354,15 @@
                                 <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                                     <span>Enter the location in the LDAP directory tree where user search begins.
                                         The LDAP search base typically matches your domain name. For example: a domain named
-                                        cloud.example.com may use ou=Users,dc=example,dc=com as the user search base.</span>
+                                        cloud.example.com may use cn=Users,dc=example,dc=com as the user search base.</span>
                                 </clr-tooltip-content>
                             </clr-tooltip>
                         </label>
                         <input clrInput
-                               placeholder="ou=Users,dc=example,dc=com"
+                               placeholder="cn=Users,dc=example,dc=com"
                                formControlName="userSearchBaseDN"
                                name="userSearchBaseDN"/>
-                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                         <clr-control-helper></clr-control-helper>
                     </clr-input-container>
                 </div>
@@ -371,7 +371,7 @@
                 <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                     <clr-input-container [attr.data-step-metadata]="formName">
                         <label>
-                            FILTER (OPTIONAL)
+                            FILTER
                             <clr-tooltip>
                                 <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                 <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -389,8 +389,9 @@
                                placeholder="(objectClass=person)"
                                formControlName="userSearchFilter"
                                name="userSearchFilter"/>
-                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                         <clr-control-helper></clr-control-helper>
+                        <clr-control-error>Filter is required</clr-control-error>
                     </clr-input-container>
                 </div>
 
@@ -398,7 +399,7 @@
                 <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                     <clr-input-container [attr.data-step-metadata]="formName">
                         <label>
-                            USERNAME (OPTIONAL)
+                            USERNAME
                             <clr-tooltip>
                                 <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                 <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
@@ -411,8 +412,9 @@
                                placeholder="uid"
                                formControlName="userSearchUsername"
                                name="userSearchUsername"/>
-                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                         <clr-control-helper></clr-control-helper>
+                        <clr-control-error>Username is required</clr-control-error>
                     </clr-input-container>
                 </div>
             </div>
@@ -431,15 +433,15 @@
                                 <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                                     <span>Enter the location in the LDAP directory tree where group search begins.
                                         The LDAP search base typically matches your domain name. For example: a domain named
-                                        cloud.example.com may use ou=Groups,dc=example,dc=com as the group search base.</span>
+                                        cloud.example.com may use dc=example,dc=com as the group search base.</span>
                                 </clr-tooltip-content>
                             </clr-tooltip>
                         </label>
                         <input clrInput
-                               placeholder="ou=Groups,dc=example,dc=com"
+                               placeholder="dc=example,dc=com"
                                formControlName="groupSearchBaseDN"
                                name="groupSearchBaseDN"/>
-                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                         <clr-control-helper></clr-control-helper>
                     </clr-input-container>
                 </div>
@@ -461,7 +463,7 @@
                                formControlName="groupSearchFilter"
                                placeholder="(objectClass=groupOfNames)"
                                name="groupSearchFilter"/>
-                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                         <clr-control-helper></clr-control-helper>
                     </clr-input-container>
                 </div>
@@ -482,7 +484,7 @@
                                placeholder="cn"
                                formControlName="groupSearchNameAttr"
                                name="groupSearchNameAttr"/>
-                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                         <clr-control-helper></clr-control-helper>
                     </clr-input-container>
                 </div>
@@ -497,15 +499,15 @@
                                 <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                 <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                                     <span>The attribute of the user record that is used as the value of the membership
-                                        attribute of the group record (e.g., distinguishedName, dn).</span>
+                                        attribute of the group record (e.g., distinguishedName, DN).</span>
                                 </clr-tooltip-content>
                             </clr-tooltip>
                         </label>
                         <input clrInput
-                               placeholder="distinguishedName,dn"
+                               placeholder="distinguishedName,DN"
                                formControlName="groupSearchUserAttr"
                                name="groupSearchUserAttr"/>
-                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                         <clr-control-helper></clr-control-helper>
                     </clr-input-container>
                 </div>
@@ -526,7 +528,7 @@
                                formControlName="groupSearchGroupAttr"
                                placeholder="member"
                                name="groupSearchGroupAttr"/>
-                        <!-- Add a empty helper to avoid accessiblity aira-describeby issue -->
+                        <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                         <clr-control-helper></clr-control-helper>
                     </clr-input-container>
                 </div>
@@ -553,7 +555,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="clr-col-12 clr-col-lg-8 container">
+                <div class="clr-col-12 clr-col-lg-4 container">
                     <div class="clr-form-control">
                         <label class="clr-control-label">
                             <clr-tooltip>
@@ -578,7 +580,7 @@
                         </div>
                 </div>
             </div>
-                
+
                 <clr-modal [(clrModalOpen)]="verifyLdapConfig">
                     <h3 class="modal-title">Verify LDAP Configuration</h3>
                     <div class="modal-body">
@@ -664,7 +666,7 @@
                         <button class="btn btn-primary" (click)="startVerifyLdapConfig()">Start</button>
                     </div>
                 </clr-modal>
-                
+
         </ng-container>
     </div>
 </form>

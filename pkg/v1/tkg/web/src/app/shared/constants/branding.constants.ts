@@ -1,6 +1,11 @@
+export enum AppEdition {
+    TKG = 'tkg',
+    TCE = 'tce',
+}
+
 export const brandingDefault = {
-    edition: "tkg",
-    clusterType: "management",
+    edition: AppEdition.TKG,
+    clusterTypeDescriptor: "management",
     branding: {
         title: "Tanzu Kubernetes Grid",
         landingPage: {
@@ -19,8 +24,8 @@ export const brandingDefault = {
 }
 
 export const brandingTce = {
-    edition: "tce",
-    clusterType: "management",
+    edition: AppEdition.TCE,
+    clusterTypeDescriptor: "management",
     branding: {
         title: "Tanzu Community Edition",
         landingPage: {
@@ -29,22 +34,18 @@ export const brandingTce = {
             intro: "Tanzu Community Edition (TCE) is VMware's Open Source Kubernetes distribution. The installer will " +
                 "deploy a temporary cluster on your local machine to bootstrap a management cluster on your desired target. " +
                 "This management cluster can then be used to deploy and manage workload clusters.<br/><br/>For more details " +
-                "see the getting started guide. TODO: needs doc link"
+                "see the <a href='http://tanzucommunityedition.io/docs' target='_blank'>getting started guide</a>."
         }
     }
 }
 
-export const brandingTceStandalone = {
-    edition: "tce-standalone",
-    clusterType: "standalone",
+export const brandingStandalone = {
+    clusterTypeDescriptor: "standalone",
     branding: {
-        title: "Tanzu Community Edition",
         landingPage: {
-            logoClass: "tce-logo",
-            title: "Welcome to the Tanzu Community Edition Installer",
             intro: "Tanzu Community Edition (TCE) is VMware's Open Source Kubernetes distribution. The installer will " +
                 "deploy a temporary cluster on your local machine to bootstrap a standalone cluster on your desired target. " +
-                "<br/><br/>For more details see the getting started guide. TODO: needs doc link"
+                "<br/><br/>For more details see the <a href='http://tanzucommunityedition.io/docs' target='_blank'>getting started guide</a>."
         }
     }
 }

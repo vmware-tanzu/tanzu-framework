@@ -1,20 +1,7 @@
 #!/usr/bin/env bash
-# Copyright 2020 The TKG Contributors.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 
-# Runs the cluster configurmation command described in each test case report
-# any discreptancies from the expected output.
+# Copyright 2021 VMware, Inc. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 SCRIPT=$(realpath "${BASH_SOURCE[0]}")
 TESTROOT=$(dirname "$SCRIPT")
@@ -35,13 +22,6 @@ generate_cluster_configurations() {
   cd "${TESTDATA}"
   mkdir -p ${outputdir} || true
   rm -rf ${outputdir}/*
-
-  # create BoM directory and move BoM files to config directory
-  # so that CLI does not need to pull image from online repository
-  mkdir -p $TKG_CONFIG_DIR/bom
-  export TKG_BOM_CUSTOM_IMAGE_TAG=v1.3.1-zlatest
-  cp $TESTROOT/bom/tkg-bom-v1.3.1-zlatest.yaml $TKG_CONFIG_DIR/bom/
-  cp $TESTROOT/bom/tkr-bom-v1.20.5+vmware.1-tkg.1-zlatest.yaml $TKG_CONFIG_DIR/bom/
 
   $TKG get mc --configdir ${TKG_CONFIG_DIR}
   docker run -t --rm -v ${TKG_CONFIG_DIR}:${TKG_CONFIG_DIR} -v ${TESTROOT}:/clustergen -w /clustergen -e TKG_CONFIG_DIR=${TKG_CONFIG_DIR} ${BUILDER_IMAGE} /bin/bash -c "./gen_duplicate_bom_azure.py $TKG_CONFIG_DIR"
