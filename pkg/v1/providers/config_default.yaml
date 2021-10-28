@@ -302,7 +302,7 @@ AZURE_ENABLE_ACCELERATED_NETWORKING: false
 
 #! Must be unique to each cluster.
 AZURE_RESOURCE_GROUP: ""
-#! If unset the value of AZURE_RESOURCE_GROUP will be used as the resoure group
+#! If unset the value of AZURE_RESOURCE_GROUP will be used as the resource group
 #! for the VNET
 AZURE_VNET_RESOURCE_GROUP: ""
 

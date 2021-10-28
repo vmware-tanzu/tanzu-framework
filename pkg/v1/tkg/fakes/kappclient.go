@@ -12,15 +12,15 @@ import (
 	v1alpha1b "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	v1alpha1c "github.com/vmware-tanzu/carvel-secretgen-controller/pkg/apis/secretgen2/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/kappclient"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
 type KappClient struct {
-	CreatePackageInstallStub        func(*v1alpha1.PackageInstall, bool, bool) error
+	CreatePackageInstallStub        func(*v1alpha1.PackageInstall, *tkgpackagedatamodel.PkgPluginResourceCreationStatus) error
 	createPackageInstallMutex       sync.RWMutex
 	createPackageInstallArgsForCall []struct {
 		arg1 *v1alpha1.PackageInstall
-		arg2 bool
-		arg3 bool
+		arg2 *tkgpackagedatamodel.PkgPluginResourceCreationStatus
 	}
 	createPackageInstallReturns struct {
 		result1 error
@@ -223,11 +223,11 @@ type KappClient struct {
 		result1 *v1alpha1c.SecretExportList
 		result2 error
 	}
-	UpdatePackageInstallStub        func(*v1alpha1.PackageInstall, bool) error
+	UpdatePackageInstallStub        func(*v1alpha1.PackageInstall, *tkgpackagedatamodel.PkgPluginResourceCreationStatus) error
 	updatePackageInstallMutex       sync.RWMutex
 	updatePackageInstallArgsForCall []struct {
 		arg1 *v1alpha1.PackageInstall
-		arg2 bool
+		arg2 *tkgpackagedatamodel.PkgPluginResourceCreationStatus
 	}
 	updatePackageInstallReturns struct {
 		result1 error
@@ -250,18 +250,17 @@ type KappClient struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *KappClient) CreatePackageInstall(arg1 *v1alpha1.PackageInstall, arg2 bool, arg3 bool) error {
+func (fake *KappClient) CreatePackageInstall(arg1 *v1alpha1.PackageInstall, arg2 *tkgpackagedatamodel.PkgPluginResourceCreationStatus) error {
 	fake.createPackageInstallMutex.Lock()
 	ret, specificReturn := fake.createPackageInstallReturnsOnCall[len(fake.createPackageInstallArgsForCall)]
 	fake.createPackageInstallArgsForCall = append(fake.createPackageInstallArgsForCall, struct {
 		arg1 *v1alpha1.PackageInstall
-		arg2 bool
-		arg3 bool
-	}{arg1, arg2, arg3})
-	fake.recordInvocation("CreatePackageInstall", []interface{}{arg1, arg2, arg3})
+		arg2 *tkgpackagedatamodel.PkgPluginResourceCreationStatus
+	}{arg1, arg2})
+	fake.recordInvocation("CreatePackageInstall", []interface{}{arg1, arg2})
 	fake.createPackageInstallMutex.Unlock()
 	if fake.CreatePackageInstallStub != nil {
-		return fake.CreatePackageInstallStub(arg1, arg2, arg3)
+		return fake.CreatePackageInstallStub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1
@@ -276,17 +275,17 @@ func (fake *KappClient) CreatePackageInstallCallCount() int {
 	return len(fake.createPackageInstallArgsForCall)
 }
 
-func (fake *KappClient) CreatePackageInstallCalls(stub func(*v1alpha1.PackageInstall, bool, bool) error) {
+func (fake *KappClient) CreatePackageInstallCalls(stub func(*v1alpha1.PackageInstall, *tkgpackagedatamodel.PkgPluginResourceCreationStatus) error) {
 	fake.createPackageInstallMutex.Lock()
 	defer fake.createPackageInstallMutex.Unlock()
 	fake.CreatePackageInstallStub = stub
 }
 
-func (fake *KappClient) CreatePackageInstallArgsForCall(i int) (*v1alpha1.PackageInstall, bool, bool) {
+func (fake *KappClient) CreatePackageInstallArgsForCall(i int) (*v1alpha1.PackageInstall, *tkgpackagedatamodel.PkgPluginResourceCreationStatus) {
 	fake.createPackageInstallMutex.RLock()
 	defer fake.createPackageInstallMutex.RUnlock()
 	argsForCall := fake.createPackageInstallArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *KappClient) CreatePackageInstallReturns(result1 error) {
@@ -1247,12 +1246,12 @@ func (fake *KappClient) ListSecretExportsReturnsOnCall(i int, result1 *v1alpha1c
 	}{result1, result2}
 }
 
-func (fake *KappClient) UpdatePackageInstall(arg1 *v1alpha1.PackageInstall, arg2 bool) error {
+func (fake *KappClient) UpdatePackageInstall(arg1 *v1alpha1.PackageInstall, arg2 *tkgpackagedatamodel.PkgPluginResourceCreationStatus) error {
 	fake.updatePackageInstallMutex.Lock()
 	ret, specificReturn := fake.updatePackageInstallReturnsOnCall[len(fake.updatePackageInstallArgsForCall)]
 	fake.updatePackageInstallArgsForCall = append(fake.updatePackageInstallArgsForCall, struct {
 		arg1 *v1alpha1.PackageInstall
-		arg2 bool
+		arg2 *tkgpackagedatamodel.PkgPluginResourceCreationStatus
 	}{arg1, arg2})
 	fake.recordInvocation("UpdatePackageInstall", []interface{}{arg1, arg2})
 	fake.updatePackageInstallMutex.Unlock()
@@ -1272,13 +1271,13 @@ func (fake *KappClient) UpdatePackageInstallCallCount() int {
 	return len(fake.updatePackageInstallArgsForCall)
 }
 
-func (fake *KappClient) UpdatePackageInstallCalls(stub func(*v1alpha1.PackageInstall, bool) error) {
+func (fake *KappClient) UpdatePackageInstallCalls(stub func(*v1alpha1.PackageInstall, *tkgpackagedatamodel.PkgPluginResourceCreationStatus) error) {
 	fake.updatePackageInstallMutex.Lock()
 	defer fake.updatePackageInstallMutex.Unlock()
 	fake.UpdatePackageInstallStub = stub
 }
 
-func (fake *KappClient) UpdatePackageInstallArgsForCall(i int) (*v1alpha1.PackageInstall, bool) {
+func (fake *KappClient) UpdatePackageInstallArgsForCall(i int) (*v1alpha1.PackageInstall, *tkgpackagedatamodel.PkgPluginResourceCreationStatus) {
 	fake.updatePackageInstallMutex.RLock()
 	defer fake.updatePackageInstallMutex.RUnlock()
 	argsForCall := fake.updatePackageInstallArgsForCall[i]
