@@ -24,6 +24,14 @@ const (
 	// to use the new context-aware Plugin API based plugin discovery mechanism
 	// Users can set this featureflag so that we can have context-aware plugin discovery be opt-in for now.
 	FeatureContextAwareDiscovery = "features.global.context-aware-discovery"
+	// DualStack feature flags determine whether it is permitted to create
+	// clusters with a dualstack TKG_IP_FAMILY.  There are separate flags for
+	// each primary, "ipv4,ipv6" vs "ipv6,ipv4", and flags for management vs
+	// workload cluster plugins.
+	FeatureFlagManagementClusterDualStackIPv4Primary = "features.management-cluster.dual-stack-ipv4-primary"
+	FeatureFlagManagementClusterDualStackIPv6Primary = "features.management-cluster.dual-stack-ipv6-primary"
+	FeatureFlagClusterDualStackIPv4Primary           = "features.cluster.dual-stack-ipv4-primary"
+	FeatureFlagClusterDualStackIPv6Primary           = "features.cluster.dual-stack-ipv6-primary"
 )
 
 // DefaultCliFeatureFlags is used to populate an initially empty config file with default values for feature flags.
@@ -38,6 +46,10 @@ var (
 		"features.management-cluster.export-from-confirm":     true,
 		"features.management-cluster.standalone-cluster-mode": false,
 		"features.global.use-context-aware-discovery":         common.IsContextAwareDiscoveryEnabled,
+		FeatureFlagManagementClusterDualStackIPv4Primary:      false,
+		FeatureFlagManagementClusterDualStackIPv6Primary:      false,
+		FeatureFlagClusterDualStackIPv4Primary:                false,
+		FeatureFlagClusterDualStackIPv6Primary:                false,
 	}
 )
 

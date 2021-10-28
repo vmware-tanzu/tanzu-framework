@@ -88,6 +88,13 @@ type DeleteRegionOptions struct {
 	UseExistingCluster bool
 }
 
+//go:generate counterfeiter -o ../fakes/featureflagclient.go --fake-name FeatureFlagClient . FeatureFlagClient
+
+// FeatureFlagClient is used to check if a feature is active
+type FeatureFlagClient interface {
+	IsConfigFeatureActivated(featurePath string) (bool, error)
+}
+
 //go:generate counterfeiter -o ../fakes/client.go --fake-name Client . Client
 
 // Client is used to interact with the tkg client library
@@ -198,6 +205,8 @@ type Client interface {
 	IsPacificRegionalCluster() (bool, error)
 	// GetPacificClusterObject gets Pacific cluster object
 	GetPacificClusterObject(clusterName, namespace string) (*tkgsv1alpha2.TanzuKubernetesCluster, error)
+	// IsFeatureActivated checks if a given feature flag is active
+	IsFeatureActivated(feature string) bool
 }
 
 // TkgClient implements Client.
@@ -215,6 +224,7 @@ type TkgClient struct {
 	tkgConfigPathsClient     tkgconfigpaths.Client
 	clusterKubeConfig        *types.ClusterKubeConfig
 	clusterClientFactory     clusterclient.ClusterClientFactory
+	featureFlagClient        FeatureFlagClient
 }
 
 // Options new client options
@@ -231,6 +241,7 @@ type Options struct {
 	TKGPathsClient           tkgconfigpaths.Client
 	ClusterKubeConfig        *types.ClusterKubeConfig
 	ClusterClientFactory     clusterclient.ClusterClientFactory
+	FeatureFlagClient        FeatureFlagClient
 }
 
 // ensure tkgClient implements Client.
@@ -260,10 +271,20 @@ func New(options Options) (*TkgClient, error) { // nolint:gocritic
 		tkgConfigPathsClient:     options.TKGPathsClient,
 		clusterKubeConfig:        options.ClusterKubeConfig,
 		clusterClientFactory:     options.ClusterClientFactory,
+		featureFlagClient:        options.FeatureFlagClient,
 	}, nil
 }
 
 // TKGConfigReaderWriter returns tkgConfigReaderWriter client
 func (c *TkgClient) TKGConfigReaderWriter() tkgconfigreaderwriter.TKGConfigReaderWriter {
 	return c.readerwriterConfigClient.TKGConfigReaderWriter()
+}
+
+// IsFeatureActivated checkes if a feature flag is set to "true"
+func (c *TkgClient) IsFeatureActivated(feature string) bool {
+	result, err := c.featureFlagClient.IsConfigFeatureActivated(feature)
+	if err != nil {
+		return false
+	}
+	return result
 }

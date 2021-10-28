@@ -385,6 +385,17 @@ type Client struct {
 		result1 []byte
 		result2 error
 	}
+	IsFeatureActivatedStub        func(string) bool
+	isFeatureActivatedMutex       sync.RWMutex
+	isFeatureActivatedArgsForCall []struct {
+		arg1 string
+	}
+	isFeatureActivatedReturns struct {
+		result1 bool
+	}
+	isFeatureActivatedReturnsOnCall map[int]struct {
+		result1 bool
+	}
 	IsManagementClusterAKindClusterStub        func(string) (bool, error)
 	isManagementClusterAKindClusterMutex       sync.RWMutex
 	isManagementClusterAKindClusterArgsForCall []struct {
@@ -2431,6 +2442,67 @@ func (fake *Client) InitRegionDryRunReturnsOnCall(i int, result1 []byte, result2
 	}{result1, result2}
 }
 
+func (fake *Client) IsFeatureActivated(arg1 string) bool {
+	fake.isFeatureActivatedMutex.Lock()
+	ret, specificReturn := fake.isFeatureActivatedReturnsOnCall[len(fake.isFeatureActivatedArgsForCall)]
+	fake.isFeatureActivatedArgsForCall = append(fake.isFeatureActivatedArgsForCall, struct {
+		arg1 string
+	}{arg1})
+	stub := fake.IsFeatureActivatedStub
+	fakeReturns := fake.isFeatureActivatedReturns
+	fake.recordInvocation("IsFeatureActivated", []interface{}{arg1})
+	fake.isFeatureActivatedMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *Client) IsFeatureActivatedCallCount() int {
+	fake.isFeatureActivatedMutex.RLock()
+	defer fake.isFeatureActivatedMutex.RUnlock()
+	return len(fake.isFeatureActivatedArgsForCall)
+}
+
+func (fake *Client) IsFeatureActivatedCalls(stub func(string) bool) {
+	fake.isFeatureActivatedMutex.Lock()
+	defer fake.isFeatureActivatedMutex.Unlock()
+	fake.IsFeatureActivatedStub = stub
+}
+
+func (fake *Client) IsFeatureActivatedArgsForCall(i int) string {
+	fake.isFeatureActivatedMutex.RLock()
+	defer fake.isFeatureActivatedMutex.RUnlock()
+	argsForCall := fake.isFeatureActivatedArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *Client) IsFeatureActivatedReturns(result1 bool) {
+	fake.isFeatureActivatedMutex.Lock()
+	defer fake.isFeatureActivatedMutex.Unlock()
+	fake.IsFeatureActivatedStub = nil
+	fake.isFeatureActivatedReturns = struct {
+		result1 bool
+	}{result1}
+}
+
+func (fake *Client) IsFeatureActivatedReturnsOnCall(i int, result1 bool) {
+	fake.isFeatureActivatedMutex.Lock()
+	defer fake.isFeatureActivatedMutex.Unlock()
+	fake.IsFeatureActivatedStub = nil
+	if fake.isFeatureActivatedReturnsOnCall == nil {
+		fake.isFeatureActivatedReturnsOnCall = make(map[int]struct {
+			result1 bool
+		})
+	}
+	fake.isFeatureActivatedReturnsOnCall[i] = struct {
+		result1 bool
+	}{result1}
+}
+
 func (fake *Client) IsManagementClusterAKindCluster(arg1 string) (bool, error) {
 	fake.isManagementClusterAKindClusterMutex.Lock()
 	ret, specificReturn := fake.isManagementClusterAKindClusterReturnsOnCall[len(fake.isManagementClusterAKindClusterArgsForCall)]
@@ -3611,6 +3683,8 @@ func (fake *Client) Invocations() map[string][][]interface{} {
 	defer fake.initRegionMutex.RUnlock()
 	fake.initRegionDryRunMutex.RLock()
 	defer fake.initRegionDryRunMutex.RUnlock()
+	fake.isFeatureActivatedMutex.RLock()
+	defer fake.isFeatureActivatedMutex.RUnlock()
 	fake.isManagementClusterAKindClusterMutex.RLock()
 	defer fake.isManagementClusterAKindClusterMutex.RUnlock()
 	fake.isPacificManagementClusterMutex.RLock()
