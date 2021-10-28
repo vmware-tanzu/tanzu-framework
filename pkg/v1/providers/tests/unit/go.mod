@@ -1,5 +1,6 @@
 module github.com/vmware-tanzu/framework-unit
 
+// required when running without GOPATH, which is preferred for local testing etc...
 replace github.com/vmware-tanzu/tanzu-framework/pkg/v1/providers/tests/unit => ./
 
 go 1.16
