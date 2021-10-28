@@ -290,10 +290,10 @@ func getExpectedExecConfig(endpoint, issuer, issuerCA, apiGroupSuffix string, co
 	}
 
 	execConfig := &clientcmdapi.ExecConfig{
-		APIVersion: clientauthenticationv1beta1.SchemeGroupVersion.String(),
-		Args:       args,
-		Env:        []clientcmdapi.ExecEnvVar{},
-		Command:    "tanzu",
+		APIVersion:      clientauthenticationv1beta1.SchemeGroupVersion.String(),
+		Args:            args,
+		Env:             []clientcmdapi.ExecEnvVar{},
+		Command:         "tanzu",
 		InteractiveMode: "IfAvailable",
 	}
 	return execConfig
