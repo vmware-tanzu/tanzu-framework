@@ -66,8 +66,6 @@ describe('VSphereWizardComponent', () => {
             }),
             osImageForm: fb.group({
             }),
-            registerTmcForm: fb.group({
-            }),
             ceipOptInForm: fb.group({
             })
         });

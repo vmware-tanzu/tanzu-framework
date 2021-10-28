@@ -58,9 +58,6 @@ describe('AzureWizardComponent', () => {
             metadataForm: fb.group({
                 clusterLocation: ['']
             }),
-            registerTmcForm: fb.group({
-                tmcRegUrl: ['']
-            }),
             networkForm: fb.group({
                 clusterServiceCidr: [''],
                 clusterPodCidr: [''],
@@ -125,11 +122,6 @@ describe('AzureWizardComponent', () => {
             component.form.get(formName).get('clusterPodCidr').setValue('2.2.2.2/23');
             expect(component.getStepDescription(formName))
                 .toBe('Cluster service CIDR: 1.1.1.1/23 Cluster POD CIDR: 2.2.2.2/23');
-        });
-        it('register tmc form', () => {
-            const formName = 'registerTmcFrom';
-            expect(component.getStepDescription(formName))
-                .toBe('Optional: register Tanzu Mission Control');
         });
         it('ceip opt in form', () => {
             const formName = 'ceipOptInForm';

@@ -53,8 +53,6 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
             ceipOptInForm: this.formBuilder.group({
             }),
             osImageForm: this.formBuilder.group({
-            }),
-            registerTmcForm: this.formBuilder.group({
             })
         });
     }
