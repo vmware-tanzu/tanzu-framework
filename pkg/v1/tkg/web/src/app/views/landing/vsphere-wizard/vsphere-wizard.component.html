@@ -159,24 +159,6 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="registerTmcForm" removeAriaLabelledBy *ngIf="edition !== 'tce-standalone'">
-            <clr-step-title i18n="register tmc step title">
-                Register TMC
-            </clr-step-title>
-            <clr-step-description i18n="register tmc step description">
-                Optionally Register with Tanzu Mission Control
-            </clr-step-description>
-            <ng-container *ngIf="steps[8]">
-                <app-shared-register-tmc-step
-                        [formGroup]="form.controls.registerTmcForm"
-                        formName="registerTmc">
-                </app-shared-register-tmc-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-
         <clr-stepper-panel formGroupName="ceipOptInForm" removeAriaLabelledBy *ngIf="edition === 'tkg'">
             <clr-step-title i18n="ceip agreement step title">
                 CEIP Agreement
@@ -184,7 +166,7 @@
             <clr-step-description i18n="ceip agreement step description">
                 Join the CEIP Program for TKG
             </clr-step-description>
-            <ng-container *ngIf="steps[9]">
+            <ng-container *ngIf="steps[8]">
                 <app-shared-ceip-step
                     [formGroup]="form.controls.ceipOptInForm"
                     formName="ceipOptIn">

@@ -64,8 +64,6 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
             }),
             osImageForm: this.formBuilder.group({
             }),
-            registerTmcForm: this.formBuilder.group({
-            }),
             ceipOptInForm: this.formBuilder.group({
             }),
             identityForm: this.formBuilder.group({

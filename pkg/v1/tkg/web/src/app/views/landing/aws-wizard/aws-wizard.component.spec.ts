@@ -86,8 +86,6 @@ describe('AwsWizardComponent', () => {
                 ceipOptIn: [true]
             }),
             osImageForm: fb.group({
-            }),
-            registerTmcForm: fb.group({
             })
         });
         component.clusterType = 'management';
