@@ -1,11 +1,12 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:base64", "base64")
 #@ load("@ytt:json", "json")
-#@ load("/lib/helpers.star", "get_default_tkr_bom_data", "get_default_tkg_bom_data", "tkg_image_repo")
+#@ load("@ytt:assert", "assert")
 
+#@ load("/lib/helpers.star", "get_default_tkr_bom_data", "get_default_tkg_bom_data", "tkg_image_repo")
+#@ rbacRepo = get_default_tkg_bom_data().components["kube_rbac_proxy"][0]
 #@ akooRepo = get_default_tkr_bom_data().components["ako-operator"][0]
 #@ akoRepo = get_default_tkr_bom_data().components["load-balancer-and-ingress-service"][0]
-#@ rbacRepo = get_default_tkg_bom_data().components["kube_rbac_proxy"][0]
 
 #@ def ako_image_with_tag():
 #@  return "{}/{}:{}".format(tkg_image_repo(), akoRepo.images.loadBalancerAndIngressServiceImage.imagePath, akoRepo.images.loadBalancerAndIngressServiceImage.tag)

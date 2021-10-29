@@ -1,7 +1,7 @@
 # taken from tkr-bom-v1.21.2+vmware.1-tkg.2-20210924-539f8b15.yaml 9/29/2021
 apiVersion: run.tanzu.vmware.com/v1alpha2
 release:
-  version: v1.21.2+vmware.1-tkg.2-20210924-539f8b15
+  version:  v1.21.2+vmware.1-tkg.1
 components:
   ako-operator:
   - version: v1.4.0+vmware.1
