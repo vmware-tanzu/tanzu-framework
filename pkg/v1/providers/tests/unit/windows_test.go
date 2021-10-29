@@ -29,7 +29,7 @@ var _ = Describe("Windows Ytt Templating", func() {
 			filepath.Join(YAML_ROOT, "infrastructure-vsphere", "v0.7.10", "ytt", "overlay-windows.yaml"),
 			filepath.Join(YAML_ROOT, "ytt", "02_addons", "cni", "antrea", "antrea_addon_data.lib.yaml"),
 			filepath.Join(YAML_ROOT, "ytt", "02_addons", "cpi", "cpi_addon_data.lib.yaml"),
-			filepath.Join(YAML_ROOT, "ytt", "03_customizations","02_avi", "ako-deployment.lib.yaml"),
+			filepath.Join(YAML_ROOT, "ytt", "03_customizations", "02_avi", "ako-deployment.lib.yaml"),
 			//filepath.Join(YAML_ROOT, "provider-bundle", "providers", "ytt", "02_addons", "cpi", "cpi_addon_data.lib.yaml"),
 			filepath.Join(YAML_ROOT, "ytt"), // lib/helpers.star, lib/config_variable_association.star, lib/validate.star
 		}

@@ -25,6 +25,11 @@ NAMESPACE:
 #! Supported infrastructure provider values are 'vsphere', 'aws', 'azure'
 #! INFRASTRUCTURE_PROVIDER is required while creating management cluster
 INFRASTRUCTURE_PROVIDER:
+#! API Server Port number to be configured for the cluster.
+#! if not provided default 6443 would be used.
+#! if AVI load balancer is used for vSphere provider, VSPHERE_CONTROL_PLANE_ENDPOINT_PORT would
+#! be used instead
+CLUSTER_API_SERVER_PORT:
 
 #! Instance size configuration
 #! Instance size options available for vSphere are as follows:

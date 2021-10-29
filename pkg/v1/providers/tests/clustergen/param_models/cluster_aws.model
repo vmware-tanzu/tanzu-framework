@@ -26,6 +26,7 @@ WORKER_SIZE: "NA","i3.xlarge","r4.8xlarge"
 CLUSTER_CIDR: "100.96.0.0/11", "10.10.10.10/18"
 SERVICE_CIDR: "100.64.0.0/18", "10.10.10.10/16"
 NAMESPACE: "NA", "default", "test"
+CLUSTER_API_SERVER_PORT: "NA","443"
 
 AWS_ACCESS_KEY_ID: "<encoded:RmFrZVBhc3M=>"
 AWS_REGION: "us-east-1", "us-west-2"
