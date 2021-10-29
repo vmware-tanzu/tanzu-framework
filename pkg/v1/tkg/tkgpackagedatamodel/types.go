@@ -41,6 +41,11 @@ const (
 	OperationTypeUpdate
 )
 
+type PkgPluginResourceCreationStatus struct {
+	IsServiceAccountCreated bool
+	IsSecretCreated         bool
+}
+
 // TypeBoolPtr satisfies Value interface defined in "https://github.com/spf13/pflag/blob/master/flag.go"
 type TypeBoolPtr struct {
 	ExportToAllNamespaces *bool

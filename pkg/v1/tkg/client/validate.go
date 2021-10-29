@@ -1445,7 +1445,12 @@ func (c *TkgClient) ConfigureAndValidateHTTPProxyConfiguration(infrastructureNam
 	c.SetDefaultProxySettings()
 	proxyEnabled, err := c.TKGConfigReaderWriter().Get(constants.TKGHTTPProxyEnabled)
 	if err != nil || proxyEnabled != trueString {
-		return nil
+		httpProxy, err2 := c.TKGConfigReaderWriter().Get(constants.TKGHTTPProxy)
+		if httpProxy == "" || err2 != nil {
+			return nil
+		}
+		// httpProxy and httpsProxy are presents, check if the TKGHTTPProxyEnabled
+		return errors.Wrapf(err, "cannot get %s", constants.TKGHTTPProxyEnabled)
 	}
 
 	httpProxy, err := c.TKGConfigReaderWriter().Get(constants.TKGHTTPProxy)

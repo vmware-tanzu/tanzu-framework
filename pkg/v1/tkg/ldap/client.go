@@ -98,6 +98,10 @@ func (c *client) LdapBind() (*tkg_models.LdapTestResult, error) {
 
 // LdapUserSearch verifies user search function is able to locate the user
 func (c *client) LdapUserSearch() (*tkg_models.LdapTestResult, error) {
+	if c.params.LdapTestUser == "" {
+		return resultSkipped, nil
+	}
+
 	baseDn := strings.TrimSpace(c.params.LdapUserSearchBaseDn)
 	filter := strings.TrimSpace(c.params.LdapUserSearchFilter)
 	uid := strings.TrimSpace(c.params.LdapUserSearchUsername)
@@ -148,6 +152,10 @@ func (c *client) LdapUserSearch() (*tkg_models.LdapTestResult, error) {
 
 // LdapGroupSearch verifies group search is able to locate group
 func (c *client) LdapGroupSearch() (*tkg_models.LdapTestResult, error) {
+	if c.params.LdapTestGroup == "" {
+		return resultSkipped, nil
+	}
+
 	attrs := []string{}
 	if len(c.params.LdapGroupSearchNameAttr) > 0 {
 		attrs = append(attrs, c.params.LdapGroupSearchNameAttr)

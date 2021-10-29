@@ -33,14 +33,6 @@ const (
 	exe = ".exe"
 )
 
-// Plugin status and scope constants
-const (
-	PluginStatusInstalled    = "installed"
-	PluginStatusNotInstalled = "not installed"
-	PluginScopeStandalone    = "Stand-Alone"
-	PluginScopeContext       = "Context"
-)
-
 var execCommand = exec.Command
 
 // ValidatePlugin validates the plugin descriptor.
@@ -103,8 +95,8 @@ func DiscoverStandalonePlugins() (plugins []plugin.Discovered, err error) {
 	}
 
 	for i := range plugins {
-		plugins[i].Scope = PluginScopeStandalone
-		plugins[i].Status = PluginStatusNotInstalled
+		plugins[i].Scope = common.PluginScopeStandalone
+		plugins[i].Status = common.PluginStatusNotInstalled
 	}
 	return
 }
@@ -126,8 +118,8 @@ func DiscoverServerPlugins(serverName string) (plugins []plugin.Discovered, err 
 		return
 	}
 	for i := range plugins {
-		plugins[i].Scope = PluginScopeContext
-		plugins[i].Status = PluginStatusNotInstalled
+		plugins[i].Scope = common.PluginScopeContext
+		plugins[i].Status = common.PluginStatusNotInstalled
 	}
 	return
 }
@@ -180,7 +172,7 @@ func AvailablePlugins(serverName string) ([]plugin.Discovered, error) {
 			if installedSeverPluginDesc[i].Name == availablePlugins[j].Name &&
 				installedSeverPluginDesc[i].Discovery == availablePlugins[j].Source {
 				// Match found, Check for update available and update status
-				availablePlugins[j].Status = PluginStatusInstalled
+				availablePlugins[j].Status = common.PluginStatusInstalled
 			}
 		}
 	}
@@ -190,7 +182,7 @@ func AvailablePlugins(serverName string) ([]plugin.Discovered, error) {
 			if installedStandalonePluginDesc[i].Name == availablePlugins[j].Name &&
 				installedStandalonePluginDesc[i].Discovery == availablePlugins[j].Source {
 				// Match found, Check for update available and update status
-				availablePlugins[j].Status = PluginStatusInstalled
+				availablePlugins[j].Status = common.PluginStatusInstalled
 			}
 		}
 	}
@@ -262,7 +254,7 @@ func InstallPlugin(serverName, pluginName, version string) error {
 	}
 	for i := range availablePlugins {
 		if availablePlugins[i].Name == pluginName {
-			if availablePlugins[i].Scope == PluginScopeStandalone {
+			if availablePlugins[i].Scope == common.PluginScopeStandalone {
 				serverName = ""
 			}
 			return installOrUpgradePlugin(serverName, &availablePlugins[i], version)
@@ -280,7 +272,7 @@ func UpgradePlugin(serverName, pluginName, version string) error {
 	}
 	for i := range availablePlugins {
 		if availablePlugins[i].Name == pluginName {
-			if availablePlugins[i].Scope == PluginScopeStandalone {
+			if availablePlugins[i].Scope == common.PluginScopeStandalone {
 				serverName = ""
 			}
 			return installOrUpgradePlugin(serverName, &availablePlugins[i], version)
@@ -288,6 +280,20 @@ func UpgradePlugin(serverName, pluginName, version string) error {
 	}
 
 	return errors.Errorf("unable to find plugin '%v'", pluginName)
+}
+
+// GetRecommendedVersionOfPlugin returns recommended version of the plugin
+func GetRecommendedVersionOfPlugin(serverName, pluginName string) (string, error) {
+	availablePlugins, err := AvailablePlugins(serverName)
+	if err != nil {
+		return "", err
+	}
+	for i := range availablePlugins {
+		if availablePlugins[i].Name == pluginName {
+			return availablePlugins[i].RecommendedVersion, nil
+		}
+	}
+	return "", errors.Errorf("unable to find plugin '%v'", pluginName)
 }
 
 func installOrUpgradePlugin(serverName string, p *plugin.Discovered, version string) error {

@@ -61,6 +61,10 @@ func packageInstall(cmd *cobra.Command, args []string) error {
 
 	initialMsg := fmt.Sprintf("Installing package '%s'", packageInstallOp.PackageName)
 	if err := DisplayProgress(initialMsg, pp); err != nil {
+		if err.Error() == tkgpackagedatamodel.ErrPackageAlreadyExists {
+			log.Infof("Updated installed package '%s'", packageInstallOp.PkgInstallName)
+			return nil
+		}
 		return err
 	}
 

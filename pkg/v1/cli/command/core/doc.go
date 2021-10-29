@@ -89,7 +89,7 @@ func genREADME(plugins []*cliv1alpha1.PluginDescriptor) error {
 func genMarkdownTreePlugins(plugins []*cliv1alpha1.PluginDescriptor) error {
 	args := []string{"generate-docs"}
 	for _, p := range plugins {
-		runner := cli.NewRunner(p.Name, args)
+		runner := cli.NewRunner(p.Name, p.InstallationPath, args)
 		ctx := context.Background()
 		if err := runner.Run(ctx); err != nil {
 			return err

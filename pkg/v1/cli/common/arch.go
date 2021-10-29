@@ -8,6 +8,11 @@ import (
 	"runtime"
 )
 
+const (
+	// DefaultOSArch defines default OS/ARCH
+	DefaultOSArch = "darwin-amd64 linux-amd64 windows-amd64"
+)
+
 // Arch represents a system architecture.
 type Arch string
 

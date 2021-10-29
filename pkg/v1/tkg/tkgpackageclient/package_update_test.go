@@ -49,7 +49,7 @@ var _ = Describe("Update Package", func() {
 			Done:        make(chan struct{}),
 		}
 		ctl = &pkgClient{kappClient: kappCtl}
-		go ctl.UpdatePackage(&options, progress)
+		go ctl.UpdatePackage(&options, progress, tkgpackagedatamodel.OperationTypeUpdate)
 		err = testReceive(progress)
 	})
 
@@ -241,7 +241,7 @@ var _ = Describe("Update Package", func() {
 			kappCtl.GetPackageInstallReturnsOnCall(0, testPkgInstall, nil)
 			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
 			testPkgInstall.Spec.PackageRef = &kappipkg.PackageRef{
-				RefName:          testPkgInstallName,
+				RefName:          testPkgName,
 				VersionSelection: &versions.VersionSelectionSemver{},
 			}
 			kappCtl.UpdatePackageInstallReturns(errors.New("failure in UpdatePackageInstall"))
@@ -261,7 +261,7 @@ var _ = Describe("Update Package", func() {
 			kappCtl.GetPackageInstallReturnsOnCall(0, testPkgInstall, nil)
 			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
 			testPkgInstall.Spec.PackageRef = &kappipkg.PackageRef{
-				RefName:          testPkgInstallName,
+				RefName:          testPkgName,
 				VersionSelection: &versions.VersionSelectionSemver{},
 			}
 			kappCtl.GetPackageInstallReturnsOnCall(1, nil, errors.New("failure in GetPackageInstall"))
@@ -281,7 +281,7 @@ var _ = Describe("Update Package", func() {
 			kappCtl.GetPackageInstallReturnsOnCall(0, testPkgInstall, nil)
 			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
 			testPkgInstall.Spec.PackageRef = &kappipkg.PackageRef{
-				RefName:          testPkgInstallName,
+				RefName:          testPkgName,
 				VersionSelection: &versions.VersionSelectionSemver{},
 			}
 			kappCtl.GetPackageInstallReturnsOnCall(1, testPkgInstall, nil)
@@ -324,7 +324,7 @@ var _ = Describe("Update Package", func() {
 			kappCtl.GetPackageInstallReturnsOnCall(0, testPkgInstall, nil)
 			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
 			testPkgInstall.Spec.PackageRef = &kappipkg.PackageRef{
-				RefName:          testPkgInstallName,
+				RefName:          testPkgName,
 				VersionSelection: &versions.VersionSelectionSemver{},
 			}
 		})

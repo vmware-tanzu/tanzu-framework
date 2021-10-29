@@ -12,13 +12,14 @@ import (
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	kapppkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	secretgen "github.com/vmware-tanzu/carvel-secretgen-controller/pkg/apis/secretgen2/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
 //go:generate counterfeiter -o ../fakes/kappclient.go --fake-name KappClient . Client
 
 // Client is the kapp client interface
 type Client interface {
-	CreatePackageInstall(packageInstall *kappipkg.PackageInstall, isPkgPluginCreatedSvcAccount bool, isPkgPluginCreatedSecret bool) error
+	CreatePackageInstall(packageInstall *kappipkg.PackageInstall, pkgPluginResourceCreationStatus *tkgpackagedatamodel.PkgPluginResourceCreationStatus) error
 	CreatePackageRepository(repository *kappipkg.PackageRepository) error
 	DeletePackageRepository(repository *kappipkg.PackageRepository) error
 	GetAppCR(appName string, namespace string) (*kappctrl.App, error)
@@ -34,6 +35,6 @@ type Client interface {
 	ListPackageRepositories(namespace string) (*kappipkg.PackageRepositoryList, error)
 	ListRegistrySecrets(namespace string) (*corev1.SecretList, error)
 	ListSecretExports(namespace string) (*secretgen.SecretExportList, error)
-	UpdatePackageInstall(packageInstall *kappipkg.PackageInstall, isPkgPluginCreatedSecret bool) error
+	UpdatePackageInstall(packageInstall *kappipkg.PackageInstall, pkgPluginResourceCreationStatus *tkgpackagedatamodel.PkgPluginResourceCreationStatus) error
 	UpdatePackageRepository(repository *kappipkg.PackageRepository) error
 }

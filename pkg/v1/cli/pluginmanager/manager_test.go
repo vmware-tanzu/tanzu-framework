@@ -100,18 +100,18 @@ func Test_AvailablePlugins(t *testing.T) {
 	assert.Nil(err)
 	assert.Equal(1, len(discovered))
 	assert.Equal("login", discovered[0].Name)
-	assert.Equal(PluginScopeStandalone, discovered[0].Scope)
-	assert.Equal(PluginStatusNotInstalled, discovered[0].Status)
+	assert.Equal(common.PluginScopeStandalone, discovered[0].Scope)
+	assert.Equal(common.PluginStatusNotInstalled, discovered[0].Status)
 
 	discovered, err = AvailablePlugins("mgmt")
 	assert.Nil(err)
 	assert.Equal(2, len(discovered))
 	assert.Equal("cluster", discovered[0].Name)
-	assert.Equal(PluginScopeContext, discovered[0].Scope)
-	assert.Equal(PluginStatusNotInstalled, discovered[0].Status)
+	assert.Equal(common.PluginScopeContext, discovered[0].Scope)
+	assert.Equal(common.PluginStatusNotInstalled, discovered[0].Status)
 	assert.Equal("login", discovered[1].Name)
-	assert.Equal(PluginScopeStandalone, discovered[1].Scope)
-	assert.Equal(PluginStatusNotInstalled, discovered[1].Status)
+	assert.Equal(common.PluginScopeStandalone, discovered[1].Scope)
+	assert.Equal(common.PluginStatusNotInstalled, discovered[1].Status)
 
 	// Install login, cluster package
 	mockInstallPlugin(assert, "", "login", "v0.2.0")
@@ -122,11 +122,11 @@ func Test_AvailablePlugins(t *testing.T) {
 	assert.Nil(err)
 	assert.Equal(2, len(discovered))
 	assert.Equal("cluster", discovered[0].Name)
-	assert.Equal(PluginScopeContext, discovered[0].Scope)
-	assert.Equal(PluginStatusInstalled, discovered[0].Status)
+	assert.Equal(common.PluginScopeContext, discovered[0].Scope)
+	assert.Equal(common.PluginStatusInstalled, discovered[0].Status)
 	assert.Equal("login", discovered[1].Name)
-	assert.Equal(PluginScopeStandalone, discovered[1].Scope)
-	assert.Equal(PluginStatusInstalled, discovered[1].Status)
+	assert.Equal(common.PluginScopeStandalone, discovered[1].Scope)
+	assert.Equal(common.PluginStatusInstalled, discovered[1].Status)
 }
 
 func Test_DescribePlugin(t *testing.T) {
