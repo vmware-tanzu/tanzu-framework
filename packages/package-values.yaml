@@ -28,3 +28,35 @@ managementPackageRepository:
       version: latest
       #! Gets replaced with imgpkg sha256 at build, this should be name:version
       sha256: "featuregates:latest"
+    - name: cliplugins
+      displayName: cliplugins
+      #! Relative path to package bundle
+      path: packages/management/core-management-cliplugins
+      domain: tanzu.vmware.com
+      version: latest
+      #! Gets replaced with imgpkg sha256 at build, this should be name:version
+      sha256: "core-management-cliplugins:latest"
+
+standalonePackageRepository:
+  #! This gets overwritten by build
+  version: null
+  sha256: null
+  name: standalone
+  domain: tanzu.vmware.com
+
+  packageSpec:
+    syncPeriod: 5m
+    deploy:
+      kappWaitTimeout: 5m
+      kubeAPIQPS: 20
+      kubeAPIBurst: 30
+
+  packages:
+    - name: standalone-cliplugins
+      displayName: standalone-cliplugins
+      #! Relative path to package bundle
+      path: packages/standalone/standalone-cliplugins
+      domain: tanzu.vmware.com
+      version: latest
+      #! Gets replaced with imgpkg sha256 at build, this should be name:version
+      sha256: "standalone-cliplugins:latest"
