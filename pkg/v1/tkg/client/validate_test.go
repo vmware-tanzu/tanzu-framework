@@ -593,8 +593,6 @@ var _ = Describe("Validate", func() {
 				)
 
 				DescribeTable("HTTP(S)_PROXY variables without TKGHTTPProxyEnabled set to true", func(httpProxy, httpsProxy string) {
-					tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, "1.2.3.4/16,::1/8")
-					tkgConfigReaderWriter.Set(constants.ConfigVariableClusterCIDR, "1.2.3.5/16,::1/8")
 					tkgConfigReaderWriter.Set(constants.TKGHTTPProxy, httpProxy)
 					tkgConfigReaderWriter.Set(constants.TKGHTTPSProxy, httpsProxy)
 
@@ -659,8 +657,6 @@ var _ = Describe("Validate", func() {
 				)
 
 				DescribeTable("HTTP(S)_PROXY variables without TKGHTTPProxyEnabled set to true", func(httpProxy, httpsProxy string) {
-					tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, "::1/8,1.2.3.4/16")
-					tkgConfigReaderWriter.Set(constants.ConfigVariableClusterCIDR, "::1/8,1.2.3.5/16")
 					tkgConfigReaderWriter.Set(constants.TKGHTTPProxy, httpProxy)
 					tkgConfigReaderWriter.Set(constants.TKGHTTPSProxy, httpsProxy)
 
