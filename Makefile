@@ -21,6 +21,7 @@ TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
 BIN_DIR := bin
 ROOT_DIR := $(shell git rev-parse --show-toplevel)
 ADDONS_DIR := addons
+YTT_TESTS_DIR := pkg/v1/providers/tests
 UI_DIR := pkg/v1/tkg/web
 
 # Add tooling binaries here and in hack/tools/Makefile
@@ -344,7 +345,15 @@ release-%:
 test: generate fmt vet manifests build-cli-mocks ## Run tests
 	## Skip running TKG integration tests
 	$(MAKE) ytt -C $(TOOLS_DIR)
-	PATH=$(abspath hack/tools/bin):$(PATH) $(GO) test -coverprofile cover.out -v `go list ./... | grep -v github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test`
+
+	## Test the YTT cluster templates
+	echo "Changing into the provider test directory to verify ytt cluster templates..."
+	cd ./pkg/v1/providers/tests/unit && PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -v -timeout 30s ./
+	echo "... ytt cluster template verification complete!"
+
+	PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -coverprofile cover.out -v `go list ./... | grep -v github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test`
+
+
 	$(MAKE) kubebuilder -C $(TOOLS_DIR)
 	KUBEBUILDER_ASSETS=$(ROOT_DIR)/$(KUBEBUILDER)/bin $(MAKE) test -C addons
 
@@ -361,9 +370,15 @@ vet: ## Run go vet
 lint: tools doc-lint ## Run linting checks
 	# Linter runs per module, add each one here and make sure they match
 	# in .github/workflows/main.yaml for CI coverage
+
+	# Linting for the addons...
 	$(GOLANGCI_LINT) run -v
 	cd $(ADDONS_DIR); $(GOLANGCI_LINT) run -v
 	cd $(ADDONS_DIR)/pinniped/post-deploy/; $(GOLANGCI_LINT) run -v
+
+	# Linting for the YTT generation test code...
+	cd $(YTT_TESTS_DIR); $(GOLANGCI_LINT) run -v 
+
 	# Check licenses in shell scripts and Makefile
 	hack/check-license.sh
 

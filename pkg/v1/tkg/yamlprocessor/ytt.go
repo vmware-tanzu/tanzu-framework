@@ -39,7 +39,8 @@ func InjectDefinitionParser(dp DefinitionParser) YttProcessorOption {
 
 // YTTProcessor a type for processing and parsing ytt files.
 type YTTProcessor struct {
-	parser   DefinitionParser
+	parser DefinitionParser
+	// srcPaths is just a list of file paths
 	srcPaths []v1alpha1.PathInfo
 }
 
@@ -51,6 +52,8 @@ func NewYttProcessor(opts ...YttProcessorOption) *YTTProcessor {
 		parser: NewYttDefinitionParser(),
 	}
 
+	// TODO, enable logging like this if we can, right now can't because std out is parsed.
+	// log.V(6).Infof("Processing ytt options: %v", opts)
 	for _, o := range opts {
 		o(p)
 	}
@@ -61,6 +64,9 @@ func NewYttProcessor(opts ...YttProcessorOption) *YTTProcessor {
 // configured with tkg config directory
 func NewYttProcessorWithConfigDir(configDir string) *YTTProcessor {
 	definitionParser := InjectDefinitionParser(NewYttDefinitionParser(InjectTKGDir(configDir)))
+
+	// TODO, enable logging like this if we can, right now can't because stdout is parsed.
+	// log.V(6).Info("Using configDir %v for YTT Processor")
 	return NewYttProcessor(definitionParser)
 }
 
