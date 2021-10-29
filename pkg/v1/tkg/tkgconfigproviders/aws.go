@@ -69,7 +69,6 @@ type AWSConfig struct {
 	ServiceCidr            string                    `yaml:"SERVICE_CIDR"`
 	SessionToken           string                    `yaml:"AWS_SESSION_TOKEN,omitempty"`
 	SSHKeyName             string                    `yaml:"AWS_SSH_KEY_NAME"`
-	TmcRegistrationURL     string                    `yaml:"TMC_REGISTRATION_URL,omitempty"`
 	VPCCidr                string                    `yaml:"AWS_VPC_CIDR"`
 	IdentityReference      AWSIdentityReference      `yaml:",inline"`
 	SecurityGroupOverrides AWSSecurityGroupOverrides `yaml:",inline"`
@@ -145,7 +144,6 @@ func (c *client) NewAWSConfig(params *models.AWSRegionalClusterParams, encodedCr
 		ClusterName:            params.ClusterName,
 		InfrastructureProvider: constants.InfrastructureProviderAWS,
 		ClusterPlan:            params.ControlPlaneFlavor,
-		TmcRegistrationURL:     params.TmcRegistrationURL,
 		Region:                 params.AwsAccountParams.Region,
 		B64EncodedCredentials:  encodedCredentials,
 		ControlPlaneNodeType:   params.ControlPlaneNodeType,

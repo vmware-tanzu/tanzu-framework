@@ -68,7 +68,6 @@ func (app *App) CreateVSphereRegionalCluster(params vsphere.CreateVSphereRegiona
 	app.InitOptions.InfrastructureProvider = InfrastructureProviderVSphere
 	app.InitOptions.ClusterName = params.Params.ClusterName
 	app.InitOptions.Plan = params.Params.ControlPlaneFlavor
-	app.InitOptions.TmcRegistrationURL = params.Params.TmcRegistrationURL
 	app.InitOptions.Annotations = params.Params.Annotations
 	app.InitOptions.Labels = params.Params.Labels
 	app.InitOptions.CeipOptIn = *params.Params.CeipOptIn
@@ -142,7 +141,6 @@ func (app *App) CreateAWSRegionalCluster(params aws.CreateAWSRegionalClusterPara
 	app.InitOptions.InfrastructureProvider = InfrastructureProviderAWS
 	app.InitOptions.ClusterName = params.Params.ClusterName
 	app.InitOptions.Plan = params.Params.ControlPlaneFlavor
-	app.InitOptions.TmcRegistrationURL = params.Params.TmcRegistrationURL
 	app.InitOptions.CeipOptIn = *params.Params.CeipOptIn
 	app.InitOptions.CniType = params.Params.Networking.CniType
 	app.InitOptions.Annotations = params.Params.Annotations
@@ -250,7 +248,6 @@ func (app *App) CreateAzureRegionalCluster(params azure.CreateAzureRegionalClust
 	app.InitOptions.InfrastructureProvider = InfrastructureProviderAzure
 	app.InitOptions.ClusterName = params.Params.ClusterName
 	app.InitOptions.Plan = params.Params.ControlPlaneFlavor
-	app.InitOptions.TmcRegistrationURL = params.Params.TmcRegistrationURL
 	app.InitOptions.Annotations = params.Params.Annotations
 	app.InitOptions.Labels = params.Params.Labels
 	app.InitOptions.CeipOptIn = *params.Params.CeipOptIn
@@ -313,7 +310,6 @@ func (app *App) CreateDockerRegionalCluster(params docker.CreateDockerRegionalCl
 	app.InitOptions.InfrastructureProvider = InfrastructureProviderDocker
 	app.InitOptions.ClusterName = params.Params.ClusterName
 	app.InitOptions.Plan = "dev"
-	app.InitOptions.TmcRegistrationURL = params.Params.TmcRegistrationURL
 	app.InitOptions.Annotations = params.Params.Annotations
 	app.InitOptions.Labels = params.Params.Labels
 	app.InitOptions.ClusterConfigFile = app.getFilePathForSavingConfig()
