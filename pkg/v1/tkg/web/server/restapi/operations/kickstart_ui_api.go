@@ -27,7 +27,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/features"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/ldap"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/provider"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/tmc"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/ui"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/vsphere"
 )
@@ -187,9 +186,6 @@ func NewKickstartUIAPI(spec *loads.Document) *KickstartUIAPI {
 		VsphereGetVsphereThumbprintHandler: vsphere.GetVsphereThumbprintHandlerFunc(func(params vsphere.GetVsphereThumbprintParams) middleware.Responder {
 			return middleware.NotImplemented("operation VsphereGetVsphereThumbprint has not yet been implemented")
 		}),
-		TmcRetrieveTMCInstallYmlHandler: tmc.RetrieveTMCInstallYmlHandlerFunc(func(params tmc.RetrieveTMCInstallYmlParams) middleware.Responder {
-			return middleware.NotImplemented("operation TmcRetrieveTMCInstallYml has not yet been implemented")
-		}),
 		AwsSetAWSEndpointHandler: aws.SetAWSEndpointHandlerFunc(func(params aws.SetAWSEndpointParams) middleware.Responder {
 			return middleware.NotImplemented("operation AwsSetAWSEndpoint has not yet been implemented")
 		}),
@@ -340,8 +336,6 @@ type KickstartUIAPI struct {
 	VsphereGetVSphereResourcePoolsHandler vsphere.GetVSphereResourcePoolsHandler
 	// VsphereGetVsphereThumbprintHandler sets the operation handler for the get vsphere thumbprint operation
 	VsphereGetVsphereThumbprintHandler vsphere.GetVsphereThumbprintHandler
-	// TmcRetrieveTMCInstallYmlHandler sets the operation handler for the retrieve t m c install yml operation
-	TmcRetrieveTMCInstallYmlHandler tmc.RetrieveTMCInstallYmlHandler
 	// AwsSetAWSEndpointHandler sets the operation handler for the set a w s endpoint operation
 	AwsSetAWSEndpointHandler aws.SetAWSEndpointHandler
 	// AzureSetAzureEndpointHandler sets the operation handler for the set azure endpoint operation
@@ -605,10 +599,6 @@ func (o *KickstartUIAPI) Validate() error {
 
 	if o.VsphereGetVsphereThumbprintHandler == nil {
 		unregistered = append(unregistered, "vsphere.GetVsphereThumbprintHandler")
-	}
-
-	if o.TmcRetrieveTMCInstallYmlHandler == nil {
-		unregistered = append(unregistered, "tmc.RetrieveTMCInstallYmlHandler")
 	}
 
 	if o.AwsSetAWSEndpointHandler == nil {
@@ -974,11 +964,6 @@ func (o *KickstartUIAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/api/providers/vsphere/thumbprint"] = vsphere.NewGetVsphereThumbprint(o.context, o.VsphereGetVsphereThumbprintHandler)
-
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/api/integration/tmc"] = tmc.NewRetrieveTMCInstallYml(o.context, o.TmcRetrieveTMCInstallYmlHandler)
 
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
