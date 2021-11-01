@@ -223,6 +223,19 @@ spec:
         #@ end
         bindPort: #@ data.values.CLUSTER_API_SERVER_PORT
       #@ end
+      #@ if data.values.TKG_IP_FAMILY == "ipv6,ipv4":
+      nodeRegistration:
+        kubeletExtraArgs:
+          #@overlay/match missing_ok=True
+          node-ip: "::"
+      #@ end
+    #@ if data.values.TKG_IP_FAMILY == "ipv6,ipv4":
+    joinConfiguration:
+      nodeRegistration:
+        kubeletExtraArgs:
+          #@overlay/match missing_ok=True
+          node-ip: "::"
+    #@ end
     clusterConfiguration:
       imageRepository: #@ kubeadm_image_repo(bomDataForK8sVersion.kubeadmConfigSpec.imageRepository)
       etcd:
@@ -232,6 +245,22 @@ spec:
       dns:
         imageRepository: #@ kubeadm_image_repo(bomDataForK8sVersion.kubeadmConfigSpec.dns.imageRepository)
         imageTag: #@ bomDataForK8sVersion.kubeadmConfigSpec.dns.imageTag
+      #@ if data.values.TKG_IP_FAMILY == "ipv6,ipv4":
+      apiServer:
+        extraArgs:
+          #@overlay/match missing_ok=True
+          advertise-address: #@ data.values.VSPHERE_CONTROL_PLANE_ENDPOINT
+          #@overlay/match missing_ok=True
+          bind-address: "::"
+      controllerManager:
+        extraArgs:
+          #@overlay/match missing_ok=True
+          bind-address: "::"
+      scheduler:
+        extraArgs:
+          #@overlay/match missing_ok=True
+          bind-address: "::"
+      #@ end
     files:
     #@ if not data.values.AVI_CONTROL_PLANE_HA_PROVIDER:
     #@overlay/match by=overlay.index(0)
@@ -267,6 +296,13 @@ metadata:
 spec:
   template:
     spec:
+      #@ if data.values.TKG_IP_FAMILY == "ipv6,ipv4":
+      joinConfiguration:
+        nodeRegistration:
+          kubeletExtraArgs:
+            #@overlay/match missing_ok=True
+            node-ip: "::"
+      #@ end
       users:
       #@overlay/match by=overlay.index(0)
       #@overlay/replace
