@@ -11,8 +11,8 @@ replace (
 
 require (
 	github.com/go-logr/logr v0.4.0
-	github.com/onsi/ginkgo v1.16.2
-	github.com/onsi/gomega v1.13.0
+	github.com/onsi/ginkgo v1.16.4
+	github.com/onsi/gomega v1.14.0
 	github.com/pkg/errors v0.9.1
 	github.com/vmware-tanzu/carvel-kapp-controller v0.25.0
 	github.com/vmware-tanzu/carvel-vendir v0.23.0
@@ -22,7 +22,7 @@ require (
 	k8s.io/apimachinery v0.21.2
 	k8s.io/client-go v0.21.2
 	k8s.io/klog v1.0.0
-	k8s.io/utils v0.0.0-20210527160623-6fdb442a123b
+	k8s.io/utils v0.0.0-20210709001253-0e1f9d693477
 	sigs.k8s.io/cluster-api v0.3.23
 	sigs.k8s.io/controller-runtime v0.7.0
 )

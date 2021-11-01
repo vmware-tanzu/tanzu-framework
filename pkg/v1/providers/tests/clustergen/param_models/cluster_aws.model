@@ -14,7 +14,7 @@ NODE_MACHINE_TYPE: "NA","m5.large"
 
 _CNAME: "testcluster", "c1"
 _PLAN: "dev", "prod"
-_INFRA: "aws:v0.6.6"
+_INFRA: "aws:v0.6.9"
 
 BASTION_HOST_ENABLED: "true"
 NODE_STARTUP_TIMEOUT: "20m"
