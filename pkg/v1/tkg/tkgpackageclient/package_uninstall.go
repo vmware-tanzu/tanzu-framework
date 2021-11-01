@@ -56,7 +56,7 @@ func (p *pkgClient) UninstallPackage(o *tkgpackagedatamodel.PackageOptions, prog
 		return
 	}
 
-	if err = p.waitForResourceDeletion(o.PkgInstallName, o.Namespace, o.PollInterval, o.PollTimeout, progress.ProgressMsg, tkgpackagedatamodel.ResourceTypePackageInstall); err != nil {
+	if err = p.waitForResourceDeletion(o.PkgInstallName, o.Namespace, o.PollInterval, o.PollTimeout, tkgpackagedatamodel.ResourceTypePackageInstall); err != nil {
 		return
 	}
 
@@ -211,7 +211,7 @@ func progressCleanup(err error, progress *tkgpackagedatamodel.PackageProgress) {
 }
 
 // waitForResourceDeletion waits until the CR gets deleted successfully or a failure happens
-func (p *pkgClient) waitForResourceDeletion(name, namespace string, pollInterval, pollTimeout time.Duration, progress chan string, rscType tkgpackagedatamodel.ResourceType) error {
+func (p *pkgClient) waitForResourceDeletion(name, namespace string, pollInterval, pollTimeout time.Duration, rscType tkgpackagedatamodel.ResourceType) error {
 	var status kappctrl.GenericStatus
 	if err := wait.Poll(pollInterval, pollTimeout, func() (done bool, err error) {
 		switch rscType {
@@ -243,9 +243,6 @@ func (p *pkgClient) waitForResourceDeletion(name, namespace string, pollInterval
 			status = resource.Status.GenericStatus
 		}
 		for _, cond := range status.Conditions {
-			if progress != nil {
-				progress <- fmt.Sprintf("'%s' resource deletion status: %s", rscType.String(), cond.Type)
-			}
 			if cond.Type == kappctrl.DeleteFailed && cond.Status == corev1.ConditionTrue {
 				return false, fmt.Errorf("resource deletion failed: %s. %s", status.UsefulErrorMessage, status.FriendlyDescription)
 			}

@@ -80,6 +80,7 @@ func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progres
 	}
 
 	if o.Wait {
+		progress.ProgressMsg <- fmt.Sprintf("Waiting for PackageInstall reconciliation for '%s'", o.PkgInstallName)
 		if err = p.waitForResourceInstallation(o.PkgInstallName, o.Namespace, o.PollInterval, o.PollTimeout, progress.ProgressMsg, tkgpackagedatamodel.ResourceTypePackageInstall); err != nil {
 			return
 		}

@@ -78,6 +78,7 @@ func (p *pkgClient) AddRepository(o *tkgpackagedatamodel.RepositoryOptions, prog
 	}
 
 	if o.Wait {
+		progress.ProgressMsg <- fmt.Sprintf("Waiting for PackageRepository reconciliation for '%s'", o.RepositoryName)
 		if err = p.waitForResourceInstallation(o.RepositoryName, o.Namespace, o.PollInterval, o.PollTimeout, progress.ProgressMsg, tkgpackagedatamodel.ResourceTypePackageRepository); err != nil {
 			log.Warning(msgRunPackageRepositoryUpdate)
 			return

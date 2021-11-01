@@ -40,7 +40,7 @@ func (p *pkgClient) DeleteRepository(o *tkgpackagedatamodel.RepositoryOptions, p
 	}
 
 	if o.Wait {
-		if err = p.waitForResourceDeletion(o.RepositoryName, o.Namespace, o.PollInterval, o.PollTimeout, progress.ProgressMsg, tkgpackagedatamodel.ResourceTypePackageRepository); err != nil {
+		if err = p.waitForResourceDeletion(o.RepositoryName, o.Namespace, o.PollInterval, o.PollTimeout, tkgpackagedatamodel.ResourceTypePackageRepository); err != nil {
 			return
 		}
 	}

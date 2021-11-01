@@ -90,6 +90,7 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 	}
 
 	if o.Wait {
+		progress.ProgressMsg <- fmt.Sprintf("Waiting for PackageInstall reconciliation for '%s'", o.PkgInstallName)
 		if err = p.waitForResourceInstallation(o.PkgInstallName, o.Namespace, o.PollInterval, o.PollTimeout, progress.ProgressMsg, tkgpackagedatamodel.ResourceTypePackageInstall); err != nil {
 			log.Warning(msgRunPackageInstalledUpdate)
 			return
@@ -324,12 +325,12 @@ func (p *pkgClient) validateValuesFile(o *tkgpackagedatamodel.PackageOptions) er
 }
 
 // waitForResourceInstallation waits until the package get installed successfully or a failure happen
-func (p *pkgClient) waitForResourceInstallation(name, namespace string, pollInterval, pollTimeout time.Duration, progress chan string, rscType tkgpackagedatamodel.ResourceType) error { //nolint:gocyclo
+func (p *pkgClient) waitForResourceInstallation(name, namespace string, pollInterval, pollTimeout time.Duration, progress chan string, rscType tkgpackagedatamodel.ResourceType) error {
 	var (
 		status             kappctrl.GenericStatus
 		reconcileSucceeded bool
 	)
-	progress <- fmt.Sprintf("Waiting for '%s' reconciliation for '%s'", rscType.String(), name)
+
 	if err := wait.Poll(pollInterval, pollTimeout, func() (done bool, err error) {
 		switch rscType {
 		case tkgpackagedatamodel.ResourceTypePackageRepository:
@@ -355,9 +356,6 @@ func (p *pkgClient) waitForResourceInstallation(name, namespace string, pollInte
 		}
 
 		for _, cond := range status.Conditions {
-			if progress != nil {
-				progress <- fmt.Sprintf("'%s' resource install status: %s", rscType.String(), cond.Type)
-			}
 			switch {
 			case cond.Type == kappctrl.ReconcileSucceeded && cond.Status == corev1.ConditionTrue:
 				if progress != nil {
