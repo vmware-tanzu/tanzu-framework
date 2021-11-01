@@ -334,20 +334,30 @@ type criRegistryTLSConfig struct {
 // set the podSubnet and serviceSubnet fields
 // if TKG_IP_FAMILY is set then set the ipFamily field
 func (k *KindClusterProxy) getKindNetworkingConfig() kindv1.Networking {
-	ipFamily, _ := k.getIPFamily()
+	ipFamily, err := k.options.Readerwriter.Get(constants.ConfigVariableIPFamily)
+	if err != nil {
+		// ignore this error as TKG_IP_FAMILY is optional
+		ipFamily = ""
+	}
 	podSubnet, err := k.options.Readerwriter.Get(constants.ConfigVariableClusterCIDR)
 	if err != nil {
-		if ipFamily == constants.IPv6Family {
+		switch ipFamily {
+		case constants.DualStackPrimaryIPv4Family:
+			podSubnet = constants.DefaultDualStackPrimaryIPv4ClusterCIDR
+		case constants.IPv6Family:
 			podSubnet = constants.DefaultIPv6ClusterCIDR
-		} else {
+		default:
 			podSubnet = constants.DefaultIPv4ClusterCIDR
 		}
 	}
 	serviceSubnet, err := k.options.Readerwriter.Get(constants.ConfigVariableServiceCIDR)
 	if err != nil {
-		if ipFamily == constants.IPv6Family {
+		switch ipFamily {
+		case constants.DualStackPrimaryIPv4Family:
+			serviceSubnet = constants.DefaultDualStackPrimaryIPv4ServiceCIDR
+		case constants.IPv6Family:
 			serviceSubnet = constants.DefaultIPv6ServiceCIDR
-		} else {
+		default:
 			serviceSubnet = constants.DefaultIPv4ServiceCIDR
 		}
 	}
@@ -355,25 +365,29 @@ func (k *KindClusterProxy) getKindNetworkingConfig() kindv1.Networking {
 	networkConfig := kindv1.Networking{
 		PodSubnet:     podSubnet,
 		ServiceSubnet: serviceSubnet,
-		IPFamily:      ipFamily,
+		IPFamily:      k.getKindIPFamily(),
 	}
 
 	return networkConfig
 }
 
 // if TKG_IP_FAMILY is set then set the networking field
-func (k *KindClusterProxy) getIPFamily() (kindv1.ClusterIPFamily, error) {
+func (k *KindClusterProxy) getKindIPFamily() kindv1.ClusterIPFamily {
 	ipFamily, err := k.options.Readerwriter.Get(constants.ConfigVariableIPFamily)
 	if err != nil {
 		// ignore this error as TKG_IP_FAMILY is optional
 		ipFamily = ""
 	}
-	normalisedIPFamily := kindv1.ClusterIPFamily(strings.ToLower(ipFamily))
-	switch normalisedIPFamily {
-	case kindv1.IPv4Family, kindv1.IPv6Family, kindv1.DualStackFamily, kindv1.ClusterIPFamily(""):
-		return normalisedIPFamily, nil
+
+	switch strings.ToLower(ipFamily) {
+	case constants.IPv4Family:
+		return kindv1.IPv4Family
+	case constants.IPv6Family:
+		return kindv1.IPv6Family
+	case constants.DualStackPrimaryIPv4Family:
+		return kindv1.DualStackFamily
 	default:
-		return "", fmt.Errorf("TKG_IP_FAMILY should be one of %s, %s, %s, got %s", kindv1.IPv4Family, kindv1.IPv6Family, kindv1.DualStackFamily, normalisedIPFamily)
+		return ""
 	}
 }
 

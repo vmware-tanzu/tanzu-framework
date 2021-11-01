@@ -23,6 +23,7 @@ import (
 	tkgauth "github.com/vmware-tanzu/tanzu-framework/pkg/v1/auth/tkg"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/plugin"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/pluginmanager"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
 
@@ -122,10 +123,23 @@ func login(cmd *cobra.Command, args []string) (err error) {
 	}
 
 	if serverTarget.Type == configv1alpha1.GlobalServerType {
-		return globalLogin(serverTarget)
+		err = globalLogin(serverTarget)
+	} else {
+		err = managementClusterLogin(serverTarget)
 	}
 
-	return managementClusterLogin(serverTarget)
+	if err != nil {
+		return err
+	}
+
+	// Sync all required plugins if the "features.global.context-aware-discovery" feature is enabled
+	if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
+		if err = pluginmanager.SyncPlugins(serverTarget.Name); err != nil {
+			log.Warning("unable to automatically sync the plugins from target server. Please run 'tanzu plugin sync' command to sync plugins manually")
+		}
+	}
+
+	return nil
 }
 
 func getServerTarget(cfg *configv1alpha1.ClientConfig, newServerSelector string) (*configv1alpha1.Server, error) {

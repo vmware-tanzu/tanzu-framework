@@ -198,6 +198,9 @@ var _ = Describe("Unit tests for addons upgrade", func() {
 		})
 
 		Describe("When setting networking configuration", func() {
+			BeforeEach(func() {
+				addonsToBeUpgraded = []string{"tkr/tkr-controller"}
+			})
 			It("sets the cluster CIDR in the TKGConfig", func() {
 				clusterCIDR, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterCIDR)
 				Expect(err).NotTo(HaveOccurred())
@@ -208,7 +211,18 @@ var _ = Describe("Unit tests for addons upgrade", func() {
 				Expect(err).NotTo(HaveOccurred())
 				Expect(serviceCIDR).To(Equal("1.2.3.4/16"))
 			})
+			When("the cidrs are unset", func() {
+				It("sets the IPFamily to ipv4", func() {
+					ipFamily, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableIPFamily)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(ipFamily).To(Equal("ipv4"))
+				})
+			})
 			When("the cluster is ipv4", func() {
+				BeforeEach(func() {
+					serviceCIDRs = []string{"2.3.4.5/16"}
+					podCIDRs = []string{"1.2.3.4/16"}
+				})
 				It("sets the IPFamily to ipv4", func() {
 					ipFamily, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableIPFamily)
 					Expect(err).NotTo(HaveOccurred())
@@ -224,6 +238,28 @@ var _ = Describe("Unit tests for addons upgrade", func() {
 					ipFamily, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableIPFamily)
 					Expect(err).NotTo(HaveOccurred())
 					Expect(ipFamily).To(Equal("ipv6"))
+				})
+			})
+			When("the cluster is dualstack and primary ipv4", func() {
+				BeforeEach(func() {
+					serviceCIDRs = []string{"1.2.3.4/16", "fd00::/32"}
+					podCIDRs = []string{"2.3.4.5/16", "fd01::/32"}
+				})
+				It("sets the IPFamily to ipv4,ipv6", func() {
+					ipFamily, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableIPFamily)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(ipFamily).To(Equal("ipv4,ipv6"))
+				})
+			})
+			When("the cluster is dualstack and primary ipv6", func() {
+				BeforeEach(func() {
+					serviceCIDRs = []string{"fd00::/32", "1.2.3.4/16"}
+					podCIDRs = []string{"fd01::/32", "2.3.4.5/16"}
+				})
+				It("sets the IPFamily to ipv6,ipv4", func() {
+					ipFamily, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableIPFamily)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(ipFamily).To(Equal("ipv6,ipv4"))
 				})
 			})
 		})
