@@ -276,7 +276,7 @@ publish-plugins-local:
 
 .PHONY: build-publish-plugins
 build-publish-plugins: clean-catalog-cache clean-cli-plugins build-cli install-cli publish-plugins
-	
+
 .PHONY: build-publish-plugins-local
 build-publish-plugins-local: clean-catalog-cache clean-cli-plugins build-cli-local install-cli publish-plugins-local
 
@@ -385,7 +385,7 @@ lint: tools doc-lint ## Run linting checks
 	cd $(ADDONS_DIR)/pinniped/post-deploy/; $(GOLANGCI_LINT) run -v
 
 	# Linting for the YTT generation test code...
-	cd $(YTT_TESTS_DIR); $(GOLANGCI_LINT) run -v 
+	cd $(YTT_TESTS_DIR); $(GOLANGCI_LINT) run -v
 
 	# Check licenses in shell scripts and Makefile
 	hack/check-license.sh
@@ -403,6 +403,7 @@ modules: ## Runs go mod to ensure modules are up to date.
 	cd $(ADDONS_DIR); $(GO) mod tidy
 	cd $(ADDONS_DIR)/pinniped/post-deploy/; $(GO) mod tidy
 	cd $(TOOLS_DIR); $(GO) mod tidy
+	cd $(YTT_TESTS_DIR); $(GO) mod tidy
 
 .PHONY: verify
 verify: ## Run all verification scripts

@@ -18,7 +18,7 @@ The unit tests in this repository can be run like so:
 
 ```bash
 cd pkg/v1/providers/tests/
-/usr/local/bin/go test -timeout 30s -run ^TestUnit$ github.com/vmware-tanzu/tanzu-framework/pkg/v1/providers/tests/unit/matchers
+go test -timeout 30s -run ^TestUnit$ github.com/vmware-tanzu/tanzu-framework/pkg/v1/providers/tests/unit/matchers
 ```
 
 You can write an end to end unit test by:
