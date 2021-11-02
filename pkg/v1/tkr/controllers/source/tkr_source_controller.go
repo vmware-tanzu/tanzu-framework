@@ -176,7 +176,7 @@ func eventFilter(p func(eventMeta metav1.Object) bool) *predicate.Funcs {
 
 func (r *reconciler) createBOMConfigMap(ctx context.Context, tag string) error {
 	r.log.Info("Fetching BOM", "image", r.bomImage, "tag", tag)
-	bomContent, err := r.registry.GetFile(r.bomImage, tag, "")
+	bomContent, err := r.registry.GetFile(fmt.Sprintf("%s:%s", r.bomImage, tag), "")
 	if err != nil {
 		return errors.Wrapf(err, "failed to get the BOM file from image %s:%s", r.bomImage, tag)
 	}
@@ -387,7 +387,7 @@ func (r *reconciler) fetchCompatibilityMetadata() (*types.CompatibilityMetadata,
 	for i := len(tagNum) - 1; i >= 0; i-- {
 		tagName := fmt.Sprintf("v%d", tagNum[i])
 		r.log.Info("Fetching BOM metadata image", "image", r.compatibilityMetadataImage, "tag", tagName)
-		metadataContent, err = r.registry.GetFile(r.compatibilityMetadataImage, tagName, "")
+		metadataContent, err = r.registry.GetFile(fmt.Sprintf("%s:%s", r.compatibilityMetadataImage, tagName), "")
 		if err == nil {
 			if err = yaml.Unmarshal(metadataContent, &metadata); err == nil {
 				break

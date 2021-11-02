@@ -4,6 +4,7 @@
 package registry
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 	"testing"
@@ -45,7 +46,7 @@ func TestRegistryPullBOM(t *testing.T) {
 
 	t.Log(tags[0])
 
-	content, err := reg.GetFile(bomRegistry, tags[0], "")
+	content, err := reg.GetFile(fmt.Sprintf("%s:%s", bomRegistry, tags[0]), "")
 	if err != nil {
 		t.Fatalf("error getting image content should not occurs %s", err.Error())
 	}

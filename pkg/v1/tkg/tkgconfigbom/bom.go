@@ -436,7 +436,7 @@ func (c *client) DownloadDefaultBOMFilesFromRegistry(bomRegistry registry.Regist
 	}
 
 	log.Infof("Downloading the TKG Bill of Materials (BOM) file from '%s'", fmt.Sprintf("%s:%s", tkgBOMImagePath, tkgBOMImageTag))
-	tkgBOMContent, err := bomRegistry.GetFile(tkgBOMImagePath, tkgBOMImageTag, "")
+	tkgBOMContent, err := bomRegistry.GetFile(fmt.Sprintf("%s:%s", tkgBOMImagePath, tkgBOMImageTag), "")
 	if err != nil {
 		return errors.Errorf(errorDownloadingDefaultBOMFiles, fmt.Sprintf("%s:%s", tkgBOMImagePath, tkgBOMImageTag), err, tkgconfigpath)
 	}
@@ -473,7 +473,7 @@ func (c *client) DownloadDefaultBOMFilesFromRegistry(bomRegistry registry.Regist
 	defaultTKRImagePath := tkrBOMImageRepo + "/" + bomConfiguration.TKRBOM.ImagePath
 
 	log.Infof("Downloading the TKr Bill of Materials (BOM) file from '%s'", fmt.Sprintf("%s:%s", defaultTKRImagePath, tkrBOMTagName))
-	tkrBOMContent, err := bomRegistry.GetFile(defaultTKRImagePath, tkrBOMTagName, "")
+	tkrBOMContent, err := bomRegistry.GetFile(fmt.Sprintf("%s:%s", defaultTKRImagePath, tkrBOMTagName), "")
 	if err != nil {
 		return errors.Errorf(errorDownloadingDefaultBOMFiles, fmt.Sprintf("%s:%s", defaultTKRImagePath, tkrBOMTagName), err, tkgconfigpath)
 	}
@@ -531,7 +531,7 @@ func (c *client) DownloadTKGCompatibilityFileFromRegistry(bomRegistry registry.R
 		return err
 	}
 
-	tkgCompatibilityContent, err := bomRegistry.GetFile(tkgCompatibilityImagePath, tagName, "")
+	tkgCompatibilityContent, err := bomRegistry.GetFile(fmt.Sprintf("%s:%s", tkgCompatibilityImagePath, tagName), "")
 	if err != nil {
 		return errors.Errorf(errorDownloadingTKGCompatibilityFile, fmt.Sprintf("%s:%s", tkgCompatibilityImagePath, tagName), err, tkgconfigpath)
 	}

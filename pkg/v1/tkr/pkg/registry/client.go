@@ -5,7 +5,6 @@ package registry
 
 import (
 	"archive/tar"
-	"fmt"
 	"io"
 
 	regname "github.com/google/go-containerregistry/pkg/name"
@@ -43,8 +42,8 @@ func (r *registry) ListImageTags(imageName string) ([]string, error) {
 
 // GetFile gets the file content bundled in the given image:tag.
 // If filename is empty, it will get the first file.
-func (r *registry) GetFile(image, tag, filename string) ([]byte, error) {
-	ref, err := regname.ParseReference(fmt.Sprintf("%s:%s", image, tag), regname.WeakValidation)
+func (r *registry) GetFile(imageWithTag, filename string) ([]byte, error) {
+	ref, err := regname.ParseReference(imageWithTag, regname.WeakValidation)
 	if err != nil {
 		return nil, err
 	}
@@ -115,8 +114,8 @@ func getFileFromLayer(stream io.Reader, files map[string][]byte) error {
 }
 
 // GetFiles get all the files content bundled in the given image:tag.
-func (r *registry) GetFiles(image, tag string) (map[string][]byte, error) {
-	ref, err := regname.ParseReference(fmt.Sprintf("%s:%s", image, tag), regname.WeakValidation)
+func (r *registry) GetFiles(imageWithTag string) (map[string][]byte, error) {
+	ref, err := regname.ParseReference(imageWithTag, regname.WeakValidation)
 	if err != nil {
 		return nil, err
 	}
