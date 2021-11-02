@@ -12,7 +12,9 @@ import (
 	"github.com/pkg/errors"
 	v1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/cluster-api/api/v1beta1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	tkgsv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
 	fakehelper "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes/helper"
@@ -35,24 +37,7 @@ var _ = Describe("Unit tests for scalePacificCluster", func() {
 	})
 
 	JustBeforeEach(func() {
-		err = tkgClient.ScalePacificCluster(scaleClusterOptions, regionalClusterClient)
-	})
-
-	Context("When scaleClusterOptions is all set", func() {
-		BeforeEach(func() {
-			scaleClusterOptions = ScaleClusterOptions{
-				ClusterName:       "my-cluster",
-				Namespace:         "namespace-1",
-				WorkerCount:       5,
-				ControlPlaneCount: 10,
-				Kubeconfig:        kubeconfig,
-			}
-			regionalClusterClient.ScalePacificClusterControlPlaneReturns(nil)
-			regionalClusterClient.ScalePacificClusterWorkerNodesReturns(nil)
-		})
-		It("should not return error", func() {
-			Expect(err).ToNot(HaveOccurred())
-		})
+		err = tkgClient.ScalePacificCluster(&scaleClusterOptions, regionalClusterClient)
 	})
 
 	Context("When namespace is empty", func() {
@@ -77,7 +62,7 @@ var _ = Describe("Unit tests for scalePacificCluster", func() {
 			scaleClusterOptions = ScaleClusterOptions{
 				ClusterName:       "my-cluster",
 				Namespace:         "namespace-1",
-				WorkerCount:       5,
+				WorkerCount:       0,
 				ControlPlaneCount: 10,
 				Kubeconfig:        kubeconfig,
 			}
@@ -89,7 +74,7 @@ var _ = Describe("Unit tests for scalePacificCluster", func() {
 		})
 	})
 
-	Context("When workers nodes for workload cluster cannot be scaled", func() {
+	Context("When workers count for workload cluster is provided but nodepool name is not provided", func() {
 		BeforeEach(func() {
 			scaleClusterOptions = ScaleClusterOptions{
 				ClusterName:       "my-cluster",
@@ -97,12 +82,79 @@ var _ = Describe("Unit tests for scalePacificCluster", func() {
 				WorkerCount:       5,
 				ControlPlaneCount: 10,
 				Kubeconfig:        kubeconfig,
+				NodePoolName:      "",
 			}
-			regionalClusterClient.ScalePacificClusterWorkerNodesReturns(errors.New("fake-error"))
 		})
 		It("returns an error", func() {
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("unable to scale workers nodes for workload cluster"))
+			errString := fmt.Sprintf(`unable to scale workers nodes for cluster "%s" in namespace "%s" , please specify the node pool name`,
+				scaleClusterOptions.ClusterName, scaleClusterOptions.Namespace)
+			Expect(err.Error()).To(ContainSubstring(errString))
+		})
+	})
+	Context("When nodepool to be scaled doesn't exists in TKC", func() {
+		BeforeEach(func() {
+			scaleClusterOptions = ScaleClusterOptions{
+				ClusterName:       "my-cluster",
+				Namespace:         "namespace-1",
+				WorkerCount:       5,
+				ControlPlaneCount: 10,
+				Kubeconfig:        kubeconfig,
+				NodePoolName:      "non-existing-nodepool",
+			}
+			tkc := GetDummyPacificCluster()
+			regionalClusterClient.GetPacificClusterObjectReturns(&tkc, nil)
+		})
+		It("returns an error", func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("could not find node pool with name %s", scaleClusterOptions.NodePoolName)))
+		})
+	})
+	Context("When nodepool update operation failed", func() {
+		BeforeEach(func() {
+			scaleClusterOptions = ScaleClusterOptions{
+				ClusterName:       "my-cluster",
+				Namespace:         "namespace-1",
+				WorkerCount:       5,
+				ControlPlaneCount: 10,
+				Kubeconfig:        kubeconfig,
+				NodePoolName:      "nodepool-1",
+			}
+			tkc := GetDummyPacificCluster()
+			regionalClusterClient.GetPacificClusterObjectReturns(&tkc, nil)
+			regionalClusterClient.UpdateResourceCalls(func(obj interface{}, objName string, namespace string, opts ...client.UpdateOption) error {
+				return errors.New("fake-tkc-update-error")
+			})
+		})
+		It("returns an error", func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("unable to scale node pool %s", scaleClusterOptions.NodePoolName)))
+			Expect(err.Error()).To(ContainSubstring("fake-tkc-update-error"))
+		})
+	})
+	Context("When scaleClusterOptions is all set and scaling controlplane and nodepools is success", func() {
+		var gotTkc *tkgsv1alpha2.TanzuKubernetesCluster
+		BeforeEach(func() {
+			scaleClusterOptions = ScaleClusterOptions{
+				ClusterName:       "my-cluster",
+				Namespace:         "namespace-1",
+				WorkerCount:       5,
+				ControlPlaneCount: 10,
+				Kubeconfig:        kubeconfig,
+				NodePoolName:      "nodepool-1",
+			}
+			tkc := GetDummyPacificCluster()
+			regionalClusterClient.GetPacificClusterObjectReturns(&tkc, nil)
+			regionalClusterClient.ScalePacificClusterControlPlaneReturns(nil)
+			regionalClusterClient.UpdateResourceCalls(func(obj interface{}, objName string, namespace string, opts ...client.UpdateOption) error {
+				gotTkc = obj.(*tkgsv1alpha2.TanzuKubernetesCluster)
+				return nil
+			})
+		})
+		It("should not return error", func() {
+			Expect(err).ToNot(HaveOccurred())
+			Expect(gotTkc.Spec.Topology.NodePools[0].Name).To(Equal("nodepool-1"))
+			Expect(*gotTkc.Spec.Topology.NodePools[0].Replicas).To(Equal(int32(5)))
 		})
 	})
 })

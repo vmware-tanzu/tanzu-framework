@@ -65,7 +65,7 @@ func (c *TkgClient) DoScaleCluster(clusterClient clusterclient.Client, options *
 		if err != nil {
 			return err
 		}
-		return c.ScalePacificCluster(*options, clusterClient)
+		return c.ScalePacificCluster(options, clusterClient)
 	}
 
 	errList := []error{}
@@ -99,7 +99,7 @@ func (c *TkgClient) DoScaleCluster(clusterClient clusterclient.Client, options *
 }
 
 // ScalePacificCluster scale TKGS cluster
-func (c *TkgClient) ScalePacificCluster(options ScaleClusterOptions, clusterClient clusterclient.Client) error {
+func (c *TkgClient) ScalePacificCluster(options *ScaleClusterOptions, clusterClient clusterclient.Client) error {
 	var err error
 	errList := []error{}
 	// If the option specifying the targetNamespace is empty, try to detect it.
@@ -117,7 +117,10 @@ func (c *TkgClient) ScalePacificCluster(options ScaleClusterOptions, clusterClie
 		}
 	}
 	if options.WorkerCount > 0 {
-		err := clusterClient.ScalePacificClusterWorkerNodes(options.ClusterName, options.Namespace, options.WorkerCount)
+		if options.NodePoolName == "" {
+			return errors.Errorf("unable to scale workers nodes for cluster %q in namespace %q , please specify the node pool name", options.ClusterName, options.Namespace)
+		}
+		err := c.scalePacificClusterNodePool(clusterClient, options)
 		if err != nil {
 			errList = append(errList, errors.Wrapf(err, "unable to scale workers nodes for workload cluster %s", options.ClusterName))
 		} else {
@@ -171,14 +174,7 @@ func (c *TkgClient) scaleWorkersNodePool(clusterClient clusterclient.Client, opt
 		return errors.Errorf("Could not find node pool with name %s", options.NodePoolName)
 	}
 
-	mdOptions := SetMachineDeploymentOptions{
-		Namespace:   options.Namespace,
-		ClusterName: options.ClusterName,
-		NodePool: NodePool{
-			Name:     options.NodePoolName,
-			Replicas: &options.WorkerCount,
-		},
-	}
+	mdOptions := prepareSetMachineDeploymentOptions(options)
 	if err := DoSetMachineDeployment(clusterClient, &mdOptions); err != nil {
 		return errors.Wrapf(err, "Unable to scale node pool %s", options.NodePoolName)
 	}
@@ -213,4 +209,47 @@ func (c *TkgClient) mdExists(clusterClient clusterclient.Client, options *ScaleC
 	}
 
 	return false, nil
+}
+
+func (c *TkgClient) scalePacificClusterNodePool(clusterClient clusterclient.Client, options *ScaleClusterOptions) error {
+	nodePoolExists, err := c.tkcNodePoolExists(clusterClient, options)
+	if err != nil {
+		return err
+	}
+	if !nodePoolExists {
+		return errors.Errorf("could not find node pool with name %s", options.NodePoolName)
+	}
+
+	mdOptions := prepareSetMachineDeploymentOptions(options)
+	if err = c.SetNodePoolsForPacificCluster(clusterClient, &mdOptions); err != nil {
+		return errors.Wrapf(err, "unable to scale node pool %s", options.NodePoolName)
+	}
+
+	return nil
+}
+
+func (c *TkgClient) tkcNodePoolExists(clusterClient clusterclient.Client, options *ScaleClusterOptions) (bool, error) {
+	tkc, err := clusterClient.GetPacificClusterObject(options.ClusterName, options.Namespace)
+	if err != nil {
+		return false, errors.Wrapf(err, "unable to get TKC object %q in namespace %q", options.ClusterName, options.Namespace)
+	}
+
+	nodePools := tkc.Spec.Topology.NodePools
+	for idx := range nodePools {
+		if nodePools[idx].Name == options.NodePoolName {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+func prepareSetMachineDeploymentOptions(options *ScaleClusterOptions) SetMachineDeploymentOptions {
+	return SetMachineDeploymentOptions{
+		Namespace:   options.Namespace,
+		ClusterName: options.ClusterName,
+		NodePool: NodePool{
+			Name:     options.NodePoolName,
+			Replicas: &options.WorkerCount,
+		},
+	}
 }
