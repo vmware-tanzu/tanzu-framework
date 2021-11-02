@@ -350,7 +350,8 @@ func (c *TkgClient) upgradeAddonPreNodeUpgrade(regionalClusterClient clusterclie
 			"tkr/tkr-controller",
 			"addons-management/core-package-repo",
 			"capabilities/capabilities-controller",
-			"packages/management-package-repo")
+			"packages/management-package-repo",
+			"packages/management-package")
 	}
 	upgradeClusterMetadataOptions := &UpgradeAddonOptions{
 		AddonNames:        addonsToBeUpgraded,

@@ -318,6 +318,12 @@ components:
       tanzuStandardPackageRepositoryImage:
         imagePath: packages/standard/repo
         tag: v1.4.0
+  tanzu-framework-management-packages:
+  - version: v0.11.0-dev-25-g4ed8343e
+    images:
+      tanzuFrameworkManagementPackageRepositoryImage:
+        imagePath: sandbox/packages/management/repo
+        tag: v0.11.0-dev-25-g4ed8343e
   tkg_telemetry:
   - version: v1.4.0+vmware.1
     images:
