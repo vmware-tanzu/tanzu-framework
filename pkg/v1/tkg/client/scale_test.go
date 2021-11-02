@@ -274,7 +274,7 @@ var _ = Describe("Scale API", func() {
 						scaleClusterOptions.WorkerCount = 3
 
 						err = tkgClient.DoScaleCluster(regionalClusterClient, &scaleClusterOptions)
-						Expect(err).Should(MatchError(fmt.Sprintf("Failed to get node pools for cluster %s: unable to get worker machine deployments: %s", scaleClusterOptions.ClusterName, mdErrString)))
+						Expect(err).Should(MatchError(fmt.Sprintf("Failed to get node pools for cluster %s: error retrieving machine deployments: %s", scaleClusterOptions.ClusterName, mdErrString)))
 					})
 				})
 				When("the named node pool can't be found", func() {
@@ -298,7 +298,7 @@ var _ = Describe("Scale API", func() {
 						scaleClusterOptions.WorkerCount = 3
 
 						err = tkgClient.DoScaleCluster(regionalClusterClient, &scaleClusterOptions)
-						Expect(err).Should(MatchError(fmt.Sprintf("Unable to scale node pool %s: unable to get worker machine deployments: %s", scaleClusterOptions.NodePoolName, mdErrString)))
+						Expect(err).Should(MatchError(fmt.Sprintf("Unable to scale node pool %s: error retrieving worker machine deployments: %s", scaleClusterOptions.NodePoolName, mdErrString)))
 
 						Expect(regionalClusterClient.GetMDObjectForClusterCallCount()).To(Equal(2))
 					})
