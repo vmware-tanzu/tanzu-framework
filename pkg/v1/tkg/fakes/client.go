@@ -193,6 +193,18 @@ type Client struct {
 	downloadBomFileReturnsOnCall map[int]struct {
 		result1 error
 	}
+	GenerateAWSCloudFormationTemplateStub        func() (string, error)
+	generateAWSCloudFormationTemplateMutex       sync.RWMutex
+	generateAWSCloudFormationTemplateArgsForCall []struct {
+	}
+	generateAWSCloudFormationTemplateReturns struct {
+		result1 string
+		result2 error
+	}
+	generateAWSCloudFormationTemplateReturnsOnCall map[int]struct {
+		result1 string
+		result2 error
+	}
 	GetCEIPParticipationStub        func() (client.ClusterCeipInfo, error)
 	getCEIPParticipationMutex       sync.RWMutex
 	getCEIPParticipationArgsForCall []struct {
@@ -1504,6 +1516,62 @@ func (fake *Client) DownloadBomFileReturnsOnCall(i int, result1 error) {
 	fake.downloadBomFileReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
+}
+
+func (fake *Client) GenerateAWSCloudFormationTemplate() (string, error) {
+	fake.generateAWSCloudFormationTemplateMutex.Lock()
+	ret, specificReturn := fake.generateAWSCloudFormationTemplateReturnsOnCall[len(fake.generateAWSCloudFormationTemplateArgsForCall)]
+	fake.generateAWSCloudFormationTemplateArgsForCall = append(fake.generateAWSCloudFormationTemplateArgsForCall, struct {
+	}{})
+	stub := fake.GenerateAWSCloudFormationTemplateStub
+	fakeReturns := fake.generateAWSCloudFormationTemplateReturns
+	fake.recordInvocation("GenerateAWSCloudFormationTemplate", []interface{}{})
+	fake.generateAWSCloudFormationTemplateMutex.Unlock()
+	if stub != nil {
+		return stub()
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *Client) GenerateAWSCloudFormationTemplateCallCount() int {
+	fake.generateAWSCloudFormationTemplateMutex.RLock()
+	defer fake.generateAWSCloudFormationTemplateMutex.RUnlock()
+	return len(fake.generateAWSCloudFormationTemplateArgsForCall)
+}
+
+func (fake *Client) GenerateAWSCloudFormationTemplateCalls(stub func() (string, error)) {
+	fake.generateAWSCloudFormationTemplateMutex.Lock()
+	defer fake.generateAWSCloudFormationTemplateMutex.Unlock()
+	fake.GenerateAWSCloudFormationTemplateStub = stub
+}
+
+func (fake *Client) GenerateAWSCloudFormationTemplateReturns(result1 string, result2 error) {
+	fake.generateAWSCloudFormationTemplateMutex.Lock()
+	defer fake.generateAWSCloudFormationTemplateMutex.Unlock()
+	fake.GenerateAWSCloudFormationTemplateStub = nil
+	fake.generateAWSCloudFormationTemplateReturns = struct {
+		result1 string
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *Client) GenerateAWSCloudFormationTemplateReturnsOnCall(i int, result1 string, result2 error) {
+	fake.generateAWSCloudFormationTemplateMutex.Lock()
+	defer fake.generateAWSCloudFormationTemplateMutex.Unlock()
+	fake.GenerateAWSCloudFormationTemplateStub = nil
+	if fake.generateAWSCloudFormationTemplateReturnsOnCall == nil {
+		fake.generateAWSCloudFormationTemplateReturnsOnCall = make(map[int]struct {
+			result1 string
+			result2 error
+		})
+	}
+	fake.generateAWSCloudFormationTemplateReturnsOnCall[i] = struct {
+		result1 string
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *Client) GetCEIPParticipation() (client.ClusterCeipInfo, error) {
@@ -3654,6 +3722,8 @@ func (fake *Client) Invocations() map[string][][]interface{} {
 	defer fake.describeProviderMutex.RUnlock()
 	fake.downloadBomFileMutex.RLock()
 	defer fake.downloadBomFileMutex.RUnlock()
+	fake.generateAWSCloudFormationTemplateMutex.RLock()
+	defer fake.generateAWSCloudFormationTemplateMutex.RUnlock()
 	fake.getCEIPParticipationMutex.RLock()
 	defer fake.getCEIPParticipationMutex.RUnlock()
 	fake.getClusterConfigurationMutex.RLock()

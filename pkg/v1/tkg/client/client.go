@@ -126,6 +126,8 @@ type Client interface {
 	GetRegionContexts(clusterName string) ([]region.RegionContext, error)
 	// SetRegionContext sets a management cluster context to be current context
 	SetRegionContext(clusterName string, contextName string) error
+	// GenerateAWSCloudFormationTemplate generates a CloudFormation YAML template
+	GenerateAWSCloudFormationTemplate() (string, error)
 	// GetCurrentRegionContext() gets the current management cluster context
 	GetCurrentRegionContext() (region.RegionContext, error)
 	// GetWorkloadClusterCredentials merges workload cluster credentials into kubeconfig path

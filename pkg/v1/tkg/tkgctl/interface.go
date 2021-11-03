@@ -38,6 +38,8 @@ type TKGClient interface {
 	DescribeCluster(options DescribeTKGClustersOptions) (DescribeClusterResult, error)
 	// DescribeProviders describes all the installed providers
 	DescribeProviders() (*clusterctlv1.ProviderList, error)
+	// GenerateAWSCloudFormationTemplate generates a YAML template for AWS CloudFormation
+	GenerateAWSCloudFormationTemplate(clusterConfigFile string) (string, error)
 	// GetCredentials saves cluster credentials to a file
 	GetCredentials(options GetWorkloadClusterCredentialsOptions) error
 	// GetKubernetesVersions returns supported k8s versions

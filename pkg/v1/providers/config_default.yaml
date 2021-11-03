@@ -414,6 +414,9 @@ TKG_PROXY_CA_CERT: ""
 #! IP Family setting
 TKG_IP_FAMILY:
 
+#! Configure cloud provider permissions for TMC enablement. Only affects AWS at present.
+ENABLE_TMC_CLOUD_PROVIDER_PERMISSIONS: false
+
 #! Node Nameservers (currently only supports the vSphere provider)
 CONTROL_PLANE_NODE_NAMESERVERS:
 WORKER_NODE_NAMESERVERS:
