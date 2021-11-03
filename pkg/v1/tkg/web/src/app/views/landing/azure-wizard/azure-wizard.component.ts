@@ -29,6 +29,29 @@ enum AzureForm {
     VNET = 'vnetForm'
 }
 
+enum AzureForm {
+    PROVIDER = 'azureProviderForm',
+    NODESETTING = 'azureNodeSettingForm',
+    METADATA = 'metadataForm',
+    NETWORK = 'networkForm',
+    CEIP = 'ceipOptInForm',
+    IDENTITY = 'identityForm',
+    OSIMAGE = 'osImageForm',
+    VNET = 'vnetForm'
+}
+
+// Not sure why some of these step names have 'Form' in them, but leaving as is
+enum AzureStep {
+    PROVIDER = 'azureProviderForm',
+    NODESETTING = 'azureNodeSettingForm',
+    METADATA = 'metadataForm',
+    NETWORK = 'networkForm',
+    CEIP = 'ceipOptInForm',
+    IDENTITY = 'identity',
+    OSIMAGE = 'osImage',
+    VNET = 'vnetForm'
+}
+
 @Component({
     selector: 'app-azure-wizard',
     templateUrl: './azure-wizard.component.html',
