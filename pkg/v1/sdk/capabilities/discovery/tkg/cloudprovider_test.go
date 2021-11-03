@@ -20,15 +20,15 @@ func nodeFor(cloudProvider CloudProvider) *corev1.Node {
 	}
 }
 
-func TestHasCloudProvider(t *testing.T) {
-	discoveryClientFor := func(node *corev1.Node) (*DiscoveryClient, error) {
-		var objs []runtime.Object
-		if node != nil {
-			objs = append(objs, node)
-		}
-		return newFakeDiscoveryClient([]*metav1.APIResourceList{}, Scheme, objs)
+func discoveryClientForNode(node *corev1.Node) (*DiscoveryClient, error) {
+	var objs []runtime.Object
+	if node != nil {
+		objs = append(objs, node)
 	}
+	return newFakeDiscoveryClient([]*metav1.APIResourceList{}, Scheme, objs)
+}
 
+func TestHasCloudProvider(t *testing.T) {
 	testCases := []struct {
 		description   string
 		cloudProvider CloudProvider
@@ -47,7 +47,7 @@ func TestHasCloudProvider(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
-			dc, err := discoveryClientFor(tc.nodeFn(tc.cloudProvider))
+			dc, err := discoveryClientForNode(tc.nodeFn(tc.cloudProvider))
 			if err != nil {
 				t.Error(err)
 			}

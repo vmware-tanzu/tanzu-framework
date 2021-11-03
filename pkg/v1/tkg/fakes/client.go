@@ -5,6 +5,11 @@ import (
 	"sync"
 	"time"
 
+	v1alpha3a "sigs.k8s.io/cluster-api/api/v1alpha3"
+	"sigs.k8s.io/cluster-api/api/v1beta1"
+	"sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
+	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/tree"
+
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
@@ -12,10 +17,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/vc"
-
-	"sigs.k8s.io/cluster-api/api/v1beta1"
-	v1alpha3a "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
-	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/tree"
 )
 
 type Client struct {
@@ -608,15 +609,16 @@ func (fake *Client) ActivateTanzuKubernetesReleases(arg1 string) error {
 	fake.activateTanzuKubernetesReleasesArgsForCall = append(fake.activateTanzuKubernetesReleasesArgsForCall, struct {
 		arg1 string
 	}{arg1})
+	stub := fake.ActivateTanzuKubernetesReleasesStub
+	fakeReturns := fake.activateTanzuKubernetesReleasesReturns
 	fake.recordInvocation("ActivateTanzuKubernetesReleases", []interface{}{arg1})
 	fake.activateTanzuKubernetesReleasesMutex.Unlock()
-	if fake.ActivateTanzuKubernetesReleasesStub != nil {
-		return fake.ActivateTanzuKubernetesReleasesStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.activateTanzuKubernetesReleasesReturns
 	return fakeReturns.result1
 }
 
@@ -670,15 +672,16 @@ func (fake *Client) AddRegionContext(arg1 region.RegionContext, arg2 bool, arg3 
 		arg2 bool
 		arg3 bool
 	}{arg1, arg2, arg3})
+	stub := fake.AddRegionContextStub
+	fakeReturns := fake.addRegionContextReturns
 	fake.recordInvocation("AddRegionContext", []interface{}{arg1, arg2, arg3})
 	fake.addRegionContextMutex.Unlock()
-	if fake.AddRegionContextStub != nil {
-		return fake.AddRegionContextStub(arg1, arg2, arg3)
+	if stub != nil {
+		return stub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.addRegionContextReturns
 	return fakeReturns.result1
 }
 
@@ -731,15 +734,16 @@ func (fake *Client) ConfigureAndValidateManagementClusterConfiguration(arg1 *cli
 		arg1 *client.InitRegionOptions
 		arg2 bool
 	}{arg1, arg2})
+	stub := fake.ConfigureAndValidateManagementClusterConfigurationStub
+	fakeReturns := fake.configureAndValidateManagementClusterConfigurationReturns
 	fake.recordInvocation("ConfigureAndValidateManagementClusterConfiguration", []interface{}{arg1, arg2})
 	fake.configureAndValidateManagementClusterConfigurationMutex.Unlock()
-	if fake.ConfigureAndValidateManagementClusterConfigurationStub != nil {
-		return fake.ConfigureAndValidateManagementClusterConfigurationStub(arg1, arg2)
+	if stub != nil {
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.configureAndValidateManagementClusterConfigurationReturns
 	return fakeReturns.result1
 }
 
@@ -791,15 +795,16 @@ func (fake *Client) ConfigureAndValidateTkrVersion(arg1 string) (string, string,
 	fake.configureAndValidateTkrVersionArgsForCall = append(fake.configureAndValidateTkrVersionArgsForCall, struct {
 		arg1 string
 	}{arg1})
+	stub := fake.ConfigureAndValidateTkrVersionStub
+	fakeReturns := fake.configureAndValidateTkrVersionReturns
 	fake.recordInvocation("ConfigureAndValidateTkrVersion", []interface{}{arg1})
 	fake.configureAndValidateTkrVersionMutex.Unlock()
-	if fake.ConfigureAndValidateTkrVersionStub != nil {
-		return fake.ConfigureAndValidateTkrVersionStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2, ret.result3
 	}
-	fakeReturns := fake.configureAndValidateTkrVersionReturns
 	return fakeReturns.result1, fakeReturns.result2, fakeReturns.result3
 }
 
@@ -856,9 +861,10 @@ func (fake *Client) ConfigureTimeout(arg1 time.Duration) {
 	fake.configureTimeoutArgsForCall = append(fake.configureTimeoutArgsForCall, struct {
 		arg1 time.Duration
 	}{arg1})
+	stub := fake.ConfigureTimeoutStub
 	fake.recordInvocation("ConfigureTimeout", []interface{}{arg1})
 	fake.configureTimeoutMutex.Unlock()
-	if fake.ConfigureTimeoutStub != nil {
+	if stub != nil {
 		fake.ConfigureTimeoutStub(arg1)
 	}
 }
@@ -887,15 +893,16 @@ func (fake *Client) CreateAWSCloudFormationStack() error {
 	ret, specificReturn := fake.createAWSCloudFormationStackReturnsOnCall[len(fake.createAWSCloudFormationStackArgsForCall)]
 	fake.createAWSCloudFormationStackArgsForCall = append(fake.createAWSCloudFormationStackArgsForCall, struct {
 	}{})
+	stub := fake.CreateAWSCloudFormationStackStub
+	fakeReturns := fake.createAWSCloudFormationStackReturns
 	fake.recordInvocation("CreateAWSCloudFormationStack", []interface{}{})
 	fake.createAWSCloudFormationStackMutex.Unlock()
-	if fake.CreateAWSCloudFormationStackStub != nil {
-		return fake.CreateAWSCloudFormationStackStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.createAWSCloudFormationStackReturns
 	return fakeReturns.result1
 }
 
@@ -941,15 +948,16 @@ func (fake *Client) CreateCluster(arg1 *client.CreateClusterOptions, arg2 bool) 
 		arg1 *client.CreateClusterOptions
 		arg2 bool
 	}{arg1, arg2})
+	stub := fake.CreateClusterStub
+	fakeReturns := fake.createClusterReturns
 	fake.recordInvocation("CreateCluster", []interface{}{arg1, arg2})
 	fake.createClusterMutex.Unlock()
-	if fake.CreateClusterStub != nil {
-		return fake.CreateClusterStub(arg1, arg2)
+	if stub != nil {
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.createClusterReturns
 	return fakeReturns.result1
 }
 
@@ -1001,15 +1009,16 @@ func (fake *Client) DeactivateTanzuKubernetesReleases(arg1 string) error {
 	fake.deactivateTanzuKubernetesReleasesArgsForCall = append(fake.deactivateTanzuKubernetesReleasesArgsForCall, struct {
 		arg1 string
 	}{arg1})
+	stub := fake.DeactivateTanzuKubernetesReleasesStub
+	fakeReturns := fake.deactivateTanzuKubernetesReleasesReturns
 	fake.recordInvocation("DeactivateTanzuKubernetesReleases", []interface{}{arg1})
 	fake.deactivateTanzuKubernetesReleasesMutex.Unlock()
-	if fake.DeactivateTanzuKubernetesReleasesStub != nil {
-		return fake.DeactivateTanzuKubernetesReleasesStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.deactivateTanzuKubernetesReleasesReturns
 	return fakeReturns.result1
 }
 
@@ -1061,15 +1070,16 @@ func (fake *Client) DeleteMachineDeployment(arg1 client.DeleteMachineDeploymentO
 	fake.deleteMachineDeploymentArgsForCall = append(fake.deleteMachineDeploymentArgsForCall, struct {
 		arg1 client.DeleteMachineDeploymentOptions
 	}{arg1})
+	stub := fake.DeleteMachineDeploymentStub
+	fakeReturns := fake.deleteMachineDeploymentReturns
 	fake.recordInvocation("DeleteMachineDeployment", []interface{}{arg1})
 	fake.deleteMachineDeploymentMutex.Unlock()
-	if fake.DeleteMachineDeploymentStub != nil {
-		return fake.DeleteMachineDeploymentStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.deleteMachineDeploymentReturns
 	return fakeReturns.result1
 }
 
@@ -1121,15 +1131,16 @@ func (fake *Client) DeleteMachineHealthCheck(arg1 client.MachineHealthCheckOptio
 	fake.deleteMachineHealthCheckArgsForCall = append(fake.deleteMachineHealthCheckArgsForCall, struct {
 		arg1 client.MachineHealthCheckOptions
 	}{arg1})
+	stub := fake.DeleteMachineHealthCheckStub
+	fakeReturns := fake.deleteMachineHealthCheckReturns
 	fake.recordInvocation("DeleteMachineHealthCheck", []interface{}{arg1})
 	fake.deleteMachineHealthCheckMutex.Unlock()
-	if fake.DeleteMachineHealthCheckStub != nil {
-		return fake.DeleteMachineHealthCheckStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.deleteMachineHealthCheckReturns
 	return fakeReturns.result1
 }
 
@@ -1181,15 +1192,16 @@ func (fake *Client) DeleteRegion(arg1 client.DeleteRegionOptions) error {
 	fake.deleteRegionArgsForCall = append(fake.deleteRegionArgsForCall, struct {
 		arg1 client.DeleteRegionOptions
 	}{arg1})
+	stub := fake.DeleteRegionStub
+	fakeReturns := fake.deleteRegionReturns
 	fake.recordInvocation("DeleteRegion", []interface{}{arg1})
 	fake.deleteRegionMutex.Unlock()
-	if fake.DeleteRegionStub != nil {
-		return fake.DeleteRegionStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.deleteRegionReturns
 	return fakeReturns.result1
 }
 
@@ -1241,15 +1253,16 @@ func (fake *Client) DeleteWorkloadCluster(arg1 client.DeleteWorkloadClusterOptio
 	fake.deleteWorkloadClusterArgsForCall = append(fake.deleteWorkloadClusterArgsForCall, struct {
 		arg1 client.DeleteWorkloadClusterOptions
 	}{arg1})
+	stub := fake.DeleteWorkloadClusterStub
+	fakeReturns := fake.deleteWorkloadClusterReturns
 	fake.recordInvocation("DeleteWorkloadCluster", []interface{}{arg1})
 	fake.deleteWorkloadClusterMutex.Unlock()
-	if fake.DeleteWorkloadClusterStub != nil {
-		return fake.DeleteWorkloadClusterStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.deleteWorkloadClusterReturns
 	return fakeReturns.result1
 }
 
@@ -1301,15 +1314,16 @@ func (fake *Client) DescribeCluster(arg1 client.DescribeTKGClustersOptions) (*tr
 	fake.describeClusterArgsForCall = append(fake.describeClusterArgsForCall, struct {
 		arg1 client.DescribeTKGClustersOptions
 	}{arg1})
+	stub := fake.DescribeClusterStub
+	fakeReturns := fake.describeClusterReturns
 	fake.recordInvocation("DescribeCluster", []interface{}{arg1})
 	fake.describeClusterMutex.Unlock()
-	if fake.DescribeClusterStub != nil {
-		return fake.DescribeClusterStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2, ret.result3, ret.result4
 	}
-	fakeReturns := fake.describeClusterReturns
 	return fakeReturns.result1, fakeReturns.result2, fakeReturns.result3, fakeReturns.result4
 }
 
@@ -1369,15 +1383,16 @@ func (fake *Client) DescribeProvider() (*v1alpha3.ProviderList, error) {
 	ret, specificReturn := fake.describeProviderReturnsOnCall[len(fake.describeProviderArgsForCall)]
 	fake.describeProviderArgsForCall = append(fake.describeProviderArgsForCall, struct {
 	}{})
+	stub := fake.DescribeProviderStub
+	fakeReturns := fake.describeProviderReturns
 	fake.recordInvocation("DescribeProvider", []interface{}{})
 	fake.describeProviderMutex.Unlock()
-	if fake.DescribeProviderStub != nil {
-		return fake.DescribeProviderStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.describeProviderReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1425,15 +1440,16 @@ func (fake *Client) DownloadBomFile(arg1 string) error {
 	fake.downloadBomFileArgsForCall = append(fake.downloadBomFileArgsForCall, struct {
 		arg1 string
 	}{arg1})
+	stub := fake.DownloadBomFileStub
+	fakeReturns := fake.downloadBomFileReturns
 	fake.recordInvocation("DownloadBomFile", []interface{}{arg1})
 	fake.downloadBomFileMutex.Unlock()
-	if fake.DownloadBomFileStub != nil {
-		return fake.DownloadBomFileStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.downloadBomFileReturns
 	return fakeReturns.result1
 }
 
@@ -1484,15 +1500,16 @@ func (fake *Client) GetCEIPParticipation() (client.ClusterCeipInfo, error) {
 	ret, specificReturn := fake.getCEIPParticipationReturnsOnCall[len(fake.getCEIPParticipationArgsForCall)]
 	fake.getCEIPParticipationArgsForCall = append(fake.getCEIPParticipationArgsForCall, struct {
 	}{})
+	stub := fake.GetCEIPParticipationStub
+	fakeReturns := fake.getCEIPParticipationReturns
 	fake.recordInvocation("GetCEIPParticipation", []interface{}{})
 	fake.getCEIPParticipationMutex.Unlock()
-	if fake.GetCEIPParticipationStub != nil {
-		return fake.GetCEIPParticipationStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getCEIPParticipationReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1540,15 +1557,16 @@ func (fake *Client) GetClusterConfiguration(arg1 *client.CreateClusterOptions) (
 	fake.getClusterConfigurationArgsForCall = append(fake.getClusterConfigurationArgsForCall, struct {
 		arg1 *client.CreateClusterOptions
 	}{arg1})
+	stub := fake.GetClusterConfigurationStub
+	fakeReturns := fake.getClusterConfigurationReturns
 	fake.recordInvocation("GetClusterConfiguration", []interface{}{arg1})
 	fake.getClusterConfigurationMutex.Unlock()
-	if fake.GetClusterConfigurationStub != nil {
-		return fake.GetClusterConfigurationStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getClusterConfigurationReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1603,15 +1621,16 @@ func (fake *Client) GetClusterPinnipedInfo(arg1 client.GetClusterPinnipedInfoOpt
 	fake.getClusterPinnipedInfoArgsForCall = append(fake.getClusterPinnipedInfoArgsForCall, struct {
 		arg1 client.GetClusterPinnipedInfoOptions
 	}{arg1})
+	stub := fake.GetClusterPinnipedInfoStub
+	fakeReturns := fake.getClusterPinnipedInfoReturns
 	fake.recordInvocation("GetClusterPinnipedInfo", []interface{}{arg1})
 	fake.getClusterPinnipedInfoMutex.Unlock()
-	if fake.GetClusterPinnipedInfoStub != nil {
-		return fake.GetClusterPinnipedInfoStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getClusterPinnipedInfoReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1665,15 +1684,16 @@ func (fake *Client) GetCurrentRegionContext() (region.RegionContext, error) {
 	ret, specificReturn := fake.getCurrentRegionContextReturnsOnCall[len(fake.getCurrentRegionContextArgsForCall)]
 	fake.getCurrentRegionContextArgsForCall = append(fake.getCurrentRegionContextArgsForCall, struct {
 	}{})
+	stub := fake.GetCurrentRegionContextStub
+	fakeReturns := fake.getCurrentRegionContextReturns
 	fake.recordInvocation("GetCurrentRegionContext", []interface{}{})
 	fake.getCurrentRegionContextMutex.Unlock()
-	if fake.GetCurrentRegionContextStub != nil {
-		return fake.GetCurrentRegionContextStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getCurrentRegionContextReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1720,15 +1740,16 @@ func (fake *Client) GetKubernetesVersions() (*client.KubernetesVersionsInfo, err
 	ret, specificReturn := fake.getKubernetesVersionsReturnsOnCall[len(fake.getKubernetesVersionsArgsForCall)]
 	fake.getKubernetesVersionsArgsForCall = append(fake.getKubernetesVersionsArgsForCall, struct {
 	}{})
+	stub := fake.GetKubernetesVersionsStub
+	fakeReturns := fake.getKubernetesVersionsReturns
 	fake.recordInvocation("GetKubernetesVersions", []interface{}{})
 	fake.getKubernetesVersionsMutex.Unlock()
-	if fake.GetKubernetesVersionsStub != nil {
-		return fake.GetKubernetesVersionsStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getKubernetesVersionsReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1776,15 +1797,16 @@ func (fake *Client) GetMachineDeployments(arg1 client.GetMachineDeploymentOption
 	fake.getMachineDeploymentsArgsForCall = append(fake.getMachineDeploymentsArgsForCall, struct {
 		arg1 client.GetMachineDeploymentOptions
 	}{arg1})
+	stub := fake.GetMachineDeploymentsStub
+	fakeReturns := fake.getMachineDeploymentsReturns
 	fake.recordInvocation("GetMachineDeployments", []interface{}{arg1})
 	fake.getMachineDeploymentsMutex.Unlock()
-	if fake.GetMachineDeploymentsStub != nil {
-		return fake.GetMachineDeploymentsStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getMachineDeploymentsReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1839,15 +1861,16 @@ func (fake *Client) GetMachineHealthChecks(arg1 client.MachineHealthCheckOptions
 	fake.getMachineHealthChecksArgsForCall = append(fake.getMachineHealthChecksArgsForCall, struct {
 		arg1 client.MachineHealthCheckOptions
 	}{arg1})
+	stub := fake.GetMachineHealthChecksStub
+	fakeReturns := fake.getMachineHealthChecksReturns
 	fake.recordInvocation("GetMachineHealthChecks", []interface{}{arg1})
 	fake.getMachineHealthChecksMutex.Unlock()
-	if fake.GetMachineHealthChecksStub != nil {
-		return fake.GetMachineHealthChecksStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getMachineHealthChecksReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1903,15 +1926,16 @@ func (fake *Client) GetPacificClusterObject(arg1 string, arg2 string) (*v1alpha2
 		arg1 string
 		arg2 string
 	}{arg1, arg2})
+	stub := fake.GetPacificClusterObjectStub
+	fakeReturns := fake.getPacificClusterObjectReturns
 	fake.recordInvocation("GetPacificClusterObject", []interface{}{arg1, arg2})
 	fake.getPacificClusterObjectMutex.Unlock()
-	if fake.GetPacificClusterObjectStub != nil {
-		return fake.GetPacificClusterObjectStub(arg1, arg2)
+	if stub != nil {
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getPacificClusterObjectReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1966,15 +1990,16 @@ func (fake *Client) GetPacificMachineDeployments(arg1 client.GetMachineDeploymen
 	fake.getPacificMachineDeploymentsArgsForCall = append(fake.getPacificMachineDeploymentsArgsForCall, struct {
 		arg1 client.GetMachineDeploymentOptions
 	}{arg1})
+	stub := fake.GetPacificMachineDeploymentsStub
+	fakeReturns := fake.getPacificMachineDeploymentsReturns
 	fake.recordInvocation("GetPacificMachineDeployments", []interface{}{arg1})
 	fake.getPacificMachineDeploymentsMutex.Unlock()
-	if fake.GetPacificMachineDeploymentsStub != nil {
-		return fake.GetPacificMachineDeploymentsStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getPacificMachineDeploymentsReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -2029,15 +2054,16 @@ func (fake *Client) GetRegionContexts(arg1 string) ([]region.RegionContext, erro
 	fake.getRegionContextsArgsForCall = append(fake.getRegionContextsArgsForCall, struct {
 		arg1 string
 	}{arg1})
+	stub := fake.GetRegionContextsStub
+	fakeReturns := fake.getRegionContextsReturns
 	fake.recordInvocation("GetRegionContexts", []interface{}{arg1})
 	fake.getRegionContextsMutex.Unlock()
-	if fake.GetRegionContextsStub != nil {
-		return fake.GetRegionContextsStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getRegionContextsReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -2092,15 +2118,16 @@ func (fake *Client) GetTanzuKubernetesReleases(arg1 string) ([]v1alpha1.TanzuKub
 	fake.getTanzuKubernetesReleasesArgsForCall = append(fake.getTanzuKubernetesReleasesArgsForCall, struct {
 		arg1 string
 	}{arg1})
+	stub := fake.GetTanzuKubernetesReleasesStub
+	fakeReturns := fake.getTanzuKubernetesReleasesReturns
 	fake.recordInvocation("GetTanzuKubernetesReleases", []interface{}{arg1})
 	fake.getTanzuKubernetesReleasesMutex.Unlock()
-	if fake.GetTanzuKubernetesReleasesStub != nil {
-		return fake.GetTanzuKubernetesReleasesStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getTanzuKubernetesReleasesReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -2155,15 +2182,16 @@ func (fake *Client) GetVSphereEndpoint(arg1 clusterclient.Client) (vc.Client, er
 	fake.getVSphereEndpointArgsForCall = append(fake.getVSphereEndpointArgsForCall, struct {
 		arg1 clusterclient.Client
 	}{arg1})
+	stub := fake.GetVSphereEndpointStub
+	fakeReturns := fake.getVSphereEndpointReturns
 	fake.recordInvocation("GetVSphereEndpoint", []interface{}{arg1})
 	fake.getVSphereEndpointMutex.Unlock()
-	if fake.GetVSphereEndpointStub != nil {
-		return fake.GetVSphereEndpointStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getVSphereEndpointReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -2218,15 +2246,16 @@ func (fake *Client) GetWorkloadClusterCredentials(arg1 client.GetWorkloadCluster
 	fake.getWorkloadClusterCredentialsArgsForCall = append(fake.getWorkloadClusterCredentialsArgsForCall, struct {
 		arg1 client.GetWorkloadClusterCredentialsOptions
 	}{arg1})
+	stub := fake.GetWorkloadClusterCredentialsStub
+	fakeReturns := fake.getWorkloadClusterCredentialsReturns
 	fake.recordInvocation("GetWorkloadClusterCredentials", []interface{}{arg1})
 	fake.getWorkloadClusterCredentialsMutex.Unlock()
-	if fake.GetWorkloadClusterCredentialsStub != nil {
-		return fake.GetWorkloadClusterCredentialsStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2, ret.result3
 	}
-	fakeReturns := fake.getWorkloadClusterCredentialsReturns
 	return fakeReturns.result1, fakeReturns.result2, fakeReturns.result3
 }
 
@@ -2284,15 +2313,16 @@ func (fake *Client) InitRegion(arg1 *client.InitRegionOptions) error {
 	fake.initRegionArgsForCall = append(fake.initRegionArgsForCall, struct {
 		arg1 *client.InitRegionOptions
 	}{arg1})
+	stub := fake.InitRegionStub
+	fakeReturns := fake.initRegionReturns
 	fake.recordInvocation("InitRegion", []interface{}{arg1})
 	fake.initRegionMutex.Unlock()
-	if fake.InitRegionStub != nil {
-		return fake.InitRegionStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.initRegionReturns
 	return fakeReturns.result1
 }
 
@@ -2344,15 +2374,16 @@ func (fake *Client) InitRegionDryRun(arg1 *client.InitRegionOptions) ([]byte, er
 	fake.initRegionDryRunArgsForCall = append(fake.initRegionDryRunArgsForCall, struct {
 		arg1 *client.InitRegionOptions
 	}{arg1})
+	stub := fake.InitRegionDryRunStub
+	fakeReturns := fake.initRegionDryRunReturns
 	fake.recordInvocation("InitRegionDryRun", []interface{}{arg1})
 	fake.initRegionDryRunMutex.Unlock()
-	if fake.InitRegionDryRunStub != nil {
-		return fake.InitRegionDryRunStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.initRegionDryRunReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -2407,15 +2438,16 @@ func (fake *Client) IsManagementClusterAKindCluster(arg1 string) (bool, error) {
 	fake.isManagementClusterAKindClusterArgsForCall = append(fake.isManagementClusterAKindClusterArgsForCall, struct {
 		arg1 string
 	}{arg1})
+	stub := fake.IsManagementClusterAKindClusterStub
+	fakeReturns := fake.isManagementClusterAKindClusterReturns
 	fake.recordInvocation("IsManagementClusterAKindCluster", []interface{}{arg1})
 	fake.isManagementClusterAKindClusterMutex.Unlock()
-	if fake.IsManagementClusterAKindClusterStub != nil {
-		return fake.IsManagementClusterAKindClusterStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.isManagementClusterAKindClusterReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -2469,15 +2501,16 @@ func (fake *Client) IsPacificManagementCluster() (bool, error) {
 	ret, specificReturn := fake.isPacificManagementClusterReturnsOnCall[len(fake.isPacificManagementClusterArgsForCall)]
 	fake.isPacificManagementClusterArgsForCall = append(fake.isPacificManagementClusterArgsForCall, struct {
 	}{})
+	stub := fake.IsPacificManagementClusterStub
+	fakeReturns := fake.isPacificManagementClusterReturns
 	fake.recordInvocation("IsPacificManagementCluster", []interface{}{})
 	fake.isPacificManagementClusterMutex.Unlock()
-	if fake.IsPacificManagementClusterStub != nil {
-		return fake.IsPacificManagementClusterStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.isPacificManagementClusterReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -2524,15 +2557,16 @@ func (fake *Client) IsPacificRegionalCluster() (bool, error) {
 	ret, specificReturn := fake.isPacificRegionalClusterReturnsOnCall[len(fake.isPacificRegionalClusterArgsForCall)]
 	fake.isPacificRegionalClusterArgsForCall = append(fake.isPacificRegionalClusterArgsForCall, struct {
 	}{})
+	stub := fake.IsPacificRegionalClusterStub
+	fakeReturns := fake.isPacificRegionalClusterReturns
 	fake.recordInvocation("IsPacificRegionalCluster", []interface{}{})
 	fake.isPacificRegionalClusterMutex.Unlock()
-	if fake.IsPacificRegionalClusterStub != nil {
-		return fake.IsPacificRegionalClusterStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.isPacificRegionalClusterReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -2580,15 +2614,16 @@ func (fake *Client) ListTKGClusters(arg1 client.ListTKGClustersOptions) ([]clien
 	fake.listTKGClustersArgsForCall = append(fake.listTKGClustersArgsForCall, struct {
 		arg1 client.ListTKGClustersOptions
 	}{arg1})
+	stub := fake.ListTKGClustersStub
+	fakeReturns := fake.listTKGClustersReturns
 	fake.recordInvocation("ListTKGClusters", []interface{}{arg1})
 	fake.listTKGClustersMutex.Unlock()
-	if fake.ListTKGClustersStub != nil {
-		return fake.ListTKGClustersStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.listTKGClustersReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -2642,9 +2677,10 @@ func (fake *Client) ParseHiddenArgsAsFeatureFlags(arg1 *client.InitRegionOptions
 	fake.parseHiddenArgsAsFeatureFlagsArgsForCall = append(fake.parseHiddenArgsAsFeatureFlagsArgsForCall, struct {
 		arg1 *client.InitRegionOptions
 	}{arg1})
+	stub := fake.ParseHiddenArgsAsFeatureFlagsStub
 	fake.recordInvocation("ParseHiddenArgsAsFeatureFlags", []interface{}{arg1})
 	fake.parseHiddenArgsAsFeatureFlagsMutex.Unlock()
-	if fake.ParseHiddenArgsAsFeatureFlagsStub != nil {
+	if stub != nil {
 		fake.ParseHiddenArgsAsFeatureFlagsStub(arg1)
 	}
 }
@@ -2674,15 +2710,16 @@ func (fake *Client) SaveFeatureFlags(arg1 map[string]string) error {
 	fake.saveFeatureFlagsArgsForCall = append(fake.saveFeatureFlagsArgsForCall, struct {
 		arg1 map[string]string
 	}{arg1})
+	stub := fake.SaveFeatureFlagsStub
+	fakeReturns := fake.saveFeatureFlagsReturns
 	fake.recordInvocation("SaveFeatureFlags", []interface{}{arg1})
 	fake.saveFeatureFlagsMutex.Unlock()
-	if fake.SaveFeatureFlagsStub != nil {
-		return fake.SaveFeatureFlagsStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.saveFeatureFlagsReturns
 	return fakeReturns.result1
 }
 
@@ -2734,15 +2771,16 @@ func (fake *Client) ScaleCluster(arg1 client.ScaleClusterOptions) error {
 	fake.scaleClusterArgsForCall = append(fake.scaleClusterArgsForCall, struct {
 		arg1 client.ScaleClusterOptions
 	}{arg1})
+	stub := fake.ScaleClusterStub
+	fakeReturns := fake.scaleClusterReturns
 	fake.recordInvocation("ScaleCluster", []interface{}{arg1})
 	fake.scaleClusterMutex.Unlock()
-	if fake.ScaleClusterStub != nil {
-		return fake.ScaleClusterStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.scaleClusterReturns
 	return fakeReturns.result1
 }
 
@@ -2796,15 +2834,16 @@ func (fake *Client) SetCEIPParticipation(arg1 bool, arg2 string, arg3 string) er
 		arg2 string
 		arg3 string
 	}{arg1, arg2, arg3})
+	stub := fake.SetCEIPParticipationStub
+	fakeReturns := fake.setCEIPParticipationReturns
 	fake.recordInvocation("SetCEIPParticipation", []interface{}{arg1, arg2, arg3})
 	fake.setCEIPParticipationMutex.Unlock()
-	if fake.SetCEIPParticipationStub != nil {
-		return fake.SetCEIPParticipationStub(arg1, arg2, arg3)
+	if stub != nil {
+		return stub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.setCEIPParticipationReturns
 	return fakeReturns.result1
 }
 
@@ -2856,15 +2895,16 @@ func (fake *Client) SetMachineDeployment(arg1 *client.SetMachineDeploymentOption
 	fake.setMachineDeploymentArgsForCall = append(fake.setMachineDeploymentArgsForCall, struct {
 		arg1 *client.SetMachineDeploymentOptions
 	}{arg1})
+	stub := fake.SetMachineDeploymentStub
+	fakeReturns := fake.setMachineDeploymentReturns
 	fake.recordInvocation("SetMachineDeployment", []interface{}{arg1})
 	fake.setMachineDeploymentMutex.Unlock()
-	if fake.SetMachineDeploymentStub != nil {
-		return fake.SetMachineDeploymentStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.setMachineDeploymentReturns
 	return fakeReturns.result1
 }
 
@@ -2916,15 +2956,16 @@ func (fake *Client) SetMachineHealthCheck(arg1 *client.SetMachineHealthCheckOpti
 	fake.setMachineHealthCheckArgsForCall = append(fake.setMachineHealthCheckArgsForCall, struct {
 		arg1 *client.SetMachineHealthCheckOptions
 	}{arg1})
+	stub := fake.SetMachineHealthCheckStub
+	fakeReturns := fake.setMachineHealthCheckReturns
 	fake.recordInvocation("SetMachineHealthCheck", []interface{}{arg1})
 	fake.setMachineHealthCheckMutex.Unlock()
-	if fake.SetMachineHealthCheckStub != nil {
-		return fake.SetMachineHealthCheckStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.setMachineHealthCheckReturns
 	return fakeReturns.result1
 }
 
@@ -2977,15 +3018,16 @@ func (fake *Client) SetRegionContext(arg1 string, arg2 string) error {
 		arg1 string
 		arg2 string
 	}{arg1, arg2})
+	stub := fake.SetRegionContextStub
+	fakeReturns := fake.setRegionContextReturns
 	fake.recordInvocation("SetRegionContext", []interface{}{arg1, arg2})
 	fake.setRegionContextMutex.Unlock()
-	if fake.SetRegionContextStub != nil {
-		return fake.SetRegionContextStub(arg1, arg2)
+	if stub != nil {
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.setRegionContextReturns
 	return fakeReturns.result1
 }
 
@@ -3036,15 +3078,16 @@ func (fake *Client) TKGConfigReaderWriter() tkgconfigreaderwriter.TKGConfigReade
 	ret, specificReturn := fake.tKGConfigReaderWriterReturnsOnCall[len(fake.tKGConfigReaderWriterArgsForCall)]
 	fake.tKGConfigReaderWriterArgsForCall = append(fake.tKGConfigReaderWriterArgsForCall, struct {
 	}{})
+	stub := fake.TKGConfigReaderWriterStub
+	fakeReturns := fake.tKGConfigReaderWriterReturns
 	fake.recordInvocation("TKGConfigReaderWriter", []interface{}{})
 	fake.tKGConfigReaderWriterMutex.Unlock()
-	if fake.TKGConfigReaderWriterStub != nil {
-		return fake.TKGConfigReaderWriterStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.tKGConfigReaderWriterReturns
 	return fakeReturns.result1
 }
 
@@ -3089,15 +3132,16 @@ func (fake *Client) UpdateCredentialsCluster(arg1 *client.UpdateCredentialsOptio
 	fake.updateCredentialsClusterArgsForCall = append(fake.updateCredentialsClusterArgsForCall, struct {
 		arg1 *client.UpdateCredentialsOptions
 	}{arg1})
+	stub := fake.UpdateCredentialsClusterStub
+	fakeReturns := fake.updateCredentialsClusterReturns
 	fake.recordInvocation("UpdateCredentialsCluster", []interface{}{arg1})
 	fake.updateCredentialsClusterMutex.Unlock()
-	if fake.UpdateCredentialsClusterStub != nil {
-		return fake.UpdateCredentialsClusterStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.updateCredentialsClusterReturns
 	return fakeReturns.result1
 }
 
@@ -3149,15 +3193,16 @@ func (fake *Client) UpdateCredentialsRegion(arg1 *client.UpdateCredentialsOption
 	fake.updateCredentialsRegionArgsForCall = append(fake.updateCredentialsRegionArgsForCall, struct {
 		arg1 *client.UpdateCredentialsOptions
 	}{arg1})
+	stub := fake.UpdateCredentialsRegionStub
+	fakeReturns := fake.updateCredentialsRegionReturns
 	fake.recordInvocation("UpdateCredentialsRegion", []interface{}{arg1})
 	fake.updateCredentialsRegionMutex.Unlock()
-	if fake.UpdateCredentialsRegionStub != nil {
-		return fake.UpdateCredentialsRegionStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.updateCredentialsRegionReturns
 	return fakeReturns.result1
 }
 
@@ -3209,15 +3254,16 @@ func (fake *Client) UpgradeCluster(arg1 *client.UpgradeClusterOptions) error {
 	fake.upgradeClusterArgsForCall = append(fake.upgradeClusterArgsForCall, struct {
 		arg1 *client.UpgradeClusterOptions
 	}{arg1})
+	stub := fake.UpgradeClusterStub
+	fakeReturns := fake.upgradeClusterReturns
 	fake.recordInvocation("UpgradeCluster", []interface{}{arg1})
 	fake.upgradeClusterMutex.Unlock()
-	if fake.UpgradeClusterStub != nil {
-		return fake.UpgradeClusterStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.upgradeClusterReturns
 	return fakeReturns.result1
 }
 
@@ -3269,15 +3315,16 @@ func (fake *Client) UpgradeManagementCluster(arg1 *client.UpgradeClusterOptions)
 	fake.upgradeManagementClusterArgsForCall = append(fake.upgradeManagementClusterArgsForCall, struct {
 		arg1 *client.UpgradeClusterOptions
 	}{arg1})
+	stub := fake.UpgradeManagementClusterStub
+	fakeReturns := fake.upgradeManagementClusterReturns
 	fake.recordInvocation("UpgradeManagementCluster", []interface{}{arg1})
 	fake.upgradeManagementClusterMutex.Unlock()
-	if fake.UpgradeManagementClusterStub != nil {
-		return fake.UpgradeManagementClusterStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.upgradeManagementClusterReturns
 	return fakeReturns.result1
 }
 
@@ -3328,15 +3375,16 @@ func (fake *Client) ValidateDockerResourcePrerequisites() error {
 	ret, specificReturn := fake.validateDockerResourcePrerequisitesReturnsOnCall[len(fake.validateDockerResourcePrerequisitesArgsForCall)]
 	fake.validateDockerResourcePrerequisitesArgsForCall = append(fake.validateDockerResourcePrerequisitesArgsForCall, struct {
 	}{})
+	stub := fake.ValidateDockerResourcePrerequisitesStub
+	fakeReturns := fake.validateDockerResourcePrerequisitesReturns
 	fake.recordInvocation("ValidateDockerResourcePrerequisites", []interface{}{})
 	fake.validateDockerResourcePrerequisitesMutex.Unlock()
-	if fake.ValidateDockerResourcePrerequisitesStub != nil {
-		return fake.ValidateDockerResourcePrerequisitesStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.validateDockerResourcePrerequisitesReturns
 	return fakeReturns.result1
 }
 
@@ -3382,15 +3430,16 @@ func (fake *Client) ValidatePrerequisites(arg1 bool, arg2 bool) error {
 		arg1 bool
 		arg2 bool
 	}{arg1, arg2})
+	stub := fake.ValidatePrerequisitesStub
+	fakeReturns := fake.validatePrerequisitesReturns
 	fake.recordInvocation("ValidatePrerequisites", []interface{}{arg1, arg2})
 	fake.validatePrerequisitesMutex.Unlock()
-	if fake.ValidatePrerequisitesStub != nil {
-		return fake.ValidatePrerequisitesStub(arg1, arg2)
+	if stub != nil {
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.validatePrerequisitesReturns
 	return fakeReturns.result1
 }
 
@@ -3442,15 +3491,16 @@ func (fake *Client) VerifyRegion(arg1 string) (region.RegionContext, error) {
 	fake.verifyRegionArgsForCall = append(fake.verifyRegionArgsForCall, struct {
 		arg1 string
 	}{arg1})
+	stub := fake.VerifyRegionStub
+	fakeReturns := fake.verifyRegionReturns
 	fake.recordInvocation("VerifyRegion", []interface{}{arg1})
 	fake.verifyRegionMutex.Unlock()
-	if fake.VerifyRegionStub != nil {
-		return fake.VerifyRegionStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.verifyRegionReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 

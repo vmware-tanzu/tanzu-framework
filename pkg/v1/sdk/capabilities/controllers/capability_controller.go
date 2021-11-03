@@ -30,15 +30,15 @@ type CapabilityReconciler struct {
 //+kubebuilder:rbac:groups=run.tanzu.vmware.com,resources=capabilities/status,verbs=get;update;patch
 
 // Reconcile reconciles a Capability spec by executing specified queries.
-func (r *CapabilityReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) { //nolint:staticcheck
-	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout) //nolint:staticcheck
+func (r *CapabilityReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	ctxCancel, cancel := context.WithTimeout(context.Background(), contextTimeout)
 	defer cancel()
 
 	log := r.Log.WithValues("capability", req.NamespacedName)
 	log.Info("Starting reconcile")
 
 	capability := &runv1alpha1.Capability{}
-	if err := r.Get(ctx, req.NamespacedName, capability); err != nil {
+	if err := r.Get(ctxCancel, req.NamespacedName, capability); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
@@ -57,7 +57,7 @@ func (r *CapabilityReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 	}
 
 	log.Info("Successfully reconciled")
-	return ctrl.Result{}, r.Status().Update(ctx, capability)
+	return ctrl.Result{}, r.Status().Update(ctxCancel, capability)
 }
 
 // queryGVRs executes GVR queries and returns results.

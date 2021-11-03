@@ -20,15 +20,15 @@ func providerFor(infraProvider InfrastructureProvider) *clusterctl.Provider {
 	}
 }
 
-func TestHasInfrastructureProvider(t *testing.T) {
-	discoveryClientFor := func(provider *clusterctl.Provider) (*DiscoveryClient, error) {
-		var objs []runtime.Object
-		if provider != nil {
-			objs = append(objs, provider)
-		}
-		return newFakeDiscoveryClient([]*metav1.APIResourceList{}, Scheme, objs)
+func discoveryClientForProvider(provider *clusterctl.Provider) (*DiscoveryClient, error) {
+	var objs []runtime.Object
+	if provider != nil {
+		objs = append(objs, provider)
 	}
+	return newFakeDiscoveryClient([]*metav1.APIResourceList{}, Scheme, objs)
+}
 
+func TestHasInfrastructureProvider(t *testing.T) {
 	testCases := []struct {
 		description   string
 		infraProvider InfrastructureProvider
@@ -44,7 +44,7 @@ func TestHasInfrastructureProvider(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
-			dc, err := discoveryClientFor(tc.providerFn(tc.infraProvider))
+			dc, err := discoveryClientForProvider(tc.providerFn(tc.infraProvider))
 			if err != nil {
 				t.Error(err)
 			}
