@@ -53,7 +53,6 @@ require (
 	github.com/golang/protobuf v1.5.2
 	github.com/google/go-cmp v0.5.6
 	github.com/google/go-containerregistry v0.4.1
-	github.com/google/uuid v1.2.0 // indirect
 	github.com/googleapis/gnostic v0.4.1
 	github.com/gorilla/websocket v1.4.2
 	github.com/gosuri/uitable v0.0.4
@@ -86,9 +85,9 @@ require (
 	github.com/stretchr/testify v1.7.1-0.20210427113832-6241f9ab9942
 	github.com/tj/assert v0.0.0-20171129193455-018094318fb0
 	github.com/vmware-tanzu/carvel-kapp-controller v0.25.0
-	github.com/vmware-tanzu/carvel-secretgen-controller v0.5.0
+	github.com/vmware-tanzu/carvel-secretgen-controller v0.6.0
 	github.com/vmware-tanzu/carvel-vendir v0.23.0
-	github.com/vmware/govmomi v0.23.1
+	github.com/vmware/govmomi v0.27.1
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
 	go.uber.org/multierr v1.5.0
 	golang.org/x/crypto v0.0.0-20210616213533-5ff15b29337e // indirect
@@ -117,7 +116,7 @@ require (
 	sigs.k8s.io/cluster-api v0.3.23
 	sigs.k8s.io/cluster-api-provider-aws v0.6.6
 	sigs.k8s.io/cluster-api-provider-azure v0.4.15
-	sigs.k8s.io/cluster-api-provider-vsphere v0.7.10
+	sigs.k8s.io/cluster-api-provider-vsphere v0.7.11
 	sigs.k8s.io/cluster-api/test/infrastructure/docker v0.0.0-20210720023132-dfeb8d447bdc
 	sigs.k8s.io/controller-runtime v0.7.0
 	sigs.k8s.io/controller-tools v0.4.1
