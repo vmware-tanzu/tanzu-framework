@@ -35,6 +35,7 @@ tanzu pinniped-auth login [flags]
       --request-audience string               Request a token with an alternate audience using RFC8693 token exchange
       --scopes strings                        OIDC scopes to request during login. (default ["offline_access, openid, pinniped:request-audience"])
       --session-cache string                  Path to session cache file. (default "~/.config/tanzu/pinniped/sessions.yaml")
+      --credential-cache string               Path to cluster-specific credentials cache file. (default "~/.config/tanzu/pinniped/credentials.yaml")
       --skip-browser                          Skip opening the browser (just print the URL).
 ```
 
