@@ -92,6 +92,7 @@ jobs:
           - ""
           - addons
           - addons/pinniped/post-deploy
+          - pkg/v1/providers/tests
     steps:
     - uses: actions/checkout@v2
 
