@@ -658,7 +658,7 @@ func (c *TkgClient) ValidateVsphereControlPlaneEndpointIP(endpointIP string) *Va
 				continue
 			}
 
-			clusters := append(managementClusters, workloadClusters...)
+			clusters := append(managementClusters, workloadClusters...) //nolint:gocritic
 
 			for i := range clusters {
 				if clusters[i].Spec.ControlPlaneEndpoint.Host == endpointIP {

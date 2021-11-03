@@ -39,7 +39,7 @@ var _ = Describe("GetMachineDeployments", func() {
 		replicas              int32
 		tkc                   tkgsv1alpha2.TanzuKubernetesCluster
 		gotTkc                *tkgsv1alpha2.TanzuKubernetesCluster
-		testClusterName       string = "my-cluster"
+		testClusterName       = "my-cluster"
 	)
 
 	BeforeEach(func() {
@@ -185,7 +185,7 @@ var _ = Describe("DeleteMachineDeployments", func() {
 		tkgClient               *TkgClient
 		deleteDeploymentOptions DeleteMachineDeploymentOptions
 		tkc                     tkgsv1alpha2.TanzuKubernetesCluster
-		testClusterName         string = "my-cluster"
+		testClusterName         = "my-cluster"
 	)
 
 	BeforeEach(func() {

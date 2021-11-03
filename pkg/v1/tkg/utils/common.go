@@ -83,7 +83,7 @@ func ReplaceVersionInDockerImage(image, newVersion string) (string, error) {
 	}
 
 	// first join image[:tag]
-	splitVersion[len(splitVersion)-1] = strings.Join([]string{tagSplit[0], newVersion}, ":")
+	splitVersion[len(splitVersion)-1] = tagSplit[0] + ":" + newVersion
 
 	// then rejoin everything else
 	finalImage := strings.Join(splitVersion, "/")
