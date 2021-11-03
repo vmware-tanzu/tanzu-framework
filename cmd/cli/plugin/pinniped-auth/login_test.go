@@ -30,6 +30,7 @@ const (
 //nolint:funlen
 func TestLoginOIDCCommand(t *testing.T) {
 	sessionsCacheFilePath := filepath.Join(mustGetConfigDir(), "sessions.yaml")
+	credentialCacheFilePath := filepath.Join(mustGetConfigDir(), "credentials.yaml")
 	tests := []struct {
 		name                 string
 		args                 []string
@@ -174,7 +175,8 @@ func TestLoginOIDCCommand(t *testing.T) {
 				"--skip-browser", "true",
 				"--debug-session-cache", "true",
 				"--scopes", "openid",
-				"--session-cache", "/some/path",
+				"--session-cache", "/path/to/session",
+				"--credential-cache", "/path/to/cred",
 				"--ca-bundle", "/some/path",
 				"--ca-bundle-data", "somebase64encodeddata",
 				"--request-audience", "alternateaudience",
@@ -194,7 +196,7 @@ func TestLoginOIDCCommand(t *testing.T) {
 				"--client-id=test-client",
 				"--listen-port=3737",
 				"--skip-browser=true",
-				"--session-cache=/some/path",
+				"--session-cache=/path/to/session",
 				"--debug-session-cache=true",
 				"--scopes=openid",
 				"--ca-bundle=/some/path",
@@ -205,6 +207,7 @@ func TestLoginOIDCCommand(t *testing.T) {
 				"--concierge-authenticator-name=concierge-authenticator",
 				"--concierge-endpoint=test-endpoint",
 				"--concierge-ca-bundle-data=test-bundle",
+				"--credential-cache=/path/to/cred",
 			},
 		},
 		{
@@ -231,6 +234,7 @@ func TestLoginOIDCCommand(t *testing.T) {
 				"--concierge-authenticator-name=",
 				"--concierge-endpoint=",
 				"--concierge-ca-bundle-data=",
+				fmt.Sprintf("--credential-cache=%s", credentialCacheFilePath),
 			},
 		},
 	}

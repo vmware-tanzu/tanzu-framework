@@ -87,15 +87,16 @@ func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progres
 }
 
 func (p *pkgClient) preparePackageInstallForUpdate(o *tkgpackagedatamodel.PackageOptions, pkgInstall *kappipkg.PackageInstall) (*kappipkg.PackageInstall, bool, error) {
-	var (
-		changed bool
-		err     error
-	)
+	var changed bool
+
+	if err := p.validateValuesFile(o); err != nil {
+		return nil, false, err
+	}
 
 	pkgInstallToUpdate := pkgInstall.DeepCopy()
 
 	if pkgInstallToUpdate.Spec.PackageRef == nil || pkgInstallToUpdate.Spec.PackageRef.VersionSelection == nil {
-		err = errors.New(fmt.Sprintf("failed to update package '%s' as no existing package reference/version was found in the package install", o.PkgInstallName))
+		err := errors.New(fmt.Sprintf("failed to update package '%s' as no existing package reference/version was found in the package install", o.PkgInstallName))
 		return nil, false, err
 	}
 
@@ -103,7 +104,7 @@ func (p *pkgClient) preparePackageInstallForUpdate(o *tkgpackagedatamodel.Packag
 	// This will prevent the users from accidentally overwriting an installed package with another package content due to choosing a pre-existing name for the package isntall.
 	// Otherwise if o.PackageName is not provided, fill it from the installed package spec, as the validation logic in GetPackage() needs this field to be set.
 	if o.PackageName != "" && pkgInstallToUpdate.Spec.PackageRef.RefName != o.PackageName {
-		err = errors.New(fmt.Sprintf("installed package '%s' is already associated with package '%s'", o.PkgInstallName, pkgInstallToUpdate.Spec.PackageRef.RefName))
+		err := errors.New(fmt.Sprintf("installed package '%s' is already associated with package '%s'", o.PkgInstallName, pkgInstallToUpdate.Spec.PackageRef.RefName))
 		return nil, false, err
 	}
 	o.PackageName = pkgInstallToUpdate.Spec.PackageRef.RefName

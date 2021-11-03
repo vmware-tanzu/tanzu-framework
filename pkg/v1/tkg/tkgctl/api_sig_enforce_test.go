@@ -119,21 +119,6 @@ func Test_DeleteRegion_Signature(t *testing.T) {
 	enforceMethodSignature(&enforce, t)
 }
 
-func Test_DeregisterFromTmc_Signature(t *testing.T) {
-	tkgClientVal := reflect.ValueOf(&tkgctl{})
-	enforce := EnforceMethodParams{
-		Target:     tkgClientVal,
-		MethodName: "DeregisterFromTmc",
-		ParamTypes: []reflect.Type{
-			reflect.TypeOf(DeregisterFromTMCOptions{}),
-		},
-		ReturnTypes: []reflect.Type{
-			reflect.TypeOf((*error)(nil)).Elem(),
-		},
-	}
-	enforceMethodSignature(&enforce, t)
-}
-
 func Test_GetCEIP_Signature(t *testing.T) {
 	tkgClientVal := reflect.ValueOf(&tkgctl{})
 	enforce := EnforceMethodParams{
@@ -262,21 +247,6 @@ func Test_Init_Signature(t *testing.T) {
 		MethodName: "Init",
 		ParamTypes: []reflect.Type{
 			reflect.TypeOf(InitRegionOptions{}),
-		},
-		ReturnTypes: []reflect.Type{
-			reflect.TypeOf((*error)(nil)).Elem(),
-		},
-	}
-	enforceMethodSignature(&enforce, t)
-}
-
-func Test_RegisterWithTmc_Signature(t *testing.T) {
-	tkgClientVal := reflect.ValueOf(&tkgctl{})
-	enforce := EnforceMethodParams{
-		Target:     tkgClientVal,
-		MethodName: "RegisterWithTmc",
-		ParamTypes: []reflect.Type{
-			reflect.TypeOf(RegisterOptions{}),
 		},
 		ReturnTypes: []reflect.Type{
 			reflect.TypeOf((*error)(nil)).Elem(),

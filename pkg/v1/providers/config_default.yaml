@@ -50,9 +50,6 @@ ENABLE_CEIP_PARTICIPATION:
 DEPLOY_TKG_ON_VSPHERE7:
 #! Enable TKGS on vSphere 7.0 without prompt
 ENABLE_TKGS_ON_VSPHERE7:
-#! URL to download the yml which has configuration related to resources to be deployed on the
-#! management cluster for it to register with Tanzu Mission Control
-TMC_REGISTRATION_URL:
 
 #! BUILD_EDITION is the Tanzu Edition, the plugin should be built for.
 #! Valid values for BUILD_EDITION are 'tce' and 'tkg'.
@@ -293,9 +290,8 @@ AZURE_SSH_PUBLIC_KEY_B64:
 #! Azure virtual machine size
 AZURE_CONTROL_PLANE_MACHINE_TYPE: "Standard_D2s_v3"
 AZURE_NODE_MACHINE_TYPE: "Standard_D2s_v3"
-#! Accelerated networking turned off by default until
-#! https://launchpad.net/~timg-tpi/+archive/ubuntu/mlx-tunnel-offload-lp1921769 is addressed
-AZURE_ENABLE_ACCELERATED_NETWORKING: false
+#! Accelerated Networking is enabled by default on all supported Azure VMs with 4 or more CPU.
+AZURE_ENABLE_ACCELERATED_NETWORKING: true
 
 #! resource-group-name that already exists in your Azure account.
 #! AZURE_RESOURCE_GROUP and AZURE_VNET_RESOURCE_GROUP are the same by default.

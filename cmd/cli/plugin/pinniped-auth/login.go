@@ -35,6 +35,7 @@ type loginOIDCOptions struct {
 	conciergeEndpoint          string
 	conciergeCABundle          string
 	conciergeAPIGroupSuffix    string
+	credentialCachePath        string
 	listenPort                 uint16
 	skipBrowser                bool
 	debugSessionCache          bool
@@ -104,6 +105,8 @@ func loginOIDCCommand(
 
 		if !loginOptions.conciergeIsClusterScoped {
 			oidcLoginArgs = append(oidcLoginArgs, fmt.Sprintf("--concierge-namespace=%s", loginOptions.conciergeNamespace))
+		} else {
+			oidcLoginArgs = append(oidcLoginArgs, fmt.Sprintf("--credential-cache=%s", loginOptions.credentialCachePath))
 		}
 
 		pinnipedCliCmd, err := getPinnipedCLICmdFunc(oidcLoginArgs, loginOptions, cli.DefaultPluginRoot, buildinfo.Version, buildinfo.SHA)
@@ -174,6 +177,7 @@ func setLoginCommandFlags() {
 	loginCommand.Flags().StringVar(&loginOptions.conciergeEndpoint, "concierge-endpoint", "", "API base for the Pinniped concierge endpoint")
 	loginCommand.Flags().StringVar(&loginOptions.conciergeCABundle, "concierge-ca-bundle-data", "", "CA bundle to use when connecting to the concierge")
 	loginCommand.Flags().StringVar(&loginOptions.conciergeAPIGroupSuffix, "concierge-api-group-suffix", defaultPinnipedAPIGroupSuffix, "Concierge API group suffix")
+	loginCommand.Flags().StringVar(&loginOptions.credentialCachePath, "credential-cache", filepath.Join(mustGetConfigDir(), "credentials.yaml"), "Path to cluster-specific credentials cache (\"\" disables the cache)")
 	loginCommand.Flags().BoolVar(&loginOptions.conciergeIsClusterScoped, "concierge-is-cluster-scoped", false, "Is concierge cluster scoped")
 	loginCommand.Flags().MarkHidden("debug-session-cache") //nolint
 	loginCommand.MarkFlagRequired("issuer")                //nolint

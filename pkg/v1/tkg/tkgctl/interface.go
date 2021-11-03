@@ -29,8 +29,6 @@ type TKGClient interface {
 	DeleteMachineHealthCheck(options DeleteMachineHealthCheckOptions) error
 	// DeleteRegion deletes management cluster
 	DeleteRegion(options DeleteRegionOptions) error
-	// DeregisterFromTmc deregister management cluster from TMC
-	DeregisterFromTmc(options DeregisterFromTMCOptions) error
 	// GetCEIP returns CEIP status set on management cluster
 	GetCEIP() (client.ClusterCeipInfo, error)
 	// GetClusters returns list of cluster
@@ -49,8 +47,6 @@ type TKGClient interface {
 	GetRegions(managementClusterName string) ([]region.RegionContext, error)
 	// Init initializes tkg management cluster
 	Init(options InitRegionOptions) error
-	// RegisterWithTmc registers management cluster with TMC
-	RegisterWithTmc(options RegisterOptions) error
 	// ScaleCluster scales cluster
 	ScaleCluster(options ScaleClusterOptions) error
 	// SetCeip sets CEIP to the management cluster

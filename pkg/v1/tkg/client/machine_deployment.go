@@ -6,11 +6,16 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
+	"sort"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	aws "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha3"
 	azure "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha3"
@@ -79,6 +84,8 @@ type VSphereNodePool struct {
 	NumCPUs           int32  `yaml:"numCPUs,omitempty"`
 }
 
+const deploymentNameLabelKey = "cluster.x-k8s.io/deployment-name"
+
 // SetMachineDeployment sets a MachineDeployment on a cluster.
 func (c *TkgClient) SetMachineDeployment(options *SetMachineDeploymentOptions) error {
 	clusterClient, err := c.getClusterClient()
@@ -97,62 +104,85 @@ func (c *TkgClient) SetMachineDeployment(options *SetMachineDeploymentOptions) e
 		}
 		return c.SetNodePoolsForPacificCluster(clusterClient, options)
 	}
-	return c.DoSetMachineDeployment(clusterClient, options)
+	return DoSetMachineDeployment(clusterClient, options)
 }
 
-// DoSetMachineDeployment sets a MachineDeployment on a cluster
-func (c *TkgClient) DoSetMachineDeployment(clusterClient clusterclient.Client, options *SetMachineDeploymentOptions) error { //nolint:gocyclo
-	workers, err := clusterClient.GetMDObjectForCluster(options.ClusterName, options.Namespace)
-	if err != nil || len(workers) == 0 {
-		return errors.Wrap(err, "unable to get worker machine deployments")
+// DoSetMachineDeployment sets a MachineDeployment on a cluster given a regional cluster client
+func DoSetMachineDeployment(clusterClient clusterclient.Client, options *SetMachineDeploymentOptions) error { //nolint:funlen,gocyclo
+	workerMDs, err := clusterClient.GetMDObjectForCluster(options.ClusterName, options.Namespace)
+	if err != nil {
+		return errors.Wrap(err, "error retrieving worker machine deployments")
 	}
 
-	baseWorker := workers[0]
+	if len(workerMDs) == 0 {
+		return apierrors.NewNotFound(schema.GroupResource{Resource: "MachineDeployment"}, "")
+	}
+
+	nameMatcher, err := regexp.Compile(fmt.Sprintf("((%s)?-)?(%s)",
+		regexp.QuoteMeta(options.ClusterName), regexp.QuoteMeta(options.Name)))
+	if err != nil {
+		return errors.Wrap(err, "failed to parse node pool name")
+	}
+
+	baseMD := workerMDs[0]
 	update := false
-	for i := range workers {
-		if workers[i].Name == options.Name {
-			baseWorker = workers[i]
+	for i := range workerMDs {
+		if nameMatcher.MatchString(workerMDs[i].Name) {
+			baseMD = workerMDs[i]
 			update = true
 			break
 		}
 	}
 
-	baseWorker.Annotations = map[string]string{}
-	baseWorker.Name = options.Name
+	baseMD.Annotations = map[string]string{}
 	if options.Replicas != nil {
-		baseWorker.Spec.Replicas = options.Replicas
+		baseMD.Spec.Replicas = options.Replicas
 	}
+
 	if options.Labels != nil {
-		labels := *options.Labels
-		for k, v := range labels {
-			baseWorker.Spec.Template.Labels[k] = v
+		for k, v := range *options.Labels {
+			baseMD.Spec.Template.Labels[k] = v
 		}
 	}
 
-	kcTemplate, err := retrieveKubeadmConfigTemplate(clusterClient, baseWorker.Spec.Template.Spec.Bootstrap.ConfigRef)
-	if err != nil {
-		return errors.Wrap(err, "unable to retrieve kubeadmconfigtemplate")
-	}
-	kcTemplate.Annotations = map[string]string{}
-	kcTemplate.Name = fmt.Sprintf("%s-kct", options.Name)
-	kcTemplate.ResourceVersion = ""
-
 	if !update {
+		kcTemplateName := baseMD.Spec.Template.Spec.Bootstrap.ConfigRef.Name
+		kcTemplate, err := retrieveKubeadmConfigTemplate(clusterClient, kcTemplateName, options.Namespace)
+		if err != nil {
+			return errors.Wrap(err, "unable to retrieve kubeadmconfigtemplate")
+		}
+		kcTemplate.Annotations = map[string]string{}
+		kcTemplate.ResourceVersion = ""
+
+		options.Name = fmt.Sprintf("%s-%s", options.ClusterName, options.Name)
+		machineTemplateName := fmt.Sprintf("%s-mt", options.Name)
+		kcTemplate.Name = fmt.Sprintf("%s-kct", options.Name)
+		if kcTemplate.Spec.Template.Spec.Files != nil && len(kcTemplate.Spec.Template.Spec.Files) > 0 {
+			kcTemplate.Spec.Template.Spec.Files[0].ContentFrom.Secret.Name = machineTemplateName + "-azure-json"
+		}
+
+		var labelsArg []string
+		if options.Labels != nil {
+			for k, v := range *options.Labels {
+				labelsArg = append(labelsArg, fmt.Sprintf("%s=%s", k, v))
+			}
+		}
+		sort.Strings(labelsArg)
+		kcTemplate.Spec.Template.Spec.JoinConfiguration.
+			NodeRegistration.KubeletExtraArgs["node-labels"] = strings.Join(labelsArg, ",")
 		if err = clusterClient.CreateResource(kcTemplate, kcTemplate.Name, options.Namespace); err != nil {
 			return errors.Wrap(err, "could not create kubeadmconfigtemplate")
 		}
 
-		machineTemplateName := fmt.Sprintf("%s-mt", options.Name)
-		var err error
-		switch iaasType := baseWorker.Spec.Template.Spec.InfrastructureRef.Kind; iaasType {
+		switch iaasType := baseMD.Spec.Template.Spec.InfrastructureRef.Kind; iaasType {
 		case constants.VSphereMachineTemplate:
-			err = createVSphereMachineTemplate(clusterClient, &baseWorker.Spec.Template.Spec.InfrastructureRef, machineTemplateName, options)
+			err = createVSphereMachineTemplate(clusterClient, &baseMD.Spec.Template.Spec.InfrastructureRef, machineTemplateName, options)
 		case constants.AWSMachineTemplate:
-			err = createAWSMachineTemplate(clusterClient, &baseWorker.Spec.Template.Spec.InfrastructureRef, machineTemplateName, options)
+			err = createAWSMachineTemplate(clusterClient, &baseMD.Spec.Template.Spec.InfrastructureRef, machineTemplateName, options)
 		case constants.AzureMachineTemplate:
-			err = createAzureMachineTemplate(clusterClient, &baseWorker.Spec.Template.Spec.InfrastructureRef, machineTemplateName, options)
+			err = createAzureMachineTemplate(clusterClient, &baseMD.Spec.Template.Spec.InfrastructureRef, machineTemplateName, options)
 		case constants.DockerMachineTemplate:
-			err = createDockerMachineTemplate(clusterClient, &baseWorker.Spec.Template.Spec.InfrastructureRef, machineTemplateName, options)
+			err = createDockerMachineTemplate(clusterClient, &baseMD.Spec.Template.Spec.InfrastructureRef, machineTemplateName, options)
 		default:
 			return errors.Errorf("unable to match MachineTemplate type: %s", iaasType)
 		}
@@ -160,23 +190,22 @@ func (c *TkgClient) DoSetMachineDeployment(clusterClient clusterclient.Client, o
 			return err
 		}
 
-		baseWorker.ResourceVersion = ""
-		baseWorker.Spec.Template.Spec.Bootstrap.ConfigRef.Name = kcTemplate.Name
-		baseWorker.Spec.Template.Spec.InfrastructureRef.Name = machineTemplateName
+		baseMD.Name = options.Name
+		baseMD.ResourceVersion = ""
+		baseMD.Spec.Template.Labels[deploymentNameLabelKey] = options.Name
+		baseMD.Spec.Selector.MatchLabels[deploymentNameLabelKey] = options.Name
+		baseMD.Spec.Template.Spec.Bootstrap.ConfigRef.Name = kcTemplate.Name
+		baseMD.Spec.Template.Spec.InfrastructureRef.Name = machineTemplateName
 		if options.AZ != "" {
-			baseWorker.Spec.Template.Spec.FailureDomain = &options.AZ
+			baseMD.Spec.Template.Spec.FailureDomain = &options.AZ
 		}
 
-		if err = clusterClient.CreateResource(&baseWorker, baseWorker.Name, options.Namespace); err != nil {
-			return errors.Wrap(err, "failed to create machinedeployment")
-		}
-	} else {
-		err = clusterClient.UpdateResource(&baseWorker, baseWorker.Name, options.Namespace)
-		if err != nil {
-			return errors.Wrap(err, "failed to create machinedeployment")
-		}
+		err = clusterClient.CreateResource(&baseMD, baseMD.Name, options.Namespace)
+		return errors.Wrap(err, "failed to create machinedeployment")
 	}
-	return nil
+
+	err = clusterClient.UpdateResource(&baseMD, baseMD.Name, options.Namespace)
+	return errors.Wrap(err, "failed to update machinedeployment")
 }
 
 // SetNodePoolsForPacificCluster sets nodepool for Pacific cluster
@@ -264,20 +293,30 @@ func (c *TkgClient) DeleteMachineDeployment(options DeleteMachineDeploymentOptio
 		}
 		return c.DeleteNodePoolForPacificCluster(clusterClient, options)
 	}
-	return c.DoDeleteMachineDeployment(clusterClient, options)
+	return DoDeleteMachineDeployment(clusterClient, &options)
 }
 
 // DoDeleteMachineDeployment deletes a machine deployment
-func (c *TkgClient) DoDeleteMachineDeployment(clusterClient clusterclient.Client, options DeleteMachineDeploymentOptions) error { //nolint:funlen,gocyclo
+func DoDeleteMachineDeployment(clusterClient clusterclient.Client, options *DeleteMachineDeploymentOptions) error { //nolint:funlen,gocyclo
 	workers, err := clusterClient.GetMDObjectForCluster(options.ClusterName, options.Namespace)
 	if err != nil {
 		return errors.Wrap(err, "unable to get worker machine deployments")
 	}
 
+	if len(workers) < 2 {
+		return apierrors.NewBadRequest("cannot delete last worker node pool in cluster")
+	}
+
+	nameMatcher, err := regexp.Compile(fmt.Sprintf("((%s)?-)?(%s)",
+		regexp.QuoteMeta(options.ClusterName), regexp.QuoteMeta(options.Name)))
+	if err != nil {
+		return errors.Wrap(err, "failed to compile node pool name regex")
+	}
+
 	var toDelete capi.MachineDeployment
 	var matched bool
 	for i := range workers {
-		if workers[i].Name == options.Name {
+		if nameMatcher.MatchString(workers[i].Name) {
 			matched = true
 			toDelete = workers[i]
 			break
@@ -285,32 +324,32 @@ func (c *TkgClient) DoDeleteMachineDeployment(clusterClient clusterclient.Client
 	}
 
 	if !matched {
-		return errors.New("could not find node pool to delete")
+		return errors.Errorf("could not find node pool %s to delete", options.Name)
 	}
 
-	if len(workers) < 2 {
-		return errors.New("cannot delete last worker node pool in cluster")
-	}
-
-	kcTemplate, err := retrieveKubeadmConfigTemplate(clusterClient, toDelete.Spec.Template.Spec.Bootstrap.ConfigRef)
+	kcTemplateName := toDelete.Spec.Template.Spec.Bootstrap.ConfigRef.Name
+	kcTemplate, err := retrieveKubeadmConfigTemplate(clusterClient, kcTemplateName, options.Namespace)
 	if err != nil {
-		return errors.Wrap(err, "unable to retrieve kubeadmconfigtemplate")
+		return errors.Wrapf(err, "unable to retrieve kubeadmconfigtemplate %s", kcTemplateName)
 	}
 
 	var deleteCmd func() error
+	var infraTemplateName string
 	switch machineKind := toDelete.Spec.Template.Spec.InfrastructureRef.Kind; machineKind {
 	case constants.VSphereMachineTemplate:
 		var machineTemplate vsphere.VSphereMachineTemplate
-		err = retrieveMachineTemplate(clusterClient, &toDelete.Spec.Template.Spec.InfrastructureRef, &machineTemplate)
+		infraTemplateName = toDelete.Spec.Template.Spec.InfrastructureRef.Name
+		err = retrieveMachineTemplate(clusterClient, infraTemplateName, options.Namespace, &machineTemplate)
 		if err != nil {
-			return errors.Wrap(err, "unable to retrieve machine template")
+			return errors.Wrapf(err, "unable to retrieve machine template %s", infraTemplateName)
 		}
 		deleteCmd = func() error {
 			return clusterClient.DeleteResource(&machineTemplate)
 		}
 	case constants.AWSMachineTemplate:
 		var machineTemplate aws.AWSMachineTemplate
-		err = retrieveMachineTemplate(clusterClient, &toDelete.Spec.Template.Spec.InfrastructureRef, &machineTemplate)
+		infraTemplateName = toDelete.Spec.Template.Spec.InfrastructureRef.Name
+		err = retrieveMachineTemplate(clusterClient, infraTemplateName, options.Namespace, &machineTemplate)
 		if err != nil {
 			return errors.Wrap(err, "unable to retrieve machine template")
 		}
@@ -319,7 +358,8 @@ func (c *TkgClient) DoDeleteMachineDeployment(clusterClient clusterclient.Client
 		}
 	case constants.AzureMachineTemplate:
 		var machineTemplate azure.AzureMachineTemplate
-		err = retrieveMachineTemplate(clusterClient, &toDelete.Spec.Template.Spec.InfrastructureRef, &machineTemplate)
+		infraTemplateName = toDelete.Spec.Template.Spec.InfrastructureRef.Name
+		err = retrieveMachineTemplate(clusterClient, infraTemplateName, options.Namespace, &machineTemplate)
 		if err != nil {
 			return errors.Wrap(err, "unable to retrieve machine template")
 		}
@@ -328,28 +368,28 @@ func (c *TkgClient) DoDeleteMachineDeployment(clusterClient clusterclient.Client
 		}
 	case constants.DockerMachineTemplate:
 		var machineTemplate docker.DockerMachineTemplate
-		err = retrieveMachineTemplate(clusterClient, &toDelete.Spec.Template.Spec.InfrastructureRef, &machineTemplate)
+		infraTemplateName = toDelete.Spec.Template.Spec.InfrastructureRef.Name
+		err = retrieveMachineTemplate(clusterClient, infraTemplateName, options.Namespace, &machineTemplate)
 		if err != nil {
-			return errors.Wrap(err, "unable to retrieve machine template")
+			return errors.Wrapf(err, "unable to retrieve machine template %s", infraTemplateName)
 		}
 		deleteCmd = func() error {
 			return clusterClient.DeleteResource(&machineTemplate)
 		}
+	default:
+		return errors.Errorf("unable to match MachineTemplate type: %s", machineKind)
 	}
 
 	err = clusterClient.DeleteResource(&toDelete)
 	if err != nil {
-		return errors.Wrap(err, "unable to delete machine deployment")
+		return errors.Wrapf(err, "unable to delete machine deployment %s", toDelete.Name)
 	}
 	err = deleteCmd()
 	if err != nil {
-		return errors.Wrap(err, "unable to delete machine template")
+		return errors.Wrapf(err, "unable to delete machine template %s", infraTemplateName)
 	}
 	err = clusterClient.DeleteResource(kcTemplate)
-	if err != nil {
-		return errors.Wrap(err, "unable to delete kubeadmconfigtemplate")
-	}
-	return nil
+	return errors.Wrapf(err, "unable to delete kubeadmconfigtemplate %s", kcTemplateName)
 }
 
 // DeleteNodePoolForPacificCluster deletes a machine deployment
@@ -404,14 +444,19 @@ func (c *TkgClient) GetMachineDeployments(options GetMachineDeploymentOptions) (
 		return nil, errors.Wrap(err, "Unable to create clusterclient")
 	}
 
-	return c.DoGetMachineDeployments(clusterClient, &options)
+	return DoGetMachineDeployments(clusterClient, &options)
 }
 
 // DoGetMachineDeployments retrieves machine deployments for a cluster given a regional cluster client
-func (c *TkgClient) DoGetMachineDeployments(clusterClient clusterclient.Client, options *GetMachineDeploymentOptions) ([]capi.MachineDeployment, error) {
+func DoGetMachineDeployments(clusterClient clusterclient.Client, options *GetMachineDeploymentOptions) ([]capi.MachineDeployment, error) {
 	workers, err := clusterClient.GetMDObjectForCluster(options.ClusterName, options.Namespace)
-	if err != nil || len(workers) == 0 {
-		return nil, errors.Wrap(err, "unable to get worker machine deployments")
+	if err != nil {
+		return nil, errors.Wrap(err, "error retrieving machine deployments")
+	}
+
+	workers, err = NormalizeNodePoolName(workers, options.ClusterName)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to normalize node pool names")
 	}
 
 	return workers, nil
@@ -438,7 +483,7 @@ func (c *TkgClient) GetPacificMachineDeployments(options GetMachineDeploymentOpt
 
 func createVSphereMachineTemplate(clusterClient clusterclient.Client, infraTemplate *corev1.ObjectReference, machineTemplateName string, options *SetMachineDeploymentOptions) error {
 	var vSphereMachineTemplate vsphere.VSphereMachineTemplate
-	err := retrieveMachineTemplate(clusterClient, infraTemplate, &vSphereMachineTemplate)
+	err := retrieveMachineTemplate(clusterClient, infraTemplate.Name, options.Namespace, &vSphereMachineTemplate)
 	if err != nil {
 		return err
 	}
@@ -454,14 +499,14 @@ func createVSphereMachineTemplate(clusterClient clusterclient.Client, infraTempl
 
 func createAWSMachineTemplate(clusterClient clusterclient.Client, infraTemplate *corev1.ObjectReference, machineTemplateName string, options *SetMachineDeploymentOptions) error {
 	var awsMachineTemplate aws.AWSMachineTemplate
-	err := retrieveMachineTemplate(clusterClient, infraTemplate, &awsMachineTemplate)
+	err := retrieveMachineTemplate(clusterClient, infraTemplate.Name, options.Namespace, &awsMachineTemplate)
 	if err != nil {
 		return err
 	}
 	awsMachineTemplate.Annotations = map[string]string{}
 	awsMachineTemplate.Name = machineTemplateName
 	awsMachineTemplate.ResourceVersion = ""
-	if options.NodeMachineType == "" {
+	if options.NodeMachineType != "" {
 		awsMachineTemplate.Spec.Template.Spec.InstanceType = options.NodeMachineType
 	}
 	if err = clusterClient.CreateResource(&awsMachineTemplate, machineTemplateName, options.Namespace); err != nil {
@@ -472,11 +517,11 @@ func createAWSMachineTemplate(clusterClient clusterclient.Client, infraTemplate 
 
 func createAzureMachineTemplate(clusterClient clusterclient.Client, infraTemplate *corev1.ObjectReference, machineTemplateName string, options *SetMachineDeploymentOptions) error {
 	var azureMachineTemplate azure.AzureMachineTemplate
-	err := retrieveMachineTemplate(clusterClient, infraTemplate, &azureMachineTemplate)
+	err := retrieveMachineTemplate(clusterClient, infraTemplate.Name, options.Namespace, &azureMachineTemplate)
 	if err != nil {
 		return err
 	}
-	if options.NodeMachineType == "" {
+	if options.NodeMachineType != "" {
 		azureMachineTemplate.Spec.Template.Spec.VMSize = options.NodeMachineType
 	}
 	azureMachineTemplate.Name = machineTemplateName
@@ -491,7 +536,7 @@ func createAzureMachineTemplate(clusterClient clusterclient.Client, infraTemplat
 
 func createDockerMachineTemplate(clusterClient clusterclient.Client, infraTemplate *corev1.ObjectReference, machineTemplateName string, options *SetMachineDeploymentOptions) error {
 	var dockerMachineTemplate docker.DockerMachineTemplate
-	err := retrieveMachineTemplate(clusterClient, infraTemplate, &dockerMachineTemplate)
+	err := retrieveMachineTemplate(clusterClient, infraTemplate.Name, options.Namespace, &dockerMachineTemplate)
 	if err != nil {
 		return err
 	}
@@ -504,8 +549,8 @@ func createDockerMachineTemplate(clusterClient clusterclient.Client, infraTempla
 	return nil
 }
 
-func retrieveMachineTemplate(clusterClient clusterclient.Client, infraTemplate *corev1.ObjectReference, machineTemplate interface{}) error {
-	err := clusterClient.GetResource(machineTemplate, infraTemplate.Name, infraTemplate.Namespace, nil, nil)
+func retrieveMachineTemplate(clusterClient clusterclient.Client, infraTemplateName, infraTemplateNamespace string, machineTemplate interface{}) error {
+	err := clusterClient.GetResource(machineTemplate, infraTemplateName, infraTemplateNamespace, nil, nil)
 	if err != nil {
 		return err
 	}
@@ -513,10 +558,8 @@ func retrieveMachineTemplate(clusterClient clusterclient.Client, infraTemplate *
 	return nil
 }
 
-func retrieveKubeadmConfigTemplate(clusterClient clusterclient.Client, configRef *corev1.ObjectReference) (*v1alpha3.KubeadmConfigTemplate, error) {
+func retrieveKubeadmConfigTemplate(clusterClient clusterclient.Client, kcTemplateName, kcTemplateNamespace string) (*v1alpha3.KubeadmConfigTemplate, error) {
 	var kcTemplate v1alpha3.KubeadmConfigTemplate
-	kcTemplateName := configRef.Name
-	kcTemplateNamespace := configRef.Namespace
 	err := clusterClient.GetResource(&kcTemplate, kcTemplateName, kcTemplateNamespace, nil, nil)
 	if err != nil {
 		return nil, err
@@ -556,6 +599,16 @@ func populateVSphereMachineTemplate(machineTemplate *vsphere.VSphereMachineTempl
 	if options.VSphere.Template != "" {
 		machineTemplate.Spec.Template.Spec.Template = options.VSphere.Template
 	}
+	if options.VSphere.Network != "" {
+		machineTemplate.Spec.Template.Spec.Network = vsphere.NetworkSpec{
+			Devices: []vsphere.NetworkDeviceSpec{
+				{
+					NetworkName: options.VSphere.Network,
+					DHCP4:       true,
+				},
+			},
+		}
+	}
 }
 
 func (c *TkgClient) getClusterClient() (clusterclient.Client, error) {
@@ -572,4 +625,20 @@ func (c *TkgClient) getClusterClient() (clusterclient.Client, error) {
 		return nil, errors.Wrap(err, "Unable to create clusterclient")
 	}
 	return clusterClient, nil
+}
+
+// NormalizeNodePoolName takes a list of machine deployments and strips the cluster name prepend from the name if present
+func NormalizeNodePoolName(workers []capi.MachineDeployment, clusterName string) ([]capi.MachineDeployment, error) {
+	nameMatcher, err := regexp.Compile(fmt.Sprintf("(?:(?:%s)?-)?(?P<0>.*)", regexp.QuoteMeta(clusterName)))
+	if err != nil {
+		return nil, err
+	}
+	for i := range workers {
+		groups := nameMatcher.FindStringSubmatch(workers[i].Name)
+		if len(groups) == 2 {
+			workers[i].Name = groups[1]
+		}
+	}
+
+	return workers, nil
 }

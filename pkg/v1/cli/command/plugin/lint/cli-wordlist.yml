@@ -130,7 +130,6 @@ command-flags:
   - target-namespace
   - timeout
   - tkr
-  - tmc-registration-url
   - ui
   - url
   - use-existing-bootstrap-cluster

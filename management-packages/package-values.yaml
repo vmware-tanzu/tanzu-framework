@@ -1,0 +1,30 @@
+#@data/values
+---
+#! This is the package repository that you want to build
+packageRepository: null
+#! This is the package that you want to build
+packageName: null
+
+managementPackageRepository:
+  #! This gets overwritten by build
+  version: null
+  sha256: null
+  name: management
+  domain: tanzu.vmware.com
+
+  packageSpec:
+    syncPeriod: 5m
+    deploy:
+      kappWaitTimeout: 5m
+      kubeAPIQPS: 20
+      kubeAPIBurst: 30
+
+  packages:
+    - name: featuregates
+      displayName: featuregates
+      #! Relative path to package bundle
+      path: management-packages/featuregates
+      domain: tanzu.vmware.com
+      version: latest
+      #! Gets replaced with imgpkg sha256 at build, this should be name:version
+      sha256: "featuregates:latest"

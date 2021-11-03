@@ -1,0 +1,28 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:assert", "assert")
+
+#@ def get_package_repository(repository_name):
+#@   if data.values.packageRepository == "management":
+#@     return data.values.managementPackageRepository
+#@   else:
+#@     assert("Package Repository must be management")
+#@   end
+#@ end
+
+#@ def get_package(package_repository, package_name):
+#@   for package in package_repository.packages:
+#@     if package.name == package_name:
+#@       return package
+#@     end
+#@   end
+#@   return None
+#@ end
+
+#@ def get_package_spec(package_repository, package):
+#@ if hasattr(package, 'spec'):
+#@   return package.spec
+#@ elif hasattr(package_repository, 'packageSpec'):
+#@   return package_repository.packageSpec
+#@ end
+#@ return None
+#@ end

@@ -62,6 +62,10 @@ func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progre
 		return
 	}
 
+	if err = p.validateValuesFile(o); err != nil {
+		return
+	}
+
 	progress.ProgressMsg <- fmt.Sprintf("Getting package metadata for '%s'", o.PackageName)
 	if _, _, err = p.GetPackage(o); err != nil {
 		return
@@ -304,6 +308,19 @@ func (p *pkgClient) createOrUpdateServiceAccount(o *tkgpackagedatamodel.PackageO
 	}
 
 	return true, nil
+}
+
+func (p *pkgClient) validateValuesFile(o *tkgpackagedatamodel.PackageOptions) error {
+	if o.ValuesFile == "" {
+		return nil
+	}
+
+	if _, err := ioutil.ReadFile(o.ValuesFile); err != nil {
+		err = errors.Wrap(err, fmt.Sprintf("failed to read from data values file '%s'", o.ValuesFile))
+		return err
+	}
+
+	return nil
 }
 
 // waitForResourceInstallation waits until the package get installed successfully or a failure happen

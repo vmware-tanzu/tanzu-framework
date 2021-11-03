@@ -65,6 +65,7 @@ require (
 	github.com/jinzhu/copier v0.2.8
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
 	github.com/k14s/imgpkg v0.6.0
+	github.com/k14s/semver/v4 v4.0.1-0.20210701191048-266d47ac6115
 	github.com/k14s/ytt v0.32.1-0.20210511155130-214258be2519
 	github.com/lithammer/dedent v1.1.0
 	github.com/logrusorgru/aurora v2.0.3+incompatible
@@ -84,7 +85,6 @@ require (
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.7.1-0.20210427113832-6241f9ab9942
 	github.com/tj/assert v0.0.0-20171129193455-018094318fb0
-	github.com/vmware-labs/yaml-jsonpath v0.3.2
 	github.com/vmware-tanzu/carvel-kapp-controller v0.25.0
 	github.com/vmware-tanzu/carvel-secretgen-controller v0.5.0
 	github.com/vmware-tanzu/carvel-vendir v0.23.0
