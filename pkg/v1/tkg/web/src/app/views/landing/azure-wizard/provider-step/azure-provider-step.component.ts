@@ -14,7 +14,7 @@ import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import Broker from 'src/app/shared/service/broker';
 
-export const AzureAccountParamsKeys = ["tenantId", "clientId", "clientSecret", "subscriptionId"];
+export const AzureAccountParamsKeys = ["tenantId", "clientId", "clientSecret", "subscriptionId", "azureCloud"];
 const extraFields = ["region", "sshPublicKey", "resourceGroupOption", "resourceGroupExisting"];
 const optionalFields = ["resourceGroupCustom"];
 
