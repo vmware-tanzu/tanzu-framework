@@ -182,17 +182,48 @@ You can add a private package repository and install a private package using the
    kubectl create namespace <NAMESPACE>
    ```
 
-2. Before adding a private package repository, registry secret should be added to the cluster:
+2. Before adding a private package repository, registry secret should be added to the cluster. If you are planning to add the private repository in the same namespace as the registry secret, it suffices to run the following command. Otherwise, please use step '3.a'.
 
    ```sh
-   tanzu secret registry add <SECRET-NAME> --server <PRIVATE-REGISTRY> --username <USERNAME> --namespace <SECRET-NAMESPACE> --password <PASSWORD> -y
+   tanzu secret registry add <SECRET-NAME> --server <PRIVATE-REGISTRY> --username <USERNAME> --namespace <SECRET-NAMESPACE> --password <PASSWORD>
    ```
 
-3. In case you want to add the private repository in a different namespace than the namespace in which the secret was added to, you need o export the secret to all other namespaces. Please be aware that by doing so, the given secret contents will be available to ALL users in ALL namespaces. Please ensure that included registry credentials allow only read-only access to the registry with minimal necessary scope. You can export the secret to other namespaces by running:
+   The output would be as follows:
 
    ```sh
-   tanzu secret registry update <SECRET-NAME> --namespace <SECRET-NAMESPACE> --export-to-all-namespaces=true -y
+   - Adding registry secret '<SECRET-NAME>'...
+    Added registry secret '<SECRET-NAME>' into namespace '<SECRET-NAMESPACE>'
    ```
+
+3. In case you want to add the private repository in a different namespace than the namespace in which the secret was added to, you need to export the secret to all other namespaces. Please be aware that by doing so, the given secret contents will be available to ALL users in ALL namespaces. Please ensure that included registry credentials allow only read-only access to the registry with minimal necessary scope. You can export the secret to other namespaces using one of the following options:
+
+   a. You can export the secret to all other namespaces at the time of adding the secret:
+
+      ```sh
+      tanzu secret registry add <SECRET-NAME> --server <PRIVATE-REGISTRY> --username <USERNAME> --namespace <SECRET-NAMESPACE> --password <PASSWORD> --export-to-all-namespaces=true -y
+      ```
+
+      The output would be as follows:
+
+      ```sh
+      - Adding registry secret '<SECRET-NAME>'...
+       Added registry secret '<SECRET-NAME>' into namespace '<SECRET-NAMESPACE>'
+       Exported registry secret '<SECRET-NAME>' to all namespaces
+      ```
+
+   b. Alternatively, you can update an existing secret to export it to all other namespaces:
+
+      ```sh
+      tanzu secret registry update <SECRET-NAME> --namespace <SECRET-NAMESPACE> --export-to-all-namespaces=true -y
+      ```
+
+      The output would be as follows:
+
+      ```sh
+      \ Updating registry secret '<SECRET-NAME>'...
+       Updated registry secret '<SECRET-NAME>' in namespace '<SECRET-NAMESPACE>'
+       Exported registry secret '<SECRET-NAME>' to all namespaces
+      ```
 
 4. Add the private package repository to the target namespace in which you want to install the private package by running:
 
@@ -200,7 +231,20 @@ You can add a private package repository and install a private package using the
    tanzu package repository add <REPOSITORY-NAME> --url <REPOSITORY-URL> --namespace <TARGET-NAMESPACE> --create-namespace
    ```
 
-5. Verify that the private package repository has been successfully added to the target namespace by running:
+   The output of the command would be as follows:
+
+   ```sh
+    - Adding package repository '<REPOSITORY-NAME>'
+    | Validating provided settings for the package repository
+    \ Creating namespace '<TARGET-NAMESPACE>'
+    | Creating package repository resource
+    \ Waiting for 'PackageRepository' reconciliation for '<REPOSITORY-NAME>'
+    / 'PackageRepository' resource install status: Reconciling
+
+    Added package repository '<REPOSITORY-NAME>' in namespace '<TARGET-NAMESPACE>'
+   ```
+
+5. Verify that the private package repository has been successfully added to the target namespace by running. You should ensure that the status field be 'Reconcile succeeded':
 
    ```sh
    tanzu package repository get <REPOSITORY-NAME> --namespace <TARGET-NAMESPACE>
@@ -218,13 +262,29 @@ You can add a private package repository and install a private package using the
    tanzu package available list <PACKAGE-NAME> --namespace <TARGET-NAMESPACE>
    ```
 
-8. Install the private package:
+8. Install the private package with a specific version:
 
    ```sh
    tanzu package installed create <INSTALLED-PACKAGE-NAME> --package-name <PACKAGE-NAME> --version <PACKAGE-VERSION> --namespace <TARGET-NAMESPACE>
    ```
 
    Please follow the specific installation instructions for the package in case additional configuration parameters are needed
+
+   The output of the command would be as follows:
+
+   ```sh
+   - Installing package '<PACKAGE-NAME>'
+   | Getting package metadata for '<PACKAGE-NAME>'
+   | Creating namespace '<TARGET-NAMESPACE>'
+   | Creating service account '<INSTALLED-PACKAGE-NAME>-<TARGET-NAMESPACE>-sa'
+   | Creating cluster admin role '<INSTALLED-PACKAGE-NAME>-<TARGET-NAMESPACE>-cluster-role'
+   | Creating cluster role binding '<INSTALLED-PACKAGE-NAME>-<TARGET-NAMESPACE>-cluster-rolebinding'
+   | Creating package resource
+   - Waiting for 'PackageInstall' reconciliation for '<INSTALLED-PACKAGE-NAME>'
+   - 'PackageInstall' resource install status: Reconciling
+
+   Added installed package '<INSTALLED-PACKAGE-NAME>'
+   ```
 
 9. Verify the successful package installation by running:
 
