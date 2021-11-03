@@ -399,6 +399,14 @@ spec:
                               type: object
                             sops:
                               properties:
+                                age:
+                                  properties:
+                                    privateKeysSecretRef:
+                                      properties:
+                                        name:
+                                          type: string
+                                      type: object
+                                  type: object
                                 paths:
                                   items:
                                     type: string
@@ -795,6 +803,14 @@ spec:
                       type: object
                     sops:
                       properties:
+                        age:
+                          properties:
+                            privateKeysSecretRef:
+                              properties:
+                                name:
+                                  type: string
+                              type: object
+                          type: object
                         paths:
                           items:
                             type: string
@@ -1372,18 +1388,18 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    kapp-controller.carvel.dev/version: v0.25.0
+    kapp-controller.carvel.dev/version: v0.28.0
     kbld.k14s.io/images: |
       - Metas:
-        - Path: /Users/dhelfand/Documents/GitHub/carvel-kapp-controller
+        - Path: /Users/dhelfand/go/src/github.com/vmware-tanzu/carvel-kapp-controller
           Type: local
         - Dirty: false
-          RemoteURL: https://github.com/vmware-tanzu/carvel-kapp-controller.git
-          SHA: 151ba7fa076226322a71e12772423bace9239e18
+          RemoteURL: https://github.com/vmware-tanzu/carvel-kapp-controller
+          SHA: e63bb7833133485bb2d0774ce9b75c68aab12e7e
           Tags:
-          - v0.25.0
+          - v0.28.0
           Type: git
-        URL: index.docker.io/k14s/kapp-controller@sha256:5938c749ac0833877f88a120f36a9878ec848c6cf864c8f60f599fddb2177044
+        URL: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:083f0f526c4f9b5cb6e6506ad0a9c54a9b73209ab06906a6b6ae5872351048a0
   name: kapp-controller
   namespace: kapp-controller
 spec:
@@ -1409,7 +1425,7 @@ spec:
               fieldPath: metadata.namespace
         - name: KAPPCTRL_API_PORT
           value: "10350"
-        image: index.docker.io/k14s/kapp-controller@sha256:5938c749ac0833877f88a120f36a9878ec848c6cf864c8f60f599fddb2177044
+        image: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:083f0f526c4f9b5cb6e6506ad0a9c54a9b73209ab06906a6b6ae5872351048a0
         name: kapp-controller
         ports:
         - containerPort: 10350
@@ -1542,6 +1558,12 @@ rules:
   verbs:
   - list
   - watch
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
