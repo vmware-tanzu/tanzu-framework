@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+//nolint:gosec
 package clusterclient_test
 
 import (
@@ -896,8 +897,8 @@ var _ = Describe("Cluster Client", func() {
 	})
 	Describe("ScalePacificClusterControlPlane", func() {
 		var controlPlaneCount int32 = 1
-		var clusterName string = "fake-cluster-name"
-		var namespace string = "fake-namespace"
+		var clusterName = "fake-cluster-name"
+		var namespace = "fake-namespace"
 		BeforeEach(func() {
 			reInitialize()
 			kubeConfigPath := getConfigFilePath("config1.yaml")

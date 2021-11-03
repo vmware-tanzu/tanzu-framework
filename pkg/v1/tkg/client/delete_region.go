@@ -44,9 +44,9 @@ Alternatively, you can use the --force flag to force the deletion of the managem
 // DeleteRegion delete management cluster
 func (c *TkgClient) DeleteRegion(options DeleteRegionOptions) error { //nolint:funlen,gocyclo
 	var err error
-	var isSuccessful bool = false
-	var isStartedRegionalClusterDeletion bool = false
-	var isCleanupClusterCreated bool = false
+	var isSuccessful = false
+	var isStartedRegionalClusterDeletion = false
+	var isCleanupClusterCreated = false
 	var cleanupClusterName string
 	var cleanupClusterKubeconfigPath string
 

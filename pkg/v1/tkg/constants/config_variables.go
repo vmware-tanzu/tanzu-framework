@@ -21,7 +21,7 @@ const (
 	ConfigVariableAWSAccessKeyID     = "AWS_ACCESS_KEY_ID"     //nolint:gosec
 	ConfigVariableAWSSessionToken    = "AWS_SESSION_TOKEN"     //nolint:gosec
 	ConfigVariableAWSProfile         = "AWS_PROFILE"
-	ConfigVariableAWSB64Credentials  = "AWS_B64ENCODED_CREDENTIALS"
+	ConfigVariableAWSB64Credentials  = "AWS_B64ENCODED_CREDENTIALS" //nolint:gosec
 	ConfigVariableAWSVPCID           = "AWS_VPC_ID"
 
 	ConfigVariableAWSPublicNodeCIDR   = "AWS_PUBLIC_NODE_CIDR"

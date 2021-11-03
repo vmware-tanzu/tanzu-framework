@@ -109,6 +109,8 @@ func getAvailablePlugins() ([]*v1alpha1.PluginDescriptor, error) {
 		if err != nil {
 			return nil, fmt.Errorf("find installed plugins: %w", err)
 		}
+
+		//nolint:gocritic
 		p := append(serverPlugin, standalonePlugins...)
 		for i := range p {
 			plugins = append(plugins, &p[i])

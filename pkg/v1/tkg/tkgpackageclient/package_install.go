@@ -6,7 +6,7 @@ package tkgpackageclient
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"time"
 
@@ -206,7 +206,7 @@ func (p *pkgClient) createOrUpdateDataValuesSecret(o *tkgpackagedatamodel.Packag
 
 	dataValues := make(map[string][]byte)
 
-	if dataValues[filepath.Base(o.ValuesFile)], err = ioutil.ReadFile(o.ValuesFile); err != nil {
+	if dataValues[filepath.Base(o.ValuesFile)], err = os.ReadFile(o.ValuesFile); err != nil {
 		return false, errors.Wrap(err, fmt.Sprintf("failed to read from data values file '%s'", o.ValuesFile))
 	}
 	secret = &corev1.Secret{
@@ -315,7 +315,7 @@ func (p *pkgClient) validateValuesFile(o *tkgpackagedatamodel.PackageOptions) er
 		return nil
 	}
 
-	if _, err := ioutil.ReadFile(o.ValuesFile); err != nil {
+	if _, err := os.ReadFile(o.ValuesFile); err != nil {
 		err = errors.Wrap(err, fmt.Sprintf("failed to read from data values file '%s'", o.ValuesFile))
 		return err
 	}

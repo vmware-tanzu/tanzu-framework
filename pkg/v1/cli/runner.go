@@ -108,7 +108,7 @@ func (r *Runner) run(ctx context.Context, pluginPath string, stdout, stderr *byt
 	env := append(os.Environ(), fmt.Sprintf("%s=%s", EnvPluginStateKey, stateFile.Name()))
 
 	log.Debugf("running command path %s args: %+v", pluginPath, r.args)
-	cmd := exec.CommandContext(ctx, pluginPath, r.args...)
+	cmd := exec.CommandContext(ctx, pluginPath, r.args...) //nolint:gosec
 
 	cmd.Env = env
 	cmd.Stdin = os.Stdin
