@@ -77,7 +77,7 @@ require (
 	github.com/vmware-tanzu/carvel-kapp-controller v0.25.0
 	github.com/vmware-tanzu/carvel-secretgen-controller v0.5.0
 	github.com/vmware-tanzu/carvel-vendir v0.23.0
-	github.com/vmware/govmomi v0.26.1
+	github.com/vmware/govmomi v0.27.1
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
 	go.uber.org/multierr v1.6.0
 	golang.org/x/mod v0.5.1
@@ -98,8 +98,8 @@ require (
 	k8s.io/utils v0.0.0-20210930125809-cb0fa318a74b
 	sigs.k8s.io/cluster-api v1.0.0
 	sigs.k8s.io/cluster-api-provider-aws v1.0.0
-	sigs.k8s.io/cluster-api-provider-azure v1.0.0-rc.0
-	sigs.k8s.io/cluster-api-provider-vsphere v1.0.0
+	sigs.k8s.io/cluster-api-provider-azure v1.0.0
+	sigs.k8s.io/cluster-api-provider-vsphere v1.0.1
 	sigs.k8s.io/cluster-api/test v1.0.0
 	sigs.k8s.io/controller-runtime v0.10.2
 	sigs.k8s.io/controller-tools v0.7.0

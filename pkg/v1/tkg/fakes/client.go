@@ -5,9 +5,9 @@ import (
 	"sync"
 	"time"
 
-	v1alpha3a "sigs.k8s.io/cluster-api/api/v1alpha3"
+	"sigs.k8s.io/cluster-api/api/v1alpha3"
 	"sigs.k8s.io/cluster-api/api/v1beta1"
-	"sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
+	v1alpha3a "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/tree"
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
@@ -153,33 +153,33 @@ type Client struct {
 	deleteWorkloadClusterReturnsOnCall map[int]struct {
 		result1 error
 	}
-	DescribeClusterStub        func(client.DescribeTKGClustersOptions) (*tree.ObjectTree, *v1beta1.Cluster, *v1alpha3.ProviderList, error)
+	DescribeClusterStub        func(client.DescribeTKGClustersOptions) (*tree.ObjectTree, *v1alpha3.Cluster, *v1alpha3a.ProviderList, error)
 	describeClusterMutex       sync.RWMutex
 	describeClusterArgsForCall []struct {
 		arg1 client.DescribeTKGClustersOptions
 	}
 	describeClusterReturns struct {
 		result1 *tree.ObjectTree
-		result2 *v1beta1.Cluster
-		result3 *v1alpha3.ProviderList
+		result2 *v1alpha3.Cluster
+		result3 *v1alpha3a.ProviderList
 		result4 error
 	}
 	describeClusterReturnsOnCall map[int]struct {
 		result1 *tree.ObjectTree
-		result2 *v1beta1.Cluster
-		result3 *v1alpha3.ProviderList
+		result2 *v1alpha3.Cluster
+		result3 *v1alpha3a.ProviderList
 		result4 error
 	}
-	DescribeProviderStub        func() (*v1alpha3.ProviderList, error)
+	DescribeProviderStub        func() (*v1alpha3a.ProviderList, error)
 	describeProviderMutex       sync.RWMutex
 	describeProviderArgsForCall []struct {
 	}
 	describeProviderReturns struct {
-		result1 *v1alpha3.ProviderList
+		result1 *v1alpha3a.ProviderList
 		result2 error
 	}
 	describeProviderReturnsOnCall map[int]struct {
-		result1 *v1alpha3.ProviderList
+		result1 *v1alpha3a.ProviderList
 		result2 error
 	}
 	DownloadBomFileStub        func(string) error
@@ -295,17 +295,17 @@ type Client struct {
 		result1 *v1alpha2.TanzuKubernetesCluster
 		result2 error
 	}
-	GetPacificMachineDeploymentsStub        func(client.GetMachineDeploymentOptions) ([]v1alpha3a.MachineDeployment, error)
+	GetPacificMachineDeploymentsStub        func(client.GetMachineDeploymentOptions) ([]v1alpha3.MachineDeployment, error)
 	getPacificMachineDeploymentsMutex       sync.RWMutex
 	getPacificMachineDeploymentsArgsForCall []struct {
 		arg1 client.GetMachineDeploymentOptions
 	}
 	getPacificMachineDeploymentsReturns struct {
-		result1 []v1alpha3a.MachineDeployment
+		result1 []v1alpha3.MachineDeployment
 		result2 error
 	}
 	getPacificMachineDeploymentsReturnsOnCall map[int]struct {
-		result1 []v1alpha3a.MachineDeployment
+		result1 []v1alpha3.MachineDeployment
 		result2 error
 	}
 	GetRegionContextsStub        func(string) ([]region.RegionContext, error)
@@ -1308,7 +1308,7 @@ func (fake *Client) DeleteWorkloadClusterReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *Client) DescribeCluster(arg1 client.DescribeTKGClustersOptions) (*tree.ObjectTree, *v1beta1.Cluster, *v1alpha3.ProviderList, error) {
+func (fake *Client) DescribeCluster(arg1 client.DescribeTKGClustersOptions) (*tree.ObjectTree, *v1alpha3.Cluster, *v1alpha3a.ProviderList, error) {
 	fake.describeClusterMutex.Lock()
 	ret, specificReturn := fake.describeClusterReturnsOnCall[len(fake.describeClusterArgsForCall)]
 	fake.describeClusterArgsForCall = append(fake.describeClusterArgsForCall, struct {
@@ -1333,7 +1333,7 @@ func (fake *Client) DescribeClusterCallCount() int {
 	return len(fake.describeClusterArgsForCall)
 }
 
-func (fake *Client) DescribeClusterCalls(stub func(client.DescribeTKGClustersOptions) (*tree.ObjectTree, *v1beta1.Cluster, *v1alpha3.ProviderList, error)) {
+func (fake *Client) DescribeClusterCalls(stub func(client.DescribeTKGClustersOptions) (*tree.ObjectTree, *v1alpha3.Cluster, *v1alpha3a.ProviderList, error)) {
 	fake.describeClusterMutex.Lock()
 	defer fake.describeClusterMutex.Unlock()
 	fake.DescribeClusterStub = stub
@@ -1346,39 +1346,39 @@ func (fake *Client) DescribeClusterArgsForCall(i int) client.DescribeTKGClusters
 	return argsForCall.arg1
 }
 
-func (fake *Client) DescribeClusterReturns(result1 *tree.ObjectTree, result2 *v1beta1.Cluster, result3 *v1alpha3.ProviderList, result4 error) {
+func (fake *Client) DescribeClusterReturns(result1 *tree.ObjectTree, result2 *v1alpha3.Cluster, result3 *v1alpha3a.ProviderList, result4 error) {
 	fake.describeClusterMutex.Lock()
 	defer fake.describeClusterMutex.Unlock()
 	fake.DescribeClusterStub = nil
 	fake.describeClusterReturns = struct {
 		result1 *tree.ObjectTree
-		result2 *v1beta1.Cluster
-		result3 *v1alpha3.ProviderList
+		result2 *v1alpha3.Cluster
+		result3 *v1alpha3a.ProviderList
 		result4 error
 	}{result1, result2, result3, result4}
 }
 
-func (fake *Client) DescribeClusterReturnsOnCall(i int, result1 *tree.ObjectTree, result2 *v1beta1.Cluster, result3 *v1alpha3.ProviderList, result4 error) {
+func (fake *Client) DescribeClusterReturnsOnCall(i int, result1 *tree.ObjectTree, result2 *v1alpha3.Cluster, result3 *v1alpha3a.ProviderList, result4 error) {
 	fake.describeClusterMutex.Lock()
 	defer fake.describeClusterMutex.Unlock()
 	fake.DescribeClusterStub = nil
 	if fake.describeClusterReturnsOnCall == nil {
 		fake.describeClusterReturnsOnCall = make(map[int]struct {
 			result1 *tree.ObjectTree
-			result2 *v1beta1.Cluster
-			result3 *v1alpha3.ProviderList
+			result2 *v1alpha3.Cluster
+			result3 *v1alpha3a.ProviderList
 			result4 error
 		})
 	}
 	fake.describeClusterReturnsOnCall[i] = struct {
 		result1 *tree.ObjectTree
-		result2 *v1beta1.Cluster
-		result3 *v1alpha3.ProviderList
+		result2 *v1alpha3.Cluster
+		result3 *v1alpha3a.ProviderList
 		result4 error
 	}{result1, result2, result3, result4}
 }
 
-func (fake *Client) DescribeProvider() (*v1alpha3.ProviderList, error) {
+func (fake *Client) DescribeProvider() (*v1alpha3a.ProviderList, error) {
 	fake.describeProviderMutex.Lock()
 	ret, specificReturn := fake.describeProviderReturnsOnCall[len(fake.describeProviderArgsForCall)]
 	fake.describeProviderArgsForCall = append(fake.describeProviderArgsForCall, struct {
@@ -1402,34 +1402,34 @@ func (fake *Client) DescribeProviderCallCount() int {
 	return len(fake.describeProviderArgsForCall)
 }
 
-func (fake *Client) DescribeProviderCalls(stub func() (*v1alpha3.ProviderList, error)) {
+func (fake *Client) DescribeProviderCalls(stub func() (*v1alpha3a.ProviderList, error)) {
 	fake.describeProviderMutex.Lock()
 	defer fake.describeProviderMutex.Unlock()
 	fake.DescribeProviderStub = stub
 }
 
-func (fake *Client) DescribeProviderReturns(result1 *v1alpha3.ProviderList, result2 error) {
+func (fake *Client) DescribeProviderReturns(result1 *v1alpha3a.ProviderList, result2 error) {
 	fake.describeProviderMutex.Lock()
 	defer fake.describeProviderMutex.Unlock()
 	fake.DescribeProviderStub = nil
 	fake.describeProviderReturns = struct {
-		result1 *v1alpha3.ProviderList
+		result1 *v1alpha3a.ProviderList
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *Client) DescribeProviderReturnsOnCall(i int, result1 *v1alpha3.ProviderList, result2 error) {
+func (fake *Client) DescribeProviderReturnsOnCall(i int, result1 *v1alpha3a.ProviderList, result2 error) {
 	fake.describeProviderMutex.Lock()
 	defer fake.describeProviderMutex.Unlock()
 	fake.DescribeProviderStub = nil
 	if fake.describeProviderReturnsOnCall == nil {
 		fake.describeProviderReturnsOnCall = make(map[int]struct {
-			result1 *v1alpha3.ProviderList
+			result1 *v1alpha3a.ProviderList
 			result2 error
 		})
 	}
 	fake.describeProviderReturnsOnCall[i] = struct {
-		result1 *v1alpha3.ProviderList
+		result1 *v1alpha3a.ProviderList
 		result2 error
 	}{result1, result2}
 }
@@ -1984,7 +1984,7 @@ func (fake *Client) GetPacificClusterObjectReturnsOnCall(i int, result1 *v1alpha
 	}{result1, result2}
 }
 
-func (fake *Client) GetPacificMachineDeployments(arg1 client.GetMachineDeploymentOptions) ([]v1alpha3a.MachineDeployment, error) {
+func (fake *Client) GetPacificMachineDeployments(arg1 client.GetMachineDeploymentOptions) ([]v1alpha3.MachineDeployment, error) {
 	fake.getPacificMachineDeploymentsMutex.Lock()
 	ret, specificReturn := fake.getPacificMachineDeploymentsReturnsOnCall[len(fake.getPacificMachineDeploymentsArgsForCall)]
 	fake.getPacificMachineDeploymentsArgsForCall = append(fake.getPacificMachineDeploymentsArgsForCall, struct {
@@ -2009,7 +2009,7 @@ func (fake *Client) GetPacificMachineDeploymentsCallCount() int {
 	return len(fake.getPacificMachineDeploymentsArgsForCall)
 }
 
-func (fake *Client) GetPacificMachineDeploymentsCalls(stub func(client.GetMachineDeploymentOptions) ([]v1alpha3a.MachineDeployment, error)) {
+func (fake *Client) GetPacificMachineDeploymentsCalls(stub func(client.GetMachineDeploymentOptions) ([]v1alpha3.MachineDeployment, error)) {
 	fake.getPacificMachineDeploymentsMutex.Lock()
 	defer fake.getPacificMachineDeploymentsMutex.Unlock()
 	fake.GetPacificMachineDeploymentsStub = stub
@@ -2022,28 +2022,28 @@ func (fake *Client) GetPacificMachineDeploymentsArgsForCall(i int) client.GetMac
 	return argsForCall.arg1
 }
 
-func (fake *Client) GetPacificMachineDeploymentsReturns(result1 []v1alpha3a.MachineDeployment, result2 error) {
+func (fake *Client) GetPacificMachineDeploymentsReturns(result1 []v1alpha3.MachineDeployment, result2 error) {
 	fake.getPacificMachineDeploymentsMutex.Lock()
 	defer fake.getPacificMachineDeploymentsMutex.Unlock()
 	fake.GetPacificMachineDeploymentsStub = nil
 	fake.getPacificMachineDeploymentsReturns = struct {
-		result1 []v1alpha3a.MachineDeployment
+		result1 []v1alpha3.MachineDeployment
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *Client) GetPacificMachineDeploymentsReturnsOnCall(i int, result1 []v1alpha3a.MachineDeployment, result2 error) {
+func (fake *Client) GetPacificMachineDeploymentsReturnsOnCall(i int, result1 []v1alpha3.MachineDeployment, result2 error) {
 	fake.getPacificMachineDeploymentsMutex.Lock()
 	defer fake.getPacificMachineDeploymentsMutex.Unlock()
 	fake.GetPacificMachineDeploymentsStub = nil
 	if fake.getPacificMachineDeploymentsReturnsOnCall == nil {
 		fake.getPacificMachineDeploymentsReturnsOnCall = make(map[int]struct {
-			result1 []v1alpha3a.MachineDeployment
+			result1 []v1alpha3.MachineDeployment
 			result2 error
 		})
 	}
 	fake.getPacificMachineDeploymentsReturnsOnCall[i] = struct {
-		result1 []v1alpha3a.MachineDeployment
+		result1 []v1alpha3.MachineDeployment
 		result2 error
 	}{result1, result2}
 }

@@ -8,13 +8,11 @@ import (
 	"path/filepath"
 	"strings"
 
-
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/providers/tests/unit/ytt"
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/providers/tests/unit/matchers"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/providers/tests/unit/ytt"
 )
 
 const YAML_ROOT = "../../"
@@ -204,8 +202,8 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 		BeforeEach(func() {
 			paths = []string{
 				filepath.Join("fixtures", "yttmocks"),
-				filepath.Join("..", "..", "infrastructure-vsphere", "v1.0.0", "ytt", "overlay.yaml"),
-				filepath.Join("..", "..", "infrastructure-vsphere", "v1.0.0", "ytt", "base-template.yaml"),
+				filepath.Join("..", "..", "infrastructure-vsphere", "v1.0.1", "ytt", "overlay.yaml"),
+				filepath.Join("..", "..", "infrastructure-vsphere", "v1.0.1", "ytt", "base-template.yaml"),
 				filepath.Join("..", "..", "config_default.yaml"),
 			}
 		})
