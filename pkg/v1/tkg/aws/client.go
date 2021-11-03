@@ -15,7 +15,9 @@ import (
 	utilpointer "k8s.io/utils/pointer"
 	"sigs.k8s.io/cluster-api-provider-aws/cmd/clusterawsadm/cloudformation/bootstrap"
 	cloudformation "sigs.k8s.io/cluster-api-provider-aws/cmd/clusterawsadm/cloudformation/service"
+	"sigs.k8s.io/cluster-api-provider-aws/cmd/clusterawsadm/configreader"
 	awscreds "sigs.k8s.io/cluster-api-provider-aws/cmd/clusterawsadm/credentials"
+	iamv1 "sigs.k8s.io/cluster-api-provider-aws/iam/api/v1beta1"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 )
@@ -23,6 +25,7 @@ import (
 const (
 	defaultControlPlaneMinMemoryInGB = 8
 	defaultControlPlaneMinCPU        = 2
+	tanzuMissionControlPoliciesSID   = "tmccloudvmwarecom"
 )
 
 type client struct {
@@ -250,18 +253,80 @@ func (c *client) ListSubnets(vpcID string) ([]*models.AWSSubnet, error) {
 }
 
 func (c *client) CreateCloudFormationStack() error {
-	template := bootstrap.NewTemplate()
-	setDefaultCloudFormationTemplateValue(&template)
-	cfnSvc := cloudformation.NewService(cfn.New(c.session))
-	err := cfnSvc.ReconcileBootstrapStack(template.Spec.StackName, *template.RenderCloudFormation())
+	template, err := c.GenerateBootstrapTemplate(GenerateBootstrapTemplateInput{})
 	if err != nil {
 		return err
 	}
+	return c.CreateCloudFormationStackWithTemplate(template)
+}
 
+func (c *client) CreateCloudFormationStackWithTemplate(template *bootstrap.Template) error {
+	cfnSvc := cloudformation.NewService(cfn.New(c.session))
+	if err := cfnSvc.ReconcileBootstrapStack(template.Spec.StackName, *template.RenderCloudFormation()); err != nil {
+		return err
+	}
 	return cfnSvc.ShowStackResources(template.Spec.StackName)
 }
 
-func setDefaultCloudFormationTemplateValue(t *bootstrap.Template) {
+// GenerateBootstrapTemplateInput is the input to the GenerateBootstrapTemplate func
+type GenerateBootstrapTemplateInput struct {
+	// BootstrapConfigFile is the path to a CAPA bootstrapv1 configuration file that can be used
+	// to customize IAM policies
+	BootstrapConfigFile string
+	// EnableTanzuMissionControlPermissions if true will add IAM permissions for use by Tanzu Mission Control
+	// to all nodes
+	EnableTanzuMissionControlPermissions bool
+}
+
+// GenerateBootstrapTemplate generates a wrapped CAPA bootstrapv1 configuration specification that controls
+// the generation of CloudFormation stacks
+func (c *client) GenerateBootstrapTemplate(i GenerateBootstrapTemplateInput) (*bootstrap.Template, error) {
+	template := bootstrap.NewTemplate()
+	if i.BootstrapConfigFile != "" {
+		spec, err := configreader.LoadConfigFile(i.BootstrapConfigFile)
+		if err != nil {
+			return nil, err
+		}
+		template.Spec = &spec.Spec
+	}
+	setDefaultsBootstrapTemplate(&template)
+	if i.EnableTanzuMissionControlPermissions {
+		ensureTanzuMissionControlPermissions(&template)
+	}
+	return &template, nil
+}
+
+func ensureTanzuMissionControlPermissions(t *bootstrap.Template) {
+	t.Spec.Nodes.ExtraStatements = ensureTanzuMissionControlPermissionsForRole(t.Spec.Nodes.ExtraStatements)
+	t.Spec.ControlPlane.ExtraStatements = ensureTanzuMissionControlPermissionsForRole(t.Spec.ControlPlane.ExtraStatements)
+}
+
+func ensureTanzuMissionControlPermissionsForRole(statements []iamv1.StatementEntry) []iamv1.StatementEntry {
+	tmcStatementEntry := iamv1.StatementEntry{
+		Sid:    tanzuMissionControlPoliciesSID,
+		Effect: iamv1.EffectAllow,
+		Action: iamv1.Actions{
+			"ec2:DescribeKeyPairs",
+			"elasticloadbalancing:DescribeLoadBalancers",
+			"servicequotas:ListServiceQuotas",
+			"iam:GetPolicy",
+			"iam:ListAttachedRolePoliices",
+			"iam:GetPolicyVersion",
+			"iam:ListRoleTags",
+		},
+		Resource: iamv1.Resources{iamv1.Any},
+	}
+	for i, statementEntry := range statements {
+		if statementEntry.Sid == tanzuMissionControlPoliciesSID {
+			statements[i] = tmcStatementEntry
+			return statements
+		}
+	}
+	statements = append(statements, tmcStatementEntry)
+	return statements
+}
+
+func setDefaultsBootstrapTemplate(t *bootstrap.Template) {
 	t.Spec.NameSuffix = utilpointer.StringPtr(DefaultCloudFormationNameSuffix)
 	t.Spec.StackName = DefaultCloudFormationStackName
 	t.Spec.BootstrapUser.UserName = DefaultCloudFormationBootstrapUserName
