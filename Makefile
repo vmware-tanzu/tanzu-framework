@@ -570,6 +570,11 @@ package-bundles: management-package-bundles ## Build tar bundles for packages
 .PHONY: package-repos-bundles
 package-repos-bundles: management-package-bundles management-package-repos-bundles ## Build tar bundles for package repos
 
+.PHONY: management-package-bundle
+management-package-bundle: ## Build one specific tar bundle package, needs PACKAGE_NAME VERSION
+	name=$(PACKAGE_NAME) packageSubVersion=$(SUB_VERSION) $(PACKAGES_SCRIPTS_DIR)/package-utils.sh generate_single_imgpkg_lock_output
+	name=$(PACKAGE_NAME) packageSubVersion=$(SUB_VERSION) $(PACKAGES_SCRIPTS_DIR)/package-utils.sh create_single_package_bundle
+
 .PHONY: push-package-bundles
 push-package-bundles: push-management-package-bundles  ## Push package bundles
 

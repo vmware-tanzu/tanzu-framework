@@ -9,6 +9,7 @@ PROJECT_ROOT=$(git rev-parse --show-toplevel)
 TOOLS_DIR="${PROJECT_ROOT}/hack/tools"
 TOOLS_BIN_DIR="${TOOLS_DIR}/bin"
 MANAGEMENT_PACKAGES_BUILD_ARTIFACTS_DIR="${PROJECT_ROOT}/build"
+MANAGEMENT_PACKAGE_REPOSITORY_DIR="${PROJECT_ROOT}/management-packages"
 
 if [[ ${MANAGEMENT_PACKAGE_REPO_VERSION:0:1} == "v" ]] ; then
   REPO_VERSION=${MANAGEMENT_PACKAGE_REPO_VERSION:1}
@@ -16,12 +17,30 @@ else
   REPO_VERSION=${MANAGEMENT_PACKAGE_REPO_VERSION}
 fi
 
+function generate_single_imgpkg_lock_output() {
+	path=${MANAGEMENT_PACKAGE_REPOSITORY_DIR}/${name}
+	mkdir -p "$path/bundle/.imgpkg"
+	yttCmd="${TOOLS_BIN_DIR}/ytt --ignore-unknown-comments -f $path/bundle/config/"
+	${yttCmd} | "${TOOLS_BIN_DIR}"/kbld -f - -f "${PROJECT_ROOT}/management-packages/kbld-config.yml" --imgpkg-lock-output "$path/bundle/.imgpkg/images.yml" > /dev/null
+}
+
 function generate_imgpkg_lock_output() {
   while IFS='|' read -r name path version; do
     mkdir -p "$path/bundle/.imgpkg"
     yttCmd="${TOOLS_BIN_DIR}/ytt --ignore-unknown-comments -f $path/bundle/config/"
     ${yttCmd} | "${TOOLS_BIN_DIR}"/kbld -f - -f "${PROJECT_ROOT}/management-packages/kbld-config.yml" --imgpkg-lock-output "$path/bundle/.imgpkg/images.yml" > /dev/null
   done < <("${TOOLS_BIN_DIR}"/yq e ".${PACKAGE_REPOSITORY}PackageRepository.packages[] | .name + \"|\" + .path + \"|\" + .version" "${PROJECT_ROOT}/management-packages/package-values.yaml")
+}
+
+function create_single_package_bundle() {
+	path=${MANAGEMENT_PACKAGE_REPOSITORY_DIR}/${name}
+	if [ -z "$packageSubVersion" ]; then
+      imagePackageVersion="v${REPO_VERSION}"
+  else
+      imagePackageVersion="v${REPO_VERSION}_${packageSubVersion}"
+  fi
+	mkdir -p "build/package-bundles/management"
+	tar -czvf "build/package-bundles/management/$name-$imagePackageVersion.tar.gz" -C "$path/bundle" .
 }
 
 function create_package_bundles() {
