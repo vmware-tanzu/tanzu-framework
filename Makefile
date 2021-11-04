@@ -41,7 +41,7 @@ VALE               := $(TOOLS_BIN_DIR)/vale
 YQ                 := $(TOOLS_BIN_DIR)/yq
 TOOLING_BINARIES   := $(GOLANGCI_LINT) $(YTT) $(KBLD) $(VENDIR) $(IMGPKG) $(KAPP) $(KUBEVAL) $(GOIMPORTS) $(GOBINDATA) $(GINKGO) $(VALE) $(YQ)
 
-export MANAGEMENT_PACKAGE_REPO_VERSION ?= $(BUILD_VERSION)
+export REPO_VERSION ?= $(BUILD_VERSION)
 
 PINNIPED_GIT_REPOSITORY = https://github.com/vmware-tanzu/pinniped.git
 PINNIPED_VERSIONS = v0.4.4 v0.12.0
@@ -564,42 +564,39 @@ docker-all: docker-build docker-publish kbld-image-replace
 create-management-package: ## Stub out new package directories and manifests. Usage: make create-management-package PACKAGE_NAME=foobar
 	@hack/packages/scripts/create-management-package.sh $(PACKAGE_NAME)
 
+.PHONY: package-bundle
+package-bundle: ## Build one specific tar bundle package, needs PACKAGE_NAME VERSION
+	PACKAGE_REPOSITORY=$(PACKAGE_REPOSITORY) PACKAGE_NAME=$(PACKAGE_NAME) $(PACKAGES_SCRIPTS_DIR)/package-utils.sh generate_single_imgpkg_lock_output
+	PACKAGE_REPOSITORY=$(PACKAGE_REPOSITORY) PACKAGE_NAME=$(PACKAGE_NAME) PACKAGE_SUB_VERSION=$(PACKAGE_SUB_VERSION) $(PACKAGES_SCRIPTS_DIR)/package-utils.sh create_single_package_bundle
+
 .PHONY: package-bundles
-package-bundles: management-package-bundles ## Build tar bundles for packages
-
-.PHONY: package-repos-bundles
-package-repos-bundles: management-package-bundles management-package-repos-bundles ## Build tar bundles for package repos
-
-.PHONY: management-package-bundle
-management-package-bundle: ## Build one specific tar bundle package, needs PACKAGE_NAME VERSION
-	name=$(PACKAGE_NAME) packageSubVersion=$(SUB_VERSION) $(PACKAGES_SCRIPTS_DIR)/package-utils.sh generate_single_imgpkg_lock_output
-	name=$(PACKAGE_NAME) packageSubVersion=$(SUB_VERSION) $(PACKAGES_SCRIPTS_DIR)/package-utils.sh create_single_package_bundle
-
-.PHONY: push-package-bundles
-push-package-bundles: push-management-package-bundles  ## Push package bundles
-
-.PHONY: push-package-repo-bundles
-push-package-repo-bundles: push-management-package-repo-bundles ## Push package repo bundles
-
-.PHONY: push-management-package-bundles
-push-management-package-bundles: tools ## Push management package bundles
-	PACKAGE_REPOSITORY="management" REGISTRY=$(OCI_REGISTRY)/packages/management $(PACKAGES_SCRIPTS_DIR)/package-utils.sh push_package_bundles
-
-.PHONY: push-management-package-repo-bundles
-push-management-package-repo-bundles: tools push-management-package-bundles ## Push management package repo bundles
-	PACKAGE_REPOSITORY="management" REGISTRY=$(OCI_REGISTRY)/packages/management $(PACKAGES_SCRIPTS_DIR)/package-utils.sh push_package_repo_bundles
-
-.PHONY: management-imgpkg-lock-output
-management-imgpkg-lock-output: tools ## Generate imgpkg lock output for packages
-	PACKAGE_REPOSITORY="management" $(PACKAGES_SCRIPTS_DIR)/package-utils.sh generate_imgpkg_lock_output
+package-bundles: management-package-bundles ## Build tar bundles for multiple packages
 
 .PHONY: management-package-bundles
 management-package-bundles: tools management-imgpkg-lock-output ## Build tar bundles for packages
 	PACKAGE_REPOSITORY="management" $(PACKAGES_SCRIPTS_DIR)/package-utils.sh create_package_bundles localhost:5000
 
-.PHONY: management-package-repos-bundles
-management-package-repos-bundles: tools management-package-bundles ## Build tar bundles for package repos
-	PACKAGE_REPOSITORY="management" REGISTRY=$(OCI_REGISTRY)/packages/management $(PACKAGES_SCRIPTS_DIR)/package-utils.sh create_package_repo_bundles
+.PHONY: package-repo-bundle
+package-repo-bundle: ## Build tar bundles for package repo with given package-values.yaml file
+	PACKAGE_REPOSITORY=$(PACKAGE_REPOSITORY) REGISTRY=$(OCI_REGISTRY)/packages/management PACKAGE_VALUES_FILE=$(PACKAGE_VALUES_FILE) $(PACKAGES_SCRIPTS_DIR)/package-utils.sh create_package_repo_bundles
+
+.PHONY: push-package-bundles
+push-package-bundles: push-management-package-bundles  ## Push package bundles
+
+.PHONY: push-package-repo-bundles
+push-package-repo-bundles: push-management-package-repo-bundle ## Push package repo bundles
+
+.PHONY: push-management-package-bundles
+push-management-package-bundles: tools ## Push management package bundles
+	PACKAGE_REPOSITORY="management" REGISTRY=$(OCI_REGISTRY)/packages/management $(PACKAGES_SCRIPTS_DIR)/package-utils.sh push_package_bundles
+
+.PHONY: push-management-package-repo-bundle
+push-management-package-repo-bundle: tools ## Push management package repo bundles
+	PACKAGE_REPOSITORY="management" REGISTRY=$(OCI_REGISTRY)/packages/management $(PACKAGES_SCRIPTS_DIR)/package-utils.sh push_package_repo_bundles
+
+.PHONY: management-imgpkg-lock-output
+management-imgpkg-lock-output: tools ## Generate imgpkg lock output for packages
+	PACKAGE_REPOSITORY="management" $(PACKAGES_SCRIPTS_DIR)/package-utils.sh generate_imgpkg_lock_output
 
 .PHONY: clean-registry
 clean-registry: ## Stops and removes local docker registry
