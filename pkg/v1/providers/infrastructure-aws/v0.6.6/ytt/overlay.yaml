@@ -30,6 +30,10 @@ spec:
   controlPlaneRef:
     name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
   clusterNetwork:
+    #@ if data.values.CLUSTER_API_SERVER_PORT:
+    #@overlay/match missing_ok=True
+    apiServerPort: #@ data.values.CLUSTER_API_SERVER_PORT
+    #@ end
     pods:
       cidrBlocks:
       #@overlay/match by=overlay.index(0)

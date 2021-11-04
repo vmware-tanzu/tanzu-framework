@@ -31,6 +31,10 @@ spec:
       value: "true"
     - name: address
       value: #@ data.values.VSPHERE_CONTROL_PLANE_ENDPOINT
+    #@ if (not data.values.AVI_CONTROL_PLANE_HA_PROVIDER) and data.values.CLUSTER_API_SERVER_PORT:
+    - name: port
+      value: #@ "{}".format(data.values.CLUSTER_API_SERVER_PORT)
+    #@ end
     - name: vip_interface
       value:  #@ data.values.VIP_NETWORK_INTERFACE
     - name: vip_leaseduration
@@ -86,6 +90,10 @@ spec:
   controlPlaneRef:
     name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
   clusterNetwork:
+    #@ if (not data.values.AVI_CONTROL_PLANE_HA_PROVIDER) and data.values.CLUSTER_API_SERVER_PORT:
+    #@overlay/match missing_ok=True
+    apiServerPort: #@ data.values.CLUSTER_API_SERVER_PORT
+    #@ end
     pods:
       cidrBlocks:
       #@overlay/match by=overlay.index(0)
@@ -105,7 +113,11 @@ spec:
   #@ if not data.values.AVI_CONTROL_PLANE_HA_PROVIDER:
   controlPlaneEndpoint:
     host: #@ data.values.VSPHERE_CONTROL_PLANE_ENDPOINT
+    #@ if data.values.CLUSTER_API_SERVER_PORT:
+    port: #@ data.values.CLUSTER_API_SERVER_PORT
+    #@ else:
     port: 6443
+    #@ end
   #@ else:
   #@overlay/remove
   controlPlaneEndpoint:
@@ -195,6 +207,17 @@ spec:
     kind: VSphereMachineTemplate
     name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
   kubeadmConfigSpec:
+    initConfiguration:
+      #@ if (not data.values.AVI_CONTROL_PLANE_HA_PROVIDER) and data.values.CLUSTER_API_SERVER_PORT:
+      #@overlay/match missing_ok=True
+      localAPIEndpoint:
+        #@ if data.values.TKG_IP_FAMILY == "ipv6":
+        advertiseAddress: '::\0'
+        #@ else:
+        advertiseAddress: '0.0.0.0'
+        #@ end
+        bindPort: #@ data.values.CLUSTER_API_SERVER_PORT
+      #@ end
     clusterConfiguration:
       imageRepository: #@ kubeadm_image_repo(bomDataForK8sVersion.kubeadmConfigSpec.imageRepository)
       etcd:

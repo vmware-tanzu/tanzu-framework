@@ -36,6 +36,10 @@ metadata:
     tanzuKubernetesRelease: #@ data.values.KUBERNETES_RELEASE
 spec:
   clusterNetwork:
+    #@ if data.values.CLUSTER_API_SERVER_PORT:
+    #@overlay/match missing_ok=True
+    apiServerPort: #@ data.values.CLUSTER_API_SERVER_PORT
+    #@ end
     pods:
       cidrBlocks:
       #@overlay/match by=overlay.index(0)
@@ -122,6 +126,13 @@ spec:
     kind: AzureMachineTemplate
     name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
   kubeadmConfigSpec:
+    initConfiguration:
+      #@ if data.values.CLUSTER_API_SERVER_PORT:  
+      #@overlay/match missing_ok=True
+      localAPIEndpoint:
+        advertiseAddress: '0.0.0.0'
+        bindPort: #@ data.values.CLUSTER_API_SERVER_PORT
+      #@ end
     #@ if data.values.AZURE_ENABLE_PRIVATE_CLUSTER:
     #@overlay/match missing_ok=True
     preKubeadmCommands:
