@@ -41,11 +41,10 @@ const (
 // will fail. Note that "global" is a special value for <plugin> to be used for CLI-wide features.
 var (
 	DefaultCliFeatureFlags = map[string]bool{
-		FeatureContextAwareDiscovery:                          false,
+		FeatureContextAwareDiscovery:                          common.IsContextAwareDiscoveryEnabled,
 		"features.management-cluster.import":                  false,
 		"features.management-cluster.export-from-confirm":     true,
 		"features.management-cluster.standalone-cluster-mode": false,
-		"features.global.use-context-aware-discovery":         common.IsContextAwareDiscoveryEnabled,
 		FeatureFlagManagementClusterDualStackIPv4Primary:      false,
 		FeatureFlagManagementClusterDualStackIPv6Primary:      false,
 		FeatureFlagClusterDualStackIPv4Primary:                false,
@@ -131,6 +130,9 @@ func NewClientConfig() (*configv1alpha1.ClientConfig, error) {
 			},
 		},
 	}
+
+	_ = populateDefaultStandaloneDiscovery(c)
+
 	err := StoreClientConfig(c)
 	if err != nil {
 		return nil, err
@@ -141,6 +143,75 @@ func NewClientConfig() (*configv1alpha1.ClientConfig, error) {
 		return nil, err
 	}
 	return c, nil
+}
+
+func populateDefaultStandaloneDiscovery(c *configv1alpha1.ClientConfig) bool {
+	if c.ClientOptions == nil {
+		c.ClientOptions = &configv1alpha1.ClientOptions{}
+	}
+	if c.ClientOptions.CLI == nil {
+		c.ClientOptions.CLI = &configv1alpha1.CLIOptions{}
+	}
+	if c.ClientOptions.CLI.DiscoverySources == nil {
+		c.ClientOptions.CLI.DiscoverySources = make([]configv1alpha1.PluginDiscovery, 0)
+	}
+
+	switch DefaultStandaloneDiscoveryType {
+	case common.DiscoveryTypeOCI:
+		return populateDefaultStandaloneDiscoveryOCI(c)
+	case common.DiscoveryTypeLocal:
+		return populateDefaultStandaloneDiscoveryLocal(c)
+	default:
+		log.Warning("unsupported default standalone discovery configuration")
+	}
+	return false
+}
+
+func populateDefaultStandaloneDiscoveryLocal(c *configv1alpha1.ClientConfig) bool {
+	for _, ds := range c.ClientOptions.CLI.DiscoverySources {
+		if ds.Local != nil && ds.Local.Name == DefaultStandaloneDiscoveryName {
+			if ds.Local.Path == DefaultStandaloneDiscoveryLocalPath {
+				return false
+			}
+			ds.Local.Path = DefaultStandaloneDiscoveryLocalPath
+			return true
+		}
+	}
+
+	defaultDiscovery := configv1alpha1.PluginDiscovery{
+		Local: &configv1alpha1.LocalDiscovery{
+			Name: DefaultStandaloneDiscoveryName,
+			Path: DefaultStandaloneDiscoveryLocalPath,
+		},
+	}
+
+	// Prepend default discovery to available discovery sources
+	c.ClientOptions.CLI.DiscoverySources = append([]configv1alpha1.PluginDiscovery{defaultDiscovery}, c.ClientOptions.CLI.DiscoverySources...)
+	return true
+}
+
+func populateDefaultStandaloneDiscoveryOCI(c *configv1alpha1.ClientConfig) bool {
+	defaultStandaloneDiscoveryImage := DefaultStandaloneDiscoveryImage()
+	for _, ds := range c.ClientOptions.CLI.DiscoverySources {
+		if ds.OCI != nil && ds.OCI.Name == DefaultStandaloneDiscoveryName {
+			if ds.OCI.Image == defaultStandaloneDiscoveryImage {
+				return false
+			}
+			ds.OCI.Image = defaultStandaloneDiscoveryImage
+			return true
+		}
+	}
+
+	defaultDiscovery := configv1alpha1.PluginDiscovery{
+		OCI: &configv1alpha1.OCIDiscovery{
+			Name:  DefaultStandaloneDiscoveryName,
+			Image: defaultStandaloneDiscoveryImage,
+		},
+	}
+
+	// Prepend default discovery to available discovery sources
+	c.ClientOptions.CLI.DiscoverySources = append([]configv1alpha1.PluginDiscovery{defaultDiscovery}, c.ClientOptions.CLI.DiscoverySources...)
+	return true
 }
 
 func populateDefaultCliFeatureValues(c *configv1alpha1.ClientConfig, defaultCliFeatureFlags map[string]bool) error {
@@ -237,8 +308,10 @@ func GetClientConfig() (cfg *configv1alpha1.ClientConfig, err error) {
 		return nil, errors.Wrap(err, "could not decode config file")
 	}
 
-	added := addMissingDefaultFeatureFlags(&c, DefaultCliFeatureFlags)
-	if added {
+	addedDefaultDiscovery := populateDefaultStandaloneDiscovery(&c)
+	addedFeatureFlags := addMissingDefaultFeatureFlags(&c, DefaultCliFeatureFlags)
+
+	if addedFeatureFlags || addedDefaultDiscovery {
 		_ = StoreClientConfig(&c)
 	}
 
@@ -506,4 +579,31 @@ func IsFeatureActivated(feature string) bool {
 		return false
 	}
 	return status
+}
+
+// GetDiscoverySources returns all discovery sources
+// Includes standalone discovery sources and if server is available
+// it also includes context based discovery sources as well
+func GetDiscoverySources(serverName string) []configv1alpha1.PluginDiscovery {
+	server, err := GetServer(serverName)
+	if err != nil {
+		log.Warningf("unknown server '%s', Unable to get server based discovery sources: %s", serverName, err.Error())
+		return []configv1alpha1.PluginDiscovery{}
+	}
+
+	discoverySources := server.DiscoverySources
+	// If current server type is management-cluster, then add
+	// the default kubernetes discovery endpoint pointing to the
+	// management-cluster kubeconfig
+	if server.Type == configv1alpha1.ManagementClusterServerType {
+		defaultClusterK8sDiscovery := configv1alpha1.PluginDiscovery{
+			Kubernetes: &configv1alpha1.KubernetesDiscovery{
+				Name:    fmt.Sprintf("default-%s", serverName),
+				Path:    server.ManagementClusterOpts.Path,
+				Context: server.ManagementClusterOpts.Context,
+			},
+		}
+		discoverySources = append(discoverySources, defaultClusterK8sDiscovery)
+	}
+	return discoverySources
 }

@@ -102,26 +102,24 @@ func DiscoverStandalonePlugins() (plugins []plugin.Discovered, err error) {
 }
 
 // DiscoverServerPlugins returns the available plugins associated with the given server
-func DiscoverServerPlugins(serverName string) (plugins []plugin.Discovered, err error) {
-	plugins = []plugin.Discovered{}
+func DiscoverServerPlugins(serverName string) ([]plugin.Discovered, error) {
+	plugins := []plugin.Discovered{}
 	if serverName == "" {
-		return
+		// If servername is not specified than returning empty list
+		// as there are no server plugins that can be discovered
+		return plugins, nil
 	}
 
-	server, e := config.GetServer(serverName)
-	if e != nil {
-		return
-	}
-
-	plugins, err = discoverPlugins(server.DiscoverySources)
+	discoverySources := config.GetDiscoverySources(serverName)
+	plugins, err := discoverPlugins(discoverySources)
 	if err != nil {
-		return
+		return plugins, err
 	}
 	for i := range plugins {
 		plugins[i].Scope = common.PluginScopeContext
 		plugins[i].Status = common.PluginStatusNotInstalled
 	}
-	return
+	return plugins, nil
 }
 
 // DiscoverPlugins returns the available plugins that can be used with the given server
@@ -134,7 +132,7 @@ func DiscoverPlugins(serverName string) (serverPlugins, standalonePlugins []plug
 	}
 	standalonePlugins, err = DiscoverStandalonePlugins()
 	if err != nil {
-		err = errors.Wrapf(err, "unable to discover server plugins")
+		err = errors.Wrapf(err, "unable to discover standalone plugins")
 		return
 	}
 
