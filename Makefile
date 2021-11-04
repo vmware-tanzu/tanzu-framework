@@ -551,7 +551,7 @@ kbld-image-replace: $(COMPONENTS)
 
 .PHONY: $(COMPONENTS)
 $(COMPONENTS):
-	$(MAKE) -C $@ $(TARGET) IMG_VERSION_OVERRIDE=$(BUILD_VERSION)
+	$(MAKE) -C $@ $(TARGET)
 
 .PHONY: docker-all
 docker-all: docker-build docker-publish kbld-image-replace
