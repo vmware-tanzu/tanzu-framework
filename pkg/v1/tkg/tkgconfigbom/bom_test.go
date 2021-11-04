@@ -13,6 +13,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/clientconfighelpers"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
@@ -302,7 +303,7 @@ var (
 				err    error
 			)
 			JustBeforeEach(func() {
-				actual, err = tkgconfigbom.GetCustomRepositoryCaCertificateForClient(tkgConfigReaderWriter)
+				actual, err = clientconfighelpers.GetCustomRepositoryCaCertificateForClient(tkgConfigReaderWriter)
 			})
 			When("BOM file is present without a Custom Image Repository", func() {
 				It("should return the custom registry", func() {

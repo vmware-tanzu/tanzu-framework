@@ -4,7 +4,6 @@
 package tkgconfigbom
 
 import (
-	"encoding/base64"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -19,10 +18,10 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/clientconfighelpers"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/registry"
 )
 
@@ -338,46 +337,6 @@ func (c *client) IsCustomRepositorySkipTLSVerify() bool {
 	return false
 }
 
-// GetCustomRepositoryCaCertificateForClient returns CA certificate to use with cli client
-// This function reads the CA certificate from following variables in decreasing order of precedence:
-// 1. PROXY_CA_CERT
-// 2. TKG_PROXY_CA_CERT
-// 3. TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
-func GetCustomRepositoryCaCertificateForClient(tkgconfigReaderWriter tkgconfigreaderwriter.TKGConfigReaderWriter) ([]byte, error) {
-	caCert := ""
-	var errProxyCACert, errTkgProxyCACertValue, errCustomImageRepoCACert error
-	var proxyCACertValue, tkgProxyCACertValue, customImageRepoCACert string
-
-	// Get the proxy configuration from tkgconfigreaderwriter if not nil
-	// otherwise get the same proxy configuration from os environment variable
-	if tkgconfigReaderWriter != nil {
-		proxyCACertValue, errProxyCACert = tkgconfigReaderWriter.Get(constants.ProxyCACert)
-		tkgProxyCACertValue, errTkgProxyCACertValue = tkgconfigReaderWriter.Get(constants.TKGProxyCACert)
-		customImageRepoCACert, errCustomImageRepoCACert = tkgconfigReaderWriter.Get(constants.ConfigVariableCustomImageRepositoryCaCertificate)
-	} else {
-		proxyCACertValue = os.Getenv(constants.ProxyCACert)
-		tkgProxyCACertValue = os.Getenv(constants.TKGProxyCACert)
-		customImageRepoCACert = os.Getenv(constants.ConfigVariableCustomImageRepositoryCaCertificate)
-	}
-
-	if errProxyCACert == nil && proxyCACertValue != "" {
-		caCert = proxyCACertValue
-	} else if errTkgProxyCACertValue == nil && tkgProxyCACertValue != "" {
-		caCert = tkgProxyCACertValue
-	} else if errCustomImageRepoCACert == nil && customImageRepoCACert != "" {
-		caCert = customImageRepoCACert
-	} else {
-		// return empty content when none is specified
-		return []byte{}, nil
-	}
-
-	decoded, err := base64.StdEncoding.DecodeString(caCert)
-	if err != nil {
-		return nil, errors.Wrap(err, "unable to decode the base64-encoded custom registry CA certificate string")
-	}
-	return decoded, nil
-}
-
 // getDevRepository does not rely on configured tkgConfigReaderWriter as the value of the tkgConfigReaderWriter can be nil
 func (c *client) getDevRepository() (string, error) {
 	if c.TKGConfigReaderWriter() == nil {
@@ -557,13 +516,13 @@ func (c *client) InitBOMRegistry() (registry.Registry, error) {
 	}
 
 	if runtime.GOOS == "windows" {
-		err := AddRegistryTrustedRootCertsFileForWindows(registryOpts)
+		err := clientconfighelpers.AddRegistryTrustedRootCertsFileForWindows(registryOpts)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	caCertBytes, err := GetCustomRepositoryCaCertificateForClient(c.TKGConfigReaderWriter())
+	caCertBytes, err := clientconfighelpers.GetCustomRepositoryCaCertificateForClient(c.TKGConfigReaderWriter())
 	if err == nil && len(caCertBytes) != 0 {
 		filePath, err := tkgconfigpaths.GetRegistryCertFile()
 		if err != nil {
@@ -685,18 +644,4 @@ func (c *client) getDefaultBOMFileImagePathAndTagFromCompatabilityFile() (string
 		}
 	}
 	return "", "", errors.Errorf("unable to find the supported TKG BOM version for the management plugin version %q in the TKG Compatibility file %q", tkgconfigpaths.TKGManagementClusterPluginVersion, compatibilityFile)
-}
-
-// AddRegistryTrustedRootCertsFileForWindows adds CA certificate to registry options for windows environments
-func AddRegistryTrustedRootCertsFileForWindows(registryOpts *ctlimg.Opts) error {
-	filePath, err := tkgconfigpaths.GetRegistryTrustedCACertFileForWindows()
-	if err != nil {
-		return err
-	}
-	err = os.WriteFile(filePath, projectsRegistryCA, constants.ConfigFilePermissions)
-	if err != nil {
-		return errors.Wrapf(err, "failed to write the registry trusted CA cert to file '%s'", filePath)
-	}
-	registryOpts.CACertPaths = append(registryOpts.CACertPaths, filePath)
-	return nil
 }

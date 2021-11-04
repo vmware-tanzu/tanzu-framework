@@ -13,8 +13,8 @@ import (
 	"github.com/pkg/errors"
 	yaml "gopkg.in/yaml.v3"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/clientconfighelpers"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/registry"
 )
@@ -212,7 +212,7 @@ func (c *client) InitProvidersRegistry() (registry.Registry, error) {
 		Anon:        true,
 	}
 
-	caCertBytes, err := tkgconfigbom.GetCustomRepositoryCaCertificateForClient(c.tkgConfigReaderWriter)
+	caCertBytes, err := clientconfighelpers.GetCustomRepositoryCaCertificateForClient(c.tkgConfigReaderWriter)
 	if err == nil && len(caCertBytes) != 0 {
 		filePath, err := tkgconfigpaths.GetRegistryCertFile()
 		if err != nil {

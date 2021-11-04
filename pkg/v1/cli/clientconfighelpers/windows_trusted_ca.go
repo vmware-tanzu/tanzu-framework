@@ -1,7 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package tkgconfigbom
+package clientconfighelpers
 
 // This certificate has been obtained with the following command:
 //

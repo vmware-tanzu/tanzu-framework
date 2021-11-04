@@ -12,8 +12,8 @@ import (
 	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/registry"
 	"github.com/pkg/errors"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/clientconfighelpers"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/registry"
@@ -68,13 +68,13 @@ func newRegistry() (registry.Registry, error) {
 	}
 
 	if runtime.GOOS == "windows" {
-		err := tkgconfigbom.AddRegistryTrustedRootCertsFileForWindows(registryOpts)
+		err := clientconfighelpers.AddRegistryTrustedRootCertsFileForWindows(registryOpts)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	caCertBytes, err := tkgconfigbom.GetCustomRepositoryCaCertificateForClient(nil)
+	caCertBytes, err := clientconfighelpers.GetCustomRepositoryCaCertificateForClient(nil)
 	if err == nil && len(caCertBytes) != 0 {
 		filePath, err := tkgconfigpaths.GetRegistryCertFile()
 		if err != nil {
