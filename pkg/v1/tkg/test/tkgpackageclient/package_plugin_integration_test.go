@@ -88,7 +88,7 @@ var (
 	resultImgPullSecret         secretlib.SecretPluginResult
 	clusterCreationTimeout      = 30 * time.Minute
 	pollInterval                = 20 * time.Second
-	pollTimeout                 = 10 * time.Minute
+	pollTimeout                 = 20 * time.Minute
 	testImgPullSecretName       = "test-secret"
 	testNamespace               = "test-ns"
 	testRegistry                = "projects-stg.registry.vmware.com"
