@@ -46,4 +46,4 @@ providers.tar.gz
 
 # Build artifacts related to packages
 /build
-/management-packages/package-values-sha256.yaml
+/packages/package-values-sha256.yaml

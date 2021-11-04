@@ -25,5 +25,5 @@ e2e-test: ## Run e2e testing suite
 build: ## Build the executable
 	go build -o kbld-image-replace main.go
 
-run: ## Run the kbld-image-replace program to add a newImage path to an existing image in kbld-config.yml.
+run: ## Run the kbld-image-replace program to add a newImage path to an existing image in kbld-config.yaml.
 	go run main.go $(IMAGE) $(NEW_IMAGE)
