@@ -560,9 +560,9 @@ docker-all: docker-build docker-publish kbld-image-replace
 ## Packages
 ## --------------------------------------
 
-.PHONY: create-management-package
-create-management-package: ## Stub out new package directories and manifests. Usage: make create-management-package PACKAGE_NAME=foobar
-	@hack/packages/scripts/create-management-package.sh $(PACKAGE_NAME)
+.PHONY: create-package
+create-package: ## Stub out new package directories and manifests. Usage: make create-management-package PACKAGE_NAME=foobar
+	@hack/packages/scripts/create-package.sh $(PACKAGE_REPOSITORY) $(PACKAGE_NAME)
 
 .PHONY: package-bundle
 package-bundle: ## Build one specific tar bundle package, needs PACKAGE_NAME VERSION
@@ -578,7 +578,7 @@ management-package-bundles: tools management-imgpkg-lock-output ## Build tar bun
 
 .PHONY: package-repo-bundle
 package-repo-bundle: ## Build tar bundles for package repo with given package-values.yaml file
-	PACKAGE_REPOSITORY=$(PACKAGE_REPOSITORY) REGISTRY=$(OCI_REGISTRY)/packages/management PACKAGE_VALUES_FILE=$(PACKAGE_VALUES_FILE) $(PACKAGES_SCRIPTS_DIR)/package-utils.sh create_package_repo_bundles
+	PACKAGE_REPOSITORY=$(PACKAGE_REPOSITORY) REGISTRY=$(OCI_REGISTRY)/packages/$(PACKAGE_REPOSITORY) PACKAGE_VALUES_FILE=$(PACKAGE_VALUES_FILE) $(PACKAGES_SCRIPTS_DIR)/package-utils.sh create_package_repo_bundles
 
 .PHONY: push-package-bundles
 push-package-bundles: push-management-package-bundles  ## Push package bundles
@@ -613,7 +613,7 @@ trivy-scan: ## Trivy scan images used in packages
 
 .PHONY: management-package-vendir-sync
 management-package-vendir-sync: ## Performs a `vendir sync` for each management package
-	@cd management-packages && for package in *; do\
+	@cd packages/management && for package in *; do\
 		printf "\n===> syncing $${package}\n";\
 		pushd $${package}/bundle;\
 		$(TOOLS_BIN_DIR)/vendir sync >> /dev/null;\

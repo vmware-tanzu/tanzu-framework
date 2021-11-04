@@ -37,7 +37,7 @@ docker-publish-%:
 	docker push $(IMG_REPOSITORY)/$(PLUGIN_NAME)-$(OS)-$(ARCH):$(IMG_VERSION_OVERRIDE)
 
 .PHONY: kbld-image-replace-%
-kbld-image-replace-%: ## Add newImage in kbld-config.yml
+kbld-image-replace-%: ## Add newImage in kbld-config.yaml
 	$(eval PLUGIN_NAME = $(word 1,$(subst _, ,$*)))
 	$(eval OSARCH = $(word 2,$(subst _, ,$*)))
 	$(eval OS = $(word 1,$(subst -, ,$(OSARCH))))
@@ -71,7 +71,7 @@ docker-publish: ## Publish docker image
 	done
 
 .PHONY: kbld-image-replace
-kbld-image-replace: ## Add newImage in kbld-config.yml
+kbld-image-replace: ## Add newImage in kbld-config.yaml
 	@ for plugin in $(PLUGINS) ; do \
 		for env in $(ENVS) ; do \
 			$(MAKE) kbld-image-replace-$$plugin"_"$$env --no-print-directory ; \

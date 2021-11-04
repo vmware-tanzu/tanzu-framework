@@ -11,4 +11,4 @@ Features.
 ## Usage Example
 
 To learn more about the Featuregate controller and Features, FeatureGates APIs
-and how to use them, refer to this [doc](../../docs/api-machinery/features-and-featuregates.md)
+and how to use them, refer to this [doc](../../../docs/api-machinery/features-and-featuregates.md)

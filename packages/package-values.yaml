@@ -23,7 +23,7 @@ managementPackageRepository:
     - name: featuregates
       displayName: featuregates
       #! Relative path to package bundle
-      path: management-packages/featuregates
+      path: packages/management/featuregates
       domain: tanzu.vmware.com
       version: latest
       #! Gets replaced with imgpkg sha256 at build, this should be name:version

@@ -7,8 +7,17 @@
 
 set -eoux pipefail
 
+# set this value to your package repository
+PACKAGE_REPOSITORY=$1
+
 # set this value to your package name
-PACKAGE_NAME=$1
+PACKAGE_NAME=$2
+
+if [ -z "$PACKAGE_NAME" ]
+then
+  echo "create package failed. must set PACKAGE_REPOSITORY"
+  exit 2
+fi
 
 if [ -z "$PACKAGE_NAME" ]
 then
@@ -22,13 +31,13 @@ if [ "$(uname -s)" = "Darwin" ]; then
     SEDARGS="-e"
 fi
 
-ROOT_DIR="management-packages"
+ROOT_DIR="packages"
 BUNDLE_DIR="bundle"
 CONFIG_DIR="config"
 OVERLAY_DIR="overlay"
 UPSTREAM_DIR="upstream"
 IMGPKG_DIR=".imgpkg"
-PACKAGE_DIR="${ROOT_DIR}/${PACKAGE_NAME}"
+PACKAGE_DIR="${ROOT_DIR}/${PACKAGE_REPOSITORY}/${PACKAGE_NAME}"
 
 # create directory structure for package
 mkdir -vp "${PACKAGE_DIR}/${BUNDLE_DIR}/${CONFIG_DIR}"
@@ -46,5 +55,5 @@ sed $SEDARGS "s/PACKAGE_NAME/${PACKAGE_NAME}/g" hack/packages/templates/new-pack
 sed $SEDARGS "s/PACKAGE_NAME/${PACKAGE_NAME}/g" hack/packages/templates/new-package/vendir.yml > "${PACKAGE_DIR}/bundle/vendir.yml"
 
 echo
-echo "management package bootstrapped at ${PACKAGE_DIR}"
+echo "${PACKAGE_NAME} package bootstrapped at ${PACKAGE_DIR}"
 echo
