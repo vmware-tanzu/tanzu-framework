@@ -1,16 +1,16 @@
-import { Input, OnInit, Directive, Self, Optional } from '@angular/core';
-import { FormGroup, ValidatorFn } from '@angular/forms';
+import {Directive, Input, OnInit} from '@angular/core';
+import {FormGroup, ValidatorFn} from '@angular/forms';
 
-import { ValidatorEnum } from './../constants/validation.constants';
-import { BasicSubscriber } from 'src/app/shared/abstracts/basic-subscriber';
-import { FormMetaDataStore, FormMetaData } from '../FormMetaDataStore';
-import { TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
+import {ValidatorEnum} from './../constants/validation.constants';
+import {BasicSubscriber} from 'src/app/shared/abstracts/basic-subscriber';
+import {FormMetaData, FormMetaDataStore} from '../FormMetaDataStore';
+import {TkgEvent, TkgEventType} from 'src/app/shared/service/Messenger';
 import Broker from 'src/app/shared/service/broker';
 
-import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
-import { AppEdition } from 'src/app/shared/constants/branding.constants';
-import { EditionData } from 'src/app/shared/service/branding.service';
-import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
+import {distinctUntilChanged, takeUntil} from 'rxjs/operators';
+import {AppEdition} from 'src/app/shared/constants/branding.constants';
+import {EditionData} from 'src/app/shared/service/branding.service';
+import {IpFamilyEnum} from 'src/app/shared/constants/app.constants';
 
 const INIT_FIELD_DELAY = 50;            // ms
 /**
@@ -41,6 +41,8 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         this.savedMetadata = FormMetaDataStore.getMetaData(this.formName);
         FormMetaDataStore.updateFormList(this.formName);
 
+        console.log('ngOnInit for form: ' + this.formName);
+
         // set branding and cluster type on branding change for base wizard components
         Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
@@ -55,7 +57,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
                 this.successImportFile = data.payload;
-                // The file import saves the data to local storage, so we reinitialize this steps's form from there
+                // The file import saves the data to local storage, so we reinitialize this step's form from there
                 this.savedMetadata = FormMetaDataStore.getMetaData(this.formName);
                 this.initFormWithSavedData();
             });
@@ -119,14 +121,20 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         return this.savedMetadata != null
     }
 
+    protected getFieldValue(fieldName: string): any {
+        const control = this.formGroup.get(fieldName);
+        if (control === undefined || control === null) {
+            console.log('WARNING: getFieldValue() could not find field ' + fieldName );
+            return '';
+        }
+        return control.value;
+    }
+
     protected setFieldValue(fieldName: string, value: any): void {
         const control = this.formGroup.get(fieldName);
         if (control === undefined || control === null) {
             console.log('WARNING: setFieldValue() could not find field ' + fieldName + ' to set value to ' + value);
         } else {
-            if (fieldName === 'region') {
-                console.log('setFieldValue() sets value of ' + fieldName + ' to ' + value);
-            }
             control.setValue(value);
         }
     }
@@ -143,10 +151,8 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
             const savedValue = this.getSavedValue(fieldName, control.value);
             // if a key was saved (for a listbox), we use the key when setting the value of the control (ie the listbox)
             const valueForSettingControl = (savedKey) ? savedKey : savedValue;
-
-            if (fieldName === 'region') {
-                console.log('!!!!!!! initFieldWithSavedData(): fieldname=' + fieldName +
-                    ', savedKey=' + savedKey + ', savedValue=' + savedValue + ', value=' + valueForSettingControl);
+            if (fieldName === 'vnetNameExisting') {
+                console.log('got me a break point');
             }
 
             control.setValue(valueForSettingControl);
@@ -155,7 +161,6 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
                 this.delayedFieldQueue.splice(index, 1);
             }
         } else {
-            console.log('SHIMON: initFieldWithSavedData(): delaying setting fieldname=' + fieldName);
             if (this.delayedFieldQueue.indexOf(fieldName) < 0) {
                 this.delayedFieldQueue.push(fieldName);
             }
@@ -168,7 +173,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         const passwordControl = this.formGroup.get(fieldName);
         if (passwordControl === undefined || passwordControl === null) {
             console.log('WARNING: scrubPasswordField() is unable to find the field ' + fieldName);
-        } else if (passwordControl.value.startsWith('****')) {
+        } else if (passwordControl.value.startsWith('**')) {
             passwordControl.setValue('');
         }
         // if there is a real password in local storage (say, from import)
@@ -204,6 +209,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
      * Inits form fields with saved data if any;
      */
     initFormWithSavedData() {
+        console.log('step-form.initFormWithSavedData() for form: ' + this.formName);
         if (this.hasSavedData()) {
             for (const [controlName, control] of Object.entries(this.formGroup.controls)) {
                 this.initFieldWithSavedData(controlName);
@@ -242,10 +248,17 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         if (fieldName && this.formGroup.controls[fieldName]) {
             this.formGroup.controls[fieldName].setValidators(validators);
             this.formGroup.controls[fieldName].updateValueAndValidity();
+            if (fieldName === 'vnetNameExisting') {
+                console.log('!   resurrectField() is setting vnetNameExisting to ' + value);
+            }
             this.formGroup.controls[fieldName].setValue(value || null);
         } else {
             console.warn(`resurrectField(): Unable to find field with name ${fieldName}`);
         }
+    }
+
+    resurrectFieldWithSavedValue(fieldName: string, validators: ValidatorFn[], defaultValue?: string) {
+        this.resurrectField(fieldName, validators, this.getSavedValue(fieldName, defaultValue));
     }
 
     showFormError(formControlname) {
@@ -299,5 +312,16 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
                     cb();
                 }
             });
+    }
+
+    protected setControlValueSafely(controlName: string, value: any) {
+        const control = this.formGroup.get(controlName);
+        if (control) {
+            control.setValue(value);
+        }
+    }
+
+    protected setControlWithSavedValue(controlName: string, defaultValue?: any) {
+        this.setControlValueSafely(controlName, this.getSavedValue(controlName, (defaultValue) ? defaultValue : ''));
     }
 }

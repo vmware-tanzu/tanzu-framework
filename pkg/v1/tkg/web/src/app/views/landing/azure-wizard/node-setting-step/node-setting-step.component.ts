@@ -110,39 +110,51 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     toggleValidations() {
         setTimeout(_ => {
             this.displayForm = true;
-            this.formGroup.get('controlPlaneSetting').valueChanges.subscribe(data => {
-                if (data === 'dev') {
-                    this.setDevCardValidations();
-                } else if (data === 'prod') {
-                    this.setProdCardValidations();
-                }
-
-            });
+            const controlPlaneSettingControl = this.formGroup.get('controlPlaneSetting');
+            if (controlPlaneSettingControl) {
+                controlPlaneSettingControl.valueChanges.subscribe(data => {
+                    if (data === 'dev') {
+                        this.setDevCardValidations();
+                    } else if (data === 'prod') {
+                        this.setProdCardValidations();
+                    }
+                });
+            } else {
+                console.log('WARNING: azure-wizard.node-setting-step.toggleValidations() unable to find controlPlaneSettingControl!');
+            }
         });
     }
 
     setDevCardValidations() {
         this.nodeType = 'dev';
-        this.formGroup.get('devInstanceType').setValidators([
-            Validators.required
-        ]);
-        this.formGroup.controls['devInstanceType'].setValue(this.nodeTypes.length === 1 ? this.nodeTypes[0].name : '');
-        this.formGroup.controls['prodInstanceType'].clearValidators();
-        this.formGroup.controls['prodInstanceType'].setValue('');
-        this.formGroup.get('devInstanceType').updateValueAndValidity();
-        this.formGroup.controls['prodInstanceType'].updateValueAndValidity();
+        const devInstanceTypeControl = this.formGroup.get('devInstanceType');
+        if (devInstanceTypeControl) {
+            devInstanceTypeControl.setValidators([Validators.required]);
+            devInstanceTypeControl.setValue(this.nodeTypes.length === 1 ? this.nodeTypes[0].name : '');
+            devInstanceTypeControl.updateValueAndValidity();
+        }
+        const prodInstanceTypeControl = this.formGroup.controls['prodInstanceType'];
+        if (prodInstanceTypeControl) {
+            prodInstanceTypeControl.clearValidators();
+            prodInstanceTypeControl.setValue('');
+            prodInstanceTypeControl.updateValueAndValidity();
+        }
     }
 
     setProdCardValidations() {
         this.nodeType = 'prod';
-        this.formGroup.controls['prodInstanceType'].setValidators([
-            Validators.required
-        ]);
-        this.formGroup.controls['prodInstanceType'].setValue(this.nodeTypes.length === 1 ? this.nodeTypes[0].name : '');
-        this.formGroup.get('devInstanceType').clearValidators();
-        this.formGroup.controls['devInstanceType'].setValue('');
-        this.formGroup.get('devInstanceType').updateValueAndValidity();
-        this.formGroup.controls['prodInstanceType'].updateValueAndValidity();
+        const devInstanceTypeControl = this.formGroup.get('devInstanceType');
+        if (devInstanceTypeControl) {
+            devInstanceTypeControl.setValue('');
+            devInstanceTypeControl.updateValueAndValidity();
+            devInstanceTypeControl.clearValidators();
+        }
+        const prodInstanceTypeControl = this.formGroup.controls['prodInstanceType'];
+        if (prodInstanceTypeControl) {
+            prodInstanceTypeControl.setValidators([Validators.required]);
+            prodInstanceTypeControl.setValue(this.nodeTypes.length === 1 ? this.nodeTypes[0].name : '');
+            prodInstanceTypeControl.updateValueAndValidity();
+        }
     }
 
     ngOnInit() {
@@ -160,7 +172,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     cardClick(envType: string) {
-        this.formGroup.controls['controlPlaneSetting'].setValue(envType);
+        this.setControlValueSafely('controlPlaneSetting', envType);
     }
 
     getEnvType(): string {

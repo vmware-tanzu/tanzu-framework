@@ -30,6 +30,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     resourceGroupOption = 'existing';
 
     regions = [];
+    // NOTE: order is important here; we default to the first cloud in the azureClouds array
     azureClouds = [
         {
             name: 'AzurePublicCloud',
@@ -108,7 +109,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
         this.wizardFormService.getDataStream(TkgEventType.AZURE_GET_RESOURCE_GROUPS)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((azureResourceGroups: AzureResourceGroup[]) => {
-                this.resourceGroupSelection = null;
+                this.resourceGroupSelection = null; // SHIMON SEZ: we should be able to take this out
                 this.resourceGroups = azureResourceGroups;
                 this.initResourceGroupFromSavedData();
                 if (azureResourceGroups.length === 1) {
@@ -158,7 +159,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
         }
 
         if (savedGroupCustom !== '') {
-            this.formGroup.get('resourceGroupCustom').setValue(savedGroupExisting);
+            this.formGroup.get('resourceGroupCustom').setValue(savedGroupCustom);
             this.showResourceGroup('custom');
         } else if (savedGroupExisting !== '') {
             this.formGroup.get('resourceGroupExisting').setValue(savedGroupExisting);
@@ -169,11 +170,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     }
 
     initFormWithSavedData() {
-        super.initFormWithSavedData();
-        this.initResourceGroupFromSavedData();
-
-        this.scrubPasswordField('clientSecret');
-
+        console.log('azure-provider-step.initFormWithSavedData()');
         // Initializations not needed the first time the form is loaded, but
         // required to re-initialize after form has been used
         this.validCredentials = false;
@@ -182,6 +179,21 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
         this.resourceGroupCreationState = "create";
         this.resourceGroupSelection = 'disabled';
         this.resourceGroupOption = 'existing';
+
+        // rather than call our parent class' initFormWithSavedData to initalize ALL the fields on this form,
+        // we only want to initialize the credential fields (and ssh key) and then have the user connect to the server,
+        // which will populate our data arrays. We need to connect to the server before being able to set
+        // other fields (e.g. to pick a region, the listbox must be populated from the data array).
+        if (this.hasSavedData()) {
+            AzureAccountParamsKeys.forEach( accountField => {
+                this.initFieldWithSavedData(accountField);
+            });
+            this.initFieldWithSavedData('sshPublicKey');
+        }
+        this.scrubPasswordField('clientSecret');
+        if (this.getFieldValue('azureCloud') === '') {
+            this.setFieldValue('azureCloud', this.azureClouds[0].name);
+        }
     }
 
     initAzureCredentials() {
@@ -198,7 +210,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
             );
     }
 
-    setAzureCredentialsValuesFromAPI(credentials) {
+    private setAzureCredentialsValuesFromAPI(credentials) {
         if (!this.hasSavedData()) {
             // init form values for Azure credentials
             for (const key of AzureAccountParamsKeys) {
@@ -220,11 +232,8 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
                 regions => {
                     this.regions = regions.sort((regionA, regionB) => regionA.name.localeCompare(regionB.name));
                     const selectedRegion = this.regions.length === 1 ? this.regions[0].name : this.getSavedValue('region', '');
+                    // setting the region value will trigger other data calls to the back end for resource groups, osimages, etc
                     this.formGroup.get('region').setValue(selectedRegion);
-                    if (selectedRegion !== '') {
-                        console.log('getRegions() about to signal region change...');
-                        this.onRegionChange(selectedRegion);
-                    }
                 },
                 () => {
                     this.errorNotification = 'Unable to retrieve Azure regions';
@@ -305,6 +314,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
      * Event handler when 'region' selection has changed
      */
     onRegionChange(val) {
+        console.log('azure-provider-step.onRegionChange() detects region change to ' + val + '; publishing AZURE_REGION_CHANGED');
         Broker.messenger.publish({
             type: TkgEventType.AZURE_REGION_CHANGED,
             payload: val
@@ -325,12 +335,16 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
         // handle case where user originally created a new (custom) resource group (and value was either saved
         // to local storage or to config file as a custom resource group), but now when the data is restored,
         // the resource group exists (so we should move the custom value over to the existing data slot).
-        const customIsNowExisting = this.resourceGroups.indexOf(savedGroupCustom) >= 0;
+        const customIsNowExisting = this.resourceGroupContains(savedGroupCustom);
         if (customIsNowExisting) {
             this.clearFieldSavedData('resourceGroupCustom');
             this.saveFieldData('resourceGroupExisting', savedGroupCustom);
             return true;
         }
         return false;
+    }
+
+    private resourceGroupContains(resourceGroupName: string) {
+        return this.resourceGroups.find( resourceGroup => { return resourceGroup.name === resourceGroupName; });
     }
 }

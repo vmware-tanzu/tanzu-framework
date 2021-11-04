@@ -425,15 +425,29 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
     }
 
     /**
-     * Converts stringifyable object to ES6 map
-     * @param stringifyable object to be converted
+     * Converts iterable object to ES6 map
+     * @param iterable object to be converted
      */
-    objToStrMap(obj: any): Map<string, string> {
+    iterableObjToStrMap(obj: any): Map<string, string> {
         const result = new Map<string, string>();
         if (obj !== null) {
             for (const [k, v] of obj) {
                 result[k] = v;
             }
+        }
+        return result;
+    }
+
+    /**
+     * Converts javascript object to ES6 map
+     * @param javascript object to be converted
+     */
+    objToStrMap(obj: any): Map<string, string> {
+        const result = new Map<string, string>();
+        if (obj !== null) {
+            Object.keys(obj).forEach(key => {
+                result[key] = obj[key];
+            })
         }
         return result;
     }

@@ -37,7 +37,6 @@ export class AzureWizardFormService extends WizardFormBase {
         // Messenger handler for Azure region change
         Broker.messenger.getSubject(TkgEventType.AZURE_REGION_CHANGED)
             .subscribe(event => {
-                console.log('Assigning region from ' + this.region + ' to ' + event.payload);
                 this.region = event.payload;
                 DataSources.forEach(source => {
                     Broker.messenger.publish({
@@ -51,6 +50,12 @@ export class AzureWizardFormService extends WizardFormBase {
         const method = DataSpec[source];
         if (!method) {
             return throwError({ message: `Unknown data source ${source}` });
+        }
+        if (!this.region) {
+            const msg = 'WARNING: azure-wizard-form.retrieveDataForSource() received event ' +
+                source.toString() + ' but has no region set!';
+            console.log(msg);
+            return throwError({ message: msg });
         }
 
         return this.apiClient[method]({location: this.region});

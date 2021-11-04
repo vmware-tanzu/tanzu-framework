@@ -833,14 +833,14 @@ router.post(`${ENDPOINT}/providers/azure/config/import`, (req, res) => {
     res.status(200);    res.status(200);
     res.json({
         'azureAccountParams': {
-            'tenantId': 'a',
-            'clientId': 'b',
-            'clientSecret': 'c',
-            'subscriptionId': 'e08142b0-1235-4996-b417-69017b271784',
+            'tenantId': 'tenant-id',
+            'clientId': 'client-id',
+            'clientSecret': 'client-secret',
+            'subscriptionId': 'subscription-id',
             'azureCloud': 'AzurePublicCloud'
         },
         'location': 'centralus',
-        'sshPublicKey': 'ssh pub key',
+        'sshPublicKey': 'ssh-pub-key',
         'controlPlaneMachineType': 'Standard_B2ms',
         'controlPlaneFlavor': 'dev',
         'workerMachineType': 'Standard_B2ms',
@@ -853,16 +853,29 @@ router.post(`${ENDPOINT}/providers/azure/config/import`, (req, res) => {
         'controlPlaneSubnet': 'subnet3',
         'workerNodeSubnet': '',
         'enableAuditLogging': true,
-        'networking': {
-            'networkName': '',
-            'clusterDNSName': '',
-            'clusterNodeCIDR': '',
-            'clusterServiceCIDR': '100.64.0.0/13',
-            'clusterPodCIDR': '100.96.0.0/11',
-            'cniType': 'antrea'
+        "networking":{
+            "networkName":"network-name",
+            "clusterDNSName":"",
+            "clusterNodeCIDR":"",
+            "clusterServiceCIDR":"100.64.0.0/13",
+            "clusterPodCIDR":"100.96.0.0/11",
+            "cniType":"antrea",
+            "httpProxyConfiguration":{
+                "enabled":true,
+                "HTTPProxyURL":"http://proxy-foo",
+                "HTTPProxyUsername":"proxy-user-bar",
+                "HTTPProxyPassword":"proxy-password-bar",
+                "noProxy":"no-proxy",
+                "HTTPSProxyURL":"http://proxy-foo",
+                "HTTPSProxyUsername":"proxy-user-bar",
+                "HTTPSProxyPassword":"proxy-password-bar"
+            }
         },
         'ceipOptIn': false,
-        'labels': {},
+        'labels': {
+            "foo":"bar",
+            "goo":"gar"
+        },
         'os': {
             'name': 'Ubuntu-20.04-amd64 (2021.04.13)',
             'osInfo': {
@@ -872,7 +885,7 @@ router.post(`${ENDPOINT}/providers/azure/config/import`, (req, res) => {
             }
         },
         'annotations': {
-            'description': '',
+            'description': 'optional-description-foo',
             'location': ''
         },
         'identityManagement': {

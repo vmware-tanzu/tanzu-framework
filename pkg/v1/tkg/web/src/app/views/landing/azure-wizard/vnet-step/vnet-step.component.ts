@@ -11,7 +11,7 @@ import {
 } from '@angular/forms';
 
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-import { takeUntil, distinctUntilChanged } from 'rxjs/operators';
+import {takeUntil, distinctUntilChanged, pairwise} from 'rxjs/operators';
 import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import { AzureResourceGroup } from 'src/app/swagger/models';
 import { APIClient } from 'src/app/swagger';
@@ -20,6 +20,25 @@ import Broker from 'src/app/shared/service/broker';
 
 const CUSTOM = "CUSTOM";
 export const EXISTING = "EXISTING";
+
+enum VnetField {
+    EXISTING_OR_CUSTOM = 'vnetOption',
+    RESOURCE_GROUP = 'vnetResourceGroup',
+    EXISTING_NAME = 'vnetNameExisting',
+    CUSTOM_NAME = 'vnetNameCustom',
+    CUSTOM_CIDR = 'vnetCidrBlock',
+    PRIVATE_CLUSTER = 'privateAzureCluster',
+    PRIVATE_IP = 'privateIP',
+    // subnet fields:
+    CONTROLPLANE_SUBNET_CIDR = 'controlPlaneSubnetCidr',
+    CONTROLPLANE_SUBNET_NAME = 'controlPlaneSubnet',
+    CONTROLPLANE_NEWSUBNET_CIDR = 'controlPlaneSubnetCidrNew',
+    CONTROLPLANE_NEWSUBNET_NAME = 'controlPlaneSubnetNew',
+    WORKER_SUBNET_NAME = 'workerNodeSubnet',
+    WORKER_NEWSUBNET_CIDR = 'workerNodeSubnetCidrNew',
+    WORKER_NEWSUBNET_NAME = 'workerNodeSubnetNew',
+}
+
 @Component({
     selector: 'app-vnet-step',
     templateUrl: './vnet-step.component.html',
@@ -28,13 +47,13 @@ export const EXISTING = "EXISTING";
 export class VnetStepComponent extends StepFormDirective implements OnInit {
 
     region = '';    // Current region selected
-    showVnetFieldsOption = CUSTOM;
+    showVnetFieldsOption = EXISTING;
 
     // An object maps vnet to subsets
     vnetSubnets = {};
 
     /** lists to be retrieved from the backend */
-    resourceGroups = [];
+    vnetResourceGroups = [];
     customResourceGroup = null;
     vnetNamesExisting = [];
     controlPlaneSubnets = [];
@@ -82,18 +101,16 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
         ));
         // special hidden field used to capture existing subnet cidr when user selects existing subnet
         this.formGroup.addControl(
-            'controlPlaneSubnetCidr',
+            VnetField.CONTROLPLANE_SUBNET_CIDR,
             new FormControl('', [])
         );
-
-        this.formGroup.get('vnetOption').setValue(this.showVnetFieldsOption);
 
         this.optionalFields.forEach(field => this.formGroup.addControl(
             field,
             new FormControl('', [])
         ));
 
-        this.formGroup.get('resourceGroup').valueChanges
+        this.formGroup.get(VnetField.RESOURCE_GROUP).valueChanges
             .pipe(
                 distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
                 takeUntil(this.unsubscribe)
@@ -101,14 +118,15 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
                 this.onResourceGroupChange(val);
             });
 
-        this.formGroup.get('vnetNameExisting').valueChanges
+        this.formGroup.get(VnetField.EXISTING_NAME).valueChanges
             .pipe(
+                distinctUntilChanged((prev, curr) => prev === curr),
                 takeUntil(this.unsubscribe)
-            ).subscribe((val) => {
-                this.onVnetChange(val)
+            ).subscribe(newValue => {
+                this.onVnetChange(newValue);
             });
 
-        this.formGroup.get('vnetCidrBlock').valueChanges
+        this.formGroup.get(VnetField.CUSTOM_CIDR).valueChanges
             .pipe(
                 distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
                 takeUntil(this.unsubscribe)
@@ -125,61 +143,59 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
      */
     private initForm() {
         const customResourceGroup = FormMetaDataStore.getMetaDataItem("providerForm", "resourceGroupCustom");
-        this.customResourceGroup = customResourceGroup ? customResourceGroup.displayValue : ''
+        this.customResourceGroup = customResourceGroup ? customResourceGroup.displayValue : '';
     }
 
     ngOnInit() {
         super.ngOnInit();
 
-        this.requiredFields = this.modeClusterStandalone ?
-            [
-                "vnetOption",
-                "resourceGroup",
-                "vnetNameCustom",
-                "vnetNameExisting",
-                "controlPlaneSubnet",
-                "controlPlaneSubnetNew",
-                "controlPlaneSubnetCidrNew",
-            ] :
-            [
-                "vnetOption",
-                "resourceGroup",
-                "vnetNameCustom",
-                "vnetNameExisting",
-                "controlPlaneSubnet",
-                "workerNodeSubnet",
-                "controlPlaneSubnetNew",
-                "controlPlaneSubnetCidrNew",
-                "workerNodeSubnetNew",
-                "workerNodeSubnetCidrNew"
-            ];
-
-        this.optionalFields = ['privateAzureCluster', 'privateIP'];
-
-        this.defaultCidrFields = this.modeClusterStandalone ?
-            ["vnetCidrBlock", "controlPlaneSubnetCidrNew", ] :
-            ["vnetCidrBlock", "controlPlaneSubnetCidrNew", "workerNodeSubnetCidrNew"];
-
-        this.vnetFieldsExisting = this.modeClusterStandalone ?
-            ["vnetNameExisting", "controlPlaneSubnet"] :
-            ["vnetNameExisting", "controlPlaneSubnet", "workerNodeSubnet"];
-
-        this.vnetFieldsNew = this.modeClusterStandalone ?
-            [
-                "vnetNameCustom",
-                "vnetCidrBlock",
-                "controlPlaneSubnetNew",
-                "controlPlaneSubnetCidrNew",
-            ] :
-            [
-                "vnetNameCustom",
-                "vnetCidrBlock",
-                "controlPlaneSubnetNew",
-                "controlPlaneSubnetCidrNew",
-                "workerNodeSubnetNew",
-                "workerNodeSubnetCidrNew"
-            ];
-
+        this.optionalFields = [VnetField.PRIVATE_CLUSTER, VnetField.PRIVATE_IP];
+        if (this.modeClusterStandalone) {
+            this.requiredFields =
+                [
+                    VnetField.EXISTING_OR_CUSTOM,
+                    VnetField.RESOURCE_GROUP,
+                    VnetField.CUSTOM_NAME,
+                    VnetField.EXISTING_NAME,
+                    VnetField.CONTROLPLANE_SUBNET_NAME,
+                    VnetField.CONTROLPLANE_NEWSUBNET_NAME,
+                    VnetField.CONTROLPLANE_NEWSUBNET_CIDR,
+                ];
+            this.defaultCidrFields = [VnetField.CUSTOM_CIDR, VnetField.CONTROLPLANE_NEWSUBNET_CIDR, ];
+            this.vnetFieldsExisting = [VnetField.EXISTING_NAME, VnetField.CONTROLPLANE_SUBNET_NAME];
+            this.vnetFieldsNew =
+                [
+                    VnetField.CUSTOM_NAME,
+                    VnetField.CUSTOM_CIDR,
+                    VnetField.CONTROLPLANE_NEWSUBNET_NAME,
+                    VnetField.CONTROLPLANE_NEWSUBNET_CIDR,
+                ];
+        } else {
+            this.requiredFields =
+                [
+                    VnetField.EXISTING_OR_CUSTOM,
+                    VnetField.RESOURCE_GROUP,
+                    VnetField.CUSTOM_NAME,
+                    VnetField.EXISTING_NAME,
+                    VnetField.CONTROLPLANE_SUBNET_NAME,
+                    VnetField.WORKER_SUBNET_NAME,
+                    VnetField.CONTROLPLANE_NEWSUBNET_NAME,
+                    VnetField.CONTROLPLANE_NEWSUBNET_CIDR,
+                    VnetField.WORKER_NEWSUBNET_NAME,
+                    VnetField.WORKER_NEWSUBNET_CIDR
+                ];
+            this.defaultCidrFields = [VnetField.CUSTOM_CIDR, VnetField.CONTROLPLANE_NEWSUBNET_CIDR, VnetField.WORKER_NEWSUBNET_CIDR];
+            this.vnetFieldsExisting = [VnetField.EXISTING_NAME, VnetField.CONTROLPLANE_SUBNET_NAME, VnetField.WORKER_SUBNET_NAME];
+            this.vnetFieldsNew =
+                [
+                    VnetField.CUSTOM_NAME,
+                    VnetField.CUSTOM_CIDR,
+                    VnetField.CONTROLPLANE_NEWSUBNET_NAME,
+                    VnetField.CONTROLPLANE_NEWSUBNET_CIDR,
+                    VnetField.WORKER_NEWSUBNET_NAME,
+                    VnetField.WORKER_NEWSUBNET_CIDR
+                ];
+        }
         this.buildForm();
         this.initForm();
 
@@ -206,19 +222,21 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
 
         this.wizardFormService.getDataStream(TkgEventType.AZURE_GET_RESOURCE_GROUPS)
             .pipe(takeUntil(this.unsubscribe))
-            .subscribe((rgs: AzureResourceGroup[]) => {
-                this.resourceGroups = rgs;
+            .subscribe((azureResourceGroups: AzureResourceGroup[]) => {
+                this.vnetResourceGroups = azureResourceGroups;
                 if (this.customResourceGroup) {
-                    this.formGroup.get('resourceGroup').setValue(this.customResourceGroup);
-                } else if (rgs.length === 1) {
-                    this.formGroup.get('resourceGroup').setValue(rgs[0].name);
+                    this.setControlValueSafely(VnetField.RESOURCE_GROUP, this.customResourceGroup);
+                } else if (azureResourceGroups.length === 1) {
+                    this.setControlValueSafely(VnetField.RESOURCE_GROUP, azureResourceGroups[0].name);
+                } else {
+                    this.setControlWithSavedValue(VnetField.RESOURCE_GROUP);
                 }
             });
 
-        this.registerOnValueChange('privateAzureCluster', this.onCreatePrivateAzureCluster.bind(this));
-        this.registerOnValueChange('controlPlaneSubnetCidrNew', this.onControlPlaneSubnetCidrNewChange.bind(this));
-        this.registerOnValueChange('controlPlaneSubnet', this.onControlPlaneSubnetChange.bind(this));
-        this.registerOnValueChange('vnetOption', this.showVnetFields.bind(this));
+        this.registerOnValueChange(VnetField.PRIVATE_CLUSTER, this.onCreatePrivateAzureCluster.bind(this));
+        this.registerOnValueChange(VnetField.CONTROLPLANE_NEWSUBNET_CIDR, this.onControlPlaneSubnetCidrNewChange.bind(this));
+        this.registerOnValueChange(VnetField.CONTROLPLANE_SUBNET_NAME, this.onControlPlaneSubnetChange.bind(this));
+        this.registerOnValueChange(VnetField.EXISTING_OR_CUSTOM, this.onExistingOrCustomOptionChange.bind(this));
 
         this.initFormWithSavedData();
     }
@@ -229,12 +247,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
         const subnetEntry = this.controlPlaneSubnets.find(subnet => subnet.name === name);
         const cidrOfSelectedControlPlaneSubnet = (subnetEntry) ? subnetEntry.cidr : '';
 
-        const control = this.formGroup.controls['controlPlaneSubnetCidr'];
-        if (control) {
-            control.setValue(cidrOfSelectedControlPlaneSubnet);
-        }
-        // Leaving cidrHolder assignment in place, but unable to see how it is useful
-        this.cidrHolder[EXISTING] = cidrOfSelectedControlPlaneSubnet;
+        this.setControlValueSafely(VnetField.CONTROLPLANE_SUBNET_CIDR, cidrOfSelectedControlPlaneSubnet);
     }
 
     onControlPlaneSubnetCidrNewChange(value: string) {
@@ -246,22 +259,20 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
             this.createPrivateCluster = true;
             const cidrValidator = this.validationService.isIpInSubnet2(this.cidrHolder, "" + this.showVnetFieldsOption);
 
-            this.resurrectField('privateIP', [Validators.required, this.validationService.isValidIpOrFqdn(), cidrValidator])
+            this.resurrectField(VnetField.PRIVATE_IP, [Validators.required, this.validationService.isValidIpOrFqdn(), cidrValidator])
         } else {
             this.createPrivateCluster = false;
-            this.disarmField('privateIP', true);
+            this.disarmField(VnetField.PRIVATE_IP, true);
         }
     }
 
     initFormWithSavedData() {
         this.initVnetFromSavedData();
-        super.initFormWithSavedData();
     }
 
     onRegionChange(region: string) {
-        console.log('+++ In vnet-step, setting region to ' + region);
         this.region = region;
-        this.formGroup.get("resourceGroup").setValue('');
+        this.setControlWithSavedValue(VnetField.RESOURCE_GROUP);
     }
 
     onResourceGroupChange(resourceGroupName) {
@@ -269,131 +280,149 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
             this.apiClient.getAzureVnets({ resourceGroupName, location: this.region })
                 .pipe(takeUntil(this.unsubscribe))
                 .subscribe(
-                    (vnets: AzureVirtualNetwork[]) => {
-                        this.vnetSubnets = vnets.reduce((accu, vnet) => { accu[vnet.name] = vnet.subnets; return accu; }, {});
-                        this.vnetNamesExisting = Object.keys(this.vnetSubnets);
-                        if (this.vnetNamesExisting.length === 1) {
-                            this.formGroup.get('vnetNameExisting').setValue(this.vnetNamesExisting[0]);
-                        }
-                        this.initVnetFromSavedData();   // user may have a saved custom vnet, even if only one existing vnet
-                    },
+                    (vnets: AzureVirtualNetwork[]) => { this.setVnets(vnets); },
                     err => { this.errorNotification = err.message; },
                     () => { }
                 );
         }
+    }
 
-        this.vnetFieldsExisting.forEach(field => this.formGroup.get(field).setValue(''));
+    private setVnets(vnets: AzureVirtualNetwork[]) {
+        this.vnetSubnets = vnets.reduce((accu, vnet) => { accu[vnet.name] = vnet.subnets; return accu; }, {});
+        this.vnetNamesExisting = Object.keys(this.vnetSubnets);
+
+        this.modifySavedValuesIfVnetCustomNameIsNowExisting();
+
+        const savedVnet = this.getSavedValue(VnetField.EXISTING_NAME, '');
+        if (savedVnet && this.vnetNamesExisting.includes(savedVnet)) {
+            this.setControlValueSafely(VnetField.EXISTING_NAME, savedVnet);
+        } else if (this.vnetNamesExisting.length === 1) {
+            this.setControlValueSafely(VnetField.EXISTING_NAME, this.vnetNamesExisting[0]);
+        }
     }
 
     onVnetChange(vnetName) {
-        // Use the same source
+        console.log('#   onVnetChange(' + vnetName + ')');
+        // Use the same set of subnets for control plane and worker plane
         this.workerNodeSubnets = this.vnetSubnets[vnetName] || [];
         this.controlPlaneSubnets = this.workerNodeSubnets;
 
-        // set child fields with local storage data if available
-        let filteredSubnets = this.controlPlaneSubnets.filter(s => s.name === this.getSavedValue('controlPlaneSubnet', ''));
-        if (filteredSubnets.length > 0) {
-            this.formGroup.get('controlPlaneSubnet').setValue(filteredSubnets[0].cidr)
-        } else if (this.controlPlaneSubnets.length === 1) {
-            this.formGroup.get('controlPlaneSubnet').setValue(this.controlPlaneSubnets[0].name)
+        if (this.workerNodeSubnets.length === 0) {
+            console.log('WARNING: vnet ' + vnetName + ' appears to have no subnets available! vnetSubnets=' + JSON.stringify(this.vnetSubnets));
         }
+        this.initSubnetField(VnetField.CONTROLPLANE_SUBNET_NAME, this.controlPlaneSubnets);
         if (!this.modeClusterStandalone) {
-            filteredSubnets = this.workerNodeSubnets.filter(s => s.name === this.getSavedValue('workerNodeSubnet', ''));
-            if (filteredSubnets.length > 0) {
-                this.formGroup.get('workerNodeSubnet').setValue(filteredSubnets[0].cidr);
-            } else if (this.workerNodeSubnets.length === 1) {
-                this.formGroup.get('workerNodeSubnet').setValue(this.workerNodeSubnets[0].name)
-            }
+            this.initSubnetField(VnetField.WORKER_SUBNET_NAME, this.workerNodeSubnets);
         }
     }
 
-    showVnetFields(option: string, clearSavedData = true) {
-        this.showVnetFieldsOption = option;
-
-        if (option === EXISTING) {
-            this.vnetFieldsExisting.forEach(field => this.resurrectField(field, [Validators.required]));
-            this.vnetFieldsNew.forEach(field => this.disarmField(field, clearSavedData));
-            this.formGroup.get('vnetOption').setValue(EXISTING);
-            if ( this.resourceGroups.length === 1 ) {
-                setTimeout( _ => {
-                    if (this.resourceGroups.length === 1) {
-                        this.formGroup.get('resourceGroup').setValue(this.resourceGroups[0].name);
-                    }
-                    if (this.vnetNamesExisting.length === 1) {
-                        this.formGroup.get('vnetNameExisting').setValue(this.vnetNamesExisting[0]);
-                    }
-                    if (this.controlPlaneSubnets.length === 1) {
-                        this.formGroup.get('controlPlaneSubnet').setValue(this.controlPlaneSubnets[0].name)
-                    }
-                    if (this.workerNodeSubnets.length === 1) {
-                        this.formGroup.get('workerNodeSubnet').setValue(this.workerNodeSubnets[0].name)
-                    }
-                });
-            }
-            Broker.messenger.publish({
-                type: TkgEventType.NETWORK_STEP_GET_NO_PROXY_INFO,
-                payload: { info: '169.254.0.0/16,168.63.129.16' }
-            });
-        } else if (option === CUSTOM) {
-            this.resurrectField("vnetNameCustom", [Validators.required]);
-            this.resurrectField("controlPlaneSubnetNew", [Validators.required]);
-
-            this.resurrectField("vnetCidrBlock", [Validators.required,
-            this.validationService.noWhitespaceOnEnds(),
-            this.validationService.isValidIpNetworkSegment()
-            ], this.defaultVnetCidr);
-            this.resurrectField("controlPlaneSubnetCidrNew", [Validators.required,
-            this.validationService.noWhitespaceOnEnds(),
-            this.validationService.isValidIpNetworkSegment()
-            ], this.defaultControlPlaneCidr);
-
-            if (!this.modeClusterStandalone) {
-                this.resurrectField("workerNodeSubnetNew", [Validators.required]);
-                this.resurrectField("workerNodeSubnetCidrNew", [Validators.required,
-                    this.validationService.noWhitespaceOnEnds(),
-                    this.validationService.isValidIpNetworkSegment()
-                ], this.defaultWorkerNodeCidr);
-            }
-
-            this.vnetFieldsExisting.forEach(field => this.disarmField(field, clearSavedData));
-            this.formGroup.get('vnetOption').setValue(CUSTOM);
+    // set subnet field with saved data if available, or default if only one subnet
+    private initSubnetField(fieldName: string, subnets: any[]) {
+        console.log('$  initSubnetField: ' + fieldName + ' has ' + subnets.length + ' subnets to choose from');
+        // set subnet fields with local storage data if available, or default if only one subnet
+        const nameSavedSubnet = this.getSavedValue(fieldName, '');
+        const savedControlPlaneSubnet = nameSavedSubnet ? this.findSubnetByName(nameSavedSubnet, subnets) : null;
+        console.log('$  initSubnetField: nameSavedSubnet=' + nameSavedSubnet + ', savedControlPlaneSubnet=' + JSON.stringify(savedControlPlaneSubnet));
+        if (savedControlPlaneSubnet) {
+            this.setControlValueSafely(fieldName, nameSavedSubnet);
+        } else if (subnets.length === 1) {
+            this.setControlValueSafely(fieldName, subnets[0].name);
         }
+    }
 
+    private findSubnetByName(subnetName: string, subnets: any[]): any {
+        return subnets.find(s => s.name === subnetName);
+    }
+
+    private onExistingOrCustomOptionChange(option: string, clearSavedData = false) {
+        this.showVnetFieldsOption = option;
+        if (option === EXISTING) {
+            this.initVnetFieldsExisting(clearSavedData);
+            if (this.vnetResourceGroups.length === 1) {
+                this.setControlValueSafely(VnetField.RESOURCE_GROUP, this.vnetResourceGroups[0].name);
+            } else {
+                this.setControlWithSavedValue(VnetField.RESOURCE_GROUP);
+            }
+        } else if (option === CUSTOM) {
+            this.showVnetFieldsCustom(clearSavedData);
+        }
         this.onCreatePrivateAzureCluster(this.createPrivateCluster);
     }
 
-    private handleIfSavedVnetCustomNameIsNowExisting(savedVnetCustom: string): boolean {
-        // handle case where user originally created a new (custom) vnet (and value was either saved
-        // to local storage or to config file as a custom vnet name), but now when the data is restored,
-        // the vnet name exists (so we should move the custom value over to the existing data slot).
+    private showVnetFieldsCustom(clearSavedData: boolean) {
+        this.resurrectFieldWithSavedValue(VnetField.CUSTOM_NAME, [Validators.required]);
+        this.resurrectFieldWithSavedValue(VnetField.CONTROLPLANE_NEWSUBNET_NAME, [Validators.required]);
+
+        this.resurrectFieldWithSavedValue(VnetField.CUSTOM_CIDR, [Validators.required,
+            this.validationService.noWhitespaceOnEnds(),
+            this.validationService.isValidIpNetworkSegment()
+        ], this.defaultVnetCidr);
+        this.resurrectFieldWithSavedValue(VnetField.CONTROLPLANE_NEWSUBNET_CIDR, [Validators.required,
+            this.validationService.noWhitespaceOnEnds(),
+            this.validationService.isValidIpNetworkSegment()
+        ], this.defaultControlPlaneCidr);
+
+        if (!this.modeClusterStandalone) {
+            this.resurrectFieldWithSavedValue(VnetField.WORKER_NEWSUBNET_NAME, [Validators.required]);
+            this.resurrectFieldWithSavedValue(VnetField.WORKER_NEWSUBNET_CIDR, [Validators.required,
+                this.validationService.noWhitespaceOnEnds(),
+                this.validationService.isValidIpNetworkSegment()
+            ], this.defaultWorkerNodeCidr);
+        }
+
+        this.vnetFieldsExisting.forEach(field => this.disarmField(field, clearSavedData));
+    }
+
+    private initVnetFieldsExisting(clearSavedData: boolean) {
+        this.vnetFieldsExisting.forEach(field => {
+            this.resurrectField(field, [Validators.required]);
+        });
+        if (this.vnetResourceGroups.length === 1) {
+            setTimeout(_ => {
+                if (this.vnetResourceGroups.length === 1) {
+                    this.setControlValueSafely(VnetField.RESOURCE_GROUP, this.vnetResourceGroups[0].name);
+                }
+                if (this.vnetNamesExisting.length === 1) {
+                    this.setControlValueSafely(VnetField.EXISTING_NAME, this.vnetNamesExisting[0]);
+                }
+                if (this.controlPlaneSubnets.length === 1) {
+                    this.setControlValueSafely(VnetField.CONTROLPLANE_SUBNET_NAME, this.controlPlaneSubnets[0].name)
+                }
+                if (this.workerNodeSubnets.length === 1) {
+                    this.setControlValueSafely(VnetField.WORKER_SUBNET_NAME, this.workerNodeSubnets[0].name)
+                }
+            });
+        }
+        Broker.messenger.publish({
+            type: TkgEventType.NETWORK_STEP_GET_NO_PROXY_INFO,
+            payload: {info: '169.254.0.0/16,168.63.129.16'}
+        });
+
+        this.vnetFieldsNew.forEach(field => this.disarmField(field, clearSavedData));
+    }
+
+    // modifySavedValuesIfVnetCustomNameIsNowExisting() handles the case where user originally created a new (custom) vnet
+    // (and value was either saved to local storage or to config file as a custom vnet name), but now when the data is restored,
+    // the vnet name exists (so we should move the custom value over to the existing data slot).
+    // In doing that, we create a side-effect of changing local storage values.
+    private modifySavedValuesIfVnetCustomNameIsNowExisting() {
+        const savedVnetCustom = this.getSavedValue(VnetField.CUSTOM_NAME, '');
         const customIsNowExisting = this.vnetNamesExisting.indexOf(savedVnetCustom) >= 0;
         if (customIsNowExisting) {
-            this.clearFieldSavedData('vnetNameCustom');
-            this.saveFieldData('vnetNameExisting', savedVnetCustom);
-            return true;
+            this.saveFieldData(VnetField.EXISTING_NAME, savedVnetCustom);
+            this.clearFieldSavedData(VnetField.CUSTOM_NAME);
         }
-        return false;
     }
 
     private initVnetFromSavedData() {
-        // if the user did an import, then we expect the value to be stored in 'vnetNameCustom'
-        // we'll check and see if that value is now existing
-        let savedVnetExisting = this.getSavedValue('vnetNameExisting', '');
-        let savedVnetCustom = this.getSavedValue('vnetNameCustom', '');
+        // if the user did an import, then we expect the custom value to be stored in VnetField.CUSTOM_NAME
+        // however, since that custom vnet may have been created and now be an existing vnet,
+        // we need to call a special method to handle that situation
+        this.modifySavedValuesIfVnetCustomNameIsNowExisting();
 
-        if (this.handleIfSavedVnetCustomNameIsNowExisting(savedVnetCustom)) {
-            savedVnetExisting = savedVnetCustom;
-            savedVnetCustom = '';
-        }
-
-        if (savedVnetCustom !== '') {
-            this.formGroup.get('vnetNameCustom').setValue(savedVnetExisting);
-            this.showVnetFields(CUSTOM, false);
-        } else if (savedVnetExisting !== '') {
-            this.formGroup.get('vnetNameExisting').setValue(savedVnetExisting);
-            this.showVnetFields(EXISTING, false);
-        } else {
-            this.showVnetFields(this.showVnetFieldsOption, false);
-        }
+        const savedVnetCustom = this.getSavedValue(VnetField.CUSTOM_NAME, '');
+        const optionValue = savedVnetCustom !== '' ? CUSTOM : EXISTING;
+        // NOTE: setting this value will trigger the display to update
+        this.setControlWithSavedValue(VnetField.EXISTING_OR_CUSTOM, optionValue);
     }
 }

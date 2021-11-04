@@ -57,13 +57,11 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
     }
 
     initFormWithSavedData() {
-        const savedLabelsString = this.getSavedValue('clusterLabels', '');
-        if (savedLabelsString !== '') {
-            const savedLabelsArray = savedLabelsString.split(', ')
-            savedLabelsArray.map(label => {
-                const labelArray = label.split(':');
-                this.labels.set(labelArray[0], labelArray[1]);
-            });
+        const savedLabels = this.getSavedValue('clusterLabels', '');
+        if (savedLabels !== undefined && savedLabels != null) {
+            Object.keys(savedLabels).forEach(key => {
+                this.labels.set(key, savedLabels[key]);
+            })
         }
         super.initFormWithSavedData();
     }
