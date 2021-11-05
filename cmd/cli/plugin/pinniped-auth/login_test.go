@@ -186,7 +186,6 @@ func TestLoginOIDCCommand(t *testing.T) {
 				"--concierge-authenticator-name", "concierge-authenticator",
 				"--concierge-endpoint", "test-endpoint",
 				"--concierge-ca-bundle-data", "test-bundle",
-				"--concierge-api-group-suffix", "tuna.io",
 				"--concierge-is-cluster-scoped", "true",
 			},
 			wantArgs: []string{
@@ -290,33 +289,22 @@ func TestGetPinnipedCLICmd(t *testing.T) {
 	}{
 		{
 			name:                "0.4.4 cli",
-			loginOptions:        &loginOIDCOptions{conciergeAPIGroupSuffix: "pinniped.dev", conciergeIsClusterScoped: false},
+			loginOptions:        &loginOIDCOptions{conciergeIsClusterScoped: false},
 			wantPinnipedVersion: "v0.4.4",
 			wantBinary:          pinnipedv044Binary,
 		},
 		{
 			name:                "0.4.4 cli with dirty build sha",
 			isBuildSHADirty:     true,
-			loginOptions:        &loginOIDCOptions{conciergeAPIGroupSuffix: "pinniped.dev", conciergeIsClusterScoped: false},
+			loginOptions:        &loginOIDCOptions{conciergeIsClusterScoped: false},
 			wantPinnipedVersion: "v0.4.4",
 			wantBinary:          pinnipedv044Binary,
 		},
 		{
 			name:                "0.12.0 cli",
-			loginOptions:        &loginOIDCOptions{conciergeAPIGroupSuffix: "pinniped.dev", conciergeIsClusterScoped: true},
+			loginOptions:        &loginOIDCOptions{conciergeIsClusterScoped: true},
 			wantPinnipedVersion: "v0.12.0",
 			wantBinary:          pinnipedv0120Binary,
-		},
-		{
-			name:                "0.12.0 with other API group",
-			loginOptions:        &loginOIDCOptions{conciergeAPIGroupSuffix: "tuna.io", conciergeIsClusterScoped: true},
-			wantPinnipedVersion: "v0.12.0",
-			wantBinary:          pinnipedv0120Binary,
-		},
-		{
-			name:         "weird unsupported situation",
-			loginOptions: &loginOIDCOptions{conciergeAPIGroupSuffix: "tuna.io", conciergeIsClusterScoped: false},
-			wantError:    "cannot support non-default API group suffix with namespace-scoped Concierge APIs",
 		},
 	}
 	for _, test := range tests {
@@ -369,22 +357,12 @@ func TestGetPinnipedCLICmdMultipleUsage(t *testing.T) {
 		wantBinary          []byte
 	}{
 		{
-			loginOptions:        &loginOIDCOptions{conciergeAPIGroupSuffix: "pinniped.dev", conciergeIsClusterScoped: false},
+			loginOptions:        &loginOIDCOptions{conciergeIsClusterScoped: false},
 			wantPinnipedVersion: "v0.4.4",
 			wantBinary:          pinnipedv044Binary,
 		},
 		{
-			loginOptions:        &loginOIDCOptions{conciergeAPIGroupSuffix: "pinniped.dev", conciergeIsClusterScoped: true},
-			wantPinnipedVersion: "v0.12.0",
-			wantBinary:          pinnipedv0120Binary,
-		},
-		{
-			loginOptions:        &loginOIDCOptions{conciergeAPIGroupSuffix: "pinniped.dev", conciergeIsClusterScoped: false},
-			wantPinnipedVersion: "v0.4.4",
-			wantBinary:          pinnipedv044Binary,
-		},
-		{
-			loginOptions:        &loginOIDCOptions{conciergeAPIGroupSuffix: "tuna.io", conciergeIsClusterScoped: true},
+			loginOptions:        &loginOIDCOptions{conciergeIsClusterScoped: true},
 			wantPinnipedVersion: "v0.12.0",
 			wantBinary:          pinnipedv0120Binary,
 		},
