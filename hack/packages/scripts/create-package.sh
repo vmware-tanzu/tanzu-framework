@@ -53,6 +53,7 @@ sed $SEDARGS "s/PACKAGE_NAME/${PACKAGE_NAME}/g" hack/packages/templates/new-pack
 sed $SEDARGS "s/PACKAGE_NAME/${PACKAGE_NAME}/g" hack/packages/templates/new-package/package.yaml > "${PACKAGE_DIR}/package.yaml"
 sed $SEDARGS "s/PACKAGE_NAME/${PACKAGE_NAME}/g" hack/packages/templates/new-package/values.yaml > "${PACKAGE_DIR}/bundle/config/values.yaml"
 sed $SEDARGS "s/PACKAGE_NAME/${PACKAGE_NAME}/g" hack/packages/templates/new-package/vendir.yml > "${PACKAGE_DIR}/bundle/vendir.yml"
+cp hack/packages/templates/new-package/Makefile ${PACKAGE_DIR}/Makefile
 
 echo
 echo "${PACKAGE_NAME} package bootstrapped at ${PACKAGE_DIR}"
