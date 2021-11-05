@@ -34,7 +34,6 @@ type loginOIDCOptions struct {
 	conciergeAuthenticatorName string
 	conciergeEndpoint          string
 	conciergeCABundle          string
-	conciergeAPIGroupSuffix    string
 	credentialCachePath        string
 	listenPort                 uint16
 	skipBrowser                bool
@@ -42,8 +41,6 @@ type loginOIDCOptions struct {
 	conciergeEnabled           bool
 	conciergeIsClusterScoped   bool
 }
-
-const defaultPinnipedAPIGroupSuffix = "pinniped.dev"
 
 // We currently embed both the v0.4.4 and v0.12.0 Pinniped CLIs. This is so that the pinniped-auth
 // plugin can work with old TKr's that are still running Pinniped version v0.4.4. The v0.12.0 CLI
@@ -125,9 +122,6 @@ func getPinnipedCLICmd(args []string, loginOptions *loginOIDCOptions, pluginRoot
 	var pinnipedBinary []byte
 	var pinnipedVersion string
 	if !loginOptions.conciergeIsClusterScoped {
-		if loginOptions.conciergeAPIGroupSuffix != defaultPinnipedAPIGroupSuffix {
-			return nil, errors.New("cannot support non-default API group suffix with namespace-scoped Concierge APIs")
-		}
 		pinnipedBinary = pinnipedv044Binary
 		pinnipedVersion = "v0.4.4"
 	} else {
@@ -176,7 +170,6 @@ func setLoginCommandFlags() {
 	loginCommand.Flags().StringVar(&loginOptions.conciergeAuthenticatorName, "concierge-authenticator-name", "", "Concierge authenticator name")
 	loginCommand.Flags().StringVar(&loginOptions.conciergeEndpoint, "concierge-endpoint", "", "API base for the Pinniped concierge endpoint")
 	loginCommand.Flags().StringVar(&loginOptions.conciergeCABundle, "concierge-ca-bundle-data", "", "CA bundle to use when connecting to the concierge")
-	loginCommand.Flags().StringVar(&loginOptions.conciergeAPIGroupSuffix, "concierge-api-group-suffix", defaultPinnipedAPIGroupSuffix, "Concierge API group suffix")
 	loginCommand.Flags().StringVar(&loginOptions.credentialCachePath, "credential-cache", filepath.Join(mustGetConfigDir(), "credentials.yaml"), "Path to cluster-specific credentials cache (\"\" disables the cache)")
 	loginCommand.Flags().BoolVar(&loginOptions.conciergeIsClusterScoped, "concierge-is-cluster-scoped", false, "Is concierge cluster scoped")
 	loginCommand.Flags().MarkHidden("debug-session-cache") //nolint
