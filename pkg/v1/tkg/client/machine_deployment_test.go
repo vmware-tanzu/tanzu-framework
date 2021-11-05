@@ -14,15 +14,14 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	aws "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha3"
-	azure "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha3"
-	vsphere "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
-	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
+	aws "sigs.k8s.io/cluster-api-provider-aws/api/v1beta1"
+	azure "sigs.k8s.io/cluster-api-provider-azure/api/v1beta1"
+	vsphere "sigs.k8s.io/cluster-api-provider-vsphere/api/v1beta1"
+	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha3"
-	"sigs.k8s.io/cluster-api/bootstrap/kubeadm/types/v1beta1"
-	docker "sigs.k8s.io/cluster-api/test/infrastructure/docker/api/v1alpha3"
+	"sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1beta1"
+	docker "sigs.k8s.io/cluster-api/test/infrastructure/docker/api/v1beta1"
 
 	tkgsv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
@@ -533,8 +532,8 @@ var _ = Describe("Machine Deployment", func() {
 						callIndex := 0
 						clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
 							if callIndex == 0 {
-								kct := obj.(*v1alpha3.KubeadmConfigTemplate)
-								*kct = v1alpha3.KubeadmConfigTemplate{}
+								kct := obj.(*v1beta1.KubeadmConfigTemplate)
+								*kct = v1beta1.KubeadmConfigTemplate{}
 								callIndex++
 								return nil
 							}
@@ -556,8 +555,8 @@ var _ = Describe("Machine Deployment", func() {
 						callIndex := 0
 						clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
 							if callIndex == 0 {
-								kct := obj.(*v1alpha3.KubeadmConfigTemplate)
-								*kct = v1alpha3.KubeadmConfigTemplate{}
+								kct := obj.(*v1beta1.KubeadmConfigTemplate)
+								*kct = v1beta1.KubeadmConfigTemplate{}
 								callIndex++
 								return nil
 							}
@@ -581,8 +580,8 @@ var _ = Describe("Machine Deployment", func() {
 							callIndex := 0
 							clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
 								if callIndex == 0 {
-									kct := obj.(*v1alpha3.KubeadmConfigTemplate)
-									*kct = v1alpha3.KubeadmConfigTemplate{}
+									kct := obj.(*v1beta1.KubeadmConfigTemplate)
+									*kct = v1beta1.KubeadmConfigTemplate{}
 									callIndex++
 									return nil
 								}
@@ -608,8 +607,8 @@ var _ = Describe("Machine Deployment", func() {
 							callIndex := 0
 							clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
 								if callIndex == 0 {
-									kct := obj.(*v1alpha3.KubeadmConfigTemplate)
-									*kct = v1alpha3.KubeadmConfigTemplate{}
+									kct := obj.(*v1beta1.KubeadmConfigTemplate)
+									*kct = v1beta1.KubeadmConfigTemplate{}
 									callIndex++
 									return nil
 								}
@@ -636,8 +635,8 @@ var _ = Describe("Machine Deployment", func() {
 							callIndex := 0
 							clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
 								if callIndex == 0 {
-									kct := obj.(*v1alpha3.KubeadmConfigTemplate)
-									*kct = v1alpha3.KubeadmConfigTemplate{}
+									kct := obj.(*v1beta1.KubeadmConfigTemplate)
+									*kct = v1beta1.KubeadmConfigTemplate{}
 									callIndex++
 									return nil
 								}
@@ -666,8 +665,8 @@ var _ = Describe("Machine Deployment", func() {
 						callIndex := 0
 						clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
 							if callIndex == 0 {
-								kct := obj.(*v1alpha3.KubeadmConfigTemplate)
-								*kct = v1alpha3.KubeadmConfigTemplate{}
+								kct := obj.(*v1beta1.KubeadmConfigTemplate)
+								*kct = v1beta1.KubeadmConfigTemplate{}
 								callIndex++
 								return nil
 							}
@@ -690,8 +689,8 @@ var _ = Describe("Machine Deployment", func() {
 						callIndex := 0
 						clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
 							if callIndex == 0 {
-								kct := obj.(*v1alpha3.KubeadmConfigTemplate)
-								*kct = v1alpha3.KubeadmConfigTemplate{}
+								kct := obj.(*v1beta1.KubeadmConfigTemplate)
+								*kct = v1beta1.KubeadmConfigTemplate{}
 								callIndex++
 								return nil
 							}
@@ -717,8 +716,8 @@ var _ = Describe("Machine Deployment", func() {
 						callIndex := 0
 						clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
 							if callIndex == 0 {
-								kct := obj.(*v1alpha3.KubeadmConfigTemplate)
-								*kct = v1alpha3.KubeadmConfigTemplate{}
+								kct := obj.(*v1beta1.KubeadmConfigTemplate)
+								*kct = v1beta1.KubeadmConfigTemplate{}
 								callIndex++
 								return nil
 							}
@@ -745,8 +744,8 @@ var _ = Describe("Machine Deployment", func() {
 						callIndex := 0
 						clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
 							if callIndex == 0 {
-								kct := obj.(*v1alpha3.KubeadmConfigTemplate)
-								*kct = v1alpha3.KubeadmConfigTemplate{}
+								kct := obj.(*v1beta1.KubeadmConfigTemplate)
+								*kct = v1beta1.KubeadmConfigTemplate{}
 								callIndex++
 								return nil
 							}
@@ -774,8 +773,8 @@ var _ = Describe("Machine Deployment", func() {
 						callIndex := 0
 						clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
 							if callIndex == 0 {
-								kct := obj.(*v1alpha3.KubeadmConfigTemplate)
-								*kct = v1alpha3.KubeadmConfigTemplate{}
+								kct := obj.(*v1beta1.KubeadmConfigTemplate)
+								*kct = v1beta1.KubeadmConfigTemplate{}
 								callIndex++
 								return nil
 							}
@@ -803,8 +802,8 @@ var _ = Describe("Machine Deployment", func() {
 						callIndex := 0
 						clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
 							if callIndex == 0 {
-								kct := obj.(*v1alpha3.KubeadmConfigTemplate)
-								*kct = v1alpha3.KubeadmConfigTemplate{}
+								kct := obj.(*v1beta1.KubeadmConfigTemplate)
+								*kct = v1beta1.KubeadmConfigTemplate{}
 								callIndex++
 								return nil
 							}
@@ -827,8 +826,8 @@ var _ = Describe("Machine Deployment", func() {
 						callIndex := 0
 						clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
 							if callIndex == 0 {
-								kct := obj.(*v1alpha3.KubeadmConfigTemplate)
-								*kct = v1alpha3.KubeadmConfigTemplate{}
+								kct := obj.(*v1beta1.KubeadmConfigTemplate)
+								*kct = v1beta1.KubeadmConfigTemplate{}
 								callIndex++
 								return nil
 							}
@@ -854,8 +853,8 @@ var _ = Describe("Machine Deployment", func() {
 						callIndex := 0
 						clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
 							if callIndex == 0 {
-								kct := obj.(*v1alpha3.KubeadmConfigTemplate)
-								*kct = v1alpha3.KubeadmConfigTemplate{}
+								kct := obj.(*v1beta1.KubeadmConfigTemplate)
+								*kct = v1beta1.KubeadmConfigTemplate{}
 								callIndex++
 								return nil
 							}
@@ -882,8 +881,8 @@ var _ = Describe("Machine Deployment", func() {
 						callIndex := 0
 						clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
 							if callIndex == 0 {
-								kct := obj.(*v1alpha3.KubeadmConfigTemplate)
-								*kct = v1alpha3.KubeadmConfigTemplate{}
+								kct := obj.(*v1beta1.KubeadmConfigTemplate)
+								*kct = v1beta1.KubeadmConfigTemplate{}
 								callIndex++
 								return nil
 							}
@@ -911,8 +910,8 @@ var _ = Describe("Machine Deployment", func() {
 						callIndex := 0
 						clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
 							if callIndex == 0 {
-								kct := obj.(*v1alpha3.KubeadmConfigTemplate)
-								*kct = v1alpha3.KubeadmConfigTemplate{}
+								kct := obj.(*v1beta1.KubeadmConfigTemplate)
+								*kct = v1beta1.KubeadmConfigTemplate{}
 								callIndex++
 								return nil
 							}
@@ -940,8 +939,8 @@ var _ = Describe("Machine Deployment", func() {
 						callIndex := 0
 						clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
 							if callIndex == 0 {
-								kct := obj.(*v1alpha3.KubeadmConfigTemplate)
-								*kct = v1alpha3.KubeadmConfigTemplate{}
+								kct := obj.(*v1beta1.KubeadmConfigTemplate)
+								*kct = v1beta1.KubeadmConfigTemplate{}
 								callIndex++
 								return nil
 							}
@@ -964,8 +963,8 @@ var _ = Describe("Machine Deployment", func() {
 						callIndex := 0
 						clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
 							if callIndex == 0 {
-								kct := obj.(*v1alpha3.KubeadmConfigTemplate)
-								*kct = v1alpha3.KubeadmConfigTemplate{}
+								kct := obj.(*v1beta1.KubeadmConfigTemplate)
+								*kct = v1beta1.KubeadmConfigTemplate{}
 								callIndex++
 								return nil
 							}
@@ -991,8 +990,8 @@ var _ = Describe("Machine Deployment", func() {
 						callIndex := 0
 						clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
 							if callIndex == 0 {
-								kct := obj.(*v1alpha3.KubeadmConfigTemplate)
-								*kct = v1alpha3.KubeadmConfigTemplate{}
+								kct := obj.(*v1beta1.KubeadmConfigTemplate)
+								*kct = v1beta1.KubeadmConfigTemplate{}
 								callIndex++
 								return nil
 							}
@@ -1019,8 +1018,8 @@ var _ = Describe("Machine Deployment", func() {
 						callIndex := 0
 						clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
 							if callIndex == 0 {
-								kct := obj.(*v1alpha3.KubeadmConfigTemplate)
-								*kct = v1alpha3.KubeadmConfigTemplate{}
+								kct := obj.(*v1beta1.KubeadmConfigTemplate)
+								*kct = v1beta1.KubeadmConfigTemplate{}
 								callIndex++
 								return nil
 							}
@@ -1048,8 +1047,8 @@ var _ = Describe("Machine Deployment", func() {
 						callIndex := 0
 						clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
 							if callIndex == 0 {
-								kct := obj.(*v1alpha3.KubeadmConfigTemplate)
-								*kct = v1alpha3.KubeadmConfigTemplate{}
+								kct := obj.(*v1beta1.KubeadmConfigTemplate)
+								*kct = v1beta1.KubeadmConfigTemplate{}
 								callIndex++
 								return nil
 							}
@@ -1210,7 +1209,7 @@ var _ = Describe("Machine Deployment", func() {
 		})
 		Context("Create MachineDeployment", func() {
 			var (
-				kubeadmConfigTemplate v1alpha3.KubeadmConfigTemplate
+				kubeadmConfigTemplate v1beta1.KubeadmConfigTemplate
 				joinConfig            v1beta1.JoinConfiguration
 			)
 			BeforeEach(func() {
@@ -1220,10 +1219,10 @@ var _ = Describe("Machine Deployment", func() {
 						KubeletExtraArgs: map[string]string{},
 					},
 				}
-				kubeadmConfigTemplate = v1alpha3.KubeadmConfigTemplate{
-					Spec: v1alpha3.KubeadmConfigTemplateSpec{
-						Template: v1alpha3.KubeadmConfigTemplateResource{
-							Spec: v1alpha3.KubeadmConfigSpec{
+				kubeadmConfigTemplate = v1beta1.KubeadmConfigTemplate{
+					Spec: v1beta1.KubeadmConfigTemplateSpec{
+						Template: v1beta1.KubeadmConfigTemplateResource{
+							Spec: v1beta1.KubeadmConfigSpec{
 								JoinConfiguration: &joinConfig,
 							},
 						},
@@ -1309,7 +1308,7 @@ var _ = Describe("Machine Deployment", func() {
 					callIndex := 0
 					clusterClient.GetResourceStub = func(i interface{}, s1, s2 string, pvf clusterclient.PostVerifyrFunc, po *clusterclient.PollOptions) error {
 						if callIndex == 0 {
-							kct := i.(*v1alpha3.KubeadmConfigTemplate)
+							kct := i.(*v1beta1.KubeadmConfigTemplate)
 							*kct = kubeadmConfigTemplate
 							callIndex++
 							return nil
@@ -1332,7 +1331,7 @@ var _ = Describe("Machine Deployment", func() {
 						Expect(clusterClient.CreateResourceCallCount()).To(Equal(3))
 
 						obj, _, _, _ := clusterClient.CreateResourceArgsForCall(0)
-						kct := obj.(*v1alpha3.KubeadmConfigTemplate)
+						kct := obj.(*v1beta1.KubeadmConfigTemplate)
 						Expect(kct.Annotations).To(Equal(map[string]string{}))
 						Expect(kct.ResourceVersion).To(Equal(""))
 						Expect(kct.Name).To(Equal("test-cluster-np-2-kct"))
@@ -1422,7 +1421,7 @@ var _ = Describe("Machine Deployment", func() {
 					callIndex := 0
 					clusterClient.GetResourceStub = func(i interface{}, s1, s2 string, pvf clusterclient.PostVerifyrFunc, po *clusterclient.PollOptions) error {
 						if callIndex == 0 {
-							kct := i.(*v1alpha3.KubeadmConfigTemplate)
+							kct := i.(*v1beta1.KubeadmConfigTemplate)
 							*kct = kubeadmConfigTemplate
 							callIndex++
 							return nil
@@ -1445,7 +1444,7 @@ var _ = Describe("Machine Deployment", func() {
 						Expect(clusterClient.CreateResourceCallCount()).To(Equal(3))
 
 						obj, _, _, _ := clusterClient.CreateResourceArgsForCall(0)
-						kct := obj.(*v1alpha3.KubeadmConfigTemplate)
+						kct := obj.(*v1beta1.KubeadmConfigTemplate)
 						Expect(kct.Annotations).To(Equal(map[string]string{}))
 						Expect(kct.ResourceVersion).To(Equal(""))
 						Expect(kct.Name).To(Equal("test-cluster-np-2-kct"))
@@ -1526,7 +1525,7 @@ var _ = Describe("Machine Deployment", func() {
 					callIndex := 0
 					clusterClient.GetResourceStub = func(i interface{}, s1, s2 string, pvf clusterclient.PostVerifyrFunc, po *clusterclient.PollOptions) error {
 						if callIndex == 0 {
-							kct := i.(*v1alpha3.KubeadmConfigTemplate)
+							kct := i.(*v1beta1.KubeadmConfigTemplate)
 							*kct = kubeadmConfigTemplate
 							callIndex++
 							return nil
@@ -1549,7 +1548,7 @@ var _ = Describe("Machine Deployment", func() {
 						Expect(clusterClient.CreateResourceCallCount()).To(Equal(3))
 
 						obj, _, _, _ := clusterClient.CreateResourceArgsForCall(0)
-						kct := obj.(*v1alpha3.KubeadmConfigTemplate)
+						kct := obj.(*v1beta1.KubeadmConfigTemplate)
 						Expect(kct.Annotations).To(Equal(map[string]string{}))
 						Expect(kct.ResourceVersion).To(Equal(""))
 						Expect(kct.Name).To(Equal("test-cluster-np-2-kct"))

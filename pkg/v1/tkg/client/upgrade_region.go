@@ -47,9 +47,6 @@ type ApplyProvidersUpgradeOptions struct {
 	// Kubeconfig file to use for accessing the management cluster. If empty, default discovery rules apply.
 	Kubeconfig clusterctl.Kubeconfig
 
-	// ManagementGroup that should be upgraded (e.g. capi-system/cluster-api).
-	ManagementGroup string
-
 	// Contract defines the API Version of Cluster API (contract e.g. v1alpha3) the management group should upgrade to.
 	// When upgrading by contract, the latest versions available will be used for all the providers; if you want
 	// a more granular control on upgrade, use CoreProvider, BootstrapProviders, ControlPlaneProviders, InfrastructureProviders.
@@ -70,8 +67,7 @@ type ApplyProvidersUpgradeOptions struct {
 }
 
 type providersUpgradeInfo struct {
-	providers       []clusterctlv1.Provider
-	managementGroup string
+	providers []clusterctlv1.Provider
 }
 
 // UpgradeManagementCluster upgrades management clusters providers and k8s version
@@ -128,9 +124,8 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 	// TODO: Currently tkg doesn't support TargetNamespace and WatchingNamespace as it's not supporting multi-tenency of providers
 	// If we support it in future we need to make these namespaces as command line options and use here
 	waitOptions := waitForProvidersOptions{
-		Kubeconfig:        options.Kubeconfig,
-		TargetNamespace:   "",
-		WatchingNamespace: "",
+		Kubeconfig:      options.Kubeconfig,
+		TargetNamespace: "",
 	}
 	err = c.WaitForProviders(regionalClusterClient, waitOptions)
 	if err != nil {
@@ -239,8 +234,8 @@ func (c *TkgClient) DoProvidersUpgrade(regionalClusterClient clusterclient.Clien
 // GenerateProvidersUpgradeOptions generates provider upgrade options
 func (c *TkgClient) GenerateProvidersUpgradeOptions(pUpgradeInfo *providersUpgradeInfo) (*ApplyProvidersUpgradeOptions, error) {
 	puo := &ApplyProvidersUpgradeOptions{}
+	puo.Contract = "v1beta1"
 
-	puo.ManagementGroup = pUpgradeInfo.managementGroup
 	for i := range pUpgradeInfo.providers {
 		instanceVersion := pUpgradeInfo.providers[i].Namespace + "/" + pUpgradeInfo.providers[i].ProviderName + ":" + pUpgradeInfo.providers[i].Version
 		switch clusterctlv1.ProviderType(pUpgradeInfo.providers[i].Type) {
@@ -269,12 +264,6 @@ func (c *TkgClient) getProvidersUpgradeInfo(regionalClusterClient clusterclient.
 	err := regionalClusterClient.ListResources(installedProviders, &crtclient.ListOptions{})
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot get installed provider config")
-	}
-
-	// get the management group
-	pUpgradeInfo.managementGroup, err = parseManagementGroup(installedProviders)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to parse the management group")
 	}
 
 	// get the providers Info with the version updated with the upgrade version obtained from BOM file map
@@ -308,16 +297,6 @@ func (c *TkgClient) getProvidersUpgradeInfo(regionalClusterClient clusterclient.
 	}
 
 	return pUpgradeInfo, nil
-}
-
-func parseManagementGroup(installedProviders *clusterctlv1.ProviderList) (string, error) {
-	for i := range installedProviders.Items {
-		if clusterctlv1.ProviderType(installedProviders.Items[i].Type) == clusterctlv1.CoreProviderType {
-			mgmtGroupName := installedProviders.Items[i].InstanceName()
-			return mgmtGroupName, nil
-		}
-	}
-	return "", errors.New("failed to find core provider from the current providers")
 }
 
 // WaitForAddonsDeployments wait for addons deployments

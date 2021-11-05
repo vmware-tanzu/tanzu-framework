@@ -10,8 +10,8 @@ import (
 
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
-	clusterv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
-	controlplanev1alpha3 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
+	clusterv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	controlplanev1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -50,7 +50,7 @@ func (r *AddonReconciler) TKRToClusters(o client.Object) []ctrl.Request {
 	return r.clustersToRequests(clusters, log)
 }
 
-func (r *AddonReconciler) clustersToRequests(clusters []*clusterv1alpha3.Cluster, log logr.Logger) []ctrl.Request {
+func (r *AddonReconciler) clustersToRequests(clusters []*clusterv1beta1.Cluster, log logr.Logger) []ctrl.Request {
 	var requests []ctrl.Request
 
 	for _, cluster := range clusters {
@@ -158,12 +158,12 @@ func (r *AddonReconciler) BOMConfigMapToClusters(o client.Object) []ctrl.Request
 
 // KubeadmControlPlaneToClusters returns the cluster where kcp is present
 func (r *AddonReconciler) KubeadmControlPlaneToClusters(o client.Object) []ctrl.Request {
-	var kcp *controlplanev1alpha3.KubeadmControlPlane
+	var kcp *controlplanev1beta1.KubeadmControlPlane
 
 	r.Log.V(4).Info("Kubeadm control plane to clusters handler")
 
 	switch obj := o.(type) {
-	case *controlplanev1alpha3.KubeadmControlPlane:
+	case *controlplanev1beta1.KubeadmControlPlane:
 		kcp = obj
 	default:
 		r.Log.Error(errors.New("invalid type"),
