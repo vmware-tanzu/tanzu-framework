@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
-	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/image"
+	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/registry"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
@@ -46,7 +46,7 @@ type reconciler struct {
 	bomImage                   string
 	compatibilityMetadataImage string
 	registry                   registry.Registry
-	registryOps                ctlimg.RegistryOpts
+	registryOps                ctlimg.Opts
 }
 
 // Reconcile performs the reconciliation step
@@ -176,7 +176,7 @@ func eventFilter(p func(eventMeta metav1.Object) bool) *predicate.Funcs {
 
 func (r *reconciler) createBOMConfigMap(ctx context.Context, tag string) error {
 	r.log.Info("Fetching BOM", "image", r.bomImage, "tag", tag)
-	bomContent, err := r.registry.GetFile(r.bomImage, tag, "")
+	bomContent, err := r.registry.GetFile(fmt.Sprintf("%s:%s", r.bomImage, tag), "")
 	if err != nil {
 		return errors.Wrapf(err, "failed to get the BOM file from image %s:%s", r.bomImage, tag)
 	}
@@ -387,7 +387,7 @@ func (r *reconciler) fetchCompatibilityMetadata() (*types.CompatibilityMetadata,
 	for i := len(tagNum) - 1; i >= 0; i-- {
 		tagName := fmt.Sprintf("v%d", tagNum[i])
 		r.log.Info("Fetching BOM metadata image", "image", r.compatibilityMetadataImage, "tag", tagName)
-		metadataContent, err = r.registry.GetFile(r.compatibilityMetadataImage, tagName, "")
+		metadataContent, err = r.registry.GetFile(fmt.Sprintf("%s:%s", r.compatibilityMetadataImage, tagName), "")
 		if err == nil {
 			if err = yaml.Unmarshal(metadataContent, &metadata); err == nil {
 				break
@@ -519,7 +519,7 @@ func (r *reconciler) Start(stopChan <-chan struct{}) error {
 }
 
 func newReconciler(ctx *mgrcontext.ControllerManagerContext) *reconciler {
-	regOpts := ctlimg.RegistryOpts{
+	regOpts := ctlimg.Opts{
 		VerifyCerts: ctx.VerifyRegistryCert,
 		Anon:        true,
 	}

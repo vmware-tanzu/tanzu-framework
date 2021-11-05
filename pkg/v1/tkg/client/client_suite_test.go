@@ -445,11 +445,9 @@ var _ = Describe("OverrideAzureNodeSizeWithOptions", func() {
 		nodeSizeOptions NodeSizeOptions
 	)
 
-	BeforeEach(func() {
-		os.Setenv(constants.ConfigVariableAzureLocation, "eastus")
-	})
-
 	JustBeforeEach(func() {
+		os.Setenv(constants.ConfigVariableAzureLocation, "eastus")
+
 		tkgClient, err = CreateTKGClient(tkgConfigPath, testingDir, defaultTKGBoMFileForTesting, 2*time.Second)
 		Expect(err).ToNot(HaveOccurred())
 		mediumInstanceType := models.AzureInstanceType{

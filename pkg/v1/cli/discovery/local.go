@@ -4,7 +4,6 @@
 package discovery
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -39,11 +38,7 @@ func NewLocalDiscovery(name, localPath string) Discovery {
 
 // List available plugins.
 func (l *LocalDiscovery) List() ([]plugin.Discovered, error) {
-	plugins, err := l.Manifest()
-	if err != nil {
-		return nil, err
-	}
-	return plugins, nil
+	return l.Manifest()
 }
 
 // Describe a plugin.
@@ -72,7 +67,7 @@ func (l *LocalDiscovery) Name() string {
 func (l *LocalDiscovery) Manifest() ([]plugin.Discovered, error) {
 	plugins := make([]plugin.Discovered, 0)
 
-	items, err := ioutil.ReadDir(l.path)
+	items, err := os.ReadDir(l.path)
 	if err != nil {
 		return nil, errors.Wrapf(err, "error while reading local plugin manifest directory")
 	}
@@ -124,7 +119,7 @@ func DiscoveredFromK8sV1alpha1(p *cliv1alpha1.CLIPlugin) plugin.Discovered {
 		RecommendedVersion: p.Spec.RecommendedVersion,
 		Optional:           p.Spec.Optional,
 	}
-	dp.SupportedVersions = make([]string, len(p.Spec.Artifacts))
+	dp.SupportedVersions = make([]string, 0)
 	for v := range p.Spec.Artifacts {
 		dp.SupportedVersions = append(dp.SupportedVersions, v)
 	}

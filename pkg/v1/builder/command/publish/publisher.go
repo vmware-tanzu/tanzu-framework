@@ -7,11 +7,9 @@ package publish
 import (
 	"path/filepath"
 
-	"github.com/aunum/log"
 	"github.com/pkg/errors"
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
 )
 
 // Publisher is an interface to publish plugin and CLIPlugin resource files to discovery
@@ -20,6 +18,8 @@ type Publisher interface {
 	PublishPlugin(version, os, arch, plugin, sourcePath string) (string, error)
 	// PublishDiscovery publishes the CLIPlugin resources YAML to a discovery
 	PublishDiscovery() error
+	// Type returns type of publisher (local, oci)
+	Type() string
 }
 
 // Metadata defines metadata required for plugins publishing
@@ -45,7 +45,6 @@ func PublishPlugins(pm *Metadata) error { //nolint:golint // ignore stutters war
 	}
 
 	for plugin, pluginInfo := range availablePluginInfo {
-		log.Info("Processing plugin:", plugin)
 		mapVersionArtifactList := make(map[string]v1alpha1.ArtifactList)
 
 		// Create version based artifact list
@@ -62,7 +61,7 @@ func PublishPlugins(pm *Metadata) error { //nolint:golint // ignore stutters war
 					return err
 				}
 
-				artifacts = append(artifacts, newArtifactObject(oa.os, oa.arch, common.DistributionTypeLocal, digest, destPath))
+				artifacts = append(artifacts, newArtifactObject(oa.os, oa.arch, pm.PublisherInterface.Type(), digest, destPath))
 			}
 			mapVersionArtifactList[version] = artifacts
 		}
