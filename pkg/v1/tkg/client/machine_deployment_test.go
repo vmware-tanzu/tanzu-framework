@@ -1229,6 +1229,15 @@ var _ = Describe("Machine Deployment", func() {
 					},
 				}
 			})
+			When("the user selected machine deployment doesn't exist", func() {
+				BeforeEach(func() {
+					clusterClient.GetMDObjectForClusterReturns([]capi.MachineDeployment{md1}, nil)
+					options.BaseMachineDeployment = "test-cluster-md-3"
+				})
+				It("should return an error", func() {
+					Expect(err).Should(MatchError("unable to find base machine deployment with name test-cluster-md-3"))
+				})
+			})
 			Context("vSphere machine deployment", func() {
 				var vSphereMachineTemplate vsphere.VSphereMachineTemplate
 				BeforeEach(func() {
@@ -1402,7 +1411,12 @@ var _ = Describe("Machine Deployment", func() {
 							},
 						},
 					}
-					clusterClient.GetMDObjectForClusterReturns([]capi.MachineDeployment{md1}, nil)
+					md3.Spec.Template.Labels = map[string]string{
+						"existing": "md3",
+					}
+					md3.Spec.Template.Spec.InfrastructureRef.Kind = constants.AWSMachineTemplate
+					md3.Spec.Selector.MatchLabels = map[string]string{}
+					clusterClient.GetMDObjectForClusterReturns([]capi.MachineDeployment{md1, md3}, nil)
 					awsMachineTemplate = aws.AWSMachineTemplate{
 						ObjectMeta: metav1.ObjectMeta{
 							Name: "test-cluster-np-1-mt",
@@ -1438,7 +1452,7 @@ var _ = Describe("Machine Deployment", func() {
 				clusterClient.CreateResourceReturnsOnCall(0, nil)
 				clusterClient.CreateResourceReturnsOnCall(1, nil)
 				clusterClient.CreateNamespaceReturnsOnCall(2, nil)
-				When("Machine Deployment creates successfully", func() {
+				When("Machine Deployment creates successfully from default md", func() {
 					It("should properly set all values for created resources", func() {
 						Expect(err).ToNot(HaveOccurred())
 						Expect(clusterClient.CreateResourceCallCount()).To(Equal(3))
@@ -1464,6 +1478,38 @@ var _ = Describe("Machine Deployment", func() {
 						Expect(md.ResourceVersion).To(Equal(""))
 						Expect(*md.Spec.Template.Spec.FailureDomain).To(Equal(options.AZ))
 						Expect(md.Spec.Replicas).To(Equal(options.Replicas))
+					})
+				})
+				When("Machine Deployment creates successfully from user selected md", func() {
+					BeforeEach(func() {
+						options.BaseMachineDeployment = "test-cluster-np-3"
+					})
+					It("should properly set all values for created resources", func() {
+						Expect(err).ToNot(HaveOccurred())
+						Expect(clusterClient.CreateResourceCallCount()).To(Equal(3))
+
+						obj, _, _, _ := clusterClient.CreateResourceArgsForCall(0)
+						kct := obj.(*v1beta1.KubeadmConfigTemplate)
+						Expect(kct.Annotations).To(Equal(map[string]string{}))
+						Expect(kct.ResourceVersion).To(Equal(""))
+						Expect(kct.Name).To(Equal("test-cluster-np-2-kct"))
+						Expect(kct.Spec.Template.Spec.JoinConfiguration.NodeRegistration.KubeletExtraArgs["node-labels"]).To(Equal("key1=value1,key2=value2"))
+
+						obj, _, _, _ = clusterClient.CreateResourceArgsForCall(1)
+						mt := obj.(*aws.AWSMachineTemplate)
+						Expect(mt.Name).To(Equal("test-cluster-np-2-mt"))
+						Expect(mt.Annotations).To(Equal(map[string]string{}))
+						Expect(mt.ResourceVersion).To(Equal(""))
+						Expect(mt.Spec.Template.Spec.InstanceType).To(Equal(options.NodeMachineType))
+
+						obj, _, _, _ = clusterClient.CreateResourceArgsForCall(2)
+						md := obj.(*capi.MachineDeployment)
+						Expect(md.Name).To(Equal("test-cluster-np-2"))
+						Expect(md.Annotations).To(Equal(map[string]string{}))
+						Expect(md.ResourceVersion).To(Equal(""))
+						Expect(*md.Spec.Template.Spec.FailureDomain).To(Equal(options.AZ))
+						Expect(md.Spec.Replicas).To(Equal(options.Replicas))
+						Expect(md.Spec.Template.Labels).To(HaveKeyWithValue("existing", "md3"))
 					})
 				})
 			})

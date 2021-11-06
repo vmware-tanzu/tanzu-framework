@@ -55,18 +55,19 @@ type DeleteMachineDeploymentOptions struct {
 
 // NodePool a struct describing a node pool
 type NodePool struct {
-	Name             string                    `yaml:"name"`
-	Replicas         *int32                    `yaml:"replicas,omitempty"`
-	AZ               string                    `yaml:"az,omitempty"`
-	NodeMachineType  string                    `yaml:"nodeMachineType,omitempty"`
-	Labels           *map[string]string        `yaml:"labels,omitempty"`
-	VSphere          VSphereNodePool           `yaml:"vsphere,omitempty"`
-	Taints           *[]corev1.Taint           `yaml:"taints,omitempty"`
-	VMClass          string                    `yaml:"vmClass,omitempty"`
-	StorageClass     string                    `yaml:"storageClass,omitempty"`
-	Volumes          *[]tkgsv1alpha2.Volume    `yaml:"volumes,omitempty"`
-	TKR              tkgsv1alpha2.TKRReference `yaml:"tkr,omitempty"`
-	NodeDrainTimeout *metav1.Duration          `yaml:"nodeDrainTimeout,omitempty"`
+	Name                  string                    `yaml:"name"`
+	Replicas              *int32                    `yaml:"replicas,omitempty"`
+	AZ                    string                    `yaml:"az,omitempty"`
+	NodeMachineType       string                    `yaml:"nodeMachineType,omitempty"`
+	Labels                *map[string]string        `yaml:"labels,omitempty"`
+	VSphere               VSphereNodePool           `yaml:"vsphere,omitempty"`
+	Taints                *[]corev1.Taint           `yaml:"taints,omitempty"`
+	VMClass               string                    `yaml:"vmClass,omitempty"`
+	StorageClass          string                    `yaml:"storageClass,omitempty"`
+	Volumes               *[]tkgsv1alpha2.Volume    `yaml:"volumes,omitempty"`
+	TKR                   tkgsv1alpha2.TKRReference `yaml:"tkr,omitempty"`
+	NodeDrainTimeout      *metav1.Duration          `yaml:"nodeDrainTimeout,omitempty"`
+	BaseMachineDeployment string                    `yaml:"baseMachineDeployment,omitempty"`
 }
 
 // VSphereNodePool a struct describing properties necessary for a node pool on vSphere
@@ -133,6 +134,13 @@ func DoSetMachineDeployment(clusterClient clusterclient.Client, options *SetMach
 			update = true
 			break
 		}
+		if workerMDs[i].Name == options.BaseMachineDeployment {
+			baseMD = workerMDs[i]
+		}
+	}
+
+	if !update && (options.BaseMachineDeployment != "" && baseMD.Name != options.BaseMachineDeployment) {
+		return errors.Errorf("unable to find base machine deployment with name %s", options.BaseMachineDeployment)
 	}
 
 	baseMD.Annotations = map[string]string{}
@@ -147,6 +155,10 @@ func DoSetMachineDeployment(clusterClient clusterclient.Client, options *SetMach
 	}
 
 	if !update {
+		if options.BaseMachineDeployment == "" {
+			log.Warningf("Using machine deployment %s as baseline for new node pool", baseMD.Name)
+		}
+
 		kcTemplateName := baseMD.Spec.Template.Spec.Bootstrap.ConfigRef.Name
 		kcTemplate, err := retrieveKubeadmConfigTemplate(clusterClient, kcTemplateName, options.Namespace)
 		if err != nil {
