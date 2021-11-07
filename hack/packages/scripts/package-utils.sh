@@ -32,9 +32,9 @@ function generate_imgpkg_lock_output() {
 function create_single_package_bundle() {
 	path="${PROJECT_ROOT}/packages/${PACKAGE_REPOSITORY}/${PACKAGE_NAME}"
 	if [ -z "$PACKAGE_SUB_VERSION" ]; then
-      imagePackageVersion="v${REPO_VERSION}"
+      imagePackageVersion="${REPO_VERSION}"
   else
-      imagePackageVersion="v${REPO_VERSION}_${PACKAGE_SUB_VERSION}"
+      imagePackageVersion="${REPO_VERSION}_${PACKAGE_SUB_VERSION}"
   fi
 	make -C $path configure-package
 	mkdir -p "build/package-bundles/${PACKAGE_REPOSITORY}"
