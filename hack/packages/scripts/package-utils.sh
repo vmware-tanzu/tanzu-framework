@@ -10,10 +10,6 @@ TOOLS_DIR="${PROJECT_ROOT}/hack/tools"
 TOOLS_BIN_DIR="${TOOLS_DIR}/bin"
 PACKAGES_BUILD_ARTIFACTS_DIR="${PROJECT_ROOT}/build"
 
-if [[ ${REPO_VERSION:0:1} == "v" ]] ; then
-  REPO_VERSION=${REPO_VERSION:1}
-fi
-
 function generate_single_imgpkg_lock_output() {
 	path="${PROJECT_ROOT}/packages/${PACKAGE_REPOSITORY}/${PACKAGE_NAME}"
 	make -C $path configure-package
