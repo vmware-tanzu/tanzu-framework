@@ -1,7 +1,7 @@
 --CONTROLPLANE-MACHINE-COUNT: "NOTPROVIDED", "1","3","5"
 --WORKER-MACHINE-COUNT:       "NOTPROVIDED", "3"
 --CONTROLPLANE-SIZE:          "NOTPROVIDED", "i3.xlarge"
---TKR:                        "NOTPROVIDED", "v1.21.2+vmware.1-tkg.1-zshippable"
+--TKR:                        "NOTPROVIDED", "v1.21.5+vmware.1-tkg.1-zshippable"
 --NAMESPACE:                  "NOTPROVIDED", "default", "test"
 --SIZE:                       "NOTPROVIDED", "t3.medium"
 --WORKER-SIZE:                "NOTPROVIDED", "m5.xlarge"
@@ -14,7 +14,7 @@ NODE_MACHINE_TYPE: "NA","m5.large"
 
 _CNAME: "testcluster", "c1"
 _PLAN: "dev", "prod"
-_INFRA: "aws:v0.6.6"
+_INFRA: "aws:v1.0.0"
 
 BASTION_HOST_ENABLED: "true"
 NODE_STARTUP_TIMEOUT: "20m"
