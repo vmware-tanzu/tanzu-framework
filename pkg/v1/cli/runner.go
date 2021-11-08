@@ -14,8 +14,6 @@ import (
 	"strings"
 
 	"github.com/aunum/log"
-
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
 
 // Runner is a plugin runner.
@@ -41,9 +39,6 @@ func NewRunner(name, pluginAbsPath string, args []string, options ...Option) *Ru
 
 // Run runs a plugin.
 func (r *Runner) Run(ctx context.Context) error {
-	// configures plugin specific environment variables
-	// defined under tanzu config file
-	config.ConfigureEnvVariables(r.name)
 	return r.runStdOutput(ctx, r.pluginPath())
 }
 

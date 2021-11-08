@@ -556,19 +556,18 @@ func GetDiscoverySources(serverName string) []configv1alpha1.PluginDiscovery {
 // GetEnvConfigurations returns a map of configured environment variables
 // to values as part of tanzu configuration file
 // it returns nil if configuration is not yet defined
-func GetEnvConfigurations(plugin string) configv1alpha1.EnvMap {
+func GetEnvConfigurations() map[string]string {
 	cfg, err := GetClientConfig()
 	if err != nil {
 		return nil
 	}
-	return cfg.GetEnvConfigurations(plugin)
+	return cfg.GetEnvConfigurations()
 }
 
 // ConfigureEnvVariables reads and configures provided environment variables
-// as part of tanzu configuration file based on the provided plugin name
-// plugin can be a name of the plugin or 'global' if it generic variable
-func ConfigureEnvVariables(plugin string) {
-	envMap := GetEnvConfigurations(plugin)
+// as part of tanzu configuration file
+func ConfigureEnvVariables() {
+	envMap := GetEnvConfigurations()
 	if envMap == nil {
 		return
 	}
