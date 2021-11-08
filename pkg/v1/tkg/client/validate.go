@@ -582,7 +582,7 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
-	if err = c.ConfigureAndValidateNameserverConfiguration(); err != nil {
+	if err = c.ConfigureAndValidateNameserverConfiguration(TkgLabelClusterRoleManagement); err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
@@ -1768,16 +1768,16 @@ func getDockerBridgeNetworkCidr() (string, error) {
 }
 
 // ConfigureAndValidateNameserverConfiguration validates the configuration of the control plane node and workload node nameservers
-func (c *TkgClient) ConfigureAndValidateNameserverConfiguration() error {
-	err := c.validateNameservers(constants.ConfigVariableControlPlaneNodeNameservers)
+func (c *TkgClient) ConfigureAndValidateNameserverConfiguration(clusterRole string) error {
+	err := c.validateNameservers(constants.ConfigVariableControlPlaneNodeNameservers, clusterRole)
 	if err != nil {
 		return err
 	}
 
-	return c.validateNameservers(constants.ConfigVariableWorkerNodeNameservers)
+	return c.validateNameservers(constants.ConfigVariableWorkerNodeNameservers, clusterRole)
 }
 
-func (c *TkgClient) validateNameservers(nameserverConfigVariable string) error {
+func (c *TkgClient) validateNameservers(nameserverConfigVariable, clusterRole string) error {
 	// ignoring error because IPFamily is an optional configuration
 	// if not set Get will return an empty string
 	ipFamily, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableIPFamily)
@@ -1788,6 +1788,18 @@ func (c *TkgClient) validateNameservers(nameserverConfigVariable string) error {
 	nameservers, err := c.TKGConfigReaderWriter().Get(nameserverConfigVariable)
 	if err != nil {
 		return nil
+	}
+
+	if clusterRole == TkgLabelClusterRoleManagement && !c.IsFeatureActivated(config.FeatureFlagManagementClusterCustomNameservers) {
+		return fmt.Errorf("option %s is set to %q, but custom nameserver support is not enabled (because it is not fully functional). To enable custom nameservers, run the command: tanzu config set %s true",
+			nameserverConfigVariable,
+			nameservers,
+			config.FeatureFlagManagementClusterCustomNameservers)
+	} else if clusterRole == TkgLabelClusterRoleWorkload && !c.IsFeatureActivated(config.FeatureFlagClusterCustomNameservers) {
+		return fmt.Errorf("option %s is set to %q, but custom nameserver support is not enabled (because it is not fully functional). To enable custom nameservers, run the command: tanzu config set %s true",
+			nameserverConfigVariable,
+			nameservers,
+			config.FeatureFlagClusterCustomNameservers)
 	}
 
 	invalidNameservers := []string{}

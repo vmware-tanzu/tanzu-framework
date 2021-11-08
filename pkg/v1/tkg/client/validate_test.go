@@ -915,6 +915,19 @@ var _ = Describe("Validate", func() {
 			})
 
 			Context("Control Plane Node Nameservers", func() {
+				Context("Custom Nameserver feature gate is false", func() {
+					BeforeEach(func() {
+						featureFlagClient.IsConfigFeatureActivatedReturns(false, nil)
+						tkgConfigReaderWriter.Set(constants.ConfigVariableControlPlaneNodeNameservers, "8.8.8.8")
+					})
+
+					It("should return an error", func() {
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).To(HaveOccurred())
+						Expect(validationError.Error()).To(ContainSubstring("option CONTROL_PLANE_NODE_NAMESERVERS is set to \"8.8.8.8\", but custom nameserver support is not enabled (because it is not fully functional). To enable custom nameservers, run the command: tanzu config set features.management-cluster.custom-nameservers true"))
+					})
+				})
+
 				Context("when CONTROL_PLANE_NODE_NAMESERVERS is a valid set of IPv4 address", func() {
 					It("should pass validation", func() {
 						tkgConfigReaderWriter.Set(constants.ConfigVariableControlPlaneNodeNameservers, "8.8.8.8,8.8.4.4")
@@ -989,6 +1002,19 @@ var _ = Describe("Validate", func() {
 				})
 			})
 			Context("Worker Node Nameservers", func() {
+				Context("Custom Nameserver feature gate is false", func() {
+					BeforeEach(func() {
+						featureFlagClient.IsConfigFeatureActivatedReturns(false, nil)
+						tkgConfigReaderWriter.Set(constants.ConfigVariableWorkerNodeNameservers, "8.8.8.8")
+					})
+
+					It("should return an error", func() {
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).To(HaveOccurred())
+						Expect(validationError.Error()).To(ContainSubstring("option WORKER_NODE_NAMESERVERS is set to \"8.8.8.8\", but custom nameserver support is not enabled (because it is not fully functional). To enable custom nameservers, run the command: tanzu config set features.management-cluster.custom-nameservers true"))
+					})
+				})
+
 				Context("when WORKER_NODE_NAMESERVERS is a valid set of IPv4 address", func() {
 					It("should pass validation", func() {
 						tkgConfigReaderWriter.Set(constants.ConfigVariableWorkerNodeNameservers, "8.8.8.8,8.8.4.4")
