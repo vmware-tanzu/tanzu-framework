@@ -86,6 +86,16 @@ func (c *ClientConfig) IsConfigFeatureActivated(featurePath string) (bool, error
 	return booleanValue, nil
 }
 
+// GetEnvConfigurations returns a map of environment variables to values
+// it returns nil if configuration is not yet defined
+func (c *ClientConfig) GetEnvConfigurations(plugin string) EnvMap {
+	if c.ClientOptions == nil || c.ClientOptions.Env == nil ||
+		c.ClientOptions.Env[plugin] == nil {
+		return nil
+	}
+	return c.ClientOptions.Env[plugin]
+}
+
 // SplitFeaturePath splits a features path into the pluginName and the featureName
 // For example "features.management-cluster.dual-stack" returns "management-cluster", "dual-stack"
 // An error results from a malformed path, including any path that does not start with "features."
