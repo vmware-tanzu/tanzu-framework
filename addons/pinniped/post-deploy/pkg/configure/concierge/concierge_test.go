@@ -127,7 +127,6 @@ func TestCreateOrUpdateJWTAuthenticator(t *testing.T) {
 				Clientset: clientset,
 			}.CreateOrUpdateJWTAuthenticator(
 				context.Background(),
-				jwtAuthenticator.Namespace,
 				jwtAuthenticator.Name,
 				jwtAuthenticator.Spec.Issuer,
 				jwtAuthenticator.Spec.Audience,

@@ -292,7 +292,7 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p *Pa
 
 		// create Pinniped concierge JWTAuthenticator
 		caData := base64.StdEncoding.EncodeToString(secret.Data["ca.crt"])
-		if err = conciergeConfigurator.CreateOrUpdateJWTAuthenticator(ctx, vars.ConciergeNamespace,
+		if err = conciergeConfigurator.CreateOrUpdateJWTAuthenticator(ctx,
 			p.JWTAuthenticatorName, supervisorSvcEndpoint, supervisorSvcEndpoint, caData); err != nil {
 			zap.S().Error(err)
 			return err
@@ -310,7 +310,7 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p *Pa
 	} else if p.ClusterType == constants.TKGWorkloadClusterType {
 		zap.S().Info("Workload cluster detected")
 
-		if err = conciergeConfigurator.CreateOrUpdateJWTAuthenticator(ctx, vars.ConciergeNamespace, p.JWTAuthenticatorName, p.SupervisorSvcEndpoint, p.ClusterName, p.SupervisorCABundleData); err != nil {
+		if err = conciergeConfigurator.CreateOrUpdateJWTAuthenticator(ctx, p.JWTAuthenticatorName, p.SupervisorSvcEndpoint, p.ClusterName, p.SupervisorCABundleData); err != nil {
 			// on workload cluster, we only create or update JWTAuthenticator
 			// SupervisorSvcEndpoint will be passed in on workload cluster
 			zap.S().Error(err)
