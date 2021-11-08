@@ -54,4 +54,3 @@ overrides:
     newImage: ""
   - image: tanzu-cli-plugins/secret-windows-amd64:latest
     newImage: ""
-
