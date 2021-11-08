@@ -227,7 +227,7 @@ func TestRecreateIDPForDex(t *testing.T) {
 				return kubedynamicfake.NewSimpleDynamicClient(scheme)
 			},
 			wantError: fmt.Sprintf(
-				`could not get oidcidentityprovider %s/%s: oidcidentityproviders.idp.supervisor.some.marlin.api.group.suffix.com "upstream-oidc-identity-provider" not found`,
+				`could not get oidcidentityprovider %s/%s: oidcidentityproviders.idp.supervisor.pinniped.dev "upstream-oidc-identity-provider" not found`,
 				oidcIdentityProvider.Namespace,
 				oidcIdentityProvider.Name,
 			),
@@ -300,7 +300,7 @@ func TestRecreateIDPForDex(t *testing.T) {
 				return c
 			},
 			wantError: fmt.Sprintf(
-				`could not create oidcidentityprovider %s/%s: oidcidentityproviders.idp.supervisor.some.marlin.api.group.suffix.com "upstream-oidc-identity-provider" already exists`,
+				`could not create oidcidentityprovider %s/%s: oidcidentityproviders.idp.supervisor.pinniped.dev "upstream-oidc-identity-provider" already exists`,
 				oidcIdentityProvider.Namespace,
 				oidcIdentityProvider.Name,
 			),

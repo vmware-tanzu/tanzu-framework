@@ -29,10 +29,10 @@ func TestCreateOrUpdatePinnipedInfo(t *testing.T) {
 		name      = "pinniped-info"
 	)
 	var (
-		clusterName    = "some-cluster-name"
-		issuer         = "some-issuer"
-		issuerCA       = "some-issuer-ca-bundle-data"
-		emptyString    = ""
+		clusterName = "some-cluster-name"
+		issuer      = "some-issuer"
+		issuerCA    = "some-issuer-ca-bundle-data"
+		emptyString = ""
 	)
 	managementClusterPinnipedInfo := supervisor.PinnipedInfo{
 		MgmtClusterName:          &clusterName,
