@@ -56,7 +56,6 @@ type Parameters struct {
 	DexSvcName               string
 	DexCertName              string
 	DexConfigMapName         string
-	PinnipedAPIGroupSuffix   string
 	ConciergeIsClusterScoped bool
 }
 
@@ -203,7 +202,6 @@ func TKGAuthentication(c Clients) error {
 		DexSvcName:               vars.DexSvcName,
 		DexCertName:              vars.DexCertName,
 		DexConfigMapName:         vars.DexConfigMapName,
-		PinnipedAPIGroupSuffix:   vars.PinnipedAPIGroupSuffix,
 		ConciergeIsClusterScoped: vars.ConciergeIsClusterScoped,
 	}); err != nil {
 		// logging has been done inside the function
@@ -304,7 +302,6 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p *Pa
 			MgmtClusterName:          &p.ClusterName,
 			Issuer:                   &supervisorSvcEndpoint,
 			IssuerCABundleData:       &caData,
-			ConciergeAPIGroupSuffix:  p.PinnipedAPIGroupSuffix,
 			ConciergeIsClusterScoped: p.ConciergeIsClusterScoped,
 		}, c.K8SClientset); err != nil {
 			return err
@@ -321,7 +318,6 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p *Pa
 
 		// create configmap for Pinniped info
 		if err := createOrUpdatePinnipedInfo(ctx, supervisor.PinnipedInfo{
-			ConciergeAPIGroupSuffix:  p.PinnipedAPIGroupSuffix,
 			ConciergeIsClusterScoped: p.ConciergeIsClusterScoped,
 		}, c.K8SClientset); err != nil {
 			return err

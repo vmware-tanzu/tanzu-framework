@@ -82,7 +82,6 @@ func TestPinniped(t *testing.T) {
 			"cluster_name":                "some-pinniped-info-management-cluster-name",
 			"issuer":                      serviceHTTPSEndpoint(supervisorService),
 			"issuer_ca_bundle_data":       base64.StdEncoding.EncodeToString(supervisorCertificateSecret.Data["ca.crt"]),
-			"concierge_api_group_suffix":  apiGroupSuffix,
 			"concierge_is_cluster_scoped": "true",
 		},
 	}
@@ -93,7 +92,6 @@ func TestPinniped(t *testing.T) {
 			Name:      "pinniped-info",
 		},
 		Data: map[string]string{
-			"concierge_api_group_suffix":  apiGroupSuffix,
 			"concierge_is_cluster_scoped": "true",
 		},
 	}
@@ -198,7 +196,6 @@ func TestPinniped(t *testing.T) {
 				SupervisorCertNamespace:  supervisorCertificate.Namespace,
 				SupervisorCertName:       supervisorCertificate.Name,
 				JWTAuthenticatorName:     jwtAuthenticator.Name,
-				PinnipedAPIGroupSuffix:   apiGroupSuffix,
 				ConciergeIsClusterScoped: true,
 			},
 			wantKubeClientActions: []kubetesting.Action{
@@ -254,7 +251,6 @@ func TestPinniped(t *testing.T) {
 				SupervisorSvcEndpoint:    jwtAuthenticator.Spec.Issuer,
 				SupervisorCABundleData:   jwtAuthenticator.Spec.TLS.CertificateAuthorityData,
 				JWTAuthenticatorName:     jwtAuthenticator.Name,
-				PinnipedAPIGroupSuffix:   apiGroupSuffix,
 				ConciergeIsClusterScoped: true,
 			},
 			wantKubeClientActions: []kubetesting.Action{
