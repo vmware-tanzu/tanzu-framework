@@ -36,7 +36,6 @@ type PinnipedInfo struct {
 	MgmtClusterName          *string `json:"cluster_name,omitempty"`
 	Issuer                   *string `json:"issuer,omitempty"`
 	IssuerCABundleData       *string `json:"issuer_ca_bundle_data,omitempty"`
-	ConciergeAPIGroupSuffix  string  `json:"concierge_api_group_suffix"`
 	ConciergeIsClusterScoped bool    `json:"concierge_is_cluster_scoped,string"`
 }
 
