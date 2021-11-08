@@ -10,6 +10,10 @@ TOOLS_DIR="${PROJECT_ROOT}/hack/tools"
 TOOLS_BIN_DIR="${TOOLS_DIR}/bin"
 PACKAGES_BUILD_ARTIFACTS_DIR="${PROJECT_ROOT}/build"
 
+if [[ ${REPO_VERSION:0:1} == "v" ]] ; then
+  REPO_VERSION=${REPO_VERSION:1}
+fi
+
 function generate_single_imgpkg_lock_output() {
 	path="${PROJECT_ROOT}/packages/${PACKAGE_REPOSITORY}/${PACKAGE_NAME}"
 	make -C $path configure-package
@@ -65,8 +69,7 @@ function create_package_bundles() {
 
 function generate_package_bundles_sha256() {
   cp "${PROJECT_ROOT}/packages/package-values.yaml" "${PROJECT_ROOT}/packages/package-values-sha256.yaml"
-  while IFS='|' read -r name version packageSubVersion; do
-    path="${PROJECT_ROOT}/packages/${PACKAGE_REPOSITORY}/${name}"
+  while IFS='|' read -r name version packageSubVersion path; do
     if [ "$packageSubVersion" == null -o "$packageSubVersion" == "" ]; then
       packageVersion="${REPO_VERSION}"
       imagePackageVersion="v${REPO_VERSION}"
@@ -77,10 +80,11 @@ function generate_package_bundles_sha256() {
     make -C $path configure-package
     "${TOOLS_BIN_DIR}"/imgpkg push -b "${1}/$name:$imagePackageVersion" --file "$path/bundle" --lock-output "$name-$packageVersion-lock-output.yaml"
     "${TOOLS_BIN_DIR}"/yq e '.bundle | .image' "$name-$packageVersion-lock-output.yaml" | sed "s,${1}/$name@sha256:, ,g" | xargs -I '{}' sed -ie "s,${name}:${version},{},g" "${PROJECT_ROOT}/packages/package-values-sha256.yaml"
+    "${TOOLS_BIN_DIR}"/yq e '.bundle | .image' "$name-$packageVersion-lock-output.yaml" | sed "s,${1}/$name@sha256:, ,g" | xargs -I '{}' sed -ie "s,${name}:${REPO_VERSION},{},g" "${PROJECT_ROOT}/packages/package-values-sha256.yaml"
     [ "$packageSubVersion" == null -o "$packageSubVersion" == "" ] && echo "${REPO_VERSION}" | sed "s,${1}/$name@version:, ,g" | xargs -I '{}' sed -ie "s,${version},{},g" "${PROJECT_ROOT}/packages/package-values-sha256.yaml"
     rm -f "$name-$packageVersion-lock-output.yaml" "${PROJECT_ROOT}/packages/package-values-sha256.yamle"
     make -C $path reset-package
-  done < <("${TOOLS_BIN_DIR}"/yq e ".${PACKAGE_REPOSITORY}PackageRepository.packages[] | .name + \"|\" + .version + \"|\" + .packageSubVersion" "${PROJECT_ROOT}/packages/package-values.yaml")
+  done < <("${TOOLS_BIN_DIR}"/yq e ".${PACKAGE_REPOSITORY}PackageRepository.packages[] | .name + \"|\" + .version + \"|\" + .packageSubVersion + \"|\" + .path" "${PROJECT_ROOT}/packages/package-values.yaml")
 }
 
 function create_package_repo_bundles() {
@@ -114,8 +118,8 @@ function create_package_repo_bundles() {
   done < <("${TOOLS_BIN_DIR}"/yq e ".${PACKAGE_REPOSITORY}PackageRepository.packages[] | .name + \"|\" + .version + \"|\" + .packageSubVersion + \"|\" + .path" "${PACKAGE_VALUES_FILE}")
 
   pushd "${PACKAGES_BUILD_ARTIFACTS_DIR}/package-repo-bundles"
-  tar -czvf "tanzu-framework-${PACKAGE_REPOSITORY}-repo-${REPO_VERSION}.tar.gz" -C "${PACKAGE_REPOSITORY}" .
-  mv "tanzu-framework-${PACKAGE_REPOSITORY}-repo-${REPO_VERSION}.tar.gz" "${PACKAGE_REPOSITORY}"/
+  tar -czvf "tanzu-framework-${PACKAGE_REPOSITORY}-repo-v${REPO_VERSION}.tar.gz" -C "${PACKAGE_REPOSITORY}" .
+  mv "tanzu-framework-${PACKAGE_REPOSITORY}-repo-v${REPO_VERSION}.tar.gz" "${PACKAGE_REPOSITORY}"/
   popd
 }
 
@@ -129,28 +133,27 @@ function trivy_scan() {
 function push_package_bundles() {
   while IFS='|' read -r name version packageSubVersion; do
     if [ "$packageSubVersion" == null -o "$packageSubVersion" == "" ]; then
-      packageVersion="${REPO_VERSION}"
       imagePackageVersion="v${REPO_VERSION}"
     else
-      packageVersion="$REPO_VERSION+$packageSubVersion"
       imagePackageVersion="v${REPO_VERSION}_${packageSubVersion}"
     fi
-    mkdir -p "${PACKAGES_BUILD_ARTIFACTS_DIR}/package-bundles/${PACKAGE_REPOSITORY}/${name}-${packageVersion}"
-    tar -xvf "${PACKAGES_BUILD_ARTIFACTS_DIR}/package-bundles/${PACKAGE_REPOSITORY}/${name}-${imagePackageVersion}.tar.gz" -C "${PACKAGES_BUILD_ARTIFACTS_DIR}/package-bundles/${PACKAGE_REPOSITORY}/${name}-${packageVersion}"
-    "${TOOLS_BIN_DIR}"/imgpkg push -b "${REGISTRY}/${name}:${imagePackageVersion}" --file "${PACKAGES_BUILD_ARTIFACTS_DIR}/package-bundles/${PACKAGE_REPOSITORY}/${name}-${packageVersion}"
-    rm -rf "${PACKAGES_BUILD_ARTIFACTS_DIR}/package-bundles/${PACKAGE_REPOSITORY}/${name}-${packageVersion}"
+    mkdir -p "${PACKAGES_BUILD_ARTIFACTS_DIR}/package-bundles/${PACKAGE_REPOSITORY}/${name}-${imagePackageVersion}"
+    tar -xvf "${PACKAGES_BUILD_ARTIFACTS_DIR}/package-bundles/${PACKAGE_REPOSITORY}/${name}-${imagePackageVersion}.tar.gz" -C "${PACKAGES_BUILD_ARTIFACTS_DIR}/package-bundles/${PACKAGE_REPOSITORY}/${name}-${imagePackageVersion}"
+    "${TOOLS_BIN_DIR}"/imgpkg push -b "${REGISTRY}/${name}:${imagePackageVersion}" --file "${PACKAGES_BUILD_ARTIFACTS_DIR}/package-bundles/${PACKAGE_REPOSITORY}/${name}-${imagePackageVersion}"
+    rm -rf "${PACKAGES_BUILD_ARTIFACTS_DIR}/package-bundles/${PACKAGE_REPOSITORY}/${name}-${imagePackageVersion}"
   done < <("${TOOLS_BIN_DIR}"/yq e ".${PACKAGE_REPOSITORY}PackageRepository.packages[] | .name + \"|\" + .version + \"|\" + .packageSubVersion" "${PROJECT_ROOT}/packages/package-values.yaml")
 }
 
 function push_package_repo_bundles() {
-  mkdir -p "${PACKAGES_BUILD_ARTIFACTS_DIR}/package-repo-bundles/${PACKAGE_REPOSITORY}/tanzu-framework-${PACKAGE_REPOSITORY}-repo-${REPO_VERSION}"
-  tar -xvf "${PACKAGES_BUILD_ARTIFACTS_DIR}/package-repo-bundles/${PACKAGE_REPOSITORY}/tanzu-framework-${PACKAGE_REPOSITORY}-repo-${REPO_VERSION}.tar.gz" -C "${PACKAGES_BUILD_ARTIFACTS_DIR}/package-repo-bundles/${PACKAGE_REPOSITORY}/tanzu-framework-${PACKAGE_REPOSITORY}-repo-${REPO_VERSION}"
-  "${TOOLS_BIN_DIR}"/imgpkg push -b "${REGISTRY}/${PACKAGE_REPOSITORY}:v${REPO_VERSION}" --file "${PACKAGES_BUILD_ARTIFACTS_DIR}/package-repo-bundles/${PACKAGE_REPOSITORY}/tanzu-framework-${PACKAGE_REPOSITORY}-repo-${REPO_VERSION}" --lock-output "${PACKAGES_BUILD_ARTIFACTS_DIR}/package-repo-bundles/${PACKAGE_REPOSITORY}/tanzu-framework-${PACKAGE_REPOSITORY}-repo-${REPO_VERSION}/tanzu-framework-${PACKAGE_REPOSITORY}-repo-${REPO_VERSION}-lock-output.yaml"
+  REPO_BUNDLE_VERSION="v${REPO_VERSION}"
+  mkdir -p "${PACKAGES_BUILD_ARTIFACTS_DIR}/package-repo-bundles/${PACKAGE_REPOSITORY}/tanzu-framework-${PACKAGE_REPOSITORY}-repo-${REPO_BUNDLE_VERSION}"
+  tar -xvf "${PACKAGES_BUILD_ARTIFACTS_DIR}/package-repo-bundles/${PACKAGE_REPOSITORY}/tanzu-framework-${PACKAGE_REPOSITORY}-repo-${REPO_BUNDLE_VERSION}.tar.gz" -C "${PACKAGES_BUILD_ARTIFACTS_DIR}/package-repo-bundles/${PACKAGE_REPOSITORY}/tanzu-framework-${PACKAGE_REPOSITORY}-repo-${REPO_BUNDLE_VERSION}"
+  "${TOOLS_BIN_DIR}"/imgpkg push -b "${REGISTRY}/${PACKAGE_REPOSITORY}:${REPO_BUNDLE_VERSION}" --file "${PACKAGES_BUILD_ARTIFACTS_DIR}/package-repo-bundles/${PACKAGE_REPOSITORY}/tanzu-framework-${PACKAGE_REPOSITORY}-repo-${REPO_BUNDLE_VERSION}" --lock-output "${PACKAGES_BUILD_ARTIFACTS_DIR}/package-repo-bundles/${PACKAGE_REPOSITORY}/tanzu-framework-${PACKAGE_REPOSITORY}-repo-${REPO_BUNDLE_VERSION}/tanzu-framework-${PACKAGE_REPOSITORY}-repo-${REPO_BUNDLE_VERSION}-lock-output.yaml"
 
-  REPO_URL=$("${TOOLS_BIN_DIR}"/yq e ".bundle.image" "${PACKAGES_BUILD_ARTIFACTS_DIR}/package-repo-bundles/${PACKAGE_REPOSITORY}/tanzu-framework-${PACKAGE_REPOSITORY}-repo-${REPO_VERSION}/tanzu-framework-${PACKAGE_REPOSITORY}-repo-${REPO_VERSION}-lock-output.yaml")
+  REPO_URL=$("${TOOLS_BIN_DIR}"/yq e ".bundle.image" "${PACKAGES_BUILD_ARTIFACTS_DIR}/package-repo-bundles/${PACKAGE_REPOSITORY}/tanzu-framework-${PACKAGE_REPOSITORY}-repo-${REPO_BUNDLE_VERSION}/tanzu-framework-${PACKAGE_REPOSITORY}-repo-${REPO_BUNDLE_VERSION}-lock-output.yaml")
   REPO_VERSION_SHA=$(echo "${REPO_URL}" | cut -d ':' -f '2')
-  "${TOOLS_BIN_DIR}"/ytt -f hack/packages/templates/repo-utils/packagerepo-tmpl.yaml -f hack/packages/templates/repo-utils/package-helpers.lib.yaml -f "${PROJECT_ROOT}/packages/package-values-sha256.yaml" -v packageRepository="${PACKAGE_REPOSITORY}" -v "${PACKAGE_REPOSITORY}PackageRepository.registry=${REGISTRY}" -v "${PACKAGE_REPOSITORY}PackageRepository.sha256=${REPO_VERSION_SHA}" > "${PACKAGES_BUILD_ARTIFACTS_DIR}/package-repo-bundles/${PACKAGE_REPOSITORY}/tanzu-framework-${PACKAGE_REPOSITORY}-repo-${REPO_VERSION}.yaml"
-  rm -rf "${PACKAGES_BUILD_ARTIFACTS_DIR}/package-repo-bundles/${PACKAGE_REPOSITORY}/tanzu-framework-${PACKAGE_REPOSITORY}-repo-${REPO_VERSION}"
+  "${TOOLS_BIN_DIR}"/ytt -f hack/packages/templates/repo-utils/packagerepo-tmpl.yaml -f hack/packages/templates/repo-utils/package-helpers.lib.yaml -f "${PROJECT_ROOT}/packages/package-values-sha256.yaml" -v packageRepository="${PACKAGE_REPOSITORY}" -v "${PACKAGE_REPOSITORY}PackageRepository.registry=${REGISTRY}" -v "${PACKAGE_REPOSITORY}PackageRepository.sha256=${REPO_VERSION_SHA}" > "${PACKAGES_BUILD_ARTIFACTS_DIR}/package-repo-bundles/${PACKAGE_REPOSITORY}/tanzu-framework-${PACKAGE_REPOSITORY}-repo-${REPO_BUNDLE_VERSION}.yaml"
+  rm -rf "${PACKAGES_BUILD_ARTIFACTS_DIR}/package-repo-bundles/${PACKAGE_REPOSITORY}/tanzu-framework-${PACKAGE_REPOSITORY}-repo-${REPO_BUNDLE_VERSION}"
 }
 
 "$@"
