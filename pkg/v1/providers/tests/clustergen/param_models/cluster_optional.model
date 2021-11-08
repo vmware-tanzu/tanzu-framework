@@ -138,7 +138,6 @@ IDENTITY_MANAGEMENT_TYPE: "none", "oidc", "ldap"
 # pass --VSPHERE-CONTROLPLANE-ENDPOINT flag only for vSphere provider
 IF [_INFRA] LIKE "\"vsphere:*" THEN [--VSPHERE-CONTROLPLANE-ENDPOINT] = "\"10.10.10.10\"";
 IF [_INFRA] NOT LIKE "\"vsphere:*" THEN [--VSPHERE-CONTROLPLANE-ENDPOINT] = "\"NOTPROVIDED\"";
-
 IF [_INFRA] NOT LIKE "\"vsphere:*" THEN [OS_NAME] <> "\"photon\"";
 IF [_INFRA] NOT LIKE "\"vsphere:*" THEN [CONTROL_PLANE_NODE_NAMESERVERS] = "\"\"";
 IF [_INFRA] NOT LIKE "\"vsphere:*" THEN [WORKER_NODE_NAMESERVERS] = "\"\"";

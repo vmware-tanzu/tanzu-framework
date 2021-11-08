@@ -41,7 +41,7 @@ spec:
     - name: vip_leaseduration
       value: "30"
     - name: vip_renewdeadline
-      value: "20"
+      value: "999"
     - name: vip_retryperiod
       value: "4"
     image: #@ "{}/{}:{}".format(get_image_repo_for_component(bomData.components["kube-vip"][0].images.kubeVipImage), bomData.components["kube-vip"][0].images.kubeVipImage.imagePath, bomData.components["kube-vip"][0].images.kubeVipImage.tag)

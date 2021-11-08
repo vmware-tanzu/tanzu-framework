@@ -243,7 +243,7 @@ spec:
       #@ if data.values.AZURE_ENABLE_NODE_DATA_DISK == True:
       #@overlay/match missing_ok=True
       dataDisks:
-      - diskSizeGB: #@ data.values.AZURE_NODE_DATA_DISK_SIZE_GIB
+      - diskSizeGB: 100
         lun: 0
         nameSuffix: nodedisk
       #@ end

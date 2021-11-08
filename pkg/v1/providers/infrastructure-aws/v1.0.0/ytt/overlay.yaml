@@ -153,7 +153,7 @@ spec:
       ami:
         id: #@ data.values.AWS_AMI_ID
       rootVolume:
-        size: #@ int(data.values.AWS_NODE_OS_DISK_SIZE_GIB) or 80
+        size: 100
 #@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate", "metadata":{"name": "${CLUSTER_NAME}-md-0"}})
 ---
 apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
