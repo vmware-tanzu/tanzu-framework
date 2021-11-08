@@ -28,8 +28,8 @@ managementPackageRepository:
       version: latest
       #! Gets replaced with imgpkg sha256 at build, this should be name:version
       sha256: "featuregates:latest"
-    - name: cliplugins
-      displayName: cliplugins
+    - name: core-management-cliplugins
+      displayName: core-management-cliplugins
       #! Relative path to package bundle
       path: packages/management/core-management-cliplugins
       domain: tanzu.vmware.com
