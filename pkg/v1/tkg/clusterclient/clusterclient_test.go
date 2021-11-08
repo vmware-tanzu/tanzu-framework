@@ -5,6 +5,7 @@ package clusterclient_test
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 	rt "runtime"
@@ -890,7 +891,59 @@ var _ = Describe("Cluster Client", func() {
 			})
 		})
 	})
+	Describe("ScalePacificClusterControlPlane", func() {
+		var controlPlaneCount int32 = 1
+		var clusterName string = "fake-cluster-name"
+		var namespace string = "fake-namespace"
+		BeforeEach(func() {
+			reInitialize()
+			kubeConfigPath := getConfigFilePath("config1.yaml")
+			clstClient, err = NewClient(kubeConfigPath, "", clusterClientOptions)
+			Expect(err).NotTo(HaveOccurred())
+		})
+		JustBeforeEach(func() {
+			err = clstClient.ScalePacificClusterControlPlane(clusterName, namespace, controlPlaneCount)
+		})
+		Context("When getting Pacific cluster object fails", func() {
+			BeforeEach(func() {
+				clientset.GetReturns(errors.New("fake-error-while-get"))
+			})
 
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring(fmt.Sprintf(`failed to get TKC object in namespace: '%s'`, namespace)))
+			})
+		})
+		Context("When clientset Patch return error", func() {
+			BeforeEach(func() {
+				clientset.GetReturns(nil)
+				clientset.PatchReturns(errors.New("fake-error-while-patch"))
+			})
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("unable to patch the cluster controlPlane count"))
+			})
+		})
+		Context("When clientset Get is successful but Patch return error", func() {
+			var gotPatch string
+			BeforeEach(func() {
+				controlPlaneCount = 5
+				clientset.GetReturns(nil)
+				clientset.PatchCalls(func(ctx context.Context, cluster crtclient.Object, patch crtclient.Patch, patchoptions ...crtclient.PatchOption) error {
+					patchBytes, err := patch.Data(cluster)
+					Expect(err).NotTo(HaveOccurred())
+					gotPatch = string(patchBytes)
+					return nil
+				})
+			})
+			It("should return not an error", func() {
+				Expect(err).ToNot(HaveOccurred())
+				payloadFormatStr := `[{"op":"replace","path":"/spec/topology/controlPlane/replicas","value":%d}]`
+				payloadBytes := fmt.Sprintf(payloadFormatStr, controlPlaneCount)
+				Expect(gotPatch).To(Equal(payloadBytes))
+			})
+		})
+	})
 	Describe("DeactivateTanzuKubernetesReleases", func() {
 		BeforeEach(func() {
 			reInitialize()

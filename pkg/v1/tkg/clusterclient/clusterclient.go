@@ -1603,8 +1603,11 @@ func (c *client) ScalePacificClusterControlPlane(clusterName, namespace string, 
 	if err != nil {
 		return err
 	}
-	patchPacificControlPlaneCount := fmt.Sprintf("{\"spec\":{ \"topology\":{\"controlPlane\":{\"count\": %v}}}}", controlPlaneCount)
-	err = c.PatchResource(tkcObj, clusterName, namespace, patchPacificControlPlaneCount, types.MergePatchType, nil)
+
+	payloadFormatStr := `[{"op":"replace","path":"/spec/topology/controlPlane/replicas","value":%d}]`
+	payloadBytes := fmt.Sprintf(payloadFormatStr, controlPlaneCount)
+	log.V(3).Infof("Applying TanzuKubernetesCluster controlplane replicas update patch: %s", payloadBytes)
+	err = c.PatchResource(tkcObj, clusterName, namespace, payloadBytes, types.JSONPatchType, nil)
 	if err != nil {
 		return errors.Wrap(err, "unable to patch the cluster controlPlane count")
 	}
