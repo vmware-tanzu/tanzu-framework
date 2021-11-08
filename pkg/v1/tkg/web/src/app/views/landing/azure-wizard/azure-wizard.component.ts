@@ -162,6 +162,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
                 ["vnetName", "vnetForm", "vnetNameExisting"],
                 ["vnetCidr", "vnetForm", "vnetCidrBlock"],
                 ["controlPlaneSubnet", "vnetForm", "controlPlaneSubnet"],
+                ["controlPlaneSubnetCidr", "vnetForm", "controlPlaneSubnetCidr"],
                 ["workerNodeSubnet", "vnetForm", "workerNodeSubnet"],
             ];
         }
