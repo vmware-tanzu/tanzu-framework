@@ -205,6 +205,8 @@ func (c *TkgClient) DoUpgradeAddon(regionalClusterClient clusterclient.Client, /
 			}
 			crsDisabledAddon = true
 			ccOptions.TargetNamespace = constants.TkrNamespace
+		case "capabilities/capabilities-controller":
+			crsDisabledAddon = true
 		default:
 			return errors.Errorf("upgrade of '%s' component is not supported", addonName)
 		}
