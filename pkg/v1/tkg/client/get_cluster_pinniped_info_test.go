@@ -49,8 +49,6 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 		tlsServerWLCluster                *ghttp.Server
 		issuer                            string
 		issuerCA                          string
-		apiGroupSuffix                    string
-		apiGroupSuffixWLCluster           string
 		conciergeIsClusterScoped          bool
 		conciergeIsClusterScopedWLCluster bool
 		servCert                          *x509.Certificate
@@ -60,7 +58,6 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 	var (
 		fakeIssuer         = "https://fakeissuer.com"
 		fakeCAData         = "fakeCAData"
-		fakeAPIGroupSuffix = "tuna.io"
 	)
 
 	BeforeEach(func() {
@@ -151,14 +148,12 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				var clusterInfo, pinnipedInfo string
 				issuer = fakeIssuer
 				issuerCA = fakeCAData
-				apiGroupSuffix = fakeAPIGroupSuffix
 				conciergeIsClusterScoped = false
 				clusterInfo = fakehelper.GetFakeClusterInfo(endpoint, servCert)
 				pinnipedInfo = fakehelper.GetFakePinnipedInfo(fakehelper.PinnipedInfo{
 					ClusterName:              mgmtClusterName,
 					Issuer:                   issuer,
 					IssuerCABundleData:       issuerCA,
-					ConciergeAPIGroupSuffix:  &apiGroupSuffix,
 					ConciergeIsClusterScoped: conciergeIsClusterScoped,
 				})
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
@@ -181,7 +176,6 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				Expect(clusterPinnipedInfo.ClusterInfo.Server).To(Equal(endpoint))
 				Expect(clusterPinnipedInfo.PinnipedInfo.Data.Issuer).To(Equal(issuer))
 				Expect(clusterPinnipedInfo.PinnipedInfo.Data.IssuerCABundle).To(Equal(issuerCA))
-				Expect(dereferenceStringPointer(clusterPinnipedInfo.PinnipedInfo.Data.ConciergeAPIGroupSuffix)).To(Equal(apiGroupSuffix))
 				Expect(clusterPinnipedInfo.PinnipedInfo.Data.ConciergeIsClusterScoped).To(Equal(conciergeIsClusterScoped))
 			})
 		})
@@ -280,7 +274,6 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				clusterRefs = append(clusterRefs, createFakeClusterRefObjects(mgmtClusterName, searchNamespace, endpoint)[0])
 				issuer = fakeIssuer
 				issuerCA = fakeCAData
-				apiGroupSuffix = fakeAPIGroupSuffix
 				conciergeIsClusterScoped = false
 				managementClusterInfo = fakehelper.GetFakeClusterInfo(endpoint, servCert)
 				workloadClusterInfo = fakehelper.GetFakeClusterInfo(tlsServerWLCluster.URL(), tlsServerWLCluster.HTTPTestServer.Certificate())
@@ -288,7 +281,6 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 					ClusterName:              mgmtClusterName,
 					Issuer:                   issuer,
 					IssuerCABundleData:       issuerCA,
-					ConciergeAPIGroupSuffix:  &apiGroupSuffix,
 					ConciergeIsClusterScoped: conciergeIsClusterScoped,
 				})
 				searchNamespace = constants.DefaultNamespace
@@ -322,7 +314,6 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				Expect(clusterPinnipedInfo.ClusterInfo.Server).To(Equal(wlClusterEndpoint))
 				Expect(clusterPinnipedInfo.PinnipedInfo.Data.Issuer).To(Equal(issuer))
 				Expect(clusterPinnipedInfo.PinnipedInfo.Data.IssuerCABundle).To(Equal(issuerCA))
-				Expect(dereferenceStringPointer(clusterPinnipedInfo.PinnipedInfo.Data.ConciergeAPIGroupSuffix)).To(Equal("pinniped.dev"))
 				Expect(clusterPinnipedInfo.PinnipedInfo.Data.ConciergeIsClusterScoped).To(Equal(false))
 
 			})
@@ -336,7 +327,6 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				clusterRefs = append(clusterRefs, createFakeClusterRefObjects(mgmtClusterName, searchNamespace, endpoint)[0])
 				issuer = fakeIssuer
 				issuerCA = fakeCAData
-				apiGroupSuffix = fakeAPIGroupSuffix
 				conciergeIsClusterScoped = false
 				managementClusterInfo = fakehelper.GetFakeClusterInfo(endpoint, servCert)
 				workloadClusterInfo = fakehelper.GetFakeClusterInfo(tlsServerWLCluster.URL(), tlsServerWLCluster.HTTPTestServer.Certificate())
@@ -344,7 +334,6 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 					ClusterName:              mgmtClusterName,
 					Issuer:                   issuer,
 					IssuerCABundleData:       issuerCA,
-					ConciergeAPIGroupSuffix:  &apiGroupSuffix,
 					ConciergeIsClusterScoped: conciergeIsClusterScoped,
 				})
 				searchNamespace = constants.DefaultNamespace
@@ -386,9 +375,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				clusterRefs = append(clusterRefs, createFakeClusterRefObjects(mgmtClusterName, searchNamespace, endpoint)[0])
 				issuer = fakeIssuer
 				issuerCA = fakeCAData
-				apiGroupSuffix = fakeAPIGroupSuffix
 				conciergeIsClusterScoped = false
-				apiGroupSuffixWLCluster = "salmon.me"
 				conciergeIsClusterScopedWLCluster = true
 				managementClusterInfo = fakehelper.GetFakeClusterInfo(endpoint, servCert)
 				workloadClusterInfo = fakehelper.GetFakeClusterInfo(tlsServerWLCluster.URL(), tlsServerWLCluster.HTTPTestServer.Certificate())
@@ -396,11 +383,9 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 					ClusterName:              mgmtClusterName,
 					Issuer:                   issuer,
 					IssuerCABundleData:       issuerCA,
-					ConciergeAPIGroupSuffix:  &apiGroupSuffix,
 					ConciergeIsClusterScoped: conciergeIsClusterScoped,
 				})
 				pinnipedInfoWorkloadCluster := fakehelper.GetFakePinnipedInfo(fakehelper.PinnipedInfo{
-					ConciergeAPIGroupSuffix:  &apiGroupSuffixWLCluster,
 					ConciergeIsClusterScoped: conciergeIsClusterScopedWLCluster,
 				})
 				searchNamespace = constants.DefaultNamespace
@@ -434,7 +419,6 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				Expect(clusterPinnipedInfo.ClusterInfo.Server).To(Equal(wlClusterEndpoint))
 				Expect(clusterPinnipedInfo.PinnipedInfo.Data.Issuer).To(Equal(issuer))
 				Expect(clusterPinnipedInfo.PinnipedInfo.Data.IssuerCABundle).To(Equal(issuerCA))
-				Expect(dereferenceStringPointer(clusterPinnipedInfo.PinnipedInfo.Data.ConciergeAPIGroupSuffix)).To(Equal(apiGroupSuffixWLCluster))
 				Expect(clusterPinnipedInfo.PinnipedInfo.Data.ConciergeIsClusterScoped).To(Equal(conciergeIsClusterScopedWLCluster))
 			})
 		})

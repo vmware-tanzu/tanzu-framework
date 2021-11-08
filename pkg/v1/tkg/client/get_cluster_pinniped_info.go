@@ -34,8 +34,6 @@ type ClusterPinnipedInfo struct {
 	PinnipedInfo *utils.PinnipedConfigMapInfo
 }
 
-const defaultPinnipedAPIGroupSuffix = "pinniped.dev"
-
 // GetClusterPinnipedInfo gets pinniped information from cluster
 func (c *TkgClient) GetClusterPinnipedInfo(options GetClusterPinnipedInfoOptions) (*ClusterPinnipedInfo, error) {
 	clusterclientOptions := clusterclient.Options{
@@ -108,9 +106,7 @@ func (c *TkgClient) GetWCClusterPinnipedInfo(regionalClusterClient clusterclient
 		pinnipedInfo.Data.ConciergeAPIGroupSuffix = workloadClusterPinnipedInfo.Data.ConciergeAPIGroupSuffix
 		pinnipedInfo.Data.ConciergeIsClusterScoped = workloadClusterPinnipedInfo.Data.ConciergeIsClusterScoped
 	} else {
-		// If workloadClusterPinnipedInfo is nil, assume it is an older TKG cluster and set ConciergeAPIGroupSuffix and ConciergeIsClusterScoped to defaults
-		var _defaultPinnipedAPIGroupSuffix = defaultPinnipedAPIGroupSuffix
-		pinnipedInfo.Data.ConciergeAPIGroupSuffix = &_defaultPinnipedAPIGroupSuffix
+		// If workloadClusterPinnipedInfo is nil, assume it is an older TKG cluster and set ConciergeIsClusterScoped to defaults
 		pinnipedInfo.Data.ConciergeIsClusterScoped = false
 	}
 
