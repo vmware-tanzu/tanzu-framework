@@ -149,14 +149,6 @@ func GetPinnipedKubeconfig(cluster *clientcmdapi.Cluster, pinnipedInfo *tkgutils
 		Env:        []clientcmdapi.ExecEnvVar{},
 	}
 
-	var conciergeAPIGroupSuffix string
-
-	if pinnipedInfo.Data.ConciergeAPIGroupSuffix == nil {
-		// If ConciergeAPIGroupSuffix is not set, assume old management or workload cluster and set it to default
-		conciergeAPIGroupSuffix = "pinniped.dev"
-	} else {
-		conciergeAPIGroupSuffix = *pinnipedInfo.Data.ConciergeAPIGroupSuffix
-	}
 	execConfig.Command = "tanzu"
 	execConfig.Args = append([]string{"pinniped-auth", "login"}, execConfig.Args...)
 
@@ -165,7 +157,6 @@ func GetPinnipedKubeconfig(cluster *clientcmdapi.Cluster, pinnipedInfo *tkgutils
 		"--enable-concierge",
 		"--concierge-authenticator-name="+ConciergeAuthenticatorName,
 		"--concierge-authenticator-type="+ConciergeAuthenticatorType,
-		"--concierge-api-group-suffix="+conciergeAPIGroupSuffix,
 		"--concierge-is-cluster-scoped="+strconv.FormatBool(pinnipedInfo.Data.ConciergeIsClusterScoped),
 		"--concierge-endpoint="+cluster.Server,
 		"--concierge-ca-bundle-data="+base64.StdEncoding.EncodeToString(cluster.CertificateAuthorityData),
