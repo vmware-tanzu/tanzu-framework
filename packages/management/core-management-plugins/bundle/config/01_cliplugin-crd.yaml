@@ -1,9 +1,9 @@
 ---
-apiVersion: apiextensions.k8s.io/v1beta1
+apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.2.5
+    controller-gen.kubebuilder.io/version: v0.7.0
   creationTimestamp: null
   name: cliplugins.cli.tanzu.vmware.com
 spec:
@@ -14,93 +14,92 @@ spec:
     plural: cliplugins
     singular: cliplugin
   scope: Namespaced
-  validation:
-    openAPIV3Schema:
-      description: CLIPlugin denotes a Tanzu cli plugin.
-      properties:
-        apiVersion:
-          description: 'APIVersion defines the versioned schema of this representation
-            of an object. Servers should convert recognized schemas to the latest
-            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
-          type: string
-        kind:
-          description: 'Kind is a string value representing the REST resource this
-            object represents. Servers may infer this from the endpoint the client
-            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
-          type: string
-        metadata:
-          type: object
-        spec:
-          description: CLIPluginSpec defines the desired state of CLIPlugin.
-          properties:
-            artifacts:
-              additionalProperties:
-                description: ArtifactList contains an Artifact object for every supported
-                  platform of a version.
-                items:
-                  description: Artifact points to an individual plugin binary specific
-                    to a version and platform.
-                  properties:
-                    arch:
-                      description: Arch is CPU architecture of the plugin binary in
-                        `GOARCH` format.
-                      type: string
-                    digest:
-                      description: SHA256 hash of the plugin binary.
-                      type: string
-                    image:
-                      description: Image is a fully qualified OCI image for the plugin
-                        binary.
-                      type: string
-                    os:
-                      description: OS of the plugin binary in `GOOS` format.
-                      type: string
-                    type:
-                      description: Type of the binary artifact. Valid values are S3,
-                        GCP, OCIImage.
-                      type: string
-                    uri:
-                      description: AssetURI is a URI of the plugin binary. This can
-                        be a fully qualified HTTP path or a local path.
-                      type: string
-                  required:
-                  - arch
-                  - digest
-                  - os
-                  - type
-                  type: object
-                type: array
-              description: Artifacts contains an artifact list for every supported
-                version.
-              type: object
-            description:
-              description: Description is the plugin's description.
-              type: string
-            optional:
-              description: Optional specifies whether the plugin is mandatory or optional
-                If optional, the plugin will not get auto-downloaded as part of `tanzu
-                login` or `tanzu plugin sync` command To view the list of plugin,
-                user can use `tanzu plugin list` and to download a specific plugin
-                run, `tanzu plugin install <plugin-name>`
-              type: boolean
-            recommendedVersion:
-              description: Recommended version that Tanzu CLI should use if available.
-                The value should be a valid semantic version as defined in https://semver.org/.
-                E.g., 2.0.1
-              type: string
-          required:
-          - artifacts
-          - description
-          - optional
-          - recommendedVersion
-          type: object
-      required:
-      - metadata
-      - spec
-      type: object
-  version: v1alpha1
   versions:
   - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: CLIPlugin denotes a Tanzu cli plugin.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: CLIPluginSpec defines the desired state of CLIPlugin.
+            properties:
+              artifacts:
+                additionalProperties:
+                  description: ArtifactList contains an Artifact object for every
+                    supported platform of a version.
+                  items:
+                    description: Artifact points to an individual plugin binary specific
+                      to a version and platform.
+                    properties:
+                      arch:
+                        description: Arch is CPU architecture of the plugin binary
+                          in `GOARCH` format.
+                        type: string
+                      digest:
+                        description: SHA256 hash of the plugin binary.
+                        type: string
+                      image:
+                        description: Image is a fully qualified OCI image for the
+                          plugin binary.
+                        type: string
+                      os:
+                        description: OS of the plugin binary in `GOOS` format.
+                        type: string
+                      type:
+                        description: Type of the binary artifact. Valid values are
+                          S3, GCP, OCIImage.
+                        type: string
+                      uri:
+                        description: AssetURI is a URI of the plugin binary. This
+                          can be a fully qualified HTTP path or a local path.
+                        type: string
+                    required:
+                    - arch
+                    - digest
+                    - os
+                    - type
+                    type: object
+                  type: array
+                description: Artifacts contains an artifact list for every supported
+                  version.
+                type: object
+              description:
+                description: Description is the plugin's description.
+                type: string
+              optional:
+                description: Optional specifies whether the plugin is mandatory or
+                  optional If optional, the plugin will not get auto-downloaded as
+                  part of `tanzu login` or `tanzu plugin sync` command To view the
+                  list of plugin, user can use `tanzu plugin list` and to download
+                  a specific plugin run, `tanzu plugin install <plugin-name>`
+                type: boolean
+              recommendedVersion:
+                description: Recommended version that Tanzu CLI should use if available.
+                  The value should be a valid semantic version as defined in https://semver.org/.
+                  E.g., 2.0.1
+                type: string
+            required:
+            - artifacts
+            - description
+            - optional
+            - recommendedVersion
+            type: object
+        required:
+        - metadata
+        - spec
+        type: object
     served: true
     storage: true
 status:
