@@ -56,8 +56,8 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 	)
 
 	var (
-		fakeIssuer         = "https://fakeissuer.com"
-		fakeCAData         = "fakeCAData"
+		fakeIssuer = "https://fakeissuer.com"
+		fakeCAData = "fakeCAData"
 	)
 
 	BeforeEach(func() {
@@ -443,14 +443,6 @@ func getFakeKubeConfigFilePathWithServer(testingDir, endpoint, clustername strin
 		return "", err
 	}
 	return f.Name(), nil
-}
-
-func dereferenceStringPointer(pointer *string) string {
-	if pointer != nil {
-		return *pointer
-	}
-
-	return ""
 }
 
 // TODO: Should be merged to pkg/fakes/helpers/fakeobjectcreator.go

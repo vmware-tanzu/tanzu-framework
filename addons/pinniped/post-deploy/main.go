@@ -15,15 +15,13 @@ import (
 	"k8s.io/client-go/kubernetes"
 	k8sconfig "sigs.k8s.io/controller-runtime/pkg/client/config"
 
-	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/configure"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/pinnipedclientset"
+
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/configure"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/vars"
 )
 
 func main() {
-	// optional
-	flag.StringVar(&vars.PinnipedAPIGroupSuffix, "pinniped-api-group-suffix", vars.PinnipedAPIGroupSuffix, "The API group suffix used to talk to Pinniped APIs")
-
 	// optional
 	flag.BoolVar(&vars.ConciergeIsClusterScoped, "concierge-is-cluster-scoped", vars.ConciergeIsClusterScoped, "Whether the Pinniped Concierge APIs are cluster-scoped")
 
