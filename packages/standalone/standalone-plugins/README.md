@@ -1,6 +1,6 @@
-# standalone-cliplugins Package
+# standalone-plugins Package
 
-This standalone-cliplugins package is a standalone package which includes standalone CLI plugin resources. This package is directly consumed by Tanzu CLI and is not installed directly on any management or workload clusters.
+This standalone-plugins package is a standalone package which includes standalone CLI plugin resources. This package is directly consumed by Tanzu CLI and is not installed directly on any management or workload clusters.
 
 ## Components
 
