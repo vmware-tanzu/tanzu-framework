@@ -14,29 +14,18 @@ import (
 	"github.com/stretchr/testify/require"
 	configv1alpha1 "go.pinniped.dev/generated/1.19/apis/supervisor/config/v1alpha1"
 	idpv1alpha1 "go.pinniped.dev/generated/1.19/apis/supervisor/idp/v1alpha1"
+	pinnipedsupervisorfake "go.pinniped.dev/generated/1.19/client/supervisor/clientset/versioned/fake"
 	corev1 "k8s.io/api/core/v1"
 	kubeerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
-	kubedynamicfake "k8s.io/client-go/dynamic/fake"
 	kubefake "k8s.io/client-go/kubernetes/fake"
 	kubetesting "k8s.io/client-go/testing"
-
-	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/pinnipedclientset"
 )
 
 // nolint:funlen
 func TestCreateOrUpdateFederationDomain(t *testing.T) {
-	const apiGroupSuffix = "pinniped.dev"
-
-	configv1alpha1GV := configv1alpha1.SchemeGroupVersion
-	configv1alpha1GV.Group = "config.supervisor." + apiGroupSuffix
-
-	scheme := runtime.NewScheme()
-	scheme.AddKnownTypes(configv1alpha1GV, &configv1alpha1.FederationDomain{}, &configv1alpha1.FederationDomainList{})
-
-	federationDomainGVR := configv1alpha1GV.WithResource("federationdomains")
+	federationDomainGVR := configv1alpha1.SchemeGroupVersion.WithResource("federationdomains")
 
 	federationDomain := &configv1alpha1.FederationDomain{
 		ObjectMeta: metav1.ObjectMeta{
@@ -47,18 +36,17 @@ func TestCreateOrUpdateFederationDomain(t *testing.T) {
 			Issuer: "some-issuer",
 		},
 	}
-	federationDomain.APIVersion, federationDomain.Kind = configv1alpha1GV.WithKind("FederationDomain").ToAPIVersionAndKind()
 
 	tests := []struct {
-		name                 string
-		newKubeDynamicClient func() *kubedynamicfake.FakeDynamicClient
-		wantError            string
-		wantActions          []kubetesting.Action
+		name         string
+		newClientset func() *pinnipedsupervisorfake.Clientset
+		wantError    string
+		wantActions  []kubetesting.Action
 	}{
 		{
 			name: "getting jwt authenticator fails",
-			newKubeDynamicClient: func() *kubedynamicfake.FakeDynamicClient {
-				c := kubedynamicfake.NewSimpleDynamicClient(scheme)
+			newClientset: func() *pinnipedsupervisorfake.Clientset {
+				c := pinnipedsupervisorfake.NewSimpleClientset()
 				c.PrependReactor("get", "federationdomains", func(a kubetesting.Action) (bool, runtime.Object, error) {
 					return true, nil, errors.New("some get error")
 				})
@@ -71,18 +59,18 @@ func TestCreateOrUpdateFederationDomain(t *testing.T) {
 		},
 		{
 			name: "jwt authenticator does not exist",
-			newKubeDynamicClient: func() *kubedynamicfake.FakeDynamicClient {
-				return kubedynamicfake.NewSimpleDynamicClient(scheme)
+			newClientset: func() *pinnipedsupervisorfake.Clientset {
+				return pinnipedsupervisorfake.NewSimpleClientset()
 			},
 			wantActions: []kubetesting.Action{
 				kubetesting.NewGetAction(federationDomainGVR, federationDomain.Namespace, federationDomain.Name),
-				kubetesting.NewCreateAction(federationDomainGVR, federationDomain.Namespace, toUnstructured(federationDomain, true)),
+				kubetesting.NewCreateAction(federationDomainGVR, federationDomain.Namespace, federationDomain),
 			},
 		},
 		{
 			name: "jwt authenticator does not exist and creating federationdomain fails",
-			newKubeDynamicClient: func() *kubedynamicfake.FakeDynamicClient {
-				c := kubedynamicfake.NewSimpleDynamicClient(scheme)
+			newClientset: func() *pinnipedsupervisorfake.Clientset {
+				c := pinnipedsupervisorfake.NewSimpleClientset()
 				c.PrependReactor("create", "federationdomains", func(a kubetesting.Action) (bool, runtime.Object, error) {
 					return true, nil, errors.New("some create error")
 				})
@@ -91,35 +79,35 @@ func TestCreateOrUpdateFederationDomain(t *testing.T) {
 			wantError: fmt.Sprintf("could not create federationdomain %s/%s: some create error", federationDomain.Namespace, federationDomain.Name),
 			wantActions: []kubetesting.Action{
 				kubetesting.NewGetAction(federationDomainGVR, federationDomain.Namespace, federationDomain.Name),
-				kubetesting.NewCreateAction(federationDomainGVR, federationDomain.Namespace, toUnstructured(federationDomain, true)),
+				kubetesting.NewCreateAction(federationDomainGVR, federationDomain.Namespace, federationDomain),
 			},
 		},
 		{
 			name: "jwt authenticator exists and is up to date",
-			newKubeDynamicClient: func() *kubedynamicfake.FakeDynamicClient {
-				return kubedynamicfake.NewSimpleDynamicClient(scheme, federationDomain.DeepCopy())
+			newClientset: func() *pinnipedsupervisorfake.Clientset {
+				return pinnipedsupervisorfake.NewSimpleClientset(federationDomain.DeepCopy())
 			},
 			wantActions: []kubetesting.Action{
 				kubetesting.NewGetAction(federationDomainGVR, federationDomain.Namespace, federationDomain.Name),
-				kubetesting.NewUpdateAction(federationDomainGVR, federationDomain.Namespace, toUnstructured(federationDomain, false)),
+				kubetesting.NewUpdateAction(federationDomainGVR, federationDomain.Namespace, federationDomain),
 			},
 		},
 		{
 			name: "jwt authenticator exists and is not up to date",
-			newKubeDynamicClient: func() *kubedynamicfake.FakeDynamicClient {
+			newClientset: func() *pinnipedsupervisorfake.Clientset {
 				existingFederationDomain := federationDomain.DeepCopy()
 				existingFederationDomain.Spec.Issuer = "some-other-issuer"
-				return kubedynamicfake.NewSimpleDynamicClient(scheme, federationDomain.DeepCopy())
+				return pinnipedsupervisorfake.NewSimpleClientset(federationDomain.DeepCopy())
 			},
 			wantActions: []kubetesting.Action{
 				kubetesting.NewGetAction(federationDomainGVR, federationDomain.Namespace, federationDomain.Name),
-				kubetesting.NewUpdateAction(federationDomainGVR, federationDomain.Namespace, toUnstructured(federationDomain, false)),
+				kubetesting.NewUpdateAction(federationDomainGVR, federationDomain.Namespace, federationDomain),
 			},
 		},
 		{
 			name: "updating federationdomain fails",
-			newKubeDynamicClient: func() *kubedynamicfake.FakeDynamicClient {
-				c := kubedynamicfake.NewSimpleDynamicClient(scheme, federationDomain.DeepCopy())
+			newClientset: func() *pinnipedsupervisorfake.Clientset {
+				c := pinnipedsupervisorfake.NewSimpleClientset(federationDomain.DeepCopy())
 				c.PrependReactor("update", "federationdomains", func(a kubetesting.Action) (bool, runtime.Object, error) {
 					return true, nil, errors.New("some update error")
 				})
@@ -128,16 +116,16 @@ func TestCreateOrUpdateFederationDomain(t *testing.T) {
 			wantError: fmt.Sprintf("could not update federationdomain %s/%s: some update error", federationDomain.Namespace, federationDomain.Name),
 			wantActions: []kubetesting.Action{
 				kubetesting.NewGetAction(federationDomainGVR, federationDomain.Namespace, federationDomain.Name),
-				kubetesting.NewUpdateAction(federationDomainGVR, federationDomain.Namespace, toUnstructured(federationDomain, false)),
+				kubetesting.NewUpdateAction(federationDomainGVR, federationDomain.Namespace, federationDomain),
 			},
 		},
 	}
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			kubeDynamicClient := test.newKubeDynamicClient()
+			clientset := test.newClientset()
 			err := Configurator{
-				Clientset: pinnipedclientset.NewSupervisor(kubeDynamicClient, apiGroupSuffix),
+				Clientset: clientset,
 			}.CreateOrUpdateFederationDomain(
 				context.Background(),
 				federationDomain.Namespace,
@@ -149,7 +137,7 @@ func TestCreateOrUpdateFederationDomain(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 			}
-			require.Equal(t, test.wantActions, kubeDynamicClient.Actions())
+			require.Equal(t, test.wantActions, clientset.Actions())
 		})
 	}
 }
@@ -157,8 +145,6 @@ func TestCreateOrUpdateFederationDomain(t *testing.T) {
 // nolint:funlen
 func TestRecreateIDPForDex(t *testing.T) {
 	const (
-		apiGroupSuffix = "pinniped.dev"
-
 		dexServiceIP   = "1.2.3.4"
 		dexServicePort = 12345
 	)
@@ -182,13 +168,7 @@ func TestRecreateIDPForDex(t *testing.T) {
 		},
 	}
 
-	idpv1alpha1GV := idpv1alpha1.SchemeGroupVersion
-	idpv1alpha1GV.Group = "idp.supervisor." + apiGroupSuffix
-
-	scheme := runtime.NewScheme()
-	scheme.AddKnownTypes(idpv1alpha1GV, &idpv1alpha1.OIDCIdentityProvider{}, &idpv1alpha1.OIDCIdentityProviderList{})
-
-	oidcIdentityProviderGVR := idpv1alpha1GV.WithResource("oidcidentityproviders")
+	oidcIdentityProviderGVR := idpv1alpha1.SchemeGroupVersion.WithResource("oidcidentityproviders")
 
 	oidcIdentityProvider := &idpv1alpha1.OIDCIdentityProvider{
 		ObjectMeta: metav1.ObjectMeta{
@@ -202,12 +182,11 @@ func TestRecreateIDPForDex(t *testing.T) {
 			},
 		},
 	}
-	oidcIdentityProvider.APIVersion, oidcIdentityProvider.Kind = idpv1alpha1GV.WithKind("OIDCIdentityProvider").ToAPIVersionAndKind()
 
 	tests := []struct {
 		name                     string
 		kubeClientError          string
-		newKubeDynamicClient     func() *kubedynamicfake.FakeDynamicClient
+		newClientset             func() *pinnipedsupervisorfake.Clientset
 		wantError                string
 		wantOIDCIdentityProvider *idpv1alpha1.OIDCIdentityProvider
 		wantActions              []kubetesting.Action
@@ -215,16 +194,16 @@ func TestRecreateIDPForDex(t *testing.T) {
 		{
 			name:            "inspecting dex service endpoint fails",
 			kubeClientError: "some get error",
-			newKubeDynamicClient: func() *kubedynamicfake.FakeDynamicClient {
-				return kubedynamicfake.NewSimpleDynamicClient(scheme)
+			newClientset: func() *pinnipedsupervisorfake.Clientset {
+				return pinnipedsupervisorfake.NewSimpleClientset()
 			},
 			wantError:   "could not get dex service endpoint: some get error",
 			wantActions: []kubetesting.Action{},
 		},
 		{
 			name: "oidcidentityprovider does not exist",
-			newKubeDynamicClient: func() *kubedynamicfake.FakeDynamicClient {
-				return kubedynamicfake.NewSimpleDynamicClient(scheme)
+			newClientset: func() *pinnipedsupervisorfake.Clientset {
+				return pinnipedsupervisorfake.NewSimpleClientset()
 			},
 			wantError: fmt.Sprintf(
 				`could not get oidcidentityprovider %s/%s: oidcidentityproviders.idp.supervisor.pinniped.dev "upstream-oidc-identity-provider" not found`,
@@ -241,35 +220,35 @@ func TestRecreateIDPForDex(t *testing.T) {
 		},
 		{
 			name: "oidcidentityprovider exists and is up to date",
-			newKubeDynamicClient: func() *kubedynamicfake.FakeDynamicClient {
-				return kubedynamicfake.NewSimpleDynamicClient(scheme, oidcIdentityProvider.DeepCopy())
+			newClientset: func() *pinnipedsupervisorfake.Clientset {
+				return pinnipedsupervisorfake.NewSimpleClientset(oidcIdentityProvider.DeepCopy())
 			},
 			wantOIDCIdentityProvider: oidcIdentityProvider,
 			wantActions: []kubetesting.Action{
 				kubetesting.NewGetAction(oidcIdentityProviderGVR, oidcIdentityProvider.Namespace, oidcIdentityProvider.Name),
 				kubetesting.NewDeleteAction(oidcIdentityProviderGVR, oidcIdentityProvider.Namespace, oidcIdentityProvider.Name),
-				kubetesting.NewCreateAction(oidcIdentityProviderGVR, oidcIdentityProvider.Namespace, toUnstructured(oidcIdentityProvider, false)),
+				kubetesting.NewCreateAction(oidcIdentityProviderGVR, oidcIdentityProvider.Namespace, oidcIdentityProvider),
 			},
 		},
 		{
 			name: "oidcidentityprovider exists and needs update",
-			newKubeDynamicClient: func() *kubedynamicfake.FakeDynamicClient {
+			newClientset: func() *pinnipedsupervisorfake.Clientset {
 				existingOIDCIdentityProvider := oidcIdentityProvider.DeepCopy()
 				existingOIDCIdentityProvider.Spec.Issuer = "some-incorrect-issuer"
 				existingOIDCIdentityProvider.Spec.TLS = nil
-				return kubedynamicfake.NewSimpleDynamicClient(scheme, existingOIDCIdentityProvider)
+				return pinnipedsupervisorfake.NewSimpleClientset(existingOIDCIdentityProvider)
 			},
 			wantOIDCIdentityProvider: oidcIdentityProvider,
 			wantActions: []kubetesting.Action{
 				kubetesting.NewGetAction(oidcIdentityProviderGVR, oidcIdentityProvider.Namespace, oidcIdentityProvider.Name),
 				kubetesting.NewDeleteAction(oidcIdentityProviderGVR, oidcIdentityProvider.Namespace, oidcIdentityProvider.Name),
-				kubetesting.NewCreateAction(oidcIdentityProviderGVR, oidcIdentityProvider.Namespace, toUnstructured(oidcIdentityProvider, false)),
+				kubetesting.NewCreateAction(oidcIdentityProviderGVR, oidcIdentityProvider.Namespace, oidcIdentityProvider),
 			},
 		},
 		{
 			name: "oidcidentityprovider exists after the first get",
-			newKubeDynamicClient: func() *kubedynamicfake.FakeDynamicClient {
-				c := kubedynamicfake.NewSimpleDynamicClient(scheme, oidcIdentityProvider.DeepCopy())
+			newClientset: func() *pinnipedsupervisorfake.Clientset {
+				c := pinnipedsupervisorfake.NewSimpleClientset(oidcIdentityProvider.DeepCopy())
 				once := &sync.Once{}
 				c.PrependReactor("get", "oidcidentityproviders", func(a kubetesting.Action) (bool, runtime.Object, error) {
 					var err error
@@ -287,13 +266,13 @@ func TestRecreateIDPForDex(t *testing.T) {
 				kubetesting.NewGetAction(oidcIdentityProviderGVR, oidcIdentityProvider.Namespace, oidcIdentityProvider.Name),
 				kubetesting.NewGetAction(oidcIdentityProviderGVR, oidcIdentityProvider.Namespace, oidcIdentityProvider.Name),
 				kubetesting.NewDeleteAction(oidcIdentityProviderGVR, oidcIdentityProvider.Namespace, oidcIdentityProvider.Name),
-				kubetesting.NewCreateAction(oidcIdentityProviderGVR, oidcIdentityProvider.Namespace, toUnstructured(oidcIdentityProvider, false)),
+				kubetesting.NewCreateAction(oidcIdentityProviderGVR, oidcIdentityProvider.Namespace, oidcIdentityProvider),
 			},
 		},
 		{
 			name: "deleting oidcidentityprovider fails",
-			newKubeDynamicClient: func() *kubedynamicfake.FakeDynamicClient {
-				c := kubedynamicfake.NewSimpleDynamicClient(scheme, oidcIdentityProvider.DeepCopy())
+			newClientset: func() *pinnipedsupervisorfake.Clientset {
+				c := pinnipedsupervisorfake.NewSimpleClientset(oidcIdentityProvider.DeepCopy())
 				c.PrependReactor("delete", "oidcidentityproviders", func(a kubetesting.Action) (bool, runtime.Object, error) {
 					return true, oidcIdentityProvider, errors.New("some delete error")
 				})
@@ -308,15 +287,15 @@ func TestRecreateIDPForDex(t *testing.T) {
 				kubetesting.NewGetAction(oidcIdentityProviderGVR, oidcIdentityProvider.Namespace, oidcIdentityProvider.Name),
 				kubetesting.NewDeleteAction(oidcIdentityProviderGVR, oidcIdentityProvider.Namespace, oidcIdentityProvider.Name),
 				// We retry 3 times to create the oidcidentityprovider, but fail each time since we failed to delete it.
-				kubetesting.NewCreateAction(oidcIdentityProviderGVR, oidcIdentityProvider.Namespace, toUnstructured(oidcIdentityProvider, false)),
-				kubetesting.NewCreateAction(oidcIdentityProviderGVR, oidcIdentityProvider.Namespace, toUnstructured(oidcIdentityProvider, false)),
-				kubetesting.NewCreateAction(oidcIdentityProviderGVR, oidcIdentityProvider.Namespace, toUnstructured(oidcIdentityProvider, false)),
+				kubetesting.NewCreateAction(oidcIdentityProviderGVR, oidcIdentityProvider.Namespace, oidcIdentityProvider),
+				kubetesting.NewCreateAction(oidcIdentityProviderGVR, oidcIdentityProvider.Namespace, oidcIdentityProvider),
+				kubetesting.NewCreateAction(oidcIdentityProviderGVR, oidcIdentityProvider.Namespace, oidcIdentityProvider),
 			},
 		},
 		{
 			name: "deleting oidcidentityprovider takes time to complete",
-			newKubeDynamicClient: func() *kubedynamicfake.FakeDynamicClient {
-				c := kubedynamicfake.NewSimpleDynamicClient(scheme, oidcIdentityProvider.DeepCopy())
+			newClientset: func() *pinnipedsupervisorfake.Clientset {
+				c := pinnipedsupervisorfake.NewSimpleClientset(oidcIdentityProvider.DeepCopy())
 				once := &sync.Once{}
 				c.PrependReactor("create", "oidcidentityproviders", func(a kubetesting.Action) (bool, runtime.Object, error) {
 					var err error
@@ -333,14 +312,14 @@ func TestRecreateIDPForDex(t *testing.T) {
 			wantActions: []kubetesting.Action{
 				kubetesting.NewGetAction(oidcIdentityProviderGVR, oidcIdentityProvider.Namespace, oidcIdentityProvider.Name),
 				kubetesting.NewDeleteAction(oidcIdentityProviderGVR, oidcIdentityProvider.Namespace, oidcIdentityProvider.Name),
-				kubetesting.NewCreateAction(oidcIdentityProviderGVR, oidcIdentityProvider.Namespace, toUnstructured(oidcIdentityProvider, false)),
-				kubetesting.NewCreateAction(oidcIdentityProviderGVR, oidcIdentityProvider.Namespace, toUnstructured(oidcIdentityProvider, false)),
+				kubetesting.NewCreateAction(oidcIdentityProviderGVR, oidcIdentityProvider.Namespace, oidcIdentityProvider),
+				kubetesting.NewCreateAction(oidcIdentityProviderGVR, oidcIdentityProvider.Namespace, oidcIdentityProvider),
 			},
 		},
 		{
 			name: "creating oidcidentityprovider fails",
-			newKubeDynamicClient: func() *kubedynamicfake.FakeDynamicClient {
-				c := kubedynamicfake.NewSimpleDynamicClient(scheme, oidcIdentityProvider.DeepCopy())
+			newClientset: func() *pinnipedsupervisorfake.Clientset {
+				c := pinnipedsupervisorfake.NewSimpleClientset(oidcIdentityProvider.DeepCopy())
 				c.PrependReactor("create", "oidcidentityproviders", func(a kubetesting.Action) (bool, runtime.Object, error) {
 					return true, oidcIdentityProvider, errors.New("some create error")
 				})
@@ -354,7 +333,7 @@ func TestRecreateIDPForDex(t *testing.T) {
 			wantActions: []kubetesting.Action{
 				kubetesting.NewGetAction(oidcIdentityProviderGVR, oidcIdentityProvider.Namespace, oidcIdentityProvider.Name),
 				kubetesting.NewDeleteAction(oidcIdentityProviderGVR, oidcIdentityProvider.Namespace, oidcIdentityProvider.Name),
-				kubetesting.NewCreateAction(oidcIdentityProviderGVR, oidcIdentityProvider.Namespace, toUnstructured(oidcIdentityProvider, false)),
+				kubetesting.NewCreateAction(oidcIdentityProviderGVR, oidcIdentityProvider.Namespace, oidcIdentityProvider),
 			},
 		},
 	}
@@ -368,11 +347,11 @@ func TestRecreateIDPForDex(t *testing.T) {
 				})
 			}
 
-			kubeDynamicClient := test.newKubeDynamicClient()
+			clientset := test.newClientset()
 
 			returnedOIDCIdentityProvider, err := Configurator{
 				K8SClientset: kubeClient,
-				Clientset:    pinnipedclientset.NewSupervisor(kubeDynamicClient, apiGroupSuffix),
+				Clientset:    clientset,
 			}.RecreateIDPForDex(
 				context.Background(),
 				dexService.Namespace,
@@ -385,21 +364,7 @@ func TestRecreateIDPForDex(t *testing.T) {
 				require.NoError(t, err)
 			}
 			require.Equal(t, test.wantOIDCIdentityProvider, returnedOIDCIdentityProvider)
-			require.Equal(t, test.wantActions, kubeDynamicClient.Actions())
+			require.Equal(t, test.wantActions, clientset.Actions())
 		})
 	}
-}
-
-func toUnstructured(obj runtime.Object, removeTypeMeta bool) runtime.Object {
-	unstructuredObjData, err := runtime.DefaultUnstructuredConverter.ToUnstructured(obj)
-	if err != nil {
-		panic(err)
-	}
-
-	if removeTypeMeta {
-		delete(unstructuredObjData, "apiVersion")
-		delete(unstructuredObjData, "kind")
-	}
-
-	return &unstructured.Unstructured{Object: unstructuredObjData}
 }

@@ -11,31 +11,19 @@ import (
 
 	"github.com/stretchr/testify/require"
 	authv1alpha1 "go.pinniped.dev/generated/1.19/apis/concierge/authentication/v1alpha1"
+	pinnipedconciergefake "go.pinniped.dev/generated/1.19/client/concierge/clientset/versioned/fake"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
-	kubedynamicfake "k8s.io/client-go/dynamic/fake"
 	kubetesting "k8s.io/client-go/testing"
-
-	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/pinnipedclientset"
 )
 
 // nolint:funlen
 func TestCreateOrUpdateJWTAuthenticator(t *testing.T) {
-	const apiGroupSuffix = "some.fish.api.group.suffix.com"
-
-	authv1alpha1GV := authv1alpha1.SchemeGroupVersion
-	authv1alpha1GV.Group = "authentication.concierge." + apiGroupSuffix
-
-	scheme := runtime.NewScheme()
-	scheme.AddKnownTypes(authv1alpha1GV, &authv1alpha1.JWTAuthenticator{}, &authv1alpha1.JWTAuthenticatorList{})
-
-	jwtAuthenticatorGVR := authv1alpha1GV.WithResource("jwtauthenticators")
+	jwtAuthenticatorGVR := authv1alpha1.SchemeGroupVersion.WithResource("jwtauthenticators")
 
 	jwtAuthenticator := &authv1alpha1.JWTAuthenticator{
 		ObjectMeta: metav1.ObjectMeta{
-			Namespace: "some-namespace",
-			Name:      "some-name",
+			Name: "some-name",
 		},
 		Spec: authv1alpha1.JWTAuthenticatorSpec{
 			Issuer:   "some-issuer",
@@ -45,18 +33,17 @@ func TestCreateOrUpdateJWTAuthenticator(t *testing.T) {
 			},
 		},
 	}
-	jwtAuthenticator.APIVersion, jwtAuthenticator.Kind = authv1alpha1GV.WithKind("JWTAuthenticator").ToAPIVersionAndKind()
 
 	tests := []struct {
-		name                 string
-		newKubeDynamicClient func() *kubedynamicfake.FakeDynamicClient
-		wantError            string
-		wantActions          []kubetesting.Action
+		name         string
+		newClientset func() *pinnipedconciergefake.Clientset
+		wantError    string
+		wantActions  []kubetesting.Action
 	}{
 		{
 			name: "getting jwt authenticator fails",
-			newKubeDynamicClient: func() *kubedynamicfake.FakeDynamicClient {
-				c := kubedynamicfake.NewSimpleDynamicClient(scheme)
+			newClientset: func() *pinnipedconciergefake.Clientset {
+				c := pinnipedconciergefake.NewSimpleClientset()
 				c.PrependReactor("get", "jwtauthenticators", func(a kubetesting.Action) (bool, runtime.Object, error) {
 					return true, nil, errors.New("some get error")
 				})
@@ -64,23 +51,23 @@ func TestCreateOrUpdateJWTAuthenticator(t *testing.T) {
 			},
 			wantError: fmt.Sprintf("could not get jwtauthenticator %s: some get error", jwtAuthenticator.Name),
 			wantActions: []kubetesting.Action{
-				kubetesting.NewGetAction(jwtAuthenticatorGVR, jwtAuthenticator.Namespace, jwtAuthenticator.Name),
+				kubetesting.NewRootGetAction(jwtAuthenticatorGVR, jwtAuthenticator.Name),
 			},
 		},
 		{
 			name: "jwt authenticator does not exist",
-			newKubeDynamicClient: func() *kubedynamicfake.FakeDynamicClient {
-				return kubedynamicfake.NewSimpleDynamicClient(scheme)
+			newClientset: func() *pinnipedconciergefake.Clientset {
+				return pinnipedconciergefake.NewSimpleClientset()
 			},
 			wantActions: []kubetesting.Action{
-				kubetesting.NewGetAction(jwtAuthenticatorGVR, jwtAuthenticator.Namespace, jwtAuthenticator.Name),
-				kubetesting.NewCreateAction(jwtAuthenticatorGVR, jwtAuthenticator.Namespace, toUnstructured(jwtAuthenticator, true)),
+				kubetesting.NewRootGetAction(jwtAuthenticatorGVR, jwtAuthenticator.Name),
+				kubetesting.NewRootCreateAction(jwtAuthenticatorGVR, jwtAuthenticator),
 			},
 		},
 		{
 			name: "jwt authenticator does not exist and creating jwtauthenticator fails",
-			newKubeDynamicClient: func() *kubedynamicfake.FakeDynamicClient {
-				c := kubedynamicfake.NewSimpleDynamicClient(scheme)
+			newClientset: func() *pinnipedconciergefake.Clientset {
+				c := pinnipedconciergefake.NewSimpleClientset()
 				c.PrependReactor("create", "jwtauthenticators", func(a kubetesting.Action) (bool, runtime.Object, error) {
 					return true, nil, errors.New("some create error")
 				})
@@ -88,38 +75,38 @@ func TestCreateOrUpdateJWTAuthenticator(t *testing.T) {
 			},
 			wantError: fmt.Sprintf("could not create jwtauthenticator %s: some create error", jwtAuthenticator.Name),
 			wantActions: []kubetesting.Action{
-				kubetesting.NewGetAction(jwtAuthenticatorGVR, jwtAuthenticator.Namespace, jwtAuthenticator.Name),
-				kubetesting.NewCreateAction(jwtAuthenticatorGVR, jwtAuthenticator.Namespace, toUnstructured(jwtAuthenticator, true)),
+				kubetesting.NewRootGetAction(jwtAuthenticatorGVR, jwtAuthenticator.Name),
+				kubetesting.NewRootCreateAction(jwtAuthenticatorGVR, jwtAuthenticator),
 			},
 		},
 		{
 			name: "jwt authenticator exists and is up to date",
-			newKubeDynamicClient: func() *kubedynamicfake.FakeDynamicClient {
-				return kubedynamicfake.NewSimpleDynamicClient(scheme, jwtAuthenticator.DeepCopy())
+			newClientset: func() *pinnipedconciergefake.Clientset {
+				return pinnipedconciergefake.NewSimpleClientset(jwtAuthenticator.DeepCopy())
 			},
 			wantActions: []kubetesting.Action{
-				kubetesting.NewGetAction(jwtAuthenticatorGVR, jwtAuthenticator.Namespace, jwtAuthenticator.Name),
-				kubetesting.NewUpdateAction(jwtAuthenticatorGVR, jwtAuthenticator.Namespace, toUnstructured(jwtAuthenticator, false)),
+				kubetesting.NewRootGetAction(jwtAuthenticatorGVR, jwtAuthenticator.Name),
+				kubetesting.NewRootUpdateAction(jwtAuthenticatorGVR, jwtAuthenticator),
 			},
 		},
 		{
 			name: "jwt authenticator exists and is not up to date",
-			newKubeDynamicClient: func() *kubedynamicfake.FakeDynamicClient {
+			newClientset: func() *pinnipedconciergefake.Clientset {
 				existingJWTAuthenticator := jwtAuthenticator.DeepCopy()
 				existingJWTAuthenticator.Spec.Issuer = "some-other-issuer"
 				existingJWTAuthenticator.Spec.Audience = "some-other-audience"
 				existingJWTAuthenticator.Spec.TLS = nil
-				return kubedynamicfake.NewSimpleDynamicClient(scheme, jwtAuthenticator.DeepCopy())
+				return pinnipedconciergefake.NewSimpleClientset(jwtAuthenticator.DeepCopy())
 			},
 			wantActions: []kubetesting.Action{
-				kubetesting.NewGetAction(jwtAuthenticatorGVR, jwtAuthenticator.Namespace, jwtAuthenticator.Name),
-				kubetesting.NewUpdateAction(jwtAuthenticatorGVR, jwtAuthenticator.Namespace, toUnstructured(jwtAuthenticator, false)),
+				kubetesting.NewRootGetAction(jwtAuthenticatorGVR, jwtAuthenticator.Name),
+				kubetesting.NewRootUpdateAction(jwtAuthenticatorGVR, jwtAuthenticator),
 			},
 		},
 		{
 			name: "updating jwtauthenticator fails",
-			newKubeDynamicClient: func() *kubedynamicfake.FakeDynamicClient {
-				c := kubedynamicfake.NewSimpleDynamicClient(scheme, jwtAuthenticator.DeepCopy())
+			newClientset: func() *pinnipedconciergefake.Clientset {
+				c := pinnipedconciergefake.NewSimpleClientset(jwtAuthenticator.DeepCopy())
 				c.PrependReactor("update", "jwtauthenticators", func(a kubetesting.Action) (bool, runtime.Object, error) {
 					return true, nil, errors.New("some update error")
 				})
@@ -127,17 +114,17 @@ func TestCreateOrUpdateJWTAuthenticator(t *testing.T) {
 			},
 			wantError: fmt.Sprintf("could not update jwtauthenticator %s: some update error", jwtAuthenticator.Name),
 			wantActions: []kubetesting.Action{
-				kubetesting.NewGetAction(jwtAuthenticatorGVR, jwtAuthenticator.Namespace, jwtAuthenticator.Name),
-				kubetesting.NewUpdateAction(jwtAuthenticatorGVR, jwtAuthenticator.Namespace, toUnstructured(jwtAuthenticator, false)),
+				kubetesting.NewRootGetAction(jwtAuthenticatorGVR, jwtAuthenticator.Name),
+				kubetesting.NewRootUpdateAction(jwtAuthenticatorGVR, jwtAuthenticator),
 			},
 		},
 	}
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			kubeDynamicClient := test.newKubeDynamicClient()
+			clientset := test.newClientset()
 			err := Configurator{
-				Clientset: pinnipedclientset.NewConcierge(kubeDynamicClient, apiGroupSuffix, false),
+				Clientset: clientset,
 			}.CreateOrUpdateJWTAuthenticator(
 				context.Background(),
 				jwtAuthenticator.Namespace,
@@ -151,21 +138,7 @@ func TestCreateOrUpdateJWTAuthenticator(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 			}
-			require.Equal(t, test.wantActions, kubeDynamicClient.Actions())
+			require.Equal(t, test.wantActions, clientset.Actions())
 		})
 	}
-}
-
-func toUnstructured(obj runtime.Object, removeTypeMeta bool) runtime.Object {
-	unstructuredObjData, err := runtime.DefaultUnstructuredConverter.ToUnstructured(obj)
-	if err != nil {
-		panic(err)
-	}
-
-	if removeTypeMeta {
-		delete(unstructuredObjData, "apiVersion")
-		delete(unstructuredObjData, "kind")
-	}
-
-	return &unstructured.Unstructured{Object: unstructuredObjData}
 }
