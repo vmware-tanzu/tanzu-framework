@@ -55,6 +55,9 @@ func init() {
 }
 
 func registrySecretAdd(cmd *cobra.Command, args []string) error {
+
+	var exported string
+
 	registrySecretOp.SecretName = args[0]
 
 	password, err := extractPassword()
@@ -66,16 +69,6 @@ func registrySecretAdd(cmd *cobra.Command, args []string) error {
 	}
 	registrySecretOp.Password = password
 
-	if registrySecretOp.ExportToAllNamespaces {
-		log.Warning("Warning: By choosing --export-to-all-namespaces, given secret contents will be available to ALL users in ALL namespaces. Please ensure that included registry credentials allow only read-only access to the registry with minimal necessary scope.\n\n")
-		if !registrySecretOp.SkipPrompt {
-			if err := cli.AskForConfirmation("Are you sure you want to proceed?"); err != nil {
-				return errors.New("creation of the secret got aborted")
-			}
-		}
-		log.Info("\n")
-	}
-
 	pkgClient, err := tkgpackageclient.NewTKGPackageClient(registrySecretOp.KubeConfig)
 	if err != nil {
 		return err
@@ -84,6 +77,51 @@ func registrySecretAdd(cmd *cobra.Command, args []string) error {
 	kc, err := kappclient.NewKappClient(registrySecretOp.KubeConfig)
 	if err != nil {
 		return err
+	}
+
+	if registrySecretOp.ExportToAllNamespaces {
+		log.Warning("Warning: By choosing --export-to-all-namespaces, given secret contents will be available to ALL users in ALL namespaces. Please ensure that included registry credentials allow only read-only access to the registry with minimal necessary scope.\n\n")
+		if !registrySecretOp.SkipPrompt {
+			if err := cli.AskForConfirmation("Are you sure you want to proceed?"); err != nil {
+				return errors.New("creation of the secret got aborted")
+			}
+		}
+		log.Info("\n")
+	} else {
+		secretExportList, err := pkgClient.ListSecretExports(registrySecretOp)
+		if err != nil {
+			return err
+		}
+
+		for j := range secretExportList.Items {
+			exported = "not exported"
+			secretExport := secretExportList.Items[j]
+			if secretExport.Name == registrySecretOp.SecretName {
+
+				ns := &corev1.NamespaceList{}
+
+				err = kc.GetClient().List(context.Background(), ns)
+				if err != nil {
+					return err
+				}
+				
+				if findInList(secretExport.Spec.ToNamespaces, "*") || secretExport.Spec.ToNamespace == "*" {
+					exported = "to all namespaces"
+				} else {
+					exported = "to some namespaces"
+				}
+
+				// Ask user consent when secretexport has been created by kubectl and user tries to add secret of the same name as secretexport without using --export-to-all-namespaces flag
+				log.Warningf("Warning: SecretExport with the same name exists already, given secret contents will be available '%s'.\n\n", exported)
+				if !registrySecretOp.SkipPrompt {
+					if err := cli.AskForConfirmation("Are you sure you want to proceed?"); err != nil {
+						return errors.New("creation of the secret got aborted")
+					}
+				}
+				log.Info("\n")
+				break
+			}
+		}
 	}
 
 	// as the secret might already exist, first check for its existence in order to have an idempotent "add" operation
