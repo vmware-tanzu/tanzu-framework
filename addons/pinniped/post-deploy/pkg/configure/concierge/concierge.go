@@ -21,13 +21,13 @@ type Configurator struct {
 }
 
 // CreateOrUpdateJWTAuthenticator creates a new JWT or updates an existing one.
-func (c Configurator) CreateOrUpdateJWTAuthenticator(ctx context.Context, namespace, name, issuer, audience, caData string) error {
+func (c Configurator) CreateOrUpdateJWTAuthenticator(ctx context.Context, name, issuer, audience, caData string) error {
 	var err error
 	var jwtAuthenticator *authv1alpha1.JWTAuthenticator
 	if jwtAuthenticator, err = c.Clientset.AuthenticationV1alpha1().JWTAuthenticators().Get(ctx, name, metav1.GetOptions{}); err != nil {
 		if errors.IsNotFound(err) {
 			// create if not found
-			zap.S().Infof("Creating the JWTAuthenticator %s/%s", namespace, name)
+			zap.S().Infof("Creating the JWTAuthenticator %s", name)
 			newJWTAuthenticator := &authv1alpha1.JWTAuthenticator{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: name,
@@ -46,7 +46,7 @@ func (c Configurator) CreateOrUpdateJWTAuthenticator(ctx context.Context, namesp
 				return err
 			}
 
-			zap.S().Infof("Created the JWTAuthenticator %s/%s", namespace, name)
+			zap.S().Infof("Created the JWTAuthenticator %s", name)
 			return nil
 		}
 		err = fmt.Errorf("could not get jwtauthenticator %s: %w", name, err)
@@ -55,7 +55,7 @@ func (c Configurator) CreateOrUpdateJWTAuthenticator(ctx context.Context, namesp
 	}
 
 	// update existing JWTAuthenticator
-	zap.S().Infof("Updating existing JWTAuthenticator %s/%s", namespace, name)
+	zap.S().Infof("Updating existing JWTAuthenticator %s", name)
 	copiedJwtAuthenticator := jwtAuthenticator.DeepCopy()
 	copiedJwtAuthenticator.Spec.Issuer = issuer
 	copiedJwtAuthenticator.Spec.Audience = audience
@@ -68,6 +68,6 @@ func (c Configurator) CreateOrUpdateJWTAuthenticator(ctx context.Context, namesp
 		return err
 	}
 
-	zap.S().Infof("Updated the JWTAuthenticator %s/%s", namespace, name)
+	zap.S().Infof("Updated the JWTAuthenticator %s", name)
 	return nil
 }
