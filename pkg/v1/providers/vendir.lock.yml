@@ -10,10 +10,10 @@ directories:
   path: ytt/vendir/vsphere_cpi/_ytt_lib
 - contents:
   - git:
-      commitTitle: Add calico 3.19.1 package (#1606)...
-      sha: 9dc64e01bfb67cc128f618a419415c0f73a82cdc
+      commitTitle: Disable label scopping rules for calico-kube-controllers
+      sha: 4bdb31ea9691d712986ae81198aa972a88c0ee01
       tags:
-      - v0.10.0-dev.1-86-g9dc64e01
+      - v0.10.0-dev.1-174-g4bdb31ea
     path: .
   path: ytt/vendir/cni/_ytt_lib
 - contents:
