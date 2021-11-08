@@ -6,6 +6,7 @@ package client
 import (
 	"encoding/base64"
 	"fmt"
+	"net"
 
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -130,7 +131,7 @@ func (c *TkgClient) DoUpgradeAddon(regionalClusterClient clusterclient.Client, /
 	if err != nil {
 		return errors.Wrapf(err, "unable to find control plane node object for cluster %s", options.ClusterName)
 	}
-	if kcp.Spec.InfrastructureTemplate.Kind == constants.VSphereMachineTemplate {
+	if kcp.Spec.MachineTemplate.InfrastructureRef.Kind == constants.VSphereMachineTemplate {
 		// As vSphereControlPlaneEndpointIP is required for vSphere cluster for --dry-run
 		// while creating workload cluster template, setting this to dummy value currently
 		// Note: This value will not be used for addons upgrade
@@ -378,6 +379,16 @@ func (c *TkgClient) setNetworkingConfiguration(regionalClusterClient clusterclie
 			c.TKGConfigReaderWriter().Set(constants.ConfigVariableIPFamily, constants.IPv4Family)
 		case IPv6IPFamily:
 			c.TKGConfigReaderWriter().Set(constants.ConfigVariableIPFamily, constants.IPv6Family)
+		case DualStackIPFamily:
+			ip, _, err := net.ParseCIDR(cluster.Spec.ClusterNetwork.Services.CIDRBlocks[0])
+			if err != nil {
+				return fmt.Errorf("unable to detect valid IPFamily, could not parse CIDR: %s", err.Error())
+			}
+			if ip.To4() == nil {
+				c.TKGConfigReaderWriter().Set(constants.ConfigVariableIPFamily, constants.DualStackPrimaryIPv6Family)
+			} else {
+				c.TKGConfigReaderWriter().Set(constants.ConfigVariableIPFamily, constants.DualStackPrimaryIPv4Family)
+			}
 		default:
 			return fmt.Errorf("unable to detect valid IPFamily, found %s", ipFamily)
 		}

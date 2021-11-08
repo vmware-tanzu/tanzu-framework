@@ -42,21 +42,22 @@ type Clients struct {
 
 // Parameters contains the settings used.
 type Parameters struct {
-	ClusterName             string
-	ClusterType             string
-	SupervisorSvcName       string
-	SupervisorSvcNamespace  string
-	SupervisorSvcEndpoint   string
-	FederationDomainName    string
-	JWTAuthenticatorName    string
-	SupervisorCertName      string
-	SupervisorCertNamespace string
-	SupervisorCABundleData  string
-	DexNamespace            string
-	DexSvcName              string
-	DexCertName             string
-	DexConfigMapName        string
-	PinnipedAPIGroupSuffix  string
+	ClusterName              string
+	ClusterType              string
+	SupervisorSvcName        string
+	SupervisorSvcNamespace   string
+	SupervisorSvcEndpoint    string
+	FederationDomainName     string
+	JWTAuthenticatorName     string
+	SupervisorCertName       string
+	SupervisorCertNamespace  string
+	SupervisorCABundleData   string
+	DexNamespace             string
+	DexSvcName               string
+	DexCertName              string
+	DexConfigMapName         string
+	PinnipedAPIGroupSuffix   string
+	ConciergeIsClusterScoped bool
 }
 
 func ensureDeploymentReady(ctx context.Context, c Clients, namespace, deploymentTypeName string) error {
@@ -188,21 +189,22 @@ func TKGAuthentication(c Clients) error {
 	}
 
 	if err := Pinniped(ctx, c, inspector, &Parameters{
-		ClusterName:             tkgMetadata.Cluster.Name,
-		ClusterType:             tkgMetadata.Cluster.Type,
-		SupervisorSvcName:       vars.SupervisorSvcName,
-		SupervisorSvcNamespace:  vars.SupervisorNamespace,
-		SupervisorSvcEndpoint:   vars.SupervisorSvcEndpoint,
-		FederationDomainName:    vars.FederationDomainName,
-		JWTAuthenticatorName:    vars.JWTAuthenticatorName,
-		SupervisorCertName:      vars.SupervisorCertName,
-		SupervisorCertNamespace: vars.SupervisorNamespace,
-		SupervisorCABundleData:  vars.SupervisorCABundleData,
-		DexNamespace:            vars.DexNamespace,
-		DexSvcName:              vars.DexSvcName,
-		DexCertName:             vars.DexCertName,
-		DexConfigMapName:        vars.DexConfigMapName,
-		PinnipedAPIGroupSuffix:  vars.PinnipedAPIGroupSuffix,
+		ClusterName:              tkgMetadata.Cluster.Name,
+		ClusterType:              tkgMetadata.Cluster.Type,
+		SupervisorSvcName:        vars.SupervisorSvcName,
+		SupervisorSvcNamespace:   vars.SupervisorNamespace,
+		SupervisorSvcEndpoint:    vars.SupervisorSvcEndpoint,
+		FederationDomainName:     vars.FederationDomainName,
+		JWTAuthenticatorName:     vars.JWTAuthenticatorName,
+		SupervisorCertName:       vars.SupervisorCertName,
+		SupervisorCertNamespace:  vars.SupervisorNamespace,
+		SupervisorCABundleData:   vars.SupervisorCABundleData,
+		DexNamespace:             vars.DexNamespace,
+		DexSvcName:               vars.DexSvcName,
+		DexCertName:              vars.DexCertName,
+		DexConfigMapName:         vars.DexConfigMapName,
+		PinnipedAPIGroupSuffix:   vars.PinnipedAPIGroupSuffix,
+		ConciergeIsClusterScoped: vars.ConciergeIsClusterScoped,
 	}); err != nil {
 		// logging has been done inside the function
 		return err
@@ -299,11 +301,11 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p *Pa
 
 		// create configmap for Pinniped info
 		if err := createOrUpdatePinnipedInfo(ctx, supervisor.PinnipedInfo{
-			MgmtClusterName:                  &p.ClusterName,
-			Issuer:                           &supervisorSvcEndpoint,
-			IssuerCABundleData:               &caData,
-			PinnipedAPIGroupSuffix:           p.PinnipedAPIGroupSuffix,
-			PinnipedConciergeIsClusterScoped: false,
+			MgmtClusterName:          &p.ClusterName,
+			Issuer:                   &supervisorSvcEndpoint,
+			IssuerCABundleData:       &caData,
+			ConciergeAPIGroupSuffix:  p.PinnipedAPIGroupSuffix,
+			ConciergeIsClusterScoped: p.ConciergeIsClusterScoped,
 		}, c.K8SClientset); err != nil {
 			return err
 		}
@@ -319,8 +321,8 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p *Pa
 
 		// create configmap for Pinniped info
 		if err := createOrUpdatePinnipedInfo(ctx, supervisor.PinnipedInfo{
-			PinnipedAPIGroupSuffix:           p.PinnipedAPIGroupSuffix,
-			PinnipedConciergeIsClusterScoped: false,
+			ConciergeAPIGroupSuffix:  p.PinnipedAPIGroupSuffix,
+			ConciergeIsClusterScoped: p.ConciergeIsClusterScoped,
 		}, c.K8SClientset); err != nil {
 			return err
 		}

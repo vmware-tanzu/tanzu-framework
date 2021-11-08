@@ -43,7 +43,7 @@ var _ = Describe("Update Repository", func() {
 			Done:        make(chan struct{}),
 		}
 		ctl = &pkgClient{kappClient: kappCtl}
-		go ctl.UpdateRepository(&options, progress)
+		go ctl.UpdateRepository(&options, progress, tkgpackagedatamodel.OperationTypeUpdate)
 		err = testReceive(progress)
 	})
 

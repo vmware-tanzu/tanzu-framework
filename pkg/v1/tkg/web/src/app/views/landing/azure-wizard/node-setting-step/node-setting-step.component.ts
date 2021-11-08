@@ -69,7 +69,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             ])
         );
 
-        if (this.clusterType !== 'standalone') {
+        if (!this.modeClusterStandalone) {
             this.formGroup.addControl(
                 'workerNodeInstanceType',
                 new FormControl('', [
@@ -95,7 +95,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         .pipe(takeUntil(this.unsubscribe))
         .subscribe((instanceTypes: AzureInstanceType[]) => {
             this.nodeTypes = instanceTypes.sort();
-            if (this.clusterType !== 'standalone' && this.nodeTypes.length === 1) {
+            if (!this.modeClusterStandalone && this.nodeTypes.length === 1) {
                 this.formGroup.get('workerNodeInstanceType').setValue(this.nodeTypes[0].name);
             }
         });

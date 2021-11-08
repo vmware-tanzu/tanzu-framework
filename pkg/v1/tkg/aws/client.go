@@ -265,6 +265,9 @@ func setDefaultCloudFormationTemplateValue(t *bootstrap.Template) {
 	t.Spec.NameSuffix = utilpointer.StringPtr(DefaultCloudFormationNameSuffix)
 	t.Spec.StackName = DefaultCloudFormationStackName
 	t.Spec.BootstrapUser.UserName = DefaultCloudFormationBootstrapUserName
+	// Experimental EKS support in CAPA graduated and is enabled by default.
+	// Explicitly disabling it since TKG doesn't support creating EKS clusters.
+	t.Spec.EKS.Disable = true
 }
 
 func (c *client) ListInstanceTypes(optionalAZName string) ([]string, error) {

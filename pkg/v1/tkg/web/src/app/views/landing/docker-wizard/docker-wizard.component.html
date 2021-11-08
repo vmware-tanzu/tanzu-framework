@@ -13,18 +13,18 @@
                     keyboardListener></clr-icon>
             <h2 i18n="wizard title" aria-level="1">
                 <div class="docker-icon-30"></div>
-                Deploy {{ clusterType | titlecase }} Cluster on Docker
+                Deploy {{ clusterTypeDescriptor | titlecase }} Cluster on Docker
             </h2>
         </div>
     </div>
     <app-shared-delete-data-popup></app-shared-delete-data-popup>
     <form clrStepper #wizard [formGroup]="form">
         <clr-stepper-panel formGroupName="dockerDaemonForm" removeAriaLabelledBy>
-            <clr-step-title i18n="docker daemon step name">
-                Docker Daemon
+            <clr-step-title i18n="docker prerequisite step name">
+                Docker Prerequisites
             </clr-step-title>
-            <clr-step-description i18n="IaaS provder step description">
-                Validate the local Docker daemon
+            <clr-step-description i18n="Docker prerequisite step description">
+                Validate the local Docker daemon, allocated CPUs and Total Memory
             </clr-step-description>
             <ng-container *ngIf="steps[0]">
                 <app-daemon-validation-step [formGroup]="form.controls.dockerDaemonForm" formName="dockerDaemon">
@@ -37,7 +37,7 @@
 
         <clr-stepper-panel formGroupName="dockerNodeSettingForm" removeAriaLabelledBy>
             <clr-step-title i18n="node setting step name">
-                {{ clusterType | titlecase }} Cluster Settings
+                {{ clusterTypeDescriptor | titlecase }} Cluster Settings
             </clr-step-title>
             <clr-step-description i18n="node setting step description">
                 {{ getStepDescription('nodeSetting') }}
@@ -95,7 +95,7 @@
     <div class="clr-row mt-20">
         <div class="clr-col-12">
             <button class="btn btn-primary" [disabled]="disableDeployButton" (click)="deploy()">
-                Deploy {{ clusterType | titlecase }} Cluster
+                Deploy {{ clusterTypeDescriptor | titlecase }} Cluster
             </button>
             <button class="btn btn-outline" (click)="reviewConfiguration(false)"
                 i18n="return to wizard for edit button">

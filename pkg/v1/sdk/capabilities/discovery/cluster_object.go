@@ -4,6 +4,7 @@
 package discovery
 
 import (
+	"context"
 	"fmt"
 
 	corev1 "k8s.io/api/core/v1"
@@ -122,7 +123,7 @@ func (q *QueryObject) objectExists(resources []*restmapper.APIGroupResources, co
 		dr = config.dynamicClient.Resource(mapping.Resource)
 	}
 
-	o, err := dr.Get(q.object.Name, metav1.GetOptions{})
+	o, err := dr.Get(context.Background(), q.object.Name, metav1.GetOptions{})
 	if err != nil {
 		if errors.IsNotFound(err) {
 			return nil, nil

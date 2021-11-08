@@ -126,7 +126,16 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
     ngOnInit() {
         super.ngOnInit();
 
-        this.requiredFields = (this.clusterType !== 'standalone') ?
+        this.requiredFields = this.modeClusterStandalone ?
+            [
+                "vnetOption",
+                "resourceGroup",
+                "vnetNameCustom",
+                "vnetNameExisting",
+                "controlPlaneSubnet",
+                "controlPlaneSubnetNew",
+                "controlPlaneSubnetCidrNew",
+            ] :
             [
                 "vnetOption",
                 "resourceGroup",
@@ -138,28 +147,25 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
                 "controlPlaneSubnetCidrNew",
                 "workerNodeSubnetNew",
                 "workerNodeSubnetCidrNew"
-            ] :
-            [
-                "vnetOption",
-                "resourceGroup",
-                "vnetNameCustom",
-                "vnetNameExisting",
-                "controlPlaneSubnet",
-                "controlPlaneSubnetNew",
-                "controlPlaneSubnetCidrNew",
             ];
 
         this.optionalFields = ['privateAzureCluster', 'privateIP'];
 
-        this.defaultCidrFields = (this.clusterType !== 'standalone') ?
-            ["vnetCidrBlock", "controlPlaneSubnetCidrNew", "workerNodeSubnetCidrNew"] :
-            ["vnetCidrBlock", "controlPlaneSubnetCidrNew", ];
+        this.defaultCidrFields = this.modeClusterStandalone ?
+            ["vnetCidrBlock", "controlPlaneSubnetCidrNew", ] :
+            ["vnetCidrBlock", "controlPlaneSubnetCidrNew", "workerNodeSubnetCidrNew"];
 
-        this.vnetFieldsExisting = (this.clusterType !== 'standalone') ?
-            ["vnetNameExisting", "controlPlaneSubnet", "workerNodeSubnet"] :
-            ["vnetNameExisting", "controlPlaneSubnet"];
+        this.vnetFieldsExisting = this.modeClusterStandalone ?
+            ["vnetNameExisting", "controlPlaneSubnet"] :
+            ["vnetNameExisting", "controlPlaneSubnet", "workerNodeSubnet"];
 
-        this.vnetFieldsNew = (this.clusterType !== 'standalone') ?
+        this.vnetFieldsNew = this.modeClusterStandalone ?
+            [
+                "vnetNameCustom",
+                "vnetCidrBlock",
+                "controlPlaneSubnetNew",
+                "controlPlaneSubnetCidrNew",
+            ] :
             [
                 "vnetNameCustom",
                 "vnetCidrBlock",
@@ -167,12 +173,6 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
                 "controlPlaneSubnetCidrNew",
                 "workerNodeSubnetNew",
                 "workerNodeSubnetCidrNew"
-            ] :
-            [
-                "vnetNameCustom",
-                "vnetCidrBlock",
-                "controlPlaneSubnetNew",
-                "controlPlaneSubnetCidrNew",
             ];
 
         this.buildForm();
@@ -282,8 +282,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
         } else if (this.controlPlaneSubnets.length === 1) {
             this.formGroup.get('controlPlaneSubnet').setValue(this.controlPlaneSubnets[0].name)
         }
-
-        if (this.clusterType !== 'standalone') {
+        if (!this.modeClusterStandalone) {
             filteredSubnets = this.workerNodeSubnets.filter(s => s.name === this.getSavedValue('workerNodeSubnet', ''));
             if (filteredSubnets.length > 0) {
                 this.formGroup.get('workerNodeSubnet').setValue(filteredSubnets[0].cidr);
@@ -333,7 +332,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
             this.validationService.isValidIpNetworkSegment()
             ], this.defaultControlPlaneCidr);
 
-            if (this.clusterType !== 'standalone') {
+            if (!this.modeClusterStandalone) {
                 this.resurrectField("workerNodeSubnetNew", [Validators.required]);
                 this.resurrectField("workerNodeSubnetCidrNew", [Validators.required,
                     this.validationService.noWhitespaceOnEnds(),

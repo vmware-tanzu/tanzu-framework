@@ -8,10 +8,12 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/clientconfighelpers"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
@@ -31,11 +33,13 @@ var (
 			clusterConfigFile           string
 			kubeconfig7Path             = "../fakes/config/config7.yaml"
 			defaultTKGBoMFileForTesting = "../fakes/config/bom/tkg-bom-v1.3.1.yaml"
+			tkgConfigReaderWriter       tkgconfigreaderwriter.TKGConfigReaderWriter
 		)
 
 		JustBeforeEach(func() {
+			var err error
 			setupTestingFiles(clusterConfigFile, tkgConfigDir, defaultTKGBoMFileForTesting)
-			tkgConfigReaderWriter, err := tkgconfigreaderwriter.NewReaderWriterFromConfigFile(clusterConfigFile, filepath.Join(tkgConfigDir, "config.yaml"))
+			tkgConfigReaderWriter, err = tkgconfigreaderwriter.NewReaderWriterFromConfigFile(clusterConfigFile, filepath.Join(tkgConfigDir, "config.yaml"))
 			Expect(err).NotTo(HaveOccurred())
 
 			bomClient = tkgconfigbom.New(tkgConfigDir, tkgConfigReaderWriter)
@@ -179,8 +183,8 @@ var (
 				var receivedImageTag string
 				BeforeEach(func() {
 					fakeRegistry.ListImageTagsReturns([]string{"v3", "v1", "v2"}, nil)
-					fakeRegistry.GetFileCalls(func(ImagePath string, ImageTag string, filename string) ([]byte, error) {
-						receivedImageTag = ImageTag
+					fakeRegistry.GetFileCalls(func(ImageWithTag string, filename string) ([]byte, error) {
+						receivedImageTag = strings.Split(ImageWithTag, ":")[1]
 						return nil, errors.New("fake GetFile error for TKG Compatibility file")
 					})
 				})
@@ -299,7 +303,7 @@ var (
 				err    error
 			)
 			JustBeforeEach(func() {
-				actual, err = bomClient.GetCustomRepositoryCaCertificateForClient()
+				actual, err = clientconfighelpers.GetCustomRepositoryCaCertificateForClient(tkgConfigReaderWriter)
 			})
 			When("BOM file is present without a Custom Image Repository", func() {
 				It("should return the custom registry", func() {
@@ -362,6 +366,19 @@ var (
 					Expect(err).ToNot(HaveOccurred())
 					Expect(actual).To(Equal("v1.18.0+vmware.1-tkg.2"))
 				})
+			})
+		})
+		Context("GetDefaultTkgBOMConfiguration", func() {
+			It("Should be populated with CAPI version and the supported provider versions", func() {
+				bomConfiguration, err := bomClient.GetDefaultTkgBOMConfiguration()
+				Expect(err).ToNot(HaveOccurred())
+				Expect(bomConfiguration.ProvidersVersionMap["cluster-api"]).To(Equal("v0.3.11-13-ga74685ee9"))
+				Expect(bomConfiguration.ProvidersVersionMap["bootstrap-kubeadm"]).To(Equal("v0.3.11-13-ga74685ee9"))
+				Expect(bomConfiguration.ProvidersVersionMap["control-plane-kubeadm"]).To(Equal("v0.3.11-13-ga74685ee9"))
+				Expect(bomConfiguration.ProvidersVersionMap["infrastructure-docker"]).To(Equal("v0.3.11-13-ga74685ee9"))
+				Expect(bomConfiguration.ProvidersVersionMap["infrastructure-azure"]).To(Equal("v0.4.8-47-gfbb2d55b"))
+				Expect(bomConfiguration.ProvidersVersionMap["infrastructure-aws"]).To(Equal("v0.6.3"))
+				Expect(bomConfiguration.ProvidersVersionMap["infrastructure-vsphere"]).To(Equal("v0.7.1"))
 			})
 		})
 		Context("GetFullImagePath", func() {

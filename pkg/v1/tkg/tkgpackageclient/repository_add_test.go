@@ -141,6 +141,27 @@ var _ = Describe("Add Repository", func() {
 		AfterEach(func() { options = opts })
 	})
 
+	Context("falling back to update when trying to add an existing package repository (throwing non-critical error)", func() {
+		BeforeEach(func() {
+			options.Wait = true
+			options.RepositoryName = testRepoName
+			options.Wait = false
+			kappCtl = &fakes.KappClient{}
+			crtCtl = &fakes.CRTClusterClient{}
+			kappCtl.GetClientReturns(crtCtl)
+			kappCtl.ListPackageRepositoriesReturns(pkgRepositoryList, nil)
+			kappCtl.GetPackageRepositoryReturns(testRepository, nil)
+		})
+		It(testFailureMsg, func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring(tkgpackagedatamodel.ErrRepoAlreadyExists))
+		})
+		AfterEach(func() {
+			options = opts
+			options.RepositoryName = testRegistry
+		})
+	})
+
 	Context("success in creating the package repository in not previously existing 'test-ns' namespace", func() {
 		BeforeEach(func() {
 			options.CreateNamespace = true

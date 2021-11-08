@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	"github.com/pkg/errors"
@@ -44,17 +45,6 @@ const (
 	DefaultPinnipedLoginTimeout = time.Minute
 )
 
-// PinnipedConfigMapInfo contains the information from the Pinniped ConfigMap
-type PinnipedConfigMapInfo struct {
-	Kind    string `yaml:"kind"`
-	Version string `yaml:"apiVersion"`
-	Data    struct {
-		ClusterName    string `yaml:"cluster_name"`
-		Issuer         string `yaml:"issuer"`
-		IssuerCABundle string `yaml:"issuer_ca_bundle_data"`
-	}
-}
-
 // KubeConfigOptions contains the kubeconfig options
 type KubeConfigOptions struct {
 	MergeFilePath string
@@ -71,6 +61,11 @@ func KubeconfigWithPinnipedAuthLoginPlugin(endpoint string, options *KubeConfigO
 	pinnipedInfo, err := tkgutils.GetPinnipedInfoFromCluster(clusterInfo)
 	if err != nil {
 		err = errors.Wrap(err, "failed to get pinniped-info")
+		return
+	}
+
+	if pinnipedInfo == nil {
+		err = errors.New("failed to get pinniped-info from cluster")
 		return
 	}
 
@@ -154,15 +149,24 @@ func GetPinnipedKubeconfig(cluster *clientcmdapi.Cluster, pinnipedInfo *tkgutils
 		Env:        []clientcmdapi.ExecEnvVar{},
 	}
 
+	var conciergeAPIGroupSuffix string
+
+	if pinnipedInfo.Data.ConciergeAPIGroupSuffix == nil {
+		// If ConciergeAPIGroupSuffix is not set, assume old management or workload cluster and set it to default
+		conciergeAPIGroupSuffix = "pinniped.dev"
+	} else {
+		conciergeAPIGroupSuffix = *pinnipedInfo.Data.ConciergeAPIGroupSuffix
+	}
 	execConfig.Command = "tanzu"
 	execConfig.Args = append([]string{"pinniped-auth", "login"}, execConfig.Args...)
 
 	// configure concierge
 	execConfig.Args = append(execConfig.Args,
 		"--enable-concierge",
-		"--concierge-namespace="+ConciergeNamespace,
 		"--concierge-authenticator-name="+ConciergeAuthenticatorName,
 		"--concierge-authenticator-type="+ConciergeAuthenticatorType,
+		"--concierge-api-group-suffix="+conciergeAPIGroupSuffix,
+		"--concierge-is-cluster-scoped="+strconv.FormatBool(pinnipedInfo.Data.ConciergeIsClusterScoped),
 		"--concierge-endpoint="+cluster.Server,
 		"--concierge-ca-bundle-data="+base64.StdEncoding.EncodeToString(cluster.CertificateAuthorityData),
 		"--issuer="+pinnipedInfo.Data.Issuer, // configure OIDC
@@ -170,6 +174,10 @@ func GetPinnipedKubeconfig(cluster *clientcmdapi.Cluster, pinnipedInfo *tkgutils
 		"--ca-bundle-data="+pinnipedInfo.Data.IssuerCABundle,
 		"--request-audience="+audience,
 	)
+
+	if !pinnipedInfo.Data.ConciergeIsClusterScoped {
+		execConfig.Args = append(execConfig.Args, "--concierge-namespace="+ConciergeNamespace)
+	}
 
 	if os.Getenv("TANZU_CLI_PINNIPED_AUTH_LOGIN_SKIP_BROWSER") != "" {
 		execConfig.Args = append(execConfig.Args, "--skip-browser")

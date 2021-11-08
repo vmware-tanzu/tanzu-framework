@@ -14,7 +14,6 @@ import {
 import { IAAS_DEFAULT_CIDRS, IpFamilyEnum } from '../../../../../../../shared/constants/app.constants';
 import { ValidationService } from '../../../validation/validation.service';
 import { StepFormDirective } from '../../../step-form/step-form';
-import { AppDataService } from 'src/app/shared/service/app-data.service';
 import { FormMetaDataStore, FormMetaData } from '../../../FormMetaDataStore';
 import { TkgEventType } from 'src/app/shared/service/Messenger';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
@@ -40,8 +39,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
     fullNoProxy: string;
 
     constructor(private validationService: ValidationService,
-        private wizardFormService: VSphereWizardFormService,
-        private appDataService: AppDataService) {
+        private wizardFormService: VSphereWizardFormService) {
         super();
     }
 
@@ -97,7 +95,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
     }
 
     setValidators() {
-        const configuredCni = this.appDataService.getPluginFeature(managementClusterPlugin, 'cni');
+        const configuredCni = Broker.appDataService.getPluginFeature(managementClusterPlugin, 'cni');
         if (configuredCni && ['antrea', 'calico', 'none'].includes(configuredCni)) {
             this.cniType = configuredCni;
         } else {

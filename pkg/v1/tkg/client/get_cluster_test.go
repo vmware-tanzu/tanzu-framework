@@ -12,7 +12,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/client/fake" // nolint:staticcheck
+	"sigs.k8s.io/controller-runtime/pkg/client/fake" // nolint:staticcheck,nolintlint
 
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
@@ -56,7 +56,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 	Describe("get clusters tests for CP, Worker count, and Cluster Status", func() {
 		JustBeforeEach(func() {
 			// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
-			fakeClientSet = fake.NewFakeClientWithScheme(scheme, fakehelper.GetAllCAPIClusterObjects(createClusterOptions)...)
+			fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(fakehelper.GetAllCAPIClusterObjects(createClusterOptions)...).Build()
 			crtClientFactory.NewClientReturns(fakeClientSet, nil)
 
 			regionalClusterClient, err = clusterclient.NewClient(kubeconfig, "", clusterClientOptions)
@@ -418,10 +418,9 @@ var _ = Describe("Unit tests for get clusters", func() {
 						TkgLabelClusterRolePrefix + TkgLabelClusterRoleWorkload: "",
 					},
 					ClusterOptions: fakehelper.TestClusterOptions{
-						Phase:                   "provisioned",
-						InfrastructureReady:     true,
-						ControlPlaneInitialized: true,
-						ControlPlaneReady:       false,
+						Phase:               "provisioned",
+						InfrastructureReady: true,
+						ControlPlaneReady:   false,
 					},
 					CPOptions: fakehelper.TestCPOptions{
 						SpecReplicas:    3,
@@ -452,7 +451,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 				Expect(clusterInfo[0].WorkerCount).To(Equal(fmt.Sprintf("%v/%v", createClusterOptions.ListMDOptions[0].ReadyReplicas, createClusterOptions.ListMDOptions[0].SpecReplicas)))
 				Expect(clusterInfo[0].K8sVersion).To(Equal(createClusterOptions.CPOptions.K8sVersion))
 				Expect(clusterInfo[0].Roles).To(Equal([]string{TkgLabelClusterRoleWorkload}))
-				Expect(clusterInfo[0].Status).To(Equal(string(TKGClusterPhaseUpdating)))
+				Expect(clusterInfo[0].Status).To(Equal(string(TKGClusterPhaseCreating)))
 			})
 		})
 
@@ -818,7 +817,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 
 	Describe("get clusters tests for name and Namespace", func() {
 		JustBeforeEach(func() {
-			fakeClientSet = fake.NewFakeClientWithScheme(scheme, testClusters...)
+			fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(testClusters...).Build()
 			crtClientFactory.NewClientReturns(fakeClientSet, nil)
 			regionalClusterClient, err = clusterclient.NewClient(kubeconfig, "", clusterClientOptions)
 			Expect(err).NotTo(HaveOccurred())
@@ -884,7 +883,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 
 	Describe("get clusters tests for Pacific", func() {
 		JustBeforeEach(func() {
-			fakeClientSet = fake.NewFakeClientWithScheme(scheme, fakehelper.GetAllPacificClusterObjects(createClusterOptions)...)
+			fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(fakehelper.GetAllPacificClusterObjects(createClusterOptions)...).Build()
 			crtClientFactory.NewClientReturns(fakeClientSet, nil)
 			regionalClusterClient, err = clusterclient.NewClient(kubeconfig, "", clusterClientOptions)
 			Expect(err).NotTo(HaveOccurred())

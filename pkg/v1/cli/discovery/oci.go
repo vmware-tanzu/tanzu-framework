@@ -4,6 +4,13 @@
 package discovery
 
 import (
+	"strings"
+
+	"github.com/pkg/errors"
+	apimachineryjson "k8s.io/apimachinery/pkg/runtime/serializer/json"
+
+	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/carvelhelpers"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/plugin"
 )
 
@@ -29,13 +36,23 @@ func NewOCIDiscovery(name, image string) Discovery {
 
 // List available plugins.
 func (od *OCIDiscovery) List() (plugins []plugin.Discovered, err error) {
-	// TODO(anujc25): implement OCI discovery plugin list
-	return
+	return od.Manifest()
 }
 
 // Describe a plugin.
 func (od *OCIDiscovery) Describe(name string) (p plugin.Discovered, err error) {
-	// TODO(anujc25): implement OCI discovery plugin describe
+	plugins, err := od.Manifest()
+	if err != nil {
+		return
+	}
+
+	for i := range plugins {
+		if plugins[i].Name == name {
+			p = plugins[i]
+			return
+		}
+	}
+	err = errors.Errorf("cannot find plugin with name '%v'", name)
 	return
 }
 
@@ -47,4 +64,39 @@ func (od *OCIDiscovery) Name() string {
 // Type of the discovery.
 func (od *OCIDiscovery) Type() string {
 	return "OCI"
+}
+
+// Manifest returns the manifest for a local repository.
+func (od *OCIDiscovery) Manifest() ([]plugin.Discovered, error) {
+	outputData, err := carvelhelpers.ProcessCarvelPackage(od.image)
+	if err != nil {
+		return nil, errors.Wrap(err, "error while processing package")
+	}
+
+	return processDiscoveryManifestData(outputData, od.name)
+}
+
+func processDiscoveryManifestData(data []byte, discoveryName string) ([]plugin.Discovered, error) {
+	plugins := make([]plugin.Discovered, 0)
+
+	for _, resourceYAML := range strings.Split(string(data), "---") {
+		scheme, err := cliv1alpha1.SchemeBuilder.Build()
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to create scheme")
+		}
+		s := apimachineryjson.NewSerializerWithOptions(apimachineryjson.DefaultMetaFactory, scheme, scheme,
+			apimachineryjson.SerializerOptions{Yaml: true, Pretty: false, Strict: false})
+		var p cliv1alpha1.CLIPlugin
+		_, _, err = s.Decode([]byte(resourceYAML), nil, &p)
+		if err != nil {
+			return nil, errors.Wrap(err, "could not decode discovery manifests")
+		}
+
+		dp := DiscoveredFromK8sV1alpha1(&p)
+		dp.Source = discoveryName
+		if dp.Name != "" {
+			plugins = append(plugins, dp)
+		}
+	}
+	return plugins, nil
 }

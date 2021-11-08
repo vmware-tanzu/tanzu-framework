@@ -16,7 +16,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
 	"github.com/pkg/errors"
-	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
+	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -375,17 +375,6 @@ func (c *TkgClient) getInitOptionsFromExistingCluster(regionalClusterClient clus
 	} else {
 		for targetNamespace := range installedProviderNamespaces {
 			initOptions.Namespace = targetNamespace
-		}
-	}
-
-	// Check if installed Provider's watchedNamespace is same or not, if same means cluster
-	// was deployment with --watching-namespace parameter, else all providers are watching
-	// objects in all namespaces
-	if len(installedProviderWatchingNamespaces) != 1 {
-		initOptions.WatchingNamespace = ""
-	} else {
-		for watchingNamespace := range installedProviderWatchingNamespaces {
-			initOptions.WatchingNamespace = watchingNamespace
 		}
 	}
 

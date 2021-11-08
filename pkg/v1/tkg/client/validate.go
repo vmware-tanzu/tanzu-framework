@@ -18,7 +18,7 @@ import (
 	"strings"
 	"time"
 
-	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
+	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1beta1"
 	clusterctlclient "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
@@ -27,6 +27,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/aws"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/azure"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
@@ -569,7 +570,11 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
-	if err = c.configureAndValidateIPFamilyConfiguration(); err != nil {
+	if err = c.configureAndValidateIPFamilyConfiguration(TkgLabelClusterRoleManagement); err != nil {
+		return NewValidationError(ValidationErrorCode, err.Error())
+	}
+
+	if err = c.validateServiceCIDRNetmask(); err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
@@ -682,8 +687,8 @@ func (c *TkgClient) getRegionClient(regionContext region.RegionContext) (cluster
 	return client, nil
 }
 
-func getVsphereMachineTemplate(client clusterclient.Client, clusterName string) (*capvv1alpha3.VSphereMachineTemplate, error) {
-	vsphereMachineTemplate := &capvv1alpha3.VSphereMachineTemplate{}
+func getVsphereMachineTemplate(client clusterclient.Client, clusterName string) (*capvv1beta1.VSphereMachineTemplate, error) {
+	vsphereMachineTemplate := &capvv1beta1.VSphereMachineTemplate{}
 	nameSpace, err := client.GetCurrentNamespace()
 	if err != nil {
 		return nil, err
@@ -694,7 +699,7 @@ func getVsphereMachineTemplate(client clusterclient.Client, clusterName string) 
 		log.V(4).Infof("Error getting KCP Object")
 		return nil, err
 	}
-	if err := client.GetResource(vsphereMachineTemplate, kcp.Spec.InfrastructureTemplate.Name, "tkg-system", nil, nil); err != nil {
+	if err := client.GetResource(vsphereMachineTemplate, kcp.Spec.MachineTemplate.InfrastructureRef.Name, "tkg-system", nil, nil); err != nil {
 		return nil, err
 	}
 	return vsphereMachineTemplate, nil
@@ -1445,7 +1450,12 @@ func (c *TkgClient) ConfigureAndValidateHTTPProxyConfiguration(infrastructureNam
 	c.SetDefaultProxySettings()
 	proxyEnabled, err := c.TKGConfigReaderWriter().Get(constants.TKGHTTPProxyEnabled)
 	if err != nil || proxyEnabled != trueString {
-		return nil
+		httpProxy, err2 := c.TKGConfigReaderWriter().Get(constants.TKGHTTPProxy)
+		if httpProxy == "" || err2 != nil {
+			return nil
+		}
+		// httpProxy and httpsProxy are presents, check if the TKGHTTPProxyEnabled
+		return errors.Wrapf(err, "cannot get %s", constants.TKGHTTPProxyEnabled)
 	}
 
 	httpProxy, err := c.TKGConfigReaderWriter().Get(constants.TKGHTTPProxy)
@@ -1575,12 +1585,17 @@ func CheckClusterNameFormat(clusterName, infrastructureProvider string) error {
 	return nil
 }
 
-func (c *TkgClient) configureAndValidateIPFamilyConfiguration() error {
+func (c *TkgClient) configureAndValidateIPFamilyConfiguration(clusterRole string) error {
 	// ignoring error because IPFamily is an optional configuration
 	// if not set Get will return an empty string
 	ipFamily, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableIPFamily)
 	if ipFamily == "" {
 		ipFamily = constants.IPv4Family
+	}
+
+	err := c.checkIPFamilyFeatureFlags(ipFamily, clusterRole)
+	if err != nil {
+		return err
 	}
 
 	serviceCIDRs, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableServiceCIDR)
@@ -1601,6 +1616,29 @@ func (c *TkgClient) configureAndValidateIPFamilyConfiguration() error {
 	}
 	if err := c.validateIPHostnameForIPFamily(constants.TKGHTTPSProxy, ipFamily); err != nil {
 		return err
+	}
+	return nil
+}
+
+func (c *TkgClient) validateServiceCIDRNetmask() error {
+	// kube-apiserver requires that the service CIDR be of limited size.
+	// This validation avoids a case where the cluster never comes up when
+	// the CIDR is too large.
+	// https://github.com/kubernetes/kubernetes/blob/3c87c43ceff6122637c8d8070601f7271026360e/cmd/kube-apiserver/app/options/validation.go#L52
+	configVariableName := constants.ConfigVariableServiceCIDR
+	serviceCIDRs, _ := c.TKGConfigReaderWriter().Get(configVariableName)
+	cidrSlice := strings.Split(serviceCIDRs, ",")
+	for _, cidrString := range cidrSlice {
+		_, cidr, err := net.ParseCIDR(cidrString)
+		if err != nil {
+			// This should never happen since CIDRs were already validated before
+			return errors.Errorf("invalid %s \"%s\"", configVariableName, serviceCIDRs)
+		}
+		maxCIDRBits := 20
+		var ones, bits = cidr.Mask.Size()
+		if bits-ones > maxCIDRBits {
+			return errors.Errorf("invalid %s \"%s\", expected netmask to be \"/%d\" or greater", configVariableName, cidrString, bits-maxCIDRBits)
+		}
 	}
 	return nil
 }
@@ -1767,4 +1805,32 @@ func (c *TkgClient) validateNameservers(nameserverConfigVariable string) error {
 		return fmt.Errorf("invalid %s %q, expected to be IP addresses that match TKG_IP_FAMILY %q", nameserverConfigVariable, strings.Join(invalidNameservers, ","), ipFamily)
 	}
 	return nil
+}
+
+func (c *TkgClient) checkIPFamilyFeatureFlags(ipFamily, clusterRole string) error {
+	if clusterRole == TkgLabelClusterRoleManagement {
+		dualIPv4PrimaryEnabled := c.IsFeatureActivated(config.FeatureFlagManagementClusterDualStackIPv4Primary)
+		if !dualIPv4PrimaryEnabled && ipFamily == constants.DualStackPrimaryIPv4Family {
+			return dualStackFeatureFlagError(ipFamily, config.FeatureFlagManagementClusterDualStackIPv4Primary)
+		}
+		dualIPv6PrimaryEnabled := c.IsFeatureActivated(config.FeatureFlagManagementClusterDualStackIPv6Primary)
+		if !dualIPv6PrimaryEnabled && ipFamily == constants.DualStackPrimaryIPv6Family {
+			return dualStackFeatureFlagError(ipFamily, config.FeatureFlagManagementClusterDualStackIPv6Primary)
+		}
+	} else {
+		dualIPv4PrimaryEnabled := c.IsFeatureActivated(config.FeatureFlagClusterDualStackIPv4Primary)
+		if !dualIPv4PrimaryEnabled && ipFamily == constants.DualStackPrimaryIPv4Family {
+			return dualStackFeatureFlagError(ipFamily, config.FeatureFlagClusterDualStackIPv4Primary)
+		}
+		dualIPv6PrimaryEnabled := c.IsFeatureActivated(config.FeatureFlagClusterDualStackIPv6Primary)
+		if !dualIPv6PrimaryEnabled && ipFamily == constants.DualStackPrimaryIPv6Family {
+			return dualStackFeatureFlagError(ipFamily, config.FeatureFlagClusterDualStackIPv6Primary)
+		}
+	}
+
+	return nil
+}
+
+func dualStackFeatureFlagError(ipFamily, featureFlag string) error {
+	return fmt.Errorf("option TKG_IP_FAMILY is set to %q, but dualstack support is not enabled (because it is under development). To enable dualstack, set %s to \"true\"", ipFamily, featureFlag)
 }

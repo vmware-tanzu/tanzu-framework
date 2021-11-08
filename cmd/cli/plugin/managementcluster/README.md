@@ -196,23 +196,6 @@ Use "management-cluster permissions [command] --help" for more information about
 ```
 
 ```shell
->>> tanzu management-cluster register --help
-
-Register the management cluster to Tanzu Mission Control
-
-Usage:
-  tanzu management-cluster register [flags]
-
-Flags:
-  -h, --help                          help for register
-      --tmc-registration-url string   URL to download the yml which has configuration related to various kubernetes objects to be deployed on the management cluster for it to register to Tanzu Mission Control
-
-Global Flags:
-        --log-file string   Log file path
-  -v, --verbose int32     Number for the log level verbosity(0-9)
-```
-
-```shell
 >>> tanzu management-cluster upgrade --help
 
 Upgrades the management cluster

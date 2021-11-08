@@ -28,6 +28,7 @@ func main() {
 	p.AddCommands(
 		command.CLICmd,
 		command.NewInitCmd(),
+		command.PublishCmd,
 	)
 	if err := p.Execute(); err != nil {
 		log.Fatal(err)

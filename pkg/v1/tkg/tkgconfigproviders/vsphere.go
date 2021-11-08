@@ -40,7 +40,6 @@ type VSphereConfig struct {
 	InfrastructureProvider string `yaml:"INFRASTRUCTURE_PROVIDER,omitempty"`
 	ClusterPlan            string `yaml:"CLUSTER_PLAN,omitempty"`
 	CeipParticipation      string `yaml:"ENABLE_CEIP_PARTICIPATION,omitempty"`
-	TmcRegistrationURL     string `yaml:"TMC_REGISTRATION_URL,omitempty"`
 
 	K8sVersion                         string `yaml:"KUBERNETES_VERSION,omitempty"`
 	IPFamily                           string `yaml:"TKG_IP_FAMILY,omitempty"`
@@ -94,7 +93,6 @@ func (c *client) NewVSphereConfig(params *models.VsphereRegionalClusterParams) (
 		ClusterName:            params.ClusterName,
 		InfrastructureProvider: constants.InfrastructureProviderVSphere,
 		ClusterPlan:            params.ControlPlaneFlavor,
-		TmcRegistrationURL:     params.TmcRegistrationURL,
 
 		Datacenter:           params.Datacenter,
 		Datastore:            params.Datastore,

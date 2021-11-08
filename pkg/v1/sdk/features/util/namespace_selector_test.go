@@ -12,7 +12,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	k8sscheme "k8s.io/client-go/kubernetes/scheme"
-	"sigs.k8s.io/controller-runtime/pkg/client/fake" //nolint:staticcheck
+	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	stringcmp "github.com/vmware-tanzu/tanzu-framework/pkg/v1/test/cmp/strings"
 )
@@ -86,7 +86,7 @@ func TestNamespacesMatchingSelector(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
-			fakeClient := fake.NewFakeClientWithScheme(k8sscheme.Scheme, tc.existingNamespaces...)
+			fakeClient := fake.NewClientBuilder().WithScheme(k8sscheme.Scheme).WithRuntimeObjects(tc.existingNamespaces...).Build()
 			got, err := NamespacesMatchingSelector(context.Background(), fakeClient, tc.namespaceSelector)
 			if err != nil {
 				if tc.err == "" {

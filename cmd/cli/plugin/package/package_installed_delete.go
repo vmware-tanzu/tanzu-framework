@@ -59,12 +59,12 @@ func packageUninstall(cmd *cobra.Command, args []string) error {
 	initialMsg := fmt.Sprintf("Uninstalling package '%s' from namespace '%s'", packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace)
 	if err := DisplayProgress(initialMsg, pp); err != nil {
 		if err.Error() == tkgpackagedatamodel.ErrPackageNotInstalled {
-			log.Warningf("\npackage '%s' is not installed in namespace '%s'. Cleaned up related resources", packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace)
+			log.Warningf("package '%s' is not installed in namespace '%s'.", packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace)
 			return nil
 		}
 		return err
 	}
 
-	log.Infof("\n %s", fmt.Sprintf("Uninstalled package '%s' from namespace '%s'", packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace))
+	log.Infof("%s", fmt.Sprintf("Uninstalled package '%s' from namespace '%s'", packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace))
 	return nil
 }

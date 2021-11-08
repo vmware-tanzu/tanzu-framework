@@ -19,7 +19,6 @@ import { VSphereVirtualMachine } from 'src/app/swagger/models/v-sphere-virtual-m
 import { AwsWizardFormService } from 'src/app/shared/service/aws-wizard-form.service';
 import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import Broker from 'src/app/shared/service/broker';
-import { AppDataService } from 'src/app/shared/service/app-data.service';
 import { Observable } from 'rxjs/internal/Observable';
 import { AWSVirtualMachine, AzureVirtualMachine } from 'src/app/swagger/models';
 
@@ -40,11 +39,9 @@ export class SharedOsImageStepComponent extends StepFormDirective implements OnI
     nonTemplateAlert: boolean = false;
     tkrVersion: Observable<string>;
 
-    constructor(
-        private appDataService: AppDataService
-    ) {
+    constructor() {
         super();
-        this.tkrVersion = this.appDataService.getTkrVersion();
+        this.tkrVersion = Broker.appDataService.getTkrVersion();
     }
 
     ngOnInit() {

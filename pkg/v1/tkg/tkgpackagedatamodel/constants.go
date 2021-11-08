@@ -11,11 +11,13 @@ const (
 	ClusterRoleName                     = "%s-%s-cluster-role"
 	DefaultAPIVersion                   = "install.package.carvel.dev/v1alpha1"
 	DefaultPollInterval                 = 1 * time.Second
-	DefaultPollTimeout                  = 5 * time.Minute
+	DefaultPollTimeout                  = 15 * time.Minute
 	DefaultRepositoryImageTag           = "latest"
 	DefaultRepositoryImageTagConstraint = ">0.0.0"
 	ErrPackageNotInstalled              = "package install does not exist in the namespace"
 	ErrRepoNotExists                    = "package repository does not exist in the namespace"
+	ErrPackageAlreadyExists             = "package install already exists in the namespace"
+	ErrRepoAlreadyExists                = "package repository already exists in the namespace"
 	KindClusterRole                     = "ClusterRole"
 	KindClusterRoleBinding              = "ClusterRoleBinding"
 	KindNamespace                       = "Namespace"
