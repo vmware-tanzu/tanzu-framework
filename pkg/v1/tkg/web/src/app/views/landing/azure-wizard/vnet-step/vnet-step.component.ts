@@ -80,6 +80,11 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
                 this.validationService.isValidIpNetworkSegment()
             ])
         ));
+        // special hidden field used to capture existing subnet cidr when user selects existing subnet
+        this.formGroup.addControl(
+            'controlPlaneSubnetCidr',
+            new FormControl('', [])
+        );
 
         this.formGroup.get('vnetOption').setValue(this.showOption);
 
@@ -218,7 +223,17 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
     }
 
     onControlPlaneSubnetChange(name: string) {
-        this.cidrHolder[EXISTING] = this.controlPlaneSubnets.find(subnet => subnet.name === name)?.cidr;
+        // when the user selects an existing subnet, we look up the associated CIDR and set a hidden field with the CIDR value,
+        // which is later used in creating the AzureRegionalClusterParams payload object
+        const subnetEntry = this.controlPlaneSubnets.find(subnet => subnet.name === name);
+        const cidrOfSelectedControlPlaneSubnet = (subnetEntry) ? subnetEntry.cidr : '';
+
+        const control = this.formGroup.controls['controlPlaneSubnetCidr'];
+        if (control) {
+            control.setValue(cidrOfSelectedControlPlaneSubnet);
+        }
+        // Leaving cidrHolder assignment in place, but unable to see how it is useful
+        this.cidrHolder[EXISTING] = cidrOfSelectedControlPlaneSubnet;
     }
 
     onControlPlaneSubnetCidrNewChange(value: string) {
