@@ -25,7 +25,6 @@ var _ = Describe("Kubeconfig Tests", func() {
 		clustername              string
 		issuer                   string
 		issuerCA                 string
-		apiGroupSuffix           string
 		conciergeIsClusterScoped bool
 		servCert                 *x509.Certificate
 	)
@@ -206,18 +205,15 @@ var _ = Describe("Kubeconfig Tests", func() {
 		Context("When the configMap 'pinniped-info' is present in kube-public namespace", func() {
 			var cluster clientcmdapi.Cluster
 			var gotPinnipedInfo *utils.PinnipedConfigMapInfo
-			var gotAPIGroupSuffix string
 			BeforeEach(func() {
 				clustername = "fake-cluster"
 				issuer = "https://fakeissuer.com"
 				issuerCA = "fakeCAData"
-				apiGroupSuffix = "tuna.io"
 				conciergeIsClusterScoped = false
 				pinnipedInfo := fakehelper.GetFakePinnipedInfo(fakehelper.PinnipedInfo{
 					ClusterName:              clustername,
 					Issuer:                   issuer,
 					IssuerCABundleData:       issuerCA,
-					ConciergeAPIGroupSuffix:  &apiGroupSuffix,
 					ConciergeIsClusterScoped: conciergeIsClusterScoped})
 				tlsserver.AppendHandlers(
 					ghttp.CombineHandlers(
@@ -229,18 +225,12 @@ var _ = Describe("Kubeconfig Tests", func() {
 				certBytes := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: servCert.Raw})
 				cluster.CertificateAuthorityData = certBytes
 				gotPinnipedInfo, err = utils.GetPinnipedInfoFromCluster(&cluster)
-				if gotPinnipedInfo.Data.ConciergeAPIGroupSuffix == nil {
-					gotAPIGroupSuffix = ""
-				} else {
-					gotAPIGroupSuffix = *gotPinnipedInfo.Data.ConciergeAPIGroupSuffix
-				}
 			})
 			It("should return the pinniped-info successfully", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(gotPinnipedInfo.Data.ClusterName).Should(Equal(clustername))
 				Expect(gotPinnipedInfo.Data.Issuer).Should(Equal(issuer))
 				Expect(gotPinnipedInfo.Data.IssuerCABundle).Should(Equal(issuerCA))
-				Expect(gotAPIGroupSuffix).Should(Equal(apiGroupSuffix))
 				Expect(gotPinnipedInfo.Data.ConciergeIsClusterScoped).Should(Equal(conciergeIsClusterScoped))
 			})
 		})
