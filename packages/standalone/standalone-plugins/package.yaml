@@ -1,10 +1,10 @@
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
-  name: core-management-cliplugins.tanzu.vmware.com
-  namespace: core-management-cliplugins
+  name: standalone-plugins.tanzu.vmware.com
+  namespace: standalone-plugins
 spec:
-  refName: core-management-cliplugins.tanzu.vmware.com
+  refName: standalone-plugins.tanzu.vmware.com
   version: latest
   licenses:
     - "Apache 2.0"

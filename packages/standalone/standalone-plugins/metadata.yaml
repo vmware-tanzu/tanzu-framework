@@ -1,10 +1,10 @@
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: PackageMetadata
 metadata:
-  name: standalone-cliplugins.tanzu.vmware.com
-  namespace: standalone-cliplugins
+  name: standalone-plugins.tanzu.vmware.com
+  namespace: standalone-plugins
 spec:
-  displayName: "standalone-cliplugins"
+  displayName: "standalone-plugins"
   longDescription: "Standalone CLIPlugin package provides API resources that allow discovery of default plugins available with Tanzu CLI. These plugins are context agnostic"
   shortDescription: "Standalone CLI Plugins"
   providerName: VMware

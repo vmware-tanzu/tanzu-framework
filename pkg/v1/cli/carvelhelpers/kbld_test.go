@@ -18,10 +18,10 @@ apiVersion: imgpkg.carvel.dev/v1alpha1
 images:
 - annotations:
     kbld.carvel.dev/id: test-tanzu-cli-plugins/foo-darwin-amd64:latest
-  image: localhost:5000/tanzu-plugins/standalone-cliplugins@sha256:443df31fec8f78b55ea25ac1ba55907567fbdf05301a752e9f6adefe3c37e11d
+  image: localhost:5000/tanzu-plugins/standalone-plugins@sha256:443df31fec8f78b55ea25ac1ba55907567fbdf05301a752e9f6adefe3c37e11d
 - annotations:
     kbld.carvel.dev/id: test-tanzu-cli-plugins/foo-linux-amd64:latest
-  image: localhost:5000/tanzu-plugins/standalone-cliplugins@sha256:53fb40d45e6a1267713cfdd6b561a65457cd5a575c6813fbdae06380b48e5e1f
+  image: localhost:5000/tanzu-plugins/standalone-plugins@sha256:53fb40d45e6a1267713cfdd6b561a65457cd5a575c6813fbdae06380b48e5e1f
 kind: ImagesLock
 ---
 apiVersion: cli.tanzu.vmware.com/v1alpha1
@@ -42,8 +42,8 @@ metadata:
   name: foo-test
 spec:
   artifacts:
-  - image: localhost:5000/tanzu-plugins/standalone-cliplugins@sha256:443df31fec8f78b55ea25ac1ba55907567fbdf05301a752e9f6adefe3c37e11d
-  - image: localhost:5000/tanzu-plugins/standalone-cliplugins@sha256:53fb40d45e6a1267713cfdd6b561a65457cd5a575c6813fbdae06380b48e5e1f
+  - image: localhost:5000/tanzu-plugins/standalone-plugins@sha256:443df31fec8f78b55ea25ac1ba55907567fbdf05301a752e9f6adefe3c37e11d
+  - image: localhost:5000/tanzu-plugins/standalone-plugins@sha256:53fb40d45e6a1267713cfdd6b561a65457cd5a575c6813fbdae06380b48e5e1f
   description: contains artifacts
 `
 
@@ -67,7 +67,7 @@ apiVersion: imgpkg.carvel.dev/v1alpha1
 images:
 - annotations:
     kbld.carvel.dev/id: test-tanzu-cli-plugins/foo-darwin-amd64:latest
-  image: localhost:5000/tanzu-plugins/standalone-cliplugins@sha256:443df31fec8f78b55ea25ac1ba55907567fbdf05301a752e9f6adefe3c37e11d
+  image: localhost:5000/tanzu-plugins/standalone-plugins@sha256:443df31fec8f78b55ea25ac1ba55907567fbdf05301a752e9f6adefe3c37e11d
 kind: ImagesLock
 ---
 apiVersion: cli.tanzu.vmware.com/v1alpha1

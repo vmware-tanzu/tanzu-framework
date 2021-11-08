@@ -4,7 +4,7 @@ overrides:
   #! featuregates
   - image: featuregates-controller-manager:latest
     newImage: ""
-  #! Core-Management-CLIPlugins images
+  #! Core-Management-Plugins images
   #! tanzu-cliplugins linux-amd64
   - image: tanzu-cli-plugins/cluster-linux-amd64:latest
     newImage: ""
@@ -20,7 +20,7 @@ overrides:
     newImage: ""
   - image: tanzu-cli-plugins/kubernetes-release-windows-amd64:latest
     newImage: ""
-  #! Standalone-CLIPlugins images
+  #! Standalone-Plugins images
   #! tanzu-cliplugins linux-amd64
   - image: tanzu-cli-plugins/login-linux-amd64:latest
     newImage: ""
