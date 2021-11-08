@@ -33,18 +33,15 @@ func TestCreateOrUpdatePinnipedInfo(t *testing.T) {
 		issuer         = "some-issuer"
 		issuerCA       = "some-issuer-ca-bundle-data"
 		emptyString    = ""
-		apiGroupSuffix = "tuna.io"
 	)
 	managementClusterPinnipedInfo := supervisor.PinnipedInfo{
 		MgmtClusterName:          &clusterName,
 		Issuer:                   &issuer,
 		IssuerCABundleData:       &issuerCA,
-		ConciergeAPIGroupSuffix:  apiGroupSuffix,
 		ConciergeIsClusterScoped: true,
 	}
 
 	workloadClusterPinnipedInfo := supervisor.PinnipedInfo{
-		ConciergeAPIGroupSuffix:  apiGroupSuffix,
 		ConciergeIsClusterScoped: true,
 	}
 
@@ -52,7 +49,6 @@ func TestCreateOrUpdatePinnipedInfo(t *testing.T) {
 		MgmtClusterName:          &emptyString,
 		Issuer:                   &emptyString,
 		IssuerCABundleData:       &emptyString,
-		ConciergeAPIGroupSuffix:  emptyString,
 		ConciergeIsClusterScoped: false,
 	}
 
@@ -67,7 +63,6 @@ func TestCreateOrUpdatePinnipedInfo(t *testing.T) {
 			"cluster_name":                clusterName,
 			"issuer":                      issuer,
 			"issuer_ca_bundle_data":       issuerCA,
-			"concierge_api_group_suffix":  apiGroupSuffix,
 			"concierge_is_cluster_scoped": fmt.Sprintf("%t", managementClusterPinnipedInfo.ConciergeIsClusterScoped),
 		},
 	}
@@ -78,7 +73,6 @@ func TestCreateOrUpdatePinnipedInfo(t *testing.T) {
 			Name:      name,
 		},
 		Data: map[string]string{
-			"concierge_api_group_suffix":  apiGroupSuffix,
 			"concierge_is_cluster_scoped": fmt.Sprintf("%t", workloadClusterPinnipedInfo.ConciergeIsClusterScoped),
 		},
 	}
@@ -92,7 +86,6 @@ func TestCreateOrUpdatePinnipedInfo(t *testing.T) {
 			"cluster_name":                "",
 			"issuer":                      "",
 			"issuer_ca_bundle_data":       "",
-			"concierge_api_group_suffix":  "",
 			"concierge_is_cluster_scoped": "false",
 		},
 	}
@@ -175,7 +168,6 @@ func TestCreateOrUpdatePinnipedInfo(t *testing.T) {
 			newKubeClient: func() *kubefake.Clientset {
 				existingPinnipedInfoConfigMap := managementClusterPinnipedInfoConfigMap.DeepCopy()
 				existingPinnipedInfoConfigMap.Data = map[string]string{
-					"concierge_api_group_suffix":  "some-wrong-pinniped-api-group-suffix",
 					"concierge_is_cluster_scoped": "false",
 				}
 				return kubefake.NewSimpleClientset(managementClusterPinnipedInfoConfigMap)
