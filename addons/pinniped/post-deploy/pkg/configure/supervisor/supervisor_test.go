@@ -28,7 +28,7 @@ import (
 
 // nolint:funlen
 func TestCreateOrUpdateFederationDomain(t *testing.T) {
-	const apiGroupSuffix = "some.tuna.api.group.suffix.com"
+	const apiGroupSuffix = "pinniped.dev"
 
 	configv1alpha1GV := configv1alpha1.SchemeGroupVersion
 	configv1alpha1GV.Group = "config.supervisor." + apiGroupSuffix
@@ -157,7 +157,7 @@ func TestCreateOrUpdateFederationDomain(t *testing.T) {
 // nolint:funlen
 func TestRecreateIDPForDex(t *testing.T) {
 	const (
-		apiGroupSuffix = "some.marlin.api.group.suffix.com"
+		apiGroupSuffix = "pinniped.dev"
 
 		dexServiceIP   = "1.2.3.4"
 		dexServicePort = 12345
