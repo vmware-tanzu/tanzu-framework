@@ -58,6 +58,7 @@ import (
 
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 
+	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 	capdiscovery "github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/discovery"
@@ -297,6 +298,8 @@ type Client interface {
 	DeactivateTanzuKubernetesReleases(tkrName string) error
 	// IsClusterRegisteredToTMC returns true if cluster is registered to Tanzu Mission Control
 	IsClusterRegisteredToTMC() (bool, error)
+	// ListCLIPluginResources lists CLIPlugin resources across all namespaces
+	ListCLIPluginResources() ([]cliv1alpha1.CLIPlugin, error)
 }
 
 // PollOptions is options for polling
@@ -400,6 +403,7 @@ func init() {
 	_ = addonsv1.AddToScheme(scheme)
 	_ = runv1alpha1.AddToScheme(scheme)
 	_ = kappipkg.AddToScheme(scheme)
+	_ = cliv1alpha1.AddToScheme(scheme)
 }
 
 // ClusterStatusInfo defines the cluster status involving all main components
@@ -2254,6 +2258,16 @@ func (c *client) IsClusterRegisteredToTMC() (bool, error) {
 
 	// Execute returns combined result of all queries.
 	return cqc.Execute() // return (found, err) response
+}
+
+// ListCLIPluginResources lists CLIPlugin resources across all namespaces
+func (c *client) ListCLIPluginResources() ([]cliv1alpha1.CLIPlugin, error) {
+	var cliPlugins cliv1alpha1.CLIPluginList
+	err := c.ListResources(&cliPlugins, &crtclient.ListOptions{Namespace: ""})
+	if err != nil {
+		return nil, err
+	}
+	return cliPlugins.Items, nil
 }
 
 // Options provides way to customize creation of clusterClient

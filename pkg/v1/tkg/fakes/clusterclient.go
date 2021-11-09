@@ -12,6 +12,7 @@ import (
 	"sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	v1alpha1a "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/azure"
@@ -569,6 +570,18 @@ type ClusterClient struct {
 	}
 	isRegionalClusterReturnsOnCall map[int]struct {
 		result1 error
+	}
+	ListCLIPluginResourcesStub        func() ([]v1alpha1a.CLIPlugin, error)
+	listCLIPluginResourcesMutex       sync.RWMutex
+	listCLIPluginResourcesArgsForCall []struct {
+	}
+	listCLIPluginResourcesReturns struct {
+		result1 []v1alpha1a.CLIPlugin
+		result2 error
+	}
+	listCLIPluginResourcesReturnsOnCall map[int]struct {
+		result1 []v1alpha1a.CLIPlugin
+		result2 error
 	}
 	ListClustersStub        func(string) ([]v1beta1a.Cluster, error)
 	listClustersMutex       sync.RWMutex
@@ -3686,6 +3699,62 @@ func (fake *ClusterClient) IsRegionalClusterReturnsOnCall(i int, result1 error) 
 	}{result1}
 }
 
+func (fake *ClusterClient) ListCLIPluginResources() ([]v1alpha1a.CLIPlugin, error) {
+	fake.listCLIPluginResourcesMutex.Lock()
+	ret, specificReturn := fake.listCLIPluginResourcesReturnsOnCall[len(fake.listCLIPluginResourcesArgsForCall)]
+	fake.listCLIPluginResourcesArgsForCall = append(fake.listCLIPluginResourcesArgsForCall, struct {
+	}{})
+	stub := fake.ListCLIPluginResourcesStub
+	fakeReturns := fake.listCLIPluginResourcesReturns
+	fake.recordInvocation("ListCLIPluginResources", []interface{}{})
+	fake.listCLIPluginResourcesMutex.Unlock()
+	if stub != nil {
+		return stub()
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *ClusterClient) ListCLIPluginResourcesCallCount() int {
+	fake.listCLIPluginResourcesMutex.RLock()
+	defer fake.listCLIPluginResourcesMutex.RUnlock()
+	return len(fake.listCLIPluginResourcesArgsForCall)
+}
+
+func (fake *ClusterClient) ListCLIPluginResourcesCalls(stub func() ([]v1alpha1a.CLIPlugin, error)) {
+	fake.listCLIPluginResourcesMutex.Lock()
+	defer fake.listCLIPluginResourcesMutex.Unlock()
+	fake.ListCLIPluginResourcesStub = stub
+}
+
+func (fake *ClusterClient) ListCLIPluginResourcesReturns(result1 []v1alpha1a.CLIPlugin, result2 error) {
+	fake.listCLIPluginResourcesMutex.Lock()
+	defer fake.listCLIPluginResourcesMutex.Unlock()
+	fake.ListCLIPluginResourcesStub = nil
+	fake.listCLIPluginResourcesReturns = struct {
+		result1 []v1alpha1a.CLIPlugin
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *ClusterClient) ListCLIPluginResourcesReturnsOnCall(i int, result1 []v1alpha1a.CLIPlugin, result2 error) {
+	fake.listCLIPluginResourcesMutex.Lock()
+	defer fake.listCLIPluginResourcesMutex.Unlock()
+	fake.ListCLIPluginResourcesStub = nil
+	if fake.listCLIPluginResourcesReturnsOnCall == nil {
+		fake.listCLIPluginResourcesReturnsOnCall = make(map[int]struct {
+			result1 []v1alpha1a.CLIPlugin
+			result2 error
+		})
+	}
+	fake.listCLIPluginResourcesReturnsOnCall[i] = struct {
+		result1 []v1alpha1a.CLIPlugin
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *ClusterClient) ListClusters(arg1 string) ([]v1beta1a.Cluster, error) {
 	fake.listClustersMutex.Lock()
 	ret, specificReturn := fake.listClustersReturnsOnCall[len(fake.listClustersArgsForCall)]
@@ -6228,6 +6297,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.isPacificRegionalClusterMutex.RUnlock()
 	fake.isRegionalClusterMutex.RLock()
 	defer fake.isRegionalClusterMutex.RUnlock()
+	fake.listCLIPluginResourcesMutex.RLock()
+	defer fake.listCLIPluginResourcesMutex.RUnlock()
 	fake.listClustersMutex.RLock()
 	defer fake.listClustersMutex.RUnlock()
 	fake.listPacificClusterObjectsMutex.RLock()

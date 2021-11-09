@@ -5,12 +5,14 @@ package constants
 
 // Configuration variable name constants
 const (
-	ConfigVariableDefaultBomFile                     = "TKG_DEFAULT_BOM"
-	ConfigVariableCustomImageRepository              = "TKG_CUSTOM_IMAGE_REPOSITORY"
-	ConfigVariableDevImageRepository                 = "TKG_DEV_IMAGE_REPOSITORY"
-	ConfigVariableCompatibilityCustomImagePath       = "TKG_CUSTOM_COMPATIBILITY_IMAGE_PATH"
-	ConfigVariableCustomImageRepositorySkipTLSVerify = "TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY"
-	ConfigVariableCustomImageRepositoryCaCertificate = "TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE"
+	ConfigVariableDefaultBomFile                      = "TKG_DEFAULT_BOM"
+	ConfigVariableCustomImageRepository               = "TKG_CUSTOM_IMAGE_REPOSITORY"
+	ConfigVariableDevImageRepository                  = "TKG_DEV_IMAGE_REPOSITORY"
+	ConfigVariableCompatibilityCustomImagePath        = "TKG_CUSTOM_COMPATIBILITY_IMAGE_PATH"
+	ConfigVariableCustomImageRepositorySkipTLSVerify  = "TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY"
+	ConfigVariableCustomImageRepositoryCaCertificate  = "TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE"
+	ConfigVariableDefaultStandaloneDiscoveryImagePath = "TKG_DEFAULT_STANDALONE_DISCOVERY_IMAGE_PATH"
+	ConfigVariableDefaultStandaloneDiscoveryImageTag  = "TKG_DEFAULT_STANDALONE_DISCOVERY_IMAGE_TAG"
 
 	ConfigVariableAWSRegion          = "AWS_REGION"
 	ConfigVariableAWSSecretAccessKey = "AWS_SECRET_ACCESS_KEY" //nolint:gosec
