@@ -25,5 +25,4 @@ const (
 const (
 	DistributionTypeOCI   = "oci"
 	DistributionTypeLocal = "local"
-	DistributionTypeGCP   = "gcp"
 )
