@@ -60,15 +60,13 @@ paths:
   /api/features:
     get:
       tags: ["features"]
-      summary: "Retrieve list of enabled hidden features"
+      summary: "Retrieve list of features"
       operationId: getFeatureFlags
       responses:
         200:
           description: Successful retrieval of feature flags
           schema:
-            type: object
-            additionalProperties:
-              type: string
+            $ref: "#/definitions/Features"
         400:
           description: "Bad Request"
           schema:
@@ -640,11 +638,11 @@ paths:
           schema:
             $ref: '#/definitions/Error'
 
-  /api/providers/vsphere/generate:
+  /api/providers/vsphere/config/export:
     post:
       tags: ["vsphere"]
       summary: "Generate TKG configuration file for vSphere"
-      operationId: generateTKGConfigForVsphere
+      operationId: exportTKGConfigForVsphere
       parameters:
         - in: body
           name: params
@@ -973,11 +971,11 @@ paths:
           schema:
             $ref: '#/definitions/Error'
 
-  /api/providers/aws/generate:
+  /api/providers/aws/config/export:
     post:
       tags: ["aws"]
       summary: Generate TKG configuration file for AWS"
-      operationId: generateTKGConfigForAWS
+      operationId: exportTKGConfigForAWS
       parameters:
         - in: body
           name: params
@@ -1321,11 +1319,11 @@ paths:
           schema:
             $ref: '#/definitions/Error'
 
-  /api/providers/azure/generate:
+  /api/providers/azure/config/export:
     post:
       tags: ["azure"]
       summary: Generate TKG configuration file for Azure"
-      operationId: generateTKGConfigForAzure
+      operationId: exportTKGConfigForAzure
       parameters:
         - in: body
           name: params
@@ -1430,11 +1428,11 @@ paths:
           schema:
             $ref: '#/definitions/Error'
 
-  /api/providers/docker/generate:
+  /api/providers/docker/config/export:
     post:
       tags: ["docker"]
       summary: Generate TKG configuration file for Docker"
-      operationId: generateTKGConfigForDocker
+      operationId: exportTKGConfigForDocker
       parameters:
       - in: body
         name: params
@@ -1508,35 +1506,6 @@ paths:
           schema:
             $ref: '#/definitions/Error'
 
-  /api/integration/tmc:
-    get:
-      tags: ["tmc"]
-      summary: "Retrieves TMC install yml from provided URL"
-      operationId: retrieveTMCInstallYml
-      parameters:
-        - name: url
-          in: query
-          description: The URL to retrieve the TMC install yml from.
-          required: true
-          type: string
-      responses:
-        200:
-          description: Successfully retrieved TMC install yml.
-          schema:
-            type: string
-        400:
-          description: "Bad request"
-          schema:
-            $ref: "#/definitions/Error"
-        500:
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/Error'
-        502:
-          description: Bad Gateway
-          schema:
-            $ref: '#/definitions/Error'
-
 definitions:
   Error:
     type: object
@@ -1555,6 +1524,9 @@ definitions:
         type: string
       thumbprint:
         type: string
+      insecure:
+        type: boolean
+        default: false
 
   VSphereThumbprint:
     type: object
@@ -1720,6 +1692,8 @@ definitions:
         type: integer
       kubernetesVersion:
         type: string
+      ipFamily:
+        type: string
       networking:
         $ref: '#/definitions/TKGNetwork'
       os:
@@ -1728,8 +1702,6 @@ definitions:
         type: string
       machineHealthCheckEnabled:
         type: boolean
-      tmc_registration_url:
-        type: string
       ceipOptIn:
         type: boolean
         default: true
@@ -1761,6 +1733,8 @@ definitions:
         type: string
       controlPlaneFlavor:
         type: string
+      loadbalancerSchemeInternal:
+        type: boolean
       workerNodeType:
         type: string
       numOfWorkerNode:
@@ -1785,8 +1759,6 @@ definitions:
           type: string
       machineHealthCheckEnabled:
         type: boolean
-      tmc_registration_url:
-        type: string
       ceipOptIn:
         type: boolean
         default: true
@@ -2053,8 +2025,6 @@ definitions:
         type: string
       os:
         $ref: '#/definitions/AzureVirtualMachine'
-      tmc_registration_url:
-        type: string
       ceipOptIn:
         type: boolean
         default: true
@@ -2085,8 +2055,6 @@ definitions:
       numOfWorkerNodes:
         type: string
       kubernetesVersion:
-        type: string
-      tmc_registration_url:
         type: string
       ceipOptIn:
         type: boolean
@@ -2336,6 +2304,16 @@ definitions:
     properties:
       path:
         type: string
+
+  Features:
+    type: object
+    additionalProperties:
+      $ref: '#/definitions/FeatureMap'
+
+  FeatureMap:
+    type: object
+    additionalProperties:
+      type: string
 
   LdapTestResult:
     type: object

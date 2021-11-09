@@ -25,7 +25,9 @@ const (
 	testRepoName       = "test-repo"
 	testRepoURL        = "test.registry.vmware.com/test-repo"
 	testSecondRepoName = "test-repo-2"
-	testSecondRepoURL  = "test.registry.vmware.com/test-repo-2"
+	testSecondRepoURL  = "test.registry.vmware.com/test-repo-2:v1.1.0"
+	testThirdRepoName  = "test-repo-3"
+	testThirdRepoURL   = "test.registry.vmware.com/test-repo-3"
 )
 
 var testRepository = &kappipkg.PackageRepository{
@@ -139,6 +141,27 @@ var _ = Describe("Add Repository", func() {
 		AfterEach(func() { options = opts })
 	})
 
+	Context("falling back to update when trying to add an existing package repository (throwing non-critical error)", func() {
+		BeforeEach(func() {
+			options.Wait = true
+			options.RepositoryName = testRepoName
+			options.Wait = false
+			kappCtl = &fakes.KappClient{}
+			crtCtl = &fakes.CRTClusterClient{}
+			kappCtl.GetClientReturns(crtCtl)
+			kappCtl.ListPackageRepositoriesReturns(pkgRepositoryList, nil)
+			kappCtl.GetPackageRepositoryReturns(testRepository, nil)
+		})
+		It(testFailureMsg, func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring(tkgpackagedatamodel.ErrRepoAlreadyExists))
+		})
+		AfterEach(func() {
+			options = opts
+			options.RepositoryName = testRegistry
+		})
+	})
+
 	Context("success in creating the package repository in not previously existing 'test-ns' namespace", func() {
 		BeforeEach(func() {
 			options.CreateNamespace = true
@@ -153,7 +176,7 @@ var _ = Describe("Add Repository", func() {
 		})
 		It(testSuccessMsg, func() {
 			Expect(err).NotTo(HaveOccurred())
-			testRepositoryAddPostValidation(kappCtl, &options)
+			testRepositoryAddPostValidation(kappCtl, &options, true)
 		})
 		AfterEach(func() { options = opts })
 	})
@@ -172,32 +195,38 @@ var _ = Describe("Add Repository", func() {
 		})
 		It(testSuccessMsg, func() {
 			Expect(err).NotTo(HaveOccurred())
-			testRepositoryAddPostValidation(kappCtl, &options)
+			testRepositoryAddPostValidation(kappCtl, &options, true)
 		})
 		AfterEach(func() { options = opts })
 	})
 
-	Context("success in creating package repository", func() {
+	Context("success in creating package repository with No tag in URL", func() {
 		BeforeEach(func() {
-			options.RepositoryName = testSecondRepoName
-			options.RepositoryURL = testSecondRepoURL
+			options.RepositoryName = testThirdRepoName
+			options.RepositoryURL = testThirdRepoURL
 			kappCtl = &fakes.KappClient{}
 			kappCtl.ListPackageRepositoriesReturns(pkgRepositoryList, nil)
 			kappCtl.CreatePackageRepositoryReturns(nil)
 		})
 		It(testSuccessMsg, func() {
 			Expect(err).ToNot(HaveOccurred())
-			testRepositoryAddPostValidation(kappCtl, &options)
+			testRepositoryAddPostValidation(kappCtl, &options, false)
 		})
 		AfterEach(func() { options = opts })
 	})
 })
 
-func testRepositoryAddPostValidation(kappCtl *fakes.KappClient, options *tkgpackagedatamodel.RepositoryOptions) {
+func testRepositoryAddPostValidation(kappCtl *fakes.KappClient, options *tkgpackagedatamodel.RepositoryOptions, hasTag bool) {
 	createRepoCallCnt := kappCtl.CreatePackageRepositoryCallCount()
 	Expect(createRepoCallCnt).To(BeNumerically("==", 1))
 	pkgRepo := kappCtl.CreatePackageRepositoryArgsForCall(0)
 	Expect(pkgRepo.Name).Should(Equal(options.RepositoryName))
 	Expect(pkgRepo.Namespace).Should(Equal(options.Namespace))
 	Expect(pkgRepo.Spec.Fetch.ImgpkgBundle.Image).Should(Equal(options.RepositoryURL))
+	if hasTag {
+		Expect(pkgRepo.Spec.Fetch.ImgpkgBundle.TagSelection).Should(BeNil())
+	} else {
+		Expect(pkgRepo.Spec.Fetch.ImgpkgBundle.TagSelection).ShouldNot(Equal(nil))
+		Expect(pkgRepo.Spec.Fetch.ImgpkgBundle.TagSelection.Semver.Constraints).Should(Equal(tkgpackagedatamodel.DefaultRepositoryImageTagConstraint))
+	}
 }

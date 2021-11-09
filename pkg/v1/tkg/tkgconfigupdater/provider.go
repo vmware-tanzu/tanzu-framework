@@ -4,16 +4,16 @@
 package tkgconfigupdater
 
 import (
-	"encoding/base64"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 
-	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/image"
+	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/registry"
 	"github.com/pkg/errors"
 	yaml "gopkg.in/yaml.v3"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/clientconfighelpers"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/registry"
@@ -207,22 +207,18 @@ func (c *client) InitProvidersRegistry() (registry.Registry, error) {
 		verifyCerts = false
 	}
 
-	registryOpts := ctlimg.RegistryOpts{
+	registryOpts := ctlimg.Opts{
 		VerifyCerts: verifyCerts,
 		Anon:        true,
 	}
 
-	customImageRepoCACertEnv, err := c.tkgConfigReaderWriter.Get(constants.ConfigVariableCustomImageRepositoryCaCertificate)
-	if err == nil && customImageRepoCACertEnv != "" {
+	caCertBytes, err := clientconfighelpers.GetCustomRepositoryCaCertificateForClient(c.tkgConfigReaderWriter)
+	if err == nil && len(caCertBytes) != 0 {
 		filePath, err := tkgconfigpaths.GetRegistryCertFile()
 		if err != nil {
 			return nil, err
 		}
-		decoded, err := base64.StdEncoding.DecodeString(customImageRepoCACertEnv)
-		if err != nil {
-			return nil, errors.Wrap(err, "unable to decode the base64-encoded custom registry CA certificate string")
-		}
-		err = os.WriteFile(filePath, decoded, 0644)
+		err = os.WriteFile(filePath, caCertBytes, 0644)
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to write the custom image registry CA cert to file '%s'", filePath)
 		}

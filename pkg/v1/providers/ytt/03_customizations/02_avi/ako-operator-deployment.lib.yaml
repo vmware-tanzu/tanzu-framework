@@ -1,4 +1,6 @@
 #@ load("@ytt:data", "data")
+
+#@ if data.values.AVI_ENABLE:
 #@ load("@ytt:base64", "base64")
 #@ load("/lib/helpers.star", "get_default_tkr_bom_data", "get_default_tkg_bom_data", "tkg_image_repo")
 
@@ -135,4 +137,6 @@ spec:
       shardVSSize: #@ data.values.AVI_INGRESS_SHARD_VS_SIZE
 #@ end
       serviceType: NodePort
+#@ end
+
 #@ end

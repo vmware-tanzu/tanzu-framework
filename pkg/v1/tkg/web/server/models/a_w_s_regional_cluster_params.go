@@ -52,6 +52,9 @@ type AWSRegionalClusterParams struct {
 	// labels
 	Labels map[string]string `json:"labels,omitempty"`
 
+	// loadbalancer scheme internal
+	LoadbalancerSchemeInternal bool `json:"loadbalancerSchemeInternal,omitempty"`
+
 	// machine health check enabled
 	MachineHealthCheckEnabled bool `json:"machineHealthCheckEnabled,omitempty"`
 
@@ -66,9 +69,6 @@ type AWSRegionalClusterParams struct {
 
 	// ssh key name
 	SSHKeyName string `json:"sshKeyName,omitempty"`
-
-	// tmc registration url
-	TmcRegistrationURL string `json:"tmc_registration_url,omitempty"`
 
 	// vpc
 	Vpc *AWSVpc `json:"vpc,omitempty"`

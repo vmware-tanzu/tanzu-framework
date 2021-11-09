@@ -19,8 +19,8 @@ import { VSphereVirtualMachine } from 'src/app/swagger/models/v-sphere-virtual-m
 import { AwsWizardFormService } from 'src/app/shared/service/aws-wizard-form.service';
 import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import Broker from 'src/app/shared/service/broker';
-import { AppDataService } from 'src/app/shared/service/app-data.service';
 import { Observable } from 'rxjs/internal/Observable';
+import { AWSVirtualMachine, AzureVirtualMachine } from 'src/app/swagger/models';
 
 @Component({
     selector: 'app-os-image-step',
@@ -34,16 +34,14 @@ export class SharedOsImageStepComponent extends StepFormDirective implements OnI
     @Input() noImageAlertMessage: string;
     @Input() osImageTooltipContent: string;
 
-    osImages: Array<VSphereVirtualMachine|AwsWizardFormService|AzureWizardFormService>;
+    osImages: Array<VSphereVirtualMachine|AWSVirtualMachine|AzureVirtualMachine>;
     loadingOsTemplate: boolean = false;
     nonTemplateAlert: boolean = false;
     tkrVersion: Observable<string>;
 
-    constructor(
-        private appDataService: AppDataService
-    ) {
+    constructor() {
         super();
-        this.tkrVersion = this.appDataService.getTkrVersion();
+        this.tkrVersion = Broker.appDataService.getTkrVersion();
     }
 
     ngOnInit() {
@@ -54,6 +52,14 @@ export class SharedOsImageStepComponent extends StepFormDirective implements OnI
                 Validators.required
             ])
         );
+        /**
+         * Whenever data center selection changes, reset the relevant fields
+         */
+         Broker.messenger.getSubject(TkgEventType.DATACENTER_CHANGED)
+         .pipe(takeUntil(this.unsubscribe))
+         .subscribe(event => {
+             this.resetFieldsUponDCChange();
+         });
 
         this.wizardFormService.getErrorStream(TkgEventType[`${this.type}_GET_OS_IMAGES`])
             .pipe(takeUntil(this.unsubscribe))
@@ -63,18 +69,12 @@ export class SharedOsImageStepComponent extends StepFormDirective implements OnI
 
         this.wizardFormService.getDataStream(TkgEventType[`${this.type}_GET_OS_IMAGES`])
             .pipe(takeUntil(this.unsubscribe))
-            .subscribe((images: Array<VSphereVirtualMachine|AwsWizardFormService|AzureWizardFormService>) => {
+            .subscribe((images: Array<VSphereVirtualMachine|AWSVirtualMachine|AzureVirtualMachine>) => {
                 this.osImages = images;
                 this.loadingOsTemplate = false;
-            });
-
-        /**
-         * Whenever data center selection changes, reset the relevant fields
-         */
-        Broker.messenger.getSubject(TkgEventType.DATACENTER_CHANGED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(event => {
-                this.resetFieldsUponDCChange();
+                if (this.osImages.length === 1) {
+                    this.formGroup.get('osImage').setValue(images[0]);
+                }
             });
     }
 

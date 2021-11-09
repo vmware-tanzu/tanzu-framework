@@ -19,13 +19,15 @@ import (
 
 var _ = Describe("Kubeconfig Tests", func() {
 	var (
-		err         error
-		endpoint    string
-		tlsserver   *ghttp.Server
-		clustername string
-		issuer      string
-		issuerCA    string
-		servCert    *x509.Certificate
+		err                      error
+		endpoint                 string
+		tlsserver                *ghttp.Server
+		clustername              string
+		issuer                   string
+		issuerCA                 string
+		apiGroupSuffix           string
+		conciergeIsClusterScoped bool
+		servCert                 *x509.Certificate
 	)
 
 	const kubeconfig1Path = "../fakes/config/kubeconfig/config1.yaml"
@@ -164,6 +166,7 @@ var _ = Describe("Kubeconfig Tests", func() {
 
 		Context("When the configMap 'pinniped-info' is not present in kube-public namespace", func() {
 			var cluster clientcmdapi.Cluster
+			var gotPinnipedInfo *utils.PinnipedConfigMapInfo
 			BeforeEach(func() {
 				tlsserver.AppendHandlers(
 					ghttp.CombineHandlers(
@@ -174,11 +177,11 @@ var _ = Describe("Kubeconfig Tests", func() {
 				cluster.Server = endpoint
 				certBytes := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: servCert.Raw})
 				cluster.CertificateAuthorityData = certBytes
-				_, err = utils.GetPinnipedInfoFromCluster(&cluster)
+				gotPinnipedInfo, err = utils.GetPinnipedInfoFromCluster(&cluster)
 			})
-			It("should return the error", func() {
-				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).Should(ContainSubstring("failed to get pinniped-info"))
+			It("should not return an error", func() {
+				Expect(err).ToNot(HaveOccurred())
+				Expect(gotPinnipedInfo).Should(BeNil())
 			})
 		})
 		Context("When the configMap 'pinniped-info' is present but the returned format is incorrect", func() {
@@ -203,11 +206,19 @@ var _ = Describe("Kubeconfig Tests", func() {
 		Context("When the configMap 'pinniped-info' is present in kube-public namespace", func() {
 			var cluster clientcmdapi.Cluster
 			var gotPinnipedInfo *utils.PinnipedConfigMapInfo
+			var gotAPIGroupSuffix string
 			BeforeEach(func() {
 				clustername = "fake-cluster"
 				issuer = "https://fakeissuer.com"
 				issuerCA = "fakeCAData"
-				pinnipedInfo := fakehelper.GetFakePinnipedInfo(clustername, issuer, issuerCA)
+				apiGroupSuffix = "tuna.io"
+				conciergeIsClusterScoped = false
+				pinnipedInfo := fakehelper.GetFakePinnipedInfo(fakehelper.PinnipedInfo{
+					ClusterName:              clustername,
+					Issuer:                   issuer,
+					IssuerCABundleData:       issuerCA,
+					ConciergeAPIGroupSuffix:  &apiGroupSuffix,
+					ConciergeIsClusterScoped: conciergeIsClusterScoped})
 				tlsserver.AppendHandlers(
 					ghttp.CombineHandlers(
 						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/pinniped-info"),
@@ -218,12 +229,19 @@ var _ = Describe("Kubeconfig Tests", func() {
 				certBytes := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: servCert.Raw})
 				cluster.CertificateAuthorityData = certBytes
 				gotPinnipedInfo, err = utils.GetPinnipedInfoFromCluster(&cluster)
+				if gotPinnipedInfo.Data.ConciergeAPIGroupSuffix == nil {
+					gotAPIGroupSuffix = ""
+				} else {
+					gotAPIGroupSuffix = *gotPinnipedInfo.Data.ConciergeAPIGroupSuffix
+				}
 			})
 			It("should return the pinniped-info successfully", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(gotPinnipedInfo.Data.ClusterName).Should(Equal(clustername))
 				Expect(gotPinnipedInfo.Data.Issuer).Should(Equal(issuer))
 				Expect(gotPinnipedInfo.Data.IssuerCABundle).Should(Equal(issuerCA))
+				Expect(gotAPIGroupSuffix).Should(Equal(apiGroupSuffix))
+				Expect(gotPinnipedInfo.Data.ConciergeIsClusterScoped).Should(Equal(conciergeIsClusterScoped))
 			})
 		})
 	})

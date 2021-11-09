@@ -28,16 +28,9 @@ func (app *App) GetVsphereThumbprint(params vsphere.GetVsphereThumbprintParams) 
 	thumbprint := ""
 	var err error
 
-	vsphereInsecureString, err := app.TKGConfigReaderWriter.Get(constants.ConfigVariableVsphereInsecure)
-	if err == nil {
-		insecure = (vsphereInsecureString == trueString)
-	}
-
-	if !insecure {
-		thumbprint, err = vc.GetVCThumbprint(params.Host)
-		if err != nil {
-			return vsphere.NewGetVsphereThumbprintInternalServerError().WithPayload(Err(err))
-		}
+	thumbprint, err = vc.GetVCThumbprint(params.Host)
+	if err != nil {
+		return vsphere.NewGetVsphereThumbprintInternalServerError().WithPayload(Err(err))
 	}
 
 	res := models.VSphereThumbprint{Thumbprint: thumbprint, Insecure: &insecure}
@@ -63,6 +56,10 @@ func (app *App) SetVSphereEndpoint(params vsphere.SetVSphereEndpointParams) midd
 	vsphereInsecureString, err := app.TKGConfigReaderWriter.Get(constants.ConfigVariableVsphereInsecure)
 	if err == nil {
 		vsphereInsecure = (vsphereInsecureString == trueString)
+	}
+
+	if params.Credentials.Insecure != nil && *params.Credentials.Insecure {
+		vsphereInsecure = true
 	}
 
 	vcClient, err := vc.NewClient(vcURL, params.Credentials.Thumbprint, vsphereInsecure)

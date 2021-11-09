@@ -17,7 +17,6 @@ type DockerConfig struct {
 	InfrastructureProvider    string `yaml:"INFRASTRUCTURE_PROVIDER,omitempty"`
 	ClusterPlan               string `yaml:"CLUSTER_PLAN,omitempty"`
 	CeipParticipation         string `yaml:"ENABLE_CEIP_PARTICIPATION,omitempty"`
-	TmcRegistrationURL        string `yaml:"TMC_REGISTRATION_URL,omitempty"`
 	MachineHealthCheckEnabled string `yaml:"ENABLE_MHC,omitempty"`
 	ServiceCIDR               string `yaml:"SERVICE_CIDR,omitempty"`
 	ClusterCIDR               string `yaml:"CLUSTER_CIDR,omitempty"`
@@ -34,8 +33,7 @@ func (c *client) NewDockerConfig(params *models.DockerRegionalClusterParams) (*D
 	res := &DockerConfig{
 		ClusterName:            params.ClusterName,
 		InfrastructureProvider: constants.InfrastructureProviderDocker,
-		ClusterPlan:            params.ControlPlaneFlavor,
-		TmcRegistrationURL:     params.TmcRegistrationURL,
+		ClusterPlan:            constants.PlanDev,
 		ClusterCIDR:            params.Networking.ClusterPodCIDR,
 		ServiceCIDR:            params.Networking.ClusterServiceCIDR,
 		HTTPProxyEnabled:       falseConst,

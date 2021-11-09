@@ -10,7 +10,7 @@
             ></clr-icon>
             <h2 i18n="wizard title" id="azure-title" aria-level="1">
                 <div class="ms-azure-icon-30"></div>
-                Deploy {{ clusterType | titlecase }} Cluster on Azure
+                Deploy {{ clusterTypeDescriptor | titlecase }} Cluster on Azure
             </h2>
         </div>
     </div>
@@ -50,7 +50,7 @@
 
         <clr-stepper-panel formGroupName="azureNodeSettingForm" removeAriaLabelledBy>
             <clr-step-title i18n="node setting step name">
-                {{ clusterType | titlecase }} Cluster Settings
+                {{ clusterTypeDescriptor | titlecase }} Cluster Settings
             </clr-step-title>
             <clr-step-description i18n="node setting step description">
                 {{ getStepDescription('azureNodeSettingForm') }}
@@ -134,24 +134,6 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="registerTmcForm" removeAriaLabelledBy *ngIf="edition !== 'tce-standalone'">
-            <clr-step-title i18n="register tmc step title">
-                Register TMC
-            </clr-step-title>
-            <clr-step-description i18n="register tmc step description">
-                Optionally Register with Tanzu Mission Control
-            </clr-step-description>
-            <ng-container *ngIf="steps[7]">
-                <app-shared-register-tmc-step
-                    [formGroup]="form.controls.registerTmcForm"
-                    formName="registerTmc">
-                </app-shared-register-tmc-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-
         <clr-stepper-panel formGroupName="ceipOptInForm" removeAriaLabelledBy *ngIf="edition === 'tkg'">
             <clr-step-title i18n="Azure CEIP program agreement">
                 CEIP Agreement
@@ -175,16 +157,23 @@
 </div>
 
 <ng-container *ngIf="review">
-    <tkg-kickstart-ui-confirm [errorNotification]="errorNotification"></tkg-kickstart-ui-confirm>
+    <tkg-kickstart-ui-confirm></tkg-kickstart-ui-confirm>
+    <app-error-notification [errorNotification]="errorNotification"></app-error-notification>
     <div class="clr-row mt-20">
         <div class="clr-col-12 btn-container">
+            <button class="btn btn-primary deploy-btn" [disabled]="disableDeployButton" (click)="deploy()">
+                Deploy {{ clusterTypeDescriptor | titlecase }} Cluster
+            </button>
             <button class="btn btn-outline edit-btn" (click)="reviewConfiguration(false)"
                 i18n="return to wizard for edit button">
                 Edit Configuration
             </button>
-            <button class="btn btn-primary deploy-btn" [disabled]="disableDeployButton" (click)="deploy()">
-                Deploy {{ clusterType | titlecase }} Cluster
-            </button>
+            <ng-container *featureToggle="'management-cluster.export-from-confirm'">
+                <button class="btn btn-link export-btn" (click)="exportConfiguration()"
+                        i18n="export configuration button">
+                    Export Configuration
+                </button>
+            </ng-container>
         </div>
     </div>
 </ng-container>

@@ -40,12 +40,13 @@ type VSphereConfig struct {
 	InfrastructureProvider string `yaml:"INFRASTRUCTURE_PROVIDER,omitempty"`
 	ClusterPlan            string `yaml:"CLUSTER_PLAN,omitempty"`
 	CeipParticipation      string `yaml:"ENABLE_CEIP_PARTICIPATION,omitempty"`
-	TmcRegistrationURL     string `yaml:"TMC_REGISTRATION_URL,omitempty"`
 
 	K8sVersion                         string `yaml:"KUBERNETES_VERSION,omitempty"`
+	IPFamily                           string `yaml:"TKG_IP_FAMILY,omitempty"`
 	Server                             string `yaml:"VSPHERE_SERVER,omitempty"`
 	Username                           string `yaml:"VSPHERE_USERNAME,omitempty"`
 	Password                           string `yaml:"VSPHERE_PASSWORD,omitempty"`
+	VSphereInsecure                    string `yaml:"VSPHERE_INSECURE,omitempty"`
 	Datacenter                         string `yaml:"VSPHERE_DATACENTER,omitempty"`
 	Datastore                          string `yaml:"VSPHERE_DATASTORE,omitempty"`
 	Network                            string `yaml:"VSPHERE_NETWORK,omitempty"`
@@ -93,13 +94,13 @@ func (c *client) NewVSphereConfig(params *models.VsphereRegionalClusterParams) (
 		ClusterName:            params.ClusterName,
 		InfrastructureProvider: constants.InfrastructureProviderVSphere,
 		ClusterPlan:            params.ControlPlaneFlavor,
-		TmcRegistrationURL:     params.TmcRegistrationURL,
 
 		Datacenter:           params.Datacenter,
 		Datastore:            params.Datastore,
 		Folder:               params.Folder,
 		SSHKey:               params.SSHKey,
 		ControlPlaneEndpoint: params.ControlPlaneEndpoint,
+		IPFamily:             params.IPFamily,
 		HTTPProxyEnabled:     falseConst,
 	}
 	if params.Os != nil {
@@ -152,6 +153,10 @@ func (c *client) NewVSphereConfig(params *models.VsphereRegionalClusterParams) (
 		res.Username = params.VsphereCredentials.Username
 		res.Password = params.VsphereCredentials.Password
 		res.VSphereTLSThumbprint = params.VsphereCredentials.Thumbprint
+		res.VSphereInsecure = falseConst
+		if params.VsphereCredentials.Insecure != nil && *params.VsphereCredentials.Insecure {
+			res.VSphereInsecure = trueConst
+		}
 	}
 
 	if params.Networking != nil {

@@ -25,6 +25,7 @@ def get_default_tkg_bom_data():
   assert.fail("unable to find the default BOM file: " + data.values.TKG_DEFAULT_BOM)
 end
 
+
 def get_default_tkr_bom_data():
    default_tkg_bom = get_default_tkg_bom_data()
    k8s_version = default_tkg_bom.default.k8sVersion
@@ -34,7 +35,7 @@ def get_default_tkr_bom_data():
             return bom_entry.bom_data
         end
    end
-   assert.fail("unable to get TanzuKubernetesRelease BoM file for TKG version: " + default_tkg_bom.release.version)
+   assert.fail("unable to get TanzuKubernetesRelease BoM file for TKG version: "+k8s_version +" " + default_tkg_bom.release.version)
 end
 
 def get_bom_data_for_tkr_name():
@@ -44,7 +45,7 @@ def get_bom_data_for_tkr_name():
             return bom_entry.bom_data
         end
     end
-    assert.fail("unable to get BoM file for the TanzuKubernetesRelease version: " + data.values.KUBERNETES_RELEASE)
+    assert.fail("unable to get BoM file for the TanzuKubernetesRelease version: " + bom_entry.bom_data.release.version + " " +  data.values.KUBERNETES_RELEASE )
 end
 
 tkgBomData = get_default_tkg_bom_data()
@@ -98,7 +99,7 @@ def tkg_image_repo_skip_tls_verify():
 end
 
 def tkg_image_repo_ca_cert():
-  return data.values.TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
+  return data.values.TKG_PROXY_CA_CERT if data.values.TKG_PROXY_CA_CERT else data.values.TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
 end
 
 def tkg_image_repo_hostname():
@@ -304,4 +305,17 @@ def validate_proxy_bypass_vsphere_host():
       end
     end
   end
+end
+
+# get_labels_map_from_string constructs a map from given string of the format "key1=label1,key2=label2"
+def get_labels_map_from_string(labelString):
+   labelMap = {}
+   for val in labelString.split(','):
+    kv = val.split('=')
+    if len(kv) != 2:
+      assert.fail("given labels string \""+labelString+"\" must be in the  \"key1=label1,key2=label2\" format ")
+    end
+    labelMap.update({kv[0]: kv[1]})
+   end
+   return labelMap
 end

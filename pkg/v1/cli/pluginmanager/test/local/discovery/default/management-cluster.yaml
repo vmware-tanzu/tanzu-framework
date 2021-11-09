@@ -1,0 +1,24 @@
+apiVersion: cli.tanzu.vmware.com/v1alpha1
+kind: CLIPlugin
+metadata:
+  name: management-cluster
+spec:
+  description: Management Cluster Operations
+  artifacts:
+    v0.2.0:
+      - uri: v0.2.0/tanzu-management-cluster-darwin_amd64
+        digest: 5df2a0d87d6c562f0ea11c688ac52532aa28d744cabc7994ff0537f64b3b3320
+        os: darwin
+        arch: amd64
+        type: local
+      - uri: v0.2.0/tanzu-management-cluster-linux_amd64
+        digest: 5df2a0d87d6c562f0ea11c688ac52532aa28d744cabc7994ff0537f64b3b3320
+        os: linux
+        arch: amd64
+        type: local
+      - uri: v0.2.0/tanzu-management-cluster-windows_amd64
+        digest: 5df2a0d87d6c562f0ea11c688ac52532aa28d744cabc7994ff0537f64b3b3320
+        os: windows
+        arch: amd64
+        type: local
+  recommendedVersion: v0.2.0

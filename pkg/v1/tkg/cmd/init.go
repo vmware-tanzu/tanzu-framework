@@ -27,7 +27,6 @@ type initRegionOptions struct {
 	size                        string
 	controlPlaneSize            string
 	workerSize                  string
-	tmcRegistrationURL          string
 	ceipOptIn                   string
 	cniType                     string
 	bind                        string
@@ -146,8 +145,6 @@ func init() {
 
 	InitCmd.Flags().BoolVarP(&iro.unattended, "yes", "y", false, "Create management cluster without asking for confirmation")
 
-	InitCmd.Flags().StringVarP(&iro.tmcRegistrationURL, "tmc-registration-url", "", "", "URL to download the yml which has configuration related to resources to be deployed on the management cluster for it to register with Tanzu Mission Control")
-
 	// Hidden flags, mostly for development and testing
 
 	InitCmd.Flags().StringVarP(&iro.targetNamespace, "target-namespace", "", "", "The target namespace where the providers should be deployed. If not specified, each provider will be installed in a provider's default namespace")
@@ -191,7 +188,6 @@ func runInit() error {
 		Size:                        iro.size,
 		ControlPlaneSize:            iro.controlPlaneSize,
 		WorkerSize:                  iro.workerSize,
-		TmcRegistrationURL:          iro.tmcRegistrationURL,
 		CeipOptIn:                   iro.ceipOptIn,
 		CniType:                     iro.cniType,
 		FeatureFlags:                iro.featureFlags,
