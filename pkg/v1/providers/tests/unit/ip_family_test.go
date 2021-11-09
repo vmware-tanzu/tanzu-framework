@@ -474,7 +474,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 				})
 			})
 			When("TKG_IP_FAMILY is ipv4,ipv6", func() {
-				It("configure the CPI for ipv4 only", func() {
+				It("configure the CPI for ipv4 and ipv6", func() {
 					values := createDataValues(map[string]string{
 						"PROVIDER_TYPE": "vsphere",
 						"TKG_IP_FAMILY": "ipv4,ipv6",
@@ -482,9 +482,97 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 					output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
 					Expect(err).NotTo(HaveOccurred())
 
-					// TODO: change this to ipv4,ipv6 once this issue is resolved:
-					// https://github.com/kubernetes/cloud-provider-vsphere/issues/302
-					Expect(output).To(HaveYAMLPathWithValue(ipFamilyPath, "ipv4"))
+					Expect(output).To(HaveYAMLPathWithValue(ipFamilyPath, "ipv4,ipv6"))
+				})
+			})
+			When("TKG_IP_FAMILY is ipv6,ipv4", func() {
+				It("configure the CPI for ipv6 and ipv4", func() {
+					values := createDataValues(map[string]string{
+						"PROVIDER_TYPE": "vsphere",
+						"TKG_IP_FAMILY": "ipv6,ipv4",
+					})
+					output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+					Expect(err).NotTo(HaveOccurred())
+
+					Expect(output).To(HaveYAMLPathWithValue(ipFamilyPath, "ipv6,ipv4"))
+				})
+			})
+
+		})
+		Describe("vsphere cpi templates", func() {
+			var paths []string
+			BeforeEach(func() {
+				paths = []string{
+					filepath.Join("fixtures", "yttmocks"),
+					filepath.Join("fixtures", "vsphere_cpi.yaml"),
+					filepath.Join("..", "..", "ytt", "02_addons", "cpi", "cpi_overlay.lib.yaml"),
+					filepath.Join("..", "..", "config_default.yaml"),
+				}
+			})
+
+			Describe("vsphere-cloud-controller-manager container", func() {
+				var vsphereCCMEnvPath = "$.spec.template.spec.containers[0].env"
+
+				When("TKG_IP_FAMILY is unset", func() {
+					It("does not add ENABLE_ALPHA_DUAL_STACK to the container", func() {
+						values := createDataValues(map[string]string{
+							"PROVIDER_TYPE": "vsphere",
+						})
+						output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+						Expect(err).NotTo(HaveOccurred())
+
+						Expect(output).NotTo(HaveYAMLPath(vsphereCCMEnvPath))
+					})
+				})
+				When("TKG_IP_FAMILY is ipv4", func() {
+					It("does not add ENABLE_ALPHA_DUAL_STACK to the container", func() {
+						values := createDataValues(map[string]string{
+							"PROVIDER_TYPE": "vsphere",
+							"TKG_IP_FAMILY": "ipv4",
+						})
+						output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+						Expect(err).NotTo(HaveOccurred())
+
+						Expect(output).NotTo(HaveYAMLPath(vsphereCCMEnvPath))
+					})
+				})
+				When("TKG_IP_FAMILY is ipv6", func() {
+					It("does not add ENABLE_ALPHA_DUAL_STACK to the container", func() {
+						values := createDataValues(map[string]string{
+							"PROVIDER_TYPE": "vsphere",
+							"TKG_IP_FAMILY": "ipv6",
+						})
+						output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+						Expect(err).NotTo(HaveOccurred())
+
+						Expect(output).NotTo(HaveYAMLPath(vsphereCCMEnvPath))
+					})
+				})
+				When("TKG_IP_FAMILY is ipv4,ipv6", func() {
+					It("adds ENABLE_ALPHA_DUAL_STACK to the container", func() {
+						values := createDataValues(map[string]string{
+							"PROVIDER_TYPE": "vsphere",
+							"TKG_IP_FAMILY": "ipv4,ipv6",
+						})
+						output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+						Expect(err).NotTo(HaveOccurred())
+
+						Expect(output).To(HaveYAMLPathWithValue(vsphereCCMEnvPath+"[0].name", "ENABLE_ALPHA_DUAL_STACK"))
+						Expect(output).To(HaveYAMLPathWithValue(vsphereCCMEnvPath+"[0].value", "true"))
+					})
+				})
+				When("TKG_IP_FAMILY is ipv6,ipv4", func() {
+					It("adds ENABLE_ALPHA_DUAL_STACK to the container", func() {
+						values := createDataValues(map[string]string{
+							"PROVIDER_TYPE": "vsphere",
+							"TKG_IP_FAMILY": "ipv6,ipv4",
+						})
+						output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+						Expect(err).NotTo(HaveOccurred())
+
+						Expect(output).To(HaveYAMLPathWithValue(vsphereCCMEnvPath+"[0].name", "ENABLE_ALPHA_DUAL_STACK"))
+						Expect(output).To(HaveYAMLPathWithValue(vsphereCCMEnvPath+"[0].value", "true"))
+					})
 				})
 			})
 		})

@@ -31,3 +31,21 @@ metadata:
     kapp.k14s.io/versioned: ""
 
 #@ end
+
+#@ def configure_dualstack_vsphere_ccm():
+
+#@ if data.values.TKG_IP_FAMILY in ["ipv4,ipv6", "ipv6,ipv4"]:
+#@overlay/match by=overlay.subset({"kind": "DaemonSet", "metadata": {"name": "vsphere-cloud-controller-manager"}})
+---
+spec:
+  template:
+    spec:
+      containers:
+      #@overlay/match by=overlay.subset({"name": "vsphere-cloud-controller-manager"})
+      - name: "vsphere-cloud-controller-manager"
+        #@overlay/match missing_ok=True
+        env:
+        - name: "ENABLE_ALPHA_DUAL_STACK"
+          value: "true"
+#@ end
+#@ end
