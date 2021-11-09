@@ -1,20 +1,20 @@
 // Angular imports
 import { Component, ElementRef, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
-import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
-
+import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
-
-import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
-import { AWSAccountParamsKeys } from './provider-step/aws-provider-step.component';
-import { AWSRegionalClusterParams } from 'src/app/swagger/models';
-import { APIClient } from 'src/app/swagger';
 import { AwsWizardFormService } from 'src/app/shared/service/aws-wizard-form.service';
-import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
-import { BASTION_HOST_ENABLED } from './node-setting-step/node-setting-step.component';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
+import { APIClient } from 'src/app/swagger';
+import { AWSRegionalClusterParams } from 'src/app/swagger/models';
 import Broker from "../../../shared/service/broker";
+import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
+import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
+import { BASTION_HOST_ENABLED } from './node-setting-step/node-setting-step.component';
+import { AWSAccountParamsKeys } from './provider-step/aws-provider-step.component';
+
+
 
 @Component({
     selector: 'aws-wizard',
@@ -132,7 +132,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         AWSAccountParamsKeys.forEach(key => {
             payload.awsAccountParams[key] = this.getFieldValue('awsProviderForm', key);
         });
-
+        payload.loadbalancerSchemeInternal = this.getBooleanFieldValue('vpcForm', 'nonInternetFacingVPC');
         payload.sshKeyName = this.getFieldValue('awsNodeSettingForm', 'sshKeyName');
         payload.createCloudFormationStack = this.getFieldValue('awsNodeSettingForm', 'createCloudFormation') || false;
         payload.clusterName = this.getFieldValue('awsNodeSettingForm', 'clusterName');

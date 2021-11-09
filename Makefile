@@ -74,7 +74,7 @@ DEFAULT_STANDALONE_DISCOVERY_IMAGE_TAG = "${BUILD_VERSION}"
 endif
 
 DOCKER_DIR := /app
-SWAGGER=docker run --rm -v ${PWD}:${DOCKER_DIR} quay.io/goswagger/swagger:v0.21.0
+SWAGGER=docker run --rm -v ${PWD}:${DOCKER_DIR}:$(DOCKER_VOL_OPTS) quay.io/goswagger/swagger:v0.21.0
 
 # OCI registry for hosting tanzu framework components (containers and packages)
 OCI_REGISTRY ?= projects.registry.vmware.com/tanzu_framework
@@ -303,13 +303,13 @@ publish-plugins-oci: ## Publish CLI Plugins as OCI image for current host os-arc
 
 .PHONY: build-publish-plugins-all-local
 build-publish-plugins-all-local: clean-catalog-cache clean-cli-plugins build-cli publish-plugins-all-local ## Build and Publish CLI Plugins locally for all supported os-arch
-	
+
 .PHONY: build-publish-plugins-local
 build-publish-plugins-local: clean-catalog-cache clean-cli-plugins build-cli-local publish-plugins-local ## Build and Publish CLI Plugins locally for current host os-arch only
 
 .PHONY: build-publish-plugins-all-oci
 build-publish-plugins-all-oci: clean-catalog-cache clean-cli-plugins build-cli publish-plugins-all-oci ## Build and Publish CLI Plugins as OCI image for all supported os-arch
-	
+
 .PHONY: build-publish-plugins-oci
 build-publish-plugins-oci: clean-catalog-cache clean-cli-plugins build-cli-local publish-plugins-oci ## Build and Publish CLI Plugins as OCI image for current host os-arch only
 

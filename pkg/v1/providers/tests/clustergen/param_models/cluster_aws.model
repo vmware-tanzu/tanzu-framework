@@ -40,6 +40,7 @@ AWS_PRIVATE_NODE_CIDR: "NA", "10.0.0.0/24"
 AWS_PUBLIC_NODE_CIDR: "NA", "10.0.1.0/24"
 AWS_PRIVATE_SUBNET_ID: "NA", "subnet-private-1"
 AWS_PUBLIC_SUBNET_ID: "NA", "subnet-public-1"
+AWS_LOAD_BALANCER_SCHEME_INTERNAL: "true", "false"
 
 AWS_NODE_AZ_1: "NA", "us-east-1b", "us-west-2b"
 AWS_PRIVATE_NODE_CIDR_1: "NA", "10.0.2.0/24"

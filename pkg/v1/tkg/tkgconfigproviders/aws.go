@@ -44,18 +44,19 @@ type AWSConfig struct {
 	ClusterPlan           string `yaml:"CLUSTER_PLAN,omitempty"`
 	ControlPlaneNodeType  string `yaml:"CONTROL_PLANE_MACHINE_TYPE,omitempty"`
 	// ControlPlaneOSDiskSizeGiB is the size of the root volume of the control plane instances of a cluster
-	ControlPlaneOSDiskSizeGiB string `yaml:"AWS_CONTROL_PLANE_OS_DISK_SIZE_GIB,omitempty"`
-	CredentialProfile         string `yaml:"AWS_PROFILE,omitempty"`
-	EnableAuditLogging        string `yaml:"ENABLE_AUDIT_LOGGING"`
-	HTTPProxyEnabled          string `yaml:"TKG_HTTP_PROXY_ENABLED"`
-	InfrastructureProvider    string `yaml:"INFRASTRUCTURE_PROVIDER,omitempty"`
-	MachineHealthCheckEnabled string `yaml:"ENABLE_MHC"`
-	Node2Az                   string `yaml:"AWS_NODE_AZ_1"`
-	Node3Az                   string `yaml:"AWS_NODE_AZ_2"`
-	NodeAz                    string `yaml:"AWS_NODE_AZ"`
-	NodeMachineType           string `yaml:"NODE_MACHINE_TYPE,omitempty"`
-	NodeMachineType1          string `yaml:"NODE_MACHINE_TYPE_1,omitempty"`
-	NodeMachineType2          string `yaml:"NODE_MACHINE_TYPE_2,omitempty"`
+	ControlPlaneOSDiskSizeGiB  string `yaml:"AWS_CONTROL_PLANE_OS_DISK_SIZE_GIB,omitempty"`
+	CredentialProfile          string `yaml:"AWS_PROFILE,omitempty"`
+	EnableAuditLogging         string `yaml:"ENABLE_AUDIT_LOGGING"`
+	HTTPProxyEnabled           string `yaml:"TKG_HTTP_PROXY_ENABLED"`
+	InfrastructureProvider     string `yaml:"INFRASTRUCTURE_PROVIDER,omitempty"`
+	LoadBalancerSchemeInternal string `yaml:"AWS_LOAD_BALANCER_SCHEME_INTERNAL,omitempty"`
+	MachineHealthCheckEnabled  string `yaml:"ENABLE_MHC"`
+	Node2Az                    string `yaml:"AWS_NODE_AZ_1"`
+	Node3Az                    string `yaml:"AWS_NODE_AZ_2"`
+	NodeAz                     string `yaml:"AWS_NODE_AZ"`
+	NodeMachineType            string `yaml:"NODE_MACHINE_TYPE,omitempty"`
+	NodeMachineType1           string `yaml:"NODE_MACHINE_TYPE_1,omitempty"`
+	NodeMachineType2           string `yaml:"NODE_MACHINE_TYPE_2,omitempty"`
 	// NodeOSDiskSizeGiB is the size of the root volume of the node instances of a cluster
 	NodeOSDiskSizeGiB      string                    `yaml:"AWS_NODE_OS_DISK_SIZE_GIB,omitempty"`
 	PrivateNode2Cidr       string                    `yaml:"AWS_PRIVATE_NODE_CIDR_1"`
@@ -155,6 +156,10 @@ func (c *client) NewAWSConfig(params *models.AWSRegionalClusterParams, encodedCr
 		ClusterCidr:            params.Networking.ClusterPodCIDR,
 		ServiceCidr:            params.Networking.ClusterServiceCIDR,
 		HTTPProxyEnabled:       falseConst,
+	}
+
+	if params.LoadbalancerSchemeInternal {
+		res.LoadBalancerSchemeInternal = strconv.FormatBool(params.LoadbalancerSchemeInternal)
 	}
 
 	if params.CeipOptIn != nil {

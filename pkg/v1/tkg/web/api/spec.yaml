@@ -1730,6 +1730,8 @@ definitions:
         type: string
       controlPlaneFlavor:
         type: string
+      loadbalancerSchemeInternal:
+        type: boolean
       workerNodeType:
         type: string
       numOfWorkerNode:
