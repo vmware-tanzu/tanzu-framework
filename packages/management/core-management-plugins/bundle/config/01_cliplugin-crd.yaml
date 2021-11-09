@@ -4,6 +4,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.7.0
+    kapp.k14s.io/change-group: "cliplugins.cli.tanzu.vmware.com/crd"
   creationTimestamp: null
   name: cliplugins.cli.tanzu.vmware.com
 spec:

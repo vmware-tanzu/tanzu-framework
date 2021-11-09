@@ -7,6 +7,8 @@ kind: CLIPlugin
 metadata:
   creationTimestamp: null
   name: cluster
+  annotations:
+    kapp.k14s.io/change-rule: "upsert after upserting cliplugins.cli.tanzu.vmware.com/crd"
 spec:
   artifacts:
     #@yaml/text-templated-strings

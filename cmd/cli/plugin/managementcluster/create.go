@@ -10,7 +10,10 @@ import (
 	"github.com/spf13/pflag"
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/cmd"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/pluginmanager"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 )
 
@@ -179,5 +182,21 @@ func runInit() error {
 		GenerateOnly:                iro.dryRun,
 	}
 
-	return tkgClient.Init(options)
+	err = tkgClient.Init(options)
+	if err != nil {
+		return err
+	}
+
+	// Sync plugins if management-cluster creation is successful
+	if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
+		server, err := config.GetCurrentServer()
+		if err == nil && server != nil {
+			err = pluginmanager.SyncPlugins(server.Name)
+			if err != nil {
+				log.Warningf("unable to sync plugins after management cluster create. Please run `tanzu plugin sync` command manually to install/update plugins")
+			}
+		}
+	}
+
+	return nil
 }
