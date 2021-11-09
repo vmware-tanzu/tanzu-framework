@@ -134,6 +134,11 @@ func getValuesSchemaForPackage(namespace, name, version string, kc kappclient.Cl
 	}
 
 	var parseErr error
+	if len(pkg.Spec.ValuesSchema.OpenAPIv3.Raw) == 0 {
+		t.StopSpinner()
+		log.Warningf("package '%s/%s' does not have any user configurable values in the '%s' namespace", pkgName, pkgVersion, packageAvailableOp.Namespace)
+		return nil
+	}
 	dataValuesSchemaParser, parseErr := tkgpackageclient.NewValuesSchemaParser(pkg.Spec.ValuesSchema)
 	if parseErr != nil {
 		return parseErr

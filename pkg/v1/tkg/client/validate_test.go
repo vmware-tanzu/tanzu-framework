@@ -17,12 +17,60 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
+
+	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 )
 
 var _ = Describe("Validate", func() {
+	var (
+		tkgClient             *client.TkgClient
+		tkgConfigReaderWriter tkgconfigreaderwriter.TKGConfigReaderWriter
+		featureFlagClient     *fakes.FeatureFlagClient
+	)
+	BeforeEach(func() {
+		tkgBomClient := new(fakes.TKGConfigBomClient)
+		tkgBomClient.GetDefaultTkrBOMConfigurationReturns(&tkgconfigbom.BOMConfiguration{
+			Release: &tkgconfigbom.ReleaseInfo{Version: "v1.3"},
+			Components: map[string][]*tkgconfigbom.ComponentInfo{
+				"kubernetes": {{Version: "v1.20"}},
+			},
+		}, nil)
+		tkgBomClient.GetDefaultTkgBOMConfigurationReturns(&tkgconfigbom.BOMConfiguration{
+			Release: &tkgconfigbom.ReleaseInfo{Version: "v1.23"},
+		}, nil)
+
+		configDir := os.TempDir()
+
+		configFile, err := os.CreateTemp(configDir, "cluster-config-*.yaml")
+		Expect(err).NotTo(HaveOccurred())
+		Expect(configFile.Sync()).To(Succeed())
+		Expect(configFile.Close()).To(Succeed())
+
+		tkgConfigReaderWriter, err = tkgconfigreaderwriter.NewReaderWriterFromConfigFile(configFile.Name(), configFile.Name())
+		Expect(err).NotTo(HaveOccurred())
+		readerWriter, err := tkgconfigreaderwriter.NewWithReaderWriter(tkgConfigReaderWriter)
+		Expect(err).NotTo(HaveOccurred())
+
+		tkgConfigUpdater := new(fakes.TKGConfigUpdaterClient)
+		tkgConfigUpdater.CheckInfrastructureVersionStub = func(providerName string) (string, error) {
+			return providerName, nil
+		}
+
+		featureFlagClient = &fakes.FeatureFlagClient{}
+		featureFlagClient.IsConfigFeatureActivatedReturns(true, nil)
+
+		options := client.Options{
+			ReaderWriterConfigClient: readerWriter,
+			TKGConfigUpdater:         tkgConfigUpdater,
+			TKGBomClient:             tkgBomClient,
+			RegionManager:            new(fakes.RegionManager),
+			FeatureFlagClient:        featureFlagClient,
+		}
+		tkgClient, err = client.New(options)
+		Expect(err).NotTo(HaveOccurred())
+	})
 	Context("vCenter IP and vSphere Control Plane Endpoint", func() {
 		var (
-			tkgClient       *client.TkgClient
 			nodeSizeOptions client.NodeSizeOptions
 			err             error
 		)
@@ -57,49 +105,10 @@ var _ = Describe("Validate", func() {
 
 	Context("ConfigureAndValidateManagementClusterConfiguration", func() {
 		var (
-			initRegionOptions     *client.InitRegionOptions
-			tkgClient             *client.TkgClient
-			tkgConfigReaderWriter tkgconfigreaderwriter.TKGConfigReaderWriter
+			initRegionOptions *client.InitRegionOptions
 		)
 
 		BeforeEach(func() {
-			tkgBomClient := new(fakes.TKGConfigBomClient)
-			tkgBomClient.GetDefaultTkrBOMConfigurationReturns(&tkgconfigbom.BOMConfiguration{
-				Release: &tkgconfigbom.ReleaseInfo{Version: "v1.3"},
-				Components: map[string][]*tkgconfigbom.ComponentInfo{
-					"kubernetes": {{Version: "v1.20"}},
-				},
-			}, nil)
-			tkgBomClient.GetDefaultTkgBOMConfigurationReturns(&tkgconfigbom.BOMConfiguration{
-				Release: &tkgconfigbom.ReleaseInfo{Version: "v1.23"},
-			}, nil)
-
-			configDir := os.TempDir()
-
-			configFile, err := os.CreateTemp(configDir, "cluster-config-*.yaml")
-			Expect(err).NotTo(HaveOccurred())
-			Expect(configFile.Sync()).To(Succeed())
-			Expect(configFile.Close()).To(Succeed())
-
-			tkgConfigReaderWriter, err = tkgconfigreaderwriter.NewReaderWriterFromConfigFile(configFile.Name(), configFile.Name())
-			Expect(err).NotTo(HaveOccurred())
-			readerWriter, err := tkgconfigreaderwriter.NewWithReaderWriter(tkgConfigReaderWriter)
-			Expect(err).NotTo(HaveOccurred())
-
-			tkgConfigUpdater := new(fakes.TKGConfigUpdaterClient)
-			tkgConfigUpdater.CheckInfrastructureVersionStub = func(providerName string) (string, error) {
-				return providerName, nil
-			}
-
-			options := client.Options{
-				ReaderWriterConfigClient: readerWriter,
-				TKGConfigUpdater:         tkgConfigUpdater,
-				TKGBomClient:             tkgBomClient,
-				RegionManager:            new(fakes.RegionManager),
-			}
-			tkgClient, err = client.New(options)
-			Expect(err).NotTo(HaveOccurred())
-
 			initRegionOptions = &client.InitRegionOptions{
 				Plan:                        "dev",
 				InfrastructureProvider:      "vsphere",
@@ -549,6 +558,16 @@ var _ = Describe("Validate", func() {
 					tkgConfigReaderWriter.Set(constants.ConfigVariableIPFamily, "ipv4,ipv6")
 				})
 
+				Context("when dual-stack-ipv4-primary feature gate is false", func() {
+					BeforeEach(func() {
+						featureFlagClient.IsConfigFeatureActivatedReturns(false, nil)
+					})
+					It("returns an error", func() {
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).To(HaveOccurred())
+						Expect(validationError.Error()).To(ContainSubstring("option TKG_IP_FAMILY is set to \"ipv4,ipv6\", but dualstack support is not enabled (because it is under development). To enable dualstack, set features.management-cluster.dual-stack-ipv4-primary to \"true\""))
+					})
+				})
 				Context("when SERVICE_CIDR and CLUSTER_CIDR are ipv4,ipv6", func() {
 					It("should pass validation", func() {
 						tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, "1.2.3.4/16,::1/108")
@@ -611,6 +630,17 @@ var _ = Describe("Validate", func() {
 			Context("when IPFamily is ipv6,ipv4 i.e Dual-stack Primary IPv6", func() {
 				BeforeEach(func() {
 					tkgConfigReaderWriter.Set(constants.ConfigVariableIPFamily, "ipv6,ipv4")
+				})
+
+				Context("when dual-stack-ipv6-primary feature gate is false", func() {
+					BeforeEach(func() {
+						featureFlagClient.IsConfigFeatureActivatedReturns(false, nil)
+					})
+					It("returns an error", func() {
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).To(HaveOccurred())
+						Expect(validationError.Error()).To(ContainSubstring("option TKG_IP_FAMILY is set to \"ipv6,ipv4\", but dualstack support is not enabled (because it is under development). To enable dualstack, set features.management-cluster.dual-stack-ipv6-primary to \"true\""))
+					})
 				})
 
 				Context("when SERVICE_CIDR and CLUSTER_CIDR are ipv6,ipv4", func() {
@@ -1029,6 +1059,76 @@ var _ = Describe("Validate", func() {
 						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
 						Expect(validationError).To(HaveOccurred())
 						Expect(validationError.Error()).To(ContainSubstring("invalid WORKER_NODE_NAMESERVERS \"8.8.8.8\", expected to be IP addresses that match TKG_IP_FAMILY \"ipv6\""))
+					})
+				})
+			})
+		})
+	})
+
+	Context("ConfigureAndValidateWorkloadClusterConfiguration", func() {
+		var (
+			createClusterOptions *client.CreateClusterOptions
+			clusterClient        *fakes.ClusterClient
+		)
+		BeforeEach(func() {
+			createClusterOptions = &client.CreateClusterOptions{
+				VsphereControlPlaneEndpoint: "foo.bar",
+				Edition:                     "tkg",
+			}
+			createClusterOptions.ProviderRepositorySource = &clusterctl.ProviderRepositorySourceOptions{
+				InfrastructureProvider: "vsphere",
+			}
+
+			clusterClient = &fakes.ClusterClient{}
+		})
+		Context("IPFamily configuration and validation", func() {
+			Context("when IPFamily is ipv4,ipv6 i.e Dual-stack Primary IPv4", func() {
+				BeforeEach(func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableIPFamily, "ipv4,ipv6")
+				})
+
+				Context("when dual-stack-ipv4-primary feature gate is false", func() {
+					BeforeEach(func() {
+						featureFlagClient.IsConfigFeatureActivatedReturns(false, nil)
+					})
+					It("returns an error", func() {
+						validationError := tkgClient.ConfigureAndValidateWorkloadClusterConfiguration(createClusterOptions, clusterClient, true)
+						Expect(validationError).To(HaveOccurred())
+						Expect(validationError.Error()).To(ContainSubstring("option TKG_IP_FAMILY is set to \"ipv4,ipv6\", but dualstack support is not enabled (because it is under development). To enable dualstack, set features.cluster.dual-stack-ipv4-primary to \"true\""))
+					})
+				})
+				Context("when dual-stack-ipv4-primary feature gate is true", func() {
+					BeforeEach(func() {
+						featureFlagClient.IsConfigFeatureActivatedReturns(true, nil)
+					})
+					It("passes validation", func() {
+						validationError := tkgClient.ConfigureAndValidateWorkloadClusterConfiguration(createClusterOptions, clusterClient, true)
+						Expect(validationError).NotTo(HaveOccurred())
+					})
+				})
+			})
+			Context("when IPFamily is ipv6,ipv4 i.e Dual-stack Primary IPv6", func() {
+				BeforeEach(func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableIPFamily, "ipv6,ipv4")
+				})
+
+				Context("when dual-stack-ipv6-primary feature gate is false", func() {
+					BeforeEach(func() {
+						featureFlagClient.IsConfigFeatureActivatedReturns(false, nil)
+					})
+					It("returns an error", func() {
+						validationError := tkgClient.ConfigureAndValidateWorkloadClusterConfiguration(createClusterOptions, clusterClient, true)
+						Expect(validationError).To(HaveOccurred())
+						Expect(validationError.Error()).To(ContainSubstring("option TKG_IP_FAMILY is set to \"ipv6,ipv4\", but dualstack support is not enabled (because it is under development). To enable dualstack, set features.cluster.dual-stack-ipv6-primary to \"true\""))
+					})
+				})
+				Context("when dual-stack-ipv6-primary feature gate is true", func() {
+					BeforeEach(func() {
+						featureFlagClient.IsConfigFeatureActivatedReturns(true, nil)
+					})
+					It("passes validation", func() {
+						validationError := tkgClient.ConfigureAndValidateWorkloadClusterConfiguration(createClusterOptions, clusterClient, true)
+						Expect(validationError).NotTo(HaveOccurred())
 					})
 				})
 			})

@@ -8,15 +8,14 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/providers/tests/unit/ytt"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/providers/tests/unit/matchers"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/providers/tests/unit/ytt"
 )
 
-const YAML_ROOT = "../../"
+const yamlRoot = "../../"
 
 var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 	Describe("IP family ytt validations", func() {
@@ -24,8 +23,8 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 		BeforeEach(func() {
 			paths = []string{
 				// assumes that ../../ is where the yaml templates live
-				filepath.Join(YAML_ROOT, "config_default.yaml"),
-				filepath.Join(YAML_ROOT, "ytt", "03_customizations", "ip_family.yaml"),
+				filepath.Join(yamlRoot, "config_default.yaml"),
+				filepath.Join(yamlRoot, "ytt", "03_customizations", "ip_family.yaml"),
 			}
 		})
 
@@ -112,6 +111,45 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 				})
 				_, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
 				Expect(err).To(HaveOccurred())
+			})
+		})
+
+		When("workload cluster is windows on vsphere", func() {
+			It("does not allow ipv6", func() {
+				values := createDataValues(map[string]string{
+					"IS_WINDOWS_WORKLOAD_CLUSTER": "true",
+					"TKG_IP_FAMILY":               "ipv6",
+					"PROVIDER_TYPE":               "vsphere",
+				})
+				_, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+				Expect(err).To(MatchError(ContainSubstring("IS_WINDOWS_WORKLOAD_CLUSTER is not compatible with TKG_IP_FAMLY values of \"ipv6\", \"ipv4,ipv6\" or \"ipv6,ipv4\"")))
+			})
+			It("allows ipv4", func() {
+				values := createDataValues(map[string]string{
+					"IS_WINDOWS_WORKLOAD_CLUSTER": "true",
+					"TKG_IP_FAMILY":               "ipv4",
+					"PROVIDER_TYPE":               "vsphere",
+				})
+				_, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+				Expect(err).NotTo(HaveOccurred())
+			})
+			It("does not allow ipv4,ipv6", func() {
+				values := createDataValues(map[string]string{
+					"IS_WINDOWS_WORKLOAD_CLUSTER": "true",
+					"TKG_IP_FAMILY":               "ipv4,ipv6",
+					"PROVIDER_TYPE":               "vsphere",
+				})
+				_, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+				Expect(err).To(MatchError(ContainSubstring("IS_WINDOWS_WORKLOAD_CLUSTER is not compatible with TKG_IP_FAMLY values of \"ipv6\", \"ipv4,ipv6\" or \"ipv6,ipv4\"")))
+			})
+			It("does not allow ipv6,ipv4", func() {
+				values := createDataValues(map[string]string{
+					"IS_WINDOWS_WORKLOAD_CLUSTER": "true",
+					"TKG_IP_FAMILY":               "ipv4,ipv6",
+					"PROVIDER_TYPE":               "vsphere",
+				})
+				_, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+				Expect(err).To(MatchError(ContainSubstring("IS_WINDOWS_WORKLOAD_CLUSTER is not compatible with TKG_IP_FAMLY values of \"ipv6\", \"ipv4,ipv6\" or \"ipv6,ipv4\"")))
 			})
 		})
 	})
@@ -203,8 +241,8 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 		BeforeEach(func() {
 			paths = []string{
 				filepath.Join("fixtures", "yttmocks"),
-				filepath.Join("..", "..", "infrastructure-vsphere", "v0.7.10", "ytt", "overlay.yaml"),
-				filepath.Join("..", "..", "infrastructure-vsphere", "v0.7.10", "ytt", "base-template.yaml"),
+				filepath.Join("..", "..", "infrastructure-vsphere", "v1.0.1", "ytt", "overlay.yaml"),
+				filepath.Join("..", "..", "infrastructure-vsphere", "v1.0.1", "ytt", "base-template.yaml"),
 				filepath.Join("..", "..", "config_default.yaml"),
 			}
 		})

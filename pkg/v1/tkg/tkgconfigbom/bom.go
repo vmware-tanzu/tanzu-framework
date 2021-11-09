@@ -4,7 +4,6 @@
 package tkgconfigbom
 
 import (
-	"encoding/base64"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -15,10 +14,11 @@ import (
 
 	"k8s.io/apimachinery/pkg/util/version"
 
-	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/image"
+	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/registry"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/clientconfighelpers"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
@@ -196,6 +196,7 @@ func (c *client) loadBOMConfigurationFromFiledata(data []byte) (*BOMConfiguratio
 		bomConfiguration.ProvidersVersionMap["cluster-api"] = getSimpleVersion(bomConfiguration.Components["cluster_api"][0].Version)
 		bomConfiguration.ProvidersVersionMap["bootstrap-kubeadm"] = getSimpleVersion(bomConfiguration.Components["cluster_api"][0].Version)
 		bomConfiguration.ProvidersVersionMap["control-plane-kubeadm"] = getSimpleVersion(bomConfiguration.Components["cluster_api"][0].Version)
+		bomConfiguration.ProvidersVersionMap["infrastructure-docker"] = getSimpleVersion(bomConfiguration.Components["cluster_api"][0].Version)
 		bomConfiguration.ProvidersVersionMap["infrastructure-aws"] = getSimpleVersion(bomConfiguration.Components["cluster_api_aws"][0].Version)
 		bomConfiguration.ProvidersVersionMap["infrastructure-vsphere"] = getSimpleVersion(bomConfiguration.Components["cluster_api_vsphere"][0].Version)
 		bomConfiguration.ProvidersVersionMap["infrastructure-azure"] = getSimpleVersion(bomConfiguration.Components["cluster-api-provider-azure"][0].Version)
@@ -337,35 +338,6 @@ func (c *client) IsCustomRepositorySkipTLSVerify() bool {
 	return false
 }
 
-// GetCustomRepositoryCaCertificateForClient returns CA certificate to use with cli client
-// This function reads the CA certificate from following variables in decreasing order of precedence:
-// 1. PROXY_CA_CERT
-// 2. TKG_PROXY_CA_CERT
-// 3. TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
-func (c *client) GetCustomRepositoryCaCertificateForClient() ([]byte, error) {
-	caCert := ""
-	proxyCACertValue, errProxyCACert := c.TKGConfigReaderWriter().Get(constants.ProxyCACert)
-	tkgProxyCACertValue, errTkgProxyCACertValue := c.TKGConfigReaderWriter().Get(constants.TKGProxyCACert)
-	customImageRepoCACert, errCustomImageRepoCACert := c.TKGConfigReaderWriter().Get(constants.ConfigVariableCustomImageRepositoryCaCertificate)
-
-	if errProxyCACert == nil && proxyCACertValue != "" {
-		caCert = proxyCACertValue
-	} else if errTkgProxyCACertValue == nil && tkgProxyCACertValue != "" {
-		caCert = tkgProxyCACertValue
-	} else if errCustomImageRepoCACert == nil && customImageRepoCACert != "" {
-		caCert = customImageRepoCACert
-	} else {
-		// return empty content when none is specified
-		return []byte{}, nil
-	}
-
-	decoded, err := base64.StdEncoding.DecodeString(caCert)
-	if err != nil {
-		return nil, errors.Wrap(err, "unable to decode the base64-encoded custom registry CA certificate string")
-	}
-	return decoded, nil
-}
-
 // getDevRepository does not rely on configured tkgConfigReaderWriter as the value of the tkgConfigReaderWriter can be nil
 func (c *client) getDevRepository() (string, error) {
 	if c.TKGConfigReaderWriter() == nil {
@@ -424,7 +396,7 @@ func (c *client) DownloadDefaultBOMFilesFromRegistry(bomRegistry registry.Regist
 	}
 
 	log.Infof("Downloading the TKG Bill of Materials (BOM) file from '%s'", fmt.Sprintf("%s:%s", tkgBOMImagePath, tkgBOMImageTag))
-	tkgBOMContent, err := bomRegistry.GetFile(tkgBOMImagePath, tkgBOMImageTag, "")
+	tkgBOMContent, err := bomRegistry.GetFile(fmt.Sprintf("%s:%s", tkgBOMImagePath, tkgBOMImageTag), "")
 	if err != nil {
 		return errors.Errorf(errorDownloadingDefaultBOMFiles, fmt.Sprintf("%s:%s", tkgBOMImagePath, tkgBOMImageTag), err, tkgconfigpath)
 	}
@@ -461,7 +433,7 @@ func (c *client) DownloadDefaultBOMFilesFromRegistry(bomRegistry registry.Regist
 	defaultTKRImagePath := tkrBOMImageRepo + "/" + bomConfiguration.TKRBOM.ImagePath
 
 	log.Infof("Downloading the TKr Bill of Materials (BOM) file from '%s'", fmt.Sprintf("%s:%s", defaultTKRImagePath, tkrBOMTagName))
-	tkrBOMContent, err := bomRegistry.GetFile(defaultTKRImagePath, tkrBOMTagName, "")
+	tkrBOMContent, err := bomRegistry.GetFile(fmt.Sprintf("%s:%s", defaultTKRImagePath, tkrBOMTagName), "")
 	if err != nil {
 		return errors.Errorf(errorDownloadingDefaultBOMFiles, fmt.Sprintf("%s:%s", defaultTKRImagePath, tkrBOMTagName), err, tkgconfigpath)
 	}
@@ -519,7 +491,7 @@ func (c *client) DownloadTKGCompatibilityFileFromRegistry(bomRegistry registry.R
 		return err
 	}
 
-	tkgCompatibilityContent, err := bomRegistry.GetFile(tkgCompatibilityImagePath, tagName, "")
+	tkgCompatibilityContent, err := bomRegistry.GetFile(fmt.Sprintf("%s:%s", tkgCompatibilityImagePath, tagName), "")
 	if err != nil {
 		return errors.Errorf(errorDownloadingTKGCompatibilityFile, fmt.Sprintf("%s:%s", tkgCompatibilityImagePath, tagName), err, tkgconfigpath)
 	}
@@ -539,19 +511,19 @@ func (c *client) InitBOMRegistry() (registry.Registry, error) {
 		verifyCerts = false
 	}
 
-	registryOpts := &ctlimg.RegistryOpts{
+	registryOpts := &ctlimg.Opts{
 		VerifyCerts: verifyCerts,
 		Anon:        true,
 	}
 
 	if runtime.GOOS == "windows" {
-		err := addRegistryTrustedRootCertsFileForWindows(registryOpts)
+		err := clientconfighelpers.AddRegistryTrustedRootCertsFileForWindows(registryOpts)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	caCertBytes, err := c.GetCustomRepositoryCaCertificateForClient()
+	caCertBytes, err := clientconfighelpers.GetCustomRepositoryCaCertificateForClient(c.TKGConfigReaderWriter())
 	if err == nil && len(caCertBytes) != 0 {
 		filePath, err := tkgconfigpaths.GetRegistryCertFile()
 		if err != nil {
@@ -673,16 +645,4 @@ func (c *client) getDefaultBOMFileImagePathAndTagFromCompatabilityFile() (string
 		}
 	}
 	return "", "", errors.Errorf("unable to find the supported TKG BOM version for the management plugin version %q in the TKG Compatibility file %q", tkgconfigpaths.TKGManagementClusterPluginVersion, compatibilityFile)
-}
-func addRegistryTrustedRootCertsFileForWindows(registryOpts *ctlimg.RegistryOpts) error {
-	filePath, err := tkgconfigpaths.GetRegistryTrustedCACertFileForWindows()
-	if err != nil {
-		return err
-	}
-	err = os.WriteFile(filePath, projectsRegistryCA, constants.ConfigFilePermissions)
-	if err != nil {
-		return errors.Wrapf(err, "failed to write the registry trusted CA cert to file '%s'", filePath)
-	}
-	registryOpts.CACertPaths = append(registryOpts.CACertPaths, filePath)
-	return nil
 }

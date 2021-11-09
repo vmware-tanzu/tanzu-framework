@@ -39,6 +39,7 @@ func init() {
 		repoCmd,
 		cleanPluginCmd,
 		syncPluginCmd,
+		discoverySourceCmd,
 	)
 	listPluginCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table)")
 	pluginCmd.PersistentFlags().StringSliceVarP(&local, "local", "l", []string{}, "path to local repository")
@@ -175,7 +176,7 @@ var describePluginCmd = &cobra.Command{
 		if len(args) != 1 {
 			return fmt.Errorf("must provide plugin name as positional argument")
 		}
-		name := args[0]
+		pluginName := args[0]
 
 		if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
 			serverName := ""
@@ -183,7 +184,7 @@ var describePluginCmd = &cobra.Command{
 			if err == nil && server != nil {
 				serverName = server.Name
 			}
-			pd, err := pluginmanager.DescribePlugin(serverName, name)
+			pd, err := pluginmanager.DescribePlugin(serverName, pluginName)
 			if err != nil {
 				return err
 			}
@@ -199,12 +200,12 @@ var describePluginCmd = &cobra.Command{
 
 		repos := getRepositories()
 
-		repo, err := repos.Find(name)
+		repo, err := repos.Find(pluginName)
 		if err != nil {
 			return err
 		}
 
-		plugin, err := repo.Describe(name)
+		plugin, err := repo.Describe(pluginName)
 		if err != nil {
 			return err
 		}
@@ -225,7 +226,7 @@ var installPluginCmd = &cobra.Command{
 		if len(args) != 1 {
 			return fmt.Errorf("must provide plugin name as positional argument")
 		}
-		name := args[0]
+		pluginName := args[0]
 
 		if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
 			serverName := ""
@@ -237,42 +238,42 @@ var installPluginCmd = &cobra.Command{
 			pluginVersion := version
 
 			if pluginVersion == cli.VersionLatest {
-				pluginVersion, err = pluginmanager.GetRecommendedVersionOfPlugin(serverName, name)
+				pluginVersion, err = pluginmanager.GetRecommendedVersionOfPlugin(serverName, pluginName)
 				if err != nil {
 					return err
 				}
 			}
 
-			err = pluginmanager.InstallPlugin(serverName, name, pluginVersion)
+			err = pluginmanager.InstallPlugin(serverName, pluginName, pluginVersion)
 			if err != nil {
 				return err
 			}
-			log.Successf("successfully installed '%s' plugin", name)
+			log.Successf("successfully installed '%s' plugin", pluginName)
 			return nil
 		}
 
 		repos := getRepositories()
 
-		if name == cli.AllPlugins {
+		if pluginName == cli.AllPlugins {
 			return cli.InstallAllMulti(repos)
 		}
-		repo, err := repos.Find(name)
+		repo, err := repos.Find(pluginName)
 		if err != nil {
 			return err
 		}
 
-		plugin, err := repo.Describe(name)
+		plugin, err := repo.Describe(pluginName)
 		if err != nil {
 			return err
 		}
 		if version == cli.VersionLatest {
 			version = plugin.FindVersion(repo.VersionSelector())
 		}
-		err = cli.InstallPlugin(name, version, repo)
+		err = cli.InstallPlugin(pluginName, version, repo)
 		if err != nil {
 			return
 		}
-		log.Successf("successfully installed %s", name)
+		log.Successf("successfully installed %s", pluginName)
 		return
 	},
 }
@@ -284,7 +285,7 @@ var upgradePluginCmd = &cobra.Command{
 		if len(args) != 1 {
 			return fmt.Errorf("must provide plugin name as positional argument")
 		}
-		name := args[0]
+		pluginName := args[0]
 
 		if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
 			serverName := ""
@@ -293,32 +294,32 @@ var upgradePluginCmd = &cobra.Command{
 				serverName = server.Name
 			}
 
-			pluginVersion, err := pluginmanager.GetRecommendedVersionOfPlugin(serverName, name)
+			pluginVersion, err := pluginmanager.GetRecommendedVersionOfPlugin(serverName, pluginName)
 			if err != nil {
 				return err
 			}
 
-			err = pluginmanager.UpgradePlugin(serverName, name, pluginVersion)
+			err = pluginmanager.UpgradePlugin(serverName, pluginName, pluginVersion)
 			if err != nil {
 				return err
 			}
-			log.Successf("successfully upgraded plugin '%s' to version '%s'", name, pluginVersion)
+			log.Successf("successfully upgraded plugin '%s' to version '%s'", pluginName, pluginVersion)
 			return nil
 		}
 
 		repos := getRepositories()
-		repo, err := repos.Find(name)
+		repo, err := repos.Find(pluginName)
 		if err != nil {
 			return err
 		}
 
-		plugin, err := repo.Describe(name)
+		plugin, err := repo.Describe(pluginName)
 		if err != nil {
 			return err
 		}
 
 		versionSelector := repo.VersionSelector()
-		err = cli.UpgradePlugin(name, plugin.FindVersion(versionSelector), repo)
+		err = cli.UpgradePlugin(pluginName, plugin.FindVersion(versionSelector), repo)
 		return
 	},
 }
@@ -330,7 +331,7 @@ var deletePluginCmd = &cobra.Command{
 		if len(args) != 1 {
 			return fmt.Errorf("must provide plugin name as positional argument")
 		}
-		name := args[0]
+		pluginName := args[0]
 
 		if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
 			serverName := ""
@@ -339,16 +340,16 @@ var deletePluginCmd = &cobra.Command{
 				serverName = server.Name
 			}
 
-			err = pluginmanager.DeletePlugin(serverName, name)
+			err = pluginmanager.DeletePlugin(serverName, pluginName)
 			if err != nil {
 				return err
 			}
 
-			log.Successf("successfully deleted plugin '%s'", name)
+			log.Successf("successfully deleted plugin '%s'", pluginName)
 			return nil
 		}
 
-		err = cli.DeletePlugin(name)
+		err = cli.DeletePlugin(pluginName)
 
 		return
 	},

@@ -1,0 +1,16 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: featuregates.tanzu.vmware.com
+  namespace: featuregates
+spec:
+  displayName: "featuregates"
+  longDescription: "Featuregates package provides Features and Featuregates APIs to allow developers to have a system to control rollout and availability of new Features"
+  shortDescription: "Feature management"
+  providerName: VMware
+  maintainers:
+    - name: "Rajath Agasthya"
+    - name: "Jeff Moroski"
+    - name: "Harish Yayi"
+  categories:
+    - "feature management"

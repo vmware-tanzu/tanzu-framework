@@ -1,7 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-// Package main is a utility program to add a newImage path to an existing image in kbld-config.yml.
+// Package main is a utility program to add a newImage path to an existing image in kbld-config.yaml.
 package main
 
 import (
@@ -16,7 +16,7 @@ import (
 )
 
 func main() {
-	file := flag.String("kbld-config", "../../../kbld-config.yml", "Path to kbld-config.yml file")
+	file := flag.String("kbld-config", "../../../packages/kbld-config.yaml", "Path to kbld-config.yaml file")
 	flag.Parse()
 
 	if len(os.Args) != 3 {

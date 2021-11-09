@@ -11,27 +11,26 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"gopkg.in/yaml.v3"
+	utilyaml "sigs.k8s.io/cluster-api/util/yaml"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/providers/tests/unit/ytt"
 )
 
 var _ = Describe("Windows Ytt Templating", func() {
 	var paths []string
-	YAML_ROOT := "../../"
 	BeforeEach(func() {
 		paths = []string{
 			//  Map item (key 'infraProvider') on line stdin.yml:8:
-			filepath.Join(YAML_ROOT, "config_default.yaml"),
+			filepath.Join(yamlRoot, "config_default.yaml"),
 			filepath.Join("./fixtures/tkr-bom-v1.21.1.yaml"),
 			filepath.Join("./fixtures/tkg-bom-v1.4.0.yaml"),
-			filepath.Join(YAML_ROOT, "infrastructure-vsphere", "v0.7.10", "ytt", "base-template.yaml"),
-			filepath.Join(YAML_ROOT, "infrastructure-vsphere", "v0.7.10", "ytt", "overlay-windows.yaml"),
-			filepath.Join(YAML_ROOT, "ytt", "02_addons", "cni", "antrea", "antrea_addon_data.lib.yaml"),
-			filepath.Join(YAML_ROOT, "ytt", "02_addons", "cpi", "cpi_addon_data.lib.yaml"),
-			filepath.Join(YAML_ROOT, "ytt", "03_customizations","02_avi", "ako-deployment.lib.yaml"),
+			filepath.Join(yamlRoot, "infrastructure-vsphere", "v1.0.1", "ytt", "base-template.yaml"),
+			filepath.Join(yamlRoot, "infrastructure-vsphere", "v1.0.1", "ytt", "overlay-windows.yaml"),
+			filepath.Join(yamlRoot, "ytt", "02_addons", "cni", "antrea", "antrea_addon_data.lib.yaml"),
+			filepath.Join(yamlRoot, "ytt", "02_addons", "cpi", "cpi_addon_data.lib.yaml"),
+			filepath.Join(yamlRoot, "ytt", "03_customizations", "02_avi", "ako-deployment.lib.yaml"),
 			//filepath.Join(YAML_ROOT, "provider-bundle", "providers", "ytt", "02_addons", "cpi", "cpi_addon_data.lib.yaml"),
-			filepath.Join(YAML_ROOT, "ytt"), // lib/helpers.star, lib/config_variable_association.star, lib/validate.star
+			filepath.Join(yamlRoot, "ytt"), // lib/helpers.star, lib/config_variable_association.star, lib/validate.star
 		}
 	})
 	It("Has a windows overlay", func() {
@@ -60,17 +59,20 @@ var _ = Describe("Windows Ytt Templating", func() {
 
 		// Test 1: Making sure that we have a few basic ClusterAPI objects in the windows templates...
 
-		// clusterApiComponents is a list of all the 'kind' objects that we want to see.
+		// clusterAPIComponents is a list of all the 'kind' objects that we want to see.
 		// for windows, the most important thing to confirm is that we have 2 VsphereMachineTemplates,
 		// since there are obviously going to be linux as well as windows machine types.
-		clusterApiComponents := map[string]int{
+		clusterAPIComponents := map[string]int{
 			"Cluster":                1,
 			"VSphereCluster":         1,
 			"VSphereMachineTemplate": 2,
 		}
-		seen := countCapiCompKinds(rawClusterAPIYaml)
-		for k, v := range clusterApiComponents {
-			Expect(seen[k]).To(Equal(v))
+		seen, err := countCapiCompKinds(rawClusterAPIYaml)
+		Expect(err).NotTo(HaveOccurred())
+		for k, v := range clusterAPIComponents {
+			val, ok := seen[k]
+			Expect(ok).To(BeTrue())
+			Expect(val).To(Equal(v), fmt.Sprintf("Of type %s", k))
 		}
 
 		// TODO add more validations for things like the antrea installation contents etc...
@@ -78,22 +80,19 @@ var _ = Describe("Windows Ytt Templating", func() {
 })
 
 // countCapiCompKinds counts up the number of different api types in the final YAML output
-func countCapiCompKinds(rawClusterAPIYaml string) map[string]int {
+func countCapiCompKinds(rawClusterAPIYaml string) (map[string]int, error) {
 	kinds := make(map[string]int)
-	for _, capiString := range strings.Split(rawClusterAPIYaml, "---") {
-		capiObject := make(map[string]interface{})
-		yaml.Unmarshal([]byte(capiString), capiObject)
 
-		// This information is useful for debugging, but we don't test it explicitly...
-		for k, v := range capiObject {
-			kindValue := fmt.Sprintf("%v", v)
-			if k == "kind" {
-				// a kindValue is something like "VsphereCluster"
-				kinds[kindValue] = kinds[kindValue] + 1
-			}
-		}
+	objs, err := utilyaml.ToUnstructured([]byte(rawClusterAPIYaml))
+	if err != nil {
+		return nil, err
 	}
-	return kinds
+
+	for _, obj := range objs {
+		kinds[obj.GetKind()] = kinds[obj.GetKind()] + 1
+	}
+
+	return kinds, nil
 }
 
 /**

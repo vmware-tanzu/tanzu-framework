@@ -10,8 +10,9 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
-	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
+	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	capi "sigs.k8s.io/cluster-api/api/v1beta1"
+	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	tkgsv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
@@ -34,8 +35,8 @@ type clusterObjects struct {
 
 type clusterObjectsForPacific struct {
 	cluster  tkgsv1alpha2.TanzuKubernetesCluster
-	mds      []capi.MachineDeployment
-	machines []capi.Machine
+	mds      []capiv1alpha3.MachineDeployment
+	machines []capiv1alpha3.Machine
 }
 
 // ################### Helpers for Pacific ##################
@@ -43,7 +44,7 @@ type clusterObjectsForPacific struct {
 func getRunningCPMachineCountForPacific(clusterInfo *clusterObjectsForPacific) int {
 	cpMachineCount := 0
 	for i := range clusterInfo.machines {
-		if _, labelExists := clusterInfo.machines[i].GetLabels()[capi.MachineControlPlaneLabelName]; labelExists && strings.EqualFold(clusterInfo.machines[i].Status.Phase, "running") {
+		if _, labelExists := clusterInfo.machines[i].GetLabels()[capiv1alpha3.MachineControlPlaneLabelName]; labelExists && strings.EqualFold(clusterInfo.machines[i].Status.Phase, "running") {
 			cpMachineCount++
 		}
 	}
@@ -65,13 +66,13 @@ func getClusterObjectsMapForPacific(clusterClient clusterclient.Client, listOpti
 		return nil, errors.Wrap(err, "unable to get list of clusters")
 	}
 
-	var mdList capi.MachineDeploymentList
+	var mdList capiv1alpha3.MachineDeploymentList
 	err = clusterClient.ListResources(&mdList, listOptions)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to get list of MachineDeployment objects")
 	}
 
-	var machineList capi.MachineList
+	var machineList capiv1alpha3.MachineList
 	err = clusterClient.ListResources(&machineList, listOptions)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to get list of Machine objects")
@@ -289,7 +290,7 @@ func getClusterStatus(clusterInfo *clusterObjects) TKGClusterPhase {
 	readyReplicas, specReplicas, replicas, updatedReplicas := getClusterReplicas(clusterInfo.mds)
 
 	creationCompleteCondition := clusterInfo.cluster.Status.InfrastructureReady &&
-		clusterInfo.cluster.Status.ControlPlaneInitialized &&
+		clusterInfo.cluster.Status.ControlPlaneReady &&
 		clusterInfo.kcp.Status.ReadyReplicas > 0 &&
 		readyReplicas > 0
 

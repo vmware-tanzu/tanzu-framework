@@ -14,7 +14,7 @@ import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import Broker from 'src/app/shared/service/broker';
 
-export const AzureAccountParamsKeys = ["tenantId", "clientId", "clientSecret", "subscriptionId"];
+export const AzureAccountParamsKeys = ["tenantId", "clientId", "clientSecret", "subscriptionId", "azureCloud"];
 const extraFields = ["region", "sshPublicKey", "resourceGroupOption", "resourceGroupExisting"];
 const optionalFields = ["resourceGroupCustom"];
 
@@ -194,7 +194,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
 
                     // handle case where a new resource group was created, saved to local storage, and the browser was refreshed
                     if (this.getSavedValue('resourceGroupExisting', '') === ''
-                        && this.regions.indexOf(this.getSavedValue('resourceGroupCustom', '') >= 0)) {
+                        && this.resourceGroups.indexOf(this.getSavedValue('resourceGroupCustom', '') >= 0)) {
                         // select the newly created resource group in the existing resource group dropdown
                         this.formGroup.get('resourceGroupExisting').setValue(this.getSavedValue('resourceGroupCustom', ''))
                     }

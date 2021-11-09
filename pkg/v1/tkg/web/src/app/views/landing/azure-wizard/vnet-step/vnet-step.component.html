@@ -266,6 +266,9 @@
                     <option *ngFor="let cps of controlPlaneSubnets" [value]="cps.name">{{ cps.name }}
                     </option>
                 </select>
+                <!-- Add a hidden control to hold the associated subnet CIDR -->
+                <input class="hidden" name="controlPlaneSubnetCidr" formControlName="controlPlaneSubnetCidr" />
+
                 <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error i18n="azure resource group required msg" *clrIfError="validatorEnum.REQUIRED">

@@ -32,7 +32,6 @@ type InitRegionOptions struct {
 	Size                        string
 	ControlPlaneSize            string
 	WorkerSize                  string
-	TmcRegistrationURL          string
 	CeipOptIn                   string
 	CniType                     string
 	Bind                        string
@@ -318,14 +317,6 @@ func (t *tkgctl) configureInitManagementClusterOptionsFromConfigFile(iro *InitRe
 	}
 	log.V(5).Infof("CEIP Opt-in status: %s", iro.CeipOptIn)
 
-	// set EnableTKGSOnVsphere7 from config variable
-	if iro.TmcRegistrationURL == "" {
-		tmcRegistrationURL, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableTMCRegistrationURL)
-		if err == nil {
-			iro.TmcRegistrationURL = tmcRegistrationURL
-		}
-	}
-
 	return nil
 }
 
@@ -342,9 +333,7 @@ func (t *tkgctl) populateClientInitRegionOptions(options *InitRegionOptions, nod
 		BootstrapProvider:           options.BootstrapProvider,
 		CoreProvider:                options.CoreProvider,
 		Namespace:                   options.Namespace,
-		WatchingNamespace:           options.WatchingNamespace,
 		NodeSizeOptions:             nodeSizeOptions,
-		TmcRegistrationURL:          options.TmcRegistrationURL,
 		CeipOptIn:                   ceipOptIn,
 		CniType:                     options.CniType,
 		FeatureFlags:                options.FeatureFlags,

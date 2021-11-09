@@ -57,14 +57,18 @@ func publishPlugins(cmd *cobra.Command, args []string) error {
 	}
 
 	var publisherInterface publish.Publisher
+	var err error
 
 	switch strings.ToLower(distroType) {
 	case "local":
-		publisherInterface = publish.NewLocalPublisher(localOutputDistributionDir)
+		publisherInterface, err = publish.NewLocalPublisher(localOutputDistributionDir)
 	case "oci":
-		publisherInterface = publish.NewOCIPublisher(ociDiscoveryImage, ociDistributionImageRepository, localOutputDiscoveryDir)
+		publisherInterface, err = publish.NewOCIPublisher(ociDiscoveryImage, ociDistributionImageRepository, localOutputDiscoveryDir)
 	default:
 		return errors.Errorf("publish plugins with type %s is not yet supported", distroType)
+	}
+	if err != nil {
+		return err
 	}
 
 	publishMetadata := publish.Metadata{

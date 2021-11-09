@@ -91,18 +91,6 @@ type TKGConfigBomClient struct {
 		result1 string
 		result2 error
 	}
-	GetCustomRepositoryCaCertificateForClientStub        func() ([]byte, error)
-	getCustomRepositoryCaCertificateForClientMutex       sync.RWMutex
-	getCustomRepositoryCaCertificateForClientArgsForCall []struct {
-	}
-	getCustomRepositoryCaCertificateForClientReturns struct {
-		result1 []byte
-		result2 error
-	}
-	getCustomRepositoryCaCertificateForClientReturnsOnCall map[int]struct {
-		result1 []byte
-		result2 error
-	}
 	GetDefaultBoMFileNameStub        func() (string, error)
 	getDefaultBoMFileNameMutex       sync.RWMutex
 	getDefaultBoMFileNameArgsForCall []struct {
@@ -653,62 +641,6 @@ func (fake *TKGConfigBomClient) GetCustomRepositoryReturnsOnCall(i int, result1 
 	}
 	fake.getCustomRepositoryReturnsOnCall[i] = struct {
 		result1 string
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *TKGConfigBomClient) GetCustomRepositoryCaCertificateForClient() ([]byte, error) {
-	fake.getCustomRepositoryCaCertificateForClientMutex.Lock()
-	ret, specificReturn := fake.getCustomRepositoryCaCertificateForClientReturnsOnCall[len(fake.getCustomRepositoryCaCertificateForClientArgsForCall)]
-	fake.getCustomRepositoryCaCertificateForClientArgsForCall = append(fake.getCustomRepositoryCaCertificateForClientArgsForCall, struct {
-	}{})
-	stub := fake.GetCustomRepositoryCaCertificateForClientStub
-	fakeReturns := fake.getCustomRepositoryCaCertificateForClientReturns
-	fake.recordInvocation("GetCustomRepositoryCaCertificateForClient", []interface{}{})
-	fake.getCustomRepositoryCaCertificateForClientMutex.Unlock()
-	if stub != nil {
-		return stub()
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	return fakeReturns.result1, fakeReturns.result2
-}
-
-func (fake *TKGConfigBomClient) GetCustomRepositoryCaCertificateForClientCallCount() int {
-	fake.getCustomRepositoryCaCertificateForClientMutex.RLock()
-	defer fake.getCustomRepositoryCaCertificateForClientMutex.RUnlock()
-	return len(fake.getCustomRepositoryCaCertificateForClientArgsForCall)
-}
-
-func (fake *TKGConfigBomClient) GetCustomRepositoryCaCertificateForClientCalls(stub func() ([]byte, error)) {
-	fake.getCustomRepositoryCaCertificateForClientMutex.Lock()
-	defer fake.getCustomRepositoryCaCertificateForClientMutex.Unlock()
-	fake.GetCustomRepositoryCaCertificateForClientStub = stub
-}
-
-func (fake *TKGConfigBomClient) GetCustomRepositoryCaCertificateForClientReturns(result1 []byte, result2 error) {
-	fake.getCustomRepositoryCaCertificateForClientMutex.Lock()
-	defer fake.getCustomRepositoryCaCertificateForClientMutex.Unlock()
-	fake.GetCustomRepositoryCaCertificateForClientStub = nil
-	fake.getCustomRepositoryCaCertificateForClientReturns = struct {
-		result1 []byte
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *TKGConfigBomClient) GetCustomRepositoryCaCertificateForClientReturnsOnCall(i int, result1 []byte, result2 error) {
-	fake.getCustomRepositoryCaCertificateForClientMutex.Lock()
-	defer fake.getCustomRepositoryCaCertificateForClientMutex.Unlock()
-	fake.GetCustomRepositoryCaCertificateForClientStub = nil
-	if fake.getCustomRepositoryCaCertificateForClientReturnsOnCall == nil {
-		fake.getCustomRepositoryCaCertificateForClientReturnsOnCall = make(map[int]struct {
-			result1 []byte
-			result2 error
-		})
-	}
-	fake.getCustomRepositoryCaCertificateForClientReturnsOnCall[i] = struct {
-		result1 []byte
 		result2 error
 	}{result1, result2}
 }
@@ -1357,8 +1289,6 @@ func (fake *TKGConfigBomClient) Invocations() map[string][][]interface{} {
 	defer fake.getCurrentTKGVersionMutex.RUnlock()
 	fake.getCustomRepositoryMutex.RLock()
 	defer fake.getCustomRepositoryMutex.RUnlock()
-	fake.getCustomRepositoryCaCertificateForClientMutex.RLock()
-	defer fake.getCustomRepositoryCaCertificateForClientMutex.RUnlock()
 	fake.getDefaultBoMFileNameMutex.RLock()
 	defer fake.getDefaultBoMFileNameMutex.RUnlock()
 	fake.getDefaultBoMFilePathMutex.RLock()

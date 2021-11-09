@@ -25,6 +25,11 @@ NAMESPACE:
 #! Supported infrastructure provider values are 'vsphere', 'aws', 'azure'
 #! INFRASTRUCTURE_PROVIDER is required while creating management cluster
 INFRASTRUCTURE_PROVIDER:
+#! API Server Port number to be configured for the cluster.
+#! if not provided default 6443 would be used.
+#! if AVI load balancer is used for vSphere provider, VSPHERE_CONTROL_PLANE_ENDPOINT_PORT would
+#! be used instead
+CLUSTER_API_SERVER_PORT:
 
 #! Instance size configuration
 #! Instance size options available for vSphere are as follows:
@@ -50,9 +55,6 @@ ENABLE_CEIP_PARTICIPATION:
 DEPLOY_TKG_ON_VSPHERE7:
 #! Enable TKGS on vSphere 7.0 without prompt
 ENABLE_TKGS_ON_VSPHERE7:
-#! URL to download the yml which has configuration related to resources to be deployed on the
-#! management cluster for it to register with Tanzu Mission Control
-TMC_REGISTRATION_URL:
 
 #! BUILD_EDITION is the Tanzu Edition, the plugin should be built for.
 #! Valid values for BUILD_EDITION are 'tce' and 'tkg'.
@@ -164,6 +166,9 @@ NSXT_SECRET_NAMESPACE: "kube-system"
 #! For list of supported regions, see TKG documentation.
 #! If you have already set an environment variable for the region, you must unset it.
 AWS_REGION:
+#! AWS_LOAD_BALANCER_SCHEME_INTERNAL will mean that the Kubernetes API Server Load Balancer will not be accessible and routed over the
+#! internet.
+AWS_LOAD_BALANCER_SCHEME_INTERNAL: false
 #! AZ has to be contained in the AWS region
 AWS_NODE_AZ: ""
 #! set these if you want 3 control plane nodes. The below
@@ -293,9 +298,8 @@ AZURE_SSH_PUBLIC_KEY_B64:
 #! Azure virtual machine size
 AZURE_CONTROL_PLANE_MACHINE_TYPE: "Standard_D2s_v3"
 AZURE_NODE_MACHINE_TYPE: "Standard_D2s_v3"
-#! Accelerated networking turned off by default until
-#! https://launchpad.net/~timg-tpi/+archive/ubuntu/mlx-tunnel-offload-lp1921769 is addressed
-AZURE_ENABLE_ACCELERATED_NETWORKING: false
+#! Accelerated Networking is enabled by default on all supported Azure VMs with 4 or more CPU.
+AZURE_ENABLE_ACCELERATED_NETWORKING: true
 
 #! resource-group-name that already exists in your Azure account.
 #! AZURE_RESOURCE_GROUP and AZURE_VNET_RESOURCE_GROUP are the same by default.
@@ -412,6 +416,9 @@ TKG_PROXY_CA_CERT: ""
 
 #! IP Family setting
 TKG_IP_FAMILY:
+
+#! Configure cloud provider permissions for TMC enablement. Only affects AWS at present.
+ENABLE_TMC_CLOUD_PROVIDER_PERMISSIONS: false
 
 #! Node Nameservers (currently only supports the vSphere provider)
 CONTROL_PLANE_NODE_NAMESERVERS:

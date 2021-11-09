@@ -78,6 +78,11 @@ func NewRootCmd() (*cobra.Command, error) {
 		}
 	}
 
+	// configure defined global environment variables
+	// under tanzu config file
+	// global environment variables can be defined as `env.global.FOO`
+	config.ConfigureEnvVariables("global")
+
 	for _, plugin := range plugins {
 		RootCmd.AddCommand(cli.GetCmd(plugin))
 	}

@@ -6,7 +6,7 @@ include ./common.mk
 # Image URL to use all building/pushing image targets
 IMG ?= controller:latest
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
-CRD_OPTIONS ?= "crd:trivialVersions=true"
+CRD_OPTIONS ?= "crd"
 
 ifeq ($(GOHOSTOS), linux)
 XDG_DATA_HOME := ${HOME}/.local/share
@@ -22,18 +22,26 @@ BIN_DIR := bin
 ROOT_DIR := $(shell git rev-parse --show-toplevel)
 ADDONS_DIR := addons
 YTT_TESTS_DIR := pkg/v1/providers/tests
+PACKAGES_SCRIPTS_DIR := $(abspath hack/packages/scripts)
 UI_DIR := pkg/v1/tkg/web
 
 # Add tooling binaries here and in hack/tools/Makefile
-GOLANGCI_LINT := $(TOOLS_BIN_DIR)/golangci-lint
-GOIMPORTS := $(TOOLS_BIN_DIR)/goimports
-GOBINDATA := $(TOOLS_BIN_DIR)/gobindata
-KUBEBUILDER := $(TOOLS_BIN_DIR)/kubebuilder
-YTT := $(TOOLS_BIN_DIR)/ytt
-KUBEVAL := $(TOOLS_BIN_DIR)/kubeval
-GINKGO := $(TOOLS_BIN_DIR)/ginkgo
-VALE := $(TOOLS_BIN_DIR)/vale
-TOOLING_BINARIES := $(GOLANGCI_LINT) $(YTT) $(KUBEVAL) $(GOIMPORTS) $(GOBINDATA) $(GINKGO) $(VALE)
+GOLANGCI_LINT      := $(TOOLS_BIN_DIR)/golangci-lint
+GOIMPORTS          := $(TOOLS_BIN_DIR)/goimports
+GOBINDATA          := $(TOOLS_BIN_DIR)/gobindata
+KUBEBUILDER        := $(TOOLS_BIN_DIR)/kubebuilder
+YTT                := $(TOOLS_BIN_DIR)/ytt
+KBLD               := $(TOOLS_BIN_DIR)/kbld
+VENDIR             := $(TOOLS_BIN_DIR)/vendir
+IMGPKG             := $(TOOLS_BIN_DIR)/imgpkg
+KAPP               := $(TOOLS_BIN_DIR)/kapp
+KUBEVAL            := $(TOOLS_BIN_DIR)/kubeval
+GINKGO             := $(TOOLS_BIN_DIR)/ginkgo
+VALE               := $(TOOLS_BIN_DIR)/vale
+YQ                 := $(TOOLS_BIN_DIR)/yq
+TOOLING_BINARIES   := $(GOLANGCI_LINT) $(YTT) $(KBLD) $(VENDIR) $(IMGPKG) $(KAPP) $(KUBEVAL) $(GOIMPORTS) $(GOBINDATA) $(GINKGO) $(VALE) $(YQ)
+
+export REPO_VERSION ?= $(BUILD_VERSION)
 
 PINNIPED_GIT_REPOSITORY = https://github.com/vmware-tanzu/pinniped.git
 PINNIPED_VERSIONS = v0.4.4 v0.12.0
@@ -58,8 +66,15 @@ ifndef TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH
 TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH = "framework-zshippable/tkg-compatibility"
 endif
 
+ifndef DEFAULT_STANDALONE_DISCOVERY_IMAGE_PATH
+DEFAULT_STANDALONE_DISCOVERY_IMAGE_PATH = "packages/management/standalone-cliplugins"
+endif
+ifndef DEFAULT_STANDALONE_DISCOVERY_IMAGE_TAG
+DEFAULT_STANDALONE_DISCOVERY_IMAGE_TAG = "${BUILD_VERSION}"
+endif
+
 DOCKER_DIR := /app
-SWAGGER=docker run --rm -v ${PWD}:${DOCKER_DIR} quay.io/goswagger/swagger:v0.21.0
+SWAGGER=docker run --rm -v ${PWD}:${DOCKER_DIR}:$(DOCKER_VOL_OPTS) quay.io/goswagger/swagger:v0.21.0
 
 # OCI registry for hosting tanzu framework components (containers and packages)
 OCI_REGISTRY ?= projects.registry.vmware.com/tanzu_framework
@@ -75,6 +90,16 @@ endif
 
 ifeq ($(TANZU_FORCE_NO_INIT), true)
 LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/core.forceNoInit=true'
+endif
+
+ifneq ($(strip $(TKG_DEFAULT_IMAGE_REPOSITORY)),)
+LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/config.DefaultStandaloneDiscoveryRepository=$(TKG_DEFAULT_IMAGE_REPOSITORY)'
+endif
+ifneq ($(strip $(DEFAULT_STANDALONE_DISCOVERY_IMAGE_PATH)),)
+LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/config.DefaultStandaloneDiscoveryImagePath=$(DEFAULT_STANDALONE_DISCOVERY_IMAGE_PATH)'
+endif
+ifneq ($(strip $(DEFAULT_STANDALONE_DISCOVERY_IMAGE_TAG)),)
+LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/config.DefaultStandaloneDiscoveryImageTag=$(DEFAULT_STANDALONE_DISCOVERY_IMAGE_TAG)'
 endif
 
 BUILD_TAGS ?=
@@ -134,7 +159,7 @@ ifeq (, $(shell which controller-gen))
 	CONTROLLER_GEN_TMP_DIR=$$(mktemp -d) ;\
 	cd $$CONTROLLER_GEN_TMP_DIR ;\
 	$(GO) mod init tmp ;\
-	$(GO) get sigs.k8s.io/controller-tools/cmd/controller-gen@v0.2.5 ;\
+	$(GO) get sigs.k8s.io/controller-tools/cmd/controller-gen@v0.7.0 ;\
 	rm -rf $$CONTROLLER_GEN_TMP_DIR ;\
 	}
 CONTROLLER_GEN=$(GOBIN)/controller-gen
@@ -256,21 +281,37 @@ build-install-cli-local: clean-catalog-cache clean-cli-plugins build-cli-local i
 STANDALONE_PLUGINS := login management-cluster package pinniped-auth
 CONTEXT_PLUGINS := cluster kubernetes-release secret
 
-.PHONY: publish-plugins
-publish-plugins:
+.PHONY: publish-plugins-all-local
+publish-plugins-all-local: ## Publish CLI Plugins locally for all supported os-arch
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go publish --type local --plugins "$(STANDALONE_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${ENVS}" --local-output-discovery-dir "$(XDG_CONFIG_HOME)/tanzu-plugins/discovery/standalone" --local-output-distribution-dir "$(XDG_CONFIG_HOME)/tanzu-plugins/distribution" --input-artifact-dir $(ARTIFACTS_DIR)
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go publish --type local --plugins "$(CONTEXT_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${ENVS}" --local-output-discovery-dir "$(XDG_CONFIG_HOME)/tanzu-plugins/discovery/context" --local-output-distribution-dir "$(XDG_CONFIG_HOME)/tanzu-plugins/distribution" --input-artifact-dir $(ARTIFACTS_DIR)
 
 .PHONY: publish-plugins-local
-publish-plugins-local:
+publish-plugins-local: ## Publish CLI Plugins locally for current host os-arch only
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go publish --type local --plugins "$(STANDALONE_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${GOHOSTOS}-${GOHOSTARCH}" --local-output-discovery-dir "$(XDG_CONFIG_HOME)/tanzu-plugins/discovery/standalone" --local-output-distribution-dir "$(XDG_CONFIG_HOME)/tanzu-plugins/distribution" --input-artifact-dir $(ARTIFACTS_DIR)
 	$(GO) run ./cmd/cli/plugin-admin/builder/main.go publish --type local --plugins "$(CONTEXT_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${GOHOSTOS}-${GOHOSTARCH}" --local-output-discovery-dir "$(XDG_CONFIG_HOME)/tanzu-plugins/discovery/context" --local-output-distribution-dir "$(XDG_CONFIG_HOME)/tanzu-plugins/distribution" --input-artifact-dir $(ARTIFACTS_DIR)
 
-.PHONY: build-publish-plugins
-build-publish-plugins: clean-catalog-cache clean-cli-plugins build-cli install-cli publish-plugins
-	
+.PHONY: publish-plugins-all-oci
+publish-plugins-all-oci: ## Publish CLI Plugins as OCI image for all supported os-arch
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go publish --type oci --plugins "$(STANDALONE_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${ENVS}" --oci-discovery-image ${OCI_REGISTRY}/tanzu-plugins/discovery/standalone:v0.0.1 --oci-distribution-image-repository ${OCI_REGISTRY}/tanzu-plugins/distribution/ --input-artifact-dir $(ROOT_DIR)/$(ARTIFACTS_DIR)
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go publish --type oci --plugins "$(CONTEXT_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${ENVS}" --oci-discovery-image ${OCI_REGISTRY}/tanzu-plugins/discovery/context:v0.0.1 --oci-distribution-image-repository ${OCI_REGISTRY}/tanzu-plugins/distribution/ --input-artifact-dir $(ROOT_DIR)/$(ARTIFACTS_DIR)
+
+.PHONY: publish-plugins-oci
+publish-plugins-oci: ## Publish CLI Plugins as OCI image for current host os-arch only
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go publish --type oci --plugins "$(STANDALONE_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${GOHOSTOS}-${GOHOSTARCH}" --oci-discovery-image ${OCI_REGISTRY}/tanzu-plugins/discovery/standalone:v0.0.1 --oci-distribution-image-repository ${OCI_REGISTRY}/tanzu-plugins/distribution/ --input-artifact-dir $(ROOT_DIR)/$(ARTIFACTS_DIR)
+	$(GO) run ./cmd/cli/plugin-admin/builder/main.go publish --type oci --plugins "$(CONTEXT_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${GOHOSTOS}-${GOHOSTARCH}" --oci-discovery-image ${OCI_REGISTRY}/tanzu-plugins/discovery/context:v0.0.1 --oci-distribution-image-repository ${OCI_REGISTRY}/tanzu-plugins/distribution/ --input-artifact-dir $(ROOT_DIR)/$(ARTIFACTS_DIR)
+
+.PHONY: build-publish-plugins-all-local
+build-publish-plugins-all-local: clean-catalog-cache clean-cli-plugins build-cli publish-plugins-all-local ## Build and Publish CLI Plugins locally for all supported os-arch
+
 .PHONY: build-publish-plugins-local
-build-publish-plugins-local: clean-catalog-cache clean-cli-plugins build-cli-local install-cli publish-plugins-local
+build-publish-plugins-local: clean-catalog-cache clean-cli-plugins build-cli-local publish-plugins-local ## Build and Publish CLI Plugins locally for current host os-arch only
+
+.PHONY: build-publish-plugins-all-oci
+build-publish-plugins-all-oci: clean-catalog-cache clean-cli-plugins build-cli publish-plugins-all-oci ## Build and Publish CLI Plugins as OCI image for all supported os-arch
+
+.PHONY: build-publish-plugins-oci
+build-publish-plugins-oci: clean-catalog-cache clean-cli-plugins build-cli-local publish-plugins-oci ## Build and Publish CLI Plugins as OCI image for current host os-arch only
 
 ## --------------------------------------
 ## manage cli mocks
@@ -377,7 +418,7 @@ lint: tools doc-lint ## Run linting checks
 	cd $(ADDONS_DIR)/pinniped/post-deploy/; $(GOLANGCI_LINT) run -v
 
 	# Linting for the YTT generation test code...
-	cd $(YTT_TESTS_DIR); $(GOLANGCI_LINT) run -v 
+	cd $(YTT_TESTS_DIR); $(GOLANGCI_LINT) run -v
 
 	# Check licenses in shell scripts and Makefile
 	hack/check-license.sh
@@ -395,6 +436,7 @@ modules: ## Runs go mod to ensure modules are up to date.
 	cd $(ADDONS_DIR); $(GO) mod tidy
 	cd $(ADDONS_DIR)/pinniped/post-deploy/; $(GO) mod tidy
 	cd $(TOOLS_DIR); $(GO) mod tidy
+	cd $(YTT_TESTS_DIR); $(GO) mod tidy
 
 .PHONY: verify
 verify: ## Run all verification scripts
@@ -542,7 +584,71 @@ kbld-image-replace: $(COMPONENTS)
 
 .PHONY: $(COMPONENTS)
 $(COMPONENTS):
-	$(MAKE) -C $@ $(TARGET) IMG_VERSION_OVERRIDE=$(BUILD_VERSION)
+	$(MAKE) -C $@ $(TARGET)
 
 .PHONY: docker-all
 docker-all: docker-build docker-publish kbld-image-replace
+
+## --------------------------------------
+## Packages
+## --------------------------------------
+
+.PHONY: create-package
+create-package: ## Stub out new package directories and manifests. Usage: make create-management-package PACKAGE_NAME=foobar
+	@hack/packages/scripts/create-package.sh $(PACKAGE_REPOSITORY) $(PACKAGE_NAME)
+
+.PHONY: package-bundle
+package-bundle: ## Build one specific tar bundle package, needs PACKAGE_NAME VERSION
+	PACKAGE_REPOSITORY=$(PACKAGE_REPOSITORY) PACKAGE_NAME=$(PACKAGE_NAME) $(PACKAGES_SCRIPTS_DIR)/package-utils.sh generate_single_imgpkg_lock_output
+	PACKAGE_REPOSITORY=$(PACKAGE_REPOSITORY) PACKAGE_NAME=$(PACKAGE_NAME) PACKAGE_SUB_VERSION=$(PACKAGE_SUB_VERSION) $(PACKAGES_SCRIPTS_DIR)/package-utils.sh create_single_package_bundle
+
+.PHONY: package-bundles
+package-bundles: management-package-bundles ## Build tar bundles for multiple packages
+
+.PHONY: management-package-bundles
+management-package-bundles: tools management-imgpkg-lock-output ## Build tar bundles for packages
+	PACKAGE_REPOSITORY="management" $(PACKAGES_SCRIPTS_DIR)/package-utils.sh create_package_bundles localhost:5000
+
+.PHONY: package-repo-bundle
+package-repo-bundle: ## Build tar bundles for package repo with given package-values.yaml file
+	PACKAGE_REPOSITORY=$(PACKAGE_REPOSITORY) REGISTRY=$(OCI_REGISTRY)/packages/$(PACKAGE_REPOSITORY) PACKAGE_VALUES_FILE=$(PACKAGE_VALUES_FILE) $(PACKAGES_SCRIPTS_DIR)/package-utils.sh create_package_repo_bundles
+
+.PHONY: push-package-bundles
+push-package-bundles: push-management-package-bundles  ## Push package bundles
+
+.PHONY: push-package-repo-bundles
+push-package-repo-bundles: push-management-package-repo-bundle ## Push package repo bundles
+
+.PHONY: push-management-package-bundles
+push-management-package-bundles: tools ## Push management package bundles
+	PACKAGE_REPOSITORY="management" REGISTRY=$(OCI_REGISTRY)/packages/management $(PACKAGES_SCRIPTS_DIR)/package-utils.sh push_package_bundles
+
+.PHONY: push-management-package-repo-bundle
+push-management-package-repo-bundle: tools ## Push management package repo bundles
+	PACKAGE_REPOSITORY="management" REGISTRY=$(OCI_REGISTRY)/packages/management $(PACKAGES_SCRIPTS_DIR)/package-utils.sh push_package_repo_bundles
+
+.PHONY: management-imgpkg-lock-output
+management-imgpkg-lock-output: tools ## Generate imgpkg lock output for packages
+	PACKAGE_REPOSITORY="management" $(PACKAGES_SCRIPTS_DIR)/package-utils.sh generate_imgpkg_lock_output
+
+.PHONY: clean-registry
+clean-registry: ## Stops and removes local docker registry
+	docker container stop registry && docker container rm -v registry || true
+
+.PHONY: local-registry
+local-registry: clean-registry ## Starts up a local docker registry
+	docker run -d -p 5000:5000 --name registry mirror.gcr.io/library/registry:2
+
+.PHONY: trivy-scan
+trivy-scan: ## Trivy scan images used in packages
+	make -C $(TOOLS_DIR) trivy
+	$(PACKAGES_SCRIPTS_DIR)/package-utils.sh trivy_scan
+
+.PHONY: management-package-vendir-sync
+management-package-vendir-sync: ## Performs a `vendir sync` for each management package
+	@cd packages/management && for package in *; do\
+		printf "\n===> syncing $${package}\n";\
+		pushd $${package}/bundle;\
+		$(TOOLS_BIN_DIR)/vendir sync >> /dev/null;\
+		popd;\
+	done

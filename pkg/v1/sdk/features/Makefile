@@ -15,7 +15,7 @@ else
 	IMG ?= $(OCI_REGISTRY)/$(IMG_DEFAULT_NAME):$(IMG_VERSION_OVERRIDE)
 endif
 
-CRD_OPTIONS ?= "crd:trivialVersions=true"
+CRD_OPTIONS ?= "crd"
 
 all: manager
 
@@ -74,7 +74,7 @@ docker-publish: ## Publish docker image
 	docker push $(IMG)
 
 .PHONY: kbld-image-replace
-kbld-image-replace: ## Add newImage in kbld-config.yml
+kbld-image-replace: ## Add newImage in kbld-config.yaml
 	cd ../../../../hack/packages/kbld-image-replace && $(MAKE) run IMAGE=$(IMG_DEFAULT_NAME_TAG) NEW_IMAGE=$(IMG)
 
 .PHONY: docker-image-names
