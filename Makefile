@@ -19,17 +19,18 @@ endif
 TOOLS_DIR := $(abspath hack/tools)
 TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
 BIN_DIR := bin
-ROOT_DIR := $(shell git rev-parse --show-toplevel)
 ADDONS_DIR := addons
 YTT_TESTS_DIR := pkg/v1/providers/tests
 PACKAGES_SCRIPTS_DIR := $(abspath hack/packages/scripts)
 UI_DIR := pkg/v1/tkg/web
 
 # Add tooling binaries here and in hack/tools/Makefile
+CONTROLLER_GEN     := $(TOOLS_BIN_DIR)/controller-gen
 GOLANGCI_LINT      := $(TOOLS_BIN_DIR)/golangci-lint
 GOIMPORTS          := $(TOOLS_BIN_DIR)/goimports
 GOBINDATA          := $(TOOLS_BIN_DIR)/gobindata
 KUBEBUILDER        := $(TOOLS_BIN_DIR)/kubebuilder
+KUSTOMIZE          := $(TOOLS_BIN_DIR)/kustomize
 YTT                := $(TOOLS_BIN_DIR)/ytt
 KBLD               := $(TOOLS_BIN_DIR)/kbld
 VENDIR             := $(TOOLS_BIN_DIR)/vendir
@@ -39,7 +40,7 @@ KUBEVAL            := $(TOOLS_BIN_DIR)/kubeval
 GINKGO             := $(TOOLS_BIN_DIR)/ginkgo
 VALE               := $(TOOLS_BIN_DIR)/vale
 YQ                 := $(TOOLS_BIN_DIR)/yq
-TOOLING_BINARIES   := $(GOLANGCI_LINT) $(YTT) $(KBLD) $(VENDIR) $(IMGPKG) $(KAPP) $(KUBEVAL) $(GOIMPORTS) $(GOBINDATA) $(GINKGO) $(VALE) $(YQ)
+TOOLING_BINARIES   := $(CONTROLLER_GEN) $(GOLANGCI_LINT) $(YTT) $(KBLD) $(VENDIR) $(IMGPKG) $(KAPP) $(KUBEVAL) $(KUSTOMIZE) $(GOIMPORTS) $(GOBINDATA) $(GINKGO) $(VALE) $(YQ)
 
 export REPO_VERSION ?= $(BUILD_VERSION)
 
@@ -147,17 +148,17 @@ manager: generate fmt vet ## Build manager binary
 run: generate fmt vet manifests ## Run against the configured Kubernetes cluster in ~/.kube/config
 	$(GO) run -ldflags "$(LD_FLAGS)" ./main.go
 
-install: manifests ## Install CRDs into a cluster
-	kustomize build config/crd | kubectl apply -f -
+install: manifests tools ## Install CRDs into a cluster
+	$(KUSTOMIZE) build config/crd | kubectl apply -f -
 
 uninstall: manifests ## Uninstall CRDs from a cluster
 	kustomize build config/crd | kubectl delete -f -
 
-deploy: manifests ## Deploy controller in the configured Kubernetes cluster in ~/.kube/config
+deploy: manifests tools ## Deploy controller in the configured Kubernetes cluster in ~/.kube/config
 	cd config/manager && kustomize edit set image controller=${IMG}
-	kustomize build config/default | kubectl apply -f -
+	$(KUSTOMIZE) build config/default | kubectl apply -f -
 
-manifests: controller-gen ## Generate manifests e.g. CRD, RBAC etc.
+manifests: tools ## Generate manifests e.g. CRD, RBAC etc.
 	$(CONTROLLER_GEN) \
 		$(CRD_OPTIONS) \
 		paths=./apis/... \
@@ -166,24 +167,9 @@ manifests: controller-gen ## Generate manifests e.g. CRD, RBAC etc.
 generate-go: $(COUNTERFEITER) ## Generate code via go generate.
 	PATH=$(abspath hack/tools/bin):$(PATH) go generate ./...
 
-generate: controller-gen ## Generate code via controller-gen
+generate: tools ## Generate code via controller-gen
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt",year=$(shell date +%Y) paths="./..."
 	$(MAKE) fmt
-
-controller-gen: ## Download controller-gen
-ifeq (, $(shell which controller-gen))
-	@{ \
-	set -e ;\
-	CONTROLLER_GEN_TMP_DIR=$$(mktemp -d) ;\
-	cd $$CONTROLLER_GEN_TMP_DIR ;\
-	$(GO) mod init tmp ;\
-	$(GO) get sigs.k8s.io/controller-tools/cmd/controller-gen@v0.7.0 ;\
-	rm -rf $$CONTROLLER_GEN_TMP_DIR ;\
-	}
-CONTROLLER_GEN=$(GOBIN)/controller-gen
-else
-CONTROLLER_GEN=$(shell which controller-gen)
-endif
 
 ## --------------------------------------
 ##@ Tooling Binaries
@@ -500,7 +486,7 @@ fmt: tools ## Run goimports
 vet: ## Run go vet
 	$(GO) vet ./...
 
-check: misspell lint 
+check: misspell lint
 
 misspell:
 	hack/check/misspell.sh

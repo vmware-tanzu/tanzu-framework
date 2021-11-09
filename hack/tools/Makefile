@@ -38,11 +38,13 @@ HOST_OS=$(shell go env GOOS)
 HOST_ARCH=$(shell go env GOARCH)
 
 # Binaries.
+CONTROLLER_GEN     := $(BIN_DIR)/controller-gen
 GINKGO             := $(BIN_DIR)/ginkgo
 GOLANGCI_LINT      := $(BIN_DIR)/golangci-lint
 GOIMPORTS          := $(BIN_DIR)/goimports
 KUBEBUILDER        := $(BIN_DIR)/kubebuilder
 KUBEVAL            := $(BIN_DIR)/kubeval
+KUSTOMIZE          := $(BIN_DIR)/kustomize
 GOBINDATA          := $(BIN_DIR)/gobindata
 VALE               := $(BIN_DIR)/vale
 YTT                := $(BIN_DIR)/ytt
@@ -64,6 +66,10 @@ help: ## Display this help
 ## Binaries
 ## --------------------------------------
 
+controller-gen: $(CONTROLLER_GEN)
+$(CONTROLLER_GEN): go.mod go.sum
+	go build -tags=tools -o $@ sigs.k8s.io/controller-tools/cmd/controller-gen
+
 ginkgo: $(GINKGO)
 $(GINKGO): go.mod
 	mkdir -p $(BIN_DIR)
@@ -74,11 +80,11 @@ $(COUNTERFEITER): $(BIN_DIR) go.mod go.sum
 	go build -tags=tools -o $@ github.com/maxbrunsfeld/counterfeiter/v6
 
 golangci-lint: $(GOLANGCI_LINT) $(SRCS) ## Build golangci-lint
-$(GOLANGCI_LINT): go.mod
+$(GOLANGCI_LINT): go.mod go.sum
 	go build -tags=tools -o $@ github.com/golangci/golangci-lint/cmd/golangci-lint
 
 goimports: $(GOIMPORTS) $(SRCS) ## Build goimports
-$(GOIMPORTS): go.mod
+$(GOIMPORTS): go.mod go.sum
 	go build -tags=tools -o $@ golang.org/x/tools/cmd/goimports
 
 kubebuilder: $(KUBEBUILDER) ## Install kubebuilder
@@ -94,8 +100,12 @@ $(KUBEVAL):
 	mv /tmp/kubeval $(@)
 	chmod a+x $(@)
 
+kustomize: $(KUSTOMIZE)
+$(KUSTOMIZE): $(BIN_DIR) go.mod go.sum # Build kustomize from tools folder.
+	CGO_ENABLED=0 go build -tags=tools -o $@ sigs.k8s.io/kustomize/kustomize/v4
+
 gobindata: $(GOBINDATA)
-$(GOBINDATA): go.mod # Build go-bindata
+$(GOBINDATA): go.mod go.sum # Build go-bindata
 	mkdir -p $(BIN_DIR)
 	go build -tags=tools -o $(BIN_DIR) github.com/shuLhan/go-bindata/...; mv $(BIN_DIR)/go-bindata $(GOBINDATA)
 
