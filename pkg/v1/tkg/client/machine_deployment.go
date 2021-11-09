@@ -72,18 +72,20 @@ type NodePool struct {
 
 // VSphereNodePool a struct describing properties necessary for a node pool on vSphere
 type VSphereNodePool struct {
-	CloneMode         string `yaml:"cloneMode,omitempty"`
-	Datacenter        string `yaml:"datacenter,omitempty"`
-	Datastore         string `yaml:"datastore,omitempty"`
-	StoragePolicyName string `yaml:"storagePolicyName,omitempty"`
-	Folder            string `yaml:"folder,omitempty"`
-	Network           string `yaml:"network,omitempty"`
-	ResourcePool      string `yaml:"resourcePool,omitempty"`
-	VCIP              string `yaml:"vcIP,omitempty"`
-	Template          string `yaml:"template,omitempty"`
-	MemoryMiB         int64  `yaml:"memoryMiB,omitempty"`
-	DiskGiB           int32  `yaml:"diskGiB,omitempty"`
-	NumCPUs           int32  `yaml:"numCPUs,omitempty"`
+	CloneMode         string   `yaml:"cloneMode,omitempty"`
+	Datacenter        string   `yaml:"datacenter,omitempty"`
+	Datastore         string   `yaml:"datastore,omitempty"`
+	StoragePolicyName string   `yaml:"storagePolicyName,omitempty"`
+	Folder            string   `yaml:"folder,omitempty"`
+	Network           string   `yaml:"network,omitempty"`
+	Nameservers       []string `yaml:"nameservers,omitempty"`
+	TKGIPFamily       string   `yaml:"tkgIPFamily,omitempty"`
+	ResourcePool      string   `yaml:"resourcePool,omitempty"`
+	VCIP              string   `yaml:"vcIP,omitempty"`
+	Template          string   `yaml:"template,omitempty"`
+	MemoryMiB         int64    `yaml:"memoryMiB,omitempty"`
+	DiskGiB           int32    `yaml:"diskGiB,omitempty"`
+	NumCPUs           int32    `yaml:"numCPUs,omitempty"`
 }
 
 const deploymentNameLabelKey = "cluster.x-k8s.io/deployment-name"
@@ -581,7 +583,7 @@ func retrieveKubeadmConfigTemplate(clusterClient clusterclient.Client, kcTemplat
 	return &kcTemplate, nil
 }
 
-func populateVSphereMachineTemplate(machineTemplate *vsphere.VSphereMachineTemplate, options *SetMachineDeploymentOptions) {
+func populateVSphereMachineTemplate(machineTemplate *vsphere.VSphereMachineTemplate, options *SetMachineDeploymentOptions) { //nolint: gocyclo
 	if options.VSphere.CloneMode != "" {
 		machineTemplate.Spec.Template.Spec.CloneMode = vsphere.CloneMode(options.VSphere.CloneMode)
 	}
@@ -617,9 +619,22 @@ func populateVSphereMachineTemplate(machineTemplate *vsphere.VSphereMachineTempl
 			Devices: []vsphere.NetworkDeviceSpec{
 				{
 					NetworkName: options.VSphere.Network,
-					DHCP4:       true,
 				},
 			},
+		}
+		if len(options.VSphere.Nameservers) > 0 {
+			machineTemplate.Spec.Template.Spec.Network.Devices[0].Nameservers = options.VSphere.Nameservers
+		}
+		if strings.Contains(options.VSphere.TKGIPFamily, "ipv4") {
+			machineTemplate.Spec.Template.Spec.Network.Devices[0].DHCP4 = true
+		}
+		if strings.Contains(options.VSphere.TKGIPFamily, "ipv6") {
+			machineTemplate.Spec.Template.Spec.Network.Devices[0].DHCP6 = true
+		}
+		// default to ipv4 if no valid value was provided
+		if !machineTemplate.Spec.Template.Spec.Network.Devices[0].DHCP4 &&
+			!machineTemplate.Spec.Template.Spec.Network.Devices[0].DHCP6 {
+			machineTemplate.Spec.Template.Spec.Network.Devices[0].DHCP4 = true
 		}
 	}
 }
