@@ -54,10 +54,7 @@ func init() {
 	registrySecretAddCmd.MarkFlagRequired("username") //nolint
 }
 
-func registrySecretAdd(cmd *cobra.Command, args []string) error {
-
-	var exported string
-
+func registrySecretAdd(cmd *cobra.Command, args []string) error { //nolint:gocyclo
 	registrySecretOp.SecretName = args[0]
 
 	password, err := extractPassword()
@@ -94,25 +91,24 @@ func registrySecretAdd(cmd *cobra.Command, args []string) error {
 		}
 
 		for j := range secretExportList.Items {
-			exported = "not exported"
+			export := ""
 			secretExport := secretExportList.Items[j]
 			if secretExport.Name == registrySecretOp.SecretName {
-
 				ns := &corev1.NamespaceList{}
 
 				err = kc.GetClient().List(context.Background(), ns)
 				if err != nil {
 					return err
 				}
-				
+
 				if findInList(secretExport.Spec.ToNamespaces, "*") || secretExport.Spec.ToNamespace == "*" {
-					exported = "to all namespaces"
+					export = "all namespaces"
 				} else {
-					exported = "to some namespaces"
+					export = "some namespaces"
 				}
 
-				// Ask user consent when secretexport has been created by kubectl and user tries to add secret of the same name as secretexport without using --export-to-all-namespaces flag
-				log.Warningf("Warning: SecretExport with the same name exists already, given secret contents will be available '%s'.\n\n", exported)
+				// Ask user consent when SecretExport has been created by kubectl and user tries to add secret of the same name as SecretExport without using --export-to-all-namespaces flag
+				log.Warningf("Warning: SecretExport with the same name exists already, given secret contents will be available to %s. If you decide not to proceed, you can either delete the SecretExport or specify a different secret name.\n\n", export)
 				if !registrySecretOp.SkipPrompt {
 					if err := cli.AskForConfirmation("Are you sure you want to proceed?"); err != nil {
 						return errors.New("creation of the secret got aborted")
