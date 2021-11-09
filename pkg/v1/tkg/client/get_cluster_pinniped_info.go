@@ -14,10 +14,11 @@ import (
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils/auth"
+
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 )
 
 // GetClusterPinnipedInfoOptions contains options supported by GetClusterPinnipedInfo
@@ -31,7 +32,7 @@ type GetClusterPinnipedInfoOptions struct {
 type ClusterPinnipedInfo struct {
 	ClusterName  string
 	ClusterInfo  *clientcmdapi.Cluster
-	PinnipedInfo *utils.PinnipedConfigMapInfo
+	PinnipedInfo *auth.PinnipedConfigMapInfo
 }
 
 const defaultPinnipedAPIGroupSuffix = "pinniped.dev"
@@ -76,20 +77,20 @@ func (c *TkgClient) GetWCClusterPinnipedInfo(regionalClusterClient clusterclient
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get cluster apiserver url from cluster objects")
 	}
-	clusterInfo, err := utils.GetClusterInfoFromCluster(clusterAPIServerURL)
+	clusterInfo, err := auth.GetClusterInfoFromCluster(clusterAPIServerURL)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get cluster-info from cluster")
 	}
 	// for workload cluster pinniped-info should be available on management cluster
-	mcServerURL, err := utils.GetClusterServerFromKubeconfigAndContext(curRegion.SourceFilePath, curRegion.ContextName)
+	mcServerURL, err := auth.GetClusterServerFromKubeconfigAndContext(curRegion.SourceFilePath, curRegion.ContextName)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to get cluster apiserver url")
 	}
-	mcClusterInfo, err := utils.GetClusterInfoFromCluster(mcServerURL)
+	mcClusterInfo, err := auth.GetClusterInfoFromCluster(mcServerURL)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get management cluster-info")
 	}
-	managementClusterPinnipedInfo, err := utils.GetPinnipedInfoFromCluster(mcClusterInfo)
+	managementClusterPinnipedInfo, err := auth.GetPinnipedInfoFromCluster(mcClusterInfo)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get pinniped-info from management cluster")
 	}
@@ -97,7 +98,7 @@ func (c *TkgClient) GetWCClusterPinnipedInfo(regionalClusterClient clusterclient
 		return nil, errors.New("failed to get pinniped-info from management cluster")
 	}
 
-	workloadClusterPinnipedInfo, err := utils.GetPinnipedInfoFromCluster(clusterInfo)
+	workloadClusterPinnipedInfo, err := auth.GetPinnipedInfoFromCluster(clusterInfo)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get pinniped-info from workload cluster")
 	}
@@ -137,11 +138,11 @@ func (c *TkgClient) GetMCClusterPinnipedInfo(regionalClusterClient clusterclient
 		return nil, errors.Wrap(err, "failed to get cluster apiserver url from cluster objects")
 	}
 
-	clusterInfo, err := utils.GetClusterInfoFromCluster(clusterAPIServerURL)
+	clusterInfo, err := auth.GetClusterInfoFromCluster(clusterAPIServerURL)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get cluster-info from cluster")
 	}
-	pinnipedInfo, err := utils.GetPinnipedInfoFromCluster(clusterInfo)
+	pinnipedInfo, err := auth.GetPinnipedInfoFromCluster(clusterInfo)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get pinniped-info from cluster")
 	}

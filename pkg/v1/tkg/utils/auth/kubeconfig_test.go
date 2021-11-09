@@ -1,20 +1,20 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package utils_test
+package auth_test
 
 import (
 	"crypto/x509"
 	"encoding/pem"
 	"net/http"
 
-	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/ghttp"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils/auth"
+
 	fakehelper "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes/helper"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 )
 
 var _ = Describe("Kubeconfig Tests", func() {
@@ -48,7 +48,7 @@ var _ = Describe("Kubeconfig Tests", func() {
 						ghttp.RespondWith(http.StatusNotFound, "not found"),
 					),
 				)
-				_, err = utils.GetClusterInfoFromCluster(endpoint)
+				_, err = auth.GetClusterInfoFromCluster(endpoint)
 			})
 			It("should return the error", func() {
 				Expect(err).To(HaveOccurred())
@@ -63,7 +63,7 @@ var _ = Describe("Kubeconfig Tests", func() {
 						ghttp.RespondWith(http.StatusOK, "fake-format-value"),
 					),
 				)
-				_, err = utils.GetClusterInfoFromCluster(endpoint)
+				_, err = auth.GetClusterInfoFromCluster(endpoint)
 			})
 			It("should return the error", func() {
 				Expect(err).To(HaveOccurred())
@@ -80,7 +80,7 @@ var _ = Describe("Kubeconfig Tests", func() {
 						ghttp.RespondWith(http.StatusOK, clusterInfo),
 					),
 				)
-				cluster, err = utils.GetClusterInfoFromCluster(endpoint)
+				cluster, err = auth.GetClusterInfoFromCluster(endpoint)
 			})
 			It("should return the cluster information", func() {
 				Expect(err).ToNot(HaveOccurred())
@@ -97,7 +97,7 @@ var _ = Describe("Kubeconfig Tests", func() {
 		)
 		Context("When getting cluster name from kubeconfig", func() {
 			JustBeforeEach(func() {
-				actual, err = utils.GetClusterNameFromKubeconfigAndContext(kubeconfigPath, context)
+				actual, err = auth.GetClusterNameFromKubeconfigAndContext(kubeconfigPath, context)
 			})
 			AfterEach(func() {
 				kubeconfigPath = ""
@@ -133,7 +133,7 @@ var _ = Describe("Kubeconfig Tests", func() {
 		})
 		Context("When getting server from kubeconfig", func() {
 			JustBeforeEach(func() {
-				actual, err = utils.GetClusterServerFromKubeconfigAndContext(kubeconfigPath, context)
+				actual, err = auth.GetClusterServerFromKubeconfigAndContext(kubeconfigPath, context)
 			})
 			Context("When kubeconfig path is invalid", func() {
 				BeforeEach(func() {
@@ -166,7 +166,7 @@ var _ = Describe("Kubeconfig Tests", func() {
 
 		Context("When the configMap 'pinniped-info' is not present in kube-public namespace", func() {
 			var cluster clientcmdapi.Cluster
-			var gotPinnipedInfo *utils.PinnipedConfigMapInfo
+			var gotPinnipedInfo *auth.PinnipedConfigMapInfo
 			BeforeEach(func() {
 				tlsserver.AppendHandlers(
 					ghttp.CombineHandlers(
@@ -177,7 +177,7 @@ var _ = Describe("Kubeconfig Tests", func() {
 				cluster.Server = endpoint
 				certBytes := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: servCert.Raw})
 				cluster.CertificateAuthorityData = certBytes
-				gotPinnipedInfo, err = utils.GetPinnipedInfoFromCluster(&cluster)
+				gotPinnipedInfo, err = auth.GetPinnipedInfoFromCluster(&cluster)
 			})
 			It("should not return an error", func() {
 				Expect(err).ToNot(HaveOccurred())
@@ -196,7 +196,7 @@ var _ = Describe("Kubeconfig Tests", func() {
 				cluster.Server = endpoint
 				certBytes := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: servCert.Raw})
 				cluster.CertificateAuthorityData = certBytes
-				_, err = utils.GetPinnipedInfoFromCluster(&cluster)
+				_, err = auth.GetPinnipedInfoFromCluster(&cluster)
 			})
 			It("should return the pinniped-info successfully", func() {
 				Expect(err).To(HaveOccurred())
@@ -205,7 +205,7 @@ var _ = Describe("Kubeconfig Tests", func() {
 		})
 		Context("When the configMap 'pinniped-info' is present in kube-public namespace", func() {
 			var cluster clientcmdapi.Cluster
-			var gotPinnipedInfo *utils.PinnipedConfigMapInfo
+			var gotPinnipedInfo *auth.PinnipedConfigMapInfo
 			var gotAPIGroupSuffix string
 			BeforeEach(func() {
 				clustername = "fake-cluster"
@@ -228,7 +228,7 @@ var _ = Describe("Kubeconfig Tests", func() {
 				cluster.Server = endpoint
 				certBytes := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: servCert.Raw})
 				cluster.CertificateAuthorityData = certBytes
-				gotPinnipedInfo, err = utils.GetPinnipedInfoFromCluster(&cluster)
+				gotPinnipedInfo, err = auth.GetPinnipedInfoFromCluster(&cluster)
 				if gotPinnipedInfo.Data.ConciergeAPIGroupSuffix == nil {
 					gotAPIGroupSuffix = ""
 				} else {
