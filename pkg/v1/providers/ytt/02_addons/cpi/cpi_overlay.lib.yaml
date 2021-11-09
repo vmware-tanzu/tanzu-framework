@@ -20,14 +20,3 @@ spec:
         #@overlay/match missing_ok=True
         imagePullPolicy: IfNotPresent
 #@ end
-
-#@ def remove_versioned_annotation():
-
-#@overlay/match by=overlay.subset({"kind": "ConfigMap", "metadata": {"name": "vsphere-cloud-config"}})
----
-metadata:
-  annotations:
-    #@overlay/remove
-    kapp.k14s.io/versioned: ""
-
-#@ end
