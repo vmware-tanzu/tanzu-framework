@@ -1306,12 +1306,17 @@ var _ = Describe("Machine Deployment", func() {
 						StoragePolicyName: "policy1",
 						Folder:            "folder1",
 						Network:           "network1",
-						ResourcePool:      "rp1",
-						VCIP:              "0.0.0.2",
-						Template:          "template1",
-						MemoryMiB:         8192,
-						DiskGiB:           65536,
-						NumCPUs:           8,
+						Nameservers: []string{
+							"8.8.8.8",
+							"8.8.4.4",
+						},
+						TKGIPFamily:  "ipv4,ipv6",
+						ResourcePool: "rp1",
+						VCIP:         "0.0.0.2",
+						Template:     "template1",
+						MemoryMiB:    8192,
+						DiskGiB:      65536,
+						NumCPUs:      8,
 					}
 
 					callIndex := 0
@@ -1362,6 +1367,9 @@ var _ = Describe("Machine Deployment", func() {
 						Expect(mt.Spec.Template.Spec.Server).To(Equal(options.VSphere.VCIP))
 						Expect(mt.Spec.Template.Spec.Template).To(Equal(options.VSphere.Template))
 						Expect(mt.Spec.Template.Spec.Network.Devices[0].NetworkName).To(Equal(options.VSphere.Network))
+						Expect(mt.Spec.Template.Spec.Network.Devices[0].DHCP4).To(Equal(true))
+						Expect(mt.Spec.Template.Spec.Network.Devices[0].DHCP6).To(Equal(true))
+						Expect(mt.Spec.Template.Spec.Network.Devices[0].Nameservers).To(Equal(options.VSphere.Nameservers))
 
 						obj, _, _, _ = clusterClient.CreateResourceArgsForCall(2)
 						md := obj.(*capi.MachineDeployment)
