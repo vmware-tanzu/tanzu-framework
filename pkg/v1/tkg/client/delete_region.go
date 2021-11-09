@@ -38,7 +38,7 @@ const (
 
 You need to delete these clusters first before deleting the management cluster.
 
-Alternatively, you can use the -f/--force flag to force the deletion of the management cluster but doing so will orphan the above-mentioned clusters and leave them unmanaged.`
+Alternatively, you can use the --force flag to force the deletion of the management cluster but doing so will orphan the above-mentioned clusters and leave them unmanaged.`
 )
 
 // DeleteRegion delete management cluster
