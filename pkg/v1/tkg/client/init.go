@@ -340,6 +340,10 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		log.Warningf("Warning: Management cluster is created successfully, but some packages are failing. %v", err)
 	}
 
+	if err := regionalClusterClient.AddFeatureGate(); err != nil {
+		return errors.Wrap(err, "unable to add FeatureGate")
+	}
+
 	log.Infof("You can now access the management cluster %s by running 'kubectl config use-context %s'", options.ClusterName, kubeContext)
 	isSuccessful = true
 	return nil

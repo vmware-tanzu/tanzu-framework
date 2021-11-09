@@ -53,12 +53,14 @@ import (
 	"sigs.k8s.io/cluster-api/util/patch"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
+	"sigs.k8s.io/yaml"
 
 	tkgsv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
 
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 	capdiscovery "github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/discovery"
@@ -264,6 +266,8 @@ type Client interface {
 	HasCEIPTelemetryJob(clusterName string) (bool, error)
 	// GetPacificTKCAPIVersion gets the Pacific TKC API version
 	GetPacificTKCAPIVersion() (string, error)
+	// AddFeatureGate adds a Default FeatureGate to activate/deactivate Features
+	AddFeatureGate() error
 	// GetPacificTanzuKubernetesReleases returns the list of TanzuKubernetesRelease versions if TKr object is available in TKGS
 	GetPacificTanzuKubernetesReleases() ([]string, error)
 	// GetVCCredentialsFromSecret gets the vSphere username and password used to deploy the cluster
@@ -1511,6 +1515,31 @@ func (c *client) GetPacificTKCAPIVersion() (string, error) {
 
 func (c *client) IsPacificRegionalCluster() (bool, error) {
 	return c.isTKCCrdAvailableInTanzuRunAPIGroup()
+}
+
+func (c *client) AddFeatureGate() error {
+	featureGateYaml, err := yaml.Marshal(generateDefaultFeatureGateCR())
+	if err != nil {
+		return errors.Wrap(err, "failed to marshal FeatureGate")
+	}
+	err = c.kubectlApply(string(featureGateYaml))
+	if err != nil {
+		return errors.Wrap(err, "failed to create default FeatureGate")
+	}
+	return nil
+}
+
+func generateDefaultFeatureGateCR() configv1alpha1.FeatureGate {
+	return configv1alpha1.FeatureGate{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "FeatureGate",
+			APIVersion: configv1alpha1.GroupVersion.String(),
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "tkg-system",
+		},
+		Spec: configv1alpha1.FeatureGateSpec{},
+	}
 }
 
 func (c *client) isTKCCrdAvailableInTanzuRunAPIGroup() (bool, error) {
