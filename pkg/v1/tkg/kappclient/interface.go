@@ -28,6 +28,7 @@ type Client interface {
 	GetPackageMetadataByName(packageName string, namespace string) (*kapppkg.PackageMetadata, error)
 	GetPackageRepository(repositoryName, namespace string) (*kappipkg.PackageRepository, error)
 	GetPackage(packageName string, namespace string) (*kapppkg.Package, error)
+	GetSecretExport(secretName, namespace string) (*secretgen.SecretExport, error)
 	GetSecretValue(secretName, namespace string) ([]byte, error)
 	ListPackageInstalls(namespace string) (*kappipkg.PackageInstallList, error)
 	ListPackageMetadata(namespace string) (*kapppkg.PackageMetadataList, error)

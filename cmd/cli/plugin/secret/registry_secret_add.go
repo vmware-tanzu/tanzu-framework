@@ -55,6 +55,7 @@ func init() {
 }
 
 func registrySecretAdd(cmd *cobra.Command, args []string) error { //nolint:gocyclo
+	var secretExportNotFound bool
 	registrySecretOp.SecretName = args[0]
 
 	password, err := extractPassword()
@@ -85,38 +86,39 @@ func registrySecretAdd(cmd *cobra.Command, args []string) error { //nolint:gocyc
 		}
 		log.Info("\n")
 	} else {
-		secretExportList, err := pkgClient.ListSecretExports(registrySecretOp)
+		export := ""
+		secretExport, err := pkgClient.GetSecretExport(registrySecretOp)
+
 		if err != nil {
-			return err
-		}
-
-		for j := range secretExportList.Items {
-			export := ""
-			secretExport := secretExportList.Items[j]
-			if secretExport.Name == registrySecretOp.SecretName {
-				ns := &corev1.NamespaceList{}
-
-				err = kc.GetClient().List(context.Background(), ns)
-				if err != nil {
-					return err
-				}
-
-				if findInList(secretExport.Spec.ToNamespaces, "*") || secretExport.Spec.ToNamespace == "*" {
-					export = "all namespaces"
-				} else {
-					export = "some namespaces"
-				}
-
-				// Ask user consent when SecretExport has been created by kubectl and user tries to add secret of the same name as SecretExport without using --export-to-all-namespaces flag
-				log.Warningf("Warning: SecretExport with the same name exists already, given secret contents will be available to %s. If you decide not to proceed, you can either delete the SecretExport or specify a different secret name.\n\n", export)
-				if !registrySecretOp.SkipPrompt {
-					if err := cli.AskForConfirmation("Are you sure you want to proceed?"); err != nil {
-						return errors.New("creation of the secret got aborted")
-					}
-				}
-				log.Info("\n")
-				break
+			secretExportNotFound = apierrors.IsNotFound(err)
+			if !secretExportNotFound {
+				return err
 			}
+		} else {
+			// No error means we found a matching SecretExport
+
+			// Creating a SecretExport resource X that conflicts with a previously defined SecretExport Y that was exported to all namespaces could result in privilege escalation if the user does not access to other namespaces. This check prevents it by trying to list the namespaces
+			ns := &corev1.NamespaceList{}
+
+			err = kc.GetClient().List(context.Background(), ns)
+			if err != nil {
+				return err
+			}
+
+			if findInList(secretExport.Spec.ToNamespaces, "*") || secretExport.Spec.ToNamespace == "*" {
+				export = "all namespaces"
+			} else {
+				export = "some namespaces"
+			}
+
+			// Ask user consent when SecretExport has been created by kubectl and user tries to add secret of the same name as SecretExport without using --export-to-all-namespaces flag
+			log.Warningf("Warning: SecretExport with the same name exists already, given secret contents will be available to %s. If you decide not to proceed, you can either delete the SecretExport or specify a different secret name.\n\n", export)
+			if !registrySecretOp.SkipPrompt {
+				if err := cli.AskForConfirmation("Are you sure you want to proceed?"); err != nil {
+					return errors.New("creation of the secret got aborted")
+				}
+			}
+			log.Info("\n")
 		}
 	}
 

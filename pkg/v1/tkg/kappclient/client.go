@@ -231,6 +231,16 @@ func (c *client) ListSecretExports(namespace string) (*secretgenctrl.SecretExpor
 	return secretExportList, nil
 }
 
+// GetSecretExport gets the SecretExport having the same name and namespace as specified secret
+func (c *client) GetSecretExport(secretName, namespace string) (*secretgenctrl.SecretExport, error) {
+	secretExport := &secretgenctrl.SecretExport{}
+	err := c.client.Get(context.Background(), crtclient.ObjectKey{Name: secretName, Namespace: namespace}, secretExport)
+	if err != nil {
+		return nil, err
+	}
+	return secretExport, nil
+}
+
 // ListPackageMetadata gets the list of PackageMetadata CRs
 func (c *client) ListPackageMetadata(namespace string) (*kapppkg.PackageMetadataList, error) {
 	var selectors []crtclient.ListOption
