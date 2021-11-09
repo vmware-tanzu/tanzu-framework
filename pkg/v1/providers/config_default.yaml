@@ -166,6 +166,9 @@ NSXT_SECRET_NAMESPACE: "kube-system"
 #! For list of supported regions, see TKG documentation.
 #! If you have already set an environment variable for the region, you must unset it.
 AWS_REGION:
+#! AWS_LOAD_BALANCER_SCHEME_INTERNAL will mean that the Kubernetes API Server Load Balancer will not be accessible and routed over the
+#! internet.
+AWS_LOAD_BALANCER_SCHEME_INTERNAL: false
 #! AZ has to be contained in the AWS region
 AWS_NODE_AZ: ""
 #! set these if you want 3 control plane nodes. The below

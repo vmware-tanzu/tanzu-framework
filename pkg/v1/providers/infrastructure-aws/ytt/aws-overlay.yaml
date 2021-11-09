@@ -20,6 +20,12 @@ spec:
   sshKeyName: #@ data.values.AWS_SSH_KEY_NAME
   bastion:
     enabled: #@ data.values.BASTION_HOST_ENABLED
+  #@ if data.values.AWS_LOAD_BALANCER_SCHEME_INTERNAL == True:
+  #@overlay/match missing_ok=True
+  controlPlaneLoadBalancer:
+  #@overlay/match missing_ok=True
+    scheme: "internal"
+  #@ end
   network:
     vpc:
       cidrBlock: #@ data.values.AWS_VPC_CIDR

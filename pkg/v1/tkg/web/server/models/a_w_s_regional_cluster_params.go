@@ -52,6 +52,9 @@ type AWSRegionalClusterParams struct {
 	// labels
 	Labels map[string]string `json:"labels,omitempty"`
 
+	// loadbalancer scheme internal
+	LoadbalancerSchemeInternal bool `json:"loadbalancerSchemeInternal,omitempty"`
+
 	// machine health check enabled
 	MachineHealthCheckEnabled bool `json:"machineHealthCheckEnabled,omitempty"`
 

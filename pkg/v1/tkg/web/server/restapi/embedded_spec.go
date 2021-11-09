@@ -2408,6 +2408,9 @@ func init() {
             "type": "string"
           }
         },
+        "loadbalancerSchemeInternal": {
+          "type": "boolean"
+        },
         "machineHealthCheckEnabled": {
           "type": "boolean"
         },
@@ -5870,6 +5873,9 @@ func init() {
           "additionalProperties": {
             "type": "string"
           }
+        },
+        "loadbalancerSchemeInternal": {
+          "type": "boolean"
         },
         "machineHealthCheckEnabled": {
           "type": "boolean"
