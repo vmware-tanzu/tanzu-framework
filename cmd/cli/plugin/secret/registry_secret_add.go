@@ -77,13 +77,15 @@ func registrySecretAdd(cmd *cobra.Command, args []string) error {
 	}
 
 	if registrySecretOp.ExportToAllNamespaces {
-		log.Warning("Warning: By choosing --export-to-all-namespaces, given secret contents will be available to ALL users in ALL namespaces. Please ensure that included registry credentials allow only read-only access to the registry with minimal necessary scope.\n\n")
-		if !registrySecretOp.SkipPrompt {
-			if err := cli.AskForConfirmation("Are you sure you want to proceed?"); err != nil {
-				return errors.New("creation of the secret got aborted")
-			}
+		// Creating a SecretExport resource X that conflicts with a previously defined SecretExport Y that was exported to all namespaces could result in privilege escalation if the user does not access to other namespaces. This check prevents it by trying to list the namespaces
+		if err := checkNamespaceList(kc); err != nil {
+			return err
 		}
-		log.Info("\n")
+		msg := "Warning: By choosing --export-to-all-namespaces, given secret contents will be available to ALL users in ALL namespaces. Please ensure that included registry credentials allow only read-only access to the registry with minimal necessary scope.\n\n"
+		err := issueWarningAndPromptUser(msg)
+		if err != nil {
+			return err
+		}
 	} else if err := checkSecretExportExists(pkgClient, kc); err != nil {
 		return err
 	}
@@ -216,13 +218,13 @@ func checkSecretExportExists(pkgClient tkgpackageclient.TKGPackageClient, kc kap
 	}
 
 	// Ask user consent when SecretExport has been created by kubectl and user tries to add secret of the same name as SecretExport without using --export-to-all-namespaces flag
-	log.Warningf("Warning: SecretExport with the same name exists already, given secret contents will be available to %s. If you decide not to proceed, you can either delete the SecretExport or specify a different secret name.\n\n", export)
-	if !registrySecretOp.SkipPrompt {
-		if err := cli.AskForConfirmation("Are you sure you want to proceed?"); err != nil {
-			return errors.New("creation of the secret got aborted")
-		}
+	msg := "Warning: SecretExport with the same name exists already, given secret contents will be available to %s. If you decide not to proceed, you can either delete the SecretExport or specify a different secret name.\n\n"
+	msg = fmt.Sprintf(msg, export)
+	err = issueWarningAndPromptUser(msg)
+	if err != nil {
+		return err
 	}
-	log.Info("\n")
+
 	return nil
 }
 
@@ -236,4 +238,15 @@ func checkSecretExists(kc kappclient.Client) (bool, error) {
 		}
 	}
 	return notFound, nil
+}
+
+func issueWarningAndPromptUser(msg string) error {
+	log.Warning(msg)
+	if !registrySecretOp.SkipPrompt {
+		if err := cli.AskForConfirmation("Are you sure you want to proceed?"); err != nil {
+			return errors.New("creation of the secret got aborted")
+		}
+	}
+	log.Info("\n")
+	return nil
 }
