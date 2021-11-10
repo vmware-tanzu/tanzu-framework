@@ -1,4 +1,6 @@
 #@ load("@ytt:data", "data")
+
+#@ if data.values.AVI_ENABLE:
 #@ load("@ytt:base64", "base64")
 #@ load("/lib/helpers.star", "get_default_tkr_bom_data", "get_default_tkg_bom_data", "tkg_image_repo")
 
@@ -94,4 +96,47 @@ spec:
               cpu: 50m
               memory: 20Mi
       terminationGracePeriodSeconds: 10
+#@ end
+
+#@ def ako_deployment_config():
+apiVersion: networking.tkg.tanzu.vmware.com/v1alpha1
+kind: AKODeploymentConfig
+metadata:
+  name: install-ako-for-management-cluster
+spec:
+  clusterSelector:
+    matchLabels:
+      cluster-role.tkg.tanzu.vmware.com/management: ""
+  cloudName: #@ data.values.AVI_CLOUD_NAME
+  serviceEngineGroup: #@ data.values.AVI_SERVICE_ENGINE_GROUP
+  controller: #@ data.values.AVI_CONTROLLER
+  adminCredentialRef:
+    name: #@ data.values.AVI_ADMIN_CREDENTIAL_NAME
+    namespace: tkg-system
+  certificateAuthorityRef:
+    name: #@ data.values.AVI_CA_NAME
+    namespace: tkg-system
+  dataNetwork:
+#@ if data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME and data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR:
+    name: #@ data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME
+    cidr: #@ data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR
+#@ else:
+    name: #@ data.values.AVI_DATA_NETWORK
+    cidr: #@ data.values.AVI_DATA_NETWORK_CIDR
+#@ end
+  extraConfigs:
+    disableStaticRouteSync: #@ data.values.AVI_DISABLE_STATIC_ROUTE_SYNC
+    image:
+      repository: #@ ako_image()
+      pullPolicy: #@ data.values.AVI_AKO_IMAGE_PULL_POLICY
+      version: #@ akoRepo.images.loadBalancerAndIngressServiceImage.tag
+    ingress:
+      disableIngressClass: #@ data.values.AVI_DISABLE_INGRESS_CLASS
+      defaultIngressController: #@ data.values.AVI_INGRESS_DEFAULT_INGRESS_CONTROLLER
+#@ if data.values.AVI_INGRESS_SHARD_VS_SIZE != "":
+      shardVSSize: #@ data.values.AVI_INGRESS_SHARD_VS_SIZE
+#@ end
+      serviceType: NodePort
+#@ end
+
 #@ end

@@ -1,8 +1,11 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:base64", "base64")
 #@ load("@ytt:json", "json")
-#@ load("/lib/helpers.star", "get_default_tkr_bom_data", "get_default_tkg_bom_data", "tkg_image_repo")
+#@ load("@ytt:assert", "assert")
 
+#@ load("/lib/helpers.star", "get_default_tkr_bom_data", "get_default_tkg_bom_data", "tkg_image_repo")
+#@ rbacRepo = get_default_tkg_bom_data().components["kube_rbac_proxy"][0]
+#@ akooRepo = get_default_tkr_bom_data().components["ako-operator"][0]
 #@ akoRepo = get_default_tkr_bom_data().components["load-balancer-and-ingress-service"][0]
 
 #@ def ako_image_with_tag():
@@ -20,27 +23,19 @@
 #! input cidr example 10.0.0.0/24
 #! output "10.0.0.0" and "24"
 #@ def network_cidr():
-#@  if data.values.AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME and data.values.AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR:
-#@    cidr = data.values.AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR
+#@  if data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME and data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR:
+#@    cidr = data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR
 #@  else:
-#@    if data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME and data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR:
-#@      cidr = data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR
-#@    else:
-#@      cidr = data.values.AVI_DATA_NETWORK_CIDR
-#@    end
+#@    cidr = data.values.AVI_DATA_NETWORK_CIDR
 #@  end
 #@  return cidr
 #@ end
 
 #@ def network_name():
-#@  if data.values.AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME and data.values.AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR:
-#@    name = data.values.AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME
+#@  if data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME and data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR:
+#@    name = data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME
 #@  else:
-#@    if data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME and data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR:
-#@      name = data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME
-#@    else:
-#@      name = data.values.AVI_DATA_NETWORK
-#@    end
+#@    name = data.values.AVI_DATA_NETWORK
 #@  end
 #@  return name
 #@ end
@@ -88,11 +83,7 @@ data:
   logLevel: "WARN"
   deleteConfig: "false"
   serviceType:  NodePort
-#@ if data.values.AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP: 
-  serviceEngineGroupName: #@ data.values.AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP
-#@ else:
   serviceEngineGroupName: #@ data.values.AVI_SERVICE_ENGINE_GROUP
-#@ end
   vipNetworkList: #@ vip_network()
   apiServerPort: "8080"
 #@ end
