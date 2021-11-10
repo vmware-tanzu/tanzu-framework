@@ -30,6 +30,7 @@ declare var sortPaths: any;
 })
 export class SharedNetworkStepComponent extends StepFormDirective implements OnInit {
     @Input() enableNetworkName: boolean;
+    @Input() enableNoProxyWarning: boolean;
 
     form: FormGroup;
     cniType: string;
@@ -37,6 +38,8 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
     vmNetworks: Array<VSphereNetwork>;
     additionalNoProxyInfo: string;
     fullNoProxy: string;
+    infraServiceAddress: string = '';
+    hideWarning: boolean = true;
 
     constructor(private validationService: ValidationService,
         private wizardFormService: VSphereWizardFormService) {
@@ -145,6 +148,13 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
             .subscribe(event => {
                 this.resetFieldsUponDCChange();
             });
+        if (this.enableNoProxyWarning) {
+            Broker.messenger.getSubject(TkgEventType.VC_AUTHENTICATED)
+                .pipe(takeUntil(this.unsubscribe))
+                .subscribe((data) => {
+                    this.infraServiceAddress = data.payload;
+                });
+        }
 
         this.wizardFormService.getErrorStream(TkgEventType.GET_VM_NETWORKS)
             .pipe(takeUntil(this.unsubscribe))
@@ -166,7 +176,10 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
             this.formGroup.get(field).valueChanges.pipe(
                 distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
                 takeUntil(this.unsubscribe)
-            ).subscribe(() => {
+            ).subscribe((value) => {
+                if (this.enableNoProxyWarning && field === 'noProxy') {
+                    this.hideWarning = value.trim().split(',').includes(this.infraServiceAddress);
+                }
                 this.generateFullNoProxy();
             });
         });
@@ -218,6 +231,8 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
                 Validators.required,
                 this.validationService.isHttpOrHttps()
             ], this.formGroup.value['httpProxyUrl']);
+            this.resurrectField('noProxy', [],
+                this.formGroup.value['httpProxyUrl'] || this.infraServiceAddress);
             if (!this.formGroup.value['isSameAsHttp']) {
                 this.resurrectField('httpsProxyUrl', [
                     Validators.required,
