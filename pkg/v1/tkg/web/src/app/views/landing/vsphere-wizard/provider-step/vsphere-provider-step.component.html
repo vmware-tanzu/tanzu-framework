@@ -100,9 +100,28 @@
                 </clr-control-error>
             </clr-password-container>
         </div>
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+            <clr-checkbox-container [attr.data-step-metadata]="formName">
+                <label i18n="vsphere insecure connection label" clr-control-label data-full="VSPHERE INSECURE CONNECTION">
+                    SSL THUMBPRINT VERIFICATION
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                Skip SSL thumbprint verification when deploying clusters to your vSphere environment.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <clr-checkbox-wrapper>
+                    <input type="checkbox" value="false" clrCheckbox name="insecure" formControlName="insecure" role="checkbox" aria-label="Disable SSL Thumbprint Verification"/>
+                    <label>Disable Verification</label>
+                </clr-checkbox-wrapper>
+            </clr-checkbox-container>
+        </div>
     </div>
 
-    <div class="clr-row">
+    <div class="clr-row mt-20">
         <div class="clr-col-12 clr-col-sm-4" aria-live="assertive">
             <button [clrLoading]="loadingState" [disabled]="getDisabled() || connected" (click)="connectVC()" i18n="connect btn"
                 class="btn btn-primary btn-connect">

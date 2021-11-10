@@ -3218,6 +3218,10 @@ func init() {
         "host": {
           "type": "string"
         },
+        "insecure": {
+          "type": "boolean",
+          "default": false
+        },
         "password": {
           "type": "string"
         },
@@ -6683,6 +6687,10 @@ func init() {
       "properties": {
         "host": {
           "type": "string"
+        },
+        "insecure": {
+          "type": "boolean",
+          "default": false
         },
         "password": {
           "type": "string"

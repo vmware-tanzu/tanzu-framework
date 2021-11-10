@@ -1524,6 +1524,9 @@ definitions:
         type: string
       thumbprint:
         type: string
+      insecure:
+        type: boolean
+        default: false
 
   VSphereThumbprint:
     type: object

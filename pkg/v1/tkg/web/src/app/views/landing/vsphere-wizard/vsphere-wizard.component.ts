@@ -189,6 +189,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         payload.enableAuditLogging = this.getBooleanFieldValue("vsphereNodeSettingForm", "enableAuditLogging");
 
         vsphereCredentialsMappings.forEach(attr => payload.vsphereCredentials[attr[0]] = this.getFieldValue(attr[1], attr[2]));
+        payload.vsphereCredentials['insecure'] = this.getBooleanFieldValue('vsphereProviderForm', 'insecure');
 
         const endpointProvider = this.getFieldValue("vsphereNodeSettingForm", "controlPlaneEndpointProvider");
         if (endpointProvider === KUBE_VIP) {

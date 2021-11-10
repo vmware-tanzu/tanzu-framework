@@ -167,7 +167,7 @@
                     EC2 KEY PAIR
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
-                        <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                             <span>
                                 The name of a 2048-bit SSH-2 RSA public key pair that you have already
                                 imported to your AWS account.
@@ -175,7 +175,7 @@
                         </clr-tooltip-content>
                     </clr-tooltip>
                 </label>
-                <input clrInput formControlName="sshKeyName" placeholder="ec2 key pair" />
+                <input clrInput formControlName="sshKeyName" placeholder="ec2 key pair name" />
                 <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error i18n="EC2 key pair required msg" *clrIfError="validatorEnum.REQUIRED">

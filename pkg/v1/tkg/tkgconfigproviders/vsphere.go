@@ -46,6 +46,7 @@ type VSphereConfig struct {
 	Server                             string `yaml:"VSPHERE_SERVER,omitempty"`
 	Username                           string `yaml:"VSPHERE_USERNAME,omitempty"`
 	Password                           string `yaml:"VSPHERE_PASSWORD,omitempty"`
+	VSphereInsecure                    string `yaml:"VSPHERE_INSECURE,omitempty"`
 	Datacenter                         string `yaml:"VSPHERE_DATACENTER,omitempty"`
 	Datastore                          string `yaml:"VSPHERE_DATASTORE,omitempty"`
 	Network                            string `yaml:"VSPHERE_NETWORK,omitempty"`
@@ -152,6 +153,10 @@ func (c *client) NewVSphereConfig(params *models.VsphereRegionalClusterParams) (
 		res.Username = params.VsphereCredentials.Username
 		res.Password = params.VsphereCredentials.Password
 		res.VSphereTLSThumbprint = params.VsphereCredentials.Thumbprint
+		res.VSphereInsecure = falseConst
+		if params.VsphereCredentials.Insecure != nil && *params.VsphereCredentials.Insecure {
+			res.VSphereInsecure = trueConst
+		}
 	}
 
 	if params.Networking != nil {

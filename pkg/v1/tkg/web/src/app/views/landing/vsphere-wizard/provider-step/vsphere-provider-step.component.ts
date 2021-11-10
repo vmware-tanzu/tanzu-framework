@@ -102,6 +102,10 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
             ])
         );
         this.formGroup.addControl(
+            'insecure',
+            new FormControl(false, [])
+        );
+        this.formGroup.addControl(
             'datacenter',
             new FormControl('', [
                 Validators.required
@@ -248,33 +252,43 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
         this.loadingState = ClrLoadingState.LOADING;
         this.vsphereHost = this.formGroup.controls['vcenterAddress'].value;
 
+        if (this.formGroup.controls['insecure'].value) {
+            this.login();
+        } else {
+            this.verifyThumbprint();
+        }
+    }
+
+    verifyThumbprint() {
         this.apiClient.getVsphereThumbprint({
             host: this.vsphereHost
         })
-        .pipe(
-            finalize(() => this.loadingState = ClrLoadingState.DEFAULT),
-            takeUntil(this.unsubscribe))
-        .subscribe(
-            ({thumbprint, insecure}) => {
-                if (insecure) {
-                    this.login();
-                } else {
-                    this.thumbprint = thumbprint;
-                    this.formGroup.controls['thumbprint'].setValue(thumbprint);
-                    FormMetaDataStore.saveMetaDataEntry(this.formName, 'thumbprint', {
-                        label: 'SSL THUMBPRINT',
-                        displayValue: thumbprint
-                    });
-                    this.sslThumbprintModal.open();
+            .pipe(
+                finalize(() => this.loadingState = ClrLoadingState.DEFAULT),
+                takeUntil(this.unsubscribe))
+            .subscribe(
+                ({thumbprint, insecure}) => {
+                    if (insecure) {
+                        this.login();
+                        console.log('vSphere Insecure set true via VSPHERE_INSECURE environment variable. Bypassing thumbprint verification modal.')
+                    } else {
+                        this.thumbprint = thumbprint;
+                        this.formGroup.controls['thumbprint'].setValue(thumbprint);
+                        FormMetaDataStore.saveMetaDataEntry(this.formName, 'thumbprint', {
+                            label: 'SSL THUMBPRINT',
+                            displayValue: thumbprint
+                        });
+                        this.sslThumbprintModal.open();
+                    }
+                },
+                (err) => {
+                    const error = err.error.message || err.message || JSON.stringify(err);
+                    this.errorNotification =
+                        `Failed to connect to the specified vCenter Server. ${ error }`;
                 }
-            },
-            (err) => {
-                const error = err.error.message || err.message || JSON.stringify(err);
-                this.errorNotification =
-                    `Failed to connect to the specified vCenter Server. ${error}`;
-            }
-        );
+            );
     }
+
     thumbprintModalResponse(validThumbprint: boolean) {
         if (validThumbprint) {
             this.login();
@@ -282,6 +296,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
             this.errorNotification = "Connection failed. Certificate thumbprint was not validated.";
         }
     }
+
     login() {
         this.loadingState = ClrLoadingState.LOADING;
         this.apiClient.setVSphereEndpoint({
@@ -289,6 +304,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 username: this.formGroup.controls['username'].value,
                 password: this.formGroup.controls['password'].value,
                 host: this.formGroup.controls['vcenterAddress'].value,
+                insecure: this.formGroup.controls['insecure'].value,
                 thumbprint: this.thumbprint
             }
         })
