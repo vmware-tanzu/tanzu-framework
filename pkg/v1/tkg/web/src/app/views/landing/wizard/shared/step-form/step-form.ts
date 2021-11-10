@@ -29,7 +29,6 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     validatorEnum = ValidatorEnum;
     errorNotification: string;
     errorImportFile: string;
-    successImportFile: string;
     clusterTypeDescriptor: string;
     modeClusterStandalone: boolean;
     ipFamily: IpFamilyEnum = IpFamilyEnum.IPv4;
@@ -52,15 +51,6 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
                 this.clusterTypeDescriptor = data.payload.clusterTypeDescriptor;
             });
         this.modeClusterStandalone = Broker.appDataService.isModeClusterStandalone();
-
-        Broker.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TkgEvent) => {
-                this.successImportFile = data.payload;
-                // The file import saves the data to local storage, so we reinitialize this step's form from there
-                this.savedMetadata = FormMetaDataStore.getMetaData(this.formName);
-                this.initFormWithSavedData();
-            });
 
         Broker.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORT_ERROR)
             .pipe(takeUntil(this.unsubscribe))
@@ -90,20 +80,21 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
      * @param defaultValue the default value if there is no saved value
      */
     getSavedValue(fieldName: string, defaultValue: any) {
-        const savedValue = this.savedMetadata && this.savedMetadata[fieldName] && this.savedMetadata[fieldName].displayValue;
-        const savedKey = this.savedMetadata && this.savedMetadata[fieldName] && this.savedMetadata[fieldName].key;
-        const result = (savedKey) ? savedKey : ((savedValue) ? savedValue : defaultValue);
-
-        if (fieldName === 'region') {
-            console.log('#$#$#$ step-form.getSavedValue(): savedValue=' + savedValue + ', savedKey=' + savedKey +
-                ', defaultValue=' + defaultValue + ', result=' + result);
-        }
+        const value = this.getRawSavedValue(fieldName);
+        const result = (value) ? value : defaultValue;
 
         const shouldReturnBooleanValue = typeof defaultValue === "boolean";
         if (shouldReturnBooleanValue) {
             const booleanResult = result === "yes" || result === true;
             return booleanResult;
         }
+        return result;
+    }
+
+    getRawSavedValue(fieldName: string) {
+        const savedValue = this.savedMetadata && this.savedMetadata[fieldName] && this.savedMetadata[fieldName].displayValue;
+        const savedKey = this.savedMetadata && this.savedMetadata[fieldName] && this.savedMetadata[fieldName].key;
+        const result = (savedKey) ? savedKey : savedValue;
         return result;
     }
 
@@ -151,9 +142,6 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
             const savedValue = this.getSavedValue(fieldName, control.value);
             // if a key was saved (for a listbox), we use the key when setting the value of the control (ie the listbox)
             const valueForSettingControl = (savedKey) ? savedKey : savedValue;
-            if (fieldName === 'vnetNameExisting') {
-                console.log('got me a break point');
-            }
 
             control.setValue(valueForSettingControl);
             let index;
@@ -169,16 +157,28 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
 
     // scrubPasswordField() should be called AFTER the password field was set from saved data
     protected scrubPasswordField(fieldName: string): void {
-        // ensure that the actual field value is not ********
+        // ensure that the actual field value is not a series of asterisks (****), which is the displayValue kept in local storage
         const passwordControl = this.formGroup.get(fieldName);
         if (passwordControl === undefined || passwordControl === null) {
             console.log('WARNING: scrubPasswordField() is unable to find the field ' + fieldName);
-        } else if (passwordControl.value.startsWith('**')) {
+        } else if (this.passwordContainsOnlyAsterisks(passwordControl.value)) {
             passwordControl.setValue('');
         }
         // if there is a real password in local storage (say, from import)
-        // we erase it from local storage (presuming the caller has used the value to set the field in the form)
+        // we erase it from local storage (presuming the caller has already used the value to set the field in the form)
         this.clearFieldSavedData(fieldName);
+    }
+
+    private passwordContainsOnlyAsterisks(password: string): boolean {
+        if (password === undefined || password === '') {
+            return false;
+        }
+        for (let x = 0; x < password.length; x++) {
+            if (password.charAt(x) !== '*') {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -209,7 +209,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
      * Inits form fields with saved data if any;
      */
     initFormWithSavedData() {
-        console.log('step-form.initFormWithSavedData() for form: ' + this.formName);
+        console.log('step-form.initFormWithSavedData for form: ' + this.formName);
         if (this.hasSavedData()) {
             for (const [controlName, control] of Object.entries(this.formGroup.controls)) {
                 this.initFieldWithSavedData(controlName);

@@ -5,13 +5,10 @@ import { ValidationService } from './../../wizard/shared/validation/validation.s
  * Angular Modules
  */
 import { Component, OnInit } from '@angular/core';
-import {
-    Validators,
-    FormControl
-} from '@angular/forms';
+import { FormControl, Validators } from '@angular/forms';
 
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-import {takeUntil, distinctUntilChanged, pairwise} from 'rxjs/operators';
+import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import { AzureResourceGroup } from 'src/app/swagger/models';
 import { APIClient } from 'src/app/swagger';
@@ -45,16 +42,15 @@ enum VnetField {
     styleUrls: ['./vnet-step.component.scss']
 })
 export class VnetStepComponent extends StepFormDirective implements OnInit {
-
     region = '';    // Current region selected
     showVnetFieldsOption = EXISTING;
+    customResourceGroup = null;
 
-    // An object maps vnet to subsets
+    // An object maps vnet to subsets; data retrieved from backend
     vnetSubnets = {};
 
     /** lists to be retrieved from the backend */
     vnetResourceGroups = [];
-    customResourceGroup = null;
     vnetNamesExisting = [];
     controlPlaneSubnets = [];
     workerNodeSubnets = [];
@@ -63,9 +59,11 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
     defaultControlPlaneCidr: string = '10.0.0.0/24';
     defaultWorkerNodeCidr: string = '10.0.1.0/24';
 
-    cidrHolder = {}
-
     createPrivateCluster = false;
+    // cidrForPrivateCluster holds two CIDR values, one for EXISTING and one for CUSTOM;
+    // used to validate private cluster IP address (if nec)
+    // also displayed on the page as instruction, if user chooses to create a private cluster
+    cidrForPrivateCluster = {};
 
     /** UI fields to expose per edition */
     defaultCidrFields: Array<string> = [];
@@ -248,26 +246,40 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
         const cidrOfSelectedControlPlaneSubnet = (subnetEntry) ? subnetEntry.cidr : '';
 
         this.setControlValueSafely(VnetField.CONTROLPLANE_SUBNET_CIDR, cidrOfSelectedControlPlaneSubnet);
+        this.cidrForPrivateCluster[EXISTING] = cidrOfSelectedControlPlaneSubnet;
     }
 
     onControlPlaneSubnetCidrNewChange(value: string) {
-        this.cidrHolder[CUSTOM] = value;
+        this.cidrForPrivateCluster[CUSTOM] = value;
     }
 
     onCreatePrivateAzureCluster(createPrivateCluster: boolean) {
-        if (createPrivateCluster) {      // private azure cluster
-            this.createPrivateCluster = true;
-            const cidrValidator = this.validationService.isIpInSubnet2(this.cidrHolder, "" + this.showVnetFieldsOption);
+        this.createPrivateCluster = createPrivateCluster;
+        if (createPrivateCluster) {
+            const cidr = this.cidrForPrivateCluster['' + this.showVnetFieldsOption];
+            const cidrValidator = this.validationService.isIpInSubnet2(cidr);
 
-            this.resurrectField(VnetField.PRIVATE_IP, [Validators.required, this.validationService.isValidIpOrFqdn(), cidrValidator])
+            this.resurrectFieldWithSavedValue(VnetField.PRIVATE_IP,
+                [Validators.required, this.validationService.isValidIpOrFqdn(),
+                    cidrValidator]);
         } else {
-            this.createPrivateCluster = false;
             this.disarmField(VnetField.PRIVATE_IP, true);
         }
     }
 
     initFormWithSavedData() {
-        this.initVnetFromSavedData();
+        console.log('vnet-step.initFormWithSavedData()');
+        this.setControlWithSavedValue(VnetField.PRIVATE_CLUSTER, false);
+
+        // if the user did an import, then we expect there may be a custom vnet value to be stored in VnetField.CUSTOM_NAME slot.
+        // however, since that custom vnet may have been created and now be an existing vnet,
+        // we need to call a special method to handle that situation, which moves the saved name from the custom slot
+        // into the existing slot. Note that we do this before deciding whether to show the custom or existing options
+        this.modifySavedValuesIfVnetCustomNameIsNowExisting();
+        const savedVnetCustom = this.getSavedValue(VnetField.CUSTOM_NAME, '');
+        const optionValue = savedVnetCustom !== '' ? CUSTOM : EXISTING;
+        // NOTE: setting the EXISTING_OR_CUSTOM value will trigger the display to update
+        this.setControlWithSavedValue(VnetField.EXISTING_OR_CUSTOM, optionValue);
     }
 
     onRegionChange(region: string) {
@@ -293,6 +305,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
 
         this.modifySavedValuesIfVnetCustomNameIsNowExisting();
 
+        // NOTE: setting the EXISTING_NAME value will cause an update to the subnets
         const savedVnet = this.getSavedValue(VnetField.EXISTING_NAME, '');
         if (savedVnet && this.vnetNamesExisting.includes(savedVnet)) {
             this.setControlValueSafely(VnetField.EXISTING_NAME, savedVnet);
@@ -302,13 +315,14 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
     }
 
     onVnetChange(vnetName) {
-        console.log('#   onVnetChange(' + vnetName + ')');
         // Use the same set of subnets for control plane and worker plane
         this.workerNodeSubnets = this.vnetSubnets[vnetName] || [];
         this.controlPlaneSubnets = this.workerNodeSubnets;
 
         if (this.workerNodeSubnets.length === 0) {
-            console.log('WARNING: vnet ' + vnetName + ' appears to have no subnets available! vnetSubnets=' + JSON.stringify(this.vnetSubnets));
+            const warning = 'WARNING: vnet ' + vnetName + ' appears to have no subnets available! vnetSubnets=' +
+                JSON.stringify(this.vnetSubnets);
+            console.log(warning);
         }
         this.initSubnetField(VnetField.CONTROLPLANE_SUBNET_NAME, this.controlPlaneSubnets);
         if (!this.modeClusterStandalone) {
@@ -318,11 +332,9 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
 
     // set subnet field with saved data if available, or default if only one subnet
     private initSubnetField(fieldName: string, subnets: any[]) {
-        console.log('$  initSubnetField: ' + fieldName + ' has ' + subnets.length + ' subnets to choose from');
         // set subnet fields with local storage data if available, or default if only one subnet
         const nameSavedSubnet = this.getSavedValue(fieldName, '');
         const savedControlPlaneSubnet = nameSavedSubnet ? this.findSubnetByName(nameSavedSubnet, subnets) : null;
-        console.log('$  initSubnetField: nameSavedSubnet=' + nameSavedSubnet + ', savedControlPlaneSubnet=' + JSON.stringify(savedControlPlaneSubnet));
         if (savedControlPlaneSubnet) {
             this.setControlValueSafely(fieldName, nameSavedSubnet);
         } else if (subnets.length === 1) {
@@ -412,17 +424,5 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
             this.saveFieldData(VnetField.EXISTING_NAME, savedVnetCustom);
             this.clearFieldSavedData(VnetField.CUSTOM_NAME);
         }
-    }
-
-    private initVnetFromSavedData() {
-        // if the user did an import, then we expect the custom value to be stored in VnetField.CUSTOM_NAME
-        // however, since that custom vnet may have been created and now be an existing vnet,
-        // we need to call a special method to handle that situation
-        this.modifySavedValuesIfVnetCustomNameIsNowExisting();
-
-        const savedVnetCustom = this.getSavedValue(VnetField.CUSTOM_NAME, '');
-        const optionValue = savedVnetCustom !== '' ? CUSTOM : EXISTING;
-        // NOTE: setting this value will trigger the display to update
-        this.setControlWithSavedValue(VnetField.EXISTING_OR_CUSTOM, optionValue);
     }
 }

@@ -13,8 +13,9 @@ import { catchError } from 'rxjs/operators';
 
 import { APIClient } from '../../../../swagger/api-client.service';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-import { TkgEventType } from '../../../../shared/service/Messenger';
+import { TkgEvent, TkgEventType } from '../../../../shared/service/Messenger';
 import Broker from 'src/app/shared/service/broker';
+import { FormMetaDataStore } from "../../wizard/shared/FormMetaDataStore";
 
 export const AWSAccountParamsKeys = ['profileName', 'sessionToken', 'region', 'accessKeyID', 'secretAccessKey'];
 
@@ -24,9 +25,9 @@ export const AWSAccountParamsKeys = ['profileName', 'sessionToken', 'region', 'a
     styleUrls: ['./aws-provider-step.component.scss']
 })
 export class AwsProviderStepComponent extends StepFormDirective implements OnInit {
-
     loading = false;
     authTypeValue: string = 'oneTimeCredentials';
+    successImportFile: string;
 
     regions = [];
     profileNames: Array<string> = [];
@@ -35,8 +36,6 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
 
     constructor(private apiClient: APIClient) {
         super();
-
-        console.log('cluster type from stepform directive: ' + this.clusterTypeDescriptor);
     }
 
     /**
@@ -66,7 +65,7 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
     setValidCredentials(valid) {
         this.validCredentials = valid;
 
-        // call to get existing VPCs of region
+        // call to get region-related data
         if (valid === true) {
             Broker.messenger.publish({
                 type: TkgEventType.AWS_GET_EXISTING_VPCS
@@ -127,6 +126,15 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
         this.authTypeValue = this.getSavedValue('authType', 'credentialProfile');
         this.formGroup.get('authType').setValue(this.authTypeValue);
 
+        Broker.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe((data: TkgEvent) => {
+                this.successImportFile = data.payload;
+                // The file import saves the data to local storage, so we reinitialize this step's form from there
+                this.savedMetadata = FormMetaDataStore.getMetaData(this.formName);
+                this.initFormWithSavedData();
+            });
+
         this.initFormWithSavedData();
     }
 
@@ -181,7 +189,7 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
     setAWSCredentialsValuesFromAPI(credentials) {
         // init form values for AWS credentials
         for (const key of AWSAccountParamsKeys) {
-            this.formGroup.get(key).setValue(credentials[key]);
+            this.setControlValueSafely(key, credentials[key]);
         }
     }
 
@@ -191,9 +199,8 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
         // Use the presence of a saved access key to set the access type.
         // (Which is to say: assume oneTimeCredentials unless there is a saved access key.)
         // NOTE: if there is a real saved access key (from import) we erase it immediately after using it here
-        const savedAccessKeyId = this.getSavedValue('accessKeyID', '*');
-        const hasSavedAccessKey = !savedAccessKeyId.startsWith('*');
-        this.authTypeValue = hasSavedAccessKey ? 'oneTimeCredentials' : 'credentialProfile';
+        const savedAccessKeyId = this.getRawSavedValue('accessKeyID');
+        this.authTypeValue = (savedAccessKeyId) ? 'credentialProfile' : 'oneTimeCredentials';
 
         this.scrubPasswordField('accessKeyID');
         this.scrubPasswordField('secretAccessKey');

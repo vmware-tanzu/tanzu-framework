@@ -90,7 +90,6 @@ export class AppDataService {
             // remove beginning and ending strings by taking a substring
             encodedString = encodedString.substring(encodedPrefix.length, encodedString.length - encodedSuffix.length);
         }
-        // console.log('SHIMON: Decoding ' + encodedString);
         return atob(encodedString);
     }
 }

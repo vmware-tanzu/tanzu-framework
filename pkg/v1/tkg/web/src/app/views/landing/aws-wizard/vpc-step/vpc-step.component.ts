@@ -15,7 +15,6 @@ import Broker from 'src/app/shared/service/broker';
     styleUrls: ['./vpc-step.component.scss']
 })
 export class VpcStepComponent extends StepFormDirective implements OnInit {
-
     defaultVpcHasChanged: boolean = false;
     existingVpcs: Array<Vpc>;
     loadingExistingVpcs: boolean = false;

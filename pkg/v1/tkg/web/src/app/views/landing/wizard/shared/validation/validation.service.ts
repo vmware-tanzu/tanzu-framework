@@ -372,14 +372,14 @@ export class ValidationService {
      * @method isIpInSubnet2 validator to check if input is within subnet range
      * @param cidrControlName the name of the CIDR, assumming format IPv4/length, e.g: 192.167.0.0/16
      */
-    isIpInSubnet2(cidrHolder: {}, cidr: string): any {
+    isIpInSubnet2(cidr: string): any {
         return (control: AbstractControl) => {
             const ipv4: string = control.value;
             if (ipv4) {
                 if (validationMethods.isValidIp(ipv4)) {
                     let netmask = null;
                     try {
-                        netmask = new Netmask(cidrHolder[cidr]);
+                        netmask = new Netmask(cidr);
                     } catch (e) {
                         // the netmask may not have been initialized yet, we don't validate
                         return null;

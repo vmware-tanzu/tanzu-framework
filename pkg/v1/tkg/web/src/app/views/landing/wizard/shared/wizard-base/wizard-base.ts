@@ -371,7 +371,6 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
      */
     setFieldValue(formName, fieldName, value) {
         if (this.form.get(formName) && this.form.get(formName).get(fieldName)) {
-            console.log('SHIMON: setting ' + formName + '.' + fieldName + ' to have value of ' + value);
             this.form.get(formName).get(fieldName).setValue(value);
             return true;
         }
@@ -632,7 +631,15 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
         this.saveFormField('ceipOptInForm', 'ceipOptIn', payload.ceipOptIn);
         this.saveFormField('registerTmcForm', 'tmcRegUrl', payload.tmc_registration_url);
         if (payload.labels !== undefined) {
-            this.saveFormField('metadataForm', 'clusterLabels', this.objToStrMap(payload.labels));
+            // we construct a label value that mimics how the meta-data step constructs the saved label value
+            // when the user creates it label by label
+            let labelArray: Array<string> = [];
+            Object.keys(payload.labels).forEach(key => {
+                const value = payload.labels[key];
+                labelArray[labelArray.length] = key + ":" + value;
+            });
+            const labelValueToSave = labelArray.join(', ');
+            this.saveFormField('metadataForm', 'clusterLabels', labelValueToSave);
         }
         this.saveFormField('osImageForm', 'osImage', payload.os);
         if (payload.annotations !== undefined) {

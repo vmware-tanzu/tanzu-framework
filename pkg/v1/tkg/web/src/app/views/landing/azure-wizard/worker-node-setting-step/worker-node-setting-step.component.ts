@@ -18,7 +18,6 @@ import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
     styleUrls: ['./worker-node-setting-step.component.scss']
 })
 export class WorkerNodeSettingStepComponent extends StepFormDirective implements OnInit {
-
     currentRegion = "US-WEST";
     workderNodeInstanceTypes = ["large", "medium", "small"];
     azs = ["US-WEST", "US-EAST"];
@@ -31,9 +30,9 @@ export class WorkerNodeSettingStepComponent extends StepFormDirective implements
             ])
         );
 
-        [1, 2, 3].forEach(id =>
+        ['az1', 'az2', 'az3'].forEach(id =>
             this.formGroup.addControl(
-                'az' + id,
+                id,
                 new FormControl('', [
                     Validators.required
                 ])
@@ -41,13 +40,9 @@ export class WorkerNodeSettingStepComponent extends StepFormDirective implements
         )
     }
 
-    initForm() {
-    }
-
     ngOnInit() {
         super.ngOnInit();
         this.buildForm();
-        this.initForm();
         this.initFormWithSavedData();
     }
 }

@@ -380,7 +380,8 @@ func (c *client) CreateAWSParams(res *AWSConfig) (params *models.AWSRegionalClus
 		//Labels:                    nil,
 		MachineHealthCheckEnabled: res.MachineHealthCheckEnabled == trueConst,
 		Networking:                createNetworkingConfig(res),
-		NumOfWorkerNode:           0, // TODO SHIMON: is this ok?
+		// TODO SHIMON: is below ok? NumOfWorkerNode is not used when going from models.AWSRegionalClusterParams to AWSConfig
+		NumOfWorkerNode: 0,
 		Os: &models.AWSVirtualMachine{
 			Name: getOsName(bomConfiguration, res),
 			OsInfo: &models.OSInfo{
@@ -392,7 +393,8 @@ func (c *client) CreateAWSParams(res *AWSConfig) (params *models.AWSRegionalClus
 		SSHKeyName:         res.SSHKeyName,
 		TmcRegistrationURL: res.TmcRegistrationURL,
 		Vpc:                createVpc(res),
-		WorkerNodeType:     "", // TODO SHIMON: is this ok?
+		// TODO SHIMON: is below ok? WorkerNodeType is not used when going from models.AWSRegionalClusterParams to AWSConfig
+		WorkerNodeType: "",
 	}
 
 	if params.CeipOptIn != nil {

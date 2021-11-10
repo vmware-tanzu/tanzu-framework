@@ -47,6 +47,7 @@ export interface VsphereVersioninfo {
 
 export class VSphereProviderStepComponent extends StepFormDirective implements OnInit {
     @ViewChild(SSLThumbprintModalComponent) sslThumbprintModal: SSLThumbprintModalComponent;
+    successImportFile: string;
 
     fileReader: FileReader;
 
@@ -168,6 +169,15 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
             .subscribe((data: TkgEvent) => {
                 const content: EditionData = data.payload;
                 this.edition = content.edition;
+            });
+
+        Broker.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe((data: TkgEvent) => {
+                this.successImportFile = data.payload;
+                // The file import saves the data to local storage, so we reinitialize this step's form from there
+                this.savedMetadata = FormMetaDataStore.getMetaData(this.formName);
+                this.initFormWithSavedData();
             });
 
         this.fileReader.onload = (event) => {

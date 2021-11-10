@@ -362,13 +362,11 @@ func yamlStringToMap(yamlString string) map[string]string {
 func findVsphereNodeType(cpus string, memory string, disk string) (string, error) {
 	for label, nodeType := range NodeTypes {
 		if nodeType.Cpus == cpus && nodeType.Memory == memory && nodeType.Disk == disk {
-			errMsg := "found node type " + label + " for cpus=" + cpus + " memory=" + memory + " disk=" + disk
-			fmt.Println("SHIMON: " + errMsg)
 			return label, nil
 		}
 	}
 	errMsg := "unable to find node type for cpus=" + cpus + " memory=" + memory + " disk=" + disk
-	fmt.Println("SHIMON: " + errMsg)
+	fmt.Println("ERROR: " + errMsg)
 	return "", errors.New(errMsg)
 }
 

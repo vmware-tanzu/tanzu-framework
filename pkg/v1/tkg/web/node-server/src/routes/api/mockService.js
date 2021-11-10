@@ -1244,7 +1244,7 @@ router.post(`${ENDPOINT}/providers/docker/config/export`, (req, res) => {
     winston.info('Mock TKG UI export config');
     res.status(200);    res.status(200);
     res.json("CLUSTER_CIDR: 100.96.0.0/11\n" +
-        "CLUSTER_NAME: shimonski\n" +
+        "CLUSTER_NAME: foobar-cluster\n" +
         "CLUSTER_PLAN: dev\n" +
         "ENABLE_MHC: \"false\"\n" +
         "IDENTITY_MANAGEMENT_TYPE: none\n" +
@@ -1273,9 +1273,9 @@ router.post(`${ENDPOINT}/providers/docker/config/export`, (req, res) => {
         "OS_NAME: \"\"\n" +
         "OS_VERSION: \"\"\n" +
         "SERVICE_CIDR: 100.64.0.0/13\n" +
-        "TKG_HTTP_PROXY: http://shimon:walner@foo/bar/shimon/\n" +
+        "TKG_HTTP_PROXY: http://us3rname:passw0rd@foo/bar/path/\n" +
         "TKG_HTTP_PROXY_ENABLED: \"true\"\n" +
-        "TKG_HTTPS_PROXY: http://shimon:walner@foo/bar/shimon/\n" +
+        "TKG_HTTPS_PROXY: http://namie:passwordie@foo/bar/another/path/\n" +
         "TKG_NO_PROXY: not-even-a-proxy");
 });
 /**
@@ -1302,12 +1302,12 @@ router.post(`${ENDPOINT}/providers/docker/config/import`, (req, res) => {
                 "clusterPodCIDR": "100.96.0.0/11",
                 "clusterServiceCIDR": "100.64.0.0/13",
                 "httpProxyConfiguration": {
-                    "HTTPProxyPassword": "shimon-password",
+                    "HTTPProxyPassword": "foo-password",
                     "HTTPProxyURL": "httpproxyurl/",
-                    "HTTPProxyUsername": "shimon-username",
-                    "HTTPSProxyPassword": "shimon-password",
-                    "HTTPSProxyURL": "httpproxyish/path/foo",
-                    "HTTPSProxyUsername": "shimon-username",
+                    "HTTPProxyUsername": "foo-username",
+                    "HTTPSProxyPassword": "bar-password",
+                    "HTTPSProxyURL": "httpsproxyish/path/foo",
+                    "HTTPSProxyUsername": "bar-username",
                     "enabled": true,
                     "noProxy": "nyet-proxy"
                 }

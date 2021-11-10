@@ -194,8 +194,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         if (vpc) {
             // SHIMON SEZ: verify that this is a good way to determine NEW or EXISTING?
             // we check the first node to determine whether we're dealing with a NEW or EXISTING
-            const isExisting = (vpc.vpcID);
-            if (isExisting) {
+            if (vpc.vpcID) {
                 this.saveFormField(AwsForm.VPC, 'vpcType', 'existing');
                 this.saveFormField(AwsForm.VPC, 'existingVpcCidr', vpc.cidr);
                 this.saveFormField(AwsForm.VPC, 'publicNodeCidr', '');
