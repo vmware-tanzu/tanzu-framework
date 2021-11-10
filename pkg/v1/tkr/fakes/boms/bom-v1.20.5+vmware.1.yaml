@@ -1,0 +1,44 @@
+release:
+  version: v1.20.5+vmware.1
+components:
+  kubernetes:
+    - version: v1.20.5+vmware.1
+      images:
+        image1:
+            imagePath: somerepo/someimage
+            tag: "latest"
+        image2:
+            imagePath: anotherrepo/someimage
+            tag: "latest"
+imageConfig:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+ova:
+  - name: photon_ova
+    osinfo:
+      name: "photonos"
+      version: "1.1"
+      arch: "amd64"
+    version: "v1.20.5+vmware.1"
+    metadata:
+      ANY_NAME: ANY_INTERFACE
+ami:
+  ap-northeast-1:
+    - id: ami-0b3606365e3b9dc63
+      osinfo:
+        name: "ubuntu"
+        version: "20.04"
+        arch: "amd64"
+      metadata:
+        ANY_NAME: ANY_INTERFACE
+azure:
+  - publisher: vmware-inc
+    offer: tkg-capi
+    sku: k8s-1dot20dot5-ubuntu-1804
+    version: "2020.11.05"
+    thirdPartyImage: true
+    osinfo:
+      name: "windows"
+      version: "10.1706"
+      arch: "amd64"
+    metadata:
+      ANY_NAME: ANY_INTERFACE

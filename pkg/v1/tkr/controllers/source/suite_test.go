@@ -38,6 +38,7 @@ const (
 	version11810 = "v1.18.10---vmware.1"
 	version1191  = "v1.19.1---vmware.1"
 	version1193  = "v1.19.3---vmware.1"
+	version1205  = "v1.20.5---vmware.1"
 )
 
 // These tests use Ginkgo (BDD-style Go testing framework). Refer to
@@ -47,6 +48,7 @@ var bomContent17 []byte
 var bomContent18 []byte
 var bomContent193 []byte
 var bomContent191 []byte
+var bomContent120 []byte
 var metadataContent []byte
 
 func TestAPIs(t *testing.T) {
@@ -192,10 +194,11 @@ var _ = Describe("UpdateTKRCompatibleCondition", func() {
 			tkr2, _ := NewTkrFromBom(version11810, bomContent18)
 			tkr3, _ := NewTkrFromBom(version1193, bomContent193)
 			tkr4, _ := NewTkrFromBom(version1191, bomContent191)
+			tkr5, _ := NewTkrFromBom(version1205, bomContent120)
 			cm := newMetadataConfigMap(metadataContent)
-			tkrs = []runv1.TanzuKubernetesRelease{tkr1, tkr4, tkr3, tkr2}
+			tkrs = []runv1.TanzuKubernetesRelease{tkr1, tkr4, tkr3, tkr2, tkr5}
 
-			mgmtcluster := newManagementCluster(map[string]string{constants.ManagememtClusterRoleLabel: ""}, map[string]string{constants.TKGVersionKey: "v1.1"})
+			mgmtcluster := newManagementCluster(map[string]string{constants.ManagememtClusterRoleLabel: ""}, map[string]string{constants.TKGVersionKey: "v1.10"})
 			objects = []runtime.Object{mgmtcluster, cm}
 		})
 		It("should update the TKRs' compatible condition", func() {
@@ -220,6 +223,11 @@ var _ = Describe("UpdateTKRCompatibleCondition", func() {
 				}
 
 				if tkr.Name == version11713 {
+					status, msg := getConditionStatusAndMessage(tkr.Status.Conditions, runv1.ConditionCompatible)
+					Expect(string(status)).To(Equal("False"))
+					Expect(msg).To(Equal(""))
+				}
+				if tkr.Name == version1205 {
 					status, msg := getConditionStatusAndMessage(tkr.Status.Conditions, runv1.ConditionCompatible)
 					Expect(string(status)).To(Equal("True"))
 					Expect(msg).To(Equal(""))
