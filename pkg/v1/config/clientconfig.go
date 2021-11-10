@@ -32,6 +32,11 @@ const (
 	FeatureFlagManagementClusterDualStackIPv6Primary = "features.management-cluster.dual-stack-ipv6-primary"
 	FeatureFlagClusterDualStackIPv4Primary           = "features.cluster.dual-stack-ipv4-primary"
 	FeatureFlagClusterDualStackIPv6Primary           = "features.cluster.dual-stack-ipv6-primary"
+	// Custom Nameserver feature flags determine whether it is permitted to
+	// provide the CONTROL_PLANE_NODE_NAMESERVERS and WORKER_NODE_NAMESERVERS
+	// when creating a cluster.
+	FeatureFlagManagementClusterCustomNameservers = "features.management-cluster.custom-nameservers"
+	FeatureFlagClusterCustomNameservers           = "features.cluster.custom-nameservers"
 )
 
 // DefaultCliFeatureFlags is used to populate an initially empty config file with default values for feature flags.
@@ -49,6 +54,8 @@ var (
 		FeatureFlagManagementClusterDualStackIPv6Primary:      false,
 		FeatureFlagClusterDualStackIPv4Primary:                false,
 		FeatureFlagClusterDualStackIPv6Primary:                false,
+		FeatureFlagManagementClusterCustomNameservers:         false,
+		FeatureFlagClusterCustomNameservers:                   false,
 	}
 )
 
