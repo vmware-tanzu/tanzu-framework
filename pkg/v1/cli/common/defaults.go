@@ -6,6 +6,7 @@ package common
 
 import (
 	"path/filepath"
+	"strings"
 
 	"github.com/adrg/xdg"
 )
@@ -22,7 +23,12 @@ var (
 	DefaultLocalPluginDistroDir = filepath.Join(xdg.Home, ".config", "tanzu-plugins")
 )
 
-const (
+var (
 	// IsContextAwareDiscoveryEnabled defines default to use when the user has not configured a value
-	IsContextAwareDiscoveryEnabled = false
+	// This variable is configured at the build time of the CLI
+	IsContextAwareDiscoveryEnabled = ""
 )
+
+func ContextAwareDiscoveryEnabled() bool {
+	return strings.EqualFold(IsContextAwareDiscoveryEnabled, "true")
+}

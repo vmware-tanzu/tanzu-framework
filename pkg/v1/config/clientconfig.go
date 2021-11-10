@@ -46,7 +46,7 @@ const (
 // will fail. Note that "global" is a special value for <plugin> to be used for CLI-wide features.
 var (
 	DefaultCliFeatureFlags = map[string]bool{
-		FeatureContextAwareDiscovery:                          common.IsContextAwareDiscoveryEnabled,
+		FeatureContextAwareDiscovery:                          common.ContextAwareDiscoveryEnabled(),
 		"features.management-cluster.import":                  false,
 		"features.management-cluster.export-from-confirm":     true,
 		"features.management-cluster.standalone-cluster-mode": false,

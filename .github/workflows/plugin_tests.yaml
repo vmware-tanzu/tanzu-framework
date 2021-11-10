@@ -74,6 +74,7 @@ jobs:
           if [[ ! -z "${{ steps.extract_bom.outputs.bompath }}" ]]; then
             export TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH=${{ steps.extract_bom.outputs.bompath }}
           fi
+          export ENABLE_CONTEXT_AWARE_PLUGIN_DISCOVERY=false
           env | sort
           make configure-bom
           make build-cli-local

@@ -28,7 +28,7 @@ var RootCmd = &cobra.Command{
 var (
 	noInit      bool
 	color       = true
-	forceNoInit = "false" // a string variable so as to be overridable via linker flag
+	forceNoInit = "true" // a string variable so as to be overridable via linker flag
 )
 
 // NewRootCmd creates a root command.
