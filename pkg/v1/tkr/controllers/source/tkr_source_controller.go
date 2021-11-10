@@ -347,9 +347,7 @@ func (r *reconciler) UpdateTKRCompatibleCondition(ctx context.Context, tkrs []ru
 
 	compatibleReleases := []string{}
 	for _, mgmtVersion := range metadata.ManagementClusterVersions {
-		// Fix before TKG v1.10: what if mgmtClusterVersion is "v1.10" and mgmtVersion.TKGVersion is "v1.1"?
-		// See https://github.com/vmware-tanzu/tanzu-framework/issues/452
-		if strings.HasPrefix(mgmtClusterVersion, mgmtVersion.TKGVersion) {
+		if mgmtClusterVersion == mgmtVersion.TKGVersion {
 			compatibleReleases = mgmtVersion.SupportedKubernetesVersions
 		}
 	}
