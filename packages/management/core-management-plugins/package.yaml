@@ -2,7 +2,7 @@ apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
   name: core-management-plugins.tanzu.vmware.com
-  namespace: core-management-plugins
+  namespace: tkg-system
 spec:
   refName: core-management-plugins.tanzu.vmware.com
   version: latest
