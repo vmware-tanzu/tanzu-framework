@@ -1,6 +1,8 @@
 #@ load("/values.star", "values")
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:struct", "struct")
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:sha256", "sha256")
 
 #@overlay/match by=overlay.subset({"kind": "DaemonSet", "metadata": {"name": "vsphere-cloud-controller-manager"}})
 ---
@@ -8,9 +10,14 @@ metadata:
   #@overlay/match missing_ok=True
   annotations:
     kapp.k14s.io/disable-default-label-scoping-rules: ""
+    kapp.k14s.io/update-strategy: fallback-on-replace
 
 spec:
   template:
+    metadata:
+      #@overlay/match missing_ok=True
+      annotations:
+        vsphere-cpi/data-values-hash: #@ "{}".format(sha256.sum(yaml.encode(values))[:7])
     spec:
       #@overlay/match missing_ok=True
       nodeSelector:
@@ -18,19 +25,19 @@ spec:
       containers:
       #@overlay/match by=overlay.subset({"name": "vsphere-cloud-controller-manager"})
       - args:
-        #@ if values.vsphereCPI.nsxt.podRoutingEnabled:
-        #@overlay/append
-        - --configure-cloud-routes=true
-        #@overlay/append
-        - --allocate-node-cidrs=true
-        #@overlay/append
-        - #@ "--cluster-cidr=" + values.vsphereCPI.nsxt.routes.clusterCidr
-        #@ end
-        #@overlay/append
-        #@yaml/text-templated-strings
-        #@ for arg in struct.decode(values.vsphereCPI.cloudProviderExtraArgs):
-        - --(@=arg @)=(@=struct.decode(values.vsphereCPI.cloudProviderExtraArgs)[arg]@)
-        #@ end
+          #@ if values.vsphereCPI.nsxt.podRoutingEnabled:
+          #@overlay/append
+          - --configure-cloud-routes=true
+          #@overlay/append
+          - --allocate-node-cidrs=true
+          #@overlay/append
+          - #@ "--cluster-cidr=" + values.vsphereCPI.nsxt.routes.clusterCidr
+          #@ end
+          #@overlay/append
+          #@yaml/text-templated-strings
+          #@ for arg in struct.decode(values.vsphereCPI.cloudProviderExtraArgs):
+          - --(@=arg @)=(@=struct.decode(values.vsphereCPI.cloudProviderExtraArgs)[arg]@)
+          #@ end
       #@ if values.vsphereCPI.http_proxy != "" :
       #@overlay/match by=overlay.subset({"name": "vsphere-cloud-controller-manager"})
       #@overlay/match-child-defaults missing_ok=True
@@ -44,15 +51,15 @@ spec:
       #@ end
       #@ if values.vsphereCPI.nsxt.podRoutingEnabled and values.vsphereCPI.nsxt.clientCertData != "" and values.vsphereCPI.nsxt.clientCertKeyData != "" :
       #@overlay/match by=overlay.subset({"name": "vsphere-cloud-controller-manager"})
-      - volumeMounts:  
+      - volumeMounts:
         #@overlay/append
         - mountPath: /etc/cloud/nsxt
           name: nsxt-certificates-volume
           readOnly: true
-      volumes:  
+      volumes:
       #@overlay/match by=overlay.subset({"name": "vsphere-cloud-controller-manager"})
-      #@overlay/append
-      - secret:
-          secretName: nsxt-tls-certificates
-        name: nsxt-certificates-volume
+        #@overlay/append
+        - secret:
+            secretName: nsxt-tls-certificates
+          name: nsxt-certificates-volume
       #@ end

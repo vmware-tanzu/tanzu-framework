@@ -2,10 +2,10 @@ apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
   - git:
-      commitTitle: Add package templates Antrea 0.13.3 (#953)...
-      sha: df9a9cdea9886f1f5cc2856994739539cd5c5663
+      commitTitle: fix cpi daemonset overlay for v1.22.3 (#2500)
+      sha: ef137b14f5c3825592aa9d08c3228d0a93169460
       tags:
-      - v0.6.0-57-gdf9a9cde
+      - v0.10.0-dev.1-206-gef137b14
     path: .
   path: ytt/vendir/vsphere_cpi/_ytt_lib
 - contents:
