@@ -376,7 +376,7 @@ func TestConfigFeaturesDefaultEditionAdded(t *testing.T) {
 	added := addDefaultEditionIfMissing(cfg)
 	require.True(t, added, "addDefaultEditionIfMissing should have returned true (having added missing default edition value)")
 	errMsg := "addDefaultEditionIfMissing should have added default edition (" + configv1alpha1.EditionStandard + ") instead of " + cfg.ClientOptions.CLI.Edition
-	require.Equal(t, cfg.ClientOptions.CLI.Edition, configv1alpha1.EditionStandard, errMsg)
+	require.Equal(t, cfg.ClientOptions.CLI.Edition, configv1alpha1.EditionSelector(configv1alpha1.EditionStandard), errMsg)
 }
 
 func TestConfigFeaturesDefaultEditionNotAdded(t *testing.T) {
@@ -393,7 +393,7 @@ func TestConfigFeaturesDefaultEditionNotAdded(t *testing.T) {
 	added := addDefaultEditionIfMissing(cfg)
 	require.False(t, added, "addDefaultEditionIfMissing should have returned false (without adding default edition value)")
 	errMsg := "addDefaultEditionIfMissing should have left existing edition value intact instead of replacing with [" + cfg.ClientOptions.CLI.Edition + "]"
-	require.Equal(t, cfg.ClientOptions.CLI.Edition, configv1alpha1.EditionCommunity, errMsg)
+	require.Equal(t, cfg.ClientOptions.CLI.Edition, configv1alpha1.EditionSelector(configv1alpha1.EditionCommunity), errMsg)
 }
 
 func TestConfigPopulateDefaultStandaloneDiscovery(t *testing.T) {
