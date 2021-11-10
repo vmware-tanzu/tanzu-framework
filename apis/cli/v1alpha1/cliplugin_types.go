@@ -17,7 +17,7 @@ type Artifact struct {
 	// AssetURI is a URI of the plugin binary. This can be a fully qualified HTTP path or a local path.
 	URI string `json:"uri,omitempty"`
 	// SHA256 hash of the plugin binary.
-	Digest string `json:"digest"`
+	Digest string `json:"digest,omitempty"`
 	// Type of the binary artifact. Valid values are S3, GCP, OCIImage.
 	Type string `json:"type"`
 	// OS of the plugin binary in `GOOS` format.

@@ -2,7 +2,7 @@ apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: PackageMetadata
 metadata:
   name: core-management-plugins.tanzu.vmware.com
-  namespace: core-management-plugins
+  namespace: tkg-system
 spec:
   displayName: "core-management-plugins"
   longDescription: "Core Management CLIPlugins package provides the CLIPlugin CRD and default resources needed for the Tanzu CLI to understand the recommended set of plugins to use when talking to the cluster."
