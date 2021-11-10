@@ -497,8 +497,8 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 					Expect(output).To(HaveYAMLPathWithValue(ipFamilyPath, "ipv6,ipv4"))
 				})
 			})
-
 		})
+
 		Describe("vsphere cpi templates", func() {
 			var paths []string
 			BeforeEach(func() {
@@ -572,6 +572,31 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 
 						Expect(output).To(HaveYAMLPathWithValue(vsphereCCMEnvPath+"[0].name", "ENABLE_ALPHA_DUAL_STACK"))
 						Expect(output).To(HaveYAMLPathWithValue(vsphereCCMEnvPath+"[0].value", "true"))
+					})
+				})
+				When("vsphere-cloud-controller-manager manager container already has env vars", func() {
+					BeforeEach(func() {
+						paths = []string{
+							filepath.Join("fixtures", "yttmocks"),
+							filepath.Join("fixtures", "vsphere_cpi_with_env.yaml"),
+							filepath.Join("..", "..", "ytt", "02_addons", "cpi", "cpi_overlay.lib.yaml"),
+							filepath.Join("..", "..", "config_default.yaml"),
+						}
+					})
+
+					It("should preserve the pre-existing key/values and append the ENABLE_ALPHA_DUAL_STACK var", func() {
+						values := createDataValues(map[string]string{
+							"PROVIDER_TYPE": "vsphere",
+							"TKG_IP_FAMILY": "ipv6,ipv4",
+						})
+						output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+						Expect(err).NotTo(HaveOccurred())
+
+						Expect(output).To(HaveYAMLPathWithValue(vsphereCCMEnvPath+"[0].name", "pre-existing-key"))
+						Expect(output).To(HaveYAMLPathWithValue(vsphereCCMEnvPath+"[0].value", "pre-existing-value"))
+
+						Expect(output).To(HaveYAMLPathWithValue(vsphereCCMEnvPath+"[1].name", "ENABLE_ALPHA_DUAL_STACK"))
+						Expect(output).To(HaveYAMLPathWithValue(vsphereCCMEnvPath+"[1].value", "true"))
 					})
 				})
 			})

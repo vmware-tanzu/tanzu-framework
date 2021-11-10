@@ -1,0 +1,22 @@
+#@ load("cpi_overlay.lib.yaml", "configure_dualstack_vsphere_ccm")
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:template", "template")
+
+#@ def vsphere_ccm_yaml():
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: vsphere-cloud-controller-manager
+  namespace: kube-system
+spec:
+  template:
+    spec:
+      containers:
+      - name: vsphere-cloud-controller-manager
+        env:
+        - name: pre-existing-key
+          value: pre-existing-value
+#@ end
+
+#@ template.replace(overlay.apply(vsphere_ccm_yaml(), configure_dualstack_vsphere_ccm()))
