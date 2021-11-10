@@ -68,7 +68,6 @@ spec:
                         type: string
                     required:
                     - arch
-                    - digest
                     - os
                     - type
                     type: object
