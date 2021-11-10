@@ -1378,11 +1378,11 @@ var _ = Describe("DistributeMachineDeploymentWorkers", func() {
 			isManagementCluster = false
 			infraProviderName = constants.InfrastructureProviderVSphere
 		})
-		It("should put all workers in first MD", func() {
+		It("should distribute evenly", func() {
 			Expect(err).To(Not(HaveOccurred()))
-			Expect(workerCounts[0]).To(Equal(3))
-			Expect(workerCounts[1]).To(Equal(0))
-			Expect(workerCounts[2]).To(Equal(0))
+			Expect(workerCounts[0]).To(Equal(1))
+			Expect(workerCounts[1]).To(Equal(1))
+			Expect(workerCounts[2]).To(Equal(1))
 		})
 	})
 

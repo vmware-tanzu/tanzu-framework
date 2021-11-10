@@ -1351,7 +1351,7 @@ func (c *TkgClient) ConfigureAndValidateCNIType(cniType string) error {
 // DistributeMachineDeploymentWorkers distributes machine deployment for worker nodes
 func (c *TkgClient) DistributeMachineDeploymentWorkers(workerMachineCount int64, isProdConfig, isManagementCluster bool, infraProviderName string) ([]int, error) { // nolint:gocyclo
 	workerCounts := make([]int, 3)
-	if infraProviderName != AWSProviderName && infraProviderName != AzureProviderName {
+	if infraProviderName == DockerProviderName {
 		workerCounts[0] = int(workerMachineCount)
 		return workerCounts, nil
 	}
