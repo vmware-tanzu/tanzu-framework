@@ -4,7 +4,7 @@
 package artifact
 
 import (
-	"path/filepath"
+	"strings"
 
 	"github.com/pkg/errors"
 
@@ -36,7 +36,7 @@ func (g *OCIArtifact) Fetch() ([]byte, error) {
 
 	for path, fileData := range filesMap {
 		// Skip any testing related directory paths if bundled
-		if utils.ContainsString(filepath.SplitList(path), "test") {
+		if utils.ContainsString(strings.Split(path, "/"), "test") {
 			continue
 		}
 
