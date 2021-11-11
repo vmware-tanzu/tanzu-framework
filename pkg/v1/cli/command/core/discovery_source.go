@@ -14,6 +14,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/discovery"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
 
@@ -227,15 +228,6 @@ func createOCIDiscoverySource(discoveryName, uri string) *configv1alpha1.OCIDisc
 	}
 }
 
-// checkDiscoveryName returns true if discovery name exists else return false
-func checkDiscoveryName(ds configv1alpha1.PluginDiscovery, dn string) bool {
-	return (ds.GCP != nil && ds.GCP.Name == dn) ||
-		(ds.Kubernetes != nil && ds.Kubernetes.Name == dn) ||
-		(ds.Local != nil && ds.Local.Name == dn) ||
-		(ds.REST != nil && ds.REST.Name == dn) ||
-		(ds.OCI != nil && ds.OCI.Name == dn)
-}
-
 func discoverySourceNameAndType(ds configv1alpha1.PluginDiscovery) (string, string) {
 	switch {
 	case ds.GCP != nil:
@@ -255,7 +247,7 @@ func discoverySourceNameAndType(ds configv1alpha1.PluginDiscovery) (string, stri
 
 func addDiscoverySource(discoverySources []configv1alpha1.PluginDiscovery, dsName, dsType, uri string) ([]configv1alpha1.PluginDiscovery, error) {
 	for _, ds := range discoverySources {
-		if checkDiscoveryName(ds, dsName) {
+		if discovery.CheckDiscoveryName(ds, dsName) {
 			return nil, fmt.Errorf("discovery name %q already exists", dsName)
 		}
 	}
@@ -273,7 +265,7 @@ func deleteDiscoverySource(discoverySources []configv1alpha1.PluginDiscovery, di
 	newDiscoverySources := []configv1alpha1.PluginDiscovery{}
 	found := false
 	for _, ds := range discoverySources {
-		if checkDiscoveryName(ds, discoveryName) {
+		if discovery.CheckDiscoveryName(ds, discoveryName) {
 			found = true
 			continue
 		}
@@ -291,7 +283,7 @@ func updateDiscoverySources(discoverySources []configv1alpha1.PluginDiscovery, d
 
 	found := false
 	for _, ds := range discoverySources {
-		if checkDiscoveryName(ds, dsName) {
+		if discovery.CheckDiscoveryName(ds, dsName) {
 			found = true
 			ds, err = createDiscoverySource(dsType, dsName, uri)
 			if err != nil {

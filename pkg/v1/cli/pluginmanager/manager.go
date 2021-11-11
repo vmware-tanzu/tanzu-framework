@@ -152,50 +152,59 @@ func AvailablePlugins(serverName string) ([]plugin.Discovered, error) {
 		return nil, err
 	}
 
-	availablePlugins := discoveredServerPlugins
+	availablePlugins := availablePluginsFromStandaloneAndServerPlugins(discoveredServerPlugins, discoveredStandalonePlugins)
 
-	for i := range discoveredStandalonePlugins {
-		matchIndex := -1
+	setAvailablePluginsStatus(availablePlugins, installedSeverPluginDesc)
+	setAvailablePluginsStatus(availablePlugins, installedStandalonePluginDesc)
+
+	return availablePlugins, nil
+}
+
+func setAvailablePluginsStatus(availablePlugins []plugin.Discovered, installedPluginDesc []cliv1alpha1.PluginDescriptor) {
+	for i := range installedPluginDesc {
 		for j := range availablePlugins {
-			if discoveredStandalonePlugins[i].Name == availablePlugins[j].Name {
-				matchIndex = j
-				break
+			if installedPluginDesc[i].Name == availablePlugins[j].Name &&
+				installedPluginDesc[i].Discovery == availablePlugins[j].Source {
+				// Match found, Check for update available and update status
+				availablePlugins[j].Status = common.PluginStatusInstalled
 			}
 		}
+	}
+}
+
+func availablePluginsFromStandaloneAndServerPlugins(discoveredServerPlugins, discoveredStandalonePlugins []plugin.Discovered) []plugin.Discovered {
+	availablePlugins := discoveredServerPlugins
+
+	// Check whether the default standalone discovery type is local or not
+	isLocalStandaloneDiscovery := config.GetDefaultStandaloneDiscoveryType() == common.DiscoveryTypeLocal
+
+	for i := range discoveredStandalonePlugins {
+		matchIndex := pluginIndexForName(availablePlugins, discoveredStandalonePlugins[i].Name)
 
 		// Add the standalone plugin to available plugin if it doesn't exist in the serverPlugins list
 		// OR
-		// Current standalone discovery type is local
+		// Current standalone discovery type is local and there is
 		// We are overriding the discovered plugins that we got from server in case of 'local' discovery type
 		// to allow developers to use the plugins that are built locally and not returned from the server
 		// This local discovery is only used for development purpose and should not be used for production
-		if config.DefaultStandaloneDiscoveryType == "local" && matchIndex >= 0 {
-			availablePlugins[matchIndex] = discoveredStandalonePlugins[i]
-		} else if matchIndex < 0 {
+		if matchIndex < 0 {
 			availablePlugins = append(availablePlugins, discoveredStandalonePlugins[i])
+			continue
+		}
+		if isLocalStandaloneDiscovery { // matchIndex >= 0 is guaranteed here
+			availablePlugins[matchIndex] = discoveredStandalonePlugins[i]
 		}
 	}
+	return availablePlugins
+}
 
-	for i := range installedSeverPluginDesc {
-		for j := range availablePlugins {
-			if installedSeverPluginDesc[i].Name == availablePlugins[j].Name &&
-				installedSeverPluginDesc[i].Discovery == availablePlugins[j].Source {
-				// Match found, Check for update available and update status
-				availablePlugins[j].Status = common.PluginStatusInstalled
-			}
+func pluginIndexForName(availablePlugins []plugin.Discovered, pluginName string) int {
+	for j := range availablePlugins {
+		if pluginName == availablePlugins[j].Name {
+			return j
 		}
 	}
-
-	for i := range installedStandalonePluginDesc {
-		for j := range availablePlugins {
-			if installedStandalonePluginDesc[i].Name == availablePlugins[j].Name &&
-				installedStandalonePluginDesc[i].Discovery == availablePlugins[j].Source {
-				// Match found, Check for update available and update status
-				availablePlugins[j].Status = common.PluginStatusInstalled
-			}
-		}
-	}
-	return availablePlugins, nil
+	return -1 // haven't found a match
 }
 
 // InstalledPlugins returns the installed plugins.
@@ -312,7 +321,7 @@ func GetRecommendedVersionOfPlugin(serverName, pluginName string) (string, error
 }
 
 func installOrUpgradePlugin(serverName string, p *plugin.Discovered, version string) error {
-	log.Info("Installing plugin", p.Name)
+	log.Infof("Installing plugin %q", p.Name)
 
 	b, err := p.Distribution.Fetch(version, runtime.GOOS, runtime.GOARCH)
 	if err != nil {
