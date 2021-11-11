@@ -35,7 +35,6 @@ enum ResourceGroupOption {
     CUSTOM = 'custom',
 }
 
-
 // NOTE: the keys of AzureAccountParamsKeys values are used by backend endpoints, so don't change them
 export const AzureAccountParamsKeys = [ProviderField.TENANT, ProviderField.CLIENT,
     ProviderField.CLIENTSECRET, ProviderField.SUBSCRIPTION, ProviderField.AZURECLOUD];
