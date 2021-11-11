@@ -25,8 +25,14 @@ type provider struct {
 	ProviderType string `yaml:"type"`
 }
 
+type certManager struct {
+	URL     string `yaml:"url"`
+	Version string `yaml:"version"`
+}
+
 type providers struct {
-	Providers []provider `yaml:"providers"`
+	Providers   []provider  `yaml:"providers"`
+	CertManager certManager `yaml:"cert-manager"`
 }
 
 func (c *client) defaultProviders() (providers, error) {
@@ -46,15 +52,42 @@ func (c *client) defaultProviders() (providers, error) {
 		return providers{}, errors.Wrapf(err, "Unable to unmarshall provider config")
 	}
 	for i := range providersConfig.Providers {
-		path := filepath.Join(tkgDir, providersConfig.Providers[i].URL)
-		if strings.Contains(path, "\\") {
-			// convert windows backslash style paths 'c:\foo\....' to file:// urls
-			path = "file:///" + filepath.ToSlash(path)
-		}
-
-		providersConfig.Providers[i].URL = path
+		providersConfig.Providers[i].URL = getFilePath(tkgDir, providersConfig.Providers[i].URL)
 	}
+	providersConfig.CertManager.URL = getFilePath(tkgDir, providersConfig.CertManager.URL)
+
 	return providersConfig, nil
+}
+
+func getFilePath(tkgDir, url string) string {
+	path := filepath.Join(tkgDir, url)
+	if strings.Contains(path, "\\") {
+		// convert windows backslash style paths 'c:\foo\....' to file:// urls
+		path = "file:///" + filepath.ToSlash(path)
+	}
+	return path
+}
+
+func ensureCertManagerInConfig(defaultProviders providers, tkgConfigNode *yaml.Node) error {
+	certManagerIndex := GetNodeIndex(tkgConfigNode.Content[0].Content, constants.CertManagerConfigKey)
+	if certManagerIndex == -1 {
+		tkgConfigNode.Content[0].Content = append(tkgConfigNode.Content[0].Content, createSequenceNode(constants.CertManagerConfigKey)...)
+		certManagerIndex = GetNodeIndex(tkgConfigNode.Content[0].Content, constants.CertManagerConfigKey)
+	}
+
+	certManagerBytes, err := yaml.Marshal(defaultProviders.CertManager)
+	if err != nil {
+		return errors.Wrap(err, "unable to get cert-manager")
+	}
+
+	certManagerNode := yaml.Node{}
+	err = yaml.Unmarshal(certManagerBytes, &certManagerNode)
+	if err != nil {
+		return errors.Wrap(err, "unable to get cert-manager")
+	}
+
+	tkgConfigNode.Content[0].Content[certManagerIndex] = certManagerNode.Content[0]
+	return nil
 }
 
 // EnsureProvidersInConfig ensures the providers section in tkgconfig exists and it is synchronized with the latest providers
@@ -66,6 +99,11 @@ func (c *client) EnsureProvidersInConfig(needUpdate bool, tkgConfigNode *yaml.No
 	defaultProviders, err := c.defaultProviders()
 	if err != nil {
 		return errors.Wrap(err, "unable to get a list of default providers")
+	}
+
+	err = ensureCertManagerInConfig(defaultProviders, tkgConfigNode)
+	if err != nil {
+		return err
 	}
 
 	if providerIndex == -1 {

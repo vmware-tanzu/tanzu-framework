@@ -102,7 +102,7 @@ var _ = Describe("Unit test for New", func() {
 			Expect(len(userDefinedProviders)).To(Equal(8))
 			Expect(userDefinedProviders[0].Name).To(Equal("cluster-api"))
 			Expect(userDefinedProviders[0].Type).To(Equal("CoreProvider"))
-			Expect(userDefinedProviders[0].URL).To(ContainSubstring("providers/cluster-api/v0.3.10/core-components.yaml"))
+			Expect(userDefinedProviders[0].URL).To(ContainSubstring("providers/cluster-api/v1.0.0/core-components.yaml"))
 
 		})
 	})

@@ -434,6 +434,9 @@ var _ = Describe("EnsureProviders", func() {
 			Expect(err).ToNot(HaveOccurred())
 			index := getNodeIndex(tkgConfigNode.Content[0].Content, constants.ProvidersConfigKey)
 			Expect(index).ToNot(Equal(-1))
+
+			index = getNodeIndex(tkgConfigNode.Content[0].Content, constants.CertManagerConfigKey)
+			Expect(index).ToNot(Equal(-1))
 		})
 	})
 
@@ -464,6 +467,19 @@ var _ = Describe("EnsureProviders", func() {
 			Expect(err).ToNot(HaveOccurred())
 			// numOfProviders(6) + 1 customized provider
 			Expect(tkgConfigNode.Content[0].Content[index].Content).To(HaveLen(numOfProviders + 1))
+
+			index = getNodeIndex(tkgConfigNode.Content[0].Content, constants.CertManagerConfigKey)
+			Expect(index).ToNot(Equal(-1))
+
+			userTKGConfigBytes, err := yaml.Marshal(tkgConfigNode)
+			Expect(err).ToNot(HaveOccurred())
+
+			userProviders := providers{}
+			err = yaml.Unmarshal(userTKGConfigBytes, &userProviders)
+			Expect(err).ToNot(HaveOccurred())
+
+			Expect(userProviders.CertManager.URL).To(ContainSubstring("providers/cert-manager/v1.5.3/cert-manager.yaml"))
+			Expect(userProviders.CertManager.Version).To(Equal("v1.5.3"))
 		})
 	})
 
@@ -682,8 +698,14 @@ type provider struct {
 	ProviderType string `yaml:"type"`
 }
 
+type certManager struct {
+	URL     string `yaml:"url"`
+	Version string `yaml:"version"`
+}
+
 type providers struct {
-	Providers []provider `yaml:"providers"`
+	Providers   []provider  `yaml:"providers"`
+	CertManager certManager `yaml:"cert-manager"`
 }
 
 func countProviders() (int, error) {
