@@ -14,8 +14,6 @@ import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 import { BASTION_HOST_ENABLED } from './node-setting-step/node-setting-step.component';
 import { AWSAccountParamsKeys } from './provider-step/aws-provider-step.component';
 
-
-
 @Component({
     selector: 'aws-wizard',
     templateUrl: './aws-wizard.component.html',
