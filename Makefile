@@ -308,7 +308,7 @@ build-cli-local: configure-buildtags-embedproviders build-cli-local-${GOHOSTOS}-
 	$(MAKE) publish-admin-plugins-local
 
 .PHONY: build-install-cli-local
-build-install-cli-local: clean-catalog-cache clean-cli-plugins build-cli-local install-cli-plugins-from-local-discovery install-cli-local ## Local build and install the CLI plugins
+build-install-cli-local: clean-catalog-cache clean-cli-plugins build-cli-local install-cli-plugins install-cli ## Local build and install the CLI plugins
 
 ## --------------------------------------
 ## Build and publish CLIPlugin Discovery resource files and binaries
