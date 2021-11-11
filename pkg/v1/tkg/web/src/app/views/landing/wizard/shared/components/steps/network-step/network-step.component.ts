@@ -158,7 +158,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
                 this.loadingNetworks = false;
                 this.resurrectField('networkName',
                     [Validators.required, this.validationService.isValidNameInList(
-                        this.vmNetworks.map(vmNetwork => vmNetwork.name))], networks.length === 1 ? networks[0].name : '');
+                        this.vmNetworks.map(vmNetwork => vmNetwork.displayName))], networks.length === 1 ? networks[0].name : '');
             });
 
         const noProxyFieldChangeMap = ['noProxy', 'clusterServiceCidr', 'clusterPodCidr'];

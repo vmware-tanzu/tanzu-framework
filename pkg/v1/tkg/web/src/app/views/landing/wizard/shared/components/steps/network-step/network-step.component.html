@@ -58,7 +58,7 @@
                     </label>
                     <input clrDatalistInput name="networkName" formControlName="networkName" />
                     <datalist id="networkName">
-                        <option *ngFor="let vmNetwork of vmNetworks" [value]="vmNetwork?.name"></option>
+                        <option *ngFor="let vmNetwork of vmNetworks" [value]="vmNetwork?.displayName"></option>
                     </datalist>
                     <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>

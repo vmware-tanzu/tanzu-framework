@@ -533,7 +533,28 @@ var _ = Describe("VC Client", func() {
 			})
 		})
 	})
+
+	Describe("getDuplicateNetworks", func() {
+		It("return networks with duplicate names", func() {
+			networkNames := []string{"/dc0/network/network11", "/dc0/network/network10", "/dc0/network/network12", "/dc0/network/network10", "/dc0/network/network11"}
+			networks := getNetworksFromNameList(networkNames)
+			duplNetworks := vc.GetDuplicateNetworks(networks)
+			Expect(duplNetworks).To(HaveKey("/dc0/network/network10"))
+			Expect(duplNetworks).To(HaveKey("/dc0/network/network11"))
+		})
+	})
 })
+
+func getNetworksFromNameList(networkNames []string) []*models.VSphereNetwork {
+	networks := []*models.VSphereNetwork{}
+	for _, networkName := range networkNames {
+		networks = append(networks, &models.VSphereNetwork{
+			Name: networkName,
+		})
+	}
+
+	return networks
+}
 
 func createResourcePool(u *url.URL) error {
 	c, err := govmomi.NewClient(context.Background(), u, true)
