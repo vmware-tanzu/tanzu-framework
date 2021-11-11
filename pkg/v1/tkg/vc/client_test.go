@@ -298,16 +298,19 @@ var _ = Describe("VC Client", func() {
 			datacenterMoID string
 			desiredResult  = []*models.VSphereNetwork{
 				{
-					Moid: "network-7",
-					Name: "/DC0/network/VM Network",
+					DisplayName: "/DC0/network/VM Network",
+					Moid:        "Network:network-7",
+					Name:        "/DC0/network/VM Network",
 				},
 				{
-					Moid: "dvportgroup-11",
-					Name: "DVS0-DVUplinks-9",
+					DisplayName: "DVS0-DVUplinks-9",
+					Moid:        "DistributedVirtualPortgroup:dvportgroup-11",
+					Name:        "DVS0-DVUplinks-9",
 				},
 				{
-					Moid: "dvportgroup-13",
-					Name: "DC0_DVPG0",
+					DisplayName: "DC0_DVPG0",
+					Moid:        "DistributedVirtualPortgroup:dvportgroup-13",
+					Name:        "DC0_DVPG0",
 				},
 			}
 		)

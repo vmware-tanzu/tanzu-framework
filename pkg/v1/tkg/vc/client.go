@@ -12,7 +12,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"sort"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -403,17 +402,17 @@ func (c *DefaultClient) unsetDefaultFolder(objects []*models.VSphereManagementOb
 	return objects
 }
 
+func isDuplicate(names map[string]bool, name string) bool {
+	_, exists := names[name]
+	return exists
+}
+
 // GetDuplicateNetworks return a map of duplicate networks from the available networks.
 func GetDuplicateNetworks(networks []*models.VSphereNetwork) map[string]bool {
-	sort.Slice(networks, func(i, j int) bool {
-		return networks[i].Name < networks[j].Name
-	})
-
-	dupNetworks := make(map[string]bool)
+	dupNetworks := make(map[string]bool, len(networks))
 	for i := range networks {
-		if i != 0 && networks[i].Name == networks[i-1].Name {
-			dupNetworks[networks[i].Name] = true
-		}
+		name := networks[i].Name
+		dupNetworks[name] = isDuplicate(dupNetworks, name)
 	}
 
 	return dupNetworks
@@ -456,9 +455,10 @@ func (c *DefaultClient) GetNetworks(ctx context.Context, datacenterMOID string) 
 	}
 
 	// update the displayName of the vSphere network if there are duplicates with the same name.
+	// we also update the 'Name' field with 'Moid' for duplicate networks
 	duplNetworks := GetDuplicateNetworks(results)
 	for i := range results {
-		if _, ok := duplNetworks[results[i].Name]; ok {
+		if duplNetworks[results[i].Name] {
 			results[i].DisplayName = results[i].Name + "(" + results[i].Moid + ")"
 			results[i].Name = results[i].Moid
 		}
