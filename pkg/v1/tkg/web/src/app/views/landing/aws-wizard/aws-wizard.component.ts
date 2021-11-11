@@ -4,6 +4,8 @@ import { FormBuilder } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
+
+// App imports
 import { AwsWizardFormService } from 'src/app/shared/service/aws-wizard-form.service';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { APIClient } from 'src/app/swagger';
@@ -13,8 +15,6 @@ import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 import { BASTION_HOST_ENABLED } from './node-setting-step/node-setting-step.component';
 import { AWSAccountParamsKeys } from './provider-step/aws-provider-step.component';
-
-
 
 @Component({
     selector: 'aws-wizard',

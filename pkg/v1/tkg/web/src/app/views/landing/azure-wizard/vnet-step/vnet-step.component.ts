@@ -114,7 +114,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
                 takeUntil(this.unsubscribe)
             ).subscribe((cidr) => {
                 Broker.messenger.publish({
-                    type: TkgEventType.AWS_GET_NO_PROXY_INFO,
+                    type: TkgEventType.NETWORK_STEP_GET_NO_PROXY_INFO,
                     payload: { info: (cidr ? cidr + ',' : '') + '169.254.0.0/16,168.63.129.16' }
                 });
             });
@@ -331,7 +331,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
                 });
             }
             Broker.messenger.publish({
-                type: TkgEventType.AWS_GET_NO_PROXY_INFO,
+                type: TkgEventType.NETWORK_STEP_GET_NO_PROXY_INFO,
                 payload: { info: '169.254.0.0/16,168.63.129.16' }
             });
         } else if (option === CUSTOM) {

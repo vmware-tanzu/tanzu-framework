@@ -27,7 +27,6 @@ export enum TkgEventType {
     AWS_GET_AVAILABILITY_ZONES,
     AWS_GET_SUBNETS,
     AWS_GET_NODE_TYPES,
-    AWS_GET_NO_PROXY_INFO,
     AWS_GET_OS_IMAGES,
     AWS_AIRGAPPED_VPC_CHANGE,
 
@@ -38,6 +37,9 @@ export enum TkgEventType {
     AZURE_GET_VNETS,
     AZURE_GET_INSTANCE_TYPES,
     AZURE_GET_OS_IMAGES,
+
+    // Common provider events
+    NETWORK_STEP_GET_NO_PROXY_INFO,
 
     // CLI
     CLI_CHANGED,
