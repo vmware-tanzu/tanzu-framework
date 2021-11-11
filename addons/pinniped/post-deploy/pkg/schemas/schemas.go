@@ -33,6 +33,9 @@ type expiry struct {
 	IDTokens       string `yaml:"idTokens,omitempty"`
 	AuthRequests   string `yaml:"authRequests,omitempty"`
 	DeviceRequests string `yaml:"deviceRequests,omitempty"`
+	RefreshTokens  struct {
+		AbsoluteLifetime string `yaml:"absoluteLifetime,omitempty"`
+	} `yaml:"refreshTokens,omitempty"`
 }
 
 type logger struct {
@@ -100,6 +103,7 @@ type connector struct {
 type oauth2 struct {
 	SkipApprovalScreen bool     `yaml:"skipApprovalScreen"`
 	ResponseTypes      []string `yaml:"responseTypes,omitempty"`
+	PasswordConnector  string   `yaml:"passwordConnector,omitempty"`
 }
 
 type storage struct {
