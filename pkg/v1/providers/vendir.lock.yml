@@ -2,10 +2,11 @@ apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
   - git:
-      commitTitle: fix cpi daemonset overlay for v1.22.3 (#2500)
-      sha: ef137b14f5c3825592aa9d08c3228d0a93169460
+      commitTitle: 'patch priorityClassName: system-node-critical in CPI  daemonset
+        (#2524)'
+      sha: 9e70164c014c23bc47848a576cde10621bab4677
       tags:
-      - v0.10.0-dev.1-206-gef137b14
+      - v0.10.0-dev.1-213-g9e70164c
     path: .
   path: ytt/vendir/vsphere_cpi/_ytt_lib
 - contents:
