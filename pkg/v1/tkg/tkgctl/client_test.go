@@ -17,6 +17,12 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigupdater"
 )
 
+type configProvider struct {
+	Name string `json:"name,omitempty"`
+	URL  string `json:"url,omitempty"`
+	Type string `json:"type,omitempty"`
+}
+
 var _ = Describe("ensureBoMandProvidersPrerequisite", func() {
 	var (
 		err                    error
@@ -69,6 +75,7 @@ var _ = Describe("Unit test for New", func() {
 		err       error
 		options   Options
 		configDir string
+		tkgClient TKGClient
 	)
 	JustBeforeEach(func() {
 		configDir, _ = ioutil.TempDir("", "cluster_client_test")
@@ -77,12 +84,26 @@ var _ = Describe("Unit test for New", func() {
 			ConfigDir:      configDir,
 			ProviderGetter: fakeproviders.FakeProviderGetter(),
 		}
-		_, err = New(options)
+		tkgClient, err = New(options)
 	})
 
 	Context("Create tkgctl client with all clients", func() {
 		It("should create the tkg client", func() {
 			Expect(err).ToNot(HaveOccurred())
+		})
+		It("should initialize the tkgConfigReaderWriter with providers", func() {
+			Expect(err).ToNot(HaveOccurred())
+			tkgctl, ok := tkgClient.(*tkgctl)
+			Expect(ok).To(BeTrue())
+			Expect(tkgctl.configDir).To(Equal(configDir))
+			var userDefinedProviders []configProvider
+			err = tkgctl.tkgConfigReaderWriter.UnmarshalKey("providers", &userDefinedProviders)
+			Expect(err).To(BeNil())
+			Expect(len(userDefinedProviders)).To(Equal(8))
+			Expect(userDefinedProviders[0].Name).To(Equal("cluster-api"))
+			Expect(userDefinedProviders[0].Type).To(Equal("CoreProvider"))
+			Expect(userDefinedProviders[0].URL).To(ContainSubstring("providers/cluster-api/v0.3.10/core-components.yaml"))
+
 		})
 	})
 

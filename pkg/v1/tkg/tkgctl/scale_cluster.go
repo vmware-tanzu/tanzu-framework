@@ -17,6 +17,7 @@ type ScaleClusterOptions struct {
 	WorkerCount       int32
 	ControlPlaneCount int32
 	Namespace         string
+	NodePoolName      string
 }
 
 // ScaleCluster scales cluster
@@ -35,6 +36,7 @@ func (t *tkgctl) ScaleCluster(options ScaleClusterOptions) error {
 		ClusterName:       options.ClusterName,
 		WorkerCount:       options.WorkerCount,
 		ControlPlaneCount: options.ControlPlaneCount,
+		NodePoolName:      options.NodePoolName,
 	}
 
 	err := t.tkgClient.ScaleCluster(scaleClusterOptions)

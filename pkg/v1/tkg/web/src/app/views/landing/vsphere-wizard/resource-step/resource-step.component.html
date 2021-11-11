@@ -41,7 +41,7 @@
                     [attr.data-step-metadata]="formName"
                     [attr.data-value]="vmFolderValue"
                     data-name="vmFolder"
-                    data-label="VM folder">
+                    data-label="VM folder" class="datalist-container">
                 <clr-datalist-container>
                     <label i18n="vm folder label" class="clr-col-lg-12 clr-col-12">
                         VM FOLDER
@@ -49,7 +49,7 @@
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                         <span>
-                            Select an existing VM folder in which to place the {{ clusterType }}
+                            Select an existing VM folder in which to place the {{ clusterTypeDescriptor }}
                             cluster VMs.
                         </span>
                             </clr-tooltip-content>
@@ -73,7 +73,7 @@
                     [attr.data-step-metadata]="formName"
                     [attr.data-value]="datastoreValue"
                     data-name="datastore"
-                    data-label="datastore">
+                    data-label="datastore" class="datalist-container">
                 <clr-datalist-container>
                     <label i18n="datastore label" class="clr-col-lg-12 clr-col-12">
                         DATASTORE
@@ -81,7 +81,7 @@
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
                         <span>
-                            Select a vSphere datastore for the {{ clusterType }} cluster to use.
+                            Select a vSphere datastore for the {{ clusterTypeDescriptor }} cluster to use.
                         </span>
                             </clr-tooltip-content>
                         </clr-tooltip>
@@ -108,7 +108,7 @@
                     <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                     <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                     <span>
-                        Select a cluster, host, or a resource pool for your {{ clusterType }} cluster.
+                        Select a cluster, host, or a resource pool for your {{ clusterTypeDescriptor }} cluster.
                     </span>
                     </clr-tooltip-content>
                 </clr-tooltip>

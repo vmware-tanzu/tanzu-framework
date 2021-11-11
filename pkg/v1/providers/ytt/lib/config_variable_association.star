@@ -24,7 +24,6 @@ return {
 "ENABLE_CEIP_PARTICIPATION": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker"],
 "DEPLOY_TKG_ON_VSPHERE7": ["vsphere"],
 "ENABLE_TKGS_ON_VSPHERE7": ["vsphere"],
-"TMC_REGISTRATION_URL": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker"],
 
 "VSPHERE_NUM_CPUS": ["vsphere"],
 "VSPHERE_DISK_GIB": ["vsphere"],
@@ -112,6 +111,10 @@ return {
 "STORAGE_CLASSES": ["tkg-service-vsphere"],
 "WORKER_STORAGE_CLASS": ["tkg-service-vsphere"],
 "WORKER_VM_CLASS": ["tkg-service-vsphere"],
+"KUBERNETES_RELEASE": ["tkg-service-vsphere"],
+"NODE_POOL_0_NAME": ["tkg-service-vsphere"],
+"NODE_POOL_0_LABELS": ["tkg-service-vsphere"],
+"NODE_POOL_0_TAINTS": ["tkg-service-vsphere"],
 
 "AZURE_ENVIRONMENT": ["azure"],
 "AZURE_TENANT_ID": ["azure"],
@@ -178,6 +181,7 @@ return {
 "TKG_HTTP_PROXY": ["vsphere", "aws", "azure", "docker"],
 "TKG_HTTPS_PROXY": ["vsphere", "aws", "azure", "docker"],
 "TKG_NO_PROXY": ["vsphere", "aws", "azure", "docker"],
+"TKG_PROXY_CA_CERT": ["vsphere", "aws", "azure", "docker"],
 
 "TKG_IP_FAMILY": ["vsphere", "aws", "azure", "docker"],
 

@@ -11,6 +11,7 @@ import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-
 import { VSphereWizardFormServiceStub } from 'src/app/testing/vsphere-wizard-form.service.stub';
 import Broker from 'src/app/shared/service/broker';
 import { Messenger } from 'src/app/shared/service/Messenger';
+import { ClusterType } from "../wizard/shared/constants/wizard.constants";
 
 describe('VSphereWizardComponent', () => {
     let component: VSphereWizardComponent;
@@ -66,12 +67,10 @@ describe('VSphereWizardComponent', () => {
             }),
             osImageForm: fb.group({
             }),
-            registerTmcForm: fb.group({
-            }),
             ceipOptInForm: fb.group({
             })
         });
-        component.clusterType = 'management';
+        component.clusterTypeDescriptor = '' + ClusterType.Management;
         fixture.detectChanges();
     });
 

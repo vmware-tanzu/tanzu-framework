@@ -15,6 +15,7 @@ The [root command](tanzu.md) is a good place to begin discovering the CLI comman
 - [management-cluster](tanzu_management-cluster.md)
 - [package](tanzu_package.md)
 - [pinniped-auth](tanzu_pinniped-auth.md)
+- [secret](tanzu_secret.md)
 - [test](tanzu_test.md)
 - [builder](tanzu_builder.md)
 - [codegen](tanzu_codegen.md)

@@ -79,6 +79,61 @@ tanzu plugin delete <plugin-name>
 
 This will list all versions of the plugin along with its description.
 
+## Plugin Discovery Sources
+
+Discovery is the interface to fetch the list of available plugins, their supported versions and how to download them either stand-alone or scoped to a server. E.g., the CLIPlugin API in a management cluster, OCI based plugin discovery for standalone plugins, a similar REST API and a manifest file in GCP based discovery, etc. (API is defined [here](apis/config/v1alpha1/clientconfig_types.go#L111-L187)) Unsupported plugins and plugin versions are not returned by the interface. Having a separate interface for discovery helps to decouple discovery (which is usually tied to a server or user identity) from distribution (which can be shared).
+
+The initial proposal of `tanzu plugin source` commands are global (applies for standalone plugin discovery), but if some point in the future (if we get a good use case) we can add a flag for scoping discovery source to a specific context as well.
+
+Adding discovery sources to tanzu configuration file:
+
+```sh
+# Add a local discovery source. If URI is relative path,
+# $HOME/.config/tanzu-plugins will be considered based path
+tanzu plugin source add --name standalone-local --type local --uri path/to/local/discovery
+
+# Add an OCI discovery source. URI should be an OCI image.
+tanzu plugin source add --name standalone-oci --type oci --uri projects.registry.vmware.com/tkg/tanzu-plugins/standalone:latest
+```
+
+Listing available discovery sources:
+
+```sh
+tanzu plugin source list
+```
+
+Update a discovery source:
+
+```sh
+# Update a local discovery source. If URI is relative path,
+# $HOME/.config/tanzu-plugins will be considered based path
+tanzu plugin source update standalone-local --type local --uri new/path/to/local/discovery
+
+# Update an OCI discovery source. URI should be an OCI image.
+tanzu plugin source update standalone-oci --type oci --uri projects.registry.vmware.com/tkg/tanzu-plugins/standalone:v1.0
+```
+
+Delete a discovery source:
+
+```sh
+tanzu plugin source delete standalone-oci
+```
+
+Sample tanzu configuration file after adding discovery:
+
+```yaml
+apiVersion: config.tanzu.vmware.com/v1alpha1
+clientOptions:
+  cli:
+    discoverySources:
+    - local:
+        name: standalone-local
+        path: new/path/to/local/discovery
+    - oci:
+        name: standalone-oci
+        image: projects.registry.vmware.com/tkg/tanzu-plugins/standalone:v1.0
+```
+
 ## Catalog
 
 A catalog holds the information of all currently installed plugins on a host OS. Plugins are currently stored in $XDG_DATA_HOME/tanzu-cli. Plugins are self-describing and every plugin automatically implements a set of hidden commands.

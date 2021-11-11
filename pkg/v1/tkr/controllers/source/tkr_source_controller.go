@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
-	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/image"
+	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/registry"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
@@ -21,7 +21,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	types2 "k8s.io/apimachinery/pkg/types"
-	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/cluster-api/util/conditions"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -46,23 +46,23 @@ type reconciler struct {
 	bomImage                   string
 	compatibilityMetadataImage string
 	registry                   registry.Registry
-	registryOps                ctlimg.RegistryOpts
+	registryOps                ctlimg.Opts
 }
 
 // Reconcile performs the reconciliation step
-func (r *reconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	ctx, cancel := context.WithCancel(r.ctx)
+func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	ctxCancel, cancel := context.WithCancel(ctx)
 	defer cancel()
 
 	configMap := &corev1.ConfigMap{}
-	if err := r.client.Get(ctx, types2.NamespacedName{Namespace: req.Namespace, Name: req.Name}, configMap); err != nil {
+	if err := r.client.Get(ctxCancel, types2.NamespacedName{Namespace: req.Namespace, Name: req.Name}, configMap); err != nil {
 		if apierrors.IsNotFound(err) {
 			return ctrl.Result{}, nil // do nothing if the ConfigMap does not exist
 		}
 		return ctrl.Result{}, err
 	}
 	if configMap.Name == constants.BOMMetadataConfigMapName {
-		if err := r.updateConditions(ctx); err != nil {
+		if err := r.updateConditions(ctxCancel); err != nil {
 			if apierrors.IsConflict(errors.Cause(err)) {
 				return ctrl.Result{Requeue: true}, nil
 			}
@@ -80,17 +80,17 @@ func (r *reconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		return ctrl.Result{}, nil // no need to retry: no TKR in this ConfigMap
 	}
 
-	if err := r.client.Create(ctx, tkr); err != nil {
+	if err := r.client.Create(ctxCancel, tkr); err != nil {
 		if apierrors.IsAlreadyExists(err) {
 			return ctrl.Result{}, nil // the TKR already exists, we're done.
 		}
 		return ctrl.Result{}, errors.Wrapf(err, "could not create TKR: ConfigMap.name='%s'", configMap.Name)
 	}
-	if err := r.client.Status().Update(ctx, tkr); err != nil {
+	if err := r.client.Status().Update(ctxCancel, tkr); err != nil {
 		return ctrl.Result{}, err
 	}
 
-	if err := r.updateConditions(ctx); err != nil {
+	if err := r.updateConditions(ctxCancel); err != nil {
 		if apierrors.IsConflict(errors.Cause(err)) {
 			return ctrl.Result{Requeue: true}, nil
 		}
@@ -124,11 +124,11 @@ func (r *reconciler) updateConditions(ctx context.Context) error {
 		return errors.Wrap(err, "could not list TKRs")
 	}
 
-	r.UpdateTKRUpdatesAvailableCondition(tkrList.Items)
-
 	if err := r.UpdateTKRCompatibleCondition(ctx, tkrList.Items); err != nil {
 		return errors.Wrap(err, "failed to update Compatible condition for TKRs")
 	}
+
+	r.UpdateTKRUpdatesAvailableCondition(tkrList.Items)
 
 	for i := range tkrList.Items {
 		if err := r.client.Status().Update(ctx, &tkrList.Items[i]); err != nil {
@@ -157,16 +157,16 @@ func AddToManager(ctx *mgrcontext.ControllerManagerContext, mgr ctrl.Manager) er
 func eventFilter(p func(eventMeta metav1.Object) bool) *predicate.Funcs {
 	return &predicate.Funcs{
 		CreateFunc: func(createEvent event.CreateEvent) bool {
-			return p(createEvent.Meta)
+			return p(createEvent.Object)
 		},
 		DeleteFunc: func(deleteEvent event.DeleteEvent) bool {
-			return p(deleteEvent.Meta)
+			return p(deleteEvent.Object)
 		},
 		UpdateFunc: func(updateEvent event.UpdateEvent) bool {
-			return p(updateEvent.MetaOld)
+			return p(updateEvent.ObjectOld)
 		},
 		GenericFunc: func(genericEvent event.GenericEvent) bool {
-			return p(genericEvent.Meta)
+			return p(genericEvent.Object)
 		},
 	}
 }
@@ -176,7 +176,7 @@ func eventFilter(p func(eventMeta metav1.Object) bool) *predicate.Funcs {
 
 func (r *reconciler) createBOMConfigMap(ctx context.Context, tag string) error {
 	r.log.Info("Fetching BOM", "image", r.bomImage, "tag", tag)
-	bomContent, err := r.registry.GetFile(r.bomImage, tag, "")
+	bomContent, err := r.registry.GetFile(fmt.Sprintf("%s:%s", r.bomImage, tag), "")
 	if err != nil {
 		return errors.Wrapf(err, "failed to get the BOM file from image %s:%s", r.bomImage, tag)
 	}
@@ -387,7 +387,7 @@ func (r *reconciler) fetchCompatibilityMetadata() (*types.CompatibilityMetadata,
 	for i := len(tagNum) - 1; i >= 0; i-- {
 		tagName := fmt.Sprintf("v%d", tagNum[i])
 		r.log.Info("Fetching BOM metadata image", "image", r.compatibilityMetadataImage, "tag", tagName)
-		metadataContent, err = r.registry.GetFile(r.compatibilityMetadataImage, tagName, "")
+		metadataContent, err = r.registry.GetFile(fmt.Sprintf("%s:%s", r.compatibilityMetadataImage, tagName), "")
 		if err == nil {
 			if err = yaml.Unmarshal(metadataContent, &metadata); err == nil {
 				break
@@ -477,15 +477,7 @@ func (r *reconciler) tkrDiscovery(ctx context.Context, frequency time.Duration) 
 	}
 }
 
-func (r *reconciler) Start(stopChan <-chan struct{}) error {
-	ctx, cancel := context.WithCancel(r.ctx)
-	defer cancel()
-
-	go func() {
-		<-stopChan
-		cancel()
-	}()
-
+func (r *reconciler) Start(ctx context.Context) error {
 	var err error
 	r.log.Info("Starting TanzuKubernetesReleaase Reconciler")
 
@@ -519,7 +511,7 @@ func (r *reconciler) Start(stopChan <-chan struct{}) error {
 }
 
 func newReconciler(ctx *mgrcontext.ControllerManagerContext) *reconciler {
-	regOpts := ctlimg.RegistryOpts{
+	regOpts := ctlimg.Opts{
 		VerifyCerts: ctx.VerifyRegistryCert,
 		Anon:        true,
 	}

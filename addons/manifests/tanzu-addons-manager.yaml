@@ -103,8 +103,8 @@ spec:
     spec:
       containers:
       - args:
-        - --metrics-addr=0
-        - --enable-leader-election=false
+        - --metrics-bind-addr=0
+        - --leader-elect=false
         image: projects-stg.registry.vmware.com/tkg/addons/manager/addons-controller:v0.0.1_vmware.1
         imagePullPolicy: IfNotPresent
         name: manager

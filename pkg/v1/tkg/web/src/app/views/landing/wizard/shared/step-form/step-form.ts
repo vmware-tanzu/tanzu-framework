@@ -10,6 +10,7 @@ import Broker from 'src/app/shared/service/broker';
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import { EditionData } from 'src/app/shared/service/branding.service';
+import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 
 const INIT_FIELD_DELAY = 50;            // ms
 /**
@@ -27,13 +28,11 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     edition: AppEdition = AppEdition.TCE;
     validatorEnum = ValidatorEnum;
     errorNotification: string;
-    clusterType: string;
+    clusterTypeDescriptor: string;
+    modeClusterStandalone: boolean;
+    ipFamily: IpFamilyEnum = IpFamilyEnum.IPv4;
 
     private delayedFieldQueue = [];
-
-    constructor() {
-        super();
-    }
 
     ngOnInit(): void {
         this.getFormName();
@@ -50,8 +49,9 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
             .subscribe((data: TkgEvent) => {
                 const content: EditionData = data.payload;
                 this.edition = content.edition;
-                this.clusterType = data.payload.clusterType;
+                this.clusterTypeDescriptor = data.payload.clusterTypeDescriptor;
             });
+        this.modeClusterStandalone = Broker.appDataService.isModeClusterStandalone();
     }
 
     /**
@@ -197,5 +197,29 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
             distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
             takeUntil(this.unsubscribe)
         ).subscribe(newValue => callback(newValue));
+    }
+
+    registerOnIpFamilyChange(fieldName: string, ipv4Validators: ValidatorFn[], ipv6Validators: ValidatorFn[], cb?: () => void) {
+        Broker.messenger.getSubject(TkgEventType.IP_FAMILY_CHANGE)
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe((data: TkgEvent) => {
+                if (data.payload === IpFamilyEnum.IPv4) {
+                    this.resurrectField(
+                        fieldName,
+                        ipv4Validators,
+                        this.formGroup.get(fieldName).value
+                    );
+                } else {
+                    this.resurrectField(
+                        fieldName,
+                        ipv6Validators,
+                        this.formGroup.get(fieldName).value
+                    );
+                }
+                this.ipFamily = data.payload;
+                if (cb) {
+                    cb();
+                }
+            });
     }
 }

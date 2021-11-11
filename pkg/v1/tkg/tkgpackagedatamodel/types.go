@@ -24,12 +24,27 @@ const (
 	ResourceTypePackageRepository
 )
 
+func (r ResourceType) String() string {
+	switch r {
+	case ResourceTypePackageInstall:
+		return "PackageInstall"
+	case ResourceTypePackageRepository:
+		return "PackageRepository"
+	}
+	return ""
+}
+
 type OperationType int
 
 const (
 	OperationTypeInstall OperationType = iota
 	OperationTypeUpdate
 )
+
+type PkgPluginResourceCreationStatus struct {
+	IsServiceAccountCreated bool
+	IsSecretCreated         bool
+}
 
 // TypeBoolPtr satisfies Value interface defined in "https://github.com/spf13/pflag/blob/master/flag.go"
 type TypeBoolPtr struct {

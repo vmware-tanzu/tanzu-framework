@@ -14,8 +14,23 @@ set -o pipefail
 set -o xtrace
 
 GO=$1
-GOOS=$2
-GOARCH=$3
+shift
+GOOS=$1
+shift
+GOARCH=$1
+shift
 
-cd pinniped && GOARCH=${GOARCH} GOOS=${GOOS} ${GO} build -o ../cmd/cli/plugin/pinniped-auth/asset/pinniped ./cmd/pinniped && cd ..
-git update-index --assume-unchanged cmd/cli/plugin/pinniped-auth/asset/pinniped
+while (( "$#" )); do
+  pinniped_version="$1"
+  pinniped_binary="cmd/cli/plugin/pinniped-auth/asset/pinniped-${pinniped_version}"
+  echo "embed-pinniped-binary.sh: building pinniped version '$pinniped_version' to '$pinniped_binary'"
+
+  pushd pinniped >/dev/null
+    git checkout "$pinniped_version"
+    GOARCH=${GOARCH} GOOS=${GOOS} ${GO} build -o "../${pinniped_binary}" ./cmd/pinniped
+  popd >/dev/null
+
+  git update-index --assume-unchanged "$pinniped_binary"
+
+  shift
+done

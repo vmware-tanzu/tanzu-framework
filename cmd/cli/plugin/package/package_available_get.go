@@ -30,8 +30,9 @@ var packageAvailableGetCmd = &cobra.Command{
 
     # Get openAPI schema of a package with specified version
     tanzu package available get contour.tanzu.vmware.com/1.15.1-tkg.1-vmware1 --namespace test-ns --values-schema`,
-	RunE:    packageAvailableGet,
-	PreRunE: validatePackage,
+	RunE:         packageAvailableGet,
+	PreRunE:      validatePackage,
+	SilenceUsage: true,
 }
 
 func init() {
@@ -114,7 +115,7 @@ func packageAvailableGet(cmd *cobra.Command, args []string) error {
 
 func getValuesSchema(cmd *cobra.Command, args []string, kc kappclient.Client) error {
 	if pkgVersion == "" {
-		return errors.New("version is required when values-schema flag is declared. Please specify <PACKAGE-NAME>/<VERSION>")
+		return errors.New("version is required when --values-schema flag is declared. Please specify <PACKAGE-NAME>/<VERSION>")
 	}
 	pkg, pkgGetErr := kc.GetPackage(fmt.Sprintf("%s.%s", pkgName, pkgVersion), packageAvailableOp.Namespace)
 	if pkgGetErr != nil {
@@ -131,6 +132,11 @@ func getValuesSchema(cmd *cobra.Command, args []string, kc kappclient.Client) er
 	}
 
 	var parseErr error
+	if len(pkg.Spec.ValuesSchema.OpenAPIv3.Raw) == 0 {
+		t.StopSpinner()
+		log.Warningf("package '%s/%s' does not have any user configurable values in the '%s' namespace", pkgName, pkgVersion, packageAvailableOp.Namespace)
+		return nil
+	}
 	dataValuesSchemaParser, parseErr := tkgpackageclient.NewValuesSchemaParser(pkg.Spec.ValuesSchema)
 	if parseErr != nil {
 		return parseErr

@@ -123,8 +123,14 @@ func (p *packagePlugin) AddRepository(o *tkgpackagedatamodel.RepositoryOptions) 
 	if o.CreateNamespace {
 		cmd += fmt.Sprintf(" --create-namespace")
 	}
-	if !o.Wait {
+	if o.Wait {
 		cmd += fmt.Sprintf(" --wait=true")
+	}
+	if o.PollInterval != 0 {
+		cmd += fmt.Sprintf(" --poll-interval %s", o.PollInterval)
+	}
+	if o.PollTimeout != 0 {
+		cmd += fmt.Sprintf(" --poll-timeout %s", o.PollTimeout)
 	}
 	cmd = p.addKubeconfig(cmd)
 	cmd = p.addGlobalOptions(cmd)
@@ -157,8 +163,14 @@ func (p *packagePlugin) UpdateRepository(o *tkgpackagedatamodel.RepositoryOption
 	if o.CreateRepository {
 		cmd += fmt.Sprintf(" --create")
 	}
-	if !o.Wait {
+	if o.Wait {
 		cmd += fmt.Sprintf(" --wait=true")
+	}
+	if o.PollInterval != 0 {
+		cmd += fmt.Sprintf(" --poll-interval %s", o.PollInterval)
+	}
+	if o.PollTimeout != 0 {
+		cmd += fmt.Sprintf(" --poll-timeout %s", o.PollTimeout)
 	}
 	cmd = p.addKubeconfig(cmd)
 	cmd = p.addGlobalOptions(cmd)
@@ -175,8 +187,14 @@ func (p *packagePlugin) DeleteRepository(o *tkgpackagedatamodel.RepositoryOption
 	if o.IsForceDelete {
 		cmd += fmt.Sprintf(" --force")
 	}
-	if !o.Wait {
+	if o.Wait {
 		cmd += fmt.Sprintf(" --wait=true")
+	}
+	if o.PollInterval != 0 {
+		cmd += fmt.Sprintf(" --poll-interval %s", o.PollInterval)
+	}
+	if o.PollTimeout != 0 {
+		cmd += fmt.Sprintf(" --poll-timeout %s", o.PollTimeout)
 	}
 	if o.SkipPrompt {
 		cmd += fmt.Sprintf(" -y")
@@ -264,7 +282,7 @@ func (p *packagePlugin) CreateInstalledPackage(o *tkgpackagedatamodel.PackageOpt
 	if o.ServiceAccountName != "" {
 		cmd += fmt.Sprintf(" --service-account-name %s", o.ServiceAccountName)
 	}
-	if !o.Wait {
+	if o.Wait {
 		cmd += fmt.Sprintf(" --wait=true")
 	}
 	if o.PollInterval != 0 {
@@ -307,8 +325,14 @@ func (p *packagePlugin) UpdateInstalledPackage(o *tkgpackagedatamodel.PackageOpt
 	if o.ValuesFile != "" {
 		cmd += fmt.Sprintf(" --values-file %s", o.ValuesFile)
 	}
-	if !o.Wait {
+	if o.Wait {
 		cmd += fmt.Sprintf(" --wait=true")
+	}
+	if o.PollInterval != 0 {
+		cmd += fmt.Sprintf(" --poll-interval %s", o.PollInterval)
+	}
+	if o.PollTimeout != 0 {
+		cmd += fmt.Sprintf(" --poll-timeout %s", o.PollTimeout)
 	}
 	cmd = p.addKubeconfig(cmd)
 	cmd = p.addGlobalOptions(cmd)

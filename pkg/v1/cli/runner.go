@@ -13,29 +13,36 @@ import (
 	"path/filepath"
 
 	"github.com/aunum/log"
+
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
 
 // Runner is a plugin runner.
 type Runner struct {
-	name       string
-	args       []string
-	pluginRoot string
+	name          string
+	args          []string
+	pluginRoot    string
+	pluginAbsPath string
 }
 
 // NewRunner creates an instance of Runner.
-func NewRunner(name string, args []string, options ...Option) *Runner {
+func NewRunner(name, pluginAbsPath string, args []string, options ...Option) *Runner {
 	opts := makeDefaultOptions(options...)
 
 	r := &Runner{
-		name:       name,
-		args:       args,
-		pluginRoot: opts.pluginRoot,
+		name:          name,
+		args:          args,
+		pluginRoot:    opts.pluginRoot,
+		pluginAbsPath: pluginAbsPath,
 	}
 	return r
 }
 
 // Run runs a plugin.
 func (r *Runner) Run(ctx context.Context) error {
+	// configures plugin specific environment variables
+	// defined under tanzu config file
+	config.ConfigureEnvVariables(r.name)
 	return r.runStdOutput(ctx, r.pluginPath())
 }
 
@@ -130,6 +137,9 @@ func (r *Runner) pluginName() string {
 }
 
 func (r *Runner) pluginPath() string {
+	if r.pluginAbsPath != "" {
+		return r.pluginAbsPath
+	}
 	return filepath.Join(r.pluginRoot, r.pluginName())
 }
 

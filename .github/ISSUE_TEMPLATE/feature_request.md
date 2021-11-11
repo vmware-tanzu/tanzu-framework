@@ -15,6 +15,7 @@ labels: needs-triage, kind/feature
 - [ ] Addons
 - [ ] CLI
 - [ ] Docs
+- [ ] IAM
 - [ ] Installation
 - [ ] Plugin
 - [ ] Security

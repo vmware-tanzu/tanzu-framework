@@ -24,7 +24,8 @@ var packageInstalledGetCmd = &cobra.Command{
 	Example: `
     # Get package details for installed package with name 'contour-pkg' in specified namespace 	
     tanzu package installed get contour-pkg --namespace test-ns`,
-	RunE: packageInstalledGet,
+	RunE:         packageInstalledGet,
+	SilenceUsage: true,
 }
 
 func init() {
@@ -35,8 +36,6 @@ func init() {
 }
 
 func packageInstalledGet(cmd *cobra.Command, args []string) error {
-	cmd.SilenceUsage = true
-
 	kc, err := kappclient.NewKappClient(packageInstalledOp.KubeConfig)
 	if err != nil {
 		return err

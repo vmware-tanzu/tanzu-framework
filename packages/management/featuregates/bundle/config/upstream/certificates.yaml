@@ -1,0 +1,21 @@
+apiVersion: cert-manager.io/v1alpha2
+kind: Issuer
+metadata:
+  name: tanzu-featuregates-selfsigned-issuer
+  namespace: tkg-system
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: tanzu-featuregates-serving-cert
+  namespace: tkg-system
+spec:
+  dnsNames:
+    - tanzu-featuregates-webhook-service.tkg-system.svc
+    - tanzu-featuregates-webhook-service-cert.tkg-system.svc.cluster.local
+  issuerRef:
+    kind: Issuer
+    name: tanzu-featuregates-selfsigned-issuer
+  secretName: tanzu-featuregates-webhook-server-cert

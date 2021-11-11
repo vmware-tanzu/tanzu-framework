@@ -31,7 +31,7 @@ func NewGetFeatureFlags(ctx *middleware.Context, handler GetFeatureFlagsHandler)
 
 /*GetFeatureFlags swagger:route GET /api/features features getFeatureFlags
 
-Retrieve list of enabled hidden features
+Retrieve list of features
 
 */
 type GetFeatureFlags struct {

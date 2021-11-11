@@ -20,7 +20,8 @@ var repositoryAddCmd = &cobra.Command{
 	Example: `
     # Add a repository in specified namespace which does not exist 	
     tanzu package repository add repo --url projects-stg.registry.vmware.com/tkg/standard-repo:v1.0.0 --namespace test-ns --create-namespace`,
-	RunE: repositoryAdd,
+	RunE:         repositoryAdd,
+	SilenceUsage: true,
 }
 
 func init() {
@@ -33,10 +34,8 @@ func init() {
 	repositoryCmd.AddCommand(repositoryAddCmd)
 }
 
-func repositoryAdd(cmd *cobra.Command, args []string) error {
+func repositoryAdd(_ *cobra.Command, args []string) error { //nolint
 	repoOp.RepositoryName = args[0]
-
-	cmd.SilenceUsage = true
 
 	pkgClient, err := tkgpackageclient.NewTKGPackageClient(repoOp.KubeConfig)
 	if err != nil {
@@ -52,9 +51,13 @@ func repositoryAdd(cmd *cobra.Command, args []string) error {
 
 	initialMsg := fmt.Sprintf("Adding package repository '%s'", repoOp.RepositoryName)
 	if err := DisplayProgress(initialMsg, pp); err != nil {
+		if err.Error() == tkgpackagedatamodel.ErrRepoAlreadyExists {
+			log.Infof("Updated package repository '%s' in namespace '%s'", repoOp.RepositoryName, repoOp.Namespace)
+			return nil
+		}
 		return err
 	}
 
-	log.Infof("\n Added package repository '%s'", repoOp.RepositoryName)
+	log.Infof("Added package repository '%s' in namespace '%s'", repoOp.RepositoryName, repoOp.Namespace)
 	return nil
 }
