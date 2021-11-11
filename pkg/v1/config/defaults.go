@@ -54,9 +54,9 @@ var DefaultRepositories []configv1alpha1.PluginRepository = []configv1alpha1.Plu
 	},
 }
 
-// DefaultStandaloneDiscoveryImage returns the default Standalone Discovery image
+// GetDefaultStandaloneDiscoveryImage returns the default Standalone Discovery image
 // from the configured build time variables
-func DefaultStandaloneDiscoveryImage() string {
+func GetDefaultStandaloneDiscoveryImage() string {
 	defaultStandaloneDiscoveryRepository := DefaultStandaloneDiscoveryRepository
 	defaultStandaloneDiscoveryImagePath := DefaultStandaloneDiscoveryImagePath
 	defaultStandaloneDiscoveryImageTag := DefaultStandaloneDiscoveryImageTag
@@ -73,4 +73,22 @@ func DefaultStandaloneDiscoveryImage() string {
 	}
 
 	return strings.Trim(defaultStandaloneDiscoveryRepository, "/") + "/" + strings.Trim(defaultStandaloneDiscoveryImagePath, "/") + ":" + defaultStandaloneDiscoveryImageTag
+}
+
+// GetDefaultStandaloneDiscoveryType returns the default standalone discovery type
+func GetDefaultStandaloneDiscoveryType() string {
+	// Run-time overrides of the configuration
+	if dType := os.Getenv(constants.ConfigVariableDefaultStandaloneDiscoveryType); dType != "" {
+		return dType
+	}
+	return DefaultStandaloneDiscoveryType
+}
+
+// GetDefaultStandaloneDiscoveryLocalPath returns default standalone discovery local path
+func GetDefaultStandaloneDiscoveryLocalPath() string {
+	// Run-time overrides of the configuration
+	if localPath := os.Getenv(constants.ConfigVariableDefaultStandaloneDiscoveryLocalPath); localPath != "" {
+		return localPath
+	}
+	return DefaultStandaloneDiscoveryLocalPath
 }

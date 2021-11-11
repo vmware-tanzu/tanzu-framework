@@ -29,6 +29,8 @@ var (
 	IsContextAwareDiscoveryEnabled = ""
 )
 
+// ContextAwareDiscoveryEnabled returns true if the IsContextAwareDiscoveryEnabled
+// is set to true during build time
 func ContextAwareDiscoveryEnabled() bool {
 	return strings.EqualFold(IsContextAwareDiscoveryEnabled, "true")
 }

@@ -382,7 +382,7 @@ func TestConfigPopulateDefaultStandaloneDiscovery(t *testing.T) {
 	assert.Equal(cfg.ClientOptions.CLI.DiscoverySources[0].OCI.Image, "fake.image.repo/package/standalone-plugins:v1.0.0")
 }
 
-func TestConfigPopulateDefaultStandaloneDiscoveryWhenPresentAndImageIsSame(t *testing.T) {
+func TestConfigPopulateDefaultStandaloneDiscoveryWhenDefaultDiscoveryExistsAndIsSame(t *testing.T) {
 	cfg := &configv1alpha1.ClientConfig{
 		ClientOptions: &configv1alpha1.ClientOptions{
 			CLI: &configv1alpha1.CLIOptions{
@@ -408,7 +408,7 @@ func TestConfigPopulateDefaultStandaloneDiscoveryWhenPresentAndImageIsSame(t *te
 	assert.Equal(cfg.ClientOptions.CLI.DiscoverySources[0].OCI.Image, "fake.image.repo/package/standalone-plugins:v1.0.0")
 }
 
-func TestConfigPopulateDefaultStandaloneDiscoveryWhenPresentAndImageIsNotSame(t *testing.T) {
+func TestConfigPopulateDefaultStandaloneDiscoveryWhenDefaultDiscoveryExistsAndIsNotSame(t *testing.T) {
 	cfg := &configv1alpha1.ClientConfig{
 		ClientOptions: &configv1alpha1.ClientOptions{
 			CLI: &configv1alpha1.CLIOptions{
@@ -450,8 +450,8 @@ func TestConfigPopulateDefaultStandaloneDiscoveryLocal(t *testing.T) {
 			},
 		},
 	}
-	DefaultStandaloneDiscoveryType = "local"
-	DefaultStandaloneDiscoveryLocalPath = "local/path"
+
+	configureTestDefaultStandaloneDiscoveryLocal()
 
 	assert := assert.New(t)
 
@@ -523,4 +523,9 @@ func configureTestDefaultStandaloneDiscoveryOCI() {
 	DefaultStandaloneDiscoveryRepository = "fake.image.repo"
 	DefaultStandaloneDiscoveryImagePath = "package/standalone-plugins"
 	DefaultStandaloneDiscoveryImageTag = "v1.0.0"
+}
+
+func configureTestDefaultStandaloneDiscoveryLocal() {
+	DefaultStandaloneDiscoveryType = "local"
+	DefaultStandaloneDiscoveryLocalPath = "local/path"
 }

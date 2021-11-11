@@ -152,29 +152,7 @@ func AvailablePlugins(serverName string) ([]plugin.Discovered, error) {
 		return nil, err
 	}
 
-	availablePlugins := discoveredServerPlugins
-
-	for i := range discoveredStandalonePlugins {
-		matchIndex := -1
-		for j := range availablePlugins {
-			if discoveredStandalonePlugins[i].Name == availablePlugins[j].Name {
-				matchIndex = j
-				break
-			}
-		}
-
-		// Add the standalone plugin to available plugin if it doesn't exist in the serverPlugins list
-		// OR
-		// Current standalone discovery type is local
-		// We are overriding the discovered plugins that we got from server in case of 'local' discovery type
-		// to allow developers to use the plugins that are built locally and not returned from the server
-		// This local discovery is only used for development purpose and should not be used for production
-		if config.DefaultStandaloneDiscoveryType == "local" && matchIndex >= 0 {
-			availablePlugins[matchIndex] = discoveredStandalonePlugins[i]
-		} else if matchIndex < 0 {
-			availablePlugins = append(availablePlugins, discoveredStandalonePlugins[i])
-		}
-	}
+	availablePlugins := availablePluginsFromStandaloneAndServerPlugins(discoveredServerPlugins, discoveredStandalonePlugins)
 
 	for i := range installedSeverPluginDesc {
 		for j := range availablePlugins {
@@ -196,6 +174,33 @@ func AvailablePlugins(serverName string) ([]plugin.Discovered, error) {
 		}
 	}
 	return availablePlugins, nil
+}
+
+func availablePluginsFromStandaloneAndServerPlugins(discoveredServerPlugins, discoveredStandalonePlugins []plugin.Discovered) []plugin.Discovered {
+	availablePlugins := discoveredServerPlugins
+
+	for i := range discoveredStandalonePlugins {
+		matchIndex := -1
+		for j := range availablePlugins {
+			if discoveredStandalonePlugins[i].Name == availablePlugins[j].Name {
+				matchIndex = j
+				break
+			}
+		}
+
+		// Add the standalone plugin to available plugin if it doesn't exist in the serverPlugins list
+		// OR
+		// Current standalone discovery type is local and there is
+		// We are overriding the discovered plugins that we got from server in case of 'local' discovery type
+		// to allow developers to use the plugins that are built locally and not returned from the server
+		// This local discovery is only used for development purpose and should not be used for production
+		if config.GetDefaultStandaloneDiscoveryType() == common.DiscoveryTypeLocal && matchIndex >= 0 {
+			availablePlugins[matchIndex] = discoveredStandalonePlugins[i]
+		} else if matchIndex < 0 {
+			availablePlugins = append(availablePlugins, discoveredStandalonePlugins[i])
+		}
+	}
+	return availablePlugins
 }
 
 // InstalledPlugins returns the installed plugins.
