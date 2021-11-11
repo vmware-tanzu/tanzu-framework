@@ -74,17 +74,16 @@ jobs:
           if [[ ! -z "${{ steps.extract_bom.outputs.bompath }}" ]]; then
             export TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH=${{ steps.extract_bom.outputs.bompath }}
           fi
-          export ENABLE_CONTEXT_AWARE_PLUGIN_DISCOVERY=false
           env | sort
           make configure-bom
-          make build-cli-local
+          make build-cli-local ENABLE_CONTEXT_AWARE_PLUGIN_DISCOVERY=false
 
       - name: Install Tanzu CLI
         run: |
-          make install-cli
+          make install-cli ENABLE_CONTEXT_AWARE_PLUGIN_DISCOVERY=false
 
       - name: Install CLI plugins
-        run: make install-cli-plugins
+        run: make install-cli-plugins ENABLE_CONTEXT_AWARE_PLUGIN_DISCOVERY=false
 
       - name: Cleanup
         run: rm -rf ~/.tanzu ~/.tkg ~/.config; docker kill $(docker ps -q) | true; docker system prune -a --volumes -f
