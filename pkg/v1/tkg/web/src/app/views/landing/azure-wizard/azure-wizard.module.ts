@@ -8,7 +8,6 @@ import { CommonModule } from '@angular/common';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { LandingModule } from '../landing.module';
 
-import { WorkerNodeSettingStepComponent } from './worker-node-setting-step/worker-node-setting-step.component';
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { VnetStepComponent } from './vnet-step/vnet-step.component';
 import { WizardSharedModule } from './../wizard/shared/wizard-shared.module';
@@ -19,7 +18,6 @@ import { WizardSharedModule } from './../wizard/shared/wizard-shared.module';
         AzureProviderStepComponent,
         VnetStepComponent,
         NodeSettingStepComponent,
-        WorkerNodeSettingStepComponent,
     ],
     imports: [
         CommonModule,

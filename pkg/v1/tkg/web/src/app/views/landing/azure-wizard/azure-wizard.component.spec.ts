@@ -148,13 +148,13 @@ describe('AzureWizardComponent', () => {
         expect(component.getCli(path)).toBe(`tanzu management-cluster create --file ${path} -v 6`);
     });
 
-    it('should call api to create aws regional cluster', () => {
+    it('should call api to create azure regional cluster', () => {
         const apiSpy = spyOn(component['apiClient'], 'createAzureRegionalCluster').and.callThrough();
         component.createRegionalCluster({});
         expect(apiSpy).toHaveBeenCalled();
     });
 
-    it('should apply TKG config for aws', () => {
+    it('should apply TKG config for azure', () => {
         const apiSpy = spyOn(component['apiClient'], 'applyTKGConfigForAzure').and.callThrough();
         component.applyTkgConfig();
         expect(apiSpy).toHaveBeenCalled();
