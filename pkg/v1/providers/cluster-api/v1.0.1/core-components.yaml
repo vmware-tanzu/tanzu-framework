@@ -6001,7 +6001,6 @@ spec:
                       type: string
                   required:
                   - lastTransitionTime
-                  - lastTransitionTime
                   - status
                   - type
                   type: object

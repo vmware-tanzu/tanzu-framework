@@ -5,7 +5,7 @@ go 1.16
 replace (
 	github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.5.5 // indirect
 	github.com/k14s/kbld => github.com/anujc25/carvel-kbld v0.31.0-update-vendir
-	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.0.0
+	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.0.1
 	sigs.k8s.io/kind => sigs.k8s.io/kind v0.11.1
 )
 
@@ -101,12 +101,12 @@ require (
 	k8s.io/klog/v2 v2.10.0
 	k8s.io/kubectl v0.22.2
 	k8s.io/utils v0.0.0-20210930125809-cb0fa318a74b
-	sigs.k8s.io/cluster-api v1.0.0
+	sigs.k8s.io/cluster-api v1.0.1
 	sigs.k8s.io/cluster-api-provider-aws v1.0.0
 	sigs.k8s.io/cluster-api-provider-azure v1.0.0
 	sigs.k8s.io/cluster-api-provider-vsphere v1.0.1
-	sigs.k8s.io/cluster-api/test v1.0.0
-	sigs.k8s.io/controller-runtime v0.10.2
+	sigs.k8s.io/cluster-api/test v1.0.1
+	sigs.k8s.io/controller-runtime v0.10.3
 	sigs.k8s.io/controller-tools v0.7.0
 	sigs.k8s.io/kind v0.11.1
 	sigs.k8s.io/yaml v1.3.0
