@@ -58,6 +58,7 @@ func E2EAutoscalerSpec(context context.Context, inputGetter func() E2EAutoscaler
 	})
 
 	It("autoscaler should scale up/down the workers", func() {
+		Skip("Skipping autoscaler tests")
 		By(fmt.Sprintf("Creating a workload cluster %q", clusterName))
 		options := framework.CreateClusterOptions{
 			ClusterName:          clusterName,
