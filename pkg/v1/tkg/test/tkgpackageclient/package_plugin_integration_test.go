@@ -13,6 +13,8 @@ import (
 	"testing"
 	"time"
 
+	"k8s.io/kubernetes/staging/src/k8s.io/apimachinery/pkg/util/wait"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"sigs.k8s.io/yaml"
@@ -88,7 +90,7 @@ var (
 	resultImgPullSecret         secretlib.SecretPluginResult
 	clusterCreationTimeout      = 30 * time.Minute
 	pollInterval                = 20 * time.Second
-	pollTimeout                 = 10 * time.Minute
+	pollTimeout                 = 30 * time.Minute
 	testImgPullSecretName       = "test-secret"
 	testNamespace               = "test-ns"
 	testRegistry                = "projects-stg.registry.vmware.com"
@@ -385,8 +387,21 @@ func cleanup() {
 }
 
 func testHelper() {
-	/*
-	TODO: Fix tests for secret registry plugin
+
+	By("list registry secret")
+	testSecretOption := imgPullSecretOptions
+	testSecretOption.AllNamespaces = true
+	resultImgPullSecret = secretPlugin.ListRegistrySecret(&testSecretOption)
+	Expect(resultImgPullSecret.Error).ToNot(HaveOccurred())
+	err = json.Unmarshal(resultImgPullSecret.Stdout.Bytes(), &imgPullSecretOutput)
+	//Expect(err).ToNot(HaveOccurred())
+	//Expect(len(imgPullSecretOutput)).To(BeNumerically(">=", 1))
+
+	By("Debug Session")
+	wait.PollImmediate(pollInterval, pollTimeout, func() (done bool, err error) {
+		return false, nil
+	})
+
 	By("trying to update package repository with a private URL")
 	repoOptions.RepositoryURL = config.RepositoryURLPrivate
 	repoOptions.CreateRepository = true
@@ -437,8 +452,7 @@ func testHelper() {
 	Expect(err).ToNot(HaveOccurred())
 	Expect(len(repoOutput)).To(BeNumerically("==", 1))
 	Expect(repoOutput[0]).To(Equal(expectedRepoOutputPrivate))
-	*/
-	
+
 	By("update package repository with a new URL without tag")
 	repoOptions.RepositoryURL = config.RepositoryURLNoTag
 	repoOptions.CreateRepository = true
