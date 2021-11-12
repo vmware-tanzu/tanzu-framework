@@ -4411,7 +4411,6 @@ webhooks:
     - UPDATE
     resources:
     - kubeadmcontrolplanes
-    - kubeadmcontrolplanes/scale
   sideEffects: None
 - admissionReviewVersions:
   - v1
