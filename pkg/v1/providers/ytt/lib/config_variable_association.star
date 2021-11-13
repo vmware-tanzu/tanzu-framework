@@ -184,7 +184,6 @@ return {
 "TKG_NO_PROXY": ["vsphere", "aws", "azure", "docker", "byoh"],
 "TKG_PROXY_CA_CERT": ["vsphere", "aws", "azure", "docker"],
 
-
 "TKG_IP_FAMILY": ["vsphere", "aws", "azure", "docker", "byoh"],
 
 "ENABLE_AUDIT_LOGGING": ["vsphere", "aws", "azure", "docker"],
