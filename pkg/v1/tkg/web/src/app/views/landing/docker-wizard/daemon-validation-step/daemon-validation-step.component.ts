@@ -16,6 +16,7 @@ export class DaemonValidationStepComponent extends StepFormDirective implements 
 
     connected: boolean = false;
     connecting: boolean = false;
+    errorNotification: string = "";
 
     constructor(
         private validationService: ValidationService,
@@ -51,9 +52,10 @@ export class DaemonValidationStepComponent extends StepFormDirective implements 
                         label: 'DOCKER DAEMON CONNECTED',
                         displayValue: 'yes'
                     });
-            }, (error) => {
+            }, (err) => {
                 this.connected = false;
                 this.connecting = false;
+                this.errorNotification = err.error.message;
             });
     }
 }

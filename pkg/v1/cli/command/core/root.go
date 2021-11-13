@@ -5,16 +5,18 @@ package core
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/aunum/log"
 	"github.com/briandowns/spinner"
 	"github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
 
+	"github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/pluginmanager"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
 
@@ -58,15 +60,71 @@ func NewRootCmd() (*cobra.Command, error) {
 		genAllDocsCmd,
 	)
 
-	plugins, err := cli.ListPlugins()
+	plugins, err := getAvailablePlugins()
 	if err != nil {
-		return nil, fmt.Errorf("find available plugins: %w", err)
+		return nil, err
 	}
 
 	if err = config.CopyLegacyConfigDir(); err != nil {
 		return nil, fmt.Errorf("failed to copy legacy configuration directory to new location: %w", err)
 	}
 
+	// If context-aware-discovery is not enabled
+	// check that all plugins in the core distro are installed or do so.
+	if !config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
+		plugins, err = checkAndInstallMissingPlugins(plugins)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// configure defined global environment variables
+	// under tanzu config file
+	// global environment variables can be defined as `env.global.FOO`
+	config.ConfigureEnvVariables("global")
+
+	for _, plugin := range plugins {
+		RootCmd.AddCommand(cli.GetCmd(plugin))
+	}
+
+	duplicateAliasWarning()
+
+	// Flag parsing must be deactivated because the root plugin won't know about all flags.
+	RootCmd.DisableFlagParsing = true
+
+	return RootCmd, nil
+}
+
+func getAvailablePlugins() ([]*v1alpha1.PluginDescriptor, error) {
+	plugins := make([]*v1alpha1.PluginDescriptor, 0)
+	var err error
+
+	if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
+		currentServerName := ""
+
+		server, err := config.GetCurrentServer()
+		if err == nil && server != nil {
+			currentServerName = server.Name
+		}
+
+		serverPlugin, standalonePlugins, err := pluginmanager.InstalledPlugins(currentServerName)
+		if err != nil {
+			return nil, fmt.Errorf("find installed plugins: %w", err)
+		}
+		p := append(serverPlugin, standalonePlugins...)
+		for i := range p {
+			plugins = append(plugins, &p[i])
+		}
+	} else {
+		plugins, err = cli.ListPlugins()
+		if err != nil {
+			return nil, fmt.Errorf("find available plugins: %w", err)
+		}
+	}
+	return plugins, nil
+}
+
+func checkAndInstallMissingPlugins(plugins []*v1alpha1.PluginDescriptor) ([]*v1alpha1.PluginDescriptor, error) {
 	// check that all plugins in the core distro are installed or do so.
 	if !noInit && !cli.IsDistributionSatisfied(plugins) {
 		s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
@@ -90,16 +148,7 @@ func NewRootCmd() (*cobra.Command, error) {
 		}
 		s.Stop()
 	}
-	for _, plugin := range plugins {
-		RootCmd.AddCommand(cli.GetCmd(plugin))
-	}
-
-	duplicateAliasWarning()
-
-	// Flag parsing must be deactivated because the root plugin won't know about all flags.
-	RootCmd.DisableFlagParsing = true
-
-	return RootCmd, nil
+	return plugins, nil
 }
 
 func duplicateAliasWarning() {

@@ -15,7 +15,7 @@ servers:
     context: mgmt-admin@mgmt
     path: config
   name: mgmt
-  type: managementcluster
+  type: global
   discoverySources:
     - local:
         name: fake-mgmt

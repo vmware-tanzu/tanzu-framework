@@ -45,9 +45,6 @@ type DockerRegionalClusterParams struct {
 
 	// num of worker nodes
 	NumOfWorkerNodes string `json:"numOfWorkerNodes,omitempty"`
-
-	// tmc registration url
-	TmcRegistrationURL string `json:"tmc_registration_url,omitempty"`
 }
 
 // Validate validates this docker regional cluster params

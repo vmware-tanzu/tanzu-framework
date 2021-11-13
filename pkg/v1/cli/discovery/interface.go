@@ -32,14 +32,15 @@ type Discovery interface {
 
 // CreateDiscoveryFromV1alpha1 creates discovery interface from v1alpha1 API
 func CreateDiscoveryFromV1alpha1(pd v1alpha1.PluginDiscovery) (Discovery, error) {
-	if pd.GCP != nil {
+	switch {
+	case pd.GCP != nil:
 		return NewGCPDiscovery(pd.GCP.Bucket, pd.GCP.ManifestPath, pd.GCP.Name), nil
-	}
-	if pd.OCI != nil {
+	case pd.OCI != nil:
 		return NewOCIDiscovery(pd.OCI.Name, pd.OCI.Image), nil
-	}
-	if pd.Local != nil {
+	case pd.Local != nil:
 		return NewLocalDiscovery(pd.Local.Name, pd.Local.Path), nil
+	case pd.Kubernetes != nil:
+		return NewKubernetesDiscovery(pd.Kubernetes.Name, pd.Kubernetes.Path, pd.Kubernetes.Context), nil
 	}
-	return nil, errors.New("unknown plugin discovery")
+	return nil, errors.New("unknown plugin discovery source")
 }

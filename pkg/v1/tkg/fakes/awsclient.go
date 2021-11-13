@@ -4,6 +4,8 @@ package fakes
 import (
 	"sync"
 
+	"sigs.k8s.io/cluster-api-provider-aws/cmd/clusterawsadm/cloudformation/bootstrap"
+
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/aws"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 )
@@ -19,6 +21,17 @@ type AWSClient struct {
 	createCloudFormationStackReturnsOnCall map[int]struct {
 		result1 error
 	}
+	CreateCloudFormationStackWithTemplateStub        func(*bootstrap.Template) error
+	createCloudFormationStackWithTemplateMutex       sync.RWMutex
+	createCloudFormationStackWithTemplateArgsForCall []struct {
+		arg1 *bootstrap.Template
+	}
+	createCloudFormationStackWithTemplateReturns struct {
+		result1 error
+	}
+	createCloudFormationStackWithTemplateReturnsOnCall map[int]struct {
+		result1 error
+	}
 	EncodeCredentialsStub        func() (string, error)
 	encodeCredentialsMutex       sync.RWMutex
 	encodeCredentialsArgsForCall []struct {
@@ -29,6 +42,19 @@ type AWSClient struct {
 	}
 	encodeCredentialsReturnsOnCall map[int]struct {
 		result1 string
+		result2 error
+	}
+	GenerateBootstrapTemplateStub        func(aws.GenerateBootstrapTemplateInput) (*bootstrap.Template, error)
+	generateBootstrapTemplateMutex       sync.RWMutex
+	generateBootstrapTemplateArgsForCall []struct {
+		arg1 aws.GenerateBootstrapTemplateInput
+	}
+	generateBootstrapTemplateReturns struct {
+		result1 *bootstrap.Template
+		result2 error
+	}
+	generateBootstrapTemplateReturnsOnCall map[int]struct {
+		result1 *bootstrap.Template
 		result2 error
 	}
 	GetSubnetGatewayAssociationsStub        func(string) (map[string]bool, error)
@@ -185,6 +211,67 @@ func (fake *AWSClient) CreateCloudFormationStackReturnsOnCall(i int, result1 err
 	}{result1}
 }
 
+func (fake *AWSClient) CreateCloudFormationStackWithTemplate(arg1 *bootstrap.Template) error {
+	fake.createCloudFormationStackWithTemplateMutex.Lock()
+	ret, specificReturn := fake.createCloudFormationStackWithTemplateReturnsOnCall[len(fake.createCloudFormationStackWithTemplateArgsForCall)]
+	fake.createCloudFormationStackWithTemplateArgsForCall = append(fake.createCloudFormationStackWithTemplateArgsForCall, struct {
+		arg1 *bootstrap.Template
+	}{arg1})
+	stub := fake.CreateCloudFormationStackWithTemplateStub
+	fakeReturns := fake.createCloudFormationStackWithTemplateReturns
+	fake.recordInvocation("CreateCloudFormationStackWithTemplate", []interface{}{arg1})
+	fake.createCloudFormationStackWithTemplateMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *AWSClient) CreateCloudFormationStackWithTemplateCallCount() int {
+	fake.createCloudFormationStackWithTemplateMutex.RLock()
+	defer fake.createCloudFormationStackWithTemplateMutex.RUnlock()
+	return len(fake.createCloudFormationStackWithTemplateArgsForCall)
+}
+
+func (fake *AWSClient) CreateCloudFormationStackWithTemplateCalls(stub func(*bootstrap.Template) error) {
+	fake.createCloudFormationStackWithTemplateMutex.Lock()
+	defer fake.createCloudFormationStackWithTemplateMutex.Unlock()
+	fake.CreateCloudFormationStackWithTemplateStub = stub
+}
+
+func (fake *AWSClient) CreateCloudFormationStackWithTemplateArgsForCall(i int) *bootstrap.Template {
+	fake.createCloudFormationStackWithTemplateMutex.RLock()
+	defer fake.createCloudFormationStackWithTemplateMutex.RUnlock()
+	argsForCall := fake.createCloudFormationStackWithTemplateArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *AWSClient) CreateCloudFormationStackWithTemplateReturns(result1 error) {
+	fake.createCloudFormationStackWithTemplateMutex.Lock()
+	defer fake.createCloudFormationStackWithTemplateMutex.Unlock()
+	fake.CreateCloudFormationStackWithTemplateStub = nil
+	fake.createCloudFormationStackWithTemplateReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *AWSClient) CreateCloudFormationStackWithTemplateReturnsOnCall(i int, result1 error) {
+	fake.createCloudFormationStackWithTemplateMutex.Lock()
+	defer fake.createCloudFormationStackWithTemplateMutex.Unlock()
+	fake.CreateCloudFormationStackWithTemplateStub = nil
+	if fake.createCloudFormationStackWithTemplateReturnsOnCall == nil {
+		fake.createCloudFormationStackWithTemplateReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.createCloudFormationStackWithTemplateReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
 func (fake *AWSClient) EncodeCredentials() (string, error) {
 	fake.encodeCredentialsMutex.Lock()
 	ret, specificReturn := fake.encodeCredentialsReturnsOnCall[len(fake.encodeCredentialsArgsForCall)]
@@ -237,6 +324,70 @@ func (fake *AWSClient) EncodeCredentialsReturnsOnCall(i int, result1 string, res
 	}
 	fake.encodeCredentialsReturnsOnCall[i] = struct {
 		result1 string
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *AWSClient) GenerateBootstrapTemplate(arg1 aws.GenerateBootstrapTemplateInput) (*bootstrap.Template, error) {
+	fake.generateBootstrapTemplateMutex.Lock()
+	ret, specificReturn := fake.generateBootstrapTemplateReturnsOnCall[len(fake.generateBootstrapTemplateArgsForCall)]
+	fake.generateBootstrapTemplateArgsForCall = append(fake.generateBootstrapTemplateArgsForCall, struct {
+		arg1 aws.GenerateBootstrapTemplateInput
+	}{arg1})
+	stub := fake.GenerateBootstrapTemplateStub
+	fakeReturns := fake.generateBootstrapTemplateReturns
+	fake.recordInvocation("GenerateBootstrapTemplate", []interface{}{arg1})
+	fake.generateBootstrapTemplateMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *AWSClient) GenerateBootstrapTemplateCallCount() int {
+	fake.generateBootstrapTemplateMutex.RLock()
+	defer fake.generateBootstrapTemplateMutex.RUnlock()
+	return len(fake.generateBootstrapTemplateArgsForCall)
+}
+
+func (fake *AWSClient) GenerateBootstrapTemplateCalls(stub func(aws.GenerateBootstrapTemplateInput) (*bootstrap.Template, error)) {
+	fake.generateBootstrapTemplateMutex.Lock()
+	defer fake.generateBootstrapTemplateMutex.Unlock()
+	fake.GenerateBootstrapTemplateStub = stub
+}
+
+func (fake *AWSClient) GenerateBootstrapTemplateArgsForCall(i int) aws.GenerateBootstrapTemplateInput {
+	fake.generateBootstrapTemplateMutex.RLock()
+	defer fake.generateBootstrapTemplateMutex.RUnlock()
+	argsForCall := fake.generateBootstrapTemplateArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *AWSClient) GenerateBootstrapTemplateReturns(result1 *bootstrap.Template, result2 error) {
+	fake.generateBootstrapTemplateMutex.Lock()
+	defer fake.generateBootstrapTemplateMutex.Unlock()
+	fake.GenerateBootstrapTemplateStub = nil
+	fake.generateBootstrapTemplateReturns = struct {
+		result1 *bootstrap.Template
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *AWSClient) GenerateBootstrapTemplateReturnsOnCall(i int, result1 *bootstrap.Template, result2 error) {
+	fake.generateBootstrapTemplateMutex.Lock()
+	defer fake.generateBootstrapTemplateMutex.Unlock()
+	fake.GenerateBootstrapTemplateStub = nil
+	if fake.generateBootstrapTemplateReturnsOnCall == nil {
+		fake.generateBootstrapTemplateReturnsOnCall = make(map[int]struct {
+			result1 *bootstrap.Template
+			result2 error
+		})
+	}
+	fake.generateBootstrapTemplateReturnsOnCall[i] = struct {
+		result1 *bootstrap.Template
 		result2 error
 	}{result1, result2}
 }
@@ -715,8 +866,12 @@ func (fake *AWSClient) Invocations() map[string][][]interface{} {
 	defer fake.invocationsMutex.RUnlock()
 	fake.createCloudFormationStackMutex.RLock()
 	defer fake.createCloudFormationStackMutex.RUnlock()
+	fake.createCloudFormationStackWithTemplateMutex.RLock()
+	defer fake.createCloudFormationStackWithTemplateMutex.RUnlock()
 	fake.encodeCredentialsMutex.RLock()
 	defer fake.encodeCredentialsMutex.RUnlock()
+	fake.generateBootstrapTemplateMutex.RLock()
+	defer fake.generateBootstrapTemplateMutex.RUnlock()
 	fake.getSubnetGatewayAssociationsMutex.RLock()
 	defer fake.getSubnetGatewayAssociationsMutex.RUnlock()
 	fake.listAvailabilityZonesMutex.RLock()

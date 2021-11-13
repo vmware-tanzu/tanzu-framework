@@ -28,14 +28,11 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     edition: AppEdition = AppEdition.TCE;
     validatorEnum = ValidatorEnum;
     errorNotification: string;
-    clusterType: string;
+    clusterTypeDescriptor: string;
+    modeClusterStandalone: boolean;
     ipFamily: IpFamilyEnum = IpFamilyEnum.IPv4;
 
     private delayedFieldQueue = [];
-
-    constructor() {
-        super();
-    }
 
     ngOnInit(): void {
         this.getFormName();
@@ -52,8 +49,9 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
             .subscribe((data: TkgEvent) => {
                 const content: EditionData = data.payload;
                 this.edition = content.edition;
-                this.clusterType = data.payload.clusterType;
+                this.clusterTypeDescriptor = data.payload.clusterTypeDescriptor;
             });
+        this.modeClusterStandalone = Broker.appDataService.isModeClusterStandalone();
     }
 
     /**

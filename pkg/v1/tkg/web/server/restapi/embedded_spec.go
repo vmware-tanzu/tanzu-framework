@@ -291,50 +291,6 @@ func init() {
         }
       }
     },
-    "/api/integration/tmc": {
-      "get": {
-        "tags": [
-          "tmc"
-        ],
-        "summary": "Retrieves TMC install yml from provided URL",
-        "operationId": "retrieveTMCInstallYml",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "The URL to retrieve the TMC install yml from.",
-            "name": "url",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved TMC install yml.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "500": {
-            "description": "Internal server error",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "502": {
-            "description": "Bad Gateway",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      }
-    },
     "/api/ldap/bind": {
       "post": {
         "tags": [
@@ -2452,6 +2408,9 @@ func init() {
             "type": "string"
           }
         },
+        "loadbalancerSchemeInternal": {
+          "type": "boolean"
+        },
         "machineHealthCheckEnabled": {
           "type": "boolean"
         },
@@ -2465,9 +2424,6 @@ func init() {
           "$ref": "#/definitions/AWSVirtualMachine"
         },
         "sshKeyName": {
-          "type": "string"
-        },
-        "tmc_registration_url": {
           "type": "string"
         },
         "vpc": {
@@ -2824,9 +2780,6 @@ func init() {
         "sshPublicKey": {
           "type": "string"
         },
-        "tmc_registration_url": {
-          "type": "string"
-        },
         "vnetCidr": {
           "type": "string"
         },
@@ -2969,9 +2922,6 @@ func init() {
           "$ref": "#/definitions/TKGNetwork"
         },
         "numOfWorkerNodes": {
-          "type": "string"
-        },
-        "tmc_registration_url": {
           "type": "string"
         }
       }
@@ -3268,6 +3218,10 @@ func init() {
         "host": {
           "type": "string"
         },
+        "insecure": {
+          "type": "boolean",
+          "default": false
+        },
         "password": {
           "type": "string"
         },
@@ -3488,9 +3442,6 @@ func init() {
           "type": "string"
         },
         "ssh_key": {
-          "type": "string"
-        },
-        "tmc_registration_url": {
           "type": "string"
         },
         "vsphereCredentials": {
@@ -3810,50 +3761,6 @@ func init() {
         }
       }
     },
-    "/api/integration/tmc": {
-      "get": {
-        "tags": [
-          "tmc"
-        ],
-        "summary": "Retrieves TMC install yml from provided URL",
-        "operationId": "retrieveTMCInstallYml",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "The URL to retrieve the TMC install yml from.",
-            "name": "url",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved TMC install yml.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "500": {
-            "description": "Internal server error",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "502": {
-            "description": "Bad Gateway",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      }
-    },
     "/api/ldap/bind": {
       "post": {
         "tags": [
@@ -5971,6 +5878,9 @@ func init() {
             "type": "string"
           }
         },
+        "loadbalancerSchemeInternal": {
+          "type": "boolean"
+        },
         "machineHealthCheckEnabled": {
           "type": "boolean"
         },
@@ -5984,9 +5894,6 @@ func init() {
           "$ref": "#/definitions/AWSVirtualMachine"
         },
         "sshKeyName": {
-          "type": "string"
-        },
-        "tmc_registration_url": {
           "type": "string"
         },
         "vpc": {
@@ -6343,9 +6250,6 @@ func init() {
         "sshPublicKey": {
           "type": "string"
         },
-        "tmc_registration_url": {
-          "type": "string"
-        },
         "vnetCidr": {
           "type": "string"
         },
@@ -6488,9 +6392,6 @@ func init() {
           "$ref": "#/definitions/TKGNetwork"
         },
         "numOfWorkerNodes": {
-          "type": "string"
-        },
-        "tmc_registration_url": {
           "type": "string"
         }
       }
@@ -6787,6 +6688,10 @@ func init() {
         "host": {
           "type": "string"
         },
+        "insecure": {
+          "type": "boolean",
+          "default": false
+        },
         "password": {
           "type": "string"
         },
@@ -7007,9 +6912,6 @@ func init() {
           "type": "string"
         },
         "ssh_key": {
-          "type": "string"
-        },
-        "tmc_registration_url": {
           "type": "string"
         },
         "vsphereCredentials": {

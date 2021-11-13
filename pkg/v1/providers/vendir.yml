@@ -6,23 +6,23 @@ directories:
   - path: .
     git:
       url: git@github.com:vmware-tanzu/tce.git
-      ref: df9a9cdea9886f1f5cc2856994739539cd5c5663
+      ref: ef137b14f5c3825592aa9d08c3228d0a93169460
     includePaths:
-    - addons/packages/vsphere-cpi/1.18.1/bundle/config/**/*
+    - addons/packages/vsphere-cpi/1.22.3/bundle/config/**/*
 - path: ytt/vendir/cni/_ytt_lib
   contents:
   - path: .
     git:
       url: git@github.com:vmware-tanzu/tce.git
-      ref: 0c8cf14639f151cc0268da53d133e1f6c0d836a9
+      ref: 9dc64e01bfb67cc128f618a419415c0f73a82cdc
     includePaths:
     - addons/packages/antrea/0.13.3/bundle/config/**/*
-    - addons/packages/calico/3.11.3/bundle/config/**/*
+    - addons/packages/calico/3.19.1/bundle/config/**/*
 - path: ytt/vendir/kapp-controller/_ytt_lib
   contents:
   - path: .
     git:
       url: git@github.com:vmware-tanzu/community-edition.git
-      ref: a67d6b278c5b1e693e2143e37e4e4761e69314fe
+      ref: 0054c7f86937a0cfb9bd6dbc7501128fc06d4194
     includePaths:
-    - addons/packages/kapp-controller/0.25.0/bundle/config/**/*
+    - addons/packages/kapp-controller/0.28.0/bundle/config/**/*

@@ -23,9 +23,10 @@ type PinnipedConfigMapInfo struct {
 	Kind    string `json:"kind" yaml:"kind"`
 	Version string `json:"apiVersion" yaml:"apiVersion"`
 	Data    struct {
-		ClusterName    string `json:"cluster_name" yaml:"cluster_name"`
-		Issuer         string `json:"issuer" yaml:"issuer"`
-		IssuerCABundle string `json:"issuer_ca_bundle_data" yaml:"issuer_ca_bundle_data"`
+		ClusterName              string `json:"cluster_name" yaml:"cluster_name"`
+		Issuer                   string `json:"issuer" yaml:"issuer"`
+		IssuerCABundle           string `json:"issuer_ca_bundle_data" yaml:"issuer_ca_bundle_data"`
+		ConciergeIsClusterScoped bool   `json:"concierge_is_cluster_scoped,string" yaml:"concierge_is_cluster_scoped"`
 	}
 }
 
@@ -172,6 +173,9 @@ func GetPinnipedInfoFromCluster(clusterInfo *clientcmdapi.Cluster) (*PinnipedCon
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
+		if response.StatusCode == http.StatusNotFound {
+			return nil, nil
+		}
 		return nil, errors.New("failed to get pinniped-info from the cluster")
 	}
 
@@ -183,7 +187,7 @@ func GetPinnipedInfoFromCluster(clusterInfo *clientcmdapi.Cluster) (*PinnipedCon
 	var pinnipedConfigMapInfo PinnipedConfigMapInfo
 	err = json.Unmarshal(responseBody, &pinnipedConfigMapInfo)
 	if err != nil {
-		return nil, errors.Wrap(err, "error parsing http response body ")
+		return nil, errors.Wrap(err, "error parsing http response body")
 	}
 
 	return &pinnipedConfigMapInfo, nil

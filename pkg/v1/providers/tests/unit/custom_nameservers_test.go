@@ -19,8 +19,8 @@ var _ = Describe("Control Plane/Workload Node Nameserver Ytt Templating", func()
 	BeforeEach(func() {
 		paths = []string{
 			filepath.Join("fixtures", "yttmocks"),
-			filepath.Join("..", "..", "infrastructure-vsphere", "v0.7.10", "ytt", "overlay.yaml"),
-			filepath.Join("..", "..", "infrastructure-vsphere", "v0.7.10", "ytt", "base-template.yaml"),
+			filepath.Join("..", "..", "infrastructure-vsphere", "v1.0.1", "ytt", "overlay.yaml"),
+			filepath.Join("..", "..", "infrastructure-vsphere", "v1.0.1", "ytt", "base-template.yaml"),
 			filepath.Join("..", "..", "config_default.yaml"),
 		}
 	})
@@ -34,6 +34,8 @@ var _ = Describe("Control Plane/Workload Node Nameserver Ytt Templating", func()
 				"TKG_IP_FAMILY":                  "ipv4",
 				"CONTROL_PLANE_NODE_NAMESERVERS": "1.1.1.1,2.2.2.2",
 				"WORKER_NODE_NAMESERVERS":        "3.3.3.3,4.4.4.4",
+				"SERVICE_CIDR":                   "5.5.5.5/16",
+				"CLUSTER_CIDR":                   "6.6.6.6/16",
 			})
 		})
 
@@ -77,6 +79,8 @@ var _ = Describe("Control Plane/Workload Node Nameserver Ytt Templating", func()
 				"TKG_IP_FAMILY":                  "ipv6",
 				"CONTROL_PLANE_NODE_NAMESERVERS": "fd00::1,fd00::2",
 				"WORKER_NODE_NAMESERVERS":        "fd00::3,fd00::4",
+				"SERVICE_CIDR":                   "5.5.5.5/16",
+				"CLUSTER_CIDR":                   "6.6.6.6/16",
 			})
 		})
 
@@ -120,6 +124,8 @@ var _ = Describe("Control Plane/Workload Node Nameserver Ytt Templating", func()
 				"TKG_IP_FAMILY":                  "ipv4,ipv6",
 				"CONTROL_PLANE_NODE_NAMESERVERS": "1.1.1.1,fd00::2",
 				"WORKER_NODE_NAMESERVERS":        "3.3.3.3,fd00::4",
+				"SERVICE_CIDR":                   "5.5.5.5/16",
+				"CLUSTER_CIDR":                   "6.6.6.6/16",
 			})
 		})
 

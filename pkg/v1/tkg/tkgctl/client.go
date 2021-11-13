@@ -134,6 +134,7 @@ func New(options Options) (TKGClient, error) { //nolint:gocritic
 		TKGPathsClient:           allClients.TKGConfigPathsClient,
 		ClusterKubeConfig:        clusterKubeConfig,
 		ClusterClientFactory:     clusterclient.NewClusterClientFactory(),
+		FeatureFlagClient:        allClients.FeatureFlagClient,
 	})
 	if err != nil {
 		return nil, err

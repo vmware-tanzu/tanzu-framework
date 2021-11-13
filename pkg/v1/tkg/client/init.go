@@ -50,11 +50,9 @@ const (
 	StepCreateManagementCluster            = "Create management cluster"
 	StepInstallProvidersOnRegionalCluster  = "Install providers on management cluster"
 	StepMoveClusterAPIObjects              = "Move cluster-api objects from bootstrap cluster to management cluster"
-	StepRegisterWithTMC                    = "Register management cluster with Tanzu Mission Control"
 )
 
 const (
-	tmcFeatureFlag     = "tmcRegistration"
 	cniFeatureFlag     = "cni"
 	editionFeatureFlag = "edition"
 )
@@ -100,9 +98,7 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	if err != nil {
 		return err
 	}
-	if options.TmcRegistrationURL != "" {
-		InitRegionSteps = append(InitRegionSteps, StepRegisterWithTMC)
-	}
+
 	log.SendProgressUpdate(statusRunning, StepValidateConfiguration, InitRegionSteps)
 
 	log.Info("Validating configuration...")
@@ -150,10 +146,23 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		log.Infof("Using custom image repository: %s", customImageRepo)
 	}
 
+	providerName, _, err := ParseProviderName(options.InfrastructureProvider)
+	if err != nil {
+		return errors.Wrap(err, "unable to parse provider name")
+	}
+
 	// validate docker only if user is not using an existing cluster
 	// Note: Validating in client code as well to cover the usecase where users use client code instead of command line.
+
 	if err := c.ValidatePrerequisites(!options.UseExistingCluster, true); err != nil {
 		return err
+	}
+
+	// validate docker resources if provider is docker
+	if providerName == "docker" {
+		if err := c.ValidateDockerResourcePrerequisites(); err != nil {
+			return err
+		}
 	}
 
 	log.Infof("Using infrastructure provider %s", options.InfrastructureProvider)
@@ -293,17 +302,6 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		return errors.Wrap(err, "unable to patch cluster object")
 	}
 
-	// install TMC agent workloads on the management cluster
-	if options.TmcRegistrationURL != "" {
-		if err = registerWithTmc(options.TmcRegistrationURL, regionalClusterClient); err != nil {
-			log.Error(err, "Failed to register management cluster to Tanzu Mission Control")
-
-			log.Warningf("\nTo attach the management cluster to Tanzu Mission Control:")
-			log.Warningf("\ttanzu management-cluster register --tmc-registration-url %s", options.TmcRegistrationURL)
-		}
-	}
-
-	providerName, _, err := ParseProviderName(options.InfrastructureProvider)
 	if err != nil {
 		return errors.Wrap(err, "unable to parse provider name")
 	}
@@ -344,23 +342,6 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 
 	log.Infof("You can now access the management cluster %s by running 'kubectl config use-context %s'", options.ClusterName, kubeContext)
 	isSuccessful = true
-	return nil
-}
-
-func registerWithTmc(url string, regionalClusterClient clusterclient.Client) error {
-	log.SendProgressUpdate(statusRunning, StepRegisterWithTMC, InitRegionSteps)
-	log.Info("Registering management cluster with TMC...")
-
-	if !utils.IsValidURL(url) {
-		return errors.Errorf("TMC registration URL '%s' is not valid", url)
-	}
-
-	err := regionalClusterClient.ApplyFile(url)
-	if err != nil {
-		return errors.Wrap(err, "failed to register management cluster to TMC")
-	}
-
-	log.Infof("Successfully registered management cluster to TMC")
 	return nil
 }
 
@@ -482,7 +463,6 @@ func (c *TkgClient) InitializeProviders(options *InitRegionOptions, clusterClien
 		BootstrapProviders:      []string{options.BootstrapProvider},
 		CoreProvider:            options.CoreProvider,
 		TargetNamespace:         options.Namespace,
-		WatchingNamespace:       options.WatchingNamespace,
 	}
 
 	componentsList, err := c.clusterctlClient.Init(clusterctlClientInitOptions)
@@ -500,9 +480,8 @@ func (c *TkgClient) InitializeProviders(options *InitRegionOptions, clusterClien
 
 	// Wait for installed providers to get up and running
 	waitOptions := waitForProvidersOptions{
-		Kubeconfig:        options.Kubeconfig,
-		TargetNamespace:   options.Namespace,
-		WatchingNamespace: options.WatchingNamespace,
+		Kubeconfig:      options.Kubeconfig,
+		TargetNamespace: options.Namespace,
 	}
 	err = c.WaitForProviders(clusterClient, waitOptions)
 	if err != nil {
@@ -601,9 +580,8 @@ func (c *TkgClient) BuildRegionalClusterConfiguration(options *InitRegionOptions
 }
 
 type waitForProvidersOptions struct {
-	Kubeconfig        string
-	TargetNamespace   string
-	WatchingNamespace string
+	Kubeconfig      string
+	TargetNamespace string
 }
 
 // WaitForProviders checks and waits for each provider components to be up and running
@@ -633,7 +611,7 @@ func (c *TkgClient) WaitForProviders(clusterClient clusterclient.Client, options
 			t, err := TimedExecution(func() error {
 				log.V(3).Infof("Waiting for provider %s", provider.Name)
 				providerNameVersion := provider.ProviderName + ":" + provider.Version
-				return c.waitForProvider(clusterClient, providerNameVersion, provider.Type, options.TargetNamespace, options.WatchingNamespace)
+				return c.waitForProvider(clusterClient, providerNameVersion, provider.Type, options.TargetNamespace)
 			})
 			if err != nil {
 				log.V(3).Warningf("Failed waiting for provider %v after %v", provider.Name, t)
@@ -654,8 +632,8 @@ func (c *TkgClient) WaitForProviders(clusterClient clusterclient.Client, options
 	return nil
 }
 
-func (c *TkgClient) waitForProvider(clusterClient clusterclient.Client, name, providerType, targetNamespace, watchingNamespace string) error {
-	providerOptions := clusterctl.ComponentsOptions{TargetNamespace: targetNamespace, WatchingNamespace: watchingNamespace}
+func (c *TkgClient) waitForProvider(clusterClient clusterclient.Client, name, providerType, targetNamespace string) error {
+	providerOptions := clusterctl.ComponentsOptions{TargetNamespace: targetNamespace}
 	// get the provider component from clusterctl
 	providerComponents, err := c.clusterctlClient.GetProviderComponents(name, clusterctlv1.ProviderType(providerType), providerOptions)
 	if err != nil {
@@ -665,10 +643,8 @@ func (c *TkgClient) waitForProvider(clusterClient clusterclient.Client, name, pr
 	var controllerName string
 	var namespace string
 
-	objs := append(providerComponents.InstanceObjs(), providerComponents.SharedObjs()...)
-
 	// get the deployment name and namespace from the provider
-	for _, object := range objs {
+	for _, object := range providerComponents.Objs() {
 		if object.GetKind() == "Deployment" {
 			controllerName = object.GetName()
 			namespace = object.GetNamespace()
@@ -698,9 +674,6 @@ func (c *TkgClient) displayHelpTextOnFailure(options *InitRegionOptions,
 
 // ParseHiddenArgsAsFeatureFlags adds the hidden flags from InitRegionOptions as enabled feature flags
 func (c *TkgClient) ParseHiddenArgsAsFeatureFlags(options *InitRegionOptions) {
-	if options.TmcRegistrationURL != "" {
-		options.FeatureFlags = c.safelyAddFeatureFlag(options.FeatureFlags, tmcFeatureFlag, options.TmcRegistrationURL)
-	}
 	if options.CniType != "" {
 		options.FeatureFlags = c.safelyAddFeatureFlag(options.FeatureFlags, cniFeatureFlag, options.CniType)
 	}

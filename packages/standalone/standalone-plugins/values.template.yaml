@@ -1,0 +1,14 @@
+#@data/values
+#@overlay/match-child-defaults missing_ok=True
+
+---
+login:
+  version: VERSION
+managementcluster:
+  version: VERSION
+package:
+  version: VERSION
+pinnipedauth:
+  version: VERSION
+secret:
+  version: VERSION

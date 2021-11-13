@@ -14,6 +14,8 @@ import (
 
 	certmanagerv1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1"
 	certmanagerclientset "github.com/jetstack/cert-manager/pkg/client/clientset/versioned"
+	pinnipedconciergeclientset "go.pinniped.dev/generated/1.19/client/concierge/clientset/versioned"
+	pinnipedsupervisorclientset "go.pinniped.dev/generated/1.19/client/supervisor/clientset/versioned"
 	"go.uber.org/zap"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -27,7 +29,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/configure/supervisor"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/inspect"
-	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/pinnipedclientset"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/utils"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/vars"
 )
@@ -35,28 +36,28 @@ import (
 // Clients contains the various client interfaces used.
 type Clients struct {
 	K8SClientset         kubernetes.Interface
-	SupervisorClientset  pinnipedclientset.Supervisor
-	ConciergeClientset   pinnipedclientset.Concierge
+	SupervisorClientset  pinnipedsupervisorclientset.Interface
+	ConciergeClientset   pinnipedconciergeclientset.Interface
 	CertmanagerClientset certmanagerclientset.Interface
 }
 
 // Parameters contains the settings used.
 type Parameters struct {
-	ClusterName             string
-	ClusterType             string
-	SupervisorSvcName       string
-	SupervisorSvcNamespace  string
-	SupervisorSvcEndpoint   string
-	FederationDomainName    string
-	JWTAuthenticatorName    string
-	SupervisorCertName      string
-	SupervisorCertNamespace string
-	SupervisorCABundleData  string
-	DexNamespace            string
-	DexSvcName              string
-	DexCertName             string
-	DexConfigMapName        string
-	PinnipedAPIGroupSuffix  string
+	ClusterName              string
+	ClusterType              string
+	SupervisorSvcName        string
+	SupervisorSvcNamespace   string
+	SupervisorSvcEndpoint    string
+	FederationDomainName     string
+	JWTAuthenticatorName     string
+	SupervisorCertName       string
+	SupervisorCertNamespace  string
+	SupervisorCABundleData   string
+	DexNamespace             string
+	DexSvcName               string
+	DexCertName              string
+	DexConfigMapName         string
+	ConciergeIsClusterScoped bool
 }
 
 func ensureDeploymentReady(ctx context.Context, c Clients, namespace, deploymentTypeName string) error {
@@ -188,21 +189,21 @@ func TKGAuthentication(c Clients) error {
 	}
 
 	if err := Pinniped(ctx, c, inspector, &Parameters{
-		ClusterName:             tkgMetadata.Cluster.Name,
-		ClusterType:             tkgMetadata.Cluster.Type,
-		SupervisorSvcName:       vars.SupervisorSvcName,
-		SupervisorSvcNamespace:  vars.SupervisorNamespace,
-		SupervisorSvcEndpoint:   vars.SupervisorSvcEndpoint,
-		FederationDomainName:    vars.FederationDomainName,
-		JWTAuthenticatorName:    vars.JWTAuthenticatorName,
-		SupervisorCertName:      vars.SupervisorCertName,
-		SupervisorCertNamespace: vars.SupervisorNamespace,
-		SupervisorCABundleData:  vars.SupervisorCABundleData,
-		DexNamespace:            vars.DexNamespace,
-		DexSvcName:              vars.DexSvcName,
-		DexCertName:             vars.DexCertName,
-		DexConfigMapName:        vars.DexConfigMapName,
-		PinnipedAPIGroupSuffix:  vars.PinnipedAPIGroupSuffix,
+		ClusterName:              tkgMetadata.Cluster.Name,
+		ClusterType:              tkgMetadata.Cluster.Type,
+		SupervisorSvcName:        vars.SupervisorSvcName,
+		SupervisorSvcNamespace:   vars.SupervisorNamespace,
+		SupervisorSvcEndpoint:    vars.SupervisorSvcEndpoint,
+		FederationDomainName:     vars.FederationDomainName,
+		JWTAuthenticatorName:     vars.JWTAuthenticatorName,
+		SupervisorCertName:       vars.SupervisorCertName,
+		SupervisorCertNamespace:  vars.SupervisorNamespace,
+		SupervisorCABundleData:   vars.SupervisorCABundleData,
+		DexNamespace:             vars.DexNamespace,
+		DexSvcName:               vars.DexSvcName,
+		DexCertName:              vars.DexCertName,
+		DexConfigMapName:         vars.DexConfigMapName,
+		ConciergeIsClusterScoped: vars.ConciergeIsClusterScoped,
 	}); err != nil {
 		// logging has been done inside the function
 		return err
@@ -291,7 +292,7 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p *Pa
 
 		// create Pinniped concierge JWTAuthenticator
 		caData := base64.StdEncoding.EncodeToString(secret.Data["ca.crt"])
-		if err = conciergeConfigurator.CreateOrUpdateJWTAuthenticator(ctx, vars.ConciergeNamespace,
+		if err = conciergeConfigurator.CreateOrUpdateJWTAuthenticator(ctx,
 			p.JWTAuthenticatorName, supervisorSvcEndpoint, supervisorSvcEndpoint, caData); err != nil {
 			zap.S().Error(err)
 			return err
@@ -299,18 +300,17 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p *Pa
 
 		// create configmap for Pinniped info
 		if err := createOrUpdatePinnipedInfo(ctx, supervisor.PinnipedInfo{
-			MgmtClusterName:                  &p.ClusterName,
-			Issuer:                           &supervisorSvcEndpoint,
-			IssuerCABundleData:               &caData,
-			PinnipedAPIGroupSuffix:           p.PinnipedAPIGroupSuffix,
-			PinnipedConciergeIsClusterScoped: false,
+			MgmtClusterName:          &p.ClusterName,
+			Issuer:                   &supervisorSvcEndpoint,
+			IssuerCABundleData:       &caData,
+			ConciergeIsClusterScoped: p.ConciergeIsClusterScoped,
 		}, c.K8SClientset); err != nil {
 			return err
 		}
 	} else if p.ClusterType == constants.TKGWorkloadClusterType {
 		zap.S().Info("Workload cluster detected")
 
-		if err = conciergeConfigurator.CreateOrUpdateJWTAuthenticator(ctx, vars.ConciergeNamespace, p.JWTAuthenticatorName, p.SupervisorSvcEndpoint, p.ClusterName, p.SupervisorCABundleData); err != nil {
+		if err = conciergeConfigurator.CreateOrUpdateJWTAuthenticator(ctx, p.JWTAuthenticatorName, p.SupervisorSvcEndpoint, p.ClusterName, p.SupervisorCABundleData); err != nil {
 			// on workload cluster, we only create or update JWTAuthenticator
 			// SupervisorSvcEndpoint will be passed in on workload cluster
 			zap.S().Error(err)
@@ -319,8 +319,7 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p *Pa
 
 		// create configmap for Pinniped info
 		if err := createOrUpdatePinnipedInfo(ctx, supervisor.PinnipedInfo{
-			PinnipedAPIGroupSuffix:           p.PinnipedAPIGroupSuffix,
-			PinnipedConciergeIsClusterScoped: false,
+			ConciergeIsClusterScoped: p.ConciergeIsClusterScoped,
 		}, c.K8SClientset); err != nil {
 			return err
 		}

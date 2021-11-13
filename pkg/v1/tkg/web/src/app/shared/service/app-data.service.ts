@@ -75,4 +75,10 @@ export class AppDataService {
     isValueTrue(value: string) {
         return value !== null && JSON.parse(value);
     }
+
+    // returns true if the standalone-cluster-mode feature flag is activated. This is a convenience method
+    // to avoid having the string parameters scattered throughout the code
+    isModeClusterStandalone() {
+        return this.isPluginFeatureActivated('management-cluster', 'standalone-cluster-mode');
+    }
 }

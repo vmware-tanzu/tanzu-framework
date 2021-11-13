@@ -33,7 +33,7 @@ func (p *pkgClient) DeleteRepository(o *tkgpackagedatamodel.RepositoryOptions, p
 		return
 	}
 
-	progress.ProgressMsg <- "Deleting package repository resoure"
+	progress.ProgressMsg <- "Deleting package repository resource"
 	err = p.kappClient.DeletePackageRepository(packageRepo)
 	if err != nil {
 		err = errors.Wrap(err, fmt.Sprintf("failed to delete package repository '%s' from namespace '%s'", o.RepositoryName, o.Namespace))

@@ -1,0 +1,28 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+---
+apiVersion: cli.tanzu.vmware.com/v1alpha1
+kind: CLIPlugin
+metadata:
+  creationTimestamp: null
+  name: pinniped-auth
+spec:
+  artifacts:
+    #@yaml/text-templated-strings
+    (@= data.values.pinnipedauth.version @):
+    - arch: amd64
+      image: tanzu-cli-plugins/pinniped-auth-darwin-amd64:latest
+      os: darwin
+      type: oci
+    - arch: amd64
+      image: tanzu-cli-plugins/pinniped-auth-linux-amd64:latest
+      os: linux
+      type: oci
+    - arch: amd64
+      image: tanzu-cli-plugins/pinniped-auth-windows-amd64:latest
+      os: windows
+      type: oci
+  description: Pinniped authentication operations (usually not directly invoked)
+  optional: false
+  recommendedVersion: #@ data.values.pinnipedauth.version

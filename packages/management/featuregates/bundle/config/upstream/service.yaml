@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tanzu-featuregates-webhook-service
+  namespace: tkg-system
+spec:
+  ports:
+    - port: 443
+      targetPort: 9443
+  selector:
+    app: tanzu-featuregates-manager

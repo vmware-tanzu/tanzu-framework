@@ -23,7 +23,6 @@ import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
 import Broker from 'src/app/shared/service/broker';
 import { EditionData } from 'src/app/shared/service/branding.service';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
-import { AppDataService } from 'src/app/shared/service/app-data.service';
 import { managementClusterPlugin } from "../../wizard/shared/constants/wizard.constants";
 
 declare var sortPaths: any;
@@ -68,7 +67,6 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
     enableIpv6: boolean = false;
 
     constructor(private validationService: ValidationService,
-        private appDataService: AppDataService,
         private apiClient: APIClient,
         private router: Router) {
         super();
@@ -78,7 +76,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
 
     ngOnInit() {
         super.ngOnInit();
-        this.enableIpv6 = this.appDataService.isPluginFeatureActivated(managementClusterPlugin, 'vsphereIPv6');
+        this.enableIpv6 = Broker.appDataService.isPluginFeatureActivated(managementClusterPlugin, 'vsphereIPv6');
         this.formGroup.addControl(
             'ipFamily',
             new FormControl(
@@ -102,6 +100,10 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
             new FormControl('', [
                 Validators.required
             ])
+        );
+        this.formGroup.addControl(
+            'insecure',
+            new FormControl(false, [])
         );
         this.formGroup.addControl(
             'datacenter',
@@ -250,33 +252,43 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
         this.loadingState = ClrLoadingState.LOADING;
         this.vsphereHost = this.formGroup.controls['vcenterAddress'].value;
 
+        if (this.formGroup.controls['insecure'].value) {
+            this.login();
+        } else {
+            this.verifyThumbprint();
+        }
+    }
+
+    verifyThumbprint() {
         this.apiClient.getVsphereThumbprint({
             host: this.vsphereHost
         })
-        .pipe(
-            finalize(() => this.loadingState = ClrLoadingState.DEFAULT),
-            takeUntil(this.unsubscribe))
-        .subscribe(
-            ({thumbprint, insecure}) => {
-                if (insecure) {
-                    this.login();
-                } else {
-                    this.thumbprint = thumbprint;
-                    this.formGroup.controls['thumbprint'].setValue(thumbprint);
-                    FormMetaDataStore.saveMetaDataEntry(this.formName, 'thumbprint', {
-                        label: 'SSL THUMBPRINT',
-                        displayValue: thumbprint
-                    });
-                    this.sslThumbprintModal.open();
+            .pipe(
+                finalize(() => this.loadingState = ClrLoadingState.DEFAULT),
+                takeUntil(this.unsubscribe))
+            .subscribe(
+                ({thumbprint, insecure}) => {
+                    if (insecure) {
+                        this.login();
+                        console.log('vSphere Insecure set true via VSPHERE_INSECURE environment variable. Bypassing thumbprint verification modal.')
+                    } else {
+                        this.thumbprint = thumbprint;
+                        this.formGroup.controls['thumbprint'].setValue(thumbprint);
+                        FormMetaDataStore.saveMetaDataEntry(this.formName, 'thumbprint', {
+                            label: 'SSL THUMBPRINT',
+                            displayValue: thumbprint
+                        });
+                        this.sslThumbprintModal.open();
+                    }
+                },
+                (err) => {
+                    const error = err.error.message || err.message || JSON.stringify(err);
+                    this.errorNotification =
+                        `Failed to connect to the specified vCenter Server. ${ error }`;
                 }
-            },
-            (err) => {
-                const error = err.error.message || err.message || JSON.stringify(err);
-                this.errorNotification =
-                    `Failed to connect to the specified vCenter Server. ${error}`;
-            }
-        );
+            );
     }
+
     thumbprintModalResponse(validThumbprint: boolean) {
         if (validThumbprint) {
             this.login();
@@ -284,6 +296,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
             this.errorNotification = "Connection failed. Certificate thumbprint was not validated.";
         }
     }
+
     login() {
         this.loadingState = ClrLoadingState.LOADING;
         this.apiClient.setVSphereEndpoint({
@@ -291,6 +304,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 username: this.formGroup.controls['username'].value,
                 password: this.formGroup.controls['password'].value,
                 host: this.formGroup.controls['vcenterAddress'].value,
+                insecure: this.formGroup.controls['insecure'].value,
                 thumbprint: this.thumbprint
             }
         })
@@ -306,11 +320,10 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 this.connected = true;
                 this.vsphereVersion = vsphereVerInfo.version;
                 this.hasPacific = res.hasPacific;
-                this.appDataService.setVsphereVersion(vsphereVerInfo.version);
+                Broker.appDataService.setVsphereVersion(vsphereVerInfo.version);
 
                 if (isCompatible && !(_.startsWith(this.vsphereVersion, '6'))
-                    && this.edition !== AppEdition.TCE
-                    && this.edition !== AppEdition.TCE_STANDALONE) {
+                    && this.edition !== AppEdition.TCE) {
                     // for 7 and newer and other potential anomolies, show modal suggesting upgrade
                     this.showVSphereWithK8Modal();
                 } else if (!isCompatible) {
@@ -359,6 +372,9 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 this.formGroup.get('datacenter').enable();
                 this.formGroup.get('ssh_key').enable();
                 this.formGroup.get('datacenter').setValue(this.getSavedValue('datacenter', ''));
+                if (this.datacenters.length === 1) {
+                    this.formGroup.get('datacenter').setValue(this.datacenters[0].name);
+                }
             },
             (err) => {
                 const error = err.error.message || err.message || JSON.stringify(err);

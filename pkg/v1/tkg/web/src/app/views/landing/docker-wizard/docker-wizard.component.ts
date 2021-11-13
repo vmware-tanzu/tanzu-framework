@@ -140,8 +140,9 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         const cliG = new CliGenerator();
         const cliParams: CliFields = {
             configPath: configPath,
-            clusterType: this.clusterType,
-            clusterName: this.getMCName()
+            clusterType: this.getClusterType(),
+            clusterName: this.getMCName(),
+            extendCliCmds: []
         };
         return cliG.getCli(cliParams);
     }

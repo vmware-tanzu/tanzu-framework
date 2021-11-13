@@ -9,6 +9,7 @@ import { AwsWizardComponent } from './aws-wizard.component';
 import { SharedModule } from '../../../shared/shared.module';
 import Broker from 'src/app/shared/service/broker';
 import { Messenger } from 'src/app/shared/service/Messenger';
+import { ClusterType } from "../wizard/shared/constants/wizard.constants";
 
 describe('AwsWizardComponent', () => {
     let component: AwsWizardComponent;
@@ -86,11 +87,9 @@ describe('AwsWizardComponent', () => {
                 ceipOptIn: [true]
             }),
             osImageForm: fb.group({
-            }),
-            registerTmcForm: fb.group({
             })
         });
-        component.clusterType = 'management';
+        component.clusterTypeDescriptor = '' + ClusterType.Management;
         fixture.detectChanges();
     });
 
@@ -211,7 +210,12 @@ describe('AwsWizardComponent', () => {
 
     it('should generate cli', () => {
         const path = '/testPath/xyz.yaml';
-        expect(component.getCli(path)).toBe(`tanzu management-cluster create --file ${path} -v 6`);
+        const payload = component.getPayload();
+        if (payload.createCloudFormationStack) {
+            expect(component.getCli(path)).toBe(`tanzu management-cluster permissions aws set && tanzu management-cluster create --file ${path} -v 6`);
+        } else {
+            expect(component.getCli(path)).toBe(`tanzu management-cluster create --file ${path} -v 6`);
+        }
     });
 
     it('should call api to create aws regional cluster', () => {
