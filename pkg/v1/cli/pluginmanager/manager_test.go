@@ -15,15 +15,15 @@ import (
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 )
 
-var testCase string
-
 const (
-	testcaseInstallLogin     = "install-login"
-	testcaseInstallCluster   = "install-cluster"
-	testcaseInstallNotexists = "install-notexists"
+	testcaseInstallManagementCluster = "install-management-cluster"
+	testcaseInstallLogin             = "install-login"
+	testcaseInstallCluster           = "install-cluster"
+	testcaseInstallNotexists         = "install-notexists"
 )
 
 func Test_DiscoverPlugins(t *testing.T) {
@@ -34,19 +34,20 @@ func Test_DiscoverPlugins(t *testing.T) {
 	serverPlugins, standalonePlugins, err := DiscoverPlugins("")
 	assert.Nil(err)
 	assert.Equal(0, len(serverPlugins))
-	assert.Equal(1, len(standalonePlugins))
+	assert.Equal(2, len(standalonePlugins))
 
 	serverPlugins, standalonePlugins, err = DiscoverPlugins("mgmt-does-not-exists")
 	assert.Nil(err)
 	assert.Equal(0, len(serverPlugins))
-	assert.Equal(1, len(standalonePlugins))
+	assert.Equal(2, len(standalonePlugins))
 
 	serverPlugins, standalonePlugins, err = DiscoverPlugins("mgmt")
 	assert.Nil(err)
 	assert.Equal(1, len(serverPlugins))
-	assert.Equal(1, len(standalonePlugins))
+	assert.Equal(2, len(standalonePlugins))
 	assert.Equal("cluster", serverPlugins[0].Name)
-	assert.Equal("login", standalonePlugins[0].Name)
+	assert.Contains([]string{"login", "management-cluster"}, standalonePlugins[0].Name)
+	assert.Contains([]string{"login", "management-cluster"}, standalonePlugins[1].Name)
 }
 
 func Test_InstallPlugin_InstalledPlugins(t *testing.T) {
@@ -57,13 +58,11 @@ func Test_InstallPlugin_InstalledPlugins(t *testing.T) {
 	defer func() { execCommand = exec.Command }()
 
 	// Try installing not-existing package
-	testCase = testcaseInstallNotexists
 	err := InstallPlugin("", "notexists", "v0.2.0")
 	assert.NotNil(err)
 	assert.Contains(err.Error(), "unable to find plugin 'notexists'")
 
 	// Install login (standalone) package
-	testCase = testcaseInstallLogin
 	err = InstallPlugin("", "login", "v0.2.0")
 	assert.Nil(err)
 	// Verify installed plugin
@@ -74,7 +73,6 @@ func Test_InstallPlugin_InstalledPlugins(t *testing.T) {
 	assert.Equal("login", installedStandalonePlugins[0].Name)
 
 	// Try installing cluster plugin through standalone discovery
-	testCase = testcaseInstallCluster
 	err = InstallPlugin("", "cluster", "v0.2.0")
 	assert.NotNil(err)
 	assert.Contains(err.Error(), "unable to find plugin 'cluster'")
@@ -98,20 +96,26 @@ func Test_AvailablePlugins(t *testing.T) {
 
 	discovered, err := AvailablePlugins("")
 	assert.Nil(err)
-	assert.Equal(1, len(discovered))
-	assert.Equal("login", discovered[0].Name)
-	assert.Equal(PluginScopeStandalone, discovered[0].Scope)
-	assert.Equal(PluginStatusNotInstalled, discovered[0].Status)
+	assert.Equal(2, len(discovered))
+	assert.Equal("management-cluster", discovered[0].Name)
+	assert.Equal(common.PluginScopeStandalone, discovered[0].Scope)
+	assert.Equal(common.PluginStatusNotInstalled, discovered[0].Status)
+	assert.Equal("login", discovered[1].Name)
+	assert.Equal(common.PluginScopeStandalone, discovered[1].Scope)
+	assert.Equal(common.PluginStatusNotInstalled, discovered[1].Status)
 
 	discovered, err = AvailablePlugins("mgmt")
 	assert.Nil(err)
-	assert.Equal(2, len(discovered))
+	assert.Equal(3, len(discovered))
 	assert.Equal("cluster", discovered[0].Name)
-	assert.Equal(PluginScopeContext, discovered[0].Scope)
-	assert.Equal(PluginStatusNotInstalled, discovered[0].Status)
-	assert.Equal("login", discovered[1].Name)
-	assert.Equal(PluginScopeStandalone, discovered[1].Scope)
-	assert.Equal(PluginStatusNotInstalled, discovered[1].Status)
+	assert.Equal(common.PluginScopeContext, discovered[0].Scope)
+	assert.Equal(common.PluginStatusNotInstalled, discovered[0].Status)
+	assert.Equal("management-cluster", discovered[1].Name)
+	assert.Equal(common.PluginScopeStandalone, discovered[1].Scope)
+	assert.Equal(common.PluginStatusNotInstalled, discovered[1].Status)
+	assert.Equal("login", discovered[2].Name)
+	assert.Equal(common.PluginScopeStandalone, discovered[2].Scope)
+	assert.Equal(common.PluginStatusNotInstalled, discovered[2].Status)
 
 	// Install login, cluster package
 	mockInstallPlugin(assert, "", "login", "v0.2.0")
@@ -120,13 +124,13 @@ func Test_AvailablePlugins(t *testing.T) {
 	// Get available plugin after install and verify installation status
 	discovered, err = AvailablePlugins("mgmt")
 	assert.Nil(err)
-	assert.Equal(2, len(discovered))
+	assert.Equal(3, len(discovered))
 	assert.Equal("cluster", discovered[0].Name)
-	assert.Equal(PluginScopeContext, discovered[0].Scope)
-	assert.Equal(PluginStatusInstalled, discovered[0].Status)
-	assert.Equal("login", discovered[1].Name)
-	assert.Equal(PluginScopeStandalone, discovered[1].Scope)
-	assert.Equal(PluginStatusInstalled, discovered[1].Status)
+	assert.Equal(common.PluginScopeContext, discovered[0].Scope)
+	assert.Equal(common.PluginStatusInstalled, discovered[0].Status)
+	assert.Equal("login", discovered[2].Name)
+	assert.Equal(common.PluginScopeStandalone, discovered[2].Scope)
+	assert.Equal(common.PluginStatusInstalled, discovered[2].Status)
 }
 
 func Test_DescribePlugin(t *testing.T) {
@@ -204,16 +208,94 @@ func Test_ValidatePlugin(t *testing.T) {
 	assert.Contains(err.Error(), "plugin \"fakeplugin\" group cannot be empty")
 }
 
+func Test_SyncPlugins_Standalone_Plugins(t *testing.T) {
+	assert := assert.New(t)
+
+	defer setupLocalDistoForTesting()()
+	execCommand = fakeExecCommand
+	defer func() { execCommand = exec.Command }()
+
+	// Get available standalone plugins and verify the status is `not installed`
+	discovered, err := AvailablePlugins("")
+	assert.Nil(err)
+	assert.Equal(2, len(discovered))
+	assert.Equal("management-cluster", discovered[0].Name)
+	assert.Equal(common.PluginScopeStandalone, discovered[0].Scope)
+	assert.Equal(common.PluginStatusNotInstalled, discovered[0].Status)
+	assert.Equal("login", discovered[1].Name)
+	assert.Equal(common.PluginScopeStandalone, discovered[1].Scope)
+	assert.Equal(common.PluginStatusNotInstalled, discovered[1].Status)
+
+	// Sync standalone plugins
+	err = SyncPlugins("")
+	assert.Nil(err)
+
+	// Get available standalone plugins and verify the status is updated to `installed`
+	discovered, err = AvailablePlugins("")
+	assert.Nil(err)
+	assert.Equal(2, len(discovered))
+	assert.Equal("management-cluster", discovered[0].Name)
+	assert.Equal(common.PluginScopeStandalone, discovered[0].Scope)
+	assert.Equal(common.PluginStatusInstalled, discovered[0].Status)
+	assert.Equal("login", discovered[1].Name)
+	assert.Equal(common.PluginScopeStandalone, discovered[1].Scope)
+	assert.Equal(common.PluginStatusInstalled, discovered[1].Status)
+}
+
+func Test_SyncPlugins_All_Plugins(t *testing.T) {
+	assert := assert.New(t)
+
+	defer setupLocalDistoForTesting()()
+	execCommand = fakeExecCommand
+	defer func() { execCommand = exec.Command }()
+
+	// Get all available plugins(standalone+context-aware) and verify the status is `not installed`
+	discovered, err := AvailablePlugins("mgmt")
+	assert.Nil(err)
+	assert.Equal(3, len(discovered))
+	assert.Equal("cluster", discovered[0].Name)
+	assert.Equal(common.PluginScopeContext, discovered[0].Scope)
+	assert.Equal(common.PluginStatusNotInstalled, discovered[0].Status)
+	assert.Equal("management-cluster", discovered[1].Name)
+	assert.Equal(common.PluginScopeStandalone, discovered[1].Scope)
+	assert.Equal(common.PluginStatusNotInstalled, discovered[1].Status)
+	assert.Equal("login", discovered[2].Name)
+	assert.Equal(common.PluginScopeStandalone, discovered[2].Scope)
+	assert.Equal(common.PluginStatusNotInstalled, discovered[2].Status)
+
+	// Sync standalone plugins
+	err = SyncPlugins("mgmt")
+	assert.Nil(err)
+
+	// Get all available plugins(standalone+context-aware) and verify the status is updated to `installed`
+	discovered, err = AvailablePlugins("mgmt")
+	assert.Nil(err)
+	assert.Equal(3, len(discovered))
+	assert.Equal("cluster", discovered[0].Name)
+	assert.Equal(common.PluginScopeContext, discovered[0].Scope)
+	assert.Equal(common.PluginStatusInstalled, discovered[0].Status)
+	assert.Equal("management-cluster", discovered[1].Name)
+	assert.Equal(common.PluginScopeStandalone, discovered[1].Scope)
+	assert.Equal(common.PluginStatusInstalled, discovered[1].Status)
+	assert.Equal("login", discovered[2].Name)
+	assert.Equal(common.PluginScopeStandalone, discovered[2].Scope)
+	assert.Equal(common.PluginStatusInstalled, discovered[2].Status)
+}
+
 func mockInstallPlugin(assert *assert.Assertions, server, name, version string) { //nolint:unparam
 	execCommand = fakeExecCommand
 	defer func() { execCommand = exec.Command }()
 
-	testCase = "install-" + name
 	err := InstallPlugin(server, name, version)
 	assert.Nil(err)
 }
 
 func fakeExecCommand(command string, args ...string) *exec.Cmd {
+	// get plugin name based on the command
+	// command path is of the form `path/to/plugin-root-directory/login/v0.2.0`
+	pluginName := filepath.Base(filepath.Dir(command))
+	testCase := "install-" + pluginName
+
 	cs := []string{"-test.run=TestHelperProcess", "--", command}
 	cs = append(cs, args...)
 	cmd := exec.Command(os.Args[0], cs...) //nolint:gosec
@@ -246,6 +328,9 @@ func TestHelperProcess(t *testing.T) {
 	case testcaseInstallLogin:
 		out := `{"name":"login","description":"Login to the platform","version":"v0.2.0","buildSHA":"c2dbd15","digest":"","group":"System","docURL":"","completionType":0,"aliases":["lo","logins"],"installationPath":"","discovery":"","scope":"","status":""}`
 		fmt.Fprint(os.Stdout, out)
+	case testcaseInstallManagementCluster:
+		out := `{"name":"management-cluster","description":"Management cluster operations","version":"v0.2.0","buildSHA":"c2dbd15","digest":"","group":"System","docURL":"","completionType":0,"aliases":["lo","logins"],"installationPath":"","discovery":"","scope":"","status":""}`
+		fmt.Fprint(os.Stdout, out)
 	case testcaseInstallNotexists:
 		out := ``
 		fmt.Fprint(os.Stdout, out)
@@ -257,6 +342,9 @@ func setupLocalDistoForTesting() func() {
 	if err != nil {
 		log.Fatal(err, "unable to create temporary directory")
 	}
+
+	config.DefaultStandaloneDiscoveryType = "local"
+	config.DefaultStandaloneDiscoveryLocalPath = "default"
 
 	common.DefaultPluginRoot = filepath.Join(tmpDir, "plugin-root")
 	common.DefaultLocalPluginDistroDir = filepath.Join(tmpDir, "distro")

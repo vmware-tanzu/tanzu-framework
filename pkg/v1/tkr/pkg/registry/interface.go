@@ -11,7 +11,7 @@ type Registry interface {
 	ListImageTags(imageName string) ([]string, error)
 	// GetFile gets the file content bundled in the given image:tag.
 	// If filename is empty, it will get the first file.
-	GetFile(image string, tag string, filename string) ([]byte, error)
+	GetFile(imageWithTag string, filename string) ([]byte, error)
 	// GetFiles get all the files content bundled in the given image:tag.
-	GetFiles(image string, tag string) (map[string][]byte, error)
+	GetFiles(imageWithTag string) (map[string][]byte, error)
 }

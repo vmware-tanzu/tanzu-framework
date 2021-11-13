@@ -17,7 +17,6 @@ type AzureConfig struct {
 	InfrastructureProvider    string `yaml:"INFRASTRUCTURE_PROVIDER,omitempty"`
 	ClusterPlan               string `yaml:"CLUSTER_PLAN,omitempty"`
 	CeipParticipation         string `yaml:"ENABLE_CEIP_PARTICIPATION,omitempty"`
-	TmcRegistrationURL        string `yaml:"TMC_REGISTRATION_URL,omitempty"`
 	Region                    string `yaml:"AZURE_LOCATION,omitempty"`
 	SubscriptionID            string `yaml:"AZURE_SUBSCRIPTION_ID,omitempty"`
 	TenantID                  string `yaml:"AZURE_TENANT_ID,omitempty"`
@@ -57,7 +56,6 @@ func (c *client) NewAzureConfig(params *models.AzureRegionalClusterParams) (*Azu
 		ClusterName:             params.ClusterName,
 		InfrastructureProvider:  constants.InfrastructureProviderAzure,
 		ClusterPlan:             params.ControlPlaneFlavor,
-		TmcRegistrationURL:      params.TmcRegistrationURL,
 		Region:                  params.Location,
 		SubscriptionID:          params.AzureAccountParams.SubscriptionID,
 		TenantID:                params.AzureAccountParams.TenantID,

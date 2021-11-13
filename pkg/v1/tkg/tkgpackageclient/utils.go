@@ -36,9 +36,6 @@ type PackageValuesSchemaParser struct {
 
 // NewValuesSchemaParser instantiate a new PackageValuesSchemaParser
 func NewValuesSchemaParser(valuesSchema kapppkg.ValuesSchema) (*PackageValuesSchemaParser, error) {
-	if len(valuesSchema.OpenAPIv3.Raw) == 0 {
-		return nil, fmt.Errorf("data value schema is empty")
-	}
 	loader := openapi3.NewLoader()
 	doc, loadErr := loader.LoadFromData(valuesSchema.OpenAPIv3.Raw)
 	if loadErr != nil {

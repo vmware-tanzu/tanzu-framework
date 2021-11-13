@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: tanzu-featuregates-manager
+  name: tanzu-featuregates-controller-manager
+  namespace: tkg-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tanzu-featuregates-manager
+  template:
+    metadata:
+      labels:
+        app: tanzu-featuregates-manager
+    spec:
+      containers:
+        - image: featuregates-controller-manager:latest
+          imagePullPolicy: IfNotPresent
+          name: manager
+          resources:
+            limits:
+              cpu: 100m
+              memory: 30Mi
+            requests:
+              cpu: 100m
+              memory: 20Mi
+          ports:
+            - containerPort: 9443
+              name: webhook-server
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /tmp/k8s-webhook-server/serving-certs
+              name: cert
+              readOnly: true
+      volumes:
+        - name: cert
+          secret:
+            defaultMode: 420
+            secretName: tanzu-featuregates-webhook-server-cert
+      serviceAccount: tanzu-featuregates-manager-sa
+      terminationGracePeriodSeconds: 10
+      tolerations:
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/master

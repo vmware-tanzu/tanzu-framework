@@ -29,7 +29,7 @@ Fixes #
 
 ### PR Checklist
 
-<!-- Please acknowlege by checking that they are being followed -->
+<!-- Please acknowledge by checking that they are being followed -->
 
 - [ ] Squash the commits into one or a small number of logical commits
       <!--

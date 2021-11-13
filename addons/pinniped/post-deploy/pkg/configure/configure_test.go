@@ -14,23 +14,21 @@ import (
 	"github.com/stretchr/testify/require"
 	authv1alpha1 "go.pinniped.dev/generated/1.19/apis/concierge/authentication/v1alpha1"
 	configv1alpha1 "go.pinniped.dev/generated/1.19/apis/supervisor/config/v1alpha1"
+	pinnipedconciergefake "go.pinniped.dev/generated/1.19/client/concierge/clientset/versioned/fake"
+	pinnipedsupervisorfake "go.pinniped.dev/generated/1.19/client/supervisor/clientset/versioned/fake"
 	"go.uber.org/zap"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
-	kubedynamicfake "k8s.io/client-go/dynamic/fake"
 	kubefake "k8s.io/client-go/kubernetes/fake"
 	kubetesting "k8s.io/client-go/testing"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/inspect"
-	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/pinnipedclientset"
 )
 
 // nolint:funlen
 func TestPinniped(t *testing.T) {
 	const (
-		apiGroupSuffix      = "tuna.io"
 		supervisorNamespace = "pinniped-supervisor" // vars.SupervisorNamespace default
 	)
 
@@ -79,11 +77,10 @@ func TestPinniped(t *testing.T) {
 			Name:      "pinniped-info",
 		},
 		Data: map[string]string{
-			"cluster_name":                         "some-pinniped-info-management-cluster-name",
-			"issuer":                               serviceHTTPSEndpoint(supervisorService),
-			"issuer_ca_bundle_data":                base64.StdEncoding.EncodeToString(supervisorCertificateSecret.Data["ca.crt"]),
-			"pinniped_api_group_suffix":            apiGroupSuffix,
-			"pinniped_concierge_is_cluster_scoped": "false",
+			"cluster_name":                "some-pinniped-info-management-cluster-name",
+			"issuer":                      serviceHTTPSEndpoint(supervisorService),
+			"issuer_ca_bundle_data":       base64.StdEncoding.EncodeToString(supervisorCertificateSecret.Data["ca.crt"]),
+			"concierge_is_cluster_scoped": "true",
 		},
 	}
 
@@ -93,8 +90,7 @@ func TestPinniped(t *testing.T) {
 			Name:      "pinniped-info",
 		},
 		Data: map[string]string{
-			"pinniped_api_group_suffix":            apiGroupSuffix,
-			"pinniped_concierge_is_cluster_scoped": "false",
+			"concierge_is_cluster_scoped": "true",
 		},
 	}
 
@@ -112,17 +108,7 @@ func TestPinniped(t *testing.T) {
 		},
 	}
 
-	authv1alpha1GV := authv1alpha1.SchemeGroupVersion
-	authv1alpha1GV.Group = "authentication.concierge." + apiGroupSuffix
-
-	configv1alpha1GV := configv1alpha1.SchemeGroupVersion
-	configv1alpha1GV.Group = "config.supervisor." + apiGroupSuffix
-
-	scheme := runtime.NewScheme()
-	scheme.AddKnownTypes(configv1alpha1GV, &configv1alpha1.FederationDomain{}, &configv1alpha1.FederationDomainList{})
-	scheme.AddKnownTypes(authv1alpha1GV, &authv1alpha1.JWTAuthenticator{}, &authv1alpha1.JWTAuthenticatorList{})
-
-	federationDomainGVR := configv1alpha1GV.WithResource("federationdomains")
+	federationDomainGVR := configv1alpha1.SchemeGroupVersion.WithResource("federationdomains")
 	federationDomain := &configv1alpha1.FederationDomain{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: supervisorNamespace,
@@ -132,13 +118,11 @@ func TestPinniped(t *testing.T) {
 			Issuer: serviceHTTPSEndpoint(supervisorService),
 		},
 	}
-	federationDomain.APIVersion, federationDomain.Kind = configv1alpha1GV.WithKind("FederationDomain").ToAPIVersionAndKind()
 
-	jwtAuthenticatorGVR := authv1alpha1GV.WithResource("jwtauthenticators")
+	jwtAuthenticatorGVR := authv1alpha1.SchemeGroupVersion.WithResource("jwtauthenticators")
 	jwtAuthenticator := &authv1alpha1.JWTAuthenticator{
 		ObjectMeta: metav1.ObjectMeta{
-			Namespace: "pinniped-concierge", // vars.ConciergeNamespace default
-			Name:      "some-jwt-authenticator-name",
+			Name: "some-jwt-authenticator-name",
 		},
 		Spec: authv1alpha1.JWTAuthenticatorSpec{
 			Issuer:   federationDomain.Spec.Issuer,
@@ -148,18 +132,19 @@ func TestPinniped(t *testing.T) {
 			},
 		},
 	}
-	jwtAuthenticator.APIVersion, jwtAuthenticator.Kind = authv1alpha1GV.WithKind("JWTAuthenticator").ToAPIVersionAndKind()
 
 	tests := []struct {
 		name                         string
 		newKubeClient                func() *kubefake.Clientset
 		newCertManagerClient         func() *certmanagerfake.Clientset
-		newKubeDynamicClient         func() *kubedynamicfake.FakeDynamicClient
+		newSupervisorClient          func() *pinnipedsupervisorfake.Clientset
+		newConciergeClient           func() *pinnipedconciergefake.Clientset
 		parameters                   Parameters
 		wantError                    string
 		wantKubeClientActions        []kubetesting.Action
 		wantCertManagerClientActions []kubetesting.Action
-		wantKubeDynamicClientActions []kubetesting.Action
+		wantSupervisorClientActions  []kubetesting.Action
+		wantConciergeClientActions   []kubetesting.Action
 	}{
 		{
 			name: "management cluster configured from scratch",
@@ -181,24 +166,27 @@ func TestPinniped(t *testing.T) {
 			newCertManagerClient: func() *certmanagerfake.Clientset {
 				return certmanagerfake.NewSimpleClientset(supervisorCertificate)
 			},
-			newKubeDynamicClient: func() *kubedynamicfake.FakeDynamicClient {
+			newSupervisorClient: func() *pinnipedsupervisorfake.Clientset {
+				return pinnipedsupervisorfake.NewSimpleClientset()
+			},
+			newConciergeClient: func() *pinnipedconciergefake.Clientset {
 				// The jwtauthenticator is usually deployed onto the management cluster with no spec fields
 				// set; see:
 				//   https://github.com/vmware-tanzu/community-edition/blob/1aa7936d88f5d9b04398d800bfe83a165619ee16/addons/packages/pinniped/0.4.4/bundle/config/overlay/pinniped-jwtauthenticator.yaml
 				defaultJWTAuthenticator := jwtAuthenticator.DeepCopy()
 				defaultJWTAuthenticator.Spec = authv1alpha1.JWTAuthenticatorSpec{}
-				return kubedynamicfake.NewSimpleDynamicClient(scheme, defaultJWTAuthenticator)
+				return pinnipedconciergefake.NewSimpleClientset(defaultJWTAuthenticator)
 			},
 			parameters: Parameters{
-				ClusterType:             "management",
-				ClusterName:             pinnipedInfoConfigMap.Data["cluster_name"],
-				SupervisorSvcNamespace:  supervisorService.Namespace,
-				SupervisorSvcName:       supervisorService.Name,
-				FederationDomainName:    federationDomain.Name,
-				SupervisorCertNamespace: supervisorCertificate.Namespace,
-				SupervisorCertName:      supervisorCertificate.Name,
-				JWTAuthenticatorName:    jwtAuthenticator.Name,
-				PinnipedAPIGroupSuffix:  apiGroupSuffix,
+				ClusterType:              "management",
+				ClusterName:              pinnipedInfoConfigMap.Data["cluster_name"],
+				SupervisorSvcNamespace:   supervisorService.Namespace,
+				SupervisorSvcName:        supervisorService.Name,
+				FederationDomainName:     federationDomain.Name,
+				SupervisorCertNamespace:  supervisorCertificate.Namespace,
+				SupervisorCertName:       supervisorCertificate.Name,
+				JWTAuthenticatorName:     jwtAuthenticator.Name,
+				ConciergeIsClusterScoped: true,
 			},
 			wantKubeClientActions: []kubetesting.Action{
 				// 1. Get the supervisor service endpoint to create the correct issuer
@@ -221,13 +209,15 @@ func TestPinniped(t *testing.T) {
 				kubetesting.NewGetAction(certificateGVR, supervisorCertificate.Namespace, supervisorCertificate.Name),
 				kubetesting.NewUpdateAction(certificateGVR, supervisorCertificate.Namespace, supervisorCertificate),
 			},
-			wantKubeDynamicClientActions: []kubetesting.Action{
+			wantSupervisorClientActions: []kubetesting.Action{
 				// 2. We create the federationdomain with the correct issuer
 				kubetesting.NewGetAction(federationDomainGVR, federationDomain.Namespace, federationDomain.Name),
-				kubetesting.NewCreateAction(federationDomainGVR, federationDomain.Namespace, toUnstructured(federationDomain, true)),
+				kubetesting.NewCreateAction(federationDomainGVR, federationDomain.Namespace, federationDomain),
+			},
+			wantConciergeClientActions: []kubetesting.Action{
 				// 6. We update the jwtauthenticator with the correct supervisor issuer, CA data, and audience
-				kubetesting.NewGetAction(jwtAuthenticatorGVR, jwtAuthenticator.Namespace, jwtAuthenticator.Name),
-				kubetesting.NewUpdateAction(jwtAuthenticatorGVR, jwtAuthenticator.Namespace, toUnstructured(jwtAuthenticator, false)),
+				kubetesting.NewRootGetAction(jwtAuthenticatorGVR, jwtAuthenticator.Name),
+				kubetesting.NewRootUpdateAction(jwtAuthenticatorGVR, jwtAuthenticator),
 			},
 		},
 		{
@@ -238,22 +228,25 @@ func TestPinniped(t *testing.T) {
 			newCertManagerClient: func() *certmanagerfake.Clientset {
 				return certmanagerfake.NewSimpleClientset(supervisorCertificate)
 			},
-			newKubeDynamicClient: func() *kubedynamicfake.FakeDynamicClient {
+			newSupervisorClient: func() *pinnipedsupervisorfake.Clientset {
+				return pinnipedsupervisorfake.NewSimpleClientset()
+			},
+			newConciergeClient: func() *pinnipedconciergefake.Clientset {
 				// The jwtauthenticator is usually deployed onto the workload cluster with all fields set
 				// correctly except for the audience; see:
 				//   https://github.com/vmware-tanzu/community-edition/blob/1aa7936d88f5d9b04398d800bfe83a165619ee16/addons/packages/pinniped/0.4.4/bundle/config/overlay/pinniped-jwtauthenticator.yaml
 				defaultJWTAuthenticator := jwtAuthenticator.DeepCopy()
 				defaultJWTAuthenticator.Spec.Audience = "wrong-audience"
-				return kubedynamicfake.NewSimpleDynamicClient(scheme, defaultJWTAuthenticator)
+				return pinnipedconciergefake.NewSimpleClientset(defaultJWTAuthenticator)
 			},
 			parameters: Parameters{
-				ClusterType:            "workload",
-				ClusterName:            jwtAuthenticator.Spec.Audience,
-				SupervisorSvcNamespace: supervisorService.Namespace,
-				SupervisorSvcEndpoint:  jwtAuthenticator.Spec.Issuer,
-				SupervisorCABundleData: jwtAuthenticator.Spec.TLS.CertificateAuthorityData,
-				JWTAuthenticatorName:   jwtAuthenticator.Name,
-				PinnipedAPIGroupSuffix: apiGroupSuffix,
+				ClusterType:              "workload",
+				ClusterName:              jwtAuthenticator.Spec.Audience,
+				SupervisorSvcNamespace:   supervisorService.Namespace,
+				SupervisorSvcEndpoint:    jwtAuthenticator.Spec.Issuer,
+				SupervisorCABundleData:   jwtAuthenticator.Spec.TLS.CertificateAuthorityData,
+				JWTAuthenticatorName:     jwtAuthenticator.Name,
+				ConciergeIsClusterScoped: true,
 			},
 			wantKubeClientActions: []kubetesting.Action{
 				// 2. Create the Pinniped info configmap
@@ -263,10 +256,11 @@ func TestPinniped(t *testing.T) {
 				kubetesting.NewListAction(podGVR, podGVK, supervisorNamespace, metav1.ListOptions{}),
 			},
 			wantCertManagerClientActions: []kubetesting.Action{},
-			wantKubeDynamicClientActions: []kubetesting.Action{
+			wantSupervisorClientActions:  []kubetesting.Action{},
+			wantConciergeClientActions: []kubetesting.Action{
 				// 1. We update the jwtauthenticator with the correct supervisor issuer, CA data, and audience
-				kubetesting.NewGetAction(jwtAuthenticatorGVR, jwtAuthenticator.Namespace, jwtAuthenticator.Name),
-				kubetesting.NewUpdateAction(jwtAuthenticatorGVR, jwtAuthenticator.Namespace, toUnstructured(jwtAuthenticator, false)),
+				kubetesting.NewRootGetAction(jwtAuthenticatorGVR, jwtAuthenticator.Name),
+				kubetesting.NewRootUpdateAction(jwtAuthenticatorGVR, jwtAuthenticator),
 			},
 		},
 		{
@@ -277,9 +271,12 @@ func TestPinniped(t *testing.T) {
 			newCertManagerClient: func() *certmanagerfake.Clientset {
 				return certmanagerfake.NewSimpleClientset(supervisorCertificate)
 			},
-			newKubeDynamicClient: func() *kubedynamicfake.FakeDynamicClient {
+			newSupervisorClient: func() *pinnipedsupervisorfake.Clientset {
+				return pinnipedsupervisorfake.NewSimpleClientset()
+			},
+			newConciergeClient: func() *pinnipedconciergefake.Clientset {
 				defaultJWTAuthenticator := jwtAuthenticator.DeepCopy()
-				return kubedynamicfake.NewSimpleDynamicClient(scheme, defaultJWTAuthenticator)
+				return pinnipedconciergefake.NewSimpleClientset(defaultJWTAuthenticator)
 			},
 			parameters: Parameters{
 				ClusterType: "penguin",
@@ -287,7 +284,8 @@ func TestPinniped(t *testing.T) {
 			wantError:                    "unknown cluster type penguin",
 			wantKubeClientActions:        []kubetesting.Action{},
 			wantCertManagerClientActions: []kubetesting.Action{},
-			wantKubeDynamicClientActions: []kubetesting.Action{},
+			wantSupervisorClientActions:  []kubetesting.Action{},
+			wantConciergeClientActions:   []kubetesting.Action{},
 		},
 	}
 	for _, test := range tests {
@@ -295,12 +293,13 @@ func TestPinniped(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			fakeKubeClient := test.newKubeClient()
 			fakeCertManagerClient := test.newCertManagerClient()
-			fakeKubeDynamicClient := test.newKubeDynamicClient()
+			supervisorClientset := test.newSupervisorClient()
+			conciergeClientset := test.newConciergeClient()
 			clients := Clients{
 				K8SClientset:         fakeKubeClient,
 				CertmanagerClientset: fakeCertManagerClient,
-				SupervisorClientset:  pinnipedclientset.NewSupervisor(fakeKubeDynamicClient, apiGroupSuffix),
-				ConciergeClientset:   pinnipedclientset.NewConcierge(fakeKubeDynamicClient, apiGroupSuffix, false),
+				SupervisorClientset:  supervisorClientset,
+				ConciergeClientset:   conciergeClientset,
 			}
 			inspector := inspect.Inspector{K8sClientset: fakeKubeClient, Context: context.Background()}
 			err := Pinniped(context.Background(), clients, inspector, &test.parameters)
@@ -311,7 +310,8 @@ func TestPinniped(t *testing.T) {
 			}
 			require.Equal(t, test.wantKubeClientActions, fakeKubeClient.Actions())
 			require.Equal(t, test.wantCertManagerClientActions, fakeCertManagerClient.Actions())
-			require.Equal(t, test.wantKubeDynamicClientActions, fakeKubeDynamicClient.Actions())
+			require.Equal(t, test.wantSupervisorClientActions, supervisorClientset.Actions())
+			require.Equal(t, test.wantConciergeClientActions, conciergeClientset.Actions())
 		})
 	}
 }
@@ -324,20 +324,6 @@ func enableLogging() {
 
 func serviceHTTPSEndpoint(service *corev1.Service) string {
 	return fmt.Sprintf("https://%s:%d", service.Status.LoadBalancer.Ingress[0].IP, service.Spec.Ports[0].Port)
-}
-
-func toUnstructured(obj runtime.Object, removeTypeMeta bool) runtime.Object {
-	unstructuredObjData, err := runtime.DefaultUnstructuredConverter.ToUnstructured(obj)
-	if err != nil {
-		panic(err)
-	}
-
-	if removeTypeMeta {
-		delete(unstructuredObjData, "apiVersion")
-		delete(unstructuredObjData, "kind")
-	}
-
-	return &unstructured.Unstructured{Object: unstructuredObjData}
 }
 
 func actionIsOnObject(action kubetesting.Action, object metav1.Object) bool {

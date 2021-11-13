@@ -34,7 +34,7 @@ func init() {
 	repositoryCmd.AddCommand(repositoryAddCmd)
 }
 
-func repositoryAdd(cmd *cobra.Command, args []string) error {
+func repositoryAdd(_ *cobra.Command, args []string) error { //nolint
 	repoOp.RepositoryName = args[0]
 
 	pkgClient, err := tkgpackageclient.NewTKGPackageClient(repoOp.KubeConfig)
@@ -51,9 +51,13 @@ func repositoryAdd(cmd *cobra.Command, args []string) error {
 
 	initialMsg := fmt.Sprintf("Adding package repository '%s'", repoOp.RepositoryName)
 	if err := DisplayProgress(initialMsg, pp); err != nil {
+		if err.Error() == tkgpackagedatamodel.ErrRepoAlreadyExists {
+			log.Infof("Updated package repository '%s' in namespace '%s'", repoOp.RepositoryName, repoOp.Namespace)
+			return nil
+		}
 		return err
 	}
 
-	log.Infof("\n Added package repository '%s'", repoOp.RepositoryName)
+	log.Infof("Added package repository '%s' in namespace '%s'", repoOp.RepositoryName, repoOp.Namespace)
 	return nil
 }

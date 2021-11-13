@@ -14,7 +14,7 @@ import (
 	clusterctlclient "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/cluster"
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/repository"
-	addonsv1 "sigs.k8s.io/cluster-api/exp/addons/api/v1alpha3"
+	addonsv1 "sigs.k8s.io/cluster-api/exp/addons/api/v1beta1"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
@@ -65,7 +65,7 @@ var TKGSupportedClusterOptions string
 
 // CreateCluster create workload cluster
 func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster bool) error { //nolint:gocyclo,funlen
-	if err := checkClusterNameFormat(options.ClusterName); err != nil {
+	if err := CheckClusterNameFormat(options.ClusterName, options.ProviderRepositorySource.InfrastructureProvider); err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 	log.Info("Validating configuration...")
@@ -124,13 +124,18 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 	if err := c.ConfigureAndValidateWorkloadClusterConfiguration(options, regionalClusterClient, false); err != nil {
 		return errors.Wrap(err, "workload cluster configuration validation failed")
 	}
-	infraProvider, err := regionalClusterClient.GetRegionalClusterDefaultProviderName(clusterctlv1.InfrastructureProviderType)
-	if err != nil {
-		return errors.Wrap(err, "failed to get cluster provider information.")
-	}
-	infraProviderName, _, err := ParseProviderName(infraProvider)
-	if err != nil {
-		return err
+	var infraProviderName string
+	if options.ProviderRepositorySource.InfrastructureProvider != BYOHProviderName {
+		infraProvider, err := regionalClusterClient.GetRegionalClusterDefaultProviderName(clusterctlv1.InfrastructureProviderType)
+		if err != nil {
+			return errors.Wrap(err, "failed to get cluster provider information.")
+		}
+		infraProviderName, _, err = ParseProviderName(infraProvider)
+		if err != nil {
+			return err
+		}
+	} else {
+		infraProviderName = BYOHProviderName
 	}
 	bytes, err = c.getClusterConfiguration(&options.ClusterConfigOptions, isManagementCluster, infraProviderName)
 	if err != nil {
@@ -552,7 +557,11 @@ func (c *TkgClient) ConfigureAndValidateWorkloadClusterConfiguration(options *Cr
 		return NewValidationError(ValidationErrorCode, errors.Wrap(err, "unable to validate CNI type").Error())
 	}
 
-	if err = c.configureAndValidateIPFamilyConfiguration(); err != nil {
+	if err = c.configureAndValidateIPFamilyConfiguration(TkgLabelClusterRoleWorkload); err != nil {
+		return NewValidationError(ValidationErrorCode, err.Error())
+	}
+
+	if err = c.ConfigureAndValidateNameserverConfiguration(TkgLabelClusterRoleWorkload); err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
@@ -576,6 +585,10 @@ func (c *TkgClient) ConfigureAndValidateWorkloadClusterConfiguration(options *Cr
 		}
 	case DockerProviderName:
 		if err := c.ConfigureAndValidateDockerConfig(options.TKRVersion, options.NodeSizeOptions, skipValidation); err != nil {
+			return NewValidationError(ValidationErrorCode, err.Error())
+		}
+	case BYOHProviderName:
+		if err := c.ConfigureAndValidateBYOHConfig(options.TKRVersion, options.NodeSizeOptions, skipValidation); err != nil {
 			return NewValidationError(ValidationErrorCode, err.Error())
 		}
 	}

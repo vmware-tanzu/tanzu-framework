@@ -5,6 +5,7 @@ package client
 
 import (
 	"os"
+	"strings"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/aws"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
@@ -12,6 +13,7 @@ import (
 
 	"github.com/pkg/errors"
 
+	"sigs.k8s.io/cluster-api-provider-aws/cmd/clusterawsadm/cloudformation/bootstrap"
 	"sigs.k8s.io/cluster-api-provider-aws/cmd/clusterawsadm/credentials"
 )
 
@@ -21,6 +23,12 @@ const awsCredentialError = "failed to gather credentials for operation that requ
 func (c *TkgClient) CreateAWSCloudFormationStack() error {
 	log.SendProgressUpdate(statusRunning, StepConfigPrerequisite, InitRegionSteps)
 	log.Info("Creating AWS CloudFormation Stack")
+	template, err := c.generateAWSBootstrapTemplate()
+
+	if err != nil {
+		return errors.Wrap(err, "failed to generate template")
+	}
+
 	creds, err := c.GetAWSCreds()
 	if err != nil {
 		return errors.Wrap(err, "unable to retrieve AWS credentials")
@@ -31,11 +39,48 @@ func (c *TkgClient) CreateAWSCloudFormationStack() error {
 		return errors.Wrap(err, "failed create AWS client")
 	}
 
-	err = awsClient.CreateCloudFormationStack()
+	err = awsClient.CreateCloudFormationStackWithTemplate(template)
 	if err != nil {
 		return errors.Wrap(err, "failed to create aws CloudFormation stack")
 	}
 	return nil
+}
+
+// GenerateAWSCloudFormationTemplate produces the CloudFormation template YAML
+func (c *TkgClient) GenerateAWSCloudFormationTemplate() (string, error) {
+	template, err := c.generateAWSBootstrapTemplate()
+	if err != nil {
+		return "", err
+	}
+	cfnTemplate := template.RenderCloudFormation()
+	dat, err := cfnTemplate.YAML()
+	if err != nil {
+		return "", err
+	}
+	return string(dat), nil
+}
+
+func (c *TkgClient) generateAWSBootstrapTemplate() (*bootstrap.Template, error) {
+	// Don't need a full client
+	awsClient, err := aws.New(credentials.AWSCredentials{})
+	if err != nil {
+		return nil, errors.Wrap(err, "failed create AWS client")
+	}
+
+	tmcEnablement := false
+
+	tmcEnablementVar, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableEnableTMCCloudProviderPermissions)
+	if err == nil && strings.EqualFold(tmcEnablementVar, "true") {
+		tmcEnablement = true
+	}
+
+	template, err := awsClient.GenerateBootstrapTemplate(aws.GenerateBootstrapTemplateInput{
+		EnableTanzuMissionControlPermissions: tmcEnablement,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return template, nil
 }
 
 // GetAWSCreds get aws credentials

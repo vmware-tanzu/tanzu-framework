@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"os/exec"
+	"strconv"
 	"strings"
 	"time"
 
@@ -81,6 +82,33 @@ func checkDockerDaemonIsRunning() (bool, error) {
 	return true, nil
 }
 
+func checkDockerResource(resource string) (int, error) {
+	var resourceValue int
+	var stdout []byte
+
+	path, err := exec.LookPath("docker")
+	if err != nil {
+		return 0, errors.Wrap(err, "failed to check if docker is installed")
+	}
+	// docker is not installed
+	if path == "" {
+		return 0, nil
+	}
+
+	cmd := exec.Command("docker", "system", "info", "--format", "'{{."+resource+"}}'") // nolint:gosec
+	if stdout, err = cmd.Output(); err != nil {
+		return 0, errors.Wrap(err, "failed to get docker resource value")
+	}
+
+	resourceValue, err = strconv.Atoi(strings.Trim(strings.TrimSuffix(string(stdout), "\n"), "'"))
+
+	if err != nil {
+		return 0, errors.Wrap(err, "failed to convert docker resource value to integer")
+	}
+
+	return resourceValue, nil
+}
+
 func checkKubectlInstalled() (bool, error) { //nolint
 	path, err := exec.LookPath("kubectl")
 	if err != nil {
@@ -123,7 +151,7 @@ func (c *TkgClient) ValidatePrerequisites(validateDocker, validateKubectl bool) 
 	// to support podman in future we need to change this method.
 	if validateDocker {
 		if err := c.validateDockerPrerequisites(); err != nil {
-			return errors.Wrap(err, "docker prerequisites validation failed")
+			return errors.Wrap(err, "Docker prerequisites validation failed")
 		}
 	}
 
@@ -139,6 +167,37 @@ func (c *TkgClient) validateDockerPrerequisites() error {
 	}
 	if !isDockerDaemonRunning {
 		return errors.New("docker daemon is not running, Please make sure Docker daemon is up and running")
+	}
+
+	return nil
+}
+
+// ValidateDockerResourcePrerequisites validates docker number CPU and memory resource settings
+func (c *TkgClient) ValidateDockerResourcePrerequisites() error {
+	const numberCPU string = "NCPU"
+	const totalMemory string = "MemTotal"
+	var dockerResourceCpus, dockerResourceTotalMemory int
+	var err error
+
+	// validate docker allocated CPU and memory against recommended minimums
+	if dockerResourceCpus, err = checkDockerResource(numberCPU); err != nil {
+		return errors.Wrap(err, "Failed to check docker minimum number of CPUs")
+	}
+
+	minimumDockerCPUs := 4
+	if dockerResourceCpus < minimumDockerCPUs {
+		return errors.Errorf("Docker resources have %d CPUs allocated; less than minimum recommended number of %d CPUs", dockerResourceCpus, minimumDockerCPUs)
+	}
+
+	if dockerResourceTotalMemory, err = checkDockerResource(totalMemory); err != nil {
+		return errors.Wrap(err, "Failed to check docker minimum total memory")
+	}
+
+	dockerResourceTotalMemFormatted := dockerResourceTotalMemory / (1024 * 1000000)
+
+	minimumDockerTotalMem := 6
+	if dockerResourceTotalMemFormatted < minimumDockerTotalMem {
+		return errors.Errorf("Docker resources have %dGB Total Memory allocated; less than minimum recommended number of %dGB Total Memory", dockerResourceTotalMemFormatted, minimumDockerTotalMem)
 	}
 
 	return nil

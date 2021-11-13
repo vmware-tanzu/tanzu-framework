@@ -65,12 +65,12 @@ func repositoryDelete(cmd *cobra.Command, args []string) error {
 	initialMsg := fmt.Sprintf("Deleting package repository '%s'", repoOp.RepositoryName)
 	if err := DisplayProgress(initialMsg, pp); err != nil {
 		if err.Error() == tkgpackagedatamodel.ErrRepoNotExists {
-			log.Warningf("\npackage repository '%s' does not exist in namespace '%s'", repoOp.RepositoryName, repoOp.Namespace)
+			log.Warningf("package repository '%s' does not exist in namespace '%s'", repoOp.RepositoryName, repoOp.Namespace)
 			return nil
 		}
 		return err
 	}
 
-	log.Infof("\n Deleted package repository '%s' from namespace '%s'", repoOp.RepositoryName, repoOp.Namespace)
+	log.Infof("Deleted package repository '%s' from namespace '%s'", repoOp.RepositoryName, repoOp.Namespace)
 	return nil
 }

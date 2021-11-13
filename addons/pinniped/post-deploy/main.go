@@ -9,21 +9,18 @@ import (
 	"os"
 
 	certmanagerclientset "github.com/jetstack/cert-manager/pkg/client/clientset/versioned"
+	pinnipedconciergeclientset "go.pinniped.dev/generated/1.19/client/concierge/clientset/versioned"
+	pinnipedsupervisorclientset "go.pinniped.dev/generated/1.19/client/supervisor/clientset/versioned"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	k8sconfig "sigs.k8s.io/controller-runtime/pkg/client/config"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/configure"
-	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/pinnipedclientset"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/vars"
 )
 
 func main() {
-	// optional
-	flag.StringVar(&vars.PinnipedAPIGroupSuffix, "pinniped-api-group-suffix", vars.PinnipedAPIGroupSuffix, "The API group suffix used to talk to Pinniped APIs")
-
 	// optional
 	flag.BoolVar(&vars.ConciergeIsClusterScoped, "concierge-is-cluster-scoped", vars.ConciergeIsClusterScoped, "Whether the Pinniped Concierge APIs are cluster-scoped")
 
@@ -116,11 +113,10 @@ func initClients() (configure.Clients, error) {
 		return configure.Clients{}, fmt.Errorf("could not get k8s config: %w", err)
 	}
 
-	dynamicClient := dynamic.NewForConfigOrDie(cfg)
 	return configure.Clients{
 		K8SClientset:         kubernetes.NewForConfigOrDie(cfg),
-		SupervisorClientset:  pinnipedclientset.NewSupervisor(dynamicClient, vars.PinnipedAPIGroupSuffix),
-		ConciergeClientset:   pinnipedclientset.NewConcierge(dynamicClient, vars.PinnipedAPIGroupSuffix, vars.ConciergeIsClusterScoped),
+		SupervisorClientset:  pinnipedsupervisorclientset.NewForConfigOrDie(cfg),
+		ConciergeClientset:   pinnipedconciergeclientset.NewForConfigOrDie(cfg),
 		CertmanagerClientset: certmanagerclientset.NewForConfigOrDie(cfg),
 	}, nil
 }

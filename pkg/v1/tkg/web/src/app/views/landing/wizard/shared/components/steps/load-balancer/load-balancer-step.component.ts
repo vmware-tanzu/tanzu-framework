@@ -61,9 +61,9 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
     ngOnInit() {
         super.ngOnInit();
 
-        this.vipClusterNetworkNameLabel = (this.clusterType === 'standalone') ?
+        this.vipClusterNetworkNameLabel = this.modeClusterStandalone ?
             'STANDALONE CLUSTER VIP NETWORK NAME' : 'MANAGEMENT VIP NETWORK NAME';
-        this.vipClusterNetworkCidrLabel = (this.clusterType === 'standalone') ?
+        this.vipClusterNetworkCidrLabel = this.modeClusterStandalone ?
             'STANDALONE CLUSTER VIP NETWORK CIDR' : 'MANAGEMENT VIP NETWORK CIDR';
 
         this.formGroup.addControl(
@@ -361,7 +361,7 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
                 this.getSavedValue('cloudName', ''));
             this.resurrectField('serviceEngineGroupName', [Validators.required],
                 this.getSavedValue('serviceEngineGroupName', ''));
-            if (this.clusterType !== 'standalone') {
+            if (!this.modeClusterStandalone) {
                 this.resurrectField('networkName', [Validators.required],
                     this.getSavedValue('networkName', ''));
                 this.resurrectField('networkCIDR', [
@@ -374,7 +374,7 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
         } else {
             this.disarmField('cloudName', true);
             this.disarmField('serviceEngineGroupName', true);
-            if (this.clusterType !== 'standalone') {
+            if (!this.modeClusterStandalone) {
                 this.disarmField('networkName', true);
                 this.disarmField('networkCIDR', true);
             }

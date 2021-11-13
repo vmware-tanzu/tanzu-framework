@@ -105,16 +105,16 @@ func GetKubeConfig(kubeCfgPath string) (*rest.Config, error) {
 	return restConfig, nil
 }
 
-func (c *client) addAnnotations(meta *v1.ObjectMeta, isPkgPluginCreatedSvcAccount, isPkgPluginCreatedSecret bool) {
+func (c *client) addAnnotations(meta *v1.ObjectMeta, pkgPluginResourceCreationStatus *tkgpackagedatamodel.PkgPluginResourceCreationStatus) {
 	if meta.Annotations == nil {
 		meta.Annotations = make(map[string]string)
 	}
-	if isPkgPluginCreatedSvcAccount {
+	if pkgPluginResourceCreationStatus.IsServiceAccountCreated {
 		meta.Annotations[tkgpackagedatamodel.TanzuPkgPluginAnnotation+"-"+tkgpackagedatamodel.KindClusterRole] = fmt.Sprintf(tkgpackagedatamodel.ClusterRoleName, meta.Name, meta.Namespace)
 		meta.Annotations[tkgpackagedatamodel.TanzuPkgPluginAnnotation+"-"+tkgpackagedatamodel.KindClusterRoleBinding] = fmt.Sprintf(tkgpackagedatamodel.ClusterRoleBindingName, meta.Name, meta.Namespace)
 		meta.Annotations[tkgpackagedatamodel.TanzuPkgPluginAnnotation+"-"+tkgpackagedatamodel.KindServiceAccount] = fmt.Sprintf(tkgpackagedatamodel.ServiceAccountName, meta.Name, meta.Namespace)
 	}
-	if isPkgPluginCreatedSecret {
+	if pkgPluginResourceCreationStatus.IsSecretCreated {
 		meta.Annotations[tkgpackagedatamodel.TanzuPkgPluginAnnotation+"-"+tkgpackagedatamodel.KindSecret] = fmt.Sprintf(tkgpackagedatamodel.SecretName, meta.Name, meta.Namespace)
 	}
 }
@@ -138,9 +138,9 @@ func (c *client) DeletePackageRepository(repository *kappipkg.PackageRepository)
 }
 
 // CreatePackageInstall creates a PackageInstall CR
-func (c *client) CreatePackageInstall(packageInstall *kappipkg.PackageInstall, isPkgPluginCreatedSvcAccount, isPkgPluginCreatedSecret bool) error {
+func (c *client) CreatePackageInstall(packageInstall *kappipkg.PackageInstall, pkgPluginResourceCreationStatus *tkgpackagedatamodel.PkgPluginResourceCreationStatus) error {
 	installedPkg := packageInstall.DeepCopy()
-	c.addAnnotations(&installedPkg.ObjectMeta, isPkgPluginCreatedSvcAccount, isPkgPluginCreatedSecret)
+	c.addAnnotations(&installedPkg.ObjectMeta, pkgPluginResourceCreationStatus)
 
 	if err := c.client.Create(context.Background(), installedPkg); err != nil {
 		return err
@@ -231,6 +231,16 @@ func (c *client) ListSecretExports(namespace string) (*secretgenctrl.SecretExpor
 	return secretExportList, nil
 }
 
+// GetSecretExport gets the SecretExport having the same name and namespace as specified secret
+func (c *client) GetSecretExport(secretName, namespace string) (*secretgenctrl.SecretExport, error) {
+	secretExport := &secretgenctrl.SecretExport{}
+	err := c.client.Get(context.Background(), crtclient.ObjectKey{Name: secretName, Namespace: namespace}, secretExport)
+	if err != nil {
+		return nil, err
+	}
+	return secretExport, nil
+}
+
 // ListPackageMetadata gets the list of PackageMetadata CRs
 func (c *client) ListPackageMetadata(namespace string) (*kapppkg.PackageMetadataList, error) {
 	var selectors []crtclient.ListOption
@@ -280,8 +290,8 @@ func (c *client) ListPackages(packageName, namespace string) (*kapppkg.PackageLi
 }
 
 // UpdatePackageInstall updates the PackageInstall CR
-func (c *client) UpdatePackageInstall(packageInstall *kappipkg.PackageInstall, isPkgPluginCreatedSecret bool) error {
-	c.addAnnotations(&packageInstall.ObjectMeta, false, isPkgPluginCreatedSecret)
+func (c *client) UpdatePackageInstall(packageInstall *kappipkg.PackageInstall, pkgPluginResourceCreationStatus *tkgpackagedatamodel.PkgPluginResourceCreationStatus) error {
+	c.addAnnotations(&packageInstall.ObjectMeta, pkgPluginResourceCreationStatus)
 
 	if err := c.client.Update(context.Background(), packageInstall); err != nil {
 		return err

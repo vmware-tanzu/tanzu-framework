@@ -5,9 +5,12 @@
 * [Contributing](#contributing)
 * [Communication](#communication)
 * [Propose a Change](#propose-a-change)
-  * [Pull Request Etiquette](#pull-request-etiquette)
-  * [Issues Lifecycle](#issues-lifecycle)
+* [Contribute a Change](#contribute-a-change)
   * [Commit Messages](#commit-messages)
+* [Pull Request Process](#pull-request-process)
+  * [Creating a Pull Request](#creating-a-pull-request)
+  * [Getting your Pull Request Reviewed, Approved, and Merged](#getting-your-pull-request-reviewed-approved-and-merged)
+  * [Merging a Pull Request](#merging-a-pull-request)
 * [Contributor License Agreement](#contributor-license-agreement)
 
 --------------
@@ -100,7 +103,7 @@ While these steps will not always take place in the same order, the following de
 1. Review is automatically requested from CODEOWNERS.
 2. Assignee is added to pull request to ensure it gets proper attention throughout the process.
    Typically one of the CODEOWNERS will assign themselves, but they may choose to delegate to someone else.
-3. Triage removes adds `ok-to-merge` if the pull request is generally aligned with product goals and does not conflict with current milestones; otherwise they may add a comment and a `do-not-merge/*` label.
+3. Triage adds `ok-to-merge` if the pull request is generally aligned with product goals and does not conflict with current milestones; otherwise they may add a comment and a `do-not-merge/*` label.
 4. Assignee may request others to do an initial review; anyone else may review
 5. Reviewers leave feedback
 6. Contributor updates pull request to address feedback

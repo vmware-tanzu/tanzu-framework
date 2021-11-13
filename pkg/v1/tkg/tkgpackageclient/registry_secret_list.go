@@ -31,3 +31,14 @@ func (p *pkgClient) ListSecretExports(o *tkgpackagedatamodel.RegistrySecretOptio
 
 	return secretExportList, nil
 }
+
+// GetSecretExport gets the SecretExport having the same name and namespace as specified secret.
+func (p *pkgClient) GetSecretExport(o *tkgpackagedatamodel.RegistrySecretOptions) (*secretgenctrl.SecretExport, error) {
+	var err error
+	secretExport, err = p.kappClient.GetSecretExport(o.SecretName, o.Namespace)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get existing secret export in the cluster")
+	}
+
+	return secretExport, nil
+}

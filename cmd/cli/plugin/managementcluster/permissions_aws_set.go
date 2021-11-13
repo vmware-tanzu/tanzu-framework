@@ -14,11 +14,11 @@ var setAWSPermissionsCmd = &cobra.Command{
 	RunE:  setAWSPermissions,
 }
 
-type setAWSPermissionsOptions struct {
+type awsPermissionsOptions struct {
 	clusterConfigFile string
 }
 
-var setAWSPermissionsOps setAWSPermissionsOptions
+var setAWSPermissionsOps awsPermissionsOptions
 
 func init() {
 	setAWSPermissionsCmd.Flags().StringVarP(&setAWSPermissionsOps.clusterConfigFile, "file", "f", "", "Optional, configuration file from which to read the aws credentials. Falls back to using the default AWS credentials chain if not provided.")

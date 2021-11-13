@@ -25,6 +25,7 @@ def get_default_tkg_bom_data():
   assert.fail("unable to find the default BOM file: " + data.values.TKG_DEFAULT_BOM)
 end
 
+
 def get_default_tkr_bom_data():
    default_tkg_bom = get_default_tkg_bom_data()
    k8s_version = default_tkg_bom.default.k8sVersion
@@ -34,7 +35,7 @@ def get_default_tkr_bom_data():
             return bom_entry.bom_data
         end
    end
-   assert.fail("unable to get TanzuKubernetesRelease BoM file for TKG version: " + default_tkg_bom.release.version)
+   assert.fail("unable to get TanzuKubernetesRelease BoM file for TKG version: "+k8s_version +" " + default_tkg_bom.release.version)
 end
 
 def get_bom_data_for_tkr_name():
@@ -44,7 +45,7 @@ def get_bom_data_for_tkr_name():
             return bom_entry.bom_data
         end
     end
-    assert.fail("unable to get BoM file for the TanzuKubernetesRelease version: " + data.values.KUBERNETES_RELEASE)
+    assert.fail("unable to get BoM file for the TanzuKubernetesRelease version: " + bom_entry.bom_data.release.version + " " +  data.values.KUBERNETES_RELEASE )
 end
 
 tkgBomData = get_default_tkg_bom_data()

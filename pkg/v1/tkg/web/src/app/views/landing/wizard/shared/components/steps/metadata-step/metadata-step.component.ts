@@ -19,9 +19,7 @@ import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-
 export class MetadataStepComponent extends StepFormDirective implements OnInit {
     labels: Map<String, String> = new Map<String, String>();
 
-    constructor(private validationService: ValidationService,
-        private wizardFormService: VSphereWizardFormService) {
-
+    constructor(private validationService: ValidationService, private wizardFormService: VSphereWizardFormService) {
         super();
     }
 

@@ -4,14 +4,7 @@
 // Package vars contains variables used throughout the codebase.
 package vars
 
-import "github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/constants"
-
 var (
-	// PinnipedAPIGroupSuffix is the API group suffix used to talk to Pinniped APIs
-	// E.g., if PinnipedAPIGroupSuffix is set to "tuna.io", then FederationDomain API group would be
-	// "config.supervisor.tuna.io".
-	PinnipedAPIGroupSuffix = constants.PinnipedDefaultAPIGroupSuffix
-
 	// ConciergeIsClusterScoped indicates whether the Pinniped Concierge APIs are
 	// cluster-scoped (as opposed to namespace-scoped).
 	ConciergeIsClusterScoped = false

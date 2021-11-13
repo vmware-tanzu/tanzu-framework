@@ -16,6 +16,7 @@ import { ClrStepper } from '@clr/angular';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { ConfigFileInfo } from '../../../../../swagger/models/config-file-info.model';
 import Broker from 'src/app/shared/service/broker';
+import { ClusterType } from "../constants/wizard.constants";
 import FileSaver from 'file-saver';
 
 @Directive()
@@ -36,7 +37,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
 
     title: string;
     edition: string;
-    clusterType: string;
+    clusterTypeDescriptor: string;
 
     steps = [true, false, false, false, false, false, false, false, false, false, false];
     review = false;
@@ -57,7 +58,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
                 this.edition = data.payload.edition;
-                this.clusterType = data.payload.clusterType;
+                this.clusterTypeDescriptor = data.payload.clusterTypeDescriptor;
                 this.title = data.payload.branding.title;
             });
 
@@ -191,6 +192,10 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
         const totalSteps = FormMetaDataStore.getStepList().length;
         const stepsVisited = this.steps.filter(step => step).length;
         return stepsVisited > totalSteps && this.form.status === 'VALID';
+    }
+
+    getClusterType(): ClusterType {
+        return Broker.appDataService.isModeClusterStandalone() ? ClusterType.Standalone : ClusterType.Management;
     }
 
     /**
@@ -350,7 +355,6 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
         }
 
         payload.ceipOptIn = this.getFieldValue('ceipOptInForm', 'ceipOptIn') || false;
-        payload.tmc_registration_url = this.getFieldValue('registerTmcForm', 'tmcRegUrl');
         payload.labels = this.strMapToObj(this.getFieldValue('metadataForm', 'clusterLabels'));
         payload.os = this.getFieldValue('osImageForm', 'osImage');
         payload.annotations = {

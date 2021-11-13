@@ -34,26 +34,26 @@ type FeatureGateReconciler struct {
 //+kubebuilder:rbac:groups=config.tanzu.vmware.com,resources=featuregates/status,verbs=get;update;patch
 
 // Reconcile reconciles the FeatureGate spec by computing activated, deactivated and unavailable features.
-func (r *FeatureGateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
+func (r *FeatureGateReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	ctxCancel, cancel := context.WithTimeout(ctx, contextTimeout)
 	defer cancel()
 
 	log := r.Log.WithValues("featuregate", req.NamespacedName)
 	log.Info("Starting reconcile")
 
 	featureGate := &configv1alpha1.FeatureGate{}
-	if err := r.Client.Get(ctx, req.NamespacedName, featureGate); err != nil {
+	if err := r.Client.Get(ctxCancel, req.NamespacedName, featureGate); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
 	// List all currently available feature resources.
 	features := &configv1alpha1.FeatureList{}
-	if err := r.Client.List(ctx, features); err != nil {
+	if err := r.Client.List(ctxCancel, features); err != nil {
 		return ctrl.Result{}, err
 	}
 
 	// Get namespaces from NamespaceSelector.
-	namespaces, err := featureutil.NamespacesMatchingSelector(ctx, r.Client, &featureGate.Spec.NamespaceSelector)
+	namespaces, err := featureutil.NamespacesMatchingSelector(ctxCancel, r.Client, &featureGate.Spec.NamespaceSelector)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -66,30 +66,23 @@ func (r *FeatureGateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error)
 	featureGate.Status.UnavailableFeatures = unavailable
 
 	log.Info("Successfully reconciled")
-	return ctrl.Result{}, r.Client.Status().Update(ctx, featureGate)
+	return ctrl.Result{}, r.Client.Status().Update(ctxCancel, featureGate)
 }
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *FeatureGateReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&configv1alpha1.FeatureGate{}).
-		Watches(&source.Kind{Type: &configv1alpha1.Feature{}}, &handler.EnqueueRequestsFromMapFunc{ToRequests: &featureMapper{client: r.Client, log: r.Log}}).
+		Watches(&source.Kind{Type: &configv1alpha1.Feature{}}, handler.EnqueueRequestsFromMapFunc(r.featureToFeatureGates)).
 		Complete(r)
 }
 
-// featureMapper implements handler.Mapper interface.
-type featureMapper struct {
-	client client.Client
-	log    logr.Logger
-}
-
-// Map returns all the FeatureGate resources to be reconciled.
-func (f *featureMapper) Map(obj handler.MapObject) []reconcile.Request {
+func (r *FeatureGateReconciler) featureToFeatureGates(o client.Object) []reconcile.Request {
 	var requests []reconcile.Request
 
 	featuregates := &configv1alpha1.FeatureGateList{}
-	if err := f.client.List(context.Background(), featuregates); err != nil {
-		f.log.Error(err, "failed to list featuregates")
+	if err := r.Client.List(context.Background(), featuregates); err != nil {
+		r.Log.Error(err, "failed to list featuregates in event handler")
 		return requests
 	}
 

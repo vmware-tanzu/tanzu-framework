@@ -17,9 +17,9 @@ import (
 	"github.com/spf13/cobra"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/duration"
-	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterctltree "sigs.k8s.io/cluster-api/cmd/clusterctl/client/tree"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
@@ -141,6 +141,18 @@ func getCluster(server *v1alpha1.Server, clusterName string) error {
 	t.AddRow(cl.Name, cl.Namespace, cl.Status, cl.ControlPlaneCount, cl.WorkerCount, cl.K8sVersion, clusterRoles)
 
 	t.Render()
+
+	isPacific, err := tkgctlClient.IsPacificRegionalCluster()
+	if err != nil {
+		return errors.New("error determining 'Tanzu Kubernetes Cluster service for vSphere' management cluster")
+	}
+
+	if isPacific {
+		return nil
+	}
+
+	// TODO: Can be removed when TKGS and TKGm converge to the same CAPI version.
+	// https://github.com/vmware-tanzu/tanzu-framework/issues/1063
 	log.Infof("\n\nDetails:\n\n")
 	treeView(results.Objs, results.Cluster)
 
@@ -175,7 +187,7 @@ var (
 )
 
 // treeView prints object hierarchy to out stream.
-func treeView(objs *clusterctltree.ObjectTree, obj controllerutil.Object) {
+func treeView(objs *clusterctltree.ObjectTree, obj client.Object) {
 	tbl := uitable.New()
 	tbl.Separator = "  "
 	tbl.AddRow("NAME", "READY", "SEVERITY", "REASON", "SINCE", "MESSAGE")
@@ -227,7 +239,7 @@ func getCond(c *clusterv1.Condition) conditions {
 	return v
 }
 
-func treeViewInner(prefix string, tbl *uitable.Table, objs *clusterctltree.ObjectTree, obj controllerutil.Object) {
+func treeViewInner(prefix string, tbl *uitable.Table, objs *clusterctltree.ObjectTree, obj client.Object) {
 	v := conditions{}
 	v.readyColor = gray
 	minDelim := 2
@@ -304,7 +316,7 @@ func treeViewInner(prefix string, tbl *uitable.Table, objs *clusterctltree.Objec
 	}
 }
 
-func getName(obj controllerutil.Object) string {
+func getName(obj client.Object) string {
 	if clusterctltree.IsGroupObject(obj) {
 		items := strings.Split(clusterctltree.GetGroupItems(obj), clusterctltree.GroupItemsSeparator)
 		return fmt.Sprintf("%d Machines...", len(items))

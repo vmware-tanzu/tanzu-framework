@@ -42,6 +42,15 @@ spec:
   template:
     spec: {}
 ---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: ByoMachineTemplate
+metadata:
+  name: '${ CLUSTER_NAME }-md-0'
+  namespace: '${ NAMESPACE }'
+spec:
+  template:
+    spec: {}
+---
 apiVersion: controlplane.cluster.x-k8s.io/v1beta1
 kind: KubeadmControlPlane
 metadata:
@@ -52,6 +61,12 @@ spec:
     useExperimentalRetryJoin: true
     clusterConfiguration:
       kubernetesVersion: '${ KUBERNETES_VERSION }'
+      imageRepository:
+      etcd:
+        local:
+          imageTag: v3.4.13_vmware.15
+      dns:
+        imageTag: v1.8.0_vmware.5
       apiServer:
         timeoutForControlPlane: "8m0s"
         certSANs:
@@ -144,13 +159,16 @@ spec:
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: MachineDeployment
 metadata:
+  labels: 
+    cluster.x-k8s.io/cluster-name: '${ CLUSTER_NAME }'
   name: '${ CLUSTER_NAME }-md-0'
   namespace: '${ NAMESPACE }'
 spec:
   clusterName: '${ CLUSTER_NAME }'
   replicas: ${ WORKER_MACHINE_COUNT }
   selector:
-    matchLabels: {}
+    matchLabels:
+      cluster.x-k8s.io/cluster-name: '${ CLUSTER_NAME }'
   template:
     spec:
       bootstrap:
@@ -162,7 +180,7 @@ spec:
       infrastructureRef:
         apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
         kind: ByoMachineTemplate
-        name: '${ CLUSTER_NAME }-worker'
+        name: '${ CLUSTER_NAME }-md-0'
       version: '${ KUBERNETES_VERSION }'
 
 

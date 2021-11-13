@@ -5,12 +5,12 @@ package registry
 
 import (
 	"archive/tar"
-	"fmt"
 	"io"
 
 	regname "github.com/google/go-containerregistry/pkg/name"
 	regv1 "github.com/google/go-containerregistry/pkg/v1"
-	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/image"
+	"github.com/google/go-containerregistry/pkg/v1/remote"
+	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/registry"
 	"github.com/pkg/errors"
 )
 
@@ -19,7 +19,7 @@ type registry struct {
 }
 
 // New instantiates a new Registry
-func New(opts *ctlimg.RegistryOpts) (Registry, error) {
+func New(opts *ctlimg.Opts) (Registry, error) {
 	reg, err := ctlimg.NewRegistry(*opts)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to initialze registry client")
@@ -42,24 +42,22 @@ func (r *registry) ListImageTags(imageName string) ([]string, error) {
 
 // GetFile gets the file content bundled in the given image:tag.
 // If filename is empty, it will get the first file.
-func (r *registry) GetFile(image, tag, filename string) ([]byte, error) {
-	ref, err := regname.ParseReference(fmt.Sprintf("%s:%s", image, tag), regname.WeakValidation)
+func (r *registry) GetFile(imageWithTag, filename string) ([]byte, error) {
+	ref, err := regname.ParseReference(imageWithTag, regname.WeakValidation)
 	if err != nil {
 		return nil, err
 	}
-	imgs, err := ctlimg.NewImages(ref, r.registry).Images()
+	d, err := remote.Get(ref)
 	if err != nil {
 		return nil, errors.Wrap(err, "Collecting images")
 	}
-	if len(imgs) == 0 {
-		return nil, errors.New("expected to find at least one image, but found none")
+
+	img, err := d.Image()
+	if err != nil {
+		return nil, err
 	}
 
-	if len(imgs) > 1 {
-		fmt.Println("Found multiple images, extracting first")
-	}
-
-	return getFileContentFromImage(imgs[0], filename)
+	return getFileContentFromImage(img, filename)
 }
 
 func getFileContentFromImage(image regv1.Image, filename string) ([]byte, error) {
@@ -116,24 +114,21 @@ func getFileFromLayer(stream io.Reader, files map[string][]byte) error {
 }
 
 // GetFiles get all the files content bundled in the given image:tag.
-func (r *registry) GetFiles(image, tag string) (map[string][]byte, error) {
-	ref, err := regname.ParseReference(fmt.Sprintf("%s:%s", image, tag), regname.WeakValidation)
+func (r *registry) GetFiles(imageWithTag string) (map[string][]byte, error) {
+	ref, err := regname.ParseReference(imageWithTag, regname.WeakValidation)
 	if err != nil {
 		return nil, err
 	}
-	imgs, err := ctlimg.NewImages(ref, r.registry).Images()
+	d, err := remote.Get(ref)
 	if err != nil {
 		return nil, errors.Wrap(err, "Collecting images")
 	}
-	if len(imgs) == 0 {
-		return nil, errors.New("expected to find at least one image, but found none")
+	img, err := d.Image()
+	if err != nil {
+		return nil, err
 	}
 
-	if len(imgs) > 1 {
-		fmt.Println("Found multiple images, extracting first")
-	}
-
-	return getAllFilesContentFromImage(imgs[0])
+	return getAllFilesContentFromImage(img)
 }
 
 func getAllFilesContentFromImage(image regv1.Image) (map[string][]byte, error) {

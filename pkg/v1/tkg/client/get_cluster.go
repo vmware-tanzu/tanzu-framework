@@ -29,6 +29,7 @@ type ClusterInfo struct {
 	K8sVersion        string            `json:"kubernetes" yaml:"kubernetes"`
 	Roles             []string          `json:"roles" yaml:"roles"`
 	Labels            map[string]string `json:"labels" yaml:"labels"`
+	Provider          string
 }
 
 // ListTKGClusters lists tkg cluster information
@@ -92,6 +93,9 @@ func (c *TkgClient) GetClusterObjects(clusterClient clusterclient.Client, listOp
 		cluster.K8sVersion = getClusterK8sVersion(clusterInfo)
 		cluster.Roles = getClusterRoles(clusterInfo.cluster.Labels)
 		cluster.Labels = clusterInfo.cluster.Labels
+		if clusterInfo.cluster.Spec.InfrastructureRef != nil {
+			cluster.Provider = clusterInfo.cluster.Spec.InfrastructureRef.Kind
+		}
 		clusters = append(clusters, cluster)
 	}
 

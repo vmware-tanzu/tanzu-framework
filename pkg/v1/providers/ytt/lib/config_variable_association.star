@@ -13,7 +13,7 @@ def config_variable_association():
 return {
 "CLUSTER_NAME": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker", "byoh"],
 "CLUSTER_PLAN": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker", "byoh"],
-"NAMESPACE": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker"],
+"NAMESPACE": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker", "byoh"],
 "INFRASTRUCTURE_PROVIDER": ["vsphere", "aws", "azure", "docker", "byoh"],
 "IS_WINDOWS_WORKLOAD_CLUSTER": ["vsphere"],
 
@@ -24,7 +24,6 @@ return {
 "ENABLE_CEIP_PARTICIPATION": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker"],
 "DEPLOY_TKG_ON_VSPHERE7": ["vsphere"],
 "ENABLE_TKGS_ON_VSPHERE7": ["vsphere"],
-"TMC_REGISTRATION_URL": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker"],
 
 "VSPHERE_NUM_CPUS": ["vsphere"],
 "VSPHERE_DISK_GIB": ["vsphere"],
@@ -176,19 +175,19 @@ return {
 "MHC_FALSE_STATUS_TIMEOUT": ["vsphere", "aws", "azure", "docker"],
 
 "TKG_CUSTOM_IMAGE_REPOSITORY": ["vsphere", "aws", "azure", "docker", "byoh"],
-"TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY": ["vsphere", "aws", "azure", "docker", "byoh"],
-"TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE": ["vsphere", "aws", "azure", "docker", "byoh"],
+"TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY": ["vsphere", "aws", "azure", "docker"],
+"TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE": ["vsphere", "aws", "azure", "docker"],
 
-"TKG_HTTP_PROXY": ["vsphere", "aws", "azure", "docker", "byoh"],
-"TKG_HTTPS_PROXY": ["vsphere", "aws", "azure", "docker", "byoh"],
-"TKG_NO_PROXY": ["vsphere", "aws", "azure", "docker", "byoh"],
+"TKG_HTTP_PROXY": ["vsphere", "aws", "azure", "docker"],
+"TKG_HTTPS_PROXY": ["vsphere", "aws", "azure", "docker"],
+"TKG_NO_PROXY": ["vsphere", "aws", "azure", "docker"],
 "TKG_PROXY_CA_CERT": ["vsphere", "aws", "azure", "docker"],
 
-"TKG_IP_FAMILY": ["vsphere", "aws", "azure", "docker", "byoh"],
+"TKG_IP_FAMILY": ["vsphere", "aws", "azure", "docker"],
 
 "ENABLE_AUDIT_LOGGING": ["vsphere", "aws", "azure", "docker"],
 
-"ENABLE_DEFAULT_STORAGE_CLASS": ["vsphere", "aws", "azure", "docker"],
+"ENABLE_DEFAULT_STORAGE_CLASS": ["vsphere", "aws", "azure", "docker", "byoh"],
 
 "CLUSTER_CIDR": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker", "byoh"],
 "SERVICE_CIDR": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker", "byoh"],
@@ -200,23 +199,23 @@ return {
 "WORKER_MACHINE_COUNT_1": ["vsphere", "aws", "azure", "docker"],
 "WORKER_MACHINE_COUNT_2": ["vsphere", "aws", "azure", "docker"],
 
-"OS_NAME": ["vsphere", "aws", "azure", "docker", "byoh"],
-"OS_VERSION": ["vsphere", "aws", "azure", "docker", "byoh"],
-"OS_ARCH": ["vsphere", "aws", "azure", "docker", "byoh"],
+"OS_NAME": ["vsphere", "aws", "azure", "docker"],
+"OS_VERSION": ["vsphere", "aws", "azure", "docker"],
+"OS_ARCH": ["vsphere", "aws", "azure", "docker"],
 
-"ENABLE_AUTOSCALER": ["vsphere", "aws", "azure", "docker", "byoh"],
-"AUTOSCALER_MAX_NODES_TOTAL": ["vsphere", "aws", "azure", "docker", "byoh"],
-"AUTOSCALER_SCALE_DOWN_DELAY_AFTER_ADD": ["vsphere", "aws", "azure", "docker", "byoh"],
-"AUTOSCALER_SCALE_DOWN_DELAY_AFTER_DELETE": ["vsphere", "aws", "azure", "docker", "byoh"],
-"AUTOSCALER_SCALE_DOWN_DELAY_AFTER_FAILURE": ["vsphere", "aws", "azure", "docker", "byoh"],
-"AUTOSCALER_SCALE_DOWN_UNNEEDED_TIME": ["vsphere", "aws", "azure", "docker", "byoh"],
-"AUTOSCALER_MAX_NODE_PROVISION_TIME": ["vsphere", "aws", "azure", "docker", "byoh"],
-"AUTOSCALER_MIN_SIZE_0": ["vsphere", "aws", "azure", "docker", "byoh"],
-"AUTOSCALER_MAX_SIZE_0": ["vsphere", "aws", "azure", "docker", "byoh"],
-"AUTOSCALER_MIN_SIZE_1": ["vsphere", "aws", "azure", "docker", "byoh"],
-"AUTOSCALER_MAX_SIZE_1": ["vsphere", "aws", "azure", "docker", "byoh"],
-"AUTOSCALER_MIN_SIZE_2": ["vsphere", "aws", "azure", "docker", "byoh"],
-"AUTOSCALER_MAX_SIZE_2": ["vsphere", "aws", "azure", "docker", "byoh"],
+"ENABLE_AUTOSCALER": ["vsphere", "aws", "azure", "docker"],
+"AUTOSCALER_MAX_NODES_TOTAL": ["vsphere", "aws", "azure", "docker"],
+"AUTOSCALER_SCALE_DOWN_DELAY_AFTER_ADD": ["vsphere", "aws", "azure", "docker"],
+"AUTOSCALER_SCALE_DOWN_DELAY_AFTER_DELETE": ["vsphere", "aws", "azure", "docker"],
+"AUTOSCALER_SCALE_DOWN_DELAY_AFTER_FAILURE": ["vsphere", "aws", "azure", "docker"],
+"AUTOSCALER_SCALE_DOWN_UNNEEDED_TIME": ["vsphere", "aws", "azure", "docker"],
+"AUTOSCALER_MAX_NODE_PROVISION_TIME": ["vsphere", "aws", "azure", "docker"],
+"AUTOSCALER_MIN_SIZE_0": ["vsphere", "aws", "azure", "docker"],
+"AUTOSCALER_MAX_SIZE_0": ["vsphere", "aws", "azure", "docker"],
+"AUTOSCALER_MIN_SIZE_1": ["vsphere", "aws", "azure", "docker"],
+"AUTOSCALER_MAX_SIZE_1": ["vsphere", "aws", "azure", "docker"],
+"AUTOSCALER_MIN_SIZE_2": ["vsphere", "aws", "azure", "docker"],
+"AUTOSCALER_MAX_SIZE_2": ["vsphere", "aws", "azure", "docker"],
 
 "DOCKER_MACHINE_TEMPLATE_IMAGE": ["docker"],
 
