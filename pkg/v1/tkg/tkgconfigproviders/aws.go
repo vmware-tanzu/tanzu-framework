@@ -380,8 +380,7 @@ func (c *client) CreateAWSParams(res *AWSConfig) (params *models.AWSRegionalClus
 		//Labels:                    nil,
 		MachineHealthCheckEnabled: res.MachineHealthCheckEnabled == trueConst,
 		Networking:                createNetworkingConfig(res),
-		// TODO SHIMON: is below ok? NumOfWorkerNode is not used when going from models.AWSRegionalClusterParams to AWSConfig
-		NumOfWorkerNode: 0,
+		NumOfWorkerNode:           0,
 		Os: &models.AWSVirtualMachine{
 			Name: getOsName(bomConfiguration, res),
 			OsInfo: &models.OSInfo{
@@ -390,10 +389,8 @@ func (c *client) CreateAWSParams(res *AWSConfig) (params *models.AWSRegionalClus
 				Version: res.OsInfo.Version,
 			},
 		},
-		SSHKeyName:         res.SSHKeyName,
-		TmcRegistrationURL: res.TmcRegistrationURL,
-		Vpc:                createVpc(res),
-		// TODO SHIMON: is below ok? WorkerNodeType is not used when going from models.AWSRegionalClusterParams to AWSConfig
+		SSHKeyName:     res.SSHKeyName,
+		Vpc:            createVpc(res),
 		WorkerNodeType: "",
 	}
 

@@ -183,11 +183,10 @@ func (c *client) CreateAzureParams(azureConfig *AzureConfig) (params *models.Azu
 		Location:                  azureConfig.Region,
 		MachineHealthCheckEnabled: azureConfig.MachineHealthCheckEnabled == trueConst,
 		Networking:                createNetworkingConfig(azureConfig),
-		NumOfWorkerNodes:          "", // TODO SHIMON: is this ok?
+		NumOfWorkerNodes:          "",
 		Os:                        createOsInfo(azureConfig),
 		ResourceGroup:             azureConfig.ResourceGroup,
 		SSHPublicKey:              string(sshKey),
-		TmcRegistrationURL:        azureConfig.TmcRegistrationURL,
 		VnetCidr:                  azureConfig.VNetCIDR,
 		VnetName:                  azureConfig.VNetName,
 		VnetResourceGroup:         azureConfig.VNetResourceGroup,
@@ -199,7 +198,7 @@ func (c *client) CreateAzureParams(azureConfig *AzureConfig) (params *models.Azu
 
 func createOsInfo(azureConfig *AzureConfig) *models.AzureVirtualMachine {
 	return &models.AzureVirtualMachine{
-		Name: "", // TODO SHIMON: is this ok?
+		Name: "",
 		OsInfo: &models.OSInfo{
 			Arch:    azureConfig.OsInfo.Arch,
 			Name:    azureConfig.OsInfo.Name,

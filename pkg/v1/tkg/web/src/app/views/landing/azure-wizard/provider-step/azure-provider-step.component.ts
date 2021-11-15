@@ -20,7 +20,7 @@ enum ProviderField {
     CLIENT = 'clientId',
     CLIENTSECRET = 'clientSecret',
     SUBSCRIPTION = 'subscriptionId',
-    TENANT ='tenantId',
+    TENANT = 'tenantId',
     SSHPUBLICKEY = 'sshPublicKey',
     REGION = 'region',
     RESOURCEGROUPOPTION = 'resourceGroupOption',
@@ -34,8 +34,10 @@ enum ResourceGroupOption {
 }
 
 // NOTE: the keys of AzureAccountParamsKeys values are used by backend endpoints, so don't change them
-export const AzureAccountParamsKeys = [ProviderField.TENANT, ProviderField.CLIENT, ProviderField.CLIENTSECRET, ProviderField.SUBSCRIPTION, ProviderField.AZURECLOUD];
-const requiredFields = [ProviderField.REGION, ProviderField.SSHPUBLICKEY, ProviderField.RESOURCEGROUPOPTION, ProviderField.RESOURCEGROUPEXISTING];
+export const AzureAccountParamsKeys = [ProviderField.TENANT, ProviderField.CLIENT,
+    ProviderField.CLIENTSECRET, ProviderField.SUBSCRIPTION, ProviderField.AZURECLOUD];
+const requiredFields = [ProviderField.REGION, ProviderField.SSHPUBLICKEY, ProviderField.RESOURCEGROUPOPTION,
+    ProviderField.RESOURCEGROUPEXISTING];
 const optionalFields = [ProviderField.RESOURCEGROUPCUSTOM];
 
 @Component({

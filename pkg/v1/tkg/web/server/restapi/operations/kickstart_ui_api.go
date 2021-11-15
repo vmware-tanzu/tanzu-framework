@@ -27,7 +27,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/features"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/ldap"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/provider"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/tmc"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/ui"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/vsphere"
 )
@@ -199,9 +198,6 @@ func NewKickstartUIAPI(spec *loads.Document) *KickstartUIAPI {
 		VsphereImportTKGConfigForVsphereHandler: vsphere.ImportTKGConfigForVsphereHandlerFunc(func(params vsphere.ImportTKGConfigForVsphereParams) middleware.Responder {
 			return middleware.NotImplemented("operation VsphereImportTKGConfigForVsphere has not yet been implemented")
 		}),
-		TmcRetrieveTMCInstallYmlHandler: tmc.RetrieveTMCInstallYmlHandlerFunc(func(params tmc.RetrieveTMCInstallYmlParams) middleware.Responder {
-			return middleware.NotImplemented("operation TmcRetrieveTMCInstallYml has not yet been implemented")
-		}),
 		AwsSetAWSEndpointHandler: aws.SetAWSEndpointHandlerFunc(func(params aws.SetAWSEndpointParams) middleware.Responder {
 			return middleware.NotImplemented("operation AwsSetAWSEndpoint has not yet been implemented")
 		}),
@@ -360,8 +356,6 @@ type KickstartUIAPI struct {
 	DockerImportTKGConfigForDockerHandler docker.ImportTKGConfigForDockerHandler
 	// VsphereImportTKGConfigForVsphereHandler sets the operation handler for the import t k g config for vsphere operation
 	VsphereImportTKGConfigForVsphereHandler vsphere.ImportTKGConfigForVsphereHandler
-	// TmcRetrieveTMCInstallYmlHandler sets the operation handler for the retrieve t m c install yml operation
-	TmcRetrieveTMCInstallYmlHandler tmc.RetrieveTMCInstallYmlHandler
 	// AwsSetAWSEndpointHandler sets the operation handler for the set a w s endpoint operation
 	AwsSetAWSEndpointHandler aws.SetAWSEndpointHandler
 	// AzureSetAzureEndpointHandler sets the operation handler for the set azure endpoint operation
@@ -641,10 +635,6 @@ func (o *KickstartUIAPI) Validate() error {
 
 	if o.VsphereImportTKGConfigForVsphereHandler == nil {
 		unregistered = append(unregistered, "vsphere.ImportTKGConfigForVsphereHandler")
-	}
-
-	if o.TmcRetrieveTMCInstallYmlHandler == nil {
-		unregistered = append(unregistered, "tmc.RetrieveTMCInstallYmlHandler")
 	}
 
 	if o.AwsSetAWSEndpointHandler == nil {
@@ -1030,11 +1020,6 @@ func (o *KickstartUIAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/api/providers/vsphere/config/import"] = vsphere.NewImportTKGConfigForVsphere(o.context, o.VsphereImportTKGConfigForVsphereHandler)
-
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/api/integration/tmc"] = tmc.NewRetrieveTMCInstallYml(o.context, o.TmcRetrieveTMCInstallYmlHandler)
 
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)

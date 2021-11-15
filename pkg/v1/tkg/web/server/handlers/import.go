@@ -67,7 +67,6 @@ func (app *App) ImportDockerConfig(params docker.ImportTKGConfigForDockerParams)
 	return docker.NewImportTKGConfigForDockerInternalServerError().WithPayload(Err(err))
 }
 
-// TODO SHIMON: can these populate methods be generic?
 func populateVsphereConfigFromString(input string, config *tkgconfigproviders.VSphereConfig) error {
 	// turn string into byte array and unmarshal the byteArray into the config object
 	return yaml.Unmarshal([]byte(input), &config)

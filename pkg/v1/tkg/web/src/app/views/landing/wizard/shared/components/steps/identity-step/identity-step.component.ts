@@ -124,6 +124,7 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
 
         this.initFormWithSavedData();
         this.identityTypeValue = this.getSavedValue('identityType', 'oidc');
+        // TODO: guessing we don't need this line
         this.setControlValueSafely('identityType', this.identityTypeValue);
     }
 

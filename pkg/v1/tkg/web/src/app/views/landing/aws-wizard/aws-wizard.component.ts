@@ -5,33 +5,16 @@ import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 
-import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
-import { AWSAccountParamsKeys } from './provider-step/aws-provider-step.component';
 import { AWSRegionalClusterParams, AWSVpc } from 'src/app/swagger/models';
 import { APIClient } from 'src/app/swagger';
 import { AwsWizardFormService } from 'src/app/shared/service/aws-wizard-form.service';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import Broker from "../../../shared/service/broker";
-
-enum AwsForm {
-    PROVIDER = 'awsProviderForm',
-    VPC = 'vpcForm',
-    NODESETTING = 'awsNodeSettingForm',
-    NETWORK = 'networkForm',
-    METADATA = 'metadataForm',
-    IDENTITY = 'identityForm',
-    OSIMAGE = 'osImageForm'
-}
-
-enum AwsStep {
-    PROVIDER = 'provider',
-    VPC = 'vpc',
-    NODESETTING = 'nodeSetting',
-    NETWORK = 'network',
-    METADATA = 'metadata',
-    IDENTITY = 'identity',
-    OSIMAGE = 'osImage'
-}
+import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
+import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
+import { BASTION_HOST_ENABLED, BASTION_HOST_DISABLED } from './node-setting-step/node-setting-step.component';
+import { AWSAccountParamsKeys } from './provider-step/aws-provider-step.component';
+import { AwsStep, AwsForm } from "./aws-wizard.module";
 
 @Component({
     selector: 'aws-wizard',
@@ -141,7 +124,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         AWSAccountParamsKeys.forEach(key => {
             payload.awsAccountParams[key] = this.getFieldValue(AwsForm.PROVIDER, key);
         });
-        payload.loadbalancerSchemeInternal = this.getBooleanFieldValue('vpcForm', 'nonInternetFacingVPC');
+        payload.loadbalancerSchemeInternal = this.getBooleanFieldValue(AwsForm.VPC, 'nonInternetFacingVPC');
         payload.sshKeyName = this.getFieldValue(AwsForm.NODESETTING, 'sshKeyName');
         payload.createCloudFormationStack = this.getFieldValue(AwsForm.NODESETTING, 'createCloudFormation') || false;
         payload.clusterName = this.getFieldValue(AwsForm.NODESETTING, 'clusterName');
@@ -166,7 +149,6 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
     }
 
     setFromPayload(payload: AWSRegionalClusterParams) {
-        // SHIMON TODO:         payload.loadbalancerSchemeInternal = this.getBooleanFieldValue('vpcForm', 'nonInternetFacingVPC');
         if (payload !== undefined) {
             if (payload.awsAccountParams !== undefined) {
                 for (const key of Object.keys(payload.awsAccountParams)) {
@@ -183,29 +165,36 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
             this.saveFormField(AwsForm.NODESETTING, 'bastionHostEnabled', bastionHost);
             this.saveFormField(AwsForm.NODESETTING, 'machineHealthChecksEnabled', payload.machineHealthCheckEnabled);
             this.saveFormField(AwsForm.VPC, 'existingVpcId', (payload.vpc) ? payload.vpc.vpcID : '');
-            this.saveFormField("awsNodeSettingForm", "enableAuditLogging", payload.enableAuditLogging);
+            this.saveFormField(AwsForm.VPC, 'nonInternetFacingVPC', payload.loadbalancerSchemeInternal)
+            this.saveFormField(AwsForm.NODESETTING, "enableAuditLogging", payload.enableAuditLogging);
             this.saveVpcFields(payload.vpc);
 
             this.saveCommonFieldsFromPayload(payload);
         }
     }
 
-    private saveVpcFields(vpc: AWSVpc) {
-        if (vpc) {
-            // SHIMON SEZ: verify that this is a good way to determine NEW or EXISTING?
-            // we check the first node to determine whether we're dealing with a NEW or EXISTING
-            if (vpc.vpcID) {
-                this.saveFormField(AwsForm.VPC, 'vpcType', 'existing');
-                this.saveFormField(AwsForm.VPC, 'existingVpcCidr', vpc.cidr);
-                this.saveFormField(AwsForm.VPC, 'publicNodeCidr', '');
-                this.saveFormField(AwsForm.VPC, 'privateNodeCidr', '');
-                this.saveFormField(AwsForm.VPC, 'existingVpcId', vpc.vpcID);
-            } else {
-                this.saveFormField(AwsForm.VPC, 'vpcType', 'new');
-                this.saveFormField(AwsForm.VPC, 'vpc', vpc.cidr);
-            }
-            this.saveVpcAzs(vpc);
+    setAwsNodeAzs(payload) {
+        const nodeAzList = payload.vpc.azs;
+        if (nodeAzList === null || nodeAzList.length === 0) {
+            return;
         }
+
+        // SHIMON SEZ: verify that this is a good way to determine NEW or EXISTING?
+        // we check the first node to determine whether we're dealing with a NEW or EXISTING
+        const isNew = nodeAzList[0].publicNodeCidr.length > 0;
+        if (isNew) {
+            this.setFieldValue(AwsForm.VPC, 'vpcType', 'new');
+            this.setFieldValue(AwsForm.VPC, 'publicNodeCidr', nodeAzList[0].publicNodeCidr);
+            this.setFieldValue(AwsForm.VPC, 'privateNodeCidr', nodeAzList[0].privateNodeCidr);
+            this.setFieldValue(AwsForm.VPC, 'vpc', payload.cpv.cidr);
+        } else {
+            this.setFieldValue(AwsForm.VPC, 'vpcType', 'existing');
+            this.setFieldValue(AwsForm.VPC, 'existingVpcCidr', payload.cpv.cidr);
+            this.setFieldValue(AwsForm.VPC, 'publicNodeCidr', '');
+            this.setFieldValue(AwsForm.VPC, 'privateNodeCidr', '');
+        }
+
+            this.saveVpcAzs(payload.vpc);
     }
 
     private saveVpcAzs(vpc: AWSVpc) {
@@ -218,20 +207,20 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
                 // by pushing them on to the array, which essentially reversed their order. So if there
                 // are 3 AZs, for example, the 3rd one in the UI will have landed as the 0-index in our array.
                 const uiIndex = numNodeAz - x;
-                this.saveAzNodeFields(node, uiIndex);
+                this.setAwsNodeFields(node, uiIndex);
             }
         }
     }
 
-    private saveAzNodeFields(node: any, uiIndex: number) {
-        this.saveFormField(AwsForm.NODESETTING, `awsNodeAz${uiIndex}`, node.name);
+    setAwsNodeFields(node: any, uiIndex: number) {
+        this.setFieldValue(AwsForm.NODESETTING, `awsNodeAz${uiIndex}`, node.name);
         if (!Broker.appDataService.isModeClusterStandalone()) {
-            this.saveFormField(AwsForm.NODESETTING, `workerNodeInstanceType${uiIndex}`, node.workerNodeType);
+            this.setFieldValue(AwsForm.NODESETTING, `workerNodeInstanceType${uiIndex}`, node.workerNodeType);
         }
         const publicSubnetId = node.publicSubnetID === null || node.publicSubnetID.length === 0 ? '' : node.publicSubnetID;
-        this.saveFormField(AwsForm.NODESETTING, `vpcPublicSubnet${uiIndex}`, publicSubnetId);
+        this.setFieldValue(AwsForm.NODESETTING, `vpcPublicSubnet${uiIndex}`, publicSubnetId);
         const privateSubnetId = node.privateSubnetId === null || node.privateSubnetId.length === 0 ? '' : node.privateSubnetId;
-        this.saveFormField(AwsForm.NODESETTING, `vpcPrivateSubnet${uiIndex}`, privateSubnetId);
+        this.setFieldValue(AwsForm.NODESETTING, `vpcPrivateSubnet${uiIndex}`, privateSubnetId);
     }
 
     getAwsNodeAzs(payload) {

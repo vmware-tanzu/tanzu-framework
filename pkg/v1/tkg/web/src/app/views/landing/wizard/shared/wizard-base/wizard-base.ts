@@ -633,7 +633,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
         if (payload.labels !== undefined) {
             // we construct a label value that mimics how the meta-data step constructs the saved label value
             // when the user creates it label by label
-            let labelArray: Array<string> = [];
+            const labelArray: Array<string> = [];
             Object.keys(payload.labels).forEach(key => {
                 const value = payload.labels[key];
                 labelArray[labelArray.length] = key + ":" + value;

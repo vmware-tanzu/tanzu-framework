@@ -255,7 +255,6 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
         }
 
         treeNodes.forEach(node => {
-
             if (node.resourceType === ResourceType.HOST || node.resourceType === ResourceType.CLUSTER) {
                 node.path += '/Resources';
             }

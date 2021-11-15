@@ -507,11 +507,16 @@ router.post(`${ENDPOINT}/providers/vsphere/config/import`, (req, res) => {
         "datastore": "Datastore 4",
         "folder": "Folder 4",
         "identityManagement": {
-            "idm_type": "none",
-            "ldap_group_search_name_attr": "cn",
-            "ldap_group_search_user_attr": "DN",
-            "ldap_user_search_username": "userPrincipalName",
-            "oidc_claim_mappings": {"groups": "", "username": ""}
+            "oidc_provider_name": "",
+            "oidc_provider_url": "https://1.2.3.4",
+            "oidc_client_id": "client-id",
+            "oidc_client_secret": "client-secret",
+            "oidc_scope": "scopes",
+            "oidc_claim_mappings": {
+                "username": "username-claim",
+                "groups": "groups-claim"
+            },
+            "idm_type": "oidc"
         },
         "ipFamily": "ipv4",
         "machineHealthCheckEnabled": true,
@@ -888,8 +893,15 @@ router.post(`${ENDPOINT}/providers/azure/config/import`, (req, res) => {
             'description': 'optional-description-foo',
             'location': ''
         },
-        'identityManagement': {
-            'idm_type': 'none'
+        "identityManagement": {
+            "idm_type": "none",
+            "ldap_group_search_name_attr": "cn",
+            "ldap_group_search_user_attr": "DN",
+            "ldap_user_search_username": "userPrincipalName",
+            "oidc_claim_mappings": {
+                "groups": "group-claim",
+                "username": "username-claim"
+            }
         },
         'aviConfig': {
             'controller': '',
@@ -1294,8 +1306,8 @@ router.post(`${ENDPOINT}/providers/docker/config/import`, (req, res) => {
                 "ldap_group_search_user_attr": "DN",
                 "ldap_user_search_username": "userPrincipalName",
                 "oidc_claim_mappings": {
-                    "groups": "",
-                    "username": ""
+                    "groups": "group-claim",
+                    "username": "username-claim"
                 }
             },
             "networking": {

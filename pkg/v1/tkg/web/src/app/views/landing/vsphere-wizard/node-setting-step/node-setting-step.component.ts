@@ -192,10 +192,20 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     cardClick(envType: string) {
-        this.formGroup.controls[VsphereField.NODESETTING_CONTROL_PLANE_SETTING].setValue(envType);
+        const controlPlaneSetting = this.formGroup.controls[VsphereField.NODESETTING_CONTROL_PLANE_SETTING];
+        if (controlPlaneSetting === undefined) {
+            console.log('===> WARNING: cardClick() unable to set controlPlaneSetting to "' + envType + '" because no controlPlaneSetting control was found!');
+        } else {
+            controlPlaneSetting.setValue(envType);
+        }
     }
 
     getEnvType(): string {
-        return this.formGroup.controls[VsphereField.NODESETTING_CONTROL_PLANE_SETTING].value;
+        const controlPlaneSetting = this.formGroup.controls[VsphereField.NODESETTING_CONTROL_PLANE_SETTING];
+        if (controlPlaneSetting === undefined) {
+            console.log('getEnvType() unable to return env type because no controlPlaneSetting control was found!');
+            return '';
+        }
+        return this.formGroup.controls['controlPlaneSetting'].value;
     }
 }

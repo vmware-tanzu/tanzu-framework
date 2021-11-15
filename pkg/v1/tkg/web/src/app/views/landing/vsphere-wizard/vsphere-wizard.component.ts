@@ -242,15 +242,20 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         if (payload.aviConfig !== undefined) {
             const endpointProvider = payload.aviConfig['controlPlaneHaProvider'] ? NSX_ADVANCED_LOAD_BALANCER : KUBE_VIP;
             this.saveFormField('vsphereNodeSettingForm', 'controlPlaneEndpointProvider', endpointProvider);
-            // TODO: SHIMON SEZ: verify if this is a reasonable way to determine whether to populate the
-            // management cluster network name & CIDR (below):
             // Set (or clear) the network name (based on whether it's different from the aviConfig value
             const managementClusterVipNetworkName = payload.aviConfig['managementClusterVipNetworkName'];
-            const uiMcNetworkName = managementClusterVipNetworkName === payload.aviConfig.network.name ? '' : payload.aviConfig['managementClusterVipNetworkName'];
+            let uiMcNetworkName = '';
+            if (managementClusterVipNetworkName !== payload.aviConfig.network.name) {
+                uiMcNetworkName = payload.aviConfig['managementClusterVipNetworkName'];
+            }
+
             this.saveFormField("loadBalancerForm", "managementClusterNetworkName", uiMcNetworkName);
             // Set (or clear) the CIDR setting (based on whether it's different from the aviConfig value
             const managementClusterNetworkCIDR = payload.aviConfig['managementClusterVipNetworkCidr'];
-            const uiMcCidr = managementClusterNetworkCIDR === payload.aviConfig.network.cidr ? '' :  managementClusterNetworkCIDR;
+            let uiMcCidr = '';
+            if (managementClusterNetworkCIDR !== payload.aviConfig.network.cidr) {
+                uiMcCidr = managementClusterNetworkCIDR;
+            }
             this.saveFormField("loadBalancerForm", "managementClusterNetworkCIDR", uiMcCidr)
         }
 
