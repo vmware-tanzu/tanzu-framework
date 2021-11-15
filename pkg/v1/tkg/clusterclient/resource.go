@@ -264,6 +264,7 @@ func VerifyDeploymentAvailable(obj crtclient.Object) error {
 	switch deployment := obj.(type) {
 	case *appsv1.Deployment:
 		if deployment.Status.AvailableReplicas < 1 {
+			log.V(4).Info(fmt.Sprintf("DEPLOYMENT: %v", deployment))
 			return errors.Errorf("pods are not yet running for deployment '%s' in namespace '%s'", deployment.Name, deployment.Namespace)
 		}
 	default:

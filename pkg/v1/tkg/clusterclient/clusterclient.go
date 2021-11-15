@@ -1120,6 +1120,7 @@ func (c *client) GetResource(resourceReference interface{}, resourceName, namesp
 
 	// get the runtime object from interface
 	obj, err := getRuntimeObject(resourceReference)
+	log.V(4).Info(fmt.Sprintf("OBJ -- %v", obj))
 	if err != nil {
 		return err
 	}
@@ -1129,7 +1130,9 @@ func (c *client) GetResource(resourceReference interface{}, resourceName, namesp
 	if pollOptions != nil {
 		log.V(4).Infof("Waiting for resource %s of type %s to be up and running", resourceName, reflect.TypeOf(resourceReference))
 		_, err = c.poller.PollImmediateWithGetter(pollOptions.Interval, pollOptions.Timeout, func() (interface{}, error) {
-			return nil, c.get(resourceName, namespace, obj, postVerify)
+			ob := c.get(resourceName, namespace, obj, postVerify)
+			log.V(4).Info(fmt.Sprintf("OB -- %v", ob))
+			return nil, ob
 		})
 		return err
 	}
