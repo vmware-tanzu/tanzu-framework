@@ -20,6 +20,14 @@ metadata:
     tkg.tanzu.vmware.com/addon-type: "packages/management-package"
 rules:
   - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - create
+      - update
+      - get
+  - apiGroups:
       - apiextensions.k8s.io
     resources:
       - customresourcedefinitions

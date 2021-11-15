@@ -216,7 +216,7 @@ func (c *TkgClient) UpgradeCluster(options *UpgradeClusterOptions) error { // no
 	}
 
 	log.Info("Waiting for packages to be up and running...")
-	if err := c.WaitForPackages(regionalClusterClient, currentClusterClient, options.ClusterName, options.Namespace); err != nil {
+	if err := c.WaitForPackages(regionalClusterClient, currentClusterClient, options.ClusterName, options.Namespace, options.IsRegionalCluster); err != nil {
 		log.Warningf("Warning: Cluster is upgraded successfully, but some packages are failing. %v", err)
 	}
 

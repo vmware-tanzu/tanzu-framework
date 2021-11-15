@@ -338,7 +338,7 @@ func (c *TkgClient) WaitForAddonsDeployments(clusterClient clusterclient.Client)
 }
 
 // WaitForPackages wait for packages to be up and running
-func (c *TkgClient) WaitForPackages(regionalClusterClient, currentClusterClient clusterclient.Client, clusterName, namespace string) error {
+func (c *TkgClient) WaitForPackages(regionalClusterClient, currentClusterClient clusterclient.Client, clusterName, namespace string, isRegionalCluster bool) error {
 	// Adding kapp-controller package to the exclude list
 	// For management cluster, kapp-controller is deployed using CRS and addon secret does not exist
 	// For workload cluster, kapp-controller is deployed by addons manager. Even though the
@@ -356,6 +356,12 @@ func (c *TkgClient) WaitForPackages(regionalClusterClient, currentClusterClient 
 	// From the addons secret get the names of package installs for each addon secret
 	// This is determined from the "tkg.tanzu.vmware.com/addon-name" label on the secret
 	packageInstallNames := []string{}
+
+	// Add tanzu-core-management-plugins packages to the list of packages to wait for management-cluster
+	if isRegionalCluster {
+		packageInstallNames = append(packageInstallNames, constants.CoreManagementPluginsPackageName)
+	}
+
 	for i := range secretList.Items {
 		if secretList.Items[i].Type == constants.AddonSecretType {
 			if cn, exists := secretList.Items[i].Labels[constants.ClusterNameLabel]; exists && cn == clusterName {
