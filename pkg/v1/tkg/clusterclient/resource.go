@@ -10,7 +10,6 @@ import (
 
 	"github.com/pkg/errors"
 	appsv1 "k8s.io/api/apps/v1"
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
@@ -305,10 +304,8 @@ func VerifyCRSAppliedSuccessfully(obj crtclient.ObjectList) error {
 func VerifyAVIResourceCleanupFinished(obj crtclient.Object) error {
 	switch statefulSet := obj.(type) {
 	case *appsv1.StatefulSet:
-		for _, condition := range statefulSet.Status.Conditions {
-			if condition.Type == constants.AkoCleanupCondition && condition.Status == corev1.ConditionFalse {
-				return nil
-			}
+		if statefulSet.Annotations != nil && statefulSet.Annotations[constants.AkoCleanUpAnnotationKey] == constants.AkoCleanUpFinishedStatus {
+			return nil
 		}
 		return errors.Errorf("AVI Resource clean up in progress")
 	default:
