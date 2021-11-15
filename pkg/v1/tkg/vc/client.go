@@ -402,6 +402,22 @@ func (c *DefaultClient) unsetDefaultFolder(objects []*models.VSphereManagementOb
 	return objects
 }
 
+func isDuplicate(names map[string]bool, name string) bool {
+	_, exists := names[name]
+	return exists
+}
+
+// GetDuplicateNetworks return a map of duplicate networks from the available networks.
+func GetDuplicateNetworks(networks []*models.VSphereNetwork) map[string]bool {
+	dupNetworks := make(map[string]bool, len(networks))
+	for i := range networks {
+		name := networks[i].Name
+		dupNetworks[name] = isDuplicate(dupNetworks, name)
+	}
+
+	return dupNetworks
+}
+
 // GetNetworks gets list of network for the given datacenter
 func (c *DefaultClient) GetNetworks(ctx context.Context, datacenterMOID string) ([]*models.VSphereNetwork, error) {
 	results := []*models.VSphereNetwork{}
@@ -427,15 +443,27 @@ func (c *DefaultClient) GetNetworks(ctx context.Context, datacenterMOID string) 
 	}
 
 	for i := range networks {
-		managedObject := models.VSphereNetwork{Moid: networks[i].Reference().Value}
+		managedObject := models.VSphereNetwork{Moid: networks[i].Reference().Type + ":" + networks[i].Reference().Value}
 		path, _, err := c.getPath(ctx, networks[i].Reference().Value)
 		if err != nil {
 			managedObject.Name = networks[i].Name
 		} else {
 			managedObject.Name = path
 		}
+		managedObject.DisplayName = managedObject.Name
 		results = append(results, &managedObject)
 	}
+
+	// update the displayName of the vSphere network if there are duplicates with the same name.
+	// we also update the 'Name' field with 'Moid' for duplicate networks
+	duplNetworks := GetDuplicateNetworks(results)
+	for i := range results {
+		if duplNetworks[results[i].Name] {
+			results[i].DisplayName = results[i].Name + "(" + results[i].Moid + ")"
+			results[i].Name = results[i].Moid
+		}
+	}
+
 	return results, nil
 }
 

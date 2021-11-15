@@ -3300,6 +3300,9 @@ func init() {
     "VSphereNetwork": {
       "type": "object",
       "properties": {
+        "displayName": {
+          "type": "string"
+        },
         "moid": {
           "type": "string"
         },
@@ -6770,6 +6773,9 @@ func init() {
     "VSphereNetwork": {
       "type": "object",
       "properties": {
+        "displayName": {
+          "type": "string"
+        },
         "moid": {
           "type": "string"
         },

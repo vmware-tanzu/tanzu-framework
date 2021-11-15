@@ -1609,6 +1609,8 @@ definitions:
     properties:
       name:
         type: string
+      displayName:
+        type: string
       moid:
         type: string
 
