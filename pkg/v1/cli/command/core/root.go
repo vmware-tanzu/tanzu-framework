@@ -69,9 +69,9 @@ func NewRootCmd() (*cobra.Command, error) {
 		return nil, fmt.Errorf("failed to copy legacy configuration directory to new location: %w", err)
 	}
 
-	// If context-aware-discovery is not enabled
+	// If context-aware-cli-for-plugins feature is not enabled
 	// check that all plugins in the core distro are installed or do so.
-	if !config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
+	if !config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
 		plugins, err = checkAndInstallMissingPlugins(plugins)
 		if err != nil {
 			return nil, err
@@ -99,7 +99,7 @@ func getAvailablePlugins() ([]*v1alpha1.PluginDescriptor, error) {
 	plugins := make([]*v1alpha1.PluginDescriptor, 0)
 	var err error
 
-	if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
+	if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
 		currentServerName := ""
 
 		server, err := config.GetCurrentServer()

@@ -97,7 +97,7 @@ func runUpgradeRegion(server *v1alpha1.Server) error {
 	}
 
 	// Sync plugins if management-cluster upgrade is successful
-	if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
+	if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
 		err = pluginmanager.SyncPlugins(server.Name)
 		if err != nil {
 			log.Warningf("unable to sync plugins after management cluster upgrade. Please run `tanzu plugin sync` command manually to install/update plugins")

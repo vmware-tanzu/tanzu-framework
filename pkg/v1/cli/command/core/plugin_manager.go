@@ -58,7 +58,7 @@ var listPluginCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List available plugins",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
+		if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
 			serverName := ""
 			server, err := config.GetCurrentServer()
 			if err == nil && server != nil {
@@ -178,7 +178,7 @@ var describePluginCmd = &cobra.Command{
 		}
 		pluginName := args[0]
 
-		if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
+		if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
 			serverName := ""
 			server, err := config.GetCurrentServer()
 			if err == nil && server != nil {
@@ -228,7 +228,7 @@ var installPluginCmd = &cobra.Command{
 		}
 		pluginName := args[0]
 
-		if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
+		if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
 			serverName := ""
 			server, err := config.GetCurrentServer()
 			if err == nil && server != nil {
@@ -287,7 +287,7 @@ var upgradePluginCmd = &cobra.Command{
 		}
 		pluginName := args[0]
 
-		if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
+		if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
 			serverName := ""
 			server, err := config.GetCurrentServer()
 			if err == nil && server != nil {
@@ -333,7 +333,7 @@ var deletePluginCmd = &cobra.Command{
 		}
 		pluginName := args[0]
 
-		if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
+		if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
 			serverName := ""
 			server, err := config.GetCurrentServer()
 			if err == nil && server != nil {
@@ -359,7 +359,7 @@ var cleanPluginCmd = &cobra.Command{
 	Use:   "clean",
 	Short: "Clean the plugins",
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
-		if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
+		if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
 			return pluginmanager.Clean()
 		}
 		return cli.Clean()
@@ -370,7 +370,7 @@ var syncPluginCmd = &cobra.Command{
 	Use:   "sync",
 	Short: "Sync the plugins",
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
-		if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
+		if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
 			serverName := ""
 			server, err := config.GetCurrentServer()
 			if err == nil && server != nil {
@@ -383,7 +383,7 @@ var syncPluginCmd = &cobra.Command{
 			log.Success("Done")
 			return nil
 		}
-		return errors.Errorf("command is only applicable if `%s` feature is enabled", config.FeatureContextAwareDiscovery)
+		return errors.Errorf("command is only applicable if `%s` feature is enabled", config.FeatureContextAwareCLIForPlugins)
 	},
 }
 

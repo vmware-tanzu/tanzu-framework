@@ -393,7 +393,7 @@ install-cli-plugins: ## Install Tanzu CLI plugins
 	fi
 
 .PHONY: install-cli-plugins-without-discovery
-install-cli-plugins-without-discovery: set-unstable-versions set-context-aware-discovery ## Install Tanzu CLI plugins when context-aware discovery is disabled
+install-cli-plugins-without-discovery: set-unstable-versions set-context-aware-cli-for-plugins ## Install Tanzu CLI plugins when context-aware discovery is disabled
 	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
 		plugin install all --local $(ARTIFACTS_DIR)/$(GOHOSTOS)/$(GOHOSTARCH)/cli
 	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
@@ -402,20 +402,20 @@ install-cli-plugins-without-discovery: set-unstable-versions set-context-aware-d
 		test fetch --local $(ARTIFACTS_DIR)/$(GOHOSTOS)/$(GOHOSTARCH)/cli --local $(ARTIFACTS_DIR)-admin/$(GOHOSTOS)/$(GOHOSTARCH)/cli
 
 .PHONY: install-cli-plugins-from-local-discovery
-install-cli-plugins-from-local-discovery: clean-catalog-cache clean-cli-plugins set-context-aware-discovery configure-admin-plugins-discovery-source-local ## Install Tanzu CLI plugins from local discovery
+install-cli-plugins-from-local-discovery: clean-catalog-cache clean-cli-plugins set-context-aware-cli-for-plugins configure-admin-plugins-discovery-source-local ## Install Tanzu CLI plugins from local discovery
 	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS) -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/config.DefaultStandaloneDiscoveryType=local'" ./cmd/cli/tanzu/main.go plugin sync
 
 .PHONY: install-cli-plugins-from-oci-discovery
-install-cli-plugins-from-oci-discovery: clean-catalog-cache clean-cli-plugins set-context-aware-discovery ## Install Tanzu CLI plugins from OCI discovery
+install-cli-plugins-from-oci-discovery: clean-catalog-cache clean-cli-plugins set-context-aware-cli-for-plugins ## Install Tanzu CLI plugins from OCI discovery
 	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS) -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/config.DefaultStandaloneDiscoveryType=oci'" ./cmd/cli/tanzu/main.go plugin sync
 
 .PHONY: set-unstable-versions
 set-unstable-versions:  ## Configures the unstable versions
 	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go config set unstable-versions $(TANZU_PLUGIN_UNSTABLE_VERSIONS)
 
-.PHONY: set-context-aware-discovery
-set-context-aware-discovery: ## Configures the context-aware-discovery feature flag
-	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go config set features.global.context-aware-discovery $(ENABLE_CONTEXT_AWARE_PLUGIN_DISCOVERY)
+.PHONY: set-context-aware-cli-for-plugins
+set-context-aware-cli-for-plugins: ## Configures the context-aware-cli-for-plugins-beta feature flag
+	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go config set features.global.context-aware-cli-for-plugins $(ENABLE_CONTEXT_AWARE_PLUGIN_DISCOVERY)
 
 .PHONY: configure-admin-plugins-discovery-source-local
 configure-admin-plugins-discovery-source-local: ## Configures the admin plugins discovery source

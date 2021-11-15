@@ -178,9 +178,9 @@ func availablePluginsFromStandaloneAndServerPlugins(discoveredServerPlugins, dis
 	for i := range discoveredStandalonePlugins {
 		matchIndex := pluginIndexForName(availablePlugins, discoveredStandalonePlugins[i].Name)
 
-		// Add the standalone plugin to available plugin if it doesn't exist in the serverPlugins list
+		// Add the standalone plugin to available plugins if it doesn't exist in the serverPlugins list
 		// OR
-		// Current standalone discovery type is local and there is
+		// Current standalone discovery is of type 'local'
 		// We are overriding the discovered plugins that we got from server in case of 'local' discovery type
 		// to allow developers to use the plugins that are built locally and not returned from the server
 		// This local discovery is only used for development purpose and should not be used for production

@@ -173,7 +173,7 @@ func Test_ContextCatalog_With_Context(t *testing.T) {
 // the featuregate is configured to true by default
 func Test_CatalogCacheFileName(t *testing.T) {
 	assert := assert.New(t)
-	if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
+	if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
 		assert.Equal(catalogCacheFileName, "catalog.yaml")
 	}
 }
