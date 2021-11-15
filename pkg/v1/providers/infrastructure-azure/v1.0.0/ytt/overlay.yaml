@@ -119,6 +119,20 @@ spec:
       frontendIPs:
       - name: #@ "lb-{}-ip-frontend".format(data.values.CLUSTER_NAME)
         privateIP: #@ data.values.AZURE_FRONTEND_PRIVATE_IP
+
+    #@ if data.values.AZURE_ENABLE_CONTROL_PLANE_OUTBOUND_LB:
+    #@overlay/match missing_ok=True
+    controlPlaneOutboundLB:
+      frontendIPsCount: #@ data.values.AZURE_CONTROL_PLANE_OUTBOUND_LB_FRONTEND_IP_COUNT
+    #@ end
+
+    #@ if data.values.AZURE_ENABLE_NODE_OUTBOUND_LB:
+    #@overlay/match missing_ok=True
+    nodeOutboundLB:
+      frontendIPsCount: #@ data.values.AZURE_NODE_OUTBOUND_LB_FRONTEND_IP_COUNT
+      idleTimeoutInMinutes: #@ data.values.AZURE_NODE_OUTBOUND_LB_IDLE_TIMEOUT_IN_MINUTES
+    #@ end
+
     #@ end
   resourceGroup: #@ data.values.AZURE_RESOURCE_GROUP or data.values.CLUSTER_NAME
   subscriptionID: #@ data.values.AZURE_SUBSCRIPTION_ID

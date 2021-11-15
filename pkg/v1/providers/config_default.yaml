@@ -348,6 +348,13 @@ AZURE_NODE_DATA_DISK_SIZE_GIB: 256
 #! A Private cluster will have an Azure internal load balancer load balancing traffic inside the VNet to the control plane nodes.
 AZURE_ENABLE_PRIVATE_CLUSTER: false
 AZURE_FRONTEND_PRIVATE_IP: "10.0.0.100"
+AZURE_ENABLE_CONTROL_PLANE_OUTBOUND_LB: true
+AZURE_ENABLE_NODE_OUTBOUND_LB: true
+AZURE_CONTROL_PLANE_OUTBOUND_LB_FRONTEND_IP_COUNT: 1
+AZURE_NODE_OUTBOUND_LB_FRONTEND_IP_COUNT: 1
+#! specifies the number of minutes to keep a TCP connection open for the outbound rule
+#! https://docs.microsoft.com/en-us/azure/load-balancer/load-balancer-tcp-reset#configurable-tcp-idle-timeout
+AZURE_NODE_OUTBOUND_LB_IDLE_TIMEOUT_IN_MINUTES: 4
 
 #! Azure VM Image Config values
 #! Azure image ID
