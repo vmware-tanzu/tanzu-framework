@@ -155,7 +155,6 @@ func (t *tkgctl) getCreateClusterOptions(name string, cc *CreateClusterOptions) 
 		VsphereControlPlaneEndpoint: cc.VsphereControlPlaneEndpoint,
 		ClusterOptionsEnableList:    clusterOptionsEnableList,
 		Edition:                     cc.Edition,
-		IsWindowsWorkloadCluster:    cc.IsWindowsWorkloadCluster,
 	}, nil
 }
 
@@ -234,10 +233,6 @@ func (t *tkgctl) configureCreateClusterOptionsFromConfigFile(cc *CreateClusterOp
 			} else {
 				// if no value, set to the default, which should be false since most clusters are linux.
 				cc.IsWindowsWorkloadCluster = constants.DefaultIsWindowsWorkloadCluster
-			}
-			// log this since its generally a less common use case, and windows support is relatively new.
-			if cc.IsWindowsWorkloadCluster {
-				log.Infof("\n Creating a windows workload cluster %v\n\n", cc.ClusterName)
 			}
 			// log this since its generally a less common use case, and windows support is relatively new.
 			if cc.IsWindowsWorkloadCluster {

@@ -1368,7 +1368,7 @@ var _ = Describe("DistributeMachineDeploymentWorkers", func() {
 	JustBeforeEach(func() {
 		tkgClient, err = CreateTKGClient(tkgConfigPath, testingDir, defaultTKGBoMFileForTesting, 2*time.Second)
 		Expect(err).NotTo(HaveOccurred())
-		workerCounts, err = tkgClient.DistributeMachineDeploymentWorkers(workerMachineCount, isProdConfig, isManagementCluster, infraProviderName, false)
+		workerCounts, err = tkgClient.DistributeMachineDeploymentWorkers(workerMachineCount, isProdConfig, isManagementCluster, infraProviderName)
 	})
 
 	Context("when not aws and azure", func() {

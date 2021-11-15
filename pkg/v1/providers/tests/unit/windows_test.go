@@ -26,6 +26,7 @@ var _ = Describe("Windows Ytt Templating", func() {
 			filepath.Join("./fixtures/tkg-bom-v1.4.0.yaml"),
 			filepath.Join(yamlRoot, "infrastructure-vsphere", "v1.0.1", "ytt", "base-template.yaml"),
 			filepath.Join(yamlRoot, "infrastructure-vsphere", "v1.0.1", "ytt", "overlay-windows.yaml"),
+			filepath.Join(yamlRoot, "infrastructure-vsphere", "ytt", "vsphere-overlay.yaml"),
 			filepath.Join(yamlRoot, "ytt", "02_addons", "cni", "antrea", "antrea_addon_data.lib.yaml"),
 			filepath.Join(yamlRoot, "ytt", "02_addons", "cpi", "cpi_addon_data.lib.yaml"),
 			filepath.Join(yamlRoot, "ytt", "03_customizations", "02_avi", "ako-deployment.lib.yaml"),

@@ -65,7 +65,55 @@ spec:
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereMachineTemplate
 metadata:
-  name: '${ CLUSTER_NAME }-worker'
+  name: '${ CLUSTER_NAME }-md-0'
+  namespace: '${ NAMESPACE }'
+spec:
+  template:
+    spec:
+      cloneMode: '${ VSPHERE_CLONE_MODE }'
+      datacenter: '${ VSPHERE_DATACENTER }'
+      datastore: '${ VSPHERE_DATASTORE }'
+      storagePolicyName: '${ VSPHERE_STORAGE_POLICY_ID }'
+      diskGiB: ${VSPHERE_WORKER_DISK_GIB}
+      folder: '${ VSPHERE_FOLDER }'
+      memoryMiB: ${VSPHERE_WORKER_MEM_MIB}
+      network:
+        devices:
+        - dhcp4: true
+          networkName: '${ VSPHERE_NETWORK }'
+      numCPUs: ${ VSPHERE_WORKER_NUM_CPUS }
+      resourcePool: '${ VSPHERE_RESOURCE_POOL }'
+      server: '${ VSPHERE_SERVER }'
+      template: '${ VSPHERE_TEMPLATE }'
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: VSphereMachineTemplate
+metadata:
+  name: '${ CLUSTER_NAME }-md-1'
+  namespace: '${ NAMESPACE }'
+spec:
+  template:
+    spec:
+      cloneMode: '${ VSPHERE_CLONE_MODE }'
+      datacenter: '${ VSPHERE_DATACENTER }'
+      datastore: '${ VSPHERE_DATASTORE }'
+      storagePolicyName: '${ VSPHERE_STORAGE_POLICY_ID }'
+      diskGiB: ${VSPHERE_WORKER_DISK_GIB}
+      folder: '${ VSPHERE_FOLDER }'
+      memoryMiB: ${VSPHERE_WORKER_MEM_MIB}
+      network:
+        devices:
+        - dhcp4: true
+          networkName: '${ VSPHERE_NETWORK }'
+      numCPUs: ${ VSPHERE_WORKER_NUM_CPUS }
+      resourcePool: '${ VSPHERE_RESOURCE_POOL }'
+      server: '${ VSPHERE_SERVER }'
+      template: '${ VSPHERE_TEMPLATE }'
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: VSphereMachineTemplate
+metadata:
+  name: '${ CLUSTER_NAME }-md-2'
   namespace: '${ NAMESPACE }'
 spec:
   template:
@@ -228,6 +276,64 @@ spec:
         - '${ VSPHERE_SSH_AUTHORIZED_KEY }'
         sudo: ALL=(ALL) NOPASSWD:ALL
 ---
+apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+kind: KubeadmConfigTemplate
+metadata:
+  name: '${ CLUSTER_NAME }-md-1'
+  namespace: '${ NAMESPACE }'
+spec:
+  template:
+    spec:
+      useExperimentalRetryJoin: true
+      joinConfiguration:
+        nodeRegistration:
+          criSocket: /var/run/containerd/containerd.sock
+          kubeletExtraArgs:
+            cloud-provider: external
+            tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+          name: '{{ ds.meta_data.hostname }}'
+      preKubeadmCommands:
+      - hostname "{{ ds.meta_data.hostname }}"
+      - echo "::1         ipv6-localhost ipv6-loopback" >/etc/hosts
+      - echo "127.0.0.1   localhost" >>/etc/hosts
+      - echo "127.0.0.1   {{ ds.meta_data.hostname }}" >>/etc/hosts
+      - echo "{{ ds.meta_data.hostname }}" >/etc/hostname
+      files: []
+      users:
+      - name: capv
+        sshAuthorizedKeys:
+        - '${ VSPHERE_SSH_AUTHORIZED_KEY }'
+        sudo: ALL=(ALL) NOPASSWD:ALL
+---
+apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+kind: KubeadmConfigTemplate
+metadata:
+  name: '${ CLUSTER_NAME }-md-2'
+  namespace: '${ NAMESPACE }'
+spec:
+  template:
+    spec:
+      useExperimentalRetryJoin: true
+      joinConfiguration:
+        nodeRegistration:
+          criSocket: /var/run/containerd/containerd.sock
+          kubeletExtraArgs:
+            cloud-provider: external
+            tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+          name: '{{ ds.meta_data.hostname }}'
+      preKubeadmCommands:
+      - hostname "{{ ds.meta_data.hostname }}"
+      - echo "::1         ipv6-localhost ipv6-loopback" >/etc/hosts
+      - echo "127.0.0.1   localhost" >>/etc/hosts
+      - echo "127.0.0.1   {{ ds.meta_data.hostname }}" >>/etc/hosts
+      - echo "{{ ds.meta_data.hostname }}" >/etc/hostname
+      files: []
+      users:
+      - name: capv
+        sshAuthorizedKeys:
+        - '${ VSPHERE_SSH_AUTHORIZED_KEY }'
+        sudo: ALL=(ALL) NOPASSWD:ALL
+---
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: MachineDeployment
 metadata:
@@ -256,7 +362,69 @@ spec:
       infrastructureRef:
         apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
         kind: VSphereMachineTemplate
-        name: '${ CLUSTER_NAME }-worker'
+        name: '${ CLUSTER_NAME }-md-0'
+      version: '${ KUBERNETES_VERSION }'
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: MachineDeployment
+metadata:
+  labels:
+    cluster.x-k8s.io/cluster-name: '${ CLUSTER_NAME }'
+  name: '${ CLUSTER_NAME }-md-1'
+  namespace: '${ NAMESPACE }'
+spec:
+  clusterName: '${ CLUSTER_NAME }'
+  replicas: ${ WORKER_MACHINE_COUNT }
+  selector:
+    matchLabels:
+      cluster.x-k8s.io/cluster-name: '${ CLUSTER_NAME }'
+  template:
+    metadata:
+      labels:
+        cluster.x-k8s.io/cluster-name: '${ CLUSTER_NAME }'
+        node-pool: "${CLUSTER_NAME}-worker-pool"
+    spec:
+      bootstrap:
+        configRef:
+          apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+          kind: KubeadmConfigTemplate
+          name: '${ CLUSTER_NAME }-md-1'
+      clusterName: '${ CLUSTER_NAME }'
+      infrastructureRef:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: VSphereMachineTemplate
+        name: '${ CLUSTER_NAME }-md-1'
+      version: '${ KUBERNETES_VERSION }'
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: MachineDeployment
+metadata:
+  labels:
+    cluster.x-k8s.io/cluster-name: '${ CLUSTER_NAME }'
+  name: '${ CLUSTER_NAME }-md-2'
+  namespace: '${ NAMESPACE }'
+spec:
+  clusterName: '${ CLUSTER_NAME }'
+  replicas: ${ WORKER_MACHINE_COUNT }
+  selector:
+    matchLabels:
+      cluster.x-k8s.io/cluster-name: '${ CLUSTER_NAME }'
+  template:
+    metadata:
+      labels:
+        cluster.x-k8s.io/cluster-name: '${ CLUSTER_NAME }'
+        node-pool: "${CLUSTER_NAME}-worker-pool"
+    spec:
+      bootstrap:
+        configRef:
+          apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+          kind: KubeadmConfigTemplate
+          name: '${ CLUSTER_NAME }-md-2'
+      clusterName: '${ CLUSTER_NAME }'
+      infrastructureRef:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: VSphereMachineTemplate
+        name: '${ CLUSTER_NAME }-md-2'
       version: '${ KUBERNETES_VERSION }'
 ---
 apiVersion: v1

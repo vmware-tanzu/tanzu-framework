@@ -12,6 +12,12 @@
 
 #@ if data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
 
+#@ if data.values.CLUSTER_PLAN == "prod":
+#@ mdNumber = 3
+#@ else:
+#@ mdNumber = 1
+#@ end
+
 #@ def kube_vip_pod():
 ---
 apiVersion: v1
@@ -146,27 +152,32 @@ spec:
       memoryMiB: #@ data.values.VSPHERE_CONTROL_PLANE_MEM_MIB
       network:
         devices:
-        #@ if data.values.TKG_IP_FAMILY == "ipv6":
         #@overlay/match by=overlay.index(0)
         #@overlay/replace
-        - dhcp6: true
-          networkName: #@ data.values.VSPHERE_NETWORK
-        #@ else:
-        #@overlay/match by=overlay.index(0)
-        #@overlay/replace
-        - dhcp4: true
-          networkName: #@ data.values.VSPHERE_NETWORK
-        #@ end
+        - networkName: #@ data.values.VSPHERE_NETWORK
+          #@ if data.values.CONTROL_PLANE_NODE_NAMESERVERS:
+          nameservers: #@ data.values.CONTROL_PLANE_NODE_NAMESERVERS.replace(" ", "").split(",")
+          #@ end
+          #@ if data.values.TKG_IP_FAMILY == "ipv6":
+          dhcp6: true
+          #@ elif data.values.TKG_IP_FAMILY in ["ipv4,ipv6", "ipv6,ipv4"]:
+          dhcp4: true
+          dhcp6: true
+          #@ else:
+          dhcp4: true
+          #@ end
       numCPUs: #@ data.values.VSPHERE_CONTROL_PLANE_NUM_CPUS
       resourcePool: #@ data.values.VSPHERE_RESOURCE_POOL
       server: #@ data.values.VSPHERE_SERVER
       template: #@ data.values.VSPHERE_TEMPLATE
-#@overlay/match by=overlay.subset({"kind": "VSphereMachineTemplate", "metadata":{"name": "${ CLUSTER_NAME }-worker"}})
+
+#@ for mdIndex in range(0, mdNumber):
+#@overlay/match by=overlay.subset({"kind":"VSphereMachineTemplate", "metadata":{"name": "${ CLUSTER_NAME }-md-" + str(mdIndex)}})
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereMachineTemplate
 metadata:
-  name: #@ "{}-windows-containerd".format(data.values.CLUSTER_NAME)
+  name: #@ "{}-md-{}-windows-containerd".format(data.values.CLUSTER_NAME, mdIndex)
 spec:
   template:
     spec:
@@ -179,21 +190,38 @@ spec:
       memoryMiB: #@ data.values.VSPHERE_WORKER_MEM_MIB
       network:
         devices:
-        #@ if data.values.TKG_IP_FAMILY == "ipv6":
-        #@overlay/match by=overlay.index(0)
-        #@overlay/replace
-        - dhcp6: true
-          networkName: #@ data.values.VSPHERE_NETWORK
-        #@ else:
-        #@overlay/match by=overlay.index(0)
-        #@overlay/replace
-        - dhcp4: true
-          networkName: #@ data.values.VSPHERE_NETWORK
-        #@ end
+          #@overlay/match by=overlay.index(0)
+          #@overlay/replace
+          - networkName: #@ data.values.VSPHERE_NETWORK
+            #@ if data.values.WORKER_NODE_NAMESERVERS:
+            nameservers: #@ data.values.WORKER_NODE_NAMESERVERS.replace(" ", "").split(",")
+            #@ end
+            #@ if data.values.TKG_IP_FAMILY == "ipv6":
+            dhcp6: true
+            #@ elif data.values.TKG_IP_FAMILY in ["ipv4,ipv6", "ipv6,ipv4"]:
+            dhcp4: true
+            dhcp6: true
+            #@ else:
+            dhcp4: true
+            #@ end
       numCPUs: #@ data.values.VSPHERE_WORKER_NUM_CPUS
       resourcePool: #@ data.values.VSPHERE_RESOURCE_POOL
       server: #@ data.values.VSPHERE_SERVER
       template: #@ data.values.VSPHERE_WINDOWS_TEMPLATE
+#@ end
+
+#@ for mdIndex in range(mdNumber, 3):
+#@overlay/match by=overlay.subset({"kind":"VSphereMachineTemplate", "metadata":{"name": "${ CLUSTER_NAME }-md-" + str(mdIndex)}})
+---
+#@overlay/remove
+apiVersion:
+#@overlay/remove
+kind:
+#@overlay/remove
+metadata:
+#@overlay/remove
+spec:
+#@ end
 
 #@overlay/match by=overlay.subset({"kind":"KubeadmControlPlane"})
 ---
@@ -254,12 +282,13 @@ spec:
   replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
   version: #@ data.values.KUBERNETES_VERSION
 
-#@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate", "metadata":{"name": "${ CLUSTER_NAME }-md-0"}})
+#@ for mdIndex in range(0, mdNumber):
+#@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate", "metadata":{"name": "${ CLUSTER_NAME }-md-" + str(mdIndex)}})
 ---
 apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
 kind: KubeadmConfigTemplate
 metadata:
-  name: #@ "{}-md-0-windows-containerd".format(data.values.CLUSTER_NAME)
+  name: #@ "{}-md-{}-windows-containerd".format(data.values.CLUSTER_NAME, mdIndex)
 #@overlay/replace
 spec:
   template:
@@ -383,15 +412,30 @@ spec:
         sshAuthorizedKeys:
         - #@ data.values.VSPHERE_SSH_AUTHORIZED_KEY
         sudo: ALL=(ALL) NOPASSWD:ALL
+#@ end
 
-#@overlay/match by=overlay.subset({"kind":"MachineDeployment", "metadata":{"name": "${ CLUSTER_NAME }-md-0"}})
+#@ for mdIndex in range(mdNumber, 3):
+#@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate", "metadata":{"name": "${ CLUSTER_NAME }-md-" + str(mdIndex)}})
+---
+#@overlay/remove
+apiVersion:
+#@overlay/remove
+kind:
+#@overlay/remove
+metadata:
+#@overlay/remove
+spec:
+#@ end
+
+#@ for mdIndex in range(0, mdNumber):
+#@overlay/match by=overlay.subset({"kind":"MachineDeployment", "metadata":{"name": "${ CLUSTER_NAME }-md-" + str(mdIndex)}})
 ---
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: MachineDeployment
 metadata:
   labels:
     cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
-  name: #@ "{}-md-0-windows-containerd".format(data.values.CLUSTER_NAME)
+  name: #@ "{}-md-{}-windows-containerd".format(data.values.CLUSTER_NAME, mdIndex)
 spec:
   clusterName: #@ data.values.CLUSTER_NAME
   replicas: #@ data.values.WORKER_MACHINE_COUNT
@@ -406,11 +450,36 @@ spec:
     spec:
       bootstrap:
         configRef:
-          name: #@ "{}-md-0-windows-containerd".format(data.values.CLUSTER_NAME)
+          name: #@ "{}-md-{}-windows-containerd".format(data.values.CLUSTER_NAME, mdIndex)
       clusterName: #@ data.values.CLUSTER_NAME
       infrastructureRef:
-        name: #@ "{}-windows-containerd".format(data.values.CLUSTER_NAME)
+        name: #@ "{}-md-{}-windows-containerd".format(data.values.CLUSTER_NAME, mdIndex)
       version: #@ data.values.KUBERNETES_VERSION
+      #@overlay/match missing_ok=True
+      #@ if mdIndex == 0 and data.values.VSPHERE_AZ_0:
+      failureDomain: #@ data.values.VSPHERE_AZ_0
+      #@ end
+      #@ if mdIndex == 1 and data.values.VSPHERE_AZ_1:
+      failureDomain: #@ data.values.VSPHERE_AZ_1
+      #@ end
+      #@ if mdIndex == 2 and data.values.VSPHERE_AZ_2:
+      failureDomain: #@ data.values.VSPHERE_AZ_2
+      #@ end
+#@ end
+
+#@ for mdIndex in range(mdNumber, 3):
+#@overlay/match by=overlay.subset({"kind":"MachineDeployment", "metadata":{"name": "${ CLUSTER_NAME }-md-" + str(mdIndex)}})
+---
+#@overlay/remove
+apiVersion:
+#@overlay/remove
+kind:
+#@overlay/remove
+metadata:
+#@overlay/remove
+spec:
+#@ end
+
 #@overlay/match by=overlay.subset({"kind": "Secret", "metadata":{"name": "${ CLUSTER_NAME }"}})
 ---
 apiVersion: v1

@@ -44,7 +44,7 @@ func (c *TkgClient) GetClusterConfiguration(options *CreateClusterOptions) ([]by
 			if err := c.configureAndValidateConfiguration(options, nil, true); err != nil {
 				return nil, err
 			}
-			return c.getClusterConfiguration(&options.ClusterConfigOptions, false, provider, options.IsWindowsWorkloadCluster)
+			return c.getClusterConfiguration(&options.ClusterConfigOptions, false, provider)
 		}
 	}
 	currentRegion, err := c.GetCurrentRegionContext()
@@ -87,7 +87,7 @@ func (c *TkgClient) GetClusterConfiguration(options *CreateClusterOptions) ([]by
 		return nil, err
 	}
 
-	return c.getClusterConfiguration(&options.ClusterConfigOptions, false, infraProviderName, options.IsWindowsWorkloadCluster)
+	return c.getClusterConfiguration(&options.ClusterConfigOptions, false, infraProviderName)
 }
 
 func (c *TkgClient) configureAndValidateConfiguration(options *CreateClusterOptions, regionalClusterClient clusterclient.Client, skipValidation bool) error {
@@ -102,7 +102,7 @@ func (c *TkgClient) configureAndValidateConfiguration(options *CreateClusterOpti
 	return nil
 }
 
-func (c *TkgClient) getClusterConfiguration(options *ClusterConfigOptions, isManagementCluster bool, infraProvider string, isWindowsWorkloadCluster bool) ([]byte, error) {
+func (c *TkgClient) getClusterConfiguration(options *ClusterConfigOptions, isManagementCluster bool, infraProvider string) ([]byte, error) {
 	// Set CLUSTER_PLAN to viper configuration
 	c.SetPlan(options.ProviderRepositorySource.Flavor)
 
@@ -112,7 +112,7 @@ func (c *TkgClient) getClusterConfiguration(options *ClusterConfigOptions, isMan
 	}
 
 	// need to provide clusterctl the worker count for md0 and not the full worker-machine-count value.
-	workerCounts, err := c.DistributeMachineDeploymentWorkers(*options.WorkerMachineCount, options.ProviderRepositorySource.Flavor == constants.PlanProd, isManagementCluster, infraProviderName, isWindowsWorkloadCluster)
+	workerCounts, err := c.DistributeMachineDeploymentWorkers(*options.WorkerMachineCount, options.ProviderRepositorySource.Flavor == constants.PlanProd, isManagementCluster, infraProviderName)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to distribute machine deployments")
 	}

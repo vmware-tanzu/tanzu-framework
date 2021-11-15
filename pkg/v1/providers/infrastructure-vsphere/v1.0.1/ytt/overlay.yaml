@@ -13,6 +13,12 @@
 
 #@ if not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
 
+#@ if data.values.CLUSTER_PLAN == "prod":
+#@ mdNumber = 3
+#@ else:
+#@ mdNumber = 1
+#@ end
+
 #@ def kube_vip_pod():
 ---
 apiVersion: v1
@@ -162,12 +168,13 @@ spec:
       server: #@ data.values.VSPHERE_SERVER
       template: #@ data.values.VSPHERE_TEMPLATE
 
-#@overlay/match by=overlay.subset({"kind": "VSphereMachineTemplate", "metadata":{"name": "${ CLUSTER_NAME }-worker"}})
+#@ for mdIndex in range(0, mdNumber):
+#@overlay/match by=overlay.subset({"kind":"VSphereMachineTemplate", "metadata":{"name": "${ CLUSTER_NAME }-md-" + str(mdIndex)}})
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereMachineTemplate
 metadata:
-  name: #@ "{}-worker".format(data.values.CLUSTER_NAME)
+  name: #@ "{}-md-{}".format(data.values.CLUSTER_NAME, mdIndex)
 spec:
   template:
     spec:
@@ -198,6 +205,20 @@ spec:
       resourcePool: #@ data.values.VSPHERE_RESOURCE_POOL
       server: #@ data.values.VSPHERE_SERVER
       template: #@ data.values.VSPHERE_TEMPLATE
+  #@ end
+
+#@ for mdIndex in range(mdNumber, 3):
+#@overlay/match by=overlay.subset({"kind":"VSphereMachineTemplate", "metadata":{"name": "${ CLUSTER_NAME }-md-" + str(mdIndex)}})
+---
+#@overlay/remove
+apiVersion:
+#@overlay/remove
+kind:
+#@overlay/remove
+metadata:
+#@overlay/remove
+spec:
+#@ end
 
 #@overlay/match by=overlay.subset({"kind":"KubeadmControlPlane"})
 ---
@@ -287,12 +308,13 @@ spec:
   replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
   version: #@ data.values.KUBERNETES_VERSION
 
-#@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate", "metadata":{"name": "${ CLUSTER_NAME }-md-0"}})
+#@ for mdIndex in range(0, mdNumber):
+#@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate", "metadata":{"name": "${ CLUSTER_NAME }-md-" + str(mdIndex)}})
 ---
 apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
 kind: KubeadmConfigTemplate
 metadata:
-  name: #@ "{}-md-0".format(data.values.CLUSTER_NAME)
+  name: #@ "{}-md-{}".format(data.values.CLUSTER_NAME, mdIndex)
 spec:
   template:
     spec:
@@ -310,15 +332,30 @@ spec:
         sshAuthorizedKeys:
         - #@ data.values.VSPHERE_SSH_AUTHORIZED_KEY
         sudo: ALL=(ALL) NOPASSWD:ALL
+#@ end
 
-#@overlay/match by=overlay.subset({"kind":"MachineDeployment", "metadata":{"name": "${ CLUSTER_NAME }-md-0"}})
+#@ for mdIndex in range(mdNumber, 3):
+#@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate", "metadata":{"name": "${ CLUSTER_NAME }-md-" + str(mdIndex)}})
+---
+#@overlay/remove
+apiVersion:
+#@overlay/remove
+kind:
+#@overlay/remove
+metadata:
+#@overlay/remove
+spec:
+#@ end
+
+#@ for mdIndex in range(0, mdNumber):
+#@overlay/match by=overlay.subset({"kind":"MachineDeployment", "metadata":{"name": "${ CLUSTER_NAME }-md-" + str(mdIndex)}})
 ---
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: MachineDeployment
 metadata:
   labels:
     cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
-  name: #@ "{}-md-0".format(data.values.CLUSTER_NAME)
+  name: #@ "{}-md-{}".format(data.values.CLUSTER_NAME, mdIndex)
 spec:
   clusterName: #@ data.values.CLUSTER_NAME
   replicas: #@ data.values.WORKER_MACHINE_COUNT
@@ -333,15 +370,35 @@ spec:
     spec:
       bootstrap:
         configRef:
-          name: #@ "{}-md-0".format(data.values.CLUSTER_NAME)
+          name: #@ "{}-md-{}".format(data.values.CLUSTER_NAME, mdIndex)
       clusterName: #@ data.values.CLUSTER_NAME
       infrastructureRef:
-        name: #@ "{}-worker".format(data.values.CLUSTER_NAME)
+        name: #@ "{}-md-{}".format(data.values.CLUSTER_NAME, mdIndex)
       version: #@ data.values.KUBERNETES_VERSION
       #@overlay/match missing_ok=True
-      #@ if data.values.VSPHERE_AZ_0:
+      #@ if mdIndex == 0 and data.values.VSPHERE_AZ_0:
       failureDomain: #@ data.values.VSPHERE_AZ_0
       #@ end
+      #@ if mdIndex == 1 and data.values.VSPHERE_AZ_1:
+      failureDomain: #@ data.values.VSPHERE_AZ_1
+      #@ end
+      #@ if mdIndex == 2 and data.values.VSPHERE_AZ_2:
+      failureDomain: #@ data.values.VSPHERE_AZ_2
+      #@ end
+#@ end
+
+#@ for mdIndex in range(mdNumber, 3):
+#@overlay/match by=overlay.subset({"kind":"MachineDeployment", "metadata":{"name": "${ CLUSTER_NAME }-md-" + str(mdIndex)}})
+---
+#@overlay/remove
+apiVersion:
+#@overlay/remove
+kind:
+#@overlay/remove
+metadata:
+#@overlay/remove
+spec:
+#@ end
 
 #@overlay/match by=overlay.subset({"kind": "Secret", "metadata":{"name": "${ CLUSTER_NAME }"}})
 ---

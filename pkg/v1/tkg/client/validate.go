@@ -263,7 +263,7 @@ func (c *TkgClient) ConfigureAndValidateAzureConfig(tkrVersion string, nodeSizes
 		return err
 	}
 
-	workerCounts, err := c.DistributeMachineDeploymentWorkers(workerMachineCount, isProdConfig, isManagementCluster, "azure", false)
+	workerCounts, err := c.DistributeMachineDeploymentWorkers(workerMachineCount, isProdConfig, isManagementCluster, "azure")
 	if err != nil {
 		return errors.Wrapf(err, "failed to distribute machine deployments")
 	}
@@ -334,7 +334,7 @@ func (c *TkgClient) ConfigureAndValidateAwsConfig(tkrVersion string, skipValidat
 	if workerMachineCount < 0 {
 		return errors.Errorf("invalid WorkerMachineCount. Please use a number greater or equal than 0")
 	}
-	workerCounts, err := c.DistributeMachineDeploymentWorkers(workerMachineCount, isProdConfig, isManagementCluster, "aws", false)
+	workerCounts, err := c.DistributeMachineDeploymentWorkers(workerMachineCount, isProdConfig, isManagementCluster, "aws")
 	if err != nil {
 		return errors.Wrapf(err, "failed to distribute machine deployments")
 	}
@@ -1349,9 +1349,9 @@ func (c *TkgClient) ConfigureAndValidateCNIType(cniType string) error {
 }
 
 // DistributeMachineDeploymentWorkers distributes machine deployment for worker nodes
-func (c *TkgClient) DistributeMachineDeploymentWorkers(workerMachineCount int64, isProdConfig, isManagementCluster bool, infraProviderName string, isWindowsWorkloadCluster bool) ([]int, error) { // nolint:gocyclo
+func (c *TkgClient) DistributeMachineDeploymentWorkers(workerMachineCount int64, isProdConfig, isManagementCluster bool, infraProviderName string) ([]int, error) { // nolint:gocyclo
 	workerCounts := make([]int, 3)
-	if infraProviderName == DockerProviderName || isWindowsWorkloadCluster {
+	if infraProviderName == DockerProviderName {
 		workerCounts[0] = int(workerMachineCount)
 		return workerCounts, nil
 	}
