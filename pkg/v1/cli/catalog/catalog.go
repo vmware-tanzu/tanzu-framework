@@ -18,8 +18,7 @@ import (
 
 const (
 	// catalogCacheFileName is the name of the file which holds Catalog cache
-	// TODO: Use the original catalog file instead of using v2 once the feature is enabled by default
-	catalogCacheFileName = "catalog_v2.yaml"
+	catalogCacheFileName = "catalog.yaml"
 )
 
 var (
@@ -202,7 +201,7 @@ func saveCatalogCache(catalog *cliv1alpha1.Catalog) error {
 
 // CleanCatalogCache cleans the catalog cache
 func CleanCatalogCache() error {
-	if err := os.Remove(getCatalogCachePath()); err != nil {
+	if err := os.Remove(getCatalogCachePath()); err != nil && !errors.Is(err, os.ErrNotExist) {
 		return err
 	}
 	return nil
