@@ -6,7 +6,7 @@ directories:
   - path: .
     git:
       url: git@github.com:vmware-tanzu/tce.git
-      ref: ef137b14f5c3825592aa9d08c3228d0a93169460
+      ref: 9e70164c014c23bc47848a576cde10621bab4677
     includePaths:
     - addons/packages/vsphere-cpi/1.22.3/bundle/config/**/*
 - path: ytt/vendir/cni/_ytt_lib
