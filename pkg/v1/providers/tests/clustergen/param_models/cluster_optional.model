@@ -97,11 +97,7 @@ TKG_NO_PROXY: "NA", "10.0.200.1/24", "10.184.90.80"
 TKG_PROXY_CA_CERT: "NA", "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tClBST1hZIENBIENFUlQ="
 
 # ip family
-TKG_IP_FAMILY: "NA", "", "ipv4", "ipv6", "ipv4<comma>ipv6", "ipv6<comma>ipv4"
-
-# nameservers
-CONTROL_PLANE_NODE_NAMESERVERS: "NA", "", "8.8.8.8", "2001:4860:4860::8888"
-WORKER_NODE_NAMESERVERS: "NA", "", "8.8.8.8", "2001:4860:4860::8888"
+TKG_IP_FAMILY: "NA", "", "ipv4", "ipv6"
 
 # audit logging
 ENABLE_AUDIT_LOGGING: "true", "false"
@@ -140,13 +136,11 @@ IF [_INFRA] LIKE "\"vsphere:*" THEN [--VSPHERE-CONTROLPLANE-ENDPOINT] = "\"10.10
 IF [_INFRA] NOT LIKE "\"vsphere:*" THEN [--VSPHERE-CONTROLPLANE-ENDPOINT] = "\"NOTPROVIDED\"";
 
 IF [_INFRA] NOT LIKE "\"vsphere:*" THEN [OS_NAME] <> "\"photon\"";
-IF [_INFRA] NOT LIKE "\"vsphere:*" THEN [CONTROL_PLANE_NODE_NAMESERVERS] = "\"\"";
-IF [_INFRA] NOT LIKE "\"vsphere:*" THEN [WORKER_NODE_NAMESERVERS] = "\"\"";
 
 IF [TKG_HTTP_PROXY] = "\"http://10.0.200.100\"" THEN [TKG_HTTPS_PROXY] = "\"http://10.0.200.100\"";
 IF [TKG_HTTP_PROXY] LIKE "\"http://[fc00*" THEN [TKG_HTTPS_PROXY] <> "\"http://10.0.200.100\"";
 IF [TKG_IP_FAMILY] = "\"ipv6\"" THEN [SERVICE_CIDR] = "\"fd00:100:64::/108\"";
-IF [TKG_IP_FAMILY] IN { "NA", "", "ipv4" } THEN [SERVICE_CIDR] = "\"100.64.0.0/18\"";
-IF [TKG_IP_FAMILY] IN { "NA", "", "ipv4" } THEN [TKG_HTTPS_PROXY] <> "\"http://[fc00:f853:ccd:e793::1]:3128\"";
-IF [TKG_IP_FAMILY] IN { "NA", "", "ipv4" } THEN [TKG_HTTP_PROXY] = "\"http://10.0.200.100\"";
-IF [TKG_IP_FAMILY] IN { "NA", "", "ipv4" } THEN [CLUSTER_CIDR] <> "\"fd00:100:96::/48\"";
+IF [TKG_IP_FAMILY] IN { "\"NA\"", "\"\"", "\"ipv4\"" } THEN [SERVICE_CIDR] = "\"100.64.0.0/18\"";
+IF [TKG_IP_FAMILY] IN { "\"NA\"", "\"\"", "\"ipv4\"" } THEN [TKG_HTTPS_PROXY] <> "\"http://[fc00:f853:ccd:e793::1]:3128\"";
+IF [TKG_IP_FAMILY] IN { "\"NA\"", "\"\"", "\"ipv4\"" } THEN [TKG_HTTP_PROXY] = "\"http://10.0.200.100\"";
+IF [TKG_IP_FAMILY] IN { "\"NA\"", "\"\"", "\"ipv4\"" } THEN [CLUSTER_CIDR] <> "\"fd00:100:96::/48\"";

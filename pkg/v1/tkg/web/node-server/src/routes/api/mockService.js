@@ -227,34 +227,41 @@ router.get(`${ENDPOINT}/providers/vsphere/networks`, (req, res) => {
     let vcNetworksResponse = [
         {
             name: 'Network 1',
-            id: 'network-1'
+            id: 'network-1',
+            displayName: 'Network 1'
         },
         {
             name: 'Network 2',
-            id: 'network-2'
+            id: 'network-2',
+            displayName: 'Network 2'
         },
         {
             name: 'Network 3',
-            id: 'network-3'
+            id: 'network-3',
+            displayName: 'Network 3'
         },
         {
             name: 'Network 4',
-            id: 'network-4'
+            id: 'network-4',
+            displayName: 'Network 4'
         },
         {
             name: 'Network 5',
-            id: 'network-5'
+            id: 'network-5',
+            displayName: 'Network 5'
         },
         {
             name: 'Network 6',
-            id: 'network-6'
+            id: 'network-6',
+            displayName: 'Network 6'
         }
     ];
 
     if (mockvcNetworkRequestCounter > 0) {
         vcNetworksResponse.push({
             name: 'Network 3',
-            id: 'network-3'
+            id: 'network-3',
+            displayName: 'Network 3'
         });
     }
 

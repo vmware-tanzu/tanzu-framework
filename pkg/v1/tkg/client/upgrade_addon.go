@@ -206,6 +206,19 @@ func (c *TkgClient) DoUpgradeAddon(regionalClusterClient clusterclient.Client, /
 			crsDisabledAddon = true
 			ccOptions.TargetNamespace = constants.TkrNamespace
 		case "capabilities/capabilities-controller":
+			if !options.IsRegionalCluster {
+				return errors.Errorf("upgrade of '%s' component is only supported on management cluster", addonName)
+			}
+			crsDisabledAddon = true
+		case "packages/management-package-repo":
+			if !options.IsRegionalCluster {
+				return errors.Errorf("upgrade of '%s' component is only supported on management cluster", addonName)
+			}
+			crsDisabledAddon = true
+		case "packages/management-package":
+			if !options.IsRegionalCluster {
+				return errors.Errorf("upgrade of '%s' component is only supported on management cluster", addonName)
+			}
 			crsDisabledAddon = true
 		default:
 			return errors.Errorf("upgrade of '%s' component is not supported", addonName)
