@@ -31,18 +31,15 @@ func Test_DiscoverPlugins(t *testing.T) {
 
 	defer setupLocalDistoForTesting()()
 
-	serverPlugins, standalonePlugins, err := DiscoverPlugins("")
-	assert.Nil(err)
+	serverPlugins, standalonePlugins := DiscoverPlugins("")
 	assert.Equal(0, len(serverPlugins))
 	assert.Equal(2, len(standalonePlugins))
 
-	serverPlugins, standalonePlugins, err = DiscoverPlugins("mgmt-does-not-exists")
-	assert.Nil(err)
+	serverPlugins, standalonePlugins = DiscoverPlugins("mgmt-does-not-exists")
 	assert.Equal(0, len(serverPlugins))
 	assert.Equal(2, len(standalonePlugins))
 
-	serverPlugins, standalonePlugins, err = DiscoverPlugins("mgmt")
-	assert.Nil(err)
+	serverPlugins, standalonePlugins = DiscoverPlugins("mgmt")
 	assert.Equal(1, len(serverPlugins))
 	assert.Equal(2, len(standalonePlugins))
 	assert.Equal("cluster", serverPlugins[0].Name)

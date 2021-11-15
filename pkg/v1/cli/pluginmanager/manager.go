@@ -13,7 +13,6 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/aunum/log"
 	"github.com/pkg/errors"
 	"go.uber.org/multierr"
 	"golang.org/x/mod/semver"
@@ -26,6 +25,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/discovery"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/plugin"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 )
 
 const (
@@ -124,29 +124,26 @@ func DiscoverServerPlugins(serverName string) ([]plugin.Discovered, error) {
 
 // DiscoverPlugins returns the available plugins that can be used with the given server
 // If serverName is empty(""), return only standalone plugins
-func DiscoverPlugins(serverName string) (serverPlugins, standalonePlugins []plugin.Discovered, err error) {
-	serverPlugins, err = DiscoverServerPlugins(serverName)
+func DiscoverPlugins(serverName string) ([]plugin.Discovered, []plugin.Discovered) {
+	serverPlugins, err := DiscoverServerPlugins(serverName)
 	if err != nil {
-		err = errors.Wrapf(err, "unable to discover server plugins")
-		return
+		log.Warningf("unable to discover server plugins, %v", err.Error())
 	}
-	standalonePlugins, err = DiscoverStandalonePlugins()
+
+	standalonePlugins, err := DiscoverStandalonePlugins()
 	if err != nil {
-		err = errors.Wrapf(err, "unable to discover standalone plugins")
-		return
+		log.Warningf("unable to discover standalone plugins, %v", err.Error())
 	}
 
 	// TODO(anuj): Remove duplicate plugins with server plugins getting higher priority
-	return
+	return serverPlugins, standalonePlugins
 }
 
 // AvailablePlugins returns the list of available plugins including discovered and installed plugins
 // If serverName is empty(""), return only available standalone plugins
 func AvailablePlugins(serverName string) ([]plugin.Discovered, error) {
-	discoveredServerPlugins, discoveredStandalonePlugins, err := DiscoverPlugins(serverName)
-	if err != nil {
-		return nil, err
-	}
+	discoveredServerPlugins, discoveredStandalonePlugins := DiscoverPlugins(serverName)
+
 	installedSeverPluginDesc, installedStandalonePluginDesc, err := InstalledPlugins(serverName)
 	if err != nil {
 		return nil, err
