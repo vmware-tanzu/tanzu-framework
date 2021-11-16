@@ -38,7 +38,8 @@ var _ = Describe("Windows Ytt Templating", func() {
 			"VSPHERE_INSECURE":            "true",
 			"PROVIDER_TYPE":               "vsphere",
 			"IS_WINDOWS_WORKLOAD_CLUSTER": "true",
-			"TKG_CLUSTER_ROLE":            "management",
+			"IS_WINDOWS_WORKLOAD_CLUSTER_WITH_LINUX": "true",
+			"TKG_CLUSTER_ROLE":            "worker", // fixes old issue also should add a unit test to confirm if manbagement->fail
 			"VSPHERE_USERNAME":            "user_blah",
 			"VSPHERE_PASSWORD":            "pass_1234",
 			"VSPHERE_SERVER":              "vmware-tanzu.com",
