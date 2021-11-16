@@ -1,7 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package tkgconfigupdater_test
+package tkgconfigupdater
 
 import (
 	"bytes"
@@ -21,7 +21,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/providerinterface"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
-	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigupdater"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 )
 
@@ -434,6 +433,9 @@ var _ = Describe("EnsureProviders", func() {
 			Expect(err).ToNot(HaveOccurred())
 			index := getNodeIndex(tkgConfigNode.Content[0].Content, constants.ProvidersConfigKey)
 			Expect(index).ToNot(Equal(-1))
+
+			index = getNodeIndex(tkgConfigNode.Content[0].Content, constants.CertManagerConfigKey)
+			Expect(index).ToNot(Equal(-1))
 		})
 	})
 
@@ -464,6 +466,16 @@ var _ = Describe("EnsureProviders", func() {
 			Expect(err).ToNot(HaveOccurred())
 			// numOfProviders(6) + 1 customized provider
 			Expect(tkgConfigNode.Content[0].Content[index].Content).To(HaveLen(numOfProviders + 1))
+
+			index = getNodeIndex(tkgConfigNode.Content[0].Content, constants.CertManagerConfigKey)
+			Expect(index).ToNot(Equal(-1))
+
+			userProviders := providers{}
+			err = copyData(tkgConfigNode, &userProviders)
+			Expect(err).ToNot(HaveOccurred())
+
+			Expect(userProviders.CertManager.URL).To(ContainSubstring("providers/cert-manager/v1.5.3/cert-manager.yaml"))
+			Expect(userProviders.CertManager.Version).To(Equal("v1.5.3"))
 		})
 	})
 
@@ -674,16 +686,6 @@ func loadTKGNode(path string) *yaml.Node {
 	}
 
 	return &tkgConfigNode
-}
-
-type provider struct {
-	Name         string `yaml:"name"`
-	URL          string `yaml:"url"`
-	ProviderType string `yaml:"type"`
-}
-
-type providers struct {
-	Providers []provider `yaml:"providers"`
 }
 
 func countProviders() (int, error) {

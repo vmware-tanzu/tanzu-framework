@@ -23,3 +23,6 @@ providers:
 - name: docker
   url: providers/infrastructure-docker/v1.0.0/infrastructure-components.yaml
   type: InfrastructureProvider
+cert-manager:
+  url: providers/cert-manager/v1.5.3/cert-manager.yaml
+  version: "v1.5.3"

@@ -10,6 +10,7 @@ const (
 	ImagesConfigKey            = "images"
 	ReleaseKey                 = "release"
 	ProvidersConfigKey         = "providers"
+	CertManagerConfigKey       = "cert-manager"
 	InfrastructureProviderType = "InfrastructureProvider"
 
 	KeyTkg                  = "tkg"
