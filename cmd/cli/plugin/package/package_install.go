@@ -68,7 +68,6 @@ func packageInstall(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	log.Infof("\n %s", fmt.Sprintf("Added installed package '%s'",
-		packageInstallOp.PkgInstallName))
+	log.Infof(fmt.Sprintf("Added installed package '%s'", packageInstallOp.PkgInstallName))
 	return nil
 }

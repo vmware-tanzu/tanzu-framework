@@ -65,6 +65,6 @@ func packageUninstall(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	log.Infof("%s", fmt.Sprintf("Uninstalled package '%s' from namespace '%s'", packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace))
+	log.Infof(fmt.Sprintf("Uninstalled package '%s' from namespace '%s'", packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace))
 	return nil
 }

@@ -74,6 +74,6 @@ func packageUpdate(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	log.Infof("%s", fmt.Sprintf("Updated installed package '%s' in namespace '%s'", packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace))
+	log.Infof(fmt.Sprintf("Updated installed package '%s' in namespace '%s'", packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace))
 	return nil
 }

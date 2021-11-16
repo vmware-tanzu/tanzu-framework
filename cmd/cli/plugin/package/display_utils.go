@@ -37,16 +37,18 @@ func DisplayProgress(initialMsg string, pp *tkgpackagedatamodel.PackageProgress)
 		if s, err = newSpinner(); err != nil {
 			return err
 		}
-		log.Infof("\n")
+		writeToStdout("\n")
 		s.Suffix = fmt.Sprintf(" %s", msg)
 		s.Start()
 		return nil
 	}
 
+	writeToLogFile(initialMsg)
 	s.Suffix = fmt.Sprintf(" %s", initialMsg)
 	s.Start()
 
 	defer func() {
+		log.QuietMode(false)
 		s.Stop()
 	}()
 	for {
@@ -59,6 +61,7 @@ func DisplayProgress(initialMsg string, pp *tkgpackagedatamodel.PackageProgress)
 				if err := writeProgress(s, msg); err != nil {
 					return err
 				}
+				writeToLogFile(msg)
 				currMsg = msg
 			}
 		case <-pp.Done:
@@ -73,5 +76,21 @@ func DisplayProgress(initialMsg string, pp *tkgpackagedatamodel.PackageProgress)
 			}
 			return nil
 		}
+	}
+}
+
+func writeToLogFile(msg string) {
+	log.QuietMode(true)
+	log.SetFile(logFile)
+	if msg != "" {
+		log.Infof(msg)
+	}
+}
+
+func writeToStdout(msg string) {
+	log.QuietMode(false)
+	log.SetFile("")
+	if msg != "" {
+		log.Infof(msg)
 	}
 }

@@ -36,6 +36,8 @@ func init() {
 }
 
 func packageAvailableList(cmd *cobra.Command, args []string) error {
+	log.SetFile(logFile)
+
 	kc, err := kappclient.NewKappClient(packageAvailableOp.KubeConfig)
 	if err != nil {
 		return err
