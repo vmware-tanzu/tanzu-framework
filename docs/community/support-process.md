@@ -6,7 +6,7 @@
   write access to the `tanzu-framework` repo.
 * **Critical urgent issue** - is an issue that severely impacts the use of the
   software and has no workarounds. This kind of issue should be labeled with
-  [severity-1]((severity-definitions.md#severity-1)) label.
+  [severity-1](severity-definitions.md#severity-1) label.
 
 ## Weekly rotation
 
