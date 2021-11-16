@@ -5,10 +5,12 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
@@ -66,7 +68,7 @@ func packageAvailableGet(cmd *cobra.Command, args []string) error {
 	}
 
 	if packageAvailableOp.ValuesSchema {
-		if err := getValuesSchema(cmd, args, kc); err != nil {
+		if err := getValuesSchemaForPackage(packageAvailableOp.Namespace, pkgName, pkgVersion, kc, cmd.OutOrStdout()); err != nil {
 			return err
 		}
 		return nil
@@ -113,20 +115,20 @@ func packageAvailableGet(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func getValuesSchema(cmd *cobra.Command, args []string, kc kappclient.Client) error {
-	if pkgVersion == "" {
+func getValuesSchemaForPackage(namespace, name, version string, kc kappclient.Client, writer io.Writer) error {
+	if version == "" {
 		return errors.New("version is required when --values-schema flag is declared. Please specify <PACKAGE-NAME>/<VERSION>")
 	}
-	pkg, pkgGetErr := kc.GetPackage(fmt.Sprintf("%s.%s", pkgName, pkgVersion), packageAvailableOp.Namespace)
+	pkg, pkgGetErr := kc.GetPackage(fmt.Sprintf("%s.%s", name, version), namespace)
 	if pkgGetErr != nil {
 		if apierrors.IsNotFound(pkgGetErr) {
-			return errors.Errorf("package '%s/%s' does not exist in the '%s' namespace", pkgName, pkgVersion, packageAvailableOp.Namespace)
+			return errors.Errorf("package '%s/%s' does not exist in the '%s' namespace", name, version, namespace)
 		}
 		return pkgGetErr
 	}
 
-	t, err := component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), outputFormat,
-		fmt.Sprintf("Retrieving package details for %s...", args[0]), true)
+	t, err := component.NewOutputWriterWithSpinner(writer, outputFormat,
+		fmt.Sprintf("Retrieving package details for %s/%s...", name, version), true)
 	if err != nil {
 		return err
 	}
