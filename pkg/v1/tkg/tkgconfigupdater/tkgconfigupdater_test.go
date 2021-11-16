@@ -1,7 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package tkgconfigupdater_test
+package tkgconfigupdater
 
 import (
 	"bytes"
@@ -21,7 +21,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/providerinterface"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
-	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigupdater"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 )
 
@@ -471,11 +470,8 @@ var _ = Describe("EnsureProviders", func() {
 			index = getNodeIndex(tkgConfigNode.Content[0].Content, constants.CertManagerConfigKey)
 			Expect(index).ToNot(Equal(-1))
 
-			userTKGConfigBytes, err := yaml.Marshal(tkgConfigNode)
-			Expect(err).ToNot(HaveOccurred())
-
 			userProviders := providers{}
-			err = yaml.Unmarshal(userTKGConfigBytes, &userProviders)
+			err = copyData(tkgConfigNode, &userProviders)
 			Expect(err).ToNot(HaveOccurred())
 
 			Expect(userProviders.CertManager.URL).To(ContainSubstring("providers/cert-manager/v1.5.3/cert-manager.yaml"))
@@ -690,22 +686,6 @@ func loadTKGNode(path string) *yaml.Node {
 	}
 
 	return &tkgConfigNode
-}
-
-type provider struct {
-	Name         string `yaml:"name"`
-	URL          string `yaml:"url"`
-	ProviderType string `yaml:"type"`
-}
-
-type certManager struct {
-	URL     string `yaml:"url"`
-	Version string `yaml:"version"`
-}
-
-type providers struct {
-	Providers   []provider  `yaml:"providers"`
-	CertManager certManager `yaml:"cert-manager"`
 }
 
 func countProviders() (int, error) {

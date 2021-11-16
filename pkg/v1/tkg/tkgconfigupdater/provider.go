@@ -75,14 +75,8 @@ func ensureCertManagerInConfig(defaultProviders providers, tkgConfigNode *yaml.N
 		certManagerIndex = GetNodeIndex(tkgConfigNode.Content[0].Content, constants.CertManagerConfigKey)
 	}
 
-	certManagerBytes, err := yaml.Marshal(defaultProviders.CertManager)
-	if err != nil {
-		return errors.Wrap(err, "unable to get cert-manager")
-	}
-
 	certManagerNode := yaml.Node{}
-	err = yaml.Unmarshal(certManagerBytes, &certManagerNode)
-	if err != nil {
+	if err := copyData(defaultProviders.CertManager, &certManagerNode); err != nil {
 		return errors.Wrap(err, "unable to get cert-manager")
 	}
 
@@ -90,8 +84,32 @@ func ensureCertManagerInConfig(defaultProviders providers, tkgConfigNode *yaml.N
 	return nil
 }
 
+func copyData(from, to interface{}) error {
+	bytes, err := yaml.Marshal(from)
+	if err != nil {
+		return err
+	}
+
+	if err := yaml.Unmarshal(bytes, to); err != nil {
+		return err
+	}
+	return nil
+}
+
+func ensureProvidersWhenKeyAbsent(defaultProviders providers, tkgConfigNode *yaml.Node) error {
+	tkgConfigNode.Content[0].Content = append(tkgConfigNode.Content[0].Content, createSequenceNode(constants.ProvidersConfigKey)...)
+	providerIndex := GetNodeIndex(tkgConfigNode.Content[0].Content, constants.ProvidersConfigKey)
+
+	providerListNode := yaml.Node{}
+	if err := copyData(defaultProviders.Providers, &providerListNode); err != nil {
+		return errors.Wrap(err, "unable to get a list of default providers")
+	}
+	tkgConfigNode.Content[0].Content[providerIndex] = providerListNode.Content[0]
+	return nil
+}
+
 // EnsureProvidersInConfig ensures the providers section in tkgconfig exists and it is synchronized with the latest providers
-func (c *client) EnsureProvidersInConfig(needUpdate bool, tkgConfigNode *yaml.Node) error { //nolint:gocyclo
+func (c *client) EnsureProvidersInConfig(needUpdate bool, tkgConfigNode *yaml.Node) error {
 	providerIndex := GetNodeIndex(tkgConfigNode.Content[0].Content, constants.ProvidersConfigKey)
 	if providerIndex != -1 && !needUpdate {
 		return nil
@@ -107,32 +125,12 @@ func (c *client) EnsureProvidersInConfig(needUpdate bool, tkgConfigNode *yaml.No
 	}
 
 	if providerIndex == -1 {
-		tkgConfigNode.Content[0].Content = append(tkgConfigNode.Content[0].Content, createSequenceNode(constants.ProvidersConfigKey)...)
-		providerIndex = GetNodeIndex(tkgConfigNode.Content[0].Content, constants.ProvidersConfigKey)
-
-		defaultProvidersBytes, err := yaml.Marshal(defaultProviders.Providers)
-		if err != nil {
-			return errors.Wrap(err, "unable to get a list of default providers")
-		}
-		providerListNode := yaml.Node{}
-		err = yaml.Unmarshal(defaultProvidersBytes, &providerListNode)
-		if err != nil {
-			return errors.Wrap(err, "unable to get a list of default providers")
-		}
-
-		tkgConfigNode.Content[0].Content[providerIndex] = providerListNode.Content[0]
-		return nil
-	}
-
-	userTKGConfigBytes, err := yaml.Marshal(tkgConfigNode)
-	if err != nil {
-		return err
+		return ensureProvidersWhenKeyAbsent(defaultProviders, tkgConfigNode)
 	}
 
 	userProviders := providers{}
-	err = yaml.Unmarshal(userTKGConfigBytes, &userProviders)
-	if err != nil {
-		return err
+	if err := copyData(tkgConfigNode, &userProviders); err != nil {
+		return errors.Wrap(err, "unable to get a list of default providers")
 	}
 
 	for _, dp := range defaultProviders.Providers {
@@ -149,14 +147,9 @@ func (c *client) EnsureProvidersInConfig(needUpdate bool, tkgConfigNode *yaml.No
 		}
 	}
 
-	updatedProviderListBytes, err := yaml.Marshal(userProviders.Providers)
-	if err != nil {
-		return err
-	}
 	updatedproviderListNode := yaml.Node{}
-	err = yaml.Unmarshal(updatedProviderListBytes, &updatedproviderListNode)
-	if err != nil {
-		return err
+	if err := copyData(userProviders.Providers, &updatedproviderListNode); err != nil {
+		return errors.Wrap(err, "unable to get a list of default providers")
 	}
 	tkgConfigNode.Content[0].Content[providerIndex] = updatedproviderListNode.Content[0]
 
