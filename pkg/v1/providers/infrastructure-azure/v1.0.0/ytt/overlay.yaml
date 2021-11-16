@@ -301,6 +301,8 @@ spec:
 apiVersion: v1
 kind: Secret
 metadata:
+  labels:
+    clusterctl.cluster.x-k8s.io/move: ""
   name: #@ "{}-identity-secret".format(data.values.CLUSTER_NAME)
   namespace: tkg-system
 type: Opaque
