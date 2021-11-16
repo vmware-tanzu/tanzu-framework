@@ -1,40 +1,49 @@
-for i in `git log | grep commit | head -n 50 | cut -d' ' -f 2 ` ; do
+#!/bin/bash
+for i in `git log | grep commit | head -n 100 | cut -d' ' -f 2 ` ; do
 
 	if `git show --stat $i --raw | grep -q addons` ; then
-		echo "addons $i"
+		echo -n "addons_"
 	fi
 	if `git show --stat $i --raw | grep "|" | grep -q providers` ; then
-		echo  "providers $i"
+		echo -n "providers_"
 	fi
 	if `git show --stat $i --raw | grep "|" | grep -q pkg/v1/tkg/web`; then
-		echo "web $i"
+		echo -n "web_"
 	fi
 	if `git show --stat $i --raw | grep "|" | grep -q cli`; then 
-		echo "client $i"
+		echo -n "client_"
 	fi
 	if `git show --stat $i --raw | grep "|" | grep -q crd`; then
-		echo "api/crd $i"
+		echo -n "api_crd_"
 	fi
 	if `git show --stat $i --raw | grep "|" | grep -q test` ; then 
-		echo "tests $i"
+		echo -n "tests_"
 	fi
 	if `git show --stat $i --raw | grep "|" | grep -q pkg/v1/tkg` ; then
-		echo "pkg/v1/tkg/"
+		echo -n "pkg_v1_tkg_"
 	fi
 	if `git show --stat $i --raw | grep "|" | grep -q hack` ; then
-		echo "hack/test stuff $i"
+		echo -n "hack_test_stuff_"
 	fi
 	if `git show --stat $i --raw | grep -q "md"` ; then 
-		echo "docs $i"
+		echo -n "docs_"
 	fi
 	if `git show --stat $i --raw | grep "|" | grep -q packages` ; then
-		echo "packages $i"
+		echo -n "packages_"
 	fi
 	if `git show --stat $i --raw | grep -q ytt` ; then
-		echo "ytt $i" 
+		echo -n "ytt_" 
 	fi
 	if `git show --stat $i --raw | grep -q web`; then
-		echo "web stuff $i"
+		echo -n "webstuff_"
 	fi
+	echo " -> c_$i ;"
+
+	for j in "ytt" "test" "packag" "app" ; do
+		if `git show --stat $i --raw | grep -q $j` ; then
+			echo "$j -> c_$i ;"
+		fi
+	done
+
 done
 
