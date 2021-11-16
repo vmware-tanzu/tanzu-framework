@@ -34,6 +34,9 @@ featureGates:
 #! Enable collecting and exposing NetworkPolicy statistics.
   NetworkPolicyStats: #@ values.antrea.config.featureGates.NetworkPolicyStats
 
+#! Enable controlling SNAT IPs of Pod egress traffic.
+  Egress: #@ values.antrea.config.featureGates.Egress
+
 #! Name of the OpenVSwitch bridge antrea-agent will create and use.
 #! Make sure it doesn't conflict with your existing OpenVSwitch bridges.
 #!ovsBridge: br-int
@@ -83,8 +86,7 @@ noSNAT: #@ values.antrea.config.noSNAT
 #@ if/end values.antrea.config.defaultMTU:
 defaultMTU: #@ values.antrea.config.defaultMTU
 
-#! Whether or not to enable IPsec encryption of tunnel traffic. IPsec encryption is only supported
-#! for the GRE tunnel type.
+#! Whether or not to enable IPsec encryption of tunnel traffic.
 #!enableIPSecTunnel: false
 
 #! ClusterIP CIDR range for Services. It's required when AntreaProxy is not enabled, and should be
@@ -113,27 +115,34 @@ serviceCIDR: #@ values.antrea.config.serviceCIDR
 #! to the Antrea Flow Aggregator service. If IP, it can be either IPv4 or IPv6.
 #! However, IPv6 address should be wrapped with [].
 #! If PORT is empty, we default to 4739, the standard IPFIX port.
-#! If no PROTO is given, we consider "tcp" as default. We support "tcp" and "udp"
-#! L4 transport protocols.
-#!flowCollectorAddr: "flow-aggregator.flow-aggregator.svc:4739:tcp"
+#! If no PROTO is given, we consider "tls" as default. We support "tls", "tcp" and
+#! "udp" protocols. "tls" is used for securing communication between flow exporter and
+#! flow aggregator.
+#!flowCollectorAddr: "flow-aggregator.flow-aggregator.svc:4739:tls"
 
-#! Provide flow poll interval as a duration string. This determines how often the flow exporter dumps connections from the conntrack module.
-#! Flow poll interval should be greater than or equal to 1s (one second).
-#! Valid time units are "ns", "us" (or "Âµs"), "ms", "s", "m", "h".
+#! Provide flow poll interval as a duration string. This determines how often the
+#! flow exporter dumps connections from the conntrack module. Flow poll interval
+#! should be greater than or equal to 1s (one second).
+#! Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".
 #!flowPollInterval: "5s"
 
-#! Provide flow export frequency, which is the number of poll cycles elapsed before flow exporter exports flow records to
-#! the flow collector.
-#! Flow export frequency should be greater than or equal to 1.
-#!flowExportFrequency: 12
+#! Provide the active flow export timeout, which is the timeout after which a flow
+#! record is sent to the collector for active flows. Thus, for flows with a continuous
+#! stream of packets, a flow record will be exported to the collector once the elapsed
+#! time since the last export event is equal to the value of this timeout.
+#! Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".
+#!activeFlowExportTimeout: "30s"
 
-#! Enable TLS communication from flow exporter to flow aggregator.
-#!enableTLSToFlowAggregator: true
+#! Provide the idle flow export timeout, which is the timeout after which a flow
+#! record is sent to the collector for idle flows. A flow is considered idle if no
+#! packet matching this flow has been observed since the last export event.
+#! Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".
+#!idleFlowExportTimeout: "15s"
 
 #! Provide the port range used by NodePortLocal. When the NodePortLocal feature is enabled, a port from that range will be assigned
 #! whenever a Pod's container defines a specific port to be exposed (each container can define a list of ports as pod.spec.containers[].ports),
 #! and all Node traffic directed to that port will be forwarded to the Pod.
-#!nplPortRange: 40000-41000
+#!nplPortRange: 61000-62000
 
 #! Provide the address of Kubernetes apiserver, to override any value provided in kubeconfig or InClusterConfig.
 #! Defaults to "". It must be a host string, a host:port pair, or a URL to the base of the apiserver.
@@ -147,7 +156,6 @@ tlsCipherSuites: #@ values.antrea.config.tlsCipherSuites
 
 #! TLS min version from: VersionTLS10, VersionTLS11, VersionTLS12, VersionTLS13.
 #!tlsMinVersion:
-
 #@ end
 
 
@@ -165,6 +173,12 @@ featureGates:
 
 #! Enable collecting and exposing NetworkPolicy statistics.
   NetworkPolicyStats: #@ values.antrea.config.featureGates.NetworkPolicyStats
+
+#! Enable controlling SNAT IPs of Pod egress traffic.
+  Egress: #@ values.antrea.config.featureGates.Egress
+
+#! Run Kubernetes NodeIPAMController with Antrea.
+#!  NodeIPAM: false
 
 #! The port for the antrea-controller APIServer to serve on.
 #! Note that if it's set to another value, the `containerPort` of the `api` port of the
@@ -192,14 +206,48 @@ tlsCipherSuites: #@ values.antrea.config.tlsCipherSuites
 #! TLS min version from: VersionTLS10, VersionTLS11, VersionTLS12, VersionTLS13.
 #!tlsMinVersion:
 
+#! If Antrea is upgraded from version <= v0.13 and legacy CRDs are used, this option should be
+#! enabled, otherwise the CRDs created with the legacy API groups will not take any effect and
+#! work as expected. When the mirroring is enabled, if a legacy CRD is created with legacy API
+#! groups, mirroring-controller will create a new CRD with the Spec and Labels from the legacy
+#! CRD. Afterwards, the modification of Spec and Label in legacy CRD will be synchronized to new
+#! CRD automatically. In addition, the modification of Status in new CRD will also be synchronized
+#! to legacy CRD automatically. If a legacy CRD is deleted, the corresponding new CRD will be deleted.
+#! Note that: to decouple a new CRD from the corresponding legacy CRD, the legacy CRD should be
+#! annotated with "crd.antrea.io/stop-mirror". Afterwards, updates to the legacy CRDs will no
+#! longer be reflected in the new CRD, and all CRUD operations should be done through the new
+#! API groups. After adding the annotation, legacy CRDs can be deleted safely without impacting
+#! new CRDs.
+legacyCRDMirroring: true
+
 #! Enable usage reporting (telemetry) to VMware.
-#!enableUsageReporting: false
+#! enableUsageReporting: false
+#! nodeIPAM:
+
+#! Enable the integrated Node IPAM controller within the Antrea controller.
+#!  enableNodeIPAM: false
+
+#! CIDR Ranges for Pods in cluster. String array containing single CIDR range, or multiple ranges.
+#! The CIDRs could be either IPv4 or IPv6. Value ignored when enableNodeIPAM is false.
+#!  clusterCIDRs: []
+
+#! CIDR Ranges for Services in cluster. It is not necessary to specify it when there is no overlap with clusterCIDRs.
+#! Value ignored when enableNodeIPAM is false.
+#!  serviceCIDR:
+#!  serviceCIDRv6:
+
+#! Mask size for IPv4 Node CIDR in IPv4 or dual-stack cluster. Value ignored when enableNodeIPAM is false
+#! or when IPv4 Pod CIDR is not configured. Valid range is 16 to 30.
+#!  nodeCIDRMaskSizeIPv4: 24
+
+#! Mask size for IPv6 Node CIDR in IPv6 or dual-stack cluster. Value ignored when enableNodeIPAM is false
+#! or when IPv6 Pod CIDR is not configured. Valid range is 64 to 126.
+#!  nodeCIDRMaskSizeIPv6: 64
 
 #! enterpriseAntrea: true
-
 #@ end
 
-#@overlay/match by=overlay.subset({"kind":"ConfigMap","metadata":{"name": "antrea-config-ctb8mftc58"}})
+#@overlay/match by=overlay.subset({"kind":"ConfigMap","metadata":{"name": "antrea-config-822fk25299"}})
 ---
 kind: ConfigMap
 data:
@@ -214,7 +262,6 @@ metadata:
   #@overlay/match missing_ok=True
   annotations:
     kapp.k14s.io/disable-default-label-scoping-rules: ""
-
 
 #@overlay/match by=overlay.subset({"kind":"DaemonSet","metadata":{"name": "antrea-agent"}})
 ---

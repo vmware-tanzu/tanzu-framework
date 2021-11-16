@@ -353,9 +353,10 @@ spec:
           # TODO:
           #   Install-AntreaAgent is too heavy, since Kubernetes and Antrea binaries have already been pre-installed, we don't
           #   depend on Install-AntreaAgent to downloading them, KubernetesVersion and AntreaVersion are not used anymore, will
-          #   refine the invoke of Install-AntreaAgent in the future.
+          #   refine the invoke of Install-AntreaAgent in the future. Keep AntreaVersion for 1.2.3, guessing latest from the script
+          #   on this version is breaking the installation.
           Import-Module C:\k\antrea\helper.psm1
-          & Install-AntreaAgent -KubernetesVersion "v1.21.1" -KubernetesHome "C:\k" -KubeConfig "C:\etc\kubernetes\kubelet.conf" -AntreaVersion "0.13.3" -AntreaHome "C:\k\antrea"
+          & Install-AntreaAgent -KubernetesHome "C:\k" -KubeConfig "C:\etc\kubernetes\kubelet.conf" -AntreaHome "C:\k\antrea" -AntreaVersion "v1.2.3"
           New-KubeProxyServiceInterface
           & C:\k\antrea\Install-OVS.ps1 -ImportCertificate $false -LocalFile C:\k\antrea\ovs-win64.zip
           Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
