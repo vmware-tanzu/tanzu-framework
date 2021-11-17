@@ -43,10 +43,34 @@ combinations we support now.
     sudo install tanzu/cli/core/v0.8.0/tanzu-core-linux_amd64 /usr/local/bin/tanzu
     ```
 
-- Set `TANZU_CLI_NO_INIT=true`
+#### Recommended method to install plugins (with API-driven plugin discovery activated)
+
+- List the available plugins
 
   ```sh
-  export TANZU_CLI_NO_INIT=true
+  tanzu plugin list
+  ```
+
+- Install the available plugins
+
+  ```sh
+  tanzu plugin sync
+  ```
+
+- Verify installed plugins
+
+  ```sh
+  tanzu plugin list
+  ```
+
+#### Legacy method to install plugins (with API-driven plugin discovery deactivated)
+
+Users can still install the plugins in legacy way by deactivating the `context-aware-cli-for-plugins` feature with `tanzu config set features.global.context-aware-cli-for-plugins false` command.
+
+- Deactivate API-driven plugin discovery
+
+  ```sh
+  tanzu config set features.global.context-aware-cli-for-plugins false
   ```
 
 - If you have a previous version of tanzu CLI already installed and the config file ~/.config/tanzu/config.yaml is present, run this command to make sure the default plugin repo points to the right path.
@@ -91,9 +115,15 @@ combinations we support now.
   mkdir %PLUGIN_DIR%
   SET TANZU_CACHE_DIR=%LocalAppData%\.cache\tanzu
   rmdir /Q /S %TANZU_CACHE_DIR%
-  set TANZU_CLI_NO_INIT=true
+
+  # Recommended method to install plugins (with API-driven plugin discovery activated)
+  tanzu plugin sync
+
+  # Legacy method (with API-driven plugin discovery disabled)
+  tanzu config set features.global.context-aware-cli-for-plugins false
   tanzu plugin repo update -b tanzu-cli-framework core
   tanzu plugin install --local cli all
+
   tanzu plugin list
   ```
 
@@ -126,7 +156,7 @@ If you want the very latest, you can also build and install tanzu CLI, and its p
   plugins locally for your platform.
 
   ```sh
-  TANZU_CLI_NO_INIT=true make build-install-cli-local
+  make build-install-cli-local
   ```
 
 - When the build is done, the tanzu CLI binary and the plugins will be produced locally in the `artifacts` directory.
@@ -145,12 +175,20 @@ If you want the very latest, you can also build and install tanzu CLI, and its p
 - If you additionally want to build and install CLI and plugins for all platforms, run:
 
   ```sh
-  TANZU_CLI_NO_INIT=true make build-install-cli-all
+  make build-install-cli-all
   ```
 
-The CLI currently contains a default distribution which is the default set of plugins that should be installed on
-initialization. Initialization of the distributions can be prevented by setting the env var `TANZU_CLI_NO_INIT=true`.
-Check out this [doc](../cli/plugin_implementation_guide.md#Distributions) to learn more about distributions in Tanzu CLI
+The CLI has 2 different types of plugins.
+
+  1. Standalone plugins: independent of the CLI context
+  2. Context(server) scoped plugins: scoped to one or more contexts
+
+When building the CLI locally and installing plugins with `make build-install-cli-local` or `make build-install-cli-all`, all plugins are treated as standalone plugins.
+
+However, for official release, which uses OCI image based plugin discovery and distribution, `cluster` and `kubernetes-release` are context scoped plugins whereas `login`, `management-cluster`, `package` and `secret` are considered standalone plugins. Users can run `tanzu plugin list` command to check the plugin's scope and discovery information.
+All admin plugins like `builder`, `test` etc. are also considered standalone plugins.
+
+More details about this can be found in [context-aware plugin discovery](docs/design/context-aware-plugin-discovery-design.md) design document.
 
 ## Usage
 

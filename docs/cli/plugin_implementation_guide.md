@@ -26,6 +26,8 @@ Current implementations:
 
 ### Repository
 
+NOTE: This is not applicable if context-aware plugin discovery is enabled within Tanzu CLI.
+
 A plugin repository represents a group of plugin artifacts that are installable by the Tanzu CLI. A repository is
 defined as an interface.
 
@@ -39,11 +41,54 @@ filesystem repository in the creation and testing of their feature.
 
 #### Adding Admin Repository
 
+NOTE: This is not applicable if context-aware plugin discovery is enabled within Tanzu CLI.
+
 The admin repository contains the Builder plugin - a plugin which helps scaffold and compile plugins.
 
 To add the admin repository use `tanzu plugin repo add -n admin -b tanzu-cli-admin-plugins -p artifacts-admin`
 
 To add the builder plugin use `tanzu plugin install builder`
+
+#### Plugin Discovery Source
+
+Discovery is the interface to fetch the list of available plugins, their supported versions and how to download them either standalone or scoped to a context(server). E.g., the CLIPlugin API in a management cluster, OCI based plugin discovery for standalone plugins, a similar REST API etc. Having a separate interface for discovery helps to decouple discovery (which is usually tied to a server or user identity) from distribution (which can be shared).
+
+Default standalone plugins discovery source automatically gets added to the tanzu config files and plugins from this discovery source are automatically gets discovered.
+
+```sh
+$ tanzu plugin list
+  NAME                DESCRIPTION                                 SCOPE       DISCOVERY             VERSION      STATUS
+  login               Login to the platform                       Standalone  default               v0.11.0-dev  not installed
+  management-cluster  Kubernetes management-cluster operations    Standalone  default               v0.11.0-dev  not installed
+```
+
+To add the plugin discovery source, assuming the admin plugin's manifests are released as a carvel-package at OCI image `projects.registry.vmware.com/tkg/tanzu-plugins/admin-plugins:v0.11.0-dev` than we use below command to add that discovery source to tanzu configuration.
+
+```sh
+ tanzu plugin source add --name admin --type oci --uri projects.registry.vmware.com/tkg/tanzu-plugins/admin-plugins:v0.11.0-dev
+```
+
+We can check newly added discovery source with
+
+```sh
+$ plugin source list
+  NAME     TYPE  SCOPE
+  default  oci   Standalone
+  admin    oci   Standalone
+```
+
+This will allow tanzu CLI to discover new available plugins in the newly added discovery source.
+
+```sh
+$ tanzu plugin list
+  NAME                DESCRIPTION                                                        SCOPE       DISCOVERY             VERSION      STATUS
+  login               Login to the platform                                              Standalone  default               v0.11.0-dev  not installed
+  management-cluster  Kubernetes management-cluster operations                           Standalone  default               v0.11.0-dev  not installed
+  builder             Builder plugin for CLI                                             Standalone  admin                 v0.11.0-dev  not installed
+  test                Test plugin for CLI                                                Standalone  admin                 v0.11.0-dev  not installed
+```
+
+To install the builder plugin use `tanzu plugin install builder`
 
 #### Bootstrap A New CLI plugin
 
