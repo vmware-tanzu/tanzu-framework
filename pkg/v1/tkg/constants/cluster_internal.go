@@ -44,10 +44,11 @@ const (
 	KappControllerNamespace     = "tkg-system"
 	KappControllerConfigMapName = "kapp-controller-config"
 
-	AddonsManagerDeploymentName  = "tanzu-addons-controller-manager"
-	KappControllerDeploymentName = "kapp-controller"
-	TkrControllerDeploymentName  = "tkr-controller-manager"
-	KappControllerPackageName    = "kapp-controller"
+	AddonsManagerDeploymentName      = "tanzu-addons-controller-manager"
+	KappControllerDeploymentName     = "kapp-controller"
+	TkrControllerDeploymentName      = "tkr-controller-manager"
+	KappControllerPackageName        = "kapp-controller"
+	CoreManagementPluginsPackageName = "tanzu-core-management-plugins"
 
 	AkoStatefulSetName       = "ako"
 	AkoAddonName             = "load-balancer-and-ingress-service"

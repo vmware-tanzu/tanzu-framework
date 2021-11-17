@@ -188,7 +188,7 @@ func runInit() error {
 	}
 
 	// Sync plugins if management-cluster creation is successful
-	if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
+	if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
 		server, err := config.GetCurrentServer()
 		if err == nil && server != nil {
 			err = pluginmanager.SyncPlugins(server.Name)

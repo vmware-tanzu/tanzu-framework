@@ -86,6 +86,6 @@ For more detailed information on these APIs check out this [doc](../api-machiner
 
 The Tanzu CLI is an amalgamation of all the Tanzu infrastructure elements under one unified core CLI experience. The core CLI supports a plugin model where the developers of different Tanzu services (bundled or SaaS) can distribute plugins that target functionalities of the services they own. When users switch between different services via the CLI context, we want to surface only the relevant plugins for the given context for a crisp user experience.
 
-This feature is gated by `features.global.context-aware-discovery` CLI feature flag and can be turned on/off as described [here](../cli/config-features.md). When this feature is enabled, CLI will not automatically use already installed plugins with context-aware discovery and users will need to install plugins again with `tanzu plugin install` command.
+This feature is gated by `features.global.context-aware-cli-for-plugins` CLI feature flag and can be turned on/off as described [here](../cli/config-features.md). When this feature is enabled, the CLI will not honor plugins installed prior to this feature being enabled, instead users will need to install plugins again with either `tanzu plugin install <plugin_name>` or `tanzu plugin sync`.
 
 For more detailed information on these design check out this [doc](../design/context-aware-plugin-discovery.md)

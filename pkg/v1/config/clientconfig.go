@@ -20,10 +20,10 @@ import (
 
 // This block is for global feature constants, to allow them to be used more broadly
 const (
-	// FeatureContextAwareDiscovery determines whether to use legacy way of discovering plugins or
+	// FeatureContextAwareCLIForPlugins determines whether to use legacy way of discovering plugins or
 	// to use the new context-aware Plugin API based plugin discovery mechanism
 	// Users can set this featureflag so that we can have context-aware plugin discovery be opt-in for now.
-	FeatureContextAwareDiscovery = "features.global.context-aware-discovery"
+	FeatureContextAwareCLIForPlugins = "features.global.context-aware-cli-for-plugins"
 	// DualStack feature flags determine whether it is permitted to create
 	// clusters with a dualstack TKG_IP_FAMILY.  There are separate flags for
 	// each primary, "ipv4,ipv6" vs "ipv6,ipv4", and flags for management vs
@@ -40,13 +40,20 @@ const (
 )
 
 // DefaultCliFeatureFlags is used to populate an initially empty config file with default values for feature flags.
-// If a developer expects that their feature will be ready to release, they should create an entry here with a true
-// value. If a developer has a beta feature they want to expose, but leave turned off by default, they should create
-// an entry here with a false value. The keys MUST be in the format "features.<plugin>.<feature>" or initialization
+// The keys MUST be in the format "features.<plugin>.<feature>" or initialization
 // will fail. Note that "global" is a special value for <plugin> to be used for CLI-wide features.
+//
+// If a developer expects that their feature will be ready to release, they should create an entry here with a true
+// value.
+// If a developer has a beta feature they want to expose, but leave turned off by default, they should create
+// an entry here with a false value. WE HIGHLY RECOMMEND the use of a SEPARATE flag for beta use; one that ends in "-beta".
+// Thus, if you plan to eventually release a feature with a flag named "features.cluster.foo-bar", you should consider
+// releasing the beta version with "features.cluster.foo-bar-beta". This will make it much easier when it comes time for
+// mainstreaming the feature (with a default true value) under the flag name "features.cluster.foo-bar", as there will be
+// no conflict with previous installs (that have a false value for the entry "features.cluster.foo-bar-beta").
 var (
 	DefaultCliFeatureFlags = map[string]bool{
-		FeatureContextAwareDiscovery:                          common.IsContextAwareDiscoveryEnabled,
+		FeatureContextAwareCLIForPlugins:                      common.ContextAwareDiscoveryEnabled(),
 		"features.management-cluster.import":                  false,
 		"features.management-cluster.export-from-confirm":     true,
 		"features.management-cluster.standalone-cluster-mode": false,
@@ -150,75 +157,6 @@ func NewClientConfig() (*configv1alpha1.ClientConfig, error) {
 		return nil, err
 	}
 	return c, nil
-}
-
-func populateDefaultStandaloneDiscovery(c *configv1alpha1.ClientConfig) bool {
-	if c.ClientOptions == nil {
-		c.ClientOptions = &configv1alpha1.ClientOptions{}
-	}
-	if c.ClientOptions.CLI == nil {
-		c.ClientOptions.CLI = &configv1alpha1.CLIOptions{}
-	}
-	if c.ClientOptions.CLI.DiscoverySources == nil {
-		c.ClientOptions.CLI.DiscoverySources = make([]configv1alpha1.PluginDiscovery, 0)
-	}
-
-	switch DefaultStandaloneDiscoveryType {
-	case common.DiscoveryTypeOCI:
-		return populateDefaultStandaloneDiscoveryOCI(c)
-	case common.DiscoveryTypeLocal:
-		return populateDefaultStandaloneDiscoveryLocal(c)
-	default:
-		log.Warning("unsupported default standalone discovery configuration")
-	}
-	return false
-}
-
-func populateDefaultStandaloneDiscoveryLocal(c *configv1alpha1.ClientConfig) bool {
-	for _, ds := range c.ClientOptions.CLI.DiscoverySources {
-		if ds.Local != nil && ds.Local.Name == DefaultStandaloneDiscoveryName {
-			if ds.Local.Path == DefaultStandaloneDiscoveryLocalPath {
-				return false
-			}
-			ds.Local.Path = DefaultStandaloneDiscoveryLocalPath
-			return true
-		}
-	}
-
-	defaultDiscovery := configv1alpha1.PluginDiscovery{
-		Local: &configv1alpha1.LocalDiscovery{
-			Name: DefaultStandaloneDiscoveryName,
-			Path: DefaultStandaloneDiscoveryLocalPath,
-		},
-	}
-
-	// Prepend default discovery to available discovery sources
-	c.ClientOptions.CLI.DiscoverySources = append([]configv1alpha1.PluginDiscovery{defaultDiscovery}, c.ClientOptions.CLI.DiscoverySources...)
-	return true
-}
-
-func populateDefaultStandaloneDiscoveryOCI(c *configv1alpha1.ClientConfig) bool {
-	defaultStandaloneDiscoveryImage := DefaultStandaloneDiscoveryImage()
-	for _, ds := range c.ClientOptions.CLI.DiscoverySources {
-		if ds.OCI != nil && ds.OCI.Name == DefaultStandaloneDiscoveryName {
-			if ds.OCI.Image == defaultStandaloneDiscoveryImage {
-				return false
-			}
-			ds.OCI.Image = defaultStandaloneDiscoveryImage
-			return true
-		}
-	}
-
-	defaultDiscovery := configv1alpha1.PluginDiscovery{
-		OCI: &configv1alpha1.OCIDiscovery{
-			Name:  DefaultStandaloneDiscoveryName,
-			Image: defaultStandaloneDiscoveryImage,
-		},
-	}
-
-	// Prepend default discovery to available discovery sources
-	c.ClientOptions.CLI.DiscoverySources = append([]configv1alpha1.PluginDiscovery{defaultDiscovery}, c.ClientOptions.CLI.DiscoverySources...)
-	return true
 }
 
 func populateDefaultCliFeatureValues(c *configv1alpha1.ClientConfig, defaultCliFeatureFlags map[string]bool) error {

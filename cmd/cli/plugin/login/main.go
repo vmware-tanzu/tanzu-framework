@@ -132,8 +132,8 @@ func login(cmd *cobra.Command, args []string) (err error) {
 		return err
 	}
 
-	// Sync all required plugins if the "features.global.context-aware-discovery" feature is enabled
-	if config.IsFeatureActivated(config.FeatureContextAwareDiscovery) {
+	// Sync all required plugins if the "features.global.context-aware-cli-for-plugins" feature is enabled
+	if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
 		if err = pluginmanager.SyncPlugins(serverTarget.Name); err != nil {
 			log.Warning("unable to automatically sync the plugins from target server. Please run 'tanzu plugin sync' command to sync plugins manually")
 		}

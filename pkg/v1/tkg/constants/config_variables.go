@@ -13,6 +13,8 @@ const (
 	ConfigVariableCustomImageRepositoryCaCertificate  = "TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE"
 	ConfigVariableDefaultStandaloneDiscoveryImagePath = "TKG_DEFAULT_STANDALONE_DISCOVERY_IMAGE_PATH"
 	ConfigVariableDefaultStandaloneDiscoveryImageTag  = "TKG_DEFAULT_STANDALONE_DISCOVERY_IMAGE_TAG"
+	ConfigVariableDefaultStandaloneDiscoveryType      = "TKG_DEFAULT_STANDALONE_DISCOVERY_TYPE"
+	ConfigVariableDefaultStandaloneDiscoveryLocalPath = "TKG_DEFAULT_STANDALONE_DISCOVERY_LOCAL_PATH"
 
 	ConfigVariableAWSRegion          = "AWS_REGION"
 	ConfigVariableAWSSecretAccessKey = "AWS_SECRET_ACCESS_KEY" //nolint:gosec
