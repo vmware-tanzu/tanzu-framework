@@ -32,3 +32,21 @@ import { ValidationService } from '../wizard/shared/validation/validation.servic
     ]
 })
 export class AwsWizardModule { }
+export enum AwsStep {
+    PROVIDER = 'provider',
+    VPC = 'vpc',
+    NODESETTING = 'nodeSetting',
+    NETWORK = 'network',
+    METADATA = 'metadata',
+    IDENTITY = 'identity',
+    OSIMAGE = 'osImage'
+}
+export enum AwsForm {
+    PROVIDER = 'awsProviderForm',
+    VPC = 'vpcForm',
+    NODESETTING = 'awsNodeSettingForm',
+    NETWORK = 'networkForm',
+    METADATA = 'metadataForm',
+    IDENTITY = 'identityForm',
+    OSIMAGE = 'osImageForm'
+}
