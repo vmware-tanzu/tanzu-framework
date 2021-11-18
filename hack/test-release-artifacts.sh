@@ -39,10 +39,6 @@ fi
 
 tanzu version
 
-tanzu cluster version
-
-tanzu kubernetes-release version
-
 tanzu management-cluster version
 
 tanzu package version

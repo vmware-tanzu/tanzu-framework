@@ -52,18 +52,6 @@ if ($LastExitCode -ne 0) {
   throw "Error verifying tanzu CLI using version command: " + $_.FullName
 }
 
-tanzu cluster version
-
-if ($LastExitCode -ne 0) {
-  throw "Error verifying tanzu cluster plugin using version command: " + $_.FullName
-}
-
-tanzu kubernetes-release version
-
-if ($LastExitCode -ne 0) {
-  throw "Error verifying tanzu release plugin using version command: " + $_.FullName
-}
-
 tanzu management-cluster version
 
 if ($LastExitCode -ne 0) {
