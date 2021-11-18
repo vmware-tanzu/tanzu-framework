@@ -1,5 +1,5 @@
 import {Directive, Input, OnInit} from '@angular/core';
-import {FormGroup, ValidatorFn} from '@angular/forms';
+import {AbstractControl, FormGroup, ValidatorFn} from '@angular/forms';
 
 import {ValidatorEnum} from './../constants/validation.constants';
 import {BasicSubscriber} from 'src/app/shared/abstracts/basic-subscriber';
@@ -231,29 +231,38 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         })
     }
 
+    private findField(fieldName: string, methodName: string): AbstractControl {
+        if (!fieldName) {
+            console.warn(`${methodName}(): called with empty fieldName`);
+            return null;
+        }
+
+        const field = this.formGroup.controls[fieldName];
+        if (!field) {
+            console.warn(`${methodName}(): unable to find field with name ${fieldName}`);
+            return null;
+        }
+        return field;
+    }
+
     disarmField(fieldName: string, clearSavedData: boolean) {
-        if (fieldName && this.formGroup.controls[fieldName]) {
-            this.formGroup.controls[fieldName].clearValidators();
-            this.formGroup.controls[fieldName].setValue('');
-            this.formGroup.controls[fieldName].updateValueAndValidity();
+        const field = this.findField(fieldName, 'disarmField');
+        if (field) {
+            field.clearValidators();
+            field.setValue('');
+            field.updateValueAndValidity();
             if (clearSavedData) {
                 this.clearFieldSavedData(fieldName);
             }
-        } else {
-            console.warn(`disarmField(): Unable to find field with name ${fieldName}`);
         }
     }
 
     resurrectField(fieldName: string, validators: ValidatorFn[], value?: string) {
-        if (fieldName && this.formGroup.controls[fieldName]) {
-            this.formGroup.controls[fieldName].setValidators(validators);
-            this.formGroup.controls[fieldName].updateValueAndValidity();
-            if (fieldName === 'vnetNameExisting') {
-                console.log('!   resurrectField() is setting vnetNameExisting to ' + value);
-            }
-            this.formGroup.controls[fieldName].setValue(value || null);
-        } else {
-            console.warn(`resurrectField(): Unable to find field with name ${fieldName}`);
+        const field = this.findField(fieldName, 'resurrectField');
+        if (field) {
+            field.setValidators(validators);
+            field.updateValueAndValidity();
+            field.setValue(value || null);
         }
     }
 

@@ -34,7 +34,7 @@ enum CredentialType {
 })
 export class AwsProviderStepComponent extends StepFormDirective implements OnInit {
     loading = false;
-    authTypeValue: string = CredentialType.ONETIME;
+    authTypeValue: string = CredentialType.PROFILE;
     successImportFile: string;
 
     regions = [];
@@ -50,7 +50,7 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
      * Create the initial form
      */
     private buildForm() {
-        this.formGroup.addControl(AwsField.PROVIDER_AUTH_TYPE, new FormControl(CredentialType.ONETIME, []));
+        this.formGroup.addControl(AwsField.PROVIDER_AUTH_TYPE, new FormControl(this.authTypeValue, []));
 
         AWSAccountParamsKeys.forEach(key => this.formGroup.addControl(
             key.toString(),
@@ -190,8 +190,11 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
     }
 
     private credentialProfileSelectedHandler() {
-        const resetFields = [AwsField.PROVIDER_ACCESS_KEY, AwsField.PROVIDER_SECRET_ACCESS_KEY, AwsField.PROVIDER_SESSION_TOKEN];
-        resetFields.forEach(field => this.disarmField(field.toString(), true));
+        [
+            AwsField.PROVIDER_ACCESS_KEY,
+            AwsField.PROVIDER_SECRET_ACCESS_KEY,
+            AwsField.PROVIDER_SESSION_TOKEN
+        ].forEach(field => this.disarmField(field.toString(), true));
     }
 
     setAWSCredentialsValuesFromAPI(credentials) {
@@ -204,11 +207,11 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
     initFormWithSavedData() {
         super.initFormWithSavedData();
 
-        // Use the presence of a saved access key to set the access type.
-        // (Which is to say: assume oneTimeCredentials unless there is a saved access key.)
+        // Use the presence of a saved secret access key to set the access type.
+        // (Which is to say: assume CredentialType.PROFILE unless there is a saved secret access key.)
         // NOTE: if there is a real saved access key (from import) we erase it immediately after using it here
-        const savedAccessKeyId = this.getRawSavedValue(AwsField.PROVIDER_ACCESS_KEY);
-        this.authTypeValue = (savedAccessKeyId) ? CredentialType.PROFILE : CredentialType.ONETIME;
+        const savedSecretAccessKey = this.getRawSavedValue(AwsField.PROVIDER_SECRET_ACCESS_KEY);
+        this.authTypeValue = (savedSecretAccessKey) ? CredentialType.ONETIME : CredentialType.PROFILE;
 
         this.scrubPasswordField(AwsField.PROVIDER_ACCESS_KEY);
         this.scrubPasswordField(AwsField.PROVIDER_SECRET_ACCESS_KEY);
@@ -269,5 +272,11 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
      */
     isConnectDisabled() {
         return !AWSAccountParamsKeys.reduce((accu, key) => this.formGroup.get(key.toString()).valid && accu, true);
+    }
+
+    // For use in HTML
+    isAuthTypeProfile() {
+        const result = this.authTypeValue === CredentialType.PROFILE;
+        return result;
     }
 }

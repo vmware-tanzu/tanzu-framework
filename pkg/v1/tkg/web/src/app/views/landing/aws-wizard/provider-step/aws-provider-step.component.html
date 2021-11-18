@@ -44,7 +44,7 @@
             </clr-radio-container>
         </div>
     </div>
-    <ng-container *ngIf="authTypeValue==='oneTimeCredentials'">
+    <ng-container *ngIf="!isAuthTypeProfile()">
         <p>
             Enter AWS account credentials directly in the Access Key ID and Secret Access Key fields for your
             Amazon Web Services account. Optionally specify an AWS session token in Session Token if your AWS account is
@@ -117,7 +117,7 @@
         </div>
     </ng-container>
 
-    <ng-container *ngIf="authTypeValue==='credentialProfile'">
+    <ng-container *ngIf="isAuthTypeProfile()">
         <p>
             Select an already existing AWS credential profile. If you select a profile, the access keys and session token
             information configured for your profile are temporarily passed to the installer without displaying actual values

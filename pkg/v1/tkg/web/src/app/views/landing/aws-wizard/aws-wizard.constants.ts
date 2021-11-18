@@ -42,5 +42,11 @@ export enum AwsField {
     PROVIDER_PROFILE_NAME = 'profileName',
     PROVIDER_REGION = 'region',
     PROVIDER_SECRET_ACCESS_KEY = 'secretAccessKey',
-    PROVIDER_SESSION_TOKEN = 'sessionToken'
+    PROVIDER_SESSION_TOKEN = 'sessionToken',
+
+    VPC_EXISTING_ID = 'existingVpcId',
+    VPC_EXISTING_CIDR = 'existingVpcCidr',
+    VPC_NEW_CIDR = 'vpc',
+    VPC_NON_INTERNET_FACING = 'nonInternetFacingVPC',
+    VPC_TYPE = 'vpcType'
 }
