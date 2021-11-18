@@ -2,7 +2,7 @@ apiVersion: providers.tanzu.vmware.com/v1alpha1
 kind: TemplateDefinition
 spec:
   paths:
-    - path: providers/infrastructure-aws/v1.0.0/ytt
+    - path: providers/infrastructure-aws/v1.1.0/ytt
     - path: providers/infrastructure-aws/ytt
     - path: providers/ytt
     - path: bom
