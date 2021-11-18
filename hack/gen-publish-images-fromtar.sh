@@ -2,7 +2,7 @@
 # Copyright 2021 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-set -euo pipefail
+set -eo pipefail
 
 TANZU_BOM_DIR=${HOME}/.config/tanzu/tkg/bom
 INSTALL_INSTRUCTIONS='See https://github.com/mikefarah/yq#install for installation instructions'
@@ -43,7 +43,20 @@ function imgpkg_copy() {
     echo "imgpkg copy --tar $src.tar --to-repo $dst"
 }
 
-echo "set -euo pipefail"
+if [ -n "$TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE" ]; then
+  function imgpkg_copy() {
+      src=$1
+      dst=$2
+      echo ""
+      echo "imgpkg copy --tar $src.tar --to-repo $dst --registry-ca-cert-path /tmp/cacrtbase64d.crt"
+  }
+fi
+
+echo "set -eo pipefail"
+echo 'if [ -n "$TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE" ]; then
+  echo $TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE > /tmp/cacrtbase64
+  base64 -d /tmp/cacrtbase64 > /tmp/cacrtbase64d.crt
+fi'
 echodual "Note that yq must be version above or equal to version 4.9.2 and below version 5."
 
 actualImageRepository="$TKG_IMAGE_REPO"
