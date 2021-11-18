@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/aunum/log"
 
@@ -72,7 +73,7 @@ func (r *Runner) RunOutput(ctx context.Context) (string, string, error) {
 // execution is emitted to os.Stdout and os.Stderr respectively. Otherwise any command output
 // is captured in the bytes.Buffer.
 func (r *Runner) run(ctx context.Context, pluginPath string, stdout, stderr *bytes.Buffer) error {
-	if BuildArch().IsWindows() {
+	if BuildArch().IsWindows() && !strings.HasSuffix(pluginPath, ".exe") {
 		pluginPath += ".exe"
 	}
 
