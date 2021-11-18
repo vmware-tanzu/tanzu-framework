@@ -17,8 +17,8 @@ import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
 import { APIClient } from '../../../../swagger/api-client.service';
 import Broker from 'src/app/shared/service/broker';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
-import { AwsField, AwsForm } from "../aws-wizard.constants";
 import { FormUtils } from '../../wizard/shared/utils/form-utils';
+import { AwsField, AwsForm, AwsNodeSettingStepMapping } from "../aws-wizard.constants";
 
 export interface AzNodeTypes {
     awsNodeAz1: Array<string>,
@@ -160,27 +160,22 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     buildForm() {
-        // key is field name, value is validation rules
-        for (const key in this.commonFieldMap) {
-            if (key) {
-                FormUtils.addControl(
-                    this.formGroup,
-                    key,
-                    new FormControl('', this.commonFieldMap[key])
-                );
+        AwsNodeSettingStepMapping.fieldMappings.forEach(fieldMapping => {
+            let validators = fieldMapping.required ? [Validators.required] : [];
+            // TODO: use better mechanism for specifying validators in FieldMappings
+            if (fieldMapping.validators && fieldMapping.validators.includes('isValidClusterName')) {
+                validators.push(this.validationService.isValidClusterName());
             }
-        }
-        this.setControlWithSavedValue(AwsField.NODESETTING_BASTION_HOST_ENABLED, true);
-        FormUtils.addControl(
-            this.formGroup,
-            AwsField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED,
-            new FormControl(true, [])
-        );
-        FormUtils.addControl(
-            this.formGroup,
-            AwsField.NODESETTING_CREATE_CLOUD_FORMATION,
-            new FormControl(true, [])
-        );
+            const defaultValue = fieldMapping.isBoolean ? false : '';
+            // let initialValue = this.getSavedValue(fieldMapping.name, defaultValue);
+
+            // When building the form, use the default value. That way when initializing with saved values,
+            // there will be an onChange event, which will trigger the right event handler with the saved value.
+            this.formGroup.addControl(
+                fieldMapping.name,
+                new FormControl(defaultValue, validators)
+            );
+        })
     }
 
     ngOnInit() {
