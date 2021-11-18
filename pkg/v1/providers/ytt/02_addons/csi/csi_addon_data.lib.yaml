@@ -56,4 +56,9 @@ vsphereCSI:
   http_proxy: #@ data.values.TKG_HTTP_PROXY
   https_proxy: #@ data.values.TKG_HTTPS_PROXY
   no_proxy: #@ get_no_proxy()
+  #@ if data.values.CLUSTER_PLAN == "dev":
+  deployment_replicas: 1
+  #@ else:
+  deployment_replicas: 3
+  #@ end
 #@ end
