@@ -5,8 +5,8 @@ export interface FieldMapping {
     isBoolean?: boolean,
     required?: boolean,
 }
- export interface StepMapping {
-     name: string,
-     form: string,
-     fieldMappings: FieldMapping[],
- }
+export interface StepMapping {
+    name: string,
+    form: string,
+    fieldMappings: FieldMapping[],
+}
