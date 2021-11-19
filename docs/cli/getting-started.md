@@ -1,15 +1,26 @@
-# Tanzu CLI Getting Started
+# Tanzu Command Line Interface (CLI) Getting Started
 
-A simple set of instructions to set up and use the Tanzu CLI.
+A simple set of instructions to set up and use the `tanzu` CLI.
 
-## Binary installation
+## CLI binary and plugins installation
+
+### Supported Platforms
+
+Following are the combinations supported for CLI
+
+| OS      | Architecture |
+| :-----: | :----------: |
+| Linux   |    amd64     |
+| macOS   |    amd64     |
+| Windows |    amd64     |
 
 ### Install the latest release of Tanzu CLI
 
-`linux-amd64`,`windows-amd64`, and `darwin-amd64` are the OS-ARCHITECTURE
-combinations we support now.
+#### Recommended method to install plugins (with API-driven plugin discovery activated)
 
-#### macOS/Linux
+API driven plugin discovery feature is available with [v0.11.0](https://github.com/vmware-tanzu/tanzu-framework/releases/tag/v0.11.0) release as default method to install the plugins. Learn more about this feature [design docs](../design/context-aware-plugin-discovery-design.md).
+
+##### macOS/Linux
 
 - Download the latest [release](https://github.com/vmware-tanzu/tanzu-framework/releases/latest)
 
@@ -29,27 +40,19 @@ combinations we support now.
 
 - Install the `tanzu` CLI
 
-  Note: Replace `v0.8.0` with the version you've downloaded.
+  Note: Replace `v0.11.0` with the version you've downloaded.
 
   - for macOS:
 
     ```sh
-    install tanzu/cli/core/v0.8.0/tanzu-core-darwin_amd64 /usr/local/bin/tanzu
+    install tanzu/cli/core/v0.11.0/tanzu-core-darwin_amd64 /usr/local/bin/tanzu
     ```
 
   - for Linux:
 
     ```sh
-    sudo install tanzu/cli/core/v0.8.0/tanzu-core-linux_amd64 /usr/local/bin/tanzu
+    sudo install tanzu/cli/core/v0.11.0/tanzu-core-linux_amd64 /usr/local/bin/tanzu
     ```
-
-#### Recommended method to install plugins (with API-driven plugin discovery activated)
-
-- List the available plugins
-
-  ```sh
-  tanzu plugin list
-  ```
 
 - Install the available plugins
 
@@ -63,9 +66,43 @@ combinations we support now.
   tanzu plugin list
   ```
 
+##### Windows
+
+- Download the latest [release](https://github.com/vmware-tanzu/tanzu-framework/releases/latest)
+
+- Open PowerShell as an administrator, change to the download directory and run:
+
+  ```sh
+  Expand-Archive tanzu-framework-windows-amd64.zip -DestinationPath tanzu
+  cd .\tanzu\
+  ```
+
+- Save following in `install.bat` in current directory and run `install.bat`
+
+  Note: Replace `v0.11.0` (line number 3) with the version you've downloaded.
+
+  ```sh
+  SET TANZU_CLI_DIR=%ProgramFiles%\tanzu
+  mkdir "%TANZU_CLI_DIR%"
+  copy /B /Y cli\core\v0.11.0\tanzu-core-windows_amd64.exe "%TANZU_CLI_DIR%\tanzu.exe"
+  set PATH=%PATH%;%TANZU_CLI_DIR%
+  SET PLUGIN_DIR=%LocalAppData%\tanzu-cli
+  mkdir %PLUGIN_DIR%
+  SET TANZU_CACHE_DIR=%LocalAppData%\.cache\tanzu
+  rmdir /Q /S %TANZU_CACHE_DIR%
+  tanzu plugin sync
+  tanzu plugin list
+  ```
+
+- Add `Program Files\tanzu` to your PATH.
+
 #### Legacy method to install plugins (with API-driven plugin discovery deactivated)
 
-Users can still install the plugins in legacy way by deactivating the `context-aware-cli-for-plugins` feature with `tanzu config set features.global.context-aware-cli-for-plugins false` command.
+Users can still install the plugins using the legacy method by deactivating the `context-aware-cli-for-plugins` feature.
+
+<details><summary>Installation steps</summary>
+
+#### macOS/Linux
 
 - Deactivate API-driven plugin discovery
 
@@ -85,7 +122,7 @@ Users can still install the plugins in legacy way by deactivating the `context-a
   tanzu plugin install --local tanzu/cli all
   ```
 
-- Verify installed plugins
+- Verify the installed plugins
 
   ```sh
   tanzu plugin list
@@ -93,33 +130,20 @@ Users can still install the plugins in legacy way by deactivating the `context-a
 
 #### Windows
 
-- Download the latest [release](https://github.com/vmware-tanzu/tanzu-framework/releases/latest)
-
-- Open PowerShell as an administrator, change to the download directory and run:
-
-  ```sh
-  Expand-Archive tanzu-framework-windows-amd64.zip -DestinationPath tanzu
-  cd .\tanzu\
-  ```
-
 - Save following in `install.bat` in current directory and run `install.bat`
 
-  Note: Replace `v0.8.0` (line number 3) with the version you've downloaded.
+  Note: Replace `v0.11.0` (line number 3) with the version you've downloaded.
 
   ```sh
   SET TANZU_CLI_DIR=%ProgramFiles%\tanzu
   mkdir "%TANZU_CLI_DIR%"
-  copy /B /Y cli\core\v0.8.0\tanzu-core-windows_amd64.exe "%TANZU_CLI_DIR%\tanzu.exe"
+  copy /B /Y cli\core\v0.11.0\tanzu-core-windows_amd64.exe "%TANZU_CLI_DIR%\tanzu.exe"
   set PATH=%PATH%;%TANZU_CLI_DIR%
   SET PLUGIN_DIR=%LocalAppData%\tanzu-cli
   mkdir %PLUGIN_DIR%
   SET TANZU_CACHE_DIR=%LocalAppData%\.cache\tanzu
   rmdir /Q /S %TANZU_CACHE_DIR%
 
-  # Recommended method to install plugins (with API-driven plugin discovery activated)
-  tanzu plugin sync
-
-  # Legacy method (with API-driven plugin discovery disabled)
   tanzu config set features.global.context-aware-cli-for-plugins false
   tanzu plugin repo update -b tanzu-cli-framework core
   tanzu plugin install --local cli all
@@ -129,6 +153,8 @@ Users can still install the plugins in legacy way by deactivating the `context-a
 
 - Add `Program Files\tanzu` to your PATH.
 
+</details>
+
 ## Delete a selected plugin
 
 If you want to delete a given plugin (one use case is when a plugin has become obsolete), you can run the following command:
@@ -137,7 +163,7 @@ If you want to delete a given plugin (one use case is when a plugin has become o
 tanzu plugin delete <PLUGIN_NAME>
 ```
 
-With `v0.8.0` release, the plugin `imagepullsecret` is deprecated and renamed `secret`. The new plugin `secret` will be installed following
+With `v0.11.0` release, the plugin `imagepullsecret` is deprecated and renamed `secret`. The new plugin `secret` will be installed following
 the instructions listed above. Remove the installed deprecated plugin if it exists using:
 
 ```sh
