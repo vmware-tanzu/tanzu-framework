@@ -209,7 +209,7 @@ The CLI has 2 different types of plugins.
   1. Standalone plugins: independent of the CLI context
   2. Context(server) scoped plugins: scoped to one or more contexts
 
-When building the CLI locally and installing plugins with `make build-install-cli-local` or `make build-install-cli-all`, all plugins are treated as standalone plugins.
+When building the CLI locally and installing plugins with `make build-install-cli-local` or `make build-install-cli-all`, the `local` file-system based standalone plugin discovery and distribution is used. While building locally all plugins are treated as standalone plugins. The type of discovery which gets used is determined by `DISCOVERY_TYPE` variable that configures `pkg/v1/config.DefaultStandaloneDiscoveryType` variable while building the Tanzu CLI. Please check `build-cli-%` target under the [Makefile](./Makefile)
 
 However, for official release, which uses OCI image based plugin discovery and distribution, `cluster` and `kubernetes-release` are context scoped plugins whereas `login`, `management-cluster`, `package` and `secret` are considered standalone plugins. Users can run `tanzu plugin list` command to check the plugin's scope and discovery information.
 All admin plugins like `builder`, `test` etc. are also considered standalone plugins.

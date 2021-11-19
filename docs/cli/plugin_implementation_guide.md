@@ -24,9 +24,9 @@ Current implementations:
 * [Admin plugins](https://github.com/vmware-tanzu/tanzu-framework/tree/main/cmd/cli/plugin-admin)
 * Advanced plugins
 
-### Repository
+### Repository (Legacy method)
 
-NOTE: This is not applicable if context-aware plugin discovery is enabled within Tanzu CLI.
+NOTE: This is not applicable if [context-aware plugin discovery](/docs/design/context-aware-plugin-discovery-design.md) is enabled within Tanzu CLI.
 
 A plugin repository represents a group of plugin artifacts that are installable by the Tanzu CLI. A repository is
 defined as an interface.
@@ -39,9 +39,9 @@ Current interface implementations:
 Our production plugin artifacts currently come from GCP buckets. Developers of plugins will typically use the local
 filesystem repository in the creation and testing of their feature.
 
-#### Adding Admin Repository
+#### Adding Admin Repository (Legacy method)
 
-NOTE: This is not applicable if context-aware plugin discovery is enabled within Tanzu CLI.
+NOTE: This is not applicable if [context-aware plugin discovery](/docs/design/context-aware-plugin-discovery-design.md) is enabled within Tanzu CLI.
 
 The admin repository contains the Builder plugin - a plugin which helps scaffold and compile plugins.
 
@@ -49,9 +49,41 @@ To add the admin repository use `tanzu plugin repo add -n admin -b tanzu-cli-adm
 
 To add the builder plugin use `tanzu plugin install builder`
 
-#### Plugin Discovery Source
+### Plugin Discovery Source
 
 Discovery is the interface to fetch the list of available plugins, their supported versions and how to download them either standalone or scoped to a context(server). E.g., the CLIPlugin API in a management cluster, OCI based plugin discovery for standalone plugins, a similar REST API etc. Having a separate interface for discovery helps to decouple discovery (which is usually tied to a server or user identity) from distribution (which can be shared).
+
+Plugins can be of two different types:
+
+  1. Standalone plugins: independent of the CLI context and are discovered using standalone discovery source
+  
+      This type of plugins are not associated with the `tanzu login` workflow and are available to the Tanzu CLI independent of the CLI context.
+
+  2. Context(server) scoped plugins: scoped to one or more contexts and are discovered using kubernetes or other server associated discovery source
+
+      This type of plugins are associated with the `tanzu login` workflow and are discovered from the management-cluster or global server endpoint.
+      In terms of management-clusters, this type of plugins are mostly associated with the installed packages.
+
+      Example:
+
+      As a developer of a `velero` package, I would like to create a Tanzu CLI plugin that can be used to configure and manage installed `velero` package configuration.
+      This usecase can be handled with context scoped plugins by installing `CLIPlugin` CR related to `velero` plugin on the management-cluster as part of `velero` package installation.
+
+      ```sh
+      # Login to a managment-cluster
+      $ tanzu login
+
+      # Installs velero package to the managment-cluster along with `velero` CLIPlugin resource
+      $ tanzu package install velero-pkg --package-name velero.tanzu.vmware.com
+
+      # Plugin list should show a new `velero` plugin available
+      $ tanzu plugin list
+        NAME     DESCRIPTION                    SCOPE       DISCOVERY          VERSION    STATUS
+        velero   Backup and restore operations  Context     cluster-default    v0.1.0     not installed
+
+      # Install velero plugin
+      $ tanzu plugin install velero
+      ```
 
 Default standalone plugins discovery source automatically gets added to the tanzu config files and plugins from this discovery source are automatically gets discovered.
 
