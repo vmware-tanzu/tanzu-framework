@@ -4,6 +4,7 @@ export interface FieldMapping {
     defaultValue?: any,
     isBoolean?: boolean,
     required?: boolean,
+    featureFlag?: string,
 }
 export interface StepMapping {
     name: string,
