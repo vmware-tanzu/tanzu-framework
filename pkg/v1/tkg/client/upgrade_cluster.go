@@ -36,18 +36,19 @@ const (
 
 // UpgradeClusterOptions upgrade cluster options
 type UpgradeClusterOptions struct {
-	ClusterName         string
-	Namespace           string
-	KubernetesVersion   string
-	TkrVersion          string
-	Kubeconfig          string
-	VSphereTemplateName string
-	OSName              string
-	OSVersion           string
-	OSArch              string
-	IsRegionalCluster   bool
-	SkipAddonUpgrade    bool
-	SkipPrompt          bool
+	ClusterName           string
+	Namespace             string
+	KubernetesVersion     string
+	TkrVersion            string
+	Kubeconfig            string
+	VSphereTemplateName   string
+	OSName                string
+	OSVersion             string
+	OSArch                string
+        MDVSphereTemplateName string
+	IsRegionalCluster     bool
+	SkipAddonUpgrade      bool
+	SkipPrompt            bool
 	// Tanzu edition (either tce or tkg)
 	Edition string
 }
@@ -70,6 +71,7 @@ type componentInfo struct {
 	KCPInfrastructureTemplateNamespace string
 	MDInfastructureTemplates           map[string]mdInfastructureTemplateInfo
 	VSphereVMTemplateName              string
+	MDVSphereVMTemplateName            string
 	AwsAMIID                           string
 	CAPDImageName                      string
 	CAPDImageRepo                      string
@@ -505,6 +507,11 @@ func (c *TkgClient) getUpgradeClusterConfig(options *UpgradeClusterOptions) (*cl
 
 	upgradeInfo.UpgradeComponentInfo.AwsRegionToAMIMap = bomConfiguration.AMI
 	upgradeInfo.UpgradeComponentInfo.VSphereVMTemplateName = options.VSphereTemplateName
+	if options.MDVSphereTemplateName != "" {
+		upgradeInfo.UpgradeComponentInfo.MDVSphereVMTemplateName = options.MDVSphereTemplateName
+	} else {
+		upgradeInfo.UpgradeComponentInfo.MDVSphereVMTemplateName = options.VSphereTemplateName
+	}
 
 	// get the Azure VM image info from TKG config if available and fall back to the image info from BOM if not available in TKG config file
 	azureVMImage, err := c.tkgConfigProvidersClient.GetAzureVMImageInfo(upgradeInfo.UpgradeComponentInfo.TkrVersion)
@@ -941,12 +948,12 @@ func (c *TkgClient) createAzureInfrastructureTemplateForUpgrade(regionalClusterC
 	return nil
 }
 
-func isNewVSphereTemplateRequired(machineTemplate *capvv1beta1.VSphereMachineTemplate, clusterUpgradeConfig *clusterUpgradeInfo, actualK8sVersion *string) bool {
+func isNewVSphereTemplateRequired(machineTemplate *capvv1beta1.VSphereMachineTemplate, clusterUpgradeConfig *clusterUpgradeInfo, actualK8sVersion *string, templateName string) bool {
 	if actualK8sVersion == nil || *actualK8sVersion != clusterUpgradeConfig.UpgradeComponentInfo.KubernetesVersion {
 		return true
 	}
 	// If vm template given is the same as we already have in VSphereMachineTemplate
-	if machineTemplate.Spec.Template.Spec.Template != clusterUpgradeConfig.UpgradeComponentInfo.VSphereVMTemplateName {
+	if machineTemplate.Spec.Template.Spec.Template != templateName {
 		return true
 	}
 	return false
@@ -965,7 +972,7 @@ func (c *TkgClient) createVSphereControlPlaneMachineTemplate(regionalClusterClie
 		utils.ReplaceSpecialChars(clusterUpgradeConfig.UpgradeComponentInfo.KubernetesVersion) + "-" + utils.GenerateRandomID(5, true)
 	clusterUpgradeConfig.UpgradeComponentInfo.KCPInfrastructureTemplateNamespace = actualVsphereMachineTemplate.Namespace
 
-	if !isNewVSphereTemplateRequired(actualVsphereMachineTemplate, clusterUpgradeConfig, &kcp.Spec.Version) {
+	if !isNewVSphereTemplateRequired(actualVsphereMachineTemplate, clusterUpgradeConfig, &kcp.Spec.Version, clusterUpgradeConfig.UpgradeComponentInfo.VSphereVMTemplateName) {
 		clusterUpgradeConfig.UpgradeComponentInfo.KCPInfrastructureTemplateName = actualVsphereMachineTemplate.Name
 		return nil
 	}
@@ -995,7 +1002,7 @@ func (c *TkgClient) createVSphereMachineDeploymentMachineTemplateForWorkers(regi
 			return errors.Wrapf(err, "unable to find VSphereMachineTemplate with name '%s' in namespace '%s'", clusterUpgradeConfig.MDObjects[i].Spec.Template.Spec.InfrastructureRef.Name, clusterUpgradeConfig.MDObjects[i].Namespace)
 		}
 
-		if !isNewVSphereTemplateRequired(actualVsphereMachineTemplate, clusterUpgradeConfig, clusterUpgradeConfig.MDObjects[i].Spec.Template.Spec.Version) {
+		if !isNewVSphereTemplateRequired(actualVsphereMachineTemplate, clusterUpgradeConfig, clusterUpgradeConfig.MDObjects[i].Spec.Template.Spec.Version, clusterUpgradeConfig.UpgradeComponentInfo.MDVSphereVMTemplateName) {
 			clusterUpgradeConfig.UpgradeComponentInfo.MDInfastructureTemplates[clusterUpgradeConfig.MDObjects[i].Name] = mdInfastructureTemplateInfo{
 				MDInfrastructureTemplateName:      actualVsphereMachineTemplate.Name,
 				MDInfrastructureTemplateNamespace: actualVsphereMachineTemplate.Namespace,
@@ -1014,7 +1021,7 @@ func (c *TkgClient) createVSphereMachineDeploymentMachineTemplateForWorkers(regi
 		vsphereMachineTemplateForUpgrade.Name = clusterUpgradeConfig.UpgradeComponentInfo.MDInfastructureTemplates[clusterUpgradeConfig.MDObjects[i].Name].MDInfrastructureTemplateName
 		vsphereMachineTemplateForUpgrade.Namespace = clusterUpgradeConfig.UpgradeComponentInfo.MDInfastructureTemplates[clusterUpgradeConfig.MDObjects[i].Name].MDInfrastructureTemplateNamespace
 		vsphereMachineTemplateForUpgrade.Spec = actualVsphereMachineTemplate.DeepCopy().Spec
-		vsphereMachineTemplateForUpgrade.Spec.Template.Spec.Template = clusterUpgradeConfig.UpgradeComponentInfo.VSphereVMTemplateName
+		vsphereMachineTemplateForUpgrade.Spec.Template.Spec.Template = clusterUpgradeConfig.UpgradeComponentInfo.MDVSphereVMTemplateName
 
 		// create template for each machine deployment object
 		err = regionalClusterClient.CreateResource(vsphereMachineTemplateForUpgrade, vsphereMachineTemplateForUpgrade.Name, vsphereMachineTemplateForUpgrade.Namespace)

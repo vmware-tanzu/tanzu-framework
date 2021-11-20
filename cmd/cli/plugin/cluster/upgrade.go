@@ -23,14 +23,21 @@ import (
 )
 
 type upgradeClustersOptions struct {
-	namespace           string
-	tkrName             string
-	timeout             time.Duration
-	unattended          bool
-	osName              string
-	osVersion           string
-	osArch              string
-	vSphereTemplateName string
+	namespace             string
+	tkrName               string
+	timeout               time.Duration
+	unattended            bool
+	osName                string
+	osVersion             string
+	osArch                string
+	vSphereTemplateName   string
+	// mdVSphereTemplateName is used to indicate the VM templated for
+	// worker nodes, now it is used only for Windows nodes because
+	// Linux cluster doesn't support master nodes and worker nodes
+	// using different OS.  Not sure whether this will be supported
+	// in the future for Linxu cluster, so let's use this name to
+	// leave scalability.
+	mdVSphereTemplateName string
 }
 
 var uc = &upgradeClustersOptions{}
@@ -84,6 +91,9 @@ func init() {
 
 	upgradeClusterCmd.Flags().StringVarP(&uc.vSphereTemplateName, "vsphere-vm-template-name", "", "", "The vSphere VM template to be used with upgraded kubernetes version. Discovered automatically if not provided")
 	upgradeClusterCmd.Flags().MarkHidden("vsphere-vm-template-name") //nolint
+
+	upgradeClusterCmd.Flags().StringVarP(&uc.mdVSphereTemplateName, "vsphere-windows-vm-template-name", "", "", "The vSpherew Windows VM template to be used with upgraded kubernetes version. Discovered automatically if not provided")
+        //upgradeClusterCmd.Flags().MarkHidden("vsphere-windows-vm-template-name") //nolint
 }
 
 func upgrade(cmd *cobra.Command, args []string) error {
@@ -119,16 +129,17 @@ func upgradeCluster(server *v1alpha1.Server, clusterName string) error {
 	}
 
 	upgradeClusterOptions := tkgctl.UpgradeClusterOptions{
-		ClusterName:         clusterName,
-		Namespace:           uc.namespace,
-		TkrVersion:          tkrVersion,
-		SkipPrompt:          uc.unattended,
-		Timeout:             uc.timeout,
-		OSName:              uc.osName,
-		OSVersion:           uc.osVersion,
-		OSArch:              uc.osArch,
-		VSphereTemplateName: uc.vSphereTemplateName,
-		Edition:             BuildEdition,
+		ClusterName:           clusterName,
+		Namespace:             uc.namespace,
+		TkrVersion:            tkrVersion,
+		SkipPrompt:            uc.unattended,
+		Timeout:               uc.timeout,
+		OSName:                uc.osName,
+		OSVersion:             uc.osVersion,
+		OSArch:                uc.osArch,
+		VSphereTemplateName:   uc.vSphereTemplateName,
+		MDVSphereTemplateName: uc.mdVSphereTemplateName,
+		Edition:               BuildEdition,
 	}
 
 	return tkgctlClient.UpgradeCluster(upgradeClusterOptions)

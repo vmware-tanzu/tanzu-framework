@@ -29,6 +29,10 @@ type UpgradeClusterOptions struct {
 	// OSName, OSVersion and OSArch config variable
 	// to filter vSphereTemplate
 	VSphereTemplateName string
+	// MDVSphereTemplateName is used for worker
+	// nodes, it is empty for Linux nodes, and
+	// non-empty for Windows nodes.
+	MDVSphereTemplateName string
 	// Tanzu edition (either tce or tkg)
 	Edition string
 }
@@ -73,17 +77,18 @@ func (t *tkgctl) UpgradeCluster(options UpgradeClusterOptions) error {
 		options.Namespace = constants.DefaultNamespace
 	}
 	upgradeClusterOption := client.UpgradeClusterOptions{
-		ClusterName:         options.ClusterName,
-		Namespace:           options.Namespace,
-		KubernetesVersion:   k8sVersion,
-		TkrVersion:          options.TkrVersion,
-		Kubeconfig:          t.kubeconfig,
-		IsRegionalCluster:   false,
-		VSphereTemplateName: options.VSphereTemplateName,
-		OSName:              options.OSName,
-		OSVersion:           options.OSVersion,
-		OSArch:              options.OSArch,
-		Edition:             options.Edition,
+		ClusterName:           options.ClusterName,
+		Namespace:             options.Namespace,
+		KubernetesVersion:     k8sVersion,
+		TkrVersion:            options.TkrVersion,
+		Kubeconfig:            t.kubeconfig,
+		IsRegionalCluster:     false,
+		VSphereTemplateName:   options.VSphereTemplateName,
+		MDVSphereTemplateName: options.MDVSphereTemplateName,
+		OSName:                options.OSName,
+		OSVersion:             options.OSVersion,
+		OSArch:                options.OSArch,
+		Edition:               options.Edition,
 	}
 	err = t.tkgClient.UpgradeCluster(&upgradeClusterOption)
 	if err != nil {
