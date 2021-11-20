@@ -13726,6 +13726,12 @@ spec:
         env:
         - name: AWS_SHARED_CREDENTIALS_FILE
           value: /home/.aws/credentials
+        - name: HTTP_PROXY
+          value: ${TKG_HTTP_PROXY}
+        - name: HTTPS_PROXY
+          value: ${TKG_HTTPS_PROXY}
+        - name: NO_PROXY
+          value: ${TKG_NO_PROXY}
         image: registry.tkg.vmware.run/cluster-api-aws/cluster-api-aws-controller:${CAPA_CONTROLLER_IMAGE_TAG}
         imagePullPolicy: IfNotPresent
         livenessProbe:
