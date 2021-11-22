@@ -106,27 +106,29 @@ func setConfiguration(cfg *configv1alpha1.ClientConfig, pathParam, value string)
 
 	// parse the param
 	paramArray := strings.Split(pathParam, ".")
-	if len(paramArray) != 3 {
-		return errors.New("unable to parse config path parameter into three parts [" + pathParam + "]  (was expecting 'features.<plugin>.<feature>' or 'env.<plugin>.<env_variable>')")
+	if len(paramArray) < 2 {
+		return errors.New("unable to parse config path parameter into parts [" + pathParam + "]  (was expecting 'features.<plugin>.<feature>' or 'env.<env_variable>')")
 	}
 
 	configLiteral := paramArray[0]
-	plugin := paramArray[1]
-	key := paramArray[2]
 
 	switch configLiteral {
 	case ConfigLiteralFeatures:
-		setFeatures(cfg, plugin, key, value)
+		return setFeatures(cfg, paramArray, value)
 	case ConfigLiteralEnv:
-		setEnvs(cfg, plugin, key, value)
+		return setEnvs(cfg, paramArray, value)
 	default:
-		return errors.New("unsupported config path parameter [" + configLiteral + "] (was expecting 'features.<plugin>.<feature>' or 'env.<plugin>.<env_variable>')")
+		return errors.New("unsupported config path parameter [" + configLiteral + "] (was expecting 'features.<plugin>.<feature>' or 'env.<env_variable>')")
 	}
-
-	return nil
 }
 
-func setFeatures(cfg *configv1alpha1.ClientConfig, plugin, featureName, value string) {
+func setFeatures(cfg *configv1alpha1.ClientConfig, paramArray []string, value string) error {
+	if len(paramArray) != 3 {
+		return errors.New("unable to parse config path parameter into three parts [" + strings.Join(paramArray, ".") + "]  (was expecting 'features.<plugin>.<feature>'")
+	}
+	plugin := paramArray[1]
+	featureName := paramArray[2]
+
 	if cfg.ClientOptions == nil {
 		cfg.ClientOptions = &configv1alpha1.ClientOptions{}
 	}
@@ -137,19 +139,24 @@ func setFeatures(cfg *configv1alpha1.ClientConfig, plugin, featureName, value st
 		cfg.ClientOptions.Features[plugin] = configv1alpha1.FeatureMap{}
 	}
 	cfg.ClientOptions.Features[plugin][featureName] = value
+	return nil
 }
 
-func setEnvs(cfg *configv1alpha1.ClientConfig, plugin, envVariable, value string) {
+func setEnvs(cfg *configv1alpha1.ClientConfig, paramArray []string, value string) error {
+	if len(paramArray) != 2 {
+		return errors.New("unable to parse config path parameter into two parts [" + strings.Join(paramArray, ".") + "]  (was expecting 'env.<variable>'")
+	}
+	envVariable := paramArray[1]
+
 	if cfg.ClientOptions == nil {
 		cfg.ClientOptions = &configv1alpha1.ClientOptions{}
 	}
 	if cfg.ClientOptions.Env == nil {
-		cfg.ClientOptions.Env = make(map[string]configv1alpha1.EnvMap)
+		cfg.ClientOptions.Env = make(map[string]string)
 	}
-	if cfg.ClientOptions.Env[plugin] == nil {
-		cfg.ClientOptions.Env[plugin] = configv1alpha1.EnvMap{}
-	}
-	cfg.ClientOptions.Env[plugin][envVariable] = value
+
+	cfg.ClientOptions.Env[envVariable] = value
+	return nil
 }
 
 func setUnstableVersions(cfg *configv1alpha1.ClientConfig, value string) error {
@@ -312,38 +319,47 @@ var unsetConfigCmd = &cobra.Command{
 func unsetConfiguration(cfg *configv1alpha1.ClientConfig, pathParam string) error {
 	// parse the param
 	paramArray := strings.Split(pathParam, ".")
-	if len(paramArray) != 3 {
-		return errors.New("unable to parse config path parameter into three parts [" + pathParam + "]  (was expecting 'features.<plugin>.<feature>' or 'env.<plugin>.<env_variable>')")
+	if len(paramArray) < 2 {
+		return errors.New("unable to parse config path parameter into parts [" + pathParam + "]  (was expecting 'features.<plugin>.<feature>' or 'env.<env_variable>')")
 	}
 
 	configLiteral := paramArray[0]
-	plugin := paramArray[1]
-	key := paramArray[2]
 
 	switch configLiteral {
 	case ConfigLiteralFeatures:
-		unsetFeatures(cfg, plugin, key)
+		return unsetFeatures(cfg, paramArray)
 	case ConfigLiteralEnv:
-		unsetEnvs(cfg, plugin, key)
+		return unsetEnvs(cfg, paramArray)
 	default:
-		return errors.New("unsupported config path parameter [" + configLiteral + "] (was expecting 'features.<plugin>.<feature>' or 'env.<plugin>.<env_variable>')")
+		return errors.New("unsupported config path parameter [" + configLiteral + "] (was expecting 'features.<plugin>.<feature>' or 'env.<env_variable>')")
 	}
+}
 
+func unsetFeatures(cfg *configv1alpha1.ClientConfig, paramArray []string) error {
+	if len(paramArray) != 3 {
+		return errors.New("unable to parse config path parameter into three parts [" + strings.Join(paramArray, ".") + "]  (was expecting 'features.<plugin>.<feature>'")
+	}
+	plugin := paramArray[1]
+	featureName := paramArray[2]
+
+	if cfg.ClientOptions == nil || cfg.ClientOptions.Features == nil ||
+		cfg.ClientOptions.Features[plugin] == nil {
+		return nil
+	}
+	delete(cfg.ClientOptions.Features[plugin], featureName)
 	return nil
 }
 
-func unsetFeatures(cfg *configv1alpha1.ClientConfig, plugin, featureName string) {
-	if cfg.ClientOptions == nil || cfg.ClientOptions.Features == nil ||
-		cfg.ClientOptions.Features[plugin] == nil {
-		return
+func unsetEnvs(cfg *configv1alpha1.ClientConfig, paramArray []string) error {
+	if len(paramArray) != 2 {
+		return errors.New("unable to parse config path parameter into two parts [" + strings.Join(paramArray, ".") + "]  (was expecting 'env.<env_variable>'")
 	}
-	delete(cfg.ClientOptions.Features[plugin], featureName)
-}
 
-func unsetEnvs(cfg *configv1alpha1.ClientConfig, plugin, envVariable string) {
-	if cfg.ClientOptions == nil || cfg.ClientOptions.Env == nil ||
-		cfg.ClientOptions.Env[plugin] == nil {
-		return
+	envVariable := paramArray[1]
+	if cfg.ClientOptions == nil || cfg.ClientOptions.Env == nil {
+		return nil
 	}
-	delete(cfg.ClientOptions.Env[plugin], envVariable)
+	delete(cfg.ClientOptions.Env, envVariable)
+
+	return nil
 }
