@@ -109,7 +109,7 @@ kind: VSphereCluster
 metadata:
   name: #@ data.values.CLUSTER_NAME
 spec:
-  #@ if not data.values.AVI_CONTROL_PLANE_HA_PROVIDER:
+  #@ if data.values.AVI_CONTROL_PLANE_HA_PROVIDER != "true":
   controlPlaneEndpoint:
     host: #@ data.values.VSPHERE_CONTROL_PLANE_ENDPOINT
     #@ if data.values.CLUSTER_API_SERVER_PORT:
