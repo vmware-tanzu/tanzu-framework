@@ -174,7 +174,7 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
     setNewVpcValidators() {
         this.defaultVpcHasChanged = false;
 
-        this.formGroup.get(AwsField.VPC_NEW_CIDR).setValue(this.getSavedValue('vpc', this.defaultVpcAddress));
+        this.formGroup.get(AwsField.VPC_NEW_CIDR).setValue(this.getSavedValue(AwsField.VPC_NEW_CIDR, this.defaultVpcAddress));
         this.formGroup.get(AwsField.VPC_NEW_CIDR).setValidators([
             Validators.required,
             this.validationService.noWhitespaceOnEnds(),

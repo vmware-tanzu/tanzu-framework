@@ -268,7 +268,6 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
     }
 
     initFormWithSavedData() {
-        console.log('vnet-step.initFormWithSavedData()');
         this.setControlWithSavedValue(VnetField.PRIVATE_CLUSTER, false);
 
         // if the user did an import, then we expect there may be a custom vnet value to be stored in VnetField.CUSTOM_NAME slot.

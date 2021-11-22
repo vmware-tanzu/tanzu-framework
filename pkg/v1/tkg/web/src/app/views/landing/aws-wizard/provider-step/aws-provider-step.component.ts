@@ -13,6 +13,7 @@ import {TkgEvent, TkgEventType} from '../../../../shared/service/Messenger';
 import Broker from 'src/app/shared/service/broker';
 import {FormMetaDataStore} from "../../wizard/shared/FormMetaDataStore";
 import {AwsField} from "../aws-wizard.constants";
+import {NotificationTypes} from "../../../../shared/components/alert-notification/alert-notification.component";
 
 export const AWSAccountParamsKeys = [
     AwsField.PROVIDER_PROFILE_NAME,
@@ -35,7 +36,6 @@ enum CredentialType {
 export class AwsProviderStepComponent extends StepFormDirective implements OnInit {
     loading = false;
     authTypeValue: string = CredentialType.PROFILE;
-    successImportFile: string;
 
     regions = [];
     profileNames: Array<string> = [];
@@ -137,7 +137,25 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
         Broker.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
-                this.successImportFile = data.payload;
+                this.configFileNotification = {
+                    notificationType: NotificationTypes.SUCCESS,
+                    message: data.payload
+                };
+                // The file import saves the data to local storage, so we reinitialize this step's form from there
+                this.savedMetadata = FormMetaDataStore.getMetaData(this.formName);
+                this.initFormWithSavedData();
+
+                // Clear event so that listeners in other provider workflows do not receive false notifications
+                Broker.messenger.clearEvent(TkgEventType.CONFIG_FILE_IMPORTED);
+            });
+
+        Broker.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe((data: TkgEvent) => {
+                this.configFileNotification = {
+                    notificationType: NotificationTypes.SUCCESS,
+                    message: data.payload
+                };
                 // The file import saves the data to local storage, so we reinitialize this step's form from there
                 this.savedMetadata = FormMetaDataStore.getMetaData(this.formName);
                 this.initFormWithSavedData();
@@ -219,7 +237,6 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
         // Initializations not needed the first time the form is loaded, but
         // required to re-initialize after form has been used
         this.validCredentials = false;
-        this.regions = [];
     }
 
     /**

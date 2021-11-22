@@ -21,7 +21,7 @@ import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
 import { APIClient } from '../../../../swagger/api-client.service';
 import Broker from 'src/app/shared/service/broker';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
-import {AwsField, AwsForm} from "../aws-wizard.constants";
+import { AwsField, AwsForm } from "../aws-wizard.constants";
 
 export interface AzNodeTypes {
     awsNodeAz1: Array<string>,
@@ -230,7 +230,9 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
                 // clear az selection
                 this.clearAzs();
-                [...AZS, ...WORKER_NODE_INSTANCE_TYPES, ...VPC_SUBNETS].forEach(attr => this.formGroup.get(attr.toString()).updateValueAndValidity());
+                [...AZS, ...WORKER_NODE_INSTANCE_TYPES, ...VPC_SUBNETS].forEach(
+                    field => this.formGroup.get(field.toString()).updateValueAndValidity()
+                );
             });
 
         Broker.messenger.getSubject(TkgEventType.AWS_VPC_CHANGED)
@@ -292,7 +294,6 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 // step before the api responses. Then an empty array will be passed to the validation isValidNameInList.
                 // It will cause the selected option to be invalid all the time.
 
-
                 if (this.nodeType === NodeType.DEV) {
                     const devInstanceType = this.nodeTypes.length === 1 ? this.nodeTypes[0] :
                         this.formGroup.get(AwsField.NODESETTING_INSTANCE_TYPE_DEV).value;
@@ -321,8 +322,13 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         this.registerOnValueChange(AwsField.NODESETTING_CONTROL_PLANE_SETTING, data => {
             if (data === NodeType.DEV) {
                 this.nodeType = NodeType.DEV;
-                const prodFields = [AwsField.NODESETTING_AZ_2, AwsField.NODESETTING_AZ_3, AwsField.NODESETTING_WORKERTYPE_2, AwsField.NODESETTING_WORKERTYPE_3,
-                    AwsField.NODESETTING_INSTANCE_TYPE_PROD];
+                const prodFields = [
+                    AwsField.NODESETTING_AZ_2,
+                    AwsField.NODESETTING_AZ_3,
+                    AwsField.NODESETTING_WORKERTYPE_2,
+                    AwsField.NODESETTING_WORKERTYPE_3,
+                    AwsField.NODESETTING_INSTANCE_TYPE_PROD
+                ];
                 prodFields.forEach(attr => this.disarmField(attr.toString(), true));
                 if (this.nodeAzs && this.nodeAzs.length === 1) {
                     this.formGroup.get(AwsField.NODESETTING_AZ_1).setValue(this.nodeAzs[0].name);
@@ -381,10 +387,12 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         this.cardClick(isProdInstanceType ? NodeType.PROD : NodeType.DEV);
         super.initFormWithSavedData();
         if (isProdInstanceType) {
+            const nodeType = this.nodeTypes.length === 1 ? this.nodeTypes[0] : prodInstanceType;
             this.formGroup.get(AwsField.NODESETTING_INSTANCE_TYPE_DEV).setValue('');
-            this.formGroup.get(AwsField.NODESETTING_INSTANCE_TYPE_PROD).setValue(this.nodeTypes.length === 1 ? this.nodeTypes[0] : prodInstanceType);
+            this.formGroup.get(AwsField.NODESETTING_INSTANCE_TYPE_PROD).setValue(nodeType);
         } else {
-            this.formGroup.get(AwsField.NODESETTING_INSTANCE_TYPE_DEV).setValue(this.nodeTypes.length === 1 ? this.nodeTypes[0] : devInstanceType);
+            const nodeType = this.nodeTypes.length === 1 ? this.nodeTypes[0] : devInstanceType;
+            this.formGroup.get(AwsField.NODESETTING_INSTANCE_TYPE_DEV).setValue(nodeType);
             this.formGroup.get(AwsField.NODESETTING_INSTANCE_TYPE_PROD).setValue('');
         }
     }
@@ -501,10 +509,12 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
                         if (this.vpcType === vpcType.EXISTING) {
                             if (this.filteredAzs[AZS[index].toString()].publicSubnets.length === 1) {
-                                this.formGroup.get(PUBLIC_SUBNETS[index].toString()).setValue(this.filteredAzs[AZS[index].toString()].publicSubnets[0].id);
+                                const subnetId = this.filteredAzs[AZS[index].toString()].publicSubnets[0].id;
+                                this.formGroup.get(PUBLIC_SUBNETS[index].toString()).setValue(subnetId);
                             }
                             if (this.filteredAzs[AZS[index].toString()].privateSubnets.length === 1) {
-                                this.formGroup.get(PRIVATE_SUBNET[index].toString()).setValue(this.filteredAzs[AZS[index].toString()].privateSubnets[0].id);
+                                const subnetId = this.filteredAzs[AZS[index].toString()].privateSubnets[0].id;
+                                this.formGroup.get(PRIVATE_SUBNET[index].toString()).setValue(subnetId);
                             }
                         }
                     }),

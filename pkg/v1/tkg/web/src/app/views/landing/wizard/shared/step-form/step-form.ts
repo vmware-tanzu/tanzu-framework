@@ -5,6 +5,7 @@ import {ValidatorEnum} from './../constants/validation.constants';
 import {BasicSubscriber} from 'src/app/shared/abstracts/basic-subscriber';
 import {FormMetaData, FormMetaDataStore} from '../FormMetaDataStore';
 import {TkgEvent, TkgEventType} from 'src/app/shared/service/Messenger';
+import {Notification, NotificationTypes} from 'src/app/shared/components/alert-notification/alert-notification.component';
 import Broker from 'src/app/shared/service/broker';
 
 import {distinctUntilChanged, takeUntil} from 'rxjs/operators';
@@ -28,7 +29,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     edition: AppEdition = AppEdition.TCE;
     validatorEnum = ValidatorEnum;
     errorNotification: string;
-    errorImportFile: string;
+    configFileNotification: Notification;
     clusterTypeDescriptor: string;
     modeClusterStandalone: boolean;
     ipFamily: IpFamilyEnum = IpFamilyEnum.IPv4;
@@ -56,7 +57,13 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
                 // Capture the import file error message
-                this.errorImportFile = data.payload;
+                this.configFileNotification = {
+                    notificationType: NotificationTypes.ERROR,
+                    message: data.payload
+                };
+
+                // Clear event so that listeners in other provider workflows do not receive false notifications
+                Broker.messenger.clearEvent(TkgEventType.CONFIG_FILE_IMPORT_ERROR)
             });
     }
 

@@ -13,17 +13,7 @@ import { AzureAccountParamsKeys } from './provider-step/azure-provider-step.comp
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { EXISTING } from './vnet-step/vnet-step.component';
 import Broker from 'src/app/shared/service/broker';
-
-enum AzureForm {
-    PROVIDER = 'azureProviderForm',
-    NODESETTING = 'azureNodeSettingForm',
-    METADATA = 'metadataForm',
-    NETWORK = 'networkForm',
-    CEIP = 'ceipOptInForm',
-    IDENTITY = 'identityForm',
-    OSIMAGE = 'osImageForm',
-    VNET = 'vnetForm'
-}
+import { ImportParams, ImportService } from "../../../shared/service/import.service";
 
 // Not sure why some of these step names have 'Form' in them, but leaving as is
 enum AzureStep {
@@ -34,6 +24,17 @@ enum AzureStep {
     CEIP = 'ceipOptInForm',
     IDENTITY = 'identity',
     OSIMAGE = 'osImage',
+    VNET = 'vnetForm'
+}
+
+enum AzureForm {
+    PROVIDER = 'azureProviderForm',
+    NODESETTING = 'azureNodeSettingForm',
+    METADATA = 'metadataForm',
+    NETWORK = 'networkForm',
+    CEIP = 'ceipOptInForm',
+    IDENTITY = 'identityForm',
+    OSIMAGE = 'osImageForm',
     VNET = 'vnetForm'
 }
 
@@ -48,6 +49,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
     constructor(
         router: Router,
         public wizardFormService: AzureWizardFormService,
+        private importService: ImportService,
         private formBuilder: FormBuilder,
         private apiClient: APIClient,
         titleService: Title,
@@ -335,14 +337,47 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         return (vnetCidr ? vnetCidr + ',' : '')  + '169.254.0.0/16,168.63.129.16';
     }
 
-    retrievePayloadFromString(config: string): Observable<any> {
-        return this.apiClient.importTKGConfigForAzure( { params: { filecontents: config } } );
+    // returns TRUE if the file contents appear to be a valid config file for Azure
+    // returns FALSE if the file is empty or does not appear to be valid. Note that in the FALSE
+    // case we also alert the user.
+    importFileValidate(nameFile: string, fileContents: string): boolean {
+        if (fileContents.includes('AZURE_')) {
+            return true;
+        }
+        alert(nameFile + ' is not a valid Azure configuration file!');
+        return false;
     }
 
-    validateImportFile(config: string): string {
-        if (config.includes('AZURE_')) {
-            return '';
+    importFileRetrieveClusterParams(fileContents: string): Observable<AzureRegionalClusterParams> {
+        return this.apiClient.importTKGConfigForAzure( { params: { filecontents: fileContents } } );
+    }
+
+    importFileProcessClusterParams(nameFile: string, azureClusterParams: AzureRegionalClusterParams) {
+        this.setFromPayload(azureClusterParams);
+        this.resetToFirstStep();
+        this.importService.publishImportSuccess(nameFile);
+    }
+
+    // returns TRUE if user (a) will not lose data on import, or (b) confirms it's OK
+    onImportButtonClick() {
+        let result = true;
+        if (!this.isOnFirstStep()) {
+            result = confirm('Importing will overwrite any data you have entered. Proceed with import?');
         }
-        return 'This file is not an Azure configuration file!';
+        return result;
+    }
+
+    onImportFileSelected(event) {
+        const params: ImportParams<AzureRegionalClusterParams> = {
+            file: event.target.files[0],
+            validator: this.importFileValidate,
+            backend: this.importFileRetrieveClusterParams.bind(this),
+            onSuccess: this.importFileProcessClusterParams.bind(this),
+            onFailure: this.importService.publishImportFailure
+        }
+        this.importService.import(params);
+
+        // clear file reader target so user can re-select same file if needed
+        event.target.value = '';
     }
 }

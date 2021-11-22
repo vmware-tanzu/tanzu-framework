@@ -26,6 +26,7 @@ import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import { managementClusterPlugin } from "../../wizard/shared/constants/wizard.constants";
 import { VsphereField } from "../vsphere-wizard.constants";
 import { IpFamilyEnum } from "../../../../shared/constants/app.constants";
+import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
 
 declare var sortPaths: any;
 
@@ -47,8 +48,6 @@ export interface VsphereVersioninfo {
 
 export class VSphereProviderStepComponent extends StepFormDirective implements OnInit {
     @ViewChild(SSLThumbprintModalComponent) sslThumbprintModal: SSLThumbprintModalComponent;
-    successImportFile: string;
-
     fileReader: FileReader;
 
     APP_ROUTES: Routes = APP_ROUTES;
@@ -174,10 +173,16 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
         Broker.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
-                this.successImportFile = data.payload;
+                this.configFileNotification = {
+                    notificationType: NotificationTypes.SUCCESS,
+                    message: data.payload
+                };
                 // The file import saves the data to local storage, so we reinitialize this step's form from there
                 this.savedMetadata = FormMetaDataStore.getMetaData(this.formName);
                 this.initFormWithSavedData();
+
+                // Clear event so that listeners in other provider workflows do not receive false notifications
+                Broker.messenger.clearEvent(TkgEventType.CONFIG_FILE_IMPORTED);
             });
 
         this.fileReader.onload = (event) => {

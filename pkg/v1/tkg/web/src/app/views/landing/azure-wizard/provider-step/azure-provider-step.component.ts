@@ -14,6 +14,7 @@ import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import Broker from 'src/app/shared/service/broker';
 import { FormMetaDataStore } from "../../wizard/shared/FormMetaDataStore";
+import {NotificationTypes} from "../../../../shared/components/alert-notification/alert-notification.component";
 
 enum ProviderField {
     AZURECLOUD = 'azureCloud',
@@ -170,10 +171,16 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
         Broker.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
-                this.successImportFile = data.payload;
+                this.configFileNotification = {
+                    notificationType: NotificationTypes.SUCCESS,
+                    message: data.payload
+                };
                 // The file import saves the data to local storage, so we reinitialize this step's form from there
                 this.savedMetadata = FormMetaDataStore.getMetaData(this.formName);
                 this.initFormWithImportedData();
+
+                // Clear event so that listeners in other provider workflows do not receive false notifications
+                Broker.messenger.clearEvent(TkgEventType.CONFIG_FILE_IMPORTED);
             });
 
         this.initFormWithSavedData();

@@ -10,6 +10,7 @@ import Broker from "../../../../shared/service/broker";
 import { TkgEvent, TkgEventType } from "../../../../shared/service/Messenger";
 import { takeUntil } from "rxjs/operators";
 import { FormMetaDataStore } from "../../wizard/shared/FormMetaDataStore";
+import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
 
 @Component({
     selector: 'app-node-setting-step',
@@ -17,8 +18,6 @@ import { FormMetaDataStore } from "../../wizard/shared/FormMetaDataStore";
     styleUrls: ['./node-setting-step.component.scss']
 })
 export class NodeSettingStepComponent extends StepFormDirective implements OnInit {
-    successImportFile: string;
-
     constructor(private validationService: ValidationService) {
         super();
     }
@@ -35,10 +34,16 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         Broker.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
-                this.successImportFile = data.payload;
+                this.configFileNotification = {
+                    notificationType: NotificationTypes.SUCCESS,
+                    message: data.payload
+                };
                 // The file import saves the data to local storage, so we reinitialize this step's form from there
                 this.savedMetadata = FormMetaDataStore.getMetaData(this.formName);
                 this.initFormWithSavedData();
+
+                // Clear event so that listeners in other provider workflows do not receive false notifications
+                Broker.messenger.clearEvent(TkgEventType.CONFIG_FILE_IMPORTED);
             });
     }
 }

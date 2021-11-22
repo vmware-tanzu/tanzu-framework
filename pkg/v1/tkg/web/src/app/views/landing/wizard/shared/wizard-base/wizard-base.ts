@@ -233,8 +233,6 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
     abstract createRegionalCluster(params: any): Observable<any>;
     abstract getPayload(): any;
     abstract setFromPayload(payload: any);
-    abstract retrievePayloadFromString(config: string): Observable<any>;
-    abstract validateImportFile(config: string): string;
 
     isOnFirstStep() {
         // we're on the first step if we haven't reached the second step
@@ -256,54 +254,6 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
             }
             this.wizard['stepperService'].resetPanels();
             this.wizard['stepperService']['accordion'].openFirstPanel();
-        }
-    }
-
-    // returns TRUE if user (a) will not lose data on import, or (b) confirms it's OK
-    onImportButtonClick() {
-        let result = true;
-        if (!this.isOnFirstStep()) {
-            result = confirm('Importing will overwrite any data you have entered. Proceed with import?');
-        }
-        return result;
-    }
-
-    onImportFileSelected(event): void {
-        const self = this;  // capture wizard's 'this' in the outside context to use inside the reader function
-        const reader = new FileReader();
-        reader.onloadend = function() {
-            self.import(reader.result, firstFile.name);
-        };
-        const firstFile = event.target.files[0];
-        reader.readAsText(firstFile);
-        // clear file reader target so user can re-select same file if needed
-        event.target.value = '';
-    }
-
-    import(fileContent, fileName): void {
-        if (fileContent.length > 0) {
-            // check file is correct flavor
-            const errMsg = this.validateImportFile(fileContent);
-            if (errMsg.length !== 0) {
-                alert(errMsg);
-            } else {
-                this.retrievePayloadFromString(fileContent).pipe(take(1)).subscribe(
-                    ((payload) => {
-                        this.setFromPayload(payload);
-                        this.resetToFirstStep();
-                        Broker.messenger.publish({
-                            type: TkgEventType.CONFIG_FILE_IMPORTED,
-                            payload: 'Data imported from file ' + fileName
-                        });
-                    }),
-                    ((err) => {
-                        Broker.messenger.publish({
-                            type: TkgEventType.CONFIG_FILE_IMPORT_ERROR,
-                            payload: 'Error encountered while importing file ' + fileName + ': ' + err.toString()
-                        });
-                    })
-                );
-            }
         }
     }
 

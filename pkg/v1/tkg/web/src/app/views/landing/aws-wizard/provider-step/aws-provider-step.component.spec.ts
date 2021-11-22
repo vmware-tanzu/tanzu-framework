@@ -124,7 +124,7 @@ describe('AwsProviderStepComponent', () => {
         fixture.whenStable().then(
             () => {
                 fixture.detectChanges();
-                const globalError = fixture.debugElement.query(By.css("app-step-form-notification"));
+                const globalError = fixture.debugElement.query(By.css("app-step-form-alert-notification"));
                 expect(globalError.nativeElement.innerText).toBe("");
             }
         );

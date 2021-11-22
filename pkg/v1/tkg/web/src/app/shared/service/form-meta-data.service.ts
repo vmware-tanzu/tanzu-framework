@@ -162,7 +162,6 @@ export class FormMetaDataService {
     }
 
     saveFormListboxData(formName, listboxName, key) {
-        console.log('***** saveFormListboxData() saving ' + formName + '.' + listboxName + ' KEY: ' + key);
         FormMetaDataStore.saveMetaDataEntry(formName, listboxName, {
             label: '',
             key

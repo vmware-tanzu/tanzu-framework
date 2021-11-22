@@ -13,9 +13,7 @@
         </div>
     </div>
     <app-step-form-notification [errorNotification]="errorNotification"></app-step-form-notification>
-    <app-error-import-file [errorImportFile]="errorImportFile"></app-error-import-file>
-    <app-import-file-success-notification [successImportFile]="successImportFile"></app-import-file-success-notification>
-
+    <app-alert-notification [notification]="configFileNotification"></app-alert-notification>
     <div class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-input-container [attr.data-step-metadata]="formName">

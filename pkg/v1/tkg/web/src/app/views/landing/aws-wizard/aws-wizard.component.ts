@@ -5,7 +5,7 @@ import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 
-import { AWSRegionalClusterParams, AWSVpc } from 'src/app/swagger/models';
+import { AWSNodeAz, AWSRegionalClusterParams, AWSVpc } from 'src/app/swagger/models';
 import { APIClient } from 'src/app/swagger';
 import { AwsWizardFormService } from 'src/app/shared/service/aws-wizard-form.service';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
@@ -14,7 +14,9 @@ import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 import { BASTION_HOST_ENABLED, BASTION_HOST_DISABLED } from './node-setting-step/node-setting-step.component';
 import { AWSAccountParamsKeys } from './provider-step/aws-provider-step.component';
-import { AwsStep, AwsForm } from "./aws-wizard.module";
+import { AwsStep, AwsForm } from "./aws-wizard.constants";
+import { ImportParams, ImportService } from "../../../shared/service/import.service";
+import { Utils } from '../../../shared/utils';
 
 @Component({
     selector: 'aws-wizard',
@@ -30,6 +32,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
     constructor(
         router: Router,
         public wizardFormService: AwsWizardFormService,
+        private importService: ImportService,
         private formBuilder: FormBuilder,
         private apiClient: APIClient,
         formMetaDataService: FormMetaDataService,
@@ -173,28 +176,20 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         }
     }
 
-    setAwsNodeAzs(payload) {
-        const nodeAzList = payload.vpc.azs;
-        if (nodeAzList === null || nodeAzList.length === 0) {
-            return;
+    private saveVpcFields(vpc: AWSVpc) {
+        if (vpc) {
+            if (vpc.vpcID) {
+                this.saveFormField(AwsForm.VPC, 'vpcType', 'existing');
+                this.saveFormField(AwsForm.VPC, 'existingVpcCidr', vpc.cidr);
+                this.saveFormField(AwsForm.VPC, 'publicNodeCidr', '');
+                this.saveFormField(AwsForm.VPC, 'privateNodeCidr', '');
+                this.saveFormField(AwsForm.VPC, 'existingVpcId', vpc.vpcID);
+            } else {
+                this.saveFormField(AwsForm.VPC, 'vpcType', 'new');
+                this.saveFormField(AwsForm.VPC, 'vpc', vpc.cidr);
+            }
+            this.saveVpcAzs(vpc);
         }
-
-        // SHIMON SEZ: verify that this is a good way to determine NEW or EXISTING?
-        // we check the first node to determine whether we're dealing with a NEW or EXISTING
-        const isNew = nodeAzList[0].publicNodeCidr.length > 0;
-        if (isNew) {
-            this.setFieldValue(AwsForm.VPC, 'vpcType', 'new');
-            this.setFieldValue(AwsForm.VPC, 'publicNodeCidr', nodeAzList[0].publicNodeCidr);
-            this.setFieldValue(AwsForm.VPC, 'privateNodeCidr', nodeAzList[0].privateNodeCidr);
-            this.setFieldValue(AwsForm.VPC, 'vpc', payload.cpv.cidr);
-        } else {
-            this.setFieldValue(AwsForm.VPC, 'vpcType', 'existing');
-            this.setFieldValue(AwsForm.VPC, 'existingVpcCidr', payload.cpv.cidr);
-            this.setFieldValue(AwsForm.VPC, 'publicNodeCidr', '');
-            this.setFieldValue(AwsForm.VPC, 'privateNodeCidr', '');
-        }
-
-            this.saveVpcAzs(payload.vpc);
     }
 
     private saveVpcAzs(vpc: AWSVpc) {
@@ -202,25 +197,23 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
             const nodeAzList = vpc.azs;
             const numNodeAz = nodeAzList.length;
             for (let x = 0; x < numNodeAz; x++) {
-                const node = this.nodeAzList[x];
+                const node = nodeAzList[x];
                 // we set the UI fields highest to lowest because we collected them into the payload
                 // by pushing them on to the array, which essentially reversed their order. So if there
                 // are 3 AZs, for example, the 3rd one in the UI will have landed as the 0-index in our array.
                 const uiIndex = numNodeAz - x;
-                this.setAwsNodeFields(node, uiIndex);
+                this.saveAzNodeFields(node, uiIndex);
             }
         }
     }
 
-    setAwsNodeFields(node: any, uiIndex: number) {
-        this.setFieldValue(AwsForm.NODESETTING, `awsNodeAz${uiIndex}`, node.name);
+    private saveAzNodeFields(node: AWSNodeAz, uiIndex: number) {
+        this.saveFormField(AwsForm.NODESETTING, `awsNodeAz${uiIndex}`, node.name);
         if (!Broker.appDataService.isModeClusterStandalone()) {
-            this.setFieldValue(AwsForm.NODESETTING, `workerNodeInstanceType${uiIndex}`, node.workerNodeType);
+            this.saveFormField(AwsForm.NODESETTING, `workerNodeInstanceType${uiIndex}`, node.workerNodeType);
         }
-        const publicSubnetId = node.publicSubnetID === null || node.publicSubnetID.length === 0 ? '' : node.publicSubnetID;
-        this.setFieldValue(AwsForm.NODESETTING, `vpcPublicSubnet${uiIndex}`, publicSubnetId);
-        const privateSubnetId = node.privateSubnetId === null || node.privateSubnetId.length === 0 ? '' : node.privateSubnetId;
-        this.setFieldValue(AwsForm.NODESETTING, `vpcPrivateSubnet${uiIndex}`, privateSubnetId);
+        this.saveFormField(AwsForm.NODESETTING, `vpcPublicSubnet${uiIndex}`, Utils.safeString(node.publicSubnetID));
+        this.saveFormField(AwsForm.NODESETTING, `vpcPrivateSubnet${uiIndex}`, Utils.safeString(node.privateSubnetID));
     }
 
     getAwsNodeAzs(payload) {
@@ -328,14 +321,46 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         return this.apiClient.exportTKGConfigForAWS({ params: this.getPayload() });
     }
 
-    retrievePayloadFromString(config: string): Observable<any> {
-        return this.apiClient.importTKGConfigForAWS( { params: { filecontents: config } } );
+    // returns TRUE if the file contents appear to be a valid config file for AWS
+    // returns FALSE if the file is empty or does not appear to be valid. Note that in the FALSE
+    // case we also alert the user.
+    importFileValidate(nameFile: string, fileContents: string): boolean {
+        if (fileContents.includes('AWS_')) {
+            return true;
+        }
+        alert(nameFile + ' is not a valid AWS configuration file!');
+        return false;
     }
 
-    validateImportFile(config: string): string {
-        if (config.includes('AWS_')) {
-            return '';
-        }
-        return 'This file is not an AWS configuration file!';
+    importFileRetrieveClusterParams(fileContents: string): Observable<AWSRegionalClusterParams>  {
+        return this.apiClient.importTKGConfigForAWS( { params: { filecontents: fileContents } } );
     }
-}
+
+    importFileProcessClusterParams(nameFile: string, awsClusterParams: AWSRegionalClusterParams) {
+        this.setFromPayload(awsClusterParams);
+        this.resetToFirstStep();
+        this.importService.publishImportSuccess(nameFile);
+    }
+
+    // returns TRUE if user (a) will not lose data on import, or (b) confirms it's OK
+    onImportButtonClick() {
+        let result = true;
+        if (!this.isOnFirstStep()) {
+            result = confirm('Importing will overwrite any data you have entered. Proceed with import?');
+        }
+        return result;
+    }
+
+    onImportFileSelected(event) {
+        const params: ImportParams<AWSRegionalClusterParams> = {
+            file: event.target.files[0],
+            validator: this.importFileValidate,
+            backend: this.importFileRetrieveClusterParams.bind(this),
+            onSuccess: this.importFileProcessClusterParams.bind(this),
+            onFailure: this.importService.publishImportFailure
+        }
+        this.importService.import(params);
+
+        // clear file reader target so user can re-select same file if needed
+        event.target.value = '';
+    }}

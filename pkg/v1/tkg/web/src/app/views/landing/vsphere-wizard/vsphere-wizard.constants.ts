@@ -1,6 +1,6 @@
 import {NodeType} from "../wizard/shared/constants/wizard.constants";
 
-export const vSphereNodeTypes: Array<NodeType> = [
+export const VsphereNodeTypes: Array<NodeType> = [
     {
         id: 'small',
         name: 'small (cpu: 2, ram: 4 GB, disk: 20 GB)'
