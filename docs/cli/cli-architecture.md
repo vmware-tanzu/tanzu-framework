@@ -8,6 +8,8 @@ _Plugin_ - The CLI consists of plugins, each being a cmd developed in Go and con
 
 _Repository_ - Represents a group of plugin artifacts that are installable by the Tanzu CLI.
 
+_DiscoverySource_ - Represents a group of plugin artifacts and their distribution details that are installable by the Tanzu CLI.
+
 _Catalog_ - A catalog holds the information of all currently installed plugins on a host OS.
 
 _Distribution_ - A distribution is a set of plugins that may exist across multiple repositories.
@@ -30,6 +32,8 @@ The CLI is based on a plugin architecture. This architecture enables teams to bu
   * Optional plugins developed by any non-TKG team.
 
 ## Plugin Repositories
+
+NOTE: This is not applicable if [context-aware plugin discovery](/docs/design/context-aware-plugin-discovery-design.md) is enabled within Tanzu CLI.
 
 A plugin repository represents a group of plugin artifacts that are installable by the Tanzu CLI. A repository is defined as an interface to be implemented by multiple backends like:
 
@@ -81,7 +85,9 @@ This will list all versions of the plugin along with its description.
 
 ## Plugin Discovery Sources
 
-Discovery is the interface to fetch the list of available plugins, their supported versions and how to download them either stand-alone or scoped to a server. E.g., the CLIPlugin API in a management cluster, OCI based plugin discovery for standalone plugins, a similar REST API and a manifest file in GCP based discovery, etc. (API is defined [here](apis/config/v1alpha1/clientconfig_types.go#L111-L187)) Unsupported plugins and plugin versions are not returned by the interface. Having a separate interface for discovery helps to decouple discovery (which is usually tied to a server or user identity) from distribution (which can be shared).
+NOTE: This is applicable only if [context-aware plugin discovery](/docs/design/context-aware-plugin-discovery-design.md) is enabled within Tanzu CLI.
+
+Discovery is the interface to fetch the list of available plugins, their supported versions and how to download them either standalone or scoped to a context(server). E.g., the CLIPlugin API in a management cluster, OCI based plugin discovery for standalone plugins, a similar REST API and a manifest file in GCP based discovery, etc. (API is defined [here](apis/config/v1alpha1/clientconfig_types.go#L111-L187)) Unsupported plugins and plugin versions are not returned by the interface. Having a separate interface for discovery helps to decouple discovery (which is usually tied to a server or user identity) from distribution (which can be shared).
 
 The initial proposal of `tanzu plugin source` commands are global (applies for standalone plugin discovery), but if some point in the future (if we get a good use case) we can add a flag for scoping discovery source to a specific context as well.
 
