@@ -1,6 +1,6 @@
 # Tanzu Command Line Interface (CLI) Getting Started
 
-A simple set of instructions to set up and use the `tanzu` CLI.
+A simple set of instructions to set up and use the `tanzu` CLI and plugins.
 
 ## CLI binary and plugins installation
 
@@ -18,7 +18,7 @@ Following are the combinations supported for CLI
 
 #### Recommended method to install plugins (with API-driven plugin discovery activated)
 
-API driven plugin discovery feature is available with [v0.11.0](https://github.com/vmware-tanzu/tanzu-framework/releases/tag/v0.11.0) release as default method to install the plugins. Learn more about this feature [design docs](../design/context-aware-plugin-discovery-design.md).
+API driven plugin discovery feature is available with [v0.11.0](https://github.com/vmware-tanzu/tanzu-framework/releases/tag/v0.11.0) release as default method to install the plugins. Learn more about this feature in the [design docs](../design/context-aware-plugin-discovery-design.md).
 
 ##### macOS/Linux
 
