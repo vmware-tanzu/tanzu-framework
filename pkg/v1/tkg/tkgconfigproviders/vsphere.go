@@ -37,6 +37,8 @@ func init() {
 // VSphereConfig is the tkg config file for vsphere
 type VSphereConfig struct {
 	ClusterName            string `yaml:"CLUSTER_NAME,omitempty"`
+	ClusterLabels          string `yaml:"CLUSTER_LABELS,omitempty"`
+	ClusterAnnotations     string `yaml:"CLUSTER_ANNOTATIONS,omitempty"`
 	InfrastructureProvider string `yaml:"INFRASTRUCTURE_PROVIDER,omitempty"`
 	ClusterPlan            string `yaml:"CLUSTER_PLAN,omitempty"`
 	CeipParticipation      string `yaml:"ENABLE_CEIP_PARTICIPATION,omitempty"`
@@ -94,6 +96,8 @@ func (c *client) NewVSphereConfig(params *models.VsphereRegionalClusterParams) (
 		ClusterName:            params.ClusterName,
 		InfrastructureProvider: constants.InfrastructureProviderVSphere,
 		ClusterPlan:            params.ControlPlaneFlavor,
+		ClusterLabels:          mapToConfigString(params.Labels),
+		ClusterAnnotations:     mapToConfigString(params.Annotations),
 
 		Datacenter:           params.Datacenter,
 		Datastore:            params.Datastore,
