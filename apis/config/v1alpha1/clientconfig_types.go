@@ -93,7 +93,7 @@ type ClientOptions struct {
 	// CLI options specific to the CLI.
 	CLI      *CLIOptions           `json:"cli,omitempty" yaml:"cli"`
 	Features map[string]FeatureMap `json:"features,omitempty" yaml:"features"`
-	Env      map[string]EnvMap     `json:"env,omitempty" yaml:"env"`
+	Env      map[string]string     `json:"env,omitempty" yaml:"env"`
 }
 
 // FeatureMap is simply a hash table, but needs an explicit type to be an object in another hash map (cf ClientOptions.Features)

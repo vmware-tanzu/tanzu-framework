@@ -90,35 +90,22 @@ func Test_config_Feature(t *testing.T) {
 	}
 }
 
-// Test_config_GlobalEnv validates functionality when env feature path argument is provided.
-func Test_config_GlobalEnv(t *testing.T) {
+// Test_config_SetUnsetEnv validates set and unset functionality when env config path argument is provided.
+func Test_config_SetUnsetEnv(t *testing.T) {
+	assert := assert.New(t)
+
 	cfg := &configv1alpha1.ClientConfig{}
 	value := "baar"
-	err := setConfiguration(cfg, "env.global.foo", value)
-	if err != nil {
-		t.Errorf("Unexpected error returned for global env path argument: %s", err.Error())
-	}
+	err := setConfiguration(cfg, "env.foo", value)
+	assert.Nil(err)
+	assert.Equal(value, cfg.ClientOptions.Env["foo"])
 
-	if cfg.ClientOptions.Env["global"]["foo"] != value {
-		t.Error("cfg.ClientOptions.Env[\"global\"][\"foo\"] was not assigned the value \"" + value + "\"")
-	}
+	err = unsetConfiguration(cfg, "env.foo")
+	assert.Nil(err)
+	assert.Equal(cfg.ClientOptions.Env["foo"], "")
 }
 
-// Test_config_Env validates functionality when normal env path argument is provided.
-func Test_config_Env(t *testing.T) {
-	cfg := &configv1alpha1.ClientConfig{}
-	value := "baarr"
-	err := setConfiguration(cfg, "env.any-plugin.foo", value)
-	if err != nil {
-		t.Errorf("Unexpected error returned for any-plugin env path argument: %s", err.Error())
-	}
-
-	if cfg.ClientOptions.Env["any-plugin"]["foo"] != value {
-		t.Error("cfg.ClientOptions.Features[\"any-plugin\"][\"foo\"] was not assigned the value \"" + value + "\"")
-	}
-}
-
-// Test_config_Env validates functionality when normal env path argument is provided.
+// Test_config_IncorrectConfigLiteral validates incorrect config literal
 func Test_config_IncorrectConfigLiteral(t *testing.T) {
 	assert := assert.New(t)
 
@@ -126,5 +113,5 @@ func Test_config_IncorrectConfigLiteral(t *testing.T) {
 	value := "b"
 	err := setConfiguration(cfg, "fake.any-plugin.foo", value)
 	assert.NotNil(err)
-	assert.Contains(err.Error(), "unsupported config path parameter [fake] (was expecting 'features.<plugin>.<feature>' or 'env.<plugin>.<env_variable>')")
+	assert.Contains(err.Error(), "unsupported config path parameter [fake] (was expecting 'features.<plugin>.<feature>' or 'env.<env_variable>')")
 }
