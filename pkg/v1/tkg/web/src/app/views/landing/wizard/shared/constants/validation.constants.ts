@@ -90,3 +90,32 @@ export enum ValidatorEnum {
     // Cluster name
     VALID_CLUSTER_NAME = "cluster name valid"
 }
+
+// SimpleValidator identifies validators available from the Validation service
+// which do not require special initialization (with other values or controls)
+export enum SimpleValidator {
+    IS_COMMA_SEPARATED_LIST,
+    IS_HTTP_OR_HTTPS,
+    IS_NUMBER_POSITIVE,
+    IS_NUMERIC_ONLY,
+    IS_STRING_WITHOUT_QUERY_PARAMS,
+    IS_STRING_WITHOUT_URL_FRAGMENT,
+    IS_TRUE,
+    IS_VALID_CLUSTER_NAME,
+    IS_VALID_FQDN,
+    IS_VALID_FQDN_OR_IP,
+    IS_VALID_FQDN_OR_IP_LIST,
+    IS_VALID_FQDN_OR_IPV6,
+    IS_VALID_FQDN_OR_IP_HTTPS,
+    IS_VALID_FQDN_OR_IPV6_HTTPS,
+    IS_VALID_IP,
+    IS_VALID_IP_LIST,
+    IS_VALID_IP_NETWORK_SEGMENT,
+    IS_VALID_IPV6_NETWORK_SEGMENT,
+    IS_VALID_LABEL_OR_ANNOTATION,
+    IS_VALID_PORT,
+    IS_VALID_RESOURCE_GROUP_NAME,
+    IS_VALID_SUBNET,
+    NO_WHITE_SPACE,
+    NO_TRAILING_SLASH
+}

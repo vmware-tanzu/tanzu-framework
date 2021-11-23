@@ -1,6 +1,8 @@
+import {SimpleValidator} from "./constants/validation.constants";
+
 export interface FieldMapping {
     name: string,
-    validators?: any[],
+    validators?: SimpleValidator[],
     defaultValue?: any,
     isBoolean?: boolean,
     required?: boolean,

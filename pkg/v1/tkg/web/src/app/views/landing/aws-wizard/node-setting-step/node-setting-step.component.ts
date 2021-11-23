@@ -160,20 +160,29 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     buildForm() {
+        // TODO: this code would go in a method in a step-form helper class and be called on ngOnInit()
+        // something like buildForm(fieldMappings, formGroup)
         AwsNodeSettingStepMapping.fieldMappings.forEach(fieldMapping => {
             let validators = fieldMapping.required ? [Validators.required] : [];
-            // TODO: use better mechanism for specifying validators in FieldMappings
-            if (fieldMapping.validators && fieldMapping.validators.includes('isValidClusterName')) {
-                validators.push(this.validationService.isValidClusterName());
+            if (fieldMapping.validators && fieldMapping.validators.length > 0) {
+                fieldMapping.validators.forEach( (simpleValidator, index) => {
+                    const validator = this.validationService.getSimpleValidator(simpleValidator);
+                    if (!validator) {
+                        console.warn('unable to find validator #' + index + ' in fieldMapping ' + JSON.stringify(fieldMapping));
+                    } else {
+                        validators.push(validator);
+                    }
+                })
             }
-            const defaultValue = fieldMapping.isBoolean ? false : '';
-            // let initialValue = this.getSavedValue(fieldMapping.name, defaultValue);
-
-            // When building the form, use the default value. That way when initializing with saved values,
-            // there will be an onChange event, which will trigger the right event handler with the saved value.
+            const blankValue = fieldMapping.isBoolean ? false : '';
+            const defaultValue = fieldMapping.defaultValue;
+            const initialValue = defaultValue ? defaultValue : blankValue;
+            // NOTE: when building the form, we use either a blank value or the given the default value, but NOT
+            // the saved value (in local storage). That way when (later) initializing with saved values,
+            // there will be an onChange event, which will trigger the right event handler to react to the saved value.
             this.formGroup.addControl(
                 fieldMapping.name,
-                new FormControl(defaultValue, validators)
+                new FormControl(initialValue, validators)
             );
         })
     }
