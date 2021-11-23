@@ -20,12 +20,22 @@ export const vSphereNodeTypes: Array<NodeType> = [
 ];
 
 export enum VsphereField {
+    NODESETTING_CLUSTER_NAME = 'clusterName',
+    NODESETTING_CONTROL_PLANE_ENDPOINT_IP = 'controlPlaneEndpointIP',
+    NODESETTING_CONTROL_PLANE_ENDPOINT_PROVIDER = 'controlPlaneEndpointProvider',
     NODESETTING_CONTROL_PLANE_SETTING = 'controlPlaneSetting',
     NODESETTING_INSTANCE_TYPE_DEV = 'devInstanceType',
     NODESETTING_INSTANCE_TYPE_PROD = 'prodInstanceType',
     NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED = 'machineHealthChecksEnabled',
     NODESETTING_WORKER_NODE_INSTANCE_TYPE = 'workerNodeInstanceType',
-    NODESETTING_CLUSTER_NAME = 'clusterName',
-    NODESETTING_CONTROL_PLANE_ENDPOINT_IP = 'controlPlaneEndpointIP',
-    NODESETTING_CONTROL_PLANE_ENDPOINT_PROVIDER = 'controlPlaneEndpointProvider',
+
+    PROVIDER_CONNECTION_INSECURE = 'insecure',
+    PROVIDER_DATA_CENTER = 'datacenter',
+    PROVIDER_IP_FAMILY = 'ipFamily',
+    PROVIDER_SSH_KEY = 'ssh_key',
+    PROVIDER_SSH_KEY_FILE = 'ssh_key_file',
+    PROVIDER_THUMBPRINT = 'thumbprint',
+    PROVIDER_USER_NAME = 'username',
+    PROVIDER_USER_PASSWORD = 'password',
+    PROVIDER_VCENTER_ADDRESS = 'vcenterAddress',
 }

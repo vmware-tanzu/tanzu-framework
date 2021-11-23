@@ -105,7 +105,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             ])
         );
 
-        this.registerOnValueChange(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_PROVIDER, this.onControlPlaneEndpoingProviderChange.bind(this));
+        this.registerOnValueChange(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_PROVIDER,
+            this.onControlPlaneEndpoingProviderChange.bind(this));
         this.registerOnIpFamilyChange(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_IP, [
             Validators.required,
             this.validationService.isValidIpOrFqdn()
@@ -160,7 +161,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     setSavedDataAfterLoad() {
         if (this.hasSavedData()) {
-            this.cardClick(this.getSavedValue(VsphereField.NODESETTING_INSTANCE_TYPE_DEV, '') === '' ? InstanceType.PROD : InstanceType.DEV);
+            const savedInstanceType = this.getSavedValue(VsphereField.NODESETTING_INSTANCE_TYPE_DEV, '');
+            this.cardClick(savedInstanceType === InstanceType.PROD ? InstanceType.PROD : InstanceType.DEV);
             super.setSavedDataAfterLoad();
             // set the node type ID by finding it by the node type name
             let savedNodeType = this.nodeTypes.find(n => n.name === this.getSavedValue(VsphereField.NODESETTING_INSTANCE_TYPE_DEV, ''));
