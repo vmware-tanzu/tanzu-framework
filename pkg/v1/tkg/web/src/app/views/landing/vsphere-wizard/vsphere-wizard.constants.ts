@@ -38,4 +38,8 @@ export enum VsphereField {
     PROVIDER_USER_NAME = 'username',
     PROVIDER_USER_PASSWORD = 'password',
     PROVIDER_VCENTER_ADDRESS = 'vcenterAddress',
+
+    RESOURCE_DATASTORE = 'datastore',
+    RESOURCE_POOL = 'resourcePool',
+    RESOURCE_VMFOLDER = 'vmFolder',
 }
