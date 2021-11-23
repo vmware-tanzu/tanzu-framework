@@ -25,6 +25,7 @@ import { EditionData } from 'src/app/shared/service/branding.service';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import { managementClusterPlugin } from "../../wizard/shared/constants/wizard.constants";
 import { VsphereField } from "../vsphere-wizard.constants";
+import { IpFamilyEnum } from "../../../../shared/constants/app.constants";
 
 declare var sortPaths: any;
 
@@ -80,8 +81,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
         this.enableIpv6 = Broker.appDataService.isPluginFeatureActivated(managementClusterPlugin, 'vsphereIPv6');
         this.formGroup.addControl(
             VsphereField.PROVIDER_IP_FAMILY,
-            new FormControl(
-                'ipv4', [])
+            new FormControl( IpFamilyEnum.IPv4, [])
         );
         this.formGroup.addControl(
             VsphereField.PROVIDER_VCENTER_ADDRESS,
