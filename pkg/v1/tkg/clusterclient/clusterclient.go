@@ -486,6 +486,9 @@ func (c *client) WaitForClusterInitialized(clusterName, namespace string) error 
 	var lastReason string
 	unchangedCounter := 0
 	interval := 15 * time.Second
+	// maxTimeout to time-bound wait operation to avoid indefinite wait if the cluster state keeps changing
+	maxTimeout := 3 * c.operationTimeout
+	maxTimeoutCounter := 0
 
 	getterFunc := func() (interface{}, error) {
 		currentClusterInfo = c.GetClusterStatusInfo(clusterName, namespace, nil)
@@ -524,6 +527,7 @@ func (c *client) WaitForClusterInitialized(clusterName, namespace string) error 
 			unchangedCounter++
 			log.V(7).Infof("cluster state is unchanged %v", unchangedCounter)
 		}
+		maxTimeoutCounter++
 
 		if lastReason != err.Error() {
 			log.Info(err.Error())
@@ -532,8 +536,9 @@ func (c *client) WaitForClusterInitialized(clusterName, namespace string) error 
 
 		lastClusterInfo = currentClusterInfo
 
-		// if unchanged for operationTimeout(30 min default), return error
-		if interval*time.Duration(unchangedCounter) > c.operationTimeout {
+		// if unchanged for operationTimeout(30 min default) or exceeds maxTimeout, return error
+		if (interval*time.Duration(unchangedCounter) > c.operationTimeout) ||
+			(interval*time.Duration(maxTimeoutCounter) > maxTimeout) {
 			return true, errors.Wrap(err, "timed out waiting for cluster creation to complete")
 		}
 
@@ -807,6 +812,9 @@ func (c *client) waitK8sVersionUpdateGeneric(clusterName, namespace, newK8sVersi
 	unchangedCounter := 0
 	interval := 15 * time.Second
 	timeout := c.operationTimeout
+	// maxTimeout to time-bound wait operation to avoid indefinite wait if the cluster state keeps changing
+	maxTimeout := 3 * c.operationTimeout
+	maxTimeoutCounter := 0
 
 	getterFunc := func() (interface{}, error) {
 		curClusterInfo = c.GetClusterStatusInfo(clusterName, namespace, workloadClusterClient)
@@ -838,11 +846,12 @@ func (c *client) waitK8sVersionUpdateGeneric(clusterName, namespace, newK8sVersi
 			unchangedCounter++
 			log.V(7).Infof("cluster state is unchanged %v", unchangedCounter)
 		}
-
+		maxTimeoutCounter++
 		lastClusterInfo = curClusterInfo
 
-		// if waiting for more than timeout time, return error
-		if interval*time.Duration(unchangedCounter) > timeout {
+		// if unchanged for operationTimeout(30 min default) or exceeds maxTimeout, return error
+		if (interval*time.Duration(unchangedCounter) > timeout) ||
+			(interval*time.Duration(maxTimeoutCounter) > maxTimeout) {
 			return true, errors.New("timed out waiting for upgrade to complete")
 		}
 
