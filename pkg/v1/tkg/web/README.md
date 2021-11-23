@@ -32,7 +32,7 @@ Run `npm run start` from /tkg-cli/web folder. Navigate to `http://localhost:4200
 
 ## Running UI Mock API server
 
-Run `npm run start:insecure` from /tkg-cli/web/node-server folder. Node.js will serve mock API endpoints on `http://localhost:8008`.
+Run `npm run start` from /tkg-cli/web/node-server folder. Node.js will serve mock API endpoints on `http://localhost:8008`.
 
 ## Running CLI Locally and Launching UI
 
