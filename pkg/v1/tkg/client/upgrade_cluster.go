@@ -349,7 +349,6 @@ func (c *TkgClient) upgradeAddonPreNodeUpgrade(regionalClusterClient clusterclie
 			"addons-management/tanzu-addons-manager",
 			"tkr/tkr-controller",
 			"addons-management/core-package-repo",
-			"capabilities/capabilities-controller",
 			"packages/management-package-repo",
 			"packages/management-package")
 	}
