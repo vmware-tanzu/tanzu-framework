@@ -393,7 +393,7 @@ func (c *TkgClient) upgradeAddonPostNodeUpgrade(regionalClusterClient clustercli
 	return nil
 }
 
-func (c *TkgClient) applyPatchAndWait(regionalClusterClient, currentClusterClient clusterclient.Client, upgradeClusterConfig *clusterUpgradeInfo) error {
+func (c *TkgClient) applyPatchAndWait(regionalClusterClient, currentClusterClient clusterclient.Client, upgradeClusterConfig *clusterUpgradeInfo) error { // nolint:gocyclo
 	var err error
 	kubernetesVersion := upgradeClusterConfig.UpgradeComponentInfo.KubernetesVersion
 
@@ -435,6 +435,12 @@ func (c *TkgClient) applyPatchAndWait(regionalClusterClient, currentClusterClien
 	}
 
 	log.Info("Upgrading control plane nodes...")
+	log.Infof("Attempting to increase kube-vip timeouts")
+	err = c.increaseKubeVipTimeouts(regionalClusterClient, upgradeClusterConfig)
+	if err != nil {
+		log.Infof("Unable to modify kube-vip timeouts. Continuing to upgrade cluster with old kube-vip timeouts")
+	}
+
 	log.Infof("Patching KubeadmControlPlane with the kubernetes version %s...", kubernetesVersion)
 	err = c.patchKubernetesVersionToKubeadmControlPlane(regionalClusterClient, upgradeClusterConfig)
 	if err != nil {

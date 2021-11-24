@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"time"
 
+	"sigs.k8s.io/yaml"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
@@ -38,6 +40,65 @@ var (
 	newK8sVersion     = "v1.18.0+vmware.1"
 	newTKRVersion     = "v1.18.0+vmware.1-tkg.2"
 	currentK8sVersion = "v1.17.3+vmware.2"
+	kubeVipPodString  = `
+apiVersion: v1
+kind: Pod
+metadata: 
+  creationTimestamp: ~
+  name: kube-vip
+  namespace: kube-system
+owner: "root:root"
+path: /etc/kubernetes/manifests/kube-vip.yaml
+spec: 
+  containers: 
+    - 
+      args: 
+        - start
+      env: 
+        - 
+          name: vip_arp
+          value: "true"
+        - 
+          name: vip_leaderelection
+          value: "true"
+        - 
+          name: address
+          value: "10.180.122.23"
+        - 
+          name: vip_interface
+          value: eth0
+        - 
+          name: vip_leaseduration
+          value: "15"
+        - 
+          name: vip_renewdeadline
+          value: "10"
+        - 
+          name: vip_retryperiod
+          value: "2"
+      image: "projects.registry.vmware.com/tkg/kube-vip:v0.3.3_vmware.1"
+      imagePullPolicy: IfNotPresent
+      name: kube-vip
+      resources: {}
+      securityContext: 
+        capabilities: 
+          add: 
+            - NET_ADMIN
+            - SYS_TIME
+      volumeMounts: 
+        - 
+          mountPath: /etc/kubernetes/admin.conf
+          name: kubeconfig
+  hostNetwork: true
+  volumes: 
+    - 
+      hostPath: 
+        path: /etc/kubernetes/admin.conf
+        type: FileOrCreate
+      name: kubeconfig
+status: {}
+owner: root:root
+path: /etc/kubernetes/manifests/kube-vip.yaml`
 )
 
 var _ = Describe("Unit tests for upgrade cluster", func() {
@@ -672,7 +733,6 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 			Expect(err.Error()).To(ContainSubstring("attempted to upgrade kubernetes from v1.18.5+vmware.1 to v1.18.0+vmware.1. Kubernetes version downgrade is not allowed."))
 		})
 	})
-
 	// Context("When there are multiple machine deployment objects for VsphereMachineTemplate", func() {
 	// 	BeforeEach(func() {
 	// 		upgradeClusterOptions.KubernetesVersion = "v1.18.0+vmware.1"
@@ -783,11 +843,28 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 	// })
 })
 
+var _ = Describe("Test helper functions", func() {
+	Context("Testing the KCP modifier helper function", func() {
+		It("modifies the kube-vip parameters", func() {
+			pod := corev1.Pod{}
+			err := yaml.Unmarshal([]byte(kubeVipPodString), &pod)
+			Expect(err).To(BeNil())
+
+			newPodString, err := ModifyKubeVipTimeOutAndSerialize(&pod, "30", "20", "4")
+			Expect(err).To(BeNil())
+
+			Expect(newPodString).ToNot(BeNil())
+		})
+	})
+})
+
 func getDummyKCP(machineTemplateKind string) *capikubeadmv1beta1.KubeadmControlPlane {
+	file := capibootstrapkubeadmv1beta1.File{Content: kubeVipPodString}
 	kcp := &capikubeadmv1beta1.KubeadmControlPlane{}
 	kcp.Name = "fake-kcp-name"
 	kcp.Namespace = "fake-kcp-namespace"
 	kcp.Spec.Version = currentK8sVersion
+
 	kcp.Spec.KubeadmConfigSpec = capibootstrapkubeadmv1beta1.KubeadmConfigSpec{
 		ClusterConfiguration: &capibootstrapkubeadmv1beta1.ClusterConfiguration{
 			ImageRepository: "fake-image-repo",
@@ -807,7 +884,11 @@ func getDummyKCP(machineTemplateKind string) *capikubeadmv1beta1.KubeadmControlP
 				},
 			},
 		},
+		Files: []capibootstrapkubeadmv1beta1.File{
+			file,
+		},
 	}
+
 	kcp.Spec.MachineTemplate.InfrastructureRef = corev1.ObjectReference{
 		Name:      "fake-infra-template-name",
 		Namespace: "fake-infra-template-namespace",
