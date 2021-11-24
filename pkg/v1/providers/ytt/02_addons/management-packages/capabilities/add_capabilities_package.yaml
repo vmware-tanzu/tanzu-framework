@@ -1,0 +1,185 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:template", "template")
+
+#@ def capabilities_package_install_definition():
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tanzu-capabilities-package-sa
+  namespace: tkg-system
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "packages/management-package"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: tanzu-capabilities-package-cluster-role
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "packages/management-package"
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - serviceaccounts
+    verbs:
+      - create
+      - update
+      - get
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+      - nodes
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - create
+      - update
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+    verbs:
+      - create
+      - update
+      - get
+  - apiGroups:
+      - apiextensions.k8s.io
+    resources:
+      - customresourcedefinitions
+    verbs:
+      - create
+      - update
+      - get
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - clusterroles
+      - clusterrolebindings
+    verbs:
+      - create
+      - update
+      - get
+  - apiGroups:
+      - run.tanzu.vmware.com
+    resources:
+      - capabilities
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - run.tanzu.vmware.com
+    resources:
+      - capabilities/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - run.tanzu.vmware.com
+    resources:
+      - tanzukubernetesreleases
+      - tanzukubernetesreleases/status
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - run.tanzu.vmware.com
+    resources:
+      - tanzukubernetesclusters
+      - tanzukubernetesclusters/status
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - clusterctl.cluster.x-k8s.io
+    resources:
+      - providers
+      - providers/status
+    verbs:
+      - get
+      - list
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: tanzu-capabilities-package-cluster-rolebinding
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "packages/management-package"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: tanzu-capabilities-package-cluster-role
+subjects:
+  - kind: ServiceAccount
+    name: tanzu-capabilities-package-sa
+    namespace: tkg-system
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: tanzu-capabilities
+  namespace: tkg-system
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "packages/management-package"
+spec:
+  serviceAccountName: tanzu-capabilities-package-sa
+  packageRef:
+    refName: capabilities.tanzu.vmware.com
+    versionSelection:
+      prereleases: {}
+---
+#@ end
+
+#@ if data.values.TKG_CLUSTER_ROLE != "workload" and data.values.PROVIDER_TYPE != "tkg-service-vsphere":
+#@ if data.values.DISABLE_CRS_FOR_ADDON_TYPE and "packages/management-package" in data.values.DISABLE_CRS_FOR_ADDON_TYPE:
+--- #@ template.replace(capabilities_package_install_definition())
+#@ else:
+---
+apiVersion: addons.cluster.x-k8s.io/v1alpha3
+kind: ClusterResourceSet
+metadata:
+  name: #@ "{}-capabilities-package".format(data.values.CLUSTER_NAME)
+  labels:
+    cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "packages/management-package"
+spec:
+  strategy: "ApplyOnce"
+  clusterSelector:
+    matchLabels:
+      tkg.tanzu.vmware.com/cluster-name: #@ data.values.CLUSTER_NAME
+  resources:
+    - name: #@ "{}-capabilities-package-crs".format(data.values.CLUSTER_NAME)
+      kind: Secret
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ "{}-capabilities-package-crs".format(data.values.CLUSTER_NAME)
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "packages/management-package"
+type: addons.cluster.x-k8s.io/resource-set
+stringData:
+  value: #@ yaml.encode(capabilities_package_install_definition())
+#@ end
+#@ end

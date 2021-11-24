@@ -649,7 +649,7 @@ e2e-tkgpackageclient-docker: $(GINKGO) generate-embedproviders ## Run ginkgo tkg
 # These are the components in this repo that need to have a docker image built.
 # This variable refers to directory paths that contain a Makefile with `docker-build`, `docker-publish` and
 # `kbld-image-replace` targets that can build and push a docker image for that component.
-COMPONENTS := cliplugins pkg/v1/sdk/features
+COMPONENTS := cliplugins pkg/v1/sdk/features pkg/v1/sdk/capabilities
 
 .PHONY: docker-build
 docker-build: TARGET=docker-build

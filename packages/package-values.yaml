@@ -36,6 +36,11 @@ managementPackageRepository:
       version: latest
       #! Gets replaced with imgpkg sha256 at build, this should be name:version
       sha256: "core-management-plugins:latest"
+    - name: capabilities
+      path: packages/management/capabilities
+      domain: tanzu.vmware.com
+      version: latest
+      sha256: "capabilities:latest"
 
 standalonePackageRepository:
   #! This gets overwritten by build
