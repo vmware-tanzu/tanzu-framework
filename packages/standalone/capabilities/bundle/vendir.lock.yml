@@ -1,0 +1,11 @@
+apiVersion: vendir.k14s.io/v1alpha1
+directories:
+- contents:
+  - manual: {}
+    path: capabilities-crd.yaml
+  - manual: {}
+    path: rbac.yaml
+  - manual: {}
+    path: tanzu-capabilities-controller-manager.yaml
+  path: config/upstream
+kind: LockConfig
