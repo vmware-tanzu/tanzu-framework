@@ -29,9 +29,24 @@ export class ValidationService {
             [ SimpleValidator.IS_NUMERIC_ONLY, this.isNumericOnly() ],
             [ SimpleValidator.IS_STRING_WITHOUT_QUERY_PARAMS, this.isStringWithoutQueryParams() ],
             [ SimpleValidator.IS_STRING_WITHOUT_URL_FRAGMENT, this.isStringWithoutUrlFragment() ],
-            // TODO: left off here; need to add other validators
+            [ SimpleValidator.IS_TRUE, this.isTrue() ],
             [ SimpleValidator.IS_VALID_CLUSTER_NAME, this.isValidClusterName() ],
-        ])
+            [ SimpleValidator.IS_VALID_FQDN, this.isValidFqdn() ],
+            [ SimpleValidator.IS_VALID_FQDN_OR_IP, this.isValidIpOrFqdn() ],
+            [ SimpleValidator.IS_VALID_FQDN_OR_IP_HTTPS, this.isValidIpOrFqdnWithHttpsProtocol() ],
+            [ SimpleValidator.IS_VALID_FQDN_OR_IP_LIST, this.isCommaSeparatedIpsOrFqdn() ],
+            [ SimpleValidator.IS_VALID_FQDN_OR_IPV6, this.isValidIpv6OrFqdn() ],
+            [ SimpleValidator.IS_VALID_FQDN_OR_IPV6_HTTPS, this.isValidIpv6OrFqdnWithHttpsProtocol() ],
+            [ SimpleValidator.IS_VALID_IP, this.isValidIp() ],
+            [ SimpleValidator.IS_VALID_IP_LIST, this.isValidIps() ],
+            [ SimpleValidator.IS_VALID_IP_NETWORK_SEGMENT, this.isValidIpNetworkSegment() ],
+            [ SimpleValidator.IS_VALID_IPV6_NETWORK_SEGMENT, this.isValidIpv6NetworkSegment() ],
+            [ SimpleValidator.IS_VALID_LABEL_OR_ANNOTATION, this.isValidLabelOrAnnotation() ],
+            [ SimpleValidator.IS_VALID_PORT, this.isValidPort() ],
+            [ SimpleValidator.IS_VALID_RESOURCE_GROUP_NAME, this.isValidResourceGroupName() ],
+            [ SimpleValidator.NO_WHITE_SPACE, this.noWhitespaceOnEnds() ],
+            [ SimpleValidator.NO_TRAILING_SLASH, this.noTrailingSlash() ],
+        ]);
     }
 
     getSimpleValidator(requested: SimpleValidator): (control:AbstractControl) => any {

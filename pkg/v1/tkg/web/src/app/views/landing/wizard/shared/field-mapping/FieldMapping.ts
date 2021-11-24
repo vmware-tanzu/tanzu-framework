@@ -1,4 +1,4 @@
-import {SimpleValidator} from "./constants/validation.constants";
+import { SimpleValidator } from '../constants/validation.constants';
 
 export interface FieldMapping {
     name: string,

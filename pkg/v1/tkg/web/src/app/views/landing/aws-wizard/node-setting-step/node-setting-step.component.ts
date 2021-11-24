@@ -18,7 +18,9 @@ import { APIClient } from '../../../../swagger/api-client.service';
 import Broker from 'src/app/shared/service/broker';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import { FormUtils } from '../../wizard/shared/utils/form-utils';
-import { AwsField, AwsForm, AwsNodeSettingStepMapping } from "../aws-wizard.constants";
+import { AwsField, AwsForm } from "../aws-wizard.constants";
+import { AwsNodeSettingStepMapping } from '../field-mappings/aws-nodesetting.fieldmapping';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 
 export interface AzNodeTypes {
     awsNodeAz1: Array<string>,
@@ -154,41 +156,15 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     };
 
     constructor(private validationService: ValidationService,
+        private fieldMapUtilities: FieldMapUtilities,
         private apiClient: APIClient,
         public awsWizardFormService: AwsWizardFormService) {
         super();
     }
 
-    buildForm() {
-        // TODO: this code would go in a method in a step-form helper class and be called on ngOnInit()
-        // something like buildForm(fieldMappings, formGroup)
-        AwsNodeSettingStepMapping.fieldMappings.forEach(fieldMapping => {
-            let validators = fieldMapping.required ? [Validators.required] : [];
-            if (fieldMapping.validators && fieldMapping.validators.length > 0) {
-                fieldMapping.validators.forEach( (simpleValidator, index) => {
-                    const validator = this.validationService.getSimpleValidator(simpleValidator);
-                    if (!validator) {
-                        console.warn('unable to find validator #' + index + ' in fieldMapping ' + JSON.stringify(fieldMapping));
-                    } else {
-                        validators.push(validator);
-                    }
-                })
-            }
-            const blankValue = fieldMapping.isBoolean ? false : '';
-            const initialValue = fieldMapping.defaultValue ? fieldMapping.defaultValue : blankValue;
-            // NOTE: when building the form, we use either a blank value or the given the default value, but NOT
-            // the saved value (in local storage). That way when (later) initializing with saved values,
-            // there will be an onChange event, which will trigger the right event handler to react to the saved value.
-            this.formGroup.addControl(
-                fieldMapping.name,
-                new FormControl(initialValue, validators)
-            );
-        })
-    }
-
     ngOnInit() {
         super.ngOnInit();
-        this.buildForm();
+        this.fieldMapUtilities.buildForm(AwsNodeSettingStepMapping, this.formGroup);
 
         Broker.messenger.getSubject(TkgEventType.AWS_AIRGAPPED_VPC_CHANGE).subscribe(event => {
             this.airgappedVPC = event.payload;
