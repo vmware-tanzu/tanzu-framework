@@ -1,4 +1,5 @@
 import {StepMapping} from "../wizard/shared/FieldMapping";
+import {SimpleValidator} from "../wizard/shared/constants/validation.constants";
 
 export enum AwsStep {
     PROVIDER = 'provider',
@@ -62,7 +63,7 @@ export const AwsNodeSettingStepMapping: StepMapping = {
         { name: AwsField.NODESETTING_AZ_2, required: true },
         { name: AwsField.NODESETTING_AZ_3, required: true },
         { name: AwsField.NODESETTING_BASTION_HOST_ENABLED, defaultValue: 'yes' },
-        { name: AwsField.NODESETTING_CLUSTER_NAME, validators: ['isValidClusterName'] },
+        { name: AwsField.NODESETTING_CLUSTER_NAME, validators: [SimpleValidator.IS_VALID_CLUSTER_NAME] },
         { name: AwsField.NODESETTING_CONTROL_PLANE_SETTING, required: true },
         { name: AwsField.NODESETTING_CREATE_CLOUD_FORMATION, isBoolean: true, defaultValue: true },
         { name: AwsField.NODESETTING_INSTANCE_TYPE_DEV, required: true },

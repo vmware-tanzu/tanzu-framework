@@ -175,8 +175,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 })
             }
             const blankValue = fieldMapping.isBoolean ? false : '';
-            const defaultValue = fieldMapping.defaultValue;
-            const initialValue = defaultValue ? defaultValue : blankValue;
+            const initialValue = fieldMapping.defaultValue ? fieldMapping.defaultValue : blankValue;
             // NOTE: when building the form, we use either a blank value or the given the default value, but NOT
             // the saved value (in local storage). That way when (later) initializing with saved values,
             // there will be an onChange event, which will trigger the right event handler to react to the saved value.
