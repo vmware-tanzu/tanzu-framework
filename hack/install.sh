@@ -5,15 +5,14 @@
 
 # Inspired by - https://github.com/vmware-tanzu/community-edition/blob/main/hack/install.sh
 # Script to install tanzu framework
-# Usage: ./hack/install.sh /path/to/tanzu-framework-binary v0.10.0
+# Usage: ./hack/install.sh /path/to/tanzu-framework/core/binary
 
 # set -o errexit
 set -o nounset
 set -o pipefail
 set -o xtrace
 
-TF_INSTALL_PATH="${1:?Tanzu-Framework path argument empty. Example usage: ./hack/install.sh /path/to/tanzu-framework-binary v0.10.0}"
-VERSION="${2:?Version argument empty. Example usage: ./hack/install.sh /path/to/tanzu-framework-binary v0.10.0}"
+TF_INSTALL_PATH="${1:?Tanzu-Framework path argument empty. Example usage: ./hack/install.sh /path/to/tanzu-framework/core/binary}"
 
 ALLOW_INSTALL_AS_ROOT="${ALLOW_INSTALL_AS_ROOT:-""}"
 if [[ "$EUID" -eq 0 && "${ALLOW_INSTALL_AS_ROOT}" != "true" ]]; then
@@ -59,7 +58,7 @@ if [[ -n "${TANZU_PLUGIN_CACHE}" ]]; then
 fi
 
 # install tanzu cli
-sudo install "${TF_INSTALL_PATH}/cli/core/${VERSION}/tanzu-core-${OS}_${ARCH}" "${TANZU_BIN_PATH}/tanzu"
+sudo install "${TF_INSTALL_PATH}" "${TANZU_BIN_PATH}/tanzu"
 
 # install plugins
 tanzu plugin sync
