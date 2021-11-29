@@ -3,14 +3,14 @@
 
 :: Inspired by - https://github.com/vmware-tanzu/community-edition/blob/main/hack/install.bat
 :: Script to install tanzu framework 
-:: Usage: .\hack\install.bat \path\to\tanzu-framework-binary v0.10.0
+:: Usage: .\hack\install.bat \path\to\tanzu-framework\core\binary
 
 @echo off
 
 :: start copy tanzu cli
 SET TANZU_CLI_DIR=%ProgramFiles%\tanzu
 mkdir "%TANZU_CLI_DIR%" || goto :error
-copy /B /Y %1\cli\core\%2\tanzu-core-windows_amd64.exe "%TANZU_CLI_DIR%\tanzu.exe" || goto :error
+copy /B /Y %1 "%TANZU_CLI_DIR%\tanzu.exe" || goto :error
 
 :: set cli path
 set PATH=%PATH%;%TANZU_CLI_DIR%
