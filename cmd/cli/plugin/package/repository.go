@@ -12,11 +12,12 @@ import (
 var repoOp = tkgpackagedatamodel.NewRepositoryOptions()
 
 var repositoryCmd = &cobra.Command{
-	Use:       "repository",
-	Short:     "Repository operations",
-	ValidArgs: []string{"add", "list", "get", "delete", "update"},
-	Args:      cobra.RangeArgs(1, 3),
-	Long:      `Add, list, get or delete a package repository for Tanzu packages. A package repository is a collection of packages that are grouped together into an imgpkg bundle.`,
+	Use:               "repository",
+	Short:             "Repository operations",
+	ValidArgs:         []string{"add", "list", "get", "delete", "update"},
+	Args:              cobra.RangeArgs(1, 3),
+	Long:              `Add, list, get or delete a package repository for Tanzu packages. A package repository is a collection of packages that are grouped together into an imgpkg bundle.`,
+	PersistentPreRunE: packagingAvailabilityCheck,
 }
 
 func init() {

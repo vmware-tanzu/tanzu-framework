@@ -379,7 +379,7 @@ func cleanup() {
 	By("cleanup previous secret installation")
 	resultImgPullSecret = secretPlugin.DeleteRegistrySecret(&imgPullSecretOptions)
 	if resultImgPullSecret.Stderr != nil {
-		Expect(resultImgPullSecret.Stderr.String()).ShouldNot(ContainSubstring(fmt.Sprintf(tkgpackagedatamodel.SecretGenAPINotAvailable, tkgpackagedatamodel.SecretGenGVR)))
+		Expect(resultImgPullSecret.Stderr.String()).ShouldNot(ContainSubstring(fmt.Sprintf(tkgpackagedatamodel.SecretGenAPINotAvailable, tkgpackagedatamodel.SecretGenAPIName, tkgpackagedatamodel.SecretGenAPIVersion)))
 	}
 	Expect(resultImgPullSecret.Error).ToNot(HaveOccurred())
 }

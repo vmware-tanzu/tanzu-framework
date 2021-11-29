@@ -13,6 +13,7 @@ import (
 	capdiscovery "github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/discovery"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/kappclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
 var descriptor = cliv1alpha1.PluginDescriptor{
@@ -53,6 +54,6 @@ func isSecretGenAPIAvailable(kubeCfgPath string) (bool, error) {
 		return false, err
 	}
 
-	apiGroup := capdiscovery.Group("secretGenAPIQuery", "secretgen.carvel.dev").WithVersions("v1alpha1").WithResource("secretexports")
+	apiGroup := capdiscovery.Group("secretGenAPIQuery", tkgpackagedatamodel.SecretGenAPIName).WithVersions(tkgpackagedatamodel.SecretGenAPIVersion).WithResource("secretexports")
 	return clusterQueryClient.Query(apiGroup).Execute()
 }
