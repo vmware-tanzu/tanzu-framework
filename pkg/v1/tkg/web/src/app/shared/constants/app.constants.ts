@@ -20,3 +20,8 @@ export enum IpFamilyEnum {
     IPv4 = 'ipv4',
     IPv6 = 'ipv6'
 };
+
+export enum InstanceType {
+    DEV = 'dev',
+    PROD = 'prod'
+};

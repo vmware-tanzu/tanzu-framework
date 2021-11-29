@@ -24,10 +24,12 @@ import Broker from 'src/app/shared/service/broker';
 import { EditionData } from 'src/app/shared/service/branding.service';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import { managementClusterPlugin } from "../../wizard/shared/constants/wizard.constants";
+import { VsphereField } from "../vsphere-wizard.constants";
+import { IpFamilyEnum } from "../../../../shared/constants/app.constants";
 
 declare var sortPaths: any;
 
-const SupervisedField = ['vcenterAddress', 'username', 'password'];
+const SupervisedField = [VsphereField.PROVIDER_VCENTER_ADDRESS, VsphereField.PROVIDER_USER_NAME, VsphereField.PROVIDER_USER_PASSWORD];
 
 /**
  * vSphere Version Info definition
@@ -78,52 +80,51 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
         super.ngOnInit();
         this.enableIpv6 = Broker.appDataService.isPluginFeatureActivated(managementClusterPlugin, 'vsphereIPv6');
         this.formGroup.addControl(
-            'ipFamily',
-            new FormControl(
-                'ipv4', [])
+            VsphereField.PROVIDER_IP_FAMILY,
+            new FormControl( IpFamilyEnum.IPv4, [])
         );
         this.formGroup.addControl(
-            'vcenterAddress',
+            VsphereField.PROVIDER_VCENTER_ADDRESS,
             new FormControl('', [
                 Validators.required,
                 this.validationService.isValidIpOrFqdn()
             ])
         );
         this.formGroup.addControl(
-            'username',
+            VsphereField.PROVIDER_USER_NAME,
             new FormControl('', [
                 Validators.required
             ])
         );
         this.formGroup.addControl(
-            'password',
+            VsphereField.PROVIDER_USER_PASSWORD,
             new FormControl('', [
                 Validators.required
             ])
         );
         this.formGroup.addControl(
-            'insecure',
+            VsphereField.PROVIDER_CONNECTION_INSECURE,
             new FormControl(false, [])
         );
         this.formGroup.addControl(
-            'datacenter',
+            VsphereField.PROVIDER_DATA_CENTER,
             new FormControl('', [
                 Validators.required
             ])
         );
         this.formGroup.addControl(
-            'ssh_key',
+            VsphereField.PROVIDER_SSH_KEY,
             new FormControl('', [
                 Validators.required
             ])
         );
         this.formGroup.addControl(
-            'ssh_key_file',
+            VsphereField.PROVIDER_SSH_KEY_FILE,
             new FormControl('', [])
         );
 
         this.formGroup.addControl(
-            'thumbprint',
+            VsphereField.PROVIDER_THUMBPRINT,
             new FormControl('', [])
         );
 
@@ -134,9 +135,9 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 return { [ValidatorEnum.REQUIRED]: true };
             }
         });
-        this.formGroup.get('datacenter').disable();
+        this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).disable();
         this.datacenters = [];
-        this.formGroup.get('ssh_key').disable();
+        this.formGroup.get(VsphereField.PROVIDER_SSH_KEY).disable();
 
         SupervisedField.forEach(field => {
             this.formGroup.get(field).valueChanges
@@ -150,11 +151,11 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 });
         });
 
-        this.formGroup.get('datacenter').valueChanges.subscribe(data => {
+        this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).valueChanges.subscribe(data => {
             this.dcOnChange(data)
         });
 
-        this.formGroup.get('ipFamily').valueChanges.subscribe(data => {
+        this.formGroup.get(VsphereField.PROVIDER_IP_FAMILY).valueChanges.subscribe(data => {
             Broker.messenger.publish({
                 type: TkgEventType.IP_FAMILY_CHANGE,
                 payload: data
@@ -171,15 +172,15 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
 
         this.fileReader.onload = (event) => {
             try {
-                this.formGroup.get('ssh_key').setValue(event.target.result);
+                this.formGroup.get(VsphereField.PROVIDER_SSH_KEY).setValue(event.target.result);
                 console.log(event.target.result);
             } catch (error) {
                 console.log(error.message);
                 return;
             }
-            this.formGroup.get('ssh_key_file').setValue('');
+            this.formGroup.get(VsphereField.PROVIDER_SSH_KEY_FILE).setValue('');
         };
-        this.registerOnIpFamilyChange('vcenterAddress', [
+        this.registerOnIpFamilyChange(VsphereField.PROVIDER_VCENTER_ADDRESS, [
                 Validators.required,
                 this.validationService.isValidIpOrFqdn()
             ], [
@@ -190,14 +191,14 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
     disconnect() {
         this.connected = false;
         this.loadingState = ClrLoadingState.DEFAULT;
-        this.formGroup.get('datacenter').setValue('');
+        this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).setValue('');
         this.datacenters = [];
-        this.formGroup.get('datacenter').disable();
+        this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).disable();
     }
     setSavedDataAfterLoad() {
         super.setSavedDataAfterLoad();
         // don't fill password field with ****
-        this.formGroup.get('password').setValue('');
+        this.formGroup.get(VsphereField.PROVIDER_USER_PASSWORD).setValue('');
     }
 
     /**
@@ -250,9 +251,9 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
      */
     connectVC() {
         this.loadingState = ClrLoadingState.LOADING;
-        this.vsphereHost = this.formGroup.controls['vcenterAddress'].value;
+        this.vsphereHost = this.formGroup.controls[VsphereField.PROVIDER_VCENTER_ADDRESS].value;
 
-        if (this.formGroup.controls['insecure'].value) {
+        if (this.formGroup.controls[VsphereField.PROVIDER_CONNECTION_INSECURE].value) {
             this.login();
         } else {
             this.verifyThumbprint();
@@ -273,8 +274,8 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                         console.log('vSphere Insecure set true via VSPHERE_INSECURE environment variable. Bypassing thumbprint verification modal.')
                     } else {
                         this.thumbprint = thumbprint;
-                        this.formGroup.controls['thumbprint'].setValue(thumbprint);
-                        FormMetaDataStore.saveMetaDataEntry(this.formName, 'thumbprint', {
+                        this.formGroup.controls[VsphereField.PROVIDER_THUMBPRINT].setValue(thumbprint);
+                        FormMetaDataStore.saveMetaDataEntry(this.formName, VsphereField.PROVIDER_THUMBPRINT, {
                             label: 'SSL THUMBPRINT',
                             displayValue: thumbprint
                         });
@@ -301,10 +302,10 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
         this.loadingState = ClrLoadingState.LOADING;
         this.apiClient.setVSphereEndpoint({
             credentials: {
-                username: this.formGroup.controls['username'].value,
-                password: this.formGroup.controls['password'].value,
-                host: this.formGroup.controls['vcenterAddress'].value,
-                insecure: this.formGroup.controls['insecure'].value,
+                username: this.formGroup.controls[VsphereField.PROVIDER_USER_NAME].value,
+                password: this.formGroup.controls[VsphereField.PROVIDER_USER_PASSWORD].value,
+                host: this.formGroup.controls[VsphereField.PROVIDER_VCENTER_ADDRESS].value,
+                insecure: this.formGroup.controls[VsphereField.PROVIDER_CONNECTION_INSECURE].value,
                 thumbprint: this.thumbprint
             }
         })
@@ -334,7 +335,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
 
                 Broker.messenger.publish({
                     type: TkgEventType.VC_AUTHENTICATED,
-                    payload: this.formGroup.controls['vcenterAddress'].value
+                    payload: this.formGroup.controls[VsphereField.PROVIDER_VCENTER_ADDRESS].value
                 });
 
                 if (this.hasPacific === 'yes') {
@@ -369,11 +370,11 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((res) => {
                 this.datacenters = sortPaths(res, function (item) { return item.name; }, '/');
-                this.formGroup.get('datacenter').enable();
-                this.formGroup.get('ssh_key').enable();
-                this.formGroup.get('datacenter').setValue(this.getSavedValue('datacenter', ''));
+                this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).enable();
+                this.formGroup.get(VsphereField.PROVIDER_SSH_KEY).enable();
+                this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).setValue(this.getSavedValue(VsphereField.PROVIDER_DATA_CENTER, ''));
                 if (this.datacenters.length === 1) {
-                    this.formGroup.get('datacenter').setValue(this.datacenters[0].name);
+                    this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).setValue(this.datacenters[0].name);
                 }
             },
             (err) => {
@@ -404,9 +405,9 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
      * helper method to get if connect btn should be disabled
      */
     getDisabled(): boolean {
-        return !(this.formGroup.get('vcenterAddress').valid &&
-            this.formGroup.get('username').valid &&
-            this.formGroup.get('password').valid);
+        return !(this.formGroup.get(VsphereField.PROVIDER_VCENTER_ADDRESS).valid &&
+            this.formGroup.get(VsphereField.PROVIDER_USER_NAME).valid &&
+            this.formGroup.get(VsphereField.PROVIDER_USER_PASSWORD).valid);
     }
 
     /**
