@@ -42,7 +42,7 @@ Expand-Archive -LiteralPath "$tempFolderPath\tanzu-framework-windows-amd64.zip" 
     }
 }
 
-& ".\hack\install.bat" "$tanzuCLIPath" "$version"
+& ".\hack\install.bat" "$tanzuCLIPath\cli\core\$version\tanzu-core-windows_amd64.exe" "$version"
 
 $Env:Path += ";C:\Program Files\tanzu"
 
