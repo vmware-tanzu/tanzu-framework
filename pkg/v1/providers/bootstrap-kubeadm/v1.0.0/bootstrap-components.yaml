@@ -4305,6 +4305,7 @@ spec:
         - --leader-elect
         - --metrics-bind-addr=localhost:8080
         - --feature-gates=MachinePool=${EXP_MACHINE_POOL:=false}
+        - --bootstrap-token-ttl=${CAPBK_BOOTSTRAP_TOKEN_TTL:=15m}
         command:
         - /manager
         image: registry.tkg.vmware.run/cluster-api/kubeadm-bootstrap-controller:${CABPK_CONTROLLER_IMAGE_TAG}
