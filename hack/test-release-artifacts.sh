@@ -35,7 +35,7 @@ if [ "${OS}" == 'darwin' ]; then
     done
 fi
 
-./hack/install.sh "${temp_dir}"/tanzu "${version}"
+./hack/install.sh "${temp_dir}/tanzu/cli/core/${version}/tanzu-core-${OS}_${ARCH}" "${version}"
 
 tanzu version
 
