@@ -168,11 +168,7 @@ spec:
                 type: object
               env:
                 additionalProperties:
-                  additionalProperties:
-                    type: string
-                  description: EnvMap is simply a hash table, but needs an explicit
-                    type to be an object in another hash map (cf ClientOptions.Env)
-                  type: object
+                  type: string
                 type: object
               features:
                 additionalProperties:
