@@ -34,12 +34,15 @@ const (
 )
 
 func (c *TkgClient) increaseKubeVipTimeouts(regionalClusterClient clusterclient.Client, upgradeClusterConfig *clusterUpgradeInfo) error {
+	log.Infof("Cluster Name: %s, Cluster Namespace %s", upgradeClusterConfig.ClusterName, upgradeClusterConfig.ClusterNamespace)
 	currentKCP, err := regionalClusterClient.GetKCPObjectForCluster(upgradeClusterConfig.ClusterName, upgradeClusterConfig.ClusterNamespace)
 	if err != nil {
+		log.Infof("Unable to get KCP object")
 		return errors.Wrapf(err, "unable to get KCP object to increase the kube-vip timeouts. Continuing upgrade with old parameters. ")
 	}
 	// If iaas != vsphere, skip trying to update KCP object
 	if currentKCP.Spec.MachineTemplate.InfrastructureRef.Kind != constants.VSphereMachineTemplate {
+		log.Infof("Kind %s", currentKCP.Spec.MachineTemplate.InfrastructureRef.Kind)
 		return nil
 	}
 
@@ -47,9 +50,12 @@ func (c *TkgClient) increaseKubeVipTimeouts(regionalClusterClient clusterclient.
 	var currentKubeVipPod corev1.Pod
 
 	for i := range currentKCP.Spec.KubeadmConfigSpec.Files {
+		log.Infof("Current KCP Pod: %s", currentKCP.Spec.KubeadmConfigSpec.Files[i].Content)
 		err := yaml.Unmarshal([]byte(currentKCP.Spec.KubeadmConfigSpec.Files[i].Content), &currentKubeVipPod)
-		if err == nil && currentKubeVipPod.Name == kubeVipPodName {
+		if err == nil {
+			log.Infof("KubeVipPodName %s", currentKubeVipPod.Name)
 			newLeaseDuration, newRenewDeadline, newRetryPeriod := c.getNewKubeVipParameters()
+			log.Infof("New Lease Duration %s, New Renew Deadline %s, New Retry Period %s", newLeaseDuration, newRenewDeadline, newRetryPeriod)
 			newKCPPod, err := ModifyKubeVipTimeOutAndSerialize(&currentKubeVipPod, newLeaseDuration, newRenewDeadline, newRetryPeriod)
 			if err != nil {
 				return errors.Wrap(err, "unable to update kube-vip timeouts")
@@ -61,6 +67,7 @@ func (c *TkgClient) increaseKubeVipTimeouts(regionalClusterClient clusterclient.
 			if err != nil {
 				return errors.Wrap(err, "unable to marshal new KCP to byte array")
 			}
+			log.Infof(string(newKCPByte))
 			// Using polling to retry on any failed patch attempt. Sometimes if user upgrade
 			// workload cluster right after management cluster upgrade there is a chance
 			// that all controller pods are not started on management cluster
@@ -70,7 +77,6 @@ func (c *TkgClient) increaseKubeVipTimeouts(regionalClusterClient clusterclient.
 			if err != nil {
 				return errors.Wrapf(err, "unable to patch the new kube-vip parameters. Continuing to upgrade the cluster with the old kube-vip parameters")
 			}
-
 			return nil
 		}
 	}
@@ -82,12 +88,15 @@ func ModifyKubeVipTimeOutAndSerialize(currentKubeVipPod *corev1.Pod, newLeaseDur
 	var envVars []corev1.EnvVar
 	for _, envVar := range currentKubeVipPod.Spec.Containers[0].Env {
 		if envVar.Name == vipLeaseDuration && envVar.Value == defaultLeaseDuration {
+			log.Infof("Updating Lease Duration")
 			envVar.Value = newLeaseDuration
 		}
 		if envVar.Name == vipRenewDeadline && envVar.Value == defaultRenewDeadline {
+			log.Infof("Updating Renew Deadline")
 			envVar.Value = newRenewDeadline
 		}
 		if envVar.Name == vipRetryPeriod && envVar.Value == defaultRetryPeriod {
+			log.Infof("Updating Retry Period")
 			envVar.Value = newRetryPeriod
 		}
 		envVars = append(envVars, envVar)
@@ -101,6 +110,7 @@ func ModifyKubeVipTimeOutAndSerialize(currentKubeVipPod *corev1.Pod, newLeaseDur
 		return "", errors.Wrap(err, "unable to marshal modified pod to byte array")
 	}
 
+	log.Infof(string(kcpPodByte))
 	return string(kcpPodByte), nil
 }
 

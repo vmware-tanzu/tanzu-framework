@@ -1110,7 +1110,7 @@ func (c *TkgClient) patchKubernetesVersionToKubeadmControlPlane(regionalClusterC
 		clusterUpgradeConfig.UpgradeComponentInfo.EtcdImageRepository,
 		clusterUpgradeConfig.UpgradeComponentInfo.EtcdImageTag)
 
-	log.V(3).Infof("Applying KubeadmControlPlane Patch: %s", patchKubernetesVersion)
+	log.Infof("Applying KubeadmControlPlane Patch: %s", patchKubernetesVersion)
 
 	// Using polling to retry on any failed patch attempt. Sometimes if user upgrade
 	// workload cluster right after management cluster upgrade there is a chance
