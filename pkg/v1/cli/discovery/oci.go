@@ -93,7 +93,10 @@ func processDiscoveryManifestData(data []byte, discoveryName string) ([]plugin.D
 			return nil, errors.Wrap(err, "could not decode discovery manifests")
 		}
 
-		dp := DiscoveredFromK8sV1alpha1(&p)
+		dp, err := DiscoveredFromK8sV1alpha1(&p)
+		if err != nil {
+			return nil, err
+		}
 		dp.Source = discoveryName
 		dp.DiscoveryType = common.DiscoveryTypeOCI
 		if dp.Name != "" {

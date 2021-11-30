@@ -4,9 +4,12 @@
 package discovery
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 
+	"github.com/Masterminds/semver"
 	"github.com/pkg/errors"
 	apimachineryjson "k8s.io/apimachinery/pkg/runtime/serializer/json"
 
@@ -99,7 +102,10 @@ func (l *LocalDiscovery) Manifest() ([]plugin.Discovered, error) {
 			return nil, errors.Wrap(err, "could not decode catalog file")
 		}
 
-		dp := DiscoveredFromK8sV1alpha1(&p)
+		dp, err := DiscoveredFromK8sV1alpha1(&p)
+		if err != nil {
+			return nil, err
+		}
 		dp.Source = l.name
 		dp.DiscoveryType = l.Type()
 		plugins = append(plugins, dp)
@@ -113,7 +119,7 @@ func (l *LocalDiscovery) Type() string {
 }
 
 // DiscoveredFromK8sV1alpha1 returns discovered plugin object from k8sV1alpha1
-func DiscoveredFromK8sV1alpha1(p *cliv1alpha1.CLIPlugin) plugin.Discovered {
+func DiscoveredFromK8sV1alpha1(p *cliv1alpha1.CLIPlugin) (plugin.Discovered, error) {
 	dp := plugin.Discovered{
 		Name:               p.Name,
 		Description:        p.Spec.Description,
@@ -124,6 +130,18 @@ func DiscoveredFromK8sV1alpha1(p *cliv1alpha1.CLIPlugin) plugin.Discovered {
 	for v := range p.Spec.Artifacts {
 		dp.SupportedVersions = append(dp.SupportedVersions, v)
 	}
+
+	// sort the supported versions in semver 2.0 order
+	vs := make([]*semver.Version, len(dp.SupportedVersions))
+	for i, r := range dp.SupportedVersions {
+		v, err := semver.NewVersion(r)
+		if err != nil {
+			return dp, fmt.Errorf("error parsing supported versions for plugin %s: %s", p.Name, err)
+		}
+		vs[i] = v
+	}
+	sort.Sort(semver.Collection(vs))
+
 	dp.Distribution = distribution.ArtifactsFromK8sV1alpha1(p.Spec.Artifacts)
-	return dp
+	return dp, nil
 }
