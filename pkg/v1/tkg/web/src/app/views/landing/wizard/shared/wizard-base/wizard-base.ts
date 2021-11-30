@@ -354,7 +354,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
             });
         }
 
-        payload.ceipOptIn = this.getFieldValue('ceipOptInForm', 'ceipOptIn') || false;
+        payload.ceipOptIn = this.getBooleanFieldValue('ceipOptInForm', 'ceipOptIn');
         payload.labels = this.strMapToObj(this.getFieldValue('metadataForm', 'clusterLabels'));
         payload.os = this.getFieldValue('osImageForm', 'osImage');
         payload.annotations = {

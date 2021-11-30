@@ -171,7 +171,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
             });
         });
 
-        Broker.messenger.getSubject(TkgEventType.AWS_GET_NO_PROXY_INFO)
+        Broker.messenger.getSubject(TkgEventType.NETWORK_STEP_GET_NO_PROXY_INFO)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                this.additionalNoProxyInfo = event.payload.info;
