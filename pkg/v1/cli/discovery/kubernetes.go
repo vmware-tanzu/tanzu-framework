@@ -91,7 +91,10 @@ func (k *KubernetesDiscovery) GetDiscoveredPlugins(clusterClient clusterclient.C
 
 	// Convert all CLIPlugin resources to Discovered object
 	for i := range cliplugins {
-		dp := DiscoveredFromK8sV1alpha1(&cliplugins[i])
+		dp, err := DiscoveredFromK8sV1alpha1(&cliplugins[i])
+		if err != nil {
+			return nil, err
+		}
 		dp.Source = k.name
 		dp.DiscoveryType = k.Type()
 		plugins = append(plugins, dp)

@@ -99,7 +99,10 @@ func (l *LocalDiscovery) Manifest() ([]plugin.Discovered, error) {
 			return nil, errors.Wrap(err, "could not decode catalog file")
 		}
 
-		dp := DiscoveredFromK8sV1alpha1(&p)
+		dp, err := DiscoveredFromK8sV1alpha1(&p)
+		if err != nil {
+			return nil, err
+		}
 		dp.Source = l.name
 		dp.DiscoveryType = l.Type()
 		plugins = append(plugins, dp)
@@ -113,7 +116,7 @@ func (l *LocalDiscovery) Type() string {
 }
 
 // DiscoveredFromK8sV1alpha1 returns discovered plugin object from k8sV1alpha1
-func DiscoveredFromK8sV1alpha1(p *cliv1alpha1.CLIPlugin) plugin.Discovered {
+func DiscoveredFromK8sV1alpha1(p *cliv1alpha1.CLIPlugin) (plugin.Discovered, error) {
 	dp := plugin.Discovered{
 		Name:               p.Name,
 		Description:        p.Spec.Description,
@@ -124,6 +127,9 @@ func DiscoveredFromK8sV1alpha1(p *cliv1alpha1.CLIPlugin) plugin.Discovered {
 	for v := range p.Spec.Artifacts {
 		dp.SupportedVersions = append(dp.SupportedVersions, v)
 	}
+	if err := SortVersions(dp.SupportedVersions); err != nil {
+		return dp, errors.Wrapf(err, "error parsing supported versions for plugin %s", p.Name)
+	}
 	dp.Distribution = distribution.ArtifactsFromK8sV1alpha1(p.Spec.Artifacts)
-	return dp
+	return dp, nil
 }
