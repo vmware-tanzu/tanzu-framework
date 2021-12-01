@@ -91,10 +91,10 @@ var addDiscoverySourceCmd = &cobra.Command{
 	Example: `
     # Add a local discovery source. If URI is relative path,
     # $HOME/.config/tanzu-plugins will be considered based path
-    tanzu plugin discovery add --name standalone-local --type local --uri path/to/local/discovery
+    tanzu plugin source add --name standalone-local --type local --uri path/to/local/discovery
 
     # Add an OCI discovery source. URI should be an OCI image.
-    tanzu plugin discovery add --name standalone-oci --type oci --uri projects.registry.vmware.com/tkg/tanzu-plugins/standalone:latest`,
+    tanzu plugin source add --name standalone-oci --type oci --uri projects.registry.vmware.com/tkg/tanzu-plugins/standalone:latest`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cfg, err := config.GetClientConfig()
@@ -129,10 +129,10 @@ var updateDiscoverySourceCmd = &cobra.Command{
 	Example: `
     # Update a local discovery source. If URI is relative path, 
     # $HOME/.config/tanzu-plugins will be considered base path
-    tanzu plugin discovery update standalone-local --type local --uri new/path/to/local/discovery
+    tanzu plugin source update standalone-local --type local --uri new/path/to/local/discovery
 
     # Update an OCI discovery source. URI should be an OCI image.
-    tanzu plugin discovery update standalone-oci --type oci --uri projects.registry.vmware.com/tkg/tanzu-plugins/standalone:v1.0`,
+    tanzu plugin source update standalone-oci --type oci --uri projects.registry.vmware.com/tkg/tanzu-plugins/standalone:v1.0`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 		discoveryName := args[0]
