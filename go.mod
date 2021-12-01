@@ -28,7 +28,6 @@ require (
 	github.com/awslabs/goformation/v4 v4.19.5
 	github.com/briandowns/spinner v1.16.0
 	github.com/cppforlife/go-cli-ui v0.0.0-20200716203538-1e47f820817f
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/docker/docker v20.10.9+incompatible
 	github.com/elazarl/go-bindata-assetfs v1.0.1
 	github.com/fatih/color v1.13.0
@@ -44,6 +43,7 @@ require (
 	github.com/go-openapi/swag v0.19.14
 	github.com/go-openapi/validate v0.19.8
 	github.com/gobwas/glob v0.2.3
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/golang/mock v1.6.0
 	github.com/golang/protobuf v1.5.2
 	github.com/google/go-cmp v0.5.6
