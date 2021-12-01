@@ -4,10 +4,13 @@
 package client
 
 import (
+	"bytes"
 	"encoding/json"
 
+	"k8s.io/apimachinery/pkg/runtime"
+	apimachineryjson "k8s.io/apimachinery/pkg/runtime/serializer/json"
+
 	"github.com/pkg/errors"
-	"gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 	capikubeadmv1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
@@ -18,7 +21,7 @@ import (
 )
 
 const (
-	kubeVipPodName          = "kube-vip"
+	kubeVipName             = "kube-vip"
 	vipLeaseDurationKey     = "VIP_LEASEDURATION"
 	vipRenewDeadlineKey     = "VIP_RENEWDEADLINE"
 	vipRetryPeriodKey       = "VIP_RETRYPERIOD"
@@ -50,12 +53,18 @@ func (c *TkgClient) increaseKubeVipTimeouts(regionalClusterClient clusterclient.
 	var currentKubeVipPod corev1.Pod
 
 	for i := range currentKCP.Spec.KubeadmConfigSpec.Files {
-		log.Infof("Current KCP Pod: %s", currentKCP.Spec.KubeadmConfigSpec.Files[i].Content)
-		err := yaml.Unmarshal([]byte(currentKCP.Spec.KubeadmConfigSpec.Files[i].Content), &currentKubeVipPod)
-		if err == nil {
-			log.Infof("KubeVipPodName %s", currentKubeVipPod.Name)
+		log.V(6).Infof("Current KCP Pod: %s", currentKCP.Spec.KubeadmConfigSpec.Files[i].Content)
+		sc := runtime.NewScheme()
+		_ = corev1.AddToScheme(sc)
+
+		s := apimachineryjson.NewSerializerWithOptions(apimachineryjson.DefaultMetaFactory, sc, sc,
+			apimachineryjson.SerializerOptions{Yaml: true, Pretty: false, Strict: false})
+		_, _, err := s.Decode([]byte(currentKCP.Spec.KubeadmConfigSpec.Files[i].Content), nil, &currentKubeVipPod)
+
+		if err == nil && currentKubeVipPod.Name == kubeVipName {
+			log.V(6).Infof("KubeVipPod Name: %s", currentKubeVipPod.Name)
 			newLeaseDuration, newRenewDeadline, newRetryPeriod := c.getNewKubeVipParameters()
-			log.Infof("New Lease Duration %s, New Renew Deadline %s, New Retry Period %s", newLeaseDuration, newRenewDeadline, newRetryPeriod)
+			log.V(6).Infof("New Lease Duration %s, New Renew Deadline %s, New Retry Period %s", newLeaseDuration, newRenewDeadline, newRetryPeriod)
 			newKCPPod, err := ModifyKubeVipTimeOutAndSerialize(&currentKubeVipPod, newLeaseDuration, newRenewDeadline, newRetryPeriod)
 			if err != nil {
 				return errors.Wrap(err, "unable to update kube-vip timeouts")
@@ -67,7 +76,7 @@ func (c *TkgClient) increaseKubeVipTimeouts(regionalClusterClient clusterclient.
 			if err != nil {
 				return errors.Wrap(err, "unable to marshal new KCP to byte array")
 			}
-			log.Infof(string(newKCPByte))
+			log.V(6).Infof(string(newKCPByte))
 			// Using polling to retry on any failed patch attempt. Sometimes if user upgrade
 			// workload cluster right after management cluster upgrade there is a chance
 			// that all controller pods are not started on management cluster
@@ -105,13 +114,21 @@ func ModifyKubeVipTimeOutAndSerialize(currentKubeVipPod *corev1.Pod, newLeaseDur
 	currentKubeVipPod.Spec.Containers[0].Env = envVars
 
 	log.V(6).Infof("Marshaling kube-vip pod into a byte array")
-	kcpPodByte, err := yaml.Marshal(&currentKubeVipPod)
+
+	var kcpPodByte bytes.Buffer
+	sc := runtime.NewScheme()
+	_ = corev1.AddToScheme(sc)
+
+	s := apimachineryjson.NewSerializerWithOptions(apimachineryjson.DefaultMetaFactory, sc, sc,
+		apimachineryjson.SerializerOptions{Yaml: true, Pretty: false, Strict: false})
+	err := s.Encode(currentKubeVipPod, &kcpPodByte)
+
 	if err != nil {
 		return "", errors.Wrap(err, "unable to marshal modified pod to byte array")
 	}
 
-	log.Infof(string(kcpPodByte))
-	return string(kcpPodByte), nil
+	log.V(6).Infof("Modified KCP POD: %s", kcpPodByte.String())
+	return kcpPodByte.String(), nil
 }
 
 func (c *TkgClient) getNewKubeVipParameters() (string, string, string) {

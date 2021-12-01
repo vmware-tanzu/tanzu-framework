@@ -438,7 +438,7 @@ func (c *TkgClient) applyPatchAndWait(regionalClusterClient, currentClusterClien
 	log.Infof("Attempting to increase kube-vip timeouts")
 	err = c.increaseKubeVipTimeouts(regionalClusterClient, upgradeClusterConfig)
 	if err != nil {
-		log.Infof("Unable to modify kube-vip timeouts. Continuing to upgrade cluster with old kube-vip timeouts")
+		log.Warningf("Unable to modify kube-vip timeouts. Continuing to upgrade cluster with old kube-vip timeouts")
 	}
 
 	log.Infof("Patching KubeadmControlPlane with the kubernetes version %s...", kubernetesVersion)
