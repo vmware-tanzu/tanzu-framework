@@ -187,7 +187,7 @@ spec:
       users:
         - name: capv
           sshAuthorizedKeys:
-            - '${ VSPHERE_SSH_AUTHORIZED_KEY }'
+            - #@ data.values.VSPHERE_SSH_AUTHORIZED_KEY
           sudo: ALL=(ALL) NOPASSWD:ALL
 ---
 apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
@@ -216,6 +216,6 @@ spec:
       users:
         - name: capv
           sshAuthorizedKeys:
-            - '${ VSPHERE_SSH_AUTHORIZED_KEY }'
+            - #@ data.values.VSPHERE_SSH_AUTHORIZED_KEY
           sudo: ALL=(ALL) NOPASSWD:ALL
 #@ end
