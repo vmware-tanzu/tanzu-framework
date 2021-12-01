@@ -15,6 +15,7 @@ import (
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/plugin"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 )
@@ -54,12 +55,12 @@ func Test_InstallPlugin_InstalledPlugins(t *testing.T) {
 	execCommand = fakeExecCommand
 	defer func() { execCommand = exec.Command }()
 
-	// Try installing not-existing package
+	// Try installing nonexistent plugin
 	err := InstallPlugin("", "notexists", "v0.2.0")
 	assert.NotNil(err)
 	assert.Contains(err.Error(), "unable to find plugin 'notexists'")
 
-	// Install login (standalone) package
+	// Install login (standalone) plugin
 	err = InstallPlugin("", "login", "v0.2.0")
 	assert.Nil(err)
 	// Verify installed plugin
@@ -128,6 +129,62 @@ func Test_AvailablePlugins(t *testing.T) {
 	assert.Equal("login", discovered[2].Name)
 	assert.Equal(common.PluginScopeStandalone, discovered[2].Scope)
 	assert.Equal(common.PluginStatusInstalled, discovered[2].Status)
+}
+
+func Test_AvailablePlugins_From_LocalSource(t *testing.T) {
+	assert := assert.New(t)
+
+	currentDirAbsPath, _ := filepath.Abs(".")
+	discovered, err := AvailablePluginsFromLocalSource(filepath.Join(currentDirAbsPath, "test", "local"))
+	assert.Nil(err)
+	assert.Equal(3, len(discovered))
+	assert.Equal("cluster", discovered[0].Name)
+	assert.Equal(common.PluginScopeStandalone, discovered[0].Scope)
+	assert.Equal(common.PluginStatusNotInstalled, discovered[0].Status)
+	assert.Equal("management-cluster", discovered[1].Name)
+	assert.Equal(common.PluginScopeStandalone, discovered[1].Scope)
+	assert.Equal(common.PluginStatusNotInstalled, discovered[1].Status)
+	assert.Equal("login", discovered[2].Name)
+	assert.Equal(common.PluginScopeStandalone, discovered[2].Scope)
+	assert.Equal(common.PluginStatusNotInstalled, discovered[2].Status)
+}
+
+func Test_InstallPlugin_InstalledPlugins_From_LocalSource(t *testing.T) {
+	assert := assert.New(t)
+
+	execCommand = fakeExecCommand
+	defer func() { execCommand = exec.Command }()
+
+	currentDirAbsPath, _ := filepath.Abs(".")
+	localPluginSourceDir := filepath.Join(currentDirAbsPath, "test", "local")
+
+	// Try installing nonexistent plugin
+	err := InstallPluginsFromLocalSource("notexists", "v0.2.0", localPluginSourceDir)
+	assert.NotNil(err)
+	assert.Contains(err.Error(), "unable to find plugin 'notexists'")
+
+	// Install login from local source directory
+	err = InstallPluginsFromLocalSource("login", "v0.2.0", localPluginSourceDir)
+	assert.Nil(err)
+	// Verify installed plugin
+	installedServerPlugins, installedStandalonePlugins, err := InstalledPlugins("")
+	assert.Nil(err)
+	assert.Equal(0, len(installedServerPlugins))
+	assert.Equal(1, len(installedStandalonePlugins))
+	assert.Equal("login", installedStandalonePlugins[0].Name)
+
+	// Try installing cluster plugin from local source directory
+	err = InstallPluginsFromLocalSource("cluster", "v0.2.0", localPluginSourceDir)
+	assert.Nil(err)
+	installedServerPlugins, installedStandalonePlugins, err = InstalledPlugins("")
+	assert.Nil(err)
+	assert.Equal(0, len(installedServerPlugins))
+	assert.Equal(2, len(installedStandalonePlugins))
+
+	// Try installing a plugin from incorrect local path
+	err = InstallPluginsFromLocalSource("cluster", "v0.2.0", "fakepath")
+	assert.NotNil(err)
+	assert.Contains(err.Error(), "no such file or directory")
 }
 
 func Test_DescribePlugin(t *testing.T) {
@@ -277,6 +334,79 @@ func Test_SyncPlugins_All_Plugins(t *testing.T) {
 	assert.Equal("login", discovered[2].Name)
 	assert.Equal(common.PluginScopeStandalone, discovered[2].Scope)
 	assert.Equal(common.PluginStatusInstalled, discovered[2].Status)
+}
+
+func Test_getInstalledButNotDiscoveredStandalonePlugins(t *testing.T) {
+	assert := assert.New(t)
+
+	availablePlugins := []plugin.Discovered{plugin.Discovered{Name: "fake1", DiscoveryType: "oci", RecommendedVersion: "v1.0.0", Status: common.PluginStatusInstalled}}
+	installedPluginDesc := []cliv1alpha1.PluginDescriptor{cliv1alpha1.PluginDescriptor{Name: "fake2", Version: "v2.0.0", Discovery: "local"}}
+
+	// If installed plugin is not part of available(discovered) plugins
+	plugins := getInstalledButNotDiscoveredStandalonePlugins(availablePlugins, installedPluginDesc)
+	assert.Equal(len(plugins), 1)
+	assert.Equal("fake2", plugins[0].Name)
+	assert.Equal("v2.0.0", plugins[0].RecommendedVersion)
+	assert.Equal(common.PluginStatusInstalled, plugins[0].Status)
+
+	// If installed plugin is part of available(discovered) plugins and provided available plugin is already marked as `installed`
+	installedPluginDesc = append(installedPluginDesc, cliv1alpha1.PluginDescriptor{Name: "fake1", Version: "v1.0.0", Discovery: "local"})
+	plugins = getInstalledButNotDiscoveredStandalonePlugins(availablePlugins, installedPluginDesc)
+	assert.Equal(len(plugins), 1)
+	assert.Equal("fake2", plugins[0].Name)
+	assert.Equal("v2.0.0", plugins[0].RecommendedVersion)
+	assert.Equal(common.PluginStatusInstalled, plugins[0].Status)
+
+	// If installed plugin is part of available(discovered) plugins and provided available plugin is already marked as `not installed`
+	// then test the availablePlugin status gets updated to `installed`
+	availablePlugins[0].Status = common.PluginStatusNotInstalled
+	plugins = getInstalledButNotDiscoveredStandalonePlugins(availablePlugins, installedPluginDesc)
+	assert.Equal(len(plugins), 1)
+	assert.Equal("fake2", plugins[0].Name)
+	assert.Equal("v2.0.0", plugins[0].RecommendedVersion)
+	assert.Equal(common.PluginStatusInstalled, plugins[0].Status)
+	assert.Equal(common.PluginStatusInstalled, availablePlugins[0].Status)
+
+	// If installed plugin is part of available(discovered) plugins and versions installed is different than discovered version
+	availablePlugins[0].Status = common.PluginStatusNotInstalled
+	availablePlugins[0].RecommendedVersion = "v4.0.0"
+	plugins = getInstalledButNotDiscoveredStandalonePlugins(availablePlugins, installedPluginDesc)
+	assert.Equal(len(plugins), 1)
+	assert.Equal("fake2", plugins[0].Name)
+	assert.Equal("v2.0.0", plugins[0].RecommendedVersion)
+	assert.Equal(common.PluginStatusInstalled, plugins[0].Status)
+	assert.Equal(common.PluginStatusInstalled, availablePlugins[0].Status)
+}
+
+func Test_setAvailablePluginsStatus(t *testing.T) {
+	assert := assert.New(t)
+
+	availablePlugins := []plugin.Discovered{plugin.Discovered{Name: "fake1", DiscoveryType: "oci", RecommendedVersion: "v1.0.0", Status: common.PluginStatusNotInstalled}}
+	installedPluginDesc := []cliv1alpha1.PluginDescriptor{cliv1alpha1.PluginDescriptor{Name: "fake2", Version: "v2.0.0", Discovery: "local"}}
+
+	// If installed plugin is not part of available(discovered) plugins
+	setAvailablePluginsStatus(availablePlugins, installedPluginDesc)
+	assert.Equal(len(availablePlugins), 1)
+	assert.Equal("fake1", availablePlugins[0].Name)
+	assert.Equal("v1.0.0", availablePlugins[0].RecommendedVersion)
+	assert.Equal(common.PluginStatusNotInstalled, availablePlugins[0].Status)
+
+	// If installed plugin is part of available(discovered) plugins and provided available plugin is already marked as `installed`
+	installedPluginDesc = append(installedPluginDesc, cliv1alpha1.PluginDescriptor{Name: "fake1", Version: "v1.0.0", Discovery: "local"})
+	setAvailablePluginsStatus(availablePlugins, installedPluginDesc)
+	assert.Equal(len(availablePlugins), 1)
+	assert.Equal("fake1", availablePlugins[0].Name)
+	assert.Equal("v1.0.0", availablePlugins[0].RecommendedVersion)
+	assert.Equal(common.PluginStatusInstalled, availablePlugins[0].Status)
+
+	// If installed plugin is part of available(discovered) plugins and versions installed is different than discovered version
+	availablePlugins[0].Status = common.PluginStatusNotInstalled
+	availablePlugins[0].RecommendedVersion = "v3.0.0"
+	setAvailablePluginsStatus(availablePlugins, installedPluginDesc)
+	assert.Equal(len(availablePlugins), 1)
+	assert.Equal("fake1", availablePlugins[0].Name)
+	assert.Equal("v3.0.0", availablePlugins[0].RecommendedVersion)
+	assert.Equal(common.PluginStatusUpdateAvailable, availablePlugins[0].Status)
 }
 
 func mockInstallPlugin(assert *assert.Assertions, server, name, version string) { //nolint:unparam

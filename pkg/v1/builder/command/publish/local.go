@@ -29,17 +29,19 @@ func NewLocalPublisher(localDistributionPath string) (Publisher, error) {
 
 // PublishPlugin publishes plugin binaries to local distribution directory
 func (l *LocalPublisher) PublishPlugin(sourcePath, version, os, arch, plugin string) (string, error) {
-	destPath := filepath.Join(l.LocalDistributionPath, os, arch, "cli", plugin, version, "tanzu-"+plugin+"-"+os+"_"+arch)
+	relativePath := filepath.Join(os, arch, "cli", plugin, version, "tanzu-"+plugin+"-"+os+"_"+arch)
 	if os == osTypeWindows {
-		destPath += fileExtensionWindows
+		relativePath += fileExtensionWindows
 	}
+
+	destPath := filepath.Join(l.LocalDistributionPath, relativePath)
 
 	_ = ensureResourceDir(filepath.Dir(destPath), false)
 	err := copy.Copy(sourcePath, destPath)
 	if err != nil {
 		return "", err
 	}
-	return destPath, nil
+	return relativePath, nil
 }
 
 // PublishDiscovery publishes the CLIPlugin resources YAML to a local discovery directory
