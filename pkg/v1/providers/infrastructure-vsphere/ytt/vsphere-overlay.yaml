@@ -19,13 +19,6 @@ kind: VSphereCluster
 metadata:
   name: #@ data.values.CLUSTER_NAME
 spec:
-  #@ if not data.values.AVI_CONTROL_PLANE_HA_PROVIDER:
-  controlPlaneEndpoint:
-    host: #@ data.values.VSPHERE_CONTROL_PLANE_ENDPOINT
-  #@ else:
-  #@overlay/remove
-  controlPlaneEndpoint:
-  #@ end
   thumbprint: #@ get_vsphere_thumbprint()
   server: #@ data.values.VSPHERE_SERVER
   identityRef:
