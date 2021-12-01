@@ -199,12 +199,14 @@ var _ = Describe("Test AWS AMIID", func() {
 
 var _ = Describe("EnsureNewVPCAWSConfig", func() {
 	var (
-		err       error
-		vpcConfig *models.AWSVpc
-		config    *AWSConfig
-		params    *models.AWSRegionalClusterParams
-		flavor    string
-		client    Client
+		err         error
+		vpcConfig   *models.AWSVpc
+		config      *AWSConfig
+		params      *models.AWSRegionalClusterParams
+		flavor      string
+		client      Client
+		labels      map[string]string
+		annotations map[string]string
 	)
 
 	JustBeforeEach(func() {
@@ -214,6 +216,8 @@ var _ = Describe("EnsureNewVPCAWSConfig", func() {
 				Region: "us-west-2",
 			},
 			ControlPlaneFlavor: flavor,
+			Labels:             labels,
+			Annotations:        annotations,
 			Networking: &models.TKGNetwork{
 				ClusterPodCIDR: "10.0.0.4/15",
 			},
@@ -250,6 +254,7 @@ var _ = Describe("EnsureNewVPCAWSConfig", func() {
 
 		It("should create vpc with 2 subnets", func() {
 			Expect(err).ToNot(HaveOccurred())
+			Expect(config).ToNot(BeNil(), "config should be created")
 			Expect(config.VPCCidr).To(Equal("10.0.0.0/16"))
 			Expect(config.NodeAz).To(Equal("us-west-2a"))
 			Expect(config.PublicNodeCidr).To(Equal("10.0.0.0/20"))
@@ -412,6 +417,33 @@ var _ = Describe("EnsureNewVPCAWSConfig", func() {
 		It("should err when creating subnets", func() {
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("AWS node availability zone cannot be empty"))
+		})
+	})
+
+	Context("when labels and annotations are provided", func() {
+		BeforeEach(func() {
+			labels = map[string]string{"foo-key1": "foo-value1", "foo-key2": "foo-value2"}
+			annotations = map[string]string{"location": "foo-location", "description": "foo-description"}
+			vpcConfig = &models.AWSVpc{
+				Cidr: "10.4.0.0/20",
+				Azs: []*models.AWSNodeAz{
+					{
+						Name: "us-west-2a",
+					},
+				},
+			}
+			flavor = tkgFlavorDev
+		})
+
+		It("should populate config fields", func() {
+			Expect(err).ToNot(HaveOccurred())
+			Expect(config).ToNot(BeNil(), "config should be created")
+			Expect(config.ClusterLabels).ToNot(BeNil(), "cluster labels should be created")
+			Expect(config.ClusterLabels).To(ContainSubstring("foo-key1:foo-value1,"))
+			Expect(config.ClusterLabels).To(ContainSubstring("foo-key2:foo-value2,"))
+			Expect(config.ClusterAnnotations).ToNot(BeNil(), "cluster annotations should be created")
+			Expect(config.ClusterAnnotations).To(ContainSubstring("location:foo-location,"))
+			Expect(config.ClusterAnnotations).To(ContainSubstring("description:foo-description,"))
 		})
 	})
 })

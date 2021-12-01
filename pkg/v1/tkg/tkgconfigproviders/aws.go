@@ -36,9 +36,11 @@ type AWSConfig struct {
 	B64EncodedCredentials string `yaml:"AWS_B64ENCODED_CREDENTIALS,omitempty"`
 	BastionHostEnabled    string `yaml:"BASTION_HOST_ENABLED"`
 	CeipParticipation     string `yaml:"ENABLE_CEIP_PARTICIPATION,omitempty"`
+	ClusterAnnotations    string `yaml:"CLUSTER_ANNOTATIONS,omitempty"`
 	ClusterCidr           string `yaml:"CLUSTER_CIDR"`
 	ClusterHTTPProxy      string `yaml:"TKG_HTTP_PROXY,omitempty"`
 	ClusterHTTPSProxy     string `yaml:"TKG_HTTPS_PROXY,omitempty"`
+	ClusterLabels         string `yaml:"CLUSTER_LABELS,omitempty"`
 	ClusterName           string `yaml:"CLUSTER_NAME,omitempty"`
 	ClusterNoProxy        string `yaml:"TKG_NO_PROXY,omitempty"`
 	ClusterPlan           string `yaml:"CLUSTER_PLAN,omitempty"`
@@ -143,6 +145,8 @@ func (c *client) NewAWSConfig(params *models.AWSRegionalClusterParams, encodedCr
 
 	res := &AWSConfig{
 		ClusterName:            params.ClusterName,
+		ClusterLabels:          mapToConfigString(params.Labels),
+		ClusterAnnotations:     mapToConfigString(params.Annotations),
 		InfrastructureProvider: constants.InfrastructureProviderAWS,
 		ClusterPlan:            params.ControlPlaneFlavor,
 		Region:                 params.AwsAccountParams.Region,

@@ -14,6 +14,8 @@ import (
 // AzureConfig is the tkg config for Azure
 type AzureConfig struct {
 	ClusterName               string `yaml:"CLUSTER_NAME,omitempty"`
+	ClusterLabels             string `yaml:"CLUSTER_LABELS,omitempty"`
+	ClusterAnnotations        string `yaml:"CLUSTER_ANNOTATIONS,omitempty"`
 	InfrastructureProvider    string `yaml:"INFRASTRUCTURE_PROVIDER,omitempty"`
 	ClusterPlan               string `yaml:"CLUSTER_PLAN,omitempty"`
 	CeipParticipation         string `yaml:"ENABLE_CEIP_PARTICIPATION,omitempty"`
@@ -54,6 +56,8 @@ func (c *client) NewAzureConfig(params *models.AzureRegionalClusterParams) (*Azu
 	var err error
 	res := &AzureConfig{
 		ClusterName:             params.ClusterName,
+		ClusterLabels:           mapToConfigString(params.Labels),
+		ClusterAnnotations:      mapToConfigString(params.Annotations),
 		InfrastructureProvider:  constants.InfrastructureProviderAzure,
 		ClusterPlan:             params.ControlPlaneFlavor,
 		Region:                  params.Location,
