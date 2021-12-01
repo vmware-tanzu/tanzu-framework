@@ -77,6 +77,7 @@ func (k *KubernetesDiscovery) Manifest() ([]plugin.Discovered, error) {
 	for i := range cliplugins {
 		dp := DiscoveredFromK8sV1alpha1(&cliplugins[i])
 		dp.Source = k.name
+		dp.DiscoveryType = k.Type()
 		plugins = append(plugins, dp)
 	}
 

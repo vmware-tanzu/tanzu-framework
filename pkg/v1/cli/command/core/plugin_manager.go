@@ -19,12 +19,13 @@ import (
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/plugin"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/pluginmanager"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
 
 var (
-	local   []string
+	local   string
 	version string
 )
 
@@ -42,8 +43,11 @@ func init() {
 		discoverySourceCmd,
 	)
 	listPluginCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table)")
-	pluginCmd.PersistentFlags().StringSliceVarP(&local, "local", "l", []string{}, "path to local repository")
+	listPluginCmd.Flags().StringVarP(&local, "local", "l", "", "path to local discovery/distribution source")
+	installPluginCmd.Flags().StringVarP(&local, "local", "l", "", "path to local discovery/distribution source")
 	installPluginCmd.Flags().StringVarP(&version, "version", "v", cli.VersionLatest, "version of the plugin")
+
+	cli.DeprecateCommand(repoCmd, "")
 }
 
 var pluginCmd = &cobra.Command{
@@ -65,7 +69,17 @@ var listPluginCmd = &cobra.Command{
 				serverName = server.Name
 			}
 
-			availablePlugins, err := pluginmanager.AvailablePlugins(serverName)
+			var availablePlugins []plugin.Discovered
+			if local != "" {
+				// get absolute local path
+				local, err = filepath.Abs(local)
+				if err != nil {
+					return err
+				}
+				availablePlugins, err = pluginmanager.AvailablePluginsFromLocalSource(local)
+			} else {
+				availablePlugins, err = pluginmanager.AvailablePlugins(serverName)
+			}
 			if err != nil {
 				return err
 			}
@@ -222,21 +236,46 @@ var describePluginCmd = &cobra.Command{
 var installPluginCmd = &cobra.Command{
 	Use:   "install [name]",
 	Short: "Install a plugin",
-	RunE: func(cmd *cobra.Command, args []string) (err error) {
-		if len(args) != 1 {
-			return fmt.Errorf("must provide plugin name as positional argument")
-		}
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		var err error
+
 		pluginName := args[0]
 
 		if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
+
+			// Invoke install plugin from local source if local files are provided
+			if local != "" {
+				// get absolute local path
+				local, err = filepath.Abs(local)
+				if err != nil {
+					return err
+				}
+				err = pluginmanager.InstallPluginsFromLocalSource(pluginName, version, local)
+				if err != nil {
+					return err
+				}
+				log.Successf("successfully installed '%s' plugin", pluginName)
+				return nil
+			}
+
 			serverName := ""
 			server, err := config.GetCurrentServer()
 			if err == nil && server != nil {
 				serverName = server.Name
 			}
 
-			pluginVersion := version
+			// Invoke plugin sync if install all plugins is mentioned
+			if pluginName == cli.AllPlugins {
+				err = pluginmanager.SyncPlugins(serverName)
+				if err != nil {
+					return err
+				}
+				log.Successf("successfully installed all plugins")
+				return nil
+			}
 
+			pluginVersion := version
 			if pluginVersion == cli.VersionLatest {
 				pluginVersion, err = pluginmanager.GetRecommendedVersionOfPlugin(serverName, pluginName)
 				if err != nil {
@@ -271,10 +310,10 @@ var installPluginCmd = &cobra.Command{
 		}
 		err = cli.InstallPlugin(pluginName, version, repo)
 		if err != nil {
-			return
+			return err
 		}
 		log.Successf("successfully installed %s", pluginName)
-		return
+		return nil
 	},
 }
 
@@ -393,7 +432,7 @@ func getRepositories() *cli.MultiRepo {
 		log.Fatal(err)
 	}
 
-	if len(local) != 0 {
+	if local != "" {
 		vs := cli.LoadVersionSelector(cfg.ClientOptions.CLI.UnstableVersionSelector)
 
 		opts := []cli.Option{
@@ -401,11 +440,9 @@ func getRepositories() *cli.MultiRepo {
 		}
 
 		m := cli.NewMultiRepo()
-		for _, l := range local {
-			n := filepath.Base(l)
-			r := cli.NewLocalRepository(n, l, opts...)
-			m.AddRepository(r)
-		}
+		n := filepath.Base(local)
+		r := cli.NewLocalRepository(n, local, opts...)
+		m.AddRepository(r)
 		return m
 	}
 
