@@ -21,6 +21,11 @@ jobs:
         go-version: '1.16'
       id: go
 
+    - name: Use Node 10.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 10.x
+
     - name: Check out code into the Go module directory
       uses: actions/checkout@v1
 
