@@ -172,9 +172,7 @@ func DoSetMachineDeployment(clusterClient clusterclient.Client, options *SetMach
 		options.Name = fmt.Sprintf("%s-%s", options.ClusterName, options.Name)
 		machineTemplateName := fmt.Sprintf("%s-mt", options.Name)
 		kcTemplate.Name = fmt.Sprintf("%s-kct", options.Name)
-		if kcTemplate.Spec.Template.Spec.Files != nil && len(kcTemplate.Spec.Template.Spec.Files) > 0 {
-			kcTemplate.Spec.Template.Spec.Files[0].ContentFrom.Secret.Name = machineTemplateName + "-azure-json"
-		}
+		updateAzureSecret(kcTemplate, machineTemplateName)
 
 		var labelsArg []string
 		if options.Labels != nil {
@@ -669,4 +667,14 @@ func NormalizeNodePoolName(workers []capi.MachineDeployment, clusterName string)
 	}
 
 	return workers, nil
+}
+
+func updateAzureSecret(kcTemplate *v1beta1.KubeadmConfigTemplate, machineTemplateName string) {
+	if kcTemplate.Spec.Template.Spec.Files != nil && len(kcTemplate.Spec.Template.Spec.Files) > 0 {
+		for i := range kcTemplate.Spec.Template.Spec.Files {
+			if kcTemplate.Spec.Template.Spec.Files[i].Path == "/etc/kubernetes/azure.json" {
+				kcTemplate.Spec.Template.Spec.Files[i].ContentFrom.Secret.Name = machineTemplateName + "-azure-json"
+			}
+		}
+	}
 }
