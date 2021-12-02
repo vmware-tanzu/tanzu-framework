@@ -1,8 +1,8 @@
 name: Release Staging
 
 on:
-  push:
-    branches: [ main ]
+  pull_request:
+    branches: [ main, release-* ]
 
 jobs:
 
