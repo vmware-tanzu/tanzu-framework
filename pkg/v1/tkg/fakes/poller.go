@@ -75,16 +75,15 @@ func (fake *Poller) PollImmediate(arg1 time.Duration, arg2 time.Duration, arg3 w
 		arg2 time.Duration
 		arg3 wait.ConditionFunc
 	}{arg1, arg2, arg3})
-	stub := fake.PollImmediateStub
-	fakeReturns := fake.pollImmediateReturns
 	fake.recordInvocation("PollImmediate", []interface{}{arg1, arg2, arg3})
 	fake.pollImmediateMutex.Unlock()
-	if stub != nil {
-		return stub(arg1, arg2, arg3)
+	if fake.PollImmediateStub != nil {
+		return fake.PollImmediateStub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1
 	}
+	fakeReturns := fake.pollImmediateReturns
 	return fakeReturns.result1
 }
 
@@ -137,16 +136,15 @@ func (fake *Poller) PollImmediateInfinite(arg1 time.Duration, arg2 wait.Conditio
 		arg1 time.Duration
 		arg2 wait.ConditionFunc
 	}{arg1, arg2})
-	stub := fake.PollImmediateInfiniteStub
-	fakeReturns := fake.pollImmediateInfiniteReturns
 	fake.recordInvocation("PollImmediateInfinite", []interface{}{arg1, arg2})
 	fake.pollImmediateInfiniteMutex.Unlock()
-	if stub != nil {
-		return stub(arg1, arg2)
+	if fake.PollImmediateInfiniteStub != nil {
+		return fake.PollImmediateInfiniteStub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1
 	}
+	fakeReturns := fake.pollImmediateInfiniteReturns
 	return fakeReturns.result1
 }
 
@@ -199,16 +197,15 @@ func (fake *Poller) PollImmediateInfiniteWithGetter(arg1 time.Duration, arg2 clu
 		arg1 time.Duration
 		arg2 clusterclient.GetterFunc
 	}{arg1, arg2})
-	stub := fake.PollImmediateInfiniteWithGetterStub
-	fakeReturns := fake.pollImmediateInfiniteWithGetterReturns
 	fake.recordInvocation("PollImmediateInfiniteWithGetter", []interface{}{arg1, arg2})
 	fake.pollImmediateInfiniteWithGetterMutex.Unlock()
-	if stub != nil {
-		return stub(arg1, arg2)
+	if fake.PollImmediateInfiniteWithGetterStub != nil {
+		return fake.PollImmediateInfiniteWithGetterStub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1
 	}
+	fakeReturns := fake.pollImmediateInfiniteWithGetterReturns
 	return fakeReturns.result1
 }
 
@@ -262,16 +259,15 @@ func (fake *Poller) PollImmediateWithGetter(arg1 time.Duration, arg2 time.Durati
 		arg2 time.Duration
 		arg3 clusterclient.GetterFunc
 	}{arg1, arg2, arg3})
-	stub := fake.PollImmediateWithGetterStub
-	fakeReturns := fake.pollImmediateWithGetterReturns
 	fake.recordInvocation("PollImmediateWithGetter", []interface{}{arg1, arg2, arg3})
 	fake.pollImmediateWithGetterMutex.Unlock()
-	if stub != nil {
-		return stub(arg1, arg2, arg3)
+	if fake.PollImmediateWithGetterStub != nil {
+		return fake.PollImmediateWithGetterStub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
+	fakeReturns := fake.pollImmediateWithGetterReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 

@@ -1062,56 +1062,45 @@ func (c *TkgClient) createVsphereInfrastructureTemplateForUpgrade(regionalCluste
 }
 
 func (c *TkgClient) patchKubernetesVersionToKubeadmControlPlane(regionalClusterClient clusterclient.Client, clusterUpgradeConfig *clusterUpgradeInfo) error {
-	if clusterUpgradeConfig.ActualComponentInfo.KubernetesVersion == clusterUpgradeConfig.UpgradeComponentInfo.KubernetesVersion &&
+	log.V(6).Infof("Cluster Name: %s, Cluster Namespace %s", clusterUpgradeConfig.ClusterName, clusterUpgradeConfig.ClusterNamespace)
+	currentKCP, err := regionalClusterClient.GetKCPObjectForCluster(clusterUpgradeConfig.ClusterName, clusterUpgradeConfig.ClusterNamespace)
+	if err != nil {
+		return errors.Wrapf(err, "unable to get KCP object to increase the kube-vip timeouts. Continuing upgrade with old parameters. ")
+	}
+
+	var newKCP *capikubeadmv1beta1.KubeadmControlPlane
+	// If iaas == vsphere, attempt increasing kube-vip parameters
+	if currentKCP.Spec.MachineTemplate.InfrastructureRef.Kind == constants.VSphereMachineTemplate {
+		log.V(6).Infof("Kind %s", currentKCP.Spec.MachineTemplate.InfrastructureRef.Kind)
+		newKCP, _ = c.UpdateKCPObjectWithIncreasedKubeVip(currentKCP)
+		if newKCP != nil {
+			currentKCP = newKCP
+		}
+	}
+
+	// If unable to make kubevip updates, and the k8s version and the template name are unchanged, skip patching
+	if newKCP == nil && clusterUpgradeConfig.ActualComponentInfo.KubernetesVersion == clusterUpgradeConfig.UpgradeComponentInfo.KubernetesVersion &&
 		clusterUpgradeConfig.ActualComponentInfo.KCPInfrastructureTemplateName == clusterUpgradeConfig.UpgradeComponentInfo.KCPInfrastructureTemplateName {
 		log.Infof("Skipping KubeadmControlPlane patch as kubernetes versions are already same %s", clusterUpgradeConfig.UpgradeComponentInfo.KubernetesVersion)
 		return nil
 	}
 
-	patchString := `{
-		"spec": {
-		  "version": "%s",
-		  "machineTemplate": {
-			"infrastructureRef": {
-			  "name": "%s",
-			  "namespace": "%s"
-			}
-		  },
-		  "kubeadmConfigSpec": {
-			"clusterConfiguration": {
-			  "imageRepository" : "%s",
-			  "dns": {
-				"imageRepository": "%s",
-				"imageTag": "%s"
-			  },
-			  "etcd": {
-				"local": {
-				  "imageRepository": "%s",
-				  "imageTag": "%s"
-				}
-			  }
-			}
-		  }
-		}
-	  }`
-	patchKubernetesVersion := fmt.Sprintf(patchString,
-		clusterUpgradeConfig.UpgradeComponentInfo.KubernetesVersion,
-		clusterUpgradeConfig.UpgradeComponentInfo.KCPInfrastructureTemplateName,
-		clusterUpgradeConfig.UpgradeComponentInfo.KCPInfrastructureTemplateNamespace,
-		clusterUpgradeConfig.UpgradeComponentInfo.ImageRepository,
-		clusterUpgradeConfig.UpgradeComponentInfo.CoreDNSImageRepository,
-		clusterUpgradeConfig.UpgradeComponentInfo.CoreDNSImageTag,
-		clusterUpgradeConfig.UpgradeComponentInfo.EtcdImageRepository,
-		clusterUpgradeConfig.UpgradeComponentInfo.EtcdImageTag)
+	if !(clusterUpgradeConfig.ActualComponentInfo.KubernetesVersion == clusterUpgradeConfig.UpgradeComponentInfo.KubernetesVersion &&
+		clusterUpgradeConfig.ActualComponentInfo.KCPInfrastructureTemplateName == clusterUpgradeConfig.UpgradeComponentInfo.KCPInfrastructureTemplateName) {
+		log.Infof("Updating the KCP object with k8s version %s", clusterUpgradeConfig.UpgradeComponentInfo.KubernetesVersion)
 
-	log.V(3).Infof("Applying KubeadmControlPlane Patch: %s", patchKubernetesVersion)
+		currentKCP.Spec.Version = clusterUpgradeConfig.UpgradeComponentInfo.KubernetesVersion
+		currentKCP.Spec.MachineTemplate.InfrastructureRef.Name = clusterUpgradeConfig.UpgradeComponentInfo.KCPInfrastructureTemplateName
+		currentKCP.Spec.MachineTemplate.InfrastructureRef.Namespace = clusterUpgradeConfig.UpgradeComponentInfo.KCPInfrastructureTemplateNamespace
+		currentKCP.Spec.KubeadmConfigSpec.ClusterConfiguration.ImageRepository = clusterUpgradeConfig.UpgradeComponentInfo.ImageRepository
+		currentKCP.Spec.KubeadmConfigSpec.ClusterConfiguration.DNS.ImageRepository = clusterUpgradeConfig.UpgradeComponentInfo.CoreDNSImageRepository
+		currentKCP.Spec.KubeadmConfigSpec.ClusterConfiguration.DNS.ImageTag = clusterUpgradeConfig.UpgradeComponentInfo.CoreDNSImageTag
+		currentKCP.Spec.KubeadmConfigSpec.ClusterConfiguration.Etcd.Local.ImageRepository = clusterUpgradeConfig.UpgradeComponentInfo.EtcdImageRepository
+		currentKCP.Spec.KubeadmConfigSpec.ClusterConfiguration.Etcd.Local.ImageTag = clusterUpgradeConfig.UpgradeComponentInfo.EtcdImageTag
+	}
 
-	// Using polling to retry on any failed patch attempt. Sometimes if user upgrade
-	// workload cluster right after management cluster upgrade there is a chance
-	// that all controller pods are not started on management cluster
-	// and in this case patch fails. Retrying again should fix this issue.
 	pollOptions := &clusterclient.PollOptions{Interval: upgradePatchInterval, Timeout: upgradePatchTimeout}
-	err := regionalClusterClient.PatchResource(&capikubeadmv1beta1.KubeadmControlPlane{}, clusterUpgradeConfig.KCPObjectName, clusterUpgradeConfig.KCPObjectNamespace, patchKubernetesVersion, types.MergePatchType, pollOptions)
+	err = regionalClusterClient.UpdateResourceWithPolling(currentKCP, clusterUpgradeConfig.KCPObjectName, clusterUpgradeConfig.KCPObjectNamespace, pollOptions)
 	if err != nil {
 		return errors.Wrap(err, "unable to update the kubernetes version for kubeadm control plane nodes")
 	}

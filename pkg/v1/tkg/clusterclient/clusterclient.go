@@ -170,6 +170,8 @@ type Client interface {
 	// namespace is namespace in which the resource to be created, if empty current namespace will be used
 	// opts is options for resource creation
 	UpdateResource(resourceReference interface{}, resourceName, namespace string, opts ...crtclient.UpdateOption) error
+	// UpdateResourceWithPolling wraps the UpdateResource function and allows the caller to retry the function until it succeeds
+	UpdateResourceWithPolling(resourceReference interface{}, resourceName, namespace string, pollOptions *PollOptions, opts ...crtclient.UpdateOption) error
 	// ExportCurrentKubeconfigToFile saves the current kubeconfig to temporary file and returns the file
 	ExportCurrentKubeconfigToFile() (string, error)
 	// GetCurrentKubeconfigFile returns currently used kubeconfig file path based on default loading rules
