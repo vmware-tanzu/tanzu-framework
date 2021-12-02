@@ -95,6 +95,7 @@ func processDiscoveryManifestData(data []byte, discoveryName string) ([]plugin.D
 
 		dp := DiscoveredFromK8sV1alpha1(&p)
 		dp.Source = discoveryName
+		dp.DiscoveryType = common.DiscoveryTypeOCI
 		if dp.Name != "" {
 			plugins = append(plugins, dp)
 		}
