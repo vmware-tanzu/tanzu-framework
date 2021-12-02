@@ -447,7 +447,7 @@ var _ = Describe("Unit tests for upgrade cluster", func() {
 
 		Context("When patch KCP fails", func() {
 			BeforeEach(func() {
-				regionalClusterClient.PatchResourceReturns(errors.New("fake-error-patch-resource"))
+				regionalClusterClient.UpdateResourceReturns(errors.New("fake-error-patch-resource"))
 			})
 			It("returns an error", func() {
 				Expect(err).To(HaveOccurred())
@@ -477,9 +477,7 @@ var _ = Describe("Unit tests for upgrade cluster", func() {
 		})
 		Context("When patch MD fails", func() {
 			BeforeEach(func() {
-				regionalClusterClient.PatchResourceReturnsOnCall(0, nil)
-				regionalClusterClient.PatchResourceReturnsOnCall(1, nil)
-				regionalClusterClient.PatchResourceReturnsOnCall(2, errors.New("fake-error-patch-resource-md"))
+				regionalClusterClient.PatchResourceReturnsOnCall(0, errors.New("fake-error-patch-resource-md"))
 			})
 			It("returns an error", func() {
 				Expect(err).To(HaveOccurred())
@@ -842,19 +840,28 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 	// 		Expect(err).NotTo(HaveOccurred())
 	// 	})
 	// })
-})
+	var _ = Describe("Test helper functions", func() {
+		Context("Testing the kube-vip modifier helper function", func() {
+			It("modifies the kube-vip parameters", func() {
+				pod := corev1.Pod{}
+				err := yaml.Unmarshal([]byte(kubeVipPodString), &pod)
+				Expect(err).To(BeNil())
 
-var _ = Describe("Test helper functions", func() {
-	Context("Testing the KCP modifier helper function", func() {
-		It("modifies the kube-vip parameters", func() {
-			pod := corev1.Pod{}
-			err := yaml.Unmarshal([]byte(kubeVipPodString), &pod)
-			Expect(err).To(BeNil())
+				newPodString, err := ModifyKubeVipTimeOutAndSerialize(&pod, "30", "20", "4")
+				Expect(err).To(BeNil())
 
-			newPodString, err := ModifyKubeVipTimeOutAndSerialize(&pod, "30", "20", "4")
-			Expect(err).To(BeNil())
+				Expect(newPodString).ToNot(BeNil())
+			})
+		})
+		Context("Testing the KCP modifier helper function", func() {
+			It("Updates the KCP object with increased timeouts", func() {
+				currentKCP := getDummyKCP(constants.VSphereMachineTemplate)
+				newKCP, err := tkgClient.UpdateKCPObjectWithIncreasedKubeVip(currentKCP)
 
-			Expect(newPodString).ToNot(BeNil())
+				Expect(err).To(BeNil())
+				Expect(len(newKCP.Spec.KubeadmConfigSpec.Files)).To(Equal(1))
+				Expect(newKCP.Spec.KubeadmConfigSpec.Files[0].Content).To(ContainSubstring("value: \"30\""))
+			})
 		})
 	})
 })
