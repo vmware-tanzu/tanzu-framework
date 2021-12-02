@@ -193,6 +193,13 @@ spec:
                   x-kubernetes-list-map-keys:
                     - name
                   x-kubernetes-list-type: map
+                serviceAccountName:
+                  description: ServiceAccountName is the name of the service account
+                    with which requests are made to the API server for evaluating queries.
+                    Service account should exist in the same namespace as this resource.
+                    When this field is not specified, a default service account with
+                    only the ability to execute GVR queries is used.
+                  type: string
               required:
                 - queries
               type: object
@@ -372,38 +379,10 @@ rules:
       - patch
       - update
   - apiGroups:
-      - run.tanzu.vmware.com
-    resources:
-      - tanzukubernetesreleases
-      - tanzukubernetesreleases/status
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - run.tanzu.vmware.com
-    resources:
-      - tanzukubernetesclusters
-      - tanzukubernetesclusters/status
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - clusterctl.cluster.x-k8s.io
-    resources:
-      - providers
-      - providers/status
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
       - ""
     resources:
-      - configmaps
-      - namespaces
-      - nodes
+      - serviceaccounts
+      - secrets
     verbs:
       - get
       - list
@@ -423,6 +402,16 @@ subjects:
   - kind: ServiceAccount
     name: tanzu-capabilities-manager-sa
     namespace: tkg-system
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: tanzu-capabilities-manager
+  name: tanzu-capabilities-manager-default-sa
+  namespace: tkg-system
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "capabilities/capabilities-controller"
 ---
 apiVersion: apps/v1
 kind: Deployment
