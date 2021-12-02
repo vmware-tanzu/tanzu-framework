@@ -69,7 +69,8 @@ func discoverPlugins(pd []v1alpha1.PluginDiscovery) ([]plugin.Discovered, error)
 
 		plugins, err := discObject.List()
 		if err != nil {
-			return nil, errors.Wrapf(err, "unable to list plugin from discovery '%v'", discObject.Name())
+			log.Warningf("unable to list plugin from discovery '%v': %v", discObject.Name(), err.Error())
+			continue
 		}
 		allPlugins = append(allPlugins, plugins...)
 	}
@@ -154,7 +155,49 @@ func AvailablePlugins(serverName string) ([]plugin.Discovered, error) {
 	setAvailablePluginsStatus(availablePlugins, installedSeverPluginDesc)
 	setAvailablePluginsStatus(availablePlugins, installedStandalonePluginDesc)
 
+	installedButNotDiscoveredPlugins := getInstalledButNotDiscoveredStandalonePlugins(availablePlugins, installedStandalonePluginDesc)
+	availablePlugins = append(availablePlugins, installedButNotDiscoveredPlugins...)
+
 	return availablePlugins, nil
+}
+
+func getInstalledButNotDiscoveredStandalonePlugins(availablePlugins []plugin.Discovered, installedPluginDesc []cliv1alpha1.PluginDescriptor) []plugin.Discovered {
+	var newPlugins []plugin.Discovered
+	for i := range installedPluginDesc {
+		found := false
+		for j := range availablePlugins {
+			if installedPluginDesc[i].Name == availablePlugins[j].Name {
+				found = true
+				// If plugin is installed but marked as not installed as part of availablePlugins list
+				// mark the plugin as installed
+				// This is possible if use has used --local mode to install the plugin which is also
+				// getting discovered from the configured discovery sources
+				if availablePlugins[j].Status == common.PluginStatusNotInstalled {
+					availablePlugins[j].Status = common.PluginStatusInstalled
+				}
+			}
+		}
+		if !found {
+			p := DiscoveredFromPluginDescriptor(installedPluginDesc[i])
+			p.Scope = common.PluginScopeStandalone
+			// (*) at the end of the status means that plugin is installed but is not discovered as part of any available discovery
+			p.Status = common.PluginStatusInstalled + "(*)"
+			newPlugins = append(newPlugins, p)
+		}
+	}
+	return newPlugins
+}
+
+// DiscoveredFromPluginDescriptor returns discovered plugin object from k8sV1alpha1
+func DiscoveredFromPluginDescriptor(p cliv1alpha1.PluginDescriptor) plugin.Discovered {
+	dp := plugin.Discovered{
+		Name:               p.Name,
+		Description:        p.Description,
+		RecommendedVersion: p.Version,
+	}
+	dp.SupportedVersions = []string{p.Version}
+	dp.Source = p.Discovery
+	return dp
 }
 
 func setAvailablePluginsStatus(availablePlugins []plugin.Discovered, installedPluginDesc []cliv1alpha1.PluginDescriptor) {
