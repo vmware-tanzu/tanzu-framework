@@ -435,8 +435,6 @@ func (c *TkgClient) applyPatchAndWait(regionalClusterClient, currentClusterClien
 	}
 
 	log.Info("Upgrading control plane nodes...")
-	log.Infof("Attempting to increase kube-vip timeouts")
-
 	log.Infof("Patching KubeadmControlPlane with the kubernetes version %s...", kubernetesVersion)
 	err = c.patchKubernetesVersionToKubeadmControlPlane(regionalClusterClient, upgradeClusterConfig)
 	if err != nil {
@@ -1101,7 +1099,8 @@ func (c *TkgClient) patchKubernetesVersionToKubeadmControlPlane(regionalClusterC
 		currentKCP.Spec.KubeadmConfigSpec.ClusterConfiguration.Etcd.Local.ImageTag = clusterUpgradeConfig.UpgradeComponentInfo.EtcdImageTag
 	}
 
-	err = regionalClusterClient.UpdateResource(currentKCP, clusterUpgradeConfig.KCPObjectName, clusterUpgradeConfig.KCPObjectNamespace)
+	pollOptions := &clusterclient.PollOptions{Interval: upgradePatchInterval, Timeout: upgradePatchTimeout}
+	err = regionalClusterClient.UpdateResourceWithPolling(currentKCP, clusterUpgradeConfig.KCPObjectName, clusterUpgradeConfig.KCPObjectNamespace, pollOptions)
 	if err != nil {
 		return errors.Wrap(err, "unable to update the kubernetes version for kubeadm control plane nodes")
 	}

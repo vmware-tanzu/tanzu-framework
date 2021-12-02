@@ -4,10 +4,9 @@ package fakes
 import (
 	"sync"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 )
 
 type CrtClientFactory struct {
@@ -36,16 +35,15 @@ func (fake *CrtClientFactory) NewClient(arg1 *rest.Config, arg2 client.Options) 
 		arg1 *rest.Config
 		arg2 client.Options
 	}{arg1, arg2})
-	stub := fake.NewClientStub
-	fakeReturns := fake.newClientReturns
 	fake.recordInvocation("NewClient", []interface{}{arg1, arg2})
 	fake.newClientMutex.Unlock()
-	if stub != nil {
-		return stub(arg1, arg2)
+	if fake.NewClientStub != nil {
+		return fake.NewClientStub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
+	fakeReturns := fake.newClientReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 

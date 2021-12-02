@@ -66,6 +66,18 @@ func (c *client) CreateResource(resourceReference interface{}, resourceName, nam
 	return nil
 }
 
+func (c *client) UpdateResourceWithPolling(resourceReference interface{}, resourceName, namespace string, pollOptions *PollOptions, opts ...crtclient.UpdateOption) error {
+	if pollOptions != nil {
+		log.V(6).Infof("Updating resource %s of type %s ...", resourceName, reflect.TypeOf(resourceReference))
+		_, err := c.poller.PollImmediateWithGetter(pollOptions.Interval, pollOptions.Timeout, func() (interface{}, error) {
+			return nil, c.UpdateResource(resourceReference, resourceName, namespace, opts...)
+		})
+		return err
+	}
+
+	return c.UpdateResource(resourceReference, resourceName, namespace, opts...)
+}
+
 func (c *client) UpdateResource(resourceReference interface{}, resourceName, namespace string, opts ...crtclient.UpdateOption) error {
 	obj, err := getRuntimeObject(resourceReference)
 	if err != nil {
