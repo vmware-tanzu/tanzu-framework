@@ -117,7 +117,7 @@ var _ = Describe("VC Client", func() {
 			})
 			It("should return the moid of the resource pool", func() {
 				Expect(err).ToNot(HaveOccurred())
-				Expect(rpMOID).To(Equal("resgroup-500"))
+				Expect(rpMOID).To(Equal("resgroup-365"))
 			})
 		})
 
@@ -180,7 +180,7 @@ var _ = Describe("VC Client", func() {
 			})
 			It("should return the folder moid", func() {
 				Expect(err).ToNot(HaveOccurred())
-				Expect(folderMOID).To(Equal("folder-3"))
+				Expect(folderMOID).To(Equal("group-3"))
 			})
 		})
 
@@ -201,7 +201,7 @@ var _ = Describe("VC Client", func() {
 			})
 			It("should return the vm moid", func() {
 				Expect(err).ToNot(HaveOccurred())
-				Expect(folderMOID).To(Equal("folder-3"))
+				Expect(folderMOID).To(Equal("group-3"))
 			})
 		})
 	})
@@ -226,7 +226,7 @@ var _ = Describe("VC Client", func() {
 			})
 			It("should return the vm moid", func() {
 				Expect(err).ToNot(HaveOccurred())
-				Expect(vmMOID).To(Equal("vm-471"))
+				Expect(vmMOID).To(Equal("vm-336"))
 			})
 		})
 
@@ -247,7 +247,7 @@ var _ = Describe("VC Client", func() {
 			})
 			It("should return the vm moid", func() {
 				Expect(err).ToNot(HaveOccurred())
-				Expect(vmMOID).To(Equal("vm-471"))
+				Expect(vmMOID).To(Equal("vm-336"))
 			})
 		})
 	})
@@ -262,7 +262,7 @@ var _ = Describe("VC Client", func() {
 					Name: "/DC0/host/DC0_C0/Resources",
 				},
 				{
-					Moid: "resgroup-500",
+					Moid: "resgroup-365",
 					Name: "/DC0/host/DC0_C0/Resources/ChildPool",
 				},
 				{
@@ -298,16 +298,19 @@ var _ = Describe("VC Client", func() {
 			datacenterMoID string
 			desiredResult  = []*models.VSphereNetwork{
 				{
-					Moid: "network-7",
-					Name: "/DC0/network/VM Network",
+					DisplayName: "/DC0/network/VM Network",
+					Moid:        "Network:network-7",
+					Name:        "/DC0/network/VM Network",
 				},
 				{
-					Moid: "dvportgroup-11",
-					Name: "DVS0-DVUplinks-9",
+					DisplayName: "DVS0-DVUplinks-9",
+					Moid:        "DistributedVirtualPortgroup:dvportgroup-11",
+					Name:        "DVS0-DVUplinks-9",
 				},
 				{
-					Moid: "dvportgroup-13",
-					Name: "DC0_DVPG0",
+					DisplayName: "DC0_DVPG0",
+					Moid:        "DistributedVirtualPortgroup:dvportgroup-13",
+					Name:        "DC0_DVPG0",
 				},
 			}
 		)
@@ -330,7 +333,7 @@ var _ = Describe("VC Client", func() {
 			folders        []*models.VSphereFolder
 			datacenterMoID string
 			desiredResult  = []*models.VSphereFolder{
-				{Moid: "folder-3", Name: "/DC0/vm"},
+				{Moid: "group-3", Name: "/DC0/vm"},
 			}
 		)
 		JustBeforeEach(func() {
@@ -354,22 +357,22 @@ var _ = Describe("VC Client", func() {
 			desiredResult  = []*models.VSphereVirtualMachine{
 				{
 					K8sVersion: "",
-					Moid:       "vm-465",
+					Moid:       "vm-330",
 					Name:       "/DC0/vm/DC0_H0_VM0",
 				},
 				{
 					K8sVersion: "",
-					Moid:       "vm-468",
+					Moid:       "vm-333",
 					Name:       "/DC0/vm/DC0_C0_RP0_VM0",
 				},
 				{
 					K8sVersion: "",
-					Moid:       "vm-471",
+					Moid:       "vm-336",
 					Name:       "/DC0/vm/DC0_C1_RP0_VM0",
 				},
 				{
 					K8sVersion: "",
-					Moid:       "vm-474",
+					Moid:       "vm-339",
 					Name:       "/DC0/vm/DC0_C2_RP0_VM0",
 				},
 			}
@@ -394,28 +397,28 @@ var _ = Describe("VC Client", func() {
 			datacenterMoID string
 			desiredResult  = []*models.VSphereManagementObject{
 				{
-					Moid:         "clustercomputeresource-27",
+					Moid:         "domain-c27",
 					Name:         "DC0_C0",
 					ParentMoid:   "",
 					Path:         "/DC0/host/DC0_C0",
 					ResourceType: "cluster",
 				},
 				{
-					Moid:         "resgroup-500",
+					Moid:         "resgroup-365",
 					Name:         "ChildPool",
-					ParentMoid:   "clustercomputeresource-27",
+					ParentMoid:   "domain-c27",
 					Path:         "/DC0/host/DC0_C0/Resources/ChildPool",
 					ResourceType: "respool",
 				},
 				{
-					Moid:         "clustercomputeresource-54",
+					Moid:         "domain-c54",
 					Name:         "DC0_C1",
 					ParentMoid:   "",
 					Path:         "/DC0/host/DC0_C1",
 					ResourceType: "cluster",
 				},
 				{
-					Moid:         "clustercomputeresource-81",
+					Moid:         "domain-c81",
 					Name:         "DC0_C2",
 					ParentMoid:   "",
 					Path:         "/DC0/host/DC0_C2",
@@ -533,7 +536,28 @@ var _ = Describe("VC Client", func() {
 			})
 		})
 	})
+
+	Describe("getDuplicateNetworks", func() {
+		It("return networks with duplicate names", func() {
+			networkNames := []string{"/dc0/network/network11", "/dc0/network/network10", "/dc0/network/network12", "/dc0/network/network10", "/dc0/network/network11"}
+			networks := getNetworksFromNameList(networkNames)
+			duplNetworks := vc.GetDuplicateNetworks(networks)
+			Expect(duplNetworks).To(HaveKey("/dc0/network/network10"))
+			Expect(duplNetworks).To(HaveKey("/dc0/network/network11"))
+		})
+	})
 })
+
+func getNetworksFromNameList(networkNames []string) []*models.VSphereNetwork {
+	networks := []*models.VSphereNetwork{}
+	for _, networkName := range networkNames {
+		networks = append(networks, &models.VSphereNetwork{
+			Name: networkName,
+		})
+	}
+
+	return networks
+}
 
 func createResourcePool(u *url.URL) error {
 	c, err := govmomi.NewClient(context.Background(), u, true)

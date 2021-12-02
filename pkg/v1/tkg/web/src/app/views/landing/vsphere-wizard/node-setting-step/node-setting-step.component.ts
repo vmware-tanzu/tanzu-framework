@@ -12,13 +12,14 @@ import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-
 /**
  * App imports
  */
-import { PROVIDERS, Providers } from '../../../../shared/constants/app.constants';
-import { NodeType, vSphereNodeTypes } from '../../wizard/shared/constants/wizard.constants';
+import { InstanceType, IpFamilyEnum, PROVIDERS, Providers } from '../../../../shared/constants/app.constants';
+import { NodeType } from '../../wizard/shared/constants/wizard.constants';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER } from '../../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
 import Broker from 'src/app/shared/service/broker';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
+import { VsphereField, vSphereNodeTypes } from "../vsphere-wizard.constants";
 
 @Component({
     selector: 'app-node-setting-step',
@@ -49,43 +50,43 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     ngOnInit() {
         super.ngOnInit();
         this.formGroup.addControl(
-            'controlPlaneSetting',
+            VsphereField.NODESETTING_CONTROL_PLANE_SETTING,
             new FormControl('', [
                 Validators.required
             ])
         );
         this.formGroup.addControl(
-            'devInstanceType',
+            VsphereField.NODESETTING_INSTANCE_TYPE_DEV,
             new FormControl('', [
                 Validators.required
             ])
         );
         this.formGroup.addControl(
-            'prodInstanceType',
+            VsphereField.NODESETTING_INSTANCE_TYPE_PROD,
             new FormControl('', [
                 Validators.required
             ])
         );
         this.formGroup.addControl(
-            'machineHealthChecksEnabled',
+            VsphereField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED,
             new FormControl(true, [])
         );
-        if (this.clusterType !== 'standalone') {
+        if (!this.modeClusterStandalone) {
             this.formGroup.addControl(
-                'workerNodeInstanceType',
+                VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE,
                 new FormControl('', [
                     Validators.required
                 ])
             );
         }
         this.formGroup.addControl(
-            'clusterName',
+            VsphereField.NODESETTING_CLUSTER_NAME,
             new FormControl('', [
                 this.validationService.isValidClusterName()
             ])
         );
         this.formGroup.addControl(
-            'controlPlaneEndpointIP',
+            VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_IP,
             new FormControl('', [
                 Validators.required,
                 this.validationService.isValidIpOrFqdn()
@@ -93,73 +94,82 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         );
 
         this.formGroup.addControl(
-            'controlPlaneEndpointProvider',
+            VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_PROVIDER,
             new FormControl(this.currentControlPlaneEndpoingProvider, [
                 Validators.required
             ])
         );
 
-        this.registerOnValueChange("controlPlaneEndpointProvider", this.onControlPlaneEndpoingProviderChange.bind(this));
+        this.registerOnValueChange(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_PROVIDER,
+            this.onControlPlaneEndpoingProviderChange.bind(this));
+        this.registerOnIpFamilyChange(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_IP, [
+            Validators.required,
+            this.validationService.isValidIpOrFqdn()
+        ], [
+            Validators.required,
+            this.validationService.isValidIpv6OrFqdn()
+        ]);
 
         setTimeout(_ => {
             this.displayForm = true;
-            this.formGroup.get('controlPlaneSetting').valueChanges.subscribe(data => {
-                if (data === 'dev') {
-                    this.nodeType = 'dev';
-                    this.formGroup.get('devInstanceType').setValidators([
+            this.formGroup.get(VsphereField.NODESETTING_CONTROL_PLANE_SETTING).valueChanges.subscribe(data => {
+                if (data === InstanceType.DEV) {
+                    this.nodeType = InstanceType.DEV;
+                    this.formGroup.get(VsphereField.NODESETTING_INSTANCE_TYPE_DEV).setValidators([
                         Validators.required
                     ]);
-                    this.formGroup.controls['prodInstanceType'].clearValidators();
-                    this.formGroup.controls['prodInstanceType'].setValue('');
-                } else if (data === 'prod') {
-                    this.nodeType = 'prod';
-                    this.formGroup.controls['prodInstanceType'].setValidators([
+                    this.formGroup.controls[VsphereField.NODESETTING_INSTANCE_TYPE_PROD].clearValidators();
+                    this.formGroup.controls[VsphereField.NODESETTING_INSTANCE_TYPE_PROD].setValue('');
+                } else if (data === InstanceType.PROD) {
+                    this.nodeType = InstanceType.PROD;
+                    this.formGroup.controls[VsphereField.NODESETTING_INSTANCE_TYPE_PROD].setValidators([
                         Validators.required
                     ]);
-                    this.formGroup.get('devInstanceType').clearValidators();
-                    this.formGroup.controls['devInstanceType'].setValue('');
+                    this.formGroup.get(VsphereField.NODESETTING_INSTANCE_TYPE_DEV).clearValidators();
+                    this.formGroup.controls[VsphereField.NODESETTING_INSTANCE_TYPE_DEV].setValue('');
                 }
-                this.formGroup.get('devInstanceType').updateValueAndValidity();
-                this.formGroup.controls['prodInstanceType'].updateValueAndValidity();
+                this.formGroup.get(VsphereField.NODESETTING_INSTANCE_TYPE_DEV).updateValueAndValidity();
+                this.formGroup.controls[VsphereField.NODESETTING_INSTANCE_TYPE_PROD].updateValueAndValidity();
             });
 
-            this.formGroup.get('devInstanceType').valueChanges.subscribe(data => {
-                if (this.clusterType !== 'standalone') {
-                    this.formGroup.get('workerNodeInstanceType').setValue(data);
+            this.formGroup.get(VsphereField.NODESETTING_INSTANCE_TYPE_DEV).valueChanges.subscribe(data => {
+                if (!this.modeClusterStandalone) {
+                    this.formGroup.get(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE).setValue(data);
                 }
-                this.formGroup.controls['workerNodeInstanceType'].updateValueAndValidity();
+                this.formGroup.controls[VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE].updateValueAndValidity();
             });
 
-            this.formGroup.get('prodInstanceType').valueChanges.subscribe(data => {
-                if (this.clusterType !== 'standalone') {
-                    this.formGroup.get('workerNodeInstanceType').setValue(data);
+            this.formGroup.get(VsphereField.NODESETTING_INSTANCE_TYPE_PROD).valueChanges.subscribe(data => {
+                if (!this.modeClusterStandalone) {
+                    this.formGroup.get(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE).setValue(data);
                 }
-                this.formGroup.controls['workerNodeInstanceType'].updateValueAndValidity();
+                this.formGroup.controls[VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE].updateValueAndValidity();
             });
 
             if (this.edition !== AppEdition.TKG) {
-                this.resurrectField('clusterName',
+                this.resurrectField(VsphereField.NODESETTING_CLUSTER_NAME,
                     [Validators.required, this.validationService.isValidClusterName()],
-                    this.formGroup.get('clusterName').value);
+                    this.formGroup.get(VsphereField.NODESETTING_CLUSTER_NAME).value);
             }
         });
     }
 
     setSavedDataAfterLoad() {
         if (this.hasSavedData()) {
-            this.cardClick(this.getSavedValue('devInstanceType', '') === '' ? 'prod' : 'dev');
+            const savedInstanceType = this.getSavedValue(VsphereField.NODESETTING_INSTANCE_TYPE_DEV, '');
+            this.cardClick(savedInstanceType === InstanceType.PROD ? InstanceType.PROD : InstanceType.DEV);
             super.setSavedDataAfterLoad();
             // set the node type ID by finding it by the node type name
-            let savedNodeType = this.nodeTypes.find(n => n.name === this.getSavedValue('devInstanceType', ''));
+            let savedNodeType = this.nodeTypes.find(n => n.name === this.getSavedValue(VsphereField.NODESETTING_INSTANCE_TYPE_DEV, ''));
             if (savedNodeType) {
-                this.formGroup.get('devInstanceType').setValue(savedNodeType.id);
+                this.formGroup.get(VsphereField.NODESETTING_INSTANCE_TYPE_DEV).setValue(savedNodeType.id);
             }
-            savedNodeType = this.nodeTypes.find(n => n.name === this.getSavedValue('prodInstanceType', ''));
+            savedNodeType = this.nodeTypes.find(n => n.name === this.getSavedValue(VsphereField.NODESETTING_INSTANCE_TYPE_PROD, ''));
             if (savedNodeType) {
-                this.formGroup.get('prodInstanceType').setValue(savedNodeType.id);
+                this.formGroup.get(VsphereField.NODESETTING_INSTANCE_TYPE_PROD).setValue(savedNodeType.id);
             }
-            savedNodeType = this.nodeTypes.find(n => n.name === this.getSavedValue('workerNodeInstanceType', ''));
-            this.formGroup.get('workerNodeInstanceType').setValue(savedNodeType ? savedNodeType.id : '');
+            savedNodeType = this.nodeTypes.find(n => n.name === this.getSavedValue(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE, ''));
+            this.formGroup.get(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE).setValue(savedNodeType ? savedNodeType.id : '');
         }
     }
 
@@ -169,21 +179,21 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             type: TkgEventType.CONTROL_PLANE_ENDPOINT_PROVIDER_CHANGED,
             payload: provider
         });
-        this.resurrectField("controlPlaneEndpointIP", (provider === KUBE_VIP) ? [
+        this.resurrectField(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_IP, (provider === KUBE_VIP) ? [
             Validators.required,
-            this.validationService.isValidIpOrFqdn()
+            this.ipFamily === IpFamilyEnum.IPv4 ? this.validationService.isValidIpOrFqdn() : this.validationService.isValidIpv6OrFqdn()
         ] : [
-            this.validationService.isValidIpOrFqdn()
-        ], this.getSavedValue("controlPlaneEndpointIP", ""));
+            this.ipFamily === IpFamilyEnum.IPv4 ? this.validationService.isValidIpOrFqdn() : this.validationService.isValidIpv6OrFqdn()
+        ], this.getSavedValue(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_IP, ''));
 
-        this.controlPlaneEndpointOptional = (provider === KUBE_VIP ? "" : "(OPTIONAL)");
+        this.controlPlaneEndpointOptional = (provider === KUBE_VIP ? '' : '(OPTIONAL)');
     }
 
     cardClick(envType: string) {
-        this.formGroup.controls['controlPlaneSetting'].setValue(envType);
+        this.formGroup.controls[VsphereField.NODESETTING_CONTROL_PLANE_SETTING].setValue(envType);
     }
 
     getEnvType(): string {
-        return this.formGroup.controls['controlPlaneSetting'].value;
+        return this.formGroup.controls[VsphereField.NODESETTING_CONTROL_PLANE_SETTING].value;
     }
 }

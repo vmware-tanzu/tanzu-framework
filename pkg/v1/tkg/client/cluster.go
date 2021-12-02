@@ -14,7 +14,7 @@ import (
 	clusterctlclient "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/cluster"
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/repository"
-	addonsv1 "sigs.k8s.io/cluster-api/exp/addons/api/v1alpha3"
+	addonsv1 "sigs.k8s.io/cluster-api/exp/addons/api/v1beta1"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
@@ -35,7 +35,7 @@ const (
 	// DockerProviderName docker provider name
 	DockerProviderName = "docker"
 
-	defaultPacificProviderVersion = "v1.0.0"
+	defaultPacificProviderVersion = "v1.1.0"
 )
 
 const (
@@ -63,7 +63,7 @@ var TKGSupportedClusterOptions string
 
 // CreateCluster create workload cluster
 func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster bool) error { //nolint:gocyclo,funlen
-	if err := checkClusterNameFormat(options.ClusterName); err != nil {
+	if err := CheckClusterNameFormat(options.ClusterName, options.ProviderRepositorySource.InfrastructureProvider); err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 	log.Info("Validating configuration...")
@@ -98,6 +98,10 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 		return errors.Wrap(err, "error determining Tanzu Kubernetes Cluster service for vSphere management cluster ")
 	}
 	if isPacific {
+		err := c.ValidatePacificVersionWithCLI(regionalClusterClient)
+		if err != nil {
+			return err
+		}
 		return c.createPacificCluster(options, waitForCluster)
 	}
 
@@ -126,7 +130,7 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 	if err != nil {
 		return err
 	}
-	bytes, err = c.getClusterConfiguration(&options.ClusterConfigOptions, isManagementCluster, infraProviderName)
+	bytes, err = c.getClusterConfiguration(&options.ClusterConfigOptions, isManagementCluster, infraProviderName, options.IsWindowsWorkloadCluster)
 	if err != nil {
 		return errors.Wrap(err, "unable to get cluster configuration")
 	}
@@ -203,7 +207,7 @@ func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.C
 	}
 
 	log.Info("Waiting for packages to be up and running...")
-	if err := c.WaitForPackages(regionalClusterClient, workloadClusterClient, options.ClusterName, options.TargetNamespace); err != nil {
+	if err := c.WaitForPackages(regionalClusterClient, workloadClusterClient, options.ClusterName, options.TargetNamespace, false); err != nil {
 		log.Warningf("Warning: Cluster is created successfully, but some packages are failing. %v", err)
 	}
 
@@ -365,7 +369,7 @@ func (c *TkgClient) createPacificCluster(options *CreateClusterOptions, waitForC
 
 	log.V(3).Infof("Waiting for the Tanzu Kubernetes Cluster service for vSphere workload cluster\n")
 
-	if err := clusterClient.WaitForPacificCluster(clusterName, namespace, ""); err != nil {
+	if err := clusterClient.WaitForPacificCluster(clusterName, namespace); err != nil {
 		return errors.Wrap(err, "failed waiting for workload cluster")
 	}
 	return nil
@@ -383,7 +387,7 @@ func (c *TkgClient) getPacificClusterConfiguration(options *CreateClusterOptions
 	}
 
 	if providerVersion == "" {
-		// TODO: should be changed once we get APIs from Pacific to determine the version, for now using "1.0.0"
+		// TODO: should be changed once we get APIs from Pacific to determine the version, for now using "1.1.0"
 		providerVersion = defaultPacificProviderVersion
 	}
 
@@ -392,6 +396,11 @@ func (c *TkgClient) getPacificClusterConfiguration(options *CreateClusterOptions
 	c.SetProviderType(name)
 	c.SetTKGClusterRole(WorkloadCluster)
 	c.SetTKGVersion()
+	tkrName := utils.GetTkrNameFromTkrVersion(options.TKRVersion)
+	if !strings.HasPrefix(tkrName, "v") {
+		tkrName = "v" + tkrName
+	}
+	c.TKGConfigReaderWriter().Set(constants.ConfigVariableTkrName, tkrName)
 	err = c.ConfigureAndValidateCNIType(options.CniType)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to validate CNI")
@@ -541,7 +550,11 @@ func (c *TkgClient) ConfigureAndValidateWorkloadClusterConfiguration(options *Cr
 		return NewValidationError(ValidationErrorCode, errors.Wrap(err, "unable to validate CNI type").Error())
 	}
 
-	if err = c.configureAndValidateIPFamilyConfiguration(); err != nil {
+	if err = c.configureAndValidateIPFamilyConfiguration(TkgLabelClusterRoleWorkload); err != nil {
+		return NewValidationError(ValidationErrorCode, err.Error())
+	}
+
+	if err = c.ConfigureAndValidateNameserverConfiguration(TkgLabelClusterRoleWorkload); err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 

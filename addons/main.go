@@ -16,8 +16,8 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"k8s.io/klog"
 	"k8s.io/klog/klogr"
-	clusterapiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
-	controlplanev1alpha3 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
+	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	controlplanev1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
@@ -46,8 +46,8 @@ func init() {
 	_ = kapppkg.AddToScheme(scheme)
 	_ = kappdatapkg.AddToScheme(scheme)
 	_ = runtanzuv1alpha1.AddToScheme(scheme)
-	_ = clusterapiv1alpha3.AddToScheme(scheme)
-	_ = controlplanev1alpha3.AddToScheme(scheme)
+	_ = clusterapiv1beta1.AddToScheme(scheme)
+	_ = controlplanev1beta1.AddToScheme(scheme)
 
 	// +kubebuilder:scaffold:scheme
 }
@@ -68,8 +68,8 @@ func main() {
 	var healthdAddr string
 
 	// controller configurations
-	flag.StringVar(&metricsAddr, "metrics-addr", ":8080", "The address the metric endpoint binds to.")
-	flag.BoolVar(&enableLeaderElection, "enable-leader-election", false,
+	flag.StringVar(&metricsAddr, "metrics-bind-addr", ":8080", "The address the metric endpoint binds to.")
+	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
 		"Enable leader election for controller manager. "+
 			"Enabling this will ensure there is only one active controller manager.")
 	flag.IntVar(&clusterConcurrency, "cluster-concurrency", 10,

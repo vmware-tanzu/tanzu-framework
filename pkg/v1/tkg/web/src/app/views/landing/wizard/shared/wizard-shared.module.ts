@@ -5,7 +5,6 @@ import { SharedModule } from '../../../../shared/shared.module';
 import { ValidationService } from './validation/validation.service';
 import { StepFormNotificationComponent } from './step-form-notification/step-form-notification.component';
 import { StepControllerComponent } from './step-controller/step-controller.component';
-import { SharedRegisterTmcStepComponent } from './components/steps/register-tmc-step/register-tmc-step.component';
 import { SharedCeipStepComponent } from './components/steps/ceip-step/ceip-step.component';
 import { SharedNetworkStepComponent } from './components/steps/network-step/network-step.component';
 import { SharedLoadBalancerStepComponent } from './components/steps/load-balancer/load-balancer-step.component';
@@ -22,7 +21,6 @@ import { SharedOsImageStepComponent } from './components/steps/os-image-step/os-
     declarations: [
         StepFormNotificationComponent,
         StepControllerComponent,
-        SharedRegisterTmcStepComponent,
         SharedCeipStepComponent,
         SharedNetworkStepComponent,
         SharedLoadBalancerStepComponent,
@@ -42,7 +40,6 @@ import { SharedOsImageStepComponent } from './components/steps/os-image-step/os-
     exports: [
         StepFormNotificationComponent,
         StepControllerComponent,
-        SharedRegisterTmcStepComponent,
         SharedCeipStepComponent,
         SharedNetworkStepComponent,
         SharedLoadBalancerStepComponent,

@@ -8,11 +8,16 @@ echo "#############################"
 echo "Verify uncommitted files..."
 echo "#############################"
 
-if ! (git diff --quiet HEAD -- .); then
+# Option to ignore changes to compatibility image path in
+# pkg/v1/tkg/tkgconfigpaths/zz_bundled_default_bom_files_configdata.go. This is to support `usebom` directive
+# in tests.
+ignore_file=':!pkg/v1/tkg/tkgconfigpaths/zz_bundled_default_bom_files_configdata.go'
+
+if ! (git diff --quiet HEAD -- . "${ignore_file}"); then
    echo -e "\nThe following files are uncommitted. Please commit them or add them to .gitignore:";
-   git diff --name-only HEAD -- . | awk '{print "- " $0}'
+   git diff --name-only HEAD -- . "${ignore_file}" | awk '{print "- " $0}'
    echo -e "\nDiff:"
-   git diff HEAD -- .
+   git --no-pager diff  HEAD -- . "${ignore_file}"
    exit 1
 else
    echo "OK"
@@ -24,7 +29,7 @@ echo "#############################"
 echo "Verify make configure-bom..."
 echo "#############################"
 make configure-bom
-if ! (git diff --quiet HEAD -- .); then
+if ! (git diff --quiet HEAD -- . "${ignore_file}"); then
   echo "FAIL"
   echo "'make configure-bom' generated diffs!"
   echo "Please verify if default BOM variable changes are intended and commit the diffs if so."

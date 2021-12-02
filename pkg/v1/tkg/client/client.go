@@ -8,12 +8,14 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
+	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 	clusterctltree "sigs.k8s.io/cluster-api/cmd/clusterctl/client/tree"
 
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	tkgsv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
 
 	clusterctlconfig "sigs.k8s.io/cluster-api/cmd/clusterctl/client/config"
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/repository"
@@ -50,6 +52,7 @@ type CreateClusterOptions struct {
 	ClusterOptionsEnableList    []string
 	VsphereControlPlaneEndpoint string
 	SkipValidation              bool
+	IsWindowsWorkloadCluster    bool
 	ClusterType                 TKGClusterType
 	Edition                     string
 }
@@ -66,8 +69,6 @@ type InitRegionOptions struct {
 	InfrastructureProvider      string
 	ControlPlaneProvider        string
 	Namespace                   string
-	WatchingNamespace           string
-	TmcRegistrationURL          string
 	CniType                     string
 	VsphereControlPlaneEndpoint string
 	Edition                     string
@@ -86,6 +87,13 @@ type DeleteRegionOptions struct {
 	ClusterName        string
 	Force              bool
 	UseExistingCluster bool
+}
+
+//go:generate counterfeiter -o ../fakes/featureflagclient.go --fake-name FeatureFlagClient . FeatureFlagClient
+
+// FeatureFlagClient is used to check if a feature is active
+type FeatureFlagClient interface {
+	IsConfigFeatureActivated(featurePath string) (bool, error)
 }
 
 //go:generate counterfeiter -o ../fakes/client.go --fake-name Client . Client
@@ -111,8 +119,6 @@ type Client interface {
 	CreateAWSCloudFormationStack() error
 	// DeleteRegion deletes management cluster via a self-provisioned kind cluster
 	DeleteRegion(options DeleteRegionOptions) error
-	// DeRegisterManagementClusterFromTmc deregisters management cluster from Tanzu Mission Control
-	DeRegisterManagementClusterFromTmc(clusterName string) error
 	// VerifyRegion checks if the kube context points to a management clusters,
 	VerifyRegion(kubeConfigPath string) (region.RegionContext, error)
 	// AddRegionContext adds a management cluster context to tkg config file
@@ -121,6 +127,8 @@ type Client interface {
 	GetRegionContexts(clusterName string) ([]region.RegionContext, error)
 	// SetRegionContext sets a management cluster context to be current context
 	SetRegionContext(clusterName string, contextName string) error
+	// GenerateAWSCloudFormationTemplate generates a CloudFormation YAML template
+	GenerateAWSCloudFormationTemplate() (string, error)
 	// GetCurrentRegionContext() gets the current management cluster context
 	GetCurrentRegionContext() (region.RegionContext, error)
 	// GetWorkloadClusterCredentials merges workload cluster credentials into kubeconfig path
@@ -138,8 +146,6 @@ type Client interface {
 	ConfigureAndValidateManagementClusterConfiguration(options *InitRegionOptions, skipValidation bool) *ValidationError
 	// UpgradeManagementCluster upgrades tkg cluster to specific kubernetes version
 	UpgradeManagementCluster(options *UpgradeClusterOptions) error
-	// Register management cluster to Tanzu Mission Control
-	RegisterManagementClusterToTmc(kubeConfigPath string, tmcRegistrationURL string) error
 	// Opt-in/out to CEIP on Management Cluster
 	SetCEIPParticipation(ceipOptIn bool, isProd string, labels string) error
 	// Get opt-in/out status for CEIP on all Management Clusters
@@ -154,6 +160,9 @@ type Client interface {
 	SetMachineHealthCheck(options *SetMachineHealthCheckOptions) error
 	// GetMachineDeployments gets a list of MachineDeployments for a cluster
 	GetMachineDeployments(options GetMachineDeploymentOptions) ([]capi.MachineDeployment, error)
+	// GetPacificMachineDeployments gets machine deployments from a Pacific cluster
+	// Note: This would be soon deprecated after TKGS and TKGm adopt the clusterclass
+	GetPacificMachineDeployments(options GetMachineDeploymentOptions) ([]capiv1alpha3.MachineDeployment, error)
 	// SetMachineDeployment create machine deployment in a cluster
 	SetMachineDeployment(options *SetMachineDeploymentOptions) error
 	// DeleteMachineDeployment deletes a machine deployment in a cluster
@@ -164,8 +173,10 @@ type Client interface {
 	ParseHiddenArgsAsFeatureFlags(options *InitRegionOptions)
 	// SaveFeatureFlags saves the feature flags to the config file via featuresClient
 	SaveFeatureFlags(featureFlags map[string]string) error
-	// ValidatePrerequisites valides prerequisites for init command
+	// ValidatePrerequisites validates prerequisites for init command
 	ValidatePrerequisites(validateDocker, validateKubectl bool) error
+	// ValidateDockerResourcePrerequisites validates resource prerequisites for docker
+	ValidateDockerResourcePrerequisites() error
 	// GetVSphereEndpoint creates the vSphere client using the credentials from the management cluster if cluster client is provided,
 	// otherwise, the vSphere client will be created from the credentials set in the user's environment.
 	GetVSphereEndpoint(client clusterclient.Client) (vc.Client, error)
@@ -193,6 +204,12 @@ type Client interface {
 	ActivateTanzuKubernetesReleases(tkrName string) error
 	// DeactivateTanzuKubernetesReleases deactivates TanzuKubernetesRelease
 	DeactivateTanzuKubernetesReleases(tkrName string) error
+	// IsPacificRegionalCluster checks if the cluster pointed to by kubeconfig  is Pacific management cluster(supervisor)
+	IsPacificRegionalCluster() (bool, error)
+	// GetPacificClusterObject gets Pacific cluster object
+	GetPacificClusterObject(clusterName, namespace string) (*tkgsv1alpha2.TanzuKubernetesCluster, error)
+	// IsFeatureActivated checks if a given feature flag is active
+	IsFeatureActivated(feature string) bool
 }
 
 // TkgClient implements Client.
@@ -210,6 +227,7 @@ type TkgClient struct {
 	tkgConfigPathsClient     tkgconfigpaths.Client
 	clusterKubeConfig        *types.ClusterKubeConfig
 	clusterClientFactory     clusterclient.ClusterClientFactory
+	featureFlagClient        FeatureFlagClient
 }
 
 // Options new client options
@@ -226,6 +244,7 @@ type Options struct {
 	TKGPathsClient           tkgconfigpaths.Client
 	ClusterKubeConfig        *types.ClusterKubeConfig
 	ClusterClientFactory     clusterclient.ClusterClientFactory
+	FeatureFlagClient        FeatureFlagClient
 }
 
 // ensure tkgClient implements Client.
@@ -255,10 +274,20 @@ func New(options Options) (*TkgClient, error) { // nolint:gocritic
 		tkgConfigPathsClient:     options.TKGPathsClient,
 		clusterKubeConfig:        options.ClusterKubeConfig,
 		clusterClientFactory:     options.ClusterClientFactory,
+		featureFlagClient:        options.FeatureFlagClient,
 	}, nil
 }
 
 // TKGConfigReaderWriter returns tkgConfigReaderWriter client
 func (c *TkgClient) TKGConfigReaderWriter() tkgconfigreaderwriter.TKGConfigReaderWriter {
 	return c.readerwriterConfigClient.TKGConfigReaderWriter()
+}
+
+// IsFeatureActivated checkes if a feature flag is set to "true"
+func (c *TkgClient) IsFeatureActivated(feature string) bool {
+	result, err := c.featureFlagClient.IsConfigFeatureActivated(feature)
+	if err != nil {
+		return false
+	}
+	return result
 }

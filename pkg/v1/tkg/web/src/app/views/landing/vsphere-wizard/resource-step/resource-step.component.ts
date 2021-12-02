@@ -1,13 +1,12 @@
 /**
  * Angular Modules
  */
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {
     Validators,
     FormControl
 } from '@angular/forms';
 import { takeUntil } from 'rxjs/operators';
-import { ClrSelectedState } from '@clr/angular'
 import { combineLatest } from 'rxjs';
 
 /**
@@ -20,6 +19,7 @@ import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import Broker from 'src/app/shared/service/broker';
+import { VsphereField } from "../vsphere-wizard.constants";
 
 declare var sortPaths: any;
 
@@ -50,6 +50,12 @@ const DataTargets = {
     [TkgEventType.GET_VM_FOLDERS]: "vmFolders"
 };
 
+enum ResourceType {
+    CLUSTER = 'cluster',
+    DATACENTER = 'datacenter',
+    HOST = 'host',
+};
+
 @Component({
     selector: 'app-resource-step',
     templateUrl: './resource-step.component.html',
@@ -76,20 +82,20 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
         super.ngOnInit();
 
         this.formGroup.addControl(
-            'resourcePool',
+            VsphereField.RESOURCE_POOL,
             new FormControl('', [
                 Validators.required
             ])
         );
         this.formGroup.addControl(
-            'datastore',
+            VsphereField.RESOURCE_DATASTORE,
             new FormControl('', [
                 Validators.required
             ])
         );
 
         this.formGroup.addControl(
-            'vmFolder',
+            VsphereField.RESOURCE_VMFOLDER,
             new FormControl('', [
                 Validators.required
             ])
@@ -100,6 +106,15 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(errors => {
                 this.errorNotification = errors.filter(error => error).join(" ")
+            });
+
+        /**
+         * Whenever data center selection changes, reset the relevant fields
+        */
+        Broker.messenger.getSubject(TkgEventType.DATACENTER_CHANGED)
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe(event => {
+                this.resetFieldsUponDCChange();
             });
 
         DataSources.forEach(source => {
@@ -115,32 +130,25 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
                         this.constructResourceTree(data);
                     }
                     if (source === TkgEventType.GET_VM_FOLDERS) {
-                        this.resurrectField('vmFolder',
-                            [Validators.required, this.validationService.isValidNameInList(data.map(vmFolder => vmFolder.name))]);
+                        this.resurrectField(VsphereField.RESOURCE_VMFOLDER,
+                            [Validators.required, this.validationService.isValidNameInList(
+                                data.map(vmFolder => vmFolder.name))], data.length === 1 ? data[0].name : '');
                     }
                     if (source === TkgEventType.GET_DATA_STORES) {
-                        this.resurrectField('datastore',
-                            [Validators.required, this.validationService.isValidNameInList(data.map(vmFolder => vmFolder.name))]);
+                        this.resurrectField(VsphereField.RESOURCE_DATASTORE,
+                            [Validators.required, this.validationService.isValidNameInList(
+                                data.map(vmFolder => vmFolder.name))], data.length === 1 ? data[0].name : '');
                     }
                 });
         });
-
-        /**
-         * Whenever data center selection changes, reset the relevant fields
-        */
-        Broker.messenger.getSubject(TkgEventType.DATACENTER_CHANGED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(event => {
-                this.resetFieldsUponDCChange();
-            })
     }
 
     setSavedDataAfterLoad() {
         // overwritten to avoid setting resource pool because it causes ng-valid console errors
-        const resetFields = [
-            'resourcePool',
-            'datastore',
-            'vmFolder'
+        const resetFields: string[] = [
+            VsphereField.RESOURCE_POOL,
+            VsphereField.RESOURCE_DATASTORE,
+            VsphereField.RESOURCE_VMFOLDER
         ];
         if (this.hasSavedData()) {
             for (const [key, control] of Object.entries(this.formGroup.controls)) {
@@ -162,7 +170,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
 
     // Reset the relevent fields upon data center change
     resetFieldsUponDCChange() {
-        const fieldsToReset = ['resourcePool', 'datastore', 'vmFolder'];
+        const fieldsToReset = [VsphereField.RESOURCE_POOL, VsphereField.RESOURCE_DATASTORE, VsphereField.RESOURCE_VMFOLDER];
         fieldsToReset.forEach(f => this.formGroup.get(f).setValue(""));
     }
 
@@ -233,7 +241,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
 
         treeNodes.forEach(node => {
 
-            if (node.resourceType === 'host' || node.resourceType === 'cluster') {
+            if (node.resourceType === ResourceType.HOST || node.resourceType === ResourceType.CLUSTER) {
                 node.path += '/Resources';
             }
             const childNodes = map.get(node.moid) || [];
@@ -246,7 +254,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
     removeDatacenter(resourceTree: Array<ResourcePool>): Array<ResourcePool> {
         let rootNodes = [];
         resourceTree.forEach(resource => {
-            if (resource.resourceType === 'datacenter') {
+            if (resource.resourceType === ResourceType.DATACENTER) {
                 if (resource.children.length > 0) {
                     rootNodes = [...rootNodes, ...resource.children];
                 }
@@ -260,9 +268,9 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
     handleOnClick = (selected: ResourcePool) => {
         this.processData(this.treeData, selected);
         if (selected.checked) {
-            this.formGroup.get('resourcePool').setValue(selected.path);
+            this.formGroup.get(VsphereField.RESOURCE_POOL).setValue(selected.path);
         } else {
-            this.formGroup.get('resourcePool').setValue('');
+            this.formGroup.get(VsphereField.RESOURCE_POOL).setValue('');
         }
     }
 
@@ -281,23 +289,23 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
     }
 
     /**
-     * Get the current value of 'resourcePool'
+     * Get the current value of VsphereField.RESOURCE_POOL
      */
     get resourcePoolValue() {
-        return this.formGroup.get('resourcePool').value;
+        return this.formGroup.get(VsphereField.RESOURCE_POOL).value;
     }
 
     /**
-     * Get the current value of 'vmFolder'
+     * Get the current value of VsphereField.RESOURCE_VMFOLDER
      */
     get vmFolderValue() {
-        return this.formGroup.get('vmFolder').value;
+        return this.formGroup.get(VsphereField.RESOURCE_VMFOLDER).value;
     }
 
     /**
-     * Get the current value of 'datastore'
+     * Get the current value of VsphereField.RESOURCE_DATASTORE
      */
     get datastoreValue() {
-        return this.formGroup.get('datastore').value;
+        return this.formGroup.get(VsphereField.RESOURCE_DATASTORE).value;
     }
 }

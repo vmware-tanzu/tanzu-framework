@@ -96,7 +96,7 @@ To generate manifests for the controller, do:
 ```shell
 $ make manifests
 ~/go/bin/controller-gen \
-"crd:trivialVersions=false" \
+"crd" \
 paths=./apis/... \
 output:crd:artifacts:config=config/crd/bases
 ```

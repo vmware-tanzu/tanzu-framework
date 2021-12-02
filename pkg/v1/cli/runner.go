@@ -11,25 +11,28 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/aunum/log"
 )
 
 // Runner is a plugin runner.
 type Runner struct {
-	name       string
-	args       []string
-	pluginRoot string
+	name          string
+	args          []string
+	pluginRoot    string
+	pluginAbsPath string
 }
 
 // NewRunner creates an instance of Runner.
-func NewRunner(name string, args []string, options ...Option) *Runner {
+func NewRunner(name, pluginAbsPath string, args []string, options ...Option) *Runner {
 	opts := makeDefaultOptions(options...)
 
 	r := &Runner{
-		name:       name,
-		args:       args,
-		pluginRoot: opts.pluginRoot,
+		name:          name,
+		args:          args,
+		pluginRoot:    opts.pluginRoot,
+		pluginAbsPath: pluginAbsPath,
 	}
 	return r
 }
@@ -65,7 +68,7 @@ func (r *Runner) RunOutput(ctx context.Context) (string, string, error) {
 // execution is emitted to os.Stdout and os.Stderr respectively. Otherwise any command output
 // is captured in the bytes.Buffer.
 func (r *Runner) run(ctx context.Context, pluginPath string, stdout, stderr *bytes.Buffer) error {
-	if BuildArch().IsWindows() {
+	if BuildArch().IsWindows() && !strings.HasSuffix(pluginPath, ".exe") {
 		pluginPath += ".exe"
 	}
 
@@ -130,6 +133,9 @@ func (r *Runner) pluginName() string {
 }
 
 func (r *Runner) pluginPath() string {
+	if r.pluginAbsPath != "" {
+		return r.pluginAbsPath
+	}
 	return filepath.Join(r.pluginRoot, r.pluginName())
 }
 

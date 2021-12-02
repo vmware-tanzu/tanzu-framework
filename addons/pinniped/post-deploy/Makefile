@@ -6,18 +6,22 @@
 
 .DEFAULT_GOAL:=help
 
-export GOPROXY ?= https://build-artifactory.eng.vmware.com/gocenter.io/
-export GOSUMDB ?= off
-
 GIT_VERSION ?= $(shell git describe --always --tags)
 GIT_REF_LONG = $(shell git rev-parse --verify HEAD)
 # Release version
 VERSION ?= $(GIT_VERSION)
 
+.PHONY: test
+test: fmt vet ## Run tests
+	go test ./... -coverprofile cover.out -v 2
+
 .PHONY: fmt
 fmt: ## Format the code base
-	gofmt -w ./pkg ./main.go
-	goimports -w ./pkg ./main.go
+	go fmt ./...
+
+.PHONY: vet
+vet: ## Vet codebase
+	go vet ./...
 
 native: ## Build binary
 	CGO_ENABLED=0 go build -o tkg-pinniped-post-deploy -ldflags="-s -w -X $(GOTARGET)/pkg/buildinfo.Version=$(GIT_VERSION) -X github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/buildinfo.GitSHA=$(GIT_REF_LONG)" github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy

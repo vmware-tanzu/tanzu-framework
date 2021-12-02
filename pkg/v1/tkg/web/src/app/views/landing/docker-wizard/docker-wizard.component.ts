@@ -47,8 +47,6 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
             }),
             dockerNodeSettingForm: this.formBuilder.group({
             })
-            // identityForm: this.formBuilder.group({
-            // })
         });
     }
 
@@ -62,19 +60,6 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         } else if (stepName === 'nodeSetting') {
             return 'Optional: Specify the management cluster name'
         }
-
-        // else if (stepName === 'identity') {
-        //     if (this.getFieldValue('identityForm', 'identityType') === 'oidc' &&
-        //         this.getFieldValue('identityForm', 'issuerURL')) {
-        //         return 'OIDC configured: ' + this.getFieldValue('identityForm', 'issuerURL')
-        //     } else if (this.getFieldValue('identityForm', 'identityType') === 'ldap' &&
-        //         this.getFieldValue('identityForm', 'endpointIp')) {
-        //         return 'LDAP configured: ' + this.getFieldValue('identityForm', 'endpointIp') + ':' +
-        //         this.getFieldValue('identityForm', 'endpointPort');
-        //     } else {
-        //         return 'Specify identity management'
-        //     }
-        // }
     }
 
     getPayload() {
@@ -126,49 +111,9 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
             });
         }
 
-        // let ldap_url = '';
-        // if (this.getFieldValue('identityForm', 'endpointIp')) {
-        //     ldap_url = this.getFieldValue('identityForm', 'endpointIp') +
-        //         ':' + this.getFieldValue('identityForm', 'endpointPort');
-        // }
-
         payload.identityManagement = {
-            // 'idm_type': this.getFieldValue('identityForm', 'identityType') || 'none'
             'idm_type': 'none'
         }
-
-        // if (this.getFieldValue('identityForm', 'identityType') === 'oidc') {
-        //     payload.identityManagement = Object.assign({
-        //             'oidc_provider_name': '',
-        //             'oidc_provider_url': this.getFieldValue('identityForm', 'issuerURL'),
-        //             'oidc_client_id': this.getFieldValue('identityForm', 'clientId'),
-        //             'oidc_client_secret': this.getFieldValue('identityForm', 'clientSecret'),
-        //             'oidc_scope': this.getFieldValue('identityForm', 'scopes'),
-        //             'oidc_claim_mappings': {
-        //                 'username': this.getFieldValue('identityForm', 'oidcUsernameClaim'),
-        //                 'groups': this.getFieldValue('identityForm', 'oidcGroupsClaim')
-        //             }
-        //
-        //         }
-        //         , payload.identityManagement);
-        // } else if (this.getFieldValue('identityForm', 'identityType') === 'ldap') {
-        //     payload.identityManagement = Object.assign({
-        //             'ldap_url': ldap_url,
-        //             'ldap_bind_dn': this.getFieldValue('identityForm', 'bindDN'),
-        //             'ldap_bind_password': this.getFieldValue('identityForm', 'bindPW'),
-        //             'ldap_user_search_base_dn': this.getFieldValue('identityForm', 'userSearchBaseDN'),
-        //             'ldap_user_search_filter': this.getFieldValue('identityForm', 'userSearchFilter'),
-        //             'ldap_user_search_username': this.getFieldValue('identityForm', 'userSearchUsername'),
-        //             'ldap_user_search_name_attr': this.getFieldValue('identityForm', 'userSearchUsername'),
-        //             'ldap_group_search_base_dn': this.getFieldValue('identityForm', 'groupSearchBaseDN'),
-        //             'ldap_group_search_filter': this.getFieldValue('identityForm', 'groupSearchFilter'),
-        //             'ldap_group_search_user_attr': this.getFieldValue('identityForm', 'groupSearchUserAttr'),
-        //             'ldap_group_search_group_attr': this.getFieldValue('identityForm', 'groupSearchGroupAttr'),
-        //             'ldap_group_search_name_attr': this.getFieldValue('identityForm', 'groupSearchNameAttr'),
-        //             'ldap_root_ca': this.getFieldValue('identityForm', 'ldapRootCAData')
-        //         }
-        //         , payload.identityManagement);
-        // }
 
         return payload;
     }
@@ -184,12 +129,20 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         return this.getFieldValue('dockerNodeSettingForm', 'clusterName');
     }
 
+    /**
+     * Retrieve the config file from the backend and return as a string
+     */
+    retrieveExportFile() {
+        return this.apiClient.exportTKGConfigForDocker({ params: this.getPayload() });
+    }
+
     getCli(configPath: string): string {
         const cliG = new CliGenerator();
         const cliParams: CliFields = {
             configPath: configPath,
-            clusterType: this.clusterType,
-            clusterName: this.getMCName()
+            clusterType: this.getClusterType(),
+            clusterName: this.getMCName(),
+            extendCliCmds: []
         };
         return cliG.getCli(cliParams);
     }

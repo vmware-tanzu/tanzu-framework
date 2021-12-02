@@ -2,26 +2,27 @@ apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
   - git:
-      commitTitle: Add package templates Antrea 0.13.3 (#953)...
-      sha: df9a9cdea9886f1f5cc2856994739539cd5c5663
+      commitTitle: 'patch priorityClassName: system-node-critical in CPI  daemonset
+        (#2524)'
+      sha: 9e70164c014c23bc47848a576cde10621bab4677
       tags:
-      - v0.6.0-57-gdf9a9cd
+      - v0.10.0-dev.1-213-g9e70164c
     path: .
   path: ytt/vendir/vsphere_cpi/_ytt_lib
 - contents:
   - git:
-      commitTitle: remove antrean configmap kapp versioned annotation (#1008)...
-      sha: 0c8cf14639f151cc0268da53d133e1f6c0d836a9
+      commitTitle: 'fix: change cert-manager.io/v1alpha2 to cert-manager.io/v1 (#2411)...'
+      sha: 4886ea2defd2567eb0a8b2453bb10bf265d2842a
       tags:
-      - v0.6.0-65-g0c8cf14
+      - v0.10.0-dev.1-158-g4886ea2d
     path: .
   path: ytt/vendir/cni/_ytt_lib
 - contents:
   - git:
-      commitTitle: Changes for adding kapp controller in tce => release 0.23.0 (#1300)...
-      sha: d78628afa044bab34e492830530ee4fdf20f40f2
+      commitTitle: add kapp-controller 0.30.0 package (#2558)...
+      sha: 87e39a645a0d5c7ee4ae1839b3be6d5208ddd23b
       tags:
-      - v0.7.0-dev.4-5-gd78628a
+      - v0.10.0-dev.2-7-g87e39a64
     path: .
   path: ytt/vendir/kapp-controller/_ytt_lib
 kind: LockConfig

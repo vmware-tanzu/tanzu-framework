@@ -5,6 +5,7 @@ import { Injectable } from '@angular/core';
 import XRegExp from 'xregexp';
 import { AbstractControl } from '@angular/forms';
 import { Netmask } from 'netmask';
+import isIp from 'is-ip';
 
 /**
  * App imports
@@ -127,6 +128,25 @@ export class ValidationService {
     }
 
     /**
+     * @method isValidIpOrFqdn validator to check if input is valid IP or FQDN
+     */
+     isValidIpv6OrFqdn(): any {
+        return (control: AbstractControl) => {
+            const ctrlValue: string = control.value;
+            if (ctrlValue) {
+                if (isIp.v6(ctrlValue) ||
+                    validationMethods.isValidFqdn(ctrlValue)) {
+                    return null;
+                }
+
+                return {
+                    [ValidatorEnum.VALID_IP_OR_FQDN]: true
+                };
+            }
+        }
+    }
+
+    /**
      * @method isValidIpOrFqdnWithProtocol validator to check if input is valid IP or FQDN
      * with protocol prefix
      */
@@ -135,6 +155,26 @@ export class ValidationService {
             const ctrlValue: string = control.value;
             if (ctrlValue) {
                 if (validationMethods.isValidIpWithHttpsProtocol(ctrlValue) ||
+                    validationMethods.isValidFqdnWithHttpsProtocol(ctrlValue)) {
+                    return null;
+                }
+
+                return {
+                    [ValidatorEnum.VALID_IP_OR_FQDN]: true
+                };
+            }
+        }
+    }
+
+     /**
+     * @method isValidIpv6OrFqdnWithHttpsProtocol validator to check if input is valid IP or FQDN
+     * with protocol prefix
+     */
+      isValidIpv6OrFqdnWithHttpsProtocol(): any {
+        return (control: AbstractControl) => {
+            const ctrlValue: string = control.value;
+            if (ctrlValue) {
+                if (validationMethods.isValidIpv6WithHttpsProtocol(ctrlValue) ||
                     validationMethods.isValidFqdnWithHttpsProtocol(ctrlValue)) {
                     return null;
                 }
@@ -480,6 +520,34 @@ export class ValidationService {
     }
 
     /**
+     * @method isValidIpv6NetworkSegment
+     * xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx/xxx
+     */
+     isValidIpv6NetworkSegment(): any {
+        return (control: AbstractControl) => {
+            const ctrlValue: string = control.value;
+            if (ctrlValue) {
+                const ctrlValueList = ctrlValue.split('/');
+                if (ctrlValueList.length === 2) {
+                    if (!isIp.v6(ctrlValueList[0])) {
+                        return {
+                            [ValidatorEnum.VALID_IP]: true
+                        }
+                    }
+                    return ctrlValueList[1] && +ctrlValueList[1] >= 0 && +ctrlValueList[1] < 128 ? null : {
+                        [ValidatorEnum.VALID_IP]: true
+                    }
+                } else {
+                    return {
+                        [ValidatorEnum.VALID_IP]: true
+                    };
+                }
+            }
+            return null;
+        }
+    }
+
+    /**
      * @method isIpUnique
      * @param otherControls - array of IP controls to pass in; checks all IP's to confirm they are unique
      * @returns {function(AbstractControl): {}}
@@ -668,6 +736,43 @@ export class ValidationService {
             const inputVal = ipCtrl.value;
             if (inputVal) {
                 if (!validationMethods.isValidIp(inputVal) && !(validationMethods.isValidFqdn(inputVal))) {
+                    return {
+                        [ValidatorEnum.VALID_IP_OR_FQDN]: true
+                    };
+                }
+            } else {
+                return {
+                    [ValidatorEnum.REQUIRED]: true
+                };
+            }
+
+            if (control.value) {
+                if (!validationMethods.isNumericOnly(control.value)) {
+                    return {
+                        [ValidatorEnum.VALID_PORT]: true
+                    };
+                }
+                return null;
+            }
+
+            return {
+                [ValidatorEnum.REQUIRED]: true
+            };
+        }
+    }
+    /**
+     * @method isValidIpv6Ldap
+     *  - non-empty
+     *  - valid IP or FQDN
+     *  - valid port
+     *
+     * @param {AbstractControl} ipCtrl
+     */
+     isValidIpv6Ldap(ipCtrl: AbstractControl): any {
+        return (control: AbstractControl) => {
+            const inputVal = ipCtrl.value;
+            if (inputVal) {
+                if (!isIp.v6(inputVal) && !(validationMethods.isValidFqdn(inputVal))) {
                     return {
                         [ValidatorEnum.VALID_IP_OR_FQDN]: true
                     };

@@ -7,12 +7,14 @@ import (
 
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
-	v1alpha3a "sigs.k8s.io/cluster-api/api/v1alpha3"
-	v1alpha3b "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
-	"sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
+	v1beta1a "sigs.k8s.io/cluster-api/api/v1beta1"
+	"sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
+	"sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	v1alpha1a "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/azure"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
@@ -138,16 +140,6 @@ type ClusterClient struct {
 		result1 error
 	}
 	deleteExistingKappControllerReturnsOnCall map[int]struct {
-		result1 error
-	}
-	UpdateAWSCNIIngressRulesStub        func() error
-	updateAWSCNIIngressRulesMutex       sync.RWMutex
-	updateAWSCNIIngressRulesArgsForCall []struct {
-	}
-	updateAWSCNIIngressRulesReturns struct {
-		result1 error
-	}
-	updateAWSCNIIngressRulesReturnsOnCall map[int]struct {
 		result1 error
 	}
 	DeleteResourceStub        func(interface{}) error
@@ -279,18 +271,18 @@ type ClusterClient struct {
 		result1 string
 		result2 error
 	}
-	GetKCPObjectForClusterStub        func(string, string) (*v1alpha3.KubeadmControlPlane, error)
+	GetKCPObjectForClusterStub        func(string, string) (*v1beta1.KubeadmControlPlane, error)
 	getKCPObjectForClusterMutex       sync.RWMutex
 	getKCPObjectForClusterArgsForCall []struct {
 		arg1 string
 		arg2 string
 	}
 	getKCPObjectForClusterReturns struct {
-		result1 *v1alpha3.KubeadmControlPlane
+		result1 *v1beta1.KubeadmControlPlane
 		result2 error
 	}
 	getKCPObjectForClusterReturnsOnCall map[int]struct {
-		result1 *v1alpha3.KubeadmControlPlane
+		result1 *v1beta1.KubeadmControlPlane
 		result2 error
 	}
 	GetKubeConfigForClusterStub        func(string, string, *clusterclient.PollOptions) ([]byte, error)
@@ -320,34 +312,34 @@ type ClusterClient struct {
 		result1 string
 		result2 error
 	}
-	GetMDObjectForClusterStub        func(string, string) ([]v1alpha3a.MachineDeployment, error)
+	GetMDObjectForClusterStub        func(string, string) ([]v1beta1a.MachineDeployment, error)
 	getMDObjectForClusterMutex       sync.RWMutex
 	getMDObjectForClusterArgsForCall []struct {
 		arg1 string
 		arg2 string
 	}
 	getMDObjectForClusterReturns struct {
-		result1 []v1alpha3a.MachineDeployment
+		result1 []v1beta1a.MachineDeployment
 		result2 error
 	}
 	getMDObjectForClusterReturnsOnCall map[int]struct {
-		result1 []v1alpha3a.MachineDeployment
+		result1 []v1beta1a.MachineDeployment
 		result2 error
 	}
-	GetMachineObjectsForClusterStub        func(string, string) (map[string]v1alpha3a.Machine, map[string]v1alpha3a.Machine, error)
+	GetMachineObjectsForClusterStub        func(string, string) (map[string]v1beta1a.Machine, map[string]v1beta1a.Machine, error)
 	getMachineObjectsForClusterMutex       sync.RWMutex
 	getMachineObjectsForClusterArgsForCall []struct {
 		arg1 string
 		arg2 string
 	}
 	getMachineObjectsForClusterReturns struct {
-		result1 map[string]v1alpha3a.Machine
-		result2 map[string]v1alpha3a.Machine
+		result1 map[string]v1beta1a.Machine
+		result2 map[string]v1beta1a.Machine
 		result3 error
 	}
 	getMachineObjectsForClusterReturnsOnCall map[int]struct {
-		result1 map[string]v1alpha3a.Machine
-		result2 map[string]v1alpha3a.Machine
+		result1 map[string]v1beta1a.Machine
+		result2 map[string]v1beta1a.Machine
 		result3 error
 	}
 	GetManagementClusterTKGVersionStub        func(string, string) (string, error)
@@ -362,6 +354,20 @@ type ClusterClient struct {
 	}
 	getManagementClusterTKGVersionReturnsOnCall map[int]struct {
 		result1 string
+		result2 error
+	}
+	GetPacificClusterObjectStub        func(string, string) (*v1alpha2.TanzuKubernetesCluster, error)
+	getPacificClusterObjectMutex       sync.RWMutex
+	getPacificClusterObjectArgsForCall []struct {
+		arg1 string
+		arg2 string
+	}
+	getPacificClusterObjectReturns struct {
+		result1 *v1alpha2.TanzuKubernetesCluster
+		result2 error
+	}
+	getPacificClusterObjectReturnsOnCall map[int]struct {
+		result1 *v1alpha2.TanzuKubernetesCluster
 		result2 error
 	}
 	GetPacificTKCAPIVersionStub        func() (string, error)
@@ -402,10 +408,10 @@ type ClusterClient struct {
 		result2 string
 		result3 error
 	}
-	GetRegionalClusterDefaultProviderNameStub        func(v1alpha3b.ProviderType) (string, error)
+	GetRegionalClusterDefaultProviderNameStub        func(v1alpha3.ProviderType) (string, error)
 	getRegionalClusterDefaultProviderNameMutex       sync.RWMutex
 	getRegionalClusterDefaultProviderNameArgsForCall []struct {
-		arg1 v1alpha3b.ProviderType
+		arg1 v1alpha3.ProviderType
 	}
 	getRegionalClusterDefaultProviderNameReturns struct {
 		result1 string
@@ -430,13 +436,13 @@ type ClusterClient struct {
 	getResourceReturnsOnCall map[int]struct {
 		result1 error
 	}
-	GetResourceListStub        func(interface{}, string, string, clusterclient.PostVerifyrFunc, *clusterclient.PollOptions) error
+	GetResourceListStub        func(interface{}, string, string, clusterclient.PostVerifyListrFunc, *clusterclient.PollOptions) error
 	getResourceListMutex       sync.RWMutex
 	getResourceListArgsForCall []struct {
 		arg1 interface{}
 		arg2 string
 		arg3 string
-		arg4 clusterclient.PostVerifyrFunc
+		arg4 clusterclient.PostVerifyListrFunc
 		arg5 *clusterclient.PollOptions
 	}
 	getResourceListReturns struct {
@@ -565,17 +571,29 @@ type ClusterClient struct {
 	isRegionalClusterReturnsOnCall map[int]struct {
 		result1 error
 	}
-	ListClustersStub        func(string) ([]v1alpha3a.Cluster, error)
+	ListCLIPluginResourcesStub        func() ([]v1alpha1a.CLIPlugin, error)
+	listCLIPluginResourcesMutex       sync.RWMutex
+	listCLIPluginResourcesArgsForCall []struct {
+	}
+	listCLIPluginResourcesReturns struct {
+		result1 []v1alpha1a.CLIPlugin
+		result2 error
+	}
+	listCLIPluginResourcesReturnsOnCall map[int]struct {
+		result1 []v1alpha1a.CLIPlugin
+		result2 error
+	}
+	ListClustersStub        func(string) ([]v1beta1a.Cluster, error)
 	listClustersMutex       sync.RWMutex
 	listClustersArgsForCall []struct {
 		arg1 string
 	}
 	listClustersReturns struct {
-		result1 []v1alpha3a.Cluster
+		result1 []v1beta1a.Cluster
 		result2 error
 	}
 	listClustersReturnsOnCall map[int]struct {
-		result1 []v1alpha3a.Cluster
+		result1 []v1beta1a.Cluster
 		result2 error
 	}
 	ListPacificClusterObjectsStub        func(string, *client.ListOptions) ([]interface{}, error)
@@ -756,13 +774,12 @@ type ClusterClient struct {
 	patchImageRepositoryInKubeProxyDaemonSetReturnsOnCall map[int]struct {
 		result1 error
 	}
-	PatchK8SVersionToPacificClusterStub        func(string, string, string, string) error
+	PatchK8SVersionToPacificClusterStub        func(string, string, string) error
 	patchK8SVersionToPacificClusterMutex       sync.RWMutex
 	patchK8SVersionToPacificClusterArgsForCall []struct {
 		arg1 string
 		arg2 string
 		arg3 string
-		arg4 string
 	}
 	patchK8SVersionToPacificClusterReturns struct {
 		result1 error
@@ -797,13 +814,12 @@ type ClusterClient struct {
 	removeCEIPTelemetryJobReturnsOnCall map[int]struct {
 		result1 error
 	}
-	ScalePacificClusterControlPlaneStub        func(string, string, string, int32) error
+	ScalePacificClusterControlPlaneStub        func(string, string, int32) error
 	scalePacificClusterControlPlaneMutex       sync.RWMutex
 	scalePacificClusterControlPlaneArgsForCall []struct {
 		arg1 string
 		arg2 string
-		arg3 string
-		arg4 int32
+		arg3 int32
 	}
 	scalePacificClusterControlPlaneReturns struct {
 		result1 error
@@ -811,18 +827,29 @@ type ClusterClient struct {
 	scalePacificClusterControlPlaneReturnsOnCall map[int]struct {
 		result1 error
 	}
-	ScalePacificClusterWorkerNodesStub        func(string, string, string, int32) error
+	ScalePacificClusterWorkerNodesStub        func(string, string, int32) error
 	scalePacificClusterWorkerNodesMutex       sync.RWMutex
 	scalePacificClusterWorkerNodesArgsForCall []struct {
 		arg1 string
 		arg2 string
-		arg3 string
-		arg4 int32
+		arg3 int32
 	}
 	scalePacificClusterWorkerNodesReturns struct {
 		result1 error
 	}
 	scalePacificClusterWorkerNodesReturnsOnCall map[int]struct {
+		result1 error
+	}
+	UpdateAWSCNIIngressRulesStub        func(string, string) error
+	updateAWSCNIIngressRulesMutex       sync.RWMutex
+	updateAWSCNIIngressRulesArgsForCall []struct {
+		arg1 string
+		arg2 string
+	}
+	updateAWSCNIIngressRulesReturns struct {
+		result1 error
+	}
+	updateAWSCNIIngressRulesReturnsOnCall map[int]struct {
 		result1 error
 	}
 	UpdateCapvManagerBootstrapCredentialsSecretStub        func(string, string) error
@@ -991,12 +1018,11 @@ type ClusterClient struct {
 	waitForDeploymentReturnsOnCall map[int]struct {
 		result1 error
 	}
-	WaitForPacificClusterStub        func(string, string, string) error
+	WaitForPacificClusterStub        func(string, string) error
 	waitForPacificClusterMutex       sync.RWMutex
 	waitForPacificClusterArgsForCall []struct {
 		arg1 string
 		arg2 string
-		arg3 string
 	}
 	waitForPacificClusterReturns struct {
 		result1 error
@@ -1004,13 +1030,12 @@ type ClusterClient struct {
 	waitForPacificClusterReturnsOnCall map[int]struct {
 		result1 error
 	}
-	WaitForPacificClusterK8sVersionUpdateStub        func(string, string, string, string) error
+	WaitForPacificClusterK8sVersionUpdateStub        func(string, string, string) error
 	waitForPacificClusterK8sVersionUpdateMutex       sync.RWMutex
 	waitForPacificClusterK8sVersionUpdateArgsForCall []struct {
 		arg1 string
 		arg2 string
 		arg3 string
-		arg4 string
 	}
 	waitForPacificClusterK8sVersionUpdateReturns struct {
 		result1 error
@@ -1676,59 +1701,6 @@ func (fake *ClusterClient) DeleteExistingKappControllerReturnsOnCall(i int, resu
 	}{result1}
 }
 
-func (fake *ClusterClient) UpdateAWSCNIIngressRules(clusterName, clusterNamespace string) error {
-	fake.updateAWSCNIIngressRulesMutex.Lock()
-	ret, specificReturn := fake.updateAWSCNIIngressRulesReturnsOnCall[len(fake.updateAWSCNIIngressRulesArgsForCall)]
-	fake.updateAWSCNIIngressRulesArgsForCall = append(fake.updateAWSCNIIngressRulesArgsForCall, struct {
-	}{})
-	stub := fake.UpdateAWSCNIIngressRulesStub
-	fakeReturns := fake.updateAWSCNIIngressRulesReturns
-	fake.recordInvocation("UpdateAWSCNIIngressRules", []interface{}{})
-	fake.updateAWSCNIIngressRulesMutex.Unlock()
-	if stub != nil {
-		return stub()
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	return fakeReturns.result1
-}
-
-func (fake *ClusterClient) UpdateAWSCNIIngressRulesCallCount() int {
-	fake.updateAWSCNIIngressRulesMutex.RLock()
-	defer fake.updateAWSCNIIngressRulesMutex.RUnlock()
-	return len(fake.updateAWSCNIIngressRulesArgsForCall)
-}
-
-func (fake *ClusterClient) UpdateAWSCNIIngressRulesCalls(stub func() error) {
-	fake.updateAWSCNIIngressRulesMutex.Lock()
-	defer fake.updateAWSCNIIngressRulesMutex.Unlock()
-	fake.UpdateAWSCNIIngressRulesStub = stub
-}
-
-func (fake *ClusterClient) UpdateAWSCNIIngressRulesReturns(result1 error) {
-	fake.updateAWSCNIIngressRulesMutex.Lock()
-	defer fake.updateAWSCNIIngressRulesMutex.Unlock()
-	fake.UpdateAWSCNIIngressRulesStub = nil
-	fake.updateAWSCNIIngressRulesReturns = struct {
-		result1 error
-	}{result1}
-}
-
-func (fake *ClusterClient) UpdateAWSCNIIngressRulesReturnsOnCall(i int, result1 error) {
-	fake.updateAWSCNIIngressRulesMutex.Lock()
-	defer fake.updateAWSCNIIngressRulesMutex.Unlock()
-	fake.UpdateAWSCNIIngressRulesStub = nil
-	if fake.updateAWSCNIIngressRulesReturnsOnCall == nil {
-		fake.updateAWSCNIIngressRulesReturnsOnCall = make(map[int]struct {
-			result1 error
-		})
-	}
-	fake.updateAWSCNIIngressRulesReturnsOnCall[i] = struct {
-		result1 error
-	}{result1}
-}
-
 func (fake *ClusterClient) DeleteResource(arg1 interface{}) error {
 	fake.deleteResourceMutex.Lock()
 	ret, specificReturn := fake.deleteResourceReturnsOnCall[len(fake.deleteResourceArgsForCall)]
@@ -2360,7 +2332,7 @@ func (fake *ClusterClient) GetCurrentNamespaceReturnsOnCall(i int, result1 strin
 	}{result1, result2}
 }
 
-func (fake *ClusterClient) GetKCPObjectForCluster(arg1 string, arg2 string) (*v1alpha3.KubeadmControlPlane, error) {
+func (fake *ClusterClient) GetKCPObjectForCluster(arg1 string, arg2 string) (*v1beta1.KubeadmControlPlane, error) {
 	fake.getKCPObjectForClusterMutex.Lock()
 	ret, specificReturn := fake.getKCPObjectForClusterReturnsOnCall[len(fake.getKCPObjectForClusterArgsForCall)]
 	fake.getKCPObjectForClusterArgsForCall = append(fake.getKCPObjectForClusterArgsForCall, struct {
@@ -2386,7 +2358,7 @@ func (fake *ClusterClient) GetKCPObjectForClusterCallCount() int {
 	return len(fake.getKCPObjectForClusterArgsForCall)
 }
 
-func (fake *ClusterClient) GetKCPObjectForClusterCalls(stub func(string, string) (*v1alpha3.KubeadmControlPlane, error)) {
+func (fake *ClusterClient) GetKCPObjectForClusterCalls(stub func(string, string) (*v1beta1.KubeadmControlPlane, error)) {
 	fake.getKCPObjectForClusterMutex.Lock()
 	defer fake.getKCPObjectForClusterMutex.Unlock()
 	fake.GetKCPObjectForClusterStub = stub
@@ -2399,28 +2371,28 @@ func (fake *ClusterClient) GetKCPObjectForClusterArgsForCall(i int) (string, str
 	return argsForCall.arg1, argsForCall.arg2
 }
 
-func (fake *ClusterClient) GetKCPObjectForClusterReturns(result1 *v1alpha3.KubeadmControlPlane, result2 error) {
+func (fake *ClusterClient) GetKCPObjectForClusterReturns(result1 *v1beta1.KubeadmControlPlane, result2 error) {
 	fake.getKCPObjectForClusterMutex.Lock()
 	defer fake.getKCPObjectForClusterMutex.Unlock()
 	fake.GetKCPObjectForClusterStub = nil
 	fake.getKCPObjectForClusterReturns = struct {
-		result1 *v1alpha3.KubeadmControlPlane
+		result1 *v1beta1.KubeadmControlPlane
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *ClusterClient) GetKCPObjectForClusterReturnsOnCall(i int, result1 *v1alpha3.KubeadmControlPlane, result2 error) {
+func (fake *ClusterClient) GetKCPObjectForClusterReturnsOnCall(i int, result1 *v1beta1.KubeadmControlPlane, result2 error) {
 	fake.getKCPObjectForClusterMutex.Lock()
 	defer fake.getKCPObjectForClusterMutex.Unlock()
 	fake.GetKCPObjectForClusterStub = nil
 	if fake.getKCPObjectForClusterReturnsOnCall == nil {
 		fake.getKCPObjectForClusterReturnsOnCall = make(map[int]struct {
-			result1 *v1alpha3.KubeadmControlPlane
+			result1 *v1beta1.KubeadmControlPlane
 			result2 error
 		})
 	}
 	fake.getKCPObjectForClusterReturnsOnCall[i] = struct {
-		result1 *v1alpha3.KubeadmControlPlane
+		result1 *v1beta1.KubeadmControlPlane
 		result2 error
 	}{result1, result2}
 }
@@ -2547,7 +2519,7 @@ func (fake *ClusterClient) GetKubernetesVersionReturnsOnCall(i int, result1 stri
 	}{result1, result2}
 }
 
-func (fake *ClusterClient) GetMDObjectForCluster(arg1 string, arg2 string) ([]v1alpha3a.MachineDeployment, error) {
+func (fake *ClusterClient) GetMDObjectForCluster(arg1 string, arg2 string) ([]v1beta1a.MachineDeployment, error) {
 	fake.getMDObjectForClusterMutex.Lock()
 	ret, specificReturn := fake.getMDObjectForClusterReturnsOnCall[len(fake.getMDObjectForClusterArgsForCall)]
 	fake.getMDObjectForClusterArgsForCall = append(fake.getMDObjectForClusterArgsForCall, struct {
@@ -2573,7 +2545,7 @@ func (fake *ClusterClient) GetMDObjectForClusterCallCount() int {
 	return len(fake.getMDObjectForClusterArgsForCall)
 }
 
-func (fake *ClusterClient) GetMDObjectForClusterCalls(stub func(string, string) ([]v1alpha3a.MachineDeployment, error)) {
+func (fake *ClusterClient) GetMDObjectForClusterCalls(stub func(string, string) ([]v1beta1a.MachineDeployment, error)) {
 	fake.getMDObjectForClusterMutex.Lock()
 	defer fake.getMDObjectForClusterMutex.Unlock()
 	fake.GetMDObjectForClusterStub = stub
@@ -2586,33 +2558,33 @@ func (fake *ClusterClient) GetMDObjectForClusterArgsForCall(i int) (string, stri
 	return argsForCall.arg1, argsForCall.arg2
 }
 
-func (fake *ClusterClient) GetMDObjectForClusterReturns(result1 []v1alpha3a.MachineDeployment, result2 error) {
+func (fake *ClusterClient) GetMDObjectForClusterReturns(result1 []v1beta1a.MachineDeployment, result2 error) {
 	fake.getMDObjectForClusterMutex.Lock()
 	defer fake.getMDObjectForClusterMutex.Unlock()
 	fake.GetMDObjectForClusterStub = nil
 	fake.getMDObjectForClusterReturns = struct {
-		result1 []v1alpha3a.MachineDeployment
+		result1 []v1beta1a.MachineDeployment
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *ClusterClient) GetMDObjectForClusterReturnsOnCall(i int, result1 []v1alpha3a.MachineDeployment, result2 error) {
+func (fake *ClusterClient) GetMDObjectForClusterReturnsOnCall(i int, result1 []v1beta1a.MachineDeployment, result2 error) {
 	fake.getMDObjectForClusterMutex.Lock()
 	defer fake.getMDObjectForClusterMutex.Unlock()
 	fake.GetMDObjectForClusterStub = nil
 	if fake.getMDObjectForClusterReturnsOnCall == nil {
 		fake.getMDObjectForClusterReturnsOnCall = make(map[int]struct {
-			result1 []v1alpha3a.MachineDeployment
+			result1 []v1beta1a.MachineDeployment
 			result2 error
 		})
 	}
 	fake.getMDObjectForClusterReturnsOnCall[i] = struct {
-		result1 []v1alpha3a.MachineDeployment
+		result1 []v1beta1a.MachineDeployment
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *ClusterClient) GetMachineObjectsForCluster(arg1 string, arg2 string) (map[string]v1alpha3a.Machine, map[string]v1alpha3a.Machine, error) {
+func (fake *ClusterClient) GetMachineObjectsForCluster(arg1 string, arg2 string) (map[string]v1beta1a.Machine, map[string]v1beta1a.Machine, error) {
 	fake.getMachineObjectsForClusterMutex.Lock()
 	ret, specificReturn := fake.getMachineObjectsForClusterReturnsOnCall[len(fake.getMachineObjectsForClusterArgsForCall)]
 	fake.getMachineObjectsForClusterArgsForCall = append(fake.getMachineObjectsForClusterArgsForCall, struct {
@@ -2638,7 +2610,7 @@ func (fake *ClusterClient) GetMachineObjectsForClusterCallCount() int {
 	return len(fake.getMachineObjectsForClusterArgsForCall)
 }
 
-func (fake *ClusterClient) GetMachineObjectsForClusterCalls(stub func(string, string) (map[string]v1alpha3a.Machine, map[string]v1alpha3a.Machine, error)) {
+func (fake *ClusterClient) GetMachineObjectsForClusterCalls(stub func(string, string) (map[string]v1beta1a.Machine, map[string]v1beta1a.Machine, error)) {
 	fake.getMachineObjectsForClusterMutex.Lock()
 	defer fake.getMachineObjectsForClusterMutex.Unlock()
 	fake.GetMachineObjectsForClusterStub = stub
@@ -2651,31 +2623,31 @@ func (fake *ClusterClient) GetMachineObjectsForClusterArgsForCall(i int) (string
 	return argsForCall.arg1, argsForCall.arg2
 }
 
-func (fake *ClusterClient) GetMachineObjectsForClusterReturns(result1 map[string]v1alpha3a.Machine, result2 map[string]v1alpha3a.Machine, result3 error) {
+func (fake *ClusterClient) GetMachineObjectsForClusterReturns(result1 map[string]v1beta1a.Machine, result2 map[string]v1beta1a.Machine, result3 error) {
 	fake.getMachineObjectsForClusterMutex.Lock()
 	defer fake.getMachineObjectsForClusterMutex.Unlock()
 	fake.GetMachineObjectsForClusterStub = nil
 	fake.getMachineObjectsForClusterReturns = struct {
-		result1 map[string]v1alpha3a.Machine
-		result2 map[string]v1alpha3a.Machine
+		result1 map[string]v1beta1a.Machine
+		result2 map[string]v1beta1a.Machine
 		result3 error
 	}{result1, result2, result3}
 }
 
-func (fake *ClusterClient) GetMachineObjectsForClusterReturnsOnCall(i int, result1 map[string]v1alpha3a.Machine, result2 map[string]v1alpha3a.Machine, result3 error) {
+func (fake *ClusterClient) GetMachineObjectsForClusterReturnsOnCall(i int, result1 map[string]v1beta1a.Machine, result2 map[string]v1beta1a.Machine, result3 error) {
 	fake.getMachineObjectsForClusterMutex.Lock()
 	defer fake.getMachineObjectsForClusterMutex.Unlock()
 	fake.GetMachineObjectsForClusterStub = nil
 	if fake.getMachineObjectsForClusterReturnsOnCall == nil {
 		fake.getMachineObjectsForClusterReturnsOnCall = make(map[int]struct {
-			result1 map[string]v1alpha3a.Machine
-			result2 map[string]v1alpha3a.Machine
+			result1 map[string]v1beta1a.Machine
+			result2 map[string]v1beta1a.Machine
 			result3 error
 		})
 	}
 	fake.getMachineObjectsForClusterReturnsOnCall[i] = struct {
-		result1 map[string]v1alpha3a.Machine
-		result2 map[string]v1alpha3a.Machine
+		result1 map[string]v1beta1a.Machine
+		result2 map[string]v1beta1a.Machine
 		result3 error
 	}{result1, result2, result3}
 }
@@ -2741,6 +2713,71 @@ func (fake *ClusterClient) GetManagementClusterTKGVersionReturnsOnCall(i int, re
 	}
 	fake.getManagementClusterTKGVersionReturnsOnCall[i] = struct {
 		result1 string
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *ClusterClient) GetPacificClusterObject(arg1 string, arg2 string) (*v1alpha2.TanzuKubernetesCluster, error) {
+	fake.getPacificClusterObjectMutex.Lock()
+	ret, specificReturn := fake.getPacificClusterObjectReturnsOnCall[len(fake.getPacificClusterObjectArgsForCall)]
+	fake.getPacificClusterObjectArgsForCall = append(fake.getPacificClusterObjectArgsForCall, struct {
+		arg1 string
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.GetPacificClusterObjectStub
+	fakeReturns := fake.getPacificClusterObjectReturns
+	fake.recordInvocation("GetPacificClusterObject", []interface{}{arg1, arg2})
+	fake.getPacificClusterObjectMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *ClusterClient) GetPacificClusterObjectCallCount() int {
+	fake.getPacificClusterObjectMutex.RLock()
+	defer fake.getPacificClusterObjectMutex.RUnlock()
+	return len(fake.getPacificClusterObjectArgsForCall)
+}
+
+func (fake *ClusterClient) GetPacificClusterObjectCalls(stub func(string, string) (*v1alpha2.TanzuKubernetesCluster, error)) {
+	fake.getPacificClusterObjectMutex.Lock()
+	defer fake.getPacificClusterObjectMutex.Unlock()
+	fake.GetPacificClusterObjectStub = stub
+}
+
+func (fake *ClusterClient) GetPacificClusterObjectArgsForCall(i int) (string, string) {
+	fake.getPacificClusterObjectMutex.RLock()
+	defer fake.getPacificClusterObjectMutex.RUnlock()
+	argsForCall := fake.getPacificClusterObjectArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *ClusterClient) GetPacificClusterObjectReturns(result1 *v1alpha2.TanzuKubernetesCluster, result2 error) {
+	fake.getPacificClusterObjectMutex.Lock()
+	defer fake.getPacificClusterObjectMutex.Unlock()
+	fake.GetPacificClusterObjectStub = nil
+	fake.getPacificClusterObjectReturns = struct {
+		result1 *v1alpha2.TanzuKubernetesCluster
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *ClusterClient) GetPacificClusterObjectReturnsOnCall(i int, result1 *v1alpha2.TanzuKubernetesCluster, result2 error) {
+	fake.getPacificClusterObjectMutex.Lock()
+	defer fake.getPacificClusterObjectMutex.Unlock()
+	fake.GetPacificClusterObjectStub = nil
+	if fake.getPacificClusterObjectReturnsOnCall == nil {
+		fake.getPacificClusterObjectReturnsOnCall = make(map[int]struct {
+			result1 *v1alpha2.TanzuKubernetesCluster
+			result2 error
+		})
+	}
+	fake.getPacificClusterObjectReturnsOnCall[i] = struct {
+		result1 *v1alpha2.TanzuKubernetesCluster
 		result2 error
 	}{result1, result2}
 }
@@ -2916,11 +2953,11 @@ func (fake *ClusterClient) GetPinnipedIssuerURLAndCAReturnsOnCall(i int, result1
 	}{result1, result2, result3}
 }
 
-func (fake *ClusterClient) GetRegionalClusterDefaultProviderName(arg1 v1alpha3b.ProviderType) (string, error) {
+func (fake *ClusterClient) GetRegionalClusterDefaultProviderName(arg1 v1alpha3.ProviderType) (string, error) {
 	fake.getRegionalClusterDefaultProviderNameMutex.Lock()
 	ret, specificReturn := fake.getRegionalClusterDefaultProviderNameReturnsOnCall[len(fake.getRegionalClusterDefaultProviderNameArgsForCall)]
 	fake.getRegionalClusterDefaultProviderNameArgsForCall = append(fake.getRegionalClusterDefaultProviderNameArgsForCall, struct {
-		arg1 v1alpha3b.ProviderType
+		arg1 v1alpha3.ProviderType
 	}{arg1})
 	stub := fake.GetRegionalClusterDefaultProviderNameStub
 	fakeReturns := fake.getRegionalClusterDefaultProviderNameReturns
@@ -2941,13 +2978,13 @@ func (fake *ClusterClient) GetRegionalClusterDefaultProviderNameCallCount() int 
 	return len(fake.getRegionalClusterDefaultProviderNameArgsForCall)
 }
 
-func (fake *ClusterClient) GetRegionalClusterDefaultProviderNameCalls(stub func(v1alpha3b.ProviderType) (string, error)) {
+func (fake *ClusterClient) GetRegionalClusterDefaultProviderNameCalls(stub func(v1alpha3.ProviderType) (string, error)) {
 	fake.getRegionalClusterDefaultProviderNameMutex.Lock()
 	defer fake.getRegionalClusterDefaultProviderNameMutex.Unlock()
 	fake.GetRegionalClusterDefaultProviderNameStub = stub
 }
 
-func (fake *ClusterClient) GetRegionalClusterDefaultProviderNameArgsForCall(i int) v1alpha3b.ProviderType {
+func (fake *ClusterClient) GetRegionalClusterDefaultProviderNameArgsForCall(i int) v1alpha3.ProviderType {
 	fake.getRegionalClusterDefaultProviderNameMutex.RLock()
 	defer fake.getRegionalClusterDefaultProviderNameMutex.RUnlock()
 	argsForCall := fake.getRegionalClusterDefaultProviderNameArgsForCall[i]
@@ -3045,14 +3082,14 @@ func (fake *ClusterClient) GetResourceReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *ClusterClient) GetResourceList(arg1 interface{}, arg2 string, arg3 string, arg4 clusterclient.PostVerifyrFunc, arg5 *clusterclient.PollOptions) error {
+func (fake *ClusterClient) GetResourceList(arg1 interface{}, arg2 string, arg3 string, arg4 clusterclient.PostVerifyListrFunc, arg5 *clusterclient.PollOptions) error {
 	fake.getResourceListMutex.Lock()
 	ret, specificReturn := fake.getResourceListReturnsOnCall[len(fake.getResourceListArgsForCall)]
 	fake.getResourceListArgsForCall = append(fake.getResourceListArgsForCall, struct {
 		arg1 interface{}
 		arg2 string
 		arg3 string
-		arg4 clusterclient.PostVerifyrFunc
+		arg4 clusterclient.PostVerifyListrFunc
 		arg5 *clusterclient.PollOptions
 	}{arg1, arg2, arg3, arg4, arg5})
 	stub := fake.GetResourceListStub
@@ -3074,13 +3111,13 @@ func (fake *ClusterClient) GetResourceListCallCount() int {
 	return len(fake.getResourceListArgsForCall)
 }
 
-func (fake *ClusterClient) GetResourceListCalls(stub func(interface{}, string, string, clusterclient.PostVerifyrFunc, *clusterclient.PollOptions) error) {
+func (fake *ClusterClient) GetResourceListCalls(stub func(interface{}, string, string, clusterclient.PostVerifyListrFunc, *clusterclient.PollOptions) error) {
 	fake.getResourceListMutex.Lock()
 	defer fake.getResourceListMutex.Unlock()
 	fake.GetResourceListStub = stub
 }
 
-func (fake *ClusterClient) GetResourceListArgsForCall(i int) (interface{}, string, string, clusterclient.PostVerifyrFunc, *clusterclient.PollOptions) {
+func (fake *ClusterClient) GetResourceListArgsForCall(i int) (interface{}, string, string, clusterclient.PostVerifyListrFunc, *clusterclient.PollOptions) {
 	fake.getResourceListMutex.RLock()
 	defer fake.getResourceListMutex.RUnlock()
 	argsForCall := fake.getResourceListArgsForCall[i]
@@ -3662,7 +3699,63 @@ func (fake *ClusterClient) IsRegionalClusterReturnsOnCall(i int, result1 error) 
 	}{result1}
 }
 
-func (fake *ClusterClient) ListClusters(arg1 string) ([]v1alpha3a.Cluster, error) {
+func (fake *ClusterClient) ListCLIPluginResources() ([]v1alpha1a.CLIPlugin, error) {
+	fake.listCLIPluginResourcesMutex.Lock()
+	ret, specificReturn := fake.listCLIPluginResourcesReturnsOnCall[len(fake.listCLIPluginResourcesArgsForCall)]
+	fake.listCLIPluginResourcesArgsForCall = append(fake.listCLIPluginResourcesArgsForCall, struct {
+	}{})
+	stub := fake.ListCLIPluginResourcesStub
+	fakeReturns := fake.listCLIPluginResourcesReturns
+	fake.recordInvocation("ListCLIPluginResources", []interface{}{})
+	fake.listCLIPluginResourcesMutex.Unlock()
+	if stub != nil {
+		return stub()
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *ClusterClient) ListCLIPluginResourcesCallCount() int {
+	fake.listCLIPluginResourcesMutex.RLock()
+	defer fake.listCLIPluginResourcesMutex.RUnlock()
+	return len(fake.listCLIPluginResourcesArgsForCall)
+}
+
+func (fake *ClusterClient) ListCLIPluginResourcesCalls(stub func() ([]v1alpha1a.CLIPlugin, error)) {
+	fake.listCLIPluginResourcesMutex.Lock()
+	defer fake.listCLIPluginResourcesMutex.Unlock()
+	fake.ListCLIPluginResourcesStub = stub
+}
+
+func (fake *ClusterClient) ListCLIPluginResourcesReturns(result1 []v1alpha1a.CLIPlugin, result2 error) {
+	fake.listCLIPluginResourcesMutex.Lock()
+	defer fake.listCLIPluginResourcesMutex.Unlock()
+	fake.ListCLIPluginResourcesStub = nil
+	fake.listCLIPluginResourcesReturns = struct {
+		result1 []v1alpha1a.CLIPlugin
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *ClusterClient) ListCLIPluginResourcesReturnsOnCall(i int, result1 []v1alpha1a.CLIPlugin, result2 error) {
+	fake.listCLIPluginResourcesMutex.Lock()
+	defer fake.listCLIPluginResourcesMutex.Unlock()
+	fake.ListCLIPluginResourcesStub = nil
+	if fake.listCLIPluginResourcesReturnsOnCall == nil {
+		fake.listCLIPluginResourcesReturnsOnCall = make(map[int]struct {
+			result1 []v1alpha1a.CLIPlugin
+			result2 error
+		})
+	}
+	fake.listCLIPluginResourcesReturnsOnCall[i] = struct {
+		result1 []v1alpha1a.CLIPlugin
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *ClusterClient) ListClusters(arg1 string) ([]v1beta1a.Cluster, error) {
 	fake.listClustersMutex.Lock()
 	ret, specificReturn := fake.listClustersReturnsOnCall[len(fake.listClustersArgsForCall)]
 	fake.listClustersArgsForCall = append(fake.listClustersArgsForCall, struct {
@@ -3687,7 +3780,7 @@ func (fake *ClusterClient) ListClustersCallCount() int {
 	return len(fake.listClustersArgsForCall)
 }
 
-func (fake *ClusterClient) ListClustersCalls(stub func(string) ([]v1alpha3a.Cluster, error)) {
+func (fake *ClusterClient) ListClustersCalls(stub func(string) ([]v1beta1a.Cluster, error)) {
 	fake.listClustersMutex.Lock()
 	defer fake.listClustersMutex.Unlock()
 	fake.ListClustersStub = stub
@@ -3700,28 +3793,28 @@ func (fake *ClusterClient) ListClustersArgsForCall(i int) string {
 	return argsForCall.arg1
 }
 
-func (fake *ClusterClient) ListClustersReturns(result1 []v1alpha3a.Cluster, result2 error) {
+func (fake *ClusterClient) ListClustersReturns(result1 []v1beta1a.Cluster, result2 error) {
 	fake.listClustersMutex.Lock()
 	defer fake.listClustersMutex.Unlock()
 	fake.ListClustersStub = nil
 	fake.listClustersReturns = struct {
-		result1 []v1alpha3a.Cluster
+		result1 []v1beta1a.Cluster
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *ClusterClient) ListClustersReturnsOnCall(i int, result1 []v1alpha3a.Cluster, result2 error) {
+func (fake *ClusterClient) ListClustersReturnsOnCall(i int, result1 []v1beta1a.Cluster, result2 error) {
 	fake.listClustersMutex.Lock()
 	defer fake.listClustersMutex.Unlock()
 	fake.ListClustersStub = nil
 	if fake.listClustersReturnsOnCall == nil {
 		fake.listClustersReturnsOnCall = make(map[int]struct {
-			result1 []v1alpha3a.Cluster
+			result1 []v1beta1a.Cluster
 			result2 error
 		})
 	}
 	fake.listClustersReturnsOnCall[i] = struct {
-		result1 []v1alpha3a.Cluster
+		result1 []v1beta1a.Cluster
 		result2 error
 	}{result1, result2}
 }
@@ -4605,21 +4698,20 @@ func (fake *ClusterClient) PatchImageRepositoryInKubeProxyDaemonSetReturnsOnCall
 	}{result1}
 }
 
-func (fake *ClusterClient) PatchK8SVersionToPacificCluster(arg1 string, arg2 string, arg3 string, arg4 string) error {
+func (fake *ClusterClient) PatchK8SVersionToPacificCluster(arg1 string, arg2 string, arg3 string) error {
 	fake.patchK8SVersionToPacificClusterMutex.Lock()
 	ret, specificReturn := fake.patchK8SVersionToPacificClusterReturnsOnCall[len(fake.patchK8SVersionToPacificClusterArgsForCall)]
 	fake.patchK8SVersionToPacificClusterArgsForCall = append(fake.patchK8SVersionToPacificClusterArgsForCall, struct {
 		arg1 string
 		arg2 string
 		arg3 string
-		arg4 string
-	}{arg1, arg2, arg3, arg4})
+	}{arg1, arg2, arg3})
 	stub := fake.PatchK8SVersionToPacificClusterStub
 	fakeReturns := fake.patchK8SVersionToPacificClusterReturns
-	fake.recordInvocation("PatchK8SVersionToPacificCluster", []interface{}{arg1, arg2, arg3, arg4})
+	fake.recordInvocation("PatchK8SVersionToPacificCluster", []interface{}{arg1, arg2, arg3})
 	fake.patchK8SVersionToPacificClusterMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2, arg3, arg4)
+		return stub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1
@@ -4633,17 +4725,17 @@ func (fake *ClusterClient) PatchK8SVersionToPacificClusterCallCount() int {
 	return len(fake.patchK8SVersionToPacificClusterArgsForCall)
 }
 
-func (fake *ClusterClient) PatchK8SVersionToPacificClusterCalls(stub func(string, string, string, string) error) {
+func (fake *ClusterClient) PatchK8SVersionToPacificClusterCalls(stub func(string, string, string) error) {
 	fake.patchK8SVersionToPacificClusterMutex.Lock()
 	defer fake.patchK8SVersionToPacificClusterMutex.Unlock()
 	fake.PatchK8SVersionToPacificClusterStub = stub
 }
 
-func (fake *ClusterClient) PatchK8SVersionToPacificClusterArgsForCall(i int) (string, string, string, string) {
+func (fake *ClusterClient) PatchK8SVersionToPacificClusterArgsForCall(i int) (string, string, string) {
 	fake.patchK8SVersionToPacificClusterMutex.RLock()
 	defer fake.patchK8SVersionToPacificClusterMutex.RUnlock()
 	argsForCall := fake.patchK8SVersionToPacificClusterArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
 func (fake *ClusterClient) PatchK8SVersionToPacificClusterReturns(result1 error) {
@@ -4796,21 +4888,20 @@ func (fake *ClusterClient) RemoveCEIPTelemetryJobReturnsOnCall(i int, result1 er
 	}{result1}
 }
 
-func (fake *ClusterClient) ScalePacificClusterControlPlane(arg1 string, arg2 string, arg3 string, arg4 int32) error {
+func (fake *ClusterClient) ScalePacificClusterControlPlane(arg1 string, arg2 string, arg3 int32) error {
 	fake.scalePacificClusterControlPlaneMutex.Lock()
 	ret, specificReturn := fake.scalePacificClusterControlPlaneReturnsOnCall[len(fake.scalePacificClusterControlPlaneArgsForCall)]
 	fake.scalePacificClusterControlPlaneArgsForCall = append(fake.scalePacificClusterControlPlaneArgsForCall, struct {
 		arg1 string
 		arg2 string
-		arg3 string
-		arg4 int32
-	}{arg1, arg2, arg3, arg4})
+		arg3 int32
+	}{arg1, arg2, arg3})
 	stub := fake.ScalePacificClusterControlPlaneStub
 	fakeReturns := fake.scalePacificClusterControlPlaneReturns
-	fake.recordInvocation("ScalePacificClusterControlPlane", []interface{}{arg1, arg2, arg3, arg4})
+	fake.recordInvocation("ScalePacificClusterControlPlane", []interface{}{arg1, arg2, arg3})
 	fake.scalePacificClusterControlPlaneMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2, arg3, arg4)
+		return stub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1
@@ -4824,17 +4915,17 @@ func (fake *ClusterClient) ScalePacificClusterControlPlaneCallCount() int {
 	return len(fake.scalePacificClusterControlPlaneArgsForCall)
 }
 
-func (fake *ClusterClient) ScalePacificClusterControlPlaneCalls(stub func(string, string, string, int32) error) {
+func (fake *ClusterClient) ScalePacificClusterControlPlaneCalls(stub func(string, string, int32) error) {
 	fake.scalePacificClusterControlPlaneMutex.Lock()
 	defer fake.scalePacificClusterControlPlaneMutex.Unlock()
 	fake.ScalePacificClusterControlPlaneStub = stub
 }
 
-func (fake *ClusterClient) ScalePacificClusterControlPlaneArgsForCall(i int) (string, string, string, int32) {
+func (fake *ClusterClient) ScalePacificClusterControlPlaneArgsForCall(i int) (string, string, int32) {
 	fake.scalePacificClusterControlPlaneMutex.RLock()
 	defer fake.scalePacificClusterControlPlaneMutex.RUnlock()
 	argsForCall := fake.scalePacificClusterControlPlaneArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
 func (fake *ClusterClient) ScalePacificClusterControlPlaneReturns(result1 error) {
@@ -4860,21 +4951,20 @@ func (fake *ClusterClient) ScalePacificClusterControlPlaneReturnsOnCall(i int, r
 	}{result1}
 }
 
-func (fake *ClusterClient) ScalePacificClusterWorkerNodes(arg1 string, arg2 string, arg3 string, arg4 int32) error {
+func (fake *ClusterClient) ScalePacificClusterWorkerNodes(arg1 string, arg2 string, arg3 int32) error {
 	fake.scalePacificClusterWorkerNodesMutex.Lock()
 	ret, specificReturn := fake.scalePacificClusterWorkerNodesReturnsOnCall[len(fake.scalePacificClusterWorkerNodesArgsForCall)]
 	fake.scalePacificClusterWorkerNodesArgsForCall = append(fake.scalePacificClusterWorkerNodesArgsForCall, struct {
 		arg1 string
 		arg2 string
-		arg3 string
-		arg4 int32
-	}{arg1, arg2, arg3, arg4})
+		arg3 int32
+	}{arg1, arg2, arg3})
 	stub := fake.ScalePacificClusterWorkerNodesStub
 	fakeReturns := fake.scalePacificClusterWorkerNodesReturns
-	fake.recordInvocation("ScalePacificClusterWorkerNodes", []interface{}{arg1, arg2, arg3, arg4})
+	fake.recordInvocation("ScalePacificClusterWorkerNodes", []interface{}{arg1, arg2, arg3})
 	fake.scalePacificClusterWorkerNodesMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2, arg3, arg4)
+		return stub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1
@@ -4888,17 +4978,17 @@ func (fake *ClusterClient) ScalePacificClusterWorkerNodesCallCount() int {
 	return len(fake.scalePacificClusterWorkerNodesArgsForCall)
 }
 
-func (fake *ClusterClient) ScalePacificClusterWorkerNodesCalls(stub func(string, string, string, int32) error) {
+func (fake *ClusterClient) ScalePacificClusterWorkerNodesCalls(stub func(string, string, int32) error) {
 	fake.scalePacificClusterWorkerNodesMutex.Lock()
 	defer fake.scalePacificClusterWorkerNodesMutex.Unlock()
 	fake.ScalePacificClusterWorkerNodesStub = stub
 }
 
-func (fake *ClusterClient) ScalePacificClusterWorkerNodesArgsForCall(i int) (string, string, string, int32) {
+func (fake *ClusterClient) ScalePacificClusterWorkerNodesArgsForCall(i int) (string, string, int32) {
 	fake.scalePacificClusterWorkerNodesMutex.RLock()
 	defer fake.scalePacificClusterWorkerNodesMutex.RUnlock()
 	argsForCall := fake.scalePacificClusterWorkerNodesArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
 func (fake *ClusterClient) ScalePacificClusterWorkerNodesReturns(result1 error) {
@@ -4920,6 +5010,68 @@ func (fake *ClusterClient) ScalePacificClusterWorkerNodesReturnsOnCall(i int, re
 		})
 	}
 	fake.scalePacificClusterWorkerNodesReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ClusterClient) UpdateAWSCNIIngressRules(arg1 string, arg2 string) error {
+	fake.updateAWSCNIIngressRulesMutex.Lock()
+	ret, specificReturn := fake.updateAWSCNIIngressRulesReturnsOnCall[len(fake.updateAWSCNIIngressRulesArgsForCall)]
+	fake.updateAWSCNIIngressRulesArgsForCall = append(fake.updateAWSCNIIngressRulesArgsForCall, struct {
+		arg1 string
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.UpdateAWSCNIIngressRulesStub
+	fakeReturns := fake.updateAWSCNIIngressRulesReturns
+	fake.recordInvocation("UpdateAWSCNIIngressRules", []interface{}{arg1, arg2})
+	fake.updateAWSCNIIngressRulesMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *ClusterClient) UpdateAWSCNIIngressRulesCallCount() int {
+	fake.updateAWSCNIIngressRulesMutex.RLock()
+	defer fake.updateAWSCNIIngressRulesMutex.RUnlock()
+	return len(fake.updateAWSCNIIngressRulesArgsForCall)
+}
+
+func (fake *ClusterClient) UpdateAWSCNIIngressRulesCalls(stub func(string, string) error) {
+	fake.updateAWSCNIIngressRulesMutex.Lock()
+	defer fake.updateAWSCNIIngressRulesMutex.Unlock()
+	fake.UpdateAWSCNIIngressRulesStub = stub
+}
+
+func (fake *ClusterClient) UpdateAWSCNIIngressRulesArgsForCall(i int) (string, string) {
+	fake.updateAWSCNIIngressRulesMutex.RLock()
+	defer fake.updateAWSCNIIngressRulesMutex.RUnlock()
+	argsForCall := fake.updateAWSCNIIngressRulesArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *ClusterClient) UpdateAWSCNIIngressRulesReturns(result1 error) {
+	fake.updateAWSCNIIngressRulesMutex.Lock()
+	defer fake.updateAWSCNIIngressRulesMutex.Unlock()
+	fake.UpdateAWSCNIIngressRulesStub = nil
+	fake.updateAWSCNIIngressRulesReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ClusterClient) UpdateAWSCNIIngressRulesReturnsOnCall(i int, result1 error) {
+	fake.updateAWSCNIIngressRulesMutex.Lock()
+	defer fake.updateAWSCNIIngressRulesMutex.Unlock()
+	fake.UpdateAWSCNIIngressRulesStub = nil
+	if fake.updateAWSCNIIngressRulesReturnsOnCall == nil {
+		fake.updateAWSCNIIngressRulesReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.updateAWSCNIIngressRulesReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
 }
@@ -5740,20 +5892,19 @@ func (fake *ClusterClient) WaitForDeploymentReturnsOnCall(i int, result1 error) 
 	}{result1}
 }
 
-func (fake *ClusterClient) WaitForPacificCluster(arg1 string, arg2 string, arg3 string) error {
+func (fake *ClusterClient) WaitForPacificCluster(arg1 string, arg2 string) error {
 	fake.waitForPacificClusterMutex.Lock()
 	ret, specificReturn := fake.waitForPacificClusterReturnsOnCall[len(fake.waitForPacificClusterArgsForCall)]
 	fake.waitForPacificClusterArgsForCall = append(fake.waitForPacificClusterArgsForCall, struct {
 		arg1 string
 		arg2 string
-		arg3 string
-	}{arg1, arg2, arg3})
+	}{arg1, arg2})
 	stub := fake.WaitForPacificClusterStub
 	fakeReturns := fake.waitForPacificClusterReturns
-	fake.recordInvocation("WaitForPacificCluster", []interface{}{arg1, arg2, arg3})
+	fake.recordInvocation("WaitForPacificCluster", []interface{}{arg1, arg2})
 	fake.waitForPacificClusterMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2, arg3)
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1
@@ -5767,17 +5918,17 @@ func (fake *ClusterClient) WaitForPacificClusterCallCount() int {
 	return len(fake.waitForPacificClusterArgsForCall)
 }
 
-func (fake *ClusterClient) WaitForPacificClusterCalls(stub func(string, string, string) error) {
+func (fake *ClusterClient) WaitForPacificClusterCalls(stub func(string, string) error) {
 	fake.waitForPacificClusterMutex.Lock()
 	defer fake.waitForPacificClusterMutex.Unlock()
 	fake.WaitForPacificClusterStub = stub
 }
 
-func (fake *ClusterClient) WaitForPacificClusterArgsForCall(i int) (string, string, string) {
+func (fake *ClusterClient) WaitForPacificClusterArgsForCall(i int) (string, string) {
 	fake.waitForPacificClusterMutex.RLock()
 	defer fake.waitForPacificClusterMutex.RUnlock()
 	argsForCall := fake.waitForPacificClusterArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *ClusterClient) WaitForPacificClusterReturns(result1 error) {
@@ -5803,21 +5954,20 @@ func (fake *ClusterClient) WaitForPacificClusterReturnsOnCall(i int, result1 err
 	}{result1}
 }
 
-func (fake *ClusterClient) WaitForPacificClusterK8sVersionUpdate(arg1 string, arg2 string, arg3 string, arg4 string) error {
+func (fake *ClusterClient) WaitForPacificClusterK8sVersionUpdate(arg1 string, arg2 string, arg3 string) error {
 	fake.waitForPacificClusterK8sVersionUpdateMutex.Lock()
 	ret, specificReturn := fake.waitForPacificClusterK8sVersionUpdateReturnsOnCall[len(fake.waitForPacificClusterK8sVersionUpdateArgsForCall)]
 	fake.waitForPacificClusterK8sVersionUpdateArgsForCall = append(fake.waitForPacificClusterK8sVersionUpdateArgsForCall, struct {
 		arg1 string
 		arg2 string
 		arg3 string
-		arg4 string
-	}{arg1, arg2, arg3, arg4})
+	}{arg1, arg2, arg3})
 	stub := fake.WaitForPacificClusterK8sVersionUpdateStub
 	fakeReturns := fake.waitForPacificClusterK8sVersionUpdateReturns
-	fake.recordInvocation("WaitForPacificClusterK8sVersionUpdate", []interface{}{arg1, arg2, arg3, arg4})
+	fake.recordInvocation("WaitForPacificClusterK8sVersionUpdate", []interface{}{arg1, arg2, arg3})
 	fake.waitForPacificClusterK8sVersionUpdateMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2, arg3, arg4)
+		return stub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1
@@ -5831,17 +5981,17 @@ func (fake *ClusterClient) WaitForPacificClusterK8sVersionUpdateCallCount() int 
 	return len(fake.waitForPacificClusterK8sVersionUpdateArgsForCall)
 }
 
-func (fake *ClusterClient) WaitForPacificClusterK8sVersionUpdateCalls(stub func(string, string, string, string) error) {
+func (fake *ClusterClient) WaitForPacificClusterK8sVersionUpdateCalls(stub func(string, string, string) error) {
 	fake.waitForPacificClusterK8sVersionUpdateMutex.Lock()
 	defer fake.waitForPacificClusterK8sVersionUpdateMutex.Unlock()
 	fake.WaitForPacificClusterK8sVersionUpdateStub = stub
 }
 
-func (fake *ClusterClient) WaitForPacificClusterK8sVersionUpdateArgsForCall(i int) (string, string, string, string) {
+func (fake *ClusterClient) WaitForPacificClusterK8sVersionUpdateArgsForCall(i int) (string, string, string) {
 	fake.waitForPacificClusterK8sVersionUpdateMutex.RLock()
 	defer fake.waitForPacificClusterK8sVersionUpdateMutex.RUnlock()
 	argsForCall := fake.waitForPacificClusterK8sVersionUpdateArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
 func (fake *ClusterClient) WaitForPacificClusterK8sVersionUpdateReturns(result1 error) {
@@ -6081,8 +6231,6 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.deleteClusterMutex.RUnlock()
 	fake.deleteExistingKappControllerMutex.RLock()
 	defer fake.deleteExistingKappControllerMutex.RUnlock()
-	fake.updateAWSCNIIngressRulesMutex.RLock()
-	defer fake.updateAWSCNIIngressRulesMutex.RUnlock()
 	fake.deleteResourceMutex.RLock()
 	defer fake.deleteResourceMutex.RUnlock()
 	fake.exportCurrentKubeconfigToFileMutex.RLock()
@@ -6117,6 +6265,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.getMachineObjectsForClusterMutex.RUnlock()
 	fake.getManagementClusterTKGVersionMutex.RLock()
 	defer fake.getManagementClusterTKGVersionMutex.RUnlock()
+	fake.getPacificClusterObjectMutex.RLock()
+	defer fake.getPacificClusterObjectMutex.RUnlock()
 	fake.getPacificTKCAPIVersionMutex.RLock()
 	defer fake.getPacificTKCAPIVersionMutex.RUnlock()
 	fake.getPacificTanzuKubernetesReleasesMutex.RLock()
@@ -6147,6 +6297,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.isPacificRegionalClusterMutex.RUnlock()
 	fake.isRegionalClusterMutex.RLock()
 	defer fake.isRegionalClusterMutex.RUnlock()
+	fake.listCLIPluginResourcesMutex.RLock()
+	defer fake.listCLIPluginResourcesMutex.RUnlock()
 	fake.listClustersMutex.RLock()
 	defer fake.listClustersMutex.RUnlock()
 	fake.listPacificClusterObjectsMutex.RLock()
@@ -6187,6 +6339,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.scalePacificClusterControlPlaneMutex.RUnlock()
 	fake.scalePacificClusterWorkerNodesMutex.RLock()
 	defer fake.scalePacificClusterWorkerNodesMutex.RUnlock()
+	fake.updateAWSCNIIngressRulesMutex.RLock()
+	defer fake.updateAWSCNIIngressRulesMutex.RUnlock()
 	fake.updateCapvManagerBootstrapCredentialsSecretMutex.RLock()
 	defer fake.updateCapvManagerBootstrapCredentialsSecretMutex.RUnlock()
 	fake.updateReplicasMutex.RLock()

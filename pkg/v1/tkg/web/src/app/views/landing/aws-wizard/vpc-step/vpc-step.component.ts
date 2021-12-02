@@ -68,7 +68,10 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
                         type: TkgEventType.AWS_VPC_TYPE_CHANGED,
                         payload: { vpcType: 'existing' }
                     });
-
+                    if (this.existingVpcs && this.existingVpcs.length === 1) {
+                        this.formGroup.get('existingVpcId').setValue(this.existingVpcs[0].id);
+                        this.formGroup.get('existingVpcCidr').setValue(this.existingVpcs[0].cidr);
+                    }
                     this.formGroup.get('vpc').clearValidators();
                     this.formGroup.get('vpc').setValue('');
                     this.clearFieldSavedData('vpc');
@@ -99,7 +102,7 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
                 takeUntil(this.unsubscribe)
             ).subscribe((cidr) => {
                 Broker.messenger.publish({
-                    type: TkgEventType.AWS_GET_NO_PROXY_INFO,
+                    type: TkgEventType.NETWORK_STEP_GET_NO_PROXY_INFO,
                     payload: { info: (cidr ? cidr + ',' : '') + '169.254.0.0/16' }
                 });
             });
@@ -189,7 +192,11 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
         const existingVpc: Array<Vpc> = this.existingVpcs.filter((vpc) => {
             return vpc.id === existingVpcId;
         });
-        this.formGroup.get('existingVpcCidr').setValue(existingVpc[0].cidr);
+        if (existingVpc && existingVpc.length > 0) {
+            this.formGroup.get('existingVpcCidr').setValue(existingVpc[0].cidr);
+        } else {
+            this.formGroup.get('existingVpcCidr').setValue('');
+        }
 
         Broker.messenger.publish({
             type: TkgEventType.AWS_GET_SUBNETS,

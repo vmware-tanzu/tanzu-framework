@@ -1,0 +1,28 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+---
+apiVersion: cli.tanzu.vmware.com/v1alpha1
+kind: CLIPlugin
+metadata:
+  creationTimestamp: null
+  name: login
+spec:
+  artifacts:
+    #@yaml/text-templated-strings
+    (@= data.values.login.version @):
+    - arch: amd64
+      image: tanzu-cli-plugins/login-darwin-amd64:latest
+      os: darwin
+      type: oci
+    - arch: amd64
+      image: tanzu-cli-plugins/login-linux-amd64:latest
+      os: linux
+      type: oci
+    - arch: amd64
+      image: tanzu-cli-plugins/login-windows-amd64:latest
+      os: windows
+      type: oci
+  description: Login to the platform
+  optional: false
+  recommendedVersion: #@ data.values.login.version

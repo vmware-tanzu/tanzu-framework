@@ -9,7 +9,6 @@ import { FormControl } from '@angular/forms';
  * App imports
  */
 import { StepFormDirective } from '../../../step-form/step-form';
-import { AppDataService } from 'src/app/shared/service/app-data.service';
 
 @Component({
     selector: 'app-shared-register-tmc-step',
@@ -21,8 +20,7 @@ export class SharedRegisterTmcStepComponent extends StepFormDirective implements
     configContent: any;
     emptyUrl: boolean = true;
 
-    constructor(private http: HttpClient,
-        private appDataService: AppDataService) {
+    constructor(private http: HttpClient) {
         super();
     }
 
@@ -36,11 +34,6 @@ export class SharedRegisterTmcStepComponent extends StepFormDirective implements
         this.formGroup.get('tmcRegUrl').valueChanges.subscribe(data => {
             if (data) { this.emptyUrl = false; }
         });
-
-        const flags = this.appDataService.getFeatureFlags().value
-        if (flags != null) {
-            this.formGroup.get('tmcRegUrl').setValue(flags["tmcRegistration"])
-        }
     }
 
     // TODO: need to validate the registration url prior to making http call

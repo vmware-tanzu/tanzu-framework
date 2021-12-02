@@ -10,7 +10,10 @@ import (
 	"github.com/spf13/pflag"
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/cmd"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/pluginmanager"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 )
 
@@ -35,7 +38,6 @@ type initRegionOptions struct {
 	size                        string
 	controlPlaneSize            string
 	workerSize                  string
-	tmcRegistrationURL          string
 	ceipOptIn                   string
 	cniType                     string
 	featureFlags                map[string]string
@@ -119,9 +121,6 @@ func init() {
 	createCmd.Flags().StringVarP(&iro.vsphereControlPlaneEndpoint, "vsphere-controlplane-endpoint", "", "", "Virtual IP address or FQDN for the cluster's control plane nodes")
 	createCmd.Flags().MarkHidden("vsphere-controlplane-endpoint") //nolint
 
-	createCmd.Flags().StringVarP(&iro.tmcRegistrationURL, "tmc-registration-url", "", "", "URL to download the yml which has configuration related to resources to be deployed on the management cluster for it to register with Tanzu Mission Control")
-	createCmd.Flags().MarkHidden("tmc-registration-url") //nolint
-
 	createCmd.Flags().BoolVar(&iro.dryRun, "dry-run", false, "Generates the management cluster manifest and writes the output to stdout without applying it")
 
 	// Hidden flags, mostly for development and testing
@@ -169,7 +168,6 @@ func runInit() error {
 		Size:                        iro.size,
 		ControlPlaneSize:            iro.controlPlaneSize,
 		WorkerSize:                  iro.workerSize,
-		TmcRegistrationURL:          iro.tmcRegistrationURL,
 		CeipOptIn:                   iro.ceipOptIn,
 		CniType:                     iro.cniType,
 		FeatureFlags:                iro.featureFlags,
@@ -184,5 +182,21 @@ func runInit() error {
 		GenerateOnly:                iro.dryRun,
 	}
 
-	return tkgClient.Init(options)
+	err = tkgClient.Init(options)
+	if err != nil {
+		return err
+	}
+
+	// Sync plugins if management-cluster creation is successful
+	if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
+		server, err := config.GetCurrentServer()
+		if err == nil && server != nil {
+			err = pluginmanager.SyncPlugins(server.Name)
+			if err != nil {
+				log.Warningf("unable to sync plugins after management cluster create. Please run `tanzu plugin sync` command manually to install/update plugins")
+			}
+		}
+	}
+
+	return nil
 }

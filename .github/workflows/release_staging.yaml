@@ -42,6 +42,10 @@ jobs:
     - name: Build
       run: BUILD_VERSION=dev make all
 
+    - name: Verify
+      run: |
+        make verify
+
     - name: Test
       run: make test
 

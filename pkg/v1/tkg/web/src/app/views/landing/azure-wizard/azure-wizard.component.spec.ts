@@ -10,6 +10,7 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import Broker from 'src/app/shared/service/broker';
 import { Messenger } from 'src/app/shared/service/Messenger';
+import { ClusterType } from "../wizard/shared/constants/wizard.constants";
 
 describe('AzureWizardComponent', () => {
     let component: AzureWizardComponent;
@@ -58,9 +59,6 @@ describe('AzureWizardComponent', () => {
             metadataForm: fb.group({
                 clusterLocation: ['']
             }),
-            registerTmcForm: fb.group({
-                tmcRegUrl: ['']
-            }),
             networkForm: fb.group({
                 clusterServiceCidr: [''],
                 clusterPodCidr: [''],
@@ -76,7 +74,7 @@ describe('AzureWizardComponent', () => {
             osImageForm: fb.group({
             })
         });
-        component.clusterType = 'management';
+        component.clusterTypeDescriptor = '' + ClusterType.Management;
         fixture.detectChanges();
     });
 
@@ -126,11 +124,6 @@ describe('AzureWizardComponent', () => {
             expect(component.getStepDescription(formName))
                 .toBe('Cluster service CIDR: 1.1.1.1/23 Cluster POD CIDR: 2.2.2.2/23');
         });
-        it('register tmc form', () => {
-            const formName = 'registerTmcFrom';
-            expect(component.getStepDescription(formName))
-                .toBe('Optional: register Tanzu Mission Control');
-        });
         it('ceip opt in form', () => {
             const formName = 'ceipOptInForm';
             expect(component.getStepDescription(formName))
@@ -148,13 +141,13 @@ describe('AzureWizardComponent', () => {
         expect(component.getCli(path)).toBe(`tanzu management-cluster create --file ${path} -v 6`);
     });
 
-    it('should call api to create aws regional cluster', () => {
+    it('should call api to create azure regional cluster', () => {
         const apiSpy = spyOn(component['apiClient'], 'createAzureRegionalCluster').and.callThrough();
         component.createRegionalCluster({});
         expect(apiSpy).toHaveBeenCalled();
     });
 
-    it('should apply TKG config for aws', () => {
+    it('should apply TKG config for azure', () => {
         const apiSpy = spyOn(component['apiClient'], 'applyTKGConfigForAzure').and.callThrough();
         component.applyTkgConfig();
         expect(apiSpy).toHaveBeenCalled();

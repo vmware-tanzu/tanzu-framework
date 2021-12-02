@@ -59,7 +59,18 @@ router.get(`${ENDPOINT}/features`, (req, res) => {
     winston.info('Mock TKG UI GET FEATURES API');
     res.status(200);
     res.json({
-        "tmcRegistration": "enabled"
+        "global": {
+            "dualStack": "true",
+            "ceip": "true"
+        },
+        "management-cluster": {
+            "encryptCredentials": "true",
+            "export-from-confirm": "true",
+            "vsphereIPv6": "true"
+        },
+        "cluster": {
+            "validateXyz": "true"
+        }
     });
 });
 
@@ -191,7 +202,8 @@ router.get(`${ENDPOINT}/avi/vipnetworks`, (req, res) => {
  */
 router.post(`${ENDPOINT}/providers/vsphere`, (req, res) => {
     winston.info('Mock TKG UI CONNECT VC API');
-    if ((req.body.host === 'vsphere.local') &&
+    if ((req.body.host === 'vsphere.local' || req.body.host === '1.1.1.1'
+        || req.body.host === '2001:0db8:85a3:0000:0000:8a2e:0370:7334') &&
         (req.body.username === 'admin' || req.body.username === 'administrator') &&
         (req.body.password === 'password')) {
         res.status(200);
@@ -215,34 +227,41 @@ router.get(`${ENDPOINT}/providers/vsphere/networks`, (req, res) => {
     let vcNetworksResponse = [
         {
             name: 'Network 1',
-            id: 'network-1'
+            id: 'network-1',
+            displayName: 'Network 1'
         },
         {
             name: 'Network 2',
-            id: 'network-2'
+            id: 'network-2',
+            displayName: 'Network 2'
         },
         {
             name: 'Network 3',
-            id: 'network-3'
+            id: 'network-3',
+            displayName: 'Network 3'
         },
         {
             name: 'Network 4',
-            id: 'network-4'
+            id: 'network-4',
+            displayName: 'Network 4'
         },
         {
             name: 'Network 5',
-            id: 'network-5'
+            id: 'network-5',
+            displayName: 'Network 5'
         },
         {
             name: 'Network 6',
-            id: 'network-6'
+            id: 'network-6',
+            displayName: 'Network 6'
         }
     ];
 
     if (mockvcNetworkRequestCounter > 0) {
         vcNetworksResponse.push({
             name: 'Network 3',
-            id: 'network-3'
+            id: 'network-3',
+            displayName: 'Network 3'
         });
     }
 
@@ -475,6 +494,16 @@ router.get(`${ENDPOINT}/providers/vsphere/osimages`, (req, res) => {
     res.json(osImageResponse);
 });
 
+/**
+ * Mock route for getting config file
+ */
+router.post(`${ENDPOINT}/providers/vsphere/config/export`, (req, res) => {
+    winston.info('Mock TKG UI export config');
+    res.status(200);    res.status(200);
+    res.json("Pretend this is a beautiful config file");
+});
+
+
 /*** AWS releated APIs ***/
 
 /**
@@ -685,6 +714,16 @@ router.post(`${ENDPOINT}/providers/aws/tkgconfig`, (req, res) => {
         path: "/path/to/config"
     });
 });
+
+/**
+ * Mock route for getting config file
+ */
+router.post(`${ENDPOINT}/providers/aws/config/export`, (req, res) => {
+    winston.info('Mock TKG UI export config');
+    res.status(200);    res.status(200);
+    res.json("Pretend this is a beautiful config file");
+});
+
 
 /*** Azure related mock services ***/
 
@@ -920,6 +959,15 @@ router.post(`${ENDPOINT}/providers/azure/tkgconfig`, (req, res) => {
     });
 });
 
+/**
+ * Mock route for getting config file
+ */
+router.post(`${ENDPOINT}/providers/azure/config/export`, (req, res) => {
+    winston.info('Mock TKG UI export config');
+    res.status(200);    res.status(200);
+    res.json("Pretend this is a beautiful config file");
+});
+
 /*********************************   VSPHERE   **********************************/
 
 /**
@@ -1032,6 +1080,15 @@ router.post(`${ENDPOINT}/providers/docker/tkgconfig`, (req, res) => {
     res.json({
         path: "/path/to/config"
     });
+});
+
+/**
+ * Mock route for getting config file
+ */
+router.post(`${ENDPOINT}/providers/docker/config/export`, (req, res) => {
+    winston.info('Mock TKG UI export config');
+    res.status(200);    res.status(200);
+    res.json("Pretend this is a beautiful config file");
 });
 
 /**

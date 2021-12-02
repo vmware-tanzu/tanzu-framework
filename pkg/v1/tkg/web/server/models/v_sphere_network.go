@@ -15,6 +15,9 @@ import (
 // swagger:model VSphereNetwork
 type VSphereNetwork struct {
 
+	// display name
+	DisplayName string `json:"displayName,omitempty"`
+
 	// moid
 	Moid string `json:"moid,omitempty"`
 

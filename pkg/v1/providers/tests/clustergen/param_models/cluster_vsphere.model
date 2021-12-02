@@ -16,7 +16,7 @@ NODE_MACHINE_TYPE: "NA","m5.large"
 _TKG_CLUSTER_FORCE_ROLE: "NA", "management"
 _CNAME: "testcluster", "c1", "really-long-cluster-name-with-hyphen"
 _PLAN: "dev", "prod"
-_INFRA: "vsphere:v0.7.10"
+_INFRA: "vsphere:v1.0.1"
 
 BASTION_HOST_ENABLED: "true"
 NODE_STARTUP_TIMEOUT: "20m"
@@ -28,6 +28,7 @@ WORKER_SIZE: "NA", "small", "medium", "large", "extra-large"
 CLUSTER_CIDR: "100.96.0.0/11", "10.10.10.10/18"
 SERVICE_CIDR: "100.64.0.0/18", "10.10.10.10/16"
 NAMESPACE: "NA", "default", "test", "namespace with spaces"
+CLUSTER_API_SERVER_PORT: "NA","443"
 
 #VSPHERE_SSH_KEY: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCsbzCr6KZZZZ", "'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCsbzCr6KZZZZ'"
 VSPHERE_SSH_AUTHORIZED_KEY: "ssh-rsa A", "'ssh-rsa BB'"
@@ -63,10 +64,19 @@ AVI_USERNAME: "admin"
 AVI_PASSWORD: "admin123"
 AVI_CLOUD_NAME: "Default-Cloud"
 AVI_SERVICE_ENGINE_GROUP: "test-se-group"
-AVI_DATA_NETWORK: "VM Network"
+AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP: "NA", "test-mc-se-group"
+AVI_DATA_NETWORK: "WorkloadCluster-Network-data-plane"
 AVI_DATA_NETWORK_CIDR: "10.161.136.0/24"
-AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME: "MC Network"
-AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR: "10.161.136.0/20"
+
+# These values might be empty when user grade to the tkg 1.5 version, other they will always contain values
+AVI_CONTROL_PLANE_NETWORK: "", "WorkloadCluster-Network-control-plane"
+AVI_CONTROL_PLANE_NETWORK_CIDR: "", "10.161.137.0/24"
+AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME: "", "ManagementCluster-Network-data-plane"
+AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR: "", "10.161.138.0/20"
+AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR: "", "10.161.139.0/20"
+AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME: "", "ManagementCluster-Network-control-plane"
+
+
 AVI_CA_DATA_B64: "-----BEGIN CERTIFICATE-----CgAwIBAgIBATANB-----END CERTIFICATE-----"
 AVI_LABELS: ""
 
@@ -82,6 +92,8 @@ AVI_CONTROL_PLANE_HA_PROVIDER: "false", "true"
 TKG_CUSTOM_IMAGE_REPOSITORY: "NA", "harbor.mydomain.com/library"
 TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY: "NA", "true"
 TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE: "NA", "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCkNBIENFUlQ="
+
+TKG_PROXY_CA_CERT: "NA", "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tClBST1hZIENBIENFUlQ="
 
 BUILD_EDITION: "tkg", "tce"
 

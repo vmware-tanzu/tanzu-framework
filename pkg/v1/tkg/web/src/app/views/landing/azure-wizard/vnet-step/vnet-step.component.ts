@@ -80,6 +80,11 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
                 this.validationService.isValidIpNetworkSegment()
             ])
         ));
+        // special hidden field used to capture existing subnet cidr when user selects existing subnet
+        this.formGroup.addControl(
+            'controlPlaneSubnetCidr',
+            new FormControl('', [])
+        );
 
         this.formGroup.get('vnetOption').setValue(this.showOption);
 
@@ -109,7 +114,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
                 takeUntil(this.unsubscribe)
             ).subscribe((cidr) => {
                 Broker.messenger.publish({
-                    type: TkgEventType.AWS_GET_NO_PROXY_INFO,
+                    type: TkgEventType.NETWORK_STEP_GET_NO_PROXY_INFO,
                     payload: { info: (cidr ? cidr + ',' : '') + '169.254.0.0/16,168.63.129.16' }
                 });
             });
@@ -126,7 +131,16 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
     ngOnInit() {
         super.ngOnInit();
 
-        this.requiredFields = (this.clusterType !== 'standalone') ?
+        this.requiredFields = this.modeClusterStandalone ?
+            [
+                "vnetOption",
+                "resourceGroup",
+                "vnetNameCustom",
+                "vnetNameExisting",
+                "controlPlaneSubnet",
+                "controlPlaneSubnetNew",
+                "controlPlaneSubnetCidrNew",
+            ] :
             [
                 "vnetOption",
                 "resourceGroup",
@@ -138,28 +152,25 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
                 "controlPlaneSubnetCidrNew",
                 "workerNodeSubnetNew",
                 "workerNodeSubnetCidrNew"
-            ] :
-            [
-                "vnetOption",
-                "resourceGroup",
-                "vnetNameCustom",
-                "vnetNameExisting",
-                "controlPlaneSubnet",
-                "controlPlaneSubnetNew",
-                "controlPlaneSubnetCidrNew",
             ];
 
         this.optionalFields = ['privateAzureCluster', 'privateIP'];
 
-        this.defaultCidrFields = (this.clusterType !== 'standalone') ?
-            ["vnetCidrBlock", "controlPlaneSubnetCidrNew", "workerNodeSubnetCidrNew"] :
-            ["vnetCidrBlock", "controlPlaneSubnetCidrNew", ];
+        this.defaultCidrFields = this.modeClusterStandalone ?
+            ["vnetCidrBlock", "controlPlaneSubnetCidrNew", ] :
+            ["vnetCidrBlock", "controlPlaneSubnetCidrNew", "workerNodeSubnetCidrNew"];
 
-        this.vnetFieldsExisting = (this.clusterType !== 'standalone') ?
-            ["vnetNameExisting", "controlPlaneSubnet", "workerNodeSubnet"] :
-            ["vnetNameExisting", "controlPlaneSubnet"];
+        this.vnetFieldsExisting = this.modeClusterStandalone ?
+            ["vnetNameExisting", "controlPlaneSubnet"] :
+            ["vnetNameExisting", "controlPlaneSubnet", "workerNodeSubnet"];
 
-        this.vnetFieldsNew = (this.clusterType !== 'standalone') ?
+        this.vnetFieldsNew = this.modeClusterStandalone ?
+            [
+                "vnetNameCustom",
+                "vnetCidrBlock",
+                "controlPlaneSubnetNew",
+                "controlPlaneSubnetCidrNew",
+            ] :
             [
                 "vnetNameCustom",
                 "vnetCidrBlock",
@@ -167,12 +178,6 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
                 "controlPlaneSubnetCidrNew",
                 "workerNodeSubnetNew",
                 "workerNodeSubnetCidrNew"
-            ] :
-            [
-                "vnetNameCustom",
-                "vnetCidrBlock",
-                "controlPlaneSubnetNew",
-                "controlPlaneSubnetCidrNew",
             ];
 
         this.buildForm();
@@ -204,6 +209,11 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((rgs: AzureResourceGroup[]) => {
                 this.resourceGroups = rgs;
+                if (this.customResourceGroup) {
+                    this.formGroup.get('resourceGroup').setValue(this.customResourceGroup);
+                } else if (rgs.length === 1) {
+                    this.formGroup.get('resourceGroup').setValue(rgs[0].name);
+                }
             });
 
         this.registerOnValueChange('privateAzureCluster', this.onCreatePrivateAzureCluster.bind(this));
@@ -213,7 +223,17 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
     }
 
     onControlPlaneSubnetChange(name: string) {
-        this.cidrHolder[EXISTING] = this.controlPlaneSubnets.find(subnet => subnet.name === name)?.cidr;
+        // when the user selects an existing subnet, we look up the associated CIDR and set a hidden field with the CIDR value,
+        // which is later used in creating the AzureRegionalClusterParams payload object
+        const subnetEntry = this.controlPlaneSubnets.find(subnet => subnet.name === name);
+        const cidrOfSelectedControlPlaneSubnet = (subnetEntry) ? subnetEntry.cidr : '';
+
+        const control = this.formGroup.controls['controlPlaneSubnetCidr'];
+        if (control) {
+            control.setValue(cidrOfSelectedControlPlaneSubnet);
+        }
+        // Leaving cidrHolder assignment in place, but unable to see how it is useful
+        this.cidrHolder[EXISTING] = cidrOfSelectedControlPlaneSubnet;
     }
 
     onControlPlaneSubnetCidrNewChange(value: string) {
@@ -254,7 +274,8 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
                     (vnets: AzureVirtualNetwork[]) => {
                         this.vnetSubnets = vnets.reduce((accu, vnet) => { accu[vnet.name] = vnet.subnets; return accu; }, {});
                         this.vnetNamesExisting = Object.keys(this.vnetSubnets);
-                        this.formGroup.get('vnetNameExisting').setValue(this.getSavedValue('vnetNameExisting', ''))
+                        this.formGroup.get('vnetNameExisting').setValue(this.vnetNamesExisting.length === 1 ?
+                            this.vnetNamesExisting[0] : this.getSavedValue('vnetNameExisting', ''))
                     },
                     err => { this.errorNotification = err.message; },
                     () => { }
@@ -273,11 +294,15 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
         let filteredSubnets = this.controlPlaneSubnets.filter(s => s.name === this.getSavedValue('controlPlaneSubnet', ''));
         if (filteredSubnets.length > 0) {
             this.formGroup.get('controlPlaneSubnet').setValue(filteredSubnets[0].cidr)
+        } else if (this.controlPlaneSubnets.length === 1) {
+            this.formGroup.get('controlPlaneSubnet').setValue(this.controlPlaneSubnets[0].name)
         }
-        if (this.clusterType !== 'standalone') {
+        if (!this.modeClusterStandalone) {
             filteredSubnets = this.workerNodeSubnets.filter(s => s.name === this.getSavedValue('workerNodeSubnet', ''));
             if (filteredSubnets.length > 0) {
-                this.formGroup.get('workerNodeSubnet').setValue(filteredSubnets[0].cidr)
+                this.formGroup.get('workerNodeSubnet').setValue(filteredSubnets[0].cidr);
+            } else if (this.workerNodeSubnets.length === 1) {
+                this.formGroup.get('workerNodeSubnet').setValue(this.workerNodeSubnets[0].name)
             }
         }
     }
@@ -289,8 +314,24 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
             this.vnetFieldsExisting.forEach(field => this.resurrectField(field, [Validators.required]));
             this.vnetFieldsNew.forEach(field => this.disarmField(field, clearSavedData));
             this.formGroup.get('vnetOption').setValue(EXISTING);
+            if ( this.resourceGroups.length === 1 ) {
+                setTimeout( _ => {
+                    if (this.resourceGroups.length === 1) {
+                        this.formGroup.get('resourceGroup').setValue(this.resourceGroups[0].name);
+                    }
+                    if (this.vnetNamesExisting.length === 1) {
+                        this.formGroup.get('vnetNameExisting').setValue(this.vnetNamesExisting[0]);
+                    }
+                    if (this.controlPlaneSubnets.length === 1) {
+                        this.formGroup.get('controlPlaneSubnet').setValue(this.controlPlaneSubnets[0].name)
+                    }
+                    if (this.workerNodeSubnets.length === 1) {
+                        this.formGroup.get('workerNodeSubnet').setValue(this.workerNodeSubnets[0].name)
+                    }
+                });
+            }
             Broker.messenger.publish({
-                type: TkgEventType.AWS_GET_NO_PROXY_INFO,
+                type: TkgEventType.NETWORK_STEP_GET_NO_PROXY_INFO,
                 payload: { info: '169.254.0.0/16,168.63.129.16' }
             });
         } else if (option === CUSTOM) {
@@ -306,7 +347,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
             this.validationService.isValidIpNetworkSegment()
             ], this.defaultControlPlaneCidr);
 
-            if (this.clusterType !== 'standalone') {
+            if (!this.modeClusterStandalone) {
                 this.resurrectField("workerNodeSubnetNew", [Validators.required]);
                 this.resurrectField("workerNodeSubnetCidrNew", [Validators.required,
                     this.validationService.noWhitespaceOnEnds(),

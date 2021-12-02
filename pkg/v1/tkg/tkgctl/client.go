@@ -134,6 +134,7 @@ func New(options Options) (TKGClient, error) { //nolint:gocritic
 		TKGPathsClient:           allClients.TKGConfigPathsClient,
 		ClusterKubeConfig:        clusterKubeConfig,
 		ClusterClientFactory:     clusterclient.NewClusterClientFactory(),
+		FeatureFlagClient:        allClients.FeatureFlagClient,
 	})
 	if err != nil {
 		return nil, err
@@ -144,6 +145,17 @@ func New(options Options) (TKGClient, error) { //nolint:gocritic
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to ensure prerequisites")
 	}
+	tkgConfigFile, err := allClients.TKGConfigPathsClient.GetTKGConfigPath()
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to get TKG config file path")
+	}
+	// re-initialize the TKG config reader writer after the providers are updated
+	// as the TKG config file would be updated too.
+	err = tkgClient.TKGConfigReaderWriter().Init(tkgConfigFile)
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to initialize the TKG config reader writer")
+	}
+
 	// Set default BOM name to the config variables to use during template generation
 	defaultBoMFileName, err := allClients.TKGBomClient.GetDefaultBoMFileName()
 	if err != nil {

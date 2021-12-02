@@ -23,16 +23,17 @@ var packageInstallCmd = &cobra.Command{
     # Install package contour with installed package name as 'contour-pkg' with specified version and without waiting for package reconciliation to complete 	
     tanzu package install contour-pkg --package-name contour.tanzu.vmware.com --namespace test-ns --version 1.15.1-tkg.1-vmware1 --wait=false
 	
-    # Install package contour with kubeconfig flag and waiting for package reconcilaition to complete	
+    # Install package contour with kubeconfig flag and waiting for package reconciliation to complete	
     tanzu package install contour-pkg --package-name contour.tanzu.vmware.com --namespace test-ns --version 1.15.1-tkg.1-vmware1 --kubeconfig path/to/kubeconfig`,
-	RunE: packageInstall,
+	RunE:         packageInstall,
+	SilenceUsage: true,
 }
 
 func init() {
 	packageInstallCmd.Flags().StringVarP(&packageInstallOp.PackageName, "package-name", "p", "", "Name of the package to be installed")
 	packageInstallCmd.Flags().StringVarP(&packageInstallOp.Version, "version", "v", "", "Version of the package to be installed")
 	packageInstallCmd.Flags().BoolVarP(&packageInstallOp.CreateNamespace, "create-namespace", "", false, "Create namespace if the target namespace does not exist, optional")
-	packageInstallCmd.Flags().StringVarP(&packageInstallOp.Namespace, "namespace", "n", "default", "Target namespace to install the package, optional")
+	packageInstallCmd.Flags().StringVarP(&packageInstallOp.Namespace, "namespace", "n", "default", "Namespace indicates the location of the repository from which the package is retrieved")
 	packageInstallCmd.Flags().StringVarP(&packageInstallOp.ServiceAccountName, "service-account-name", "", "", "Name of an existing service account used to install underlying package contents, optional")
 	packageInstallCmd.Flags().StringVarP(&packageInstallOp.ValuesFile, "values-file", "f", "", "The path to the configuration values file, optional")
 	packageInstallCmd.Flags().StringVarP(&packageInstallOp.KubeConfig, "kubeconfig", "", "", "The path to the kubeconfig file, optional")
@@ -45,8 +46,6 @@ func init() {
 
 func packageInstall(cmd *cobra.Command, args []string) error {
 	packageInstallOp.PkgInstallName = args[0]
-
-	cmd.SilenceUsage = true
 
 	pkgClient, err := tkgpackageclient.NewTKGPackageClient(packageInstallOp.KubeConfig)
 	if err != nil {
@@ -62,10 +61,14 @@ func packageInstall(cmd *cobra.Command, args []string) error {
 
 	initialMsg := fmt.Sprintf("Installing package '%s'", packageInstallOp.PackageName)
 	if err := DisplayProgress(initialMsg, pp); err != nil {
+		if err.Error() == tkgpackagedatamodel.ErrPackageAlreadyExists {
+			log.Infof("Updated installed package '%s'", packageInstallOp.PkgInstallName)
+			return nil
+		}
 		return err
 	}
 
-	log.Infof("\n %s", fmt.Sprintf("Added installed package '%s' in namespace '%s'",
-		packageInstallOp.PkgInstallName, packageInstallOp.Namespace))
+	log.Infof("\n %s", fmt.Sprintf("Added installed package '%s'",
+		packageInstallOp.PkgInstallName))
 	return nil
 }

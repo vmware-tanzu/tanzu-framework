@@ -23,7 +23,8 @@ var repositoryListCmd = &cobra.Command{
 	
     # List installed packages from default namespace	
     tanzu package repository list`,
-	RunE: repositoryList,
+	RunE:         repositoryList,
+	SilenceUsage: true,
 }
 
 func init() {
@@ -33,8 +34,6 @@ func init() {
 }
 
 func repositoryList(cmd *cobra.Command, _ []string) error {
-	cmd.SilenceUsage = true
-
 	pkgClient, err := tkgpackageclient.NewTKGPackageClient(repoOp.KubeConfig)
 	if err != nil {
 		return err
@@ -48,10 +47,10 @@ func repositoryList(cmd *cobra.Command, _ []string) error {
 
 	if repoOp.AllNamespaces {
 		t, err = component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), outputFormat,
-			"Retrieving repositories...", true, "NAME", "REPOSITORY", "STATUS", "DETAILS", "NAMESPACE")
+			"Retrieving repositories...", true, "NAME", "REPOSITORY", "TAG", "STATUS", "DETAILS", "NAMESPACE")
 	} else {
 		t, err = component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), outputFormat, "Retrieving repositories...", true,
-			"NAME", "REPOSITORY", "STATUS", "DETAILS")
+			"NAME", "REPOSITORY", "TAG", "STATUS", "DETAILS")
 	}
 	if err != nil {
 		return err
@@ -66,23 +65,27 @@ func repositoryList(cmd *cobra.Command, _ []string) error {
 		packageRepository := packageRepositoryList.Items[i]
 		status := packageRepository.Status.FriendlyDescription
 		details := packageRepository.Status.UsefulErrorMessage
+		imageRepository, tag, _ := tkgpackageclient.GetCurrentRepositoryAndTagInUse(&packageRepository)
 		if len(status) > tkgpackagedatamodel.ShortDescriptionMaxLength {
 			status = fmt.Sprintf("%s...", status[:tkgpackagedatamodel.ShortDescriptionMaxLength])
 		}
 		if len(details) > tkgpackagedatamodel.ShortDescriptionMaxLength {
 			details = fmt.Sprintf("%s...", details[:tkgpackagedatamodel.ShortDescriptionMaxLength])
 		}
+
 		if repoOp.AllNamespaces {
 			t.AddRow(
 				packageRepository.Name,
-				packageRepository.Spec.Fetch.ImgpkgBundle.Image,
+				imageRepository,
+				tag,
 				status,
 				details,
 				packageRepository.Namespace)
 		} else {
 			t.AddRow(
 				packageRepository.Name,
-				packageRepository.Spec.Fetch.ImgpkgBundle.Image,
+				imageRepository,
+				tag,
 				status,
 				details)
 		}

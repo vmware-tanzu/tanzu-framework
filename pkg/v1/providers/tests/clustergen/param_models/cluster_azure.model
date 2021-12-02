@@ -1,7 +1,7 @@
 --CONTROLPLANE-MACHINE-COUNT: "NOTPROVIDED", "1","3","5"
 --WORKER-MACHINE-COUNT:       "NOTPROVIDED", "3"
 --CONTROLPLANE-SIZE:          "NOTPROVIDED", "i3.xlarge"
---TKR:                        "NOTPROVIDED", "v1.21.2+vmware.1-tkg.1-zshippable", "v0.0.0+no-azure-image", "v0.0.0+marketplace-image", "v0.0.0+marketplace-image-no-thirdpartyimage", "v0.0.0+shared-gallery-image"
+--TKR:                        "NOTPROVIDED", "v1.21.5+vmware.1-tkg.1-zshippable", "v0.0.0+no-azure-image", "v0.0.0+marketplace-image", "v0.0.0+marketplace-image-no-thirdpartyimage", "v0.0.0+shared-gallery-image"
 --NAMESPACE:                  "NOTPROVIDED", "default", "test"
 --SIZE:                       "NOTPROVIDED", "t3.medium"
 --WORKER-SIZE:                "NOTPROVIDED", "m5.xlarge"
@@ -12,13 +12,14 @@ WORKER_MACHINE_COUNT: "NA","1","3","5"
 
 _CNAME: "testcluster"
 _PLAN: "dev", "prod"
-_INFRA: "azure:v0.4.15"
+_INFRA: "azure:v1.0.0"
 
 NODE_STARTUP_TIMEOUT: "20m"
 
 CLUSTER_CIDR: "100.96.0.0/11", "10.10.10.10/18"
 SERVICE_CIDR: "100.64.0.0/18", "10.10.10.10/16"
 NAMESPACE: "NA", "default", "test", "namespace with spaces"
+CLUSTER_API_SERVER_PORT: "NA","443"
 
 AZURE_LOCATION: "eastus", "westus"
 AZURE_SUBSCRIPTION_ID: "6c2a2ce1-649f-9d9k-a19c-c729h3cf6126"
@@ -69,8 +70,13 @@ WORKER_MACHINE_COUNT_2: "NA", "1", "2"
 
 AZURE_CUSTOM_TAGS: "NA", "tagKey=tagValue", "tagKey1=tagValue2"
 
-AZURE_ENABLE_PRIVATE_CLUSTER: "NA", "true", "false"
-AZURE_FRONTEND_PRIVATE_IP: "NA", "20.20.20.20"
+AZURE_ENABLE_PRIVATE_CLUSTER: "true", "false"
+AZURE_FRONTEND_PRIVATE_IP: "20.20.20.20", "22.22.22.22"
+AZURE_ENABLE_CONTROL_PLANE_OUTBOUND_LB: "true", "false"
+AZURE_CONTROL_PLANE_OUTBOUND_LB_FRONTEND_IP_COUNT: "1", "3"
+AZURE_ENABLE_NODE_OUTBOUND_LB: "true", "false"
+AZURE_NODE_OUTBOUND_LB_FRONTEND_IP_COUNT: "1", "3"
+AZURE_NODE_OUTBOUND_LB_IDLE_TIMEOUT_IN_MINUTES: "4", "8"
 
 AZURE_CONTROL_PLANE_OS_DISK_SIZE: "NA", "128", "256"
 AZURE_CONTROL_PLANE_OS_DISK_STORAGE_ACCOUNT_TYPE: "NA", "Premium_LRS"

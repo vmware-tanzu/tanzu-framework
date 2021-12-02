@@ -14,10 +14,11 @@ import (
 // DockerConfig is the tkg config file for docker provider
 type DockerConfig struct {
 	ClusterName               string `yaml:"CLUSTER_NAME,omitempty"`
+	ClusterLabels             string `yaml:"CLUSTER_LABELS,omitempty"`
+	ClusterAnnotations        string `yaml:"CLUSTER_ANNOTATIONS,omitempty"`
 	InfrastructureProvider    string `yaml:"INFRASTRUCTURE_PROVIDER,omitempty"`
 	ClusterPlan               string `yaml:"CLUSTER_PLAN,omitempty"`
 	CeipParticipation         string `yaml:"ENABLE_CEIP_PARTICIPATION,omitempty"`
-	TmcRegistrationURL        string `yaml:"TMC_REGISTRATION_URL,omitempty"`
 	MachineHealthCheckEnabled string `yaml:"ENABLE_MHC,omitempty"`
 	ServiceCIDR               string `yaml:"SERVICE_CIDR,omitempty"`
 	ClusterCIDR               string `yaml:"CLUSTER_CIDR,omitempty"`
@@ -33,9 +34,10 @@ func (c *client) NewDockerConfig(params *models.DockerRegionalClusterParams) (*D
 	var err error
 	res := &DockerConfig{
 		ClusterName:            params.ClusterName,
+		ClusterLabels:          mapToConfigString(params.Labels),
+		ClusterAnnotations:     mapToConfigString(params.Annotations),
 		InfrastructureProvider: constants.InfrastructureProviderDocker,
-		ClusterPlan:            params.ControlPlaneFlavor,
-		TmcRegistrationURL:     params.TmcRegistrationURL,
+		ClusterPlan:            constants.PlanDev,
 		ClusterCIDR:            params.Networking.ClusterPodCIDR,
 		ServiceCIDR:            params.Networking.ClusterServiceCIDR,
 		HTTPProxyEnabled:       falseConst,

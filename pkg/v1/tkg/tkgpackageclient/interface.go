@@ -16,22 +16,23 @@ import (
 
 // TKGPackageClient is the TKG package client interface
 type TKGPackageClient interface {
-	AddImagePullSecret(o *tkgpackagedatamodel.ImagePullSecretOptions) error
+	AddRegistrySecret(o *tkgpackagedatamodel.RegistrySecretOptions) error
 	AddRepository(o *tkgpackagedatamodel.RepositoryOptions, packageProgress *tkgpackagedatamodel.PackageProgress, operationType tkgpackagedatamodel.OperationType)
-	DeleteImagePullSecret(o *tkgpackagedatamodel.ImagePullSecretOptions) (bool, error)
+	DeleteRegistrySecret(o *tkgpackagedatamodel.RegistrySecretOptions) (bool, error)
 	DeleteRepository(o *tkgpackagedatamodel.RepositoryOptions, packageProgress *tkgpackagedatamodel.PackageProgress)
 	GetPackageInstall(o *tkgpackagedatamodel.PackageOptions) (*kappipkg.PackageInstall, error)
 	GetPackage(o *tkgpackagedatamodel.PackageOptions) (*kapppkg.PackageMetadata, *kapppkg.Package, error)
 	GetRepository(o *tkgpackagedatamodel.RepositoryOptions) (*kappipkg.PackageRepository, error)
+	GetSecretExport(o *tkgpackagedatamodel.RegistrySecretOptions) (*secretgen.SecretExport, error)
 	InstallPackage(o *tkgpackagedatamodel.PackageOptions, packageProgress *tkgpackagedatamodel.PackageProgress, operationType tkgpackagedatamodel.OperationType)
-	ListImagePullSecrets(o *tkgpackagedatamodel.ImagePullSecretOptions) (*corev1.SecretList, error)
 	ListPackageInstalls(o *tkgpackagedatamodel.PackageOptions) (*kappipkg.PackageInstallList, error)
 	ListPackageMetadata(o *tkgpackagedatamodel.PackageAvailableOptions) (*kapppkg.PackageMetadataList, error)
 	ListPackages(o *tkgpackagedatamodel.PackageAvailableOptions) (*kapppkg.PackageList, error)
+	ListRegistrySecrets(o *tkgpackagedatamodel.RegistrySecretOptions) (*corev1.SecretList, error)
+	ListSecretExports(o *tkgpackagedatamodel.RegistrySecretOptions) (*secretgen.SecretExportList, error)
 	ListRepositories(o *tkgpackagedatamodel.RepositoryOptions) (*kappipkg.PackageRepositoryList, error)
-	ListSecretExports(o *tkgpackagedatamodel.ImagePullSecretOptions) (*secretgen.SecretExportList, error)
 	UninstallPackage(o *tkgpackagedatamodel.PackageOptions, packageProgress *tkgpackagedatamodel.PackageProgress)
-	UpdateImagePullSecret(o *tkgpackagedatamodel.ImagePullSecretOptions) error
-	UpdatePackage(o *tkgpackagedatamodel.PackageOptions, packageProgress *tkgpackagedatamodel.PackageProgress)
-	UpdateRepository(o *tkgpackagedatamodel.RepositoryOptions, progress *tkgpackagedatamodel.PackageProgress)
+	UpdateRegistrySecret(o *tkgpackagedatamodel.RegistrySecretOptions) error
+	UpdatePackage(o *tkgpackagedatamodel.PackageOptions, packageProgress *tkgpackagedatamodel.PackageProgress, operationType tkgpackagedatamodel.OperationType)
+	UpdateRepository(o *tkgpackagedatamodel.RepositoryOptions, progress *tkgpackagedatamodel.PackageProgress, operationType tkgpackagedatamodel.OperationType)
 }

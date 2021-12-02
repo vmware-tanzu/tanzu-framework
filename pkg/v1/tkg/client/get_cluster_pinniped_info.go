@@ -12,7 +12,7 @@ import (
 	"github.com/pkg/errors"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
-	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
+	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
@@ -87,9 +87,26 @@ func (c *TkgClient) GetWCClusterPinnipedInfo(regionalClusterClient clusterclient
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get management cluster-info")
 	}
-	pinnipedInfo, err := utils.GetPinnipedInfoFromCluster(mcClusterInfo)
+	managementClusterPinnipedInfo, err := utils.GetPinnipedInfoFromCluster(mcClusterInfo)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get pinniped-info from management cluster")
+	}
+	if managementClusterPinnipedInfo == nil {
+		return nil, errors.New("failed to get pinniped-info from management cluster")
+	}
+
+	workloadClusterPinnipedInfo, err := utils.GetPinnipedInfoFromCluster(clusterInfo)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get pinniped-info from workload cluster")
+	}
+
+	pinnipedInfo := managementClusterPinnipedInfo
+	if workloadClusterPinnipedInfo != nil {
+		// Get ConciergeIsClusterScoped from workload cluster in case it is different from the management cluster
+		pinnipedInfo.Data.ConciergeIsClusterScoped = workloadClusterPinnipedInfo.Data.ConciergeIsClusterScoped
+	} else {
+		// If workloadClusterPinnipedInfo is nil, assume it is an older TKG cluster and set ConciergeIsClusterScoped to defaults
+		pinnipedInfo.Data.ConciergeIsClusterScoped = false
 	}
 
 	return &ClusterPinnipedInfo{
@@ -122,6 +139,10 @@ func (c *TkgClient) GetMCClusterPinnipedInfo(regionalClusterClient clusterclient
 	pinnipedInfo, err := utils.GetPinnipedInfoFromCluster(clusterInfo)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get pinniped-info from cluster")
+	}
+
+	if pinnipedInfo == nil {
+		return nil, errors.New("failed to get pinniped-info from cluster")
 	}
 
 	return &ClusterPinnipedInfo{

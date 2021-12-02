@@ -223,7 +223,7 @@ stringData:
           ]
         }
     ---
-    apiVersion: apiextensions.k8s.io/v1beta1
+    apiVersion: apiextensions.k8s.io/v1
     kind: CustomResourceDefinition
     metadata:
       name: felixconfigurations.crd.projectcalico.org
@@ -236,7 +236,7 @@ stringData:
         plural: felixconfigurations
         singular: felixconfiguration
     ---
-    apiVersion: apiextensions.k8s.io/v1beta1
+    apiVersion: apiextensions.k8s.io/v1
     kind: CustomResourceDefinition
     metadata:
       name: ipamblocks.crd.projectcalico.org
@@ -249,7 +249,7 @@ stringData:
         plural: ipamblocks
         singular: ipamblock
     ---
-    apiVersion: apiextensions.k8s.io/v1beta1
+    apiVersion: apiextensions.k8s.io/v1
     kind: CustomResourceDefinition
     metadata:
       name: blockaffinities.crd.projectcalico.org
@@ -262,7 +262,7 @@ stringData:
         plural: blockaffinities
         singular: blockaffinity
     ---
-    apiVersion: apiextensions.k8s.io/v1beta1
+    apiVersion: apiextensions.k8s.io/v1
     kind: CustomResourceDefinition
     metadata:
       name: ipamhandles.crd.projectcalico.org
@@ -275,7 +275,7 @@ stringData:
         plural: ipamhandles
         singular: ipamhandle
     ---
-    apiVersion: apiextensions.k8s.io/v1beta1
+    apiVersion: apiextensions.k8s.io/v1
     kind: CustomResourceDefinition
     metadata:
       name: ipamconfigs.crd.projectcalico.org
@@ -288,7 +288,7 @@ stringData:
         plural: ipamconfigs
         singular: ipamconfig
     ---
-    apiVersion: apiextensions.k8s.io/v1beta1
+    apiVersion: apiextensions.k8s.io/v1
     kind: CustomResourceDefinition
     metadata:
       name: bgppeers.crd.projectcalico.org
@@ -301,7 +301,7 @@ stringData:
         plural: bgppeers
         singular: bgppeer
     ---
-    apiVersion: apiextensions.k8s.io/v1beta1
+    apiVersion: apiextensions.k8s.io/v1
     kind: CustomResourceDefinition
     metadata:
       name: bgpconfigurations.crd.projectcalico.org
@@ -314,7 +314,7 @@ stringData:
         plural: bgpconfigurations
         singular: bgpconfiguration
     ---
-    apiVersion: apiextensions.k8s.io/v1beta1
+    apiVersion: apiextensions.k8s.io/v1
     kind: CustomResourceDefinition
     metadata:
       name: ippools.crd.projectcalico.org
@@ -327,7 +327,7 @@ stringData:
         plural: ippools
         singular: ippool
     ---
-    apiVersion: apiextensions.k8s.io/v1beta1
+    apiVersion: apiextensions.k8s.io/v1
     kind: CustomResourceDefinition
     metadata:
       name: hostendpoints.crd.projectcalico.org
@@ -340,7 +340,7 @@ stringData:
         plural: hostendpoints
         singular: hostendpoint
     ---
-    apiVersion: apiextensions.k8s.io/v1beta1
+    apiVersion: apiextensions.k8s.io/v1
     kind: CustomResourceDefinition
     metadata:
       name: clusterinformations.crd.projectcalico.org
@@ -353,7 +353,7 @@ stringData:
         plural: clusterinformations
         singular: clusterinformation
     ---
-    apiVersion: apiextensions.k8s.io/v1beta1
+    apiVersion: apiextensions.k8s.io/v1
     kind: CustomResourceDefinition
     metadata:
       name: globalnetworkpolicies.crd.projectcalico.org
@@ -366,7 +366,7 @@ stringData:
         plural: globalnetworkpolicies
         singular: globalnetworkpolicy
     ---
-    apiVersion: apiextensions.k8s.io/v1beta1
+    apiVersion: apiextensions.k8s.io/v1
     kind: CustomResourceDefinition
     metadata:
       name: globalnetworksets.crd.projectcalico.org
@@ -379,7 +379,7 @@ stringData:
         plural: globalnetworksets
         singular: globalnetworkset
     ---
-    apiVersion: apiextensions.k8s.io/v1beta1
+    apiVersion: apiextensions.k8s.io/v1
     kind: CustomResourceDefinition
     metadata:
       name: networkpolicies.crd.projectcalico.org
@@ -392,7 +392,7 @@ stringData:
         plural: networkpolicies
         singular: networkpolicy
     ---
-    apiVersion: apiextensions.k8s.io/v1beta1
+    apiVersion: apiextensions.k8s.io/v1
     kind: CustomResourceDefinition
     metadata:
       name: networksets.crd.projectcalico.org
