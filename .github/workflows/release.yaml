@@ -1,8 +1,12 @@
 name: Release
 
 on:
-  pull_request:
-    branches: [ main, release-* ]
+  push:
+    branches:
+      - "!not_activated_on_branches!*"
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+      - "!*-*"
 
 jobs:
 
