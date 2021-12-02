@@ -142,6 +142,14 @@ def validate_oidc():
   end
 end
 
+def validate_configuration_combinations():
+  #! this function will validate different configuration options combinations
+
+  if data.values.TKG_CLUSTER_ROLE == "management" and data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
+    assert.fail("The IS_WINDOWS_WORKLOAD_CLUSTER option can only be used when creating a workload cluster.")
+  end
+end
+
 def get_azure_image(tkrBomData):
   image = get_azure_image_from_config()
   if image != None:

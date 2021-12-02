@@ -1,6 +1,6 @@
 load("@ytt:data", "data")
 load("@ytt:assert", "assert")
-load("/lib/helpers.star", "validate_proxy_bypass_vsphere_host")
+load("/lib/helpers.star", "validate_proxy_bypass_vsphere_host", "validate_configuration_combinations")
 
 required_variable_list_vsphere = [
   "VSPHERE_USERNAME",
@@ -31,6 +31,7 @@ required_variable_list_tkgs = [
   "WORKER_VM_CLASS",
   "NODE_POOL_0_NAME"]
 
+
 def validate_configuration(provider):
   #! skip validation when only employing the template to generate
   #! addon resources (which is doable without a complete set of 
@@ -56,6 +57,8 @@ def validate_configuration(provider):
   elif provider == "tkgs":
     flag_missing_variable_error(required_variable_list_tkgs)
   end
+
+  validate_configuration_combinations()
 end
 
 def flag_missing_variable_error(variables_list):
