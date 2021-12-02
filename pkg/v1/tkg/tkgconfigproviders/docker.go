@@ -99,14 +99,14 @@ func (c *client) CreateDockerParams(dockerConfig *DockerConfig) (params *models.
 	ceipOptIn := dockerConfig.CeipParticipation == trueConst
 
 	params = &models.DockerRegionalClusterParams{
+		Annotations:               configStringToMap(dockerConfig.ClusterAnnotations),
 		ClusterName:               dockerConfig.ClusterName,
-		TmcRegistrationURL:        dockerConfig.TmcRegistrationURL,
 		Networking:                createDockerNetworkingConfig(dockerConfig),
 		CeipOptIn:                 &ceipOptIn,
 		ControlPlaneFlavor:        "",
 		IdentityManagement:        createIdentityManagementConfig(dockerConfig),
 		KubernetesVersion:         "",
-		Labels:                    nil,
+		Labels:                    configStringToMap(dockerConfig.ClusterLabels),
 		MachineHealthCheckEnabled: dockerConfig.MachineHealthCheckEnabled == trueConst,
 		NumOfWorkerNodes:          "",
 	}

@@ -12,11 +12,12 @@ import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.servi
 import Broker from "../../../shared/service/broker";
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
-import { BASTION_HOST_ENABLED, BASTION_HOST_DISABLED } from './node-setting-step/node-setting-step.component';
+import { BASTION_HOST_DISABLED, BASTION_HOST_ENABLED } from './node-setting-step/node-setting-step.component';
 import { AWSAccountParamsKeys } from './provider-step/aws-provider-step.component';
-import { AwsStep, AwsForm } from "./aws-wizard.constants";
+import { AwsField, AwsForm, AwsStep } from "./aws-wizard.constants";
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
 import { Utils } from '../../../shared/utils';
+import { InstanceType } from '../../../shared/constants/app.constants';
 
 @Component({
     selector: 'aws-wizard',
@@ -162,8 +163,12 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
             this.saveFormField(AwsForm.NODESETTING, 'createCloudFormation', payload.createCloudFormationStack);
             this.saveFormField(AwsForm.NODESETTING, 'clusterName', payload.clusterName);
 
-            this.saveControlPlaneFlavor('aws', payload.controlPlaneFlavor);
-            this.saveControlPlaneNodeType('aws', payload.controlPlaneFlavor, payload.controlPlaneNodeType);
+            this.saveFormField(AwsForm.NODESETTING, AwsField.NODESETTING_CONTROL_PLANE_SETTING, payload.controlPlaneFlavor);
+            if (payload.controlPlaneFlavor === InstanceType.DEV) {
+                this.saveFormField(AwsForm.NODESETTING, AwsField.NODESETTING_INSTANCE_TYPE_DEV, payload.controlPlaneNodeType);
+            } else if (payload.controlPlaneFlavor === InstanceType.PROD) {
+                this.saveFormField(AwsForm.NODESETTING, AwsField.NODESETTING_INSTANCE_TYPE_PROD, payload.controlPlaneNodeType);
+            }
             const bastionHost = payload.bastionHostEnabled ? BASTION_HOST_ENABLED : BASTION_HOST_DISABLED;
             this.saveFormField(AwsForm.NODESETTING, 'bastionHostEnabled', bastionHost);
             this.saveFormField(AwsForm.NODESETTING, 'machineHealthChecksEnabled', payload.machineHealthCheckEnabled);
@@ -197,17 +202,13 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
             const nodeAzList = vpc.azs;
             const numNodeAz = nodeAzList.length;
             for (let x = 0; x < numNodeAz; x++) {
-                const node = nodeAzList[x];
-                // we set the UI fields highest to lowest because we collected them into the payload
-                // by pushing them on to the array, which essentially reversed their order. So if there
-                // are 3 AZs, for example, the 3rd one in the UI will have landed as the 0-index in our array.
-                const uiIndex = numNodeAz - x;
-                this.saveAzNodeFields(node, uiIndex);
+                this.saveAzNodeFields(nodeAzList[x], x + 1);
             }
         }
     }
 
     private saveAzNodeFields(node: AWSNodeAz, uiIndex: number) {
+        // TODO: move away from identifying the fields with ${uiIndex} and use an enum field identifier
         this.saveFormField(AwsForm.NODESETTING, `awsNodeAz${uiIndex}`, node.name);
         if (!Broker.appDataService.isModeClusterStandalone()) {
             this.saveFormField(AwsForm.NODESETTING, `workerNodeInstanceType${uiIndex}`, node.workerNodeType);
@@ -217,6 +218,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
     }
 
     getAwsNodeAzs(payload) {
+        // TODO: move away from identifying the fields with literals and use an enum field identifier
         this.nodeAzList = [
             {
                 name: this.getFieldValue(AwsForm.NODESETTING, 'awsNodeAz1'),

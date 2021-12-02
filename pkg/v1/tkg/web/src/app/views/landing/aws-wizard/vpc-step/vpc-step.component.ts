@@ -68,26 +68,28 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
                 distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
                 takeUntil(this.unsubscribe)
             ).subscribe((val) => {
+                const existingVpcControl = this.formGroup.get(AwsField.VPC_EXISTING_ID);
+                const existingVpcCidrControl = this.formGroup.get(AwsField.VPC_EXISTING_CIDR);
                 if (val === VpcType.EXISTING) {
                     Broker.messenger.publish({
                         type: TkgEventType.AWS_VPC_TYPE_CHANGED,
                         payload: { vpcType: VpcType.EXISTING.toString() }
                     });
                     if (this.existingVpcs && this.existingVpcs.length === 1) {
-                        this.formGroup.get(AwsField.VPC_EXISTING_ID).setValue(this.existingVpcs[0].id);
-                        this.formGroup.get(AwsField.VPC_EXISTING_CIDR).setValue(this.existingVpcs[0].cidr);
+                        existingVpcControl.setValue(this.existingVpcs[0].id);
+                        existingVpcCidrControl.setValue(this.existingVpcs[0].cidr);
                     }
                     this.formGroup.get(AwsField.VPC_NEW_CIDR).clearValidators();
-                    this.formGroup.get(AwsField.VPC_NEW_CIDR).setValue('');
+                    this.clearControlValue(AwsField.VPC_NEW_CIDR);
                     this.clearFieldSavedData(AwsField.VPC_NEW_CIDR);
                     this.setExistingVpcValidators();
                 } else {
-                    this.formGroup.get(AwsField.VPC_EXISTING_ID).setValue('');
-                    this.formGroup.get(AwsField.VPC_EXISTING_ID).clearValidators();
-                    this.formGroup.get(AwsField.VPC_EXISTING_ID).updateValueAndValidity();
-                    this.formGroup.get(AwsField.VPC_EXISTING_CIDR).setValue('');
-                    this.formGroup.get(AwsField.VPC_EXISTING_CIDR).clearValidators();
-                    this.formGroup.get(AwsField.VPC_EXISTING_CIDR).updateValueAndValidity();
+                    existingVpcControl.setValue('');
+                    existingVpcControl.clearValidators();
+                    existingVpcControl.updateValueAndValidity();
+                    existingVpcCidrControl.setValue('');
+                    existingVpcCidrControl.clearValidators();
+                    existingVpcCidrControl.updateValueAndValidity();
                     this.clearFieldSavedData(AwsField.VPC_EXISTING_CIDR);
                     this.clearFieldSavedData(AwsField.VPC_EXISTING_ID);
                     this.setNewVpcValidators();
@@ -95,10 +97,8 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
                         type: TkgEventType.AWS_VPC_TYPE_CHANGED,
                         payload: { vpcType: VpcType.NEW.toString() }
                     });
-
                 }
-            }
-            );
+            });
 
         const vpcCidrs = [AwsField.VPC_NEW_CIDR, AwsField.VPC_EXISTING_CIDR];
         vpcCidrs.forEach(vpcCidr => {
@@ -121,8 +121,8 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
             .subscribe(event => {
                 if (this.formGroup.get(AwsField.VPC_EXISTING_ID)) {
                     this.existingVpcs = [];
-                    this.formGroup.get(AwsField.VPC_EXISTING_ID).setValue('');
-                    this.formGroup.get(AwsField.VPC_EXISTING_CIDR).setValue('');
+                    this.clearControlValue(AwsField.VPC_EXISTING_ID);
+                    this.clearControlValue(AwsField.VPC_EXISTING_CIDR);
                 }
             });
 
@@ -131,7 +131,6 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
             .subscribe(error => {
                 this.errorNotification = error;
             });
-
         this.awsWizardFormService.getDataStream(TkgEventType.AWS_GET_EXISTING_VPCS)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((vpcs: Array<Vpc>) => {
@@ -144,7 +143,6 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
             type: TkgEventType.AWS_VPC_TYPE_CHANGED,
             payload: { vpcType: VpcType.NEW.toString() }
         });
-
         this.registerOnValueChange(AwsField.VPC_NON_INTERNET_FACING, this.onNonInternetFacingVPCChange.bind(this));
         this.initFormWithSavedData();
     }

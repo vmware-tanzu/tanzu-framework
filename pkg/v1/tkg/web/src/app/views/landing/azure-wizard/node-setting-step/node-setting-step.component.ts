@@ -169,6 +169,11 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         this.cardClick(this.getSavedValue('devInstanceType', '') === '' ? 'prod' : 'dev');
         this.getSavedValue('devInstanceType', '') === '' ? this.setProdCardValidations() : this.setDevCardValidations()
         super.initFormWithSavedData();
+        // because it's in its own component, the enable audit logging field does not get initialized in the above call to
+        // super.initFormWithSavedData()
+        setTimeout( () => {
+            this.setControlWithSavedValue('enableAuditLogging', false);
+        })
     }
 
     cardClick(envType: string) {

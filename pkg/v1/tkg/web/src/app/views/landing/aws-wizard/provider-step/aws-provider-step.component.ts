@@ -149,18 +149,6 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
                 Broker.messenger.clearEvent(TkgEventType.CONFIG_FILE_IMPORTED);
             });
 
-        Broker.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TkgEvent) => {
-                this.configFileNotification = {
-                    notificationType: NotificationTypes.SUCCESS,
-                    message: data.payload
-                };
-                // The file import saves the data to local storage, so we reinitialize this step's form from there
-                this.savedMetadata = FormMetaDataStore.getMetaData(this.formName);
-                this.initFormWithSavedData();
-            });
-
         this.initFormWithSavedData();
     }
 
@@ -236,7 +224,7 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
 
         // Initializations not needed the first time the form is loaded, but
         // required to re-initialize after form has been used
-        this.validCredentials = false;
+        this.setValidCredentials(false);
     }
 
     /**
@@ -257,26 +245,23 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
             .subscribe(
                 (() => {
                     this.errorNotification = '';
-
-                    // Notify the universe that region has changed.
+                    // Announce that we have a (valid) region
                     Broker.messenger.publish({
                         type: TkgEventType.AWS_REGION_CHANGED,
-                        payload: this.formGroup.get(AwsField.PROVIDER_REGION).value
+                        payload: this.getFieldValue(AwsField.PROVIDER_REGION)
                     });
-
                     Broker.messenger.publish({
                         type: TkgEventType.AWS_GET_OS_IMAGES,
                         payload: {
-                            region: this.formGroup.get(AwsField.PROVIDER_REGION).value
+                            region: this.getFieldValue(AwsField.PROVIDER_REGION)
                         }
                     });
-
                     this.setValidCredentials(true);
                 }),
                 ((err) => {
                     const error = err.error.message || err.message || JSON.stringify(err);
                     this.errorNotification = `Invalid AWS credentials: all credentials and region must be valid. ${error}`;
-                    this.setValidCredentials(false)
+                    this.setValidCredentials(false);
                 }),
                 (() => {
                     this.loading = false;

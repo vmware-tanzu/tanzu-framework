@@ -41,8 +41,6 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         this.savedMetadata = FormMetaDataStore.getMetaData(this.formName);
         FormMetaDataStore.updateFormList(this.formName);
 
-        console.log('ngOnInit for form: ' + this.formName);
-
         // set branding and cluster type on branding change for base wizard components
         Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
@@ -120,7 +118,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     }
 
     protected getFieldValue(fieldName: string): any {
-        const control = this.formGroup.get(fieldName);
+        const control = this.getControl(fieldName);
         if (control === undefined || control === null) {
             console.log('WARNING: getFieldValue() could not find field ' + fieldName );
             return '';
@@ -129,12 +127,20 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     }
 
     protected setFieldValue(fieldName: string, value: any): void {
-        const control = this.formGroup.get(fieldName);
+        const control = this.getControl(fieldName);
         if (control === undefined || control === null) {
             console.log('WARNING: setFieldValue() could not find field ' + fieldName + ' to set value to ' + value);
         } else {
             control.setValue(value);
         }
+    }
+
+    protected getControl(fieldName: string): AbstractControl {
+        const control = this.formGroup.get(fieldName);
+        if (control === undefined || control === null) {
+            console.log('WARNING: getControl() could not find field ' + fieldName);
+        }
+        return control;
     }
 
     /**
@@ -216,7 +222,6 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
      * Inits form fields with saved data if any;
      */
     initFormWithSavedData() {
-        console.log('step-form.initFormWithSavedData for form: ' + this.formName);
         if (this.hasSavedData()) {
             for (const [controlName, control] of Object.entries(this.formGroup.controls)) {
                 this.initFieldWithSavedData(controlName);
@@ -295,12 +300,12 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
      * This method does more than the "onchange" event handler
      * in that onchange only captures changes through the UI, while
      * this method registers handler for all value change event including
-     * the one changed programatically.
+     * the one changed programmatically.
      * @param fieldName the field whose value to be monitored
      * @param callback the function to be called when a value changes.
      */
     registerOnValueChange(fieldName: string, callback: (newValue: any) => void) {
-        this.formGroup.get(fieldName).valueChanges.pipe(
+        this.getControl(fieldName).valueChanges.pipe(
             distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
             takeUntil(this.unsubscribe)
         ).subscribe(newValue => callback(newValue));
@@ -337,7 +342,11 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         }
     }
 
+    protected clearControlValue(controlName: string) {
+        this.setControlValueSafely(controlName, '');
+    }
+
     protected setControlWithSavedValue(controlName: string, defaultValue?: any) {
-        this.setControlValueSafely(controlName, this.getSavedValue(controlName, (defaultValue) ? defaultValue : ''));
+        this.setControlValueSafely(controlName, this.getSavedValue(controlName, (defaultValue === undefined || defaultValue === null) ? '' : defaultValue));
     }
 }

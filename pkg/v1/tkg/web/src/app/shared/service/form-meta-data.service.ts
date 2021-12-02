@@ -164,7 +164,7 @@ export class FormMetaDataService {
     saveFormListboxData(formName, listboxName, key) {
         FormMetaDataStore.saveMetaDataEntry(formName, listboxName, {
             label: '',
-            key
+            key: key
         })
     }
 }

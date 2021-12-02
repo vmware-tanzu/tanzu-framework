@@ -360,7 +360,7 @@ func (c *client) CreateAWSParams(res *AWSConfig) (params *models.AWSRegionalClus
 	bomConfiguration, err := c.tkgBomClient.GetDefaultTkrBOMConfiguration()
 
 	params = &models.AWSRegionalClusterParams{
-		//Annotations:               nil,
+		Annotations: configStringToMap(res.ClusterAnnotations),
 		AwsAccountParams: &models.AWSAccountParams{
 			AccessKeyID:     res.AccessKeyID,
 			ProfileName:     res.CredentialProfile,
@@ -377,7 +377,7 @@ func (c *client) CreateAWSParams(res *AWSConfig) (params *models.AWSRegionalClus
 		EnableAuditLogging: res.EnableAuditLogging == trueConst,
 		IdentityManagement: createIdentityManagementConfig(res),
 		//KubernetesVersion:         "",
-		//Labels:                    nil,
+		Labels:                    configStringToMap(res.ClusterLabels),
 		MachineHealthCheckEnabled: res.MachineHealthCheckEnabled == trueConst,
 		Networking:                createNetworkingConfig(res),
 		NumOfWorkerNode:           0,

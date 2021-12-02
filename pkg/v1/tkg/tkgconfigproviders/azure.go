@@ -160,7 +160,7 @@ func (c *client) CreateAzureParams(azureConfig *AzureConfig) (params *models.Azu
 	}
 
 	return &models.AzureRegionalClusterParams{
-		Annotations: nil,
+		Annotations: configStringToMap(azureConfig.ClusterAnnotations),
 		AzureAccountParams: &models.AzureAccountParams{
 			AzureCloud:     "",
 			ClientID:       azureConfig.ClientID,
@@ -179,7 +179,7 @@ func (c *client) CreateAzureParams(azureConfig *AzureConfig) (params *models.Azu
 		IdentityManagement:      createIdentityManagementConfig(azureConfig),
 		IsPrivateCluster:        azureConfig.EnablePrivateCluster == trueConst,
 		//KubernetesVersion:         "",
-		//Labels:                    nil,
+		Labels:                    configStringToMap(azureConfig.ClusterLabels),
 		Location:                  azureConfig.Region,
 		MachineHealthCheckEnabled: azureConfig.MachineHealthCheckEnabled == trueConst,
 		Networking:                createNetworkingConfig(azureConfig),

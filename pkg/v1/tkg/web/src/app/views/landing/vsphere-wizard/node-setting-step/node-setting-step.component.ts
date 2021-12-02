@@ -2,13 +2,9 @@ import { TkgEventType } from 'src/app/shared/service/Messenger';
 /**
  * Angular Modules
  */
-import { Component, OnInit, Input } from '@angular/core';
-import {
-    Validators,
-    FormControl
-} from '@angular/forms';
+import { Component, Input, OnInit } from '@angular/core';
+import { FormControl, Validators } from '@angular/forms';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
-
 /**
  * App imports
  */
@@ -133,15 +129,27 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             });
 
             this.formGroup.get(VsphereField.NODESETTING_INSTANCE_TYPE_DEV).valueChanges.subscribe(data => {
-                if (!this.modeClusterStandalone) {
-                    this.formGroup.get(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE).setValue(data);
+                if (!this.modeClusterStandalone && data) {
+                    // The user has just selected a new instance type for the DEV management cluster.
+                    // If the worker node type hasn't been set, default to the same node type
+                    const currentWorkerInstanceType = this.getFieldValue(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE);
+                    if (!currentWorkerInstanceType) {
+                        this.setControlValueSafely(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE, data);
+                    }
+                    this.clearControlValue(VsphereField.NODESETTING_INSTANCE_TYPE_PROD);
                 }
                 this.formGroup.controls[VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE].updateValueAndValidity();
             });
 
             this.formGroup.get(VsphereField.NODESETTING_INSTANCE_TYPE_PROD).valueChanges.subscribe(data => {
-                if (!this.modeClusterStandalone) {
-                    this.formGroup.get(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE).setValue(data);
+                if (!this.modeClusterStandalone && data) {
+                    // The user has just selected a new instance type for the PROD management cluster.
+                    // If the worker node type hasn't been set, default to the same node type
+                    const currentWorkerInstanceType = this.getFieldValue(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE);
+                    if (!currentWorkerInstanceType) {
+                        this.setControlValueSafely(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE, data);
+                    }
+                    this.clearControlValue(VsphereField.NODESETTING_INSTANCE_TYPE_DEV);
                 }
                 this.formGroup.controls[VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE].updateValueAndValidity();
             });
@@ -156,22 +164,47 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         this.initFormWithSavedData();
     }
 
+    // findNodeTypeByNameOrId accommodates the fact that when we save the node type in local storage, we may either be saving the
+    // name only (ie the display value - the 'old' method), or we may have saved the key (ie the node type id - the 'new' method).
+    // Whichever value was saved, they are all unique, so we check if the saved value matches the name OR the id.
+    private findNodeTypeByNameOrId(nameOrId: string): NodeType {
+        return this.nodeTypes.find(n => n.name === nameOrId || n.id === nameOrId);
+    }
+
     initFormWithSavedData() {
         if (this.hasSavedData()) {
-            const savedInstanceType = this.getSavedValue(VsphereField.NODESETTING_INSTANCE_TYPE_DEV, '');
-            this.cardClick(savedInstanceType === InstanceType.PROD ? InstanceType.PROD : InstanceType.DEV);
+            // Is the configuration using a DEV or a PROD instance type? We check the saved value of the DEV node instance to determine
+            // if the user was in DEV node instance mode
+            const savedDevInstanceType = this.getSavedValue(VsphereField.NODESETTING_INSTANCE_TYPE_DEV, '');
+            const managementClusterType = savedDevInstanceType !== '' ? InstanceType.DEV : InstanceType.PROD;
+            this.cardClick(managementClusterType);
             super.initFormWithSavedData();
-            // set the node type ID by finding it by the node type name
-            let savedNodeType = this.nodeTypes.find(n => n.name === this.getSavedValue(VsphereField.NODESETTING_INSTANCE_TYPE_DEV, ''));
-            if (savedNodeType) {
-                this.formGroup.get(VsphereField.NODESETTING_INSTANCE_TYPE_DEV).setValue(savedNodeType.id);
+            // because it's in its own component, the enable audit logging field does not get initialized in the above call to
+            // super.initFormWithSavedData()
+            setTimeout( () => {
+                this.setControlWithSavedValue('enableAuditLogging', false);
+            })
+
+            if (managementClusterType === InstanceType.DEV) {
+                // set the node type ID by finding it by the node type name OR the id
+                const savedNameOrId = this.getSavedValue(VsphereField.NODESETTING_INSTANCE_TYPE_DEV, '');
+                const savedNodeType = this.findNodeTypeByNameOrId(savedNameOrId);
+                if (savedNodeType) {
+                    this.setControlValueSafely(VsphereField.NODESETTING_INSTANCE_TYPE_DEV, savedNodeType.id);
+                }
+                this.clearControlValue(VsphereField.NODESETTING_INSTANCE_TYPE_PROD);
+            } else {
+                // set the node type ID by finding it by the node type name OR the id
+                const savedNameOrId = this.getSavedValue(VsphereField.NODESETTING_INSTANCE_TYPE_PROD, '');
+                const savedNodeType = this.findNodeTypeByNameOrId(savedNameOrId);
+                if (savedNodeType) {
+                    this.setControlValueSafely(VsphereField.NODESETTING_INSTANCE_TYPE_PROD, savedNodeType.id);
+                }
+                this.clearControlValue(VsphereField.NODESETTING_INSTANCE_TYPE_DEV);
             }
-            savedNodeType = this.nodeTypes.find(n => n.name === this.getSavedValue(VsphereField.NODESETTING_INSTANCE_TYPE_PROD, ''));
-            if (savedNodeType) {
-                this.formGroup.get(VsphereField.NODESETTING_INSTANCE_TYPE_PROD).setValue(savedNodeType.id);
-            }
-            savedNodeType = this.nodeTypes.find(n => n.name === this.getSavedValue(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE, ''));
-            this.formGroup.get(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE).setValue(savedNodeType ? savedNodeType.id : '');
+            const savedWorkerNodeNameOrId = this.getSavedValue(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE, '');
+            const savedWorkerNodeType = this.findNodeTypeByNameOrId(savedWorkerNodeNameOrId);
+            this.setControlValueSafely(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE,savedWorkerNodeType ? savedWorkerNodeType.id : '');
         }
     }
 

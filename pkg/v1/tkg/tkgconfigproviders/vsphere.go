@@ -235,7 +235,7 @@ func (c *client) CreateVSphereParams(vConfig *VSphereConfig) (params *models.Vsp
 	boolCeiptOptIn, _ := strconv.ParseBool(vConfig.CeipParticipation)
 
 	params = &models.VsphereRegionalClusterParams{
-		Annotations:               nil,
+		Annotations:               configStringToMap(vConfig.ClusterAnnotations),
 		AviConfig:                 nil,
 		CeipOptIn:                 &boolCeiptOptIn,
 		ClusterName:               vConfig.ClusterName,
@@ -249,14 +249,13 @@ func (c *client) CreateVSphereParams(vConfig *VSphereConfig) (params *models.Vsp
 		IdentityManagement:        createIdentityManagementConfig(vConfig),
 		IPFamily:                  vConfig.IPFamily,
 		KubernetesVersion:         "",
-		Labels:                    nil,
+		Labels:                    configStringToMap(vConfig.ClusterLabels),
 		MachineHealthCheckEnabled: vConfig.MachineHealthCheckEnabled == trueConst,
 		Networking:                createNetworkingConfig(vConfig),
 		NumOfWorkerNode:           0,
 		Os:                        nil,
 		ResourcePool:              vConfig.ResourcePool,
 		SSHKey:                    vConfig.SSHKey,
-		TmcRegistrationURL:        vConfig.TmcRegistrationURL,
 		VsphereCredentials:        nil,
 		WorkerNodeType:            "",
 	}

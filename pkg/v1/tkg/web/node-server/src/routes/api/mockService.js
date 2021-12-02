@@ -499,6 +499,10 @@ router.post(`${ENDPOINT}/providers/vsphere/config/import`, (req, res) => {
     winston.info('Mock TKG UI IMPORT VC API');
     res.status(200);
     res.json({
+        "annotations": {
+            "description": "foo-description",
+            "location": "bar-location"
+        },
         "ceipOptIn": true,
         "controlPlaneEndpoint": "10.92.12.54",
         "controlPlaneFlavor": "dev",
@@ -519,11 +523,16 @@ router.post(`${ENDPOINT}/providers/vsphere/config/import`, (req, res) => {
             "idm_type": "oidc"
         },
         "ipFamily": "ipv4",
+        "labels": {
+            "foo": "bar",
+            "foo2": "bar2"
+        },
         "machineHealthCheckEnabled": true,
         "networking": {"clusterPodCIDR": "100.96.0.0/11", "clusterServiceCIDR": "100.64.0.0/13", "networkName": "Network 3"},
         "os": {"isTemplate": null, "name": "GeeIDunno", "osInfo": {"arch": "amd64", "name": "photon", "version": "3"}},
         "resourcePool": "respool-1-sub",
         "ssh_key": "F8:DB:B3:6E:34:C6:0C:4D:15:8E:58:56:94:3D:32:4D:B6:85:BB:65",
+        "workerNodeType": "medium",
         "vsphereCredentials": {
             "host": "10.92.13.72",
             "password": "<encoded:QWRtaW4hMjM=>",

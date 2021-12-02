@@ -19,6 +19,7 @@ import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-
 import { VsphereRegionalClusterParams } from 'src/app/swagger/models/vsphere-regional-cluster-params.model';
 import Broker from "../../../shared/service/broker";
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
+import { VsphereField } from './vsphere-wizard.constants';
 
 @Component({
     selector: 'app-wizard',
@@ -176,7 +177,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         mappings.forEach(attr => payload[attr[0]] = this.getFieldValue(attr[1], attr[2]));
         payload.controlPlaneNodeType = this.getControlPlaneType(this.getFieldValue('vsphereNodeSettingForm', 'controlPlaneSetting'));
         payload.workerNodeType = Broker.appDataService.isModeClusterStandalone() ? payload.controlPlaneNodeType :
-            this.getFieldValue('vsphereNodeSettingForm', 'workerNodeInstanceType');
+            this.getFieldValue('vsphereNodeSettingForm', VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE);
         payload.machineHealthCheckEnabled = this.getFieldValue("vsphereNodeSettingForm", "machineHealthChecksEnabled") === true;
 
         const vsphereCredentialsMappings = [
@@ -227,8 +228,9 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         this.saveControlPlaneFlavor('vsphere', payload.controlPlaneFlavor);
         this.saveControlPlaneNodeType('vsphere', payload.controlPlaneFlavor, payload.controlPlaneNodeType);
 
-        this.saveFormField("vsphereNodeSettingForm", "enableAuditLogging", payload.enableAuditLogging);
-        this.saveFormField("vsphereNodeSettingForm", "machineHealthChecksEnabled", payload.machineHealthCheckEnabled);
+        this.saveFormField("vsphereNodeSettingForm", VsphereField.NODESETTING_ENABLE_AUDIT_LOGGING, payload.enableAuditLogging);
+        this.saveFormField("vsphereNodeSettingForm", VsphereField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED, payload.machineHealthCheckEnabled);
+        this.saveFormListbox('vsphereNodeSettingForm', VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE, payload.workerNodeType);
 
         if (payload.vsphereCredentials !== undefined) {
             const vsphereCredentialsMappings = [
