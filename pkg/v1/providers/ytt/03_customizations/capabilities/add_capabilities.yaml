@@ -60,7 +60,6 @@ spec:
                             group:
                               description: Group is the API group to check for in the
                                 cluster.
-                              minLength: 1
                               type: string
                             name:
                               description: Name is the unique name of the query.
@@ -79,7 +78,6 @@ spec:
                                 type: string
                               type: array
                           required:
-                            - group
                             - name
                           type: object
                         type: array
