@@ -231,7 +231,7 @@ func availablePluginsFromStandaloneAndServerPlugins(discoveredServerPlugins, dis
 			availablePlugins = append(availablePlugins, discoveredStandalonePlugins[i])
 			continue
 		}
-		if isLocalStandaloneDiscovery { // matchIndex >= 0 is guaranteed here
+		if isLocalStandaloneDiscovery || discoveredStandalonePlugins[i].DiscoveryType == common.DiscoveryTypeLocal { // matchIndex >= 0 is guaranteed here
 			availablePlugins[matchIndex] = discoveredStandalonePlugins[i]
 		}
 	}
