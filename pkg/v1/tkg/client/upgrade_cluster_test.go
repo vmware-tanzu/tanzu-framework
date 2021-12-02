@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"time"
 
+	"sigs.k8s.io/yaml"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
@@ -38,6 +40,65 @@ var (
 	newK8sVersion     = "v1.18.0+vmware.1"
 	newTKRVersion     = "v1.18.0+vmware.1-tkg.2"
 	currentK8sVersion = "v1.17.3+vmware.2"
+	kubeVipPodString  = `
+apiVersion: v1
+kind: Pod
+metadata: 
+  creationTimestamp: ~
+  name: kube-vip
+  namespace: kube-system
+owner: "root:root"
+path: /etc/kubernetes/manifests/kube-vip.yaml
+spec: 
+  containers: 
+    - 
+      args: 
+        - start
+      env: 
+        - 
+          name: vip_arp
+          value: "true"
+        - 
+          name: vip_leaderelection
+          value: "true"
+        - 
+          name: address
+          value: "10.180.122.23"
+        - 
+          name: vip_interface
+          value: eth0
+        - 
+          name: vip_leaseduration
+          value: "15"
+        - 
+          name: vip_renewdeadline
+          value: "10"
+        - 
+          name: vip_retryperiod
+          value: "2"
+      image: "projects.registry.vmware.com/tkg/kube-vip:v0.3.3_vmware.1"
+      imagePullPolicy: IfNotPresent
+      name: kube-vip
+      resources: {}
+      securityContext: 
+        capabilities: 
+          add: 
+            - NET_ADMIN
+            - SYS_TIME
+      volumeMounts: 
+        - 
+          mountPath: /etc/kubernetes/admin.conf
+          name: kubeconfig
+  hostNetwork: true
+  volumes: 
+    - 
+      hostPath: 
+        path: /etc/kubernetes/admin.conf
+        type: FileOrCreate
+      name: kubeconfig
+status: {}
+owner: root:root
+path: /etc/kubernetes/manifests/kube-vip.yaml`
 )
 
 var _ = Describe("Unit tests for upgrade cluster", func() {
@@ -386,7 +447,7 @@ var _ = Describe("Unit tests for upgrade cluster", func() {
 
 		Context("When patch KCP fails", func() {
 			BeforeEach(func() {
-				regionalClusterClient.PatchResourceReturns(errors.New("fake-error-patch-resource"))
+				regionalClusterClient.UpdateResourceWithPollingReturns(errors.New("fake-error-patch-resource"))
 			})
 			It("returns an error", func() {
 				Expect(err).To(HaveOccurred())
@@ -416,8 +477,7 @@ var _ = Describe("Unit tests for upgrade cluster", func() {
 		})
 		Context("When patch MD fails", func() {
 			BeforeEach(func() {
-				regionalClusterClient.PatchResourceReturnsOnCall(0, nil)
-				regionalClusterClient.PatchResourceReturnsOnCall(1, errors.New("fake-error-patch-resource-md"))
+				regionalClusterClient.PatchResourceReturnsOnCall(0, errors.New("fake-error-patch-resource-md"))
 			})
 			It("returns an error", func() {
 				Expect(err).To(HaveOccurred())
@@ -673,121 +733,39 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 		})
 	})
 
-	// Context("When there are multiple machine deployment objects for VsphereMachineTemplate", func() {
-	// 	BeforeEach(func() {
-	// 		upgradeClusterOptions.KubernetesVersion = "v1.18.0+vmware.1"
-	// 		currentClusterK8sVersion = "v1.18.0+vmware.0"
-	// 		md1 := fakehelper.TestMDOptions{
-	// 			SpecReplicas:    3,
-	// 			ReadyReplicas:   3,
-	// 			UpdatedReplicas: 3,
-	// 			Replicas:        3,
-	// 			InfrastructureTemplate: fakehelper.TestObject{
-	// 				Kind:      constants.VSphereMachineTemplate,
-	// 				Name:      "cluster-1-md-0",
-	// 				Namespace: constants.DefaultNamespace,
-	// 			},
-	// 		}
-	// 		md2 := fakehelper.TestMDOptions{
-	// 			SpecReplicas:    3,
-	// 			ReadyReplicas:   3,
-	// 			UpdatedReplicas: 3,
-	// 			Replicas:        3,
-	// 			InfrastructureTemplate: fakehelper.TestObject{
-	// 				Kind:      constants.VSphereMachineTemplate,
-	// 				Name:      "cluster-1-md-1",
-	// 				Namespace: constants.DefaultNamespace,
-	// 			},
-	// 		}
-	// 		regionalClusterOptions.CPOptions.InfrastructureTemplate.Kind = constants.VSphereMachineTemplate
-	// 		regionalClusterOptions.ListMDOptions = fakehelper.GetListMDOptionsFromMDOptions(md1, md2)
-	// 	})
-	// 	It("should not return an error", func() {
-	// 		Expect(err).NotTo(HaveOccurred())
-	// 	})
-	// })
+	var _ = Describe("Test helper functions", func() {
+		Context("Testing the kube-vip modifier helper function", func() {
+			It("modifies the kube-vip parameters", func() {
+				pod := corev1.Pod{}
+				err := yaml.Unmarshal([]byte(kubeVipPodString), &pod)
+				Expect(err).To(BeNil())
 
-	// Context("When there are multiple machine deployment objects for AWSMachineTemplate", func() {
-	// 	BeforeEach(func() {
-	// 		upgradeClusterOptions.KubernetesVersion = "v1.18.0+vmware.1"
-	// 		currentClusterK8sVersion = "v1.18.0+vmware.0"
-	// 		md1 := fakehelper.TestMDOptions{
-	// 			SpecReplicas:    3,
-	// 			ReadyReplicas:   3,
-	// 			UpdatedReplicas: 3,
-	// 			Replicas:        3,
-	// 			InfrastructureTemplate: fakehelper.TestObject{
-	// 				Kind:      constants.AWSMachineTemplate,
-	// 				Name:      "cluster-1-md-0",
-	// 				Namespace: constants.DefaultNamespace,
-	// 			},
-	// 		}
-	// 		md2 := fakehelper.TestMDOptions{
-	// 			SpecReplicas:    3,
-	// 			ReadyReplicas:   3,
-	// 			UpdatedReplicas: 3,
-	// 			Replicas:        3,
-	// 			InfrastructureTemplate: fakehelper.TestObject{
-	// 				Kind:      constants.AWSMachineTemplate,
-	// 				Name:      "cluster-1-md-1",
-	// 				Namespace: constants.DefaultNamespace,
-	// 			},
-	// 		}
-	// 		regionalClusterOptions.CPOptions.InfrastructureTemplate.Kind = constants.AWSMachineTemplate
-	// 		regionalClusterOptions.ListMDOptions = fakehelper.GetListMDOptionsFromMDOptions(md1, md2)
-	// 		regionalClusterOptions.InfraComponentsOptions = fakehelper.TestInfraComponentsOptions{
-	// 			AWSCluster: &fakehelper.TestAWSClusterOptions{
-	// 				Name:      regionalClusterOptions.ClusterName,
-	// 				Namespace: regionalClusterOptions.Namespace,
-	// 				Region:    "us-east-2",
-	// 			},
-	// 		}
-	// 	})
-	// 	It("should not return an error", func() {
-	// 		Expect(err).NotTo(HaveOccurred())
-	// 	})
-	// })
+				newPodString, err := ModifyKubeVipTimeOutAndSerialize(&pod, "30", "20", "4")
+				Expect(err).To(BeNil())
 
-	// Context("When there are multiple machine deployment objects for AzureMachineTemplate", func() {
-	// 	BeforeEach(func() {
-	// 		upgradeClusterOptions.KubernetesVersion = "v1.18.0+vmware.1"
-	// 		currentClusterK8sVersion = "v1.18.0+vmware.0"
-	// 		md1 := fakehelper.TestMDOptions{
-	// 			SpecReplicas:    3,
-	// 			ReadyReplicas:   3,
-	// 			UpdatedReplicas: 3,
-	// 			Replicas:        3,
-	// 			InfrastructureTemplate: fakehelper.TestObject{
-	// 				Kind:      constants.AzureMachineTemplate,
-	// 				Name:      "cluster-1-md-0",
-	// 				Namespace: constants.DefaultNamespace,
-	// 			},
-	// 		}
-	// 		md2 := fakehelper.TestMDOptions{
-	// 			SpecReplicas:    3,
-	// 			ReadyReplicas:   3,
-	// 			UpdatedReplicas: 3,
-	// 			Replicas:        3,
-	// 			InfrastructureTemplate: fakehelper.TestObject{
-	// 				Kind:      constants.AzureMachineTemplate,
-	// 				Name:      "cluster-1-md-1",
-	// 				Namespace: constants.DefaultNamespace,
-	// 			},
-	// 		}
-	// 		regionalClusterOptions.CPOptions.InfrastructureTemplate.Kind = constants.AzureMachineTemplate
-	// 		regionalClusterOptions.ListMDOptions = fakehelper.GetListMDOptionsFromMDOptions(md1, md2)
-	// 	})
-	// 	It("should not return an error", func() {
-	// 		Expect(err).NotTo(HaveOccurred())
-	// 	})
-	// })
+				Expect(newPodString).ToNot(BeNil())
+			})
+		})
+		Context("Testing the KCP modifier helper function", func() {
+			It("Updates the KCP object with increased timeouts", func() {
+				currentKCP := getDummyKCP(constants.VSphereMachineTemplate)
+				newKCP, err := tkgClient.UpdateKCPObjectWithIncreasedKubeVip(currentKCP)
+
+				Expect(err).To(BeNil())
+				Expect(len(newKCP.Spec.KubeadmConfigSpec.Files)).To(Equal(1))
+				Expect(newKCP.Spec.KubeadmConfigSpec.Files[0].Content).To(ContainSubstring("value: \"30\""))
+			})
+		})
+	})
 })
 
 func getDummyKCP(machineTemplateKind string) *capikubeadmv1beta1.KubeadmControlPlane {
+	file := capibootstrapkubeadmv1beta1.File{Content: kubeVipPodString}
 	kcp := &capikubeadmv1beta1.KubeadmControlPlane{}
 	kcp.Name = "fake-kcp-name"
 	kcp.Namespace = "fake-kcp-namespace"
 	kcp.Spec.Version = currentK8sVersion
+
 	kcp.Spec.KubeadmConfigSpec = capibootstrapkubeadmv1beta1.KubeadmConfigSpec{
 		ClusterConfiguration: &capibootstrapkubeadmv1beta1.ClusterConfiguration{
 			ImageRepository: "fake-image-repo",
@@ -807,7 +785,11 @@ func getDummyKCP(machineTemplateKind string) *capikubeadmv1beta1.KubeadmControlP
 				},
 			},
 		},
+		Files: []capibootstrapkubeadmv1beta1.File{
+			file,
+		},
 	}
+
 	kcp.Spec.MachineTemplate.InfrastructureRef = corev1.ObjectReference{
 		Name:      "fake-infra-template-name",
 		Namespace: "fake-infra-template-namespace",
