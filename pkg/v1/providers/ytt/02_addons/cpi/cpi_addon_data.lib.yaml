@@ -16,10 +16,7 @@ vsphereCPI:
   zone: #@ data.values.VSPHERE_ZONE
   insecureFlag: #@ data.values.VSPHERE_INSECURE
 #@ if data.values.TKG_IP_FAMILY:
-  #! For now, use the first ipFamily when TKG_IP_FAMILY is a dual stack value (ipv4,ipv6 or ipv6,ipv4)
-  #! TODO: stop doing this when this issue is resolved:
-  #! https://github.com/kubernetes/cloud-provider-vsphere/issues/302
-  ipFamily: #@ data.values.TKG_IP_FAMILY.split(",")[0]
+  ipFamily: #@ data.values.TKG_IP_FAMILY
 #@ end
 #@ if data.values.TKG_CLUSTER_ROLE == "workload": #! For backwards compatibility. i.e. C.1 mgmt cluster creates a C.0 wlc with older addon templates.
   image:

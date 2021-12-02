@@ -686,7 +686,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 				})
 			})
 			When("TKG_IP_FAMILY is ipv4,ipv6", func() {
-				It("configure the CPI for ipv4 only", func() {
+				It("configure the CPI for ipv4 and ipv6", func() {
 					values := createDataValues(map[string]string{
 						"PROVIDER_TYPE": "vsphere",
 						"TKG_IP_FAMILY": "ipv4,ipv6",
@@ -694,9 +694,19 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 					output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
 					Expect(err).NotTo(HaveOccurred())
 
-					// TODO: change this to ipv4,ipv6 once this issue is resolved:
-					// https://github.com/kubernetes/cloud-provider-vsphere/issues/302
-					Expect(output).To(HaveYAMLPathWithValue(ipFamilyPath, "ipv4"))
+					Expect(output).To(HaveYAMLPathWithValue(ipFamilyPath, "ipv4,ipv6"))
+				})
+			})
+			When("TKG_IP_FAMILY is ipv6,ipv4", func() {
+				It("configure the CPI for ipv6 and ipv4", func() {
+					values := createDataValues(map[string]string{
+						"PROVIDER_TYPE": "vsphere",
+						"TKG_IP_FAMILY": "ipv6,ipv4",
+					})
+					output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+					Expect(err).NotTo(HaveOccurred())
+
+					Expect(output).To(HaveYAMLPathWithValue(ipFamilyPath, "ipv6,ipv4"))
 				})
 			})
 		})
