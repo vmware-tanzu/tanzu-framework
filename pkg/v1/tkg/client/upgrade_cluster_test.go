@@ -447,7 +447,7 @@ var _ = Describe("Unit tests for upgrade cluster", func() {
 
 		Context("When patch KCP fails", func() {
 			BeforeEach(func() {
-				regionalClusterClient.UpdateResourceReturns(errors.New("fake-error-patch-resource"))
+				regionalClusterClient.UpdateResourceWithPollingReturns(errors.New("fake-error-patch-resource"))
 			})
 			It("returns an error", func() {
 				Expect(err).To(HaveOccurred())

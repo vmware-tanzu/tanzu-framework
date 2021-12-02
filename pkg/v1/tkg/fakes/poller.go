@@ -5,8 +5,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"k8s.io/apimachinery/pkg/util/wait"
+
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 )
 
 type Poller struct {

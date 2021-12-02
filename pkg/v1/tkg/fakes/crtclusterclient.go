@@ -5,11 +5,12 @@ import (
 	"context"
 	"sync"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 )
 
 type CRTClusterClient struct {
