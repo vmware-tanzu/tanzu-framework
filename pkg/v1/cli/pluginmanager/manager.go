@@ -20,6 +20,7 @@ import (
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/catalog"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/discovery"
@@ -144,7 +145,19 @@ func DiscoverPlugins(serverName string) ([]plugin.Discovered, []plugin.Discovere
 // If serverName is empty(""), return only available standalone plugins
 func AvailablePlugins(serverName string) ([]plugin.Discovered, error) {
 	discoveredServerPlugins, discoveredStandalonePlugins := DiscoverPlugins(serverName)
+	return availablePlugins(serverName, discoveredServerPlugins, discoveredStandalonePlugins)
+}
 
+// AvailablePluginsFromLocalSource returns the list of available plugins from local source
+func AvailablePluginsFromLocalSource(localPath string) ([]plugin.Discovered, error) {
+	localStandalonePlugins, err := DiscoverPluginsFromLocalSource(localPath)
+	if err != nil {
+		log.Warningf("unable to discover standalone plugins from local source, %v", err.Error())
+	}
+	return availablePlugins("", []plugin.Discovered{}, localStandalonePlugins)
+}
+
+func availablePlugins(serverName string, discoveredServerPlugins, discoveredStandalonePlugins []plugin.Discovered) ([]plugin.Discovered, error) {
 	installedSeverPluginDesc, installedStandalonePluginDesc, err := InstalledPlugins(serverName)
 	if err != nil {
 		return nil, err
@@ -170,7 +183,7 @@ func getInstalledButNotDiscoveredStandalonePlugins(availablePlugins []plugin.Dis
 				found = true
 				// If plugin is installed but marked as not installed as part of availablePlugins list
 				// mark the plugin as installed
-				// This is possible if use has used --local mode to install the plugin which is also
+				// This is possible if user has used --local mode to install the plugin which is also
 				// getting discovered from the configured discovery sources
 				if availablePlugins[j].Status == common.PluginStatusNotInstalled {
 					availablePlugins[j].Status = common.PluginStatusInstalled
@@ -178,10 +191,9 @@ func getInstalledButNotDiscoveredStandalonePlugins(availablePlugins []plugin.Dis
 			}
 		}
 		if !found {
-			p := DiscoveredFromPluginDescriptor(installedPluginDesc[i])
+			p := DiscoveredFromPluginDescriptor(&installedPluginDesc[i])
 			p.Scope = common.PluginScopeStandalone
-			// (*) at the end of the status means that plugin is installed but is not discovered as part of any available discovery
-			p.Status = common.PluginStatusInstalled + "(*)"
+			p.Status = common.PluginStatusInstalled
 			newPlugins = append(newPlugins, p)
 		}
 	}
@@ -189,24 +201,27 @@ func getInstalledButNotDiscoveredStandalonePlugins(availablePlugins []plugin.Dis
 }
 
 // DiscoveredFromPluginDescriptor returns discovered plugin object from k8sV1alpha1
-func DiscoveredFromPluginDescriptor(p cliv1alpha1.PluginDescriptor) plugin.Discovered {
+func DiscoveredFromPluginDescriptor(p *cliv1alpha1.PluginDescriptor) plugin.Discovered {
 	dp := plugin.Discovered{
 		Name:               p.Name,
 		Description:        p.Description,
 		RecommendedVersion: p.Version,
+		Source:             p.Discovery,
+		SupportedVersions:  []string{p.Version},
 	}
-	dp.SupportedVersions = []string{p.Version}
-	dp.Source = p.Discovery
 	return dp
 }
 
 func setAvailablePluginsStatus(availablePlugins []plugin.Discovered, installedPluginDesc []cliv1alpha1.PluginDescriptor) {
 	for i := range installedPluginDesc {
 		for j := range availablePlugins {
-			if installedPluginDesc[i].Name == availablePlugins[j].Name &&
-				installedPluginDesc[i].Discovery == availablePlugins[j].Source {
+			if installedPluginDesc[i].Name == availablePlugins[j].Name {
 				// Match found, Check for update available and update status
-				availablePlugins[j].Status = common.PluginStatusInstalled
+				if installedPluginDesc[i].Version == availablePlugins[j].RecommendedVersion {
+					availablePlugins[j].Status = common.PluginStatusInstalled
+				} else {
+					availablePlugins[j].Status = common.PluginStatusUpdateAvailable
+				}
 			}
 		}
 	}
@@ -223,7 +238,7 @@ func availablePluginsFromStandaloneAndServerPlugins(discoveredServerPlugins, dis
 
 		// Add the standalone plugin to available plugins if it doesn't exist in the serverPlugins list
 		// OR
-		// Current standalone discovery is of type 'local'
+		// Current standalone discovery or plugin discovered is of type 'local'
 		// We are overriding the discovered plugins that we got from server in case of 'local' discovery type
 		// to allow developers to use the plugins that are built locally and not returned from the server
 		// This local discovery is only used for development purpose and should not be used for production
@@ -361,7 +376,7 @@ func GetRecommendedVersionOfPlugin(serverName, pluginName string) (string, error
 }
 
 func installOrUpgradePlugin(serverName string, p *plugin.Discovered, version string) error {
-	log.Infof("Installing plugin %q", p.Name)
+	log.Infof("Installing plugin '%v:%v'", p.Name, version)
 
 	b, err := p.Distribution.Fetch(version, runtime.GOOS, runtime.GOARCH)
 	if err != nil {
@@ -466,6 +481,82 @@ func SyncPlugins(serverName string) error {
 		log.Info("Successfully installed all required plugins")
 	}
 	return nil
+}
+
+// InstallPluginsFromLocalSource installs plugin from local source directory
+func InstallPluginsFromLocalSource(pluginName, version, localPath string) error {
+	// Set default local plugin distro to localpath as while installing the plugin
+	// from local source we should take t
+	common.DefaultLocalPluginDistroDir = localPath
+
+	plugins, err := DiscoverPluginsFromLocalSource(localPath)
+	if err != nil {
+		return err
+	}
+
+	found := false
+
+	errList := make([]error, 0)
+	for idx := range plugins {
+		if pluginName == cli.AllPlugins || pluginName == plugins[idx].Name {
+			found = true
+			err := installOrUpgradePlugin("", &plugins[idx], plugins[idx].RecommendedVersion)
+			if err != nil {
+				errList = append(errList, err)
+			}
+		}
+	}
+	err = kerrors.NewAggregate(errList)
+	if err != nil {
+		return err
+	}
+	if !found {
+		return errors.Errorf("unable to find plugin '%v'", pluginName)
+	}
+	return nil
+}
+
+// DiscoverPluginsFromLocalSource returns the available plugins that are discovered from the provided local path
+func DiscoverPluginsFromLocalSource(localPath string) ([]plugin.Discovered, error) {
+	if localPath == "" {
+		return nil, nil
+	}
+
+	// Set default local plugin distro to localpath while installing the plugin
+	// from local source. This is done to allow CLI to know the basepath incase the
+	// relative path is provided as part of CLIPlugin definition for local discovery
+	common.DefaultLocalPluginDistroDir = localPath
+
+	var pds []v1alpha1.PluginDiscovery
+
+	items, err := os.ReadDir(filepath.Join(localPath, "discovery"))
+	if err != nil {
+		return nil, errors.Wrapf(err, "error while reading local plugin manifest directory")
+	}
+	for _, item := range items {
+		if item.IsDir() {
+			pd := v1alpha1.PluginDiscovery{
+				Local: &v1alpha1.LocalDiscovery{
+					Name: "",
+					Path: filepath.Join(localPath, "discovery", item.Name()),
+				},
+			}
+			pds = append(pds, pd)
+		}
+	}
+
+	plugins, err := discoverPlugins(pds)
+	if err != nil {
+		return nil, err
+	}
+
+	for i := range plugins {
+		plugins[i].Scope = common.PluginScopeStandalone
+		plugins[i].Status = common.PluginStatusNotInstalled
+		plugins[i].DiscoveryType = common.DiscoveryTypeLocal
+	}
+
+	return plugins, nil
 }
 
 // Clean deletes all plugins and tests.
