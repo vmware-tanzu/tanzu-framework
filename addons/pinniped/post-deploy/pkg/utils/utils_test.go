@@ -20,33 +20,42 @@ import (
 
 func TestRemoveDefaultTLSPort(t *testing.T) {
 	tests := []struct {
-		name, in, out string
+		name      string
+		url       string
+		wantURL   string
+		wantError string
 	}{
 		{
-			name: "invalid url",
-			in:   "not a valid url \x01",
-			out:  "not a valid url \x01",
+			name:      "invalid url",
+			url:       "not a valid url \x01",
+			wantError: `cannot parse url: parse "not a valid url \x01": net/url: invalid control character in URL`,
 		},
 		{
-			name: "contains no port",
-			in:   "https://example.com",
-			out:  "https://example.com",
+			name:    "contains no port",
+			url:     "https://example.com",
+			wantURL: "https://example.com",
 		},
 		{
-			name: "contains non-443 port",
-			in:   "https://example.com:12345",
-			out:  "https://example.com:12345",
+			name:    "contains non-443 port",
+			url:     "https://example.com:12345",
+			wantURL: "https://example.com:12345",
 		},
 		{
-			name: "contains 443 port",
-			in:   "https://example.com:443",
-			out:  "https://example.com",
+			name:    "contains 443 port",
+			url:     "https://example.com:443",
+			wantURL: "https://example.com",
 		},
 	}
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			require.Equal(t, test.out, RemoveDefaultTLSPort(test.in))
+			gotURL, err := RemoveDefaultTLSPort(test.url)
+			if test.wantError != "" {
+				require.EqualError(t, err, test.wantError)
+			} else {
+				require.NoError(t, err)
+			}
+			require.Equal(t, test.wantURL, gotURL)
 		})
 	}
 }
