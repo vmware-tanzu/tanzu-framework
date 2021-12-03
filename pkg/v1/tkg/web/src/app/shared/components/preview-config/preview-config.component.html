@@ -3,7 +3,19 @@
         <table class="table" role="presentation">
             <thead>
                 <tr>
-                    <th class="left">CLI Command Equivalent</th>
+                    <th class="left">CLI Command Equivalent
+                        <clr-tooltip>
+                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22" class="offset-top-1"></clr-icon>
+                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                <span>
+                                    A CLI command for creating your cluster outside of the UI using a configuration
+                                    file generated from the input entered in the UI. Please note the path and name of
+                                    the configuration file in the CLI command equivalent below. The file can be modified
+                                    and reused for creating additional clusters.
+                                </span>
+                            </clr-tooltip-content>
+                        </clr-tooltip>
+                    </th>
                     <th class="left"></th>
                 </tr>
             </thead>

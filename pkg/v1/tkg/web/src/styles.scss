@@ -1,7 +1,95 @@
 /* You can add global styles to this file, and also import other style files */
 @import './sass/mixins/logo-base.scss';
 
+//////////////////////////////////////
+// Display helpers
+//////////////////////////////////////
+
+.no-gutters {
+    padding: 0 !important;
+}
+
+.no-wrap {
+    white-space: nowrap;
+}
+
+.hide {
+    max-height: 0px;
+    overflow: hidden;
+    visibility: hidden;
+}
+
+.display-none {
+    display: none;
+}
+
+.inline {
+    display: inline;
+}
+
+//////////////////////////////////////
+// Positioning helpers
+//////////////////////////////////////
+
+.align-left {
+    text-align: left;
+}
+
+.align-right {
+    text-align: right;
+}
+
+.mt-20 {
+    margin-top: 20px;
+}
+
+.mt-30 {
+    margin-top: 30px;
+}
+
+.mt-40 {
+    margin-top: 40px;
+}
+
+.mb-20 {
+    margin-bottom: 20px;
+}
+
+.mb-10 {
+    margin-bottom: 10px;
+}
+
+.pl-5 {
+    padding-left: 5px;
+}
+
+.pr-5 {
+    padding-right: 5px;
+}
+
+.offset-top-1 {
+    position: relative;
+    top: -1px;
+}
+
+.offset-top-2 {
+    position: relative;
+    top: -2px;
+}
+
+.offset-top-4 {
+    position: relative;
+    top: -4px;
+}
+
+.export-btn {
+    float: right;
+}
+
+//////////////////////////////////////
 // Dark theme overrides
+//////////////////////////////////////
+
 body.dark {
     .header {
         background-color: #485a6a;
@@ -18,11 +106,12 @@ body.dark {
     }
 }
 
-// Branding logos
+//////////////////////////////////////
+// Branding
+//////////////////////////////////////
+
 .tanzu-logo {
     @include logo-container('./assets/images/tanzu-logo.svg');
-    top: -2px;
-    position: relative;
     margin-right: 6px;
     width: 36px;
     height: 36px;
@@ -30,8 +119,6 @@ body.dark {
 
 .tce-logo {
     @include logo-container('./assets/images/tce-logo.svg');
-    top: -2px;
-    position: relative;
     margin-right: 6px;
     width: 36px;
     height: 36px;
@@ -48,16 +135,18 @@ body.dark {
     background-repeat: no-repeat;
 }
 
-.no-gutters {
-    padding: 0 !important;
-}
+//////////////////////////////////////
+// Contextual help
+//////////////////////////////////////
 
-// contextual help
 clr-icon.contextual-help {
     cursor: pointer;
 }
 
-// wizard fixes
+//////////////////////////////////////
+// Clarity overrides and helpers
+//////////////////////////////////////
+
 .btn-connect {
     margin-top: 20px;
 }
@@ -71,7 +160,7 @@ clr-icon.contextual-help {
 .clr-accordion {
     margin-bottom: 0;
 
-    // tooltip icon fixes
+    // tooltip icon overrides
     .title, label {
         clr-tooltip {
             clr-icon {
@@ -144,34 +233,6 @@ clr-control-error.clr-subtext {
     opacity: 0.7;
 }
 
-.hide {
-    max-height: 0px;
-    overflow: hidden;
-    visibility: hidden;
-}
-
-.display-none {
-    display: none;
-}
-
-.no-wrap {
-    white-space: nowrap;
-}
-
-.brand-logo {
-    background-size: contain;
-    background-repeat: no-repeat;
-    display: inline-block;
-    vertical-align: middle;
-    width: 36px;
-    height: 36px;
-    margin-bottom: 6px;
-    margin-right: 4px;
-}
-.inline {
-    display: inline;
-}
-
 //////////////////////////////////////
 // Generic logo icons
 //////////////////////////////////////
@@ -197,8 +258,9 @@ clr-control-error.clr-subtext {
 }
 
 //////////////////////////////////////
-// Other logo icons
+// Provider logo icons
 //////////////////////////////////////
+
 .vsphere-icon-30 {
     @include logo-container($logo-vsphere);
     @include logo-sizer(30, 30);
@@ -237,48 +299,4 @@ clr-control-error.clr-subtext {
 .docker-icon-48 {
     @include logo-container($logo-docker);
     @include logo-sizer(48, 48);
-}
-
-//////////////////////////////////////
-// Common or shared styles
-//////////////////////////////////////
-
-.align-left {
-    text-align: left;
-}
-
-.align-right {
-    text-align: right;
-}
-
-.mt-20 {
-     margin-top: 20px;
-}
-
-.mt-30 {
-    margin-top: 30px;
-}
-
-.mt-40 {
-    margin-top: 40px;
-}
-
-.mb-20 {
-    margin-bottom: 20px;
-}
-
-.mb-10 {
-    margin-bottom: 10px;
-}
-
-.pl-5 {
-    padding-left: 5px;
-}
-
-.pr-5 {
-    padding-right: 5px;
-}
-
-.export-btn {
-    float: right;
 }
