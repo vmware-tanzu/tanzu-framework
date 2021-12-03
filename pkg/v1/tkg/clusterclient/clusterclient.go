@@ -78,7 +78,13 @@ const (
 	kubectlApplyRetryTimeout  = 30 * time.Second
 	kubectlApplyRetryInterval = 5 * time.Second
 	// DefaultKappControllerHostPort is the default kapp-controller port for it's extension apiserver
-	DefaultKappControllerHostPort = 10100
+	DefaultKappControllerHostPort           = 10100
+	waitPeriodBeforePollingForUpgradeStatus = 60 * time.Second
+)
+
+var (
+	// Sleep implements time.Sleep and used indirectly to mock for unit tests
+	Sleep = time.Sleep
 )
 
 // Client provides various aspects of interaction with a Kubernetes cluster provisioned by TKG
@@ -859,6 +865,15 @@ func (c *client) waitK8sVersionUpdateGeneric(clusterName, namespace, newK8sVersi
 
 		return false, err
 	}
+
+	// Wait before we start the polling to check upgrade status
+	// This is done to account for the CP/MD upgrade to start rolling out
+	// because it was noticed that CP/MD upgrade rollout take few seconds
+	// to update the conditions which we rely on to check the upgrade status
+	// ClusterReady is already present and wait logic comes out of the poll
+	// loop assuming the upgrade is complete whereas the upgrade has not been
+	// started yet
+	Sleep(waitPeriodBeforePollingForUpgradeStatus)
 
 	return c.poller.PollImmediateInfiniteWithGetter(interval, getterFunc)
 }
