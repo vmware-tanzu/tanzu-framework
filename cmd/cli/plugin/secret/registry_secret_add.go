@@ -200,7 +200,10 @@ func checkSecretExportExists(pkgClient tkgpackageclient.TKGPackageClient, kc kap
 	export := ""
 	secretExport, err := pkgClient.GetSecretExport(registrySecretOp)
 
-	if err != nil && !apierrors.IsNotFound(err) {
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			return nil
+		}
 		return err
 	}
 
