@@ -1010,7 +1010,7 @@ func (c *client) PatchClusterObjectWithTKGVersion(clusterName, namespace, tkgVer
 }
 
 func (c *client) GetManagementClusterTKGVersion(mgmtClusterName, clusterNamespace string) (string, error) {
-	mcObject := &capi.Cluster{}
+	mcObject := &capiv1alpha3.Cluster{}
 	err := c.GetResource(mcObject, mgmtClusterName, clusterNamespace, nil, nil)
 	if err != nil {
 		return "", errors.Wrap(err, "unable to get the cluster object")

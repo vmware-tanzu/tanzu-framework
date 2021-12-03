@@ -105,6 +105,7 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 	}
 
 	// Validate the compatibility before upgrading management cluster
+	log.Infof("Validating the compatibility before management cluster upgrade")
 	err = c.validateCompatibilityBeforeManagementClusterUpgrade(options, regionalClusterClient)
 	if err != nil {
 		return err
@@ -416,7 +417,67 @@ func (c *TkgClient) getPackageInstallTimeoutFromConfig() time.Duration {
 }
 
 func (c *TkgClient) validateCompatibilityBeforeManagementClusterUpgrade(options *UpgradeClusterOptions, regionalClusterClient clusterclient.Client) error {
+	err := c.ValidateManagementClusterUpgradeVersionCompatibility(options, regionalClusterClient)
+	if err != nil {
+		return errors.Wrap(err, "upgrade version compatibility validation failed")
+	}
 	return c.validateCompatibilityWithTMC(regionalClusterClient, options.SkipPrompt)
+}
+
+// ValidateManagementClusterUpgradeVersionCompatibility validates the upgrade version compatibility for a management cluster
+func (c *TkgClient) ValidateManagementClusterUpgradeVersionCompatibility(options *UpgradeClusterOptions, regionalClusterClient clusterclient.Client) error {
+	mgmtClusterSemVersion, currentTKGSemVersion, err := c.getManagementClusterAndCurrentTKGSemVersions(options, regionalClusterClient)
+	if err != nil {
+		return err
+	}
+	log.V(9).Infof("Management cluster SemVersion is %q and current TKG SemVersion(to be upgraded to) is %q",
+		mgmtClusterSemVersion.String(), currentTKGSemVersion.String())
+
+	// TODO: Update this condition when TKG major version is changed
+	if mgmtClusterSemVersion.Major() != currentTKGSemVersion.Major() {
+		return errors.Errorf("major version mismatch detected")
+	}
+	warningMsg := ""
+	minorGap := int(currentTKGSemVersion.Minor()) - int(mgmtClusterSemVersion.Minor())
+	if minorGap < 0 || (minorGap == 0 && currentTKGSemVersion.Patch() < mgmtClusterSemVersion.Patch()) {
+		return errors.Errorf("TKG version downgrade is not supported")
+	} else if minorGap > 1 {
+		warningMsg = "Upgrade skipping minor version is detected and is not recommended. It could leave cluster unmanageable"
+	}
+	if warningMsg != "" {
+		if !options.SkipPrompt {
+			log.Warning(warningMsg)
+			if err := cli.AskForConfirmation("Do you want to continue with the upgrade?"); err != nil {
+				return err
+			}
+		} else {
+			log.Infof("Warning: %v", warningMsg)
+		}
+	}
+	return nil
+}
+
+func (c *TkgClient) getManagementClusterAndCurrentTKGSemVersions(options *UpgradeClusterOptions,
+	regionalClusterClient clusterclient.Client) (mcSemversion, currentTKGSemVersion *version.Version, err error) {
+
+	namespace := options.Namespace
+	if namespace == "" {
+		namespace = TKGsystemNamespace
+	}
+	mgmtClusterTkgVersion, err := regionalClusterClient.GetManagementClusterTKGVersion(options.ClusterName, namespace)
+	if err != nil {
+		return mcSemversion, currentTKGSemVersion, errors.Wrapf(err, "unable to get tkg version of management cluster %q in namespace %q", options.ClusterName, options.Namespace)
+	}
+	mcSemversion, err = version.ParseSemantic(mgmtClusterTkgVersion)
+	if err != nil {
+		return mcSemversion, currentTKGSemVersion, errors.Wrapf(err, "unable to parse management cluster version %s", mgmtClusterTkgVersion)
+	}
+	currentTKGVersion := c.tkgBomClient.GetCurrentTKGVersion()
+	currentTKGSemVersion, err = version.ParseSemantic(currentTKGVersion)
+	if err != nil {
+		return mcSemversion, currentTKGSemVersion, errors.Wrapf(err, "unable to parse management cluster version %s", currentTKGVersion)
+	}
+	return
 }
 
 // validateCompatibilityWithTMC validate compatibility of new TKG version with TMC if management cluster is registered with TMC

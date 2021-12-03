@@ -197,5 +197,57 @@ var _ = Describe("Unit tests for upgrade management cluster", func() {
 				})
 			})
 		})
+
+		Context("When validating compatibility before management cluster upgrade", func() {
+			JustBeforeEach(func() {
+				err = tkgClient.ValidateManagementClusterUpgradeVersionCompatibility(&upgradeClusterOptions, regionalClusterClient)
+			})
+			Context("When getting management cluster TKG version fails", func() {
+				BeforeEach(func() {
+					regionalClusterClient.GetManagementClusterTKGVersionReturns("", errors.New("fake GetManagementClusterTKGVersion error"))
+				})
+				It("should return an error", func() {
+					Expect(err).To(HaveOccurred())
+					errString := `unable to get tkg version of management cluster "fake-cluster-name" in namespace "fake-namespace": fake GetManagementClusterTKGVersion error`
+					Expect(err.Error()).To(ContainSubstring(errString))
+				})
+			})
+			Context("When the management cluster TKG version is invalid ", func() {
+				BeforeEach(func() {
+					regionalClusterClient.GetManagementClusterTKGVersionReturns("InvalidTKGSemanticVersion", nil)
+				})
+				It("should return an error", func() {
+					Expect(err).To(HaveOccurred())
+					Expect(err.Error()).To(ContainSubstring("unable to parse management cluster version InvalidTKGSemanticVersion"))
+				})
+			})
+			Context("When TKG version user trying to upgrade has different major version", func() {
+				BeforeEach(func() {
+					regionalClusterClient.GetManagementClusterTKGVersionReturns("v2.0.0-rc.1", nil)
+				})
+				It("should return an error", func() {
+					Expect(err).To(HaveOccurred())
+					Expect(err.Error()).To(ContainSubstring("major version mismatch detected"))
+				})
+			})
+			Context("When management cluster current TKG version greater than TKG version user trying to upgrade", func() {
+				BeforeEach(func() {
+					regionalClusterClient.GetManagementClusterTKGVersionReturns("v1.2.2-rc.1", nil)
+				})
+				It("should return an error", func() {
+					Expect(err).To(HaveOccurred())
+					Expect(err.Error()).To(ContainSubstring("TKG version downgrade is not supported"))
+				})
+			})
+			Context("When upgrading the TKG version (skipping a minor version) with skipPrompt set to true", func() {
+				BeforeEach(func() {
+					upgradeClusterOptions.SkipPrompt = true
+					regionalClusterClient.GetManagementClusterTKGVersionReturns("v1.0.2-rc.1", nil)
+				})
+				It("should not return an error", func() {
+					Expect(err).ToNot(HaveOccurred())
+				})
+			})
+		})
 	})
 })
