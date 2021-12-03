@@ -81,6 +81,8 @@ var _ = Describe("Update Package", func() {
 		BeforeEach(func() {
 			options.Install = true
 			kappCtl = &fakes.KappClient{}
+			crtCtl = &fakes.CRTClusterClient{}
+			kappCtl.GetClientReturns(crtCtl)
 			kappCtl.GetPackageInstallReturnsOnCall(0, nil, nil)
 			kappCtl.ListPackagesReturns(nil, errors.New("failure in ListPackages"))
 		})

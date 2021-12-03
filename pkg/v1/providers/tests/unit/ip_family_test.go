@@ -62,17 +62,6 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 			})
 		})
 
-		When("a not yet implemented ip family is set", func() {
-			It("does not allow ipv6,ipv4", func() {
-				values := createDataValues(map[string]string{
-					"TKG_IP_FAMILY": "ipv6,ipv4",
-					"PROVIDER_TYPE": "vsphere",
-				})
-				_, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
-				Expect(err).To(HaveOccurred())
-			})
-		})
-
 		When("provider type is vsphere", func() {
 			It("allows ipv6", func() {
 				values := createDataValues(map[string]string{
@@ -92,6 +81,14 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 				Expect(err).NotTo(HaveOccurred())
 			})
 
+			It("allows ipv6,ipv4", func() {
+				values := createDataValues(map[string]string{
+					"TKG_IP_FAMILY": "ipv6,ipv4",
+					"PROVIDER_TYPE": "vsphere",
+				})
+				_, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+				Expect(err).NotTo(HaveOccurred())
+			})
 		})
 
 		When("provider type is not vsphere", func() {
@@ -107,6 +104,15 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 			It("does not allow ipv4,ipv6", func() {
 				values := createDataValues(map[string]string{
 					"TKG_IP_FAMILY": "ipv4,ipv6",
+					"PROVIDER_TYPE": "azure",
+				})
+				_, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+				Expect(err).To(HaveOccurred())
+			})
+
+			It("does not allow ipv6,ipv4", func() {
+				values := createDataValues(map[string]string{
+					"TKG_IP_FAMILY": "ipv6,ipv4",
 					"PROVIDER_TYPE": "azure",
 				})
 				_, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
@@ -391,16 +397,64 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 						Expect(machineDoc).NotTo(HaveYAMLPath("$.spec.template.spec.network.devices[1]"))
 					}
 				})
+				It("does not render bind-address field", func() {
+					output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+					Expect(err).NotTo(HaveOccurred())
+
+					kubeadmControlPlaneDocs, err := FindDocsMatchingYAMLPath(output, map[string]string{
+						"$.kind": "KubeadmControlPlane",
+					})
+					Expect(err).NotTo(HaveOccurred())
+
+					Expect(kubeadmControlPlaneDocs).To(HaveLen(1))
+					Expect(kubeadmControlPlaneDocs[0]).NotTo(HaveYAMLPath("$.spec.kubeadmConfigSpec.clusterConfiguration.apiServer.extraArgs.bind-address"))
+					Expect(kubeadmControlPlaneDocs[0]).NotTo(HaveYAMLPath("$.spec.kubeadmConfigSpec.clusterConfiguration.controllerManager.extraArgs.bind-address"))
+					Expect(kubeadmControlPlaneDocs[0]).NotTo(HaveYAMLPath("$.spec.kubeadmConfigSpec.clusterConfiguration.scheduler.extraArgs.bind-address"))
+				})
+				It("does not render advertise-address field", func() {
+					output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+					Expect(err).NotTo(HaveOccurred())
+
+					kubeadmControlPlaneDocs, err := FindDocsMatchingYAMLPath(output, map[string]string{
+						"$.kind": "KubeadmControlPlane",
+					})
+					Expect(err).NotTo(HaveOccurred())
+
+					Expect(kubeadmControlPlaneDocs).To(HaveLen(1))
+					Expect(kubeadmControlPlaneDocs[0]).NotTo(HaveYAMLPath("$.spec.kubeadmConfigSpec.clusterConfiguration.apiServer.extraArgs.advertise-address"))
+				})
+				It("does not render node-ip field", func() {
+					output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+					Expect(err).NotTo(HaveOccurred())
+
+					kubeadmControlPlaneDocs, err := FindDocsMatchingYAMLPath(output, map[string]string{
+						"$.kind": "KubeadmControlPlane",
+					})
+					Expect(err).NotTo(HaveOccurred())
+
+					Expect(kubeadmControlPlaneDocs).To(HaveLen(1))
+					Expect(kubeadmControlPlaneDocs[0]).NotTo(HaveYAMLPath("$.spec.kubeadmConfigSpec.initConfiguration.nodeRegistration.kubeletExtraArgs.node-ip"))
+					Expect(kubeadmControlPlaneDocs[0]).NotTo(HaveYAMLPath("$.spec.kubeadmConfigSpec.joinConfiguration.nodeRegistration.kubeletExtraArgs.node-ip"))
+
+					kubeadmConfigTemplateDocs, err := FindDocsMatchingYAMLPath(output, map[string]string{
+						"$.kind": "KubeadmConfigTemplate",
+					})
+					Expect(err).NotTo(HaveOccurred())
+
+					Expect(kubeadmConfigTemplateDocs).To(HaveLen(1))
+					Expect(kubeadmConfigTemplateDocs[0]).NotTo(HaveYAMLPath("$.spec.template.spec.joinConfiguration.nodeRegistration.kubeletExtraArgs.node-ip"))
+				})
 			})
 
 			When("data values are set to ipv6,ipv4 dual stack settings", func() {
 				BeforeEach(func() {
 					values = createDataValues(map[string]string{
-						"CLUSTER_NAME":     "foo",
-						"TKG_CLUSTER_ROLE": "workload",
-						"TKG_IP_FAMILY":    "ipv6,ipv4",
-						"CLUSTER_CIDR":     "fd00:100:96::/48,100.96.0.0/11",
-						"SERVICE_CIDR":     "fd00:100:64::/108,100.64.0.0/18",
+						"CLUSTER_NAME":                   "foo",
+						"TKG_CLUSTER_ROLE":               "workload",
+						"TKG_IP_FAMILY":                  "ipv6,ipv4",
+						"CLUSTER_CIDR":                   "fd00:100:96::/48,100.96.0.0/11",
+						"SERVICE_CIDR":                   "fd00:100:64::/108,100.64.0.0/18",
+						"VSPHERE_CONTROL_PLANE_ENDPOINT": "2001:db8::2",
 					})
 				})
 				It("renders a control plane and worker template each with a dual stack network device", func() {
@@ -419,6 +473,53 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 						Expect(machineDoc).To(HaveYAMLPathWithValue("$.spec.template.spec.network.devices[0].networkName", "VM Network"))
 						Expect(machineDoc).NotTo(HaveYAMLPath("$.spec.template.spec.network.devices[1]"))
 					}
+				})
+				It("renders control plane template to bind the apiServer, controllerManager, and scheduler to all ipv6 interfaces", func() {
+					output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+					Expect(err).NotTo(HaveOccurred())
+
+					kubeadmControlPlaneDocs, err := FindDocsMatchingYAMLPath(output, map[string]string{
+						"$.kind": "KubeadmControlPlane",
+					})
+					Expect(err).NotTo(HaveOccurred())
+
+					Expect(kubeadmControlPlaneDocs).To(HaveLen(1))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.clusterConfiguration.apiServer.extraArgs.bind-address", "::"))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.clusterConfiguration.controllerManager.extraArgs.bind-address", "::"))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.clusterConfiguration.scheduler.extraArgs.bind-address", "::"))
+				})
+				It("renders control plane template to advertise control plane endpoint on the apiServer", func() {
+					output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+					Expect(err).NotTo(HaveOccurred())
+
+					kubeadmControlPlaneDocs, err := FindDocsMatchingYAMLPath(output, map[string]string{
+						"$.kind": "KubeadmControlPlane",
+					})
+					Expect(err).NotTo(HaveOccurred())
+
+					Expect(kubeadmControlPlaneDocs).To(HaveLen(1))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.clusterConfiguration.apiServer.extraArgs.advertise-address", "2001:db8::2"))
+				})
+				It("renders control plane template to configure kubelet with '::' as the node IP", func() {
+					output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+					Expect(err).NotTo(HaveOccurred())
+
+					kubeadmControlPlaneDocs, err := FindDocsMatchingYAMLPath(output, map[string]string{
+						"$.kind": "KubeadmControlPlane",
+					})
+					Expect(err).NotTo(HaveOccurred())
+
+					Expect(kubeadmControlPlaneDocs).To(HaveLen(1))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.initConfiguration.nodeRegistration.kubeletExtraArgs.node-ip", "::"))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.joinConfiguration.nodeRegistration.kubeletExtraArgs.node-ip", "::"))
+
+					kubeadmConfigTemplateDocs, err := FindDocsMatchingYAMLPath(output, map[string]string{
+						"$.kind": "KubeadmConfigTemplate",
+					})
+					Expect(err).NotTo(HaveOccurred())
+
+					Expect(kubeadmConfigTemplateDocs).To(HaveLen(1))
+					Expect(kubeadmConfigTemplateDocs[0]).To(HaveYAMLPathWithValue("$.spec.template.spec.joinConfiguration.nodeRegistration.kubeletExtraArgs.node-ip", "::"))
 				})
 			})
 		})

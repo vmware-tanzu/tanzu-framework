@@ -386,59 +386,59 @@ func cleanup() {
 
 func testHelper() {
 	/*
-	TODO: Fix tests for secret registry plugin
-	By("trying to update package repository with a private URL")
-	repoOptions.RepositoryURL = config.RepositoryURLPrivate
-	repoOptions.CreateRepository = true
-	repoOptions.PollTimeout = 20 * time.Second
-	result = packagePlugin.UpdateRepository(&repoOptions)
-	Expect(result.Error).To(HaveOccurred())
+		TODO: Fix tests for secret registry plugin
+		By("trying to update package repository with a private URL")
+		repoOptions.RepositoryURL = config.RepositoryURLPrivate
+		repoOptions.CreateRepository = true
+		repoOptions.PollTimeout = 20 * time.Second
+		result = packagePlugin.UpdateRepository(&repoOptions)
+		Expect(result.Error).To(HaveOccurred())
 
-	By("add registry secret")
-	imgPullSecretOptions.Username = testRegistryUsername
-	imgPullSecretOptions.PasswordInput = testRegistryPassword
-	imgPullSecretOptions.Server = testRegistry
-	resultImgPullSecret = secretPlugin.AddRegistrySecret(&imgPullSecretOptions)
-	Expect(resultImgPullSecret.Error).ToNot(HaveOccurred())
+		By("add registry secret")
+		imgPullSecretOptions.Username = testRegistryUsername
+		imgPullSecretOptions.PasswordInput = testRegistryPassword
+		imgPullSecretOptions.Server = testRegistry
+		resultImgPullSecret = secretPlugin.AddRegistrySecret(&imgPullSecretOptions)
+		Expect(resultImgPullSecret.Error).ToNot(HaveOccurred())
 
-	By("update registry secret to export the secret from default namespace to all namespaces")
-	t := true
-	imgPullSecretOptions.Export = tkgpackagedatamodel.TypeBoolPtr{ExportToAllNamespaces: &t}
-	resultImgPullSecret = secretPlugin.UpdateRegistrySecret(&imgPullSecretOptions)
-	Expect(resultImgPullSecret.Error).ToNot(HaveOccurred())
+		By("update registry secret to export the secret from default namespace to all namespaces")
+		t := true
+		imgPullSecretOptions.Export = tkgpackagedatamodel.TypeBoolPtr{ExportToAllNamespaces: &t}
+		resultImgPullSecret = secretPlugin.UpdateRegistrySecret(&imgPullSecretOptions)
+		Expect(resultImgPullSecret.Error).ToNot(HaveOccurred())
 
-	By("list registry secret")
-	resultImgPullSecret = secretPlugin.ListRegistrySecret(&imgPullSecretOptions)
-	Expect(resultImgPullSecret.Error).ToNot(HaveOccurred())
-	err = json.Unmarshal(resultImgPullSecret.Stdout.Bytes(), &imgPullSecretOutput)
-	Expect(err).ToNot(HaveOccurred())
-	Expect(len(imgPullSecretOutput)).To(BeNumerically(">=", 1))
+		By("list registry secret")
+		resultImgPullSecret = secretPlugin.ListRegistrySecret(&imgPullSecretOptions)
+		Expect(resultImgPullSecret.Error).ToNot(HaveOccurred())
+		err = json.Unmarshal(resultImgPullSecret.Stdout.Bytes(), &imgPullSecretOutput)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(len(imgPullSecretOutput)).To(BeNumerically(">=", 1))
 
-	By("wait for the private package repository reconciliation")
-	repoOptions.RepositoryURL = config.RepositoryURLPrivate
-	repoOptions.CreateRepository = true
-	repoOptions.PollInterval = pollInterval
-	repoOptions.PollTimeout = pollTimeout
-	result = packagePlugin.CheckRepositoryAvailable(&repoOptions)
-	Expect(result.Error).ToNot(HaveOccurred())
+		By("wait for the private package repository reconciliation")
+		repoOptions.RepositoryURL = config.RepositoryURLPrivate
+		repoOptions.CreateRepository = true
+		repoOptions.PollInterval = pollInterval
+		repoOptions.PollTimeout = pollTimeout
+		result = packagePlugin.CheckRepositoryAvailable(&repoOptions)
+		Expect(result.Error).ToNot(HaveOccurred())
 
-	By("list package repository")
-	repoOptions.AllNamespaces = true
-	result = packagePlugin.ListRepository(&repoOptions)
-	Expect(result.Error).ToNot(HaveOccurred())
-	err = json.Unmarshal(result.Stdout.Bytes(), &repoOutput)
-	Expect(err).ToNot(HaveOccurred())
+		By("list package repository")
+		repoOptions.AllNamespaces = true
+		result = packagePlugin.ListRepository(&repoOptions)
+		Expect(result.Error).ToNot(HaveOccurred())
+		err = json.Unmarshal(result.Stdout.Bytes(), &repoOutput)
+		Expect(err).ToNot(HaveOccurred())
 
-	By("get package repository")
-	repoOutput = []repositoryOutput{{Namespace: testNamespace}}
-	result = packagePlugin.GetRepository(&repoOptions)
-	Expect(result.Error).ToNot(HaveOccurred())
-	err = json.Unmarshal(result.Stdout.Bytes(), &repoOutput)
-	Expect(err).ToNot(HaveOccurred())
-	Expect(len(repoOutput)).To(BeNumerically("==", 1))
-	Expect(repoOutput[0]).To(Equal(expectedRepoOutputPrivate))
+		By("get package repository")
+		repoOutput = []repositoryOutput{{Namespace: testNamespace}}
+		result = packagePlugin.GetRepository(&repoOptions)
+		Expect(result.Error).ToNot(HaveOccurred())
+		err = json.Unmarshal(result.Stdout.Bytes(), &repoOutput)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(len(repoOutput)).To(BeNumerically("==", 1))
+		Expect(repoOutput[0]).To(Equal(expectedRepoOutputPrivate))
 	*/
-	
+
 	By("update package repository with a new URL without tag")
 	repoOptions.RepositoryURL = config.RepositoryURLNoTag
 	repoOptions.CreateRepository = true
