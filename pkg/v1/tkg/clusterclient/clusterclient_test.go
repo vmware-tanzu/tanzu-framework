@@ -135,6 +135,9 @@ var _ = Describe("Cluster Client", func() {
 		tkcConditions      []capiv1alpha3.Condition
 	)
 
+	// Mock the sleep implementation for unit tests
+	Sleep = func(d time.Duration) {}
+
 	BeforeSuite(createTempDirectory)
 	AfterSuite(deleteTempDirectory)
 
