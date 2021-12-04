@@ -3,6 +3,7 @@ module github.com/vmware-tanzu/tanzu-framework
 go 1.16
 
 replace (
+	github.com/briandowns/spinner => github.com/alonyb/spinner v1.12.7
 	github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.5.5 // indirect
 	github.com/k14s/kbld => github.com/anujc25/carvel-kbld v0.31.0-update-vendir
 	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.0.1
