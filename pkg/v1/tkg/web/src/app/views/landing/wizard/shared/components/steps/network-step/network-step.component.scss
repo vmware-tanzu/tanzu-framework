@@ -25,3 +25,10 @@ button.reset {
     cursor: pointer;
     outline: inherit;
 }
+.helper-container {
+    overflow-wrap: break-word;
+    max-width: 450px;
+}
+.noproxy-field {
+    max-width: 450px;
+}
