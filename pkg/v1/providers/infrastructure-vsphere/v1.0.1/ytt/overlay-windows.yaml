@@ -10,7 +10,7 @@
 
 #@ bomData = get_default_tkg_bom_data()
 
-#@ if data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
+#@ if data.values.IS_WINDOWS_WORKLOAD_CLUSTER or data.values.IS_MIXED_WINDOWS_WORKLOAD_CLUSTER:
 
 #@ def kube_vip_pod():
 ---
