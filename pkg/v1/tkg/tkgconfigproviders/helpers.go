@@ -7,9 +7,9 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/url"
+	"reflect"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/oleiade/reflections"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 )
@@ -91,11 +91,10 @@ func createHttpProxyConfig(config interface{}) *models.HTTPProxyConfiguration {
 }
 
 func getFieldFromConfig(config interface{}, fieldName string) string {
-	val, err := reflections.GetField(config, fieldName)
-
-	if err == nil {
-		return val.(string)
+	field := reflect.ValueOf(config).FieldByName(fieldName)
+	if !field.IsValid() {
+		fmt.Errorf("getFieldFromConfig() is unable to find field %s in object %v", fieldName, config)
+		return ""
 	}
-	fmt.Printf("error retrieving (via reflection) expected field '%s' from config object: %+v", fieldName, config)
-	return ""
+	return field.String()
 }
