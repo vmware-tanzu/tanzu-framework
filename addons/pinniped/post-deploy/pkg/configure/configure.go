@@ -263,6 +263,7 @@ func configureTLSSecret(ctx context.Context, c Clients, certNamespace, certName,
 }
 
 // Pinniped initializes Pinniped
+// nolint:gocyclo // We should refactor this thing to be less unruly...
 func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p *Parameters) error {
 	var err error
 
@@ -274,7 +275,11 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p *Pa
 		var supervisorSvcEndpoint string
 		if p.SupervisorSvcEndpoint != "" {
 			// If the endpoint is passed in, then use it for management cluster otherwise construct the correct one
-			supervisorSvcEndpoint = utils.RemoveDefaultTLSPort(p.SupervisorSvcEndpoint)
+			supervisorSvcEndpoint, err = utils.RemoveDefaultTLSPort(p.SupervisorSvcEndpoint)
+			if err != nil {
+				zap.S().Error(err)
+				return err
+			}
 		} else if supervisorSvcEndpoint, err = inspector.GetServiceEndpoint(p.SupervisorSvcNamespace, p.SupervisorSvcName); err != nil {
 			zap.S().Error(err)
 			return err

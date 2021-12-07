@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/aunum/log"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt"
 	"github.com/pkg/errors"
 
 	"golang.org/x/oauth2"

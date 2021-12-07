@@ -6,7 +6,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"github.com/pkg/errors"
@@ -170,7 +169,7 @@ func extractPassword() (string, error) {
 			return "", errors.New(errInvalidPasswordFlags)
 		}
 		isPasswordSet = true
-		b, err := ioutil.ReadFile(registrySecretOp.PasswordFile)
+		b, err := os.ReadFile(registrySecretOp.PasswordFile)
 		if err != nil {
 			return "", errors.Wrap(err, fmt.Sprintf("failed to read from the password file '%s'", registrySecretOp.PasswordFile))
 		}
@@ -200,7 +199,10 @@ func checkSecretExportExists(pkgClient tkgpackageclient.TKGPackageClient, kc kap
 	export := ""
 	secretExport, err := pkgClient.GetSecretExport(registrySecretOp)
 
-	if err != nil && !apierrors.IsNotFound(err) {
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			return nil
+		}
 		return err
 	}
 

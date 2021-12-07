@@ -104,8 +104,8 @@ func generateJWTToken(claims string) string {
 	sha := hex.EncodeToString(hm.Sum(nil))
 	return fmt.Sprintf(
 		"%s.%s.%s",
-		base64.StdEncoding.EncodeToString([]byte(JWTHeader)),
-		base64.StdEncoding.EncodeToString([]byte(claims)),
+		base64.RawURLEncoding.EncodeToString([]byte(JWTHeader)),
+		base64.RawURLEncoding.EncodeToString([]byte(claims)),
 		sha,
 	)
 }

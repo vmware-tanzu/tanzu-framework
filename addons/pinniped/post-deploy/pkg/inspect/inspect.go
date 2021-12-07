@@ -194,7 +194,10 @@ func (i *Inspector) GetServiceEndpoint(namespace, name string) (string, error) {
 		}
 		serviceEndpoint = fmt.Sprintf("https://%s", net.JoinHostPort(host, fmt.Sprint(service.Spec.Ports[0].Port)))
 	}
-	serviceEndpoint = utils.RemoveDefaultTLSPort(serviceEndpoint)
+	serviceEndpoint, err = utils.RemoveDefaultTLSPort(serviceEndpoint)
+	if err != nil {
+		return "", err
+	}
 	zap.S().Infof("The external endpoint of Service %s/%s is %s", namespace, name, serviceEndpoint)
 	return serviceEndpoint, nil
 }

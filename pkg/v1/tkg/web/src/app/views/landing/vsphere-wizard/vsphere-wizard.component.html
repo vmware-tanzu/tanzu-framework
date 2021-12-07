@@ -105,7 +105,9 @@
                 {{ getStepDescription('network') }}
             </clr-step-description>
             <ng-container *ngIf="steps[5]">
-                <app-shared-network-step [formGroup]="form.controls.networkForm" enableNetworkName="true"
+                <app-shared-network-step [formGroup]="form.controls.networkForm"
+                    enableNetworkName="true"
+                    enableNoProxyWarning="true"
                     formName="network">
                 </app-shared-network-step>
             </ng-container>

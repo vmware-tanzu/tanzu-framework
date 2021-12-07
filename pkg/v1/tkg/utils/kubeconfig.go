@@ -96,7 +96,7 @@ func GetClusterInfoFromCluster(clusterAPIServerURL string) (*clientcmdapi.Cluste
 	clusterAPIServerURL = strings.TrimRight(clusterAPIServerURL, " /")
 	clusterInfoURL := clusterAPIServerURL + "/api/v1/namespaces/kube-public/configmaps/cluster-info"
 	//nolint:noctx
-	req, _ := http.NewRequest("GET", clusterInfoURL, nil)
+	req, _ := http.NewRequest("GET", clusterInfoURL, http.NoBody)
 	// To get the cluster ca certificate first time, we need to use skip verify the server certificate,
 	// all the later communications to cluster would be using CA after this call
 	clusterClient := &http.Client{
@@ -152,7 +152,7 @@ func GetPinnipedInfoFromCluster(clusterInfo *clientcmdapi.Cluster) (*PinnipedCon
 	endpoint := strings.TrimRight(clusterInfo.Server, " /")
 	pinnipedInfoURL := endpoint + "/api/v1/namespaces/kube-public/configmaps/pinniped-info"
 	//nolint:noctx
-	req, _ := http.NewRequest("GET", pinnipedInfoURL, nil)
+	req, _ := http.NewRequest("GET", pinnipedInfoURL, http.NoBody)
 	pool := x509.NewCertPool()
 	pool.AppendCertsFromPEM(clusterInfo.CertificateAuthorityData)
 	clusterClient := &http.Client{

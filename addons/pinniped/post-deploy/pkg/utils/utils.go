@@ -30,17 +30,17 @@ func IsIP(host string) bool {
 }
 
 // RemoveDefaultTLSPort removes the port value from fullURL if it is the default 443.
-func RemoveDefaultTLSPort(fullURL string) string {
+func RemoveDefaultTLSPort(fullURL string) (string, error) {
 	var err error
 	var parsedURL *url.URL
 	if parsedURL, err = url.Parse(fullURL); err != nil {
 		zap.S().Error(err)
-		return fullURL
+		return "", fmt.Errorf("cannot parse url: %w", err)
 	}
 	if parsedURL.Port() == "443" {
-		return fmt.Sprintf("%s://%s", parsedURL.Scheme, parsedURL.Hostname())
+		return fmt.Sprintf("%s://%s", parsedURL.Scheme, parsedURL.Hostname()), nil
 	}
-	return fullURL
+	return fullURL, nil
 }
 
 // RandomHex returns a random hexadecimal number of n length.

@@ -658,7 +658,7 @@ func (c *TkgClient) ValidateVsphereControlPlaneEndpointIP(endpointIP string) *Va
 				continue
 			}
 
-			clusters := append(managementClusters, workloadClusters...)
+			clusters := append(managementClusters, workloadClusters...) //nolint:gocritic
 
 			for i := range clusters {
 				if clusters[i].Spec.ControlPlaneEndpoint.Host == endpointIP {
@@ -1791,15 +1791,9 @@ func (c *TkgClient) validateNameservers(nameserverConfigVariable, clusterRole st
 	}
 
 	if clusterRole == TkgLabelClusterRoleManagement && !c.IsFeatureActivated(config.FeatureFlagManagementClusterCustomNameservers) {
-		return fmt.Errorf("option %s is set to %q, but custom nameserver support is not enabled (because it is not fully functional). To enable custom nameservers, run the command: tanzu config set %s true",
-			nameserverConfigVariable,
-			nameservers,
-			config.FeatureFlagManagementClusterCustomNameservers)
+		return customNameserverFeatureFlagError(nameserverConfigVariable, nameservers, config.FeatureFlagManagementClusterCustomNameservers)
 	} else if clusterRole == TkgLabelClusterRoleWorkload && !c.IsFeatureActivated(config.FeatureFlagClusterCustomNameservers) {
-		return fmt.Errorf("option %s is set to %q, but custom nameserver support is not enabled (because it is not fully functional). To enable custom nameservers, run the command: tanzu config set %s true",
-			nameserverConfigVariable,
-			nameservers,
-			config.FeatureFlagClusterCustomNameservers)
+		return customNameserverFeatureFlagError(nameserverConfigVariable, nameservers, config.FeatureFlagClusterCustomNameservers)
 	}
 
 	invalidNameservers := []string{}
@@ -1845,4 +1839,11 @@ func (c *TkgClient) checkIPFamilyFeatureFlags(ipFamily, clusterRole string) erro
 
 func dualStackFeatureFlagError(ipFamily, featureFlag string) error {
 	return fmt.Errorf("option TKG_IP_FAMILY is set to %q, but dualstack support is not enabled (because it is under development). To enable dualstack, set %s to \"true\"", ipFamily, featureFlag)
+}
+
+func customNameserverFeatureFlagError(configVariable, nameservers, flagName string) error {
+	return fmt.Errorf("option %s is set to %q, but custom nameserver support is not enabled (because it is not fully functional). To enable custom nameservers, run the command: tanzu config set %s true",
+		configVariable,
+		nameservers,
+		flagName)
 }
