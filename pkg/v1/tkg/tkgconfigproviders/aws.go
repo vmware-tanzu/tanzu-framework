@@ -359,6 +359,10 @@ func (c *client) CreateAWSParams(res *AWSConfig) (params *models.AWSRegionalClus
 	ceipOptIn := res.CeipParticipation == trueConst
 	bomConfiguration, err := c.tkgBomClient.GetDefaultTkrBOMConfiguration()
 
+	if err != nil {
+		return nil, err
+	}
+
 	params = &models.AWSRegionalClusterParams{
 		Annotations: configStringToMap(res.ClusterAnnotations),
 		AwsAccountParams: &models.AWSAccountParams{

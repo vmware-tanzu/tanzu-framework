@@ -124,7 +124,7 @@ func createDockerNetworkingConfig(conf *DockerConfig) *models.TKGNetwork {
 		ClusterPodCIDR:         conf.ClusterCIDR,
 		ClusterServiceCIDR:     conf.ServiceCIDR,
 		CniType:                "",
-		HTTPProxyConfiguration: createHttpProxyConfig(conf),
+		HTTPProxyConfiguration: createHTTPProxyConfig(conf),
 		NetworkName:            "",
 	}
 }

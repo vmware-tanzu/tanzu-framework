@@ -231,7 +231,7 @@ func (c *client) NewVSphereConfig(params *models.VsphereRegionalClusterParams) (
 }
 
 // CreateVSphereParams generates a Params object from a VSphereConfig, used for importing configuration files
-func (c *client) CreateVSphereParams(vConfig *VSphereConfig) (params *models.VsphereRegionalClusterParams, err error) { //nolint:funlen,gocyclo
+func (c *client) CreateVSphereParams(vConfig *VSphereConfig) (params *models.VsphereRegionalClusterParams, err error) {
 	boolCeiptOptIn, _ := strconv.ParseBool(vConfig.CeipParticipation)
 
 	params = &models.VsphereRegionalClusterParams{
@@ -353,12 +353,12 @@ func mapToYamlStr(m map[string]string) string {
 func yamlStringToMap(yamlString string) map[string]string {
 	result := make(map[string]string)
 	if len(yamlString) > 0 {
-		yaml.Unmarshal([]byte(yamlString), result)
+		_ = yaml.Unmarshal([]byte(yamlString), result)
 	}
 	return result
 }
 
-func findVsphereNodeType(cpus string, memory string, disk string) (string, error) {
+func findVsphereNodeType(cpus, memory, disk string) (string, error) {
 	for label, nodeType := range NodeTypes {
 		if nodeType.Cpus == cpus && nodeType.Memory == memory && nodeType.Disk == disk {
 			return label, nil

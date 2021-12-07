@@ -63,26 +63,26 @@ func createNetworkingConfig(config interface{}) *models.TKGNetwork {
 		ClusterPodCIDR:         getFieldFromConfig(config, "ClusterCIDR"),
 		ClusterServiceCIDR:     getFieldFromConfig(config, "ServiceCIDR"),
 		CniType:                "",
-		HTTPProxyConfiguration: createHttpProxyConfig(config),
+		HTTPProxyConfiguration: createHTTPProxyConfig(config),
 		NetworkName:            "",
 	}
 }
 
-func createHttpProxyConfig(config interface{}) *models.HTTPProxyConfiguration {
+func createHTTPProxyConfig(config interface{}) *models.HTTPProxyConfiguration {
 	var httpProxyConfig *models.HTTPProxyConfiguration
 	if getFieldFromConfig(config, "HTTPProxyEnabled") == trueConst {
-		httpUrl, _ := url.Parse(getFieldFromConfig(config, "ClusterHTTPProxy"))
-		httpPassword, _ := httpUrl.User.Password()
-		httpsUrl, _ := url.Parse(getFieldFromConfig(config, "ClusterHTTPSProxy"))
-		httpsPassword, _ := httpsUrl.User.Password()
+		httpURL, _ := url.Parse(getFieldFromConfig(config, "ClusterHTTPProxy"))
+		httpPassword, _ := httpURL.User.Password()
+		httpsURL, _ := url.Parse(getFieldFromConfig(config, "ClusterHTTPSProxy"))
+		httpsPassword, _ := httpsURL.User.Password()
 
 		httpProxyConfig = &models.HTTPProxyConfiguration{
 			HTTPProxyPassword:  httpPassword,
-			HTTPProxyURL:       httpUrl.Scheme + "://" + httpUrl.Hostname() + httpUrl.RequestURI(),
-			HTTPProxyUsername:  httpUrl.User.Username(),
+			HTTPProxyURL:       httpURL.Scheme + "://" + httpURL.Hostname() + httpURL.RequestURI(),
+			HTTPProxyUsername:  httpURL.User.Username(),
 			HTTPSProxyPassword: httpsPassword,
-			HTTPSProxyURL:      httpsUrl.Scheme + "://" + httpsUrl.Hostname() + httpsUrl.RequestURI(),
-			HTTPSProxyUsername: httpsUrl.User.Username(),
+			HTTPSProxyURL:      httpsURL.Scheme + "://" + httpsURL.Hostname() + httpsURL.RequestURI(),
+			HTTPSProxyUsername: httpsURL.User.Username(),
 			Enabled:            true,
 			NoProxy:            getFieldFromConfig(config, "ClusterNoProxy"),
 		}
@@ -93,7 +93,7 @@ func createHttpProxyConfig(config interface{}) *models.HTTPProxyConfiguration {
 func getFieldFromConfig(config interface{}, fieldName string) string {
 	field := reflect.ValueOf(config).FieldByName(fieldName)
 	if !field.IsValid() {
-		fmt.Errorf("getFieldFromConfig() is unable to find field %s in object %v", fieldName, config)
+		fmt.Printf("getFieldFromConfig() is unable to find field %s in object %v\n", fieldName, config)
 		return ""
 	}
 	return field.String()
