@@ -577,7 +577,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     private findSubnetFromSavedValue(subnetField: AwsField, subnets: AWSSubnet[]) {
         const savedValue = this.getSavedValue(subnetField, '');
         // note that the saved value could either be the CIDR or the ID, so we find a match for either
-        return subnets.find(x => { return x.cidr === savedValue || x.id == savedValue; });
+        return subnets.find(x => { return x.cidr === savedValue || x.id === savedValue; });
     }
 
     updateVpcSubnets() {

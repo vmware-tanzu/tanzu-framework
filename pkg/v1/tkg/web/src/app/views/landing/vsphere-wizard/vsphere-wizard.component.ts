@@ -229,7 +229,8 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         this.saveControlPlaneNodeType('vsphere', payload.controlPlaneFlavor, payload.controlPlaneNodeType);
 
         this.saveFormField("vsphereNodeSettingForm", VsphereField.NODESETTING_ENABLE_AUDIT_LOGGING, payload.enableAuditLogging);
-        this.saveFormField("vsphereNodeSettingForm", VsphereField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED, payload.machineHealthCheckEnabled);
+        this.saveFormField("vsphereNodeSettingForm", VsphereField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED,
+            payload.machineHealthCheckEnabled);
         this.saveFormListbox('vsphereNodeSettingForm', VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE, payload.workerNodeType);
 
         if (payload.vsphereCredentials !== undefined) {

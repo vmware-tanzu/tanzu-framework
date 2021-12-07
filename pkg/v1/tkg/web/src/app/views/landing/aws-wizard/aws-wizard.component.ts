@@ -214,7 +214,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
 
     getAwsNodeAzs(payload) {
         // TODO: move away from identifying the fields with literals and use an enum field identifier
-        let nodeAzList = [
+        const nodeAzList = [
             {
                 name: this.getFieldValue(AwsForm.NODESETTING, 'awsNodeAz1'),
                 workerNodeType: Broker.appDataService.isModeClusterStandalone() ? payload.controlPlaneNodeType :

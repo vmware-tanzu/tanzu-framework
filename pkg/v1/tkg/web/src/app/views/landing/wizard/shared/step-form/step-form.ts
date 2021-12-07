@@ -347,6 +347,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     }
 
     protected setControlWithSavedValue(controlName: string, defaultValue?: any) {
-        this.setControlValueSafely(controlName, this.getSavedValue(controlName, (defaultValue === undefined || defaultValue === null) ? '' : defaultValue));
+        const defaultToUse = (defaultValue === undefined || defaultValue === null) ? '' : defaultValue;
+        this.setControlValueSafely(controlName, this.getSavedValue(controlName, defaultToUse));
     }
 }

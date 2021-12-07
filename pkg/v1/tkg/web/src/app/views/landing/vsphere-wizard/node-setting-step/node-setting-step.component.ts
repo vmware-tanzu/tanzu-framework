@@ -204,7 +204,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             }
             const savedWorkerNodeNameOrId = this.getSavedValue(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE, '');
             const savedWorkerNodeType = this.findNodeTypeByNameOrId(savedWorkerNodeNameOrId);
-            this.setControlValueSafely(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE,savedWorkerNodeType ? savedWorkerNodeType.id : '');
+            const valueToUse = savedWorkerNodeType ? savedWorkerNodeType.id : '';
+            this.setControlValueSafely(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE, valueToUse);
         }
     }
 
