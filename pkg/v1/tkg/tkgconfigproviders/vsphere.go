@@ -262,9 +262,9 @@ func (c *client) CreateVSphereParams(vConfig *VSphereConfig) (params *models.Vsp
 
 	if vConfig.OsInfo.Name != "" {
 		params.Os = &models.VSphereVirtualMachine{
-			// TODO SHIMON SEZ: how to invert this?
+			// TODO: how to invert this? It appears to be written to the reader-writer but not available in the config for the inverse operation
 			// c.tkgConfigReaderWriter.Set(constants.ConfigVariableVsphereTemplate, params.Os.Name)
-			Name: "GeeIDunno",
+			Name: "",
 			OsInfo: &models.OSInfo{
 				Name:    vConfig.OsInfo.Name,
 				Version: vConfig.OsInfo.Version,
