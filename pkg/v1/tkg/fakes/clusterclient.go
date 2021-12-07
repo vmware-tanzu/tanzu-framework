@@ -725,6 +725,20 @@ type ClusterClient struct {
 		result1 string
 		result2 error
 	}
+	PatchClusterObjectWithPollOptionsStub        func(string, string, string, *clusterclient.PollOptions) error
+	patchClusterObjectWithPollOptionsMutex       sync.RWMutex
+	patchClusterObjectWithPollOptionsArgsForCall []struct {
+		arg1 string
+		arg2 string
+		arg3 string
+		arg4 *clusterclient.PollOptions
+	}
+	patchClusterObjectWithPollOptionsReturns struct {
+		result1 error
+	}
+	patchClusterObjectWithPollOptionsReturnsOnCall map[int]struct {
+		result1 error
+	}
 	PatchClusterObjectWithTKGVersionStub        func(string, string, string) error
 	patchClusterObjectWithTKGVersionMutex       sync.RWMutex
 	patchClusterObjectWithTKGVersionArgsForCall []struct {
@@ -4449,6 +4463,70 @@ func (fake *ClusterClient) PatchClusterObjectWithOptionalMetadataReturnsOnCall(i
 	}{result1, result2}
 }
 
+func (fake *ClusterClient) PatchClusterObjectWithPollOptions(arg1 string, arg2 string, arg3 string, arg4 *clusterclient.PollOptions) error {
+	fake.patchClusterObjectWithPollOptionsMutex.Lock()
+	ret, specificReturn := fake.patchClusterObjectWithPollOptionsReturnsOnCall[len(fake.patchClusterObjectWithPollOptionsArgsForCall)]
+	fake.patchClusterObjectWithPollOptionsArgsForCall = append(fake.patchClusterObjectWithPollOptionsArgsForCall, struct {
+		arg1 string
+		arg2 string
+		arg3 string
+		arg4 *clusterclient.PollOptions
+	}{arg1, arg2, arg3, arg4})
+	stub := fake.PatchClusterObjectWithPollOptionsStub
+	fakeReturns := fake.patchClusterObjectWithPollOptionsReturns
+	fake.recordInvocation("PatchClusterObjectWithPollOptions", []interface{}{arg1, arg2, arg3, arg4})
+	fake.patchClusterObjectWithPollOptionsMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3, arg4)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *ClusterClient) PatchClusterObjectWithPollOptionsCallCount() int {
+	fake.patchClusterObjectWithPollOptionsMutex.RLock()
+	defer fake.patchClusterObjectWithPollOptionsMutex.RUnlock()
+	return len(fake.patchClusterObjectWithPollOptionsArgsForCall)
+}
+
+func (fake *ClusterClient) PatchClusterObjectWithPollOptionsCalls(stub func(string, string, string, *clusterclient.PollOptions) error) {
+	fake.patchClusterObjectWithPollOptionsMutex.Lock()
+	defer fake.patchClusterObjectWithPollOptionsMutex.Unlock()
+	fake.PatchClusterObjectWithPollOptionsStub = stub
+}
+
+func (fake *ClusterClient) PatchClusterObjectWithPollOptionsArgsForCall(i int) (string, string, string, *clusterclient.PollOptions) {
+	fake.patchClusterObjectWithPollOptionsMutex.RLock()
+	defer fake.patchClusterObjectWithPollOptionsMutex.RUnlock()
+	argsForCall := fake.patchClusterObjectWithPollOptionsArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
+}
+
+func (fake *ClusterClient) PatchClusterObjectWithPollOptionsReturns(result1 error) {
+	fake.patchClusterObjectWithPollOptionsMutex.Lock()
+	defer fake.patchClusterObjectWithPollOptionsMutex.Unlock()
+	fake.PatchClusterObjectWithPollOptionsStub = nil
+	fake.patchClusterObjectWithPollOptionsReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ClusterClient) PatchClusterObjectWithPollOptionsReturnsOnCall(i int, result1 error) {
+	fake.patchClusterObjectWithPollOptionsMutex.Lock()
+	defer fake.patchClusterObjectWithPollOptionsMutex.Unlock()
+	fake.PatchClusterObjectWithPollOptionsStub = nil
+	if fake.patchClusterObjectWithPollOptionsReturnsOnCall == nil {
+		fake.patchClusterObjectWithPollOptionsReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.patchClusterObjectWithPollOptionsReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
 func (fake *ClusterClient) PatchClusterObjectWithTKGVersion(arg1 string, arg2 string, arg3 string) error {
 	fake.patchClusterObjectWithTKGVersionMutex.Lock()
 	ret, specificReturn := fake.patchClusterObjectWithTKGVersionReturnsOnCall[len(fake.patchClusterObjectWithTKGVersionArgsForCall)]
@@ -6321,6 +6399,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.patchClusterObjectMutex.RUnlock()
 	fake.patchClusterObjectWithOptionalMetadataMutex.RLock()
 	defer fake.patchClusterObjectWithOptionalMetadataMutex.RUnlock()
+	fake.patchClusterObjectWithPollOptionsMutex.RLock()
+	defer fake.patchClusterObjectWithPollOptionsMutex.RUnlock()
 	fake.patchClusterObjectWithTKGVersionMutex.RLock()
 	defer fake.patchClusterObjectWithTKGVersionMutex.RUnlock()
 	fake.patchClusterWithOperationStartedStatusMutex.RLock()
