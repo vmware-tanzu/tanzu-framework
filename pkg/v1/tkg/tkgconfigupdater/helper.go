@@ -49,11 +49,18 @@ func unzip(srcfilepath, destdir string) error {
 	}
 	defer r.Close()
 
+	if strings.Contains(destdir, "..") {
+		return errors.Wrapf(err, "destination contains directory(parent) \"..\" which could lead to zip file being extracted outside the current directory")
+	}
+
 	for _, f := range r.File {
 		fpath := filepath.Join(destdir, f.Name) // #nosec
+		if strings.Contains(fpath, "..") {
+			return errors.Wrapf(err, "filepath contains directory(parent) \"..\" which could lead to zip file being extracted outside the current directory")
+		}
 		if f.FileInfo().IsDir() {
 			if err = os.MkdirAll(fpath, os.ModePerm); err != nil {
-				return errors.Wrap(err, "failed top make directory during unzip")
+				return errors.Wrap(err, "failed to make directory during unzip")
 			}
 			continue
 		}
