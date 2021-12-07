@@ -260,6 +260,8 @@ type Client interface {
 	PatchClusterObjectWithOptionalMetadata(clusterName, clusterNamespace, metadataKey string, metadata map[string]string) (string, error)
 	// PatchClusterObject patches cluster object with specified json patch
 	PatchClusterObject(clusterName, clusterNamespace string, patchJSONString string) error
+	// PatchClusterObject patches cluster object with specified json patch with poll options
+	PatchClusterObjectWithPollOptions(clusterName, clusterNamespace, patchJSONString string, pollOptions *PollOptions) error
 	// DeleteExistingKappController deletes the kapp-controller that already exists in the cluster.
 	DeleteExistingKappController() error
 	// UpdateAWSCNIIngressRules updates the cniIngressRules field for the AWSCluster resource.
@@ -878,12 +880,16 @@ func (c *client) waitK8sVersionUpdateGeneric(clusterName, namespace, newK8sVersi
 	return c.poller.PollImmediateInfiniteWithGetter(interval, getterFunc)
 }
 
-func (c *client) PatchClusterObject(clusterName, clusterNamespace, patchJSONString string) error {
-	err := c.PatchResource(&capi.Cluster{}, clusterName, clusterNamespace, patchJSONString, types.MergePatchType, nil)
+func (c *client) PatchClusterObjectWithPollOptions(clusterName, clusterNamespace, patchJSONString string, pollOptions *PollOptions) error {
+	err := c.PatchResource(&capi.Cluster{}, clusterName, clusterNamespace, patchJSONString, types.MergePatchType, pollOptions)
 	if err != nil {
 		return errors.Wrap(err, "unable to patch the cluster object")
 	}
 	return nil
+}
+
+func (c *client) PatchClusterObject(clusterName, clusterNamespace, patchJSONString string) error {
+	return c.PatchClusterObjectWithPollOptions(clusterName, clusterNamespace, patchJSONString, nil)
 }
 
 func (c *client) GetClusterStatusInfo(clusterName, namespace string, workloadClusterClient Client) ClusterStatusInfo {
