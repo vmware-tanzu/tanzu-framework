@@ -31,10 +31,10 @@ func init() {
 func secretGenAvailabilityCheck(_ *cobra.Command, _ []string) error {
 	found, err := isSecretGenAPIAvailable(registrySecretOp.KubeConfig)
 	if err != nil {
-		return errors.Wrap(err, fmt.Sprintf("failed to check for the availability of '%s' API", tkgpackagedatamodel.SecretGenGVR))
+		return errors.Wrap(err, fmt.Sprintf("failed to check for the availability of '%s' API", tkgpackagedatamodel.SecretGenAPIName))
 	}
 	if !found {
-		return errors.New(fmt.Sprintf(tkgpackagedatamodel.SecretGenAPINotAvailable, tkgpackagedatamodel.SecretGenGVR))
+		return errors.New(fmt.Sprintf(tkgpackagedatamodel.SecretGenAPINotAvailable, tkgpackagedatamodel.SecretGenAPIName, tkgpackagedatamodel.SecretGenAPIVersion))
 	}
 
 	return nil
