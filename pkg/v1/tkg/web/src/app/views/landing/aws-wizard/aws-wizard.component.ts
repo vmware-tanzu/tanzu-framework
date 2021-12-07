@@ -25,11 +25,6 @@ import { InstanceType } from '../../../shared/constants/app.constants';
     styleUrls: ['./aws-wizard.component.scss'],
 })
 export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
-
-    // The region user selected
-    region: string;
-    nodeAzList: Array<any>;
-
     constructor(
         router: Router,
         public wizardFormService: AwsWizardFormService,
@@ -219,7 +214,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
 
     getAwsNodeAzs(payload) {
         // TODO: move away from identifying the fields with literals and use an enum field identifier
-        this.nodeAzList = [
+        let nodeAzList = [
             {
                 name: this.getFieldValue(AwsForm.NODESETTING, 'awsNodeAz1'),
                 workerNodeType: Broker.appDataService.isModeClusterStandalone() ? payload.controlPlaneNodeType :
@@ -236,7 +231,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         ];
 
         if (this.getFieldValue(AwsForm.NODESETTING, 'awsNodeAz2')) {
-            this.nodeAzList.push({
+            nodeAzList.push({
                 name: this.getFieldValue(AwsForm.NODESETTING, 'awsNodeAz2'),
                 workerNodeType: (!Broker.appDataService.isModeClusterStandalone()) ?
                     this.getFieldValue(AwsForm.NODESETTING, 'workerNodeInstanceType2') : payload.controlPlaneNodeType,
@@ -252,7 +247,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         }
 
         if (this.getFieldValue(AwsForm.NODESETTING, 'awsNodeAz3')) {
-            this.nodeAzList.push({
+            nodeAzList.push({
                 name: this.getFieldValue(AwsForm.NODESETTING, 'awsNodeAz3'),
                 workerNodeType: (!Broker.appDataService.isModeClusterStandalone()) ?
                     this.getFieldValue(AwsForm.NODESETTING, 'workerNodeInstanceType3') : payload.controlPlaneNodeType,
@@ -267,7 +262,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
             });
         }
 
-        return this.nodeAzList;
+        return nodeAzList;
     }
     /**
      * @method method to trigger deployment

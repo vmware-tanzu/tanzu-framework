@@ -236,7 +236,7 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
         this.errorNotification = '';
         const params = {};
         for (const field of AWSAccountParamsKeys) {
-            params[field.toString()] = this.formGroup.get(field.toString()).value;
+            params[field.toString()] = this.getFieldValue(field);
         }
         this.apiClient.setAWSEndpoint({
             accountParams: params
