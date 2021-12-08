@@ -283,7 +283,7 @@ var deleteServersCmd = &cobra.Command{
 					return err
 				}
 			} else {
-				return errors.New(fmt.Sprintf("Server %s not found in list of known servers", args[0]))
+				return fmt.Errorf("server %s not found in list of known servers", args[0])
 			}
 		}
 

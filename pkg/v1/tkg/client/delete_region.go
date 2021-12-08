@@ -266,10 +266,7 @@ func (c *TkgClient) deleteCluster(kubeconfig, clusterName, clusterNamespace stri
 	clusterObject.Name = clusterName
 	clusterObject.Namespace = clusterNamespace
 
-	if err := clusterClient.DeleteResource(clusterObject); err != nil {
-		return err
-	}
-	return nil
+	return clusterClient.DeleteResource(clusterObject)
 }
 
 func (c *TkgClient) waitForClusterDeletion(kubeconfig, clusterName, clusterNamespace string) error {

@@ -61,7 +61,7 @@ func SetNodePool(server *v1alpha1.Server, clusterName string) error {
 	var nodePool client.NodePool
 	var fileContent []byte
 	if fileContent, err = os.ReadFile(setNodePoolOptions.FilePath); err != nil {
-		return errors.New(fmt.Sprintf("Unable to read file %s", setNodePoolOptions.FilePath))
+		return fmt.Errorf("unable to read file %s", setNodePoolOptions.FilePath)
 	}
 
 	if err = yaml.Unmarshal(fileContent, &nodePool); err != nil {

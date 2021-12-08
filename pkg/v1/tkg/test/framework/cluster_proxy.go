@@ -7,7 +7,7 @@ package framework
 import (
 	"context"
 
-	. "github.com/onsi/gomega" // nolint:golint,stylecheck
+	. "github.com/onsi/gomega" // nolint:stylecheck
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

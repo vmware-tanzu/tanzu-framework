@@ -130,7 +130,7 @@ func (p *pkgClient) createRelatedResources(o *tkgpackagedatamodel.PackageOptions
 		}
 		if svcAccountAnnotation, ok := svcAccount.GetAnnotations()[tkgpackagedatamodel.TanzuPkgPluginAnnotation]; ok {
 			if svcAccountAnnotation != fmt.Sprintf(tkgpackagedatamodel.TanzuPkgPluginResource, o.PkgInstallName, o.Namespace) {
-				err = errors.New(fmt.Sprintf("provided service account '%s' is already used by another package in namespace '%s'", o.ServiceAccountName, o.Namespace))
+				err = fmt.Errorf("provided service account '%s' is already used by another package in namespace '%s'", o.ServiceAccountName, o.Namespace)
 				return &pkgPluginResourceCreationStatus, err
 			}
 		}
@@ -375,7 +375,7 @@ func (p *pkgClient) waitForResourceInstallation(name, namespace string, pollInte
 	}
 
 	if !reconcileSucceeded {
-		return errors.New(fmt.Sprintf("'%s' resource reconciliation failed", rscType.String()))
+		return fmt.Errorf("'%s' resource reconciliation failed", rscType.String())
 	}
 
 	return nil

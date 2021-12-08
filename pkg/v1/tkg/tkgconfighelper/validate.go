@@ -14,7 +14,7 @@ import (
 
 // ManagementClusterVersionToK8sVersionSupportMatrix defines the support matrix of which k8s version
 // are supported based on management cluster version
-var ManagementClusterVersionToK8sVersionSupportMatrix map[string][]string = map[string][]string{
+var ManagementClusterVersionToK8sVersionSupportMatrix = map[string][]string{
 	"v1.0": {"v1.17"},
 	"v1.1": {"v1.17", "v1.18"},
 	"v1.2": {"v1.17", "v1.18", "v1.19"},
