@@ -363,7 +363,7 @@ const (
 	PackageInstallTimeout             = 10 * time.Minute
 	kubeConfigSecretSuffix            = "kubeconfig"
 	kubeConfigDataField               = "value"
-	embeddedTelemetryConfigYamlPrefix = "pkg/manifest/telemetry/config-"
+	embeddedTelemetryConfigYamlPrefix = "pkg/v1/tkg/manifest/telemetry/config-"
 	telemetryBomImagesMapKey          = "tkgTelemetryImage"
 	prodTelemetryPath                 = "https://scapi.vmware.com/sc/api/collectors/tkg-telemetry.v1.5.0/batch"
 	stageTelemetryPath                = "https://scapi-stg.vmware.com/sc/api/collectors/tkg-telemetry.v1.5.0/batch"
