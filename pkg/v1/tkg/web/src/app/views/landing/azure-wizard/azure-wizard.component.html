@@ -24,15 +24,15 @@
     </div>
     <app-shared-delete-data-popup></app-shared-delete-data-popup>
     <form clrStepper #wizard [formGroup]="form">
-        <clr-stepper-panel formGroupName="azureProviderForm" removeAriaLabelledBy>
+        <clr-stepper-panel formGroupName="{{ AzureProviderForm }}" removeAriaLabelledBy>
             <clr-step-title i18n="IaaS provder step name">
                 IaaS Provider
             </clr-step-title>
             <clr-step-description i18n="IaaS provder step description">
-                {{ getStepDescription('azureProviderForm') }}
+                {{ AzureProviderFormDescription }}
             </clr-step-description>
             <ng-container *ngIf="steps[0]">
-                <app-azure-provider-step [formGroup]="form.controls.azureProviderForm" formName="azureProviderForm">
+                <app-azure-provider-step [formGroup]="form.controls[AzureProviderForm]" formName="{{ AzureProviderForm }}">
                 </app-azure-provider-step>
             </ng-container>
             <clr-step-content *clrIfExpanded>
@@ -40,15 +40,15 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="vnetForm" removeAriaLabelledBy>
+        <clr-stepper-panel formGroupName="{{ AzureVnetForm }}" removeAriaLabelledBy>
             <clr-step-title i18n="vnet step name">
                 Azure VNET Settings
             </clr-step-title>
             <clr-step-description i18n="vnet step description">
-                {{ getStepDescription('vnetForm') }}
+                {{ AzureVnetFormDescription }}
             </clr-step-description>
             <ng-container *ngIf="steps[1]">
-                <app-vnet-step [formGroup]="form.controls.vnetForm" formName="vnetForm">
+                <app-vnet-step [formGroup]="form.controls[AzureVnetForm]" formName="{{ AzureVnetForm }}">
                 </app-vnet-step>
             </ng-container>
             <clr-step-content *clrIfExpanded>
@@ -56,15 +56,15 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="azureNodeSettingForm" removeAriaLabelledBy>
+        <clr-stepper-panel formGroupName="{{ AzureNodeSettingForm }}" removeAriaLabelledBy>
             <clr-step-title i18n="node setting step name">
                 {{ clusterTypeDescriptor | titlecase }} Cluster Settings
             </clr-step-title>
             <clr-step-description i18n="node setting step description">
-                {{ getStepDescription('azureNodeSettingForm') }}
+                {{ AzureNodeSettingFormDescription }}
             </clr-step-description>
             <ng-container *ngIf="steps[2]">
-                <app-node-setting-step [formGroup]="form.controls.azureNodeSettingForm" formName="azureNodeSettingForm">
+                <app-node-setting-step [formGroup]="form.controls[AzureNodeSettingForm]" formName="{{ AzureNodeSettingForm }}">
                 </app-node-setting-step>
             </ng-container>
             <clr-step-content *clrIfExpanded>
@@ -72,15 +72,15 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="metadataForm" removeAriaLabelledBy>
+        <clr-stepper-panel formGroupName="{{ MetadataForm }}" removeAriaLabelledBy>
             <clr-step-title i18n="Azure metadata step name">
                 Metadata
             </clr-step-title>
             <clr-step-description i18n="Azure metadata step description">
-                {{ getStepDescription('metadata') }}
+                {{ MetadataFormDescription }}
             </clr-step-description>
             <ng-container *ngIf="steps[3]">
-                <app-metadata-step [formGroup]="form.controls.metadataForm" formName="metadataForm">
+                <app-metadata-step [formGroup]="form.controls[MetadataForm]" formName="{{ MetadataForm }}">
                 </app-metadata-step>
             </ng-container>
             <clr-step-content *clrIfExpanded>
@@ -88,15 +88,15 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="networkForm" removeAriaLabelledBy>
+        <clr-stepper-panel formGroupName="{{ NetworkForm }}" removeAriaLabelledBy>
             <clr-step-title i18n="Kubernetes network step name">
                 Kubernetes Network
             </clr-step-title>
             <clr-step-description i18n="Kubernetes network step description">
-                {{ getStepDescription('network') }}
+                {{ NetworkFormDescription }}
             </clr-step-description>
             <ng-container *ngIf="steps[4]">
-                <app-shared-network-step [formGroup]="form.controls.networkForm" formName="networkForm">
+                <app-shared-network-step [formGroup]="form.controls[NetworkForm]" formName="{{ NetworkForm }}">
                 </app-shared-network-step>
             </ng-container>
             <clr-step-content *clrIfExpanded>
@@ -104,17 +104,17 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="identityForm" removeAriaLabelledBy>
+        <clr-stepper-panel formGroupName="{{ IdentityForm }}" removeAriaLabelledBy>
             <clr-step-title i18n="identity step title">
                 Identity Management
             </clr-step-title>
             <clr-step-description i18n="identity step description">
-                {{ getStepDescription('identity') }}
+                {{ IdentifyFormDescription }}
             </clr-step-description>
             <ng-container *ngIf="steps[5]">
                 <app-shared-identity-step
-                        [formGroup]="form.controls.identityForm"
-                        formName="identity">
+                        [formGroup]="form.controls[IdentityForm]"
+                        formName="{{ IdentityForm }}}">
                 </app-shared-identity-step>
             </ng-container>
             <clr-step-content *clrIfExpanded>
@@ -122,16 +122,16 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="osImageForm">
+        <clr-stepper-panel formGroupName="{{ OsImageForm }}">
             <clr-step-title i18n="OS Image">
                 OS Image
             </clr-step-title>
             <clr-step-description i18n="OS Imagedescription">
-                {{ getStepDescription('osImage') }}
+                {{ OsImageFormDescription }}
             </clr-step-description>
             <ng-container *ngIf="steps[6]">
-                <app-os-image-step [formGroup]="form.controls.osImageForm"
-                    formName="osimages" [wizardFormService]="wizardFormService" type="AZURE"
+                <app-os-image-step [formGroup]="form.controls[OsImageForm]"
+                    formName="{{ OsImageForm }}" [wizardFormService]="wizardFormService" type="AZURE"
                     osImageTooltipContent="Select a base OS image that you have already imported
                     into your Azure account. If no compatible OS image is present, import one into
                     Azure and click the Refresh button">
@@ -142,15 +142,15 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="ceipOptInForm" removeAriaLabelledBy *ngIf="edition === 'tkg'">
+        <clr-stepper-panel formGroupName="{{ CeipForm }}" removeAriaLabelledBy *ngIf="edition === 'tkg'">
             <clr-step-title i18n="Azure CEIP program agreement">
                 CEIP Agreement
             </clr-step-title>
             <clr-step-description i18n="Azure CEIP step description">
-                {{ getStepDescription('ceipOptInForm') }}
+                {{ CeipFormDescription }}
             </clr-step-description>
             <ng-container *ngIf="steps[7]">
-                <app-shared-ceip-step [formGroup]="form.controls.ceipOptInForm" formName="ceipOptInForm">
+                <app-shared-ceip-step [formGroup]="form.controls[CeipForm]" formName="{{ CeipForm }}">
                 </app-shared-ceip-step>
             </ng-container>
             <clr-step-content *clrIfExpanded>

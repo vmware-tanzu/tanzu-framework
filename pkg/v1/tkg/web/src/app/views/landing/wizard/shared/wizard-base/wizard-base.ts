@@ -18,6 +18,7 @@ import { ConfigFileInfo } from '../../../../../swagger/models/config-file-info.m
 import Broker from 'src/app/shared/service/broker';
 import { ClusterType, WizardForm } from "../constants/wizard.constants";
 import FileSaver from 'file-saver';
+import { FormUtility } from '../components/steps/form-utility';
 
 @Directive()
 export abstract class WizardBaseDirective extends BasicSubscriber implements AfterViewInit, OnInit {
@@ -651,4 +652,42 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
             httpProxyConfiguration['HTTPProxyUsername'] === httpProxyConfiguration['HTTPSProxyUsername'] &&
             httpProxyConfiguration['HTTPProxyPassword'] === httpProxyConfiguration['HTTPSProxyPassword'];
     }
+
+    // HTML convenience methods
+    //
+    get CeipForm(): string {
+        return WizardForm.CEIP;
+    }
+    get CeipFormDescription(): string {
+        return "Join the CEIP program for TKG";
+    }
+    get IdentifyFormDescription(): string {
+        return FormUtility.IdentityFormDescription(this);
+    }
+    get IdentityForm(): string {
+        return WizardForm.IDENTITY;
+    }
+    get MetadataFormDescription(): string {
+        return FormUtility.MetadataFormDescription(this);
+    }
+    get MetadataForm(): string {
+        return WizardForm.METADATA;
+    }
+    get NetworkFormDescription(): string {
+        return FormUtility.NetworkFormDescription(this);
+    }
+    get NetworkForm(): string {
+        return WizardForm.NETWORK;
+    }
+    get OsImageFormDescription(): string {
+        return FormUtility.OsImageFormDescription(this);
+    }
+    get OsImageForm(): string {
+        return WizardForm.OSIMAGE;
+    }
+    get LoadBalancerForm(): string {
+        return WizardForm.LOADBALANCER;
+    }
+    //
+    // HTML convenience methods
 }

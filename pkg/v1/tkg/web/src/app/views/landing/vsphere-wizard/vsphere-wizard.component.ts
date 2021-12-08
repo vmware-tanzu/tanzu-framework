@@ -18,6 +18,8 @@ import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
 import { VsphereRegionalClusterParams } from 'src/app/swagger/models/vsphere-regional-cluster-params.model';
 import Broker from "../../../shared/service/broker";
+import { WizardForm, WizardStep } from '../wizard/shared/constants/wizard.constants';
+import { FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { WizardStep } from '../wizard/shared/constants/wizard.constants';
 import { StepUtility } from '../wizard/shared/components/steps/step-utility';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
@@ -89,57 +91,6 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         }, 100)
 
         this.titleService.setTitle(this.title + ' vSphere');
-    }
-
-    getStepDescription(stepName: string): string {
-        if (stepName === 'provider') {
-            if (this.getFieldValue('vsphereProviderForm', 'vcenterAddress') &&
-                this.getFieldValue('vsphereProviderForm', 'datacenter')) {
-                return 'vCenter ' + this.getFieldValue('vsphereProviderForm', 'vcenterAddress') + ' connected';
-            } else {
-                return 'Validate the vSphere ' + this.vsphereVersion + 'provider account for Tanzu';
-            }
-        } else if (stepName === 'nodeSetting') {
-            if (this.getFieldValue('vsphereNodeSettingForm', 'controlPlaneSetting')) {
-                let mode = 'Development cluster selected: 1 node control plane';
-                if (this.getFieldValue('vsphereNodeSettingForm', 'controlPlaneSetting') === 'prod') {
-                    mode = 'Production cluster selected: 3 node control plane';
-                }
-                return mode;
-            } else {
-                return `Specify the resources backing the ${this.clusterTypeDescriptor} cluster`;
-            }
-        } else if (stepName === 'resource') {
-            if (this.getFieldValue('resourceForm', 'vmFolder') &&
-                this.getFieldValue('resourceForm', 'datastore') &&
-                this.getFieldValue('resourceForm', 'resourcePool')) {
-                return 'Resource Pool: ' + this.getFieldValue('resourceForm', 'resourcePool') +
-                    ', VM Folder: ' + this.getFieldValue('resourceForm', 'vmFolder') +
-                    ', Datastore: ' + this.getFieldValue('resourceForm', 'datastore');
-            } else {
-                return `Specify the resources for this ${this.clusterTypeDescriptor}} cluster`;
-            }
-        } else if (stepName === WizardStep.NETWORK) {
-            // NOTE: even though this is a common wizard step, vSphere has a different way of describing it
-            // because vSphere allows for the user to select a network name
-            if (this.getFieldValue('networkForm', 'networkName')) {
-                return 'Network: ' + this.getFieldValue('networkForm', 'networkName');
-            } else {
-                return 'Specify how Tanzu Kubernetes Grid networking is provided and any global network settings';
-            }
-        } else if (stepName === 'loadBalancer') {
-            if (this.getFieldValue('loadBalancerForm', 'controllerHost')) {
-                return 'Controller: ' + this.getFieldValue('loadBalancerForm', 'controllerHost');
-            } else {
-                const endpointProvider = this.getFieldValue("vsphereNodeSettingForm", "controlPlaneEndpointProvider");
-                if (endpointProvider === KUBE_VIP) {
-                    return 'Optionally specify VMware NSX Advanced Load Balancer settings';
-                } else {
-                    return 'Specify VMware NSX Advanced Load Balancer settings';
-                }
-            }
-        }
-        return StepUtility.CommonStepDescription(stepName, this);
     }
 
     getPayload(): VsphereRegionalClusterParams {
@@ -309,6 +260,69 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         }
     }
 
+    // HTML convenience methods
+    //
+    // OVERRIDES
+    get NetworkFormDescription(): string {
+        // NOTE: even though this is a common wizard form, vSphere has a different way of describing it
+        // because vSphere allows for the user to select a network name
+        const networkName = this.getFieldValue(WizardForm.NETWORK, 'networkName');
+        if (networkName) {
+            return 'Network: ' + networkName;
+        }
+        return 'Specify how Tanzu Kubernetes Grid networking is provided and any global network settings';
+    }
+    get LoadBalancerFormDescription(): string { // TODO: this should be overriding base class implementation
+        // NOTE: even though this is a common wizard form, vSphere has a different way of describing it
+        const controllerHost = this.getFieldValue('loadBalancerForm', 'controllerHost');
+        if (controllerHost) {
+            return 'Controller: ' + controllerHost;
+        }
+        const endpointProvider = this.getFieldValue("vsphereNodeSettingForm", "controlPlaneEndpointProvider");
+        if (endpointProvider === KUBE_VIP) {
+            return 'Optionally specify VMware NSX Advanced Load Balancer settings';
+        }
+        return 'Specify VMware NSX Advanced Load Balancer settings';
+    }
+    // Vsphere-specific
+    get VsphereNodeSettingForm(): string {
+        return 'vsphereNodeSettingForm';
+    }
+    get VsphereNodeSettingFormDescription(): string {
+        if (this.getFieldValue('vsphereNodeSettingForm', 'controlPlaneSetting')) {
+            let mode = 'Development cluster selected: 1 node control plane';
+            if (this.getFieldValue('vsphereNodeSettingForm', 'controlPlaneSetting') === 'prod') {
+                mode = 'Production cluster selected: 3 node control plane';
+            }
+            return mode;
+        }
+        return `Specify the resources backing the ${this.clusterTypeDescriptor} cluster`;
+    }
+    get VsphereProviderForm(): string {
+        return 'vsphereProviderForm';
+    }
+    get VsphereProviderFormDescription(): string {
+        const vcenterIP = this.getFieldValue('vsphereProviderForm', 'vcenterAddress');
+        const datacenter = this.getFieldValue('vsphereProviderForm', 'datacenter');
+        if ( vcenterIP && datacenter) {
+            return 'vCenter ' + vcenterIP + ' connected';
+        }
+        return 'Validate the vSphere ' + this.vsphereVersion + 'provider account for Tanzu';
+    }
+    get VsphereResourceForm(): string {
+        return 'resourceForm';
+    }
+    get VsphereResourceFormDescription(): string {
+        const vmFolder = this.getFieldValue('resourceForm', 'vmFolder');
+        const datastore = this.getFieldValue('resourceForm', 'datastore');
+        const resourcePool = this.getFieldValue('resourceForm', 'resourcePool');
+        if (vmFolder && datastore && resourcePool) {
+            return 'Resource Pool: ' + resourcePool + ', VM Folder: ' + vmFolder + ', Datastore: ' + datastore;
+        }
+        return `Specify the resources for this ${this.clusterTypeDescriptor} cluster`;
+    }
+    //
+    // HTML convenience methods
     // returns TRUE if the file contents appear to be a valid config file for vSphere
     // returns FALSE if the file is empty or does not appear to be valid. Note that in the FALSE
     // case we also alert the user.

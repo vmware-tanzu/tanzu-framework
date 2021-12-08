@@ -59,15 +59,15 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="networkForm" removeAriaLabelledBy>
+        <clr-stepper-panel formGroupName="{{ NetworkForm }}" removeAriaLabelledBy>
             <clr-step-title i18n="Kubernetes network step name">
                 Kubernetes Network
             </clr-step-title>
             <clr-step-description i18n="Kubernetes network step description">
-                {{ getStepDescription('network') }}
+                {{ NetworkFormDescription }}
             </clr-step-description>
             <ng-container *ngIf="steps[2]">
-                <app-shared-network-step [formGroup]="form.controls.networkForm" formName="network">
+                <app-shared-network-step [formGroup]="form.controls[NetworkForm]" formName="{{ NetworkForm }}">
                 </app-shared-network-step>
             </ng-container>
             <clr-step-content *clrIfExpanded>
@@ -75,12 +75,12 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-<!--        <clr-stepper-panel formGroupName="identityForm">-->
+<!--        <clr-stepper-panel formGroupName="{{ IdentityForm }}">-->
 <!--            <clr-step-title i18n="identity step title">-->
 <!--                Identity Management-->
 <!--            </clr-step-title>-->
 <!--            <clr-step-description i18n="identity step description">-->
-<!--                {{ getStepDescription('identity') }}-->
+<!--                {{ IdentifyFormDescription }}-->
 <!--            </clr-step-description>-->
 <!--            <ng-container *ngIf="steps[2]">-->
 <!--                <app-shared-identity-step-->

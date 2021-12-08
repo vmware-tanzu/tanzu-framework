@@ -103,38 +103,39 @@ describe('AwsWizardComponent', () => {
 
     describe('should return correct description', () => {
         it('is for provider step', () => {
-            expect(component.getStepDescription('provider')).toBe('Validate the AWS provider account for Tanzu');
+            expect(component.AwsProviderFormDescription).toBe('Validate the AWS provider account for Tanzu');
         });
 
         it('is for vpc step', () => {
-            expect(component.getStepDescription('vpc')).toBe('Specify VPC settings for AWS');
+            expect(component.AwsVpcFormDescription).toBe('Specify VPC settings for AWS');
 
             component.form.get('vpcForm').get('vpc').setValue('10.0.0.0/16');
             component.form.get('vpcForm').get('publicNodeCidr').setValue('1.1.1.1/23');
             component.form.get('vpcForm').get('privateNodeCidr').setValue('2.2.2.2/23');
             component.form.get('vpcForm').get('awsNodeAz').setValue('awsNodeAz1');
-            expect(component.getStepDescription('vpc')).toBe('VPC CIDR: 10.0.0.0/16, Public Node CIDR: 1.1.1.1/23, ' +
+            expect(component.AwsVpcFormDescription).toBe('VPC CIDR: 10.0.0.0/16, Public Node CIDR: 1.1.1.1/23, ' +
                 'Private Node CIDR: 2.2.2.2/23, Node AZ: awsNodeAz1');
         });
 
         it('is for nodeSetting step', () => {
-            expect(component.getStepDescription('nodeSetting')).toBe('Specify the resources backing the management cluster');
-            component.form.get('awsNodeSettingForm').get('controlPlaneSetting').setValue('prod');
-            expect(component.getStepDescription('nodeSetting')).toBe('Production cluster selected: 3 node control plane');
-            component.form.get('awsNodeSettingForm').get('controlPlaneSetting').setValue('dev');
-            expect(component.getStepDescription('nodeSetting')).toBe('Development cluster selected: 1 node control plane');
+            const controlPlaneField = component.form.get('awsNodeSettingForm').get('controlPlaneSetting');
+            expect(component.AwsNodeSettingFormDescription).toBe('Specify the resources backing the management cluster');
+            controlPlaneField.setValue('prod');
+            expect(component.AwsNodeSettingFormDescription).toBe('Production cluster selected: 3 node control plane');
+            controlPlaneField.setValue('dev');
+            expect(component.AwsNodeSettingFormDescription).toBe('Development cluster selected: 1 node control plane');
         });
 
         it('is for network step', () => {
-            expect(component.getStepDescription('network')).toBe('Specify the cluster Pod CIDR');
+            expect(component.NetworkFormDescription).toBe('Specify the cluster Pod CIDR');
             component.form.get('networkForm').get('clusterPodCidr').setValue('10.10.10.10/23');
-            expect(component.getStepDescription('network')).toBe('Cluster Pod CIDR: 10.10.10.10/23');
+            expect(component.NetworkFormDescription).toBe('Cluster Pod CIDR: 10.10.10.10/23');
         });
 
         it('is for metadata step', () => {
-            expect(component.getStepDescription('metadata')).toBe('Specify metadata for the management cluster');
+            expect(component.MetadataFormDescription).toBe('Specify metadata for the management cluster');
             component.form.get(WizardForm.METADATA).get('clusterLocation').setValue('us-west');
-            expect(component.getStepDescription('metadata')).toBe('Location: us-west');
+            expect(component.MetadataFormDescription).toBe('Location: us-west');
         });
     });
 

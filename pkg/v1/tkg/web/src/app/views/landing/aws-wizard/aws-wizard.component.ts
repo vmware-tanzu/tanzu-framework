@@ -16,6 +16,7 @@ import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 import { BASTION_HOST_DISABLED, BASTION_HOST_ENABLED } from './node-setting-step/node-setting-step.component';
 import { AWSAccountParamsKeys } from './provider-step/aws-provider-step.component';
+import { FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { StepUtility } from '../wizard/shared/components/steps/step-utility';
 import { AwsField, AwsForm, AwsStep } from "./aws-wizard.constants";
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
@@ -59,64 +60,6 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         this.form.markAsDirty();
 
         this.titleService.setTitle(this.title + ' AWS');
-    }
-
-    getStepDescription(stepName: string): string {
-        if (stepName === AwsStep.PROVIDER) {
-            return 'Validate the AWS provider account for Tanzu';
-        } else if (stepName === AwsStep.VPC) {
-            const vpc = this.getFieldValue(AwsForm.VPC, 'vpc');
-            const publicNodeCidr = this.getFieldValue(AwsForm.VPC, 'publicNodeCidr');
-            const privateNodeCidr = this.getFieldValue(AwsForm.VPC, 'privateNodeCidr');
-            const awsNodeAz = this.getFieldValue(AwsForm.VPC, 'awsNodeAz');
-
-            if (vpc && publicNodeCidr && privateNodeCidr && awsNodeAz) {
-                return `VPC CIDR: ${vpc}, Public Node CIDR: ${publicNodeCidr}, ` +
-                    `Private Node CIDR: ${privateNodeCidr}, Node AZ: ${awsNodeAz}`;
-            }
-            return 'Specify VPC settings for AWS';
-        } else if (stepName === AwsStep.NODESETTING) {
-            if (this.getFieldValue(AwsForm.NODESETTING, 'controlPlaneSetting')) {
-                let mode = 'Development cluster selected: 1 node control plane';
-                if (this.getFieldValue(AwsForm.NODESETTING, 'controlPlaneSetting') === 'prod') {
-                    mode = 'Production cluster selected: 3 node control plane';
-                }
-                return mode;
-            } else {
-                return `Specify the resources backing the ${this.clusterTypeDescriptor} cluster`;
-            }
-        } else if (stepName === AwsStep.NETWORK) {
-            if (this.getFieldValue(AwsForm.NETWORK, 'clusterPodCidr')) {
-                return 'Cluster Pod CIDR: ' + this.getFieldValue(AwsForm.NETWORK, 'clusterPodCidr');
-            } else {
-                return 'Specify the cluster Pod CIDR';
-            }
-        } else if (stepName === AwsStep.METADATA) {
-            if (this.form.get(AwsForm.METADATA).get('clusterLocation') &&
-                this.form.get(AwsForm.METADATA).get('clusterLocation').value) {
-                return 'Location: ' + this.form.get(AwsForm.METADATA).get('clusterLocation').value;
-            } else {
-                return `Specify metadata for the ${this.clusterTypeDescriptor} cluster`;
-            }
-        } else if (stepName === AwsStep.IDENTITY) {
-            if (this.getFieldValue(AwsForm.IDENTITY, 'identityType') === 'oidc' &&
-                this.getFieldValue(AwsForm.IDENTITY, 'issuerURL')) {
-                return 'OIDC configured: ' + this.getFieldValue(AwsForm.IDENTITY, 'issuerURL')
-            } else if (this.getFieldValue(AwsForm.IDENTITY, 'identityType') === 'ldap' &&
-                this.getFieldValue(AwsForm.IDENTITY, 'endpointIp')) {
-                return 'LDAP configured: ' + this.getFieldValue(AwsForm.IDENTITY, 'endpointIp') + ':' +
-                    this.getFieldValue(AwsForm.IDENTITY, 'endpointPort');
-            } else {
-                return 'Specify identity management'
-            }
-        } else if (stepName === AwsStep.OSIMAGE) {
-            if (this.getFieldValue(AwsForm.OSIMAGE, 'osImage') && this.getFieldValue(AwsForm.OSIMAGE, 'osImage').name) {
-                return 'OS Image: ' + this.getFieldValue(AwsForm.OSIMAGE, 'osImage').name;
-            } else {
-                return 'Specify the OS Image';
-            }
-        }
-        return StepUtility.CommonStepDescription(stepName, this);
     }
 
     getPayload(): AWSRegionalClusterParams {
@@ -364,3 +307,42 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         // clear file reader target so user can re-select same file if needed
         event.target.value = '';
     }}
+    // HTML convenience methods
+    //
+    get AwsProviderForm(): string {
+        return 'awsProviderForm';
+    }
+    get AwsProviderFormDescription(): string {
+        return 'Validate the AWS provider account for ' + this.title;
+    }
+    get AwsNodeSettingForm(): string {
+        return 'awsNodeSettings';
+    }
+    get AwsNodeSettingFormDescription(): string {
+        if (this.getFieldValue('awsNodeSettingForm', 'controlPlaneSetting')) {
+            let mode = 'Development cluster selected: 1 node control plane';
+            if (this.getFieldValue('awsNodeSettingForm', 'controlPlaneSetting') === 'prod') {
+                mode = 'Production cluster selected: 3 node control plane';
+            }
+            return mode;
+        }
+        return `Specify the resources backing the ${this.clusterTypeDescriptor} cluster`;
+    }
+    get AwsVpcForm(): string {
+        return 'vpcForm';
+    }
+    get AwsVpcFormDescription(): string {
+        const vpc = this.getFieldValue('vpcForm', 'vpc');
+        const publicNodeCidr = this.getFieldValue('vpcForm', 'publicNodeCidr');
+        const privateNodeCidr = this.getFieldValue('vpcForm', 'privateNodeCidr');
+        const awsNodeAz = this.getFieldValue('vpcForm', 'awsNodeAz');
+
+        if (vpc && publicNodeCidr && privateNodeCidr && awsNodeAz) {
+            return `VPC CIDR: ${vpc}, Public Node CIDR: ${publicNodeCidr}, ` +
+                `Private Node CIDR: ${privateNodeCidr}, Node AZ: ${awsNodeAz}`;
+        }
+        return 'Specify VPC settings for AWS';
+    }
+    //
+    // HTML convenience methods
+}

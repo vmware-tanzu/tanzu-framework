@@ -92,20 +92,18 @@ describe('VSphereWizardComponent', () => {
         expect(component['getWizardValidity']()).toBeFalsy();
     });
 
-    it('getStepDescription should return correct description when wizard is not filled', () => {
-        expect(component['getStepDescription']('provider')).toBe(
-                'Validate the vSphere provider account for Tanzu');
+    it('VsphereProviderFormDescription should return correct description when wizard is not filled', () => {
+        expect(component.VsphereProviderFormDescription).toBe('Validate the vSphere provider account for Tanzu');
     });
 
-    it('getStepDescription should return correct summary for wizard input', () => {
+    it('VsphereProviderFormDescription should return correct summary for wizard input', () => {
         const fb = new FormBuilder();
         component.form.controls['vsphereProviderForm'] = fb.group({
             vcenterAddress: new FormControl('vcAddr'),
             datacenter: new FormControl('dc'),
         });
 
-        expect(component['getStepDescription']('provider')).toBe(
-                'vCenter vcAddr connected');
+        expect(component.VsphereProviderFormDescription).toBe('vCenter vcAddr connected');
     });
 
     it('should call create vsphere api when deploying', () => {

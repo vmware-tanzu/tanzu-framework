@@ -165,6 +165,17 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         return this.apiClient.createDockerRegionalCluster(payload);
     }
 
+    // HTML convenience methods
+    //
+    get NetworkFormDescription(): string {
+        if (this.getFieldValue('networkForm', 'clusterPodCidr')) {
+            return 'Cluster Pod CIDR: ' + this.getFieldValue('networkForm', 'clusterPodCidr');
+        }
+        return 'Specify the cluster Pod CIDR';
+    }
+    //
+    // HTML convenience methods
+
     // returns TRUE if the file contents appear to be a valid config file for Docker
     // returns FALSE if the file is empty or does not appear to be valid. Note that in the FALSE
     // case we also alert the user.

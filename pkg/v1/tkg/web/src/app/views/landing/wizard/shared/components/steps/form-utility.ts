@@ -1,13 +1,13 @@
 import { WizardBaseDirective } from '../../wizard-base/wizard-base';
 import { IdentityManagementType, WizardForm, WizardStep } from '../../constants/wizard.constants';
 
-export class StepUtility {
-    static IdentityStepDescription(wizard: WizardBaseDirective): string {
+export class FormUtility {
+    static IdentityFormDescription(wizard: WizardBaseDirective): string {
         const identityType = wizard.getFieldValue(WizardForm.IDENTITY, 'identityType');
         const ldapEndpointIp = wizard.getFieldValue(WizardForm.IDENTITY, 'endpointIp');
         const ldapEndpointPort = wizard.getFieldValue(WizardForm.IDENTITY, 'endpointPort');
         const oidcIssuer = wizard.getFieldValue(WizardForm.IDENTITY, 'issuerURL');
-        
+
         if (identityType === IdentityManagementType.OIDC && oidcIssuer) {
             return 'OIDC configured: ' + oidcIssuer;
         } else if (identityType === IdentityManagementType.LDAP && ldapEndpointIp) {
@@ -16,13 +16,13 @@ export class StepUtility {
         return 'Specify identity management';
     }
 
-    static MetadataStepDescription(wizard: WizardBaseDirective): string {
+    static MetadataFormDescription(wizard: WizardBaseDirective): string {
         const clusterLocation = wizard.getFieldValue(WizardForm.METADATA, 'clusterLocation');
         return clusterLocation ? 'Location: ' + clusterLocation : 'Specify metadata for the ' + wizard.clusterTypeDescriptor + ' cluster';
 
     }
-    
-    static NetworkStepDescription(wizard: WizardBaseDirective): string {
+
+    static NetworkFormDescription(wizard: WizardBaseDirective): string {
         const serviceCidr = wizard.getFieldValue(WizardForm.NETWORK, "clusterServiceCidr");
         const podCidr = wizard.getFieldValue(WizardForm.NETWORK, "clusterPodCidr");
         if (serviceCidr && podCidr) {
@@ -30,23 +30,23 @@ export class StepUtility {
         }
         return "Specify how TKG networking is provided and global network settings";
     }
-    
-    static OsImageStepDescription(wizard: WizardBaseDirective): string {
+
+    static OsImageFormDescription(wizard: WizardBaseDirective): string {
         if (wizard.getFieldValue(WizardForm.OSIMAGE, 'osImage') && wizard.getFieldValue(WizardForm.OSIMAGE, 'osImage').name) {
             return 'OS Image: ' + wizard.getFieldValue(WizardForm.OSIMAGE, 'osImage').name;
-        }         
+        }
         return 'Specify the OS Image';
     }
-    
+
     static CommonStepDescription(step: string, wizard: WizardBaseDirective): string {
         if (step === WizardStep.NETWORK) {
-            return StepUtility.NetworkStepDescription(wizard);
+            return FormUtility.NetworkFormDescription(wizard);
         } else if (step === WizardStep.METADATA) {
-            return StepUtility.MetadataStepDescription(wizard);
+            return FormUtility.MetadataFormDescription(wizard);
         } else if (step === WizardStep.IDENTITY) {
-            return StepUtility.IdentityStepDescription(wizard);
+            return FormUtility.IdentityFormDescription(wizard);
         } else if (step === WizardStep.OSIMAGE) {
-            return StepUtility.OsImageStepDescription(wizard);
+            return FormUtility.OsImageFormDescription(wizard);
         }
         console.log('WARNING: Unrecognized step passed to CommonStepDescription(): ' + step);
         return 'Step ' + step;

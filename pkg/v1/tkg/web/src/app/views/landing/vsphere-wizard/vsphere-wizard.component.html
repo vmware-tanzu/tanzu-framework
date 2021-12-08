@@ -24,15 +24,15 @@
     </div>
     <app-shared-delete-data-popup></app-shared-delete-data-popup>
     <form clrStepper #wizard [formGroup]="form">
-        <clr-stepper-panel formGroupName="vsphereProviderForm" removeAriaLabelledBy>
+        <clr-stepper-panel formGroupName="{{ VsphereProviderForm }}" removeAriaLabelledBy>
             <clr-step-title i18n="IaaS provider step name">
                 IaaS Provider
             </clr-step-title>
             <clr-step-description i18n="IaaS provider step description">
-                {{ getStepDescription('provider') }}
+                {{ VsphereProviderFormDescription }}
             </clr-step-description>
             <ng-container *ngIf="steps[0] && show">
-                <app-vsphere-provider-step [formGroup]="form.controls.vsphereProviderForm" formName="vsphereProvider">
+                <app-vsphere-provider-step [formGroup]="form.controls[VsphereProviderForm]" formName="{{ VsphereProviderForm }}">
                 </app-vsphere-provider-step>
             </ng-container>
             <clr-step-content *clrIfExpanded>
@@ -40,16 +40,16 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="vsphereNodeSettingForm" removeAriaLabelledBy>
+        <clr-stepper-panel formGroupName="{{ VsphereNodeSettingForm }}" removeAriaLabelledBy>
             <clr-step-title i18n="node setting step name">
                 {{ clusterTypeDescriptor | titlecase }} Cluster Settings
             </clr-step-title>
             <clr-step-description i18n="node setting step description">
-                {{ getStepDescription('nodeSetting') }}
+                {{ VsphereNodeSettingFormDescription }}
             </clr-step-description>
             <ng-container *ngIf="steps[1]">
-                <app-node-setting-step [formGroup]="form.controls.vsphereNodeSettingForm" [providerType]="(provider | async)"
-                    formName="nodeSettings">
+                <app-node-setting-step [formGroup]="form.controls[VsphereNodeSettingForm]" [providerType]="(provider | async)"
+                    formName="{{ VsphereNodeSettingForm }}">
                 </app-node-setting-step>
             </ng-container>
             <clr-step-content *clrIfExpanded>
@@ -57,15 +57,15 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="loadBalancerForm" removeAriaLabelledBy>
+        <clr-stepper-panel formGroupName="{{ LoadBalancerForm }}" removeAriaLabelledBy>
             <clr-step-title i18n="load balancer step name">
                 VMware NSX Advanced Load Balancer
             </clr-step-title>
             <clr-step-description i18n="load balancer step description">
-                {{ getStepDescription('loadBalancer') }}
+                {{ LoadBalancerFormDescription }}
             </clr-step-description>
             <ng-container *ngIf="steps[2]">
-                <app-load-balancer-step [formGroup]="form.controls.loadBalancerForm" formName="loadBalancer">
+                <app-load-balancer-step [formGroup]="form.controls[LoadBalancerForm]" formName="{{ LoadBalancerForm }}">
                 </app-load-balancer-step>
             </ng-container>
             <clr-step-content *clrIfExpanded>
@@ -73,15 +73,15 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="metadataForm" removeAriaLabelledBy>
+        <clr-stepper-panel formGroupName="{{ MetadataForm }}" removeAriaLabelledBy>
             <clr-step-title i18n="metadata step name">
                 Metadata
             </clr-step-title>
             <clr-step-description i18n="metadata step description">
-                {{ getStepDescription('metadata') }}
+                {{ MetadataFormDescription }}
             </clr-step-description>
             <ng-container *ngIf="steps[3]">
-                <app-metadata-step [formGroup]="form.controls.metadataForm" formName="metadata">
+                <app-metadata-step [formGroup]="form.controls[MetadataForm]" formName="{{ MetadataForm }}">
                 </app-metadata-step>
             </ng-container>
             <clr-step-content *clrIfExpanded>
@@ -89,15 +89,15 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="resourceForm" removeAriaLabelledBy>
+        <clr-stepper-panel formGroupName="{{ VsphereResourceForm }}" removeAriaLabelledBy>
             <clr-step-title i18n="Resource step name">
                 Resources
             </clr-step-title>
             <clr-step-description i18n="Resource step description">
-                {{ getStepDescription('resource') }}
+                {{ VsphereResourceFormDescription }}
             </clr-step-description>
             <ng-container *ngIf="steps[4]">
-                <app-resource-step [formGroup]="form.controls.resourceForm" formName="resources">
+                <app-resource-step [formGroup]="form.controls[VsphereResourceForm]" formName="{{ VsphereResourceForm }}">
                 </app-resource-step>
             </ng-container>
             <clr-step-content *clrIfExpanded>
@@ -105,18 +105,18 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="networkForm" removeAriaLabelledBy>
+        <clr-stepper-panel formGroupName="{{ NetworkForm }}" removeAriaLabelledBy>
             <clr-step-title i18n="Kubernetes network step name">
                 Kubernetes Network
             </clr-step-title>
             <clr-step-description i18n="Kubernetes network step description">
-                {{ getStepDescription('network') }}
+                {{ NetworkFormDescription }}
             </clr-step-description>
             <ng-container *ngIf="steps[5]">
-                <app-shared-network-step [formGroup]="form.controls.networkForm"
+                <app-shared-network-step [formGroup]="form.controls[NetworkForm]"
                     enableNetworkName="true"
                     enableNoProxyWarning="true"
-                    formName="network">
+                    formName="{{ NetworkForm }}">
                 </app-shared-network-step>
             </ng-container>
             <clr-step-content *clrIfExpanded>
@@ -124,17 +124,17 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="identityForm" removeAriaLabelledBy>
+        <clr-stepper-panel formGroupName="{{ IdentityForm }}" removeAriaLabelledBy>
             <clr-step-title i18n="identity step title">
                 Identity Management
             </clr-step-title>
             <clr-step-description i18n="identity step description">
-                {{ getStepDescription('identity') }}
+                {{ IdentifyFormDescription }}
             </clr-step-description>
             <ng-container *ngIf="steps[6]">
                 <app-shared-identity-step
-                        [formGroup]="form.controls.identityForm"
-                        formName="identity">
+                        [formGroup]="form.controls[IdentityForm]"
+                        formName="{{ IdentityForm }}">
                 </app-shared-identity-step>
             </ng-container>
             <clr-step-content *clrIfExpanded>
@@ -142,21 +142,21 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="osImageForm" removeAriaLabelledBy>
+        <clr-stepper-panel formGroupName="{{ OsImageForm }}" removeAriaLabelledBy>
             <clr-step-title i18n="OS Image">
                 OS Image
             </clr-step-title>
             <clr-step-description i18n="OS Imagedescription">
-                {{ getStepDescription('osImage') }}
+                {{ OsImageFormDescription }}
             </clr-step-description>
             <ng-container *ngIf="steps[7]">
-                <app-os-image-step [formGroup]="form.controls.osImageForm"
-                    formName="osimages" [wizardFormService]="wizardFormService" type="VSPHERE"
-                    [noImageAlertMessage]="'Your ' + clusterTypeDescriptor + ' cluster will be deployed with Tanzu Kubernetes release (TKr) ' + (tkrVersion | async) + '.
-                                    We are unable to detect a VM template that belongs to this Tanzu Kubernetes release. You must install
-                                    a VM template that belongs to Tanzu Kubernetes release ' +  (tkrVersion | async) + ' to continue with deployment of
-                                    the ' + clusterTypeDescriptor + ' cluster. You may click the refresh icon to reload the OS image list once the
-                                    appropriate VM template has been installed.'"
+                <app-os-image-step [formGroup]="form.controls[OsImageForm]"
+                    formName="{{ OsImageForm }}" [wizardFormService]="wizardFormService" type="VSPHERE"
+                    [noImageAlertMessage]="'Your ' + clusterTypeDescriptor + ' cluster will be deployed with Tanzu Kubernetes release (TKr) ' + (tkrVersion | async) +
+                                    '. We are unable to detect a VM template that belongs to this Tanzu Kubernetes release. You must install ' +
+                                    'a VM template that belongs to Tanzu Kubernetes release ' +  (tkrVersion | async) + ' to continue with deployment of the ' +
+                                    clusterTypeDescriptor + ' cluster. You may click the refresh icon to reload the OS image list once the ' +
+                                    'appropriate VM template has been installed.'"
                     osImageTooltipContent="Select a VM template for a base OS image that you have already imported
                                     into vSphere. If no compatible template is present, import one into
                                     vSphere and click the Refresh button."

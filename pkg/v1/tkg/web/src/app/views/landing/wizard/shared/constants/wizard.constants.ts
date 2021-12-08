@@ -25,7 +25,9 @@ export enum WizardStep {
 }
 
 export enum WizardForm {
+    CEIP = 'ceipOptInForm',
     IDENTITY = 'identityForm',
+    LOADBALANCER = 'loadBalancerForm',
     METADATA= 'metadataForm',
     NETWORK = 'networkForm',
     OSIMAGE = 'osImageForm',

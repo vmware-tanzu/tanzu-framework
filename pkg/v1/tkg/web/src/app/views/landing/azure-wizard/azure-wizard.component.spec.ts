@@ -2,7 +2,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { AzureWizardComponent } from './azure-wizard.component';
 import { RouterTestingModule } from '@angular/router/testing';
-import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { APIClient } from 'src/app/swagger';
@@ -85,56 +85,36 @@ describe('AzureWizardComponent', () => {
         });
 
         it('azure provider form', () => {
-            const formName = AzureForm.PROVIDER;
-            expect(component.getStepDescription(formName))
-                .toBe('Validate the Azure provider credentials for Tanzu');
-            component.form.get(formName).get('tenantId').setValue('testId');
-            expect(component.getStepDescription(formName))
-                .toBe('Azure tenant: testId');
+            expect(component.AzureProviderFormDescription).toBe('Validate the Azure provider credentials for Tanzu');
+            component.form.get(AzureForm.PROVIDER).get('tenantId').setValue('testId');
+            expect(component.AzureProviderFormDescription).toBe('Azure tenant: testId');
         });
         it('vnet form', () => {
-            const formName = 'vnetForm';
-            expect(component.getStepDescription(formName))
-                .toBe('Specify a Azure VNET CIDR');
-            component.form.get(formName).get('vnetCidrBlock').setValue('1.1.1.1/24');
-            expect(component.getStepDescription(formName))
-                .toBe('Subnet: 1.1.1.1/24');
+            expect(component.AzureVnetFormDescription).toBe('Specify a Azure VNET CIDR');
+            component.form.get(AzureForm.VNET).get('vnetCidrBlock').setValue('1.1.1.1/24');
+            expect(component.AzureVnetFormDescription).toBe('Subnet: 1.1.1.1/24');
         });
         it('node setting form', () => {
-            const formName = 'azureNodeSettingForm';
-            expect(component.getStepDescription(formName))
-                .toBe('Specifying the resources backing the management cluster');
-            component.form.get(formName).get('controlPlaneSetting').setValue('dev');
-            expect(component.getStepDescription(formName))
-                .toBe('Control plane type: dev');
+            expect(component.AzureNodeSettingFormDescription).toBe('Specifying the resources backing the management cluster');
+            component.form.get(AzureForm.NODESETTING).get('controlPlaneSetting').setValue('dev');
+            expect(component.AzureNodeSettingFormDescription).toBe('Control plane type: dev');
         });
         it('meta data form', () => {
-            const formName = WizardForm.METADATA;
-            expect(component.getStepDescription(formName))
-                .toBe('Specify metadata for the management cluster');
-            component.form.get(formName).get('clusterLocation').setValue('testLocation');
-            expect(component.getStepDescription(formName))
-                .toBe('Location: testLocation');
+            expect(component.MetadataFormDescription).toBe('Specify metadata for the management cluster');
+            component.form.get(WizardForm.METADATA).get('clusterLocation').setValue('testLocation');
+            expect(component.MetadataFormDescription).toBe('Location: testLocation');
         });
         it('network form', () => {
-            const formName = 'networkForm';
-            expect(component.getStepDescription(formName))
-                .toBe('Specify how TKG networking is provided and global network settings');
-            component.form.get(formName).get('clusterServiceCidr').setValue('1.1.1.1/23');
-            component.form.get(formName).get('clusterPodCidr').setValue('2.2.2.2/23');
-            expect(component.getStepDescription(formName))
-                .toBe('Cluster service CIDR: 1.1.1.1/23 Cluster POD CIDR: 2.2.2.2/23');
+            expect(component.NetworkFormDescription).toBe('Specify how TKG networking is provided and global network settings');
+            const networkForm = component.form.get(WizardForm.NETWORK);
+            networkForm.get('clusterServiceCidr').setValue('1.1.1.1/23');
+            networkForm.get('clusterPodCidr').setValue('2.2.2.2/23');
+            expect(component.NetworkFormDescription).toBe('Cluster service CIDR: 1.1.1.1/23 Cluster POD CIDR: 2.2.2.2/23');
         });
         it('ceip opt in form', () => {
-            const formName = 'ceipOptInForm';
-            expect(component.getStepDescription(formName))
+            expect(component.CeipFormDescription)
                 .toBe('Join the CEIP program for TKG');
         });
-        it('invalid form', () => {
-            const formName = 'invalidForm';
-            expect(component.getStepDescription(formName))
-                .toBe(`Step ${formName} is not supported yet`);
-        })
     });
 
     it('should generate cli', () => {
