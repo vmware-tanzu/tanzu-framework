@@ -16,7 +16,7 @@ import { ClrStepper } from '@clr/angular';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { ConfigFileInfo } from '../../../../../swagger/models/config-file-info.model';
 import Broker from 'src/app/shared/service/broker';
-import { ClusterType } from "../constants/wizard.constants";
+import { ClusterType, WizardForm } from "../constants/wizard.constants";
 import FileSaver from 'file-saver';
 
 @Directive()
@@ -451,52 +451,52 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
         }
 
         payload.ceipOptIn = this.getBooleanFieldValue('ceipOptInForm', 'ceipOptIn');
-        payload.labels = this.strMapToObj(this.getFieldValue('metadataForm', 'clusterLabels'));
-        payload.os = this.getFieldValue('osImageForm', 'osImage');
+        payload.labels = this.strMapToObj(this.getFieldValue(WizardForm.METADATA, 'clusterLabels'));
+        payload.os = this.getFieldValue(WizardForm.OSIMAGE, 'osImage');
         payload.annotations = {
-            'description': this.getFieldValue('metadataForm', 'clusterDescription'),
-            'location': this.getFieldValue('metadataForm', 'clusterLocation')
+            'description': this.getFieldValue(WizardForm.METADATA, 'clusterDescription'),
+            'location': this.getFieldValue(WizardForm.METADATA, 'clusterLocation')
         };
 
         let ldap_url = '';
-        if (this.getFieldValue('identityForm', 'endpointIp')) {
-            ldap_url = this.getFieldValue('identityForm', 'endpointIp') +
-                ':' + this.getFieldValue('identityForm', 'endpointPort');
+        if (this.getFieldValue(WizardForm.IDENTITY, 'endpointIp')) {
+            ldap_url = this.getFieldValue(WizardForm.IDENTITY, 'endpointIp') +
+                ':' + this.getFieldValue(WizardForm.IDENTITY, 'endpointPort');
         }
 
         payload.identityManagement = {
-            'idm_type': this.getFieldValue('identityForm', 'identityType') || 'none'
+            'idm_type': this.getFieldValue(WizardForm.IDENTITY, 'identityType') || 'none'
         }
 
-        if (this.getFieldValue('identityForm', 'identityType') === 'oidc') {
+        if (this.getFieldValue(WizardForm.IDENTITY, 'identityType') === 'oidc') {
             payload.identityManagement = Object.assign({
                     'oidc_provider_name': '',
-                    'oidc_provider_url': this.getFieldValue('identityForm', 'issuerURL'),
-                    'oidc_client_id': this.getFieldValue('identityForm', 'clientId'),
-                    'oidc_client_secret': this.getFieldValue('identityForm', 'clientSecret'),
-                    'oidc_scope': this.getFieldValue('identityForm', 'scopes'),
+                    'oidc_provider_url': this.getFieldValue(WizardForm.IDENTITY, 'issuerURL'),
+                    'oidc_client_id': this.getFieldValue(WizardForm.IDENTITY, 'clientId'),
+                    'oidc_client_secret': this.getFieldValue(WizardForm.IDENTITY, 'clientSecret'),
+                    'oidc_scope': this.getFieldValue(WizardForm.IDENTITY, 'scopes'),
                     'oidc_claim_mappings': {
-                        'username': this.getFieldValue('identityForm', 'oidcUsernameClaim'),
-                        'groups': this.getFieldValue('identityForm', 'oidcGroupsClaim')
+                        'username': this.getFieldValue(WizardForm.IDENTITY, 'oidcUsernameClaim'),
+                        'groups': this.getFieldValue(WizardForm.IDENTITY, 'oidcGroupsClaim')
                     }
 
                 }
                 , payload.identityManagement);
-        } else if (this.getFieldValue('identityForm', 'identityType') === 'ldap') {
+        } else if (this.getFieldValue(WizardForm.IDENTITY, 'identityType') === 'ldap') {
             payload.identityManagement = Object.assign({
                     'ldap_url': ldap_url,
-                    'ldap_bind_dn': this.getFieldValue('identityForm', 'bindDN'),
-                    'ldap_bind_password': this.getFieldValue('identityForm', 'bindPW'),
-                    'ldap_user_search_base_dn': this.getFieldValue('identityForm', 'userSearchBaseDN'),
-                    'ldap_user_search_filter': this.getFieldValue('identityForm', 'userSearchFilter'),
-                    'ldap_user_search_username': this.getFieldValue('identityForm', 'userSearchUsername'),
-                    'ldap_user_search_name_attr': this.getFieldValue('identityForm', 'userSearchUsername'),
-                    'ldap_group_search_base_dn': this.getFieldValue('identityForm', 'groupSearchBaseDN'),
-                    'ldap_group_search_filter': this.getFieldValue('identityForm', 'groupSearchFilter'),
-                    'ldap_group_search_user_attr': this.getFieldValue('identityForm', 'groupSearchUserAttr'),
-                    'ldap_group_search_group_attr': this.getFieldValue('identityForm', 'groupSearchGroupAttr'),
-                    'ldap_group_search_name_attr': this.getFieldValue('identityForm', 'groupSearchNameAttr'),
-                    'ldap_root_ca': this.getFieldValue('identityForm', 'ldapRootCAData')
+                    'ldap_bind_dn': this.getFieldValue(WizardForm.IDENTITY, 'bindDN'),
+                    'ldap_bind_password': this.getFieldValue(WizardForm.IDENTITY, 'bindPW'),
+                    'ldap_user_search_base_dn': this.getFieldValue(WizardForm.IDENTITY, 'userSearchBaseDN'),
+                    'ldap_user_search_filter': this.getFieldValue(WizardForm.IDENTITY, 'userSearchFilter'),
+                    'ldap_user_search_username': this.getFieldValue(WizardForm.IDENTITY, 'userSearchUsername'),
+                    'ldap_user_search_name_attr': this.getFieldValue(WizardForm.IDENTITY, 'userSearchUsername'),
+                    'ldap_group_search_base_dn': this.getFieldValue(WizardForm.IDENTITY, 'groupSearchBaseDN'),
+                    'ldap_group_search_filter': this.getFieldValue(WizardForm.IDENTITY, 'groupSearchFilter'),
+                    'ldap_group_search_user_attr': this.getFieldValue(WizardForm.IDENTITY, 'groupSearchUserAttr'),
+                    'ldap_group_search_group_attr': this.getFieldValue(WizardForm.IDENTITY, 'groupSearchGroupAttr'),
+                    'ldap_group_search_name_attr': this.getFieldValue(WizardForm.IDENTITY, 'groupSearchNameAttr'),
+                    'ldap_root_ca': this.getFieldValue(WizardForm.IDENTITY, 'ldapRootCAData')
                 }
                 , payload.identityManagement);
         }

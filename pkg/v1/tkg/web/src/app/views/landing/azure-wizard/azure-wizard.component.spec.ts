@@ -10,7 +10,8 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import Broker from 'src/app/shared/service/broker';
 import { Messenger } from 'src/app/shared/service/Messenger';
-import { ClusterType } from "../wizard/shared/constants/wizard.constants";
+import { ClusterType, WizardForm } from "../wizard/shared/constants/wizard.constants";
+import { AzureForm } from './azure-wizard.constants';
 
 describe('AzureWizardComponent', () => {
     let component: AzureWizardComponent;
@@ -84,7 +85,7 @@ describe('AzureWizardComponent', () => {
         });
 
         it('azure provider form', () => {
-            const formName = 'azureProviderForm';
+            const formName = AzureForm.PROVIDER;
             expect(component.getStepDescription(formName))
                 .toBe('Validate the Azure provider credentials for Tanzu');
             component.form.get(formName).get('tenantId').setValue('testId');
@@ -108,7 +109,7 @@ describe('AzureWizardComponent', () => {
                 .toBe('Control plane type: dev');
         });
         it('meta data form', () => {
-            const formName = 'metadataForm';
+            const formName = WizardForm.METADATA;
             expect(component.getStepDescription(formName))
                 .toBe('Specify metadata for the management cluster');
             component.form.get(formName).get('clusterLocation').setValue('testLocation');

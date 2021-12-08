@@ -77,7 +77,7 @@
                 Metadata
             </clr-step-title>
             <clr-step-description i18n="Azure metadata step description">
-                {{ getStepDescription('metadataForm') }}
+                {{ getStepDescription('metadata') }}
             </clr-step-description>
             <ng-container *ngIf="steps[3]">
                 <app-metadata-step [formGroup]="form.controls.metadataForm" formName="metadataForm">
@@ -93,7 +93,7 @@
                 Kubernetes Network
             </clr-step-title>
             <clr-step-description i18n="Kubernetes network step description">
-                {{ getStepDescription('networkForm') }}
+                {{ getStepDescription('network') }}
             </clr-step-description>
             <ng-container *ngIf="steps[4]">
                 <app-shared-network-step [formGroup]="form.controls.networkForm" formName="networkForm">

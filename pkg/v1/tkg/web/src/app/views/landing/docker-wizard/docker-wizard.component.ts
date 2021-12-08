@@ -11,6 +11,7 @@ import { ConfigFileInfo, DockerRegionalClusterParams } from 'src/app/swagger/mod
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
+import { WizardStep } from '../wizard/shared/constants/wizard.constants';
 
 @Component({
     selector: 'app-docker-wizard',
@@ -53,7 +54,7 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
     }
 
     getStepDescription(stepName: string): string {
-        if (stepName === 'network') {
+        if (stepName === WizardStep.NETWORK) {
             if (this.getFieldValue('networkForm', 'clusterPodCidr')) {
                 return 'Cluster Pod CIDR: ' + this.getFieldValue('networkForm', 'clusterPodCidr');
             } else {

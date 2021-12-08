@@ -9,7 +9,7 @@ import { AwsWizardComponent } from './aws-wizard.component';
 import { SharedModule } from '../../../shared/shared.module';
 import Broker from 'src/app/shared/service/broker';
 import { Messenger } from 'src/app/shared/service/Messenger';
-import { ClusterType } from "../wizard/shared/constants/wizard.constants";
+import { ClusterType, WizardForm } from "../wizard/shared/constants/wizard.constants";
 
 describe('AwsWizardComponent', () => {
     let component: AwsWizardComponent;
@@ -133,7 +133,7 @@ describe('AwsWizardComponent', () => {
 
         it('is for metadata step', () => {
             expect(component.getStepDescription('metadata')).toBe('Specify metadata for the management cluster');
-            component.form.get('metadataForm').get('clusterLocation').setValue('us-west');
+            component.form.get(WizardForm.METADATA).get('clusterLocation').setValue('us-west');
             expect(component.getStepDescription('metadata')).toBe('Location: us-west');
         });
     });
@@ -159,9 +159,9 @@ describe('AwsWizardComponent', () => {
             ['awsNodeSettingForm', 'sshKeyName', 'default'],
             // ['awsNodeSettingForm', 'machineHealthChecksEnabled', true],
             ['awsNodeSettingForm', 'workerNodeInstanceType1', 't3.small'],
-            ['metadataForm', 'clusterDescription', 'DescriptionEXAMPLE'],
-            // ['metadataForm', 'clusterLabels', clusterLabels],
-            ['metadataForm', 'clusterLocation', 'mylocation1'],
+            [WizardForm.METADATA, 'clusterDescription', 'DescriptionEXAMPLE'],
+            // [WizardForm.METADATA, 'clusterLabels', clusterLabels],
+            [WizardForm.METADATA, 'clusterLocation', 'mylocation1'],
             ['networkForm', 'clusterPodCidr', '100.96.0.0/11'],
             ['networkForm', 'clusterServiceCidr', '100.64.0.0/13'],
             ['networkForm', 'cniType', 'antrea'],
@@ -172,7 +172,7 @@ describe('AwsWizardComponent', () => {
         component.form.get('awsNodeSettingForm').get('createCloudFormation').setValue(true);
         component.form.get('awsNodeSettingForm').get('machineHealthChecksEnabled').setValue(true);
         component.form.get('ceipOptInForm').get('ceipOptIn').setValue(true);
-        component.form.get('metadataForm').get('clusterLabels').setValue(clusterLabels);
+        component.form.get(WizardForm.METADATA).get('clusterLabels').setValue(clusterLabels);
 
         const payload = component.getPayload();
         expect(payload.awsAccountParams).toEqual({

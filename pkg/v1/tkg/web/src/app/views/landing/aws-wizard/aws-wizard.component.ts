@@ -9,11 +9,14 @@ import { AWSNodeAz, AWSRegionalClusterParams, AWSVpc } from 'src/app/swagger/mod
 import { APIClient } from 'src/app/swagger';
 import { AwsWizardFormService } from 'src/app/shared/service/aws-wizard-form.service';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
+import { APIClient } from 'src/app/swagger';
+import { AWSRegionalClusterParams } from 'src/app/swagger/models';
 import Broker from "../../../shared/service/broker";
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 import { BASTION_HOST_DISABLED, BASTION_HOST_ENABLED } from './node-setting-step/node-setting-step.component';
 import { AWSAccountParamsKeys } from './provider-step/aws-provider-step.component';
+import { StepUtility } from '../wizard/shared/components/steps/step-utility';
 import { AwsField, AwsForm, AwsStep } from "./aws-wizard.constants";
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
 import { Utils } from '../../../shared/utils';
@@ -70,9 +73,8 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
             if (vpc && publicNodeCidr && privateNodeCidr && awsNodeAz) {
                 return `VPC CIDR: ${vpc}, Public Node CIDR: ${publicNodeCidr}, ` +
                     `Private Node CIDR: ${privateNodeCidr}, Node AZ: ${awsNodeAz}`;
-            } else {
-                return 'Specify VPC settings for AWS';
             }
+            return 'Specify VPC settings for AWS';
         } else if (stepName === AwsStep.NODESETTING) {
             if (this.getFieldValue(AwsForm.NODESETTING, 'controlPlaneSetting')) {
                 let mode = 'Development cluster selected: 1 node control plane';
@@ -114,6 +116,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
                 return 'Specify the OS Image';
             }
         }
+        return StepUtility.CommonStepDescription(stepName, this);
     }
 
     getPayload(): AWSRegionalClusterParams {

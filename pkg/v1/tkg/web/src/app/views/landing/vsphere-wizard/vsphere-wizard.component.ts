@@ -18,6 +18,8 @@ import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
 import { VsphereRegionalClusterParams } from 'src/app/swagger/models/vsphere-regional-cluster-params.model';
 import Broker from "../../../shared/service/broker";
+import { WizardStep } from '../wizard/shared/constants/wizard.constants';
+import { StepUtility } from '../wizard/shared/components/steps/step-utility';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
 import { VsphereField } from './vsphere-wizard.constants';
 
@@ -117,7 +119,9 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
             } else {
                 return `Specify the resources for this ${this.clusterTypeDescriptor}} cluster`;
             }
-        } else if (stepName === 'network') {
+        } else if (stepName === WizardStep.NETWORK) {
+            // NOTE: even though this is a common wizard step, vSphere has a different way of describing it
+            // because vSphere allows for the user to select a network name
             if (this.getFieldValue('networkForm', 'networkName')) {
                 return 'Network: ' + this.getFieldValue('networkForm', 'networkName');
             } else {
@@ -134,30 +138,8 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
                     return 'Specify VMware NSX Advanced Load Balancer settings';
                 }
             }
-        } else if (stepName === 'osImage') {
-            if (this.getFieldValue('osImageForm', 'osImage') && this.getFieldValue('osImageForm', 'osImage').name) {
-                return 'OS Image: ' + (this.getFieldValue('osImageForm', 'osImage').name);
-            } else {
-                return 'Specify the OS Image';
-            }
-        } else if (stepName === 'metadata') {
-            if (this.getFieldValue('metadataForm', 'clusterLocation')) {
-                return 'Location: ' + this.getFieldValue('metadataForm', 'clusterLocation');
-            } else {
-                return `Specify metadata for the ${this.clusterTypeDescriptor} cluster`;
-            }
-        } else if (stepName === 'identity') {
-            if (this.getFieldValue('identityForm', 'identityType') === 'oidc' &&
-                this.getFieldValue('identityForm', 'issuerURL')) {
-                return 'OIDC configured: ' + this.getFieldValue('identityForm', 'issuerURL')
-            } else if (this.getFieldValue('identityForm', 'identityType') === 'ldap' &&
-                        this.getFieldValue('identityForm', 'endpointIp')) {
-                return 'LDAP configured: ' + this.getFieldValue('identityForm', 'endpointIp') + ':' +
-                    this.getFieldValue('identityForm', 'endpointPort');
-            } else {
-                return 'Specify identity management'
-            }
         }
+        return StepUtility.CommonStepDescription(stepName, this);
     }
 
     getPayload(): VsphereRegionalClusterParams {

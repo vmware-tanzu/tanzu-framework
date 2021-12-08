@@ -13,6 +13,8 @@ import { AzureAccountParamsKeys } from './provider-step/azure-provider-step.comp
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { EXISTING } from './vnet-step/vnet-step.component';
 import Broker from 'src/app/shared/service/broker';
+import { AzureForm, AzureStep } from './azure-wizard.constants';
+import { StepUtility } from '../wizard/shared/components/steps/step-utility';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
 
 // Not sure why some of these step names have 'Form' in them, but leaving as is
@@ -125,7 +127,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
                 return 'Specify the OS Image';
             }
         }
-        return `Step ${stepName} is not supported yet`;
+        return StepUtility.CommonStepDescription(stepName, this);
     }
 
     getPayload(): any {
@@ -321,6 +323,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         });
         return envVariableString;
     }
+
     applyTkgConfig() {
         return this.apiClient.applyTKGConfigForAzure({ params: this.getPayload() });
     }
