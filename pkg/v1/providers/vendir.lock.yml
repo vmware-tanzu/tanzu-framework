@@ -2,11 +2,10 @@ apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
   - git:
-      commitTitle: 'patch priorityClassName: system-node-critical in CPI  daemonset
-        (#2524)'
-      sha: 9e70164c014c23bc47848a576cde10621bab4677
+      commitTitle: Add prefix to data hash, so it cannot be parsed as integer. (#2694)
+      sha: 3b497a299c4d67377ca30036bd38e934794ca0f8
       tags:
-      - v0.10.0-dev.1-213-g9e70164c
+      - v0.10.0-dev.4-29-g3b497a29
     path: .
   path: ytt/vendir/vsphere_cpi/_ytt_lib
 - contents:
