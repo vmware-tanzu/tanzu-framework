@@ -86,7 +86,8 @@ noSNAT: #@ values.antrea.config.noSNAT
 #@ if/end values.antrea.config.defaultMTU:
 defaultMTU: #@ values.antrea.config.defaultMTU
 
-#! Whether or not to enable IPsec encryption of tunnel traffic.
+#! Whether or not to enable IPsec encryption of tunnel traffic. IPsec encryption is only supported
+#! for the GRE tunnel type.
 #!enableIPSecTunnel: false
 
 #! ClusterIP CIDR range for Services. It's required when AntreaProxy is not enabled, and should be
@@ -120,10 +121,9 @@ serviceCIDR: #@ values.antrea.config.serviceCIDR
 #! flow aggregator.
 #!flowCollectorAddr: "flow-aggregator.flow-aggregator.svc:4739:tls"
 
-#! Provide flow poll interval as a duration string. This determines how often the
-#! flow exporter dumps connections from the conntrack module. Flow poll interval
-#! should be greater than or equal to 1s (one second).
-#! Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".
+#! Provide flow poll interval as a duration string. This determines how often the flow exporter dumps connections from the conntrack module.
+#! Flow poll interval should be greater than or equal to 1s (one second).
+#! Valid time units are "ns", "us" (or "Âµs"), "ms", "s", "m", "h".
 #!flowPollInterval: "5s"
 
 #! Provide the active flow export timeout, which is the timeout after which a flow
@@ -142,7 +142,7 @@ serviceCIDR: #@ values.antrea.config.serviceCIDR
 #! Provide the port range used by NodePortLocal. When the NodePortLocal feature is enabled, a port from that range will be assigned
 #! whenever a Pod's container defines a specific port to be exposed (each container can define a list of ports as pod.spec.containers[].ports),
 #! and all Node traffic directed to that port will be forwarded to the Pod.
-#!nplPortRange: 61000-62000
+#!nplPortRange: 40000-41000
 
 #! Provide the address of Kubernetes apiserver, to override any value provided in kubeconfig or InClusterConfig.
 #! Defaults to "". It must be a host string, a host:port pair, or a URL to the base of the apiserver.
@@ -176,9 +176,6 @@ featureGates:
 
 #! Enable controlling SNAT IPs of Pod egress traffic.
   Egress: #@ values.antrea.config.featureGates.Egress
-
-#! Run Kubernetes NodeIPAMController with Antrea.
-#!  NodeIPAM: false
 
 #! The port for the antrea-controller APIServer to serve on.
 #! Note that if it's set to another value, the `containerPort` of the `api` port of the
@@ -218,36 +215,10 @@ tlsCipherSuites: #@ values.antrea.config.tlsCipherSuites
 #! longer be reflected in the new CRD, and all CRUD operations should be done through the new
 #! API groups. After adding the annotation, legacy CRDs can be deleted safely without impacting
 #! new CRDs.
-legacyCRDMirroring: true
-
-#! Enable usage reporting (telemetry) to VMware.
-#! enableUsageReporting: false
-#! nodeIPAM:
-
-#! Enable the integrated Node IPAM controller within the Antrea controller.
-#!  enableNodeIPAM: false
-
-#! CIDR Ranges for Pods in cluster. String array containing single CIDR range, or multiple ranges.
-#! The CIDRs could be either IPv4 or IPv6. Value ignored when enableNodeIPAM is false.
-#!  clusterCIDRs: []
-
-#! CIDR Ranges for Services in cluster. It is not necessary to specify it when there is no overlap with clusterCIDRs.
-#! Value ignored when enableNodeIPAM is false.
-#!  serviceCIDR:
-#!  serviceCIDRv6:
-
-#! Mask size for IPv4 Node CIDR in IPv4 or dual-stack cluster. Value ignored when enableNodeIPAM is false
-#! or when IPv4 Pod CIDR is not configured. Valid range is 16 to 30.
-#!  nodeCIDRMaskSizeIPv4: 24
-
-#! Mask size for IPv6 Node CIDR in IPv6 or dual-stack cluster. Value ignored when enableNodeIPAM is false
-#! or when IPv6 Pod CIDR is not configured. Valid range is 64 to 126.
-#!  nodeCIDRMaskSizeIPv6: 64
-
-#! enterpriseAntrea: true
+#! legacyCRDMirroring: true
 #@ end
 
-#@overlay/match by=overlay.subset({"kind":"ConfigMap","metadata":{"name": "antrea-config-822fk25299"}})
+#@overlay/match by=overlay.subset({"kind":"ConfigMap","metadata":{"name": "antrea-config-t8cc9bfb6t"}})
 ---
 kind: ConfigMap
 data:
@@ -262,6 +233,7 @@ metadata:
   #@overlay/match missing_ok=True
   annotations:
     kapp.k14s.io/disable-default-label-scoping-rules: ""
+
 
 #@overlay/match by=overlay.subset({"kind":"DaemonSet","metadata":{"name": "antrea-agent"}})
 ---

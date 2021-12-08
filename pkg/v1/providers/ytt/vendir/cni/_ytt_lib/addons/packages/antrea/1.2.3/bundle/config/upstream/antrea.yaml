@@ -669,8 +669,6 @@ spec:
                     to:
                       items:
                         properties:
-                          fqdn:
-                            type: string
                           group:
                             type: string
                           ipBlock:
@@ -1780,8 +1778,6 @@ spec:
                               matchLabels:
                                 x-kubernetes-preserve-unknown-fields: true
                             type: object
-                          fqdn:
-                            type: string
                           ipBlock:
                             properties:
                               cidr:
@@ -2408,11 +2404,8 @@ spec:
                       enum:
                       - User
                       - Group
-                      - ServiceAccount
                       type: string
                     name:
-                      type: string
-                    namespace:
                       type: string
                   type: object
                 type: array
@@ -3428,6 +3421,7 @@ rules:
 - apiGroups:
   - ""
   resources:
+  - nodes
   - pods
   - namespaces
   - services
@@ -3436,15 +3430,6 @@ rules:
   - get
   - watch
   - list
-- apiGroups:
-  - ""
-  resources:
-  - nodes
-  verbs:
-  - get
-  - watch
-  - list
-  - patch
 - apiGroups:
   - networking.k8s.io
   resources:
@@ -3498,14 +3483,6 @@ rules:
   - configmaps
   verbs:
   - create
-- apiGroups:
-  - ""
-  resourceNames:
-  - antrea-config-822fk25299
-  resources:
-  - configmaps
-  verbs:
-  - get
 - apiGroups:
   - apiregistration.k8s.io
   resourceNames:
@@ -3924,7 +3901,8 @@ data:
     # https://golang.org/pkg/crypto/tls/#pkg-constants
     # Note that TLS1.3 Cipher Suites cannot be added to the list. But the apiserver will always
     # prefer TLS1.3 Cipher Suites whenever possible.
-    tlsCipherSuites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384
+    #tlsCipherSuites:
+
     # TLS min version from: VersionTLS10, VersionTLS11, VersionTLS12, VersionTLS13.
     #tlsMinVersion:
   antrea-cni.conflist: |
@@ -3965,9 +3943,6 @@ data:
     # Enable controlling SNAT IPs of Pod egress traffic.
     #  Egress: false
 
-    # Run Kubernetes NodeIPAMController with Antrea.
-    #  NodeIPAM: false
-
     # The port for the antrea-controller APIServer to serve on.
     # Note that if it's set to another value, the `containerPort` of the `api` port of the
     # `antrea-controller` container must be set to the same value.
@@ -3989,7 +3964,7 @@ data:
     # https://golang.org/pkg/crypto/tls/#pkg-constants
     # Note that TLS1.3 Cipher Suites cannot be added to the list. But the apiserver will always
     # prefer TLS1.3 Cipher Suites whenever possible.
-    tlsCipherSuites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384
+    #tlsCipherSuites:
 
     # TLS min version from: VersionTLS10, VersionTLS11, VersionTLS12, VersionTLS13.
     #tlsMinVersion:
@@ -4007,37 +3982,12 @@ data:
     # API groups. After adding the annotation, legacy CRDs can be deleted safely without impacting
     # new CRDs.
     #legacyCRDMirroring: true
-
-    # Enable usage reporting (telemetry) to VMware.
-    #enableUsageReporting: false
-    nodeIPAM:
-    # Enable the integrated Node IPAM controller within the Antrea controller.
-    #  enableNodeIPAM: false
-
-    # CIDR Ranges for Pods in cluster. String array containing single CIDR range, or multiple ranges.
-    # The CIDRs could be either IPv4 or IPv6. Value ignored when enableNodeIPAM is false.
-    #  clusterCIDRs: []
-
-    # CIDR Ranges for Services in cluster. It is not necessary to specify it when there is no overlap with clusterCIDRs.
-    # Value ignored when enableNodeIPAM is false.
-    #  serviceCIDR:
-    #  serviceCIDRv6:
-
-    # Mask size for IPv4 Node CIDR in IPv4 or dual-stack cluster. Value ignored when enableNodeIPAM is false
-    # or when IPv4 Pod CIDR is not configured. Valid range is 16 to 30.
-    #  nodeCIDRMaskSizeIPv4: 24
-
-    # Mask size for IPv6 Node CIDR in IPv6 or dual-stack cluster. Value ignored when enableNodeIPAM is false
-    # or when IPv6 Pod CIDR is not configured. Valid range is 64 to 126.
-    #  nodeCIDRMaskSizeIPv6: 64
-
-    enterpriseAntrea: true
 kind: ConfigMap
 metadata:
   annotations: {}
   labels:
     app: antrea
-  name: antrea-config-822fk25299
+  name: antrea-config-t8cc9bfb6t
   namespace: kube-system
 ---
 apiVersion: v1
@@ -4108,9 +4058,8 @@ spec:
             fieldRef:
               fieldPath: spec.serviceAccountName
         - name: ANTREA_CONFIG_MAP_NAME
-          value: antrea-config-822fk25299
+          value: antrea-config-t8cc9bfb6t
         image: antrea/antrea-ubuntu:v1.2.3
-        imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 5
           httpGet:
@@ -4159,7 +4108,7 @@ spec:
         key: node-role.kubernetes.io/master
       volumes:
       - configMap:
-          name: antrea-config-822fk25299
+          name: antrea-config-t8cc9bfb6t
         name: antrea-config
       - name: antrea-controller-tls
         secret:
@@ -4323,7 +4272,6 @@ spec:
             fieldRef:
               fieldPath: spec.nodeName
         image: antrea/antrea-ubuntu:v1.2.3
-        imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
             command:
@@ -4384,7 +4332,6 @@ spec:
         command:
         - start_ovs
         image: antrea/antrea-ubuntu:v1.2.3
-        imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
             command:
@@ -4419,7 +4366,6 @@ spec:
       - command:
         - install_cni
         image: antrea/antrea-ubuntu:v1.2.3
-        imagePullPolicy: IfNotPresent
         name: install-cni
         resources:
           requests:
@@ -4455,7 +4401,7 @@ spec:
         operator: Exists
       volumes:
       - configMap:
-          name: antrea-config-822fk25299
+          name: antrea-config-t8cc9bfb6t
         name: antrea-config
       - hostPath:
           path: /etc/cni/net.d
@@ -4638,7 +4584,6 @@ webhooks:
     operations:
     - CREATE
     - UPDATE
-    - DELETE
     resources:
     - clusternetworkpolicies
     scope: Cluster
@@ -4661,7 +4606,6 @@ webhooks:
     operations:
     - CREATE
     - UPDATE
-    - DELETE
     resources:
     - networkpolicies
     scope: Namespaced
@@ -4685,6 +4629,7 @@ webhooks:
     operations:
     - CREATE
     - UPDATE
+    - DELETE
     resources:
     - clustergroups
     scope: Cluster
