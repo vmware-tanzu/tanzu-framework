@@ -11,10 +11,10 @@ directories:
   path: ytt/vendir/vsphere_cpi/_ytt_lib
 - contents:
   - git:
-      commitTitle: Add update strategy for calico controllers (#2621)...
-      sha: c3fe6a25cf2d0aea3280e79ab142cf8d6e325ea7
+      commitTitle: Adding antrea agent tweak configmap (#2683)
+      sha: a9353f7de25d8f2aa6baafacd295ce5c8d98d38b
       tags:
-      - v0.10.0-dev.2-43-gc3fe6a25
+      - v0.10.0-dev.4-23-ga9353f7d
     path: .
   path: ytt/vendir/cni/_ytt_lib
 - contents:
