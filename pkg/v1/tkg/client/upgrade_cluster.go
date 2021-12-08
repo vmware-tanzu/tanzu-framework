@@ -328,7 +328,8 @@ func (c *TkgClient) addKubernetesReleaseLabel(regionalClusterClient clusterclien
 		}
 	}`
 	patchLabel := fmt.Sprintf(patchFormat, utils.GetTkrNameFromTkrVersion(options.TkrVersion))
-	err := regionalClusterClient.PatchClusterObject(options.ClusterName, options.Namespace, patchLabel)
+	pollOptions := clusterclient.PollOptions{Interval: upgradePatchInterval, Timeout: upgradePatchTimeout}
+	err := regionalClusterClient.PatchClusterObjectWithPollOptions(options.ClusterName, options.Namespace, patchLabel, &pollOptions)
 	if err != nil {
 		return errors.Wrap(err, "unable to patch the cluster object with TanzuKubernetesRelease label")
 	}
