@@ -12,6 +12,7 @@ import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
 import { WizardStep } from '../wizard/shared/constants/wizard.constants';
+import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 
 @Component({
     selector: 'app-docker-wizard',
@@ -51,18 +52,6 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
             dockerNodeSettingForm: this.formBuilder.group({
             })
         });
-    }
-
-    getStepDescription(stepName: string): string {
-        if (stepName === WizardStep.NETWORK) {
-            if (this.getFieldValue('networkForm', 'clusterPodCidr')) {
-                return 'Cluster Pod CIDR: ' + this.getFieldValue('networkForm', 'clusterPodCidr');
-            } else {
-                return 'Specify the cluster Pod CIDR';
-            }
-        } else if (stepName === 'nodeSetting') {
-            return 'Optional: Specify the management cluster name'
-        }
     }
 
     setFromPayload(payload: DockerRegionalClusterParams) {
@@ -165,13 +154,26 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         return this.apiClient.createDockerRegionalCluster(payload);
     }
 
-    // HTML convenience methods
-    //
-    get NetworkFormDescription(): string {
+    private get NetworkFormDescription(): string {
         if (this.getFieldValue('networkForm', 'clusterPodCidr')) {
             return 'Cluster Pod CIDR: ' + this.getFieldValue('networkForm', 'clusterPodCidr');
         }
         return 'Specify the cluster Pod CIDR';
+    }
+
+    // HTML convenience methods
+    //
+    get NetworkForm(): FormDataForHTML {
+        return FormUtility.formOverrideDescription(this.NetworkForm, this.NetworkFormDescription);
+    }
+    get DockerNodeSettingForm(): FormDataForHTML {
+        const title = FormUtility.titleCase(this.clusterTypeDescriptor) + ' Cluster Settings';
+        return { name: 'dockerNodeSettings', title: title, description: 'Optional: Specify the management cluster name',
+            i18n: {title: 'node setting step name', description: 'node setting step description'}};
+    }
+    get DockerDaemonForm(): FormDataForHTML {
+        return { name: 'dockerDaemonForm', title: 'Docker Prerequisites', description: 'Validate the local Docker daemon, allocated CPUs and Total Memory',
+            i18n: {title: 'docker prerequisite step name', description: 'Docker prerequisite step description'}};
     }
     //
     // HTML convenience methods

@@ -85,9 +85,9 @@ describe('AzureWizardComponent', () => {
         });
 
         it('azure provider form', () => {
-            expect(component.AzureProviderFormDescription).toBe('Validate the Azure provider credentials for Tanzu');
+            expect(component.AzureProviderForm.description).toBe('Validate the Azure provider credentials for Tanzu');
             component.form.get(AzureForm.PROVIDER).get('tenantId').setValue('testId');
-            expect(component.AzureProviderFormDescription).toBe('Azure tenant: testId');
+            expect(component.AzureProviderForm.description).toBe('Azure tenant: testId');
         });
         it('vnet form', () => {
             expect(component.AzureVnetFormDescription).toBe('Specify a Azure VNET CIDR');
@@ -100,16 +100,16 @@ describe('AzureWizardComponent', () => {
             expect(component.AzureNodeSettingFormDescription).toBe('Control plane type: dev');
         });
         it('meta data form', () => {
-            expect(component.MetadataFormDescription).toBe('Specify metadata for the management cluster');
+            expect(component.MetadataForm.description).toBe('Specify metadata for the management cluster');
             component.form.get(WizardForm.METADATA).get('clusterLocation').setValue('testLocation');
-            expect(component.MetadataFormDescription).toBe('Location: testLocation');
+            expect(component.MetadataForm.description).toBe('Location: testLocation');
         });
         it('network form', () => {
-            expect(component.NetworkFormDescription).toBe('Specify how TKG networking is provided and global network settings');
+            expect(component.NetworkForm.description).toBe('Specify how TKG networking is provided and global network settings');
             const networkForm = component.form.get(WizardForm.NETWORK);
             networkForm.get('clusterServiceCidr').setValue('1.1.1.1/23');
             networkForm.get('clusterPodCidr').setValue('2.2.2.2/23');
-            expect(component.NetworkFormDescription).toBe('Cluster service CIDR: 1.1.1.1/23 Cluster POD CIDR: 2.2.2.2/23');
+            expect(component.NetworkForm.description).toBe('Cluster service CIDR: 1.1.1.1/23 Cluster POD CIDR: 2.2.2.2/23');
         });
         it('ceip opt in form', () => {
             expect(component.CeipFormDescription)

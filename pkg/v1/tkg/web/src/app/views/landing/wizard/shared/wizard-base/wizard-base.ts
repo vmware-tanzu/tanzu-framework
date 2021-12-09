@@ -18,7 +18,7 @@ import { ConfigFileInfo } from '../../../../../swagger/models/config-file-info.m
 import Broker from 'src/app/shared/service/broker';
 import { ClusterType, WizardForm } from "../constants/wizard.constants";
 import FileSaver from 'file-saver';
-import { FormUtility } from '../components/steps/form-utility';
+import { FormDataForHTML, FormUtility } from '../components/steps/form-utility';
 
 @Directive()
 export abstract class WizardBaseDirective extends BasicSubscriber implements AfterViewInit, OnInit {
@@ -655,38 +655,25 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
 
     // HTML convenience methods
     //
-    get CeipForm(): string {
-        return WizardForm.CEIP;
+    get CeipForm(): FormDataForHTML {
+        return { name: WizardForm.CEIP, title: 'CEIP Agreement', description: 'Join the CEIP program for TKG',
+            i18n: { title: 'ceip agreement step title', description: 'ceip agreement step description' } };
     }
-    get CeipFormDescription(): string {
-        return "Join the CEIP program for TKG";
+    get IdentityForm(): FormDataForHTML {
+        return { name: WizardForm.IDENTITY, title: 'Identity Management', description: FormUtility.IdentityFormDescription(this),
+            i18n: { title: 'identity step title', description: 'identity step description' } };
     }
-    get IdentifyFormDescription(): string {
-        return FormUtility.IdentityFormDescription(this);
+    get MetadataForm(): FormDataForHTML {
+        return { name: WizardForm.METADATA, title: 'Metadata', description: FormUtility.MetadataFormDescription(this),
+            i18n: { title: 'metadata step name', description: 'metadata step description' }};
     }
-    get IdentityForm(): string {
-        return WizardForm.IDENTITY;
+    get NetworkForm(): FormDataForHTML {
+        return { name: WizardForm.NETWORK, title: 'Kubernetes Network', description: FormUtility.NetworkFormDescription(this),
+            i18n: { title: 'Kubernetes network step name', description: 'Kubernetes network step description' } };
     }
-    get MetadataFormDescription(): string {
-        return FormUtility.MetadataFormDescription(this);
-    }
-    get MetadataForm(): string {
-        return WizardForm.METADATA;
-    }
-    get NetworkFormDescription(): string {
-        return FormUtility.NetworkFormDescription(this);
-    }
-    get NetworkForm(): string {
-        return WizardForm.NETWORK;
-    }
-    get OsImageFormDescription(): string {
-        return FormUtility.OsImageFormDescription(this);
-    }
-    get OsImageForm(): string {
-        return WizardForm.OSIMAGE;
-    }
-    get LoadBalancerForm(): string {
-        return WizardForm.LOADBALANCER;
+    get OsImageForm(): FormDataForHTML {
+        return { name: WizardForm.OSIMAGE, title: 'OS Image', description: FormUtility.OsImageFormDescription(this),
+            i18n: { title: 'OS Image step title', description: 'OS Image step description' } };
     }
     //
     // HTML convenience methods

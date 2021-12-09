@@ -24,15 +24,11 @@
     </div>
     <app-shared-delete-data-popup></app-shared-delete-data-popup>
     <form clrStepper #wizard [formGroup]="form">
-        <clr-stepper-panel formGroupName="{{ VsphereProviderForm }}" removeAriaLabelledBy>
-            <clr-step-title i18n="IaaS provider step name">
-                IaaS Provider
-            </clr-step-title>
-            <clr-step-description i18n="IaaS provider step description">
-                {{ VsphereProviderFormDescription }}
-            </clr-step-description>
+        <clr-stepper-panel formGroupName="{{VsphereProviderForm.name}}" removeAriaLabelledBy>
+            <clr-step-title i18n="{{VsphereProviderForm.i18n.title}}">{{VsphereProviderForm.title}}</clr-step-title>
+            <clr-step-description i18n="{{VsphereProviderForm.i18n.description}}">{{VsphereProviderForm.description}}</clr-step-description>
             <ng-container *ngIf="steps[0] && show">
-                <app-vsphere-provider-step [formGroup]="form.controls[VsphereProviderForm]" formName="{{ VsphereProviderForm }}">
+                <app-vsphere-provider-step [formGroup]="form.controls[VsphereProviderForm.name]" formName="{{VsphereProviderForm.name}}">
                 </app-vsphere-provider-step>
             </ng-container>
             <clr-step-content *clrIfExpanded>
@@ -40,16 +36,12 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="{{ VsphereNodeSettingForm }}" removeAriaLabelledBy>
-            <clr-step-title i18n="node setting step name">
-                {{ clusterTypeDescriptor | titlecase }} Cluster Settings
-            </clr-step-title>
-            <clr-step-description i18n="node setting step description">
-                {{ VsphereNodeSettingFormDescription }}
-            </clr-step-description>
+        <clr-stepper-panel formGroupName="{{VsphereNodeSettingForm.name}}" removeAriaLabelledBy>
+            <clr-step-title i18n="{{VsphereNodeSettingForm.i18n.title}}">{{VsphereNodeSettingForm.title}}</clr-step-title>
+            <clr-step-description i18n="{{VsphereNodeSettingForm.i18n.description}}">{{VsphereNodeSettingForm.description}}</clr-step-description>
             <ng-container *ngIf="steps[1]">
-                <app-node-setting-step [formGroup]="form.controls[VsphereNodeSettingForm]" [providerType]="(provider | async)"
-                    formName="{{ VsphereNodeSettingForm }}">
+                <app-node-setting-step [formGroup]="form.controls[VsphereNodeSettingForm.name]" [providerType]="(provider | async)"
+                    formName="{{VsphereNodeSettingForm.name}}">
                 </app-node-setting-step>
             </ng-container>
             <clr-step-content *clrIfExpanded>
@@ -57,15 +49,11 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="{{ LoadBalancerForm }}" removeAriaLabelledBy>
-            <clr-step-title i18n="load balancer step name">
-                VMware NSX Advanced Load Balancer
-            </clr-step-title>
-            <clr-step-description i18n="load balancer step description">
-                {{ LoadBalancerFormDescription }}
-            </clr-step-description>
+        <clr-stepper-panel formGroupName="{{ VsphereLoadBalancerForm.name }}" removeAriaLabelledBy>
+            <clr-step-title i18n="{{VsphereLoadBalancerForm.i18n.title}}">{{VsphereLoadBalancerForm.title}}</clr-step-title>
+            <clr-step-description i18n="{{VsphereLoadBalancerForm.i18n.description}}">{{VsphereLoadBalancerForm.description}}</clr-step-description>
             <ng-container *ngIf="steps[2]">
-                <app-load-balancer-step [formGroup]="form.controls[LoadBalancerForm]" formName="{{ LoadBalancerForm }}">
+                <app-load-balancer-step [formGroup]="form.controls[VsphereLoadBalancerForm.name]" formName="{{VsphereLoadBalancerForm.name}}">
                 </app-load-balancer-step>
             </ng-container>
             <clr-step-content *clrIfExpanded>
@@ -73,16 +61,11 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="{{ MetadataForm }}" removeAriaLabelledBy>
-            <clr-step-title i18n="metadata step name">
-                Metadata
-            </clr-step-title>
-            <clr-step-description i18n="metadata step description">
-                {{ MetadataFormDescription }}
-            </clr-step-description>
+        <clr-stepper-panel formGroupName="{{ MetadataForm.name }}" removeAriaLabelledBy>
+            <clr-step-title i18n="{{MetadataForm.i18n.title}}">{{ MetadataForm.title }}</clr-step-title>
+            <clr-step-description i18n="{{MetadataForm.i18n.description}}">{{ MetadataForm.description }}</clr-step-description>
             <ng-container *ngIf="steps[3]">
-                <app-metadata-step [formGroup]="form.controls[MetadataForm]" formName="{{ MetadataForm }}">
-                </app-metadata-step>
+                <app-metadata-step [formGroup]="form.controls[MetadataForm.name]" formName="{{ MetadataForm.name }}"></app-metadata-step>
             </ng-container>
             <clr-step-content *clrIfExpanded>
                 <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
@@ -105,36 +88,22 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="{{ NetworkForm }}" removeAriaLabelledBy>
-            <clr-step-title i18n="Kubernetes network step name">
-                Kubernetes Network
-            </clr-step-title>
-            <clr-step-description i18n="Kubernetes network step description">
-                {{ NetworkFormDescription }}
-            </clr-step-description>
+        <clr-stepper-panel formGroupName="{{ NetworkForm.name }}" removeAriaLabelledBy>
+            <clr-step-title i18n="{{NetworkForm.i18n.title}}">{{ NetworkForm.title }}</clr-step-title>
+            <clr-step-description i18n="{{NetworkForm.i18n.description}}">{{ NetworkForm.description }}</clr-step-description>
             <ng-container *ngIf="steps[5]">
-                <app-shared-network-step [formGroup]="form.controls[NetworkForm]"
-                    enableNetworkName="true"
-                    enableNoProxyWarning="true"
-                    formName="{{ NetworkForm }}">
+                <app-shared-network-step [formGroup]="form.controls[NetworkForm.name]"
+                    enableNetworkName="true" enableNoProxyWarning="true" formName="{{ NetworkForm.name }}">
                 </app-shared-network-step>
             </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
+            <clr-step-content *clrIfExpanded><app-step-controller (nextStep)="onNextStep()"></app-step-controller></clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="{{ IdentityForm }}" removeAriaLabelledBy>
-            <clr-step-title i18n="identity step title">
-                Identity Management
-            </clr-step-title>
-            <clr-step-description i18n="identity step description">
-                {{ IdentifyFormDescription }}
-            </clr-step-description>
+        <clr-stepper-panel formGroupName="{{ IdentityForm.name }}" removeAriaLabelledBy>
+            <clr-step-title i18n="{{IdentityForm.i18n.title}}">{{ IdentityForm.title }}</clr-step-title>
+            <clr-step-description i18n="{{IdentityForm.i18n.description}}">{{ IdentityForm.description }}</clr-step-description>
             <ng-container *ngIf="steps[6]">
-                <app-shared-identity-step
-                        [formGroup]="form.controls[IdentityForm]"
-                        formName="{{ IdentityForm }}">
+                <app-shared-identity-step [formGroup]="form.controls[IdentityForm.name]" formName="{{ IdentityForm.name }}">
                 </app-shared-identity-step>
             </ng-container>
             <clr-step-content *clrIfExpanded>
@@ -142,16 +111,12 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="{{ OsImageForm }}" removeAriaLabelledBy>
-            <clr-step-title i18n="OS Image">
-                OS Image
-            </clr-step-title>
-            <clr-step-description i18n="OS Imagedescription">
-                {{ OsImageFormDescription }}
-            </clr-step-description>
+        <clr-stepper-panel formGroupName="{{ OsImageForm.name }}" removeAriaLabelledBy>
+            <clr-step-title i18n="{{OsImageForm.i18n.title}}">{{ OsImageForm.title }}</clr-step-title>
+            <clr-step-description i18n="{{OsImageForm.i18n.description}}">{{ OsImageForm.description }}</clr-step-description>
             <ng-container *ngIf="steps[7]">
-                <app-os-image-step [formGroup]="form.controls[OsImageForm]"
-                    formName="{{ OsImageForm }}" [wizardFormService]="wizardFormService" type="VSPHERE"
+                <app-os-image-step [formGroup]="form.controls[OsImageForm.name]"
+                    formName="{{ OsImageForm.name }}" [wizardFormService]="wizardFormService" type="VSPHERE"
                     [noImageAlertMessage]="'Your ' + clusterTypeDescriptor + ' cluster will be deployed with Tanzu Kubernetes release (TKr) ' + (tkrVersion | async) +
                                     '. We are unable to detect a VM template that belongs to this Tanzu Kubernetes release. You must install ' +
                                     'a VM template that belongs to Tanzu Kubernetes release ' +  (tkrVersion | async) + ' to continue with deployment of the ' +
@@ -169,17 +134,11 @@
             </clr-step-content>
         </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="ceipOptInForm" removeAriaLabelledBy *ngIf="edition === 'tkg'">
-            <clr-step-title i18n="ceip agreement step title">
-                CEIP Agreement
-            </clr-step-title>
-            <clr-step-description i18n="ceip agreement step description">
-                Join the CEIP Program for TKG
-            </clr-step-description>
+        <clr-stepper-panel formGroupName="{{CeipForm.name}}" removeAriaLabelledBy *ngIf="edition === 'tkg'">
+            <clr-step-title i18n="{{CeipForm.i18n.title}}">{{CeipForm.title}}</clr-step-title>
+            <clr-step-description i18n="{{CeipForm.i18n.description}}">{{CeipForm.title}}</clr-step-description>
             <ng-container *ngIf="steps[8]">
-                <app-shared-ceip-step
-                    [formGroup]="form.controls.ceipOptInForm"
-                    formName="ceipOptIn">
+                <app-shared-ceip-step [formGroup]="form.controls[CeipForm.name]" formName="{{CeipForm.name}}">
                 </app-shared-ceip-step>
             </ng-container>
             <clr-step-content *clrIfExpanded>

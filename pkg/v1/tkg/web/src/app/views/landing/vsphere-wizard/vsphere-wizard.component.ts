@@ -19,11 +19,11 @@ import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-
 import { VsphereRegionalClusterParams } from 'src/app/swagger/models/vsphere-regional-cluster-params.model';
 import Broker from "../../../shared/service/broker";
 import { WizardForm, WizardStep } from '../wizard/shared/constants/wizard.constants';
-import { FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { WizardStep } from '../wizard/shared/constants/wizard.constants';
 import { StepUtility } from '../wizard/shared/components/steps/step-utility';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
 import { VsphereField } from './vsphere-wizard.constants';
+import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 
 @Component({
     selector: 'app-wizard',
@@ -260,10 +260,11 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         }
     }
 
+
     // HTML convenience methods
     //
     // OVERRIDES
-    get NetworkFormDescription(): string {
+    private get NetworkFormDescription(): string {
         // NOTE: even though this is a common wizard form, vSphere has a different way of describing it
         // because vSphere allows for the user to select a network name
         const networkName = this.getFieldValue(WizardForm.NETWORK, 'networkName');
@@ -272,7 +273,12 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         }
         return 'Specify how Tanzu Kubernetes Grid networking is provided and any global network settings';
     }
-    get LoadBalancerFormDescription(): string { // TODO: this should be overriding base class implementation
+    get NetworkForm(): FormDataForHTML {
+        return FormUtility.formOverrideDescription(this.NetworkForm, this.NetworkFormDescription);
+    }
+
+    // Vsphere-specific
+    private get LoadBalancerFormDescription(): string { // TODO: this should be overriding base class implementation
         // NOTE: even though this is a common wizard form, vSphere has a different way of describing it
         const controllerHost = this.getFieldValue('loadBalancerForm', 'controllerHost');
         if (controllerHost) {
@@ -284,11 +290,16 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         }
         return 'Specify VMware NSX Advanced Load Balancer settings';
     }
-    // Vsphere-specific
-    get VsphereNodeSettingForm(): string {
-        return 'vsphereNodeSettingForm';
+    get VsphereLoadBalancerForm(): FormDataForHTML {
+        return { name: WizardForm.LOADBALANCER, title: 'VMware NSX Advanced Load Balancer', description: this.LoadBalancerFormDescription,
+            i18n: { title: 'load balancer step name', description: 'load balancer step description' } };
     }
-    get VsphereNodeSettingFormDescription(): string {
+    get VsphereNodeSettingForm(): FormDataForHTML {
+        return { name: 'vsphereNodeSettingForm', title: FormUtility.titleCase(this.clusterTypeDescriptor) + ' Cluster Settings',
+            description: this.VsphereNodeSettingFormDescription,
+            i18n: { title: 'node setting step name', description: 'node setting step description' } };
+    }
+    private get VsphereNodeSettingFormDescription(): string {
         if (this.getFieldValue('vsphereNodeSettingForm', 'controlPlaneSetting')) {
             let mode = 'Development cluster selected: 1 node control plane';
             if (this.getFieldValue('vsphereNodeSettingForm', 'controlPlaneSetting') === 'prod') {
@@ -298,10 +309,11 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         }
         return `Specify the resources backing the ${this.clusterTypeDescriptor} cluster`;
     }
-    get VsphereProviderForm(): string {
-        return 'vsphereProviderForm';
+    get VsphereProviderForm(): FormDataForHTML {
+        return { name: 'vsphereProviderForm', title: 'IaaS Provider', description: this.VsphereProviderFormDescription,
+            i18n: { title: 'IaaS provider step name', description: 'IaaS provider step description' } };
     }
-    get VsphereProviderFormDescription(): string {
+    private get VsphereProviderFormDescription(): string {
         const vcenterIP = this.getFieldValue('vsphereProviderForm', 'vcenterAddress');
         const datacenter = this.getFieldValue('vsphereProviderForm', 'datacenter');
         if ( vcenterIP && datacenter) {

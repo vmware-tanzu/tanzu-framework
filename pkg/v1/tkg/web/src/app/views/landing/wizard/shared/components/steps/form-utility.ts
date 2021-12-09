@@ -1,5 +1,16 @@
 import { WizardBaseDirective } from '../../wizard-base/wizard-base';
-import { IdentityManagementType, WizardForm, WizardStep } from '../../constants/wizard.constants';
+import { IdentityManagementType, WizardForm } from '../../constants/wizard.constants';
+
+interface I18nDataForHtml {
+    title: string,
+    description: string,
+}
+export interface FormDataForHTML {
+    name: string,
+    description: string,
+    title: string,
+    i18n: I18nDataForHtml,
+}
 
 export class FormUtility {
     static IdentityFormDescription(wizard: WizardBaseDirective): string {
@@ -38,17 +49,13 @@ export class FormUtility {
         return 'Specify the OS Image';
     }
 
-    static CommonStepDescription(step: string, wizard: WizardBaseDirective): string {
-        if (step === WizardStep.NETWORK) {
-            return FormUtility.NetworkFormDescription(wizard);
-        } else if (step === WizardStep.METADATA) {
-            return FormUtility.MetadataFormDescription(wizard);
-        } else if (step === WizardStep.IDENTITY) {
-            return FormUtility.IdentityFormDescription(wizard);
-        } else if (step === WizardStep.OSIMAGE) {
-            return FormUtility.OsImageFormDescription(wizard);
-        }
-        console.log('WARNING: Unrecognized step passed to CommonStepDescription(): ' + step);
-        return 'Step ' + step;
+    static titleCase(target): string {
+        return target.replace(/(^|\s)\S/g, function(t) { return t.toUpperCase() });
+    }
+
+    static formOverrideDescription(formData: FormDataForHTML, description: string): FormDataForHTML {
+        formData.description = description;
+        return formData;
     }
 }
+

@@ -14,7 +14,7 @@ import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.servi
 import { EXISTING } from './vnet-step/vnet-step.component';
 import Broker from 'src/app/shared/service/broker';
 import { AzureForm, AzureStep } from './azure-wizard.constants';
-import { FormUtility } from '../wizard/shared/components/steps/form-utility';
+import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { StepUtility } from '../wizard/shared/components/steps/step-utility';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
 
@@ -292,27 +292,31 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
 
     // HTML convenience methods
     //
-    get AzureProviderForm(): string {
-        return AzureForm.PROVIDER;
+    get AzureProviderForm(): FormDataForHTML {
+        return { name: AzureForm.PROVIDER, title: 'IaaS Provider', description: this.AzureProviderFormDescription,
+        i18n: {title: 'IaaS provder step name', description: 'IaaS provder step description'}};
     }
-    get AzureProviderFormDescription(): string {
+    private get AzureProviderFormDescription(): string {
         const tenant = this.getFieldValue(AzureForm.PROVIDER, 'tenantId');
         return tenant ? `Azure tenant: ${tenant}` : 'Validate the Azure provider credentials for Tanzu';
     }
-    get AzureVnetForm(): string {
-        return AzureForm.VNET;
+    get AzureVnetForm(): FormDataForHTML {
+        return { name: AzureForm.VNET, title: 'Azure VNET Settings', description: this.AzureVnetFormDescription,
+            i18n: {title: 'vnet step name', description: 'vnet step description'}};
     }
-    get AzureVnetFormDescription(): string {
+    private get AzureVnetFormDescription(): string {
         const vnetCidrBlock = this.getFieldValue(AzureForm.VNET, "vnetCidrBlock");
         if (vnetCidrBlock) {
             return `Subnet: ${vnetCidrBlock}`;
         }
         return "Specify a Azure VNET CIDR";
     }
-    get AzureNodeSettingForm(): string {
-        return AzureForm.NODESETTING;
+    get AzureNodeSettingForm(): FormDataForHTML {
+        return { name: AzureForm.NODESETTING, title: FormUtility.titleCase(this.clusterTypeDescriptor) + ' Cluster Settings',
+            description: this.AzureNodeSettingFormDescription,
+            i18n: {title: 'node setting step name', description: 'node setting step description'} };
     }
-    get AzureNodeSettingFormDescription(): string {
+    private get AzureNodeSettingFormDescription(): string {
         const controlPlaneSetting = this.getFieldValue(AzureForm.NODESETTING, "controlPlaneSetting");
         if (controlPlaneSetting) {
             return `Control plane type: ${controlPlaneSetting}`;

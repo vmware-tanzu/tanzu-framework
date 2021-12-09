@@ -16,7 +16,7 @@ import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 import { BASTION_HOST_DISABLED, BASTION_HOST_ENABLED } from './node-setting-step/node-setting-step.component';
 import { AWSAccountParamsKeys } from './provider-step/aws-provider-step.component';
-import { FormUtility } from '../wizard/shared/components/steps/form-utility';
+import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { StepUtility } from '../wizard/shared/components/steps/step-utility';
 import { AwsField, AwsForm, AwsStep } from "./aws-wizard.constants";
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
@@ -309,16 +309,19 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
     }}
     // HTML convenience methods
     //
-    get AwsProviderForm(): string {
-        return 'awsProviderForm';
+    get AwsProviderForm(): FormDataForHTML {
+        return {name: 'awsProviderForm', title: 'IaaS Provider', description: this.AwsProviderFormDescription,
+            i18n: {title: 'IaaS provder step name', description: 'IaaS provder step description'}};
     }
-    get AwsProviderFormDescription(): string {
+    private get AwsProviderFormDescription(): string {
         return 'Validate the AWS provider account for ' + this.title;
     }
-    get AwsNodeSettingForm(): string {
-        return 'awsNodeSettings';
+    get AwsNodeSettingForm(): FormDataForHTML {
+        return { name: 'awsNodeSettings', title: FormUtility.titleCase(this.clusterTypeDescriptor) + ' Cluster Settings',
+            description: this.AwsNodeSettingFormDescription,
+            i18n: {title: 'IaaS provder step name', description: 'IaaS provder step description'} };
     }
-    get AwsNodeSettingFormDescription(): string {
+    private get AwsNodeSettingFormDescription(): string {
         if (this.getFieldValue('awsNodeSettingForm', 'controlPlaneSetting')) {
             let mode = 'Development cluster selected: 1 node control plane';
             if (this.getFieldValue('awsNodeSettingForm', 'controlPlaneSetting') === 'prod') {
@@ -328,10 +331,11 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         }
         return `Specify the resources backing the ${this.clusterTypeDescriptor} cluster`;
     }
-    get AwsVpcForm(): string {
-        return 'vpcForm';
+    get AwsVpcForm(): FormDataForHTML {
+        return {name: 'vpcForm', title: 'VPC for AWS', description: this.AwsVpcFormDescription,
+        i18n: {title: 'vpc step name', description: 'vpc step description'}};
     }
-    get AwsVpcFormDescription(): string {
+    private get AwsVpcFormDescription(): string {
         const vpc = this.getFieldValue('vpcForm', 'vpc');
         const publicNodeCidr = this.getFieldValue('vpcForm', 'publicNodeCidr');
         const privateNodeCidr = this.getFieldValue('vpcForm', 'privateNodeCidr');
