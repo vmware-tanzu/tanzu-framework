@@ -26,7 +26,7 @@ func TestClient(t *testing.T) {
 }
 
 const (
-	// encoded credentials generated manually by runnging "clusterawsadm alpha bootstrap encode-aws-credentials"
+	// encoded credentials generated manually by running "clusterawsadm alpha bootstrap encode-aws-credentials"
 	//nolint:gosec
 	awsEncodedCredentials = "W2RlZmF1bHRdCmF3c19hY2Nlc3Nfa2V5X2lkID0gZmFrZS1hY2Nlc3Mva2V5K2lkCmF3c19zZWNyZXRfYWNjZXNzX2tleSA9IGZha2Utc2VjcmV0LWFjY2Vzcy1rZXkKcmVnaW9uID0gZmFrZS1yZWdpb24KCg=="
 
