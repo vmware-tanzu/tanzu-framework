@@ -34,15 +34,16 @@ func (fake *DiscoveryClientFactory) NewDiscoveryClientForConfig(arg1 *rest.Confi
 	fake.newDiscoveryClientForConfigArgsForCall = append(fake.newDiscoveryClientForConfigArgsForCall, struct {
 		arg1 *rest.Config
 	}{arg1})
+	stub := fake.NewDiscoveryClientForConfigStub
+	fakeReturns := fake.newDiscoveryClientForConfigReturns
 	fake.recordInvocation("NewDiscoveryClientForConfig", []interface{}{arg1})
 	fake.newDiscoveryClientForConfigMutex.Unlock()
-	if fake.NewDiscoveryClientForConfigStub != nil {
-		return fake.NewDiscoveryClientForConfigStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.newDiscoveryClientForConfigReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
