@@ -85,7 +85,7 @@ jobs:
 
   golangci-lint:
     name: Lint
-    runs-on: ubuntu-latest
+    runs-on: tkg-test1
     strategy:
       matrix:
         working-directory:
