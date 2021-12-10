@@ -26,6 +26,7 @@
 /pkg/v1/sdk @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-api-machinery-owners
 /cmd/managers/capabilities @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-api-machinery-owners
 /cmd/managers/featuregate @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-api-machinery-owners
+/cmd/cli/plugin/feature @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-api-machinery-owners
 /cmd/cli/plugin-admin/codegen @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-api-machinery-owners
 /pkg/v1/codegen @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-api-machinery-owners
 /packages/management @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-api-machinery-owners
