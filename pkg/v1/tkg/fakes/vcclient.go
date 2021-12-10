@@ -93,6 +93,21 @@ type VCClient struct {
 		result1 string
 		result2 error
 	}
+	FindNetworkStub        func(context.Context, string, string) (string, error)
+	findNetworkMutex       sync.RWMutex
+	findNetworkArgsForCall []struct {
+		arg1 context.Context
+		arg2 string
+		arg3 string
+	}
+	findNetworkReturns struct {
+		result1 string
+		result2 error
+	}
+	findNetworkReturnsOnCall map[int]struct {
+		result1 string
+		result2 error
+	}
 	FindResourcePoolStub        func(context.Context, string, string) (string, error)
 	findResourcePoolMutex       sync.RWMutex
 	findResourcePoolArgsForCall []struct {
@@ -222,6 +237,22 @@ type VCClient struct {
 	getNetworksReturnsOnCall map[int]struct {
 		result1 []*models.VSphereNetwork
 		result2 error
+	}
+	GetPathStub        func(context.Context, string) (string, []*models.VSphereManagementObject, error)
+	getPathMutex       sync.RWMutex
+	getPathArgsForCall []struct {
+		arg1 context.Context
+		arg2 string
+	}
+	getPathReturns struct {
+		result1 string
+		result2 []*models.VSphereManagementObject
+		result3 error
+	}
+	getPathReturnsOnCall map[int]struct {
+		result1 string
+		result2 []*models.VSphereManagementObject
+		result3 error
 	}
 	GetResourcePoolsStub        func(context.Context, string) ([]*models.VSphereResourcePool, error)
 	getResourcePoolsMutex       sync.RWMutex
@@ -666,6 +697,72 @@ func (fake *VCClient) FindFolderReturnsOnCall(i int, result1 string, result2 err
 		})
 	}
 	fake.findFolderReturnsOnCall[i] = struct {
+		result1 string
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *VCClient) FindNetwork(arg1 context.Context, arg2 string, arg3 string) (string, error) {
+	fake.findNetworkMutex.Lock()
+	ret, specificReturn := fake.findNetworkReturnsOnCall[len(fake.findNetworkArgsForCall)]
+	fake.findNetworkArgsForCall = append(fake.findNetworkArgsForCall, struct {
+		arg1 context.Context
+		arg2 string
+		arg3 string
+	}{arg1, arg2, arg3})
+	stub := fake.FindNetworkStub
+	fakeReturns := fake.findNetworkReturns
+	fake.recordInvocation("FindNetwork", []interface{}{arg1, arg2, arg3})
+	fake.findNetworkMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *VCClient) FindNetworkCallCount() int {
+	fake.findNetworkMutex.RLock()
+	defer fake.findNetworkMutex.RUnlock()
+	return len(fake.findNetworkArgsForCall)
+}
+
+func (fake *VCClient) FindNetworkCalls(stub func(context.Context, string, string) (string, error)) {
+	fake.findNetworkMutex.Lock()
+	defer fake.findNetworkMutex.Unlock()
+	fake.FindNetworkStub = stub
+}
+
+func (fake *VCClient) FindNetworkArgsForCall(i int) (context.Context, string, string) {
+	fake.findNetworkMutex.RLock()
+	defer fake.findNetworkMutex.RUnlock()
+	argsForCall := fake.findNetworkArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *VCClient) FindNetworkReturns(result1 string, result2 error) {
+	fake.findNetworkMutex.Lock()
+	defer fake.findNetworkMutex.Unlock()
+	fake.FindNetworkStub = nil
+	fake.findNetworkReturns = struct {
+		result1 string
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *VCClient) FindNetworkReturnsOnCall(i int, result1 string, result2 error) {
+	fake.findNetworkMutex.Lock()
+	defer fake.findNetworkMutex.Unlock()
+	fake.FindNetworkStub = nil
+	if fake.findNetworkReturnsOnCall == nil {
+		fake.findNetworkReturnsOnCall = make(map[int]struct {
+			result1 string
+			result2 error
+		})
+	}
+	fake.findNetworkReturnsOnCall[i] = struct {
 		result1 string
 		result2 error
 	}{result1, result2}
@@ -1265,6 +1362,74 @@ func (fake *VCClient) GetNetworksReturnsOnCall(i int, result1 []*models.VSphereN
 	}{result1, result2}
 }
 
+func (fake *VCClient) GetPath(arg1 context.Context, arg2 string) (string, []*models.VSphereManagementObject, error) {
+	fake.getPathMutex.Lock()
+	ret, specificReturn := fake.getPathReturnsOnCall[len(fake.getPathArgsForCall)]
+	fake.getPathArgsForCall = append(fake.getPathArgsForCall, struct {
+		arg1 context.Context
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.GetPathStub
+	fakeReturns := fake.getPathReturns
+	fake.recordInvocation("GetPath", []interface{}{arg1, arg2})
+	fake.getPathMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2, ret.result3
+	}
+	return fakeReturns.result1, fakeReturns.result2, fakeReturns.result3
+}
+
+func (fake *VCClient) GetPathCallCount() int {
+	fake.getPathMutex.RLock()
+	defer fake.getPathMutex.RUnlock()
+	return len(fake.getPathArgsForCall)
+}
+
+func (fake *VCClient) GetPathCalls(stub func(context.Context, string) (string, []*models.VSphereManagementObject, error)) {
+	fake.getPathMutex.Lock()
+	defer fake.getPathMutex.Unlock()
+	fake.GetPathStub = stub
+}
+
+func (fake *VCClient) GetPathArgsForCall(i int) (context.Context, string) {
+	fake.getPathMutex.RLock()
+	defer fake.getPathMutex.RUnlock()
+	argsForCall := fake.getPathArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *VCClient) GetPathReturns(result1 string, result2 []*models.VSphereManagementObject, result3 error) {
+	fake.getPathMutex.Lock()
+	defer fake.getPathMutex.Unlock()
+	fake.GetPathStub = nil
+	fake.getPathReturns = struct {
+		result1 string
+		result2 []*models.VSphereManagementObject
+		result3 error
+	}{result1, result2, result3}
+}
+
+func (fake *VCClient) GetPathReturnsOnCall(i int, result1 string, result2 []*models.VSphereManagementObject, result3 error) {
+	fake.getPathMutex.Lock()
+	defer fake.getPathMutex.Unlock()
+	fake.GetPathStub = nil
+	if fake.getPathReturnsOnCall == nil {
+		fake.getPathReturnsOnCall = make(map[int]struct {
+			result1 string
+			result2 []*models.VSphereManagementObject
+			result3 error
+		})
+	}
+	fake.getPathReturnsOnCall[i] = struct {
+		result1 string
+		result2 []*models.VSphereManagementObject
+		result3 error
+	}{result1, result2, result3}
+}
+
 func (fake *VCClient) GetResourcePools(arg1 context.Context, arg2 string) ([]*models.VSphereResourcePool, error) {
 	fake.getResourcePoolsMutex.Lock()
 	ret, specificReturn := fake.getResourcePoolsReturnsOnCall[len(fake.getResourcePoolsArgsForCall)]
@@ -1600,6 +1765,8 @@ func (fake *VCClient) Invocations() map[string][][]interface{} {
 	defer fake.findDatastoreMutex.RUnlock()
 	fake.findFolderMutex.RLock()
 	defer fake.findFolderMutex.RUnlock()
+	fake.findNetworkMutex.RLock()
+	defer fake.findNetworkMutex.RUnlock()
 	fake.findResourcePoolMutex.RLock()
 	defer fake.findResourcePoolMutex.RUnlock()
 	fake.findVirtualMachineMutex.RLock()
@@ -1618,6 +1785,8 @@ func (fake *VCClient) Invocations() map[string][][]interface{} {
 	defer fake.getFoldersMutex.RUnlock()
 	fake.getNetworksMutex.RLock()
 	defer fake.getNetworksMutex.RUnlock()
+	fake.getPathMutex.RLock()
+	defer fake.getPathMutex.RUnlock()
 	fake.getResourcePoolsMutex.RLock()
 	defer fake.getResourcePoolsMutex.RUnlock()
 	fake.getVSphereVersionMutex.RLock()

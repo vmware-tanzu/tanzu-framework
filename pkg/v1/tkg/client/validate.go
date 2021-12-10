@@ -64,7 +64,7 @@ var (
 var trueString = "true"
 
 // VsphereResourceType vsphere resource types
-var VsphereResourceType = []string{constants.ConfigVariableVsphereResourcePool, constants.ConfigVariableVsphereDatastore, constants.ConfigVariableVsphereFolder}
+var VsphereResourceType = []string{constants.ConfigVariableVsphereDatacenter, constants.ConfigVariableVsphereNetwork, constants.ConfigVariableVsphereResourcePool, constants.ConfigVariableVsphereDatastore, constants.ConfigVariableVsphereFolder}
 
 // CNITypes supported CNI types
 var CNITypes = map[string]bool{"calico": true, "antrea": true, "none": true}
@@ -817,27 +817,40 @@ func (c *TkgClient) ValidateVsphereVipWorkloadCluster(clusterClient clusterclien
 
 // ValidateVsphereResources validates vsphere resource path specified in tkgconfig
 func (c *TkgClient) ValidateVsphereResources(vcClient vc.Client, dcPath string) error {
+	var path, resourceMoid string
+	var err error
+
 	for _, resourceType := range VsphereResourceType {
-		path, err := c.TKGConfigReaderWriter().Get(resourceType)
+		path, err = c.TKGConfigReaderWriter().Get(resourceType)
 		if err != nil {
 			continue
 		}
 
 		switch resourceType {
+		case constants.ConfigVariableVsphereDatacenter:
+			resourceMoid, err = vcClient.FindDataCenter(context.Background(), dcPath)
+			if err != nil {
+				return errors.Wrapf(err, "invalid %s", resourceType)
+			}
+		case constants.ConfigVariableVsphereNetwork:
+			resourceMoid, err = vcClient.FindNetwork(context.Background(), path, dcPath)
+			if err != nil {
+				return errors.Wrapf(err, "invalid %s", resourceType)
+			}
 		case constants.ConfigVariableVsphereResourcePool:
-			_, err := vcClient.FindResourcePool(context.Background(), path, dcPath)
+			resourceMoid, err = vcClient.FindResourcePool(context.Background(), path, dcPath)
 			if err != nil {
 				return errors.Wrapf(err, "invalid %s", resourceType)
 			}
 		case constants.ConfigVariableVsphereDatastore:
 			if path != "" {
-				_, err := vcClient.FindDatastore(context.Background(), path, dcPath)
+				resourceMoid, err = vcClient.FindDatastore(context.Background(), path, dcPath)
 				if err != nil {
 					return errors.Wrapf(err, "invalid %s", resourceType)
 				}
 			}
 		case constants.ConfigVariableVsphereFolder:
-			_, err := vcClient.FindFolder(context.Background(), path, dcPath)
+			resourceMoid, err = vcClient.FindFolder(context.Background(), path, dcPath)
 			if err != nil {
 				return errors.Wrapf(err, "invalid %s", resourceType)
 			}
@@ -845,9 +858,30 @@ func (c *TkgClient) ValidateVsphereResources(vcClient vc.Client, dcPath string) 
 		default:
 			return errors.Errorf("unknown vsphere resource type %s", resourceType)
 		}
+
+		err = c.setFullPath(vcClient, resourceType, path, resourceMoid)
+		if err != nil {
+			return err
+		}
 	}
 
 	return c.verifyDatastoreOrStoragePolicySet()
+}
+
+func (c *TkgClient) setFullPath(vcClient vc.Client, resourceType, path, resourceMoid string) error {
+	if path != "" {
+		resourcePath, _, err := vcClient.GetPath(context.Background(), resourceMoid)
+		if err != nil {
+			return err
+		}
+
+		if resourcePath != path {
+			log.Infof("Setting config variable %q to value %q", resourceType, resourcePath)
+			c.TKGConfigReaderWriter().Set(resourceType, resourcePath)
+		}
+	}
+
+	return nil
 }
 
 func (c *TkgClient) verifyDatastoreOrStoragePolicySet() error {
