@@ -3779,6 +3779,19 @@ subjects:
 ---
 apiVersion: v1
 data:
+  antrea-agent-tweaker.conf: |-
+    # Enable disableUdpTunnelOffload will disable udp tunnel offloading feature on kubernetes node's default interface.
+    # By default, no actions will be taken.
+    disableUdpTunnelOffload: false
+kind: ConfigMap
+metadata:
+  labels:
+    app: antrea
+  name: antrea-agent-tweaker-g56hc6fh8t
+  namespace: kube-system
+---
+apiVersion: v1
+data:
   antrea-agent.conf: |
     # FeatureGates is a map of feature names to bools that enable or disable experimental features.
     featureGates:
@@ -4442,6 +4455,29 @@ spec:
           readOnly: true
         - mountPath: /var/run/antrea
           name: host-var-run-antrea
+      - args:
+        - --config
+        - /etc/antrea/antrea-agent-tweaker.conf
+        command:
+        - antrea-agent-tweaker
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        image: antrea/antrea-ubuntu:v1.2.3
+        name: antrea-agent-tweaker
+        resources:
+          requests:
+            cpu: 100m
+        securityContext:
+          capabilities:
+            add:
+            - NET_ADMIN
+        volumeMounts:
+        - mountPath: /etc/antrea/antrea-agent-tweaker.conf
+          name: antrea-agent-tweaker-config
+          subPath: antrea-agent-tweaker.conf
       nodeSelector:
         kubernetes.io/os: linux
       priorityClassName: system-node-critical
@@ -4457,6 +4493,9 @@ spec:
       - configMap:
           name: antrea-config-822fk25299
         name: antrea-config
+      - configMap:
+          name: antrea-agent-tweaker-g56hc6fh8t
+        name: antrea-agent-tweaker-config
       - hostPath:
           path: /etc/cni/net.d
         name: host-cni-conf
