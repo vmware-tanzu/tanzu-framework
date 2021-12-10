@@ -90,9 +90,6 @@ jobs:
       matrix:
         working-directory:
           - ""
-          - addons
-          - addons/pinniped/post-deploy
-          - pkg/v1/providers/tests
     steps:
     - uses: actions/checkout@v2
 
@@ -106,3 +103,6 @@ jobs:
     - name: Run vale doc linter
       run: |
         make doc-lint
+        echo "fake long step"
+        sleep 900
+        echo "end sleep"
