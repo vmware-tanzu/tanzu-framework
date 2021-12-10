@@ -41,5 +41,7 @@ spec:
       initContainers:
         #@overlay/match by=overlay.subset({"name":"install-cni"})
         - image: #@ "{}/{}:{}".format(antreaImageRepo, antreaImage.imagePath, antreaImage.tag)
+        #@overlay/match by=overlay.subset({"name":"antrea-agent-tweaker"})
+        - image: #@ "{}/{}:{}".format(antreaImageRepo, antreaImage.imagePath, antreaImage.tag)
 
 #@ end
