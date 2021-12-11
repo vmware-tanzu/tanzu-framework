@@ -9,46 +9,54 @@ spec:
     spec:
       files:
       #@overlay/append
+      - path: C:\k\antrea_cleanup.ps1
+        content: |
+          stop-service antrea-agent -ErrorAction SilentlyContinue
+          stop-service vmtools -ErrorAction SilentlyContinue
+          stop-process -Name vmtoolsd -Force -ErrorAction SilentlyContinue
+          stop-process -Name vmtoolsd -Force -ErrorAction SilentlyContinue
+          if (Test-Path "C:\k\antrea\Clean-AntreaNetwork.ps1") {
+              C:\k\antrea\Clean-AntreaNetwork.ps1
+          }
+      #@overlay/append
       - path: C:\k\register_antrea_cleanup.ps1
         content: |
-          $methodScript = "C:\k\antrea\Clean-AntreaNetwork.ps1"
-          if (Test-Path "$methodScript") {
-              $method = "Shutdown"
-              $RegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy"
-              $RegScriptsPath = "$RegPath\Scripts\$method\0"
-              $RegSmScriptsPath = "$RegPath\State\Machine\Scripts\$method\0"
-              # Create the path if not exist
-              $gpoPath = "$ENV:systemRoot\System32\GroupPolicy\Machine"
-              $methodPath = "$gpoPath\Scripts\$method"
-              if (-not (Test-Path $methodPath)) {
-                  New-Item -path $methodPath -itemType Directory
+          $methodScript = "C:\k\antrea_cleanup.ps1"
+          $method = "Shutdown"
+          $RegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy"
+          $RegScriptsPath = "$RegPath\Scripts\$method\0"
+          $RegSmScriptsPath = "$RegPath\State\Machine\Scripts\$method\0"
+          # Create the path if not exist
+          $gpoPath = "$ENV:systemRoot\System32\GroupPolicy\Machine"
+          $methodPath = "$gpoPath\Scripts\$method"
+          if (-not (Test-Path $methodPath)) {
+              New-Item -path $methodPath -itemType Directory
+          }
+          # Create sub-path
+          $items = @("$RegScriptsPath\0", "$RegSmScriptsPath\0")
+          foreach ($item in $items) {
+              if (-not (Test-Path $item)) {
+                  New-Item -path $item -force
               }
-              # Create sub-path
-              $items = @("$RegScriptsPath\0", "$RegSmScriptsPath\0")
-              foreach ($item in $items) {
-                  if (-not (Test-Path $item)) {
-                      New-Item -path $item -force
-                  }
-              }
-              # Register callback script to GPO
-              $items = @("$RegScriptsPath", "$RegSmScriptsPath")
-              foreach ($item in $items) {
-                  New-ItemProperty -path "$item" -name DisplayName -propertyType String -value "Local Group Policy" -force
-                  New-ItemProperty -path "$item" -name FileSysPath -propertyType String -value "$gpoPath" -force
-                  New-ItemProperty -path "$item" -name GPO-ID -propertyType String -value "LocalGPO" -force
-                  New-ItemProperty -path "$item" -name GPOName -propertyType String -value "Local Group Policy" -force
-                  New-ItemProperty -path "$item" -name PSScriptOrder -propertyType DWord -value 2 -force
-                  New-ItemProperty -path "$item" -name SOM-ID -propertyType String -value "Local" -force
-              }
-              $BinaryString = "00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00"
-              $ExecTime = $BinaryString.Split(',') | ForEach-Object {"0x$_"}
-              $items = @("$RegScriptsPath\0", "$RegSmScriptsPath\0")
-              foreach ($item in $items) {
-                  New-ItemProperty -path "$item" -name Script -propertyType String -value $methodScript -force
-                  New-ItemProperty -path "$item" -name Parameters -propertyType String -value $method -force
-                  New-ItemProperty -path "$item" -name IsPowershell -propertyType DWord -value 1 -force
-                  New-ItemProperty -path "$item" -name ExecTime -propertyType Binary -value ([byte[]]$ExecTime) -force
-              }
+          }
+          # Register callback script to GPO
+          $items = @("$RegScriptsPath", "$RegSmScriptsPath")
+          foreach ($item in $items) {
+              New-ItemProperty -path "$item" -name DisplayName -propertyType String -value "Local Group Policy" -force
+              New-ItemProperty -path "$item" -name FileSysPath -propertyType String -value "$gpoPath" -force
+              New-ItemProperty -path "$item" -name GPO-ID -propertyType String -value "LocalGPO" -force
+              New-ItemProperty -path "$item" -name GPOName -propertyType String -value "Local Group Policy" -force
+              New-ItemProperty -path "$item" -name PSScriptOrder -propertyType DWord -value 2 -force
+              New-ItemProperty -path "$item" -name SOM-ID -propertyType String -value "Local" -force
+          }
+          $BinaryString = "00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00"
+          $ExecTime = $BinaryString.Split(',') | ForEach-Object {"0x$_"}
+          $items = @("$RegScriptsPath\0", "$RegSmScriptsPath\0")
+          foreach ($item in $items) {
+              New-ItemProperty -path "$item" -name Script -propertyType String -value $methodScript -force
+              New-ItemProperty -path "$item" -name Parameters -propertyType String -value $method -force
+              New-ItemProperty -path "$item" -name IsPowershell -propertyType DWord -value 1 -force
+              New-ItemProperty -path "$item" -name ExecTime -propertyType Binary -value ([byte[]]$ExecTime) -force
           }
       postKubeadmCommands:
       #@overlay/append

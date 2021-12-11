@@ -272,6 +272,26 @@ spec:
             register-with-taints: os=windows:NoSchedule
           name: '{{ ds.meta_data.hostname }}'
       files:
+      - path: 'C:\k\antrea_agent_service.ps1'
+        content: |
+          $cnt = 7
+          do {
+              $HostIP = (
+                  Get-NetIPConfiguration |
+                  Where-Object {
+                      $_.IPv4DefaultGateway -ne $null -and $_.NetAdapter.Status -ne "Disconnected"
+                  }
+              ).IPv4Address.IPAddress
+              if ("$HostIP" -ne "") {
+                  break
+              }
+              $cnt = $cnt - 1
+              sleep 5
+          } while ($cnt -gt 0)
+          start-service vmtools
+          # Delay antrea-agent to avoid conflict with kubelet
+          sleep 60
+          C:\k\antrea\bin\antrea-agent.exe --config=C:\k\antrea\etc\antrea-agent.conf --logtostderr=false --log_dir=C:\var\log\antrea --alsologtostderr --log_file_max_size=100 --log_file_max_num=4
       - path: 'C:\Temp\antrea.ps1'
         content: |
           function WaitForSaToken($KubeCfgFile, $ServiceAcctName) {
@@ -365,7 +385,7 @@ spec:
           $nssm = (Get-Command nssm).Source
           & $nssm set kubelet start SERVICE_AUTO_START
           & $nssm install kube-proxy "C:\k\kube-proxy.exe" "--proxy-mode=userspace --kubeconfig=$KubeProxyConfig --log-dir=C:\var\log\kube-proxy --logtostderr=false --alsologtostderr"
-          & $nssm install antrea-agent "C:\k\antrea\bin\antrea-agent.exe" "--config=C:\k\antrea\etc\antrea-agent.conf --logtostderr=false --log_dir=C:\var\log\antrea --alsologtostderr --log_file_max_size=100 --log_file_max_num=4"
+          & $nssm install antrea-agent "powershell.exe" "-ExecutionPolicy Bypass C:\k\antrea_agent_service.ps1"
           & $nssm set antrea-agent DependOnService kube-proxy ovs-vswitchd
           & $nssm set antrea-agent Start SERVICE_AUTO_START
 
