@@ -50,11 +50,12 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
      * Create the initial form
      */
     private buildForm() {
-        this.formGroup.addControl(AwsField.PROVIDER_AUTH_TYPE, new FormControl(this.authTypeValue, []));
+        this.formGroup.addControl(AwsField.PROVIDER_AUTH_TYPE, new FormControl(this.authTypeValue, []), { emitEvent: false });
 
         AWSAccountParamsKeys.forEach(key => this.formGroup.addControl(
             key.toString(),
-            new FormControl('')
+            new FormControl(''),
+            { emitEvent: false }
         ));
 
         this.formGroup.get(AwsField.PROVIDER_REGION).setValidators([
@@ -132,7 +133,7 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
             }
         });
         this.authTypeValue = this.getSavedValue(AwsField.PROVIDER_AUTH_TYPE, CredentialType.PROFILE);
-        this.setControlValueSafely(AwsField.PROVIDER_AUTH_TYPE, this.authTypeValue);
+        this.setControlValueSafely(AwsField.PROVIDER_AUTH_TYPE, this.authTypeValue, { emitEvent: false });
 
         Broker.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
             .pipe(takeUntil(this.unsubscribe))
@@ -184,7 +185,7 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
                     }
                     this.profileNames = next[1];
                     if (this.profileNames.length === 1) {
-                        this.formGroup.get(AwsField.PROVIDER_PROFILE_NAME).setValue(this.profileNames[0]);
+                        this.formGroup.get(AwsField.PROVIDER_PROFILE_NAME).setValue(this.profileNames[0], { onlySelf: true });
                     }
                 },
                 () => this.loading = false

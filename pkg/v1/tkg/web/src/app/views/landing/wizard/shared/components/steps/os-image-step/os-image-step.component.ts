@@ -50,7 +50,8 @@ export class SharedOsImageStepComponent extends StepFormDirective implements OnI
             'osImage',
             new FormControl('', [
                 Validators.required
-            ])
+            ]),
+            { emitEvent: false }
         );
         /**
          * Whenever data center selection changes, reset the relevant fields

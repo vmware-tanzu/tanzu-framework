@@ -85,20 +85,23 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
             VsphereField.RESOURCE_POOL,
             new FormControl('', [
                 Validators.required
-            ])
+            ]),
+            { emitEvent: false }
         );
         this.formGroup.addControl(
             VsphereField.RESOURCE_DATASTORE,
             new FormControl('', [
                 Validators.required
-            ])
+            ]),
+            { emitEvent: false }
         );
 
         this.formGroup.addControl(
             VsphereField.RESOURCE_VMFOLDER,
             new FormControl('', [
                 Validators.required
-            ])
+            ]),
+            { emitEvent: false }
         );
 
         const temp = DataSources.map(source => this.wizardFormService.getErrorStream(source));

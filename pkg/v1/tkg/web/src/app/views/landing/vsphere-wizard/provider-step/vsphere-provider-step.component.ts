@@ -81,26 +81,30 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
         this.enableIpv6 = Broker.appDataService.isPluginFeatureActivated(managementClusterPlugin, 'vsphereIPv6');
         this.formGroup.addControl(
             VsphereField.PROVIDER_IP_FAMILY,
-            new FormControl( IpFamilyEnum.IPv4, [])
+            new FormControl( IpFamilyEnum.IPv4, []),
+            { emitEvent: false }
         );
         this.formGroup.addControl(
             VsphereField.PROVIDER_VCENTER_ADDRESS,
             new FormControl('', [
                 Validators.required,
                 this.validationService.isValidIpOrFqdn()
-            ])
+            ]),
+            { emitEvent: false }
         );
         this.formGroup.addControl(
             VsphereField.PROVIDER_USER_NAME,
             new FormControl('', [
                 Validators.required
-            ])
+            ]),
+            { emitEvent: false }
         );
         this.formGroup.addControl(
             VsphereField.PROVIDER_USER_PASSWORD,
             new FormControl('', [
                 Validators.required
-            ])
+            ]),
+            { emitEvent: false }
         );
         this.formGroup.addControl(
             VsphereField.PROVIDER_CONNECTION_INSECURE,
@@ -110,22 +114,26 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
             VsphereField.PROVIDER_DATA_CENTER,
             new FormControl('', [
                 Validators.required
-            ])
+            ]),
+            { emitEvent: false }
         );
         this.formGroup.addControl(
             VsphereField.PROVIDER_SSH_KEY,
             new FormControl('', [
                 Validators.required
-            ])
+            ]),
+            { emitEvent: false }
         );
         this.formGroup.addControl(
             VsphereField.PROVIDER_SSH_KEY_FILE,
-            new FormControl('', [])
+            new FormControl('', []),
+            { emitEvent: false }
         );
 
         this.formGroup.addControl(
             VsphereField.PROVIDER_THUMBPRINT,
-            new FormControl('', [])
+            new FormControl('', []),
+            { emitEvent: false }
         );
 
         this.formGroup.setValidators((data: any) => {
@@ -135,9 +143,9 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 return { [ValidatorEnum.REQUIRED]: true };
             }
         });
-        this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).disable();
+        this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).disable({ emitEvent: false});
         this.datacenters = [];
-        this.formGroup.get(VsphereField.PROVIDER_SSH_KEY).disable();
+        this.formGroup.get(VsphereField.PROVIDER_SSH_KEY).disable({ emitEvent: false});
 
         SupervisedField.forEach(field => {
             this.formGroup.get(field).valueChanges
@@ -207,6 +215,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
     disconnect() {
         this.connected = false;
         this.loadingState = ClrLoadingState.DEFAULT;
+        this.formGroup.markAsPending(); // a temperary fix to ignore this.formGroup.statusChanges detection
         this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).setValue('');
         this.datacenters = [];
         this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).disable();

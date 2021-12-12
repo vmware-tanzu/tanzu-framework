@@ -41,32 +41,37 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             'controlPlaneSetting',
             new FormControl('', [
                 Validators.required
-            ])
+            ]),
+            { emitEvent: false }
         );
         this.formGroup.addControl(
             'devInstanceType',
             new FormControl('', [
                 Validators.required
-            ])
+            ]),
+            { emitEvent: false }
         );
         this.formGroup.addControl(
             'prodInstanceType',
             new FormControl('', [
                 Validators.required
-            ])
+            ]),
+            { emitEvent: false }
         );
         this.formGroup.addControl(
             'devInstanceType',
             new FormControl('', [
                 Validators.required
-            ])
+            ]),
+            { emitEvent: false }
         );
 
         this.formGroup.addControl(
             'managementClusterName',
             new FormControl('', [
                 this.validationService.isValidClusterName()
-            ])
+            ]),
+            { emitEvent: false }
         );
 
         if (!this.modeClusterStandalone) {
@@ -74,13 +79,15 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 'workerNodeInstanceType',
                 new FormControl('', [
                     Validators.required
-                ])
+                ]),
+                { emitEvent: false }
             );
         }
 
         this.formGroup.addControl(
             'machineHealthChecksEnabled',
-            new FormControl(true, [])
+            new FormControl(true, []),
+            { emitEvent: false }
         );
     }
 
@@ -103,7 +110,9 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         if (this.edition !== AppEdition.TKG) {
             this.resurrectField('managementClusterName',
                 [Validators.required, this.validationService.isValidClusterName()],
-                this.formGroup.get('managementClusterName').value);
+                this.formGroup.get('managementClusterName').value,
+                { onlySelf: true, emitEvent: false}
+            );
         }
     }
 
@@ -127,34 +136,26 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     setDevCardValidations() {
         this.nodeType = 'dev';
-        const devInstanceTypeControl = this.formGroup.get('devInstanceType');
-        if (devInstanceTypeControl) {
-            devInstanceTypeControl.setValidators([Validators.required]);
-            devInstanceTypeControl.setValue(this.nodeTypes.length === 1 ? this.nodeTypes[0].name : '');
-            devInstanceTypeControl.updateValueAndValidity();
-        }
-        const prodInstanceTypeControl = this.formGroup.controls['prodInstanceType'];
-        if (prodInstanceTypeControl) {
-            prodInstanceTypeControl.clearValidators();
-            prodInstanceTypeControl.setValue('');
-            prodInstanceTypeControl.updateValueAndValidity();
-        }
+        this.formGroup.markAsPending();
+        this.resurrectField(
+            'devInstanceType',
+            [Validators.required],
+            this.nodeTypes.length === 1 ? this.nodeTypes[0].name : '',
+            { onlySelf: true, emitEvent: false }
+        );
+        this.disarmField('prodInstanceType', true);
     }
 
     setProdCardValidations() {
         this.nodeType = 'prod';
-        const devInstanceTypeControl = this.formGroup.get('devInstanceType');
-        if (devInstanceTypeControl) {
-            devInstanceTypeControl.setValue('');
-            devInstanceTypeControl.updateValueAndValidity();
-            devInstanceTypeControl.clearValidators();
-        }
-        const prodInstanceTypeControl = this.formGroup.controls['prodInstanceType'];
-        if (prodInstanceTypeControl) {
-            prodInstanceTypeControl.setValidators([Validators.required]);
-            prodInstanceTypeControl.setValue(this.nodeTypes.length === 1 ? this.nodeTypes[0].name : '');
-            prodInstanceTypeControl.updateValueAndValidity();
-        }
+        this.disarmField('devInstanceType', true);
+        this.formGroup.markAsPending();
+        this.resurrectField(
+            'prodInstanceType',
+            [Validators.required],
+            this.nodeTypes.length === 1 ? this.nodeTypes[0].name : '',
+            { onlySelf: true, emitEvent: false }
+        );
     }
 
     ngOnInit() {

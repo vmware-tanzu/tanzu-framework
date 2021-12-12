@@ -86,7 +86,8 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
             key,
             new FormControl('', [
                 Validators.required
-            ])
+            ]),
+            { emitEvent: false }
         ));
 
         this.defaultCidrFields.forEach(field => this.formGroup.addControl(
@@ -95,17 +96,20 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
                 Validators.required,
                 this.validationService.noWhitespaceOnEnds(),
                 this.validationService.isValidIpNetworkSegment()
-            ])
+            ]),
+            { emitEvent: false }
         ));
         // special hidden field used to capture existing subnet cidr when user selects existing subnet
         this.formGroup.addControl(
             VnetField.CONTROLPLANE_SUBNET_CIDR,
-            new FormControl('', [])
+            new FormControl('', []),
+            { emitEvent: false }
         );
 
         this.optionalFields.forEach(field => this.formGroup.addControl(
             field,
-            new FormControl('', [])
+            new FormControl('', []),
+            { emitEvent: false }
         ));
 
         this.formGroup.get(VnetField.RESOURCE_GROUP).valueChanges
@@ -258,10 +262,11 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
         if (createPrivateCluster) {
             const cidr = this.cidrForPrivateCluster['' + this.showVnetFieldsOption];
             const cidrValidator = this.validationService.isIpInSubnet2(cidr);
-
+            this.formGroup.markAsPending();
             this.resurrectFieldWithSavedValue(VnetField.PRIVATE_IP,
                 [Validators.required, this.validationService.isValidIpOrFqdn(),
-                    cidrValidator]);
+                    cidrValidator]
+            );
         } else {
             this.disarmField(VnetField.PRIVATE_IP, true);
         }

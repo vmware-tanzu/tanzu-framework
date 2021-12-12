@@ -30,12 +30,17 @@ export class DaemonValidationStepComponent extends StepFormDirective implements 
 
     ngOnInit(): void {
         super.ngOnInit();
+        // Clarity 5 has a new logic to check statuschanges. if the panel status is changed from valid to
+        // to invalid. It will automatically run triggerAllFormControlValidation method which will show
+        // a unnecessary step level error message at intial state. Adding { emitEvent: false } to addControl
+        // method can avoid this issue.
         this.formGroup.addControl(
             'isConnected',
             new FormControl(
                 false,
                 this.validationService.isTrue
-            )
+            ),
+            { emitEvent: false }
         );
         Broker.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
             .pipe(takeUntil(this.unsubscribe))
@@ -69,7 +74,7 @@ export class DaemonValidationStepComponent extends StepFormDirective implements 
             .subscribe((data: DockerDaemonStatus) => {
                 this.connected = !!data.status;
                 this.connecting = false;
-                this.resurrectField('isConnected', this.validationService.isTrue(), 'true');
+                this.resurrectField('isConnected', this.validationService.isTrue(), 'true', { emitEvent: false });
                 FormMetaDataStore.saveMetaDataEntry(
                     this.formName,
                     'dockerDeamonValidation',
