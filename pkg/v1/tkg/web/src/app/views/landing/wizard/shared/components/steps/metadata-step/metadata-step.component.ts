@@ -29,25 +29,29 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
             'clusterLocation',
             new FormControl('', [
                 this.validationService.isValidLabelOrAnnotation()
-            ])
+            ]),
+            { emitEvent: false }
         );
         this.formGroup.addControl(
             'clusterDescription',
             new FormControl('', [
                 this.validationService.isValidLabelOrAnnotation()
-            ])
+            ]),
+            { emitEvent: false }
         );
         this.formGroup.addControl(
             'newLabelKey',
             new FormControl('', [
                 this.validationService.isValidLabelOrAnnotation()
-            ])
+            ]),
+            { emitEvent: false }
         );
         this.formGroup.addControl(
             'newLabelValue',
             new FormControl('', [
                 this.validationService.isValidLabelOrAnnotation()
-            ])
+            ]),
+            { emitEvent: false }
         );
         this.formGroup.addControl(
             'clusterLabels',

@@ -70,61 +70,74 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
             'controllerHost',
             new FormControl('', [
                 this.validationService.isValidIpOrFqdn()
-            ])
+            ]),
+            { emitEvent: false }
         );
         this.formGroup.addControl(
             'username',
-            new FormControl('', [])
+            new FormControl('', []),
+            { emitEvent: false }
         );
         this.formGroup.addControl(
             'password',
-            new FormControl('', [])
+            new FormControl('', []),
+            { emitEvent: false }
         );
 
         this.formGroup.addControl(
             'cloudName',
-            new FormControl('', [])
+            new FormControl('', []),
+            { emitEvent: false }
         );
         this.formGroup.addControl(
             'serviceEngineGroupName',
-            new FormControl('', [])
+            new FormControl('', []),
+            { emitEvent: false }
         );
 
         this.formGroup.addControl(
             'networkName',
-            new FormControl('', [])
+            new FormControl('', []),
+            { emitEvent: false }
         );
         this.formGroup.addControl(
             'networkCIDR',
-            new FormControl('', [])
+            new FormControl('', []),
+            { emitEvent: false }
         );
         this.formGroup.addControl(
             'managementClusterNetworkName',
-            new FormControl('', [])
+            new FormControl('', []),
+            { emitEvent: false }
         );
         this.formGroup.addControl(
             'managementClusterNetworkCIDR',
-            new FormControl('', [this.validationService.isValidIpNetworkSegment()])
+            new FormControl('', [this.validationService.isValidIpNetworkSegment()]),
+            { emitEvent: false }
         );
         this.formGroup.addControl(
             'controllerCert',
-            new FormControl('', [])
+            new FormControl('', []),
+            { emitEvent: false }
         );
         this.formGroup.addControl(
             'clusterLabels',
-            new FormControl('', [])
+            new FormControl('', []),
+            { emitEvent: false }
         );
         this.formGroup.addControl(
             'newLabelKey',
             new FormControl('', [
                 this.validationService.isValidLabelOrAnnotation()
-            ])
+            ]),
+            { emitEvent: false }
         );
         this.formGroup.addControl(
             'newLabelValue',
             new FormControl('', [
                 this.validationService.isValidLabelOrAnnotation()
-            ])
+            ]),
+            { emitEvent: false }
         );
 
         SupervisedFields.forEach(field => {

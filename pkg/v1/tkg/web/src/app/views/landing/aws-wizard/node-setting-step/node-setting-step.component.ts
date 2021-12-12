@@ -164,18 +164,21 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             if (key) {
                 this.formGroup.addControl(
                     key,
-                    new FormControl('', this.commonFieldMap[key])
+                    new FormControl('', this.commonFieldMap[key]),
+                    { emitEvent: false }
                 );
             }
         }
         this.setControlWithSavedValue(AwsField.NODESETTING_BASTION_HOST_ENABLED, true);
         this.formGroup.addControl(
             AwsField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED,
-            new FormControl(true, [])
+            new FormControl(true, []),
+            { emitEvent: false }
         );
         this.formGroup.addControl(
             AwsField.NODESETTING_CREATE_CLOUD_FORMATION,
-            new FormControl(true, [])
+            new FormControl(true, []),
+            { emitEvent: false }
         );
     }
 
@@ -341,7 +344,9 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         this.disarmField(AwsField.NODESETTING_INSTANCE_TYPE_DEV, true);
         this.resurrectFieldWithSavedValue(AwsField.NODESETTING_INSTANCE_TYPE_PROD,
             [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
-            this.nodeTypes.length === 1 ? this.nodeTypes[0] : this.formGroup.get(AwsField.NODESETTING_INSTANCE_TYPE_PROD).value);
+            this.nodeTypes.length === 1 ? this.nodeTypes[0] : this.formGroup.get(AwsField.NODESETTING_INSTANCE_TYPE_PROD).value,
+            { onlySelf: true }
+        );
         for (let i = 0; i < AZS.length; i++) {
             const thisAZ = AZS[i];
             const otherAZs = this.otherAZs(thisAZ);

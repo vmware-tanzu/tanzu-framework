@@ -40,27 +40,32 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
             new FormControl(
                 VpcType.NEW, [
                 Validators.required
-            ])
+            ]),
+            { emitEvent: false }
         );
 
         this.formGroup.addControl(
             AwsField.VPC_NEW_CIDR,
-            new FormControl('', [])
+            new FormControl('', []),
+            { emitEvent: false }
         );
 
         this.formGroup.addControl(
             AwsField.VPC_EXISTING_CIDR,
-            new FormControl('', [])
+            new FormControl('', []),
+            { emitEvent: false }
         );
 
         this.formGroup.addControl(
             AwsField.VPC_EXISTING_ID,
-            new FormControl('', [])
+            new FormControl('', []),
+            { emitEvent: false }
         );
 
         this.formGroup.addControl(
             AwsField.VPC_NON_INTERNET_FACING,
-            new FormControl(false, [])
+            new FormControl(false, []),
+            { emitEvent: false }
         );
 
         this.formGroup.get(AwsField.VPC_TYPE).valueChanges
@@ -199,7 +204,8 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
         if (existingVpc && existingVpc.length > 0) {
             this.formGroup.get(AwsField.VPC_EXISTING_CIDR).setValue(existingVpc[0].cidr);
         } else {
-            this.formGroup.get(AwsField.VPC_EXISTING_CIDR).setValue('');
+            // onlySelf onption changes value for the current control only.
+            this.formGroup.get(AwsField.VPC_EXISTING_CIDR).setValue('', { onlySelf: true});
         }
 
         Broker.messenger.publish({

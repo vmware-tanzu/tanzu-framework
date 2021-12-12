@@ -86,14 +86,16 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
             controlName,
             new FormControl('', [
                 Validators.required
-            ])
+            ]),
+            { emitEvent: false }
         ));
 
         this.setControlValueSafely(ProviderField.RESOURCEGROUPOPTION, this.resourceGroupOption);
 
         optionalFields.forEach(controlName => this.formGroup.addControl(
             controlName,
-            new FormControl('', [])
+            new FormControl('', []),
+            { emitEvent: false }
         ));
 
         this.formGroup['canMoveToNext'] = () => {

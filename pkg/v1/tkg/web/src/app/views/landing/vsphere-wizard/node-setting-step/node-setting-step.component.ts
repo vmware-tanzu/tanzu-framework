@@ -49,51 +49,59 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             VsphereField.NODESETTING_CONTROL_PLANE_SETTING,
             new FormControl('', [
                 Validators.required
-            ])
+            ]),
+            { emitEvent: false }
         );
         this.formGroup.addControl(
             VsphereField.NODESETTING_INSTANCE_TYPE_DEV,
             new FormControl('', [
                 Validators.required
-            ])
+            ]),
+            { emitEvent: false }
         );
         this.formGroup.addControl(
             VsphereField.NODESETTING_INSTANCE_TYPE_PROD,
             new FormControl('', [
                 Validators.required
-            ])
+            ]),
+            { emitEvent: false }
         );
         this.formGroup.addControl(
             VsphereField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED,
-            new FormControl(true, [])
+            new FormControl(true, []),
+            { emitEvent: false }
         );
         if (!this.modeClusterStandalone) {
             this.formGroup.addControl(
                 VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE,
                 new FormControl('', [
                     Validators.required
-                ])
+                ]),
+                { emitEvent: false }
             );
         }
         this.formGroup.addControl(
             VsphereField.NODESETTING_CLUSTER_NAME,
             new FormControl('', [
                 this.validationService.isValidClusterName()
-            ])
+            ]),
+            { emitEvent: false }
         );
         this.formGroup.addControl(
             VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_IP,
             new FormControl('', [
                 Validators.required,
                 this.validationService.isValidIpOrFqdn()
-            ])
+            ]),
+            { emitEvent: false }
         );
 
         this.formGroup.addControl(
             VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_PROVIDER,
             new FormControl(this.currentControlPlaneEndpoingProvider, [
                 Validators.required
-            ])
+            ]),
+            { emitEvent: false }
         );
 
         this.registerOnValueChange(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_PROVIDER,
@@ -192,7 +200,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 if (savedNodeType) {
                     this.setControlValueSafely(VsphereField.NODESETTING_INSTANCE_TYPE_DEV, savedNodeType.id);
                 }
-                this.clearControlValue(VsphereField.NODESETTING_INSTANCE_TYPE_PROD);
+                this.disarmField(VsphereField.NODESETTING_INSTANCE_TYPE_PROD, true);
             } else {
                 // set the node type ID by finding it by the node type name OR the id
                 const savedNameOrId = this.getSavedValue(VsphereField.NODESETTING_INSTANCE_TYPE_PROD, '');
@@ -200,7 +208,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 if (savedNodeType) {
                     this.setControlValueSafely(VsphereField.NODESETTING_INSTANCE_TYPE_PROD, savedNodeType.id);
                 }
-                this.clearControlValue(VsphereField.NODESETTING_INSTANCE_TYPE_DEV);
+                this.disarmField(VsphereField.NODESETTING_INSTANCE_TYPE_DEV, true);
             }
             const savedWorkerNodeNameOrId = this.getSavedValue(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE, '');
             const savedWorkerNodeType = this.findNodeTypeByNameOrId(savedWorkerNodeNameOrId);
