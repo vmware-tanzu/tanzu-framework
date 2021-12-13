@@ -92,6 +92,7 @@ VSPHERE_NETWORK: VM Network
 #! necessary except to disambiguate among 2 or more applicable VM templates.
 VSPHERE_TEMPLATE:
 
+VSPHERE_TEMPLATE_MOID:
 
 #! WINDOWS PARAMETERS
 #! The name of the VM Windows template to be used to create a specific version of

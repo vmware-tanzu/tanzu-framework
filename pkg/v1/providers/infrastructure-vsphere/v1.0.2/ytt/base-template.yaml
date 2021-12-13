@@ -43,6 +43,8 @@ kind: VSphereMachineTemplate
 metadata:
   name: '${ CLUSTER_NAME }-control-plane'
   namespace: '${ NAMESPACE }'
+  annotations:
+    vmTemplateMoid: '${ VSPHERE_TEMPLATE_MOID }'
 spec:
   template:
     spec:
@@ -67,6 +69,8 @@ kind: VSphereMachineTemplate
 metadata:
   name: '${ CLUSTER_NAME }-worker'
   namespace: '${ NAMESPACE }'
+  annotations:
+    vmTemplateMoid: '${ VSPHERE_TEMPLATE_MOID }'
 spec:
   template:
     spec:
