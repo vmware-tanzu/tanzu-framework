@@ -301,6 +301,28 @@ $ tanzu plugin list
   secret              Tanzu secret management                                            Standalone  default               v0.11.0-dev  not installed
 ```
 
+Run sync command to download the latest version of all plugins
+
+```sh
+$ tanzu plugin sync
+Checking for required plugins ...
+Installing plugin 'login' ...
+Installing plugin 'management-cluster' ...
+Installing plugin 'package' ...
+Installing plugin 'secret' ...
+
+✓ Done
+```
+
+```sh
+$ tanzu plugin list
+  NAME                DESCRIPTION                                                        SCOPE       DISCOVERY             VERSION      STATUS
+  login               Login to the platform                                              Standalone  default               v0.11.0-dev  installed
+  management-cluster  Kubernetes management-cluster operations                           Standalone  default               v0.11.0-dev  installed
+  package             Tanzu package management                                           Standalone  default               v0.11.0-dev  installed
+  secret              Tanzu secret management                                            Standalone  default               v0.11.0-dev  installed
+```
+
 ### Context Creation
 
 #### With new install
@@ -313,6 +335,7 @@ $ tanzu login --context ~/.kube/vsphere-mc-1 --name vsphere-mc-1
 
 Checking for required plugins ...
 Downloading plugin 'cluster' ...
+Downloading plugin 'kubernetes-release' ...
 
 ✓ Done
 ```
@@ -322,13 +345,12 @@ Plugin list will display plugins from standalone as well context-scoped discover
 ```sh
 $ tanzu plugin list
   NAME                DESCRIPTION                                                        SCOPE       DISCOVERY             VERSION      STATUS
-  cluster             Kubernetes cluster operations                                      Context     default-vsphere-mc-1  v0.11.0-dev  not installed
-  kubernetes-release  Kubernetes release operations                                      Context     default-vsphere-mc-1  v0.11.0-dev  not installed
-  login               Login to the platform                                              Standalone  default               v0.11.0-dev  not installed
-  management-cluster  Kubernetes management-cluster operations                           Standalone  default               v0.11.0-dev  not installed
-  package             Tanzu package management                                           Standalone  default               v0.11.0-dev  not installed
-  pinniped-auth       Pinniped authentication operations (usually not directly invoked)  Standalone  default               v0.11.0-dev  not installed
-  secret              Tanzu secret management                                            Standalone  default               v0.11.0-dev  not installed
+  cluster             Kubernetes cluster operations                                      Context     default-vsphere-mc-1  v0.11.0-dev  installed
+  kubernetes-release  Kubernetes release operations                                      Context     default-vsphere-mc-1  v0.11.0-dev  installed
+  login               Login to the platform                                              Standalone  default               v0.11.0-dev  installed
+  management-cluster  Kubernetes management-cluster operations                           Standalone  default               v0.11.0-dev  installed
+  package             Tanzu package management                                           Standalone  default               v0.11.0-dev  installed
+  secret              Tanzu secret management                                            Standalone  default               v0.11.0-dev  installed
 ```
 
 #### No new install
