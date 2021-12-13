@@ -216,8 +216,8 @@ spec:
       #@ if (not data.values.AVI_CONTROL_PLANE_HA_PROVIDER) and data.values.CLUSTER_API_SERVER_PORT:
       #@overlay/match missing_ok=True
       localAPIEndpoint:
-        #@ if data.values.TKG_IP_FAMILY == "ipv6":
-        advertiseAddress: '::\0'
+        #@ if data.values.TKG_IP_FAMILY in ["ipv6", "ipv6,ipv4"]:
+        advertiseAddress: '::/0'
         #@ else:
         advertiseAddress: '0.0.0.0'
         #@ end
@@ -229,13 +229,24 @@ spec:
           #@overlay/match missing_ok=True
           node-ip: "::"
       #@ end
-    #@ if data.values.TKG_IP_FAMILY == "ipv6,ipv4":
     joinConfiguration:
+      #@ if (not data.values.AVI_CONTROL_PLANE_HA_PROVIDER) and data.values.CLUSTER_API_SERVER_PORT:
+      #@overlay/match missing_ok=True
+      controlPlane:
+        localAPIEndpoint:
+          #@ if data.values.TKG_IP_FAMILY in ["ipv6", "ipv6,ipv4"]:
+          advertiseAddress: '::/0'
+          #@ else:
+          advertiseAddress: '0.0.0.0'
+          #@ end
+          bindPort: #@ data.values.CLUSTER_API_SERVER_PORT
+      #@ end
+      #@ if data.values.TKG_IP_FAMILY == "ipv6,ipv4":
       nodeRegistration:
         kubeletExtraArgs:
           #@overlay/match missing_ok=True
           node-ip: "::"
-    #@ end
+      #@ end
     clusterConfiguration:
       imageRepository: #@ kubeadm_image_repo(bomDataForK8sVersion.kubeadmConfigSpec.imageRepository)
       etcd:
