@@ -114,16 +114,17 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
             this.unsetAllValidators();
             if (this.identityTypeValue === 'oidc') {
                 this.setOIDCValidators();
-                this.formGroup.get('clientSecret').setValue('');
+                this.setControlValueSafely('clientSecret', '');
             } else if (this.identityTypeValue === 'ldap') {
                 this.setLDAPValidators();
             } else {
                 this.disarmField('identityType', true);
             }
         });
-        this.identityTypeValue = this.getSavedValue('identityType', 'oidc');
 
-        this.formGroup.get('identityType').setValue(this.identityTypeValue);
+        this.initFormWithSavedData();
+        this.identityTypeValue = this.getSavedValue('identityType', 'oidc');
+        this.setControlValueSafely('identityType', this.identityTypeValue);
     }
 
     setOIDCValidators() {
@@ -197,18 +198,16 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
     }
 
     toggleIdmSetting() {
-        if (this.formGroup.value['idmSettings']) {
-            this.formGroup.controls['identityType'].setValue('oidc');
-        } else {
-            this.formGroup.controls['identityType'].setValue('none');
-        }
+        const identityType = this.formGroup.value['idmSettings'] ? 'oidc' : 'none';
+        this.setControlValueSafely('identityType', identityType);
     }
 
-    setSavedDataAfterLoad() {
-        super.setSavedDataAfterLoad();
-        this.formGroup.get('clientSecret').setValue('');
+    initFormWithSavedData() {
+        super.initFormWithSavedData();
+        this.scrubPasswordField('clientSecret');
+
         if (!this.formGroup.value['idmSettings']) {
-            this.formGroup.get('identityType').setValue('none');
+            this.setControlValueSafely('identityType', 'none');
         }
     }
 

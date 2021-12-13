@@ -8,6 +8,7 @@ const DATA_LAST_SAVED = "TKG_KICKSTART_DATA_LAST_SAVED_TIMESTAMP";
 export interface FormMetaData {
     label: string;
     displayValue?: any;
+    key?: string;
 }
 
 export interface StepMetaData {

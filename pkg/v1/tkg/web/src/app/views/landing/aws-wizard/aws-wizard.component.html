@@ -16,6 +16,14 @@
                 <div class="aws-ec2-icon-30 offset-top-2"></div>
                 Deploy {{ clusterTypeDescriptor | titlecase }} Cluster on Amazon Web Services
             </h2>
+            <ng-container *featureToggle="'management-cluster.import'">
+                <input type="file" class="file-input"
+                       (change)="onImportFileSelected($event)" #fileUpload>
+                <button class="btn btn-outline import-btn" (click)="onImportButtonClick() && fileUpload.click()"
+                        i18n="import configuration button">
+                    Import Configuration
+                </button>
+            </ng-container>
         </div>
     </div>
     <app-shared-delete-data-popup></app-shared-delete-data-popup>

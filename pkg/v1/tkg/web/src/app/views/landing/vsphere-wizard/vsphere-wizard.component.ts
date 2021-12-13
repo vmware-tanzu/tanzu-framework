@@ -1,6 +1,6 @@
-import { KUBE_VIP } from './../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
+import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER } from './../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
 // Angular imports
-import { Component, OnInit, ElementRef, AfterViewInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ElementRef } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
@@ -18,6 +18,8 @@ import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
 import { VsphereRegionalClusterParams } from 'src/app/swagger/models/vsphere-regional-cluster-params.model';
 import Broker from "../../../shared/service/broker";
+import { ImportParams, ImportService } from "../../../shared/service/import.service";
+import { VsphereField } from './vsphere-wizard.constants';
 
 @Component({
     selector: 'app-wizard',
@@ -25,7 +27,6 @@ import Broker from "../../../shared/service/broker";
     styleUrls: ['./vsphere-wizard.component.scss'],
 })
 export class VSphereWizardComponent extends WizardBaseDirective implements OnInit {
-
     APP_ROUTES: Routes = APP_ROUTES;
     PROVIDERS: Providers = PROVIDERS;
 
@@ -41,6 +42,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         private apiClient: APIClient,
         router: Router,
         public wizardFormService: VSphereWizardFormService,
+        private importService: ImportService,
         private formBuilder: FormBuilder,
         formMetaDataService: FormMetaDataService,
         titleService: Title,
@@ -175,7 +177,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         mappings.forEach(attr => payload[attr[0]] = this.getFieldValue(attr[1], attr[2]));
         payload.controlPlaneNodeType = this.getControlPlaneType(this.getFieldValue('vsphereNodeSettingForm', 'controlPlaneSetting'));
         payload.workerNodeType = Broker.appDataService.isModeClusterStandalone() ? payload.controlPlaneNodeType :
-            this.getFieldValue('vsphereNodeSettingForm', 'workerNodeInstanceType');
+            this.getFieldValue('vsphereNodeSettingForm', VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE);
         payload.machineHealthCheckEnabled = this.getFieldValue("vsphereNodeSettingForm", "machineHealthChecksEnabled") === true;
 
         const vsphereCredentialsMappings = [
@@ -207,6 +209,62 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         }
 
         return payload;
+    }
+
+    setFromPayload(payload: VsphereRegionalClusterParams) {
+        const mappings = [
+            ['ipFamily', 'vsphereProviderForm', 'ipFamily'],
+            ['datacenter', 'vsphereProviderForm', 'datacenter'],
+            ['ssh_key', 'vsphereProviderForm', 'ssh_key'],
+            ['clusterName', 'vsphereNodeSettingForm', 'clusterName'],
+            ['controlPlaneFlavor', 'vsphereNodeSettingForm', 'controlPlaneSetting'],
+            ['controlPlaneEndpoint', 'vsphereNodeSettingForm', 'controlPlaneEndpointIP'],
+            ['datastore', 'resourceForm', 'datastore'],
+            ['folder', 'resourceForm', 'vmFolder'],
+            ['resourcePool', 'resourceForm', 'resourcePool']
+        ];
+        mappings.forEach(attr => this.saveFormField(attr[1], attr[2], payload[attr[0]]));
+
+        this.saveControlPlaneFlavor('vsphere', payload.controlPlaneFlavor);
+        this.saveControlPlaneNodeType('vsphere', payload.controlPlaneFlavor, payload.controlPlaneNodeType);
+
+        this.saveFormField("vsphereNodeSettingForm", VsphereField.NODESETTING_ENABLE_AUDIT_LOGGING, payload.enableAuditLogging);
+        this.saveFormField("vsphereNodeSettingForm", VsphereField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED,
+            payload.machineHealthCheckEnabled);
+        this.saveFormListbox('vsphereNodeSettingForm', VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE, payload.workerNodeType);
+
+        if (payload.vsphereCredentials !== undefined) {
+            const vsphereCredentialsMappings = [
+                ['host', 'vsphereProviderForm', 'vcenterAddress'],
+                ['username', 'vsphereProviderForm', 'username'],
+                ['thumbprint', 'vsphereProviderForm', 'thumbprint']
+            ];
+            vsphereCredentialsMappings.forEach(attr => this.saveFormField(attr[1], attr[2], payload.vsphereCredentials[attr[0]]));
+            const decodedPassword = Broker.appDataService.decodeBase64(payload.vsphereCredentials['password']);
+            this.saveFormField('vsphereProviderForm', 'password', decodedPassword);
+        }
+
+        if (payload.aviConfig !== undefined) {
+            const endpointProvider = payload.aviConfig['controlPlaneHaProvider'] ? NSX_ADVANCED_LOAD_BALANCER : KUBE_VIP;
+            this.saveFormField('vsphereNodeSettingForm', 'controlPlaneEndpointProvider', endpointProvider);
+            // Set (or clear) the network name (based on whether it's different from the aviConfig value
+            const managementClusterVipNetworkName = payload.aviConfig['managementClusterVipNetworkName'];
+            let uiMcNetworkName = '';
+            if (managementClusterVipNetworkName !== payload.aviConfig.network.name) {
+                uiMcNetworkName = payload.aviConfig['managementClusterVipNetworkName'];
+            }
+
+            this.saveFormField("loadBalancerForm", "managementClusterNetworkName", uiMcNetworkName);
+            // Set (or clear) the CIDR setting (based on whether it's different from the aviConfig value
+            const managementClusterNetworkCIDR = payload.aviConfig['managementClusterVipNetworkCidr'];
+            let uiMcCidr = '';
+            if (managementClusterNetworkCIDR !== payload.aviConfig.network.cidr) {
+                uiMcCidr = managementClusterNetworkCIDR;
+            }
+            this.saveFormField("loadBalancerForm", "managementClusterNetworkCIDR", uiMcCidr)
+        }
+
+        this.saveCommonFieldsFromPayload(payload);
     }
 
     /**
@@ -269,4 +327,47 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         }
     }
 
+    // returns TRUE if the file contents appear to be a valid config file for vSphere
+    // returns FALSE if the file is empty or does not appear to be valid. Note that in the FALSE
+    // case we also alert the user.
+    importFileValidate(nameFile: string, fileContents: string): boolean {
+        if (fileContents.includes('VSPHERE_')) {
+            return true;
+        }
+        alert(nameFile + ' is not a valid vSphere configuration file!');
+        return false;
+    }
+
+    importFileRetrieveClusterParams(fileContents) {
+        return this.apiClient.importTKGConfigForVsphere( { params: { filecontents: fileContents } } );
+    }
+
+    importFileProcessClusterParams(nameFile: string, vsphereClusterParams: VsphereRegionalClusterParams) {
+        this.setFromPayload(vsphereClusterParams);
+        this.resetToFirstStep();
+        this.importService.publishImportSuccess(nameFile);
+    }
+
+    // returns TRUE if user (a) will not lose data on import, or (b) confirms it's OK
+    onImportButtonClick() {
+        let result = true;
+        if (!this.isOnFirstStep()) {
+            result = confirm('Importing will overwrite any data you have entered. Proceed with import?');
+        }
+        return result;
+    }
+
+    onImportFileSelected(event) {
+        const params: ImportParams<VsphereRegionalClusterParams> = {
+            file: event.target.files[0],
+            validator: this.importFileValidate,
+            backend: this.importFileRetrieveClusterParams.bind(this),
+            onSuccess: this.importFileProcessClusterParams.bind(this),
+            onFailure: this.importService.publishImportFailure
+        }
+        this.importService.import(params);
+
+        // clear file reader target so user can re-select same file if needed
+        event.target.value = '';
+    }
 }

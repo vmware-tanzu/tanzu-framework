@@ -51,6 +51,12 @@ export class AzureWizardFormService extends WizardFormBase {
         if (!method) {
             return throwError({ message: `Unknown data source ${source}` });
         }
+        if (!this.region) {
+            const msg = 'WARNING: azure-wizard-form.retrieveDataForSource() received event ' +
+                source.toString() + ' but has no region set!';
+            console.log(msg);
+            return throwError({ message: msg });
+        }
 
         return this.apiClient[method]({location: this.region});
     }

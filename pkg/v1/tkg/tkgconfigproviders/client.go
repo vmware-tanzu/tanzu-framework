@@ -34,6 +34,10 @@ type Client interface {
 	NewAzureConfig(params *models.AzureRegionalClusterParams) (*AzureConfig, error)
 	NewVSphereConfig(params *models.VsphereRegionalClusterParams) (*VSphereConfig, error)
 	NewDockerConfig(params *models.DockerRegionalClusterParams) (*DockerConfig, error)
+	CreateAWSParams(res *AWSConfig) (params *models.AWSRegionalClusterParams, err error)
+	CreateAzureParams(res *AzureConfig) (params *models.AzureRegionalClusterParams, err error)
+	CreateDockerParams(res *DockerConfig) (params *models.DockerRegionalClusterParams, err error)
+	CreateVSphereParams(res *VSphereConfig) (params *models.VsphereRegionalClusterParams, err error)
 }
 
 // TKGConfigReaderWriter returns tkgConfigReaderWriter client

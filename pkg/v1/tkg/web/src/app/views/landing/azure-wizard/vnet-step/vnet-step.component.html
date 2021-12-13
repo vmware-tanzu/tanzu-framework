@@ -9,20 +9,20 @@
             <clr-radio-container clrInline>
                 <clr-radio-wrapper>
                     <input type="radio" clrRadio formControlName="vnetOption" required
-                        value="CUSTOM" />
-                    <label>Create a new VNET on Azure</label>
-                </clr-radio-wrapper>
-                <clr-radio-wrapper>
-                    <input type="radio" clrRadio formControlName="vnetOption" required
-                        value="EXISTING" />
+                           value="EXISTING" />
                     <label>Select an existing VNET</label>
                 </clr-radio-wrapper>
                 <clr-control-error>Must select an option for entering the VNET!</clr-control-error>
+                <clr-radio-wrapper>
+                    <input type="radio" clrRadio formControlName="vnetOption" required
+                        value="CUSTOM" />
+                    <label>Create a new VNET on Azure</label>
+                </clr-radio-wrapper>
             </clr-radio-container>
         </div>
     </div>
 
-    <div *ngIf="showOption === 'CUSTOM'">
+    <div *ngIf="showVnetFieldsOption === 'CUSTOM'">
         <div class="clr-row">
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                 <clr-select-container [attr.data-step-metadata]="formName">
@@ -37,10 +37,10 @@
                             </clr-tooltip-content>
                         </clr-tooltip>
                     </label>
-                    <select clrSelect name="resourceGroup" formControlName="resourceGroup">
+                    <select clrSelect name="vnetResourceGroup" formControlName="vnetResourceGroup">
                         <option aria-label="blank" title="blank"></option>
                         <option *ngIf="customResourceGroup !== ''" [value]="customResourceGroup">{{customResourceGroup}}</option>
-                        <option *ngFor="let rg of resourceGroups" [value]="rg.name">{{ rg.name }}
+                        <option *ngFor="let rg of vnetResourceGroups" [value]="rg.name">{{ rg.name }}
                         </option>
                     </select>
                     <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
@@ -194,7 +194,7 @@
         </div>
     </div>
 
-    <div *ngIf="showOption === 'EXISTING'" class="clr-row">
+    <div *ngIf="showVnetFieldsOption === 'EXISTING'" class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-select-container [attr.data-step-metadata]="formName">
                 <label i18n="azure resourceg group label">
@@ -208,9 +208,9 @@
                         </clr-tooltip-content>
                     </clr-tooltip>
                 </label>
-                <select clrSelect name="resourceGroup" formControlName="resourceGroup">
+                <select clrSelect name="vnetResourceGroup" formControlName="vnetResourceGroup">
                     <option aria-label="blank" title="blank"></option>
-                    <option *ngFor="let rg of resourceGroups" [value]="rg.name">{{ rg.name }}
+                    <option *ngFor="let rg of vnetResourceGroups" [value]="rg.name">{{ rg.name }}
                     </option>
                 </select>
                 <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
@@ -247,7 +247,7 @@
         </div>
     </div>
 
-    <div *ngIf="showOption === 'EXISTING'" class="clr-row">
+    <div *ngIf="showVnetFieldsOption === 'EXISTING'" class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-select-container [attr.data-step-metadata]="formName">
                 <label i18n="azure control plane subnet label">
@@ -335,7 +335,7 @@
                             When using an api server load balancer of type Internal, the default private IP address associated with that load
                             balancer will be 10.0.0.100. If also specifying a custom virtual network, make sure you provide a private IP address
                             that is in the range of your control plane subnet and not in use.
-                            <span *ngIf="cidrHolder[showOption]">Must be a valid IP within subnet {{cidrHolder[showOption]}}</span>
+                            <span *ngIf="cidrForPrivateCluster[showVnetFieldsOption]">Must be a valid IP within subnet {{cidrForPrivateCluster[showVnetFieldsOption]}}</span>
                         </clr-tooltip-content>
                     </clr-tooltip>
                 </label>

@@ -92,3 +92,23 @@ func TestConfigStringToMap(t *testing.T) {
 	result = configStringToMap(target)
 	shouldHaveTwoEntries(t, target, result, "key1", "value1", "key2", "value2")
 }
+
+type testStruct struct {
+	Foo string
+}
+
+func TestGetFieldFromConfig(t *testing.T) {
+	fieldValue := "bar"
+	target := testStruct{Foo: fieldValue}
+	fieldName := "Foo"
+	result := getFieldFromConfig(target, fieldName)
+	if result != fieldValue {
+		t.Fatalf("getFieldFromConfig(%v, '%s') expected return of '%s' but got '%s'", target, fieldName, fieldValue, result)
+	}
+
+	unknownField := "foogle"
+	result = getFieldFromConfig(target, unknownField)
+	if result != "" {
+		t.Fatalf("getFieldFromConfig(%v, %s) expected return of '' but got '%s'", target, fieldName, result)
+	}
+}

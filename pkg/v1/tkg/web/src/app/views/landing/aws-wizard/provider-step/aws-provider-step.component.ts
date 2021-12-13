@@ -1,22 +1,32 @@
 /**
  * Angular Modules
  */
-import { Component, OnInit } from '@angular/core';
-import {
-    FormControl,
-    Validators
-} from '@angular/forms';
+import {Component, OnInit} from '@angular/core';
+import {FormControl, Validators} from '@angular/forms';
 
-import { takeUntil, debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import {catchError, debounceTime, distinctUntilChanged, takeUntil} from 'rxjs/operators';
+import {forkJoin, of} from 'rxjs';
 
-import { APIClient } from '../../../../swagger/api-client.service';
-import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-import { TkgEventType } from '../../../../shared/service/Messenger';
+import {APIClient} from '../../../../swagger/api-client.service';
+import {StepFormDirective} from '../../wizard/shared/step-form/step-form';
+import {TkgEvent, TkgEventType} from '../../../../shared/service/Messenger';
 import Broker from 'src/app/shared/service/broker';
+import {FormMetaDataStore} from "../../wizard/shared/FormMetaDataStore";
+import {AwsField} from "../aws-wizard.constants";
+import {NotificationTypes} from "../../../../shared/components/alert-notification/alert-notification.component";
 
-export const AWSAccountParamsKeys = ['profileName', 'sessionToken', 'region', 'accessKeyID', 'secretAccessKey'];
+export const AWSAccountParamsKeys = [
+    AwsField.PROVIDER_PROFILE_NAME,
+    AwsField.PROVIDER_SESSION_TOKEN,
+    AwsField.PROVIDER_REGION,
+    AwsField.PROVIDER_ACCESS_KEY,
+    AwsField.PROVIDER_SECRET_ACCESS_KEY
+];
+
+enum CredentialType {
+    ONETIME = 'oneTimeCredentials',
+    PROFILE = 'credentialProfile'
+}
 
 @Component({
     selector: 'app-aws-provider-step',
@@ -24,9 +34,8 @@ export const AWSAccountParamsKeys = ['profileName', 'sessionToken', 'region', 'a
     styleUrls: ['./aws-provider-step.component.scss']
 })
 export class AwsProviderStepComponent extends StepFormDirective implements OnInit {
-
     loading = false;
-    authTypeValue: string = 'oneTimeCredentials';
+    authTypeValue: string = CredentialType.PROFILE;
 
     regions = [];
     profileNames: Array<string> = [];
@@ -35,22 +44,20 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
 
     constructor(private apiClient: APIClient) {
         super();
-
-        console.log('cluster type from stepform directive: ' + this.clusterTypeDescriptor);
     }
 
     /**
      * Create the initial form
      */
     private buildForm() {
-        this.formGroup.addControl('authType', new FormControl('oneTimeCredentials', []));
+        this.formGroup.addControl(AwsField.PROVIDER_AUTH_TYPE, new FormControl(this.authTypeValue, []));
 
         AWSAccountParamsKeys.forEach(key => this.formGroup.addControl(
-            key,
+            key.toString(),
             new FormControl('')
         ));
 
-        this.formGroup.get('region').setValidators([
+        this.formGroup.get(AwsField.PROVIDER_REGION).setValidators([
             Validators.required
         ]);
 
@@ -66,7 +73,7 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
     setValidCredentials(valid) {
         this.validCredentials = valid;
 
-        // call to get existing VPCs of region
+        // call to get region-related data
         if (valid === true) {
             Broker.messenger.publish({
                 type: TkgEventType.AWS_GET_EXISTING_VPCS
@@ -110,23 +117,39 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
             }
         );
 
-        this.formGroup.get('authType').valueChanges.pipe(
+        this.formGroup.get(AwsField.PROVIDER_AUTH_TYPE).valueChanges.pipe(
             distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
             takeUntil(this.unsubscribe)
         ).subscribe(data => {
             this.authTypeValue = data;
 
-            if (this.authTypeValue === 'oneTimeCredentials') {
+            if (this.authTypeValue === CredentialType.ONETIME) {
                 this.oneTimeCredentialsSelectedHandler();
-            } else if (this.authTypeValue === 'credentialProfile') {
+            } else if (this.authTypeValue === CredentialType.PROFILE) {
                 this.credentialProfileSelectedHandler();
             } else {
-                this.disarmField('authType', true);
+                this.disarmField(AwsField.PROVIDER_AUTH_TYPE, true);
             }
         });
-        this.authTypeValue = this.getSavedValue('authType', 'credentialProfile');
+        this.authTypeValue = this.getSavedValue(AwsField.PROVIDER_AUTH_TYPE, CredentialType.PROFILE);
+        this.setControlValueSafely(AwsField.PROVIDER_AUTH_TYPE, this.authTypeValue);
 
-        this.formGroup.get('authType').setValue(this.authTypeValue);
+        Broker.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe((data: TkgEvent) => {
+                this.configFileNotification = {
+                    notificationType: NotificationTypes.SUCCESS,
+                    message: data.payload
+                };
+                // The file import saves the data to local storage, so we reinitialize this step's form from there
+                this.savedMetadata = FormMetaDataStore.getMetaData(this.formName);
+                this.initFormWithSavedData();
+
+                // Clear event so that listeners in other provider workflows do not receive false notifications
+                Broker.messenger.clearEvent(TkgEventType.CONFIG_FILE_IMPORTED);
+            });
+
+        this.initFormWithSavedData();
     }
 
     trimCreds(data) {
@@ -134,17 +157,17 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
         const trimmedKey = data.secretAccessKey && data.secretAccessKey.replace('\t', '');
 
         if (trimmedId !== data.accessKeyID) {
-            this.formGroup.get('accessKeyID').setValue(trimmedId);
+            this.formGroup.get(AwsField.PROVIDER_ACCESS_KEY).setValue(trimmedId);
         }
 
         if (trimmedKey !== data.secretAccessKey) {
-            this.formGroup.get('secretAccessKey').setValue(trimmedKey);
+            this.formGroup.get(AwsField.PROVIDER_SECRET_ACCESS_KEY).setValue(trimmedKey);
         }
 
         this.validCredentials = false
     }
 
-    initAwsCredentials() {
+    private initAwsCredentials() {
         const getRegionObs$ =  this.apiClient.getAWSRegions().pipe(
             catchError(err => of([])),
         );
@@ -156,52 +179,64 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
             .subscribe(
                 (next) => {
                     this.regions = next[0].sort();
+                    if (this.regions.length === 1) {
+                        this.formGroup.get(AwsField.PROVIDER_REGION).setValue(this.regions[0]);
+                    }
                     this.profileNames = next[1];
                     if (this.profileNames.length === 1) {
-                        this.formGroup.get('profileName').setValue(this.profileNames[0]);
-                    }
-                    if (this.regions.length === 1) {
-                        this.formGroup.get('region').setValue(this.regions[0]);
+                        this.formGroup.get(AwsField.PROVIDER_PROFILE_NAME).setValue(this.profileNames[0]);
                     }
                 },
                 () => this.loading = false
             );
     }
 
-    oneTimeCredentialsSelectedHandler() {
-        this.disarmField('profileName', true);
+    private oneTimeCredentialsSelectedHandler() {
+        this.disarmField(AwsField.PROVIDER_PROFILE_NAME, true);
     }
 
-    credentialProfileSelectedHandler() {
-        const resetFields = ['accessKeyID', 'secretAccessKey', 'sessionToken'];
-        resetFields.forEach(field => this.disarmField(field, true));
+    private credentialProfileSelectedHandler() {
+        [
+            AwsField.PROVIDER_ACCESS_KEY,
+            AwsField.PROVIDER_SECRET_ACCESS_KEY,
+            AwsField.PROVIDER_SESSION_TOKEN
+        ].forEach(field => this.disarmField(field.toString(), true));
     }
 
     setAWSCredentialsValuesFromAPI(credentials) {
         // init form values for AWS credentials
         for (const key of AWSAccountParamsKeys) {
-            this.formGroup.get(key).setValue(credentials[key]);
+            this.setControlValueSafely(key.toString(), credentials[key.toString()]);
         }
     }
 
-    setSavedDataAfterLoad() {
-        // disabled saved data
-        // super.setSavedDataAfterLoad();
-        // don't fill password fields with ****
-        this.formGroup.get('accessKeyID').setValue('');
-        this.formGroup.get('secretAccessKey').setValue('');
+    initFormWithSavedData() {
+        super.initFormWithSavedData();
+
+        // Use the presence of a saved secret access key to set the access type.
+        // (Which is to say: assume CredentialType.PROFILE unless there is a saved secret access key.)
+        // NOTE: if there is a real saved access key (from import) we erase it immediately after using it here
+        const savedSecretAccessKey = this.getRawSavedValue(AwsField.PROVIDER_SECRET_ACCESS_KEY);
+        this.authTypeValue = (savedSecretAccessKey) ? CredentialType.ONETIME : CredentialType.PROFILE;
+
+        this.scrubPasswordField(AwsField.PROVIDER_ACCESS_KEY);
+        this.scrubPasswordField(AwsField.PROVIDER_SECRET_ACCESS_KEY);
+
+        // Initializations not needed the first time the form is loaded, but
+        // required to re-initialize after form has been used
+        this.setValidCredentials(false);
     }
 
     /**
-     * @method verifyCredentails
+     * @method verifyCredentials
      * helper method to verify AWS connection credentials
      */
-    verifyCredentails() {
+    verifyCredentials() {
         this.loading = true;
         this.errorNotification = '';
         const params = {};
-        for (const key of AWSAccountParamsKeys) {
-            params[key] = this.formGroup.get(key).value;
+        for (const field of AWSAccountParamsKeys) {
+            params[field.toString()] = this.getFieldValue(field);
         }
         this.apiClient.setAWSEndpoint({
             accountParams: params
@@ -210,26 +245,23 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
             .subscribe(
                 (() => {
                     this.errorNotification = '';
-
-                    // Notify the universe that region has changed.
+                    // Announce that we have a (valid) region
                     Broker.messenger.publish({
                         type: TkgEventType.AWS_REGION_CHANGED,
-                        payload: this.formGroup.get('region').value
+                        payload: this.getFieldValue(AwsField.PROVIDER_REGION)
                     });
-
                     Broker.messenger.publish({
                         type: TkgEventType.AWS_GET_OS_IMAGES,
                         payload: {
-                            region: this.formGroup.get('region').value
+                            region: this.getFieldValue(AwsField.PROVIDER_REGION)
                         }
                     });
-
                     this.setValidCredentials(true);
                 }),
                 ((err) => {
                     const error = err.error.message || err.message || JSON.stringify(err);
                     this.errorNotification = `Invalid AWS credentials: all credentials and region must be valid. ${error}`;
-                    this.setValidCredentials(false)
+                    this.setValidCredentials(false);
                 }),
                 (() => {
                     this.loading = false;
@@ -241,6 +273,12 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
      * Whether to disable "Connect" button
      */
     isConnectDisabled() {
-        return !AWSAccountParamsKeys.reduce((accu, key) => this.formGroup.get(key).valid && accu, true);
+        return !AWSAccountParamsKeys.reduce((accu, key) => this.formGroup.get(key.toString()).valid && accu, true);
+    }
+
+    // For use in HTML
+    isAuthTypeProfile() {
+        const result = this.authTypeValue === CredentialType.PROFILE;
+        return result;
     }
 }

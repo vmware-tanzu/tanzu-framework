@@ -10,6 +10,7 @@ import { APIClient } from 'src/app/swagger';
 import { ConfigFileInfo, DockerRegionalClusterParams } from 'src/app/swagger/models';
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
+import { ImportParams, ImportService } from "../../../shared/service/import.service";
 
 @Component({
     selector: 'app-docker-wizard',
@@ -22,6 +23,7 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         router: Router,
         el: ElementRef,
         formMetaDataService: FormMetaDataService,
+        private importService: ImportService,
         private formBuilder: FormBuilder,
         titleService: Title,
         private apiClient: APIClient
@@ -60,6 +62,17 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         } else if (stepName === 'nodeSetting') {
             return 'Optional: Specify the management cluster name'
         }
+    }
+
+    setFromPayload(payload: DockerRegionalClusterParams) {
+        this.setFieldValue('networkForm', 'networkName', payload.networking.networkName);
+        this.setFieldValue('networkForm', 'clusterServiceCidr',  payload.networking.clusterServiceCIDR);
+        this.setFieldValue('networkForm', 'clusterPodCidr',  payload.networking.clusterPodCIDR);
+        this.setFieldValue('networkForm', 'cniType',  payload.networking.cniType);
+
+        this.setFieldValue('dockerNodeSettingForm', 'clusterName', payload.clusterName);
+
+        this.saveProxyFieldsFromPayload(payload);
     }
 
     getPayload() {
@@ -149,5 +162,49 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
 
     createRegionalCluster(payload: any): Observable<any> {
         return this.apiClient.createDockerRegionalCluster(payload);
+    }
+
+    // returns TRUE if the file contents appear to be a valid config file for Docker
+    // returns FALSE if the file is empty or does not appear to be valid. Note that in the FALSE
+    // case we also alert the user.
+    importFileValidate(nameFile: string, fileContents: string): boolean {
+        if (fileContents.includes('INFRASTRUCTURE_PROVIDER: docker')) {
+            return true;
+        }
+        alert(nameFile + ' is not a valid docker configuration file!');
+        return false;
+    }
+
+    importFileRetrieveClusterParams(fileContents: string): Observable<DockerRegionalClusterParams> {
+        return this.apiClient.importTKGConfigForVsphere( { params: { filecontents: fileContents } } );
+    }
+
+    importFileProcessClusterParams(nameFile: string, dockerClusterParams: DockerRegionalClusterParams) {
+        this.setFromPayload(dockerClusterParams);
+        this.resetToFirstStep();
+        this.importService.publishImportSuccess(nameFile);
+    }
+
+    // returns TRUE if user (a) will not lose data on import, or (b) confirms it's OK
+    onImportButtonClick() {
+        let result = true;
+        if (!this.isOnFirstStep()) {
+            result = confirm('Importing will overwrite any data you have entered. Proceed with import?');
+        }
+        return result;
+    }
+
+    onImportFileSelected(event) {
+        const params: ImportParams<DockerRegionalClusterParams> = {
+            file: event.target.files[0],
+            validator: this.importFileValidate,
+            backend: this.importFileRetrieveClusterParams.bind(this),
+            onSuccess: this.importFileProcessClusterParams.bind(this),
+            onFailure: this.importService.publishImportFailure
+        }
+        this.importService.import(params);
+
+        // clear file reader target so user can re-select same file if needed
+        event.target.value = '';
     }
 }

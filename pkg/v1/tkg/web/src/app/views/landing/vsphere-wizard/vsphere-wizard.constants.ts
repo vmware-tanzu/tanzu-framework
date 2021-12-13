@@ -1,6 +1,6 @@
 import {NodeType} from "../wizard/shared/constants/wizard.constants";
 
-export const vSphereNodeTypes: Array<NodeType> = [
+export const VsphereNodeTypes: Array<NodeType> = [
     {
         id: 'small',
         name: 'small (cpu: 2, ram: 4 GB, disk: 20 GB)'
@@ -24,6 +24,7 @@ export enum VsphereField {
     NODESETTING_CONTROL_PLANE_ENDPOINT_IP = 'controlPlaneEndpointIP',
     NODESETTING_CONTROL_PLANE_ENDPOINT_PROVIDER = 'controlPlaneEndpointProvider',
     NODESETTING_CONTROL_PLANE_SETTING = 'controlPlaneSetting',
+    NODESETTING_ENABLE_AUDIT_LOGGING = 'enableAuditLogging',
     NODESETTING_INSTANCE_TYPE_DEV = 'devInstanceType',
     NODESETTING_INSTANCE_TYPE_PROD = 'prodInstanceType',
     NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED = 'machineHealthChecksEnabled',

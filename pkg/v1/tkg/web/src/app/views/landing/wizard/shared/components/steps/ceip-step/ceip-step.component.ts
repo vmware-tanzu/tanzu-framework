@@ -22,5 +22,6 @@ export class SharedCeipStepComponent extends StepFormDirective implements OnInit
             'ceipOptIn',
             new FormControl(true, [])
         );
+        this.initFormWithSavedData();
     }
 }

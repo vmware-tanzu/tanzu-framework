@@ -56,7 +56,9 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
             displayValue: this.cniType,
         } as FormMetaData;
         FormMetaDataStore.saveMetaDataEntry(this.formName, 'cniType', cniTypeData);
+        // TODO: guessing we don't need this line (due to initFormWithSavedData() below)
         this.formGroup.get('cniType').setValue(this.cniType);
+        this.initFormWithSavedData();
     }
     buildForm() {
         const fieldsMapping = [
@@ -65,17 +67,18 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
                 IAAS_DEFAULT_CIDRS.CLUSTER_SVC_CIDR : IAAS_DEFAULT_CIDRS.CLUSTER_SVC_IPV6_CIDR],
             ['clusterPodCidr', this.ipFamily === IpFamilyEnum.IPv4 ?
                 IAAS_DEFAULT_CIDRS.CLUSTER_POD_CIDR : IAAS_DEFAULT_CIDRS.CLUSTER_POD_IPV6_CIDR],
-            ['httpProxyUrl', ''],
-            ['httpProxyUsername', ''],
-            ['httpProxyPassword', ''],
-            ['httpsProxyUrl', ''],
-            ['httpsProxyUsername', ''],
-            ['httpsProxyPassword', ''],
-            ['noProxy', '']
+            ['httpProxyUrl', this.getSavedValue('httpProxyUrl', '')],
+            ['httpProxyUsername', this.getSavedValue('httpProxyUsername', '')],
+            ['httpProxyPassword', this.getSavedValue('httpProxyPassword', '')],
+            ['httpsProxyUrl', this.getSavedValue('httpsProxyUrl', '')],
+            ['httpsProxyUsername', this.getSavedValue('httpsProxyUsername', '')],
+            ['httpsProxyPassword', this.getSavedValue('httpsProxyPassword', '')],
+            ['noProxy', this.getSavedValue('noProxy', '')]
         ];
 
         if (this.enableNetworkName) {
-            fieldsMapping.push(['networkName', '']);
+            const savedNetworkName = this.getSavedValue('networkName', '');
+            fieldsMapping.push(['networkName', savedNetworkName]);
         } else {
             this.clearFieldSavedData('networkName');
         }
@@ -281,16 +284,17 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
         fieldsToReset.forEach(f => this.formGroup.get(f) && this.formGroup.get(f).setValue(''));
     }
 
-    setSavedDataAfterLoad() {
-        super.setSavedDataAfterLoad();
-        if (this.formGroup.get('networkName')) {
-            this.formGroup.get('networkName').setValue(this.vmNetworks.length === 1 ? this.vmNetworks[0].name : '');
+    initFormWithSavedData() {
+        super.initFormWithSavedData();
+        const fieldNetworkName = this.formGroup.get('networkName');
+        if (fieldNetworkName) {
+            const savedNetworkName = this.getSavedValue('networkName', '');
+            fieldNetworkName.setValue(this.vmNetworks.length === 1 ? this.vmNetworks[0].name : savedNetworkName);
         }
         // reset validations for httpProxyUrl and httpsProxyUrl when
         // the data is loaded from localstorage.
         this.toggleProxySetting();
-        // don't fill password field with ****
-        this.formGroup.get('httpProxyPassword').setValue('');
-        this.formGroup.get('httpsProxyPassword').setValue('');
+        this.scrubPasswordField('httpProxyPassword');
+        this.scrubPasswordField('httpsProxyPassword');
     }
 }

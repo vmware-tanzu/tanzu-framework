@@ -76,6 +76,8 @@ export class SharedOsImageStepComponent extends StepFormDirective implements OnI
                     this.formGroup.get('osImage').setValue(images[0]);
                 }
             });
+
+        this.initFormWithSavedData();
     }
 
     /**

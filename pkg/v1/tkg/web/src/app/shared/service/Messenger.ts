@@ -45,7 +45,9 @@ export enum TkgEventType {
     CLI_CHANGED,
 
     // APP
-    BRANDING_CHANGED
+    BRANDING_CHANGED,
+    CONFIG_FILE_IMPORTED,
+    CONFIG_FILE_IMPORT_ERROR
 }
 
 /**
@@ -73,8 +75,11 @@ export interface TkgEvent {
      * @param eventType event type to get the subject for
      */
     getSubject(eventType: TkgEventType) {
-        const subject = this.subjects.get(eventType) || new ReplaySubject<TkgEvent>(1);
-        this.subjects.set(eventType, subject);
+        let subject = this.subjects.get(eventType);
+        if (!subject) {
+            subject = new ReplaySubject<TkgEvent>(1);
+            this.subjects.set(eventType, subject);
+        }
         return subject;
     }
 
@@ -85,5 +90,23 @@ export interface TkgEvent {
     publish(event: TkgEvent) {
         const subject = this.getSubject(event.type);
         subject.next(event);
+    }
+
+    /**
+     * Clears specified event from the Messenger event map. Once this is done
+     * subscribers will no longer receive this event until the event is re-dispatched.
+     * @param eventType the event to delete from the Messenger buffer
+     */
+    clearEvent(eventType: TkgEventType) {
+        this.subjects.delete(eventType);
+    }
+
+    /**
+     * Reset/Clear the Messenger ReplaySubject event map in the rare use cases where
+     * we want to force ALL events to be purged from the buffer.
+     * This should be used only when necessary.
+     */
+    reset() {
+        this.subjects = new Map<TkgEventType, ReplaySubject<TkgEvent>>();
     }
 }
