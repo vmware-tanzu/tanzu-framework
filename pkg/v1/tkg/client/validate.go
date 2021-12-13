@@ -63,8 +63,8 @@ var (
 
 var trueString = "true"
 
-// VsphereResourceType vsphere resource types
-var VsphereResourceType = []string{constants.ConfigVariableVsphereDatacenter, constants.ConfigVariableVsphereNetwork, constants.ConfigVariableVsphereResourcePool, constants.ConfigVariableVsphereDatastore, constants.ConfigVariableVsphereFolder}
+// VsphereResourceConfigKeys vsphere resource types
+var VsphereResourceConfigKeys = []string{constants.ConfigVariableVsphereDatacenter, constants.ConfigVariableVsphereNetwork, constants.ConfigVariableVsphereResourcePool, constants.ConfigVariableVsphereDatastore, constants.ConfigVariableVsphereFolder}
 
 // CNITypes supported CNI types
 var CNITypes = map[string]bool{"calico": true, "antrea": true, "none": true}
@@ -816,46 +816,47 @@ func (c *TkgClient) ValidateVsphereResources(vcClient vc.Client, dcPath string) 
 	var path, resourceMoid string
 	var err error
 
-	for _, resourceType := range VsphereResourceType {
-		path, err = c.TKGConfigReaderWriter().Get(resourceType)
+	for _, vsphereResourceConfigKey := range VsphereResourceConfigKeys {
+		path, err = c.TKGConfigReaderWriter().Get(vsphereResourceConfigKey)
 		if err != nil {
 			continue
 		}
 
-		switch resourceType {
+		// finder return an error when multiple vsphere resources with the same name are present
+		switch vsphereResourceConfigKey {
 		case constants.ConfigVariableVsphereDatacenter:
 			resourceMoid, err = vcClient.FindDataCenter(context.Background(), dcPath)
 			if err != nil {
-				return errors.Wrapf(err, "invalid %s", resourceType)
+				return errors.Wrapf(err, "invalid %s", vsphereResourceConfigKey)
 			}
 		case constants.ConfigVariableVsphereNetwork:
 			resourceMoid, err = vcClient.FindNetwork(context.Background(), path, dcPath)
 			if err != nil {
-				return errors.Wrapf(err, "invalid %s", resourceType)
+				return errors.Wrapf(err, "invalid %s", vsphereResourceConfigKey)
 			}
 		case constants.ConfigVariableVsphereResourcePool:
 			resourceMoid, err = vcClient.FindResourcePool(context.Background(), path, dcPath)
 			if err != nil {
-				return errors.Wrapf(err, "invalid %s", resourceType)
+				return errors.Wrapf(err, "invalid %s", vsphereResourceConfigKey)
 			}
 		case constants.ConfigVariableVsphereDatastore:
 			if path != "" {
 				resourceMoid, err = vcClient.FindDatastore(context.Background(), path, dcPath)
 				if err != nil {
-					return errors.Wrapf(err, "invalid %s", resourceType)
+					return errors.Wrapf(err, "invalid %s", vsphereResourceConfigKey)
 				}
 			}
 		case constants.ConfigVariableVsphereFolder:
 			resourceMoid, err = vcClient.FindFolder(context.Background(), path, dcPath)
 			if err != nil {
-				return errors.Wrapf(err, "invalid %s", resourceType)
+				return errors.Wrapf(err, "invalid %s", vsphereResourceConfigKey)
 			}
 
 		default:
-			return errors.Errorf("unknown vsphere resource type %s", resourceType)
+			return errors.Errorf("unknown vsphere resource type %s", vsphereResourceConfigKey)
 		}
 
-		err = c.setFullPath(vcClient, resourceType, path, resourceMoid)
+		err = c.setFullPath(vcClient, vsphereResourceConfigKey, path, resourceMoid)
 		if err != nil {
 			return err
 		}
@@ -864,7 +865,7 @@ func (c *TkgClient) ValidateVsphereResources(vcClient vc.Client, dcPath string) 
 	return c.verifyDatastoreOrStoragePolicySet()
 }
 
-func (c *TkgClient) setFullPath(vcClient vc.Client, resourceType, path, resourceMoid string) error {
+func (c *TkgClient) setFullPath(vcClient vc.Client, vsphereResourceConfigKey, path, resourceMoid string) error {
 	if path != "" {
 		resourcePath, _, err := vcClient.GetPath(context.Background(), resourceMoid)
 		if err != nil {
@@ -872,8 +873,8 @@ func (c *TkgClient) setFullPath(vcClient vc.Client, resourceType, path, resource
 		}
 
 		if resourcePath != path {
-			log.Infof("Setting config variable %q to value %q", resourceType, resourcePath)
-			c.TKGConfigReaderWriter().Set(resourceType, resourcePath)
+			log.Infof("Setting config variable %q to value %q", vsphereResourceConfigKey, resourcePath)
+			c.TKGConfigReaderWriter().Set(vsphereResourceConfigKey, resourcePath)
 		}
 	}
 
