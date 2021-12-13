@@ -43,17 +43,15 @@ var _ = Describe("Unit tests for aws client", func() {
 		awsClient       aws.Client
 	)
 
-	JustBeforeEach(func() {
-		awsCreds := awscreds.AWSCredentials{
-			AccessKeyID:     accessKeyID,
-			SecretAccessKey: secretAccessKey,
-			Region:          region,
-		}
-		awsClient, err = aws.New(awsCreds)
-	})
 	Describe("Encode aws credentials", func() {
 		var encodedCreds string
 		JustBeforeEach(func() {
+			awsCreds := awscreds.AWSCredentials{
+				AccessKeyID:     accessKeyID,
+				SecretAccessKey: secretAccessKey,
+				Region:          region,
+			}
+			awsClient, err = aws.New(awsCreds)
 			Expect(err).ToNot(HaveOccurred())
 			encodedCreds, err = awsClient.EncodeCredentials()
 		})
@@ -84,24 +82,28 @@ var _ = Describe("Unit tests for aws client", func() {
 	})
 
 	Describe("Generating Cloudformation", func() {
-		awsClient, err = aws.New(awscreds.AWSCredentials{
-			AccessKeyID:     fakeRegion,
-			SecretAccessKey: fakeAccessKeyID,
-			Region:          fakeSecretAccessKey,
+		BeforeEach(func() {
+			awsClient, err = aws.New(awscreds.AWSCredentials{
+				AccessKeyID:     fakeRegion,
+				SecretAccessKey: fakeAccessKeyID,
+				Region:          fakeSecretAccessKey,
+			})
+			Expect(err).ToNot(HaveOccurred())
 		})
-		Expect(err).ToNot(HaveOccurred())
-	})
-	Context("Defaults", func() {
-		template, err := awsClient.GenerateBootstrapTemplate(aws.GenerateBootstrapTemplateInput{})
-		Expect(err).NotTo(HaveOccurred())
-		testBootstrapTemplate("default", template)
-	})
-	Context("With TMC Permissions", func() {
-		template, err := awsClient.GenerateBootstrapTemplate(aws.GenerateBootstrapTemplateInput{
-			EnableTanzuMissionControlPermissions: true,
+
+		It("Defaults", func() {
+			template, err := awsClient.GenerateBootstrapTemplate(aws.GenerateBootstrapTemplateInput{})
+			Expect(err).NotTo(HaveOccurred())
+			testBootstrapTemplate("default", template)
 		})
-		Expect(err).NotTo(HaveOccurred())
-		testBootstrapTemplate("with-tmc", template)
+
+		It("With TMC Permissions", func() {
+			template, err := awsClient.GenerateBootstrapTemplate(aws.GenerateBootstrapTemplateInput{
+				EnableTanzuMissionControlPermissions: true,
+			})
+			Expect(err).NotTo(HaveOccurred())
+			testBootstrapTemplate("with-tmc", template)
+		})
 	})
 })
 
