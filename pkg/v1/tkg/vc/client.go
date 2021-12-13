@@ -955,11 +955,10 @@ func (c *DefaultClient) FindDataCenter(ctx context.Context, path string) (string
 
 // FindNetwork finds the vSphere network from path, return moid
 func (c *DefaultClient) FindNetwork(ctx context.Context, path, dcPath string) (string, error) {
-	if c.vmomiClient == nil {
-		return "", fmt.Errorf("uninitialized vmomi client")
+	finder, err := c.newFinder(ctx, dcPath)
+	if err != nil {
+		return "", err
 	}
-
-	finder := find.NewFinder(c.vmomiClient.Client)
 	obj, err := finder.Network(ctx, path)
 	if err != nil {
 		return "", err

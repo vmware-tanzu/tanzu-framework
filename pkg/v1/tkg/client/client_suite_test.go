@@ -261,8 +261,43 @@ var _ = Describe("ValidateVsphereResources", func() {
 		folderPath       = "/dc0/vm"
 	)
 
+	Context("When multiple datacenters matching the given name are present", func() {
+		BeforeEach(func() {
+			vcClient = &fakes.VCClient{}
+			tkgClient, err = CreateTKGClient(configFile, testingDir, defaultTKGBoMFileForTesting, 2*time.Second)
+
+			vcClient.FindDataCenterReturns("", fmt.Errorf("path '%s' resolves to multiple %ss", dc, "datacenter"))
+			os.Setenv(constants.ConfigVariableVsphereDatacenter, dc)
+
+			err = tkgClient.ValidateVsphereResources(vcClient, dc)
+		})
+
+		It("should return an error", func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).Should(ContainSubstring("path 'dc0' resolves to multiple datacenters"))
+		})
+	})
+
+	Context("When no datastores matching the given name are present", func() {
+		BeforeEach(func() {
+			vcClient = &fakes.VCClient{}
+			tkgClient, err = CreateTKGClient(configFile, testingDir, defaultTKGBoMFileForTesting, 2*time.Second)
+
+			vcClient.FindDatastoreReturns("", fmt.Errorf("%s '%s' not found", "datastore", datastore))
+			os.Setenv(constants.ConfigVariableVsphereDatastore, datastore)
+
+			err = tkgClient.ValidateVsphereResources(vcClient, dc)
+		})
+
+		It("should return an error", func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).Should(ContainSubstring("datastore 'sharedVmfs-1' not found"))
+		})
+	})
+
 	Context("When vSphere resource names are passed in instead of resource paths", func() {
 		BeforeEach(func() {
+			vcClient = &fakes.VCClient{}
 			tkgClient, err = CreateTKGClient(configFile, testingDir, defaultTKGBoMFileForTesting, 2*time.Second)
 
 			vcClient.FindDataCenterReturns(dc, nil)
@@ -289,7 +324,7 @@ var _ = Describe("ValidateVsphereResources", func() {
 			err = tkgClient.ValidateVsphereResources(vcClient, dc)
 		})
 
-		It("should not return an error ", func() {
+		It("should not return an error", func() {
 			Expect(err).ToNot(HaveOccurred())
 
 			actualDcPath, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereDatacenter)
