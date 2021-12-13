@@ -127,7 +127,7 @@ export class SharedOsImageStepComponent extends StepFormDirective implements OnI
     }
 
     dynamicDescription(): string {
-        if (this.getFieldValue('osImage') && this.getFieldValue('osImage').name) {
+        if (this.getFieldValue('osImage', true) && this.getFieldValue('osImage').name) {
             return 'OS Image: ' + this.getFieldValue('osImage').name;
         }
         return 'Specify the OS Image';

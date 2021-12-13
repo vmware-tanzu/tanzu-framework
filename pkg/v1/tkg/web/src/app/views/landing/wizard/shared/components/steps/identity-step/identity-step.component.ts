@@ -319,10 +319,10 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
     }
 
     dynamicDescription(): string {
-        const identityType = this.getFieldValue('identityType');
-        const ldapEndpointIp = this.getFieldValue('endpointIp');
-        const ldapEndpointPort = this.getFieldValue('endpointPort');
-        const oidcIssuer = this.getFieldValue('issuerURL');
+        const identityType = this.getFieldValue('identityType', true);
+        const ldapEndpointIp = this.getFieldValue('endpointIp', true);
+        const ldapEndpointPort = this.getFieldValue('endpointPort', true);
+        const oidcIssuer = this.getFieldValue('issuerURL', true);
 
         if (identityType === IdentityManagementType.OIDC && oidcIssuer) {
             return 'OIDC configured: ' + oidcIssuer;

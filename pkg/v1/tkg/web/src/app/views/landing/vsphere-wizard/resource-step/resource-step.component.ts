@@ -325,9 +325,9 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
     }
 
     dynamicDescription(): string {
-        const vmFolder = this.getFieldValue('vmFolder');
-        const datastore = this.getFieldValue('datastore');
-        const resourcePool = this.getFieldValue('resourcePool');
+        const vmFolder = this.getFieldValue('vmFolder', true);
+        const datastore = this.getFieldValue('datastore', true);
+        const resourcePool = this.getFieldValue('resourcePool', true);
         if (vmFolder && datastore && resourcePool) {
             return 'Resource Pool: ' + resourcePool + ', VM Folder: ' + vmFolder + ', Datastore: ' + datastore;
         }

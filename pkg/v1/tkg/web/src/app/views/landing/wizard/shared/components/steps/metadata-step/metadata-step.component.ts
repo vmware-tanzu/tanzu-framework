@@ -114,7 +114,7 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
     }
 
     dynamicDescription(): string {
-        const clusterLocation = this.getFieldValue('clusterLocation');
+        const clusterLocation = this.getFieldValue('clusterLocation', true);
         return clusterLocation ? 'Location: ' + clusterLocation : 'Specify metadata for the ' + this.clusterTypeDescriptor + ' cluster';
     }
 }

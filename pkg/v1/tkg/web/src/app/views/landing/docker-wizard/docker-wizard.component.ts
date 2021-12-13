@@ -13,6 +13,7 @@ import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
 import { WizardStep } from '../wizard/shared/constants/wizard.constants';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
+import { WizardForm } from '../wizard/shared/constants/wizard.constants';
 
 @Component({
     selector: 'app-docker-wizard',
@@ -31,7 +32,11 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         private apiClient: APIClient
     ) {
         super(router, el, formMetaDataService, titleService, formBuilder);
-        this.buildForm();
+        this.stepData = [
+            this.DockerDaemonForm,
+            this.NetworkForm,
+            this.DockerNodeSettingForm
+        ]
     }
 
     ngOnInit(): void {
@@ -41,17 +46,6 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         this.form.markAsDirty();
 
         this.titleService.setTitle(this.title + ' Docker');
-    }
-
-    buildForm() {
-        this.form = this.formBuilder.group({
-            dockerDaemonForm: this.formBuilder.group({
-            }),
-            networkForm: this.formBuilder.group({
-            }),
-            dockerNodeSettingForm: this.formBuilder.group({
-            })
-        });
     }
 
     setFromPayload(payload: DockerRegionalClusterParams) {
@@ -154,17 +148,10 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         return this.apiClient.createDockerRegionalCluster(payload);
     }
 
-    private get NetworkFormDescription(): string {
-        if (this.getFieldValue('networkForm', 'clusterPodCidr')) {
-            return 'Cluster Pod CIDR: ' + this.getFieldValue('networkForm', 'clusterPodCidr');
-        }
-        return 'Specify the cluster Pod CIDR';
-    }
-
     // HTML convenience methods
     //
     get NetworkForm(): FormDataForHTML {
-        return FormUtility.formOverrideDescription(this.NetworkForm, this.NetworkFormDescription);
+        return FormUtility.formOverrideDescription(super.NetworkForm, this.NetworkFormDescription);
     }
     get DockerNodeSettingForm(): FormDataForHTML {
         const title = FormUtility.titleCase(this.clusterTypeDescriptor) + ' Cluster Settings';
@@ -172,8 +159,25 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
             i18n: {title: 'node setting step name', description: 'node setting step description'}};
     }
     get DockerDaemonForm(): FormDataForHTML {
-        return { name: 'dockerDaemonForm', title: 'Docker Prerequisites', description: 'Validate the local Docker daemon, allocated CPUs and Total Memory',
+        return { name: 'dockerDaemonForm', title: 'Docker Prerequisites',
+            description: 'Validate the local Docker daemon, allocated CPUs and Total Memory',
             i18n: {title: 'docker prerequisite step name', description: 'Docker prerequisite step description'}};
+    }
+    // OVERRIDES
+    // We override the parent class describeStep() because we have an instance where we're using a COMMON component,
+    // but we want to describe it in Docker-specific ways
+    describeStep(stepName, staticDescription: string): string {
+        if (stepName === WizardForm.NETWORK) {
+            return this.NetworkFormDescription;
+        }
+        return super.describeStep(stepName, staticDescription);
+    }
+
+    private get NetworkFormDescription(): string {
+        if (this.getFieldValue('networkForm', 'clusterPodCidr')) {
+            return 'Cluster Pod CIDR: ' + this.getFieldValue('networkForm', 'clusterPodCidr');
+        }
+        return 'Specify the cluster Pod CIDR';
     }
     //
     // HTML convenience methods

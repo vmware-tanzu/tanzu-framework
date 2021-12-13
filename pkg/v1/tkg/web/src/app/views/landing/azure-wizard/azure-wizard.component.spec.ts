@@ -55,8 +55,6 @@ describe('AzureWizardComponent', () => {
             azureNodeSettingForm: fb.group({
                 controlPlaneSetting: ['']
             }),
-            workerazureNodeSettingForm: fb.group({
-            }),
             metadataForm: fb.group({
                 clusterLocation: ['']
             }),

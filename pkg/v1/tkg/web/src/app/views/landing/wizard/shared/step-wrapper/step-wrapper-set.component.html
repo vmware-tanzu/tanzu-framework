@@ -1,0 +1,17 @@
+<form clrStepper #clarityWizard [formGroup]="wizard.wizardForm">
+    <div *ngFor="let thisStepData of wizard.stepData; index as i">
+        <clr-stepper-panel formGroupName="{{thisStepData.name}}" removeAriaLabelledBy>
+            <clr-step-title i18n="{{thisStepData.i18n.title}}">{{ thisStepData.title }}</clr-step-title>
+            <clr-step-description i18n="{{thisStepData.i18n.description}}">
+                {{ wizard.describeStep(thisStepData.name, thisStepData.description) }}
+            </clr-step-description>
+            <ng-container *ngIf="wizard.displayStep(thisStepData.name)">
+                <app-step-wrapper [registrar]="wizard" [formName]="thisStepData.name" [clazz]="thisStepData.clazz">
+                </app-step-wrapper>
+            </ng-container>
+            <clr-step-content *clrIfExpanded>
+                <app-step-controller (nextStep)="wizard.onNextStep()"></app-step-controller>
+            </clr-step-content>
+        </clr-stepper-panel>
+    </div>
+</form>

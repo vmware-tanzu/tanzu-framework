@@ -14,9 +14,12 @@ import { AWSRegionalClusterParams } from 'src/app/swagger/models';
 import Broker from "../../../shared/service/broker";
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
-import { BASTION_HOST_DISABLED, BASTION_HOST_ENABLED } from './node-setting-step/node-setting-step.component';
-import { AWSAccountParamsKeys } from './provider-step/aws-provider-step.component';
+import { BASTION_HOST_DISABLED, BASTION_HOST_ENABLED, NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
+import { AWSAccountParamsKeys, AwsProviderStepComponent } from './provider-step/aws-provider-step.component';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
+import { VpcStepComponent } from './vpc-step/vpc-step.component';
+import { AwsOsImageStepComponent } from './os-image-step/aws-os-image-step.component';
+import { VsphereOsImageStepComponent } from '../vsphere-wizard/os-image-step/vsphere-os-image-step.component';
 import { StepUtility } from '../wizard/shared/components/steps/step-utility';
 import { AwsField, AwsForm, AwsStep } from "./aws-wizard.constants";
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
@@ -41,16 +44,16 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
 
         super(router, el, formMetaDataService, titleService, formBuilder);
 
-        this.form = this.formBuilder.group({
-            awsProviderForm: this.formBuilder.group({}),
-            vpcForm: this.formBuilder.group({}),
-            awsNodeSettingForm: this.formBuilder.group({}),
-            metadataForm: this.formBuilder.group({}),
-            networkForm: this.formBuilder.group({}),
-            identityForm: this.formBuilder.group({}),
-            ceipOptInForm: this.formBuilder.group({}),
-            osImageForm: this.formBuilder.group({})
-        });
+        this.stepData = [
+            this.AwsProviderForm,
+            this.AwsVpcForm,
+            this.AwsNodeSettingForm,
+            this.MetadataForm,
+            this.NetworkForm,
+            this.IdentityForm,
+            this.AwsOsImageForm,
+            this.CeipForm,
+        ];
     }
 
     ngOnInit() {
@@ -310,42 +313,24 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
     // HTML convenience methods
     //
     get AwsProviderForm(): FormDataForHTML {
-        return {name: 'awsProviderForm', title: 'IaaS Provider', description: this.AwsProviderFormDescription,
-            i18n: {title: 'IaaS provder step name', description: 'IaaS provder step description'}};
-    }
-    private get AwsProviderFormDescription(): string {
-        return 'Validate the AWS provider account for ' + this.title;
+        return {name: 'awsProviderForm', title: 'IaaS Provider',
+            description: 'Validate the AWS provider account for ' + this.title,
+            i18n: {title: 'IaaS provder step name', description: 'IaaS provder step description'},
+        clazz: AwsProviderStepComponent};
     }
     get AwsNodeSettingForm(): FormDataForHTML {
         return { name: 'awsNodeSettings', title: FormUtility.titleCase(this.clusterTypeDescriptor) + ' Cluster Settings',
-            description: this.AwsNodeSettingFormDescription,
-            i18n: {title: 'IaaS provder step name', description: 'IaaS provder step description'} };
-    }
-    private get AwsNodeSettingFormDescription(): string {
-        if (this.getFieldValue('awsNodeSettingForm', 'controlPlaneSetting')) {
-            let mode = 'Development cluster selected: 1 node control plane';
-            if (this.getFieldValue('awsNodeSettingForm', 'controlPlaneSetting') === 'prod') {
-                mode = 'Production cluster selected: 3 node control plane';
-            }
-            return mode;
-        }
-        return `Specify the resources backing the ${this.clusterTypeDescriptor} cluster`;
+            description: `Specify the resources backing the ${this.clusterTypeDescriptor} cluster`,
+            i18n: {title: 'IaaS provder step name', description: 'IaaS provder step description'},
+        clazz: NodeSettingStepComponent};
     }
     get AwsVpcForm(): FormDataForHTML {
-        return {name: 'vpcForm', title: 'VPC for AWS', description: this.AwsVpcFormDescription,
-        i18n: {title: 'vpc step name', description: 'vpc step description'}};
+        return {name: 'vpcForm', title: 'VPC for AWS', description: 'Specify VPC settings for AWS',
+        i18n: {title: 'vpc step name', description: 'vpc step description'},
+        clazz: VpcStepComponent};
     }
-    private get AwsVpcFormDescription(): string {
-        const vpc = this.getFieldValue('vpcForm', 'vpc');
-        const publicNodeCidr = this.getFieldValue('vpcForm', 'publicNodeCidr');
-        const privateNodeCidr = this.getFieldValue('vpcForm', 'privateNodeCidr');
-        const awsNodeAz = this.getFieldValue('vpcForm', 'awsNodeAz');
-
-        if (vpc && publicNodeCidr && privateNodeCidr && awsNodeAz) {
-            return `VPC CIDR: ${vpc}, Public Node CIDR: ${publicNodeCidr}, ` +
-                `Private Node CIDR: ${privateNodeCidr}, Node AZ: ${awsNodeAz}`;
-        }
-        return 'Specify VPC settings for AWS';
+    get AwsOsImageForm(): FormDataForHTML {
+        return FormUtility.formOverrideClazz(super.OsImageForm, AwsOsImageStepComponent);
     }
     //
     // HTML convenience methods

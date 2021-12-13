@@ -89,13 +89,17 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         }
     }
 
-    protected getFieldValue(fieldName: string): any {
+    protected getFieldValue(fieldName: string, suppressWarnings?: boolean): any {
         if (!this.formGroup) {
-            console.error('getFieldValue(' + fieldName + ') called without a formGroup set');
+            if (!suppressWarnings) {
+                console.error('getFieldValue(' + fieldName + ') called without a formGroup set');
+            }
             return;
         }
         if (!this.formGroup.controls[fieldName]) {
-            console.error('getFieldValue(' + fieldName + ') called but no control by that name');
+            if (!suppressWarnings) {
+                console.error('getFieldValue(' + fieldName + ') called but no control by that name');
+            }
             return;
         }
         return this.formGroup.controls[fieldName].value;

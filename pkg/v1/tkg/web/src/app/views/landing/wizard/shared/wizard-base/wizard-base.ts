@@ -29,7 +29,8 @@ import { StepFormDirective } from '../step-form/step-form';
 // This interface describes a wizard that can register a step component
 export interface WizardStepRegistrar {
     registerStep: (nameStep: string, stepComponent: StepFormDirective) => void,
-    describeStep: (nameStep, staticDescription: string) => string
+    describeStep: (nameStep, staticDescription: string) => string,
+    displayStep:  (nameStep: string) => boolean
 }
 
 @Directive()
@@ -65,11 +66,13 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
         protected formBuilder: FormBuilder
     ) {
         super();
-        this.stepComponents = new Map<string, StepFormDirective>();
     }
 
     ngOnInit() {
+        this.form = this.formBuilder.group({});
+        this.stepComponents = new Map<string, StepFormDirective>();
         // loop through stepData definitions and add a new form control for each step (so Clarity will be happy),
+        // and we'll have the step formGroup objects built even before the step components are instantiated
         for (let daStepData of this.stepData) {
             this.form.controls[daStepData.name] = this.formBuilder.group({});
         }
@@ -84,11 +87,13 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
             });
 
         // work around an issue within StepperModel
-        this.wizard['stepperService']['accordion']['openFirstPanel'] = function () {
-            const firstPanel = this.getFirstPanel();
-            if (firstPanel) {
-                this._panels[firstPanel.id].open = true;
-                this._panels[firstPanel.id].disabled = true;
+        if (this.wizard && this.wizard['stepperService']) {    // TODO: remove this block
+            this.wizard['stepperService']['accordion']['openFirstPanel'] = function () {
+                const firstPanel = this.getFirstPanel();
+                if (firstPanel) {
+                    this._panels[firstPanel.id].open = true;
+                    this._panels[firstPanel.id].disabled = true;
+                }
             }
         }
         this.watchFieldsChange();
@@ -557,6 +562,11 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
         const dynamicDescription = stepComponent.dynamicDescription();
         return dynamicDescription ? dynamicDescription : staticDescription;
     }
+
+    displayStep(stepName: string): boolean {
+        const stepIndex = this.getStepIndex(stepName);
+        return stepIndex >= 0 && this.steps[stepIndex];
+    }
     //
     // Methods that fulfill WizardStepRegistrar
 
@@ -728,6 +738,19 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
             i18n: { title: 'OS Image step title', description: 'OS Image step description' },
         clazz: SharedOsImageStepComponent };
     }
+    get wizardForm(): FormGroup {
+        return this.form;
+    }
     //
     // HTML convenience methods
+
+    protected getStepIndex(stepName: string): number {
+        let result = -1;
+        this.stepData.forEach((data, index) => {
+            if (data.name === stepName) {
+                result = index;
+            }
+        });
+        return result;
+    }
 }

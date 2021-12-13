@@ -473,8 +473,8 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
     }
 
     dynamicDescription(): string {
-        const vcenterIP = this.getFieldValue('vcenterAddress');
-        const datacenter = this.getFieldValue('datacenter');
+        const vcenterIP = this.getFieldValue('vcenterAddress', true);
+        const datacenter = this.getFieldValue('datacenter', true);
         if ( vcenterIP && datacenter) {
             return 'vCenter ' + vcenterIP + ' connected';
         }

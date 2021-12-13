@@ -218,4 +218,17 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
             type: TkgEventType.AWS_VPC_CHANGED
         }));
     }
+
+    protected dynamicDescription(): string {
+        const vpc = this.getFieldValue('vpc', true);
+        const publicNodeCidr = this.getFieldValue('publicNodeCidr', true);
+        const privateNodeCidr = this.getFieldValue('privateNodeCidr', true);
+        const awsNodeAz = this.getFieldValue('awsNodeAz', true);
+
+        if (vpc && publicNodeCidr && privateNodeCidr && awsNodeAz) {
+            return `VPC CIDR: ${vpc}, Public Node CIDR: ${publicNodeCidr}, ` +
+                `Private Node CIDR: ${privateNodeCidr}, Node AZ: ${awsNodeAz}`;
+        }
+        return 'Specify VPC settings for AWS';
+    }
 }

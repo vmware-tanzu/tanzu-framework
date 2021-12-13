@@ -253,9 +253,10 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     dynamicDescription(): string {
-        if (this.getFieldValue('controlPlaneSetting')) {
+        const ctlPlaneFlavor = this.getFieldValue('controlPlaneSetting', true);
+        if (ctlPlaneFlavor) {
             let mode = 'Development cluster selected: 1 node control plane';
-            if (this.getFieldValue('controlPlaneSetting') === 'prod') {
+            if (ctlPlaneFlavor === 'prod') {
                 mode = 'Production cluster selected: 3 node control plane';
             }
             return mode;

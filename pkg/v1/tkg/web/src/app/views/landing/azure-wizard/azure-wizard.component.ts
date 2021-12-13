@@ -17,6 +17,8 @@ import { AzureForm, AzureStep } from './azure-wizard.constants';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { StepUtility } from '../wizard/shared/components/steps/step-utility';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
+import { AwsOsImageStepComponent } from '../aws-wizard/os-image-step/aws-os-image-step.component';
+import { AzureOsImageStepComponent } from './os-image-step/azure-os-image-step.component';
 
 // Not sure why some of these step names have 'Form' in them, but leaving as is
 enum AzureStep {
@@ -62,17 +64,16 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
 
         super(router, el, formMetaDataService, titleService, formBuilder);
 
-        this.form = this.formBuilder.group({
-            azureProviderForm: this.formBuilder.group({}),
-            vnetForm: this.formBuilder.group({}),
-            azureNodeSettingForm: this.formBuilder.group({}),
-            workerazureNodeSettingForm: this.formBuilder.group({}),
-            metadataForm: this.formBuilder.group({}),
-            networkForm: this.formBuilder.group({}),
-            identityForm: this.formBuilder.group({}),
-            osImageForm: this.formBuilder.group({}),
-            ceipOptInForm: this.formBuilder.group({})
-        });
+        this.stepData = [
+            this.AzureProviderForm,
+            this.AzureVnetForm,
+            this.AzureNodeSettingForm,
+            this.MetadataForm,
+            this.NetworkForm,
+            this.IdentityForm,
+            this.AzureOsImageForm,
+            this.CeipForm,
+        ];
     }
 
     ngOnInit() {
@@ -293,36 +294,22 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
     // HTML convenience methods
     //
     get AzureProviderForm(): FormDataForHTML {
-        return { name: AzureForm.PROVIDER, title: 'IaaS Provider', description: this.AzureProviderFormDescription,
+        return { name: AzureForm.PROVIDER, title: 'IaaS Provider', description: 'Validate the Azure provider credentials for Tanzu',
         i18n: {title: 'IaaS provder step name', description: 'IaaS provder step description'}};
     }
-    private get AzureProviderFormDescription(): string {
-        const tenant = this.getFieldValue(AzureForm.PROVIDER, 'tenantId');
-        return tenant ? `Azure tenant: ${tenant}` : 'Validate the Azure provider credentials for Tanzu';
-    }
     get AzureVnetForm(): FormDataForHTML {
-        return { name: AzureForm.VNET, title: 'Azure VNET Settings', description: this.AzureVnetFormDescription,
+        return { name: AzureForm.VNET, title: 'Azure VNET Settings', description: 'Specify a Azure VNET CIDR',
             i18n: {title: 'vnet step name', description: 'vnet step description'}};
-    }
-    private get AzureVnetFormDescription(): string {
-        const vnetCidrBlock = this.getFieldValue(AzureForm.VNET, "vnetCidrBlock");
-        if (vnetCidrBlock) {
-            return `Subnet: ${vnetCidrBlock}`;
-        }
-        return "Specify a Azure VNET CIDR";
     }
     get AzureNodeSettingForm(): FormDataForHTML {
         return { name: AzureForm.NODESETTING, title: FormUtility.titleCase(this.clusterTypeDescriptor) + ' Cluster Settings',
-            description: this.AzureNodeSettingFormDescription,
+            description: `Specifying the resources backing the ${this.clusterTypeDescriptor} cluster`,
             i18n: {title: 'node setting step name', description: 'node setting step description'} };
     }
-    private get AzureNodeSettingFormDescription(): string {
-        const controlPlaneSetting = this.getFieldValue(AzureForm.NODESETTING, "controlPlaneSetting");
-        if (controlPlaneSetting) {
-            return `Control plane type: ${controlPlaneSetting}`;
-        }
-        return `Specifying the resources backing the ${this.clusterTypeDescriptor} cluster`;
+    get AzureOsImageForm(): FormDataForHTML {
+        return FormUtility.formOverrideClazz(super.OsImageForm, AzureOsImageStepComponent);
     }
+
     //
     // HTML convenience methods
 

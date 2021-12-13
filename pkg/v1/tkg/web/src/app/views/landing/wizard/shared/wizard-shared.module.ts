@@ -18,11 +18,15 @@ import { AuditLoggingComponent } from './components/widgets/audit-logging/audit-
 import { SharedOsImageStepComponent } from './components/steps/os-image-step/os-image-step.component';
 import { StepWrapperComponent } from './step-wrapper/step-wrapper.component';
 import { VsphereOsImageStepComponent } from '../../vsphere-wizard/os-image-step/vsphere-os-image-step.component';
+import { StepWrapperSetComponent } from './step-wrapper/step-wrapper-set.component';
+import { AwsOsImageStepComponent } from '../../aws-wizard/os-image-step/aws-os-image-step.component';
+import { AzureOsImageStepComponent } from '../../azure-wizard/os-image-step/azure-os-image-step.component';
 
 @NgModule({
     declarations: [
         StepFormNotificationComponent,
         StepControllerComponent,
+        StepWrapperSetComponent,
         StepWrapperComponent,
         SharedCeipStepComponent,
         SharedNetworkStepComponent,
@@ -34,7 +38,9 @@ import { VsphereOsImageStepComponent } from '../../vsphere-wizard/os-image-step/
         TreeSelectComponent,
         AuditLoggingComponent,
         SharedOsImageStepComponent,
-        VsphereOsImageStepComponent
+        VsphereOsImageStepComponent,
+        AwsOsImageStepComponent,
+        AzureOsImageStepComponent
     ],
     imports: [
         CommonModule,
@@ -45,6 +51,7 @@ import { VsphereOsImageStepComponent } from '../../vsphere-wizard/os-image-step/
         StepFormNotificationComponent,
         StepControllerComponent,
         StepWrapperComponent,
+        StepWrapperSetComponent,
         SharedCeipStepComponent,
         SharedNetworkStepComponent,
         SharedLoadBalancerStepComponent,
@@ -55,7 +62,9 @@ import { VsphereOsImageStepComponent } from '../../vsphere-wizard/os-image-step/
         TreeSelectComponent,
         AuditLoggingComponent,
         SharedOsImageStepComponent,
-        VsphereOsImageStepComponent
+        VsphereOsImageStepComponent,
+        AwsOsImageStepComponent,
+        AzureOsImageStepComponent
     ],
     providers: [
         ValidationService

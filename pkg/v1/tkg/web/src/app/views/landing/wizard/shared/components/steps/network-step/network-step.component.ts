@@ -318,8 +318,8 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
     }
 
     dynamicDescription(): string {
-        const serviceCidr = this.getFieldValue('clusterServiceCidr');
-        const podCidr = this.getFieldValue('clusterPodCidr');
+        const serviceCidr = this.getFieldValue('clusterServiceCidr', true);
+        const podCidr = this.getFieldValue('clusterPodCidr', true);
         if (serviceCidr && podCidr) {
             return `Cluster service CIDR: ${serviceCidr} Cluster POD CIDR: ${podCidr}`;
         }

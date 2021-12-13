@@ -17,6 +17,7 @@ import { TkgEventType } from '../../../../shared/service/Messenger';
 import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import { AzureInstanceType } from 'src/app/swagger/models';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
+import { AzureForm } from '../azure-wizard.constants';
 import { FormUtils } from '../../wizard/shared/utils/form-utils';
 
 @Component({
@@ -186,4 +187,11 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         return this.formGroup.controls['controlPlaneSetting'].value;
     }
 
+    protected dynamicDescription(): string {
+        const controlPlaneSetting = this.getFieldValue("controlPlaneSetting", true);
+        if (controlPlaneSetting) {
+            return `Control plane type: ${controlPlaneSetting}`;
+        }
+        return `Specifying the resources backing the ${this.clusterTypeDescriptor} cluster`;
+    }
 }

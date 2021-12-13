@@ -56,8 +56,6 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
 
         super(router, el, formMetaDataService, titleService, formBuilder);
 
-        this.form = this.formBuilder.group({});
-
         this.provider = Broker.appDataService.getProviderType();
         this.tkrVersion = Broker.appDataService.getTkrVersion();
         Broker.appDataService.getVsphereVersion().subscribe(version => {
@@ -75,6 +73,12 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
             this.VsphereOsImageForm,
             this.CeipForm,
         ];
+    }
+
+    // TODO: see if we can eliminate this workaround
+    // delay showing first panel to avoid panel not defined console err
+    displayStep(stepName: string): boolean {
+        return super.displayStep(stepName) && this.show;
     }
 
     ngOnInit() {
