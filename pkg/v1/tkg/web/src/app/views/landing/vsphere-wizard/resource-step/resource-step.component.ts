@@ -323,4 +323,14 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
     get datastoreValue() {
         return this.formGroup.get(VsphereField.RESOURCE_DATASTORE).value;
     }
+
+    dynamicDescription(): string {
+        const vmFolder = this.getFieldValue('vmFolder');
+        const datastore = this.getFieldValue('datastore');
+        const resourcePool = this.getFieldValue('resourcePool');
+        if (vmFolder && datastore && resourcePool) {
+            return 'Resource Pool: ' + resourcePool + ', VM Folder: ' + vmFolder + ', Datastore: ' + datastore;
+        }
+        return `Specify the resources for this ${this.clusterTypeDescriptor} cluster`;
+    }
 }

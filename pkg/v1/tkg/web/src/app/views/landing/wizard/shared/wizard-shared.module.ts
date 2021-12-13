@@ -16,11 +16,14 @@ import { SharedIdentityStepComponent } from './components/steps/identity-step/id
 import { TreeSelectComponent } from './tree-select/tree-select.component';
 import { AuditLoggingComponent } from './components/widgets/audit-logging/audit-logging.component';
 import { SharedOsImageStepComponent } from './components/steps/os-image-step/os-image-step.component';
+import { StepWrapperComponent } from './step-wrapper/step-wrapper.component';
+import { VsphereOsImageStepComponent } from '../../vsphere-wizard/os-image-step/vsphere-os-image-step.component';
 
 @NgModule({
     declarations: [
         StepFormNotificationComponent,
         StepControllerComponent,
+        StepWrapperComponent,
         SharedCeipStepComponent,
         SharedNetworkStepComponent,
         SharedLoadBalancerStepComponent,
@@ -30,7 +33,8 @@ import { SharedOsImageStepComponent } from './components/steps/os-image-step/os-
         SharedIdentityStepComponent,
         TreeSelectComponent,
         AuditLoggingComponent,
-        SharedOsImageStepComponent
+        SharedOsImageStepComponent,
+        VsphereOsImageStepComponent
     ],
     imports: [
         CommonModule,
@@ -40,6 +44,7 @@ import { SharedOsImageStepComponent } from './components/steps/os-image-step/os-
     exports: [
         StepFormNotificationComponent,
         StepControllerComponent,
+        StepWrapperComponent,
         SharedCeipStepComponent,
         SharedNetworkStepComponent,
         SharedLoadBalancerStepComponent,
@@ -49,7 +54,8 @@ import { SharedOsImageStepComponent } from './components/steps/os-image-step/os-
         SharedIdentityStepComponent,
         TreeSelectComponent,
         AuditLoggingComponent,
-        SharedOsImageStepComponent
+        SharedOsImageStepComponent,
+        VsphereOsImageStepComponent
     ],
     providers: [
         ValidationService

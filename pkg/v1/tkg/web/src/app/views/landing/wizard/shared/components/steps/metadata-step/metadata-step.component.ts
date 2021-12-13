@@ -10,6 +10,7 @@ import { FormControl } from '@angular/forms';
 import { ValidationService } from '../../../validation/validation.service';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
+import { WizardForm } from '../../../constants/wizard.constants';
 import { FormUtils } from '../../../utils/form-utils';
 
 @Component({
@@ -110,5 +111,10 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
     getDisabled(): boolean {
         return !(this.formGroup.get('newLabelKey').valid &&
             this.formGroup.get('newLabelValue').valid);
+    }
+
+    dynamicDescription(): string {
+        const clusterLocation = this.getFieldValue('clusterLocation');
+        return clusterLocation ? 'Location: ' + clusterLocation : 'Specify metadata for the ' + this.clusterTypeDescriptor + ' cluster';
     }
 }

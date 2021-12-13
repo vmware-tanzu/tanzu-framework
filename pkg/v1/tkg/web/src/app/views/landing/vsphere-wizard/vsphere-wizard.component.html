@@ -23,6 +23,25 @@
         </div>
     </div>
     <app-shared-delete-data-popup></app-shared-delete-data-popup>
+    <!-- experimental -->
+    <form clrStepper #wizard [formGroup]="form">
+        <div *ngFor="let thisStepData of stepData; index as i">
+            <clr-stepper-panel formGroupName="{{thisStepData.name}}" removeAriaLabelledBy>
+                <clr-step-title i18n="{{thisStepData.i18n.title}}">{{ thisStepData.title }}</clr-step-title>
+                <clr-step-description i18n="{{thisStepData.i18n.description}}">
+                    {{ describeStep(thisStepData.name, thisStepData.description) }}
+                </clr-step-description>
+                <ng-container *ngIf="steps[i] && show">
+                    <app-step-wrapper [registrar]="registrar" [formName]="thisStepData.name" [clazz]="thisStepData.clazz">
+                    </app-step-wrapper>
+                </ng-container>
+                <clr-step-content *clrIfExpanded>
+                    <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
+                </clr-step-content>
+            </clr-stepper-panel>
+        </div>
+    </form>
+    <!-- original form
     <form clrStepper #wizard [formGroup]="form">
         <clr-stepper-panel formGroupName="{{VsphereProviderForm.name}}" removeAriaLabelledBy>
             <clr-step-title i18n="{{VsphereProviderForm.i18n.title}}">{{VsphereProviderForm.title}}</clr-step-title>
@@ -146,7 +165,7 @@
             </clr-step-content>
         </clr-stepper-panel>
     </form>
-
+-->
     <button class="btn btn-primary mt-20" [disabled]="!getWizardValidity()" (click)="reviewConfiguration(true)"
         i18n="review cluster configuration btn">
         REVIEW CONFIGURATION

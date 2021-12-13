@@ -20,7 +20,7 @@ import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { VSphereNetwork } from 'src/app/swagger/models/v-sphere-network.model';
 import Broker from 'src/app/shared/service/broker';
-import { managementClusterPlugin } from "../../../constants/wizard.constants";
+import { managementClusterPlugin, WizardForm } from "../../../constants/wizard.constants";
 import { FormUtils } from '../../../utils/form-utils';
 
 declare var sortPaths: any;
@@ -315,5 +315,14 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
         this.toggleProxySetting(true);
         this.scrubPasswordField('httpProxyPassword');
         this.scrubPasswordField('httpsProxyPassword');
+    }
+
+    dynamicDescription(): string {
+        const serviceCidr = this.getFieldValue('clusterServiceCidr');
+        const podCidr = this.getFieldValue('clusterPodCidr');
+        if (serviceCidr && podCidr) {
+            return `Cluster service CIDR: ${serviceCidr} Cluster POD CIDR: ${podCidr}`;
+        }
+        return "Specify how TKG networking is provided and global network settings";
     }
 }

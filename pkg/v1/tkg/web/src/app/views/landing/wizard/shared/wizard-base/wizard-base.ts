@@ -1,6 +1,6 @@
 // Angular imports
 import { OnInit, ElementRef, AfterViewInit, ViewChild, Directive } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 
@@ -16,13 +16,24 @@ import { ClrStepper } from '@clr/angular';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { ConfigFileInfo } from '../../../../../swagger/models/config-file-info.model';
 import Broker from 'src/app/shared/service/broker';
-import { ClusterType, WizardForm } from "../constants/wizard.constants";
+import { ClusterType, IdentityManagementType, WizardForm } from "../constants/wizard.constants";
 import FileSaver from 'file-saver';
 import { FormDataForHTML, FormUtility } from '../components/steps/form-utility';
+import { SharedCeipStepComponent } from '../components/steps/ceip-step/ceip-step.component';
+import { SharedIdentityStepComponent } from '../components/steps/identity-step/identity-step.component';
+import { MetadataStepComponent } from '../components/steps/metadata-step/metadata-step.component';
+import { SharedNetworkStepComponent } from '../components/steps/network-step/network-step.component';
+import { SharedOsImageStepComponent } from '../components/steps/os-image-step/os-image-step.component';
+import { StepFormDirective } from '../step-form/step-form';
+
+// This interface describes a wizard that can register a step component
+export interface WizardStepRegistrar {
+    registerStep: (nameStep: string, stepComponent: StepFormDirective) => void,
+    describeStep: (nameStep, staticDescription: string) => string
+}
 
 @Directive()
-export abstract class WizardBaseDirective extends BasicSubscriber implements AfterViewInit, OnInit {
-
+export abstract class WizardBaseDirective extends BasicSubscriber implements WizardStepRegistrar, AfterViewInit, OnInit {
     APP_ROUTES: Routes = APP_ROUTES;
     PROVIDERS: Providers = PROVIDERS;
 
@@ -41,19 +52,28 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
     clusterTypeDescriptor: string;
 
     steps = [true, false, false, false, false, false, false, false, false, false, false];
+    stepComponents: Map<string, StepFormDirective>;
+    stepData: FormDataForHTML[];
+
     review = false;
 
     constructor(
         protected router: Router,
         protected el: ElementRef,
         protected formMetaDataService: FormMetaDataService,
-        protected titleService: Title
+        protected titleService: Title,
+        protected formBuilder: FormBuilder
     ) {
-
         super();
+        this.stepComponents = new Map<string, StepFormDirective>();
     }
 
     ngOnInit() {
+        // loop through stepData definitions and add a new form control for each step (so Clarity will be happy),
+        for (let daStepData of this.stepData) {
+            this.form.controls[daStepData.name] = this.formBuilder.group({});
+        }
+
         // set branding and cluster type on branding change for base wizard components
         Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
@@ -518,6 +538,28 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
         return payload;
     }
 
+    // Methods that fulfill WizardStepRegistrar
+    //
+    registerStep(stepName: string, stepComponent: StepFormDirective) {
+        // create a formGroup for this step, record it internally and set it in the step
+        stepComponent.setInputs(stepName, this.form.controls[stepName] as FormGroup);
+        // record this step component internally
+        this.stepComponents[stepName] = stepComponent;
+    }
+
+    // If the component has registered, returns the component's dynamic description (if it has one).
+    // If the component has not yet registered, returns the static description (passed in)
+    describeStep(stepName, staticDescription: string): string {
+        const stepComponent = this.stepComponents[stepName];
+        if (!stepComponent) {
+            return staticDescription;
+        }
+        const dynamicDescription = stepComponent.dynamicDescription();
+        return dynamicDescription ? dynamicDescription : staticDescription;
+    }
+    //
+    // Methods that fulfill WizardStepRegistrar
+
     // saveFormField() is a convenience method to avoid lengthy code lines
     saveFormField(formName, fieldName, value) {
         this.formMetaDataService.saveFormFieldData(formName, fieldName, value);
@@ -655,25 +697,36 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
 
     // HTML convenience methods
     //
+    get registrar(): WizardStepRegistrar {
+        return this;
+    }
+
     get CeipForm(): FormDataForHTML {
         return { name: WizardForm.CEIP, title: 'CEIP Agreement', description: 'Join the CEIP program for TKG',
-            i18n: { title: 'ceip agreement step title', description: 'ceip agreement step description' } };
+            i18n: { title: 'ceip agreement step title', description: 'ceip agreement step description' },
+        clazz: SharedCeipStepComponent };
     }
     get IdentityForm(): FormDataForHTML {
-        return { name: WizardForm.IDENTITY, title: 'Identity Management', description: FormUtility.IdentityFormDescription(this),
-            i18n: { title: 'identity step title', description: 'identity step description' } };
+        return { name: WizardForm.IDENTITY, title: 'Identity Management', description: 'Specify identity management',
+            i18n: { title: 'identity step title', description: 'identity step description' },
+        clazz: SharedIdentityStepComponent };
     }
     get MetadataForm(): FormDataForHTML {
-        return { name: WizardForm.METADATA, title: 'Metadata', description: FormUtility.MetadataFormDescription(this),
-            i18n: { title: 'metadata step name', description: 'metadata step description' }};
+        return { name: WizardForm.METADATA, title: 'Metadata',
+            description: 'Location: Specify metadata for the ' + this.clusterTypeDescriptor + ' cluster',
+            i18n: { title: 'metadata step name', description: 'metadata step description' },
+        clazz: MetadataStepComponent };
     }
     get NetworkForm(): FormDataForHTML {
-        return { name: WizardForm.NETWORK, title: 'Kubernetes Network', description: FormUtility.NetworkFormDescription(this),
-            i18n: { title: 'Kubernetes network step name', description: 'Kubernetes network step description' } };
+        return { name: WizardForm.NETWORK, title: 'Kubernetes Network',
+            description: 'Specify how TKG networking is provided and global network settings',
+            i18n: { title: 'Kubernetes network step name', description: 'Kubernetes network step description' },
+        clazz: SharedNetworkStepComponent };
     }
     get OsImageForm(): FormDataForHTML {
-        return { name: WizardForm.OSIMAGE, title: 'OS Image', description: FormUtility.OsImageFormDescription(this),
-            i18n: { title: 'OS Image step title', description: 'OS Image step description' } };
+        return { name: WizardForm.OSIMAGE, title: 'OS Image', description: 'Specify the OS Image',
+            i18n: { title: 'OS Image step title', description: 'OS Image step description' },
+        clazz: SharedOsImageStepComponent };
     }
     //
     // HTML convenience methods

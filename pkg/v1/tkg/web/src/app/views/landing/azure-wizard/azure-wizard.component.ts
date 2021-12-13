@@ -54,13 +54,13 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         router: Router,
         public wizardFormService: AzureWizardFormService,
         private importService: ImportService,
-        private formBuilder: FormBuilder,
+        formBuilder: FormBuilder,
         private apiClient: APIClient,
         titleService: Title,
         formMetaDataService: FormMetaDataService,
         el: ElementRef) {
 
-        super(router, el, formMetaDataService, titleService);
+        super(router, el, formMetaDataService, titleService, formBuilder);
 
         this.form = this.formBuilder.group({
             azureProviderForm: this.formBuilder.group({}),

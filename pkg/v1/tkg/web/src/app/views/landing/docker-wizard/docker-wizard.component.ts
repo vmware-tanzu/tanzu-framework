@@ -26,11 +26,11 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         el: ElementRef,
         formMetaDataService: FormMetaDataService,
         private importService: ImportService,
-        private formBuilder: FormBuilder,
+        formBuilder: FormBuilder,
         titleService: Title,
         private apiClient: APIClient
     ) {
-        super(router, el, formMetaDataService, titleService);
+        super(router, el, formMetaDataService, titleService, formBuilder);
         this.buildForm();
     }
 

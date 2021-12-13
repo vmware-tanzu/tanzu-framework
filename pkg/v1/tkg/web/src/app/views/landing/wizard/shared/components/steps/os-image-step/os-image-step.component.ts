@@ -35,6 +35,7 @@ export class SharedOsImageStepComponent extends StepFormDirective implements OnI
     @Input() noImageAlertMessage: string;
     @Input() osImageTooltipContent: string;
 
+    eventType: TkgEventType;
     osImages: Array<VSphereVirtualMachine|AWSVirtualMachine|AzureVirtualMachine>;
     loadingOsTemplate: boolean = false;
     nonTemplateAlert: boolean = false;
@@ -45,8 +46,14 @@ export class SharedOsImageStepComponent extends StepFormDirective implements OnI
         this.tkrVersion = Broker.appDataService.getTkrVersion();
     }
 
+    // This method allows child classes to set the inputs (rather than having them used as part of the HTML component tag).
+    // This allows the step to follow the same pattern as all the other steps, which only take formGroup and formName as inputs.
+    // In this base class, it's a no-op (does nothing), but is called within ngOnInit().
+    protected setProviderInputs() {}
+
     ngOnInit() {
         super.ngOnInit();
+        this.setProviderInputs();
         FormUtils.addControl(
             this.formGroup,
             'osImage',
@@ -54,6 +61,12 @@ export class SharedOsImageStepComponent extends StepFormDirective implements OnI
                 Validators.required
             ])
         );
+        // TODO: this is a temporary check, allowing the type to either be an input string,
+        // or set by a subclass. Once this class becomes an abstract base class, we can eliminate
+        // the "type" field altogether
+        if (!this.eventType) {
+            this.eventType = TkgEventType[`${this.type}_GET_OS_IMAGES`];
+        }
         /**
          * Whenever data center selection changes, reset the relevant fields
          */
@@ -63,13 +76,13 @@ export class SharedOsImageStepComponent extends StepFormDirective implements OnI
              this.resetFieldsUponDCChange();
          });
 
-        this.wizardFormService.getErrorStream(TkgEventType[`${this.type}_GET_OS_IMAGES`])
+        this.wizardFormService.getErrorStream(this.eventType)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(error => {
                 this.errorNotification = error;
             });
 
-        this.wizardFormService.getDataStream(TkgEventType[`${this.type}_GET_OS_IMAGES`])
+        this.wizardFormService.getDataStream(this.eventType)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((images: Array<VSphereVirtualMachine|AWSVirtualMachine|AzureVirtualMachine>) => {
                 this.osImages = images;
@@ -100,7 +113,7 @@ export class SharedOsImageStepComponent extends StepFormDirective implements OnI
         this.nonTemplateAlert = false;
         this.resetFieldsUponDCChange();
         Broker.messenger.publish({
-            type: TkgEventType[`${this.type}_GET_OS_IMAGES`]
+            type: this.eventType
         });
     }
 
@@ -111,5 +124,12 @@ export class SharedOsImageStepComponent extends StepFormDirective implements OnI
      */
     onOptionsSelected() {
         this.nonTemplateAlert = !this.formGroup.value["osImage"].isTemplate;
+    }
+
+    dynamicDescription(): string {
+        if (this.getFieldValue('osImage') && this.getFieldValue('osImage').name) {
+            return 'OS Image: ' + this.getFieldValue('osImage').name;
+        }
+        return 'Specify the OS Image';
     }
 }

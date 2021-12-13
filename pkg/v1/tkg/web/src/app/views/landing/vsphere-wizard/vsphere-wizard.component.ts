@@ -1,4 +1,4 @@
-import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER } from './../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
+import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER, SharedLoadBalancerStepComponent } from './../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
 // Angular imports
 import { Component, OnInit, ElementRef } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
@@ -19,11 +19,13 @@ import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-
 import { VsphereRegionalClusterParams } from 'src/app/swagger/models/vsphere-regional-cluster-params.model';
 import Broker from "../../../shared/service/broker";
 import { WizardForm, WizardStep } from '../wizard/shared/constants/wizard.constants';
-import { WizardStep } from '../wizard/shared/constants/wizard.constants';
-import { StepUtility } from '../wizard/shared/components/steps/step-utility';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
 import { VsphereField } from './vsphere-wizard.constants';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
+import { VSphereProviderStepComponent } from './provider-step/vsphere-provider-step.component';
+import { ResourceStepComponent } from './resource-step/resource-step.component';
+import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
+import { VsphereOsImageStepComponent } from './os-image-step/vsphere-os-image-step.component';
 
 @Component({
     selector: 'app-wizard',
@@ -47,39 +49,32 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         router: Router,
         public wizardFormService: VSphereWizardFormService,
         private importService: ImportService,
-        private formBuilder: FormBuilder,
+        formBuilder: FormBuilder,
         formMetaDataService: FormMetaDataService,
         titleService: Title,
         el: ElementRef) {
 
-        super(router, el, formMetaDataService, titleService);
+        super(router, el, formMetaDataService, titleService, formBuilder);
 
-        this.form = this.formBuilder.group({
-            vsphereProviderForm: this.formBuilder.group({
-            }),
-            vsphereNodeSettingForm: this.formBuilder.group({
-            }),
-            metadataForm: this.formBuilder.group({
-            }),
-            resourceForm: this.formBuilder.group({
-            }),
-            networkForm: this.formBuilder.group({
-            }),
-            loadBalancerForm: this.formBuilder.group({
-            }),
-            osImageForm: this.formBuilder.group({
-            }),
-            ceipOptInForm: this.formBuilder.group({
-            }),
-            identityForm: this.formBuilder.group({
-            })
-        });
+        this.form = this.formBuilder.group({});
 
         this.provider = Broker.appDataService.getProviderType();
         this.tkrVersion = Broker.appDataService.getTkrVersion();
         Broker.appDataService.getVsphereVersion().subscribe(version => {
             this.vsphereVersion = version ? version + ' ' : '';
         });
+
+        this.stepData = [
+            this.VsphereProviderForm,
+            this.VsphereNodeSettingForm,
+            this.VsphereLoadBalancerForm,
+            this.MetadataForm,
+            this.VsphereResourceForm,
+            this.NetworkForm,
+            this.IdentityForm,
+            this.VsphereOsImageForm,
+            this.CeipForm,
+        ];
     }
 
     ngOnInit() {
@@ -260,10 +255,21 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         }
     }
 
-
     // HTML convenience methods
     //
     // OVERRIDES
+    // We override the parent class describeStep() because we have two instances where we're using a COMMON component,
+    // but we want to describe it in vSphere-specific ways
+    describeStep(stepName, staticDescription: string): string {
+        if (stepName === 'loadBalancerForm') {
+            return this.LoadBalancerFormDescription;
+        }
+        if (stepName === WizardForm.NETWORK) {
+            return this.NetworkFormDescription;
+        }
+        return super.describeStep(stepName, staticDescription);
+    }
+
     private get NetworkFormDescription(): string {
         // NOTE: even though this is a common wizard form, vSphere has a different way of describing it
         // because vSphere allows for the user to select a network name
@@ -273,11 +279,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         }
         return 'Specify how Tanzu Kubernetes Grid networking is provided and any global network settings';
     }
-    get NetworkForm(): FormDataForHTML {
-        return FormUtility.formOverrideDescription(this.NetworkForm, this.NetworkFormDescription);
-    }
 
-    // Vsphere-specific
     private get LoadBalancerFormDescription(): string { // TODO: this should be overriding base class implementation
         // NOTE: even though this is a common wizard form, vSphere has a different way of describing it
         const controllerHost = this.getFieldValue('loadBalancerForm', 'controllerHost');
@@ -290,48 +292,34 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         }
         return 'Specify VMware NSX Advanced Load Balancer settings';
     }
+
+    // vSphere-specific forms
     get VsphereLoadBalancerForm(): FormDataForHTML {
-        return { name: WizardForm.LOADBALANCER, title: 'VMware NSX Advanced Load Balancer', description: this.LoadBalancerFormDescription,
-            i18n: { title: 'load balancer step name', description: 'load balancer step description' } };
+        return { name: WizardForm.LOADBALANCER, title: 'VMware NSX Advanced Load Balancer',
+            description: 'Specify VMware NSX Advanced Load Balancer settings',
+            i18n: { title: 'load balancer step name', description: 'load balancer step description' },
+        clazz: SharedLoadBalancerStepComponent };
     }
     get VsphereNodeSettingForm(): FormDataForHTML {
         return { name: 'vsphereNodeSettingForm', title: FormUtility.titleCase(this.clusterTypeDescriptor) + ' Cluster Settings',
-            description: this.VsphereNodeSettingFormDescription,
-            i18n: { title: 'node setting step name', description: 'node setting step description' } };
-    }
-    private get VsphereNodeSettingFormDescription(): string {
-        if (this.getFieldValue('vsphereNodeSettingForm', 'controlPlaneSetting')) {
-            let mode = 'Development cluster selected: 1 node control plane';
-            if (this.getFieldValue('vsphereNodeSettingForm', 'controlPlaneSetting') === 'prod') {
-                mode = 'Production cluster selected: 3 node control plane';
-            }
-            return mode;
-        }
-        return `Specify the resources backing the ${this.clusterTypeDescriptor} cluster`;
+            description: `Specify the resources backing the ${this.clusterTypeDescriptor} cluster`,
+            i18n: { title: 'node setting step name', description: 'node setting step description' },
+        clazz: NodeSettingStepComponent };
     }
     get VsphereProviderForm(): FormDataForHTML {
-        return { name: 'vsphereProviderForm', title: 'IaaS Provider', description: this.VsphereProviderFormDescription,
-            i18n: { title: 'IaaS provider step name', description: 'IaaS provider step description' } };
+        return { name: 'vsphereProviderForm', title: 'IaaS Provider',
+            description: 'Validate the vSphere ' + this.vsphereVersion + 'provider account for Tanzu',
+            i18n: { title: 'IaaS provider step name', description: 'IaaS provider step description' },
+        clazz: VSphereProviderStepComponent };
     }
-    private get VsphereProviderFormDescription(): string {
-        const vcenterIP = this.getFieldValue('vsphereProviderForm', 'vcenterAddress');
-        const datacenter = this.getFieldValue('vsphereProviderForm', 'datacenter');
-        if ( vcenterIP && datacenter) {
-            return 'vCenter ' + vcenterIP + ' connected';
-        }
-        return 'Validate the vSphere ' + this.vsphereVersion + 'provider account for Tanzu';
+    get VsphereResourceForm(): FormDataForHTML {
+        return { name: 'resourceForm', title: 'Resources',
+            description: `Specify the resources for this ${this.clusterTypeDescriptor} cluster`,
+            i18n: { title: 'Resource step name', description: 'Resource step description' },
+        clazz: ResourceStepComponent};
     }
-    get VsphereResourceForm(): string {
-        return 'resourceForm';
-    }
-    get VsphereResourceFormDescription(): string {
-        const vmFolder = this.getFieldValue('resourceForm', 'vmFolder');
-        const datastore = this.getFieldValue('resourceForm', 'datastore');
-        const resourcePool = this.getFieldValue('resourceForm', 'resourcePool');
-        if (vmFolder && datastore && resourcePool) {
-            return 'Resource Pool: ' + resourcePool + ', VM Folder: ' + vmFolder + ', Datastore: ' + datastore;
-        }
-        return `Specify the resources for this ${this.clusterTypeDescriptor} cluster`;
+    get VsphereOsImageForm(): FormDataForHTML {
+        return FormUtility.formOverrideClazz(super.OsImageForm, VsphereOsImageStepComponent);
     }
     //
     // HTML convenience methods

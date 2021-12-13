@@ -3,7 +3,7 @@
  */
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormControl, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, Validators } from '@angular/forms';
 import { ClrLoadingState } from '@clr/angular';
 import { debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs/operators';
 import * as _ from 'lodash';
@@ -277,9 +277,10 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
      */
     connectVC() {
         this.loadingState = ClrLoadingState.LOADING;
-        this.vsphereHost = this.formGroup.controls[VsphereField.PROVIDER_VCENTER_ADDRESS].value;
+        this.vsphereHost = this.getFieldValue(VsphereField.PROVIDER_VCENTER_ADDRESS);
 
-        if (this.formGroup.controls[VsphereField.PROVIDER_CONNECTION_INSECURE].value) {
+        const insecure = this.getFieldValue(VsphereField.PROVIDER_CONNECTION_INSECURE);
+        if (insecure) {
             this.login();
         } else {
             this.verifyThumbprint();
@@ -431,9 +432,15 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
      * helper method to get if connect btn should be disabled
      */
     getDisabled(): boolean {
-        return !(this.formGroup.get(VsphereField.PROVIDER_VCENTER_ADDRESS).valid &&
-            this.formGroup.get(VsphereField.PROVIDER_USER_NAME).valid &&
-            this.formGroup.get(VsphereField.PROVIDER_USER_PASSWORD).valid);
+        return !this.controlIsValid(VsphereField.PROVIDER_USER_NAME) ||
+            !this.controlIsValid(VsphereField.PROVIDER_USER_PASSWORD) ||
+            !this.controlIsValid(VsphereField.PROVIDER_VCENTER_ADDRESS);
+    }
+
+    private controlIsValid(controlName: VsphereField): boolean {
+        if (!this.formGroup) { return false; }
+        const control = this.formGroup.get(controlName);
+        return control && control.valid;
     }
 
     /**
@@ -463,5 +470,14 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
             // clear file reader target so user can re-select same file if needed
             event.target.value = '';
         }
+    }
+
+    dynamicDescription(): string {
+        const vcenterIP = this.getFieldValue('vcenterAddress');
+        const datacenter = this.getFieldValue('datacenter');
+        if ( vcenterIP && datacenter) {
+            return 'vCenter ' + vcenterIP + ' connected';
+        }
+        return 'Validate the vSphere ' + this.vsphereVersion + 'provider account for Tanzu';
     }
 }

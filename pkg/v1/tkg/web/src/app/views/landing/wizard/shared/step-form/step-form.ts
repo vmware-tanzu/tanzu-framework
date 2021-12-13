@@ -8,10 +8,10 @@ import {TkgEvent, TkgEventType} from 'src/app/shared/service/Messenger';
 import {Notification, NotificationTypes} from 'src/app/shared/components/alert-notification/alert-notification.component';
 import Broker from 'src/app/shared/service/broker';
 
-import {distinctUntilChanged, takeUntil} from 'rxjs/operators';
-import {AppEdition} from 'src/app/shared/constants/branding.constants';
-import {EditionData} from 'src/app/shared/service/branding.service';
-import {IpFamilyEnum} from 'src/app/shared/constants/app.constants';
+import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { AppEdition } from 'src/app/shared/constants/branding.constants';
+import { EditionData } from 'src/app/shared/service/branding.service';
+import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 
 const INIT_FIELD_DELAY = 50;            // ms
 /**
@@ -24,7 +24,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
 
     @Input() formName;
     @Input() formGroup: FormGroup;
-    @Input() savedMetadata: { [fieldName: string]: FormMetaData };
+    @Input() savedMetadata: { [fieldName: string]: FormMetaData };  // TODO: (Shimon) remove @Input()
 
     edition: AppEdition = AppEdition.TCE;
     validatorEnum = ValidatorEnum;
@@ -35,6 +35,16 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     ipFamily: IpFamilyEnum = IpFamilyEnum.IPv4;
 
     private delayedFieldQueue = [];
+
+    // This method is expected to be overridden by any step that provides a dynamic description
+    protected dynamicDescription(): string {
+        return null;
+    }
+
+    setInputs(formName: string, formGroup: FormGroup) {
+        this.formName = formName;
+        this.formGroup = formGroup;
+    }
 
     ngOnInit(): void {
         this.getFormName();
@@ -77,6 +87,18 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
                 }
             }
         }
+    }
+
+    protected getFieldValue(fieldName: string): any {
+        if (!this.formGroup) {
+            console.error('getFieldValue(' + fieldName + ') called without a formGroup set');
+            return;
+        }
+        if (!this.formGroup.controls[fieldName]) {
+            console.error('getFieldValue(' + fieldName + ') called but no control by that name');
+            return;
+        }
+        return this.formGroup.controls[fieldName].value;
     }
 
     /**

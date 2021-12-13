@@ -463,7 +463,7 @@ router.get(`${ENDPOINT}/providers/vsphere/resourcepools`, (req, res) => {
  * Mock route for getting VC os images
  */
 router.get(`${ENDPOINT}/providers/vsphere/osimages`, (req, res) => {
-    winston.info('Mock TKG UI FETCH DATACENTERS');
+    winston.info('Mock TKG UI FETCH DATACENTERS (#' + mockOsImageRequestCounter + ')');
     let osImageResponse = [];
     if (mockOsImageRequestCounter > 0) {
         osImageResponse.push({
