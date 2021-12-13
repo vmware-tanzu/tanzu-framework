@@ -9,9 +9,9 @@ import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 import { Observable, EMPTY, throwError, of } from 'rxjs';
 import { CliGenerator, CliFields } from '../wizard/shared/utils/cli-generator';
 import { AzureRegionalClusterParams } from 'src/app/swagger/models';
-import { AzureAccountParamsKeys } from './provider-step/azure-provider-step.component';
+import { AzureAccountParamsKeys, AzureProviderStepComponent } from './provider-step/azure-provider-step.component';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
-import { EXISTING } from './vnet-step/vnet-step.component';
+import { EXISTING, VnetStepComponent } from './vnet-step/vnet-step.component';
 import Broker from 'src/app/shared/service/broker';
 import { AzureForm, AzureStep } from './azure-wizard.constants';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
@@ -19,6 +19,7 @@ import { StepUtility } from '../wizard/shared/components/steps/step-utility';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
 import { AwsOsImageStepComponent } from '../aws-wizard/os-image-step/aws-os-image-step.component';
 import { AzureOsImageStepComponent } from './os-image-step/azure-os-image-step.component';
+import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 
 // Not sure why some of these step names have 'Form' in them, but leaving as is
 enum AzureStep {
@@ -295,21 +296,23 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
     //
     get AzureProviderForm(): FormDataForHTML {
         return { name: AzureForm.PROVIDER, title: 'IaaS Provider', description: 'Validate the Azure provider credentials for Tanzu',
-        i18n: {title: 'IaaS provder step name', description: 'IaaS provder step description'}};
+        i18n: {title: 'IaaS provder step name', description: 'IaaS provder step description'},
+        clazz: AzureProviderStepComponent};
     }
     get AzureVnetForm(): FormDataForHTML {
         return { name: AzureForm.VNET, title: 'Azure VNET Settings', description: 'Specify a Azure VNET CIDR',
-            i18n: {title: 'vnet step name', description: 'vnet step description'}};
+            i18n: {title: 'vnet step name', description: 'vnet step description'},
+        clazz: VnetStepComponent};
     }
     get AzureNodeSettingForm(): FormDataForHTML {
         return { name: AzureForm.NODESETTING, title: FormUtility.titleCase(this.clusterTypeDescriptor) + ' Cluster Settings',
             description: `Specifying the resources backing the ${this.clusterTypeDescriptor} cluster`,
-            i18n: {title: 'node setting step name', description: 'node setting step description'} };
+            i18n: {title: 'node setting step name', description: 'node setting step description'},
+        clazz: NodeSettingStepComponent};
     }
     get AzureOsImageForm(): FormDataForHTML {
         return FormUtility.formOverrideClazz(super.OsImageForm, AzureOsImageStepComponent);
     }
-
     //
     // HTML convenience methods
 

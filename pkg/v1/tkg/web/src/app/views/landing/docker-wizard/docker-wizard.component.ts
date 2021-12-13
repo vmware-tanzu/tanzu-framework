@@ -14,6 +14,8 @@ import { ImportParams, ImportService } from "../../../shared/service/import.serv
 import { WizardStep } from '../wizard/shared/constants/wizard.constants';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { WizardForm } from '../wizard/shared/constants/wizard.constants';
+import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
+import { DaemonValidationStepComponent } from './daemon-validation-step/daemon-validation-step.component';
 
 @Component({
     selector: 'app-docker-wizard',
@@ -156,12 +158,14 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
     get DockerNodeSettingForm(): FormDataForHTML {
         const title = FormUtility.titleCase(this.clusterTypeDescriptor) + ' Cluster Settings';
         return { name: 'dockerNodeSettings', title: title, description: 'Optional: Specify the management cluster name',
-            i18n: {title: 'node setting step name', description: 'node setting step description'}};
+            i18n: {title: 'node setting step name', description: 'node setting step description'},
+        clazz: NodeSettingStepComponent};
     }
     get DockerDaemonForm(): FormDataForHTML {
         return { name: 'dockerDaemonForm', title: 'Docker Prerequisites',
             description: 'Validate the local Docker daemon, allocated CPUs and Total Memory',
-            i18n: {title: 'docker prerequisite step name', description: 'Docker prerequisite step description'}};
+            i18n: {title: 'docker prerequisite step name', description: 'Docker prerequisite step description'},
+        clazz: DaemonValidationStepComponent};
     }
     // OVERRIDES
     // We override the parent class describeStep() because we have an instance where we're using a COMMON component,
