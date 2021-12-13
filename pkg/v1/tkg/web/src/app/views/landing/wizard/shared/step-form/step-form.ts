@@ -21,10 +21,9 @@ const INIT_FIELD_DELAY = 50;            // ms
  */
 @Directive()
 export abstract class StepFormDirective extends BasicSubscriber implements OnInit {
-
-    @Input() formName;
-    @Input() formGroup: FormGroup;
-    @Input() savedMetadata: { [fieldName: string]: FormMetaData };  // TODO: (Shimon) remove @Input()
+    formName;
+    formGroup: FormGroup;
+    savedMetadata: { [fieldName: string]: FormMetaData };
 
     edition: AppEdition = AppEdition.TCE;
     validatorEnum = ValidatorEnum;
@@ -36,7 +35,8 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
 
     private delayedFieldQueue = [];
 
-    // This method is expected to be overridden by any step that provides a dynamic description
+    // This method is expected to be overridden by any step that provides a dynamic description of itself
+    // (dynamic meaning depending on user-entered data)
     protected dynamicDescription(): string {
         return null;
     }

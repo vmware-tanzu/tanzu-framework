@@ -14,7 +14,8 @@ import { FormGroup } from '@angular/forms';
 import { WizardBaseDirective, WizardStepRegistrar } from '../wizard-base/wizard-base';
 import { StepFormDirective } from '../step-form/step-form';
 
-// The mission of this class is to instantiate a step based on the passed "clazz" which is a component class.
+// The mission of this class is to (1) instantiate a step based on the passed "clazz" which is a component class, and
+// (2) register the step with a "registrar" (which is basically a wizard implementing the registrar interface).
 // This allows us to drive the creation of the step component via data (ie the passed component class),
 // rather than having to specify each component in a separate HTML block in the wizard
 @Component({

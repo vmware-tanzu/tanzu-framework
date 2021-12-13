@@ -26,43 +26,7 @@
         </div>
     </div>
     <app-shared-delete-data-popup></app-shared-delete-data-popup>
-    <form clrStepper #wizard [formGroup]="form">
-        <clr-stepper-panel formGroupName="{{DockerDaemonForm.name}}" removeAriaLabelledBy>
-            <clr-step-title i18n="{{DockerDaemonForm.i18n.title}}">{{DockerDaemonForm.title}}</clr-step-title>
-            <clr-step-description i18n="{{DockerDaemonForm.i18n.description}}">{{DockerDaemonForm.description}}</clr-step-description>
-            <ng-container *ngIf="steps[0]">
-                <app-daemon-validation-step [formGroup]="form.controls[DockerDaemonForm.name]" formName="{{DockerDaemonForm.name}}">
-                </app-daemon-validation-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-
-        <clr-stepper-panel formGroupName="{{ DockerNodeSettingForm.name }}" removeAriaLabelledBy>
-            <clr-step-title i18n="{{ DockerNodeSettingForm.i18n.title }}">{{ DockerNodeSettingForm.title}}</clr-step-title>
-            <clr-step-description i18n="{{ DockerNodeSettingForm.i18n.description }}">{{ DockerNodeSettingForm.description }}</clr-step-description>
-            <ng-container *ngIf="steps[1]">
-                <app-node-setting-step [formGroup]="form.controls.dockerNodeSettingForm" formName="{{ DockerNodeSettingForm.name }}">
-                </app-node-setting-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-
-        <clr-stepper-panel formGroupName="{{ NetworkForm.name }}" removeAriaLabelledBy>
-            <clr-step-title i18n="{{ NetworkForm.i18n.title }}">{{ NetworkForm.title }}</clr-step-title>
-            <clr-step-description i18n="{{ NetworkForm.i18n.description }}">{{ NetworkForm.description }}</clr-step-description>
-            <ng-container *ngIf="steps[2]">
-                <app-shared-network-step [formGroup]="form.controls[NetworkForm.name]" formName="{{ NetworkForm.name }}">
-                </app-shared-network-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-    </form>
+    <app-step-wrapper-set [wizard]="registrar"></app-step-wrapper-set>
     <button class="btn btn-primary mt-20" [disabled]="!getWizardValidity()" (click)="reviewConfiguration(true)">
         REVIEW CONFIGURATION
     </button>

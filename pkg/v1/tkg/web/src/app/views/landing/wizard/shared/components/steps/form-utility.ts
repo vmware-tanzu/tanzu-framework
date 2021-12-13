@@ -14,8 +14,7 @@ export interface FormDataForHTML {
     description: string,    // description of this step (displayed)
     title: string,          // title of this step (displayed)
     i18n: I18nDataForHtml,  // data used for navigating UI (displayed)
-    // TODO: clazz should be required
-    clazz?: Type<StepFormDirective>,    // the class of the step component
+    clazz: Type<StepFormDirective>,    // the class of the step component
 }
 
 export class FormUtility {

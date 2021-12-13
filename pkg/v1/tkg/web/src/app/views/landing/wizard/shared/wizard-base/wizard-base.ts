@@ -1,5 +1,5 @@
 // Angular imports
-import { OnInit, ElementRef, AfterViewInit, ViewChild, Directive } from '@angular/core';
+import { OnInit, ElementRef, AfterViewInit, ViewChild, Directive, Type } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
@@ -87,16 +87,6 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
                 this.title = data.payload.branding.title;
             });
 
-        // work around an issue within StepperModel
-        if (this.wizard && this.wizard['stepperService']) {    // TODO: remove this block
-            this.wizard['stepperService']['accordion']['openFirstPanel'] = function () {
-                const firstPanel = this.getFirstPanel();
-                if (firstPanel) {
-                    this._panels[firstPanel.id].open = true;
-                    this._panels[firstPanel.id].disabled = true;
-                }
-            }
-        }
         this.watchFieldsChange();
 
         FormMetaDataStore.resetStepList();
@@ -734,10 +724,10 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
             i18n: { title: 'Kubernetes network step name', description: 'Kubernetes network step description' },
         clazz: SharedNetworkStepComponent };
     }
-    get OsImageForm(): FormDataForHTML {
+    getOsImageForm(clazz: Type<StepFormDirective>): FormDataForHTML {
         return { name: WizardForm.OSIMAGE, title: 'OS Image', description: 'Specify the OS Image',
             i18n: { title: 'OS Image step title', description: 'OS Image step description' },
-        clazz: SharedOsImageStepComponent };
+        clazz: clazz };
     }
     get wizardForm(): FormGroup {
         return this.form;

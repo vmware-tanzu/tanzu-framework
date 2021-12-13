@@ -311,7 +311,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         clazz: NodeSettingStepComponent};
     }
     get AzureOsImageForm(): FormDataForHTML {
-        return FormUtility.formOverrideClazz(super.OsImageForm, AzureOsImageStepComponent);
+        return this.getOsImageForm(AzureOsImageStepComponent);
     }
     //
     // HTML convenience methods

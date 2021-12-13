@@ -284,7 +284,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         return 'Specify how Tanzu Kubernetes Grid networking is provided and any global network settings';
     }
 
-    private get LoadBalancerFormDescription(): string { // TODO: this should be overriding base class implementation
+    private get LoadBalancerFormDescription(): string {
         // NOTE: even though this is a common wizard form, vSphere has a different way of describing it
         const controllerHost = this.getFieldValue('loadBalancerForm', 'controllerHost');
         if (controllerHost) {
@@ -323,7 +323,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         clazz: ResourceStepComponent};
     }
     get VsphereOsImageForm(): FormDataForHTML {
-        return FormUtility.formOverrideClazz(super.OsImageForm, VsphereOsImageStepComponent);
+        return this.getOsImageForm(VsphereOsImageStepComponent);
     }
     //
     // HTML convenience methods

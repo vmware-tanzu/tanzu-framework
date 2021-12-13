@@ -19,8 +19,6 @@ import { AWSAccountParamsKeys, AwsProviderStepComponent } from './provider-step/
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { VpcStepComponent } from './vpc-step/vpc-step.component';
 import { AwsOsImageStepComponent } from './os-image-step/aws-os-image-step.component';
-import { VsphereOsImageStepComponent } from '../vsphere-wizard/os-image-step/vsphere-os-image-step.component';
-import { StepUtility } from '../wizard/shared/components/steps/step-utility';
 import { AwsField, AwsForm, AwsStep } from "./aws-wizard.constants";
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
 import { Utils } from '../../../shared/utils';
@@ -330,7 +328,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         clazz: VpcStepComponent};
     }
     get AwsOsImageForm(): FormDataForHTML {
-        return FormUtility.formOverrideClazz(super.OsImageForm, AwsOsImageStepComponent);
+        return this.getOsImageForm(AwsOsImageStepComponent);
     }
     //
     // HTML convenience methods

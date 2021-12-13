@@ -8,7 +8,6 @@ import { BehaviorSubject } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
 import { TkgEventType } from '../../../../shared/service/Messenger';
 
-
 @Component({
     selector: 'app-azure-os-image-step',
     templateUrl: '../../wizard/shared/components/steps/os-image-step/os-image-step.component.html',

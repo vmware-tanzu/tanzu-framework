@@ -37,7 +37,6 @@ import { AzureOsImageStepComponent } from '../../azure-wizard/os-image-step/azur
         SharedIdentityStepComponent,
         TreeSelectComponent,
         AuditLoggingComponent,
-        SharedOsImageStepComponent,
         VsphereOsImageStepComponent,
         AwsOsImageStepComponent,
         AzureOsImageStepComponent
@@ -61,7 +60,6 @@ import { AzureOsImageStepComponent } from '../../azure-wizard/os-image-step/azur
         SharedIdentityStepComponent,
         TreeSelectComponent,
         AuditLoggingComponent,
-        SharedOsImageStepComponent,
         VsphereOsImageStepComponent,
         AwsOsImageStepComponent,
         AzureOsImageStepComponent

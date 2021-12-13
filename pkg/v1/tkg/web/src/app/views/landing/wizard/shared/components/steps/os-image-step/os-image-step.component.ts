@@ -23,33 +23,26 @@ import { Observable } from 'rxjs/internal/Observable';
 import { AWSVirtualMachine, AzureVirtualMachine } from 'src/app/swagger/models';
 import { FormUtils } from '../../../utils/form-utils';
 
-@Component({
-    selector: 'app-os-image-step',
-    templateUrl: './os-image-step.component.html',
-    styleUrls: ['./os-image-step.component.scss']
-})
-export class SharedOsImageStepComponent extends StepFormDirective implements OnInit {
-    @Input() wizardFormService: VSphereWizardFormService|AwsWizardFormService|AzureWizardFormService;
-    @Input() type: string;
-    @Input() enableNonTemplateAlert: boolean;
-    @Input() noImageAlertMessage: string;
-    @Input() osImageTooltipContent: string;
-
+export abstract class SharedOsImageStepComponent extends StepFormDirective implements OnInit {
+    wizardFormService: VSphereWizardFormService|AwsWizardFormService|AzureWizardFormService;
+    enableNonTemplateAlert: boolean;
+    noImageAlertMessage: string;
+    osImageTooltipContent: string;
     eventType: TkgEventType;
+    // TODO: refactor to use generics instead of VSphereVirtualMachine|AWSVirtualMachine|AzureVirtualMachine
     osImages: Array<VSphereVirtualMachine|AWSVirtualMachine|AzureVirtualMachine>;
     loadingOsTemplate: boolean = false;
     nonTemplateAlert: boolean = false;
     tkrVersion: Observable<string>;
 
-    constructor() {
+    protected constructor() {
         super();
         this.tkrVersion = Broker.appDataService.getTkrVersion();
     }
 
-    // This method allows child classes to set the inputs (rather than having them used as part of the HTML component tag).
+    // This method allows child classes to set the inputs (rather than having them passed as part of an HTML component tag).
     // This allows the step to follow the same pattern as all the other steps, which only take formGroup and formName as inputs.
-    // In this base class, it's a no-op (does nothing), but is called within ngOnInit().
-    protected setProviderInputs() {}
+    protected abstract setProviderInputs();
 
     ngOnInit() {
         super.ngOnInit();
@@ -61,12 +54,6 @@ export class SharedOsImageStepComponent extends StepFormDirective implements OnI
                 Validators.required
             ])
         );
-        // TODO: this is a temporary check, allowing the type to either be an input string,
-        // or set by a subclass. Once this class becomes an abstract base class, we can eliminate
-        // the "type" field altogether
-        if (!this.eventType) {
-            this.eventType = TkgEventType[`${this.type}_GET_OS_IMAGES`];
-        }
         /**
          * Whenever data center selection changes, reset the relevant fields
          */
