@@ -750,6 +750,9 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
                 result = index;
             }
         });
+        if (result == -1) {
+            console.error('unable to find step named ' + stepName + ' in the wizard\'s array of step data');
+        }
         return result;
     }
 }
