@@ -15,7 +15,10 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/providers/tests/unit/ytt"
 )
 
-const yamlRoot = "../../"
+const (
+	capvVersion = "v1.0.2"
+	yamlRoot    = "../../"
+)
 
 var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 	Describe("IP family ytt validations", func() {
@@ -247,8 +250,8 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 		BeforeEach(func() {
 			paths = []string{
 				filepath.Join("fixtures", "yttmocks"),
-				filepath.Join("..", "..", "infrastructure-vsphere", "v1.0.1", "ytt", "overlay.yaml"),
-				filepath.Join("..", "..", "infrastructure-vsphere", "v1.0.1", "ytt", "base-template.yaml"),
+				filepath.Join("..", "..", "infrastructure-vsphere", capvVersion, "ytt", "overlay.yaml"),
+				filepath.Join("..", "..", "infrastructure-vsphere", capvVersion, "ytt", "base-template.yaml"),
 				filepath.Join("..", "..", "config_default.yaml"),
 			}
 		})

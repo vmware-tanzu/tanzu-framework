@@ -6,7 +6,7 @@ providers:
   url: providers/infrastructure-aws/v1.2.0/infrastructure-components.yaml
   type: InfrastructureProvider
 - name: vsphere
-  url: providers/infrastructure-vsphere/v1.0.1/infrastructure-components.yaml
+  url: providers/infrastructure-vsphere/v1.0.2/infrastructure-components.yaml
   type: InfrastructureProvider
 - name: azure
   url: providers/infrastructure-azure/v1.0.0/infrastructure-components.yaml
