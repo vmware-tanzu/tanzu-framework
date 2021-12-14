@@ -9,8 +9,6 @@ import { AWSNodeAz, AWSRegionalClusterParams, AWSVpc } from 'src/app/swagger/mod
 import { APIClient } from 'src/app/swagger';
 import { AwsWizardFormService } from 'src/app/shared/service/aws-wizard-form.service';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
-import { APIClient } from 'src/app/swagger';
-import { AWSRegionalClusterParams } from 'src/app/swagger/models';
 import Broker from "../../../shared/service/broker";
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
@@ -307,7 +305,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
 
         // clear file reader target so user can re-select same file if needed
         event.target.value = '';
-    }}
+    }
     // HTML convenience methods
     //
     get AwsProviderForm(): FormDataForHTML {

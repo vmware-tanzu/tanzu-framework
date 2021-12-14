@@ -13,25 +13,10 @@ import { AzureAccountParamsKeys, AzureProviderStepComponent } from './provider-s
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { EXISTING, VnetStepComponent } from './vnet-step/vnet-step.component';
 import Broker from 'src/app/shared/service/broker';
-import { AzureForm, AzureStep } from './azure-wizard.constants';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
-import { StepUtility } from '../wizard/shared/components/steps/step-utility';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
-import { AwsOsImageStepComponent } from '../aws-wizard/os-image-step/aws-os-image-step.component';
 import { AzureOsImageStepComponent } from './os-image-step/azure-os-image-step.component';
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
-
-// Not sure why some of these step names have 'Form' in them, but leaving as is
-enum AzureStep {
-    PROVIDER = 'azureProviderForm',
-    NODESETTING = 'azureNodeSettingForm',
-    METADATA = 'metadataForm',
-    NETWORK = 'networkForm',
-    CEIP = 'ceipOptInForm',
-    IDENTITY = 'identity',
-    OSIMAGE = 'osImage',
-    VNET = 'vnetForm'
-}
 
 enum AzureForm {
     PROVIDER = 'azureProviderForm',

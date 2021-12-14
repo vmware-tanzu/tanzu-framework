@@ -143,15 +143,6 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         return this.savedMetadata != null
     }
 
-    protected getFieldValue(fieldName: string): any {
-        const control = this.getControl(fieldName);
-        if (control === undefined || control === null) {
-            console.log('WARNING: getFieldValue() could not find field ' + fieldName );
-            return '';
-        }
-        return control.value;
-    }
-
     protected setFieldValue(fieldName: string, value: any): void {
         const control = this.getControl(fieldName);
         if (control === undefined || control === null) {

@@ -132,6 +132,12 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     getStepMetadata() {
         let wizard = this.el.nativeElement;
         wizard = wizard.querySelector('form[clrstepper]');
+        if (!wizard) {
+            console.error('in getStepMetadata(), unable to find \'form[clrstepper]\' ; this is likely caused by a failure to instantiate' +
+                ' step-wrapper components while setting up a test case. If this occurs outside of a test case, something fundamental is' +
+                ' wrong.');
+            return;
+        }
         const panels: any[] = Array.from(wizard.querySelectorAll('clr-stepper-panel'));
         const stepMetadataList = [];
         panels.forEach((panel => {
@@ -147,6 +153,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
             stepMetadataList.push(stepMetadata);
         }));
         FormMetaDataStore.setStepList(stepMetadataList);
+
     }
 
     /**
