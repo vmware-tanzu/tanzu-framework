@@ -10,10 +10,10 @@ directories:
   path: ytt/vendir/vsphere_cpi/_ytt_lib
 - contents:
   - git:
-      commitTitle: Adding antrea agent tweak configmap (#2683)
-      sha: a9353f7de25d8f2aa6baafacd295ce5c8d98d38b
+      commitTitle: Antrea disable UDP tunnel offload (#2723)
+      sha: daa90ee40f373474c7714e72182b7ad784c2ffaf
       tags:
-      - v0.10.0-dev.4-23-ga9353f7d
+      - v0.10.0-dev.4-36-gdaa90ee4
     path: .
   path: ytt/vendir/cni/_ytt_lib
 - contents:

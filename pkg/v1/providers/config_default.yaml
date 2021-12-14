@@ -582,7 +582,7 @@ ANTREA_ENDPOINTSLICE: false
 ANTREA_POLICY: true
 ANTREA_NODEPORTLOCAL: false
 ANTREA_TRACEFLOW: true
-
+ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD: false
 
 
 #! ---------------------------------------------------------------------
