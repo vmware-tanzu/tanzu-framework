@@ -2,7 +2,6 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { SharedOsImageStepComponent } from './os-image-step.component';
 
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ValidationService } from '../../../validation/validation.service';
@@ -12,13 +11,13 @@ import Broker from 'src/app/shared/service/broker';
 import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
 import { VsphereOsImageStepComponent } from '../../../../../vsphere-wizard/os-image-step/vsphere-os-image-step.component';
 
-describe('OsImageStepComponent', () => {
-    let component: SharedOsImageStepComponent;
+describe('VsphereOsImageStepComponent', () => {
+    let component: VsphereOsImageStepComponent;
     let fixture: ComponentFixture<VsphereOsImageStepComponent>;
 
     beforeEach(async(() => {
         TestBed.configureTestingModule({
-            declarations: [SharedOsImageStepComponent],
+            declarations: [VsphereOsImageStepComponent],
             imports: [
                 ReactiveFormsModule,
                 SharedModule

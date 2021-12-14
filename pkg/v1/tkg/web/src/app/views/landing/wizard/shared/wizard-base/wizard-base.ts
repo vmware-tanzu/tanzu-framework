@@ -350,7 +350,8 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
      * @param fieldName the name of the field to get
      */
     getFieldValue(formName, fieldName) {
-        return this.form.get(formName) && this.form.get(formName).get(fieldName) && this.form.get(formName).get(fieldName).value || '';
+        return this.form && this.form.get(formName) &&
+            this.form.get(formName).get(fieldName) && this.form.get(formName).get(fieldName).value || '';
     }
 
     /**
