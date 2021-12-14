@@ -411,6 +411,93 @@ spec:
       infrastructureRef:
         name: #@ "{}-windows-containerd".format(data.values.CLUSTER_NAME)
       version: #@ data.values.KUBERNETES_VERSION
+
+
+############################################################### if folks need a linux node
+
+#@ if data.values.IS_WINDOWS_WORKLOAD_CLUSTER_WITH_LINUX:
+
+#@overlay/match by=overlay.subset({"kind": "VSphereMachineTemplate", "metadata":{"name": "${ CLUSTER_NAME }-worker"}})
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: VSphereMachineTemplate
+metadata:
+  name: #@ "{}-worker".format(data.values.CLUSTER_NAME)
+spec:
+  template:
+    spec:
+      cloneMode:  #@ data.values.VSPHERE_CLONE_MODE
+      datacenter: #@ data.values.VSPHERE_DATACENTER
+      datastore: #@ data.values.VSPHERE_DATASTORE
+      storagePolicyName: #@ data.values.VSPHERE_STORAGE_POLICY_ID
+      diskGiB: #@ data.values.VSPHERE_WORKER_DISK_GIB
+      folder: #@ data.values.VSPHERE_FOLDER
+      memoryMiB: #@ data.values.VSPHERE_WORKER_MEM_MIB
+      network:
+        devices:
+        - networkName: #@ data.values.VSPHERE_NETWORK
+          #@ if data.values.WORKER_NODE_NAMESERVERS:
+          nameservers: #@ data.values.WORKER_NODE_NAMESERVERS.replace(" ", "").split(",")
+          #@ end
+          #@ if data.values.TKG_IP_FAMILY == "ipv6":
+          dhcp6: true
+          #@ elif data.values.TKG_IP_FAMILY in ["ipv4,ipv6", "ipv6,ipv4"]:
+          dhcp4: true
+          dhcp6: true
+          #@ else:
+          dhcp4: true
+          #@ end
+      numCPUs: #@ data.values.VSPHERE_WORKER_NUM_CPUS
+      resourcePool: #@ data.values.VSPHERE_RESOURCE_POOL
+      server: #@ data.values.VSPHERE_SERVER
+      template: #@ data.values.VSPHERE_TEMPLATE
+---
+apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+kind: KubeadmConfigTemplate
+metadata:
+  name: #@ "{}-md-0".format(data.values.CLUSTER_NAME)
+spec:
+  template:
+    spec:
+      users:
+      - name: capv
+        sshAuthorizedKeys:
+        - #@ data.values.VSPHERE_SSH_AUTHORIZED_KEY
+        sudo: ALL=(ALL) NOPASSWD:ALL
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: MachineDeployment
+metadata:
+  labels:
+    cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
+  name: #@ "{}-md-0".format(data.values.CLUSTER_NAME)
+spec:
+  clusterName: #@ data.values.CLUSTER_NAME
+  replicas: #@ data.values.WORKER_MACHINE_COUNT
+  selector:
+    matchLabels:
+      cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
+  template:
+    metadata:
+      labels:
+        cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
+        node-pool: #@ "{}-worker-pool".format(data.values.CLUSTER_NAME)
+    spec:
+      bootstrap:
+        configRef:
+          name: #@ "{}-md-0".format(data.values.CLUSTER_NAME)
+      clusterName: #@ data.values.CLUSTER_NAME
+      infrastructureRef:
+        name: #@ "{}-worker".format(data.values.CLUSTER_NAME)
+      version: #@ data.values.KUBERNETES_VERSION
+      #@ if data.values.VSPHERE_AZ_0:
+      failureDomain: #@ data.values.VSPHERE_AZ_0
+      #@ end
+
+####################################################################################################
+
+
+
 #@overlay/match by=overlay.subset({"kind": "Secret", "metadata":{"name": "${ CLUSTER_NAME }"}})
 ---
 apiVersion: v1
@@ -533,3 +620,4 @@ data:
       namespace: kube-system
     ---
 #@ end
+
