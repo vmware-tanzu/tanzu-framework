@@ -88,14 +88,20 @@ describe('AzureWizardComponent', () => {
             expect(component.AzureProviderForm.description).toBe('Azure tenant: testId');
         });
         it('vnet form', () => {
-            expect(component.AzureVnetFormDescription).toBe('Specify a Azure VNET CIDR');
+            let description = component.describeStep(component.AzureVnetForm.name, component.AzureVnetForm.description);
+            expect(description).toBe('Specify a Azure VNET CIDR');
+
             component.form.get(AzureForm.VNET).get('vnetCidrBlock').setValue('1.1.1.1/24');
-            expect(component.AzureVnetFormDescription).toBe('Subnet: 1.1.1.1/24');
+            description = component.describeStep(component.AzureVnetForm.name, component.AzureVnetForm.description);
+            expect(description).toBe('Subnet: 1.1.1.1/24');
         });
         it('node setting form', () => {
-            expect(component.AzureNodeSettingFormDescription).toBe('Specifying the resources backing the management cluster');
+            let description = component.describeStep(component.AzureNodeSettingForm.name, component.AzureNodeSettingForm.description);
+            expect(description).toBe('Specifying the resources backing the management cluster');
+
             component.form.get(AzureForm.NODESETTING).get('controlPlaneSetting').setValue('dev');
-            expect(component.AzureNodeSettingFormDescription).toBe('Control plane type: dev');
+            description = component.describeStep(component.AzureNodeSettingForm.name, component.AzureNodeSettingForm.description);
+            expect(description).toBe('Control plane type: dev');
         });
         it('meta data form', () => {
             expect(component.MetadataForm.description).toBe('Specify metadata for the management cluster');
@@ -110,8 +116,8 @@ describe('AzureWizardComponent', () => {
             expect(component.NetworkForm.description).toBe('Cluster service CIDR: 1.1.1.1/23 Cluster POD CIDR: 2.2.2.2/23');
         });
         it('ceip opt in form', () => {
-            expect(component.CeipFormDescription)
-                .toBe('Join the CEIP program for TKG');
+            const description = component.describeStep(component.CeipForm.name, component.CeipForm.description);
+            expect(description).toBe('Join the CEIP program for TKG');
         });
     });
 

@@ -49,26 +49,16 @@ describe('VSphereWizardComponent', () => {
         fixture = TestBed.createComponent(VSphereWizardComponent);
         component = fixture.componentInstance;
         component.form = fb.group({
-            vsphereProviderForm: fb.group({
-            }),
-            vsphereNodeSettingForm: fb.group({
-            }),
-            metadataForm: fb.group({
-            }),
-            storageForm: fb.group({
-            }),
-            resourceForm: fb.group({
-            }),
-            loadBalancerForm: fb.group({
-            }),
-            networkForm: fb.group({
-            }),
-            identityForm: fb.group({
-            }),
-            osImageForm: fb.group({
-            }),
-            ceipOptInForm: fb.group({
-            })
+            vsphereProviderForm: fb.group({}),
+            vsphereNodeSettingForm: fb.group({}),
+            metadataForm: fb.group({}),
+            storageForm: fb.group({}),
+            resourceForm: fb.group({}),
+            loadBalancerForm: fb.group({}),
+            networkForm: fb.group({}),
+            identityForm: fb.group({}),
+            osImageForm: fb.group({}),
+            ceipOptInForm: fb.group({})
         });
         component.clusterTypeDescriptor = '' + ClusterType.Management;
         fixture.detectChanges();
@@ -92,22 +82,21 @@ describe('VSphereWizardComponent', () => {
         expect(component['getWizardValidity']()).toBeFalsy();
     });
 
-    // TODO: fix tests
-/*
-    it('VsphereProviderFormDescription should return correct description when wizard is not filled', () => {
-        expect(component.VsphereProviderFormDescription).toBe('Validate the vSphere provider account for Tanzu');
+    it('VsphereProviderFormDescription should return correct static description when wizard is not filled', () => {
+        const description = component.describeStep('vsphereProviderForm', component.VsphereProviderForm.description)
+        expect(description).toBe('Validate the vSphere provider account for Tanzu');
     });
 
-    it('VsphereProviderFormDescription should return correct summary for wizard input', () => {
+    it('VsphereProviderFormDescription should return correct dynamic summary for wizard input', () => {
         const fb = new FormBuilder();
         component.form.controls['vsphereProviderForm'] = fb.group({
             vcenterAddress: new FormControl('vcAddr'),
             datacenter: new FormControl('dc'),
         });
-
-        expect(component.VsphereProviderFormDescription).toBe('vCenter vcAddr connected');
+        const description = component.describeStep('vsphereProviderForm', component.VsphereProviderForm.description)
+        expect(description).toBe('vCenter vcAddr connected');
     });
-*/
+
     it('should call create vsphere api when deploying', () => {
         const apiSpy = spyOn(component['apiClient'], 'createVSphereRegionalCluster').and.callThrough();
         component.providerType = 'vsphere';

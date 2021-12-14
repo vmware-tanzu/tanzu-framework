@@ -103,27 +103,35 @@ describe('AwsWizardComponent', () => {
 
     describe('should return correct description', () => {
         it('is for provider step', () => {
-            expect(component.AwsProviderFormDescription).toBe('Validate the AWS provider account for Tanzu');
+            const description = component.describeStep(component.AwsProviderForm.name, component.AwsProviderForm.description);
+            expect(description).toBe('Validate the AWS provider account for Tanzu');
         });
 
         it('is for vpc step', () => {
-            expect(component.AwsVpcFormDescription).toBe('Specify VPC settings for AWS');
+            let description = component.describeStep(component.AwsVpcForm.name, component.AwsVpcForm.description);
+            expect(description).toBe('Specify VPC settings for AWS');
 
             component.form.get('vpcForm').get('vpc').setValue('10.0.0.0/16');
             component.form.get('vpcForm').get('publicNodeCidr').setValue('1.1.1.1/23');
             component.form.get('vpcForm').get('privateNodeCidr').setValue('2.2.2.2/23');
             component.form.get('vpcForm').get('awsNodeAz').setValue('awsNodeAz1');
-            expect(component.AwsVpcFormDescription).toBe('VPC CIDR: 10.0.0.0/16, Public Node CIDR: 1.1.1.1/23, ' +
+            description = component.describeStep(component.AwsVpcForm.name, component.AwsVpcForm.description);
+            expect(description).toBe('VPC CIDR: 10.0.0.0/16, Public Node CIDR: 1.1.1.1/23, ' +
                 'Private Node CIDR: 2.2.2.2/23, Node AZ: awsNodeAz1');
         });
 
         it('is for nodeSetting step', () => {
-            const controlPlaneField = component.form.get('awsNodeSettingForm').get('controlPlaneSetting');
-            expect(component.AwsNodeSettingFormDescription).toBe('Specify the resources backing the management cluster');
+            const controlPlaneField = component.form.get(component.AwsNodeSettingForm.name).get('controlPlaneSetting');
+            let description = component.describeStep(component.AwsNodeSettingForm.name, component.AwsNodeSettingForm.description);
+            expect(description).toBe('Specify the resources backing the management cluster');
+
             controlPlaneField.setValue('prod');
-            expect(component.AwsNodeSettingFormDescription).toBe('Production cluster selected: 3 node control plane');
+            description = component.describeStep(component.AwsNodeSettingForm.name, component.AwsNodeSettingForm.description);
+            expect(description).toBe('Production cluster selected: 3 node control plane');
+
             controlPlaneField.setValue('dev');
-            expect(component.AwsNodeSettingFormDescription).toBe('Development cluster selected: 1 node control plane');
+            description = component.describeStep(component.AwsNodeSettingForm.name, component.AwsNodeSettingForm.description);
+            expect(description).toBe('Development cluster selected: 1 node control plane');
         });
 
         it('is for network step', () => {
