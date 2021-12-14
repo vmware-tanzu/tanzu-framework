@@ -11,6 +11,7 @@ import (
 
 	"github.com/pkg/errors"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 
@@ -60,7 +61,7 @@ func (c *TkgClient) GetClusterPinnipedInfo(options GetClusterPinnipedInfoOptions
 	}
 
 	if options.IsManagementCluster {
-		return c.GetMCClusterPinnipedInfo(regionalClusterClient, curRegion)
+		return c.GetMCClusterPinnipedInfo(regionalClusterClient, curRegion, options)
 	}
 
 	return c.GetWCClusterPinnipedInfo(regionalClusterClient, curRegion, options)
@@ -118,23 +119,11 @@ func (c *TkgClient) GetWCClusterPinnipedInfo(regionalClusterClient clusterclient
 
 // GetMCClusterPinnipedInfo get pinniped information for management cluster
 func (c *TkgClient) GetMCClusterPinnipedInfo(regionalClusterClient clusterclient.Client,
-	curRegion region.RegionContext) (*ClusterPinnipedInfo, error) {
+	curRegion region.RegionContext, options GetClusterPinnipedInfoOptions) (*ClusterPinnipedInfo, error) {
 	// it is expected that user would call get cluster pinnedInfo of the same management cluster
-	clusterName, err := regionalClusterClient.GetCurrentClusterName(curRegion.ContextName)
+	clusterInfo, err := getClusterInfo(regionalClusterClient, options.ClusterName, options.Namespace)
 	if err != nil {
-		return nil, errors.Wrap(err, "unable to get cluster name")
-	}
-	// management cluster namespace is opinionated and is "tkg-system"
-	namespace := TKGsystemNamespace
-
-	clusterAPIServerURL, err := c.getClusterAPIServerURL(regionalClusterClient, clusterName, namespace)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get cluster apiserver url from cluster objects")
-	}
-
-	clusterInfo, err := utils.GetClusterInfoFromCluster(clusterAPIServerURL)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get cluster-info from cluster")
+		return nil, errors.Wrap(err, "failed to get cluster information")
 	}
 	pinnipedInfo, err := utils.GetPinnipedInfoFromCluster(clusterInfo)
 	if err != nil {
@@ -146,10 +135,38 @@ func (c *TkgClient) GetMCClusterPinnipedInfo(regionalClusterClient clusterclient
 	}
 
 	return &ClusterPinnipedInfo{
-		ClusterName:  clusterName,
+		ClusterName:  options.ClusterName,
 		ClusterInfo:  clusterInfo,
 		PinnipedInfo: pinnipedInfo,
 	}, nil
+}
+
+func getClusterInfo(
+	regionalClusterClient clusterclient.Client,
+	clusterName, clusterNamespace string,
+) (*clientcmdapi.Cluster, error) {
+
+	kubeconfigData, err := regionalClusterClient.GetKubeConfigForCluster(clusterName, clusterNamespace, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get kubeconfig for cluster %s/%s: %w", clusterNamespace, clusterName, err)
+	}
+
+	config, err := clientcmd.Load(kubeconfigData)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to load the kubeconfig")
+	}
+
+	if len(config.Clusters) == 0 {
+		return nil, errors.New("failed to get cluster information")
+	}
+
+	// since it is a map with one cluster object, get the first entry
+	var cluster *clientcmdapi.Cluster
+	for _, cluster = range config.Clusters {
+		break
+	}
+
+	return cluster, nil
 }
 
 func (c *TkgClient) getClusterAPIServerURL(regionalClusterClient clusterclient.Client, clusterName, namespace string) (string, error) {
