@@ -1172,6 +1172,48 @@ var _ = Describe("Validate", func() {
 
 					coreDNSIP, _ := tkgConfigReaderWriter.Get(constants.ConfigVariableCoreDNSIP)
 					Expect(coreDNSIP).Should(Equal("::a"))
+		Context("Network Separation configuration and validation", func() {
+			It("should allow empty network separation configurations", func() {
+				validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+				Expect(validationError).NotTo(HaveOccurred())
+			})
+
+			Context("Avi Management Cluster Service Engine Group", func() {
+				BeforeEach(func() {
+					featureFlagClient.IsConfigFeatureActivatedReturns(false, nil)
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviManagementClusterServiceEngineGroup, "SEG-1")
+				})
+
+				It("should return an error", func() {
+					validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+					Expect(validationError).To(HaveOccurred())
+					Expect(validationError.Error()).To(ContainSubstring("option AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP is set to \"SEG-1\", but network separation support is not enabled (because it is not fully functional). To enable network separation, run the command: tanzu config set features.management-cluster.network-separation-beta true"))
+				})
+			})
+			Context("Avi Data Plane Network", func() {
+				BeforeEach(func() {
+					featureFlagClient.IsConfigFeatureActivatedReturns(false, nil)
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControlPlaneNetwork, "VM Network")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControlPlaneNetworkCidr, "8.8.8.8/20")
+				})
+
+				It("should return an error", func() {
+					validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+					Expect(validationError).To(HaveOccurred())
+					Expect(validationError.Error()).To(ContainSubstring("option AVI_CONTROL_PLANE_NETWORK is set to \"VM Network\", but network separation support is not enabled (because it is not fully functional). To enable network separation, run the command: tanzu config set features.management-cluster.network-separation-beta true"))
+				})
+			})
+			Context("Avi Control Plane Network", func() {
+				BeforeEach(func() {
+					featureFlagClient.IsConfigFeatureActivatedReturns(false, nil)
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkName, "VM Network")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkCidr, "8.8.8.8/20")
+				})
+
+				It("should return an error", func() {
+					validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+					Expect(validationError).To(HaveOccurred())
+					Expect(validationError.Error()).To(ContainSubstring("option AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME is set to \"VM Network\", but network separation support is not enabled (because it is not fully functional). To enable network separation, run the command: tanzu config set features.management-cluster.network-separation-beta true"))
 				})
 			})
 		})
