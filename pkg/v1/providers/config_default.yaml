@@ -446,6 +446,10 @@ CLUSTER_CIDR:
 SERVICE_CIDR:
 NODE_STARTUP_TIMEOUT: 20m
 
+#! CORE_DNS_IP is the IP of core DNS service, supports both IPv4 and IPv6
+#! It is the 10th index of SERVICE_CIDR subnet
+CORE_DNS_IP:
+
 CONTROL_PLANE_MACHINE_COUNT:
 WORKER_MACHINE_COUNT:
 #! sets the number of worker nodes in the first AZ, AWS_NODE_AZ.

@@ -26,6 +26,7 @@ import (
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	netutils "k8s.io/utils/net"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/aws"
@@ -571,6 +572,10 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 	}
 
 	if err = c.configureAndValidateIPFamilyConfiguration(TkgLabelClusterRoleManagement); err != nil {
+		return NewValidationError(ValidationErrorCode, err.Error())
+	}
+
+	if err = c.configureAndValidateCoreDNSIP(); err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
@@ -1656,6 +1661,28 @@ func (c *TkgClient) configureAndValidateIPFamilyConfiguration(clusterRole string
 	if err := c.validateIPHostnameForIPFamily(constants.TKGHTTPSProxy, ipFamily); err != nil {
 		return err
 	}
+	return nil
+}
+
+func (c *TkgClient) configureAndValidateCoreDNSIP() error {
+	// Core DNS IP is the 10th index of service CIDR subnet
+	// ServiceCIDR must not be empty as it should already been set by configureAndValidateIPFamilyConfiguration if it was omitted
+	serviceCIDR, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableServiceCIDR)
+	if err != nil {
+		return err
+	}
+
+	svcSubnets, err := netutils.ParseCIDRs(strings.Split(serviceCIDR, ","))
+	if err != nil {
+		return err
+	}
+	dnsIP, err := netutils.GetIndexedIP(svcSubnets[0], 10)
+	if err != nil {
+		return err
+	}
+
+	c.TKGConfigReaderWriter().Set(constants.ConfigVariableCoreDNSIP, dnsIP.String())
+
 	return nil
 }
 
