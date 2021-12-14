@@ -346,8 +346,8 @@ Example
 Example
 
 ```txt
-name:        morgage-calculator-app
-namespace:   morgage-cal-dev
+name:        mortgage-calculator-app
+namespace:   mortgage-cal-dev
 workspace:   mort-calc-dev
 status:
 url:         http://myapplicationurl.com

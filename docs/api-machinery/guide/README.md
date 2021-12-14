@@ -268,4 +268,4 @@ status:
 
 ## Summary
 
-Now we have created a new Feature, a new API and used a new Capability to assert their presense. Great job!
+Now we have created a new Feature, a new API and used a new Capability to assert their presence. Great job!

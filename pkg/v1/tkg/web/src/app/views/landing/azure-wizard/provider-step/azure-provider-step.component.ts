@@ -211,7 +211,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     }
 
     initFormWithSavedData() {
-        // rather than call our parent class' initFormWithSavedData() which would initalize ALL the fields on this form,
+        // rather than call our parent class' initFormWithSavedData() which would initialize ALL the fields on this form,
         // we only want to initialize the credential fields (and ssh key) and then have the user connect to the server,
         // which will populate our data arrays. We need to connect to the server before being able to set
         // other fields (e.g. to pick a region, the listbox must be populated from the data array).

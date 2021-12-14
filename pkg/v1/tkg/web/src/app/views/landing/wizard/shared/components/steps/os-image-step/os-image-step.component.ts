@@ -84,7 +84,7 @@ export abstract class SharedOsImageStepComponent extends StepFormDirective {
     }
 
     /**
-     * Reset relavent fields upon data center selection change.
+     * Reset relevant fields upon data center selection change.
      */
     resetFieldsUponDCChange() {
         const fieldsToReset = ['osImage'];

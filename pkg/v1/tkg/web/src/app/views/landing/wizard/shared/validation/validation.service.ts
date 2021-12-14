@@ -706,7 +706,7 @@ export class ValidationService {
             if (ctrlValue) {
                 if (!XRegExp('^(((\\w+)(,\\s?\\w+)+)|(\\w+))$').test(ctrlValue)) {
                     return {
-                        [ValidatorEnum.COMMA_SEPERATED_WORDS]: true
+                        [ValidatorEnum.COMMA_SEPARATED_WORDS]: true
                     };
                 }
             }

@@ -294,7 +294,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
             type: TkgEventType.GET_VM_NETWORKS
         });
     }
-    // Reset the relevent fields upon data center change
+    // Reset the relevant fields upon data center change
     resetFieldsUponDCChange() {
         const fieldsToReset = ['networkName'];
         fieldsToReset.forEach(f => this.formGroup.get(f) && this.formGroup.get(f).setValue('', { onlySelf: true }));

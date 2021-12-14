@@ -106,7 +106,7 @@ VSPHERE_SSH_AUTHORIZED_KEY:
 VSPHERE_USERNAME:
 VSPHERE_PASSWORD:
 
-#! The content of zone and region infomation is used to deploy CPI and CSI in a
+#! The content of zone and region information is used to deploy CPI and CSI in a
 #! vSphere environment that includes multiple data centers or host clusters.
 VSPHERE_REGION:
 VSPHERE_ZONE:

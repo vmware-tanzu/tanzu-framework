@@ -16,9 +16,9 @@ Follow the [Build-Stage Checklist](build_stage_styleguide_checklist.md) when imp
 
 - [ ] **Do any commands require adding new nouns (resources) to the [existing taxonomy](/hack/linter/cli-wordlist.yml)?** (importance: high)
   - Check in with the CLI SIG to add new top-level resources
-- [ ] **Are the nouns in each command used in a manner consistant with usage in existing commands?** (importance: high)
+- [ ] **Are the nouns in each command used in a manner consistent with usage in existing commands?** (importance: high)
 - [ ] **Do any commands require adding new verbs (actions) to the [existing taxonomy](/hack/linter/cli-wordlist.yml)?**    (importance: medium)
   - Not a problem, but if there is a verb in the [existing taxonomy](/hack/linter/cli-wordlist.yml) that could be used, please use it
-- [ ] **Are the verbs in each command used in a manner consistant with usage in existing commands?** (importance: medium)
+- [ ] **Are the verbs in each command used in a manner consistent with usage in existing commands?** (importance: medium)
 - [ ] **Do any commands require adding new flags to the [existing taxonomy](/hack/linter/cli-wordlist.yml)?** (importance: low)
   - Not a problem, but if there is a flag in the [existing taxonomy](/hack/linter/cli-wordlist.yml) that could be used, please use it
