@@ -42,8 +42,6 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
     deploymentPending: boolean = false;
     disableDeployButton = false;
 
-    show = false;
-
     constructor(
         private apiClient: APIClient,
         router: Router,
@@ -75,19 +73,8 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         ];
     }
 
-    // TODO: see if we can eliminate this workaround
-    // delay showing first panel to avoid panel not defined console err
-    displayStep(stepName: string): boolean {
-        return super.displayStep(stepName) && this.show;
-    }
-
     ngOnInit() {
         super.ngOnInit();
-
-        // delay showing first panel to avoid panel not defined console err
-        setTimeout(_ => {
-            this.show = true;
-        }, 100)
 
         this.titleService.setTitle(this.title + ' vSphere');
     }
