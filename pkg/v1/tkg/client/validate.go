@@ -586,6 +586,10 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
+	if err = c.ConfigureAndValidateNetworkSeparationConfiguration(TkgLabelClusterRoleManagement); err != nil {
+		return NewValidationError(ValidationErrorCode, err.Error())
+	}
+
 	isProdPlan := options.Plan == constants.PlanProd
 	_, workerMachineCount := c.getMachineCountForMC(options.Plan)
 
@@ -1767,6 +1771,38 @@ func getDockerBridgeNetworkCidr() (string, error) {
 	return networkCidr, nil
 }
 
+// ConfigureAndValidateNetworkSeparationConfiguration validates the configuration of network separation
+func (c *TkgClient) ConfigureAndValidateNetworkSeparationConfiguration(clusterRole string) error {
+	if err := c.validateNetworkSeparation(constants.ConfigVariableAviManagementClusterServiceEngineGroup, clusterRole); err != nil {
+		return err
+	}
+	if err := c.validateNetworkSeparation(constants.ConfigVariableAviControlPlaneNetwork, clusterRole); err != nil {
+		return err
+	}
+	if err := c.validateNetworkSeparation(constants.ConfigVariableAviControlPlaneNetworkCidr, clusterRole); err != nil {
+		return err
+	}
+	if err := c.validateNetworkSeparation(constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkName, clusterRole); err != nil {
+		return err
+	}
+	if err := c.validateNetworkSeparation(constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkCidr, clusterRole); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *TkgClient) validateNetworkSeparation(networkSeparationConfigVariable, clusterRole string) error {
+	// if not set Get will return an empty string
+	configValue, err := c.TKGConfigReaderWriter().Get(networkSeparationConfigVariable)
+	if err != nil {
+		return nil
+	}
+	if clusterRole == TkgLabelClusterRoleManagement && !c.IsFeatureActivated(config.FeatureFlagManagementClusterNetworkSeparation) {
+		return customNetworkSeparationFeatureFlagError(networkSeparationConfigVariable, configValue, config.FeatureFlagManagementClusterNetworkSeparation)
+	}
+	return nil
+}
+
 // ConfigureAndValidateNameserverConfiguration validates the configuration of the control plane node and workload node nameservers
 func (c *TkgClient) ConfigureAndValidateNameserverConfiguration(clusterRole string) error {
 	err := c.validateNameservers(constants.ConfigVariableControlPlaneNodeNameservers, clusterRole)
@@ -1845,5 +1881,12 @@ func customNameserverFeatureFlagError(configVariable, nameservers, flagName stri
 	return fmt.Errorf("option %s is set to %q, but custom nameserver support is not enabled (because it is not fully functional). To enable custom nameservers, run the command: tanzu config set %s true",
 		configVariable,
 		nameservers,
+		flagName)
+}
+
+func customNetworkSeparationFeatureFlagError(configVariable, value, flagName string) error {
+	return fmt.Errorf("option %s is set to %q, but network separation support is not enabled (because it is not fully functional). To enable network separation, run the command: tanzu config set %s true",
+		configVariable,
+		value,
 		flagName)
 }
