@@ -88,7 +88,7 @@ spec:
         key: node-role.kubernetes.io/master
 ---
 kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: #@ "{}-autoscaler-workload".format(data.values.CLUSTER_NAME)
 roleRef:
@@ -101,7 +101,7 @@ subjects:
   namespace: #@ data.values.NAMESPACE
 ---
 kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: #@ "{}-autoscaler-management".format(data.values.CLUSTER_NAME)
 roleRef:
@@ -120,7 +120,7 @@ metadata:
   namespace: #@ data.values.NAMESPACE
 ---
 kind: ClusterRole
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: cluster-autoscaler-workload
 rules:
@@ -208,7 +208,7 @@ rules:
   - update
 ---
 kind: ClusterRole
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: cluster-autoscaler-management
 rules:
