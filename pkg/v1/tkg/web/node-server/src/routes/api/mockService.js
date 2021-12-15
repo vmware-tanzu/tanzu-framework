@@ -530,14 +530,14 @@ router.post(`${ENDPOINT}/providers/vsphere/config/import`, (req, res) => {
         "machineHealthCheckEnabled": true,
         "networking": {"clusterPodCIDR": "100.96.0.0/11", "clusterServiceCIDR": "100.64.0.0/13", "networkName": "Network 3"},
         "os": {"isTemplate": null, "name": "GeeIDunno", "osInfo": {"arch": "amd64", "name": "photon", "version": "3"}},
-        "resourcePool": "respool-1-sub",
+        "resourcePool": "Host-2",
         "ssh_key": "F8:DB:B3:6E:34:C6:0C:4D:15:8E:58:56:94:3D:32:4D:B6:85:BB:65",
         "workerNodeType": "medium",
         "vsphereCredentials": {
-            "host": "10.92.13.72",
-            "password": "<encoded:QWRtaW4hMjM=>",
+            "host": "vsphere.local",
+            "password": "",
             "thumbprint": "F8:DB:B3:6E:34:C6:0C:4D:15:8E:58:56:94:3D:32:4D:B6:85:BB:65",
-            "username": "administrator@vsphere.local"
+            "username": "admin"
         }
     });
 });
