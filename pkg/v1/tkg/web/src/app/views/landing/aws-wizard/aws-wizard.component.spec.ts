@@ -135,15 +135,19 @@ describe('AwsWizardComponent', () => {
         });
 
         it('is for network step', () => {
-            expect(component.NetworkForm.description).toBe('Specify the cluster Pod CIDR');
+            let description = component.describeStep(component.NetworkForm.name, component.NetworkForm.description);
+            expect(description).toBe('Specify the cluster Pod CIDR');
             component.form.get('networkForm').get('clusterPodCidr').setValue('10.10.10.10/23');
-            expect(component.NetworkForm.description).toBe('Cluster Pod CIDR: 10.10.10.10/23');
+            description = component.describeStep(component.NetworkForm.name, component.NetworkForm.description);
+            expect(description).toBe('Cluster Pod CIDR: 10.10.10.10/23');
         });
 
         it('is for metadata step', () => {
-            expect(component.MetadataForm.description).toBe('Specify metadata for the management cluster');
+            let description = component.describeStep(component.MetadataForm.name, component.MetadataForm.description);
+            expect(description).toBe('Specify metadata for the management cluster');
             component.form.get(WizardForm.METADATA).get('clusterLocation').setValue('us-west');
-            expect(component.MetadataForm.description).toBe('Location: us-west');
+            description = component.describeStep(component.MetadataForm.name, component.MetadataForm.description);
+            expect(description).toBe('Location: us-west');
         });
     });
 

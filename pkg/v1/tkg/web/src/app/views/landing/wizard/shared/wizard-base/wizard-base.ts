@@ -722,7 +722,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     }
     get MetadataForm(): FormDataForHTML {
         return { name: WizardForm.METADATA, title: 'Metadata',
-            description: 'Location: Specify metadata for the ' + this.clusterTypeDescriptor + ' cluster',
+            description: 'Specify metadata for the ' + this.clusterTypeDescriptor + ' cluster',
             i18n: { title: 'metadata step name', description: 'metadata step description' },
         clazz: MetadataStepComponent };
     }
