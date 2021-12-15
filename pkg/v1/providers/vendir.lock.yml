@@ -19,10 +19,10 @@ directories:
 - contents:
   - git:
       commitTitle: Add kapp controller init container to configure core DNS for cluster
-        IP access...
-      sha: 213f0ec0e23f7a61e00720d0f7d9f5b52d66d29d
+        IP access (#2727)...
+      sha: 1ce18be43347405d3dfbde4ba2cbb0d1e2fa0b41
       tags:
-      - v0.10.0-dev.1-321-g213f0ec0
+      - v0.10.0-dev.4-39-g1ce18be4
     path: .
   path: ytt/vendir/kapp-controller/_ytt_lib
 kind: LockConfig

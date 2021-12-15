@@ -7,7 +7,8 @@ kappController:
   createNamespace: true
   globalNamespace: tanzu-package-repo-global
   deployment:
-    coreDNSIP: 100.64.0.10
+    #! The coreDNSIP will be injected into /etc/resolv.conf of kapp-controller pod
+    coreDNSIP: null
     hostNetwork: null
     priorityClassName: null
     concurrency: 4
