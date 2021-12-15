@@ -7,7 +7,7 @@
 # Script to install tanzu framework
 # Usage: ./hack/install.sh /path/to/tanzu-framework/core/binary
 
-# set -o errexit
+set -o errexit
 set -o nounset
 set -o pipefail
 set -o xtrace
@@ -40,10 +40,9 @@ esac
 echo "${XDG_DATA_HOME}"
 
 # check if the tanzu CLI already exists and remove it to avoid conflicts
-TANZU_BIN_PATH=$(command -v tanzu)
-if [[ -n "${TANZU_BIN_PATH}" ]]; then
+if [[ -n "$(command -v tanzu)" ]]; then
   # best effort, so just ignore errors
-  sudo rm -f "${TANZU_BIN_PATH}" > /dev/null
+  sudo rm -f "$(command -v tanzu)" > /dev/null
 fi
 
 # set install dir to /usr/local/bin
