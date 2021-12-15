@@ -1,7 +1,7 @@
 import { Component, Input, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import index from '../../../contextualHelpDocs/index.json';
 import { BasicSubscriber } from '../abstracts/basic-subscriber';
-import { ContexutalHelpService } from './contexutal-help.service';
+import { ContextualHelpService } from './contextual-help.service';
 
 declare let elasticlunr: any;
 
@@ -35,7 +35,7 @@ export class ContextualHelpComponent extends BasicSubscriber implements OnInit, 
     };
 
     constructor(
-        private service: ContexutalHelpService
+        private service: ContextualHelpService
     ) {
         super();
         this.service.add(this);
