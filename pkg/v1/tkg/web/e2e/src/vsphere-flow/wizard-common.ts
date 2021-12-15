@@ -52,7 +52,6 @@ export default abstract class WizardCommon {
                 })
 
                 it('"CONNECT" button should be enabled', () => {
-                    console.log(`${PARAMS.VCIP}:${PARAMS.DEFAULT_VC_USER}:${PARAMS.DEFAULT_VC_PASSWORD}`);
                     provider.getVC().sendKeys(PARAMS.VCIP);
                     provider.getUsername().sendKeys(PARAMS.DEFAULT_VC_USER);
                     provider.getPassword().sendKeys(PARAMS.DEFAULT_VC_PASSWORD + " ");
