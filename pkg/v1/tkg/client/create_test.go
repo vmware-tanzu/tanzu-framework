@@ -4,6 +4,7 @@
 package client_test
 
 import (
+	"os"
 	"time"
 
 	. "github.com/onsi/ginkgo"
@@ -112,6 +113,38 @@ spec:
 			It("kube config bytes are returned", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(kubeConfigBytes).To(Equal([]byte("fake kubeconfig data")))
+			})
+		})
+	})
+
+	Describe("WaitForAutoscalerDeployment", func() {
+		JustBeforeEach(func() {
+			tkgClient.WaitForAutoscalerDeployment(clusterClient, name, constants.DefaultNamespace)
+		})
+
+		Context("When the value for config variable 'ENABLE_AUTOSCALER' is not set", func() {
+			It("should not wait for autoscaler deployment", func() {
+				Expect(clusterClient.WaitForAutoscalerDeploymentCallCount()).To(Equal(0))
+			})
+		})
+
+		Context("When the value for config variable 'ENABLE_AUTOSCALER' is set to 'false'", func() {
+			BeforeEach(func() {
+				os.Setenv(constants.ConfigVariableEnableAutoscaler, "false")
+			})
+
+			It("should not wait for autoscaler deployment", func() {
+				Expect(clusterClient.WaitForAutoscalerDeploymentCallCount()).To(Equal(0))
+			})
+		})
+
+		Context("When the value for config variable 'ENABLE_AUTOSCALER' is set to 'true'", func() {
+			BeforeEach(func() {
+				os.Setenv(constants.ConfigVariableEnableAutoscaler, "true")
+			})
+
+			It("should not wait for autoscaler deployment", func() {
+				Expect(clusterClient.WaitForAutoscalerDeploymentCallCount()).To(Equal(1))
 			})
 		})
 	})

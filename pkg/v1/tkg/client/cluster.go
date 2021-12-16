@@ -182,13 +182,7 @@ func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.C
 		return errors.Wrap(err, "unable to wait for cluster nodes to be available")
 	}
 
-	if _, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableEnableAutoscaler); err == nil {
-		log.Infof("Waiting for cluster autoscaler to be available...")
-		autoscalerDeploymentName := options.ClusterName + "-cluster-autoscaler"
-		if err := regionalClusterClient.WaitForAutoscalerDeployment(autoscalerDeploymentName, options.TargetNamespace); err != nil {
-			log.Warningf("Unable to wait for autoscaler deployment to be ready. reason: %v", err)
-		}
-	}
+	c.WaitForAutoscalerDeployment(regionalClusterClient, options.ClusterName, options.TargetNamespace)
 
 	workloadClusterClient, err := clusterclient.NewClient(workloadClusterKubeconfigPath, kubeContext, clusterclient.Options{OperationTimeout: 15 * time.Minute})
 	if err != nil {
@@ -212,6 +206,30 @@ func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.C
 	}
 
 	return nil
+}
+
+// WaitForAutoscalerDeployment waits for autoscaler deployment if enabled
+func (c *TkgClient) WaitForAutoscalerDeployment(regionalClusterClient clusterclient.Client, clusterName, targetNamespace string) {
+	var autoscalerEnabled string
+	var err error
+
+	if autoscalerEnabled, err = c.TKGConfigReaderWriter().Get(constants.ConfigVariableEnableAutoscaler); err != nil {
+		return
+	}
+
+	var isEnabled bool
+	if isEnabled, err = strconv.ParseBool(autoscalerEnabled); err != nil {
+		log.Warningf("Unable to parse the value of config variable %q. reason: %v", constants.ConfigVariableEnableAutoscaler, err)
+		return
+	}
+
+	if isEnabled {
+		log.Warning("Waiting for cluster autoscaler to be available...")
+		autoscalerDeploymentName := clusterName + "-cluster-autoscaler"
+		if err := regionalClusterClient.WaitForAutoscalerDeployment(autoscalerDeploymentName, targetNamespace); err != nil {
+			log.Warningf("Unable to wait for autoscaler deployment to be ready. reason: %v", err)
+		}
+	}
 }
 
 // DoCreateCluster performs steps to create cluster
