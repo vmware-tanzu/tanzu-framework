@@ -603,6 +603,9 @@ AWS_AMI_ID:
 TKR_DISCOVER_FREQUENCY: 600
 #! vSphere version
 VSPHERE_VERSION:
+#! CORE_DNS_IP is the IP of core DNS service, supports both IPv4 and IPv6
+#! It is the 10th index of SERVICE_CIDR subnet
+CORE_DNS_IP:
 
 
 #! ---------------------------------------------------------------------
