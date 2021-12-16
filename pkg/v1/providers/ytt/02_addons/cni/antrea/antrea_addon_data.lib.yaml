@@ -53,6 +53,7 @@ antrea:
     noSNAT: #@ data.values.ANTREA_NO_SNAT
     #@ end
     tlsCipherSuites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384
+    disableUdpTunnelOffload: #@ data.values.ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD
     featureGates:
       #@ if data.values.NSXT_POD_ROUTING_ENABLED:
       AntreaProxy: true
