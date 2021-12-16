@@ -125,6 +125,8 @@ ANTREA_ENDPOINTSLICE: "false", "true"
 ANTREA_POLICY: "false", "true"
 ANTREA_NODEPORTLOCAL: "false", "true"
 ANTREA_TRACEFLOW: "false", "true"
+ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD: "false", "true"
+
 
 BUILD_EDITION: "tkg", "tce"
 
