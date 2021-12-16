@@ -1,0 +1,19 @@
+---
+includeExts:
+- ".yaml"
+- ".yml"
+includeLines:
+- 'image:'
+- FROM
+matchPattern:
+- "../../addons/packages/*/*/bundle/.imgpkg/*"
+ignoreImages: [] # ignoreImages key is to list down images that should be ignored during linting process.
+succesValidators:
+- apt-get
+- apt
+- yum
+- "/lib/x86_64-linux-gnu"
+- "/usr/lib/x86_64-linux-gnu"
+- "imgpkg"
+failureValidators:
+- Alpine
