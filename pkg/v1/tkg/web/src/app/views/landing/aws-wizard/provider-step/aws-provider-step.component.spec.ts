@@ -60,8 +60,7 @@ describe('AwsProviderStepComponent', () => {
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(AwsProviderStepComponent);
         component = fixture.componentInstance;
-        component.formGroup = fb.group({
-        });
+        component.formGroup = fb.group({});
 
         fixture.detectChanges();
     });
@@ -87,6 +86,7 @@ describe('AwsProviderStepComponent', () => {
             () => {
                 fixture.detectChanges();
                 const connectBtn = fixture.debugElement.query(By.css("button.btn-primary"));
+                expect(connectBtn).toBeTruthy();
                 expect(connectBtn.nativeElement.disabled).toBeFalsy();
             }
         );
@@ -104,6 +104,7 @@ describe('AwsProviderStepComponent', () => {
             () => {
                 fixture.detectChanges();
                 const connectBtn = fixture.debugElement.query(By.css("button.btn-primary"));
+                expect(connectBtn).toBeTruthy();
                 expect(connectBtn.nativeElement.disabled).toBeFalsy();
             }
         );

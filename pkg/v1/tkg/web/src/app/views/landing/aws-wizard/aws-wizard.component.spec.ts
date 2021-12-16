@@ -10,6 +10,7 @@ import { SharedModule } from '../../../shared/shared.module';
 import Broker from 'src/app/shared/service/broker';
 import { Messenger } from 'src/app/shared/service/Messenger';
 import { ClusterType, WizardForm } from "../wizard/shared/constants/wizard.constants";
+import { AwsForm } from './aws-wizard.constants';
 
 describe('AwsWizardComponent', () => {
     let component: AwsWizardComponent;
@@ -90,6 +91,7 @@ describe('AwsWizardComponent', () => {
             })
         });
         component.clusterTypeDescriptor = '' + ClusterType.Management;
+        component.title = 'Tanzu';
         fixture.detectChanges();
     });
 
@@ -152,7 +154,7 @@ describe('AwsWizardComponent', () => {
     });
 
     it('should return management cluster name', () => {
-        component.form.get('awsNodeSettingForm').get('clusterName').setValue('mylocalTestName');
+        component.form.get(AwsForm.NODESETTING).get('clusterName').setValue('mylocalTestName');
         expect(component.getMCName()).toBe('mylocalTestName');
     });
 
@@ -165,13 +167,13 @@ describe('AwsWizardComponent', () => {
             ['awsProviderForm', 'secretAccessKey', 'My-AWS-Secret-Access-Key'],
             ['vpcForm', 'vpc', '10.0.0.0/16'],
             ['vpcForm', 'vpcType', 'new'],
-            ['awsNodeSettingForm', 'awsNodeAz1', 'us-west-a'],
-            ['awsNodeSettingForm', 'bastionHostEnabled', 'yes'],
-            ['awsNodeSettingForm', 'controlPlaneSetting', 'dev'],
-            ['awsNodeSettingForm', 'devInstanceType', 't3.medium'],
-            ['awsNodeSettingForm', 'sshKeyName', 'default'],
-            // ['awsNodeSettingForm', 'machineHealthChecksEnabled', true],
-            ['awsNodeSettingForm', 'workerNodeInstanceType1', 't3.small'],
+            [AwsForm.NODESETTING, 'awsNodeAz1', 'us-west-a'],
+            [AwsForm.NODESETTING, 'bastionHostEnabled', 'yes'],
+            [AwsForm.NODESETTING, 'controlPlaneSetting', 'dev'],
+            [AwsForm.NODESETTING, 'devInstanceType', 't3.medium'],
+            [AwsForm.NODESETTING, 'sshKeyName', 'default'],
+            // [AwsForm.NODESETTING, 'machineHealthChecksEnabled', true],
+            [AwsForm.NODESETTING, 'workerNodeInstanceType1', 't3.small'],
             [WizardForm.METADATA, 'clusterDescription', 'DescriptionEXAMPLE'],
             // [WizardForm.METADATA, 'clusterLabels', clusterLabels],
             [WizardForm.METADATA, 'clusterLocation', 'mylocation1'],
@@ -182,8 +184,8 @@ describe('AwsWizardComponent', () => {
         ];
         mappings.forEach(attr => component.form.get(attr[0]).get(attr[1]).setValue(attr[2]));
 
-        component.form.get('awsNodeSettingForm').get('createCloudFormation').setValue(true);
-        component.form.get('awsNodeSettingForm').get('machineHealthChecksEnabled').setValue(true);
+        component.form.get(AwsForm.NODESETTING).get('createCloudFormation').setValue(true);
+        component.form.get(AwsForm.NODESETTING).get('machineHealthChecksEnabled').setValue(true);
         component.form.get('ceipOptInForm').get('ceipOptIn').setValue(true);
         component.form.get(WizardForm.METADATA).get('clusterLabels').setValue(clusterLabels);
 

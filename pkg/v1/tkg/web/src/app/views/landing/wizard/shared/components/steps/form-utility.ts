@@ -1,9 +1,7 @@
 import { WizardBaseDirective } from '../../wizard-base/wizard-base';
 import { IdentityManagementType, WizardForm } from '../../constants/wizard.constants';
-import { Component, Type } from '@angular/core';
-import { AbstractControl, FormGroup } from '@angular/forms';
+import { Type } from '@angular/core';
 import { StepFormDirective } from '../../step-form/step-form';
-import { WizardFormBase } from '../../../../../../shared/service/wizard-form-base';
 
 interface I18nDataForHtml {
     title: string,

@@ -306,7 +306,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         clazz: AwsProviderStepComponent};
     }
     get AwsNodeSettingForm(): FormDataForHTML {
-        return { name: 'awsNodeSettings', title: FormUtility.titleCase(this.clusterTypeDescriptor) + ' Cluster Settings',
+        return { name: AwsForm.NODESETTING, title: FormUtility.titleCase(this.clusterTypeDescriptor) + ' Cluster Settings',
             description: `Specify the resources backing the ${this.clusterTypeDescriptor} cluster`,
             i18n: {title: 'IaaS provder step name', description: 'IaaS provder step description'},
         clazz: NodeSettingStepComponent};

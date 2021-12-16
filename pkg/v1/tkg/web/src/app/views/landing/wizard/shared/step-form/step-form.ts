@@ -1,5 +1,5 @@
 import {Directive, Input, OnInit} from '@angular/core';
-import {AbstractControl, FormGroup, ValidatorFn} from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, ValidatorFn } from '@angular/forms';
 
 import {ValidatorEnum} from './../constants/validation.constants';
 import {BasicSubscriber} from 'src/app/shared/abstracts/basic-subscriber';
