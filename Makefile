@@ -501,6 +501,10 @@ fmt: tools ## Run goimports
 vet: ## Run go vet
 	$(GO) vet ./...
 
+imagelint:
+	cd ./hack/imagelinter && go build -o imagelinter main.go
+	hack/imagelinter/imagelinter --path=./ --config=hack/check/.imagelintconfig.yaml --summary=true --details=all
+
 lint: tools doc-lint ## Run linting checks
 	# Linter runs per module, add each one here and make sure they match
 	# in .github/workflows/main.yaml for CI coverage
