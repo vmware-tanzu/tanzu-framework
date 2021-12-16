@@ -1089,6 +1089,138 @@ var _ = Describe("Validate", func() {
 				})
 			})
 		})
+
+		Context("CoreDNSIP configuration and validation", func() {
+			Context("when SERVICE_CIDR is ipv4", func() {
+				BeforeEach(func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableIPFamily, "ipv4")
+				})
+
+				It("should have correct ipv4 coreDNSIP configured", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, "10.64.0.1/13")
+
+					validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+					Expect(validationError).NotTo(HaveOccurred())
+
+					coreDNSIP, _ := tkgConfigReaderWriter.Get(constants.ConfigVariableCoreDNSIP)
+					Expect(coreDNSIP).Should(Equal("10.64.0.10"))
+				})
+
+				It("should have correct ipv4 coreDNSIP configured", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, "192.168.2.1/12")
+
+					validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+					Expect(validationError).NotTo(HaveOccurred())
+
+					coreDNSIP, _ := tkgConfigReaderWriter.Get(constants.ConfigVariableCoreDNSIP)
+					Expect(coreDNSIP).Should(Equal("192.160.0.10"))
+				})
+			})
+
+			Context("when SERVICE_CIDR is ipv6", func() {
+				BeforeEach(func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableIPFamily, "ipv6")
+				})
+
+				It("should have correct ipv6 coreDNSIP configured", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, "fd00:100:64::/108")
+
+					validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+					Expect(validationError).NotTo(HaveOccurred())
+
+					coreDNSIP, _ := tkgConfigReaderWriter.Get(constants.ConfigVariableCoreDNSIP)
+					Expect(coreDNSIP).Should(Equal("fd00:100:64::a"))
+				})
+
+				It("should have correct ipv6 coreDNSIP configured", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, "::1/108")
+
+					validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+					Expect(validationError).NotTo(HaveOccurred())
+
+					coreDNSIP, _ := tkgConfigReaderWriter.Get(constants.ConfigVariableCoreDNSIP)
+					Expect(coreDNSIP).Should(Equal("::a"))
+				})
+			})
+
+			Context("when IPFamily is ipv4,ipv6 i.e Dual-stack Primary IPv4", func() {
+				BeforeEach(func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableIPFamily, "ipv4,ipv6")
+				})
+
+				It("should have correct ipv4 coreDNSIP configured", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, "1.2.3.4/12,::1/108")
+
+					validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+					Expect(validationError).NotTo(HaveOccurred())
+
+					coreDNSIP, _ := tkgConfigReaderWriter.Get(constants.ConfigVariableCoreDNSIP)
+					Expect(coreDNSIP).Should(Equal("1.0.0.10"))
+				})
+			})
+
+			Context("when IPFamily is ipv6,ipv4 i.e Dual-stack Primary IPv6", func() {
+				BeforeEach(func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableIPFamily, "ipv6,ipv4")
+				})
+
+				It("should have correct ipv6 coreDNSIP configured", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, "::1/108,1.2.3.4/12")
+
+					validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+					Expect(validationError).NotTo(HaveOccurred())
+
+					coreDNSIP, _ := tkgConfigReaderWriter.Get(constants.ConfigVariableCoreDNSIP)
+					Expect(coreDNSIP).Should(Equal("::a"))
+				})
+			})
+		})
+
+		Context("Network Separation configuration and validation", func() {
+			It("should allow empty network separation configurations", func() {
+				validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+				Expect(validationError).NotTo(HaveOccurred())
+			})
+
+			Context("Avi Management Cluster Service Engine Group", func() {
+				BeforeEach(func() {
+					featureFlagClient.IsConfigFeatureActivatedReturns(false, nil)
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviManagementClusterServiceEngineGroup, "SEG-1")
+				})
+
+				It("should return an error", func() {
+					validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+					Expect(validationError).To(HaveOccurred())
+					Expect(validationError.Error()).To(ContainSubstring("option AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP is set to \"SEG-1\", but network separation support is not enabled (because it is not fully functional). To enable network separation, run the command: tanzu config set features.management-cluster.network-separation-beta true"))
+				})
+			})
+			Context("Avi Data Plane Network", func() {
+				BeforeEach(func() {
+					featureFlagClient.IsConfigFeatureActivatedReturns(false, nil)
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControlPlaneNetwork, "VM Network")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControlPlaneNetworkCidr, "8.8.8.8/20")
+				})
+
+				It("should return an error", func() {
+					validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+					Expect(validationError).To(HaveOccurred())
+					Expect(validationError.Error()).To(ContainSubstring("option AVI_CONTROL_PLANE_NETWORK is set to \"VM Network\", but network separation support is not enabled (because it is not fully functional). To enable network separation, run the command: tanzu config set features.management-cluster.network-separation-beta true"))
+				})
+			})
+			Context("Avi Control Plane Network", func() {
+				BeforeEach(func() {
+					featureFlagClient.IsConfigFeatureActivatedReturns(false, nil)
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkName, "VM Network")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkCidr, "8.8.8.8/20")
+				})
+
+				It("should return an error", func() {
+					validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+					Expect(validationError).To(HaveOccurred())
+					Expect(validationError.Error()).To(ContainSubstring("option AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME is set to \"VM Network\", but network separation support is not enabled (because it is not fully functional). To enable network separation, run the command: tanzu config set features.management-cluster.network-separation-beta true"))
+				})
+			})
+		})
 	})
 
 	Context("ConfigureAndValidateWorkloadClusterConfiguration", func() {

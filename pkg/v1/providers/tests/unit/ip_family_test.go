@@ -15,7 +15,10 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/providers/tests/unit/ytt"
 )
 
-const yamlRoot = "../../"
+const (
+	capvVersion = "v1.0.2"
+	yamlRoot    = "../../"
+)
 
 var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 	Describe("IP family ytt validations", func() {
@@ -247,8 +250,8 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 		BeforeEach(func() {
 			paths = []string{
 				filepath.Join("fixtures", "yttmocks"),
-				filepath.Join("..", "..", "infrastructure-vsphere", "v1.0.1", "ytt", "overlay.yaml"),
-				filepath.Join("..", "..", "infrastructure-vsphere", "v1.0.1", "ytt", "base-template.yaml"),
+				filepath.Join("..", "..", "infrastructure-vsphere", capvVersion, "ytt", "overlay.yaml"),
+				filepath.Join("..", "..", "infrastructure-vsphere", capvVersion, "ytt", "base-template.yaml"),
 				filepath.Join("..", "..", "config_default.yaml"),
 			}
 		})
@@ -314,11 +317,12 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 			When("data values are set to single stack IPv4 settings", func() {
 				BeforeEach(func() {
 					values = createDataValues(map[string]string{
-						"CLUSTER_NAME":     "foo",
-						"TKG_CLUSTER_ROLE": "workload",
-						"TKG_IP_FAMILY":    "ipv4",
-						"CLUSTER_CIDR":     "100.96.0.0/11",
-						"SERVICE_CIDR":     "100.64.0.0/18",
+						"CLUSTER_NAME":            "foo",
+						"TKG_CLUSTER_ROLE":        "workload",
+						"TKG_IP_FAMILY":           "ipv4",
+						"CLUSTER_CIDR":            "100.96.0.0/11",
+						"SERVICE_CIDR":            "100.64.0.0/18",
+						"CLUSTER_API_SERVER_PORT": "443",
 					})
 				})
 				It("renders control plane and worker templates each with an ipv4 single stack network device", func() {
@@ -338,17 +342,33 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 						Expect(machineDoc).NotTo(HaveYAMLPath("$.spec.template.spec.network.devices[1]"))
 					}
 				})
+				It("renders control plane template to bind the local apiServer endpoint to '0.0.0.0' as the node IP and port to custom api server port configured", func() {
+					output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+					Expect(err).NotTo(HaveOccurred())
+
+					kubeadmControlPlaneDocs, err := FindDocsMatchingYAMLPath(output, map[string]string{
+						"$.kind": "KubeadmControlPlane",
+					})
+					Expect(err).NotTo(HaveOccurred())
+
+					Expect(kubeadmControlPlaneDocs).To(HaveLen(1))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.initConfiguration.localAPIEndpoint.advertiseAddress", "0.0.0.0"))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.initConfiguration.localAPIEndpoint.bindPort", "443"))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.joinConfiguration.controlPlane.localAPIEndpoint.advertiseAddress", "0.0.0.0"))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.joinConfiguration.controlPlane.localAPIEndpoint.bindPort", "443"))
+				})
 
 			})
 
 			When("data values are set to single stack IPv6 settings", func() {
 				BeforeEach(func() {
 					values = createDataValues(map[string]string{
-						"CLUSTER_NAME":     "foo",
-						"TKG_CLUSTER_ROLE": "workload",
-						"TKG_IP_FAMILY":    "ipv6",
-						"CLUSTER_CIDR":     "fd00:100:96::/48",
-						"SERVICE_CIDR":     "fd00:100:64::/108",
+						"CLUSTER_NAME":            "foo",
+						"TKG_CLUSTER_ROLE":        "workload",
+						"TKG_IP_FAMILY":           "ipv6",
+						"CLUSTER_CIDR":            "fd00:100:96::/48",
+						"SERVICE_CIDR":            "fd00:100:64::/108",
+						"CLUSTER_API_SERVER_PORT": "443",
 					})
 				})
 				It("renders control plane and worker templates each with an ipv6 single stack network device", func() {
@@ -368,16 +388,32 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 						Expect(machineDoc).NotTo(HaveYAMLPath("$.spec.template.spec.network.devices[1]"))
 					}
 				})
+				It("renders control plane template to bind the local apiServer endpoint to '::/0' as the node IP and port to custom api server port configured", func() {
+					output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+					Expect(err).NotTo(HaveOccurred())
+
+					kubeadmControlPlaneDocs, err := FindDocsMatchingYAMLPath(output, map[string]string{
+						"$.kind": "KubeadmControlPlane",
+					})
+					Expect(err).NotTo(HaveOccurred())
+
+					Expect(kubeadmControlPlaneDocs).To(HaveLen(1))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.initConfiguration.localAPIEndpoint.advertiseAddress", "::/0"))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.initConfiguration.localAPIEndpoint.bindPort", "443"))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.joinConfiguration.controlPlane.localAPIEndpoint.advertiseAddress", "::/0"))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.joinConfiguration.controlPlane.localAPIEndpoint.bindPort", "443"))
+				})
 			})
 
 			When("data values are set to ipv4,ipv6 dual stack settings", func() {
 				BeforeEach(func() {
 					values = createDataValues(map[string]string{
-						"CLUSTER_NAME":     "foo",
-						"TKG_CLUSTER_ROLE": "workload",
-						"TKG_IP_FAMILY":    "ipv4,ipv6",
-						"CLUSTER_CIDR":     "100.96.0.0/11,fd00:100:96::/48",
-						"SERVICE_CIDR":     "100.64.0.0/18,fd00:100:64::/108",
+						"CLUSTER_NAME":            "foo",
+						"TKG_CLUSTER_ROLE":        "workload",
+						"TKG_IP_FAMILY":           "ipv4,ipv6",
+						"CLUSTER_CIDR":            "100.96.0.0/11,fd00:100:96::/48",
+						"SERVICE_CIDR":            "100.64.0.0/18,fd00:100:64::/108",
+						"CLUSTER_API_SERVER_PORT": "443",
 					})
 				})
 				It("renders control plane and worker templates each with a dual stack network device", func() {
@@ -396,6 +432,21 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 						Expect(machineDoc).To(HaveYAMLPathWithValue("$.spec.template.spec.network.devices[0].networkName", "VM Network"))
 						Expect(machineDoc).NotTo(HaveYAMLPath("$.spec.template.spec.network.devices[1]"))
 					}
+				})
+				It("renders control plane template to bind the local apiServer endpoint to '0.0.0.0' as the node IP and port to custom api server port configured", func() {
+					output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+					Expect(err).NotTo(HaveOccurred())
+
+					kubeadmControlPlaneDocs, err := FindDocsMatchingYAMLPath(output, map[string]string{
+						"$.kind": "KubeadmControlPlane",
+					})
+					Expect(err).NotTo(HaveOccurred())
+
+					Expect(kubeadmControlPlaneDocs).To(HaveLen(1))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.initConfiguration.localAPIEndpoint.advertiseAddress", "0.0.0.0"))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.initConfiguration.localAPIEndpoint.bindPort", "443"))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.joinConfiguration.controlPlane.localAPIEndpoint.advertiseAddress", "0.0.0.0"))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.joinConfiguration.controlPlane.localAPIEndpoint.bindPort", "443"))
 				})
 				It("does not render bind-address field", func() {
 					output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
@@ -455,6 +506,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 						"CLUSTER_CIDR":                   "fd00:100:96::/48,100.96.0.0/11",
 						"SERVICE_CIDR":                   "fd00:100:64::/108,100.64.0.0/18",
 						"VSPHERE_CONTROL_PLANE_ENDPOINT": "2001:db8::2",
+						"CLUSTER_API_SERVER_PORT":        "443",
 					})
 				})
 				It("renders a control plane and worker template each with a dual stack network device", func() {
@@ -487,6 +539,21 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.clusterConfiguration.apiServer.extraArgs.bind-address", "::"))
 					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.clusterConfiguration.controllerManager.extraArgs.bind-address", "::"))
 					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.clusterConfiguration.scheduler.extraArgs.bind-address", "::"))
+				})
+				It("renders control plane template to bind the local apiServer endpoint to '::/0' as the node IP and port to custom api server port configured", func() {
+					output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+					Expect(err).NotTo(HaveOccurred())
+
+					kubeadmControlPlaneDocs, err := FindDocsMatchingYAMLPath(output, map[string]string{
+						"$.kind": "KubeadmControlPlane",
+					})
+					Expect(err).NotTo(HaveOccurred())
+
+					Expect(kubeadmControlPlaneDocs).To(HaveLen(1))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.initConfiguration.localAPIEndpoint.advertiseAddress", "::/0"))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.initConfiguration.localAPIEndpoint.bindPort", "443"))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.joinConfiguration.controlPlane.localAPIEndpoint.advertiseAddress", "::/0"))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.joinConfiguration.controlPlane.localAPIEndpoint.bindPort", "443"))
 				})
 				It("renders control plane template to advertise control plane endpoint on the apiServer", func() {
 					output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
@@ -524,6 +591,50 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 			})
 		})
 
+	})
+	Describe("infrastructure-vsphere windows overlay.yaml", func() {
+		var paths []string
+		BeforeEach(func() {
+			paths = []string{
+				filepath.Join("fixtures", "yttmocks"),
+				filepath.Join("..", "..", "infrastructure-vsphere", "v1.0.1", "ytt", "overlay-windows.yaml"),
+				filepath.Join("..", "..", "infrastructure-vsphere", "v1.0.1", "ytt", "base-template.yaml"),
+				filepath.Join("..", "..", "config_default.yaml"),
+			}
+		})
+
+		Describe("cluster api server port configuration", func() {
+			var values string
+			When("ip family is configured to ipv4", func() {
+				BeforeEach(func() {
+					values = createDataValues(map[string]string{
+						"CLUSTER_NAME":                "foo",
+						"TKG_CLUSTER_ROLE":            "workload",
+						"TKG_IP_FAMILY":               "ipv4",
+						"CLUSTER_CIDR":                "10.0.0.0/16",
+						"SERVICE_CIDR":                "10.0.0.0/18",
+						"CLUSTER_API_SERVER_PORT":     "443",
+						"IS_WINDOWS_WORKLOAD_CLUSTER": "true",
+					})
+				})
+
+				It("renders control plane template to bind the local apiServer endpoint to '0.0.0.0' as the node IP and port to custom api server port configured", func() {
+					output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+					Expect(err).NotTo(HaveOccurred())
+
+					kubeadmControlPlaneDocs, err := FindDocsMatchingYAMLPath(output, map[string]string{
+						"$.kind": "KubeadmControlPlane",
+					})
+					Expect(err).NotTo(HaveOccurred())
+
+					Expect(kubeadmControlPlaneDocs).To(HaveLen(1))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.initConfiguration.localAPIEndpoint.advertiseAddress", "0.0.0.0"))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.initConfiguration.localAPIEndpoint.bindPort", "443"))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.joinConfiguration.controlPlane.localAPIEndpoint.advertiseAddress", "0.0.0.0"))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.joinConfiguration.controlPlane.localAPIEndpoint.bindPort", "443"))
+				})
+			})
+		})
 	})
 
 	Describe("vsphere cpi", func() {

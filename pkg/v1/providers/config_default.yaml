@@ -552,15 +552,30 @@ AVI_USERNAME: ""
 AVI_PASSWORD: ""
 AVI_CLOUD_NAME:
 AVI_SERVICE_ENGINE_GROUP:
+
+#! WARNING: service engine group separation support is not enabled (because it is under development).
+#! To use a different service engine group in the management cluster, set AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP variable to the management cluster service engine group
 AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP:
 AVI_DATA_NETWORK:
 AVI_DATA_NETWORK_CIDR:
+
+#! WARNING: workload cluster network separation support is not enabled (because it is under development).
+#! To use a different control plane network in the workload cluster:
+#! set AVI_CONTROL_PLANE_NETWORK variable to name of the control plane network in the workload cluster
+#! set AVI_CONTROL_PLANE_NETWORK_CIDR variable to cidr of the control plane network in the workload cluster
 AVI_CONTROL_PLANE_NETWORK:
 AVI_CONTROL_PLANE_NETWORK_CIDR:
+
 AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME:
 AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR:
-AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR:
+
+#! WARNING: management cluster network separation support is not enabled (because it is under development).
+#! To use a different control plane network in the management cluster:
+#! set AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME variable to name of the control plane network in the management cluster
+#! set AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR variable to cidr of the control plane network in the management cluster
 AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME:
+AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR:
+
 AVI_CA_DATA_B64: ""
 AVI_LABELS: ""
 
@@ -582,7 +597,7 @@ ANTREA_ENDPOINTSLICE: false
 ANTREA_POLICY: true
 ANTREA_NODEPORTLOCAL: false
 ANTREA_TRACEFLOW: true
-
+ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD: false
 
 
 #! ---------------------------------------------------------------------
@@ -603,6 +618,9 @@ AWS_AMI_ID:
 TKR_DISCOVER_FREQUENCY: 600
 #! vSphere version
 VSPHERE_VERSION:
+#! CORE_DNS_IP is the IP of core DNS service, supports both IPv4 and IPv6
+#! It is the 10th index of SERVICE_CIDR subnet
+CORE_DNS_IP:
 
 
 #! ---------------------------------------------------------------------

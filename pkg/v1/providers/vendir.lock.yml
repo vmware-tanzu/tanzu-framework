@@ -10,18 +10,19 @@ directories:
   path: ytt/vendir/vsphere_cpi/_ytt_lib
 - contents:
   - git:
-      commitTitle: Adding antrea agent tweak configmap (#2683)
-      sha: a9353f7de25d8f2aa6baafacd295ce5c8d98d38b
+      commitTitle: Antrea disable UDP tunnel offload (#2723)
+      sha: daa90ee40f373474c7714e72182b7ad784c2ffaf
       tags:
-      - v0.10.0-dev.4-23-ga9353f7d
+      - v0.10.0-dev.4-36-gdaa90ee4
     path: .
   path: ytt/vendir/cni/_ytt_lib
 - contents:
   - git:
-      commitTitle: add kapp-controller 0.30.0 package (#2558)...
-      sha: 87e39a645a0d5c7ee4ae1839b3be6d5208ddd23b
+      commitTitle: Add kapp controller init container to configure core DNS for cluster
+        IP access (#2727)...
+      sha: 1ce18be43347405d3dfbde4ba2cbb0d1e2fa0b41
       tags:
-      - v0.10.0-dev.2-7-g87e39a64
+      - v0.10.0-dev.4-39-g1ce18be4
     path: .
   path: ytt/vendir/kapp-controller/_ytt_lib
 kind: LockConfig

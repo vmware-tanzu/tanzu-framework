@@ -140,6 +140,8 @@ const (
 	ConfigVariableClusterCIDR = "CLUSTER_CIDR"
 	ConfigVariableServiceCIDR = "SERVICE_CIDR"
 
+	ConfigVariableCoreDNSIP = "CORE_DNS_IP"
+
 	ConfigVariableIPFamily = "TKG_IP_FAMILY"
 
 	ConfigVariableControlPlaneNodeNameservers = "CONTROL_PLANE_NODE_NAMESERVERS"
@@ -182,4 +184,11 @@ const (
 
 	// Windows specific variables
 	ConfigVariableIsWindowsWorkloadCluster = "IS_WINDOWS_WORKLOAD_CLUSTER"
+
+	// AVI specific variables
+	ConfigVariableAviManagementClusterServiceEngineGroup         = "AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP"
+	ConfigVariableAviControlPlaneNetwork                         = "AVI_CONTROL_PLANE_NETWORK"
+	ConfigVariableAviControlPlaneNetworkCidr                     = "AVI_CONTROL_PLANE_NETWORK_CIDR"
+	ConfigVariableAviManagementClusterControlPlaneVipNetworkName = "AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME"
+	ConfigVariableAviManagementClusterControlPlaneVipNetworkCidr = "AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR"
 )

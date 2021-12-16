@@ -191,7 +191,7 @@ func (c *DefaultClient) GetDatacenters(ctx context.Context) ([]*models.VSphereDa
 	datacenters := make([]*models.VSphereDatacenter, 0, len(dcs))
 
 	for i := range dcs {
-		path, _, err := c.getPath(ctx, dcs[i].Reference().Value)
+		path, _, err := c.GetPath(ctx, dcs[i].Reference().Value)
 		if err != nil {
 			continue
 		}
@@ -263,7 +263,7 @@ func (c *DefaultClient) GetDatastores(ctx context.Context, datacenterMOID string
 
 	for i := range dss {
 		managedObject := models.VSphereDatastore{Moid: dss[i].Self.Value}
-		path, _, err := c.getPath(ctx, dss[i].Reference().Value)
+		path, _, err := c.GetPath(ctx, dss[i].Reference().Value)
 
 		if err != nil {
 			managedObject.Name = dss[i].Name
@@ -275,11 +275,12 @@ func (c *DefaultClient) GetDatastores(ctx context.Context, datacenterMOID string
 	return results, err
 }
 
-func (c *DefaultClient) getPath(ctx context.Context, moid string) (string, []*models.VSphereManagementObject, error) {
+// GetPath takes in the MOID of a vsphere resource and returns a fully qualified path
+func (c *DefaultClient) GetPath(ctx context.Context, moid string) (string, []*models.VSphereManagementObject, error) {
 	client := c.vmomiClient
 	var objects []*models.VSphereManagementObject
 	if moid == "" {
-		return "", objects, errors.New("a non-empty moid should be passed to getPath")
+		return "", objects, errors.New("a non-empty moid should be passed to GetPath")
 	}
 	if client == nil {
 		return "", []*models.VSphereManagementObject{}, fmt.Errorf("uninitialized vmomi client")
@@ -444,7 +445,7 @@ func (c *DefaultClient) GetNetworks(ctx context.Context, datacenterMOID string) 
 
 	for i := range networks {
 		managedObject := models.VSphereNetwork{Moid: networks[i].Reference().Type + ":" + networks[i].Reference().Value}
-		path, _, err := c.getPath(ctx, networks[i].Reference().Value)
+		path, _, err := c.GetPath(ctx, networks[i].Reference().Value)
 		if err != nil {
 			managedObject.Name = networks[i].Name
 		} else {
@@ -492,7 +493,7 @@ func (c *DefaultClient) GetResourcePools(ctx context.Context, datacenterMOID str
 	}
 
 	for i := range rps {
-		path, _, err := c.getPath(ctx, rps[i].Self.Value)
+		path, _, err := c.GetPath(ctx, rps[i].Self.Value)
 		if err != nil {
 			continue
 		}
@@ -537,7 +538,7 @@ func (c *DefaultClient) GetVirtualMachines(ctx context.Context, datacenterMOID s
 	}
 
 	for i := range vms {
-		path, _, err := c.getPath(ctx, vms[i].Self.Value)
+		path, _, err := c.GetPath(ctx, vms[i].Self.Value)
 		if err != nil {
 			continue
 		}
@@ -622,7 +623,7 @@ func (c *DefaultClient) GetVirtualMachineImages(ctx context.Context, datacenterM
 
 	for i := range vms {
 		if ovaVersion, distroName, distroVersion, distroArch := c.getVMMetadata(&vms[i]); ovaVersion != "" {
-			path, _, err := c.getPath(ctx, vms[i].Self.Value)
+			path, _, err := c.GetPath(ctx, vms[i].Self.Value)
 			if err != nil {
 				continue
 			}
@@ -773,7 +774,7 @@ func (c *DefaultClient) GetFolders(ctx context.Context, datacenterMOID string) (
 			continue
 		}
 
-		path, _, err := c.getPath(ctx, folders[i].Reference().Value)
+		path, _, err := c.GetPath(ctx, folders[i].Reference().Value)
 		if err != nil {
 			continue
 		}
@@ -809,7 +810,7 @@ func (c *DefaultClient) GetComputeResources(ctx context.Context, datacenterMOID 
 	}
 
 	for i := range rps {
-		path, objects, err := c.getPath(ctx, rps[i].Self.Value)
+		path, objects, err := c.GetPath(ctx, rps[i].Self.Value)
 		if err != nil {
 			continue
 		}
@@ -945,6 +946,20 @@ func (c *DefaultClient) FindDataCenter(ctx context.Context, path string) (string
 	}
 	finder := find.NewFinder(c.vmomiClient.Client)
 	obj, err := finder.Datacenter(ctx, path)
+	if err != nil {
+		return "", err
+	}
+
+	return obj.Reference().Value, nil
+}
+
+// FindNetwork finds the vSphere network from path, return moid
+func (c *DefaultClient) FindNetwork(ctx context.Context, path, dcPath string) (string, error) {
+	finder, err := c.newFinder(ctx, dcPath)
+	if err != nil {
+		return "", err
+	}
+	obj, err := finder.Network(ctx, path)
 	if err != nil {
 		return "", err
 	}
