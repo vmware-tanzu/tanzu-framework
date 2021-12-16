@@ -38,6 +38,7 @@ For developers making use of this feature:
 * Throughout your code, you may use `cfg.IsConfigFeatureActivated()` to check the flag value (in apis/config/v1alpha1/clientconfig.go)
 
 If you want to make this feature available for a beta period:
+
 * To let users know the feature is available but still under development, use a `false` default value; when ready for production, change to `true`. This will create an entry in
  their config file so they can see the flag name.
 * We recommend using two flags, one for the beta period and one for production. For the beta period, simply append `-beta` to the flag name that you expect to use in production.
