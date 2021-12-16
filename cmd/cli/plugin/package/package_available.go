@@ -34,7 +34,7 @@ func packagingAvailabilityCheck(_ *cobra.Command, _ []string) error {
 		return errors.Wrap(err, fmt.Sprintf("failed to check for the availability of '%s' API", tkgpackagedatamodel.PackagingAPIName))
 	}
 	if !found {
-		return errors.New(fmt.Sprintf(tkgpackagedatamodel.PackagingAPINotAvailable, tkgpackagedatamodel.PackagingAPIName, tkgpackagedatamodel.PackagingAPIVersion))
+		return fmt.Errorf(tkgpackagedatamodel.PackagingAPINotAvailable, tkgpackagedatamodel.PackagingAPIName, tkgpackagedatamodel.PackagingAPIVersion)
 	}
 
 	return nil

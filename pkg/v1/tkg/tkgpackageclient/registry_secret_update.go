@@ -34,7 +34,7 @@ func (p *pkgClient) UpdateRegistrySecret(o *tkgpackagedatamodel.RegistrySecretOp
 
 	if err := p.kappClient.GetClient().Get(context.Background(), crtclient.ObjectKey{Name: o.SecretName, Namespace: o.Namespace}, secret); err != nil {
 		if apierrors.IsNotFound(err) {
-			return errors.New(fmt.Sprintf("secret '%s' does not exist in namespace '%s'", o.SecretName, o.Namespace))
+			return fmt.Errorf("secret '%s' does not exist in namespace '%s'", o.SecretName, o.Namespace)
 		}
 		return err
 	}
@@ -46,12 +46,12 @@ func (p *pkgClient) UpdateRegistrySecret(o *tkgpackagedatamodel.RegistrySecretOp
 
 	auths, ok := dataMap["auths"]
 	if !ok {
-		return errors.New(fmt.Sprintf("no 'auths' entry exists in secret '%s'", o.SecretName))
+		return fmt.Errorf("no 'auths' entry exists in secret '%s'", o.SecretName)
 	}
 
 	entries := auths.(map[string]interface{})
 	if len(entries) != 1 {
-		return errors.New(fmt.Sprintf("updating secret '%s' is not allowed as multiple registry entries exists", o.SecretName))
+		return fmt.Errorf("updating secret '%s' is not allowed as multiple registry entries exists", o.SecretName)
 	}
 
 	for reg, v := range entries {
@@ -59,12 +59,12 @@ func (p *pkgClient) UpdateRegistrySecret(o *tkgpackagedatamodel.RegistrySecretOp
 		credentials := v.(map[string]interface{})
 		currentUsername, ok := credentials["username"]
 		if !ok {
-			return errors.New(fmt.Sprintf("no 'username' entry exists in secret '%s'", o.SecretName))
+			return fmt.Errorf("no 'username' entry exists in secret '%s'", o.SecretName)
 		}
 		username = currentUsername.(string)
 		currentPassword, ok := credentials["password"]
 		if !ok {
-			return errors.New(fmt.Sprintf("no 'password' entry exists in secret '%s'", o.SecretName))
+			return fmt.Errorf("no 'password' entry exists in secret '%s'", o.SecretName)
 		}
 		password = currentPassword.(string)
 	}

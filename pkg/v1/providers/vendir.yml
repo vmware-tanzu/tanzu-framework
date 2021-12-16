@@ -14,7 +14,7 @@ directories:
   - path: .
     git:
       url: git@github.com:vmware-tanzu/tce.git
-      ref: a9353f7de25d8f2aa6baafacd295ce5c8d98d38b
+      ref: daa90ee40f373474c7714e72182b7ad784c2ffaf
     includePaths:
     - addons/packages/antrea/1.2.3/bundle/config/**/*
     - addons/packages/calico/3.19.1/bundle/config/**/*
@@ -23,6 +23,6 @@ directories:
   - path: .
     git:
       url: git@github.com:vmware-tanzu/community-edition.git
-      ref: 87e39a645a0d5c7ee4ae1839b3be6d5208ddd23b
+      ref: 1ce18be43347405d3dfbde4ba2cbb0d1e2fa0b41
     includePaths:
     - addons/packages/kapp-controller/0.30.0/bundle/config/**/*

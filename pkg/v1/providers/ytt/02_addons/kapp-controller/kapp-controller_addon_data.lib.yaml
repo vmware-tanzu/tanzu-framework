@@ -21,6 +21,7 @@ kappController:
 #@ end
   deployment:
     concurrency: 4
+    coreDNSIP: #@ data.values.CORE_DNS_IP
     hostNetwork: true
     priorityClassName: system-cluster-critical
     apiPort: 10100

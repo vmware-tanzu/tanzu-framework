@@ -58,7 +58,7 @@ const (
 )
 
 // InitRegionSteps management cluster init step sequence
-var InitRegionSteps []string = []string{
+var InitRegionSteps = []string{
 	StepConfigPrerequisite,
 	StepValidateConfiguration,
 	StepGenerateClusterConfiguration,

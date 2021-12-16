@@ -34,7 +34,7 @@ func secretGenAvailabilityCheck(_ *cobra.Command, _ []string) error {
 		return errors.Wrap(err, fmt.Sprintf("failed to check for the availability of '%s' API", tkgpackagedatamodel.SecretGenAPIName))
 	}
 	if !found {
-		return errors.New(fmt.Sprintf(tkgpackagedatamodel.SecretGenAPINotAvailable, tkgpackagedatamodel.SecretGenAPIName, tkgpackagedatamodel.SecretGenAPIVersion))
+		return fmt.Errorf(tkgpackagedatamodel.SecretGenAPINotAvailable, tkgpackagedatamodel.SecretGenAPIName, tkgpackagedatamodel.SecretGenAPIVersion)
 	}
 
 	return nil

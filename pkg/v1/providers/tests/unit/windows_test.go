@@ -24,8 +24,8 @@ var _ = Describe("Windows Ytt Templating", func() {
 			filepath.Join(yamlRoot, "config_default.yaml"),
 			filepath.Join("./fixtures/tkr-bom-v1.21.1.yaml"),
 			filepath.Join("./fixtures/tkg-bom-v1.4.0.yaml"),
-			filepath.Join(yamlRoot, "infrastructure-vsphere", "v1.0.1", "ytt", "base-template.yaml"),
-			filepath.Join(yamlRoot, "infrastructure-vsphere", "v1.0.1", "ytt", "overlay-windows.yaml"),
+			filepath.Join(yamlRoot, "infrastructure-vsphere", capvVersion, "ytt", "base-template.yaml"),
+			filepath.Join(yamlRoot, "infrastructure-vsphere", capvVersion, "ytt", "overlay-windows.yaml"),
 			filepath.Join(yamlRoot, "ytt", "02_addons", "cni", "antrea", "antrea_addon_data.lib.yaml"),
 			filepath.Join(yamlRoot, "ytt", "02_addons", "cpi", "cpi_addon_data.lib.yaml"),
 			filepath.Join(yamlRoot, "ytt", "03_customizations", "02_avi", "ako-deployment.lib.yaml"),
@@ -49,6 +49,7 @@ var _ = Describe("Windows Ytt Templating", func() {
 			"VSPHERE_SSH_AUTHORIZED_KEY":  "ssh-rsa AAAA...+M7Q== vmware-tanzu.local",
 			"TKG_DEFAULT_BOM":             "tkg-bom-v1.4.0.yaml",
 			"KUBERNETES_RELEASE":          "v1.21.2---vmware.1-tkg.1",
+			"CORE_DNS_IP":                 "10.64.0.10",
 		})
 
 		// Printing these values helps for debugging the ytt command if needed

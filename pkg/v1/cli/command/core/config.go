@@ -74,7 +74,7 @@ var getConfigCmd = &cobra.Command{
 
 var setConfigCmd = &cobra.Command{
 	Use:   "set <path> <value>",
-	Short: "Set config values at the given path. path values: [unstable-versions, features.global.<feature>, features.<plugin>.<feature>, env.global.<variable>, env.<plugin>.<variable>]",
+	Short: "Set config values at the given path. path values: [unstable-versions, features.global.<feature>, features.<plugin>.<feature>, env.<variable>]",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 2 {
 			return errors.Errorf("both path and value are required")
@@ -283,7 +283,7 @@ var deleteServersCmd = &cobra.Command{
 					return err
 				}
 			} else {
-				return errors.New(fmt.Sprintf("Server %s not found in list of known servers", args[0]))
+				return fmt.Errorf("server %s not found in list of known servers", args[0])
 			}
 		}
 
