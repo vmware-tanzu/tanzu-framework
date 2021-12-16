@@ -83,26 +83,18 @@ jobs:
         make configure-bom
         make test
 
-  golangci-lint:
+  check:
     name: Lint
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        working-directory:
-          - ""
-          - addons
-          - addons/pinniped/post-deploy
-          - pkg/v1/providers/tests
     steps:
     - uses: actions/checkout@v2
 
-    - name: Run golangci-lint
-      uses: golangci/golangci-lint-action@v2
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v2
       with:
-        version: v1.43.0
-        args: --timeout=10m -v
-        working-directory: ${{matrix.working-directory}}
+        go-version: '1.16'
+      id: go
 
-    - name: Run vale doc linter
+    - name: Run lint checks
       run: |
-        make doc-lint
+        make lint
