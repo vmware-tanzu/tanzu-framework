@@ -740,6 +740,9 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     get wizardForm(): FormGroup {
         return this.form;
     }
+    get clusterTypeDescriptorTitleCase() {
+        return FormUtility.titleCase(this.clusterTypeDescriptor);
+    }
     //
     // HTML convenience methods
 

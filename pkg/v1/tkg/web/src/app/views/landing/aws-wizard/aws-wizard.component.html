@@ -14,7 +14,7 @@
             ></clr-icon>
             <h2 i18n="wizard title" aria-level="1">
                 <div class="aws-ec2-icon-30 offset-top-2"></div>
-                Deploy {{ clusterTypeDescriptor | titlecase }} Cluster on Amazon Web Services
+                Deploy {{ clusterTypeDescriptorTitleCase }} Cluster on Amazon Web Services
             </h2>
             <ng-container *featureToggle="'management-cluster.import'">
                 <input type="file" class="file-input"
@@ -39,7 +39,7 @@
     <div class="clr-row mt-20">
         <div class="clr-col-12 btn-container">
             <button class="btn btn-primary deploy-btn" [disabled]="disableDeployButton" (click)="deploy()">
-                Deploy {{ clusterTypeDescriptor | titlecase }} Cluster
+                Deploy {{ clusterTypeDescriptorTitleCase }} Cluster
             </button>
             <button class="btn btn-outline edit-btn" (click)="reviewConfiguration(false)"
                 i18n="return to wizard for edit button">

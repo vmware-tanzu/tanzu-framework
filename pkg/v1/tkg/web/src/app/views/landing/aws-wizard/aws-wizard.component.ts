@@ -61,7 +61,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
             this.AwsVpcForm,
             this.AwsNodeSettingForm,
             this.MetadataForm,
-            this.NetworkForm,
+            this.AwsNetworkForm,
             this.IdentityForm,
             this.AwsOsImageForm,
             this.CeipForm,
@@ -318,6 +318,9 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
     }
     get AwsOsImageForm(): FormDataForHTML {
         return this.getOsImageForm(AwsOsImageStepComponent);
+    }
+    get AwsNetworkForm(): FormDataForHTML {
+        return FormUtility.formOverrideDescription(this.NetworkForm, 'Specify the cluster Pod CIDR');
     }
     //
     // HTML convenience methods

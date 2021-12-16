@@ -10,7 +10,7 @@
             ></clr-icon>
             <h2 i18n="wizard title" id="azure-title" aria-level="1">
                 <div class="ms-azure-icon-30 offset-top-4"></div>
-                Deploy {{ clusterTypeDescriptor | titlecase }} Cluster on Azure
+                Deploy {{ clusterTypeDescriptorTitleCase }} Cluster on Azure
             </h2>
             <ng-container *featureToggle="'management-cluster.import'">
                 <input type="file" class="file-input"
@@ -35,7 +35,7 @@
     <div class="clr-row mt-20">
         <div class="clr-col-12 btn-container">
             <button class="btn btn-primary deploy-btn" [disabled]="disableDeployButton" (click)="deploy()">
-                Deploy {{ clusterTypeDescriptor | titlecase }} Cluster
+                Deploy {{ clusterTypeDescriptorTitleCase }} Cluster
             </button>
             <button class="btn btn-outline edit-btn" (click)="reviewConfiguration(false)"
                 i18n="return to wizard for edit button">

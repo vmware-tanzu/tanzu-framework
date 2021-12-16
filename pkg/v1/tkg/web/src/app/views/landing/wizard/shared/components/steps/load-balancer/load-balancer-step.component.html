@@ -205,7 +205,7 @@
                         <clr-icon clrTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                             <span *featureToggle="'management-cluster.standalone-cluster-mode'">
-                                Choose a {{ clusterTypeDescriptor | titlecase }} Cluster VIP Network Name.
+                                Choose a {{ clusterTypeDescriptorTitleCase }} Cluster VIP Network Name.
                             </span>
                             <span *featureToggle="'!management-cluster.standalone-cluster-mode'">
                                 Choose a VIP network name for management cluster and workload clusters' control plane.
@@ -231,7 +231,7 @@
                         <clr-icon clrTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                             <span *featureToggle="'management-cluster.standalone-cluster-mode'">
-                                Select a {{ clusterTypeDescriptor | titlecase }} Cluster VIP Network CIDR.
+                                Select a {{ clusterTypeDescriptorTitleCase }} Cluster VIP Network CIDR.
                             </span>
                             <span *featureToggle="'!management-cluster.standalone-cluster-mode'">
                                 Select a VIP network CIDR for management cluster and workload clusters' control plane.

@@ -16,7 +16,7 @@
     </div>
 
     <h4 i18n="cluster settings" aria-level="2">
-        {{ clusterTypeDescriptor | titlecase }} Cluster Settings
+        {{ clusterTypeDescriptorTitleCase }} Cluster Settings
     </h4>
 
     <div class="clr-row">
@@ -144,11 +144,11 @@
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error i18n="cluster name valid msg"
                     *clrIfError="validatorEnum.VALID_CLUSTER_NAME">
-                    {{ clusterTypeDescriptor | titlecase }} Cluster name must start and end with a letter or number, and can contain only
+                    {{ clusterTypeDescriptorTitleCase }} Cluster name must start and end with a letter or number, and can contain only
                     lowercase letters, numbers, and hyphens.
                 </clr-control-error>
                 <clr-control-error i18n="cluster name valid msg" *clrIfError="validatorEnum.WHITESPACE">
-                    {{ clusterTypeDescriptor | titlecase }} Cluster Name must not include whitespace on ends.
+                    {{ clusterTypeDescriptorTitleCase }} Cluster Name must not include whitespace on ends.
                 </clr-control-error>
                 <clr-control-error i18n="cluster name required msg" *clrIfError="validatorEnum.REQUIRED">
                     Cluster name is required

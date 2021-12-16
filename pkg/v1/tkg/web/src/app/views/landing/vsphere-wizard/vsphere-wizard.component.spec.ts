@@ -8,10 +8,11 @@ import { VSphereWizardComponent } from './vsphere-wizard.component';
 import { SharedModule } from '../../../shared/shared.module';
 import { FormMetaDataStore } from '../wizard/shared/FormMetaDataStore';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
-import { VSphereWizardFormServiceStub } from 'src/app/testing/vsphere-wizard-form.service.stub';
 import Broker from 'src/app/shared/service/broker';
 import { Messenger } from 'src/app/shared/service/Messenger';
 import { ClusterType } from "../wizard/shared/constants/wizard.constants";
+import { VSphereProviderStepComponent } from './provider-step/vsphere-provider-step.component';
+import { ValidationService } from '../wizard/shared/validation/validation.service';
 
 describe('VSphereWizardComponent', () => {
     let component: VSphereWizardComponent;
@@ -32,6 +33,7 @@ describe('VSphereWizardComponent', () => {
                 APIClient,
                 FormBuilder,
                 { provide: VSphereWizardFormService},
+                ValidationService
             ],
             schemas: [
                 CUSTOM_ELEMENTS_SCHEMA
@@ -93,6 +95,11 @@ describe('VSphereWizardComponent', () => {
             vcenterAddress: new FormControl('vcAddr'),
             datacenter: new FormControl('dc'),
         });
+        component.clusterTypeDescriptor = 'management';
+        const providerStep = TestBed.createComponent(VSphereProviderStepComponent).componentInstance;
+        providerStep.clusterTypeDescriptor = 'management';
+        component.registerStep('vsphereProviderForm', providerStep);
+
         const description = component.describeStep('vsphereProviderForm', component.VsphereProviderForm.description)
         expect(description).toBe('vCenter vcAddr connected');
     });

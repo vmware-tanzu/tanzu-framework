@@ -12,6 +12,7 @@ import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import { EditionData } from 'src/app/shared/service/branding.service';
 import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
+import { FormUtility } from '../components/steps/form-utility';
 
 const INIT_FIELD_DELAY = 50;            // ms
 /**
@@ -27,7 +28,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
 
     edition: AppEdition = AppEdition.TCE;
     validatorEnum = ValidatorEnum;
-    errorNotification: string;
+    errorNotification: string = '';
     configFileNotification: Notification;
     clusterTypeDescriptor: string;
     modeClusterStandalone: boolean;
@@ -89,7 +90,9 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         }
     }
 
-    protected getFieldValue(fieldName: string, suppressWarnings?: boolean): any {
+    // This method could be protected, since it's primarily intended for subclasses,
+    // but since it's helpful for tests to be able to use it, we make it public
+    getFieldValue(fieldName: string, suppressWarnings?: boolean): any {
         if (!this.formGroup) {
             if (!suppressWarnings) {
                 console.error('getFieldValue(' + fieldName + ') called without a formGroup set');
@@ -143,7 +146,9 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         return this.savedMetadata != null
     }
 
-    protected setFieldValue(fieldName: string, value: any): void {
+    // This method could be protected, since it's primarily intended for subclasses,
+    // but since it's helpful for tests to be able to use it, we make it public
+    setFieldValue(fieldName: string, value: any): void {
         const control = this.getControl(fieldName);
         if (control === undefined || control === null) {
             console.log('WARNING: setFieldValue() could not find field ' + fieldName + ' to set value to ' + value);
@@ -382,4 +387,12 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         const defaultToUse = (defaultValue === undefined || defaultValue === null) ? '' : defaultValue;
         this.setControlValueSafely(controlName, this.getSavedValue(controlName, defaultToUse), options);
     }
+
+    // HTML convenience methods
+    //
+    get clusterTypeDescriptorTitleCase() {
+        return FormUtility.titleCase(this.clusterTypeDescriptor);
+    }
+    //
+    // HTML convenience methods
 }

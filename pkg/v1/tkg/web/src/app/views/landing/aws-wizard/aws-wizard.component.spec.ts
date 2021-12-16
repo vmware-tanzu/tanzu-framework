@@ -1,6 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FormBuilder } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -11,6 +11,11 @@ import Broker from 'src/app/shared/service/broker';
 import { Messenger } from 'src/app/shared/service/Messenger';
 import { ClusterType, WizardForm } from "../wizard/shared/constants/wizard.constants";
 import { AwsForm } from './aws-wizard.constants';
+import { VpcStepComponent } from './vpc-step/vpc-step.component';
+import { ValidationService } from '../wizard/shared/validation/validation.service';
+import { MetadataStepComponent } from '../wizard/shared/components/steps/metadata-step/metadata-step.component';
+import { SharedNetworkStepComponent } from '../wizard/shared/components/steps/network-step/network-step.component';
+import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 
 describe('AwsWizardComponent', () => {
     let component: AwsWizardComponent;
@@ -27,7 +32,8 @@ describe('AwsWizardComponent', () => {
             ],
             providers: [
                 APIClient,
-                FormBuilder
+                FormBuilder,
+                ValidationService
             ],
             schemas: [
                 CUSTOM_ELEMENTS_SCHEMA
@@ -110,6 +116,13 @@ describe('AwsWizardComponent', () => {
         });
 
         it('is for vpc step', () => {
+            const stepInstance = TestBed.createComponent(VpcStepComponent).componentInstance;
+            component.registerStep(component.AwsVpcForm.name, stepInstance);
+            stepInstance.formGroup.addControl('vpc', new FormControl(''));
+            stepInstance.formGroup.addControl('publicNodeCidr', new FormControl(''));
+            stepInstance.formGroup.addControl('privateNodeCidr', new FormControl(''));
+            stepInstance.formGroup.addControl('awsNodeAz', new FormControl(''));
+
             let description = component.describeStep(component.AwsVpcForm.name, component.AwsVpcForm.description);
             expect(description).toBe('Specify VPC settings for AWS');
 
@@ -123,6 +136,11 @@ describe('AwsWizardComponent', () => {
         });
 
         it('is for nodeSetting step', () => {
+            const stepInstance = TestBed.createComponent(NodeSettingStepComponent).componentInstance;
+            stepInstance.clusterTypeDescriptor = 'management';
+            component.registerStep(component.AwsNodeSettingForm.name, stepInstance);
+            stepInstance.formGroup.addControl('controlPlaneSetting', new FormControl(''));
+
             const controlPlaneField = component.form.get(component.AwsNodeSettingForm.name).get('controlPlaneSetting');
             let description = component.describeStep(component.AwsNodeSettingForm.name, component.AwsNodeSettingForm.description);
             expect(description).toBe('Specify the resources backing the management cluster');
@@ -137,16 +155,26 @@ describe('AwsWizardComponent', () => {
         });
 
         it('is for network step', () => {
-            let description = component.describeStep(component.NetworkForm.name, component.NetworkForm.description);
+            const stepInstance = TestBed.createComponent(SharedNetworkStepComponent).componentInstance;
+            component.registerStep(component.AwsNetworkForm.name, stepInstance);
+            stepInstance.formGroup.addControl('clusterPodCidr', new FormControl(''));
+
+            let description = component.describeStep(component.AwsNetworkForm.name, component.AwsNetworkForm.description);
             expect(description).toBe('Specify the cluster Pod CIDR');
-            component.form.get('networkForm').get('clusterPodCidr').setValue('10.10.10.10/23');
-            description = component.describeStep(component.NetworkForm.name, component.NetworkForm.description);
+            component.form.get(component.AwsNetworkForm.name).get('clusterPodCidr').setValue('10.10.10.10/23');
+            description = component.describeStep(component.AwsNetworkForm.name, component.AwsNetworkForm.description);
             expect(description).toBe('Cluster Pod CIDR: 10.10.10.10/23');
         });
 
         it('is for metadata step', () => {
+            const stepInstance = TestBed.createComponent(MetadataStepComponent).componentInstance;
+            stepInstance.clusterTypeDescriptor = 'management';
+            component.registerStep(component.MetadataForm.name, stepInstance);
+            stepInstance.formGroup.addControl('clusterLocation', new FormControl(''));
+
             let description = component.describeStep(component.MetadataForm.name, component.MetadataForm.description);
             expect(description).toBe('Specify metadata for the management cluster');
+
             component.form.get(WizardForm.METADATA).get('clusterLocation').setValue('us-west');
             description = component.describeStep(component.MetadataForm.name, component.MetadataForm.description);
             expect(description).toBe('Location: us-west');
@@ -154,6 +182,10 @@ describe('AwsWizardComponent', () => {
     });
 
     it('should return management cluster name', () => {
+        const stepInstance = TestBed.createComponent(NodeSettingStepComponent).componentInstance;
+        component.registerStep(AwsForm.NODESETTING, stepInstance);
+        stepInstance.formGroup.addControl('clusterName', new FormControl(''));
+
         component.form.get(AwsForm.NODESETTING).get('clusterName').setValue('mylocalTestName');
         expect(component.getMCName()).toBe('mylocalTestName');
     });
@@ -172,22 +204,26 @@ describe('AwsWizardComponent', () => {
             [AwsForm.NODESETTING, 'controlPlaneSetting', 'dev'],
             [AwsForm.NODESETTING, 'devInstanceType', 't3.medium'],
             [AwsForm.NODESETTING, 'sshKeyName', 'default'],
-            // [AwsForm.NODESETTING, 'machineHealthChecksEnabled', true],
             [AwsForm.NODESETTING, 'workerNodeInstanceType1', 't3.small'],
+            [AwsForm.NODESETTING, 'createCloudFormation', true],
+            [AwsForm.NODESETTING, 'machineHealthChecksEnabled', true],
             [WizardForm.METADATA, 'clusterDescription', 'DescriptionEXAMPLE'],
-            // [WizardForm.METADATA, 'clusterLabels', clusterLabels],
+            [WizardForm.METADATA, 'clusterLabels', clusterLabels],
             [WizardForm.METADATA, 'clusterLocation', 'mylocation1'],
             ['networkForm', 'clusterPodCidr', '100.96.0.0/11'],
             ['networkForm', 'clusterServiceCidr', '100.64.0.0/13'],
             ['networkForm', 'cniType', 'antrea'],
-            // ['ceipOptInForm', 'ceipOptIn', true]
+            ['ceipOptInForm', 'ceipOptIn', true]
         ];
-        mappings.forEach(attr => component.form.get(attr[0]).get(attr[1]).setValue(attr[2]));
+        mappings.forEach(mapping => {
+            const formName = mapping[0] as string;
+            const fieldName = mapping[1] as string;
+            const desiredValue = mapping[2];
 
-        component.form.get(AwsForm.NODESETTING).get('createCloudFormation').setValue(true);
-        component.form.get(AwsForm.NODESETTING).get('machineHealthChecksEnabled').setValue(true);
-        component.form.get('ceipOptInForm').get('ceipOptIn').setValue(true);
-        component.form.get(WizardForm.METADATA).get('clusterLabels').setValue(clusterLabels);
+            const formGroup = component.form.get(formName) as FormGroup;
+            expect(formGroup).toBeTruthy();
+            formGroup.addControl(fieldName, new FormControl(desiredValue));
+        });
 
         const payload = component.getPayload();
         expect(payload.awsAccountParams).toEqual({

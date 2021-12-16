@@ -55,7 +55,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
             this.AzureVnetForm,
             this.AzureNodeSettingForm,
             this.MetadataForm,
-            this.NetworkForm,
+            this.AzureNetworkForm,
             this.IdentityForm,
             this.AzureOsImageForm,
             this.CeipForm,
@@ -285,7 +285,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         clazz: AzureProviderStepComponent};
     }
     get AzureVnetForm(): FormDataForHTML {
-        return { name: AzureForm.VNET, title: 'Azure VNET Settings', description: 'Specify a Azure VNET CIDR',
+        return { name: AzureForm.VNET, title: 'Azure VNET Settings', description: 'Specify an Azure VNET CIDR',
             i18n: {title: 'vnet step name', description: 'vnet step description'},
         clazz: VnetStepComponent};
     }
@@ -297,6 +297,9 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
     }
     get AzureOsImageForm(): FormDataForHTML {
         return this.getOsImageForm(AzureOsImageStepComponent);
+    }
+    get AzureNetworkForm(): FormDataForHTML {
+        return FormUtility.formOverrideDescription(this.NetworkForm, 'Specify an Azure VNET CIDR');
     }
     //
     // HTML convenience methods

@@ -66,8 +66,6 @@ func (app *App) ConfigureHandlers(api middleware.RoutableAPI) { // nolint:funlen
 
 	a.ServerShutdown = func() {}
 
-	a.AwsGetAWSEndpointHandler = aws.GetAWSEndpointHandlerFunc(app.GetAWSEndpoint)
-
 	a.ProviderGetProviderHandler = provider.GetProviderHandlerFunc(app.GetProvider)
 	a.VsphereSetVSphereEndpointHandler = vsphere.SetVSphereEndpointHandlerFunc(app.SetVSphereEndpoint)
 	a.VsphereGetVSphereDatacentersHandler = vsphere.GetVSphereDatacentersHandlerFunc(app.GetVSphereDatacenters)

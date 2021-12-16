@@ -323,6 +323,9 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
         if (serviceCidr && podCidr) {
             return `Cluster service CIDR: ${serviceCidr} Cluster POD CIDR: ${podCidr}`;
         }
-        return "Specify how TKG networking is provided and global network settings";
+        if (podCidr) {
+            return `Cluster Pod CIDR: ${podCidr}`;
+        }
+        return '';
     }
 }

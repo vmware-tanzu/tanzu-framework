@@ -21,14 +21,14 @@
                 <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error *clrIfError="validatorEnum.REQUIRED">
-                    {{ clusterTypeDescriptor | titlecase }} Cluster name is required.
+                    {{ clusterTypeDescriptorTitleCase }} Cluster name is required.
                 </clr-control-error>
                 <clr-control-error *clrIfError="validatorEnum.VALID_CLUSTER_NAME">
-                    {{ clusterTypeDescriptor | titlecase }} Cluster name must start and end with a letter or number, and can contain only
+                    {{ clusterTypeDescriptorTitleCase }} Cluster name must start and end with a letter or number, and can contain only
                     lowercase letters, numbers, and hyphens.
                 </clr-control-error>
                 <clr-control-error *clrIfError="validatorEnum.WHITESPACE">
-                    {{ clusterTypeDescriptor | titlecase }} Cluster Name must not include whitespace on ends.
+                    {{ clusterTypeDescriptorTitleCase }} Cluster Name must not include whitespace on ends.
                 </clr-control-error>
             </clr-input-container>
         </div>

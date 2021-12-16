@@ -434,6 +434,6 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
 
     protected dynamicDescription(): string {
         const vnetCidrBlock = this.getFieldValue("vnetCidrBlock", true);
-        return vnetCidrBlock ? `Subnet: ${vnetCidrBlock}` : 'Specify a Azure VNET CIDR';
+        return vnetCidrBlock ? `Subnet: ${vnetCidrBlock}` : 'Specify an Azure VNET CIDR';
     }
 }
