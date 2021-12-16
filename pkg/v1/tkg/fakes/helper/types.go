@@ -139,3 +139,10 @@ type TestMachineHealthCheckOption struct {
 	Namespace   string
 	ClusterName string
 }
+
+// TestCLIPluginOption describes options for CLIPlugin
+type TestCLIPluginOption struct {
+	Name               string
+	Description        string
+	RecommendedVersion string
+}
