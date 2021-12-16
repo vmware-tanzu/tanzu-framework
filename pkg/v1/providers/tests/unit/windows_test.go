@@ -49,6 +49,7 @@ var _ = Describe("Windows Ytt Templating", func() {
 			"VSPHERE_SSH_AUTHORIZED_KEY":  "ssh-rsa AAAA...+M7Q== vmware-tanzu.local",
 			"TKG_DEFAULT_BOM":             "tkg-bom-v1.4.0.yaml",
 			"KUBERNETES_RELEASE":          "v1.21.2---vmware.1-tkg.1",
+			"CORE_DNS_IP":                 "10.64.0.10",
 		})
 
 		// Printing these values helps for debugging the ytt command if needed

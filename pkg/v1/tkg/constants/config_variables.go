@@ -140,6 +140,8 @@ const (
 	ConfigVariableClusterCIDR = "CLUSTER_CIDR"
 	ConfigVariableServiceCIDR = "SERVICE_CIDR"
 
+	ConfigVariableCoreDNSIP = "CORE_DNS_IP"
+
 	ConfigVariableIPFamily = "TKG_IP_FAMILY"
 
 	ConfigVariableControlPlaneNodeNameservers = "CONTROL_PLANE_NODE_NAMESERVERS"
