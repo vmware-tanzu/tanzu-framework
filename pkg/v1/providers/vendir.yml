@@ -14,7 +14,7 @@ directories:
   - path: .
     git:
       url: git@github.com:vmware-tanzu/tce.git
-      ref: a9353f7de25d8f2aa6baafacd295ce5c8d98d38b
+      ref: daa90ee40f373474c7714e72182b7ad784c2ffaf
     includePaths:
     - addons/packages/antrea/1.2.3/bundle/config/**/*
     - addons/packages/calico/3.19.1/bundle/config/**/*
