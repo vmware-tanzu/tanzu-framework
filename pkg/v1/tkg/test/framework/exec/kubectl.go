@@ -7,7 +7,7 @@ import (
 	"bytes"
 	"context"
 
-	. "github.com/onsi/ginkgo" // nolint:stylecheck,golint
+	. "github.com/onsi/ginkgo" // nolint:stylecheck
 )
 
 // KubectlApplyWithArgs applies config with args

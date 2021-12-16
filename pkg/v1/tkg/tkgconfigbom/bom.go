@@ -250,7 +250,7 @@ func (c *client) GetAutoscalerImageForK8sVersion(k8sVersion string) (string, err
 	}
 
 	if autoscalerImage == nil {
-		return "", errors.New(fmt.Sprintf("autoscaler image not available for kubernetes minor version %s", k8sVersionPrefix))
+		return "", fmt.Errorf("autoscaler image not available for kubernetes minor version %s", k8sVersionPrefix)
 	}
 
 	if imageCount > 1 {
@@ -372,7 +372,7 @@ func GetTKRBOMImageTagNameFromTKRVersion(tkrVersion string) string {
 	return strings.ReplaceAll(tkrVersion, "+", "_")
 }
 
-var errorDownloadingDefaultBOMFiles string = `failed to download the BOM file from image name '%s':%v
+var errorDownloadingDefaultBOMFiles = `failed to download the BOM file from image name '%s':%v
 If this is an internet-restricted environment please refer to the documentation to set TKG_CUSTOM_IMAGE_REPOSITORY and related configuration variables in %s 
 `
 
@@ -447,7 +447,7 @@ func (c *client) DownloadDefaultBOMFilesFromRegistry(bomRegistry registry.Regist
 	return nil
 }
 
-var errorDownloadingTKGCompatibilityFile string = `failed to download the TKG Compatibility file from image name '%s':%v
+var errorDownloadingTKGCompatibilityFile = `failed to download the TKG Compatibility file from image name '%s':%v
 If this is an internet-restricted environment please refer to the documentation to set TKG_CUSTOM_IMAGE_REPOSITORY and related configuration variables in %s 
 `
 

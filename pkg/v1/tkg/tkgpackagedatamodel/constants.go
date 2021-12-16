@@ -27,7 +27,7 @@ const (
 	KindSecret                          = "Secret"
 	KindSecretExport                    = "SecretExport"
 	KindServiceAccount                  = "ServiceAccount"
-	PackagingAPINotAvailable            = "Package plugin can not be used as '%s/%s' API is not available in the cluster"
+	PackagingAPINotAvailable            = "package plugin can not be used as '%s/%s' API is not available in the cluster"
 	PackagingAPIName                    = "packaging.carvel.dev"
 	PackagingAPIVersion                 = "v1alpha1"
 	SecretGenAPINotAvailable            = "secret plugin can not be used as '%s/%s' API is not available in the cluster"

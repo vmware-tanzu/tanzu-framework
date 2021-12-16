@@ -501,7 +501,11 @@ fmt: tools ## Run goimports
 vet: ## Run go vet
 	$(GO) vet ./...
 
-lint: tools doc-lint ## Run linting checks
+lint: tools go-lint doc-lint ## Run linting checks
+	# Check licenses in shell scripts and Makefile
+	hack/check-license.sh
+
+go-lint: tools ## Run linting of go source
 	# Linter runs per module, add each one here and make sure they match
 	# in .github/workflows/main.yaml for CI coverage
 
@@ -512,9 +516,6 @@ lint: tools doc-lint ## Run linting checks
 
 	# Linting for the YTT generation test code...
 	cd $(YTT_TESTS_DIR); $(GOLANGCI_LINT) run -v
-
-	# Check licenses in shell scripts and Makefile
-	hack/check-license.sh
 
 doc-lint: tools ## Run linting checks for docs
 	$(VALE) --config=.vale/config.ini --glob='*.md' ./

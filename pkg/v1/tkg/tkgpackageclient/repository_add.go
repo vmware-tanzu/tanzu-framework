@@ -120,12 +120,12 @@ func (p *pkgClient) validateRepositoryAdd(repositoryName, repositoryImg, namespa
 
 	for _, repository := range repositoryList.Items { //nolint:gocritic
 		if repository.Name == repositoryName {
-			return errors.New(fmt.Sprintf("package repository name '%s' already exists in namespace '%s'", repositoryName, namespace))
+			return fmt.Errorf("package repository name '%s' already exists in namespace '%s'", repositoryName, namespace)
 		}
 
 		if repository.Spec.Fetch != nil && repository.Spec.Fetch.ImgpkgBundle != nil &&
 			repository.Spec.Fetch.ImgpkgBundle.Image == repositoryImg {
-			return errors.New(fmt.Sprintf("package repository URL '%s' already exists in namespace '%s'", repositoryImg, namespace))
+			return fmt.Errorf("package repository URL '%s' already exists in namespace '%s'", repositoryImg, namespace)
 		}
 	}
 
