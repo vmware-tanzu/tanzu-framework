@@ -143,7 +143,7 @@ spec:
 				os.Setenv(constants.ConfigVariableEnableAutoscaler, "true")
 			})
 
-			It("should not wait for autoscaler deployment", func() {
+			It("should wait for autoscaler deployment", func() {
 				Expect(clusterClient.WaitForAutoscalerDeploymentCallCount()).To(Equal(1))
 			})
 		})

@@ -208,22 +208,27 @@ func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.C
 	return nil
 }
 
-// WaitForAutoscalerDeployment waits for autoscaler deployment if enabled
-func (c *TkgClient) WaitForAutoscalerDeployment(regionalClusterClient clusterclient.Client, clusterName, targetNamespace string) {
+func (c *TkgClient) getValueForAutoscalerDeploymentConfig() bool {
 	var autoscalerEnabled string
+	var isEnabled bool
 	var err error
 
+	// swallowing the error when the value for config variable 'ENABLE_AUTOSCALER' is not set
 	if autoscalerEnabled, err = c.TKGConfigReaderWriter().Get(constants.ConfigVariableEnableAutoscaler); err != nil {
-		return
+		return false
 	}
 
-	var isEnabled bool
 	if isEnabled, err = strconv.ParseBool(autoscalerEnabled); err != nil {
 		log.Warningf("Unable to parse the value of config variable %q. reason: %v", constants.ConfigVariableEnableAutoscaler, err)
-		return
+		return false
 	}
 
-	if isEnabled {
+	return isEnabled
+}
+
+// WaitForAutoscalerDeployment waits for autoscaler deployment if enabled
+func (c *TkgClient) WaitForAutoscalerDeployment(regionalClusterClient clusterclient.Client, clusterName, targetNamespace string) {
+	if isEnabled := c.getValueForAutoscalerDeploymentConfig(); isEnabled {
 		log.Warning("Waiting for cluster autoscaler to be available...")
 		autoscalerDeploymentName := clusterName + "-cluster-autoscaler"
 		if err := regionalClusterClient.WaitForAutoscalerDeployment(autoscalerDeploymentName, targetNamespace); err != nil {
