@@ -14,6 +14,7 @@ import Broker from 'src/app/shared/service/broker';
 import {FormMetaDataStore} from "../../wizard/shared/FormMetaDataStore";
 import {AwsField} from "../aws-wizard.constants";
 import {NotificationTypes} from "../../../../shared/components/alert-notification/alert-notification.component";
+import { FormUtils } from '../../wizard/shared/utils/form-utils';
 
 export const AWSAccountParamsKeys = [
     AwsField.PROVIDER_PROFILE_NAME,
@@ -50,12 +51,12 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
      * Create the initial form
      */
     private buildForm() {
-        this.formGroup.addControl(AwsField.PROVIDER_AUTH_TYPE, new FormControl(this.authTypeValue, []), { emitEvent: false });
+        FormUtils.addControl(this.formGroup, AwsField.PROVIDER_AUTH_TYPE, new FormControl(this.authTypeValue, []));
 
-        AWSAccountParamsKeys.forEach(key => this.formGroup.addControl(
+        AWSAccountParamsKeys.forEach(key => FormUtils.addControl(
+            this.formGroup,
             key.toString(),
-            new FormControl(''),
-            { emitEvent: false }
+            new FormControl('')
         ));
 
         this.formGroup.get(AwsField.PROVIDER_REGION).setValidators([

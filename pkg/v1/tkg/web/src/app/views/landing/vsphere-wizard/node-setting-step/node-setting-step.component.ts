@@ -16,6 +16,7 @@ import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER } from '../../wizard/shared/compon
 import Broker from 'src/app/shared/service/broker';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import { VsphereField, VsphereNodeTypes } from '../vsphere-wizard.constants';
+import { FormUtils } from '../../wizard/shared/utils/form-utils';
 
 @Component({
     selector: 'app-node-setting-step',
@@ -45,63 +46,63 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     ngOnInit() {
         super.ngOnInit();
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             VsphereField.NODESETTING_CONTROL_PLANE_SETTING,
             new FormControl('', [
                 Validators.required
-            ]),
-            { emitEvent: false }
+            ])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             VsphereField.NODESETTING_INSTANCE_TYPE_DEV,
             new FormControl('', [
                 Validators.required
-            ]),
-            { emitEvent: false }
+            ])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             VsphereField.NODESETTING_INSTANCE_TYPE_PROD,
             new FormControl('', [
                 Validators.required
-            ]),
-            { emitEvent: false }
+            ])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             VsphereField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED,
-            new FormControl(true, []),
-            { emitEvent: false }
+            new FormControl(true, [])
         );
         if (!this.modeClusterStandalone) {
-            this.formGroup.addControl(
+            FormUtils.addControl(
+            this.formGroup,
                 VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE,
                 new FormControl('', [
                     Validators.required
-                ]),
-                { emitEvent: false }
+                ])
             );
         }
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             VsphereField.NODESETTING_CLUSTER_NAME,
             new FormControl('', [
                 this.validationService.isValidClusterName()
-            ]),
-            { emitEvent: false }
+            ])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_IP,
             new FormControl('', [
                 Validators.required,
                 this.validationService.isValidIpOrFqdn()
-            ]),
-            { emitEvent: false }
+            ])
         );
 
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_PROVIDER,
             new FormControl(this.currentControlPlaneEndpoingProvider, [
                 Validators.required
-            ]),
-            { emitEvent: false }
+            ])
         );
 
         this.registerOnValueChange(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_PROVIDER,

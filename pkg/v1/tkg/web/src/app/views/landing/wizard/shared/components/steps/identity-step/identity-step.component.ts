@@ -7,6 +7,7 @@ import { StepFormDirective } from '../../../step-form/step-form';
 import { ValidationService } from '../../../validation/validation.service';
 import { LdapTestResult } from 'src/app/swagger/models';
 import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
+import { FormUtils } from '../../../utils/form-utils';
 
 const CONNECT = "CONNECT";
 const BIND = "BIND";
@@ -94,10 +95,10 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
     ngOnInit(): void {
         super.ngOnInit();
 
-        this.formGroup.addControl('identityType', new FormControl('oidc', []), { emitEvent: false });
-        this.formGroup.addControl('idmSettings', new FormControl(true, []), { emitEvent: false });
+        FormUtils.addControl(this.formGroup, 'identityType', new FormControl('oidc', []));
+        FormUtils.addControl(this.formGroup, 'idmSettings', new FormControl(true, []));
 
-        this.fields.forEach(field => this.formGroup.addControl(field, new FormControl('', []), { emitEvent: false }));
+        this.fields.forEach(field => FormUtils.addControl(this.formGroup, field, new FormControl('', [])));
 
         this.registerOnIpFamilyChange('issuerURL', [], [], () => {
             if (this.identityTypeValue === 'oidc') {

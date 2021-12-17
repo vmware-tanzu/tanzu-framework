@@ -18,6 +18,7 @@ import { APIClient } from '../../../../swagger/api-client.service';
 import Broker from 'src/app/shared/service/broker';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import { AwsField, AwsForm } from "../aws-wizard.constants";
+import { FormUtils } from '../../wizard/shared/utils/form-utils';
 
 export interface AzNodeTypes {
     awsNodeAz1: Array<string>,
@@ -162,23 +163,23 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         // key is field name, value is validation rules
         for (const key in this.commonFieldMap) {
             if (key) {
-                this.formGroup.addControl(
+                FormUtils.addControl(
+                    this.formGroup,
                     key,
-                    new FormControl('', this.commonFieldMap[key]),
-                    { emitEvent: false }
+                    new FormControl('', this.commonFieldMap[key])
                 );
             }
         }
         this.setControlWithSavedValue(AwsField.NODESETTING_BASTION_HOST_ENABLED, true);
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             AwsField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED,
-            new FormControl(true, []),
-            { emitEvent: false }
+            new FormControl(true, [])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             AwsField.NODESETTING_CREATE_CLOUD_FORMATION,
-            new FormControl(true, []),
-            { emitEvent: false }
+            new FormControl(true, [])
         );
     }
 

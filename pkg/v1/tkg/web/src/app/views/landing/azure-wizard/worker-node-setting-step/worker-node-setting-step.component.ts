@@ -11,6 +11,7 @@ import {
  * App imports
  */
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
+import { FormUtils } from '../../wizard/shared/utils/form-utils';
 
 @Component({
     selector: 'app-worker-node-setting-step',
@@ -23,7 +24,8 @@ export class WorkerNodeSettingStepComponent extends StepFormDirective implements
     azs = ["US-WEST", "US-EAST"];
 
     buildForm() {
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'workerNodeInstanceType',
             new FormControl('', [
                 Validators.required
@@ -31,7 +33,8 @@ export class WorkerNodeSettingStepComponent extends StepFormDirective implements
         );
 
         ['az1', 'az2', 'az3'].forEach(id =>
-            this.formGroup.addControl(
+            FormUtils.addControl(
+                this.formGroup,
                 id,
                 new FormControl('', [
                     Validators.required

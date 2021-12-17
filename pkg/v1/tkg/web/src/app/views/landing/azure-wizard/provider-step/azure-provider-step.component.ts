@@ -15,6 +15,7 @@ import { ValidationService } from '../../wizard/shared/validation/validation.ser
 import Broker from 'src/app/shared/service/broker';
 import { FormMetaDataStore } from "../../wizard/shared/FormMetaDataStore";
 import {NotificationTypes} from "../../../../shared/components/alert-notification/alert-notification.component";
+import { FormUtils } from '../../wizard/shared/utils/form-utils';
 
 enum ProviderField {
     AZURECLOUD = 'azureCloud',
@@ -69,7 +70,6 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     validCredentials = false;
 
     resourceGroupCreationState = 'create';
-    resourceGroupSelection: string = 'disabled';
 
     constructor(
         private apiClient: APIClient,
@@ -82,20 +82,20 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
      * Create the initial form
      */
     private buildForm() {
-        AzureAccountParamsKeys.concat(requiredFields).forEach(controlName => this.formGroup.addControl(
+        AzureAccountParamsKeys.concat(requiredFields).forEach(controlName => FormUtils.addControl(
+            this.formGroup,
             controlName,
             new FormControl('', [
                 Validators.required
-            ]),
-            { emitEvent: false }
+            ])
         ));
 
         this.setControlValueSafely(ProviderField.RESOURCEGROUPOPTION, this.resourceGroupOption);
 
-        optionalFields.forEach(controlName => this.formGroup.addControl(
+        optionalFields.forEach(controlName => FormUtils.addControl(
+            this.formGroup,
             controlName,
-            new FormControl('', []),
-            { emitEvent: false }
+            new FormControl('', [])
         ));
 
         this.formGroup['canMoveToNext'] = () => {
@@ -235,7 +235,6 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
         this.regions = [];
         this.resourceGroups = [];
         this.resourceGroupCreationState = 'create';
-        this.resourceGroupSelection = 'disabled';
         this.resourceGroupOption = ResourceGroupOption.EXISTING;
 
         [ProviderField.TENANT, ProviderField.CLIENT, ProviderField.SUBSCRIPTION, ProviderField.AZURECLOUD].forEach( accountField => {

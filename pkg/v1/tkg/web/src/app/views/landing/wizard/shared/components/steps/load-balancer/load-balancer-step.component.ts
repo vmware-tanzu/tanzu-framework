@@ -17,6 +17,7 @@ import { AviVipNetwork } from './../../../../../../../swagger/models/avi-vip-net
 import { TkgEventType } from 'src/app/shared/service/Messenger';
 import Broker from 'src/app/shared/service/broker';
 import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
+import { FormUtils } from '../../../utils/form-utils';
 
 export const KUBE_VIP = 'Kube-vip';
 export const NSX_ADVANCED_LOAD_BALANCER = "NSX Advanced Load Balancer";
@@ -66,78 +67,78 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
         this.vipClusterNetworkCidrLabel = this.modeClusterStandalone ?
             'STANDALONE CLUSTER VIP NETWORK CIDR' : 'MANAGEMENT VIP NETWORK CIDR';
 
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'controllerHost',
             new FormControl('', [
                 this.validationService.isValidIpOrFqdn()
-            ]),
-            { emitEvent: false }
+            ])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'username',
-            new FormControl('', []),
-            { emitEvent: false }
+            new FormControl('', [])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'password',
-            new FormControl('', []),
-            { emitEvent: false }
+            new FormControl('', [])
         );
 
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'cloudName',
-            new FormControl('', []),
-            { emitEvent: false }
+            new FormControl('', [])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'serviceEngineGroupName',
-            new FormControl('', []),
-            { emitEvent: false }
+            new FormControl('', [])
         );
 
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'networkName',
-            new FormControl('', []),
-            { emitEvent: false }
+            new FormControl('', [])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'networkCIDR',
-            new FormControl('', []),
-            { emitEvent: false }
+            new FormControl('', [])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'managementClusterNetworkName',
-            new FormControl('', []),
-            { emitEvent: false }
+            new FormControl('', [])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'managementClusterNetworkCIDR',
-            new FormControl('', [this.validationService.isValidIpNetworkSegment()]),
-            { emitEvent: false }
+            new FormControl('', [this.validationService.isValidIpNetworkSegment()])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'controllerCert',
-            new FormControl('', []),
-            { emitEvent: false }
+            new FormControl('', [])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'clusterLabels',
-            new FormControl('', []),
-            { emitEvent: false }
+            new FormControl('', [])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'newLabelKey',
             new FormControl('', [
                 this.validationService.isValidLabelOrAnnotation()
-            ]),
-            { emitEvent: false }
+            ])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'newLabelValue',
             new FormControl('', [
                 this.validationService.isValidLabelOrAnnotation()
-            ]),
-            { emitEvent: false }
+            ])
         );
 
         SupervisedFields.forEach(field => {

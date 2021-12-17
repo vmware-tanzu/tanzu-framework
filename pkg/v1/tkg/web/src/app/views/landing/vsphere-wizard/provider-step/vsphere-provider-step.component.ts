@@ -27,6 +27,7 @@ import { managementClusterPlugin } from "../../wizard/shared/constants/wizard.co
 import { VsphereField } from "../vsphere-wizard.constants";
 import { IpFamilyEnum } from "../../../../shared/constants/app.constants";
 import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
+import { FormUtils } from '../../wizard/shared/utils/form-utils';
 
 declare var sortPaths: any;
 
@@ -79,61 +80,62 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
     ngOnInit() {
         super.ngOnInit();
         this.enableIpv6 = Broker.appDataService.isPluginFeatureActivated(managementClusterPlugin, 'vsphereIPv6');
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             VsphereField.PROVIDER_IP_FAMILY,
-            new FormControl( IpFamilyEnum.IPv4, []),
-            { emitEvent: false }
+            new FormControl( IpFamilyEnum.IPv4, [])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             VsphereField.PROVIDER_VCENTER_ADDRESS,
             new FormControl('', [
                 Validators.required,
                 this.validationService.isValidIpOrFqdn()
-            ]),
-            { emitEvent: false }
+            ])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             VsphereField.PROVIDER_USER_NAME,
             new FormControl('', [
                 Validators.required
-            ]),
-            { emitEvent: false }
+            ])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             VsphereField.PROVIDER_USER_PASSWORD,
             new FormControl('', [
                 Validators.required
-            ]),
-            { emitEvent: false }
+            ])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             VsphereField.PROVIDER_CONNECTION_INSECURE,
             new FormControl(false, [])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             VsphereField.PROVIDER_DATA_CENTER,
             new FormControl('', [
                 Validators.required
-            ]),
-            { emitEvent: false }
+            ])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             VsphereField.PROVIDER_SSH_KEY,
             new FormControl('', [
                 Validators.required
-            ]),
-            { emitEvent: false }
+            ])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             VsphereField.PROVIDER_SSH_KEY_FILE,
-            new FormControl('', []),
-            { emitEvent: false }
+            new FormControl('', [])
         );
 
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             VsphereField.PROVIDER_THUMBPRINT,
-            new FormControl('', []),
-            { emitEvent: false }
+            new FormControl('', [])
         );
 
         this.formGroup.setValidators((data: any) => {

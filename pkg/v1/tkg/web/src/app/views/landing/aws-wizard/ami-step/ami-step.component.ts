@@ -3,13 +3,12 @@
  */
 import { Component, OnInit } from '@angular/core';
 import {
-    Validators,
     FormControl
 } from '@angular/forms';
-import { takeUntil } from 'rxjs/operators';
 
 import { APIClient } from '../../../../swagger/api-client.service';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
+import { FormUtils } from '../../wizard/shared/utils/form-utils';
 
 @Component({
     selector: 'app-ami-step',
@@ -24,7 +23,8 @@ export class AmiStepComponent extends StepFormDirective implements OnInit {
 
     ngOnInit() {
         super.ngOnInit();
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'amiOrgId',
             new FormControl('', [])
         );

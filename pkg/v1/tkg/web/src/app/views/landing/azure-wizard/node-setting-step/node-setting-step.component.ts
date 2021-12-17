@@ -17,6 +17,7 @@ import { TkgEventType } from '../../../../shared/service/Messenger';
 import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import { AzureInstanceType } from 'src/app/swagger/models';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
+import { FormUtils } from '../../wizard/shared/utils/form-utils';
 
 @Component({
     selector: 'app-node-setting-step',
@@ -37,57 +38,57 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     buildForm() {
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'controlPlaneSetting',
             new FormControl('', [
                 Validators.required
-            ]),
-            { emitEvent: false }
+            ])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'devInstanceType',
             new FormControl('', [
                 Validators.required
-            ]),
-            { emitEvent: false }
+            ])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'prodInstanceType',
             new FormControl('', [
                 Validators.required
-            ]),
-            { emitEvent: false }
+            ])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'devInstanceType',
             new FormControl('', [
                 Validators.required
-            ]),
-            { emitEvent: false }
+            ])
         );
 
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'managementClusterName',
             new FormControl('', [
                 this.validationService.isValidClusterName()
-            ]),
-            { emitEvent: false }
+            ])
         );
 
         if (!this.modeClusterStandalone) {
-            this.formGroup.addControl(
+            FormUtils.addControl(
+            this.formGroup,
                 'workerNodeInstanceType',
                 new FormControl('', [
                     Validators.required
-                ]),
-                { emitEvent: false }
+                ])
             );
         }
 
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'machineHealthChecksEnabled',
-            new FormControl(true, []),
-            { emitEvent: false }
+            new FormControl(true, [])
         );
     }
 

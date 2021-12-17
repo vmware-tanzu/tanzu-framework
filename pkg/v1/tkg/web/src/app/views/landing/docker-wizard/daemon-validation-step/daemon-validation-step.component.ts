@@ -9,6 +9,7 @@ import { ValidationService } from '../../wizard/shared/validation/validation.ser
 import Broker from "../../../../shared/service/broker";
 import { TkgEvent, TkgEventType } from "../../../../shared/service/Messenger";
 import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
+import { FormUtils } from '../../wizard/shared/utils/form-utils';
 
 @Component({
     selector: 'app-daemon-validation-step',
@@ -30,17 +31,13 @@ export class DaemonValidationStepComponent extends StepFormDirective implements 
 
     ngOnInit(): void {
         super.ngOnInit();
-        // Clarity 5 has a new logic to check statuschanges. if the panel status is changed from valid to
-        // to invalid. It will automatically run triggerAllFormControlValidation method which will show
-        // a unnecessary step level error message at intial state. Adding { emitEvent: false } to addControl
-        // method can avoid this issue.
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'isConnected',
             new FormControl(
                 false,
                 this.validationService.isTrue
-            ),
-            { emitEvent: false }
+            )
         );
         Broker.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
             .pipe(takeUntil(this.unsubscribe))

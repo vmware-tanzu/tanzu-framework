@@ -21,6 +21,7 @@ import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { VSphereNetwork } from 'src/app/swagger/models/v-sphere-network.model';
 import Broker from 'src/app/shared/service/broker';
 import { managementClusterPlugin } from "../../../constants/wizard.constants";
+import { FormUtils } from '../../../utils/form-utils';
 
 declare var sortPaths: any;
 @Component({
@@ -83,7 +84,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
             this.clearFieldSavedData('networkName');
         }
         fieldsMapping.forEach(field => {
-            this.formGroup.addControl(field[0], new FormControl(field[1], []), { emitEvent: false });
+            FormUtils.addControl(this.formGroup, field[0], new FormControl(field[1], []));
         });
 
         const cidrs = ['clusterServiceCidr', 'clusterPodCidr'];
@@ -95,8 +96,8 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
             ]);
         });
 
-        this.formGroup.addControl('proxySettings', new FormControl(false), { emitEvent: false});
-        this.formGroup.addControl('isSameAsHttp', new FormControl(true), { emitEvent: false});
+        FormUtils.addControl(this.formGroup, 'proxySettings', new FormControl(false));
+        FormUtils.addControl(this.formGroup, 'isSameAsHttp', new FormControl(true));
         this.setValidators();
     }
 
