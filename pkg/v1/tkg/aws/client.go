@@ -273,9 +273,9 @@ type GenerateBootstrapTemplateInput struct {
 	// BootstrapConfigFile is the path to a CAPA bootstrapv1 configuration file that can be used
 	// to customize IAM policies
 	BootstrapConfigFile string
-	// EnableTanzuMissionControlPermissions if true will add IAM permissions for use by Tanzu Mission Control
-	// to all nodes
-	EnableTanzuMissionControlPermissions bool
+	// DisableTanzuMissionControlPermissions if true will remove IAM permissions for use by Tanzu Mission Control
+	// from all nodes
+	DisableTanzuMissionControlPermissions bool
 }
 
 // GenerateBootstrapTemplate generates a wrapped CAPA bootstrapv1 configuration specification that controls
@@ -290,7 +290,7 @@ func (c *client) GenerateBootstrapTemplate(i GenerateBootstrapTemplateInput) (*b
 		template.Spec = &spec.Spec
 	}
 	setDefaultsBootstrapTemplate(&template)
-	if i.EnableTanzuMissionControlPermissions {
+	if !i.DisableTanzuMissionControlPermissions {
 		ensureTanzuMissionControlPermissions(&template)
 	}
 	return &template, nil

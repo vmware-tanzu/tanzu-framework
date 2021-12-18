@@ -97,12 +97,12 @@ var _ = Describe("Unit tests for aws client", func() {
 			testBootstrapTemplate("default", template)
 		})
 
-		It("With TMC Permissions", func() {
+		It("With TMC Permissions Disabled", func() {
 			template, err := awsClient.GenerateBootstrapTemplate(aws.GenerateBootstrapTemplateInput{
-				EnableTanzuMissionControlPermissions: true,
+				DisableTanzuMissionControlPermissions: true,
 			})
 			Expect(err).NotTo(HaveOccurred())
-			testBootstrapTemplate("with-tmc", template)
+			testBootstrapTemplate("tmc-disabled", template)
 		})
 	})
 })
