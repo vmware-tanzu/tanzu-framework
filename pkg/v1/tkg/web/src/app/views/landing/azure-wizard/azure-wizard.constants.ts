@@ -2,7 +2,7 @@ export enum ResourceGroupOption {
     EXISTING = 'existing',
     CUSTOM = 'custom',
 }
-enum AzureForm {
+export enum AzureForm {
     PROVIDER = 'azureProviderForm',
     NODESETTING = 'azureNodeSettingForm',
     METADATA = 'metadataForm',

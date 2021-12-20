@@ -7,6 +7,8 @@ import { StepFormDirective } from '../../../step-form/step-form';
 import { ValidationService } from '../../../validation/validation.service';
 import { LdapTestResult } from 'src/app/swagger/models';
 import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
+import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
+import { IdentityStepMapping } from './identity-step.fieldmapping';
 import { IdentityManagementType } from '../../../constants/wizard.constants';
 import { FormUtils } from '../../../utils/form-utils';
 
@@ -88,7 +90,9 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
     timelineState = {};
     timelineError = {};
 
-    constructor(private apiClient: APIClient, private validationService: ValidationService) {
+    constructor(private apiClient: APIClient,
+                private fieldMapUtilities: FieldMapUtilities,
+                private validationService: ValidationService) {
         super();
         this.resetTimelineState();
     }
@@ -96,10 +100,7 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
     ngOnInit(): void {
         super.ngOnInit();
 
-        FormUtils.addControl(this.formGroup, 'identityType', new FormControl('oidc', []));
-        FormUtils.addControl(this.formGroup, 'idmSettings', new FormControl(true, []));
-
-        this.fields.forEach(field => FormUtils.addControl(this.formGroup, field, new FormControl('', [])));
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, IdentityStepMapping);
 
         this.registerOnIpFamilyChange('issuerURL', [], [], () => {
             if (this.identityTypeValue === 'oidc') {

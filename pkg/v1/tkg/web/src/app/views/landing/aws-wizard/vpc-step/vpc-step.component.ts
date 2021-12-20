@@ -33,7 +33,7 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
 
     ngOnInit() {
         super.ngOnInit();
-        this.fieldMapUtilities.buildForm(this.formGroup, AwsVpcStepMapping);
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, AwsVpcStepMapping);
 
         this.formGroup.get(AwsField.VPC_TYPE).valueChanges
             .pipe(

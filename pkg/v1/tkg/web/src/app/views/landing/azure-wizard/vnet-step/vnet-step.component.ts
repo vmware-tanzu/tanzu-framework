@@ -68,7 +68,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
      */
     private buildForm() {
         const fieldMappings = this.modeClusterStandalone ? AzureVnetStandaloneFieldMapping : AzureVnetFieldMapping;
-        this.fieldMapUtilities.buildForm(this.formGroup, fieldMappings);
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, fieldMappings);
 
         this.formGroup.get(AzureField.VNET_RESOURCE_GROUP).valueChanges
             .pipe(

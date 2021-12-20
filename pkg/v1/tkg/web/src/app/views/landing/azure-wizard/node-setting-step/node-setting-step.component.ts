@@ -42,7 +42,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     buildForm() {
         const fieldMappings = this.modeClusterStandalone ? AzureNodeSettingStandaloneFieldMapping : AzureNodeSettingFieldMapping;
-        this.fieldMapUtilities.buildForm(this.formGroup, fieldMappings);
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, fieldMappings);
     }
 
     initForm() {

@@ -3,20 +3,21 @@ import { TkgEventType } from 'src/app/shared/service/Messenger';
  * Angular Modules
  */
 import { Component, Input, OnInit } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
-import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
+import { Validators } from '@angular/forms';
 /**
  * App imports
  */
+import Broker from 'src/app/shared/service/broker';
 import { InstanceType, IpFamilyEnum, PROVIDERS, Providers } from '../../../../shared/constants/app.constants';
 import { NodeType } from '../../wizard/shared/constants/wizard.constants';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER } from '../../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
-import Broker from 'src/app/shared/service/broker';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import { VsphereField, VsphereNodeTypes } from '../vsphere-wizard.constants';
-import { FormUtils } from '../../wizard/shared/utils/form-utils';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
+import { VsphereNodeSettingFieldMapping, VsphereNodeSettingStandaloneFieldMapping } from './node-setting-step.fieldmapping';
 
 @Component({
     selector: 'app-node-setting-step',
@@ -38,6 +39,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     controlPlaneEndpointOptional = "";
 
     constructor(private validationService: ValidationService,
+                private fieldMapUtilities: FieldMapUtilities,
         private wizardFormService: VSphereWizardFormService) {
 
         super();
@@ -46,64 +48,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     ngOnInit() {
         super.ngOnInit();
-        FormUtils.addControl(
-            this.formGroup,
-            VsphereField.NODESETTING_CONTROL_PLANE_SETTING,
-            new FormControl('', [
-                Validators.required
-            ])
-        );
-        FormUtils.addControl(
-            this.formGroup,
-            VsphereField.NODESETTING_INSTANCE_TYPE_DEV,
-            new FormControl('', [
-                Validators.required
-            ])
-        );
-        FormUtils.addControl(
-            this.formGroup,
-            VsphereField.NODESETTING_INSTANCE_TYPE_PROD,
-            new FormControl('', [
-                Validators.required
-            ])
-        );
-        FormUtils.addControl(
-            this.formGroup,
-            VsphereField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED,
-            new FormControl(true, [])
-        );
-        if (!this.modeClusterStandalone) {
-            FormUtils.addControl(
-            this.formGroup,
-                VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE,
-                new FormControl('', [
-                    Validators.required
-                ])
-            );
-        }
-        FormUtils.addControl(
-            this.formGroup,
-            VsphereField.NODESETTING_CLUSTER_NAME,
-            new FormControl('', [
-                this.validationService.isValidClusterName()
-            ])
-        );
-        FormUtils.addControl(
-            this.formGroup,
-            VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_IP,
-            new FormControl('', [
-                Validators.required,
-                this.validationService.isValidIpOrFqdn()
-            ])
-        );
-
-        FormUtils.addControl(
-            this.formGroup,
-            VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_PROVIDER,
-            new FormControl(this.currentControlPlaneEndpoingProvider, [
-                Validators.required
-            ])
-        );
+        const fieldMappings = this.modeClusterStandalone ? VsphereNodeSettingStandaloneFieldMapping : VsphereNodeSettingFieldMapping;
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, fieldMappings);
 
         this.registerOnValueChange(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_PROVIDER,
             this.onControlPlaneEndpoingProviderChange.bind(this));

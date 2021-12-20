@@ -20,7 +20,8 @@ import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import Broker from 'src/app/shared/service/broker';
 import { VsphereField } from "../vsphere-wizard.constants";
-import { FormUtils } from '../../wizard/shared/utils/form-utils';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { VsphereResourceStepMapping } from './resource-step.fieldmapping';
 
 declare var sortPaths: any;
 
@@ -75,35 +76,14 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
 
     constructor(
         private wizardFormService: VSphereWizardFormService,
+        private fieldMapUtilities: FieldMapUtilities,
         private validationService: ValidationService) {
         super();
     }
 
     ngOnInit() {
         super.ngOnInit();
-
-        FormUtils.addControl(
-            this.formGroup,
-            VsphereField.RESOURCE_POOL,
-            new FormControl('', [
-                Validators.required
-            ])
-        );
-        FormUtils.addControl(
-            this.formGroup,
-            VsphereField.RESOURCE_DATASTORE,
-            new FormControl('', [
-                Validators.required
-            ])
-        );
-
-        FormUtils.addControl(
-            this.formGroup,
-            VsphereField.RESOURCE_VMFOLDER,
-            new FormControl('', [
-                Validators.required
-            ])
-        );
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, VsphereResourceStepMapping);
 
         const temp = DataSources.map(source => this.wizardFormService.getErrorStream(source));
         combineLatest(...temp)

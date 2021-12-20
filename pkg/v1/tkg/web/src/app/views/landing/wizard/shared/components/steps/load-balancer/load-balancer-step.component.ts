@@ -17,7 +17,8 @@ import { AviVipNetwork } from './../../../../../../../swagger/models/avi-vip-net
 import { TkgEventType } from 'src/app/shared/service/Messenger';
 import Broker from 'src/app/shared/service/broker';
 import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
-import { FormUtils } from '../../../utils/form-utils';
+import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
+import { LoadBalancerStepMapping } from './load-balancer-step.fieldmapping';
 
 export const KUBE_VIP = 'Kube-vip';
 export const NSX_ADVANCED_LOAD_BALANCER = "NSX Advanced Load Balancer";
@@ -55,91 +56,20 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
     currentControlPlaneEndpoingProvider: string;
 
     constructor(private validationService: ValidationService,
-        private apiClient: APIClient, private wizardFormService: VSphereWizardFormService) {
+        private apiClient: APIClient,
+                private fieldMapUtilities: FieldMapUtilities,
+                private wizardFormService: VSphereWizardFormService) {
         super();
     }
 
     ngOnInit() {
         super.ngOnInit();
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, LoadBalancerStepMapping);
 
         this.vipClusterNetworkNameLabel = this.modeClusterStandalone ?
             'STANDALONE CLUSTER VIP NETWORK NAME' : 'MANAGEMENT VIP NETWORK NAME';
         this.vipClusterNetworkCidrLabel = this.modeClusterStandalone ?
             'STANDALONE CLUSTER VIP NETWORK CIDR' : 'MANAGEMENT VIP NETWORK CIDR';
-
-        FormUtils.addControl(
-            this.formGroup,
-            'controllerHost',
-            new FormControl('', [
-                this.validationService.isValidIpOrFqdn()
-            ])
-        );
-        FormUtils.addControl(
-            this.formGroup,
-            'username',
-            new FormControl('', [])
-        );
-        FormUtils.addControl(
-            this.formGroup,
-            'password',
-            new FormControl('', [])
-        );
-
-        FormUtils.addControl(
-            this.formGroup,
-            'cloudName',
-            new FormControl('', [])
-        );
-        FormUtils.addControl(
-            this.formGroup,
-            'serviceEngineGroupName',
-            new FormControl('', [])
-        );
-
-        FormUtils.addControl(
-            this.formGroup,
-            'networkName',
-            new FormControl('', [])
-        );
-        FormUtils.addControl(
-            this.formGroup,
-            'networkCIDR',
-            new FormControl('', [])
-        );
-        FormUtils.addControl(
-            this.formGroup,
-            'managementClusterNetworkName',
-            new FormControl('', [])
-        );
-        FormUtils.addControl(
-            this.formGroup,
-            'managementClusterNetworkCIDR',
-            new FormControl('', [this.validationService.isValidIpNetworkSegment()])
-        );
-        FormUtils.addControl(
-            this.formGroup,
-            'controllerCert',
-            new FormControl('', [])
-        );
-        FormUtils.addControl(
-            this.formGroup,
-            'clusterLabels',
-            new FormControl('', [])
-        );
-        FormUtils.addControl(
-            this.formGroup,
-            'newLabelKey',
-            new FormControl('', [
-                this.validationService.isValidLabelOrAnnotation()
-            ])
-        );
-        FormUtils.addControl(
-            this.formGroup,
-            'newLabelValue',
-            new FormControl('', [
-                this.validationService.isValidLabelOrAnnotation()
-            ])
-        );
 
         SupervisedFields.forEach(field => {
             this.formGroup.get(field).valueChanges

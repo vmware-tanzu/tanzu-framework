@@ -15,6 +15,7 @@ import { EXISTING, VnetStepComponent } from './vnet-step/vnet-step.component';
 import Broker from 'src/app/shared/service/broker';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
+import { AzureForm } from './azure-wizard.constants';
 
 import { AzureOsImageStepComponent } from './os-image-step/azure-os-image-step.component';
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';

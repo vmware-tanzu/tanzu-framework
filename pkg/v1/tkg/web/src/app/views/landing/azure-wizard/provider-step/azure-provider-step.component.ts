@@ -81,7 +81,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
      * Create the initial form
      */
     private buildForm() {
-        this.fieldMapUtilities.buildForm(this.formGroup, AzureProviderFieldMapping);
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, AzureProviderFieldMapping);
         this.formGroup['canMoveToNext'] = () => {
             return this.formGroup.valid && this.validCredentials;
         }

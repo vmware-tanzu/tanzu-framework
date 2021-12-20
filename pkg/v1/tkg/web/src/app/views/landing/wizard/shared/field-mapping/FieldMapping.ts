@@ -7,6 +7,7 @@ export interface FieldMapping {
     isBoolean?: boolean,
     required?: boolean,
     featureFlag?: string,
+    initWithSavedValue?: boolean
 }
 export interface StepMapping {
     fieldMappings: FieldMapping[],

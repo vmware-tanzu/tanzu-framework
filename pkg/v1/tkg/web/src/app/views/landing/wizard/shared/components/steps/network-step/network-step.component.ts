@@ -20,6 +20,8 @@ import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { VSphereNetwork } from 'src/app/swagger/models/v-sphere-network.model';
 import Broker from 'src/app/shared/service/broker';
+import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
+import { NetworkIpv4StepMapping, NetworkIpv6StepMapping } from './network-step.fieldmapping';
 import { managementClusterPlugin, WizardForm } from "../../../constants/wizard.constants";
 import { FormUtils } from '../../../utils/form-utils';
 
@@ -43,6 +45,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
     hideWarning: boolean = true;
 
     constructor(private validationService: ValidationService,
+                private fieldMapUtilities: FieldMapUtilities,
         private wizardFormService: VSphereWizardFormService) {
         super();
     }
@@ -62,30 +65,13 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
         this.initFormWithSavedData();
     }
     buildForm() {
-        const fieldsMapping = [
-            ['cniType', 'antrea'],
-            ['clusterServiceCidr', this.ipFamily === IpFamilyEnum.IPv4 ?
-                IAAS_DEFAULT_CIDRS.CLUSTER_SVC_CIDR : IAAS_DEFAULT_CIDRS.CLUSTER_SVC_IPV6_CIDR],
-            ['clusterPodCidr', this.ipFamily === IpFamilyEnum.IPv4 ?
-                IAAS_DEFAULT_CIDRS.CLUSTER_POD_CIDR : IAAS_DEFAULT_CIDRS.CLUSTER_POD_IPV6_CIDR],
-            ['httpProxyUrl', this.getSavedValue('httpProxyUrl', '')],
-            ['httpProxyUsername', this.getSavedValue('httpProxyUsername', '')],
-            ['httpProxyPassword', this.getSavedValue('httpProxyPassword', '')],
-            ['httpsProxyUrl', this.getSavedValue('httpsProxyUrl', '')],
-            ['httpsProxyUsername', this.getSavedValue('httpsProxyUsername', '')],
-            ['httpsProxyPassword', this.getSavedValue('httpsProxyPassword', '')],
-            ['noProxy', this.getSavedValue('noProxy', '')]
-        ];
+        const fieldMappings = this.ipFamily === IpFamilyEnum.IPv4 ? NetworkIpv4StepMapping : NetworkIpv6StepMapping;
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, fieldMappings);
 
-        if (this.enableNetworkName) {
-            const savedNetworkName = this.getSavedValue('networkName', '');
-            fieldsMapping.push(['networkName', savedNetworkName]);
-        } else {
+        if (!this.enableNetworkName) {
             this.clearFieldSavedData('networkName');
+            this.formGroup.removeControl('networkName');
         }
-        fieldsMapping.forEach(field => {
-            FormUtils.addControl(this.formGroup, field[0], new FormControl(field[1], []));
-        });
 
         const cidrs = ['clusterServiceCidr', 'clusterPodCidr'];
         cidrs.forEach(cidr => {
@@ -96,8 +82,6 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
             ]);
         });
 
-        FormUtils.addControl(this.formGroup, 'proxySettings', new FormControl(false));
-        FormUtils.addControl(this.formGroup, 'isSameAsHttp', new FormControl(true));
         this.setValidators();
     }
 

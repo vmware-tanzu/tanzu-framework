@@ -142,7 +142,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     ngOnInit() {
         super.ngOnInit();
-        this.fieldMapUtilities.buildForm(this.formGroup, AwsNodeSettingStepMapping);
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, AwsNodeSettingStepMapping);
 
         Broker.messenger.getSubject(TkgEventType.AWS_AIRGAPPED_VPC_CHANGE).subscribe(event => {
             this.airgappedVPC = event.payload;

@@ -48,7 +48,7 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
      * Create the initial form
      */
     private buildForm() {
-        this.fieldMapUtilities.buildForm(this.formGroup, AwsProviderStepMapping);
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, AwsProviderStepMapping);
 
         this.formGroup['canMoveToNext'] = () => {
             return this.formGroup.valid && this.validCredentials;

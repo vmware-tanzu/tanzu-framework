@@ -10,6 +10,8 @@ import { FormControl } from '@angular/forms';
 import { ValidationService } from '../../../validation/validation.service';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
+import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
+import { MetadataStepMapping } from './metadata-step.fieldmapping';
 import { WizardForm } from '../../../constants/wizard.constants';
 import { FormUtils } from '../../../utils/form-utils';
 
@@ -21,45 +23,16 @@ import { FormUtils } from '../../../utils/form-utils';
 export class MetadataStepComponent extends StepFormDirective implements OnInit {
     labels: Map<String, String> = new Map<String, String>();
 
-    constructor(private validationService: ValidationService, private wizardFormService: VSphereWizardFormService) {
+    constructor(private validationService: ValidationService,
+                private fieldMapUtilities: FieldMapUtilities,
+                private wizardFormService: VSphereWizardFormService) {
         super();
     }
 
     ngOnInit() {
         super.ngOnInit();
-        FormUtils.addControl(
-            this.formGroup,
-            'clusterLocation',
-            new FormControl('', [
-                this.validationService.isValidLabelOrAnnotation()
-            ])
-        );
-        FormUtils.addControl(
-            this.formGroup,
-            'clusterDescription',
-            new FormControl('', [
-                this.validationService.isValidLabelOrAnnotation()
-            ])
-        );
-        FormUtils.addControl(
-            this.formGroup,
-            'newLabelKey',
-            new FormControl('', [
-                this.validationService.isValidLabelOrAnnotation()
-            ])
-        );
-        FormUtils.addControl(
-            this.formGroup,
-            'newLabelValue',
-            new FormControl('', [
-                this.validationService.isValidLabelOrAnnotation()
-            ])
-        );
-        FormUtils.addControl(
-            this.formGroup,
-            'clusterLabels',
-            new FormControl('', [])
-        );
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, MetadataStepMapping);
+
         this.initFormWithSavedData();
     }
 

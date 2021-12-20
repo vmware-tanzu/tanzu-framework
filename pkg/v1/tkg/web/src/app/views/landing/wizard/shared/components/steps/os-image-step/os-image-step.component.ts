@@ -21,7 +21,8 @@ import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form
 import Broker from 'src/app/shared/service/broker';
 import { Observable } from 'rxjs/internal/Observable';
 import { AWSVirtualMachine, AzureVirtualMachine } from 'src/app/swagger/models';
-import { FormUtils } from '../../../utils/form-utils';
+import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
+import { OsImageStepMapping } from './os-image-step.fieldmapping';
 
 export abstract class SharedOsImageStepComponent extends StepFormDirective {
     wizardFormService: VSphereWizardFormService|AwsWizardFormService|AzureWizardFormService;
@@ -35,7 +36,7 @@ export abstract class SharedOsImageStepComponent extends StepFormDirective {
     nonTemplateAlert: boolean = false;
     tkrVersion: Observable<string>;
 
-    protected constructor() {
+    protected constructor(private fieldMapUtilities: FieldMapUtilities) {
         super();
         this.tkrVersion = Broker.appDataService.getTkrVersion();
     }
@@ -47,14 +48,7 @@ export abstract class SharedOsImageStepComponent extends StepFormDirective {
     // onInit() should be called from subclass' ngOnInit()
     protected onInit() {
         super.ngOnInit();
-        this.setProviderInputs();
-        FormUtils.addControl(
-            this.formGroup,
-            'osImage',
-            new FormControl('', [
-                Validators.required
-            ])
-        );
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, OsImageStepMapping);
         /**
          * Whenever data center selection changes, reset the relevant fields
          */
