@@ -1,7 +1,7 @@
 --CONTROLPLANE-MACHINE-COUNT: "NOTPROVIDED"
 --WORKER-MACHINE-COUNT:       "NOTPROVIDED"
 --CONTROLPLANE-SIZE:          "NOTPROVIDED"
---TKR:                        "NOTPROVIDED", "v1.21.5+vmware.1-tkg.1-zshippable"
+--TKR:                        "NOTPROVIDED", "v1.22.3+vmware.1-tkg.2-zshippable"
 --NAMESPACE:                  "NOTPROVIDED"
 --SIZE:                       "NOTPROVIDED"
 --WORKER-SIZE:                "NOTPROVIDED"
@@ -95,6 +95,7 @@ TKG_HTTP_PROXY: "http://10.0.200.100", "http://[fc00:f853:ccd:e793::1]:3128"
 TKG_HTTPS_PROXY: "NA", "http://10.0.200.100", "http://[fc00:f853:ccd:e793::1]:3128"
 TKG_NO_PROXY: "NA", "10.0.200.1/24", "10.184.90.80"
 TKG_PROXY_CA_CERT: "NA", "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tClBST1hZIENBIENFUlQ="
+TKG_HTTP_PROXY_ENABLED: "true"
 
 # ip family
 TKG_IP_FAMILY: "NA", "", "ipv4", "ipv6"

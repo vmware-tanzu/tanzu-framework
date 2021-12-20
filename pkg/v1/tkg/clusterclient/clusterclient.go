@@ -310,6 +310,8 @@ type Client interface {
 	IsClusterRegisteredToTMC() (bool, error)
 	// ListCLIPluginResources lists CLIPlugin resources across all namespaces
 	ListCLIPluginResources() ([]cliv1alpha1.CLIPlugin, error)
+	// VerifyCLIPluginCRD returns true if CRD exists else return false
+	VerifyCLIPluginCRD() (bool, error)
 }
 
 // PollOptions is options for polling
@@ -2287,6 +2289,32 @@ func (c *client) IsClusterRegisteredToTMC() (bool, error) {
 
 	// Build query client.
 	cqc := clusterQueryClient.Query(testObject)
+
+	// Execute returns combined result of all queries.
+	return cqc.Execute() // return (found, err) response
+}
+
+// VerifyCLIPluginCRD returns true if CRD exists else return false
+func (c *client) VerifyCLIPluginCRD() (bool, error) {
+	restconfigClient, err := c.GetRestConfigClient()
+	if err != nil {
+		return false, err
+	}
+	clusterQueryClient, err := capdiscovery.NewClusterQueryClientForConfig(restconfigClient)
+	if err != nil {
+		return false, err
+	}
+
+	// Check if 'cliplugins' CRD is present or not
+	agent := &corev1.ObjectReference{
+		Kind:       "CustomResourceDefinition",
+		Name:       "cliplugins.cli.tanzu.vmware.com",
+		APIVersion: "apiextensions.k8s.io/v1",
+	}
+	var queryObject = capdiscovery.Object("CLIPluginCRDObject", agent)
+
+	// Build query client.
+	cqc := clusterQueryClient.Query(queryObject)
 
 	// Execute returns combined result of all queries.
 	return cqc.Execute() // return (found, err) response
