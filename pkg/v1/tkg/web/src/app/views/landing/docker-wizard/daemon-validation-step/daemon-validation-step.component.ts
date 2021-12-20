@@ -9,7 +9,8 @@ import { ValidationService } from '../../wizard/shared/validation/validation.ser
 import Broker from "../../../../shared/service/broker";
 import { TkgEvent, TkgEventType } from "../../../../shared/service/Messenger";
 import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
-import { FormUtils } from '../../wizard/shared/utils/form-utils';
+import { DaemonStepMapping } from './daemon-validation-step.fieldmapping';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 
 @Component({
     selector: 'app-daemon-validation-step',
@@ -24,6 +25,7 @@ export class DaemonValidationStepComponent extends StepFormDirective implements 
 
     constructor(
         private validationService: ValidationService,
+        private fieldMapUtilities: FieldMapUtilities,
         private apiClient: APIClient
     ) {
         super();
@@ -31,14 +33,8 @@ export class DaemonValidationStepComponent extends StepFormDirective implements 
 
     ngOnInit(): void {
         super.ngOnInit();
-        FormUtils.addControl(
-            this.formGroup,
-            'isConnected',
-            new FormControl(
-                false,
-                this.validationService.isTrue
-            )
-        );
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, DaemonStepMapping);
+
         Broker.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {

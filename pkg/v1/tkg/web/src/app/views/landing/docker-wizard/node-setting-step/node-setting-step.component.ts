@@ -11,7 +11,8 @@ import { TkgEvent, TkgEventType } from "../../../../shared/service/Messenger";
 import { takeUntil } from "rxjs/operators";
 import { FormMetaDataStore } from "../../wizard/shared/FormMetaDataStore";
 import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
-import { FormUtils } from '../../wizard/shared/utils/form-utils';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { DockerNodeSettingStepMapping, TkgDockerNodeSettingStepMapping } from './node-setting-step.fieldmapping';
 
 @Component({
     selector: 'app-node-setting-step',
@@ -19,24 +20,17 @@ import { FormUtils } from '../../wizard/shared/utils/form-utils';
     styleUrls: ['./node-setting-step.component.scss']
 })
 export class NodeSettingStepComponent extends StepFormDirective implements OnInit {
-    constructor(private validationService: ValidationService) {
+    constructor(private validationService: ValidationService, private fieldMapUtilities: FieldMapUtilities) {
         super();
     }
 
     ngOnInit(): void {
         super.ngOnInit();
-        FormUtils.addControl(
-            this.formGroup,
-            'clusterName',
-            new FormControl('', [this.validationService.isValidClusterName()])
-        );
+        const fieldMapping = this.edition === AppEdition.TKG ? TkgDockerNodeSettingStepMapping : DockerNodeSettingStepMapping;
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, fieldMapping);
+
         this.initFormWithSavedData();
 
-        if (this.edition !== AppEdition.TKG) {
-            this.resurrectField('clusterName',
-                [Validators.required, this.validationService.isValidClusterName()],
-                this.formGroup.get('clusterName').value);
-        }
         Broker.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
