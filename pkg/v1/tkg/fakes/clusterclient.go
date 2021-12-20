@@ -974,6 +974,18 @@ type ClusterClient struct {
 	useContextReturnsOnCall map[int]struct {
 		result1 error
 	}
+	VerifyCLIPluginCRDStub        func() (bool, error)
+	verifyCLIPluginCRDMutex       sync.RWMutex
+	verifyCLIPluginCRDArgsForCall []struct {
+	}
+	verifyCLIPluginCRDReturns struct {
+		result1 bool
+		result2 error
+	}
+	verifyCLIPluginCRDReturnsOnCall map[int]struct {
+		result1 bool
+		result2 error
+	}
 	WaitForAVIResourceCleanUpStub        func(string, string) error
 	waitForAVIResourceCleanUpMutex       sync.RWMutex
 	waitForAVIResourceCleanUpArgsForCall []struct {
@@ -5604,6 +5616,62 @@ func (fake *ClusterClient) UseContextReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
+func (fake *ClusterClient) VerifyCLIPluginCRD() (bool, error) {
+	fake.verifyCLIPluginCRDMutex.Lock()
+	ret, specificReturn := fake.verifyCLIPluginCRDReturnsOnCall[len(fake.verifyCLIPluginCRDArgsForCall)]
+	fake.verifyCLIPluginCRDArgsForCall = append(fake.verifyCLIPluginCRDArgsForCall, struct {
+	}{})
+	stub := fake.VerifyCLIPluginCRDStub
+	fakeReturns := fake.verifyCLIPluginCRDReturns
+	fake.recordInvocation("VerifyCLIPluginCRD", []interface{}{})
+	fake.verifyCLIPluginCRDMutex.Unlock()
+	if stub != nil {
+		return stub()
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *ClusterClient) VerifyCLIPluginCRDCallCount() int {
+	fake.verifyCLIPluginCRDMutex.RLock()
+	defer fake.verifyCLIPluginCRDMutex.RUnlock()
+	return len(fake.verifyCLIPluginCRDArgsForCall)
+}
+
+func (fake *ClusterClient) VerifyCLIPluginCRDCalls(stub func() (bool, error)) {
+	fake.verifyCLIPluginCRDMutex.Lock()
+	defer fake.verifyCLIPluginCRDMutex.Unlock()
+	fake.VerifyCLIPluginCRDStub = stub
+}
+
+func (fake *ClusterClient) VerifyCLIPluginCRDReturns(result1 bool, result2 error) {
+	fake.verifyCLIPluginCRDMutex.Lock()
+	defer fake.verifyCLIPluginCRDMutex.Unlock()
+	fake.VerifyCLIPluginCRDStub = nil
+	fake.verifyCLIPluginCRDReturns = struct {
+		result1 bool
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *ClusterClient) VerifyCLIPluginCRDReturnsOnCall(i int, result1 bool, result2 error) {
+	fake.verifyCLIPluginCRDMutex.Lock()
+	defer fake.verifyCLIPluginCRDMutex.Unlock()
+	fake.VerifyCLIPluginCRDStub = nil
+	if fake.verifyCLIPluginCRDReturnsOnCall == nil {
+		fake.verifyCLIPluginCRDReturnsOnCall = make(map[int]struct {
+			result1 bool
+			result2 error
+		})
+	}
+	fake.verifyCLIPluginCRDReturnsOnCall[i] = struct {
+		result1 bool
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *ClusterClient) WaitForAVIResourceCleanUp(arg1 string, arg2 string) error {
 	fake.waitForAVIResourceCleanUpMutex.Lock()
 	ret, specificReturn := fake.waitForAVIResourceCleanUpReturnsOnCall[len(fake.waitForAVIResourceCleanUpArgsForCall)]
@@ -6433,6 +6501,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.updateVsphereIdentityRefSecretMutex.RUnlock()
 	fake.useContextMutex.RLock()
 	defer fake.useContextMutex.RUnlock()
+	fake.verifyCLIPluginCRDMutex.RLock()
+	defer fake.verifyCLIPluginCRDMutex.RUnlock()
 	fake.waitForAVIResourceCleanUpMutex.RLock()
 	defer fake.waitForAVIResourceCleanUpMutex.RUnlock()
 	fake.waitForAutoscalerDeploymentMutex.RLock()
