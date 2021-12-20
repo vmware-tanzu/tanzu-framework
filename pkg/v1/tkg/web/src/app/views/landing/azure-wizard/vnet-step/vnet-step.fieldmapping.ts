@@ -2,7 +2,7 @@ import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 import { AzureField } from '../azure-wizard.constants';
 import { SimpleValidator } from '../../wizard/shared/constants/validation.constants';
 
-export const AzureVnetStandaloneFieldMapping: StepMapping = {
+export const AzureVnetStandaloneStepMapping: StepMapping = {
     fieldMappings: [
         { name: AzureField.VNET_CONTROLPLANE_NEWSUBNET_CIDR, required: true },
         { name: AzureField.VNET_CONTROLPLANE_NEWSUBNET_NAME, required: true },
@@ -22,9 +22,9 @@ export const AzureVnetStandaloneFieldMapping: StepMapping = {
             validators: [SimpleValidator.NO_WHITE_SPACE, SimpleValidator.IS_VALID_IP_NETWORK_SEGMENT] },
     ]
 };
-export const AzureVnetFieldMapping: StepMapping = {
+export const AzureVnetStepMapping: StepMapping = {
     fieldMappings: [
-        ...AzureVnetStandaloneFieldMapping.fieldMappings,
+        ...AzureVnetStandaloneStepMapping.fieldMappings,
         { name: AzureField.VNET_WORKER_NEWSUBNET_NAME, required: true },
         { name: AzureField.VNET_WORKER_NEWSUBNET_CIDR, required: true },
         { name: AzureField.VNET_WORKER_SUBNET_NAME, required: true },

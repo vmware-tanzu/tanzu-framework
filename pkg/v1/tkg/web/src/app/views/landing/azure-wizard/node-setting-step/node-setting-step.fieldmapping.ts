@@ -2,7 +2,7 @@ import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 import { AzureField } from '../azure-wizard.constants';
 import { SimpleValidator } from '../../wizard/shared/constants/validation.constants';
 
-export const AzureNodeSettingStandaloneFieldMapping: StepMapping = {
+export const AzureNodeSettingStandaloneStepMapping: StepMapping = {
     fieldMappings: [
         { name: AzureField.NODESETTING_CONTROL_PLANE_SETTING, required: true },
         { name: AzureField.NODESETTING_INSTANCE_TYPE_DEV, required: true },
@@ -11,9 +11,9 @@ export const AzureNodeSettingStandaloneFieldMapping: StepMapping = {
         { name: AzureField.NODESETTING_MANAMGEMENT_CLUSTER_NAME, validators: [SimpleValidator.IS_VALID_CLUSTER_NAME] },
     ]
 };
-export const AzureNodeSettingFieldMapping: StepMapping = {
+export const AzureNodeSettingStepMapping: StepMapping = {
     fieldMappings: [
-        ...AzureNodeSettingStandaloneFieldMapping.fieldMappings,
+        ...AzureNodeSettingStandaloneStepMapping.fieldMappings,
         { name: AzureField.NODESETTING_WORKERTYPE, required: true },
     ]
 }

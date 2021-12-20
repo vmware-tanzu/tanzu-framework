@@ -17,7 +17,7 @@ import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import { VsphereField, VsphereNodeTypes } from '../vsphere-wizard.constants';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
-import { VsphereNodeSettingFieldMapping, VsphereNodeSettingStandaloneFieldMapping } from './node-setting-step.fieldmapping';
+import { VsphereNodeSettingStepMapping, VsphereNodeSettingStandaloneStepMapping } from './node-setting-step.fieldmapping';
 
 @Component({
     selector: 'app-node-setting-step',
@@ -48,7 +48,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     ngOnInit() {
         super.ngOnInit();
-        const fieldMappings = this.modeClusterStandalone ? VsphereNodeSettingStandaloneFieldMapping : VsphereNodeSettingFieldMapping;
+        const fieldMappings = this.modeClusterStandalone ? VsphereNodeSettingStandaloneStepMapping : VsphereNodeSettingStepMapping;
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, fieldMappings);
 
         this.registerOnValueChange(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_PROVIDER,

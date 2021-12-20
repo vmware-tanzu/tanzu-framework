@@ -17,8 +17,7 @@ import { FormMetaDataStore } from "../../wizard/shared/FormMetaDataStore";
 import {NotificationTypes} from "../../../../shared/components/alert-notification/alert-notification.component";
 import { AzureField, ResourceGroupOption } from '../azure-wizard.constants';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { AzureProviderFieldMapping } from './azure-provider-step.fieldmapping';
-import { FormUtils } from '../../wizard/shared/utils/form-utils';
+import { AzureProviderStepMapping } from './azure-provider-step.fieldmapping';
 
 enum ProviderField {
     AZURECLOUD = 'azureCloud',
@@ -81,7 +80,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
      * Create the initial form
      */
     private buildForm() {
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, AzureProviderFieldMapping);
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, AzureProviderStepMapping);
         this.formGroup['canMoveToNext'] = () => {
             return this.formGroup.valid && this.validCredentials;
         }

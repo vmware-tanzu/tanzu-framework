@@ -18,7 +18,7 @@ import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form
 import { AzureInstanceType } from 'src/app/swagger/models';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { AzureNodeSettingFieldMapping, AzureNodeSettingStandaloneFieldMapping } from './node-setting-step.fieldmapping';
+import { AzureNodeSettingStepMapping, AzureNodeSettingStandaloneStepMapping } from './node-setting-step.fieldmapping';
 import { AzureForm } from '../azure-wizard.constants';
 import { FormUtils } from '../../wizard/shared/utils/form-utils';
 
@@ -41,7 +41,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     buildForm() {
-        const fieldMappings = this.modeClusterStandalone ? AzureNodeSettingStandaloneFieldMapping : AzureNodeSettingFieldMapping;
+        const fieldMappings = this.modeClusterStandalone ? AzureNodeSettingStandaloneStepMapping : AzureNodeSettingStepMapping;
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, fieldMappings);
     }
 
