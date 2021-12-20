@@ -36,7 +36,7 @@ type Metadata struct {
 // This function is responsible for auto-detecting the available plugin versions
 // as well as os-arch and publishing artifacts to correct discovery and distribution
 // based on the publisher type
-func PublishPlugins(pm *Metadata) error { //nolint:golint // ignore stutters warning for 'publish.PublishPlugins'
+func PublishPlugins(pm *Metadata) error {
 	_ = ensureResourceDir(pm.LocalDiscoveryPath, true)
 
 	availablePluginInfo, err := detectAvailablePluginInfo(pm.InputArtifactDir, pm.Plugins, pm.OSArch, pm.RecommendedVersion)

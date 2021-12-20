@@ -2550,14 +2550,14 @@ func (c *crtClientFactory) NewClient(config *rest.Config, options crtclient.Opti
 //go:generate counterfeiter -o ../fakes/clusterclientfactory.go --fake-name ClusterClientFactory . ClusterClientFactory
 
 // ClusterClientFactory a factory for creating cluster clients
-type ClusterClientFactory interface { // nolint
-	NewClient(kubeConfigPath string, context string, options Options) (Client, error)
+type ClusterClientFactory interface {
+	NewClient(kubeConfigPath, context string, options Options) (Client, error)
 }
 
 type clusterClientFactory struct{}
 
 // NewClient creates new clusterclient
-func (c *clusterClientFactory) NewClient(kubeConfigPath string, context string, options Options) (Client, error) { // nolint:gocritic
+func (c *clusterClientFactory) NewClient(kubeConfigPath, context string, options Options) (Client, error) { //nolint:gocritic
 	return NewClient(kubeConfigPath, context, options)
 }
 

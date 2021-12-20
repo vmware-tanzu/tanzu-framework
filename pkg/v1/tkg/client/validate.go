@@ -129,10 +129,7 @@ func (c *TkgClient) DownloadBomFile(tkrName string) error {
 		return err
 	}
 
-	if err := os.WriteFile(filepath.Join(bomDir, "tkr-bom-"+tkrName+".yaml"), bomData, 0o600); err != nil {
-		return err
-	}
-	return nil
+	return os.WriteFile(filepath.Join(bomDir, "tkr-bom-"+tkrName+".yaml"), bomData, 0o600)
 }
 
 // ConfigureAndValidateTkrVersion takes tkrVersion, if empty fetches default tkr & k8s version from config

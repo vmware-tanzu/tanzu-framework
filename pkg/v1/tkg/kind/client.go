@@ -79,14 +79,14 @@ type Client interface {
 //go:generate counterfeiter -o ../fakes/kindprovider.go --fake-name KindProvider . KindClusterProvider
 
 // KindClusterProvider is interface for creating/deleting kind cluster
-type KindClusterProvider interface { //nolint:golint
+type KindClusterProvider interface {
 	Create(name string, options ...cluster.CreateOption) error
 	Delete(name, explicitKubeconfigPath string) error
 	KubeConfig(name string, internal bool) (string, error)
 }
 
 // KindClusterOptions carries options to configure kind cluster
-type KindClusterOptions struct { //nolint:golint
+type KindClusterOptions struct {
 	Provider         KindClusterProvider
 	ClusterName      string
 	NodeImage        string
@@ -97,7 +97,7 @@ type KindClusterOptions struct { //nolint:golint
 }
 
 // KindClusterProxy return the Proxy used for operating kubernetes-in-docker clusters
-type KindClusterProxy struct { //nolint:golint
+type KindClusterProxy struct {
 	options    *KindClusterOptions
 	caCertPath string
 }

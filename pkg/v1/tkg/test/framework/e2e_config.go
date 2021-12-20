@@ -10,7 +10,7 @@ import (
 	"os"
 	"path/filepath"
 
-	. "github.com/onsi/gomega" // nolint:golint,stylecheck
+	. "github.com/onsi/gomega" // nolint:stylecheck
 	"github.com/pkg/errors"
 	"sigs.k8s.io/yaml"
 
