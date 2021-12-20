@@ -1,5 +1,26 @@
 #@ load("@ytt:data", "data")
+#@ load("@ytt:assert", "assert")
 #@ load("/lib/helpers.star", "get_bom_data_for_tkr_name", "get_image_repo_for_component", "get_no_proxy")
+
+
+#! `topology-catogories` label is only available in CSI 2.4 and newer
+#! Set enableTopologyCatogories to be true for TKR 1.22 and newer
+#@ def enableTopologyCatogories():
+#@ bomData = get_bom_data_for_tkr_name()
+#@ elements = bomData.release.version.split(".")
+#@ if len(elements) < 3 or not elements[0].startswith("v"):
+#@    assert.fail("Failed to parse TKR version for CSI package")
+#@ end
+#@ major = int(elements[0][1:])
+#@ minor = int(elements[1])
+#@ if major > 1:
+#@    return True
+#@ end
+#@ if major == 1 and minor >= 22:
+#@    return True
+#@ end
+#@    return False
+#@ end
 
 #@ def vsphere_csi_data_values():
 #@ bomData = get_bom_data_for_tkr_name()
@@ -56,6 +77,7 @@ vsphereCSI:
   http_proxy: #@ data.values.TKG_HTTP_PROXY
   https_proxy: #@ data.values.TKG_HTTPS_PROXY
   no_proxy: #@ get_no_proxy()
+  useTopologyCategories: #@ enableTopologyCatogories()
   #@ if data.values.CLUSTER_PLAN == "dev":
   deployment_replicas: 1
   #@ else:
