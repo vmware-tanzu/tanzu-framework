@@ -38,26 +38,6 @@ const AzRelatedFieldsArray: AzRelatedFields[] = [
         vpcPublicSubnet: AwsField.NODESETTING_VPC_PUBLIC_SUBNET_3, workerNodeInstanceType: AwsField.NODESETTING_WORKERTYPE_3 },
 ];
 
-enum AwsForm {
-    PROVIDER = 'awsProviderForm',
-    VPC = 'vpcForm',
-    NODESETTING = 'awsNodeSettingForm',
-    NETWORK = 'networkForm',
-    METADATA = 'metadataForm',
-    IDENTITY = 'identityForm',
-    OSIMAGE = 'osImageForm'
-}
-
-enum AwsStep {
-    PROVIDER = 'provider',
-    VPC = 'vpc',
-    NODESETTING = 'nodeSetting',
-    NETWORK = 'network',
-    METADATA = 'metadata',
-    IDENTITY = 'identity',
-    OSIMAGE = 'osImage'
-}
-
 @Component({
     selector: 'aws-wizard',
     templateUrl: './aws-wizard.component.html',

@@ -15,30 +15,9 @@ import { EXISTING, VnetStepComponent } from './vnet-step/vnet-step.component';
 import Broker from 'src/app/shared/service/broker';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
+
 import { AzureOsImageStepComponent } from './os-image-step/azure-os-image-step.component';
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
-
-enum AzureForm {
-    PROVIDER = 'azureProviderForm',
-    NODESETTING = 'azureNodeSettingForm',
-    METADATA = 'metadataForm',
-    NETWORK = 'networkForm',
-    CEIP = 'ceipOptInForm',
-    IDENTITY = 'identityForm',
-    OSIMAGE = 'osImageForm',
-    VNET = 'vnetForm'
-}
-
-enum AzureForm {
-    PROVIDER = 'azureProviderForm',
-    NODESETTING = 'azureNodeSettingForm',
-    METADATA = 'metadataForm',
-    NETWORK = 'networkForm',
-    CEIP = 'ceipOptInForm',
-    IDENTITY = 'identityForm',
-    OSIMAGE = 'osImageForm',
-    VNET = 'vnetForm'
-}
 
 // Not sure why some of these step names have 'Form' in them, but leaving as is
 enum AzureStep {
@@ -58,7 +37,6 @@ enum AzureStep {
     styleUrls: ['./azure-wizard.component.scss']
 })
 export class AzureWizardComponent extends WizardBaseDirective implements OnInit {
-    // The region user selected
     region: string;
 
     constructor(

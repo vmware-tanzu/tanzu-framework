@@ -8,13 +8,10 @@ import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { Vpc } from '../../../../swagger/models/vpc.model';
 import { AwsWizardFormService } from '../../../../shared/service/aws-wizard-form.service';
 import Broker from 'src/app/shared/service/broker';
-import {AwsField} from "../aws-wizard.constants";
+import { AwsField, VpcType } from "../aws-wizard.constants";
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { AwsVpcStepMapping } from './vpc-step.fieldmapping';
 import { FormUtils } from '../../wizard/shared/utils/form-utils';
-
-enum VpcType {
-    EXISTING = 'existing',
-    NEW = 'new'
-}
 
 @Component({
     selector: 'app-vpc-step',
@@ -29,45 +26,14 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
     defaultVpcAddress: string = '10.0.0.0/16';
 
     constructor(private validationService: ValidationService,
-        private awsWizardFormService: AwsWizardFormService) {
+                private awsWizardFormService: AwsWizardFormService,
+                private fieldMapUtilities: FieldMapUtilities) {
         super();
     }
 
     ngOnInit() {
         super.ngOnInit();
-
-        FormUtils.addControl(
-            this.formGroup,
-            AwsField.VPC_TYPE,
-            new FormControl(
-                VpcType.NEW, [
-                Validators.required
-            ])
-        );
-
-        FormUtils.addControl(
-            this.formGroup,
-            AwsField.VPC_NEW_CIDR,
-            new FormControl('', [])
-        );
-
-        FormUtils.addControl(
-            this.formGroup,
-            AwsField.VPC_EXISTING_CIDR,
-            new FormControl('', [])
-        );
-
-        FormUtils.addControl(
-            this.formGroup,
-            AwsField.VPC_EXISTING_ID,
-            new FormControl('', [])
-        );
-
-        FormUtils.addControl(
-            this.formGroup,
-            AwsField.VPC_NON_INTERNET_FACING,
-            new FormControl(false, [])
-        );
+        this.fieldMapUtilities.buildForm(this.formGroup, AwsVpcStepMapping);
 
         this.formGroup.get(AwsField.VPC_TYPE).valueChanges
             .pipe(

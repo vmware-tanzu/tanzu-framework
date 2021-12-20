@@ -6,7 +6,7 @@ export class FieldMapUtilities {
     constructor(private validationService: ValidationService) {
     }
 
-    buildForm(stepMapping: StepMapping, formGroup: FormGroup) {
+    buildForm(formGroup: FormGroup, stepMapping: StepMapping) {
         stepMapping.fieldMappings.forEach(fieldMapping => {
             let validators = fieldMapping.required ? [Validators.required] : [];
             if (fieldMapping.validators && fieldMapping.validators.length > 0) {

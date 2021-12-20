@@ -17,6 +17,8 @@ import { TkgEventType } from '../../../../shared/service/Messenger';
 import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import { AzureInstanceType } from 'src/app/swagger/models';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { AzureNodeSettingFieldMapping, AzureNodeSettingStandaloneFieldMapping } from './node-setting-step.fieldmapping';
 import { AzureForm } from '../azure-wizard.constants';
 import { FormUtils } from '../../wizard/shared/utils/form-utils';
 
@@ -33,64 +35,14 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     displayForm = false;
 
     constructor(private validationService: ValidationService,
-                private azureWizardFormService: AzureWizardFormService) {
+                private azureWizardFormService: AzureWizardFormService, private fieldMapUtilities: FieldMapUtilities) {
         super();
         this.nodeTypes = [];
     }
 
     buildForm() {
-        FormUtils.addControl(
-            this.formGroup,
-            'controlPlaneSetting',
-            new FormControl('', [
-                Validators.required
-            ])
-        );
-        FormUtils.addControl(
-            this.formGroup,
-            'devInstanceType',
-            new FormControl('', [
-                Validators.required
-            ])
-        );
-        FormUtils.addControl(
-            this.formGroup,
-            'prodInstanceType',
-            new FormControl('', [
-                Validators.required
-            ])
-        );
-        FormUtils.addControl(
-            this.formGroup,
-            'devInstanceType',
-            new FormControl('', [
-                Validators.required
-            ])
-        );
-
-        FormUtils.addControl(
-            this.formGroup,
-            'managementClusterName',
-            new FormControl('', [
-                this.validationService.isValidClusterName()
-            ])
-        );
-
-        if (!this.modeClusterStandalone) {
-            FormUtils.addControl(
-            this.formGroup,
-                'workerNodeInstanceType',
-                new FormControl('', [
-                    Validators.required
-                ])
-            );
-        }
-
-        FormUtils.addControl(
-            this.formGroup,
-            'machineHealthChecksEnabled',
-            new FormControl(true, [])
-        );
+        const fieldMappings = this.modeClusterStandalone ? AzureNodeSettingStandaloneFieldMapping : AzureNodeSettingFieldMapping;
+        this.fieldMapUtilities.buildForm(this.formGroup, fieldMappings);
     }
 
     initForm() {

@@ -9,7 +9,5 @@ export interface FieldMapping {
     featureFlag?: string,
 }
 export interface StepMapping {
-    name: string,
-    form: string,
     fieldMappings: FieldMapping[],
 }

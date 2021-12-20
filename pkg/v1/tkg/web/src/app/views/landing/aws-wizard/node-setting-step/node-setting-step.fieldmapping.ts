@@ -1,11 +1,8 @@
-
-import { AwsField, AwsForm, AwsStep } from '../aws-wizard.constants';
-import { StepMapping } from '../../wizard/shared/FieldMapping';
+import { AwsField } from '../aws-wizard.constants';
 import { SimpleValidator } from '../../wizard/shared/constants/validation.constants';
+import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 
 export const AwsNodeSettingStepMapping: StepMapping = {
-    name: AwsStep.NODESETTING,
-    form: AwsForm.NODESETTING,
     fieldMappings: [
         { name: AwsField.NODESETTING_AZ_1, required: true },
         { name: AwsField.NODESETTING_AZ_2, required: true },

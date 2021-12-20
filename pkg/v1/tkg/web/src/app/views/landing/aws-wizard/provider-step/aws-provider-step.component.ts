@@ -12,8 +12,10 @@ import {StepFormDirective} from '../../wizard/shared/step-form/step-form';
 import {TkgEvent, TkgEventType} from '../../../../shared/service/Messenger';
 import Broker from 'src/app/shared/service/broker';
 import {FormMetaDataStore} from "../../wizard/shared/FormMetaDataStore";
-import {AwsField} from "../aws-wizard.constants";
+import { AwsField, CredentialType } from "../aws-wizard.constants";
 import {NotificationTypes} from "../../../../shared/components/alert-notification/alert-notification.component";
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { AwsProviderStepMapping } from './aws-provider-step.fieldmapping';
 import { FormUtils } from '../../wizard/shared/utils/form-utils';
 
 export const AWSAccountParamsKeys = [
@@ -23,11 +25,6 @@ export const AWSAccountParamsKeys = [
     AwsField.PROVIDER_ACCESS_KEY,
     AwsField.PROVIDER_SECRET_ACCESS_KEY
 ];
-
-enum CredentialType {
-    ONETIME = 'oneTimeCredentials',
-    PROFILE = 'credentialProfile'
-}
 
 @Component({
     selector: 'app-aws-provider-step',
@@ -43,7 +40,7 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
     validCredentials: boolean = false;
     isProfileChoosen: boolean = false;
 
-    constructor(private apiClient: APIClient) {
+    constructor(private fieldMapUtilities: FieldMapUtilities, private apiClient: APIClient) {
         super();
     }
 
@@ -51,17 +48,7 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
      * Create the initial form
      */
     private buildForm() {
-        FormUtils.addControl(this.formGroup, AwsField.PROVIDER_AUTH_TYPE, new FormControl(this.authTypeValue, []));
-
-        AWSAccountParamsKeys.forEach(key => FormUtils.addControl(
-            this.formGroup,
-            key.toString(),
-            new FormControl('')
-        ));
-
-        this.formGroup.get(AwsField.PROVIDER_REGION).setValidators([
-            Validators.required
-        ]);
+        this.fieldMapUtilities.buildForm(this.formGroup, AwsProviderStepMapping);
 
         this.formGroup['canMoveToNext'] = () => {
             return this.formGroup.valid && this.validCredentials;

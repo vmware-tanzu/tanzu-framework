@@ -1,3 +1,11 @@
+export enum CredentialType {
+    ONETIME = 'oneTimeCredentials',
+    PROFILE = 'credentialProfile'
+}
+export enum VpcType {
+    EXISTING = 'existing',
+    NEW = 'new'
+}
 export enum AwsStep {
     PROVIDER = 'provider',
     VPC = 'vpc',
@@ -51,4 +59,3 @@ export enum AwsField {
     VPC_NON_INTERNET_FACING = 'nonInternetFacingVPC',
     VPC_TYPE = 'vpcType'
 }
-

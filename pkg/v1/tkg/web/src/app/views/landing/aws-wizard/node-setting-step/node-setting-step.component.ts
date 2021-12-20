@@ -19,8 +19,8 @@ import Broker from 'src/app/shared/service/broker';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import { FormUtils } from '../../wizard/shared/utils/form-utils';
 import { AwsField, AwsForm } from "../aws-wizard.constants";
-import { AwsNodeSettingStepMapping } from '../field-mappings/aws-nodesetting.fieldmapping';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { AwsNodeSettingStepMapping } from './node-setting-step.fieldmapping';
 
 export interface AzNodeTypes {
     awsNodeAz1: Array<string>,
@@ -133,28 +133,6 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     airgappedVPC = false;
 
-    // TODO: modify this to use aws-wizard.constants.ts' AwsField enum
-    commonFieldMap: { [key: string]: Array<any> } = {
-        controlPlaneSetting: [Validators.required],
-        devInstanceType: [Validators.required],
-        prodInstanceType: [Validators.required],
-        bastionHostEnabled: [],
-        sshKeyName: [Validators.required],
-        clusterName: [this.validationService.isValidClusterName()],
-        awsNodeAz1: [Validators.required],
-        awsNodeAz2: [Validators.required],
-        awsNodeAz3: [Validators.required],
-        workerNodeInstanceType1: [],
-        vpcPublicSubnet1: [],
-        vpcPrivateSubnet1: [],
-        workerNodeInstanceType2: [],
-        vpcPublicSubnet2: [],
-        vpcPrivateSubnet2: [],
-        workerNodeInstanceType3: [],
-        vpcPublicSubnet3: [],
-        vpcPrivateSubnet3: [],
-    };
-
     constructor(private validationService: ValidationService,
         private fieldMapUtilities: FieldMapUtilities,
         private apiClient: APIClient,
@@ -164,7 +142,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     ngOnInit() {
         super.ngOnInit();
-        this.fieldMapUtilities.buildForm(AwsNodeSettingStepMapping, this.formGroup);
+        this.fieldMapUtilities.buildForm(this.formGroup, AwsNodeSettingStepMapping);
 
         Broker.messenger.getSubject(TkgEventType.AWS_AIRGAPPED_VPC_CHANGE).subscribe(event => {
             this.airgappedVPC = event.payload;
@@ -330,12 +308,12 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         for (let i = 0; i < AZS.length; i++) {
             const thisAZ = AZS[i];
             const otherAZs = this.otherAZs(thisAZ);
-            const thisAZcontrol = this.formGroup.get(thisAZ.toString());
+            const thisAZcontrol = this.getControl(thisAZ);
             thisAZcontrol.setValidators([
                 Validators.required,
                 this.validationService.isUniqueAz([
-                    this.formGroup.get(otherAZs[0].toString()),
-                    this.formGroup.get(otherAZs[1].toString())])
+                    this.getControl(otherAZs[0]),
+                    this.getControl(otherAZs[1]) ])
             ]);
             this.setControlWithSavedValue(thisAZ);
         }
