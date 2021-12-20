@@ -10,6 +10,7 @@ import { FormControl } from '@angular/forms';
 import { ValidationService } from '../../../validation/validation.service';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
+import { FormUtils } from '../../../utils/form-utils';
 
 @Component({
     selector: 'app-metadata-step',
@@ -25,31 +26,36 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
 
     ngOnInit() {
         super.ngOnInit();
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'clusterLocation',
             new FormControl('', [
                 this.validationService.isValidLabelOrAnnotation()
             ])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'clusterDescription',
             new FormControl('', [
                 this.validationService.isValidLabelOrAnnotation()
             ])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'newLabelKey',
             new FormControl('', [
                 this.validationService.isValidLabelOrAnnotation()
             ])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'newLabelValue',
             new FormControl('', [
                 this.validationService.isValidLabelOrAnnotation()
             ])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'clusterLabels',
             new FormControl('', [])
         );

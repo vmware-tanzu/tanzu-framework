@@ -1,4 +1,4 @@
-import { OnDestroy } from "@angular/core";
+import { Injectable, OnDestroy } from "@angular/core";
 import { Subject } from 'rxjs';
 
 /**
@@ -6,6 +6,7 @@ import { Subject } from 'rxjs';
  * is still alive. This is useful to handle Observable subscriptions in order to unsubscribe. Instead
  * of doing unsubscribe() you can use operator .takeWhile(() => this.isAlive).
  */
+ @Injectable()
 export abstract class BasicSubscriber implements OnDestroy {
 
     protected isAlive = true;

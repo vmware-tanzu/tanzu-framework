@@ -23,6 +23,11 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
             "aot": true,
+            "allowedCommonJsDependencies": [
+              "@ctrl/ngx-codemirror",
+              "is-ip",
+              "xregexp"
+            ],
             "assets": [
               "src/favicon.ico",
               "src/assets",

@@ -11,6 +11,7 @@ import { TkgEvent, TkgEventType } from "../../../../shared/service/Messenger";
 import { takeUntil } from "rxjs/operators";
 import { FormMetaDataStore } from "../../wizard/shared/FormMetaDataStore";
 import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
+import { FormUtils } from '../../wizard/shared/utils/form-utils';
 
 @Component({
     selector: 'app-node-setting-step',
@@ -24,8 +25,13 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     ngOnInit(): void {
         super.ngOnInit();
-        this.formGroup.addControl('clusterName', new FormControl('', [this.validationService.isValidClusterName()]));
+        FormUtils.addControl(
+            this.formGroup,
+            'clusterName',
+            new FormControl('', [this.validationService.isValidClusterName()])
+        );
         this.initFormWithSavedData();
+
         if (this.edition !== AppEdition.TKG) {
             this.resurrectField('clusterName',
                 [Validators.required, this.validationService.isValidClusterName()],

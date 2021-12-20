@@ -14,6 +14,7 @@ import { AzureResourceGroup } from 'src/app/swagger/models';
 import { APIClient } from 'src/app/swagger';
 import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore'
 import Broker from 'src/app/shared/service/broker';
+import { FormUtils } from '../../wizard/shared/utils/form-utils';
 
 const CUSTOM = "CUSTOM";
 export const EXISTING = "EXISTING";
@@ -82,14 +83,16 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
      * Create the initial form
      */
     private buildForm() {
-        this.requiredFields.forEach(key => this.formGroup.addControl(
+        this.requiredFields.forEach(key => FormUtils.addControl(
+            this.formGroup,
             key,
             new FormControl('', [
                 Validators.required
             ])
         ));
 
-        this.defaultCidrFields.forEach(field => this.formGroup.addControl(
+        this.defaultCidrFields.forEach(field => FormUtils.addControl(
+            this.formGroup,
             field,
             new FormControl('', [
                 Validators.required,
@@ -98,12 +101,14 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
             ])
         ));
         // special hidden field used to capture existing subnet cidr when user selects existing subnet
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             VnetField.CONTROLPLANE_SUBNET_CIDR,
             new FormControl('', [])
         );
 
-        this.optionalFields.forEach(field => this.formGroup.addControl(
+        this.optionalFields.forEach(field => FormUtils.addControl(
+            this.formGroup,
             field,
             new FormControl('', [])
         ));
@@ -258,10 +263,11 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
         if (createPrivateCluster) {
             const cidr = this.cidrForPrivateCluster['' + this.showVnetFieldsOption];
             const cidrValidator = this.validationService.isIpInSubnet2(cidr);
-
+            this.formGroup.markAsPending();
             this.resurrectFieldWithSavedValue(VnetField.PRIVATE_IP,
                 [Validators.required, this.validationService.isValidIpOrFqdn(),
-                    cidrValidator]);
+                    cidrValidator]
+            );
         } else {
             this.disarmField(VnetField.PRIVATE_IP, true);
         }

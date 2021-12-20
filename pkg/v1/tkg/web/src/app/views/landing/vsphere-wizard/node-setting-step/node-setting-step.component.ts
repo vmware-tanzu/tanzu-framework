@@ -16,6 +16,7 @@ import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER } from '../../wizard/shared/compon
 import Broker from 'src/app/shared/service/broker';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import { VsphereField, VsphereNodeTypes } from '../vsphere-wizard.constants';
+import { FormUtils } from '../../wizard/shared/utils/form-utils';
 
 @Component({
     selector: 'app-node-setting-step',
@@ -45,43 +46,50 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     ngOnInit() {
         super.ngOnInit();
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             VsphereField.NODESETTING_CONTROL_PLANE_SETTING,
             new FormControl('', [
                 Validators.required
             ])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             VsphereField.NODESETTING_INSTANCE_TYPE_DEV,
             new FormControl('', [
                 Validators.required
             ])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             VsphereField.NODESETTING_INSTANCE_TYPE_PROD,
             new FormControl('', [
                 Validators.required
             ])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             VsphereField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED,
             new FormControl(true, [])
         );
         if (!this.modeClusterStandalone) {
-            this.formGroup.addControl(
+            FormUtils.addControl(
+            this.formGroup,
                 VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE,
                 new FormControl('', [
                     Validators.required
                 ])
             );
         }
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             VsphereField.NODESETTING_CLUSTER_NAME,
             new FormControl('', [
                 this.validationService.isValidClusterName()
             ])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_IP,
             new FormControl('', [
                 Validators.required,
@@ -89,7 +97,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             ])
         );
 
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_PROVIDER,
             new FormControl(this.currentControlPlaneEndpoingProvider, [
                 Validators.required
@@ -192,7 +201,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 if (savedNodeType) {
                     this.setControlValueSafely(VsphereField.NODESETTING_INSTANCE_TYPE_DEV, savedNodeType.id);
                 }
-                this.clearControlValue(VsphereField.NODESETTING_INSTANCE_TYPE_PROD);
+                this.disarmField(VsphereField.NODESETTING_INSTANCE_TYPE_PROD, true);
             } else {
                 // set the node type ID by finding it by the node type name OR the id
                 const savedNameOrId = this.getSavedValue(VsphereField.NODESETTING_INSTANCE_TYPE_PROD, '');
@@ -200,7 +209,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 if (savedNodeType) {
                     this.setControlValueSafely(VsphereField.NODESETTING_INSTANCE_TYPE_PROD, savedNodeType.id);
                 }
-                this.clearControlValue(VsphereField.NODESETTING_INSTANCE_TYPE_DEV);
+                this.disarmField(VsphereField.NODESETTING_INSTANCE_TYPE_DEV, true);
             }
             const savedWorkerNodeNameOrId = this.getSavedValue(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE, '');
             const savedWorkerNodeType = this.findNodeTypeByNameOrId(savedWorkerNodeNameOrId);
