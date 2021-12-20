@@ -1,0 +1,14 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: admin-plugins.tanzu.vmware.com
+  namespace: admin-plugins
+spec:
+  displayName: "admin-plugins"
+  longDescription: "Admin CLIPlugin package provides API resources that allow discovery of admin plugins available with Tanzu CLI. These plugins are context agnostic"
+  shortDescription: "Admin CLI Plugins"
+  providerName: VMware
+  maintainers:
+    - name: "Anuj Chaudhari"
+  categories:
+    - "cliplugins"

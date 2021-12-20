@@ -5,6 +5,7 @@ include ../common.mk
 
 ROOT_DIR := $(shell git rev-parse --show-toplevel)
 ARTIFACTS_DIR ?= $(ROOT_DIR)/artifacts
+ADMIN_ARTIFACTS_DIR ?= $(ROOT_DIR)/artifacts-admin
 CLI_PLUGINS_DIR ?= $(ROOT_DIR)/cliplugins
 
 IMG_BASEPATH := tanzu-cli-plugins
@@ -17,6 +18,8 @@ ifeq ($(strip $(OCI_REGISTRY)),)
 else
 	IMG_REPOSITORY ?= $(OCI_REGISTRY)/$(IMG_BASEPATH)
 endif
+
+ALL_PLUGINS := $(PLUGINS) $(ADMIN_PLUGINS)
 
 .PHONY: docker-build-%
 docker-build-%:
@@ -61,10 +64,15 @@ docker-build: ## Build docker image
 			$(MAKE) docker-build-$$plugin"_"$$env --no-print-directory ; \
 		done \
 	done
+	@ for plugin in $(ADMIN_PLUGINS) ; do \
+		for env in $(ENVS) ; do \
+			$(MAKE) docker-build-$$plugin"_"$$env --no-print-directory ARTIFACTS_DIR=$(ADMIN_ARTIFACTS_DIR) ; \
+		done \
+	done
 
 .PHONY: docker-publish
 docker-publish: ## Publish docker image
-	@ for plugin in $(PLUGINS) ; do \
+	@ for plugin in $(ALL_PLUGINS) ; do \
 		for env in $(ENVS) ; do \
 			$(MAKE) docker-publish-$$plugin"_"$$env --no-print-directory ; \
 		done \
@@ -72,7 +80,7 @@ docker-publish: ## Publish docker image
 
 .PHONY: kbld-image-replace
 kbld-image-replace: ## Add newImage in kbld-config.yaml
-	@ for plugin in $(PLUGINS) ; do \
+	@ for plugin in $(ALL_PLUGINS) ; do \
 		for env in $(ENVS) ; do \
 			$(MAKE) kbld-image-replace-$$plugin"_"$$env --no-print-directory ; \
 		done \
@@ -80,7 +88,7 @@ kbld-image-replace: ## Add newImage in kbld-config.yaml
 
 .PHONY: docker-image-names
 docker-image-names: ## Return newline-separated names of all docker containers built in this package
-	@ for plugin in $(PLUGINS) ; do \
+	@ for plugin in $(ALL_PLUGINS) ; do \
 		for env in $(ENVS) ; do \
 			$(MAKE) docker-image-name-$$plugin"_"$$env --no-print-directory ; \
 		done \

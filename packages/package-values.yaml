@@ -60,3 +60,11 @@ standalonePackageRepository:
       version: latest
       #! Gets replaced with imgpkg sha256 at build, this should be name:version
       sha256: "standalone-plugins:latest"
+    - name: admin-plugins
+      displayName: admin-plugins
+      #! Relative path to package bundle
+      path: packages/standalone/admin-plugins
+      domain: tanzu.vmware.com
+      version: latest
+      #! Gets replaced with imgpkg sha256 at build, this should be name:version
+      sha256: "admin-plugins:latest"
