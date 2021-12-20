@@ -265,31 +265,6 @@ Resources:
             Service:
             - ec2.amazonaws.com
         Version: 2012-10-17
-      Policies:
-      - PolicyDocument:
-          Statement:
-          - Action:
-            - ec2:DescribeKeyPairs
-            - ec2:DescribeInstanceTypeOfferings
-            - ec2:DescribeInstanceTypes
-            - ec2:DescribeAvailabilityZones
-            - ec2:DescribeSubnets
-            - ec2:DescribeRouteTables
-            - ec2:DescribeVpcs
-            - ec2:DescribeNatGateways
-            - ec2:DescribeAddresses
-            - elasticloadbalancing:DescribeLoadBalancers
-            - servicequotas:ListServiceQuotas
-            - iam:GetPolicy
-            - iam:ListAttachedRolePolicies
-            - iam:GetPolicyVersion
-            - iam:ListRoleTags
-            Effect: Allow
-            Resource:
-            - '*'
-            Sid: tmccloudvmwarecom
-          Version: 2012-10-17
-        PolicyName: tkg-cloud-vmware-com
       RoleName: control-plane.tkg.cloud.vmware.com
     Type: AWS::IAM::Role
   AWSIAMRoleControllers:
@@ -316,30 +291,5 @@ Resources:
             Service:
             - ec2.amazonaws.com
         Version: 2012-10-17
-      Policies:
-      - PolicyDocument:
-          Statement:
-          - Action:
-            - ec2:DescribeKeyPairs
-            - ec2:DescribeInstanceTypeOfferings
-            - ec2:DescribeInstanceTypes
-            - ec2:DescribeAvailabilityZones
-            - ec2:DescribeSubnets
-            - ec2:DescribeRouteTables
-            - ec2:DescribeVpcs
-            - ec2:DescribeNatGateways
-            - ec2:DescribeAddresses
-            - elasticloadbalancing:DescribeLoadBalancers
-            - servicequotas:ListServiceQuotas
-            - iam:GetPolicy
-            - iam:ListAttachedRolePolicies
-            - iam:GetPolicyVersion
-            - iam:ListRoleTags
-            Effect: Allow
-            Resource:
-            - '*'
-            Sid: tmccloudvmwarecom
-          Version: 2012-10-17
-        PolicyName: tkg-cloud-vmware-com
       RoleName: nodes.tkg.cloud.vmware.com
     Type: AWS::IAM::Role
