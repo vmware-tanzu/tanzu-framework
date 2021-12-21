@@ -11,7 +11,6 @@ import Broker from 'src/app/shared/service/broker';
 import { AwsField, VpcType } from "../aws-wizard.constants";
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { AwsVpcStepMapping } from './vpc-step.fieldmapping';
-import { FormUtils } from '../../wizard/shared/utils/form-utils';
 
 @Component({
     selector: 'app-vpc-step',

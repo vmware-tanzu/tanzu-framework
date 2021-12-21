@@ -16,7 +16,6 @@ import { AwsField, CredentialType } from "../aws-wizard.constants";
 import {NotificationTypes} from "../../../../shared/components/alert-notification/alert-notification.component";
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { AwsProviderStepMapping } from './aws-provider-step.fieldmapping';
-import { FormUtils } from '../../wizard/shared/utils/form-utils';
 
 export const AWSAccountParamsKeys = [
     AwsField.PROVIDER_PROFILE_NAME,

@@ -5,7 +5,7 @@ import { ValidationService } from './../../wizard/shared/validation/validation.s
  * Angular Modules
  */
 import { Component, OnInit } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
+import { Validators } from '@angular/forms';
 
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
@@ -16,7 +16,7 @@ import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore'
 import Broker from 'src/app/shared/service/broker';
 import { AzureField } from '../azure-wizard.constants';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { AzureVnetFieldMapping, AzureVnetStandaloneFieldMapping } from './vnet-step.fieldmapping';
+import { AzureVnetStandaloneStepMapping, AzureVnetStepMapping } from './vnet-step.fieldmapping';
 import { AzureForm } from '../azure-wizard.constants';
 import { FormUtils } from '../../wizard/shared/utils/form-utils';
 
@@ -67,7 +67,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
      * Create the initial form
      */
     private buildForm() {
-        const fieldMappings = this.modeClusterStandalone ? AzureVnetStandaloneFieldMapping : AzureVnetFieldMapping;
+        const fieldMappings = this.modeClusterStandalone ? AzureVnetStandaloneStepMapping : AzureVnetStepMapping;
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, fieldMappings);
 
         this.formGroup.get(AzureField.VNET_RESOURCE_GROUP).valueChanges

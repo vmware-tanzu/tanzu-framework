@@ -2,6 +2,7 @@ import { FieldMapping, StepMapping } from './FieldMapping';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ValidationService } from '../validation/validation.service';
 import { FormMetaDataStore } from '../FormMetaDataStore';
+import { FormUtils } from '../utils/form-utils';
 
 export class FieldMapUtilities {
     constructor(private validationService: ValidationService) {
@@ -44,7 +45,9 @@ export class FieldMapUtilities {
             // there will be an onChange event, which will trigger the right event handler to react to the saved value. However,
             // controls that don't trigger an onChange event can use the "initWithSavedValue=true" to init the control via the mapping.
             const initialValue = savedValue ? savedValue : (fieldMapping.defaultValue ? fieldMapping.defaultValue : blankValue);
-            formGroup.addControl(
+
+            FormUtils.addControl(
+                formGroup,
                 fieldMapping.name,
                 new FormControl(initialValue, validators)
             );

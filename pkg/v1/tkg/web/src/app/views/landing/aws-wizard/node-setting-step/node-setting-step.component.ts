@@ -17,7 +17,6 @@ import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
 import { APIClient } from '../../../../swagger/api-client.service';
 import Broker from 'src/app/shared/service/broker';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
-import { FormUtils } from '../../wizard/shared/utils/form-utils';
 import { AwsField, AwsForm } from "../aws-wizard.constants";
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { AwsNodeSettingStepMapping } from './node-setting-step.fieldmapping';
