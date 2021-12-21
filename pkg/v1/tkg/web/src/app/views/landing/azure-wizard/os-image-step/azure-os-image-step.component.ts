@@ -7,6 +7,7 @@ import Broker from '../../../../shared/service/broker';
 import { BehaviorSubject } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
 import { TkgEventType } from '../../../../shared/service/Messenger';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 
 @Component({
     selector: 'app-azure-os-image-step',
@@ -14,8 +15,8 @@ import { TkgEventType } from '../../../../shared/service/Messenger';
     styleUrls: ['../../wizard/shared/components/steps/os-image-step/os-image-step.component.scss']
 })
 export class AzureOsImageStepComponent extends SharedOsImageStepComponent {
-    constructor(private azureWizardFormService: AzureWizardFormService) {
-        super();
+    constructor(private azureWizardFormService: AzureWizardFormService, fieldMapUtilities: FieldMapUtilities) {
+        super(fieldMapUtilities);
     }
 
     ngOnInit() {

@@ -36,7 +36,7 @@ export abstract class SharedOsImageStepComponent extends StepFormDirective {
     nonTemplateAlert: boolean = false;
     tkrVersion: Observable<string>;
 
-    protected constructor(private fieldMapUtilities: FieldMapUtilities) {
+    protected constructor(protected fieldMapUtilities: FieldMapUtilities) {
         super();
         this.tkrVersion = Broker.appDataService.getTkrVersion();
     }
