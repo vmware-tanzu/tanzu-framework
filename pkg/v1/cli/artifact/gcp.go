@@ -14,14 +14,18 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
 )
 
-// GCPArtifact provides a Google Cloud Storage bucket with an optional base path (or
-// object prefix).
+const (
+	uriSchemeGCP = "gcp"
+)
+
+// GCPArtifact provides an artifact stored in Google Cloud Storage.
+// Sample URI: gcp://tanzu-plugins/darwin/amd64/cli/login/v0.10.0-dev/tanzu-login-darwin_amd64
 type GCPArtifact struct {
 	// Bucket is a Google Cloud Storage bucket.
-	// E.g., tanzu-cli
+	// E.g., tanzu-plugins
 	Bucket string `json:"bucket"`
-	// ArtifactPath is a URI path that is prefixed to the object name/path.
-	// E.g., plugins/cluster
+	// ArtifactPath is a URI path that points to an object in the bucket.
+	// E.g., darwin/amd64/cli/login/v0.10.0-dev/tanzu-login-darwin_amd64
 	ArtifactPath string `json:"basePath"`
 }
 
