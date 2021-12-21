@@ -142,6 +142,11 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     ngOnInit() {
         super.ngOnInit();
+
+        // TODO: we dynamically set whether cluster names are required. We'd like to base this strictly on the feature flag, but
+        // until TCE installation includes setting the feature flag, we will also base it on the edition.
+        FieldMapUtilities.getFieldMapping(AwsField.NODESETTING_CLUSTER_NAME, AwsNodeSettingStepMapping).required =
+            Broker.appDataService.isClusterNameRequired() || this.edition !== AppEdition.TKG;
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, AwsNodeSettingStepMapping);
 
         Broker.messenger.getSubject(TkgEventType.AWS_AIRGAPPED_VPC_CHANGE).subscribe(event => {
@@ -195,12 +200,6 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 this.clearAzs();
                 this.clearSubnets();
             });
-
-        if (this.edition !== AppEdition.TKG) {
-            this.resurrectField(AwsField.NODESETTING_CLUSTER_NAME,
-                [Validators.required, this.validationService.isValidClusterName()],
-                this.getFieldValue(AwsField.NODESETTING_CLUSTER_NAME));
-        }
 
         this.awsWizardFormService.getErrorStream(TkgEventType.AWS_GET_AVAILABILITY_ZONES)
             .pipe(takeUntil(this.unsubscribe))

@@ -2,10 +2,7 @@
  * Angular Modules
  */
 import { Component, OnInit } from '@angular/core';
-import {
-    Validators,
-    FormControl
-} from '@angular/forms';
+import { Validators } from '@angular/forms';
 import { takeUntil } from 'rxjs/operators';
 
 /**
@@ -18,7 +15,8 @@ import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form
 import { AzureInstanceType } from 'src/app/swagger/models';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { AzureNodeSettingStepMapping, AzureNodeSettingStandaloneStepMapping } from './node-setting-step.fieldmapping';
+import { AzureNodeSettingStandaloneStepMapping, AzureNodeSettingStepMapping } from './node-setting-step.fieldmapping';
+import Broker from '../../../../shared/service/broker';
 import { AzureForm } from '../azure-wizard.constants';
 import { FormUtils } from '../../wizard/shared/utils/form-utils';
 
@@ -41,7 +39,11 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     buildForm() {
+        // TODO: we dynamically set whether cluster names are required. We'd like to base this strictly on the feature flag, but
+        // until TCE installation includes setting the feature flag, we will also base it on the edition.
         const fieldMappings = this.modeClusterStandalone ? AzureNodeSettingStandaloneStepMapping : AzureNodeSettingStepMapping;
+        FieldMapUtilities.getFieldMapping('managementClusterName', fieldMappings).required =
+            Broker.appDataService.isClusterNameRequired() || this.edition !== AppEdition.TKG;
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, fieldMappings);
     }
 
@@ -60,14 +62,6 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 this.formGroup.get('workerNodeInstanceType').setValue(this.nodeTypes[0].name);
             }
         });
-
-        if (this.edition !== AppEdition.TKG) {
-            this.resurrectField('managementClusterName',
-                [Validators.required, this.validationService.isValidClusterName()],
-                this.formGroup.get('managementClusterName').value,
-                { onlySelf: true, emitEvent: false}
-            );
-        }
     }
 
     toggleValidations() {

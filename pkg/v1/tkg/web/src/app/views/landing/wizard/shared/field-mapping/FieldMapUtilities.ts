@@ -7,6 +7,14 @@ export class FieldMapUtilities {
     constructor(private validationService: ValidationService) {
     }
 
+    static getFieldMapping(name: string, stepMapping: StepMapping): FieldMapping {
+        if (stepMapping && name) {
+            return stepMapping.fieldMappings.find((daFieldMapping) => { return daFieldMapping.name === name; });
+        }
+        console.warn('getFieldMapping could not find an entry for field named ' + name);
+        return null;
+    }
+
     // Note: the form name is only used to retrieve saved values
     buildForm(formGroup: FormGroup, formName: string, stepMapping: StepMapping) {
         stepMapping.fieldMappings.forEach(fieldMapping => {
@@ -22,12 +30,11 @@ export class FieldMapUtilities {
                 })
             }
             const blankValue = fieldMapping.isBoolean ? false : '';
-            let savedValue = blankValue;
+            let savedValue;
             if (fieldMapping.initWithSavedValue) {
                 const metadataEntry = FormMetaDataStore.getMetaDataItem(formName, fieldMapping.name);
-                savedValue = metadataEntry.key ? metadataEntry.key : metadataEntry.displayValue;
-                if (!savedValue) {
-                    savedValue = blankValue;
+                if (metadataEntry) {
+                    savedValue = metadataEntry.key ? metadataEntry.key : metadataEntry.displayValue;
                 }
             }
             // The control's initial value should be: the savedValue if there is one (and the mapping said to use it), or
@@ -42,6 +49,5 @@ export class FieldMapUtilities {
                 new FormControl(initialValue, validators)
             );
         });
-
     }
 }

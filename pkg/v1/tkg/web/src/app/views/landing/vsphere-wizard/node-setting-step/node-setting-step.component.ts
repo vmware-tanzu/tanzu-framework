@@ -48,7 +48,11 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     ngOnInit() {
         super.ngOnInit();
+        // TODO: we dynamically set whether cluster names are required. We'd like to base this strictly on the feature flag, but
+        // until TCE installation includes setting the feature flag, we will also base it on the edition.
         const fieldMappings = this.modeClusterStandalone ? VsphereNodeSettingStandaloneStepMapping : VsphereNodeSettingStepMapping;
+        FieldMapUtilities.getFieldMapping(VsphereField.NODESETTING_CLUSTER_NAME, fieldMappings).required =
+            Broker.appDataService.isClusterNameRequired() || this.edition !== AppEdition.TKG;
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, fieldMappings);
 
         this.registerOnValueChange(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_PROVIDER,
@@ -108,12 +112,6 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 }
                 this.formGroup.controls[VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE].updateValueAndValidity();
             });
-
-            if (this.edition !== AppEdition.TKG) {
-                this.resurrectField(VsphereField.NODESETTING_CLUSTER_NAME,
-                    [Validators.required, this.validationService.isValidClusterName()],
-                    this.formGroup.get(VsphereField.NODESETTING_CLUSTER_NAME).value);
-            }
         });
 
         this.initFormWithSavedData();
