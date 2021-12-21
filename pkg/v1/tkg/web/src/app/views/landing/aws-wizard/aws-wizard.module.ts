@@ -9,7 +9,6 @@ import { AwsWizardRoutingModule } from './aws-wizard-routing.module';
 import { AwsWizardComponent } from './aws-wizard.component';
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { AwsProviderStepComponent } from './provider-step/aws-provider-step.component';
-import { AmiStepComponent } from './ami-step/ami-step.component';
 import { VpcStepComponent } from './vpc-step/vpc-step.component';
 
 import { ValidationService } from '../wizard/shared/validation/validation.service';
@@ -18,7 +17,6 @@ import { ValidationService } from '../wizard/shared/validation/validation.servic
     declarations: [
         AwsWizardComponent,
         AwsProviderStepComponent,
-        AmiStepComponent,
         VpcStepComponent,
         NodeSettingStepComponent
     ],

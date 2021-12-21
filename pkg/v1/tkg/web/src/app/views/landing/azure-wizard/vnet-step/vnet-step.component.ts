@@ -14,6 +14,7 @@ import { AzureResourceGroup } from 'src/app/swagger/models';
 import { APIClient } from 'src/app/swagger';
 import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore'
 import Broker from 'src/app/shared/service/broker';
+import { AzureForm } from '../azure-wizard.constants';
 import { FormUtils } from '../../wizard/shared/utils/form-utils';
 
 const CUSTOM = "CUSTOM";
@@ -429,5 +430,10 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
             this.saveFieldData(VnetField.EXISTING_NAME, savedVnetCustom);
             this.clearFieldSavedData(VnetField.CUSTOM_NAME);
         }
+    }
+
+    protected dynamicDescription(): string {
+        const vnetCidrBlock = this.getFieldValue("vnetCidrBlock", true);
+        return vnetCidrBlock ? `Subnet: ${vnetCidrBlock}` : 'Specify an Azure VNET CIDR';
     }
 }

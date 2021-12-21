@@ -39,9 +39,15 @@ export class AzureWizardFormService extends WizardFormBase {
             .subscribe(event => {
                 this.region = event.payload;
                 DataSources.forEach(source => {
-                    Broker.messenger.publish({
-                        type: source
-                    });
+                    if (this.region) {
+                        // publishing these events will cause a fetch of the event-related data
+                        Broker.messenger.publish({
+                            type: source
+                        });
+                    } else {
+                        // publishing empty data will clear the event-related data
+                        this.publishData(source, []);
+                    }
                 });
             });
     }

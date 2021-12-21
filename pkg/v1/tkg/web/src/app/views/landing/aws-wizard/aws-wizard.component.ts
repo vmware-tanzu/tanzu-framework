@@ -12,12 +12,31 @@ import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.servi
 import Broker from "../../../shared/service/broker";
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
-import { BASTION_HOST_DISABLED, BASTION_HOST_ENABLED } from './node-setting-step/node-setting-step.component';
-import { AWSAccountParamsKeys } from './provider-step/aws-provider-step.component';
+import { BASTION_HOST_DISABLED, BASTION_HOST_ENABLED, NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
+import { AWSAccountParamsKeys, AwsProviderStepComponent } from './provider-step/aws-provider-step.component';
+import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
+import { VpcStepComponent } from './vpc-step/vpc-step.component';
+import { AwsOsImageStepComponent } from './os-image-step/aws-os-image-step.component';
 import { AwsField, AwsForm, AwsStep } from "./aws-wizard.constants";
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
 import { Utils } from '../../../shared/utils';
 import { InstanceType } from '../../../shared/constants/app.constants';
+
+interface AzRelatedFields {
+    az: string,
+    workerNodeInstanceType: string,
+    vpcPublicSubnet: string,
+    vpcPrivateSubnet: string
+}
+
+const AzRelatedFieldsArray: AzRelatedFields[] = [
+    { az: AwsField.NODESETTING_AZ_1, vpcPrivateSubnet: AwsField.NODESETTING_VPC_PRIVATE_SUBNET_1,
+        vpcPublicSubnet: AwsField.NODESETTING_VPC_PUBLIC_SUBNET_1, workerNodeInstanceType: AwsField.NODESETTING_WORKERTYPE_1 },
+    { az: AwsField.NODESETTING_AZ_2, vpcPrivateSubnet: AwsField.NODESETTING_VPC_PRIVATE_SUBNET_2,
+        vpcPublicSubnet: AwsField.NODESETTING_VPC_PUBLIC_SUBNET_1, workerNodeInstanceType: AwsField.NODESETTING_WORKERTYPE_1 },
+    { az: AwsField.NODESETTING_AZ_3, vpcPrivateSubnet: AwsField.NODESETTING_VPC_PRIVATE_SUBNET_3,
+        vpcPublicSubnet: AwsField.NODESETTING_VPC_PUBLIC_SUBNET_3, workerNodeInstanceType: AwsField.NODESETTING_WORKERTYPE_3 },
+];
 
 @Component({
     selector: 'aws-wizard',
@@ -28,25 +47,25 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
     constructor(
         router: Router,
         public wizardFormService: AwsWizardFormService,
+        formBuilder: FormBuilder,
         private importService: ImportService,
-        private formBuilder: FormBuilder,
         private apiClient: APIClient,
         formMetaDataService: FormMetaDataService,
         titleService: Title,
         el: ElementRef) {
 
-        super(router, el, formMetaDataService, titleService);
+        super(router, el, formMetaDataService, titleService, formBuilder);
 
-        this.form = this.formBuilder.group({
-            awsProviderForm: this.formBuilder.group({}),
-            vpcForm: this.formBuilder.group({}),
-            awsNodeSettingForm: this.formBuilder.group({}),
-            metadataForm: this.formBuilder.group({}),
-            networkForm: this.formBuilder.group({}),
-            identityForm: this.formBuilder.group({}),
-            ceipOptInForm: this.formBuilder.group({}),
-            osImageForm: this.formBuilder.group({})
-        });
+        this.stepData = [
+            this.AwsProviderForm,
+            this.AwsVpcForm,
+            this.AwsNodeSettingForm,
+            this.MetadataForm,
+            this.AwsNetworkForm,
+            this.IdentityForm,
+            this.AwsOsImageForm,
+            this.CeipForm,
+        ];
     }
 
     ngOnInit() {
@@ -56,64 +75,6 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         this.form.markAsDirty();
 
         this.titleService.setTitle(this.title + ' AWS');
-    }
-
-    getStepDescription(stepName: string): string {
-        if (stepName === AwsStep.PROVIDER) {
-            return 'Validate the AWS provider account for Tanzu';
-        } else if (stepName === AwsStep.VPC) {
-            const vpc = this.getFieldValue(AwsForm.VPC, 'vpc');
-            const publicNodeCidr = this.getFieldValue(AwsForm.VPC, 'publicNodeCidr');
-            const privateNodeCidr = this.getFieldValue(AwsForm.VPC, 'privateNodeCidr');
-            const awsNodeAz = this.getFieldValue(AwsForm.VPC, 'awsNodeAz');
-
-            if (vpc && publicNodeCidr && privateNodeCidr && awsNodeAz) {
-                return `VPC CIDR: ${vpc}, Public Node CIDR: ${publicNodeCidr}, ` +
-                    `Private Node CIDR: ${privateNodeCidr}, Node AZ: ${awsNodeAz}`;
-            } else {
-                return 'Specify VPC settings for AWS';
-            }
-        } else if (stepName === AwsStep.NODESETTING) {
-            if (this.getFieldValue(AwsForm.NODESETTING, 'controlPlaneSetting')) {
-                let mode = 'Development cluster selected: 1 node control plane';
-                if (this.getFieldValue(AwsForm.NODESETTING, 'controlPlaneSetting') === 'prod') {
-                    mode = 'Production cluster selected: 3 node control plane';
-                }
-                return mode;
-            } else {
-                return `Specify the resources backing the ${this.clusterTypeDescriptor} cluster`;
-            }
-        } else if (stepName === AwsStep.NETWORK) {
-            if (this.getFieldValue(AwsForm.NETWORK, 'clusterPodCidr')) {
-                return 'Cluster Pod CIDR: ' + this.getFieldValue(AwsForm.NETWORK, 'clusterPodCidr');
-            } else {
-                return 'Specify the cluster Pod CIDR';
-            }
-        } else if (stepName === AwsStep.METADATA) {
-            if (this.form.get(AwsForm.METADATA).get('clusterLocation') &&
-                this.form.get(AwsForm.METADATA).get('clusterLocation').value) {
-                return 'Location: ' + this.form.get(AwsForm.METADATA).get('clusterLocation').value;
-            } else {
-                return `Specify metadata for the ${this.clusterTypeDescriptor} cluster`;
-            }
-        } else if (stepName === AwsStep.IDENTITY) {
-            if (this.getFieldValue(AwsForm.IDENTITY, 'identityType') === 'oidc' &&
-                this.getFieldValue(AwsForm.IDENTITY, 'issuerURL')) {
-                return 'OIDC configured: ' + this.getFieldValue(AwsForm.IDENTITY, 'issuerURL')
-            } else if (this.getFieldValue(AwsForm.IDENTITY, 'identityType') === 'ldap' &&
-                this.getFieldValue(AwsForm.IDENTITY, 'endpointIp')) {
-                return 'LDAP configured: ' + this.getFieldValue(AwsForm.IDENTITY, 'endpointIp') + ':' +
-                    this.getFieldValue(AwsForm.IDENTITY, 'endpointPort');
-            } else {
-                return 'Specify identity management'
-            }
-        } else if (stepName === AwsStep.OSIMAGE) {
-            if (this.getFieldValue(AwsForm.OSIMAGE, 'osImage') && this.getFieldValue(AwsForm.OSIMAGE, 'osImage').name) {
-                return 'OS Image: ' + this.getFieldValue(AwsForm.OSIMAGE, 'osImage').name;
-            } else {
-                return 'Specify the OS Image';
-            }
-        }
     }
 
     getPayload(): AWSRegionalClusterParams {
@@ -197,73 +158,48 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
             const nodeAzList = vpc.azs;
             const numNodeAz = nodeAzList.length;
             for (let x = 0; x < numNodeAz; x++) {
-                this.saveAzNodeFields(nodeAzList[x], x + 1);
+                this.saveAzNodeFields(nodeAzList[x], AzRelatedFieldsArray[x]);
             }
         }
     }
 
-    private saveAzNodeFields(node: AWSNodeAz, uiIndex: number) {
-        // TODO: move away from identifying the fields with ${uiIndex} and use an enum field identifier
-        this.saveFormField(AwsForm.NODESETTING, `awsNodeAz${uiIndex}`, node.name);
+    private saveAzNodeFields(node: AWSNodeAz, azFields: AzRelatedFields) {
+        this.saveFormField(AwsForm.NODESETTING, azFields.az, node.name);
         if (!Broker.appDataService.isModeClusterStandalone()) {
-            this.saveFormField(AwsForm.NODESETTING, `workerNodeInstanceType${uiIndex}`, node.workerNodeType);
+            this.saveFormField(AwsForm.NODESETTING, azFields.workerNodeInstanceType, node.workerNodeType);
         }
-        this.saveFormField(AwsForm.NODESETTING, `vpcPublicSubnet${uiIndex}`, Utils.safeString(node.publicSubnetID));
-        this.saveFormField(AwsForm.NODESETTING, `vpcPrivateSubnet${uiIndex}`, Utils.safeString(node.privateSubnetID));
+        this.saveFormField(AwsForm.NODESETTING, azFields.vpcPublicSubnet, Utils.safeString(node.publicSubnetID));
+        this.saveFormField(AwsForm.NODESETTING, azFields.vpcPrivateSubnet, Utils.safeString(node.privateSubnetID));
+    }
+
+    private getAzFieldData(azFields: AzRelatedFields, standaloneControlPlaneNodeType: string) {
+        return             {
+            name: this.getFieldValue(AwsForm.NODESETTING, azFields.az),
+            workerNodeType: Broker.appDataService.isModeClusterStandalone() ? standaloneControlPlaneNodeType :
+                this.getFieldValue(AwsForm.NODESETTING, azFields.workerNodeInstanceType),
+            publicNodeCidr: (this.getFieldValue(AwsForm.VPC, 'vpcType') === 'new') ?
+                this.getFieldValue(AwsForm.VPC, 'publicNodeCidr') : '',
+            privateNodeCidr: (this.getFieldValue(AwsForm.VPC, 'vpcType') === 'new') ?
+                this.getFieldValue(AwsForm.VPC, 'privateNodeCidr') : '',
+            publicSubnetID: (this.getFieldValue(AwsForm.VPC, 'vpcType') === 'existing') ?
+                this.getFieldValue(AwsForm.NODESETTING, azFields.vpcPublicSubnet) : '',
+            privateSubnetID: (this.getFieldValue(AwsForm.VPC, 'vpcType') === 'existing') ?
+                this.getFieldValue(AwsForm.NODESETTING, azFields.vpcPrivateSubnet) : ''
+        }
     }
 
     getAwsNodeAzs(payload) {
-        // TODO: move away from identifying the fields with literals and use an enum field identifier
-        const nodeAzList = [
-            {
-                name: this.getFieldValue(AwsForm.NODESETTING, 'awsNodeAz1'),
-                workerNodeType: Broker.appDataService.isModeClusterStandalone() ? payload.controlPlaneNodeType :
-                    this.getFieldValue(AwsForm.NODESETTING, 'workerNodeInstanceType1'),
-                publicNodeCidr: (this.getFieldValue(AwsForm.VPC, 'vpcType') === 'new') ?
-                    this.getFieldValue(AwsForm.VPC, 'publicNodeCidr') : '',
-                privateNodeCidr: (this.getFieldValue(AwsForm.VPC, 'vpcType') === 'new') ?
-                    this.getFieldValue(AwsForm.VPC, 'privateNodeCidr') : '',
-                publicSubnetID: (this.getFieldValue(AwsForm.VPC, 'vpcType') === 'existing') ?
-                    this.getFieldValue(AwsForm.NODESETTING, 'vpcPublicSubnet1') : '',
-                privateSubnetID: (this.getFieldValue(AwsForm.VPC, 'vpcType') === 'existing') ?
-                    this.getFieldValue(AwsForm.NODESETTING, 'vpcPrivateSubnet1') : ''
-            }
-        ];
+        const nodeAzList = [this.getAzFieldData(AzRelatedFieldsArray[0], payload.controlPlaneNodeType)];
 
-        if (this.getFieldValue(AwsForm.NODESETTING, 'awsNodeAz2')) {
-            nodeAzList.push({
-                name: this.getFieldValue(AwsForm.NODESETTING, 'awsNodeAz2'),
-                workerNodeType: (!Broker.appDataService.isModeClusterStandalone()) ?
-                    this.getFieldValue(AwsForm.NODESETTING, 'workerNodeInstanceType2') : payload.controlPlaneNodeType,
-                publicNodeCidr: (this.getFieldValue(AwsForm.VPC, 'vpcType') === 'new') ?
-                    this.getFieldValue(AwsForm.VPC, 'publicNodeCidr') : '',
-                privateNodeCidr: (this.getFieldValue(AwsForm.VPC, 'vpcType') === 'new') ?
-                    this.getFieldValue(AwsForm.VPC, 'privateNodeCidr') : '',
-                publicSubnetID: (this.getFieldValue(AwsForm.VPC, 'vpcType') === 'existing') ?
-                    this.getFieldValue(AwsForm.NODESETTING, 'vpcPublicSubnet2') : '',
-                privateSubnetID: (this.getFieldValue(AwsForm.VPC, 'vpcType') === 'existing') ?
-                    this.getFieldValue(AwsForm.NODESETTING, 'vpcPrivateSubnet2') : ''
-            });
+        if (this.getFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_AZ_2)) {
+            nodeAzList.push(this.getAzFieldData(AzRelatedFieldsArray[1], payload.controlPlaneNodeType));
         }
-
-        if (this.getFieldValue(AwsForm.NODESETTING, 'awsNodeAz3')) {
-            nodeAzList.push({
-                name: this.getFieldValue(AwsForm.NODESETTING, 'awsNodeAz3'),
-                workerNodeType: (!Broker.appDataService.isModeClusterStandalone()) ?
-                    this.getFieldValue(AwsForm.NODESETTING, 'workerNodeInstanceType3') : payload.controlPlaneNodeType,
-                publicNodeCidr: (this.getFieldValue(AwsForm.VPC, 'vpcType') === 'new') ?
-                    this.getFieldValue(AwsForm.VPC, 'publicNodeCidr') : '',
-                privateNodeCidr: (this.getFieldValue(AwsForm.VPC, 'vpcType') === 'new') ?
-                    this.getFieldValue(AwsForm.VPC, 'privateNodeCidr') : '',
-                publicSubnetID: (this.getFieldValue(AwsForm.VPC, 'vpcType') === 'existing') ?
-                    this.getFieldValue(AwsForm.NODESETTING, 'vpcPublicSubnet3') : '',
-                privateSubnetID: (this.getFieldValue(AwsForm.VPC, 'vpcType') === 'existing') ?
-                    this.getFieldValue(AwsForm.NODESETTING, 'vpcPrivateSubnet3') : ''
-            });
+        if (this.getFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_AZ_3)) {
+            nodeAzList.push(this.getAzFieldData(AzRelatedFieldsArray[2], payload.controlPlaneNodeType));
         }
-
         return nodeAzList;
     }
+
     /**
      * @method method to trigger deployment
      */
@@ -360,4 +296,32 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
 
         // clear file reader target so user can re-select same file if needed
         event.target.value = '';
-    }}
+    }
+    // HTML convenience methods
+    //
+    get AwsProviderForm(): FormDataForHTML {
+        return {name: 'awsProviderForm', title: 'IaaS Provider',
+            description: 'Validate the AWS provider account for ' + this.title,
+            i18n: {title: 'IaaS provder step name', description: 'IaaS provder step description'},
+        clazz: AwsProviderStepComponent};
+    }
+    get AwsNodeSettingForm(): FormDataForHTML {
+        return { name: AwsForm.NODESETTING, title: FormUtility.titleCase(this.clusterTypeDescriptor) + ' Cluster Settings',
+            description: `Specify the resources backing the ${this.clusterTypeDescriptor} cluster`,
+            i18n: {title: 'IaaS provder step name', description: 'IaaS provder step description'},
+        clazz: NodeSettingStepComponent};
+    }
+    get AwsVpcForm(): FormDataForHTML {
+        return {name: 'vpcForm', title: 'VPC for AWS', description: 'Specify VPC settings for AWS',
+        i18n: {title: 'vpc step name', description: 'vpc step description'},
+        clazz: VpcStepComponent};
+    }
+    get AwsOsImageForm(): FormDataForHTML {
+        return this.getOsImageForm(AwsOsImageStepComponent);
+    }
+    get AwsNetworkForm(): FormDataForHTML {
+        return FormUtility.formOverrideDescription(this.NetworkForm, 'Specify the cluster Pod CIDR');
+    }
+    //
+    // HTML convenience methods
+}

@@ -7,6 +7,7 @@ import { StepFormDirective } from '../../../step-form/step-form';
 import { ValidationService } from '../../../validation/validation.service';
 import { LdapTestResult } from 'src/app/swagger/models';
 import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
+import { IdentityManagementType } from '../../../constants/wizard.constants';
 import { FormUtils } from '../../../utils/form-utils';
 
 const CONNECT = "CONNECT";
@@ -315,5 +316,19 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
     set verifyLdapConfig(vlc: boolean) {
         this._verifyLdapConfig = vlc;
         this.resetTimelineState();
+    }
+
+    dynamicDescription(): string {
+        const identityType = this.getFieldValue('identityType', true);
+        const ldapEndpointIp = this.getFieldValue('endpointIp', true);
+        const ldapEndpointPort = this.getFieldValue('endpointPort', true);
+        const oidcIssuer = this.getFieldValue('issuerURL', true);
+
+        if (identityType === IdentityManagementType.OIDC && oidcIssuer) {
+            return 'OIDC configured: ' + oidcIssuer;
+        } else if (identityType === IdentityManagementType.LDAP && ldapEndpointIp) {
+            return 'LDAP configured: ' + ldapEndpointIp + ':' + ldapEndpointPort;
+        }
+        return 'Specify identity management';
     }
 }

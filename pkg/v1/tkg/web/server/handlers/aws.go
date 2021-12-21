@@ -19,15 +19,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/aws"
 )
 
-// GetAWSEndpoint gets aws account info set in environment variables
-func (app *App) GetAWSEndpoint(params aws.GetAWSEndpointParams) middleware.Responder {
-	res := models.AWSAccountParams{
-		Region: os.Getenv(constants.ConfigVariableAWSRegion),
-	}
-
-	return aws.NewGetAWSEndpointOK().WithPayload(&res)
-}
-
 // SetAWSEndPoint verify and sets AWS account
 func (app *App) SetAWSEndPoint(params aws.SetAWSEndpointParams) middleware.Responder {
 	var err error

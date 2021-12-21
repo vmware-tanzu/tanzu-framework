@@ -402,4 +402,8 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     private resourceGroupContains(resourceGroupName: string) {
         return this.resourceGroups.find( resourceGroup => { return resourceGroup.name === resourceGroupName; });
     }
+    protected dynamicDescription(): string {
+        const tenant = this.getFieldValue('tenantId', true);
+        return tenant ? `Azure tenant: ${tenant}` : 'Validate the Azure provider credentials for Tanzu';
+    }
 }

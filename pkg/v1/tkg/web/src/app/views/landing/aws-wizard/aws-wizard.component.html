@@ -14,7 +14,7 @@
             ></clr-icon>
             <h2 i18n="wizard title" aria-level="1">
                 <div class="aws-ec2-icon-30 offset-top-2"></div>
-                Deploy {{ clusterTypeDescriptor | titlecase }} Cluster on Amazon Web Services
+                Deploy {{ clusterTypeDescriptorTitleCase }} Cluster on Amazon Web Services
             </h2>
             <ng-container *featureToggle="'management-cluster.import'">
                 <input type="file" class="file-input"
@@ -27,143 +27,7 @@
         </div>
     </div>
     <app-shared-delete-data-popup></app-shared-delete-data-popup>
-    <form clrStepper #wizard [formGroup]="form">
-        <clr-stepper-panel formGroupName="awsProviderForm" removeAriaLabelledBy>
-            <clr-step-title i18n="IaaS provder step name">
-                IaaS Provider
-            </clr-step-title>
-            <clr-step-description i18n="IaaS provder step description">
-                Validate the AWS provider credentials for {{ title }}
-            </clr-step-description>
-            <ng-container *ngIf="steps[0]">
-                <app-aws-provider-step [formGroup]="form.controls.awsProviderForm" formName="awsProvider">
-                </app-aws-provider-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-
-        <clr-stepper-panel formGroupName="vpcForm" removeAriaLabelledBy>
-            <clr-step-title i18n="vpc step name">
-                VPC for AWS
-            </clr-step-title>
-            <clr-step-description i18n="vpc step description">
-                {{ getStepDescription('vpc') }}
-            </clr-step-description>
-            <ng-container *ngIf="steps[1]">
-                <app-vpc-step [formGroup]="form.controls.vpcForm" formName="vpc">
-                </app-vpc-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-
-        <clr-stepper-panel formGroupName="awsNodeSettingForm" removeAriaLabelledBy>
-            <clr-step-title i18n="node setting step name">
-                {{ clusterTypeDescriptor | titlecase }} Cluster Settings
-            </clr-step-title>
-            <clr-step-description i18n="node setting step description">
-                {{ getStepDescription('nodeSetting') }}
-            </clr-step-description>
-            <ng-container *ngIf="steps[2]">
-                <app-node-setting-step [formGroup]="form.controls.awsNodeSettingForm" formName="awsNodeSettings">
-                </app-node-setting-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-
-        <clr-stepper-panel formGroupName="metadataForm" removeAriaLabelledBy>
-            <clr-step-title i18n="metadata step name">
-                Metadata
-            </clr-step-title>
-            <clr-step-description i18n="metadata step description">
-                {{ getStepDescription('metadata') }}
-            </clr-step-description>
-            <ng-container *ngIf="steps[3]">
-                <app-metadata-step [formGroup]="form.controls.metadataForm" formName="metadata">
-                </app-metadata-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-
-        <clr-stepper-panel formGroupName="networkForm" removeAriaLabelledBy>
-            <clr-step-title i18n="Kubernetes network step name">
-                Kubernetes Network
-            </clr-step-title>
-            <clr-step-description i18n="Kubernetes network step description">
-                {{ getStepDescription('network') }}
-            </clr-step-description>
-            <ng-container *ngIf="steps[4]">
-                <app-shared-network-step [formGroup]="form.controls.networkForm" formName="network">
-                </app-shared-network-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-
-        <clr-stepper-panel formGroupName="identityForm" removeAriaLabelledBy>
-            <clr-step-title i18n="identity step title">
-                Identity Management
-            </clr-step-title>
-            <clr-step-description i18n="identity step description">
-                {{ getStepDescription('identity') }}
-            </clr-step-description>
-            <ng-container *ngIf="steps[5]">
-                <app-shared-identity-step
-                        [formGroup]="form.controls.identityForm"
-                        formName="identity">
-                </app-shared-identity-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-
-        <clr-stepper-panel formGroupName="osImageForm">
-            <clr-step-title i18n="OS Image">
-                OS Image
-            </clr-step-title>
-            <clr-step-description i18n="OS Imagedescription">
-                {{ getStepDescription('osImage') }}
-            </clr-step-description>
-            <ng-container *ngIf="steps[6]">
-                <app-os-image-step [formGroup]="form.controls.osImageForm"
-                    formName="osimages" [wizardFormService]="wizardFormService" type="AWS"
-                    osImageTooltipContent="Select a base OS image that you have already imported
-                    into your AWS account. If no compatible OS image is present, import one into
-                    AWS and click the Refresh button">
-                </app-os-image-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-
-        <clr-stepper-panel formGroupName="ceipOptInForm" removeAriaLabelledBy *ngIf="edition === 'tkg'">
-            <clr-step-title i18n="ceip agreement step title">
-                CEIP Agreement
-            </clr-step-title>
-            <clr-step-description i18n="ceip agreement step description">
-                Join the CEIP Program for TKG
-            </clr-step-description>
-            <ng-container *ngIf="steps[7]">
-                <app-shared-ceip-step
-                    [formGroup]="form.controls.ceipOptInForm"
-                    formName="ceipOptIn">
-                </app-shared-ceip-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-    </form>
+    <app-step-wrapper-set [wizard]="registrar"></app-step-wrapper-set>
     <button class="btn btn-primary mt-20" [disabled]="!getWizardValidity()" (click)="reviewConfiguration(true)">
         REVIEW CONFIGURATION
     </button>
@@ -175,7 +39,7 @@
     <div class="clr-row mt-20">
         <div class="clr-col-12 btn-container">
             <button class="btn btn-primary deploy-btn" [disabled]="disableDeployButton" (click)="deploy()">
-                Deploy {{ clusterTypeDescriptor | titlecase }} Cluster
+                Deploy {{ clusterTypeDescriptorTitleCase }} Cluster
             </button>
             <button class="btn btn-outline edit-btn" (click)="reviewConfiguration(false)"
                 i18n="return to wizard for edit button">

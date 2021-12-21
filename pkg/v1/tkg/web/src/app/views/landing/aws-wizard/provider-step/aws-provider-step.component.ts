@@ -261,7 +261,8 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
                     this.setValidCredentials(true);
                 }),
                 ((err) => {
-                    const error = err.error.message || err.message || JSON.stringify(err);
+                    const errMsg = err.error ? err.error.message : null;
+                    const error = errMsg || err.message || JSON.stringify(err);
                     this.errorNotification = `Invalid AWS credentials: all credentials and region must be valid. ${error}`;
                     this.setValidCredentials(false);
                 }),

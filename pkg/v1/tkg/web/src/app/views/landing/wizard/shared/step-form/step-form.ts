@@ -1,5 +1,5 @@
 import {Directive, Input, OnInit} from '@angular/core';
-import {AbstractControl, FormGroup, ValidatorFn} from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, ValidatorFn } from '@angular/forms';
 
 import {ValidatorEnum} from './../constants/validation.constants';
 import {BasicSubscriber} from 'src/app/shared/abstracts/basic-subscriber';
@@ -8,10 +8,11 @@ import {TkgEvent, TkgEventType} from 'src/app/shared/service/Messenger';
 import {Notification, NotificationTypes} from 'src/app/shared/components/alert-notification/alert-notification.component';
 import Broker from 'src/app/shared/service/broker';
 
-import {distinctUntilChanged, takeUntil} from 'rxjs/operators';
-import {AppEdition} from 'src/app/shared/constants/branding.constants';
-import {EditionData} from 'src/app/shared/service/branding.service';
-import {IpFamilyEnum} from 'src/app/shared/constants/app.constants';
+import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { AppEdition } from 'src/app/shared/constants/branding.constants';
+import { EditionData } from 'src/app/shared/service/branding.service';
+import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
+import { FormUtility } from '../components/steps/form-utility';
 
 const INIT_FIELD_DELAY = 50;            // ms
 /**
@@ -21,20 +22,30 @@ const INIT_FIELD_DELAY = 50;            // ms
  */
 @Directive()
 export abstract class StepFormDirective extends BasicSubscriber implements OnInit {
-
-    @Input() formName;
-    @Input() formGroup: FormGroup;
-    @Input() savedMetadata: { [fieldName: string]: FormMetaData };
+    formName;
+    formGroup: FormGroup;
+    savedMetadata: { [fieldName: string]: FormMetaData };
 
     edition: AppEdition = AppEdition.TCE;
     validatorEnum = ValidatorEnum;
-    errorNotification: string;
+    errorNotification: string = '';
     configFileNotification: Notification;
     clusterTypeDescriptor: string;
     modeClusterStandalone: boolean;
     ipFamily: IpFamilyEnum = IpFamilyEnum.IPv4;
 
     private delayedFieldQueue = [];
+
+    // This method is expected to be overridden by any step that provides a dynamic description of itself
+    // (dynamic meaning depending on user-entered data)
+    protected dynamicDescription(): string {
+        return null;
+    }
+
+    setInputs(formName: string, formGroup: FormGroup) {
+        this.formName = formName;
+        this.formGroup = formGroup;
+    }
 
     ngOnInit(): void {
         this.getFormName();
@@ -79,6 +90,24 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         }
     }
 
+    // This method could be protected, since it's primarily intended for subclasses,
+    // but since it's helpful for tests to be able to use it, we make it public
+    getFieldValue(fieldName: string, suppressWarnings?: boolean): any {
+        if (!this.formGroup) {
+            if (!suppressWarnings) {
+                console.error('getFieldValue(' + fieldName + ') called without a formGroup set');
+            }
+            return;
+        }
+        if (!this.formGroup.controls[fieldName]) {
+            if (!suppressWarnings) {
+                console.error('getFieldValue(' + fieldName + ') called but no control by that name');
+            }
+            return;
+        }
+        return this.formGroup.controls[fieldName].value;
+    }
+
     /**
      * Safely looks up the saved value of a control in savedMetadata
      * @param fieldName the name of the control in savedMetadata
@@ -117,16 +146,9 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         return this.savedMetadata != null
     }
 
-    protected getFieldValue(fieldName: string): any {
-        const control = this.getControl(fieldName);
-        if (control === undefined || control === null) {
-            console.log('WARNING: getFieldValue() could not find field ' + fieldName );
-            return '';
-        }
-        return control.value;
-    }
-
-    protected setFieldValue(fieldName: string, value: any): void {
+    // This method could be protected, since it's primarily intended for subclasses,
+    // but since it's helpful for tests to be able to use it, we make it public
+    setFieldValue(fieldName: string, value: any): void {
         const control = this.getControl(fieldName);
         if (control === undefined || control === null) {
             console.log('WARNING: setFieldValue() could not find field ' + fieldName + ' to set value to ' + value);
@@ -365,4 +387,12 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         const defaultToUse = (defaultValue === undefined || defaultValue === null) ? '' : defaultValue;
         this.setControlValueSafely(controlName, this.getSavedValue(controlName, defaultToUse), options);
     }
+
+    // HTML convenience methods
+    //
+    get clusterTypeDescriptorTitleCase() {
+        return FormUtility.titleCase(this.clusterTypeDescriptor);
+    }
+    //
+    // HTML convenience methods
 }
