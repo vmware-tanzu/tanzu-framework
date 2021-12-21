@@ -32,6 +32,8 @@ import (
 const (
 	telemetryNamespace = "tkg-system-telemetry"
 	telemetryName      = "tkg-telemetry"
+	phaseSucceeded     = "Succeeded"
+	phaseRunning       = "Running"
 )
 
 type E2ECEIPSpecInput struct {
@@ -150,9 +152,11 @@ func verifyTelemetryJobRunning(context context.Context, mcProxy *framework.Clust
 	if err = client.Get(context, types.NamespacedName{Name: telemetryName, Namespace: telemetryNamespace}, cronJob); err != nil {
 		return err
 	}
+
 	// updating the telemetry cron job schedule to "* * * * *" so that the cronjob can be scheduled to run within the next 59 seconds
-	cronJob.Spec.Schedule = "* * * * *"
-	if err = client.Update(context, cronJob); err != nil {
+	cronJobToUpdate := cronJob.DeepCopy()
+	cronJobToUpdate.Spec.Schedule = "* * * * *"
+	if err = client.Update(context, cronJobToUpdate); err != nil {
 		return err
 	}
 
@@ -172,13 +176,11 @@ func verifyTelemetryJobRunning(context context.Context, mcProxy *framework.Clust
 	}); err != nil {
 		return err
 	}
-	if len(jobs.Items) == 0 {
-		return errors.New("no telemetry job is running")
-	}
 
 	// check to see if any telemetry pod gets created within pollTimeout time interval
 	pods := &v1.PodList{}
 	if err = wait.Poll(pollInterval, pollTimeout, func() (done bool, err error) {
+		pods = &v1.PodList{}
 		if err = client.List(context, pods, selectors...); err != nil {
 			if k8serr.IsNotFound(err) {
 				return false, nil
@@ -192,24 +194,37 @@ func verifyTelemetryJobRunning(context context.Context, mcProxy *framework.Clust
 	}); err != nil {
 		return err
 	}
-	if len(pods.Items) == 0 {
-		return errors.New("no telemetry pod is running")
-	}
 
-	// check to make sure that the telemetry pod does not have "Failed" status
-	if pods.Items[0].Status.Phase == "Failed" {
-		return errors.New("telemetry pod failed")
+	// check to make sure that the telemetry pods are in either of "Running" or "Succeeded" phases
+	if err = wait.Poll(pollInterval, pollTimeout, func() (done bool, err error) {
+		for i := range pods.Items {
+			po := &v1.Pod{}
+			if err = client.Get(context, types.NamespacedName{Name: pods.Items[i].Name, Namespace: telemetryNamespace}, po); err != nil {
+				if k8serr.IsNotFound(err) { // corner case: A pod in running state which has been kicked off by an older job, might have been terminated and not exist anymore
+					continue
+				}
+				return false, err
+			}
+			if po.Status.Phase != phaseSucceeded && po.Status.Phase != phaseRunning {
+				return false, nil
+			}
+		}
+		return true, nil
+	}); err != nil {
+		return err
 	}
 
 	// returning the telemetry cron job schedule back to "0 */6 * * *"
+	cronJob = &v1beta1.CronJob{}
 	if err = client.Get(context, types.NamespacedName{Name: telemetryName, Namespace: telemetryNamespace}, cronJob); err != nil {
 		return err
 	}
-	cronJob.Spec.Schedule = "0 */6 * * *"
-	if err = client.Update(context, cronJob); err != nil {
+	cronJobToUpdate = cronJob.DeepCopy()
+	cronJobToUpdate.Spec.Schedule = "0 */6 * * *"
+	if err = client.Update(context, cronJobToUpdate); err != nil {
 		return err
 	}
 
-	log.Info("successfully verified that telemetry job and pod are running")
+	log.Info("successfully verified that telemetry job and pods are running")
 	return nil
 }
