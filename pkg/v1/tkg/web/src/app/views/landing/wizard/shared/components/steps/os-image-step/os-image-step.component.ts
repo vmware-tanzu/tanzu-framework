@@ -1,7 +1,7 @@
 /**
  * Angular Modules
  */
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input} from '@angular/core';
 import {
     Validators,
     FormControl
@@ -21,6 +21,7 @@ import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form
 import Broker from 'src/app/shared/service/broker';
 import { Observable } from 'rxjs/internal/Observable';
 import { AWSVirtualMachine, AzureVirtualMachine } from 'src/app/swagger/models';
+import { FormUtils } from '../../../utils/form-utils';
 
 @Component({
     selector: 'app-os-image-step',
@@ -46,7 +47,8 @@ export class SharedOsImageStepComponent extends StepFormDirective implements OnI
 
     ngOnInit() {
         super.ngOnInit();
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'osImage',
             new FormControl('', [
                 Validators.required

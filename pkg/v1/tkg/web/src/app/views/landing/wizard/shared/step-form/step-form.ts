@@ -156,7 +156,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
             // if a key was saved (for a listbox), we use the key when setting the value of the control (ie the listbox)
             const valueForSettingControl = (savedKey) ? savedKey : savedValue;
 
-            control.setValue(valueForSettingControl);
+            control.setValue(valueForSettingControl, {  emitEvent: false });
             let index;
             if (index = this.delayedFieldQueue.indexOf(fieldName) >= 0) {
                 this.delayedFieldQueue.splice(index, 1);
@@ -175,7 +175,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         if (passwordControl === undefined || passwordControl === null) {
             console.log('WARNING: scrubPasswordField() is unable to find the field ' + fieldName);
         } else if (this.passwordContainsOnlyAsterisks(passwordControl.value)) {
-            passwordControl.setValue('');
+            passwordControl.setValue('', {onlySelf: true, emitEvent: false});
         }
         // if there is a real password in local storage (say, from import)
         // we erase it from local storage (presuming the caller has already used the value to set the field in the form)
@@ -257,29 +257,38 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         return field;
     }
 
-    disarmField(fieldName: string, clearSavedData: boolean) {
+    disarmField(fieldName: string, clearSavedData: boolean, options?: {
+        onlySelf?: boolean;
+        emitEvent?: boolean;
+    }) {
         const field = this.findField(fieldName, 'disarmField');
         if (field) {
             field.clearValidators();
-            field.setValue('');
-            field.updateValueAndValidity();
+            field.setValue('', options);
+            field.updateValueAndValidity(options);
             if (clearSavedData) {
                 this.clearFieldSavedData(fieldName);
             }
         }
     }
 
-    resurrectField(fieldName: string, validators: ValidatorFn[], value?: string) {
+    resurrectField(fieldName: string, validators: ValidatorFn[], value?: string, options?: {
+        onlySelf?: boolean;
+        emitEvent?: boolean;
+    }) {
         const field = this.findField(fieldName, 'resurrectField');
         if (field) {
             field.setValidators(validators);
-            field.updateValueAndValidity();
-            field.setValue(value || null);
+            field.updateValueAndValidity(options);
+            field.setValue(value || null, options);
         }
     }
 
-    resurrectFieldWithSavedValue(fieldName: string, validators: ValidatorFn[], defaultValue?: string) {
-        this.resurrectField(fieldName, validators, this.getSavedValue(fieldName, defaultValue));
+    resurrectFieldWithSavedValue(fieldName: string, validators: ValidatorFn[], defaultValue?: string, options?: {
+        onlySelf?: boolean;
+        emitEvent?: boolean;
+    }) {
+        this.resurrectField(fieldName, validators, this.getSavedValue(fieldName, defaultValue), options);
     }
 
     showFormError(formControlname) {
@@ -335,19 +344,25 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
             });
     }
 
-    protected setControlValueSafely(controlName: string, value: any) {
+    protected setControlValueSafely(controlName: string, value: any, options?: {
+        onlySelf?: boolean,
+        emitEvent?: boolean
+    }) {
         const control = this.formGroup.get(controlName);
         if (control) {
-            control.setValue(value);
+            control.setValue(value, options);
         }
     }
 
     protected clearControlValue(controlName: string) {
-        this.setControlValueSafely(controlName, '');
+        this.setControlValueSafely(controlName, '' , { onlySelf: true, emitEvent: false});
     }
 
-    protected setControlWithSavedValue(controlName: string, defaultValue?: any) {
+    protected setControlWithSavedValue(controlName: string, defaultValue?: any, options?: {
+        onlySelf?: boolean,
+        emitEvent?: boolean
+    }) {
         const defaultToUse = (defaultValue === undefined || defaultValue === null) ? '' : defaultValue;
-        this.setControlValueSafely(controlName, this.getSavedValue(controlName, defaultToUse));
+        this.setControlValueSafely(controlName, this.getSavedValue(controlName, defaultToUse), options);
     }
 }
