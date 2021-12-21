@@ -18,6 +18,10 @@ export class AzureOsImageStepComponent extends SharedOsImageStepComponent {
         super();
     }
 
+    ngOnInit() {
+        super.onInit();
+    }
+
     protected setProviderInputs() {
         this.wizardFormService = this.azureWizardFormService;
         this.eventType = TkgEventType.AZURE_GET_OS_IMAGES;

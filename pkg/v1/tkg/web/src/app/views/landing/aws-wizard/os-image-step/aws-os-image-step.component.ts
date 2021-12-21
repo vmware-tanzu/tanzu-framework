@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { SharedOsImageStepComponent } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
 import { VSphereWizardFormService } from '../../../../shared/service/vsphere-wizard-form.service';
 import { AwsWizardFormService } from '../../../../shared/service/aws-wizard-form.service';
@@ -16,6 +16,10 @@ import { TkgEventType } from '../../../../shared/service/Messenger';
 export class AwsOsImageStepComponent extends SharedOsImageStepComponent {
     constructor(private awsWizardFormService: AwsWizardFormService) {
         super();
+    }
+
+    ngOnInit() {
+        super.onInit();
     }
 
     protected setProviderInputs() {

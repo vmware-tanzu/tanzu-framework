@@ -16,6 +16,10 @@ export class VsphereOsImageStepComponent extends SharedOsImageStepComponent {
         this.tkrVersion.subscribe(value => { this.tkrVersionString = value; });
     }
 
+    ngOnInit() {
+        super.onInit();
+    }
+
     // NOTE: there is an inherent assumption here that the tkrVersion Observable will have delivered a value before
     // setProviderInputs() is called (so that the usage below will be valid)
     protected setProviderInputs() {

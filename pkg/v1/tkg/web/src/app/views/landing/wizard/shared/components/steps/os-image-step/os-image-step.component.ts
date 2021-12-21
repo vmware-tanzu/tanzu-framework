@@ -23,7 +23,7 @@ import { Observable } from 'rxjs/internal/Observable';
 import { AWSVirtualMachine, AzureVirtualMachine } from 'src/app/swagger/models';
 import { FormUtils } from '../../../utils/form-utils';
 
-export abstract class SharedOsImageStepComponent extends StepFormDirective implements OnInit {
+export abstract class SharedOsImageStepComponent extends StepFormDirective {
     wizardFormService: VSphereWizardFormService|AwsWizardFormService|AzureWizardFormService;
     enableNonTemplateAlert: boolean;
     noImageAlertMessage: string;
@@ -44,7 +44,8 @@ export abstract class SharedOsImageStepComponent extends StepFormDirective imple
     // This allows the step to follow the same pattern as all the other steps, which only take formGroup and formName as inputs.
     protected abstract setProviderInputs();
 
-    ngOnInit() {
+    // onInit() should be called from subclass' ngOnInit()
+    protected onInit() {
         super.ngOnInit();
         this.setProviderInputs();
         FormUtils.addControl(
