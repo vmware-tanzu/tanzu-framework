@@ -5,7 +5,7 @@
 --NAMESPACE:                        "NOTPROVIDED", "default", "test"
 --SIZE:                             "NOTPROVIDED", "medium"
 --WORKER-SIZE:                      "NOTPROVIDED", "large"
---CNI:                              "''", "antrea", "calico", "none"
+--CNI:                              "antrea", "calico", "none"
 --VSPHERE-CONTROLPLANE-ENDPOINT: "NOTPROVIDED", "10.10.10.10", "cluster.local"
 
 CONTROL_PLANE_MACHINE_COUNT: "NA","1","3","5"
@@ -51,6 +51,7 @@ _VSPHERE_CONTROL_PLANE_ENDPOINT: "NA", "10.10.10.10", "cluster.local"
 VSPHERE_CONTROL_PLANE_ENDPOINT_PORT: "6443", "443"
 VSPHERE_TLS_THUMBPRINT: "dummythumbprint"
 VSPHERE_VERSION: "NA", "7.0.0"
+VSPHERE_INSECURE: "true"
 
 AVI_ENABLE: "false", "true"
 
@@ -79,7 +80,7 @@ AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR: "", "10.161.139.0/20"
 AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME: "", "ManagementCluster-Network-control-plane"
 
 
-AVI_CA_DATA_B64: "-----BEGIN CERTIFICATE-----CgAwIBAgIBATANB-----END CERTIFICATE-----"
+AVI_CA_DATA_B64: "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tQ2dBd0lCQWdJQkFUQU5CLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo="
 AVI_LABELS: "", "<qq>{foo: 'bar'}<qq>"
 
 AVI_DISABLE_STATIC_ROUTE_SYNC: "true", "false"
