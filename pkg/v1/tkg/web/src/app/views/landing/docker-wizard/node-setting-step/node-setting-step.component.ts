@@ -8,6 +8,7 @@ import { FormMetaDataStore } from "../../wizard/shared/FormMetaDataStore";
 import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { DockerNodeSettingStepMapping } from './node-setting-step.fieldmapping';
+import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 
 @Component({
     selector: 'app-node-setting-step',
@@ -15,16 +16,15 @@ import { DockerNodeSettingStepMapping } from './node-setting-step.fieldmapping';
     styleUrls: ['./node-setting-step.component.scss']
 })
 export class NodeSettingStepComponent extends StepFormDirective implements OnInit {
-    constructor(private validationService: ValidationService, private fieldMapUtilities: FieldMapUtilities) {
-        super();
+    constructor(private validationService: ValidationService, protected fieldMapUtilities: FieldMapUtilities) {
+        super(fieldMapUtilities);
     }
 
-    ngOnInit(): void {
-        super.ngOnInit();
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, DockerNodeSettingStepMapping);
+    protected supplyStepMapping(): StepMapping {
+        return DockerNodeSettingStepMapping;
+    }
 
-        this.initFormWithSavedData();
-
+    protected customizeForm() {
         Broker.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
@@ -39,5 +39,11 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 // Clear event so that listeners in other provider workflows do not receive false notifications
                 Broker.messenger.clearEvent(TkgEventType.CONFIG_FILE_IMPORTED);
             });
+    }
+
+    ngOnInit(): void {
+        super.ngOnInit();
+
+        this.initFormWithSavedData();
     }
 }

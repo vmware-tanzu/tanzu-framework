@@ -11,6 +11,7 @@ import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { IdentityStepMapping } from './identity-step.fieldmapping';
 import { IdentityManagementType } from '../../../constants/wizard.constants';
 import { FormUtils } from '../../../utils/form-utils';
+import { StepMapping } from '../../../field-mapping/FieldMapping';
 
 const CONNECT = "CONNECT";
 const BIND = "BIND";
@@ -91,17 +92,17 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
     timelineError = {};
 
     constructor(private apiClient: APIClient,
-                private fieldMapUtilities: FieldMapUtilities,
+                protected fieldMapUtilities: FieldMapUtilities,
                 private validationService: ValidationService) {
-        super();
+        super(fieldMapUtilities);
         this.resetTimelineState();
     }
 
-    ngOnInit(): void {
-        super.ngOnInit();
+    protected supplyStepMapping(): StepMapping {
+        return IdentityStepMapping;
+    }
 
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, IdentityStepMapping);
-
+    protected customizeForm() {
         this.registerOnIpFamilyChange('issuerURL', [], [], () => {
             if (this.identityTypeValue === 'oidc') {
                 this.setOIDCValidators();
@@ -125,6 +126,10 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
                 this.disarmField('identityType', true);
             }
         });
+    }
+
+    ngOnInit(): void {
+        super.ngOnInit();
 
         this.initFormWithSavedData();
         this.identityTypeValue = this.getSavedValue('identityType', 'oidc');

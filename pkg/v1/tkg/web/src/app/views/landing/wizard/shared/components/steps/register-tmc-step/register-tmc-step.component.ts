@@ -10,6 +10,8 @@ import { FormControl } from '@angular/forms';
  */
 import { StepFormDirective } from '../../../step-form/step-form';
 import { FormUtils } from '../../../utils/form-utils';
+import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
+import { StepMapping } from '../../../field-mapping/FieldMapping';
 
 @Component({
     selector: 'app-shared-register-tmc-step',
@@ -21,8 +23,12 @@ export class SharedRegisterTmcStepComponent extends StepFormDirective implements
     configContent: any;
     emptyUrl: boolean = true;
 
-    constructor(private http: HttpClient) {
-        super();
+    constructor(private http: HttpClient, protected fieldMapUtilities: FieldMapUtilities) {
+        super(fieldMapUtilities);
+    }
+
+    protected supplyStepMapping(): StepMapping {
+        return undefined;
     }
 
     ngOnInit() {

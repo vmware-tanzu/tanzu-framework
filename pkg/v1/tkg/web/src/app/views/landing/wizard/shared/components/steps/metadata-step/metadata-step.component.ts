@@ -14,6 +14,7 @@ import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { MetadataStepMapping } from './metadata-step.fieldmapping';
 import { WizardForm } from '../../../constants/wizard.constants';
 import { FormUtils } from '../../../utils/form-utils';
+import { StepMapping } from '../../../field-mapping/FieldMapping';
 
 @Component({
     selector: 'app-metadata-step',
@@ -24,15 +25,17 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
     labels: Map<String, String> = new Map<String, String>();
 
     constructor(private validationService: ValidationService,
-                private fieldMapUtilities: FieldMapUtilities,
+                protected fieldMapUtilities: FieldMapUtilities,
                 private wizardFormService: VSphereWizardFormService) {
-        super();
+        super(fieldMapUtilities);
+    }
+
+    protected supplyStepMapping(): StepMapping {
+        return MetadataStepMapping;
     }
 
     ngOnInit() {
         super.ngOnInit();
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, MetadataStepMapping);
-
         this.initFormWithSavedData();
     }
 

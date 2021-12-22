@@ -23,6 +23,7 @@ import { Observable } from 'rxjs/internal/Observable';
 import { AWSVirtualMachine, AzureVirtualMachine } from 'src/app/swagger/models';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { OsImageStepMapping } from './os-image-step.fieldmapping';
+import { StepMapping } from '../../../field-mapping/FieldMapping';
 
 export abstract class SharedOsImageStepComponent extends StepFormDirective {
     wizardFormService: VSphereWizardFormService|AwsWizardFormService|AzureWizardFormService;
@@ -37,7 +38,7 @@ export abstract class SharedOsImageStepComponent extends StepFormDirective {
     tkrVersion: Observable<string>;
 
     protected constructor(protected fieldMapUtilities: FieldMapUtilities) {
-        super();
+        super(fieldMapUtilities);
         this.tkrVersion = Broker.appDataService.getTkrVersion();
     }
 
@@ -45,18 +46,19 @@ export abstract class SharedOsImageStepComponent extends StepFormDirective {
     // This allows the step to follow the same pattern as all the other steps, which only take formGroup and formName as inputs.
     protected abstract setProviderInputs();
 
-    // onInit() should be called from subclass' ngOnInit()
-    protected onInit() {
-        super.ngOnInit();
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, OsImageStepMapping);
+    protected supplyStepMapping(): StepMapping {
+        return OsImageStepMapping;
+    }
+
+    protected customizeForm() {
         /**
          * Whenever data center selection changes, reset the relevant fields
          */
-         Broker.messenger.getSubject(TkgEventType.DATACENTER_CHANGED)
-         .pipe(takeUntil(this.unsubscribe))
-         .subscribe(event => {
-             this.resetFieldsUponDCChange();
-         });
+        Broker.messenger.getSubject(TkgEventType.DATACENTER_CHANGED)
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe(event => {
+                this.resetFieldsUponDCChange();
+            });
 
         this.wizardFormService.getErrorStream(this.eventType)
             .pipe(takeUntil(this.unsubscribe))
@@ -73,6 +75,11 @@ export abstract class SharedOsImageStepComponent extends StepFormDirective {
                     this.formGroup.get('osImage').setValue(images[0]);
                 }
             });
+    }
+
+    // onInit() should be called from subclass' ngOnInit()
+    protected onInit() {
+        super.ngOnInit();
 
         this.initFormWithSavedData();
     }

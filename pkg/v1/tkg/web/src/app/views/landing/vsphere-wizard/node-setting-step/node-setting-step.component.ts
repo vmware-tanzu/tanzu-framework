@@ -18,6 +18,7 @@ import { VsphereField, VsphereNodeTypes } from '../vsphere-wizard.constants';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
 import { VsphereNodeSettingStepMapping, VsphereNodeSettingStandaloneStepMapping } from './node-setting-step.fieldmapping';
+import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 
 @Component({
     selector: 'app-node-setting-step',
@@ -39,22 +40,21 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     controlPlaneEndpointOptional = "";
 
     constructor(private validationService: ValidationService,
-                private fieldMapUtilities: FieldMapUtilities,
+                protected fieldMapUtilities: FieldMapUtilities,
         private wizardFormService: VSphereWizardFormService) {
 
-        super();
+        super(fieldMapUtilities);
         this.nodeTypes = [...VsphereNodeTypes];
     }
 
-    ngOnInit() {
-        super.ngOnInit();
-        // TODO: we dynamically set whether cluster names are required. We'd like to base this strictly on the feature flag, but
-        // until TCE installation includes setting the feature flag, we will also base it on the edition.
+    protected supplyStepMapping(): StepMapping {
         const fieldMappings = this.modeClusterStandalone ? VsphereNodeSettingStandaloneStepMapping : VsphereNodeSettingStepMapping;
         FieldMapUtilities.getFieldMapping(VsphereField.NODESETTING_CLUSTER_NAME, fieldMappings).required =
-            Broker.appDataService.isClusterNameRequired() || this.edition !== AppEdition.TKG;
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, fieldMappings);
+            Broker.appDataService.isClusterNameRequired();
+        return fieldMappings;
+    }
 
+    protected customizeForm() {
         this.registerOnValueChange(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_PROVIDER,
             this.onControlPlaneEndpoingProviderChange.bind(this));
         this.registerOnIpFamilyChange(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_IP, [
@@ -64,7 +64,12 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             Validators.required,
             this.validationService.isValidIpv6OrFqdn()
         ]);
+    }
 
+    ngOnInit() {
+        super.ngOnInit();
+
+        // TODO: can some of these subscriptions be moved to customizeForm()?
         setTimeout(_ => {
             this.displayForm = true;
             this.formGroup.get(VsphereField.NODESETTING_CONTROL_PLANE_SETTING).valueChanges.subscribe(data => {

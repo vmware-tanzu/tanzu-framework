@@ -24,6 +24,7 @@ import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { NetworkIpv4StepMapping, NetworkIpv6StepMapping } from './network-step.fieldmapping';
 import { managementClusterPlugin, WizardForm } from "../../../constants/wizard.constants";
 import { FormUtils } from '../../../utils/form-utils';
+import { StepMapping } from '../../../field-mapping/FieldMapping';
 
 declare var sortPaths: any;
 @Component({
@@ -45,29 +46,16 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
     hideWarning: boolean = true;
 
     constructor(private validationService: ValidationService,
-                private fieldMapUtilities: FieldMapUtilities,
+                protected fieldMapUtilities: FieldMapUtilities,
         private wizardFormService: VSphereWizardFormService) {
-        super();
+        super(fieldMapUtilities);
     }
 
-    ngOnInit() {
-        super.ngOnInit();
-        this.buildForm();
-        this.listenToEvents();
-
-        const cniTypeData = {
-            label: 'CNI PROVIDER',
-            displayValue: this.cniType,
-        } as FormMetaData;
-        FormMetaDataStore.saveMetaDataEntry(this.formName, 'cniType', cniTypeData);
-        // TODO: guessing we don't need this line (due to initFormWithSavedData() below)
-        this.formGroup.get('cniType').setValue(this.cniType, { onlySelf: true });
-        this.initFormWithSavedData();
+    protected supplyStepMapping(): StepMapping {
+        return this.ipFamily === IpFamilyEnum.IPv4 ? NetworkIpv4StepMapping : NetworkIpv6StepMapping;
     }
-    buildForm() {
-        const fieldMappings = this.ipFamily === IpFamilyEnum.IPv4 ? NetworkIpv4StepMapping : NetworkIpv6StepMapping;
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, fieldMappings);
 
+    protected customizeForm() {
         if (!this.enableNetworkName) {
             this.clearFieldSavedData('networkName');
             this.formGroup.removeControl('networkName');
@@ -83,6 +71,20 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
         });
 
         this.setValidators();
+    }
+
+    ngOnInit() {
+        super.ngOnInit();
+        this.listenToEvents();
+
+        const cniTypeData = {
+            label: 'CNI PROVIDER',
+            displayValue: this.cniType,
+        } as FormMetaData;
+        FormMetaDataStore.saveMetaDataEntry(this.formName, 'cniType', cniTypeData);
+        // TODO: guessing we don't need this line (due to initFormWithSavedData() below)
+        this.formGroup.get('cniType').setValue(this.cniType, { onlySelf: true });
+        this.initFormWithSavedData();
     }
 
     setValidators() {

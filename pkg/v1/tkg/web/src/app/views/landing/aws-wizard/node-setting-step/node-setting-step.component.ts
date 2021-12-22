@@ -20,6 +20,7 @@ import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import { AwsField, AwsForm } from "../aws-wizard.constants";
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { AwsNodeSettingStepMapping } from './node-setting-step.fieldmapping';
+import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 
 export interface AzNodeTypes {
     awsNodeAz1: Array<string>,
@@ -133,21 +134,19 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     airgappedVPC = false;
 
     constructor(private validationService: ValidationService,
-        private fieldMapUtilities: FieldMapUtilities,
+        protected fieldMapUtilities: FieldMapUtilities,
         private apiClient: APIClient,
         public awsWizardFormService: AwsWizardFormService) {
-        super();
+        super(fieldMapUtilities);
     }
 
-    ngOnInit() {
-        super.ngOnInit();
-
-        // TODO: we dynamically set whether cluster names are required. We'd like to base this strictly on the feature flag, but
-        // until TCE installation includes setting the feature flag, we will also base it on the edition.
+    protected supplyStepMapping(): StepMapping {
         FieldMapUtilities.getFieldMapping(AwsField.NODESETTING_CLUSTER_NAME, AwsNodeSettingStepMapping).required =
-            Broker.appDataService.isClusterNameRequired() || this.edition !== AppEdition.TKG;
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, AwsNodeSettingStepMapping);
+            Broker.appDataService.isClusterNameRequired();
+        return AwsNodeSettingStepMapping;
+    }
 
+    protected customizeForm() {
         Broker.messenger.getSubject(TkgEventType.AWS_AIRGAPPED_VPC_CHANGE).subscribe(event => {
             this.airgappedVPC = event.payload;
             if (this.airgappedVPC) { // public subnet IDs shouldn't be provided
@@ -280,6 +279,10 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             }
             this.updateVpcSubnets();
         });
+    }
+
+    ngOnInit() {
+        super.ngOnInit();
 
         setTimeout(_ => {
             this.displayForm = true;

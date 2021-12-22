@@ -11,6 +11,7 @@ import Broker from 'src/app/shared/service/broker';
 import { AwsField, VpcType } from "../aws-wizard.constants";
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { AwsVpcStepMapping } from './vpc-step.fieldmapping';
+import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 
 @Component({
     selector: 'app-vpc-step',
@@ -26,13 +27,16 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
 
     constructor(private validationService: ValidationService,
                 private awsWizardFormService: AwsWizardFormService,
-                private fieldMapUtilities: FieldMapUtilities) {
-        super();
+                protected fieldMapUtilities: FieldMapUtilities) {
+        super(fieldMapUtilities);
+    }
+
+    protected supplyStepMapping(): StepMapping {
+        return AwsVpcStepMapping;
     }
 
     ngOnInit() {
         super.ngOnInit();
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, AwsVpcStepMapping);
 
         this.formGroup.get(AwsField.VPC_TYPE).valueChanges
             .pipe(

@@ -17,8 +17,7 @@ import Broker from 'src/app/shared/service/broker';
 import { AzureField } from '../azure-wizard.constants';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { AzureVnetStandaloneStepMapping, AzureVnetStepMapping } from './vnet-step.fieldmapping';
-import { AzureForm } from '../azure-wizard.constants';
-import { FormUtils } from '../../wizard/shared/utils/form-utils';
+import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 
 const CUSTOM = "CUSTOM";
 export const EXISTING = "EXISTING";
@@ -57,19 +56,20 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
     vnetFieldsNew: Array<string> = [];
 
     constructor(private apiClient: APIClient,
-                private fieldMapUtilities: FieldMapUtilities,
+                protected fieldMapUtilities: FieldMapUtilities,
                 private validationService: ValidationService,
                 private wizardFormService: AzureWizardFormService) {
-        super();
+        super(fieldMapUtilities);
+    }
+
+    protected supplyStepMapping(): StepMapping {
+        return this.modeClusterStandalone ? AzureVnetStandaloneStepMapping : AzureVnetStepMapping;
     }
 
     /**
      * Create the initial form
      */
-    private buildForm() {
-        const fieldMappings = this.modeClusterStandalone ? AzureVnetStandaloneStepMapping : AzureVnetStepMapping;
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, fieldMappings);
-
+    protected customizeForm() {
         this.formGroup.get(AzureField.VNET_RESOURCE_GROUP).valueChanges
             .pipe(
                 distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
@@ -96,34 +96,6 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
                     payload: { info: (cidr ? cidr + ',' : '') + '169.254.0.0/16,168.63.129.16' }
                 });
             });
-    }
-
-    /**
-     * Initialize the form with data from the backend
-     */
-    private initForm() {
-        const customResourceGroup = FormMetaDataStore.getMetaDataItem("providerForm", "resourceGroupCustom");
-        this.customResourceGroup = customResourceGroup ? customResourceGroup.displayValue : '';
-    }
-
-    ngOnInit() {
-        super.ngOnInit();
-
-        this.vnetFieldsExisting = [AzureField.VNET_EXISTING_NAME, AzureField.VNET_CONTROLPLANE_SUBNET_NAME];
-        this.vnetFieldsNew =
-            [
-                AzureField.VNET_CUSTOM_NAME,
-                AzureField.VNET_CUSTOM_CIDR,
-                AzureField.VNET_CONTROLPLANE_NEWSUBNET_NAME,
-                AzureField.VNET_CONTROLPLANE_NEWSUBNET_CIDR,
-            ];
-        if (!this.modeClusterStandalone) {
-            this.vnetFieldsExisting.push(AzureField.VNET_WORKER_SUBNET_NAME);
-            this.vnetFieldsNew.push(AzureField.VNET_WORKER_NEWSUBNET_NAME, AzureField.VNET_WORKER_NEWSUBNET_CIDR);
-        }
-        this.buildForm();
-        this.initForm();
-
         /**
          * Whenever Azure region selection changes...
          */
@@ -162,6 +134,22 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
         this.registerOnValueChange(AzureField.VNET_CONTROLPLANE_NEWSUBNET_CIDR, this.onControlPlaneSubnetCidrNewChange.bind(this));
         this.registerOnValueChange(AzureField.VNET_CONTROLPLANE_SUBNET_NAME, this.onControlPlaneSubnetChange.bind(this));
         this.registerOnValueChange(AzureField.VNET_EXISTING_OR_CUSTOM, this.onExistingOrCustomOptionChange.bind(this));
+    }
+    ngOnInit() {
+        super.ngOnInit();
+
+        this.vnetFieldsExisting = [AzureField.VNET_EXISTING_NAME, AzureField.VNET_CONTROLPLANE_SUBNET_NAME];
+        this.vnetFieldsNew =
+            [
+                AzureField.VNET_CUSTOM_NAME,
+                AzureField.VNET_CUSTOM_CIDR,
+                AzureField.VNET_CONTROLPLANE_NEWSUBNET_NAME,
+                AzureField.VNET_CONTROLPLANE_NEWSUBNET_CIDR,
+            ];
+        if (!this.modeClusterStandalone) {
+            this.vnetFieldsExisting.push(AzureField.VNET_WORKER_SUBNET_NAME);
+            this.vnetFieldsNew.push(AzureField.VNET_WORKER_NEWSUBNET_NAME, AzureField.VNET_WORKER_NEWSUBNET_CIDR);
+        }
 
         this.initFormWithSavedData();
     }
@@ -196,6 +184,9 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
     }
 
     initFormWithSavedData() {
+        const customResourceGroup1 = FormMetaDataStore.getMetaDataItem("providerForm", "resourceGroupCustom");
+        this.customResourceGroup = customResourceGroup1 ? customResourceGroup1.displayValue : '';
+
         this.setControlWithSavedValue(AzureField.VNET_PRIVATE_CLUSTER, false);
 
         // if the user did an import, then we expect there may be a custom vnet value to be stored in AzureField.VNET_CUSTOM_NAME slot.

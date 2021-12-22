@@ -19,6 +19,7 @@ import { AzureNodeSettingStandaloneStepMapping, AzureNodeSettingStepMapping } fr
 import Broker from '../../../../shared/service/broker';
 import { AzureForm } from '../azure-wizard.constants';
 import { FormUtils } from '../../wizard/shared/utils/form-utils';
+import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 
 @Component({
     selector: 'app-node-setting-step',
@@ -33,18 +34,16 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     displayForm = false;
 
     constructor(private validationService: ValidationService,
-                private azureWizardFormService: AzureWizardFormService, private fieldMapUtilities: FieldMapUtilities) {
-        super();
+                private azureWizardFormService: AzureWizardFormService, protected fieldMapUtilities: FieldMapUtilities) {
+        super(fieldMapUtilities);
         this.nodeTypes = [];
     }
 
-    buildForm() {
-        // TODO: we dynamically set whether cluster names are required. We'd like to base this strictly on the feature flag, but
-        // until TCE installation includes setting the feature flag, we will also base it on the edition.
+    protected supplyStepMapping(): StepMapping {
         const fieldMappings = this.modeClusterStandalone ? AzureNodeSettingStandaloneStepMapping : AzureNodeSettingStepMapping;
         FieldMapUtilities.getFieldMapping('managementClusterName', fieldMappings).required =
-            Broker.appDataService.isClusterNameRequired() || this.edition !== AppEdition.TKG;
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, fieldMappings);
+            Broker.appDataService.isClusterNameRequired();
+        return fieldMappings;
     }
 
     initForm() {

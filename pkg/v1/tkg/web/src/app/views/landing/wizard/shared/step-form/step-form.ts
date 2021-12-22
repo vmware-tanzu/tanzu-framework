@@ -13,6 +13,8 @@ import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import { EditionData } from 'src/app/shared/service/branding.service';
 import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 import { FormUtility } from '../components/steps/form-utility';
+import { StepMapping } from '../field-mapping/FieldMapping';
+import { FieldMapUtilities } from '../field-mapping/FieldMapUtilities';
 
 const INIT_FIELD_DELAY = 50;            // ms
 /**
@@ -36,6 +38,10 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
 
     private delayedFieldQueue = [];
 
+    protected constructor(protected fieldMapUtilities: FieldMapUtilities) {
+        super();
+    }
+
     // This method is expected to be overridden by any step that provides a dynamic description of itself
     // (dynamic meaning depending on user-entered data)
     protected dynamicDescription(): string {
@@ -47,10 +53,27 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         this.formGroup = formGroup;
     }
 
+    // Child classes are expected to supply a mapping from which to build the form.
+    // If they do not have any fields, they can return null or undefined.
+    protected abstract supplyStepMapping(): StepMapping;
+    // Child classes are not expected to override this method, but they can if needed
+    protected buildForm() {
+        const stepMapping = this.supplyStepMapping();
+        if (stepMapping) {
+            this.fieldMapUtilities.buildForm(this.formGroup, this.formName, stepMapping);
+        }
+    }
+    // This method is called AFTER the form is created with all the controls. Child classes can override it as an easy
+    // place to set onChange handlers and the like
+    protected customizeForm() {
+    }
+
     ngOnInit(): void {
         this.getFormName();
         this.savedMetadata = FormMetaDataStore.getMetaData(this.formName);
         FormMetaDataStore.updateFormList(this.formName);
+
+        this.buildForm();
 
         // set branding and cluster type on branding change for base wizard components
         Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)

@@ -11,6 +11,7 @@ import { FormMetaDataStore, FormMetaData } from '../../../FormMetaDataStore';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { CeipStepMapping } from './ceip-step.fieldmapping';
+import { StepMapping } from '../../../field-mapping/FieldMapping';
 
 @Component({
     selector: 'app-shared-ceip-step',
@@ -18,12 +19,16 @@ import { CeipStepMapping } from './ceip-step.fieldmapping';
     styleUrls: ['./ceip-step.component.scss']
 })
 export class SharedCeipStepComponent extends StepFormDirective implements OnInit {
-    constructor(private fieldMapUtilities: FieldMapUtilities) {
-        super();
+    constructor(protected fieldMapUtilities: FieldMapUtilities) {
+        super(fieldMapUtilities);
     }
+
+    protected supplyStepMapping(): StepMapping {
+        return CeipStepMapping;
+    }
+
     ngOnInit() {
         super.ngOnInit();
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, CeipStepMapping);
 
         this.initFormWithSavedData();
     }

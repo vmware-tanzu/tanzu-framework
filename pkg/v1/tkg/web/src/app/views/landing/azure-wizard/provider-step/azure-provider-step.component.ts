@@ -18,6 +18,7 @@ import {NotificationTypes} from "../../../../shared/components/alert-notificatio
 import { AzureField, ResourceGroupOption } from '../azure-wizard.constants';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { AzureProviderStepMapping } from './azure-provider-step.fieldmapping';
+import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 
 enum ProviderField {
     AZURECLOUD = 'azureCloud',
@@ -70,44 +71,20 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
 
     constructor(
         private apiClient: APIClient,
-        private fieldMapUtilities: FieldMapUtilities,
+        protected fieldMapUtilities: FieldMapUtilities,
         private wizardFormService: AzureWizardFormService,
         private validationService: ValidationService) {
-        super();
+        super(fieldMapUtilities);
     }
 
-    /**
-     * Create the initial form
-     */
-    private buildForm() {
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, AzureProviderStepMapping);
+    protected supplyStepMapping(): StepMapping {
+        return AzureProviderStepMapping;
+    }
+
+    protected customizeForm() {
         this.formGroup['canMoveToNext'] = () => {
             return this.formGroup.valid && this.validCredentials;
         }
-    }
-
-    /**
-     * Set the hidden form field to proper value based on form validity
-     * @param valid whether we want the form to be valid
-     */
-    setValidCredentials(valid) {
-        this.validCredentials = valid;
-    }
-
-    /**
-     * Initialize the form with data from the backend
-     * @param credentials Azure credentials
-     * @param regions Azure regions
-     */
-    private initForm() {
-        this.initAzureCredentials();
-    }
-
-    ngOnInit() {
-        super.ngOnInit();
-
-        this.buildForm();
-        this.initForm();
 
         this.wizardFormService.getErrorStream(TkgEventType.AZURE_GET_RESOURCE_GROUPS)
             .pipe(takeUntil(this.unsubscribe))
@@ -150,8 +127,8 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
                 distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
                 takeUntil(this.unsubscribe)
             ).subscribe((val) => {
-                this.onRegionChange(val)
-            });
+            this.onRegionChange(val)
+        });
 
         Broker.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
             .pipe(takeUntil(this.unsubscribe))
@@ -167,7 +144,20 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
                 // Clear event so that listeners in other provider workflows do not receive false notifications
                 Broker.messenger.clearEvent(TkgEventType.CONFIG_FILE_IMPORTED);
             });
+    }
 
+    /**
+     * Set the hidden form field to proper value based on form validity
+     * @param valid whether we want the form to be valid
+     */
+    setValidCredentials(valid) {
+        this.validCredentials = valid;
+    }
+
+    ngOnInit() {
+        super.ngOnInit();
+
+        this.initAzureCredentials();
         this.initFormWithSavedData();
     }
 

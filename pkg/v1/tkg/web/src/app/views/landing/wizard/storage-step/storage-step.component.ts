@@ -8,6 +8,8 @@ import {
 } from '@angular/forms';
 
 import { StepFormDirective } from '../shared/step-form/step-form';
+import { FieldMapUtilities } from '../shared/field-mapping/FieldMapUtilities';
+import { StepMapping } from '../shared/field-mapping/FieldMapping';
 
 @Component({
     selector: 'app-storage-step',
@@ -16,8 +18,12 @@ import { StepFormDirective } from '../shared/step-form/step-form';
 })
 export class StorageStepComponent extends StepFormDirective implements OnInit {
 
-    constructor() {
-        super();
+    constructor(protected fieldMapUtilities: FieldMapUtilities) {
+        super(fieldMapUtilities);
+    }
+
+    protected supplyStepMapping(): StepMapping {
+        return undefined;
     }
 
     ngOnInit() {

@@ -22,6 +22,7 @@ import Broker from 'src/app/shared/service/broker';
 import { VsphereField } from "../vsphere-wizard.constants";
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { VsphereResourceStepMapping } from './resource-step.fieldmapping';
+import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 
 declare var sortPaths: any;
 
@@ -76,14 +77,17 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
 
     constructor(
         private wizardFormService: VSphereWizardFormService,
-        private fieldMapUtilities: FieldMapUtilities,
+        protected fieldMapUtilities: FieldMapUtilities,
         private validationService: ValidationService) {
-        super();
+        super(fieldMapUtilities);
+    }
+
+    protected supplyStepMapping(): StepMapping {
+        return VsphereResourceStepMapping;
     }
 
     ngOnInit() {
         super.ngOnInit();
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, VsphereResourceStepMapping);
 
         const temp = DataSources.map(source => this.wizardFormService.getErrorStream(source));
         combineLatest(...temp)

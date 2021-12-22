@@ -19,6 +19,7 @@ import Broker from 'src/app/shared/service/broker';
 import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { LoadBalancerStepMapping } from './load-balancer-step.fieldmapping';
+import { StepMapping } from '../../../field-mapping/FieldMapping';
 
 export const KUBE_VIP = 'Kube-vip';
 export const NSX_ADVANCED_LOAD_BALANCER = "NSX Advanced Load Balancer";
@@ -57,20 +58,16 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
 
     constructor(private validationService: ValidationService,
         private apiClient: APIClient,
-                private fieldMapUtilities: FieldMapUtilities,
+                protected fieldMapUtilities: FieldMapUtilities,
                 private wizardFormService: VSphereWizardFormService) {
-        super();
+        super(fieldMapUtilities);
     }
 
-    ngOnInit() {
-        super.ngOnInit();
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, LoadBalancerStepMapping);
+    protected supplyStepMapping(): StepMapping {
+        return LoadBalancerStepMapping;
+    }
 
-        this.vipClusterNetworkNameLabel = this.modeClusterStandalone ?
-            'STANDALONE CLUSTER VIP NETWORK NAME' : 'MANAGEMENT VIP NETWORK NAME';
-        this.vipClusterNetworkCidrLabel = this.modeClusterStandalone ?
-            'STANDALONE CLUSTER VIP NETWORK CIDR' : 'MANAGEMENT VIP NETWORK CIDR';
-
+    protected customizeForm() {
         SupervisedFields.forEach(field => {
             this.formGroup.get(field).valueChanges
                 .pipe(
@@ -118,6 +115,15 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
             this.validationService.isValidIpNetworkSegment()], [
             this.validationService.isValidIpv6NetworkSegment()
         ]);
+    }
+
+    ngOnInit() {
+        super.ngOnInit();
+
+        this.vipClusterNetworkNameLabel = this.modeClusterStandalone ?
+            'STANDALONE CLUSTER VIP NETWORK NAME' : 'MANAGEMENT VIP NETWORK NAME';
+        this.vipClusterNetworkCidrLabel = this.modeClusterStandalone ?
+            'STANDALONE CLUSTER VIP NETWORK CIDR' : 'MANAGEMENT VIP NETWORK CIDR';
 
         this.initFormWithSavedData();
     }

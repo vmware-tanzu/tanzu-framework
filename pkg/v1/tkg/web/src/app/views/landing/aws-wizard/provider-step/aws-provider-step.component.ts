@@ -16,6 +16,7 @@ import { AwsField, CredentialType } from "../aws-wizard.constants";
 import {NotificationTypes} from "../../../../shared/components/alert-notification/alert-notification.component";
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { AwsProviderStepMapping } from './aws-provider-step.fieldmapping';
+import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 
 export const AWSAccountParamsKeys = [
     AwsField.PROVIDER_PROFILE_NAME,
@@ -39,16 +40,15 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
     validCredentials: boolean = false;
     isProfileChoosen: boolean = false;
 
-    constructor(private fieldMapUtilities: FieldMapUtilities, private apiClient: APIClient) {
-        super();
+    constructor(protected fieldMapUtilities: FieldMapUtilities, private apiClient: APIClient) {
+        super(fieldMapUtilities);
     }
 
-    /**
-     * Create the initial form
-     */
-    private buildForm() {
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, AwsProviderStepMapping);
+    protected supplyStepMapping(): StepMapping {
+        return AwsProviderStepMapping;
+    }
 
+    protected customizeForm() {
         this.formGroup['canMoveToNext'] = () => {
             return this.formGroup.valid && this.validCredentials;
         }
@@ -90,7 +90,6 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
         super.ngOnInit();
 
         this.loading = true;
-        this.buildForm();
         this.initForm();
 
         this.formGroup.valueChanges

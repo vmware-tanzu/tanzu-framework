@@ -29,6 +29,7 @@ import { IpFamilyEnum } from "../../../../shared/constants/app.constants";
 import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { VsphereProviderStepFieldMapping } from './vsphere-provider-step.fieldmapping';
+import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 
 declare var sortPaths: any;
 
@@ -71,23 +72,19 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
     enableIpv6: boolean = false;
 
     constructor(private validationService: ValidationService,
-                private fieldMapUtilities: FieldMapUtilities,
+                protected fieldMapUtilities: FieldMapUtilities,
         private apiClient: APIClient,
         private router: Router) {
-        super();
+        super(fieldMapUtilities);
 
         this.fileReader = new FileReader();
     }
 
-    ngOnInit() {
-        super.ngOnInit();
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, VsphereProviderStepFieldMapping);
+    protected supplyStepMapping(): StepMapping {
+        return VsphereProviderStepFieldMapping;
+    }
 
-        this.enableIpv6 = Broker.appDataService.isPluginFeatureActivated(managementClusterPlugin, 'vsphereIPv6');
-        this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).disable();
-        this.datacenters = [];
-        this.formGroup.get(VsphereField.PROVIDER_SSH_KEY).disable({ emitEvent: false});
-
+    protected customizeForm() {
         SupervisedField.forEach(field => {
             this.formGroup.get(field).valueChanges
                 .pipe(
@@ -145,12 +142,21 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
             this.formGroup.get(VsphereField.PROVIDER_SSH_KEY_FILE).setValue('');
         };
         this.registerOnIpFamilyChange(VsphereField.PROVIDER_VCENTER_ADDRESS, [
-                Validators.required,
-                this.validationService.isValidIpOrFqdn()
-            ], [
-                Validators.required,
-                this.validationService.isValidIpv6OrFqdn()
-            ]);
+            Validators.required,
+            this.validationService.isValidIpOrFqdn()
+        ], [
+            Validators.required,
+            this.validationService.isValidIpv6OrFqdn()
+        ]);
+    }
+
+    ngOnInit() {
+        super.ngOnInit();
+        this.enableIpv6 = Broker.appDataService.isPluginFeatureActivated(managementClusterPlugin, 'vsphereIPv6');
+        this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).disable();
+        this.datacenters = [];
+        this.formGroup.get(VsphereField.PROVIDER_SSH_KEY).disable({ emitEvent: false});
+
         this.initFormWithSavedData();
     }
     disconnect() {
