@@ -15,7 +15,7 @@ import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUti
     styleUrls: ['../../wizard/shared/components/steps/os-image-step/os-image-step.component.scss']
 })
 export class AzureOsImageStepComponent extends SharedOsImageStepComponent {
-    constructor(private azureWizardFormService: AzureWizardFormService, fieldMapUtilities: FieldMapUtilities) {
+    constructor(private azureWizardFormService: AzureWizardFormService, protected fieldMapUtilities: FieldMapUtilities) {
         super(fieldMapUtilities);
     }
 
