@@ -19,10 +19,10 @@ import { SimpleValidator, ValidatorEnum } from '../constants/validation.constant
  */
 @Injectable()
 export class ValidationService {
-    simpleValidatorMap: Map<SimpleValidator, (control:AbstractControl) => ValidationErrors>;
+    simpleValidatorMap: Map<SimpleValidator, (control: AbstractControl) => ValidationErrors>;
 
     constructor() {
-        this.simpleValidatorMap = new Map<SimpleValidator, (control:AbstractControl) => any>([
+        this.simpleValidatorMap = new Map<SimpleValidator, (control: AbstractControl) => any>([
             [ SimpleValidator.IS_COMMA_SEPARATED_LIST, this.isCommaSeperatedList() ],
             [ SimpleValidator.IS_HTTP_OR_HTTPS, this.isHttpOrHttps() ],
             [ SimpleValidator.IS_NUMBER_POSITIVE, this.isNumberGreaterThanZero() ],
@@ -49,7 +49,7 @@ export class ValidationService {
         ]);
     }
 
-    getSimpleValidator(requested: SimpleValidator): (control:AbstractControl) => any {
+    getSimpleValidator(requested: SimpleValidator): (control: AbstractControl) => any {
         return this.simpleValidatorMap.get(requested);
     }
 

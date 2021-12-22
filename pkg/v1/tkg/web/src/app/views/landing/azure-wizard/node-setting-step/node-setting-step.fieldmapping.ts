@@ -17,5 +17,3 @@ export const AzureNodeSettingStepMapping: StepMapping = {
         { name: AzureField.NODESETTING_WORKERTYPE, required: true },
     ]
 }
-
-

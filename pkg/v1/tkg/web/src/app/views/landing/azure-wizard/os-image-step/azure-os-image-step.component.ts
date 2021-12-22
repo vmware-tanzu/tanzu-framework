@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { SharedOsImageStepComponent } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
 import { VSphereWizardFormService } from '../../../../shared/service/vsphere-wizard-form.service';
 import { AwsWizardFormService } from '../../../../shared/service/aws-wizard-form.service';
@@ -14,7 +14,7 @@ import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUti
     templateUrl: '../../wizard/shared/components/steps/os-image-step/os-image-step.component.html',
     styleUrls: ['../../wizard/shared/components/steps/os-image-step/os-image-step.component.scss']
 })
-export class AzureOsImageStepComponent extends SharedOsImageStepComponent {
+export class AzureOsImageStepComponent extends SharedOsImageStepComponent implements OnInit {
     constructor(private azureWizardFormService: AzureWizardFormService, protected fieldMapUtilities: FieldMapUtilities) {
         super(fieldMapUtilities);
     }

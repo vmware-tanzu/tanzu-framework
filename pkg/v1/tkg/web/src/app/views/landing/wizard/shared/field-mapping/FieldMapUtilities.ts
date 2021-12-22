@@ -19,7 +19,7 @@ export class FieldMapUtilities {
     // Note: the form name is only used to retrieve saved values
     buildForm(formGroup: FormGroup, formName: string, stepMapping: StepMapping) {
         stepMapping.fieldMappings.forEach(fieldMapping => {
-            let validators = fieldMapping.required ? [Validators.required] : [];
+            const validators = fieldMapping.required ? [Validators.required] : [];
             if (fieldMapping.validators && fieldMapping.validators.length > 0) {
                 fieldMapping.validators.forEach( (simpleValidator, index) => {
                     const validator = this.validationService.getSimpleValidator(simpleValidator);

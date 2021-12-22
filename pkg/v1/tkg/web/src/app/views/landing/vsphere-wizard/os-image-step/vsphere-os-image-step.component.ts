@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { SharedOsImageStepComponent } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
 import { VSphereWizardFormService } from '../../../../shared/service/vsphere-wizard-form.service';
 import { TkgEventType } from '../../../../shared/service/Messenger';
@@ -9,7 +9,7 @@ import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUti
     templateUrl: '../../wizard/shared/components/steps/os-image-step/os-image-step.component.html',
     styleUrls: ['../../wizard/shared/components/steps/os-image-step/os-image-step.component.scss']
 })
-export class VsphereOsImageStepComponent extends SharedOsImageStepComponent {
+export class VsphereOsImageStepComponent extends SharedOsImageStepComponent implements OnInit {
     private tkrVersionString: string;
 
     constructor(private vSphereWizardFormService: VSphereWizardFormService, fieldMapUtilities: FieldMapUtilities) {

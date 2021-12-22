@@ -210,7 +210,11 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
         this.resourceGroupCreationState = 'create';
         this.resourceGroupOption = ResourceGroupOption.EXISTING;
 
-        [AzureField.PROVIDER_TENANT, AzureField.PROVIDER_CLIENT, AzureField.PROVIDER_SUBSCRIPTION, AzureField.PROVIDER_AZURECLOUD].forEach( accountField => {
+        [   AzureField.PROVIDER_TENANT,
+            AzureField.PROVIDER_CLIENT,
+            AzureField.PROVIDER_SUBSCRIPTION,
+            AzureField.PROVIDER_AZURECLOUD
+        ].forEach( accountField => {
             this.initFieldWithSavedData(accountField);
         });
         this.initFieldWithSavedData(AzureField.PROVIDER_SSHPUBLICKEY);

@@ -14,7 +14,7 @@ import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUti
     templateUrl: '../../wizard/shared/components/steps/os-image-step/os-image-step.component.html',
     styleUrls: ['../../wizard/shared/components/steps/os-image-step/os-image-step.component.scss']
 })
-export class AwsOsImageStepComponent extends SharedOsImageStepComponent {
+export class AwsOsImageStepComponent extends SharedOsImageStepComponent implements OnInit {
     constructor(private awsWizardFormService: AwsWizardFormService, fieldMapUtilities: FieldMapUtilities) {
         super(fieldMapUtilities);
     }

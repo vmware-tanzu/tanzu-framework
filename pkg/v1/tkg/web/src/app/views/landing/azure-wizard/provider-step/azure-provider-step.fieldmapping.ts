@@ -15,4 +15,3 @@ export const AzureProviderStepMapping: StepMapping = {
         { name: AzureField.PROVIDER_TENANT, required: true },
     ]
 }
-
