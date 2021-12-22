@@ -352,13 +352,15 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
                     this.resurrectField(
                         fieldName,
                         ipv4Validators,
-                        this.formGroup.get(fieldName).value
+                        this.formGroup.get(fieldName).value,
+                        {emitEvent: false, onlySelf: true}
                     );
                 } else {
                     this.resurrectField(
                         fieldName,
                         ipv6Validators,
-                        this.formGroup.get(fieldName).value
+                        this.formGroup.get(fieldName).value,
+                        {emitEvent: false, onlySelf: true}
                     );
                 }
                 this.ipFamily = data.payload;

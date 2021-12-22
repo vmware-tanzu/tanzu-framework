@@ -3,7 +3,7 @@
  */
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { AbstractControl, FormControl, Validators } from '@angular/forms';
+import { Validators } from '@angular/forms';
 import { ClrLoadingState } from '@clr/angular';
 import { debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs/operators';
 import * as _ from 'lodash';
@@ -15,7 +15,6 @@ import { APP_ROUTES, Routes } from 'src/app/shared/constants/routes.constants';
 import { APIClient } from 'src/app/swagger/api-client.service';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { VSphereDatacenter } from 'src/app/swagger/models/v-sphere-datacenter.model';
-import { ValidatorEnum } from '../../wizard/shared/constants/validation.constants';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
 import { SSLThumbprintModalComponent } from '../../wizard/shared/components/modals/ssl-thumbprint-modal/ssl-thumbprint-modal.component';
@@ -25,11 +24,9 @@ import { EditionData } from 'src/app/shared/service/branding.service';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import { managementClusterPlugin } from "../../wizard/shared/constants/wizard.constants";
 import { VsphereField } from "../vsphere-wizard.constants";
-import { IpFamilyEnum } from "../../../../shared/constants/app.constants";
 import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { VsphereProviderStepFieldMapping } from './vsphere-provider-step.fieldmapping';
-import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 
 declare var sortPaths: any;
 
@@ -94,8 +91,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                     takeUntil(this.unsubscribe)
                 )
                 .subscribe(() => {
-                    console.log('disconnecting because field ' + field + ' changed value');
-                    this.disconnect();
+                    this.disconnect('disconnecting because field ' + field + ' changed value');
                 });
         });
 
@@ -105,7 +101,11 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
 
         this.formGroup.get(VsphereField.PROVIDER_IP_FAMILY).valueChanges
             .pipe(
-                distinctUntilChanged(),
+                distinctUntilChanged((prev, curr) => {
+                    const same = prev === curr;
+                    console.log('field PROVIDER_IP_FAMILY detects ' + !same + ' change from ' + prev + ' to ' + curr);
+                    return same;
+                }),
                 takeUntil(this.unsubscribe)
             )
             .subscribe(data => {
@@ -113,8 +113,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 type: TkgEventType.IP_FAMILY_CHANGE,
                 payload: data
             });
-            console.log('disconnecting because field PROVIDER_IP_FAMILY changed value to ' + data);
-            this.disconnect();
+            this.disconnect('disconnecting because field PROVIDER_IP_FAMILY changed value to ' + data);
         });
 
         Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
@@ -162,20 +161,28 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
         super.ngOnInit();
         this.enableIpv6 = Broker.appDataService.isPluginFeatureActivated(managementClusterPlugin, 'vsphereIPv6');
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, VsphereProviderStepFieldMapping);
-        this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).disable();
+        this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).disable({ emitEvent: false});
         this.datacenters = [];
         this.formGroup.get(VsphereField.PROVIDER_SSH_KEY).disable({ emitEvent: false});
         this.customizeForm();
 
         this.initFormWithSavedData();
     }
-    disconnect() {
-        this.connected = false;
-        this.loadingState = ClrLoadingState.DEFAULT;
-        this.formGroup.markAsPending(); // a temperary fix to ignore this.formGroup.statusChanges detection
-        this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).setValue('');
-        this.datacenters = [];
-        this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).disable();
+
+    private disconnect(consoleMsg?: string) {
+        if (this.connected) {
+            if (consoleMsg) {
+                console.log(consoleMsg);
+            }
+            this.connected = false;
+            this.loadingState = ClrLoadingState.DEFAULT;
+            this.formGroup.markAsPending(); // a temporary fix to ignore this.formGroup.statusChanges detection
+            this.clearControlValue(VsphereField.PROVIDER_DATA_CENTER);
+            this.datacenters = [];
+            this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).disable();
+        } else {
+            console.log('Ignoring disconnect request (msg:' + consoleMsg + ')');
+        }
     }
     initFormWithSavedData() {
         super.initFormWithSavedData();
