@@ -1,26 +1,21 @@
-/**
- * Angular Modules
- */
+// Angular modules
 import { Component, OnInit } from '@angular/core';
-import {
-    Validators,
-    FormControl
-} from '@angular/forms';
+import { Validators, FormControl } from '@angular/forms';
+
+// Third party imports
 import { takeUntil } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
 
-/**
- * App imports
- */
+// App imports
 import { VSphereDatastore } from '../../../../swagger/models/v-sphere-datastore.model';
 import { VSphereFolder } from '../../../../swagger/models/v-sphere-folder.model';
 import { TkgEventType } from '../../../../shared/service/Messenger';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import Broker from 'src/app/shared/service/broker';
-import { VsphereField } from "../vsphere-wizard.constants";
+import { VsphereField } from '../vsphere-wizard.constants';
 import { FormUtils } from '../../wizard/shared/utils/form-utils';
+import Broker from 'src/app/shared/service/broker';
 
 declare var sortPaths: any;
 
@@ -45,10 +40,10 @@ const DataSources = [
 ];
 
 const DataTargets = {
-    [TkgEventType.GET_RESOURCE_POOLS]: "resourcePools",
-    [TkgEventType.GET_COMPUTE_RESOURCE]: "computeResources",
-    [TkgEventType.GET_DATA_STORES]: "datastores",
-    [TkgEventType.GET_VM_FOLDERS]: "vmFolders"
+    [TkgEventType.GET_RESOURCE_POOLS]: 'resourcePools',
+    [TkgEventType.GET_COMPUTE_RESOURCE]: 'computeResources',
+    [TkgEventType.GET_DATA_STORES]: 'datastores',
+    [TkgEventType.GET_VM_FOLDERS]: 'vmFolders'
 };
 
 enum ResourceType {
@@ -109,7 +104,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
         combineLatest(...temp)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(errors => {
-                this.errorNotification = errors.filter(error => error).join(" ")
+                this.errorNotification = errors.filter(error => error).join(' ')
             });
 
         /**
@@ -188,7 +183,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
                 }
             }
         } else {
-            fieldsToReset.forEach(f => this.formGroup.get(f).setValue(""));
+            fieldsToReset.forEach(f => this.formGroup.get(f).setValue(''));
         }
     }
 

@@ -1,16 +1,14 @@
-/**
- * Angular Modules
- */
+// Angular modules
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { AbstractControl, FormControl, Validators } from '@angular/forms';
+import { FormControl, Validators } from '@angular/forms';
 import { ClrLoadingState } from '@clr/angular';
+
+// Third party imports
 import { debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs/operators';
 import * as _ from 'lodash';
 
-/**
- * App imports
- */
+// App imports
 import { APP_ROUTES, Routes } from 'src/app/shared/constants/routes.constants';
 import { APIClient } from 'src/app/swagger/api-client.service';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
@@ -20,14 +18,14 @@ import { ValidationService } from '../../wizard/shared/validation/validation.ser
 import { TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
 import { SSLThumbprintModalComponent } from '../../wizard/shared/components/modals/ssl-thumbprint-modal/ssl-thumbprint-modal.component';
 import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
-import Broker from 'src/app/shared/service/broker';
 import { EditionData } from 'src/app/shared/service/branding.service';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
-import { managementClusterPlugin } from "../../wizard/shared/constants/wizard.constants";
-import { VsphereField } from "../vsphere-wizard.constants";
-import { IpFamilyEnum } from "../../../../shared/constants/app.constants";
-import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
+import { managementClusterPlugin } from '../../wizard/shared/constants/wizard.constants';
+import { VsphereField } from '../vsphere-wizard.constants';
+import { IpFamilyEnum } from '../../../../shared/constants/app.constants';
+import { NotificationTypes } from '../../../../shared/components/alert-notification/alert-notification.component';
 import { FormUtils } from '../../wizard/shared/utils/form-utils';
+import Broker from 'src/app/shared/service/broker';
 
 declare var sortPaths: any;
 
@@ -321,7 +319,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
         if (validThumbprint) {
             this.login();
         } else {
-            this.errorNotification = "Connection failed. Certificate thumbprint was not validated.";
+            this.errorNotification = 'Connection failed. Certificate thumbprint was not validated.';
         }
     }
 
@@ -420,7 +418,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
      */
     dcOnChange(datacenter: string) {
         const dcMoid = this.datacenters.find(dc => dc.name === datacenter)
-            && this.datacenters.find(dc => dc.name === datacenter).moid || "";
+            && this.datacenters.find(dc => dc.name === datacenter).moid || '';
         Broker.messenger.publish({
             type: TkgEventType.DATACENTER_CHANGED,
             payload: dcMoid

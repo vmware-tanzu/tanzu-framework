@@ -1,14 +1,16 @@
 // Angular imports
 import { Component, OnInit, Input } from '@angular/core';
 import { Router } from '@angular/router';
-import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
+
+// Third party imports
+import { takeUntil } from 'rxjs/operators';
 
 // App imports
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
-import { FormMetaDataStore, FormMetaData, StepMetaData } from './../wizard/shared/FormMetaDataStore';
-import { TkgEvent, TkgEventType } from "../../../shared/service/Messenger";
-import { takeUntil } from "rxjs/operators";
-import { BasicSubscriber } from "../../../shared/abstracts/basic-subscriber";
+import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
+import { FormMetaDataStore, StepMetaData } from './../wizard/shared/FormMetaDataStore';
+import { TkgEvent, TkgEventType } from '../../../shared/service/Messenger';
+import { BasicSubscriber } from '../../../shared/abstracts/basic-subscriber';
 import Broker from 'src/app/shared/service/broker';
 
 @Component({

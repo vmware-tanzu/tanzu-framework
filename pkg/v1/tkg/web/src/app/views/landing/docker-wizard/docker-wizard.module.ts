@@ -1,5 +1,8 @@
+// Angular modules
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+
+// App imports
 import { DockerWizardComponent } from './docker-wizard.component';
 import { DockerWizardRoutingModule } from './docker-wizard-routing.module';
 import { LandingModule } from '../landing.module';

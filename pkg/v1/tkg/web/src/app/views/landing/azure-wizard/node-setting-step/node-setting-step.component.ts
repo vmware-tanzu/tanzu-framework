@@ -1,23 +1,17 @@
-/**
- * Angular Modules
- */
+// Angular modules
 import { Component, OnInit } from '@angular/core';
-import {
-    Validators,
-    FormControl
-} from '@angular/forms';
+import { Validators, FormControl } from '@angular/forms';
+
+// Third party imports
 import { takeUntil } from 'rxjs/operators';
 
-/**
- * App imports
- */
+// App imports
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { TkgEventType } from '../../../../shared/service/Messenger';
 import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import { AzureInstanceType } from 'src/app/swagger/models';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
-import { AzureForm } from '../azure-wizard.constants';
 import { FormUtils } from '../../wizard/shared/utils/form-utils';
 
 @Component({
@@ -29,7 +23,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     nodeTypes: AzureInstanceType[] = [];
     nodeType: string;
-    currentRegion = "US-WEST";
+    currentRegion = 'US-WEST';
     displayForm = false;
 
     constructor(private validationService: ValidationService,
@@ -188,7 +182,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     protected dynamicDescription(): string {
-        const controlPlaneSetting = this.getFieldValue("controlPlaneSetting", true);
+        const controlPlaneSetting = this.getFieldValue('controlPlaneSetting', true);
         if (controlPlaneSetting) {
             return `Control plane type: ${controlPlaneSetting}`;
         }

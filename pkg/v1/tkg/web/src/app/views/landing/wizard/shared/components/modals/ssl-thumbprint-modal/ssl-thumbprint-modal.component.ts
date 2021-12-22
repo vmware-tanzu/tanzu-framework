@@ -1,3 +1,4 @@
+// Angular modules
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 @Component({

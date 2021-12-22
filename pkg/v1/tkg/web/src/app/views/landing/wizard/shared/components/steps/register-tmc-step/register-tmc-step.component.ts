@@ -1,13 +1,9 @@
-/**
- * Angular Modules
- */
+// Angular modules
 import { Component, OnInit } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { FormControl } from '@angular/forms';
 
-/**
- * App imports
- */
+// App imports
 import { StepFormDirective } from '../../../step-form/step-form';
 import { FormUtils } from '../../../utils/form-utils';
 
@@ -51,7 +47,7 @@ export class SharedRegisterTmcStepComponent extends StepFormDirective implements
         return this.http.get<string>('/api/integration/tmc', {
             headers: { 'Content-Type': 'application/yaml; charset=utf-8' },
             params: {'url': encodeURIComponent(this.formGroup.controls['tmcRegUrl'].value) },
-            responseType: "json"
+            responseType: 'json'
         }).subscribe(
             (data) => {
                 this.configContent = atob(data);

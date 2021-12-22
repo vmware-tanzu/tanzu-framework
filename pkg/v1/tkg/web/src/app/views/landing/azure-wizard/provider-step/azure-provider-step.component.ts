@@ -1,9 +1,9 @@
-/**
- * Angular Modules
- */
+// Angular modules
 import { Component, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
-import { ClrLoadingState } from "@clr/angular";
+import { ClrLoadingState } from '@clr/angular';
+
+// Third party imports
 import { debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs/operators';
 
 import { APIClient } from '../../../../swagger/api-client.service';
@@ -12,10 +12,10 @@ import { TkgEvent, TkgEventType } from '../../../../shared/service/Messenger';
 import { AzureResourceGroup } from './../../../../swagger/models/azure-resource-group.model';
 import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import Broker from 'src/app/shared/service/broker';
-import { FormMetaDataStore } from "../../wizard/shared/FormMetaDataStore";
-import {NotificationTypes} from "../../../../shared/components/alert-notification/alert-notification.component";
+import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
+import { NotificationTypes } from '../../../../shared/components/alert-notification/alert-notification.component';
 import { FormUtils } from '../../wizard/shared/utils/form-utils';
+import Broker from 'src/app/shared/service/broker';
 
 enum ProviderField {
     AZURECLOUD = 'azureCloud',
@@ -334,7 +334,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     }
 
     /**
-     * Whether to disable "Connect" button
+     * Whether to disable 'Connect' button
      */
     isConnectDisabled() {
         return !AzureAccountParamsKeys.reduce((accu, key) => this.formGroup.get(key).valid && accu, true);
@@ -377,7 +377,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     }
 
     /**
-     * Update the "create" button if name has been changed.
+     * Update the 'create' button if name has been changed.
      */
     onResourceGroupNameChange() {
         Broker.messenger.publish({

@@ -1,8 +1,10 @@
+// Angular modules
 import { Component, ElementRef, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 
+// Third party imports
 import { Observable } from 'rxjs';
 
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
@@ -10,8 +12,7 @@ import { APIClient } from 'src/app/swagger';
 import { ConfigFileInfo, DockerRegionalClusterParams } from 'src/app/swagger/models';
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
-import { ImportParams, ImportService } from "../../../shared/service/import.service";
-import { WizardStep } from '../wizard/shared/constants/wizard.constants';
+import { ImportParams, ImportService } from '../../../shared/service/import.service';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { WizardForm } from '../wizard/shared/constants/wizard.constants';
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';

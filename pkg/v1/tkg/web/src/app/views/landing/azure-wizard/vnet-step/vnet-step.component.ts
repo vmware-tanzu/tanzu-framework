@@ -1,24 +1,24 @@
-import { AzureVirtualNetwork } from './../../../../swagger/models/azure-virtual-network.model';
-import { TkgEventType } from 'src/app/shared/service/Messenger';
-import { ValidationService } from './../../wizard/shared/validation/validation.service';
-/**
- * Angular Modules
- */
+// Angular modules
 import { Component, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 
-import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
+// Third party imports
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
+
+// App imports
+import { AzureVirtualNetwork } from './../../../../swagger/models/azure-virtual-network.model';
+import { TkgEventType } from 'src/app/shared/service/Messenger';
+import { ValidationService } from './../../wizard/shared/validation/validation.service';
+import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import { AzureResourceGroup } from 'src/app/swagger/models';
 import { APIClient } from 'src/app/swagger';
 import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore'
-import Broker from 'src/app/shared/service/broker';
-import { AzureForm } from '../azure-wizard.constants';
 import { FormUtils } from '../../wizard/shared/utils/form-utils';
+import Broker from 'src/app/shared/service/broker';
 
-const CUSTOM = "CUSTOM";
-export const EXISTING = "EXISTING";
+const CUSTOM = 'CUSTOM';
+export const EXISTING = 'EXISTING';
 
 enum VnetField {
     EXISTING_OR_CUSTOM = 'vnetOption',
@@ -146,7 +146,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
      * Initialize the form with data from the backend
      */
     private initForm() {
-        const customResourceGroup = FormMetaDataStore.getMetaDataItem("providerForm", "resourceGroupCustom");
+        const customResourceGroup = FormMetaDataStore.getMetaDataItem('providerForm', 'resourceGroupCustom');
         this.customResourceGroup = customResourceGroup ? customResourceGroup.displayValue : '';
     }
 
@@ -433,7 +433,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
     }
 
     protected dynamicDescription(): string {
-        const vnetCidrBlock = this.getFieldValue("vnetCidrBlock", true);
+        const vnetCidrBlock = this.getFieldValue('vnetCidrBlock', true);
         return vnetCidrBlock ? `Subnet: ${vnetCidrBlock}` : 'Specify an Azure VNET CIDR';
     }
 }

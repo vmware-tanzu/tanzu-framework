@@ -1,12 +1,9 @@
-/**
- * Angular Modules
- */
+// Angular modules
 import { Component, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { takeUntil } from 'rxjs/operators';
-/**
- * App imports
- */
+
+// App imports
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { AWSNodeAz } from '../../../../swagger/models/aws-node-az.model';

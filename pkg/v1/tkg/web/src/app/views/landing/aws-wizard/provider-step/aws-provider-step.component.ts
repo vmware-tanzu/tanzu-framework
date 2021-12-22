@@ -1,20 +1,20 @@
-/**
- * Angular Modules
- */
-import {Component, OnInit} from '@angular/core';
-import {FormControl, Validators} from '@angular/forms';
+// Angular modules
+import { Component, OnInit } from '@angular/core';
+import { FormControl, Validators } from '@angular/forms';
 
-import {catchError, debounceTime, distinctUntilChanged, takeUntil} from 'rxjs/operators';
-import {forkJoin, of} from 'rxjs';
+// Third party imports
+import { catchError, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { forkJoin, of } from 'rxjs';
 
-import {APIClient} from '../../../../swagger/api-client.service';
-import {StepFormDirective} from '../../wizard/shared/step-form/step-form';
-import {TkgEvent, TkgEventType} from '../../../../shared/service/Messenger';
-import Broker from 'src/app/shared/service/broker';
-import {FormMetaDataStore} from "../../wizard/shared/FormMetaDataStore";
-import {AwsField} from "../aws-wizard.constants";
-import {NotificationTypes} from "../../../../shared/components/alert-notification/alert-notification.component";
+// App imports
+import { APIClient } from '../../../../swagger/api-client.service';
+import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
+import { TkgEvent, TkgEventType } from '../../../../shared/service/Messenger';
+import { FormMetaDataStore } from "../../wizard/shared/FormMetaDataStore";
+import { AwsField } from "../aws-wizard.constants";
+import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
 import { FormUtils } from '../../wizard/shared/utils/form-utils';
+import Broker from 'src/app/shared/service/broker';
 
 export const AWSAccountParamsKeys = [
     AwsField.PROVIDER_PROFILE_NAME,
@@ -41,7 +41,6 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
     regions = [];
     profileNames: Array<string> = [];
     validCredentials: boolean = false;
-    isProfileChoosen: boolean = false;
 
     constructor(private apiClient: APIClient) {
         super();

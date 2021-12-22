@@ -1,27 +1,21 @@
-/**
- * Angular Modules
- */
+// Angular modules
 import { Component, Input, OnInit } from '@angular/core';
-import {
-        FormGroup,
-        Validators,
-        FormControl
-} from '@angular/forms';
+import { FormGroup, Validators, FormControl } from '@angular/forms';
 
-/**
- * App imports
- */
+// Third party imports
+import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
+
+// App imports
 import { IAAS_DEFAULT_CIDRS, IpFamilyEnum } from '../../../../../../../shared/constants/app.constants';
 import { ValidationService } from '../../../validation/validation.service';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { FormMetaDataStore, FormMetaData } from '../../../FormMetaDataStore';
 import { TkgEventType } from 'src/app/shared/service/Messenger';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
-import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { VSphereNetwork } from 'src/app/swagger/models/v-sphere-network.model';
-import Broker from 'src/app/shared/service/broker';
-import { managementClusterPlugin, WizardForm } from "../../../constants/wizard.constants";
+import { managementClusterPlugin, WizardForm } from '../../../constants/wizard.constants';
 import { FormUtils } from '../../../utils/form-utils';
+import Broker from 'src/app/shared/service/broker';
 
 declare var sortPaths: any;
 @Component({
@@ -275,12 +269,12 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
     }
 
     getCniTypeLabel() {
-        if (this.cniType === "none") {
-            return "None";
-        } else if (this.cniType === "calico") {
-            return "Calico";
+        if (this.cniType === 'none') {
+            return 'None';
+        } else if (this.cniType === 'calico') {
+            return 'Calico';
         } else {
-            return "Antrea"
+            return 'Antrea'
         }
     }
 

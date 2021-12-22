@@ -1,6 +1,11 @@
+// Angular modules
 import { Component, OnDestroy, Output, EventEmitter, ElementRef, ViewChild, AfterViewInit, Input } from '@angular/core';
 import { ClrStepButton } from '@clr/angular';
+
+// Third party imports
 import { distinctUntilChanged } from 'rxjs/operators';
+
+// App imports
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 
 @Component({
@@ -53,7 +58,7 @@ export class StepControllerComponent implements AfterViewInit, OnDestroy {
     findContainer() {
         let container = this.nativeElement;
         while (container) {
-            const temp = container.querySelector("div.clr-accordion-inner-content");
+            const temp = container.querySelector('div.clr-accordion-inner-content');
             if (temp) {
                 container = temp;
                 break;

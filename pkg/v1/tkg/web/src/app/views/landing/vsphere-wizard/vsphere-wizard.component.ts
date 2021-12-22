@@ -1,7 +1,6 @@
-import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER, SharedLoadBalancerStepComponent } from './../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
 // Angular imports
 import { Component, OnInit, ElementRef } from '@angular/core';
-import { FormGroup, FormBuilder } from '@angular/forms';
+import { FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 
@@ -12,20 +11,22 @@ import { Observable } from 'rxjs';
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
 import { APIClient } from '../../../swagger/api-client.service';
 import { PROVIDERS, Providers } from '../../../shared/constants/app.constants';
+import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER, SharedLoadBalancerStepComponent }
+    from './../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
 import { VsphereRegionalClusterParams } from 'src/app/swagger/models/vsphere-regional-cluster-params.model';
-import Broker from "../../../shared/service/broker";
-import { WizardForm, WizardStep } from '../wizard/shared/constants/wizard.constants';
-import { ImportParams, ImportService } from "../../../shared/service/import.service";
+import { WizardForm } from '../wizard/shared/constants/wizard.constants';
+import { ImportParams, ImportService } from '../../../shared/service/import.service';
 import { VsphereField } from './vsphere-wizard.constants';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { VSphereProviderStepComponent } from './provider-step/vsphere-provider-step.component';
 import { ResourceStepComponent } from './resource-step/resource-step.component';
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { VsphereOsImageStepComponent } from './os-image-step/vsphere-os-image-step.component';
+import Broker from '../../../shared/service/broker';
 
 @Component({
     selector: 'app-wizard',
@@ -97,7 +98,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         payload.controlPlaneNodeType = this.getControlPlaneType(this.getFieldValue('vsphereNodeSettingForm', 'controlPlaneSetting'));
         payload.workerNodeType = Broker.appDataService.isModeClusterStandalone() ? payload.controlPlaneNodeType :
             this.getFieldValue('vsphereNodeSettingForm', VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE);
-        payload.machineHealthCheckEnabled = this.getFieldValue("vsphereNodeSettingForm", "machineHealthChecksEnabled") === true;
+        payload.machineHealthCheckEnabled = this.getFieldValue('vsphereNodeSettingForm', 'machineHealthChecksEnabled') === true;
 
         const vsphereCredentialsMappings = [
             ['host', 'vsphereProviderForm', 'vcenterAddress'],
@@ -107,22 +108,22 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         ];
         payload.vsphereCredentials = {};
 
-        payload.enableAuditLogging = this.getBooleanFieldValue("vsphereNodeSettingForm", "enableAuditLogging");
+        payload.enableAuditLogging = this.getBooleanFieldValue('vsphereNodeSettingForm', 'enableAuditLogging');
 
         vsphereCredentialsMappings.forEach(attr => payload.vsphereCredentials[attr[0]] = this.getFieldValue(attr[1], attr[2]));
         payload.vsphereCredentials['insecure'] = this.getBooleanFieldValue('vsphereProviderForm', 'insecure');
 
-        const endpointProvider = this.getFieldValue("vsphereNodeSettingForm", "controlPlaneEndpointProvider");
+        const endpointProvider = this.getFieldValue('vsphereNodeSettingForm', 'controlPlaneEndpointProvider');
         if (endpointProvider === KUBE_VIP) {
             payload.aviConfig['controlPlaneHaProvider'] = false;
         } else {
             payload.aviConfig['controlPlaneHaProvider'] = true;
         }
-        payload.aviConfig['managementClusterVipNetworkName'] = this.getFieldValue("loadBalancerForm", "managementClusterNetworkName");
+        payload.aviConfig['managementClusterVipNetworkName'] = this.getFieldValue('loadBalancerForm', 'managementClusterNetworkName');
         if (!payload.aviConfig['managementClusterVipNetworkName']) {
             payload.aviConfig['managementClusterVipNetworkName'] = this.getFieldValue('loadBalancerForm', 'networkName');
         }
-        payload.aviConfig['managementClusterVipNetworkCidr'] = this.getFieldValue("loadBalancerForm", "managementClusterNetworkCIDR");
+        payload.aviConfig['managementClusterVipNetworkCidr'] = this.getFieldValue('loadBalancerForm', 'managementClusterNetworkCIDR');
         if (!payload.aviConfig['managementClusterVipNetworkCidr']) {
             payload.aviConfig['managementClusterVipNetworkCidr'] = this.getFieldValue('loadBalancerForm', 'networkCIDR')
         }
@@ -147,8 +148,8 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         this.saveControlPlaneFlavor('vsphere', payload.controlPlaneFlavor);
         this.saveControlPlaneNodeType('vsphere', payload.controlPlaneFlavor, payload.controlPlaneNodeType);
 
-        this.saveFormField("vsphereNodeSettingForm", VsphereField.NODESETTING_ENABLE_AUDIT_LOGGING, payload.enableAuditLogging);
-        this.saveFormField("vsphereNodeSettingForm", VsphereField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED,
+        this.saveFormField('vsphereNodeSettingForm', VsphereField.NODESETTING_ENABLE_AUDIT_LOGGING, payload.enableAuditLogging);
+        this.saveFormField('vsphereNodeSettingForm', VsphereField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED,
             payload.machineHealthCheckEnabled);
         this.saveFormListbox('vsphereNodeSettingForm', VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE, payload.workerNodeType);
 
@@ -173,14 +174,14 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
                 uiMcNetworkName = payload.aviConfig['managementClusterVipNetworkName'];
             }
 
-            this.saveFormField("loadBalancerForm", "managementClusterNetworkName", uiMcNetworkName);
+            this.saveFormField('loadBalancerForm', 'managementClusterNetworkName', uiMcNetworkName);
             // Set (or clear) the CIDR setting (based on whether it's different from the aviConfig value
             const managementClusterNetworkCIDR = payload.aviConfig['managementClusterVipNetworkCidr'];
             let uiMcCidr = '';
             if (managementClusterNetworkCIDR !== payload.aviConfig.network.cidr) {
                 uiMcCidr = managementClusterNetworkCIDR;
             }
-            this.saveFormField("loadBalancerForm", "managementClusterNetworkCIDR", uiMcCidr)
+            this.saveFormField('loadBalancerForm', 'managementClusterNetworkCIDR', uiMcCidr)
         }
 
         this.saveCommonFieldsFromPayload(payload);
@@ -277,7 +278,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         if (controllerHost) {
             return 'Controller: ' + controllerHost;
         }
-        const endpointProvider = this.getFieldValue("vsphereNodeSettingForm", "controlPlaneEndpointProvider");
+        const endpointProvider = this.getFieldValue('vsphereNodeSettingForm', 'controlPlaneEndpointProvider');
         if (endpointProvider === KUBE_VIP) {
             return 'Optionally specify VMware NSX Advanced Load Balancer settings';
         }

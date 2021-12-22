@@ -1,5 +1,8 @@
-import { FormControl, FormGroup } from '@angular/forms';
+// Angular modules
 import { Component, Input, OnInit } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
+
+// App imports
 import { FormUtils } from '../../../utils/form-utils';
 
 @Component({

@@ -1,11 +1,9 @@
+// Angular modules
 import { Component, OnInit } from '@angular/core';
+
+// App imports
 import { SharedOsImageStepComponent } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
-import { VSphereWizardFormService } from '../../../../shared/service/vsphere-wizard-form.service';
 import { AwsWizardFormService } from '../../../../shared/service/aws-wizard-form.service';
-import { AzureWizardFormService } from '../../../../shared/service/azure-wizard-form.service';
-import Broker from '../../../../shared/service/broker';
-import { BehaviorSubject } from 'rxjs';
-import { Observable } from 'rxjs/internal/Observable';
 import { TkgEventType } from '../../../../shared/service/Messenger';
 
 @Component({
@@ -13,7 +11,7 @@ import { TkgEventType } from '../../../../shared/service/Messenger';
     templateUrl: '../../wizard/shared/components/steps/os-image-step/os-image-step.component.html',
     styleUrls: ['../../wizard/shared/components/steps/os-image-step/os-image-step.component.scss']
 })
-export class AwsOsImageStepComponent extends SharedOsImageStepComponent {
+export class AwsOsImageStepComponent extends SharedOsImageStepComponent implements OnInit {
     constructor(private awsWizardFormService: AwsWizardFormService) {
         super();
     }

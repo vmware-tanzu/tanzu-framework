@@ -1,7 +1,12 @@
-import { LdapParams } from './../../../../../../../swagger/models/ldap-params.model';
+// Angular modules
 import { Component, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
+
+// Third party imports
 import { distinctUntilChanged, takeUntil, tap } from 'rxjs/operators';
+
+// App imports
+import { LdapParams } from './../../../../../../../swagger/models/ldap-params.model';
 import { APIClient } from 'src/app/swagger';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { ValidationService } from '../../../validation/validation.service';
@@ -10,22 +15,22 @@ import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 import { IdentityManagementType } from '../../../constants/wizard.constants';
 import { FormUtils } from '../../../utils/form-utils';
 
-const CONNECT = "CONNECT";
-const BIND = "BIND";
-const USER_SEARCH = "USER_SEARCH";
-const GROUP_SEARCH = "GROUP_SEARCH";
-const DISCONNECT = "DISCONNECT";
+const CONNECT = 'CONNECT';
+const BIND = 'BIND';
+const USER_SEARCH = 'USER_SEARCH';
+const GROUP_SEARCH = 'GROUP_SEARCH';
+const DISCONNECT = 'DISCONNECT';
 
 const TEST_SUCCESS = 1;
 const TEST_SKIPPED = 2;
 
 const LDAP_TESTS = [CONNECT, BIND, USER_SEARCH, GROUP_SEARCH, DISCONNECT];
 
-const NOT_STARTED = "not-started";
-const CURRENT = "current";
-const SUCCESS = "success";
-const ERROR = "error";
-const PROCESSING = "processing";
+const NOT_STARTED = 'not-started';
+const CURRENT = 'current';
+const SUCCESS = 'success';
+const ERROR = 'error';
+const PROCESSING = 'processing';
 
 const oidcFields: Array<string> = [
     'issuerURL',
@@ -58,20 +63,20 @@ const ldapNonValidatedFields: Array<string> = [
 ];
 
 const LDAP_PARAMS = {
-    ldap_bind_dn: "bindDN",
-    ldap_bind_password: "bindPW",
-    ldap_group_search_base_dn: "groupSearchBaseDN",
-    ldap_group_search_filter: "groupSearchFilter",
-    ldap_group_search_group_attr: "groupSearchGroupAttr",
-    ldap_group_search_name_attr: "groupSearchNameAttr",
-    ldap_group_search_user_attr: "groupSearchUserAttr",
-    ldap_root_ca: "ldapRootCAData",
-    ldap_user_search_base_dn: "userSearchBaseDN",
-    ldap_user_search_filter: "userSearchFilter",
-    ldap_user_search_name_attr: "userSearchUsername",
-    ldap_user_search_username: "userSearchUsername",
-    ldap_test_group: "testGroupName",
-    ldap_test_user: "testUserName"
+    ldap_bind_dn: 'bindDN',
+    ldap_bind_password: 'bindPW',
+    ldap_group_search_base_dn: 'groupSearchBaseDN',
+    ldap_group_search_filter: 'groupSearchFilter',
+    ldap_group_search_group_attr: 'groupSearchGroupAttr',
+    ldap_group_search_name_attr: 'groupSearchNameAttr',
+    ldap_group_search_user_attr: 'groupSearchUserAttr',
+    ldap_root_ca: 'ldapRootCAData',
+    ldap_user_search_base_dn: 'userSearchBaseDN',
+    ldap_user_search_filter: 'userSearchFilter',
+    ldap_user_search_name_attr: 'userSearchUsername',
+    ldap_user_search_username: 'userSearchUsername',
+    ldap_test_group: 'testGroupName',
+    ldap_test_user: 'testUserName'
 }
 
 @Component({
@@ -235,12 +240,12 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
 
         Object.entries(LDAP_PARAMS).forEach(([k, v]) => {
             if (this.formGroup.get(v)) {
-                ldapParams[k] = this.formGroup.get(v).value || "";
+                ldapParams[k] = this.formGroup.get(v).value || '';
             } else {
-                console.log("Unable to find field: " + v);
+                console.log('Unable to find field: ' + v);
             }
         });
-        ldapParams.ldap_url = "ldaps://" + this.formGroup.get('endpointIp').value + ':' + this.formGroup.get('endpointPort').value;
+        ldapParams.ldap_url = 'ldaps://' + this.formGroup.get('endpointIp').value + ':' + this.formGroup.get('endpointPort').value;
 
         return ldapParams;
     }
@@ -249,7 +254,7 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
         if (err) {
             return err?.error?.message || err?.message || JSON.stringify(err, null, 4);
         }
-        return "";
+        return '';
     }
 
     async startVerifyLdapConfig() {

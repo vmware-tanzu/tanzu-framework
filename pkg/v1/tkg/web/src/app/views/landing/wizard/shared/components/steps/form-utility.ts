@@ -1,6 +1,9 @@
+// Angular modules
+import { Type } from '@angular/core';
+
+// App imports
 import { WizardBaseDirective } from '../../wizard-base/wizard-base';
 import { IdentityManagementType, WizardForm } from '../../constants/wizard.constants';
-import { Type } from '@angular/core';
 import { StepFormDirective } from '../../step-form/step-form';
 
 interface I18nDataForHtml {

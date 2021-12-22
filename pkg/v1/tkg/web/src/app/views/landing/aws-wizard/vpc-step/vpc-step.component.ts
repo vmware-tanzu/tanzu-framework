@@ -1,15 +1,19 @@
+// Angular modules
 import { Component, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
-import { takeUntil, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
+// Third party imports
+import { takeUntil, distinctUntilChanged } from 'rxjs/operators';
+
+// App imports
 import { TkgEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from './../../wizard/shared/validation/validation.service';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { Vpc } from '../../../../swagger/models/vpc.model';
 import { AwsWizardFormService } from '../../../../shared/service/aws-wizard-form.service';
-import Broker from 'src/app/shared/service/broker';
-import {AwsField} from "../aws-wizard.constants";
+import { AwsField } from '../aws-wizard.constants';
 import { FormUtils } from '../../wizard/shared/utils/form-utils';
+import Broker from 'src/app/shared/service/broker';
 
 enum VpcType {
     EXISTING = 'existing',

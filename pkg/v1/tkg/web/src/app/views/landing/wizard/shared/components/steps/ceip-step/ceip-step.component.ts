@@ -1,13 +1,8 @@
-/**
- * Angular Modules
- */
+// Angular modules
 import { Component, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { FormMetaDataStore, FormMetaData } from '../../../FormMetaDataStore';
 
-/**
- * App imports
- */
+// App imports
 import { StepFormDirective } from '../../../step-form/step-form';
 import { FormUtils } from '../../../utils/form-utils';
 

@@ -1,15 +1,20 @@
+// Angular modules
 import { Component, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
+
+// Third party imports
 import { takeUntil } from 'rxjs/operators';
+
+// App imports
 import { APIClient } from 'src/app/swagger';
 import { DockerDaemonStatus } from 'src/app/swagger/models';
 import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import Broker from "../../../../shared/service/broker";
-import { TkgEvent, TkgEventType } from "../../../../shared/service/Messenger";
-import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
+import { TkgEvent, TkgEventType } from '../../../../shared/service/Messenger';
+import { NotificationTypes } from '../../../../shared/components/alert-notification/alert-notification.component';
 import { FormUtils } from '../../wizard/shared/utils/form-utils';
+import Broker from '../../../../shared/service/broker';
 
 @Component({
     selector: 'app-daemon-validation-step',
@@ -20,7 +25,7 @@ export class DaemonValidationStepComponent extends StepFormDirective implements 
 
     connected: boolean = false;
     connecting: boolean = false;
-    errorNotification: string = "";
+    errorNotification: string = '';
 
     constructor(
         private validationService: ValidationService,

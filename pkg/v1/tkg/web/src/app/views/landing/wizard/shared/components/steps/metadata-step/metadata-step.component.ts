@@ -1,16 +1,11 @@
-/**
- * Angular Modules
- */
+// Angular modules
 import { Component, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 
-/**
- * App imports
- */
+// App imports
 import { ValidationService } from '../../../validation/validation.service';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
-import { WizardForm } from '../../../constants/wizard.constants';
 import { FormUtils } from '../../../utils/form-utils';
 
 @Component({

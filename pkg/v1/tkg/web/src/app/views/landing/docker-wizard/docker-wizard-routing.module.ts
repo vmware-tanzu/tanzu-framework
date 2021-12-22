@@ -1,10 +1,10 @@
-// Angular module
+// Angular modules
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
+// App imports
 import { DockerWizardComponent } from './docker-wizard.component';
 
-// App imports
 export const routes: Routes = [
     {
         path: '',

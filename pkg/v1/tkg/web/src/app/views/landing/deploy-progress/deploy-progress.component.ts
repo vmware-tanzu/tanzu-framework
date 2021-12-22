@@ -2,9 +2,7 @@
 import { Component, OnInit } from '@angular/core';
 
 // Third party imports
-import {
-    BehaviorSubject
-} from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { LogMessage as NgxLogMessage } from 'ngx-log-monitor';
 
@@ -13,7 +11,7 @@ import { BasicSubscriber } from '../../../shared/abstracts/basic-subscriber';
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
 import { WebsocketService } from '../../../shared/service/websocket.service';
 import { FormMetaDataStore } from '../wizard/shared/FormMetaDataStore';
-import { TkgEvent, TkgEventType } from "../../../shared/service/Messenger";
+import { TkgEvent, TkgEventType } from '../../../shared/service/Messenger';
 import Broker from 'src/app/shared/service/broker';
 
 @Component({

@@ -1,26 +1,26 @@
-/**
- * Angular Modules
- */
+// Angular modules
 import { Component, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 
+// Third party imports
 import { debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs/operators';
-import { StepFormDirective } from "../../../step-form/step-form";
-import { ValidationService } from "../../../validation/validation.service";
-import { APIClient } from "../../../../../../../swagger";
 
-import { AviCloud } from "src/app/swagger/models/avi-cloud.model";
-import { AviServiceEngineGroup } from "src/app/swagger/models/avi-service-engine-group.model";
-import { ClrLoadingState } from "@clr/angular";
+// App imports
+import { StepFormDirective } from '../../../step-form/step-form';
+import { ValidationService } from '../../../validation/validation.service';
+import { APIClient } from '../../../../../../../swagger';
+import { AviCloud } from 'src/app/swagger/models/avi-cloud.model';
+import { AviServiceEngineGroup } from 'src/app/swagger/models/avi-service-engine-group.model';
+import { ClrLoadingState } from '@clr/angular';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
 import { AviVipNetwork } from './../../../../../../../swagger/models/avi-vip-network.model';
 import { TkgEventType } from 'src/app/shared/service/Messenger';
-import Broker from 'src/app/shared/service/broker';
 import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 import { FormUtils } from '../../../utils/form-utils';
+import Broker from 'src/app/shared/service/broker';
 
 export const KUBE_VIP = 'Kube-vip';
-export const NSX_ADVANCED_LOAD_BALANCER = "NSX Advanced Load Balancer";
+export const NSX_ADVANCED_LOAD_BALANCER = 'NSX Advanced Load Balancer';
 
 const SupervisedFields = ['controllerHost', 'username', 'password', 'controllerCert'];
 const HA_REQUIRED_FIELDS = [
@@ -170,9 +170,9 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
             this.onSelectCloud(this.selectedCloudName);
         });
 
-        this.registerOnValueChange("networkName", this.onSelectVipNetwork.bind(this));
-        this.registerOnValueChange("networkCIDR", this.onSelectVipCIDR.bind(this));
-        this.registerOnValueChange("managementClusterNetworkName", this.onSelectManagementNetwork.bind(this));
+        this.registerOnValueChange('networkName', this.onSelectVipNetwork.bind(this));
+        this.registerOnValueChange('networkCIDR', this.onSelectVipCIDR.bind(this));
+        this.registerOnValueChange('managementClusterNetworkName', this.onSelectManagementNetwork.bind(this));
 
         Broker.messenger.getSubject(TkgEventType.CONTROL_PLANE_ENDPOINT_PROVIDER_CHANGED)
             .subscribe(({ payload }) => {
@@ -193,7 +193,7 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
     }
 
     isFieldReadyForInitWithSavedValue(fieldName: string): boolean {
-        if (fieldName === "cloudName") {
+        if (fieldName === 'cloudName') {
             return !this.isEmptyArray(this.serviceEngineGroups) && !this.isEmptyArray(this.vipNetworks);
         }
         return true;
@@ -361,13 +361,13 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
      */
     onSelectVipNetwork(networkName: string): void {
         this.selectedNetworkName = networkName;
-        if (!this.formGroup.get("managementClusterNetworkName").value) { }
-        this.formGroup.get("managementClusterNetworkName").setValue(networkName)
+        if (!this.formGroup.get('managementClusterNetworkName').value) { }
+        this.formGroup.get('managementClusterNetworkName').setValue(networkName)
     }
 
     onSelectVipCIDR(cidr: string): void {
-        if (!this.formGroup.get("managementClusterNetworkCIDR").value) {
-                this.formGroup.get("managementClusterNetworkCIDR").setValue(cidr);
+        if (!this.formGroup.get('managementClusterNetworkCIDR').value) {
+                this.formGroup.get('managementClusterNetworkCIDR').setValue(cidr);
         }
     }
 
@@ -478,7 +478,7 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
 
             if (temp && !this.isEmptyArray(temp.configedSubnets)) {
                 return temp.configedSubnets
-                    .filter(subnet => subnet.family === "V4");      // Only V4 are supported in Calgary 1.
+                    .filter(subnet => subnet.family === 'V4');      // Only V4 are supported in Calgary 1.
             }
         }
         return [];

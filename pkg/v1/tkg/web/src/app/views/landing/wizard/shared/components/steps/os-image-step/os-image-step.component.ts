@@ -1,27 +1,20 @@
-/**
- * Angular Modules
- */
-import { Component, OnInit, Input} from '@angular/core';
-import {
-    Validators,
-    FormControl
-} from '@angular/forms';
+// Angular modules
+import { Validators, FormControl} from '@angular/forms';
+
+// Third party imports
 import { takeUntil } from 'rxjs/operators';
 
-/**
- * App imports
- */
-
+// App imports
 import { StepFormDirective } from '../../../step-form/step-form';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
 import { TkgEventType } from 'src/app/shared/service/Messenger';
 import { VSphereVirtualMachine } from 'src/app/swagger/models/v-sphere-virtual-machine.model';
 import { AwsWizardFormService } from 'src/app/shared/service/aws-wizard-form.service';
 import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
-import Broker from 'src/app/shared/service/broker';
 import { Observable } from 'rxjs/internal/Observable';
 import { AWSVirtualMachine, AzureVirtualMachine } from 'src/app/swagger/models';
 import { FormUtils } from '../../../utils/form-utils';
+import Broker from 'src/app/shared/service/broker';
 
 export abstract class SharedOsImageStepComponent extends StepFormDirective {
     wizardFormService: VSphereWizardFormService|AwsWizardFormService|AzureWizardFormService;
@@ -88,7 +81,7 @@ export abstract class SharedOsImageStepComponent extends StepFormDirective {
      */
     resetFieldsUponDCChange() {
         const fieldsToReset = ['osImage'];
-        fieldsToReset.forEach(f => this.formGroup.get(f).setValue(""));
+        fieldsToReset.forEach(f => this.formGroup.get(f).setValue(''));
     }
 
     /**
@@ -111,7 +104,7 @@ export abstract class SharedOsImageStepComponent extends StepFormDirective {
      * helper method to determine if osImage.isTemplate is true or false; if false show warning
      */
     onOptionsSelected() {
-        this.nonTemplateAlert = !this.formGroup.value["osImage"].isTemplate;
+        this.nonTemplateAlert = !this.formGroup.value['osImage'].isTemplate;
     }
 
     dynamicDescription(): string {

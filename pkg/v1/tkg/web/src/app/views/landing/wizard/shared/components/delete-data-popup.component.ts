@@ -1,7 +1,7 @@
-/**
- * Angular Modules
- */
+// Angular modules
 import { Component, OnInit } from '@angular/core';
+
+// App imports
 import { FormMetaDataStore } from '../FormMetaDataStore';
 
 @Component({

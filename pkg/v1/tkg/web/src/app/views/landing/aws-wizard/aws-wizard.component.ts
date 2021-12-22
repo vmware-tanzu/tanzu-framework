@@ -1,15 +1,17 @@
-// Angular imports
+// Angular modules
 import { Component, ElementRef, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
+
+// Third party imports
 import { Observable } from 'rxjs';
 
+// App imports
 import { AWSNodeAz, AWSRegionalClusterParams, AWSVpc } from 'src/app/swagger/models';
 import { APIClient } from 'src/app/swagger';
 import { AwsWizardFormService } from 'src/app/shared/service/aws-wizard-form.service';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
-import Broker from "../../../shared/service/broker";
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 import { BASTION_HOST_DISABLED, BASTION_HOST_ENABLED, NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
@@ -17,10 +19,11 @@ import { AWSAccountParamsKeys, AwsProviderStepComponent } from './provider-step/
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { VpcStepComponent } from './vpc-step/vpc-step.component';
 import { AwsOsImageStepComponent } from './os-image-step/aws-os-image-step.component';
-import { AwsField, AwsForm, AwsStep } from "./aws-wizard.constants";
-import { ImportParams, ImportService } from "../../../shared/service/import.service";
+import { AwsField, AwsForm } from './aws-wizard.constants';
+import { ImportParams, ImportService } from '../../../shared/service/import.service';
 import { Utils } from '../../../shared/utils';
 import { InstanceType } from '../../../shared/constants/app.constants';
+import Broker from '../../../shared/service/broker';
 
 interface AzRelatedFields {
     az: string,
@@ -102,7 +105,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
             azs: this.getAwsNodeAzs(payload)
         };
 
-        payload.enableAuditLogging = this.getBooleanFieldValue("awsNodeSettingForm", "enableAuditLogging");
+        payload.enableAuditLogging = this.getBooleanFieldValue('awsNodeSettingForm', 'enableAuditLogging');
         this.initPayloadWithCommons(payload);
 
         return payload;
@@ -130,7 +133,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
             this.saveFormField(AwsForm.NODESETTING, 'machineHealthChecksEnabled', payload.machineHealthCheckEnabled);
             this.saveFormField(AwsForm.VPC, 'existingVpcId', (payload.vpc) ? payload.vpc.vpcID : '');
             this.saveFormField(AwsForm.VPC, 'nonInternetFacingVPC', payload.loadbalancerSchemeInternal)
-            this.saveFormField(AwsForm.NODESETTING, "enableAuditLogging", payload.enableAuditLogging);
+            this.saveFormField(AwsForm.NODESETTING, 'enableAuditLogging', payload.enableAuditLogging);
             this.saveVpcFields(payload.vpc);
 
             this.saveCommonFieldsFromPayload(payload);
@@ -218,7 +221,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
      * @method getExtendCliCmds to return cli command string according to special selection
      * For AWS, selects Create Cloudformation Stack,
      * should include tanzu management-cluster permissions aws set
-     * @returns the array includes cli command object like {isPrefixOfCreateCmd: true, cmdStr: "tanzu ..."}
+     * @returns the array includes cli command object like {isPrefixOfCreateCmd: true, cmdStr: 'tanzu ...'}
      */
     getExtendCliCmds(): Array<{ isPrefixOfCreateCmd: boolean, cmdStr: string }> {
         if (this.getFieldValue(AwsForm.NODESETTING, 'createCloudFormation')) {
