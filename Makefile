@@ -651,6 +651,10 @@ generate-package-secret:
 clustergen: ## Generate diff between 'before' and 'after' of cluster configuration outputs using clustergen
 	CLUSTERGEN_BASE=${CLUSTERGEN_BASE} make -C pkg/v1/providers -f Makefile cluster-generation-diffs
 
+.PHONY: clustergen-cc
+clustergen-cc: ## Generate diff between when configuration inputs are processed with or without clusterclass
+	CLUSTERGEN_OUTPUT_DIR=cc make -C pkg/v1/providers -f Makefile cluster-generation-cc-tests
+
 .PHONY: generate-embedproviders
 generate-embedproviders: ## Generate provider bundle to be embedded for local testing
 	make -C pkg/v1/providers -f Makefile generate-provider-bundle-zip
