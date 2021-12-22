@@ -6,7 +6,10 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"os"
+	"reflect"
 
+	"gopkg.in/yaml.v3"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -145,12 +148,6 @@ var _ = Describe("PackageAvailableGet", func() {
 			kappClient = &fakes.KappClient{}
 		})
 
-		It("should return error if version is not specified", func() {
-			var buf bytes.Buffer
-			err := getValuesSchemaForPackage(pkgNamespace, pkgName, "", kappClient, &buf)
-			Expect(err).To(HaveOccurred())
-		})
-
 		It("should return error if package does not exist", func() {
 			kappClient.GetPackageReturns(nil,
 				apierrors.NewNotFound(kapppkg.Resource("package"), "dummyPackage"))
@@ -205,6 +202,51 @@ var _ = Describe("PackageAvailableGet", func() {
 			fmt.Println(buf.String()) // Print out the output in terminal to help debugging if nothing printed out
 			Expect(buf.String()).NotTo(BeEmpty())
 		})
+	})
 
+	Describe("generateDefaultValuesForPackage", func() {
+		It("should generate default values", func() {
+			pkg := &kapppkg.Package{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      pkgName,
+					Namespace: pkgNamespace,
+				},
+				Spec: kapppkg.PackageSpec{
+					RefName: pkgName,
+					Version: pkgVersion,
+					ValuesSchema: kapppkg.ValuesSchema{
+						OpenAPIv3: runtime.RawExtension{
+							Raw: []byte(rawValidDummyPackageSchema),
+						},
+					},
+				},
+			}
+			defaultValues, err := os.Open("testdata/test-default-values.yaml")
+			Expect(err).ToNot(HaveOccurred())
+			defer defaultValues.Close()
+
+			expectedValue, err := os.ReadFile(defaultValues.Name())
+			Expect(err).ToNot(HaveOccurred())
+
+			f, err := os.CreateTemp("", "default-values.yaml")
+			Expect(err).ToNot(HaveOccurred())
+			defer f.Close()
+
+			err = generateDefaultValuesForPackage(pkg, f)
+			Expect(err).ToNot(HaveOccurred())
+			gotValues := make(map[string]interface{})
+
+			values, err := os.ReadFile(f.Name())
+			Expect(err).ToNot(HaveOccurred())
+
+			err = yaml.Unmarshal(values, gotValues)
+			Expect(err).ToNot(HaveOccurred())
+
+			expectedMap := make(map[string]interface{})
+			err = yaml.Unmarshal(expectedValue, expectedMap)
+			Expect(err).ToNot(HaveOccurred())
+
+			Expect(reflect.DeepEqual(expectedMap, gotValues)).To(BeTrue())
+		})
 	})
 })

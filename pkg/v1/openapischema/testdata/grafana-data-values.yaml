@@ -1,0 +1,21 @@
+namespace: grafana
+grafana:
+  deployment:
+    replicas: 1
+  service:
+    type: LoadBalancer
+    port: 80
+    targetPort: 3000
+  pvc:
+    accessMode: ReadWriteOnce
+    storage: "2Gi"
+  secret:
+    type: "Opaque"
+    admin_user: "admin"
+    admin_password: "admin"
+
+ingress:
+  enabled: true
+  virtual_host_fqdn: "grafana.system.tanzu"
+  prefix: "/"
+  servicePort: 80

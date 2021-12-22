@@ -1,0 +1,20 @@
+certificates:
+  duration: 8760h
+  renewBefore: 360h
+  useCertManager: false
+contour:
+  logLevel: info
+  replicas: 2
+  useProxyProtocol: false
+envoy:
+  hostNetwork: false
+  hostPorts:
+    enable: false
+    http: 80
+    https: 443
+  logLevel: info
+  service:
+    externalTrafficPolicy: Local
+    type: LoadBalancer
+  terminationGracePeriodSeconds: 300
+namespace: projectcontour
