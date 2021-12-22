@@ -1,7 +1,7 @@
 /**
  * Angular Modules
  */
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input} from '@angular/core';
 import {
     Validators,
     FormControl
@@ -21,32 +21,35 @@ import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form
 import Broker from 'src/app/shared/service/broker';
 import { Observable } from 'rxjs/internal/Observable';
 import { AWSVirtualMachine, AzureVirtualMachine } from 'src/app/swagger/models';
+import { FormUtils } from '../../../utils/form-utils';
 
-@Component({
-    selector: 'app-os-image-step',
-    templateUrl: './os-image-step.component.html',
-    styleUrls: ['./os-image-step.component.scss']
-})
-export class SharedOsImageStepComponent extends StepFormDirective implements OnInit {
-    @Input() wizardFormService: VSphereWizardFormService|AwsWizardFormService|AzureWizardFormService;
-    @Input() type: string;
-    @Input() enableNonTemplateAlert: boolean;
-    @Input() noImageAlertMessage: string;
-    @Input() osImageTooltipContent: string;
-
+export abstract class SharedOsImageStepComponent extends StepFormDirective {
+    wizardFormService: VSphereWizardFormService|AwsWizardFormService|AzureWizardFormService;
+    enableNonTemplateAlert: boolean;
+    noImageAlertMessage: string;
+    osImageTooltipContent: string;
+    eventType: TkgEventType;
+    // TODO: refactor to use generics instead of VSphereVirtualMachine|AWSVirtualMachine|AzureVirtualMachine
     osImages: Array<VSphereVirtualMachine|AWSVirtualMachine|AzureVirtualMachine>;
     loadingOsTemplate: boolean = false;
     nonTemplateAlert: boolean = false;
     tkrVersion: Observable<string>;
 
-    constructor() {
+    protected constructor() {
         super();
         this.tkrVersion = Broker.appDataService.getTkrVersion();
     }
 
-    ngOnInit() {
+    // This method allows child classes to set the inputs (rather than having them passed as part of an HTML component tag).
+    // This allows the step to follow the same pattern as all the other steps, which only take formGroup and formName as inputs.
+    protected abstract setProviderInputs();
+
+    // onInit() should be called from subclass' ngOnInit()
+    protected onInit() {
         super.ngOnInit();
-        this.formGroup.addControl(
+        this.setProviderInputs();
+        FormUtils.addControl(
+            this.formGroup,
             'osImage',
             new FormControl('', [
                 Validators.required
@@ -61,13 +64,13 @@ export class SharedOsImageStepComponent extends StepFormDirective implements OnI
              this.resetFieldsUponDCChange();
          });
 
-        this.wizardFormService.getErrorStream(TkgEventType[`${this.type}_GET_OS_IMAGES`])
+        this.wizardFormService.getErrorStream(this.eventType)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(error => {
                 this.errorNotification = error;
             });
 
-        this.wizardFormService.getDataStream(TkgEventType[`${this.type}_GET_OS_IMAGES`])
+        this.wizardFormService.getDataStream(this.eventType)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((images: Array<VSphereVirtualMachine|AWSVirtualMachine|AzureVirtualMachine>) => {
                 this.osImages = images;
@@ -98,7 +101,7 @@ export class SharedOsImageStepComponent extends StepFormDirective implements OnI
         this.nonTemplateAlert = false;
         this.resetFieldsUponDCChange();
         Broker.messenger.publish({
-            type: TkgEventType[`${this.type}_GET_OS_IMAGES`]
+            type: this.eventType
         });
     }
 
@@ -109,5 +112,12 @@ export class SharedOsImageStepComponent extends StepFormDirective implements OnI
      */
     onOptionsSelected() {
         this.nonTemplateAlert = !this.formGroup.value["osImage"].isTemplate;
+    }
+
+    dynamicDescription(): string {
+        if (this.getFieldValue('osImage', true) && this.getFieldValue('osImage').name) {
+            return 'OS Image: ' + this.getFieldValue('osImage').name;
+        }
+        return 'Specify the OS Image';
     }
 }

@@ -1,24 +1,23 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
-import { ReactiveFormsModule } from '@angular/forms';
-import { FormBuilder } from '@angular/forms';
-import { SharedOsImageStepComponent } from './os-image-step.component';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ValidationService } from '../../../validation/validation.service';
 import { APIClient } from 'src/app/swagger/api-client.service';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
 import Broker from 'src/app/shared/service/broker';
-import { Messenger } from 'src/app/shared/service/Messenger';
+import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
+import { VsphereOsImageStepComponent } from '../../../../../vsphere-wizard/os-image-step/vsphere-os-image-step.component';
 
-describe('OsImageStepComponent', () => {
-    let component: SharedOsImageStepComponent;
-    let fixture: ComponentFixture<SharedOsImageStepComponent>;
+describe('VsphereOsImageStepComponent', () => {
+    let component: VsphereOsImageStepComponent;
+    let fixture: ComponentFixture<VsphereOsImageStepComponent>;
 
     beforeEach(async(() => {
         TestBed.configureTestingModule({
-            declarations: [SharedOsImageStepComponent],
+            declarations: [VsphereOsImageStepComponent],
             imports: [
                 ReactiveFormsModule,
                 SharedModule
@@ -39,12 +38,11 @@ describe('OsImageStepComponent', () => {
     beforeEach(() => {
         Broker.messenger = new Messenger();
         const fb = new FormBuilder();
-        fixture = TestBed.createComponent(SharedOsImageStepComponent);
+        fixture = TestBed.createComponent(VsphereOsImageStepComponent);
         component = fixture.componentInstance;
         component.wizardFormService = TestBed.inject(VSphereWizardFormService);
-        component.type = 'VSPHERE';
-        component.formGroup = fb.group({
-        });
+        component.eventType = TkgEventType.VSPHERE_GET_OS_IMAGES;
+        component.formGroup = fb.group({});
 
         fixture.detectChanges();
     });
@@ -58,7 +56,7 @@ describe('OsImageStepComponent', () => {
         expect(component.formGroup.get('osImage').value).toBeFalsy();
     });
 
-    it('should retrive os image when function invoked', () => {
+    it('should retrieve os image when function invoked', () => {
         const resetDcSpy = spyOn(component, 'resetFieldsUponDCChange').and.callThrough();
         const msgSpy = spyOn(Broker.messenger, 'publish').and.callThrough();
         component.retrieveOsImages();

@@ -18,6 +18,7 @@ import { APIClient } from '../../../../swagger/api-client.service';
 import Broker from 'src/app/shared/service/broker';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import { AwsField, AwsForm } from "../aws-wizard.constants";
+import { FormUtils } from '../../wizard/shared/utils/form-utils';
 
 export interface AzNodeTypes {
     awsNodeAz1: Array<string>,
@@ -162,18 +163,21 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         // key is field name, value is validation rules
         for (const key in this.commonFieldMap) {
             if (key) {
-                this.formGroup.addControl(
+                FormUtils.addControl(
+                    this.formGroup,
                     key,
                     new FormControl('', this.commonFieldMap[key])
                 );
             }
         }
         this.setControlWithSavedValue(AwsField.NODESETTING_BASTION_HOST_ENABLED, true);
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             AwsField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED,
             new FormControl(true, [])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             AwsField.NODESETTING_CREATE_CLOUD_FORMATION,
             new FormControl(true, [])
         );
@@ -341,7 +345,9 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         this.disarmField(AwsField.NODESETTING_INSTANCE_TYPE_DEV, true);
         this.resurrectFieldWithSavedValue(AwsField.NODESETTING_INSTANCE_TYPE_PROD,
             [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
-            this.nodeTypes.length === 1 ? this.nodeTypes[0] : this.formGroup.get(AwsField.NODESETTING_INSTANCE_TYPE_PROD).value);
+            this.nodeTypes.length === 1 ? this.nodeTypes[0] : this.formGroup.get(AwsField.NODESETTING_INSTANCE_TYPE_PROD).value,
+            { onlySelf: true }
+        );
         for (let i = 0; i < AZS.length; i++) {
             const thisAZ = AZS[i];
             const otherAZs = this.otherAZs(thisAZ);
@@ -634,5 +640,17 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 this.disarmField(field.toString(), false);
             });
         }
+    }
+
+    protected dynamicDescription(): string {
+        const ctlPlaneFlavor = this.getFieldValue('controlPlaneSetting', true);
+        if (ctlPlaneFlavor) {
+            let mode = 'Development cluster selected: 1 node control plane';
+            if (ctlPlaneFlavor === 'prod') {
+                mode = 'Production cluster selected: 3 node control plane';
+            }
+            return mode;
+        }
+        return `Specify the resources backing the ${this.clusterTypeDescriptor} cluster`;
     }
 }

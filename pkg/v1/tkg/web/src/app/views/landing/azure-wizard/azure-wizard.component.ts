@@ -9,23 +9,14 @@ import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 import { Observable, EMPTY, throwError, of } from 'rxjs';
 import { CliGenerator, CliFields } from '../wizard/shared/utils/cli-generator';
 import { AzureRegionalClusterParams } from 'src/app/swagger/models';
-import { AzureAccountParamsKeys } from './provider-step/azure-provider-step.component';
+import { AzureAccountParamsKeys, AzureProviderStepComponent } from './provider-step/azure-provider-step.component';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
-import { EXISTING } from './vnet-step/vnet-step.component';
+import { EXISTING, VnetStepComponent } from './vnet-step/vnet-step.component';
 import Broker from 'src/app/shared/service/broker';
+import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
-
-// Not sure why some of these step names have 'Form' in them, but leaving as is
-enum AzureStep {
-    PROVIDER = 'azureProviderForm',
-    NODESETTING = 'azureNodeSettingForm',
-    METADATA = 'metadataForm',
-    NETWORK = 'networkForm',
-    CEIP = 'ceipOptInForm',
-    IDENTITY = 'identity',
-    OSIMAGE = 'osImage',
-    VNET = 'vnetForm'
-}
+import { AzureOsImageStepComponent } from './os-image-step/azure-os-image-step.component';
+import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 
 enum AzureForm {
     PROVIDER = 'azureProviderForm',
@@ -44,88 +35,36 @@ enum AzureForm {
     styleUrls: ['./azure-wizard.component.scss']
 })
 export class AzureWizardComponent extends WizardBaseDirective implements OnInit {
+    // The region user selected
     region: string;
 
     constructor(
         router: Router,
         public wizardFormService: AzureWizardFormService,
         private importService: ImportService,
-        private formBuilder: FormBuilder,
+        formBuilder: FormBuilder,
         private apiClient: APIClient,
         titleService: Title,
         formMetaDataService: FormMetaDataService,
         el: ElementRef) {
 
-        super(router, el, formMetaDataService, titleService);
+        super(router, el, formMetaDataService, titleService, formBuilder);
 
-        this.form = this.formBuilder.group({
-            azureProviderForm: this.formBuilder.group({}),
-            vnetForm: this.formBuilder.group({}),
-            azureNodeSettingForm: this.formBuilder.group({}),
-            workerazureNodeSettingForm: this.formBuilder.group({}),
-            metadataForm: this.formBuilder.group({}),
-            networkForm: this.formBuilder.group({}),
-            identityForm: this.formBuilder.group({}),
-            osImageForm: this.formBuilder.group({}),
-            ceipOptInForm: this.formBuilder.group({})
-        });
+        this.stepData = [
+            this.AzureProviderForm,
+            this.AzureVnetForm,
+            this.AzureNodeSettingForm,
+            this.MetadataForm,
+            this.AzureNetworkForm,
+            this.IdentityForm,
+            this.AzureOsImageForm,
+            this.CeipForm,
+        ];
     }
 
     ngOnInit() {
         super.ngOnInit();
         this.titleService.setTitle(this.title + ' Azure');
-    }
-
-    getStepDescription(stepName: string): string {
-        if (stepName === AzureStep.PROVIDER) {
-            const tenant = this.getFieldValue(AzureForm.PROVIDER, 'tenantId');
-            return tenant ? `Azure tenant: ${tenant}` : 'Validate the Azure provider credentials for Tanzu';
-        } else if (stepName === AzureStep.VNET) {
-            const vnetCidrBlock = this.getFieldValue(stepName, "vnetCidrBlock");
-            if (vnetCidrBlock) {
-                return `Subnet: ${vnetCidrBlock}`;
-            }
-            return "Specify a Azure VNET CIDR";
-        } else if (stepName === AzureStep.NODESETTING) {
-            const controlPlaneSetting = this.getFieldValue(stepName, "controlPlaneSetting");
-            if (controlPlaneSetting) {
-                return `Control plane type: ${controlPlaneSetting}`;
-            }
-            return `Specifying the resources backing the ${this.clusterTypeDescriptor} cluster`;
-        } else if (stepName === AzureStep.METADATA) {
-            const location = this.getFieldValue(stepName, "clusterLocation");
-            if (location) {
-                return `Location: ${location}`;
-            }
-            return `Specify metadata for the ${this.clusterTypeDescriptor} cluster`;
-        } else if (stepName === AzureStep.NETWORK) {
-            const serviceCidr = this.getFieldValue(stepName, "clusterServiceCidr");
-            const podCidr = this.getFieldValue(stepName, "clusterPodCidr");
-            if (serviceCidr && podCidr) {
-                return `Cluster service CIDR: ${serviceCidr} Cluster POD CIDR: ${podCidr}`;
-            }
-            return "Specify how TKG networking is provided and global network settings";
-        } else if (stepName === AzureStep.CEIP) {
-            return "Join the CEIP program for TKG";
-        } else if (stepName === AzureStep.IDENTITY) {
-            if (this.getFieldValue(AzureForm.IDENTITY, 'identityType') === 'oidc' &&
-                this.getFieldValue(AzureForm.IDENTITY, 'issuerURL')) {
-                return 'OIDC configured: ' + this.getFieldValue(AzureForm.IDENTITY, 'issuerURL')
-            } else if (this.getFieldValue(AzureForm.IDENTITY, 'identityType') === 'ldap' &&
-                this.getFieldValue(AzureForm.IDENTITY, 'endpointIp')) {
-                return 'LDAP configured: ' + this.getFieldValue(AzureForm.IDENTITY, 'endpointIp') + ':' +
-                this.getFieldValue(AzureForm.IDENTITY, 'endpointPort');
-            } else {
-                return 'Specify identity management'
-            }
-        } else if (stepName === AzureStep.OSIMAGE) {
-            if (this.getFieldValue(AzureForm.OSIMAGE, 'osImage') && this.getFieldValue(AzureForm.OSIMAGE, 'osImage').name) {
-                return 'OS Image: ' + this.getFieldValue(AzureForm.OSIMAGE, 'osImage').name;
-            } else {
-                return 'Specify the OS Image';
-            }
-        }
-        return `Step ${stepName} is not supported yet`;
     }
 
     getPayload(): any {
@@ -321,6 +260,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         });
         return envVariableString;
     }
+
     applyTkgConfig() {
         return this.apiClient.applyTKGConfigForAzure({ params: this.getPayload() });
     }
@@ -336,6 +276,33 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         const vnetCidr = this.getFieldValue('vpcForm', 'vnetCidrBlock');
         return (vnetCidr ? vnetCidr + ',' : '')  + '169.254.0.0/16,168.63.129.16';
     }
+
+    // HTML convenience methods
+    //
+    get AzureProviderForm(): FormDataForHTML {
+        return { name: AzureForm.PROVIDER, title: 'IaaS Provider', description: 'Validate the Azure provider credentials for Tanzu',
+        i18n: {title: 'IaaS provder step name', description: 'IaaS provder step description'},
+        clazz: AzureProviderStepComponent};
+    }
+    get AzureVnetForm(): FormDataForHTML {
+        return { name: AzureForm.VNET, title: 'Azure VNET Settings', description: 'Specify an Azure VNET CIDR',
+            i18n: {title: 'vnet step name', description: 'vnet step description'},
+        clazz: VnetStepComponent};
+    }
+    get AzureNodeSettingForm(): FormDataForHTML {
+        return { name: AzureForm.NODESETTING, title: FormUtility.titleCase(this.clusterTypeDescriptor) + ' Cluster Settings',
+            description: `Specifying the resources backing the ${this.clusterTypeDescriptor} cluster`,
+            i18n: {title: 'node setting step name', description: 'node setting step description'},
+        clazz: NodeSettingStepComponent};
+    }
+    get AzureOsImageForm(): FormDataForHTML {
+        return this.getOsImageForm(AzureOsImageStepComponent);
+    }
+    get AzureNetworkForm(): FormDataForHTML {
+        return FormUtility.formOverrideDescription(this.NetworkForm, 'Specify an Azure VNET CIDR');
+    }
+    //
+    // HTML convenience methods
 
     // returns TRUE if the file contents appear to be a valid config file for Azure
     // returns FALSE if the file is empty or does not appear to be valid. Note that in the FALSE

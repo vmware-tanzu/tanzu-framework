@@ -9,6 +9,7 @@ import { Vpc } from '../../../../swagger/models/vpc.model';
 import { AwsWizardFormService } from '../../../../shared/service/aws-wizard-form.service';
 import Broker from 'src/app/shared/service/broker';
 import {AwsField} from "../aws-wizard.constants";
+import { FormUtils } from '../../wizard/shared/utils/form-utils';
 
 enum VpcType {
     EXISTING = 'existing',
@@ -35,7 +36,8 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
     ngOnInit() {
         super.ngOnInit();
 
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             AwsField.VPC_TYPE,
             new FormControl(
                 VpcType.NEW, [
@@ -43,22 +45,26 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
             ])
         );
 
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             AwsField.VPC_NEW_CIDR,
             new FormControl('', [])
         );
 
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             AwsField.VPC_EXISTING_CIDR,
             new FormControl('', [])
         );
 
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             AwsField.VPC_EXISTING_ID,
             new FormControl('', [])
         );
 
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             AwsField.VPC_NON_INTERNET_FACING,
             new FormControl(false, [])
         );
@@ -199,7 +205,8 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
         if (existingVpc && existingVpc.length > 0) {
             this.formGroup.get(AwsField.VPC_EXISTING_CIDR).setValue(existingVpc[0].cidr);
         } else {
-            this.formGroup.get(AwsField.VPC_EXISTING_CIDR).setValue('');
+            // onlySelf onption changes value for the current control only.
+            this.formGroup.get(AwsField.VPC_EXISTING_CIDR).setValue('', { onlySelf: true});
         }
 
         Broker.messenger.publish({
@@ -210,5 +217,18 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
         Broker.messenger.publish(({
             type: TkgEventType.AWS_VPC_CHANGED
         }));
+    }
+
+    protected dynamicDescription(): string {
+        const vpc = this.getFieldValue('vpc', true);
+        const publicNodeCidr = this.getFieldValue('publicNodeCidr', true);
+        const privateNodeCidr = this.getFieldValue('privateNodeCidr', true);
+        const awsNodeAz = this.getFieldValue('awsNodeAz', true);
+
+        if (vpc && publicNodeCidr && privateNodeCidr && awsNodeAz) {
+            return `VPC CIDR: ${vpc}, Public Node CIDR: ${publicNodeCidr}, ` +
+                `Private Node CIDR: ${privateNodeCidr}, Node AZ: ${awsNodeAz}`;
+        }
+        return 'Specify VPC settings for AWS';
     }
 }

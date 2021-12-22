@@ -9,6 +9,7 @@ import { FormMetaDataStore, FormMetaData } from '../../../FormMetaDataStore';
  * App imports
  */
 import { StepFormDirective } from '../../../step-form/step-form';
+import { FormUtils } from '../../../utils/form-utils';
 
 @Component({
     selector: 'app-shared-ceip-step',
@@ -18,7 +19,8 @@ import { StepFormDirective } from '../../../step-form/step-form';
 export class SharedCeipStepComponent extends StepFormDirective implements OnInit {
     ngOnInit() {
         super.ngOnInit();
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'ceipOptIn',
             new FormControl(true, [])
         );

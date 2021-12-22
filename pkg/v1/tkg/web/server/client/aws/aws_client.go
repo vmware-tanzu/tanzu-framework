@@ -197,40 +197,6 @@ func (a *Client) GetAWSCredentialProfiles(params *GetAWSCredentialProfilesParams
 }
 
 /*
-GetAWSEndpoint retrieves aws account params from environment variables
-*/
-func (a *Client) GetAWSEndpoint(params *GetAWSEndpointParams) (*GetAWSEndpointOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewGetAWSEndpointParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "getAWSEndpoint",
-		Method:             "GET",
-		PathPattern:        "/api/providers/aws",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &GetAWSEndpointReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*GetAWSEndpointOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
-	msg := fmt.Sprintf("unexpected success response for getAWSEndpoint: API contract not enforced by server. Client expected to get an error, but got: %T", result)
-	panic(msg)
-}
-
-/*
 GetAWSNodeTypes retrieves a w s supported node types
 */
 func (a *Client) GetAWSNodeTypes(params *GetAWSNodeTypesParams) (*GetAWSNodeTypesOK, error) {

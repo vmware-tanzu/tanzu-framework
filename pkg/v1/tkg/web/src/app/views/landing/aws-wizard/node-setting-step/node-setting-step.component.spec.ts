@@ -273,7 +273,7 @@ describe('NodeSettingStepComponent', () => {
     });
 
     it('should handle AWS_GET_SUBNETS event', () => {
-        const spySavedSubnet = spyOn(component, 'setSavedSubnets').and.callThrough();
+        const spySavedSubnet = spyOn(component, 'setSubnetFieldsFromSavedValues').and.callThrough();
         component.awsWizardFormService.publishData(TkgEventType.AWS_GET_SUBNETS, [
             {cidr: '100.63.0.0/14', isPublic:  true},
             {cidr: '100.63.0.0/14', isPublic:  false}

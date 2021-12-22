@@ -99,9 +99,6 @@ func NewKickstartUIAPI(spec *loads.Document) *KickstartUIAPI {
 		AwsGetAWSCredentialProfilesHandler: aws.GetAWSCredentialProfilesHandlerFunc(func(params aws.GetAWSCredentialProfilesParams) middleware.Responder {
 			return middleware.NotImplemented("operation AwsGetAWSCredentialProfiles has not yet been implemented")
 		}),
-		AwsGetAWSEndpointHandler: aws.GetAWSEndpointHandlerFunc(func(params aws.GetAWSEndpointParams) middleware.Responder {
-			return middleware.NotImplemented("operation AwsGetAWSEndpoint has not yet been implemented")
-		}),
 		AwsGetAWSNodeTypesHandler: aws.GetAWSNodeTypesHandlerFunc(func(params aws.GetAWSNodeTypesParams) middleware.Responder {
 			return middleware.NotImplemented("operation AwsGetAWSNodeTypes has not yet been implemented")
 		}),
@@ -290,8 +287,6 @@ type KickstartUIAPI struct {
 	AwsGetAWSAvailabilityZonesHandler aws.GetAWSAvailabilityZonesHandler
 	// AwsGetAWSCredentialProfilesHandler sets the operation handler for the get a w s credential profiles operation
 	AwsGetAWSCredentialProfilesHandler aws.GetAWSCredentialProfilesHandler
-	// AwsGetAWSEndpointHandler sets the operation handler for the get a w s endpoint operation
-	AwsGetAWSEndpointHandler aws.GetAWSEndpointHandler
 	// AwsGetAWSNodeTypesHandler sets the operation handler for the get a w s node types operation
 	AwsGetAWSNodeTypesHandler aws.GetAWSNodeTypesHandler
 	// AwsGetAWSOSImagesHandler sets the operation handler for the get a w s o s images operation
@@ -503,10 +498,6 @@ func (o *KickstartUIAPI) Validate() error {
 
 	if o.AwsGetAWSCredentialProfilesHandler == nil {
 		unregistered = append(unregistered, "aws.GetAWSCredentialProfilesHandler")
-	}
-
-	if o.AwsGetAWSEndpointHandler == nil {
-		unregistered = append(unregistered, "aws.GetAWSEndpointHandler")
 	}
 
 	if o.AwsGetAWSNodeTypesHandler == nil {
@@ -855,11 +846,6 @@ func (o *KickstartUIAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/api/providers/aws/profiles"] = aws.NewGetAWSCredentialProfiles(o.context, o.AwsGetAWSCredentialProfilesHandler)
-
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/api/providers/aws"] = aws.NewGetAWSEndpoint(o.context, o.AwsGetAWSEndpointHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

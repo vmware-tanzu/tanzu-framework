@@ -20,7 +20,8 @@ import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { VSphereNetwork } from 'src/app/swagger/models/v-sphere-network.model';
 import Broker from 'src/app/shared/service/broker';
-import { managementClusterPlugin } from "../../../constants/wizard.constants";
+import { managementClusterPlugin, WizardForm } from "../../../constants/wizard.constants";
+import { FormUtils } from '../../../utils/form-utils';
 
 declare var sortPaths: any;
 @Component({
@@ -57,7 +58,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
         } as FormMetaData;
         FormMetaDataStore.saveMetaDataEntry(this.formName, 'cniType', cniTypeData);
         // TODO: guessing we don't need this line (due to initFormWithSavedData() below)
-        this.formGroup.get('cniType').setValue(this.cniType);
+        this.formGroup.get('cniType').setValue(this.cniType, { onlySelf: true });
         this.initFormWithSavedData();
     }
     buildForm() {
@@ -83,7 +84,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
             this.clearFieldSavedData('networkName');
         }
         fieldsMapping.forEach(field => {
-            this.formGroup.addControl(field[0], new FormControl(field[1], []));
+            FormUtils.addControl(this.formGroup, field[0], new FormControl(field[1], []));
         });
 
         const cidrs = ['clusterServiceCidr', 'clusterPodCidr'];
@@ -95,8 +96,8 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
             ]);
         });
 
-        this.formGroup.addControl('proxySettings', new FormControl(false));
-        this.formGroup.addControl('isSameAsHttp', new FormControl(true));
+        FormUtils.addControl(this.formGroup, 'proxySettings', new FormControl(false));
+        FormUtils.addControl(this.formGroup, 'isSameAsHttp', new FormControl(true));
         this.setValidators();
     }
 
@@ -119,7 +120,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
             if (this.enableNetworkName) {
                 this.resurrectField('networkName', [
                     Validators.required
-                ]);
+                ], '', { onlySelf: true }); // only for current form control
             }
         }
     }
@@ -131,7 +132,8 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
                 this.ipFamily === IpFamilyEnum.IPv4 ?
                     this.validationService.isValidIpNetworkSegment() : this.validationService.isValidIpv6NetworkSegment(),
                 this.validationService.isIpUnique([this.formGroup.get('clusterPodCidr')])
-            ], this.ipFamily === IpFamilyEnum.IPv4 ? IAAS_DEFAULT_CIDRS.CLUSTER_SVC_CIDR : IAAS_DEFAULT_CIDRS.CLUSTER_SVC_IPV6_CIDR);
+            ], this.ipFamily === IpFamilyEnum.IPv4 ?
+                IAAS_DEFAULT_CIDRS.CLUSTER_SVC_CIDR : IAAS_DEFAULT_CIDRS.CLUSTER_SVC_IPV6_CIDR, { onlySelf: true });
         }
 
         this.resurrectField('clusterPodCidr', [
@@ -140,7 +142,8 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
             this.ipFamily === IpFamilyEnum.IPv4 ?
                 this.validationService.isValidIpNetworkSegment() : this.validationService.isValidIpv6NetworkSegment(),
             this.validationService.isIpUnique([this.formGroup.get('clusterServiceCidr')])
-        ], this.ipFamily === IpFamilyEnum.IPv4 ? IAAS_DEFAULT_CIDRS.CLUSTER_POD_CIDR : IAAS_DEFAULT_CIDRS.CLUSTER_POD_IPV6_CIDR);
+        ], this.ipFamily === IpFamilyEnum.IPv4 ?
+            IAAS_DEFAULT_CIDRS.CLUSTER_POD_CIDR : IAAS_DEFAULT_CIDRS.CLUSTER_POD_IPV6_CIDR, { onlySelf: true });
     }
     listenToEvents() {
         /**
@@ -170,7 +173,9 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
                 this.vmNetworks = sortPaths(networks, function (item) { return item.name; }, '/');
                 this.loadingNetworks = false;
                 this.resurrectField('networkName',
-                    [Validators.required], networks.length === 1 ? networks[0].name : '');
+                    [Validators.required], networks.length === 1 ? networks[0].name : '',
+                    { onlySelf: true } // only for current form control
+                );
             });
 
         const noProxyFieldChangeMap = ['noProxy', 'clusterServiceCidr', 'clusterPodCidr'];
@@ -218,7 +223,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
         this.fullNoProxy = noProxyList.filter(elem => elem).join(',');
     }
 
-    toggleProxySetting() {
+    toggleProxySetting(fromSavedData?: boolean) {
         const proxySettingFields = [
             'httpProxyUrl',
             'httpProxyUsername',
@@ -229,18 +234,29 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
             'httpsProxyPassword',
             'noProxy'
         ];
+
+        if (!fromSavedData) {
+            this.formGroup.markAsPending();
+        }
+
         if (this.formGroup.value['proxySettings']) {
             this.resurrectField('httpProxyUrl', [
                 Validators.required,
                 this.validationService.isHttpOrHttps()
-            ], this.formGroup.value['httpProxyUrl']);
+            ], this.formGroup.value['httpProxyUrl'],
+                { onlySelf: true }
+            );
             this.resurrectField('noProxy', [],
-                this.formGroup.value['httpProxyUrl'] || this.infraServiceAddress);
+                this.formGroup.value['noProxy'] || this.infraServiceAddress,
+                { onlySelf: true }
+            );
             if (!this.formGroup.value['isSameAsHttp']) {
                 this.resurrectField('httpsProxyUrl', [
                     Validators.required,
                     this.validationService.isHttpOrHttps()
-                ], this.formGroup.value['httpsProxyUrl']);
+                ], this.formGroup.value['httpsProxyUrl'],
+                    { onlySelf: true }
+                );
             } else {
                 const httpsFields = [
                     'httpsProxyUrl',
@@ -281,7 +297,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
     // Reset the relevent fields upon data center change
     resetFieldsUponDCChange() {
         const fieldsToReset = ['networkName'];
-        fieldsToReset.forEach(f => this.formGroup.get(f) && this.formGroup.get(f).setValue(''));
+        fieldsToReset.forEach(f => this.formGroup.get(f) && this.formGroup.get(f).setValue('', { onlySelf: true }));
     }
 
     initFormWithSavedData() {
@@ -289,12 +305,27 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
         const fieldNetworkName = this.formGroup.get('networkName');
         if (fieldNetworkName) {
             const savedNetworkName = this.getSavedValue('networkName', '');
-            fieldNetworkName.setValue(this.vmNetworks.length === 1 ? this.vmNetworks[0].name : savedNetworkName);
+            fieldNetworkName.setValue(
+                this.vmNetworks.length === 1 ? this.vmNetworks[0].name : savedNetworkName,
+                { onlySelf: true } // avoid step error message when networkName is empty
+            );
         }
         // reset validations for httpProxyUrl and httpsProxyUrl when
         // the data is loaded from localstorage.
-        this.toggleProxySetting();
+        this.toggleProxySetting(true);
         this.scrubPasswordField('httpProxyPassword');
         this.scrubPasswordField('httpsProxyPassword');
+    }
+
+    dynamicDescription(): string {
+        const serviceCidr = this.getFieldValue('clusterServiceCidr', true);
+        const podCidr = this.getFieldValue('clusterPodCidr', true);
+        if (serviceCidr && podCidr) {
+            return `Cluster service CIDR: ${serviceCidr} Cluster POD CIDR: ${podCidr}`;
+        }
+        if (podCidr) {
+            return `Cluster Pod CIDR: ${podCidr}`;
+        }
+        return '';
     }
 }
