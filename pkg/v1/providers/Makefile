@@ -98,6 +98,10 @@ generate-testcases: ## Regenerates test cases based on parameter model files. Re
 cluster-generation-tests: build-cli ## Run cluster compliance test against cluster generation dataset
 	cd tests/clustergen && TKG=${CLI_REPO}/bin/tkg-${GOOS}-${GOARCH} ./run_tests.sh ${CLUSTERGEN_OUTPUT_DIR}
 
+.PHONY: cluster-generation-cc-tests
+cluster-generation-cc-tests: build-cli ## Run clusterclass comparison tests cluster generation dataset
+	cd tests/clustergen && TKG=${CLI_REPO}/bin/tkg-${GOOS}-${GOARCH} ./run_cc_tests.sh ${CLUSTERGEN_OUTPUT_DIR}
+
 .PHONY: cluster-generation-diffs
 cluster-generation-diffs: ## Run before/after cluster generation comparison tests
 	CLI_REPO=${CLI_REPO} ${CLI_REPO}/hack/clustergen/cluster-check.sh ${CLUSTERGEN_BASE}
