@@ -17,6 +17,8 @@ import { TkgEventType } from '../../../../shared/service/Messenger';
 import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import { AzureInstanceType } from 'src/app/swagger/models';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
+import { AzureForm } from '../azure-wizard.constants';
+import { FormUtils } from '../../wizard/shared/utils/form-utils';
 
 @Component({
     selector: 'app-node-setting-step',
@@ -37,32 +39,37 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     buildForm() {
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'controlPlaneSetting',
             new FormControl('', [
                 Validators.required
             ])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'devInstanceType',
             new FormControl('', [
                 Validators.required
             ])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'prodInstanceType',
             new FormControl('', [
                 Validators.required
             ])
         );
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'devInstanceType',
             new FormControl('', [
                 Validators.required
             ])
         );
 
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'managementClusterName',
             new FormControl('', [
                 this.validationService.isValidClusterName()
@@ -70,7 +77,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         );
 
         if (!this.modeClusterStandalone) {
-            this.formGroup.addControl(
+            FormUtils.addControl(
+            this.formGroup,
                 'workerNodeInstanceType',
                 new FormControl('', [
                     Validators.required
@@ -78,7 +86,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             );
         }
 
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'machineHealthChecksEnabled',
             new FormControl(true, [])
         );
@@ -103,7 +112,9 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         if (this.edition !== AppEdition.TKG) {
             this.resurrectField('managementClusterName',
                 [Validators.required, this.validationService.isValidClusterName()],
-                this.formGroup.get('managementClusterName').value);
+                this.formGroup.get('managementClusterName').value,
+                { onlySelf: true, emitEvent: false}
+            );
         }
     }
 
@@ -127,34 +138,26 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     setDevCardValidations() {
         this.nodeType = 'dev';
-        const devInstanceTypeControl = this.formGroup.get('devInstanceType');
-        if (devInstanceTypeControl) {
-            devInstanceTypeControl.setValidators([Validators.required]);
-            devInstanceTypeControl.setValue(this.nodeTypes.length === 1 ? this.nodeTypes[0].name : '');
-            devInstanceTypeControl.updateValueAndValidity();
-        }
-        const prodInstanceTypeControl = this.formGroup.controls['prodInstanceType'];
-        if (prodInstanceTypeControl) {
-            prodInstanceTypeControl.clearValidators();
-            prodInstanceTypeControl.setValue('');
-            prodInstanceTypeControl.updateValueAndValidity();
-        }
+        this.formGroup.markAsPending();
+        this.resurrectField(
+            'devInstanceType',
+            [Validators.required],
+            this.nodeTypes.length === 1 ? this.nodeTypes[0].name : '',
+            { onlySelf: true, emitEvent: false }
+        );
+        this.disarmField('prodInstanceType', true);
     }
 
     setProdCardValidations() {
         this.nodeType = 'prod';
-        const devInstanceTypeControl = this.formGroup.get('devInstanceType');
-        if (devInstanceTypeControl) {
-            devInstanceTypeControl.setValue('');
-            devInstanceTypeControl.updateValueAndValidity();
-            devInstanceTypeControl.clearValidators();
-        }
-        const prodInstanceTypeControl = this.formGroup.controls['prodInstanceType'];
-        if (prodInstanceTypeControl) {
-            prodInstanceTypeControl.setValidators([Validators.required]);
-            prodInstanceTypeControl.setValue(this.nodeTypes.length === 1 ? this.nodeTypes[0].name : '');
-            prodInstanceTypeControl.updateValueAndValidity();
-        }
+        this.disarmField('devInstanceType', true);
+        this.formGroup.markAsPending();
+        this.resurrectField(
+            'prodInstanceType',
+            [Validators.required],
+            this.nodeTypes.length === 1 ? this.nodeTypes[0].name : '',
+            { onlySelf: true, emitEvent: false }
+        );
     }
 
     ngOnInit() {
@@ -184,4 +187,11 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         return this.formGroup.controls['controlPlaneSetting'].value;
     }
 
+    protected dynamicDescription(): string {
+        const controlPlaneSetting = this.getFieldValue("controlPlaneSetting", true);
+        if (controlPlaneSetting) {
+            return `Control plane type: ${controlPlaneSetting}`;
+        }
+        return `Specifying the resources backing the ${this.clusterTypeDescriptor} cluster`;
+    }
 }

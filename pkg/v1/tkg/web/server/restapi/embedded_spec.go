@@ -503,39 +503,6 @@ func init() {
       }
     },
     "/api/providers/aws": {
-      "get": {
-        "tags": [
-          "aws"
-        ],
-        "summary": "Retrieve aws account params from environment variables",
-        "operationId": "getAWSEndpoint",
-        "responses": {
-          "200": {
-            "description": "Successful retrieval of AWS account parameters",
-            "schema": {
-              "$ref": "#/definitions/AWSAccountParams"
-            }
-          },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "401": {
-            "description": "Incorrect credentials",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "500": {
-            "description": "Internal server error",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      },
       "post": {
         "tags": [
           "aws"
@@ -4168,39 +4135,6 @@ func init() {
       }
     },
     "/api/providers/aws": {
-      "get": {
-        "tags": [
-          "aws"
-        ],
-        "summary": "Retrieve aws account params from environment variables",
-        "operationId": "getAWSEndpoint",
-        "responses": {
-          "200": {
-            "description": "Successful retrieval of AWS account parameters",
-            "schema": {
-              "$ref": "#/definitions/AWSAccountParams"
-            }
-          },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "401": {
-            "description": "Incorrect credentials",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "500": {
-            "description": "Internal server error",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      },
       "post": {
         "tags": [
           "aws"

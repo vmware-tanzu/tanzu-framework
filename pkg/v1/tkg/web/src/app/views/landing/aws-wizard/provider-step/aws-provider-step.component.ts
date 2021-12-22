@@ -14,6 +14,7 @@ import Broker from 'src/app/shared/service/broker';
 import {FormMetaDataStore} from "../../wizard/shared/FormMetaDataStore";
 import {AwsField} from "../aws-wizard.constants";
 import {NotificationTypes} from "../../../../shared/components/alert-notification/alert-notification.component";
+import { FormUtils } from '../../wizard/shared/utils/form-utils';
 
 export const AWSAccountParamsKeys = [
     AwsField.PROVIDER_PROFILE_NAME,
@@ -50,9 +51,10 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
      * Create the initial form
      */
     private buildForm() {
-        this.formGroup.addControl(AwsField.PROVIDER_AUTH_TYPE, new FormControl(this.authTypeValue, []));
+        FormUtils.addControl(this.formGroup, AwsField.PROVIDER_AUTH_TYPE, new FormControl(this.authTypeValue, []));
 
-        AWSAccountParamsKeys.forEach(key => this.formGroup.addControl(
+        AWSAccountParamsKeys.forEach(key => FormUtils.addControl(
+            this.formGroup,
             key.toString(),
             new FormControl('')
         ));
@@ -132,7 +134,7 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
             }
         });
         this.authTypeValue = this.getSavedValue(AwsField.PROVIDER_AUTH_TYPE, CredentialType.PROFILE);
-        this.setControlValueSafely(AwsField.PROVIDER_AUTH_TYPE, this.authTypeValue);
+        this.setControlValueSafely(AwsField.PROVIDER_AUTH_TYPE, this.authTypeValue, { emitEvent: false });
 
         Broker.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
             .pipe(takeUntil(this.unsubscribe))
@@ -184,7 +186,7 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
                     }
                     this.profileNames = next[1];
                     if (this.profileNames.length === 1) {
-                        this.formGroup.get(AwsField.PROVIDER_PROFILE_NAME).setValue(this.profileNames[0]);
+                        this.formGroup.get(AwsField.PROVIDER_PROFILE_NAME).setValue(this.profileNames[0], { onlySelf: true });
                     }
                 },
                 () => this.loading = false
@@ -259,7 +261,8 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
                     this.setValidCredentials(true);
                 }),
                 ((err) => {
-                    const error = err.error.message || err.message || JSON.stringify(err);
+                    const errMsg = err.error ? err.error.message : null;
+                    const error = errMsg || err.message || JSON.stringify(err);
                     this.errorNotification = `Invalid AWS credentials: all credentials and region must be valid. ${error}`;
                     this.setValidCredentials(false);
                 }),

@@ -9,6 +9,7 @@ import { FormControl } from '@angular/forms';
  * App imports
  */
 import { StepFormDirective } from '../../../step-form/step-form';
+import { FormUtils } from '../../../utils/form-utils';
 
 @Component({
     selector: 'app-shared-register-tmc-step',
@@ -26,7 +27,8 @@ export class SharedRegisterTmcStepComponent extends StepFormDirective implements
 
     ngOnInit() {
         super.ngOnInit();
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'tmcRegUrl',
             new FormControl('', [])
         );

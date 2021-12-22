@@ -16,11 +16,18 @@ import { SharedIdentityStepComponent } from './components/steps/identity-step/id
 import { TreeSelectComponent } from './tree-select/tree-select.component';
 import { AuditLoggingComponent } from './components/widgets/audit-logging/audit-logging.component';
 import { SharedOsImageStepComponent } from './components/steps/os-image-step/os-image-step.component';
+import { StepWrapperComponent } from './step-wrapper/step-wrapper.component';
+import { VsphereOsImageStepComponent } from '../../vsphere-wizard/os-image-step/vsphere-os-image-step.component';
+import { StepWrapperSetComponent } from './step-wrapper/step-wrapper-set.component';
+import { AwsOsImageStepComponent } from '../../aws-wizard/os-image-step/aws-os-image-step.component';
+import { AzureOsImageStepComponent } from '../../azure-wizard/os-image-step/azure-os-image-step.component';
 
 @NgModule({
     declarations: [
         StepFormNotificationComponent,
         StepControllerComponent,
+        StepWrapperSetComponent,
+        StepWrapperComponent,
         SharedCeipStepComponent,
         SharedNetworkStepComponent,
         SharedLoadBalancerStepComponent,
@@ -30,7 +37,9 @@ import { SharedOsImageStepComponent } from './components/steps/os-image-step/os-
         SharedIdentityStepComponent,
         TreeSelectComponent,
         AuditLoggingComponent,
-        SharedOsImageStepComponent
+        VsphereOsImageStepComponent,
+        AwsOsImageStepComponent,
+        AzureOsImageStepComponent
     ],
     imports: [
         CommonModule,
@@ -40,6 +49,8 @@ import { SharedOsImageStepComponent } from './components/steps/os-image-step/os-
     exports: [
         StepFormNotificationComponent,
         StepControllerComponent,
+        StepWrapperComponent,
+        StepWrapperSetComponent,
         SharedCeipStepComponent,
         SharedNetworkStepComponent,
         SharedLoadBalancerStepComponent,
@@ -49,7 +60,9 @@ import { SharedOsImageStepComponent } from './components/steps/os-image-step/os-
         SharedIdentityStepComponent,
         TreeSelectComponent,
         AuditLoggingComponent,
-        SharedOsImageStepComponent
+        VsphereOsImageStepComponent,
+        AwsOsImageStepComponent,
+        AzureOsImageStepComponent
     ],
     providers: [
         ValidationService

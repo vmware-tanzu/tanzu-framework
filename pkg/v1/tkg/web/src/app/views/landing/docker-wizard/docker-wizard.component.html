@@ -13,7 +13,7 @@
                     keyboardListener></clr-icon>
             <h2 i18n="wizard title" aria-level="1">
                 <div class="docker-icon-30 offset-top-2"></div>
-                Deploy {{ clusterTypeDescriptor | titlecase }} Cluster on Docker
+                Deploy {{ clusterTypeDescriptorTitleCase }} Cluster on Docker
             </h2>
             <ng-container *featureToggle="'management-cluster.import'">
                 <input type="file" class="file-input"
@@ -26,73 +26,7 @@
         </div>
     </div>
     <app-shared-delete-data-popup></app-shared-delete-data-popup>
-    <form clrStepper #wizard [formGroup]="form">
-        <clr-stepper-panel formGroupName="dockerDaemonForm" removeAriaLabelledBy>
-            <clr-step-title i18n="docker prerequisite step name">
-                Docker Prerequisites
-            </clr-step-title>
-            <clr-step-description i18n="Docker prerequisite step description">
-                Validate the local Docker daemon, allocated CPUs and Total Memory
-            </clr-step-description>
-            <ng-container *ngIf="steps[0]">
-                <app-daemon-validation-step [formGroup]="form.controls.dockerDaemonForm" formName="dockerDaemon">
-                </app-daemon-validation-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-
-        <clr-stepper-panel formGroupName="dockerNodeSettingForm" removeAriaLabelledBy>
-            <clr-step-title i18n="node setting step name">
-                {{ clusterTypeDescriptor | titlecase }} Cluster Settings
-            </clr-step-title>
-            <clr-step-description i18n="node setting step description">
-                {{ getStepDescription('nodeSetting') }}
-            </clr-step-description>
-            <ng-container *ngIf="steps[1]">
-                <app-node-setting-step [formGroup]="form.controls.dockerNodeSettingForm" formName="dockerNodeSettings">
-                </app-node-setting-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-
-        <clr-stepper-panel formGroupName="networkForm" removeAriaLabelledBy>
-            <clr-step-title i18n="Kubernetes network step name">
-                Kubernetes Network
-            </clr-step-title>
-            <clr-step-description i18n="Kubernetes network step description">
-                {{ getStepDescription('network') }}
-            </clr-step-description>
-            <ng-container *ngIf="steps[2]">
-                <app-shared-network-step [formGroup]="form.controls.networkForm" formName="network">
-                </app-shared-network-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-
-<!--        <clr-stepper-panel formGroupName="identityForm">-->
-<!--            <clr-step-title i18n="identity step title">-->
-<!--                Identity Management-->
-<!--            </clr-step-title>-->
-<!--            <clr-step-description i18n="identity step description">-->
-<!--                {{ getStepDescription('identity') }}-->
-<!--            </clr-step-description>-->
-<!--            <ng-container *ngIf="steps[2]">-->
-<!--                <app-shared-identity-step-->
-<!--                        [formGroup]="form.controls.identityForm"-->
-<!--                        formName="identity">-->
-<!--                </app-shared-identity-step>-->
-<!--            </ng-container>-->
-<!--            <clr-step-content *clrIfExpanded>-->
-<!--                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>-->
-<!--            </clr-step-content>-->
-<!--        </clr-stepper-panel>-->
-    </form>
+    <app-step-wrapper-set [wizard]="registrar"></app-step-wrapper-set>
     <button class="btn btn-primary mt-20" [disabled]="!getWizardValidity()" (click)="reviewConfiguration(true)">
         REVIEW CONFIGURATION
     </button>
@@ -103,7 +37,7 @@
     <div class="clr-row mt-20">
         <div class="clr-col-12">
             <button class="btn btn-primary" [disabled]="disableDeployButton" (click)="deploy()">
-                Deploy {{ clusterTypeDescriptor | titlecase }} Cluster
+                Deploy {{ clusterTypeDescriptorTitleCase }} Cluster
             </button>
             <button class="btn btn-outline" (click)="reviewConfiguration(false)"
                 i18n="return to wizard for edit button">

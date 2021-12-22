@@ -8,10 +8,11 @@ import { VSphereWizardComponent } from './vsphere-wizard.component';
 import { SharedModule } from '../../../shared/shared.module';
 import { FormMetaDataStore } from '../wizard/shared/FormMetaDataStore';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
-import { VSphereWizardFormServiceStub } from 'src/app/testing/vsphere-wizard-form.service.stub';
 import Broker from 'src/app/shared/service/broker';
 import { Messenger } from 'src/app/shared/service/Messenger';
 import { ClusterType } from "../wizard/shared/constants/wizard.constants";
+import { VSphereProviderStepComponent } from './provider-step/vsphere-provider-step.component';
+import { ValidationService } from '../wizard/shared/validation/validation.service';
 
 describe('VSphereWizardComponent', () => {
     let component: VSphereWizardComponent;
@@ -32,6 +33,7 @@ describe('VSphereWizardComponent', () => {
                 APIClient,
                 FormBuilder,
                 { provide: VSphereWizardFormService},
+                ValidationService
             ],
             schemas: [
                 CUSTOM_ELEMENTS_SCHEMA
@@ -49,26 +51,16 @@ describe('VSphereWizardComponent', () => {
         fixture = TestBed.createComponent(VSphereWizardComponent);
         component = fixture.componentInstance;
         component.form = fb.group({
-            vsphereProviderForm: fb.group({
-            }),
-            vsphereNodeSettingForm: fb.group({
-            }),
-            metadataForm: fb.group({
-            }),
-            storageForm: fb.group({
-            }),
-            resourceForm: fb.group({
-            }),
-            loadBalancerForm: fb.group({
-            }),
-            networkForm: fb.group({
-            }),
-            identityForm: fb.group({
-            }),
-            osImageForm: fb.group({
-            }),
-            ceipOptInForm: fb.group({
-            })
+            vsphereProviderForm: fb.group({}),
+            vsphereNodeSettingForm: fb.group({}),
+            metadataForm: fb.group({}),
+            storageForm: fb.group({}),
+            resourceForm: fb.group({}),
+            loadBalancerForm: fb.group({}),
+            networkForm: fb.group({}),
+            identityForm: fb.group({}),
+            osImageForm: fb.group({}),
+            ceipOptInForm: fb.group({})
         });
         component.clusterTypeDescriptor = '' + ClusterType.Management;
         fixture.detectChanges();
@@ -92,20 +84,24 @@ describe('VSphereWizardComponent', () => {
         expect(component['getWizardValidity']()).toBeFalsy();
     });
 
-    it('getStepDescription should return correct description when wizard is not filled', () => {
-        expect(component['getStepDescription']('provider')).toBe(
-                'Validate the vSphere provider account for Tanzu');
+    it('VsphereProviderFormDescription should return correct static description when wizard is not filled', () => {
+        const description = component.describeStep('vsphereProviderForm', component.VsphereProviderForm.description)
+        expect(description).toBe('Validate the vSphere provider account for Tanzu');
     });
 
-    it('getStepDescription should return correct summary for wizard input', () => {
+    it('VsphereProviderFormDescription should return correct dynamic summary for wizard input', () => {
         const fb = new FormBuilder();
         component.form.controls['vsphereProviderForm'] = fb.group({
             vcenterAddress: new FormControl('vcAddr'),
             datacenter: new FormControl('dc'),
         });
+        component.clusterTypeDescriptor = 'management';
+        const providerStep = TestBed.createComponent(VSphereProviderStepComponent).componentInstance;
+        providerStep.clusterTypeDescriptor = 'management';
+        component.registerStep('vsphereProviderForm', providerStep);
 
-        expect(component['getStepDescription']('provider')).toBe(
-                'vCenter vcAddr connected');
+        const description = component.describeStep('vsphereProviderForm', component.VsphereProviderForm.description)
+        expect(description).toBe('vCenter vcAddr connected');
     });
 
     it('should call create vsphere api when deploying', () => {

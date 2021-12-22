@@ -40,7 +40,8 @@ export abstract class WizardFormBase {
                     this.publishError(source, null);
                 }),
                 (err => {
-                    const error = err.error.message || err.message || JSON.stringify(err);
+                    const errMsg = err.error && err.error.message ? err.error.message : null;
+                    const error = errMsg || err.message || JSON.stringify(err);
                     this.publishError(source, error);
                     this.publishData(source, []);   // Fixme: change '[]' to 'null' to make it more generic.
                 })

@@ -1,6 +1,6 @@
 // Angular imports
-import { OnInit, ElementRef, AfterViewInit, ViewChild, Directive } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { OnInit, ElementRef, AfterViewInit, ViewChild, Directive, Type } from '@angular/core';
+import { AbstractControl, FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 
@@ -16,12 +16,25 @@ import { ClrStepper } from '@clr/angular';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { ConfigFileInfo } from '../../../../../swagger/models/config-file-info.model';
 import Broker from 'src/app/shared/service/broker';
-import { ClusterType } from "../constants/wizard.constants";
+import { ClusterType, IdentityManagementType, WizardForm } from "../constants/wizard.constants";
 import FileSaver from 'file-saver';
+import { FormDataForHTML, FormUtility } from '../components/steps/form-utility';
+import { SharedCeipStepComponent } from '../components/steps/ceip-step/ceip-step.component';
+import { SharedIdentityStepComponent } from '../components/steps/identity-step/identity-step.component';
+import { MetadataStepComponent } from '../components/steps/metadata-step/metadata-step.component';
+import { SharedNetworkStepComponent } from '../components/steps/network-step/network-step.component';
+import { SharedOsImageStepComponent } from '../components/steps/os-image-step/os-image-step.component';
+import { StepFormDirective } from '../step-form/step-form';
+
+// This interface describes a wizard that can register a step component
+export interface WizardStepRegistrar {
+    registerStep: (nameStep: string, stepComponent: StepFormDirective) => void,
+    describeStep: (nameStep, staticDescription: string) => string,
+    displayStep:  (nameStep: string) => boolean
+}
 
 @Directive()
-export abstract class WizardBaseDirective extends BasicSubscriber implements AfterViewInit, OnInit {
-
+export abstract class WizardBaseDirective extends BasicSubscriber implements WizardStepRegistrar, AfterViewInit, OnInit {
     APP_ROUTES: Routes = APP_ROUTES;
     PROVIDERS: Providers = PROVIDERS;
 
@@ -40,19 +53,31 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
     clusterTypeDescriptor: string;
 
     steps = [true, false, false, false, false, false, false, false, false, false, false];
+    stepComponents: Map<string, StepFormDirective>;
+    stepData: FormDataForHTML[];
+
     review = false;
 
     constructor(
         protected router: Router,
         protected el: ElementRef,
         protected formMetaDataService: FormMetaDataService,
-        protected titleService: Title
+        protected titleService: Title,
+        protected formBuilder: FormBuilder
     ) {
-
         super();
     }
 
     ngOnInit() {
+        this.form = this.formBuilder.group({});
+        this.stepComponents = new Map<string, StepFormDirective>();
+        // loop through stepData definitions and add a new form control for each step and we'll have the step formGroup objects built
+        // even before the step components are instantiated (and Clarity will be happy, since it wants to process formGroup directives
+        // before the step components are instantiated)
+        for (const daStepData of this.stepData) {
+            this.form.controls[daStepData.name] = this.formBuilder.group({});
+        }
+
         // set branding and cluster type on branding change for base wizard components
         Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
@@ -62,14 +87,6 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
                 this.title = data.payload.branding.title;
             });
 
-        // work around an issue within StepperModel
-        this.wizard['stepperService']['accordion']['openFirstPanel'] = function () {
-            const firstPanel = this.getFirstPanel();
-            if (firstPanel) {
-                this._panels[firstPanel.id].open = true;
-                this._panels[firstPanel.id].disabled = true;
-            }
-        }
         this.watchFieldsChange();
 
         FormMetaDataStore.resetStepList();
@@ -115,6 +132,12 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
     getStepMetadata() {
         let wizard = this.el.nativeElement;
         wizard = wizard.querySelector('form[clrstepper]');
+        if (!wizard) {
+            console.error('in getStepMetadata(), unable to find \'form[clrstepper]\' ; this is likely caused by a failure to instantiate' +
+                ' step-wrapper components while setting up a test case. If this occurs outside of a test case, something fundamental is' +
+                ' wrong.');
+            return;
+        }
         const panels: any[] = Array.from(wizard.querySelectorAll('clr-stepper-panel'));
         const stepMetadataList = [];
         panels.forEach((panel => {
@@ -130,6 +153,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
             stepMetadataList.push(stepMetadata);
         }));
         FormMetaDataStore.setStepList(stepMetadataList);
+
     }
 
     /**
@@ -333,7 +357,8 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
      * @param fieldName the name of the field to get
      */
     getFieldValue(formName, fieldName) {
-        return this.form.get(formName) && this.form.get(formName).get(fieldName) && this.form.get(formName).get(fieldName).value || '';
+        return this.form && this.form.get(formName) &&
+            this.form.get(formName).get(fieldName) && this.form.get(formName).get(fieldName).value || '';
     }
 
     /**
@@ -451,52 +476,52 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
         }
 
         payload.ceipOptIn = this.getBooleanFieldValue('ceipOptInForm', 'ceipOptIn');
-        payload.labels = this.strMapToObj(this.getFieldValue('metadataForm', 'clusterLabels'));
-        payload.os = this.getFieldValue('osImageForm', 'osImage');
+        payload.labels = this.strMapToObj(this.getFieldValue(WizardForm.METADATA, 'clusterLabels'));
+        payload.os = this.getFieldValue(WizardForm.OSIMAGE, 'osImage');
         payload.annotations = {
-            'description': this.getFieldValue('metadataForm', 'clusterDescription'),
-            'location': this.getFieldValue('metadataForm', 'clusterLocation')
+            'description': this.getFieldValue(WizardForm.METADATA, 'clusterDescription'),
+            'location': this.getFieldValue(WizardForm.METADATA, 'clusterLocation')
         };
 
         let ldap_url = '';
-        if (this.getFieldValue('identityForm', 'endpointIp')) {
-            ldap_url = this.getFieldValue('identityForm', 'endpointIp') +
-                ':' + this.getFieldValue('identityForm', 'endpointPort');
+        if (this.getFieldValue(WizardForm.IDENTITY, 'endpointIp')) {
+            ldap_url = this.getFieldValue(WizardForm.IDENTITY, 'endpointIp') +
+                ':' + this.getFieldValue(WizardForm.IDENTITY, 'endpointPort');
         }
 
         payload.identityManagement = {
-            'idm_type': this.getFieldValue('identityForm', 'identityType') || 'none'
+            'idm_type': this.getFieldValue(WizardForm.IDENTITY, 'identityType') || 'none'
         }
 
-        if (this.getFieldValue('identityForm', 'identityType') === 'oidc') {
+        if (this.getFieldValue(WizardForm.IDENTITY, 'identityType') === 'oidc') {
             payload.identityManagement = Object.assign({
                     'oidc_provider_name': '',
-                    'oidc_provider_url': this.getFieldValue('identityForm', 'issuerURL'),
-                    'oidc_client_id': this.getFieldValue('identityForm', 'clientId'),
-                    'oidc_client_secret': this.getFieldValue('identityForm', 'clientSecret'),
-                    'oidc_scope': this.getFieldValue('identityForm', 'scopes'),
+                    'oidc_provider_url': this.getFieldValue(WizardForm.IDENTITY, 'issuerURL'),
+                    'oidc_client_id': this.getFieldValue(WizardForm.IDENTITY, 'clientId'),
+                    'oidc_client_secret': this.getFieldValue(WizardForm.IDENTITY, 'clientSecret'),
+                    'oidc_scope': this.getFieldValue(WizardForm.IDENTITY, 'scopes'),
                     'oidc_claim_mappings': {
-                        'username': this.getFieldValue('identityForm', 'oidcUsernameClaim'),
-                        'groups': this.getFieldValue('identityForm', 'oidcGroupsClaim')
+                        'username': this.getFieldValue(WizardForm.IDENTITY, 'oidcUsernameClaim'),
+                        'groups': this.getFieldValue(WizardForm.IDENTITY, 'oidcGroupsClaim')
                     }
 
                 }
                 , payload.identityManagement);
-        } else if (this.getFieldValue('identityForm', 'identityType') === 'ldap') {
+        } else if (this.getFieldValue(WizardForm.IDENTITY, 'identityType') === 'ldap') {
             payload.identityManagement = Object.assign({
                     'ldap_url': ldap_url,
-                    'ldap_bind_dn': this.getFieldValue('identityForm', 'bindDN'),
-                    'ldap_bind_password': this.getFieldValue('identityForm', 'bindPW'),
-                    'ldap_user_search_base_dn': this.getFieldValue('identityForm', 'userSearchBaseDN'),
-                    'ldap_user_search_filter': this.getFieldValue('identityForm', 'userSearchFilter'),
-                    'ldap_user_search_username': this.getFieldValue('identityForm', 'userSearchUsername'),
-                    'ldap_user_search_name_attr': this.getFieldValue('identityForm', 'userSearchUsername'),
-                    'ldap_group_search_base_dn': this.getFieldValue('identityForm', 'groupSearchBaseDN'),
-                    'ldap_group_search_filter': this.getFieldValue('identityForm', 'groupSearchFilter'),
-                    'ldap_group_search_user_attr': this.getFieldValue('identityForm', 'groupSearchUserAttr'),
-                    'ldap_group_search_group_attr': this.getFieldValue('identityForm', 'groupSearchGroupAttr'),
-                    'ldap_group_search_name_attr': this.getFieldValue('identityForm', 'groupSearchNameAttr'),
-                    'ldap_root_ca': this.getFieldValue('identityForm', 'ldapRootCAData')
+                    'ldap_bind_dn': this.getFieldValue(WizardForm.IDENTITY, 'bindDN'),
+                    'ldap_bind_password': this.getFieldValue(WizardForm.IDENTITY, 'bindPW'),
+                    'ldap_user_search_base_dn': this.getFieldValue(WizardForm.IDENTITY, 'userSearchBaseDN'),
+                    'ldap_user_search_filter': this.getFieldValue(WizardForm.IDENTITY, 'userSearchFilter'),
+                    'ldap_user_search_username': this.getFieldValue(WizardForm.IDENTITY, 'userSearchUsername'),
+                    'ldap_user_search_name_attr': this.getFieldValue(WizardForm.IDENTITY, 'userSearchUsername'),
+                    'ldap_group_search_base_dn': this.getFieldValue(WizardForm.IDENTITY, 'groupSearchBaseDN'),
+                    'ldap_group_search_filter': this.getFieldValue(WizardForm.IDENTITY, 'groupSearchFilter'),
+                    'ldap_group_search_user_attr': this.getFieldValue(WizardForm.IDENTITY, 'groupSearchUserAttr'),
+                    'ldap_group_search_group_attr': this.getFieldValue(WizardForm.IDENTITY, 'groupSearchGroupAttr'),
+                    'ldap_group_search_name_attr': this.getFieldValue(WizardForm.IDENTITY, 'groupSearchNameAttr'),
+                    'ldap_root_ca': this.getFieldValue(WizardForm.IDENTITY, 'ldapRootCAData')
                 }
                 , payload.identityManagement);
         }
@@ -516,6 +541,33 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
         }
         return payload;
     }
+
+    // Methods that fulfill WizardStepRegistrar
+    //
+    registerStep(stepName: string, stepComponent: StepFormDirective) {
+        // create a formGroup for this step, record it internally and set it in the step
+        stepComponent.setInputs(stepName, this.form.controls[stepName] as FormGroup);
+        // record this step component internally
+        this.stepComponents[stepName] = stepComponent;
+    }
+
+    // If the component has registered, returns the component's dynamic description (if it has one).
+    // If the component has not yet registered, returns the static description (passed in)
+    describeStep(stepName, staticDescription: string): string {
+        const stepComponent = this.stepComponents[stepName];
+        if (!stepComponent) {
+            return staticDescription;
+        }
+        const dynamicDescription = stepComponent.dynamicDescription();
+        return dynamicDescription ? dynamicDescription : staticDescription;
+    }
+
+    displayStep(stepName: string): boolean {
+        const stepIndex = this.getStepIndex(stepName);
+        return stepIndex >= 0 && this.steps[stepIndex];
+    }
+    //
+    // Methods that fulfill WizardStepRegistrar
 
     // saveFormField() is a convenience method to avoid lengthy code lines
     saveFormField(formName, fieldName, value) {
@@ -650,5 +702,60 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Aft
         return httpProxyConfiguration['HTTPProxyURL'] === httpProxyConfiguration['HTTPSProxyURL'] &&
             httpProxyConfiguration['HTTPProxyUsername'] === httpProxyConfiguration['HTTPSProxyUsername'] &&
             httpProxyConfiguration['HTTPProxyPassword'] === httpProxyConfiguration['HTTPSProxyPassword'];
+    }
+
+    // HTML convenience methods
+    //
+    get registrar(): WizardStepRegistrar {
+        return this;
+    }
+
+    get CeipForm(): FormDataForHTML {
+        return { name: WizardForm.CEIP, title: 'CEIP Agreement', description: 'Join the CEIP program for TKG',
+            i18n: { title: 'ceip agreement step title', description: 'ceip agreement step description' },
+        clazz: SharedCeipStepComponent };
+    }
+    get IdentityForm(): FormDataForHTML {
+        return { name: WizardForm.IDENTITY, title: 'Identity Management', description: 'Specify identity management',
+            i18n: { title: 'identity step title', description: 'identity step description' },
+        clazz: SharedIdentityStepComponent };
+    }
+    get MetadataForm(): FormDataForHTML {
+        return { name: WizardForm.METADATA, title: 'Metadata',
+            description: 'Specify metadata for the ' + this.clusterTypeDescriptor + ' cluster',
+            i18n: { title: 'metadata step name', description: 'metadata step description' },
+        clazz: MetadataStepComponent };
+    }
+    get NetworkForm(): FormDataForHTML {
+        return { name: WizardForm.NETWORK, title: 'Kubernetes Network',
+            description: 'Specify how TKG networking is provided and global network settings',
+            i18n: { title: 'Kubernetes network step name', description: 'Kubernetes network step description' },
+        clazz: SharedNetworkStepComponent };
+    }
+    getOsImageForm(clazz: Type<StepFormDirective>): FormDataForHTML {
+        return { name: WizardForm.OSIMAGE, title: 'OS Image', description: 'Specify the OS Image',
+            i18n: { title: 'OS Image step title', description: 'OS Image step description' },
+        clazz: clazz };
+    }
+    get wizardForm(): FormGroup {
+        return this.form;
+    }
+    get clusterTypeDescriptorTitleCase() {
+        return FormUtility.titleCase(this.clusterTypeDescriptor);
+    }
+    //
+    // HTML convenience methods
+
+    protected getStepIndex(stepName: string): number {
+        let result = -1;
+        this.stepData.forEach((data, index) => {
+            if (data.name === stepName) {
+                result = index;
+            }
+        });
+        if (result === -1) {
+            console.error('unable to find step named ' + stepName + ' in the wizard\'s array of step data');
+        }
+        return result;
     }
 }
