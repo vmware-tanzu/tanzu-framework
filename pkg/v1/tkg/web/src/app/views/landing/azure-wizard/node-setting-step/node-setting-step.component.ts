@@ -34,33 +34,34 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     displayForm = false;
 
     constructor(private validationService: ValidationService,
-                private azureWizardFormService: AzureWizardFormService, protected fieldMapUtilities: FieldMapUtilities) {
-        super(fieldMapUtilities);
+                private azureWizardFormService: AzureWizardFormService,
+                private fieldMapUtilities: FieldMapUtilities) {
+        super();
         this.nodeTypes = [];
     }
 
-    protected supplyStepMapping(): StepMapping {
+    private supplyStepMapping(): StepMapping {
         const fieldMappings = this.modeClusterStandalone ? AzureNodeSettingStandaloneStepMapping : AzureNodeSettingStepMapping;
         FieldMapUtilities.getFieldMapping('managementClusterName', fieldMappings).required =
             Broker.appDataService.isClusterNameRequired();
         return fieldMappings;
     }
 
-    initForm() {
+    private customizeForm() {
         this.azureWizardFormService.getErrorStream(TkgEventType.AZURE_GET_INSTANCE_TYPES)
-        .pipe(takeUntil(this.unsubscribe))
-        .subscribe(error => {
-            this.errorNotification = error;
-        });
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe(error => {
+                this.errorNotification = error;
+            });
 
         this.azureWizardFormService.getDataStream(TkgEventType.AZURE_GET_INSTANCE_TYPES)
-        .pipe(takeUntil(this.unsubscribe))
-        .subscribe((instanceTypes: AzureInstanceType[]) => {
-            this.nodeTypes = instanceTypes.sort();
-            if (!this.modeClusterStandalone && this.nodeTypes.length === 1) {
-                this.formGroup.get('workerNodeInstanceType').setValue(this.nodeTypes[0].name);
-            }
-        });
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe((instanceTypes: AzureInstanceType[]) => {
+                this.nodeTypes = instanceTypes.sort();
+                if (!this.modeClusterStandalone && this.nodeTypes.length === 1) {
+                    this.formGroup.get('workerNodeInstanceType').setValue(this.nodeTypes[0].name);
+                }
+            });
     }
 
     toggleValidations() {
@@ -107,8 +108,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     ngOnInit() {
         super.ngOnInit();
-        this.buildForm();
-        this.initForm();
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
+        this.customizeForm();
         this.toggleValidations();
         this.initFormWithSavedData();
     }

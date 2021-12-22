@@ -75,19 +75,15 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
 
     treeData = [];
 
-    constructor(
-        private wizardFormService: VSphereWizardFormService,
-        protected fieldMapUtilities: FieldMapUtilities,
-        private validationService: ValidationService) {
-        super(fieldMapUtilities);
-    }
-
-    protected supplyStepMapping(): StepMapping {
-        return VsphereResourceStepMapping;
+    constructor(private wizardFormService: VSphereWizardFormService,
+                private fieldMapUtilities: FieldMapUtilities,
+                private validationService: ValidationService) {
+        super();
     }
 
     ngOnInit() {
         super.ngOnInit();
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, VsphereResourceStepMapping);
 
         const temp = DataSources.map(source => this.wizardFormService.getErrorStream(source));
         combineLatest(...temp)

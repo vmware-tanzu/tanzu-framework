@@ -134,19 +134,19 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     airgappedVPC = false;
 
     constructor(private validationService: ValidationService,
-        protected fieldMapUtilities: FieldMapUtilities,
-        private apiClient: APIClient,
-        public awsWizardFormService: AwsWizardFormService) {
-        super(fieldMapUtilities);
+                private fieldMapUtilities: FieldMapUtilities,
+                private apiClient: APIClient,
+                public awsWizardFormService: AwsWizardFormService) {
+        super();
     }
 
-    protected supplyStepMapping(): StepMapping {
+    private supplyStepMapping(): StepMapping {
         FieldMapUtilities.getFieldMapping(AwsField.NODESETTING_CLUSTER_NAME, AwsNodeSettingStepMapping).required =
             Broker.appDataService.isClusterNameRequired();
         return AwsNodeSettingStepMapping;
     }
 
-    protected customizeForm() {
+    private customizeForm() {
         Broker.messenger.getSubject(TkgEventType.AWS_AIRGAPPED_VPC_CHANGE).subscribe(event => {
             this.airgappedVPC = event.payload;
             if (this.airgappedVPC) { // public subnet IDs shouldn't be provided
@@ -283,6 +283,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     ngOnInit() {
         super.ngOnInit();
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
+        this.customizeForm();
 
         setTimeout(_ => {
             this.displayForm = true;

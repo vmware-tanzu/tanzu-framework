@@ -46,16 +46,16 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
     hideWarning: boolean = true;
 
     constructor(private validationService: ValidationService,
-                protected fieldMapUtilities: FieldMapUtilities,
-        private wizardFormService: VSphereWizardFormService) {
-        super(fieldMapUtilities);
+                private fieldMapUtilities: FieldMapUtilities,
+                private wizardFormService: VSphereWizardFormService) {
+        super();
     }
 
-    protected supplyStepMapping(): StepMapping {
+    private supplyStepMapping(): StepMapping {
         return this.ipFamily === IpFamilyEnum.IPv4 ? NetworkIpv4StepMapping : NetworkIpv6StepMapping;
     }
 
-    protected customizeForm() {
+    private customizeForm() {
         if (!this.enableNetworkName) {
             this.clearFieldSavedData('networkName');
             this.formGroup.removeControl('networkName');
@@ -75,6 +75,8 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
 
     ngOnInit() {
         super.ngOnInit();
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
+        this.customizeForm();
         this.listenToEvents();
 
         const cniTypeData = {

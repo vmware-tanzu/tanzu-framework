@@ -38,7 +38,7 @@ export abstract class SharedOsImageStepComponent extends StepFormDirective {
     tkrVersion: Observable<string>;
 
     protected constructor(protected fieldMapUtilities: FieldMapUtilities) {
-        super(fieldMapUtilities);
+        super();
         this.tkrVersion = Broker.appDataService.getTkrVersion();
     }
 
@@ -46,11 +46,7 @@ export abstract class SharedOsImageStepComponent extends StepFormDirective {
     // This allows the step to follow the same pattern as all the other steps, which only take formGroup and formName as inputs.
     protected abstract setProviderInputs();
 
-    protected supplyStepMapping(): StepMapping {
-        return OsImageStepMapping;
-    }
-
-    protected customizeForm() {
+    private customizeForm() {
         /**
          * Whenever data center selection changes, reset the relevant fields
          */
@@ -80,7 +76,8 @@ export abstract class SharedOsImageStepComponent extends StepFormDirective {
     // onInit() should be called from subclass' ngOnInit()
     protected onInit() {
         super.ngOnInit();
-
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, OsImageStepMapping);
+        this.customizeForm();
         this.initFormWithSavedData();
     }
 

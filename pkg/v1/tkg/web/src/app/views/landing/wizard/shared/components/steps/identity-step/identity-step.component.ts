@@ -92,17 +92,13 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
     timelineError = {};
 
     constructor(private apiClient: APIClient,
-                protected fieldMapUtilities: FieldMapUtilities,
+                private fieldMapUtilities: FieldMapUtilities,
                 private validationService: ValidationService) {
-        super(fieldMapUtilities);
+        super();
         this.resetTimelineState();
     }
 
-    protected supplyStepMapping(): StepMapping {
-        return IdentityStepMapping;
-    }
-
-    protected customizeForm() {
+    private customizeForm() {
         this.registerOnIpFamilyChange('issuerURL', [], [], () => {
             if (this.identityTypeValue === 'oidc') {
                 this.setOIDCValidators();
@@ -130,6 +126,8 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
 
     ngOnInit(): void {
         super.ngOnInit();
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, IdentityStepMapping);
+        this.customizeForm();
 
         this.initFormWithSavedData();
         this.identityTypeValue = this.getSavedValue('identityType', 'oidc');
@@ -253,7 +251,8 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
 
     formatError(err) {
         if (err) {
-            return err?.error?.message || err?.message || JSON.stringify(err, null, 4);
+            const errMsg = err.error ? err.error.message : null;
+            return errMsg || err.message || JSON.stringify(err, null, 4);
         }
         return "";
     }

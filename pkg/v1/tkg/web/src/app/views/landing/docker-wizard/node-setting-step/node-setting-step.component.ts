@@ -16,15 +16,11 @@ import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
     styleUrls: ['./node-setting-step.component.scss']
 })
 export class NodeSettingStepComponent extends StepFormDirective implements OnInit {
-    constructor(private validationService: ValidationService, protected fieldMapUtilities: FieldMapUtilities) {
-        super(fieldMapUtilities);
+    constructor(private fieldMapUtilities: FieldMapUtilities) {
+        super();
     }
 
-    protected supplyStepMapping(): StepMapping {
-        return DockerNodeSettingStepMapping;
-    }
-
-    protected customizeForm() {
+    private customizeForm() {
         Broker.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
@@ -43,7 +39,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     ngOnInit(): void {
         super.ngOnInit();
-
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, DockerNodeSettingStepMapping);
+        this.customizeForm();
         this.initFormWithSavedData();
     }
 }

@@ -57,17 +57,13 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
     currentControlPlaneEndpoingProvider: string;
 
     constructor(private validationService: ValidationService,
-        private apiClient: APIClient,
-                protected fieldMapUtilities: FieldMapUtilities,
+                private apiClient: APIClient,
+                private fieldMapUtilities: FieldMapUtilities,
                 private wizardFormService: VSphereWizardFormService) {
-        super(fieldMapUtilities);
+        super();
     }
 
-    protected supplyStepMapping(): StepMapping {
-        return LoadBalancerStepMapping;
-    }
-
-    protected customizeForm() {
+    private customizeForm() {
         SupervisedFields.forEach(field => {
             this.formGroup.get(field).valueChanges
                 .pipe(
@@ -119,6 +115,8 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
 
     ngOnInit() {
         super.ngOnInit();
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, LoadBalancerStepMapping);
+        this.customizeForm();
 
         this.vipClusterNetworkNameLabel = this.modeClusterStandalone ?
             'STANDALONE CLUSTER VIP NETWORK NAME' : 'MANAGEMENT VIP NETWORK NAME';

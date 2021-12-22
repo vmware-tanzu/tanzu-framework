@@ -56,20 +56,20 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
     vnetFieldsNew: Array<string> = [];
 
     constructor(private apiClient: APIClient,
-                protected fieldMapUtilities: FieldMapUtilities,
+                private fieldMapUtilities: FieldMapUtilities,
                 private validationService: ValidationService,
                 private wizardFormService: AzureWizardFormService) {
-        super(fieldMapUtilities);
+        super();
     }
 
-    protected supplyStepMapping(): StepMapping {
+    private supplyStepMapping(): StepMapping {
         return this.modeClusterStandalone ? AzureVnetStandaloneStepMapping : AzureVnetStepMapping;
     }
 
     /**
      * Create the initial form
      */
-    protected customizeForm() {
+    private customizeForm() {
         this.formGroup.get(AzureField.VNET_RESOURCE_GROUP).valueChanges
             .pipe(
                 distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
@@ -135,8 +135,11 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
         this.registerOnValueChange(AzureField.VNET_CONTROLPLANE_SUBNET_NAME, this.onControlPlaneSubnetChange.bind(this));
         this.registerOnValueChange(AzureField.VNET_EXISTING_OR_CUSTOM, this.onExistingOrCustomOptionChange.bind(this));
     }
+
     ngOnInit() {
         super.ngOnInit();
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
+        this.customizeForm();
 
         this.vnetFieldsExisting = [AzureField.VNET_EXISTING_NAME, AzureField.VNET_CONTROLPLANE_SUBNET_NAME];
         this.vnetFieldsNew =

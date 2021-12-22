@@ -3,7 +3,9 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ValidationService } from '../validation/validation.service';
 import { FormMetaDataStore } from '../FormMetaDataStore';
 import { FormUtils } from '../utils/form-utils';
+import { Injectable } from '@angular/core';
 
+@Injectable()
 export class FieldMapUtilities {
     constructor(private validationService: ValidationService) {
     }

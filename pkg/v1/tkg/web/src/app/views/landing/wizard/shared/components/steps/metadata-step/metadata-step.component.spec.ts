@@ -9,6 +9,7 @@ import { APIClient } from '../../../../../../../swagger/api-client.service';
 import { MetadataStepComponent } from './metadata-step.component';
 import Broker from 'src/app/shared/service/broker';
 import { Messenger } from 'src/app/shared/service/Messenger';
+import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 
 describe('MetadataStepComponent', () => {
     let component: MetadataStepComponent;
@@ -23,6 +24,7 @@ describe('MetadataStepComponent', () => {
             providers: [
                 ValidationService,
                 FormBuilder,
+                FieldMapUtilities,
                 APIClient
             ],
             schemas: [

@@ -24,19 +24,13 @@ export class DaemonValidationStepComponent extends StepFormDirective implements 
     connecting: boolean = false;
     errorNotification: string = "";
 
-    constructor(
-        private validationService: ValidationService,
-        protected fieldMapUtilities: FieldMapUtilities,
-        private apiClient: APIClient
-    ) {
-        super(fieldMapUtilities);
+    constructor(private validationService: ValidationService,
+                private fieldMapUtilities: FieldMapUtilities,
+                private apiClient: APIClient) {
+        super();
     }
 
-    protected supplyStepMapping(): StepMapping {
-        return DaemonStepMapping;
-    }
-
-    protected customizeForm() {
+    private customizeForm() {
         Broker.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
@@ -55,7 +49,8 @@ export class DaemonValidationStepComponent extends StepFormDirective implements 
 
     ngOnInit(): void {
         super.ngOnInit();
-
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, DaemonStepMapping);
+        this.customizeForm();
         this.connectToDocker();
     }
 

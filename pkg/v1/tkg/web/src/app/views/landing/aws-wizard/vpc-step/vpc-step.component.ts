@@ -27,16 +27,13 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
 
     constructor(private validationService: ValidationService,
                 private awsWizardFormService: AwsWizardFormService,
-                protected fieldMapUtilities: FieldMapUtilities) {
-        super(fieldMapUtilities);
-    }
-
-    protected supplyStepMapping(): StepMapping {
-        return AwsVpcStepMapping;
+                private fieldMapUtilities: FieldMapUtilities) {
+        super();
     }
 
     ngOnInit() {
         super.ngOnInit();
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, AwsVpcStepMapping);
 
         this.formGroup.get(AwsField.VPC_TYPE).valueChanges
             .pipe(

@@ -72,27 +72,29 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
     enableIpv6: boolean = false;
 
     constructor(private validationService: ValidationService,
-                protected fieldMapUtilities: FieldMapUtilities,
-        private apiClient: APIClient,
-        private router: Router) {
-        super(fieldMapUtilities);
+                private fieldMapUtilities: FieldMapUtilities,
+                private apiClient: APIClient,
+                private router: Router) {
+        super();
 
         this.fileReader = new FileReader();
     }
 
-    protected supplyStepMapping(): StepMapping {
-        return VsphereProviderStepFieldMapping;
-    }
-
-    protected customizeForm() {
+    private customizeForm() {
         SupervisedField.forEach(field => {
             this.formGroup.get(field).valueChanges
                 .pipe(
                     debounceTime(500),
-                    distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+                    distinctUntilChanged((prev, curr) => {
+                        const same = JSON.stringify(prev) === JSON.stringify(curr);
+                        console.log('field ' + field + ' detects ' + !same + ' change from ' + JSON.stringify(prev) + ' to ' +
+                        JSON.stringify(curr));
+                        return same;
+                    }),
                     takeUntil(this.unsubscribe)
                 )
                 .subscribe(() => {
+                    console.log('disconnecting because field ' + field + ' changed value');
                     this.disconnect();
                 });
         });
@@ -101,11 +103,17 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
             this.dcOnChange(data)
         });
 
-        this.formGroup.get(VsphereField.PROVIDER_IP_FAMILY).valueChanges.subscribe(data => {
+        this.formGroup.get(VsphereField.PROVIDER_IP_FAMILY).valueChanges
+            .pipe(
+                distinctUntilChanged(),
+                takeUntil(this.unsubscribe)
+            )
+            .subscribe(data => {
             Broker.messenger.publish({
                 type: TkgEventType.IP_FAMILY_CHANGE,
                 payload: data
             });
+            console.log('disconnecting because field PROVIDER_IP_FAMILY changed value to ' + data);
             this.disconnect();
         });
 
@@ -153,9 +161,11 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
     ngOnInit() {
         super.ngOnInit();
         this.enableIpv6 = Broker.appDataService.isPluginFeatureActivated(managementClusterPlugin, 'vsphereIPv6');
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, VsphereProviderStepFieldMapping);
         this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).disable();
         this.datacenters = [];
         this.formGroup.get(VsphereField.PROVIDER_SSH_KEY).disable({ emitEvent: false});
+        this.customizeForm();
 
         this.initFormWithSavedData();
     }
@@ -363,13 +373,18 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
      * triggers all subsequent vsphere API discovery calls dependant on datacenter moid
      * @param $event {string} datacenter moid value emitted from select change
      */
-    dcOnChange(datacenter: string) {
-        const dcMoid = this.datacenters.find(dc => dc.name === datacenter)
-            && this.datacenters.find(dc => dc.name === datacenter).moid || "";
-        Broker.messenger.publish({
-            type: TkgEventType.DATACENTER_CHANGED,
-            payload: dcMoid
-        });
+    dcOnChange(nameDatacenter: string) {
+        if (this.datacenters) {
+            let dcMoid = '';
+            const datacenter = this.datacenters.find(dc => dc.name === nameDatacenter);
+            if (datacenter && datacenter.moid) {
+                dcMoid = datacenter.moid;
+            }
+            Broker.messenger.publish({
+                type: TkgEventType.DATACENTER_CHANGED,
+                payload: dcMoid
+            });
+        }
     }
 
     /**

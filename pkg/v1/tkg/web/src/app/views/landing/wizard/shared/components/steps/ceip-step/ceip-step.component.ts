@@ -19,17 +19,13 @@ import { StepMapping } from '../../../field-mapping/FieldMapping';
     styleUrls: ['./ceip-step.component.scss']
 })
 export class SharedCeipStepComponent extends StepFormDirective implements OnInit {
-    constructor(protected fieldMapUtilities: FieldMapUtilities) {
-        super(fieldMapUtilities);
-    }
-
-    protected supplyStepMapping(): StepMapping {
-        return CeipStepMapping;
+    constructor(private fieldMapUtilities: FieldMapUtilities) {
+        super();
     }
 
     ngOnInit() {
         super.ngOnInit();
-
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, CeipStepMapping);
         this.initFormWithSavedData();
     }
 }

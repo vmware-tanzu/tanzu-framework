@@ -69,19 +69,14 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
 
     resourceGroupCreationState = 'create';
 
-    constructor(
-        private apiClient: APIClient,
-        protected fieldMapUtilities: FieldMapUtilities,
-        private wizardFormService: AzureWizardFormService,
-        private validationService: ValidationService) {
-        super(fieldMapUtilities);
+    constructor(private apiClient: APIClient,
+                private fieldMapUtilities: FieldMapUtilities,
+                private wizardFormService: AzureWizardFormService,
+                private validationService: ValidationService) {
+        super();
     }
 
-    protected supplyStepMapping(): StepMapping {
-        return AzureProviderStepMapping;
-    }
-
-    protected customizeForm() {
+    private customizeForm() {
         this.formGroup['canMoveToNext'] = () => {
             return this.formGroup.valid && this.validCredentials;
         }
@@ -156,6 +151,9 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
 
     ngOnInit() {
         super.ngOnInit();
+
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, AzureProviderStepMapping);
+        this.customizeForm();
 
         this.initAzureCredentials();
         this.initFormWithSavedData();

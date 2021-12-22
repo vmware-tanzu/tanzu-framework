@@ -8,6 +8,7 @@ import { APIClient } from '../../../../swagger/api-client.service';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import Broker from 'src/app/shared/service/broker';
 import { Messenger } from 'src/app/shared/service/Messenger';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 
 describe('ResourceStepComponent', () => {
     let component: ResourceStepComponent;
@@ -22,6 +23,7 @@ describe('ResourceStepComponent', () => {
             providers: [
                 APIClient,
                 FormBuilder,
+                FieldMapUtilities,
                 ValidationService,
             ],
             schemas: [

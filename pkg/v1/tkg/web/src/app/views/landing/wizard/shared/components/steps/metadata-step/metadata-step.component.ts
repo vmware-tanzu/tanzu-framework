@@ -25,17 +25,13 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
     labels: Map<String, String> = new Map<String, String>();
 
     constructor(private validationService: ValidationService,
-                protected fieldMapUtilities: FieldMapUtilities,
-                private wizardFormService: VSphereWizardFormService) {
-        super(fieldMapUtilities);
-    }
-
-    protected supplyStepMapping(): StepMapping {
-        return MetadataStepMapping;
+                private fieldMapUtilities: FieldMapUtilities) {
+        super();
     }
 
     ngOnInit() {
         super.ngOnInit();
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, MetadataStepMapping);
         this.initFormWithSavedData();
     }
 

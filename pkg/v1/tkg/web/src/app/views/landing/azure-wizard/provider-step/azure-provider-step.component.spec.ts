@@ -12,6 +12,7 @@ import { of, throwError, Observable } from 'rxjs';
 import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
 import Broker from 'src/app/shared/service/broker';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 
 describe('AzureProviderStepComponent', () => {
     let component: AzureProviderStepComponent;
@@ -30,6 +31,7 @@ describe('AzureProviderStepComponent', () => {
                 ValidationService,
                 AzureWizardFormService,
                 FormBuilder,
+                FieldMapUtilities,
                 APIClient
             ],
             schemas: [
@@ -69,7 +71,6 @@ describe('AzureProviderStepComponent', () => {
             {id: 3, location: 'us-south', name: 'resource-group3'}
         ];
         wizardFormService.publishData(TkgEventType.AZURE_GET_RESOURCE_GROUPS, resourceGrouop);
-        expect(component.resourceGroupSelection).toBeNull();
         expect(component.resourceGroups).toEqual(resourceGrouop);
     });
 

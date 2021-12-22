@@ -40,15 +40,11 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
     validCredentials: boolean = false;
     isProfileChoosen: boolean = false;
 
-    constructor(protected fieldMapUtilities: FieldMapUtilities, private apiClient: APIClient) {
-        super(fieldMapUtilities);
+    constructor(private fieldMapUtilities: FieldMapUtilities, private apiClient: APIClient) {
+        super();
     }
 
-    protected supplyStepMapping(): StepMapping {
-        return AwsProviderStepMapping;
-    }
-
-    protected customizeForm() {
+    private customizeForm() {
         this.formGroup['canMoveToNext'] = () => {
             return this.formGroup.valid && this.validCredentials;
         }
@@ -88,6 +84,9 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
 
     ngOnInit() {
         super.ngOnInit();
+
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, AwsProviderStepMapping);
+        this.customizeForm();
 
         this.loading = true;
         this.initForm();

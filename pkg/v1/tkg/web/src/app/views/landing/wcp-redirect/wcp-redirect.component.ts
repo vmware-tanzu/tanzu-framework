@@ -24,12 +24,8 @@ export class WcpRedirectComponent extends StepFormDirective implements OnInit {
     vcHost: string;
     hasTkgPlus: boolean = false;
 
-    constructor(private router: Router, protected fieldMapUtilities: FieldMapUtilities) {
-        super(fieldMapUtilities);
-    }
-
-    protected supplyStepMapping(): StepMapping {
-        return undefined;
+    constructor(private router: Router) {
+        super();
     }
 
     ngOnInit() {

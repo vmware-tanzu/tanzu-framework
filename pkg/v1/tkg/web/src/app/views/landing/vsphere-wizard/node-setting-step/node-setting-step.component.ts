@@ -39,22 +39,19 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     currentControlPlaneEndpoingProvider = KUBE_VIP;
     controlPlaneEndpointOptional = "";
 
-    constructor(private validationService: ValidationService,
-                protected fieldMapUtilities: FieldMapUtilities,
-        private wizardFormService: VSphereWizardFormService) {
-
-        super(fieldMapUtilities);
+    constructor(private validationService: ValidationService, private fieldMapUtilities: FieldMapUtilities) {
+        super();
         this.nodeTypes = [...VsphereNodeTypes];
     }
 
-    protected supplyStepMapping(): StepMapping {
+    private supplyStepMapping(): StepMapping {
         const fieldMappings = this.modeClusterStandalone ? VsphereNodeSettingStandaloneStepMapping : VsphereNodeSettingStepMapping;
         FieldMapUtilities.getFieldMapping(VsphereField.NODESETTING_CLUSTER_NAME, fieldMappings).required =
             Broker.appDataService.isClusterNameRequired();
         return fieldMappings;
     }
 
-    protected customizeForm() {
+    private customizeForm() {
         this.registerOnValueChange(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_PROVIDER,
             this.onControlPlaneEndpoingProviderChange.bind(this));
         this.registerOnIpFamilyChange(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_IP, [
@@ -68,6 +65,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     ngOnInit() {
         super.ngOnInit();
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
+        this.customizeForm();
 
         // TODO: can some of these subscriptions be moved to customizeForm()?
         setTimeout(_ => {

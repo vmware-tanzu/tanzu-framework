@@ -12,7 +12,7 @@ import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUti
 export class VsphereOsImageStepComponent extends SharedOsImageStepComponent implements OnInit {
     private tkrVersionString: string;
 
-    constructor(private vSphereWizardFormService: VSphereWizardFormService, fieldMapUtilities: FieldMapUtilities) {
+    constructor(private vSphereWizardFormService: VSphereWizardFormService, protected fieldMapUtilities: FieldMapUtilities) {
         super(fieldMapUtilities);
         this.tkrVersion.subscribe(value => { this.tkrVersionString = value; });
     }
