@@ -36,6 +36,7 @@ generate_cluster_configurations() {
     cmdargs=()
     read -r -a cmdargs < <(grep EXE: "$t" | cut -d: -f2-)
     cp "$t" /tmp/test_tkg_config
+    echo $TKG --file /tmp/test_tkg_config --configdir ${TKG_CONFIG_DIR} --log_file /tmp/"$t".log config cluster "${cmdargs[@]}"
     $TKG --file /tmp/test_tkg_config --configdir ${TKG_CONFIG_DIR} --log_file /tmp/"$t".log config cluster "${cmdargs[@]}" 2>/tmp/err.txt 1>/tmp/expected.yaml
     #shellcheck disable=SC2181
     if [ $? -eq 0 ]; then
