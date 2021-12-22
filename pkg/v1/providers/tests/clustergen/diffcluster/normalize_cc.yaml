@@ -1,0 +1,67 @@
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=lambda _,l,r: "annotations" in l["metadata"],expects="0+"
+---
+metadata:
+  #@overlay/match-child-defaults missing_ok=True
+  annotations:
+    #@overlay/remove
+    cluster.x-k8s.io/cloned-from-groupkind:
+    #@overlay/remove
+    cluster.x-k8s.io/cloned-from-name:
+    #@overlay/remove
+    topology.cluster.x-k8s.io/managed-field-paths:
+
+#@overlay/match by=lambda _,l,r: "labels" in l["metadata"],expects="0+"
+---
+metadata:
+  #@overlay/match-child-defaults missing_ok=True
+  labels:
+    #@overlay/remove
+    topology.cluster.x-k8s.io/deployment-name:
+    #@overlay/remove
+    topology.cluster.x-k8s.io/owned:
+
+#@overlay/match by=lambda _,l,r: "labels" in l["metadata"] and l["kind"] != "ClusterResourceSet", expects="0+"
+---
+metadata:
+  #@overlay/match-child-defaults missing_ok=True
+  labels:
+    #@overlay/remove
+    cluster.x-k8s.io/cluster-name:
+
+#@overlay/match by=lambda _,l,r: "ownerReferences" in l["metadata"],expects="0+"
+---
+metadata:
+  #@overlay/remove
+  ownerReferences:
+
+#@overlay/match by=lambda _,l,r: "resourceVersion" in l["metadata"],expects="0+"
+---
+metadata:
+  #@overlay/remove
+  resourceVersion:
+
+
+#@overlay/match by=overlay.subset({"kind":"Cluster"})
+---
+#@overlay/match missing_ok=True
+#@overlay/remove
+status:
+
+
+#@overlay/match by=lambda _,l,r: "labels" in l["metadata"] and len(l["metadata"]["labels"]) == 0 ,expects="0+"
+---
+metadata:
+  #@overlay/remove
+  labels:
+
+#@overlay/match by=lambda _,l,r: "annotations" in l["metadata"] and len(l["metadata"]["annotations"]) == 0 ,expects="0+"
+---
+metadata:
+  #@overlay/remove
+  annotations:
+
+#@overlay/match by=overlay.subset({"kind": "Secret"}), expects="0+"
+#@overlay/remove
+---
