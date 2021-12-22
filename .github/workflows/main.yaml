@@ -62,6 +62,10 @@ jobs:
         echo "##[set-output name=bompath;]$(echo "$BOMCOMMENT" | awk -F : '{print $2}')"
       id: extract_bom
 
+    - name: Verify
+      run: |
+        make verify
+
     - name: Build
       run: |
         if [[ ! -z "${{ steps.extract_bom.outputs.bompath }}" ]]; then
@@ -70,10 +74,6 @@ jobs:
         env | sort
         make configure-bom
         make all
-
-    - name: Verify
-      run: |
-        make verify
 
     - name: Test
       run: |

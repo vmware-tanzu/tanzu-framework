@@ -26,8 +26,7 @@
 
     <app-step-wrapper-set [wizard]="registrar"></app-step-wrapper-set>
 
-    <button class="btn btn-primary mt-20" [disabled]="!getWizardValidity()" (click)="reviewConfiguration(true)"
-        i18n="review cluster configuration btn">
+    <button class="btn btn-primary mt-20" [disabled]="!getWizardValidity()" (click)="reviewConfiguration(true)">
         REVIEW CONFIGURATION
     </button>
 </div>
@@ -37,17 +36,14 @@
     <app-error-notification [errorNotification]="errorNotification"></app-error-notification>
     <div class="clr-row mt-20">
         <div class="clr-col-12 btn-container">
-            <button class="btn btn-primary deploy-btn" [disabled]="disableDeployButton" (click)="deploy()"
-                    i18n="deploy cluster configuration btn">
+            <button class="btn btn-primary deploy-btn" [disabled]="disableDeployButton" (click)="deploy()">
                 Deploy {{ clusterTypeDescriptorTitleCase }} Cluster
             </button>
-            <button class="btn btn-outline edit-btn" (click)="reviewConfiguration(false)"
-                i18n="return to wizard for edit button">
+            <button class="btn btn-outline edit-btn" (click)="reviewConfiguration(false)">
                 Edit Configuration
             </button>
             <ng-container *featureToggle="'management-cluster.export-from-confirm'">
-                <button class="btn btn-link export-btn" (click)="exportConfiguration()"
-                        i18n="export configuration button">
+                <button class="btn btn-link export-btn" (click)="exportConfiguration()">
                     Export Configuration
                 </button>
             </ng-container>
