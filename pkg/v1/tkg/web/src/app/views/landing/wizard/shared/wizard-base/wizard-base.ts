@@ -68,14 +68,22 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
         super();
     }
 
+    // This is the method by which the child class gives this class the data for the steps.
+    protected abstract supplyStepData(): FormDataForHTML[];
+
     ngOnInit() {
         this.form = this.formBuilder.group({});
         this.stepComponents = new Map<string, StepFormDirective>();
         // loop through stepData definitions and add a new form control for each step and we'll have the step formGroup objects built
         // even before the step components are instantiated (and Clarity will be happy, since it wants to process formGroup directives
         // before the step components are instantiated)
-        for (const daStepData of this.stepData) {
-            this.form.controls[daStepData.name] = this.formBuilder.group({});
+        this.stepData = this.supplyStepData();
+        if (!this.stepData) {
+            console.error('wizard did not supply step data to base class');
+        } else {
+            for (const daStepData of this.stepData) {
+                this.form.controls[daStepData.name] = this.formBuilder.group({});
+            }
         }
 
         // set branding and cluster type on branding change for base wizard components
