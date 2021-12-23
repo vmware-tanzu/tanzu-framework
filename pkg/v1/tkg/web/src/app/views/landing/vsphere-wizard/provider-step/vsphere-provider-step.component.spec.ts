@@ -14,6 +14,7 @@ import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import Broker from 'src/app/shared/service/broker';
 import { Messenger } from 'src/app/shared/service/Messenger';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 
 describe('VSphereProviderStepComponent', () => {
     let component: VSphereProviderStepComponent;
@@ -32,6 +33,7 @@ describe('VSphereProviderStepComponent', () => {
             providers: [
                 ValidationService,
                 FormBuilder,
+                FieldMapUtilities,
                 APIClient
             ],
             schemas: [

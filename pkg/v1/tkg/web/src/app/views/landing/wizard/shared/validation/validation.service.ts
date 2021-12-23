@@ -3,7 +3,7 @@
  */
 import { Injectable } from '@angular/core';
 import XRegExp from 'xregexp';
-import { AbstractControl } from '@angular/forms';
+import { AbstractControl, ValidationErrors } from '@angular/forms';
 import { Netmask } from 'netmask';
 import isIp from 'is-ip';
 
@@ -11,7 +11,7 @@ import isIp from 'is-ip';
  * App imports
  */
 import * as validationMethods from './validation.methods';
-import { ValidatorEnum } from '../constants/validation.constants';
+import { SimpleValidator, ValidatorEnum } from '../constants/validation.constants';
 
 /**
  * @class ValidationService
@@ -19,8 +19,39 @@ import { ValidatorEnum } from '../constants/validation.constants';
  */
 @Injectable()
 export class ValidationService {
+    simpleValidatorMap: Map<SimpleValidator, (control: AbstractControl) => ValidationErrors>;
 
-    constructor() { }
+    constructor() {
+        this.simpleValidatorMap = new Map<SimpleValidator, (control: AbstractControl) => any>([
+            [ SimpleValidator.IS_COMMA_SEPARATED_LIST, this.isCommaSeperatedList() ],
+            [ SimpleValidator.IS_HTTP_OR_HTTPS, this.isHttpOrHttps() ],
+            [ SimpleValidator.IS_NUMBER_POSITIVE, this.isNumberGreaterThanZero() ],
+            [ SimpleValidator.IS_NUMERIC_ONLY, this.isNumericOnly() ],
+            [ SimpleValidator.IS_STRING_WITHOUT_QUERY_PARAMS, this.isStringWithoutQueryParams() ],
+            [ SimpleValidator.IS_STRING_WITHOUT_URL_FRAGMENT, this.isStringWithoutUrlFragment() ],
+            [ SimpleValidator.IS_TRUE, this.isTrue() ],
+            [ SimpleValidator.IS_VALID_CLUSTER_NAME, this.isValidClusterName() ],
+            [ SimpleValidator.IS_VALID_FQDN, this.isValidFqdn() ],
+            [ SimpleValidator.IS_VALID_FQDN_OR_IP, this.isValidIpOrFqdn() ],
+            [ SimpleValidator.IS_VALID_FQDN_OR_IP_HTTPS, this.isValidIpOrFqdnWithHttpsProtocol() ],
+            [ SimpleValidator.IS_VALID_FQDN_OR_IP_LIST, this.isCommaSeparatedIpsOrFqdn() ],
+            [ SimpleValidator.IS_VALID_FQDN_OR_IPV6, this.isValidIpv6OrFqdn() ],
+            [ SimpleValidator.IS_VALID_FQDN_OR_IPV6_HTTPS, this.isValidIpv6OrFqdnWithHttpsProtocol() ],
+            [ SimpleValidator.IS_VALID_IP, this.isValidIp() ],
+            [ SimpleValidator.IS_VALID_IP_LIST, this.isValidIps() ],
+            [ SimpleValidator.IS_VALID_IP_NETWORK_SEGMENT, this.isValidIpNetworkSegment() ],
+            [ SimpleValidator.IS_VALID_IPV6_NETWORK_SEGMENT, this.isValidIpv6NetworkSegment() ],
+            [ SimpleValidator.IS_VALID_LABEL_OR_ANNOTATION, this.isValidLabelOrAnnotation() ],
+            [ SimpleValidator.IS_VALID_PORT, this.isValidPort() ],
+            [ SimpleValidator.IS_VALID_RESOURCE_GROUP_NAME, this.isValidResourceGroupName() ],
+            [ SimpleValidator.NO_WHITE_SPACE, this.noWhitespaceOnEnds() ],
+            [ SimpleValidator.NO_TRAILING_SLASH, this.noTrailingSlash() ],
+        ]);
+    }
+
+    getSimpleValidator(requested: SimpleValidator): (control: AbstractControl) => any {
+        return this.simpleValidatorMap.get(requested);
+    }
 
     /**
      * @method isValidIp
@@ -33,7 +64,6 @@ export class ValidationService {
                 return validationMethods.isValidIp(ctrlValue) ?
                     null : { [ValidatorEnum.VALID_IP]: true };
             }
-
             return null;
         }
     }
@@ -51,7 +81,6 @@ export class ValidationService {
                     };
                 }
             }
-
             return null;
         }
     }
@@ -69,7 +98,6 @@ export class ValidationService {
                     };
                 }
             }
-
             return null;
         }
     }
@@ -87,7 +115,6 @@ export class ValidationService {
                     .map(ipStr => validationMethods.isValidIp(ipStr))
                     .reduce((a, b) => a && b, true) ? null : { [ValidatorEnum.VALID_IP]: true };
             }
-
             return null;
         }
     }
@@ -103,7 +130,6 @@ export class ValidationService {
                 return validationMethods.isValidFqdn(ctrlValue) ?
                     null : { [ValidatorEnum.VALID_FQDN]: true };
             }
-
             return null;
         }
     }
@@ -198,7 +224,6 @@ export class ValidationService {
                         [ValidatorEnum.INCLUDES_URL_FRAGMENT]: true
                     };
                 }
-
                 return null;
             }
         }
@@ -216,7 +241,6 @@ export class ValidationService {
                         [ValidatorEnum.INCLUDES_QUERY_PARAMS]: true
                     };
                 }
-
                 return null;
             }
         }
@@ -237,7 +261,6 @@ export class ValidationService {
                     [ValidatorEnum.VALID_PORT]: true
                 };
             }
-
             return null;
         }
     }
@@ -265,15 +288,12 @@ export class ValidationService {
                             [ValidatorEnum.SUBNET_IN_RANGE]: true
                         };
                     }
-
                     return null;
                 }
-
                 return {
                     [ValidatorEnum.VALID_IP]: true
                 };
             }
-
             return null;
         }
     }
@@ -295,7 +315,6 @@ export class ValidationService {
                 return validationMethods.isValidClustername(ctrlValue) ?
                     null : { [ValidatorEnum.VALID_CLUSTER_NAME]: true };
             }
-
             return null;
         }
     }
@@ -323,7 +342,6 @@ export class ValidationService {
                 return validationMethods.isValidLabelOrAnnotation(ctrlValue) ?
                     null : { [ValidatorEnum.VALID_CLUSTER_NAME]: true };
             }
-
             return null;
         }
     }
@@ -355,15 +373,12 @@ export class ValidationService {
                             [ValidatorEnum.IP_IN_SUBNET_RANGE]: true
                         };
                     }
-
                     return null;
                 }
-
                 return {
                     [ValidatorEnum.VALID_IP]: true
                 };
             }
-
             return null;
         }
     }
@@ -393,12 +408,10 @@ export class ValidationService {
 
                     return null;
                 }
-
                 return {
                     [ValidatorEnum.VALID_IP]: true
                 };
             }
-
             return null;
         }
     }
@@ -433,12 +446,10 @@ export class ValidationService {
 
                     return null;
                 }
-
                 return {
                     [ValidatorEnum.VALID_IP]: true
                 };
             }
-
             return null;
         }
     }
@@ -462,7 +473,6 @@ export class ValidationService {
                 }
 
             }
-
             return null;
         }
     }
@@ -481,12 +491,10 @@ export class ValidationService {
                             [ValidatorEnum.CIDR_WITHIN_CIDR]: true
                         };
                     }
-
                     return null;
                 }
 
             }
-
             return null;
         }
     }
@@ -555,9 +563,7 @@ export class ValidationService {
     isIpUnique(otherControls: Array<AbstractControl>) {
         return (control: AbstractControl) => {
             if (control.value) {
-
                 const currentControlIp = control.value;
-
                 for (const ipAddr of otherControls) {
                     if (currentControlIp === ipAddr.value) {
                         return { [ValidatorEnum.NETWORKING_IP_UNIQUE]: true };
@@ -603,12 +609,8 @@ export class ValidationService {
                 if (validationMethods.isNumericOnly(ctrlValue)) {
                     return null;
                 }
-
-                return {
-                    [ValidatorEnum.NUMERIC_ONLY]: true
-                };
+                return { [ValidatorEnum.NUMERIC_ONLY]: true };
             }
-
             return null;
         }
     }
@@ -630,14 +632,10 @@ export class ValidationService {
         return (control: AbstractControl) => {
             const ctrlValue: string = control.value;
             if (ctrlValue) {
-
                 if (!this.commaSeparatedIpOrFqdn(ctrlValue)) {
-                    return {
-                        [ValidatorEnum.VALID_IP_OR_FQDN]: true
-                    };
+                    return { [ValidatorEnum.VALID_IP_OR_FQDN]: true };
                 }
             }
-
             return null;
         }
     }
@@ -651,13 +649,9 @@ export class ValidationService {
             if (ctrlValue === null) {
                 return null;
             }
-
             if (typeof ctrlValue !== 'number' || ctrlValue < 1) {
-                return {
-                    [ValidatorEnum.GREATER_THAN_ZERO]: true
-                };
+                return { [ValidatorEnum.GREATER_THAN_ZERO]: true };
             }
-
             return null;
         }
     }
@@ -665,9 +659,7 @@ export class ValidationService {
     isUniqueAz(otherControls: Array<AbstractControl>): any {
         return (control: AbstractControl) => {
             if (control.value) {
-
                 const currentAz = control.value;
-
                 for (const az of otherControls) {
                     if (currentAz === az.value) {
                         return { [ValidatorEnum.AVAILABILITY_ZONE_UNIQUE]: true };
@@ -736,28 +728,19 @@ export class ValidationService {
             const inputVal = ipCtrl.value;
             if (inputVal) {
                 if (!validationMethods.isValidIp(inputVal) && !(validationMethods.isValidFqdn(inputVal))) {
-                    return {
-                        [ValidatorEnum.VALID_IP_OR_FQDN]: true
-                    };
+                    return { [ValidatorEnum.VALID_IP_OR_FQDN]: true };
                 }
             } else {
-                return {
-                    [ValidatorEnum.REQUIRED]: true
-                };
+                return { [ValidatorEnum.REQUIRED]: true };
             }
 
             if (control.value) {
                 if (!validationMethods.isNumericOnly(control.value)) {
-                    return {
-                        [ValidatorEnum.VALID_PORT]: true
-                    };
+                    return { [ValidatorEnum.VALID_PORT]: true };
                 }
                 return null;
             }
-
-            return {
-                [ValidatorEnum.REQUIRED]: true
-            };
+            return { [ValidatorEnum.REQUIRED]: true };
         }
     }
     /**
@@ -773,37 +756,25 @@ export class ValidationService {
             const inputVal = ipCtrl.value;
             if (inputVal) {
                 if (!isIp.v6(inputVal) && !(validationMethods.isValidFqdn(inputVal))) {
-                    return {
-                        [ValidatorEnum.VALID_IP_OR_FQDN]: true
-                    };
+                    return { [ValidatorEnum.VALID_IP_OR_FQDN]: true };
                 }
             } else {
-                return {
-                    [ValidatorEnum.REQUIRED]: true
-                };
+                return { [ValidatorEnum.REQUIRED]: true };
             }
-
             if (control.value) {
                 if (!validationMethods.isNumericOnly(control.value)) {
-                    return {
-                        [ValidatorEnum.VALID_PORT]: true
-                    };
+                    return { [ValidatorEnum.VALID_PORT]: true };
                 }
                 return null;
             }
-
-            return {
-                [ValidatorEnum.REQUIRED]: true
-            };
+            return { [ValidatorEnum.REQUIRED]: true };
         }
     }
     isValidNameInList(list: Array<String>): any {
         return (control: AbstractControl) => {
             const ctrlValue: string = control.value;
             if (list.indexOf(ctrlValue) === -1) {
-                return {
-                    [ValidatorEnum.NOT_IN_DATALIST]: true
-                };
+                return { [ValidatorEnum.NOT_IN_DATALIST]: true };
             }
             return null;
         }
@@ -813,7 +784,7 @@ export class ValidationService {
         return (control: AbstractControl) => {
             const ctrlValue: boolean = control.value;
             if (ctrlValue === true) {
-                 return {[ValidatorEnum.TRUE]: true};
+                 return { [ValidatorEnum.TRUE]: true };
             }
             return null;
         }

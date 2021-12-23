@@ -13,6 +13,7 @@ import { Messenger } from 'src/app/shared/service/Messenger';
 import { ClusterType } from "../wizard/shared/constants/wizard.constants";
 import { VSphereProviderStepComponent } from './provider-step/vsphere-provider-step.component';
 import { ValidationService } from '../wizard/shared/validation/validation.service';
+import { FieldMapUtilities } from '../wizard/shared/field-mapping/FieldMapUtilities';
 
 describe('VSphereWizardComponent', () => {
     let component: VSphereWizardComponent;
@@ -32,6 +33,7 @@ describe('VSphereWizardComponent', () => {
             providers: [
                 APIClient,
                 FormBuilder,
+                FieldMapUtilities,
                 { provide: VSphereWizardFormService},
                 ValidationService
             ],

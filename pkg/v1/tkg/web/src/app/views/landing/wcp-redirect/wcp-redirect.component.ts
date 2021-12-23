@@ -10,6 +10,8 @@ import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
 import { StepFormDirective } from '../wizard/shared/step-form/step-form';
 import { TkgEventType } from '../../../shared/service/Messenger';
 import Broker from 'src/app/shared/service/broker';
+import { FieldMapUtilities } from '../wizard/shared/field-mapping/FieldMapUtilities';
+import { StepMapping } from '../wizard/shared/field-mapping/FieldMapping';
 
 @Component({
     selector: 'tkg-kickstart-ui-wcp-redirect',
@@ -23,7 +25,7 @@ export class WcpRedirectComponent extends StepFormDirective implements OnInit {
     hasTkgPlus: boolean = false;
 
     constructor(private router: Router) {
-        super()
+        super();
     }
 
     ngOnInit() {

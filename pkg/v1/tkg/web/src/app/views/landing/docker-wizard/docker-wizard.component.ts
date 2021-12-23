@@ -34,11 +34,14 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         private apiClient: APIClient
     ) {
         super(router, el, formMetaDataService, titleService, formBuilder);
-        this.stepData = [
+    }
+
+    protected supplyStepData(): FormDataForHTML[] {
+        return [
             this.DockerDaemonForm,
             this.NetworkForm,
             this.DockerNodeSettingForm
-        ]
+        ];
     }
 
     ngOnInit(): void {

@@ -10,6 +10,7 @@ import { APIClient } from '../../../../../../../swagger/api-client.service';
 import { SharedIdentityStepComponent } from './identity-step.component';
 import Broker from 'src/app/shared/service/broker';
 import { Messenger } from 'src/app/shared/service/Messenger';
+import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 
 describe('IdentityStepComponent', () => {
   let component: SharedIdentityStepComponent;
@@ -24,6 +25,7 @@ describe('IdentityStepComponent', () => {
             providers: [
                 ValidationService,
                 FormBuilder,
+                FieldMapUtilities,
                 APIClient
             ],
             schemas: [

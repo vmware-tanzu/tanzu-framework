@@ -6,6 +6,7 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { APIClient } from 'src/app/swagger/api-client.service';
 import { ValidationService } from '../../../validation/validation.service';
 import { SharedNetworkStepComponent } from "./network-step.component";
+import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 
 describe('networkStepComponent', () => {
     let component: SharedNetworkStepComponent;
@@ -20,6 +21,7 @@ describe('networkStepComponent', () => {
             providers: [
                 ValidationService,
                 FormBuilder,
+                FieldMapUtilities,
                 APIClient
             ],
             schemas: [

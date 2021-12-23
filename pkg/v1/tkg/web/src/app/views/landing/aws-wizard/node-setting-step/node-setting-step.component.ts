@@ -18,7 +18,9 @@ import { APIClient } from '../../../../swagger/api-client.service';
 import Broker from 'src/app/shared/service/broker';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import { AwsField, AwsForm } from "../aws-wizard.constants";
-import { FormUtils } from '../../wizard/shared/utils/form-utils';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { AwsNodeSettingStepMapping } from './node-setting-step.fieldmapping';
+import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 
 export interface AzNodeTypes {
     awsNodeAz1: Array<string>,
@@ -131,62 +133,20 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     airgappedVPC = false;
 
-    // TODO: modify this to use aws-wizard.constants.ts' AwsField enum
-    commonFieldMap: { [key: string]: Array<any> } = {
-        controlPlaneSetting: [Validators.required],
-        devInstanceType: [Validators.required],
-        prodInstanceType: [Validators.required],
-        bastionHostEnabled: [],
-        sshKeyName: [Validators.required],
-        clusterName: [this.validationService.isValidClusterName()],
-        awsNodeAz1: [Validators.required],
-        awsNodeAz2: [Validators.required],
-        awsNodeAz3: [Validators.required],
-        workerNodeInstanceType1: [],
-        vpcPublicSubnet1: [],
-        vpcPrivateSubnet1: [],
-        workerNodeInstanceType2: [],
-        vpcPublicSubnet2: [],
-        vpcPrivateSubnet2: [],
-        workerNodeInstanceType3: [],
-        vpcPublicSubnet3: [],
-        vpcPrivateSubnet3: [],
-    };
-
     constructor(private validationService: ValidationService,
-        private apiClient: APIClient,
-        public awsWizardFormService: AwsWizardFormService) {
+                private fieldMapUtilities: FieldMapUtilities,
+                private apiClient: APIClient,
+                public awsWizardFormService: AwsWizardFormService) {
         super();
     }
 
-    buildForm() {
-        // key is field name, value is validation rules
-        for (const key in this.commonFieldMap) {
-            if (key) {
-                FormUtils.addControl(
-                    this.formGroup,
-                    key,
-                    new FormControl('', this.commonFieldMap[key])
-                );
-            }
-        }
-        this.setControlWithSavedValue(AwsField.NODESETTING_BASTION_HOST_ENABLED, true);
-        FormUtils.addControl(
-            this.formGroup,
-            AwsField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED,
-            new FormControl(true, [])
-        );
-        FormUtils.addControl(
-            this.formGroup,
-            AwsField.NODESETTING_CREATE_CLOUD_FORMATION,
-            new FormControl(true, [])
-        );
+    private supplyStepMapping(): StepMapping {
+        FieldMapUtilities.getFieldMapping(AwsField.NODESETTING_CLUSTER_NAME, AwsNodeSettingStepMapping).required =
+            Broker.appDataService.isClusterNameRequired();
+        return AwsNodeSettingStepMapping;
     }
 
-    ngOnInit() {
-        super.ngOnInit();
-        this.buildForm();
-
+    private customizeForm() {
         Broker.messenger.getSubject(TkgEventType.AWS_AIRGAPPED_VPC_CHANGE).subscribe(event => {
             this.airgappedVPC = event.payload;
             if (this.airgappedVPC) { // public subnet IDs shouldn't be provided
@@ -238,12 +198,6 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 this.clearAzs();
                 this.clearSubnets();
             });
-
-        if (this.edition !== AppEdition.TKG) {
-            this.resurrectField(AwsField.NODESETTING_CLUSTER_NAME,
-                [Validators.required, this.validationService.isValidClusterName()],
-                this.getFieldValue(AwsField.NODESETTING_CLUSTER_NAME));
-        }
 
         this.awsWizardFormService.getErrorStream(TkgEventType.AWS_GET_AVAILABILITY_ZONES)
             .pipe(takeUntil(this.unsubscribe))
@@ -325,6 +279,12 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             }
             this.updateVpcSubnets();
         });
+    }
+
+    ngOnInit() {
+        super.ngOnInit();
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
+        this.customizeForm();
 
         setTimeout(_ => {
             this.displayForm = true;
@@ -351,12 +311,12 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         for (let i = 0; i < AZS.length; i++) {
             const thisAZ = AZS[i];
             const otherAZs = this.otherAZs(thisAZ);
-            const thisAZcontrol = this.formGroup.get(thisAZ.toString());
+            const thisAZcontrol = this.getControl(thisAZ);
             thisAZcontrol.setValidators([
                 Validators.required,
                 this.validationService.isUniqueAz([
-                    this.formGroup.get(otherAZs[0].toString()),
-                    this.formGroup.get(otherAZs[1].toString())])
+                    this.getControl(otherAZs[0]),
+                    this.getControl(otherAZs[1]) ])
             ]);
             this.setControlWithSavedValue(thisAZ);
         }

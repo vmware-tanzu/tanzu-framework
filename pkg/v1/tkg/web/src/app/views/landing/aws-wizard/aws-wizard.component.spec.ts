@@ -16,6 +16,7 @@ import { ValidationService } from '../wizard/shared/validation/validation.servic
 import { MetadataStepComponent } from '../wizard/shared/components/steps/metadata-step/metadata-step.component';
 import { SharedNetworkStepComponent } from '../wizard/shared/components/steps/network-step/network-step.component';
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
+import { FieldMapUtilities } from '../wizard/shared/field-mapping/FieldMapUtilities';
 
 describe('AwsWizardComponent', () => {
     let component: AwsWizardComponent;
@@ -33,6 +34,7 @@ describe('AwsWizardComponent', () => {
             providers: [
                 APIClient,
                 FormBuilder,
+                FieldMapUtilities,
                 ValidationService
             ],
             schemas: [

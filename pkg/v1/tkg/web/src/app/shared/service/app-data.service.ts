@@ -2,6 +2,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { Features } from "../../swagger/models";
+import { FeatureFlags, managementClusterPlugin } from '../../views/landing/wizard/shared/constants/wizard.constants';
 
 @Injectable({
     providedIn: 'root'
@@ -79,7 +80,7 @@ export class AppDataService {
     // returns true if the standalone-cluster-mode feature flag is activated. This is a convenience method
     // to avoid having the string parameters scattered throughout the code
     isModeClusterStandalone() {
-        return this.isPluginFeatureActivated('management-cluster', 'standalone-cluster-mode');
+        return this.isPluginFeatureActivated(managementClusterPlugin, FeatureFlags.STANDALONE_CLUSTER);
     }
 
     decodeBase64(source: string): string {
@@ -91,5 +92,9 @@ export class AppDataService {
             encodedString = encodedString.substring(encodedPrefix.length, encodedString.length - encodedSuffix.length);
         }
         return atob(encodedString);
+    }
+
+    isClusterNameRequired(): boolean {
+        return this.isPluginFeatureActivated(managementClusterPlugin, FeatureFlags.CLUSTER_NAME_REQUIRED);
     }
 }

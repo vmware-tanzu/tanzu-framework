@@ -1,17 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import {
-    Validators,
-    FormControl
-} from '@angular/forms';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import Broker from "../../../../shared/service/broker";
 import { TkgEvent, TkgEventType } from "../../../../shared/service/Messenger";
 import { takeUntil } from "rxjs/operators";
 import { FormMetaDataStore } from "../../wizard/shared/FormMetaDataStore";
 import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
-import { FormUtils } from '../../wizard/shared/utils/form-utils';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { DockerNodeSettingStepMapping } from './node-setting-step.fieldmapping';
+import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 
 @Component({
     selector: 'app-node-setting-step',
@@ -19,24 +16,11 @@ import { FormUtils } from '../../wizard/shared/utils/form-utils';
     styleUrls: ['./node-setting-step.component.scss']
 })
 export class NodeSettingStepComponent extends StepFormDirective implements OnInit {
-    constructor(private validationService: ValidationService) {
+    constructor(private fieldMapUtilities: FieldMapUtilities) {
         super();
     }
 
-    ngOnInit(): void {
-        super.ngOnInit();
-        FormUtils.addControl(
-            this.formGroup,
-            'clusterName',
-            new FormControl('', [this.validationService.isValidClusterName()])
-        );
-        this.initFormWithSavedData();
-
-        if (this.edition !== AppEdition.TKG) {
-            this.resurrectField('clusterName',
-                [Validators.required, this.validationService.isValidClusterName()],
-                this.formGroup.get('clusterName').value);
-        }
+    private customizeForm() {
         Broker.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
@@ -51,5 +35,12 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 // Clear event so that listeners in other provider workflows do not receive false notifications
                 Broker.messenger.clearEvent(TkgEventType.CONFIG_FILE_IMPORTED);
             });
+    }
+
+    ngOnInit(): void {
+        super.ngOnInit();
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, DockerNodeSettingStepMapping);
+        this.customizeForm();
+        this.initFormWithSavedData();
     }
 }

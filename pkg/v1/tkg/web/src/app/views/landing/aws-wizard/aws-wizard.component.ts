@@ -55,8 +55,10 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         el: ElementRef) {
 
         super(router, el, formMetaDataService, titleService, formBuilder);
+    }
 
-        this.stepData = [
+    protected supplyStepData(): FormDataForHTML[] {
+        return [
             this.AwsProviderForm,
             this.AwsVpcForm,
             this.AwsNodeSettingForm,

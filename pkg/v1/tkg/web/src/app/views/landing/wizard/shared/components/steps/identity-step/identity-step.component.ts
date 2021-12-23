@@ -7,8 +7,11 @@ import { StepFormDirective } from '../../../step-form/step-form';
 import { ValidationService } from '../../../validation/validation.service';
 import { LdapTestResult } from 'src/app/swagger/models';
 import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
+import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
+import { IdentityStepMapping } from './identity-step.fieldmapping';
 import { IdentityManagementType } from '../../../constants/wizard.constants';
 import { FormUtils } from '../../../utils/form-utils';
+import { StepMapping } from '../../../field-mapping/FieldMapping';
 
 const CONNECT = "CONNECT";
 const BIND = "BIND";
@@ -88,19 +91,14 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
     timelineState = {};
     timelineError = {};
 
-    constructor(private apiClient: APIClient, private validationService: ValidationService) {
+    constructor(private apiClient: APIClient,
+                private fieldMapUtilities: FieldMapUtilities,
+                private validationService: ValidationService) {
         super();
         this.resetTimelineState();
     }
 
-    ngOnInit(): void {
-        super.ngOnInit();
-
-        FormUtils.addControl(this.formGroup, 'identityType', new FormControl('oidc', []));
-        FormUtils.addControl(this.formGroup, 'idmSettings', new FormControl(true, []));
-
-        this.fields.forEach(field => FormUtils.addControl(this.formGroup, field, new FormControl('', [])));
-
+    private customizeForm() {
         this.registerOnIpFamilyChange('issuerURL', [], [], () => {
             if (this.identityTypeValue === 'oidc') {
                 this.setOIDCValidators();
@@ -124,6 +122,12 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
                 this.disarmField('identityType', true);
             }
         });
+    }
+
+    ngOnInit(): void {
+        super.ngOnInit();
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, IdentityStepMapping);
+        this.customizeForm();
 
         this.initFormWithSavedData();
         this.identityTypeValue = this.getSavedValue('identityType', 'oidc');
@@ -247,7 +251,8 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
 
     formatError(err) {
         if (err) {
-            return err?.error?.message || err?.message || JSON.stringify(err, null, 4);
+            const errMsg = err.error ? err.error.message : null;
+            return errMsg || err.message || JSON.stringify(err, null, 4);
         }
         return "";
     }
