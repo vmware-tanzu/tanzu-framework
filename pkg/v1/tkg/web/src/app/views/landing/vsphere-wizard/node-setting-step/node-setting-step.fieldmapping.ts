@@ -10,7 +10,7 @@ export const VsphereNodeSettingStandaloneStepMapping: StepMapping = {
         { name: VsphereField.NODESETTING_CONTROL_PLANE_SETTING, required: true },
         { name: VsphereField.NODESETTING_INSTANCE_TYPE_DEV, required: true },
         { name: VsphereField.NODESETTING_INSTANCE_TYPE_PROD, required: true },
-        { name: VsphereField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED, required: true },
+        { name: VsphereField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED },
     ]
 }
 export const VsphereNodeSettingStepMapping: StepMapping = {
