@@ -66,7 +66,7 @@ export enum ValidatorEnum {
     MIN_LEN = 'minlength',
     MAX_LEN = 'maxlength',
     NO_OVERLAP_IPS = 'no overlap ips',
-    COMMA_SEPERATED_WORDS = 'comma seperated words',
+    COMMA_SEPARATED_WORDS = 'comma separated words',
     INCLUDES_URL_FRAGMENT = 'no url fragment',
     INCLUDES_QUERY_PARAMS = 'no query params',
     NOT_IN_DATALIST = 'not in datalist',

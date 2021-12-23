@@ -1,0 +1,21 @@
+name: Check - misspell
+
+on:
+  pull_request:
+    types:
+      - assigned
+      - opened
+      - synchronize
+      - reopened
+
+jobs:
+  checkmisspell:
+    name: Check - misspell
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v1
+
+      - name: Run misspell
+        run: |
+          make misspell

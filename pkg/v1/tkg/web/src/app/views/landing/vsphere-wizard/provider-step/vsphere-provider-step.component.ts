@@ -352,7 +352,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
 
                 if (isCompatible && !(_.startsWith(this.vsphereVersion, '6'))
                     && this.edition !== AppEdition.TCE) {
-                    // for 7 and newer and other potential anomolies, show modal suggesting upgrade
+                    // for 7 and newer and other potential anomalies, show modal suggesting upgrade
                     this.showVSphereWithK8Modal();
                 } else if (!isCompatible) {
                     // route to vsphere not compatible

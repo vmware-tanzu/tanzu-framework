@@ -81,10 +81,10 @@ Plugins can be of two different types:
       This usecase can be handled with context scoped plugins by installing `CLIPlugin` CR related to `velero` plugin on the management-cluster as part of `velero` package installation.
 
       ```sh
-      # Login to a managment-cluster
+      # Login to a management-cluster
       $ tanzu login
 
-      # Installs velero package to the managment-cluster along with `velero` CLIPlugin resource
+      # Installs velero package to the management-cluster along with `velero` CLIPlugin resource
       $ tanzu package install velero-pkg --package-name velero.tanzu.vmware.com
 
       # Plugin list should show a new `velero` plugin available
