@@ -26,11 +26,12 @@ export class FieldMapUtilities {
                 fieldMapping.validators.forEach( (simpleValidator, index) => {
                     const validator = this.validationService.getSimpleValidator(simpleValidator);
                     if (!validator) {
-                        console.warn('unable to find validator #' + index + ' in fieldMapping ' + JSON.stringify(fieldMapping));
+                        console.warn('error building field ' + formName + '.' + fieldMapping.name + ': unable to find validator '
+                            + simpleValidator + ' (#' + index + ') in fieldMapping ' + JSON.stringify(fieldMapping));
                     } else {
                         validators.push(validator);
                     }
-                })
+                });
             }
             const blankValue = fieldMapping.isBoolean ? false : '';
             let savedValue;

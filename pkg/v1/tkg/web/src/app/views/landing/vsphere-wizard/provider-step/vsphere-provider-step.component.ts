@@ -68,6 +68,9 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
     edition: AppEdition = AppEdition.TCE;
     enableIpv6: boolean = false;
 
+    // As a hack to avoid onChange events where the value really hasn't changed, we track the field values ourselves
+    supervisedFieldValues = new Map<string, string>();
+
     constructor(private validationService: ValidationService,
                 private fieldMapUtilities: FieldMapUtilities,
                 private apiClient: APIClient,
@@ -82,16 +85,21 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
             this.formGroup.get(field).valueChanges
                 .pipe(
                     debounceTime(500),
-                    distinctUntilChanged((prev, curr) => {
-                        const same = JSON.stringify(prev) === JSON.stringify(curr);
-                        console.log('field ' + field + ' detects ' + !same + ' change from ' + JSON.stringify(prev) + ' to ' +
-                        JSON.stringify(curr));
-                        return same;
-                    }),
+                    distinctUntilChanged(),
                     takeUntil(this.unsubscribe)
                 )
-                .subscribe(() => {
-                    this.disconnect('disconnecting because field ' + field + ' changed value');
+                .subscribe((data) => {
+                    const oldValue = this.supervisedFieldValues.get(field);
+                    const same = data === oldValue;
+                    if (same) {
+                        console.log('IGNORING change event from field ' + field + ' because value is unchanged: ' +
+                        oldValue + '-->' + data);
+                    } else {
+                        this.supervisedFieldValues.set(field, data);
+                        const msg = 'disconnecting due to change event from field ' + field + ' value changed: ' +
+                            oldValue + '-->' + data;
+                        this.disconnect(msg);
+                    }
                 });
         });
 
@@ -109,12 +117,17 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 takeUntil(this.unsubscribe)
             )
             .subscribe(data => {
-            Broker.messenger.publish({
-                type: TkgEventType.IP_FAMILY_CHANGE,
-                payload: data
-            });
-            this.disconnect('disconnecting because field PROVIDER_IP_FAMILY changed value to ' + data);
-        });
+                // In theory, we should only receive this event if the ipFamily actually changed. In practice, we double-check.
+                const same = data === this.ipFamily;
+                if (!same) {
+                    Broker.messenger.publish({
+                        type: TkgEventType.IP_FAMILY_CHANGE,
+                        payload: data
+                    });
+                    this.disconnect('disconnecting because field PROVIDER_IP_FAMILY changed value to ' + data);
+                }
+            }
+        );
 
         Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
@@ -181,7 +194,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
             this.datacenters = [];
             this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).disable();
         } else {
-            console.log('Ignoring disconnect request (msg:' + consoleMsg + ')');
+            console.log('already disconnected so ignoring disconnect call (msg:' + consoleMsg + ')');
         }
     }
     initFormWithSavedData() {
@@ -240,6 +253,11 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
     connectVC() {
         this.loadingState = ClrLoadingState.LOADING;
         this.vsphereHost = this.getFieldValue(VsphereField.PROVIDER_VCENTER_ADDRESS);
+
+        // we're recording these values to avoid onChange events where the value hasn't actually changed
+        SupervisedField.forEach(field => {
+            this.supervisedFieldValues.set(field, this.getFieldValue(field));
+        })
 
         const insecure = this.getFieldValue(VsphereField.PROVIDER_CONNECTION_INSECURE);
         if (insecure) {
@@ -324,7 +342,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
 
                 Broker.messenger.publish({
                     type: TkgEventType.VC_AUTHENTICATED,
-                    payload: this.formGroup.controls[VsphereField.PROVIDER_VCENTER_ADDRESS].value
+                    payload: this.getFieldValue(VsphereField.PROVIDER_VCENTER_ADDRESS)
                 });
 
                 if (this.hasPacific === 'yes') {
@@ -440,9 +458,9 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
     }
 
     dynamicDescription(): string {
-        const vcenterIP = this.getFieldValue('vcenterAddress', true);
-        const datacenter = this.getFieldValue('datacenter', true);
-        if ( vcenterIP && datacenter) {
+        const vcenterIP = this.getFieldValue(VsphereField.PROVIDER_VCENTER_ADDRESS, true);
+        const datacenter = this.getFieldValue(VsphereField.PROVIDER_DATA_CENTER, true);
+        if (vcenterIP && datacenter) {
             return 'vCenter ' + vcenterIP + ' connected';
         }
         return 'Validate the vSphere ' + this.vsphereVersion + 'provider account for Tanzu';
