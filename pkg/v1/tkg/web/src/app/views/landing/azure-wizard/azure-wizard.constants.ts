@@ -2,6 +2,10 @@ export enum ResourceGroupOption {
     EXISTING = 'existing',
     CUSTOM = 'custom',
 }
+export enum AzureCloud {
+    PUBLIC = 'AzurePublicCloud',
+    GOVT = 'AzureUSGovernmentCloud',
+}
 export enum AzureForm {
     PROVIDER = 'azureProviderForm',
     NODESETTING = 'azureNodeSettingForm',

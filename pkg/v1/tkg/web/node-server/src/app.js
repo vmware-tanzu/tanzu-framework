@@ -31,8 +31,8 @@ let app = express();
 app.use(
     rateLimit({
         windowMs: 1000, // 1 second duration
-        max: 12,
-        message: "You exceeded 12 requests per second; to increase the allowed requests/sec, modify rateLimit in app.js",
+        max: 20,
+        message: "You exceeded 20 requests per second; to increase the allowed requests/sec, modify rateLimit in app.js",
         headers: true
     })
 );

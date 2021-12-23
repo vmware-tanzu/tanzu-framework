@@ -77,6 +77,7 @@ export abstract class SharedOsImageStepComponent extends StepFormDirective {
     protected onInit() {
         super.ngOnInit();
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, OsImageStepMapping);
+        this.setProviderInputs();
         this.customizeForm();
         this.initFormWithSavedData();
     }

@@ -2,7 +2,7 @@
  * Angular Modules
  */
 import { Component, OnInit } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
+import { Validators } from '@angular/forms';
 import { ClrLoadingState } from "@clr/angular";
 import { debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs/operators';
 
@@ -14,11 +14,10 @@ import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import Broker from 'src/app/shared/service/broker';
 import { FormMetaDataStore } from "../../wizard/shared/FormMetaDataStore";
-import {NotificationTypes} from "../../../../shared/components/alert-notification/alert-notification.component";
-import { AzureField, ResourceGroupOption } from '../azure-wizard.constants';
+import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
+import { AzureCloud, AzureField, ResourceGroupOption } from '../azure-wizard.constants';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { AzureProviderStepMapping } from './azure-provider-step.fieldmapping';
-import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 
 enum ProviderField {
     AZURECLOUD = 'azureCloud',
@@ -53,14 +52,13 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     resourceGroupOption = ResourceGroupOption.EXISTING;
 
     regions = [];
-    // NOTE: order is important here; we default to the first cloud in the azureClouds array
     azureClouds = [
         {
-            name: 'AzurePublicCloud',
+            name: AzureCloud.PUBLIC,
             displayName: 'Public Cloud'
         },
         {
-            name: 'AzureUSGovernmentCloud',
+            name: AzureCloud.GOVT,
             displayName: 'US Government Cloud'
         }
     ];
@@ -194,7 +192,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
         }
         this.scrubPasswordField(AzureField.PROVIDER_CLIENTSECRET);
         if (this.getFieldValue(AzureField.PROVIDER_AZURECLOUD) === '') {
-            this.setFieldValue(AzureField.PROVIDER_AZURECLOUD, this.azureClouds[0].name);
+            this.setFieldValue(AzureField.PROVIDER_AZURECLOUD, AzureCloud.PUBLIC);
         }
     }
 
@@ -222,7 +220,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
         this.scrubPasswordField(AzureField.PROVIDER_CLIENTSECRET);
 
         if (this.getFieldValue(AzureField.PROVIDER_AZURECLOUD) === '') {
-            this.setFieldValue(AzureField.PROVIDER_AZURECLOUD, this.azureClouds[0].name);
+            this.setFieldValue(AzureField.PROVIDER_AZURECLOUD, AzureCloud.PUBLIC);
         }
     }
 

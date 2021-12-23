@@ -1,5 +1,5 @@
 import {
-    AfterViewInit,
+    AfterViewInit, ChangeDetectorRef,
     Component,
     ComponentFactoryResolver,
     Injector,
@@ -31,13 +31,18 @@ export class StepWrapperComponent implements AfterViewInit {
     @Input() formName: string;                  // name of the form for this step
     @Input() clazz: Type<StepFormDirective>;    // class of the backing component for the wrapped step
 
-    constructor(private injector: Injector, private componentFactoryResolver: ComponentFactoryResolver) {
+    constructor(private injector: Injector,
+                private componentFactoryResolver: ComponentFactoryResolver,
+                private changeDetector: ChangeDetectorRef) {
     }
 
     // NOTE: we initialize on ngAfterViewInit rather than ngOnInit because the stepContainer element is not
     // guaranteed to be available until ngAfterViewInit
     ngAfterViewInit() {
         this.initialize();
+        // Because we're in the AfterViewInit lifecycle event, we're not supposed to be changing the template elements--
+        // unless we call the changeDetector to let it know we did so
+        this.changeDetector.detectChanges();
     }
 
     private initialize() {
@@ -62,6 +67,5 @@ export class StepWrapperComponent implements AfterViewInit {
         const wrappedComponent = this.stepContainer.createComponent<StepFormDirective>(componentFactory);
 
         this.registrar.registerStep(this.formName, wrappedComponent.instance);
-        console.log('Registered ' + this.formName);
     }
 }
