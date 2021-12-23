@@ -205,13 +205,13 @@
                 </clr-tooltip>
             </label>
             <clr-radio-wrapper>
-                <input type="radio" clrRadio formControlName="resourceGroupOption" (click)="showResourceGroup('existing')" required
-                    value="existing" [checked]="resourceGroupOption !== 'custom'" />
+                <input type="radio" clrRadio formControlName="resourceGroupOption" (click)="showResourceGroupExisting()" required
+                    value="existing" />
                 <label>Select an existing resource group</label>
             </clr-radio-wrapper>
             <clr-radio-wrapper>
-                <input type="radio" clrRadio formControlName="resourceGroupOption" (click)="showResourceGroup('custom')" required
-                    value="custom" [checked]="resourceGroupOption === 'custom'"/>
+                <input type="radio" clrRadio formControlName="resourceGroupOption" (click)="showResourceGroupCustom()" required
+                    value="custom" />
                 <label>Create a new resource group</label>
             </clr-radio-wrapper>
             <clr-control-error>Must select an option for entering the resource group!</clr-control-error>

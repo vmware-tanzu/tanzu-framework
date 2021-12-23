@@ -132,9 +132,9 @@ describe('AzureProviderStepComponent', () => {
     });
 
     it('should show different resource based on option', () => {
-        component.showResourceGroup('existing');
+        component.showResourceGroupExisting();
         expect(component.formGroup.get('resourceGroupCustom').value).toBe('');
-        component.showResourceGroup('custom');
+        component.showResourceGroupCustom();
         expect(component.formGroup.get('resourceGroupExisting').value).toBe('');
     });
 

@@ -154,6 +154,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
         this.customizeForm();
 
         this.initAzureCredentials();
+        this.showResourceGroupExisting();
         this.initFormWithSavedData();
     }
 
@@ -312,8 +313,13 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     isConnectDisabled() {
         return !AzureAccountParamsKeys.reduce((accu, key) => this.formGroup.get(key).valid && accu, true);
     }
-
-    showResourceGroup(option) {
+    showResourceGroupExisting() {
+        this.showResourceGroup(ResourceGroupOption.EXISTING);
+    }
+    showResourceGroupCustom() {
+        this.showResourceGroup(ResourceGroupOption.CUSTOM);
+    }
+    private showResourceGroup(option) {
         this.resourceGroupOption = option;
         if (option === ResourceGroupOption.EXISTING) {
             this.formGroup.controls[AzureField.PROVIDER_RESOURCEGROUPCUSTOM].clearValidators();
@@ -334,6 +340,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
         } else {
             console.log('WARNING: showResourceGroup() received unrecognized value of ' + option);
         }
+        this.setControlValueSafely(AzureField.PROVIDER_RESOURCEGROUPOPTION, option);
         this.formGroup.controls[AzureField.PROVIDER_RESOURCEGROUPCUSTOM].updateValueAndValidity();
         this.formGroup.controls[AzureField.PROVIDER_RESOURCEGROUPEXISTING].updateValueAndValidity();
     }
