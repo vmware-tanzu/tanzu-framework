@@ -42,8 +42,6 @@ describe('VsphereOsImageStepComponent', () => {
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(VsphereOsImageStepComponent);
         component = fixture.componentInstance;
-        component.wizardFormService = TestBed.inject(VSphereWizardFormService);
-        component.eventType = TkgEventType.VSPHERE_GET_OS_IMAGES;
         component.formGroup = fb.group({});
 
         fixture.detectChanges();
@@ -53,16 +51,10 @@ describe('VsphereOsImageStepComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should reset for upon dc change', () => {
-        component.resetFieldsUponDCChange();
-        expect(component.formGroup.get('osImage').value).toBeFalsy();
-    });
-
     it('should retrieve os image when function invoked', () => {
-        const resetDcSpy = spyOn(component, 'resetFieldsUponDCChange').and.callThrough();
         const msgSpy = spyOn(Broker.messenger, 'publish').and.callThrough();
         component.retrieveOsImages();
-        expect(resetDcSpy).toHaveBeenCalled();
+        expect(component.formGroup.get('osImage').value).toBeFalsy();
         expect(msgSpy).toHaveBeenCalled();
     });
 });
