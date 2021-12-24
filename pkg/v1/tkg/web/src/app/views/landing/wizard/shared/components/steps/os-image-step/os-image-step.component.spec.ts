@@ -9,7 +9,7 @@ import { APIClient } from 'src/app/swagger/api-client.service';
 import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
 import Broker from 'src/app/shared/service/broker';
 import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
-import { VsphereOsImageStepComponent } from '../../../../../vsphere-wizard/os-image-step/vsphere-os-image-step.component';
+import { VsphereOsImageStepComponent } from '../../../../../vsphere-wizard/vsphere-os-image-step/vsphere-os-image-step.component';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 
 describe('VsphereOsImageStepComponent', () => {

@@ -26,28 +26,27 @@ import { managementClusterPlugin, WizardForm } from "../../../constants/wizard.c
 import { FormUtils } from '../../../utils/form-utils';
 import { StepMapping } from '../../../field-mapping/FieldMapping';
 
-declare var sortPaths: any;
+
 @Component({
     selector: 'app-shared-network-step',
     templateUrl: './network-step.component.html',
     styleUrls: ['./network-step.component.scss']
 })
 export class SharedNetworkStepComponent extends StepFormDirective implements OnInit {
-    @Input() enableNetworkName: boolean;
-    @Input() enableNoProxyWarning: boolean;
+    enableNetworkName: boolean;
 
     form: FormGroup;
     cniType: string;
-    loadingNetworks: boolean = false;
+    loadingNetworks: boolean = false;   // only used by vSphere
     vmNetworks: Array<VSphereNetwork>;
     additionalNoProxyInfo: string;
     fullNoProxy: string;
     infraServiceAddress: string = '';
     hideWarning: boolean = true;
 
-    constructor(private validationService: ValidationService,
-                private fieldMapUtilities: FieldMapUtilities,
-                private wizardFormService: VSphereWizardFormService) {
+    constructor(protected validationService: ValidationService,
+                protected fieldMapUtilities: FieldMapUtilities
+                ) {
         super();
     }
 
@@ -134,51 +133,16 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
             IAAS_DEFAULT_CIDRS.CLUSTER_POD_CIDR : IAAS_DEFAULT_CIDRS.CLUSTER_POD_IPV6_CIDR, { onlySelf: true });
     }
     listenToEvents() {
-        /**
-         * Whenever data center selection changes, reset the relevant fields
-        */
-        Broker.messenger.getSubject(TkgEventType.DATACENTER_CHANGED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(event => {
-                this.resetFieldsUponDCChange();
-            });
-        if (this.enableNoProxyWarning) {
-            Broker.messenger.getSubject(TkgEventType.VC_AUTHENTICATED)
-                .pipe(takeUntil(this.unsubscribe))
-                .subscribe((data) => {
-                    this.infraServiceAddress = data.payload;
-                });
-        }
-
-        this.wizardFormService.getErrorStream(TkgEventType.GET_VM_NETWORKS)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(error => {
-                this.errorNotification = error;
-            });
-        this.wizardFormService.getDataStream(TkgEventType.GET_VM_NETWORKS)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((networks: Array<VSphereNetwork>) => {
-                this.vmNetworks = sortPaths(networks, function (item) { return item.name; }, '/');
-                this.loadingNetworks = false;
-                this.resurrectField('networkName',
-                    [Validators.required], networks.length === 1 ? networks[0].name : '',
-                    { onlySelf: true } // only for current form control
-                );
-            });
-
-        const noProxyFieldChangeMap = ['noProxy', 'clusterServiceCidr', 'clusterPodCidr'];
-
-        noProxyFieldChangeMap.forEach((field) => {
+        const cidrFields = ['clusterServiceCidr', 'clusterPodCidr'];
+        cidrFields.forEach((field) => {
             this.formGroup.get(field).valueChanges.pipe(
                 distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
                 takeUntil(this.unsubscribe)
             ).subscribe((value) => {
-                if (this.enableNoProxyWarning && field === 'noProxy') {
-                    this.hideWarning = value.trim().split(',').includes(this.infraServiceAddress);
-                }
                 this.generateFullNoProxy();
             });
         });
+        this.listenToNoProxy();
 
         Broker.messenger.getSubject(TkgEventType.NETWORK_STEP_GET_NO_PROXY_INFO)
             .pipe(takeUntil(this.unsubscribe))
@@ -186,6 +150,22 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
                this.additionalNoProxyInfo = event.payload.info;
                this.generateFullNoProxy();
             });
+    }
+
+    // listenToNoProxy() is protected to allow subclasses to override the behavior
+    protected listenToNoProxy() {
+        this.formGroup.get('noProxy').valueChanges.pipe(
+            distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+            takeUntil(this.unsubscribe)
+        ).subscribe((value) => {
+            this.generateFullNoProxy();
+        });
+    }
+
+    // This is a method only implemented by the vSphere child class (which overrides this method);
+    // we need a method in this class because the general HTML references it
+    loadNetworks() {
+        console.error('loadNetworks() was called, but no implementation is available. (enableNetworkName= ' + this.enableNetworkName + ')');
     }
 
     generateFullNoProxy() {
@@ -272,32 +252,8 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
         }
     }
 
-    /**
-     * @method loadVSphereNetworks
-     * helper method retrieves list of vsphere networks
-     */
-    loadVSphereNetworks() {
-        this.loadingNetworks = true;
-        Broker.messenger.publish({
-            type: TkgEventType.GET_VM_NETWORKS
-        });
-    }
-    // Reset the relevant fields upon data center change
-    resetFieldsUponDCChange() {
-        const fieldsToReset = ['networkName'];
-        fieldsToReset.forEach(f => this.formGroup.get(f) && this.formGroup.get(f).setValue('', { onlySelf: true }));
-    }
-
     initFormWithSavedData() {
         super.initFormWithSavedData();
-        const fieldNetworkName = this.formGroup.get('networkName');
-        if (fieldNetworkName) {
-            const savedNetworkName = this.getSavedValue('networkName', '');
-            fieldNetworkName.setValue(
-                this.vmNetworks.length === 1 ? this.vmNetworks[0].name : savedNetworkName,
-                { onlySelf: true } // avoid step error message when networkName is empty
-            );
-        }
         // reset validations for httpProxyUrl and httpsProxyUrl when
         // the data is loaded from localstorage.
         this.toggleProxySetting(true);

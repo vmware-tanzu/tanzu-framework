@@ -25,7 +25,8 @@ import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/
 import { VSphereProviderStepComponent } from './provider-step/vsphere-provider-step.component';
 import { ResourceStepComponent } from './resource-step/resource-step.component';
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
-import { VsphereOsImageStepComponent } from './os-image-step/vsphere-os-image-step.component';
+import { VsphereOsImageStepComponent } from './vsphere-os-image-step/vsphere-os-image-step.component';
+import { VsphereNetworkStepComponent } from './vsphere-network-step/vsphere-network-step.component';
 
 @Component({
     selector: 'app-wizard',
@@ -68,7 +69,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
             this.VsphereLoadBalancerForm,
             this.MetadataForm,
             this.VsphereResourceForm,
-            this.NetworkForm,
+            this.VsphereNetworkForm,
             this.IdentityForm,
             this.VsphereOsImageForm,
             this.CeipForm,
@@ -292,6 +293,9 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
             description: 'Specify VMware NSX Advanced Load Balancer settings',
             i18n: { title: 'load balancer step name', description: 'load balancer step description' },
         clazz: SharedLoadBalancerStepComponent };
+    }
+    get VsphereNetworkForm(): FormDataForHTML {
+        return FormUtility.formOverrideClazz(super.NetworkForm, VsphereNetworkStepComponent);
     }
     get VsphereNodeSettingForm(): FormDataForHTML {
         return { name: 'vsphereNodeSettingForm', title: FormUtility.titleCase(this.clusterTypeDescriptor) + ' Cluster Settings',

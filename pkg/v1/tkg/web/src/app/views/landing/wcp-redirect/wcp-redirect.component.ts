@@ -29,7 +29,7 @@ export class WcpRedirectComponent extends StepFormDirective implements OnInit {
     }
 
     ngOnInit() {
-        Broker.messenger.getSubject(TkgEventType.VC_AUTHENTICATED)
+        Broker.messenger.getSubject(TkgEventType.VSPHERE_VC_AUTHENTICATED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data) => {
                 this.vcHost = data.payload;

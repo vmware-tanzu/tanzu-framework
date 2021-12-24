@@ -341,7 +341,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 this.retrieveDatacenters();
 
                 Broker.messenger.publish({
-                    type: TkgEventType.VC_AUTHENTICATED,
+                    type: TkgEventType.VSPHERE_VC_AUTHENTICATED,
                     payload: this.getFieldValue(VsphereField.PROVIDER_VCENTER_ADDRESS)
                 });
 
@@ -406,7 +406,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 dcMoid = datacenter.moid;
             }
             Broker.messenger.publish({
-                type: TkgEventType.DATACENTER_CHANGED,
+                type: TkgEventType.VSPHERE_DATACENTER_CHANGED,
                 payload: dcMoid
             });
         }

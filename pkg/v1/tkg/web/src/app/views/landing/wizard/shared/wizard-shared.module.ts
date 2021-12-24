@@ -17,11 +17,12 @@ import { TreeSelectComponent } from './tree-select/tree-select.component';
 import { AuditLoggingComponent } from './components/widgets/audit-logging/audit-logging.component';
 import { SharedOsImageStepComponent } from './components/steps/os-image-step/os-image-step.component';
 import { StepWrapperComponent } from './step-wrapper/step-wrapper.component';
-import { VsphereOsImageStepComponent } from '../../vsphere-wizard/os-image-step/vsphere-os-image-step.component';
+import { VsphereOsImageStepComponent } from '../../vsphere-wizard/vsphere-os-image-step/vsphere-os-image-step.component';
 import { StepWrapperSetComponent } from './step-wrapper/step-wrapper-set.component';
 import { AwsOsImageStepComponent } from '../../aws-wizard/os-image-step/aws-os-image-step.component';
 import { AzureOsImageStepComponent } from '../../azure-wizard/os-image-step/azure-os-image-step.component';
 import { FieldMapUtilities } from './field-mapping/FieldMapUtilities';
+import { VsphereNetworkStepComponent } from '../../vsphere-wizard/vsphere-network-step/vsphere-network-step.component';
 
 @NgModule({
     declarations: [
@@ -39,6 +40,7 @@ import { FieldMapUtilities } from './field-mapping/FieldMapUtilities';
         TreeSelectComponent,
         AuditLoggingComponent,
         VsphereOsImageStepComponent,
+        VsphereNetworkStepComponent,
         AwsOsImageStepComponent,
         AzureOsImageStepComponent
     ],
@@ -62,6 +64,7 @@ import { FieldMapUtilities } from './field-mapping/FieldMapUtilities';
         TreeSelectComponent,
         AuditLoggingComponent,
         VsphereOsImageStepComponent,
+        VsphereNetworkStepComponent,
         AwsOsImageStepComponent,
         AzureOsImageStepComponent
     ],

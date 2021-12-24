@@ -95,7 +95,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
         /**
          * Whenever data center selection changes, reset the relevant fields
         */
-        Broker.messenger.getSubject(TkgEventType.DATACENTER_CHANGED)
+        Broker.messenger.getSubject(TkgEventType.VSPHERE_DATACENTER_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                 this.resetFieldsUponDCChange();
