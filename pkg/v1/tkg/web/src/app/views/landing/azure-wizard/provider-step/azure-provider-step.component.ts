@@ -2,7 +2,7 @@
  * Angular Modules
  */
 import { Component, OnInit } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
+import { Validators } from '@angular/forms';
 import { ClrLoadingState } from "@clr/angular";
 import { debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs/operators';
 
@@ -14,8 +14,10 @@ import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import Broker from 'src/app/shared/service/broker';
 import { FormMetaDataStore } from "../../wizard/shared/FormMetaDataStore";
-import {NotificationTypes} from "../../../../shared/components/alert-notification/alert-notification.component";
-import { FormUtils } from '../../wizard/shared/utils/form-utils';
+import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
+import { AzureCloud, AzureField, ResourceGroupOption } from '../azure-wizard.constants';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { AzureProviderStepMapping } from './azure-provider-step.fieldmapping';
 
 enum ProviderField {
     AZURECLOUD = 'azureCloud',
@@ -30,17 +32,12 @@ enum ProviderField {
     RESOURCEGROUPCUSTOM = 'resourceGroupCustom',
 }
 
-enum ResourceGroupOption {
-    EXISTING = 'existing',
-    CUSTOM = 'custom',
-}
-
 // NOTE: the keys of AzureAccountParamsKeys values are used by backend endpoints, so don't change them
-export const AzureAccountParamsKeys = [ProviderField.TENANT, ProviderField.CLIENT,
-    ProviderField.CLIENTSECRET, ProviderField.SUBSCRIPTION, ProviderField.AZURECLOUD];
-const requiredFields = [ProviderField.REGION, ProviderField.SSHPUBLICKEY, ProviderField.RESOURCEGROUPOPTION,
-    ProviderField.RESOURCEGROUPEXISTING];
-const optionalFields = [ProviderField.RESOURCEGROUPCUSTOM];
+export const AzureAccountParamsKeys = [AzureField.PROVIDER_TENANT, AzureField.PROVIDER_CLIENT,
+    AzureField.PROVIDER_CLIENTSECRET, AzureField.PROVIDER_SUBSCRIPTION, AzureField.PROVIDER_AZURECLOUD];
+const requiredFields = [AzureField.PROVIDER_REGION, AzureField.PROVIDER_SSHPUBLICKEY, AzureField.PROVIDER_RESOURCEGROUPOPTION,
+    AzureField.PROVIDER_RESOURCEGROUPEXISTING];
+const optionalFields = [AzureField.PROVIDER_RESOURCEGROUPCUSTOM];
 
 @Component({
     selector: 'app-azure-provider-step',
@@ -55,14 +52,13 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     resourceGroupOption = ResourceGroupOption.EXISTING;
 
     regions = [];
-    // NOTE: order is important here; we default to the first cloud in the azureClouds array
     azureClouds = [
         {
-            name: 'AzurePublicCloud',
+            name: AzureCloud.PUBLIC,
             displayName: 'Public Cloud'
         },
         {
-            name: 'AzureUSGovernmentCloud',
+            name: AzureCloud.GOVT,
             displayName: 'US Government Cloud'
         }
     ];
@@ -71,60 +67,17 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
 
     resourceGroupCreationState = 'create';
 
-    constructor(
-        private apiClient: APIClient,
-        private wizardFormService: AzureWizardFormService,
-        private validationService: ValidationService) {
+    constructor(private apiClient: APIClient,
+                private fieldMapUtilities: FieldMapUtilities,
+                private wizardFormService: AzureWizardFormService,
+                private validationService: ValidationService) {
         super();
     }
 
-    /**
-     * Create the initial form
-     */
-    private buildForm() {
-        AzureAccountParamsKeys.concat(requiredFields).forEach(controlName => FormUtils.addControl(
-            this.formGroup,
-            controlName,
-            new FormControl('', [
-                Validators.required
-            ])
-        ));
-
-        this.setControlValueSafely(ProviderField.RESOURCEGROUPOPTION, this.resourceGroupOption);
-
-        optionalFields.forEach(controlName => FormUtils.addControl(
-            this.formGroup,
-            controlName,
-            new FormControl('', [])
-        ));
-
+    private customizeForm() {
         this.formGroup['canMoveToNext'] = () => {
             return this.formGroup.valid && this.validCredentials;
         }
-    }
-
-    /**
-     * Set the hidden form field to proper value based on form validity
-     * @param valid whether we want the form to be valid
-     */
-    setValidCredentials(valid) {
-        this.validCredentials = valid;
-    }
-
-    /**
-     * Initialize the form with data from the backend
-     * @param credentials Azure credentials
-     * @param regions Azure regions
-     */
-    private initForm() {
-        this.initAzureCredentials();
-    }
-
-    ngOnInit() {
-        super.ngOnInit();
-
-        this.buildForm();
-        this.initForm();
 
         this.wizardFormService.getErrorStream(TkgEventType.AZURE_GET_RESOURCE_GROUPS)
             .pipe(takeUntil(this.unsubscribe))
@@ -137,7 +90,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
             .subscribe((azureResourceGroups: AzureResourceGroup[]) => {
                 this.resourceGroups = azureResourceGroups;
                 if (azureResourceGroups.length === 1) {
-                    this.formGroup.get(ProviderField.RESOURCEGROUPEXISTING).setValue(azureResourceGroups[0].name);
+                    this.formGroup.get(AzureField.PROVIDER_RESOURCEGROUPEXISTING).setValue(azureResourceGroups[0].name);
                 } else {
                     this.initResourceGroupFromSavedData();
                 }
@@ -162,13 +115,13 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
                 }
             );
 
-        this.formGroup.get(ProviderField.REGION).valueChanges
+        this.formGroup.get(AzureField.PROVIDER_REGION).valueChanges
             .pipe(
                 distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
                 takeUntil(this.unsubscribe)
             ).subscribe((val) => {
-                this.onRegionChange(val)
-            });
+            this.onRegionChange(val)
+        });
 
         Broker.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
             .pipe(takeUntil(this.unsubscribe))
@@ -184,15 +137,32 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
                 // Clear event so that listeners in other provider workflows do not receive false notifications
                 Broker.messenger.clearEvent(TkgEventType.CONFIG_FILE_IMPORTED);
             });
+    }
 
+    /**
+     * Set the hidden form field to proper value based on form validity
+     * @param valid whether we want the form to be valid
+     */
+    setValidCredentials(valid) {
+        this.validCredentials = valid;
+    }
+
+    ngOnInit() {
+        super.ngOnInit();
+
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, AzureProviderStepMapping);
+        this.customizeForm();
+
+        this.initAzureCredentials();
+        this.showResourceGroupExisting();
         this.initFormWithSavedData();
     }
 
     private initResourceGroupFromSavedData() {
-        // if the user did an import, then we expect the value to be stored in ProviderField.RESOURCEGROUPCUSTOM
+        // if the user did an import, then we expect the value to be stored in AzureField.PROVIDER_RESOURCEGROUPCUSTOM
         // we'll check and see if that value is now existing
-        let savedGroupExisting = this.getSavedValue(ProviderField.RESOURCEGROUPEXISTING, '');
-        let savedGroupCustom = this.getSavedValue(ProviderField.RESOURCEGROUPCUSTOM, '');
+        let savedGroupExisting = this.getSavedValue(AzureField.PROVIDER_RESOURCEGROUPEXISTING, '');
+        let savedGroupCustom = this.getSavedValue(AzureField.PROVIDER_RESOURCEGROUPCUSTOM, '');
 
         if (this.handleIfSavedCustomResourceGroupIsNowExisting(savedGroupCustom)) {
             savedGroupExisting = savedGroupCustom;
@@ -200,10 +170,10 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
         }
 
         if (savedGroupCustom !== '') {
-            this.formGroup.get(ProviderField.RESOURCEGROUPCUSTOM).setValue(savedGroupCustom);
+            this.formGroup.get(AzureField.PROVIDER_RESOURCEGROUPCUSTOM).setValue(savedGroupCustom);
             this.showResourceGroup(ResourceGroupOption.CUSTOM);
         } else if (savedGroupExisting !== '') {
-            this.formGroup.get(ProviderField.RESOURCEGROUPEXISTING).setValue(savedGroupExisting);
+            this.formGroup.get(AzureField.PROVIDER_RESOURCEGROUPEXISTING).setValue(savedGroupExisting);
             this.showResourceGroup(ResourceGroupOption.EXISTING);
         } else {
             this.showResourceGroup(this.resourceGroupOption);
@@ -219,11 +189,11 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
             AzureAccountParamsKeys.forEach( accountField => {
                 this.initFieldWithSavedData(accountField);
             });
-            this.initFieldWithSavedData(ProviderField.SSHPUBLICKEY);
+            this.initFieldWithSavedData(AzureField.PROVIDER_SSHPUBLICKEY);
         }
-        this.scrubPasswordField(ProviderField.CLIENTSECRET);
-        if (this.getFieldValue(ProviderField.AZURECLOUD) === '') {
-            this.setFieldValue(ProviderField.AZURECLOUD, this.azureClouds[0].name);
+        this.scrubPasswordField(AzureField.PROVIDER_CLIENTSECRET);
+        if (this.getFieldValue(AzureField.PROVIDER_AZURECLOUD) === '') {
+            this.setFieldValue(AzureField.PROVIDER_AZURECLOUD, AzureCloud.PUBLIC);
         }
     }
 
@@ -237,17 +207,21 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
         this.resourceGroupCreationState = 'create';
         this.resourceGroupOption = ResourceGroupOption.EXISTING;
 
-        [ProviderField.TENANT, ProviderField.CLIENT, ProviderField.SUBSCRIPTION, ProviderField.AZURECLOUD].forEach( accountField => {
+        [   AzureField.PROVIDER_TENANT,
+            AzureField.PROVIDER_CLIENT,
+            AzureField.PROVIDER_SUBSCRIPTION,
+            AzureField.PROVIDER_AZURECLOUD
+        ].forEach( accountField => {
             this.initFieldWithSavedData(accountField);
         });
-        this.initFieldWithSavedData(ProviderField.SSHPUBLICKEY);
+        this.initFieldWithSavedData(AzureField.PROVIDER_SSHPUBLICKEY);
 
-        // ProviderField.CLIENTSECRET causes us to break
-        // this.initFieldWithSavedData(ProviderField.CLIENTSECRET);
-        this.scrubPasswordField(ProviderField.CLIENTSECRET);
+        // AzureField.PROVIDER_CLIENTSECRET causes us to break
+        // this.initFieldWithSavedData(AzureField.PROVIDER_CLIENTSECRET);
+        this.scrubPasswordField(AzureField.PROVIDER_CLIENTSECRET);
 
-        if (this.getFieldValue(ProviderField.AZURECLOUD) === '') {
-            this.setFieldValue(ProviderField.AZURECLOUD, this.azureClouds[0].name);
+        if (this.getFieldValue(AzureField.PROVIDER_AZURECLOUD) === '') {
+            this.setFieldValue(AzureField.PROVIDER_AZURECLOUD, AzureCloud.PUBLIC);
         }
     }
 
@@ -286,9 +260,9 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
             .subscribe(
                 regions => {
                     this.regions = regions.sort((regionA, regionB) => regionA.name.localeCompare(regionB.name));
-                    const selectedRegion = this.regions.length === 1 ? this.regions[0].name : this.getSavedValue(ProviderField.REGION, '');
+                    const selectedRegion = this.regions.length === 1 ? this.regions[0].name : this.getSavedValue(AzureField.PROVIDER_REGION, '');
                     // setting the region value will trigger other data calls to the back end for resource groups, osimages, etc
-                    this.setControlValueSafely(ProviderField.REGION, selectedRegion);
+                    this.setControlValueSafely(AzureField.PROVIDER_REGION, selectedRegion);
                 },
                 () => {
                     this.errorNotification = 'Unable to retrieve Azure regions';
@@ -326,7 +300,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
                     this.errorNotification = `${error}`;
                     this.setValidCredentials(false);
                     this.regions = [];
-                    this.setControlValueSafely(ProviderField.REGION, '');
+                    this.setControlValueSafely(AzureField.PROVIDER_REGION, '');
                 }),
                 (() => {
                 })
@@ -339,34 +313,40 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     isConnectDisabled() {
         return !AzureAccountParamsKeys.reduce((accu, key) => this.formGroup.get(key).valid && accu, true);
     }
-
-    showResourceGroup(option) {
+    showResourceGroupExisting() {
+        this.showResourceGroup(ResourceGroupOption.EXISTING);
+    }
+    showResourceGroupCustom() {
+        this.showResourceGroup(ResourceGroupOption.CUSTOM);
+    }
+    private showResourceGroup(option) {
         this.resourceGroupOption = option;
         if (option === ResourceGroupOption.EXISTING) {
-            this.formGroup.controls[ProviderField.RESOURCEGROUPCUSTOM].clearValidators();
-            this.formGroup.controls[ProviderField.RESOURCEGROUPCUSTOM].setValue('');
-            this.formGroup.controls[ProviderField.RESOURCEGROUPEXISTING].setValidators([
+            this.formGroup.controls[AzureField.PROVIDER_RESOURCEGROUPCUSTOM].clearValidators();
+            this.formGroup.controls[AzureField.PROVIDER_RESOURCEGROUPCUSTOM].setValue('');
+            this.formGroup.controls[AzureField.PROVIDER_RESOURCEGROUPEXISTING].setValidators([
                 Validators.required
             ]);
-            this.clearFieldSavedData(ProviderField.RESOURCEGROUPCUSTOM)
+            this.clearFieldSavedData(AzureField.PROVIDER_RESOURCEGROUPCUSTOM)
         } else if (option === ResourceGroupOption.CUSTOM) {
-            this.formGroup.controls[ProviderField.RESOURCEGROUPEXISTING].clearValidators();
-            this.formGroup.controls[ProviderField.RESOURCEGROUPEXISTING].setValue('');
-            this.formGroup.controls[ProviderField.RESOURCEGROUPCUSTOM].setValidators([
+            this.formGroup.controls[AzureField.PROVIDER_RESOURCEGROUPEXISTING].clearValidators();
+            this.formGroup.controls[AzureField.PROVIDER_RESOURCEGROUPEXISTING].setValue('');
+            this.formGroup.controls[AzureField.PROVIDER_RESOURCEGROUPCUSTOM].setValidators([
                 Validators.required,
                 this.validationService.isValidResourceGroupName(),
                 this.validationService.isUniqueResourceGroupName(this.resourceGroups),
             ]);
-            this.clearFieldSavedData(ProviderField.RESOURCEGROUPEXISTING)
+            this.clearFieldSavedData(AzureField.PROVIDER_RESOURCEGROUPEXISTING)
         } else {
             console.log('WARNING: showResourceGroup() received unrecognized value of ' + option);
         }
-        this.formGroup.controls[ProviderField.RESOURCEGROUPCUSTOM].updateValueAndValidity();
-        this.formGroup.controls[ProviderField.RESOURCEGROUPEXISTING].updateValueAndValidity();
+        this.setControlValueSafely(AzureField.PROVIDER_RESOURCEGROUPOPTION, option);
+        this.formGroup.controls[AzureField.PROVIDER_RESOURCEGROUPCUSTOM].updateValueAndValidity();
+        this.formGroup.controls[AzureField.PROVIDER_RESOURCEGROUPEXISTING].updateValueAndValidity();
     }
 
     /**
-     * Event handler when ProviderField.REGION selection has changed
+     * Event handler when AzureField.PROVIDER_REGION selection has changed
      */
     onRegionChange(val) {
         console.log('azure-provider-step.onRegionChange() detects region change to ' + val + '; publishing AZURE_REGION_CHANGED');
@@ -382,7 +362,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     onResourceGroupNameChange() {
         Broker.messenger.publish({
             type: TkgEventType.AZURE_RESOURCEGROUP_CHANGED,
-            payload: this.formGroup.get(ProviderField.RESOURCEGROUPCUSTOM).value
+            payload: this.formGroup.get(AzureField.PROVIDER_RESOURCEGROUPCUSTOM).value
         });
     }
 
@@ -392,8 +372,8 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
         // the resource group exists (so we should move the custom value over to the existing data slot).
         const customIsNowExisting = this.resourceGroupContains(savedGroupCustom);
         if (customIsNowExisting) {
-            this.clearFieldSavedData(ProviderField.RESOURCEGROUPCUSTOM);
-            this.saveFieldData(ProviderField.RESOURCEGROUPEXISTING, savedGroupCustom);
+            this.clearFieldSavedData(AzureField.PROVIDER_RESOURCEGROUPCUSTOM);
+            this.saveFieldData(AzureField.PROVIDER_RESOURCEGROUPEXISTING, savedGroupCustom);
             return true;
         }
         return false;

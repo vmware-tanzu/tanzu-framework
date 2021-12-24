@@ -18,6 +18,7 @@ import { ValidationService } from '../wizard/shared/validation/validation.servic
 import { MetadataStepComponent } from '../wizard/shared/components/steps/metadata-step/metadata-step.component';
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { VnetStepComponent } from './vnet-step/vnet-step.component';
+import { FieldMapUtilities } from '../wizard/shared/field-mapping/FieldMapUtilities';
 
 describe('AzureWizardComponent', () => {
     let component: AzureWizardComponent;
@@ -35,6 +36,7 @@ describe('AzureWizardComponent', () => {
             providers: [
                 APIClient,
                 FormBuilder,
+                FieldMapUtilities,
                 AzureWizardFormService,
                 ValidationService
             ],

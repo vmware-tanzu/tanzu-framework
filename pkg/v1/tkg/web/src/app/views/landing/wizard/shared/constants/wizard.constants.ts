@@ -6,6 +6,11 @@ export interface NodeType {
 
 export const managementClusterPlugin = 'management-cluster';
 
+export enum FeatureFlags {
+    STANDALONE_CLUSTER = 'standalone-cluster-mode',
+    CLUSTER_NAME_REQUIRED = 'cluster-name-required',
+}
+
 // ClusterType enum are data values sent to the backend to specify the cluster type
 export enum ClusterType {
     Management = 'management',

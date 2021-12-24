@@ -5,6 +5,7 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { APIClient } from 'src/app/swagger';
 
 import { AuditLoggingComponent } from './audit-logging.component';
+import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 
 describe('AuditLoggingComponent', () => {
     let component: AuditLoggingComponent;
@@ -18,6 +19,7 @@ describe('AuditLoggingComponent', () => {
             ],
             providers: [
                 FormBuilder,
+                FieldMapUtilities,
                 APIClient
             ],
             schemas: [

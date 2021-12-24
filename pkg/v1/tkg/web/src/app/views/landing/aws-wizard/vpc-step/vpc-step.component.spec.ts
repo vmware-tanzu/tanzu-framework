@@ -9,6 +9,7 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { AwsWizardFormService } from 'src/app/shared/service/aws-wizard-form.service';
 import Broker from 'src/app/shared/service/broker';
 import { Messenger } from 'src/app/shared/service/Messenger';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 
 describe('VpcComponent', () => {
     let component: VpcStepComponent;
@@ -25,6 +26,7 @@ describe('VpcComponent', () => {
                 APIClient,
                 ValidationService,
                 FormBuilder,
+                FieldMapUtilities,
                 AwsWizardFormService,
             ],
             schemas: [

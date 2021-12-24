@@ -10,6 +10,7 @@ import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-
 import Broker from 'src/app/shared/service/broker';
 import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
 import { VsphereOsImageStepComponent } from '../../../../../vsphere-wizard/os-image-step/vsphere-os-image-step.component';
+import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 
 describe('VsphereOsImageStepComponent', () => {
     let component: VsphereOsImageStepComponent;
@@ -26,6 +27,7 @@ describe('VsphereOsImageStepComponent', () => {
                 ValidationService,
                 VSphereWizardFormService,
                 FormBuilder,
+                FieldMapUtilities,
                 APIClient,
             ],
             schemas: [

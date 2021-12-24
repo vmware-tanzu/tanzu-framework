@@ -21,6 +21,7 @@ import { VsphereOsImageStepComponent } from '../../vsphere-wizard/os-image-step/
 import { StepWrapperSetComponent } from './step-wrapper/step-wrapper-set.component';
 import { AwsOsImageStepComponent } from '../../aws-wizard/os-image-step/aws-os-image-step.component';
 import { AzureOsImageStepComponent } from '../../azure-wizard/os-image-step/azure-os-image-step.component';
+import { FieldMapUtilities } from './field-mapping/FieldMapUtilities';
 
 @NgModule({
     declarations: [
@@ -65,6 +66,7 @@ import { AzureOsImageStepComponent } from '../../azure-wizard/os-image-step/azur
         AzureOsImageStepComponent
     ],
     providers: [
+        FieldMapUtilities,
         ValidationService
     ]
 })

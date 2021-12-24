@@ -10,6 +10,7 @@ import { APIClient } from '../../../../../../../swagger/api-client.service';
 import { SharedLoadBalancerStepComponent } from './load-balancer-step.component';
 import Broker from 'src/app/shared/service/broker';
 import { Messenger } from 'src/app/shared/service/Messenger';
+import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 
 describe('SharedLoadBalancerStepComponent', () => {
     let component: SharedLoadBalancerStepComponent;
@@ -25,6 +26,7 @@ describe('SharedLoadBalancerStepComponent', () => {
             providers: [
                 ValidationService,
                 FormBuilder,
+                FieldMapUtilities,
                 APIClient
             ],
             schemas: [

@@ -13,6 +13,7 @@ import { of, empty, throwError, Observable } from 'rxjs';
 import Broker from 'src/app/shared/service/broker';
 import { Messenger } from 'src/app/shared/service/Messenger';
 import { AwsField } from '../aws-wizard.constants';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 
 describe('AwsProviderStepComponent', () => {
     let component: AwsProviderStepComponent;
@@ -29,6 +30,7 @@ describe('AwsProviderStepComponent', () => {
             providers: [
                 ValidationService,
                 FormBuilder,
+                FieldMapUtilities,
                 {
                     provide: APIClient,
                     useValue: jasmine.createSpyObj(
@@ -71,6 +73,7 @@ describe('AwsProviderStepComponent', () => {
     it("valid credentials fields should activate connect button", async(() => {
 
         component.ngOnInit();
+        const connectBtn = fixture.debugElement.query(By.css("button.btn-primary"));
         expect(connectBtn.nativeElement.disabled).toBeTruthy();
 
         component.setFieldValue(AwsField.PROVIDER_PROFILE_NAME, 'profile1');
@@ -81,9 +84,9 @@ describe('AwsProviderStepComponent', () => {
         fixture.whenStable().then(
             () => {
                 fixture.detectChanges();
-                const connectBtn = fixture.debugElement.query(By.css("button.btn-primary"));
-                expect(connectBtn).toBeTruthy();
-                expect(connectBtn.nativeElement.disabled).toBeFalsy();
+                const connectBtn2 = fixture.debugElement.query(By.css("button.btn-primary"));
+                expect(connectBtn2).toBeTruthy();
+                expect(connectBtn2.nativeElement.disabled).toBeFalsy();
             }
         );
     }));
@@ -108,7 +111,7 @@ describe('AwsProviderStepComponent', () => {
         fixture.whenStable().then(
             () => {
                 fixture.detectChanges();
-                const globalError = fixture.debugElement.query(By.css("app-step-form-alert-notification"));
+                const globalError = fixture.debugElement.query(By.css("app-alert-notification"));
                 expect(globalError.nativeElement.innerText).toBe("");
             }
         );

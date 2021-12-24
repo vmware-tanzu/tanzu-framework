@@ -59,8 +59,10 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         Broker.appDataService.getVsphereVersion().subscribe(version => {
             this.vsphereVersion = version ? version + ' ' : '';
         });
+    }
 
-        this.stepData = [
+    protected supplyStepData(): FormDataForHTML[] {
+        return [
             this.VsphereProviderForm,
             this.VsphereNodeSettingForm,
             this.VsphereLoadBalancerForm,

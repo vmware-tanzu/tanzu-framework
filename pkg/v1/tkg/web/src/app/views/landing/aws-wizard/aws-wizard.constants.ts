@@ -1,3 +1,11 @@
+export enum CredentialType {
+    ONETIME = 'oneTimeCredentials',
+    PROFILE = 'credentialProfile'
+}
+export enum VpcType {
+    EXISTING = 'existing',
+    NEW = 'new'
+}
 export enum AwsStep {
     PROVIDER = 'provider',
     VPC = 'vpc',
@@ -27,6 +35,7 @@ export enum AwsField {
     NODESETTING_INSTANCE_TYPE_DEV = 'devInstanceType',
     NODESETTING_INSTANCE_TYPE_PROD = 'prodInstanceType',
     NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED = 'machineHealthChecksEnabled',
+    NODESETTING_SSH_KEY_NAME = 'sshKeyName',
     NODESETTING_VPC_PUBLIC_SUBNET_1 = 'vpcPublicSubnet1',
     NODESETTING_VPC_PUBLIC_SUBNET_2 = 'vpcPublicSubnet2',
     NODESETTING_VPC_PUBLIC_SUBNET_3 = 'vpcPublicSubnet3',

@@ -2,10 +2,7 @@
  * Angular Modules
  */
 import { Component, OnInit } from '@angular/core';
-import {
-    Validators,
-    FormControl
-} from '@angular/forms';
+import { Validators } from '@angular/forms';
 import { takeUntil } from 'rxjs/operators';
 
 /**
@@ -17,8 +14,12 @@ import { TkgEventType } from '../../../../shared/service/Messenger';
 import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import { AzureInstanceType } from 'src/app/swagger/models';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { AzureNodeSettingStandaloneStepMapping, AzureNodeSettingStepMapping } from './node-setting-step.fieldmapping';
+import Broker from '../../../../shared/service/broker';
 import { AzureForm } from '../azure-wizard.constants';
 import { FormUtils } from '../../wizard/shared/utils/form-utils';
+import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 
 @Component({
     selector: 'app-node-setting-step',
@@ -33,89 +34,34 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     displayForm = false;
 
     constructor(private validationService: ValidationService,
-                private azureWizardFormService: AzureWizardFormService) {
+                private azureWizardFormService: AzureWizardFormService,
+                private fieldMapUtilities: FieldMapUtilities) {
         super();
         this.nodeTypes = [];
     }
 
-    buildForm() {
-        FormUtils.addControl(
-            this.formGroup,
-            'controlPlaneSetting',
-            new FormControl('', [
-                Validators.required
-            ])
-        );
-        FormUtils.addControl(
-            this.formGroup,
-            'devInstanceType',
-            new FormControl('', [
-                Validators.required
-            ])
-        );
-        FormUtils.addControl(
-            this.formGroup,
-            'prodInstanceType',
-            new FormControl('', [
-                Validators.required
-            ])
-        );
-        FormUtils.addControl(
-            this.formGroup,
-            'devInstanceType',
-            new FormControl('', [
-                Validators.required
-            ])
-        );
-
-        FormUtils.addControl(
-            this.formGroup,
-            'managementClusterName',
-            new FormControl('', [
-                this.validationService.isValidClusterName()
-            ])
-        );
-
-        if (!this.modeClusterStandalone) {
-            FormUtils.addControl(
-            this.formGroup,
-                'workerNodeInstanceType',
-                new FormControl('', [
-                    Validators.required
-                ])
-            );
-        }
-
-        FormUtils.addControl(
-            this.formGroup,
-            'machineHealthChecksEnabled',
-            new FormControl(true, [])
-        );
+    private supplyStepMapping(): StepMapping {
+        const fieldMappings = this.modeClusterStandalone ? AzureNodeSettingStandaloneStepMapping : AzureNodeSettingStepMapping;
+        FieldMapUtilities.getFieldMapping('managementClusterName', fieldMappings).required =
+            Broker.appDataService.isClusterNameRequired();
+        return fieldMappings;
     }
 
-    initForm() {
+    private customizeForm() {
         this.azureWizardFormService.getErrorStream(TkgEventType.AZURE_GET_INSTANCE_TYPES)
-        .pipe(takeUntil(this.unsubscribe))
-        .subscribe(error => {
-            this.errorNotification = error;
-        });
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe(error => {
+                this.errorNotification = error;
+            });
 
         this.azureWizardFormService.getDataStream(TkgEventType.AZURE_GET_INSTANCE_TYPES)
-        .pipe(takeUntil(this.unsubscribe))
-        .subscribe((instanceTypes: AzureInstanceType[]) => {
-            this.nodeTypes = instanceTypes.sort();
-            if (!this.modeClusterStandalone && this.nodeTypes.length === 1) {
-                this.formGroup.get('workerNodeInstanceType').setValue(this.nodeTypes[0].name);
-            }
-        });
-
-        if (this.edition !== AppEdition.TKG) {
-            this.resurrectField('managementClusterName',
-                [Validators.required, this.validationService.isValidClusterName()],
-                this.formGroup.get('managementClusterName').value,
-                { onlySelf: true, emitEvent: false}
-            );
-        }
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe((instanceTypes: AzureInstanceType[]) => {
+                this.nodeTypes = instanceTypes.sort();
+                if (!this.modeClusterStandalone && this.nodeTypes.length === 1) {
+                    this.formGroup.get('workerNodeInstanceType').setValue(this.nodeTypes[0].name);
+                }
+            });
     }
 
     toggleValidations() {
@@ -162,8 +108,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     ngOnInit() {
         super.ngOnInit();
-        this.buildForm();
-        this.initForm();
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
+        this.customizeForm();
         this.toggleValidations();
         this.initFormWithSavedData();
     }

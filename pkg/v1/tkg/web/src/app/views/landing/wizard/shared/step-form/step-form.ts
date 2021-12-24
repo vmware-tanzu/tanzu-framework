@@ -13,6 +13,8 @@ import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import { EditionData } from 'src/app/shared/service/branding.service';
 import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 import { FormUtility } from '../components/steps/form-utility';
+import { StepMapping } from '../field-mapping/FieldMapping';
+import { FieldMapUtilities } from '../field-mapping/FieldMapUtilities';
 
 const INIT_FIELD_DELAY = 50;            // ms
 /**
@@ -350,13 +352,15 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
                     this.resurrectField(
                         fieldName,
                         ipv4Validators,
-                        this.formGroup.get(fieldName).value
+                        this.formGroup.get(fieldName).value,
+                        {emitEvent: false, onlySelf: true}
                     );
                 } else {
                     this.resurrectField(
                         fieldName,
                         ipv6Validators,
-                        this.formGroup.get(fieldName).value
+                        this.formGroup.get(fieldName).value,
+                        {emitEvent: false, onlySelf: true}
                     );
                 }
                 this.ipFamily = data.payload;

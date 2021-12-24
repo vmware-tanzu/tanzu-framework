@@ -6,6 +6,8 @@ import { FormBuilder } from '@angular/forms';
 import { SharedCeipStepComponent } from './ceip-step.component';
 import Broker from 'src/app/shared/service/broker';
 import { Messenger } from 'src/app/shared/service/Messenger';
+import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
+import { ValidationService } from '../../../validation/validation.service';
 
 describe('SharedCeipStepComponent', () => {
     let component: SharedCeipStepComponent;
@@ -17,7 +19,9 @@ describe('SharedCeipStepComponent', () => {
                 ReactiveFormsModule
             ],
             providers: [
-                FormBuilder
+                FormBuilder,
+                FieldMapUtilities,
+                ValidationService
             ],
             schemas: [
                 CUSTOM_ELEMENTS_SCHEMA

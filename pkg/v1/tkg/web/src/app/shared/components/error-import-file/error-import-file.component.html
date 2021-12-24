@@ -1,0 +1,15 @@
+<div *ngIf="errorImportFile" class="alert alert-danger" role="alert">
+    <div class="alert-items">
+        <div class="alert-item static">
+            <div class="alert-icon-wrapper">
+                <clr-icon class="alert-icon" shape="exclamation-circle"></clr-icon>
+            </div>
+            <span class="alert-text" i18n="connect vcenter failure notification">
+          {{ errorImportFile }}
+      </span>
+        </div>
+    </div>
+    <button (click)="errorImportFile=null" type="button" class="close" aria-label="Close">
+        <clr-icon aria-hidden="true" shape="close"></clr-icon>
+    </button>
+</div>

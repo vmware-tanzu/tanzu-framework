@@ -10,6 +10,7 @@ import { ValidationService } from '../../wizard/shared/validation/validation.ser
 import { By } from '@angular/platform-browser';
 import Broker from 'src/app/shared/service/broker';
 import { Messenger } from 'src/app/shared/service/Messenger';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 
 describe('NodeSettingStepComponent', () => {
     let component: NodeSettingStepComponent;
@@ -24,6 +25,7 @@ describe('NodeSettingStepComponent', () => {
             providers: [
                 ValidationService,
                 FormBuilder,
+                FieldMapUtilities,
                 APIClient
             ],
             schemas: [
