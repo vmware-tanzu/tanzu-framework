@@ -1,12 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { SharedOsImageStepComponent } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
-import { VSphereWizardFormService } from '../../../../shared/service/vsphere-wizard-form.service';
-import { AwsWizardFormService } from '../../../../shared/service/aws-wizard-form.service';
+import { OsImageProviderInputs, SharedOsImageStepComponent } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
 import { AzureWizardFormService } from '../../../../shared/service/azure-wizard-form.service';
-import Broker from '../../../../shared/service/broker';
-import { BehaviorSubject } from 'rxjs';
-import { Observable } from 'rxjs/internal/Observable';
 import { TkgEventType } from '../../../../shared/service/Messenger';
+import { AzureVirtualMachine } from '../../../../swagger/models';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 
 @Component({
@@ -14,7 +10,7 @@ import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUti
     templateUrl: '../../wizard/shared/components/steps/os-image-step/os-image-step.component.html',
     styleUrls: ['../../wizard/shared/components/steps/os-image-step/os-image-step.component.scss']
 })
-export class AzureOsImageStepComponent extends SharedOsImageStepComponent implements OnInit {
+export class AzureOsImageStepComponent extends SharedOsImageStepComponent<AzureVirtualMachine> implements OnInit {
     constructor(private azureWizardFormService: AzureWizardFormService, protected fieldMapUtilities: FieldMapUtilities) {
         super(fieldMapUtilities);
     }
@@ -23,11 +19,14 @@ export class AzureOsImageStepComponent extends SharedOsImageStepComponent implem
         super.onInit();
     }
 
-    protected setProviderInputs() {
-        this.wizardFormService = this.azureWizardFormService;
-        this.eventType = TkgEventType.AZURE_GET_OS_IMAGES;
-        this.osImageTooltipContent = 'Select a base OS image that you have already imported ' +
-        'into your Azure account. If no compatible OS image is present, import one into ' +
-        'Azure and click the Refresh button';
+    protected supplyProviderInputs(): OsImageProviderInputs<AzureVirtualMachine> {
+        return {
+            event: TkgEventType.AZURE_GET_OS_IMAGES,
+            noImageAlertMessage: '',
+            osImageService: this.azureWizardFormService,
+            osImageTooltipContent: 'Select a base OS image that you have already imported ' +
+                'into your Azure account. If no compatible OS image is present, import one into ' +
+                'Azure and click the Refresh button',
+        };
     }
 }

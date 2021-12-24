@@ -1,40 +1,39 @@
-/**
- * Angular Modules
- */
-import { Component, OnInit, Input} from '@angular/core';
-import {
-    Validators,
-    FormControl
-} from '@angular/forms';
+import { Validators, FormControl } from '@angular/forms';
 import { takeUntil } from 'rxjs/operators';
 
-/**
- * App imports
- */
-
 import { StepFormDirective } from '../../../step-form/step-form';
-import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
 import { TkgEventType } from 'src/app/shared/service/Messenger';
-import { VSphereVirtualMachine } from 'src/app/swagger/models/v-sphere-virtual-machine.model';
-import { AwsWizardFormService } from 'src/app/shared/service/aws-wizard-form.service';
-import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import Broker from 'src/app/shared/service/broker';
 import { Observable } from 'rxjs/internal/Observable';
+import { FormUtils } from '../../../utils/form-utils';
 import { AWSVirtualMachine, AzureVirtualMachine } from 'src/app/swagger/models';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { OsImageStepMapping } from './os-image-step.fieldmapping';
 import { StepMapping } from '../../../field-mapping/FieldMapping';
 
-export abstract class SharedOsImageStepComponent extends StepFormDirective {
-    wizardFormService: VSphereWizardFormService|AwsWizardFormService|AzureWizardFormService;
-    enableNonTemplateAlert: boolean;
-    noImageAlertMessage: string;
-    osImageTooltipContent: string;
-    eventType: TkgEventType;
-    // TODO: refactor to use generics instead of VSphereVirtualMachine|AWSVirtualMachine|AzureVirtualMachine
-    osImages: Array<VSphereVirtualMachine|AWSVirtualMachine|AzureVirtualMachine>;
+// We define an OsImage as one that has a name field, so that our HTML can dereference this field in the listbox display
+export interface OsImage {
+    name?: string
+}
+export interface OsImageProviderInputs<IMAGE> {
+    event: TkgEventType,
+    osImageService: OsImageService<IMAGE>,
+    osImageTooltipContent: string,
+    nonTemplateAlertMessage?: string,
+    noImageAlertMessage?: string,
+}
+export interface OsImageService<IMAGE> {
+    getDataStream(TkgEventType): Observable<IMAGE[]>,
+    getErrorStream(TkgEventType): Observable<string>,
+}
+export abstract class SharedOsImageStepComponent<IMAGE extends OsImage> extends StepFormDirective {
+    // used by HTML as well as locally
+    public providerInputs: OsImageProviderInputs<IMAGE>;
+
+    osImages: Array<IMAGE>;
     loadingOsTemplate: boolean = false;
-    nonTemplateAlert: boolean = false;
+    displayNonTemplateAlert: boolean = false;
+    // TODO: It's questionable whether tkrVersion should be in this class, since it's only used for vSphere
     tkrVersion: Observable<string>;
 
     protected constructor(protected fieldMapUtilities: FieldMapUtilities) {
@@ -42,33 +41,26 @@ export abstract class SharedOsImageStepComponent extends StepFormDirective {
         this.tkrVersion = Broker.appDataService.getTkrVersion();
     }
 
-    // This method allows child classes to set the inputs (rather than having them passed as part of an HTML component tag).
+    // This method allows child classes to supply the inputs (rather than having them passed as part of an HTML component tag).
     // This allows the step to follow the same pattern as all the other steps, which only take formGroup and formName as inputs.
-    protected abstract setProviderInputs();
+    protected abstract supplyProviderInputs(): OsImageProviderInputs<IMAGE>;
 
     private customizeForm() {
-        /**
-         * Whenever data center selection changes, reset the relevant fields
-         */
-        Broker.messenger.getSubject(TkgEventType.DATACENTER_CHANGED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(event => {
-                this.resetFieldsUponDCChange();
-            });
-
-        this.wizardFormService.getErrorStream(this.eventType)
+        this.providerInputs.osImageService.getErrorStream(this.providerInputs.event)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(error => {
                 this.errorNotification = error;
             });
 
-        this.wizardFormService.getDataStream(this.eventType)
+        this.providerInputs.osImageService.getDataStream(this.providerInputs.event)
             .pipe(takeUntil(this.unsubscribe))
-            .subscribe((images: Array<VSphereVirtualMachine|AWSVirtualMachine|AzureVirtualMachine>) => {
+            .subscribe((images: Array<IMAGE>) => {
                 this.osImages = images;
                 this.loadingOsTemplate = false;
                 if (this.osImages.length === 1) {
-                    this.formGroup.get('osImage').setValue(images[0]);
+                    this.setControlValueSafely('osImage', images[0]);
+                } else {
+                    this.setControlWithSavedValue('osImage', '');
                 }
             });
     }
@@ -77,17 +69,10 @@ export abstract class SharedOsImageStepComponent extends StepFormDirective {
     protected onInit() {
         super.ngOnInit();
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, OsImageStepMapping);
-        this.setProviderInputs();
+        super.ngOnInit();
+        this.providerInputs = this.supplyProviderInputs();
         this.customizeForm();
         this.initFormWithSavedData();
-    }
-
-    /**
-     * Reset relevant fields upon data center selection change.
-     */
-    resetFieldsUponDCChange() {
-        const fieldsToReset = ['osImage'];
-        fieldsToReset.forEach(f => this.formGroup.get(f).setValue(""));
     }
 
     /**
@@ -97,20 +82,18 @@ export abstract class SharedOsImageStepComponent extends StepFormDirective {
      */
     retrieveOsImages() {
         this.loadingOsTemplate = true;
-        this.nonTemplateAlert = false;
-        this.resetFieldsUponDCChange();
+        this.displayNonTemplateAlert = false;
         Broker.messenger.publish({
-            type: this.eventType
+            type: this.providerInputs.event
         });
     }
 
     /**
      * @method onOptionsSelected
-     * @param name
      * helper method to determine if osImage.isTemplate is true or false; if false show warning
      */
     onOptionsSelected() {
-        this.nonTemplateAlert = !this.formGroup.value["osImage"].isTemplate;
+        this.displayNonTemplateAlert = !this.formGroup.value['osImage'].isTemplate;
     }
 
     dynamicDescription(): string {
