@@ -1,5 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
-@import './sass/mixins/logo-base.scss';
+@use './sass/mixins/logo-base';
+@use './sass/properties';
 
 //////////////////////////////////////
 // Display helpers
@@ -104,16 +105,21 @@
 
 body.dark {
     .header {
-        background-color: #485a6a;
+        background-color: properties.$header-background-dark-theme;
+    }
+
+    // add theme-override class to labels which require color override
+    label.theme-override {
+        color: properties.$label-color-dark-theme !important;
     }
 
     button.clr-accordion-header-button {
-        color: #fff;
+        color: white;
     }
 
     .clr-error {
         .clr-subtext {
-            color: #F76B64;
+            color: properties.$form-error-text-dark-theme;
         }
     }
 }
@@ -123,14 +129,14 @@ body.dark {
 //////////////////////////////////////
 
 .tanzu-logo {
-    @include logo-container('./assets/images/tanzu-logo.svg');
+    @include logo-base.logo-container('./assets/images/tanzu-logo.svg');
     margin-right: 6px;
     width: 36px;
     height: 36px;
 }
 
 .tce-logo {
-    @include logo-container('./assets/images/tce-logo.svg');
+    @include logo-base.logo-container('./assets/images/tce-logo.svg');
     margin-right: 6px;
     width: 36px;
     height: 36px;
@@ -250,23 +256,23 @@ clr-control-error.clr-subtext {
 //////////////////////////////////////
 
 .logo-16 {
-    @include logo-container($logo_blue);
-    @include logo-sizer(16, 16);
+    @include logo-base.logo-container(properties.$logo_blue);
+    @include logo-base.logo-sizer(16, 16);
 }
 
 .logo-24 {
-    @include logo-container($logo_blue);
-    @include logo-sizer(24, 24);
+    @include logo-base.logo-container(properties.$logo_blue);
+    @include logo-base.logo-sizer(24, 24);
 }
 
 .logo-30 {
-    @include logo-container($logo_blue);
-    @include logo-sizer(30, 30);
+    @include logo-base.logo-container(properties.$logo_blue);
+    @include logo-base.logo-sizer(30, 30);
 }
 
 .logo-100 {
-    @include logo-container($logo_blue);
-    @include logo-sizer(100, 100);
+    @include logo-base.logo-container(properties.$logo_blue);
+    @include logo-base.logo-sizer(100, 100);
 }
 
 //////////////////////////////////////
@@ -274,41 +280,41 @@ clr-control-error.clr-subtext {
 //////////////////////////////////////
 
 .vsphere-icon-30 {
-    @include logo-container($logo-vsphere);
-    @include logo-sizer(30, 30);
+    @include logo-base.logo-container(properties.$logo-vsphere);
+    @include logo-base.logo-sizer(30, 30);
 }
 
 .vsphere-icon-48 {
-    @include logo-container($logo-vsphere);
-    @include logo-sizer(48, 48);
+    @include logo-base.logo-container(properties.$logo-vsphere);
+    @include logo-base.logo-sizer(48, 48);
 }
 
 .aws-ec2-icon-30 {
-    @include logo-container($logo-aws-ec2);
-    @include logo-sizer(30, 30);
+    @include logo-base.logo-container(properties.$logo-aws-ec2);
+    @include logo-base.logo-sizer(30, 30);
 }
 
 .aws-ec2-icon-48 {
-    @include logo-container($logo-aws-ec2);
-    @include logo-sizer(48, 48);
+    @include logo-base.logo-container(properties.$logo-aws-ec2);
+    @include logo-base.logo-sizer(48, 48);
 }
 
 .ms-azure-icon-30 {
-    @include logo-container($logo-ms-azure);
-    @include logo-sizer(30, 30);
+    @include logo-base.logo-container(properties.$logo-ms-azure);
+    @include logo-base.logo-sizer(30, 30);
 }
 
 .ms-azure-icon-48 {
-    @include logo-container($logo-ms-azure);
-    @include logo-sizer(48, 48);
+    @include logo-base.logo-container(properties.$logo-ms-azure);
+    @include logo-base.logo-sizer(48, 48);
 }
 
 .docker-icon-30 {
-    @include logo-container($logo-docker);
-    @include logo-sizer(30, 30);
+    @include logo-base.logo-container(properties.$logo-docker);
+    @include logo-base.logo-sizer(30, 30);
 }
 
 .docker-icon-48 {
-    @include logo-container($logo-docker);
-    @include logo-sizer(48, 48);
+    @include logo-base.logo-container(properties.$logo-docker);
+    @include logo-base.logo-sizer(48, 48);
 }
