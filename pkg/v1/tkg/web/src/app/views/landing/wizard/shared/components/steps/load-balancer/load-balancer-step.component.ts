@@ -97,7 +97,7 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
         this.registerOnValueChange("networkCIDR", this.onSelectVipCIDR.bind(this));
         this.registerOnValueChange("managementClusterNetworkName", this.onSelectManagementNetwork.bind(this));
 
-        Broker.messenger.getSubject(TkgEventType.CONTROL_PLANE_ENDPOINT_PROVIDER_CHANGED)
+        Broker.messenger.getSubject(TkgEventType.VSPHERE_CONTROL_PLANE_ENDPOINT_PROVIDER_CHANGED)
             .subscribe(({ payload }) => {
                 this.currentControlPlaneEndpoingProvider = payload;
                 if (this.currentControlPlaneEndpoingProvider === NSX_ADVANCED_LOAD_BALANCER) {

@@ -16,16 +16,13 @@ import { ValidationService } from '../../../validation/validation.service';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { FormMetaDataStore, FormMetaData } from '../../../FormMetaDataStore';
 import { TkgEventType } from 'src/app/shared/service/Messenger';
-import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { VSphereNetwork } from 'src/app/swagger/models/v-sphere-network.model';
 import Broker from 'src/app/shared/service/broker';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { NetworkIpv4StepMapping, NetworkIpv6StepMapping } from './network-step.fieldmapping';
-import { managementClusterPlugin, WizardForm } from "../../../constants/wizard.constants";
-import { FormUtils } from '../../../utils/form-utils';
+import { managementClusterPlugin } from "../../../constants/wizard.constants";
 import { StepMapping } from '../../../field-mapping/FieldMapping';
-
 
 @Component({
     selector: 'app-shared-network-step',
@@ -37,12 +34,12 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
 
     form: FormGroup;
     cniType: string;
-    loadingNetworks: boolean = false;   // only used by vSphere
     vmNetworks: Array<VSphereNetwork>;
     additionalNoProxyInfo: string;
     fullNoProxy: string;
     infraServiceAddress: string = '';
-    hideWarning: boolean = true;
+    loadingNetworks: boolean = false;   // only used by vSphere
+    hideNoProxyWarning: boolean = true; // only used by vSphere
 
     constructor(protected validationService: ValidationService,
                 protected fieldMapUtilities: FieldMapUtilities
@@ -132,7 +129,13 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
         ], this.ipFamily === IpFamilyEnum.IPv4 ?
             IAAS_DEFAULT_CIDRS.CLUSTER_POD_CIDR : IAAS_DEFAULT_CIDRS.CLUSTER_POD_IPV6_CIDR, { onlySelf: true });
     }
+
     listenToEvents() {
+        this.listenToCidrEvents();
+        this.listenToNoProxyEvents();
+    }
+
+    private listenToCidrEvents() {
         const cidrFields = ['clusterServiceCidr', 'clusterPodCidr'];
         cidrFields.forEach((field) => {
             this.formGroup.get(field).valueChanges.pipe(
@@ -142,28 +145,32 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
                 this.generateFullNoProxy();
             });
         });
-        this.listenToNoProxy();
-
-        Broker.messenger.getSubject(TkgEventType.NETWORK_STEP_GET_NO_PROXY_INFO)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(event => {
-               this.additionalNoProxyInfo = event.payload.info;
-               this.generateFullNoProxy();
-            });
     }
 
-    // listenToNoProxy() is protected to allow subclasses to override the behavior
-    protected listenToNoProxy() {
+    private listenToNoProxyEvents() {
         this.formGroup.get('noProxy').valueChanges.pipe(
             distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
             takeUntil(this.unsubscribe)
         ).subscribe((value) => {
-            this.generateFullNoProxy();
+            this.onNoProxyChange(value);
         });
+
+        Broker.messenger.getSubject(TkgEventType.NETWORK_STEP_GET_NO_PROXY_INFO)
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe(event => {
+                this.additionalNoProxyInfo = event.payload.info;
+                this.generateFullNoProxy();
+            });
+    }
+
+    // onNoProxyChange() is protected to allow subclasses to override
+    protected onNoProxyChange(value: string) {
+        this.generateFullNoProxy();
     }
 
     // This is a method only implemented by the vSphere child class (which overrides this method);
-    // we need a method in this class because the general HTML references it
+    // we need a method in this class because the general HTML references it;
+    // however it should only be called when enableNetworkName is true (which only the vSphere subclass sets)
     loadNetworks() {
         console.error('loadNetworks() was called, but no implementation is available. (enableNetworkName= ' + this.enableNetworkName + ')');
     }

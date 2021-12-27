@@ -345,7 +345,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     }
 
     registerOnIpFamilyChange(fieldName: string, ipv4Validators: ValidatorFn[], ipv6Validators: ValidatorFn[], cb?: () => void) {
-        Broker.messenger.getSubject(TkgEventType.IP_FAMILY_CHANGE)
+        Broker.messenger.getSubject(TkgEventType.VSPHERE_IP_FAMILY_CHANGE)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
                 if (data.payload === IpFamilyEnum.IPv4) {

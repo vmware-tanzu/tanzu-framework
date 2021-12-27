@@ -25,7 +25,6 @@ import { MetadataStepComponent } from '../components/steps/metadata-step/metadat
 import { SharedNetworkStepComponent } from '../components/steps/network-step/network-step.component';
 import { SharedOsImageStepComponent } from '../components/steps/os-image-step/os-image-step.component';
 import { StepFormDirective } from '../step-form/step-form';
-import { VsphereNetworkStepComponent } from '../../../vsphere-wizard/vsphere-network-step/vsphere-network-step.component';
 
 // This interface describes a wizard that can register a step component
 export interface WizardStepRegistrar {

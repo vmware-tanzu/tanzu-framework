@@ -40,17 +40,17 @@ export interface ResourcePool {
   }
 
 const DataSources = [
-    TkgEventType.GET_RESOURCE_POOLS,
-    TkgEventType.GET_COMPUTE_RESOURCE,
-    TkgEventType.GET_DATA_STORES,
-    TkgEventType.GET_VM_FOLDERS
+    TkgEventType.VSPHERE_GET_RESOURCE_POOLS,
+    TkgEventType.VSPHERE_GET_COMPUTE_RESOURCE,
+    TkgEventType.VSPHERE_GET_DATA_STORES,
+    TkgEventType.VSPHERE_GET_VM_FOLDERS
 ];
 
 const DataTargets = {
-    [TkgEventType.GET_RESOURCE_POOLS]: "resourcePools",
-    [TkgEventType.GET_COMPUTE_RESOURCE]: "computeResources",
-    [TkgEventType.GET_DATA_STORES]: "datastores",
-    [TkgEventType.GET_VM_FOLDERS]: "vmFolders"
+    [TkgEventType.VSPHERE_GET_RESOURCE_POOLS]: "resourcePools",
+    [TkgEventType.VSPHERE_GET_COMPUTE_RESOURCE]: "computeResources",
+    [TkgEventType.VSPHERE_GET_DATA_STORES]: "datastores",
+    [TkgEventType.VSPHERE_GET_VM_FOLDERS]: "vmFolders"
 };
 
 enum ResourceType {
@@ -111,16 +111,16 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
                     if (this.resourcesFetch === 4) {
                         this.loadingResources = false;
                     }
-                    if (source === TkgEventType.GET_COMPUTE_RESOURCE) {
+                    if (source === TkgEventType.VSPHERE_GET_COMPUTE_RESOURCE) {
                         this.constructResourceTree(data);
                     }
-                    if (source === TkgEventType.GET_VM_FOLDERS) {
+                    if (source === TkgEventType.VSPHERE_GET_VM_FOLDERS) {
                         const selectValue = data.length === 1 ? data[0].name : this.getSavedValue(VsphereField.RESOURCE_VMFOLDER, '');
                         const validators = [Validators.required,
                             this.validationService.isValidNameInList(data.map(vmFolder => vmFolder.name))];
                         this.resurrectField(VsphereField.RESOURCE_VMFOLDER, validators, selectValue);
                     }
-                    if (source === TkgEventType.GET_DATA_STORES) {
+                    if (source === TkgEventType.VSPHERE_GET_DATA_STORES) {
                         const selectValue = data.length === 1 ? data[0].name : this.getSavedValue(VsphereField.RESOURCE_DATASTORE, '');
                         const validators = [Validators.required,
                             this.validationService.isValidNameInList(data.map(vmFolder => vmFolder.name))];
@@ -178,7 +178,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
      */
     retrieveResourcePools() {
         Broker.messenger.publish({
-            type: TkgEventType.GET_RESOURCE_POOLS
+            type: TkgEventType.VSPHERE_GET_RESOURCE_POOLS
         });
     }
 
@@ -188,7 +188,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
      */
     retrieveComputeResources() {
         Broker.messenger.publish({
-            type: TkgEventType.GET_COMPUTE_RESOURCE
+            type: TkgEventType.VSPHERE_GET_COMPUTE_RESOURCE
         });
     }
 
@@ -198,7 +198,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
      */
     retrieveDatastores() {
         Broker.messenger.publish({
-            type: TkgEventType.GET_DATA_STORES
+            type: TkgEventType.VSPHERE_GET_DATA_STORES
         });
     }
 
@@ -208,7 +208,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
      */
     retrieveVMFolders() {
         Broker.messenger.publish({
-            type: TkgEventType.GET_VM_FOLDERS
+            type: TkgEventType.VSPHERE_GET_VM_FOLDERS
         });
     }
 

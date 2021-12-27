@@ -169,7 +169,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     onControlPlaneEndpoingProviderChange(provider: string): void {
         this.currentControlPlaneEndpoingProvider = provider;
         Broker.messenger.publish({
-            type: TkgEventType.CONTROL_PLANE_ENDPOINT_PROVIDER_CHANGED,
+            type: TkgEventType.VSPHERE_CONTROL_PLANE_ENDPOINT_PROVIDER_CHANGED,
             payload: provider
         });
         this.resurrectField(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_IP, (provider === KUBE_VIP) ? [

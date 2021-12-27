@@ -121,7 +121,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 const same = data === this.ipFamily;
                 if (!same) {
                     Broker.messenger.publish({
-                        type: TkgEventType.IP_FAMILY_CHANGE,
+                        type: TkgEventType.VSPHERE_IP_FAMILY_CHANGE,
                         payload: data
                     });
                     this.disconnect('disconnecting because field PROVIDER_IP_FAMILY changed value to ' + data);

@@ -52,14 +52,9 @@ export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
             });
     }
 
-    protected listenToNoProxy() {
-        this.formGroup.get('noProxy').valueChanges.pipe(
-            distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
-            takeUntil(this.unsubscribe)
-        ).subscribe((value) => {
-            this.hideWarning = value.trim().split(',').includes(this.infraServiceAddress);
-            this.generateFullNoProxy();
-        });
+    protected onNoProxyChange(value: string) {
+        this.hideNoProxyWarning = value.trim().split(',').includes(this.infraServiceAddress);
+        super.onNoProxyChange(value);
     }
 
     /**
