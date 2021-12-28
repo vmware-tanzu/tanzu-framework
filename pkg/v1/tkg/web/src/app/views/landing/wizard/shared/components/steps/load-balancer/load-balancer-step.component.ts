@@ -55,8 +55,7 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
 
     constructor(private validationService: ValidationService,
                 private apiClient: APIClient,
-                private fieldMapUtilities: FieldMapUtilities,
-                private wizardFormService: VSphereWizardFormService) {
+                private fieldMapUtilities: FieldMapUtilities) {
         super();
     }
 

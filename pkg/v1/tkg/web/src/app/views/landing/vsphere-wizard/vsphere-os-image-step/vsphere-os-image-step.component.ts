@@ -1,8 +1,10 @@
 // Angular imports
 import { Component, OnInit } from '@angular/core';
 // App imports
+import { APIClient } from '../../../../swagger';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { OsImageProviderInputs, SharedOsImageStepComponent } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
+import ServiceBroker from '../../../../shared/service/service-broker';
 import { TkgEventType } from '../../../../shared/service/Messenger';
 import { VSphereVirtualMachine } from '../../../../swagger/models';
 import { VSphereWizardFormService } from '../../../../shared/service/vsphere-wizard-form.service';
@@ -15,8 +17,8 @@ import { VSphereWizardFormService } from '../../../../shared/service/vsphere-wiz
 export class VsphereOsImageStepComponent extends SharedOsImageStepComponent<VSphereVirtualMachine> implements OnInit {
     private tkrVersionString: string;
 
-    constructor(private vSphereWizardFormService: VSphereWizardFormService, protected fieldMapUtilities: FieldMapUtilities) {
-        super(fieldMapUtilities);
+    constructor(protected fieldMapUtilities: FieldMapUtilities, protected serviceBroker: ServiceBroker, private apiClient: APIClient) {
+        super(fieldMapUtilities, serviceBroker);
         this.tkrVersion.subscribe(value => { this.tkrVersionString = value; });
     }
 
@@ -38,11 +40,15 @@ export class VsphereOsImageStepComponent extends SharedOsImageStepComponent<VSph
         const nonTemplateAlertMessage = 'Your selected OS image must be converted to a VM template. ' +
             'You may click the refresh icon to reload the OS image list once this has been done.'
         return {
-            osImageService: this.vSphereWizardFormService,
+            fetcher: this.fetchImages.bind(this),
             event: TkgEventType.VSPHERE_GET_OS_IMAGES,
             noImageAlertMessage: noImageAlertMessage,
             osImageTooltipContent: osImageTooltipContent,
             nonTemplateAlertMessage: nonTemplateAlertMessage,
         };
+    }
+
+    private fetchImages(moid: string): Observable<VSphereVirtualMachine[]> {
+        return this.apiClient.getVSphereOSImages({ dc: moid });
     }
 }

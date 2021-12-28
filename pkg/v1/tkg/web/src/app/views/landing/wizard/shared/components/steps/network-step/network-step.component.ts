@@ -10,12 +10,14 @@ import { FormMetaDataStore, FormMetaData } from '../../../FormMetaDataStore';
 import { IAAS_DEFAULT_CIDRS, IpFamilyEnum } from '../../../../../../../shared/constants/app.constants';
 import { managementClusterPlugin } from "../../../constants/wizard.constants";
 import { NetworkIpv4StepMapping, NetworkIpv6StepMapping } from './network-step.fieldmapping';
+import ServiceBroker from '../../../../../../../shared/service/service-broker';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { StepMapping } from '../../../field-mapping/FieldMapping';
 import { TkgEventType } from 'src/app/shared/service/Messenger';
 import { ValidationService } from '../../../validation/validation.service';
 import { VSphereNetwork } from 'src/app/swagger/models/v-sphere-network.model';
 
+declare var sortPaths: any;
 @Component({
     selector: 'app-shared-network-step',
     templateUrl: './network-step.component.html',
@@ -34,7 +36,8 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
     hideNoProxyWarning: boolean = true; // only used by vSphere
 
     constructor(protected validationService: ValidationService,
-                protected fieldMapUtilities: FieldMapUtilities
+                protected fieldMapUtilities: FieldMapUtilities,
+                private serviceBroker: ServiceBroker
                 ) {
         super();
     }
@@ -66,6 +69,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
         this.customizeForm();
         this.listenToEvents();
+        this.subscribeToServices();
 
         const cniTypeData = {
             label: 'CNI PROVIDER',
@@ -270,5 +274,18 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
             return `Cluster Pod CIDR: ${podCidr}`;
         }
         return '';
+    }
+
+    private subscribeToServices() {
+        this.serviceBroker.stepSubscribe<VSphereNetwork>(this, TkgEventType.GET_VM_NETWORKS, this.onFetchedVmNetworks.bind(this));
+    }
+
+    private onFetchedVmNetworks(networks: Array<VSphereNetwork>) {
+        this.vmNetworks = sortPaths(networks, function (item) { return item.name; }, '/');
+        this.loadingNetworks = false;
+        this.resurrectField('networkName',
+            [Validators.required], networks.length === 1 ? networks[0].name : '',
+            { onlySelf: true } // only for current form control
+        );
     }
 }
