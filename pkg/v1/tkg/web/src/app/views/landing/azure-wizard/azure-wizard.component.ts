@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef } from '@angular/core';
+import { Component, ElementRef, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
@@ -6,11 +6,13 @@ import { APIClient } from 'src/app/swagger';
 
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 import { Observable } from 'rxjs';
-import { CliGenerator, CliFields } from '../wizard/shared/utils/cli-generator';
+import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import {
     AzureInstanceType,
     AzureRegionalClusterParams,
-    AzureResourceGroup, AzureVirtualMachine
+    AzureResourceGroup,
+    AzureVirtualMachine,
+    AzureVirtualNetwork
 } from 'src/app/swagger/models';
 import { AzureAccountParamsKeys, AzureProviderStepComponent } from './provider-step/azure-provider-step.component';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
@@ -388,5 +390,8 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         this.serviceBroker.register<AzureVirtualMachine>(TkgEventType.AZURE_GET_OS_IMAGES,
             () => { return wizard.apiClient.getAzureOSImages(); },
             "Failed to retrieve list of OS images from the specified Azure Server." );
+        this.serviceBroker.register<AzureVirtualNetwork>(TkgEventType.AZURE_GET_VNETS,
+            (payload: {resourceGroupName: string, location: string}) => { return wizard.apiClient.getAzureVnets(payload)},
+            "Failed to retrieve list of VNETs from the specified Azure Server." );
     }
 }

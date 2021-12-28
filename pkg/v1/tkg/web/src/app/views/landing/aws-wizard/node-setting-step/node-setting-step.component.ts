@@ -199,9 +199,13 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 this.clearSubnets();
             });
 
-        this.serviceBroker.stepSubscribe<AWSNodeAz>(this, TkgEventType.AWS_GET_AVAILABILITY_ZONES, this.onFetchedAzs.bind(this));
-        this.serviceBroker.stepSubscribe<AWSSubnet>(this, TkgEventType.AWS_GET_SUBNETS, this.onFetchedSubnets.bind(this));
-        this.serviceBroker.stepSubscribe<string>(this, TkgEventType.AWS_GET_NODE_TYPES, this.onFetchedNodeTypes.bind(this));
+        AZS.forEach((az, index) => {
+            this.registerOnValueChange(az, (val) => {
+                this.filterSubnets(az, val);
+                this.setSubnetFieldsWithOnlyOneOption(az);
+                this.updateWorkerNodeInstanceTypes(az, val, index);
+            });
+        });
 
         this.registerOnValueChange(AwsField.NODESETTING_CONTROL_PLANE_SETTING, data => {
             if (data === NodeType.DEV) {
@@ -211,6 +215,12 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             }
             this.updateVpcSubnets();
         });
+    }
+
+    private subscribeToServices() {
+        this.serviceBroker.stepSubscribe<AWSNodeAz>(this, TkgEventType.AWS_GET_AVAILABILITY_ZONES, this.onFetchedAzs.bind(this));
+        this.serviceBroker.stepSubscribe<AWSSubnet>(this, TkgEventType.AWS_GET_SUBNETS, this.onFetchedSubnets.bind(this));
+        this.serviceBroker.stepSubscribe<string>(this, TkgEventType.AWS_GET_NODE_TYPES, this.onFetchedNodeTypes.bind(this));
     }
 
     private onFetchedAzs(availabilityZones: Array<AWSNodeAz>) {
@@ -255,6 +265,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     ngOnInit() {
         super.ngOnInit();
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
+        this.subscribeToServices();
         this.customizeForm();
 
         setTimeout(_ => {
@@ -320,7 +331,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             this.nodeTypes.length === 1 ? this.nodeTypes[0] : this.formGroup.get(AwsField.NODESETTING_INSTANCE_TYPE_DEV).value);
     }
 
-// returns an array of the other two AZs (used to populate a validator that ensures unique AZs are selected)
+    // returns an array of the other two AZs (used to populate a validator that ensures unique AZs are selected)
     private otherAZs(targetAz: AwsField): AwsField[] {
         return AZS.filter((field, index, arr) => { return field !== targetAz });
     }
