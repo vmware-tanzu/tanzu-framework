@@ -7,6 +7,7 @@ import { APIClient } from 'src/app/swagger/api-client.service';
 import Broker from 'src/app/shared/service/broker';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { Messenger } from 'src/app/shared/service/Messenger';
+import ServiceBroker from '../../../../../../../shared/service/service-broker';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ValidationService } from '../../../validation/validation.service';
 import { VsphereOsImageStepComponent } from '../../../../../vsphere-wizard/vsphere-os-image-step/vsphere-os-image-step.component';
@@ -25,7 +26,7 @@ describe('VsphereOsImageStepComponent', () => {
             ],
             providers: [
                 ValidationService,
-                VSphereWizardFormService,
+                ServiceBroker,
                 FormBuilder,
                 FieldMapUtilities,
                 APIClient,

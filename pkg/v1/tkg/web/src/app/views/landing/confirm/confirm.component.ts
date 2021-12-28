@@ -1,7 +1,6 @@
 // Angular imports
 import { Component, OnInit, Input } from '@angular/core';
 import { Router } from '@angular/router';
-import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
 
 // App imports
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
@@ -28,7 +27,6 @@ export class ConfirmComponent extends BasicSubscriber implements OnInit {
     formMetaDataList: any[];
 
     constructor(
-        private wizardFormService: VSphereWizardFormService,
         private router: Router) {
 
         super();
