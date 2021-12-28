@@ -28,7 +28,7 @@ export class VsphereOsImageStepComponent extends SharedOsImageStepComponent<VSph
 
     // NOTE: there is an implicit assumption here that the tkrVersion Observable will have delivered a value before
     // setProviderInputs() is called (so that the usage below will be valid)
-    protected supplyProviderInputs(): OsImageProviderInputs<VSphereVirtualMachine> {
+    protected supplyProviderInputs(): OsImageProviderInputs {
         const noImageAlertMessage = 'Your ' + this.clusterTypeDescriptor + ' cluster will be deployed with Tanzu Kubernetes release (TKr)' +
             ' ' + this.tkrVersionString +
             '. We are unable to detect a VM template that belongs to this Tanzu Kubernetes release. You must install ' +
@@ -40,15 +40,10 @@ export class VsphereOsImageStepComponent extends SharedOsImageStepComponent<VSph
         const nonTemplateAlertMessage = 'Your selected OS image must be converted to a VM template. ' +
             'You may click the refresh icon to reload the OS image list once this has been done.'
         return {
-            fetcher: this.fetchImages.bind(this),
             event: TkgEventType.VSPHERE_GET_OS_IMAGES,
             noImageAlertMessage: noImageAlertMessage,
             osImageTooltipContent: osImageTooltipContent,
             nonTemplateAlertMessage: nonTemplateAlertMessage,
         };
-    }
-
-    private fetchImages(moid: string): Observable<VSphereVirtualMachine[]> {
-        return this.apiClient.getVSphereOSImages({ dc: moid });
     }
 }
