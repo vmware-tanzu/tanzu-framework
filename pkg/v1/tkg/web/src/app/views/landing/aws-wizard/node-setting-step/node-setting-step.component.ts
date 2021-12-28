@@ -21,6 +21,7 @@ import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUti
 import { AwsNodeSettingStepMapping } from './node-setting-step.fieldmapping';
 import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 import ServiceBroker from '../../../../shared/service/service-broker';
+import { AzRelatedFieldsArray } from '../aws-wizard.component';
 
 export interface AzNodeTypes {
     awsNodeAz1: Array<string>,
@@ -199,12 +200,12 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 this.clearSubnets();
             });
 
-        AZS.forEach((az, index) => {
-            this.registerOnValueChange(az, (val) => {
-                this.filterSubnets(az, val);
-                this.setSubnetFieldsWithOnlyOneOption(az);
-                this.updateWorkerNodeInstanceTypes(az, val, index);
-            });
+        AzRelatedFieldsArray.forEach(azRelatedFields => {
+           this.registerOnValueChange(azRelatedFields.az, (newlySelectedAz) => {
+               this.filterSubnets(azRelatedFields.az, newlySelectedAz);
+               this.setSubnetFieldsWithOnlyOneOption(azRelatedFields.az);
+               this.updateWorkerNodeInstanceTypes(azRelatedFields.az, newlySelectedAz, azRelatedFields.workerNodeInstanceType);
+           });
         });
 
         this.registerOnValueChange(AwsField.NODESETTING_CONTROL_PLANE_SETTING, data => {
@@ -473,31 +474,21 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         return PRIVATE_SUBNET[indexAZ];
     }
 
-    setSavedWorkerNodeInstanceTypes(): void {
-        WORKER_NODE_INSTANCE_TYPES.forEach(field => {
-            const instanceType = this.getSavedValue(field.toString(), '');
-            this.formGroup.get(field.toString()).setValue(instanceType);
-        });
-    }
-
-    /**
-     * @method updateWorkerNodeInstanceTypes
-     * @param azWorkerNodeKey - the key of the worker node list in the azNodeTypes list to update
-     * @param availabilityZone - the availability zone name to retrieve node types against
-     * Updates available worker node instance type list per availability zone. API takes the availability zone name
-     * and returns list of node instance types available to that zone.
-     */
-    private updateWorkerNodeInstanceTypes(azWorkerNodeKey, availabilityZone, index) {
-        if (availabilityZone) {
+    // updateWorkerNodeInstanceTypes() is called when the user has selected a new value (newlySelectedAz) for an azField.
+    // We need to get the worker node types available on that AZ and use them to populate our data structure that holds them.
+    // If there is only one worker node type, then we want to set the value of the workerNodeField to that type (rather than
+    // make the user "select it" from a list of only one element
+    private updateWorkerNodeInstanceTypes(azField: string, newlySelectedAz: string, workerNodeField: string) {
+        if (newlySelectedAz) {
             this.apiClient.getAWSNodeTypes({
-                az: availabilityZone
+                az: newlySelectedAz
             })
                 .pipe(takeUntil(this.unsubscribe))
                 .subscribe(
                     ((nodeTypes) => {
-                        this.azNodeTypes[azWorkerNodeKey] = nodeTypes;
+                        this.azNodeTypes[azField] = nodeTypes;
                         if (nodeTypes.length === 1) {
-                            this.formGroup.get(WORKER_NODE_INSTANCE_TYPES[index].toString()).setValue(nodeTypes[0]);
+                            this.setControlValueSafely(workerNodeField, nodeTypes[0]);
                         }
                     }),
                     ((err) => {
@@ -506,7 +497,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                     })
                 );
         } else {
-            this.azNodeTypes[azWorkerNodeKey] = [];
+            this.azNodeTypes[newlySelectedAz] = [];
         }
     }
 

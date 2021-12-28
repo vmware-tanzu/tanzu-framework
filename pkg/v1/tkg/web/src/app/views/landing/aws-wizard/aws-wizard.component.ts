@@ -31,14 +31,14 @@ import { InstanceType } from '../../../shared/constants/app.constants';
 import { TkgEventType } from '../../../shared/service/Messenger';
 import ServiceBroker from '../../../shared/service/service-broker';
 
-interface AzRelatedFields {
+export interface AzRelatedFields {
     az: string,
     workerNodeInstanceType: string,
     vpcPublicSubnet: string,
     vpcPrivateSubnet: string
 }
 
-const AzRelatedFieldsArray: AzRelatedFields[] = [
+export const AzRelatedFieldsArray: AzRelatedFields[] = [
     { az: AwsField.NODESETTING_AZ_1, vpcPrivateSubnet: AwsField.NODESETTING_VPC_PRIVATE_SUBNET_1,
         vpcPublicSubnet: AwsField.NODESETTING_VPC_PUBLIC_SUBNET_1, workerNodeInstanceType: AwsField.NODESETTING_WORKERTYPE_1 },
     { az: AwsField.NODESETTING_AZ_2, vpcPrivateSubnet: AwsField.NODESETTING_VPC_PRIVATE_SUBNET_2,
