@@ -66,8 +66,6 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         Broker.appDataService.getVsphereVersion().subscribe(version => {
             this.vsphereVersion = version ? version + ' ' : '';
         });
-
-        this.registerServices();
     }
 
     protected supplyStepData(): FormDataForHTML[] {
@@ -88,6 +86,8 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         super.ngOnInit();
 
         this.titleService.setTitle(this.title + ' vSphere');
+        this.registerServices();
+        this.subscribeToServices();
     }
 
     getPayload(): VsphereRegionalClusterParams {
@@ -372,7 +372,8 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         event.target.value = '';
     }
 
-    private registerServices() {
+    private subscribeToServices() {
+        const wizard = this;
         Broker.messenger.getSubject(TkgEventType.VSPHERE_DATACENTER_CHANGED)
             .subscribe(event => {
                 const datacenterMoid = event.payload;
@@ -383,31 +384,34 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
                     TkgEventType.VSPHERE_GET_DATA_STORES,
                     TkgEventType.VSPHERE_GET_VM_FOLDERS,
                     TkgEventType.VSPHERE_GET_OS_IMAGES
-                ], datacenterMoid);
+                ], {dc: datacenterMoid});
             });
+    }
 
+    private registerServices() {
+        const wizard = this;
         this.serviceBroker.register<VSphereResourcePool>(TkgEventType.VSPHERE_GET_RESOURCE_POOLS,
-            (datacenterMoid: any) => { return this.apiClient.getVSphereResourcePools({ dc: datacenterMoid }) },
+            (payload: { dc: string }) => { return wizard.apiClient.getVSphereResourcePools(payload) },
             "Failed to retrieve list of resource pools from the specified vCenter Server."
             );
         this.serviceBroker.register<VSphereManagementObject>(TkgEventType.VSPHERE_GET_COMPUTE_RESOURCE,
-            (datacenterMoid: any) => { return this.apiClient.getVSphereComputeResources({ dc: datacenterMoid }) },
+            (payload: { dc: string }) => { return wizard.apiClient.getVSphereComputeResources(payload) },
             "Failed to retrieve list of compute resources from the specified datacenter."
         );
         this.serviceBroker.register<VSphereNetwork>(TkgEventType.VSPHERE_GET_VM_NETWORKS,
-            (datacenterMoid: any) => { return this.apiClient.getVSphereNetworks({ dc: datacenterMoid }) },
+            (payload: { dc: string }) => { return wizard.apiClient.getVSphereNetworks(payload) },
             "Failed to retrieve list of VM networks from the specified vCenter Server."
         );
         this.serviceBroker.register<VSphereDatastore>(TkgEventType.VSPHERE_GET_DATA_STORES,
-            (datacenterMoid: any) => { return this.apiClient.getVSphereDatastores({ dc: datacenterMoid }) },
+            (payload: { dc: string }) => { return wizard.apiClient.getVSphereDatastores(payload) },
             "Failed to retrieve list of datastores from the specified vCenter Server."
         );
         this.serviceBroker.register<VSphereFolder>(TkgEventType.VSPHERE_GET_VM_FOLDERS,
-            (datacenterMoid: any) => { return this.apiClient.getVSphereFolders({ dc: datacenterMoid }) },
+            (payload: { dc: string }) => { return wizard.apiClient.getVSphereFolders(payload) },
             "Failed to retrieve list of vm folders from the specified vCenter Server."
         );
         this.serviceBroker.register<VSphereVirtualMachine>(TkgEventType.VSPHERE_GET_OS_IMAGES,
-            (datacenterMoid: any) => { return this.apiClient.getVSphereOSImages({ dc: datacenterMoid }) },
+            (payload: { dc: string }) => { return wizard.apiClient.getVSphereOSImages(payload) },
             "Failed to retrieve list of OS images from the specified vCenter Server."
         );
     }

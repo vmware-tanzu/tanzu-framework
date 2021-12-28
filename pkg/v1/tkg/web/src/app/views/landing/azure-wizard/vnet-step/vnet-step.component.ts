@@ -9,7 +9,6 @@ import { Validators } from '@angular/forms';
 
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
-import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import { AzureResourceGroup } from 'src/app/swagger/models';
 import { APIClient } from 'src/app/swagger';
 import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore'
@@ -18,6 +17,7 @@ import { AzureField } from '../azure-wizard.constants';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { AzureVnetStandaloneStepMapping, AzureVnetStepMapping } from './vnet-step.fieldmapping';
 import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
+import ServiceBroker from '../../../../shared/service/service-broker';
 
 const CUSTOM = "CUSTOM";
 export const EXISTING = "EXISTING";
@@ -57,8 +57,8 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
 
     constructor(private apiClient: APIClient,
                 private fieldMapUtilities: FieldMapUtilities,
-                private validationService: ValidationService,
-                private wizardFormService: AzureWizardFormService) {
+                private serviceBroker: ServiceBroker,
+                private validationService: ValidationService) {
         super();
     }
 
@@ -69,7 +69,23 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
     /**
      * Create the initial form
      */
+    private subscribeToServices() {
+        this.serviceBroker.stepSubscribe(this, TkgEventType.AZURE_GET_RESOURCE_GROUPS, this.onFetchedResourceGroups.bind(this));
+    }
+
+    private onFetchedResourceGroups(azureResourceGroups: AzureResourceGroup[]) {
+        this.vnetResourceGroups = azureResourceGroups;
+        if (this.customResourceGroup) {
+            this.setControlValueSafely(AzureField.VNET_RESOURCE_GROUP, this.customResourceGroup);
+        } else if (azureResourceGroups.length === 1) {
+            this.setControlValueSafely(AzureField.VNET_RESOURCE_GROUP, azureResourceGroups[0].name);
+        } else {
+            this.setControlWithSavedValue(AzureField.VNET_RESOURCE_GROUP);
+        }
+    }
+
     private customizeForm() {
+        // TODO: consider morphing these .valueChanges calls into registerOnValueChange() calls
         this.formGroup.get(AzureField.VNET_RESOURCE_GROUP).valueChanges
             .pipe(
                 distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
@@ -111,25 +127,6 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
                 this.customResourceGroup = event.payload;
             });
 
-        this.wizardFormService.getErrorStream(TkgEventType.AZURE_GET_RESOURCE_GROUPS)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(error => {
-                this.errorNotification = error;
-            });
-
-        this.wizardFormService.getDataStream(TkgEventType.AZURE_GET_RESOURCE_GROUPS)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((azureResourceGroups: AzureResourceGroup[]) => {
-                this.vnetResourceGroups = azureResourceGroups;
-                if (this.customResourceGroup) {
-                    this.setControlValueSafely(AzureField.VNET_RESOURCE_GROUP, this.customResourceGroup);
-                } else if (azureResourceGroups.length === 1) {
-                    this.setControlValueSafely(AzureField.VNET_RESOURCE_GROUP, azureResourceGroups[0].name);
-                } else {
-                    this.setControlWithSavedValue(AzureField.VNET_RESOURCE_GROUP);
-                }
-            });
-
         this.registerOnValueChange(AzureField.VNET_PRIVATE_CLUSTER, this.onCreatePrivateAzureCluster.bind(this));
         this.registerOnValueChange(AzureField.VNET_CONTROLPLANE_NEWSUBNET_CIDR, this.onControlPlaneSubnetCidrNewChange.bind(this));
         this.registerOnValueChange(AzureField.VNET_CONTROLPLANE_SUBNET_NAME, this.onControlPlaneSubnetChange.bind(this));
@@ -139,6 +136,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
     ngOnInit() {
         super.ngOnInit();
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
+        this.subscribeToServices();
         this.customizeForm();
 
         this.vnetFieldsExisting = [AzureField.VNET_EXISTING_NAME, AzureField.VNET_CONTROLPLANE_SUBNET_NAME];

@@ -2,6 +2,7 @@ import { TkgEventType } from './Messenger';
 import Broker from './broker';
 import { Observable, ReplaySubject } from 'rxjs';
 import { StepFormDirective } from '../../views/landing/wizard/shared/step-form/step-form';
+import { takeUntil } from 'rxjs/operators';
 
 interface ServiceBrokerEntry<OBJ> {
     fetcher: (data: any) => Observable<OBJ[]>,
@@ -55,27 +56,57 @@ export default class ServiceBroker {
         return true;
     }
 
-    // convenience method to allow steps to register with a default error handler (namely, setting their errorNotification field)
+    // This default error handler sets (or clears) the step's errorNotification field.
+    private defaultStepErrorHandler(step: StepFormDirective): (error: string) => void {
+        return (error: string) => {
+            step.errorNotification = (error) ? error : '';
+        };
+    }
+
+    // This is a convenience method for steps wanting to call with an error handler that appends to existing error messages.
+    // When setting the error, it ADDS to any existing error, rather than overwriting it.
+    // This is useful if the step expects to make several service calls at once.
+    public appendingStepErrorHandler(step: StepFormDirective): (error: string) => void {
+        return (error: string) => {
+            if (!error) {
+                step.errorNotification = '';
+            } else if (! step.errorNotification.endsWith(error)) {  // don't append same error message twice in a row
+                if (step.errorNotification) {
+                    step.errorNotification = step.errorNotification + ' ';
+                }
+                step.errorNotification = step.errorNotification + error;
+            }
+        };
+    }
+
+    // convenience method to allow steps to register with a default error handler (namely, setting their errorNotification field),
+    // as well as unsubscribing to the data stream with the ngOnDestroy event
     stepSubscribe<OBJ>(step: StepFormDirective, eventType: TkgEventType,
                        onDataReceived: (data: OBJ[]) => void, onError?: (error: string) => void): boolean {
-        if (!onError) {
-            onError = (error: string) => {
-                if (!error) {
-                    step.errorNotification = '';
-                } else if (step.errorNotification !== error) {
-                    step.errorNotification = step.errorNotification + ' ' + error;
-                }
-            };
-        }
         const serviceBrokerEntry: ServiceBrokerEntry<OBJ> = this.getEntry<OBJ>(eventType);
         if (!serviceBrokerEntry) {
+            console.error('Event ' + eventType + ' was not registered with the service broker before ' + step.formName +
+                ' tried to subscribe to it.');
             return false;
         }
+        if (!onError) {
+            onError = this.defaultStepErrorHandler(step);
+        }
         serviceBrokerEntry.dataStream
-            // SHIMON TODO:  .pipe(takeUntil(step.unsubscribe))
+            .pipe(takeUntil(step.unsubscribeOnDestroy))
             .subscribe(onDataReceived);
         serviceBrokerEntry.errorStream.subscribe(onError);
         return true;
+    }
+
+    // TODO: This method should currently only be called from outside by TESTS
+    public simulateError(eventType: TkgEventType, errMsg: string) {
+        this.getEntry(eventType).errorStream.next(errMsg);
+    }
+
+    // TODO: This method should currently only be called from outside by TESTS
+    public simulateData(eventType: TkgEventType, data: any) {
+        this.getEntry(eventType).dataStream.next(data);
     }
 
     private getEntry<OBJ>(eventType: TkgEventType): ServiceBrokerEntry<OBJ> {

@@ -60,7 +60,6 @@ export class VSphereWizardFormService extends WizardFormBase {
             .subscribe(event => {
                 this.datacenterMoid = event.payload;
                 DataSources.forEach(source => {
-                    console.log('SHIMON SEZ: VSphereWizardFormService is still at it: publishing event ' + TkgEventType[source]);
                     Broker.messenger.publish({
                         type: source
                     });
@@ -74,7 +73,6 @@ export class VSphereWizardFormService extends WizardFormBase {
             return throwError({ message: `Unknown data source ${source}` });
         }
         if (this.datacenterMoid) {
-            console.log('SHIMON SEZ: VSphereWizardFormService is still at it: retrieveDataForSource ' + source);
             return this.apiClient[method]({ dc: this.datacenterMoid });
         }
 

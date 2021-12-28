@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { OsImageProviderInputs, SharedOsImageStepComponent } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
-import { AwsWizardFormService } from '../../../../shared/service/aws-wizard-form.service';
 import { TkgEventType } from '../../../../shared/service/Messenger';
 import { AWSVirtualMachine } from '../../../../swagger/models';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';

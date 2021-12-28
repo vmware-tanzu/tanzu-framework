@@ -16,7 +16,7 @@ import { AwsField, CredentialType } from "../aws-wizard.constants";
 import {NotificationTypes} from "../../../../shared/components/alert-notification/alert-notification.component";
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { AwsProviderStepMapping } from './aws-provider-step.fieldmapping';
-import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
+import ServiceBroker from '../../../../shared/service/service-broker';
 
 export const AWSAccountParamsKeys = [
     AwsField.PROVIDER_PROFILE_NAME,
@@ -40,7 +40,7 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
     validCredentials: boolean = false;
     isProfileChoosen: boolean = false;
 
-    constructor(private fieldMapUtilities: FieldMapUtilities, private apiClient: APIClient) {
+    constructor(private fieldMapUtilities: FieldMapUtilities, private apiClient: APIClient, private serviceBroker: ServiceBroker) {
         super();
     }
 
@@ -57,19 +57,12 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
     setValidCredentials(valid) {
         this.validCredentials = valid;
 
-        // call to get region-related data
         if (valid === true) {
-            Broker.messenger.publish({
-                type: TkgEventType.AWS_GET_EXISTING_VPCS
-            });
-
-            Broker.messenger.publish({
-                type: TkgEventType.AWS_GET_AVAILABILITY_ZONES
-            });
-
-            Broker.messenger.publish({
-                type: TkgEventType.AWS_GET_NODE_TYPES
-            });
+            this.serviceBroker.trigger( [
+                TkgEventType.AWS_GET_EXISTING_VPCS,
+                TkgEventType.AWS_GET_AVAILABILITY_ZONES,
+                TkgEventType.AWS_GET_NODE_TYPES
+            ]);
         }
     }
 

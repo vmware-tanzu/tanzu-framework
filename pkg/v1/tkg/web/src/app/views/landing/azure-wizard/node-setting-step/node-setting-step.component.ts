@@ -3,7 +3,6 @@
  */
 import { Component, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
-import { takeUntil } from 'rxjs/operators';
 
 /**
  * App imports
@@ -11,15 +10,12 @@ import { takeUntil } from 'rxjs/operators';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { TkgEventType } from '../../../../shared/service/Messenger';
-import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import { AzureInstanceType } from 'src/app/swagger/models';
-import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { AzureNodeSettingStandaloneStepMapping, AzureNodeSettingStepMapping } from './node-setting-step.fieldmapping';
 import Broker from '../../../../shared/service/broker';
-import { AzureForm } from '../azure-wizard.constants';
-import { FormUtils } from '../../wizard/shared/utils/form-utils';
 import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
+import ServiceBroker from '../../../../shared/service/service-broker';
 
 @Component({
     selector: 'app-node-setting-step',
@@ -34,7 +30,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     displayForm = false;
 
     constructor(private validationService: ValidationService,
-                private azureWizardFormService: AzureWizardFormService,
+                private serviceBroker: ServiceBroker,
                 private fieldMapUtilities: FieldMapUtilities) {
         super();
         this.nodeTypes = [];
@@ -47,21 +43,15 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         return fieldMappings;
     }
 
-    private customizeForm() {
-        this.azureWizardFormService.getErrorStream(TkgEventType.AZURE_GET_INSTANCE_TYPES)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(error => {
-                this.errorNotification = error;
-            });
+    private subscribeToServices() {
+        this.serviceBroker.stepSubscribe(this, TkgEventType.AZURE_GET_INSTANCE_TYPES, this.onFetchedInstanceTypes.bind(this))
+    }
 
-        this.azureWizardFormService.getDataStream(TkgEventType.AZURE_GET_INSTANCE_TYPES)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((instanceTypes: AzureInstanceType[]) => {
-                this.nodeTypes = instanceTypes.sort();
-                if (!this.modeClusterStandalone && this.nodeTypes.length === 1) {
-                    this.formGroup.get('workerNodeInstanceType').setValue(this.nodeTypes[0].name);
-                }
-            });
+    private onFetchedInstanceTypes(instanceTypes: AzureInstanceType[]) {
+        this.nodeTypes = instanceTypes.sort();
+        if (!this.modeClusterStandalone && this.nodeTypes.length === 1) {
+            this.formGroup.get('workerNodeInstanceType').setValue(this.nodeTypes[0].name);
+        }
     }
 
     toggleValidations() {
@@ -109,7 +99,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     ngOnInit() {
         super.ngOnInit();
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
-        this.customizeForm();
+        this.subscribeToServices();
         this.toggleValidations();
         this.initFormWithSavedData();
     }

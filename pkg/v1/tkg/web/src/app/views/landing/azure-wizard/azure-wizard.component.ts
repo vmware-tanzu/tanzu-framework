@@ -4,11 +4,14 @@ import { FormBuilder } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { APIClient } from 'src/app/swagger';
 
-import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
-import { Observable, EMPTY, throwError, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { CliGenerator, CliFields } from '../wizard/shared/utils/cli-generator';
-import { AzureRegionalClusterParams } from 'src/app/swagger/models';
+import {
+    AzureInstanceType,
+    AzureRegionalClusterParams,
+    AzureResourceGroup, AzureVirtualMachine
+} from 'src/app/swagger/models';
 import { AzureAccountParamsKeys, AzureProviderStepComponent } from './provider-step/azure-provider-step.component';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { EXISTING, VnetStepComponent } from './vnet-step/vnet-step.component';
@@ -19,6 +22,8 @@ import { AzureForm } from './azure-wizard.constants';
 
 import { AzureOsImageStepComponent } from './os-image-step/azure-os-image-step.component';
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
+import { TkgEventType } from '../../../shared/service/Messenger';
+import ServiceBroker from '../../../shared/service/service-broker';
 
 // Not sure why some of these step names have 'Form' in them, but leaving as is
 enum AzureStep {
@@ -42,7 +47,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
 
     constructor(
         router: Router,
-        public wizardFormService: AzureWizardFormService,
+        private serviceBroker: ServiceBroker,
         private importService: ImportService,
         formBuilder: FormBuilder,
         private apiClient: APIClient,
@@ -69,6 +74,8 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
     ngOnInit() {
         super.ngOnInit();
         this.titleService.setTitle(this.title + ' Azure');
+        this.registerServices();
+        this.subscribeToServices();
     }
 
     getPayload(): any {
@@ -350,5 +357,36 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
 
         // clear file reader target so user can re-select same file if needed
         event.target.value = '';
+    }
+
+    private subscribeToServices() {
+        Broker.messenger.getSubject(TkgEventType.AZURE_REGION_CHANGED)
+            .subscribe(event => {
+                const region = event.payload;
+                if (this.region) {
+                    this.serviceBroker.trigger([
+                        TkgEventType.AZURE_GET_RESOURCE_GROUPS,
+                        TkgEventType.AZURE_GET_INSTANCE_TYPES
+                    ], { location: region });
+                    this.serviceBroker.trigger([TkgEventType.AZURE_GET_OS_IMAGES]);
+                } else {
+                    this.serviceBroker.clear<AzureResourceGroup>(TkgEventType.AZURE_GET_RESOURCE_GROUPS);
+                    this.serviceBroker.clear<AzureInstanceType>(TkgEventType.AZURE_GET_INSTANCE_TYPES);
+                    this.serviceBroker.clear<AzureVirtualMachine>(TkgEventType.AZURE_GET_OS_IMAGES);
+                }
+            });
+    }
+
+    private registerServices() {
+        const wizard = this;
+        this.serviceBroker.register<AzureResourceGroup>(TkgEventType.AZURE_GET_RESOURCE_GROUPS,
+            (payload: {location: string}) => { return wizard.apiClient.getAzureResourceGroups(payload); },
+            "Failed to retrieve resource groups for the particular region." );
+        this.serviceBroker.register<AzureInstanceType>(TkgEventType.AZURE_GET_INSTANCE_TYPES,
+            (payload: {location: string}) => { return wizard.apiClient.getAzureInstanceTypes(payload); },
+            "Failed to retrieve Azure VM sizes" );
+        this.serviceBroker.register<AzureVirtualMachine>(TkgEventType.AZURE_GET_OS_IMAGES,
+            () => { return wizard.apiClient.getAzureOSImages(); },
+            "Failed to retrieve list of OS images from the specified Azure Server." );
     }
 }
