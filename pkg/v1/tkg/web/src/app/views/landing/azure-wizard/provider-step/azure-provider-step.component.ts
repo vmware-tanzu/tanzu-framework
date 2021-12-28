@@ -10,7 +10,6 @@ import { APIClient } from '../../../../swagger/api-client.service';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { TkgEvent, TkgEventType } from '../../../../shared/service/Messenger';
 import { AzureResourceGroup } from './../../../../swagger/models/azure-resource-group.model';
-import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import Broker from 'src/app/shared/service/broker';
 import { FormMetaDataStore } from "../../wizard/shared/FormMetaDataStore";
@@ -18,6 +17,7 @@ import { NotificationTypes } from "../../../../shared/components/alert-notificat
 import { AzureCloud, AzureField, ResourceGroupOption } from '../azure-wizard.constants';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { AzureProviderStepMapping } from './azure-provider-step.fieldmapping';
+import ServiceBroker from '../../../../shared/service/service-broker';
 
 enum ProviderField {
     AZURECLOUD = 'azureCloud',
@@ -69,32 +69,28 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
 
     constructor(private apiClient: APIClient,
                 private fieldMapUtilities: FieldMapUtilities,
-                private wizardFormService: AzureWizardFormService,
+                private serviceBroker: ServiceBroker,
                 private validationService: ValidationService) {
         super();
+    }
+
+    private subscribeToServices() {
+        this.serviceBroker.stepSubscribe(this, TkgEventType.AZURE_GET_RESOURCE_GROUPS, this.onFetchedResourceGroups.bind(this));
+    }
+
+    private onFetchedResourceGroups(azureResourceGroups: AzureResourceGroup[]) {
+        this.resourceGroups = azureResourceGroups;
+        if (azureResourceGroups.length === 1) {
+            this.formGroup.get(AzureField.PROVIDER_RESOURCEGROUPEXISTING).setValue(azureResourceGroups[0].name);
+        } else {
+            this.initResourceGroupFromSavedData();
+        }
     }
 
     private customizeForm() {
         this.formGroup['canMoveToNext'] = () => {
             return this.formGroup.valid && this.validCredentials;
         }
-
-        this.wizardFormService.getErrorStream(TkgEventType.AZURE_GET_RESOURCE_GROUPS)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(error => {
-                this.errorNotification = error;
-            });
-
-        this.wizardFormService.getDataStream(TkgEventType.AZURE_GET_RESOURCE_GROUPS)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((azureResourceGroups: AzureResourceGroup[]) => {
-                this.resourceGroups = azureResourceGroups;
-                if (azureResourceGroups.length === 1) {
-                    this.formGroup.get(AzureField.PROVIDER_RESOURCEGROUPEXISTING).setValue(azureResourceGroups[0].name);
-                } else {
-                    this.initResourceGroupFromSavedData();
-                }
-            });
 
         this.formGroup.valueChanges
             .pipe(
@@ -151,6 +147,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
         super.ngOnInit();
 
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, AzureProviderStepMapping);
+        this.subscribeToServices();
         this.customizeForm();
 
         this.initAzureCredentials();

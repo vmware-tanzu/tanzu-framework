@@ -283,29 +283,14 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
     }
 
     private subscribeToServices() {
-        // Because the closures below will execute in a different context, we can't use the keyword 'this' to refer to this step.
-        // We therefore introduce a variable.
-        const thisStep = this;
-        this.serviceBroker.stepSubscribe<VSphereResourcePool>(thisStep, TkgEventType.GET_RESOURCE_POOLS,
-            data => {
-                thisStep.incrementResourcesFetched();
-                thisStep.onFetchedResourcePools(data);
-            } );
-        this.serviceBroker.stepSubscribe<ResourcePool>(thisStep, TkgEventType.GET_COMPUTE_RESOURCE,
-            data => {
-                thisStep.incrementResourcesFetched();
-                thisStep.onFetchedComputeResources(data);
-            });
-        this.serviceBroker.stepSubscribe<VSphereDatastore>(thisStep, TkgEventType.GET_DATA_STORES,
-            data => {
-                thisStep.incrementResourcesFetched();
-                thisStep.onFetchedDatastores(data);
-            });
-        this.serviceBroker.stepSubscribe<VSphereFolder>(thisStep, TkgEventType.GET_VM_FOLDERS,
-            data => {
-                thisStep.incrementResourcesFetched();
-                thisStep.onFetchedVmFolders(data);
-            });
+        this.serviceBroker.stepSubscribe<VSphereResourcePool>(this, TkgEventType.GET_RESOURCE_POOLS,
+            this.onFetchedResourcePools.bind(this), this.serviceBroker.appendingStepErrorHandler(this) );
+        this.serviceBroker.stepSubscribe<ResourcePool>(this, TkgEventType.GET_COMPUTE_RESOURCE,
+            this.onFetchedComputeResources.bind(this), this.serviceBroker.appendingStepErrorHandler(this) );
+        this.serviceBroker.stepSubscribe<VSphereDatastore>(this, TkgEventType.GET_DATA_STORES,
+            this.onFetchedDatastores.bind(this), this.serviceBroker.appendingStepErrorHandler(this) );
+        this.serviceBroker.stepSubscribe<VSphereFolder>(this, TkgEventType.GET_VM_FOLDERS,
+            this.onFetchedVmFolders.bind(this), this.serviceBroker.appendingStepErrorHandler(this) );
     }
 
     private sortVsphereResources(data: any[]): any[] {
@@ -313,6 +298,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
     }
 
     private onFetchedVmFolders(data: VSphereFolder[]) {
+        this.incrementResourcesFetched();
         this.vmFolders = this.sortVsphereResources(data);
         const selectValue = data.length === 1 ? data[0].name : this.getSavedValue(VsphereField.RESOURCE_VMFOLDER, '');
         const validators = [Validators.required,
@@ -321,8 +307,8 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
     }
 
     private onFetchedDatastores(data: VSphereDatastore[]) {
+        this.incrementResourcesFetched();
         this.datastores = this.sortVsphereResources(data);
-        console.log('SHIMON SEZ: onFetchedDatastores() reports ' + this.datastores.length + ' datastores');
         const selectValue = data.length === 1 ? data[0].name :
             this.getSavedValue(VsphereField.RESOURCE_DATASTORE, '');
         const validators = [Validators.required,
@@ -331,11 +317,13 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
     }
 
     private onFetchedComputeResources(data: ResourcePool[]) {
+        this.incrementResourcesFetched();
         this.computeResources = this.sortVsphereResources(data);
         this.constructResourceTree(data);
     }
 
     private onFetchedResourcePools(data: VSphereResourcePool[]) {
+        this.incrementResourcesFetched();
         this.resourcePools = this.sortVsphereResources(data);
     }
 }

@@ -6,10 +6,10 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { APIClient } from 'src/app/swagger';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { AwsWizardFormService } from 'src/app/shared/service/aws-wizard-form.service';
 import Broker from 'src/app/shared/service/broker';
 import { Messenger } from 'src/app/shared/service/Messenger';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import ServiceBroker from '../../../../shared/service/service-broker';
 
 describe('VpcComponent', () => {
     let component: VpcStepComponent;
@@ -27,7 +27,7 @@ describe('VpcComponent', () => {
                 ValidationService,
                 FormBuilder,
                 FieldMapUtilities,
-                AwsWizardFormService,
+                ServiceBroker,
             ],
             schemas: [
                 CUSTOM_ELEMENTS_SCHEMA

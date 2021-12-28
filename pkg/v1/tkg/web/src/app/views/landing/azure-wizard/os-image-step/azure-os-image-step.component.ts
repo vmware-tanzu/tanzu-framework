@@ -1,13 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { OsImageProviderInputs, SharedOsImageStepComponent } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
-import { AzureWizardFormService } from '../../../../shared/service/azure-wizard-form.service';
 import { TkgEventType } from '../../../../shared/service/Messenger';
 import { AzureVirtualMachine } from '../../../../swagger/models';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import ServiceBroker from '../../../../shared/service/service-broker';
 import { APIClient } from '../../../../swagger';
 import { Observable } from 'rxjs';
-import Broker from '../../../../shared/service/broker';
 
 @Component({
     selector: 'app-azure-os-image-step',

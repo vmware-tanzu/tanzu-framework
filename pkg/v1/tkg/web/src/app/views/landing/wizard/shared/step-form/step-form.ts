@@ -3,6 +3,7 @@ import { Directive, OnInit } from '@angular/core';
 import { AbstractControl, FormGroup, ValidatorFn } from '@angular/forms';
 // Third party imports
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 // App imports
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import { BasicSubscriber } from 'src/app/shared/abstracts/basic-subscriber';
@@ -398,4 +399,9 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     }
     //
     // HTML convenience methods
+
+    // This method is designed to expose the protected unsubscribe field to allow its use in subscribing to pipes
+    get unsubscribeOnDestroy(): Subject<void> {
+        return this.unsubscribe;
+    }
 }

@@ -5,9 +5,16 @@ import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 
-import { AWSNodeAz, AWSRegionalClusterParams, AWSVpc } from 'src/app/swagger/models';
+import {
+    AWSAvailabilityZone,
+    AWSNodeAz,
+    AWSRegionalClusterParams,
+    AWSSubnet,
+    AWSVirtualMachine,
+    AWSVpc,
+    Vpc
+} from 'src/app/swagger/models';
 import { APIClient } from 'src/app/swagger';
-import { AwsWizardFormService } from 'src/app/shared/service/aws-wizard-form.service';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import Broker from "../../../shared/service/broker";
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
@@ -21,6 +28,8 @@ import { AwsField, AwsForm, AwsStep } from "./aws-wizard.constants";
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
 import { Utils } from '../../../shared/utils';
 import { InstanceType } from '../../../shared/constants/app.constants';
+import { TkgEventType } from '../../../shared/service/Messenger';
+import ServiceBroker from '../../../shared/service/service-broker';
 
 interface AzRelatedFields {
     az: string,
@@ -46,7 +55,7 @@ const AzRelatedFieldsArray: AzRelatedFields[] = [
 export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
     constructor(
         router: Router,
-        public wizardFormService: AwsWizardFormService,
+        private serviceBroker: ServiceBroker,
         formBuilder: FormBuilder,
         private importService: ImportService,
         private apiClient: APIClient,
@@ -72,6 +81,8 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
 
     ngOnInit() {
         super.ngOnInit();
+        this.registerServices();
+        this.subscribeToServices();
 
         // To avoid re-open issue for AWS provider step.
         this.form.markAsDirty();
@@ -326,4 +337,34 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
     }
     //
     // HTML convenience methods
+
+    private subscribeToServices() {
+        Broker.messenger.getSubject(TkgEventType.AWS_REGION_CHANGED)
+            .subscribe(event => {
+                const region = event.payload;
+                this.serviceBroker.trigger([TkgEventType.AWS_GET_OS_IMAGES], {region: region});
+                // NOTE: even though the VPC and AZ endpoints don't take the region as a payload, they DO return different data
+                // if the user logs in to AWS using a different region. Therefore, we re-fetch that data if the region changes.
+                this.serviceBroker.trigger([TkgEventType.AWS_GET_EXISTING_VPCS, TkgEventType.AWS_GET_AVAILABILITY_ZONES]);
+            });
+    }
+
+    private registerServices() {
+        const wizard = this;
+        this.serviceBroker.register<Vpc>(TkgEventType.AWS_GET_EXISTING_VPCS,
+            () => { return wizard.apiClient.getVPCs() },
+            "Failed to retrieve list of existing VPCs from the specified AWS Account." );
+        this.serviceBroker.register<AWSAvailabilityZone>(TkgEventType.AWS_GET_AVAILABILITY_ZONES,
+            () => { return wizard.apiClient.getAWSAvailabilityZones(); },
+            "Failed to retrieve list of availability zones from the specified AWS Account." );
+        this.serviceBroker.register<AWSSubnet>(TkgEventType.AWS_GET_SUBNETS,
+            (payload: { vpcId: string }) => {return wizard.apiClient.getAWSSubnets(payload)},
+            "Failed to retrieve list of VPC subnets from the specified AWS Account." );
+        this.serviceBroker.register<string>(TkgEventType.AWS_GET_NODE_TYPES,
+            (payload: {az?: string}) => { return wizard.apiClient.getAWSNodeTypes(payload); },
+            "Failed to retrieve list of node types from the specified AWS Account." );
+        this.serviceBroker.register<AWSVirtualMachine>(TkgEventType.AWS_GET_OS_IMAGES,
+            (payload: {region: string}) => { return wizard.apiClient.getAWSOSImages(payload); },
+            "Failed to retrieve list of OS images from the specified AWS Server." );
+    }
 }

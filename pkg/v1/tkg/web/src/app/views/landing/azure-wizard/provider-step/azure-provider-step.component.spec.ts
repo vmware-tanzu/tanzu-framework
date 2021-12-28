@@ -9,16 +9,16 @@ import { AzureProviderStepComponent } from './azure-provider-step.component';
 import { APIClient } from '../../../../swagger/api-client.service';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { of, throwError, Observable } from 'rxjs';
-import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
 import Broker from 'src/app/shared/service/broker';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import ServiceBroker from '../../../../shared/service/service-broker';
 
 describe('AzureProviderStepComponent', () => {
     let component: AzureProviderStepComponent;
     let fixture: ComponentFixture<AzureProviderStepComponent>;
     let apiService: APIClient;
-    let wizardFormService: AzureWizardFormService;
+    let serviceBroker: ServiceBroker;
 
     beforeEach(async(() => {
         TestBed.configureTestingModule({
@@ -29,7 +29,7 @@ describe('AzureProviderStepComponent', () => {
             ],
             providers: [
                 ValidationService,
-                AzureWizardFormService,
+                ServiceBroker,
                 FormBuilder,
                 FieldMapUtilities,
                 APIClient
@@ -44,7 +44,7 @@ describe('AzureProviderStepComponent', () => {
 
     beforeEach(() => {
         Broker.messenger = new Messenger();
-        wizardFormService = TestBed.inject(AzureWizardFormService);
+        serviceBroker = TestBed.inject(ServiceBroker);
         apiService = TestBed.inject(APIClient);
 
         const fb = new FormBuilder();
@@ -62,16 +62,16 @@ describe('AzureProviderStepComponent', () => {
 
     it('should setup AZURE_GET_RESOURCE_GROUPS event handler', () => {
         component.ngOnInit();
-        wizardFormService.publishError(TkgEventType.AZURE_GET_RESOURCE_GROUPS, 'test error');
+        serviceBroker.simulateError(TkgEventType.AZURE_GET_RESOURCE_GROUPS, 'test error');
         expect(component.errorNotification).toBe('Failed to retrieve resource groups for the particular region. test error');
 
-        const resourceGrouop = [
+        const resourceGroup = [
             {id: 1, location: 'us-west', name: 'resource-group1'},
             {id: 2, location: 'us-east', name: 'resource-group2'},
             {id: 3, location: 'us-south', name: 'resource-group3'}
         ];
-        wizardFormService.publishData(TkgEventType.AZURE_GET_RESOURCE_GROUPS, resourceGrouop);
-        expect(component.resourceGroups).toEqual(resourceGrouop);
+        serviceBroker.simulateData(TkgEventType.AZURE_GET_RESOURCE_GROUPS, resourceGroup);
+        expect(component.resourceGroups).toEqual(resourceGroup);
     });
 
     it('should init azure credentials', () => {

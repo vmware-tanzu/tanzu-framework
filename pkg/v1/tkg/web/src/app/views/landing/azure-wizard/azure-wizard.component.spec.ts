@@ -7,7 +7,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { APIClient } from 'src/app/swagger';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
 import Broker from 'src/app/shared/service/broker';
 import { Messenger } from 'src/app/shared/service/Messenger';
 import { ClusterType, WizardForm } from "../wizard/shared/constants/wizard.constants";
@@ -19,6 +18,7 @@ import { MetadataStepComponent } from '../wizard/shared/components/steps/metadat
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { VnetStepComponent } from './vnet-step/vnet-step.component';
 import { FieldMapUtilities } from '../wizard/shared/field-mapping/FieldMapUtilities';
+import ServiceBroker from '../../../shared/service/service-broker';
 
 describe('AzureWizardComponent', () => {
     let component: AzureWizardComponent;
@@ -37,7 +37,7 @@ describe('AzureWizardComponent', () => {
                 APIClient,
                 FormBuilder,
                 FieldMapUtilities,
-                AzureWizardFormService,
+                ServiceBroker,
                 ValidationService
             ],
             schemas: [

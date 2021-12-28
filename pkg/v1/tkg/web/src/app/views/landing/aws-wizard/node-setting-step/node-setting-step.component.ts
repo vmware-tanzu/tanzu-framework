@@ -2,7 +2,7 @@
  * Angular Modules
  */
 import { Component, OnInit } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
+import { Validators } from '@angular/forms';
 import { takeUntil } from 'rxjs/operators';
 /**
  * App imports
@@ -11,7 +11,6 @@ import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { AWSNodeAz } from '../../../../swagger/models/aws-node-az.model';
 import { AWSSubnet } from '../../../../swagger/models/aws-subnet.model';
-import { AwsWizardFormService } from '../../../../shared/service/aws-wizard-form.service';
 import { TkgEventType } from '../../../../shared/service/Messenger';
 import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
 import { APIClient } from '../../../../swagger/api-client.service';
@@ -21,6 +20,7 @@ import { AwsField, AwsForm } from "../aws-wizard.constants";
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { AwsNodeSettingStepMapping } from './node-setting-step.fieldmapping';
 import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
+import ServiceBroker from '../../../../shared/service/service-broker';
 
 export interface AzNodeTypes {
     awsNodeAz1: Array<string>,
@@ -134,9 +134,9 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     airgappedVPC = false;
 
     constructor(private validationService: ValidationService,
+                private serviceBroker: ServiceBroker,
                 private fieldMapUtilities: FieldMapUtilities,
-                private apiClient: APIClient,
-                public awsWizardFormService: AwsWizardFormService) {
+                private apiClient: APIClient) {
         super();
     }
 
@@ -199,77 +199,9 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 this.clearSubnets();
             });
 
-        this.awsWizardFormService.getErrorStream(TkgEventType.AWS_GET_AVAILABILITY_ZONES)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(error => {
-                this.errorNotification = error;
-            });
-
-        this.awsWizardFormService.getErrorStream(TkgEventType.AWS_GET_SUBNETS)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(error => {
-                this.errorNotification = error;
-            });
-
-        this.awsWizardFormService.getErrorStream(TkgEventType.AWS_GET_NODE_TYPES)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(error => {
-                this.errorNotification = error;
-            });
-
-        this.awsWizardFormService.getDataStream(TkgEventType.AWS_GET_AVAILABILITY_ZONES)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((availabilityZones: Array<AWSNodeAz>) => {
-                this.nodeAzs = availabilityZones;
-            });
-
-        this.awsWizardFormService.getDataStream(TkgEventType.AWS_GET_SUBNETS)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((subnets: Array<AWSSubnet>) => {
-                this.publicSubnets = subnets.filter(obj => {
-                    return obj.isPublic === true
-                });
-                this.privateSubnets = subnets.filter(obj => {
-                    return obj.isPublic === false
-                });
-                AZS.forEach(az => {
-                    this.filterSubnets(az, this.getFieldValue(az));
-                });
-                this.setSubnetFieldsFromSavedValues();
-            });
-
-        this.awsWizardFormService.getDataStream(TkgEventType.AWS_GET_NODE_TYPES)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((nodeTypes: Array<string>) => {
-                this.nodeTypes = nodeTypes.sort();
-
-                // The validation is based on the value of this.nodeTypes. Whenever we update this.nodeTypes,
-                // the corresponding validation should be updated as well. e.g. the users came to the node-settings
-                // step before the api responses. Then an empty array will be passed to the validation isValidNameInList.
-                // It will cause the selected option to be invalid all the time.
-
-                if (this.nodeType === NodeType.DEV) {
-                    const devInstanceType = this.nodeTypes.length === 1 ? this.nodeTypes[0] :
-                        this.formGroup.get(AwsField.NODESETTING_INSTANCE_TYPE_DEV).value;
-                    this.resurrectField(AwsField.NODESETTING_INSTANCE_TYPE_DEV,
-                        [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
-                        devInstanceType);
-                } else {
-                    const prodInstanceType = this.nodeTypes.length === 1 ? this.nodeTypes[0] :
-                        this.formGroup.get(AwsField.NODESETTING_INSTANCE_TYPE_PROD).value;
-                    this.resurrectField(AwsField.NODESETTING_INSTANCE_TYPE_PROD,
-                        [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
-                        prodInstanceType);
-                }
-            });
-
-        AZS.forEach((az, index) => {
-            this.registerOnValueChange(az, (val) => {
-                this.filterSubnets(az, val);
-                this.setSubnetFieldsWithOnlyOneOption(az);
-                this.updateWorkerNodeInstanceTypes(az, val, index);
-            });
-        });
+        this.serviceBroker.stepSubscribe<AWSNodeAz>(this, TkgEventType.AWS_GET_AVAILABILITY_ZONES, this.onFetchedAzs.bind(this));
+        this.serviceBroker.stepSubscribe<AWSSubnet>(this, TkgEventType.AWS_GET_SUBNETS, this.onFetchedSubnets.bind(this));
+        this.serviceBroker.stepSubscribe<string>(this, TkgEventType.AWS_GET_NODE_TYPES, this.onFetchedNodeTypes.bind(this));
 
         this.registerOnValueChange(AwsField.NODESETTING_CONTROL_PLANE_SETTING, data => {
             if (data === NodeType.DEV) {
@@ -280,6 +212,45 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             this.updateVpcSubnets();
         });
     }
+
+    private onFetchedAzs(availabilityZones: Array<AWSNodeAz>) {
+        this.nodeAzs = availabilityZones;
+    }
+
+    private onFetchedSubnets(subnets: Array<AWSSubnet>) {
+        this.publicSubnets = subnets.filter(obj => {
+            return obj.isPublic === true
+        });
+        this.privateSubnets = subnets.filter(obj => {
+            return obj.isPublic === false
+        });
+        AZS.forEach(az => {
+            this.filterSubnets(az, this.getFieldValue(az));
+        });
+        this.setSubnetFieldsFromSavedValues();
+    }
+
+    private onFetchedNodeTypes(nodeTypes: Array<string>) {
+        this.nodeTypes = nodeTypes.sort();
+
+        // The validation is based on the value of this.nodeTypes. Whenever we update this.nodeTypes,
+        // the corresponding validation should be updated as well. e.g. the users came to the node-settings
+        // step before the api responses. Then an empty array will be passed to the validation isValidNameInList.
+        // It will cause the selected option to be invalid all the time.
+        if (this.nodeType === NodeType.DEV) {
+            const devInstanceType = this.nodeTypes.length === 1 ? this.nodeTypes[0] :
+                this.formGroup.get(AwsField.NODESETTING_INSTANCE_TYPE_DEV).value;
+            this.resurrectField(AwsField.NODESETTING_INSTANCE_TYPE_DEV,
+            [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
+            devInstanceType);
+        } else {
+            const prodInstanceType = this.nodeTypes.length === 1 ? this.nodeTypes[0] :
+                this.formGroup.get(AwsField.NODESETTING_INSTANCE_TYPE_PROD).value;
+            this.resurrectField(AwsField.NODESETTING_INSTANCE_TYPE_PROD,
+                [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
+                prodInstanceType);
+        }
+}
 
     ngOnInit() {
         super.ngOnInit();

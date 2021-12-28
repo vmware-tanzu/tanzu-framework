@@ -1,17 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
-import { takeUntil, debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { Validators } from '@angular/forms';
+import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
 import { TkgEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from './../../wizard/shared/validation/validation.service';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { Vpc } from '../../../../swagger/models/vpc.model';
-import { AwsWizardFormService } from '../../../../shared/service/aws-wizard-form.service';
 import Broker from 'src/app/shared/service/broker';
 import { AwsField, VpcType } from "../aws-wizard.constants";
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { AwsVpcStepMapping } from './vpc-step.fieldmapping';
-import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
+import ServiceBroker from '../../../../shared/service/service-broker';
 
 @Component({
     selector: 'app-vpc-step',
@@ -26,7 +25,7 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
     defaultVpcAddress: string = '10.0.0.0/16';
 
     constructor(private validationService: ValidationService,
-                private awsWizardFormService: AwsWizardFormService,
+                private serviceBroker: ServiceBroker,
                 private fieldMapUtilities: FieldMapUtilities) {
         super();
     }
@@ -98,17 +97,7 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
                 }
             });
 
-        this.awsWizardFormService.getErrorStream(TkgEventType.AWS_GET_EXISTING_VPCS)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(error => {
-                this.errorNotification = error;
-            });
-        this.awsWizardFormService.getDataStream(TkgEventType.AWS_GET_EXISTING_VPCS)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((vpcs: Array<Vpc>) => {
-                this.existingVpcs = vpcs;
-                this.loadingExistingVpcs = false;
-            });
+        this.serviceBroker.stepSubscribe<Vpc>(this, TkgEventType.AWS_GET_EXISTING_VPCS, this.onFetchedVpcs.bind(this));
 
         // init vpc type to new
         Broker.messenger.publish({
@@ -117,6 +106,11 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
         });
         this.registerOnValueChange(AwsField.VPC_NON_INTERNET_FACING, this.onNonInternetFacingVPCChange.bind(this));
         this.initFormWithSavedData();
+    }
+
+    private onFetchedVpcs(vpcs: Array<Vpc>) {
+        this.existingVpcs = vpcs;
+        this.loadingExistingVpcs = false;
     }
 
     onNonInternetFacingVPCChange(checked: boolean) {
