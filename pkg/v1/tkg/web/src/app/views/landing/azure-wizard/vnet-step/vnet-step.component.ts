@@ -10,7 +10,6 @@ import { Validators } from '@angular/forms';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { AzureResourceGroup } from 'src/app/swagger/models';
-import { APIClient } from 'src/app/swagger';
 import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore'
 import Broker from 'src/app/shared/service/broker';
 import { AzureField } from '../azure-wizard.constants';
@@ -55,8 +54,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
     vnetFieldsExisting: Array<string> = [];
     vnetFieldsNew: Array<string> = [];
 
-    constructor(private apiClient: APIClient,
-                private fieldMapUtilities: FieldMapUtilities,
+    constructor(private fieldMapUtilities: FieldMapUtilities,
                 private serviceBroker: ServiceBroker,
                 private validationService: ValidationService) {
         super();
@@ -71,6 +69,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
      */
     private subscribeToServices() {
         this.serviceBroker.stepSubscribe(this, TkgEventType.AZURE_GET_RESOURCE_GROUPS, this.onFetchedResourceGroups.bind(this));
+        this.serviceBroker.stepSubscribe(this, TkgEventType.AZURE_GET_VNETS, this.setVnets.bind(this))
     }
 
     private onFetchedResourceGroups(azureResourceGroups: AzureResourceGroup[]) {
@@ -208,13 +207,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
 
     onResourceGroupChange(resourceGroupName) {
         if (resourceGroupName && resourceGroupName !== this.customResourceGroup) {
-            this.apiClient.getAzureVnets({ resourceGroupName, location: this.region })
-                .pipe(takeUntil(this.unsubscribe))
-                .subscribe(
-                    (vnets: AzureVirtualNetwork[]) => { this.setVnets(vnets); },
-                    err => { this.errorNotification = err.message; },
-                    () => { }
-                );
+            this.serviceBroker.trigger([TkgEventType.AZURE_GET_VNETS], { resourceGroupName, location: this.region })
         }
     }
 

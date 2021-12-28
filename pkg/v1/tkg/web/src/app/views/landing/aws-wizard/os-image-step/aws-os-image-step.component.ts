@@ -17,7 +17,7 @@ export class AwsOsImageStepComponent extends SharedOsImageStepComponent<AWSVirtu
     // aws globals
     region: string;
 
-    constructor(protected fieldMapUtilities: FieldMapUtilities, protected serviceBroker: ServiceBroker, private apiClient: APIClient) {
+    constructor(protected fieldMapUtilities: FieldMapUtilities, protected serviceBroker: ServiceBroker) {
         super(fieldMapUtilities, serviceBroker);
     }
 

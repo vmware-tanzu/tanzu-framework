@@ -17,7 +17,7 @@ import { VSphereWizardFormService } from '../../../../shared/service/vsphere-wiz
 export class VsphereOsImageStepComponent extends SharedOsImageStepComponent<VSphereVirtualMachine> implements OnInit {
     private tkrVersionString: string;
 
-    constructor(protected fieldMapUtilities: FieldMapUtilities, protected serviceBroker: ServiceBroker, private apiClient: APIClient) {
+    constructor(protected fieldMapUtilities: FieldMapUtilities, protected serviceBroker: ServiceBroker) {
         super(fieldMapUtilities, serviceBroker);
         this.tkrVersion.subscribe(value => { this.tkrVersionString = value; });
     }
