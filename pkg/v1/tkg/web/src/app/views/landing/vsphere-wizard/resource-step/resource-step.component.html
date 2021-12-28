@@ -44,7 +44,8 @@
                     data-label="VM folder" class="datalist-container">
                 <clr-datalist-container>
                     <label i18n="vm folder label" class="clr-col-lg-12 clr-col-12">
-                        VM FOLDER
+                        VM FOLDER - there are {{ vmFolders.length }} of them, sez Shimon
+                        <div *ngFor="let folder of vmFolders">moid={{folder.moid}}, name={{folder.name}}</div>
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -76,7 +77,8 @@
                     data-label="datastore" class="datalist-container">
                 <clr-datalist-container>
                     <label i18n="datastore label" class="clr-col-lg-12 clr-col-12">
-                        DATASTORE
+                        DATASTORE - there are {{ datastores.length }} of them, sez Shimon
+                        <div *ngFor="let datastore of datastores">moid={{datastore?.moid}}, name={{datastore?.name}}</div>
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
@@ -90,7 +92,12 @@
                     <datalist id="datastore">
                         <option *ngFor="let datastore of datastores" [value]="datastore?.name"></option>
                     </datalist>
-                    <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
+                    <label i18n="datastore label" class="clr-col-lg-12 clr-col-12">
+                        DATASTORE - there are {{ datastores.length }} of them, sez Shimon
+                        <div *ngFor="let datastore of datastores">moid={{datastore?.moid}}, name={{datastore?.name}}</div>
+                    </label>
+
+                        <!-- Add an empty helper to avoid accessibility aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                 </clr-datalist-container>
                 <clr-control-error *ngIf="showFormError('datastore')">

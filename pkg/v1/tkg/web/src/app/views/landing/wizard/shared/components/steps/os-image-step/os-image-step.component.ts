@@ -10,6 +10,7 @@ import { AWSVirtualMachine, AzureVirtualMachine } from 'src/app/swagger/models';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { OsImageStepMapping } from './os-image-step.fieldmapping';
 import { StepMapping } from '../../../field-mapping/FieldMapping';
+import ServiceBroker from '../../../../../../../shared/service/service-broker';
 
 // We define an OsImage as one that has a name field, so that our HTML can dereference this field in the listbox display
 export interface OsImage {
@@ -17,14 +18,10 @@ export interface OsImage {
 }
 export interface OsImageProviderInputs<IMAGE> {
     event: TkgEventType,
-    osImageService: OsImageService<IMAGE>,
+    fetcher: (data: any) => Observable<IMAGE[]>,
     osImageTooltipContent: string,
     nonTemplateAlertMessage?: string,
     noImageAlertMessage?: string,
-}
-export interface OsImageService<IMAGE> {
-    getDataStream(TkgEventType): Observable<IMAGE[]>,
-    getErrorStream(TkgEventType): Observable<string>,
 }
 export abstract class SharedOsImageStepComponent<IMAGE extends OsImage> extends StepFormDirective {
     // used by HTML as well as locally
@@ -36,42 +33,42 @@ export abstract class SharedOsImageStepComponent<IMAGE extends OsImage> extends 
     // TODO: It's questionable whether tkrVersion should be in this class, since it's only used for vSphere
     tkrVersion: Observable<string>;
 
-    protected constructor(protected fieldMapUtilities: FieldMapUtilities) {
+    protected constructor(protected fieldMapUtilities: FieldMapUtilities, protected serviceBroker: ServiceBroker) {
         super();
         this.tkrVersion = Broker.appDataService.getTkrVersion();
     }
 
     // This method allows child classes to supply the inputs (rather than having them passed as part of an HTML component tag).
-    // This allows the step to follow the same pattern as all the other steps, which only take formGroup and formName as inputs.
+    // This allows this step to follow the same pattern as all the other steps, which only take formGroup and formName as inputs.
     protected abstract supplyProviderInputs(): OsImageProviderInputs<IMAGE>;
 
-    private customizeForm() {
-        this.providerInputs.osImageService.getErrorStream(this.providerInputs.event)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(error => {
-                this.errorNotification = error;
-            });
+    private registerProviderService() {
+        // our provider event should be associated with the provider fetcher (which will get the data from the backend)
+        this.serviceBroker.register<IMAGE>(this.providerInputs.event, this.providerInputs.fetcher);
+    }
 
-        this.providerInputs.osImageService.getDataStream(this.providerInputs.event)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((images: Array<IMAGE>) => {
-                this.osImages = images;
-                this.loadingOsTemplate = false;
-                if (this.osImages.length === 1) {
-                    this.setControlValueSafely('osImage', images[0]);
-                } else {
-                    this.setControlWithSavedValue('osImage', '');
-                }
-            });
+    private subscribeToProviderEvent() {
+        // we register a handler for when our event receives data, namely that we'll populate our array of osImages
+        this.serviceBroker.stepSubscribe<IMAGE>(this, this.providerInputs.event, this.onFetchedOsImages.bind(this));
+    }
+
+    private onFetchedOsImages(images: Array<IMAGE>) {
+        this.osImages = images;
+        this.loadingOsTemplate = false;
+        if (this.osImages.length === 1) {
+            this.setControlValueSafely('osImage', images[0]);
+        } else {
+            this.setControlWithSavedValue('osImage', '');
+        }
     }
 
     // onInit() should be called from subclass' ngOnInit()
     protected onInit() {
         super.ngOnInit();
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, OsImageStepMapping);
-        super.ngOnInit();
         this.providerInputs = this.supplyProviderInputs();
-        this.customizeForm();
+        this.registerProviderService();
+        this.subscribeToProviderEvent();
         this.initFormWithSavedData();
     }
 

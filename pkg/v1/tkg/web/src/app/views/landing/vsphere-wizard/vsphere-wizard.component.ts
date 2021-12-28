@@ -17,12 +17,21 @@ import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER, SharedLoadBalancerStepComponent }
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { PROVIDERS, Providers } from '../../../shared/constants/app.constants';
 import { ResourceStepComponent } from './resource-step/resource-step.component';
+import ServiceBroker from '../../../shared/service/service-broker';
+import { TkgEventType } from '../../../shared/service/Messenger';
+import {
+    VSphereDatastore,
+    VSphereFolder,
+    VSphereManagementObject,
+    VSphereNetwork,
+    VSphereResourcePool,
+    VSphereVirtualMachine
+} from '../../../swagger/models';
 import { VsphereField } from './vsphere-wizard.constants';
 import { VsphereNetworkStepComponent } from './vsphere-network-step/vsphere-network-step.component';
 import { VsphereOsImageStepComponent } from './vsphere-os-image-step/vsphere-os-image-step.component';
 import { VSphereProviderStepComponent } from './provider-step/vsphere-provider-step.component';
 import { VsphereRegionalClusterParams } from 'src/app/swagger/models/vsphere-regional-cluster-params.model';
-import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 import { WizardForm, WizardStep } from '../wizard/shared/constants/wizard.constants';
 
@@ -35,7 +44,6 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
     APP_ROUTES: Routes = APP_ROUTES;
     PROVIDERS: Providers = PROVIDERS;
 
-    datacenterMoid: Observable<string>;
     tkrVersion: Observable<string>;
     vsphereVersion: string;
     deploymentPending: boolean = false;
@@ -44,7 +52,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
     constructor(
         private apiClient: APIClient,
         router: Router,
-        public wizardFormService: VSphereWizardFormService,
+        private serviceBroker: ServiceBroker,
         private importService: ImportService,
         formBuilder: FormBuilder,
         formMetaDataService: FormMetaDataService,
@@ -58,6 +66,8 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         Broker.appDataService.getVsphereVersion().subscribe(version => {
             this.vsphereVersion = version ? version + ' ' : '';
         });
+
+        this.registerServices();
     }
 
     protected supplyStepData(): FormDataForHTML[] {
@@ -360,5 +370,45 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
 
         // clear file reader target so user can re-select same file if needed
         event.target.value = '';
+    }
+
+    private registerServices() {
+        Broker.messenger.getSubject(TkgEventType.VSPHERE_DATACENTER_CHANGED)
+            .subscribe(event => {
+                const datacenterMoid = event.payload;
+                this.serviceBroker.trigger( [
+                    TkgEventType.VSPHERE_GET_RESOURCE_POOLS,
+                    TkgEventType.VSPHERE_GET_COMPUTE_RESOURCE,
+                    TkgEventType.VSPHERE_GET_VM_NETWORKS,
+                    TkgEventType.VSPHERE_GET_DATA_STORES,
+                    TkgEventType.VSPHERE_GET_VM_FOLDERS,
+                    TkgEventType.VSPHERE_GET_OS_IMAGES
+                ], datacenterMoid);
+            });
+
+        this.serviceBroker.register<VSphereResourcePool>(TkgEventType.VSPHERE_GET_RESOURCE_POOLS,
+            (datacenterMoid: any) => { return this.apiClient.getVSphereResourcePools({ dc: datacenterMoid }) },
+            "Failed to retrieve list of resource pools from the specified vCenter Server."
+            );
+        this.serviceBroker.register<VSphereManagementObject>(TkgEventType.VSPHERE_GET_COMPUTE_RESOURCE,
+            (datacenterMoid: any) => { return this.apiClient.getVSphereComputeResources({ dc: datacenterMoid }) },
+            "Failed to retrieve list of compute resources from the specified datacenter."
+        );
+        this.serviceBroker.register<VSphereNetwork>(TkgEventType.VSPHERE_GET_VM_NETWORKS,
+            (datacenterMoid: any) => { return this.apiClient.getVSphereNetworks({ dc: datacenterMoid }) },
+            "Failed to retrieve list of VM networks from the specified vCenter Server."
+        );
+        this.serviceBroker.register<VSphereDatastore>(TkgEventType.VSPHERE_GET_DATA_STORES,
+            (datacenterMoid: any) => { return this.apiClient.getVSphereDatastores({ dc: datacenterMoid }) },
+            "Failed to retrieve list of datastores from the specified vCenter Server."
+        );
+        this.serviceBroker.register<VSphereFolder>(TkgEventType.VSPHERE_GET_VM_FOLDERS,
+            (datacenterMoid: any) => { return this.apiClient.getVSphereFolders({ dc: datacenterMoid }) },
+            "Failed to retrieve list of vm folders from the specified vCenter Server."
+        );
+        this.serviceBroker.register<VSphereVirtualMachine>(TkgEventType.VSPHERE_GET_OS_IMAGES,
+            (datacenterMoid: any) => { return this.apiClient.getVSphereOSImages({ dc: datacenterMoid }) },
+            "Failed to retrieve list of OS images from the specified vCenter Server."
+        );
     }
 }

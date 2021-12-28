@@ -4,6 +4,10 @@ import { AwsWizardFormService } from '../../../../shared/service/aws-wizard-form
 import { TkgEventType } from '../../../../shared/service/Messenger';
 import { AWSVirtualMachine } from '../../../../swagger/models';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import ServiceBroker from '../../../../shared/service/service-broker';
+import { APIClient } from '../../../../swagger';
+import { Observable } from 'rxjs';
+import Broker from '../../../../shared/service/broker';
 
 @Component({
     selector: 'app-aws-os-image-step',
@@ -11,21 +15,33 @@ import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUti
     styleUrls: ['../../wizard/shared/components/steps/os-image-step/os-image-step.component.scss']
 })
 export class AwsOsImageStepComponent extends SharedOsImageStepComponent<AWSVirtualMachine> implements OnInit {
-    constructor(private awsWizardFormService: AwsWizardFormService, protected fieldMapUtilities: FieldMapUtilities) {
-        super(fieldMapUtilities);
+    // aws globals
+    region: string;
+
+    constructor(protected fieldMapUtilities: FieldMapUtilities, protected serviceBroker: ServiceBroker, private apiClient: APIClient) {
+        super(fieldMapUtilities, serviceBroker);
     }
 
     ngOnInit() {
         super.onInit();
+
+        Broker.messenger.getSubject(TkgEventType.AWS_REGION_CHANGED)
+            .subscribe(event => {
+                this.region = event.payload;
+            });
     }
 
     protected supplyProviderInputs(): OsImageProviderInputs<AWSVirtualMachine> {
         return {
             event: TkgEventType.AWS_GET_OS_IMAGES,
-            osImageService: this.awsWizardFormService,
+            fetcher: this.fetchOsImages.bind(this),
             osImageTooltipContent: 'Select a base OS image that you have already imported ' +
                 'into your AWS account. If no compatible OS image is present, import one into ' +
                 'AWS and click the Refresh button'
         };
+    }
+
+    private fetchOsImages(payload?: any): Observable<AWSVirtualMachine[]> {
+        return this.apiClient.getAWSOSImages({region: this.region, ...payload});
     }
 }
