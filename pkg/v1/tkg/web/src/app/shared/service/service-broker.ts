@@ -4,6 +4,18 @@ import { Observable, ReplaySubject } from 'rxjs';
 import { StepFormDirective } from '../../views/landing/wizard/shared/step-form/step-form';
 import { takeUntil } from 'rxjs/operators';
 
+// The intention of this class is to allow:
+// REGISTER of a TkgEventType with a "fetcher" that will get data from the backend when that event is broadcast. This is typically
+// called by wizards to establish which backend calls will be used for which events.
+// SUBSCRIBE to a TkgEventType with a data-handler that will receive the data from that event (when it arrives), and
+// an error-handler that will properly display any error messages. (This class provides two standard error handlers for steps, to avoid
+// every step writing its own duplicate error handler, since almost all of them do exactly the same thing.) This is typically used
+// by steps that need to handle data when it arrives from the backend.
+// Secondarily, we provide a convenience TRIGGER method to publish an event to the Broker.messenger, and CLEAR to send out an empty
+// array in an event's associated data stream (to clear previous values)
+// The point is to isolate all the boilerplate code into this class, so that registrants and subscribers need the least
+// amount of code to do their work.
+// NOTE: An event must be registered BEFORE anyone can subscribe to it.
 interface ServiceBrokerEntry<OBJ> {
     fetcher: (data: any) => Observable<OBJ[]>,
     staticError?: string,
@@ -19,6 +31,7 @@ export default class ServiceBroker {
         eventTypes.forEach(eventType => { Broker.messenger.publish({type: eventType, payload: payload}) });
     }
 
+    // broadcast an empty array on the data stream to clear previous values
     clear<OBJ>(eventType: TkgEventType) {
         const serviceBrokerEntry: ServiceBrokerEntry<OBJ> = this.getEntry<OBJ>(eventType);
         if (serviceBrokerEntry) {
@@ -27,10 +40,11 @@ export default class ServiceBroker {
     }
 
     // register() is called by those providing services. This is typically done by wizards setting up how
-    // to respond to data-request events, i.e. linking data-request events to API calls to the backend
+    // to respond to data-request events, i.e. linking data-request events to API calls to the backend.
+    // If the event has already been registered, the request will be ignored (with a console warning)
     register<OBJ>(eventType: TkgEventType, fetcher: (data: any) => Observable<OBJ[]>, staticError?: string) {
         if (this.entries[eventType]) {
-            console.warn('service broker detects duplicate registration of event ' + TkgEventType[eventType] + '; ignoring');
+            console.warn('service broker ignores duplicate registration of event ' + TkgEventType[eventType]);
             return;
         }
         this.entries[eventType] = {
@@ -124,7 +138,7 @@ export default class ServiceBroker {
             (data => {
                 // we received data, so broadcast it to anyone listening (and clear any previous errors)
                 entry.dataStream.next(data);
-                entry.errorStream.next(null);
+                entry.errorStream.next('');
             }),
             (err => {
                 // we received an error, so broadcast it to anyone listening (and clear any previous data)
