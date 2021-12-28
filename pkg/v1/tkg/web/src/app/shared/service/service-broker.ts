@@ -16,6 +16,9 @@ import { takeUntil } from 'rxjs/operators';
 // The point is to isolate all the boilerplate code into this class, so that registrants and subscribers need the least
 // amount of code to do their work.
 // NOTE: An event must be registered BEFORE anyone can subscribe to it.
+// NOTE: This class is not intended to help a situation where a step desires simply to make an API call to the back end and then
+// use the results. This class is more useful in the app-wide pattern where an event is triggered which should retrieve data, and that data
+// may be consumed by any subscriber (without any need for more context on why/how it was requested).
 interface ServiceBrokerEntry<OBJ> {
     fetcher: (data: any) => Observable<OBJ[]>,
     staticError?: string,
