@@ -21,18 +21,13 @@ export class AzureOsImageStepComponent extends SharedOsImageStepComponent<AzureV
         super.onInit();
     }
 
-    protected supplyProviderInputs(): OsImageProviderInputs<AzureVirtualMachine> {
+    protected supplyProviderInputs(): OsImageProviderInputs {
         return {
             event: TkgEventType.AZURE_GET_OS_IMAGES,
             noImageAlertMessage: '',
-            fetcher: this.fetchOsImages.bind(this),
             osImageTooltipContent: 'Select a base OS image that you have already imported ' +
                 'into your Azure account. If no compatible OS image is present, import one into ' +
                 'Azure and click the Refresh button',
         };
-    }
-
-    private fetchOsImages(data: any): Observable<AzureVirtualMachine[]> {
-        return this.apiClient.getAzureOSImages();
     }
 }

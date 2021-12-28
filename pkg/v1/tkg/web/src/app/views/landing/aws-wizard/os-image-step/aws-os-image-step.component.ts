@@ -30,17 +30,12 @@ export class AwsOsImageStepComponent extends SharedOsImageStepComponent<AWSVirtu
             });
     }
 
-    protected supplyProviderInputs(): OsImageProviderInputs<AWSVirtualMachine> {
+    protected supplyProviderInputs(): OsImageProviderInputs {
         return {
             event: TkgEventType.AWS_GET_OS_IMAGES,
-            fetcher: this.fetchOsImages.bind(this),
             osImageTooltipContent: 'Select a base OS image that you have already imported ' +
                 'into your AWS account. If no compatible OS image is present, import one into ' +
                 'AWS and click the Refresh button'
         };
-    }
-
-    private fetchOsImages(payload?: any): Observable<AWSVirtualMachine[]> {
-        return this.apiClient.getAWSOSImages({region: this.region, ...payload});
     }
 }

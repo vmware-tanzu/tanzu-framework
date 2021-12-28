@@ -12,20 +12,25 @@ import { OsImageStepMapping } from './os-image-step.fieldmapping';
 import { StepMapping } from '../../../field-mapping/FieldMapping';
 import ServiceBroker from '../../../../../../../shared/service/service-broker';
 
-// We define an OsImage as one that has a name field, so that our HTML can dereference this field in the listbox display
+// The intention of this class is to provide the common plumbing for the osImage step that many providers need.
+// The basic functionality is to subscribe to an event and load the resulting images into a local field.
+// Note that we assume that the event has been registered already with a backend service that will return an array of images
+// of type IMAGE
+
+// We define an OsImage as one that has a name field, so that our HTML can dereference this field in the listbox display.
+// Even though ALL the osImage types do have a name field, it is generated as OPTIONAL by Swagger, so we leave it optional in our interface.
 export interface OsImage {
     name?: string
 }
-export interface OsImageProviderInputs<IMAGE> {
+export interface OsImageProviderInputs {
     event: TkgEventType,
-    fetcher: (data: any) => Observable<IMAGE[]>,
     osImageTooltipContent: string,
     nonTemplateAlertMessage?: string,
     noImageAlertMessage?: string,
 }
 export abstract class SharedOsImageStepComponent<IMAGE extends OsImage> extends StepFormDirective {
     // used by HTML as well as locally
-    public providerInputs: OsImageProviderInputs<IMAGE>;
+    public providerInputs: OsImageProviderInputs;
 
     osImages: Array<IMAGE>;
     loadingOsTemplate: boolean = false;
@@ -40,12 +45,7 @@ export abstract class SharedOsImageStepComponent<IMAGE extends OsImage> extends 
 
     // This method allows child classes to supply the inputs (rather than having them passed as part of an HTML component tag).
     // This allows this step to follow the same pattern as all the other steps, which only take formGroup and formName as inputs.
-    protected abstract supplyProviderInputs(): OsImageProviderInputs<IMAGE>;
-
-    private registerProviderService() {
-        // our provider event should be associated with the provider fetcher (which will get the data from the backend)
-        this.serviceBroker.register<IMAGE>(this.providerInputs.event, this.providerInputs.fetcher);
-    }
+    protected abstract supplyProviderInputs(): OsImageProviderInputs;
 
     private subscribeToProviderEvent() {
         // we register a handler for when our event receives data, namely that we'll populate our array of osImages
@@ -67,7 +67,6 @@ export abstract class SharedOsImageStepComponent<IMAGE extends OsImage> extends 
         super.ngOnInit();
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, OsImageStepMapping);
         this.providerInputs = this.supplyProviderInputs();
-        this.registerProviderService();
         this.subscribeToProviderEvent();
         this.initFormWithSavedData();
     }
