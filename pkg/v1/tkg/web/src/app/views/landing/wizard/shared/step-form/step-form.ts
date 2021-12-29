@@ -33,7 +33,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     validatorEnum = ValidatorEnum;
     errorNotification: string = '';
     configFileNotification: Notification;
-    clusterTypeDescriptor: string = '';
+    private clusterTypeDescription: string = '';
     modeClusterStandalone: boolean;
     ipFamily: IpFamilyEnum = IpFamilyEnum.IPv4;
 
@@ -62,10 +62,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
             .subscribe((data: TkgEvent) => {
                 const content: EditionData = data.payload;
                 this.edition = content.edition;
-                this.clusterTypeDescriptor = data.payload.clusterTypeDescriptor;
-                if (this.clusterTypeDescriptorAffectsStepDescription()) {
-                    this.triggerStepDescriptionChange();
-                }
+                this.setClusterTypeDescriptor(data.payload.clusterTypeDescriptor);
             });
         this.modeClusterStandalone = AppServices.appDataService.isModeClusterStandalone();
 
@@ -427,9 +424,14 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         });
     }
 
-    // This method should be overridden (to return true) by subclasses who use the clusterTypeDescriptor in their step description
-    protected clusterTypeDescriptorAffectsStepDescription() {
-        return false;
+    // Subclasses using clusterTypeDescriptor in their step description should override this method to trigger a description change event
+    // NOTE: this method is public to facilitate testing, otherwise it would be protected
+    public setClusterTypeDescriptor(descriptor: string) {
+        this.clusterTypeDescription = descriptor;
+    }
+
+    get clusterTypeDescriptor() {
+        return this.clusterTypeDescription;
     }
 
     // This method is designed to expose the protected unsubscribe field to allow its use in subscribing to pipes

@@ -100,7 +100,7 @@ describe('VSphereWizardComponent', () => {
         });
         component.clusterTypeDescriptor = 'management';
         const providerStep = TestBed.createComponent(VSphereProviderStepComponent).componentInstance;
-        providerStep.clusterTypeDescriptor = 'management';
+        providerStep.setClusterTypeDescriptor('management');
         component.registerStep('vsphereProviderForm', providerStep);
 
         const description = component.stepDescription['vsphereProviderForm'];

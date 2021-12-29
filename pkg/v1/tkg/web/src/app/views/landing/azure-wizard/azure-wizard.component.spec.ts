@@ -95,11 +95,11 @@ describe('AzureWizardComponent', () => {
             component.registerStep(AzureForm.PROVIDER, stepInstance);
             stepInstance.formGroup.addControl('tenantId', new FormControl(''));
 
-            let description = component.describeStep(AzureForm.PROVIDER, component.AzureProviderForm.description);
+            let description = component.stepDescription[AzureForm.PROVIDER];
             expect(description).toBe('Validate the Azure provider credentials for Tanzu');
 
             component.form.get(AzureForm.PROVIDER).get('tenantId').setValue('testId');
-            description = component.describeStep(AzureForm.PROVIDER, component.AzureProviderForm.description);
+            description = component.stepDescription[AzureForm.PROVIDER];
             expect(description).toBe('Azure tenant: testId');
         });
         it('vnet form', () => {
@@ -107,37 +107,37 @@ describe('AzureWizardComponent', () => {
             component.registerStep(component.AzureVnetForm.name, stepInstance);
             stepInstance.formGroup.addControl('vnetCidrBlock', new FormControl(''));
 
-            let description = component.describeStep(component.AzureVnetForm.name, component.AzureVnetForm.description);
+            let description = component.stepDescription[component.AzureVnetForm.name];
             expect(description).toBe('Specify an Azure VNET CIDR');
 
             component.form.get(AzureForm.VNET).get('vnetCidrBlock').setValue('1.1.1.1/24');
-            description = component.describeStep(component.AzureVnetForm.name, component.AzureVnetForm.description);
+            description = component.stepDescription[component.AzureVnetForm.name];
             expect(description).toBe('Subnet: 1.1.1.1/24');
         });
         it('node setting form', () => {
             const stepInstance = TestBed.createComponent(NodeSettingStepComponent).componentInstance;
-            stepInstance.clusterTypeDescriptor = 'management';
+            stepInstance.setClusterTypeDescriptor('management');
             component.registerStep(component.AzureNodeSettingForm.name, stepInstance);
             stepInstance.formGroup.addControl('controlPlaneSetting', new FormControl(''));
 
-            let description = component.describeStep(component.AzureNodeSettingForm.name, component.AzureNodeSettingForm.description);
+            let description = component.stepDescription[component.AzureNodeSettingForm.name];
             expect(description).toBe('Specifying the resources backing the management cluster');
 
             component.form.get(AzureForm.NODESETTING).get('controlPlaneSetting').setValue('dev');
-            description = component.describeStep(component.AzureNodeSettingForm.name, component.AzureNodeSettingForm.description);
+            description = component.stepDescription[component.AzureNodeSettingForm.name];
             expect(description).toBe('Control plane type: dev');
         });
         it('meta data form', () => {
             const stepInstance = TestBed.createComponent(MetadataStepComponent).componentInstance;
-            stepInstance.clusterTypeDescriptor = 'management';
+            stepInstance.setClusterTypeDescriptor('management');
             component.registerStep(WizardForm.METADATA, stepInstance);
             stepInstance.formGroup.addControl('clusterLocation', new FormControl(''));
 
-            let description = component.describeStep(WizardForm.METADATA, component.MetadataForm.description);
+            let description = component.stepDescription[WizardForm.METADATA];
             expect(description).toBe('Specify metadata for the management cluster');
 
             component.form.get(WizardForm.METADATA).get('clusterLocation').setValue('testLocation');
-            description = component.describeStep(WizardForm.METADATA, component.MetadataForm.description);
+            description = component.stepDescription[WizardForm.METADATA];
             expect(description).toBe('Location: testLocation');
         });
         it('network form', () => {
@@ -146,18 +146,18 @@ describe('AzureWizardComponent', () => {
             stepInstance.formGroup.addControl('clusterServiceCidr', new FormControl(''));
             stepInstance.formGroup.addControl('clusterPodCidr', new FormControl(''));
 
-            let description = component.describeStep(WizardForm.NETWORK, component.NetworkForm.description);
+            let description = component.stepDescription[WizardForm.NETWORK];
             expect(description).toBe('Specify how TKG networking is provided and global network settings');
 
             const networkForm = component.form.get(WizardForm.NETWORK);
             expect(networkForm).toBeTruthy('Unable to find network form (' + WizardForm.NETWORK + ') in wizard');
             networkForm.get('clusterServiceCidr').setValue('1.1.1.1/23');
             networkForm.get('clusterPodCidr').setValue('2.2.2.2/23');
-            description = component.describeStep(WizardForm.NETWORK, component.NetworkForm.description);
+            description = component.stepDescription[WizardForm.NETWORK];
             expect(description).toBe('Cluster service CIDR: 1.1.1.1/23 Cluster POD CIDR: 2.2.2.2/23');
         });
         it('ceip opt in form', () => {
-            const description = component.describeStep(component.CeipForm.name, component.CeipForm.description);
+            const description = component.stepDescription[component.CeipForm.name];
             expect(description).toBe('Join the CEIP program for TKG');
         });
     });

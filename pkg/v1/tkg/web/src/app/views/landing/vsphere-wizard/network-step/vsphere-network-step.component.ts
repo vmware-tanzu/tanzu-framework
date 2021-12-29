@@ -4,8 +4,8 @@ import { WizardForm } from '../../wizard/shared/constants/wizard.constants';
 export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
     static readonly description = 'Specify how Tanzu Kubernetes Grid networking is provided and any global network settings';
 
-    protected registerFieldsAffectingStepDescription(fields: string[]) {
-        super.registerFieldsAffectingStepDescription([WizardForm.NETWORK]);
+    protected supplyFieldsAffectingStepDescription(): string[] {
+        return [WizardForm.NETWORK];
     }
 
     dynamicDescription(): string {

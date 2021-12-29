@@ -250,8 +250,11 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
         return this.formGroup.get(VsphereField.RESOURCE_DATASTORE).value;
     }
 
-    protected clusterTypeDescriptorAffectsStepDescription(): boolean {
-        return true;
+    // Because we use clusterTypeDescriptor in our description, we need to trigger a step description change whenever
+    // clusterTypeDescriptor changes
+    setClusterTypeDescriptor(descriptor: string) {
+        super.setClusterTypeDescriptor(descriptor);
+        this.triggerStepDescriptionChange();
     }
 
     dynamicDescription(): string {

@@ -77,8 +77,12 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
             this.formGroup.get('newLabelValue').valid);
     }
 
-    protected clusterTypeDescriptorAffectsStepDescription(): boolean {
-        return true;
+    // Because we use clusterTypeDescriptor in our description, we need to trigger a step description change whenever
+    // clusterTypeDescriptor changes
+    // NOTE: this method is public only so that it can be used for testing; otherwise it would be protected
+    public setClusterTypeDescriptor(descriptor: string) {
+        super.setClusterTypeDescriptor(descriptor);
+        this.triggerStepDescriptionChange();
     }
 
     dynamicDescription(): string {

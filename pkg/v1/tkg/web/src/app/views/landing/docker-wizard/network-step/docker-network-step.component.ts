@@ -3,8 +3,8 @@ import { SharedNetworkStepComponent } from '../../wizard/shared/components/steps
 export class DockerNetworkStepComponent extends SharedNetworkStepComponent {
     static readonly description = 'Specify the cluster Pod CIDR';
 
-    protected registerFieldsAffectingStepDescription(fields: string[]) {
-        super.registerFieldsAffectingStepDescription(['clusterPodCidr']);
+    protected supplyFieldsAffectingStepDescription(): string[] {
+        return ['clusterPodCidr'];
     }
 
     dynamicDescription(): string {

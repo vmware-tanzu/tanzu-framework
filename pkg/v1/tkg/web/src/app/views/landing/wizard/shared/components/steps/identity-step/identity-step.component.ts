@@ -10,8 +10,6 @@ import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { IdentityStepMapping } from './identity-step.fieldmapping';
 import { IdentityManagementType } from '../../../constants/wizard.constants';
-import { FormUtils } from '../../../utils/form-utils';
-import { StepMapping } from '../../../field-mapping/FieldMapping';
 
 const CONNECT = "CONNECT";
 const BIND = "BIND";
@@ -83,6 +81,8 @@ const LDAP_PARAMS = {
     styleUrls: ['./identity-step.component.scss']
 })
 export class SharedIdentityStepComponent extends StepFormDirective implements OnInit {
+    static description = 'Optionally specify identity management';
+
     identityTypeValue: string = 'oidc';
     _verifyLdapConfig = false;
 
@@ -336,6 +336,6 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
         } else if (identityType === IdentityManagementType.LDAP && ldapEndpointIp) {
             return 'LDAP configured: ' + ldapEndpointIp + ':' + (ldapEndpointPort ? ldapEndpointPort : '');
         }
-        return 'Specify identity management';
+        return SharedIdentityStepComponent.description;
     }
 }

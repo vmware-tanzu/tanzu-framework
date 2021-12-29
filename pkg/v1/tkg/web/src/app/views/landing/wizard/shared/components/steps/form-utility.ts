@@ -16,20 +16,6 @@ export interface FormDataForHTML {
 }
 
 export class FormUtility {
-    static IdentityFormDescription(wizard: WizardBaseDirective): string {
-        const identityType = wizard.getFieldValue(WizardForm.IDENTITY, 'identityType');
-        const ldapEndpointIp = wizard.getFieldValue(WizardForm.IDENTITY, 'endpointIp');
-        const ldapEndpointPort = wizard.getFieldValue(WizardForm.IDENTITY, 'endpointPort');
-        const oidcIssuer = wizard.getFieldValue(WizardForm.IDENTITY, 'issuerURL');
-
-        if (identityType === IdentityManagementType.OIDC && oidcIssuer) {
-            return 'OIDC configured: ' + oidcIssuer;
-        } else if (identityType === IdentityManagementType.LDAP && ldapEndpointIp) {
-            return 'LDAP configured: ' + ldapEndpointIp + ':' + ldapEndpointPort;
-        }
-        return 'Specify identity management';
-    }
-
     static titleCase(target): string {
         if (target === undefined || target === null || target.length === 0) {
             return '';

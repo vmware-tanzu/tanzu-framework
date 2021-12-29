@@ -44,6 +44,11 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
         return this.ipFamily === IpFamilyEnum.IPv4 ? NetworkIpv4StepMapping : NetworkIpv6StepMapping;
     }
 
+    // This method may be overridden by subclasses that describe this step using different fields
+    protected supplyFieldsAffectingStepDescription(): string[] {
+        return ['clusterServiceCidr', 'clusterPodCidr'];
+    }
+
     private customizeForm() {
         if (!this.enableNetworkName) {
             this.clearFieldSavedData('networkName');
@@ -58,7 +63,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
                 this.setCidrs
             ]);
         });
-        this.registerFieldsAffectingStepDescription(cidrs);
+        this.registerFieldsAffectingStepDescription(this.supplyFieldsAffectingStepDescription());
 
         this.setValidators();
     }

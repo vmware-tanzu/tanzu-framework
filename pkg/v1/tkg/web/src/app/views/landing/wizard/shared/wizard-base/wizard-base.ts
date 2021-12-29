@@ -717,7 +717,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
         clazz: SharedCeipStepComponent };
     }
     get IdentityForm(): FormDataForHTML {
-        return { name: WizardForm.IDENTITY, title: 'Identity Management', description: 'Specify identity management',
+        return { name: WizardForm.IDENTITY, title: 'Identity Management', description: SharedIdentityStepComponent.description,
             i18n: { title: 'identity step title', description: 'identity step description' },
         clazz: SharedIdentityStepComponent };
     }
