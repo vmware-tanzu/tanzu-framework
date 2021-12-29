@@ -53,7 +53,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
     loadingState: ClrLoadingState = ClrLoadingState.DEFAULT;
     vSphereWithK8ModalOpen: boolean = false;
     datacenters: Array<VSphereDatacenter>;
-    vsphereVersion: string;
+    vsphereVersion: string = '';
     vsphereHost: string;
     hasPacific: string;
 
@@ -189,6 +189,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
             this.clearControlValue(VsphereField.PROVIDER_DATA_CENTER);
             this.datacenters = [];
             this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).disable();
+            this.triggerStepDescriptionChange();
         } else {
             console.log('already disconnected so ignoring disconnect call (msg:' + consoleMsg + ')');
         }
@@ -325,6 +326,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 this.vsphereVersion = vsphereVerInfo.version;
                 this.hasPacific = res.hasPacific;
                 AppServices.appDataService.setVsphereVersion(vsphereVerInfo.version);
+                this.triggerStepDescriptionChange();
 
                 if (isCompatible && !(_.startsWith(this.vsphereVersion, '6'))
                     && this.edition !== AppEdition.TCE) {

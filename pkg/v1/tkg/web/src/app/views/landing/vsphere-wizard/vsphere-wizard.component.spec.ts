@@ -88,7 +88,7 @@ describe('VSphereWizardComponent', () => {
     });
 
     it('VsphereProviderFormDescription should return correct static description when wizard is not filled', () => {
-        const description = component.describeStep('vsphereProviderForm', component.VsphereProviderForm.description)
+        const description = component.stepDescription['vsphereProviderForm'];
         expect(description).toBe('Validate the vSphere provider account for Tanzu');
     });
 
@@ -103,7 +103,7 @@ describe('VSphereWizardComponent', () => {
         providerStep.clusterTypeDescriptor = 'management';
         component.registerStep('vsphereProviderForm', providerStep);
 
-        const description = component.describeStep('vsphereProviderForm', component.VsphereProviderForm.description)
+        const description = component.stepDescription['vsphereProviderForm'];
         expect(description).toBe('vCenter vcAddr connected');
     });
 

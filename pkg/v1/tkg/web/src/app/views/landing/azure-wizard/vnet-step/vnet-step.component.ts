@@ -108,6 +108,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
                     type: TkgEventType.NETWORK_STEP_GET_NO_PROXY_INFO,
                     payload: { info: (cidr ? cidr + ',' : '') + '169.254.0.0/16,168.63.129.16' }
                 });
+                this.triggerStepDescriptionChange();
             });
         /**
          * Whenever Azure region selection changes...
@@ -337,7 +338,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
     }
 
     protected dynamicDescription(): string {
-        const vnetCidrBlock = this.getFieldValue("vnetCidrBlock", true);
+        const vnetCidrBlock = this.getFieldValue(AzureField.VNET_CUSTOM_CIDR, true);
         return vnetCidrBlock ? `Subnet: ${vnetCidrBlock}` : 'Specify an Azure VNET CIDR';
     }
 }

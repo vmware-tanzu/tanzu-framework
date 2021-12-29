@@ -93,6 +93,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         super.ngOnInit();
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
         this.subscribeToServices();
+        this.registerFieldsAffectingStepDescription(['controlPlaneSetting']);
         this.toggleValidations();
         this.initFormWithSavedData();
     }
@@ -114,6 +115,10 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     getEnvType(): string {
         return this.formGroup.controls['controlPlaneSetting'].value;
+    }
+
+    protected clusterTypeDescriptorAffectsStepDescription(): boolean {
+        return true;
     }
 
     protected dynamicDescription(): string {

@@ -37,8 +37,14 @@ export class FormUtility {
         return target.replace(/(^|\s)\S/g, function(t) { return t.toUpperCase() });
     }
 
-    static formOverrideDescription(formData: FormDataForHTML, description: string): FormDataForHTML {
-        formData.description = description;
+    static formWithOverrides(formData: FormDataForHTML, overrideData: { description?: string, clazz?: Type<StepFormDirective> }):
+        FormDataForHTML {
+        if (overrideData.description) {
+            formData.description = overrideData.description;
+        }
+        if (overrideData.clazz) {
+            formData.clazz = overrideData.clazz;
+        }
         return formData;
     }
 

@@ -13,7 +13,7 @@ import { FormMetaData, FormMetaDataStore } from '../FormMetaDataStore';
 import { FormUtility } from '../components/steps/form-utility';
 import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 import { Notification, NotificationTypes } from 'src/app/shared/components/alert-notification/alert-notification.component';
-import { TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
+import { StepDescriptionChangePayload, TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
 import { ValidatorEnum } from './../constants/validation.constants';
 
 const INIT_FIELD_DELAY = 50;            // ms
@@ -24,6 +24,7 @@ const INIT_FIELD_DELAY = 50;            // ms
  */
 @Directive()
 export abstract class StepFormDirective extends BasicSubscriber implements OnInit {
+    wizardName: string;
     formName;
     formGroup: FormGroup;
     savedMetadata: { [fieldName: string]: FormMetaData };
@@ -32,7 +33,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     validatorEnum = ValidatorEnum;
     errorNotification: string = '';
     configFileNotification: Notification;
-    clusterTypeDescriptor: string;
+    clusterTypeDescriptor: string = '';
     modeClusterStandalone: boolean;
     ipFamily: IpFamilyEnum = IpFamilyEnum.IPv4;
 
@@ -44,9 +45,10 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         return null;
     }
 
-    setInputs(formName: string, formGroup: FormGroup) {
+    setInputs(wizardName, formName: string, formGroup: FormGroup) {
         this.formName = formName;
         this.formGroup = formGroup;
+        this.wizardName = wizardName;
     }
 
     ngOnInit(): void {
@@ -61,6 +63,9 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
                 const content: EditionData = data.payload;
                 this.edition = content.edition;
                 this.clusterTypeDescriptor = data.payload.clusterTypeDescriptor;
+                if (this.clusterTypeDescriptorAffectsStepDescription()) {
+                    this.triggerStepDescriptionChange();
+                }
             });
         this.modeClusterStandalone = AppServices.appDataService.isModeClusterStandalone();
 
@@ -328,6 +333,16 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         return !(arr && arr.length > 0);
     }
 
+    // registerFieldsAffectingStepDescription is called by subclasses to register onChange handlers
+    // for any field that affects the step description
+    protected registerFieldsAffectingStepDescription(fields: string[]) {
+        fields.forEach(field => {
+            this.registerOnValueChange(field, () => {
+                this.triggerStepDescriptionChange();
+            });
+        })
+    }
+
     /**
      * Registers a callback when a field value changes.
      * This method does more than the "onchange" event handler
@@ -399,6 +414,23 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     }
     //
     // HTML convenience methods
+
+    protected triggerStepDescriptionChange() {
+        const descriptionChangePayload: StepDescriptionChangePayload = {
+            wizard: this.wizardName,
+            step: this.formName,
+            description: this.dynamicDescription(),
+        }
+        Broker.messenger.publish({
+            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            payload: descriptionChangePayload,
+        });
+    }
+
+    // This method should be overridden (to return true) by subclasses who use the clusterTypeDescriptor in their step description
+    protected clusterTypeDescriptorAffectsStepDescription() {
+        return false;
+    }
 
     // This method is designed to expose the protected unsubscribe field to allow its use in subscribing to pipes
     get unsubscribeOnDestroy(): Subject<void> {

@@ -121,7 +121,9 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
             } else {
                 this.disarmField('identityType', true);
             }
+            this.triggerStepDescriptionChange();
         });
+        this.registerFieldsAffectingStepDescription(['endpointIp', 'endpointPort',  'issuerURL']);
     }
 
     ngOnInit(): void {
@@ -332,7 +334,7 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
         if (identityType === IdentityManagementType.OIDC && oidcIssuer) {
             return 'OIDC configured: ' + oidcIssuer;
         } else if (identityType === IdentityManagementType.LDAP && ldapEndpointIp) {
-            return 'LDAP configured: ' + ldapEndpointIp + ':' + ldapEndpointPort;
+            return 'LDAP configured: ' + ldapEndpointIp + ':' + (ldapEndpointPort ? ldapEndpointPort : '');
         }
         return 'Specify identity management';
     }

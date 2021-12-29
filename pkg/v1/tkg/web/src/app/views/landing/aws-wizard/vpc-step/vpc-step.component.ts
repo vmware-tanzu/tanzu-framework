@@ -80,6 +80,7 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
                     type: TkgEventType.NETWORK_STEP_GET_NO_PROXY_INFO,
                     payload: { info: (cidr ? cidr + ',' : '') + '169.254.0.0/16' }
                 });
+                this.triggerStepDescriptionChange();
             });
         });
 
@@ -179,7 +180,9 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
     }
 
     protected dynamicDescription(): string {
-        const vpc = this.getFieldValue('vpc', true);
+        // SHIMON TODO: some of the fields below don't exist in the mapping used to create this form
+        // once that's fixed, implement this.triggerStepDescriptionChange() correctly
+        const vpc = this.getFieldValue(AwsField.VPC_NEW_CIDR, true);
         const publicNodeCidr = this.getFieldValue('publicNodeCidr', true);
         const privateNodeCidr = this.getFieldValue('privateNodeCidr', true);
         const awsNodeAz = this.getFieldValue('awsNodeAz', true);

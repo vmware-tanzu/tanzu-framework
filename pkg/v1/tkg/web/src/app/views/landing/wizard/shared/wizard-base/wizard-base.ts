@@ -28,8 +28,7 @@ import { TkgEvent, TkgEventType } from './../../../../../shared/service/Messenge
 // This interface describes a wizard that can register a step component
 export interface WizardStepRegistrar {
     registerStep: (nameStep: string, stepComponent: StepFormDirective) => void,
-    describeStep: (nameStep, staticDescription: string) => string,
-    displayStep:  (nameStep: string) => boolean
+    stepDescription: Map<string, string>,
 }
 
 @Directive()
@@ -49,15 +48,15 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
 
     title: string;
     edition: string;
-    clusterTypeDescriptor: string;
+    clusterTypeDescriptor: string = '';
 
     steps = [true, false, false, false, false, false, false, false, false, false, false];
-    stepComponents: Map<string, StepFormDirective>;
+    stepDescription: Map<string, string> = new Map<string, string>();   // Field that fulfill WizardStepRegistrar
     stepData: FormDataForHTML[];
 
     review = false;
 
-    constructor(
+    protected constructor(
         protected router: Router,
         protected el: ElementRef,
         protected formMetaDataService: FormMetaDataService,
@@ -69,10 +68,11 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
 
     // This is the method by which the child class gives this class the data for the steps.
     protected abstract supplyStepData(): FormDataForHTML[];
+    // This is the method by which the child class gives this class the wizard name; this is used to identify which wizard a step belongs to
+    protected abstract supplyWizardName(): string;
 
     ngOnInit() {
         this.form = this.formBuilder.group({});
-        this.stepComponents = new Map<string, StepFormDirective>();
         // loop through stepData definitions and add a new form control for each step and we'll have the step formGroup objects built
         // even before the step components are instantiated (and Clarity will be happy, since it wants to process formGroup directives
         // before the step components are instantiated)
@@ -82,8 +82,20 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
         } else {
             for (const daStepData of this.stepData) {
                 this.form.controls[daStepData.name] = this.formBuilder.group({});
+                this.stepDescription[daStepData.name] = daStepData.description;
             }
         }
+
+        // set step description (if it's a step description for this wizard)
+        Broker.messenger.getSubject(TkgEventType.STEP_DESCRIPTION_CHANGE)
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe((data: TkgEvent) => {
+                const stepDescriptionPayload = data.payload as StepDescriptionChangePayload;
+                if (this.supplyWizardName() === stepDescriptionPayload.wizard) {
+                    // we use setTimeout to avoid a possible ExpressionChangedAfterItHasBeenCheckedError
+                    setTimeout(() => { this.stepDescription[stepDescriptionPayload.step] = stepDescriptionPayload.description; }, 0);
+                }
+            });
 
         // set branding and cluster type on branding change for base wizard components
         AppServices.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
@@ -552,26 +564,8 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     // Methods that fulfill WizardStepRegistrar
     //
     registerStep(stepName: string, stepComponent: StepFormDirective) {
-        // create a formGroup for this step, record it internally and set it in the step
-        stepComponent.setInputs(stepName, this.form.controls[stepName] as FormGroup);
-        // record this step component internally
-        this.stepComponents[stepName] = stepComponent;
-    }
-
-    // If the component has registered, returns the component's dynamic description (if it has one).
-    // If the component has not yet registered, returns the static description (passed in)
-    describeStep(stepName, staticDescription: string): string {
-        const stepComponent = this.stepComponents[stepName];
-        if (!stepComponent) {
-            return staticDescription;
-        }
-        const dynamicDescription = stepComponent.dynamicDescription();
-        return dynamicDescription ? dynamicDescription : staticDescription;
-    }
-
-    displayStep(stepName: string): boolean {
-        const stepIndex = this.getStepIndex(stepName);
-        return stepIndex >= 0 && this.steps[stepIndex];
+        // set the wizard name, stepName and formGroup (already created for this step) into the component
+        stepComponent.setInputs(this.supplyWizardName(), stepName, this.form.controls[stepName] as FormGroup);
     }
     //
     // Methods that fulfill WizardStepRegistrar
@@ -752,17 +746,4 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     }
     //
     // HTML convenience methods
-
-    protected getStepIndex(stepName: string): number {
-        let result = -1;
-        this.stepData.forEach((data, index) => {
-            if (data.name === stepName) {
-                result = index;
-            }
-        });
-        if (result === -1) {
-            console.error('unable to find step named ' + stepName + ' in the wizard\'s array of step data');
-        }
-        return result;
-    }
 }

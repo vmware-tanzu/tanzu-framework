@@ -58,6 +58,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
                 this.setCidrs
             ]);
         });
+        this.registerFieldsAffectingStepDescription(cidrs);
 
         this.setValidators();
     }

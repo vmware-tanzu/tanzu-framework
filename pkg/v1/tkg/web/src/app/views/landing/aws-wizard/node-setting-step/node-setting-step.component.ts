@@ -142,6 +142,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     private customizeForm() {
+        this.registerFieldsAffectingStepDescription(['controlPlaneSetting']);
         AppServices.messenger.getSubject(TkgEventType.AWS_AIRGAPPED_VPC_CHANGE).subscribe(event => {
             this.airgappedVPC = event.payload;
             if (this.airgappedVPC) { // public subnet IDs shouldn't be provided
@@ -564,6 +565,10 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         }
     }
 
+    protected clusterTypeDescriptorAffectsStepDescription(): boolean {
+        return true;
+    }
+
     protected dynamicDescription(): string {
         const ctlPlaneFlavor = this.getFieldValue('controlPlaneSetting', true);
         if (ctlPlaneFlavor) {
@@ -573,6 +578,6 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             }
             return mode;
         }
-        return `Specify the resources backing the ${this.clusterTypeDescriptor} cluster`;
+        return 'Specify the resources backing the ' + this.clusterTypeDescriptor + 'cluster';
     }
 }

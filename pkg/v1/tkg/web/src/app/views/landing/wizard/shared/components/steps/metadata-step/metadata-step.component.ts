@@ -22,6 +22,8 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
     ngOnInit() {
         super.ngOnInit();
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, MetadataStepMapping);
+        this.registerFieldsAffectingStepDescription(['clusterLocation']);
+
         this.initFormWithSavedData();
     }
 
@@ -73,6 +75,10 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
     getDisabled(): boolean {
         return !(this.formGroup.get('newLabelKey').valid &&
             this.formGroup.get('newLabelValue').valid);
+    }
+
+    protected clusterTypeDescriptorAffectsStepDescription(): boolean {
+        return true;
     }
 
     dynamicDescription(): string {

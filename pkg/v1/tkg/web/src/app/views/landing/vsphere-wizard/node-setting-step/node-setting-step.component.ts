@@ -46,6 +46,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     private customizeForm() {
+        this.registerFieldsAffectingStepDescription(['controlPlaneSetting']);
         this.registerOnValueChange(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_PROVIDER,
             this.onControlPlaneEndpoingProviderChange.bind(this));
         this.registerOnIpFamilyChange(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_IP, [
@@ -192,6 +193,10 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             return '';
         }
         return this.formGroup.controls['controlPlaneSetting'].value;
+    }
+
+    protected clusterTypeDescriptorAffectsStepDescription(): boolean {
+        return true;
     }
 
     dynamicDescription(): string {

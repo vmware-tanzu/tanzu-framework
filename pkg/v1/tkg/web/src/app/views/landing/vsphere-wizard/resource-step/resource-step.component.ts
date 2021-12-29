@@ -60,6 +60,8 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
     ngOnInit() {
         super.ngOnInit();
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, VsphereResourceStepMapping);
+        this.registerFieldsAffectingStepDescription([VsphereField.RESOURCE_DATASTORE,
+            VsphereField.RESOURCE_POOL, VsphereField.RESOURCE_VMFOLDER]);
 
         /**
          * Whenever data center selection changes, reset the relevant fields
@@ -248,10 +250,14 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
         return this.formGroup.get(VsphereField.RESOURCE_DATASTORE).value;
     }
 
+    protected clusterTypeDescriptorAffectsStepDescription(): boolean {
+        return true;
+    }
+
     dynamicDescription(): string {
-        const vmFolder = this.getFieldValue('vmFolder', true);
-        const datastore = this.getFieldValue('datastore', true);
-        const resourcePool = this.getFieldValue('resourcePool', true);
+        const vmFolder = this.getFieldValue(VsphereField.RESOURCE_VMFOLDER, true);
+        const datastore = this.getFieldValue(VsphereField.RESOURCE_DATASTORE, true);
+        const resourcePool = this.getFieldValue(VsphereField.RESOURCE_POOL, true);
         if (vmFolder && datastore && resourcePool) {
             return 'Resource Pool: ' + resourcePool + ', VM Folder: ' + vmFolder + ', Datastore: ' + datastore;
         }
