@@ -50,14 +50,20 @@ export enum TanzuEventType {
     BRANDING_CHANGED,
     CONFIG_FILE_IMPORTED,
     CONFIG_FILE_IMPORT_ERROR,
+    STEP_COMPLETED,
     STEP_DESCRIPTION_CHANGE,
 }
 
-// The payload structure expected on a STEP_NAME_CHANGE event
+// The payload structure expected on a STEP_DESCRIPTION_CHANGE event
 export interface StepDescriptionChangePayload {
     wizard: string,
     step: string,
     description: string,
+}
+// The payload structure expected on a STEP_COMPLETED event
+export interface StepCompletedPayload {
+    wizard: string,
+    step: string,
 }
 
 /**

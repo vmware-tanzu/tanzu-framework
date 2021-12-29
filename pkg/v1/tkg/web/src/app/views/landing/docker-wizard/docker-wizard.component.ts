@@ -41,7 +41,7 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
     }
 
     protected supplyWizardName(): string {
-        return 'Docker Wizard';
+        return 'DockerWizard';
     }
 
     protected supplyStepData(): FormDataForHTML[] {

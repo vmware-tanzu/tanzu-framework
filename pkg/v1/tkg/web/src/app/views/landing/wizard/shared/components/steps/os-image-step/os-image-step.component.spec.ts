@@ -28,7 +28,6 @@ describe('VsphereOsImageStepComponent', () => {
             providers: [
                 ValidationService,
                 FormBuilder,
-                FieldMapUtilities,
                 APIClient,
             ],
             schemas: [

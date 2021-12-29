@@ -35,13 +35,19 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
     loadingNetworks: boolean = false;   // only used by vSphere
     hideNoProxyWarning: boolean = true; // only used by vSphere
 
-    constructor(protected validationService: ValidationService,
-                protected fieldMapUtilities: FieldMapUtilities
-                ) {
+    constructor(protected validationService: ValidationService) {
         super();
     }
 
-    private supplyStepMapping(): StepMapping {
+    protected supplyEnablesNetworkName(): boolean {
+        return false;
+    }
+
+    protected supplyEnablesNoProxyWarning(): boolean {
+        return false;
+    }
+
+    protected supplyStepMapping(): StepMapping {
         return this.ipFamily === IpFamilyEnum.IPv4 ? NetworkIpv4StepMapping : NetworkIpv6StepMapping;
     }
 
@@ -71,7 +77,10 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
 
     ngOnInit() {
         super.ngOnInit();
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
+        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
+        this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.supplyStepMapping());
+        this.storeDefaultLabels(this.supplyStepMapping());
+
         this.customizeForm();
         this.listenToEvents();
         this.subscribeToServices();
@@ -285,5 +294,17 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
 
     // allows subclasses to subscribe to services during ngOnInit by overriding this method
     protected subscribeToServices() {
+    }
+
+    protected storeUserData() {
+        this.storeUserDataFromMapping(this.supplyStepMapping());
+        this.storeDefaultDisplayOrder(this.supplyStepMapping());
+    }
+
+    get enableNoProxyWarning(): boolean {
+        return this.supplyEnablesNoProxyWarning();
+    }
+    get enableNetworkName(): boolean {
+        return this.supplyEnablesNetworkName();
     }
 }

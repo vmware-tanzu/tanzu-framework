@@ -26,7 +26,6 @@ describe('ResourceStepComponent', () => {
             providers: [
                 APIClient,
                 FormBuilder,
-                FieldMapUtilities,
                 ValidationService,
             ],
             schemas: [

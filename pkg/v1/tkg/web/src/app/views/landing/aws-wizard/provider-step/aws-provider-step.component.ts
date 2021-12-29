@@ -35,7 +35,7 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
     profileNames: Array<string> = [];
     validCredentials: boolean = false;
 
-    constructor(private fieldMapUtilities: FieldMapUtilities, private apiClient: APIClient) {
+    constructor(private apiClient: APIClient) {
         super();
     }
 
@@ -73,7 +73,10 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
     ngOnInit() {
         super.ngOnInit();
 
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, AwsProviderStepMapping);
+        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.formName, AwsProviderStepMapping);
+        this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(AwsProviderStepMapping);
+        this.storeDefaultLabels(AwsProviderStepMapping);
+
         this.customizeForm();
 
         this.loading = true;
@@ -91,10 +94,7 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
             }
         );
 
-        this.formGroup.get(AwsField.PROVIDER_AUTH_TYPE).valueChanges.pipe(
-            distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
-            takeUntil(this.unsubscribe)
-        ).subscribe(data => {
+        this.registerOnValueChange(AwsField.PROVIDER_AUTH_TYPE, data => {
             this.authTypeValue = data;
 
             if (this.authTypeValue === CredentialType.ONETIME) {
@@ -106,22 +106,9 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
             }
         });
         this.authTypeValue = this.getSavedValue(AwsField.PROVIDER_AUTH_TYPE, CredentialType.PROFILE);
-        this.setControlValueSafely(AwsField.PROVIDER_AUTH_TYPE, this.authTypeValue, { emitEvent: false });
+        this.setControlValueSafely(AwsField.PROVIDER_AUTH_TYPE, this.authTypeValue);
 
-        AppServices.messenger.getSubject(TanzuEventType.CONFIG_FILE_IMPORTED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TanzuEvent) => {
-                this.configFileNotification = {
-                    notificationType: NotificationTypes.SUCCESS,
-                    message: data.payload
-                };
-                // The file import saves the data to local storage, so we reinitialize this step's form from there
-                this.savedMetadata = FormMetaDataStore.getMetaData(this.formName);
-                this.initFormWithSavedData();
-
-                // Clear event so that listeners in other provider workflows do not receive false notifications
-                AppServices.messenger.clearEvent(TanzuEventType.CONFIG_FILE_IMPORTED);
-            });
+        this.registerDefaultFileImportedHandler(AwsProviderStepMapping);
 
         this.initFormWithSavedData();
     }
@@ -254,5 +241,10 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
     // For use in HTML
     isAuthTypeProfile() {
         return this.authTypeValue === CredentialType.PROFILE;
+    }
+
+    protected storeUserData() {
+        this.storeUserDataFromMapping(AwsProviderStepMapping);
+        this.storeDefaultDisplayOrder(AwsProviderStepMapping);
     }
 }

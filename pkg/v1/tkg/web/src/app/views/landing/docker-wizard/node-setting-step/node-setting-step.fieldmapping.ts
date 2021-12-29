@@ -3,6 +3,6 @@ import { SimpleValidator } from '../../wizard/shared/constants/validation.consta
 
 export const DockerNodeSettingStepMapping: StepMapping = {
     fieldMappings: [
-        { name: 'clusterName', required: true, validators: [SimpleValidator.IS_VALID_CLUSTER_NAME] },
+        { name: 'clusterName', required: true, validators: [SimpleValidator.IS_VALID_CLUSTER_NAME], label: 'CLUSTER NAME' },
     ]
 }

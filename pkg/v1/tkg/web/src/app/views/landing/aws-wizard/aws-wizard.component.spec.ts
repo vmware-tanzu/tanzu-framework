@@ -35,7 +35,6 @@ describe('AwsWizardComponent', () => {
             providers: [
                 APIClient,
                 FormBuilder,
-                FieldMapUtilities,
                 ValidationService
             ],
             schemas: [

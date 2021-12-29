@@ -68,7 +68,6 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
     supervisedFieldValues = new Map<string, string>();
 
     constructor(private validationService: ValidationService,
-                private fieldMapUtilities: FieldMapUtilities,
                 private apiClient: APIClient,
                 private router: Router) {
         super();
@@ -103,27 +102,29 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
             this.dcOnChange(data)
         });
 
-        this.formGroup.get(VsphereField.PROVIDER_IP_FAMILY).valueChanges
-            .pipe(
-                distinctUntilChanged((prev, curr) => {
-                    const same = prev === curr;
-                    console.log('field PROVIDER_IP_FAMILY detects ' + !same + ' change from ' + prev + ' to ' + curr);
-                    return same;
-                }),
-                takeUntil(this.unsubscribe)
-            )
-            .subscribe(data => {
-                // In theory, we should only receive this event if the ipFamily actually changed. In practice, we double-check.
-                const same = data === this.ipFamily;
-                if (!same) {
-                    AppServices.messenger.publish({
-                        type: TanzuEventType.VSPHERE_IP_FAMILY_CHANGE,
-                        payload: data
-                    });
-                    this.disconnect('disconnecting because field PROVIDER_IP_FAMILY changed value to ' + data);
+        if (this.enableIpv6) {
+            this.formGroup.get(VsphereField.PROVIDER_IP_FAMILY).valueChanges
+                .pipe(
+                    distinctUntilChanged((prev, curr) => {
+                        const same = prev === curr;
+                        console.log('field PROVIDER_IP_FAMILY detects ' + !same + ' change from ' + prev + ' to ' + curr);
+                        return same;
+                    }),
+                    takeUntil(this.unsubscribe)
+                )
+                .subscribe(data => {
+                    // In theory, we should only receive this event if the ipFamily actually changed. In practice, we double-check.
+                    const same = data === this.ipFamily;
+                    if (!same) {
+                        AppServices.messenger.publish({
+                            type: TanzuEventType.VSPHERE_IP_FAMILY_CHANGE,
+                            payload: data
+                        });
+                        this.disconnect('disconnecting because field PROVIDER_IP_FAMILY changed value to ' + data);
+                    }
                 }
-            }
-        );
+            );
+        }
 
         AppServices.messenger.getSubject(TanzuEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
@@ -132,20 +133,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 this.edition = content.edition;
             });
 
-        AppServices.messenger.getSubject(TanzuEventType.CONFIG_FILE_IMPORTED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TanzuEvent) => {
-                this.configFileNotification = {
-                    notificationType: NotificationTypes.SUCCESS,
-                    message: data.payload
-                };
-                // The file import saves the data to local storage, so we reinitialize this step's form from there
-                this.savedMetadata = FormMetaDataStore.getMetaData(this.formName);
-                this.initFormWithSavedData();
-
-                // Clear event so that listeners in other provider workflows do not receive false notifications
-                AppServices.messenger.clearEvent(TanzuEventType.CONFIG_FILE_IMPORTED);
-            });
+        this.registerDefaultFileImportedHandler(VsphereProviderStepFieldMapping);
 
         this.fileReader.onload = (event) => {
             try {
@@ -169,7 +157,10 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
     ngOnInit() {
         super.ngOnInit();
         this.enableIpv6 = AppServices.appDataService.isPluginFeatureActivated(managementClusterPlugin, 'vsphereIPv6');
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, VsphereProviderStepFieldMapping);
+        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.formName, VsphereProviderStepFieldMapping);
+        this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(VsphereProviderStepFieldMapping);
+        this.storeDefaultLabels(VsphereProviderStepFieldMapping);
+
         this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).disable({ emitEvent: false});
         this.datacenters = [];
         this.formGroup.get(VsphereField.PROVIDER_SSH_KEY).disable({ emitEvent: false});
@@ -466,5 +457,10 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
         }
         const version = this.vsphereVersion ? this.vsphereVersion + ' ' : '';
         return 'Validate the vSphere ' + version + 'provider account for Tanzu';
+    }
+
+    protected storeUserData() {
+        this.storeUserDataFromMapping(VsphereProviderStepFieldMapping);
+        this.storeDefaultDisplayOrder(VsphereProviderStepFieldMapping);
     }
 }

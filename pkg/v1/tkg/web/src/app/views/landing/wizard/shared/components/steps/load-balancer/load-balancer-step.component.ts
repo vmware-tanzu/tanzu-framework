@@ -41,16 +41,13 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
     serviceEngineGroups: Array<AviServiceEngineGroup>;
     serviceEngineGroupsFiltered: Array<AviServiceEngineGroup>;
     labels: Map<String, String> = new Map<String, String>();
-    vipClusterNetworkNameLabel: string;
-    vipClusterNetworkCidrLabel: string;
     vipNetworks: Array<AviVipNetwork> = [];
     selectedNetworkName: string;
     selectedManagementClusterNetworkName: string;
     loadBalancerLabel = 'Load Balancer Settings';
 
     constructor(private validationService: ValidationService,
-                private apiClient: APIClient,
-                private fieldMapUtilities: FieldMapUtilities) {
+                private apiClient: APIClient) {
         super();
     }
 
@@ -94,15 +91,24 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
         ]);
     }
 
+    private supplyStepMapping(): StepMapping {
+        const result = LoadBalancerStepMapping;
+        const managementClusterNetworkNameMapping = AppServices.fieldMapUtilities.getFieldMapping('managementClusterNetworkName', result);
+        const managementClusterNetworkCidrMapping = AppServices.fieldMapUtilities.getFieldMapping('managementClusterNetworkCIDR', result);
+        if (this.modeClusterStandalone) {
+            managementClusterNetworkNameMapping.label = 'STANDALONE CLUSTER VIP NETWORK NAME';
+            managementClusterNetworkCidrMapping.label = 'STANDALONE CLUSTER VIP NETWORK CIDR';
+        }
+        return result;
+    }
+
     ngOnInit() {
         super.ngOnInit();
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, LoadBalancerStepMapping);
-        this.customizeForm();
+        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
+        this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.supplyStepMapping());
+        this.storeDefaultLabels(this.supplyStepMapping());
 
-        this.vipClusterNetworkNameLabel = this.modeClusterStandalone ?
-            'STANDALONE CLUSTER VIP NETWORK NAME' : 'MANAGEMENT VIP NETWORK NAME';
-        this.vipClusterNetworkCidrLabel = this.modeClusterStandalone ?
-            'STANDALONE CLUSTER VIP NETWORK CIDR' : 'MANAGEMENT VIP NETWORK CIDR';
+        this.customizeForm();
 
         this.initFormWithSavedData();
     }
@@ -412,4 +418,12 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
         return this.getSubnets(this.selectedManagementClusterNetworkName);
     }
 
+    protected storeUserData() {
+        this.storeUserDataFromMapping(LoadBalancerStepMapping);
+        // clusterLabels field does not actually hold the value of the labels map that we keep in this step, so we save it separately
+        const identifier = this.createUserDataIdentifier('clusterLabels');
+        Broker.userDataService.store(identifier, { display: this.clusterLabelsValue, value: this.clusterLabelsValue})
+
+        this.storeDefaultDisplayOrder(LoadBalancerStepMapping);
+    }
 }

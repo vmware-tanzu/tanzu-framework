@@ -4,12 +4,13 @@ import { FormControl, Validators } from '@angular/forms';
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
 // App imports
+import Broker from '../../../../../../../shared/service/broker';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { MetadataField, MetadataStepMapping } from './metadata-step.fieldmapping';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { ValidationService } from '../../../validation/validation.service';
-import { FormUtils } from '../../../utils/form-utils';
 
+import { FormUtils } from '../../../utils/form-utils';
 const LABEL_KEY_NAME = 'newLabelKey';
 const LABEL_VALUE_NAME = 'newLabelValue';
 
@@ -24,14 +25,11 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
     savedKeySet: Set<string> = new Set();
     labelCounter: number = 0;
 
-    constructor(private validationService: ValidationService,
-                private fieldMapUtilities: FieldMapUtilities) {
-        super();
-    }
-
     ngOnInit() {
         super.ngOnInit();
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, MetadataStepMapping);
+        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.formName, MetadataStepMapping);
+        this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(MetadataStepMapping);
+        this.storeDefaultLabels(MetadataStepMapping);
         this.registerStepDescriptionTriggers({
             fields: [MetadataField.CLUSTER_LOCATION],
             clusterTypeDescriptor: true,
@@ -154,5 +152,14 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
     dynamicDescription(): string {
         const clusterLocation = this.getFieldValue(MetadataField.CLUSTER_LOCATION, true);
         return clusterLocation ? 'Location: ' + clusterLocation : 'Specify metadata for the ' + this.clusterTypeDescriptor + ' cluster';
+    }
+
+    protected storeUserData() {
+        this.storeUserDataFromMapping(MetadataStepMapping);
+        // clusterLabels field does not actually hold the value of the labels map that we keep in this step, so we save it separately
+        const identifier = this.createUserDataIdentifier('clusterLabels');
+        Broker.userDataService.store(identifier, { display: this.clusterLabelsValue, value: this.clusterLabelsValue})
+
+        this.storeDefaultDisplayOrder(MetadataStepMapping);
     }
 }

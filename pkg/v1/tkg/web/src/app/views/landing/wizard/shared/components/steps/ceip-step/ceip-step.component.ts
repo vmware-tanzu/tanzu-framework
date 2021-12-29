@@ -1,17 +1,9 @@
-/**
- * Angular Modules
- */
+// Angular imports
 import { Component, OnInit } from '@angular/core';
-import { FormControl } from '@angular/forms';
-import { FormMetaDataStore, FormMetaData } from '../../../FormMetaDataStore';
-
-/**
- * App imports
- */
-import { StepFormDirective } from '../../../step-form/step-form';
-import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
+// App imports
+import Broker from '../../../../../../../shared/service/broker';
 import { CeipStepMapping } from './ceip-step.fieldmapping';
-import { StepMapping } from '../../../field-mapping/FieldMapping';
+import { StepFormDirective } from '../../../step-form/step-form';
 
 @Component({
     selector: 'app-shared-ceip-step',
@@ -19,13 +11,18 @@ import { StepMapping } from '../../../field-mapping/FieldMapping';
     styleUrls: ['./ceip-step.component.scss']
 })
 export class SharedCeipStepComponent extends StepFormDirective implements OnInit {
-    constructor(private fieldMapUtilities: FieldMapUtilities) {
-        super();
-    }
 
     ngOnInit() {
         super.ngOnInit();
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, CeipStepMapping);
+        Broker.fieldMapUtilities.buildForm(this.formGroup, this.formName, CeipStepMapping);
+        this.htmlFieldLabels = Broker.fieldMapUtilities.getFieldLabelMap(CeipStepMapping);
+        this.storeDefaultLabels(CeipStepMapping);
+
         this.initFormWithSavedData();
+    }
+
+    protected storeUserData() {
+        this.storeUserDataFromMapping(CeipStepMapping);
+        this.storeDefaultDisplayOrder(CeipStepMapping);
     }
 }

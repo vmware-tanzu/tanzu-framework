@@ -35,7 +35,6 @@ describe('VSphereWizardComponent', () => {
             providers: [
                 APIClient,
                 FormBuilder,
-                FieldMapUtilities,
                 ValidationService
             ],
             schemas: [

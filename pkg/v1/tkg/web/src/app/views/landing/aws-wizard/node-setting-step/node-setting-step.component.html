@@ -131,16 +131,12 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-input-container [attr.data-step-metadata]="formName">
                 <label i18n="cluster name label" clr-control-label>
-                    {{ clusterTypeDescriptor | uppercase }} CLUSTER NAME {{edition === APP_EDITION.TKG ? '(OPTIONAL)' : ''}}
+                    {{htmlFieldLabels['clusterName']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                             <span>
-                                {{  edition === APP_EDITION.TKG ?
-                                    'Optionally specify a name for the ' + clusterTypeDescriptor + ' cluster. If left blank,' +
-                                    'the installer names the cluster automatically.' :
-                                    'Specify a name for the ' + clusterTypeDescriptor + ' cluster.'
-                                }}
+                                {{ clusterNameInstruction }}
                             </span>
                         </clr-tooltip-content>
                     </clr-tooltip>
@@ -164,7 +160,7 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-input-container [attr.data-step-metadata]="formName">
                 <label i18n="EC2 key pair label" clr-control-label>
-                    EC2 KEY PAIR
+                    {{htmlFieldLabels['sshKeyName']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -190,7 +186,7 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-checkbox-container [attr.data-step-metadata]="formName">
                 <label i18n="cluster enable machine health check" clr-control-label data-full="ENABLE MACHINE HEALTH CHECKS">
-                    MACHINE HEALTH CHECKS
+                    {{htmlFieldLabels['machineHealthChecksEnabled']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -210,7 +206,7 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-checkbox-container [attr.data-step-metadata]="formName">
                 <label i18n="cluster BASTION HOST ENABLED" clr-control-label data-full="ENABLE BASTION HOST">
-                    BASTION HOST
+                    {{htmlFieldLabels['bastionHostEnabled']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -237,7 +233,7 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-checkbox-container [attr.data-step-metadata]="formName">
                 <label i18n="cluster AWS CLOUDFORMATION STACK" clr-control-label data-full="AUTOMATE CREATION OF AWS CLOUDFORMATION STACK">
-                    AWS CLOUDFORMATION STACK
+                    {{htmlFieldLabels['createCloudFormation']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -266,7 +262,7 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-select-container [attr.data-step-metadata]="formName">
                 <label i18n="existing vpc label">
-                    AVAILABILITY ZONE 1
+                    {{htmlFieldLabels['awsNodeAz1']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -305,7 +301,7 @@
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                 <clr-select-container [attr.data-step-metadata]="formName">
                     <label i18n="existing vpc label">
-                        VPC PUBLIC SUBNET
+                        {{htmlFieldLabels['vpcPublicSubnet1']}}
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -335,7 +331,7 @@
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                 <clr-select-container [attr.data-step-metadata]="formName">
                     <label i18n="existing vpc label">
-                        VPC PRIVATE SUBNET
+                        {{htmlFieldLabels['vpcPrivateSubnet1']}}
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
@@ -372,7 +368,7 @@
                 data-label="worker node instance type 1">
                 <clr-datalist-container>
                     <label i18n="worker node instance type label" class="clr-col-12 clr-col-md-12">
-                        AZ1 WORKER NODE INSTANCE TYPE
+                        {{htmlFieldLabels['workerNodeInstanceType1']}}
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -407,7 +403,7 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-select-container [attr.data-step-metadata]="formName">
                 <label i18n="existing vpc label">
-                    AVAILABILITY ZONE 2
+                    {{htmlFieldLabels['awsNodeAz2']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -446,7 +442,7 @@
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" >
                 <clr-select-container [attr.data-step-metadata]="formName">
                     <label i18n="existing vpc label">
-                        VPC PUBLIC SUBNET
+                        {{htmlFieldLabels['vpcPublicSubnet2']}}
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -476,7 +472,7 @@
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                 <clr-select-container [attr.data-step-metadata]="formName">
                     <label i18n="existing vpc label">
-                        VPC PRIVATE SUBNET
+                        {{htmlFieldLabels['vpcPrivateSubnet2']}}
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
@@ -513,7 +509,7 @@
                 data-label="worker node instance type 2">
                 <clr-datalist-container>
                     <label i18n="worker node instance type label" class="clr-col-12 clr-col-md-12">
-                        AZ2 WORKER NODE INSTANCE TYPE
+                        {{htmlFieldLabels['workerNodeInstanceType2']}}
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -548,7 +544,7 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-select-container [attr.data-step-metadata]="formName">
                 <label i18n="existing vpc label">
-                    AVAILABILITY ZONE 3
+                    {{htmlFieldLabels['awsNodeAz3']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -587,7 +583,7 @@
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                 <clr-select-container [attr.data-step-metadata]="formName">
                     <label i18n="existing vpc label">
-                        VPC PUBLIC SUBNET
+                        {{htmlFieldLabels['vpcPublicSubnet3']}}
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -617,7 +613,7 @@
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                 <clr-select-container [attr.data-step-metadata]="formName">
                     <label i18n="existing vpc label">
-                        VPC PRIVATE SUBNET
+                        {{htmlFieldLabels['vpcPrivateSubnet3']}}
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
@@ -654,7 +650,7 @@
                 data-label="worker node instance type 3">
                 <clr-datalist-container>
                     <label i18n="worker node instance type label" class="clr-col-12 clr-col-md-12">
-                        AZ3 WORKER NODE INSTANCE TYPE
+                        {{htmlFieldLabels['workerNodeInstanceType3']}}
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>

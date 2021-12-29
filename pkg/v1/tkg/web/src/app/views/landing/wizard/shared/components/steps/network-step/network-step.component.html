@@ -47,7 +47,7 @@
                     data-label="network name">
                 <clr-select-container [attr.data-step-metadata]="formName">
                     <label i18n="network label">
-                        NETWORK NAME
+                        {{htmlFieldLabels['networkName']}}
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -74,7 +74,7 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *ngIf="cniType == 'antrea'">
             <clr-input-container [attr.data-step-metadata]="formName">
                 <label i18n="cluster service cidr label" clr-control-label>
-                    CLUSTER SERVICE CIDR
+                    {{htmlFieldLabels['clusterServiceCidr']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -102,7 +102,7 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *ngIf="cniType == 'antrea' || cniType == 'calico'">
             <clr-input-container [attr.data-step-metadata]="formName">
                 <label i18n="cluster pod cidr label" clr-control-label>
-                    CLUSTER POD CIDR
+                    {{htmlFieldLabels['clusterPodCidr']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -140,7 +140,7 @@
                         formControlName="proxySettings"
                         (change)="toggleProxySetting()"
                         aria-describedby="proxySettings-helper"/>
-                    <label>Enable Proxy Settings</label>
+                    <label>{{htmlFieldLabels['proxySettings']}}</label>
                 </clr-toggle-wrapper>
 
             </clr-toggle-container>
@@ -154,7 +154,7 @@
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                 <clr-input-container [attr.data-step-metadata]="formName">
                     <label i18n="http proxy url label" clr-control-label>
-                        HTTP PROXY URL
+                        {{htmlFieldLabels['httpProxyUrl']}}
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -181,7 +181,7 @@
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                 <clr-input-container [attr.data-step-metadata]="formName">
                     <label i18n="http proxy username label" clr-control-label>
-                        HTTP PROXY USERNAME (OPTIONAL)
+                        {{htmlFieldLabels['httpProxyUsername']}}
                     </label>
                     <input clrInput name="httpProxyUsername" formControlName="httpProxyUsername" placeholder="Username" />
                     <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
@@ -191,7 +191,7 @@
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                 <clr-password-container [attr.data-step-metadata]="formName">
                     <label i18n="http proxy password label" clr-control-label>
-                        HTTP PROXY PASSWORD (OPTIONAL)
+                        {{htmlFieldLabels['httpProxyPassword']}}
                     </label>
                     <input clrPassword name="httpProxyPassword" formControlName="httpProxyPassword" placeholder="Password" />
                     <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
@@ -213,7 +213,7 @@
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                 <clr-input-container [attr.data-step-metadata]="formName">
                     <label i18n="http proxy url label" clr-control-label>
-                        HTTPS PROXY URL
+                        {{htmlFieldLabels['httpsProxyUrl']}}
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -240,7 +240,7 @@
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                 <clr-input-container [attr.data-step-metadata]="formName">
                     <label i18n="https proxy username label" clr-control-label>
-                        HTTPS PROXY USERNAME (OPTIONAL)
+                        {{htmlFieldLabels['httpsProxyUsername']}}
                     </label>
                     <input clrInput name="httpsProxyUsername" formControlName="httpsProxyUsername" placeholder="Username" />
                     <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
@@ -250,7 +250,7 @@
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                 <clr-password-container [attr.data-step-metadata]="formName">
                     <label i18n="https proxy password label" clr-control-label>
-                        HTTPS PROXY PASSWORD (OPTIONAL)
+                        {{htmlFieldLabels['httpsProxyPassword']}}
                     </label>
                     <input clrPassword name="httpsProxyPassword" formControlName="httpsProxyPassword" placeholder="Password" />
                     <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
@@ -262,7 +262,7 @@
             <div class="clr-col-11 clr-col-lg-8 clr-col-xl-5">
                 <clr-input-container [attr.data-step-metadata]="formName">
                     <label i18n="no proxy label" clr-control-label class="max-width">
-                        NO PROXY (OPTIONAL)
+                        {{htmlFieldLabels['noProxy']}}
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>

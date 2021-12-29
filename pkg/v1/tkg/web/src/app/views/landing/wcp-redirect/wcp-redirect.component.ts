@@ -24,6 +24,9 @@ export class WcpRedirectComponent extends StepFormDirective implements OnInit {
         super();
     }
 
+    // This method must be implemented from the base class, but we have no user data to save
+    protected storeUserData() {}
+
     ngOnInit() {
         AppServices.messenger.getSubject(TanzuEventType.VSPHERE_VC_AUTHENTICATED)
             .pipe(takeUntil(this.unsubscribe))
@@ -54,7 +57,6 @@ export class WcpRedirectComponent extends StepFormDirective implements OnInit {
      * @desc helper method to launch vSphere wcp enablement workflow in new window
      */
     relaunchVsphereWizard() {
-
         window.open(`https://${this.vcHost}/ui/app/workload-platform/`, '_blank');
     }
 }

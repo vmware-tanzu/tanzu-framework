@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl } from '@angular/forms';
 import { takeUntil } from 'rxjs/operators';
 import { APIClient } from 'src/app/swagger';
 import { DockerDaemonStatus } from 'src/app/swagger/models';
@@ -10,7 +9,6 @@ import AppServices from "../../../../shared/service/appServices";
 import { TanzuEvent, TanzuEventType } from "../../../../shared/service/Messenger";
 import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
 import { DaemonStepMapping } from './daemon-validation-step.fieldmapping';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 
 @Component({
     selector: 'app-daemon-validation-step',
@@ -24,31 +22,20 @@ export class DaemonValidationStepComponent extends StepFormDirective implements 
     errorNotification: string = "";
 
     constructor(private validationService: ValidationService,
-                private fieldMapUtilities: FieldMapUtilities,
                 private apiClient: APIClient) {
         super();
     }
 
     private customizeForm() {
-        AppServices.messenger.getSubject(TanzuEventType.CONFIG_FILE_IMPORTED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TanzuEvent) => {
-                this.configFileNotification = {
-                    notificationType: NotificationTypes.SUCCESS,
-                    message: data.payload
-                };
-                // The file import saves the data to local storage, so we reinitialize this step's form from there
-                this.savedMetadata = FormMetaDataStore.getMetaData(this.formName);
-                this.initFormWithSavedData();
-
-                // Clear event so that listeners in other provider workflows do not receive false notifications
-                AppServices.messenger.clearEvent(TanzuEventType.CONFIG_FILE_IMPORTED);
-            });
+        this.registerDefaultFileImportedHandler(DaemonStepMapping);
     }
 
     ngOnInit(): void {
         super.ngOnInit();
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, DaemonStepMapping);
+        Broker.fieldMapUtilities.buildForm(this.formGroup, this.formName, DaemonStepMapping);
+        this.htmlFieldLabels = Broker.fieldMapUtilities.getFieldLabelMap(DaemonStepMapping);
+        this.storeDefaultLabels(DaemonStepMapping);
+
         this.customizeForm();
         this.connectToDocker();
     }
@@ -81,5 +68,10 @@ export class DaemonValidationStepComponent extends StepFormDirective implements 
                 this.connecting = false;
                 this.errorNotification = err.error.message;
             });
+    }
+
+    protected storeUserData() {
+        this.storeUserDataFromMapping(DaemonStepMapping);
+        this.storeDefaultDisplayOrder(DaemonStepMapping);
     }
 }

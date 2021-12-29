@@ -23,7 +23,7 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-input-container [attr.data-step-metadata]="formName">
                 <label i18n="controller host label" clr-control-label>
-                    CONTROLLER HOST
+                    {{htmlFieldLabels['controllerHost']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -48,7 +48,7 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-input-container [attr.data-step-metadata]="formName">
                 <label i18n="username label" clr-control-label>
-                    USERNAME
+                    {{htmlFieldLabels['username']}}
                 </label>
                 <input clrInput formControlName="username" placeholder="username" />
                 <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
@@ -62,7 +62,7 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-password-container [attr.data-step-metadata]="formName">
                 <label i18n="password label" clr-control-label>
-                    PASSWORD
+                    {{htmlFieldLabels['password']}}
                 </label>
                 <input clrPassword formControlName="password" placeholder="password" autocomplete="off"/>
                 <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
@@ -78,7 +78,7 @@
         <div class="clr-col-6">
             <clr-textarea-container> [attr.data-step-metadata]="formName">
                 <label for="controllerCert" class="clr-control-label">
-                    CONTROLLER CERTIFICATE AUTHORITY
+                    {{htmlFieldLabels['controllerCert']}}
                     <clr-tooltip>
                         <clr-icon clrTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -109,7 +109,7 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-6">
             <clr-datalist-container [attr.data-step-metadata]="formName">
                 <label i18n="cloud name label" class="clr-col-lg-12 clr-col-12" [class.label-disabled]="!connected">
-                    CLOUD NAME
+                    {{htmlFieldLabels['cloudName']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -131,7 +131,7 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-6">
             <clr-datalist-container [attr.data-step-metadata]="formName">
                 <label i18n="service engine group name label" class="clr-col-lg-12 clr-col-12" [class.label-disabled]="!connected">
-                    SERVICE ENGINE GROUP NAME
+                    {{htmlFieldLabels['serviceEngineGroupName']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -156,7 +156,7 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-6">
             <clr-datalist-container> [attr.data-step-metadata]="formName">
                 <label i18n="network name label" class="clr-col-lg-12 clr-col-12" [class.label-disabled]="!connected">
-                    WORKLOAD VIP NETWORK NAME
+                    {{htmlFieldLabels['networkName']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -177,7 +177,7 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-6">
             <clr-datalist-container [attr.data-step-metadata]="formName">
                 <label i18n="network CIDR label" class="clr-col-lg-12 clr-col-12" [class.label-disabled]="!connected">
-                    WORKLOAD VIP NETWORK CIDR
+                    {{htmlFieldLabels['networkCIDR']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -200,7 +200,7 @@
         <div class="clr-col-6">
             <clr-datalist-container [attr.data-step-metadata]="formName" [class.label-disabled]="!connected">
                 <label i18n="Cluster Network Name label" class="clr-col-lg-12 clr-col-12">
-                    {{ vipClusterNetworkNameLabel }}
+                    {{htmlFieldLabels['managementClusterNetworkName']}}
                     <clr-tooltip>
                         <clr-icon clrTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -226,7 +226,7 @@
             <clr-datalist-container [attr.data-step-metadata]="formName">
                 <label i18n="Cluster Network CIDR label" class="clr-col-lg-12 clr-col-12"
                     [class.label-disabled]="!connected">
-                    {{ vipClusterNetworkCidrLabel }}
+                    {{htmlFieldLabels['managementClusterNetworkCIDR']}}
                     <clr-tooltip>
                         <clr-icon clrTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -256,7 +256,7 @@
             <clr-input-container [attr.data-step-metadata]="formName" data-name="clusterLabels" data-label="labels"
                 [attr.data-value]="clusterLabelsValue">
                 <label i18n="labels label" clr-control-label [class.label-disabled]="!connected">
-                    CLUSTER LABELS (OPTIONAL)
+                    {{htmlFieldLabels['clusterLabels']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>

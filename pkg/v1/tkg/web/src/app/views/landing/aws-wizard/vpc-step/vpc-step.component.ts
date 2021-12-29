@@ -19,13 +19,12 @@ import { Vpc } from '../../../../swagger/models/vpc.model';
 })
 export class VpcStepComponent extends StepFormDirective implements OnInit {
     defaultVpcHasChanged: boolean = false;
-    existingVpcs: Array<Vpc>;
+    existingVpcs: Array<Vpc> = [];
     loadingExistingVpcs: boolean = false;
 
     defaultVpcAddress: string = '10.0.0.0/16';
 
-    constructor(private validationService: ValidationService,
-                private fieldMapUtilities: FieldMapUtilities) {
+    constructor(private validationService: ValidationService) {
         super();
     }
 
@@ -37,9 +36,13 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
                 type: TanzuEventType.AWS_VPC_TYPE_CHANGED,
                 payload: { vpcType: VpcType.EXISTING.toString() }
             });
-            if (this.existingVpcs && this.existingVpcs.length === 1) {
-                existingVpcControl.setValue(this.existingVpcs[0].id);
-                existingVpcCidrControl.setValue(this.existingVpcs[0].cidr);
+            if (this.existingVpcs) {
+                if (this.existingVpcs.length === 1) {
+                    existingVpcControl.setValue(this.existingVpcs[0].id);
+                    existingVpcCidrControl.setValue(this.existingVpcs[0].cidr);
+                } else {
+                    this.setControlWithSavedValue(AwsField.VPC_EXISTING_ID);
+                }
             }
             this.formGroup.get(AwsField.VPC_NEW_CIDR).clearValidators();
             this.clearControlValue(AwsField.VPC_NEW_CIDR);
@@ -64,7 +67,10 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
     }
     ngOnInit() {
         super.ngOnInit();
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, AwsVpcStepMapping);
+        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.formName, AwsVpcStepMapping);
+        this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(AwsVpcStepMapping);
+        this.storeDefaultLabels(AwsVpcStepMapping);
+
         // NOTE: we don't call this.registerFieldsAffectingStepDescription() with the other fields, because the other relevant fields
         // already trigger a step description change event in their own onChange handlers
         this.registerStepDescriptionTriggers({fields: [AwsField.VPC_EXISTING_ID]});
@@ -88,11 +94,9 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
         AppServices.messenger.getSubject(TanzuEventType.AWS_REGION_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
-                if (this.formGroup.get(AwsField.VPC_EXISTING_ID)) {
-                    this.existingVpcs = [];
-                    this.clearControlValue(AwsField.VPC_EXISTING_ID);
-                    this.clearControlValue(AwsField.VPC_EXISTING_CIDR);
-                }
+                this.existingVpcs = [];
+                this.clearControlValue(AwsField.VPC_EXISTING_ID);
+                this.clearControlValue(AwsField.VPC_EXISTING_CIDR);
             });
 
         AppServices.dataServiceRegistrar.stepSubscribe<Vpc>(this, TanzuEventType.AWS_GET_EXISTING_VPCS, this.onFetchedVpcs.bind(this));
@@ -103,6 +107,7 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
             payload: { vpcType: VpcType.NEW.toString() }
         });
         this.registerOnValueChange(AwsField.VPC_NON_INTERNET_FACING, this.onNonInternetFacingVPCChange.bind(this));
+        this.registerOnValueChange(AwsField.VPC_EXISTING_ID, this.onChangeExistingVpc.bind(this));
         this.initFormWithSavedData();
     }
 
@@ -151,12 +156,12 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
     }
 
     /**
-     * @method existingVpcOnChange
+     * @method onChangeExistingVpc
      * helper method to manually set existing VPC CIDR read-only value, and
      * dispatch message to retrieve VPC subnets by VPC ID
      * @param existingVpcId
      */
-    existingVpcOnChange(existingVpcId: any) {
+    onChangeExistingVpc(existingVpcId: any) {
         const existingVpc: Array<Vpc> = this.existingVpcs.filter((vpc) => {
             return vpc.id === existingVpcId;
         });
@@ -190,5 +195,10 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
             return 'VPC: (new) CIDR: ' + vpcNewCidr;
         }
         return 'Specify VPC settings for AWS';
+    }
+
+    protected storeUserData() {
+        this.storeUserDataFromMapping(AwsVpcStepMapping);
+        this.storeDefaultDisplayOrder(AwsVpcStepMapping);
     }
 }

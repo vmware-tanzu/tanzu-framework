@@ -33,15 +33,22 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     currentControlPlaneEndpoingProvider = KUBE_VIP;
     controlPlaneEndpointOptional = "";
 
-    constructor(private validationService: ValidationService, private fieldMapUtilities: FieldMapUtilities) {
+    constructor(private validationService: ValidationService) {
         super();
         this.nodeTypes = [...VsphereNodeTypes];
     }
 
     private supplyStepMapping(): StepMapping {
         const fieldMappings = this.modeClusterStandalone ? VsphereNodeSettingStandaloneStepMapping : VsphereNodeSettingStepMapping;
-        FieldMapUtilities.getFieldMapping(VsphereField.NODESETTING_CLUSTER_NAME, fieldMappings).required =
+        AppServices.fieldMapUtilities.getFieldMapping(VsphereField.NODESETTING_CLUSTER_NAME, fieldMappings).required =
             AppServices.appDataService.isClusterNameRequired();
+        // customize the cluster name label
+        const clusterNameMapping = AppServices.fieldMapUtilities.getFieldMapping(VsphereField.NODESETTING_CLUSTER_NAME, fieldMappings);
+        let customLabel = this.clusterTypeDescriptor.toUpperCase() + ' CLUSTER NAME';
+        if (!AppServices.appDataService.isClusterNameRequired()) {
+            customLabel += ' (OPTIONAL)';
+        }
+        clusterNameMapping.label = customLabel;
         return fieldMappings;
     }
 
@@ -60,7 +67,10 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     ngOnInit() {
         super.ngOnInit();
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
+        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
+        this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.supplyStepMapping());
+        this.storeDefaultLabels(this.supplyStepMapping());
+
         this.customizeForm();
 
         // TODO: can some of these subscriptions be moved to customizeForm()?
@@ -95,8 +105,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                         this.setControlValueSafely(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE, data);
                     }
                     this.clearControlValue(VsphereField.NODESETTING_INSTANCE_TYPE_PROD);
+                    this.formGroup.controls[VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE].updateValueAndValidity();
                 }
-                this.formGroup.controls[VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE].updateValueAndValidity();
             });
 
             this.formGroup.get(VsphereField.NODESETTING_INSTANCE_TYPE_PROD).valueChanges.subscribe(data => {
@@ -108,8 +118,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                         this.setControlValueSafely(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE, data);
                     }
                     this.clearControlValue(VsphereField.NODESETTING_INSTANCE_TYPE_DEV);
+                    this.formGroup.controls[VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE].updateValueAndValidity();
                 }
-                this.formGroup.controls[VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE].updateValueAndValidity();
             });
         });
 
@@ -154,10 +164,12 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 }
                 this.disarmField(VsphereField.NODESETTING_INSTANCE_TYPE_DEV, true);
             }
-            const savedWorkerNodeNameOrId = this.getSavedValue(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE, '');
-            const savedWorkerNodeType = this.findNodeTypeByNameOrId(savedWorkerNodeNameOrId);
-            const valueToUse = savedWorkerNodeType ? savedWorkerNodeType.id : '';
-            this.setControlValueSafely(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE, valueToUse);
+            if (!this.modeClusterStandalone) {
+                const savedWorkerNodeNameOrId = this.getSavedValue(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE, '');
+                const savedWorkerNodeType = this.findNodeTypeByNameOrId(savedWorkerNodeNameOrId);
+                const valueToUse = savedWorkerNodeType ? savedWorkerNodeType.id : '';
+                this.setControlValueSafely(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE, valueToUse);
+            }
         }
     }
 
@@ -203,5 +215,10 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             return 'Development cluster selected: 1 node control plane';
         }
         return `Specify the resources backing the ${this.clusterTypeDescriptor} cluster`;
+    }
+
+    protected storeUserData() {
+        this.storeUserDataFromMapping(this.supplyStepMapping());
+        this.storeDefaultDisplayOrder(this.supplyStepMapping());
     }
 }

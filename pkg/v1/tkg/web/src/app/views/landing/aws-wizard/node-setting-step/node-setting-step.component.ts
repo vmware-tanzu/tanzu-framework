@@ -89,8 +89,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         awsNodeAz3: []
     };
 
-    publicSubnets: Array<AWSSubnet>;
-    privateSubnets: Array<AWSSubnet>;
+    publicSubnets: Array<AWSSubnet> = new Array<AWSSubnet>();
+    privateSubnets: Array<AWSSubnet> = new Array<AWSSubnet>();
 
     filteredAzs: FilteredAzs = {
         awsNodeAz1: {
@@ -124,17 +124,26 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     };
 
     airgappedVPC = false;
+    clusterNameInstruction: string;
 
     constructor(private validationService: ValidationService,
-                private fieldMapUtilities: FieldMapUtilities,
                 private apiClient: APIClient) {
         super();
     }
 
     private supplyStepMapping(): StepMapping {
-        FieldMapUtilities.getFieldMapping(AwsField.NODESETTING_CLUSTER_NAME, AwsNodeSettingStepMapping).required =
+        AppServices.fieldMapUtilities.getFieldMapping(AwsField.NODESETTING_CLUSTER_NAME, AwsNodeSettingStepMapping).required =
             AppServices.appDataService.isClusterNameRequired();
-        return AwsNodeSettingStepMapping;
+        const mapping = AwsNodeSettingStepMapping;
+        // dynamically modify the cluster name label based on the type descriptor and whether the cluster name is required
+        const clusterNameMapping = AppServices.fieldMapUtilities.getFieldMapping('clusterName', mapping);
+        let clusterNameLabel = this.clusterTypeDescriptor.toUpperCase() + ' CLUSTER NAME';
+        if (!AppServices.appDataService.isClusterNameRequired()) {
+            clusterNameLabel += ' (OPTIONAL)';
+        }
+        clusterNameMapping.label = clusterNameLabel;
+
+        return mapping;
     }
 
     private customizeForm() {
@@ -252,7 +261,16 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     ngOnInit() {
         super.ngOnInit();
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
+        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
+        this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.supplyStepMapping());
+        this.storeDefaultLabels(this.supplyStepMapping());
+
+        if (AppServices.appDataService.isClusterNameRequired()) {
+            this.clusterNameInstruction = 'Specify a name for the ' + this.clusterTypeDescriptor + ' cluster.';
+        } else {
+            this.clusterNameInstruction = 'Optionally specify a name for the ' + this.clusterTypeDescriptor + ' cluster. ' +
+                'If left blank, the installer names the cluster automatically.';
+        }
         this.subscribeToServices();
         this.customizeForm();
 
@@ -291,7 +309,14 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             this.setControlWithSavedValue(thisAZ);
         }
         if (!this.modeClusterStandalone) {
-            WORKER_NODE_INSTANCE_TYPES.forEach(field => this.resurrectFieldWithSavedValue(field.toString(), [Validators.required]));
+            WORKER_NODE_INSTANCE_TYPES.forEach((field, index) => {
+                // only populated the worker node instance type if the associated AZ has a value
+                if (this.getFieldValue(AZS[index])) {
+                    this.resurrectFieldWithSavedValue(field.toString(), [Validators.required]);
+                } else {
+                    this.resurrectField(field.toString(), [Validators.required]);
+                }
+            });
         }
     }
 
@@ -311,8 +336,15 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             this.setControlWithSavedValue(AwsField.NODESETTING_AZ_1);
         }
         if (!this.modeClusterStandalone) {
-            this.resurrectFieldWithSavedValue(AwsField.NODESETTING_WORKERTYPE_1, [Validators.required],
-                this.azNodeTypes.awsNodeAz1.length === 1 ? this.azNodeTypes.awsNodeAz1[0] : '');
+            const hasAz = this.getFieldValue(AwsField.NODESETTING_AZ_1);
+            // only set the worker node instance type if the AZ has a value
+            if (hasAz) {
+                this.resurrectFieldWithSavedValue(AwsField.NODESETTING_WORKERTYPE_1, [Validators.required],
+                    this.azNodeTypes.awsNodeAz1.length === 1 ? this.azNodeTypes.awsNodeAz1[0] : '');
+            } else {
+                this.resurrectField(AwsField.NODESETTING_WORKERTYPE_1, [Validators.required],
+                    this.azNodeTypes.awsNodeAz1.length === 1 ? this.azNodeTypes.awsNodeAz1[0] : '');
+            }
         }
         this.resurrectFieldWithSavedValue(AwsField.NODESETTING_INSTANCE_TYPE_DEV,
             [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
@@ -326,25 +358,9 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     initFormWithSavedData() {
         const devInstanceType = this.getSavedValue(AwsField.NODESETTING_INSTANCE_TYPE_DEV, '');
-        const prodInstanceType = this.getSavedValue(AwsField.NODESETTING_INSTANCE_TYPE_PROD, '');
         const isProdInstanceType = devInstanceType === '';
         this.cardClick(isProdInstanceType ? ClusterPlan.PROD : ClusterPlan.DEV);
-        super.initFormWithSavedData();
-        // because it's in its own component, the enable audit logging field does not get initialized in the above call to
-        // super.initFormWithSavedData()
-        setTimeout( () => {
-            this.setControlWithSavedValue('enableAuditLogging', false);
-        })
-
-        if (isProdInstanceType) {
-            const nodeType = this.nodeTypes.length === 1 ? this.nodeTypes[0] : prodInstanceType;
-            this.clearControlValue(AwsField.NODESETTING_INSTANCE_TYPE_DEV);
-            this.setControlValueSafely(AwsField.NODESETTING_INSTANCE_TYPE_PROD, nodeType);
-        } else {
-            const nodeType = this.nodeTypes.length === 1 ? this.nodeTypes[0] : devInstanceType;
-            this.setControlValueSafely(AwsField.NODESETTING_INSTANCE_TYPE_DEV, nodeType);
-            this.clearControlValue(AwsField.NODESETTING_INSTANCE_TYPE_PROD);
-        }
+        // NOTE: by clicking the right card, the stored values will be used to populate the rest of the fields
     }
 
     get devInstanceTypeValue() {
@@ -582,5 +598,10 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     get isVpcTypeExisting(): boolean {
         return this.vpcType === VpcType.EXISTING;
+    }
+
+    protected storeUserData() {
+        this.storeUserDataFromMapping(this.supplyStepMapping());
+        this.storeDefaultDisplayOrder(this.supplyStepMapping());
     }
 }

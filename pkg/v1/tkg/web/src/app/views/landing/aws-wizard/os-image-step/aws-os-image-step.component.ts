@@ -12,12 +12,9 @@ import { TanzuEventType } from '../../../../shared/service/Messenger';
     templateUrl: '../../wizard/shared/components/steps/os-image-step/os-image-step.component.html',
     styleUrls: ['../../wizard/shared/components/steps/os-image-step/os-image-step.component.scss']
 })
-export class AwsOsImageStepComponent extends SharedOsImageStepDirective<AWSVirtualMachine> implements OnInit {
-    // aws globals
-    region: string;
-
-    constructor(protected fieldMapUtilities: FieldMapUtilities) {
-        super(fieldMapUtilities);
+export class AwsOsImageStepComponent extends SharedOsImageStepComponent<AWSVirtualMachine> implements OnInit {
+    constructor(private awsWizardFormService: AwsWizardFormService) {
+        super();
     }
 
     ngOnInit() {

@@ -19,31 +19,31 @@ export enum NetworkField {
 
 const BasicNetworkFieldMappings: FieldMapping[] =
     [
-        { name: NetworkField.CNI_TYPE, defaultValue: 'antrea' },
-        { name: NetworkField.HTTP_PROXY_URL, initWithSavedValue: true },
-        { name: NetworkField.HTTP_PROXY_USERNAME, initWithSavedValue: true },
-        { name: NetworkField.HTTP_PROXY_PASSWORD, initWithSavedValue: true },
-        { name: NetworkField.HTTPS_PROXY_URL, initWithSavedValue: true },
-        { name: NetworkField.HTTPS_PROXY_USERNAME, initWithSavedValue: true },
-        { name: NetworkField.HTTPS_PROXY_PASSWORD, initWithSavedValue: true },
-        { name: NetworkField.NO_PROXY, initWithSavedValue: true },
-        { name: NetworkField.NETWORK_NAME, initWithSavedValue: true },
-        { name: NetworkField.PROXY_SETTINGS, isBoolean: true },
+        { name: NetworkField.CNI_TYPE, defaultValue: 'antrea', label: 'CNI PROVIDER' },
+        { name: NetworkField.HTTP_PROXY_URL, label: 'HTTP PROXY URL' },
+        { name: NetworkField.HTTP_PROXY_USERNAME, label: 'HTTP PROXY USERNAME (OPTIONAL)' },
+        { name: NetworkField.HTTP_PROXY_PASSWORD, mask: true, label: 'HTTP PROXY PASSWORD (OPTIONAL)' },
+        { name: NetworkField.HTTPS_PROXY_URL, label: 'HTTPS PROXY URL' },
+        { name: NetworkField.HTTPS_PROXY_USERNAME, label: 'HTTPS PROXY USERNAME (OPTIONAL)' },
+        { name: NetworkField.HTTPS_PROXY_PASSWORD, mask: true, label: 'HTTPS PROXY PASSWORD (OPTIONAL)' },
+        { name: NetworkField.NO_PROXY, label: 'NO PROXY (OPTIONAL)' },
+        { name: NetworkField.NETWORK_NAME, label: 'NETWORK NAME' },
+        { name: NetworkField.PROXY_SETTINGS, isBoolean: true, label: 'ENABLE PROXY SETTINGS' },
         { name: NetworkField.HTTPS_IS_SAME_AS_HTTP, isBoolean: true, defaultValue: true },
     ];
 
 export const NetworkIpv4StepMapping: StepMapping = {
     fieldMappings: [
         ...BasicNetworkFieldMappings,
-        { name: NetworkField.CLUSTER_SERVICE_CIDR, defaultValue: IAAS_DEFAULT_CIDRS.CLUSTER_SVC_CIDR },
-        { name: NetworkField.CLUSTER_POD_CIDR, defaultValue: IAAS_DEFAULT_CIDRS.CLUSTER_POD_CIDR }
+        { name: NetworkField.CLUSTER_SERVICE_CIDR, defaultValue: IAAS_DEFAULT_CIDRS.CLUSTER_SVC_CIDR, label: 'CLUSTER SERVICE CIDR' },
+        { name: NetworkField.CLUSTER_POD_CIDR, defaultValue: IAAS_DEFAULT_CIDRS.CLUSTER_POD_CIDR, label: 'CLUSTER POD CIDR' }
     ]
 }
 
 export const NetworkIpv6StepMapping: StepMapping = {
     fieldMappings: [
         ...BasicNetworkFieldMappings,
-        { name: NetworkField.CLUSTER_SERVICE_CIDR, defaultValue: IAAS_DEFAULT_CIDRS.CLUSTER_SVC_IPV6_CIDR },
-        { name: NetworkField.CLUSTER_POD_CIDR, defaultValue: IAAS_DEFAULT_CIDRS.CLUSTER_POD_IPV6_CIDR }
+        { name: NetworkField.CLUSTER_SERVICE_CIDR, defaultValue: IAAS_DEFAULT_CIDRS.CLUSTER_SVC_IPV6_CIDR, label: 'CLUSTER SERVICE CIDR' },
+        { name: NetworkField.CLUSTER_POD_CIDR, defaultValue: IAAS_DEFAULT_CIDRS.CLUSTER_POD_IPV6_CIDR, label: 'CLUSTER POD CIDR' }
     ]
 }

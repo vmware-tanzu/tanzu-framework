@@ -49,8 +49,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
     vnetFieldsExisting: Array<string> = [];
     vnetFieldsNew: Array<string> = [];
 
-    constructor(private fieldMapUtilities: FieldMapUtilities,
-                private validationService: ValidationService) {
+    constructor(private validationService: ValidationService) {
         super();
     }
 
@@ -130,7 +129,9 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
 
     ngOnInit() {
         super.ngOnInit();
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
+        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
+        this.storeDefaultLabels(this.supplyStepMapping());
+
         this.subscribeToServices();
         this.customizeForm();
 
@@ -337,5 +338,10 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
     dynamicDescription(): string {
         const vnetCidrBlock = this.getFieldValue(AzureField.VNET_CUSTOM_CIDR, true);
         return vnetCidrBlock ? `Subnet: ${vnetCidrBlock}` : 'Specify an Azure VNET CIDR';
+    }
+
+    protected storeUserData() {
+        this.storeUserDataFromMapping(this.supplyStepMapping());
+        this.storeDefaultDisplayOrder(this.supplyStepMapping());
     }
 }

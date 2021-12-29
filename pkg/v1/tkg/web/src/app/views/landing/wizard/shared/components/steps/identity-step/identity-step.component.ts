@@ -95,7 +95,6 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
     timelineError = {};
 
     constructor(private apiClient: APIClient,
-                private fieldMapUtilities: FieldMapUtilities,
                 private validationService: ValidationService) {
         super();
         this.resetTimelineState();
@@ -131,7 +130,10 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
 
     ngOnInit(): void {
         super.ngOnInit();
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, IdentityStepMapping);
+        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.formName, IdentityStepMapping);
+        this.htmlFieldLabels = Broker.fieldMapUtilities.getFieldLabelMap(IdentityStepMapping);
+        this.storeDefaultLabels(IdentityStepMapping);
+
         this.customizeForm();
 
         this.initFormWithSavedData();
@@ -341,5 +343,10 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
             return 'LDAP configured: ' + ldapEndpointIp + ':' + (ldapEndpointPort ? ldapEndpointPort : '');
         }
         return SharedIdentityStepComponent.description;
+    }
+
+    protected storeUserData() {
+        this.storeUserDataFromMapping(IdentityStepMapping);
+        this.storeDefaultDisplayOrder(IdentityStepMapping);
     }
 }

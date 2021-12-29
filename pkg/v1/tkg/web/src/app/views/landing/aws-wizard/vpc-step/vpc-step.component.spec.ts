@@ -27,7 +27,6 @@ describe('VpcComponent', () => {
                 APIClient,
                 ValidationService,
                 FormBuilder,
-                FieldMapUtilities,
             ],
             schemas: [
                 CUSTOM_ELEMENTS_SCHEMA
@@ -75,7 +74,7 @@ describe('VpcComponent', () => {
         }];
         component.formGroup.get(AwsField.VPC_TYPE).setValue(VpcType.EXISTING);
         fixture.detectChanges();
-        component.existingVpcOnChange('vpc-1');
+        component.onChangeExistingVpc('vpc-1');
         expect(component.formGroup.get('existingVpcCidr').value).toBe('100.64.0.0/13');
     }));
 

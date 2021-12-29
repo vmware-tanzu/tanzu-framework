@@ -72,7 +72,6 @@ import { VsphereLoadBalancerStepComponent } from '../../vsphere-wizard/load-bala
         VsphereOsImageStepComponent
     ],
     providers: [
-        FieldMapUtilities,
         ValidationService
     ]
 })

@@ -5,6 +5,8 @@ import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUti
 import { OsImageProviderInputs, SharedOsImageStepDirective } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
 import { TanzuEventType } from '../../../../shared/service/Messenger';
 import { VSphereVirtualMachine } from '../../../../swagger/models';
+import { UserDataIdentifier } from '../../../../shared/service/user-data.service';
+import Broker from '../../../../shared/service/broker';
 
 @Component({
     selector: 'app-vsphere-os-image-step',
@@ -14,8 +16,8 @@ import { VSphereVirtualMachine } from '../../../../swagger/models';
 export class VsphereOsImageStepComponent extends SharedOsImageStepDirective<VSphereVirtualMachine> {
     private tkrVersionString: string;
 
-    constructor(protected fieldMapUtilities: FieldMapUtilities) {
-        super(fieldMapUtilities);
+    constructor() {
+        super();
         this.tkrVersion.subscribe(value => { this.tkrVersionString = value; });
     }
 
@@ -38,5 +40,11 @@ export class VsphereOsImageStepComponent extends SharedOsImageStepDirective<VSph
             osImageTooltipContent: osImageTooltipContent,
             nonTemplateAlertMessage: nonTemplateAlertMessage,
         };
+    }
+
+    protected storeUserData() {
+        const identifier: UserDataIdentifier = this.createUserDataIdentifier('osImage');
+        Broker.userDataService.storeListboxObjectField(identifier, this.formGroup, 'name', 'moid');
+        this.storeDisplayOrder(['osImage']);
     }
 }

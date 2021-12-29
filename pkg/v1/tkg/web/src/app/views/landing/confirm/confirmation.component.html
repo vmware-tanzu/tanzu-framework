@@ -1,0 +1,28 @@
+<div class="clr-row">
+    <div class="clr-col-12">
+        <h2 i18n="start page welcome title" aria-level="1" aria-live="assertive">{{ pageTitle }} - Confirm Settings</h2>
+    </div>
+</div>
+<ng-container *ngFor="let stepName of wizardEntry.displayOrder; let idx = index">
+    <div class="clr-row">
+        <div class="clr-col-12">
+            <table class="table">
+                <caption>{{wizardEntry.titles[stepName]}}</caption>
+                <thead>
+                <tr>
+                    <th class="left">{{wizardEntry.titles[stepName]}}</th>
+                    <th class="left">{{wizardEntry.descriptions[stepName]}}</th>
+                </tr>
+                </thead>
+                <tbody>
+                <ng-container *ngFor="let fieldName of wizardEntry.steps[stepName].displayOrder">
+                    <tr>
+                        <td class="left">{{ wizardEntry.steps[stepName].labels[fieldName] }}</td>
+                        <td class="left">{{ wizardEntry.steps[stepName].fields[fieldName].display }}</td>
+                    </tr>
+                </ng-container>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</ng-container>

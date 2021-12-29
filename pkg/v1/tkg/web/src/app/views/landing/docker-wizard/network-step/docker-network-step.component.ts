@@ -1,6 +1,7 @@
 // App imports
 import { SharedNetworkStepComponent } from '../../wizard/shared/components/steps/network-step/network-step.component';
 import { NetworkField } from '../../wizard/shared/components/steps/network-step/network-step.fieldmapping';
+import Broker from '../../../../shared/service/broker';
 
 export class DockerNetworkStepComponent extends SharedNetworkStepComponent {
     static readonly description = 'Specify the cluster Pod CIDR';
@@ -14,5 +15,11 @@ export class DockerNetworkStepComponent extends SharedNetworkStepComponent {
             return 'Cluster Pod CIDR: ' + this.getFieldValue(NetworkField.CLUSTER_POD_CIDR);
         }
         return DockerNetworkStepComponent.description;
+    }
+
+    protected storeUserData() {
+        const identifier = this.createUserDataIdentifier('clusterPodCidr');
+        Broker.userDataService.storeInputField(identifier, this.formGroup);
+        this.storeDisplayOrder(['clusterPodCidr']);
     }
 }

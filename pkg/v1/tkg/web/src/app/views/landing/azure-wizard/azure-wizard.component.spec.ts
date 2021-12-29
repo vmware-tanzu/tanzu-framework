@@ -36,7 +36,7 @@ describe('AzureWizardComponent', () => {
             providers: [
                 APIClient,
                 FormBuilder,
-                FieldMapUtilities,
+                AzureWizardFormService,
                 ValidationService
             ],
             schemas: [

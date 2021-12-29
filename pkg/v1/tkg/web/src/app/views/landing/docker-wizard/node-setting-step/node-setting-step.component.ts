@@ -17,31 +17,42 @@ import { TanzuEvent, TanzuEventType } from "../../../../shared/service/Messenger
     styleUrls: ['./node-setting-step.component.scss']
 })
 export class NodeSettingStepComponent extends StepFormDirective implements OnInit {
-    constructor(private fieldMapUtilities: FieldMapUtilities) {
-        super();
-    }
+    clusterNameInstruction: string;
 
     private customizeForm() {
-        AppServices.messenger.getSubject(TanzuEventType.CONFIG_FILE_IMPORTED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TanzuEvent) => {
-                this.configFileNotification = {
-                    notificationType: NotificationTypes.SUCCESS,
-                    message: data.payload
-                };
-                // The file import saves the data to local storage, so we reinitialize this step's form from there
-                this.savedMetadata = FormMetaDataStore.getMetaData(this.formName);
-                this.initFormWithSavedData();
+        this.registerDefaultFileImportedHandler(this.supplyStepMapping());
+    }
 
-                // Clear event so that listeners in other provider workflows do not receive false notifications
-                AppServices.messenger.clearEvent(TanzuEventType.CONFIG_FILE_IMPORTED);
-            });
+    private supplyStepMapping() {
+        const mapping = DockerNodeSettingStepMapping;
+        // dynamically modify the cluster name label based on the type descriptor and whether the cluster name is required
+        const clusterNameMapping = AppServices.fieldMapUtilities.getFieldMapping('clusterName', mapping);
+        let clusterNameLabel = this.clusterTypeDescriptor.toUpperCase() + ' CLUSTER NAME';
+        if (!AppServices.appDataService.isClusterNameRequired()) {
+            clusterNameLabel += ' (OPTIONAL)';
+        }
+        clusterNameMapping.label = clusterNameLabel;
+        return mapping;
     }
 
     ngOnInit(): void {
         super.ngOnInit();
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, DockerNodeSettingStepMapping);
+        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
+        this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.supplyStepMapping());
+        this.storeDefaultLabels(this.supplyStepMapping());
+
+        if (AppServices.appDataService.isClusterNameRequired()) {
+            this.clusterNameInstruction = 'Specify a name for the ' + this.clusterTypeDescriptor + ' cluster.';
+        } else {
+            this.clusterNameInstruction = 'Optionally specify a name for the ' + this.clusterTypeDescriptor + ' cluster. ' +
+                'If left blank, the installer names the cluster automatically.';
+        }
         this.customizeForm();
         this.initFormWithSavedData();
+    }
+
+    protected storeUserData() {
+        this.storeUserDataFromMapping(DockerNodeSettingStepMapping);
+        this.storeDefaultDisplayOrder(DockerNodeSettingStepMapping);
     }
 }

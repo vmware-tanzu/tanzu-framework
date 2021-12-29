@@ -71,7 +71,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
     }
 
     protected supplyWizardName(): string {
-        return 'vSphere Wizard';
+        return 'vSphereWizard';
     }
 
     protected supplyStepData(): FormDataForHTML[] {

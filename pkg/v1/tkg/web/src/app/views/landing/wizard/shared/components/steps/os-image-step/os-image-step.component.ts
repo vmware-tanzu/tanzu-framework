@@ -36,7 +36,7 @@ export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends 
     // TODO: It's questionable whether tkrVersion should be in this class, since it's only used for vSphere
     tkrVersion: Observable<string>;
 
-    protected constructor(protected fieldMapUtilities: FieldMapUtilities) {
+    protected constructor() {
         super();
         this.tkrVersion = AppServices.appDataService.getTkrVersion();
     }
@@ -62,7 +62,10 @@ export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends 
 
     ngOnInit() {
         super.ngOnInit();
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, OsImageStepMapping);
+        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.formName, OsImageStepMapping);
+        this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(OsImageStepMapping);
+        this.storeDefaultLabels(OsImageStepMapping);
+
         this.providerInputs = this.supplyProviderInputs();
         this.registerStepDescriptionTriggers({fields: [OsImageField.IMAGE]});
         this.subscribeToProviderEvent();
@@ -95,5 +98,11 @@ export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends 
             return 'OS Image: ' + this.getFieldValue(OsImageField.IMAGE).name;
         }
         return SharedOsImageStepDirective.description;
+    }
+
+    protected storeUserData() {
+        const identifier = this.createUserDataIdentifier('osImage');
+        Broker.userDataService.storeListboxObjectField(identifier, this.formGroup, 'name', 'name');
+        this.storeDisplayOrder(['osImage']);
     }
 }

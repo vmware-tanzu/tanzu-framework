@@ -25,15 +25,14 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     currentRegion = 'US-WEST';
     displayForm = false;
 
-    constructor(private validationService: ValidationService,
-                private fieldMapUtilities: FieldMapUtilities) {
+    constructor(private validationService: ValidationService) {
         super();
         this.nodeTypes = [];
     }
 
     private supplyStepMapping(): StepMapping {
         const fieldMappings = this.modeClusterStandalone ? AzureNodeSettingStandaloneStepMapping : AzureNodeSettingStepMapping;
-        FieldMapUtilities.getFieldMapping(AzureField.NODESETTING_MANAGEMENT_CLUSTER_NAME, fieldMappings).required =
+        AppServices.fieldMapUtilities.getFieldMapping(AzureField.NODESETTING_MANAGEMENT_CLUSTER_NAME, fieldMappings).required =
             AppServices.appDataService.isClusterNameRequired();
         return fieldMappings;
     }
@@ -94,7 +93,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     ngOnInit() {
         super.ngOnInit();
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
+        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
+        this.storeDefaultLabels(this.supplyStepMapping());
         this.subscribeToServices();
         this.registerStepDescriptionTriggers({ clusterTypeDescriptor: true, fields: [AzureField.NODESETTING_CONTROL_PLANE_SETTING]});
         this.listenOnChangeClusterPlan();
@@ -126,5 +126,10 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             return 'Control plane type: ' + this.clusterPlan;
         }
         return 'Specify the resources backing the ' + this.clusterTypeDescriptor + ' cluster';
+    }
+
+    protected storeUserData() {
+        this.storeUserDataFromMapping(this.supplyStepMapping());
+        this.storeDefaultDisplayOrder(this.supplyStepMapping());
     }
 }

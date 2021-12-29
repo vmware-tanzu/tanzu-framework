@@ -27,7 +27,6 @@ describe('SharedLoadBalancerStepComponent', () => {
             providers: [
                 ValidationService,
                 FormBuilder,
-                FieldMapUtilities,
                 APIClient
             ],
             schemas: [

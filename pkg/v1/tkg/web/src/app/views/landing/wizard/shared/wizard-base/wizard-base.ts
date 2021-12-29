@@ -74,10 +74,19 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
         super();
     }
 
-    // This is the method by which the child class gives this class the data for the steps.
+    // supplyStepData() allows the child class gives this class the data for the steps.
     protected abstract supplyStepData(): FormDataForHTML[];
-    // This is the method by which the child class gives this class the wizard name; this is used to identify which wizard a step belongs to
+    // supplyWizardName() allows the child class gives this class the wizard name; this is used to identify which wizard a step belongs to
     protected abstract supplyWizardName(): string;
+    // supplyDisplayOrder() allows the child class to specify the order (and which steps) get displayed (on confirmation page).
+    // By default, we take the order from the stepData (so stepData should be set before invoking this method)
+    protected supplyDisplayOrder(): string[] {
+        if (!this.stepData || this.stepData.length === 0) {
+            console.warn('supplyDisplayOrder() called before step data was set');
+            return [];
+        }
+        return this.defaultDisplayOrder(this.stepData);
+    }
 
     ngOnInit() {
         this.form = this.formBuilder.group({});
@@ -88,11 +97,13 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
         if (!this.stepData || this.stepData.length === 0) {
             console.error('wizard did not supply step data to base class');
         } else {
+            this.storeWizardDisplayOrder(this.supplyDisplayOrder());
+            this.storeWizardTitles();   // since the titles don't change, store them once
             for (const daStepData of this.stepData) {
                 this.form.controls[daStepData.name] = this.formBuilder.group({});
                 this.stepDescription[daStepData.name] = daStepData.description;
             }
-            this.currentStep = this.stepData[0].name;
+            this.currentStep = this.firstStep;
         }
 
         // set step description (if it's a step description for this wizard)
@@ -325,15 +336,24 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
      * a.k.a. "Edit Configuration" mode, each step widget is no longer re-created,
      * and therefore it reuses its previous component and form states.
      */
-    onNextStep() {
-        const indexCurrentStep = this.stepData.findIndex(stepData => stepData.name === this.currentStep );
-        if (indexCurrentStep < this.numSteps - 1) { // not on last step
-            this.currentStep = this.stepData[indexCurrentStep + 1].name;
-        }
-        if (this.currentStep === this.lastStep) {
+    onNextStep(stepCompleted: string) {
+        if (stepCompleted === this.lastStep) {
             this.visitedLastStep = true;
+        } else {
+            const indexCompletedStep = this.stepData.findIndex(stepData => stepData.name === stepCompleted);
+            this.setCurrentStep(this.stepData[indexCompletedStep + 1].name);
         }
-        this.storeStepMetadata();
+        this.storeStepMetadata();   // SHIMON: old way
+        this.broadcastStepComplete(this.supplyWizardName(), stepCompleted);
+        // TODO: we need to know that the last step has actually completed its recording of the data
+        // NOTE: we do onWizardComplete EVERY time the user completes ANY step, if they have previously completed the wizard
+        if (this.visitedLastStep) {
+            this.onWizardComplete();
+        }
+    }
+
+    private setCurrentStep(step: string) {
+        this.currentStep = step;
     }
 
     /**
@@ -735,6 +755,9 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     get clusterTypeDescriptorTitleCase() {
         return FormUtility.titleCase(this.clusterTypeDescriptor);
     }
+    get wizardName(): string {
+        return this.supplyWizardName();
+    }
     //
     // HTML convenience methods
 
@@ -749,5 +772,37 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
 
     get numSteps() {
         return this.stepData ? this.stepData.length : 0;
+    }
+
+    private broadcastStepComplete(wizardName: string, stepCompletedName: string) {
+        const payload: StepCompletedPayload = {
+            wizard: wizardName,
+            step: stepCompletedName,
+        }
+        Broker.messenger.publish( { type: TkgEventType.STEP_COMPLETED, payload } );
+    }
+
+    private defaultDisplayOrder(stepData: FormDataForHTML[]): string[] {
+        // reduce the array of stepData items into an array of step name strings, which will be in the same order
+        return stepData.reduce<string[]>((accumulator, daStep) => {
+            accumulator.push(daStep.name); return accumulator;
+        }, []);
+    }
+    private storeWizardDisplayOrder(displayOrder: string[]) {
+        Broker.userDataService.storeWizardDisplayOrder(this.supplyWizardName(), displayOrder);
+    }
+    private storeWizardStepDescriptions() {
+        Broker.userDataService.storeWizardDescriptions(this.wizardName, this.stepDescription);
+    }
+    private storeWizardTitles() {
+        const titles = this.stepData.reduce<Map<string, string>>( (accumulator, stepData) => {
+            accumulator[stepData.name] = stepData.title;
+            return accumulator;
+        }, new Map<string, string>());
+        Broker.userDataService.storeWizardTitles(this.wizardName, titles);
+    }
+
+    protected onWizardComplete() {
+        this.storeWizardStepDescriptions();
     }
 }

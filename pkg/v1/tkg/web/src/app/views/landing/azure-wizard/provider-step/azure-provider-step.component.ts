@@ -17,25 +17,9 @@ import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { TanzuEvent, TanzuEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 
-enum ProviderField {
-    AZURECLOUD = 'azureCloud',
-    CLIENT = 'clientId',
-    CLIENTSECRET = 'clientSecret',
-    SUBSCRIPTION = 'subscriptionId',
-    TENANT = 'tenantId',
-    SSHPUBLICKEY = 'sshPublicKey',
-    REGION = 'region',
-    RESOURCEGROUPOPTION = 'resourceGroupOption',
-    RESOURCEGROUPEXISTING = 'resourceGroupExisting',
-    RESOURCEGROUPCUSTOM = 'resourceGroupCustom',
-}
-
 // NOTE: the keys of AzureAccountParamsKeys values are used by backend endpoints, so don't change them
 export const AzureAccountParamsKeys = [AzureField.PROVIDER_TENANT, AzureField.PROVIDER_CLIENT,
     AzureField.PROVIDER_CLIENTSECRET, AzureField.PROVIDER_SUBSCRIPTION, AzureField.PROVIDER_AZURECLOUD];
-const requiredFields = [AzureField.PROVIDER_REGION, AzureField.PROVIDER_SSHPUBLICKEY, AzureField.PROVIDER_RESOURCEGROUPOPTION,
-    AzureField.PROVIDER_RESOURCEGROUPEXISTING];
-const optionalFields = [AzureField.PROVIDER_RESOURCEGROUPCUSTOM];
 
 @Component({
     selector: 'app-azure-provider-step',
@@ -119,20 +103,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
             this.onRegionChange(val)
         });
 
-        AppServices.messenger.getSubject(TanzuEventType.CONFIG_FILE_IMPORTED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TanzuEvent) => {
-                this.configFileNotification = {
-                    notificationType: NotificationTypes.SUCCESS,
-                    message: data.payload
-                };
-                // The file import saves the data to local storage, so we reinitialize this step's form from there
-                this.savedMetadata = FormMetaDataStore.getMetaData(this.formName);
-                this.initFormWithImportedData();
-
-                // Clear event so that listeners in other provider workflows do not receive false notifications
-                AppServices.messenger.clearEvent(TanzuEventType.CONFIG_FILE_IMPORTED);
-            });
+        this.registerDefaultFileImportedHandler(AzureProviderStepMapping);
     }
 
     /**
@@ -146,8 +117,10 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     ngOnInit() {
         super.ngOnInit();
 
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, AzureProviderStepMapping);
+        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.formName, AzureProviderStepMapping);
         this.subscribeToServices();
+        this.storeDefaultLabels(AzureProviderStepMapping);
+
         this.customizeForm();
 
         this.initAzureCredentials();
@@ -384,5 +357,17 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
             return 'Azure tenant: ' + tenant;
         }
         return 'Validate the Azure provider credentials for Tanzu';
+    }
+
+    protected storeUserData() {
+        this.storeUserDataFromMapping(AzureProviderStepMapping);
+        // SHIMON TODO: change the AzureCloud listbox to have a backing OBJECT so we can get the display and value from that object
+        // (automatically, instead of having to special-code it here)
+        const identifier = this.createUserDataIdentifier(AzureField.PROVIDER_AZURECLOUD);
+        const value = this.getFieldValue(AzureField.PROVIDER_AZURECLOUD);
+        const display = this.azureClouds.find(cloud => cloud.name === value).displayName;
+        AppServices.userDataService.store(identifier, {display, value});
+
+        this.storeDefaultDisplayOrder(AzureProviderStepMapping);
     }
 }

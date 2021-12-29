@@ -69,7 +69,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
     }
 
     protected supplyWizardName(): string {
-        return 'AWS Wizard';
+        return 'AWSWizard';
     }
 
     protected supplyStepData(): FormDataForHTML[] {

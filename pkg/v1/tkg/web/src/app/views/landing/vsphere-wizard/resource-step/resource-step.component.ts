@@ -52,14 +52,14 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
 
     treeData = [];
 
-    constructor(private fieldMapUtilities: FieldMapUtilities,
-                private validationService: ValidationService) {
+    constructor(private validationService: ValidationService) {
         super();
     }
 
     ngOnInit() {
         super.ngOnInit();
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, VsphereResourceStepMapping);
+        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.formName, VsphereResourceStepMapping);
+        this.storeDefaultLabels(VsphereResourceStepMapping);
         this.registerStepDescriptionTriggers({ clusterTypeDescriptor: true,
             fields: [VsphereField.RESOURCE_DATASTORE, VsphereField.RESOURCE_POOL, VsphereField.RESOURCE_VMFOLDER]});
 
@@ -322,5 +322,12 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
             data = [];
         }
         this.resourcePools = this.sortVsphereResources(data);
+    }
+
+    protected saveUserData() {
+        super.saveUserDataFromMapping(VsphereResourceStepMapping);
+    protected storeUserData() {
+        super.storeUserDataFromMapping(VsphereResourceStepMapping);
+        super.storeDefaultDisplayOrder(VsphereResourceStepMapping);
     }
 }

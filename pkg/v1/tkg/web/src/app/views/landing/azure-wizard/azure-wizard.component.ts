@@ -50,7 +50,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
     }
 
     protected supplyWizardName(): string {
-        return 'Azure Wizard';
+        return 'AzureWizard';
     }
 
     protected supplyStepData(): FormDataForHTML[] {
