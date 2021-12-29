@@ -119,8 +119,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     // Because we use clusterTypeDescriptor in our description, we need to trigger a step description change whenever
     // clusterTypeDescriptor changes
-    setClusterTypeDescriptor(descriptor: string) {
-        super.setClusterTypeDescriptor(descriptor);
+    protected onChangeClusterTypeDescriptor() {
         this.triggerStepDescriptionChange();
     }
 

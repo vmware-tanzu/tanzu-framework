@@ -3,7 +3,7 @@ import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 
 export const AwsVpcStepMapping: StepMapping = {
     fieldMappings: [
-        { name: AwsField.VPC_TYPE, required: true, defaultValue: VpcType.NEW },
+        { name: AwsField.VPC_TYPE, required: true, defaultValue: VpcType.EXISTING },
         { name: AwsField.VPC_NEW_CIDR },
         { name: AwsField.VPC_EXISTING_CIDR },
         { name: AwsField.VPC_EXISTING_ID },

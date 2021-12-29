@@ -79,9 +79,7 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
 
     // Because we use clusterTypeDescriptor in our description, we need to trigger a step description change whenever
     // clusterTypeDescriptor changes
-    // NOTE: this method is public only so that it can be used for testing; otherwise it would be protected
-    public setClusterTypeDescriptor(descriptor: string) {
-        super.setClusterTypeDescriptor(descriptor);
+    protected onChangeClusterTypeDescriptor() {
         this.triggerStepDescriptionChange();
     }
 

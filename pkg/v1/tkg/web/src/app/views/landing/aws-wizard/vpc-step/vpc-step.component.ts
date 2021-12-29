@@ -29,53 +29,51 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
         super();
     }
 
+    private onVpcTypeChange(newVpcType: VpcType) {
+        const existingVpcControl = this.formGroup.get(AwsField.VPC_EXISTING_ID);
+        const existingVpcCidrControl = this.formGroup.get(AwsField.VPC_EXISTING_CIDR);
+        if (newVpcType === VpcType.EXISTING) {
+            Broker.messenger.publish({
+                type: TkgEventType.AWS_VPC_TYPE_CHANGED,
+                payload: { vpcType: VpcType.EXISTING.toString() }
+            });
+            if (this.existingVpcs && this.existingVpcs.length === 1) {
+                existingVpcControl.setValue(this.existingVpcs[0].id);
+                existingVpcCidrControl.setValue(this.existingVpcs[0].cidr);
+            }
+            this.formGroup.get(AwsField.VPC_NEW_CIDR).clearValidators();
+            this.clearControlValue(AwsField.VPC_NEW_CIDR);
+            this.clearFieldSavedData(AwsField.VPC_NEW_CIDR);
+            this.setExistingVpcValidators();
+        } else {
+            existingVpcControl.setValue('');
+            existingVpcControl.clearValidators();
+            existingVpcControl.updateValueAndValidity();
+            existingVpcCidrControl.setValue('');
+            existingVpcCidrControl.clearValidators();
+            existingVpcCidrControl.updateValueAndValidity();
+            this.clearFieldSavedData(AwsField.VPC_EXISTING_CIDR);
+            this.clearFieldSavedData(AwsField.VPC_EXISTING_ID);
+            this.setNewVpcValidators();
+            Broker.messenger.publish({
+                type: TkgEventType.AWS_VPC_TYPE_CHANGED,
+                payload: { vpcType: VpcType.NEW.toString() }
+            });
+        }
+        this.triggerStepDescriptionChange();
+    }
     ngOnInit() {
         super.ngOnInit();
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, AwsVpcStepMapping);
+        // NOTE: we don't call this.registerFieldsAffectingStepDescription() with the other fields, because the other relevant fields
+        // already trigger a step description change event in their own onChange handlers
+        this.registerFieldsAffectingStepDescription([AwsField.VPC_EXISTING_ID]);
 
-        this.formGroup.get(AwsField.VPC_TYPE).valueChanges
-            .pipe(
-                distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
-                takeUntil(this.unsubscribe)
-            ).subscribe((val) => {
-                const existingVpcControl = this.formGroup.get(AwsField.VPC_EXISTING_ID);
-                const existingVpcCidrControl = this.formGroup.get(AwsField.VPC_EXISTING_CIDR);
-                if (val === VpcType.EXISTING) {
-                    AppServices.messenger.publish({
-                        type: TkgEventType.AWS_VPC_TYPE_CHANGED,
-                        payload: { vpcType: VpcType.EXISTING.toString() }
-                    });
-                    if (this.existingVpcs && this.existingVpcs.length === 1) {
-                        existingVpcControl.setValue(this.existingVpcs[0].id);
-                        existingVpcCidrControl.setValue(this.existingVpcs[0].cidr);
-                    }
-                    this.formGroup.get(AwsField.VPC_NEW_CIDR).clearValidators();
-                    this.clearControlValue(AwsField.VPC_NEW_CIDR);
-                    this.clearFieldSavedData(AwsField.VPC_NEW_CIDR);
-                    this.setExistingVpcValidators();
-                } else {
-                    existingVpcControl.setValue('');
-                    existingVpcControl.clearValidators();
-                    existingVpcControl.updateValueAndValidity();
-                    existingVpcCidrControl.setValue('');
-                    existingVpcCidrControl.clearValidators();
-                    existingVpcCidrControl.updateValueAndValidity();
-                    this.clearFieldSavedData(AwsField.VPC_EXISTING_CIDR);
-                    this.clearFieldSavedData(AwsField.VPC_EXISTING_ID);
-                    this.setNewVpcValidators();
-                    AppServices.messenger.publish({
-                        type: TkgEventType.AWS_VPC_TYPE_CHANGED,
-                        payload: { vpcType: VpcType.NEW.toString() }
-                    });
-                }
-            });
+        this.registerOnValueChange(AwsField.VPC_TYPE, this.onVpcTypeChange.bind(this));
 
-        const vpcCidrs = [AwsField.VPC_NEW_CIDR, AwsField.VPC_EXISTING_CIDR];
-        vpcCidrs.forEach(vpcCidr => {
-            this.formGroup.get(vpcCidr).valueChanges.pipe(
-                distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
-                takeUntil(this.unsubscribe)
-            ).subscribe((cidr) => {
+        const cidrFields = [AwsField.VPC_NEW_CIDR, AwsField.VPC_EXISTING_CIDR];
+        cidrFields.forEach(cidrField => {
+            this.registerOnValueChange(cidrField, (cidr) => {
                 AppServices.messenger.publish({
                     type: TkgEventType.NETWORK_STEP_GET_NO_PROXY_INFO,
                     payload: { info: (cidr ? cidr + ',' : '') + '169.254.0.0/16' }
@@ -180,16 +178,16 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
     }
 
     protected dynamicDescription(): string {
-        // SHIMON TODO: some of the fields below don't exist in the mapping used to create this form
-        // once that's fixed, implement this.triggerStepDescriptionChange() correctly
-        const vpc = this.getFieldValue(AwsField.VPC_NEW_CIDR, true);
-        const publicNodeCidr = this.getFieldValue('publicNodeCidr', true);
-        const privateNodeCidr = this.getFieldValue('privateNodeCidr', true);
-        const awsNodeAz = this.getFieldValue('awsNodeAz', true);
+        const vpcType = this.getFieldValue(AwsField.VPC_TYPE);
+        const vpcExistingCidr = this.getFieldValue(AwsField.VPC_EXISTING_CIDR, true);
+        const vpcExistingId = this.getFieldValue(AwsField.VPC_EXISTING_ID, true);
+        const vpcNewCidr = this.getFieldValue(AwsField.VPC_NEW_CIDR, true);
 
-        if (vpc && publicNodeCidr && privateNodeCidr && awsNodeAz) {
-            return `VPC CIDR: ${vpc}, Public Node CIDR: ${publicNodeCidr}, ` +
-                `Private Node CIDR: ${privateNodeCidr}, Node AZ: ${awsNodeAz}`;
+        if (vpcType === VpcType.EXISTING && vpcExistingCidr && vpcExistingId) {
+            return 'VPC: ' + vpcExistingId + ' CIDR: ' + vpcExistingCidr;
+        }
+        if (vpcType === VpcType.NEW && vpcNewCidr) {
+            return 'VPC: (new) CIDR: ' + vpcNewCidr;
         }
         return 'Specify VPC settings for AWS';
     }

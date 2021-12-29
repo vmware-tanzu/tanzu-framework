@@ -252,8 +252,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
 
     // Because we use clusterTypeDescriptor in our description, we need to trigger a step description change whenever
     // clusterTypeDescriptor changes
-    setClusterTypeDescriptor(descriptor: string) {
-        super.setClusterTypeDescriptor(descriptor);
+    protected onChangeClusterTypeDescriptor() {
         this.triggerStepDescriptionChange();
     }
 

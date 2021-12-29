@@ -424,10 +424,16 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         });
     }
 
-    // Subclasses using clusterTypeDescriptor in their step description should override this method to trigger a description change event
-    // NOTE: this method is public to facilitate testing, otherwise it would be protected
+    // NOTE: this method is public to facilitate testing, otherwise it would be private
     public setClusterTypeDescriptor(descriptor: string) {
-        this.clusterTypeDescription = descriptor;
+        if (this.clusterTypeDescription !== descriptor) {
+            this.clusterTypeDescription = descriptor;
+            this.onChangeClusterTypeDescriptor();
+        }
+    }
+
+    // Subclasses using clusterTypeDescriptor in their step description should override this method to trigger a description change event
+    protected onChangeClusterTypeDescriptor() {
     }
 
     get clusterTypeDescriptor() {
