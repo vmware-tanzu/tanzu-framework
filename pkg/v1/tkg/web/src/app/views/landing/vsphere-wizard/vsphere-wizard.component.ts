@@ -33,6 +33,7 @@ import { VSphereProviderStepComponent } from './provider-step/vsphere-provider-s
 import { VsphereRegionalClusterParams } from 'src/app/swagger/models/vsphere-regional-cluster-params.model';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 import { WizardForm, WizardStep } from '../wizard/shared/constants/wizard.constants';
+import { VsphereLoadBalancerStepComponent } from './load-balancer/vsphere-load-balancer-step.component';
 
 @Component({
     selector: 'app-wizard',
@@ -265,9 +266,6 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
             description: VsphereLoadBalancerStepComponent.description,
             i18n: { title: 'load balancer step name', description: 'load balancer step description' },
         clazz: VsphereLoadBalancerStepComponent };
-    }
-    get VsphereNetworkForm(): FormDataForHTML {
-        return FormUtility.formOverrideClazz(super.NetworkForm, VsphereNetworkStepComponent);
     }
     get VsphereNodeSettingForm(): FormDataForHTML {
         return { name: 'vsphereNodeSettingForm', title: FormUtility.titleCase(this.clusterTypeDescriptor) + ' Cluster Settings',

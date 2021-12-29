@@ -1,6 +1,6 @@
-import { WizardBaseDirective } from '../../wizard-base/wizard-base';
-import { IdentityManagementType, WizardForm } from '../../constants/wizard.constants';
+// Angular imports
 import { Type } from '@angular/core';
+// App imports
 import { StepFormDirective } from '../../step-form/step-form';
 
 interface I18nDataForHtml {
@@ -31,11 +31,6 @@ export class FormUtility {
         if (overrideData.clazz) {
             formData.clazz = overrideData.clazz;
         }
-        return formData;
-    }
-
-    static formOverrideClazz(formData: FormDataForHTML, clazz: Type<StepFormDirective>) {
-        formData.clazz = clazz;
         return formData;
     }
 }

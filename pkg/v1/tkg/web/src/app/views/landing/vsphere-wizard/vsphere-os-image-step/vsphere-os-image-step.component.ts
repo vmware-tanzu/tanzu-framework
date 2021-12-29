@@ -21,7 +21,7 @@ export class VsphereOsImageStepComponent extends SharedOsImageStepDirective<VSph
 
     // NOTE: there is an implicit assumption here that the tkrVersion Observable will have delivered a value before
     // setProviderInputs() is called (so that the usage below will be valid)
-    protected supplyProviderInputs(): OsImageProviderInputs<VSphereVirtualMachine> {
+    protected supplyProviderInputs(): OsImageProviderInputs {
         const noImageAlertMessage = 'Your ' + this.clusterTypeDescriptor + ' cluster will be deployed with Tanzu Kubernetes release (TKr)' +
             ' ' + this.tkrVersionString +
             '. We are unable to detect a VM template that belongs to this Tanzu Kubernetes release. You must install ' +

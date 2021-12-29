@@ -1,20 +1,21 @@
+// Angular imports
 import { Component, ElementRef, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
-
+// Third party imports
 import { Observable } from 'rxjs';
-
-import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
+// App imports
 import { APIClient } from 'src/app/swagger';
 import { ConfigFileInfo, DockerRegionalClusterParams } from 'src/app/swagger/models';
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
-import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
-import { ImportParams, ImportService } from "../../../shared/service/import.service";
-import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
-import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { DaemonValidationStepComponent } from './daemon-validation-step/daemon-validation-step.component';
 import { DockerNetworkStepComponent } from './network-step/docker-network-step.component';
+import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
+import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
+import { ImportParams, ImportService } from "../../../shared/service/import.service";
+import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
+import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 
 @Component({
     selector: 'app-docker-wizard',

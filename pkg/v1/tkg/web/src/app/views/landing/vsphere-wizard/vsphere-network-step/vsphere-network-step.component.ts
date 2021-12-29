@@ -18,6 +18,8 @@ declare var sortPaths: any;
     styleUrls: ['../../wizard/shared/components/steps/network-step/network-step.component.scss'],
 })
 export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
+    static description = 'Specify how Tanzu Kubernetes Grid networking is provided and any global network settings';
+
     constructor(protected validationService: ValidationService,
                 protected fieldMapUtilities: FieldMapUtilities) {
         super(validationService, fieldMapUtilities);

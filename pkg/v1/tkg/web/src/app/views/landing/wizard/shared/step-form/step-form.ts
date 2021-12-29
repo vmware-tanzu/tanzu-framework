@@ -418,7 +418,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
             step: this.formName,
             description: this.dynamicDescription(),
         }
-        Broker.messenger.publish({
+        AppServices.messenger.publish({
             type: TkgEventType.STEP_DESCRIPTION_CHANGE,
             payload: descriptionChangePayload,
         });

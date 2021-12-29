@@ -1,15 +1,18 @@
-import { LdapParams } from './../../../../../../../swagger/models/ldap-params.model';
+// Angular imports
 import { Component, OnInit } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
+import { Validators } from '@angular/forms';
+// Third party imports
 import { distinctUntilChanged, takeUntil, tap } from 'rxjs/operators';
+// App imports
 import { APIClient } from 'src/app/swagger';
+import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
+import { IdentityManagementType } from '../../../constants/wizard.constants';
+import { IdentityStepMapping } from './identity-step.fieldmapping';
+import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
+import { LdapParams } from './../../../../../../../swagger/models/ldap-params.model';
+import { LdapTestResult } from 'src/app/swagger/models';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { ValidationService } from '../../../validation/validation.service';
-import { LdapTestResult } from 'src/app/swagger/models';
-import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
-import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
-import { IdentityStepMapping } from './identity-step.fieldmapping';
-import { IdentityManagementType } from '../../../constants/wizard.constants';
 
 const CONNECT = "CONNECT";
 const BIND = "BIND";

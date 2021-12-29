@@ -33,7 +33,7 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
         const existingVpcControl = this.formGroup.get(AwsField.VPC_EXISTING_ID);
         const existingVpcCidrControl = this.formGroup.get(AwsField.VPC_EXISTING_CIDR);
         if (newVpcType === VpcType.EXISTING) {
-            Broker.messenger.publish({
+            AppServices.messenger.publish({
                 type: TkgEventType.AWS_VPC_TYPE_CHANGED,
                 payload: { vpcType: VpcType.EXISTING.toString() }
             });
@@ -55,7 +55,7 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
             this.clearFieldSavedData(AwsField.VPC_EXISTING_CIDR);
             this.clearFieldSavedData(AwsField.VPC_EXISTING_ID);
             this.setNewVpcValidators();
-            Broker.messenger.publish({
+            AppServices.messenger.publish({
                 type: TkgEventType.AWS_VPC_TYPE_CHANGED,
                 payload: { vpcType: VpcType.NEW.toString() }
             });
