@@ -1,4 +1,4 @@
-// Copyright 2021 VMware, Inc. All Rights Reserved.
+// Copyright 2021-2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 package utils_test
@@ -7,6 +7,8 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"net/http"
+	"net/url"
+	"strconv"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -15,6 +17,12 @@ import (
 
 	fakehelper "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes/helper"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
+)
+
+const (
+	fakeIssuer  = "https://fakeissuer.com"
+	fakeCluster = "fake-cluster"
+	fakeCAData  = "fakeCAData"
 )
 
 var _ = Describe("Kubeconfig Tests", func() {
@@ -47,7 +55,7 @@ var _ = Describe("Kubeconfig Tests", func() {
 						ghttp.RespondWith(http.StatusNotFound, "not found"),
 					),
 				)
-				_, err = utils.GetClusterInfoFromCluster(endpoint)
+				_, err = utils.GetClusterInfoFromCluster(endpoint, "cluster-info")
 			})
 			It("should return the error", func() {
 				Expect(err).To(HaveOccurred())
@@ -62,7 +70,7 @@ var _ = Describe("Kubeconfig Tests", func() {
 						ghttp.RespondWith(http.StatusOK, "fake-format-value"),
 					),
 				)
-				_, err = utils.GetClusterInfoFromCluster(endpoint)
+				_, err = utils.GetClusterInfoFromCluster(endpoint, "cluster-info")
 			})
 			It("should return the error", func() {
 				Expect(err).To(HaveOccurred())
@@ -79,7 +87,24 @@ var _ = Describe("Kubeconfig Tests", func() {
 						ghttp.RespondWith(http.StatusOK, clusterInfo),
 					),
 				)
-				cluster, err = utils.GetClusterInfoFromCluster(endpoint)
+				cluster, err = utils.GetClusterInfoFromCluster(endpoint, "cluster-info")
+			})
+			It("should return the cluster information", func() {
+				Expect(err).ToNot(HaveOccurred())
+				Expect(cluster.Server).Should(Equal(endpoint))
+			})
+		})
+		Context("When a different ConfigMap from the kube-public namespace is used for discovery", func() {
+			var cluster *clientcmdapi.Cluster
+			BeforeEach(func() {
+				clusterInfo := fakehelper.GetFakeClusterInfo(endpoint, servCert)
+				tlsserver.AppendHandlers(
+					ghttp.CombineHandlers(
+						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/vip-cluster-info"),
+						ghttp.RespondWith(http.StatusOK, clusterInfo),
+					),
+				)
+				cluster, err = utils.GetClusterInfoFromCluster(endpoint, "vip-cluster-info")
 			})
 			It("should return the cluster information", func() {
 				Expect(err).ToNot(HaveOccurred())
@@ -176,7 +201,7 @@ var _ = Describe("Kubeconfig Tests", func() {
 				cluster.Server = endpoint
 				certBytes := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: servCert.Raw})
 				cluster.CertificateAuthorityData = certBytes
-				gotPinnipedInfo, err = utils.GetPinnipedInfoFromCluster(&cluster)
+				gotPinnipedInfo, err = utils.GetPinnipedInfoFromCluster(&cluster, nil)
 			})
 			It("should not return an error", func() {
 				Expect(err).ToNot(HaveOccurred())
@@ -195,7 +220,7 @@ var _ = Describe("Kubeconfig Tests", func() {
 				cluster.Server = endpoint
 				certBytes := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: servCert.Raw})
 				cluster.CertificateAuthorityData = certBytes
-				_, err = utils.GetPinnipedInfoFromCluster(&cluster)
+				_, err = utils.GetPinnipedInfoFromCluster(&cluster, nil)
 			})
 			It("should return the pinniped-info successfully", func() {
 				Expect(err).To(HaveOccurred())
@@ -206,9 +231,9 @@ var _ = Describe("Kubeconfig Tests", func() {
 			var cluster clientcmdapi.Cluster
 			var gotPinnipedInfo *utils.PinnipedConfigMapInfo
 			BeforeEach(func() {
-				clustername = "fake-cluster"
-				issuer = "https://fakeissuer.com"
-				issuerCA = "fakeCAData"
+				clustername = fakeCluster
+				issuer = fakeIssuer
+				issuerCA = fakeCAData
 				conciergeIsClusterScoped = false
 				pinnipedInfo := fakehelper.GetFakePinnipedInfo(fakehelper.PinnipedInfo{
 					ClusterName:              clustername,
@@ -224,7 +249,7 @@ var _ = Describe("Kubeconfig Tests", func() {
 				cluster.Server = endpoint
 				certBytes := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: servCert.Raw})
 				cluster.CertificateAuthorityData = certBytes
-				gotPinnipedInfo, err = utils.GetPinnipedInfoFromCluster(&cluster)
+				gotPinnipedInfo, err = utils.GetPinnipedInfoFromCluster(&cluster, nil)
 			})
 			It("should return the pinniped-info successfully", func() {
 				Expect(err).ToNot(HaveOccurred())
@@ -232,6 +257,85 @@ var _ = Describe("Kubeconfig Tests", func() {
 				Expect(gotPinnipedInfo.Data.Issuer).Should(Equal(issuer))
 				Expect(gotPinnipedInfo.Data.IssuerCABundle).Should(Equal(issuerCA))
 				Expect(gotPinnipedInfo.Data.ConciergeIsClusterScoped).Should(Equal(conciergeIsClusterScoped))
+			})
+		})
+		Context("When a different port is used for discovery of 'pinniped-info'", func() {
+			var cluster clientcmdapi.Cluster
+			var gotPinnipedInfo *utils.PinnipedConfigMapInfo
+			var discoveryTLSServer *ghttp.Server
+			BeforeEach(func() {
+				// The second TLS server mimics the different endpoints for
+				// kube-apiserver and discovery.
+				discoveryTLSServer = ghttp.NewTLSServer()
+				discoveryEndpoint := discoveryTLSServer.URL()
+				// URL is valid, ports are expected to fit in 16 bits, so we're
+				// skipping a bunch of error handling.
+				u, _ := url.Parse(discoveryEndpoint)
+				discoveryPort64, _ := strconv.ParseInt(u.Port(), 10, 64)
+				discoveryPort := int(discoveryPort64)
+
+				clustername = fakeCluster
+				issuer = fakeIssuer
+				issuerCA = fakeCAData
+				conciergeIsClusterScoped = false
+				pinnipedInfo := fakehelper.GetFakePinnipedInfo(fakehelper.PinnipedInfo{
+					ClusterName:              clustername,
+					Issuer:                   issuer,
+					IssuerCABundleData:       issuerCA,
+					ConciergeIsClusterScoped: conciergeIsClusterScoped})
+				discoveryTLSServer.AppendHandlers(
+					ghttp.CombineHandlers(
+						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/pinniped-info"),
+						ghttp.RespondWith(http.StatusOK, pinnipedInfo),
+					),
+				)
+				cluster.Server = endpoint
+				certBytes := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: servCert.Raw})
+				cluster.CertificateAuthorityData = certBytes
+				gotPinnipedInfo, err = utils.GetPinnipedInfoFromCluster(&cluster, &discoveryPort)
+			})
+			It("should return the pinniped-info successfully", func() {
+				Expect(err).ToNot(HaveOccurred())
+				Expect(gotPinnipedInfo.Data.ClusterName).Should(Equal(clustername))
+				Expect(gotPinnipedInfo.Data.Issuer).Should(Equal(issuer))
+				Expect(gotPinnipedInfo.Data.IssuerCABundle).Should(Equal(issuerCA))
+				Expect(gotPinnipedInfo.Data.ConciergeIsClusterScoped).Should(Equal(conciergeIsClusterScoped))
+			})
+		})
+		Context("When the concierge endpoint is distinct from the cluster endpoint", func() {
+			var cluster clientcmdapi.Cluster
+			var gotPinnipedInfo *utils.PinnipedConfigMapInfo
+			var conciergeEndpoint string
+			BeforeEach(func() {
+				clustername = fakeCluster
+				issuer = fakeIssuer
+				issuerCA = fakeCAData
+				conciergeEndpoint = "my-favourite-concierge.com"
+				conciergeIsClusterScoped = false
+				pinnipedInfo := fakehelper.GetFakePinnipedInfo(fakehelper.PinnipedInfo{
+					ClusterName:              clustername,
+					Issuer:                   issuer,
+					IssuerCABundleData:       issuerCA,
+					ConciergeEndpoint:        conciergeEndpoint,
+					ConciergeIsClusterScoped: conciergeIsClusterScoped})
+				tlsserver.AppendHandlers(
+					ghttp.CombineHandlers(
+						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/pinniped-info"),
+						ghttp.RespondWith(http.StatusOK, pinnipedInfo),
+					),
+				)
+				cluster.Server = endpoint
+				certBytes := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: servCert.Raw})
+				cluster.CertificateAuthorityData = certBytes
+				gotPinnipedInfo, err = utils.GetPinnipedInfoFromCluster(&cluster, nil)
+			})
+			It("should return the pinniped-info successfully", func() {
+				Expect(err).ToNot(HaveOccurred())
+				Expect(gotPinnipedInfo.Data.ClusterName).Should(Equal(clustername))
+				Expect(gotPinnipedInfo.Data.Issuer).Should(Equal(issuer))
+				Expect(gotPinnipedInfo.Data.IssuerCABundle).Should(Equal(issuerCA))
+				Expect(gotPinnipedInfo.Data.ConciergeIsClusterScoped).Should(Equal(conciergeIsClusterScoped))
+				Expect(gotPinnipedInfo.Data.ConciergeEndpoint).Should(Equal(conciergeEndpoint))
 			})
 		})
 	})
