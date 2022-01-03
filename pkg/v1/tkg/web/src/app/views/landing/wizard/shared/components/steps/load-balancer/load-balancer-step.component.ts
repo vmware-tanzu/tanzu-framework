@@ -1,25 +1,22 @@
-/**
- * Angular Modules
- */
+// Angular imports
 import { Component, OnInit } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
-
+import { Validators } from '@angular/forms';
+// Third party imports
 import { debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs/operators';
-import { StepFormDirective } from "../../../step-form/step-form";
-import { ValidationService } from "../../../validation/validation.service";
+// App imports
 import { APIClient } from "../../../../../../../swagger";
-
 import { AviCloud } from "src/app/swagger/models/avi-cloud.model";
 import { AviServiceEngineGroup } from "src/app/swagger/models/avi-service-engine-group.model";
-import { ClrLoadingState } from "@clr/angular";
-import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
 import { AviVipNetwork } from './../../../../../../../swagger/models/avi-vip-network.model';
-import { TkgEventType } from 'src/app/shared/service/Messenger';
 import Broker from 'src/app/shared/service/broker';
+import { ClrLoadingState } from "@clr/angular";
 import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { LoadBalancerStepMapping } from './load-balancer-step.fieldmapping';
-import { StepMapping } from '../../../field-mapping/FieldMapping';
+import { StepFormDirective } from "../../../step-form/step-form";
+import { TkgEventType } from 'src/app/shared/service/Messenger';
+import { ValidationService } from "../../../validation/validation.service";
+import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
 
 export const KUBE_VIP = 'Kube-vip';
 export const NSX_ADVANCED_LOAD_BALANCER = "NSX Advanced Load Balancer";
@@ -97,7 +94,7 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
         this.registerOnValueChange("networkCIDR", this.onSelectVipCIDR.bind(this));
         this.registerOnValueChange("managementClusterNetworkName", this.onSelectManagementNetwork.bind(this));
 
-        Broker.messenger.getSubject(TkgEventType.CONTROL_PLANE_ENDPOINT_PROVIDER_CHANGED)
+        Broker.messenger.getSubject(TkgEventType.VSPHERE_CONTROL_PLANE_ENDPOINT_PROVIDER_CHANGED)
             .subscribe(({ payload }) => {
                 this.currentControlPlaneEndpoingProvider = payload;
                 if (this.currentControlPlaneEndpoingProvider === NSX_ADVANCED_LOAD_BALANCER) {

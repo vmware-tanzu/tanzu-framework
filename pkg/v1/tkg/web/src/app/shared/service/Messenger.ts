@@ -1,5 +1,7 @@
-import { ReplaySubject } from 'rxjs';
+// Angular imports
 import { Injectable } from '@angular/core';
+// Third party imports
+import { ReplaySubject } from 'rxjs';
 
 /**
  * Types of Event being supported by this broker
@@ -7,17 +9,17 @@ import { Injectable } from '@angular/core';
 
 export enum TkgEventType {
     // vSphere events
-    VC_AUTHENTICATED,
+    VSPHERE_VC_AUTHENTICATED,
     DATACENTER_RESET,
-    DATACENTER_CHANGED,
-    GET_RESOURCE_POOLS,
-    GET_COMPUTE_RESOURCE,
-    GET_VM_NETWORKS,
-    GET_DATA_STORES,
-    GET_VM_FOLDERS,
+    VSPHERE_DATACENTER_CHANGED,
+    VSPHERE_GET_RESOURCE_POOLS,
+    VSPHERE_GET_COMPUTE_RESOURCE,
+    VSPHERE_GET_VM_NETWORKS,
+    VSPHERE_GET_DATA_STORES,
+    VSPHERE_GET_VM_FOLDERS,
     VSPHERE_GET_OS_IMAGES,
-    CONTROL_PLANE_ENDPOINT_PROVIDER_CHANGED,
-    IP_FAMILY_CHANGE,
+    VSPHERE_CONTROL_PLANE_ENDPOINT_PROVIDER_CHANGED,
+    VSPHERE_IP_FAMILY_CHANGE,
 
     // AWS events
     AWS_REGION_CHANGED,

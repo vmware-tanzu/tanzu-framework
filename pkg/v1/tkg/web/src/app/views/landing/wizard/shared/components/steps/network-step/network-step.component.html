@@ -17,12 +17,13 @@
     <h4 i18n="network step title" class="inline" aria-level="2">
         Kubernetes Network Settings
     </h4>
+    <!-- Only Vsphere enables the network name -->
     <span aria-live="assertive" *ngIf="enableNetworkName">
         <button class="btn-refresh reset"
                 role="button"
                 aria-label="refresh network"
                 tabindex="0"
-                (click)="loadVSphereNetworks()">
+                (click)="loadNetworks()">
                 <clr-icon
                     *ngIf="!loadingNetworks"
                     shape="refresh"
@@ -278,7 +279,7 @@
                         </clr-tooltip>
                     </label>
                     <label>
-                        <div class="alert alert-warning alert-sm" role="alert" *ngIf="!hideWarning">
+                        <div class="alert alert-warning alert-sm" role="alert" *ngIf="!hideNoProxyWarning">
                             <div class="alert-items">
                                 <div class="alert-item static">
                                     <div class="alert-icon-wrapper">

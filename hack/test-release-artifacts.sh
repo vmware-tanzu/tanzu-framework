@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright 2021 VMware Tanzu Community Edition contributors. All Rights Reserved.
+# Copyright 2021 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 # Script to test release artifacts on MacOS and Linux OS

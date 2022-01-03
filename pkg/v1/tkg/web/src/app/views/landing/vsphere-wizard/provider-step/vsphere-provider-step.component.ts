@@ -1,31 +1,27 @@
-/**
- * Angular Modules
- */
+// Angular imports
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { Validators } from '@angular/forms';
-import { ClrLoadingState } from '@clr/angular';
+// Third party imports
 import { debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs/operators';
 import * as _ from 'lodash';
-
-/**
- * App imports
- */
-import { APP_ROUTES, Routes } from 'src/app/shared/constants/routes.constants';
+import { ClrLoadingState } from '@clr/angular';
+// App imports
+import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import { APIClient } from 'src/app/swagger/api-client.service';
-import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-import { VSphereDatacenter } from 'src/app/swagger/models/v-sphere-datacenter.model';
-import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import { TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
-import { SSLThumbprintModalComponent } from '../../wizard/shared/components/modals/ssl-thumbprint-modal/ssl-thumbprint-modal.component';
-import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
+import { APP_ROUTES, Routes } from 'src/app/shared/constants/routes.constants';
 import Broker from 'src/app/shared/service/broker';
 import { EditionData } from 'src/app/shared/service/branding.service';
-import { AppEdition } from 'src/app/shared/constants/branding.constants';
-import { managementClusterPlugin } from "../../wizard/shared/constants/wizard.constants";
-import { VsphereField } from "../vsphere-wizard.constants";
-import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
+import { managementClusterPlugin } from "../../wizard/shared/constants/wizard.constants";
+import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
+import { SSLThumbprintModalComponent } from '../../wizard/shared/components/modals/ssl-thumbprint-modal/ssl-thumbprint-modal.component';
+import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
+import { TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
+import { ValidationService } from '../../wizard/shared/validation/validation.service';
+import { VSphereDatacenter } from 'src/app/swagger/models/v-sphere-datacenter.model';
+import { VsphereField } from "../vsphere-wizard.constants";
 import { VsphereProviderStepFieldMapping } from './vsphere-provider-step.fieldmapping';
 
 declare var sortPaths: any;
@@ -121,7 +117,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 const same = data === this.ipFamily;
                 if (!same) {
                     Broker.messenger.publish({
-                        type: TkgEventType.IP_FAMILY_CHANGE,
+                        type: TkgEventType.VSPHERE_IP_FAMILY_CHANGE,
                         payload: data
                     });
                     this.disconnect('disconnecting because field PROVIDER_IP_FAMILY changed value to ' + data);
@@ -341,7 +337,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 this.retrieveDatacenters();
 
                 Broker.messenger.publish({
-                    type: TkgEventType.VC_AUTHENTICATED,
+                    type: TkgEventType.VSPHERE_VC_AUTHENTICATED,
                     payload: this.getFieldValue(VsphereField.PROVIDER_VCENTER_ADDRESS)
                 });
 
@@ -406,7 +402,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 dcMoid = datacenter.moid;
             }
             Broker.messenger.publish({
-                type: TkgEventType.DATACENTER_CHANGED,
+                type: TkgEventType.VSPHERE_DATACENTER_CHANGED,
                 payload: dcMoid
             });
         }
