@@ -539,7 +539,7 @@ func (c *TkgClient) ConfigureAndValidateWorkloadClusterConfiguration(options *Cr
 		// NOTE: Not blocking the workload cluster deployment if the pinniped information is not available on management cluster
 		pinnipedIssuerURL, pinnipedIssuerCAData, err := clusterClient.GetPinnipedIssuerURLAndCA()
 		if err != nil {
-			log.Warningf("Warning: Pinniped configuration not found; Authentication via Pinniped will not be setup in this cluster. If you wish to setup Pinniped after the cluster is created, please refer to the documentation.")
+			log.Warningf("Warning: Pinniped configuration not found; Authentication via Pinniped will not be set up in this cluster. If you wish to set up Pinniped after the cluster is created, please refer to the documentation.")
 		} else {
 			c.SetPinnipedConfigForWorkloadCluster(pinnipedIssuerURL, pinnipedIssuerCAData)
 		}
