@@ -511,8 +511,8 @@ lint: tools go-lint doc-lint ## Run linting checks
 	hack/check-license.sh
 
 go-lint: tools ## Run linting of go source
-	# Linter runs per module, add each one here and make sure they match
-	# in .github/workflows/main.yaml for CI coverage
+	# Linter runs per module, add each one here. Basically, and path
+	# that contains a go.mod file.
 
 	# Linting for the addons...
 	$(GOLANGCI_LINT) run -v
