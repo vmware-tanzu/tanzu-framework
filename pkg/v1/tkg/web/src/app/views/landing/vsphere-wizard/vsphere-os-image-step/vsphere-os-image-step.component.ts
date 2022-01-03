@@ -7,7 +7,6 @@ import { OsImageProviderInputs, SharedOsImageStepComponent } from '../../wizard/
 import ServiceBroker from '../../../../shared/service/service-broker';
 import { TkgEventType } from '../../../../shared/service/Messenger';
 import { VSphereVirtualMachine } from '../../../../swagger/models';
-import { VSphereWizardFormService } from '../../../../shared/service/vsphere-wizard-form.service';
 
 @Component({
     selector: 'app-vsphere-os-image-step',

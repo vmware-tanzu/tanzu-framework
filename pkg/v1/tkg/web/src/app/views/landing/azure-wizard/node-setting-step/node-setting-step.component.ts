@@ -1,21 +1,16 @@
-/**
- * Angular Modules
- */
+// Angular imports
 import { Component, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
-
-/**
- * App imports
- */
-import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import { TkgEventType } from '../../../../shared/service/Messenger';
+// App imports
 import { AzureInstanceType } from 'src/app/swagger/models';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { AzureNodeSettingStandaloneStepMapping, AzureNodeSettingStepMapping } from './node-setting-step.fieldmapping';
 import Broker from '../../../../shared/service/broker';
-import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import ServiceBroker from '../../../../shared/service/service-broker';
+import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
+import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
+import { TkgEventType } from '../../../../shared/service/Messenger';
+import { ValidationService } from '../../wizard/shared/validation/validation.service';
 
 @Component({
     selector: 'app-node-setting-step',

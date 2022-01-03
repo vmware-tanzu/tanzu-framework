@@ -1,8 +1,11 @@
+// Third party imports
+import { takeUntil } from 'rxjs/operators';
+
+// App imports
 import { TkgEventType } from './Messenger';
 import Broker from './broker';
 import { Observable, ReplaySubject } from 'rxjs';
 import { StepFormDirective } from '../../views/landing/wizard/shared/step-form/step-form';
-import { takeUntil } from 'rxjs/operators';
 
 // The intention of this class is to allow:
 // REGISTER of a TkgEventType with a "fetcher" that will get data from the backend when that event is broadcast. This is typically

@@ -1,22 +1,19 @@
-/**
- * Angular Modules
- */
+// Angular imports
 import {Component, OnInit} from '@angular/core';
-import {FormControl, Validators} from '@angular/forms';
-
+// Third party imports
 import {catchError, debounceTime, distinctUntilChanged, takeUntil} from 'rxjs/operators';
 import {forkJoin, of} from 'rxjs';
-
-import {APIClient} from '../../../../swagger/api-client.service';
-import {StepFormDirective} from '../../wizard/shared/step-form/step-form';
-import {TkgEvent, TkgEventType} from '../../../../shared/service/Messenger';
-import Broker from 'src/app/shared/service/broker';
-import {FormMetaDataStore} from "../../wizard/shared/FormMetaDataStore";
+// App imports
+import { APIClient } from '../../../../swagger/api-client.service';
 import { AwsField, CredentialType } from "../aws-wizard.constants";
-import {NotificationTypes} from "../../../../shared/components/alert-notification/alert-notification.component";
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { AwsProviderStepMapping } from './aws-provider-step.fieldmapping';
+import Broker from 'src/app/shared/service/broker';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { FormMetaDataStore } from "../../wizard/shared/FormMetaDataStore";
+import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
 import ServiceBroker from '../../../../shared/service/service-broker';
+import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
+import { TkgEvent, TkgEventType } from '../../../../shared/service/Messenger';
 
 export const AWSAccountParamsKeys = [
     AwsField.PROVIDER_PROFILE_NAME,

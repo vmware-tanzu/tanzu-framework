@@ -3,8 +3,10 @@ import { Component, ElementRef, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
+// Third party imports
 import { Observable } from 'rxjs';
-
+// Angular imports
+import { APIClient } from 'src/app/swagger';
 import {
     AWSAvailabilityZone,
     AWSNodeAz,
@@ -14,22 +16,21 @@ import {
     AWSVpc,
     Vpc
 } from 'src/app/swagger/models';
-import { APIClient } from 'src/app/swagger';
-import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
+import { AWSAccountParamsKeys, AwsProviderStepComponent } from './provider-step/aws-provider-step.component';
+import { AwsField, AwsForm, AwsStep } from "./aws-wizard.constants";
+import { AwsOsImageStepComponent } from './os-image-step/aws-os-image-step.component';
+import { BASTION_HOST_DISABLED, BASTION_HOST_ENABLED, NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import Broker from "../../../shared/service/broker";
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
-import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
-import { BASTION_HOST_DISABLED, BASTION_HOST_ENABLED, NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
-import { AWSAccountParamsKeys, AwsProviderStepComponent } from './provider-step/aws-provider-step.component';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
-import { VpcStepComponent } from './vpc-step/vpc-step.component';
-import { AwsOsImageStepComponent } from './os-image-step/aws-os-image-step.component';
-import { AwsField, AwsForm, AwsStep } from "./aws-wizard.constants";
+import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
-import { Utils } from '../../../shared/utils';
 import { InstanceType } from '../../../shared/constants/app.constants';
-import { TkgEventType } from '../../../shared/service/Messenger';
 import ServiceBroker from '../../../shared/service/service-broker';
+import { TkgEventType } from '../../../shared/service/Messenger';
+import { Utils } from '../../../shared/utils';
+import { VpcStepComponent } from './vpc-step/vpc-step.component';
+import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 
 export interface AzRelatedFields {
     az: string,
