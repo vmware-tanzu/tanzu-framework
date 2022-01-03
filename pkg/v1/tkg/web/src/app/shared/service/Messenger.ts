@@ -1,5 +1,7 @@
-import { ReplaySubject } from 'rxjs';
+// Angular imports
 import { Injectable } from '@angular/core';
+// Third party imports
+import { ReplaySubject } from 'rxjs';
 
 /**
  * Types of Event being supported by this broker

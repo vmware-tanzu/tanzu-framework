@@ -1,28 +1,20 @@
-/**
- * Angular Modules
- */
+// Angular imports
 import { Component, OnInit } from '@angular/core';
-import {
-    Validators,
-    FormControl
-} from '@angular/forms';
+import { Validators } from '@angular/forms';
+// Third party imports
 import { takeUntil } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
-
-/**
- * App imports
- */
-import { VSphereDatastore } from '../../../../swagger/models/v-sphere-datastore.model';
-import { VSphereFolder } from '../../../../swagger/models/v-sphere-folder.model';
-import { TkgEventType } from '../../../../shared/service/Messenger';
-import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
-import { ValidationService } from '../../wizard/shared/validation/validation.service';
+// App imports
 import Broker from 'src/app/shared/service/broker';
-import { VsphereField } from "../vsphere-wizard.constants";
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
+import { TkgEventType } from '../../../../shared/service/Messenger';
+import { ValidationService } from '../../wizard/shared/validation/validation.service';
+import { VSphereDatastore } from '../../../../swagger/models/v-sphere-datastore.model';
+import { VsphereField } from "../vsphere-wizard.constants";
+import { VSphereFolder } from '../../../../swagger/models/v-sphere-folder.model';
 import { VsphereResourceStepMapping } from './resource-step.fieldmapping';
-import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
+import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
 
 declare var sortPaths: any;
 

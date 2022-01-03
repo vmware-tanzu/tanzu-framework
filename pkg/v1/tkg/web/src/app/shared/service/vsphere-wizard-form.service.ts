@@ -1,7 +1,8 @@
+// Angular imports
 import { Injectable } from '@angular/core';
-
+// Third party imports
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-
+// App imports
 import { APIClient } from '../../swagger/api-client.service';
 import Broker from './broker';
 import { TkgEventType } from './Messenger';

@@ -1,9 +1,11 @@
+// Angular imports
 import { Component, OnInit } from '@angular/core';
-import { OsImageProviderInputs, SharedOsImageStepComponent } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
-import { VSphereWizardFormService } from '../../../../shared/service/vsphere-wizard-form.service';
-import { TkgEventType } from '../../../../shared/service/Messenger';
+// App imports
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { OsImageProviderInputs, SharedOsImageStepComponent } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
+import { TkgEventType } from '../../../../shared/service/Messenger';
 import { VSphereVirtualMachine } from '../../../../swagger/models';
+import { VSphereWizardFormService } from '../../../../shared/service/vsphere-wizard-form.service';
 
 @Component({
     selector: 'app-vsphere-os-image-step',

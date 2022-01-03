@@ -1,28 +1,20 @@
-/**
- * Angular Modules
- */
+// Angular imports
 import { Component, Input, OnInit } from '@angular/core';
-import {
-        FormGroup,
-        Validators,
-        FormControl
-} from '@angular/forms';
-
-/**
- * App imports
- */
-import { IAAS_DEFAULT_CIDRS, IpFamilyEnum } from '../../../../../../../shared/constants/app.constants';
-import { ValidationService } from '../../../validation/validation.service';
-import { StepFormDirective } from '../../../step-form/step-form';
-import { FormMetaDataStore, FormMetaData } from '../../../FormMetaDataStore';
-import { TkgEventType } from 'src/app/shared/service/Messenger';
+import { FormGroup, Validators } from '@angular/forms';
+// Third party imports
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
-import { VSphereNetwork } from 'src/app/swagger/models/v-sphere-network.model';
+// App imports
 import Broker from 'src/app/shared/service/broker';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
-import { NetworkIpv4StepMapping, NetworkIpv6StepMapping } from './network-step.fieldmapping';
+import { FormMetaDataStore, FormMetaData } from '../../../FormMetaDataStore';
+import { IAAS_DEFAULT_CIDRS, IpFamilyEnum } from '../../../../../../../shared/constants/app.constants';
 import { managementClusterPlugin } from "../../../constants/wizard.constants";
+import { NetworkIpv4StepMapping, NetworkIpv6StepMapping } from './network-step.fieldmapping';
+import { StepFormDirective } from '../../../step-form/step-form';
 import { StepMapping } from '../../../field-mapping/FieldMapping';
+import { TkgEventType } from 'src/app/shared/service/Messenger';
+import { ValidationService } from '../../../validation/validation.service';
+import { VSphereNetwork } from 'src/app/swagger/models/v-sphere-network.model';
 
 @Component({
     selector: 'app-shared-network-step',

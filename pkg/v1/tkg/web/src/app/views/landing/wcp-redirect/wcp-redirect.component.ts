@@ -1,17 +1,13 @@
 // Angular imports
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-
 // Third Party Imports
 import { takeUntil } from 'rxjs/operators';
-
 // App Imports
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
+import Broker from 'src/app/shared/service/broker';
 import { StepFormDirective } from '../wizard/shared/step-form/step-form';
 import { TkgEventType } from '../../../shared/service/Messenger';
-import Broker from 'src/app/shared/service/broker';
-import { FieldMapUtilities } from '../wizard/shared/field-mapping/FieldMapUtilities';
-import { StepMapping } from '../wizard/shared/field-mapping/FieldMapping';
 
 @Component({
     selector: 'tkg-kickstart-ui-wcp-redirect',

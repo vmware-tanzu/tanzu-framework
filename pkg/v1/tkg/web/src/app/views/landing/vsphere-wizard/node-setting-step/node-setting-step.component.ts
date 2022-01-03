@@ -1,24 +1,18 @@
-import { TkgEventType } from 'src/app/shared/service/Messenger';
-/**
- * Angular Modules
- */
+// Angular imports
 import { Component, Input, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
-/**
- * App imports
- */
+// App imports
 import Broker from 'src/app/shared/service/broker';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { InstanceType, IpFamilyEnum, PROVIDERS, Providers } from '../../../../shared/constants/app.constants';
+import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER } from '../../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
 import { NodeType } from '../../wizard/shared/constants/wizard.constants';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER } from '../../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
-import { AppEdition } from 'src/app/shared/constants/branding.constants';
-import { VsphereField, VsphereNodeTypes } from '../vsphere-wizard.constants';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
-import { VsphereNodeSettingStepMapping, VsphereNodeSettingStandaloneStepMapping } from './node-setting-step.fieldmapping';
 import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
+import { TkgEventType } from 'src/app/shared/service/Messenger';
+import { ValidationService } from '../../wizard/shared/validation/validation.service';
+import { VsphereField, VsphereNodeTypes } from '../vsphere-wizard.constants';
+import { VsphereNodeSettingStepMapping, VsphereNodeSettingStandaloneStepMapping } from './node-setting-step.fieldmapping';
 
 @Component({
     selector: 'app-node-setting-step',

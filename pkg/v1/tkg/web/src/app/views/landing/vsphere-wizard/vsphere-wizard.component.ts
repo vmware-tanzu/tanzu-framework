@@ -1,32 +1,30 @@
-import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER, SharedLoadBalancerStepComponent } from './../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
 // Angular imports
 import { Component, OnInit, ElementRef } from '@angular/core';
-import { FormGroup, FormBuilder } from '@angular/forms';
+import { FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
-
 // Third party imports
 import { Observable } from 'rxjs';
-
 // App imports
-import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
 import { APIClient } from '../../../swagger/api-client.service';
-import { PROVIDERS, Providers } from '../../../shared/constants/app.constants';
-import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
-import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
-import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
-import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
-import { VsphereRegionalClusterParams } from 'src/app/swagger/models/vsphere-regional-cluster-params.model';
+import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
 import Broker from "../../../shared/service/broker";
-import { WizardForm, WizardStep } from '../wizard/shared/constants/wizard.constants';
-import { ImportParams, ImportService } from "../../../shared/service/import.service";
-import { VsphereField } from './vsphere-wizard.constants';
+import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
-import { VSphereProviderStepComponent } from './provider-step/vsphere-provider-step.component';
-import { ResourceStepComponent } from './resource-step/resource-step.component';
+import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
+import { ImportParams, ImportService } from "../../../shared/service/import.service";
+import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER, SharedLoadBalancerStepComponent } from './../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
-import { VsphereOsImageStepComponent } from './vsphere-os-image-step/vsphere-os-image-step.component';
+import { PROVIDERS, Providers } from '../../../shared/constants/app.constants';
+import { ResourceStepComponent } from './resource-step/resource-step.component';
+import { VsphereField } from './vsphere-wizard.constants';
 import { VsphereNetworkStepComponent } from './vsphere-network-step/vsphere-network-step.component';
+import { VsphereOsImageStepComponent } from './vsphere-os-image-step/vsphere-os-image-step.component';
+import { VSphereProviderStepComponent } from './provider-step/vsphere-provider-step.component';
+import { VsphereRegionalClusterParams } from 'src/app/swagger/models/vsphere-regional-cluster-params.model';
+import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
+import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
+import { WizardForm, WizardStep } from '../wizard/shared/constants/wizard.constants';
 
 @Component({
     selector: 'app-wizard',

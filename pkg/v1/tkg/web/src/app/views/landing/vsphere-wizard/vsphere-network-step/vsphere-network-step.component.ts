@@ -1,13 +1,16 @@
+// Angular imports
 import { Component } from '@angular/core';
-import { SharedNetworkStepComponent } from '../../wizard/shared/components/steps/network-step/network-step.component';
-import Broker from '../../../../shared/service/broker';
-import { TkgEventType } from '../../../../shared/service/Messenger';
-import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
-import { VSphereNetwork } from '../../../../swagger/models';
 import { Validators } from '@angular/forms';
-import { VSphereWizardFormService } from '../../../../shared/service/vsphere-wizard-form.service';
-import { ValidationService } from '../../wizard/shared/validation/validation.service';
+// Third party imports
+import { takeUntil } from 'rxjs/operators';
+// App imports
+import Broker from '../../../../shared/service/broker';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { SharedNetworkStepComponent } from '../../wizard/shared/components/steps/network-step/network-step.component';
+import { TkgEventType } from '../../../../shared/service/Messenger';
+import { ValidationService } from '../../wizard/shared/validation/validation.service';
+import { VSphereNetwork } from '../../../../swagger/models';
+import { VSphereWizardFormService } from '../../../../shared/service/vsphere-wizard-form.service';
 
 declare var sortPaths: any;
 @Component({
@@ -58,8 +61,8 @@ export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
     }
 
     /**
-     * @method loadVSphereNetworks
-     * helper method retrieves list of vsphere networks
+     * @method loadNetworks
+     * helper method retrieves list of networks
      */
     loadNetworks() {
         this.loadingNetworks = true;
