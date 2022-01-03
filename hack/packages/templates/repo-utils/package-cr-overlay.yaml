@@ -45,7 +45,7 @@ spec:
       fetch:
         #@overlay/match by=overlay.index(0)
         - imgpkgBundle:
-            image: #@ "{}/{}:{}".format(package_repository.registry, package.name, imagePackageVersion)
+            image: #@ "{}/{}:{}".format(data.values.registry, package.name, imagePackageVersion)
       template:
         #@overlay/match by=overlay.index(0)
         - ytt:
