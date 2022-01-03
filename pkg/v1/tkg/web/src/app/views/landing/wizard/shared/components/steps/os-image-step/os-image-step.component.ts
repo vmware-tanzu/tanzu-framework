@@ -1,16 +1,11 @@
-import { Validators, FormControl } from '@angular/forms';
-import { takeUntil } from 'rxjs/operators';
-
+// App imports
+import Broker from 'src/app/shared/service/broker';
+import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
+import { Observable } from 'rxjs/internal/Observable';
+import { OsImageStepMapping } from './os-image-step.fieldmapping';
+import ServiceBroker from '../../../../../../../shared/service/service-broker';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { TkgEventType } from 'src/app/shared/service/Messenger';
-import Broker from 'src/app/shared/service/broker';
-import { Observable } from 'rxjs/internal/Observable';
-import { FormUtils } from '../../../utils/form-utils';
-import { AWSVirtualMachine, AzureVirtualMachine } from 'src/app/swagger/models';
-import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
-import { OsImageStepMapping } from './os-image-step.fieldmapping';
-import { StepMapping } from '../../../field-mapping/FieldMapping';
-import ServiceBroker from '../../../../../../../shared/service/service-broker';
 
 // The intention of this class is to provide the common plumbing for the osImage step that many providers need.
 // The basic functionality is to subscribe to an event and load the resulting images into a local field.

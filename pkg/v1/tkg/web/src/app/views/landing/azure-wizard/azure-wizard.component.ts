@@ -1,12 +1,13 @@
+// Angular imports
 import { Component, ElementRef, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
-import { APIClient } from 'src/app/swagger';
-
-import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
+// Third party imports
 import { Observable } from 'rxjs';
-import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
+// App imports
+import { APIClient } from 'src/app/swagger';
+import { AzureForm } from './azure-wizard.constants';
 import {
     AzureInstanceType,
     AzureRegionalClusterParams,
@@ -15,29 +16,17 @@ import {
     AzureVirtualNetwork
 } from 'src/app/swagger/models';
 import { AzureAccountParamsKeys, AzureProviderStepComponent } from './provider-step/azure-provider-step.component';
-import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
-import { EXISTING, VnetStepComponent } from './vnet-step/vnet-step.component';
-import Broker from 'src/app/shared/service/broker';
-import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
-import { ImportParams, ImportService } from "../../../shared/service/import.service";
-import { AzureForm } from './azure-wizard.constants';
-
 import { AzureOsImageStepComponent } from './os-image-step/azure-os-image-step.component';
+import Broker from 'src/app/shared/service/broker';
+import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
+import { EXISTING, VnetStepComponent } from './vnet-step/vnet-step.component';
+import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
+import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
+import { ImportParams, ImportService } from "../../../shared/service/import.service";
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
-import { TkgEventType } from '../../../shared/service/Messenger';
 import ServiceBroker from '../../../shared/service/service-broker';
-
-// Not sure why some of these step names have 'Form' in them, but leaving as is
-enum AzureStep {
-    PROVIDER = 'azureProviderForm',
-    NODESETTING = 'azureNodeSettingForm',
-    METADATA = 'metadataForm',
-    NETWORK = 'networkForm',
-    CEIP = 'ceipOptInForm',
-    IDENTITY = 'identity',
-    OSIMAGE = 'osImage',
-    VNET = 'vnetForm'
-}
+import { TkgEventType } from '../../../shared/service/Messenger';
+import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 
 @Component({
     selector: 'app-azure-wizard',

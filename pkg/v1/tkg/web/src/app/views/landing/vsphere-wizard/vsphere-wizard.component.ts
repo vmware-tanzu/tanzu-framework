@@ -19,6 +19,7 @@ import { PROVIDERS, Providers } from '../../../shared/constants/app.constants';
 import { ResourceStepComponent } from './resource-step/resource-step.component';
 import ServiceBroker from '../../../shared/service/service-broker';
 import { TkgEventType } from '../../../shared/service/Messenger';
+import { VsphereField } from './vsphere-wizard.constants';
 import {
     VSphereDatastore,
     VSphereFolder,
@@ -27,9 +28,8 @@ import {
     VSphereResourcePool,
     VSphereVirtualMachine
 } from '../../../swagger/models';
-import { VsphereField } from './vsphere-wizard.constants';
 import { VsphereNetworkStepComponent } from './vsphere-network-step/vsphere-network-step.component';
-import { VsphereOsImageStepComponent } from './vsphere-os-image-step/vsphere-os-image-step.component';
+import { VsphereOsImageStepComponent } from './os-image-step/vsphere-os-image-step.component';
 import { VSphereProviderStepComponent } from './provider-step/vsphere-provider-step.component';
 import { VsphereRegionalClusterParams } from 'src/app/swagger/models/vsphere-regional-cluster-params.model';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';

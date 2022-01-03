@@ -1,15 +1,16 @@
+// Angular imports
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { VpcStepComponent } from './vpc-step.component';
+// App imports
+import { APIClient } from 'src/app/swagger';
+import Broker from 'src/app/shared/service/broker';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { Messenger } from 'src/app/shared/service/Messenger';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
+import ServiceBroker from '../../../../shared/service/service-broker';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import { APIClient } from 'src/app/swagger';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import Broker from 'src/app/shared/service/broker';
-import { Messenger } from 'src/app/shared/service/Messenger';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import ServiceBroker from '../../../../shared/service/service-broker';
+import { VpcStepComponent } from './vpc-step.component';
 
 describe('VpcComponent', () => {
     let component: VpcStepComponent;

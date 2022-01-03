@@ -14,8 +14,8 @@ import { ValidationService } from '../../wizard/shared/validation/validation.ser
 import { VSphereDatastore } from '../../../../swagger/models/v-sphere-datastore.model';
 import { VsphereField } from "../vsphere-wizard.constants";
 import { VSphereFolder } from '../../../../swagger/models/v-sphere-folder.model';
+import { VSphereResourcePool } from '../../../../swagger/models';
 import { VsphereResourceStepMapping } from './resource-step.fieldmapping';
-import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
 
 declare var sortPaths: any;
 

@@ -1,27 +1,23 @@
-/**
- * Angular Modules
- */
+// Angular imports
 import { Component, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { takeUntil } from 'rxjs/operators';
-/**
- * App imports
- */
-import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import { AWSNodeAz } from '../../../../swagger/models/aws-node-az.model';
-import { AWSSubnet } from '../../../../swagger/models/aws-subnet.model';
-import { TkgEventType } from '../../../../shared/service/Messenger';
-import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
+// App imports
 import { APIClient } from '../../../../swagger/api-client.service';
-import Broker from 'src/app/shared/service/broker';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import { AwsField, AwsForm } from "../aws-wizard.constants";
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { AwsNodeSettingStepMapping } from './node-setting-step.fieldmapping';
-import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
-import ServiceBroker from '../../../../shared/service/service-broker';
+import { AWSNodeAz } from '../../../../swagger/models/aws-node-az.model';
+import { AWSSubnet } from '../../../../swagger/models/aws-subnet.model';
 import { AzRelatedFieldsArray } from '../aws-wizard.component';
+import Broker from 'src/app/shared/service/broker';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
+import ServiceBroker from '../../../../shared/service/service-broker';
+import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
+import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
+import { TkgEventType } from '../../../../shared/service/Messenger';
+import { ValidationService } from '../../wizard/shared/validation/validation.service';
 
 export interface AzNodeTypes {
     awsNodeAz1: Array<string>,

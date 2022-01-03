@@ -1,18 +1,20 @@
+// Angular imports
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormBuilder } from '@angular/forms';
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
-
-import { SharedModule } from '../../../../shared/shared.module';
+// Third party imports
+import { of, throwError, Observable } from 'rxjs';
+// App imports
 import { AzureProviderStepComponent } from './azure-provider-step.component';
 import { APIClient } from '../../../../swagger/api-client.service';
-import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import { of, throwError, Observable } from 'rxjs';
-import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
 import Broker from 'src/app/shared/service/broker';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
 import ServiceBroker from '../../../../shared/service/service-broker';
+import { SharedModule } from '../../../../shared/shared.module';
+import { ValidationService } from '../../wizard/shared/validation/validation.service';
 
 describe('AzureProviderStepComponent', () => {
     let component: AzureProviderStepComponent;

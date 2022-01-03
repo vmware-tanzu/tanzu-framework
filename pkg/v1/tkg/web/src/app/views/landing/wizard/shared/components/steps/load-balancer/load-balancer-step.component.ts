@@ -12,6 +12,7 @@ import Broker from 'src/app/shared/service/broker';
 import { ClrLoadingState } from "@clr/angular";
 import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
+import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 import { LoadBalancerStepMapping } from './load-balancer-step.fieldmapping';
 import { StepFormDirective } from "../../../step-form/step-form";
 import { TkgEventType } from 'src/app/shared/service/Messenger';

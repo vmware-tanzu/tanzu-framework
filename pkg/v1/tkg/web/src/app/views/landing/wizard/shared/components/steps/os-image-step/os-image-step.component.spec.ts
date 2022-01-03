@@ -1,17 +1,16 @@
 // Angular imports
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 // App imports
 import { APIClient } from 'src/app/swagger/api-client.service';
 import Broker from 'src/app/shared/service/broker';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
-import { Messenger } from 'src/app/shared/service/Messenger';
+import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
 import ServiceBroker from '../../../../../../../shared/service/service-broker';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ValidationService } from '../../../validation/validation.service';
 import { VsphereOsImageStepComponent } from '../../../../../vsphere-wizard/vsphere-os-image-step/vsphere-os-image-step.component';
-import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
 
 describe('VsphereOsImageStepComponent', () => {
     let component: VsphereOsImageStepComponent;

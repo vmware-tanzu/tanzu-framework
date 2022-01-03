@@ -1,22 +1,21 @@
-import { AzureVirtualNetwork } from './../../../../swagger/models/azure-virtual-network.model';
-import { TkgEventType } from 'src/app/shared/service/Messenger';
-import { ValidationService } from './../../wizard/shared/validation/validation.service';
-/**
- * Angular Modules
- */
+// Angular imports
 import { Component, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
-
-import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
+// Third party imports
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
-import { AzureResourceGroup } from 'src/app/swagger/models';
-import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore'
-import Broker from 'src/app/shared/service/broker';
+// App imports
 import { AzureField } from '../azure-wizard.constants';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { AzureResourceGroup } from 'src/app/swagger/models';
 import { AzureVnetStandaloneStepMapping, AzureVnetStepMapping } from './vnet-step.fieldmapping';
-import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
+import { AzureVirtualNetwork } from './../../../../swagger/models/azure-virtual-network.model';
+import Broker from 'src/app/shared/service/broker';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore'
 import ServiceBroker from '../../../../shared/service/service-broker';
+import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
+import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
+import { TkgEventType } from 'src/app/shared/service/Messenger';
+import { ValidationService } from './../../wizard/shared/validation/validation.service';
 
 const CUSTOM = "CUSTOM";
 export const EXISTING = "EXISTING";

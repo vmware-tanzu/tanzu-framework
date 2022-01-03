@@ -1,16 +1,17 @@
+// Angular imports
 import { Component, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
-
+// App imports
+import { AwsVpcStepMapping } from './vpc-step.fieldmapping';
+import { AwsField, VpcType } from "../aws-wizard.constants";
+import Broker from 'src/app/shared/service/broker';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import ServiceBroker from '../../../../shared/service/service-broker';
+import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { TkgEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from './../../wizard/shared/validation/validation.service';
-import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { Vpc } from '../../../../swagger/models/vpc.model';
-import Broker from 'src/app/shared/service/broker';
-import { AwsField, VpcType } from "../aws-wizard.constants";
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { AwsVpcStepMapping } from './vpc-step.fieldmapping';
-import ServiceBroker from '../../../../shared/service/service-broker';
 
 @Component({
     selector: 'app-vpc-step',
