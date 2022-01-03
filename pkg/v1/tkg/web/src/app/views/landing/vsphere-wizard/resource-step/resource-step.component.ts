@@ -283,13 +283,13 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
     }
 
     private subscribeToServices() {
-        this.serviceBroker.stepSubscribe<VSphereResourcePool>(this, TkgEventType.GET_RESOURCE_POOLS,
+        this.serviceBroker.stepSubscribe<VSphereResourcePool>(this, TkgEventType.VSPHERE_GET_RESOURCE_POOLS,
             this.onFetchedResourcePools.bind(this), this.serviceBroker.appendingStepErrorHandler(this) );
-        this.serviceBroker.stepSubscribe<ResourcePool>(this, TkgEventType.GET_COMPUTE_RESOURCE,
+        this.serviceBroker.stepSubscribe<ResourcePool>(this, TkgEventType.VSPHERE_GET_COMPUTE_RESOURCE,
             this.onFetchedComputeResources.bind(this), this.serviceBroker.appendingStepErrorHandler(this) );
-        this.serviceBroker.stepSubscribe<VSphereDatastore>(this, TkgEventType.GET_DATA_STORES,
+        this.serviceBroker.stepSubscribe<VSphereDatastore>(this, TkgEventType.VSPHERE_GET_DATA_STORES,
             this.onFetchedDatastores.bind(this), this.serviceBroker.appendingStepErrorHandler(this) );
-        this.serviceBroker.stepSubscribe<VSphereFolder>(this, TkgEventType.GET_VM_FOLDERS,
+        this.serviceBroker.stepSubscribe<VSphereFolder>(this, TkgEventType.VSPHERE_GET_VM_FOLDERS,
             this.onFetchedVmFolders.bind(this), this.serviceBroker.appendingStepErrorHandler(this) );
     }
 

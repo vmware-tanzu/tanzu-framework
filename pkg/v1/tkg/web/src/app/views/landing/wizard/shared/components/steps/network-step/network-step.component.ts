@@ -37,7 +37,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
 
     constructor(protected validationService: ValidationService,
                 protected fieldMapUtilities: FieldMapUtilities,
-                private serviceBroker: ServiceBroker
+                protected serviceBroker: ServiceBroker
                 ) {
         super();
     }
@@ -276,16 +276,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
         return '';
     }
 
-    private subscribeToServices() {
-        this.serviceBroker.stepSubscribe<VSphereNetwork>(this, TkgEventType.GET_VM_NETWORKS, this.onFetchedVmNetworks.bind(this));
-    }
-
-    private onFetchedVmNetworks(networks: Array<VSphereNetwork>) {
-        this.vmNetworks = sortPaths(networks, function (item) { return item.name; }, '/');
-        this.loadingNetworks = false;
-        this.resurrectField('networkName',
-            [Validators.required], networks.length === 1 ? networks[0].name : '',
-            { onlySelf: true } // only for current form control
-        );
+    // allows subclasses to subscribe to services during ngOnInit by overriding this method
+    protected subscribeToServices() {
     }
 }

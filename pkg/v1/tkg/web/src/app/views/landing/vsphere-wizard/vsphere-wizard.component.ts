@@ -29,7 +29,7 @@ import {
     VSphereVirtualMachine
 } from '../../../swagger/models';
 import { VsphereNetworkStepComponent } from './vsphere-network-step/vsphere-network-step.component';
-import { VsphereOsImageStepComponent } from './os-image-step/vsphere-os-image-step.component';
+import { VsphereOsImageStepComponent } from './vsphere-os-image-step/vsphere-os-image-step.component';
 import { VSphereProviderStepComponent } from './provider-step/vsphere-provider-step.component';
 import { VsphereRegionalClusterParams } from 'src/app/swagger/models/vsphere-regional-cluster-params.model';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';

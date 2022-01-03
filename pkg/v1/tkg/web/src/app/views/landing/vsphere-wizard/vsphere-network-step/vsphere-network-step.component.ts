@@ -10,7 +10,7 @@ import { SharedNetworkStepComponent } from '../../wizard/shared/components/steps
 import { TkgEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { VSphereNetwork } from '../../../../swagger/models';
-import { VSphereWizardFormService } from '../../../../shared/service/vsphere-wizard-form.service';
+import ServiceBroker from '../../../../shared/service/service-broker';
 
 declare var sortPaths: any;
 @Component({
@@ -19,10 +19,10 @@ declare var sortPaths: any;
     styleUrls: ['../../wizard/shared/components/steps/network-step/network-step.component.scss'],
 })
 export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
-    constructor(private wizardFormService: VSphereWizardFormService,
-                protected validationService: ValidationService,
-                protected fieldMapUtilities: FieldMapUtilities) {
-        super(validationService, fieldMapUtilities);
+    constructor(protected validationService: ValidationService,
+                protected fieldMapUtilities: FieldMapUtilities,
+                protected serviceBroker: ServiceBroker) {
+        super(validationService, fieldMapUtilities, serviceBroker);
         this.enableNetworkName = true;
     }
 
@@ -38,21 +38,19 @@ export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
             .subscribe(event => {
                 this.clearControlValue('networkName');
             });
-        this.wizardFormService.getErrorStream(TkgEventType.VSPHERE_GET_VM_NETWORKS)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(error => {
-                this.errorNotification = error;
-            });
-        this.wizardFormService.getDataStream(TkgEventType.VSPHERE_GET_VM_NETWORKS)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((networks: Array<VSphereNetwork>) => {
-                this.vmNetworks = sortPaths(networks, function (item) { return item.name; }, '/');
-                this.loadingNetworks = false;
-                this.resurrectField('networkName',
-                    [Validators.required], networks.length === 1 ? networks[0].name : '',
-                    { onlySelf: true } // only for current form control
-                );
-            });
+    }
+
+    protected subscribeToServices() {
+        this.serviceBroker.stepSubscribe<VSphereNetwork>(this, TkgEventType.VSPHERE_GET_VM_NETWORKS, this.onFetchedVmNetworks.bind(this));
+    }
+
+    private onFetchedVmNetworks(networks: Array<VSphereNetwork>) {
+        this.vmNetworks = sortPaths(networks, function (item) { return item.name; }, '/');
+        this.loadingNetworks = false;
+        this.resurrectField('networkName',
+            [Validators.required], networks.length === 1 ? networks[0].name : '',
+            { onlySelf: true } // only for current form control
+        );
     }
 
     protected onNoProxyChange(value: string) {

@@ -10,14 +10,12 @@ import { AviServiceEngineGroup } from "src/app/swagger/models/avi-service-engine
 import { AviVipNetwork } from './../../../../../../../swagger/models/avi-vip-network.model';
 import Broker from 'src/app/shared/service/broker';
 import { ClrLoadingState } from "@clr/angular";
-import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 import { LoadBalancerStepMapping } from './load-balancer-step.fieldmapping';
 import { StepFormDirective } from "../../../step-form/step-form";
 import { TkgEventType } from 'src/app/shared/service/Messenger';
 import { ValidationService } from "../../../validation/validation.service";
-import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
 
 export const KUBE_VIP = 'Kube-vip';
 export const NSX_ADVANCED_LOAD_BALANCER = "NSX Advanced Load Balancer";
