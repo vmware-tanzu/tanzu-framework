@@ -1,20 +1,19 @@
-import {Directive, Input, OnInit} from '@angular/core';
-import { AbstractControl, FormControl, FormGroup, ValidatorFn } from '@angular/forms';
-
-import {ValidatorEnum} from './../constants/validation.constants';
-import {BasicSubscriber} from 'src/app/shared/abstracts/basic-subscriber';
-import {FormMetaData, FormMetaDataStore} from '../FormMetaDataStore';
-import {TkgEvent, TkgEventType} from 'src/app/shared/service/Messenger';
-import {Notification, NotificationTypes} from 'src/app/shared/components/alert-notification/alert-notification.component';
-import Broker from 'src/app/shared/service/broker';
-
+// Angular imports
+import { Directive, OnInit } from '@angular/core';
+import { AbstractControl, FormGroup, ValidatorFn } from '@angular/forms';
+// Third party imports
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
+// App imports
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
+import { BasicSubscriber } from 'src/app/shared/abstracts/basic-subscriber';
+import Broker from 'src/app/shared/service/broker';
 import { EditionData } from 'src/app/shared/service/branding.service';
-import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
+import { FormMetaData, FormMetaDataStore } from '../FormMetaDataStore';
 import { FormUtility } from '../components/steps/form-utility';
-import { StepMapping } from '../field-mapping/FieldMapping';
-import { FieldMapUtilities } from '../field-mapping/FieldMapUtilities';
+import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
+import { Notification, NotificationTypes } from 'src/app/shared/components/alert-notification/alert-notification.component';
+import { TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
+import { ValidatorEnum } from './../constants/validation.constants';
 
 const INIT_FIELD_DELAY = 50;            // ms
 /**
@@ -345,7 +344,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     }
 
     registerOnIpFamilyChange(fieldName: string, ipv4Validators: ValidatorFn[], ipv6Validators: ValidatorFn[], cb?: () => void) {
-        Broker.messenger.getSubject(TkgEventType.IP_FAMILY_CHANGE)
+        Broker.messenger.getSubject(TkgEventType.VSPHERE_IP_FAMILY_CHANGE)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
                 if (data.payload === IpFamilyEnum.IPv4) {
