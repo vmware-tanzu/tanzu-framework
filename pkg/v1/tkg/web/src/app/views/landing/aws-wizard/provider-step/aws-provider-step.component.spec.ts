@@ -73,7 +73,7 @@ describe('AwsProviderStepComponent', () => {
     it("valid credentials fields should activate connect button", async(() => {
 
         component.ngOnInit();
-        const connectBtn = fixture.debugElement.query(By.css("button.btn-primary"));
+        let connectBtn = fixture.debugElement.query(By.css("button.btn-primary"));
         expect(connectBtn.nativeElement.disabled).toBeTruthy();
 
         component.setFieldValue(AwsField.PROVIDER_PROFILE_NAME, 'profile1');
@@ -84,9 +84,9 @@ describe('AwsProviderStepComponent', () => {
         fixture.whenStable().then(
             () => {
                 fixture.detectChanges();
-                const connectBtn2 = fixture.debugElement.query(By.css("button.btn-primary"));
-                expect(connectBtn2).toBeTruthy();
-                expect(connectBtn2.nativeElement.disabled).toBeFalsy();
+                connectBtn = fixture.debugElement.query(By.css("button.btn-primary"));
+                expect(connectBtn).toBeTruthy();
+                expect(connectBtn.nativeElement.disabled).toBeFalsy();
             }
         );
     }));

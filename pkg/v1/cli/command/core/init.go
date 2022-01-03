@@ -13,6 +13,7 @@ import (
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/pluginmanager"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
 
@@ -32,6 +33,17 @@ var initCmd = &cobra.Command{
 	},
 	SilenceErrors: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		var err error
+
+		if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
+			err = initPluginsWithContextAwareCLI()
+			if err != nil {
+				return err
+			}
+			log.Success("successfully initialized CLI")
+			return nil
+		}
+
 		s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
 		if err := s.Color("bgBlack", "bold", "fgWhite"); err != nil {
 			return err
@@ -52,4 +64,13 @@ var initCmd = &cobra.Command{
 		log.Success("successfully initialized CLI")
 		return nil
 	},
+}
+
+func initPluginsWithContextAwareCLI() error {
+	serverName := ""
+	server, err := config.GetCurrentServer()
+	if err == nil && server != nil {
+		serverName = server.Name
+	}
+	return pluginmanager.SyncPlugins(serverName)
 }

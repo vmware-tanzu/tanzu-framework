@@ -1,12 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { SharedOsImageStepComponent } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
-import { VSphereWizardFormService } from '../../../../shared/service/vsphere-wizard-form.service';
+import { OsImageProviderInputs, SharedOsImageStepComponent } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
 import { AwsWizardFormService } from '../../../../shared/service/aws-wizard-form.service';
-import { AzureWizardFormService } from '../../../../shared/service/azure-wizard-form.service';
-import Broker from '../../../../shared/service/broker';
-import { BehaviorSubject } from 'rxjs';
-import { Observable } from 'rxjs/internal/Observable';
 import { TkgEventType } from '../../../../shared/service/Messenger';
+import { AWSVirtualMachine } from '../../../../swagger/models';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 
 @Component({
@@ -14,7 +10,7 @@ import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUti
     templateUrl: '../../wizard/shared/components/steps/os-image-step/os-image-step.component.html',
     styleUrls: ['../../wizard/shared/components/steps/os-image-step/os-image-step.component.scss']
 })
-export class AwsOsImageStepComponent extends SharedOsImageStepComponent implements OnInit {
+export class AwsOsImageStepComponent extends SharedOsImageStepComponent<AWSVirtualMachine> implements OnInit {
     constructor(private awsWizardFormService: AwsWizardFormService, protected fieldMapUtilities: FieldMapUtilities) {
         super(fieldMapUtilities);
     }
@@ -23,12 +19,13 @@ export class AwsOsImageStepComponent extends SharedOsImageStepComponent implemen
         super.onInit();
     }
 
-    protected setProviderInputs() {
-        this.wizardFormService = this.awsWizardFormService;
-        this.eventType = TkgEventType.AWS_GET_OS_IMAGES;
-        this.enableNonTemplateAlert = false;
-        this.osImageTooltipContent = 'Select a base OS image that you have already imported ' +
-        'into your AWS account. If no compatible OS image is present, import one into ' +
-        'AWS and click the Refresh button';
+    protected supplyProviderInputs(): OsImageProviderInputs<AWSVirtualMachine> {
+        return {
+            event: TkgEventType.AWS_GET_OS_IMAGES,
+            osImageService: this.awsWizardFormService,
+            osImageTooltipContent: 'Select a base OS image that you have already imported ' +
+                'into your AWS account. If no compatible OS image is present, import one into ' +
+                'AWS and click the Refresh button'
+        };
     }
 }
