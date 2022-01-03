@@ -15,5 +15,5 @@ directories:
     path: tanzu-featuregates-manager.yaml
   - manual: {}
     path: webhook.yaml
-  path: config/upstream
+  path: bundle/config/upstream
 kind: LockConfig

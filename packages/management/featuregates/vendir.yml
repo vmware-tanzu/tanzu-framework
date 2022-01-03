@@ -2,18 +2,19 @@ apiVersion: vendir.k14s.io/v1alpha1
 kind: Config
 minimumRequiredVersion: 0.12.0
 directories:
-  - path: config/upstream
+  - path: bundle/config/upstream
     contents:
       - path: certificates.yaml
         manual: {}
+      - path: feature-crd.yaml
+        manual: {}
+      - path: featuregate-crd.yaml
+        manual: {}
+      - path: rbac.yaml
+        manual: {}
       - path: service.yaml
         manual: {}
-      - path: tkr-infra-machine-webhook-deployment.yaml
+      - path: tanzu-featuregates-manager.yaml
         manual: {}
       - path: webhook.yaml
         manual: {}
-  - path: config/overlays
-    contents:
-    - path: overlay-infra-machine-webhook.yaml
-      manual: {}
-
