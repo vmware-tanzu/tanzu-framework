@@ -53,7 +53,7 @@ To add the builder plugin use `tanzu plugin install builder`
 
 With the [context-aware plugin discovery](/docs/design/context-aware-plugin-discovery-design.md) enabled, Tanzu CLI admin plugins should now be installed from local source as follows:
 
-1. Download the admin plugin tarball or zip file from the release artifacts and extract it
+1. Download the latest admin plugin tarball or zip file from [release](https://github.com/vmware-tanzu/tanzu-framework/releases/latest) page (`tanzu-framework-plugins-admin-linux-amd64.tar.gz` or `tanzu-framework-plugins-admin-darwin-amd64.tar.gz` or `tanzu-framework-plugins-admin-darwin-amd64.tar.gz`) and extract it (using `linux` as example OS for next steps)
 1. Run `tanzu plugin list --local /path/to/admin-plugins/linux-amd64-admin` to list available admin plugins
 1. Run `tanzu plugin install all --local /path/to/admin-plugins/linux-amd64-admin` command to install all admin plugins. User can use `_plugin-name_` instead of `all` to install a specific plugin.
 1. Run `tanzu plugin list` to verify the installed plugins
