@@ -1,22 +1,24 @@
+// Angular imports
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FormBuilder } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
+// App imports
 import { APIClient } from '../../../swagger/api-client.service';
-import { AwsWizardComponent } from './aws-wizard.component';
-import { SharedModule } from '../../../shared/shared.module';
-import Broker from 'src/app/shared/service/broker';
-import { Messenger } from 'src/app/shared/service/Messenger';
-import { ClusterType, WizardForm } from "../wizard/shared/constants/wizard.constants";
+import AppServices from 'src/app/shared/service/appServices';
 import { AwsForm } from './aws-wizard.constants';
-import { VpcStepComponent } from './vpc-step/vpc-step.component';
-import { ValidationService } from '../wizard/shared/validation/validation.service';
-import { MetadataStepComponent } from '../wizard/shared/components/steps/metadata-step/metadata-step.component';
-import { SharedNetworkStepComponent } from '../wizard/shared/components/steps/network-step/network-step.component';
-import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
+import { AwsWizardComponent } from './aws-wizard.component';
+import { ClusterType, WizardForm } from "../wizard/shared/constants/wizard.constants";
 import { FieldMapUtilities } from '../wizard/shared/field-mapping/FieldMapUtilities';
+import { Messenger } from 'src/app/shared/service/Messenger';
+import { MetadataStepComponent } from '../wizard/shared/components/steps/metadata-step/metadata-step.component';
+import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
+import { SharedModule } from '../../../shared/shared.module';
+import { SharedNetworkStepComponent } from '../wizard/shared/components/steps/network-step/network-step.component';
+import { ValidationService } from '../wizard/shared/validation/validation.service';
+import { VpcStepComponent } from './vpc-step/vpc-step.component';
 
 describe('AwsWizardComponent', () => {
     let component: AwsWizardComponent;
@@ -46,7 +48,7 @@ describe('AwsWizardComponent', () => {
     }));
 
     beforeEach(() => {
-        Broker.messenger = new Messenger();
+        AppServices.messenger = new Messenger();
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(AwsWizardComponent);
         component = fixture.componentInstance;

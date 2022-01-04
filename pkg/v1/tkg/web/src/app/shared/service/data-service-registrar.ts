@@ -3,7 +3,7 @@ import { takeUntil } from 'rxjs/operators';
 
 // App imports
 import { TkgEventType } from './Messenger';
-import Broker from './broker';
+import AppServices from './appServices';
 import { Observable, ReplaySubject } from 'rxjs';
 import { StepFormDirective } from '../../views/landing/wizard/shared/step-form/step-form';
 
@@ -14,7 +14,7 @@ import { StepFormDirective } from '../../views/landing/wizard/shared/step-form/s
 // an error-handler that will properly display any error messages. (This class provides two standard error handlers for steps, to avoid
 // every step writing its own duplicate error handler, since almost all of them do exactly the same thing.) This is typically used
 // by steps that need to handle data when it arrives from the backend.
-// Secondarily, we provide a convenience TRIGGER method to publish an event to the Broker.messenger, and CLEAR to send out an empty
+// Secondarily, we provide a convenience TRIGGER method to publish an event to the AppServices.messenger, and CLEAR to send out an empty
 // array in an event's associated data stream (to clear previous values)
 // The point is to isolate all the boilerplate code into this class, so that registrants and subscribers need the least
 // amount of code to do their work.
@@ -22,24 +22,24 @@ import { StepFormDirective } from '../../views/landing/wizard/shared/step-form/s
 // NOTE: This class is not intended to help a situation where a step desires simply to make an API call to the back end and then
 // use the results. This class is more useful in the app-wide pattern where an event is triggered which should retrieve data, and that data
 // may be consumed by any subscriber (without any need for more context on why/how it was requested).
-interface ServiceBrokerEntry<OBJ> {
+interface DataServiceRegistrarEntry<OBJ> {
     fetcher: (data: any) => Observable<OBJ[]>,
     staticError?: string,
     dataStream: ReplaySubject<OBJ[]>,
     errorStream: ReplaySubject<string>,
 }
 
-export default class ServiceBroker {
-    private entries: Map<TkgEventType, ServiceBrokerEntry<any>> = new Map<TkgEventType, ServiceBrokerEntry<any>>();
+export default class DataServiceRegistrar {
+    private entries: Map<TkgEventType, DataServiceRegistrarEntry<any>> = new Map<TkgEventType, DataServiceRegistrarEntry<any>>();
 
     // convenience wrapper to publish triggering events
     trigger(eventTypes: TkgEventType[], payload?: any) {
-        eventTypes.forEach(eventType => { Broker.messenger.publish({type: eventType, payload: payload}) });
+        eventTypes.forEach(eventType => { AppServices.messenger.publish({type: eventType, payload: payload}) });
     }
 
     // broadcast an empty array on the data stream to clear previous values
     clear<OBJ>(eventType: TkgEventType) {
-        const serviceBrokerEntry: ServiceBrokerEntry<OBJ> = this.getEntry<OBJ>(eventType);
+        const serviceBrokerEntry: DataServiceRegistrarEntry<OBJ> = this.getEntry<OBJ>(eventType);
         if (serviceBrokerEntry) {
             serviceBrokerEntry.dataStream.next([]);
         }
@@ -60,14 +60,14 @@ export default class ServiceBroker {
             dataStream: new ReplaySubject<OBJ[]>(),
         };
         // we subscribe to the messenger to ensure that whenever the target event is broadcast, we go fetch the data
-        Broker.messenger.getSubject(eventType)
+        AppServices.messenger.getSubject(eventType)
             .subscribe((event) => this.fetchData<OBJ>(eventType, event.payload));
     }
 
     // subscribe() is called by those consuming data services. This is typically a step that relies on whatever data
     // is returned from the backend (for example, giving the user a choice of networks, regions, datacenters, etc)
     subscribe<OBJ>(eventType: TkgEventType, onDataReceived: (data: OBJ[]) => void, onError: (error: string) => void): boolean {
-        const serviceBrokerEntry: ServiceBrokerEntry<OBJ> = this.getEntry<OBJ>(eventType);
+        const serviceBrokerEntry: DataServiceRegistrarEntry<OBJ> = this.getEntry<OBJ>(eventType);
         if (!serviceBrokerEntry) {
             return false;
         }
@@ -103,7 +103,7 @@ export default class ServiceBroker {
     // as well as unsubscribing to the data stream with the ngOnDestroy event
     stepSubscribe<OBJ>(step: StepFormDirective, eventType: TkgEventType,
                        onDataReceived: (data: OBJ[]) => void, onError?: (error: string) => void): boolean {
-        const serviceBrokerEntry: ServiceBrokerEntry<OBJ> = this.getEntry<OBJ>(eventType);
+        const serviceBrokerEntry: DataServiceRegistrarEntry<OBJ> = this.getEntry<OBJ>(eventType);
         if (!serviceBrokerEntry) {
             console.error('Event ' + eventType + ' was not registered with the service broker before ' + step.formName +
                 ' tried to subscribe to it.');
@@ -129,12 +129,12 @@ export default class ServiceBroker {
         this.getEntry(eventType).dataStream.next(data);
     }
 
-    private getEntry<OBJ>(eventType: TkgEventType): ServiceBrokerEntry<OBJ> {
+    private getEntry<OBJ>(eventType: TkgEventType): DataServiceRegistrarEntry<OBJ> {
         const result = this.entries[eventType];
         if (result) {
             return result;
         }
-        console.error('ServiceBroker tried to get entry for event ' + eventType + ' but no such event has been registered');
+        console.error('DataServiceRegistrar tried to get entry for event ' + eventType + ' but no such event has been registered');
         return null;
     }
 

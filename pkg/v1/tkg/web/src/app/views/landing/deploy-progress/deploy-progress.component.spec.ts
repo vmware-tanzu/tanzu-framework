@@ -7,7 +7,7 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { DeployProgressComponent } from './deploy-progress.component';
 import { AppDataService } from 'src/app/shared/service/app-data.service';
 import { ClusterType } from "../wizard/shared/constants/wizard.constants";
-import Broker from "../../../shared/service/broker";
+import AppServices from "../../../shared/service/appServices";
 
 describe('DeployProgressComponent', () => {
     let fixture: ComponentFixture<DeployProgressComponent>;
@@ -40,14 +40,14 @@ describe('DeployProgressComponent', () => {
     it('should init component', () => {
         const initWebSocketSpy = spyOn(component, 'initWebSocket').and.callThrough();
         component.ngOnInit();
-        Broker.appDataService.setProviderType('vsphere');
+        AppServices.appDataService.setProviderType('vsphere');
         expect(component.providerType).toBe('vSphere');
-        Broker.appDataService.setProviderType('aws');
+        AppServices.appDataService.setProviderType('aws');
         expect(component.providerType).toBe('AWS');
-        Broker.appDataService.setProviderType('azure');
+        AppServices.appDataService.setProviderType('azure');
         expect(component.providerType).toBe('Azure');
         component.providerType = '';
-        Broker.appDataService.setProviderType('none');
+        AppServices.appDataService.setProviderType('none');
         expect(component.providerType).toBe('');
         expect(initWebSocketSpy).toHaveBeenCalled();
     });

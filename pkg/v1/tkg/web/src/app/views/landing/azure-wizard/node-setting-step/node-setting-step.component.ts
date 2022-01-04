@@ -4,9 +4,8 @@ import { Validators } from '@angular/forms';
 // App imports
 import { AzureInstanceType } from 'src/app/swagger/models';
 import { AzureNodeSettingStandaloneStepMapping, AzureNodeSettingStepMapping } from './node-setting-step.fieldmapping';
-import Broker from '../../../../shared/service/broker';
+import AppServices from '../../../../shared/service/appServices';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import ServiceBroker from '../../../../shared/service/service-broker';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 import { TkgEventType } from '../../../../shared/service/Messenger';
@@ -25,7 +24,6 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     displayForm = false;
 
     constructor(private validationService: ValidationService,
-                private serviceBroker: ServiceBroker,
                 private fieldMapUtilities: FieldMapUtilities) {
         super();
         this.nodeTypes = [];
@@ -34,12 +32,12 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     private supplyStepMapping(): StepMapping {
         const fieldMappings = this.modeClusterStandalone ? AzureNodeSettingStandaloneStepMapping : AzureNodeSettingStepMapping;
         FieldMapUtilities.getFieldMapping('managementClusterName', fieldMappings).required =
-            Broker.appDataService.isClusterNameRequired();
+            AppServices.appDataService.isClusterNameRequired();
         return fieldMappings;
     }
 
     private subscribeToServices() {
-        this.serviceBroker.stepSubscribe(this, TkgEventType.AZURE_GET_INSTANCE_TYPES, this.onFetchedInstanceTypes.bind(this))
+        AppServices.dataServiceRegistrar.stepSubscribe(this, TkgEventType.AZURE_GET_INSTANCE_TYPES, this.onFetchedInstanceTypes.bind(this))
     }
 
     private onFetchedInstanceTypes(instanceTypes: AzureInstanceType[]) {

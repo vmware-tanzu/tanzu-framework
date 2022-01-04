@@ -5,15 +5,14 @@ import { takeUntil } from 'rxjs/operators';
 // App imports
 import { APIClient } from '../../../../swagger/api-client.service';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
+import AppServices from '../../../../shared/service/appServices';
 import { AwsField, AwsForm } from "../aws-wizard.constants";
 import { AwsNodeSettingStepMapping } from './node-setting-step.fieldmapping';
 import { AWSNodeAz } from '../../../../swagger/models/aws-node-az.model';
 import { AWSSubnet } from '../../../../swagger/models/aws-subnet.model';
 import { AzRelatedFieldsArray } from '../aws-wizard.component';
-import Broker from 'src/app/shared/service/broker';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
-import ServiceBroker from '../../../../shared/service/service-broker';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 import { TkgEventType } from '../../../../shared/service/Messenger';
@@ -131,7 +130,6 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     airgappedVPC = false;
 
     constructor(private validationService: ValidationService,
-                private serviceBroker: ServiceBroker,
                 private fieldMapUtilities: FieldMapUtilities,
                 private apiClient: APIClient) {
         super();
@@ -139,12 +137,12 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     private supplyStepMapping(): StepMapping {
         FieldMapUtilities.getFieldMapping(AwsField.NODESETTING_CLUSTER_NAME, AwsNodeSettingStepMapping).required =
-            Broker.appDataService.isClusterNameRequired();
+            AppServices.appDataService.isClusterNameRequired();
         return AwsNodeSettingStepMapping;
     }
 
     private customizeForm() {
-        Broker.messenger.getSubject(TkgEventType.AWS_AIRGAPPED_VPC_CHANGE).subscribe(event => {
+        AppServices.messenger.getSubject(TkgEventType.AWS_AIRGAPPED_VPC_CHANGE).subscribe(event => {
             this.airgappedVPC = event.payload;
             if (this.airgappedVPC) { // public subnet IDs shouldn't be provided
                 PUBLIC_SUBNETS.forEach(f => {
@@ -162,7 +160,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         /**
          * Whenever aws region selection changes, update AZ subregion
          */
-        Broker.messenger.getSubject(TkgEventType.AWS_REGION_CHANGED)
+        AppServices.messenger.getSubject(TkgEventType.AWS_REGION_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                 if (this.formGroup.get(AwsField.NODESETTING_AZ_1)) {
@@ -175,7 +173,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 }
             });
 
-        Broker.messenger.getSubject(TkgEventType.AWS_VPC_TYPE_CHANGED)
+        AppServices.messenger.getSubject(TkgEventType.AWS_VPC_TYPE_CHANGED)
             .subscribe(event => {
                 this.vpcType = event.payload.vpcType;
                 if (this.vpcType !== vpcType.EXISTING) {
@@ -190,7 +188,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 );
             });
 
-        Broker.messenger.getSubject(TkgEventType.AWS_VPC_CHANGED)
+        AppServices.messenger.getSubject(TkgEventType.AWS_VPC_CHANGED)
             .subscribe(event => {
                 this.clearAzs();
                 this.clearSubnets();
@@ -215,9 +213,10 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     private subscribeToServices() {
-        this.serviceBroker.stepSubscribe<AWSNodeAz>(this, TkgEventType.AWS_GET_AVAILABILITY_ZONES, this.onFetchedAzs.bind(this));
-        this.serviceBroker.stepSubscribe<AWSSubnet>(this, TkgEventType.AWS_GET_SUBNETS, this.onFetchedSubnets.bind(this));
-        this.serviceBroker.stepSubscribe<string>(this, TkgEventType.AWS_GET_NODE_TYPES, this.onFetchedNodeTypes.bind(this));
+        AppServices.dataServiceRegistrar.stepSubscribe<AWSSubnet>(this, TkgEventType.AWS_GET_SUBNETS, this.onFetchedSubnets.bind(this));
+        AppServices.dataServiceRegistrar.stepSubscribe<string>(this, TkgEventType.AWS_GET_NODE_TYPES, this.onFetchedNodeTypes.bind(this));
+        AppServices.dataServiceRegistrar.stepSubscribe<AWSNodeAz>(this, TkgEventType.AWS_GET_AVAILABILITY_ZONES,
+            this.onFetchedAzs.bind(this));
     }
 
     private onFetchedAzs(availabilityZones: Array<AWSNodeAz>) {
@@ -269,7 +268,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             this.displayForm = true;
             const existingVpcId = FormMetaDataStore.getMetaDataItem(AwsForm.VPC, 'existingVpcId');
             if (existingVpcId && existingVpcId.displayValue) {
-                Broker.messenger.publish({
+                AppServices.messenger.publish({
                     type: TkgEventType.AWS_GET_SUBNETS,
                     payload: { vpcId: existingVpcId.displayValue }
                 });

@@ -2,10 +2,9 @@
 import { Component, OnInit } from '@angular/core';
 // App imports
 import { AWSVirtualMachine } from '../../../../swagger/models';
-import Broker from '../../../../shared/service/broker';
+import AppServices from '../../../../shared/service/appServices';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { OsImageProviderInputs, SharedOsImageStepComponent } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
-import ServiceBroker from '../../../../shared/service/service-broker';
 import { TkgEventType } from '../../../../shared/service/Messenger';
 
 @Component({
@@ -17,14 +16,14 @@ export class AwsOsImageStepComponent extends SharedOsImageStepComponent<AWSVirtu
     // aws globals
     region: string;
 
-    constructor(protected fieldMapUtilities: FieldMapUtilities, protected serviceBroker: ServiceBroker) {
-        super(fieldMapUtilities, serviceBroker);
+    constructor(protected fieldMapUtilities: FieldMapUtilities) {
+        super(fieldMapUtilities);
     }
 
     ngOnInit() {
         super.onInit();
 
-        Broker.messenger.getSubject(TkgEventType.AWS_REGION_CHANGED)
+        AppServices.messenger.getSubject(TkgEventType.AWS_REGION_CHANGED)
             .subscribe(event => {
                 this.region = event.payload;
             });

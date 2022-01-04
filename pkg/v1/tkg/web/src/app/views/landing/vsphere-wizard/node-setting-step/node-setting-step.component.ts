@@ -2,7 +2,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
 // App imports
-import Broker from 'src/app/shared/service/broker';
+import AppServices from 'src/app/shared/service/appServices';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { InstanceType, IpFamilyEnum, PROVIDERS, Providers } from '../../../../shared/constants/app.constants';
 import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER } from '../../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
@@ -41,7 +41,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     private supplyStepMapping(): StepMapping {
         const fieldMappings = this.modeClusterStandalone ? VsphereNodeSettingStandaloneStepMapping : VsphereNodeSettingStepMapping;
         FieldMapUtilities.getFieldMapping(VsphereField.NODESETTING_CLUSTER_NAME, fieldMappings).required =
-            Broker.appDataService.isClusterNameRequired();
+            AppServices.appDataService.isClusterNameRequired();
         return fieldMappings;
     }
 
@@ -162,7 +162,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     onControlPlaneEndpoingProviderChange(provider: string): void {
         this.currentControlPlaneEndpoingProvider = provider;
-        Broker.messenger.publish({
+        AppServices.messenger.publish({
             type: TkgEventType.VSPHERE_CONTROL_PLANE_ENDPOINT_PROVIDER_CHANGED,
             payload: provider
         });

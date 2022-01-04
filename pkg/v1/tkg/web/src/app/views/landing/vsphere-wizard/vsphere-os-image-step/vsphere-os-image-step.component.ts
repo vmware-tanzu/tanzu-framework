@@ -1,10 +1,8 @@
 // Angular imports
 import { Component, OnInit } from '@angular/core';
 // App imports
-import { APIClient } from '../../../../swagger';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { OsImageProviderInputs, SharedOsImageStepComponent } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
-import ServiceBroker from '../../../../shared/service/service-broker';
 import { TkgEventType } from '../../../../shared/service/Messenger';
 import { VSphereVirtualMachine } from '../../../../swagger/models';
 
@@ -16,8 +14,8 @@ import { VSphereVirtualMachine } from '../../../../swagger/models';
 export class VsphereOsImageStepComponent extends SharedOsImageStepComponent<VSphereVirtualMachine> implements OnInit {
     private tkrVersionString: string;
 
-    constructor(protected fieldMapUtilities: FieldMapUtilities, protected serviceBroker: ServiceBroker) {
-        super(fieldMapUtilities, serviceBroker);
+    constructor(protected fieldMapUtilities: FieldMapUtilities) {
+        super(fieldMapUtilities);
         this.tkrVersion.subscribe(value => { this.tkrVersionString = value; });
     }
 

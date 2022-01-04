@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 // App imports
 import { APIClient } from '../../../swagger/api-client.service';
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
-import Broker from "../../../shared/service/broker";
+import AppServices from "../../../shared/service/appServices";
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
@@ -17,7 +17,6 @@ import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER, SharedLoadBalancerStepComponent }
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { PROVIDERS, Providers } from '../../../shared/constants/app.constants';
 import { ResourceStepComponent } from './resource-step/resource-step.component';
-import ServiceBroker from '../../../shared/service/service-broker';
 import { TkgEventType } from '../../../shared/service/Messenger';
 import { VsphereField } from './vsphere-wizard.constants';
 import {
@@ -52,7 +51,6 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
     constructor(
         private apiClient: APIClient,
         router: Router,
-        private serviceBroker: ServiceBroker,
         private importService: ImportService,
         formBuilder: FormBuilder,
         formMetaDataService: FormMetaDataService,
@@ -61,9 +59,9 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
 
         super(router, el, formMetaDataService, titleService, formBuilder);
 
-        this.provider = Broker.appDataService.getProviderType();
-        this.tkrVersion = Broker.appDataService.getTkrVersion();
-        Broker.appDataService.getVsphereVersion().subscribe(version => {
+        this.provider = AppServices.appDataService.getProviderType();
+        this.tkrVersion = AppServices.appDataService.getTkrVersion();
+        AppServices.appDataService.getVsphereVersion().subscribe(version => {
             this.vsphereVersion = version ? version + ' ' : '';
         });
     }
@@ -106,7 +104,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         ];
         mappings.forEach(attr => payload[attr[0]] = this.getFieldValue(attr[1], attr[2]));
         payload.controlPlaneNodeType = this.getControlPlaneType(this.getFieldValue('vsphereNodeSettingForm', 'controlPlaneSetting'));
-        payload.workerNodeType = Broker.appDataService.isModeClusterStandalone() ? payload.controlPlaneNodeType :
+        payload.workerNodeType = AppServices.appDataService.isModeClusterStandalone() ? payload.controlPlaneNodeType :
             this.getFieldValue('vsphereNodeSettingForm', VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE);
         payload.machineHealthCheckEnabled = this.getFieldValue("vsphereNodeSettingForm", "machineHealthChecksEnabled") === true;
 
@@ -170,7 +168,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
                 ['thumbprint', 'vsphereProviderForm', 'thumbprint']
             ];
             vsphereCredentialsMappings.forEach(attr => this.saveFormField(attr[1], attr[2], payload.vsphereCredentials[attr[0]]));
-            const decodedPassword = Broker.appDataService.decodeBase64(payload.vsphereCredentials['password']);
+            const decodedPassword = AppServices.appDataService.decodeBase64(payload.vsphereCredentials['password']);
             this.saveFormField('vsphereProviderForm', 'password', decodedPassword);
         }
 
@@ -373,11 +371,10 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
     }
 
     private subscribeToServices() {
-        const wizard = this;
-        Broker.messenger.getSubject(TkgEventType.VSPHERE_DATACENTER_CHANGED)
+        AppServices.messenger.getSubject(TkgEventType.VSPHERE_DATACENTER_CHANGED)
             .subscribe(event => {
                 const datacenterMoid = event.payload;
-                this.serviceBroker.trigger( [
+                AppServices.dataServiceRegistrar.trigger( [
                     TkgEventType.VSPHERE_GET_RESOURCE_POOLS,
                     TkgEventType.VSPHERE_GET_COMPUTE_RESOURCE,
                     TkgEventType.VSPHERE_GET_VM_NETWORKS,
@@ -390,27 +387,27 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
 
     private registerServices() {
         const wizard = this;
-        this.serviceBroker.register<VSphereResourcePool>(TkgEventType.VSPHERE_GET_RESOURCE_POOLS,
+        AppServices.dataServiceRegistrar.register<VSphereResourcePool>(TkgEventType.VSPHERE_GET_RESOURCE_POOLS,
             (payload: { dc: string }) => { return wizard.apiClient.getVSphereResourcePools(payload) },
             "Failed to retrieve list of resource pools from the specified vCenter Server."
             );
-        this.serviceBroker.register<VSphereManagementObject>(TkgEventType.VSPHERE_GET_COMPUTE_RESOURCE,
+        AppServices.dataServiceRegistrar.register<VSphereManagementObject>(TkgEventType.VSPHERE_GET_COMPUTE_RESOURCE,
             (payload: { dc: string }) => { return wizard.apiClient.getVSphereComputeResources(payload) },
             "Failed to retrieve list of compute resources from the specified datacenter."
         );
-        this.serviceBroker.register<VSphereNetwork>(TkgEventType.VSPHERE_GET_VM_NETWORKS,
+        AppServices.dataServiceRegistrar.register<VSphereNetwork>(TkgEventType.VSPHERE_GET_VM_NETWORKS,
             (payload: { dc: string }) => { return wizard.apiClient.getVSphereNetworks(payload) },
             "Failed to retrieve list of VM networks from the specified vCenter Server."
         );
-        this.serviceBroker.register<VSphereDatastore>(TkgEventType.VSPHERE_GET_DATA_STORES,
+        AppServices.dataServiceRegistrar.register<VSphereDatastore>(TkgEventType.VSPHERE_GET_DATA_STORES,
             (payload: { dc: string }) => { return wizard.apiClient.getVSphereDatastores(payload) },
             "Failed to retrieve list of datastores from the specified vCenter Server."
         );
-        this.serviceBroker.register<VSphereFolder>(TkgEventType.VSPHERE_GET_VM_FOLDERS,
+        AppServices.dataServiceRegistrar.register<VSphereFolder>(TkgEventType.VSPHERE_GET_VM_FOLDERS,
             (payload: { dc: string }) => { return wizard.apiClient.getVSphereFolders(payload) },
             "Failed to retrieve list of vm folders from the specified vCenter Server."
         );
-        this.serviceBroker.register<VSphereVirtualMachine>(TkgEventType.VSPHERE_GET_OS_IMAGES,
+        AppServices.dataServiceRegistrar.register<VSphereVirtualMachine>(TkgEventType.VSPHERE_GET_OS_IMAGES,
             (payload: { dc: string }) => { return wizard.apiClient.getVSphereOSImages(payload) },
             "Failed to retrieve list of OS images from the specified vCenter Server."
         );

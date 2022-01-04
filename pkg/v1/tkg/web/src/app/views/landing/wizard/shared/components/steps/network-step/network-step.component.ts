@@ -4,13 +4,12 @@ import { FormGroup, Validators } from '@angular/forms';
 // Third party imports
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 // App imports
-import Broker from 'src/app/shared/service/broker';
+import AppServices from '../../../../../../../shared/service/appServices';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { FormMetaDataStore, FormMetaData } from '../../../FormMetaDataStore';
 import { IAAS_DEFAULT_CIDRS, IpFamilyEnum } from '../../../../../../../shared/constants/app.constants';
 import { managementClusterPlugin } from "../../../constants/wizard.constants";
 import { NetworkIpv4StepMapping, NetworkIpv6StepMapping } from './network-step.fieldmapping';
-import ServiceBroker from '../../../../../../../shared/service/service-broker';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { StepMapping } from '../../../field-mapping/FieldMapping';
 import { TkgEventType } from 'src/app/shared/service/Messenger';
@@ -36,8 +35,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
     hideNoProxyWarning: boolean = true; // only used by vSphere
 
     constructor(protected validationService: ValidationService,
-                protected fieldMapUtilities: FieldMapUtilities,
-                protected serviceBroker: ServiceBroker
+                protected fieldMapUtilities: FieldMapUtilities
                 ) {
         super();
     }
@@ -82,7 +80,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
     }
 
     setValidators() {
-        const configuredCni = Broker.appDataService.getPluginFeature(managementClusterPlugin, 'cni');
+        const configuredCni = AppServices.appDataService.getPluginFeature(managementClusterPlugin, 'cni');
         if (configuredCni && ['antrea', 'calico', 'none'].includes(configuredCni)) {
             this.cniType = configuredCni;
         } else {
@@ -151,7 +149,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
             this.onNoProxyChange(value);
         });
 
-        Broker.messenger.getSubject(TkgEventType.NETWORK_STEP_GET_NO_PROXY_INFO)
+        AppServices.messenger.getSubject(TkgEventType.NETWORK_STEP_GET_NO_PROXY_INFO)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                 this.additionalNoProxyInfo = event.payload.info;

@@ -3,11 +3,9 @@ import { Component, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
 // Third party imports
 import { takeUntil } from 'rxjs/operators';
-import { combineLatest } from 'rxjs';
 // App imports
-import Broker from 'src/app/shared/service/broker';
+import AppServices from '../../../../shared/service/appServices';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import ServiceBroker from '../../../../shared/service/service-broker';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { TkgEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
@@ -68,8 +66,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
 
     treeData = [];
 
-    constructor(private serviceBroker: ServiceBroker,
-                private fieldMapUtilities: FieldMapUtilities,
+    constructor(private fieldMapUtilities: FieldMapUtilities,
                 private validationService: ValidationService) {
         super();
     }
@@ -81,7 +78,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
         /**
          * Whenever data center selection changes, reset the relevant fields
         */
-        Broker.messenger.getSubject(TkgEventType.VSPHERE_DATACENTER_CHANGED)
+        AppServices.messenger.getSubject(TkgEventType.VSPHERE_DATACENTER_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                 this.resetFieldsUponDCChange();
@@ -138,7 +135,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
      * helper method to refresh list of resource pools
      */
     retrieveResourcePools() {
-        Broker.messenger.publish({
+        AppServices.messenger.publish({
             type: TkgEventType.VSPHERE_GET_RESOURCE_POOLS
         });
     }
@@ -148,7 +145,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
      * helper method to refresh list of compute resources
      */
     retrieveComputeResources() {
-        Broker.messenger.publish({
+        AppServices.messenger.publish({
             type: TkgEventType.VSPHERE_GET_COMPUTE_RESOURCE
         });
     }
@@ -158,7 +155,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
      * helper method to refresh list of datastores
      */
     retrieveDatastores() {
-        Broker.messenger.publish({
+        AppServices.messenger.publish({
             type: TkgEventType.VSPHERE_GET_DATA_STORES
         });
     }
@@ -168,7 +165,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
      * helper method to refresh list of vm folders
      */
     retrieveVMFolders() {
-        Broker.messenger.publish({
+        AppServices.messenger.publish({
             type: TkgEventType.VSPHERE_GET_VM_FOLDERS
         });
     }
@@ -283,14 +280,14 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
     }
 
     private subscribeToServices() {
-        this.serviceBroker.stepSubscribe<VSphereResourcePool>(this, TkgEventType.VSPHERE_GET_RESOURCE_POOLS,
-            this.onFetchedResourcePools.bind(this), this.serviceBroker.appendingStepErrorHandler(this) );
-        this.serviceBroker.stepSubscribe<ResourcePool>(this, TkgEventType.VSPHERE_GET_COMPUTE_RESOURCE,
-            this.onFetchedComputeResources.bind(this), this.serviceBroker.appendingStepErrorHandler(this) );
-        this.serviceBroker.stepSubscribe<VSphereDatastore>(this, TkgEventType.VSPHERE_GET_DATA_STORES,
-            this.onFetchedDatastores.bind(this), this.serviceBroker.appendingStepErrorHandler(this) );
-        this.serviceBroker.stepSubscribe<VSphereFolder>(this, TkgEventType.VSPHERE_GET_VM_FOLDERS,
-            this.onFetchedVmFolders.bind(this), this.serviceBroker.appendingStepErrorHandler(this) );
+        AppServices.dataServiceRegistrar.stepSubscribe<VSphereResourcePool>(this, TkgEventType.VSPHERE_GET_RESOURCE_POOLS,
+            this.onFetchedResourcePools.bind(this), AppServices.dataServiceRegistrar.appendingStepErrorHandler(this) );
+        AppServices.dataServiceRegistrar.stepSubscribe<ResourcePool>(this, TkgEventType.VSPHERE_GET_COMPUTE_RESOURCE,
+            this.onFetchedComputeResources.bind(this), AppServices.dataServiceRegistrar.appendingStepErrorHandler(this) );
+        AppServices.dataServiceRegistrar.stepSubscribe<VSphereDatastore>(this, TkgEventType.VSPHERE_GET_DATA_STORES,
+            this.onFetchedDatastores.bind(this), AppServices.dataServiceRegistrar.appendingStepErrorHandler(this) );
+        AppServices.dataServiceRegistrar.stepSubscribe<VSphereFolder>(this, TkgEventType.VSPHERE_GET_VM_FOLDERS,
+            this.onFetchedVmFolders.bind(this), AppServices.dataServiceRegistrar.appendingStepErrorHandler(this) );
     }
 
     private sortVsphereResources(data: any[]): any[] {

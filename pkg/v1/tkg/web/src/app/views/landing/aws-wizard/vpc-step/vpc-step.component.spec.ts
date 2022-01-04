@@ -2,12 +2,11 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 // App imports
 import { APIClient } from 'src/app/swagger';
-import Broker from 'src/app/shared/service/broker';
+import AppServices from '../../../../shared/service/appServices';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { Messenger } from 'src/app/shared/service/Messenger';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
-import ServiceBroker from '../../../../shared/service/service-broker';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { VpcStepComponent } from './vpc-step.component';
@@ -28,7 +27,6 @@ describe('VpcComponent', () => {
                 ValidationService,
                 FormBuilder,
                 FieldMapUtilities,
-                ServiceBroker,
             ],
             schemas: [
                 CUSTOM_ELEMENTS_SCHEMA
@@ -38,7 +36,7 @@ describe('VpcComponent', () => {
     }));
 
     beforeEach(() => {
-        Broker.messenger = new Messenger();
+        AppServices.messenger = new Messenger();
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(VpcStepComponent);
         component = fixture.componentInstance;

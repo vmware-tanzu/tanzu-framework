@@ -1,14 +1,14 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-
-import { SharedModule } from '../../../../shared/shared.module';
-import { ResourceStepComponent } from './resource-step.component';
+// App imports
 import { APIClient } from '../../../../swagger/api-client.service';
-import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import Broker from 'src/app/shared/service/broker';
-import { Messenger } from 'src/app/shared/service/Messenger';
+import AppServices from 'src/app/shared/service/appServices';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { Messenger } from 'src/app/shared/service/Messenger';
+import { ResourceStepComponent } from './resource-step.component';
+import { SharedModule } from '../../../../shared/shared.module';
+import { ValidationService } from '../../wizard/shared/validation/validation.service';
 
 describe('ResourceStepComponent', () => {
     let component: ResourceStepComponent;
@@ -34,7 +34,7 @@ describe('ResourceStepComponent', () => {
     }));
 
     beforeEach(() => {
-        Broker.messenger = new Messenger();
+        AppServices.messenger = new Messenger();
         TestBed.inject(ValidationService);
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(ResourceStepComponent);
@@ -71,19 +71,19 @@ describe('ResourceStepComponent', () => {
     });
 
     it('should retrieve resources when load resoruce: case 3', () => {
-        const msgSpy = spyOn(Broker.messenger, 'publish').and.callThrough();
+        const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
         component.retrieveResourcePools();
         expect(msgSpy).toHaveBeenCalled();
     });
 
     it('should retrieve ds when load resoruce', async () => {
-        const msgSpy = spyOn(Broker.messenger, 'publish').and.callThrough();
+        const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
         component.retrieveDatastores();
         expect(msgSpy).toHaveBeenCalled();
     });
 
     it('should retrieve vm folders when load resoruce', async () => {
-        const msgSpy = spyOn(Broker.messenger, 'publish').and.callThrough();
+        const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
         component.retrieveVMFolders();
         expect(msgSpy).toHaveBeenCalled();
     });

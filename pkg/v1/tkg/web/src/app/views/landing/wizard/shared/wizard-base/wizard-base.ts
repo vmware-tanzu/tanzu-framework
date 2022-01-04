@@ -1,30 +1,29 @@
 // Angular imports
 import { OnInit, ElementRef, AfterViewInit, ViewChild, Directive, Type } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
-
 // Third party imports
-import { Observable } from 'rxjs';
-import { BasicSubscriber } from 'src/app/shared/abstracts/basic-subscriber';
-import { APP_ROUTES, Routes } from 'src/app/shared/constants/routes.constants';
-import { Providers, PROVIDERS } from 'src/app/shared/constants/app.constants';
-import { FormMetaDataStore } from '../FormMetaDataStore';
-import { debounceTime, take, takeUntil } from 'rxjs/operators';
-import { TkgEvent, TkgEventType } from './../../../../../shared/service/Messenger';
 import { ClrStepper } from '@clr/angular';
-import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
-import { ConfigFileInfo } from '../../../../../swagger/models/config-file-info.model';
-import Broker from 'src/app/shared/service/broker';
-import { ClusterType, IdentityManagementType, WizardForm } from "../constants/wizard.constants";
+import { debounceTime, take, takeUntil } from 'rxjs/operators';
 import FileSaver from 'file-saver';
+import { Observable } from 'rxjs';
+// App imports
+import { APP_ROUTES, Routes } from 'src/app/shared/constants/routes.constants';
+import AppServices from '../../../../../shared/service/appServices';
+import { BasicSubscriber } from 'src/app/shared/abstracts/basic-subscriber';
+import { ClusterType, WizardForm } from "../constants/wizard.constants";
+import { ConfigFileInfo } from '../../../../../swagger/models/config-file-info.model';
 import { FormDataForHTML, FormUtility } from '../components/steps/form-utility';
+import { FormMetaDataStore } from '../FormMetaDataStore';
+import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
+import { MetadataStepComponent } from '../components/steps/metadata-step/metadata-step.component';
+import { Providers, PROVIDERS } from 'src/app/shared/constants/app.constants';
 import { SharedCeipStepComponent } from '../components/steps/ceip-step/ceip-step.component';
 import { SharedIdentityStepComponent } from '../components/steps/identity-step/identity-step.component';
-import { MetadataStepComponent } from '../components/steps/metadata-step/metadata-step.component';
 import { SharedNetworkStepComponent } from '../components/steps/network-step/network-step.component';
-import { SharedOsImageStepComponent } from '../components/steps/os-image-step/os-image-step.component';
 import { StepFormDirective } from '../step-form/step-form';
+import { TkgEvent, TkgEventType } from './../../../../../shared/service/Messenger';
 
 // This interface describes a wizard that can register a step component
 export interface WizardStepRegistrar {
@@ -87,7 +86,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
         }
 
         // set branding and cluster type on branding change for base wizard components
-        Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+        AppServices.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
                 this.edition = data.payload.edition;
@@ -256,7 +255,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     }
 
     getClusterType(): ClusterType {
-        return Broker.appDataService.isModeClusterStandalone() ? ClusterType.Standalone : ClusterType.Management;
+        return AppServices.appDataService.isModeClusterStandalone() ? ClusterType.Standalone : ClusterType.Management;
     }
 
     /**
@@ -388,7 +387,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
      */
     updateCli(configPath: string) {
         const cli = this.getCli(configPath);
-        Broker.messenger.publish({
+        AppServices.messenger.publish({
             type: TkgEventType.CLI_CHANGED,
             payload: cli
         });

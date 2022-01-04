@@ -4,7 +4,6 @@ import { Component, OnInit } from '@angular/core';
 import { AzureVirtualMachine } from '../../../../swagger/models';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { OsImageProviderInputs, SharedOsImageStepComponent } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
-import ServiceBroker from '../../../../shared/service/service-broker';
 import { TkgEventType } from '../../../../shared/service/Messenger';
 
 @Component({
@@ -13,8 +12,8 @@ import { TkgEventType } from '../../../../shared/service/Messenger';
     styleUrls: ['../../wizard/shared/components/steps/os-image-step/os-image-step.component.scss']
 })
 export class AzureOsImageStepComponent extends SharedOsImageStepComponent<AzureVirtualMachine> implements OnInit {
-    constructor(protected fieldMapUtilities: FieldMapUtilities, protected serviceBroker: ServiceBroker) {
-        super(fieldMapUtilities, serviceBroker);
+    constructor(protected fieldMapUtilities: FieldMapUtilities) {
+        super(fieldMapUtilities);
     }
 
     ngOnInit() {

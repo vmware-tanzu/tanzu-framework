@@ -4,14 +4,13 @@ import { Validators } from '@angular/forms';
 // Third party imports
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 // App imports
+import AppServices from 'src/app/shared/service/appServices';
 import { AzureField } from '../azure-wizard.constants';
 import { AzureResourceGroup } from 'src/app/swagger/models';
 import { AzureVnetStandaloneStepMapping, AzureVnetStepMapping } from './vnet-step.fieldmapping';
 import { AzureVirtualNetwork } from './../../../../swagger/models/azure-virtual-network.model';
-import Broker from 'src/app/shared/service/broker';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore'
-import ServiceBroker from '../../../../shared/service/service-broker';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 import { TkgEventType } from 'src/app/shared/service/Messenger';
@@ -54,7 +53,6 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
     vnetFieldsNew: Array<string> = [];
 
     constructor(private fieldMapUtilities: FieldMapUtilities,
-                private serviceBroker: ServiceBroker,
                 private validationService: ValidationService) {
         super();
     }
@@ -67,8 +65,9 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
      * Create the initial form
      */
     private subscribeToServices() {
-        this.serviceBroker.stepSubscribe(this, TkgEventType.AZURE_GET_RESOURCE_GROUPS, this.onFetchedResourceGroups.bind(this));
-        this.serviceBroker.stepSubscribe(this, TkgEventType.AZURE_GET_VNETS, this.setVnets.bind(this))
+        AppServices.dataServiceRegistrar.stepSubscribe(this, TkgEventType.AZURE_GET_VNETS, this.setVnets.bind(this))
+        AppServices.dataServiceRegistrar.stepSubscribe(this, TkgEventType.AZURE_GET_RESOURCE_GROUPS,
+            this.onFetchedResourceGroups.bind(this));
     }
 
     private onFetchedResourceGroups(azureResourceGroups: AzureResourceGroup[]) {
@@ -105,7 +104,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
                 distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
                 takeUntil(this.unsubscribe)
             ).subscribe((cidr) => {
-                Broker.messenger.publish({
+                AppServices.messenger.publish({
                     type: TkgEventType.NETWORK_STEP_GET_NO_PROXY_INFO,
                     payload: { info: (cidr ? cidr + ',' : '') + '169.254.0.0/16,168.63.129.16' }
                 });
@@ -113,13 +112,13 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
         /**
          * Whenever Azure region selection changes...
          */
-        Broker.messenger.getSubject(TkgEventType.AZURE_REGION_CHANGED)
+        AppServices.messenger.getSubject(TkgEventType.AZURE_REGION_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                 this.onRegionChange(event.payload);
             });
 
-        Broker.messenger.getSubject(TkgEventType.AZURE_RESOURCEGROUP_CHANGED)
+        AppServices.messenger.getSubject(TkgEventType.AZURE_RESOURCEGROUP_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                 this.customResourceGroup = event.payload;
@@ -206,7 +205,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
 
     onResourceGroupChange(resourceGroupName) {
         if (resourceGroupName && resourceGroupName !== this.customResourceGroup) {
-            this.serviceBroker.trigger([TkgEventType.AZURE_GET_VNETS], { resourceGroupName, location: this.region })
+            AppServices.dataServiceRegistrar.trigger([TkgEventType.AZURE_GET_VNETS], { resourceGroupName, location: this.region })
         }
     }
 
@@ -316,7 +315,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
                 }
             });
         }
-        Broker.messenger.publish({
+        AppServices.messenger.publish({
             type: TkgEventType.NETWORK_STEP_GET_NO_PROXY_INFO,
             payload: {info: '169.254.0.0/16,168.63.129.16'}
         });

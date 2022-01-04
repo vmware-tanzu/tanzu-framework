@@ -4,13 +4,12 @@ import { Validators } from '@angular/forms';
 // Third party imports
 import { takeUntil } from 'rxjs/operators';
 // App imports
-import Broker from '../../../../shared/service/broker';
+import AppServices from '../../../../shared/service/appServices';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { SharedNetworkStepComponent } from '../../wizard/shared/components/steps/network-step/network-step.component';
 import { TkgEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { VSphereNetwork } from '../../../../swagger/models';
-import ServiceBroker from '../../../../shared/service/service-broker';
 
 declare var sortPaths: any;
 @Component({
@@ -20,20 +19,19 @@ declare var sortPaths: any;
 })
 export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
     constructor(protected validationService: ValidationService,
-                protected fieldMapUtilities: FieldMapUtilities,
-                protected serviceBroker: ServiceBroker) {
-        super(validationService, fieldMapUtilities, serviceBroker);
+                protected fieldMapUtilities: FieldMapUtilities) {
+        super(validationService, fieldMapUtilities);
         this.enableNetworkName = true;
     }
 
     listenToEvents() {
         super.listenToEvents();
-        Broker.messenger.getSubject(TkgEventType.VSPHERE_VC_AUTHENTICATED)
+        AppServices.messenger.getSubject(TkgEventType.VSPHERE_VC_AUTHENTICATED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data) => {
                 this.infraServiceAddress = data.payload;
             });
-        Broker.messenger.getSubject(TkgEventType.VSPHERE_DATACENTER_CHANGED)
+        AppServices.messenger.getSubject(TkgEventType.VSPHERE_DATACENTER_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                 this.clearControlValue('networkName');
@@ -41,7 +39,7 @@ export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
     }
 
     protected subscribeToServices() {
-        this.serviceBroker.stepSubscribe<VSphereNetwork>(this, TkgEventType.VSPHERE_GET_VM_NETWORKS, this.onFetchedVmNetworks.bind(this));
+        AppServices.dataServiceRegistrar.stepSubscribe<VSphereNetwork>(this, TkgEventType.VSPHERE_GET_VM_NETWORKS, this.onFetchedVmNetworks.bind(this));
     }
 
     private onFetchedVmNetworks(networks: Array<VSphereNetwork>) {
@@ -64,7 +62,7 @@ export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
      */
     loadNetworks() {
         this.loadingNetworks = true;
-        Broker.messenger.publish({
+        AppServices.messenger.publish({
             type: TkgEventType.VSPHERE_GET_VM_NETWORKS
         });
     }

@@ -5,8 +5,9 @@ import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 // Third party imports
 import { Observable } from 'rxjs';
-// Angular imports
+// App imports
 import { APIClient } from 'src/app/swagger';
+import AppServices from "../../../shared/service/appServices";
 import {
     AWSAvailabilityZone,
     AWSNodeAz,
@@ -20,13 +21,11 @@ import { AWSAccountParamsKeys, AwsProviderStepComponent } from './provider-step/
 import { AwsField, AwsForm, AwsStep } from "./aws-wizard.constants";
 import { AwsOsImageStepComponent } from './os-image-step/aws-os-image-step.component';
 import { BASTION_HOST_DISABLED, BASTION_HOST_ENABLED, NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
-import Broker from "../../../shared/service/broker";
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
 import { InstanceType } from '../../../shared/constants/app.constants';
-import ServiceBroker from '../../../shared/service/service-broker';
 import { TkgEventType } from '../../../shared/service/Messenger';
 import { Utils } from '../../../shared/utils';
 import { VpcStepComponent } from './vpc-step/vpc-step.component';
@@ -56,7 +55,6 @@ export const AzRelatedFieldsArray: AzRelatedFields[] = [
 export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
     constructor(
         router: Router,
-        private serviceBroker: ServiceBroker,
         formBuilder: FormBuilder,
         private importService: ImportService,
         private apiClient: APIClient,
@@ -179,7 +177,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
 
     private saveAzNodeFields(node: AWSNodeAz, azFields: AzRelatedFields) {
         this.saveFormField(AwsForm.NODESETTING, azFields.az, node.name);
-        if (!Broker.appDataService.isModeClusterStandalone()) {
+        if (!AppServices.appDataService.isModeClusterStandalone()) {
             this.saveFormField(AwsForm.NODESETTING, azFields.workerNodeInstanceType, node.workerNodeType);
         }
         this.saveFormField(AwsForm.NODESETTING, azFields.vpcPublicSubnet, Utils.safeString(node.publicSubnetID));
@@ -189,7 +187,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
     private getAzFieldData(azFields: AzRelatedFields, standaloneControlPlaneNodeType: string) {
         return             {
             name: this.getFieldValue(AwsForm.NODESETTING, azFields.az),
-            workerNodeType: Broker.appDataService.isModeClusterStandalone() ? standaloneControlPlaneNodeType :
+            workerNodeType: AppServices.appDataService.isModeClusterStandalone() ? standaloneControlPlaneNodeType :
                 this.getFieldValue(AwsForm.NODESETTING, azFields.workerNodeInstanceType),
             publicNodeCidr: (this.getFieldValue(AwsForm.VPC, 'vpcType') === 'new') ?
                 this.getFieldValue(AwsForm.VPC, 'publicNodeCidr') : '',
@@ -340,31 +338,31 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
     // HTML convenience methods
 
     private subscribeToServices() {
-        Broker.messenger.getSubject(TkgEventType.AWS_REGION_CHANGED)
+        AppServices.messenger.getSubject(TkgEventType.AWS_REGION_CHANGED)
             .subscribe(event => {
                 const region = event.payload;
-                this.serviceBroker.trigger([TkgEventType.AWS_GET_OS_IMAGES], {region: region});
+                AppServices.dataServiceRegistrar.trigger([TkgEventType.AWS_GET_OS_IMAGES], {region: region});
                 // NOTE: even though the VPC and AZ endpoints don't take the region as a payload, they DO return different data
                 // if the user logs in to AWS using a different region. Therefore, we re-fetch that data if the region changes.
-                this.serviceBroker.trigger([TkgEventType.AWS_GET_EXISTING_VPCS, TkgEventType.AWS_GET_AVAILABILITY_ZONES]);
+                AppServices.dataServiceRegistrar.trigger([TkgEventType.AWS_GET_EXISTING_VPCS, TkgEventType.AWS_GET_AVAILABILITY_ZONES]);
             });
     }
 
     private registerServices() {
         const wizard = this;
-        this.serviceBroker.register<Vpc>(TkgEventType.AWS_GET_EXISTING_VPCS,
+        AppServices.dataServiceRegistrar.register<Vpc>(TkgEventType.AWS_GET_EXISTING_VPCS,
             () => { return wizard.apiClient.getVPCs() },
             "Failed to retrieve list of existing VPCs from the specified AWS Account." );
-        this.serviceBroker.register<AWSAvailabilityZone>(TkgEventType.AWS_GET_AVAILABILITY_ZONES,
+        AppServices.dataServiceRegistrar.register<AWSAvailabilityZone>(TkgEventType.AWS_GET_AVAILABILITY_ZONES,
             () => { return wizard.apiClient.getAWSAvailabilityZones(); },
             "Failed to retrieve list of availability zones from the specified AWS Account." );
-        this.serviceBroker.register<AWSSubnet>(TkgEventType.AWS_GET_SUBNETS,
+        AppServices.dataServiceRegistrar.register<AWSSubnet>(TkgEventType.AWS_GET_SUBNETS,
             (payload: { vpcId: string }) => {return wizard.apiClient.getAWSSubnets(payload)},
             "Failed to retrieve list of VPC subnets from the specified AWS Account." );
-        this.serviceBroker.register<string>(TkgEventType.AWS_GET_NODE_TYPES,
+        AppServices.dataServiceRegistrar.register<string>(TkgEventType.AWS_GET_NODE_TYPES,
             (payload: {az?: string}) => { return wizard.apiClient.getAWSNodeTypes(payload); },
             "Failed to retrieve list of node types from the specified AWS Account." );
-        this.serviceBroker.register<AWSVirtualMachine>(TkgEventType.AWS_GET_OS_IMAGES,
+        AppServices.dataServiceRegistrar.register<AWSVirtualMachine>(TkgEventType.AWS_GET_OS_IMAGES,
             (payload: {region: string}) => { return wizard.apiClient.getAWSOSImages(payload); },
             "Failed to retrieve list of OS images from the specified AWS Server." );
     }

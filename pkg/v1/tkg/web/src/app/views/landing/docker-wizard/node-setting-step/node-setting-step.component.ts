@@ -1,14 +1,15 @@
+// Angular imports
 import { Component, OnInit } from '@angular/core';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import Broker from "../../../../shared/service/broker";
-import { TkgEvent, TkgEventType } from "../../../../shared/service/Messenger";
+// Third party imports
 import { takeUntil } from "rxjs/operators";
+// App imports
+import AppServices from "../../../../shared/service/appServices";
+import { DockerNodeSettingStepMapping } from './node-setting-step.fieldmapping';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { FormMetaDataStore } from "../../wizard/shared/FormMetaDataStore";
 import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { DockerNodeSettingStepMapping } from './node-setting-step.fieldmapping';
-import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
+import { TkgEvent, TkgEventType } from "../../../../shared/service/Messenger";
 
 @Component({
     selector: 'app-node-setting-step',
@@ -21,7 +22,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     private customizeForm() {
-        Broker.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
+        AppServices.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
                 this.configFileNotification = {
@@ -33,7 +34,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 this.initFormWithSavedData();
 
                 // Clear event so that listeners in other provider workflows do not receive false notifications
-                Broker.messenger.clearEvent(TkgEventType.CONFIG_FILE_IMPORTED);
+                AppServices.messenger.clearEvent(TkgEventType.CONFIG_FILE_IMPORTED);
             });
     }
 
