@@ -11,6 +11,8 @@ import { NodeSettingStepComponent } from './node-setting-step.component';
 import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
+import { DataServiceRegistrarTestExtension } from '../../../../testing/data-service-registrar.testextension';
+import { AWSSubnet } from '../../../../swagger/models';
 
 describe('NodeSettingStepComponent', () => {
     let component: NodeSettingStepComponent;
@@ -41,6 +43,7 @@ describe('NodeSettingStepComponent', () => {
 
     beforeEach(() => {
         AppServices.messenger = new Messenger();
+        AppServices.dataServiceRegistrar = new DataServiceRegistrarTestExtension();
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(NodeSettingStepComponent);
         component = fixture.componentInstance;
@@ -276,13 +279,19 @@ describe('NodeSettingStepComponent', () => {
     });
 
     it('should handle AWS_GET_SUBNETS event', () => {
+        const dataServiceRegistrar = AppServices.dataServiceRegistrar as DataServiceRegistrarTestExtension;
+        // we expect wizard to have registered this event
+        dataServiceRegistrar.simulateRegistration<AWSSubnet>(TkgEventType.AWS_GET_SUBNETS);
+
+        component.ngOnInit();
+
         const spySavedSubnet = spyOn(component, 'setSubnetFieldsFromSavedValues').and.callThrough();
-        AppServices.dataServiceRegistrar.simulateData(TkgEventType.AWS_GET_SUBNETS, [
+        dataServiceRegistrar.simulateData(TkgEventType.AWS_GET_SUBNETS, [
             {cidr: '100.63.0.0/14', isPublic:  true},
-            {cidr: '100.63.0.0/14', isPublic:  false}
+            {cidr: '100.64.0.0/14', isPublic:  false}
         ]);
         expect(component.publicSubnets).toEqual([{cidr: '100.63.0.0/14', isPublic:  true}]);
-        expect(component.privateSubnets).toEqual([{cidr: '100.63.0.0/14', isPublic:  false}]);
+        expect(component.privateSubnets).toEqual([{cidr: '100.64.0.0/14', isPublic:  false}]);
         expect(spySavedSubnet).toHaveBeenCalled();
     });
 });

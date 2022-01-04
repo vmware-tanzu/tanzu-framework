@@ -119,17 +119,8 @@ export default class DataServiceRegistrar {
         return true;
     }
 
-    // TODO: This method should currently only be called from outside by TESTS
-    public simulateError(eventType: TkgEventType, errMsg: string) {
-        this.getEntry(eventType).errorStream.next(errMsg);
-    }
-
-    // TODO: This method should currently only be called from outside by TESTS
-    public simulateData(eventType: TkgEventType, data: any) {
-        this.getEntry(eventType).dataStream.next(data);
-    }
-
-    private getEntry<OBJ>(eventType: TkgEventType): DataServiceRegistrarEntry<OBJ> {
+    // getEntry is protected so that the test extension subclass can access it
+    protected getEntry<OBJ>(eventType: TkgEventType): DataServiceRegistrarEntry<OBJ> {
         const result = this.entries[eventType];
         if (result) {
             return result;

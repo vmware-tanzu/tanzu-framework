@@ -224,15 +224,9 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     private onFetchedSubnets(subnets: Array<AWSSubnet>) {
-        this.publicSubnets = subnets.filter(obj => {
-            return obj.isPublic === true
-        });
-        this.privateSubnets = subnets.filter(obj => {
-            return obj.isPublic === false
-        });
-        AZS.forEach(az => {
-            this.filterSubnets(az, this.getFieldValue(az));
-        });
+        this.publicSubnets = subnets.filter(obj => { return obj.isPublic });
+        this.privateSubnets = subnets.filter(obj => { return !obj.isPublic });
+        AZS.forEach(az => { this.filterSubnets(az, this.getFieldValue(az)); });
         this.setSubnetFieldsFromSavedValues();
     }
 
