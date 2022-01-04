@@ -59,10 +59,10 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
 
     loadingResources: boolean = false;
     resourcesFetch: number = 0;
-    resourcePools: Array<ResourcePool>;
+    resourcePools: Array<ResourcePool> = [];
     computeResources: Array<any> = [];
-    datastores: Array<VSphereDatastore>;
-    vmFolders: Array<VSphereFolder>;
+    datastores: Array<VSphereDatastore> = [];
+    vmFolders: Array<VSphereFolder> = [];
 
     treeData = [];
 
