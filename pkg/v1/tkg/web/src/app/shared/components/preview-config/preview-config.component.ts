@@ -1,8 +1,11 @@
-import { TkgEventType } from '../../service/Messenger';
+// Angular imports
 import { Component, OnInit } from '@angular/core';
-import { BasicSubscriber } from 'src/app/shared/abstracts/basic-subscriber';
+// Third party imports
 import { takeUntil } from 'rxjs/operators';
-import Broker from '../../service/broker';
+// App imports
+import AppServices from '../../service/appServices';
+import { BasicSubscriber } from 'src/app/shared/abstracts/basic-subscriber';
+import { TkgEventType } from '../../service/Messenger';
 
 @Component({
     selector: 'app-preview-config',
@@ -15,7 +18,7 @@ export class PreviewConfigComponent extends BasicSubscriber implements OnInit {
 
     constructor() {
         super();
-        Broker.messenger.getSubject(TkgEventType.CLI_CHANGED)
+        AppServices.messenger.getSubject(TkgEventType.CLI_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                 this.cli = event.payload;

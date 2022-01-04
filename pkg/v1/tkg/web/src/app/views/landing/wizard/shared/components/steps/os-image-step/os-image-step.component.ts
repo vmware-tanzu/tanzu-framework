@@ -1,9 +1,8 @@
 // App imports
-import Broker from 'src/app/shared/service/broker';
+import AppServices from '../../../../../../../shared/service/appServices';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { Observable } from 'rxjs/internal/Observable';
 import { OsImageStepMapping } from './os-image-step.fieldmapping';
-import ServiceBroker from '../../../../../../../shared/service/service-broker';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { TkgEventType } from 'src/app/shared/service/Messenger';
 
@@ -33,9 +32,9 @@ export abstract class SharedOsImageStepComponent<IMAGE extends OsImage> extends 
     // TODO: It's questionable whether tkrVersion should be in this class, since it's only used for vSphere
     tkrVersion: Observable<string>;
 
-    protected constructor(protected fieldMapUtilities: FieldMapUtilities, protected serviceBroker: ServiceBroker) {
+    protected constructor(protected fieldMapUtilities: FieldMapUtilities) {
         super();
-        this.tkrVersion = Broker.appDataService.getTkrVersion();
+        this.tkrVersion = AppServices.appDataService.getTkrVersion();
     }
 
     // This method allows child classes to supply the inputs (rather than having them passed as part of an HTML component tag).
@@ -44,7 +43,7 @@ export abstract class SharedOsImageStepComponent<IMAGE extends OsImage> extends 
 
     private subscribeToProviderEvent() {
         // we register a handler for when our event receives data, namely that we'll populate our array of osImages
-        this.serviceBroker.stepSubscribe<IMAGE>(this, this.providerInputs.event, this.onFetchedOsImages.bind(this));
+        AppServices.dataServiceRegistrar.stepSubscribe<IMAGE>(this, this.providerInputs.event, this.onFetchedOsImages.bind(this));
     }
 
     private onFetchedOsImages(images: Array<IMAGE>) {
@@ -74,7 +73,7 @@ export abstract class SharedOsImageStepComponent<IMAGE extends OsImage> extends 
     retrieveOsImages() {
         this.loadingOsTemplate = true;
         this.displayNonTemplateAlert = false;
-        Broker.messenger.publish({
+        AppServices.messenger.publish({
             type: this.providerInputs.event
         });
     }

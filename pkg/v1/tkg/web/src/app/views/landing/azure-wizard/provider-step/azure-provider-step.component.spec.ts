@@ -7,12 +7,12 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 // Third party imports
 import { of, throwError, Observable } from 'rxjs';
 // App imports
+import AppServices from '../../../../shared/service/appServices';
 import { AzureProviderStepComponent } from './azure-provider-step.component';
 import { APIClient } from '../../../../swagger/api-client.service';
-import Broker from 'src/app/shared/service/broker';
+import DataServiceRegistrar from '../../../../shared/service/data-service-registrar';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
-import ServiceBroker from '../../../../shared/service/service-broker';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 
@@ -20,7 +20,7 @@ describe('AzureProviderStepComponent', () => {
     let component: AzureProviderStepComponent;
     let fixture: ComponentFixture<AzureProviderStepComponent>;
     let apiService: APIClient;
-    let serviceBroker: ServiceBroker;
+    let serviceBroker: DataServiceRegistrar;
 
     beforeEach(async(() => {
         TestBed.configureTestingModule({
@@ -31,7 +31,7 @@ describe('AzureProviderStepComponent', () => {
             ],
             providers: [
                 ValidationService,
-                ServiceBroker,
+                DataServiceRegistrar,
                 FormBuilder,
                 FieldMapUtilities,
                 APIClient
@@ -45,8 +45,8 @@ describe('AzureProviderStepComponent', () => {
     }));
 
     beforeEach(() => {
-        Broker.messenger = new Messenger();
-        serviceBroker = TestBed.inject(ServiceBroker);
+        AppServices.messenger = new Messenger();
+        serviceBroker = TestBed.inject(DataServiceRegistrar);
         apiService = TestBed.inject(APIClient);
 
         const fb = new FormBuilder();
@@ -141,7 +141,7 @@ describe('AzureProviderStepComponent', () => {
     });
 
     it('should handle resource group name change', () => {
-        const messengerSpy = spyOn(Broker.messenger, 'publish').and.callThrough();
+        const messengerSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
         component.onResourceGroupNameChange();
         expect(messengerSpy).toHaveBeenCalled();
         expect(messengerSpy).toHaveBeenCalledWith({

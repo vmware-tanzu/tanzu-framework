@@ -7,6 +7,7 @@ import { Title } from '@angular/platform-browser';
 import { Observable } from 'rxjs';
 // App imports
 import { APIClient } from 'src/app/swagger';
+import AppServices from '../../../shared/service/appServices';
 import { AzureForm } from './azure-wizard.constants';
 import {
     AzureInstanceType,
@@ -17,14 +18,12 @@ import {
 } from 'src/app/swagger/models';
 import { AzureAccountParamsKeys, AzureProviderStepComponent } from './provider-step/azure-provider-step.component';
 import { AzureOsImageStepComponent } from './os-image-step/azure-os-image-step.component';
-import Broker from 'src/app/shared/service/broker';
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { EXISTING, VnetStepComponent } from './vnet-step/vnet-step.component';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
-import ServiceBroker from '../../../shared/service/service-broker';
 import { TkgEventType } from '../../../shared/service/Messenger';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 
@@ -38,7 +37,6 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
 
     constructor(
         router: Router,
-        private serviceBroker: ServiceBroker,
         private importService: ImportService,
         formBuilder: FormBuilder,
         private apiClient: APIClient,
@@ -86,7 +84,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
 
         payload.controlPlaneMachineType = this.getControlPlaneNodeType("azure");
         payload.controlPlaneFlavor = this.getControlPlaneFlavor("azure");
-        payload.workerMachineType = Broker.appDataService.isModeClusterStandalone() ? payload.controlPlaneMachineType :
+        payload.workerMachineType = AppServices.appDataService.isModeClusterStandalone() ? payload.controlPlaneMachineType :
             this.getFieldValue(AzureForm.NODESETTING, 'workerNodeInstanceType');
         payload.machineHealthCheckEnabled = this.getBooleanFieldValue(AzureForm.NODESETTING, "machineHealthChecksEnabled");
 
@@ -151,7 +149,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
             this.saveControlPlaneFlavor('azure', payload.controlPlaneFlavor);
             this.saveControlPlaneNodeType('azure', payload.controlPlaneFlavor, payload.controlPlaneMachineType);
 
-            if (!Broker.appDataService.isModeClusterStandalone()) {
+            if (!AppServices.appDataService.isModeClusterStandalone()) {
                 this.saveFormField(AzureForm.NODESETTING, 'workerNodeInstanceType', payload.workerMachineType);
             }
             this.saveFormField(AzureForm.NODESETTING, "machineHealthChecksEnabled", payload.machineHealthCheckEnabled);
@@ -351,35 +349,35 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
     }
 
     private subscribeToServices() {
-        Broker.messenger.getSubject(TkgEventType.AZURE_REGION_CHANGED)
+        AppServices.messenger.getSubject(TkgEventType.AZURE_REGION_CHANGED)
             .subscribe(event => {
                 const region = event.payload;
                 if (this.region) {
-                    this.serviceBroker.trigger([
+                    AppServices.dataServiceRegistrar.trigger([
                         TkgEventType.AZURE_GET_RESOURCE_GROUPS,
                         TkgEventType.AZURE_GET_INSTANCE_TYPES
                     ], { location: region });
-                    this.serviceBroker.trigger([TkgEventType.AZURE_GET_OS_IMAGES]);
+                    AppServices.dataServiceRegistrar.trigger([TkgEventType.AZURE_GET_OS_IMAGES]);
                 } else {
-                    this.serviceBroker.clear<AzureResourceGroup>(TkgEventType.AZURE_GET_RESOURCE_GROUPS);
-                    this.serviceBroker.clear<AzureInstanceType>(TkgEventType.AZURE_GET_INSTANCE_TYPES);
-                    this.serviceBroker.clear<AzureVirtualMachine>(TkgEventType.AZURE_GET_OS_IMAGES);
+                    AppServices.dataServiceRegistrar.clear<AzureResourceGroup>(TkgEventType.AZURE_GET_RESOURCE_GROUPS);
+                    AppServices.dataServiceRegistrar.clear<AzureInstanceType>(TkgEventType.AZURE_GET_INSTANCE_TYPES);
+                    AppServices.dataServiceRegistrar.clear<AzureVirtualMachine>(TkgEventType.AZURE_GET_OS_IMAGES);
                 }
             });
     }
 
     private registerServices() {
         const wizard = this;
-        this.serviceBroker.register<AzureResourceGroup>(TkgEventType.AZURE_GET_RESOURCE_GROUPS,
+        AppServices.dataServiceRegistrar.register<AzureResourceGroup>(TkgEventType.AZURE_GET_RESOURCE_GROUPS,
             (payload: {location: string}) => { return wizard.apiClient.getAzureResourceGroups(payload); },
             "Failed to retrieve resource groups for the particular region." );
-        this.serviceBroker.register<AzureInstanceType>(TkgEventType.AZURE_GET_INSTANCE_TYPES,
+        AppServices.dataServiceRegistrar.register<AzureInstanceType>(TkgEventType.AZURE_GET_INSTANCE_TYPES,
             (payload: {location: string}) => { return wizard.apiClient.getAzureInstanceTypes(payload); },
             "Failed to retrieve Azure VM sizes" );
-        this.serviceBroker.register<AzureVirtualMachine>(TkgEventType.AZURE_GET_OS_IMAGES,
+        AppServices.dataServiceRegistrar.register<AzureVirtualMachine>(TkgEventType.AZURE_GET_OS_IMAGES,
             () => { return wizard.apiClient.getAzureOSImages(); },
             "Failed to retrieve list of OS images from the specified Azure Server." );
-        this.serviceBroker.register<AzureVirtualNetwork>(TkgEventType.AZURE_GET_VNETS,
+        AppServices.dataServiceRegistrar.register<AzureVirtualNetwork>(TkgEventType.AZURE_GET_VNETS,
             (payload: {resourceGroupName: string, location: string}) => { return wizard.apiClient.getAzureVnets(payload)},
             "Failed to retrieve list of VNETs from the specified Azure Server." );
     }

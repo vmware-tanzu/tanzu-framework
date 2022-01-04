@@ -1,15 +1,16 @@
+// Angular imports
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { By } from '@angular/platform-browser';
-
-import { SharedModule } from '../../../../shared/shared.module';
-import { NodeSettingStepComponent } from './node-setting-step.component';
+// App imports
 import { APIClient } from '../../../../swagger/api-client.service';
-import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
-import Broker from 'src/app/shared/service/broker';
+import AppServices from 'src/app/shared/service/appServices';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { NodeSettingStepComponent } from './node-setting-step.component';
+import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
+import { SharedModule } from '../../../../shared/shared.module';
+import { ValidationService } from '../../wizard/shared/validation/validation.service';
 
 describe('NodeSettingStepComponent', () => {
     let component: NodeSettingStepComponent;
@@ -39,7 +40,7 @@ describe('NodeSettingStepComponent', () => {
     }));
 
     beforeEach(() => {
-        Broker.messenger = new Messenger();
+        AppServices.messenger = new Messenger();
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(NodeSettingStepComponent);
         component = fixture.componentInstance;
@@ -231,7 +232,7 @@ describe('NodeSettingStepComponent', () => {
         component.formGroup.get('vpcPublicSubnet3').setValue('100.63.0.0/14');
         component.formGroup.get('vpcPrivateSubnet3').setValue('100.63.0.0/14');
 
-        Broker.messenger.publish({ type: TkgEventType.AWS_REGION_CHANGED});
+        AppServices.messenger.publish({ type: TkgEventType.AWS_REGION_CHANGED});
         expect(component.publicSubnets).toEqual([]);
         expect(component.privateSubnets).toEqual([]);
         expect(component.filteredAzs).toEqual({
@@ -260,7 +261,7 @@ describe('NodeSettingStepComponent', () => {
         vpcSubnets.forEach(vpcSubnet => spySubnets.push(spyOn(component.formGroup.get(vpcSubnet), 'setValidators').and.callThrough()));
         const spyAzs = spyOn(component, 'clearAzs').and.callThrough();
 
-        Broker.messenger.publish({ type: TkgEventType.AWS_VPC_TYPE_CHANGED, payload: { vpcType: 'existing'}});
+        AppServices.messenger.publish({ type: TkgEventType.AWS_VPC_TYPE_CHANGED, payload: { vpcType: 'existing'}});
 
         spySubnets.forEach(subnet => expect(subnet).toHaveBeenCalledTimes(1));
         expect(spyAzs).toHaveBeenCalled();
@@ -269,14 +270,14 @@ describe('NodeSettingStepComponent', () => {
     it('should handle aws vpc change', () => {
         const spyAzs = spyOn(component, 'clearAzs').and.callThrough();
         const spySubnets = spyOn(component, 'clearSubnets').and.callThrough();
-        Broker.messenger.publish({ type: TkgEventType.AWS_VPC_CHANGED});
+        AppServices.messenger.publish({ type: TkgEventType.AWS_VPC_CHANGED});
         expect(spyAzs).toHaveBeenCalled();
         expect(spySubnets).toHaveBeenCalled();
     });
 
     it('should handle AWS_GET_SUBNETS event', () => {
         const spySavedSubnet = spyOn(component, 'setSubnetFieldsFromSavedValues').and.callThrough();
-        component.awsWizardFormService.publishData(TkgEventType.AWS_GET_SUBNETS, [
+        AppServices.dataServiceRegistrar.simulateData(TkgEventType.AWS_GET_SUBNETS, [
             {cidr: '100.63.0.0/14', isPublic:  true},
             {cidr: '100.63.0.0/14', isPublic:  false}
         ]);

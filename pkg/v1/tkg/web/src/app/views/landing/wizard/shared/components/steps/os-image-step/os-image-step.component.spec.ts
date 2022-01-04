@@ -4,10 +4,9 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 // App imports
 import { APIClient } from 'src/app/swagger/api-client.service';
-import Broker from 'src/app/shared/service/broker';
+import AppServices from '../../../../../../../shared/service/appServices';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
-import ServiceBroker from '../../../../../../../shared/service/service-broker';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ValidationService } from '../../../validation/validation.service';
 import { VsphereOsImageStepComponent } from '../../../../../vsphere-wizard/vsphere-os-image-step/vsphere-os-image-step.component';
@@ -25,7 +24,6 @@ describe('VsphereOsImageStepComponent', () => {
             ],
             providers: [
                 ValidationService,
-                ServiceBroker,
                 FormBuilder,
                 FieldMapUtilities,
                 APIClient,
@@ -38,7 +36,7 @@ describe('VsphereOsImageStepComponent', () => {
     }));
 
     beforeEach(() => {
-        Broker.messenger = new Messenger();
+        AppServices.messenger = new Messenger();
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(VsphereOsImageStepComponent);
         component = fixture.componentInstance;
@@ -52,7 +50,7 @@ describe('VsphereOsImageStepComponent', () => {
     });
 
     it('should retrieve os image when function invoked', () => {
-        const msgSpy = spyOn(Broker.messenger, 'publish').and.callThrough();
+        const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
         component.retrieveOsImages();
         expect(component.formGroup.get('osImage').value).toBeFalsy();
         expect(msgSpy).toHaveBeenCalled();

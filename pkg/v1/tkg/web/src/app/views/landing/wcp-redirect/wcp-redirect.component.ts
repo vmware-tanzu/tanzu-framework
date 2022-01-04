@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { takeUntil } from 'rxjs/operators';
 // App Imports
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
-import Broker from 'src/app/shared/service/broker';
+import AppServices from 'src/app/shared/service/appServices';
 import { StepFormDirective } from '../wizard/shared/step-form/step-form';
 import { TkgEventType } from '../../../shared/service/Messenger';
 
@@ -25,7 +25,7 @@ export class WcpRedirectComponent extends StepFormDirective implements OnInit {
     }
 
     ngOnInit() {
-        Broker.messenger.getSubject(TkgEventType.VSPHERE_VC_AUTHENTICATED)
+        AppServices.messenger.getSubject(TkgEventType.VSPHERE_VC_AUTHENTICATED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data) => {
                 this.vcHost = data.payload;

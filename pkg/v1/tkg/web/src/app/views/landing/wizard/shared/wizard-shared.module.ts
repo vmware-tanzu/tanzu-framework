@@ -9,7 +9,6 @@ import { CodemirrorModule } from '@ctrl/ngx-codemirror';
 import { DeleteDataPopupComponent } from './components/delete-data-popup.component';
 import { FieldMapUtilities } from './field-mapping/FieldMapUtilities';
 import { MetadataStepComponent } from './components/steps/metadata-step/metadata-step.component';
-import ServiceBroker from '../../../../shared/service/service-broker';
 import { SharedCeipStepComponent } from './components/steps/ceip-step/ceip-step.component';
 import { SharedIdentityStepComponent } from './components/steps/identity-step/identity-step.component';
 import { SharedLoadBalancerStepComponent } from './components/steps/load-balancer/load-balancer-step.component';
@@ -71,7 +70,6 @@ import { VsphereOsImageStepComponent } from '../../vsphere-wizard/vsphere-os-ima
     ],
     providers: [
         FieldMapUtilities,
-        ServiceBroker,
         ValidationService
     ]
 })

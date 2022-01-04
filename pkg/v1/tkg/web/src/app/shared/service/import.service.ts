@@ -1,7 +1,10 @@
+// Angular imports
 import {Injectable} from "@angular/core";
+// Third party imports
 import {Observable} from "rxjs";
 import {take} from "rxjs/operators";
-import Broker from "./broker";
+// App imports
+import AppServices from "./appServices";
 import {TkgEventType} from "./Messenger";
 
 export interface ImportParams<ClusterParamsType> {
@@ -42,7 +45,7 @@ export class ImportService {
 
     // convenience method for wizards handling an import failure
     publishImportFailure(nameFile: string, err: any) {
-        Broker.messenger.publish({
+        AppServices.messenger.publish({
             type: TkgEventType.CONFIG_FILE_IMPORTED,
             payload: 'Error encountered while importing file ' + nameFile + ': ' + err.toString()
         });
@@ -50,7 +53,7 @@ export class ImportService {
 
     // convenience method for wizards handling an import success
     publishImportSuccess(nameFile: string) {
-        Broker.messenger.publish({
+        AppServices.messenger.publish({
             type: TkgEventType.CONFIG_FILE_IMPORTED,
             payload: 'Data imported from file ' + nameFile,
         });

@@ -10,7 +10,7 @@ import { ClrLoadingState } from '@clr/angular';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import { APIClient } from 'src/app/swagger/api-client.service';
 import { APP_ROUTES, Routes } from 'src/app/shared/constants/routes.constants';
-import Broker from 'src/app/shared/service/broker';
+import AppServices from 'src/app/shared/service/appServices';
 import { EditionData } from 'src/app/shared/service/branding.service';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
@@ -116,7 +116,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 // In theory, we should only receive this event if the ipFamily actually changed. In practice, we double-check.
                 const same = data === this.ipFamily;
                 if (!same) {
-                    Broker.messenger.publish({
+                    AppServices.messenger.publish({
                         type: TkgEventType.VSPHERE_IP_FAMILY_CHANGE,
                         payload: data
                     });
@@ -125,14 +125,14 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
             }
         );
 
-        Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+        AppServices.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
                 const content: EditionData = data.payload;
                 this.edition = content.edition;
             });
 
-        Broker.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
+        AppServices.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
                 this.configFileNotification = {
@@ -144,7 +144,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 this.initFormWithSavedData();
 
                 // Clear event so that listeners in other provider workflows do not receive false notifications
-                Broker.messenger.clearEvent(TkgEventType.CONFIG_FILE_IMPORTED);
+                AppServices.messenger.clearEvent(TkgEventType.CONFIG_FILE_IMPORTED);
             });
 
         this.fileReader.onload = (event) => {
@@ -168,7 +168,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
 
     ngOnInit() {
         super.ngOnInit();
-        this.enableIpv6 = Broker.appDataService.isPluginFeatureActivated(managementClusterPlugin, 'vsphereIPv6');
+        this.enableIpv6 = AppServices.appDataService.isPluginFeatureActivated(managementClusterPlugin, 'vsphereIPv6');
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, VsphereProviderStepFieldMapping);
         this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).disable({ emitEvent: false});
         this.datacenters = [];
@@ -324,7 +324,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 this.connected = true;
                 this.vsphereVersion = vsphereVerInfo.version;
                 this.hasPacific = res.hasPacific;
-                Broker.appDataService.setVsphereVersion(vsphereVerInfo.version);
+                AppServices.appDataService.setVsphereVersion(vsphereVerInfo.version);
 
                 if (isCompatible && !(_.startsWith(this.vsphereVersion, '6'))
                     && this.edition !== AppEdition.TCE) {
@@ -336,7 +336,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 }
                 this.retrieveDatacenters();
 
-                Broker.messenger.publish({
+                AppServices.messenger.publish({
                     type: TkgEventType.VSPHERE_VC_AUTHENTICATED,
                     payload: this.getFieldValue(VsphereField.PROVIDER_VCENTER_ADDRESS)
                 });
@@ -401,7 +401,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
             if (datacenter && datacenter.moid) {
                 dcMoid = datacenter.moid;
             }
-            Broker.messenger.publish({
+            AppServices.messenger.publish({
                 type: TkgEventType.VSPHERE_DATACENTER_CHANGED,
                 payload: dcMoid
             });

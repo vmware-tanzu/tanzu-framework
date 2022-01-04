@@ -5,8 +5,8 @@ import { Router } from '@angular/router';
 import { takeUntil } from "rxjs/operators";
 // App imports
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
+import AppServices from '../../../shared/service/appServices';
 import { BasicSubscriber } from "../../../shared/abstracts/basic-subscriber";
-import Broker from 'src/app/shared/service/broker';
 import { FormMetaDataStore, FormMetaData, StepMetaData } from './../wizard/shared/FormMetaDataStore';
 import { TkgEvent, TkgEventType } from "../../../shared/service/Messenger";
 
@@ -33,7 +33,7 @@ export class ConfirmComponent extends BasicSubscriber implements OnInit {
     }
 
     ngOnInit() {
-        Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+        AppServices.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
                 this.pageTitle = data.payload.branding.title;

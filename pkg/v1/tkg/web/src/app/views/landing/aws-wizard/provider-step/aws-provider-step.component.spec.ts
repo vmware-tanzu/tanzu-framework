@@ -1,19 +1,21 @@
+// Angular imports
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormBuilder } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
-
-import { SharedModule } from '../../../../shared/shared.module';
-import { AwsProviderStepComponent } from './aws-provider-step.component';
-import { APIClient } from '../../../../swagger/api-client.service';
-import { ValidationService } from '../../wizard/shared/validation/validation.service';
+// Third party imports
 import { of, empty, throwError, Observable } from 'rxjs';
-import Broker from 'src/app/shared/service/broker';
-import { Messenger } from 'src/app/shared/service/Messenger';
+// App imports
+import { APIClient } from '../../../../swagger/api-client.service';
+import AppServices from 'src/app/shared/service/appServices';
 import { AwsField } from '../aws-wizard.constants';
+import { AwsProviderStepComponent } from './aws-provider-step.component';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { Messenger } from 'src/app/shared/service/Messenger';
+import { SharedModule } from '../../../../shared/shared.module';
+import { ValidationService } from '../../wizard/shared/validation/validation.service';
 
 describe('AwsProviderStepComponent', () => {
     let component: AwsProviderStepComponent;
@@ -53,7 +55,7 @@ describe('AwsProviderStepComponent', () => {
     }));
 
     beforeEach(() => {
-        Broker.messenger = new Messenger();
+        AppServices.messenger = new Messenger();
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(AwsProviderStepComponent);
         component = fixture.componentInstance;

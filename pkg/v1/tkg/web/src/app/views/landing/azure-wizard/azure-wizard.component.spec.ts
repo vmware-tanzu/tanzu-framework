@@ -2,10 +2,10 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 // App imports
 import { APIClient } from 'src/app/swagger';
+import AppServices from '../../../shared/service/appServices';
 import { AzureForm } from './azure-wizard.constants';
 import { AzureProviderStepComponent } from './provider-step/azure-provider-step.component';
 import { AzureWizardComponent } from './azure-wizard.component';
-import Broker from 'src/app/shared/service/broker';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ClusterType, WizardForm } from "../wizard/shared/constants/wizard.constants";
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -15,7 +15,6 @@ import { Messenger } from 'src/app/shared/service/Messenger';
 import { MetadataStepComponent } from '../wizard/shared/components/steps/metadata-step/metadata-step.component';
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { RouterTestingModule } from '@angular/router/testing';
-import ServiceBroker from '../../../shared/service/service-broker';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { SharedNetworkStepComponent } from '../wizard/shared/components/steps/network-step/network-step.component';
 import { ValidationService } from '../wizard/shared/validation/validation.service';
@@ -38,7 +37,6 @@ describe('AzureWizardComponent', () => {
                 APIClient,
                 FormBuilder,
                 FieldMapUtilities,
-                ServiceBroker,
                 ValidationService
             ],
             schemas: [
@@ -51,7 +49,7 @@ describe('AzureWizardComponent', () => {
     }));
 
     beforeEach(() => {
-        Broker.messenger = new Messenger();
+        AppServices.messenger = new Messenger();
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(AzureWizardComponent);
         component = fixture.componentInstance;
