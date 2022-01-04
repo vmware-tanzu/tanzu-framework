@@ -1,3 +1,5 @@
+@use '../../../../../../../../sass/properties';
+
 .radio-label {
     padding-bottom: 15px;
     font-size: 16px;
@@ -49,7 +51,7 @@ clr-select-container.ldap-header {
         font-weight: 600;
         top: 25px;
         position: relative;
-        color: #454545;
+        color: properties.$label-color-light-theme;
     }
 
     .clr-input-wrapper {
