@@ -30,20 +30,6 @@ export interface ResourcePool {
     children?: Array<ResourcePool>;
   }
 
-const DataSources = [
-    TkgEventType.VSPHERE_GET_RESOURCE_POOLS,
-    TkgEventType.VSPHERE_GET_COMPUTE_RESOURCE,
-    TkgEventType.VSPHERE_GET_DATA_STORES,
-    TkgEventType.VSPHERE_GET_VM_FOLDERS
-];
-
-const DataTargets = {
-    [TkgEventType.VSPHERE_GET_RESOURCE_POOLS]: "resourcePools",
-    [TkgEventType.VSPHERE_GET_COMPUTE_RESOURCE]: "computeResources",
-    [TkgEventType.VSPHERE_GET_DATA_STORES]: "datastores",
-    [TkgEventType.VSPHERE_GET_VM_FOLDERS]: "vmFolders"
-};
-
 enum ResourceType {
     CLUSTER = 'cluster',
     DATACENTER = 'datacenter',
