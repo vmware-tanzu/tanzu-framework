@@ -39,7 +39,8 @@ export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
     }
 
     protected subscribeToServices() {
-        AppServices.dataServiceRegistrar.stepSubscribe<VSphereNetwork>(this, TkgEventType.VSPHERE_GET_VM_NETWORKS, this.onFetchedVmNetworks.bind(this));
+        AppServices.dataServiceRegistrar.stepSubscribe<VSphereNetwork>(this, TkgEventType.VSPHERE_GET_VM_NETWORKS,
+            this.onFetchedVmNetworks.bind(this));
     }
 
     private onFetchedVmNetworks(networks: Array<VSphereNetwork>) {

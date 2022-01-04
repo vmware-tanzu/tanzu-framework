@@ -10,17 +10,17 @@ import { of, throwError, Observable } from 'rxjs';
 import AppServices from '../../../../shared/service/appServices';
 import { AzureProviderStepComponent } from './azure-provider-step.component';
 import { APIClient } from '../../../../swagger/api-client.service';
-import DataServiceRegistrar from '../../../../shared/service/data-service-registrar';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
+import { DataServiceRegistrarTestExtension } from '../../../../testing/data-service-registrar.testextension';
+import { AzureResourceGroup } from '../../../../swagger/models';
 
 describe('AzureProviderStepComponent', () => {
     let component: AzureProviderStepComponent;
     let fixture: ComponentFixture<AzureProviderStepComponent>;
     let apiService: APIClient;
-    let serviceBroker: DataServiceRegistrar;
 
     beforeEach(async(() => {
         TestBed.configureTestingModule({
@@ -31,7 +31,6 @@ describe('AzureProviderStepComponent', () => {
             ],
             providers: [
                 ValidationService,
-                DataServiceRegistrar,
                 FormBuilder,
                 FieldMapUtilities,
                 APIClient
@@ -46,7 +45,7 @@ describe('AzureProviderStepComponent', () => {
 
     beforeEach(() => {
         AppServices.messenger = new Messenger();
-        serviceBroker = TestBed.inject(DataServiceRegistrar);
+        AppServices.dataServiceRegistrar = new DataServiceRegistrarTestExtension();
         apiService = TestBed.inject(APIClient);
 
         const fb = new FormBuilder();
@@ -63,16 +62,20 @@ describe('AzureProviderStepComponent', () => {
     });
 
     it('should setup AZURE_GET_RESOURCE_GROUPS event handler', () => {
+        const dataServiceRegistrar = AppServices.dataServiceRegistrar as DataServiceRegistrarTestExtension;
+        // The wizard is expected to have registered this event
+        dataServiceRegistrar.simulateRegistration<AzureResourceGroup>(TkgEventType.AZURE_GET_RESOURCE_GROUPS);
+
         component.ngOnInit();
-        serviceBroker.simulateError(TkgEventType.AZURE_GET_RESOURCE_GROUPS, 'test error');
-        expect(component.errorNotification).toBe('Failed to retrieve resource groups for the particular region. test error');
+        dataServiceRegistrar.simulateError(TkgEventType.AZURE_GET_RESOURCE_GROUPS, 'test error');
+        expect(component.errorNotification).toBe('test error');
 
         const resourceGroup = [
             {id: 1, location: 'us-west', name: 'resource-group1'},
             {id: 2, location: 'us-east', name: 'resource-group2'},
             {id: 3, location: 'us-south', name: 'resource-group3'}
         ];
-        serviceBroker.simulateData(TkgEventType.AZURE_GET_RESOURCE_GROUPS, resourceGroup);
+        dataServiceRegistrar.simulateData(TkgEventType.AZURE_GET_RESOURCE_GROUPS, resourceGroup);
         expect(component.resourceGroups).toEqual(resourceGroup);
     });
 

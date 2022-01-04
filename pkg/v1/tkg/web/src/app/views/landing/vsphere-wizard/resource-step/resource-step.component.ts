@@ -212,7 +212,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
         let rootNodes = [];
         resourceTree.forEach(resource => {
             if (resource.resourceType === ResourceType.DATACENTER) {
-                if (resource.children.length > 0) {
+                if (resource.children && resource.children.length > 0) {
                     rootNodes = [...rootNodes, ...resource.children];
                 }
             } else {
@@ -296,8 +296,11 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
 
     private onFetchedVmFolders(data: VSphereFolder[]) {
         this.incrementResourcesFetched();
+        if (data === null || data === undefined) {
+            data = [];
+        }
         this.vmFolders = this.sortVsphereResources(data);
-        const selectValue = data.length === 1 ? data[0].name : this.getSavedValue(VsphereField.RESOURCE_VMFOLDER, '');
+        const selectValue = (data.length === 1) ? data[0].name : this.getSavedValue(VsphereField.RESOURCE_VMFOLDER, '');
         const validators = [Validators.required,
             this.validationService.isValidNameInList(data.map(vmFolder => vmFolder.name))];
         this.resurrectField(VsphereField.RESOURCE_VMFOLDER, validators, selectValue);
@@ -305,8 +308,11 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
 
     private onFetchedDatastores(data: VSphereDatastore[]) {
         this.incrementResourcesFetched();
+        if (data === null || data === undefined) {
+            data = [];
+        }
         this.datastores = this.sortVsphereResources(data);
-        const selectValue = data.length === 1 ? data[0].name :
+        const selectValue = (data.length === 1) ? data[0].name :
             this.getSavedValue(VsphereField.RESOURCE_DATASTORE, '');
         const validators = [Validators.required,
             this.validationService.isValidNameInList(data.map(vmFolder => vmFolder.name))];
@@ -315,12 +321,18 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
 
     private onFetchedComputeResources(data: ResourcePool[]) {
         this.incrementResourcesFetched();
+        if (data === null || data === undefined) {
+            data = [];
+        }
         this.computeResources = this.sortVsphereResources(data);
         this.constructResourceTree(data);
     }
 
     private onFetchedResourcePools(data: VSphereResourcePool[]) {
         this.incrementResourcesFetched();
+        if (data === null || data === undefined) {
+            data = [];
+        }
         this.resourcePools = this.sortVsphereResources(data);
     }
 }
