@@ -44,7 +44,7 @@
                     data-label="VM folder" class="datalist-container">
                 <clr-datalist-container>
                     <label i18n="vm folder label" class="clr-col-lg-12 clr-col-12">
-                        VM FOLDER - there are {{ vmFolders.length }} of them, sez Shimon
+                        VM FOLDER
                         <div *ngFor="let folder of vmFolders">moid={{folder.moid}}, name={{folder.name}}</div>
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
@@ -93,7 +93,7 @@
                         <option *ngFor="let datastore of datastores" [value]="datastore?.name"></option>
                     </datalist>
                     <label i18n="datastore label" class="clr-col-lg-12 clr-col-12">
-                        DATASTORE - there are {{ datastores.length }} of them, sez Shimon
+                        DATASTORE
                         <div *ngFor="let datastore of datastores">moid={{datastore?.moid}}, name={{datastore?.name}}</div>
                     </label>
 
