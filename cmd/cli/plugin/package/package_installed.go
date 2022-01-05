@@ -18,7 +18,3 @@ var packageInstalledCmd = &cobra.Command{
 	Args:              cobra.RangeArgs(1, 2),
 	PersistentPreRunE: packagingAvailabilityCheck,
 }
-
-func init() {
-	packageInstalledCmd.PersistentFlags().StringVarP(&packageInstalledOp.KubeConfig, "kubeconfig", "", "", "The path to the kubeconfig file, optional")
-}

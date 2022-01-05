@@ -21,6 +21,5 @@ var repositoryCmd = &cobra.Command{
 }
 
 func init() {
-	repositoryCmd.PersistentFlags().StringVarP(&repoOp.KubeConfig, "kubeconfig", "", "", "The path to the kubeconfig file, optional")
 	repositoryCmd.PersistentFlags().StringVarP(&repoOp.Namespace, "namespace", "n", "default", "Namespace for repository command, optional")
 }

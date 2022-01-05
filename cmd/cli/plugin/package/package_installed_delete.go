@@ -44,7 +44,7 @@ func packageUninstall(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	pkgClient, err := tkgpackageclient.NewTKGPackageClient(packageInstalledOp.KubeConfig)
+	pkgClient, err := tkgpackageclient.NewTKGPackageClient(kubeConfig)
 	if err != nil {
 		return err
 	}

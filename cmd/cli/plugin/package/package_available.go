@@ -23,13 +23,12 @@ var packageAvailableCmd = &cobra.Command{
 }
 
 func init() {
-	packageAvailableCmd.PersistentFlags().StringVarP(&packageAvailableOp.KubeConfig, "kubeconfig", "", "", "The path to the kubeconfig file, optional")
 	packageAvailableCmd.PersistentFlags().StringVarP(&packageAvailableOp.Namespace, "namespace", "n", "default", "Namespace of packages, optional")
 	packageAvailableCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table), optional")
 }
 
 func packagingAvailabilityCheck(_ *cobra.Command, _ []string) error {
-	found, err := isPackagingAPIAvailable(packageAvailableOp.KubeConfig)
+	found, err := isPackagingAPIAvailable(kubeConfig)
 	if err != nil {
 		return errors.Wrap(err, fmt.Sprintf("failed to check for the availability of '%s' API", tkgpackagedatamodel.PackagingAPIName))
 	}

@@ -10,7 +10,6 @@ type PackageOptions struct {
 	Available              string
 	ClusterRoleName        string
 	ClusterRoleBindingName string
-	KubeConfig             string
 	Namespace              string
 	PackageName            string
 	PkgInstallName         string

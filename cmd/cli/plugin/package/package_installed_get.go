@@ -36,7 +36,7 @@ func init() {
 }
 
 func packageInstalledGet(cmd *cobra.Command, args []string) error {
-	kc, err := kappclient.NewKappClient(packageInstalledOp.KubeConfig)
+	kc, err := kappclient.NewKappClient(kubeConfig)
 	if err != nil {
 		return err
 	}

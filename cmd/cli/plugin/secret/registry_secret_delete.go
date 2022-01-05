@@ -34,7 +34,7 @@ func init() {
 func registrySecretDelete(cmd *cobra.Command, args []string) error {
 	registrySecretOp.SecretName = args[0]
 
-	pkgClient, err := tkgpackageclient.NewTKGPackageClient(registrySecretOp.KubeConfig)
+	pkgClient, err := tkgpackageclient.NewTKGPackageClient(kubeConfig)
 	if err != nil {
 		return err
 	}
