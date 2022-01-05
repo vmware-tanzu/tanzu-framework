@@ -78,7 +78,6 @@
                 <clr-datalist-container>
                     <label i18n="datastore label" class="clr-col-lg-12 clr-col-12">
                         DATASTORE
-                        <div *ngFor="let datastore of datastores">moid={{datastore?.moid}}, name={{datastore?.name}}</div>
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
@@ -92,11 +91,6 @@
                     <datalist id="datastore">
                         <option *ngFor="let datastore of datastores" [value]="datastore?.name"></option>
                     </datalist>
-                    <label i18n="datastore label" class="clr-col-lg-12 clr-col-12">
-                        DATASTORE
-                        <div *ngFor="let datastore of datastores">moid={{datastore?.moid}}, name={{datastore?.name}}</div>
-                    </label>
-
                         <!-- Add an empty helper to avoid accessibility aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
                 </clr-datalist-container>
