@@ -1,8 +1,8 @@
 /**
  * Angular Modules
  */
-import { Component, OnInit } from '@angular/core';
-import { FormMetaDataStore } from '../FormMetaDataStore';
+import { Component, Input, OnInit } from '@angular/core';
+import Broker from '../../../../../shared/service/broker';
 
 @Component({
     selector: 'app-shared-delete-data-popup',
@@ -11,24 +11,19 @@ import { FormMetaDataStore } from '../FormMetaDataStore';
 })
 export class DeleteDataPopupComponent implements OnInit {
     open: boolean;
-
-    constructor() {}
+    @Input() wizard: string;
 
     ngOnInit() {
-        if (FormMetaDataStore.shouldPromptClearLocalStorage()) {
-            this.open = true;
-        } else {
-            this.open = false;
-        }
+        this.open = Broker.userDataService.isWizardDataOld(this.wizard);
     }
 
     clearDataClick() {
-        FormMetaDataStore.deleteAllSavedData();
+        Broker.userDataService.deleteWizardData(this.wizard);
         this.open = false;
     }
 
     useSavedDataClick() {
-        FormMetaDataStore.updateLastSavedTimestamp();
+        Broker.userDataService.updateWizardTimestamp(this.wizard);
         this.open = false;
     }
 }

@@ -758,6 +758,10 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     get wizardName(): string {
         return this.supplyWizardName();
     }
+
+    get isDataOld(): boolean {
+        return Broker.userDataService.isWizardDataOld(this.supplyWizardName());
+    }
     //
     // HTML convenience methods
 

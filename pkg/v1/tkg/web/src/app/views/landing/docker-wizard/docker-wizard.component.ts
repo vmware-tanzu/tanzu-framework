@@ -70,6 +70,8 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         this.setFieldValue('dockerNodeSettingForm', 'clusterName', payload.clusterName);
 
         this.saveProxyFieldsFromPayload(payload);
+
+        Broker.userDataService.updateWizardTimestamp(this.wizardName);
     }
 
     getPayload() {

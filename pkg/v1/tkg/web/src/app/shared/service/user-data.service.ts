@@ -22,6 +22,7 @@ export interface UserDataWizard {
     displayOrder?: string[],
     titles?: Map<string, string>,
     descriptions?: Map<string, string>,
+    lastUpdate?: number,
 }
 // UserDataStep should only be used by the confirmation page; all steps should use convenience methods
 export interface UserDataStep {
@@ -30,6 +31,8 @@ export interface UserDataStep {
     labels?: Map<string, string>,
 }
 
+const DATA_CONSIDERED_OLD_AFTER_MINUTES = 30;
+
 export class UserDataService {
     static readonly MASK = '********';
     store(identifier: UserDataIdentifier, data: UserDataEntry) {
@@ -37,12 +40,14 @@ export class UserDataService {
         this.setUserDataEntry(wizardEntry, identifier, data);
         this.storeWizardEntry(wizardEntry);
     }
+
     storeFromMapping(wizard, step: string, stepMapping: StepMapping, formGroup: FormGroup) {
         stepMapping.fieldMappings.forEach( fieldMapping => {
             if (this.shouldAutoSave(fieldMapping)) {
                 this.storeFromFieldMapping(wizard, step, fieldMapping, formGroup);
             }
         });
+        this.updateWizardTimestamp(wizard);
     }
 
     storeWizardDisplayOrder(wizard: string, displayOrder: string[]) {
@@ -91,11 +96,94 @@ export class UserDataService {
         }
     }
 
+    // The ONLY time this method should be called is if the user explicitly says to erase "old" data
+    deleteWizardData(wizard: string) {
+        PersistentStore.removeItem(this.keyWizard(wizard));
+    }
+
     clear(identifier: UserDataIdentifier) {
         const wizardEntry = this.getWizardEntry(identifier.wizard);
         if (wizardEntry && wizardEntry.steps[identifier.step]) {
             this.setUserDataEntry(wizardEntry, identifier, null);
         }
+    }
+
+    retrieve(identifier: UserDataIdentifier): UserDataEntry {
+        const wizardEntry: UserDataWizard = this.getWizardEntry(identifier.wizard);
+        if (!wizardEntry || !wizardEntry.steps || !wizardEntry.steps[identifier.step] || !wizardEntry.steps[identifier.step].fields) {
+            return null;
+        }
+        return wizardEntry.steps[identifier.step].fields[identifier.field];
+    }
+
+    // convenience methods
+    storeInputField(identifier: UserDataIdentifier, formGroup: FormGroup): boolean {
+        const control = this.getFormControl(identifier, formGroup);
+        if (!control) {
+            return false;
+        }
+        this.store(identifier, { display: control.value, value: control.value });
+        return true;
+    }
+
+    hasStoredData(identifier: UserDataIdentifier): boolean {
+        const userDataEntry = this.retrieve(identifier);
+        // NOTE: we want a value of 'false' to return TRUE (that there IS a value)
+        return userDataEntry && userDataEntry.value !== null && userDataEntry.value !== undefined && userDataEntry.value !== '';
+    }
+
+    hasStoredStepData(wizard, step: string) {
+        const wizardEntry = this.retrieveWizardEntry(wizard);
+        if (!wizardEntry) {
+            return false;
+        }
+        const stepEntry = wizardEntry.steps[step];
+        return stepEntry !== undefined && stepEntry !== null;
+    }
+
+    // saveListboxField expects to encounter an OBJECT backing the listbox and will use fieldDisplay of that object for the display
+    // and fieldValue for the value. If instead the caller has a simple listbox with strings backing it, call saveInputField instead
+    storeListboxObjectField(identifier: UserDataIdentifier, formGroup: FormGroup, fieldDisplay, fieldValue: string): boolean {
+        const selectedObj = this.getFormObject(identifier, formGroup);
+        if (!selectedObj) {
+            return false;
+        }
+        const display = selectedObj[fieldDisplay];
+        const value = selectedObj[fieldValue];
+        this.store(identifier, { display, value });
+        return true;
+    }
+
+    storeBooleanField(identifier: UserDataIdentifier, formGroup: FormGroup): boolean {
+        const control = this.getFormControl(identifier, formGroup);
+        if (!control) {
+            return false;
+        }
+        this.store(identifier, { display: control.value ? 'yes' : 'no', value: control.value });
+        return true;
+    }
+
+    isWizardDataOld(wizard: string): boolean {
+        const wizardEntry = this.retrieveWizardEntry(wizard);
+        if (!wizardEntry) {
+            return false;   // if there's no data, it can't be old!
+        }
+        if  (!wizardEntry.lastUpdate) {
+            return true;    // if there's no timestamp, we assume the data is old; the user never saved a full form?
+        }
+        const lastSavedDate = new Date(wizardEntry.lastUpdate);
+        // get difference between dates in milliseconds, convert to minutes
+        const minAgoSaved = ((Date.now() - lastSavedDate.getTime()) / 60000);
+        return minAgoSaved > DATA_CONSIDERED_OLD_AFTER_MINUTES;
+    }
+
+    // The ONLY times this method should be called outside this class:
+    // (1) the user explicitly says to "restore" their old data, meaning we should consider it current again, and
+    // (2) the user imports a data file
+    updateWizardTimestamp(wizard: string) {
+        const wizardEntry = this.ensureWizardEntry(wizard);
+        wizardEntry.lastUpdate = Date.now();
+        this.storeWizardEntry(wizardEntry);
     }
 
     // This internal convenience method is meant to isolate the access to the internal structure
@@ -124,37 +212,6 @@ export class UserDataService {
         return Broker.appDataService.isPluginFeatureActivated(managementClusterPlugin, featureFlag);
     }
 
-    retrieve(identifier: UserDataIdentifier): UserDataEntry {
-        const wizardEntry: UserDataWizard = this.getWizardEntry(identifier.wizard);
-        if (!wizardEntry || !wizardEntry.steps || !wizardEntry.steps[identifier.step] || !wizardEntry.steps[identifier.step].fields) {
-            return null;
-        }
-        return wizardEntry.steps[identifier.step].fields[identifier.field];
-    }
-
-    // convenience methods
-    storeInputField(identifier: UserDataIdentifier, formGroup: FormGroup): boolean {
-        const control = this.getFormControl(identifier, formGroup);
-        if (!control) {
-            return false;
-        }
-        this.store(identifier, { display: control.value, value: control.value });
-        return true;
-    }
-    hasStoredData(identifier: UserDataIdentifier): boolean {
-        const userDataEntry = this.retrieve(identifier);
-        // NOTE: we want a value of 'false' to return TRUE (that there IS a value)
-        return userDataEntry && userDataEntry.value !== null && userDataEntry.value !== undefined && userDataEntry.value !== '';
-    }
-    hasStoredStepData(wizard, step: string) {
-        const wizardEntry = this.retrieveWizardEntry(wizard);
-        if (!wizardEntry) {
-            return false;
-        }
-        const stepEntry = wizardEntry.steps[step];
-        return stepEntry !== undefined && stepEntry !== null;
-    }
-
     private storeMaskField(identifier: UserDataIdentifier, formGroup: FormGroup): boolean {
         const control = this.getFormControl(identifier, formGroup);
         if (!control) {
@@ -180,28 +237,6 @@ export class UserDataService {
             labelsStr += key + ':' + value + ', '
         });
         return labelsStr.slice(0, -2);  // chop off the last ', '
-    }
-
-    // saveListboxField expects to encounter an OBJECT backing the listbox and will use fieldDisplay of that object for the display
-    // and fieldValue for the value. If instead the caller has a simple listbox with strings backing it, call saveInputField instead
-    storeListboxObjectField(identifier: UserDataIdentifier, formGroup: FormGroup, fieldDisplay, fieldValue: string): boolean {
-        const selectedObj = this.getFormObject(identifier, formGroup);
-        if (!selectedObj) {
-            return false;
-        }
-        const display = selectedObj[fieldDisplay];
-        const value = selectedObj[fieldValue];
-        this.store(identifier, { display, value });
-        return true;
-    }
-
-    storeBooleanField(identifier: UserDataIdentifier, formGroup: FormGroup): boolean {
-        const control = this.getFormControl(identifier, formGroup);
-        if (!control) {
-            return false;
-        }
-        this.store(identifier, { display: control.value ? 'yes' : 'no', value: control.value });
-        return true;
     }
 
     private getFormObject(identifier: UserDataIdentifier, formGroup: FormGroup) {

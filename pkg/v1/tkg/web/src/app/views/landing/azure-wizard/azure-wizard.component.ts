@@ -189,6 +189,8 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
             }
             this.saveFormField(AzureForm.NODESETTING, AzureField.NODESETTING_ENABLE_AUDIT_LOGGING, payload.enableAuditLogging);
             this.saveCommonFieldsFromPayload(payload);
+
+            Broker.userDataService.updateWizardTimestamp(this.wizardName);
         }
     }
 
