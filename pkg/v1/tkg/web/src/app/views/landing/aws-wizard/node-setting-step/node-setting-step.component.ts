@@ -12,7 +12,6 @@ import { AWSNodeAz } from '../../../../swagger/models/aws-node-az.model';
 import { AWSSubnet } from '../../../../swagger/models/aws-subnet.model';
 import { AzRelatedFieldsArray } from '../aws-wizard.component';
 import { ClusterPlan } from '../../wizard/shared/constants/wizard.constants';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
@@ -261,18 +260,13 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     ngOnInit() {
         super.ngOnInit();
-        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
+        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, this.supplyStepMapping());
         this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.supplyStepMapping());
         this.storeDefaultLabels(this.supplyStepMapping());
-
-        if (AppServices.appDataService.isClusterNameRequired()) {
-            this.clusterNameInstruction = 'Specify a name for the ' + this.clusterTypeDescriptor + ' cluster.';
-        } else {
-            this.clusterNameInstruction = 'Optionally specify a name for the ' + this.clusterTypeDescriptor + ' cluster. ' +
-                'If left blank, the installer names the cluster automatically.';
-        }
+        this.setClusterNameInstruction();
         this.subscribeToServices();
         this.customizeForm();
+        this.registerDefaultFileImportedHandler(this.supplyStepMapping());
 
         setTimeout(_ => {
             this.displayForm = true;
@@ -285,6 +279,15 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             }
         });
         this.initFormWithSavedData();
+    }
+
+    private setClusterNameInstruction() {
+        if (AppServices.appDataService.isClusterNameRequired()) {
+            this.clusterNameInstruction = 'Specify a name for the ' + this.clusterTypeDescriptor + ' cluster.';
+        } else {
+            this.clusterNameInstruction = 'Optionally specify a name for the ' + this.clusterTypeDescriptor + ' cluster. ' +
+                'If left blank, the installer names the cluster automatically.';
+        }
     }
 
     private setControlPlaneToProd() {

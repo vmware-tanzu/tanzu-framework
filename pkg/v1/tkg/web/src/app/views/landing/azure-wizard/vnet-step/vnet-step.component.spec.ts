@@ -5,12 +5,13 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 // App imports
 import { APIClient } from '../../../../swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { AzureField, AzureForm } from '../azure-wizard.constants';
+import { DataServiceRegistrarTestExtension } from '../../../../testing/data-service-registrar.testextension';
 import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { VnetStepComponent } from './vnet-step.component';
-import { AzureField, AzureForm } from '../azure-wizard.constants';
+import { VSphereResourcePool } from '../../../../swagger/models';
 
 describe('VnetStepComponent', () => {
     let component: VnetStepComponent;
@@ -41,6 +42,12 @@ describe('VnetStepComponent', () => {
         fixture = TestBed.createComponent(VnetStepComponent);
         component = fixture.componentInstance;
         component.setInputs('ZuchiniWizard', AzureForm.VNET,  new FormBuilder().group({}));
+
+        const dataServiceRegistrar = new DataServiceRegistrarTestExtension();
+        AppServices.dataServiceRegistrar = dataServiceRegistrar;
+        // we expect the wizard to have registered for these events:
+        dataServiceRegistrar.simulateRegistration<VSphereResourcePool>(TkgEventType.AZURE_GET_RESOURCE_GROUPS);
+        dataServiceRegistrar.simulateRegistration<VSphereResourcePool>(TkgEventType.AZURE_GET_VNETS);
 
         fixture.detectChanges();
     });

@@ -4,21 +4,30 @@ export interface StepMapping {
     fieldMappings: FieldMapping[],
 }
 
+export interface BackingObjectMap {
+    displayField: string,   // the field of the backing object used for the display
+    valueField: string,     // the field of the backing object used for the value
+    type?: string,          // the type of the backing object; if provided generates a sanity check on the backing object type
+}
+
 export interface FieldMapping {
     name: string,                   // name of field
-    validators?: SimpleValidator[], // validators used by Clarity framework
+
+    backingObject?: BackingObjectMap,   // data for using backing object (see notes)
     defaultValue?: any,             // default value to initialize with
-    isBoolean?: boolean,            // is the field have a boolean value?
-    required?: boolean,             // should a Validator.REQUIRED validator be added to the validator list?
+    doNotAutoSave?: boolean,        // do not save this field when saving the entire mapping
+    doNotAutoRestore?: boolean,     // do not auto-restore the stored value to this field (field is usually set by change event)
+    doNotCreate?: boolean,          // do not create this control when building the form; it is a value simply displayed to the user
     featureFlag?: string,           // a feature flag that needs to be true in order to create this field
-    doNotAutoSave?: boolean,        // when saving the entire mapping, should this field be excluded?
-    neverStore?: boolean,           // used for temp fields like adding key-value pairs
-    requiresBackendData?: boolean,  // this field requires backend data, so do not initialize but let backend data handler initialize
-    doNotAutoRestore?: boolean,     // do not auto-restore the stored value to this field (usually set by change event)
-    primaryTrigger?: boolean,         // do NOT set value on INIT, but immediately AFTER onChange events are subscribed to
-    mask?: boolean,                 // when saving this field, should a masked value be saved instead (for password-like fields)
+    isBoolean?: boolean,            // does the field have a boolean value?
     isMap?: boolean,                // is the value of this field a Map<string, string>?
-    label?: string,                 // label used when displaying this field, in HTML or in confirmation page
+    label?: string,                 // label used when displaying this field, in HTML or in confirmation page (empty if not displayed)
+    mask?: boolean,                 // when saving this field, should a masked value be saved instead (for password-like fields)
+    neverStore?: boolean,           // used for temp fields like user input for adding key-value pairs
+    primaryTrigger?: boolean,       // do NOT set value on INIT, but immediately AFTER onChange events are subscribed to
+    required?: boolean,             // should a Validator.REQUIRED validator be added to the validator list?
+    requiresBackendData?: boolean,  // this field requires backend data, so do not initialize but let backend data handler initialize
+    validators?: SimpleValidator[], // validators used by Clarity framework
 }
 // NOTES on FieldMapping:
 // requiresBackendData:
@@ -35,3 +44,8 @@ export interface FieldMapping {
 //   Note that this does not apply to a triggering field that ITSELF depends on other fields (or on data to arrive from the backend). These
 //   dependent triggering fields should not have their values set during INIT; they should await whatever field they are dependent on to
 //   send an event (or wait for the backend data to arrive). They should use doNotAutoRestore (or requiresBackendData).
+// backingObject:
+//    If the value of this field is an OBJECT (not a string or a Map<string, string>), then backingObject specifies how to get the
+//    display and value strings from that object. Note that the user needs to supply extra parameters when using methods that store or
+//    restore the field's value (like buildForm(), restoreForm() or restoreField()).
+//    The optional TYPE field lets the framework warn to the console if the field's value is of a different type than the mapping expects.

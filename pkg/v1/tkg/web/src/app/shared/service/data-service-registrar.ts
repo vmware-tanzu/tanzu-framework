@@ -106,7 +106,7 @@ export default class DataServiceRegistrar {
                        onDataReceived: (data: OBJ[]) => void, onError?: (error: string) => void): boolean {
         const serviceBrokerEntry: DataServiceRegistrarEntry<OBJ> = this.getEntry<OBJ>(eventType);
         if (!serviceBrokerEntry) {
-            console.error('Event ' + eventType + ' was not registered with the service broker before ' + step.formName +
+            console.error('Event ' + TkgEventType[eventType] + ' was not registered with the service broker before ' + step.formName +
                 ' tried to subscribe to it.');
             return false;
         }
@@ -126,7 +126,8 @@ export default class DataServiceRegistrar {
         if (result) {
             return result;
         }
-        console.error('DataServiceRegistrar tried to get entry for event ' + eventType + ' but no such event has been registered');
+        console.error('DataServiceRegistrar tried to get entry for event ' + TkgEventType[eventType] + ' but no such event has been' +
+        ' registered');
         return null;
     }
 

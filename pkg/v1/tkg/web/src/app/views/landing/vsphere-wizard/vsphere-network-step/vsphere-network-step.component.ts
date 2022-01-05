@@ -8,9 +8,11 @@ import AppServices from '../../../../shared/service/appServices';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { NetworkField } from '../../wizard/shared/components/steps/network-step/network-step.fieldmapping';
 import { SharedNetworkStepComponent } from '../../wizard/shared/components/steps/network-step/network-step.component';
+import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 import { TanzuEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { VSphereNetwork } from '../../../../swagger/models';
+import { VsphereNetworkFieldMappings } from './vsphere-network-step.fieldmapping';
 import { VsphereField } from '../vsphere-wizard.constants';
 
 declare var sortPaths: any;
@@ -22,10 +24,10 @@ declare var sortPaths: any;
 export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
     static description = 'Specify how Tanzu Kubernetes Grid networking is provided and any global network settings';
 
-    constructor(protected validationService: ValidationService,
-                protected fieldMapUtilities: FieldMapUtilities) {
-        super(validationService, fieldMapUtilities);
-        this.enableNetworkName = true;
+    vmNetworks: VSphereNetwork[] = [];
+
+    constructor(protected validationService: ValidationService) {
+        super(validationService);
     }
 
     listenToEvents() {
@@ -85,7 +87,30 @@ export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
     }
 
     protected supplyFieldsAffectingStepDescription(): string[] {
-        return [VsphereField.NETWORK_NAME];
+        const fields = super.supplyFieldsAffectingStepDescription();
+        fields.push(VsphereField.NETWORK_NAME);
+        return fields;
+    }
+
+    protected supplyEnablesNetworkName(): boolean {
+        return true;
+    }
+
+    protected supplyNetworkNameInstruction(): string {
+        return 'Select a vSphere network to use as the Kubernetes service network.';
+    }
+
+    protected supplyEnablesNoProxyWarning(): boolean {
+        return true;
+    }
+
+    protected supplyNetworks(): { displayName?: string }[] {
+        return this.vmNetworks;
+    }
+
+    protected supplyStepMapping(): StepMapping {
+        const fieldMappings = [...VsphereNetworkFieldMappings, ...super.supplyStepMapping().fieldMappings];
+        return { fieldMappings };
     }
 
     dynamicDescription(): string {

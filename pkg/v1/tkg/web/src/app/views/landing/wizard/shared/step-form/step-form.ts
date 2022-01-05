@@ -13,7 +13,7 @@ import { FormMetaData, FormMetaDataStore } from '../FormMetaDataStore';
 import { FormUtility } from '../components/steps/form-utility';
 import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 import { Notification, NotificationTypes } from 'src/app/shared/components/alert-notification/alert-notification.component';
-import { StepDescriptionChangePayload, TanzuEvent, TanzuEventType } from 'src/app/shared/service/Messenger';
+import { StepCompletedPayload, StepDescriptionChangePayload, TanzuEvent, TanzuEventType } from 'src/app/shared/service/Messenger';
 import { StepMapping } from '../field-mapping/FieldMapping';
 import { UserDataIdentifier } from '../../../../../shared/service/user-data.service';
 import { ValidatorEnum } from './../constants/validation.constants';
@@ -134,31 +134,14 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
      * @param defaultValue the default value if there is no saved value
      */
     getSavedValue(fieldName: string, defaultValue: any) {
-        // old way
-        const value = this.getOldRawSavedValue(fieldName);
-        let oldResult = (value) ? value : defaultValue;
-
-        const shouldReturnBooleanValue = typeof defaultValue === "boolean";
-        if (shouldReturnBooleanValue) {
-            const booleanResult = oldResult === "yes" || oldResult === true;
-            oldResult = booleanResult;
-        }
-
-        // new way
         const identifier = this.createUserDataIdentifier(fieldName);
         const entry = AppServices.userDataService.retrieve(identifier);
-        let newResult = defaultValue;
+        let result = defaultValue;
         if (entry !== null && entry !== undefined) {
-            newResult = entry.value;
+            result = entry.value;
         }
 
-        // comparison
-        if (oldResult !== newResult) {
-            console.warn('In retrieving value for ' + JSON.stringify(identifier) + ' old result: ' + oldResult +
-            ' whereas new result: ' + newResult);
-        }
-
-        return newResult;
+        return result;
     }
 
     private getOldRawSavedValue(fieldName: string) {    // old way
@@ -170,16 +153,8 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
 
     getRawSavedValue(fieldName: string) {
         const identifier = this.createUserDataIdentifier(fieldName);    // new way
-        const entry = Broker.userDataService.retrieve(identifier);
+        const entry = AppServices.userDataService.retrieve(identifier);
         const value = entry ? entry.value : null;
-
-        const valueOldWay = this.getOldRawSavedValue(fieldName);        // old way
-
-        // comparison
-        if (value !== valueOldWay) {
-            console.warn('In retrieving value for ' + JSON.stringify(identifier) + ' old result: ' + valueOldWay +
-                ' whereas new result: ' + value);
-        }
 
         return value;
     }
@@ -190,21 +165,12 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
      * @param fieldName the name of the control in savedMetadata
      */
     getSavedKey(fieldName: string): string {
-        // old way
-        const oldSavedKey = this.savedMetadata && this.savedMetadata[fieldName] && this.savedMetadata[fieldName].key;
-        // new way
         // NOTE: in new way, we don't need this getSavedKey method at all
         const identifier = this.createUserDataIdentifier(fieldName);
-        const entry = Broker.userDataService.retrieve(identifier);
+        const entry = AppServices.userDataService.retrieve(identifier);
         const savedKey = entry ? entry.value : null;
 
-        // comparison
-        if (oldSavedKey !== savedKey) {
-            console.warn('In retrieving KEY for ' + JSON.stringify(identifier) + ' old result: ' + oldSavedKey +
-                ' whereas new result: ' + savedKey);
-        }
-
-        return oldSavedKey;
+        return savedKey;
     }
 
     hasSavedData() {
@@ -431,10 +397,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
      */
     registerOnValueChange(fieldName: string, callback: (newValue: any) => void) {
         this.getControl(fieldName).valueChanges.pipe(
-            distinctUntilChanged((prev, curr) => prev === '' && curr === ''),
-            // On file import, we may want to trigger an onChange event even if the values are the same,
-            // so that other fields' values will be read from storage
-            // distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+            distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
             takeUntil(this.unsubscribe)
         ).subscribe(newValue => callback(newValue));
     }
@@ -522,7 +485,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     }
 
     private subscribeToStepCompletedEvents() {
-        Broker.messenger.getSubject(TkgEventType.STEP_COMPLETED).subscribe(event => {
+        AppServices.messenger.getSubject(TkgEventType.STEP_COMPLETED).subscribe(event => {
             const stepCompletedPayload: StepCompletedPayload = event.payload;
             if (stepCompletedPayload.wizard === this.wizardName && stepCompletedPayload.step === this.formName) {
                 this.onStepCompleted();
@@ -540,7 +503,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     }
 
     protected storeUserDataFromMapping(stepMapping: StepMapping) {
-        Broker.userDataService.storeFromMapping(this.wizardName, this.formName, stepMapping, this.formGroup);
+        AppServices.userDataService.storeFromMapping(this.wizardName, this.formName, stepMapping, this.formGroup);
     }
 
     protected storeDefaultDisplayOrder(stepMapping: StepMapping) {
@@ -572,7 +535,8 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         return this.unsubscribe;
     }
 
-    protected registerDefaultFileImportedHandler(stepMapping: StepMapping) {
+    protected registerDefaultFileImportedHandler(stepMapping: StepMapping,
+                                                 objectRetrievalMap?: Map<string, (string) => any>) {
         AppServices.messenger.getSubject(TanzuEventType.CONFIG_FILE_IMPORTED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TanzuEvent) => {
@@ -581,11 +545,11 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
                     message: data.payload
                 };
                 // The file import saves the data to local storage, so we reinitialize this step's form from there
-                Broker.fieldMapUtilities.restoreForm(this.wizardName, this.formName, this.formGroup, stepMapping);
+                AppServices.fieldMapUtilities.restoreForm(this.wizardName, this.formName, this.formGroup, stepMapping, objectRetrievalMap);
 
                 // TODO: unclear if clearing this event might prevent other steps from receiving it when they SHOULD!
                 // Clear event so that listeners in other provider workflows do not receive false notifications
-                Broker.messenger.clearEvent(TkgEventType.CONFIG_FILE_IMPORTED);
+                AppServices.messenger.clearEvent(TanzuEventType.CONFIG_FILE_IMPORTED);
             });
     }
 }

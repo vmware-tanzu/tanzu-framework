@@ -16,7 +16,6 @@ import { TanzuEventType } from 'src/app/shared/service/Messenger';
 import { ValidationService } from '../../../validation/validation.service';
 import { VSphereNetwork } from 'src/app/swagger/models/v-sphere-network.model';
 
-declare var sortPaths: any;
 @Component({
     selector: 'app-shared-network-step',
     templateUrl: './network-step.component.html',
@@ -24,11 +23,9 @@ declare var sortPaths: any;
 })
 export class SharedNetworkStepComponent extends StepFormDirective implements OnInit {
     static description  = 'Specify how TKG networking is provided and global network settings';
-    enableNetworkName: boolean;
 
     form: FormGroup;
     cniType: string;
-    vmNetworks: Array<VSphereNetwork> = [];
     additionalNoProxyInfo: string;
     fullNoProxy: string;
     infraServiceAddress: string = '';
@@ -47,6 +44,14 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
         return false;
     }
 
+    protected supplyNetworkNameInstruction(): string {
+        return '';
+    }
+
+    protected supplyNetworks(): { displayName?: string }[] {
+        return [];
+    }
+
     protected supplyStepMapping(): StepMapping {
         return this.ipFamily === IpFamilyEnum.IPv4 ? NetworkIpv4StepMapping : NetworkIpv6StepMapping;
     }
@@ -57,11 +62,6 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
     }
 
     private customizeForm() {
-        if (!this.enableNetworkName) {
-            this.clearFieldSavedData(NetworkField.NETWORK_NAME);
-            this.formGroup.removeControl(NetworkField.NETWORK_NAME);
-        }
-
         const cidrs = [NetworkField.CLUSTER_SERVICE_CIDR, NetworkField.CLUSTER_POD_CIDR];
         cidrs.forEach(cidr => {
             this.registerOnIpFamilyChange(cidr, [
@@ -77,7 +77,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
 
     ngOnInit() {
         super.ngOnInit();
-        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
+        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, this.supplyStepMapping());
         this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.supplyStepMapping());
         this.storeDefaultLabels(this.supplyStepMapping());
 
@@ -112,7 +112,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
             this.setCidrs();
 
             if (this.enableNetworkName) {
-                this.resurrectField(NetworkField.NETWORK_NAME, [
+                this.resurrectFieldWithSavedValue(NetworkField.NETWORK_NAME, [
                     Validators.required
                 ], '', { onlySelf: true }); // only for current form control
             }
@@ -271,6 +271,12 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
         }
     }
 
+    // Reset the relevant fields upon data center change
+    resetFieldsUponDCChange() {
+        const fieldsToReset = ['networkName'];
+        fieldsToReset.forEach(f => this.formGroup.get(f) && this.formGroup.get(f).setValue('', { onlySelf: true }));
+    }
+
     initFormWithSavedData() {
         super.initFormWithSavedData();
         // reset validations for httpProxyUrl and httpsProxyUrl when
@@ -297,14 +303,26 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
     }
 
     protected storeUserData() {
+        // We store an entry for fullNoProxy (if we have a value) so it will display on the confirmation page
+        if (this.fullNoProxy) {
+            const entry = { display: this.fullNoProxy, value: this.fullNoProxy };
+            AppServices.userDataService.store(this.createUserDataIdentifier('fullProxyList'), entry);
+        }
         this.storeUserDataFromMapping(this.supplyStepMapping());
         this.storeDefaultDisplayOrder(this.supplyStepMapping());
     }
 
+    // These network-related methods are referenced in the HTML, but used only by vSphere
     get enableNoProxyWarning(): boolean {
         return this.supplyEnablesNoProxyWarning();
     }
     get enableNetworkName(): boolean {
         return this.supplyEnablesNetworkName();
+    }
+    get networkNameInstruction(): string {
+        return this.supplyNetworkNameInstruction();
+    }
+    get networks(): { displayName?: string }[] {
+        return this.supplyNetworks();
     }
 }

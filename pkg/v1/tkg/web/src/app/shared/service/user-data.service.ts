@@ -1,8 +1,8 @@
 // Angular imports
 import { AbstractControl, FormGroup } from '@angular/forms';
 // App imports
-import Broker from './broker';
-import { FieldMapping, StepMapping } from '../../views/landing/wizard/shared/field-mapping/FieldMapping';
+import AppServices from './appServices';
+import { BackingObjectMap, FieldMapping, StepMapping } from '../../views/landing/wizard/shared/field-mapping/FieldMapping';
 import { managementClusterPlugin } from '../../views/landing/wizard/shared/constants/wizard.constants';
 import { PersistentStore } from '../../views/landing/wizard/shared/PersistentStore';
 
@@ -82,6 +82,23 @@ export class UserDataService {
         this.storeWizardEntry(wizardEntry);
     }
 
+    restoreField(identifier: UserDataIdentifier, formGroup: FormGroup, options?: { onlySelf?: boolean, emitEvent?: boolean },
+                 retriever?: (string) => any) {
+        const storedEntry = AppServices.userDataService.retrieve(identifier);
+        const control = formGroup.get(identifier.field);
+        if (control && storedEntry) {
+            const value = (retriever && storedEntry.value) ? retriever(storedEntry.value) : storedEntry.value;
+            control.setValue(value, options);
+            if (storedEntry.value && retriever && !value) {
+                console.warn('Trying to restore field ' + identifier.field + ' with stored value ' + storedEntry.value +
+                    ', but retriever does not return a value');
+            }
+        }
+        if (!control) {
+            console.warn('Trying to restore field ' + identifier.field + ', but cannot locate field in formGroup');
+        }
+    }
+
     retrieveWizardEntry(wizard: string) {
         return this.ensureWizardEntry(wizard);
     }
@@ -141,17 +158,25 @@ export class UserDataService {
         return stepEntry !== undefined && stepEntry !== null;
     }
 
-    // saveListboxField expects to encounter an OBJECT backing the listbox and will use fieldDisplay of that object for the display
+    // storeBackingObjectField expects to encounter an OBJECT backing the listbox and will use fieldDisplay of that object for the display
     // and fieldValue for the value. If instead the caller has a simple listbox with strings backing it, call saveInputField instead
-    storeListboxObjectField(identifier: UserDataIdentifier, formGroup: FormGroup, fieldDisplay, fieldValue: string): boolean {
+    private storeBackingObjectField(identifier: UserDataIdentifier, formGroup: FormGroup, backingObjectMap: BackingObjectMap): boolean {
         const selectedObj = this.getFormObject(identifier, formGroup);
-        if (!selectedObj) {
-            return false;
+        if (selectedObj) {
+            this.validateBackingObjectType(identifier, backingObjectMap.type, selectedObj);
         }
-        const display = selectedObj[fieldDisplay];
-        const value = selectedObj[fieldValue];
+        // Note: selectedObj === null is a legitimate case: the user hasn't selected an object yet
+        const display = selectedObj ? selectedObj[backingObjectMap.displayField] : '';
+        const value = selectedObj ? selectedObj[backingObjectMap.valueField] : '';
         this.store(identifier, { display, value });
         return true;
+    }
+
+    private validateBackingObjectType(identifier: UserDataIdentifier, expectedType: string, value: any) {
+        if (expectedType && value && expectedType !== typeof value) {
+            console.warn('storing backing object for ' + JSON.stringify(identifier) + ' encountered object of type ' +
+            typeof value + ' but was expecting object of type: ' + expectedType);
+        }
     }
 
     storeBooleanField(identifier: UserDataIdentifier, formGroup: FormGroup): boolean {
@@ -199,6 +224,8 @@ export class UserDataService {
             this.storeMaskField(identifier, formGroup);
         } else if (fieldMapping.isMap) {
             this.storeMapField(identifier, formGroup);
+        } else if (fieldMapping.backingObject) {
+            this.storeBackingObjectField(identifier, formGroup, fieldMapping.backingObject)
         } else {
             this.storeInputField(identifier, formGroup);
         }
@@ -209,7 +236,7 @@ export class UserDataService {
     }
 
     private isFeatureEnabled(featureFlag: string): boolean {
-        return Broker.appDataService.isPluginFeatureActivated(managementClusterPlugin, featureFlag);
+        return AppServices.appDataService.isPluginFeatureActivated(managementClusterPlugin, featureFlag);
     }
 
     private storeMaskField(identifier: UserDataIdentifier, formGroup: FormGroup): boolean {

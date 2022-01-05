@@ -93,10 +93,11 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     ngOnInit() {
         super.ngOnInit();
-        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
+        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, this.supplyStepMapping());
         this.storeDefaultLabels(this.supplyStepMapping());
         this.subscribeToServices();
         this.registerStepDescriptionTriggers({ clusterTypeDescriptor: true, fields: [AzureField.NODESETTING_CONTROL_PLANE_SETTING]});
+        this.registerDefaultFileImportedHandler(this.supplyStepMapping());
         this.listenOnChangeClusterPlan();
         this.initFormWithSavedData();
     }

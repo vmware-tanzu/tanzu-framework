@@ -5,7 +5,7 @@ import { Validators } from '@angular/forms';
 import { distinctUntilChanged, takeUntil, tap } from 'rxjs/operators';
 // App imports
 import { APIClient } from 'src/app/swagger';
-import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
+import AppServices from '../../../../../../../shared/service/appServices';
 import { IdentityField, IdentityStepMapping } from './identity-step.fieldmapping';
 import { IdentityManagementType } from '../../../constants/wizard.constants';
 import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
@@ -130,8 +130,8 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
 
     ngOnInit(): void {
         super.ngOnInit();
-        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.formName, IdentityStepMapping);
-        this.htmlFieldLabels = Broker.fieldMapUtilities.getFieldLabelMap(IdentityStepMapping);
+        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, IdentityStepMapping);
+        this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(IdentityStepMapping);
         this.storeDefaultLabels(IdentityStepMapping);
 
         this.customizeForm();

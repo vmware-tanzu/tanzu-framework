@@ -73,7 +73,7 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
     ngOnInit() {
         super.ngOnInit();
 
-        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.formName, AwsProviderStepMapping);
+        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, AwsProviderStepMapping);
         this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(AwsProviderStepMapping);
         this.storeDefaultLabels(AwsProviderStepMapping);
 

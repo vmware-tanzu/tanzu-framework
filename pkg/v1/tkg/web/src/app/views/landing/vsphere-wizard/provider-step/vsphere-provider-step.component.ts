@@ -137,10 +137,10 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
 
         this.fileReader.onload = (event) => {
             try {
-                this.formGroup.get(VsphereField.PROVIDER_SSH_KEY).setValue(event.target.result);
-                console.log(event.target.result);
+                const sshKey = event.target['result'];
+                this.formGroup.get(VsphereField.PROVIDER_SSH_KEY).setValue(sshKey);
             } catch (error) {
-                console.log(error.message);
+                console.error('Error reading SSH key file: ' + error.message);
                 return;
             }
             this.formGroup.get(VsphereField.PROVIDER_SSH_KEY_FILE).setValue('');
@@ -157,7 +157,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
     ngOnInit() {
         super.ngOnInit();
         this.enableIpv6 = AppServices.appDataService.isPluginFeatureActivated(managementClusterPlugin, 'vsphereIPv6');
-        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.formName, VsphereProviderStepFieldMapping);
+        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, VsphereProviderStepFieldMapping);
         this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(VsphereProviderStepFieldMapping);
         this.storeDefaultLabels(VsphereProviderStepFieldMapping);
 

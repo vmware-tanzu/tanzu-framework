@@ -4,7 +4,6 @@ import { Validators } from '@angular/forms';
 // App imports
 import AppServices from 'src/app/shared/service/appServices';
 import { ClusterPlan, NodeType } from '../../wizard/shared/constants/wizard.constants';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { InstanceType, IpFamilyEnum, PROVIDERS, Providers } from '../../../../shared/constants/app.constants';
 import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER } from '../../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
@@ -67,9 +66,10 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     ngOnInit() {
         super.ngOnInit();
-        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
+        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, this.supplyStepMapping());
         this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.supplyStepMapping());
         this.storeDefaultLabels(this.supplyStepMapping());
+        this.registerDefaultFileImportedHandler(this.supplyStepMapping());
 
         this.customizeForm();
 

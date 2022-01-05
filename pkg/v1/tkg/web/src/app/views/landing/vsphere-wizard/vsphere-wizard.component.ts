@@ -207,7 +207,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         }
 
         this.saveCommonFieldsFromPayload(payload);
-        Broker.userDataService.updateWizardTimestamp(this.wizardName);
+        AppServices.userDataService.updateWizardTimestamp(this.wizardName);
     }
 
     /**

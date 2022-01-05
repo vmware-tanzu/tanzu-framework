@@ -37,9 +37,10 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     ngOnInit(): void {
         super.ngOnInit();
-        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
+        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, this.supplyStepMapping());
         this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.supplyStepMapping());
         this.storeDefaultLabels(this.supplyStepMapping());
+        this.registerDefaultFileImportedHandler(this.supplyStepMapping());
 
         if (AppServices.appDataService.isClusterNameRequired()) {
             this.clusterNameInstruction = 'Specify a name for the ' + this.clusterTypeDescriptor + ' cluster.';

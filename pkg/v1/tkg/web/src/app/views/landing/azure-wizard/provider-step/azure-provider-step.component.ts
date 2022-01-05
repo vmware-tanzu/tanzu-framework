@@ -10,9 +10,6 @@ import AppServices from '../../../../shared/service/appServices';
 import { AzureCloud, AzureField, ResourceGroupOption } from '../azure-wizard.constants';
 import { AzureProviderStepMapping } from './azure-provider-step.fieldmapping';
 import { AzureResourceGroup } from './../../../../swagger/models/azure-resource-group.model';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { FormMetaDataStore } from "../../wizard/shared/FormMetaDataStore";
-import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { TanzuEvent, TanzuEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
@@ -50,7 +47,6 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     resourceGroupCreationState = 'create';
 
     constructor(private apiClient: APIClient,
-                private fieldMapUtilities: FieldMapUtilities,
                 private validationService: ValidationService) {
         super();
     }
@@ -117,11 +113,11 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     ngOnInit() {
         super.ngOnInit();
 
-        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.formName, AzureProviderStepMapping);
-        this.subscribeToServices();
+        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, AzureProviderStepMapping);
         this.storeDefaultLabels(AzureProviderStepMapping);
 
         this.customizeForm();
+        this.subscribeToServices();
 
         this.initAzureCredentials();
         this.showResourceGroupExisting();
@@ -209,11 +205,9 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     }
 
     private setAzureCredentialsValuesFromAPI(credentials) {
-        if (!this.hasSavedData()) {
-            // init form values for Azure credentials
-            for (const accountParamField of AzureAccountParamsKeys) {
-                this.setControlValueSafely(accountParamField, credentials[accountParamField]);
-            }
+        // init form values for Azure credentials
+        for (const accountParamField of AzureAccountParamsKeys) {
+            this.setControlValueSafely(accountParamField, credentials[accountParamField]);
         }
     }
 
@@ -282,12 +276,15 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     isConnectDisabled() {
         return !AzureAccountParamsKeys.reduce((accu, key) => this.formGroup.get(key).valid && accu, true);
     }
+
     showResourceGroupExisting() {
         this.showResourceGroup(ResourceGroupOption.EXISTING);
     }
+
     showResourceGroupCustom() {
         this.showResourceGroup(ResourceGroupOption.CUSTOM);
     }
+
     private showResourceGroup(option) {
         this.resourceGroupOption = option;
         if (option === ResourceGroupOption.EXISTING) {
@@ -351,6 +348,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     private resourceGroupContains(resourceGroupName: string) {
         return this.resourceGroups.find( resourceGroup => { return resourceGroup.name === resourceGroupName; });
     }
+
     dynamicDescription(): string {
         const tenant = this.getFieldValue(AzureField.PROVIDER_TENANT, true);
         if (tenant) {

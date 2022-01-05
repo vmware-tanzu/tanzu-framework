@@ -5,14 +5,15 @@ import { Validators } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs/operators';
 // App imports
 import { APIClient } from "../../../../../../../swagger";
+import AppServices from '../../../../../../../shared/service/appServices';
 import { AviCloud } from "src/app/swagger/models/avi-cloud.model";
 import { AviServiceEngineGroup } from "src/app/swagger/models/avi-service-engine-group.model";
 import { AviVipNetwork } from './../../../../../../../swagger/models/avi-vip-network.model';
 import { ClrLoadingState } from "@clr/angular";
-import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 import { LoadBalancerField, LoadBalancerStepMapping } from './load-balancer-step.fieldmapping';
 import { StepFormDirective } from "../../../step-form/step-form";
+import { StepMapping } from '../../../field-mapping/FieldMapping';
 import { TanzuEventType } from 'src/app/shared/service/Messenger';
 import { ValidationService } from "../../../validation/validation.service";
 
@@ -104,7 +105,7 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
 
     ngOnInit() {
         super.ngOnInit();
-        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
+        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, this.supplyStepMapping());
         this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.supplyStepMapping());
         this.storeDefaultLabels(this.supplyStepMapping());
 
@@ -422,7 +423,7 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
         this.storeUserDataFromMapping(LoadBalancerStepMapping);
         // clusterLabels field does not actually hold the value of the labels map that we keep in this step, so we save it separately
         const identifier = this.createUserDataIdentifier('clusterLabels');
-        Broker.userDataService.store(identifier, { display: this.clusterLabelsValue, value: this.clusterLabelsValue})
+        AppServices.userDataService.store(identifier, { display: this.clusterLabelsValue, value: this.clusterLabelsValue})
 
         this.storeDefaultDisplayOrder(LoadBalancerStepMapping);
     }

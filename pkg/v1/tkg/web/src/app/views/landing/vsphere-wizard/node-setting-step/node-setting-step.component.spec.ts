@@ -6,7 +6,6 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 // App imports
 import { APIClient } from '../../../../swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';
 import { NodeSettingStepComponent } from './node-setting-step.component';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
@@ -59,6 +58,7 @@ describe('NodeSettingStepComponent', () => {
         component.ngOnInit();
         const controlPlaneSettingControl = component.formGroup.get('controlPlaneSetting');
 
+        controlPlaneSettingControl.setValue('');
         expect(component.dynamicDescription()).toEqual('Specify the resources backing the  cluster');
 
         component.setClusterTypeDescriptor('VANILLA');

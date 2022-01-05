@@ -101,8 +101,13 @@ describe('VpcComponent', () => {
             }
         });
 
+        // NOTE: setting the existing VPC id causes a search of existingVpcs to find the corresponding CIDR,
+        // so we need to set up existingVpcs to have the VPC id we're using in the test
+        component.existingVpcs = [{
+            id: 'someVpc',
+            cidr: '3.4.3.4/24',
+        }]
         vpcTypeControl.setValue(VpcType.EXISTING);
-        vpcExistingCidrControl.setValue('3.4.3.4/24');
         vpcExistingIdControl.setValue('someVpc');
         expect(msgSpy).toHaveBeenCalledWith({
             type: TanzuEventType.STEP_DESCRIPTION_CHANGE,

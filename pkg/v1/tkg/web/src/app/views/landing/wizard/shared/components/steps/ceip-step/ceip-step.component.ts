@@ -2,6 +2,7 @@
 import { Component, OnInit } from '@angular/core';
 // App imports
 import Broker from '../../../../../../../shared/service/broker';
+import AppServices from '../../../../../../../shared/service/appServices';
 import { CeipStepMapping } from './ceip-step.fieldmapping';
 import { StepFormDirective } from '../../../step-form/step-form';
 
@@ -14,8 +15,8 @@ export class SharedCeipStepComponent extends StepFormDirective implements OnInit
 
     ngOnInit() {
         super.ngOnInit();
-        Broker.fieldMapUtilities.buildForm(this.formGroup, this.formName, CeipStepMapping);
-        this.htmlFieldLabels = Broker.fieldMapUtilities.getFieldLabelMap(CeipStepMapping);
+        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, CeipStepMapping);
+        this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(CeipStepMapping);
         this.storeDefaultLabels(CeipStepMapping);
 
         this.initFormWithSavedData();

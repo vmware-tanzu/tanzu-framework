@@ -7,6 +7,7 @@ import { Title } from '@angular/platform-browser';
 import { Observable } from 'rxjs';
 // App imports
 import { APIClient } from 'src/app/swagger';
+import AppServices from '../../../shared/service/appServices';
 import { ConfigFileInfo, DockerRegionalClusterParams } from 'src/app/swagger/models';
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { DaemonValidationStepComponent } from './daemon-validation-step/daemon-validation-step.component';
@@ -71,7 +72,7 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
 
         this.saveProxyFieldsFromPayload(payload);
 
-        Broker.userDataService.updateWizardTimestamp(this.wizardName);
+        AppServices.userDataService.updateWizardTimestamp(this.wizardName);
     }
 
     getPayload() {

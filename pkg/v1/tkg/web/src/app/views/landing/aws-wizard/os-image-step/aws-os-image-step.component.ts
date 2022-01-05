@@ -2,9 +2,10 @@
 import { Component, OnInit } from '@angular/core';
 // App imports
 import { AWSVirtualMachine } from '../../../../swagger/models';
-import AppServices from '../../../../shared/service/appServices';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { OsImageProviderInputs, SharedOsImageStepDirective } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
+import {
+    OsImageProviderInputs,
+    SharedOsImageStepDirective
+} from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
 import { TanzuEventType } from '../../../../shared/service/Messenger';
 
 @Component({
@@ -12,20 +13,7 @@ import { TanzuEventType } from '../../../../shared/service/Messenger';
     templateUrl: '../../wizard/shared/components/steps/os-image-step/os-image-step.component.html',
     styleUrls: ['../../wizard/shared/components/steps/os-image-step/os-image-step.component.scss']
 })
-export class AwsOsImageStepComponent extends SharedOsImageStepComponent<AWSVirtualMachine> implements OnInit {
-    constructor(private awsWizardFormService: AwsWizardFormService) {
-        super();
-    }
-
-    ngOnInit() {
-        super.ngOnInit();
-
-        AppServices.messenger.getSubject(TanzuEventType.AWS_REGION_CHANGED)
-            .subscribe(event => {
-                this.region = event.payload;
-            });
-    }
-
+export class AwsOsImageStepComponent extends SharedOsImageStepDirective<AWSVirtualMachine> implements OnInit {
     protected supplyProviderInputs(): OsImageProviderInputs {
         return {
             event: TanzuEventType.AWS_GET_OS_IMAGES,

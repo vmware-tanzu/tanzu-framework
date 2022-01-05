@@ -1,8 +1,8 @@
 /**
  * Angular Modules
  */
+import AppServices from '../../../../../shared/service/appServices';
 import { Component, Input, OnInit } from '@angular/core';
-import Broker from '../../../../../shared/service/broker';
 
 @Component({
     selector: 'app-shared-delete-data-popup',
@@ -14,16 +14,16 @@ export class DeleteDataPopupComponent implements OnInit {
     @Input() wizard: string;
 
     ngOnInit() {
-        this.open = Broker.userDataService.isWizardDataOld(this.wizard);
+        this.open = AppServices.userDataService.isWizardDataOld(this.wizard);
     }
 
     clearDataClick() {
-        Broker.userDataService.deleteWizardData(this.wizard);
+        AppServices.userDataService.deleteWizardData(this.wizard);
         this.open = false;
     }
 
     useSavedDataClick() {
-        Broker.userDataService.updateWizardTimestamp(this.wizard);
+        AppServices.userDataService.updateWizardTimestamp(this.wizard);
         this.open = false;
     }
 }

@@ -11,11 +11,7 @@ import { TanzuEventType } from '../../../../shared/service/Messenger';
     templateUrl: '../../wizard/shared/components/steps/os-image-step/os-image-step.component.html',
     styleUrls: ['../../wizard/shared/components/steps/os-image-step/os-image-step.component.scss']
 })
-export class AzureOsImageStepComponent extends SharedOsImageStepComponent<AzureVirtualMachine> implements OnInit {
-    constructor(private azureWizardFormService: AzureWizardFormService) {
-        super();
-    }
-
+export class AzureOsImageStepComponent extends SharedOsImageStepDirective<AzureVirtualMachine> implements OnInit {
     protected supplyProviderInputs(): OsImageProviderInputs {
         return {
             event: TanzuEventType.AZURE_GET_OS_IMAGES,

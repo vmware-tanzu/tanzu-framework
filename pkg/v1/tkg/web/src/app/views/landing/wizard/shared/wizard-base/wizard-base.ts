@@ -760,7 +760,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     }
 
     get isDataOld(): boolean {
-        return Broker.userDataService.isWizardDataOld(this.supplyWizardName());
+        return AppServices.userDataService.isWizardDataOld(this.supplyWizardName());
     }
     //
     // HTML convenience methods
@@ -783,7 +783,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
             wizard: wizardName,
             step: stepCompletedName,
         }
-        Broker.messenger.publish( { type: TkgEventType.STEP_COMPLETED, payload } );
+        AppServices.messenger.publish( { type: TkgEventType.STEP_COMPLETED, payload } );
     }
 
     private defaultDisplayOrder(stepData: FormDataForHTML[]): string[] {
@@ -793,17 +793,17 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
         }, []);
     }
     private storeWizardDisplayOrder(displayOrder: string[]) {
-        Broker.userDataService.storeWizardDisplayOrder(this.supplyWizardName(), displayOrder);
+        AppServices.userDataService.storeWizardDisplayOrder(this.supplyWizardName(), displayOrder);
     }
     private storeWizardStepDescriptions() {
-        Broker.userDataService.storeWizardDescriptions(this.wizardName, this.stepDescription);
+        AppServices.userDataService.storeWizardDescriptions(this.wizardName, this.stepDescription);
     }
     private storeWizardTitles() {
         const titles = this.stepData.reduce<Map<string, string>>( (accumulator, stepData) => {
             accumulator[stepData.name] = stepData.title;
             return accumulator;
         }, new Map<string, string>());
-        Broker.userDataService.storeWizardTitles(this.wizardName, titles);
+        AppServices.userDataService.storeWizardTitles(this.wizardName, titles);
     }
 
     protected onWizardComplete() {

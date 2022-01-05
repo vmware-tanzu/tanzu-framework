@@ -52,16 +52,16 @@
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                                 <span>
-                                    Select a vSphere network to use as the Kubernetes service network.
+                                    {{ networkNameInstruction }}
                                 </span>
                             </clr-tooltip-content>
                         </clr-tooltip>
                     </label>
                     <select clrSelect name="networkName" formControlName="networkName">
                         <option aria-label="blank" title="blank"></option>
-                        <ng-container *ngFor="let vmNetwork of vmNetworks">
-                            <option [value]="vmNetwork.name">
-                                {{vmNetwork.displayName}}
+                        <ng-container *ngFor="let network of networks">
+                            <option [ngValue]="network">
+                                {{network.displayName}}
                             </option>
                         </ng-container>
                     </select>

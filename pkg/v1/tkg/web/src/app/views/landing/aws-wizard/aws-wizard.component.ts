@@ -153,7 +153,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
             this.saveVpcFields(payload.vpc);
 
             this.saveCommonFieldsFromPayload(payload);
-            Broker.userDataService.updateWizardTimestamp(this.wizardName);
+            AppServices.userDataService.updateWizardTimestamp(this.wizardName);
         }
     }
 

@@ -7,6 +7,7 @@ import { Injectable } from '@angular/core';
 import Broker from '../../../../../shared/service/broker';
 import { managementClusterPlugin } from '../constants/wizard.constants';
 import { UserDataIdentifier } from '../../../../../shared/service/user-data.service';
+import AppServices from '../../../../../shared/service/appServices';
 
 @Injectable()
 export class FieldMapUtilities {
@@ -16,7 +17,7 @@ export class FieldMapUtilities {
     getLabeledFieldsWithStoredData(wizard, step: string, stepMapping: StepMapping): string[] {
         const result = stepMapping.fieldMappings
             .filter(fieldMapping => fieldMapping.label)
-            .filter(fieldMapping => Broker.userDataService.hasStoredData({wizard, step, field: fieldMapping.name}))
+            .filter(fieldMapping => AppServices.userDataService.hasStoredData({wizard, step, field: fieldMapping.name}))
             .reduce<string[]>((accumulator, fieldMapping) => {
                 accumulator.push(fieldMapping.name); return accumulator;
             }, []);
@@ -36,37 +37,29 @@ export class FieldMapUtilities {
         return stepMapping.fieldMappings.find(mapping => mapping.name === field);
     }
 
-    buildForm(formGroup: FormGroup, formName: string, stepMapping: StepMapping) {
+    buildForm(formGroup: FormGroup, wizard, step: string, stepMapping: StepMapping,
+              objectRetrievalMap?: Map<string, (string) => any>) {
         stepMapping.fieldMappings.forEach(fieldMapping => {
-            if (this.passesFeatureFlagFilter(fieldMapping)) {
-                this.buildFormField(formGroup, formName, fieldMapping);
+            if (this.shouldCreateField(fieldMapping)) {
+                const retriever = fieldMapping.backingObject && objectRetrievalMap ? objectRetrievalMap[fieldMapping.name] : null;
+                this.buildFormField(formGroup, wizard, step, fieldMapping, retriever);
             }
         });
     }
 
-    restoreForm(wizard, step: string, formGroup: FormGroup, stepMapping: StepMapping) {
+    restoreForm(wizard, step: string, formGroup: FormGroup, stepMapping: StepMapping,
+                objectRetrievalMap?: Map<string, (string) => any> ) {
         this.getFieldsToRestore(stepMapping).forEach(field => {
-            this.restoreField({ wizard, step, field }, formGroup, { emitEvent: false });
+            const fieldMapping = this.getFieldMapping(field, stepMapping);
+            const retriever = (fieldMapping.backingObject && objectRetrievalMap) ? objectRetrievalMap[field] : null;
+            AppServices.userDataService.restoreField({wizard, step, field}, formGroup, {emitEvent: false}, retriever);
         });
-        // Note: only AFTER all the "regular" fields are restored do we set the values on the primary trigger fields, because the
-        // handler for the trigger field change may expect the values of the other fields to have been set
+        // Note: we set the values on the primary trigger fields AFTER all the "regular" fields are restored because the
+        // handler for the trigger field change may make use the values of the other fields
         this.getPrimaryTriggers(stepMapping).forEach(field => {
-            this.restoreField({ wizard, step, field }, formGroup);
+            const retriever = objectRetrievalMap ? objectRetrievalMap[field] : null;
+            AppServices.userDataService.restoreField({ wizard, step, field }, formGroup, {}, retriever);
         })
-    }
-
-    restoreField(identifier: UserDataIdentifier, formGroup: FormGroup, options?: {
-        onlySelf?: boolean,
-        emitEvent?: boolean
-    }) {
-        const storedEntry = Broker.userDataService.retrieve(identifier);
-        const control = formGroup.get(identifier.field);
-        if (control && storedEntry) {
-            control.setValue(storedEntry.value, options);
-        }
-        if (!control) {
-            console.warn('Trying to restore field ' + identifier.field + ', but cannot locate field in formGroup');
-        }
     }
 
     private getFieldsToRestore(stepMapping: StepMapping): string[] {
@@ -88,19 +81,47 @@ export class FieldMapUtilities {
     }
     // The control's initial value should be: the savedValue if there is one (and the mapping said to use it), or
     // the default value (if the mapping provided one), or the blank value (based on whether the field is boolean).
-    private getInitialValue(formName: string, fieldMapping: FieldMapping) {
+    // Note that if the field is backed by an object (rather than a simple string), a retriever should be passed that can retrieve
+    // the object based on the saved value (which is presumably a unique identifier of the object)
+    private getInitialValue(wizard, step: string, fieldMapping: FieldMapping, retriever?: (string) => any) {
         const blankValue = fieldMapping.isBoolean ? false : '';
-        let savedValue;
         if (this.shouldInitializeWithStoredValue(fieldMapping)) {
-            const metadataEntry = FormMetaDataStore.getMetaDataItem(formName, fieldMapping.name);
-            if (metadataEntry) {
-                savedValue = metadataEntry.key ? metadataEntry.key : metadataEntry.displayValue;
-                if (savedValue) {
-                    return savedValue;
+            const identifier = {wizard, step, field: fieldMapping.name};
+            const storedEntry = AppServices.userDataService.retrieve(identifier);
+            let storedValue = storedEntry ? storedEntry.value : null;
+            if (storedValue && this.usesRetriever(fieldMapping)) {
+                storedValue = this.retrieveValue(fieldMapping.name, storedValue, retriever);
+                if (storedValue) {
+                    this.validateBackingObjectType(identifier, storedValue, fieldMapping.backingObject.type);
                 }
+            }
+            if (storedValue) {
+                return storedValue;
             }
         }
         return fieldMapping.defaultValue ? fieldMapping.defaultValue : blankValue;
+    }
+
+    private validateBackingObjectType(identifier: UserDataIdentifier, object: any, expectedType: string) {
+        if (expectedType) {
+            const actualBackingObjectType = typeof object;
+            if (expectedType && actualBackingObjectType !== expectedType) {
+                console.warn('Initial value of field ' + JSON.stringify(identifier) + ' is of type ' +
+                    actualBackingObjectType + ' rather than the expected type: ' + expectedType)
+            }
+        }
+    }
+
+    private retrieveValue(field, storedKey: string, retriever: (string) => any): any {
+        if (retriever) {
+            return retriever(storedKey);
+        }
+        console.warn('Unable to retrieve object for value ' + storedKey + ' because field ' + field + ' did not have a retriever');
+        return null;
+    }
+
+    private usesRetriever(fieldMapping: FieldMapping): boolean {
+        return fieldMapping.backingObject !== null && fieldMapping.backingObject !== undefined;
     }
 
     // There are four cases where we should NOT initialize using the stored value:
@@ -125,6 +146,10 @@ export class FieldMapUtilities {
     private shouldRestoreWithStoredValue(fieldMapping: FieldMapping): boolean {
         return !fieldMapping.doNotAutoRestore && !fieldMapping.neverStore && !fieldMapping.primaryTrigger &&
             this.passesFeatureFlagFilter(fieldMapping);
+    }
+
+    private shouldCreateField(fieldMapping: FieldMapping) {
+        return this.passesFeatureFlagFilter(fieldMapping) && !fieldMapping.doNotCreate;
     }
 
     private passesFeatureFlagFilter(fieldMapping: FieldMapping): boolean {
@@ -156,10 +181,10 @@ export class FieldMapUtilities {
         return result;
     }
 
-    private buildFormField(formGroup: FormGroup, formName: string, fieldMapping: FieldMapping) {
-        this.validateFieldMapping(formName, fieldMapping);
-        const initialValue = this.getInitialValue(formName, fieldMapping);
-        const validators = this.getValidatorArray(formName, fieldMapping);
+    private buildFormField(formGroup: FormGroup, wizard, step: string, fieldMapping: FieldMapping, retriever?: (string) => any) {
+        this.validateFieldMapping(step, fieldMapping);
+        const initialValue = this.getInitialValue(wizard, step, fieldMapping, retriever);
+        const validators = this.getValidatorArray(step, fieldMapping);
         FormUtils.addControl(
             formGroup,
             fieldMapping.name,
@@ -168,6 +193,6 @@ export class FieldMapUtilities {
     }
 
     private isFeatureEnabled(featureFlag: string): boolean {
-        return Broker.appDataService.isPluginFeatureActivated(managementClusterPlugin, featureFlag);
+        return AppServices.appDataService.isPluginFeatureActivated(managementClusterPlugin, featureFlag);
     }
 }

@@ -6,6 +6,7 @@ import { OsImageField, OsImageStepMapping } from './os-image-step.fieldmapping';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { TanzuEventType } from 'src/app/shared/service/Messenger';
 import { Directive, OnInit } from '@angular/core';
+import { StepMapping } from '../../../field-mapping/FieldMapping';
 
 // The intention of this class is to provide the common plumbing for the osImage step that many providers need.
 // The basic functionality is to subscribe to an event and load the resulting images into a local field.
@@ -36,7 +37,7 @@ export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends 
     // TODO: It's questionable whether tkrVersion should be in this class, since it's only used for vSphere
     tkrVersion: Observable<string>;
 
-    protected constructor() {
+    constructor() {
         super();
         this.tkrVersion = AppServices.appDataService.getTkrVersion();
     }
@@ -47,24 +48,39 @@ export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends 
 
     private subscribeToProviderEvent() {
         // we register a handler for when our event receives data, namely that we'll populate our array of osImages
-        AppServices.dataServiceRegistrar.stepSubscribe<IMAGE>(this, this.providerInputs.event, this.onFetchedOsImages.bind(this));
+        AppServices.dataServiceRegistrar.stepSubscribe<IMAGE>(this, this.providerInputs.event, this.onOsImageEvent.bind(this));
     }
 
-    private onFetchedOsImages(images: Array<IMAGE>) {
+    private onOsImageEvent(images: Array<IMAGE>) {
         this.osImages = images;
         this.loadingOsTemplate = false;
         if (this.osImages.length === 1) {
             this.setControlValueSafely(OsImageField.IMAGE, images[0]);
         } else {
-            this.setControlWithSavedValue(OsImageField.IMAGE, '');
+            AppServices.userDataService.restoreField(this.createUserDataIdentifier(OsImageField.IMAGE), this.formGroup,
+                {}, this.getImageFromStoredValue.bind(this));
         }
+    }
+
+    protected getImageFromStoredValue(osImageName: string): IMAGE {
+        return this.osImages ? this.osImages.find(image => image.name === osImageName) : null;
+    }
+
+    private getObjectRetrievalMap(): Map<string, (string) => any> {
+        const objectRetrievalMap = new Map<string, (string) => any>();
+        objectRetrievalMap['osImage'] = this.getImageFromStoredValue.bind(this);
+        return objectRetrievalMap;
     }
 
     ngOnInit() {
         super.ngOnInit();
-        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.formName, OsImageStepMapping);
-        this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(OsImageStepMapping);
-        this.storeDefaultLabels(OsImageStepMapping);
+        // The objectRetrievalMap associates a field with a closure that can return an object based on a key
+        // By sending the objectRetrievalMap to buildForm(), we allow buildForm to "call us back" to get the osImage using the saved key
+        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, this.supplyStepMapping(),
+            this.getObjectRetrievalMap());
+        this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.supplyStepMapping());
+        this.storeDefaultLabels(this.supplyStepMapping());
+        this.registerDefaultFileImportedHandler(this.supplyStepMapping(), this.getObjectRetrievalMap());
 
         this.providerInputs = this.supplyProviderInputs();
         this.registerStepDescriptionTriggers({fields: [OsImageField.IMAGE]});
@@ -101,8 +117,11 @@ export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends 
     }
 
     protected storeUserData() {
-        const identifier = this.createUserDataIdentifier('osImage');
-        Broker.userDataService.storeListboxObjectField(identifier, this.formGroup, 'name', 'name');
-        this.storeDisplayOrder(['osImage']);
+        this.storeUserDataFromMapping(this.supplyStepMapping());
+        this.storeDefaultDisplayOrder(this.supplyStepMapping());
+    }
+
+    protected supplyStepMapping(): StepMapping {
+        return OsImageStepMapping;
     }
 }

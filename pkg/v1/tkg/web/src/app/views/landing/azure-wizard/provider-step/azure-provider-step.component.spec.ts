@@ -12,7 +12,6 @@ import { AzureField, AzureForm } from '../azure-wizard.constants';
 import { AzureProviderStepComponent } from './azure-provider-step.component';
 import { AzureResourceGroup } from '../../../../swagger/models';
 import { DataServiceRegistrarTestExtension } from '../../../../testing/data-service-registrar.testextension';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
@@ -111,7 +110,7 @@ describe('AzureProviderStepComponent', () => {
         spyOn(apiService, 'getAzureRegions').and.returnValue(throwError(new Error('oops!')));
         component.getRegions();
         expect(component.errorNotification).toBe('Unable to retrieve Azure regions');
-    })
+    });
 
     it('should verify credentials', () => {
         spyOn(apiService, 'setAzureEndpoint').and.returnValues(new Observable(subscriber => {
@@ -167,5 +166,5 @@ describe('AzureProviderStepComponent', () => {
                 description: 'Azure tenant: RIDDLER',
             }
         });
-    })
+    });
 });

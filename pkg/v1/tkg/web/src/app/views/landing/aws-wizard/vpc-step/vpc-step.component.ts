@@ -67,13 +67,13 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
     }
     ngOnInit() {
         super.ngOnInit();
-        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.formName, AwsVpcStepMapping);
+        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, AwsVpcStepMapping);
         this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(AwsVpcStepMapping);
         this.storeDefaultLabels(AwsVpcStepMapping);
+        this.registerDefaultFileImportedHandler(AwsVpcStepMapping);
 
-        // NOTE: we don't call this.registerFieldsAffectingStepDescription() with the other fields, because the other relevant fields
+        // NOTE: we don't call this.registerFieldsAffectingStepDescription() with any fields, because all the relevant fields
         // already trigger a step description change event in their own onChange handlers
-        this.registerStepDescriptionTriggers({fields: [AwsField.VPC_EXISTING_ID]});
 
         this.registerOnValueChange(AwsField.VPC_TYPE, this.onVpcTypeChange.bind(this));
 
@@ -162,15 +162,9 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
      * @param existingVpcId
      */
     onChangeExistingVpc(existingVpcId: any) {
-        const existingVpc: Array<Vpc> = this.existingVpcs.filter((vpc) => {
-            return vpc.id === existingVpcId;
-        });
-        if (existingVpc && existingVpc.length > 0) {
-            this.formGroup.get(AwsField.VPC_EXISTING_CIDR).setValue(existingVpc[0].cidr);
-        } else {
-            // onlySelf onption changes value for the current control only.
-            this.formGroup.get(AwsField.VPC_EXISTING_CIDR).setValue('', { onlySelf: true});
-        }
+        const existingVpc: Array<Vpc> = this.existingVpcs.filter((vpc) => { return vpc.id === existingVpcId; });
+        const value = existingVpc && existingVpc.length > 0 ? existingVpc[0].cidr : '';
+        this.setControlValueSafely(AwsField.VPC_EXISTING_CIDR, value);
 
         AppServices.messenger.publish({
             type: TanzuEventType.AWS_GET_SUBNETS,
@@ -180,6 +174,8 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
         AppServices.messenger.publish(({
             type: TanzuEventType.AWS_VPC_CHANGED
         }));
+
+        this.triggerStepDescriptionChange();
     }
 
     dynamicDescription(): string {
@@ -188,7 +184,7 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
         const vpcExistingId = this.getFieldValue(AwsField.VPC_EXISTING_ID, true);
         const vpcNewCidr = this.getFieldValue(AwsField.VPC_NEW_CIDR, true);
 
-        if (vpcType === VpcType.EXISTING && vpcExistingCidr && vpcExistingId) {
+        if (vpcType === VpcType.EXISTING && vpcExistingId && vpcExistingCidr) {
             return 'VPC: ' + vpcExistingId + ' CIDR: ' + vpcExistingCidr;
         }
         if (vpcType === VpcType.NEW && vpcNewCidr) {

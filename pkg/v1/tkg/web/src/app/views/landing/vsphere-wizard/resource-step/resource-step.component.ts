@@ -58,10 +58,11 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
 
     ngOnInit() {
         super.ngOnInit();
-        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.formName, VsphereResourceStepMapping);
+        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, VsphereResourceStepMapping);
         this.storeDefaultLabels(VsphereResourceStepMapping);
         this.registerStepDescriptionTriggers({ clusterTypeDescriptor: true,
             fields: [VsphereField.RESOURCE_DATASTORE, VsphereField.RESOURCE_POOL, VsphereField.RESOURCE_VMFOLDER]});
+        this.registerDefaultFileImportedHandler(VsphereResourceStepMapping);
 
         /**
          * Whenever data center selection changes, reset the relevant fields
@@ -324,8 +325,6 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
         this.resourcePools = this.sortVsphereResources(data);
     }
 
-    protected saveUserData() {
-        super.saveUserDataFromMapping(VsphereResourceStepMapping);
     protected storeUserData() {
         super.storeUserDataFromMapping(VsphereResourceStepMapping);
         super.storeDefaultDisplayOrder(VsphereResourceStepMapping);

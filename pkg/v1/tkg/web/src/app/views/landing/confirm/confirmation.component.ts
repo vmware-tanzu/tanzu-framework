@@ -1,8 +1,11 @@
+// Angular imports
 import { Component, Input, OnInit } from '@angular/core';
-import { BasicSubscriber } from '../../../shared/abstracts/basic-subscriber';
-import Broker from '../../../shared/service/broker';
-import { TkgEvent, TkgEventType } from '../../../shared/service/Messenger';
+// Third party imports
 import { takeUntil } from 'rxjs/operators';
+// App imports
+import AppServices from '../../../shared/service/appServices';
+import { BasicSubscriber } from '../../../shared/abstracts/basic-subscriber';
+import { TkgEvent, TkgEventType } from '../../../shared/service/Messenger';
 import { UserDataWizard } from '../../../shared/service/user-data.service';
 
 @Component({
@@ -17,11 +20,11 @@ export class ConfirmationComponent extends BasicSubscriber implements OnInit {
     wizardEntry: UserDataWizard;
 
     ngOnInit() {
-        Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+        AppServices.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
                 this.pageTitle = data.payload.branding.title;
             });
-        this.wizardEntry = Broker.userDataService.retrieveWizardEntry(this.wizard);
+        this.wizardEntry = AppServices.userDataService.retrieveWizardEntry(this.wizard);
     }
 }
