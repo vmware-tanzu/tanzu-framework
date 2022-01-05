@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -359,7 +360,7 @@ var _ = Describe("Package plugin integration test", func() {
 		})
 		It("should pass all checks on management cluster", func() {
 			cleanup()
-			setUpPrivateRegistry(config.ClusterNameMC)
+			setUpPrivateRegistry(config.KubeConfigPathMC, config.ClusterNameMC)
 			testHelper()
 			log.Info("Successfully finished package plugin integration tests on management cluster")
 		})
@@ -372,7 +373,7 @@ var _ = Describe("Package plugin integration test", func() {
 		})
 		It("should pass all checks on workload cluster", func() {
 			cleanup()
-			setUpPrivateRegistry(config.ClusterNameWLC)
+			setUpPrivateRegistry(config.KubeConfigPathWLC, config.ClusterNameWLC)
 			testHelper()
 			log.Info("Successfully finished package plugin integration tests on workload cluster")
 		})
@@ -396,14 +397,14 @@ func cleanup() {
 	Expect(resultImgPullSecret.Error).ToNot(HaveOccurred())
 }
 
-func setUpPrivateRegistry(clusterName string) {
+func setUpPrivateRegistry(kubeconfigPath, clusterName string) {
 	By("set up private registry in cluster")
 	kubeCtx := clusterName + "-admin@" + clusterName
 	registryNamespace := "registry"
 
 	command := exec.NewCommand(
 		exec.WithCommand("kubectl"),
-		exec.WithArgs("patch", "configmap", "kapp-controller-config", "-n", "tkg-system", "--type", "merge", "-p", fmt.Sprintf("{\"data\":{\"dangerousSkipTLSVerify\":\"registry-svc.%s.svc.cluster.local\"}}", registryNamespace), "--context", kubeCtx),
+		exec.WithArgs("patch", "configmap", "kapp-controller-config", "-n", "tkg-system", "--type", "merge", "-p", fmt.Sprintf("{\"data\":{\"dangerousSkipTLSVerify\":\"registry-svc.%s.svc.cluster.local\"}}", registryNamespace), "--context", kubeCtx, "--kubeconfig", kubeconfigPath),
 		exec.WithStdout(GinkgoWriter),
 	)
 	err := command.RunAndRedirectOutput(context.Background())
@@ -411,7 +412,7 @@ func setUpPrivateRegistry(clusterName string) {
 
 	command = exec.NewCommand(
 		exec.WithCommand("kubectl"),
-		exec.WithArgs("apply", "-f", "config/assets/registry-namespace.yml", "--context", kubeCtx),
+		exec.WithArgs("apply", "-f", "config/assets/registry-namespace.yml", "--context", kubeCtx, "--kubeconfig", kubeconfigPath),
 		exec.WithStdout(GinkgoWriter),
 	)
 	err = command.RunAndRedirectOutput(context.Background())
@@ -419,7 +420,7 @@ func setUpPrivateRegistry(clusterName string) {
 
 	command = exec.NewCommand(
 		exec.WithCommand("kubectl"),
-		exec.WithArgs("apply", "-f", "config/assets/registry-contents.yml", "--context", kubeCtx),
+		exec.WithArgs("apply", "-f", "config/assets/registry-contents.yml", "--context", kubeCtx, "--kubeconfig", kubeconfigPath),
 		exec.WithStdout(GinkgoWriter),
 	)
 	err = command.RunAndRedirectOutput(context.Background())
@@ -427,7 +428,7 @@ func setUpPrivateRegistry(clusterName string) {
 
 	command = exec.NewCommand(
 		exec.WithCommand("kubectl"),
-		exec.WithArgs("apply", "-f", "config/assets/htpasswd-auth.yml", "--context", kubeCtx),
+		exec.WithArgs("apply", "-f", "config/assets/htpasswd-auth.yml", "--context", kubeCtx, "--kubeconfig", kubeconfigPath),
 		exec.WithStdout(GinkgoWriter),
 	)
 	err = command.RunAndRedirectOutput(context.Background())
@@ -435,7 +436,7 @@ func setUpPrivateRegistry(clusterName string) {
 
 	command = exec.NewCommand(
 		exec.WithCommand("kubectl"),
-		exec.WithArgs("apply", "-f", "config/assets/certs-for-skip-tls.yml", "--context", kubeCtx),
+		exec.WithArgs("apply", "-f", "config/assets/certs-for-skip-tls.yml", "--context", kubeCtx, "--kubeconfig", kubeconfigPath),
 		exec.WithStdout(GinkgoWriter),
 	)
 	err = command.RunAndRedirectOutput(context.Background())
@@ -443,22 +444,52 @@ func setUpPrivateRegistry(clusterName string) {
 
 	command = exec.NewCommand(
 		exec.WithCommand("kubectl"),
-		exec.WithArgs("apply", "-f", "config/assets/registry.yml", "--context", kubeCtx),
+		exec.WithArgs("apply", "-f", "config/assets/registry.yml", "--context", kubeCtx, "--kubeconfig", kubeconfigPath),
 		exec.WithStdout(GinkgoWriter),
 	)
 	err = command.RunAndRedirectOutput(context.Background())
 	Expect(err).ToNot(HaveOccurred())
 
-	By("make sure the registry pod is running")
-	proxy := framework.NewClusterProxy(clusterName, "", kubeCtx)
+	By("restart kapp-controller pod to pick up configmap changes")
+	proxy := framework.NewClusterProxy(clusterName, kubeconfigPath, kubeCtx)
 	clientSet := proxy.GetClientSet()
 
+	var podList *corev1.PodList
+	kappNamespace := "tkg-system"
+	podList, err = clientSet.CoreV1().Pods(kappNamespace).List(context.Background(), metav1.ListOptions{})
+	Expect(err).ToNot(HaveOccurred())
+
+	for i := range podList.Items {
+		pod := &podList.Items[i]
+		if strings.Contains(pod.Name, "kapp-controller") {
+			err = clientSet.CoreV1().Pods(pod.Namespace).Delete(context.Background(), pod.Name, metav1.DeleteOptions{})
+			Expect(err).ToNot(HaveOccurred())
+		}
+	}
+
+	By("make sure package API is available after kapp-controller restart")
 	backOff := wait.Backoff{
-		Steps:    3,
+		Steps:    4,
 		Duration: 15 * time.Second,
 		Factor:   1.0,
 		Jitter:   0.1,
 	}
+
+	err = retry.OnError(
+		backOff,
+		func(err error) bool {
+			return err != nil
+		},
+		func() error {
+			result = packagePlugin.ListRepository(&repoOptions)
+			if result.Error != nil {
+				return result.Error
+			}
+			return nil
+		})
+	Expect(err).ToNot(HaveOccurred())
+
+	By("make sure registry pod is running")
 	err = retry.OnError(
 		backOff,
 		func(err error) bool {
@@ -472,7 +503,7 @@ func setUpPrivateRegistry(clusterName string) {
 
 			for _, pod := range podList.Items {
 				if pod.Status.Phase != corev1.PodRunning {
-					return errors.New("Registry pod not running")
+					return errors.New("registry pod is not running")
 				}
 			}
 			return nil

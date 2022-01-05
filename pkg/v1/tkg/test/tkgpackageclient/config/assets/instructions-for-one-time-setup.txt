@@ -3,7 +3,7 @@ docker run -d -p 5000:5000 --restart=always -v /tmp/registry:/var/lib/registry -
 
 # push the nearly empty bundle to the local registry
 imgpkg push -b localhost:5000/secret-test/test-bundle -f ./one-time-setup-for-secretgen-registry
-imgpkg push -i localhost:5000/secret-test/test-repo -f ./package-repository-setup
+imgpkg push -b localhost:5000/secret-test/test-repo -f ./package-repository-setup
 
 # grab the files from the mountpoint we made and stored them in a configmap
 ## tar them
@@ -12,7 +12,7 @@ tar -cf tmp-registry -P /tmp/registry
 kubectl create configmap registry-contents --from-file=./tmp-registry
 kubectl get configmap registry-contents -o yaml > registry-contents.yml
 ## clean up temporary artifacts
-rm tmp-registry                                                                                                                                                                                   [16/08/21| 5:12PM]
+rm tmp-registry
 kubectl delete configmap registry-contents
 
 ## clean up the yaml, deleting the uid and version,  and changing the namespace to be in the "tkg-system" ns, not default
