@@ -56,11 +56,8 @@ func (t *tkgctl) Init(options InitRegionOptions) error {
 	if err != nil {
 		return err
 	}
+
 	err = ensureConfigImages(t.configDir, t.tkgConfigUpdaterClient)
-	if err != nil {
-		return err
-	}
-	options.CoreProvider, options.BootstrapProvider, options.ControlPlaneProvider, err = t.tkgBomClient.GetDefaultClusterAPIProviders()
 	if err != nil {
 		return err
 	}
@@ -73,6 +70,15 @@ func (t *tkgctl) Init(options InitRegionOptions) error {
 	ceipOptIn, err := strconv.ParseBool(options.CeipOptIn)
 	if err != nil {
 		ceipOptIn = false
+	}
+
+	if logPath, err := t.getAuditLogPath(options.ClusterName); err == nil {
+		log.SetAuditLog(logPath)
+	}
+
+	options.CoreProvider, options.BootstrapProvider, options.ControlPlaneProvider, err = t.tkgBomClient.GetDefaultClusterAPIProviders()
+	if err != nil {
+		return err
 	}
 
 	// init requires minimum 15 minutes timeout

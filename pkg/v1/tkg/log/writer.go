@@ -26,6 +26,10 @@ type Writer interface {
 	// write the logs to this file
 	SetFile(fileName string)
 
+	// SetAuditLog sets the log file that should capture all logging activity. This
+	// file will contain all logging regardless of set verbosity level.
+	SetAuditLog(fileName string)
+
 	// SetChannel sets the channel to writer
 	// if channel is set, writer will forward log messages to this log channel
 	SetChannel(channel chan<- []byte)
@@ -58,6 +62,7 @@ type writer struct {
 	logChannel chan<- []byte
 	verbosity  int32
 	quiet      bool
+	auditFile  string
 }
 
 // SetFile sets the logFile to writer
@@ -65,6 +70,12 @@ type writer struct {
 // write the logs to this file
 func (w *writer) SetFile(fileName string) {
 	w.logFile = fileName
+}
+
+// SetAuditLog sets the log file that should capture all logging activity. This
+// file will contain all logging regardless of set verbosity level.
+func (w *writer) SetAuditLog(fileName string) {
+	w.auditFile = fileName
 }
 
 // SetChannel sets the channel to writer
@@ -97,6 +108,11 @@ func (w *writer) SetVerbosity(verbosity int32) {
 func (w *writer) Write(header, msg []byte, logEnabled bool, logVerbosity int32, logType string) (n int, err error) {
 	fullMsg := append(header, msg...) //nolint:gocritic
 
+	// Always write to the audit log so it captures everything
+	if w.auditFile != "" {
+		fileWriter(w.auditFile, fullMsg)
+	}
+
 	// write to logfile, channel only if verbosityLevel is <= default VerbosityLevel
 	if logVerbosity <= defaultVerbosity {
 		if w.logFile != "" {
@@ -120,14 +136,16 @@ func (w *writer) Write(header, msg []byte, logEnabled bool, logVerbosity int32, 
 }
 
 func (w *writer) SendProgressUpdate(status, currentPhase string, totalPhases []string) {
+	if w.logChannel == nil {
+		return
+	}
+
 	msgData := logData{
 		Status:       status,
 		CurrentPhase: currentPhase,
 		TotalPhases:  totalPhases,
 	}
-	if w.logChannel != nil {
-		w.logChannel <- convertProgressMsgToJSONBytes(&msgData)
-	}
+	w.logChannel <- convertProgressMsgToJSONBytes(&msgData)
 }
 
 // UnsetStdoutStderr intercept the actual stdout and stderr
