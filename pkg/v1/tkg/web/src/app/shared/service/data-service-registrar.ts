@@ -69,6 +69,7 @@ export default class DataServiceRegistrar {
     subscribe<OBJ>(eventType: TkgEventType, onDataReceived: (data: OBJ[]) => void, onError: (error: string) => void): boolean {
         const serviceBrokerEntry: DataServiceRegistrarEntry<OBJ> = this.getEntry<OBJ>(eventType);
         if (!serviceBrokerEntry) {
+            console.warn('DataServiceRegistrar ignored attempt to subscribe to unregistered event: ' + eventType);
             return false;
         }
         serviceBrokerEntry.dataStream.subscribe(onDataReceived);
