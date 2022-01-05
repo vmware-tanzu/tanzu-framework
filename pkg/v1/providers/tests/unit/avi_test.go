@@ -241,19 +241,60 @@ var _ = Describe("AKO-operator Ytt Templating", func() {
 		})
 
 		When("enable avi", func() {
+			BeforeEach(func() {
+				value.Set("AVI_ENABLE", "true")
+			})
+
 			When("avi as HA provider", func() {
-				It("render all avi related objects", func() {
-					value.Set("AVI_ENABLE", "true")
+				BeforeEach(func() {
 					value.Set("AVI_CONTROL_PLANE_HA_PROVIDER", "true")
+				})
+
+				It("render all avi related objects", func() {
 					output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, value.toReader())
 					Expect(err).NotTo(HaveOccurred())
 					AllAVIRelatedObjects(output)
+				})
+
+				When("AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP is not empty", func() {
+					const (
+						mgmtSEG = "mgmt-seg"
+						aviSEG  = "seg"
+					)
+					It("prefer AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP as SEG name", func() {
+						value.Set("AVI_SERVICE_ENGINE_GROUP", aviSEG)
+						value.Set("AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP", mgmtSEG)
+						output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, value.toReader())
+						Expect(err).NotTo(HaveOccurred())
+						assertFoundOne(matchers.FindDocsMatchingYAMLPath(output, map[string]string{
+							"$.kind":                        "ConfigMap",
+							"$.metadata.name":               "avi-k8s-config",
+							"$.data.serviceEngineGroupName": mgmtSEG,
+						}))
+					})
+				})
+
+				When("AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP is empty", func() {
+					const (
+						mgmtSEG = ""
+						aviSEG  = "seg"
+					)
+					It("fallback to AVI_SERVICE_ENGINE_GROUP as SEG name", func() {
+						value.Set("AVI_SERVICE_ENGINE_GROUP", aviSEG)
+						value.Set("AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP", mgmtSEG)
+						output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, value.toReader())
+						Expect(err).NotTo(HaveOccurred())
+						assertFoundOne(matchers.FindDocsMatchingYAMLPath(output, map[string]string{
+							"$.kind":                        "ConfigMap",
+							"$.metadata.name":               "avi-k8s-config",
+							"$.data.serviceEngineGroupName": aviSEG,
+						}))
+					})
 				})
 			})
 
 			When("avi is not HA provider", func() {
 				It("does not render avi objects as avi is not control plane HA provider", func() {
-					value.Set("AVI_ENABLE", "true")
 					value.Set("AVI_CONTROL_PLANE_HA_PROVIDER", "false")
 					output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, value.toReader())
 					Expect(err).NotTo(HaveOccurred())
