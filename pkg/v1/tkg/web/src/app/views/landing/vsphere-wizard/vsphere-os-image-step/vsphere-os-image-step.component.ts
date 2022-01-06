@@ -11,16 +11,12 @@ import { VSphereVirtualMachine } from '../../../../swagger/models';
     templateUrl: '../../wizard/shared/components/steps/os-image-step/os-image-step.component.html',
     styleUrls: ['../../wizard/shared/components/steps/os-image-step/os-image-step.component.scss']
 })
-export class VsphereOsImageStepComponent extends SharedOsImageStepComponent<VSphereVirtualMachine> implements OnInit {
+export class VsphereOsImageStepComponent extends SharedOsImageStepComponent<VSphereVirtualMachine> {
     private tkrVersionString: string;
 
     constructor(protected fieldMapUtilities: FieldMapUtilities) {
         super(fieldMapUtilities);
         this.tkrVersion.subscribe(value => { this.tkrVersionString = value; });
-    }
-
-    ngOnInit() {
-        super.onInit();
     }
 
     // NOTE: there is an implicit assumption here that the tkrVersion Observable will have delivered a value before

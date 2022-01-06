@@ -5,6 +5,7 @@ import { Observable } from 'rxjs/internal/Observable';
 import { OsImageStepMapping } from './os-image-step.fieldmapping';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { TkgEventType } from 'src/app/shared/service/Messenger';
+import { Directive, OnInit } from '@angular/core';
 
 // The intention of this class is to provide the common plumbing for the osImage step that many providers need.
 // The basic functionality is to subscribe to an event and load the resulting images into a local field.
@@ -22,7 +23,8 @@ export interface OsImageProviderInputs {
     nonTemplateAlertMessage?: string,
     noImageAlertMessage?: string,
 }
-export abstract class SharedOsImageStepComponent<IMAGE extends OsImage> extends StepFormDirective {
+@Directive()
+export abstract class SharedOsImageStepComponent<IMAGE extends OsImage> extends StepFormDirective implements OnInit {
     // used by HTML as well as locally
     public providerInputs: OsImageProviderInputs;
 
@@ -56,8 +58,7 @@ export abstract class SharedOsImageStepComponent<IMAGE extends OsImage> extends 
         }
     }
 
-    // onInit() should be called from subclass' ngOnInit()
-    protected onInit() {
+    ngOnInit() {
         super.ngOnInit();
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, OsImageStepMapping);
         this.providerInputs = this.supplyProviderInputs();

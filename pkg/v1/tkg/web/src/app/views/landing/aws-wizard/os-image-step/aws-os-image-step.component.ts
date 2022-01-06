@@ -21,7 +21,7 @@ export class AwsOsImageStepComponent extends SharedOsImageStepComponent<AWSVirtu
     }
 
     ngOnInit() {
-        super.onInit();
+        super.ngOnInit();
 
         AppServices.messenger.getSubject(TkgEventType.AWS_REGION_CHANGED)
             .subscribe(event => {
