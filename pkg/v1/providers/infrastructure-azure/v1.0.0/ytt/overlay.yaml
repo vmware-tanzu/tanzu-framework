@@ -159,7 +159,7 @@ spec:
       name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
   kubeadmConfigSpec:
     initConfiguration:
-      #@ if data.values.CLUSTER_API_SERVER_PORT:  
+      #@ if data.values.CLUSTER_API_SERVER_PORT:
       #@overlay/match missing_ok=True
       localAPIEndpoint:
         advertiseAddress: '0.0.0.0'

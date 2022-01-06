@@ -9,7 +9,7 @@ metadata:
   creationTimestamp: null
 servers:
 - managementClusterOpts:
-    context: "" 
+    context: ""
     path: ""
   name: vsphere-mc-1
   type: managementcluster

@@ -26,7 +26,7 @@ tanzuAddonsManager:
 #@ def tanzuaddonsmanagerimageinfodatavalues():
 ---
 imageInfo:
-  imageRepository: #@ tkg_image_repo() 
+  imageRepository: #@ tkg_image_repo()
   imagePullPolicy: IfNotPresent
   images:
     tanzuAddonsManagerImage:

@@ -63,7 +63,7 @@ ami:
       version: "2"
       arch: "amd64"
     metadata:
-      ANY_NAME: ANY_INTERFACE      
+      ANY_NAME: ANY_INTERFACE
   us-east-1:
   - id: ami-083e578fc4e8b5cc1
     osinfo:

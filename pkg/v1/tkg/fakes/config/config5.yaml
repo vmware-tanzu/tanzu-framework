@@ -9,5 +9,3 @@ providers:
   - name: vsphere
     url: providers/infrastructure-vsphere/v0.6.2/infrastructure-components.yaml
     type: InfrastructureProvider
-
-  
