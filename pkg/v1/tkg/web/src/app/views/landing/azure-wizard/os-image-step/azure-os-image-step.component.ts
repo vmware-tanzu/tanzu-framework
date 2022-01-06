@@ -11,13 +11,9 @@ import { TkgEventType } from '../../../../shared/service/Messenger';
     templateUrl: '../../wizard/shared/components/steps/os-image-step/os-image-step.component.html',
     styleUrls: ['../../wizard/shared/components/steps/os-image-step/os-image-step.component.scss']
 })
-export class AzureOsImageStepComponent extends SharedOsImageStepComponent<AzureVirtualMachine> implements OnInit {
+export class AzureOsImageStepComponent extends SharedOsImageStepComponent<AzureVirtualMachine> {
     constructor(protected fieldMapUtilities: FieldMapUtilities) {
         super(fieldMapUtilities);
-    }
-
-    ngOnInit() {
-        super.onInit();
     }
 
     protected supplyProviderInputs(): OsImageProviderInputs {
