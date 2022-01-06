@@ -10,7 +10,7 @@ TF_REPO_PATH="$(git rev-parse --show-toplevel)"
 
 docker run --rm -t cytopia/yamllint --version
 CONTAINER_NAME="tf_yamllint_$RANDOM"
-docker run --name ${CONTAINER_NAME} -t -v "${TF_REPO_PATH}":/tanzu-framework:ro cytopia/yamllint -s -c /tanzu-framework/hack/linter/.yamllintconfig.yaml /tanzu-framework
+docker run --name ${CONTAINER_NAME} -t -v "${TF_REPO_PATH}":/tanzu-framework:ro cytopia/yamllint -s -c /tanzu-framework/hack/check/.yamllintconfig.yaml /tanzu-framework
 EXIT_CODE=$(docker inspect ${CONTAINER_NAME} --format='{{.State.ExitCode}}')
 docker rm -f ${CONTAINER_NAME} &> /dev/null
 
