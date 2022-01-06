@@ -1,22 +1,18 @@
-/**
- * Angular Modules
- */
+// Angular imports
 import {Component, OnInit} from '@angular/core';
-import {FormControl, Validators} from '@angular/forms';
-
+// Third party imports
 import {catchError, debounceTime, distinctUntilChanged, takeUntil} from 'rxjs/operators';
 import {forkJoin, of} from 'rxjs';
-
-import {APIClient} from '../../../../swagger/api-client.service';
-import {StepFormDirective} from '../../wizard/shared/step-form/step-form';
-import {TkgEvent, TkgEventType} from '../../../../shared/service/Messenger';
-import Broker from 'src/app/shared/service/broker';
-import {FormMetaDataStore} from "../../wizard/shared/FormMetaDataStore";
+// App imports
+import { APIClient } from '../../../../swagger/api-client.service';
+import AppServices from '../../../../shared/service/appServices';
 import { AwsField, CredentialType } from "../aws-wizard.constants";
-import {NotificationTypes} from "../../../../shared/components/alert-notification/alert-notification.component";
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { AwsProviderStepMapping } from './aws-provider-step.fieldmapping';
-import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { FormMetaDataStore } from "../../wizard/shared/FormMetaDataStore";
+import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
+import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
+import { TkgEvent, TkgEventType } from '../../../../shared/service/Messenger';
 
 export const AWSAccountParamsKeys = [
     AwsField.PROVIDER_PROFILE_NAME,
@@ -57,19 +53,12 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
     setValidCredentials(valid) {
         this.validCredentials = valid;
 
-        // call to get region-related data
         if (valid === true) {
-            Broker.messenger.publish({
-                type: TkgEventType.AWS_GET_EXISTING_VPCS
-            });
-
-            Broker.messenger.publish({
-                type: TkgEventType.AWS_GET_AVAILABILITY_ZONES
-            });
-
-            Broker.messenger.publish({
-                type: TkgEventType.AWS_GET_NODE_TYPES
-            });
+            AppServices.dataServiceRegistrar.trigger( [
+                TkgEventType.AWS_GET_EXISTING_VPCS,
+                TkgEventType.AWS_GET_AVAILABILITY_ZONES,
+                TkgEventType.AWS_GET_NODE_TYPES
+            ]);
         }
     }
 
@@ -120,7 +109,7 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
         this.authTypeValue = this.getSavedValue(AwsField.PROVIDER_AUTH_TYPE, CredentialType.PROFILE);
         this.setControlValueSafely(AwsField.PROVIDER_AUTH_TYPE, this.authTypeValue, { emitEvent: false });
 
-        Broker.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
+        AppServices.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
                 this.configFileNotification = {
@@ -132,7 +121,7 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
                 this.initFormWithSavedData();
 
                 // Clear event so that listeners in other provider workflows do not receive false notifications
-                Broker.messenger.clearEvent(TkgEventType.CONFIG_FILE_IMPORTED);
+                AppServices.messenger.clearEvent(TkgEventType.CONFIG_FILE_IMPORTED);
             });
 
         this.initFormWithSavedData();
@@ -232,11 +221,11 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
                 (() => {
                     this.errorNotification = '';
                     // Announce that we have a (valid) region
-                    Broker.messenger.publish({
+                    AppServices.messenger.publish({
                         type: TkgEventType.AWS_REGION_CHANGED,
                         payload: this.getFieldValue(AwsField.PROVIDER_REGION)
                     });
-                    Broker.messenger.publish({
+                    AppServices.messenger.publish({
                         type: TkgEventType.AWS_GET_OS_IMAGES,
                         payload: {
                             region: this.getFieldValue(AwsField.PROVIDER_REGION)

@@ -5,28 +5,23 @@ import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUti
 import { OsImageProviderInputs, SharedOsImageStepComponent } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
 import { TkgEventType } from '../../../../shared/service/Messenger';
 import { VSphereVirtualMachine } from '../../../../swagger/models';
-import { VSphereWizardFormService } from '../../../../shared/service/vsphere-wizard-form.service';
 
 @Component({
     selector: 'app-vsphere-os-image-step',
     templateUrl: '../../wizard/shared/components/steps/os-image-step/os-image-step.component.html',
     styleUrls: ['../../wizard/shared/components/steps/os-image-step/os-image-step.component.scss']
 })
-export class VsphereOsImageStepComponent extends SharedOsImageStepComponent<VSphereVirtualMachine> implements OnInit {
+export class VsphereOsImageStepComponent extends SharedOsImageStepComponent<VSphereVirtualMachine> {
     private tkrVersionString: string;
 
-    constructor(private vSphereWizardFormService: VSphereWizardFormService, protected fieldMapUtilities: FieldMapUtilities) {
+    constructor(protected fieldMapUtilities: FieldMapUtilities) {
         super(fieldMapUtilities);
         this.tkrVersion.subscribe(value => { this.tkrVersionString = value; });
     }
 
-    ngOnInit() {
-        super.onInit();
-    }
-
     // NOTE: there is an implicit assumption here that the tkrVersion Observable will have delivered a value before
     // setProviderInputs() is called (so that the usage below will be valid)
-    protected supplyProviderInputs(): OsImageProviderInputs<VSphereVirtualMachine> {
+    protected supplyProviderInputs(): OsImageProviderInputs {
         const noImageAlertMessage = 'Your ' + this.clusterTypeDescriptor + ' cluster will be deployed with Tanzu Kubernetes release (TKr)' +
             ' ' + this.tkrVersionString +
             '. We are unable to detect a VM template that belongs to this Tanzu Kubernetes release. You must install ' +
@@ -38,7 +33,6 @@ export class VsphereOsImageStepComponent extends SharedOsImageStepComponent<VSph
         const nonTemplateAlertMessage = 'Your selected OS image must be converted to a VM template. ' +
             'You may click the refresh icon to reload the OS image list once this has been done.'
         return {
-            osImageService: this.vSphereWizardFormService,
             event: TkgEventType.VSPHERE_GET_OS_IMAGES,
             noImageAlertMessage: noImageAlertMessage,
             osImageTooltipContent: osImageTooltipContent,

@@ -1,24 +1,26 @@
+// Angular imports
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormBuilder } from '@angular/forms';
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
-
-import { SharedModule } from '../../../../shared/shared.module';
+// Third party imports
+import { of, throwError, Observable } from 'rxjs';
+// App imports
+import AppServices from '../../../../shared/service/appServices';
 import { AzureProviderStepComponent } from './azure-provider-step.component';
 import { APIClient } from '../../../../swagger/api-client.service';
-import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import { of, throwError, Observable } from 'rxjs';
-import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
-import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
-import Broker from 'src/app/shared/service/broker';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
+import { SharedModule } from '../../../../shared/shared.module';
+import { ValidationService } from '../../wizard/shared/validation/validation.service';
+import { DataServiceRegistrarTestExtension } from '../../../../testing/data-service-registrar.testextension';
+import { AzureResourceGroup } from '../../../../swagger/models';
 
 describe('AzureProviderStepComponent', () => {
     let component: AzureProviderStepComponent;
     let fixture: ComponentFixture<AzureProviderStepComponent>;
     let apiService: APIClient;
-    let wizardFormService: AzureWizardFormService;
 
     beforeEach(async(() => {
         TestBed.configureTestingModule({
@@ -29,7 +31,6 @@ describe('AzureProviderStepComponent', () => {
             ],
             providers: [
                 ValidationService,
-                AzureWizardFormService,
                 FormBuilder,
                 FieldMapUtilities,
                 APIClient
@@ -43,8 +44,8 @@ describe('AzureProviderStepComponent', () => {
     }));
 
     beforeEach(() => {
-        Broker.messenger = new Messenger();
-        wizardFormService = TestBed.inject(AzureWizardFormService);
+        AppServices.messenger = new Messenger();
+        AppServices.dataServiceRegistrar = new DataServiceRegistrarTestExtension();
         apiService = TestBed.inject(APIClient);
 
         const fb = new FormBuilder();
@@ -61,17 +62,21 @@ describe('AzureProviderStepComponent', () => {
     });
 
     it('should setup AZURE_GET_RESOURCE_GROUPS event handler', () => {
-        component.ngOnInit();
-        wizardFormService.publishError(TkgEventType.AZURE_GET_RESOURCE_GROUPS, 'test error');
-        expect(component.errorNotification).toBe('Failed to retrieve resource groups for the particular region. test error');
+        const dataServiceRegistrar = AppServices.dataServiceRegistrar as DataServiceRegistrarTestExtension;
+        // The wizard is expected to have registered this event
+        dataServiceRegistrar.simulateRegistration<AzureResourceGroup>(TkgEventType.AZURE_GET_RESOURCE_GROUPS);
 
-        const resourceGrouop = [
+        component.ngOnInit();
+        dataServiceRegistrar.simulateError(TkgEventType.AZURE_GET_RESOURCE_GROUPS, 'test error');
+        expect(component.errorNotification).toBe('test error');
+
+        const resourceGroup = [
             {id: 1, location: 'us-west', name: 'resource-group1'},
             {id: 2, location: 'us-east', name: 'resource-group2'},
             {id: 3, location: 'us-south', name: 'resource-group3'}
         ];
-        wizardFormService.publishData(TkgEventType.AZURE_GET_RESOURCE_GROUPS, resourceGrouop);
-        expect(component.resourceGroups).toEqual(resourceGrouop);
+        dataServiceRegistrar.simulateData(TkgEventType.AZURE_GET_RESOURCE_GROUPS, resourceGroup);
+        expect(component.resourceGroups).toEqual(resourceGroup);
     });
 
     it('should init azure credentials', () => {
@@ -139,7 +144,7 @@ describe('AzureProviderStepComponent', () => {
     });
 
     it('should handle resource group name change', () => {
-        const messengerSpy = spyOn(Broker.messenger, 'publish').and.callThrough();
+        const messengerSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
         component.onResourceGroupNameChange();
         expect(messengerSpy).toHaveBeenCalled();
         expect(messengerSpy).toHaveBeenCalledWith({

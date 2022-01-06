@@ -1,26 +1,22 @@
-/**
- * Angular Modules
- */
+// Angular imports
 import { Component, OnInit } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
+import { Validators } from '@angular/forms';
 import { takeUntil } from 'rxjs/operators';
-/**
- * App imports
- */
-import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-import { ValidationService } from '../../wizard/shared/validation/validation.service';
+// App imports
+import { APIClient } from '../../../../swagger/api-client.service';
+import { AppEdition } from 'src/app/shared/constants/branding.constants';
+import AppServices from '../../../../shared/service/appServices';
+import { AwsField, AwsForm } from "../aws-wizard.constants";
+import { AwsNodeSettingStepMapping } from './node-setting-step.fieldmapping';
 import { AWSNodeAz } from '../../../../swagger/models/aws-node-az.model';
 import { AWSSubnet } from '../../../../swagger/models/aws-subnet.model';
-import { AwsWizardFormService } from '../../../../shared/service/aws-wizard-form.service';
-import { TkgEventType } from '../../../../shared/service/Messenger';
-import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
-import { APIClient } from '../../../../swagger/api-client.service';
-import Broker from 'src/app/shared/service/broker';
-import { AppEdition } from 'src/app/shared/constants/branding.constants';
-import { AwsField, AwsForm } from "../aws-wizard.constants";
+import { AzRelatedFieldsArray } from '../aws-wizard.component';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { AwsNodeSettingStepMapping } from './node-setting-step.fieldmapping';
+import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
+import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
+import { TkgEventType } from '../../../../shared/service/Messenger';
+import { ValidationService } from '../../wizard/shared/validation/validation.service';
 
 export interface AzNodeTypes {
     awsNodeAz1: Array<string>,
@@ -135,19 +131,18 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     constructor(private validationService: ValidationService,
                 private fieldMapUtilities: FieldMapUtilities,
-                private apiClient: APIClient,
-                public awsWizardFormService: AwsWizardFormService) {
+                private apiClient: APIClient) {
         super();
     }
 
     private supplyStepMapping(): StepMapping {
         FieldMapUtilities.getFieldMapping(AwsField.NODESETTING_CLUSTER_NAME, AwsNodeSettingStepMapping).required =
-            Broker.appDataService.isClusterNameRequired();
+            AppServices.appDataService.isClusterNameRequired();
         return AwsNodeSettingStepMapping;
     }
 
     private customizeForm() {
-        Broker.messenger.getSubject(TkgEventType.AWS_AIRGAPPED_VPC_CHANGE).subscribe(event => {
+        AppServices.messenger.getSubject(TkgEventType.AWS_AIRGAPPED_VPC_CHANGE).subscribe(event => {
             this.airgappedVPC = event.payload;
             if (this.airgappedVPC) { // public subnet IDs shouldn't be provided
                 PUBLIC_SUBNETS.forEach(f => {
@@ -165,7 +160,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         /**
          * Whenever aws region selection changes, update AZ subregion
          */
-        Broker.messenger.getSubject(TkgEventType.AWS_REGION_CHANGED)
+        AppServices.messenger.getSubject(TkgEventType.AWS_REGION_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                 if (this.formGroup.get(AwsField.NODESETTING_AZ_1)) {
@@ -178,7 +173,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 }
             });
 
-        Broker.messenger.getSubject(TkgEventType.AWS_VPC_TYPE_CHANGED)
+        AppServices.messenger.getSubject(TkgEventType.AWS_VPC_TYPE_CHANGED)
             .subscribe(event => {
                 this.vpcType = event.payload.vpcType;
                 if (this.vpcType !== vpcType.EXISTING) {
@@ -193,82 +188,18 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 );
             });
 
-        Broker.messenger.getSubject(TkgEventType.AWS_VPC_CHANGED)
+        AppServices.messenger.getSubject(TkgEventType.AWS_VPC_CHANGED)
             .subscribe(event => {
                 this.clearAzs();
                 this.clearSubnets();
             });
 
-        this.awsWizardFormService.getErrorStream(TkgEventType.AWS_GET_AVAILABILITY_ZONES)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(error => {
-                this.errorNotification = error;
-            });
-
-        this.awsWizardFormService.getErrorStream(TkgEventType.AWS_GET_SUBNETS)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(error => {
-                this.errorNotification = error;
-            });
-
-        this.awsWizardFormService.getErrorStream(TkgEventType.AWS_GET_NODE_TYPES)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(error => {
-                this.errorNotification = error;
-            });
-
-        this.awsWizardFormService.getDataStream(TkgEventType.AWS_GET_AVAILABILITY_ZONES)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((availabilityZones: Array<AWSNodeAz>) => {
-                this.nodeAzs = availabilityZones;
-            });
-
-        this.awsWizardFormService.getDataStream(TkgEventType.AWS_GET_SUBNETS)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((subnets: Array<AWSSubnet>) => {
-                this.publicSubnets = subnets.filter(obj => {
-                    return obj.isPublic === true
-                });
-                this.privateSubnets = subnets.filter(obj => {
-                    return obj.isPublic === false
-                });
-                AZS.forEach(az => {
-                    this.filterSubnets(az, this.getFieldValue(az));
-                });
-                this.setSubnetFieldsFromSavedValues();
-            });
-
-        this.awsWizardFormService.getDataStream(TkgEventType.AWS_GET_NODE_TYPES)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((nodeTypes: Array<string>) => {
-                this.nodeTypes = nodeTypes.sort();
-
-                // The validation is based on the value of this.nodeTypes. Whenever we update this.nodeTypes,
-                // the corresponding validation should be updated as well. e.g. the users came to the node-settings
-                // step before the api responses. Then an empty array will be passed to the validation isValidNameInList.
-                // It will cause the selected option to be invalid all the time.
-
-                if (this.nodeType === NodeType.DEV) {
-                    const devInstanceType = this.nodeTypes.length === 1 ? this.nodeTypes[0] :
-                        this.formGroup.get(AwsField.NODESETTING_INSTANCE_TYPE_DEV).value;
-                    this.resurrectField(AwsField.NODESETTING_INSTANCE_TYPE_DEV,
-                        [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
-                        devInstanceType);
-                } else {
-                    const prodInstanceType = this.nodeTypes.length === 1 ? this.nodeTypes[0] :
-                        this.formGroup.get(AwsField.NODESETTING_INSTANCE_TYPE_PROD).value;
-                    this.resurrectField(AwsField.NODESETTING_INSTANCE_TYPE_PROD,
-                        [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
-                        prodInstanceType);
-                }
-            });
-
-        AZS.forEach((az, index) => {
-            this.registerOnValueChange(az, (val) => {
-                this.filterSubnets(az, val);
-                this.setSubnetFieldsWithOnlyOneOption(az);
-                this.updateWorkerNodeInstanceTypes(az, val, index);
-            });
+        AzRelatedFieldsArray.forEach(azRelatedFields => {
+           this.registerOnValueChange(azRelatedFields.az, (newlySelectedAz) => {
+               this.filterSubnets(azRelatedFields.az, newlySelectedAz);
+               this.setSubnetFieldsWithOnlyOneOption(azRelatedFields.az);
+               this.updateWorkerNodeInstanceTypes(azRelatedFields.az, newlySelectedAz, azRelatedFields.workerNodeInstanceType);
+           });
         });
 
         this.registerOnValueChange(AwsField.NODESETTING_CONTROL_PLANE_SETTING, data => {
@@ -281,16 +212,57 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         });
     }
 
+    private subscribeToServices() {
+        AppServices.dataServiceRegistrar.stepSubscribe<AWSSubnet>(this, TkgEventType.AWS_GET_SUBNETS, this.onFetchedSubnets.bind(this));
+        AppServices.dataServiceRegistrar.stepSubscribe<string>(this, TkgEventType.AWS_GET_NODE_TYPES, this.onFetchedNodeTypes.bind(this));
+        AppServices.dataServiceRegistrar.stepSubscribe<AWSNodeAz>(this, TkgEventType.AWS_GET_AVAILABILITY_ZONES,
+            this.onFetchedAzs.bind(this));
+    }
+
+    private onFetchedAzs(availabilityZones: Array<AWSNodeAz>) {
+        this.nodeAzs = availabilityZones;
+    }
+
+    private onFetchedSubnets(subnets: Array<AWSSubnet>) {
+        this.publicSubnets = subnets.filter(obj => { return obj.isPublic });
+        this.privateSubnets = subnets.filter(obj => { return !obj.isPublic });
+        AZS.forEach(az => { this.filterSubnets(az, this.getFieldValue(az)); });
+        this.setSubnetFieldsFromSavedValues();
+    }
+
+    private onFetchedNodeTypes(nodeTypes: Array<string>) {
+        this.nodeTypes = nodeTypes.sort();
+
+        // The validation is based on the value of this.nodeTypes. Whenever we update this.nodeTypes,
+        // the corresponding validation should be updated as well. e.g. the users came to the node-settings
+        // step before the api responses. Then an empty array will be passed to the validation isValidNameInList.
+        // It will cause the selected option to be invalid all the time.
+        if (this.nodeType === NodeType.DEV) {
+            const devInstanceType = this.nodeTypes.length === 1 ? this.nodeTypes[0] :
+                this.formGroup.get(AwsField.NODESETTING_INSTANCE_TYPE_DEV).value;
+            this.resurrectField(AwsField.NODESETTING_INSTANCE_TYPE_DEV,
+            [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
+            devInstanceType);
+        } else {
+            const prodInstanceType = this.nodeTypes.length === 1 ? this.nodeTypes[0] :
+                this.formGroup.get(AwsField.NODESETTING_INSTANCE_TYPE_PROD).value;
+            this.resurrectField(AwsField.NODESETTING_INSTANCE_TYPE_PROD,
+                [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
+                prodInstanceType);
+        }
+}
+
     ngOnInit() {
         super.ngOnInit();
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
+        this.subscribeToServices();
         this.customizeForm();
 
         setTimeout(_ => {
             this.displayForm = true;
             const existingVpcId = FormMetaDataStore.getMetaDataItem(AwsForm.VPC, 'existingVpcId');
             if (existingVpcId && existingVpcId.displayValue) {
-                Broker.messenger.publish({
+                AppServices.messenger.publish({
                     type: TkgEventType.AWS_GET_SUBNETS,
                     payload: { vpcId: existingVpcId.displayValue }
                 });
@@ -349,7 +321,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             this.nodeTypes.length === 1 ? this.nodeTypes[0] : this.formGroup.get(AwsField.NODESETTING_INSTANCE_TYPE_DEV).value);
     }
 
-// returns an array of the other two AZs (used to populate a validator that ensures unique AZs are selected)
+    // returns an array of the other two AZs (used to populate a validator that ensures unique AZs are selected)
     private otherAZs(targetAz: AwsField): AwsField[] {
         return AZS.filter((field, index, arr) => { return field !== targetAz });
     }
@@ -491,31 +463,21 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         return PRIVATE_SUBNET[indexAZ];
     }
 
-    setSavedWorkerNodeInstanceTypes(): void {
-        WORKER_NODE_INSTANCE_TYPES.forEach(field => {
-            const instanceType = this.getSavedValue(field.toString(), '');
-            this.formGroup.get(field.toString()).setValue(instanceType);
-        });
-    }
-
-    /**
-     * @method updateWorkerNodeInstanceTypes
-     * @param azWorkerNodeKey - the key of the worker node list in the azNodeTypes list to update
-     * @param availabilityZone - the availability zone name to retrieve node types against
-     * Updates available worker node instance type list per availability zone. API takes the availability zone name
-     * and returns list of node instance types available to that zone.
-     */
-    private updateWorkerNodeInstanceTypes(azWorkerNodeKey, availabilityZone, index) {
-        if (availabilityZone) {
+    // updateWorkerNodeInstanceTypes() is called when the user has selected a new value (newlySelectedAz) for an azField.
+    // We need to get the worker node types available on that AZ and use them to populate our data structure that holds them.
+    // If there is only one worker node type, then we want to set the value of the workerNodeField to that type (rather than
+    // make the user "select it" from a list of only one element
+    private updateWorkerNodeInstanceTypes(azField: string, newlySelectedAz: string, workerNodeField: string) {
+        if (newlySelectedAz) {
             this.apiClient.getAWSNodeTypes({
-                az: availabilityZone
+                az: newlySelectedAz
             })
                 .pipe(takeUntil(this.unsubscribe))
                 .subscribe(
                     ((nodeTypes) => {
-                        this.azNodeTypes[azWorkerNodeKey] = nodeTypes;
+                        this.azNodeTypes[azField] = nodeTypes;
                         if (nodeTypes.length === 1) {
-                            this.formGroup.get(WORKER_NODE_INSTANCE_TYPES[index].toString()).setValue(nodeTypes[0]);
+                            this.setControlValueSafely(workerNodeField, nodeTypes[0]);
                         }
                     }),
                     ((err) => {
@@ -524,7 +486,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                     })
                 );
         } else {
-            this.azNodeTypes[azWorkerNodeKey] = [];
+            this.azNodeTypes[newlySelectedAz] = [];
         }
     }
 

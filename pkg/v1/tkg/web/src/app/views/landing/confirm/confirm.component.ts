@@ -1,15 +1,14 @@
 // Angular imports
 import { Component, OnInit, Input } from '@angular/core';
 import { Router } from '@angular/router';
-import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
-
+// Third party imports
+import { takeUntil } from "rxjs/operators";
 // App imports
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
+import AppServices from '../../../shared/service/appServices';
+import { BasicSubscriber } from "../../../shared/abstracts/basic-subscriber";
 import { FormMetaDataStore, FormMetaData, StepMetaData } from './../wizard/shared/FormMetaDataStore';
 import { TkgEvent, TkgEventType } from "../../../shared/service/Messenger";
-import { takeUntil } from "rxjs/operators";
-import { BasicSubscriber } from "../../../shared/abstracts/basic-subscriber";
-import Broker from 'src/app/shared/service/broker';
 
 @Component({
     selector: 'tkg-kickstart-ui-confirm',
@@ -28,14 +27,13 @@ export class ConfirmComponent extends BasicSubscriber implements OnInit {
     formMetaDataList: any[];
 
     constructor(
-        private wizardFormService: VSphereWizardFormService,
         private router: Router) {
 
         super();
     }
 
     ngOnInit() {
-        Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+        AppServices.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
                 this.pageTitle = data.payload.branding.title;

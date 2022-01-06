@@ -3,9 +3,8 @@ import { Component, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
 // Third party imports
 import { takeUntil } from 'rxjs/operators';
-import { combineLatest } from 'rxjs';
 // App imports
-import Broker from 'src/app/shared/service/broker';
+import AppServices from '../../../../shared/service/appServices';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { TkgEventType } from '../../../../shared/service/Messenger';
@@ -13,8 +12,8 @@ import { ValidationService } from '../../wizard/shared/validation/validation.ser
 import { VSphereDatastore } from '../../../../swagger/models/v-sphere-datastore.model';
 import { VsphereField } from "../vsphere-wizard.constants";
 import { VSphereFolder } from '../../../../swagger/models/v-sphere-folder.model';
+import { VSphereResourcePool } from '../../../../swagger/models';
 import { VsphereResourceStepMapping } from './resource-step.fieldmapping';
-import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
 
 declare var sortPaths: any;
 
@@ -31,20 +30,6 @@ export interface ResourcePool {
     children?: Array<ResourcePool>;
   }
 
-const DataSources = [
-    TkgEventType.VSPHERE_GET_RESOURCE_POOLS,
-    TkgEventType.VSPHERE_GET_COMPUTE_RESOURCE,
-    TkgEventType.VSPHERE_GET_DATA_STORES,
-    TkgEventType.VSPHERE_GET_VM_FOLDERS
-];
-
-const DataTargets = {
-    [TkgEventType.VSPHERE_GET_RESOURCE_POOLS]: "resourcePools",
-    [TkgEventType.VSPHERE_GET_COMPUTE_RESOURCE]: "computeResources",
-    [TkgEventType.VSPHERE_GET_DATA_STORES]: "datastores",
-    [TkgEventType.VSPHERE_GET_VM_FOLDERS]: "vmFolders"
-};
-
 enum ResourceType {
     CLUSTER = 'cluster',
     DATACENTER = 'datacenter',
@@ -60,15 +45,14 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
 
     loadingResources: boolean = false;
     resourcesFetch: number = 0;
-    resourcePools: Array<ResourcePool>;
+    resourcePools: Array<ResourcePool> = [];
     computeResources: Array<any> = [];
-    datastores: Array<VSphereDatastore>;
-    vmFolders: Array<VSphereFolder>;
+    datastores: Array<VSphereDatastore> = [];
+    vmFolders: Array<VSphereFolder> = [];
 
     treeData = [];
 
-    constructor(private wizardFormService: VSphereWizardFormService,
-                private fieldMapUtilities: FieldMapUtilities,
+    constructor(private fieldMapUtilities: FieldMapUtilities,
                 private validationService: ValidationService) {
         super();
     }
@@ -77,49 +61,17 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
         super.ngOnInit();
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, VsphereResourceStepMapping);
 
-        const temp = DataSources.map(source => this.wizardFormService.getErrorStream(source));
-        combineLatest(...temp)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(errors => {
-                this.errorNotification = errors.filter(error => error).join(" ")
-            });
-
         /**
          * Whenever data center selection changes, reset the relevant fields
         */
-        Broker.messenger.getSubject(TkgEventType.VSPHERE_DATACENTER_CHANGED)
+        AppServices.messenger.getSubject(TkgEventType.VSPHERE_DATACENTER_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                 this.resetFieldsUponDCChange();
             });
 
         this.initFormWithSavedData();
-        DataSources.forEach(source => {
-            this.wizardFormService.getDataStream(source)
-                .pipe(takeUntil(this.unsubscribe))
-                .subscribe(data => {
-                    this[DataTargets[source]] = sortPaths(data, function (item) { return item.name; }, '/');
-                    this.resourcesFetch += 1;
-                    if (this.resourcesFetch === 4) {
-                        this.loadingResources = false;
-                    }
-                    if (source === TkgEventType.VSPHERE_GET_COMPUTE_RESOURCE) {
-                        this.constructResourceTree(data);
-                    }
-                    if (source === TkgEventType.VSPHERE_GET_VM_FOLDERS) {
-                        const selectValue = data.length === 1 ? data[0].name : this.getSavedValue(VsphereField.RESOURCE_VMFOLDER, '');
-                        const validators = [Validators.required,
-                            this.validationService.isValidNameInList(data.map(vmFolder => vmFolder.name))];
-                        this.resurrectField(VsphereField.RESOURCE_VMFOLDER, validators, selectValue);
-                    }
-                    if (source === TkgEventType.VSPHERE_GET_DATA_STORES) {
-                        const selectValue = data.length === 1 ? data[0].name : this.getSavedValue(VsphereField.RESOURCE_DATASTORE, '');
-                        const validators = [Validators.required,
-                            this.validationService.isValidNameInList(data.map(vmFolder => vmFolder.name))];
-                        this.resurrectField(VsphereField.RESOURCE_DATASTORE, validators, selectValue);
-                    }
-                });
-        });
+        this.subscribeToServices();
     }
 
     initFormWithSavedData() {
@@ -169,7 +121,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
      * helper method to refresh list of resource pools
      */
     retrieveResourcePools() {
-        Broker.messenger.publish({
+        AppServices.messenger.publish({
             type: TkgEventType.VSPHERE_GET_RESOURCE_POOLS
         });
     }
@@ -179,7 +131,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
      * helper method to refresh list of compute resources
      */
     retrieveComputeResources() {
-        Broker.messenger.publish({
+        AppServices.messenger.publish({
             type: TkgEventType.VSPHERE_GET_COMPUTE_RESOURCE
         });
     }
@@ -189,7 +141,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
      * helper method to refresh list of datastores
      */
     retrieveDatastores() {
-        Broker.messenger.publish({
+        AppServices.messenger.publish({
             type: TkgEventType.VSPHERE_GET_DATA_STORES
         });
     }
@@ -199,7 +151,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
      * helper method to refresh list of vm folders
      */
     retrieveVMFolders() {
-        Broker.messenger.publish({
+        AppServices.messenger.publish({
             type: TkgEventType.VSPHERE_GET_VM_FOLDERS
         });
     }
@@ -246,7 +198,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
         let rootNodes = [];
         resourceTree.forEach(resource => {
             if (resource.resourceType === ResourceType.DATACENTER) {
-                if (resource.children.length > 0) {
+                if (resource.children && resource.children.length > 0) {
                     rootNodes = [...rootNodes, ...resource.children];
                 }
             } else {
@@ -304,5 +256,69 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
             return 'Resource Pool: ' + resourcePool + ', VM Folder: ' + vmFolder + ', Datastore: ' + datastore;
         }
         return `Specify the resources for this ${this.clusterTypeDescriptor} cluster`;
+    }
+
+    private incrementResourcesFetched() {
+        this.resourcesFetch += 1;
+        if (this.resourcesFetch === 4) {
+            this.loadingResources = false;
+        }
+    }
+
+    private subscribeToServices() {
+        AppServices.dataServiceRegistrar.stepSubscribe<VSphereResourcePool>(this, TkgEventType.VSPHERE_GET_RESOURCE_POOLS,
+            this.onFetchedResourcePools.bind(this), AppServices.dataServiceRegistrar.appendingStepErrorHandler(this) );
+        AppServices.dataServiceRegistrar.stepSubscribe<ResourcePool>(this, TkgEventType.VSPHERE_GET_COMPUTE_RESOURCE,
+            this.onFetchedComputeResources.bind(this), AppServices.dataServiceRegistrar.appendingStepErrorHandler(this) );
+        AppServices.dataServiceRegistrar.stepSubscribe<VSphereDatastore>(this, TkgEventType.VSPHERE_GET_DATA_STORES,
+            this.onFetchedDatastores.bind(this), AppServices.dataServiceRegistrar.appendingStepErrorHandler(this) );
+        AppServices.dataServiceRegistrar.stepSubscribe<VSphereFolder>(this, TkgEventType.VSPHERE_GET_VM_FOLDERS,
+            this.onFetchedVmFolders.bind(this), AppServices.dataServiceRegistrar.appendingStepErrorHandler(this) );
+    }
+
+    private sortVsphereResources(data: any[]): any[] {
+        return sortPaths(data, function (item) { return item.name; }, '/');
+    }
+
+    private onFetchedVmFolders(data: VSphereFolder[]) {
+        this.incrementResourcesFetched();
+        if (data === null || data === undefined) {
+            data = [];
+        }
+        this.vmFolders = this.sortVsphereResources(data);
+        const selectValue = (data.length === 1) ? data[0].name : this.getSavedValue(VsphereField.RESOURCE_VMFOLDER, '');
+        const validators = [Validators.required,
+            this.validationService.isValidNameInList(data.map(vmFolder => vmFolder.name))];
+        this.resurrectField(VsphereField.RESOURCE_VMFOLDER, validators, selectValue);
+    }
+
+    private onFetchedDatastores(data: VSphereDatastore[]) {
+        this.incrementResourcesFetched();
+        if (data === null || data === undefined) {
+            data = [];
+        }
+        this.datastores = this.sortVsphereResources(data);
+        const selectValue = (data.length === 1) ? data[0].name :
+            this.getSavedValue(VsphereField.RESOURCE_DATASTORE, '');
+        const validators = [Validators.required,
+            this.validationService.isValidNameInList(data.map(vmFolder => vmFolder.name))];
+        this.resurrectField(VsphereField.RESOURCE_DATASTORE, validators, selectValue);
+    }
+
+    private onFetchedComputeResources(data: ResourcePool[]) {
+        this.incrementResourcesFetched();
+        if (data === null || data === undefined) {
+            data = [];
+        }
+        this.computeResources = this.sortVsphereResources(data);
+        this.constructResourceTree(data);
+    }
+
+    private onFetchedResourcePools(data: VSphereResourcePool[]) {
+        this.incrementResourcesFetched();
+        if (data === null || data === undefined) {
+            data = [];
+        }
+        this.resourcePools = this.sortVsphereResources(data);
     }
 }

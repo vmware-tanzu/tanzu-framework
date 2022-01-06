@@ -1,19 +1,21 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+// Angular imports
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormControl } from '@angular/forms';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
+// Third party imports
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+// App imports
 import { APIClient } from '../../../swagger/api-client.service';
-import { VSphereWizardComponent } from './vsphere-wizard.component';
-import { SharedModule } from '../../../shared/shared.module';
-import { FormMetaDataStore } from '../wizard/shared/FormMetaDataStore';
-import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
-import Broker from 'src/app/shared/service/broker';
-import { Messenger } from 'src/app/shared/service/Messenger';
 import { ClusterType } from "../wizard/shared/constants/wizard.constants";
-import { VSphereProviderStepComponent } from './provider-step/vsphere-provider-step.component';
-import { ValidationService } from '../wizard/shared/validation/validation.service';
 import { FieldMapUtilities } from '../wizard/shared/field-mapping/FieldMapUtilities';
+import { FormMetaDataStore } from '../wizard/shared/FormMetaDataStore';
+import { Messenger } from 'src/app/shared/service/Messenger';
+import { SharedModule } from '../../../shared/shared.module';
+import { ValidationService } from '../wizard/shared/validation/validation.service';
+import { VSphereProviderStepComponent } from './provider-step/vsphere-provider-step.component';
+import { VSphereWizardComponent } from './vsphere-wizard.component';
+import AppServices from '../../../shared/service/appServices';
 
 describe('VSphereWizardComponent', () => {
     let component: VSphereWizardComponent;
@@ -34,7 +36,6 @@ describe('VSphereWizardComponent', () => {
                 APIClient,
                 FormBuilder,
                 FieldMapUtilities,
-                { provide: VSphereWizardFormService},
                 ValidationService
             ],
             schemas: [
@@ -48,7 +49,7 @@ describe('VSphereWizardComponent', () => {
     }));
 
     beforeEach(() => {
-        Broker.messenger = new Messenger();
+        AppServices.messenger = new Messenger();
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(VSphereWizardComponent);
         component = fixture.componentInstance;

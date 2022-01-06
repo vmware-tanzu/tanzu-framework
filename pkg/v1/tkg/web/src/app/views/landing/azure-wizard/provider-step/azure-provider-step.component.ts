@@ -1,23 +1,21 @@
-/**
- * Angular Modules
- */
+// Angular imports
 import { Component, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { ClrLoadingState } from "@clr/angular";
+// Third party imports
 import { debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs/operators';
-
+// App imports
 import { APIClient } from '../../../../swagger/api-client.service';
-import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-import { TkgEvent, TkgEventType } from '../../../../shared/service/Messenger';
+import AppServices from '../../../../shared/service/appServices';
+import { AzureCloud, AzureField, ResourceGroupOption } from '../azure-wizard.constants';
+import { AzureProviderStepMapping } from './azure-provider-step.fieldmapping';
 import { AzureResourceGroup } from './../../../../swagger/models/azure-resource-group.model';
-import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
-import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import Broker from 'src/app/shared/service/broker';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { FormMetaDataStore } from "../../wizard/shared/FormMetaDataStore";
 import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
-import { AzureCloud, AzureField, ResourceGroupOption } from '../azure-wizard.constants';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { AzureProviderStepMapping } from './azure-provider-step.fieldmapping';
+import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
+import { TkgEvent, TkgEventType } from '../../../../shared/service/Messenger';
+import { ValidationService } from '../../wizard/shared/validation/validation.service';
 
 enum ProviderField {
     AZURECLOUD = 'azureCloud',
@@ -69,32 +67,28 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
 
     constructor(private apiClient: APIClient,
                 private fieldMapUtilities: FieldMapUtilities,
-                private wizardFormService: AzureWizardFormService,
                 private validationService: ValidationService) {
         super();
+    }
+
+    private subscribeToServices() {
+        AppServices.dataServiceRegistrar.stepSubscribe(this, TkgEventType.AZURE_GET_RESOURCE_GROUPS,
+            this.onFetchedResourceGroups.bind(this));
+    }
+
+    private onFetchedResourceGroups(azureResourceGroups: AzureResourceGroup[]) {
+        this.resourceGroups = azureResourceGroups;
+        if (azureResourceGroups.length === 1) {
+            this.formGroup.get(AzureField.PROVIDER_RESOURCEGROUPEXISTING).setValue(azureResourceGroups[0].name);
+        } else {
+            this.initResourceGroupFromSavedData();
+        }
     }
 
     private customizeForm() {
         this.formGroup['canMoveToNext'] = () => {
             return this.formGroup.valid && this.validCredentials;
         }
-
-        this.wizardFormService.getErrorStream(TkgEventType.AZURE_GET_RESOURCE_GROUPS)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(error => {
-                this.errorNotification = error;
-            });
-
-        this.wizardFormService.getDataStream(TkgEventType.AZURE_GET_RESOURCE_GROUPS)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((azureResourceGroups: AzureResourceGroup[]) => {
-                this.resourceGroups = azureResourceGroups;
-                if (azureResourceGroups.length === 1) {
-                    this.formGroup.get(AzureField.PROVIDER_RESOURCEGROUPEXISTING).setValue(azureResourceGroups[0].name);
-                } else {
-                    this.initResourceGroupFromSavedData();
-                }
-            });
 
         this.formGroup.valueChanges
             .pipe(
@@ -123,7 +117,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
             this.onRegionChange(val)
         });
 
-        Broker.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
+        AppServices.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
                 this.configFileNotification = {
@@ -135,7 +129,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
                 this.initFormWithImportedData();
 
                 // Clear event so that listeners in other provider workflows do not receive false notifications
-                Broker.messenger.clearEvent(TkgEventType.CONFIG_FILE_IMPORTED);
+                AppServices.messenger.clearEvent(TkgEventType.CONFIG_FILE_IMPORTED);
             });
     }
 
@@ -151,6 +145,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
         super.ngOnInit();
 
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, AzureProviderStepMapping);
+        this.subscribeToServices();
         this.customizeForm();
 
         this.initAzureCredentials();
@@ -350,7 +345,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
      */
     onRegionChange(val) {
         console.log('azure-provider-step.onRegionChange() detects region change to ' + val + '; publishing AZURE_REGION_CHANGED');
-        Broker.messenger.publish({
+        AppServices.messenger.publish({
             type: TkgEventType.AZURE_REGION_CHANGED,
             payload: val
         });
@@ -360,7 +355,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
      * Update the "create" button if name has been changed.
      */
     onResourceGroupNameChange() {
-        Broker.messenger.publish({
+        AppServices.messenger.publish({
             type: TkgEventType.AZURE_RESOURCEGROUP_CHANGED,
             payload: this.formGroup.get(AzureField.PROVIDER_RESOURCEGROUPCUSTOM).value
         });

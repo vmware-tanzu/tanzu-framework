@@ -1,14 +1,14 @@
 // Angular imports
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-
-// App imports
+// Third party imports
 import { takeUntil } from "rxjs/operators";
+// App imports
 import { APP_ROUTES } from '../../constants/routes.constants';
-import Broker from "../../service/broker";
-import { TkgEvent, TkgEventType } from "../../service/Messenger";
+import AppServices from "../../service/appServices";
 import { BasicSubscriber } from "../../abstracts/basic-subscriber";
 import { EditionData } from "../../service/branding.service";
+import { TkgEvent, TkgEventType } from "../../service/Messenger";
 
 /**
  * @class HeaderBarComponent
@@ -29,7 +29,7 @@ export class HeaderBarComponent extends BasicSubscriber implements OnInit {
     }
 
     ngOnInit() {
-        Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+        AppServices.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
                 const content: EditionData = data.payload;

@@ -3,10 +3,11 @@ import { Directive, OnInit } from '@angular/core';
 import { AbstractControl, FormGroup, ValidatorFn } from '@angular/forms';
 // Third party imports
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 // App imports
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
+import AppServices from 'src/app/shared/service/appServices';
 import { BasicSubscriber } from 'src/app/shared/abstracts/basic-subscriber';
-import Broker from 'src/app/shared/service/broker';
 import { EditionData } from 'src/app/shared/service/branding.service';
 import { FormMetaData, FormMetaDataStore } from '../FormMetaDataStore';
 import { FormUtility } from '../components/steps/form-utility';
@@ -54,16 +55,16 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         FormMetaDataStore.updateFormList(this.formName);
 
         // set branding and cluster type on branding change for base wizard components
-        Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+        AppServices.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
                 const content: EditionData = data.payload;
                 this.edition = content.edition;
                 this.clusterTypeDescriptor = data.payload.clusterTypeDescriptor;
             });
-        this.modeClusterStandalone = Broker.appDataService.isModeClusterStandalone();
+        this.modeClusterStandalone = AppServices.appDataService.isModeClusterStandalone();
 
-        Broker.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORT_ERROR)
+        AppServices.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORT_ERROR)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
                 // Capture the import file error message
@@ -73,7 +74,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
                 };
 
                 // Clear event so that listeners in other provider workflows do not receive false notifications
-                Broker.messenger.clearEvent(TkgEventType.CONFIG_FILE_IMPORT_ERROR)
+                AppServices.messenger.clearEvent(TkgEventType.CONFIG_FILE_IMPORT_ERROR)
             });
     }
 
@@ -344,7 +345,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     }
 
     registerOnIpFamilyChange(fieldName: string, ipv4Validators: ValidatorFn[], ipv6Validators: ValidatorFn[], cb?: () => void) {
-        Broker.messenger.getSubject(TkgEventType.VSPHERE_IP_FAMILY_CHANGE)
+        AppServices.messenger.getSubject(TkgEventType.VSPHERE_IP_FAMILY_CHANGE)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
                 if (data.payload === IpFamilyEnum.IPv4) {
@@ -398,4 +399,9 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     }
     //
     // HTML convenience methods
+
+    // This method is designed to expose the protected unsubscribe field to allow its use in subscribing to pipes
+    get unsubscribeOnDestroy(): Subject<void> {
+        return this.unsubscribe;
+    }
 }

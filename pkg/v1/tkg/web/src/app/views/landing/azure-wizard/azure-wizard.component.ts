@@ -1,36 +1,31 @@
-import { Component, OnInit, ElementRef } from '@angular/core';
-import { Router } from '@angular/router';
+// Angular imports
+import { Component, ElementRef, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
+// Third party imports
+import { Observable } from 'rxjs';
+// App imports
 import { APIClient } from 'src/app/swagger';
-
-import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
-import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
-import { Observable, EMPTY, throwError, of } from 'rxjs';
-import { CliGenerator, CliFields } from '../wizard/shared/utils/cli-generator';
-import { AzureRegionalClusterParams } from 'src/app/swagger/models';
-import { AzureAccountParamsKeys, AzureProviderStepComponent } from './provider-step/azure-provider-step.component';
-import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
-import { EXISTING, VnetStepComponent } from './vnet-step/vnet-step.component';
-import Broker from 'src/app/shared/service/broker';
-import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
-import { ImportParams, ImportService } from "../../../shared/service/import.service";
+import AppServices from '../../../shared/service/appServices';
 import { AzureForm } from './azure-wizard.constants';
-
+import {
+    AzureInstanceType,
+    AzureRegionalClusterParams,
+    AzureResourceGroup,
+    AzureVirtualMachine,
+    AzureVirtualNetwork
+} from 'src/app/swagger/models';
+import { AzureAccountParamsKeys, AzureProviderStepComponent } from './provider-step/azure-provider-step.component';
 import { AzureOsImageStepComponent } from './os-image-step/azure-os-image-step.component';
+import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
+import { EXISTING, VnetStepComponent } from './vnet-step/vnet-step.component';
+import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
+import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
+import { ImportParams, ImportService } from "../../../shared/service/import.service";
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
-
-// Not sure why some of these step names have 'Form' in them, but leaving as is
-enum AzureStep {
-    PROVIDER = 'azureProviderForm',
-    NODESETTING = 'azureNodeSettingForm',
-    METADATA = 'metadataForm',
-    NETWORK = 'networkForm',
-    CEIP = 'ceipOptInForm',
-    IDENTITY = 'identity',
-    OSIMAGE = 'osImage',
-    VNET = 'vnetForm'
-}
+import { TkgEventType } from '../../../shared/service/Messenger';
+import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 
 @Component({
     selector: 'app-azure-wizard',
@@ -42,7 +37,6 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
 
     constructor(
         router: Router,
-        public wizardFormService: AzureWizardFormService,
         private importService: ImportService,
         formBuilder: FormBuilder,
         private apiClient: APIClient,
@@ -69,6 +63,8 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
     ngOnInit() {
         super.ngOnInit();
         this.titleService.setTitle(this.title + ' Azure');
+        this.registerServices();
+        this.subscribeToServices();
     }
 
     getPayload(): any {
@@ -88,7 +84,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
 
         payload.controlPlaneMachineType = this.getControlPlaneNodeType("azure");
         payload.controlPlaneFlavor = this.getControlPlaneFlavor("azure");
-        payload.workerMachineType = Broker.appDataService.isModeClusterStandalone() ? payload.controlPlaneMachineType :
+        payload.workerMachineType = AppServices.appDataService.isModeClusterStandalone() ? payload.controlPlaneMachineType :
             this.getFieldValue(AzureForm.NODESETTING, 'workerNodeInstanceType');
         payload.machineHealthCheckEnabled = this.getBooleanFieldValue(AzureForm.NODESETTING, "machineHealthChecksEnabled");
 
@@ -153,7 +149,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
             this.saveControlPlaneFlavor('azure', payload.controlPlaneFlavor);
             this.saveControlPlaneNodeType('azure', payload.controlPlaneFlavor, payload.controlPlaneMachineType);
 
-            if (!Broker.appDataService.isModeClusterStandalone()) {
+            if (!AppServices.appDataService.isModeClusterStandalone()) {
                 this.saveFormField(AzureForm.NODESETTING, 'workerNodeInstanceType', payload.workerMachineType);
             }
             this.saveFormField(AzureForm.NODESETTING, "machineHealthChecksEnabled", payload.machineHealthCheckEnabled);
@@ -350,5 +346,39 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
 
         // clear file reader target so user can re-select same file if needed
         event.target.value = '';
+    }
+
+    private subscribeToServices() {
+        AppServices.messenger.getSubject(TkgEventType.AZURE_REGION_CHANGED)
+            .subscribe(event => {
+                const region = event.payload;
+                if (this.region) {
+                    AppServices.dataServiceRegistrar.trigger([
+                        TkgEventType.AZURE_GET_RESOURCE_GROUPS,
+                        TkgEventType.AZURE_GET_INSTANCE_TYPES
+                    ], { location: region });
+                    AppServices.dataServiceRegistrar.trigger([TkgEventType.AZURE_GET_OS_IMAGES]);
+                } else {
+                    AppServices.dataServiceRegistrar.clear<AzureResourceGroup>(TkgEventType.AZURE_GET_RESOURCE_GROUPS);
+                    AppServices.dataServiceRegistrar.clear<AzureInstanceType>(TkgEventType.AZURE_GET_INSTANCE_TYPES);
+                    AppServices.dataServiceRegistrar.clear<AzureVirtualMachine>(TkgEventType.AZURE_GET_OS_IMAGES);
+                }
+            });
+    }
+
+    private registerServices() {
+        const wizard = this;
+        AppServices.dataServiceRegistrar.register<AzureResourceGroup>(TkgEventType.AZURE_GET_RESOURCE_GROUPS,
+            (payload: {location: string}) => { return wizard.apiClient.getAzureResourceGroups(payload); },
+            "Failed to retrieve resource groups for the particular region." );
+        AppServices.dataServiceRegistrar.register<AzureInstanceType>(TkgEventType.AZURE_GET_INSTANCE_TYPES,
+            (payload: {location: string}) => { return wizard.apiClient.getAzureInstanceTypes(payload); },
+            "Failed to retrieve Azure VM sizes" );
+        AppServices.dataServiceRegistrar.register<AzureVirtualMachine>(TkgEventType.AZURE_GET_OS_IMAGES,
+            () => { return wizard.apiClient.getAzureOSImages(); },
+            "Failed to retrieve list of OS images from the specified Azure Server." );
+        AppServices.dataServiceRegistrar.register<AzureVirtualNetwork>(TkgEventType.AZURE_GET_VNETS,
+            (payload: {resourceGroupName: string, location: string}) => { return wizard.apiClient.getAzureVnets(payload)},
+            "Failed to retrieve list of VNETs from the specified Azure Server." );
     }
 }

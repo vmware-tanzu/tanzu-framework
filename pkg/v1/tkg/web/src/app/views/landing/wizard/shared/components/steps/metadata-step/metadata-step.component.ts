@@ -1,20 +1,10 @@
-/**
- * Angular Modules
- */
+// Angular imports
 import { Component, OnInit } from '@angular/core';
-import { FormControl } from '@angular/forms';
-
-/**
- * App imports
- */
-import { ValidationService } from '../../../validation/validation.service';
-import { StepFormDirective } from '../../../step-form/step-form';
-import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
+// App imports
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { MetadataStepMapping } from './metadata-step.fieldmapping';
-import { WizardForm } from '../../../constants/wizard.constants';
-import { FormUtils } from '../../../utils/form-utils';
-import { StepMapping } from '../../../field-mapping/FieldMapping';
+import { StepFormDirective } from '../../../step-form/step-form';
+import { ValidationService } from '../../../validation/validation.service';
 
 @Component({
     selector: 'app-metadata-step',

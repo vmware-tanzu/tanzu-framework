@@ -1,34 +1,32 @@
-import { Validators, FormControl } from '@angular/forms';
-import { takeUntil } from 'rxjs/operators';
-
+// App imports
+import AppServices from '../../../../../../../shared/service/appServices';
+import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
+import { Observable } from 'rxjs/internal/Observable';
+import { OsImageStepMapping } from './os-image-step.fieldmapping';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { TkgEventType } from 'src/app/shared/service/Messenger';
-import Broker from 'src/app/shared/service/broker';
-import { Observable } from 'rxjs/internal/Observable';
-import { FormUtils } from '../../../utils/form-utils';
-import { AWSVirtualMachine, AzureVirtualMachine } from 'src/app/swagger/models';
-import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
-import { OsImageStepMapping } from './os-image-step.fieldmapping';
-import { StepMapping } from '../../../field-mapping/FieldMapping';
+import { Directive, OnInit } from '@angular/core';
 
-// We define an OsImage as one that has a name field, so that our HTML can dereference this field in the listbox display
+// The intention of this class is to provide the common plumbing for the osImage step that many providers need.
+// The basic functionality is to subscribe to an event and load the resulting images into a local field.
+// Note that we assume that the event has been registered already with a backend service that will return an array of images
+// of type IMAGE
+
+// We define an OsImage as one that has a name field, so that our HTML can dereference this field in the listbox display.
+// Even though ALL the osImage types do have a name field, it is generated as OPTIONAL by Swagger, so we leave it optional in our interface.
 export interface OsImage {
     name?: string
 }
-export interface OsImageProviderInputs<IMAGE> {
+export interface OsImageProviderInputs {
     event: TkgEventType,
-    osImageService: OsImageService<IMAGE>,
     osImageTooltipContent: string,
     nonTemplateAlertMessage?: string,
     noImageAlertMessage?: string,
 }
-export interface OsImageService<IMAGE> {
-    getDataStream(TkgEventType): Observable<IMAGE[]>,
-    getErrorStream(TkgEventType): Observable<string>,
-}
-export abstract class SharedOsImageStepComponent<IMAGE extends OsImage> extends StepFormDirective {
+@Directive()
+export abstract class SharedOsImageStepComponent<IMAGE extends OsImage> extends StepFormDirective implements OnInit {
     // used by HTML as well as locally
-    public providerInputs: OsImageProviderInputs<IMAGE>;
+    public providerInputs: OsImageProviderInputs;
 
     osImages: Array<IMAGE>;
     loadingOsTemplate: boolean = false;
@@ -38,40 +36,33 @@ export abstract class SharedOsImageStepComponent<IMAGE extends OsImage> extends 
 
     protected constructor(protected fieldMapUtilities: FieldMapUtilities) {
         super();
-        this.tkrVersion = Broker.appDataService.getTkrVersion();
+        this.tkrVersion = AppServices.appDataService.getTkrVersion();
     }
 
     // This method allows child classes to supply the inputs (rather than having them passed as part of an HTML component tag).
-    // This allows the step to follow the same pattern as all the other steps, which only take formGroup and formName as inputs.
-    protected abstract supplyProviderInputs(): OsImageProviderInputs<IMAGE>;
+    // This allows this step to follow the same pattern as all the other steps, which only take formGroup and formName as inputs.
+    protected abstract supplyProviderInputs(): OsImageProviderInputs;
 
-    private customizeForm() {
-        this.providerInputs.osImageService.getErrorStream(this.providerInputs.event)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(error => {
-                this.errorNotification = error;
-            });
-
-        this.providerInputs.osImageService.getDataStream(this.providerInputs.event)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((images: Array<IMAGE>) => {
-                this.osImages = images;
-                this.loadingOsTemplate = false;
-                if (this.osImages.length === 1) {
-                    this.setControlValueSafely('osImage', images[0]);
-                } else {
-                    this.setControlWithSavedValue('osImage', '');
-                }
-            });
+    private subscribeToProviderEvent() {
+        // we register a handler for when our event receives data, namely that we'll populate our array of osImages
+        AppServices.dataServiceRegistrar.stepSubscribe<IMAGE>(this, this.providerInputs.event, this.onFetchedOsImages.bind(this));
     }
 
-    // onInit() should be called from subclass' ngOnInit()
-    protected onInit() {
+    private onFetchedOsImages(images: Array<IMAGE>) {
+        this.osImages = images;
+        this.loadingOsTemplate = false;
+        if (this.osImages.length === 1) {
+            this.setControlValueSafely('osImage', images[0]);
+        } else {
+            this.setControlWithSavedValue('osImage', '');
+        }
+    }
+
+    ngOnInit() {
         super.ngOnInit();
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, OsImageStepMapping);
-        super.ngOnInit();
         this.providerInputs = this.supplyProviderInputs();
-        this.customizeForm();
+        this.subscribeToProviderEvent();
         this.initFormWithSavedData();
     }
 
@@ -83,7 +74,7 @@ export abstract class SharedOsImageStepComponent<IMAGE extends OsImage> extends 
     retrieveOsImages() {
         this.loadingOsTemplate = true;
         this.displayNonTemplateAlert = false;
-        Broker.messenger.publish({
+        AppServices.messenger.publish({
             type: this.providerInputs.event
         });
     }

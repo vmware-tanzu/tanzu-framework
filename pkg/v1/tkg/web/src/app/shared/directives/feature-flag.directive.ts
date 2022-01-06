@@ -3,7 +3,7 @@
  */
 import { Directive, Input, TemplateRef, ViewContainerRef, OnInit } from '@angular/core';
 import { BasicSubscriber } from '../abstracts/basic-subscriber';
-import Broker from "../service/broker";
+import AppServices from "../service/appServices";
 
 /**
  * App imports
@@ -89,6 +89,6 @@ export class FeatureToggleDirective extends BasicSubscriber implements OnInit {
         }
         pluginName = paramArray[0];
         featureName = paramArray[1];
-        return Broker.appDataService.isPluginFeatureActivated(pluginName, featureName);
+        return AppServices.appDataService.isPluginFeatureActivated(pluginName, featureName);
     }
 }

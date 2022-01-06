@@ -4,7 +4,7 @@ import { FormGroup, Validators } from '@angular/forms';
 // Third party imports
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 // App imports
-import Broker from 'src/app/shared/service/broker';
+import AppServices from '../../../../../../../shared/service/appServices';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { FormMetaDataStore, FormMetaData } from '../../../FormMetaDataStore';
 import { IAAS_DEFAULT_CIDRS, IpFamilyEnum } from '../../../../../../../shared/constants/app.constants';
@@ -16,6 +16,7 @@ import { TkgEventType } from 'src/app/shared/service/Messenger';
 import { ValidationService } from '../../../validation/validation.service';
 import { VSphereNetwork } from 'src/app/swagger/models/v-sphere-network.model';
 
+declare var sortPaths: any;
 @Component({
     selector: 'app-shared-network-step',
     templateUrl: './network-step.component.html',
@@ -66,6 +67,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
         this.customizeForm();
         this.listenToEvents();
+        this.subscribeToServices();
 
         const cniTypeData = {
             label: 'CNI PROVIDER',
@@ -78,7 +80,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
     }
 
     setValidators() {
-        const configuredCni = Broker.appDataService.getPluginFeature(managementClusterPlugin, 'cni');
+        const configuredCni = AppServices.appDataService.getPluginFeature(managementClusterPlugin, 'cni');
         if (configuredCni && ['antrea', 'calico', 'none'].includes(configuredCni)) {
             this.cniType = configuredCni;
         } else {
@@ -147,7 +149,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
             this.onNoProxyChange(value);
         });
 
-        Broker.messenger.getSubject(TkgEventType.NETWORK_STEP_GET_NO_PROXY_INFO)
+        AppServices.messenger.getSubject(TkgEventType.NETWORK_STEP_GET_NO_PROXY_INFO)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                 this.additionalNoProxyInfo = event.payload.info;
@@ -270,5 +272,9 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
             return `Cluster Pod CIDR: ${podCidr}`;
         }
         return '';
+    }
+
+    // allows subclasses to subscribe to services during ngOnInit by overriding this method
+    protected subscribeToServices() {
     }
 }

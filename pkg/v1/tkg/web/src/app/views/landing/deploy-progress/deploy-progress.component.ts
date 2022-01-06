@@ -9,12 +9,12 @@ import { takeUntil } from 'rxjs/operators';
 import { LogMessage as NgxLogMessage } from 'ngx-log-monitor';
 
 // App imports
-import { BasicSubscriber } from '../../../shared/abstracts/basic-subscriber';
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
+import AppServices from 'src/app/shared/service/appServices';
+import { BasicSubscriber } from '../../../shared/abstracts/basic-subscriber';
 import { WebsocketService } from '../../../shared/service/websocket.service';
 import { FormMetaDataStore } from '../wizard/shared/FormMetaDataStore';
 import { TkgEvent, TkgEventType } from "../../../shared/service/Messenger";
-import Broker from 'src/app/shared/service/broker';
 
 @Component({
     selector: 'tkg-kickstart-ui-deploy-progress',
@@ -43,7 +43,7 @@ export class DeployProgressComponent extends BasicSubscriber implements OnInit {
 
     constructor(private websocketService: WebsocketService) {
         super();
-        Broker.messenger.getSubject(TkgEventType.CLI_CHANGED)
+        AppServices.messenger.getSubject(TkgEventType.CLI_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                 this.cli = event.payload;
@@ -53,14 +53,14 @@ export class DeployProgressComponent extends BasicSubscriber implements OnInit {
     ngOnInit(): void {
         this.initWebSocket();
 
-        Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+        AppServices.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
                 this.pageTitle = data.payload.branding.title;
                 this.clusterTypeDescriptor = data.payload.clusterTypeDescriptor;
             });
 
-        Broker.appDataService.getProviderType()
+        AppServices.appDataService.getProviderType()
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((provider) => {
                 if (provider && provider.includes('vsphere')) {
