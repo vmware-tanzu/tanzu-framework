@@ -12,5 +12,5 @@ package tkgconfigpaths
 var (
 	TKGDefaultImageRepo               string = "projects-stg.registry.vmware.com/tkg"
 	TKGDefaultCompatibilityImagePath  string = "framework-zshippable/tkg-compatibility"
-	TKGManagementClusterPluginVersion string = "v0.15.0"
+	TKGManagementClusterPluginVersion string = "v0.16.0-dev"
 )
