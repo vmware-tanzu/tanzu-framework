@@ -44,7 +44,7 @@ func registrySecretList(cmd *cobra.Command, _ []string) error {
 	var exported string
 	var registry string
 
-	pkgClient, err := tkgpackageclient.NewTKGPackageClient(registrySecretOp.KubeConfig)
+	pkgClient, err := tkgpackageclient.NewTKGPackageClient(kubeConfig)
 	if err != nil {
 		return err
 	}

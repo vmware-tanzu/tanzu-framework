@@ -25,6 +25,7 @@ var descriptor = cliv1alpha1.PluginDescriptor{
 
 var logLevel int32
 var outputFormat string
+var kubeConfig string
 
 func main() {
 	p, err := plugin.NewPlugin(&descriptor)
@@ -33,6 +34,7 @@ func main() {
 	}
 
 	p.Cmd.PersistentFlags().Int32VarP(&logLevel, "verbose", "", 0, "Number for the log level verbosity(0-9)")
+	p.Cmd.PersistentFlags().StringVarP(&kubeConfig, "kubeconfig", "", "", "The path to the kubeconfig file, optional")
 
 	p.AddCommands(
 		repositoryCmd,

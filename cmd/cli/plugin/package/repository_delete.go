@@ -49,7 +49,7 @@ func repositoryDelete(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	pkgClient, err := tkgpackageclient.NewTKGPackageClient(repoOp.KubeConfig)
+	pkgClient, err := tkgpackageclient.NewTKGPackageClient(kubeConfig)
 	if err != nil {
 		return err
 	}

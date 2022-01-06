@@ -25,11 +25,10 @@ var registrySecretCmd = &cobra.Command{
 
 func init() {
 	registrySecretCmd.PersistentFlags().StringVarP(&registrySecretOp.Namespace, "namespace", "n", "default", "Target namespace for the registry secret, optional")
-	registrySecretCmd.PersistentFlags().StringVarP(&registrySecretOp.KubeConfig, "kubeconfig", "", "", "The path to the kubeconfig file, optional")
 }
 
 func secretGenAvailabilityCheck(_ *cobra.Command, _ []string) error {
-	found, err := isSecretGenAPIAvailable(registrySecretOp.KubeConfig)
+	found, err := isSecretGenAPIAvailable(kubeConfig)
 	if err != nil {
 		return errors.Wrap(err, fmt.Sprintf("failed to check for the availability of '%s' API", tkgpackagedatamodel.SecretGenAPIName))
 	}

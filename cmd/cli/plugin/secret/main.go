@@ -25,6 +25,7 @@ var descriptor = cliv1alpha1.PluginDescriptor{
 var (
 	logLevel     int32
 	outputFormat string
+	kubeConfig   string
 )
 
 func main() {
@@ -34,6 +35,7 @@ func main() {
 	}
 
 	p.Cmd.PersistentFlags().Int32VarP(&logLevel, "verbose", "", 0, "Number for the log level verbosity(0-9)")
+	p.Cmd.PersistentFlags().StringVarP(&kubeConfig, "kubeconfig", "", "", "The path to the kubeconfig file, optional")
 
 	p.AddCommands(
 		registrySecretCmd,

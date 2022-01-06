@@ -38,7 +38,7 @@ func init() {
 func repositoryUpdate(_ *cobra.Command, args []string) error { //nolint
 	repoOp.RepositoryName = args[0]
 
-	pkgClient, err := tkgpackageclient.NewTKGPackageClient(repoOp.KubeConfig)
+	pkgClient, err := tkgpackageclient.NewTKGPackageClient(kubeConfig)
 	if err != nil {
 		return err
 	}
