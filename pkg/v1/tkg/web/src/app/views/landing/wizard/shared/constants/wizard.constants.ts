@@ -19,6 +19,7 @@ export enum ClusterType {
 
 export enum IdentityManagementType {
     LDAP = 'ldap',
+    NONE = 'none',
     OIDC = 'oidc',
 }
 

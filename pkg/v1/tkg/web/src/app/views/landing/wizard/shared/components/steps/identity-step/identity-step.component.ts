@@ -86,7 +86,7 @@ const LDAP_PARAMS = {
 export class SharedIdentityStepComponent extends StepFormDirective implements OnInit {
     static description = 'Optionally specify identity management';
 
-    identityTypeValue: string = 'oidc';
+    identityTypeValue: string = IdentityManagementType.OIDC;
     _verifyLdapConfig = false;
 
     fields: Array<string> = [...oidcFields, ...ldapValidatedFields, ...ldapNonValidatedFields];
@@ -103,9 +103,9 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
 
     private customizeForm() {
         this.registerOnIpFamilyChange('issuerURL', [], [], () => {
-            if (this.identityTypeValue === 'oidc') {
+            if (this.identityTypeValue === IdentityManagementType.OIDC) {
                 this.setOIDCValidators();
-            } else if (this.identityTypeValue === 'ldap') {
+            } else if (this.identityTypeValue === IdentityManagementType.LDAP) {
                 this.setLDAPValidators();
             }
         });
@@ -116,10 +116,10 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
             this.identityTypeValue = data;
             this.unsetAllValidators();
             this.formGroup.markAsPending();
-            if (this.identityTypeValue === 'oidc') {
+            if (this.identityTypeValue === IdentityManagementType.OIDC) {
                 this.setOIDCValidators();
                 this.setControlValueSafely('clientSecret', '');
-            } else if (this.identityTypeValue === 'ldap') {
+            } else if (this.identityTypeValue === IdentityManagementType.LDAP) {
                 this.setLDAPValidators();
             } else {
                 this.disarmField('identityType', true);
@@ -135,7 +135,7 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
         this.customizeForm();
 
         this.initFormWithSavedData();
-        this.identityTypeValue = this.getSavedValue('identityType', 'oidc');
+        this.identityTypeValue = this.getSavedValue('identityType', IdentityManagementType.OIDC);
         this.setControlValueSafely('identityType', this.identityTypeValue, { emitEvent: false });
     }
 
@@ -210,7 +210,7 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
     }
 
     toggleIdmSetting() {
-        const identityType = this.formGroup.value['idmSettings'] ? 'oidc' : 'none';
+        const identityType = this.formGroup.value['idmSettings'] ? IdentityManagementType.OIDC : IdentityManagementType.NONE;
         // onlySelf option will update the changes for the current control only
         this.setControlValueSafely('identityType', identityType, { onlySelf: true });
     }
@@ -220,7 +220,7 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
         this.scrubPasswordField('clientSecret');
 
         if (!this.formGroup.value['idmSettings']) {
-            this.setControlValueSafely('identityType', 'none');
+            this.setControlValueSafely('identityType', IdentityManagementType.NONE);
         }
     }
 

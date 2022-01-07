@@ -177,7 +177,7 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
         }));
     }
 
-    protected dynamicDescription(): string {
+    dynamicDescription(): string {
         const vpcType = this.getFieldValue(AwsField.VPC_TYPE);
         const vpcExistingCidr = this.getFieldValue(AwsField.VPC_EXISTING_CIDR, true);
         const vpcExistingId = this.getFieldValue(AwsField.VPC_EXISTING_ID, true);

@@ -123,7 +123,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         this.triggerStepDescriptionChange();
     }
 
-    protected dynamicDescription(): string {
+    dynamicDescription(): string {
         const controlPlaneSetting = this.getFieldValue("controlPlaneSetting", true);
         if (controlPlaneSetting) {
             return `Control plane type: ${controlPlaneSetting}`;

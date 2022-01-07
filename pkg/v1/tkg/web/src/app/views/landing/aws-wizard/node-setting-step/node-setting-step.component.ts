@@ -572,7 +572,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         this.triggerStepDescriptionChange();
     }
 
-    protected dynamicDescription(): string {
+    dynamicDescription(): string {
         const ctlPlaneFlavor = this.getFieldValue(AwsField.NODESETTING_CONTROL_PLANE_SETTING, true);
         if (ctlPlaneFlavor) {
             let mode = 'Development cluster selected: 1 node control plane';

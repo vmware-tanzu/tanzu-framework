@@ -23,11 +23,12 @@ declare var sortPaths: any;
     styleUrls: ['./network-step.component.scss']
 })
 export class SharedNetworkStepComponent extends StepFormDirective implements OnInit {
+    static description  = 'Specify how TKG networking is provided and global network settings';
     enableNetworkName: boolean;
 
     form: FormGroup;
     cniType: string;
-    vmNetworks: Array<VSphereNetwork>;
+    vmNetworks: Array<VSphereNetwork> = [];
     additionalNoProxyInfo: string;
     fullNoProxy: string;
     infraServiceAddress: string = '';
@@ -274,12 +275,12 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
         const serviceCidr = this.getFieldValue('clusterServiceCidr', true);
         const podCidr = this.getFieldValue('clusterPodCidr', true);
         if (serviceCidr && podCidr) {
-            return `Cluster service CIDR: ${serviceCidr} Cluster POD CIDR: ${podCidr}`;
+            return `Cluster Service CIDR: ${serviceCidr} Cluster Pod CIDR: ${podCidr}`;
         }
         if (podCidr) {
             return `Cluster Pod CIDR: ${podCidr}`;
         }
-        return '';
+        return SharedNetworkStepComponent.description;
     }
 
     // allows subclasses to subscribe to services during ngOnInit by overriding this method

@@ -716,7 +716,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     }
     get NetworkForm(): FormDataForHTML {
         return { name: WizardForm.NETWORK, title: 'Kubernetes Network',
-            description: 'Specify how TKG networking is provided and global network settings',
+            description: SharedNetworkStepComponent.description,
             i18n: { title: 'Kubernetes network step name', description: 'Kubernetes network step description' },
         clazz: SharedNetworkStepComponent };
     }

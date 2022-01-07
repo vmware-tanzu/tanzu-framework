@@ -25,6 +25,8 @@ export interface OsImageProviderInputs {
 }
 @Directive()
 export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends StepFormDirective implements OnInit {
+    static description = 'Specify the OS Image';
+
     // used by HTML as well as locally
     public providerInputs: OsImageProviderInputs;
 
@@ -92,6 +94,6 @@ export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends 
         if (this.getFieldValue('osImage', true) && this.getFieldValue('osImage').name) {
             return 'OS Image: ' + this.getFieldValue('osImage').name;
         }
-        return 'Specify the OS Image';
+        return SharedOsImageStepDirective.description;
     }
 }

@@ -40,8 +40,8 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     private delayedFieldQueue = [];
 
     // This method is expected to be overridden by any step that provides a dynamic description of itself
-    // (dynamic meaning depending on user-entered data)
-    protected dynamicDescription(): string {
+    // (dynamic meaning depending on user-entered data). It is public to make it available for testing.
+    dynamicDescription(): string {
         return null;
     }
 

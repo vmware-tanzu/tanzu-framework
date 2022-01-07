@@ -81,4 +81,18 @@ export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
             );
         }
     }
+
+    protected supplyFieldsAffectingStepDescription(): string[] {
+        return ['networkName'];
+    }
+
+    dynamicDescription(): string {
+        // NOTE: even though this is a common wizard form, vSphere has a different way of describing it
+        // because vSphere allows for the user to select a network name
+        const networkName = this.getFieldValue('networkName');
+        if (networkName) {
+            return 'Network: ' + networkName;
+        }
+        return VsphereNetworkStepComponent.description;
+    }
 }
