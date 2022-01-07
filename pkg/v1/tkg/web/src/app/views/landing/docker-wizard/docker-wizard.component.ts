@@ -54,7 +54,7 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         // To avoid re-open issue for the first step.
         this.form.markAsDirty();
 
-        this.titleService.setTitle(this.title + ' Docker');
+        this.titleService.setTitle(this.title ? this.title + ' Docker' : 'Docker');
     }
 
     setFromPayload(payload: DockerRegionalClusterParams) {

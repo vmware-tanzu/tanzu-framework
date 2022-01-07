@@ -176,7 +176,7 @@ describe('NodeSettingStepComponent', () => {
             isPublic: false
         }];
 
-        component.filterSubnets('awsNodeAz1', 'us-west-a');
+        component.filterSubnetsByAZ('awsNodeAz1', 'us-west-a');
         expect(component.filteredAzs['awsNodeAz1']).toEqual({
             publicSubnets: [{
                 availabilityZoneId: 'us-west-a',

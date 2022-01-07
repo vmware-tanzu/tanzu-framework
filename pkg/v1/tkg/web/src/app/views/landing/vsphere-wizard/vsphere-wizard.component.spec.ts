@@ -77,13 +77,7 @@ describe('VSphereWizardComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should call getStepList in reviewConfiguration', () => {
-        const getStepListSpy = spyOn(FormMetaDataStore, 'getStepList').and.callThrough();
-        component.getWizardValidity();
-        expect(getStepListSpy).toHaveBeenCalled();
-    });
-
-    it('getWizardValidity should return false when getStepList is empty', () => {
+    it('getWizardValidity should return false', () => {
         expect(component['getWizardValidity']()).toBeFalsy();
     });
 

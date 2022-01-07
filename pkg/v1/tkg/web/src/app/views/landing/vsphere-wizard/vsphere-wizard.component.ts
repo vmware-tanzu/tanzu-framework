@@ -88,7 +88,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
     ngOnInit() {
         super.ngOnInit();
 
-        this.titleService.setTitle(this.title + ' vSphere');
+        this.titleService.setTitle(this.title ? this.title + ' vSphere' : 'vSphere');
         this.registerServices();
         this.subscribeToServices();
     }

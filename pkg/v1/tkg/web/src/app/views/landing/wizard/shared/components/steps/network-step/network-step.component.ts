@@ -143,6 +143,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
                 takeUntil(this.unsubscribe)
             ).subscribe((value) => {
                 this.generateFullNoProxy();
+                this.triggerStepDescriptionChange();
             });
         });
     }
@@ -153,6 +154,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
             takeUntil(this.unsubscribe)
         ).subscribe((value) => {
             this.onNoProxyChange(value);
+            this.triggerStepDescriptionChange();
         });
 
         AppServices.messenger.getSubject(TkgEventType.NETWORK_STEP_GET_NO_PROXY_INFO)
