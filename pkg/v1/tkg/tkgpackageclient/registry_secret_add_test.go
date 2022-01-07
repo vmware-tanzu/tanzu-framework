@@ -17,6 +17,7 @@ const (
 	testPassword   = "test-password"
 	testRegistry   = "test-registry"
 	testUsername   = "test-username"
+	testServer     = "us-east4-docker.pkg.dev"
 )
 
 var _ = Describe("Add Secret", func() {

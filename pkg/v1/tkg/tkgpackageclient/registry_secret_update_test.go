@@ -37,12 +37,13 @@ var _ = Describe("Update Secret", func() {
 			Password:   testPassword,
 			SecretName: testSecretName,
 			Username:   testUsername,
+			Server:     testServer,
 		}
 		options                         = opts
-		testDockerCfgInvalid            = invalidDockerCfgJSON{Auths: map[string]dockerConfigEntry{"us-east4-docker.pkg.dev": {Username: "test_user", Password: "test_password"}}}
-		testDockerCfgMultipleRegistries = DockerConfigJSON{Auths: map[string]dockerConfigEntry{"us-east4-docker.pkg.dev": {Username: "test_user", Password: "test_password"}, "us-west-docker.pkg.dev": {Username: "test_user", Password: "test_password"}}}
-		testDockerCfgNoUsername         = DockerConfigJSON{Auths: map[string]dockerConfigEntry{"us-east4-docker.pkg.dev": {Password: "test_password"}}}
-		testDockerCfgNoPassword         = DockerConfigJSON{Auths: map[string]dockerConfigEntry{"us-east4-docker.pkg.dev": {Username: "test_user"}}}
+		testDockerCfgInvalid            = invalidDockerCfgJSON{Auths: map[string]dockerConfigEntry{testServer: {Username: "test_user", Password: "test_password"}}}
+		testDockerCfgMultipleRegistries = DockerConfigJSON{Auths: map[string]dockerConfigEntry{testServer: {Username: "test_user", Password: "test_password"}, "us-west-docker.pkg.dev": {Username: "test_user", Password: "test_password"}}}
+		testDockerCfgNoUsername         = DockerConfigJSON{Auths: map[string]dockerConfigEntry{testServer: {Password: "test_password"}}}
+		testDockerCfgNoPassword         = DockerConfigJSON{Auths: map[string]dockerConfigEntry{testServer: {Username: "test_user"}}}
 	)
 
 	JustBeforeEach(func() {
@@ -114,11 +115,12 @@ var _ = Describe("Update Secret", func() {
 		AfterEach(func() { options = opts })
 	})
 
-	Context("failure in updating the Secret due to the non-existence of the 'username' field in the secret", func() {
+	Context("failure in updating the Secret due to a change in the value of the 'server'", func() {
 		BeforeEach(func() {
 			kappCtl = &fakes.KappClient{}
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
+			options.Server = "new-server"
 			secret = testSecret
 			crtCtl.GetReturnsOnCall(0, nil)
 			dockerCfgContent, err = json.Marshal(testDockerCfgNoUsername)
@@ -127,7 +129,26 @@ var _ = Describe("Update Secret", func() {
 		})
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("no 'username' entry exists in secret '%s'", testSecretName)))
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("secret '%s' already exists and the registry server's value is '%s'. Changing the value of the registry server FQDN is not allowed", testSecretName, testServer)))
+		})
+		AfterEach(func() { options = opts })
+	})
+
+	Context("failure in updating the Secret due to the empty value for the 'username'", func() {
+		BeforeEach(func() {
+			kappCtl = &fakes.KappClient{}
+			crtCtl = &fakes.CRTClusterClient{}
+			kappCtl.GetClientReturns(crtCtl)
+			options.Username = ""
+			secret = testSecret
+			crtCtl.GetReturnsOnCall(0, nil)
+			dockerCfgContent, err = json.Marshal(testDockerCfgNoUsername)
+			Expect(err).NotTo(HaveOccurred())
+			testSecret.Data[corev1.DockerConfigJsonKey] = dockerCfgContent
+		})
+		It(testFailureMsg, func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("no 'username' is provided for the secret '%s'", testSecretName)))
 		})
 		AfterEach(func() { options = opts })
 	})

@@ -24,6 +24,7 @@ import (
 )
 
 const errInvalidPasswordFlags = "exactly one of --password, --password-file, --password-env-var flags should be provided"
+const errEmptyValue = "the value for %s flag should not be empty"
 
 var registrySecretAddCmd = &cobra.Command{
 	Use:   "add SECRET_NAME --server REGISTRY_SERVER --username USERNAME --password PASSWORD",
@@ -56,14 +57,9 @@ func init() {
 func registrySecretAdd(cmd *cobra.Command, args []string) error {
 	registrySecretOp.SecretName = args[0]
 
-	password, err := extractPassword()
-	if err != nil {
+	if err := fetchAndValidateSecretCredentials(); err != nil {
 		return err
 	}
-	if password == "" {
-		return errors.New(errInvalidPasswordFlags)
-	}
-	registrySecretOp.Password = password
 
 	pkgClient, err := tkgpackageclient.NewTKGPackageClient(kubeConfig)
 	if err != nil {
@@ -137,6 +133,27 @@ func updateSecret(cmd *cobra.Command, pkgClient tkgpackageclient.TKGPackageClien
 	if registrySecretOp.ExportToAllNamespaces {
 		log.Infof(" Exported registry secret '%s' to all namespaces", registrySecretOp.SecretName)
 	}
+
+	return nil
+}
+
+func fetchAndValidateSecretCredentials() error {
+	if registrySecretOp.Server == "" {
+		return fmt.Errorf(errEmptyValue, "--server")
+	}
+
+	if registrySecretOp.Username == "" {
+		return fmt.Errorf(errEmptyValue, "--username")
+	}
+
+	password, err := extractPassword()
+	if err != nil {
+		return err
+	}
+	if password == "" {
+		return errors.New(errInvalidPasswordFlags)
+	}
+	registrySecretOp.Password = password
 
 	return nil
 }
