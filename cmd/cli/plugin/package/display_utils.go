@@ -33,9 +33,7 @@ func DisplayProgress(initialMsg string, pp *tkgpackagedatamodel.PackageProgress)
 	}
 
 	writeProgressToSpinner := func(s *spinner.Spinner, msg string) error {
-		if s.Active() {
-			s.Stop()
-		}
+		s.Stop()
 		if s, err = newSpinner(); err != nil {
 			return err
 		}
@@ -48,9 +46,7 @@ func DisplayProgress(initialMsg string, pp *tkgpackagedatamodel.PackageProgress)
 	s.Suffix = fmt.Sprintf(" %s", initialMsg)
 	s.Start()
 	defer func() {
-		if s.Active() {
-			s.Stop()
-		}
+		s.Stop()
 	}()
 	for {
 		select {
