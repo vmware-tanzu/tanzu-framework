@@ -16,6 +16,11 @@ import { Notification, NotificationTypes } from 'src/app/shared/components/alert
 import { StepDescriptionChangePayload, TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
 import { ValidatorEnum } from './../constants/validation.constants';
 
+export interface StepDescriptionTriggers {
+    clusterTypeDescriptor?: boolean,
+    fields?: string[],
+}
+
 const INIT_FIELD_DELAY = 50;            // ms
 /**
  * Abstract class that's available for stepper component to extend.
@@ -36,6 +41,8 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     private clusterTypeDescription: string = '';
     modeClusterStandalone: boolean;
     ipFamily: IpFamilyEnum = IpFamilyEnum.IPv4;
+
+    clusterTypeDescriptorUsedInDescription: boolean;
 
     private delayedFieldQueue = [];
 
@@ -330,9 +337,15 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         return !(arr && arr.length > 0);
     }
 
-    // registerFieldsAffectingStepDescription is called by subclasses to register onChange handlers
-    // for any field that affects the step description
-    protected registerFieldsAffectingStepDescription(fields: string[]) {
+    // subclasses can ask us to make sure a StepDescriptionChange is triggered on various occasions
+    protected registerStepDescriptionTriggers(triggers: StepDescriptionTriggers) {
+        if (triggers.fields) {
+            this.registerFieldsAffectingStepDescription(triggers.fields);
+        }
+        this.clusterTypeDescriptorUsedInDescription = triggers.clusterTypeDescriptor;
+    }
+
+    private registerFieldsAffectingStepDescription(fields: string[]) {
         fields.forEach(field => {
             this.registerOnValueChange(field, () => {
                 this.triggerStepDescriptionChange();
@@ -428,19 +441,17 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     public setClusterTypeDescriptor(descriptor: string) {
         if (this.clusterTypeDescription !== descriptor) {
             this.clusterTypeDescription = descriptor;
-            this.onChangeClusterTypeDescriptor();
+            if (this.clusterTypeDescriptorUsedInDescription) {
+                this.triggerStepDescriptionChange();
+            }
         }
-    }
-
-    // Subclasses using clusterTypeDescriptor in their step description should override this method to trigger a description change event
-    protected onChangeClusterTypeDescriptor() {
     }
 
     get clusterTypeDescriptor() {
         return this.clusterTypeDescription;
     }
 
-    // This method is designed to expose the protected unsubscribe field to allow its use in subscribing to pipes
+    // This method is designed to expose the protected unsubscribe field (from our base class) to allow its use in subscribing to pipes
     get unsubscribeOnDestroy(): Subject<void> {
         return this.unsubscribe;
     }

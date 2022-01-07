@@ -90,7 +90,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
             return this.formGroup.valid && this.validCredentials;
         }
 
-        this.registerFieldsAffectingStepDescription(['tenantId']);
+        this.registerStepDescriptionTriggers({fields: ['tenantId']});
 
         this.formGroup.valueChanges
             .pipe(

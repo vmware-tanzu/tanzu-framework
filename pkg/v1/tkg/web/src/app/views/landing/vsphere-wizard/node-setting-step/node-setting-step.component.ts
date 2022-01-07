@@ -46,7 +46,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     private customizeForm() {
-        this.registerFieldsAffectingStepDescription(['controlPlaneSetting']);
+        this.registerStepDescriptionTriggers({ clusterTypeDescriptor: true, fields: ['controlPlaneSetting']});
         this.registerOnValueChange(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_PROVIDER,
             this.onControlPlaneEndpoingProviderChange.bind(this));
         this.registerOnIpFamilyChange(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_IP, [
@@ -193,12 +193,6 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             return '';
         }
         return this.formGroup.controls['controlPlaneSetting'].value;
-    }
-
-    // Because we use clusterTypeDescriptor in our description, we need to trigger a step description change whenever
-    // clusterTypeDescriptor changes
-    protected onChangeClusterTypeDescriptor() {
-        this.triggerStepDescriptionChange();
     }
 
     dynamicDescription(): string {

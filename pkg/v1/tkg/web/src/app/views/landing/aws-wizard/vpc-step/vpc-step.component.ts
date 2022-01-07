@@ -67,7 +67,7 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, AwsVpcStepMapping);
         // NOTE: we don't call this.registerFieldsAffectingStepDescription() with the other fields, because the other relevant fields
         // already trigger a step description change event in their own onChange handlers
-        this.registerFieldsAffectingStepDescription([AwsField.VPC_EXISTING_ID]);
+        this.registerStepDescriptionTriggers({fields: [AwsField.VPC_EXISTING_ID]});
 
         this.registerOnValueChange(AwsField.VPC_TYPE, this.onVpcTypeChange.bind(this));
 

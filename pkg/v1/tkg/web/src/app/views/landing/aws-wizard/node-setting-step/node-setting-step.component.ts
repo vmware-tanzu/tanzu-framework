@@ -142,7 +142,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     private customizeForm() {
-        this.registerFieldsAffectingStepDescription(['controlPlaneSetting']);
+        this.registerStepDescriptionTriggers({clusterTypeDescriptor: true, fields: ['controlPlaneSetting']});
         AppServices.messenger.getSubject(TkgEventType.AWS_AIRGAPPED_VPC_CHANGE).subscribe(event => {
             this.airgappedVPC = event.payload;
             if (this.airgappedVPC) { // public subnet IDs shouldn't be provided
@@ -564,12 +564,6 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 this.disarmField(field.toString(), false);
             });
         }
-    }
-
-    // Because we use clusterTypeDescriptor in our description, we need to trigger a step description change whenever
-    // clusterTypeDescriptor changes
-    protected onChangeClusterTypeDescriptor() {
-        this.triggerStepDescriptionChange();
     }
 
     dynamicDescription(): string {

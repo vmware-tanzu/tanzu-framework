@@ -33,7 +33,7 @@ export class VsphereLoadBalancerStepComponent extends SharedLoadBalancerStepComp
     ngOnInit() {
         super.ngOnInit();
         this.setLoadBalancerLabel(this.currentControlPlaneEndpointProvider);
-        this.registerFieldsAffectingStepDescription(['controllerHost']);
+        this.registerStepDescriptionTriggers({fields: ['controllerHost']});
     }
 
     private setLoadBalancerLabel(controlPlaneEndpointProvider: string) {

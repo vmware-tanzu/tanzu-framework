@@ -126,7 +126,7 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
             }
             this.triggerStepDescriptionChange();
         });
-        this.registerFieldsAffectingStepDescription(['endpointIp', 'endpointPort',  'issuerURL']);
+        this.registerStepDescriptionTriggers({fields: ['endpointIp', 'endpointPort',  'issuerURL']});
     }
 
     ngOnInit(): void {

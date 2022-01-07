@@ -64,7 +64,7 @@ export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends 
         super.ngOnInit();
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, OsImageStepMapping);
         this.providerInputs = this.supplyProviderInputs();
-        this.registerFieldsAffectingStepDescription(['osImage']);
+        this.registerStepDescriptionTriggers({fields: ['osImage']});
         this.subscribeToProviderEvent();
         this.initFormWithSavedData();
     }

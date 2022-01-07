@@ -22,7 +22,10 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
     ngOnInit() {
         super.ngOnInit();
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, MetadataStepMapping);
-        this.registerFieldsAffectingStepDescription(['clusterLocation']);
+        this.registerStepDescriptionTriggers({
+            fields: ['clusterLocation'],
+            clusterTypeDescriptor: true,
+        })
 
         this.initFormWithSavedData();
     }
@@ -75,12 +78,6 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
     getDisabled(): boolean {
         return !(this.formGroup.get('newLabelKey').valid &&
             this.formGroup.get('newLabelValue').valid);
-    }
-
-    // Because we use clusterTypeDescriptor in our description, we need to trigger a step description change whenever
-    // clusterTypeDescriptor changes
-    protected onChangeClusterTypeDescriptor() {
-        this.triggerStepDescriptionChange();
     }
 
     dynamicDescription(): string {

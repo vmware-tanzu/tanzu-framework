@@ -93,7 +93,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         super.ngOnInit();
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
         this.subscribeToServices();
-        this.registerFieldsAffectingStepDescription(['controlPlaneSetting']);
+        this.registerStepDescriptionTriggers({ clusterTypeDescriptor: true, fields: ['controlPlaneSetting']});
         this.toggleValidations();
         this.initFormWithSavedData();
     }
@@ -115,12 +115,6 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     getEnvType(): string {
         return this.formGroup.controls['controlPlaneSetting'].value;
-    }
-
-    // Because we use clusterTypeDescriptor in our description, we need to trigger a step description change whenever
-    // clusterTypeDescriptor changes
-    protected onChangeClusterTypeDescriptor() {
-        this.triggerStepDescriptionChange();
     }
 
     dynamicDescription(): string {

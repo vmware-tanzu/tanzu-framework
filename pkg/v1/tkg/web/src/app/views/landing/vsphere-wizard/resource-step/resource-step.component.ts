@@ -60,8 +60,8 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
     ngOnInit() {
         super.ngOnInit();
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, VsphereResourceStepMapping);
-        this.registerFieldsAffectingStepDescription([VsphereField.RESOURCE_DATASTORE,
-            VsphereField.RESOURCE_POOL, VsphereField.RESOURCE_VMFOLDER]);
+        this.registerStepDescriptionTriggers({ clusterTypeDescriptor: true,
+            fields: [VsphereField.RESOURCE_DATASTORE, VsphereField.RESOURCE_POOL, VsphereField.RESOURCE_VMFOLDER]});
 
         /**
          * Whenever data center selection changes, reset the relevant fields
@@ -248,12 +248,6 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
      */
     get datastoreValue() {
         return this.formGroup.get(VsphereField.RESOURCE_DATASTORE).value;
-    }
-
-    // Because we use clusterTypeDescriptor in our description, we need to trigger a step description change whenever
-    // clusterTypeDescriptor changes
-    protected onChangeClusterTypeDescriptor() {
-        this.triggerStepDescriptionChange();
     }
 
     dynamicDescription(): string {
