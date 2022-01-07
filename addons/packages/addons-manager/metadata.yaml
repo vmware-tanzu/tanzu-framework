@@ -9,6 +9,6 @@ spec:
   shortDescription: "This package provides TKG addons lifecycle management capabilities."
   providerName: VMware
   maintainers:
-  - name: Lucheng Bao 
+  - name: Lucheng Bao
   categories:
     - "addons-lifecycle-management"

@@ -501,14 +501,17 @@ fmt: tools ## Run goimports
 vet: ## Run go vet
 	$(GO) vet ./...
 
-check: misspell lint
+check: misspell lint 
 
 misspell:
 	hack/check/misspell.sh
 
-lint: tools go-lint doc-lint ## Run linting checks
+lint: tools go-lint doc-lint yamllint ## Run linting checks
 	# Check licenses in shell scripts and Makefile
 	hack/check-license.sh
+
+yamllint:
+	hack/check/check-yaml.sh
 
 go-lint: tools ## Run linting of go source
 	# Linter runs per module, add each one here. Basically, and path
