@@ -25,6 +25,7 @@ metadata:
   name: ${CLUSTER_NAME}
 spec:
   location: ${AZURE_LOCATION}
+  azureEnvironment: ${AZURE_ENVIRONMENT}
   networkSpec:
     vnet:
       name: "${AZURE_VNET_NAME:=${CLUSTER_NAME}-vnet}"

@@ -19,6 +19,7 @@ type AzureConfig struct {
 	CeipParticipation         string `yaml:"ENABLE_CEIP_PARTICIPATION,omitempty"`
 	Region                    string `yaml:"AZURE_LOCATION,omitempty"`
 	SubscriptionID            string `yaml:"AZURE_SUBSCRIPTION_ID,omitempty"`
+	Environment               string `yaml:"AZURE_ENVIRONMENT,omitempty"`
 	TenantID                  string `yaml:"AZURE_TENANT_ID,omitempty"`
 	ClientID                  string `yaml:"AZURE_CLIENT_ID,omitempty"`
 	ClientSecret              string `yaml:"AZURE_CLIENT_SECRET,omitempty"`
@@ -57,6 +58,7 @@ func (c *client) NewAzureConfig(params *models.AzureRegionalClusterParams) (*Azu
 		InfrastructureProvider:  constants.InfrastructureProviderAzure,
 		ClusterPlan:             params.ControlPlaneFlavor,
 		Region:                  params.Location,
+		Environment:             params.AzureAccountParams.AzureCloud,
 		SubscriptionID:          params.AzureAccountParams.SubscriptionID,
 		TenantID:                params.AzureAccountParams.TenantID,
 		ClientID:                params.AzureAccountParams.ClientID,
